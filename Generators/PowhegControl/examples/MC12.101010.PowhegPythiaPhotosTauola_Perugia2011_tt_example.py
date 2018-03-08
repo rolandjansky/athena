@@ -23,6 +23,6 @@ include('MC12JobOptions/TTbarWToLeptonFilter.py')
 # EVGEN configuration
 #--------------------------------------------------------------
 evgenConfig.description = 'POWHEG+Pythia6 ttbar production with Perugia 2011c tune'
-evgenConfig.keywords    = [ 'top', 'ttbar', 'leptonic' ]
+evgenConfig.keywords    = [ 'top', 'ttbar' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia' ]

@@ -2,7 +2,7 @@
 
 #########################################################################################################################
 #
-#   Script to configure Powheg Dijet subprocess
+#   Script to configure Powheg WZ subprocess
 #
 #   Authors: James Robinson  <james.robinson@cern.ch>
 #            Daniel Hayden   <danhayden0@googlemail.com>
@@ -11,46 +11,45 @@
 #########################################################################################################################
 
 #! /usr/bin/env python
-from PowhegConfig_base import PowhegConfig_base
-import PowhegDecorators
+from ..PowhegConfig_base import PowhegConfig_base
+from ..decorators import PowhegDecorators
 
 ###############################################################################
 #
-#  Dijet
+#  WZ
 #
 ###############################################################################
-class PowhegConfig_Dijet(PowhegConfig_base) :
+class PowhegConfig_WZ(PowhegConfig_base) :
   # These are process specific - put generic properties in PowhegConfig_base
-  jacsing   = -1
+  diagCKM          = 0
+  mllmin           = 10
 
   # Set process-dependent paths in the constructor
-  def __init__(self,runArgs=None) :
-    super(PowhegConfig_Dijet, self).__init__(runArgs)
-    self._powheg_executable += '/Dijet/pwhg_main'
+  def __init__( self, runArgs=None, opts=None ) :
+    super(PowhegConfig_WZ, self).__init__( runArgs, opts )
+    self._powheg_executable += '/WZ/pwhg_main'
 
     # Add decorators
+    PowhegDecorators.decorate( self, 'diboson' )
     PowhegDecorators.decorate( self, 'fixed scale' )
     PowhegDecorators.decorate( self, 'v2' )
 
     # Set optimised integration parameters
-    self.ncall1   = 10000 #20000
-    self.ncall2   = 10000 #15000
-    self.nubound  = 15000 #20000
-    self.xupbound = 2
-    self.foldx    = 10
-    self.foldy    = 10
-    self.foldphi  = 5 #10
+    self.ncall1   = 40000
+    self.ncall2   = 70000
+    self.nubound  = 80000
+    self.itmx1    = 4
+    self.itmx2    = 8
+    self.xupbound = 10
 
     # Override defaults
-    self.bornktmin  = 5.0
-    # Fix problem with spikes in final observables
-    # Options recommended by Paolo Nason to be used with doublefst (private communication)
-    # Not sure what happens if these are omitted!
-    self.doublefsr, self.par_diexp, self.par_dijexp, self.par_2gsupp = 1, 4, 4, 5
+    self.allowed_decay_modes = [ 'WZevee', 'WZmuvmumu', 'WZtauvtautau', 'WZevmumu', 'WZmuvee', 'WZevtautau', 'WZmuvtautau', 'WZtauvee', 'WZtauvmumu', 'WZlvqq', 'WZqqll', 'WZlvll', 'WZlvvv', 'WZqqvv', 'WZqqqq', 'e+ee', 'e+mumu', 'e-mumu' ]
+    self.decay_mode = 'WZlvll'
 
   # Implement base-class function
   def generateRunCard(self) :
     self.initialiseRunCard()
 
     with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'jacsing '+str(self.jacsing)+'     ! \n' )
+      f.write( 'diagCKM '+str(self.diagCKM)+' ! if 1 (true) then diagonal CKM (default 0)\n' )
+      f.write( 'mllmin '+str(self.mllmin)+'                     ! Minimum invariant mass of lepton pairs from Z decay\n' )

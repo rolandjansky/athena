@@ -2,7 +2,7 @@
 
 #########################################################################################################################
 #
-#   Script to configure Powheg VBF_H subprocess
+#   Script to configure Powheg Dijet subprocess
 #
 #   Authors: James Robinson  <james.robinson@cern.ch>
 #            Daniel Hayden   <danhayden0@googlemail.com>
@@ -11,45 +11,46 @@
 #########################################################################################################################
 
 #! /usr/bin/env python
-from PowhegConfig_base import PowhegConfig_base
-import PowhegDecorators
-import SMParams
+from ..PowhegConfig_base import PowhegConfig_base
+from ..decorators import PowhegDecorators
 
 ###############################################################################
 #
-#  VBF_H
+#  Dijet
 #
 ###############################################################################
-class PowhegConfig_VBF_H(PowhegConfig_base) :
+class PowhegConfig_Dijet(PowhegConfig_base) :
   # These are process specific - put generic properties in PowhegConfig_base
-  complexpolescheme = -1
-  use_massive_b     = False
-  use_massive_c     = False
+  jacsing   = -1
 
   # Set process-dependent paths in the constructor
-  def __init__(self,runArgs=None) :
-    super(PowhegConfig_VBF_H, self).__init__(runArgs)
-    self._powheg_executable += '/VBF_H/pwhg_main'
+  def __init__( self, runArgs=None, opts=None ) :
+    super(PowhegConfig_Dijet, self).__init__( runArgs, opts )
+    self._powheg_executable += '/Dijet/pwhg_main'
 
     # Add decorators
-    PowhegDecorators.decorate( self, 'Higgs' )
+    PowhegDecorators.decorate( self, 'fixed scale' )
+    PowhegDecorators.decorate( self, 'v2' )
 
     # Set optimised integration parameters
-    self.ncall1   = 50000
-    self.ncall2   = 150000
-    self.nubound  = 150000
-    self.xupbound = 10
-    self.foldx    = 2
-    self.foldy    = 2
-    self.foldphi  = 2
+    self.ncall1   = 10000
+    self.ncall2   = 10000
+    self.nubound  = 15000
+    self.xupbound = 2
+    self.foldx    = 10
+    self.foldy    = 10
+    self.foldphi  = 5
+
+    # Override defaults
+    self.bornktmin  = 5.0
+    # Fix problem with spikes in final observables
+    # Options recommended by Paolo Nason to be used with doublefsr (private communication)
+    # Not sure what happens if these are omitted!
+    self.doublefsr, self.par_diexp, self.par_dijexp, self.par_2gsupp = 1, 4, 4, 5
 
   # Implement base-class function
   def generateRunCard(self) :
     self.initialiseRunCard()
 
     with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'complexpolescheme '+str(self.complexpolescheme)+' ! 0 = SM\n' )
-      if self.use_massive_b :
-        f.write( 'bottomass '+str(SMParams.mass_b)+'              ! bottom quark mass in GeV (enabled if defined)\n' )
-      if self.use_massive_c :
-        f.write( 'charmass '+str(SMParams.mass_c)+'               ! charm quark mass in GeV (enabled if defined)\n' )
+      f.write( 'jacsing '+str(self.jacsing)+'     ! \n' )

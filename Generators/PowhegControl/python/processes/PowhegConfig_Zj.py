@@ -11,9 +11,9 @@
 #########################################################################################################################
 
 #! /usr/bin/env python
-from PowhegConfig_base import PowhegConfig_base
-import PowhegDecorators
-import SMParams
+from ..PowhegConfig_base import PowhegConfig_base
+from ..decorators import PowhegDecorators
+from .. import ATLASCommonParameters
 
 ###############################################################################
 #
@@ -22,8 +22,8 @@ import SMParams
 ###############################################################################
 class PowhegConfig_Zj(PowhegConfig_base) :
   # Set process-dependent paths in the constructor
-  def __init__(self,runArgs=None) :
-    super(PowhegConfig_Zj, self).__init__(runArgs)
+  def __init__( self, runArgs=None, opts=None ) :
+    super(PowhegConfig_Zj, self).__init__( runArgs, opts )
     self._powheg_executable += '/Zj/pwhg_main'
 
     #PowhegDecorators.decorate( self, 'vector boson decay' )
@@ -46,6 +46,6 @@ class PowhegConfig_Zj(PowhegConfig_base) :
     self.initialiseRunCard()
 
     with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'lhfm/emass '+str(SMParams.mass_e)+'     ! electron mass\n' )
-      f.write( 'lhfm/mumass '+str(SMParams.mass_mu)+'   ! muon mass\n' )
-      f.write( 'lhfm/taumass '+str(SMParams.mass_tau)+' ! tau mass\n' )
+      f.write( 'lhfm/emass '+str(ATLASCommonParameters.mass_e)+'     ! electron mass\n' )
+      f.write( 'lhfm/mumass '+str(ATLASCommonParameters.mass_mu)+'   ! muon mass\n' )
+      f.write( 'lhfm/taumass '+str(ATLASCommonParameters.mass_tau)+' ! tau mass\n' )

@@ -11,8 +11,8 @@
 #########################################################################################################################
 
 #! /usr/bin/env python
-from PowhegConfig_base import PowhegConfig_base
-import PowhegDecorators
+from ..PowhegConfig_base import PowhegConfig_base
+from ..decorators import PowhegDecorators
 
 ###############################################################################
 #
@@ -25,8 +25,8 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
   mllmin           = 4
 
   # Set process-dependent paths in the constructor
-  def __init__( self, runArgs=None ) :
-    super(PowhegConfig_ZZ, self).__init__(runArgs)
+  def __init__( self, runArgs=None, opts=None ) :
+    super(PowhegConfig_ZZ, self).__init__( runArgs, opts )
     self._powheg_executable += '/ZZ/pwhg_main'
 
     # Add decorators
@@ -36,15 +36,17 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
 
     # Set optimised integration parameters
     self.ncall1   = 50000
-    self.ncall2   = 50000 #100000
-    self.nubound  = 100000 #100000
+    self.ncall2   = 50000
+    self.nubound  = 100000
     self.xupbound = 10
     self.itmx1    = 5
     self.itmx2    = 14
+    self.foldx    = 2
+    self.foldy    = 2
 
     # Override defaults
-    self.allowed_decay_modes = [ 'semileptonic', 'e-mu', 'e-tau', 'mu-tau', 'leptonic', 'leptons-nu', 'hadrons-nu', 'only-e', 'only-mu', 'only-tau' ]
-    self.decay_mode = 'only-e'
+    self.allowed_decay_modes = [ 'ZZllll', 'ZZqqll', 'ZZqqqq', 'ZZvvvv', 'ZZvvll', 'ZZvvqq', 'ZZeeee', 'ZZmumumumu', 'ZZtautautautau', 'ZZmumuee', 'ZZeetautau', 'ZZtautaumumu' ]
+    self.decay_mode = 'ZZllll'
     self._use_delta_lambda = False
 
   # Implement base-class function

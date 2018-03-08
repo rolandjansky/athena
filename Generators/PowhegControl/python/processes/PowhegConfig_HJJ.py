@@ -2,50 +2,59 @@
 
 #########################################################################################################################
 #
-#   Script to configure Powheg HZJ subprocess
+#   Script to configure Powheg HJJ subprocess
 #
 #   Authors: James Robinson  <james.robinson@cern.ch>
 #
 #########################################################################################################################
 
 #! /usr/bin/env python
-from PowhegConfig_base import PowhegConfig_base
-import PowhegDecorators
-import SMParams
+from ..PowhegConfig_base import PowhegConfig_base
+from ..decorators import PowhegDecorators
 
 ###############################################################################
 #
-#  HZJ
+#  HJJ
 #
 ###############################################################################
-class PowhegConfig_HZJ(PowhegConfig_base) :
+class PowhegConfig_HJJ(PowhegConfig_base) :
   # These are process specific - put generic properties in PowhegConfig_base
-  mass_Z_low  = 10.
-  mass_Z_high = 1000.
+  fullphsp      = -1
+  polecheck     = -1
+  raisingscales = -1
 
   # Set process-dependent paths in the constructor
-  def __init__(self,runArgs=None) :
-    super(PowhegConfig_HZJ, self).__init__(runArgs)
-    self._powheg_executable += '/HZJ/pwhg_main'
+  def __init__( self, runArgs=None, opts=None ) :
+    super(PowhegConfig_HJJ, self).__init__( runArgs, opts )
+    self._powheg_executable += '/HJJ/pwhg_main'
 
     # Add decorators
     PowhegDecorators.decorate( self, 'Higgs v2' )
     PowhegDecorators.decorate( self, 'HJ' )
-    PowhegDecorators.decorate( self, 'HV' )
 
     # Set optimised integration parameters
-    self.ncall1   = 80000
-    self.ncall2   = 50000
-    self.nubound  = 50000
+    self.ncall1   = 9800000
+    self.ncall1rm = 9900000
+    self.ncall2   = 9800000
+    self.nubound  = 9400000
     self.xupbound = 2
     self.foldx    = 5
     self.foldy    = 5
     self.foldphi  = 5
+    
+    # Override defaults
+    self.bornktmin  = 5.0
+    self.ckkwscalup = 1
+    self.minlo      = 1
+    self.factsc2min = 2.0
+    self.frensc2min = 2.0
 
   # Implement base-class function
   def generateRunCard(self) :
     self.initialiseRunCard()
 
     with open( str(self.TestArea)+'/powheg.input','a') as f :
-      f.write( 'max_z_mass '+str(self.mass_Z_high)+'  ! M Z < mass high\n')
-      f.write( 'min_z_mass '+str(self.mass_Z_low)+'   ! M Z > mass low\n')
+      f.write( 'fullphsp '+str(self.fullphsp)+'           ! \n' )
+      f.write( 'polecheck '+str(self.polecheck)+'         ! \n' )
+      f.write( 'raisingscales '+str(self.raisingscales)+' ! \n' )
+      

@@ -17,6 +17,6 @@ include('MC12JobOptions/Pythia8_Powheg_Main31.py')
 # EVGEN configuration
 #--------------------------------------------------------------
 evgenConfig.description = 'POWHEG+Pythia8 WW production with AU2 CT10 tune'
-evgenConfig.keywords    = [ 'SM', 'ww' ]
+evgenConfig.keywords    = [ 'SM', 'diboson', 'WW' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]

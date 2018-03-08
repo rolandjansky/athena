@@ -2,7 +2,7 @@
 
 #########################################################################################################################
 #
-#   Script to configure Powheg WW subprocesses
+#   Script to configure Powheg Z subprocess
 #
 #   Authors: James Robinson  <james.robinson@cern.ch>
 #            Daniel Hayden   <danhayden0@googlemail.com>
@@ -11,34 +11,38 @@
 #########################################################################################################################
 
 #! /usr/bin/env python
-from PowhegConfig_base import PowhegConfig_base
-import PowhegDecorators
+from ..PowhegConfig_base import PowhegConfig_base
+from ..decorators import PowhegDecorators
 
 ###############################################################################
 #
-#  WW
+#  Z
 #
 ###############################################################################
-class PowhegConfig_WW(PowhegConfig_base) :
+class PowhegConfig_Z(PowhegConfig_base) :
   # Set process-dependent paths in the constructor
-  def __init__(self,runArgs=None) :
-    super(PowhegConfig_WW, self).__init__(runArgs)
-    self._powheg_executable += '/WW/pwhg_main'
+  def __init__( self, runArgs=None, opts=None ) :
+    super(PowhegConfig_Z, self).__init__( runArgs, opts )
+    self._powheg_executable += '/Z/pwhg_main'
 
     # Add decorators
-    PowhegDecorators.decorate( self, 'diboson' )
-    PowhegDecorators.decorate( self, 'fixed scale' )
-    PowhegDecorators.decorate( self, 'v2' )
+    PowhegDecorators.decorate( self, 'heavy quark' )
+    PowhegDecorators.decorate( self, 'running scale' )
+    PowhegDecorators.decorate( self, 'single boson' )
 
     # Set optimised integration parameters
-    self.ncall1  = 40000 #50000
-    self.ncall2  = 40000 #50000
-    self.nubound = 60000 #80000
-    self.itmx1   = 3
+    self.ncall1  = 120000
+    self.ncall2  = 250000
+    self.nubound = 20000
+    self.foldx   = 2
+    self.foldy   = 2
+    self.foldphi = 2
 
     # Override defaults
-    self.allowed_decay_modes = [ 'e+e-', 'e+mu-', 'mu+mu-', 'tau+tau-', 'leptonic', 'hadronic', 'semileptonic' ]
-    self.decay_mode = 'e+mu-'
+    self.withsubtr       = 1
+    self.withnegweights  = 1
+    self.masswindow_low  = 60.
+    self.masswindow_high = 2.0 * self.beam_energy
 
   # Implement base-class function
   def generateRunCard(self) :

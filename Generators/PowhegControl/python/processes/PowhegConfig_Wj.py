@@ -2,7 +2,7 @@
 
 #########################################################################################################################
 #
-#   Script to configure Powheg bb subprocess
+#   Script to configure Powheg Wj subprocess
 #
 #   Authors: James Robinson  <james.robinson@cern.ch>
 #            Daniel Hayden   <danhayden0@googlemail.com>
@@ -11,41 +11,44 @@
 #########################################################################################################################
 
 #! /usr/bin/env python
-from PowhegConfig_base import PowhegConfig_base
-import PowhegDecorators
-import SMParams
+from ..PowhegConfig_base import PowhegConfig_base
+from ..decorators import PowhegDecorators
 
 ###############################################################################
 #
-#  bb
+#  Wj
 #
 ###############################################################################
-class PowhegConfig_bb(PowhegConfig_base) :
+class PowhegConfig_Wj(PowhegConfig_base) :
+  # These are process specific - put generic properties in PowhegConfig_base
+  idvecbos = 24
+
   # Set process-dependent paths in the constructor
-  def __init__( self, runArgs=None ) :
-    super(PowhegConfig_bb, self).__init__(runArgs)
-    self._powheg_executable += '/hvq/pwhg_main'
+  def __init__( self, runArgs=None, opts=None ) :
+    super(PowhegConfig_Wj, self).__init__( runArgs, opts )
+    self._powheg_executable += '/Wj/pwhg_main'
 
     # Add decorators
-    PowhegDecorators.decorate( self, 'fixed scale' )
-    PowhegDecorators.decorate( self, 'heavy quark' )
+    PowhegDecorators.decorate( self, 'CKM' )
+    PowhegDecorators.decorate( self, 'single boson' )
 
     # Set optimised integration parameters
-    self.ncall1   = 10000
-    self.ncall2   = 20000
-    self.nubound  = 20000
-    self.xupbound = 2
-    self.foldx    = 5
-    self.foldy    = 5
-    self.foldphi  = 2
+    self.ncall1   = 60000
+    self.ncall2   = 80000
+    self.nubound  = 40000
+    self.xupbound = 3
+    self.foldx    = 10
+    self.foldy    = 10
+    self.foldphi  = 5
 
     # Override defaults
-    self.bornktmin  = 5.0
+    self.bornktmin       = 5.0
+    self.masswindow_low  = 2.5
+    self.masswindow_high = 2.0 * self.beam_energy
 
   # Implement base-class function
   def generateRunCard(self) :
     self.initialiseRunCard()
 
     with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
-      f.write( 'qmass '+str(SMParams.mass_b)+'                  ! mass of heavy quark in GeV\n' )
-      f.write( 'topdecaymode 0                                  ! disable topdecaymode\n' )
+      f.write( 'idvecbos '+str(self.idvecbos)+'         ! PDG code for vector boson to be produced (W:24)\n' )

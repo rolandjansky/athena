@@ -11,9 +11,10 @@
 #########################################################################################################################
 
 #! /usr/bin/env python
-import os, time, subprocess, threading
+import os, select, subprocess, threading, time
 from AthenaCommon import Logging
-from RepeatingTimer import RepeatingTimer
+from strategies import *
+from utility import RepeatingTimer
 
 
 class PowhegConfig_base(object) :
@@ -23,11 +24,11 @@ class PowhegConfig_base(object) :
   __output_events_file_name = 'PowhegOTF._1.events'
   # This must be defined by each derived class - don't change it in the jobOptions!
   _powheg_executable = os.environ['POWHEGPATH']
+  _powheg_version_type = 1
 
   # These values can be changed in the jobOptions - defaults are set here.
   # Process-specific options are in the relevant class
   # Powheg can use a different PDF for each proton; we impose the same value for each one: (CT10 by default)
-  runArgs        = None
   nEvents        = 5200
   beam_energy    = 4000
   randomSeed     = 1
@@ -49,8 +50,8 @@ class PowhegConfig_base(object) :
 
   # Integration parameters (reasonable defaults)
   # These are optimised in each process to ensure:
-  #   Upper bound failures      < 1% : to reduce, increase nubound/xupbound, ncall2*itmx2
-  #   Cross section uncertainty < 1% : to reduce, increase ncall1*itmx1 / ncall2*itmx2
+  #   Upper bound failures      < 1% : to reduce, increase nubound, xupbound or ncall2*itmx2
+  #   Cross section uncertainty < 1% : to reduce, increase ncall1*itmx1 or ncall2*itmx2
   #   Negative weight events    < 1% : to reduce, increase fold parameters
   ncall1, ncall2        = 20000, 100000
   nubound, xupbound     = 100000, 2
@@ -65,35 +66,47 @@ class PowhegConfig_base(object) :
   ptsqmin                 = 0.8
   charmthr, charmthrpdf   = 1.5, 1.5
   bottomthr, bottomthrpdf = 5.0, 5.0
-  manyseeds               = -1
+
+  # How many subjobs to run in manyseeds mode -- reset by ATHENA_PROC_NUMBER
+  manyseeds = -1
+  _n_cores  = 1
 
   # These may be needed in presence of processes where the Born cross section vanishes in some phase-space region
-  withdamp                = 0
-  hdamp                   = -1
-  hfact                   = -1
+  withdamp = 0
+  hdamp    = -1
+  hfact    = -1
 
-  # LHEF filter and directory setting
-  filter_name, filter_args = '', ''
+  # Set up run card decorator and current directory
+  run_card_decorators = []
   TestArea = os.environ['PWD']
 
-  # Set up run card decorator
-  run_card_decorators = []
 
-  def __init__( self, runArgs=None ) :
-    self.runArgs = runArgs
+  def __init__( self, runArgs=None, opts=None ) :
+    # Initialise values from runArgs
     if runArgs == None :
       self._logger.warning( 'No run arguments found! Using defaults.' )
     else :
       # Read values from runArgs
-      if hasattr(self.runArgs,'ecmEnergy') :
-        self.beam_energy = 0.5 * self.runArgs.ecmEnergy
-      if hasattr(self.runArgs,'maxEvents') :
-        if self.runArgs.maxEvents > 0 :
-          self.nEvents = self.runArgs.maxEvents
-      if hasattr(self.runArgs,'randomSeed') :
-        self.randomSeed = self.runArgs.randomSeed
+      if hasattr(runArgs,'ecmEnergy') :
+        self.beam_energy = 0.5 * runArgs.ecmEnergy
+      if hasattr(runArgs,'maxEvents') :
+        if runArgs.maxEvents > 0 :
+          self.nEvents = runArgs.maxEvents
+      if hasattr(runArgs,'randomSeed') :
+        self.randomSeed = runArgs.randomSeed
       # Set inputGeneratorFile to match output events file. Otherwise Generate_trf check will fail.
-      self.runArgs.inputGeneratorFile = self.__output_events_file_name
+      runArgs.inputGeneratorFile = self.__output_events_file_name
+
+    # Enable parallel mode if AthenaMP mode is enabled
+    if 'ATHENA_PROC_NUMBER' in os.environ :
+      self._logger.info( 'This job is running with an athena MP-like whole-node setup. Will re-configure now to make sure that the remainder of the job runs serially.' )
+      self._n_cores = int( os.environ.pop('ATHENA_PROC_NUMBER') )
+      self.manyseeds = 1
+      self._logger.info( 'Scaling number of events per job from {0} down to {1}'.format( self.nEvents, int(0.5 + self.nEvents / self._n_cores) ) )
+      # Try to modify the transform opts to suppress athenaMP mode
+      if hasattr(opts,'nprocs') : opts.nprocs = 0
+      else : self._logger.warning( 'No "nprocs" options provided!')
+
 
   ###############################################################################
   #
@@ -105,12 +118,20 @@ class PowhegConfig_base(object) :
 
     # Perform some sanity checks
     if self.withnegweights == 1 and self.foldx * self.foldy * self.foldphi != 1 :
-      # Performing a folded integration reduces the proportion of negative weights
-      # Not needed if using (accepting) negative weights
-      self.foldx, self.foldy, self.foldphi = 1, 1, 1
-      self._logger.warning( 'Requesting negative weights while using folding parameters! This is suboptimal: setting folding parameters to foldx({0}) foldy({1}) foldphi({2})'.format(self.foldx,self.foldy,self.foldphi) )
+      # Performing a folded integration reduces the proportion of negative weights. Not necessarily needed if using (accepting) negative weights
+      self._logger.warning( 'Accepting negative weights while using folding to reduce negative weight fraction! This may not be necessary.' )
     if (self.bornsuppfact > 0.0) and (self.bornktmin <= 0.0) :
-      self._logger.warning( 'These settings: bornsuppfact({0}) and bornktmin({1}) cannot be used to generate events! Only a fixed-order distribution will be produced!'.format(self.bornsuppfact,self.bornktmin) )
+      self._logger.warning( 'These settings: bornsuppfact({0}) and bornktmin({1}) cannot be used to generate events! Only fixed-order distributions should be produced with these settings!'.format(self.bornsuppfact,self.bornktmin) )
+
+    # Scale-down number of events produced in each run if running in multicore mode
+    if self._n_cores > 1 :
+      self.parallelstage = 1
+      self.xgriditeration = 1
+      self.nEvents = int( 0.5 + self.nEvents / self._n_cores )
+      self.ncall1 = int( 0.5 + self.ncall1 / self._n_cores )
+      self.ncall2 = int( 0.5 + self.ncall2 / self._n_cores )
+      self.ncall1rm = int( 0.5 + self.ncall1rm / self._n_cores )
+      self.nubound = int( 0.5 + self.nubound / self._n_cores )
 
     # Write output to runcard
     with open( str(self.TestArea)+'/powheg.input','w') as f :
@@ -125,7 +146,7 @@ class PowhegConfig_base(object) :
       f.write( 'iseed '+str(self.randomSeed)+'                    ! start the random number generator with seed iseed\n' )
       f.write( 'rand1 -1                                          ! user-initiated random seed (disabled for reproducibility)\n' )
       f.write( 'rand2 -1                                          ! user-initiated random seed (disabled for reproducibility)\n' )
-      f.write( 'manyseeds '+str(self.manyseeds)+'                 ! allow multiple simultaneous jobs - not allowed on the grid\n' )
+      f.write( 'manyseeds '+str(self.manyseeds)+'                 ! allow multiple simultaneous jobs\n' )
       # Generation setup
       f.write( 'withnegweights '+str(self.withnegweights)+'       ! allow negative weights\n' )
       f.write( 'facscfact '+str(self.mu_F)+'                      ! factorization scale factor: mufact=muref*facscfact\n' )
@@ -136,10 +157,9 @@ class PowhegConfig_base(object) :
       # Parameters to allow/disallow use of stored data
       f.write( 'use-old-grid '+str(self.use_old_grid)+'           ! if 1 use old grid if file pwggrids.dat is present (<> 1 regenerate)\n' )
       f.write( 'use-old-ubound '+str(self.use_old_ubound)+'       ! if 1 use norm of upper bounding function stored in pwgubound.dat, if present; <> 1 regenerate\n' )
-      # Integration parameters: A typical call uses 1/1400 seconds (1400 calls per second)
-      #   NB. the total number of calls is ncall2*itmx2*foldcsi*foldy*foldphi
-      #       with the default setting of ncall2*itmx2*foldcsi*foldy*foldphi=5M, 60 minutes
-      #       these folding numbers yield a negative fraction of 0.5% with bornktmin=10 GeV
+      # Integration parameters:
+      #   A typical call uses 1/1400 seconds (1400 calls per second)
+      #   The total number of calls is ncall2*itmx2*foldcsi*foldy*foldphi
       f.write( 'ncall1 '+str(self.ncall1)+'                       ! number of calls for initializing the integration grid\n' )
       f.write( 'itmx1 '+str(self.itmx1)+'                         ! number of iterations for initializing the integration grid: total 100000 calls ~ 70 seconds\n' )
       f.write( 'ncall2 '+str(self.ncall2)+'                       ! number of calls for computing the integral and finding upper bound\n' )
@@ -196,6 +216,18 @@ class PowhegConfig_base(object) :
 
   ###############################################################################
   #
+  #  Run normal event generation
+  #
+  ###############################################################################
+  def generate(self, filter_name='', filter_args='') :
+    self.generateRunCard()
+    if filter_name == '' :
+      self.generateEvents()
+    else :
+      self.generateFilteredEvents( filter_name, filter_args )
+
+  ###############################################################################
+  #
   #  Must be implemented by children
   #
   ###############################################################################
@@ -216,7 +248,7 @@ class PowhegConfig_base(object) :
       self._logger.warning( 'Not attempting to remove existing LHE files due to reweighting settings! This could cause problems.' )
     else :
       try :
-        os.remove( '*.lhe' )
+        os.remove( '*.lhe *.ev*ts' )
       except OSError :
         pass
 
@@ -226,29 +258,76 @@ class PowhegConfig_base(object) :
 
     # Setup heartbeat thread
     heartbeat = RepeatingTimer( 600., lambda: self._logger.info('Heartbeat: Powheg generation has been running for {0} in total'.format( RepeatingTimer.human_readable_time_interval(time.time() - time_start)) ) )
-    heartbeat.daemon = True # Allows program to exit if only this thread is alive
+    heartbeat.daemon = True # Allow program to exit if this is the only live thread
     heartbeat.start()
 
-    # Run generation until finished then kill heartbeat thread
-    generate = subprocess.Popen( [self._powheg_executable,''], stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-    for output_line in iter( generate.stdout.readline, b'' ) :
-      self._logger.info( output_line.rstrip() )
-    generate.stdout.close()
+    # Initialise generation processes
+    self.running_processes = []
+
+    # Check whether multiple PDFs have been specified
+    try : multiple_PDF_runs = len(self.PDF) > 1
+    except TypeError : multiple_PDF_runs = False
+
+    if self.manyseeds < 1  :
+      # Normal run
+      if not multiple_PDF_runs :
+        runSingleProcessSingleStep(self)
+      # Multiple PDFs
+      # else :
+      #   runSingleProcessMultiStep(self)
+    else :
+      # Run v1-style multiprocess (only needs one step)
+      if self._powheg_version_type == 1 :
+        runMultiProcessSingleStep(self)
+      # Run v2-style multiprocess (needs four steps)
+      else :
+        runMultiProcessMultiStep(self)
+        
+    # Display generation output until finished then kill heartbeat thread
+    # self.displayProcessOutput()
     heartbeat.cancel()
 
+    # Print timing information
     elapsed_time = time.time() - time_start
     self._logger.info( 'Running Powheg took {0} for {1} events => {2:6.3f} Hz'.format( RepeatingTimer.human_readable_time_interval(elapsed_time), self.nEvents, self.nEvents / elapsed_time ) )
+
+    # Concatenate output events if running in multicore mode
+    if self.manyseeds >= 1 :
+      self._logger.info( 'Concatenating {0} output LHE files'.format( self._n_cores ) )
+      subprocess.call( 'cat pwgevents*.lhe > pwgevents.lhe', shell=True ) # NB. shell=True is unsafe if combined with user input
 
     # Move output to correctly named file
     try :
       os.rename( 'pwgevents.lhe', self.__output_events_file_name )
-    except :
+      self._logger.info( 'Moved pwgevents.lhe to {0}'.format(self.__output_events_file_name) )
+    except OSError :
       print os.listdir('.')
-    self._logger.info( 'Moved pwgevents.lhe to {0}'.format(self.__output_events_file_name) )
+      self._logger.warning( 'No pwgevents.lhe found!' )
 
-    # Finish
+    # Print finalisation message
     self._logger.info( 'Finished at {0}'.format( time.asctime() ) )
     return
+
+
+  # ###############################################################################
+  # #
+  # #  Print Powheg output to screen
+  # #
+  # ###############################################################################
+  # def displayProcessOutput(self) :
+  #   while self.running_processes :
+  #     # Write stdout if any
+  #     for process, output_prefix in self.running_processes :
+  #       stdout = process.stdout.readline().rstrip()
+  #       if len(stdout) > 0 : self._logger.info( '{0}{1}'.format(output_prefix,stdout) )
+  #     # Check for finished processes and remove them from the list
+  #     for process, output_prefix in self.running_processes :
+  #       if process.poll() is not None : # process has ended
+  #         stdout = process.stdout.readline().rstrip()
+  #         if len(stdout) > 0 : self._logger.info( '{0}{1}'.format(output_prefix,stdout) ) # Print final output (if any) to screen
+  #         process.stdout.close()
+  #         self.running_processes.remove( (process,output_prefix) )
+  #         self._logger.info( 'Process finished: there are now {0}/{1} running'.format(len(self.running_processes),self._n_cores) )
 
 
   ###############################################################################
@@ -256,10 +335,9 @@ class PowhegConfig_base(object) :
   #  Run filtered event generation
   #
   ###############################################################################
-  def generateFilteredEvents(self) :
+  def generateFilteredEvents(self, filter_name, filter_args) :
     self._logger.info( 'Starting Powheg LHEF event generation at {0}'.format( time.asctime() ) )
-    filter_executable = os.environ['LHEFPATH']
-    filter_executable += '/'+self.filter_name
+    filter_executable = os.environ['LHEFPATH'] + '/' + filter_name
     filter_args.insert( 0, self.__output_events_file_name )
     filter_args.insert( 0, 'pwgevents.lhe' )
     filter_args.insert( 0, str(filter_executable) )
@@ -269,7 +347,7 @@ class PowhegConfig_base(object) :
       self._logger.warning( 'Not attempting to remove existing LHE files due to reweighting settings! This could cause problems.' )
     else :
       try :
-        os.remove( '*.lhe' )
+        os.remove( '*.lhe *.ev*ts' )
       except OSError :
         pass
 
@@ -286,10 +364,10 @@ class PowhegConfig_base(object) :
     # Start filter and wait until quota has been filled
     # LHEF_filter moves output to correctly named file
     self._logger.info( 'Running filter with commmand: {0}'.format( filter_executable ) )
-    LHEF_filter = subprocess.Popen( self.filter_args )
+    LHEF_filter = subprocess.Popen( filter_args )
     LHEF_filter.wait()
-    outputline = LHEF_filter.communicate()
-    self._logger.info( outputline )
+    LHEF_filter_output = LHEF_filter.communicate()
+    self._logger.info( LHEF_filter_output )
 
     # Once quota filled, kill generation process
     generate.terminate()
