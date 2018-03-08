@@ -21,7 +21,6 @@ class PowhegConfig_base():
   outputEventsName = 'PowhegOutput._1.events'
   # This must be defined by each derived class - don't change it in the jobOptions
   executablePath = os.environ['POWHEGPATH']
-  filterPath = os.environ['LHEFPATH']
   # These can be changed in the jobOptions - default values are set here.
   # Put process-specific options in the appropriate class instead
   nEvents = 1000
@@ -114,10 +113,11 @@ class PowhegConfig_base():
   def generateFilteredEvents(self):
     # Start
     mglog.info('Starting Generating POWHEG LHEF events at '+str(time.asctime()))
-    self.filterPath += '/'+self.filter
-    self.filterRunArgs.insert(0,'PowhegOutput._1.events')
-    self.filterRunArgs.insert(0,'pwgevents.lhe')
-    self.filterRunArgs.insert(0,str(self.filterPath))
+    filterPath = os.environ['LHEFPATH']
+    filterPath += '/'+self.filter
+    filterRunArgs.insert(0,'PowhegOutput._1.events')
+    filterRunArgs.insert(0,'pwgevents.lhe')
+    filterRunArgs.insert(0,str(filterPath))
     
     # Generate the events and move output to correctly named file
     print "Running " + str(self.executablePath)
@@ -131,7 +131,7 @@ class PowhegConfig_base():
     
     # Start Filter and wait until quota has been filled
     mglog.info("Running filter with the following commmand:")
-    mglog.info(str(self.filterPath))
+    mglog.info(str(filterPath))
     filter = subprocess.Popen( self.filterRunArgs)
     filter.wait()
     outputline = filter.communicate()
