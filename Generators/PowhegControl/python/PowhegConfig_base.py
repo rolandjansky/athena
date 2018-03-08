@@ -29,7 +29,7 @@ class PowhegConfig_base(object) :
   # These values can be changed in the jobOptions - defaults are set here.
   # Process-specific options are in the relevant class
   # Powheg can use a different PDF for each proton; we impose the same value for each one: (CT10 by default)
-  nEvents        = 5200
+  nEvents        = 5500
   beam_energy    = 4000
   randomSeed     = 1
   mu_F, mu_R     = 1.0, 1.0
@@ -91,7 +91,7 @@ class PowhegConfig_base(object) :
         self.beam_energy = 0.5 * runArgs.ecmEnergy
       if hasattr(runArgs,'maxEvents') :
         if runArgs.maxEvents > 0 :
-          self.nEvents = runArgs.maxEvents
+          self.nEvents = int( 1.1 * runArgs.maxEvents + 0.5 )
       if hasattr(runArgs,'randomSeed') :
         self.randomSeed = runArgs.randomSeed
       # Set inputGeneratorFile to match output events file. Otherwise Generate_trf check will fail.
