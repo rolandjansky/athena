@@ -2,7 +2,7 @@
 
 from FileParser import *
 from IntegrationGridTester import *
-from LHEHandler import *
+from LHEUtils import *
 from NonBlockingStreamReader import *
 from ProcessHandling import *
 from RepeatingTimer import *

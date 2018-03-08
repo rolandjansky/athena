@@ -3,7 +3,7 @@
 #--------------------------------------------------------------
 # Powheg ZZ setup starting from ATLAS defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_ZZ_Common.py')
+include("PowhegControl/PowhegControl_ZZ_Common.py")
 PowhegConfig.generate()
 
 #--------------------------------------------------------------
@@ -16,8 +16,8 @@ include("MC12JobOptions/Jimmy_Photos.py")
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Herwig ZZ production with AU2 CT10 tune'
-evgenConfig.keywords    = [ 'SM', 'diboson', 'ZZ' ]
-evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
-evgenConfig.generators += [ 'Powheg', 'Herwig', 'Jimmy' ]
+evgenConfig.description = "POWHEG+Herwig ZZ production with AU2 CT10 tune"
+evgenConfig.keywords    = [ "SM", "diboson", "ZZ" ]
+evgenConfig.contact     = [ "james.robinson@cern.ch" ]
+evgenConfig.generators += [ "Powheg", "Herwig", "Jimmy" ]
 
