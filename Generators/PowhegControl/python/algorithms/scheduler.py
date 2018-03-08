@@ -29,7 +29,7 @@ class Scheduler(object):
     ## Postprocessing evaluation order
     ordered_postprocessors = ["quark colour fixer", "reweighter", "NNLO reweighter", "MadSpin", "PHOTOS",
                               "integration grid tester", "cross section calculator", "output file renamer",
-                              "output tarball preparer"]
+                              "output tarball preparer", "integration gridpack creator", "directory cleaner"]
 
     ## Map preprocessing names to functions
     preprocessor_fn_dict = {
@@ -48,6 +48,8 @@ class Scheduler(object):
     ## Map postprocessing names to functions
     postprocessor_fn_dict = {
         "cross section calculator": partial(postprocessors.cross_section_calculator, powheg_LHE_output=powheg_LHE_output),
+        "directory cleaner": postprocessors.directory_cleaner,
+        "integration gridpack creator": postprocessors.integration_gridpack_creator,
         "integration grid tester": postprocessors.integration_grid_tester,
         "MadSpin": partial(postprocessors.MadSpin, powheg_LHE_output=powheg_LHE_output),
         "NNLO reweighter": partial(postprocessors.NNLO_reweighter, powheg_LHE_output=powheg_LHE_output),
@@ -64,7 +66,7 @@ class Scheduler(object):
         self.sequence = {"preprocessors": {}, "generators": {}, "postprocessors": {}}
 
         # Add universal components
-        self.add("directory cleaner")
+        self.add("output validator")
         self.add("integration grid tester")
 
     def add(self, name, *args):

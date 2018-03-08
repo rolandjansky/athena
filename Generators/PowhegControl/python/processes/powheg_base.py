@@ -17,7 +17,7 @@ class PowhegBase(Configurable):
     @author James Robinson  <james.robinson@cern.ch>
     """
 
-    def __init__(self, base_directory, version, executable_name, powheg_executable="pwhg_main", is_reweightable=True, **kwargs):
+    def __init__(self, base_directory, version, executable_name, cores, powheg_executable="pwhg_main", is_reweightable=True, **kwargs):
         """! Constructor.
 
         @param base_directory  path to PowhegBox code.
@@ -28,6 +28,9 @@ class PowhegBase(Configurable):
 
         ## Powheg executable that will be used
         self.executable = os.path.join(base_directory, version, executable_name, powheg_executable)
+
+        ## Number of cores to use
+        self.cores = cores
 
         ## List of additional algorithms to schedule
         self.algorithms = []
@@ -66,6 +69,16 @@ class PowhegBase(Configurable):
             self.externals[alg_or_process.name] = alg_or_process
 
     @property
+    def files_for_cleanup(self):
+        """! Wildcarded list of files created by this process that can be deleted."""
+        raise AttributeError("Names of unneeded files are not known for this process!")
+
+    @property
+    def integration_file_names(self):
+        """! Wildcarded list of integration files that might be created by this process."""
+        raise AttributeError("Integration file names are not known for this process!")
+
+    @property
     def powheg_version(self):
         """! Version of PowhegBox process."""
         raise AttributeError("Powheg version is not known!")
@@ -81,6 +94,11 @@ class PowhegBase(Configurable):
         logger.info("Scaling number of events per job from {} down to {}".format(__nEvents_unscaled, __nEvents_scaled))
         # Freeze parallelstage parameters before printing list for user
         [parameter.freeze() for parameter in self.parameters_by_name("parallelstage")]
+
+    def stage_is_completed(self, stage):
+        """! Set whether the specified POWHEG-BOX generation stage is complete."""
+        # Perform manual check to allow re-use of grids in multicore mode
+        return False
 
     def validate_parameters(self):
         """! Validate any parameters which need it before preparing runcard."""

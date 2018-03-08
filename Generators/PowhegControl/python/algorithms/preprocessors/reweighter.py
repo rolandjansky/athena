@@ -13,6 +13,7 @@ def reweighter(process, *args):
     """
     # Alter/remove runcard options depending on which weighting scheme is being used
     if process.use_XML_reweighting:
+        # FileParser("powheg.input").text_remove("compute_rwgt")
         FileParser("powheg.input").text_remove("lhrwgt_descr")
         FileParser("powheg.input").text_remove("lhrwgt_group_combine")
         FileParser("powheg.input").text_remove("lhrwgt_group_name")

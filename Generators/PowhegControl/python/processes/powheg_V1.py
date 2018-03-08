@@ -20,6 +20,31 @@ class PowhegV1(PowhegBase):
         super(PowhegV1, self).__init__(base_directory, "POWHEG-BOX", executable_name, is_reweightable=False, **kwargs)
 
     @property
+    def files_for_cleanup(self):
+        """! Wildcarded list of files created by this process that can be deleted."""
+        return [
+            "FlavRegList",
+            "pwg*.top",
+            "pwgseeds.dat",
+            "pwgcounters*.dat",
+            "pwgubsigma.dat",
+            "pwhg_checklimits"
+        ]
+
+    @property
+    def integration_file_names(self):
+        """! Wildcarded list of integration files that might be created by this process."""
+        return [
+            "pwgbtildeupb*.dat",
+            "pwgfullgrid.dat",
+            "pwggrid*.dat",
+            "pwgremnupb*.dat",
+            "pwgstat*.dat",
+            "pwgubound*.dat",
+            "pwgxgrid.dat"
+        ]
+
+    @property
     def powheg_version(self):
         """! Version of PowhegBox process."""
         return "V1"

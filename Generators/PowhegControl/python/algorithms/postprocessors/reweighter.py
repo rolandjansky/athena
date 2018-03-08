@@ -3,7 +3,7 @@
 from AthenaCommon import Logging
 from ...decorators import timed
 from ...utility import FileParser
-from ..generators import singlecore_untimed
+from ..generators import multicore_untimed, singlecore_untimed
 import collections
 import os
 import shutil
@@ -94,7 +94,7 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             weight_list = [WeightTuple(ID=0, name="nominal", group="nominal", parallel_xml_compatible=True, parameter_settings=[], keywords=None, combine=None)] + weight_list
 
         # Construct xml output
-        xml_lines, serial_xml_weight_list, current_weightgroup = [], [], ""
+        xml_lines, serial_xml_weight_list, current_weightgroup = [], [], None
         for weight in weight_list:
             # Group elements
             if weight.parallel_xml_compatible and weight.group != current_weightgroup:
@@ -104,7 +104,6 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             # Weight elements
             if weight.parallel_xml_compatible:
                 keyword_pairs_str = " ".join(["{}={}".format(k, v) for p, v in weight.parameter_settings for k in weight.keywords[p]])
-                if keyword_pairs_str == "": keyword_pairs_str = "nominal"
                 xml_lines.append("<weight id='{}'> {} </weight>".format(weight.ID, keyword_pairs_str))
             else:
                 serial_xml_weight_list.append(weight)
@@ -116,8 +115,7 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             # Write xml output
             with open("reweighting_input.xml", "wb") as f_rwgt:
                 f_rwgt.write("<initrwgt>\n")
-                for xml_line in xml_lines:
-                    f_rwgt.write("{}\n".format(xml_line))
+                [f_rwgt.write("{}\n".format(xml_line)) for xml_line in xml_lines]
                 f_rwgt.write("</initrwgt>")
 
             # Add reweighting lines to runcard
@@ -126,12 +124,22 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             FileParser("powheg.input").text_replace("clobberlhe .*", "clobberlhe 1")
 
             logger.info("Preparing simultaneous calculation of {} additional weights for generated events.".format(n_parallel_xml_weights))
-            singlecore_untimed(process)
+
+            # Allow RES processes to do their reweighting with manyseeds enabled, or they will look for the wrong files
+            if process.parameters_by_name("manyseeds")[0].value == 1:
+                if process.powheg_version == "RES":
+                    multicore_untimed(process)
+                else:
+                    FileParser("powheg.input").text_replace("manyseeds .*", "manyseeds 0")
+                    FileParser("powheg.input").text_replace("parallelstage .*", "parallelstage -1")
+                    singlecore_untimed(process)
+            else:
+                singlecore_untimed(process)
 
             # Move the reweighted file back
             rename_LHE_output(powheg_LHE_output)
 
-        # Iterate over any variations which require old-style reweighting
+        # Iterate over any variations which require non-simultaneous reweighting
         if len(serial_xml_weight_list) > 0:
             logger.info("Preparing individual calculation of {} additional weights for generated events.".format(len(serial_xml_weight_list)))
             shutil.move("reweighting_input.xml", "reweighting_input.nominal")
@@ -193,7 +201,7 @@ def add_single_weight(process, weight, idx_weight, n_total, use_XML):
         else:
             # As the nominal process has already been run, turn on compute_rwgt
             FileParser("powheg.input").text_replace("compute_rwgt 0", "compute_rwgt 1")
-            # Ensure that manyseeds is turned off,  as this would cause the reweighting to crash
+            # Ensure that manyseeds/parallelstage are turned off, as these cause the reweighting to crash
             FileParser("powheg.input").text_replace("manyseeds .*", "manyseeds 0")
             FileParser("powheg.input").text_replace("parallelstage .*", "parallelstage -1")
 
@@ -206,13 +214,12 @@ def add_single_weight(process, weight, idx_weight, n_total, use_XML):
             except KeyError:
                 logger.warning("Parameter '{}' not recognised. Cannot reweight!".format(parameter))
 
-
         if use_XML:
             # Create XML reweighting file
             with open("reweighting_input.xml", "wb") as f_rwgt:
                 f_rwgt.write("<initrwgt>\n")
                 f_rwgt.write("<weightgroup name='{}' combine='{}'>\n".format(weight.group, weight.combine))
-                f_rwgt.write("<weight id='{}'> {} </weight>\n".format(weight.ID, weight.name))
+                f_rwgt.write("<weight id='{}'> </weight>\n".format(weight.ID))
                 f_rwgt.write("</weightgroup>\n")
                 f_rwgt.write("</initrwgt>")
         else:
@@ -223,7 +230,15 @@ def add_single_weight(process, weight, idx_weight, n_total, use_XML):
             FileParser("powheg.input").text_replace("lhrwgt_group_name .*", "lhrwgt_group_name '{}'".format(weight.group))
 
         # Run the process until termination
-        singlecore_untimed(process)
+        if process.parameters_by_name("manyseeds")[0].value == 1:
+            if process.powheg_version == "RES":
+                multicore_untimed(process)
+            else:
+                FileParser("powheg.input").text_replace("manyseeds .*", "manyseeds 0")
+                FileParser("powheg.input").text_replace("parallelstage .*", "parallelstage -1")
+                singlecore_untimed(process)
+        else:
+            singlecore_untimed(process)
 
     # Run single weight variation
     __timed_inner_fn()

@@ -1,6 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from cross_section_calculator import cross_section_calculator
+from directory_cleaner import directory_cleaner
+from integration_gridpack_creator import integration_gridpack_creator
 from integration_grid_tester import integration_grid_tester
 from madspin import MadSpin
 from nnlo_reweighter import NNLO_reweighter

@@ -14,7 +14,7 @@ logger = Logging.logging.getLogger("PowhegControl")
 def merge_output(cores, n_events_unscaled, powheg_LHE_output):
     """! Merge output events if running in multicore mode.
 
-    @param cores              Number of cores in use
+    @param cores              Number of cores in use.
     @param n_events_unscaled  Total number of events generated.
     @param powheg_LHE_output  Name of LHE file produced by PowhegBox.
 

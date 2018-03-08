@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from bb import bb
+from bbH import bbH
 from bblvlv import bblvlv
 from chi0chi0 import chi0chi0
 from chi0chi1 import chi0chi1
@@ -13,7 +14,9 @@ from ggF_HZ import ggF_HZ
 from Hj import Hj
 from Hjj import Hjj
 from HWj import HWj
+from HWj_EW import HWj_EW
 from HZj import HZj
+from HZj_EW import HZj_EW
 from jj import jj
 from jjj import jjj
 from ssWWjj import ssWWjj

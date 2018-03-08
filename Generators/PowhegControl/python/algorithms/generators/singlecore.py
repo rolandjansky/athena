@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from ...decorators import timed
-from ...utility import ProcessManager, SingleProcessThread
+from ...utility import FileParser, ProcessManager, SingleProcessThread
 import os
 
 
@@ -9,7 +9,7 @@ import os
 def singlecore(process):
     """! Run a single Powheg process in its own timed thread.
 
-    @param process PowhegBox process.
+    @param process  PowhegBox process.
 
     @author James Robinson  <james.robinson@cern.ch>
     """
@@ -19,7 +19,7 @@ def singlecore(process):
 def singlecore_untimed(process):
     """! Run a single Powheg process in its own thread.
 
-    @param process PowhegBox process.
+    @param process  PowhegBox process.
 
     @author James Robinson  <james.robinson@cern.ch>
     """

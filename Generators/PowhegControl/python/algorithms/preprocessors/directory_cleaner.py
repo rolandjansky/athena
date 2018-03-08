@@ -10,7 +10,7 @@ logger = Logging.logging.getLogger("PowhegControl")
 
 
 @timed("directory cleaner")
-def directory_cleaner():
+def directory_cleaner(*args):
     """! Clean up the directory before running.
 
     Remove any existing LHE files to avoid repeated events.

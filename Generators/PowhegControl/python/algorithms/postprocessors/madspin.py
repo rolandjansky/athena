@@ -30,8 +30,10 @@ def MadSpin(process, powheg_LHE_output):
 def __construct_inputs(input_LHE_events, process):
     """! Construct MadSpin runcard.
 
-    @param input_LHE_events Input LHE file name.
-    @param process          MadSpin process.
+    @param input_LHE_events  Input LHE file name.
+    @param process           MadSpin process.
+
+    @author James Robinson <james.robinson@cern.ch>
     """
     # Find insertion point for MadSpin header
     logger.info("Constructing MadSpin runcard header")
@@ -244,7 +246,10 @@ def __construct_inputs(input_LHE_events, process):
 
 @timed("MadSpin executable")
 def __run_executable(executable):
-    """! Run MadSpin executable."""
+    """! Run MadSpin executable.
+
+    @author James Robinson <james.robinson@cern.ch>
+    """
     logger.info("MadSpin executable: {}".format(executable))
     with open("madspin_runcard.txt", "rb") as runcard_input:
         processes = [SingleProcessThread([executable], stdin=runcard_input, ignore_output=["INFO:", "MadSpin>"])]
@@ -254,7 +259,10 @@ def __run_executable(executable):
 
 
 def __prepare_outputs(input_LHE_events):
-    """! Prepare MadSpin output."""
+    """! Prepare MadSpin output.
+
+    @author James Robinson <james.robinson@cern.ch>
+    """
     logger.info("Preparing MadSpin output")
 
     # Unzip MadSpin events

@@ -32,17 +32,14 @@ class PowhegControl(object):
         ## Name of output LHE file used by Generate_tf for showering
         self.__output_LHE_file = "PowhegOTF._1.events"
 
-        ## Number of cores to use
-        self.__cores = int(os.environ.pop("ATHENA_PROC_NUMBER", 1))
-
-        # Dictionary of named groups of event weights
+        ## Dictionary of named groups of event weights
         self.__event_weight_groups = collections.OrderedDict()
 
-        # Scheduler to determine algorithm ordering
+        ## Scheduler to determine algorithm ordering
         self.scheduler = Scheduler()
 
         # Load run arguments
-        process_kwargs = {}
+        process_kwargs = {"cores": int(os.environ.pop("ATHENA_PROC_NUMBER", 1))}
         if run_args is None:
             logger.warning("No run arguments found! Using defaults.")
         else:
@@ -75,25 +72,29 @@ class PowhegControl(object):
                 if parameter.is_visible:
                     setattr(self, parameter.name, parameter.value)
 
-        # Add validation of the output file
-        self.scheduler.add("output validator")
+        # Add appropriate directory cleanup for this process
+        self.scheduler.add("directory cleaner", self.process)
 
         # Schedule correct output file naming
         self.scheduler.add("output file renamer", self.__output_LHE_file)
 
-        # Enable parallel mode if AthenaMP mode is enabled
-        if self.__cores == 1:
+        # Enable parallel mode if AthenaMP mode is enabled. Also force multistage mode for RES.
+        if self.process.cores == 1 and self.process.powheg_version != "RES":
             self.scheduler.add("singlecore", self.process)
         else:
-            # Try to modify the transform opts to suppress athenaMP mode
-            logger.info("This job is running with an athenaMP-like whole-node setup, requesting {} cores".format(self.__cores))
-            self.scheduler.add("multicore", self.process, self.__cores)
-            self.process.parameters_by_name("manyseeds")[0].value = 1
-            if hasattr(run_opts, "nprocs"):
-                logger.info("Re-configuring to keep athena running serially while parallelising Powheg generation.")
-                run_opts.nprocs = 0
+            if self.process.cores == 1:
+                logger.info("Configuring this POWHEG-BOX-RES process to run in multistage mode")
             else:
-                logger.warning("Running in multicore mode but no 'nprocs' option was provided!")
+                # Try to modify the transform opts to suppress athenaMP mode
+                logger.info("This job is running with an athenaMP-like whole-node setup, requesting {} cores".format(self.process.cores))
+                if hasattr(run_opts, "nprocs"):
+                    logger.info("Re-configuring to keep athena running serially while parallelising POWHEG-BOX generation.")
+                    run_opts.nprocs = 0
+                else:
+                    logger.warning("Running in multicore mode but no 'nprocs' option was provided!")
+            self.scheduler.add("multicore", self.process)
+            self.scheduler.add("merge output", self.process.cores, self.nEvents)
+            self.process.parameters_by_name("manyseeds")[0].value = 1
 
         # Freeze the interface so that no new attributes can be added
         self.interface_frozen = True
@@ -101,14 +102,20 @@ class PowhegControl(object):
         # Print executable being used
         logger.info("Configured for event generation with: {}".format(self.process.executable))
 
-    def generate(self, use_external_run_card=False, create_run_card_only=False, use_XML_reweighting=True):
+    def generate(self, create_run_card_only=False, save_integration_grids=True, use_external_run_card=False, use_XML_reweighting=True):
         """! Run normal event generation.
 
-        @param use_external_run_card  Use a user-provided run card.
-        @param create_run_card_only   Only generate the run card.
-        @param use_XML_reweighting    Use XML-based reweighting
+        @param create_run_card_only    Only generate the run card.
+        @param save_integration_grids  Save the integration grids for future reuse.
+        @param use_external_run_card   Use a user-provided run card.
+        @param use_XML_reweighting     Use XML-based reweighting.
         """
         self.process.use_XML_reweighting = use_XML_reweighting
+
+        # Schedule integration gridpack creator if requested
+        if save_integration_grids:
+            self.scheduler.add("integration gridpack creator", self.process)
+
         # Run appropriate generation functions
         if not use_external_run_card:
             self.__generate_run_card()
@@ -123,10 +130,9 @@ class PowhegControl(object):
             logger.warning("Only fixed-order distributions can be produced with these settings!")
 
         # Scale-down number of events produced in each run if running in multicore mode
-        if self.__cores > 1:
-            self.scheduler.add("merge output", self.__cores, self.nEvents)
-            logger.info("Preparing to parallelise: running with {} jobs".format(self.__cores))
-            self.process.prepare_to_parallelise(self.__cores)
+        if self.process.cores > 1:
+            logger.info("Preparing to parallelise: running with {} jobs".format(self.process.cores))
+            self.process.prepare_to_parallelise(self.process.cores)
 
         # Print list of configurable parameters for users
         parameters_by_name = [x[1] for x in sorted(dict((p.name.lower(), p) for p in self.process.parameters).items(), key=lambda x: x[0])]
@@ -153,7 +159,7 @@ class PowhegControl(object):
 
         # Write out final runcard
         run_card_path = "{}/powheg.input".format(self.__run_directory)
-        logger.info("Writing Powheg runcard to {}".format(run_card_path))
+        logger.info("Writing POWHEG-BOX runcard to {}".format(run_card_path))
         with open(run_card_path, "w") as f_runcard:
             for parameter in sorted(self.process.parameters, key=lambda p: p.keyword.lower()):
                 if parameter.name == "bornsuppfact" and parameter.value > 0:
@@ -162,24 +168,30 @@ class PowhegControl(object):
                     event_weight_options.append(("negative event weights", "sign"))
                 # PDF variations
                 if parameter.name == "PDF" and isinstance(parameter.value, collections.Iterable):
-                    self.define_event_weight_group("PDF_variation", ["PDF"], combination_method="hessian")
-                    for PDF in map(int, parameter.value[1:]):
-                        self.add_weight_to_group("PDF_variation", "PDF set = {:d}".format(PDF), [PDF])
+                    if "PDF_variation" not in self.__event_weight_groups.keys(): # skip if this group already exists
+                        if len(parameter.value) < 2:
+                            logger.error("Use 'PowhegConfig.PDF = {0}' rather than 'PowhegConfig.PDF = [{0}]'".format(parameter.value[0] if len(parameter.value) > 0 else "<value>"))
+                            raise TypeError("Use 'PowhegConfig.PDF = {0}' rather than 'PowhegConfig.PDF = [{0}]'".format(parameter.value[0] if len(parameter.value) > 0 else "<value>"))
+                        self.define_event_weight_group("PDF_variation", ["PDF"], combination_method="hessian")
+                        for PDF in map(int, parameter.value[1:]):
+                            self.add_weight_to_group("PDF_variation", "PDF set = {:d}".format(PDF), [PDF])
                 # Scale variations
-                if parameter.name == "mu_F" and isinstance(parameter.value, collections.Iterable):
-                    self.define_event_weight_group("scale_variation", ["mu_R", "mu_F"], combination_method="envelope")
-                    mu_Rs = self.process.parameters_by_name("mu_R")[0].value
-                    mu_Fs = self.process.parameters_by_name("mu_F")[0].value
-                    if len(mu_Rs) != len(mu_Fs):
-                        raise ValueError("Number of mu_R and mu_F variations must be the same.")
-                    for mu_R, mu_F in zip(map(float, mu_Rs[1:]), map(float, mu_Fs[1:])):
-                        self.add_weight_to_group("scale_variation", "muR = {:.2f}, muF = {:.2f}".format(mu_R, mu_F), [mu_R, mu_F])
+                if parameter.name in ["mu_F", "mu_R"] and isinstance(parameter.value, collections.Iterable):
+                    if "scale_variation" not in self.__event_weight_groups.keys(): # skip if this group already exists
+                        mu_Rs = self.process.parameters_by_name("mu_R")[0].value
+                        mu_Fs = self.process.parameters_by_name("mu_F")[0].value
+                        if not isinstance(mu_Rs, collections.Iterable) or not isinstance(mu_Fs, collections.Iterable) or len(mu_Rs) != len(mu_Fs):
+                            logger.error("Number of mu_R and mu_F variations must be the same.")
+                            raise ValueError("Number of mu_R and mu_F variations must be the same.")
+                        self.define_event_weight_group("scale_variation", ["mu_R", "mu_F"], combination_method="envelope")
+                        for mu_R, mu_F in zip(map(float, mu_Rs[1:]), map(float, mu_Fs[1:])):
+                            self.add_weight_to_group("scale_variation", "muR = {:.2f}, muF = {:.2f}".format(mu_R, mu_F), [mu_R, mu_F])
                 f_runcard.write("{}\n".format(parameter))
 
         # Schedule cross-section_calculator
         if len(event_weight_options) > 0:
             self.scheduler.add("cross section calculator")
-            logger.warning("Powheg has been configured to run with {}".format(" and ".join([x[0] for x in event_weight_options])))
+            logger.warning("POWHEG-BOX has been configured to run with {}".format(" and ".join([x[0] for x in event_weight_options])))
             logger.warning("This means that event weights will vary in {}.".format(" and ".join([x[1] for x in event_weight_options])))
             logger.warning("The cross-section passed to the parton shower will be inaccurate.")
             logger.warning("Please use the cross-section printed in the log file before showering begins.")
@@ -304,5 +316,5 @@ class PowhegControl(object):
         # If the interface is frozen then raise an attribute error
         if hasattr(self, "interface_frozen") and self.interface_frozen:
             if not hasattr(self, key):
-                raise AttributeError("This Powheg process has no option '{}'".format(key))
+                raise AttributeError("This POWHEG-BOX process has no option '{}'".format(key))
         object.__setattr__(self, key, value)

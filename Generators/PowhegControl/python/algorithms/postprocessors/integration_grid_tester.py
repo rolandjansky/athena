@@ -34,42 +34,46 @@ def integration_grid_tester():
     @author James Robinson <james.robinson@cern.ch>
     """
     inclusive_xs, inclusive_xs_error, negative_weights, positive_weights, n_events, n_upper_bound_failures_xs, n_upper_bound_failures_radiation = 0, 0, 0, 0, 0, 0, 0
-    for file_name in glob.glob("pwg*stat*.dat"):
-        if os.path.isfile(file_name):
-            # Inclusive cross-section uncertainty [relative error on (total pos + |total neg|)]
-            with open(file_name, "rb") as data_file:
-                try:
-                    matched_lines = [line.replace("+-", "") for line in data_file if re.match(r"(.*)(btilde(.*)weights)(.*)[0-9](.*)\+\-(.*)[0-9](.*)", line)]
-                    if len(matched_lines) > 0:
-                        positive_weight_xs = sum([map(float, re.findall(regex_match_floats, line)) for line in matched_lines if "pos." in line], [])
-                        negative_weight_xs = sum([map(float, re.findall(regex_match_floats, line)) for line in matched_lines if "|neg.|" in line], [])
-                        inclusive_xs += positive_weight_xs[0] + negative_weight_xs[0]
-                        inclusive_xs_error += math.sqrt(positive_weight_xs[1]**2 + negative_weight_xs[1]**2)
-                except:  # catch all exceptions
-                    pass
-            # Negative weight test
-            with open(file_name, "rb") as data_file:
-                try:
-                    matched_lines = [line.replace("+-", "") for line in data_file if re.match(r"(.*)(btilde(.*)weights|Remnant cross section)(.*)[0-9](.*)\+\-(.*)[0-9](.*)", line)]
-                    if len(matched_lines) > 0:
-                        negative_weights += map(float, re.findall(regex_match_floats, [line for line in matched_lines if "btilde |neg.|" in line][0]))[0]
-                        positive_weights += map(float, re.findall(regex_match_floats, [line for line in matched_lines if "btilde pos." in line][0]))[0]
-                        positive_weights += map(float, re.findall(regex_match_floats, [line for line in matched_lines if "Remnant cross section" in line][0]))[0]
-                except:  # catch all exceptions
-                    pass
-
-    for file_name in [x for x in glob.glob("pwgcounters*.dat") if "st3" not in x]:
-        if os.path.isfile(file_name):
-            # Upper bound violations [in inclusive cross-section and generation of radiation]
-            with open(file_name, "rb") as data_file:
-                try:
-                    matched_lines = [line.replace("+-", "") for line in data_file if re.match(r"(.*)(btilde event|remnant event|upper bound failure)(.*)[0-9](.*)", line)]
-                    if len(matched_lines) > 0:
-                        n_events += sum(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "event" in line]))
-                        n_upper_bound_failures_xs += sum(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "upper bound failure in inclusive" in line]))
-                        n_upper_bound_failures_radiation += sum(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "upper bound failure in generation" in line]))
-                except:  # catch all exceptions
-                    pass
+    # Open stat files
+    for file_name in sum([glob.glob(_f) for _f in ["pwgstat.dat", "pwgstat-0001.dat", "pwg-stat.dat", "pwg-st3-0001-stat.dat", "pwg-0001-st3-stat.dat"]], []):
+        # Inclusive cross-section uncertainty [relative error on (total pos + |total neg|)]
+        with open(file_name, "rb") as data_file:
+            try:
+                matched_lines = [line.replace("+-", "") for line in data_file if re.match(r"(.*)(btilde(.*)weights)(.*)[0-9](.*)\+\-(.*)[0-9](.*)", line)]
+                matched_lines = [re.sub(" +", " ", _l) for _l in matched_lines] # strip multiple whitespace
+                if len(matched_lines) > 0:
+                    positive_weight_xs = sum([map(float, re.findall(regex_match_floats, line)) for line in matched_lines if "pos." in line], [])
+                    negative_weight_xs = sum([map(float, re.findall(regex_match_floats, line)) for line in matched_lines if "|neg.|" in line], [])
+                    inclusive_xs += positive_weight_xs[0] + negative_weight_xs[0]
+                    inclusive_xs_error += math.sqrt(positive_weight_xs[1]**2 + negative_weight_xs[1]**2)
+            except:  # catch all exceptions
+                pass
+        # Negative weight test
+        with open(file_name, "rb") as data_file:
+            try:
+                matched_lines = [line.replace("+-", "") for line in data_file if re.match(r"(.*)(btilde(.*)weights|Remnant cross section)(.*)[0-9](.*)\+\-(.*)[0-9](.*)", line)]
+                matched_lines = [re.sub(" +", " ", _l) for _l in matched_lines] # strip multiple whitespace
+                if len(matched_lines) > 0:
+                    negative_weights += map(float, re.findall(regex_match_floats, [line for line in matched_lines if "btilde |neg.|" in line][0]))[0]
+                    positive_weights += map(float, re.findall(regex_match_floats, [line for line in matched_lines if "btilde pos." in line][0]))[0]
+                    positive_weights += map(float, re.findall(regex_match_floats, [line for line in matched_lines if "Remnant cross section" in line][0]))[0]
+            except:  # catch all exceptions
+                pass
+    # Open counter files
+    file_names = sum([glob.glob(_f) for _f in ["pwgcounters-st4-*.dat", "pwgcounters0*.dat"]], [])
+    if not file_names: file_names = glob.glob("pwgcounters.dat")
+    for file_name in file_names:
+        # Upper bound violations [in inclusive cross-section and generation of radiation]
+        with open(file_name, "rb") as data_file:
+            try:
+                matched_lines = [line.replace("+-", "") for line in data_file if re.match(r"(.*)(btilde event|remnant event|upper bound failure)(.*)[0-9](.*)", line)]
+                matched_lines = [re.sub(" +", " ", _l) for _l in matched_lines] # strip multiple whitespace
+                if len(matched_lines) > 0:
+                    n_events += sum(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "event" in line]))
+                    n_upper_bound_failures_xs += sum(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "upper bound failure in inclusive" in line]))
+                    n_upper_bound_failures_radiation += sum(map(float, [re.findall(regex_match_floats, line)[0] for line in matched_lines if "upper bound failure in generation" in line]))
+            except:  # catch all exceptions
+                pass
 
     # Calculate test statistics
     inclusive_xs_test = safe_percentage(inclusive_xs_error, inclusive_xs)
