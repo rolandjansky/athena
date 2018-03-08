@@ -198,7 +198,7 @@ def getJetExternalAssocTool(jetalg, extjetalg, **options):
 
     return jetassoctool
 
-def applyJetCalibration(jetalg,algname,sequence):
+def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
     calibtoolname = 'DFJetCalib_'+jetalg
     jetaugtool = getJetAugmentationTool(jetalg)
 
@@ -208,15 +208,27 @@ def applyJetCalibration(jetalg,algname,sequence):
     else:
         isdata=False
 
-        configdict = {'AntiKt4EMTopo':('JES_MC16Recommendation_28Nov2017.config',
+        #fatjetconfig selects config file for AntiKt10LCTopoTrimmedPtFrac5SmallR20, default is JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config
+        if not (fatjetconfig == 'comb' or fatjetconfig == 'calo' or fatjetconfig == 'TA'):
+            extjetlog.warning('*** Wrong value for fatjetconfig!  Only \'comb\' (default), \'calo\' or \'TA\' can be used. ***')
+
+        configdict = {'AntiKt4EMTopo':('JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config',
                                        'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt4LCTopo':('JES_MC16Recommendation_28Nov2017.config',
                                        'JetArea_Residual_EtaJES_GSC'),
-                      'AntiKt4EMPFlow':('JES_MC16Recommendation_PFlow_28Nov2017.config',
+                      'AntiKt4EMPFlow':('JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config',
                                         'JetArea_Residual_EtaJES_GSC'),
-                      'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config',
+                      'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config',
                                                               'EtaJES_JMS'),
                       }
+        if fatjetconfig == 'calo': #Choose JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config for AntiKt10LCTopoTrimmedPtFrac5SmallR20
+            configdict.update({'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config',
+                                                                       'EtaJES_JMS')
+                              })
+        if fatjetconfig == 'TA': #Choose JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config for AntiKt10LCTopoTrimmedPtFrac5SmallR20
+            configdict.update({'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config',
+                                                                       'EtaJES_JMS')
+                              })
         isMC = DerivationFrameworkIsMonteCarlo
         isAF2 = False
         if isMC:
@@ -226,12 +238,10 @@ def applyJetCalibration(jetalg,algname,sequence):
                                            'JetArea_Residual_EtaJES_GSC')
 
         config,calibseq = configdict[jetalg]
-        # As of 11 Sept 2017, the in situ calibration for R21
-        # is not yet ready.
-        # When this is available, it should be reenabled -- for PFlow as well.
-        # if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo']:
-        #     calibseq+='_Insitu'
-        #     isdata=True
+
+        if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow']:
+            calibseq+='_Insitu'
+            isdata=True
 
         calibtool = CfgMgr.JetCalibrationTool(
             calibtoolname,
