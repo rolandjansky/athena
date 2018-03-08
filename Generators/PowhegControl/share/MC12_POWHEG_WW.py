@@ -1,4 +1,8 @@
 from PowhegControl.PowhegUtils import PowhegConfig_WW
 
 # Use the Powheg_bb configuration
-PowhegConfig = PowhegConfig_WW()
+if 'runArgs' in dir() : 
+  PowhegConfig = PowhegConfig_WW(runArgs)
+else :
+  PowhegConfig = PowhegConfig_WW()
+  

@@ -1,9 +1,6 @@
 #Test job options to see how things work.
 
-include("PowhegControl/MC12_POWHEG_hvq.py")
-PowhegConfig.ncall1 = 200
-PowhegConfig.ncall2 = 200
-PowhegConfig.nubound = 500
+include("PowhegControl/MC12_POWHEG_bb.py")
 PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
 
