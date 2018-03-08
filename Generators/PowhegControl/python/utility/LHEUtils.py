@@ -6,6 +6,7 @@
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
+import re
 import glob
 import mmap
 from AthenaCommon.Logging import logging
@@ -134,6 +135,30 @@ def string_to_weight(input_event):
     comment_lines = input_event[input_event.find("#"):].replace("\n", " ").replace("</event>", "")
     weight_lines = [" ".join(line.split()) for line in comment_lines.split("#") if "new weight,renfact,facfact,pdf1,pdf2" in line]
     return [(line.split(" ")[-1], line.split(" ")[2]) for line in weight_lines]
+
+
+# Ensure that all final-state quarks in the event are coloured
+def ensure_coloured_quarks(input_event):
+    initial_colour_flow, is_event_changed = -1, False
+    event_lines = ""
+    for input_line in input_event.splitlines(True):
+        output_line = None
+        try: # interpret line as a particle
+            IDUP, ISTUP, MOTHUP0, MOTHUP1, ICOLUP0, ICOLUP1, PUP0, PUP1, PUP2, PUPU3, PUP4, VTIMUP, SPINUP = input_line.split()
+            if int(IDUP) == 21 and int(ISTUP) == -1: # this is an initial state gluon
+                initial_colour_flow = max(initial_colour_flow, int(ICOLUP0), int(ICOLUP1))
+            if int(ICOLUP0) == 0 and int(ICOLUP0) == 0: # this is a colourless particle
+                tokens = re.split(r"(\s+)", input_line)
+                if int(IDUP) in range(1, 7): # this is a quark
+                    output_line = "".join(tokens[:9])+" {0:>5d} {1:>5d}".format(initial_colour_flow+1, 0)+"".join(tokens[13:])
+                    is_event_changed = True
+                if int(IDUP) in range(-6, 0): # this is an anti-quark
+                    output_line = "".join(tokens[:9])+" {0:>5d} {1:>5d}".format(0, initial_colour_flow+1)+"".join(tokens[13:])
+                    is_event_changed = True
+        except ValueError: # this is not a particle line
+            pass
+        event_lines += output_line if output_line is not None else input_line
+    return (is_event_changed, event_lines)
 
 
 # Get new-style event weights from an input event string

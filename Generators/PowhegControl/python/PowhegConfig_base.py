@@ -183,7 +183,7 @@ class PowhegConfig_base(object):
                 f.write("{:<30}! [ATLAS default: {}] {}\n".format("{} {}".format(name, value), default, desc))
                 # Print warnings for specific parameters
                 if name == "bornsuppfact" and value > 0:
-                    self.logger.warning("Born-level suppression is enabled:"
+                    self.logger.warning("Born-level suppression is enabled:")
                     self.logger.warning("-> the cross-section passed to the parton shower will be inaccurate.")
                     self.logger.warning("-> please use the cross-section printed in the log file before showering begins.")
                     self.logger.warning("-> in addition, using this in conjunction with J-slicing may give problems.")
@@ -290,6 +290,11 @@ class PowhegConfig_base(object):
         # Run event weight calculator if bornsupfact was enabled
         if self.bornsuppfact > 0.0:
             strategies.afterburner_mean_event_weight_calculator(self.powheg_LHE_output)
+
+        # Run quark colour fix for gg_HZ
+        if hasattr(self, "_require_quark_colour_check") and hasattr(self, "vdecaymode"):
+            if (self.vdecaymode == 0 or self.vdecaymode == 10): # hadronic decay modes
+                strategies.afterburner_ensure_coloured_quarks(self.powheg_LHE_output)
 
         # Run MadSpin afterburner if requested
         if hasattr(self, "_MadSpin_executable"):

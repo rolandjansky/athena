@@ -21,6 +21,7 @@ class PowhegConfig_ggF_HZ(PowhegConfig_base):
     def __init__(self, runArgs=None, opts=None, LO_process=True):
         super(PowhegConfig_ggF_HZ, self).__init__(runArgs, opts)
         self._powheg_executable += "/ggHZ/pwhg_main"
+        self._require_quark_colour_check = True
 
         # Decorate with generic option sets
         self.add_parameter_set("Higgs + vector boson", boson="Z")
@@ -39,5 +40,6 @@ class PowhegConfig_ggF_HZ(PowhegConfig_base):
         self.nubound  = 60000
         self.xupbound = 6
         self.itmx1    = 1
+        # vdecaymode => 1: e, 2: mu, 3: tau, 4:nu_e, 5: nu_mu, 6: nu_tau, 0: to hadrons, 10: inclusive (all hadrons and leptons), 11: inclusive leptons, 12: inclusive neutrinos
 
         self.populate_default_strings()

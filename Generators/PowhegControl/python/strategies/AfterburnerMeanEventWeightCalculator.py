@@ -2,7 +2,6 @@
 
 # @PowhegControl AfterburnerMeanEventWeightCalculator
 #  Calculate the mean event weight of pre-generated Powheg events
-#  Apply PHOTOS afterburner to pre-generated Powheg events
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
@@ -13,7 +12,7 @@ from ..utility import LHEUtils
 # Initialise logging handler
 logger = logging.getLogger("PowhegControl")
 
-# Run PHOTOS as an afterburner to existing events
+# Read existing events to calculate mean event weights
 def afterburner_mean_event_weight_calculator(LHE_file_name):
     logger.info("Born-level suppression is enabled so the cross-section MUST be recalculated!")
     # LHEUtils returns a generator, since the input file may be large
