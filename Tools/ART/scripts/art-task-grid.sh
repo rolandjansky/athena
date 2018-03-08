@@ -1,13 +1,13 @@
 #!/bin/bash
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # NOTE do NOT run with /bin/bash -x as the output is too big for gitlab-ci
 #
 # Example command lines for three types:
 #
-# art-task-grid.sh [--no-action --skip-setup] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_type> <number_of_tests>
+# art-task-grid.sh [--no-action] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_type> <number_of_tests>
 #
-# art-task-grid.sh [--no-action --skip-setup] single [--inds <input_file> --n-files <number_of_files> --split <split>] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_name>
+# art-task-grid.sh [--no-action] single [--inds <input_file> --n-files <number_of_files> --split <split>] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_name>
 #
 # env: ART_GRID_OPTIONS
 #
@@ -15,7 +15,7 @@
 #
 # options have to be in-order, and at the correct place
 #
-# example: [--skip-setup --test-name TestName --inDS user.tcuhadar.SingleMuon... --nFiles 3 --in] tmp /cvmfs/atlas-nightlies.cern.ch/sw/... Tier0ChainTests grid 316236 3  user.${USER}.atlas.${NIGHTLY_RELEASE_SHORT}.${PROJECT}.${PLATFORM}.${NIGHTLY_TAG}.${SEQUENCE_TAG}.${PACKAGE}[.${TEST_NUMBER}]
+# example: [--test-name TestName --inDS user.tcuhadar.SingleMuon... --nFiles 3 --in] tmp /cvmfs/atlas-nightlies.cern.ch/sw/... Tier0ChainTests grid 316236 3  user.${USER}.atlas.${NIGHTLY_RELEASE_SHORT}.${PROJECT}.${PLATFORM}.${NIGHTLY_TAG}.${SEQUENCE_TAG}.${PACKAGE}[.${TEST_NUMBER}]
 set -e
 
 echo "art-task-grid.sh executed by $(whoami) on $(date)"
@@ -25,12 +25,6 @@ if [ $1 == "--no-action" ]; then
     NO_ACTION=1
     shift
     echo "NO_ACTION=${NO_ACTION}"
-fi
-SKIP_SETUP=0
-if [ $1 == "--skip-setup" ]; then
-    SKIP_SETUP=1
-    shift
-    echo "SKIP_SETUP=${SKIP_SETUP}"
 fi
 
 TYPE=$1
@@ -129,26 +123,6 @@ OUT="%OUT.tar"
 GRID_OPTIONS=$ART_GRID_OPTIONS
 echo "GRID_OPTIONS=${GRID_OPTIONS}"
 
-
-if [ ${SKIP_SETUP} -eq 0 ]; then
-    # maybe not necessary
-    PLATFORM=${AtlasProject}_PLATFORM
-    echo "Setting up release: ${!PLATFORM} ${AtlasBuildBranch} ${AtlasBuildStamp} ${AtlasProject} "
-    USER=artprod
-
-    export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-    source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh || true
-
-    export RUCIO_ACCOUNT=artprod
-
-    echo "Setting up panda and release"
-    lsetup panda "asetup --platform=${!PLATFORM} ${AtlasBuildBranch},${AtlasBuildStamp},${AtlasProject}" || true
-    echo "Setting up panda and release done"
-
-    voms-proxy-init --rfc -noregen -cert ./grid.proxy -voms atlas --valid 24:00 || true
-    echo "Setting up proxy done"
-
-fi
 
 case ${TYPE} in
 
