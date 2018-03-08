@@ -126,9 +126,9 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
 
     from DerivationFrameworkJetEtMiss.JetCommon import *
     if HIGG4DxName in OutputJets:
-        print OutputJets[HIGG4DxName]
-        addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName])  # todo: smart slimming list
-
+        #print "DAN: list of jets to be added: ", OutputJets[HIGG4DxName]
+        addJetOutputs(HIGG4DxSlimmingHelper, [HIGG4DxName], ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt4TruthJets', 'AntiKt4TruthWZJets']) # last argument: smart slimming applied for these collections
+        
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
        HIGG4DxSlimmingHelper.AllVariables += ["DiTauJets"]
 
@@ -158,8 +158,6 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         HIGG4DxSlimmingHelper.AllVariables += ["TruthEvents", 
                                                "TruthParticles", 
                                                "TruthVertices", 
-                                               "AntiKt4TruthJets",
-                                               "AntiKt4TruthWZJets",
                                                "TruthMuons", 
                                                "TruthElectrons", 
                                                "TruthNeutrinos", 
