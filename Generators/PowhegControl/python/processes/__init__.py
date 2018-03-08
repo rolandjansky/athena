@@ -2,6 +2,9 @@
 
 from PowhegConfig_bb import *
 from PowhegConfig_Dijet import *
+from PowhegConfig_DMS_tloop import *
+from PowhegConfig_DMV import *
+from PowhegConfig_DMGG import *
 from PowhegConfig_ggH_quark_mass_effects import *
 from PowhegConfig_ggHZ import *
 from PowhegConfig_HJ import *
