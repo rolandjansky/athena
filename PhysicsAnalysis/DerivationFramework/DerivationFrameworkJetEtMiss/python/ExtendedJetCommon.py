@@ -221,11 +221,11 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config',
                                                               'EtaJES_JMS'),
                       }
-        if fatjetconfig == 'calo': #Choose JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config for AntiKt10LCTopoTrimmedPtFrac5SmallR20
+        if fatjetconfig=='calo': #Choose JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config for AntiKt10LCTopoTrimmedPtFrac5SmallR20
             configdict.update({'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config',
                                                                        'EtaJES_JMS')
                               })
-        if fatjetconfig == 'TA': #Choose JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config for AntiKt10LCTopoTrimmedPtFrac5SmallR20
+        if fatjetconfig=='TA': #Choose JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config for AntiKt10LCTopoTrimmedPtFrac5SmallR20
             configdict.update({'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config',
                                                                        'EtaJES_JMS')
                               })
@@ -239,9 +239,9 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
 
         config,calibseq = configdict[jetalg]
 
-        if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4EMPFlow']:
-            calibseq+='_Insitu'
+        if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow']:
             isdata=True
+            if not jetalg=='AntiKt4LCTopo': calibseq+='_Insitu'
 
         calibtool = CfgMgr.JetCalibrationTool(
             calibtoolname,
