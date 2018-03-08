@@ -7,7 +7,8 @@ import AthenaPython.ConfigLib as apcl
 cfg = apcl.AutoCfg(name = 'InDetRecExampleAutoConfig', input_files=athenaCommonFlags.FilesInput())
 cfg.configure_job()
 
-theApp.EvtMax = 1
+theApp.EvtMax = -1
+#athenaCommonFlags.SkipEvents = 1
 
 svcMgr += CfgMgr.THistSvc()
 svcMgr.THistSvc.Output = [ "file1 DATAFILE='gaussianDensity.root' OPT='RECREATE'" ]
