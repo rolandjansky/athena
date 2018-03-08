@@ -7,6 +7,8 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "MuonRDO/CscRawDataContainer.h"
 
 class TH1F;
 class TH2F;
@@ -42,7 +44,8 @@ class CscRdoValAlg: public ManagedMonitorToolBase
   void bookRdoHistograms();
 
   size_t m_cscNoiseCut;
-  std::string m_cscRdoKey, m_cscRDOPath, m_cscGenPath;
+  SG::ReadHandleKey<CscRawDataContainer> m_cscRdoKey{this,"CSCRawDataKey","CSCRDO","CSC RDO"};
+  std::string m_cscRDOPath, m_cscGenPath;
   const CscIdHelper * m_cscIdHelper;
 
   // CSC RDO Decoder

@@ -254,11 +254,6 @@ if doCSCSegm:
   ToolSvc.TrigDecisionTool.OutputLevel=ERROR
   ToolSvc.TrigDecisionTool.Navigation.OutputLevel = ERROR
 
-  segmCollections = { "MuonSegments":1 }
-  segmPrefixes = { "MuonSegments":"Muon" }
-  #segmCollections = { "MooreSegments":1, "ConvertedMBoySegments":1 }
-  #segmPrefixes = { "MooreSegments":"Moore", "ConvertedMBoySegments":"MuBoy" }
-  segmSlopeCuts = { "MuonSegments":0.07 }
   clusStatWords = [ "Unspoiled", "Simple", "Edge", "MultiPeak", "Narrow",
                         "Wide", "Skewed", "QRatInc", "StripFitFailed",
                         "SplitUnspoiled", "SplitSimple", "SplitEdge", "SplitMultiPeak",
@@ -267,9 +262,9 @@ if doCSCSegm:
   ## trigger-aware monitoring: sample seletion triggers (express stream menu physics_pp_v2)
   evtSelectionTriggers = [  "L1_MU10", "L1_MU15", "EF_mu20_muCombTag_NoEF", "EF_mu15", "EF_mu15_mu10_EFFS", "EF_2mu10", "EF_2mu10_loose" ]
 
-  CSCSegmValAlg = CSCSegmValAlg ( name = "CSCSegmValAlg", SegmentKeys = segmCollections,
+  CSCSegmValAlg = CSCSegmValAlg ( name = "CSCSegmValAlg", SegmentKey = "MuonSegments",
     TrigDecisionTool = ToolSvc.TrigDecisionTool, DoEventSelection = False, EventSelTriggers = evtSelectionTriggers,
-    SegmentPrefixes = segmPrefixes, SegmentSlopeCuts = segmSlopeCuts, ClusterStatus = clusStatWords)
+    SegmentSlopeCut = 0.07, ClusterStatus = clusStatWords)
 
   ToolSvc += CSCSegmValAlg
   cscsegmMonMan.AthenaMonTools += [ CSCSegmValAlg ]

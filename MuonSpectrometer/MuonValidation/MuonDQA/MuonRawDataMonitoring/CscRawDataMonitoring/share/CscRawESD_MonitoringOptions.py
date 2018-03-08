@@ -96,9 +96,6 @@ if(DQMonFlags.useTrigger() and hasattr(ToolSvc, DQMonFlags.nameTrigDecTool())):
   ToolSvc.TrigDecisionTool.OutputLevel=ERROR
   ToolSvc.TrigDecisionTool.Navigation.OutputLevel = ERROR
 
-segmCollections = { "MuonSegments":1 }
-segmPrefixes = { "MuonSegments":"Muon" }
-segmSlopeCuts = { "MuonSegments":0.07 }
 clusStatWords = [ "Unspoiled", "Simple", "Edge", "MultiPeak", "Narrow",
                   "Wide", "Skewed", "QRatInc", "StripFitFailed",
                   "SplitUnspoiled", "SplitSimple", "SplitEdge", "SplitMultiPeak",
@@ -108,12 +105,11 @@ clusStatWords = [ "Unspoiled", "Simple", "Edge", "MultiPeak", "Narrow",
 evtSelectionTriggers = [  "L1_MU10", "L1_MU15", "EF_mu20_muCombTag_NoEF", "EF_mu15", "EF_mu15_mu10_EFFS", "EF_2mu10", "EF_2mu10_loose" ]
 
 CSCSegmESDValAlg = CSCSegmValAlg ( name = "CSCSegmValAlg", 
-                                   SegmentKeys = segmCollections,
+                                   SegmentKey = "MuonSegments",
                                    #TrigDecisionTool = ToolSvc.TrigDecisionTool, 
                                    DoEventSelection = False, 
                                    EventSelTriggers = evtSelectionTriggers,
-                                   SegmentPrefixes = segmPrefixes, 
-                                   SegmentSlopeCuts = segmSlopeCuts, 
+                                   SegmentSlopeCut = 0.07, 
                                    ClusterStatus = clusStatWords
                                    )
 
