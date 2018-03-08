@@ -35,6 +35,7 @@ class PowhegConfig_base():
   foldcsi, foldy, foldphi = 5, 10, 2
   withnegweights = 1
   filter, filterRunArgs = "", ""
+  TestArea = os.environ['PWD']
 
   def __init__(self,runArgs=None):
     self.runArgs = runArgs
@@ -56,10 +57,9 @@ class PowhegConfig_base():
   
   # All runcard options which are generic here
   def generateRunCardSharedOptions(self):
-    TestArea = os.environ['PWD']
-    mglog.info("Writing POWHEG runcard to "+str(TestArea)+"/powheg.input")
+    mglog.info("Writing POWHEG runcard to "+str(self.TestArea)+"/powheg.input")
 
-    with open( str(TestArea)+'/powheg.input','w') as f:        
+    with open( str(self.TestArea)+'/powheg.input','w') as f:        
       f.write( "iseed "+str(self.randomSeed)+"      ! Start the random number generator with seed iseed\n" )
       f.write( "numevts "+str(self.nEvents)+"       ! number of events to be generated\n" )
       f.write( "ih1 1                               ! hadron 1 type\n" )
@@ -100,13 +100,11 @@ class PowhegConfig_base():
 
     # Generate the events and move output to correctly named file
     mglog.info('Running ' + str(self.executablePath))
-    os.system( 'pwd; ls -alh' )
     generate = subprocess.Popen( [self.executablePath,''])
     generate.wait()
     os.rename('pwgevents.lhe',self.outputEventsName)
 
     # Finish
-    os.system( 'pwd; ls -alh' )
     mglog.info('Finished at '+str(time.asctime()))
     return 0
 
@@ -169,8 +167,7 @@ class PowhegConfig_Dijet(PowhegConfig_base):
     mglog.info('In PowhegConfig_Dijet generateRunCard after shared options')
     #os.system( 'pwd; ls -alh' )
 
-    TestArea = os.environ['TestArea']
-    with open( str(TestArea)+'/powheg.input','a') as f:
+    with open( str(self.TestArea)+'/powheg.input','a') as f:
       f.write( "bornktmin "+str(self.bornktmin)+"      ! (default 0d0) Generation cut: minimum kt in underlying Born\n" )
       f.write( "bornsuppfact "+str(self.bornsuppfact)+"     ! (default 0d0) Mass parameter for Born suppression factor. If < 0 suppfact = 1\n" )
       if self.fixspikes == True :
@@ -201,8 +198,7 @@ class PowhegConfig_hvq(PowhegConfig_base):
   def generateRunCard(self):
     self.generateRunCardSharedOptions()
 
-    TestArea = os.environ['TestArea']
-    with open( str(TestArea)+'/powheg.input','a') as f:
+    with open( str(self.TestArea)+'/powheg.input','a') as f:
       f.write( "bornsuppfact  "+str(self.bornsuppfact)+"                   ! (default 0d0) Mass parameter for Born suppression factor. If < 0 suppfact = 1\n" )
       f.write( "! Heavy flavour production parameters\n" )
       f.write( "qmass  "+str(self.quarkMass)+"                         ! mass of heavy quark in GeV\n" )
@@ -230,8 +226,7 @@ class PowhegConfig_WW(PowhegConfig_base):
   def generateRunCard(self):
     self.generateRunCardSharedOptions()
 
-    TestArea = os.environ['TestArea']
-    with open( str(TestArea)+'/powheg.input','a') as f:
+    with open( str(self.TestArea)+'/powheg.input','a') as f:
       f.write( "vdecaymodeWp "+str(self.vdecaymodeWp)+" ! PDG code for charged decay product of the vector boson (1:dbar; 3: sbar; 7: dbar or sbar; -11:e+; -13:mu+; -15:tau+)\n" ) 
       f.write( "vdecaymodeWm "+str(self.vdecaymodeWm)+" ! PDG code for charged decay product of the vector boson (1:d; 3: s; 7: d or s; 11:e-; 13:mu-; 15:tau-)\n" )
       f.write( "mllmin "+str(self.mllmin)+"      ! Minimum invariant mass of lepton pairs from Z decay\n" )
@@ -268,8 +263,7 @@ class PowhegConfig_WZ(PowhegConfig_base):
   def generateRunCard(self):
     self.generateRunCardSharedOptions()
 
-    TestArea = os.environ['TestArea']
-    with open( str(TestArea)+'/powheg.input','a') as f:
+    with open( str(self.TestArea)+'/powheg.input','a') as f:
       f.write( "vdecaymodeW "+str(self.vdecaymodeW)+"      ! PDG code for charged decay product of the W boson (11:e-;-11:e+;...)\n" )
       f.write( "vdecaymodeZ "+str(self.vdecaymodeZ)+"    ! PDG code for lepton Z boson (11:e-; 12: ve; ...)\n" )
       f.write( "mllmin "+str(self.mllmin)+"         ! default 0.1 GeV this is minimum invar mass for Z leptons\n" )
@@ -308,8 +302,7 @@ class PowhegConfig_ZZ(PowhegConfig_base):
   def generateRunCard(self):
     self.generateRunCardSharedOptions()
 
-    TestArea = os.environ['TestArea']
-    with open( str(TestArea)+'/powheg.input','a') as f:
+    with open( str(self.TestArea)+'/powheg.input','a') as f:
       f.write( "vdecaymodeZ1 "+str(self.vdecaymodeZ1)+"  ! PDG code for charged decay product of the vector boson (11:e-; -11:e+; ...)\n" )  
       f.write( "vdecaymodeZ2 "+str(self.vdecaymodeZ2)+"  ! PDG code for charged decay product of the vector boson (11:e-; -11:e+; ...)\n" )
       f.write( "mllmin  "+str(self.mllmin)+"    ! Minimum invariant mass of lepton pairs from Z decay\n" )
