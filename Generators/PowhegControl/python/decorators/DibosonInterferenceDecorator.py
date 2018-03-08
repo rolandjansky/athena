@@ -6,19 +6,15 @@
 
 #! /usr/bin/env python
 
-class DibosonInterferenceDecorator :
+class DibosonInterferenceDecorator(object) :
+
+  ## Define decorator name string
+  name = 'diboson interference'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.mllmin            = 4
-    self.decorated.withinterference  = 1
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'mllmin '+str(self.decorated.mllmin)+'                     ! Minimum invariant mass of lepton pairs from Z decay\n' )
-      f.write( 'withinterference '+str(self.decorated.withinterference)+' ! if 1 (true) include interference for like flavour charged leptons\n' )
+    self.decorated.add_parameter( 'mllmin', 4,           desc='(default 4) Minimum invariant mass of lepton pairs from Z decay' )
+    self.decorated.add_parameter( 'withinterference', 1, desc='(default 1, enabled) include interference for like flavour charged leptons' )

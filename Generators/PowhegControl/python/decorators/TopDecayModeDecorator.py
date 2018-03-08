@@ -7,19 +7,14 @@
 
 #! /usr/bin/env python
 
-class TopDecayModeDecorator :
+class TopDecayModeDecorator(object) :
+
+  ## Define decorator name string
+  name = 'top decay mode'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.topdecaymode = 0
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'topdecaymode '+str(self.decorated.topdecaymode)+' ! an integer of 5 digits that are either 0, 1 or 2, representing\n' )
-      f.write( '                                                  !  the maximum number of the following particles(antiparticles)\n' )
-      f.write( '                                                  !  in the final state: e mu tau up charm\n' )
+    self.decorated.add_parameter( 'topdecaymode', 0, desc='(default, process-dependent) 5 digits indicating the maximum number of (e,mu,tau,u,c) allowed in decays' )

@@ -7,17 +7,14 @@
 
 #! /usr/bin/env python
 
-class ZeroWidthDecorator :
+class ZeroWidthDecorator(object) :
+
+  ## Define decorator name string
+  name = 'zero width'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.zerowidth = 0
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'zerowidth '+str(self.decorated.zerowidth)+' ! (default 0) if 1 use on-shell bosons only \n' )
+    self.decorated.add_parameter( 'zerowidth', 0, desc='(default 0, disabled) use on-shell quarks/bosons only' )

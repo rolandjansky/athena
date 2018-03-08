@@ -9,7 +9,6 @@
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from ..decorators import PowhegDecorators
 from .. import ATLASCommonParameters
 
 ## Default Powheg configuration for tt generation
@@ -23,17 +22,25 @@ class PowhegConfig_tt(PowhegConfig_base) :
     self._powheg_executable += '/hvq/pwhg_main'
 
     ## Add process specific options
-    self.semileptonic = -1
+    self.fix_parameter( 'tdec/bmass', ATLASCommonParameters.mass_b,            desc='b quark mass in t decay' )
+    self.fix_parameter( 'tdec/cmass', ATLASCommonParameters.mass_c,            desc='c quark mass' )
+    self.fix_parameter( 'tdec/dmass', ATLASCommonParameters.mass_d,            desc='d quark mass' )
+    self.fix_parameter( 'tdec/sin2cabibbo', ATLASCommonParameters.sin2cabibbo, desc='sine of Cabibbo angle squared' )
+    self.fix_parameter( 'tdec/smass', ATLASCommonParameters.mass_s,            desc='s quark mass' )
+    self.fix_parameter( 'tdec/twidth', ATLASCommonParameters.width_t,          desc='top width' )
+    self.fix_parameter( 'tdec/umass', ATLASCommonParameters.mass_u,            desc='u quark mass' )
+    self.fix_parameter( 'tdec/wmass', ATLASCommonParameters.mass_W,            desc='W mass for top decay' )
+    self.fix_parameter( 'tdec/wwidth', ATLASCommonParameters.width_W,          desc='W width' )
 
     ## Decorate with generic option sets
-    PowhegDecorators.decorate( self, 'fixed scale' )
-    PowhegDecorators.decorate( self, 'heavy quark' )
-    PowhegDecorators.decorate( self, 'radiation' )
-    PowhegDecorators.decorate( self, 'second generation quark mass' )
-    PowhegDecorators.decorate( self, 'top decay lepton' )
-    PowhegDecorators.decorate( self, 'top decay mode' )
-    PowhegDecorators.decorate( self, 'v2' )
-    PowhegDecorators.decorate( self, 'v2 radiation' )
+    self.add_parameter_set( 'fixed scale' )
+    self.add_parameter_set( 'heavy quark' )
+    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'second generation quark mass' )
+    self.add_parameter_set( 'semileptonic' )
+    self.add_parameter_set( 'top decay branching' )
+    self.add_parameter_set( 'top decay mode' )
+    self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
     self.ncall1   = 10000
@@ -43,21 +50,5 @@ class PowhegConfig_tt(PowhegConfig_base) :
 
     ## Override defaults
     self.minlo        = -1
+    self.quark_mass   = ATLASCommonParameters.mass_t
     self.topdecaymode = 22222
-
-  ## Extend base-class runcard generation
-  def generateRunCard(self) :
-    self.quark_mass = ATLASCommonParameters.mass_t
-    self.initialiseRunCard()
-
-    with open( self.runcard_path(), 'a' ) as f :
-      f.write( 'semileptonic '+str(self.semileptonic)+'                     ! only accept semileptonic decays\n' )
-      f.write( 'tdec/bmass '+str(ATLASCommonParameters.mass_b)+'            ! b quark mass in t decay\n' )
-      f.write( 'tdec/cmass '+str(ATLASCommonParameters.mass_c)+'            ! c quark mass\n' )
-      f.write( 'tdec/dmass '+str(ATLASCommonParameters.mass_d)+'            ! d quark mass\n' )
-      f.write( 'tdec/sin2cabibbo '+str(ATLASCommonParameters.sin2cabibbo)+' ! sine of Cabibbo angle squared\n' )
-      f.write( 'tdec/smass '+str(ATLASCommonParameters.mass_s)+'            ! s quark mass\n' )
-      f.write( 'tdec/twidth '+str(ATLASCommonParameters.width_t)+'          ! top width\n' )
-      f.write( 'tdec/umass '+str(ATLASCommonParameters.mass_u)+'            ! u quark mass\n' )
-      f.write( 'tdec/wmass '+str(ATLASCommonParameters.mass_W)+'            ! W mass for top decay\n' )
-      f.write( 'tdec/wwidth '+str(ATLASCommonParameters.width_W)+'          ! W width\n' )

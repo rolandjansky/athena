@@ -7,19 +7,15 @@
 
 #! /usr/bin/env python
 
-class HiggsMassWindowDecorator :
+class HiggsMassWindowDecorator(object) :
+
+  ## Define decorator name string
+  name = 'Higgs mass window'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.mass_H_low    = 10.
-    self.decorated.mass_H_high   = 1000.
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'max_h_mass '+str(self.decorated.mass_H_high)+' ! M_H < mass high\n' )
-      f.write( 'min_h_mass '+str(self.decorated.mass_H_low)+'  ! M_H > mass low\n' )
+    self.decorated.add_parameter( 'mass_H_low', 10.,    desc='(default 10) M_H > mass low', parameter='min_h_mass' )
+    self.decorated.add_parameter( 'mass_H_high', 1000., desc='(default 1000) M_H < mass high', parameter='max_h_mass' )

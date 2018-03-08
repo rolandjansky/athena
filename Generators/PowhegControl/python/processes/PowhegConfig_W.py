@@ -9,7 +9,6 @@
 
 #! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from ..decorators import PowhegDecorators
 
 ## Default Powheg configuration for W generation
 #
@@ -22,15 +21,14 @@ class PowhegConfig_W(PowhegConfig_base) :
     self._powheg_executable += '/W/pwhg_main'
 
     ## Decorate with generic option sets
-    PowhegDecorators.decorate( self, 'CKM' )
-    PowhegDecorators.decorate( self, 'mass window' )
-    PowhegDecorators.decorate( self, 'radiation' )
-    PowhegDecorators.decorate( self, 'running scale' )
-    PowhegDecorators.decorate( self, 'second generation quark mass' )
-    PowhegDecorators.decorate( self, 'sin**2 theta W' )
-    PowhegDecorators.decorate( self, 'single vector boson' )
-    PowhegDecorators.decorate( self, 'vector boson decay' )
-    PowhegDecorators.decorate( self, 'W ID' )
+    self.add_parameter_set( 'CKM' )
+    self.add_parameter_set( 'mass window' )
+    self.add_parameter_set( 'running scale' )
+    self.add_parameter_set( 'second generation quark mass' )
+    self.add_parameter_set( 'sin**2 theta W' )
+    self.add_parameter_set( 'single vector boson' )
+    self.add_parameter_set( 'vector boson decay' )
+    self.add_parameter_set( 'W ID' )
 
     ## Set optimised integration parameters
     self.ncall1  = 120000
@@ -43,7 +41,3 @@ class PowhegConfig_W(PowhegConfig_base) :
     self.withnegweights  = 1
     self.mass_low        = 2.5
     self.mass_high       = 2.0 * self.beam_energy
-
-  ## Extend base-class runcard generation
-  def generateRunCard(self) :
-    self.initialiseRunCard()

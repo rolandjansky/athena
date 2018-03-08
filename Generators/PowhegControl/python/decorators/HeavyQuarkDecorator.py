@@ -7,17 +7,14 @@
 
 #! /usr/bin/env python
 
-class HeavyQuarkDecorator :
+class HeavyQuarkDecorator(object) :
+
+  ## Define decorator name string
+  name = 'heavy quark'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.quark_mass = -1
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'qmass '+str(self.decorated.quark_mass)+' ! mass of heavy quark in GeV\n' )
+    self.decorated.add_parameter( 'quark_mass', -1, desc='(default process-dependent) mass of heavy quark in GeV', parameter='qmass' )

@@ -7,21 +7,17 @@
 
 #! /usr/bin/env python
 
-class WMassWindowDecorator :
+class WMassWindowDecorator(object) :
+
+  ## Define decorator name string
+  name = 'W mass window'
 
   def __init__( self, decorated ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.mass_W_low  = 1.0
-    self.decorated.mass_W_high = 14000.0
-
-
-  def append_to_run_card( self ) :
-    ## Write decorations to runcard
-    with open( self.decorated.runcard_path(), 'a' ) as f :
-      f.write( 'max_w_mass '+str(self.decorated.mass_W_high)+' ! M_W < mass high\n')
-      f.write( 'min_w_mass '+str(self.decorated.mass_W_low)+'  ! M_W > mass low\n')
-      f.write( 'max_W_mass '+str(self.decorated.mass_W_high)+' ! M_W < mass high\n')
-      f.write( 'min_W_mass '+str(self.decorated.mass_W_low)+'  ! M_W > mass low\n')
+    self.decorated.add_parameter( 'mass_W_low', 1.0,      desc='(default process-dependent) M_W > mass low', parameter='min_w_mass' )
+    self.decorated.add_parameter( 'mass_W_high', 14000.0, desc='(default process-dependent) M_W < mass high', parameter='max_w_mass' )
+    self.decorated.add_parameter( 'mass_W_low', 1.0,      desc='(default process-dependent) M_W > mass low', parameter='min_W_mass' )
+    self.decorated.add_parameter( 'mass_W_high', 14000.0, desc='(default process-dependent) M_W < mass high', parameter='max_W_mass')
