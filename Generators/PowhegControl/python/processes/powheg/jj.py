@@ -18,7 +18,6 @@ class jj(PowhegV2):
         @param kwargs          dictionary of arguments from Generate_tf.
         """
         super(self.__class__, self).__init__(base_directory, "dijet", **kwargs)
-        # self.has_XML_support = False
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("bornktmin", 10.0)

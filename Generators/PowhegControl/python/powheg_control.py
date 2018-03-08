@@ -101,15 +101,18 @@ class PowhegControl(object):
         # Print executable being used
         logger.info("Configured for event generation with: {}".format(self.process.executable))
 
-    def generate(self, external_run_card=False, run_card_only=False):
+    def generate(self, use_external_run_card=False, create_run_card_only=False, use_XML_reweighting=True):
         """! Run normal event generation.
 
-        @param external_run_card Use a user-provided run card.
-        @param run_card_only     Only generate the run card.
+        @param use_external_run_card  Use a user-provided run card.
+        @param create_run_card_only   Only generate the run card.
+        @param use_XML_reweighting    Use XML-based reweighting
         """
-        if not external_run_card:
+        self.process.use_XML_reweighting = use_XML_reweighting
+        # Run appropriate generation functions
+        if not use_external_run_card:
             self.__generate_run_card()
-        if not run_card_only:
+        if not create_run_card_only:
             self.__generate_events()
 
     def __generate_run_card(self):
@@ -183,8 +186,13 @@ class PowhegControl(object):
 
         # Schedule reweighting if more than the nominal weight is requested
         if len(self.__event_weight_groups) > 0:
-            # Reverse the order so that scale comes first and user-defined is last
-            self.__event_weight_groups = collections.OrderedDict(reversed(list(self.__event_weight_groups.items())))
+            # Change the order so that scale comes first and user-defined is last
+            __ordered_event_weight_groups_list = []
+            for __key in ["scale_variation", "PDF_variation"]:
+                if __key in self.__event_weight_groups.keys():
+                    __ordered_event_weight_groups_list.append((__key, self.__event_weight_groups.pop(__key)))
+            [__ordered_event_weight_groups_list.append(__item) for __item in self.__event_weight_groups.items()]
+            self.__event_weight_groups = collections.OrderedDict(__ordered_event_weight_groups_list)
             for group_name, event_weight_group in self.__event_weight_groups.items():
                 _n_weights = len(event_weight_group) - 3 # there are always three entries: parameter_names, combination_method and keywords
                 # Sanitise weight groups, removing any with no entries
@@ -196,6 +204,9 @@ class PowhegControl(object):
                     logger.info("Adding new weight group '{}' which contains {} weights defined by varying {} parameters".format(group_name, _n_weights, len(event_weight_group["parameter_names"])))
                     for parameter_name in event_weight_group["parameter_names"]:
                         logger.info("... {}".format(parameter_name))
+                        if not self.process.has_parameter(parameter_name):
+                            logger.warning("Parameter '{}' does not exist for this process!".format(parameter_name))
+                            raise ValueError("Parameter '{}' does not exist for this process!".format(parameter_name))
             # Add reweighting to scheduler
             self.scheduler.add("reweighter", self.process, self.__event_weight_groups)
 
@@ -241,11 +252,11 @@ class PowhegControl(object):
     def define_event_weight_group(self, group_name, parameters_to_vary, combination_method="none"):
         """! Add a new named group of event weights.
 
-        @exceptions ValueError Raise a ValueError if reweighting is not supported.
+        @exceptions ValueError  Raise a ValueError if reweighting is not supported.
 
-        @param group_name         Name of the group of weights.
-        @param parameters_to_vary Names of the parameters to vary.
-        @param combination_method Method for combining the weights.
+        @param group_name          Name of the group of weights.
+        @param parameters_to_vary  Names of the parameters to vary.
+        @param combination_method  Method for combining the weights.
         """
         if not self.process.is_reweightable:
             logger.warning("Additional event weights cannot be added by this process! Remove reweighting lines from the jobOptions.")
@@ -258,9 +269,9 @@ class PowhegControl(object):
     def add_weight_to_group(self, group_name, weight_name, parameter_values):
         """! Add a new event weight to an existing group.
 
-        @param group_name       Name of the group of weights that this weight belongs to.
-        @param weight_name      Name of this event weight.
-        @param parameter_values Values of the parameters.
+        @param group_name        Name of the group of weights that this weight belongs to.
+        @param weight_name       Name of this event weight.
+        @param parameter_values  Values of the parameters.
         """
         if group_name not in self.__event_weight_groups.keys():
             raise ValueError("Weight group '{}' has not been defined.".format(group_name))
@@ -274,8 +285,10 @@ class PowhegControl(object):
     def __setattr__(self, key, value):
         """! Override default attribute setting to stop users setting non-existent attributes.
 
-        @param key   Attribute name.
-        @param value Value to set the attribute to.
+        @exceptions AttributeError  Raise an AttributeError if the interface is frozen
+
+        @param key    Attribute name.
+        @param value  Value to set the attribute to.
         """
         # If this is a known parameter then keep the values in sync
         if hasattr(self, "process"):

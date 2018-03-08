@@ -367,7 +367,7 @@ class Registry(object):
         self.add_default("softtest", 1, description="check soft limits. [0:disabled]")
         self.add_default("stage2init", -1, description="[1:enabled]")
         self.add_default("sthw2", atlas_common.sin2thetaW, description="sin(theta_W)^2")
-        self.add_default("storeinfo_rwgt", 0, frozen=True, description="(0:disabled; 1:enabled) enable new-style PDF information")
+        self.add_default("storeinfo_rwgt", 0, frozen=True, description="write out PDF information for reweighting. [0:disabled; 1:enabled]")
         self.add_default("storemintupb", 1, description="cache cross sections to speed up construction of upper bounding envelope. [1:enabled]")
         self.add_default("sudakovbb", -1, description="(-1:Powheg-default)")
         self.add_default("sudmw2mb", -1, description="(-1:Powheg-default)")

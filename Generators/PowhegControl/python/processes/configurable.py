@@ -48,6 +48,12 @@ class Configurable(object):
         for parameter in self.parameters:
             setattr(self, parameter.name, parameter.value)
 
+    def has_keyword(self, keyword):
+        return (len(self.parameters_by_keyword(keyword)) > 0)
+
+    def has_parameter(self, parameter):
+        return (len(self.parameters_by_name(parameter)) > 0)
+
     def parameters_by_keyword(self, keyword):
         """! Retrieve all parameters that use a given keyword.
 

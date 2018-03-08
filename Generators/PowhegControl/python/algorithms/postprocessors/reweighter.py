@@ -12,7 +12,7 @@ import shutil
 logger = Logging.logging.getLogger("PowhegControl")
 
 ## Tuple to contain arbitrary grouped weights
-WeightTuple = collections.namedtuple("WeightTuple", ["parameter_settings", "keywords", "ID", "name", "combine", "group", "xml_compatible"])
+WeightTuple = collections.namedtuple("WeightTuple", ["parameter_settings", "keywords", "ID", "name", "combine", "group", "parallel_xml_compatible"])
 
 
 @timed("reweighting")
@@ -30,26 +30,30 @@ def reweighter(process, weight_groups, powheg_LHE_output):
     non_weight_attributes = ["parameter_names", "combination_method", "keywords"]
 
     ## Dictionary of available keywords for faster XML-reweighting: from rwl_setup_param_weights.f
-    xml_kwds = {"lhans1": "lhapdf", "lhans2": "lhapdf", "renscfact": "renscfact", "facscfact": "facscfact"}
+    xml_kwds = {"renscfact": "renscfact", "facscfact": "facscfact", "lhans1": "lhapdf", "lhans2": "lhapdf"}
 
     # Initial values for scale, PDF and other weight groups
     _idx_scale_start, _idx_PDF_start, _idx_other_start = 1001, 2001, 3001
+
+    if not process.use_XML_reweighting:
+        logger.warning("... XML-style reweighting is not enabled for this process. Will use old (multiple-pass) method.")
 
     # Construct ordered list of weights
     for group_name, weight_group in weight_groups.items():
         logger.info("Preparing weight group: {:<19} with {} weights".format(group_name, len(weight_group) - len(non_weight_attributes)))
 
         # Name -> keyword dictionary is different if this is an XML reweighting
-        is_xml_compatible = process.has_XML_support and all([k in xml_kwds.keys() for _kw_set in weight_group["keywords"] for k in _kw_set])
-        if is_xml_compatible:
+        is_parallel_xml_compatible = process.use_XML_reweighting and all([k in xml_kwds.keys() for _kw_set in weight_group["keywords"] for k in _kw_set])
+        if is_parallel_xml_compatible:
             _keywords = [list(set([xml_kwds[k] for k in _kw_set])) for _kw_set in weight_group["keywords"]]
         else:
-            logger.warning("... this weight group and/or process is incompatible with XML-style reweighting. Will use (slow) old method.")
+            if process.use_XML_reweighting:
+                logger.warning("... this weight group is incompatible with XML-style reweighting. Will use old (multiple-pass) method.")
             _keywords = weight_group["keywords"]
         keyword_dict = dict((n, k) for n, k in zip(weight_group["parameter_names"], _keywords))
 
         # Common arguments for all weights
-        tuple_kwargs = {"keywords": keyword_dict, "combine": weight_group["combination_method"], "group": group_name, "xml_compatible": is_xml_compatible}
+        tuple_kwargs = {"keywords": keyword_dict, "combine": weight_group["combination_method"], "group": group_name, "parallel_xml_compatible": is_parallel_xml_compatible}
 
         # Nominal variation: ID=0
         if group_name == "nominal":
@@ -73,22 +77,6 @@ def reweighter(process, weight_groups, powheg_LHE_output):
                 weight_list.append(WeightTuple(parameter_settings=weight_group[name], ID=idx, name=name, **tuple_kwargs))
             _idx_other_start = idx + 1
 
-    # Construct xml output
-    xml_lines, non_xml_weight_list, current_weightgroup = [], [], ""
-    for weight in weight_list:
-        # Group elements
-        if weight.group != current_weightgroup:
-            xml_lines.append("</weightgroup>")
-            current_weightgroup = weight.group
-            xml_lines.append("<weightgroup name='{}'>".format(current_weightgroup))
-        # Weight elements
-        if weight.xml_compatible:
-            keyword_pairs = ["{}={}".format(k, v) for p, v in weight.parameter_settings for k in weight.keywords[p]]
-            xml_lines.append("<weight id='{}'> {} </weight>".format(weight.ID, " ".join(keyword_pairs)))
-        else:
-            non_xml_weight_list.append(weight)
-    xml_lines.append(xml_lines.pop(0)) # move the closing tag to the end
-
     # Make backup of generation statistics
     if os.path.isfile("pwgcounters.dat"):
         shutil.copy("pwgcounters.dat", "pwgcounters.dat.bak")
@@ -99,35 +87,66 @@ def reweighter(process, weight_groups, powheg_LHE_output):
     except IOError:
         raise IOError("Nominal LHE file could not be found. Probably POWHEG-BOX crashed during event generation.")
 
-    # Write xml output
-    n_xml_weights = len(weight_list) - len(non_xml_weight_list)
-    if n_xml_weights > 0:
-        with open("reweighting_input.xml", "wb") as f_rwgt:
-            f_rwgt.write("<initrwgt>\n")
-            for xml_line in xml_lines:
-                f_rwgt.write("{}\n".format(xml_line))
-            f_rwgt.write("</initrwgt>")
+    # Do XML-reweighting
+    if process.use_XML_reweighting:
+        # Add nominal weight if not already present
+        if not any([weight.group == "nominal" for weight in weight_list]):
+            weight_list = [WeightTuple(ID=0, name="nominal", group="nominal", parallel_xml_compatible=True, parameter_settings=[], keywords=None, combine=None)] + weight_list
 
-        # Add reweighting lines to runcard
-        FileParser("powheg.input").text_replace("rwl_file .*", "rwl_file 'reweighting_input.xml'")
-        FileParser("powheg.input").text_replace("rwl_add .*", "rwl_add 1")
-        FileParser("powheg.input").text_replace("clobberlhe .*", "clobberlhe 1")
+        # Construct xml output
+        xml_lines, serial_xml_weight_list, current_weightgroup = [], [], ""
+        for weight in weight_list:
+            # Group elements
+            if weight.parallel_xml_compatible and weight.group != current_weightgroup:
+                xml_lines.append("</weightgroup>")
+                current_weightgroup = weight.group
+                xml_lines.append("<weightgroup name='{}' combine='{}'>".format(weight.group, weight.combine))
+            # Weight elements
+            if weight.parallel_xml_compatible:
+                keyword_pairs_str = " ".join(["{}={}".format(k, v) for p, v in weight.parameter_settings for k in weight.keywords[p]])
+                if keyword_pairs_str == "": keyword_pairs_str = "nominal"
+                xml_lines.append("<weight id='{}'> {} </weight>".format(weight.ID, keyword_pairs_str))
+            else:
+                serial_xml_weight_list.append(weight)
+        xml_lines.append(xml_lines.pop(0)) # move the closing tag to the end
+        n_parallel_xml_weights = len(weight_list) - len(serial_xml_weight_list)
 
-        logger.info("Preparing simultaneous calculation of {} additional weights for generated events.".format(n_xml_weights))
-        singlecore_untimed(process)
+        # First iterate over the simultaneous XML weights
+        if n_parallel_xml_weights > 0:
+            # Write xml output
+            with open("reweighting_input.xml", "wb") as f_rwgt:
+                f_rwgt.write("<initrwgt>\n")
+                for xml_line in xml_lines:
+                    f_rwgt.write("{}\n".format(xml_line))
+                f_rwgt.write("</initrwgt>")
 
-        # Move the reweighted file back
-        try:
-            shutil.move(powheg_LHE_output.replace(".lhe", "-rwgt.lhe"), powheg_LHE_output)
-        except IOError:
-            raise IOError("Reweighted LHE file could not be found. Probably POWHEG-BOX crashed during reweighting.")
+            # Add reweighting lines to runcard
+            FileParser("powheg.input").text_replace("rwl_file .*", "rwl_file 'reweighting_input.xml'")
+            FileParser("powheg.input").text_replace("rwl_add .*", "rwl_add 1")
+            FileParser("powheg.input").text_replace("clobberlhe .*", "clobberlhe 1")
 
-    # Iterate over any variations which require old-style reweighting
-    if len(non_xml_weight_list) > 0:
-        logger.info("Preparing individual calculation of {} additional weights for generated events.".format(len(non_xml_weight_list)))
-        for idx_weight, weight in enumerate(non_xml_weight_list, start=1):
-            add_single_weight(process, weight, idx_weight, len(non_xml_weight_list))
-            shutil.move(powheg_LHE_output.replace(".lhe", "-rwgt.lhe"), powheg_LHE_output)
+            logger.info("Preparing simultaneous calculation of {} additional weights for generated events.".format(n_parallel_xml_weights))
+            singlecore_untimed(process)
+
+            # Move the reweighted file back
+            rename_LHE_output(powheg_LHE_output)
+
+        # Iterate over any variations which require old-style reweighting
+        if len(serial_xml_weight_list) > 0:
+            logger.info("Preparing individual calculation of {} additional weights for generated events.".format(len(serial_xml_weight_list)))
+            shutil.move("reweighting_input.xml", "reweighting_input.nominal")
+            for idx_weight, weight in enumerate(serial_xml_weight_list, start=1):
+                add_single_weight(process, weight, idx_weight, len(serial_xml_weight_list), use_XML=True)
+                rename_LHE_output(powheg_LHE_output)
+            shutil.move("reweighting_input.nominal", "reweighting_input.xml")
+
+    # Do non-XML-reweighting
+    else:
+        # Iterate over any variations which require old-style reweighting
+        logger.info("Preparing individual calculation of {} additional weights for generated events.".format(len(weight_list)))
+        for idx_weight, weight in enumerate(weight_list, start=1):
+            add_single_weight(process, weight, idx_weight, len(weight_list), use_XML=False)
+            rename_LHE_output(powheg_LHE_output)
 
     # Remove rwgt and pdf lines, which crash Pythia
     FileParser(powheg_LHE_output).text_remove("^#pdf")
@@ -151,14 +170,14 @@ def reweighter(process, weight_groups, powheg_LHE_output):
     if os.path.isfile("pwgcounters.dat.bak"):
         shutil.move("pwgcounters.dat.bak", "pwgcounters.dat")
 
-
-def add_single_weight(process, weight, idx_weight, n_total):
+def add_single_weight(process, weight, idx_weight, n_total, use_XML):
     """! Add a single additional weight to an LHE file.
 
     @param process    PowhegBox process.
     @param weight     Tuple with details of the weight to be added.
     @param idx_weight Which number this weight is.
-    @param n_total    Total number of weights to add.
+    @param n_total    Total number of weights being added.
+    @param use_XML    Whether to use XML or old-style reweighting.
     """
     @timed("weight variation {}/{}".format(idx_weight, n_total))
     def __timed_inner_fn():
@@ -166,12 +185,17 @@ def add_single_weight(process, weight, idx_weight, n_total):
         logger.info("... weight index ID is: {}".format(weight.ID))
         shutil.copy("powheg_nominal.input", "powheg.input")
 
-        # As the nominal process has already been run, turn on compute_rwgt
-        FileParser("powheg.input").text_replace("compute_rwgt 0", "compute_rwgt 1")
-
-        # Ensure that manyseeds is turned off,  as this would cause the reweighting to crash
-        FileParser("powheg.input").text_replace("manyseeds .*", "manyseeds 0")
-        FileParser("powheg.input").text_replace("parallelstage .*", "parallelstage -1")
+        # Make appropriate runcard changes
+        if use_XML:
+            FileParser("powheg.input").text_replace("rwl_file .*", "rwl_file 'reweighting_input.xml'")
+            FileParser("powheg.input").text_replace("rwl_add .*", "rwl_add 1")
+            FileParser("powheg.input").text_replace("clobberlhe .*", "clobberlhe 1")
+        else:
+            # As the nominal process has already been run, turn on compute_rwgt
+            FileParser("powheg.input").text_replace("compute_rwgt 0", "compute_rwgt 1")
+            # Ensure that manyseeds is turned off,  as this would cause the reweighting to crash
+            FileParser("powheg.input").text_replace("manyseeds .*", "manyseeds 0")
+            FileParser("powheg.input").text_replace("parallelstage .*", "parallelstage -1")
 
         # Apply weight settings
         for (parameter, value) in weight.parameter_settings:
@@ -182,14 +206,32 @@ def add_single_weight(process, weight, idx_weight, n_total):
             except KeyError:
                 logger.warning("Parameter '{}' not recognised. Cannot reweight!".format(parameter))
 
-        # Set reweighting metadata
-        FileParser("powheg.input").text_replace("lhrwgt_descr .*", "lhrwgt_descr '{}'".format(weight.name))
-        FileParser("powheg.input").text_replace("lhrwgt_id .*", "lhrwgt_id '{}'".format(weight.ID))
-        FileParser("powheg.input").text_replace("lhrwgt_group_combine .*", "lhrwgt_group_combine '{}'".format(weight.combine))
-        FileParser("powheg.input").text_replace("lhrwgt_group_name .*", "lhrwgt_group_name '{}'".format(weight.group))
+
+        if use_XML:
+            # Create XML reweighting file
+            with open("reweighting_input.xml", "wb") as f_rwgt:
+                f_rwgt.write("<initrwgt>\n")
+                f_rwgt.write("<weightgroup name='{}' combine='{}'>\n".format(weight.group, weight.combine))
+                f_rwgt.write("<weight id='{}'> {} </weight>\n".format(weight.ID, weight.name))
+                f_rwgt.write("</weightgroup>\n")
+                f_rwgt.write("</initrwgt>")
+        else:
+            # Change reweighting metadata in runcard
+            FileParser("powheg.input").text_replace("lhrwgt_descr .*", "lhrwgt_descr '{}'".format(weight.name))
+            FileParser("powheg.input").text_replace("lhrwgt_id .*", "lhrwgt_id '{}'".format(weight.ID))
+            FileParser("powheg.input").text_replace("lhrwgt_group_combine .*", "lhrwgt_group_combine '{}'".format(weight.combine))
+            FileParser("powheg.input").text_replace("lhrwgt_group_name .*", "lhrwgt_group_name '{}'".format(weight.group))
 
         # Run the process until termination
         singlecore_untimed(process)
 
     # Run single weight variation
     __timed_inner_fn()
+
+
+def rename_LHE_output(powheg_LHE_output):
+    try:
+        shutil.move(powheg_LHE_output.replace(".lhe", "-rwgt.lhe"), powheg_LHE_output)
+    except IOError:
+        raise IOError("Reweighted LHE file could not be found. Probably POWHEG-BOX crashed during reweighting.")
+
