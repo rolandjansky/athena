@@ -7,8 +7,6 @@
  and fit quality. 
  ***************************************************************************/
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include <cmath>
 #include <iomanip>
 #include "EventPrimitives/EventPrimitives.h"
@@ -47,8 +45,6 @@
 
 namespace Trk
 { 
-
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 iPatFitter::iPatFitter (const std::string&	type, 
 			const std::string&	name,
@@ -121,8 +117,6 @@ iPatFitter::iPatFitter (const std::string&	type,
 
 iPatFitter::~iPatFitter (void)
 {}
-
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 StatusCode
 iPatFitter::initialize()
@@ -638,8 +632,6 @@ iPatFitter::fit	(const Track&			indetTrack,
 	return fittedTrack;
     }
 }
-
-//<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
 void
 iPatFitter::addMeasurements (std::vector<FitMeasurement*>&	measurements,

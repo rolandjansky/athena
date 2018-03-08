@@ -6,8 +6,6 @@
  local parameter values used during fitter
  ***************************************************************************/
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include <cmath>
 #include <iomanip>
 #include <iostream>
@@ -24,8 +22,6 @@
 
 namespace Trk{
   
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
 FitParameters::FitParameters (const Perigee& perigee)
     : m_cosPhi1				(0.),
       m_cosTheta1			(0.),
@@ -172,8 +168,6 @@ FitParameters::~FitParameters (void)
     delete m_differences;
     delete m_differences***REMOVED***;
 }
-
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 void
 FitParameters::addAlignment (bool constrained, double angle, double offset)

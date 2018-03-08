@@ -43,9 +43,6 @@
 
 namespace Trk{
   
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
-
 // constructor
 FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 			    bool				extendedDebug,
@@ -106,8 +103,6 @@ FitProcedure::~FitProcedure (void)
     delete m_fitMatrices;
     delete m_fitQuality;
 }
-
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 void
 FitProcedure::clear (void)
@@ -791,8 +786,6 @@ FitProcedure::setMinIterations (int minIter)
     m_minIter = minIter;
     if (m_minIter > m_maxIter) m_maxIter = m_minIter;
 }
-
-//<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
 void
 FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)

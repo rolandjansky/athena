@@ -7,8 +7,6 @@
  and fit quality. 
  ***************************************************************************/
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include <cmath>
 #include <iomanip>
 #include "GaudiKernel/SystemOfUnits.h"
@@ -37,8 +35,6 @@
 
 namespace Trk
 { 
-
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 MaterialAllocator::MaterialAllocator (const std::string&	type, 
 				      const std::string&	name,
@@ -90,8 +86,6 @@ MaterialAllocator::MaterialAllocator (const std::string&	type,
 
 MaterialAllocator::~MaterialAllocator (void)
 {}
-
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 StatusCode
 MaterialAllocator::initialize()
@@ -1135,8 +1129,6 @@ MaterialAllocator::reallocateMaterial (std::vector<FitMeasurement*>&	measurement
     return true;
 }
 
-//<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
-    
 void
 MaterialAllocator::addSpectrometerDelimiters (std::vector<FitMeasurement*>&	measurements) const
 {
@@ -2305,12 +2297,6 @@ MaterialAllocator::materialAggregation (std::vector<FitMeasurement*>&	measuremen
 	if ((**m).materialEffects()
 	    && (**m).numberDoF()
 	    && (**m).energyLoss() < 0.)		energyGain = true;
-	
-// 	if (! (**m).isMaterialDelimiter())	continue;
-// 	delete *m;
-// 	std::vector<Trk::FitMeasurement*>::iterator n = m;
-// 	--m;
-// 	measurements.erase(n);
     }
 
     if (energyGain)

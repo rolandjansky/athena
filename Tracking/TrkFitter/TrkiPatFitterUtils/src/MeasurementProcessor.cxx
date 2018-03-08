@@ -23,9 +23,6 @@
 
 namespace Trk{
   
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
-
 // constructor
 MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 					    Amg::MatrixX&			/*derivativeMatrix*/,
@@ -123,8 +120,6 @@ MeasurementProcessor::~MeasurementProcessor (void)
     delete m_intersectStartingValue;
     delete m_vertexIntersect;
 }
-
-//<<<<<< MEMBER PUBLIC FUNCTION DEFINITIONS                             >>>>>>
 
 bool
 MeasurementProcessor::calculateDerivatives(void)
@@ -669,8 +664,6 @@ MeasurementProcessor::propagationDerivatives(void)
 	}
     }
 }
-
-//<<<<<< MEMBER PRIVATE FUNCTION DEFINITIONS                            >>>>>>
 
 void
 MeasurementProcessor::clusterDerivatives(int derivativeFlag, const FitMeasurement& measurement)

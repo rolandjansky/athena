@@ -23,8 +23,6 @@
 //  (c) ATLAS tracking software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include <iomanip>
 #include <iostream>
 #include "GaudiKernel/MsgStream.h"
@@ -35,8 +33,6 @@
 #include "TrkiPatFitterUtils/FitMatrix.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 #include "TrkiPatFitterUtils/FitParameters.h"
-
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 namespace Trk{
     
@@ -73,8 +69,6 @@ FitMatrices::~FitMatrices(void)
     delete m_weight;
     delete m_weightedDifference;
 }
-
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 void
 FitMatrices::checkPointers (MsgStream& log) const
@@ -747,7 +741,6 @@ FitMatrices::usePerigee (const FitMeasurement& measurement)
 }
 
 
-//<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
 void
 FitMatrices::addPerigeeMeasurement (void)
