@@ -892,7 +892,7 @@ SCTErrMonTool::fillByteStreamErrors() {
       }
     }
     for (int lyr = 0; lyr != nLayers; ++lyr) {
-      if (m_environment == AthenaMonManager::online &&
+      if (m_environment == AthenaMonManager::online && abs(reg)<3 &&
 	  m_current_lb % m_checkrecent == 0 && m_current_lb > m_last_reset_lb && m_summaryErrsRecent[reg][lyr]) {
 	m_summaryErrsRecent[reg][lyr]->Reset();
       }
