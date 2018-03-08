@@ -91,17 +91,17 @@ class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
-            taualgs.setPrefix("TrigTau_")
+            taualgs.setPrefix("TrigTau2012_")
 
             #what should run in trigger???
             #same as tauRec (but without Pi0 cluster finder)
             tools.append(taualgs.getJetSeedBuilder())
             tools.append(taualgs.getTauVertexFinder(doUseTJVA=False)) #don't use TJVA by default
             tools.append(taualgs.getTauAxis())
-            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTau2012_"))
+            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2))
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
 
-            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTau2012_"))  #cellConeSize 0.2!!
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2))  #cellConeSize 0.2!!
 
             #tools.append(taualgs.getElectronVetoVars())  #needed?
             tools.append(taualgs.getTauVertexVariables())
@@ -161,13 +161,13 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             # Insert bypass later?
             # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017 (see ATR-15845)
             if TriggerFlags.run2Config == '2016':
-                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauPreselection_", noSelector=False))
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, noSelector=False))
             else:
-                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1, prefix="TrigTauPreselection_", noSelector=False))
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1, noSelector=False))
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
-            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauPreselection_"))
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2))
             # tools.append(taualgs.getElectronVetoVars())
             # Variables combining tracking and calorimeter information
             tools.append(taualgs.getTauCommonCalcVars())
@@ -227,11 +227,11 @@ class TrigTauRecMerged_TauFTK (TrigTauRecMerged) :
             tools.append(taualgs.getTauAxis())
             # Count tracks with deltaZ0 cut of 2mm -> Need to remove quality criteria for fast-tracks here
             # Insert bypass later?
-            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauFTK_", noSelector = False))
+            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, noSelector = False))
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
-            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauFTK_"))
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2))
             # tools.append(taualgs.getElectronVetoVars())
             # Variables combining tracking and calorimeter information
             tools.append(taualgs.getTauCommonCalcVars())
@@ -288,7 +288,7 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy', caloOnly=True))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
-            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauCaloOnly_"))
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2))
 
             for tool in tools:
                 tool.inTrigger = True
@@ -333,7 +333,7 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy', caloOnly=True))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
-            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauCaloOnlyMVA_"))
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2))
             # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
             tools.append(taualgs.getMvaTESVariableDecorator())
             tools.append(taualgs.getMvaTESEvaluator())
@@ -383,13 +383,13 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             tools.append(taualgs.getTauAxis())
             # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017 (see ATR-15845)
             if TriggerFlags.run2Config == '2016':
-                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix="TrigTauPrecision_"))
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2))
             else:
-                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1, prefix="TrigTauPrecision_"))
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
             # Calibrate to TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
-            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauPrecision_"))
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2))
             # tools.append(taualgs.getElectronVetoVars())
             # Lifetime variables
             tools.append(taualgs.getTauVertexVariables())
@@ -434,7 +434,7 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
-            taualgs.setPrefix("TrigTau_")
+            taualgs.setPrefix("TrigTauMVA_")
 
             # Collection name
             self.OutputCollection = "TrigTauRecMerged"
@@ -449,7 +449,7 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             tools.append(taualgs.getTauAxis())
 
             # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017 (see ATR-15845)
-            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1, prefix="TrigTauPrecision_"))
+            tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
             # BDT track classification
             tools.append(taualgs.getTauTrackClassifier())
 
@@ -460,7 +460,7 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             tools.append(taualgs.getMvaTESEvaluator())
 
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
-            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauPrecision_"))
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2))
             # tools.append(taualgs.getElectronVetoVars())
             # Lifetime variables
             tools.append(taualgs.getTauVertexVariables())
