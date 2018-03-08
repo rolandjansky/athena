@@ -34,6 +34,7 @@ def decorate( powheg_controller, decorator, **kwargs ) :
   elif decorator == LHEv3Decorator.name : LHEv3Decorator(powheg_controller, **kwargs)
   elif decorator == MassWindowDecorator.name : MassWindowDecorator(powheg_controller, **kwargs)
   elif decorator == MiNLONLLDecorator.name : MiNLONLLDecorator(powheg_controller, **kwargs)
+  elif decorator == NNLOPSDecorator.name : NNLOPSDecorator(powheg_controller, **kwargs)
   elif decorator == RadiationParametrisationDecorator.name : RadiationParametrisationDecorator(powheg_controller, **kwargs)
   elif decorator == RunningScaleDecorator.name : RunningScaleDecorator(powheg_controller, **kwargs)
   elif decorator == RunningScalesDecorator.name : RunningScalesDecorator(powheg_controller, **kwargs)

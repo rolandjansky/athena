@@ -36,9 +36,9 @@ class PowhegConfig_HWj(PowhegConfig_base) :
     self.add_parameter_set( 'W mass window' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 60000
-    self.ncall2   = 40000
-    self.nubound  = 40000
+    self.ncall1   = 150000
+    self.ncall2   = 100000
+    self.nubound  = 100000
     self.foldx    = 5
     self.foldy    = 5
     self.foldphi  = 10

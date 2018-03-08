@@ -21,11 +21,12 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
     self._powheg_executable += '/ZZ/pwhg_main'
 
     ## Add process specific options
-    self.add_parameter( 'cutallpairs', -1 )
+    self.add_parameter( 'cutallpairs', -1, desc='(default -1, Powheg-default)' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'diboson' )
     self.add_parameter_set( 'diboson interference' )
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fixed scale' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'running width' )
@@ -35,7 +36,7 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
     ## Set optimised integration parameters
     self.ncall1   = 50000
     self.ncall2   = 50000
-    self.nubound  = 100000
+    self.nubound  = 200000
     self.xupbound = 10
     self.itmx1    = 5
     self.itmx2    = 14
@@ -49,5 +50,4 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
                                  'ZZeetautau', 'ZZtautaumumu', 'ZZvvee', 'ZZvvmumu', 'ZZvvtautau' ]
     self.decay_mode = 'ZZllll'
     self.minlo      = -1
-
-
+    self.withdamp   = 1

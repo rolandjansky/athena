@@ -1,22 +1,16 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-#########################################################################################################################
+## @PowhegControl PowhegV1Multicore
+#  Run multiple Powheg v1 processes
+#  - use a PowhegSingleThread for each one
 #
-#   Run multiple Powheg processes with one pass through each one
-#
-#   Authors: James Robinson  <james.robinson@cern.ch>
-#
-#########################################################################################################################
+#  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
 from PowhegSingleThread import *
 from OutputHandler import write_output
 
-###############################################################################
-#
-#  Register multiple Powheg processes
-#
-###############################################################################
+##  Run multiple Powheg processes
 def runPowhegV1Multicore(configurator) :
   configurator.logger.info( 'Running in multicore mode with {0} subjobs'.format(configurator.cores) )
   # Initialise temporary files to hold the seed indices, since providing stdin while reading stdout is tricky - increment by 1e6 each time

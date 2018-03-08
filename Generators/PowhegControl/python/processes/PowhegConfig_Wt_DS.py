@@ -36,12 +36,14 @@ class PowhegConfig_Wt_DS(PowhegConfig_base) :
     self.add_parameter_set( 'W decay mode' )
 
     ## Set optimised integration parameters
-    self.ncall1  = 5000
-    self.ncall2  = 50000 #100000
-    self.nubound = 20000
-    self.foldx   = 2
-    self.foldy   = 2
-    self.foldphi = 5
+    self.ncall1   = 40000
+    self.ncall2   = 200000
+    self.nubound  = 200000
+    self.xupbound = 4
+    self.foldx    = 5
+    self.foldy    = 2
+    self.foldphi  = 2
 
     ## Override defaults
     self.topdecaymode = 11111
+    self.withdamp     = 0

@@ -21,11 +21,5 @@ class HVJDecorator(object) :
     self.decorated.fix_parameter( 'bmass', ATLASCommonParameters.mass_b, desc='(default ATLAS) b quark mass' )
     self.decorated.add_parameter( 'kappa_ghb', 1.0,                      desc='(default 1.0) multiplicative kappa-factor of the Higgs-bottom coupling' )
     self.decorated.add_parameter( 'kappa_ght', 1.0,                      desc='(default 1.0) multiplicative kappa-factor of the Higgs-top coupling' )
-    self.decorated.add_parameter( 'use_massive_b', True,                 desc='(default True) enable bottom quark mass' )
-    self.decorated.add_parameter( 'use_massive_t', True,                 desc='(default True) enable charm quark mass' )
-
-
-  def finalise(self) :
-    ## Set bottom and charm masses if requested
-    self.decorated.fix_parameter( 'massivebottom', [0,1][self.decorated.pop('use_massive_b')], desc='(default process-dependent) include bottom quark loops' )
-    self.decorated.fix_parameter( 'massivetop', [0,1][self.decorated.pop('use_massive_t')],    desc='(default process-dependent) include top quark loops' )
+    self.decorated.add_parameter( 'use_massive_b', 1,                    desc='(default 1, enabled) enable bottom quark loops', parameter='massivebottom' )
+    self.decorated.add_parameter( 'use_massive_t', 1,                    desc='(default 1, enabled) enable charm quark loops', parameter='massivetop' )

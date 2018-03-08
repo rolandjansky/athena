@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# from PowhegDecorators import *
 from AnomalousCouplingDecorator import *
 from BaseDecorator import *
 from CKKWDecorator import *
@@ -25,6 +24,7 @@ from LeptonMassDecorator import *
 from LHEv3Decorator import *
 from MassWindowDecorator import *
 from MiNLONLLDecorator import *
+from NNLOPSDecorator import *
 from RadiationParametrisationDecorator import *
 from RunningScaleDecorator import *
 from RunningScalesDecorator import *

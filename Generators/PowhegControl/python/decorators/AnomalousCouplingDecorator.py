@@ -23,4 +23,4 @@ class AnomalousCouplingDecorator(object) :
     self.decorated.add_parameter( 'delk_z', 0,    desc='(default 0) Delta_K(Z)' )
     self.decorated.add_parameter( 'lambda_g', 0,  desc='(default 0) Lambda(gamma)' )
     self.decorated.add_parameter( 'lambda_z', 0,  desc='(default 0) Lambda(Z)' )
-    self.decorated.add_parameter( 'tevscale', -1, desc='(default -1, disabled) W form-factor scale, in TeV' )
+    self.decorated.add_parameter( 'tevscale', -1, desc='(default -1, use Powheg default) W form-factor scale, in TeV' )

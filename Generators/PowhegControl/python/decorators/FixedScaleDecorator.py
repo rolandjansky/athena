@@ -17,4 +17,4 @@ class FixedScaleDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'fixedscale', -1, desc='(default -1, disabled) use reference renormalisation and factorisation scales' )
+    self.decorated.add_parameter( 'fixedscale', -1, desc='(default -1, use Powheg default) use reference renormalisation and factorisation scales' )

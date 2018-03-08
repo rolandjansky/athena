@@ -33,6 +33,7 @@ class PowhegConfig_tt(PowhegConfig_base) :
     self.fix_parameter( 'tdec/wwidth', ATLASCommonParameters.width_W,          desc='W width' )
 
     ## Decorate with generic option sets
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fixed scale' )
     self.add_parameter_set( 'heavy quark' )
     self.add_parameter_set( 'LHEv3' )
