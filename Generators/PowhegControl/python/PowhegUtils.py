@@ -74,14 +74,13 @@ class PowhegConfig_base() :
   withdamp                = 0
   hfact                   = -1
   # Users are asked not to change these, since their invocation is time consuming and/or may cause some conflicts with other settings.
-  testsuda                = 0
-  testplots               = 0
-  bornonly                = 0
-  smartsig                = 1
-  withsubtr               = 1
-  radregion               = -1
-  iupperisr, iupperfsr    = 1, 2
-  flg_debug               = -1
+  testsuda             = 0
+  testplots            = 0
+  bornonly             = 0
+  smartsig             = 1
+  withsubtr            = 1
+  radregion            = -1
+  iupperisr, iupperfsr = 1, 2
   # SM parameters
   mass_e      = 0.00051
   mass_mu     = 0.1057
@@ -113,10 +112,11 @@ class PowhegConfig_base() :
   CKM_Vtb     = 0.999152
   G_F         = 0.00001166397
   # Flags for whether to write SM parameters to runcard
-  _use_CKM_matrix         = False
-  _use_EW_parameters      = False
-  _use_diboson_parameters = False
-  # Parameters common to multiple processes but non-universal
+  _use_CKM_matrix            = False
+  _use_EW_parameters         = False
+  _use_diboson_parameters    = False
+  _use_scale_damp_parameters = False
+  # Scale/damping parameters common to multiple processes but non-universal
   mass_low, mass_high = None, None
   hdamp               = -1
   zerowidth           = 0
@@ -236,20 +236,20 @@ class PowhegConfig_base() :
       f.write( 'withsubtr '+str(self.withsubtr)+'            ! (default 1) subtract real counterterms (0 do not subtract)\n' )
       f.write( 'radregion '+str(self.radregion)+'            ! (default all regions) only generate radiation in the selected singular region\n' )
       f.write( 'iupperisr '+str(self.iupperisr)+'            ! (default 1) choice of ISR upper bounding functional form\n' )
-      f.write( 'iupperfsr  '+str(self.iupperfsr )+'          ! (default 2) choice of FSR upper bounding functional form\n' )
-      f.write( 'flg_debug 1 '+str(self.flg_debug)+'          ! (default -1) write extra information on LHEF\n' )
+      f.write( 'iupperfsr  '+str(self.iupperfsr)+'           ! (default 2) choice of FSR upper bounding functional form\n' )
+      f.write( 'flg_debug -1                                 ! (default -1) write extra information on LHEF. Breaks PYTHIA showering.\n' )
       # Optional parameters
       f.write( 'bornsuppfact  '+str(self.bornsuppfact)+'     ! (default -1) Mass parameter for Born suppression factor. If > 0 suppfact = 1\n' )
       f.write( 'ptsupp -1                                    ! deprecated, but some processes complain if it is missing\n' )
       f.write( 'bornktmin '+str(self.bornktmin)+'            ! (default -1) Generation cut: minimum kt in underlying Born\n' )
       # Parameter sets used by multiple (but not all) processes
       if self._use_EW_parameters :
-        f.write( 'Zmass '+str(self.mass_Z)+'                 ! Z mass in GeV\n' )
-        f.write( 'Zwidth '+str(self.width_Z)+'               ! Z width in GeV\n' )
-        f.write( 'sthw2 '+str(self.sthw2)+'                  ! sin**2 theta w\n' )
         f.write( 'alphaem '+str(self.alphaem)+'              ! EM coupling\n' )
+        f.write( 'sthw2 '+str(self.sthw2)+'                  ! sin**2 theta w\n' )
         f.write( 'Wmass '+str(self.mass_W)+'                 ! W mass in GeV\n' )
         f.write( 'Wwidth '+str(self.width_W)+'               ! W width in GeV\n ')
+        f.write( 'Zmass '+str(self.mass_Z)+'                 ! Z mass in GeV\n' )
+        f.write( 'Zwidth '+str(self.width_Z)+'               ! Z width in GeV\n' )
       if self._use_CKM_matrix :
         f.write( 'CKM_Vud '+str(self.CKM_Vud)+'              ! CKM element \n' )
         f.write( 'CKM_Vus '+str(self.CKM_Vus)+'              ! CKM element \n' )
@@ -269,18 +269,18 @@ class PowhegConfig_base() :
         f.write( 'lambda_g '+str(self.lambda_g)+'            ! Lambda(gamma)\n' )
         f.write( 'lambda_z '+str(self.lambda_z)+'            ! Lambda(Z)\n' )
         f.write( 'withinterference '+str(self.withinterference)+' ! if 1 (true) include interference for like flavour charged leptons\n' )
-      # Vector boson process parameters
-      f.write( 'runningscale '+str(self.runningscale)+'      ! choice for ren and fac scales in Bbar integration\n' )
-      f.write( '                                             ! (0: fixed scale M_Z, 1: running scale inv mass Z, 2: running scale transverse mass Z\n' )
-      f.write( 'hdamp '+str(self.hdamp)+'                    ! Born-zero damping factor \n' )
-      f.write( 'running_width '+str(self.running_width)+'    ! \n' )
-      f.write( 'zerowidth '+str(self.zerowidth)+'            ! if 1 (true) use zero width approximatrion (default 0)\n' )
-      if self.mass_low is not None :
-        f.write( 'mass_low '+str(self.mass_low)+'            ! M_V > mass low\n ')
-      if self.mass_high is not None :
-        f.write( 'mass_high '+str(self.mass_high)+'          ! M_V < mass high\n' )
-      if self.tevscale is not None :
-        f.write( 'tevscale '+str(self.tevscale)+'            ! Form-factor scale, in TeV\n' )
+      if self._use_scale_damp_parameters :
+        f.write( 'hdamp '+str(self.hdamp)+'                    ! Born-zero damping factor \n' )
+        if self.mass_low is not None :
+          f.write( 'mass_low '+str(self.mass_low)+'            ! M_V > mass low\n ')
+        if self.mass_high is not None :
+          f.write( 'mass_high '+str(self.mass_high)+'          ! M_V < mass high\n' )
+        f.write( 'runningscale '+str(self.runningscale)+'      ! choice for ren and fac scales in Bbar integration\n' )
+        f.write( '                                             ! (0: fixed scale M_Z, 1: running scale inv mass Z, 2: running scale transverse mass Z\n' )
+        f.write( 'running_width '+str(self.running_width)+'    ! \n' )
+        if self.tevscale is not None :
+          f.write( 'tevscale '+str(self.tevscale)+'            ! Form-factor scale, in TeV\n' )
+        f.write( 'zerowidth '+str(self.zerowidth)+'            ! if 1 (true) use zero width approximatrion (default 0)\n' )
 
 
   def generateEvents(self) :
@@ -315,6 +315,7 @@ class PowhegConfig_base() :
     self._logger.info( 'Running Powheg took {0} for {1} events => {2:6.3f} Hz'.format( self.human_readable_time_interval(elapsed_time), self.nEvents, self.nEvents / elapsed_time ) )
 
     # Move output to correctly named file
+    print os.listdir('.')
     os.rename( 'pwgevents.lhe', self.__output_events_file_name )
 
     # Finish
@@ -383,11 +384,12 @@ class PowhegConfig_bb(PowhegConfig_base) :
 
     # Override defaults
     self.bornktmin  = 5.0
+    self._use_scale_damp_parameters = True
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'qmass '+str(self.mass_b)+' ! mass of heavy quark in GeV\n' )
 
 ###############################################################################
@@ -405,21 +407,22 @@ class PowhegConfig_Dijet(PowhegConfig_base) :
     self._powheg_executable += '/Dijet/pwhg_main'
 
     # Set optimised integration parameters
-    self.ncall1   = 20000
-    self.ncall2   = 15000
-    self.nubound  = 25000
-    self.xupbound = 3
+    self.ncall1   = 15000
+    self.ncall2   = 10000
+    self.nubound  = 20000
+    self.xupbound = 2
     self.foldx    = 10
     self.foldy    = 10
     self.foldphi  = 10
 
     # Override defaults
     self.bornktmin  = 5.0
+    self._use_scale_damp_parameters = True
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       if self.fixspikes == True :
         f.write( 'doublefsr 1  ! fix problem with spikes in final observables\n' )
         f.write( 'par_diexp 4  ! recommended additional options to be used with doublefsr\n' )
@@ -455,10 +458,13 @@ class PowhegConfig_ggH_quark_mass_effects(PowhegConfig_base) :
     self.ncall2   = 250000
     self.nubound  = 50000
 
+    # Override defaults
+    self._use_scale_damp_parameters = True
+
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'bwshape '+str(self.bwshape)+'         ! Controls the functional form of the Breit-Wigner along which Higgs boson virtuality is distributed.\n' )
       f.write( '                                      !   1 (default) : running width that depends on Higgs boson virtuality\n' )
       f.write( '                                      !   2 : fix the BW width to the value in hwidth.\n' )
@@ -481,6 +487,203 @@ class PowhegConfig_ggH_quark_mass_effects(PowhegConfig_base) :
 
 ###############################################################################
 #
+#  ggHZ
+#
+###############################################################################
+class PowhegConfig_ggHZ(PowhegConfig_base) :
+  # These are process specific - put generic properties in PowhegConfig_base
+  # Hwidth  = 0.00403
+  idvecbos = -24
+  vdecaymode = 1
+  hdecaymode  = -1
+  # mass windows
+  mass_Z_low  = 10.
+  mass_Z_high = 1000.
+  mass_H_low  = 10.
+  mass_H_high = 1000.
+  # other parameters
+  minlo         = 1
+  minlo_nnll    = 1
+  sudscalevar   = 1
+
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None) :
+    PowhegConfig_base.__init__(self,runArgs)
+    self._powheg_executable += '/ggHZ/pwhg_main'
+    self._logger.warning( 'This process is UNVALIDATED! Behaviour may change between now and validation.' )
+
+    # Set optimised integration parameters
+    self.ncall1   = 300000
+    self.ncall2   = 40000
+    self.nubound  = 2000000
+    self.xupbound = 2
+    self.itmx1    = 1
+    self.itmx2    = 1
+    self.foldx    = 5
+    self.foldy    = 10
+    self.foldphi  = 2
+
+    # Override defaults
+    self._use_scale_damp_parameters = True
+    self._use_EW_parameters         = True
+    # self.testplots                  = 1
+    self.withnegweights             = 1
+
+  def generateRunCard(self) :
+    self.generateRunCardSharedOptions()
+
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
+      f.write( 'doublefst 1                           !\n' )
+      f.write( 'hdecaymode '+str(self.hdecaymode)+'   ! Higgs boson decay (-1:stable; 0:all; 1-12:single channel)\n' )
+      f.write( 'hmass '+str(self.mass_H)+'            ! mass of Higgs boson in GeV\n' )
+      f.write( 'hwidth '+str(self.width_H)+'          ! width of Higgs boson in GeV\n' )
+      f.write( 'idvecbos '+str(self.idvecbos)+'       ! PDG code for vector boson to be produced (W:24)\n' )
+      f.write( 'LOevents -1                           ! with LOevents==1 bornonly must be set equal to 1\n' )
+      f.write( 'max_h_mass '+str(self.mass_H_high)+'  ! M H < mass high\n')
+      f.write( 'max_z_mass '+str(self.mass_Z_high)+'  ! M Z < mass high\n')
+      f.write( 'min_h_mass '+str(self.mass_H_low)+'   ! M H > mass low\n')
+      f.write( 'min_z_mass '+str(self.mass_Z_low)+'   ! M Z > mass low\n')
+      f.write( 'minlo '+str(self.minlo)+'             !\n' )
+      f.write( 'minlo_nnll '+str(self.minlo_nnll)+'   !\n' )
+      f.write( 'nohad 1                               !\n' )
+      f.write( 'parallelstage -1                      !\n' )
+      f.write( 'sudscalevar '+str(self.sudscalevar)+' !\n' )
+      f.write( 'vdecaymode '+str(self.vdecaymode)+'   ! (1:leptonic decay, 2:muonic decay, 3: tauonic decay,...)\n' )
+
+
+###############################################################################
+#
+#  HWJ
+#
+###############################################################################
+class PowhegConfig_HWJ(PowhegConfig_base) :
+  # These are process specific - put generic properties in PowhegConfig_base
+  # Hwidth  = 0.00403
+  idvecbos = -24
+  vdecaymode = 1
+  hdecaymode  = -1
+  # mass windows
+  mass_W_low  = 10.
+  mass_W_high = 1000.
+  mass_H_low  = 10.
+  mass_H_high = 1000.
+  # other parameters
+  minlo         = 1
+  minlo_nnll    = 1
+  use_massive_t = False
+  sudscalevar   = 1
+
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None) :
+    PowhegConfig_base.__init__(self,runArgs)
+    self._powheg_executable += '/HWJ/pwhg_main'
+    self._logger.warning( 'This process is UNVALIDATED! Behaviour may change between now and validation.' )
+
+    # Set optimised integration parameters
+    self.ncall1   = 300000
+    self.ncall2   = 300000
+    self.nubound  = 2000000
+    self.xupbound = 2
+    self.itmx1    = 1
+    self.itmx2    = 1
+    self.foldcsi  = 5
+    self.foldy    = 10
+    self.foldphi  = 2
+
+    # Override defaults
+    self._use_scale_damp_parameters = True
+    self._use_EW_parameters         = True
+    self.testplots                  = 1
+    self.withnegweights             = 1
+
+  def generateRunCard(self) :
+    self.generateRunCardSharedOptions()
+
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
+      f.write( 'doublefst 1                           !\n' )
+      f.write( 'hdecaymode '+str(self.hdecaymode)+'   ! Higgs boson decay (-1:stable; 0:all; 1-12:single channel)\n' )
+      f.write( 'hmass '+str(self.mass_H)+'            ! mass of Higgs boson in GeV\n' )
+      f.write( 'hwidth '+str(self.width_H)+'          ! width of Higgs boson in GeV\n' )
+      f.write( 'idvecbos '+str(self.idvecbos)+'       ! PDG code for vector boson to be produced (W:24)\n' )
+      f.write( 'max_h_mass '+str(self.mass_H_high)+'  ! M H < mass high\n' )
+      f.write( 'max_w_mass '+str(self.mass_W_high)+'  ! M W < mass high\n' )
+      f.write( 'min_h_mass '+str(self.mass_H_low)+'   ! M H > mass low\n' )
+      f.write( 'min_w_mass '+str(self.mass_W_low)+'   ! M W > mass low\n' )
+      f.write( 'minlo '+str(self.minlo)+'             !\n' )
+      f.write( 'minlo_nnll '+str(self.minlo_nnll)+'   !\n' )
+      f.write( 'nohad 1                               !\n' )
+      if self.use_massive_t :
+        f.write( 'massivetop 1                        !\n' )
+      f.write( 'sudscalevar '+str(self.sudscalevar)+' !\n' )
+      f.write( 'vdecaymode '+str(self.vdecaymode)+'   ! (1:leptonic decay, 2:muonic decay, 3: tauonic decay,...)\n' )
+
+###############################################################################
+#
+#  HZJ
+#
+###############################################################################
+class PowhegConfig_HZJ(PowhegConfig_base) :
+  # These are process specific - put generic properties in PowhegConfig_base
+  # Hwidth  = 0.00403
+  vdecaymode = 1
+  hdecaymode  = -1
+  # mass windows
+  mass_Z_low  = 10.
+  mass_Z_high = 1000.
+  mass_H_low  = 10.
+  mass_H_high = 1000.
+  # other parameters
+  minlo         = 1
+  minlo_nnll    = 1
+  use_massive_t = False
+  sudscalevar   = 1
+
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None) :
+    PowhegConfig_base.__init__(self,runArgs)
+    self._powheg_executable += '/HZJ/pwhg_main'
+    self._logger.warning( 'This process is UNVALIDATED! Behaviour may change between now and validation.' )
+
+    # Set optimised integration parameters
+    self.foldcsi  = 5
+    self.foldy    = 10
+    self.foldphi  = 2
+    self.ncall1   = 300000
+    self.ncall2   = 300000
+    self.nubound  = 2000000
+    self.xupbound = 2
+    self.itmx1    = 1
+    self.itmx2    = 1
+
+    # Override defaults
+    self._use_scale_damp_parameters = True
+    self._use_EW_parameters         = True
+    self.testplots                  = 1
+    self.withnegweights             = 1
+
+  def generateRunCard(self) :
+    self.generateRunCardSharedOptions()
+
+    with open( str(self.TestArea)+'/powheg.input','a') as f :
+      f.write( 'doublefst 1                           ! \n' )
+      f.write( 'hdecaymode '+str(self.hdecaymode)+'   ! Higgs boson decay (-1:stable; 0:all; 1-12:single channel)\n' )
+      f.write( 'hmass '+str(self.mass_H)+'            ! mass of Higgs boson in GeV\n' )
+      f.write( 'hwidth '+str(self.width_H)+'          ! width of Higgs boson in GeV\n' )
+      f.write( 'max_h_mass '+str(self.mass_H_high)+'  ! M H < mass high\n')
+      f.write( 'max_z_mass '+str(self.mass_Z_high)+'  ! M Z < mass high\n')
+      f.write( 'min_h_mass '+str(self.mass_H_low)+'   ! M H > mass low\n')
+      f.write( 'min_z_mass '+str(self.mass_Z_low)+'   ! M Z > mass low\n')
+      f.write( 'minlo '+str(self.minlo)+'             !\n' )
+      f.write( 'minlo_nnll '+str(self.minlo_nnll)+'   !\n' )
+      if self.use_massive_t :
+        f.write( 'massivetop 1                        !\n' )
+      f.write( 'nohad 1                               ! \n' )
+      f.write( 'sudscalevar '+str(self.sudscalevar)+' !\n' )
+      f.write( 'vdecaymode '+str(self.vdecaymode)+'   ! (1:leptonic decay, 2:muonic decay, 3: tauonic decay,...)\n' )
+
+
+###############################################################################
+#
 #  trijet
 #
 ###############################################################################
@@ -489,9 +692,20 @@ class PowhegConfig_trijet(PowhegConfig_base) :
   def __init__(self,runArgs=None) :
     PowhegConfig_base.__init__(self,runArgs)
     self._powheg_executable += '/trijet/pwhg_main'
+    self._logger.warning( 'This process is UNVALIDATED! Behaviour may change between now and validation.' )
+
+    # Set optimised integration parameters
+    self.ncall1   = 15000
+    self.ncall2   = 10000
+    self.nubound  = 20000
+    self.xupbound = 2
+    # self.foldx    = 10
+    # self.foldy    = 10
+    # self.foldphi  = 10
 
     # Override defaults
     self.bornktmin  = 5.0
+    self._use_scale_damp_parameters = True
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
@@ -518,10 +732,13 @@ class PowhegConfig_tt(PowhegConfig_base) :
     self.nubound  = 100000
     self.xupbound = 2
 
+    # Override defaults
+    self._use_scale_damp_parameters = True
+
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'qmass '+str(self.mass_t)+'                      ! mass of heavy quark in GeV\n' )
       f.write( 'topdecaymode '+str(self.topdecaymode)+'         ! an integer of 5 digits that are either 0, or 2, representing in\n' )
       f.write( '                                                !   the order the maximum number of the following particles(antiparticles)\n' )
@@ -565,7 +782,6 @@ class PowhegConfig_VBF_H(PowhegConfig_base) :
   def __init__(self,runArgs=None) :
     PowhegConfig_base.__init__(self,runArgs)
     self._powheg_executable += '/VBF_H/pwhg_main'
-    self._logger.warning( 'This process is UNVALIDATED! Behaviour may change between now and validation.' )
 
     # Set optimised integration parameters
     self.ncall1   = 50000
@@ -574,13 +790,16 @@ class PowhegConfig_VBF_H(PowhegConfig_base) :
     self.foldx    = 2
     self.foldy    = 5
 
+    # Override defaults
+    self._use_scale_damp_parameters = True
+
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'complexpolescheme '+str(self.complexpolescheme)+' ! 0 = SM\n' )
       f.write( 'gfermi '+str(self.G_F)+'                          ! Fermi constant\n' )
-      f.write( 'hdecaymode '+str(self.hdecaymode)+'               ! Higgs boson decay (-1:stable; 0:all; 1-12:single channel)\n' )
+      f.write( 'hdecaymode '+str(self.hdecaymode)+'               ! Higgs boson decay (-1:no decay; 0:all; 1-6:dd, uu etc.; 7-9:e+e-, etc.; 10:WW; 11:ZZ; 12:gammagamma)\n' )
       f.write( 'higgsfixedwidth '+str(self.higgsfixedwidth)+'     ! 0 = OS, 1 = MSBAR, 2 = DRBAR\n' )
       f.write( 'hmass '+str(self.mass_H)+'                        ! mass of Higgs boson in GeV\n' )
       f.write( 'hwidth '+str(self.width_H)+'                      ! width of Higgs boson in GeV\n' )
@@ -616,10 +835,13 @@ class PowhegConfig_W(PowhegConfig_base) :
     self.mass_low       = 2.5
     self.mass_high      = 2.0 * self.beam_energy
 
+    # Override defaults
+    self._use_scale_damp_parameters = True
+
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'idvecbos '+str(self.idvecbos)+'               ! PDG code for vector boson to be produced (W:24)\n' )
       f.write( 'vdecaymode ' +str(self.vdecaymode)+'          ! PDG code for first decay product of the vector boson\n' )
       f.write( '                                              !   (11:e-; 12:ve; 13:mu-; 14:vmu; 15:tau; 16:vtau)\n' )
@@ -644,11 +866,12 @@ class PowhegConfig_Wj(PowhegConfig_base) :
     # Override defaults
     self._use_EW_parameters = True
     self.bornktmin         = 5.0
+    self._use_scale_damp_parameters = True
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'idvecbos '+str(self.idvecbos)+'         ! PDG code for vector boson to be produced (W:24)\n' )
       f.write( 'vdecaymode ' +str(self.vdecaymode)+'    ! PDG code for first decay product of the vector boson\n' )
       f.write( '                                        !   (11:e-; 12:ve; 13:mu-; 14:vmu; 15:tau; 16:vtau)\n' )
@@ -680,11 +903,12 @@ class PowhegConfig_WW(PowhegConfig_base) :
     # Override defaults
     self._use_EW_parameters      = True
     self._use_diboson_parameters = True
+    self._use_scale_damp_parameters = True
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'vdecaymodeWm '+str(self.vdecaymodeWm)+' ! PDG code for charged decay product of the vector boson (1:d; 3: s; 7: d or s; 11:e-; 13:mu-; 15:tau-)\n' )
       f.write( 'vdecaymodeWp '+str(self.vdecaymodeWp)+' ! PDG code for charged decay product of the vector boson (1:dbar; 3: sbar; 7: dbar or sbar; -11:e+; -13:mu+; -15:tau+)\n' )
       if self.wllmin is not None :
@@ -722,11 +946,12 @@ class PowhegConfig_WZ(PowhegConfig_base) :
     self.tevscale                = -1
     self._use_EW_parameters      = True
     self._use_diboson_parameters = True
+    self._use_scale_damp_parameters = True
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'diagCKM '+str(self.diagCKM)+'                   ! if 1 (true) then diagonal CKM (default 0)\n' )
       f.write( 'mllmin '+str(self.mllmin)+'                     ! Minimum invariant mass of lepton pairs from Z decay\n' )
       f.write( 'vdecaymodeW '+str(self.vdecaymodeW)+'           ! PDG code for charged decay product of the W boson (11:e-;-11:e+;...)\n' )
@@ -760,11 +985,12 @@ class PowhegConfig_Z(PowhegConfig_base) :
     self.withnegweights     = 1
     self.mass_low           = 60.
     self.mass_high          = 2.0 * self.beam_energy
+    self._use_scale_damp_parameters = True
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'vdecaymode '+str(self.vdecaymode)+' ! (1:leptonic decay, 2:muonic decay, 3: tauonic decay,...)\n' )
 
 
@@ -793,13 +1019,14 @@ class PowhegConfig_Zj(PowhegConfig_base) :
     self.foldphi  = 5
 
     # Override defaults
-    self._use_EW_parameters = True
-    self.bornktmin          = 5.0
+    self.bornktmin                  = 10.0
+    self._use_EW_parameters         = True
+    self._use_scale_damp_parameters = True
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'vdecaymode '+str(self.vdecaymode)+' ! Z decay products (default 2) : 1 for electronic, 2 for muonic and 3 for tauonic decay\n' )
 
 
@@ -812,6 +1039,7 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
   # These are process specific - put generic properties in PowhegConfig_base
   cutallpairs      = -1
   runningwidth     = -1
+  mllmin           = 4
   vdecaymodeZ1     = 11
   vdecaymodeZ2     = 11
 
@@ -819,25 +1047,24 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
   def __init__(self,runArgs=None) :
     PowhegConfig_base.__init__(self,runArgs)
     self._powheg_executable += '/ZZ/pwhg_main'
-    self._logger.warning( 'This process is UNVALIDATED! Behaviour may change between now and validation.' )
 
     # Set optimised integration parameters
-    self.ncall1   = 100000
-    self.ncall2   = 120000
-    self.nubound  = 100000
-    self.xupbound = 4
-    self.foldx    = 2
-    self.foldy    = 2
-    self.foldphi  = 2
+    self.ncall1   = 50000
+    self.ncall2   = 500000
+    self.nubound  = 500000
+    self.xupbound = 10
+    self.itmx1    = 5
+    self.itmx2    = 14
 
     # Override defaults
-    self._use_EW_parameters      = True
-    self._use_diboson_parameters = True
+    self._use_EW_parameters         = True
+    self._use_diboson_parameters    = True
+    self._use_scale_damp_parameters = True
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
 
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
+    with open( str(self.TestArea)+'/powheg.input', 'a' ) as f :
       f.write( 'cutallpairs '+str(self.cutallpairs)+'   ! \n' )
       f.write( 'mllmin '+str(self.mllmin)+'             ! Minimum invariant mass of lepton pairs from Z decay\n' )
       f.write( 'runningwidth '+str(self.runningwidth)+' ! \n' )

@@ -10,7 +10,7 @@ PowhegConfig.generateEvents()
 #--------------------------------------------------------------
 # Pythia6 (Perugia2011) showering
 #--------------------------------------------------------------
-include('MC12JobOptions/Pythia_Perugia2011C_Common.py')
+include('MC12JobOptions/PowhegPythia_Perugia2011C_Common.py')
 include('MC12JobOptions/Pythia_Tauola.py')
 include('MC12JobOptions/Pythia_Photos.py')
 

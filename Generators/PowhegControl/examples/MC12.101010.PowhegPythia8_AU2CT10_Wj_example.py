@@ -8,14 +8,10 @@ PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
 
 #--------------------------------------------------------------
-# Pythia8 showering with new, main31-style shower
+# Pythia8 showering with main31 and CTEQ6L1
 #--------------------------------------------------------------
-include('MC12JobOptions/Pythia8_AU2_CT10_Common.py')
-topAlg.Pythia8.Commands += [ 'SpaceShower:pTmaxMatch = 2'
-                           , 'TimeShower:pTmaxMatch = 2'
-                           ]
-topAlg.Pythia8.UserHook  = 'Main31'
-
+include('MC12JobOptions/Pythia8_AU2_CTEQ6L1_Common.py')
+include('MC12JobOptions/Pythia8_Powheg_Main31.py')
 
 #--------------------------------------------------------------
 # EVGEN configuration
