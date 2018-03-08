@@ -20,15 +20,17 @@ class PowhegConfig_VBF_H(PowhegConfig_base) :
     self._powheg_executable += '/VBF_H/pwhg_main'
 
     ## Add process specific options
-    self.add_parameter( 'complexpolescheme', -1, desc='0 = SM' )
+    self.add_parameter( 'complexpolescheme', -1, desc='(0:SM)' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'extra tests' )
+    self.add_parameter_set( 'generic scale' )
     self.add_parameter_set( 'Higgs decay mode' )
     self.add_parameter_set( 'Higgs fixed width' )
     self.add_parameter_set( 'Higgs properties' )
-    self.add_parameter_set( 'LHEv3' )
-    self.add_parameter_set( 'radiation parametrisation' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters

@@ -13,11 +13,16 @@ class LeptonMassDecorator(object) :
   ## Define decorator name string
   name = 'lepton mass'
 
-  def __init__( self, decorated ) :
+  def __init__( self, decorated, prefix ) :
     ## Attach decorations to Powheg configurable
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'lhfm/emass', ATLASCommonParameters.mass_e,     default='{0}', desc='electron mass' )
-    self.decorated.add_parameter( 'lhfm/mumass', ATLASCommonParameters.mass_mu,   default='{0}', desc='mu mass' )
-    self.decorated.add_parameter( 'lhfm/taumass', ATLASCommonParameters.mass_tau, default='{0}', desc='tau mass' )
+    if prefix == 'lhfm' or 'lhfm' in prefix :
+      self.decorated.add_parameter( 'mass_e', ATLASCommonParameters.mass_e,     desc='mass of electron in GeV', parameter='lhfm/emass' )
+      self.decorated.add_parameter( 'mass_mu', ATLASCommonParameters.mass_mu,   desc='mass of mu in GeV', parameter='lhfm/mumass' )
+      self.decorated.add_parameter( 'mass_tau', ATLASCommonParameters.mass_tau, desc='mass of tau in GeV', parameter='lhfm/taumass' )
+    if prefix == 'tdec' or 'tdec' in prefix :
+      self.decorated.add_parameter( 'mass_e', ATLASCommonParameters.mass_e,     desc='mass of electron in GeV', parameter='tdec/emass' )
+      self.decorated.add_parameter( 'mass_mu', ATLASCommonParameters.mass_mu,   desc='mass of mu in GeV', parameter='tdec/mumass' )
+      self.decorated.add_parameter( 'mass_tau', ATLASCommonParameters.mass_tau, desc='mass of tau in GeV', parameter='tdec/taumass' )

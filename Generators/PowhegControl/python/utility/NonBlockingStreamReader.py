@@ -31,11 +31,12 @@ class NonBlockingStreamReader(object) :
 
 
   ## Return lines from queue
-  def readline(self, timeout = None):
+  def readline(self, timeout=None):
     try:
-      return self._queue.get( block=(timeout is not None), timeout=timeout ).rstrip()
+      output = self._queue.get( block=(timeout is not None), timeout=timeout ).rstrip()
+      return (output,self._queue.qsize())
     except Queue.Empty :
-      return None
+      return (None,0)
 
 
   ## Release thread resources on finalise

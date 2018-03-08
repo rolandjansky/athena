@@ -17,4 +17,4 @@ class RunningScalesDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'runningscales', 0, default='{0}', desc='(0:use hmass as central factorization and renormalisation scale; 1:use the Ht/2)' )
+    self.decorated.add_parameter( 'runningscales', 0, desc='(0:use fixed factorisation/renormalisation scale; 1:use running scale)' )

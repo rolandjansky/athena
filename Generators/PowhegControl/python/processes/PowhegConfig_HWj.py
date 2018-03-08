@@ -19,25 +19,28 @@ class PowhegConfig_HWj(PowhegConfig_base) :
     self._powheg_executable += '/HWJ/pwhg_main'
 
     ## Add process specific options
-    self.add_parameter( 'bornsuppfactW', -1, desc='(default -1, Powheg default)' )
+    self.add_parameter( 'bornsuppfactW', -1, desc='(-1:Powheg default)' )
     self.add_parameter( 'kappa_ghw',      1, desc='multiplicative kappa-factor of the Higgs-W coupling' )
 
     ## Decorate with generic option sets
-    self.add_parameter_set( 'Higgs mass window' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'Higgs + vector boson' )
+    self.add_parameter_set( 'Higgs + vector boson + jet' )
     self.add_parameter_set( 'Higgs properties' )
-    self.add_parameter_set( 'Higgs+V+jet' )
-    self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'MiNLO NNLL' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'running scales' )
-    self.add_parameter_set( 'top mass' )
-    self.add_parameter_set( 'vector boson decay' )
+    self.add_parameter_set( 'top properties' )
+    self.add_parameter_set( 'upper bound' )
+    self.add_parameter_set( 'vector boson decay mode' )
     self.add_parameter_set( 'v2' )
     self.add_parameter_set( 'W ID' )
     self.add_parameter_set( 'W mass window' )
 
     ## Set optimised integration parameters
     self.itmx1    = 2
-    self.ncall1   = 50000
+    self.ncall1   = 70000
     self.ncall2   = 70000
     self.nubound  = 150000
     self.xupbound = 20

@@ -23,12 +23,12 @@ class LHEHandler :
 
   ## Merge many input LHE files into a single output file
   def merge( self, output_file, input_file_list ) :
+    if len(input_file_list) < 1 : raise IOError( 'No input LHE files provided. Aborting merge!' )
     self.log( 'Preparing to create {0} from {1} input files'.format( output_file, len(input_file_list) ) )
     nEvents = 0
 
     # Open output file
     with open(output_file, 'ab') as f_output :
-
       # Start with the first file
       self.log( '... working on {0}'.format(input_file_list[0]) )
       output_footer = []

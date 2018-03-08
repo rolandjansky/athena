@@ -22,12 +22,15 @@ class PowhegConfig_W(PowhegConfig_base) :
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'CKM' )
+    self.add_parameter_set( 'electroweak properties', boson='W' )
+    self.add_parameter_set( 'generic scale' )
     self.add_parameter_set( 'mass window' )
     self.add_parameter_set( 'running scale' )
-    self.add_parameter_set( 'second generation quark mass' )
+    self.add_parameter_set( 'running width' )
+    self.add_parameter_set( 'second generation quark mass', prefix='lhe' )
     self.add_parameter_set( 'sin**2 theta W' )
-    self.add_parameter_set( 'single vector boson' )
-    self.add_parameter_set( 'vector boson decay' )
+    self.add_parameter_set( 'upper bound' )
+    self.add_parameter_set( 'vector boson decay mode' )
     self.add_parameter_set( 'W ID' )
 
     ## Set optimised integration parameters

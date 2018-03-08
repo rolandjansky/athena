@@ -22,11 +22,11 @@ class PowhegConfig_DMS_tloop(PowhegConfig_base) :
     self.add_parameter_set( 'CKKW' )
     self.add_parameter_set( 'dark matter' )
     self.add_parameter_set( 'dark matter phi' )
-    self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'mass window' )
-    self.add_parameter_set( 'running scale' )
+    self.add_parameter_set( 'PDF reweighting' )
+    self.add_parameter_set( 'running scale', description='(0:2mX fixed; 1:pTj; 2:XXbar invmass; 3:Ht/2)' )
     self.add_parameter_set( 'running width' )
-    self.add_parameter_set( 'top mass' )
+    self.add_parameter_set( 'top properties' )
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters

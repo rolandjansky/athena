@@ -20,19 +20,21 @@ class PowhegConfig_Wt_DS(PowhegConfig_base) :
     self._powheg_executable += '/ST_wtch_DS/pwhg_main'
 
     ## Add process specific options
-    self.add_parameter( 'nwidthcutoff', -1 )
-    self.add_parameter( 'withfluxfactor', -1 )
-    self.add_parameter( 'withthetacut', -1 )
+    self.add_parameter( 'nwidthcutoff', -1,   desc='(-1:Powheg default)' )
+    self.add_parameter( 'withfluxfactor', -1, desc='(-1:Powheg default)' )
+    self.add_parameter( 'withthetacut', -1,   desc='(-1:Powheg default)' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'CKM' )
-    self.add_parameter_set( 'lepton mass' )
+    self.add_parameter_set( 'electroweak properties', boson='w' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'lepton mass', prefix=['lhfm','tdec'] )
+    self.add_parameter_set( 'second generation quark mass', prefix='lhfm' )
     self.add_parameter_set( 'sin**2 theta W' )
-    self.add_parameter_set( 'single top' )
-    self.add_parameter_set( 'top decay branching' )
     self.add_parameter_set( 'top decay mode' )
-    self.add_parameter_set( 'top decay second generation quark' )
-    self.add_parameter_set( 'top mass' )
+    self.add_parameter_set( 'top decay branching', prefix='tdec' )
+    self.add_parameter_set( 'top properties' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'W decay mode' )
 
     ## Set optimised integration parameters

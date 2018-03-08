@@ -25,17 +25,20 @@ class PowhegConfig_DMV(PowhegConfig_base) :
     ## Decorate with generic option sets
     self.add_parameter_set( 'dark matter' )
     self.add_parameter_set( 'extra tests' )
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'generic scale' )
     self.add_parameter_set( 'mass window' )
-    self.add_parameter_set( 'running scale' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
+    self.add_parameter_set( 'running scale', description='(0:2mX fixed; 1:pTj; 2:XXbar invmass; 3:Ht/2)' )
     self.add_parameter_set( 'running width' )
-    self.add_parameter_set( 'vector boson decay' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
+    self.add_parameter_set( 'vector boson decay mode' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 100000
-    self.ncall2   = 1000000
-    self.nubound  = 1000000
+    self.ncall1   = 40000
+    self.ncall2   = 80000
+    self.nubound  = 80000
     self.xupbound = 4
     self.foldx    = 2
     self.foldy    = 2

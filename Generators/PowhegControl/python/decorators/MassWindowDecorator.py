@@ -17,7 +17,7 @@ class MassWindowDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'mass_low', -1,        default='{0}', desc='(-1:use Powheg default) If set then require M_object > mass_low; otherwise allow internal Powheg computation.' )
-    self.decorated.add_parameter( 'mass_high', -1,       default='{0}', desc='(-1:use Powheg default) If set then require M_object < mass_high; otherwise allow internal Powheg computation.' )
-    self.decorated.add_parameter( 'masswindow_low', -1,  default='{0}', desc='DEPRECATED use mass_low instead' )
-    self.decorated.add_parameter( 'masswindow_high', -1, default='{0}', desc='DEPRECATED use mass_high instead' )
+    self.decorated.add_parameter( 'mass_low', -1,        desc='(-1:use Powheg default) If set then require M_object > mass_low; otherwise allow internal Powheg computation.' )
+    self.decorated.add_parameter( 'mass_high', -1,       desc='(-1:use Powheg default) If set then require M_object < mass_high; otherwise allow internal Powheg computation.' )
+    self.decorated.add_parameter( 'masswindow_low', -1,  desc='DEPRECATED use mass_low instead' )
+    self.decorated.add_parameter( 'masswindow_high', -1, desc='DEPRECATED use mass_high instead' )

@@ -23,51 +23,52 @@ class PowhegConfig_ttj(PowhegConfig_base) :
     self.logger.warning( 'Integration parameters have not been validated - see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PowhegForATLAS#Changing_POWHEG_BOX_integration' )
 
     ## Add process specific options
-    self.add_parameter( 'bcut', -1 )
-    self.add_parameter( 'collremnsamp', -1, parameter='collremnsamp"' ) # probably a typo in Powheg
-    self.add_parameter( 'ffltest', -1 )
-    self.add_parameter( 'ggproc', -1 )
-    self.add_parameter( 'gqbproc', -1 )
-    self.add_parameter( 'largecorrfact', -1 )
-    self.add_parameter( 'psgen', -1 )
-    self.add_parameter( 'ptmin_jet', 25, desc='jet min pt in GeV for use in analysis code (not relevant here)' )
-    self.add_parameter( 'qgproc', -1 )
-    self.add_parameter( 'qqbproc', -1 )
-    self.add_parameter( 'qqpproc', -1 )
-    self.add_parameter( 'qqproc', -1 )
-    self.add_parameter( 'R_jet', 0.4, desc='jet radius for use in internal Powheg analysis code (not relevant here)' )
-    self.add_parameter( 'use_OLP_interface', -1, parameter='use-OLP-interface' )
+    self.add_parameter( 'bcut', -1,              desc='(-1:Powheg default)' )
+    self.add_parameter( 'collremnsamp', -1,      desc='(-1:Powheg default)', parameter='collremnsamp"' )
+    self.add_parameter( 'ffltest', -1,           desc='(-1:Powheg default)' )
+    self.add_parameter( 'ggproc', -1,            desc='(-1:Powheg default)' )
+    self.add_parameter( 'gqbproc', -1,           desc='(-1:Powheg default)' )
+    self.add_parameter( 'largecorrfact', -1,     desc='(-1:Powheg default)' )
+    self.add_parameter( 'psgen', -1,             desc='(-1:Powheg default)' )
+    self.add_parameter( 'ptmin_jet', 25,         desc='jet min pt in GeV for use in analysis code (not relevant here)' )
+    self.add_parameter( 'qgproc', -1,            desc='(-1:Powheg default)' )
+    self.add_parameter( 'qqbproc', -1,           desc='(-1:Powheg default)' )
+    self.add_parameter( 'qqpproc', -1,           desc='(-1:Powheg default)' )
+    self.add_parameter( 'qqproc', -1,            desc='(-1:Powheg default)' )
+    self.add_parameter( 'R_jet', 0.4,            desc='jet radius for use in internal Powheg analysis code (not relevant here)' )
+    self.add_parameter( 'topwidth', ATLASCommonParameters.width_t, desc='top width' )
+    self.add_parameter( 'use_OLP_interface', -1, desc='(-1:Powheg default)', parameter='use-OLP-interface' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'CKM' )
+    self.add_parameter_set( 'electroweak properties', boson='W' )
+    self.add_parameter_set( 'ISR/FSR' )
     self.add_parameter_set( 'jacsing' )
-    self.add_parameter_set( 'lepton mass' )
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'lepton mass', prefix='lhfm' )
     self.add_parameter_set( 'mass window' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'running scale' )
+    self.add_parameter_set( 'second generation quark mass', prefix='lhfm' )
     self.add_parameter_set( 'semileptonic' )
     self.add_parameter_set( 'sin**2 theta W' )
-    self.add_parameter_set( 'single vector boson' )
-    self.add_parameter_set( 'top decay branching', tdec_prefix=False )
+    self.add_parameter_set( 'top decay branching' )
     self.add_parameter_set( 'top decay mode' )
-    self.add_parameter_set( 'top decay second generation quark' )
-    self.add_parameter_set( 'top mass' )
-    self.add_parameter_set( 'V+jets' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'zero width' )
 
     ## Set optimised integration parameters
-    self.itmx1   = 5
-    self.itmx2   = 10
-    self.ncall1  = 2000000
-    self.ncall2  = 5000000
-    self.nubound = 5000000
-    self.foldx   = 5
-    self.foldy   = 5
-    self.foldphi = 2
+    self.itmx1   = 15
+    self.itmx2   = 20
+    self.ncall1  = 20000000
+    self.ncall2  = 50000000
+    self.nubound = 50000000
+    self.foldx   = 25
+    self.foldy   = 25
+    self.foldphi = 25
 
     ## Override defaults
     self.bornktmin    = 5.0
-    self.bornsuppfact = 100.0 # was disabled
+    self.bornsuppfact = 100.0
     self.minlo        = -1
     self.quark_mass   = ATLASCommonParameters.mass_t
     self.topdecaymode = 22222

@@ -17,4 +17,4 @@ class HiggsFixedWidthDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'higgsfixedwidth', 0, default='{0}', desc='(0:running width; 1:fixed width in Breit-Wigner)' )
+    self.decorated.add_parameter( 'higgsfixedwidth', 0, desc='(0:running width; 1:fixed width in Breit-Wigner)' )

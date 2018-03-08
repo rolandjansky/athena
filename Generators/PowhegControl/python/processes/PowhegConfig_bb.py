@@ -24,10 +24,14 @@ class PowhegConfig_bb(PowhegConfig_base) :
     ## Decorate with generic option sets
     self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fixed scale' )
+    self.add_parameter_set( 'generic scale' )
     self.add_parameter_set( 'heavy quark' )
-    self.add_parameter_set( 'LHEv3' )
-    self.add_parameter_set( 'second generation quark mass' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
+    self.add_parameter_set( 'second generation quark mass', prefix='lhe' )
     self.add_parameter_set( 'top decay mode' )
+    self.add_parameter_set( 'top properties' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters

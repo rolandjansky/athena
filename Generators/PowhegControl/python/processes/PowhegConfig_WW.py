@@ -25,8 +25,11 @@ class PowhegConfig_WW(PowhegConfig_base) :
     self.add_parameter_set( 'diboson' )
     self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fixed scale' )
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'running width' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
     self.add_parameter_set( 'zero width' )
 

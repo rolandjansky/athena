@@ -21,14 +21,18 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
     self._powheg_executable += '/ZZ/pwhg_main'
 
     ## Add process specific options
-    self.add_parameter( 'cutallpairs', -1, desc='(default -1, Powheg-default)' )
+    self.add_parameter( 'cutallpairs', -1, desc='(-1:Powheg-default)' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'diboson' )
     self.add_parameter_set( 'diboson interference' )
+    self.add_parameter_set( 'dilepton mass' )
     self.add_parameter_set( 'fixed scale' )
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'running width' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
     self.add_parameter_set( 'zero width' )
 

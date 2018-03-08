@@ -21,34 +21,38 @@ class PowhegConfig_jjj(PowhegConfig_base) :
     self._powheg_executable += '/trijet/pwhg_main'
 
     ## Logger warnings for unvalidated process
-    self.logger.warning( 'Negative weight fraction will probably be outside usual recommendations - check final distributions with care!' )
+    self.logger.warning( 'Integration parameters have not been validated - see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PowhegForATLAS#Changing_POWHEG_BOX_integration' )
 
     ## Add process specific options
-    self.add_parameter( 'brpar_diexp', -1 )
-    self.add_parameter( 'brpar_dijexp', -1 )
-    self.add_parameter( 'HWJsudakov', -1 )
-    self.add_parameter( 'ktmerging', -1 )
-    self.add_parameter( 'rapsuppfact', -1 )
+    self.add_parameter( 'brpar_diexp', -1,  desc='(-1:Powheg default)' )
+    self.add_parameter( 'brpar_dijexp', -1, desc='(-1:Powheg default)' )
+    self.add_parameter( 'HWJsudakov', -1,   desc='(-1:Powheg default)' )
+    self.add_parameter( 'ktmerging', -1,    desc='(-1:Powheg default)' )
+    self.add_parameter( 'rapsuppfact', -1,  desc='(-1:Powheg default)' )
 
     ## Decorate with generic option sets
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'radiation parametrisation' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 800000
-    # self.ncall1rm = 2000000
-    self.ncall2   = 1750000
-    self.nubound  = 1000000
-    self.itmx1    = 2
-    # self.itmx1rm  = 2
-    self.itmx2    = 10
-    self.ixmax    = 5
-    self.iymax    = 5
+    self.itmx1    = 20
+    self.itmx2    = 20
+    self.ncall1   = 10000000
+    self.ncall1rm = 30000000
+    self.ncall2   = 10000000
+    self.nubound  = 10000000
+    self.xupbound = 4
+    self.foldx    = 25
+    self.foldy    = 25
+    self.foldphi  = 25
 
     ## Override defaults
-    self.bornktmin      = 20.0
-    self.bornsuppfact   = 1000.0
+    self.bornktmin      = 1.0
+    self.bornsuppfact   = 800.0
     self.doublefsr      = 1
     self.withdamp       = 1
 

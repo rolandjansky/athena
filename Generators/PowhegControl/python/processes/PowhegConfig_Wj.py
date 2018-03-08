@@ -22,17 +22,23 @@ class PowhegConfig_Wj(PowhegConfig_base) :
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'CKM' )
-    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'electroweak properties', boson='W' )
+    self.add_parameter_set( 'extra tests' )
+    self.add_parameter_set( 'generic scale' )
+    self.add_parameter_set( 'ISR/FSR' )
+    self.add_parameter_set( 'lepton mass', prefix='lhfm' )
     self.add_parameter_set( 'MiNLO NNLL' )
     self.add_parameter_set( 'NNLO reweighting' )
+    self.add_parameter_set( 'old Dij' )
+    self.add_parameter_set( 'PDF reweighting' )
     self.add_parameter_set( 'running scales' )
     self.add_parameter_set( 'sin**2 theta W' )
-    self.add_parameter_set( 'single vector boson' )
-    self.add_parameter_set( 'V+jets' )
-    self.add_parameter_set( 'vector boson decay' )
+    self.add_parameter_set( 'upper bound' )
     self.add_parameter_set( 'v2' )
+    self.add_parameter_set( 'vector boson decay mode' )
     self.add_parameter_set( 'W ID' )
     self.add_parameter_set( 'W mass window' )
+
 
     ## Set optimised integration parameters
     self.ncall1   = 40000

@@ -82,7 +82,7 @@ class PowhegConfig_base(object) :
     # Enable parallel mode if AthenaMP mode is enabled
     self.__n_cores = int( os.environ.pop('ATHENA_PROC_NUMBER',1) )
     if self.cores > 1 :
-      self.logger.info( 'This job is running with an athenaMP-like whole-node setup.' )
+      self.logger.info( 'This job is running with an athenaMP-like whole-node setup, requesting {0} cores'.format( self.cores ) )
       self.manyseeds = 1
       # Try to modify the transform opts to suppress athenaMP mode
       if hasattr(opts,'nprocs') :
@@ -112,11 +112,12 @@ class PowhegConfig_base(object) :
 
     # Scale-down number of events produced in each run if running in multicore mode
     if self.cores > 1 :
+      self.logger.info( 'Preparing to parallelise: running with {0} jobs'.format( self.cores ) )
       self.nEvents_unscaled = self.nEvents
-      self.nEvents = int( 0.5 + self.nEvents / self.cores )
-      self.ncall1 = int( 0.5 + self.ncall1 / self.cores )
-      self.ncall2 = int( 0.5 + self.ncall2 / self.cores )
-      self.nubound = int( 0.5 + self.nubound / self.cores )
+      self.nEvents = int( 0.5 + float(self.nEvents) / self.cores )
+      self.ncall1 = int( 0.5 + float(self.ncall1) / self.cores )
+      self.ncall2 = int( 0.5 + float(self.ncall2) / self.cores )
+      self.nubound = int( 0.5 + float(self.nubound) / self.cores )
       self.logger.info( 'Scaling number of events per job from {0} down to {1}'.format(self.nEvents_unscaled, self.nEvents) )
 
     # Finalise registered decorators
@@ -142,7 +143,7 @@ class PowhegConfig_base(object) :
         if isinstance(value,list) :
           value = value[0]
           self.__enable_reweighting = True
-        output_line = '{0:<30}! [ATLAS default: {1}] {2}'.format( '{0} {1}'.format( name, value ), default, desc )
+        output_line = '{0:<30}! [ATLAS default: {1}] {2}'.format( '{0} {1}'.format(name,value), default, desc )
         f.write( '{0}\n'.format(output_line) )
         # Print warnings for specific parameters
         if name == 'bornsuppfact' and value > 0 :
@@ -176,15 +177,20 @@ class PowhegConfig_base(object) :
     # Print timing information
     generation_end = time.time()
     elapsed_time = generation_end - time_start
-    self.logger.info( 'Running nominal Powheg took {0} for {1} events => {2:6.3f} Hz'.format( RepeatingTimer.human_readable_time_interval(elapsed_time), self.nEvents, self.nEvents / elapsed_time ) )
+    self.logger.info( 'Running nominal Powheg took {0} for {1} events => {2:6.4f} Hz'.format( RepeatingTimer.human_readable_time_interval(elapsed_time), self.nEvents, self.nEvents / elapsed_time ) )
 
     # Concatenate output events if running in multicore mode
     if self.cores > 1 :
-      self.logger.info( 'Concatenating {0} output LHE files'.format( self.cores ) )
+      self.logger.info( 'Concatenating output LHE files: expecting {0}'.format( self.cores ) )
       LHEHandler(self.logger).merge( 'pwgevents.lhe', sorted( glob.glob('pwgevents*.lhe') ) )
       subprocess.call( 'rm pwgevents-*.lhe 2> /dev/null', shell=True )
       # Unscale nEvents in case this is needed by afterburners
       subprocess.call( 'sed -i "s/numevts.*/numevts {0}/g" powheg*.input'.format(self.nEvents_unscaled), shell=True )
+
+    # Check for required output file
+    if not os.path.isfile('pwgevents.lhe') :
+      self.logger.warning( 'No output LHEF file found! Probably because the Powheg process was killed before finishing.' )
+      raise RuntimeError( 'No output LHEF file produced by Powheg. Terminating job.' )
 
     # Run Powheg afterburners
     self.__run_afterburners()
@@ -197,6 +203,7 @@ class PowhegConfig_base(object) :
       self.logger.info( 'Moved pwgevents.lhe to {0}'.format(self.output_events_file_name) )
     except OSError :
       self.logger.warning( 'No output LHEF file found! Probably because the Powheg process was killed before finishing.' )
+      raise RuntimeError( 'No output LHEF file produced by Powheg. Terminating job.' )
 
     # Tar events if LHE output is requested
     if self.output_tarball_name is not None :
@@ -249,10 +256,10 @@ class PowhegConfig_base(object) :
   #  @param value Value of the parameter
   #  @param desc Description for the run card
   #  @param parameter Name used in the run card if different
-  def add_parameter( self, configurable_name, value, default='', desc='', parameter=None ) :
+  def add_parameter( self, configurable_name, value, desc='', parameter=None ) :
     setattr( self, configurable_name, value ) # add new attribute
     powheg_parameter = parameter if parameter is not None else configurable_name
-    self.configurable_parameters[powheg_parameter] = [configurable_name, default, desc]
+    self.configurable_parameters[powheg_parameter] = [configurable_name, '-', desc]
     return
 
 
@@ -260,9 +267,9 @@ class PowhegConfig_base(object) :
   #  @param configurable_name Configurable parameter name exposed to the user
   #  @param value Value of the parameter
   #  @param desc Description for the run card
-  def add_phantom( self, configurable_name, value, default='', desc='' ) :
+  def add_phantom( self, configurable_name, value, desc='' ) :
     setattr( self, configurable_name, value ) # add new attribute
-    self.phantom_parameters[configurable_name] = [configurable_name, default, desc]
+    self.phantom_parameters[configurable_name] = [configurable_name, '-', desc]
     return
 
 
@@ -270,14 +277,14 @@ class PowhegConfig_base(object) :
   #  @param non_configurable_name Parameter name
   #  @param value Value of the parameter
   #  @param desc Description for the run card
-  def fix_parameter( self, non_configurable_name, value=None, default='', desc='' ) :
+  def fix_parameter( self, non_configurable_name, value=None, desc='', default='-' ) :
     # Get previously set value if not overwriting
     if value is None : value = getattr( self, non_configurable_name )
     # Remove it from the configurable list if it was there
     for powheg_parameter, configurable_list in self.configurable_parameters.items() :
       # Retrieve Powheg parameter name and description if there is a match
       if non_configurable_name == configurable_list[0] :
-        non_configurable_name, desc = powheg_parameter, configurable_list[1]
+        non_configurable_name, default, desc = powheg_parameter, configurable_list[1], configurable_list[2]
         self.configurable_parameters.pop(powheg_parameter)
         break
     self.fixed_parameters.append( [non_configurable_name, value, default, desc] )
@@ -297,7 +304,7 @@ class PowhegConfig_base(object) :
     self.logger.info( 'Defining new weight group {0} with {1} variations'.format( group_name, len(weight_names) ) )
     self.reweight_groups[group_name] = {}
     parameter_names, parameter_values = [], []
-    for parameter, ( name, desc ) in self.configurable_parameters.items() :
+    for parameter, ( name, default, desc ) in self.configurable_parameters.items() :
       if isinstance( getattr(self,name), list ) :
         if not name in [ 'PDF', 'mu_R', 'mu_F' ] : # these are treated separately
           assert( len(weight_names) == len(getattr(self,name)) ), 'Number of parameter variations must be the same as the number of names provided'
@@ -321,15 +328,13 @@ class PowhegConfig_base(object) :
   def populate_default_strings( self ) :
     # Configurable parameters
     for configurable_list in self.configurable_parameters.values() : # [configurable_name, default, desc]
-      value = getattr( self, configurable_list[0] )
-      if '{0}' in configurable_list[1] : configurable_list[1] = configurable_list[1].format( value )
+      configurable_list[1] = getattr( self, configurable_list[0] )
     # Phantom parameters
     for configurable_list in self.phantom_parameters.values() : # [configurable_name, default, desc]
-      value = getattr( self, configurable_list[0] )
-      if '{0}' in configurable_list[1] : configurable_list[1] = configurable_list[1].format( value )
+      configurable_list[1] = getattr( self, configurable_list[0] )
     # Fixed parameters
     for non_configurable_list in self.fixed_parameters : #[non_configurable_name, value, default, desc]
-      if '{0}' in non_configurable_list[2] : non_configurable_list[2] = non_configurable_list[2].format( non_configurable_list[1] )
+      non_configurable_list[2] = non_configurable_list[1]
     return
 
 

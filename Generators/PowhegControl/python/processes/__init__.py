@@ -19,12 +19,16 @@ from PowhegConfig_ttH import *
 from PowhegConfig_ttj import *
 from PowhegConfig_VBF_H import *
 from PowhegConfig_VBF_ssWW import *
+from PowhegConfig_VBF_W import *
+from PowhegConfig_VBF_Z import *
 from PowhegConfig_W import *
 from PowhegConfig_Wj import *
+from PowhegConfig_Wjj import *
 from PowhegConfig_Wt_DR import *
 from PowhegConfig_Wt_DS import *
 from PowhegConfig_WW import *
 from PowhegConfig_WZ import *
 from PowhegConfig_Z import *
 from PowhegConfig_Zj import *
+from PowhegConfig_Zjj import *
 from PowhegConfig_ZZ import *
