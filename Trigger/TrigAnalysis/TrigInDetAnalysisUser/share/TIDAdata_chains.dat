@@ -4,9 +4,6 @@ testChains = {
     //  "Electrons",
     //  "Truth",
 
-    "Truth",
-
-    
     // "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
     // "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
     // "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",

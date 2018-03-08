@@ -225,14 +225,17 @@ for xmlfile in $FILES; do
 
 		  command="$(echo $command | sed 's|^ *||g')"
  
+		  TIDARDICT=0
+
 		  if ( echo $command | grep -q TIDArdict ); then 
+		      TIDARDICT=1
                       echo ""         >> $outfile
 		      echo "for DATFILE in *.dat ; do"                      >> $outfile 
-		      echo "    if ( grep -q DataFile \$DATFILE ); then"   >> $outfile
-		      echo "         mv  \$DATFILE  \$DATFILE.bak" 	     >> $outfile      
+		      echo "    if ( grep -q DataFile \$DATFILE ); then"    >> $outfile
+		      echo "         mv  \$DATFILE  \$DATFILE.bak" 	    >> $outfile      
 		      echo "         grep -v \"\\(DataSets\\|DataFiles\\)\"  \$DATFILE.bak > \$DATFILE" >> $outfile	    
 		      echo "         echo \"DataSets = { \\\"./output-dataset/\\\" };\"   >> \$DATFILE" >> $outfile	      
-		      echo "    fi" >> $outfile	    
+		      echo "    fi"   >> $outfile	    
 	              echo "done"     >> $outfile
 	              echo ""         >> $outfile
 
@@ -242,6 +245,9 @@ for xmlfile in $FILES; do
 		  command=$(echo $command | sed 's|\.exe | |g')
 
 		  ( echo "$command" | grep -q trig_cost.root ) && command=$(echo "$command" | sed 's|-f trig_cost.root|--files output-cost/*trig_cost.root|g')
+		  
+
+		  [ $TIDARDICT -eq 1 ] && echo -e "if [ \$RUNATHENA -eq 1 -o \$RUNPOST -eq 1 ]; then\n" >> $outfile
 
 #	          echo    "CMD0: $command"
 #                 echo    "$command"               >> $outfile
@@ -250,6 +256,8 @@ for xmlfile in $FILES; do
                   echo    ""                       >> $outfile
        	     
 		  timestamp $command >> $outfile
+
+		  [ $TIDARDICT -eq 1 ] && echo -e "\nfi\n" >> $outfile
 
 		  ((COUNTER++))
 	       fi	  
@@ -338,13 +346,13 @@ for xmlfile in $FILES; do
 
 #     grep cpu $outfile 
 
-      for TOUTDIR in $(cat $outfile | grep -v cpu ); do 
-	[ $USENEXTFILE -eq 1 ] &&  echo "# art-output: $TOUTDIR" >> $outfile.extra && USENEXTFILE=0 &&  continue 
+      for TOUTDIR in $(cat $outfile | grep TIDA | grep -v cpu ); do
+	[ $USENEXTFILE -eq 1 ] &&  echo "# art-output: $TOUTDIR" >> $outfile.extra && USENEXTFILE=0 && continue 
 	[ "x$TOUTDIR" == "x-d" -o "x$TOUTDIR" == "x-o" ] && USENEXTFILE=1 
       done
 
-      for TOUTDIR in $(cat $outfile | grep cpu ); do 
-	[ $USENEXTFILE -eq 1 ] &&  echo "# art-output: $TOUTDIR" >> $outfile.extra && USENEXTFILE=0 &&  continue 
+      for TOUTDIR in $(cat $outfile | grep TIDA | grep cpu ); do 
+ 	[ $USENEXTFILE -eq 1 ] &&  echo "# art-output: $TOUTDIR" >> $outfile.extra && USENEXTFILE=0 && continue 
 	[ "x$TOUTDIR" == "x-o" ] && USENEXTFILE=1  
       done
     
