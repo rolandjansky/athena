@@ -6,11 +6,15 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
+#include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 #include "TrkEventUtils/CreatePRD_MapPairFromTrack.h"
 #include "TrkEventUtils/CreatePRD_VectorFromTrack.h"
 
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
+
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 #include <cassert>
 #include <vector>
@@ -22,7 +26,8 @@ Trk::PRD_AssociationTool::PRD_AssociationTool(const std::string& t,
   const std::string& n,
   const IInterface*  p )
   :
-  AthAlgTool(t,n,p)
+  AthAlgTool(t,n,p),
+  m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
 {
   declareInterface<IPRD_AssociationTool>(this);
 }
@@ -203,8 +208,26 @@ std::vector< const Trk::PrepRawData* > Trk::PRD_AssociationTool::getPrdsOnTrack(
   for (;it!=itEnd;it++)
   {
     const RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*>(*it);
-    if (0!=rot)
+    if (rot){
+      if(m_idHelperTool->isMuon(rot->identify())){
+	//only use precision hits for muon track overlap
+	if(!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify()))) continue;
+      }
       vec.push_back(rot->prepRawData());
+    }
+    else{
+      const Trk::CompetingRIOsOnTrack* competingROT = dynamic_cast <const Trk::CompetingRIOsOnTrack*> (*it);
+      if(competingROT){
+	const unsigned int numROTs = competingROT->numberOfContainedROTs();
+	for( unsigned int i=0;i<numROTs;++i ){
+	  const Trk::RIO_OnTrack* rot = &competingROT->rioOnTrack(i);
+	  if( !rot || !rot->prepRawData() || !m_idHelperTool->isMuon(rot->identify()) ) continue;
+	  //only use precision hits for muon track overlap
+	  if(!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify()))) continue;
+	  vec.push_back(rot->prepRawData());
+	}
+      }
+    }
   }
   ATH_MSG_DEBUG (" Getting "<<vec.size()<<" PRDs from track at:"<<&track);
 
