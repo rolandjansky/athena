@@ -309,10 +309,10 @@ class PowhegV2Decorator :
     self.decorated.parallelstage = -1
     self.decorated.stage2init    = -1
 
+    self.decorated.doublefsr     = 1
     self.decorated.evenmaxrat    = -1
-    self.decorated.doublefsr     = -1
-    self.decorated.fastbtlbound  = -1
-    self.decorated.storemintupb  = -1
+    self.decorated.fastbtlbound  = 1
+    self.decorated.storemintupb  = 1
 
   def append_to_run_card( self ) :
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
@@ -326,14 +326,14 @@ class PowhegV2Decorator :
       f.write( 'itmx1rm '+str(self.decorated.itmx1rm)+'             ! \n')
       f.write( 'itmx2rm '+str(self.decorated.itmx2rm)+'             ! \n')
       f.write( 'LOevents -1                                         ! with LOevents==1 bornonly must be set equal to 1\n' )
-      f.write( 'minlo '+str(self.decorated.minlo)+'                 ! \n' )
+      f.write( 'minlo '+str(self.decorated.minlo)+'                 ! default 1\n' )
       f.write( 'ncall1rm '+str(self.decorated.ncall1rm)+'           ! \n')
       f.write( 'ncall2rm '+str(self.decorated.ncall2rm)+'           ! \n')
       f.write( 'olddij '+str(self.decorated.olddij)+'               ! \n')
       f.write( 'parallelstage '+str(self.decorated.parallelstage)+' ! \n')
       f.write( 'stage2init '+str(self.decorated.stage2init)+'       ! \n')
       f.write( 'evenmaxrat '+str(self.decorated.evenmaxrat)+'       ! \n')
-      f.write( 'doublefsr '+str(self.decorated.doublefsr)+'         ! fix problem with spikes in final observables\n' )
+      f.write( 'doublefsr '+str(self.decorated.doublefsr)+'         ! fix problem with spikes in final observables, see arXiv:1303.3922\n' )
       f.write( 'fastbtlbound '+str(self.decorated.fastbtlbound)+'   ! \n')
       f.write( 'storemintupb '+str(self.decorated.storemintupb)+'   ! \n')
 

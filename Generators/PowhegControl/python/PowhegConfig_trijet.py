@@ -28,6 +28,8 @@ class PowhegConfig_trijet(PowhegConfig_base) :
   fullphsp      = -1
   brpar_dijexp  = -1
   brpar_diexp   = -1
+  itmx1rm       = None
+  ncall1rm      = None
 
   # Set process-dependent paths in the constructor
   def __init__(self,runArgs=None) :
@@ -49,12 +51,22 @@ class PowhegConfig_trijet(PowhegConfig_base) :
     self.foldx    = 10
     self.foldy    = 10
     self.foldphi  = 5
+    self.ixmax    = 5
+    self.iymax    = 5
 
     # Override defaults
-    self.bornktmin  = 5.0
+    self.bornktmin      = 5.0
+    self.withnegweights = 1
+    self.minlo          = 1
+    #self.storemintupb   = 1
+    #self.fastbtlbound   = 1
 
   # Implement base-class function
   def generateRunCard(self) :
+    # Set additional integration parameters before setting up the run card
+    self.itmx1rm = self.itmx1
+    self.ncall1rm = 2.0 * self.ncall1
+
     self.initialiseRunCard()
 
     with open( str(self.TestArea)+'/powheg.input','a') as f :
