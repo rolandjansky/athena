@@ -56,6 +56,14 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         // Region Selector, sampling 0
         int sampling = 0;
+
+        LArTT_Selector<LArCellCont> sel;
+        if ( m_context ) {
+                m_dataSvc->loadCollections( *m_context, roi, TTEM, sampling, sel );
+                m_iBegin = sel.begin();
+                m_iEnd = sel.end();
+        } else { // old mode
+
         // Get detector offline ID's for Collections
         m_data->RegionSelector(sampling, roi );
 
@@ -78,6 +86,7 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         if ( m_saveCells ){
            m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
         }
+	} // end of else 
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->pause();
         // Algorithmic time
@@ -151,6 +160,13 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         // Region Selector, sampling 3
         sampling = 3;
+
+        LArTT_Selector<LArCellCont> sel3;
+        if ( m_context ) {
+                m_dataSvc->loadCollections( *m_context, roi, TTEM, sampling, sel3 );
+                m_iBegin = sel3.begin();
+                m_iEnd = sel3.end();
+        } else { // old mode
         // Get detector offline ID's for Collections
         m_data->RegionSelector( sampling, roi );
 
@@ -176,6 +192,7 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         if ( m_saveCells ){
            m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
         }
+	} // end of else
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->stop();
         // Algorithmic time

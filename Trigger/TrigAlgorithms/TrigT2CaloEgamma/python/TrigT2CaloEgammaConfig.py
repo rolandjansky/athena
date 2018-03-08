@@ -7,7 +7,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex, EgammaHadEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaAllFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo, T2CaloEgammaReFastAlgo
 
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaHitsCalibrationBarrelConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
@@ -416,6 +416,44 @@ class T2CaloEgamma_FastAlgo (T2CaloEgammaFastAlgo):
        self.IAlgToolList+= [ EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig") ]
        self.IAlgToolList+= [ EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig") ]
        self.IAlgToolList+= [ ToolSvc.RingsMaker ] 
+
+       self.EtaWidth = 0.2
+       self.PhiWidth = 0.2
+       #self.EtaWidthForID = 0.1
+       #self.PhiWidthForID = 0.1
+       #self.TrigEMClusterKey="TrigT2CaloEgamma"
+       #t2catime.TimerHistLimits = [0,20]
+       self.CalibListEndcap=[EgammaSshapeCalibrationEndcapConfig()]
+       self.CalibListBarrel=[EgammaSshapeCalibrationBarrelConfig()]
+       self.CalibListBarrel+=[EgammaHitsCalibrationBarrelConfig()]
+       self.CalibListBarrel+=[EgammaGapCalibrationConfig()]
+       self.CalibListBarrel+=[EgammaTransitionRegionsConfig()]
+       self.CalibListEndcap+=[EgammaHitsCalibrationEndcapConfig()]
+       self.CalibListEndcap+=[EgammaGapCalibrationConfig()]
+
+class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
+   __slots__ = []
+   def __init__ (self, name="T2CaloEgamma_ReFastAlgo"):
+       super(T2CaloEgamma_ReFastAlgo, self).__init__(name)
+       # here put your customizations
+       from AthenaCommon.AppMgr import ToolSvc
+       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+       from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
+       svcMgr += TrigCaloDataAccessSvc()
+       ToolSvc+=EgammaSamp2FexNoTimerConfig("ReFaAlgoSamp2FexConfig")
+       ToolSvc+=EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig")
+       ToolSvc+=EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig")
+       ToolSvc+=EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig")
+       #ToolSvc+=RingerFexConfig("RingsMaker") 
+       #ToolSvc.RingsMaker.OutputLevel=DEBUG
+       #ToolSvc.RingsMaker.RingsKey="CaloRings"
+       self.IAlgToolList = [ EgammaSamp2FexNoTimerConfig("ReFaAlgoSamp2FexConfig") ]
+       self.IAlgToolList+= [ EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig") ]
+       self.IAlgToolList+= [ EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig") ]
+       self.IAlgToolList+= [ EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig") ]
+       for ii in self.IAlgToolList :
+          ii.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+       #self.IAlgToolList+= [ ToolSvc.RingsMaker ] 
 
        self.EtaWidth = 0.2
        self.PhiWidth = 0.2

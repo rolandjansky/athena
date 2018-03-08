@@ -57,6 +57,14 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
         // Region Selector, sampling 1
 	int sampling = 1;
+
+	LArTT_Selector<LArCellCont> sel;
+        if ( m_context ) {
+                m_dataSvc->loadCollections( *m_context, roi, TTEM, sampling, sel );
+                m_iBegin = sel.begin();
+                m_iEnd = sel.end();
+        } else { // old mode
+
         // Get detector offline ID's for Collections
         m_data->RegionSelector(sampling, roi );
 
@@ -79,6 +87,7 @@ StatusCode EgammaSamp1Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         if ( m_saveCells ){
            m_data->storeCells(m_iBegin,m_iEnd,*m_CaloCellContPoint,m_cellkeepthr);
         }
+	} // end of else context
         // Finished to access Collection
         if (!m_timersvc.empty()) m_timer[2]->stop();
         // Algorithmic time

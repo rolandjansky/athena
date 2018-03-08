@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TrigCaloDataAccessSvc_ITrigCaloDataAccessSvc_h
-#define TrigCaloDataAccessSvc_ITrigCaloDataAccessSvc_h
+#ifndef TrigT2CaloCommon_ITrigCaloDataAccessSvc_h
+#define TrigT2CaloCommon_ITrigCaloDataAccessSvc_h
 
 #include "LArRawUtils/LArTT_Selector.h"
 #include "TileByteStream/TileCellCont.h"

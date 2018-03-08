@@ -44,6 +44,7 @@
 #include "TrigT2CaloCommon/T2GeometryTool.h"
 #include "TrigT2CaloCommon/T2Calibration.h"
 #include "TrigT2CaloCommon/TrigDataAccess.h"
+#include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 
@@ -52,6 +53,7 @@
 //class TrigEMCluster;
 class TrigTauCluster;
 class T2CaloConfig;
+class EventContext;
 
 static const InterfaceID IID_IAlgToolCalo("IAlgToolCalo",1,0);
 
@@ -66,13 +68,15 @@ class IAlgToolCalo: public virtual IAlgTool,
 		 m_timersvc("TrigTimerSvc","IAlgToolCalo"),
 		 m_geometryTool("T2GeometryTool/T2GeometryTool", this ),
 		 m_data("TrigDataAccess/TrigDataAccess"),
-                 m_caloDDE(0), m_cellkeepthr(1e5) {
+		 m_dataSvc("TrigCaloDataAccessSvc/TrigCaloDataAccessSvc",name),
+                 m_caloDDE(0), m_cellkeepthr(1e5), m_context(nullptr) {
 	 declareInterface<IAlgToolCalo>(this);
          declareProperty("SaveCellsInContainer",m_saveCells=false,"Enables saving of the RoI Calorimeter Cells in StoreGate");
          declareProperty("TrigTimerSvc",m_timersvc,"Trigger Timer Service for benchmarking algorithms");
          declareProperty("T2GeometryTool",m_geometryTool,
 		"Tool to check that a cells are contained in a given cluster - for different cluster sizes");
          declareProperty("TrigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
+         declareProperty("TrigDataAccessMT",m_dataSvc,"Data Access for LVL2 Calo Algorithms in MT");
          declareProperty("ThresholdKeepCells",m_cellkeepthr,"Threshold to keep cells into container");
     }
     /** Destructor */
@@ -137,6 +141,10 @@ class IAlgToolCalo: public virtual IAlgTool,
     void setCellContainerPointer(CaloCellContainer** p )
 	{ m_CaloCellContPoint = p; }
 
+    /** Sets the pointer of the context for MT running */
+    void setContext(const EventContext *p )
+	{ m_context = p; }
+
     /** Method to set the caloDDE for some important cell in cluster */
     void setCaloDetDescrElement(const CaloDetDescrElement *caloDDE) {
       m_caloDDE = caloDDE;    
@@ -199,6 +207,9 @@ class IAlgToolCalo: public virtual IAlgTool,
 	/** Object  that provides data access in a Region of
 	Interest. See TrigDataAccess for more details. */
 	ToolHandle<ITrigDataAccess> m_data;
+	/** Object  that provides data access in a Region of
+	Interest. See TrigCaloDataAccessSvc for more details. */
+	ServiceHandle<ITrigCaloDataAccessSvc> m_dataSvc;
 	/** Calorimeter Id Manager for calorimeter part
 	determination (Barrel versus EndCap) */
 	const DataHandle<CaloIdManager>        m_larMgr;
@@ -207,6 +218,8 @@ class IAlgToolCalo: public virtual IAlgTool,
         bool m_saveCells;
         /** Pointer of the cell container */
         CaloCellContainer** m_CaloCellContPoint;
+        /** Pointer of the context */
+        const EventContext* m_context;
         // Objects that the Tools should not worry about
   protected:
 	bool m_lardecoded, m_tiledecoded;

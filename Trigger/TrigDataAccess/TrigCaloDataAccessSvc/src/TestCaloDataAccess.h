@@ -7,7 +7,6 @@
 #include <string>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "TrigCaloDataAccessSvc/ITrigCaloDataAccessSvc.h"
 
 
 /**
@@ -25,18 +24,11 @@ class TestCaloDataAccess
 
   TestCaloDataAccess( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~TestCaloDataAccess(); 
-  virtual StatusCode  initialize() override;
-  virtual StatusCode  execute_r(const EventContext& context) const override;
+  virtual StatusCode  initialize() ;
+  virtual StatusCode  execute_r(const EventContext& context) const ;
  
  private: 
-  TestCaloDataAccess();
-  void emulateRoIs( const EventContext& context, std::vector<ParallelCallTest*>& allRoIs ) const;
-  void emulateFixedRoIs( const EventContext& context, std::vector<ParallelCallTest*>& allRoIs ) const;
-  ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc; 
 
-  int m_nFixedRoIs;
-  bool m_emulateRoIs;
-  bool m_emulateFixedRoIs;
 }; 
 
 

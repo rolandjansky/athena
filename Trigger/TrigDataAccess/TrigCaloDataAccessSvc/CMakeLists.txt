@@ -9,41 +9,17 @@ atlas_subdir( TrigCaloDataAccessSvc )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          LArCalorimeter/LArRecEvent
 
                           PRIVATE
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloIdentifier
-                          Calorimeter/CaloInterface
-                          Control/StoreGate
-                          DetectorDescription/IRegionSelector
-                          DetectorDescription/Identifier
                           Event/ByteStreamCnvSvcBase
                           Event/EventInfo
                           Event/xAOD/xAODTrigCalo
-                          ForwardDetectors/ZDC/ZdcCnv/ZdcByteStream
-                          ForwardDetectors/ZDC/ZdcEvent
-                          ForwardDetectors/ZDC/ZdcRec
                           GaudiKernel
-                          LArCalorimeter/LArCnv/LArByteStream
-                          LArCalorimeter/LArRawUtils
-                          LArCalorimeter/LArCabling
-                          TileCalorimeter/TileEvent
-                          TileCalorimeter/TileSvc/TileByteStream
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
-                          Trigger/TrigAlgorithms/TrigT2CaloCommon
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloUtils
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/ByteStreamData
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArRecUtils
-                          Trigger/TrigT1/TrigT1Interfaces
 			              AtlasTest/TestTools
 			              Control/AthenaMonitoring )
 
@@ -55,8 +31,8 @@ atlas_add_library( TrigCaloDataAccessSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigCaloDataAccessSvc
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel IRegionSelector Identifier EventInfo xAODTrigCalo ZdcEvent GaudiKernel LArRecEvent TileEvent TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ZdcByteStreamLib ZdcRecLib LArByteStreamLib LArRawUtilsLib LArCablingLib TileByteStreamLib TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloUtilsLib ByteStreamData_test LArRecUtilsLib TrigT2CaloCommonLib
-                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities ByteStreamData LArIdentifier LArRecConditions TrigT1Interfaces )
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel TrigSteeringEvent ByteStreamCnvSvcBaseLib TrigInterfacesLib ByteStreamData_test 
+                   PRIVATE_LINK_LIBRARIES AthenaPoolUtilities ByteStreamData TrigT1Interfaces )
 
 atlas_add_component( TrigCaloDataAccessSvc
                      src/components/*.cxx
