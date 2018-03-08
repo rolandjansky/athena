@@ -123,10 +123,10 @@ def setupMenu():
         ['mu20_2mu4_JpsimumuL2',     'L1_MU20MU21', ['L1_MU20','L1_2MU4'], [PhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['2mu4_JpsimumuL2','mu20']]], # OI - who owns these triggers?
         
         # Primary (multi muon chains)
-        ['3mu4',                   'L1_3MU4',           [], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
-        ['3mu4_mu2noL1',           'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu4','mu2noL1']]],
-        ['3mu3_mu3noL1_L13MU4',    'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu3','mu3noL1']]],
-        ['3mu4_mu4noL1',           'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu4','mu4noL1']]],
+        ['3mu4',                   'L1_3MU4',           [], [BPhysicsStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
+        ['3mu4_mu2noL1',           'L1_3MU4', ['L1_3MU4',''], [BPhysicsStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu4','mu2noL1']]],
+        ['3mu3_mu3noL1_L13MU4',    'L1_3MU4', ['L1_3MU4',''], [BPhysicsStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu3','mu3noL1']]],
+        ['3mu4_mu4noL1',           'L1_3MU4', ['L1_3MU4',''], [BPhysicsStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu4','mu4noL1']]],
         ['4mu4',                   'L1_4MU4', ['L1_4MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['4mu4','']]],
 
 #				#ATR-15246
@@ -2312,20 +2312,20 @@ def setupMenu():
         ['mu11_bJpsi_TrkPEB',           'L1_MU11', [], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu20_bJpsi_TrkPEB',       'L1_MU20MU21', ['L1_MU20'], ['BphysPEB'], [RATE_BphysTag,BW_BphysTag], -1],
         
-        ['3mu4_bDimu',                    'L1_3MU4', [], [BMultiMuonStream,'express'], [RATE_BMultiMuonTag,BW_BphysTag], -1],
+        ['3mu4_bDimu',                    'L1_3MU4', [], [BPhysicsStream,'express'], [RATE_BMultiMuonTag,BW_BphysTag], -1],
         ['3mu4_bJpsi',                    'L1_3MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['3mu4_bTau',                     'L1_3MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['3mu4_nomucomb_bTau',            'L1_3MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],  # OI validation w.r.t 2016 
-        ['3mu4_bUpsi',                    'L1_3MU4', [], [BMultiMuonStream], [RATE_BMultiMuonTag,BW_BphysTag], -1],
+        ['3mu4_bUpsi',                    'L1_3MU4', [], [BPhysicsStream], [RATE_BMultiMuonTag,BW_BphysTag], -1],
         
-        ['3mu6_bDimu',                   'L1_3MU6', [], [BMultiMuonStream], [RATE_BMultiMuonTag,BW_BphysTag], -1],
+        ['3mu6_bDimu',                   'L1_3MU6', [], [BPhysicsStream], [RATE_BMultiMuonTag,BW_BphysTag], -1],
         ['3mu6_bJpsi',                   'L1_3MU6', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['3mu6_bTau',                    'L1_3MU6', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
-        ['3mu6_bUpsi',                   'L1_3MU6', [], [BMultiMuonStream], [RATE_BMultiMuonTag,BW_BphysTag], -1],
+        ['3mu6_bUpsi',                   'L1_3MU6', [], [BPhysicsStream], [RATE_BMultiMuonTag,BW_BphysTag], -1],
 
         ['mu6_2mu4_bJpsi', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [BPhysicsStream], [RATE_BphysTag, BW_BphysTag], -1],
-        ['mu6_2mu4_bUpsi', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
-        ['mu6_2mu4_bDimu', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
+        ['mu6_2mu4_bUpsi', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [BPhysicsStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
+        ['mu6_2mu4_bDimu', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [BPhysicsStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
         ['mu6_2mu4_bDimu2700', 'L1_MU6_3MU4', ['L1_MU6','L1_3MU4'], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
 
         ### ATR-14616: L1Topo SM DY
@@ -2383,13 +2383,13 @@ def setupMenu():
         ['mu11_mu6_bDimu_Lxy0',            'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['mu11_mu6_bDimu2700_Lxy0',            'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         
-        ['3mu4_bNocut',          'L1_3MU4',           [], [BMultiMuonStream, 'express'], [RATE_BMultiMuonTag, 'BW:Bphys'], -1],
-        ['3mu4_bVertex2',          'L1_3MU4',           [], [BMultiMuonStream], [RATE_BMultiMuonTag, 'BW:Bphys'], -1],
-        ['3mu4_bVertex3',          'L1_3MU4',           [], [BMultiMuonStream], [RATE_BMultiMuonTag, 'BW:Bphys'], -1],
-        ['3mu3_mu3noL1_bNocut_L13MU4', 'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['3mu3','mu3noL1']]],
-        ['2mu4_mu3_mu2noL1_bNocut_L13MU4', 'L1_3MU4', ['L1_2MU4','L1_MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['2mu4','mu3','mu2noL1']]],
-        ['2mu6_mu4_bUpsi', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
-        ['4mu4_bNocut', 'L1_4MU4', ['L1_4MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['4mu4','']]],
+        ['3mu4_bNocut',          'L1_3MU4',           [], [BPhysicsStream, 'express'], [RATE_BMultiMuonTag, 'BW:Bphys'], -1],
+        ['3mu4_bVertex2',          'L1_3MU4',           [], [BPhysicsStream], [RATE_BMultiMuonTag, 'BW:Bphys'], -1],
+        ['3mu4_bVertex3',          'L1_3MU4',           [], [BPhysicsStream], [RATE_BMultiMuonTag, 'BW:Bphys'], -1],
+        ['3mu3_mu3noL1_bNocut_L13MU4', 'L1_3MU4', ['L1_3MU4',''], [BPhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['3mu3','mu3noL1']]],
+        ['2mu4_mu3_mu2noL1_bNocut_L13MU4', 'L1_3MU4', ['L1_2MU4','L1_MU4',''], [BPhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['2mu4','mu3','mu2noL1']]],
+        ['2mu6_mu4_bUpsi', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [BPhysicsStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
+        ['4mu4_bNocut', 'L1_4MU4', ['L1_4MU4',''], [BPhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['4mu4','']]],
 
         #OI replacement for mu20_nomucomb_mu6noL1_nscan03 and mu11_nomucomb_2mu4noL1_nscan03_L1MU11_2MU6
         ['mu20_mu6noL1_bNocut',             'L1_MU20MU21',      ['L1_MU20','L2_mu20'],        [BPhysicsStream], [RATE_BphysTag,'BW:Muon'], -1,['serial',-1,['mu20','mu6noL1']]],  
@@ -2398,8 +2398,8 @@ def setupMenu():
 
         ['3mu4_bPhi',                     'L1_3MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
 
-        ['mu6_2mu4_bNocut_L1MU6_3MU4', 'L1_MU6_3MU4', ['L1_MU6','L1_2MU4'], [BMultiMuonStream], [RATE_BMultiMuonTag,'BW:Muon'], -1],
-        ['2mu6_mu4_bNocut_L12MU6_3MU4', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [BMultiMuonStream], [RATE_BMultiMuonTag,'BW:Muon'], -1],
+        ['mu6_2mu4_bNocut_L1MU6_3MU4', 'L1_MU6_3MU4', ['L1_MU6','L1_2MU4'], [BPhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1],
+        ['2mu6_mu4_bNocut_L12MU6_3MU4', 'L1_2MU6_3MU4', ['L1_2MU6','L1_MU4'], [BPhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1],
 
 
         ['mu11_2mu4noL1_bTau_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu4noL1']]],
