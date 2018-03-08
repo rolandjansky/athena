@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "LUCID_EventTPCnv/LUCID_SimHitCnv_p1.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -71,8 +72,15 @@ void testit (const LUCID_SimHit& trans1)
 void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
-  HepMcParticleLink trkLink(genPartVector.at(0)->barcode(),genPartVector.at(0)->parent_event()->event_number());
-  LUCID_SimHit trans1 (1, genPartVector.at(0)->pdg_id(), trkLink, 4,
+  const HepMC::GenParticle *particle = genPartVector.at(0);
+  // Create HepMcParticleLink outside of leak check.
+  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
+  assert(dummyHMPL.cptr()==particle);
+  Athena_test::Leakcheck check;
+
+  const HepMC::GenParticle *pGenParticle = genPartVector.at(0);
+  HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+  LUCID_SimHit trans1 (1, pGenParticle->pdg_id(), trkLink, 4,
                        5.5, 6.5, 7.5,
                        8.5, 9.5, 10.5,
                        11.5, 12.5, 13.5, 14.5);
