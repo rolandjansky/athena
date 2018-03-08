@@ -1,6 +1,6 @@
 from PowhegControl.PowhegUtils import PowhegConfig_WZ
 
-# Use the Powheg_bb configuration
+# Use the Powheg_WZ configuration
 if 'runArgs' in dir() : 
   PowhegConfig = PowhegConfig_WZ(runArgs)
 else :

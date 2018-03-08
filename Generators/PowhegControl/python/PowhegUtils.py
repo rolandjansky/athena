@@ -76,9 +76,9 @@ class PowhegConfig_base():
       f.write( "use-old-ubound "+str(self.use_old_ubound)+"  ! If 1 use norm of upper bounding function stored in pwgubound.dat, if present; <> 1 regenerate\n" )
       f.write( "! A typical call uses 1/1400 seconds (1400 calls per second)\n" )
       f.write( "ncall1 "+str(self.ncall1)+"           ! number of calls for initializing the integration grid\n" )
-      f.write( "itmx1 "+str(self.itmx1)+"             ! No. iterations for grid: total 100000 calls ~ 70 seconds\n" )
+      f.write( "itmx1 "+str(self.itmx1)+"             ! number of iterations for grid: total 100000 calls ~ 70 seconds\n" )
       f.write( "ncall2 "+str(self.ncall2)+"           ! number of calls for computing the integral and finding upper bound\n" )
-      f.write( "itmx2 "+str(self.itmx2)+"             ! No. iterations for the above\n" )
+      f.write( "itmx2 "+str(self.itmx2)+"             ! number of iterations for the above\n" )
       f.write( "! Notice: the total number of calls is ncall2*itmx2*foldcsi*foldy*foldphi\n" )
       f.write( "! these folding numbers yield a negative fraction of 0.5% with bornktmin=10 GeV.\n" )
       f.write( "! With these settings: ncall2*itmx2*foldcsi*foldy*foldphi=5M, 60 minutes\n" )
@@ -87,17 +87,12 @@ class PowhegConfig_base():
       f.write( "foldy   "+str(self.foldy)+"           ! number of folds on  y  integration\n" )
       f.write( "foldphi "+str(self.foldphi)+"         ! number of folds on phi integration\n" )
       f.write( "nubound "+str(self.nubound)+"         ! number of bbarra calls to setup norm of upper bounding function\n" )
-      f.write( "withnegweights "+str(self.withnegweights)+"  ! Ending\n" )
+      f.write( "withnegweights "+str(self.withnegweights)+"  ! allow negative weights\n" )
 
   def generateEvents(self):
     # Start
     mglog.info('Starting POWHEG LHEF event generation at '+str(time.asctime()))
        
-    # try:
-    #   with open('filename'): pass
-    # except IOError:
-    #   print 'Oh dear.'
-
     # Generate the events and move output to correctly named file
     mglog.info('Running ' + str(self.executablePath))
     generate = subprocess.Popen( [self.executablePath,''])
@@ -161,11 +156,7 @@ class PowhegConfig_Dijet(PowhegConfig_base):
     #os.system( 'pwd; ls -alh' )
     
   def generateRunCard(self):
-    mglog.info('In PowhegConfig_Dijet generateRunCard')
-    #os.system( 'pwd; ls -alh' )
     self.generateRunCardSharedOptions()
-    mglog.info('In PowhegConfig_Dijet generateRunCard after shared options')
-    #os.system( 'pwd; ls -alh' )
 
     with open( str(self.TestArea)+'/powheg.input','a') as f:
       f.write( "bornktmin "+str(self.bornktmin)+"      ! (default 0d0) Generation cut: minimum kt in underlying Born\n" )
@@ -183,12 +174,26 @@ class PowhegConfig_Dijet(PowhegConfig_base):
 ###############################################################################
 class PowhegConfig_hvq(PowhegConfig_base):
   # These are user configurable - put generic properties in PowhegConfig_base
-  bbscalevar = 1
+  bbscalevar = 1     
   quarkMass = 4.95
   iymax = 1
   ixmax = 1
   xupbound = 2
   bornsuppfact = -1
+  topdecaymode = None
+  tdec_wmass = 80.4
+  tdec_wwidth = 2.141
+  tdec_bmass = 5
+  tdec_twidth = 1.31
+  tdec_elbranching = 0.108
+  tdec_emass = 0.00051
+  tdec_mumass = 0.1057
+  tdec_taumass = 1.777
+  tdec_dmass = 0.1
+  tdec_umass = 0.1
+  tdec_smass = 0.2
+  tdec_cmass = 1.5
+  tdec_sin2cabibbo = 0.051
 
   # Set process-dependent paths in the constructor
   def __init__(self,runArgs=None):
@@ -202,10 +207,39 @@ class PowhegConfig_hvq(PowhegConfig_base):
       f.write( "bornsuppfact  "+str(self.bornsuppfact)+"                   ! (default 0d0) Mass parameter for Born suppression factor. If < 0 suppfact = 1\n" )
       f.write( "! Heavy flavour production parameters\n" )
       f.write( "qmass  "+str(self.quarkMass)+"                         ! mass of heavy quark in GeV\n" )
-      f.write( "bbscalevar "+str(self.bbscalevar)+" ! use variable re. and fct. scales\n" )
-      f.write( "iymax "+str(self.iymax)+"           ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log\n" )
       f.write( "ixmax "+str(self.ixmax)+"           ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log\n" )
-      f.write( "xupbound  "+str(self.xupbound)+"       ! increase upper bound for radiation generation\n" )
+      f.write( "iymax "+str(self.iymax)+"           ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log\n" )
+      f.write( "xupbound  "+str(self.xupbound)+"       ! increase upper bound for radiation generation\n" ) 
+      # Generating bbbar
+      if self.topdecaymode is None :
+        f.write( "bbscalevar "+str(self.bbscalevar)+" ! use variable re. and fct. scales\n" )
+      # Generating ttbar
+      else :
+        f.write( "topdecaymode  "+str(self.topdecaymode)+"       ! an integer of 5 digits that are either 0, or 2, representing in\n" )
+        f.write( "                          ! the order the maximum number of the following particles(antiparticles)\n" )
+        f.write( "                          ! in the final state: e  mu tau up charm\n" )
+        f.write( "                          ! 22222    All decays (up to 2 units of everything)\n" )
+        f.write( "                          ! 20000    both top go into b l nu (with the appropriate signs)\n" )
+        f.write( "                          ! 10011    one top goes into electron (or positron), the other into (any) hadron\n" )
+        f.write( "                          !          or one top goes into charm, the other into up\n" )
+        f.write( "                          ! 00022    Fully hadronic\n" )
+        f.write( "                          ! 00002    Fully hadronic with two charms\n" )
+        f.write( "                          ! 00011    Fully hadronic with a single charm\n" )
+        f.write( "                          ! 00012    Fully hadronic with at least one charm\n" )
+        f.write( "tdec/wmass "+str(self.tdec_wmass)+" ! W mass for top decay\n" )
+        f.write( "tdec/wwidth "+str(self.tdec_wwidth)+" ! W width\n" )
+        f.write( "tdec/bmass "+str(self.tdec_bmass)+" ! b quark mass in t decay\n" )
+        f.write( "tdec/twidth "+str(self.tdec_twidth)+" ! top width\n" )
+        f.write( "tdec/elbranching "+str(self.tdec_elbranching)+" ! W electronic branching fraction\n" )
+        f.write( "tdec/emass "+str(self.tdec_emass)+" ! electron mass\n" )
+        f.write( "tdec/mumass "+str(self.tdec_mumass)+" ! mu mass\n")
+        f.write( "tdec/taumass "+str(self.tdec_taumass)+" ! tau mass\n" )
+        f.write( "tdec/dmass "+str(self.tdec_dmass)+" ! d mass\n" )
+        f.write( "tdec/umass "+str(self.tdec_umass)+" ! u mass\n" )
+        f.write( "tdec/smass "+str(self.tdec_smass)+" ! s mass\n" )
+        f.write( "tdec/cmass "+str(self.tdec_cmass)+" ! c mass\n" )
+        f.write( "tdec/sin2cabibbo "+str(self.tdec_sin2cabibbo)+" ! sine of Cabibbo angle squared\n" )
+
 
 ###############################################################################
 #
