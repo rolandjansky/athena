@@ -82,7 +82,7 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   SiHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    HepMcParticleLink trkLink(pGenParticle->barcode(),0);
     int o = i*100;
     trans1.Emplace (HepGeom::Point3D<double> (10.5+o, 11.5+o, 12.5+o),
                     HepGeom::Point3D<double> (13.5+o, 14.5+o, 15.5+o),

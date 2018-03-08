@@ -108,7 +108,7 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   for (int i=0; i < 10; i++) {
     int o = i*100;
     const HepMC::GenParticle* pGenParticle = genPartVector.at(0);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    HepMcParticleLink trkLink(pGenParticle->barcode(),0);
     trans1.Emplace (101+o, trkLink, 20+o,
                     104.5+o, 105.5+o,
                     (106.5+o)/1000, (107.5+o)/1000, 108.5+o,
@@ -117,7 +117,7 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   }
   // Special case for photons
   const HepMC::GenParticle* pGenParticle = genPartVector.at(10);
-  HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+  HepMcParticleLink trkLink(pGenParticle->barcode(),0);
   trans1.Emplace (131, trkLink, 22,
                   134.5, 135.5,
                   10, 3, 138.5,
