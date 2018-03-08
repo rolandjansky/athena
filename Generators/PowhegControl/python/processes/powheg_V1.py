@@ -17,10 +17,7 @@ class PowhegV1(PowhegBase):
         @param base_directory  path to PowhegBox code.
         @param executable_name folder containing appropriate PowhegBox executable.
         """
-        super(PowhegV1, self).__init__(base_directory, "POWHEG-BOX", executable_name, **kwargs)
-
-        # Universal options for all V1 processes
-        # self.add_keyword("xgriditeration")
+        super(PowhegV1, self).__init__(base_directory, "POWHEG-BOX", executable_name, is_reweightable=False, **kwargs)
 
     @property
     def powheg_version(self):

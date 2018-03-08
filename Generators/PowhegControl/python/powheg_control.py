@@ -177,7 +177,7 @@ class PowhegControl(object):
         if len(event_weight_options) > 0:
             self.scheduler.add("cross section calculator")
             logger.warning("Powheg has been configured to run with {}".format(" and ".join([x[0] for x in event_weight_options])))
-            logger.warning("This means that event weights will vary in {}".format(" and ".join([x[1] for x in event_weight_options])))
+            logger.warning("This means that event weights will vary in {}.".format(" and ".join([x[1] for x in event_weight_options])))
             logger.warning("The cross-section passed to the parton shower will be inaccurate.")
             logger.warning("Please use the cross-section printed in the log file before showering begins.")
 
@@ -237,10 +237,15 @@ class PowhegControl(object):
     def define_event_weight_group(self, group_name, parameters_to_vary, combination_method="none"):
         """! Add a new named group of event weights.
 
+        @exceptions ValueError Raise a ValueError if reweighting is not supported.
+
         @param group_name         Name of the group of weights.
         @param parameters_to_vary Names of the parameters to vary.
         @param combination_method Method for combining the weights.
         """
+        if not self.process.is_reweightable:
+            logger.warning("Additional event weights cannot be added by this process! Remove reweighting lines from the jobOptions.")
+            raise ValueError("Additional event weights cannot be added by this process! Remove reweighting lines from the jobOptions.")
         self.__event_weight_groups[group_name] = collections.OrderedDict()
         self.__event_weight_groups[group_name]["parameter_names"] = parameters_to_vary
         self.__event_weight_groups[group_name]["combination_method"] = combination_method

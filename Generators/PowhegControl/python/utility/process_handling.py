@@ -40,7 +40,7 @@ class SingleProcessThread(object):
     """
 
     log_level = {"stdout": "info", "stderr": "error"}
-    __output_prefix = ">> "
+    __output_prefix = "    | "
     __ignore_output = []
 
     def __init__(self, command_list, seed_index=None, stdin=None, ignore_output=None):

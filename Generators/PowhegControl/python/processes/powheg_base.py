@@ -17,7 +17,7 @@ class PowhegBase(Configurable):
     @author James Robinson  <james.robinson@cern.ch>
     """
 
-    def __init__(self, base_directory, version, executable_name, powheg_executable="pwhg_main", **kwargs):
+    def __init__(self, base_directory, version, executable_name, powheg_executable="pwhg_main", is_reweightable=True, **kwargs):
         """! Constructor.
 
         @param base_directory  path to PowhegBox code.
@@ -47,17 +47,20 @@ class PowhegBase(Configurable):
         # Add parameter validation functions
         self.validation_functions.append("validate_integration_parameters")
 
-    def add_algorithm(self, process):
-        """! Add an algorithm to the sequence.
+        ## Switch to determine whether reweighting is allowed
+        self.is_reweightable = is_reweightable
 
-        @param process  External process to add.
+    def add_algorithm(self, alg_or_process):
+        """! Add an algorithm or external process to the sequence.
+
+        @param process  Algorithm or external process to add.
         """
         # Either add to the list of algorithms to schedule
-        if isinstance(process, str):
-            self.algorithms.append(process)
+        if isinstance(alg_or_process, str):
+            self.algorithms.append(alg_or_process)
         # ... or add as an external process
         else:
-            self.externals[process.name] = process
+            self.externals[alg_or_process.name] = alg_or_process
 
     @property
     def powheg_version(self):
@@ -99,6 +102,6 @@ class PowhegBase(Configurable):
         if decay_mode not in allowed_decay_modes:
             logger.warning("Decay mode {} not recognised!".format(decay_mode))
             logger.info("Allowed decay modes are:")
-            for decay_mode in allowed_decay_modes:
-                logger.info("... {}".format(decay_mode))
+            for allowed_decay_mode in allowed_decay_modes:
+                logger.info("... {}".format(allowed_decay_mode))
             raise ValueError("Decay mode {} not recognised!".format(decay_mode))

@@ -32,7 +32,7 @@ class tt(PowhegV2):
         self.validation_functions.append("validate_decays")
 
         ## List of allowed decay modes
-        self.allowed_decay_modes = ["t t~ > all", "t t~ > b j j b~ j j", "t t~ > b l+ vl b~ l- vl~", "t t~ > b emu+ vemu b~ emu- vemu~", "t t~ > semileptonic", "t t~ > none"]
+        self.allowed_decay_modes = ["t t~ > all", "t t~ > b j j b~ j j", "t t~ > b l+ vl b~ l- vl~", "t t~ > b emu+ vemu b~ emu- vemu~", "t t~ > semileptonic", "t t~ > undecayed"]
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("bmass_lhe")
@@ -159,8 +159,11 @@ class tt(PowhegV2):
         if self.decay_mode not in self.allowed_decay_modes:
             logger.warning("Decay mode {} not recognised!".format(self.decay_mode))
             raise ValueError("Decay mode {} not recognised!".format(self.decay_mode))
+        # Let MadSpin know whether tops have been decayed
+        if "undecayed" in self.decay_mode:
+            self.externals["MadSpin"].parameters_by_keyword("powheg_top_decays_enabled")[0].value = False
         # Calculate appropriate decay mode numbers
-        __decay_mode_lookup = {"t t~ > all": "22222", "t t~ > b j j b~ j j": "00022", "t t~ > b l+ vl b~ l- vl~": "22200", "t t~ > b emu+ vemu b~ emu- vemu~": "22000", "t t~ > semileptonic": "11111", "t t~ > none": "00000"}
+        __decay_mode_lookup = {"t t~ > all": "22222", "t t~ > b j j b~ j j": "00022", "t t~ > b l+ vl b~ l- vl~": "22200", "t t~ > b emu+ vemu b~ emu- vemu~": "22000", "t t~ > semileptonic": "11111", "t t~ > undecayed": "00000"}
         self.parameters_by_keyword("topdecaymode")[0].value = __decay_mode_lookup[self.decay_mode]
         if self.decay_mode == "semileptonic":
             self.parameters_by_keyword("semileptonic")[0].value = 1

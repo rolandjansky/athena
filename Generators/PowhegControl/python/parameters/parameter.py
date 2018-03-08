@@ -45,7 +45,7 @@ class Parameter(object):
 
         @param to_check An iterable or non-iterable parameter
         """
-        if isinstance(to_check, collections.Iterable) and not isinstance(to_check, str):
+        if isinstance(to_check, collections.Iterable) and not isinstance(to_check, str) and len(to_check) > 0:
             return to_check[0]
         return to_check
 

@@ -20,8 +20,6 @@ class PowhegRES(PowhegBase):
         """
         super(PowhegRES, self).__init__(base_directory, "POWHEG-BOX-RES", executable_name, **kwargs)
 
-        # # Universal options for all V2 processes
-
     @property
     def powheg_version(self):
         """! Version of PowhegBox process."""

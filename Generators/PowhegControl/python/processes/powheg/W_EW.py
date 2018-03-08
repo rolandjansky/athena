@@ -26,8 +26,7 @@ class W_EW(PowhegV2):
         super(self.__class__, self).__init__(base_directory, "W_ew-BMNNP", **kwargs)
 
         # Add algorithms to the sequence
-        # self.add_algorithm(ExternalPHOTOS(os.path.split(self.executable)[0], "main-PHOTOS-lhef"))
-        self.add_algorithm(ExternalPHOTOS(os.path.split(self.executable)[0].replace("ATLASOTF-00-03-10", "ATLASOTF-00-03-09"), "main-PHOTOS-lhef"))  # TODO: remove
+        self.add_algorithm(ExternalPHOTOS(os.path.split(self.executable)[0], "main-PHOTOS-lhef"))
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")

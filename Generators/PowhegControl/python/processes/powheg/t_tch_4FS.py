@@ -24,14 +24,14 @@ class t_tch_4FS(PowhegV2):
         """
         super(self.__class__, self).__init__(base_directory, "ST_tch_4f", **kwargs)
 
+        # Add algorithms to the sequence
+        self.add_algorithm(ExternalMadSpin(process=None))
+
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
 
         ## List of allowed decay modes
-        self.allowed_decay_modes = ["t > undecayed", "t > all", "t > b j j", "t > b l+ vl", "t > b emu+ vemu",
-                                    "t > b e+ ve", "t > b mu+ vm", "t > b tau+ vt", "t~ > undecayed", "t~ > all",
-                                    "t~ > b~ j j", "t~ > b~ l- vl~", "t~ > b~ emu- vemu~", "t~ > b~ e- ve~",
-                                    "t~ > b~ mu- vm~", "t~ > b~ tau- vt~"]
+        self.allowed_decay_modes = ["t > undecayed", "t~ > undecayed"]
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphaem_inv")
@@ -132,10 +132,9 @@ class t_tch_4FS(PowhegV2):
         self.add_keyword("testplots")
         self.add_keyword("testsuda")
         self.add_keyword("tmass")
-        self.add_keyword("topdecaymode", "t > all", name="decay_mode")
         self.add_keyword("topmass")
         self.add_keyword("topwidth")
-        self.add_keyword("ttype", hidden=True)
+        self.add_keyword("ttype", "t > undecayed", name="decay_mode")
         self.add_keyword("ubexcess_correct")
         self.add_keyword("ubsigmadetails")
         self.add_keyword("use-old-grid")
@@ -148,19 +147,20 @@ class t_tch_4FS(PowhegV2):
         self.add_keyword("xupbound", 2)
 
     def validate_decays(self):
-        """! Validate semileptonic and topdecaymode keywords."""
+        """! Validate ttype keywords."""
         self.expose()  # convenience call to simplify syntax
         if self.decay_mode not in self.allowed_decay_modes:
             logger.warning("Decay mode {} not recognised!".format(self.decay_mode))
             raise ValueError("Decay mode {} not recognised!".format(self.decay_mode))
+        # Let MadSpin know whether tops have been decayed
+        if "undecayed" in self.decay_mode:
+            self.externals["MadSpin"].parameters_by_keyword("powheg_top_decays_enabled")[0].value = False
         # Calculate appropriate decay mode numbers
         self.parameters_by_keyword("ttype")[0].value = [+1, -1][self.decay_mode.startswith("t~")]
-        __decay_products = self.decay_mode.replace("~", "").replace("b", "").replace("+", "").replace("-", "").split("t > ")[1].strip()
-        __decay_mode_lookup = {"undecayed": "00000", "all": "11111", "j j": "00011", "l vl": "11100", "emu vemu": "11000", "e ve": "10000", "mu vm": "01000", "tau vt": "00100"}
-        self.parameters_by_keyword("topdecaymode")[0].value = __decay_mode_lookup[__decay_products]
 
-        # Add algorithms to the sequence
-        if self.decay_mode.startswith("t~"):
-            self.add_algorithm(ExternalMadSpin(process="generate p p > t~ b j $$ w+ w- [QCD]"))
-        else:
-            self.add_algorithm(ExternalMadSpin(process="generate p p > t b~ j $$ w+ w- [QCD]"))
+        # Set MadSpin default process appropriately if it has not been set by the user
+        if self.externals["MadSpin"].parameters_by_keyword("MadSpin_process")[0].value is None:
+            if self.decay_mode.startswith("t~"):
+                self.externals["MadSpin"].parameters_by_keyword("MadSpin_process")[0].value = "generate p p > t~ b j $$ w+ w- [QCD]"
+            else:
+                self.externals["MadSpin"].parameters_by_keyword("MadSpin_process")[0].value = "generate p p > t b~ j $$ w+ w- [QCD]"

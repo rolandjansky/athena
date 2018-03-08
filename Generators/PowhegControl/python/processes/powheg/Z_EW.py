@@ -22,6 +22,9 @@ class Z_EW(PowhegV2):
         """
         super(self.__class__, self).__init__(base_directory, "Z_ew-BMNNPV", **kwargs)
 
+        # Add algorithms to the sequence
+        self.add_algorithm(ExternalPHOTOS(os.path.split(self.executable)[0], "main-PHOTOS-lhef"))
+
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
 

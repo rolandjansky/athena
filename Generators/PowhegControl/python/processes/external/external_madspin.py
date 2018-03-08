@@ -29,10 +29,12 @@ class ExternalMadSpin(ExternalBase):
         self.add_keyword("BR_t_to_Ws")
         self.add_keyword("BR_W_to_hadrons")
         self.add_keyword("BR_W_to_leptons")
+        self.add_keyword("bwcutoff")
         self.add_keyword("ebeam1")
         self.add_keyword("G_F")
         self.add_keyword("MadSpin_decays")
         self.add_keyword("MadSpin_enabled")
+        self.add_keyword("MadSpin_model")
         self.add_keyword("MadSpin_mode")
         self.add_keyword("MadSpin_process", process)
         self.add_keyword("mass_b")
@@ -41,6 +43,7 @@ class ExternalMadSpin(ExternalBase):
         self.add_keyword("mass_tau")
         self.add_keyword("mass_W")
         self.add_keyword("mass_Z")
+        self.add_keyword("powheg_top_decays_enabled")
         self.add_keyword("width_H")
         self.add_keyword("width_t")
         self.add_keyword("width_W")
@@ -58,7 +61,7 @@ class ExternalMadSpin(ExternalBase):
             logger.warning("MadSpin not enabled")
             return False
         # Check that tops have not already been decayed
-        if (int(process.parameters_by_keyword("topdecaymode")[0].value) != 0):
+        if self.powheg_top_decays_enabled:
             logger.info("Powheg top quark decays are enabled. MadSpin will not be used for decays.")
             return False
         # Check that decays are in correct format

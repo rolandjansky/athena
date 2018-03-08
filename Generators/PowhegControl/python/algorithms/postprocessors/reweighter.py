@@ -26,29 +26,36 @@ def reweighter(process, weight_groups, powheg_LHE_output):
     # List of tuples holding reweighting information
     weight_list = []
 
+    # Initial values for scale, PDF and other weight groups
+    _idx_scale_start, _idx_PDF_start, _idx_other_start = 1001, 2001, 3001
+
     # Construct ordered list of weights
     for group_name, weight_group in weight_groups.items():
         keyword_dict = dict((n, k) for n, k in zip(weight_group["parameter_names"], weight_group["keywords"]))
         method = weight_group["combination_method"]
-        print group_name, '->', weight_group
+        logger.info("Preparing weight group: {:<19} with {} weights".format(group_name, len(weight_group)))
+
         # Nominal variation: ID=0
         if group_name == "nominal":
             weight_list.append(WeightTuple(parameter_settings=weight_group["nominal"], keywords=keyword_dict, ID=0, name="nominal", combine=method, group=group_name))
 
         # Scale variations: ID=1001+
-        elif group_name == "scale_variations":
-            for idx, name in enumerate([k for k in weight_group.keys() if k not in ["parameter_names", "combination_method", "keywords"]], start=1001):
+        elif group_name == "scale_variation":
+            for idx, name in enumerate([k for k in weight_group.keys() if k not in ["parameter_names", "combination_method", "keywords"]], start=_idx_scale_start):
                 weight_list.append(WeightTuple(parameter_settings=weight_group[name], keywords=keyword_dict, ID=idx, name=name, combine=method, group=group_name))
+            _idx_scale_start = idx + 1
 
         # PDF variations: ID=2001+
         elif group_name == "PDF_variation":
-            for idx, name in enumerate([k for k in weight_group.keys() if k not in ["parameter_names", "combination_method", "keywords"]], start=2001):
+            for idx, name in enumerate([k for k in weight_group.keys() if k not in ["parameter_names", "combination_method", "keywords"]], start=_idx_PDF_start):
                 weight_list.append(WeightTuple(parameter_settings=weight_group[name], keywords=keyword_dict, ID=idx, name=name, combine=method, group=group_name))
+            _idx_PDF_start = idx + 1
 
         # Other variations: ID=3001+
         else:
-            for idx, name in enumerate([k for k in weight_group.keys() if k not in ["parameter_names", "combination_method", "keywords"]], start=3001):
+            for idx, name in enumerate([k for k in weight_group.keys() if k not in ["parameter_names", "combination_method", "keywords"]], start=_idx_other_start):
                 weight_list.append(WeightTuple(parameter_settings=weight_group[name], keywords=keyword_dict, ID=idx, name=name, combine=method, group=group_name))
+            _idx_other_start = idx + 1
 
     # Construct xml output
     xml_lines, weightgroup = [], ""

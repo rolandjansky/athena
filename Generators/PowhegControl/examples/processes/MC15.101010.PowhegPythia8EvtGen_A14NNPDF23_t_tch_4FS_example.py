@@ -5,7 +5,8 @@
 #--------------------------------------------------------------
 evgenConfig.description = "POWHEG+Pythia8 t-channel single top production (4-flavour scheme) with A14 NNPDF2.3 tune."
 evgenConfig.keywords = ["SM", "QCD", "2jet", "bottom"]
-evgenConfig.contact = ["james.robinson@cern.ch"]
+evgenConfig.contact = ["james.robinson@cern.ch", "disipio@cern.ch"]
+evgenConfig.generators  = [ "Powheg", "Pythia8", "EvtGen" ]
 
 # --------------------------------------------------------------
 # Load ATLAS defaults for the Powheg t_tch_4FS process
