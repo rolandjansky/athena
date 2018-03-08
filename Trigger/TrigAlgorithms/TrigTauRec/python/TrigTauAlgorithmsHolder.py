@@ -863,8 +863,8 @@ def getTauWPDecoratorJetRNN():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile1Prong = "rnnid_flat_deep_1p_v0_fix.root",
-                                     flatteningFile3Prong = "rnnid_flat_deep_3p_v0_fix.root",
+                                     flatteningFile1Prong = "rnnid_flat_deep_1p_v0.root",
+                                     flatteningFile3Prong = "rnnid_flat_deep_3p_v0.root",
                                      CutEnumVals =
                                      [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
                                        ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
