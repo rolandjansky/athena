@@ -397,6 +397,61 @@ def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
             addStandardJets(jetalg, radius, "LCTopo", mods="lctopo_ungroomed",
                             ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
 
+def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
+                    **kwargs):
+    extjetlog.info("Building jet collection with modifier sequence {0}".format(constmods))
+    constmodstr = "".join(constmods)
+    jetname = "{0}{1}{2}{3}Jets".format(jetalg,int(radius*10),constmodstr,inputtype)
+    algname = "jetalg"+jetname
+
+    # Avoid scheduling twice
+    if hasattr(sequence,algname):
+        extjetlog.warning("Sequence {0} already has an instance of const mod jet alg {1}".format(sequence,algname))
+        return
+
+    # Get the constituent mod sequence
+    from JetRecTools import ConstModHelpers
+    constmodseq = ConstModHelpers.getConstModSeq(constmods,inputtype)
+    label = inputtype + constmodstr
+
+    # Add the const mod sequence to the input preparation jetalg instance
+    # Could add the event shape computation here
+    from AthenaCommon.AlgSequence import AlgSequence
+    job = AlgSequence()
+    from JetRec.JetRecStandard import jtm
+    if not hasattr(jtm,"jetconstit"+label):
+        from JetRec.JetRecConf import JetToolRunner
+        jetrun = JetToolRunner("jetconstit"+label,
+                               EventShapeTools=[],
+                               Tools=[constmodseq])
+        jtm += jetrun
+        # Add this tool runner to the JetAlgorithm instance "jetalg"
+        # which runs all preparatory tools
+        # This was added by JetCommon
+        job.jetalg.Tools.append(jetrun)
+        extjetlog.info("Added const mod sequence {0} to \'jetalg\'".format(constmodstr))
+
+    # Get the PseudoJetGetter
+    pjname = label.lower().replace("topo","")
+    pjg = ConstModHelpers.getPseudoJetGetter(label,pjname)
+    # Generate the getter list including ghosts from that for the standard list for the input type
+    getterbase = inputtype.lower()
+    getters = [pjg]+list(jtm.gettersMap[getterbase])[1:]
+
+    # Pass the configuration to addStandardJets
+    # The modifiers will be taken from the 
+    jetfindargs = {"jetalg":        jetalg,
+                   "rsize":         radius,
+                   "inputtype":     inputtype,
+                   "customGetters": getters,
+                   "namesuffix":    constmodstr,
+                   "algseq":        sequence,
+                   "outputGroup":   outputlist
+                   }
+    jetfindargs.update(kwargs)
+
+    addStandardJets(**jetfindargs)
+
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
@@ -406,7 +461,7 @@ eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
 
 ##################################################################
-# Helpter to add origin corrected clusters
+# Helper to add origin corrected clusters
 ##################################################################
 def addOriginCorrectedClusters(slimhelper,writeLC=False,writeEM=False):
 
