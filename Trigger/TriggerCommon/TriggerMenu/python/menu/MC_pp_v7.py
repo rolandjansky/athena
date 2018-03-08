@@ -806,9 +806,6 @@ def setupMenu():
 
         ### ATR- 15096
 
- 	['xe50_mht_FStracks_L1XE50',                  'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
- 	['xe110_mht_FStracks_L1XE50',                  'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
-
         ['xe50_pueta',                             'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ## add chains for MC16 (ATR-15096)
@@ -3079,7 +3076,6 @@ ps_perform_list = [
     'xe90_pueta_wEFMu',
     'xe90_pueta_wEFMu_L1XE50',
     'xe95_pueta_wEFMu_L1XE50',
-    'xe110_mht_FStracks_L1XE50',
     'xe35_mht',
     'xe35_mht_em',
     'xe35_pufit',
@@ -3097,7 +3093,6 @@ ps_perform_list = [
     'xe45_tc_lcw_wEFMu',
     'xe45_wEFMu',
     'xe50',
-    'xe50_mht_FStracks_L1XE50',
     'xe110_mht_em_L1KF-XE60',
     'xe110_mht_em_L1KF-XE65',
     'xe110_mht_em_L1KF-XE75',
