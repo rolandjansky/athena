@@ -445,7 +445,8 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,
                    "inputtype":     inputtype,
                    "customGetters": getters,
                    "namesuffix":    constmodstr,
-                   "algseq":        sequence
+                   "algseq":        sequence,
+                   "outputGroup":   outputlist
                    }
     jetfindargs.update(kwargs)
 
