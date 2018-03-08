@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // system include:
@@ -373,7 +373,7 @@ namespace xAOD {
     float res(0.);
 
     // number of bits needed
-    unsigned int r = (int)(log2(abs(val)))+1;
+    unsigned int r = (int)(std::log2(val))+1;
     
     // convert ULLI_t to floating point number if size fits
     if ( sizeof(float)*CHAR_BIT >= r ) {
@@ -409,7 +409,7 @@ namespace xAOD {
     
     ULLI_t enc = 0;
     if ( a > 0 ) {
-      ULLI_t r = (int)(log2(abs(m_n)));
+      ULLI_t r = (int)(std::log2(m_n));
       ULLI_t rmask = pow(2,r)-1;
       ULLI_t c = a & rmask;
       ULLI_t b = a - c;
@@ -428,7 +428,7 @@ namespace xAOD {
 
     ULLI_t dec = 0;
     if ( enc > 0 ) {
-      ULLI_t r = (int)(log2(abs(m_n)));
+      ULLI_t r = (int)(std::log2(m_n));
       ULLI_t rmask = pow(2,r)-1;
       ULLI_t d = enc & rmask;
       ULLI_t b = enc - d;
@@ -462,7 +462,7 @@ namespace xAOD {
     int    bin[sizeof(ULLI_t)*CHAR_BIT];
     ULLI_t dec[sizeof(ULLI_t)*CHAR_BIT];
     
-    ULLI_t r = (ULLI_t)(log2(abs(d)))+1;
+    ULLI_t r = (ULLI_t)(std::log2(d))+1;
     ULLI_t tmp = d;
     // decompose exponent into binary number (reverse order!)
     for (ULLI_t i=0; i < r; ++i) {
