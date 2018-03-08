@@ -1,8 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-
-#from AthenaCommon.Logging import logging
-from AthenaConfiguration.CfgLogMsg import cfgLogMsg
+from AthenaCommon.Logging import logging
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers
 from AthenaCommon.AlgSequence import AlgSequence
@@ -10,8 +8,6 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
 import ast
-from collections import defaultdict
-from copy import deepcopy
 
 
 class DeduplicatonFailed(RuntimeError):
@@ -36,8 +32,8 @@ class CurrentSequence:
 
 class ComponentAccumulator(object): 
 
-    def __init__(self):
-        self._msg=cfgLogMsg  #logging.getLogger('ComponentAccumulator')
+    def __init__(self):        
+        self._msg=logging.getLogger('ComponentAccumulator')
         self._sequence=CurrentSequence.get() # sequence of algorithms
         self._eventAlgs={}     #Unordered list of event processing algorithms per sequence + their private tools 
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools 
@@ -108,9 +104,9 @@ class ComponentAccumulator(object):
         if sequence != None:
             seq = findSubSequence( seq, sequence )
             if seq == None:
-                raise ConfigurationError("Unable to add %s to sequence %s as it is missing" % ( algo.getFullName(), seq.name()) )
+                raise ConfigurationError("Unable to add %s to sequence %s as it is missing", algo.getFullName(), seq.name() )
 
-        self._msg.debug("Adding %s to sequence %s" % ( algo.getFullName(), seq.name()) )
+        self._msg.debug("Adding %s to sequence %s", algo.getFullName(), seq.name() )
         seq += algo
         return algo
 
@@ -192,7 +188,7 @@ class ComponentAccumulator(object):
                                 #print "concatenating list-property",comp.getJobOptname(),prop
                                 setattr(comp,prop,oldprop)
                             else:
-                                #self._msg.error("component '%s' defined multiple times with mismatching configuration" % svcs[i].getJobOptName())
+                                #self._msg.error("component '%s' defined multiple times with mismatching configuration", svcs[i].getJobOptName())
                                 raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
                                                                   comp.getJobOptName(),prop)
                             pass 
@@ -202,13 +198,13 @@ class ComponentAccumulator(object):
                     pass
                     #end loop over properties
                 #We found a service of the same type and name and could reconcile the two instances
-                self._msg.debug("Reconciled configuration of component %s" % comp.getJobOptName())
+                self._msg.debug("Reconciled configuration of component %s", comp.getJobOptName())
                 return False #False means nothing got added
             #end if same name & type
         #end loop over existing components
 
         #No component of the same type & name found, simply append 
-        self._msg.debug("Adding service/Tool/CondAlog %s to the job" % newComp.getFullName())
+        self._msg.debug("Adding service/Tool/CondAlog %s to the job", newComp.getFullName())
         compList.append(newComp)
         return True #True means something got added
     
@@ -265,7 +261,7 @@ class ComponentAccumulator(object):
     def setAppProperty(self,key,value):
         if self._theAppProps.has_key(key) and  self._theAppProps[key]!=value:
             #Not sure if we should allow that ...
-            self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s"% (key,str(self._theAppProps[key]),str(value)))
+            self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
         self._theAppProps[key]=value
         pass
 
@@ -285,7 +281,7 @@ class ComponentAccumulator(object):
                     if sub:
                         mergeSequences(sub, c )
                     else:
-                        self._msg.debug("  Merging sequence %s to a sequnece %s" % ( c.name(), dest.name() ) )          
+                        self._msg.debug("  Merging sequence %s to a sequence %s", c.name(), dest.name() )
                         dest += c
                 else: # an algorithm
                     existingAlg = findAlgorithm( dest, c.name(), depth=1 )
@@ -293,7 +289,7 @@ class ComponentAccumulator(object):
                         if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
                             raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )           
                     else: # absent, adding
-                        self._msg.debug("  Merging algorithm %s to a sequnece %s" % ( c.name(), dest.name() ) )          
+                        self._msg.debug("  Merging algorithm %s to a sequnece %s", c.name(), dest.name() )
                         dest += c
                         
 
@@ -350,7 +346,7 @@ class ComponentAccumulator(object):
                 del kwargs['sequence']
             CurrentSequence.set( seq )
 
-        self._msg.info("Executing configuration function %s" % fct.__name__)
+        self._msg.info("Executing configuration function %s", fct.__name__)
         retval=fct(configFlags,*args,**kwargs)
         CurrentSequence.set( currentSeq )
 
@@ -396,7 +392,6 @@ class ComponentAccumulator(object):
 
     def store(self,outfile,nEvents=10):
         from AthenaCommon.Utils.unixtools import find_datafile
-        from collections import defaultdict
         import pickle
         import glob
         # first load basics from the bootstrap-pickle
@@ -480,7 +475,10 @@ if __name__ == "__main__":
     # trivial case without any nested sequences
     from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
     from AthenaCommon.CFElements import *
-    cfgLogMsg.setLevel("debug")
+    from AthenaCommon.Logging import log
+    from AthenaCommon.Constants import DEBUG
+
+    log.setLevel(DEBUG)
 
     dummyCfgFlags=AthConfigFlags()
     dummyCfgFlags.lock()

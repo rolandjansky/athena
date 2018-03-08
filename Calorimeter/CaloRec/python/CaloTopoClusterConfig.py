@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.SystemOfUnits import MeV
@@ -101,11 +101,11 @@ def CaloTopoClusterCfg(configFlags):
 
 
 if __name__=="__main__":
-    from AthenaConfiguration.CfgLogMsg import cfgLogMsg
+    from AthenaCommon.Logging import log
+    from AthenaCommon.Constants import DEBUG
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-    cfgLogMsg.setLevel("debug")
-    
+    log.setLevel(DEBUG)
 
     ConfigFlags.set("global.isMC",False)
     ConfigFlags.set("global.InputFiles",["myESD.pool.root"])

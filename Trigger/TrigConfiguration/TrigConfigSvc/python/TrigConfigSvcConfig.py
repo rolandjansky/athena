@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from TrigConfigSvc.TrigConfigSvcConf import *
 
@@ -409,7 +409,7 @@ class SetupTrigConfigSvc:
 
 
 def TrigConfigSvcCfg( flags ):
-    from AthenaConfiguration.CfgLogMsg import cfgLogMsg
+    from AthenaCommon.Logging import log
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
 
@@ -418,7 +418,7 @@ def TrigConfigSvcCfg( flags ):
 
     l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
     l1XMLFile = findFileInXMLPATH(flags.get("Trigger.inputLVL1ConfigFile"))
-    cfgLogMsg.debug( "LVL1ConfigSvc input file:"+l1XMLFile  )
+    log.debug( "LVL1ConfigSvc input file:"+l1XMLFile  )
 
     l1ConfigSvc.XMLMenuFile = l1XMLFile
     l1ConfigSvc.ConfigSource = "XML"

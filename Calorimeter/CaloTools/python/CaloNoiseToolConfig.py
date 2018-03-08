@@ -1,10 +1,11 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 from CaloTools.CaloToolsConf import CaloNoiseToolDB
-from AthenaConfiguration.CfgLogMsg import cfgLogMsg
+from AthenaCommon.Logging import logging
 
 def CaloNoiseToolCfg(configFlags):
 
+    log = logging.getLogger(__name__)
     result=ComponentAccumulator()
 
     isMC=configFlags.get("global.isMC")
@@ -21,17 +22,17 @@ def CaloNoiseToolCfg(configFlags):
         caloNoiseToolDB.FolderNames=[folder,]
         if fixedLumi >= 0 :
             caloNoiseToolDB.Luminosity = fixedLumi
-            cfgLogMsg.info("online mode: use fixed luminosity for scaling pileup noise: %f"%fixedLumi)
+            log.info("online mode: use fixed luminosity for scaling pileup noise: %f", fixedLumi)
         else:
             if useCaloLumi:
                 lumiFolder='/CALO/Noise/PileUpNoiseLumi'
                 result.addConfig(addFolders,configFlags,lumiFolder,'CALO')
                 caloNoiseToolDB.LumiFolderName = lumiFolder
                 caloNoiseToolDB.Luminosity = -1.
-                cfgLogMsg.info("online mode: use luminosity from /CALO/Noise/PileUpNoiseLumi to scale pileup noise")
+                log.info("online mode: use luminosity from /CALO/Noise/PileUpNoiseLumi to scale pileup noise")
             else:
                 caloNoiseToolDB.Luminosity = 0.
-                mlog.info("online mode: ignore pileup noise")
+                log.info("online mode: ignore pileup noise")
                 pass
         result.addPublicTool(caloNoiseToolDB)
         return result
@@ -40,18 +41,18 @@ def CaloNoiseToolCfg(configFlags):
     if isMC:
         if fixedLumi >= 0 :
             caloNoiseToolDB.Luminosity=fixedLumi
-            cfgLogMsg.info("Luminosity (in 10**33) units used for pileup noise from CaloNoiseFlags : %f" % fixedLumi)
+            log.info("Luminosity (in 10**33) units used for pileup noise from CaloNoiseFlags : %f", fixedLumi)
         else:
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
                 result.addConfig(addFolders,configFlags,lumiFolder,'CALO_OFL')
-                cfgLogMsg.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileuUpNoiseLumi to scale pileup noise")
+                log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileuUpNoiseLumi to scale pileup noise")
                 caloNoiseToolDB.LumiFolderName = lumiFolder
                 caloNoiseToolDB.Luminosity=-1.
             else:
-                estimatedLumi=configFlag.get("global.estimatedLuminosity")
+                estimatedLumi=configFlags.get("global.estimatedLuminosity")
                 caloNoiseToolDB.Luminosity=estimatedLumi/1e+33
-                cfgLogMsg.info("  Luminosity (in 10**33) units used for pileup noise from global flags: %f"%caloNoiseToolDB.Luminosity)
+                log.info("  Luminosity (in 10**33) units used for pileup noise from global flags: %f", caloNoiseToolDB.Luminosity)
 
 
         folders  = (("CALO_OFL","/CALO/Ofl/Noise/CellNoise"),
@@ -63,17 +64,17 @@ def CaloNoiseToolCfg(configFlags):
         # for luminosity
         if fixedLumi >= 0 :
             caloNoiseToolDB.Luminosity = fixedLumi
-            mlog.info("offline mode: use fixed luminosity for scaling pileup noise: %f"%fixedLumi)
+            log.info("offline mode: use fixed luminosity for scaling pileup noise: %f", fixedLumi)
         else :
             caloNoiseToolDB.Luminosity = -1
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
                 result.addConfig(addFolders,configFlags,lumiFolder,'CALO_OFL')
-                cfgLogMsg.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileUpNoiseLumi to scale pileup noise")
+                log.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileUpNoiseLumi to scale pileup noise")
             else:
                 lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
-                result.addConfig(addFolders,configFlags,lumiFolder,'TRIGGER_ONL');
-                cfgLogMsg.info("offline mode: use luminosity = f(Lumiblock) to scale pileup noise")
+                result.addConfig(addFolders,configFlags,lumiFolder,'TRIGGER_ONL')
+                log.info("offline mode: use luminosity = f(Lumiblock) to scale pileup noise")
                 caloNoiseToolDB.LumiFolderName = lumiFolder
 
 

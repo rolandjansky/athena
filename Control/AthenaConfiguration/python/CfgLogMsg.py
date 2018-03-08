@@ -1,3 +1,7 @@
+
+import warnings
+warnings.warn("The CfgLogMsg module is deprecated. Please use AthenaCommon.Logging", UserWarning, stacklevel=2)
+
 import os, inspect
 
 class CfgLogMsg():
