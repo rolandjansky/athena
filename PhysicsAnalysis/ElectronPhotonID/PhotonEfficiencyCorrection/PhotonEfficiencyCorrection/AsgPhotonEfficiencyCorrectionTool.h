@@ -4,8 +4,8 @@
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef __ASGPHOTONEFFICIENCYCORRECTIONTOOL__
-#define __ASGPHOTONEFFICIENCYCORRECTIONTOOL__
+#ifndef PHOTONEFFICIENCYCORRECTION_ASGPHOTONEFFICIENCYCORRECTIONTOOL
+#define PHOTONEFFICIENCYCORRECTION_ASGPHOTONEFFICIENCYCORRECTIONTOOL
 
 /**
    @class AthPhotonEfficiencyCorrectionTool
@@ -120,9 +120,9 @@ private:
   std::string getFileName(std::string isoWP, std::string trigWP, bool isConv);
   
   // Set prefix of the corresponding calibration filenames:
-  std::string file_prefix_ID="offline.Tight";
-  std::string file_prefix_ISO="Isolation.isolFixedCut";
-  std::string file_prefix_Trig="HLT";
+  std::string m_file_prefix_ID="offline.Tight";
+  std::string m_file_prefix_ISO="Isolation.isolFixedCut";
+  std::string m_file_prefix_Trig="HLT";
   
   // Properties
   
