@@ -32,9 +32,8 @@ class Configurable(object):
         # Retrieve default settings from registry overriding if requested
         defaults = Registry().get_defaults(keyword)
         if value == defaults["value"] and value is not None:
-            if keyword in ["ebeam1", "ebeam2"]:
-              continue
-            logger.warning("Unnecessarily setting parameter {} to {} which is its default value!".format(keyword, value))
+            if keyword not in ["ebeam1", "ebeam2"]:
+              logger.warning("Unnecessarily setting parameter {} to {} which is its default value!".format(keyword, value))
         value = [value, defaults["value"]][value is None]
         name = [name, defaults["name"]][name is None]
         description = [description, defaults["description"]][description is None]
