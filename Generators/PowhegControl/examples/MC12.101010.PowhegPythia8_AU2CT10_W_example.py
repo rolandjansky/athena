@@ -1,7 +1,9 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 #--------------------------------------------------------------
-# Powheg_WW setup with sensible defaults
+# Powheg_W setup with sensible defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_WW_Common.py')
+include('PowhegControl/PowhegControl_W_Common.py')
 PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
 
@@ -10,16 +12,12 @@ PowhegConfig.generateEvents()
 #--------------------------------------------------------------
 include('MC12JobOptions/Pythia8_AU2_CT10_Common.py')
 include('MC12JobOptions/Pythia8_LHEF.py')
-topAlg.Pythia8.Commands += [ 'SpaceShower:pTmaxMatch = 2'
-                           , 'TimeShower:pTmaxMatch = 2'
-                           ]
-topAlg.Pythia8.UserHook  = 'Main31'
 
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 WW production with AU2 CT10 tune'
-evgenConfig.keywords    = [ 'SM', 'ww' ]
-evgenConfig.contact     = [ 'daniel.hayden@cern.ch' ]
-evgenConfig.generators += [ 'Pythia8' ]
-evgenConfig.minevents   = 10
+evgenConfig.description = 'POWHEG+Pythia8 W^{+} production with AU2 CT10 tune'
+evgenConfig.keywords    = [ 'SM', 'Wp' ]
+evgenConfig.contact     = [ 'stephen.paul.bieniek@cern.ch' ]
+evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
+

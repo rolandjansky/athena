@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 #--------------------------------------------------------------
 # Powheg_WZ setup with sensible defaults
 #--------------------------------------------------------------
@@ -21,6 +23,6 @@ topAlg.Pythia8.UserHook  = 'Main31'
 evgenConfig.description = 'POWHEG+Pythia8 WZ production with AU2 CT10 tune'
 evgenConfig.keywords    = [ 'SM', 'wz' ]
 evgenConfig.contact     = [ 'daniel.hayden@cern.ch' ]
-evgenConfig.generators += [ 'Pythia8' ]
+evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
 evgenConfig.minevents   = 10
 
