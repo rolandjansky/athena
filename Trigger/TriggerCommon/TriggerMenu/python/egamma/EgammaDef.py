@@ -943,9 +943,11 @@ class EgammaSequence(object):
         if ( self._disable_mon and not hypo in ListOfMonitoredHypos):
             #only disable monitoring of hypo if both, chain is *not* in list and if hypo NOT in the list of hypos to keep monitoring
             self._config_monitoring(hypo)
+            log.debug('DISABLED_MON for '+str(hypo))
         else:
             # if here it means this hypo IS to be configured. So store it in ListOfMonitoredHypos, unless is already there:
             if not hypo in ListOfMonitoredHypos:
+                log.debug('ENABLED_MON for '+str(hypo))
                 ListOfMonitoredHypos.append(hypo)
         self.sequences = seq
         return seq       
