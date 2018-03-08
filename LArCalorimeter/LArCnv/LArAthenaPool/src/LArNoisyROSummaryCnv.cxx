@@ -45,8 +45,9 @@ LArNoisyROSummaryCnv::createTransient()
      trans = m_converter.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(guid_p4) ) {
+     LArNoisyROSummaryCnv_p4   converter;
      std::auto_ptr<LArNoisyROSummary_p4> col_vect( poolReadObject<LArNoisyROSummary_p4>() );
-     trans = m_converter.createTransient( col_vect.get(), log );
+     trans = converter.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(guid_p3) ) {
       LArNoisyROSummaryCnv_p3   converter;
