@@ -27,4 +27,4 @@ class NLOEWDecorator(object):
         self.decorated.add_parameter("no_ew", 0,                             desc="(0:with; 1:without) NLO EW corrections")
         self.decorated.add_parameter("no_strong", 0,                         desc="(0:with; 1:without) NLO QCD corrections")
         self.decorated.add_parameter("scheme", 1,                            desc="(0:Alpha(0); 1:G_mu) choice for EW NLO scheme")
-        self.decorated.add_parameter("use_photos", 1,                        desc="(0:disabled; 1:enabled) use PHOTOS for photon radiation")
+        self.decorated.add_parameter("use_PHOTOS", 1,                        desc="(0:disabled; 1:enabled) use PHOTOS for photon radiation")

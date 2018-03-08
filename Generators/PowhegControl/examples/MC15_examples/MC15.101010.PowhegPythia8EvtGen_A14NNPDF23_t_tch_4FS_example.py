@@ -3,7 +3,7 @@
 #--------------------------------------------------------------------------------
 # Powheg t-channel 4-flavour scheme single top setup starting from ATLAS defaults
 #--------------------------------------------------------------------------------
-include("PowhegControl/PowhegControl_t_tch_4f_Common.py")
+include("PowhegControl/PowhegControl_t_tch_4FS_Common.py")
 PowhegConfig.generate()
 
 #--------------------------------------------------------------

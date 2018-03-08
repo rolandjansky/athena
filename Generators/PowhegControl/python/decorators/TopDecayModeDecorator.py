@@ -6,7 +6,9 @@
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
+from AthenaCommon import Logging
 
+logger = Logging.logging.getLogger("PowhegControl")
 
 class TopDecayModeDecorator(object):
 
@@ -18,4 +20,11 @@ class TopDecayModeDecorator(object):
         decorated.run_card_decorators.append(self)
         self.decorated = decorated
 
-        self.decorated.add_parameter("topdecaymode", 0, desc="5 digits indicating the maximum number of (e,mu,tau,u,c) allowed in decays")
+        self.decorated.add_parameter("topdecaymode", "00000", desc="string of 5 digits indicating the maximum number of (e,mu,tau,u,c) allowed in decays")
+
+    # Check that parameters are correctly specified
+    def finalise(self):
+        # Set up parallelisation parameters if in multicore mode
+        if not isinstance(self.decorated.topdecaymode, str):
+            self.decorated.topdecaymode = str(self.decorated.topdecaymode)
+            logger.warning("The 'topdecaymode' parameter was not provided as a string. Please check that its value of {} is what you were expecting!".format(self.decorated.topdecaymode))

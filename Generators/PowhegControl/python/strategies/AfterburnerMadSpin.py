@@ -16,9 +16,7 @@ from ..utility import LHEUtils, ProcessHandling
 # Initialise logging handler
 logger = logging.getLogger("PowhegControl")
 
-# Run madspin as an afterburner to existing events
-
-
+# Run MadSpin as an afterburner to existing events
 def afterburner_MadSpin(configurator):
     afterburner = AfterburnerMadSpin(configurator.powheg_LHE_output)
     afterburner.construct_MadSpin_inputs(configurator)
@@ -41,10 +39,13 @@ class AfterburnerMadSpin(object):
         closing_string = LHEUtils.get_closing_string(self._input_LHE_events)
         if opening_string.find("<header>") != -1:
             pre_header = opening_string[: opening_string.find("<header>")]
-            post_header = opening_string[opening_string.find("<header>") + 8: opening_string.find("</header>") + 9]
+            post_header = opening_string[opening_string.find("<header>") + 8: opening_string.find("</header>") + 10]
         else:
             pre_header = opening_string[: opening_string.find("<init>")]
-            post_header = "</header>\n" + opening_string[opening_string.find("<init>") + 6: opening_string.find("</init>") + 7]
+            post_header = "</header>\n" + opening_string[opening_string.find("<init>"): opening_string.find("</init>") + 8]
+
+        # Get top mass which might be stored in different ways
+        mass_t = configurator.mass_t if hasattr(configurator, "mass_t") else configurator.quark_mass
 
         # Write events to LHE file with MadSpin information
         with open("madspin_LHE_input.lhe", "wb") as f_madspin_LHE:
@@ -66,7 +67,7 @@ class AfterburnerMadSpin(object):
             f_madspin_LHE.write("define l- = e- mu- ta-\n")
             f_madspin_LHE.write("define vl = ve vm vt\n")
             f_madspin_LHE.write("define vl~ = ve~ vm~ vt~\n")
-            f_madspin_LHE.write("generate p p > t b~ j $$ w+ w- [QCD]\n")
+            f_madspin_LHE.write("{}\n".format(configurator.MadSpin_process))
             f_madspin_LHE.write("output tchan\n")
             f_madspin_LHE.write("</mg5proccard>\n")
             f_madspin_LHE.write("<mgruncard>\n")
@@ -91,7 +92,7 @@ class AfterburnerMadSpin(object):
             f_madspin_LHE.write("###################################\n")
             f_madspin_LHE.write("BLOCK MASS #\n")
             f_madspin_LHE.write("      5 {:e} #   mb\n".format(configurator.mass_b))
-            f_madspin_LHE.write("      6 {:e} #   mt\n".format(configurator.mass_t))
+            f_madspin_LHE.write("      6 {:e} #   mt\n".format(mass_t))
             f_madspin_LHE.write("      15 {:e} #   mta\n".format(configurator.mass_tau))
             f_madspin_LHE.write("      23 {:e} #   mz\n".format(configurator.mass_Z))
             f_madspin_LHE.write("      25 {:e} #   mh\n".format(configurator.mass_H))
@@ -120,7 +121,7 @@ class AfterburnerMadSpin(object):
             f_madspin_LHE.write("###################################\n")
             f_madspin_LHE.write("BLOCK YUKAWA #\n")
             f_madspin_LHE.write("      5 {:e} #   ymb\n".format(configurator.mass_b))
-            f_madspin_LHE.write("      6 {:e} #   ymt\n".format(configurator.mass_t))
+            f_madspin_LHE.write("      6 {:e} #   ymt\n".format(mass_t))
             f_madspin_LHE.write("      15 {:e} #   ymtau\n".format(configurator.mass_tau))
             f_madspin_LHE.write("###################################\n")
             f_madspin_LHE.write("## INFORMATION FOR QNUMBERS 82\n")
@@ -151,12 +152,18 @@ class AfterburnerMadSpin(object):
             f_madspin_LHE.write("DECAY  5   0.000000e+00\n")
             f_madspin_LHE.write("#\n")
             f_madspin_LHE.write("#      PDG        Width\n")
+            # Scale BRs down so that sum is 1.0
+            t_BR_sum = configurator.t_Wb_BR + configurator.t_Ws_BR + configurator.t_Wd_BR
             f_madspin_LHE.write("DECAY  6   {:e}\n".format(configurator.width_t))
             f_madspin_LHE.write("#  BR             NDA  ID1    ID2   ...\n")
-            f_madspin_LHE.write("   1.000000e+00   2    5  24 # 1.32\n")
+            f_madspin_LHE.write("   {:e}   2    5  24 # 1.32\n".format(configurator.t_Wb_BR / t_BR_sum))
+            f_madspin_LHE.write("   {:e}   2    3  24 # 1.32\n".format(configurator.t_Ws_BR / t_BR_sum))
+            f_madspin_LHE.write("   {:e}   2    1  24 # 1.32\n".format(configurator.t_Wd_BR / t_BR_sum))
             f_madspin_LHE.write("DECAY -6   {:e}\n".format(configurator.width_t))
             f_madspin_LHE.write("#  BR             NDA  ID1    ID2   ...\n")
-            f_madspin_LHE.write("   1.000000e+00   2   -5 -24 # 1.32\n")
+            f_madspin_LHE.write("   {:e}   2   -5 -24 # 1.32\n".format(configurator.t_Wb_BR / t_BR_sum))
+            f_madspin_LHE.write("   {:e}   2   -3 -24 # 1.32\n".format(configurator.t_Ws_BR / t_BR_sum))
+            f_madspin_LHE.write("   {:e}   2   -1 -24 # 1.32\n".format(configurator.t_Wd_BR / t_BR_sum))
             f_madspin_LHE.write("#\n")
             f_madspin_LHE.write("#      PDG        Width\n")
             f_madspin_LHE.write("DECAY  11   0.000000e+00\n")
@@ -222,12 +229,12 @@ class AfterburnerMadSpin(object):
         # Write MadSpin runcard
         with open("madspin_runcard.txt", "wb") as f_madspin_runcard:
             f_madspin_runcard.write("import {}\n".format(self._input_LHE_events))
-            f_madspin_runcard.write("decay t > w+ b, w+ > l+ vl\n")
-            f_madspin_runcard.write("decay t~ > w- b~, w- > l- vl~\n")
-            f_madspin_runcard.write("decay t > w+ b, w+ > j j\n")
-            f_madspin_runcard.write("decay t~ > w- b~, w- > j j\n")
+            f_madspin_runcard.write("set spinmode {}\n".format(configurator.MadSpin_mode))
+            for decay in configurator.MadSpin_decays:
+                f_madspin_runcard.write("{0}\n".format(decay))
             f_madspin_runcard.write("launch\n")
             f_madspin_runcard.write("quit\n")
+
 
     def run_MadSpin_executable(self, MadSpin_executable):
         logger.info("Running MadSpin executable")
@@ -252,11 +259,11 @@ class AfterburnerMadSpin(object):
         # Split Powheg headers to insert MadSpin information
         if pwg_opening_string.find("<header>") != -1:
             pwg_pre_header = pwg_opening_string[: pwg_opening_string.find("<header>") + 8]
-            pwg_post_header = pwg_opening_string[pwg_opening_string.find("</header>") + 9:]
+            pwg_post_header = pwg_opening_string[pwg_opening_string.find("</header>") + 10:]
         else:
             pwg_pre_header = pwg_opening_string[: pwg_opening_string.find("<init>")] + "<header>"
             pwg_post_header = pwg_opening_string[pwg_opening_string.find("<init>"):]
-        madspin_header = madspin_opening_string[madspin_opening_string.find("<header>") + 8: madspin_opening_string.find("</header>") + 9]
+        madspin_header = madspin_opening_string[madspin_opening_string.find("<header>") + 8: madspin_opening_string.find("</header>") + 10]
 
         # Write events to LHE file with MadSpin information
         with open("pwgevents_with_MadSpin.lhe", "wb") as f_combined_LHE:

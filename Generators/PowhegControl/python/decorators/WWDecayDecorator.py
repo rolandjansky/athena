@@ -6,6 +6,9 @@
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
+from AthenaCommon import Logging
+
+logger = Logging.logging.getLogger("PowhegControl")
 
 
 class WWDecayDecorator(object):
@@ -27,7 +30,7 @@ class WWDecayDecorator(object):
         # Calculate appropriate decay mode numbers
         __decay_code_lookup = {"e": -11, "mu": -13, "tau": -15, "emu": -113, "l": -135}
         if self.decorated.decay_mode not in self.decorated.allowed_decay_modes:
-            self.decorated.logger.warning("Decay mode {0} not recognised!".format(self.decorated.decay_mode))
+            logger.warning("Decay mode {0} not recognised!".format(self.decorated.decay_mode))
         __W_sign = [-1, +1]["WpWp" in self.decorated.decay_mode]
         __vdecaymodeW1, __vdecaymodeW2 = self.decorated.decay_mode.replace("WpWp", "").replace("WmWm", "").split("v")[:-1]
         __vdecaymodeW1 = __decay_code_lookup[__vdecaymodeW1] * __W_sign

@@ -45,6 +45,6 @@ class PowhegConfig_ttH(PowhegConfig_base):
         self.nubound = 20000
 
         # Override defaults
-        self.topdecaymode = 22222
+        self.topdecaymode = "22222"
 
         self.populate_default_strings()

@@ -7,6 +7,10 @@
 
 #! /usr/bin/env python
 from collections import OrderedDict
+from AthenaCommon import Logging
+
+logger = Logging.logging.getLogger("PowhegControl")
+
 
 class NNLOReweightingDecorator(object):
 
@@ -26,13 +30,13 @@ class NNLOReweightingDecorator(object):
         # Check NNLO reweighting inputs
         if not isinstance(self.decorated.NNLO_reweighting_inputs, OrderedDict):
             if isinstance(self.decorated.NNLO_reweighting_inputs, dict):
-                self.decorated.logger.warning("NNLO_reweighting_inputs has been provided as an old-style unordered dictionary.")
+                logger.warning("NNLO_reweighting_inputs has been provided as an old-style unordered dictionary.")
             else:
-                self.decorated.logger.fatal("NNLO_reweighting_inputs does not appear to be a valid label => file dictionary!")
+                logger.fatal("NNLO_reweighting_inputs does not appear to be a valid label => file dictionary!")
 
         # Check NNLO weight outputs
         if not isinstance(self.decorated.NNLO_output_weights, OrderedDict):
             if isinstance(self.decorated.NNLO_reweighting_inputs, dict):
-                self.decorated.logger.warning("NNLO_output_weights has been provided as an unordered dictionary! Weight numbering will be arbitrary")
+                logger.warning("NNLO_output_weights has been provided as an unordered dictionary! Weight numbering will be arbitrary")
             else:
-                self.decorated.logger.fatal("NNLO_output_weights does not appear to be a valid ID string => calculation dictionary!")
+                logger.fatal("NNLO_output_weights does not appear to be a valid ID string => calculation dictionary!")

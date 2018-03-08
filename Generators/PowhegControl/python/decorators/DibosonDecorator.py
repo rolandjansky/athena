@@ -6,6 +6,9 @@
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
+from AthenaCommon import Logging
+
+logger = Logging.logging.getLogger("PowhegControl")
 
 
 class DibosonDecorator(object):
@@ -27,7 +30,7 @@ class DibosonDecorator(object):
     def finalise(self):
         # Check that decay mode is in the allowed list
         if self.decorated.decay_mode not in self.decorated.allowed_decay_modes:
-            self.decorated.logger.warning("Decay mode {} not recognised!".format(self.decorated.decay_mode))
+            logger.warning("Decay mode {} not recognised!".format(self.decorated.decay_mode))
         # Add entry for each decay mode
         for decay_mode in self.decorated.allowed_decay_modes:
             self.decorated.fix_parameter(decay_mode, [-1, 1][decay_mode == self.decorated.decay_mode], default="user-configured", desc="(1:enabled; -1:disabled) Diboson decay mode, ")

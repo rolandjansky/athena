@@ -7,6 +7,9 @@
 
 #! /usr/bin/env python
 from .. import ATLASCommonParameters
+from AthenaCommon import Logging
+
+logger = Logging.logging.getLogger("PowhegControl")
 
 
 class VBFVectorBosonDecorator(object):
@@ -44,7 +47,7 @@ class VBFVectorBosonDecorator(object):
         VBF_runcard_entries = []
         # Convert allowed decay mode into PROC_ID/DECAYMODE
         if self.decorated.decay_mode not in self.decorated.allowed_decay_modes:
-            self.decorated.logger.warning("Decay mode {} not recognised!".format(self.decorated.decay_mode))
+            logger.warning("Decay mode {} not recognised!".format(self.decorated.decay_mode))
         vector_boson_type = self.decorated.decay_mode[0] if self.decorated.decay_mode[0] != "W" else self.decorated.decay_mode[0:2]
         vector_boson_decay = self.decorated.decay_mode.replace(vector_boson_type, "").replace("v", "").replace("ee", "e").replace("mumu", "mu")
         # Add runcard entries

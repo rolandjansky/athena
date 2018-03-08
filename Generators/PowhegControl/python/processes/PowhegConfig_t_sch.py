@@ -37,7 +37,7 @@ class PowhegConfig_t_sch(PowhegConfig_base):
         self.nubound = 50000
 
         # Override defaults
-        self.topdecaymode = 11111
+        self.topdecaymode = "11111"
         self.withdamp     = 1
 
         self.populate_default_strings()

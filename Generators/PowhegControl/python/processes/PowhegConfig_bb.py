@@ -48,6 +48,6 @@ class PowhegConfig_bb(PowhegConfig_base):
         # Override defaults
         self.bornktmin    = 5.0
         self.quark_mass   = ATLASCommonParameters.mass_b
-        self.topdecaymode = 0
+        self.topdecaymode = "00000"
 
         self.populate_default_strings()

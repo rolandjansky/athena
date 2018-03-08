@@ -27,7 +27,7 @@ class PowhegConfig_base(object):
     __logger = Logging.logging.getLogger("PowhegControl")
 
     # Switch to determine whether new attributes can be added
-    __attributes_frozen = False
+    __interface_is_frozen = False
 
     # Constructor
     #  @param runArgs Generate_tf run arguments
@@ -118,8 +118,8 @@ class PowhegConfig_base(object):
     #  @param key Attribute name
     #  @param value Value to set this to
     def __setattr__(self, key, value):
-        if self.__attributes_frozen and not hasattr(self, key):
-                    # raise AttributeError( "This Powheg process has no option '{}'".format( key ) )
+        if self.__interface_is_frozen and not hasattr(self, key):
+            # raise AttributeError( "This Powheg process has no option '{}'".format( key ) )
             self.logger.warning("This Powheg process has no option '{}'".format(key))
             time.sleep(300)
         object.__setattr__(self, key, value)
@@ -297,11 +297,14 @@ class PowhegConfig_base(object):
                 strategies.afterburner_ensure_coloured_quarks(self.powheg_LHE_output)
 
         # Run MadSpin afterburner if requested
-        if hasattr(self, "_MadSpin_executable"):
-            strategies.afterburner_MadSpin(self)
+        if hasattr(self, "_MadSpin_executable") and (self.use_MadSpin == 1):
+            if (int(self.topdecaymode) != 0):
+                self.logger.warning("Cannot pass top quarks to MadSpin for decay as they have already been decayed!")
+            else:
+                strategies.afterburner_MadSpin(self)
 
         # Run PHOTOS afterburner if requested
-        if hasattr(self, "_PHOTOS_executable") and self.use_photos == 1:
+        if hasattr(self, "_PHOTOS_executable") and self.use_PHOTOS == 1:
             strategies.afterburner_PHOTOS(self)
 
         # Run scale/PDF/arbitrary reweighting if requested
@@ -402,7 +405,7 @@ class PowhegConfig_base(object):
         for non_configurable_list in self.fixed_parameters:
             non_configurable_list[2] = non_configurable_list[1]
         # Freeze attributes at this point
-        self.__attributes_frozen = True
+        self.__interface_is_frozen = True
         return
 
     # Get base directory

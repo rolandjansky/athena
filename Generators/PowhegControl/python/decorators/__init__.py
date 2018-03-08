@@ -25,6 +25,7 @@ from HiggsVectorBosonJetDecorator import *
 from ISRFSRDecorator import *
 from JacsingDecorator import *
 from LeptonMassDecorator import *
+from MadSpinDecorator import *
 from MassWindowDecorator import *
 from MiNLONLLDecorator import *
 from NLOEWDecorator import *

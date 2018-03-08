@@ -48,7 +48,7 @@ class PowhegConfig_Wt_DS(PowhegConfig_base):
         self.foldphi  = 2
 
         # Override defaults
-        self.topdecaymode = 11111
+        self.topdecaymode = "11111"
         self.withdamp     = 0
 
         self.populate_default_strings()
