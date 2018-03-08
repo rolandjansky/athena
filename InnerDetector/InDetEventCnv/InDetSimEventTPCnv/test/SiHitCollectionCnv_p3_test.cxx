@@ -12,6 +12,7 @@
 
 #undef NDEBUG
 #include "InDetSimEventTPCnv/InDetHits/SiHitCollectionCnv_p3.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -70,6 +71,13 @@ void testit (const SiHitCollection& trans1)
 void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
+  const HepMC::GenParticle *particle = genPartVector.at(0);
+  // Create HepMcParticleLink outside of leak check.
+  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
+  assert(dummyHMPL.cptr()==particle);
+  // Create DVL info outside of leak check.
+  SiHitCollection dum ("coll");
+  Athena_test::Leakcheck check;
 
   SiHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
