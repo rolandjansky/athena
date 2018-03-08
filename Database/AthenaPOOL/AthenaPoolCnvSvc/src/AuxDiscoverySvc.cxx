@@ -26,6 +26,8 @@
 #include "RootUtils/Type.h"
 #include "TClass.h"
 
+#include <stdexcept>
+
 static SG::auxid_set_t s_emptySet;
 
 class AthenaPoolAuxStore : public SG::AuxStoreInternal {
@@ -97,7 +99,7 @@ SG::auxid_t AuxDiscoverySvc::getAuxID(const std::string& attrName, const std::st
             return SG::null_auxid;
          }
          auxid = SG::getDynamicAuxID(*eti, attrName, elemName, typeName, m_storeInt->standalone());
-      } catch (...) {
+      } catch (std::runtime_error) {
          return SG::null_auxid;
       }
    }
