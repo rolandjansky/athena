@@ -119,10 +119,10 @@ namespace xAOD {
     /// @{
 
     /// Base 4 Momentum type for egamma
-    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > EgammaFourMom_t;
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
 
     ///  The full 4-momentum of the particle : internal egamma type.
-    EgammaFourMom_t egammaP4() const; 
+    GenVecFourMom_t genvecP4() const; 
     
     /// @brief set the 4-vec
     void setP4(float pt, float eta, float phi, float m);

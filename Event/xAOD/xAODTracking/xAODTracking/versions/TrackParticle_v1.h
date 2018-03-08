@@ -76,10 +76,10 @@ namespace xAOD {
         virtual FourMom_t p4() const;
 
         /// Base 4 Momentum type for TrackParticle
-        typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > TrackFourMom_t;
+        typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > GenVecFourMom_t;
 
         /// The full 4-momentum of the particle : GenVector form
-        TrackFourMom_t trackP4() const;
+        GenVecFourMom_t genvecP4() const;
 
         /// The type of the object as a simple enumeration
         virtual Type::ObjectType type() const;

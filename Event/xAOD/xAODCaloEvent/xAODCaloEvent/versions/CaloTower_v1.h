@@ -58,9 +58,9 @@ namespace xAOD {
     typedef IParticle::FourMom_t FourMom_t;
 
     /// Base 4 Momentum type for calo
-    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > CaloFourMom_t;
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
 
-    virtual CaloFourMom_t caloP4() const; ///< @brief Four-momentum representation: GenVector
+    virtual GenVecFourMom_t genvecP4() const; ///< @brief Four-momentum representation: GenVector
 
     virtual FourMom_t p4() const; ///< @brief Four-momentum representation
     /// @}

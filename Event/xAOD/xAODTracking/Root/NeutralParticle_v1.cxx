@@ -50,11 +50,11 @@ namespace xAOD {
   }
   
   double NeutralParticle_v1::pt() const {
-    return neutralP4().Pt();
+    return genvecP4().Pt();
   }
 
   double NeutralParticle_v1::eta() const {
-    return neutralP4().Eta(); 
+    return genvecP4().Eta(); 
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(NeutralParticle_v1,float,double,phi)
@@ -68,10 +68,10 @@ namespace xAOD {
 
 
   double NeutralParticle_v1::rapidity() const {
-    return neutralP4().Rapidity();
+    return genvecP4().Rapidity();
   }
 
-  NeutralParticle_v1::NeutralFourMom_t NeutralParticle_v1::neutralP4() const {
+  NeutralParticle_v1::GenVecFourMom_t NeutralParticle_v1::genvecP4() const {
     using namespace std;
     // Check if we need to reset the cached object:
     float p = 1/fabs(oneOverP());
@@ -81,7 +81,7 @@ namespace xAOD {
     float px = p*sinTheta*cos(phiT);
     float py = p*sinTheta*sin(phiT);
     float pz = p*cos(thetaT);
-    return NeutralFourMom_t(px, py, pz, m());
+    return GenVecFourMom_t(px, py, pz, m());
   }
 
   NeutralParticle_v1::FourMom_t NeutralParticle_v1::p4() const {

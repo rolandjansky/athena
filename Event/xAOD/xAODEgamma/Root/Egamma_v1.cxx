@@ -86,16 +86,16 @@ namespace MatrixHelpers{
   }
 
   // depend on return value optimization
-  Egamma_v1::EgammaFourMom_t Egamma_v1::egammaP4() const {
-    return EgammaFourMom_t(pt(), eta(), phi(), m());
+  Egamma_v1::GenVecFourMom_t Egamma_v1::genvecP4() const {
+    return GenVecFourMom_t(pt(), eta(), phi(), m());
   }
   
   double Egamma_v1::e() const{
-    return egammaP4().E(); 
+    return genvecP4().E(); 
   }
   
   double Egamma_v1::rapidity() const {
-    return egammaP4().Rapidity();	
+    return genvecP4().Rapidity();	
   }
   
   Egamma_v1::FourMom_t Egamma_v1::p4() const {

@@ -16,6 +16,9 @@ atlas_depends_on_subdirs(
    PRIVATE
    Generators/TruthUtils )
 
+# External dependencies:
+find_package( ROOT COMPONENTS Core GenVector )
+
 # Component(s) in the package:
 atlas_add_library( xAODTruth
    xAODTruth/*.h xAODTruth/versions/*.h Root/*.h Root/*.cxx

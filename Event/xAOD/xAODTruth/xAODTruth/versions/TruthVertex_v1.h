@@ -21,6 +21,9 @@
 // Local include(s):
 #include "xAODTruth/TruthParticleContainerFwd.h"
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
+
 namespace xAOD {
 
    /// Class describing a truth vertex in the MC record
@@ -126,7 +129,13 @@ namespace xAOD {
       typedef TLorentzVector FourVec_t;
 
       /// The full 4-vector of the vertex
-      const FourVec_t& v4() const;
+      const FourVec_t v4() const;
+
+      /// Base 4 Momentum type for TruthVector
+      typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > GenVecFourVec_t;
+
+      /// The full 4-vector of the particle : GenVector form
+      GenVecFourVec_t genvecV4() const;
 
       /// @}
 
@@ -135,12 +144,6 @@ namespace xAOD {
 
       /// Function making sure that the object is ready for persistification
       void toPersistent();
-
-   private:
-      /// Cached four vector
-      mutable FourVec_t m_v4;
-      /// Flag showing whether the four-vector is cached
-      mutable bool m_v4Cached;
 
    }; // class TruthVertex_v1
 

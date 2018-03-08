@@ -59,11 +59,11 @@ namespace xAOD {
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
   double TrackParticle_v1::pt() const {
-    return trackP4().Pt();
+    return genvecP4().Pt();
   }
 
   double TrackParticle_v1::eta() const {
-    return trackP4().Eta(); 
+    return genvecP4().Eta(); 
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(TrackParticle_v1,float,double,phi)
@@ -73,13 +73,13 @@ namespace xAOD {
   }
 
   double TrackParticle_v1::e() const {
-    return trackP4().E(); 
+    return genvecP4().E(); 
   }
   double TrackParticle_v1::rapidity() const {
-    return trackP4().Rapidity();
+    return genvecP4().Rapidity();
   }
 
-  TrackParticle_v1::TrackFourMom_t& TrackParticle_v1::trackP4() const {
+  TrackParticle_v1::GenVecFourMom_t TrackParticle_v1::genvecP4() const {
     using namespace std;
     float p = 10.e6; // 10 TeV (default value for very high pt muons, with qOverP==0)
     if (fabs(qOverP())>0.) p = 1/fabs(qOverP());
@@ -89,7 +89,7 @@ namespace xAOD {
     float px = p*sinTheta*cos(phiT);
     float py = p*sinTheta*sin(phiT);
     float pz = p*cos(thetaT);
-    return TrackFourMom_t(px, py, pz, m());
+    return GenVecFourMom_t(px, py, pz, m());
   }
 
   TrackParticle_v1::FourMom_t TrackParticle_v1::p4() const {

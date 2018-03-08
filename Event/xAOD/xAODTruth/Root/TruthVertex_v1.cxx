@@ -146,35 +146,11 @@ namespace xAOD {
    //     Implementation of the functions specifying the vertex's position
    //
 
-   AUXSTORE_PRIMITIVE_GETTER( TruthVertex_v1, float, x )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthVertex_v1, float, x, setX )
 
-   void TruthVertex_v1::setX( float x ) {
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthVertex_v1, float, y, setY )
 
-      static SG::AuxElement::Accessor< float > acc( "x" );
-      m_v4Cached = false;
-      acc( *this ) = x;
-      return;
-   }
-
-   AUXSTORE_PRIMITIVE_GETTER( TruthVertex_v1, float, y )
-
-   void TruthVertex_v1::setY( float y ) {
-
-      static SG::AuxElement::Accessor< float > acc( "y" );
-      m_v4Cached = false;
-      acc( *this ) = y;
-      return;
-   }
-
-   AUXSTORE_PRIMITIVE_GETTER( TruthVertex_v1, float, z )
-
-   void TruthVertex_v1::setZ( float z ) {
-
-      static SG::AuxElement::Accessor< float > acc( "z" );
-      m_v4Cached = false;
-      acc( *this ) = z;
-      return;
-   }
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthVertex_v1, float, z, setZ )
 
    float TruthVertex_v1::perp() const {
 
@@ -186,35 +162,23 @@ namespace xAOD {
    float TruthVertex_v1::eta() const {
 
       // This is not necessarily what Andy was thinking about...
-      return v4().Eta();
+      return genvecV4().Eta();
    }
 
    float TruthVertex_v1::phi() const {
 
       // This is not necessarily what Andy was thinking about...
-      return v4().Phi();
+      return genvecV4().Phi();
    }
 
-   AUXSTORE_PRIMITIVE_GETTER( TruthVertex_v1, float, t )
+   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TruthVertex_v1, float, t, setT )
 
-   void TruthVertex_v1::setT( float t ) {
-
-      static SG::AuxElement::Accessor< float > acc( "t" );
-      m_v4Cached = false;
-      acc( *this ) = t;
-      return;
+   TruthVertex_v1::FourVec_t TruthVertex_v1::v4() const {
+      return FourVec_t(x(), y(), z(), t());
    }
 
-   const TruthVertex_v1::FourVec_t& TruthVertex_v1::v4() const {
-
-      // Cache the 4-vector if it's not already:
-      if( ! m_v4Cached ) {
-         m_v4.SetXYZT( x(), y(), z(), t() );
-         m_v4Cached = true;
-      }
-
-      // Return the cached object:
-      return m_v4;
+   TruthVertex_v1::GenVecFourVec_t TruthVertex_v1::genvecV4() const {
+      return GenVecFourVec_t(x(), y(), z(), t());
    }
 
    //
