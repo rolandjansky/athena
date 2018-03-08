@@ -239,7 +239,7 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
 
         config,calibseq = configdict[jetalg]
 
-        if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow']:
+        if (not isMC) and jetalg in ['AntiKt4EMTopo','AntiKt4EMPFlow']:
             calibseq+='_Insitu'
             isdata=True
 
