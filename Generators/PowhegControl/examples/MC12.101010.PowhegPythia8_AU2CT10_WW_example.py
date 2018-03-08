@@ -6,13 +6,13 @@
 include('PowhegControl/PowhegControl_WW_Common.py')
 PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
-
+ 
 #--------------------------------------------------------------
 # Pythia8 showering with main31 and CTEQ6L1
 #--------------------------------------------------------------
 include('MC12JobOptions/Pythia8_AU2_CTEQ6L1_Common.py')
 include('MC12JobOptions/Pythia8_Powheg_Main31.py')
-
+  
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
