@@ -9,7 +9,7 @@ PowhegConfig.generateEvents()
 # Pythia8 showering with new, main31-style shower
 #--------------------------------------------------------------
 include('MC12JobOptions/Pythia8_AU2_CT10_Common.py')
-include('MC12JobOptions/Pythia8_Powheg.py')
+include('MC12JobOptions/Pythia8_LHEF.py')
 topAlg.Pythia8.Commands += [ 'SpaceShower:pTmaxMatch = 2'
                            , 'TimeShower:pTmaxMatch = 2'
                            ]

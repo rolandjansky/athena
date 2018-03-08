@@ -340,3 +340,205 @@ class PowhegConfig_ZZ(PowhegConfig_base):
       f.write( "vdecaymodeZ1 "+str(self.vdecaymodeZ1)+"  ! PDG code for charged decay product of the vector boson (11:e-; -11:e+; ...)\n" )  
       f.write( "vdecaymodeZ2 "+str(self.vdecaymodeZ2)+"  ! PDG code for charged decay product of the vector boson (11:e-; -11:e+; ...)\n" )
       f.write( "mllmin  "+str(self.mllmin)+"    ! Minimum invariant mass of lepton pairs from Z decay\n" )
+
+
+###############################################################################
+#
+#  Zj
+#
+###############################################################################
+class PowhegConfig_Zj(PowhegConfig_base):
+  # These are user configurable - put generic properties in PowhegConfig_base
+  vdecaymode  = 1   
+  bornktmin  = 5.0     
+  bornsuppfact = -1
+  bornonly  = 0      
+  testplots  = 0       
+  xupbound  = 1.0
+
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None):
+    PowhegConfig_base.__init__(self,runArgs)
+    self.executablePath += '/Zj/pwhg_main'
+
+  def generateRunCard(self):
+    self.generateRunCardSharedOptions()
+
+    with open( str(self.TestArea)+'/powheg.input','a') as f:
+      f.write( "vdecaymode "+str(self.vdecaymode)+"  ! Z decay products (default 2): 1 for electronic, 2 for muonic and 3 for tauonic decay\n" )
+      f.write( "bornktmin  "+str(self.bornktmin)+"   ! (default 0d0)  generation cut. Minimum kt in underlying Born\n")
+      f.write( "bornsuppfact "+str(self.bornsuppfact)+" ! (default 0d0)  mass param for Born suppression factor. If < 0 suppfact = 1\n")
+      f.write( "bornonly   "+str(self.bornonly)+"      ! (default 0) if 1 do Born only\n")
+      f.write( "testplots  "+str(self.testplots)+"       ! (default 0, do not) do NLO and PWHG distributions\n")
+      f.write( "xupbound "+str(self.xupbound)+"       ! increase upper bound for radiation generation by this factor\n")
+
+###############################################################################
+#
+#  Z
+#
+###############################################################################
+class PowhegConfig_Z(PowhegConfig_base):
+  # These are user configurable - put generic properties in PowhegConfig_base
+  vdecaymode = 1 
+  bornonly  = 0      
+  smartsig  = 1      
+  withsubtr = 1      
+  withdamp = 1      
+  ptsqmin = 0.8
+  ptsupp = 0
+  charmthr = 1.5    
+  bottomthr = 5.0   
+  testplots = 1     
+  hfact  = -1    
+  testsuda = 0      
+  radregion = -1       
+  charmthrpdf = 1.5  
+  bottomthrpdf = 5.0 
+  iupperisr = 1 
+  iupperfsr = 2 
+  icsimax = 1    
+  iymax = 1     
+  xupbound = 2.0   
+
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None):
+    PowhegConfig_base.__init__(self,runArgs)
+    self.executablePath += '/Z/pwhg_main'
+
+  def generateRunCard(self):
+    self.generateRunCardSharedOptions()
+
+    with open( str(self.TestArea)+'/powheg.input','a') as f:
+      f.write( "vdecaymode "+str(self.vdecaymode)+" !(1:leptonic decay, 2:muonic decay, 3: tauonic decay,...)\n")
+      f.write( "ptsupp "+str(self.ptsupp)+" ! (default 0d0)  mass param for Born suppression factor (generation cut) If < 0 suppfact = 1\n")
+      f.write( "bornonly "+str(self.bornonly)+" ! (default 0) if 1 do Born only\n")
+      f.write( "smartsig "+str(self.smartsig)+" ! (default 1) remember equal amplitudes (0 do not remember)\n")
+      f.write( "withsubtr "+str(self.withsubtr)+" ! (default 1) subtract real counterterms (0 do not subtract)\n")
+      f.write( "withdamp "+str(self.withdamp)+" ! (default 0, do not use) use Born-zero damping factor\n")
+      f.write( "ptsqmin "+str(self.ptsqmin)+" ! (default 0.8 GeV) minimum pt for generation of radiation\n")
+      f.write( "charmthr "+str(self.charmthr)+" ! (default 1.5 GeV) charm treshold for gluon splitting\n")
+      f.write( "bottomthr "+str(self.bottomthr)+" ! (default 5.0 GeV) bottom treshold for gluon splitting\n")
+      f.write( "testplots "+str(self.testplots)+" ! (default 0, do not) do NLO and PWHG distributions\n")
+      f.write( "hfact "+str(self.hfact)+" ! (default no dumping factor) dump factor for high-pt radiation: > 0 dumpfac=h**2/(pt2+h**2)\n")
+      f.write( "testsuda "+str(self.testsuda)+" ! (default 0, do not test) test Sudakov form factor\n")
+      f.write( "radregion "+str(self.radregion)+" ! (default all regions) only generate radiation in the selected singular region\n")
+      f.write( "charmthrpdf "+str(self.charmthrpdf)+" ! (default 1.5 GeV) pdf charm treshold\n")
+      f.write( "bottomthrpdf "+str(self.bottomthrpdf)+" ! (default 5.0 GeV) pdf bottom treshold\n")
+      f.write( "iupperisr "+str(self.iupperisr)+" ! (default 1) choice of ISR upper bounding functional form\n")
+      f.write( "iupperfsr  "+str(self.iupperfsr )+" ! (default 2) choice of FSR upper bounding functional form\n")
+      f.write( "icsimax "+str(self.icsimax)+" ! <= 100, number of csi subdivision when computing the upper bounds\n")
+      f.write( "iymax "+str(self.iymax)+" ! <= 100, number of y subdivision when computing the upper bounds\n")
+      f.write( "xupbound "+str(self.xupbound)+" ! increase upper bound for radiation generation\n")
+
+###############################################################################
+#
+#  Wj
+#
+###############################################################################
+
+class PowhegConfig_Wj(PowhegConfig_base):
+  # These are user configurable - put generic properties in PowhegConfig_base
+
+  idvecbos = 24
+  vdecaymode = 1
+  ptsupp = 0
+  bornonly = 0     
+  smartsig = 1     
+  withsubtr = 1    
+  withdamp = 0      
+  ptsqmin = 0.8    
+  charmthr = 1.5    
+  bottomthr = 5.0    
+  testplots = 0   
+  hfact = -1   
+  testsuda = 0     
+  radregion = -1        
+  charmthrpdf = 1.5  
+  bottomthrpdf = 5.0  
+
+
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None):
+    PowhegConfig_base.__init__(self,runArgs)
+    self.executablePath += '/Wj/pwhg_main'
+    
+  def generateRunCard(self):
+    self.generateRunCardSharedOptions()
+    
+    with open( str(self.TestArea)+'/powheg.input','a') as f:
+      f.write( "idvecbos "+str(self.idvecbos)+"\n")
+      f.write( "vdecaymode " +str(self.vdecaymode)+"\n")
+      f.write( "ptsupp "+str(self.ptsupp)+" ! (default 0d0)  mass param for Born suppression factor (generation cut) If < 0 suppfact = 1\n")
+      f.write( "bornonly "+str(self.bornonly)+" ! (default 0) if 1 do Born only\n")
+      f.write( "smartsig "+str(self.smartsig)+" ! (default 1) remember equal amplitudes (0 do not remember)\n")
+      f.write( "withsubtr "+str(self.withsubtr)+" ! (default 1) subtract real counterterms (0 do not subtract)\n")
+      f.write( "withdamp "+str(self.withdamp)+" ! (default 0, do not use) use Born-zero damping factor\n")
+      f.write( "ptsqmin "+str(self.ptsqmin)+" ! (default 0.8 GeV) minimum pt for generation of radiation\n")
+      f.write( "charmthr "+str(self.charmthr)+" ! (default 1.5 GeV) charm treshold for gluon splitting\n")
+      f.write( "bottomthr "+str(self.bottomthr)+" ! (default 5.0 GeV) bottom treshold for gluon splitting\n")
+      f.write( "testplots "+str(self.testplots)+" ! (default 0, do not) do NLO and PWHG distributions\n")
+      f.write( "hfact "+str(self.hfact)+" ! (default no dumping factor) dump factor for high-pt radiation: > 0 dumpfac=h**2/(pt2+h**2)\n")
+      f.write( "testsuda "+str(self.testsuda)+" ! (default 0, do not test) test Sudakov form factor\n")
+      f.write( "radregion "+str(self.radregion)+" ! (default all regions) only generate radiation in the selected singular region\n")
+      f.write( "charmthrpdf "+str(self.charmthrpdf)+" ! (default 1.5 GeV) pdf charm treshold\n")
+      f.write( "bottomthrpdf "+str(self.bottomthrpdf)+" !  (default 5.0 GeV) pdf bottom treshold\n")
+      
+###############################################################################
+#
+#  W
+#
+###############################################################################
+class PowhegConfig_W(PowhegConfig_base):
+  # These are user configurable - put generic properties in PowhegConfig_base
+  idvecbos = 24
+  vdecaymode = 1
+  ptsupp = 0
+  bornonly  = 0      
+  smartsig  = 1      
+  withsubtr = 1      
+  withdamp = 1      
+  ptsqmin = 0.8    
+  charmthr = 1.5    
+  bottomthr = 5.0   
+  testplots = 1     
+  hfact  = -1    
+  testsuda = 0      
+  radregion = -1       
+  charmthrpdf = 1.5  
+  bottomthrpdf = 5.0 
+  iupperisr = 1 
+  iupperfsr = 2 
+  icsimax = 1    
+  iymax = 1     
+  xupbound = 2.0   
+
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None):
+    PowhegConfig_base.__init__(self,runArgs)
+    self.executablePath += '/W/pwhg_main'
+
+  def generateRunCard(self):
+    self.generateRunCardSharedOptions()
+
+    with open( str(self.TestArea)+'/powheg.input','a') as f:
+      f.write( "idvecbos "+str(self.idvecbos)+"\n")
+      f.write( "vdecaymode " +str(self.vdecaymode)+"\n")
+      f.write( "ptsupp "+str(self.ptsupp)+" ! (default 0d0)  mass param for Born suppression factor (generation cut) If < 0 suppfact = 1\n")
+      f.write( "bornonly "+str(self.bornonly)+" ! (default 0) if 1 do Born only\n")
+      f.write( "smartsig "+str(self.smartsig)+" ! (default 1) remember equal amplitudes (0 do not remember)\n")
+      f.write( "withsubtr "+str(self.withsubtr)+" ! (default 1) subtract real counterterms (0 do not subtract)\n")
+      f.write( "withdamp "+str(self.withdamp)+" ! (default 0, do not use) use Born-zero damping factor\n")
+      f.write( "ptsqmin "+str(self.ptsqmin)+" ! (default 0.8 GeV) minimum pt for generation of radiation\n")
+      f.write( "charmthr "+str(self.charmthr)+" ! (default 1.5 GeV) charm treshold for gluon splitting\n")
+      f.write( "bottomthr "+str(self.bottomthr)+" ! (default 5.0 GeV) bottom treshold for gluon splitting\n")
+      f.write( "testplots "+str(self.testplots)+" ! (default 0, do not) do NLO and PWHG distributions\n")
+      f.write( "hfact "+str(self.hfact)+"! (default no dumping factor) dump factor for high-pt radiation: > 0 dumpfac=h**2/(pt2+h**2)\n")
+      f.write( "testsuda "+str(self.testsuda)+" ! (default 0, do not test) test Sudakov form factor\n")
+      f.write( "radregion "+str(self.radregion)+" ! (default all regions) only generate radiation in the selected singular region\n")
+      f.write( "charmthrpdf "+str(self.charmthrpdf)+" ! (default 1.5 GeV) pdf charm treshold\n")
+      f.write( "bottomthrpdf "+str(self.bottomthrpdf)+" ! (default 5.0 GeV) pdf bottom treshold\n")
+      f.write( "iupperisr "+str(self.iupperisr)+" ! (default 1) choice of ISR upper bounding functional form\n")
+      f.write( "iupperfsr  "+str(self.iupperfsr )+" ! (default 2) choice of FSR upper bounding functional form\n")
+      f.write( "icsimax "+str(self.icsimax)+" ! <= 100, number of csi subdivision when computing the upper bounds\n")
+      f.write( "iymax "+str(self.iymax)+" ! <= 100, number of y subdivision when computing the upper bounds\n")
+      f.write( "xupbound "+str(self.xupbound)+" ! increase upper bound for radiation generation\n")
