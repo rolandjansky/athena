@@ -18,7 +18,7 @@ def MM_FirstXing():
 def MM_LastXing():
     return 200
 
-def MmDigitizationTool(name="MmDigitizationTool",**kwargs):
+def MmDigitizationTool(name="MM_DigitizationTool",**kwargs):
     kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc() )
     # set rndm seeds
     mmRndm = kwargs.setdefault("RndmEngine","MM_Digitization")

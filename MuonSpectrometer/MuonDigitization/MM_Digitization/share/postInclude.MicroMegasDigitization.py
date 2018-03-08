@@ -10,7 +10,7 @@ from Digitization.DigitizationFlags import digitizationFlags
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 if digitizationFlags.doXingByXingPileUp():
-     MMdigitization = job.PileUpToolsAlg.PileUpTools[ "MmDigitizationTool" ]
+     MMdigitization = job.PileUpToolsAlg.PileUpTools[ "MM_DigitizationTool" ]
 else:
      from MM_Digitization.MM_DigitizationConf import MmDigitizationTool as MMdigitization
      MMdigitization.RndmSvc = jobproperties.Digitization.rndmSvc.getValue()
