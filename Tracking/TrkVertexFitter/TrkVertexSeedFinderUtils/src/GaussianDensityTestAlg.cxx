@@ -34,6 +34,7 @@ GaussianDensityTestAlg::GaussianDensityTestAlg( const std::string& name,
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_useBeamConstraint(true),
+  m_firstEvent(true),
   m_iBeamCondSvc("BeamCondSvc", name),
   m_iTHistSvc("THistSvc", name)
 {
@@ -98,19 +99,24 @@ StatusCode GaussianDensityTestAlg::execute()
   m_estimator->reset();
   m_estimator->addTracks(perigeeList);
 
-  //  for (int i = 0; i < 800; i++)
-  //  {
-  //    double z = -200.0 + 0.25 + i*0.5;
-  //    double density = m_estimator->trackDensity(z);
-  //    m_h_density->Fill((float) z, (float) density);
-  //  }
+  if (m_firstEvent)
+  {
+    for (int i = 0; i < 800; i++)
+    {
+      double z = -200.0 + 0.25 + i*0.5;
+      double density = m_estimator->trackDensity(z);
+      m_h_density->Fill((float) z, (float) density);
+    }
+  }
   ATH_MSG_VERBOSE("Analyzing MC truth");
   std::vector<Amg::Vector3D> truth;
   ATH_CHECK( findTruth(trackVector, truth) );
-  ATH_MSG_VERBOSE("Filling truth vertex histogram");
-  //for (auto& v : truth) m_h_truthVertices->Fill( v[2] );
-
-
+  if (m_firstEvent)
+  {
+    ATH_MSG_VERBOSE("Filling truth vertex histogram");
+    for (auto& v : truth) m_h_truthVertices->Fill( v[2] );
+  }
+  m_firstEvent = false;
   return StatusCode::SUCCESS;
 }
 
@@ -206,8 +212,11 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
 			      nGoodTracks++;
 			      const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>(trk->parameters());
 			      if (perigee == nullptr) ATH_MSG_ERROR("Invalid Perigee");
-			      //m_h_truthDensity->Fill(vLink->z());
-			      ATH_MSG_VERBOSE("Filled truth density histogram");
+			      if (m_firstEvent) 
+			      {
+				m_h_truthDensity->Fill(vLink->z());
+				ATH_MSG_VERBOSE("Filled truth density histogram");
+			      }
 			    }
 			    break;
 			}
@@ -265,8 +274,11 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
 			      nGoodTracks++;
 			      const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>(trk->parameters());
 			      if (perigee == nullptr) ATH_MSG_ERROR("Invalid Perigee");
-			      m_h_truthDensity->Fill(vLink->z());
-			      ATH_MSG_VERBOSE("Filled truth density histogram");
+			      if (m_firstEvent)
+			      {
+				m_h_truthDensity->Fill(vLink->z());
+				ATH_MSG_VERBOSE("Filled truth density histogram");
+			      }
 			    }
 			    break;
 			}

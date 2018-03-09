@@ -101,6 +101,7 @@ class GaussianDensityTestAlg
                                              "Minimum associated reconstructed tracks for vertex to be considered visible" };
 
   bool m_useBeamConstraint;
+  bool m_firstEvent;
 
   // Tools
   ToolHandle< InDet::IInDetTrackSelectionTool > m_trackFilter { this, "TrackSelector", 

@@ -157,6 +157,8 @@ namespace Trk
     lowerMap m_lowerMap;
     upperMap m_upperMap;
 
+    double m_maxRange;
+
     //  Cuts set by configurable properties
     
     //  Maximum allowed d0 significance to use (in sigma)
