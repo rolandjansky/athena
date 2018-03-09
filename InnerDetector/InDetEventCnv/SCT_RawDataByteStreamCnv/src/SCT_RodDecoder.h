@@ -64,9 +64,8 @@ class SCT_RodDecoder : public AthAlgTool, public ISCT_RodDecoder
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                     ISCT_RDO_Container& rdoIdc,
                                     InDetBSErrContainer* errs,
-                                    std::vector<IdentifierHash>* vecHash = 0)
-    override;
-
+                                    SCT_ByteStreamFractionContainer* bsFracCont,
+                                    std::vector<IdentifierHash>* vecHash = 0) override;
 
  private:
   /// method that builds the RawData RDO and add it to the collection 
