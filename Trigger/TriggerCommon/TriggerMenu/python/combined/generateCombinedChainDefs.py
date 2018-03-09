@@ -95,6 +95,17 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
         else:
             theChainDef=_addTauMass(theChainDef,chainDicts,listOfChainDefs)   
 
+    elif any("bXemu" in alg for alg in topoAlgs):
+        ##Check that we only have a Photon and Muon chain
+        inputChains=[]
+        for ChainPart in chainDicts:
+            if 'Electron' in ChainPart['signature']  or 'Muon' in ChainPart['signature']:
+                inputChains.append(ChainPart['signature'])
+        if len(inputChains)<2:
+            log.warning("Need a Electron and a Muon chain to run bXemu Topo algo")        
+        else:
+            theChainDef=_addXemu(theChainDef,chainDicts,listOfChainDefs)   
+
     elif any("dr" in alg for alg in topoAlgs):
         ##Check that we only have a Photon and Muon chain
         inputChains=[]
@@ -365,6 +376,70 @@ def _addTauMass(theChainDef,chainDicts,listOfChainDefs):
     EFHypo =  TrigEFPhotonMuonAngleHypo_tau()
 
     log.debug("Input TEs to TauMass algorithm: %s", inputTEsEF)
+
+    EFChainName = "EF_" + chainDicts[0]['chainName']
+    
+    theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])    
+
+    return theChainDef
+
+##############################################################################
+def _addXemu(theChainDef,chainDicts,listOfChainDefs): 
+
+    # determine which thresholds are needed for L2 MultiTrk algo
+    mult = 0
+    tracksThr = []
+    fexNameExt = ""
+
+    
+    for chainDict in chainDicts:
+      for dictpart in chainDict['chainParts']:
+        if 'mu' in dictpart['trigType'] or  'e' in dictpart['trigType'] :
+            for x in range(0,int(dictpart['multiplicity'])):
+                if dictpart['threshold']!='0':
+                    dthr = float(dictpart['threshold'] ) 
+                    thr= dthr * 1000.  # in MeV; 
+                    if dthr < 9.5 :
+                        thr = thr - 350.
+                    elif dthr < 11.5 :
+                        thr = thr - 550. 
+                    elif dthr < 21.5  :
+                        thr = thr - 750.                         
+                    else :
+                        thr = thr -1000.
+                else :
+                    thr = 900.
+                tracksThr.append(thr)
+                fexNameExt = fexNameExt + "_"+str(int(dictpart['threshold']))
+
+    if len(tracksThr) < 2 :
+        log.error(" something is wrong with chain, expect at least 2 thresholds, received "+str(tracksThr) )
+    from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_EMu
+    L2Fex = TrigMultiTrkFex_EMu("TrigMultiTrkFex_EMu"+fexNameExt)  # has chi2 < 20 , OS and 0.1< m(2trk) < 7 GeV
+    L2Fex.setTrackThresholds( tracksThr )
+
+    maxL2SignatureIndex = -1
+    for signatureIndex,signature in enumerate(theChainDef.signatureList):
+        if signature['listOfTriggerElements'][0][0:2] == "L2":
+            maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
+    
+    inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements']
+    L2TEname = "L2_" +  chainDicts[0]['chainName']+'_'+"bXemu"
+    theChainDef.addSequence([L2Fex], inputTEsL2, L2TEname)
+    theChainDef.addSignatureL2([L2TEname])
+
+    
+    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+    #inputTEsEF.reverse() # need first met then jet input TE           
+
+
+    from TrigEgammaMuonCombHypo.TrigEgammaMuonCombHypoConf       import TrigEFElectronMuonAngleFexRun2Algo
+    from TrigEgammaMuonCombHypo.TrigEFElectronMuonAngleHypoConfig  import TrigEFElectronMuonAngleHypo_bXemu
+    EFFex  =  TrigEFElectronMuonAngleFexRun2Algo()
+    EFHypo =  TrigEFElectronMuonAngleHypo_bXemu()
+
+    log.debug("Input TEs to bXemu algorithm: %s", inputTEsEF)
 
     EFChainName = "EF_" + chainDicts[0]['chainName']
     

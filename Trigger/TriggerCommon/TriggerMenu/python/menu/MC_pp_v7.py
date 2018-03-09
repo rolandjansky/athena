@@ -1784,8 +1784,8 @@ def setupMenu():
         ['2j55_bmv2c1060_split_ht300_L14J20', 'L1_4J20', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1,['serial',-1,['2j55_bmv2c1060_split', 'ht300_L14J20']]],
 
 
-	# pp reference run
-	['mu4_j25_dr05', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j25'] ]],
+        # pp reference run
+        ['mu4_j25_dr05', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j25'] ]],
 
         # #supporting triggers
         ['mu4_j15_dr05', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['RATE:MuonBJet', 'BW:BJet'], -1,['serial',-1,['mu4', 'j15'] ]],
@@ -1869,6 +1869,16 @@ def setupMenu():
         ['g10_etcut_mu10_ivarloose_taumass_L1LFV-EM8I',         'L1_LFV-EM8I',  ['L1_EM7', 'L1_MU10'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g10_etcut","mu10_ivarloose"]] ],
         ['g20_etcut_mu4_ivarloose_taumass_L1LFV-EM15I',         'L1_LFV-EM15I',  ['L1_EM15', 'L1_MU4'], [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['parallel',-1,["g20_etcut","mu4_ivarloose"]] ],
 
+        # B/D->emu ATR-17640        
+        ['e5_lhloose_nod0_mu20_bXemu',              'L1_MU20MU21',  ['L1_EM3', 'L1_MU20'], [BPhysicsStream], ['RATE:EgammaMuon', BW_BphysTag], -1, ['parallel',-1,["e5_lhloose_nod0","mu20"]] ],
+        ['e10_lhloose_nod0_mu10_bXemu_L1LFV-EM8I',  'L1_LFV-EM8I',  ['L1_EM7', 'L1_MU10'], [BPhysicsStream],  ['RATE:EgammaMuon', BW_BphysTag], -1, ['parallel',-1,["e10_lhloose_nod0","mu10"]] ],
+        ['e20_lhloose_nod0_mu4_bXemu_L1LFV-EM15I',  'L1_LFV-EM15I', ['L1_EM15', 'L1_MU4'], [BPhysicsStream], ['RATE:EgammaMuon', BW_BphysTag], -1, ['parallel',-1,["e20_lhloose_nod0","mu4"]] ],
+        
+        # B/D->emu  ATR-17640  these are backup chains with high efficiency. Waiting for proper bloose implementation
+        ['e5_bloose_mu20_bXemu',                    'L1_MU20MU21',  ['L1_EM3', 'L1_MU20'], [BPhysicsStream], ['RATE:EgammaMuon', BW_BphysTag], -1, ['parallel',-1,["e5_bloose","mu20"]] ],
+        ['e10_bloose_mu10_bXemu_L1LFV-EM8I',        'L1_LFV-EM8I',  ['L1_EM7', 'L1_MU10'], [BPhysicsStream], ['RATE:EgammaMuon', BW_BphysTag], -1, ['parallel',-1,["e10_bloose","mu10"]] ],
+        ['e20_bloose_mu4_bXemu_L1LFV-EM15I',        'L1_LFV-EM15I', ['L1_EM15', 'L1_MU4'], [BPhysicsStream], ['RATE:EgammaMuon', BW_BphysTag], -1, ['parallel',-1,["e20_bloose","mu4"]] ],
+        
         # L1Topo W T&P 
         ['e18_etcut_trkcut_xe35', 'L1_EM15_W-MT35_W-250RO2-XEHT-0_W-05DPHI-JXE-0_W-05DPHI-EM15XE',['L1_EM15',''],[PhysicsStream],['RATE:EgammaMET','BW:Egamma'],-1,['serial',-1,["e18_etcut_trkcut","xe35"]]],
         ['e18_etcut_trkcut_xe35_L1EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30', 'L1_EM15_W-MT35_W-05DPHI-JXE-0_W-05DPHI-EM15XE_XS30',['L1_EM15',''],[PhysicsStream],['RATE:EgammaMET','BW:Egamma'],-1,['serial',-1,["e18_etcut_trkcut","xe35"]]],
