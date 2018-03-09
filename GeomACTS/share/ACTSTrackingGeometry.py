@@ -40,6 +40,8 @@ conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
 # include( "BFieldAth/BFieldAth_jobOptions.py" )
 
 
+import MagFieldServices.SetupField
+
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 

@@ -20,6 +20,10 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 
+#include "GaudiKernel/ServiceHandle.h"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
+
+
 #include <Eigen/Dense>
 
 // @todo: re-check this
@@ -68,6 +72,8 @@
 
 #include "GeoModelKernel/GeoPrintGraphAction.h"
 
+#include "GeomACTS/ATLASMagneticFieldWrapper.hpp"
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -94,7 +100,9 @@ ACTSTrackingGeometry::ACTSTrackingGeometry(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
       m_firstEvent(true),
-      m_geoModelSvc("GeoModelSvc", name) {
+      m_geoModelSvc("GeoModelSvc", name),
+      m_fieldServiceHandle("AtlasFieldSvc", name)
+{
   // Get parameter values from jobOptions file
   declareProperty("ModulesOnly", m_modulesOnly = true,
                   "Print transforms of modules");
@@ -131,6 +139,8 @@ StatusCode ACTSTrackingGeometry::initialize() {
 
   // prepare element store
   m_elementStore = std::make_shared<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>>();
+
+  ATH_CHECK(service("AtlasFieldSvc", m_fieldService));
 
   return StatusCode::SUCCESS;
 }
@@ -198,16 +208,45 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
         //0 * Acts::units::_T,
         //5 * Acts::units::_T);
     
+
+
+  //MagField::IMagFieldSvc*                fieldService;
+  //ServiceHandle<MagField::IMagFieldSvc> fieldServiceHandle(
+      //"AtlasFieldSvc", "ACTSTrackingGeometry");
+    
+  //if( !fieldServiceHandle.retrieve() ){
+    //ATH_MSG_FATAL("Failed to retrieve " << fieldServiceHandle );
+    //return StatusCode::FAILURE;
+  //}    
+  //ATH_MSG_DEBUG("Retrieved " << fieldServiceHandle );
+  //fieldService = &*fieldServiceHandle;
+
   
   // ATLAS FIELD
-  using BField_t = Acts::InterpolatedBFieldMap;
-  Acts::concept::AnyFieldLookup<> mapper = bfield();
-  Acts::InterpolatedBFieldMap::Config config;
-  config.scale  = 1.;
-  config.mapper = std::move(mapper);
-  std::shared_ptr<Acts::InterpolatedBFieldMap> bField
-    = std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config));
+  //using BField_t = Acts::InterpolatedBFieldMap;
+  //Acts::concept::AnyFieldLookup<> mapper = bfield();
+  //Acts::InterpolatedBFieldMap::Config config;
+  //config.scale  = 1.;
+  //config.mapper = std::move(mapper);
+  //std::shared_ptr<Acts::InterpolatedBFieldMap> bField
+    //= std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config));
   
+  
+  //Acts::Vector3D bLookupPos(0, 0, 0);
+  //Acts::Vector3D bfieldvec;
+  //m_fieldService->getField(&bLookupPos, &bfieldvec);
+
+  //ATLASMagneticFieldWrapper fieldWrapper(m_fieldService);
+  
+  //Acts::Vector3D bf = fieldWrapper.getField(bLookupPos);
+
+  //std::cout << "CHECK BFIELD" << std::endl;
+  //std::cout << "from ATLAS: " << bfieldvec << std::endl;
+  //std::cout << "wrapper: " << bf << std::endl;
+  //std::cout << "from Interp: " << bField->getField(bLookupPos) << std::endl;
+
+  using BField_t = ATLASMagneticFieldWrapper;
+  auto bField = std::make_shared<ATLASMagneticFieldWrapper>(m_fieldService);
 
   Acts::Logging::Level extrapLogLevel = Acts::Logging::INFO;
 
@@ -289,7 +328,7 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
   
   
   size_t nthreads = std::thread::hardware_concurrency();
-  nthreads = std::max(size_t(1), nthreads);
+  nthreads = 1; //std::max(size_t(1), nthreads);
   std::vector<std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>> results(nthreads);
 
   std::cout << "using " << nthreads << " threads" << std::endl;
@@ -403,10 +442,10 @@ Acts::InterpolatedBFieldMap::FieldMapper<3, 3> ACTSTrackingGeometry::bfield() co
       [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
       return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
           + binsXYZ.at(1) * nBinsXYZ.at(2)
-          + binsXYZ.at(2));
+           + binsXYZ.at(2));
       };
 
-  std::string fieldMapFile = "../../acts-data/MagneticField/ATLAS/ATLASBField_xyz.root";
+  std::string fieldMapFile = "../acts-data/MagneticField/ATLAS/ATLASBField_xyz.root";
   std::string treeName = "bField";
   double      lengthUnit = Acts::units::_mm;
   double      BFieldUnit = Acts::units::_T;

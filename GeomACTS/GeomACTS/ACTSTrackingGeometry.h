@@ -10,6 +10,7 @@
 //#include "CLHEP/Geometry/Transform3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "ACTS/Utilities/BFieldMapUtils.hpp"
+#include "MagFieldInterfaces/IMagFieldSvc.h"
 
 
 #include <fstream>
@@ -61,6 +62,8 @@ private:
   bool m_fullRotationMatrix;
   std::string m_outputFileName;
   ServiceHandle<IGeoModelSvc> m_geoModelSvc;
+  ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
+  MagField::IMagFieldSvc* m_fieldService;
 };
 
 #endif // GeomACTS_ACTSTrackingGeometry_h
