@@ -781,7 +781,7 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
          Double_t y = hist->GetYaxis()->GetBinCenter(biny);
          //shift x,y,z by the MCScaleFactors as appropriate 
          if(channelNumber>=0) {x *= m_mcScaleFactorX; y *= m_mcScaleFactorY;}
-         //else { x *= m_dataScaleFactorX; y *= m_dataScaleFactorY; } ... now dealt with in above interpolation
+         //data scale factor now dealt with in above interpolation
          Int_t inBin = inputHist->FindFixBin(x,y);
          Double_t inValue = inputHist->GetBinContent(inBin);
          inputHist->SetBinContent(inBin,inValue+value);
