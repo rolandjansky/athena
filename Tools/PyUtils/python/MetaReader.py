@@ -80,13 +80,18 @@ def read_metadata(filenames, file_type=None, mode='lite'):
                 # create a container for class name and instance name for metadata_items
                 metaDict[filename]['metadata_items'] = list()
 
+                # search for metadata only in these keys
+                name_filter = ['StreamAOD', '/TagInfo']
+
                 meta_data_srv = __convert_DataHeader(evt.retrieveMetaInput('DataHeader', ';00;MetaDataSvc'))
                 # fill metadata_items
                 metaDict[filename]['metadata_items'].append(('DataHeader', ';00;MetaDataSvc'))
 
                 metadata = {}
-
                 for name, cls in meta_data_srv:
+
+                    if mode == 'lite' and name not in name_filter:
+                        continue
                     try:
                         a = evt.retrieveMetaInput(cls, name)
                     except LookupError:
@@ -107,10 +112,10 @@ def read_metadata(filenames, file_type=None, mode='lite'):
                 # Aggregate common information who needs to be promoted up one level
                 promote_list = {
                     'EventStreamInfo': [
-                        ('run_number', 'run_number'),
-                        ('processing_tags', 'stream_names'),
-                        ('lumi_block', 'lumi_block'),
-                        ('evt_number', 'evt_number'),
+                        ('RunNumbers', 'run_number'),
+                        ('ProcessingTags', 'stream_names'),
+                        ('LumiBlockNumbers', 'lumi_block'),
+                        ('mc_event_number', 'evt_number'),
                         ('mc_channel_number', 'mc_channel_number'),
                         ('mc_event_weight', 'mc_event_weight'),
                         ('evt_type', 'evt_type'),
@@ -239,17 +244,17 @@ def read_metadata(filenames, file_type=None, mode='lite'):
 # Methods for POOL
 def __convert_EventStreamInfo(esi):
     d = {}
-    d['run_number'] = list(esi.getRunNumbers())
-    d['processing_tags'] = list(esi.getProcessingTags())
-    d['lumi_block'] = list(esi.getLumiBlockNumbers())
-    d['evt_number'] = list()
+    d['RunNumbers'] = list(esi.getRunNumbers())
+    d['ProcessingTags'] = list(esi.getProcessingTags())
+    d['LumiBlockNumbers'] = list(esi.getLumiBlockNumbers())
+    d['mc_event_number'] = list()
     d['mc_channel_number'] = list()
     d['mc_event_weight'] = list()
     d['evt_type'] = list()
     d['detdescr_tags'] = list()
 
     for evt_type in esi.getEventTypes():
-        d['evt_number'].append(evt_type.mc_event_number())
+        d['mc_event_number'].append(evt_type.mc_event_number())
         d['mc_channel_number'].append(evt_type.mc_channel_number())
         d['mc_event_weight'].append(evt_type.mc_event_weight())
         d['detdescr_tags'].append(evt_type.get_detdescr_tags())

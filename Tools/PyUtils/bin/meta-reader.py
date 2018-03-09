@@ -7,14 +7,14 @@ import sys
 import json
 import argparse
 import time
-
 import logging
+
 msg = logging.getLogger('MetaReader')
 
 from PyUtils.MetaReader import read_metadata
 
 
-def __tree_print(content, indent = 2, pad = 0, list_max_items = -1, dict_sort=None):
+def __tree_print(content, indent = 2, pad = 0, list_max_items = -1, dict_sort=None, ascii=False):
 	s = ''
 
 	if isinstance(content, dict):
@@ -40,16 +40,22 @@ def __tree_print(content, indent = 2, pad = 0, list_max_items = -1, dict_sort=No
 			else:
 				skey = str(key).ljust(pad)
 
-			s += ('├' if not last else '└') + '─' * indent + ' ' + skey + ': '
+			if not ascii:
+				s += ('├' if not last else '└') + '─' * indent + ' ' + skey + ': '
+			else:
+				s += ('|' if not last else '`') + '-' * indent + ' ' + skey + ': '
 
-			lines = __tree_print(value, indent=indent, pad = pad, dict_sort = dict_sort, list_max_items = list_max_items).split('\n')
+			lines = __tree_print(value, indent=indent, pad = pad, dict_sort = dict_sort, list_max_items = list_max_items, ascii = ascii).split('\n')
 
 			if len(lines) == 1:
 				s += lines[0] + '\n'
 			else:
 				for line in lines:
 					if line.strip():
-						s += '\n' + ('│' if not last else ' ') + ' ' * indent + ' ' + str(line)
+						if not ascii:
+							s += '\n' + ('│' if not last else ' ') + ' ' * indent + ' ' + str(line)
+						else:
+							s += '\n' + ('|' if not last else ' ') + ' ' * indent + ' ' + str(line)
 
 				s += '\n'
 	elif isinstance(content, (list, tuple)) and list_max_items >= 0 and len(content) > list_max_items:
@@ -147,7 +153,7 @@ def __main():
 				print >> fd, json.dumps(metadata, indent=indent)
 		else:
 			with open(output, 'w') as fd:
-				print >> fd, __tree_print(metadata, indent = indent, pad = 18, dict_sort = 'key', list_max_items = 8)
+				print >> fd, __tree_print(metadata, indent = indent, pad = 18, dict_sort = 'key', list_max_items = 8, ascii = True)
 
 	msg.info('Done!')
 
