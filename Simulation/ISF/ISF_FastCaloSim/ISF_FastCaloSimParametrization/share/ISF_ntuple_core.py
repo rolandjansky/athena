@@ -26,6 +26,8 @@ DetFlags.ID_setOn()
 DetFlags.Calo_setOn()
 DetFlags.Muon_setOff()
 DetFlags.Forward_setOff()
+DetFlags.pileup.all_setOff()
+DetFlags.overlay.all_setOff()
 
 from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import ISF_HitAnalysis
 topSequence += ISF_HitAnalysis()
@@ -40,7 +42,7 @@ ISF_HitAnalysis.CaloBoundaryR = 1148.0
 ISF_HitAnalysis.CaloBoundaryZ = 3549.5 #before: 3475.0
 ISF_HitAnalysis.CaloMargin=100 #=10cm
 ISF_HitAnalysis.NTruthParticles = 1 # Copy only one truth particle to the ntuples for now
-ISF_HitAnalysis.SaveAllBranches = False
+ISF_HitAnalysis.SaveAllBranches = saveAllBranches
 ISF_HitAnalysis.DoAllCells = False
 ISF_HitAnalysis.DoLayers = True
 ISF_HitAnalysis.DoLayerSums = True

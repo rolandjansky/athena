@@ -82,6 +82,9 @@ p1_rel="AthenaP1"
 if [ $NICOS_ATLAS_RELEASE ]
 then
     p1_rel=$NICOS_ATLAS_RELEASE
+elif [ $AtlasBuildBranch ]
+then
+    p1_rel=${AtlasBuildBranch}-${AtlasBuildStamp}
 fi
 
 nightly="AthenaP1Test"
@@ -94,14 +97,22 @@ rel=""
 if [ $NICOS_PROJECT_RELNAME_COPY ]
 then
     rel=$NICOS_PROJECT_RELNAME_COPY
+elif [ $AtlasBuildStamp ]
+then
+    rel=${AtlasBuildStamp}
 fi
 
 #menuname=`grep menu_name $hltmenu1 | cut -f2 -d= | cut -f1 -d" "`
-rundate=`date +%F" "%H:%M" "`
+rundate=`date +%F","%H:%M","`
+
+echo "p1_rel=${p1_rel}"
+echo "nightly=${nightly}"
+echo "rel=${rel}"
+echo "rundate=${rundate}"
 
 # Upload SMK
 
-cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"\\\"${rundate}${nightly}_${rel}\"\\\" --dbConn $DBConn -w_n 50 -w_t 60"
+cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
 
 echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log
@@ -131,10 +142,41 @@ if ! [ $uploadPrescale -eq 1 ]; then
 fi
 
 echo "Uploading prescale keys..."
-# Upload
 # the upload of the xmls is now done standalone following the discussion on ATR-16799
 
-/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+# test checking out RB with atnight user
+ART_dir=${PWD}
+echo 'ART_dir: '${ART_dir}
+MENU='Physics_pp_v7'
+echo 'Menu:' ${MENU}
+export ATLAS_LOCAL_ROOT_BASE="/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase"
+source $ATLAS_LOCAL_ROOT_BASE/packageSetups/localSetup.sh git
+#TODO: at the moment working on RB master
+git clone https://:@gitlab.cern.ch:8443/atlas-trigger-menu/TrigMenuRulebook.git
+RB_dir=${PWD}/TrigMenuRulebook
+echo 'RB_dir: '${RB_dir}
+echo 'l1menu: '${l1menu}
+echo 'l1topo: '${l1topo}
+echo 'hltmenu: '${hltmenu1}
+cd ${RB_dir}/scripts
+rm -f l1.xml hlt.xml
+
+ln -s ${ART_dir}/${l1menu}   l1.xml
+ln -s ${ART_dir}/${hltmenu1}   hlt.xml
+ls -alhtr
+
+#TODO: configure RB properly, which lumi point?
+sed -i -e 's/ignoreErrors = False/ignoreErrors = True/g' runOptions.py
+./runRuleBook.py 20000
+cd ${ART_dir}
+PSdir=`find TrigMenuRulebook/scripts -name "prescales_*" -type d`
+echo "PSdir: "${PSdir}
+rm $PSdir/Set_*.xml
+ls $PSdir
+
+# upload PS keys
+#/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
 hltpsk2=`grep 'INFO: HLT Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 l1psk2=`grep 'INFO: Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
 if [ -z "$hltpsk2" ] || [ -z "$l1psk2" ]; then
@@ -148,6 +190,8 @@ fi
 echo "smk=${smk}" > prescaleKeys.txt
 echo "l1psk=${l1psk2}" >> prescaleKeys.txt
 echo "hltpsk=${hltpsk2}" >> prescaleKeys.txt
+
+rm -rf TrigMenuRulebook
 
 exit 0
 

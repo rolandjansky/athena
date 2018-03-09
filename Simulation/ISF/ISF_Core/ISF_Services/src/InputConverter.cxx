@@ -330,7 +330,15 @@ G4Event* ISF::InputConverter::ISF_to_G4Event(const ISF::ConstISFParticleVector& 
     const ISF::ISFParticle &isp = *ispPtr;
     if ( !isInsideG4WorldVolume(isp) ) {
         ATH_MSG_WARNING("Unable to convert ISFParticle to G4PrimaryParticle!");
-        ATH_MSG_WARNING(" ISFParticle outside Geant4 world volume: " << isp );
+        ATH_MSG_WARNING(" ISFParticle: " << isp );
+        if(m_worldSolid) {
+          ATH_MSG_WARNING(" is outside Geant4 world volume: ");
+          m_worldSolid->DumpInfo();
+          G4cout << std::flush;
+        }
+        else {
+          ATH_MSG_WARNING(" is outside Geant4 world volume.");
+	}
         continue;
     }
     this->addG4PrimaryVertex(g4evt,isp);

@@ -56,7 +56,9 @@ IDAlignMonPVBiases::IDAlignMonPVBiases( const std::string & type, const std::str
   m_tracksName("ExtendedTracks"),
   m_triggerChainName("NoTriggerSelection"),
   m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"), 
-  m_vertices(0)
+  m_vertices(0),
+  m_do3dplots(false),
+  m_dolowpt(false)
 {
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
 
@@ -78,20 +80,26 @@ void IDAlignMonPVBiases::InitializeHistograms() {
 	/////////////////////////////////////////////////
     	//////Initialize histo's 400MeV until 600MeV/////
     	/////////////////////////////////////////////////
-    	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive = 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative = 0;
+	if(m_dolowpt) {
+    		if(m_do3dplots) {
+			m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive = 0;
+    			m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative = 0;
+		}
 
-    	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative 	= 0;
+    		m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive 	= 0;
+  		m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative 	= 0;
 
-	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive 	= 0;
-  	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative 	= 0;
- 
+		m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive 	= 0;
+  		m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative 	= 0;
+ 	}
+
 	/////////////////////////////////////////////////
     	///////Initialize histo's 600MeV until 1GeV//////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive = 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative = 0;
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive = 0;
+    		m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative = 0;
+	}
 
 	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive 	= 0;
   	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_negative 	= 0;
@@ -102,8 +110,10 @@ void IDAlignMonPVBiases::InitializeHistograms() {
 	/////////////////////////////////////////////////
     	////////Initialize histo's 1GeV until 2GeV///////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive	= 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative	= 0;
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive	= 0;
+    		m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative	= 0;
+	}
 
 	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive 	= 0;
   	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_negative 	= 0;
@@ -114,8 +124,10 @@ void IDAlignMonPVBiases::InitializeHistograms() {
 	/////////////////////////////////////////////////
     	////////Initialize histo's 2GeV until 5GeV///////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive 	= 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative 	= 0;
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive 	= 0;
+    		m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative 	= 0;
+	}
 
 	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive 	= 0;
   	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_negative 	= 0;
@@ -126,8 +138,10 @@ void IDAlignMonPVBiases::InitializeHistograms() {
 	/////////////////////////////////////////////////
     	///////Initialize histo's 5GeV until 10GeV///////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive = 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative = 0;
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive = 0;
+    		m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative = 0;
+	}
 
 	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive 	= 0;
   	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_negative 	= 0;
@@ -138,8 +152,10 @@ void IDAlignMonPVBiases::InitializeHistograms() {
 	/////////////////////////////////////////////////
     	///////Initialize histo's larger than 10GeV//////
     	/////////////////////////////////////////////////
-	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive 	= 0;
-    	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative 	= 0;
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive 	= 0;
+    		m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative 	= 0;
+	}
 
 	m_trkd0_wrtPV_vs_phi_10GeV_positive 		= 0;
   	m_trkd0_wrtPV_vs_phi_10GeV_negative 		= 0;
@@ -215,36 +231,42 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
  	/////////////////////////////////////////////////
     	///Define+register histo's 400MeV until 600MeV///
     	/////////////////////////////////////////////////
-	//TH3D for maps 
-	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive"	, "d0 vs phi vs eta 400MeV-600MeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
-	m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative"	, "d0 vs phi vs eta 400MeV-600MeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	if(m_dolowpt) {
+		//TH3D for maps
+		if(m_do3dplots) { 
+			m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive"	, "d0 vs phi vs eta 400MeV-600MeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+			m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative"	, "d0 vs phi vs eta 400MeV-600MeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
 
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive);
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative);
+			RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive);
+			RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative);
+		}
 
-	//TH2D vs phi
-	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive"		, "d0 vs phi 400MeV-600MeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
-	m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative	= new TH2F("trk_d0_wrtPV_vs_phi_400MeV_600MeV_negative"		, "d0 vs phi 400MeV-600MeV negative; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+		//TH2D vs phi
+		m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_400MeV_600MeV_positive"		, "d0 vs phi 400MeV-600MeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
+		m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative	= new TH2F("trk_d0_wrtPV_vs_phi_400MeV_600MeV_negative"		, "d0 vs phi 400MeV-600MeV negative; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
 
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive	);
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative	);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive	);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative	);
 
-	//TH2D vs eta
-	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive	= new TH2F("trk_d0_wrtPV_vs_eta_400MeV_600MeV_positive"		, "d0 vs eta 400MeV-600MeV positive; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
-	m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative	= new TH2F("trk_d0_wrtPV_vs_eta_400MeV_600MeV_negative"		, "d0 vs eta 400MeV-600MeV negative; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+		//TH2D vs eta
+		m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive	= new TH2F("trk_d0_wrtPV_vs_eta_400MeV_600MeV_positive"		, "d0 vs eta 400MeV-600MeV positive; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
+		m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative	= new TH2F("trk_d0_wrtPV_vs_eta_400MeV_600MeV_negative"		, "d0 vs eta 400MeV-600MeV negative; #eta; d0 [mm]"		, netaBins, -maxEta, maxEta, nd0Bins, -maxD0, maxD0 );
 
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive	);
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative	);
-	
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive	);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative	);
+	}	
+
 	/////////////////////////////////////////////////
     	////Define+register histo's 600MeV until 1GeV////
     	/////////////////////////////////////////////////
  	//TH3D for maps 
-	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive"	, "d0 vs phi vs eta 600MeV-1GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
-	m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative"	, "d0 vs phi vs eta 600MeV-1GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive"	, "d0 vs phi vs eta 600MeV-1GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+		m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative"	, "d0 vs phi vs eta 600MeV-1GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
 
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive);
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative);
+	}
 
 	//TH2D vs phi
 	m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_600MeV_1GeV_positive"		, "d0 vs phi 600MeV-1GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
@@ -264,11 +286,13 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
     	/////Define+register histo's 1GeV until 2GeV/////
     	/////////////////////////////////////////////////
  	//TH3D for maps 
-	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive"	, "d0 vs phi vs eta 1GeV-2GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
-	m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative"	, "d0 vs phi vs eta 1GeV-2GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive"	, "d0 vs phi vs eta 1GeV-2GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+		m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative"	, "d0 vs phi vs eta 1GeV-2GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
 
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive);
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative);
+	}
 
 	//TH2D vs phi
 	m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_1GeV_2GeV_positive"		, "d0 vs phi 1GeV-2GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
@@ -288,11 +312,13 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
     	/////Define+register histo's 2GeV until 5GeV/////
     	/////////////////////////////////////////////////
 	//TH3D for maps 
-	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive"	, "d0 vs phi vs eta 2GeV-5GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
-	m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative"	, "d0 vs phi vs eta 2GeV-5GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive"	, "d0 vs phi vs eta 2GeV-5GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+		m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative"	, "d0 vs phi vs eta 2GeV-5GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
 
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive);
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative);
+	}
 
 	//TH2D vs phi
 	m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_2GeV_5GeV_positive"		, "d0 vs phi 2GeV-5GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
@@ -312,11 +338,13 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
     	/////Define+register histo's 5GeV until 10GeV////
     	/////////////////////////////////////////////////
     	//TH3D for maps 
-	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive"	, "d0 vs phi vs eta 5GeV-10GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
-	m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative"	, "d0 vs phi vs eta 5GeV-10GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive"	, "d0 vs phi vs eta 5GeV-10GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+		m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative"	, "d0 vs phi vs eta 5GeV-10GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
 
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive);
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative);
+	}
 
 	//TH2D vs phi
 	m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_5GeV_10GeV_positive"		, "d0 vs phi 5GeV-10GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
@@ -336,11 +364,13 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
     	////Define+register histo's larger than 10GeV////
     	/////////////////////////////////////////////////
     	//TH3D for maps 
-	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_10GeV_positive"	, "d0 vs phi vs eta >10GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
-	m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_10GeV_negative"	, "d0 vs phi vs eta >10GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+	if(m_do3dplots) {
+		m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_10GeV_positive"	, "d0 vs phi vs eta >10GeV positive; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
+		m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative 	= new TH3F("trk_d0_wrtPV_vs_phi_vs_eta_10GeV_negative"	, "d0 vs phi vs eta >10GeV negative; #phi; #eta; d0 [mm]", nphiBinsMap, -maxPhi, maxPhi, netaBinsMap, -maxEta, maxEta, nd0Bins, -maxD0, maxD0);
 
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive);
-	RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive);
+		RegisterHisto(al_mon, m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative);
+	}
 
     	//TH2D vs phi
 	m_trkd0_wrtPV_vs_phi_10GeV_positive	= new TH2F("trk_d0_wrtPV_vs_phi_10GeV_positive"		, "d0 vs phi >10GeV positive; #phi; d0 [mm]"		, nphiBins, -maxPhi, maxPhi, nd0Bins, -maxD0, maxD0 );
@@ -467,25 +497,31 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
   	** Fill Histograms
   	*******************************************************************/
         double pt = (*track_itr)->pt()*0.001;
-	
-	if(pt>0.4&&pt<0.6) {
-		//Fill TH3D for positive and negative vs phi vs eta
-		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
-		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
 
-		//Fill TH2D for positive and negative vs phi
-		if(m_charge==1) m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive->Fill(m_phi,myIPandSigma->IPd0);
-		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative->Fill(m_phi,myIPandSigma->IPd0);
+	if(m_dolowpt) {	
+		if(pt>0.4&&pt<0.6) {
+			//Fill TH3D for positive and negative vs phi vs eta
+			if(m_do3dplots) {
+				if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+				if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_400MeV_600MeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+			}
 
-		//Fill TH2D for positive and negative vs eta
-		if(m_charge==1) m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive->Fill(m_eta,myIPandSigma->IPd0);
-		if(m_charge==-1) m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative->Fill(m_eta,myIPandSigma->IPd0);
+			//Fill TH2D for positive and negative vs phi
+			if(m_charge==1) m_trkd0_wrtPV_vs_phi_400MeV_600MeV_positive->Fill(m_phi,myIPandSigma->IPd0);
+			if(m_charge==-1) m_trkd0_wrtPV_vs_phi_400MeV_600MeV_negative->Fill(m_phi,myIPandSigma->IPd0);
+
+			//Fill TH2D for positive and negative vs eta
+			if(m_charge==1) m_trkd0_wrtPV_vs_eta_400MeV_600MeV_positive->Fill(m_eta,myIPandSigma->IPd0);
+			if(m_charge==-1) m_trkd0_wrtPV_vs_eta_400MeV_600MeV_negative->Fill(m_eta,myIPandSigma->IPd0);
+		}
 	}
 
       	if(pt>0.6&&pt<1) {
 		//Fill TH3D for positive and negative vs phi vs eta
-		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
-		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_do3dplots) {
+			if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+			if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_600MeV_1GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		}
 
 		//Fill TH2D for positive and negative vs phi
 		if(m_charge==1) m_trkd0_wrtPV_vs_phi_600MeV_1GeV_positive->Fill(m_phi,myIPandSigma->IPd0);
@@ -498,8 +534,10 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 
       	if(pt>1&&pt<2) {
 		//Fill TH3D for positive and negative vs phi vs eta
-		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
-		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_do3dplots) {
+			if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+			if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_1GeV_2GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		}
 
 		//Fill TH2D for positive and negative vs phi
 		if(m_charge==1) m_trkd0_wrtPV_vs_phi_1GeV_2GeV_positive->Fill(m_phi,myIPandSigma->IPd0);
@@ -512,8 +550,10 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 
       	if(pt>2&&pt<5) {
 		//Fill TH3D for positive and negative vs phi vs eta
-		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
-		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_do3dplots) {
+			if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+			if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_2GeV_5GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		}
 
 		//Fill TH2D for positive and negative vs phi
 		if(m_charge==1) m_trkd0_wrtPV_vs_phi_2GeV_5GeV_positive->Fill(m_phi,myIPandSigma->IPd0);
@@ -526,8 +566,10 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 
       	if(pt>5&&pt<10) {
 		//Fill TH3D for positive and negative vs phi vs eta
-		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
-		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_do3dplots) {
+			if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+			if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_5GeV_10GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		}
 
 		//Fill TH2D for positive and negative vs phi
 		if(m_charge==1) m_trkd0_wrtPV_vs_phi_5GeV_10GeV_positive->Fill(m_phi,myIPandSigma->IPd0);
@@ -540,8 +582,10 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 
       	if(pt>10) {
 		//Fill TH3D for positive and negative vs phi vs eta
-		if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
-		if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		if(m_do3dplots) {
+			if(m_charge==1) m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_positive->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+			if(m_charge==-1) m_trkd0_wrtPV_vs_phi_vs_eta_10GeV_negative->Fill(m_phi,m_eta,myIPandSigma->IPd0);
+		}
 
 		//Fill TH2D for positive and negative vs phi
 		if(m_charge==1) m_trkd0_wrtPV_vs_phi_10GeV_positive->Fill(m_phi,myIPandSigma->IPd0);

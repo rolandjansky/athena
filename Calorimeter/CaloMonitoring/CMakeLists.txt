@@ -24,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Tools/LWHists
                           Trigger/TrigAnalysis/TrigDecisionTool
+			  Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloGeoHelpers

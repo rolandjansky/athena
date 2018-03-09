@@ -148,20 +148,56 @@ namespace HLTTestApps {
      */
     static void set_l1r_robs(const boost::python::list& l);
 
+    /**
+     * Method that is exposed to python to set the ROB prefetching strategy used in
+     * the DCM
+     *
+     * @param s A list with one element and with a value of either 0 or 1
+     * @throws Boost.Python.ArgumentError if s is not a list
+     * @throws Boost.Python.TypeError if any of s's elements of type integer
+     * @throws Boost.Python.OverflowError if any of s's elements does not fit
+     */
+    static void set_dcm_strategy(const boost::python::list& s);
+    /**
+     * Method that is exposed to python to print the map of ROS hits
+     *
+     * @param number of events
+    */
+    static void debug_print_ros_hit_map(const int);
+
+    /**
+     * Method to accumulate statistics for the map of ROS hits
+     *
+     * @param number of stream tags
+    */
+    void accumulateStatistics(const int); 
+
   // More static stuff
   private:
     typedef std::string ROSID; // must be unique - used for logging
     typedef uint32_t ROBID;    // as received by collect methods
     typedef std::map<ROBID, ROSID> ROB2ROSMap;
+    typedef std::map<ROSID, std::vector<float> > ROSHitMap;
 
     // valid for all Events in the whole run
     // this should be set with set_ros2rob_map
     static ROB2ROSMap sm_rob2ros;
+    static ROSHitMap  sm_rosHitMap;
+    static ROSHitMap  sm_rosHitMapReject;
+    static ROSHitMap  sm_rosHitMapAccept;
 
     // valid for all Events in the whole run
     // this specifies a set of custom source IDs for the ROBs that should be
     // considered part of the L1 Result
     static std::set<ROBID> sm_l1r_robs;
+   
+    // Number of events used for ROS hit map
+    static std::vector<int> sm_eventsForROSStat;
+
+    // ROS prefetching strategy 
+    //  0 = strategy as in Run 1,i.e. use of the prefetching list only when a ROB is needed 
+    //  1 = strategy as at begin of Run 2, i.e. immediate retrieval of all ROBs on the prefetching list
+    static int sm_strategy;
 
     // for debug purposes
     static void debug_print_rob_ros_map();
@@ -175,12 +211,15 @@ namespace HLTTestApps {
       const ROBID id;
       const uint32_t * rob = nullptr;
       bool reserved = false;
+      bool prefetched = false;
     };
+
 
     std::map<uint32_t, ROB> m_map; ///< The ROB ID to ROB info map
     std::set<ROSID> m_hit_roses; ///< ROSes ROBs were retrieved from
     std::vector<eformat::ROBFragment<const uint32_t*> > m_l1r; ///< LVL1 result
     uint32_t m_lvl1_id; ///< My unique LVL1 identifier
+    std::map<std::string, std::set<uint32_t> > m_Det_Robs_for_retrieval; ///< for ROB prefetching
 
     // Mark all ROSes with ROBs in the event as hit
     void hit_roses();

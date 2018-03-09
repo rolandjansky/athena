@@ -4,7 +4,6 @@ Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [WorkDir-21.0.23] [x86_64-slc6-gcc62-dbg] [atlas-work15/3a77ab336f] -- built on [2017-05-18T1944]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
 Py:Athena            INFO executing ROOT6Setup
 [?1034hPy:Athena            INFO including file "AthenaCommon/Execution.py"

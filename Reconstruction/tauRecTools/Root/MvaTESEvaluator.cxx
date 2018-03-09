@@ -129,7 +129,7 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
   mu = acc_mu(xTau);
   nVtxPU = acc_nVtxPU(xTau);
 
-  // Retrieve seed jet info
+  // Retrieve cluster moments
   xTau.detail(xAOD::TauJetParameters::ClustersMeanCenterLambda, center_lambda);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanFirstEngDens, first_eng_dens);
   xTau.detail(xAOD::TauJetParameters::ClustersMeanEMProbability,em_probability);
@@ -166,8 +166,10 @@ StatusCode MvaTESEvaluator::execute(xAOD::TauJet& xTau){
     ptDetectorAxis = xTau.ptDetectorAxis();
     etaDetectorAxis = xTau.etaDetectorAxis();
 
-    xTau.detail(xAOD::TauJetParameters::UpsilonCluster, upsilon_cluster );
-    xTau.detail(xAOD::TauJetParameters::LeadClusterFrac, lead_cluster_frac);
+    static SG::AuxElement::ConstAccessor<float> acc_UpsilonCluster("UpsilonCluster");
+    static SG::AuxElement::ConstAccessor<float> acc_LeadClusterFrac("LeadClusterFrac");
+    upsilon_cluster = acc_UpsilonCluster(xTau);
+    lead_cluster_frac = acc_LeadClusterFrac(xTau);
 
     float ptMVA = float( ptDetectorAxis * reader->GetResponse() );
     if(ptMVA<1) ptMVA=1;

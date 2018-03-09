@@ -41,6 +41,7 @@ ToolSvc += InDetPrdAssociationTool
 from RecExConfig.RecFlags import rec
 CountDeadModulesAfterLastHit=False
 #rec.Commissioning=False
+from AthenaCommon.DetFlags import DetFlags
 
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 InDetHoleSearchTool = InDet__InDetTrackHoleSearchTool(name = "TrigBphysInDetHoleSearchTool",

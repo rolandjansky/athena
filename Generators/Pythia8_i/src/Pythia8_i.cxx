@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "Pythia8_i/Pythia8_i.h"
 #include "Pythia8_i/UserProcessFactory.h"
 #include "Pythia8_i/UserHooksFactory.h"
@@ -21,9 +25,7 @@
 std::string     Pythia8_i::pythia_stream   = "PYTHIA8_INIT";
 
 using boost::assign::operator+=;
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+
 /**
  * author: James Monk (jmonk@cern.ch)
  */

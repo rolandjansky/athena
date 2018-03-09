@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef GENERATOR_PYTHIA8_USER_HOOKS_FACTORY_H
 #define GENERATOR_PYTHIA8_USER_HOOKS_FACTORY_H
 

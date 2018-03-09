@@ -10,7 +10,7 @@
 #include "StepArrayBM.h"
 
 StepArrayBM::StepArrayBM(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc)
+  : base_class(name,svc)
   , m_maxBunchCrossingPerOrbit(3564)
   , m_t0Offset(0)
   , m_signalOffset(0)
@@ -121,16 +121,4 @@ void StepArrayBM::selectT0()
   //assert(m_intensityPattern[m_t0Offset % m_ipLength]>0.0); //commented out to allow events with no intensity
 
   ATH_MSG_DEBUG( "selectT0 offset for this event " << m_t0Offset );
-}
-
-StatusCode StepArrayBM::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IBeamIntensity::interfaceID().versionMatch(riid) )
-    {
-      *ppvInterface = (IBeamIntensity*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  // Interface is not directly available: try out the base class
-  return AthService::queryInterface(riid, ppvInterface);
 }

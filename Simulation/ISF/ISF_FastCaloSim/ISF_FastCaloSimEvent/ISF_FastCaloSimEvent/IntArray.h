@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_IntArray_h
@@ -16,9 +16,12 @@ public:
    ~IntArray();
 
 private:
-//   TArrayI* m_array;
 
    ClassDef( IntArray, 1 )
 };
+
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
+#pragma link C++ class IntArray+;
+#endif
 
 #endif
