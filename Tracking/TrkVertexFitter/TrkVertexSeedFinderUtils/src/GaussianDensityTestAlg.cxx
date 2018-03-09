@@ -66,7 +66,7 @@ StatusCode GaussianDensityTestAlg::initialize()
   m_h_density = new TH1F("Density", "Density", 800, -200.0, 200.0);
   m_h_truthDensity = new TH1F("Truth", "Truth", 800, -200.0, 200.0);
   m_h_truthVertices = new TH1F("TruthVertices", "TruthVertices", 800, -200.0, 200.0);
-  m_h_modeCheck = new TH1F("ModeOffset", "ModeOffset", 100, -10.0, 10.0);
+  m_h_modeCheck = new TH1F("ModeOffset", "ModeOffset", 100, -2.0, 2.0);
 
   CHECK( m_iTHistSvc->regHist("/file1/h/density", m_h_density) );
   CHECK( m_iTHistSvc->regHist("/file1/h/truth", m_h_truthDensity) );
