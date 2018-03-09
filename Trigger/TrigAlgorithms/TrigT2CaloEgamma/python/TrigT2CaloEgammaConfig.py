@@ -64,6 +64,8 @@ class T2CaloEgamma_eGamma (T2CaloEgamma):
 			   EgammaSamp1Fex(),
 			   EgammaEmEnFex() ,
 			   EgammaHadEnFex()]
+       for ii in self.IAlgToolList :
+          ii.TrigDataAccessMT=None
        self.EtaWidth = 0.2
        self.PhiWidth = 0.2
        self.EtaWidthForID = 0.1
@@ -451,7 +453,6 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        self.IAlgToolList+= [ EgammaSamp1FexNoTimerConfig("ReFaAlgoSamp1FexConfig") ]
        self.IAlgToolList+= [ EgammaEmEnFexNoTimerConfig("ReFaAlgoEmEnFexConfig") ]
        self.IAlgToolList+= [ EgammaHadEnFexNoTimerConfig("ReFaAlgoHadEnFexConfig") ]
-       print 'Did this work?! DENIS'
        for ii in self.IAlgToolList :
           ii.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
           ii.TrigDataAccess=None
