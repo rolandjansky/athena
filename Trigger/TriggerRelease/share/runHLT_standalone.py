@@ -212,7 +212,6 @@ else:            # for data
 
 # Setup list of modifiers
 defaultOptions['setModifiers']=[#Common modifiers for MC and data
-                                'reprocessTT',
                                 'rerunLVL1',
                                 'noLArCalibFolders',
                                 'ForceMuonDataType',

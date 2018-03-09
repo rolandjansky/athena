@@ -1,7 +1,7 @@
 # Import the configurable algorithms for TrigT1Calo
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.Logging import logging  # loads logger
-log = logging.getLogger('TrigT1CaloSimJobOptions_ReadTT')
+log = logging.getLogger('TrigT1CaloSimJobOptions_ReprocessTT')
 
 #default database
 # test COOL folder version 03 i.e. folder tag V2-PHYSICS-CHANCALIB-00-03

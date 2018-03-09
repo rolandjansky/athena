@@ -1,8 +1,8 @@
 # Import the configurable algorithms for TrigT1Calo
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.Logging import logging  # loads logger
-log = logging.getLogger('TrigT1CaloSimJobOptions_ReadTT')
-log.fatal("David 3!")
+log = logging.getLogger('TrigT1CaloSimJobOptions_ReprocessTT.py')
+log.info("TrigCaloSim now reprocessing")
 
 globalflags.DatabaseInstance = 'CONDBR2'
 
@@ -19,11 +19,9 @@ include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
 '''
 
 from IOVDbSvc.CondDB import conddb
-log.fatal("David conddb!")
 #default database /Calibration/Physics/Calib
 conddb.addMarkup("/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
 #conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
-log.fatal("David blocked!")
 #conddb.addFolder("","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>", force=True)
 
 #conddb.addFolder("","<dbConnection>dbname=COOLOFL_TRIGGER/OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Configuration/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
@@ -113,7 +111,6 @@ if _my_run_number and _my_run_number < 222222:
 # clean up
 del _my_run_number
 
-log.fatal("David l1standalone!")
 #add algorithms to sequence
 job += LVL1__Run2TriggerTowerMaker( 'Run2TriggerTowerMaker',
                                             CellType=2,)
