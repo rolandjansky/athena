@@ -459,8 +459,9 @@ typedef class TrigTrackSeedGenerator {
   void getSeeds(std::vector<TrigInDetTriplet*>&);
 
 private:
-  bool validateLayerPair(int, int, float, float); 
-  bool validateLayerPair(int, int, float, float, float); 
+  //bool validateLayerPair(int, int, float, float); 
+  //bool validateLayerPair(int, int, float, float, float); 
+  bool validateLayerPairNew(int, int, float, float); 
   bool getSpacepointRange(int, const std::vector<const TrigSiSpacePointBase*>&, SP_RANGE&);
   int processSpacepointRange(int, float, float, bool, const SP_RANGE&);
   int processSpacepointRangeZv(float, float, bool, const SP_RANGE&);

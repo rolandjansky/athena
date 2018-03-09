@@ -71,6 +71,7 @@ namespace dqi{
     const TObjString* value = dynamic_cast<TObjString*>(m_refsourcedata->GetValue(rawref.c_str()));
     if (!value) {
       std::cerr << "Unable to figure out refsource mapping: THIS IS ALSO REALLY BAD!!!" << std::endl;
+      std::cerr << "This happened for reference " << rawref << std::endl;
       return "";
     }
     return value->GetName();

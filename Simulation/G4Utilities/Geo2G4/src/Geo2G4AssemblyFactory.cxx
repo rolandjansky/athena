@@ -20,9 +20,9 @@ Geo2G4AssemblyFactory::Geo2G4AssemblyFactory()
 Geo2G4AssemblyVolume* Geo2G4AssemblyFactory::Build(const PVConstLink thePhys,
                                                    bool& descend) const
 {
-  static assemblyMap _map;
+  static assemblyMap map;
   assemblyMap::const_iterator it;
-  Geo2G4AssemblyVolume* _assembly;
+  Geo2G4AssemblyVolume* assembly;
 
   const GeoLogVol* theLog = thePhys->getLogVol();
 
@@ -34,17 +34,17 @@ Geo2G4AssemblyVolume* Geo2G4AssemblyFactory::Build(const PVConstLink thePhys,
   descend = true;
 
   // Search for the assembly in the map
-  it = _map.find(&(*thePhys));
-  if(it == _map.end())
+  it = map.find(&(*thePhys));
+  if(it == map.end())
     {
-      _assembly = new Geo2G4AssemblyVolume();
-      _map[&(*thePhys)] = _assembly;
+      assembly = new Geo2G4AssemblyVolume();
+      map[&(*thePhys)] = assembly;
     }
   else
     {
-      _assembly = it->second;
+      assembly = it->second;
       descend = false;
     }
 
-  return _assembly;
+  return assembly;
 }

@@ -126,7 +126,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                     'DRAW_EGZ': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002"),
                     'DRAW_TAUMUH': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002"),
                     'DRAW_ZMUMU': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002"),}
-        self.assertEqual(athenaMPOutputHandler("athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 8, skipFileChecks=False), None)
+        self.assertEqual(athenaMPOutputHandler("athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 8), None)
         
     def test_missingMPoutputs(self):
         dataDict = {'ESD': argFile("data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002"),
@@ -136,7 +136,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                     'DRAW_TAUMUH': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002"),
                     'DRAW_NOTHERE': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_NOTHERE.f594._lb0176._SFO-1._0002"),
                     'DRAW_ZMUMU': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002"),}
-        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 8, skipFileChecks=False)
+        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 8)
 
     def test_wrongMPoutputs(self):
         dataDict = {'ESD': argFile("data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002"),
@@ -146,7 +146,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                     'DRAW_TAUMUH': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002"),
                     'DRAW_NOTHERE': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_NOTHERE.f594._lb0176._SFO-1._0002"),
                     'DRAW_ZMUMU': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002"),}
-        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 20, skipFileChecks=False)
+        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 20)
         
     def test_wrongMPoutputDir(self):
         dataDict = {'ESD': argFile("data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002"),
@@ -156,7 +156,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                     'DRAW_TAUMUH': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002"),
                     'DRAW_NOTHERE': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_NOTHERE.f594._lb0176._SFO-1._0002"),
                     'DRAW_ZMUMU': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002"),}
-        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e-missing", "athenaMP-workers-RAWtoESD-r2e", dataDict, 20, skipFileChecks=False)
+        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e-missing", "athenaMP-workers-RAWtoESD-r2e", dataDict, 20)
         
         
 if __name__ == '__main__':

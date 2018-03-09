@@ -45,6 +45,7 @@ TgcRdoCnv_p3::transToPers(const TgcRdo* transColl, TgcRdo_p3* persColl, MsgStrea
     persColl->m_l1Id          = transColl->l1Id();
 
     Errors_u errors_u;
+    errors_u.i = 0;
     errors_u.errors = transColl->errors();
     persColl->m_errors        = errors_u.i;
 
@@ -76,7 +77,7 @@ TgcRdoCnv_p3::persToTrans(const TgcRdo_p3* persColl, TgcRdo* transColl, MsgStrea
     transColl->setL1Id         (persColl->m_l1Id);
     transColl->setOrbit        (persColl->m_orbit);
 
-    transColl->setErrors       (persColl->m_errors);
+    if(persColl->m_errors!=0) {transColl->setErrors       (persColl->m_errors);}
     transColl->setRodStatus    (persColl->m_rodStatus);
     transColl->setLocalStatus  (persColl->m_localStatus);
 }

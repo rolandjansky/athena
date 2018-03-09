@@ -5,7 +5,7 @@
 #ifndef LArG4H62004DeadCalibrationCalculator_H
 #define LArG4H62004DeadCalibrationCalculator_H
 
-#include "LArG4Code/VCalibrationCalculator.h"
+#include "LArG4Code/LArCalibCalculatorSvcImp.h"
 #include "LArG4Code/LArG4Identifier.h"
 #include "CaloG4Sim/SimulationEnergies.h"
 
@@ -13,28 +13,20 @@
 
 #include <vector>
 
+class G4Step;
 
-class LArG4H62004DeadCalibrationCalculator : public LArG4::VCalibrationCalculator {
+class LArG4H62004DeadCalibrationCalculator : public LArCalibCalculatorSvcImp {
 public:
 
-      LArG4H62004DeadCalibrationCalculator();
+      LArG4H62004DeadCalibrationCalculator(const std::string& name, ISvcLocator * pSvcLocator);
       virtual ~LArG4H62004DeadCalibrationCalculator();
 
 
-      virtual G4bool Process (const G4Step* step,
-                              const eCalculatorProcessing p = kEnergyAndID);
-
-      // The cell identifier determined by the Process method.
-      virtual const LArG4Identifier& identifier() const { return m_identifier; }
-
-      // The calibration energies as determined by the Process method for
-      // the current G4Step.  Units are the native G4 unit of energy.
-      virtual const std::vector<G4double>& energies() const { return m_energies; }
+      virtual G4bool Process (const G4Step* step, LArG4Identifier & identifier,
+                              std::vector<G4double> & energies,
+                              const LArG4::eCalculatorProcessing p = LArG4::kEnergyAndID) const override final;
 
 private:
-      LArG4Identifier m_identifier;
-      std::vector<G4double> m_energies;
-
       // Energy calculator
       CaloG4::SimulationEnergies m_energyCalculator;
 

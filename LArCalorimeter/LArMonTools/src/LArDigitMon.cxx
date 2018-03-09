@@ -126,7 +126,7 @@ LArDigitMon::~LArDigitMon()
 StatusCode 
 LArDigitMon::finalize()
 {
-  msg(MSG::INFO)<<"Finalize LArDigitMon" << endmsg;
+  ATH_MSG_INFO( "finalHists LArDigitMon" );
   DeleteHist(m_BarrelA);
   DeleteHist(m_BarrelC);
   DeleteHist(m_EmecA);
@@ -145,7 +145,7 @@ StatusCode
 LArDigitMon::initialize()
 {
   
-  msg(MSG::INFO)<<"Initialize LArDigitMon" << endmsg;
+  ATH_MSG_INFO( "Initialize LArDigitMon" );
   
   StatusCode sc;
   
@@ -156,7 +156,7 @@ LArDigitMon::initialize()
     
   } else {
     
-    msg(MSG::FATAL) << "unable to connect non-tool: LArOnlineID" << endmsg;
+    ATH_MSG_FATAL( "unable to connect non-tool: LArOnlineID" );
     return StatusCode::FAILURE;
     
   }
@@ -169,7 +169,7 @@ LArDigitMon::initialize()
     
   } else {
     
-    msg(MSG::FATAL) << "unable to connect non-tool: LArEM_ID" << endmsg;
+    ATH_MSG_FATAL( "unable to connect non-tool: LArEM_ID" );
     return StatusCode::FAILURE;
     
   }
@@ -178,7 +178,7 @@ LArDigitMon::initialize()
   /** Get LAr Calbling Service*/
   sc=m_LArCablingService.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endmsg;
+    ATH_MSG_ERROR( "Could not retrieve LArCablingService" );
     return StatusCode::FAILURE;
   }
   
@@ -186,7 +186,7 @@ LArDigitMon::initialize()
   if (m_ignoreKnownBadChannels) { 
     sc=m_badChannelMask.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not retrieve BadChannelMask" << m_badChannelMask<< endmsg;
+      ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
       return StatusCode::FAILURE;
     }
   }
@@ -194,7 +194,7 @@ LArDigitMon::initialize()
   /** Retrieve pedestals container*/
   sc =  detStore()->regHandle(m_larPedestal,m_larPedestalKey);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "could not register handle for pedestal " << endmsg;
+    ATH_MSG_ERROR( "could not register handle for pedestal " );
     return StatusCode::FAILURE;
   }
   
@@ -252,30 +252,47 @@ LArDigitMon::bookHistograms()
     /**Book summary histo*/
     MonGroup generalGroup( this, "/LAr/Digits", run, ATTRIB_MANAGED );
     const char *  hName = "summary";
-    const char * hTitle = "High Energy Digit Summary";
+    const char * hTitle = "LArDigit Summary";
     
     m_summary = TH2F_LW::create(hName, hTitle,4,0.,4.,8,0.,8.);
     m_summary->GetXaxis()->SetTitle("Status");
-    m_summary->GetYaxis()->SetTitle("Sub Detector");
-    m_summary->GetYaxis()->SetBinLabel(1,"Barrel C");
-    m_summary->GetYaxis()->SetBinLabel(2,"Barrel A");
-    m_summary->GetYaxis()->SetBinLabel(3,"EMEC C");
-    m_summary->GetYaxis()->SetBinLabel(4,"EMEC A");
-    m_summary->GetYaxis()->SetBinLabel(5,"HEC C");
-    m_summary->GetYaxis()->SetBinLabel(6,"HEC A");
-    m_summary->GetYaxis()->SetBinLabel(7,"FCAL C");
-    m_summary->GetYaxis()->SetBinLabel(8,"FCAL A");
+    m_summary->GetYaxis()->SetTitle("Partition");
+    m_summary->GetYaxis()->SetBinLabel(1,"EMBC");
+    m_summary->GetYaxis()->SetBinLabel(2,"EMBA");
+    m_summary->GetYaxis()->SetBinLabel(3,"EMECC");
+    m_summary->GetYaxis()->SetBinLabel(4,"EMECA");
+    m_summary->GetYaxis()->SetBinLabel(5,"HECC");
+    m_summary->GetYaxis()->SetBinLabel(6,"HECA");
+    m_summary->GetYaxis()->SetBinLabel(7,"FCalC");
+    m_summary->GetYaxis()->SetBinLabel(8,"FCalA");
     m_summary->GetXaxis()->SetBinLabel(1,"OutOfRange");
     m_summary->GetXaxis()->SetBinLabel(2,"Saturation");
     m_summary->GetXaxis()->SetBinLabel(3,"Null Digits");  
     m_summary->GetXaxis()->SetBinLabel(4,"Mean Time");    
-    
     m_summary->GetXaxis()->SetLabelSize(0.055);
-    //Not supported in LWHists: m_summary->GetXaxis()->SetTitleOffset(1.2);
-    m_summary->GetYaxis()->SetLabelSize(0.055);    
-    //Not supported in LWHists: m_summary->GetYaxis()->SetTitleOffset(3);   
-    
+    m_summary->GetYaxis()->SetLabelSize(0.055);            
     generalGroup.regHist(m_summary).ignore();
+
+    hName = "summaryGain";
+    hTitle = "Gain per partition (only cells with LArDigit available)";    
+    m_summaryGain = TH2F_LW::create(hName, hTitle,3,0.,3.,8,0.,8.);
+    m_summaryGain->GetXaxis()->SetTitle("Gain");
+    m_summaryGain->GetYaxis()->SetTitle("Sub Detector");
+    m_summaryGain->GetYaxis()->SetTitle("Partition");
+    m_summaryGain->GetYaxis()->SetBinLabel(1,"EMBC");
+    m_summaryGain->GetYaxis()->SetBinLabel(2,"EMBA");
+    m_summaryGain->GetYaxis()->SetBinLabel(3,"EMECC");
+    m_summaryGain->GetYaxis()->SetBinLabel(4,"EMECA");
+    m_summaryGain->GetYaxis()->SetBinLabel(5,"HECC");
+    m_summaryGain->GetYaxis()->SetBinLabel(6,"HECA");
+    m_summaryGain->GetYaxis()->SetBinLabel(7,"FCalC");
+    m_summaryGain->GetYaxis()->SetBinLabel(8,"FCalA");
+    m_summaryGain->GetXaxis()->SetBinLabel(1,"HIGH");
+    m_summaryGain->GetXaxis()->SetBinLabel(2,"MEDIUM");
+    m_summaryGain->GetXaxis()->SetBinLabel(3,"LOW");  
+    m_summaryGain->GetXaxis()->SetLabelSize(0.055);
+    m_summaryGain->GetYaxis()->SetLabelSize(0.055);            
+    generalGroup.regHist(m_summaryGain).ignore();
     
     //}
   
@@ -299,7 +316,7 @@ LArDigitMon::fillHistograms()
   StatusCode sc = evtStore()->retrieve(noisyRO,"LArNoisyROSummary");
   if (sc.isFailure()) 
   {
-    msg(MSG::WARNING) << "Can't retrieve LArNoisyROSummary " <<endmsg;
+    ATH_MSG_WARNING( "Can't retrieve LArNoisyROSummary " );
     return StatusCode::SUCCESS;
   }
   const std::vector<HWIdentifier>& noisyFEB = noisyRO->get_noisy_febs();
@@ -313,7 +330,7 @@ LArDigitMon::fillHistograms()
   //  unsigned long run=0;
   const xAOD::EventInfo* thisEvent;
   if (evtStore()->retrieve(thisEvent).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endmsg;
+    ATH_MSG_ERROR( "Failed to retrieve EventInfo object" );
     return StatusCode::FAILURE;
   }
   
@@ -329,8 +346,8 @@ LArDigitMon::fillHistograms()
   const LArDigitContainer* pLArDigitContainer;
   sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
   if (sc.isFailure()) {
-    msg(MSG::WARNING) << "Can\'t retrieve LArDigitContainer with key " 
-		      << m_LArDigitContainerKey << endmsg;
+    ATH_MSG_WARNING( "Can\'t retrieve LArDigitContainer with key " 
+		      << m_LArDigitContainerKey );
     return StatusCode::SUCCESS;
   }
   
@@ -472,6 +489,10 @@ LArDigitMon::fillHistograms()
     
     /** Determine to which partition this channel belongs to*/
     LArDigitMon::partition &ThisPartition=WhatPartition(id);
+
+    /** Fill the gain*/
+    m_summaryGain->Fill(gain,ThisPartition.sumpos);
+    
     
     /** Retrieve samples*/
     const std::vector<short>* digito = &pLArDigit->samples();
@@ -964,16 +985,17 @@ void LArDigitMon::ScaleHisto(LWHist2D * hist,int& events)
 void LArDigitMon::ComputeError(LWHist2D* hist,int& events)
 {
   int normFactor=events;
+  if (normFactor == 0) return;
+  double inv_normFactor2 = 1. / (static_cast<double> (normFactor) * static_cast<double> (normFactor));
   unsigned xbin, ybin;
   double numer, error;
   hist->resetActiveBinLoop();
   while(hist->getNextActiveBin(xbin,ybin,numer,error)) 
   {
     if(numer>normFactor)continue;//protection against sqrt(neg)
-    if(normFactor==0)continue;//protection against div 0
     if(numer>0)
     {
-      float tabError = 100*sqrt(numer*normFactor*(normFactor-numer))/normFactor/normFactor;
+      float tabError = 100*sqrt(numer*normFactor*(normFactor-numer))*inv_normFactor2;
       hist->SetBinError(xbin,ybin,tabError);       
     }
   }

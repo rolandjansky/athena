@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgTool.h 741760 2016-04-20 20:12:12Z ssnyder $
+// $Id: AsgTool.h 790657 2016-12-20 20:54:06Z leggett $
 #ifndef ASGTOOLS_ASGTOOL_H
 #define ASGTOOLS_ASGTOOL_H
 
@@ -12,15 +12,15 @@
 #ifdef ASGTOOL_STANDALONE
 #   include "AsgTools/AsgMessaging.h"
 #   include "AsgTools/SgTEvent.h"
+   // Forward declaration(s):
+   class Property;
+   class PropertyMgr;
 #elif defined(ASGTOOL_ATHENA)
 #   include "AthenaBaseComps/AthAlgTool.h"
 #else
 #   error "What environment are we in?!?"
 #endif // Environment selection
 
-// Forward declaration(s):
-class Property;
-class PropertyMgr;
 
 namespace asg {
 
@@ -40,8 +40,8 @@ namespace asg {
    ///
    /// @author David Adams <dladams@bnl.gov>
    ///
-   /// $Revision: 741760 $
-   /// $Date: 2016-04-20 22:12:12 +0200 (Wed, 20 Apr 2016) $
+   /// $Revision: 790657 $
+   /// $Date: 2016-12-20 21:54:06 +0100 (Tue, 20 Dec 2016) $
    ///
    class AsgTool : public virtual IAsgTool,
                    public AsgToolBase {

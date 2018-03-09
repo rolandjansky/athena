@@ -5,7 +5,7 @@ ATLAS beam spot server for pre-made web plots (e.g. weekly beam spot history).
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: WebPlots.py 500226 2012-05-11 11:01:22Z beringer $'
+__version__ = 'WebPlots.py atlas/athena'
 
 from BeamSpotWebPage import BeamSpotWebPage
 

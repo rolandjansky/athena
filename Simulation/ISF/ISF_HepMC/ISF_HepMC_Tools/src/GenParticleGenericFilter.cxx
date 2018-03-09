@@ -2,56 +2,63 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// GenParticleGenericFilter.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+/*
+ * @author Elmar Ritsch
+ * @date October 2016
+ * @brief A generic particle filter tool for HepMC::GenParticle types
+ */
+
 
 // class header include
 #include "GenParticleGenericFilter.h"
 
 // HepMC includes
 #include "HepMC/GenParticle.h"
+#include "HepMC/GenVertex.h"
 
-// stl includes
+// STL includes
 #include <limits>
+#include <algorithm>
 
 /** Constructor **/
 ISF::GenParticleGenericFilter::GenParticleGenericFilter( const std::string& t,
                                                          const std::string& n,
                                                          const IInterface* p )
-  : AthAlgTool(t,n,p),
-    m_minEta(-std::numeric_limits<double>::max()),
-    m_maxEta(std::numeric_limits<double>::max()),
+  : base_class(t,n,p),
+    m_minEta(std::numeric_limits<decltype(m_minEta)>::lowest()),
+    m_maxEta(std::numeric_limits<decltype(m_maxEta)>::max()),
     m_minPhi(-M_PI),
-    m_maxPhi( M_PI),
-    m_minMom(-1.),
-    m_maxMom(-1.),
-    m_pdg()
+    m_maxPhi(M_PI),
+    m_minMom(std::numeric_limits<decltype(m_minMom)>::lowest()),
+    m_maxMom(std::numeric_limits<decltype(m_maxMom)>::max()),
+    m_pdgs(),
+    m_maxApplicableRadius(std::numeric_limits<decltype(m_maxApplicableRadius)>::max())
 {
-    declareInterface<ISF::IGenParticleFilter>(this);
-
     // different cut parameters
     declareProperty("MinEta",
                     m_minEta,
-                    "Minimum Particle Pseudorapidity" );
+                    "Minimum Particle Pseudorapidity");
     declareProperty("MaxEta",
                     m_maxEta,
-                    "Maximum Particle Pseudorapidity" );
+                    "Maximum Particle Pseudorapidity");
     declareProperty("MinPhi",
                     m_minPhi,
-                    "Minimum Particle Phi" );
+                    "Minimum Particle Phi");
     declareProperty("MaxPhi",
                     m_maxPhi,
-                    "Maximum Particle Phi" );
+                    "Maximum Particle Phi");
     declareProperty("MinMom",
                     m_minMom,
-                    "Minimum Particle Momentum"       );
+                    "Minimum Particle Momentum");
     declareProperty("MaxMom",
                     m_maxMom,
-                    "Maximum Particle Moemntum"       );
+                    "Maximum Particle Momentum");
     declareProperty("ParticlePDG",
-                    m_pdg,
-                    "Particle PDG Code"               );
+                    m_pdgs,
+                    "List of accepted particle PDG IDs (any accepted if empty)");
+    declareProperty("MaxApplicableRadius",
+                    m_maxApplicableRadius,
+                    "Only particles with ProductionVertexRadius<MaxApplicableRadius may get filtered out");
 }
 
 
@@ -73,40 +80,58 @@ StatusCode  ISF::GenParticleGenericFilter::finalize()
 }
 
 
-/** Returns the Particle Stack, should register truth */
+/** Returns whether the given particle passes all cuts or not */
 bool ISF::GenParticleGenericFilter::pass(const HepMC::GenParticle& particle) const
 {
-  double mom = particle.momentum().rho();
-  double eta = particle.momentum().eta();
-  double phi = particle.momentum().phi();
-  int    pdg = particle.pdg_id();
-
   bool pass = true;
 
-  // check the particle pdg code
-  if ( m_pdg.size()) {
-    bool foundPDG = false;
-    PDGCodes::const_iterator pdgIt  = m_pdg.begin();
-    PDGCodes::const_iterator pdgEnd = m_pdg.end();
-    for ( ; (!foundPDG) && (pdgIt!=pdgEnd); ++pdgIt)
-      foundPDG = (pdg == (*pdgIt));
-    pass = foundPDG;
+  const auto* productionVertex = particle.production_vertex();
+  const auto* position = productionVertex ? &productionVertex->position() : nullptr;
+  if (!position || position->perp()<=m_maxApplicableRadius) {
+    pass = check_cuts_passed(particle);
   }
 
-  // check the momentum cuts
-  if (m_minMom>=0.) pass &= (mom >= m_minMom);
-  if (m_maxMom>=0.) pass &= (mom <= m_maxMom);
-
-  // check the eta cuts
-  pass &= (eta >= m_minEta) && (eta <= m_maxEta);
-
-  // check the phi cuts
-  pass &= (phi >= m_minPhi) && (phi <= m_maxPhi);
-
-  ATH_MSG_VERBOSE( "GenParticle '" << particle << "' with eta=" << eta
-                   << " phi=" << phi << " did " << (pass ? "" : "not ")
+  const auto& momentum = particle.momentum();
+  ATH_MSG_VERBOSE( "GenParticle '" << particle << "' with "
+                   << (position ? "pos: r=" + std::to_string(position->perp()) : "")
+                   << ", mom: eta=" << momentum.eta() << " phi=" << momentum.phi()
+                   << " did " << (pass ? "" : "NOT ")
                    << "pass the cuts.");
-
   return pass;
 }
 
+
+/** Check whether the given particle passes all configure cuts or not */
+bool ISF::GenParticleGenericFilter::check_cuts_passed(const HepMC::GenParticle &particle) const {
+  const auto& momentum = particle.momentum();
+  double mom = momentum.rho();
+  double eta = momentum.eta();
+  double phi = momentum.phi();
+  int pdg = particle.pdg_id();
+
+  // check the particle pdg code
+  if( m_pdgs.size() && std::find(std::begin(m_pdgs), std::end(m_pdgs), pdg) == std::end(m_pdgs) ) {
+    return false;
+  }
+
+  // check the momentum cuts
+  if (mom<m_minMom) {
+    return false;
+  }
+  if (mom>m_maxMom) {
+    return false;
+  }
+
+  // check the eta cuts
+  if (eta<m_minEta || eta>m_maxEta) {
+    return false;
+  }
+
+  // check the phi cuts
+  if (phi<m_minPhi || phi>m_maxPhi) {
+    return false;
+  }
+
+  // all cuts passed
+  return true;
+}

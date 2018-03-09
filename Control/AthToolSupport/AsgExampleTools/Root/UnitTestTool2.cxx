@@ -27,9 +27,11 @@ namespace asg
     : AsgTool (val_name),
       m_regPublicHandle ("regPublicHandle", nullptr),
       m_regPrivateHandle ("regPrivateHandle", this),
-      m_anaPublicHandle ("anaPublicHandle", nullptr),
-      m_anaPrivateHandle ("anaPrivateHandle", this)
+      m_anaPublicHandle ("asg::UnitTestTool1/anaPublicHandle", nullptr),
+      m_anaPrivateHandle ("asg::UnitTestTool1/anaPrivateHandle", this)
   {
+    declareProperty ("allowEmpty", m_allowEmpty);
+
     declareProperty ("regPublicHandle", m_regPublicHandle);
     declareProperty ("regPrivateHandle", m_regPrivateHandle);
     m_anaPublicHandle.declarePropertyFor (this, "anaPublicHandle");
@@ -41,13 +43,14 @@ namespace asg
   StatusCode UnitTestTool2 ::
   initialize ()
   {
+    m_anaPublicHandle.setAllowEmpty (m_allowEmpty);
+    m_anaPrivateHandle.setAllowEmpty (m_allowEmpty);
+
     m_wasUserConfiguredPublic = m_anaPublicHandle.isUserConfigured();
-    ANA_CHECK (m_anaPublicHandle.make ("asg::UnitTestTool1/anaPublicTool"));
     ANA_CHECK (m_anaPublicHandle.setProperty ("propertyInt", 111));
     ANA_CHECK (m_anaPublicHandle.initialize ());
 
     m_wasUserConfiguredPrivate = m_anaPrivateHandle.isUserConfigured();
-    ANA_CHECK (m_anaPrivateHandle.make ("asg::UnitTestTool1/anaPrivateTool"));
     ANA_CHECK (m_anaPrivateHandle.setProperty ("propertyInt", 222));
     ANA_CHECK (m_anaPrivateHandle.initialize ());
 
@@ -56,7 +59,23 @@ namespace asg
 
 
 
-  IUnitTestTool1 *UnitTestTool2 ::
+  bool UnitTestTool2 ::
+  toolHandleEmpty (const std::string& handleName) const
+  {
+    if (handleName == "regPublicHandle")
+      return m_regPublicHandle.empty();
+    if (handleName == "regPrivateHandle")
+      return m_regPrivateHandle.empty();
+    if (handleName == "anaPublicHandle")
+      return m_anaPublicHandle.empty();
+    if (handleName == "anaPrivateHandle")
+      return m_anaPrivateHandle.empty();
+    throw std::runtime_error ("unknown handle: " + handleName);
+  }
+
+
+
+  const IUnitTestTool1 *UnitTestTool2 ::
   getToolHandle (const std::string& handleName) const
   {
     if (handleName == "regPublicHandle")

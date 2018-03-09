@@ -18,8 +18,6 @@ namespace ISF {
 
   class StackParticle;
  
-  static const InterfaceID IID_IStaticFlavorSvcFilter("IStaticFlavorSvcFilter", 1, 0);
-   
   /**
    @class IStaticFlavorSvcFilter
     
@@ -35,8 +33,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IStaticFlavorSvcFilter(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IStaticFlavorSvcFilter; }
+       /// Creates the InterfaceID and interfaceID() method
+       DeclareInterfaceID(IStaticFlavorSvcFilter, 1, 0);
 
   };
 

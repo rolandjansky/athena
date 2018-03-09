@@ -26,6 +26,8 @@ namespace iFatras {
     m_lengthXmin(0.),
     m_lengthXmax(0.),
     m_lengthY(0.),
+    m_rMin(0.),
+    m_rMax(0.),
     m_hPhiSec(0.),
     m_averagePhi(0.),
     m_discTrapezoidal(false)
@@ -33,9 +35,14 @@ namespace iFatras {
 
   //Constructor with parameters:
   SCT_Segmentation::SCT_Segmentation(double lengthXmin, double lengthXmax, double lengthY, double pitchX):
+    m_NcellPhi(0),
     m_lengthXmin(lengthXmin),
     m_lengthXmax(lengthXmax),
     m_lengthY(lengthY),
+    m_rMin(0.),
+    m_rMax(0.),
+    m_hPhiSec(0.),
+    m_averagePhi(0.),
     m_discTrapezoidal(false)
   {
     
@@ -69,7 +76,10 @@ namespace iFatras {
 
   //Constructor with parameters:
   SCT_Segmentation::SCT_Segmentation(double lengthXmin, double lengthXmax, double Rmin, double Rmax, double pitchPhi, double avePhi):
+    m_pitchX(0.),
     m_pitchPhi(pitchPhi),
+    m_pitchXatCenter(0.),
+    m_NcellX(0),
     m_lengthXmin(lengthXmin),
     m_lengthXmax(lengthXmax),
     m_rMin(Rmin),
@@ -243,7 +253,6 @@ namespace iFatras {
       // std::cout << "returning strip length = " << length << std::endl; 
       return length;	
     }    
-    return 0.;
   }
 
   double SCT_Segmentation::sinStereoLocal(const Amg::Vector2D &localPos) const {

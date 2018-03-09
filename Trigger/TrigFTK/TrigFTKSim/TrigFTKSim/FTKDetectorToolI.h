@@ -32,6 +32,8 @@ class FTKDetectorToolI : virtual public IAlgTool
 
   virtual void dumpGlobalToLocalModuleMap() = 0;
 
+  virtual void dumpModulePositions() =0;
+
   virtual void dumpIDMap() = 0;
 };
 

@@ -68,7 +68,7 @@ if doG4SimConfig:
     simFlags.TightMuonStepping.set_Value_and_Lock(False)
     simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
     # add monopole-specific configuration for looper killer
-    simFlags.OptionalUserActionList.addAction('MonopoleLooperKillerTool',['Step'])
+    simFlags.OptionalUserActionList.addAction('G4UA::MonopoleLooperKillerTool',['Step'])
     # add default HIP killer
     simFlags.OptionalUserActionList.addAction('G4UA::HIPKillerTool',['Step'])
 

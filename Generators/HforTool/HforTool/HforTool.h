@@ -5,7 +5,7 @@
 #ifndef HFORTOOL_H
 #define HFORTOOL_H
 
-#include "HforTool/IHforTool.h"
+#include "GenInterfaces/IHforTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "HepMC/GenEvent.h"

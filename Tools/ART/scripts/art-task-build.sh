@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # arguments: RELEASE_BASE, PROJECT, PLATFORM, DATESTAMP
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>, Emil Obreshkov <Emil.Obreshkov@cern.ch>
 
@@ -37,6 +37,7 @@ export AtlasBuildBranch=$BRANCH
 export AtlasProject=$PROJECT
 export ${AtlasProject}_PLATFORM=$PLATFORM
 export AtlasBuildStamp=$DATESTAMP
+export AtlasVersion=${AtlasBuildStamp}
 
 ART_DIRECTORY=`which art.py`
 ART_VERSION=`art.py --version`
@@ -45,7 +46,7 @@ echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
 # run build tests
 SUBDIR=${BRANCH}/${PROJECT}/${PLATFORM}/${DATESTAMP}
 OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}"
-CMD="art.py run ${RELEASE_BASE}/athena ${OUTDIR}"
+CMD="art.py run ${RELEASE_BASE}/build/build/${PROJECT} ${OUTDIR}"
 echo ${CMD}
 RESULT=`eval "${CMD}"`
 echo ${RESULT}
@@ -53,7 +54,7 @@ echo ${RESULT}
 # copy the test results to EOS area
 if [ -z "${EOS_MGM_URL}" ]; then
   echo "WARNING: EOS_MGM_URL variable is empty, setting it to root://eosatlas.cern.ch"
-  export EOS_MGM_URL="root://eosatlas.cern.ch" 
+  export EOS_MGM_URL="root://eosatlas.cern.ch"
 else
   echo "EOS_MGM_URL variable contains", ${EOS_MGM_URL}
 fi

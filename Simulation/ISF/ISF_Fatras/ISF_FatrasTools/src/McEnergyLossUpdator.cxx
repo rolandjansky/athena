@@ -21,7 +21,7 @@ Trk::ParticleMasses iFatras::McEnergyLossUpdator::s_particleMasses;
 
 iFatras::McEnergyLossUpdator::McEnergyLossUpdator( const std::string& type, const std::string& name, const IInterface* parent )
   :
-  AthAlgTool( type, name, parent ),
+  base_class( type, name, parent ),
   m_energyLossUpdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator" ),
   m_energyLossDistribution(3),
   m_rndGenSvc("AtDSFMTGenSvc", name),
@@ -29,7 +29,6 @@ iFatras::McEnergyLossUpdator::McEnergyLossUpdator( const std::string& type, cons
   m_randomEngineName("FatrasRnd"),
   m_usePDGformula(false)
 {
-  declareInterface<IEnergyLossUpdator>(this);
   // heavy particles energy loss
   declareProperty( "EnergyLossUpdator",                 m_energyLossUpdator);
   // random number service

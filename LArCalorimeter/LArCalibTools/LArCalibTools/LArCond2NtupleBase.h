@@ -63,7 +63,6 @@ class LArCond2NtupleBase : public AthAlgorithm {
   
   NTuple::Item<float> m_FEBTemp1, m_FEBTemp2;
 
-  MsgStream* m_log;
 
   StoreGateSvc* m_detStore; 
   const LArEM_Base_ID* m_emId;

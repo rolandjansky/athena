@@ -5,43 +5,22 @@
 #ifndef G4UserActions_StoppedParticleAction_h
 #define G4UserActions_StoppedParticleAction_h
 
-
-#include "G4AtlasTools/UserActionBase.h"
-
-
 #include <string>
-class TrackFastSimSD;
 
-class StoppedParticleAction final: public UserActionBase {
- public:
- StoppedParticleAction(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
-    m_fsSD(0) , m_init(false) {}
-
-  virtual void Step(const G4Step*) override;
-
-  virtual StatusCode initialize() override;
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
- protected:
-
-  bool isSUSYParticle(const int) const;
-  TrackFastSimSD * m_fsSD;
-  bool m_init;
-
-};
-
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserSteppingAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
+
+class TrackFastSimSD;
 
 namespace G4UA
 {
 
   /// @brief NEEDS DOCUMENTATION
-  class StoppedParticleAction : public AthMessaging, public ISteppingAction
+  class StoppedParticleAction : public AthMessaging, public G4UserSteppingAction
   {
     public:
       StoppedParticleAction();
-      virtual void processStep(const G4Step*) override;
+      virtual void UserSteppingAction(const G4Step*) override;
     private:
       bool isSUSYParticle(const int) const;
       TrackFastSimSD * m_fsSD;

@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ./ReadTripsProbsFromCool.py  --schema='COOLOFL_TILE/OFLP200'  --folder='OFL02' --tag='UPD4'
 
 import getopt,sys,os,string
@@ -20,7 +23,7 @@ keywords = ["help","run=","lumi=","schema=","tag=","folder="]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)
@@ -72,7 +75,8 @@ log.info("Initializing folder %s with tag %s" % (folderPath, folderTag))
 
 blobReader = TileCalibTools.TileBlobReader(db, folderPath, folderTag)
 
-util = PyCintex.gbl.TileCalibUtils()
+import cppyy
+util = cppyy.gbl.TileCalibUtils()
 tripsCalibDrawer = blobReader.getDrawer(util.trips_ros(), util.trips_drawer(), (run,lumi))
 
 if tripsCalibDrawer.getNChans() != util.max_ros() \

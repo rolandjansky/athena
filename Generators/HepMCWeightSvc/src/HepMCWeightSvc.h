@@ -6,7 +6,7 @@
 #define EVGENPRODTOOLS_HEPMCWEIGHTSVC_H
 
 #include "AthenaBaseComps/AthService.h"
-#include "HepMCWeightSvc/IHepMCWeightSvc.h"
+#include "GenInterfaces/IHepMCWeightSvc.h"
 #include <string>
 
 #include "IOVDbMetaDataTools/IIOVDbMetaDataTool.h"

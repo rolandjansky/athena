@@ -1,7 +1,6 @@
 ## Add RadLengthIntegrator to the UserActions, and produce a histogram
-
-from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-UAStore.addAction('LengthIntegrator',['BeginOfEvent','EndOfEvent','Step'])
+from G4AtlasApps.SimFlags import simFlags
+simFlags.OptionalUserActionList.addAction('G4UA::LengthIntegratorTool',['Event','Step'])
 
 
 from AthenaCommon.AppMgr import ServiceMgr

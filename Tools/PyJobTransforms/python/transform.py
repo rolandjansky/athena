@@ -52,7 +52,7 @@ class transform(object):
         
         ## @brief Get transform starting timestamp as early as possible
         self._transformStart = os.times()
-        msg.debug('+++ transformStart time is {0}'.format(self._transformStart))
+        msg.debug('transformStart time is {0}'.format(self._transformStart))
 
         self._inFileValidationStart = None
         self._inFileValidationStop = None
@@ -195,6 +195,9 @@ class transform(object):
 
         return outFileValidationWallTime
 
+    @property
+    def outFileValidationStop(self):
+        return self._outFileValidationStop
 
     @property
     def trfPredata(self):
@@ -727,7 +730,7 @@ class transform(object):
     def validateInFiles(self):
         if self._inFileValidationStart is None:
             self._inFileValidationStart = os.times()
-            msg.debug('+++ inFileValidationStart time is {0}'.format(self._inFileValidationStart))
+            msg.debug('inFileValidationStart time is {0}'.format(self._inFileValidationStart))
 
         if (('skipFileValidation' in self._argdict and self._argdict['skipFileValidation'] is True) or
             ('skipInputFileValidation' in self._argdict and self._argdict['skipInputFileValidation'] is True) or
@@ -743,12 +746,12 @@ class transform(object):
                 trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='input')
 
         self._inFileValidationStop = os.times()
-        msg.debug('+++ inFileValidationStop time is {0}'.format(self._inFileValidationStop))
+        msg.debug('inFileValidationStop time is {0}'.format(self._inFileValidationStop))
 
     def validateOutFiles(self):
         if self._outFileValidationStart is None:
             self._outFileValidationStart = os.times()
-            msg.debug('+++ outFileValidationStart time is {0}'.format(self._outFileValidationStart))
+            msg.debug('outFileValidationStart time is {0}'.format(self._outFileValidationStart))
 
         if (('skipFileValidation' in self._argdict and self._argdict['skipFileValidation'] is True) or
             ('skipOutputFileValidation' in self._argdict and self._argdict['skipOutputFileValidation'] is True) or
@@ -764,4 +767,4 @@ class transform(object):
                 trfValidation.performStandardFileValidation(dictionary=self._dataDictionary, io='output')
 
         self._outFileValidationStop = os.times()
-        msg.debug('+++ outFileValidationStop time is {0}'.format(self._outFileValidationStop))
+        msg.debug('outFileValidationStop time is {0}'.format(self._outFileValidationStop))

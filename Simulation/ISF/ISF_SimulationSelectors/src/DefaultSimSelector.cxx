@@ -14,10 +14,9 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 /** Constructor **/
-ISF::DefaultSimSelector::DefaultSimSelector(const std::string& t, const std::string& n, const IInterface* p) : 
-  ISimulationSelector(t,n,p)
+ISF::DefaultSimSelector::DefaultSimSelector(const std::string& t, const std::string& n, const IInterface* p)
+  : BaseSimulationSelector(t,n,p)
 {
-    declareInterface<ISF::ISimulationSelector>(this);
 }
 
 /** Destructor **/

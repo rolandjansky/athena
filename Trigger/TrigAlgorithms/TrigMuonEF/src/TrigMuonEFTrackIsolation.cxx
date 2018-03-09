@@ -35,6 +35,7 @@ TrigMuonEFTrackIsolation::TrigMuonEFTrackIsolation(const std::string& name, ISvc
   m_isoType(1),
   m_requireCombined(false),
   m_useVarIso(false),
+  m_muonContName("MuonEFInfo"),
   m_debug(false),
   m_coneSizes(),
   m_efIsoTool("TrigMuonEFTrackIsolationTool/TrigMuonEFTrackIsolationTool", this),
@@ -56,6 +57,7 @@ TrigMuonEFTrackIsolation::TrigMuonEFTrackIsolation(const std::string& name, ISvc
 
   declareProperty("IsolationTool", m_efIsoTool);
   declareProperty("IsoType", m_isoType);  
+  declareProperty("MuonContName", m_muonContName);
   declareProperty("IdTrackParticles", m_idTrackParticlesName);
   declareProperty("FTKTrackParticles", m_FTKTrackParticlesName);
   declareProperty("doMyTiming", m_doMyTiming);
@@ -151,7 +153,13 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 
   if (m_debug) msg() << MSG::DEBUG
 		     << ": Executing TrigMuonEFTrackIsolation::execHLTAlgorithm()" << endmsg;
- 
+
+  // prepare output
+  auto muonContainer = std::make_unique<xAOD::MuonContainer>();
+  xAOD::MuonAuxContainer muonAuxContainer;
+  muonContainer->setStore( &muonAuxContainer );
+  ATH_MSG_DEBUG("Created xAOD::MuonContainer");
+  
   // Get ID Track & EF Muons
   const xAOD::TrackParticleContainer* idTrackParticles = 0;
   const xAOD::MuonContainer* EFmuonContainer(0);
@@ -302,15 +310,29 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 	m_trkptiso_cone2.push_back(ptcone20 * 1e-3); // convert to GeV 
 	m_trkptiso_cone3.push_back(ptcone30 * 1e-3); // convert to GeV
 
+	// deep copy muon (since otherwise we risk overwriting isolation results from other algos)
+	muonContainer->push_back( new xAOD::Muon(*muon) );
+	xAOD::Muon* outputmuon = muonContainer->back();
+	    
 	if (m_useVarIso){
-	  ((xAOD::Muon*)muon)->setIsolation( ptcone20, xAOD::Iso::ptvarcone20 );
-	  ((xAOD::Muon*)muon)->setIsolation( ptcone30, xAOD::Iso::ptvarcone30 );
+	  outputmuon->setIsolation( ptcone20, xAOD::Iso::ptvarcone20 );
+	  outputmuon->setIsolation( ptcone30, xAOD::Iso::ptvarcone30 );
 	} else { 
-	  ((xAOD::Muon*)muon)->setIsolation( ptcone20, xAOD::Iso::ptcone20 );
-	  ((xAOD::Muon*)muon)->setIsolation( ptcone30, xAOD::Iso::ptcone30 );
+	  outputmuon->setIsolation( ptcone20, xAOD::Iso::ptcone20 );
+	  outputmuon->setIsolation( ptcone30, xAOD::Iso::ptcone30 );
 	}
       }// isolation tool ok for ID
     }// EF Muon Loop
+
+    const size_t noutputMuons = muonContainer->size();
+    HLT::ErrorCode hltStatus = attachFeature(TEout, muonContainer.release() , m_muonContName);
+    if(hltStatus!=HLT::OK) {
+      msg() << MSG::WARNING << "Attaching xAOD::MuonContainer to TEout: unsuccessful" << endmsg;
+      return hltStatus;
+    } else {
+      ATH_MSG_DEBUG( "Successfully attached to TEout the muon container with size " << noutputMuons );
+    } 
+    
   } // If EFID loop to run
 
   
@@ -378,8 +400,7 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
       
       }// isolation tool ok for FTK
     }// Loop on L2 muons / FTK tracks
-  } // if running L2FTK loop
-
+  } // if running L2FTK loop  
   
   if(m_doMyTiming){
     if(m_calcTime) m_calcTime->stop();

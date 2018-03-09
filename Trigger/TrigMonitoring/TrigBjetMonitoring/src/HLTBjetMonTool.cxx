@@ -371,7 +371,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Shifter_jSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("xMVtx_tr_"+m_Shifter_jSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
@@ -416,7 +416,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("xMVtx_tr_"+m_Shifter_jUnSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
@@ -485,7 +485,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Expert_jSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("xMVtx_tr_"+m_Expert_jSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
@@ -528,7 +528,7 @@ StatusCode HLTBjetMonTool::book(){
 	addHistogram(new TH1F(("wIP3D_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D_pb/IP3D_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wSV1_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH SV1_pb/SV1_pu probability ratio distribution", 200, -4., 6.));
 	addHistogram(new TH1F(("wCOMB_Rbu_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"LogLH IP3D+SV1 probability ratio distribution", 200, -4., 6.));
-	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c00 discriminant", 200, -1., 1.));
+	addHistogram(new TH1F(("wMV2c00_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2hybrid discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c10_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c10 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("wMV2c20_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"MV2c20 discriminant", 200, -1., 1.));
 	addHistogram(new TH1F(("xMVtx_tr_"+m_Expert_jUnSplit.at(i)).c_str(),"SV1 mass - all SV1", 50, 0., 10.));
@@ -633,12 +633,18 @@ StatusCode HLTBjetMonTool::book(){
     if ( !eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) MCflag = false;
     ATH_MSG_DEBUG( " MCflag: " << MCflag );
 
+    /* This sequence contains a now obsolate jetcontainer, namely "AntiKt4TruthJets" so it has to be taken out
+    // Since truthjets may be used later, we leave here the sequence commented out, waiting for another
+    //      container name which will replace "AntiKt4TruthJets" for truthjets
     // Get truth jets
     if (MCflag) {
       const xAOD::JetContainer* truthjets = 0;
       ATH_CHECK( evtStore()->retrieve(truthjets,"AntiKt4TruthJets") );
       ATH_MSG_DEBUG("RETRIEVED TRUTH JETS  - size: " << truthjets->size());
     } // MCflag
+    */
+
+    ATH_MSG_DEBUG("  ========= Start retrival of Offline histograms  ========== ");
 
     std::string HistDir = "/Offline";
     std::string HistExt = "";
@@ -648,7 +654,7 @@ StatusCode HLTBjetMonTool::book(){
     const xAOD::VertexContainer* offlinepv = 0;
     if ( evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices") ) {
       ATH_CHECK( evtStore()->retrieve(offlinepv, "PrimaryVertices") );
-      ATH_MSG_DEBUG("RETRIEVED OFFLINE PV  - size: " << offlinepv->size());
+      ATH_MSG_DEBUG("RETRIEVED OFFLINE standard PV  - size: " << offlinepv->size());
       if ( offlinepv->size() ) {
 	Eofflinepv = true;
 	offlinepvz = offlinepv->front()->z();
@@ -668,12 +674,12 @@ StatusCode HLTBjetMonTool::book(){
     const xAOD::VertexContainer* offlinepvFTK = 0;
     if ( evtStore()->contains<xAOD::VertexContainer>("FTK_VertexContainer") ) {
       ATH_CHECK( evtStore()->retrieve(offlinepvFTK, "FTK_VertexContainer") );
-      ATH_MSG_DEBUG("RETRIEVED OFFLINE PV  - size: " << offlinepvFTK->size());
+      ATH_MSG_DEBUG("RETRIEVED OFFLINE FTK PV  - size: " << offlinepvFTK->size());
       if ( offlinepvFTK->size() ) {
 	EofflinepvFTK = true;
 	offlinepvzFTK = offlinepvFTK->front()->z();
 	if (EofflinepvFTK) ATH_MSG_DEBUG(" 1st zPV FTK a la Carlo: " << offlinepvzFTK);
-	/*
+	/* for the moment FTK offline vertices are not moniored
 	hist("nPV"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill(offlinepvFTK->size());
 	for (unsigned int j = 0; j<offlinepvFTK->size(); j++){
 	  hist("PVxFTK"+HistExt,"HLT/BjetMon/Shifter"+HistDir)->Fill((*(offlinepvFTK))[j]->x());
@@ -685,11 +691,12 @@ StatusCode HLTBjetMonTool::book(){
     } // evtStore
     //
 
-
-
-    ATH_MSG_DEBUG(" Offline histograms are stored successfully !");
+    ATH_MSG_DEBUG(" ======== Offline histograms are retrieved successfully ! ==== Start online histograms to retrieve ====== ");
 
     // Get online combinations
+
+    bool SplitKey;
+    bool FTKchain;
 
     //  unsigned int ichain = 0;
     // Loop on trigger items
@@ -707,30 +714,44 @@ StatusCode HLTBjetMonTool::book(){
       HistExt = "_"+trigItem;
       ATH_MSG_DEBUG(" HistDir " << HistDir << " HistExt " << HistExt );
       // Set container names (2016/03/03) see TrigBtagEmulation.cxx
-      // Non split input chaines
+      // Set keys
+      // HLT non split input chaines
+      SplitKey = false;
       std::string m_jetKey = "";
       std::string m_priVtxKey = "EFHistoPrmVtx";
       std::string m_trackKey  = "";
-      // Split input chaines
+      // HLT split input chaines
       std::size_t found = trigItem.find("split");
       if (found!=std::string::npos) {
+	SplitKey =true;
 	m_jetKey = "SplitJet";
 	m_priVtxKey = "xPrimVx";
 	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
       }
+      // FTK input chains: John Baines and Julie Hart 
+      FTKchain = false;
       std::size_t found1 = trigItem.find("FTK");
       if (found1!=std::string::npos) {
-	std::size_t found2 = trigItem.find("Refit");
+	FTKchain = true;
+	//	m_priVtxKey = "HLT_PrimVertexFTK";
+	m_priVtxKey = "PrimVertexFTK";  // Mark Sutton 17.09.17 
+	m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
+	std::size_t found2 = trigItem.find("FTKRefit");
         if (found2!=std::string::npos) {
-          m_priVtxKey = "HLT_PrimVertexFTKRefit";
           m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig";
         }//found2
-	else {
-          m_priVtxKey = "HLT_PrimVertexFTK";
-          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig";
-        }//else
+	std::size_t found3 = trigItem.find("FTKVtx");
+        if (found3!=std::string::npos) {
+          m_trackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig";
+        }//found3
       }//found1
-      ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey << " m_trackKey: " << m_trackKey );
+      // gsc input chains: Ruch Gupta 2017/08/02 
+      std::size_t found4 = trigItem.find("gsc");
+      if (found4!=std::string::npos) {
+	m_jetKey = "GSCJet";
+      } // if found4
+      ATH_MSG_DEBUG( " Trigger chain name: " << trigItem << " m_jetKey: " << m_jetKey << " m_priVtxKey: " << m_priVtxKey 
+		    << " m_trackKey: " << m_trackKey << " SplitKey: " << SplitKey << " FTKchain: " << FTKchain);
       ATH_MSG_DEBUG("PROCESSING TRIGITEM  -  " << trigItem);
       // Set flag MuJet
       bool MuJet = false;
@@ -743,6 +764,33 @@ StatusCode HLTBjetMonTool::book(){
       bool HistTrack = !MuJet;
       bool HistBjet = !MuJet;
 
+      float m_zPrmVtx = 0.; // used for muon-jets
+
+      // Temporary work-around to retrieve online PV for FTK chains suggested by John Baines 2017/09/12
+      // Dummy vertices not treated here for the moment
+
+      /*
+      if (FTKchain) {
+        const xAOD::VertexContainer * onlinepvFTK = 0;
+        if ( evtStore()->contains<xAOD::VertexContainer>("HLT_xAOD__VertexContainer_PrimVertexFTK") ) {
+          ATH_CHECK( evtStore()->retrieve(onlinepvFTK, "HLT_xAOD__VertexContainer_PrimVertexFTK") );
+          ATH_MSG_DEBUG("RETRIEVED FTK PV from evtStore -   size: " << onlinepvFTK->size());
+          if( not onlinepvFTK->empty()) {
+	    int iVsize = onlinepvFTK->size();
+	    for (int iV = 0; iV < iVsize; iV++){
+	      ATH_MSG_DEBUG("    FTK evtStore Online PV -  iV: " << iV << " z[iV]: " << (*(onlinepvFTK))[iV]->z() << " type: " << (*(onlinepvFTK))[iV]->vertexType() );
+	    } // for iV
+	    if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepvFTK))[0]->x());
+	    if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepvFTK))[0]->y());
+	    if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepvFTK))[0]->z());
+	    if(HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepvFTK->size());
+	    m_zPrmVtx = (*(onlinepvFTK))[0]->z();
+	    if (EofflinepvFTK && HistPV) hist("diffzPV0offPVon"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepvFTK))[0]->z()-offlinepvzFTK);
+          } // not onlinepvFTK->empty()
+	} // if contains
+      } // FTK chain
+      */  
+
       Trig::FeatureContainer fc = m_trigDec->features(trigItem);
       const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
       ATH_MSG_DEBUG("RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigItem);
@@ -752,17 +800,19 @@ StatusCode HLTBjetMonTool::book(){
       for( bjetComb = bjetCombs.begin(); bjetComb != bjetCombs.end(); ++bjetComb ) {
 	const Trig::Combination& comb = *bjetComb;
 	ATH_MSG_DEBUG("------------ NEW COMBINATION ------------");
-	float m_zPrmVtx = 0.; // used for muon-jets
+	m_zPrmVtx = 0.; // used for muon-jets
 
-	// Get online PV
+	//	if (!FTKchain) {
+
+	  // Get online PV
 	bool DummyVtx = false;
 	const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs = comb.get<xAOD::VertexContainer>(m_priVtxKey);
 	ATH_MSG_DEBUG("RETRIEVED PV  -   size: " << onlinepvs.size());
 	if ( not onlinepvs.empty() ) {
 	  const xAOD::VertexContainer* onlinepv = onlinepvs[0].cptr();
-	  ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
+	  ATH_MSG_DEBUG("   for VertexContainer: " << m_priVtxKey << " nVert: " << onlinepv->size());
 	  if( not onlinepv->empty()) {
-            if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
+	    if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
 	      if(HistPV) hist("PVx_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
 	      if(HistPV) hist("PVy_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->y());
 	      if(HistPV) hist("PVz_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->z());
@@ -782,13 +832,13 @@ StatusCode HLTBjetMonTool::book(){
 	    if (!DummyVtx && HistPV) hist("nPV_tr"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(onlinepv->size());
 	  }  // if onlinepv not empty
 	} // if onlinepvs not empty
-	if ( (m_jetKey == "SplitJet") && DummyVtx ) {
+	if ( SplitKey && DummyVtx ) {
 	  // for SplitJets and DummyVtx monitor Vtx with Histogram algorithm
 	  const std::vector< Trig::Feature<xAOD::VertexContainer> >onlinepvsd = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
 	  ATH_MSG_DEBUG("RETRIEVED PV with Histo algo for Split chains when Dummy vtx found with xPrimVx algo-   size: " << onlinepvsd.size());
 	  if ( not onlinepvsd.empty() ) {
 	    const xAOD::VertexContainer* onlinepv = onlinepvsd[0].cptr();
-	    ATH_MSG_DEBUG("                 -   nVert: " << onlinepv->size());
+	    ATH_MSG_DEBUG(" for VertexContainer EFHistoPrmVtx  - nVert: " << onlinepv->size());
 	    if( not onlinepv->empty()) {
 	      if ( (*(onlinepv))[0]->vertexType() == xAOD::VxType::VertexType:: PriVtx ) { // test that PriVtx is not dummy (JA)
 		if(HistPV) hist("PVx_tr_Hist"+HistExt,"HLT/BjetMon/"+HistDir)->Fill((*(onlinepv))[0]->x());
@@ -802,8 +852,10 @@ StatusCode HLTBjetMonTool::book(){
 	  } // if not onlinepvs
 	  continue; // if vertex is dummy skip reading out the other quntities for this trigger combination (EN)
 	} // if DummyVtx
+	  
+	  //	} // if (!FTKchain)
 
-	ATH_MSG_DEBUG(" PV histograms are stored successfully !");
+	ATH_MSG_DEBUG(" ======== End of retrival of PV histograms  ==============  ");
 
 	// Get online jet
 	const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>(m_jetKey);
@@ -884,16 +936,22 @@ StatusCode HLTBjetMonTool::book(){
 	  if (HistTrack) hist("nTrack"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(nTrack);
 	  for(const auto* trk : *onlinetrack) {
 	    ATH_MSG_DEBUG("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() );
-	    if (Eofflinepv) ATH_MSG_DEBUG(" z0 - zPVoffl: " << trk->z0()+trk->vz()-offlinepvz ); // John A
 	    if (HistTrack) hist("d0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->d0());
 	    if (HistTrack) hist("z0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0());
 	    if (HistTrack) hist("ed0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
 	    if (HistTrack) hist("ez0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(Amg::error(trk->definingParametersCovMatrix(), 1));
-	    if (Eofflinepv && HistTrack) hist("diffz0PV0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0()+trk->vz()-offlinepvz); // John Alison
-	    float errz0 = Amg::error(trk->definingParametersCovMatrix(), 1);
-	    if ( errz0 >0. && Eofflinepv && HistTrack) hist("sigz0PV"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->z0()+trk->vz()-offlinepvz)/errz0 ); // John Alison
 	    if (HistTrack) hist("trkPt"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->pt())*1.e-3 );
 	    if (HistTrack) hist2("trkEtaPhi"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->eta(),trk->phi());
+	    float errz0 = Amg::error(trk->definingParametersCovMatrix(), 1);
+	    if (FTKchain) {
+	      if (EofflinepvFTK) ATH_MSG_DEBUG(" z0 - zPVoffl: " << trk->z0()+trk->vz()-offlinepvzFTK ); // John A
+	      if (EofflinepvFTK && HistTrack) hist("diffz0PV0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0()+trk->vz()-offlinepvzFTK); // John Alison
+	      if ( errz0 >0. && EofflinepvFTK && HistTrack) hist("sigz0PV"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->z0()+trk->vz()-offlinepvzFTK)/errz0 ); // John Alison
+	    } else { // if FTKchain
+	      if (Eofflinepv) ATH_MSG_DEBUG(" z0 - zPVoffl: " << trk->z0()+trk->vz()-offlinepvz ); // John A
+	      if (Eofflinepv && HistTrack) hist("diffz0PV0"+HistExt,"HLT/BjetMon/"+HistDir)->Fill(trk->z0()+trk->vz()-offlinepvz); // John Alison
+	      if ( errz0 >0. && Eofflinepv && HistTrack) hist("sigz0PV"+HistExt,"HLT/BjetMon/"+HistDir)->Fill( (trk->z0()+trk->vz()-offlinepvz)/errz0 ); // John Alison
+	    } // else
 	  } // for online track particles
 	} // onlinetracks.size
 

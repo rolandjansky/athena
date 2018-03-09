@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 /*
  * IMuonEfficiencyScaleFactors.h
@@ -17,6 +17,7 @@
 
 // EDM include(s):
 #include "xAODMuon/Muon.h"
+#include <xAODEventInfo/EventInfo.h>
 
 // Local include(s):
 #include "PATInterfaces/CorrectionCode.h"
@@ -101,71 +102,54 @@
  *
  */
 
-
-
 namespace CP {
 
+    class IMuonEfficiencyScaleFactors: public virtual asg::IAsgTool, public virtual CP::ISystematicsTool {
+            ///
+            /// @class IMuonEfficiencyScaleFactors
+            /// @brief Interface class.
+            /// Abstract interface class. Provides the user interface for the
+            /// MuonEfficiencyScaleFactors class.
 
-class IMuonEfficiencyScaleFactors : public virtual asg::IAsgTool, public virtual  CP::ISystematicsTool {
+            ASG_TOOL_INTERFACE (CP::IMuonEfficiencyScaleFactors)
 
-    ///
-    /// @class IMuonEfficiencyScaleFactors
-    /// @brief Interface class.
-    /// Abstract interface class. Provides the user interface for the
-    /// MuonEfficiencyScaleFactors class.
+        public:
+            /// initialize the tool. Call once all properties are set up to your liking
+            virtual StatusCode initialize()= 0;
 
+            /// Retrieve the Scale factor
+            virtual CorrectionCode getEfficiencyScaleFactor(const xAOD::Muon& mu, float& sf, const xAOD::EventInfo* info = 0) const = 0;
+            /// decorate the muon with scale factor information
+            virtual CorrectionCode applyEfficiencyScaleFactor(const xAOD::Muon& mu, const xAOD::EventInfo* info = 0) const = 0;
 
-    ASG_TOOL_INTERFACE( CP::IMuonEfficiencyScaleFactors )
+            /// BONUS functionality
 
-public:
+            /// An optional, less conservative way of treating the SF stat error.
+            /// Here, we generate a set of SF replicas,
+            /// each by smearing the SF bin by bin with a gaussian with the width of the SF error in that bin
+            /// the SF stat systematic is then the variation of the final observable within the replicas
 
+            virtual CorrectionCode getEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & sf_err, const xAOD::EventInfo* info = 0) const = 0;
+            /// decorate the muon with a set of SF replica weights.
+            virtual CorrectionCode applyEfficiencyScaleFactorReplicas(const xAOD::Muon& mu, int nreplicas = 50, const xAOD::EventInfo* info = 0) const = 0;
 
+            /// Obtain the muon efficiency measured using the data
+            //  Can for example be used to scale truth-level MC
+            virtual CorrectionCode getDataEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info = 0) const = 0;
+            /// decorate a muon with the efficiency information
+            virtual CorrectionCode applyDataEfficiency(const xAOD::Muon& mu, const xAOD::EventInfo* info = 0) const= 0;
 
-        /// initialize the tool. Call once all properties are set up to your liking
-        virtual StatusCode initialize()= 0;
+            ///Obtain the muon efficiency measured using the MonteCarlo
+            virtual CorrectionCode getMCEfficiency(const xAOD::Muon &mu, float& eff, const xAOD::EventInfo* info = 0) const=0;
+            // decorate a muon with the efficiency information
+            virtual CorrectionCode applyMCEfficiency(const xAOD::Muon &mu, const xAOD::EventInfo* info = 0) const =0;
 
+            virtual ~IMuonEfficiencyScaleFactors() {
+            }
 
-        /// Retrieve the Scale factor
-        virtual CorrectionCode getEfficiencyScaleFactor( const xAOD::Muon& mu,
-                float& sf ) = 0;
-        /// decorate the muon with scale factor information
-        virtual CorrectionCode applyEfficiencyScaleFactor( const xAOD::Muon& mu ) = 0;
+    };
+// class IMuonEfficiencyTool
 
-
-        /// Audit trail functionality
-
-        virtual bool AlreadyApplied(const xAOD::Muon & mu)=0;
-        virtual bool AlreadyApplied(xAOD::Muon & mu)=0;
-
-
-        /// BONUS functionality
-
-        /// An optional, less conservative way of treating the SF stat error.
-        /// Here, we generate a set of SF replicas,
-        /// each by smearing the SF bin by bin with a gaussian with the width of the SF error in that bin
-        /// the SF stat systematic is then the variation of the final observable within the replicas
-
-        virtual CorrectionCode getEfficiencyScaleFactorReplicas( const xAOD::Muon& mu,
-                std::vector<float> & sf_err ) = 0;
-        /// decorate the muon with a set of SF replica weights.
-        virtual CorrectionCode applyEfficiencyScaleFactorReplicas( const xAOD::Muon& mu, int nreplicas=50 ) = 0;
-
-        /// Obtain the muon efficiency measured using the data
-        //  Can for example be used to scale truth-level MC
-        virtual CorrectionCode getRecoEfficiency( const xAOD::Muon& mu,
-                float& eff ) = 0;
-        /// decorate a muon with the efficiency information
-        virtual CorrectionCode applyRecoEfficiency( const xAOD::Muon& mu ) = 0;
-
-
-
-
-
-}; // class IMuonEfficiencyTool
-
-} // namespace CP
-
-
-
+}// namespace CP
 
 #endif /* IMUONEFFICIENCYSCALEFACTORS_H_ */

@@ -710,6 +710,7 @@ bool JetVertexCharge::passTrackCuts( const xAOD::TrackParticle &track) const {
    double d0 = track.d0();
    double z0 = track.z0();
    double theta = track.theta();
+   if (track.numberDoF() == 0) return false;
    double chi2 = track.chiSquared() / track.numberDoF();
    double deltaZ0 = fabs( z0 - m_primVtx->z() + track.vz() );
 

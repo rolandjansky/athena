@@ -230,7 +230,8 @@ StatusCode MDT_DeadTubeConditionsTool::loadDeadTube(IOVSVC_CALLBACK_ARGS_P(I,key
       m_cachedDeadTubesId.push_back(ChannelId);
     }
     
-    m_Tube_Map.insert(std::make_pair(ChamberId,tube_list));
+    //m_Tube_Map.insert(std::make_pair(ChamberId,tube_list));
+    m_Tube_Map[ChamberId]=tube_list;
     if( m_verbose ) m_log << MSG::VERBOSE << "Sequence load is \n" << mylist<< endmsg;
     m_Chamber_with_deadTube.push_back(ChamberId);
     m_cachedDeadTubes.push_back(mylist);

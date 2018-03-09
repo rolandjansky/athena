@@ -104,7 +104,7 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.AthenaPool
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-20-00-00'
+jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-04-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -123,13 +123,13 @@ include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
 #include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 #include( "LArDetDescr/LArDetDescr_joboptions.py" )
 #include("TileConditions/TileConditions_jobOptions.py" )
-conddb.blockFolder(LArHVScaleCorrFolder);
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 #include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
-
+#block to read the existing HVCorr
+conddb.blockFolder(LArHVScaleCorrFolder);
 
 from LArConditionsCommon import LArHVDB #Sets HV Calbling and DCS Database folders
 #conddb.addOverride("/LAR/IdentifierOfl/HVLineToElectrodeMap","LARIdentifierOflHVLineToElectrodeMap-UPD3-00")

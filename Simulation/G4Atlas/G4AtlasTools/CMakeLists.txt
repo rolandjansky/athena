@@ -12,8 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Simulation/G4Atlas/G4AtlasInterfaces
                           PRIVATE
                           GaudiKernel
-                          Simulation/G4Utilities/G4PhysicsLists
-                          Simulation/G4Utilities/Geo2G4 )
+                          Simulation/G4Utilities/G4PhysicsLists )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -30,13 +29,13 @@ atlas_add_library( G4AtlasToolsLib
                    INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps G4AtlasInterfaces Geo2G4Lib
+                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps G4AtlasInterfaces
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel G4PhysicsLists )
 
 atlas_add_component( G4AtlasTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps G4AtlasInterfaces GaudiKernel G4PhysicsLists Geo2G4Lib G4AtlasToolsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps G4AtlasInterfaces GaudiKernel G4PhysicsLists G4AtlasToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

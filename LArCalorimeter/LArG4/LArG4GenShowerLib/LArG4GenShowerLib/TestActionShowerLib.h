@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef TestActionShowerLib_H
 #define TestActionShowerLib_H
 
@@ -10,9 +9,6 @@
 #include <string>
 #include <vector>
 
-// athena simulation includes
-
-#include "G4AtlasTools/UserActionBase.h"
 
 // forward declarations in namespaces
 namespace ShowerLib {
@@ -23,7 +19,7 @@ namespace HepMC {
 }
 // forward declarations in global namespace
 //class StoreGateSvc;
-class LArVCalculator;
+class EnergyCalculator;
 class G4VSolid;
 class G4AffineTransform;
 
@@ -38,55 +34,16 @@ class G4AffineTransform;
    *  @author Wolfgang Ehrenfeld, University of Hamburg, Germany
    *  @author Sasha Glazov, DESY Hamburg, Germany
    *
-   * @version \$Id: TestActionShowerLib.h 746605 2016-05-12 13:25:40Z disimone $
+   * @version \$Id: TestActionShowerLib.h 780759 2016-10-27 13:48:04Z pavol $
    *
    */
 
-class TestActionShowerLib final: public UserActionBase {
 
- public:
+#include "G4UserEventAction.hh"
+#include "G4UserRunAction.hh"
+#include "G4UserSteppingAction.hh"
 
-  //! default constructor
-  TestActionShowerLib(const std::string& type, const std::string& name, const IInterface* parent);
-
-  ~TestActionShowerLib();
-
-  //! run code at begin of event
-  void BeginOfEvent(const G4Event*) override;
-  //! run code at end of event
-  void EndOfEvent(const G4Event*) override;
-  //! run code at begin of run
-  void BeginOfRun(const G4Run*) override;
-  //! run code at end of event
-  void EndOfRun(const G4Run*) override;
-  //! run code after each step
-  void Step(const G4Step*) override;
-
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
- private:
-
-  /* data members */
-
-  LArVCalculator* m_current_calculator;
-  G4VSolid* m_current_solid;
-  G4AffineTransform* m_current_transform;
-
-  // calculators 
-  LArVCalculator* m_calculator_EMECIW;            //!< pointer to EMEC inner wheel calculator
-  LArVCalculator* m_calculator_EMECOW;            //!< pointer to EMEC outer wheel calculator
-  
-
-  ShowerLib::StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
-
-};
-
-
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "LArG4Code/ILArCalculatorSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -94,16 +51,16 @@ namespace G4UA{
   
   
   class TestActionShowerLib:
-  public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public IEndRunAction,  public ISteppingAction
+  public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction
   {
     
   public:
     TestActionShowerLib();
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void endOfRun(const G4Run*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void EndOfRunAction(const G4Run*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
   private:
     
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
@@ -114,14 +71,17 @@ namespace G4UA{
     
     /* data members */
     
-    LArVCalculator* m_current_calculator;
+    ServiceHandle<ILArCalculatorSvc> m_current_calculator;
     G4VSolid* m_current_solid;
     G4AffineTransform* m_current_transform;
     
     // calculators 
-    LArVCalculator* m_calculator_EMECIW;            //!< pointer to EMEC inner wheel calculator
-    LArVCalculator* m_calculator_EMECOW;            //!< pointer to EMEC outer wheel calculator
-    
+    ServiceHandle<ILArCalculatorSvc> m_calculator_EMECIW;            //!< pointer to EMEC inner wheel calculator
+    ServiceHandle<ILArCalculatorSvc> m_calculator_EMECOW;            //!< pointer to EMEC outer wheel calculator
+    ServiceHandle<ILArCalculatorSvc> m_calculator_FCAL1;
+    ServiceHandle<ILArCalculatorSvc> m_calculator_FCAL2;
+    ServiceHandle<ILArCalculatorSvc> m_calculator_FCAL3;
+    ServiceHandle<ILArCalculatorSvc> m_calculator_EMB;
     
     ShowerLib::StepInfoCollection* m_eventSteps;    //!< collection of StepInfo
 

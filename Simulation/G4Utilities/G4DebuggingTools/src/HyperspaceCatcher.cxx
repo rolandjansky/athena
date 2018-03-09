@@ -30,7 +30,7 @@ namespace G4UA{
     m_world(0),m_killCount(0){;
   }
   
-  void HyperspaceCatcher::beginOfRun(const G4Run*){
+  void HyperspaceCatcher::BeginOfRunAction(const G4Run*){
 
     // Highest level implemented is 2 at the moment
     if (m_config.treatmentLevel>2) m_config.treatmentLevel=2;
@@ -53,7 +53,7 @@ namespace G4UA{
     
   }
   
-  void HyperspaceCatcher::processStep(const G4Step* aStep){
+  void HyperspaceCatcher::UserSteppingAction(const G4Step* aStep){
 
   bool hs = false;
   

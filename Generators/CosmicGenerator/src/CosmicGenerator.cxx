@@ -79,7 +79,10 @@ extern "C" float cosmicrndm_(int* /*dummy*/)
 
 //--------------------------------------------------------------------------
 CosmicGenerator::CosmicGenerator(const std::string& name,
-      ISvcLocator* pSvcLocator): GenModule(name,pSvcLocator)
+      ISvcLocator* pSvcLocator)
+  : GenModule(name,pSvcLocator)
+  , m_stopped_tminus(0.)
+  , m_stopped_tplus(0.)
 //--------------------------------------------------------------------------
 {
   //

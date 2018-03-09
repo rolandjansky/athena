@@ -11,12 +11,13 @@
 LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
   m_emId(NULL), m_onlineHelper(NULL),
-  m_larCablingSvc ("LArCablingService")
+  m_larCablingSvc (NULL)
   //  m_eventCounter(0)
 {
   declareProperty("ContainerKey",m_contKey);
   declareProperty("NSamples",m_Nsamples=7);
   declareProperty("KeepOnlyPulsed",m_keepPulsed=true);
+  declareProperty("isSC",m_isSC=false);
   m_ipass=0;
 }
 
@@ -29,16 +30,54 @@ StatusCode LArAverages2Ntuple::initialize()
   ATH_MSG_INFO ( "in initialize" );
 
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
-  m_emId=caloIdMgr->getEM_ID();
+  if ( m_isSC ){
+    m_emId=caloIdMgr->getEM_SuperCell_ID();
+  } else {
+    m_emId=caloIdMgr->getEM_ID();
+  }
   if (!m_emId) {
     ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;
   }
   
-  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  StatusCode sc;
+  if ( m_isSC ){
+    const LArOnline_SuperCellID* ll;
+    sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
+    }
 
-  // Retrieve LArCablingService
-  ATH_CHECK( m_larCablingSvc.retrieve() );
+    ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( " Can't get LArCablingSvc." );
+      return sc;
+    } else m_larCablingSvc = (LArCablingBase*)&(*tool);
+  } else { // m_isSC
+    const LArOnlineID* ll;
+    sc = detStore()->retrieve(ll, "LArOnlineID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
+      return StatusCode::FAILURE;
+    }
+    else {
+      m_onlineHelper = (const LArOnlineID_Base*)ll;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
+    }
+
+    ToolHandle<LArCablingService> tool("LArCablingService");
+    sc = tool.retrieve();
+    if (sc!=StatusCode::SUCCESS) {
+      ATH_MSG_ERROR( " Can't get LArCablingSvc." );
+      return sc;
+    } else m_larCablingSvc = (LArCablingBase*)&(*tool);
+  } // end of m_isSC if
 
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
   if (!file1) {
@@ -59,6 +98,7 @@ StatusCode LArAverages2Ntuple::initialize()
   }
 
 
+  ATH_CHECK( nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000) );
   ATH_CHECK( nt->addItem("DAC",m_DAC,0,65535) );
   ATH_CHECK( nt->addItem("isPulsed",m_isPulsed,0,1) );
   ATH_CHECK( nt->addItem("delay",m_delay,0,240) );
@@ -154,6 +194,7 @@ StatusCode LArAverages2Ntuple::execute()
      }
 
      HWIdentifier chid=(*it)->channelID();
+     m_onlChanId = chid.get_identifier32().get_compact();
      m_channel=m_onlineHelper->channel(chid);
      m_slot=m_onlineHelper->slot(chid);
      m_FT=m_onlineHelper->feedthrough(chid);

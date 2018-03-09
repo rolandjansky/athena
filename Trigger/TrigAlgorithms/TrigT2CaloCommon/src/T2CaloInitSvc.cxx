@@ -31,7 +31,7 @@ StatusCode T2CaloInitSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
     { 
         *ppvIF = (T2CaloInitSvc*)this; 
     } else { 
-        MsgStream log(messageService(), name());
+        MsgStream log(msgSvc(), name());
         log << MSG::DEBUG << name() << " cannot found the interface!" <<endreq;
         return AthService::queryInterface(riid, ppvIF); 
     }
@@ -42,7 +42,7 @@ StatusCode T2CaloInitSvc::initialize()
 {
     StatusCode sc;
 
-    MsgStream log(messageService(), name());
+    MsgStream log(msgSvc(), name());
     log << MSG::DEBUG << name() << ": Start of run initialisation" << endreq;
 
     sc = AthService::initialize();

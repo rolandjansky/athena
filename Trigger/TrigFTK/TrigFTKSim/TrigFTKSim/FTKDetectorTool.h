@@ -112,6 +112,7 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
   std::string m_sram_path_sct;
   std::string m_rmap_path;
   FTKRegionMap *m_rmap;
+  bool m_dumpAllModules;
 public:
   
   
@@ -136,6 +137,8 @@ public:
   virtual void dumpGlobalToLocalModuleMap();
 
   virtual void dumpIDMap();
+
+  virtual void dumpModulePositions();
 };
 
 #endif // FTKDetectorTool_h

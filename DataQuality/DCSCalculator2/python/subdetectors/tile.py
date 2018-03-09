@@ -12,7 +12,10 @@ N_CHANNELS_PER_MODULE = 90
 from itertools import product
 
 # Magic, needed for functioning coral Blob
-import PyCintex as C
+try:
+    import PyCintex as C
+except:
+    import cppyy as C
 import PyCool 
 Blob = C.gbl.coral.Blob
 

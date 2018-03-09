@@ -74,15 +74,17 @@ if DetFlags.haveRIO.pixel_on():
             if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
                 conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
             from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-            if (globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"): # geoFlags.isIBL() == True may work too instead of geoFlags.Run() == "RUN2"
+            if (rec.doMonitoring() and globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"): 
+                # geoFlags.isIBL() == True may work too instead of geoFlags.Run() == "RUN2"
                 if not conddb.folderRequested('/PIXEL/DCS/PIPES'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/PIPES")
                 if not conddb.folderRequested('/PIXEL/DCS/LV'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/LV")
                 if not conddb.folderRequested('/PIXEL/DCS/HVCURRENT'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/HVCURRENT")
-                if not conddb.folderRequested('/PIXEL/DCS/PLANTS'):
-                    conddb.addFolder("DCS_OFL","/PIXEL/DCS/PLANTS")
+                # not used anymore
+                # if not conddb.folderRequested('/PIXEL/DCS/PLANTS'):
+                #    conddb.addFolder("DCS_OFL","/PIXEL/DCS/PLANTS")
             
             InDetPixelDCSSvc =  PixelDCSSvc(RegisterCallback     = TRUE,
                                             TemperatureFolder    = "/PIXEL/DCS/TEMPERATURE",
@@ -250,12 +252,14 @@ if DetFlags.haveRIO.SCT_on():
       if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ModuleVetoSvc
 
-    # Load bytestream errors service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
-    InDetSCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "InDetSCT_ByteStreamErrorsSvc")
-    ServiceMgr += InDetSCT_ByteStreamErrorsSvc
+    # Load bytestream errors service (use default instance without "InDet")
+    # @TODO find a better to solution to get the correct service for the current job.
+    if not hasattr(ServiceMgr, "SCT_ByteStreamErrorsSvc"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
+        SCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "SCT_ByteStreamErrorsSvc")
+        ServiceMgr += SCT_ByteStreamErrorsSvc
     if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ByteStreamErrorsSvc
+        print ServiceMgr.SCT_ByteStreamErrorsSvc
     
     if InDetFlags.useSctDCS():
         if not conddb.folderRequested('/SCT/DCS/CHANSTAT'):
@@ -293,7 +297,7 @@ if DetFlags.haveRIO.SCT_on():
         # Configure summary service
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
                                                             "InDetSCT_FlaggedConditionSvc",
-                                                            "InDetSCT_ByteStreamErrorsSvc",
+                                                            "SCT_ByteStreamErrorsSvc",
                                                             "InDetSCT_ReadCalibDataSvc",
                                                             "InDetSCT_TdaqEnabledSvc"]
         if not athenaCommonFlags.isOnline():
@@ -310,7 +314,7 @@ if DetFlags.haveRIO.SCT_on():
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
                                                             "InDetSCT_FlaggedConditionSvc",
                                                             "InDetSCT_MonitorConditionsSvc",
-                                                            "InDetSCT_ByteStreamErrorsSvc",
+                                                            "SCT_ByteStreamErrorsSvc",
                                                             "InDetSCT_ReadCalibDataSvc"]
 
 
@@ -469,7 +473,7 @@ if DetFlags.haveRIO.TRT_on():
     if (InDetFlags.doPrintConfigurables()):
         print InDetTRTConditionsSummaryService 
 
-    from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_ActiveFractionSvc
+    from TRT_RecoConditionsServices.TRT_RecoConditionsServicesConf import TRT_ActiveFractionSvc
     InDetTRT_ActiveFractionSvc = TRT_ActiveFractionSvc(name = "InDetTRTActiveFractionSvc")
 
     ServiceMgr += InDetTRT_ActiveFractionSvc

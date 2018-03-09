@@ -22,5 +22,4 @@ namespace dqm_algorithms
 	};
 }
 
-
 #endif // DQM_ALGORITHMS_MAXIMUMBIN_H

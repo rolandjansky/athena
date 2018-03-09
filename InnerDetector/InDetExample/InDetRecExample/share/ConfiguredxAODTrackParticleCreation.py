@@ -21,6 +21,14 @@ class ConfiguredxAODTrackParticleCreation:
          from AthenaCommon.AlgSequence           import AlgSequence
          topSequence = AlgSequence()
 
+         _perigee_expression=InDetFlags.perigeeExpression()
+         # need to treat Vertex specifically because at the time of
+         # the track particle creation the primary vertex does not yet exist.
+         # The problem is solved by first creating track particles wrt. the beam line
+         # and correcting the parameters after the vertex finding.
+         if _perigee_expression == 'Vertex' :
+              _perigee_expression = 'BeamLine'
+
          #Always the same (so far) so can in principle go in InDetRecLoadTools
          from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
          InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+InputTrackCollection, 
@@ -28,7 +36,9 @@ class ConfiguredxAODTrackParticleCreation:
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
                                                                       BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                       ForceTrackSummaryUpdate = False,
-                                                                      KeepParameters          = True)
+                                                                      KeepParameters          = True,
+                                                                      KeepFirstParameters     = InDetFlags.KeepFirstParameters(),
+                                                                      PerigeeExpression       = _perigee_expression)
 
          ToolSvc += InDetxAODParticleCreatorTool
          if (InDetFlags.doPrintConfigurables()):

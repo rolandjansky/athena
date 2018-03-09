@@ -1,18 +1,13 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_writePedFromASCII.py
 # Nils Gollub <nils.gollub@cern.ch>, 2008-03-03
 # modified: Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-06-27
 # modified: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-import os
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
@@ -38,21 +33,21 @@ def fillPed(filePed, tag, comment, since,
     pedDef    = [30.,50.]
     loGainDef = 0.8
     hiGainDef = 1.6
-    defaultLo = PyCintex.gbl.std.vector('float')()
+    defaultLo = cppyy.gbl.std.vector('float')()
     defaultLo.push_back(pedDef[0]) # pedestal mean value  
     defaultLo.push_back(loGainDef) # pedestal rms
     defaultLo.push_back(0.0)       # pedestal low frequency noise
     defaultLo.push_back(loGainDef) # pedestal HFN1 
     defaultLo.push_back(0.0)       # pedestal HFN2 
     defaultLo.push_back(0.0)       # pedestal HFN2/HFN1 ratio 
-    defaultHi = PyCintex.gbl.std.vector('float')()
+    defaultHi = cppyy.gbl.std.vector('float')()
     defaultHi.push_back(pedDef[1]) # pedestal mean value
     defaultHi.push_back(hiGainDef) # pedestal rms
     defaultHi.push_back(0.0)       # pedestal low frequency noise
     defaultHi.push_back(hiGainDef) # pedestal HFN1
     defaultHi.push_back(0.0)       # pedestal HFN2
     defaultHi.push_back(0.0)       # pedestal HFN2/HFN1 ratio
-    defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+    defVec = cppyy.gbl.std.vector('std::vector<float>')()
     defVec.push_back(defaultLo)
     defVec.push_back(defaultHi)
     

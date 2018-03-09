@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 # @file POOL2EI_Lib.py
 # @purpose provide components to get EventIndex data from pool files
 # @author Javier Sanchez
 # @date February 2014
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 # 
 # Some code borrowed from PyAthena.FilePeekerLib
 # credits to Sebastien Binet 
@@ -18,20 +18,28 @@ import AthenaPython.PyAthena as PyAthena
 from compressB64 import compressB64
 from EI_Lib import EIrecord, IOV
 
+import struct
+from EventIndexProducer.EIPBof import EIPBof
+import gzip
+
 import time
 StatusCode = PyAthena.StatusCode
 
-# make Coral.AttributeList work in Coral3/ROOT6 
-from PyCool import coral 
-try: 
-    getattr(coral.Attribute, 'data<std::basic_string<char> >') 
-    # use coral.Attribute.data<std::basic_string<char> >() if defined  (ROOT6) 
-    def attr_str_data(attr): 
-        return getattr(attr, 'data<std::basic_string<char> >') () 
-    # if not defined, use the old one (ROOT5)  
-except AttributeError: 
-    def attr_str_data(attr): 
-        return getattr(attr, 'data<std::string>') () 
+# MN/sss: make Coral.AttributeList work in Coral3/ROOT6/gcc5
+from PyCool import coral
+_attribute_methods = dir(coral.Attribute)
+_methnames = ['data<std::__cxx11::basic_string<char> >',
+              'data<std::basic_string<char> >',
+              'data<std::string>']
+for _m in _methnames:
+    if _m in _attribute_methods:
+        _attribute_getdata = _m
+        break
+else:
+    raise Exception("Can't find data method in Attribute")
+def attr_str_data(attr):
+    return getattr(attr, _attribute_getdata) ()
+
 
 def _import_ROOT():
     import sys
@@ -62,6 +70,10 @@ class POOL2EI(PyAthena.Alg):
     _eif_totentries = 0
     _eif_nfiles = 0
     _eifname = None
+    _eifname_spb = None
+
+    _eiversion = 0x00000001
+    _eimagic   = 0x6e56c8c7
 
     def __init__(self, name='POOL2EI', **kw):
         ## init base class
@@ -85,6 +97,7 @@ class POOL2EI(PyAthena.Alg):
         _info("## RUN1: {}".format(self.RUN1))
         _info("## SendToBroker: {}".format(self.SendToBroker))
 
+        self.eipbof = EIPBof(self._eiversion) # initialize factory
 
         self._dsname = "Unknown.Input.Dataset.Name"   # default fake value
         if self.EiDsName is not None:
@@ -109,13 +122,15 @@ class POOL2EI(PyAthena.Alg):
                     datasets = newJobDef.job[dsSource].split(',')
                     _info("## {}[0]: {}".format(dsSource,datasets[0]))
                     self._dsname = datasets[0]
-                    # remove _tid and _sub parts from dsname
-                    import re
-                    self._dsname = re.sub('_tid[0-9]{8}_[0-9]{2}', '', self._dsname)
-                    self._dsname = re.sub('_sub[0-9]{10}', '', self._dsname)
-                    self._dsname = re.sub('\/$', '', self._dsname)
                 except:
                     _info('## Unable to get dataset name from realDatasetsIn or realDatasets')
+
+        # remove _tid and _sub parts from dsname
+        import re
+        self._dsname_orig = self._dsname
+        self._dsname = re.sub('_tid[0-9]{8}_[0-9]{2}', '', self._dsname)
+        self._dsname = re.sub('_sub[0-9]{10}', '', self._dsname)
+        self._dsname = re.sub('\/$', '', self._dsname)
                 
 
         # token match regex
@@ -131,7 +146,7 @@ class POOL2EI(PyAthena.Alg):
             cls = getattr(PyAthena, cls_name)
 
         _info("retrieving various stores...")
-        for store_name in ('evtStore', 'inputStore', 'detStore', 
+        for store_name in ('evtStore', 'inputStore', 'detStore',
                            'tagStore', 'metaStore'):
             _info("retrieving [{}]...".format(store_name))
             o = getattr(self, store_name)
@@ -142,7 +157,7 @@ class POOL2EI(PyAthena.Alg):
         if self.HaveHlt:
             # load trigger decision tool
             from TriggerJobOpts.TriggerFlags import TriggerFlags
-            TriggerFlags.configurationSourceList=['ds']
+            TriggerFlags.configurationSourceList = ['ds']
             import AthenaPython.PyAthena as PyAthena
             self.trigDec = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
             self.trigDec.ExperimentalAndExpertMethods().enable()
@@ -152,58 +167,131 @@ class POOL2EI(PyAthena.Alg):
             else:
                 self.trigDec.setProperty("ConfigTool","TrigConf::AODConfigTool");
                 self.trigDec.setProperty("TrigDecisionKey","TrigDecision")
+            # to detect changes in SMK
+            self.SMK_saved = -1
 
-
+        ## Build output file names
+        if self.EiFmt <= 0:
+            if self.Out is not None:
+                oname = self.Out
+            else:
+                oname = "output.ei.pkl"
+            oname_spb = None
+        elif self.EiFmt == 1:
+            if self.Out is not None:
+                oname_spb = self.Out
+            else:
+                oname_spb = "output.ei.spb"
+            oname = None
+        else:
+            # both outputs
+            if self.Out is None:
+                oname     = "output.ei.pkl"
+                oname_spb = "output.ei.spb"
+            else:
+                if self.Out.endswith(".pkl"):
+                    oname     = self.Out
+                    oname_spb = oname[:-4] + ".spb"
+                elif self.Out.endswith(".spb"):
+                    oname_spb = self.Out
+                    oname     = oname_spb[:-4] + ".pkl"
+                else:
+                    oname_spb = self.Out + ".spb"
+                    oname     = self.Out
+        
         ## open output pkl file
         import os
-        if self.Out is not None:
-            oname = self.Out
+        if oname is not None:
+            oname = os.path.expanduser(os.path.expandvars(oname))
+            self._eifname = oname
+            _info('Opening EI file [{}]...'.format(oname))
+
+            if os.path.exists(oname):
+                os.remove(oname)
+
+            import PyUtils.dbsqlite as dbsqlite
+            try:
+                self._eif = dbsqlite.open(oname,flags='w')
+            except:
+                self._eif = None
+
+            if self._eif is None:
+                self.msg.fatal("Unable to open EI output file {} exapnded as {}".format(self.Out, oname))
+                raise RuntimeError("Unable to open EI output file")
         else:
-            oname = "output.ei.pkl"
-        oname = os.path.expanduser(os.path.expandvars(oname))
-        self._eifname = oname
-        _info('Opening EI file [{}]...'.format(oname))
-        if os.path.exists(oname):
-            os.remove(oname)
+            self._eif = None
 
-        import PyUtils.dbsqlite as dbsqlite
 
-        try:
-            self._eif = dbsqlite.open(oname,flags='w')
-        except:
-            pass
+        if oname_spb is not None:
+            oname_spb = os.path.expanduser(os.path.expandvars(oname_spb))
+            self._eifname_spb = oname_spb
+            _info('Opening EI SPB file [{}]...'.format(oname_spb))
 
-        if self._eif is None:
-            self.msg.fatal("Unable to open EI output file {} exapnded as {}".format(self.Out, oname))
-            raise RuntimeError("Unable to open EI output file")
-        
+            if os.path.exists(oname_spb):
+                os.remove(oname_spb)
+
+            try:
+                self._eif_spb = gzip.open(oname_spb, 'wb')
+            except:
+                self._eif_spb = None
+
+            if self._eif_spb is None:
+                self.msg.fatal("Unable to open EI SPB output file {} exapnded as {}".format(self.Out, oname_spb))
+                raise RuntimeError("Unable to open EI SPB output file")
+
+            self._eif_spb.write(struct.pack('<I', self._eimagic ))      # EI SPB magic
+            self._eif_spb.write(struct.pack('<I', self._eiversion ))    # EI SPB versin
+        else:
+            self._eif_spb = None
+                        
+
+        taskID0 = ""
+        jobID0 = ""
         # get taskid and jobid
         if hasattr(self,'TaskID') and hasattr(self,'JobID') and self.TaskID is not None and self.JobID is not None:
-            self._eif['TaskID'] = "{}.T".format(self.TaskID)
+            taskID0 = "{}.T".format(self.TaskID)
             if hasattr(self,'AttemptNumber') and self.AttemptNumber is not None:
-                self._eif['JobID'] = "{}.{}".format(self.JobID,self.AttemptNumber)
+                jobID0 = "{}.{}".format(self.JobID,self.AttemptNumber)
             else:
-                self._eif['JobID'] = "{}.0".format(self.JobID)
+                jobID0 = "{}.0".format(self.JobID)
         else:
             # get them from job info 
             try:
                 import newJobDef
-                self._eif['TaskID'] = "{}.G".format(newJobDef.job['taskID'])
-                self._eif['JobID'] = "{}.{}".format(newJobDef.job['PandaID'], newJobDef.job['attemptNr'])
+                taskID0 = "{}.G".format(newJobDef.job['taskID'])
+                jobID0  = "{}.{}".format(newJobDef.job['PandaID'], newJobDef.job['attemptNr'])
             except:
-                self._eif['TaskID'] = "{}.G".format(os.getenv('PanDA_TaskID', 0))
-                self._eif['JobID'] = "{}.0".format(os.getenv('PandaID', 0))
+                taskID0 = "{}.G".format(os.getenv('PanDA_TaskID', 0))
+                jobID0  = "{}.0".format(os.getenv('PandaID', 0))
 
             
         # initial information
-        self._eif['StartProcTime'] = int(time.time() * 1000)
-        self._eif['Schema'] = EIrecord().getRecSchema()
-        self._eif['Version'] = EIrecord().getVersion()
-        self._eif['InputDsName'] = self._dsname
-        
-        #processing options
-        self._eif['ProvenanceRef'] = self.DoProvenanceRef
-        self._eif['TriggerInfo'] = self.DoTriggerInfo
+        if self._eif is not None:
+            self._eif['StartProcTime'] = int(time.time() * 1000)
+            self._eif['TaskID']        = taskID0
+            self._eif['JobID']         = jobID0
+            self._eif['Schema']        = EIrecord().getRecSchema()
+            self._eif['Version']       = EIrecord().getVersion()
+            self._eif['InputDsName']   = self._dsname
+
+            #processing options
+            self._eif['ProvenanceRef'] = self.DoProvenanceRef
+            self._eif['TriggerInfo']   = self.DoTriggerInfo
+
+        # initial information SPB
+        if self._eif_spb is not None:
+            header = self.eipbof.Header()
+            header.startProcTime  = int(time.time() * 1000)
+            header.taskID         = taskID0
+            header.jobID          = jobID0
+            header.inputDsName    = self._dsname_orig
+            header.provenanceRef  = self.DoProvenanceRef
+            header.triggerInfo    = self.DoTriggerInfo
+
+            spb = header.SerializeToString()
+            self._eif_spb.write(struct.pack('<I', 1<<8 | 0x01 ))
+            self._eif_spb.write(struct.pack('<I', len(spb)))
+            self._eif_spb.write(spb)
 
         return StatusCode.Success
 
@@ -367,9 +455,9 @@ class POOL2EI(PyAthena.Alg):
                 if pool.GetEntry(i)>0:
                     pool_string = pool.db_string
                     # take string until \0 is found
-                    n=pool_string.find('\0')
+                    n = pool_string.find('\0')
                     if n != -1:
-                        pool_string=pool_string[:n]
+                        pool_string = pool_string[:n]
                     match = pool_token(pool_string)
                     if not match:
                         continue
@@ -386,6 +474,9 @@ class POOL2EI(PyAthena.Alg):
             self.guid = None
 
         if self.DoTriggerInfo and self.HaveHlt:
+            # forget old SMK
+            self.SMK_saved = -1
+
             ##/TRIGGER/HLT/HltConfigKeys
             (hltck_info, hltck_iovs) = self.process_metadata(self.inputStore,'/TRIGGER/HLT/HltConfigKeys')
             #hltpsk_l = [ x['HltPrescaleConfigurationKey'] for x in hltck_info ]
@@ -409,9 +500,9 @@ class POOL2EI(PyAthena.Alg):
             
 
         (tginfo, tgiovs) = self.process_metadata(self.inputStore,'/TagInfo')
-        amitag=None
-        trigStream=None
-        projName=None
+        amitag     = "Unknown"
+        trigStream = "Unknown"
+        projName   = "Unknown"
         if len(tginfo) > 0:
             for tgi in tginfo:
                 if 'AMITag' in tgi:
@@ -423,7 +514,7 @@ class POOL2EI(PyAthena.Alg):
                 if 'project_name' in tgi:
                     projName = tgi['project_name']
                     _info("## project_name: {}".format(projName))
-        
+
 
         
         if  self._eif is not None:
@@ -433,6 +524,19 @@ class POOL2EI(PyAthena.Alg):
             self._eif['TrigStream_{:d}'.format(nfile)] = trigStream
             self._eif['ProjName_{:d}'.format(nfile)] = projName
             self._eif['GUID_{:d}'.format(nfile)] = self.guid
+
+        if  self._eif_spb is not None:
+            beginGUID = self.eipbof.BeginGUID()
+            beginGUID.startProcTime = int(time.time() * 1000)
+            beginGUID.AMITag        = amitag
+            beginGUID.trigStream    = trigStream
+            beginGUID.projName      = projName
+            beginGUID.guid          = self.guid
+
+            spb = beginGUID.SerializeToString()
+            self._eif_spb.write(struct.pack('<I', 3<<8 | 0x01))
+            self._eif_spb.write(struct.pack('<I', len(spb)))
+            self._eif_spb.write(spb)
 
         self._eif_nfiles += 1
             
@@ -448,8 +552,20 @@ class POOL2EI(PyAthena.Alg):
         _info("POOL2EI::endFile")
 
         nfile = self._eif_nfiles-1
-        self._eif['Nentries_{:d}'.format(nfile)] = self._eif_entries
-        self._eif['EndProcTime_{:d}'.format(nfile)] = int(time.time() * 1000)
+
+        if  self._eif is not None:
+            self._eif['Nentries_{:d}'.format(nfile)] = self._eif_entries
+            self._eif['EndProcTime_{:d}'.format(nfile)] = int(time.time() * 1000)
+
+        if  self._eif_spb is not None:
+            endGUID = self.eipbof.EndGUID()
+            endGUID.nentries    = self._eif_entries
+            endGUID.endProcTime = int(time.time() * 1000)
+
+            spb = endGUID.SerializeToString()
+            self._eif_spb.write(struct.pack('<I', 4<<8 | 0x01 ))
+            self._eif_spb.write(struct.pack('<I', len(spb)))
+            self._eif_spb.write(spb)
 
         return 
 
@@ -611,6 +727,39 @@ class POOL2EI(PyAthena.Alg):
                     self.ccnameL2 = {}
                     pass
 
+ 
+    def writeTrigMenutoSPB(self, SMK, L1PSK, HLTPSK):
+
+        L1Menu = []
+        for pos,name in self.ccnameL1.items():
+            L1Menu.append("{:d}:{}".format(pos,name))
+
+        L2Menu = []
+        for pos,name in self.ccnameL2.items():
+            L2Menu.append("{:d}:{}".format(pos,name))
+
+        if not self.HaveXHlt:
+            EFMenu = []
+            for pos,name in self.ccnameL2.items():
+                EFMenu.append("{:d}:{}".format(pos,name))
+
+        if self._eif_spb is not None:
+            tMenu = self.eipbof.TriggerMenu()
+            tMenu.SMK    = ( SMK    if SMK    is not None else 0 )
+            tMenu.L1PSK  = ( L1PSK  if L1PSK  is not None else 0 )
+            tMenu.HLTPSK = ( HLTPSK if HLTPSK is not None else 0 )
+            tMenu.L1Menu = ";".join(L1Menu)
+            if self.HaveXHlt:
+                tMenu.HLTMenu = ";".join(L2Menu)
+            else:
+                tMenu.L2Menu = ";".join(L2Menu)
+                tMenu.EFMenu = ";".join(EFMenu)
+
+            spb = tMenu.SerializeToString()
+            self._eif_spb.write(struct.pack('<I', 5<<8 | 0x01 ))
+            self._eif_spb.write(struct.pack('<I', len(spb)))
+            self._eif_spb.write(spb)
+        
 
     ##########################################
     # execute event by event
@@ -626,7 +775,10 @@ class POOL2EI(PyAthena.Alg):
 
         _info("POOL2EI::execute")
 
-        eirec = EIrecord()
+        if self._eif is not None:
+            eirec   = EIrecord()
+        if self._eif_spb is not None:
+            eventPB = self.eipbof.EIEvent()
 
         # -- Get EventInfo data
         store = self.evtStore
@@ -650,34 +802,63 @@ class POOL2EI(PyAthena.Alg):
         eitype = ei.event_type()
         bm = list(eitype.bit_mask)
         if 'IS_SIMULATION' in bm:
-            eirec['IsSimulation']=1            # IS_SIMULATION
+            if self._eif is not None:
+                eirec['IsSimulation']  = 1            # IS_SIMULATION
+            if self._eif_spb is not None:
+                eventPB.isSimulation   = True         # IS_SIMULATION
         else:
-            eirec['IsSimulation']=0            # IS_DATA
+            if self._eif is not None:
+                eirec['IsSimulation']  = 0            # IS_DATA
+            if self._eif_spb is not None:
+                eventPB.isSimulation   = False        # IS_DATA
 
         if 'IS_TESTBEAM' in bm:
-            eirec['IsTestBeam']=1              # IS_TESTBEAM
+            if self._eif is not None:
+                eirec['IsTestBeam']    = 1            # IS_TESTBEAM
+            if self._eif_spb is not None:
+                eventPB.isTestBeam     = True         # IS_TESTBEAM
         else:
-            eirec['IsTestBeam']=0              # IS_FROM_ATLAS_DET
+            if self._eif is not None:
+                eirec['IsTestBeam']    = 0            # IS_FROM_ATLAS_DET
+            if self._eif_spb is not None:
+                eventPB.isTestBeam     = False        # IS_FROM_ATLAS_DET
 
         if 'IS_CALIBRATION' in bm:
-            eirec['IsCalibration']=1           # IS_CALIBRATION
+            if self._eif is not None:
+                eirec['IsCalibration'] = 1            # IS_CALIBRATION
+            if self._eif_spb is not None:
+                eventPB.isCalibration  = True         # IS_CALIBRATION
         else:
-            eirec['IsCalibration']=0           # IS_PHYSICS
+            if self._eif is not None:
+                eirec['IsCalibration'] = 0            # IS_PHYSICS
+            if self._eif_spb is not None:
+                eventPB.isCalibration  = False        # IS_PHYSICS
         
 
 
-        run_number=eid.run_number()
-        event_number=eid.event_number()
-        lumi_block=eid.lumi_block()
+        run_number   = eid.run_number()
+        event_number = eid.event_number()
+        lumi_block   = eid.lumi_block()
         
-        eirec['RunNumber'] = run_number
-        eirec['EventNumber'] = event_number
-        eirec['LumiBlockN'] = lumi_block
-        eirec["BunchId"] = eid.bunch_crossing_id()
-        eirec['EventTime'] = eid.time_stamp()
-        eirec['EventTimeNanoSec'] = eid.time_stamp_ns_offset() 
-        eirec['EventWeight'] = eitype.mc_event_weight()
-        eirec['McChannelNumber'] = eitype.mc_channel_number()
+        if self._eif is not None:
+            eirec['RunNumber']        = run_number
+            eirec['EventNumber']      = event_number
+            eirec['LumiBlockN']       = lumi_block
+            eirec["BunchId"]          = eid.bunch_crossing_id()
+            eirec['EventTime']        = eid.time_stamp()
+            eirec['EventTimeNanoSec'] = eid.time_stamp_ns_offset() 
+            eirec['EventWeight']      = eitype.mc_event_weight()
+            eirec['McChannelNumber']  = eitype.mc_channel_number()
+
+        if self._eif_spb is not None:
+            eventPB.runNumber         = run_number
+            eventPB.eventNumber       = event_number
+            eventPB.lumiBlock         = lumi_block
+            eventPB.bcid              = eid.bunch_crossing_id()
+            eventPB.timeStamp         = eid.time_stamp()
+            eventPB.timeStampNSOffset = eid.time_stamp_ns_offset()
+            eventPB.mcEventWeight     = eitype.mc_event_weight()
+            eventPB.mcChannelNumber   = eitype.mc_channel_number()
 
         _info('## EventWeight: {:f}'.format(eitype.mc_event_weight()))
         _info('## McChannelNumber: {:d}'.format(eitype.mc_channel_number()))
@@ -699,29 +880,39 @@ class POOL2EI(PyAthena.Alg):
             if 'xAOD::EventInfo' in store.keys():
                 _info("#2# Lvl1ID {}".format(xei.extendedLevel1ID()))
             Lvl1ID = eit.extendedLevel1ID()
-            eirec['Lvl1ID'] = Lvl1ID
-            trigL1=""
-            trigL2=""
-            trigEF=""
+            if self._eif is not None:
+                eirec['Lvl1ID'] = Lvl1ID
+            if self._eif_spb is not None:
+                eventPB.extendedLevel1ID = Lvl1ID
+            trigL1 = ""
+            trigL2 = ""
+            trigEF = ""
             _info("LEN_L1: {}".format(32*len(eit.level1TriggerInfo())))
             for v in eit.level1TriggerInfo():
-                trigL1+="{0:032b}".format(v)[::-1]
+                trigL1 += "{0:032b}".format(v)[::-1]
             _info("LEN_L2: {}".format(32*len(eit.level2TriggerInfo())))
             for v in eit.level2TriggerInfo():
-                trigL2+="{0:032b}".format(v)[::-1]
+                trigL2 += "{0:032b}".format(v)[::-1]
             _info("LEN_EF: {}".format(32*len(eit.eventFilterInfo())))
             for v in eit.eventFilterInfo():
-                trigEF+="{0:032b}".format(v)[::-1]
-            trigL1=compressB64(trigL1)
-            trigL2=compressB64(trigL2)
-            trigEF=compressB64(trigEF)
+                trigEF += "{0:032b}".format(v)[::-1]
+            trigL1 = compressB64(trigL1)
+            trigL2 = compressB64(trigL2)
+            trigEF = compressB64(trigEF)
             _info("## trigL1: {}".format(trigL1))
             _info("## trigL2: {}".format(trigL2))
             _info("## trigEF: {}".format(trigEF))
 
-            eirec['L1PassedTrigMask'] = trigL1
-            eirec['L2PassedTrigMask'] = trigL2
-            eirec['EFPassedTrigMask'] = trigEF
+            if self._eif is not None:
+                eirec['L1PassedTrigMask'] = trigL1
+                eirec['L2PassedTrigMask'] = trigL2
+                eirec['EFPassedTrigMask'] = trigEF
+                
+            if self._eif_spb is not None:
+                eventPB.L1PassedTrigMask = trigL1
+                eventPB.L2PassedTrigMask = trigL2
+                eventPB.EFPassedTrigMask = trigEF
+        
         
             # if trigger chains were not read at BeginRun try now from detStore
             if self.cclenL1 == 0 or self.cclenL2 == 0 or self.cclenEF == 0:
@@ -753,10 +944,19 @@ class POOL2EI(PyAthena.Alg):
                 _info('## L1PSK*:  {}'.format(L1PSK))
                 _info('## HLTPSK*: {}'.format(HLTPSK))
 
-            eirec['SMK'] = SMK
-            eirec['L1PSK'] = L1PSK
-            eirec['HLTPSK'] = HLTPSK
+            if self._eif is not None:
+                eirec['SMK']    = SMK
+                eirec['L1PSK']  = L1PSK
+                eirec['HLTPSK'] = HLTPSK
 
+            if self._eif_spb is not None:
+                eventPB.SMK     = ( SMK    if SMK    is not None else 0 )
+                eventPB.L1PSK   = ( L1PSK  if L1PSK  is not None else 0 )
+                eventPB.HLTPSK  = ( HLTPSK if HLTPSK is not None else 0 )
+            
+                if SMK != self.SMK_saved:
+                	self.SMK_saved = SMK
+                	self.writeTrigMenutoSPB(SMK,L1PSK,HLTPSK)
 
         # update trigger if TrigDecision info is available
         if self.DoTriggerInfo and self.HaveHlt:
@@ -766,15 +966,15 @@ class POOL2EI(PyAthena.Alg):
             L1_isPassedAfterVeto      = 0x1 << 18
             nlvl1=self.cclenL1
             _info("LEN_L1*: {}".format(3*nlvl1))
-            trigL1X=list(3*nlvl1*"0")
+            trigL1X = list(3*nlvl1*"0")
             for pos,name in self.ccnameL1.items():
                 passedBits = self.trigDec.isPassedBits(name)
                 if passedBits & L1_isPassedBeforePrescale != 0:
-                    trigL1X[pos]="1"
+                    trigL1X[pos] = "1"
                 if passedBits & L1_isPassedAfterPrescale != 0:
-                    trigL1X[pos+nlvl1]="1"
+                    trigL1X[pos+nlvl1] = "1"
                 if passedBits & L1_isPassedAfterVeto != 0:
-                    trigL1X[pos+2*nlvl1]="1"
+                    trigL1X[pos+2*nlvl1] = "1"
             trigL1=compressB64("".join(trigL1X))
 
 
@@ -784,9 +984,9 @@ class POOL2EI(PyAthena.Alg):
             L2_resurrected = 0x1 << 11
             nlvl2=self.cclenL2
             _info("LEN_L2*: {}".format(nlvl2))
-            trigL2_PH=list(nlvl2*"0")
-            trigL2_PT=list(nlvl2*"0")
-            trigL2_RS=list(nlvl2*"0")
+            trigL2_PH = list(nlvl2*"0")
+            trigL2_PT = list(nlvl2*"0")
+            trigL2_RS = list(nlvl2*"0")
             for pos,name in self.ccnameL2.items():
                 passedBits    = self.trigDec.isPassedBits(name)
                 passedPhysics = self.trigDec.isPassed(name)
@@ -800,9 +1000,9 @@ class POOL2EI(PyAthena.Alg):
                     trigL2_RS[pos] = "1"
 
 
-            trigL2_PH=compressB64("".join(trigL2_PH))
-            trigL2_PT=compressB64("".join(trigL2_PT))
-            trigL2_RS=compressB64("".join(trigL2_RS))
+            trigL2_PH = compressB64("".join(trigL2_PH))
+            trigL2_PT = compressB64("".join(trigL2_PT))
+            trigL2_RS = compressB64("".join(trigL2_RS))
             trigL2 = trigL2_PH+";"+trigL2_PT+";"+trigL2_RS
 
 
@@ -810,45 +1010,56 @@ class POOL2EI(PyAthena.Alg):
             EF_passThrough = 0x1 << 1
             EF_prescaled   = 0x1 << 2
             EF_resurrected = 0x1 << 3
-            nlvlEF=self.cclenEF
+            nlvlEF = self.cclenEF
             _info("LEN_EF*: {}".format(nlvlEF))
-            trigEFX=list(nlvlEF*"0")
-            trigEF_PH=list(nlvlEF*"0")
-            trigEF_PT=list(nlvlEF*"0")
-            trigEF_RS=list(nlvlEF*"0")
-            trigEF_INC=list(nlvlEF*"0")
+            trigEFX    = list(nlvlEF*"0")
+            trigEF_PH  = list(nlvlEF*"0")
+            trigEF_PT  = list(nlvlEF*"0")
+            trigEF_RS  = list(nlvlEF*"0")
+            trigEF_INC = list(nlvlEF*"0")
+            trigEF_RAW = list(nlvlEF*"0")
             for pos,name in self.ccnameEF.items():
                 passedBits    = self.trigDec.isPassedBits(name)
                 passedPhysics = self.trigDec.isPassed(name)
                 passedPT      = ( passedBits & EF_passThrough != 0 )
                 passedRes     = ( passedBits & EF_resurrected != 0 )
+                passedRaw     = ( passedBits & EF_passedRaw != 0 )
+                if passedRaw:
+                    trigEF_RAW[pos] = "1"
                 if passedPhysics :
-                    trigEF_PH[pos] = "1"
+                    trigEF_PH[pos]  = "1"
                 if passedPT:
-                    trigEF_PT[pos] = "1"
+                    trigEF_PT[pos]  = "1"
                 if passedRes:
-                    trigEF_RS[pos] = "1"
+                    trigEF_RS[pos]  = "1"
                 if ( passedPhysics or passedPT or passedRes ):
                     trigEF_INC[pos] = "1"
 
-            trigEF_PH=compressB64("".join(trigEF_PH))
-            trigEF_PT=compressB64("".join(trigEF_PT))
-            trigEF_RS=compressB64("".join(trigEF_RS))
-            trigEF_INC=compressB64("".join(trigEF_INC))
+            trigEF_RAW = compressB64("".join(trigEF_RAW))
+            trigEF_PH  = compressB64("".join(trigEF_PH))
+            trigEF_PT  = compressB64("".join(trigEF_PT))
+            trigEF_RS  = compressB64("".join(trigEF_RS))
+            trigEF_INC = compressB64("".join(trigEF_INC))
             trigEF  = trigEF_PH+";"+trigEF_PT+";"+trigEF_RS
             trigEF2 = trigEF_PH+";"+trigEF_INC
 
             _info("## trigL1*: {}".format(trigL1))
             _info("## trigL2*: {}".format(trigL2))
             _info("## trigEF*: {}".format(trigEF))
+            _info("## trigRAW*: {}".format(trigEF_RAW))
 
             # overwrite 
-            eirec['L1PassedTrigMask'] = trigL1
-            eirec['L2PassedTrigMask'] = trigL2
-            eirec['EFPassedTrigMask'] = trigEF
+            if self._eif is not None:
+                eirec['L1PassedTrigMask'] = trigL1
+                eirec['L2PassedTrigMask'] = trigL2
+                eirec['EFPassedTrigMask'] = trigEF
 
+            if self._eif_spb is not None:
+                eventPB.L1PassedTrigMask = trigL1
+                eventPB.L2PassedTrigMask = trigL2
+                eventPB.EFPassedTrigMask = trigEF
 
-        stream_refs = {}   # sreeam reference
+        stream_refs  = {}  # sreeam reference
         Pstream_refs = {}  # provenance references
         procTag = None
         ## -- Stream references
@@ -862,16 +1073,16 @@ class POOL2EI(PyAthena.Alg):
                 prv = dh.beginProvenance()
                 for i in range(0,dh.sizeProvenance()):
                     try:
-                        tk=prv.getToken().toString()
+                        tk = prv.getToken().toString()
                         match = self._re_pool_token(tk)
                     except:
-                        tk=prv.getToken()
+                        tk = prv.getToken()
                         match = self._re_pool_token(tk)
                     if not match:
                         msg.warning('Provenance token can not be parsed: {}'.format(tk))
                         continue
                     d = match.groupdict()
-                    key=prv.getKey()
+                    key = prv.getKey()
                     # CNT is empty. Complete information
                     if key == "StreamRAW":
                         stk = "[DB={}][CNT=00000000][CLID={}][TECH={}][OID={}]".format(
@@ -889,6 +1100,8 @@ class POOL2EI(PyAthena.Alg):
                     prv += 1
     
         ## stream references
+        if self._eif_spb is not None:
+            tokenPB0 = eventPB.eitoken.add()
         if dh.size() > 0:
             dhe = dh.begin()
             for i in range(0,dh.size()):
@@ -909,13 +1122,20 @@ class POOL2EI(PyAthena.Alg):
                     _info("## "+ key+"_ref: "+stk)
                     if "ProcTag_ref" in stream_refs:
                         _info("Already inserted key ProcTag_ref in stream_refs with value "+stream_refs["ProcTag_ref"])
-                    stream_refs["Sref0"]=stk
+                    stream_refs["Sref0"] = stk
+                    if self._eif_spb is not None:
+                        if key == tokenPB0.name:
+                            _info("Already inserted key {0} in tokenPB0 with value {1}".format(key,stk))
+                        tokenPB0.name  = key
+                        tokenPB0.token = stk
                 dhe += 1
 
         # Update ref token to handle fast merged files.
         try:
             stk = store.proxy(dh).address().par().c_str()
-            stream_refs["Sref0"]=stk
+            stream_refs["Sref0"] = stk
+            if self._eif_spb is not None:
+                tokenPB0.token = stk
             _info("Updated ref token "+stk)
         except:
             pass
@@ -942,8 +1162,28 @@ class POOL2EI(PyAthena.Alg):
 
             eirec['Snam0'] = procTag
             self._eif['Entry_{:d}'.format(self._eif_totentries)] = eirec.getRec()
-            self._eif_entries += 1     # for this input file
-            self._eif_totentries += 1  # for all input fies
+
+
+        if  self._eif_spb is not None:
+            for sr,v in Pstream_refs.iteritems():
+                try:
+                    tokenPB = eventPB.eitoken.add()
+                    tokenPB.name  = sr
+                    tokenPB.token = v
+                except:
+                    _info("Unable to insert " + sr + " in provenance stream references with value "+v)
+                    pass
+
+            tokenPB0.name = procTag
+
+            spb = eventPB.SerializeToString()
+            self._eif_spb.write(struct.pack('<I', 6<<8 | 0x01 ))
+            self._eif_spb.write(struct.pack('<I', len(spb)))
+            self._eif_spb.write(spb)
+
+
+        self._eif_entries += 1     # for this input file
+        self._eif_totentries += 1  # for all input fies
 
         return StatusCode.Success
 
@@ -956,28 +1196,20 @@ class POOL2EI(PyAthena.Alg):
             self._eif['Nfiles'] = self._eif_nfiles
             self._eif['EndProcTime'] = int(time.time() * 1000)
             self._eif.close()
-            
-            if self.SendToBroker:
-                from sendEI import eimrun
-                from sendEI import options as eioptions
-            
-                # set default options
-                import base64
-                argv2 = []
-                argv2.append("-v")                # verbose
-                argv2.append("--trigger")         # include trigger
-                # add the connect string
-                earg="LS1lbmRwb2ludCxhdGxhcy1tYi5jZXJuLmNoOjYxMDEzLC0tdXNlcixhdGxldnRpZHh0c3QsLS1wYXNzY29kZSxHZjR0YjV0Qk9XeUdoUnRW"
-                eargs=base64.b64decode(earg).split(",")
-                argv2.extend(eargs)
-                argv2.append(self._eifname)
-                opt = eioptions(argv2)
 
-                # transfer file
-                eimrun(self.msg,opt)
-            else:
-                _info("Event Index data NOT sent to broker by user request")
+        if  self._eif_spb is not None:
+            trailer = self.eipbof.Trailer()
+            trailer.nfiles = self._eif_nfiles
+            trailer.nentries = self._eif_totentries
+            trailer.endProcTime = int(time.time() * 1000)
 
+            spb = trailer.SerializeToString()
+            self._eif_spb.write(struct.pack('<I', 2<<8 | 0x01 ))
+            self._eif_spb.write(struct.pack('<I', len(spb)))
+            self._eif_spb.write(spb)
+
+            self._eif_spb.close()
+            
         return StatusCode.Success
         
 
@@ -991,7 +1223,7 @@ class POOL2EISvc(PyAthena.Svc):
         _info("POOL2EISvc::__init__")
         
         # whether we are inside beginFile ... endFile
-        self.insideInputFile=False
+        self.insideInputFile = False
 
         #save algorithm to call on incident
         if 'algo' in kw:
@@ -1029,12 +1261,12 @@ class POOL2EISvc(PyAthena.Svc):
             pass
         elif tp == 'BeginInputFile':
             _info('POOL2EISvc::handle BeginInputFile')
-            self.insideInputFile=True
+            self.insideInputFile = True
             self.algo.beginFile()
             pass
         elif tp == 'EndInputFile':
             _info('POOL2EISvc::handle EndInputFile')
-            self.insideInputFile=False
+            self.insideInputFile = False
             self.algo.endFile()
             pass
         elif tp == 'EndEvtLoop':

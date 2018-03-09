@@ -84,6 +84,7 @@ NoisyChipFraction      = 0.500
 NoisyUploadTest        = True
 NoisyModuleAverageInDB = -1.
 NoisyStripLastRunInDB  = -999
+NoisyStripAverageInDB  = -999.
 NoisyModuleList        = 200
 NoisyModuleDiff        = 0.200
 NoisyStripDiff         = 128
@@ -160,5 +161,5 @@ ConditionsTagNF  = 'COMCOND-ES1PA-006-02'     # Solenoide=OFF, BarrelTroid=OFF
 # Read /SCT/Derived/Monotoring in COOL
 # - Used in a criteria for upload of NoisyStrips
 #--------------------------------------------------------------
-NoisyReadNumRuns      = 5
+NoisyReadNumRuns      = 20
 TagID4NoisyUploadTest = 'SctDerivedMonitoring-UPD4-001'

@@ -12,10 +12,12 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArGeoModel/LArGeoCode
                           LArCalorimeter/LArSimEvent
                           Simulation/G4Atlas/G4AtlasTools
+                          Control/StoreGate
+                          GaudiKernel
                           PRIVATE
                           Calorimeter/CaloIdentifier
                           Control/AthenaKernel
-                          Control/StoreGate
+                          Control/CxxUtils
                           Simulation/G4Sim/MCTruth )
 
 # External dependencies:
@@ -28,8 +30,15 @@ add_definitions(-DLARG4NOROOT)
 # Component(s) in the package:
 atlas_add_library( LArG4Code
                    src/*.cc
+                   src/*.cxx
                    PUBLIC_HEADERS LArG4Code
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaKernel MCTruth )
+                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib SGtests GaudiKernel
+                   PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaKernel CxxUtils MCTruth )
+
+atlas_add_dictionary( LArG4CodeEnums
+                      LArG4Code/LArG4EnumDefs.h
+                      LArG4Code/selectionEnums.xml
+                      INCLUDE_DIRS  ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} CaloSimEvent LArGeoCode LArSimEvent CaloG4SimLib G4AtlasToolsLib StoreGateLib SGtests GaudiKernel LArG4Code )

@@ -25,6 +25,7 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4",              "ISF_Ker
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4_LongLived",    "ISF_Kernel_FullG4_LongLived")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4_IDOnly",       "ISF_Kernel_FullG4_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FullG4_IDCalo",       "ISF_Kernel_FullG4_IDCalo")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_StoppingG4",          "ISF_Kernel_StoppingG4")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4",              "ISF_Kernel_MC12G4")# Legacy only
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_longLived",    "ISF_Kernel_MC12G4_longLived")# Legacy only
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_MC12G4_IDOnly",       "ISF_Kernel_MC12G4_IDOnly")# Legacy only
@@ -34,8 +35,11 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_CosmicsG4",           "ISF_Ker
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII",           "ISF_Kernel_ATLFASTII")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF",          "ISF_Kernel_ATLFASTIIF")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_PileUp",   "ISF_Kernel_ATLFASTIIF_PileUp")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII_PileUp",   "ISF_Kernel_ATLFASTII_PileUp")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4HS_FastPileup",     "ISF_Kernel_G4HS_FastPileup")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDOnly",   "ISF_Kernel_ATLFASTIIF_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDCalo",   "ISF_Kernel_ATLFASTIIF_IDCalo")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCalo",          "ISF_Kernel_G4FastCalo")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_Fatras_newExtrapolation","ISF_Kernel_Fatras_newExtrapolation")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_Fatras_newExtrapolation_IDOnly","ISF_Kernel_Fatras_newExtrapolation_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_FastOnly",            "ISF_Kernel_FastOnly")

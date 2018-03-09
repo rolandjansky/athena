@@ -71,7 +71,7 @@ StatusCode DetectorFieldManagerTool::initializeField()
 
     // Assign the field manager to volumes
     auto logVolStore = G4LogicalVolumeStore::GetInstance();
-    for (auto volume: m_volumeList) {
+    for (const auto& volume: m_volumeList) {
       G4LogicalVolume* logicalVolume = logVolStore->GetVolume(volume);
       if (logicalVolume) logicalVolume->SetFieldManager(fieldMgr, true);
       else {

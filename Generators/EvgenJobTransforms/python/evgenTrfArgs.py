@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
@@ -99,4 +99,20 @@ def addStdEvgenArgs(parser):
                         default=trfArgClasses.argInt(0, runarg=True),
                         type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
 
+    parser.add_argument('--lheOnly', '--lheOnly', group='Evgen',
+                        default=trfArgClasses.argInt(0, runarg=True),
+                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Set to 1 if Evgen file should be removed')
 
+    parser.add_argument("--localPath", group="Evgen",
+                        help="Name of local path to JOs",
+                        type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
+
+    parser.add_argument('--saveList', '--saveList', group='Evgen',
+                        help="a comma-separated list of files to be saved in output or a single digit if the whole output directory is to be saved",
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepList, runarg=True))
+
+    parser.add_argument('--cleanOut', '--cleanOut', group='Evgen',
+                        default=trfArgClasses.argInt(0, runarg=True),
+                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Set to any digit !=0 if the output files should be cleaned up --saveList may help to save selected files')

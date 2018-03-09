@@ -167,8 +167,8 @@ StatusCode DQTGlobalWZFinderTool::bookHistogramsRecurrent()
   failure |= registerHist(fullPathDQTGlobalWZFinder, m_mu_lb = new TProfile("m_mu_lb", "#mu", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
   failure |= registerHist(fullPathDQTGlobalWZFinder, m_Z_ee_trig_ps = new TProfile("m_Z_ee_trig_ps", "Z->ee trigger PS", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
   failure |= registerHist(fullPathDQTGlobalWZFinder, m_Z_mm_trig_ps = new TProfile("m_Z_mm_trig_ps", "Z->#mu#mu trigger PS", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
-  failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_El = new TH1F("m_Z_Counter_el","Z to e e Count per Lumi Block", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
-  failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_Mu = new TH1F("m_Z_Counter_mu","Z to mu mu Count per Lumi Block", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+  failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_El = new TH1F("m_Z_Counter_el","Z #rightarrow ee Count per Lumi Block", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
+  failure |= registerHist(fullPathDQTGlobalWZFinder, m_ZBosonCounter_Mu = new TH1F("m_Z_Counter_mu","Z #rightarrow #mu#mu Count per Lumi Block", 1, m_this_lb-0.5, m_this_lb+0.5), lumiBlock, ATTRIB_UNMANAGED, "merge").isFailure();
   
   if (!failure) {
     m_livetime_lb->Fill(m_this_lb, lbAverageLivefraction());
@@ -277,8 +277,8 @@ bool DQTGlobalWZFinderTool::bookDQTGlobalWZFinderTool()
      m_minLumiBlock  = 0.0;
      m_maxLumiBlock = 1200.0;
      m_numBins = 30.0;
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_JPsiCounter_Mu   = TH1F_LW::create("m_JPsi_Counter_mu", "JPsi to mu mu Count per Lumi Block", m_numBins, m_minLumiBlock+0.5, m_maxLumiBlock+0.5)).isFailure();
-     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_UpsilonCounter_Mu   = TH1F_LW::create("m_Upsilon_Counter_mu", "Upsilon to mu mu Count per Lumi Block", m_numBins, m_minLumiBlock+0.5, m_maxLumiBlock+0.5)).isFailure();
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_JPsiCounter_Mu   = TH1F_LW::create("m_JPsi_Counter_mu", "J/#psi #rightarrow #mu#mu Count per Lumi Block", m_numBins, m_minLumiBlock+0.5, m_maxLumiBlock+0.5)).isFailure();
+     failure = failure | registerHist(fullPathDQTGlobalWZFinder, m_UpsilonCounter_Mu   = TH1F_LW::create("m_Upsilon_Counter_mu", "#Upsilon #rightarrow #mu#mu Count per Lumi Block", m_numBins, m_minLumiBlock+0.5, m_maxLumiBlock+0.5)).isFailure();
 
   }
    
@@ -696,7 +696,8 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
        TLorentzVector Zmumu = leadingMuZ->p4() + subleadingMuZ->p4();
        Float_t mass = Zmumu.M();
        Int_t Zmumucharge = leadingMuZ->charge() + subleadingMuZ->charge();
-       bool oktrig = trigChainsArePassed(m_Z_mm_trigger);
+       // potentially ignore trigger...
+       bool oktrig = trigChainsArePassed(m_Z_mm_trigger) || ! m_doTrigger;
 
 	if (mass > m_zCutLow*GeV && mass < m_zCutHigh*GeV) {
 	  if (oktrig) { m_Z_Q_mu->Fill(Zmumucharge, m_evtWeight); }
@@ -708,7 +709,9 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 	      ++m_ZBosonCounterSBG_Mu[0];
 	    }
 	    else { ATH_MSG_DEBUG("Trigger failure!"); }
-	    doMuonTriggerTP(leadingMuZ, subleadingMuZ);
+	    if (m_doTrigger) {
+	      doMuonTriggerTP(leadingMuZ, subleadingMuZ);
+	    }
 	  } else {
 	    if (oktrig) {
 	      m_Z_mass_ssmu->Fill(mass, m_evtWeight);
@@ -961,7 +964,7 @@ void DQTGlobalWZFinderTool::doMuonLooseTP(std::vector<const xAOD::Muon*>& goodmu
     // only consider trigger-matched tags to avoid bias on probes
     bool matched = false;
     for (const auto chain: m_Z_mm_trigger) {
-      if (m_muTrigMatchTool->match(tagmu, chain)) {
+      if (m_muTrigMatchTool->match(tagmu, chain) || ! m_doTrigger) {
 	matched=true;
 	break;
       }

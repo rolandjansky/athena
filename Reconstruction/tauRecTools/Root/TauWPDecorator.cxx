@@ -49,6 +49,8 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
 
 /********************************************************************/
 TauWPDecorator::~TauWPDecorator() {
+  delete acc_score;
+  delete acc_newScore;
 }
 
 StatusCode TauWPDecorator::retrieveHistos(int nProng) {
@@ -75,13 +77,15 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
       }
 
       // Clone histogram and store locally
-      TH2* myLocalGraph = (TH2*)myGraph->Clone();
-      myLocalGraph->SetDirectory(0);
+      std::unique_ptr<TH2> myLocalGraph1P((TH2*)myGraph->Clone());
+      std::unique_ptr<TH2> myLocalGraph3P((TH2*)myGraph->Clone());
+      myLocalGraph1P->SetDirectory(0);
+      myLocalGraph3P->SetDirectory(0);
       
       if(nProng == 1)
-	m_hists1P.push_back(m_pair_t(float(i)/100., myLocalGraph));
+	m_hists1P.push_back(m_pair_t(float(i)/100., std::move(myLocalGraph1P)));
       else
-	m_hists3P.push_back(m_pair_t(float(i)/100., myLocalGraph));
+	m_hists3P.push_back(m_pair_t(float(i)/100., std::move(myLocalGraph3P)));
     }
   
   return StatusCode::SUCCESS;  
@@ -90,8 +94,7 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
 StatusCode TauWPDecorator::storeLimits(int nProng) {
 
   // Use pointer for simpler access
-  std::vector<m_pair_t> *histArray;
-  histArray = (nProng == 1) ? &m_hists1P : &m_hists3P;
+  std::vector<m_pair_t> *histArray = (nProng == 1) ? &m_hists1P : &m_hists3P;
 
   // Default values
   m_xmin[nProng] = 1E9;
@@ -102,8 +105,7 @@ StatusCode TauWPDecorator::storeLimits(int nProng) {
   // Store limits
   for (unsigned int i=0; i<histArray->size(); i++)
     {
-      TH2* myHist = histArray->at(i).second;
-      
+      TH2* myHist = histArray->at(i).second.get();
       m_xmin[nProng] = TMath::Min(myHist->GetXaxis()->GetXmin(), m_xmin[nProng]);
       m_ymin[nProng] = TMath::Min(myHist->GetYaxis()->GetXmin(), m_ymin[nProng]);
 
@@ -148,21 +150,18 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 { 
 
   // Accessors
-  //static SG::AuxElement::ConstAccessor<int> acc_nVertex("NUMVERTICES");
   static SG::AuxElement::ConstAccessor<float> acc_mu("MU");
   static SG::AuxElement::ConstAccessor<float> acc_pt("pt");
   static SG::AuxElement::ConstAccessor<int> acc_numTrack("NUMTRACK");
   static SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
 
   // histograms
-  std::vector<m_pair_t> *histArray;
-  histArray = (acc_numTrack(pTau) == 1) ? &m_hists1P : &m_hists3P;
+  std::vector<m_pair_t> *histArray = (acc_numTrack(pTau) == 1) ? &m_hists1P : &m_hists3P;
 
   // Retrieve tau properties
   int nProng = (acc_numTrack(pTau) == 1) ? 1 : 3;
   double score = (*acc_score)(pTau);
   double pt = acc_pt(pTau);
-  //  double mu = acc_mu(pTau);
 
   double y_var = 0.0;
   if(m_electronMode) {
@@ -170,7 +169,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   } else {
      y_var = acc_mu(pTau);
   }
-
+  
   // ATH_MSG_VERBOSE("========================================");
   // ATH_MSG_VERBOSE("nProng " << nProng);
   // ATH_MSG_VERBOSE("pT before " << pt);
@@ -178,7 +177,6 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 
   //ATH_MSG_ERROR("xmin=" << m_xmin[nProng] << " xmax=" << m_xmax[nProng]);
   //ATH_MSG_ERROR("ymin=" << m_ymin[nProng] << " ymax=" << m_ymax[nProng]);
-  
 
   ATH_MSG_VERBOSE("pT before " << pt);
   ATH_MSG_VERBOSE("mu before " << y_var);
@@ -198,7 +196,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   
   // Loop over all histograms
   for (unsigned int i=0; i<histArray->size(); i++) {
-    TH2* myHist = histArray->at(i).second;
+    TH2* myHist = histArray->at(i).second.get();
     double myCut = myHist->Interpolate(pt, y_var);
     
     // Find upper and lower cuts
@@ -261,6 +259,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 	pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_cut_bits[Nwp], newscore > (1-m_cut_effs_3p[Nwp]));
       }
     }
+
     // Decorate other WPs
     for (u_int Nwp=0; Nwp < m_decoration_names.size(); Nwp++){
       if(acc_numTrack(pTau) == 1) {

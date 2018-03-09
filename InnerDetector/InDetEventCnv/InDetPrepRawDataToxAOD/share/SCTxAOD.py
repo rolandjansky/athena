@@ -20,6 +20,10 @@ dumpTriggerInfo=True
 # Print settings for main tools
 printSctDxAODConf = True
 
+# Message logger
+from AthenaCommon import Logging
+msg = Logging.logging.getLogger('SCTxAOD')
+
 ## Autoconfiguration adjustements
 isSctDxAODSimulation = False
 if (globalflags.DataSource == 'geant4'):
@@ -43,6 +47,16 @@ skimmingTools = []
 # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DerivationFramework#Applying_prescales
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 from InDetPrepRawDataToxAOD.SCTxAODJobProperties import SCTxAODFlags
+
+from RecExConfig.RecFlags import rec
+msg.info("rec.triggerStream() is "+rec.triggerStream())
+if not SCTxAODFlags.Prescale.is_locked():
+    if rec.triggerStream()=='express':
+        SCTxAODFlags.Prescale = SCTxAODFlags.PrescaleExpress()
+    elif rec.triggerStream()=='IDprescaledL1':
+        SCTxAODFlags.Prescale = SCTxAODFlags.PrescaleIDprescaledL1()
+msg.info("SCTxAODFlags.Prescale() is "+str(SCTxAODFlags.Prescale()))
+
 prescaleTool = DerivationFramework__PrescaleTool(name = "SCTxAOD_PrescaleTool",
                                                  Prescale = SCTxAODFlags.Prescale())
 ToolSvc += prescaleTool
@@ -61,16 +75,16 @@ xAOD_SCT_PrepDataToxAOD.WriteRDOinformation = True
     #xAOD_SCT_PrepDataToxAOD.WriteSDOs           = True
     #xAOD_SCT_PrepDataToxAOD.WriteSiHits         = True # if available
 
-if (printSctDxAODConf):
-    print xAOD_SCT_PrepDataToxAOD
-    print xAOD_SCT_PrepDataToxAOD.properties()
+if printSctDxAODConf:
+    msg.info(xAOD_SCT_PrepDataToxAOD)
+    msg.info(xAOD_SCT_PrepDataToxAOD.properties())
 
 from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import SCT_RawDataToxAOD
 xAOD_SCT_RawDataToxAOD = SCT_RawDataToxAOD( name = "SCTxAOD_SCT_RawDataToxAOD")
 xAOD_SCT_RawDataToxAOD.OutputLevel = INFO
 if printSctDxAODConf:
-    print xAOD_SCT_RawDataToxAOD
-    print xAOD_SCT_RawDataToxAOD.properties()
+    msg.info(xAOD_SCT_RawDataToxAOD)
+    msg.info(xAOD_SCT_RawDataToxAOD.properties())
 
 
 #################
@@ -113,9 +127,9 @@ if dumpBytestreamErrors:
                                                         OutputLevel =INFO)
     ToolSvc += DFEI
     augmentationTools+=[DFEI]
-    if (printSctDxAODConf):
-        print DFEI
-        print DFEI.properties()
+    if printSctDxAODConf:
+        msg.info(DFEI)
+        msg.info(DFEI.properties())
 
 # Add Unassociated hits augmentation tool
 if dumpUnassociatedHits:
@@ -126,9 +140,9 @@ if dumpUnassociatedHits:
                                                                                   SCTClusterContainer = "SCT_Clusters",
                                                                                   TRTDriftCircleContainer = "TRT_DriftCircles")
     ToolSvc += unassociatedHitsGetterTool
-    if (printSctDxAODConf):
-        print unassociatedHitsGetterTool
-        print unassociatedHitsGetterTool.properties()
+    if printSctDxAODConf:
+        msg.info(unassociatedHitsGetterTool)
+        msg.info(unassociatedHitsGetterTool.properties())
 
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UnassociatedHitsDecorator
     unassociatedHitsDecorator = DerivationFramework__UnassociatedHitsDecorator (name ='SCTxAOD_unassociatedHitsDecorator',
@@ -138,9 +152,9 @@ if dumpUnassociatedHits:
                                                                                 OutputLevel =INFO)
     ToolSvc += unassociatedHitsDecorator
     augmentationTools+=[unassociatedHitsDecorator]
-    if (printSctDxAODConf):
-        print unassociatedHitsDecorator
-        print unassociatedHitsDecorator.properties()
+    if printSctDxAODConf:
+        msg.info(unassociatedHitsDecorator)
+        msg.info(unassociatedHitsDecorator.properties())
 
 
 # Add the derivation job to the top AthAlgSeqeuence
@@ -155,9 +169,9 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("SCTxAOD_
                                                                         OutputLevel =INFO)
 
 topSequence += DerivationFrameworkJob
-if (printSctDxAODConf):
-    print DerivationFrameworkJob
-    print DerivationFrameworkJob.properties()
+if printSctDxAODConf:
+    msg.info(DerivationFrameworkJob)
+    msg.info(DerivationFrameworkJob.properties())
 
 #################
 ### Steer output file content
@@ -222,5 +236,5 @@ if dumpTriggerInfo:
     SCTVALIDStream.AddItem("xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.")
     SCTVALIDStream.AddItem("xAOD::TrigNavigationAuxInfo#TrigNavigationAux.")
 
-if (printSctDxAODConf):
-    print SCTVALIDStream
+if printSctDxAODConf:
+    msg.info(SCTVALIDStream)

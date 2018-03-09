@@ -171,7 +171,7 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
         if ((det == INVALID_DETECTOR)or(region == INVALID_REGION)) {
           continue;
         }
-        if (width > 0) {
+        if ((width > 0) or (det ==TRT)){//TRT does not have defined cluster width 
           // introduce cluster width histograms
           fillHisto(m_phiWidth[det][region], width);
           fillHisto(m_etaWidth[det][region], etaWidth);

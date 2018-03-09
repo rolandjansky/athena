@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "Geo2G4/Geo2G4Builder.h"
-#include "Geo2G4/Geo2G4SvcAccessor.h"
-#include "Geo2G4/Geo2G4SvcBase.h"
+#include "Geo2G4Builder.h"
+#include "Geo2G4SvcAccessor.h"
+#include "G4AtlasInterfaces/Geo2G4SvcBase.h"
 #include "Geo2G4OpticalSurfaceFactory.h"
 
 #include "GeoModelKernel/GeoVDetectorManager.h"
@@ -73,9 +73,9 @@ Geo2G4Builder::Geo2G4Builder(std::string detectorName):
 
     Geo2G4SvcAccessor accessor;
     Geo2G4SvcBase *g=accessor.GetGeo2G4Svc();
-    theBuilder=g->GetDefaultBuilder();
-    if(theBuilder)
-      ATH_MSG_INFO("Set volume builder ---> "<< theBuilder->GetKey());
+    m_theBuilder=g->GetDefaultBuilder();
+    if(m_theBuilder)
+      ATH_MSG_INFO("Set volume builder ---> "<< m_theBuilder->GetKey());
     else
       ATH_MSG_WARNING("0 pointer to volume builder."
                       <<"\n Use 'DefaultBuilder' property of Geo2G4Svc or"
@@ -83,9 +83,9 @@ Geo2G4Builder::Geo2G4Builder(std::string detectorName):
   }
 }
 
-LogicalVolume* Geo2G4Builder::BuildTree()
+G4LogicalVolume* Geo2G4Builder::BuildTree()
 {
-  LogicalVolume* result = 0;
+  G4LogicalVolume* result = 0;
   OpticalVolumesMap* optical_volumes = 0;
   const GeoBorderSurfaceContainer* surface_container = 0;
 
@@ -97,10 +97,10 @@ LogicalVolume* Geo2G4Builder::BuildTree()
         optical_volumes = new OpticalVolumesMap();
     }
 
-  if(theBuilder) {
+  if(m_theBuilder) {
     if(m_treeTops.size()==1) {
-      motherTransform = m_treeTops[0]->getX();
-      result = theBuilder->Build(m_treeTops[0],optical_volumes);
+      m_motherTransform = m_treeTops[0]->getX();
+      result = m_theBuilder->Build(m_treeTops[0],optical_volumes);
     } else {
       // Create temporary GeoModel physical volume
       // The shape is composed by TreeTop shapes + their transforms
@@ -115,7 +115,7 @@ LogicalVolume* Geo2G4Builder::BuildTree()
       GeoLogVol* lvEnvelope = new GeoLogVol(m_detectorName,shResult,m_matAir);
       GeoPhysVol* pvEnvelope = new GeoPhysVol(lvEnvelope);
 
-      result = theBuilder->Build(pvEnvelope);
+      result = m_theBuilder->Build(pvEnvelope);
 
       // Get pointer to the World
       PVConstLink world = m_treeTops[0]->getParent();
@@ -139,7 +139,7 @@ LogicalVolume* Geo2G4Builder::BuildTree()
         if (nameTT == "ANON") nameTT = pv->getLogVol()->getName();
 
 
-        LogicalVolume* g4LV = theBuilder->Build(pv,optical_volumes);
+        G4LogicalVolume* g4LV = m_theBuilder->Build(pv,optical_volumes);
         G4ReflectionFactory::Instance()->Place(theG4Position,
                                                nameTT,
                                                g4LV,
@@ -175,8 +175,8 @@ VolumeBuilder*  Geo2G4Builder::GetVolumeBuilder(std::string bname)
   Geo2G4SvcAccessor accessor;
   Geo2G4SvcBase *g=accessor.GetGeo2G4Svc();
 
-  theBuilder=g->GetVolumeBuilder(bname);
-  return theBuilder;
+  m_theBuilder=g->GetVolumeBuilder(bname);
+  return m_theBuilder;
 }
 
 void Geo2G4Builder::BuildOpticalSurfaces(const GeoBorderSurfaceContainer* surface_container,

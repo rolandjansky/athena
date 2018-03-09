@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 #--------------------------------------------------------------
 # topJobOptions to run SCTCalib/SCTCalibWriteSvc
 # - Default setup is defined in this jobOs.
@@ -254,18 +256,22 @@ if DoNoisyStrip and NoisyUploadTest :
         #--- List of data and average num of modules w/ >= 1 noisy strip
         print "---------------> Noisy strips in COOL : last ", numRuns, " runs <---------------"
         sumNoisyModulesInDB = 0
+        sumNoisyStripsInDB = 0
         for i in range( len(RunList) ) :
             numNoisyModules = GetNumNoisyMods( dbstring, folder, tag, RunList[i] )
             numNoisyStrips  = GetNumNoisyStrips( dbstring, folder, tag, RunList[i] )
             print "[ run, modules, strips ] = [", RunList[i], ",", numNoisyModules, ",", numNoisyStrips, "]"
             sumNoisyModulesInDB = sumNoisyModulesInDB + numNoisyModules
+            sumNoisyStripsInDB = sumNoisyStripsInDB + numNoisyStrips
         NoisyModuleAverageInDB = float(sumNoisyModulesInDB) / float(len(RunList))
+        NoisyStripAverageInDB = float(sumNoisyStripsInDB) / float(len(RunList))
 
         #--- Num of noisy strips in the last run
         NoisyStripLastRunInDB = GetNumNoisyStrips( dbstring, folder, tag, RunList[0] )
 
         print "Average num of modules w/ >= 1 noisy strip  : ",         NoisyModuleAverageInDB
         print "Num of noisy strips in the last run", RunList[0], " : ", NoisyStripLastRunInDB
+        print "Average num of noisy strips in the last runs  : ",       NoisyStripAverageInDB
         print "----------------------------------------------------------------------"
 
 #--------------------------------------------------------------
@@ -358,8 +364,8 @@ rec.__dict__.get('projectName').set_Value(projectName)
 #-------------------------------------------------------------
 from IOVDbSvc.CondDB import conddb
 conddb.dbdata = 'CONDBR2'
-conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-004</tag>") 
-#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-004</tag><forceRunNumber>259237</forceRunNumber>") 
+conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag>") 
+#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>338834</forceRunNumber>") 
 
 # GeoModel & MagneticFieldSvc
 #--------------------------------------------------------------
@@ -491,7 +497,7 @@ SCTCalib.ReadBS         = ReadBS
 if hasattr( runArgs, 'InputType' ) :
     if runArgs.InputType is 'RAW' :
         ServiceMgr.ByteStreamInputSvc.FullFileName = runArgs.inputNames
-        ServiceMgr.ByteStreamInputSvc.PartName = runArgs.part
+#        ServiceMgr.ByteStreamInputSvc.PartName = runArgs.part
     elif runArgs.InputType is 'NTUP_TRKVALID' :
         SCTCalib.InputTrkVal                       = runArgs.inputNames
     elif runArgs.InputType is 'HIST' :
@@ -519,6 +525,7 @@ SCTCalib.DoLorentzAngle   = DoLorentzAngle    # False in default
 #--- Local DB
 SCTCalib.WriteToCool = WriteToCool # True in default
 #--- Properties for noisy strips
+SCTCalib.NoisyUpdate            = NoisyUpdate
 SCTCalib.NoisyMinStat           = NoisyMinStat
 SCTCalib.NoisyStripAll          = NoisyStripAll
 SCTCalib.NoisyStripThrDef       = NoisyStripThrDef
@@ -535,12 +542,7 @@ SCTCalib.NoisyChipFraction      = NoisyChipFraction
 SCTCalib.NoisyUploadTest        = NoisyUploadTest
 SCTCalib.NoisyModuleAverageInDB = NoisyModuleAverageInDB
 SCTCalib.NoisyStripLastRunInDB  = NoisyStripLastRunInDB
-SCTCalib.NoisyModuleList        = NoisyModuleList
-SCTCalib.NoisyModuleDiff        = NoisyModuleDiff
-SCTCalib.NoisyStripDiff         = NoisyStripDiff
-SCTCalib.NoisyUploadTest        = NoisyUploadTest
-SCTCalib.NoisyModuleAverageInDB = NoisyModuleAverageInDB
-SCTCalib.NoisyStripLastRunInDB  = NoisyStripLastRunInDB
+SCTCalib.NoisyStripAverageInDB  = NoisyStripAverageInDB
 SCTCalib.NoisyModuleList        = NoisyModuleList
 SCTCalib.NoisyModuleDiff        = NoisyModuleDiff
 SCTCalib.NoisyStripDiff         = NoisyStripDiff

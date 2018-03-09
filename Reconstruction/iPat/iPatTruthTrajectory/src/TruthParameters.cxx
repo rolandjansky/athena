@@ -14,7 +14,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "TrkExInterfaces/IIntersector.h"
 #include "TrkSurfaces/PerigeeSurface.h"
-#include "TruthTools/ITruthSelector.h"
+#include "GenInterfaces/ITruthSelector.h"
 #include "iPatTruthTrajectory/TruthParameters.h"
 
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>

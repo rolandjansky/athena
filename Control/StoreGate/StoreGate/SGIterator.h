@@ -35,6 +35,11 @@ namespace detail {
       return m_dh == rhs.m_dh;
     }
     DATA& deref() const { return *m_dh; }
+    const DATA& const_deref() const
+    {
+      const DataHandle<DATA>& dh = m_dh;
+      return *dh;
+    }
 
   public:
     /// @name SG-specific accessors
@@ -85,7 +90,7 @@ namespace detail {
       return detail::DHIteratorBase<DATA>::eql(rhs);
     }
     const DATA& dereference() const { 
-      return detail::DHIteratorBase<DATA>::deref(); 
+      return detail::DHIteratorBase<DATA>::const_deref(); 
     }
     //@}
   };

@@ -17,6 +17,7 @@
 #include <AsgTools/UnitTest.h>
 #include <AsgExampleTools/UnitTestTool1.h>
 #include <AsgExampleTools/UnitTestTool2.h>
+#include <AsgExampleTools/UnitTestTool3.h>
 #include <cmath>
 #include <gtest/gtest.h>
 #include <sstream>
@@ -33,7 +34,6 @@ namespace asg
 {
   namespace
   {
-#ifndef ROOTCORE
     /// \brief make a unique tool name to be used in unit tests
     std::string makeUniqueName ()
     {
@@ -42,7 +42,6 @@ namespace asg
       str << "unique" << ++ index;
       return str.str();
     }
-#endif
   }
 
 
@@ -55,25 +54,12 @@ namespace asg
   {
   public:
     AnaToolHandleMakeTest()
-      : tool ("asg::UnitTestTool1/test")
+      : name (makeUniqueName()),
+	tool ("asg::UnitTestTool1/" + name)
     {}
 
+    std::string name;
     AnaToolHandle<IUnitTestTool1> tool;
-  };
-
-
-  /// \brief fixture for all tests that do things before a tool is
-  /// initialized
-  ///
-  /// e.g. setting properties and then initializing, or checking that
-  /// various methods fail in this state
-  class AnaToolHandleSetTest : public AnaToolHandleMakeTest
-  {
-  public:
-    AnaToolHandleSetTest()
-    {
-      ANA_CHECK_THROW (tool.make ());
-    }
   };
 
 
@@ -82,26 +68,12 @@ namespace asg
   ///
   /// e.g. accessing the tool itself, or checking that various methods
   /// fail in this state
-  class AnaToolHandleInitTest : public AnaToolHandleSetTest
+  class AnaToolHandleUseTest : public AnaToolHandleMakeTest
   {
   public:
-    AnaToolHandleInitTest()
+    AnaToolHandleUseTest()
     {
       ANA_CHECK_THROW (tool.initialize());
-    }
-  };
-
-
-  /// \brief fixture for all tests that do things when a tool is in
-  /// broken state
-  ///
-  /// mostly checking that we don't do anything forbidden
-  class AnaToolHandleBrokenTest : public AnaToolHandleSetTest
-  {
-  public:
-    AnaToolHandleBrokenTest()
-    {
-      AnaToolHandle<IUnitTestTool1> tool2 = std::move (tool);
     }
   };
 
@@ -111,7 +83,7 @@ namespace asg
   // check that we can create and initialize a simple tool
   TEST (AnaToolHandleTest, basic1)
   {
-    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/test");
+    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + makeUniqueName());
     ASSERT_FALSE (tool.isUserConfigured());
     ASSERT_TRUE (tool.isConfigurable());
     ASSERT_SUCCESS (tool.make());
@@ -121,32 +93,146 @@ namespace asg
     ASSERT_FALSE (tool.isUserConfigured());
     ASSERT_TRUE (tool.isConfigurable());
     ASSERT_TRUE (tool.get() != nullptr);
+  }
+
+
+
+#ifndef ROOTCORE
+  // check that tool destruction works as advertised for tools
+  TEST (AnaToolHandleTest, DISABLED_destruct_direct)
+  {
+    std::string myname;
+    {
+      ToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + makeUniqueName());
+      ASSERT_SUCCESS (tool.retrieve());
+      myname = tool->name();
+      ASSERT_EQ (2u, tool->refCount());
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(myname));
+      tool->release();
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(myname));
+      tool.release();
+      EXPECT_EQ (0, UnitTestTool1::instance_counts(myname));
+    }
+    interfaceType_t *tool = nullptr;
+    EXPECT_FALSE (detail::toolExists (myname, tool));
+  }
+#endif
+
+
+
+  // check that tool destruction works as advertised for public tools
+#ifdef ROOTCORE
+  TEST (AnaToolHandleTest, destruct_public)
+#else
+  TEST (AnaToolHandleTest, DISABLED_destruct_public)
+#endif
+  {
+    std::string myname;
+    {
+      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + makeUniqueName());
+      ASSERT_SUCCESS (tool.initialize());
+      myname = tool->name();
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(myname));
+    }
+    EXPECT_EQ (0, UnitTestTool1::instance_counts(myname));
+  }
+
+
+  // check that tool destruction works as advertised for private tools
+#ifdef ROOTCORE
+  TEST (AnaToolHandleTest, destruct_private)
+#else
+  TEST (AnaToolHandleTest, DISABLED_destruct_private)
+#endif
+  {
+    std::string myname;
+    {
+      std::unique_ptr<UnitTestTool1> parent (new UnitTestTool1 (makeUniqueName()));
+      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + makeUniqueName(), parent.get());
+      ASSERT_SUCCESS (tool.initialize());
+      myname = tool->name();
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(myname));
+    }
+    EXPECT_EQ (0, UnitTestTool1::instance_counts(myname));
+  }
+
+  // check that tool destruction works as advertised with copy constructor
+#ifdef ROOTCORE
+  TEST (AnaToolHandleTest, copy_destruct)
+#else
+  TEST (AnaToolHandleTest, DISABLED_copy_destruct)
+#endif
+  {
+    std::string name = makeUniqueName();
+    EXPECT_EQ (0, UnitTestTool1::instance_counts(name));
+    {
+      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
+      ASSERT_SUCCESS (tool.initialize());
+      name = tool->name();
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(name));
+      AnaToolHandle<IUnitTestTool1> tool2 = tool;
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(name));
+    }
+    EXPECT_EQ (0, UnitTestTool1::instance_counts(name));
+  }
+
+  // check that tool destruction works as advertised with assignment operator
+#ifdef ROOTCORE
+  TEST (AnaToolHandleTest, assign_destruct)
+#else
+  TEST (AnaToolHandleTest, DISABLED_assign_destruct)
+#endif
+  {
+    std::string name = makeUniqueName();
+    EXPECT_EQ (0, UnitTestTool1::instance_counts(name));
+    {
+      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
+      ASSERT_SUCCESS (tool.initialize());
+      name = tool->name();
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(name));
+      AnaToolHandle<IUnitTestTool1> tool2;
+      tool2 = tool;
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(name));
+    }
+    EXPECT_EQ (0, UnitTestTool1::instance_counts(name));
+  }
+
+  // check that tool destruction works as advertised with swap function
+  //
+  // not that this swaps twice, as there may be a difference in
+  // swapping to and from a valid handle (due to the specifics of the
+  // Athena ToolHandle)
+#ifdef ROOTCORE
+  TEST (AnaToolHandleTest, swap_destruct)
+#else
+  TEST (AnaToolHandleTest, DISABLED_swap_destruct)
+#endif
+  {
+    std::string name = makeUniqueName();
+    EXPECT_EQ (0, UnitTestTool1::instance_counts(name));
+    {
+      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
+      ASSERT_SUCCESS (tool.initialize());
+      name = tool->name();
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(name));
+      AnaToolHandle<IUnitTestTool1> tool2;
+      tool2.swap (tool);
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(name));
+      tool2.swap (tool);
+      EXPECT_EQ (1, UnitTestTool1::instance_counts(name));
+    }
+    EXPECT_EQ (0, UnitTestTool1::instance_counts(name));
   }
 
   // check that we can create and initialize a simple tool
   TEST (AnaToolHandleTest, basic2)
   {
-    AnaToolHandle<IUnitTestTool2> tool ("asg::UnitTestTool2/test");
+    AnaToolHandle<IUnitTestTool2> tool ("asg::UnitTestTool2/" + makeUniqueName());
     ASSERT_FALSE (tool.isUserConfigured());
     ASSERT_TRUE (tool.isConfigurable());
     ASSERT_SUCCESS (tool.make());
     ASSERT_SUCCESS (tool.initialize());
     ASSERT_TRUE (tool.get() != nullptr);
-  }
-
-
-
-  // check that inPremakeState is working
-  TEST (AnaToolHandleTest, inPremakeState)
-  {
-    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/test");
-    ASSERT_TRUE (tool.inPremakeState());
-    ASSERT_SUCCESS (tool.make());
-    ASSERT_FALSE (tool.inPremakeState());
-    ASSERT_SUCCESS (tool.initialize());
-    ASSERT_FALSE (tool.inPremakeState());
-    AnaToolHandle<IUnitTestTool1> tool2 = std::move (tool);
-    ASSERT_FALSE (tool.inPremakeState());
   }
 
 
@@ -154,7 +240,7 @@ namespace asg
   // check that the isInitialized member works as advertised
   TEST (AnaToolHandleTest, isInitialized)
   {
-    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/test");
+    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + makeUniqueName());
     ASSERT_FALSE (tool.isInitialized());
     ASSERT_SUCCESS (tool.make());
     ASSERT_FALSE (tool.isInitialized());
@@ -166,207 +252,149 @@ namespace asg
 
 
 
-  // check that inBrokenState is working
-  TEST (AnaToolHandleTest, inBrokenState)
-  {
-    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/test");
-    ASSERT_FALSE (tool.inBrokenState());
-    ASSERT_SUCCESS (tool.make());
-    ASSERT_FALSE (tool.inBrokenState());
-    ASSERT_SUCCESS (tool.initialize());
-    ASSERT_FALSE (tool.inBrokenState());
-    AnaToolHandle<IUnitTestTool1> tool2 = std::move (tool);
-    ASSERT_TRUE (tool.inBrokenState());
-  }
-
-
-
   // check make()
   TEST_F (AnaToolHandleMakeTest, makeBasic)
   {
     ASSERT_SUCCESS (tool.make());
-    ASSERT_FALSE (tool.inPremakeState());
+    ASSERT_FALSE (tool.isInitialized());
     ASSERT_SUCCESS (tool.initialize());
     ASSERT_EQ ("asg::UnitTestTool1", tool.type());
-    ASSERT_MATCH_REGEX ("^(ToolSvc.)?test$", tool->name());
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + tool.name() + "$", tool->name());
   }
 
   // check make(), with no type
   TEST (AnaToolHandleTest, makeBasic_noType)
   {
-    AnaToolHandle<IUnitTestTool1> tool ("test");
-#ifdef ROOTCORE
-    ASSERT_FAILURE (tool.make ());
-#else
-    ASSERT_SUCCESS (tool.make ());
+    AnaToolHandle<IUnitTestTool1> tool (makeUniqueName());
+    ASSERT_FALSE (tool.isUserConfigured ());
     ASSERT_FAILURE (tool.initialize ());
-#endif
   }
 
   // check make(), with an invalid type
   TEST (AnaToolHandleTest, makeBasic_undefinedType)
   {
-    AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/test");
-#ifdef ROOTCORE
-    ASSERT_FAILURE (tool.make ());
-#else
+    AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/" + makeUniqueName());
     ASSERT_SUCCESS (tool.make ());
     ASSERT_FAILURE (tool.initialize ());
-#endif
-  }
-
-  // check make()
-  TEST_F (AnaToolHandleSetTest, makeBasic)
-  {
-    ASSERT_DEATH (tool.make(), "");
-  }
-
-  // check make()
-  TEST_F (AnaToolHandleInitTest, makeBasic)
-  {
-    ASSERT_DEATH (tool.make(), "");
-  }
-
-  // check make()
-  TEST_F (AnaToolHandleBrokenTest, makeBasic)
-  {
-    ASSERT_FAILURE (tool.make());
   }
 
 
 
   // check make(type)
-  TEST_F (AnaToolHandleMakeTest, makeTyped)
+  TEST (AnaToolHandleTest, makeTyped)
   {
     // making separate ToolHandle with different type
-    AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/test");
+    AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/" + makeUniqueName());
     ASSERT_EQ ("UNKNOWN_TOOL_TYPE", tool.type());
     ASSERT_SUCCESS (tool.make ("asg::UnitTestTool1"));
     ASSERT_EQ ("asg::UnitTestTool1", tool.type());
-    ASSERT_FALSE (tool.inPremakeState());
+    ASSERT_FALSE (tool.isInitialized());
     ASSERT_SUCCESS (tool.initialize());
-    ASSERT_MATCH_REGEX ("^(ToolSvc.)?test$", tool->name());
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + tool.name() + "$", tool->name());
   }
 
   // check make(type)
-  TEST_F (AnaToolHandleMakeTest, makeTyped_named)
+  TEST (AnaToolHandleTest, makeTyped_named)
   {
     // making separate ToolHandle with different type
     AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/UNKNOWN_TOOL_NAME");
     ASSERT_EQ ("UNKNOWN_TOOL_TYPE", tool.type());
     ASSERT_EQ ("UNKNOWN_TOOL_NAME", tool.name());
-    ASSERT_SUCCESS (tool.make ("asg::UnitTestTool1/test"));
+    std::string name = makeUniqueName();
+    ASSERT_SUCCESS (tool.make ("asg::UnitTestTool1/" + name));
     ASSERT_EQ ("asg::UnitTestTool1", tool.type());
-    ASSERT_MATCH_REGEX ("^(ToolSvc.)?test$", tool.name());
-    ASSERT_FALSE (tool.inPremakeState());
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + name + "$", tool.name());
+    ASSERT_FALSE (tool.isInitialized());
     ASSERT_SUCCESS (tool.initialize());
-    ASSERT_MATCH_REGEX ("^(ToolSvc.)?test$", tool->name());
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + name + "$", tool->name());
   }
 
   // check that we can fail tocreate and initialize a simple tool when
   // passing an unknown typename as argument into make()
   TEST_F (AnaToolHandleMakeTest, makeTyped_unknownType)
   {
-#ifdef ROOTCORE
-    ASSERT_FAILURE (tool.make ("UNDEFINED_TYPE_NAME"));
-#else
     ASSERT_SUCCESS (tool.make ("UNDEFINED_TYPE_NAME"));
     ASSERT_FAILURE (tool.initialize ());
+  }
+
+#ifndef NDEBUG
+  // check make(type)
+  TEST_F (AnaToolHandleUseTest, makeTyped)
+  {
+    ASSERT_DEATH (tool.make ("asg::UnitTestTool1"), "");
+  }
 #endif
-  }
-
-  // check make(type)
-  TEST_F (AnaToolHandleSetTest, makeTyped)
-  {
-    ASSERT_DEATH (tool.make ("asg::UnitTestTool1"), "");
-  }
-
-  // check make(type)
-  TEST_F (AnaToolHandleInitTest, makeTyped)
-  {
-    ASSERT_DEATH (tool.make ("asg::UnitTestTool1"), "");
-  }
-
-  // check make(type)
-  TEST_F (AnaToolHandleBrokenTest, makeTyped)
-  {
-    ASSERT_FAILURE (tool.make ("asg::UnitTestTool1"));
-  }
 
 
 
 #ifdef ROOTCORE
   // check makeNew<type>()
-  TEST_F (AnaToolHandleMakeTest, makeNew)
+  TEST (AnaToolHandleTest, makeNew)
   {
     // making separate ToolHandle with different type
-    AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/test");
+    std::string name = makeUniqueName();
+    AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/" + name);
     ASSERT_EQ ("UNKNOWN_TOOL_TYPE", tool.type());
     ASSERT_SUCCESS (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"));
     ASSERT_EQ ("asg::UnitTestTool1", tool.type());
-    ASSERT_FALSE (tool.inPremakeState());
+    ASSERT_FALSE (tool.isInitialized());
     ASSERT_SUCCESS (tool.initialize());
-    ASSERT_MATCH_REGEX ("^(ToolSvc.)?test$", tool->name());
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + name + "$", tool->name());
   }
 
   // check makeNew<type>()
-  TEST_F (AnaToolHandleSetTest, makeNew)
+  TEST_F (AnaToolHandleUseTest, makeNew)
   {
     ASSERT_DEATH (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"), "");
-  }
-
-  // check makeNew<type>()
-  TEST_F (AnaToolHandleInitTest, makeNew)
-  {
-    ASSERT_DEATH (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"), "");
-  }
-
-  // check makeNew<type>()
-  TEST_F (AnaToolHandleBrokenTest, makeNew)
-  {
-    ASSERT_FAILURE (tool.makeNew<asg::UnitTestTool1> ("asg::UnitTestTool1"));
   }
 #endif
 
 
 
-  // check ASG_MAKE_ANA_TOOL
-  TEST_F (AnaToolHandleMakeTest, makeMacro)
+  // check ASG_SET_ANA_TOOL_TYPE
+  TEST (AnaToolHandleTest, setToolTypeMacro)
   {
     // making separate ToolHandle with different type
-    AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/test");
+    std::string name = makeUniqueName();
+    AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/" + name);
+    ASSERT_EQ ("UNKNOWN_TOOL_TYPE", tool.type());
+    ASG_SET_ANA_TOOL_TYPE (tool, asg::UnitTestTool1);
+    ASSERT_EQ ("asg::UnitTestTool1", tool.type());
+    ASSERT_FALSE (tool.isInitialized());
+    ASSERT_SUCCESS (tool.initialize());
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + name + "$", tool->name());
+  }
+
+
+
+  // check ASG_MAKE_ANA_TOOL
+  TEST (AnaToolHandleTest, makeMacro)
+  {
+    // making separate ToolHandle with different type
+    std::string name = makeUniqueName();
+    AnaToolHandle<IUnitTestTool1> tool ("UNKNOWN_TOOL_TYPE/" + name);
     ASSERT_EQ ("UNKNOWN_TOOL_TYPE", tool.type());
     ASSERT_SUCCESS (ASG_MAKE_ANA_TOOL (tool, asg::UnitTestTool1));
     ASSERT_EQ ("asg::UnitTestTool1", tool.type());
-    ASSERT_FALSE (tool.inPremakeState());
+    ASSERT_FALSE (tool.isInitialized());
     ASSERT_SUCCESS (tool.initialize());
-    ASSERT_MATCH_REGEX ("^(ToolSvc.)?test$", tool->name());
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + name + "$", tool->name());
   }
 
+#ifndef NDEBUG
   // check ASG_MAKE_ANA_TOOL
-  TEST_F (AnaToolHandleSetTest, makeMacro)
+  TEST_F (AnaToolHandleUseTest, makeMacro)
   {
     ASSERT_DEATH (ASG_MAKE_ANA_TOOL (tool, asg::UnitTestTool1), "");
   }
-
-  // check ASG_MAKE_ANA_TOOL
-  TEST_F (AnaToolHandleInitTest, makeMacro)
-  {
-    ASSERT_DEATH (ASG_MAKE_ANA_TOOL (tool, asg::UnitTestTool1), "");
-  }
-
-  // check ASG_MAKE_ANA_TOOL
-  TEST_F (AnaToolHandleBrokenTest, makeMacro)
-  {
-    ASSERT_FAILURE (ASG_MAKE_ANA_TOOL (tool, asg::UnitTestTool1));
-  }
+#endif
 
 
 
   // check that we can actually change the tool type
   TEST (AnaToolHandleTest, changeType)
   {
-    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1A/test");
+    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1A/" + makeUniqueName());
     ASSERT_SUCCESS (tool.make());
     ASSERT_SUCCESS (tool.initialize());
     ASSERT_EQ (-7, tool->getPropertyInt());
@@ -374,21 +402,6 @@ namespace asg
 
 
 
-
-  // check setProperty<int>()
-  TEST_F (AnaToolHandleSetTest, setPropertyInt)
-  {
-    ASSERT_SUCCESS (tool.setProperty<int> ("propertyInt", 42));
-    ASSERT_SUCCESS (tool.initialize());
-    ASSERT_EQ (42, tool->getPropertyInt());
-  }
-
-  // check setProperty<int>()
-  TEST_F (AnaToolHandleSetTest, setPropertyInt_failure)
-  {
-    ASSERT_SUCCESS (tool.setProperty<int> ("UNKNOWN_PROPERTY", 42));
-    ASSERT_FAILURE (tool.initialize ());
-  }
 
   // check setProperty<int>()
   TEST_F (AnaToolHandleMakeTest, setPropertyInt)
@@ -399,35 +412,46 @@ namespace asg
   }
 
   // check setProperty<int>()
-  TEST_F (AnaToolHandleInitTest, setPropertyInt)
+  TEST_F (AnaToolHandleMakeTest, setPropertyInt_failure)
+  {
+    ASSERT_SUCCESS (tool.setProperty<int> ("UNKNOWN_PROPERTY", 42));
+    ASSERT_FAILURE (tool.initialize ());
+  }
+
+#ifndef NDEBUG
+  // check setProperty<int>()
+  TEST_F (AnaToolHandleUseTest, setPropertyInt)
   {
     ASSERT_DEATH (tool.setProperty<int> ("propertyInt", 42), "");
   }
+#endif
 
-  // check setProperty<int>()
-  TEST_F (AnaToolHandleBrokenTest, setPropertyInt)
+
+
+  // check setProperty(const char*)
+  TEST_F (AnaToolHandleMakeTest, setPropertyString)
   {
-    ASSERT_FAILURE (tool.setProperty<int> ("propertyInt", 42));
-  }
-
-
-
-  // check initialize()
-  TEST_F (AnaToolHandleSetTest, initialize)
-  {
+    ASSERT_SUCCESS (tool.setProperty ("propertyString", "42"));
     ASSERT_SUCCESS (tool.initialize());
-    ASSERT_TRUE (tool.isInitialized());
-    ASSERT_TRUE (tool->isInitialized());
+    ASSERT_EQ ("42", tool->getPropertyString());
   }
 
-  // check initialize()
-  TEST_F (AnaToolHandleSetTest, initialize_failure)
+  // check setProperty(const char*)
+  TEST_F (AnaToolHandleMakeTest, setPropertyString_failure)
   {
-    ASSERT_SUCCESS (tool.setProperty<bool> ("initializeFail", true));
-    ASSERT_FAILURE (tool.initialize());
-    ASSERT_FALSE (tool.isInitialized());
-    ASSERT_TRUE (tool.inBrokenState());
+    ASSERT_SUCCESS (tool.setProperty ("UNKNOWN_PROPERTY", "42"));
+    ASSERT_FAILURE (tool.initialize ());
   }
+
+#ifndef NDEBUG
+  // check setProperty(const char*)
+  TEST_F (AnaToolHandleUseTest, setPropertyString)
+  {
+    ASSERT_DEATH (tool.setProperty ("propertyString", "42"), "");
+  }
+#endif
+
+
 
   // check initialize()
   TEST_F (AnaToolHandleMakeTest, initialize)
@@ -438,55 +462,76 @@ namespace asg
   }
 
   // check initialize()
-  TEST_F (AnaToolHandleInitTest, initialize)
+  TEST_F (AnaToolHandleMakeTest, initialize_failure)
+  {
+    ASSERT_SUCCESS (tool.setProperty<bool> ("initializeFail", true));
+    ASSERT_FAILURE (tool.initialize());
+    ASSERT_FALSE (tool.isInitialized());
+  }
+
+#ifndef NDEBUG
+  // check initialize()
+  TEST_F (AnaToolHandleUseTest, initialize)
   {
     ASSERT_DEATH (tool.initialize(), "");
   }
-
-  // check initialize()
-  TEST_F (AnaToolHandleBrokenTest, initialize)
-  {
-    ASSERT_FAILURE (tool.initialize ());
-  }
+#endif
 
 
 
   // check get() (and by implication * and ->)
-  TEST_F (AnaToolHandleInitTest, get)
+  TEST_F (AnaToolHandleUseTest, get)
   {
     IUnitTestTool1 *mytool = tool.get();
     ASSERT_TRUE (mytool != nullptr);
-    ASSERT_MATCH_REGEX ("^(ToolSvc.)?test$", mytool->name());
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + tool.name() + "$", mytool->name());
   }
 
   // check get() (and by implication * and ->)
   TEST_F (AnaToolHandleMakeTest, get)
   {
-    ASSERT_DEATH (tool.get(), "");
+    IUnitTestTool1 *mytool = tool.get();
+    ASSERT_TRUE (mytool != nullptr);
+    ASSERT_MATCH_REGEX ("^(ToolSvc.)?" + tool.name() + "$", mytool->name());
   }
 
-  // check get() (and by implication * and ->)
-  TEST_F (AnaToolHandleSetTest, get)
+
+
+#ifdef ROOTCORE
+  // check that the message level gets set correctly from the property
+  TEST (AnaToolHandleTest, setOutputLevel)
   {
-    ASSERT_DEATH (tool.get(), "");
+    std::string name = makeUniqueName();
+    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
+    ASSERT_SUCCESS (tool.setProperty ("OutputLevel", MSG::ERROR));
+    ASSERT_SUCCESS (tool.initialize());
+    ASSERT_EQ (MSG::ERROR, tool->getOrigMsgLevel());
   }
 
-  // check get() (and by implication * and ->)
-  TEST_F (AnaToolHandleBrokenTest, get)
+  // check that the default message level is correct
+  TEST (AnaToolHandleTest, defaultOutputLevel)
   {
-    ASSERT_DEATH (tool.get(), "");
+    std::string name = makeUniqueName();
+    AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
+    ASSERT_SUCCESS (tool.initialize());
+    ASSERT_EQ (MSG::INFO, tool->getOrigMsgLevel());
   }
-
+#endif
 
 
   // check that we can create a tool handle with the same name but
   // different parameters after we are done with the first one.  this
   // is routinely done as part of unit tests, so this absolutely has
   // to stay
+#ifdef ROOTCORE
   TEST (AnaToolHandleTest, duplicate_series)
+#else
+  TEST (AnaToolHandleTest, DISABLED_duplicate_series)
+#endif
   {
+    std::string name = makeUniqueName();
     {
-      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/test");
+      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
       ASSERT_FALSE (tool.isUserConfigured());
       ASSERT_TRUE (tool.isConfigurable());
       ASSERT_SUCCESS (tool.setProperty<int> ("propertyInt", 42));
@@ -494,7 +539,7 @@ namespace asg
       ASSERT_EQ (42, tool->getPropertyInt());
     }
     {
-      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/test");
+      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
       ASSERT_FALSE (tool.isUserConfigured());
       ASSERT_TRUE (tool.isConfigurable());
       ASSERT_SUCCESS (tool.setProperty<int> ("propertyInt", 4));
@@ -502,7 +547,7 @@ namespace asg
       ASSERT_EQ (4, tool->getPropertyInt());
     }
     {
-      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/test");
+      AnaToolHandle<IUnitTestTool1> tool ("asg::UnitTestTool1/" + name);
       ASSERT_FALSE (tool.isUserConfigured());
       ASSERT_TRUE (tool.isConfigurable());
       ASSERT_SUCCESS (tool.setProperty<int> ("propertyInt", 17));
@@ -517,8 +562,9 @@ namespace asg
   // if they are given the same name and have no parents.
   TEST (AnaToolHandleTest, shared_tool)
   {
+    std::string name = makeUniqueName();
     {
-      AnaToolHandle<IUnitTestTool1> tool1 ("asg::UnitTestTool1/test");
+      AnaToolHandle<IUnitTestTool1> tool1 ("asg::UnitTestTool1/" + name);
       EXPECT_FALSE (tool1.isUserConfigured());
       EXPECT_TRUE (tool1.isConfigurable());
       ASSERT_SUCCESS (tool1.setProperty<int> ("propertyInt", 42));
@@ -528,7 +574,7 @@ namespace asg
       EXPECT_FALSE (tool1.isUserConfigured());
       EXPECT_TRUE (tool1.isConfigurable());
 
-      AnaToolHandle<IUnitTestTool1> tool2 ("asg::UnitTestTool1/test");
+      AnaToolHandle<IUnitTestTool1> tool2 ("asg::UnitTestTool1/" + name);
       EXPECT_TRUE (tool2.isUserConfigured());
       EXPECT_FALSE (tool2.isConfigurable());
       ASSERT_SUCCESS (tool2.setProperty<int> ("propertyInt", 7));
@@ -541,35 +587,86 @@ namespace asg
       ASSERT_EQ (tool1.get(), tool2.get());
       ASSERT_EQ (42, tool1->getPropertyInt());
     }
-    AnaToolHandle<IUnitTestTool1> tool1 ("asg::UnitTestTool1/test");
+  }
+
+
+
+  // check that a tool gets shared between two AnaToolHandle objects
+  // if they are given the same name via setType/setName.
+  TEST (AnaToolHandleTest, shared_tool_setName)
+  {
+    std::string name = makeUniqueName();
+    {
+      AnaToolHandle<IUnitTestTool1> tool1;
+      tool1.setType ("asg::UnitTestTool1");
+      tool1.setName (name);
+      EXPECT_FALSE (tool1.isUserConfigured());
+      EXPECT_TRUE (tool1.isConfigurable());
+      ASSERT_SUCCESS (tool1.setProperty<int> ("propertyInt", 42));
+      EXPECT_FALSE (tool1.isUserConfigured());
+      EXPECT_TRUE (tool1.isConfigurable());
+      ASSERT_SUCCESS (tool1.initialize());
+      EXPECT_FALSE (tool1.isUserConfigured());
+      EXPECT_TRUE (tool1.isConfigurable());
+
+      AnaToolHandle<IUnitTestTool1> tool2;
+      tool2.setType ("asg::UnitTestTool1");
+      tool2.setName (name);
+      EXPECT_TRUE (tool2.isUserConfigured());
+      EXPECT_FALSE (tool2.isConfigurable());
+      ASSERT_SUCCESS (tool2.setProperty<int> ("propertyInt", 7));
+      EXPECT_TRUE (tool2.isUserConfigured());
+      EXPECT_FALSE (tool2.isConfigurable());
+      ASSERT_SUCCESS (tool2.initialize());
+      EXPECT_TRUE (tool2.isUserConfigured());
+      EXPECT_FALSE (tool2.isConfigurable());
+
+      ASSERT_EQ (tool1.get(), tool2.get());
+      ASSERT_EQ (42, tool1->getPropertyInt());
+    }
+  }
+
+
+
+  // check that a tool gets shared between two AnaToolHandle objects
+  // if they are given the same name and have no parents.
+#ifdef ROOTCORE
+  TEST (AnaToolHandleTest, shared_tool_cleanup)
+#else
+  TEST (AnaToolHandleTest, DISABLED_shared_tool_cleanup)
+#endif
+  {
+    std::string name = makeUniqueName();
+    {
+      AnaToolHandle<IUnitTestTool1> tool1 ("asg::UnitTestTool1/" + name);
+      EXPECT_FALSE (tool1.isUserConfigured());
+      EXPECT_TRUE (tool1.isConfigurable());
+      ASSERT_SUCCESS (tool1.setProperty<int> ("propertyInt", 42));
+      EXPECT_FALSE (tool1.isUserConfigured());
+      EXPECT_TRUE (tool1.isConfigurable());
+      ASSERT_SUCCESS (tool1.initialize());
+      EXPECT_FALSE (tool1.isUserConfigured());
+      EXPECT_TRUE (tool1.isConfigurable());
+
+      AnaToolHandle<IUnitTestTool1> tool2 ("asg::UnitTestTool1/" + name);
+      EXPECT_TRUE (tool2.isUserConfigured());
+      EXPECT_FALSE (tool2.isConfigurable());
+      ASSERT_SUCCESS (tool2.setProperty<int> ("propertyInt", 7));
+      EXPECT_TRUE (tool2.isUserConfigured());
+      EXPECT_FALSE (tool2.isConfigurable());
+      ASSERT_SUCCESS (tool2.initialize());
+      EXPECT_TRUE (tool2.isUserConfigured());
+      EXPECT_FALSE (tool2.isConfigurable());
+
+      ASSERT_EQ (tool1.get(), tool2.get());
+      ASSERT_EQ (42, tool1->getPropertyInt());
+    }
+    AnaToolHandle<IUnitTestTool1> tool1 ("asg::UnitTestTool1/" + name);
     EXPECT_FALSE (tool1.isUserConfigured());
     EXPECT_TRUE (tool1.isConfigurable());
     ASSERT_SUCCESS (tool1.setProperty<int> ("propertyInt", 17));
     ASSERT_SUCCESS (tool1.initialize());
   }
-
-
-
-  // check that in Athena we pick up whether set job options cause us
-  // to flag a tool as user configured
-#ifndef ROOTCORE
-  TEST (AnaToolHandleTest, usesJobOptions)
-  {
-    // this is a dummy tool that is only used to fill the job options
-    // service.  it is purposely not initialized to make sure that it
-    // does nothing but set the job options
-    AnaToolHandle<IUnitTestTool1> tool1 ("asg::UnitTestTool1/test");
-    ASSERT_SUCCESS (tool1.setProperty<int> ("propertyInt", 42));
-
-    AnaToolHandle<IUnitTestTool1> tool2 ("asg::UnitTestTool1/test");
-    EXPECT_TRUE (tool2.isUserConfigured());
-    EXPECT_FALSE (tool2.isConfigurable());
-    ASSERT_SUCCESS (tool2.setProperty<int> ("propertyInt", 7));
-    ASSERT_SUCCESS (tool2.initialize());
-
-    ASSERT_EQ (42, tool2->getPropertyInt());
-  }
-#endif
 
 
 
@@ -582,19 +679,18 @@ namespace asg
       SCOPED_TRACE (handleName);
 
       TH par;
-      AnaToolHandle<IUnitTestTool2> mainTool ("asg::UnitTestTool2/mainTool");
+      AnaToolHandle<IUnitTestTool2> mainTool ("asg::UnitTestTool2/" + makeUniqueName());
 
-#ifdef ROOTCORE
       if (!par.isSettable())
-#else
-      if (!par.isSettable() || !par.isGettable())
-#endif
       {
-	ASSERT_FAILURE (mainTool.setProperty (handleName, par.handle));
-	return;
+      	ASSERT_FAILURE (mainTool.setProperty (handleName, par.handle));
+      	return;
       }
       ASSERT_SUCCESS (mainTool.setProperty (handleName, par.handle));
 
+      // for AnaToolHandle members we try to get the tool in
+      // initialize(), so if we can't get a tool from the tool handle,
+      // we will fail
       if (!isRegular && !par.isGettable())
       {
 	ASSERT_FAILURE (mainTool.initialize ());
@@ -602,6 +698,19 @@ namespace asg
       }
       ASSERT_SUCCESS (mainTool.initialize ());
 
+      // a regular ToolHandle will throw when trying to get an empty
+      // handle, an AnaToolHandle will return a nullptr
+      if (par.handle.empty())
+      {
+	if (isRegular)
+	  ASSERT_ANY_THROW (mainTool->getToolHandle (handleName));
+	else
+	  ASSERT_EQ (nullptr, mainTool->getToolHandle (handleName));
+	return;
+      }
+
+      // for old-fashioned ToolHandle members we don't try to get the
+      // tool until we access it, making it fail at that point.
       if (!par.isGettable())
       {
 	ASSERT_ANY_THROW (mainTool->getToolHandle (handleName));
@@ -609,7 +718,7 @@ namespace asg
       }
       auto *const subtool = mainTool->getToolHandle (handleName);
 #ifdef ROOTCORE
-      EXPECT_EQ (&*par.handle, subtool);
+      EXPECT_EQ (par.getTool(), subtool);
 #else
       EXPECT_EQ (par.handle->getPropertyInt(), subtool->getPropertyInt());
 #endif
@@ -654,22 +763,25 @@ namespace asg
   {
     PublicAnaSubTool ()
     {
-      ANA_CHECK_THROW (handle.make ("asg::UnitTestTool1/subtool"));
+      ANA_CHECK_THROW (handle.make ("asg::UnitTestTool1/" + makeUniqueName()));
       ANA_CHECK_THROW (handle.initialize ());
     }
 
     bool isSettable () const {return true;}
     bool isGettable () const {return true;}
+    const IUnitTestTool1 *getTool () const {return &*handle;}
 
     AnaToolHandle<IUnitTestTool1> handle;
   };
+#ifdef ROOTCORE
   INSTANTIATE_TYPED_TEST_CASE_P (PublicAnaSubToolTest, SetToolHandlePropertyTest, PublicAnaSubTool);
+#endif
 
   struct PrivateAnaSubTool
   {
     PrivateAnaSubTool ()
-      : parent (new UnitTestTool1 ("parentTool")),
-	handle ("asg::UnitTestTool1/subtool", parent.get())
+      : parent (new UnitTestTool1 (makeUniqueName())),
+	handle ("asg::UnitTestTool1/" + makeUniqueName(), parent.get())
     {
       ANA_CHECK_THROW (parent->initialize ());
       ANA_CHECK_THROW (handle.initialize ());
@@ -677,11 +789,14 @@ namespace asg
 
     bool isSettable () const {return true;}
     bool isGettable () const {return true;}
+    const IUnitTestTool1 *getTool () const {return &*handle;}
 
     std::unique_ptr<UnitTestTool1> parent;
     AnaToolHandle<IUnitTestTool1> handle;
   };
+#ifdef ROOTCORE
   INSTANTIATE_TYPED_TEST_CASE_P (PrivateAnaSubToolTest, SetToolHandlePropertyTest, PrivateAnaSubTool);
+#endif
 
   struct EmptyRegSubTool
   {
@@ -689,8 +804,9 @@ namespace asg
     {
     }
 
-    bool isSettable () const {return false;}
+    bool isSettable () const {return true;}
     bool isGettable () const {return false;}
+    IUnitTestTool1 *getTool () const {return nullptr;}
 
     ToolHandle<IUnitTestTool1> handle;
   };
@@ -705,6 +821,7 @@ namespace asg
 
     bool isSettable () const {return true;}
     bool isGettable () const {return false;}
+    const IUnitTestTool1 *getTool () const {return &*handle;}
 
     ToolHandle<IUnitTestTool1> handle;
   };
@@ -729,6 +846,7 @@ namespace asg
 
     bool isSettable () const {return true;}
     bool isGettable () const {return true;}
+    const IUnitTestTool1 *getTool () const {return &*handle;}
 
 #ifdef ROOTCORE
     std::unique_ptr<UnitTestTool1> mytool;
@@ -742,13 +860,14 @@ namespace asg
   {
     PointerRegSubTool ()
     {
-      ANA_CHECK_THROW (tool.make ("asg::UnitTestTool1/subtool"));
+      ANA_CHECK_THROW (tool.make ("asg::UnitTestTool1/" + makeUniqueName()));
       ANA_CHECK_THROW (tool.initialize ());
       handle = tool.get ();
     }
 
     bool isSettable () const {return true;}
     bool isGettable () const {return true;}
+    const IUnitTestTool1 *getTool () const {return &*handle;}
 
     AnaToolHandle<IUnitTestTool1> tool;
     ToolHandle<IUnitTestTool1> handle;
@@ -818,30 +937,143 @@ namespace asg
 
   TEST (AnaToolHandleTest, swap_test)
   {
-    AnaToolHandle<IAsgTool> tool1("asg::UnitTestTool1/myTool");
+    std::string name = makeUniqueName();
+    AnaToolHandle<IAsgTool> tool1("asg::UnitTestTool1/" + name);
     ASSERT_SUCCESS (tool1.initialize());
-#ifndef ROOTCORE
-    EXPECT_EQ (2u, tool1->refCount());
-#endif
 
     asg::AnaToolHandle<asg::IAsgTool> tool3;
 
     {
-      asg::AnaToolHandle<asg::IAsgTool> tool2("asg::UnitTestTool1/myTool");
+      asg::AnaToolHandle<asg::IAsgTool> tool2("asg::UnitTestTool1/" + name);
       ASSERT_SUCCESS (tool2.initialize());
-#ifndef ROOTCORE
-      EXPECT_EQ (3u, tool2->refCount());
-#endif
       tool3 = std::move(tool2);
-#ifndef ROOTCORE
-      EXPECT_EQ (3u, tool3->refCount());
-#endif
     }
-#ifndef ROOTCORE
-    EXPECT_EQ (3u, tool3->refCount());
-    EXPECT_EQ (3u, tool1->refCount());
-#endif
   }
+
+
+
+  struct SubtoolTest : public testing::TestWithParam<std::tuple<std::string,std::string,std::string> >
+  {
+  };
+
+
+
+  TEST_P (SubtoolTest, set)
+  {
+    std::vector<std::shared_ptr<void> > cleanup;
+    int value = 7;
+
+    std::string propertyName;
+    if (std::get<1>(GetParam()) == "public")
+      propertyName = "subtool0";
+    else if (std::get<1>(GetParam()) == "private")
+      propertyName = "subtool1";
+    else
+    {
+      ADD_FAILURE () << "unknown parameter " << std::get<1>(GetParam());
+      return;
+    }
+
+    AnaToolHandle<IUnitTestTool3> th3 ("asg::UnitTestTool3/" + makeUniqueName());
+    ASSERT_SUCCESS (th3.setProperty ("propertyName", std::get<0>(GetParam ())));
+    if (std::get<2>(GetParam()) == "empty")
+    {
+      value = -1;
+      ToolHandle<asg::IUnitTestTool1> th ("");
+      ASSERT_TRUE (th.empty());
+      ASSERT_SUCCESS (th3.setProperty (propertyName, th));
+    } else if (std::get<2>(GetParam()) == "none")
+    {
+      value = 42;
+    } else if (std::get<2>(GetParam()) == "ATH" ||
+               std::get<2>(GetParam()) == "TH" ||
+               std::get<2>(GetParam()) == "NOINIT")
+    {
+      std::shared_ptr<AnaToolHandle<IUnitTestTool1> > th1;
+      if (std::get<1>(GetParam()) == "public")
+      {
+        th1 =
+          std::make_shared<AnaToolHandle<IUnitTestTool1> >
+          ("asg::UnitTestTool1/" + makeUniqueName());
+        cleanup.push_back (th1);
+      } else
+      {
+        auto th0 =
+          std::make_shared<AnaToolHandle<IUnitTestTool1> >
+          ("asg::UnitTestTool1/" + makeUniqueName());
+        cleanup.push_back (th0);
+        ASSERT_SUCCESS (th0->initialize ());
+        th1 =
+          std::make_shared<AnaToolHandle<IUnitTestTool1> >
+          ("asg::UnitTestTool1/" + makeUniqueName(),
+           dynamic_cast<AsgTool*>(th0->get()));
+        cleanup.push_back (th1);
+      }
+      ASSERT_SUCCESS (th1->setProperty ("propertyInt", value));
+      if (std::get<2>(GetParam()) != "NOINIT")
+      {
+#ifndef ROOTCORE
+        ASSERT_EQ (std::get<1>(GetParam()) == "public", th1->getHandle().isPublic());
+#endif
+        ASSERT_SUCCESS (th1->initialize ());
+#ifndef ROOTCORE
+        ASSERT_EQ (std::get<1>(GetParam()) == "public", th1->getHandle().isPublic());
+#endif
+      }
+
+      if (std::get<2>(GetParam()) == "ATH")
+      {
+        ASSERT_SUCCESS (th3.setProperty (propertyName, *th1));
+      } else if (std::get<2>(GetParam()) == "TH")
+      {
+        ASSERT_SUCCESS (th3.setProperty (propertyName, th1->getHandle()));
+      } else if (std::get<2>(GetParam()) == "NOINIT")
+      {
+        ASSERT_SUCCESS (th3.setProperty (propertyName, *th1));
+      } else
+      {
+        ADD_FAILURE () << "unknown parameter " << std::get<2>(GetParam());
+        return;
+      }
+    } else
+    {
+      ADD_FAILURE () << "unknown parameter " << std::get<1>(GetParam());
+      return;
+    }
+    if (std::get<1>(GetParam()) == "public")
+      ASSERT_SUCCESS (th3.setProperty ("usePublic", true));
+
+    ASSERT_SUCCESS (th3.initialize ());
+    if (value == -1)
+    {
+      ASSERT_TRUE (th3->subsubtoolEmpty());
+    } else
+    {
+      ASSERT_FALSE (th3->subsubtoolEmpty());
+      ASSERT_EQ (value, th3->getSubsubtool()->getPropertyInt());
+    }
+  }
+
+  INSTANTIATE_TEST_CASE_P
+  (MySubtoolTest1, SubtoolTest, ::testing::Values
+   (std::make_tuple ("regPublicHandle",  "public",  "ATH"),
+    std::make_tuple ("anaPublicHandle",  "public",  "ATH"),
+    std::make_tuple ("regPublicHandle",  "public",  "TH"),
+    std::make_tuple ("anaPublicHandle",  "public",  "TH"),
+    std::make_tuple ("regPublicHandle",  "public",  "NOINIT"),
+    std::make_tuple ("anaPublicHandle",  "public",  "NOINIT"),
+    std::make_tuple ("regPublicHandle",  "public",  "empty"),
+    std::make_tuple ("anaPublicHandle",  "public",  "empty"),
+    std::make_tuple ("regPrivateHandle", "private", "ATH"),
+    std::make_tuple ("anaPrivateHandle", "private", "ATH"),
+    std::make_tuple ("regPrivateHandle", "private", "TH"),
+    std::make_tuple ("anaPrivateHandle", "private", "TH"),
+    std::make_tuple ("regPrivateHandle", "private", "NOINIT"),
+    std::make_tuple ("anaPrivateHandle", "private", "NOINIT"),
+    std::make_tuple ("regPrivateHandle", "private", "empty"),
+    std::make_tuple ("anaPrivateHandle", "private", "empty"),
+    std::make_tuple ("regPrivateHandle", "private", "none"),
+    std::make_tuple ("anaPrivateHandle", "private", "none")),);
 }
 
 ATLAS_GOOGLE_TEST_MAIN

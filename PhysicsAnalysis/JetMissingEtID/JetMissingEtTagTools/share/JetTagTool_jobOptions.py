@@ -30,7 +30,7 @@ if jobproperties.Beam.beamType == 'cosmics':
 	
 JetCalibTool = CfgMgr.JetCalibrationTool("JetCalib",
 					 JetCollection = "AntiKt4EMTopo",
-					 ConfigFile    = "JES_MC15cRecommendation_May2016_rel21.config",
+					 ConfigFile    = "JES_data2016_data2015_Recommendation_Dec2016.config",
 					 CalibSequence = calibseq,
 					 IsData = isdata,
 					 RhoKey=evs
@@ -44,14 +44,13 @@ ToolSvc += JetVertexTaggerTool
 METMakerTool = CfgMgr.met__METMaker('METMaker',
 				    DoRemoveMuonJets    = True,
 				    DoSetMuonJetEMScale = True,
-				    JetJvtMomentName    = 'JvtUpdate',
+				    JetJvtMomentName    = 'Jvt',
 				    CustomJetJvtCut     = 0.59,
 				    CustomJetJvtPtMax   = 60e3
 				    )
 ToolSvc += METMakerTool
 
-# FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2016-13TeV-WorkingPointsOnly-Release20_7-AntiKt4EMTopoJets-May3.root"
-FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-May12_v1.root"
+FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-2017-03-30_v1.root"
 MaxEta         = 2.5
 MinPt          = 20000.
 JetAuthor      = "AntiKt4EMTopoJets"

@@ -13,6 +13,7 @@ from AthenaCommon.AppMgr    import ToolSvc
 from AthenaCommon.BeamFlags import jobproperties
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool
+from InDetRecExample.InDetJobProperties import InDetFlags
 
 beamFlags                      = jobproperties.Beam
 
@@ -27,6 +28,7 @@ ToolSvc += InDet__InDetTrackHoleSearchTool( \
   Extrapolator                 = atlasExtrapolator,
   usePixel                     = DetFlags.haveRIO.pixel_on(),
   useSCT                       = DetFlags.haveRIO.SCT_on(),
+  checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
   CountDeadModulesAfterLastHit = True)
 
 if muonCombinedRecFlags.useDetailedPixelHoleSearch():

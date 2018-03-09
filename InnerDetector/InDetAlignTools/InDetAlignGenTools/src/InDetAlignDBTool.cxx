@@ -66,10 +66,11 @@ InDetAlignDBTool::InDetAlignDBTool(const std::string& type,
            const std::string& name, const IInterface* parent)
   : AthAlgTool(type,name,parent),
     p_toolsvc("ToolSvc",name),
-    m_pixid(0),
-    m_sctid(0),
-    m_pixman(0),
-    m_sctman(0),
+    m_pixid(nullptr),
+    m_sctid(nullptr),
+    m_pixman(nullptr),
+    m_sctman(nullptr),
+    m_attrListCollection(nullptr),
     par_newdb(true),
     par_scttwoside(false),
     par_fake(0),
@@ -222,6 +223,7 @@ StatusCode InDetAlignDBTool::initialize()
   }
 
   // make a new empty CondAttrListCollection with the IBLDist structure:  
+  if (m_attrListCollection) delete m_attrListCollection;
   m_attrListCollection = new CondAttrListCollection(true); // not really sure....
   
   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();

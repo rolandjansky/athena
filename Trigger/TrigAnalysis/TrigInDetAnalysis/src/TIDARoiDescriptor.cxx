@@ -169,7 +169,7 @@ double TIDARoiDescriptor::phicheck(double phi) {
 
 double TIDARoiDescriptor::etacheck(double eta) {
   if ( !(eta > -100  && eta < 100) ) { // check also for nan
-    std::cerr << "TIDARoiDescriptor constructed with eta outside range -100 < eta <100  EtaRange" << std::endl;;
+    std::cerr << "TIDARoiDescriptor constructed with eta outside range -100 < eta <100  EtaRange" << std::endl;
   } 
   return eta;
 }

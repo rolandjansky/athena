@@ -9,6 +9,23 @@ class InDetTrackSelectionTool(object) :
   '''
   def __init__(self) :
      raise('must not be instantiated. Only child classes should be instantiated.')
+  
+  class InDetTrackSelectionToolLoose(InDet__InDetTrackSelectionTool) :
+      '''
+      Default InDetTrackSelectionTool for InDetTrackParticles
+      '''
+      @injectNameArgument
+      def __new__(cls, *args, **kwargs) :
+          return InDet__InDetTrackSelectionTool.__new__(cls,*args,**kwargs)
+
+      @checkKWArgs
+      def __init__(self, **kwargs) :
+          super(InDetTrackSelectionTool.InDetTrackSelectionToolLoose,self)\
+                        .__init__(**_args( kwargs,
+                                           name = self.__class__.__name__))
+
+          # special parameters of the InDetTrackSelectionToolLoose
+          self.CutLevel = "Loose"
 
   class InDetTrackSelectionToolTightPrimary(InDet__InDetTrackSelectionTool) :
       '''
@@ -26,3 +43,5 @@ class InDetTrackSelectionTool(object) :
 
           # special parameters of the InDetTrackSelectionToolTightPrimary
           self.CutLevel = "TightPrimary"
+ 
+

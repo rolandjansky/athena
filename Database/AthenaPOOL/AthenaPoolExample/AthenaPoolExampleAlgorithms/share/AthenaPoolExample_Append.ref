@@ -1,5 +1,3 @@
-Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
-Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -47,10 +45,11 @@ PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'Conn
 PoolSvc              INFO Frontier compression level set to 5
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
-PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog1.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
+PoolSvc              INFO Re-initializing PoolSvc
 ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-??-??-??
 Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
@@ -160,10 +159,6 @@ SimplePoolFile2.root Debug --->Reading Param:PFN=[SimplePoolFile2.root]
 SimplePoolFile2.root Debug --->Reading Param:POOL_VSN=[1.1]
 SimplePoolFile2.root Debug --->Reading Param:FORMAT_VSN=[1.1]
 ##Params Debug No objects passing selection criteria... Container has 4 Entries in total.
-RootDatabase.setOption Debug Request TREE_AUTO_FLUSH 
-RootDatabase.setOption Debug File name SimplePoolFile2.root
-RootDatabase.setOption Debug Demand to set AUTO_FLUSH for TTree: POOLContainer with value: 0
-AthenaPoolCnvSvc    DEBUG setAttribute TREE_AUTO_FLUSH to 0 for db: SimplePoolFile2.root and cont: TTree=POOLContainer
 AthenaPoolCnvSvc    DEBUG setAttribute CONTAINER_SPLITLEVEL to 99 for db: SimplePoolFile2.root and cont: TTree=POOLContainerForm(DataHeaderForm)
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
@@ -176,7 +171,6 @@ SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLC
 ???? Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
 SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
 ???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
-POOLContainer(DataHeader) Debug Setting AUTO_FLUSH for TTree: POOLContainer to value: 0
 SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(Token)
 ???? Debug Opened container POOLCollectionTree(Token) of type ROOT_Tree
 SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(RunNumber)
@@ -187,7 +181,8 @@ SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLC
 ???? Debug Opened container POOLCollectionTree(MagicNumber) of type ROOT_Tree
 SimplePoolFile2.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(basic/DataHeader)
 ???? Debug Opened container POOLContainer(basic/DataHeader) of type ROOT_Tree
-AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile2.root and cont: POOLContainerForm(DataHeaderForm)
+AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile2.root and cont: POOLContainer(DataHeader)
+AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolFile2.root and cont: POOLContainerForm(DataHeaderForm)
 RegStream1          DEBUG RegistrationStream execute
 RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
 RegStream1          DEBUG  get ref for (222376821,"Stream1") 
@@ -394,17 +389,6 @@ Stream1             DEBUG            Key:*
 Stream1             DEBUG  Added object 2101,"McEventInfo"
 Stream1             DEBUG  Collected objects:
 Stream1             DEBUG  Object/count: EventInfo_McEventInfo, 11
-CollectionTree(EventInfo_p4/McEventInfo) Debug endTransaction: go to finish
-POOLCollectionTree(EventNumber) Debug endTransaction: go to finish
-POOLCollectionTree(MagicNumber) Debug endTransaction: go to finish
-POOLCollectionTree(RunNumber) Debug endTransaction: go to finish
-POOLCollectionTree(Token) Debug endTransaction: go to finish
-POOLContainer(DataHeader) Debug endTransaction: go to finish
-POOLContainer(basic/DataHeader) Debug endTransaction: go to finish
-POOLContainerForm(DataHeaderForm) Debug endTransaction: go to finish
-##Params Debug endTransaction:  tree AutoSave
-##Shapes Debug endTransaction:  tree AutoSave
-##Links Debug endTransaction:  tree AutoSave
 RegStream1          DEBUG RegistrationStream execute
 RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
 RegStream1          DEBUG  get ref for (222376821,"Stream1") 

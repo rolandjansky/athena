@@ -10,8 +10,5 @@
 # energy above a certain threshold.
 #########################################################
 
-try:
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-except ImportError:
-    from G4AtlasServices.UserActionStore import UAStore
-UAStore.addAction('FastIDKiller', ['BeginOfRun','Step'])
+from G4AtlasApps.SimFlags import simFlags
+simFlags.OptionalUserActionList.addAction('G4UA::FastIDKillerTool', ['Run','Step'])

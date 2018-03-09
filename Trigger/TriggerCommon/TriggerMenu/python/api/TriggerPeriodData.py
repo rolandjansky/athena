@@ -76,14 +76,20 @@ class TriggerPeriodData:
         'K4':(339205,339205,15216),
         'K5':(339346,339849,20614),
         'K6':(339957,340453,15750),
+        'N' :(341257,341649,16018),
+        'N1':(341257,341294,1957),
+        'N4':(341419,341649,1590),
+        'N2':(341312,341312,16018),
     }
     
-    grlroot = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/"
-    y2017grlpath = grlroot+"data17_13TeV/20171103/data17_13TeV.periodAllYear_DetStatus-v96-pro21-12_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
-    y2016grlpath = grlroot+"data16_13TeV/20170605/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml"
-    y2015grlpath = grlroot+"data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml"
-    def __init__(self, period):
-        if period >= TriggerPeriod.runNumber: #run number assume 2017
+    grlbase = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/"
+    y2017grlpath = grlbase+"data17_13TeV/20171130/data17_13TeV.periodAllYear_DetStatus-v97-pro21-13_Unknown_PHYS_StandardGRL_All_Good_25ns_Triggerno17e33prim.xml"
+    y2016grlpath = grlbase+"data16_13TeV/20170605/data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.xml"
+    y2015grlpath = grlbase+"data15_13TeV/20170619/data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.xml"
+    def __init__(self, period, customGRL=None):
+        if customGRL:
+            self.loadGRL(customGRL)
+        elif period >= TriggerPeriod.runNumber: #run number assume 2017
             self.loadGRL(self.y2017grlpath)
         elif period & TriggerPeriod.y2015: 
             self.loadGRL(self.y2015grlpath)
@@ -98,6 +104,17 @@ class TriggerPeriodData:
         self.grl = {}
         for run in grlroot.findall('NamedLumiRange/LumiBlockCollection'):
             self.grl[ int(run.find('Run').text)] = [(int(x.get('Start')), int(x.get('End'))) for x in run.findall('LBRange')]
+
+    @classmethod
+    def testCustomGRL(cls, grlpath):
+        try:
+            grlroot = ET.parse(grlpath).getroot()
+            testgrl = {}
+            for run in grlroot.findall('NamedLumiRange/LumiBlockCollection'):
+                testgrl[ int(run.find('Run').text)] = [(int(x.get('Start')), int(x.get('End'))) for x in run.findall('LBRange')]
+            return any(len(lb)!=0 for lb in testgrl.itervalues())
+        except:
+            return False
 
     def skimPeriod(self, period):
         if period >= TriggerPeriod.runNumber:
@@ -139,6 +156,8 @@ class TriggerPeriodData:
                 ranges.append( self.periodMap2017['I'] )
             if period & TriggerPeriod.y2017periodK     :
                 ranges.append( self.periodMap2017['K'] )
+            if period & TriggerPeriod.y2017periodN     :
+                ranges.append( self.periodMap2017['N'] )
             for run in self.grl.keys()[:]:
                 if not any([run >= x[0] and run <= x[1] for x in ranges]): self.grl.pop(run)
 

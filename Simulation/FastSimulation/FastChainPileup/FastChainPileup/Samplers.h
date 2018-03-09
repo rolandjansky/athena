@@ -17,8 +17,8 @@
 //Base class for all samplers
 class Sampler {
  public:
-  Sampler() {};
-  ~Sampler(){};
+  Sampler() : m_val(0.) {};
+  virtual ~Sampler(){};
   virtual float shoot() {return m_val;};
   //float operator () { return this->shoot();};
   float m_val;
@@ -37,7 +37,7 @@ class ConstSampler : public Sampler {
 
 class MomSampler {
  public:
-  MomSampler() {};
+  MomSampler() : m_mass(NULL) {};
   ~MomSampler(){};
   virtual TLorentzVector shoot() {return m_val;};
   TLorentzVector m_val;
@@ -218,7 +218,7 @@ RndmSeq = RandomSeqSampler
 class CyclicSeqSampler : public Sampler {
  public:
   ~CyclicSeqSampler() {};
-  CyclicSeqSampler(const CyclicSeqSampler & orig) {m_sequence = orig.m_sequence;};
+  CyclicSeqSampler(const CyclicSeqSampler & orig) : m_index(0) {m_sequence = orig.m_sequence;};
   CyclicSeqSampler(std::string s) {
     size_t pos = 0;
     std::string token;
@@ -566,7 +566,7 @@ class EThetaMPhiSampler(MomSampler):
 //Create a 4-momentum vector from pt, eta, m and phi distributions/samplers.
 class PtEtaMPhiSampler : public MomSampler{
  public:
-  ~PtEtaMPhiSampler() {};
+  ~PtEtaMPhiSampler() { if (m_pt) delete m_pt; if (m_eta) delete m_eta; if (m_phi) delete m_phi;};
   PtEtaMPhiSampler(float ptmin, float ptmax, float etamin, float etamax, float mass=0.0, float phimin=0, float phimax=2.*TMath::Pi()){
     if (ptmin==ptmax)
       m_pt = new ConstSampler(ptmin);

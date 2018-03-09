@@ -12,8 +12,8 @@ class DiLep_FilterFlags(JobProperty):
     allowedTypes  = ['bool']
     StoredValue   = True
     
-    SiPhTriggers  = ["HLT_g140_loose"]
-    DiPhTriggers  = ["HLT_2g50_loose", "2g60_loose_L12EM15VH"]
+    SiPhTriggers  = ["HLT_g140_loose", "HLT_g200_loose", "HLT_g200_loose_L1EM24VHIM"]
+    DiPhTriggers  = ["HLT_2g50_loose_L12EM20VH", "HLT_2g60_loose_L12EM20VH"]
     SiMuTriggers  = ["HLT_mu60_0eta105_msonly"]
     
     ElEtaMax      = 2.5
@@ -22,15 +22,15 @@ class DiLep_FilterFlags(JobProperty):
     MuBaEtaMax    = 1.07
     
     ElD0Min       = 2.0
-    MuD0Min       = 1.5
+    MuD0Min       = 2.0
     
-    SiElPtMin     = 140.
-    SiPhPtMin     = 150.
+    SiElPtMin     = 160.
+    SiPhPtMin     = 160.
     SiPhXPtMin    =  10.
     SiMuPtMin     =  60.
-    DiElPtMin     =  50.
-    DiPhPtMin     =  50.
-    DiElPhPtMin   =  50.
-    DiLoElPhPtMin =  50.
+    DiElPtMin     =  60.
+    DiPhPtMin     =  60.
+    DiElPhPtMin   =  60.
+    DiLoElPhPtMin =  60.
 
 primRPVLLDESDM.add_JobProperty(DiLep_FilterFlags)

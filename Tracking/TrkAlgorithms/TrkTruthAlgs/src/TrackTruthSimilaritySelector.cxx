@@ -6,18 +6,19 @@
 #include "TrkToolInterfaces/IDetailedTrackTruthSimilarity.h"
 
 TrackTruthSimilaritySelector::TrackTruthSimilaritySelector(const std::string &name,ISvcLocator *pSvcLocator)
-  : AthAlgorithm(name,pSvcLocator)
+  : AthAlgorithm(name,pSvcLocator),
+  m_detailed("DetailedTrackTruth"), m_out("TrackTruthNew")
   , m_matchTool("Trk::TruthMatchRatio")
 {
   declareProperty("TrackTruthSimilarityTool", m_matchTool, "Track-truth similarity tool");
-  declareProperty("DetailedTrackTruthName",  m_detailedTrackTruthName="DetailedTrackTruth");
-  declareProperty("OutputName",  m_outputName="TrackTruthNew");
+  declareProperty("DetailedTrackTruthName",  m_detailed);
+  declareProperty("OutputName",  m_out);
 }
 
 // -----------------------------------------------------------------------------------------------------
 StatusCode TrackTruthSimilaritySelector::initialize()
 {
-  ATH_MSG_INFO ("TrackTruthSimilaritySelector::initialize(), output " << m_outputName);
+  ATH_MSG_INFO ("TrackTruthSimilaritySelector::initialize(), output " << m_out.name());
   return StatusCode::SUCCESS;
 }
 
@@ -32,33 +33,26 @@ StatusCode TrackTruthSimilaritySelector::execute() {
 
   ATH_MSG_DEBUG ("TrackTruthSimilaritySelector::execute()");
 
-  StatusCode sc;
-
   //----------------------------------------------------------------
   // Retrieve the input
-  const DetailedTrackTruthCollection *detailed = 0;
-  sc = evtStore()->retrieve(detailed, m_detailedTrackTruthName);
-  if (!sc.isSuccess()){
-    ATH_MSG_ERROR ("DetailedTrackTruthCollection "<<m_detailedTrackTruthName<<" NOT found");
-    return sc;
+
+  if (!m_detailed.isValid()){
+    ATH_MSG_ERROR ("DetailedTrackTruthCollection "<<m_detailed.name()<<" NOT found");
+    return StatusCode::FAILURE;
   } else {
-    ATH_MSG_DEBUG ("Got DetailedTrackTruthCollection "<<m_detailedTrackTruthName);
+    ATH_MSG_DEBUG ("Got DetailedTrackTruthCollection "<<m_detailed.name());
   }
 
   //----------------------------------------------------------------
   // Produce and store the output.
 
-  TrackTruthCollection *out = new TrackTruthCollection(detailed->trackCollectionLink());
+  m_out = std::unique_ptr<TrackTruthCollection>
+               (new TrackTruthCollection(m_detailed->trackCollectionLink()));
 
-  fillOutput(out, detailed);
-
-  sc=evtStore()->record(out, m_outputName, false);
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR ("TrackTruthCollection '"<<m_outputName<<"' could not be registered in StoreGate !");
-    return sc;
-  } else {
-    ATH_MSG_DEBUG ("TrackTruthCollection '"<<m_outputName<<"' is registered in StoreGate, size="<<out->size());
-  }
+  fillOutput(m_out.ptr(), m_detailed.cptr());
+  
+  ATH_MSG_DEBUG ("TrackTruthCollection '"<<m_out.name()<<"' is registered in StoreGate, size="<<m_out->size());
+  
   
   return StatusCode::SUCCESS;
 }

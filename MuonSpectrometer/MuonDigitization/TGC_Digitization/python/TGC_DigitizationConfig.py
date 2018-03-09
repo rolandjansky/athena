@@ -21,7 +21,12 @@ def TgcDigitizationTool(name="TgcDigitizationTool", **kwargs):
     if jobproperties.Digitization.doXingByXingPileUp(): # PileUpTool approach
         # This should match the range for the TGC in Simulation/Digitization/share/MuonDigitization.py 
         kwargs.setdefault("FirstXing", TGC_FirstXing() ) 
-        kwargs.setdefault("LastXing",  TGC_LastXing() ) 
+        kwargs.setdefault("LastXing",  TGC_LastXing() )
+
+    # Pile-up premixing - do not include pile-up truth
+    if jobproperties.Digitization.PileUpPremixing():
+        kwargs.setdefault("IncludePileUpTruth", False)
+
     return CfgMgr.TgcDigitizationTool(name, **kwargs)
 
 def getTgcRange(name="TgcRange", **kwargs):
@@ -35,4 +40,3 @@ def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
     return TgcDigitizationTool(name,**kwargs)
-

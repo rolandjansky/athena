@@ -10,7 +10,7 @@
 typedef AtlasHitsVector<TrackRecord> TrackRecordCollection_p0;
 
 TrackRecordCollection_PERS* TrackRecordCollectionCnv::createPersistent(TrackRecordCollection* transCont) {
-   MsgStream mlog(messageService(), "TrackRecordCollectionConverter" );
+   MsgStream mlog(msgSvc(), "TrackRecordCollectionConverter" );
    TrackRecordCollectionCnv_p2   converter;
    TrackRecordCollection_PERS *persObj = converter.createPersistent( transCont, mlog );
    return persObj;
@@ -19,7 +19,7 @@ TrackRecordCollection_PERS* TrackRecordCollectionCnv::createPersistent(TrackReco
 
 TrackRecordCollection* TrackRecordCollectionCnv::createTransient() {
 
-    MsgStream mlog(messageService(), "TrackRecordCollectionConverter" );
+    MsgStream mlog(msgSvc(), "TrackRecordCollectionConverter" );
     TrackRecordCollectionCnv_p1   converter;
     TrackRecordCollectionCnv_p2   converter_p2;
     TrackRecordCollection       *trans_cont(0);

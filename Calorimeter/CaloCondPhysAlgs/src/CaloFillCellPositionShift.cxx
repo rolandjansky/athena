@@ -24,8 +24,7 @@ AthAlgorithm(name,pSvcLocator),m_calo_id(NULL),m_cellPos(NULL),m_key("LArCellPos
 //Destructor
 CaloFillCellPositionShift::~CaloFillCellPositionShift()
 {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "CaloFillCellPositionShift destructor called" << endreq;
+  ATH_MSG_DEBUG( "CaloFillCellPositionShift destructor called" );
 }
 //__________________________________________________________________________
 StatusCode CaloFillCellPositionShift::initialize()

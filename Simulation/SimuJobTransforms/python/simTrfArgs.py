@@ -69,6 +69,9 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--AddCaloDigi',
                         type=argFactory(argBool),
                         help='Save Calo Digits too, not just RawChannels.', group='Digi')
+    parser.add_argument('--PileUpPremixing',
+                        type=argFactory(argBool),
+                        help='Run digitization with pile-up premixing configuration.', group='Digi')
 
 ## Add Pile-up related transform arguments to an argparse ArgumentParser
 def addPileUpTrfArgs(parser):
@@ -129,21 +132,16 @@ def addCosmicsTrfArgs(parser):
                         type=argFactory(argString),
                         help='Cosmic Pt Slice', group='Cosmics')
 
-## Add arguments used by simulation jobs which may write out TrackRecord files
+## Add arguments used by simulation jobs which may read in or write out TrackRecord files
 def addTrackRecordArgs(parser):
     parser.defineArgGroup('TrackRecords', 'TrackRecord related options')
-    parser.add_argument('--inputEVNT_COSMICSFile', nargs='+',
+    parser.add_argument('--inputEVNT_TRFile', nargs='+',
                         type=argFactory(argPOOLFile, io='input'),
-                        help='Input Track Record file - sometimes used in Cosmic ray simulation jobs.', group='TrackRecords')
-    parser.add_argument('--outputEVNT_COSMICSTRFile', nargs='+',
+                        help='Input Track Record file - sometimes used in Cosmic ray or cavern background simulation jobs.', group='TrackRecords')
+    parser.add_argument('--outputEVNT_TRFile', nargs='+',
                         type=argFactory(argPOOLFile, io='output', type='evnt'),
-                        help='Output Track Record file - sometimes used in Cosmic ray simulation jobs.', group='TrackRecords')
-    parser.add_argument('--inputEVNT_CAVERNFile', nargs='+',
-                        type=argFactory(argPOOLFile, io='input'),
-                        help='Input Track Record file - sometimes used in Cavern Background simulation jobs.', group='TrackRecords')
-    parser.add_argument('--outputEVNT_CAVERNTRFile', nargs='+',
-                        type=argFactory(argPOOLFile, io='output', type='evnt'),
-                        help='Output Track Record file - sometimes used in Cavern Background simulation jobs.', group='TrackRecords')
+                        help='Output Track Record file - sometimes used in Cosmic ray or cavern background simulation jobs.', group='TrackRecords')
+
 
 ## Add arguments used only by ISF-based simulation jobs
 def addSim_tfArgs(parser):
@@ -151,9 +149,6 @@ def addSim_tfArgs(parser):
     parser.add_argument('--simulator',
                         type=argFactory(argString), metavar='CONFIGNAME',
                         help='Specify a named configuration. E.g. MC12G4, ATLFASTII ATLFASTIIF', group='Sim_tf')
-    parser.add_argument('--truthStrategy',
-                        type=argFactory(argString), metavar='CONFIGNAME',
-                        help='Specify the named group of Truth strategies that the ISF should use.  E.g. MC12, MC15, Validation', group='Sim_tf')
 
 ## Add arguments used only by TestBeam simulation jobs
 def addTestBeamArgs(parser):
@@ -190,6 +185,9 @@ def addCommonSimTrfArgs(parser):
                         type=argFactory(argSubstepInt), help='Random seed offset', group='CommonSim')
     parser.add_argument('--enableLooperKiller', nargs='+', metavar='substep:LooperKiller',
                         type=argFactory(argSubstepBool), help='Should the LooperKiller be used', group='CommonSim')
+    parser.add_argument('--truthStrategy',
+                        type=argFactory(argString), metavar='CONFIGNAME',
+                        help='Specify the named group of Truth strategies that the simulation should use.  E.g. MC12, MC15aPlus, MC16', group='CommonSim')
 
 ## Add common Simulation/Digitization transform arguments to an argparse ArgumentParser
 def addCommonSimDigTrfArgs(parser):

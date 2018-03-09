@@ -57,10 +57,12 @@ egammaInDetPrdAssociationTool = ToolFactory( InDet__InDetPRD_AssociationToolGang
 
 # Loading Configurable HoleSearchTool
 #
+from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
 egammaInDetHoleSearchTool = ToolFactory( InDet__InDetTrackHoleSearchTool,
                                          name = "egammaInDetHoleSearchTool",
-                                         Extrapolator = egammaExtrapolator)
+                                         Extrapolator = egammaExtrapolator,
+                                         checkBadSCTChip=InDetFlags.checkDeadElementsOnTrack())
 #
 # Load the InDetTrackSummaryHelperTool
 #

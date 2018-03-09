@@ -63,8 +63,12 @@ endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-  run_tpcnv_test( MuonEventTPCnv_17.0.0   ESD-17.0.0 )
-  run_tpcnv_test( MuonEventTPCnv_20.1.7.2 ESD-20.1.7.2 )
+  set( MUONEVENTATHENAPOOL_REFERENCE_TAG
+       MuonEventAthenaPoolReference-01-00-00 )
+  run_tpcnv_test( MuonEventTPCnv_17.0.0   ESD-17.0.0
+                   REFERENCE_TAG ${MUONEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( MuonEventTPCnv_20.1.7.2 ESD-20.1.7.2
+                   REFERENCE_TAG ${MUONEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   

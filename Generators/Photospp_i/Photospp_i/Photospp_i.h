@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef GENERATOR_PHOTOSPP_H
 #define GENERATOR_PHOTOSPP_H
 
@@ -65,6 +61,15 @@ private:
   
   /// Delay initialisation until just before first event execution (default = no)
   bool m_delayInitialisation;
+  
+  /// Whether to apply ME correction to Z decays (default = no, until validated)
+  bool m_ZMECorrection;
+ 
+  /// Whether to apply ME correction to W decays (default = no, until validated)
+  bool m_WMECorrection;
+  
+  /// Whether to include photon splitting
+  bool m_photonSplitting;
   
   /// 
   double m_infraRedCutOff;

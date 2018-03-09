@@ -1476,6 +1476,9 @@ namespace MuonCombined {
     if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
 
     addMSIDScatteringAngles(muon);
+    if(muon.combinedTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.combinedTrackParticleLink()));
+    if(muon.extrapolatedMuonSpectrometerTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.extrapolatedMuonSpectrometerTrackParticleLink()));
+    if(muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.msOnlyExtrapolatedMuonSpectrometerTrackParticleLink()));
 
     return true;
   }
@@ -1849,5 +1852,44 @@ namespace MuonCombined {
     }
   }
 
+  void MuonCreatorTool::addMSIDScatteringAngles(const xAOD::TrackParticle& tp) const{
+    int nscatter=0;
+    if(tp.track() && tp.track()->trackStateOnSurfaces()){
+      for(auto tsos : *(tp.track()->trackStateOnSurfaces())) {
+       if(tsos->materialEffectsOnTrack()){
+          const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack () );
+          if(!meot->energyLoss() || !meot->scatteringAngles()) continue;
+          if(meot->energyLoss()->deltaE()==0){ //artificial scatterer found
+            if(nscatter==0){
+             tp.auxdecor<float>("deltaphi_0")=meot->scatteringAngles()->deltaPhi();
+              tp.auxdecor<float>("deltatheta_0")=meot->scatteringAngles()->deltaTheta();
+              tp.auxdecor<float>("sigmadeltaphi_0")=meot->scatteringAngles()->sigmaDeltaPhi();
+              tp.auxdecor<float>("sigmadeltatheta_0")=meot->scatteringAngles()->sigmaDeltaTheta();
+            }
+            else if(nscatter==1){
+              tp.auxdecor<float>("deltaphi_1")=meot->scatteringAngles()->deltaPhi();
+              tp.auxdecor<float>("deltatheta_1")=meot->scatteringAngles()->deltaTheta();
+              tp.auxdecor<float>("sigmadeltaphi_1")=meot->scatteringAngles()->sigmaDeltaPhi();
+              tp.auxdecor<float>("sigmadeltatheta_1")=meot->scatteringAngles()->sigmaDeltaTheta();
+            }
+            nscatter++;
+          }
+       }
+        if(nscatter>1) break;
+      }
+    }
+    if(nscatter<=1){
+      tp.auxdecor<float>("deltaphi_1")=-999;
+      tp.auxdecor<float>("deltatheta_1")=-999;
+      tp.auxdecor<float>("sigmadeltaphi_1")=-999;
+      tp.auxdecor<float>("sigmadeltatheta_1")=-999;
+    }
+    if(nscatter==0){
+      tp.auxdecor<float>("deltaphi_0")=-999;
+      tp.auxdecor<float>("deltatheta_0")=-999;
+      tp.auxdecor<float>("sigmadeltaphi_0")=-999;
+      tp.auxdecor<float>("sigmadeltatheta_0")=-999;
+    }
+  }
  
 }	// end of namespace

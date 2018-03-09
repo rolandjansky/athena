@@ -78,9 +78,9 @@
 
 #include <type_traits>
 
+#include <xAODRootAccess/tools/TReturnCode.h>
 #ifdef ROOTCORE
 #include <AsgTools/MsgStream.h>
-#include <xAODRootAccess/tools/TReturnCode.h>
 #else
 #include "AthenaBaseComps/AthMessaging.h"
 #endif
@@ -174,6 +174,7 @@
 
 namespace asg
 {
+  ANA_MSG_HEADER (msgProperty)
   ANA_MSG_HEADER (msgToolHandle)
   ANA_MSG_HEADER (msgUserCode)
 }
@@ -199,7 +200,6 @@ namespace asg
       return StatusCode::FAILURE;}
   };
 
-#ifdef ROOTCORE
   template<> struct CheckHelper<xAOD::TReturnCode>
   {
     /// \brief whether the status code reports a success
@@ -214,7 +214,6 @@ namespace asg
     static inline decltype (xAOD::TReturnCode::kFailure) failureCode () {
       return xAOD::TReturnCode::kFailure;}
   };
-#endif
 
   template<> struct CheckHelper<int>
   {

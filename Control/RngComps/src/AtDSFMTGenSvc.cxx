@@ -384,7 +384,7 @@ void AtDSFMTGenSvc::print(const std::string& StreamName )
       ATH_MSG_WARNING (" Stream =  " << StreamName << " NOT FOUND");
     } else {
       std::vector<unsigned long> v = ((*citer).second)->put();
-      msg(MSG::INFO) << " Stream =  " << StreamName << " ";
+      msg(MSG::DEBUG) << " Stream =  " << StreamName << " ";
       for (std::vector<unsigned long>::const_iterator i = v.begin(); i != v.end(); ++i){
         // The state returned is a set of 32-bit numbers.
         // On 64-bit platforms, though, the vector holds 64-bit ints.

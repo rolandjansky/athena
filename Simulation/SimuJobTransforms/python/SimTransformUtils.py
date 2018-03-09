@@ -59,10 +59,15 @@ def addRDOValidArguments(parser):
 ## @brief Add ISF transform substep
 #  @param overlayTransform If @c True use the tweaked version of in/outData for an overlay job
 def addSimulationSubstep(executorSet, overlayTransform = False):
+    TRExe = athenaExecutor(name = 'TRtoHITS', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_ISF.py',
+                           substep = 'simTRIn', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
+                           inData=['EVNT_TR'],
+                           outData=['HITS','NULL'] )
+    executorSet.add(TRExe)
     SimExe = athenaExecutor(name = 'EVNTtoHITS', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_ISF.py',
                                    substep = 'sim', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
-                                   inData=['NULL','EVNT','EVNT_CAVERN','EVNT_COSMICS'],
-                                   outData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'] )
+                                   inData=['NULL','EVNT'],
+                                   outData=['EVNT_TR','HITS','NULL'] )
     if overlayTransform:
         from PyJobTransforms.trfUtils import releaseIsOlderThan
         if releaseIsOlderThan(20,3):
@@ -74,10 +79,14 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
     executorSet.add(SimExe)
 
 def addAtlasG4Substep(executorSet):
+    executorSet.add(athenaExecutor(name = 'AtlasG4TfTRIn', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',
+                                   substep = 'simTRIn', tryDropAndReload = False,
+                                   inData=['EVNT_TR'],
+                                   outData=['HITS','NULL'] ))
     executorSet.add(athenaExecutor(name = 'AtlasG4Tf', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',
-                                   substep = 'sim', tryDropAndReload = False, 
-                                   inData=['NULL','EVNT','EVNT_CAVERN','EVNT_COSMICS'],
-                                   outData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'] ))
+                                   substep = 'sim', tryDropAndReload = False,
+                                   inData=['NULL','EVNT'],
+                                   outData=['EVNT_TR','HITS','NULL'] ))
 
 def addConfigurableSimSubstep(executorSet, confName, extraSkeleton, confSubStep, confInData, confOutData, confExtraRunargs, confRuntimeRunargs):
     executorSet.add(athenaExecutor(name = confName, skeletonFile = extraSkeleton + ['SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py'],
@@ -126,10 +135,19 @@ def appendAtlasG4Substep(trf):
     addAtlasG4Substep(executor)
     trf.appendToExecutorSet(executor)
 
+def appendConfigurableSimTRInSubstep(trf, confName = 'AtlasG4TfTRIn',
+                                 extraSkeleton = [], confSubstep = 'simTRIn',
+                                 confInData=['EVNT_TR'],
+                                 confOutData=['HITS','NULL'],
+                                 confExtraRunargs=None, confRuntimeRunargs=None ):
+    executor = set()
+    addConfigurableSimSubstep(executor, confName, extraSkeleton, confSubStep, confInData, confOutData, confExtraRunargs, confRuntimeRunargs )
+    trf.appendToExecutorSet(executor)
+
 def appendConfigurableSimSubstep(trf, confName = 'AtlasG4Tf',
                                  extraSkeleton = [], confSubstep = 'sim',
-                                 confInData=['NULL','EVNT','EVNT_CAVERN','EVNT_COSMICS'],
-                                 confOutData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'],
+                                 confInData=['NULL','EVNT'],
+                                 confOutData=['EVNT_TR','HITS','NULL'],
                                  confExtraRunargs=None, confRuntimeRunargs=None ):
     executor = set()
     addConfigurableSimSubstep(executor, confName, extraSkeleton, confSubStep, confInData, confOutData, confExtraRunargs, confRuntimeRunargs )

@@ -60,7 +60,7 @@
 
 // constructor
 iFatras::McMaterialEffectsUpdator::McMaterialEffectsUpdator(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_eLoss(true),
   m_eLossUpdator("iFatras::McEnergyLossUpdator/FatrasEnergyLossUpdator"),
   m_ms(true),
@@ -131,7 +131,6 @@ iFatras::McMaterialEffectsUpdator::McMaterialEffectsUpdator(const std::string& t
   m_truthRecordSvc("ISF_TruthRecordSvc", n),
   m_layer(0)
 {
-      declareInterface<ITimedMatEffUpdator>(this);
       // the tool parameters -----------------------------------------------------
       declareProperty("EnergyLoss"                          , m_eLoss);
       declareProperty("EnergyLossUpdator"                   , m_eLossUpdator);
@@ -466,11 +465,11 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
   // -------------------------------------------------------------------------------
   
   // prepare material collection
-  const Trk::MaterialProperties* m_extMatProp = 0;
+  const Trk::MaterialProperties* extMatProp = 0;
   double dInL0 = 0.;
   if (m_matProp) {
-    m_extMatProp = dynamic_cast<const Trk::MaterialProperties*>(m_matProp);
-    dInL0 = m_extMatProp ? (1-matFraction)*pathCorrection*m_extMatProp->thicknessInL0() : 
+    extMatProp = dynamic_cast<const Trk::MaterialProperties*>(m_matProp);
+    dInL0 = extMatProp ? (1-matFraction)*pathCorrection*extMatProp->thicknessInL0() : 
       (1-matFraction)*pathCorrection*m_matProp->thicknessInX0()/0.37/m_matProp->averageZ();
   }
   
@@ -506,6 +505,18 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 	else validInfo->setGeneration(-1);        // signal problem in the validation chain
 	regisp->setUserInformation(validInfo);
       }
+      // register TruthIncident
+      ISF::ISFParticleVector children(1, regisp);
+      ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*m_isp),
+                                   children,
+                                   (isp->getUserInformation()) ? isp->getUserInformation()->process() : -2 /*!< @TODO fix non-static */,
+                                   m_isp->nextGeoID(),
+                                   ISF::fKillsPrimary );
+      m_truthRecordSvc->registerTruthIncident( truth);
+      //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+      if (!regisp->getTruthBinding()) {
+	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
+      }
       m_particleBroker->push(regisp, m_isp);
     }
     if (isp!=m_isp) { delete isp; delete parm; }
@@ -516,7 +527,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       dInL0 *= x0rem>0 ? x0rem/dX0 : 1.; 
       if ( x0rem>0 ) dX0 = x0rem;
       iStatus = 1; 
-    } else if ( pathLim.x0Max>0 && m_extMatProp && pathLim.process>100 && pathLim.l0Collected+dInL0 >= pathLim.x0Max )   {     // hadronic interaction
+    } else if ( pathLim.x0Max>0 && extMatProp && pathLim.process>100 && pathLim.l0Collected+dInL0 >= pathLim.x0Max )   {     // hadronic interaction
       float l0rem = pathLim.x0Max - pathLim.l0Collected;
       dX0 *= l0rem>0 ? l0rem/dInL0 : 1.;
       if ( l0rem>0 ) dInL0 = l0rem;
@@ -585,7 +596,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
     
     ISF::ISFParticleVector childs = iStatus==1 ? interactLay(isp,timeLim.time,*parm,particle,pathLim.process) :
       m_hadIntProcessor->doHadIntOnLayer(isp, timeLim.time, parm->position(), parm->momentum(),
-					 ( m_extMatProp ? &m_extMatProp->material() : 0), particle);
+					 ( extMatProp ? &extMatProp->material() : 0), particle);
 
     // save info for locally created particles
     if (m_validationMode && childs.size()>0 && isp!=m_isp) {
@@ -645,7 +656,11 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       else validInfo->setProcess(-2);        // signal problem in the validation chain
       if (isp->getUserInformation()) validInfo->setGeneration(isp->getUserInformation()->generation());
       else validInfo->setGeneration(-1);        // signal problem in the validation chain
-   }
+    }
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!regisp->getTruthBinding()) {
+	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
+    }
     m_particleBroker->push(regisp, m_isp);
   }
 
@@ -1283,8 +1298,9 @@ void iFatras::McMaterialEffectsUpdator::multipleScatteringUpdate(const Trk::Trac
     double y = newDirectionHep.x();
     double z = 0.;
     // if it runs along the z axis - no good ==> take the x axis
-    if (newDirectionHep.z()*newDirectionHep.z() > 0.999999)       
+    if (newDirectionHep.z()*newDirectionHep.z() > 0.999999) {
         x = 1.; y=0.;
+    }
     // deflector direction
     CLHEP::Hep3Vector deflector(x,y,z);
     // rotate the new direction for scattering
@@ -1414,6 +1430,10 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhoton(double time,
                                  parent->nextGeoID(),
                                  ISF::fPrimarySurvives );
     m_truthRecordSvc->registerTruthIncident( truth);
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!bremPhoton->getTruthBinding()) {
+	bremPhoton->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
     m_particleBroker->push( bremPhoton, parent);
 
 
@@ -1539,6 +1559,11 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
                                  ISF::fPrimarySurvives );
     m_truthRecordSvc->registerTruthIncident( truth);
 
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!bremPhoton->getTruthBinding()) {
+	bremPhoton->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
+
     // save info for validation
     if (m_validationMode && m_validationTool) {
       Amg::Vector3D* nMom = new Amg::Vector3D((pElectron-gammaE)*particleDir);
@@ -1619,7 +1644,7 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::interact(double 
 						  const Amg::Vector3D& momentum,
 						  Trk::ParticleHypothesis particle,
 						  int process,
-						  const Trk::Material* m_extMatProp) const {
+						  const Trk::Material* extMatProp) const {
   if ( process==0 ) return 0;
 
   // get parent particle
@@ -1752,7 +1777,7 @@ const Trk::TrackParameters*  iFatras::McMaterialEffectsUpdator::interact(double 
 
     const Trk::TrackParameters* parm = new Trk::CurvilinearParameters(position,momentum,parent->charge());
 
-    bool recHad = m_hadIntProcessor->doHadronicInteraction(time, position, momentum, m_extMatProp, particle, true);
+    bool recHad = m_hadIntProcessor->doHadronicInteraction(time, position, momentum, extMatProp, particle, true);
     // eventually : bool recHad =  m_hadIntProcessor->recordHadState( time, p, position, pDir, particle);
  
     // kill the track if interaction recorded --------------------------
@@ -1773,7 +1798,7 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
 								       const Trk::TrackParameters& parm,
 								       Trk::ParticleHypothesis particle,
 								       int process,
-								       const Trk::MaterialProperties* m_extMatProp) const {
+								       const Trk::MaterialProperties* extMatProp) const {
   ISF::ISFParticleVector childVector(0);
 
   if ( process==0 ) return childVector;
@@ -1841,6 +1866,14 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
       delete nMom;
     }
 
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    if (!children[0]->getTruthBinding()) {
+	children[0]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
+    if (!children[1]->getTruthBinding()) {
+	children[1]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
+
     return children;
   }
 
@@ -1867,7 +1900,14 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
 	delete nMom;
       }
     }
-  
+ 
+    //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+    for (unsigned int i=0; i<childVector.size(); i++) {
+	if (!childVector[i]->getTruthBinding()) {
+		childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+	}
+    }
+ 
     return childVector;
   }
 
@@ -1878,7 +1918,7 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
     const Trk::CurvilinearParameters parm(position,momentum,parent->charge());
 
     return ( m_hadIntProcessor->doHadIntOnLayer(parent, time, position, momentum,
-						m_extMatProp? &m_extMatProp->material() : 0, particle) );
+						extMatProp? &extMatProp->material() : 0, particle) );
 
   }
 
@@ -1909,6 +1949,13 @@ ISF::ISFParticleVector  iFatras::McMaterialEffectsUpdator::interactLay(const ISF
       m_validationTool->saveISFVertexInfo(process,parm.position(),*parent,parm.momentum(),nMom,childVector);
       delete nMom;
     }
+  }
+
+  //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
+  for (unsigned int i=0; i<childVector.size(); i++) {
+	if (!childVector[i]->getTruthBinding()) {
+		childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+	}
   }
     
   return childVector;

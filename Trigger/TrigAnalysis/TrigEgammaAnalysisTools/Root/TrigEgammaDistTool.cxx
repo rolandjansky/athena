@@ -150,6 +150,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 fillL2Calo(dir+"L2Calo",obj); // Fill HLT shower shapes
             }
 
+            /*
             const auto vec_l2ringer = fc.get<xAOD::TrigRingerRings>("",TrigDefs::alsoDeactivateTEs);
             for(const auto feat : vec_l2ringer){
                 if(feat.te()==nullptr) continue;
@@ -157,7 +158,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 // Only consider passing objects
                 if(!obj) continue;
                 fillRingerShapes(dir+"L2Calo",obj);// Fill HLT ringer shapes
-            }
+            }*/
 
             const auto vec_l2rnn = fc.get<xAOD::TrigRNNOutput>("",TrigDefs::alsoDeactivateTEs);
             for(const auto feat : vec_l2rnn){
@@ -347,8 +348,8 @@ void TrigEgammaDistTool::fillRnnDistribution(const std::string dir, const xAOD::
 
     if(!rnn)  ATH_MSG_DEBUG("Online pointer fails");
     else{
-      if(rnn->rnnDecision().empty()){
-        ATH_MSG_DEBUG("Empty RNN Decision. skip object...");
+      if(rnn->rnnDecision().empty() || rnn->rnnDecision().size()!=3){
+        ATH_MSG_DEBUG("Invalid RNN Decision. skip object...");
         return;
       }
 
@@ -407,8 +408,11 @@ void TrigEgammaDistTool::fillShowerShapes(const std::string dir,const xAOD::Egam
         hist1("eta")->Fill(eg->eta());
         hist1("phi")->Fill(eg->phi());
         hist1("topoetcone20")->Fill(getIsolation_topoetcone20(eg)/1e3);
-        if (eg->pt() > 0) 
+        hist1("topoetcone40_shift")->Fill((getIsolation_topoetcone40(eg)-2450)/1e3);
+        if (eg->pt() > 0) {
             hist1("topoetcone20_rel")->Fill(getIsolation_topoetcone20(eg)/eg->pt());
+            hist1("topoetcone40_shift_rel")->Fill((getIsolation_topoetcone40(eg)-2450)/eg->pt());
+        }
         
     }
 }

@@ -13,8 +13,10 @@ from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
 
-from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
+
+from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
+
 
 def getAdditionalParticleParametrizationFileNames():
     return [
@@ -672,7 +674,7 @@ def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     kwargs.setdefault("MinEnergy"               , [   938.3,   135.6,     50.,     50.,   105.7 ]    )
     kwargs.setdefault("MaxNumParticles"         , [      -1,      -1,      -1,      -1,      -1 ]    )
     kwargs.setdefault("EnergyFactor"            , [      1.,      1.,      1.,      1.,      1. ]    )
-    kwargs.setdefault("BarcodeSvc"              , ISF_Flags.BarcodeService()                         )
+    kwargs.setdefault("BarcodeSvc"              , simFlags.TruthStrategy.BarcodeServiceName()        )
     kwargs.setdefault("EnvelopeDefSvc"          , getService('AtlasGeometry_EnvelopeDefSvc')         )
     kwargs.setdefault("BeamPipeRadius"          , 500.                                               )
 
@@ -701,6 +703,13 @@ def getNITimedExtrapolator(name="ISF_NITimedExtrapolator", **kwargs):
     from TrkExTools.TrkExToolsConf import Trk__TimedExtrapolator as TimedExtrapolator
     return TimedExtrapolator(name, **kwargs )
 
+def getTimedExtrapolator(name="TimedExtrapolator", **kwargs):
+    kwargs.setdefault("MaterialEffectsUpdators" , [ 'ISF_NIMatEffUpdator' ])
+    kwargs.setdefault("ApplyMaterialEffects"    , False )
+    kwargs.setdefault("STEP_Propagator"    , 'ISF_NIPropagator' )
+
+    from TrkExTools.TrkExToolsConf import Trk__TimedExtrapolator as TimedExtrapolator
+    return TimedExtrapolator(name, **kwargs )
 ## FastShowerCellBuilderTool
 
 def getDefaultFastShowerCellBuilderTool(name, **kwargs):
@@ -789,19 +798,50 @@ def getPileupFastShowerCellBuilderTool(name="ISF_PileupFastShowerCellBuilderTool
     kwargs.setdefault("sampling_energy_reweighting", weightsfcs )
     return getFastShowerCellBuilderTool(name, **kwargs)
 
-def getFastHitConvertTool(name="ISF_FastHitConvertTool",**kwargs):
-    kwargs.setdefault( 'embHitContainername' , 'LArHitEMB_FastCaloSim'  )
-    kwargs.setdefault( 'emecHitContainername', 'LArHitEMEC_FastCaloSim' )
-    kwargs.setdefault( 'fcalHitContainername', 'LArHitFCAL_FastCaloSim' )
-    kwargs.setdefault( 'hecHitContainername' , 'LArHitHEC_FastCaloSim'  )
-    kwargs.setdefault( 'tileHitContainername', 'TileHitVec_FastCaloSim' )
-    # make sure the FastCaloSim hits get merged into the main output collections
-    collectionMerger = getAlgorithm('ISF_CollectionMerger')
-    collectionMerger.InputLArEMBHits  += kwargs['embHitContainername' ]
-    collectionMerger.InputLArEMECHits += kwargs['emecHitContainername']
-    collectionMerger.InputLArFCALHits += kwargs['fcalHitContainername']
-    collectionMerger.InputLArHECHits  += kwargs['hecHitContainername' ]
-    collectionMerger.InputTileHits    += kwargs['tileHitContainername']
+def getFastHitConvertTool(name="ISF_FastHitConvertTool", **kwargs):
+    mergeable_collection_suffix = "_FastCaloSim"
+
+    EMB_hits_bare_collection_name = "LArHitEMB"
+    EMB_hits_merger_input_property = "LArEMBHits"
+    EMB_hits_collection_name = generate_mergeable_collection_name(
+        EMB_hits_bare_collection_name,
+        mergeable_collection_suffix,
+        EMB_hits_merger_input_property)
+
+    EMEC_hits_bare_collection_name = "LArHitEMEC"
+    EMEC_hits_merger_input_property = "LArEMECHits"
+    EMEC_hits_collection_name = generate_mergeable_collection_name(
+        EMEC_hits_bare_collection_name,
+        mergeable_collection_suffix,
+        EMEC_hits_merger_input_property)
+
+    FCAL_hits_bare_collection_name = "LArHitFCAL"
+    FCAL_hits_merger_input_property = "LArFCALHits"
+    FCAL_hits_collection_name = generate_mergeable_collection_name(
+        FCAL_hits_bare_collection_name,
+        mergeable_collection_suffix,
+        FCAL_hits_merger_input_property)
+
+    HEC_hits_bare_collection_name = "LArHitHEC"
+    HEC_hits_merger_input_property = "LArHECHits"
+    HEC_hits_collection_name = generate_mergeable_collection_name(
+        HEC_hits_bare_collection_name,
+        mergeable_collection_suffix,
+        HEC_hits_merger_input_property)
+
+    tile_hits_bare_collection_name = "TileHitVec"
+    tile_hits_merger_input_property = "TileHits"
+    tile_hits_collection_name = generate_mergeable_collection_name(
+        tile_hits_bare_collection_name,
+        mergeable_collection_suffix,
+        tile_hits_merger_input_property)
+
+    kwargs.setdefault('embHitContainername', EMB_hits_collection_name)
+    kwargs.setdefault('emecHitContainername', EMEC_hits_collection_name)
+    kwargs.setdefault('fcalHitContainername', FCAL_hits_collection_name)
+    kwargs.setdefault('hecHitContainername', HEC_hits_collection_name)
+    kwargs.setdefault('tileHitContainername', tile_hits_collection_name)
+    
     from FastCaloSimHit.FastCaloSimHitConf import FastHitConvertTool
     return FastHitConvertTool(name,**kwargs)
 

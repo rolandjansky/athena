@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 # FastPileup.py - set up fast pileup emulation using in-time generator
 # Richard Hawkings, Vladimir Lyubushkin, 23/4/15
 
@@ -32,6 +34,8 @@ evgenConfig.keywords = ["QCD", "minBias","SM"]
 # following copied from nonStandard/Pythia8/Pythia8_A2_MSTW2008LO_Common.py
 # modified to use MultiPy8Pileup
 
+from FastChainPileup.FastChain_jobProperties import FastChain_Flags
+
 from FastChainPileup.FastChainPileupConf import MultiPy8Pileup
 genSeq += MultiPy8Pileup("Pythia8")
 evgenConfig.generators += ["Pythia8"]
@@ -52,13 +56,12 @@ genSeq.Pythia8.Commands += [
 # nonStandard/Pythia8_A2_MSTW2008LO_Common.py configuration
 genSeq.Pythia8.Commands += [
     "Tune:pp = 5",
-    "PDF:useLHAPDF = on",
-    "PDF:LHAPDFset = MSTW2008lo68cl.LHgrid",
+    "PDF:pSet=LHAPDF6:MSTW2008lo68cl",
     "MultipartonInteractions:bProfile = 4",
     "MultipartonInteractions:a1 = 0.03",
     "MultipartonInteractions:pT0Ref = 1.90",
     "MultipartonInteractions:ecmPow = 0.30",
-    "BeamRemnants:reconnectRange = 2.28",
+    "ColourReconnection:range = 2.28",
     "SpaceShower:rapidityOrder=0"]
 evgenConfig.tune = "A2 MSTW2008LO"
 
@@ -79,8 +82,13 @@ genSeq.Pythia8.McEventsRW=gen_pu
 
 genSeq.Pythia8.NCollPerEvent=-1
 genSeq.Pythia8.PileupProfile=pileUpProfile
-genSeq.Pythia8.MultBCID=[1.]
+#genSeq.Pythia8.MultBCID=[1.]
+genSeq.Pythia8.MultBCID=FastChain_Flags.FastChainBCID()
 # genSeq.Pythia8.HistFile='profile.root'
+
+fast_chain_log.info("Check FastChainBCID Value");
+fast_chain_log.info(FastChain_Flags.FastChainBCID.get_Value())
+
 
 randomSeed=0
 if hasattr(runArgs, "randomSeed"):

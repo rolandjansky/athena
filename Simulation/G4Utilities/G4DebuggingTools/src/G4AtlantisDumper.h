@@ -9,9 +9,8 @@
 #include <fstream>
 #include <string>
 
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
+#include "G4UserSteppingAction.hh"
+#include "G4UserEventAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -19,8 +18,9 @@
 
 namespace G4UA{ 
   
-  class G4AtlantisDumper: 
-  public AthMessaging, public ISteppingAction,  public IEndEventAction,  public IBeginEventAction
+  class G4AtlantisDumper : public AthMessaging,
+                           public G4UserSteppingAction,
+                           public G4UserEventAction
   {
     
   public:
@@ -34,9 +34,9 @@ namespace G4UA{
     };
 
     G4AtlantisDumper(const Config& config);
-    virtual void processStep(const G4Step*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfEvent(const G4Event*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
   private:
     Config m_config;
     

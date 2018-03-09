@@ -29,6 +29,15 @@ class TrigMultiTrkFexPy (TrigMultiTrkFex):
         while len(self.ptTrkMin) < self.nTrk  :
             self.ptTrkMin.append(900.)
             
+    def setNumberAndTrackThresholds(self, nTrk, thresholds) :
+        self.ptTrkMin = []  # reset, use thresholds from trigger name
+        self.nTrk = nTrk
+        for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
+            if len(self.ptTrkMin) < self.nTrk :
+                self.ptTrkMin.append( thr )
+        while len(self.ptTrkMin) < self.nTrk  :
+            self.ptTrkMin.append(900.)
+
     def setEFMuonThresholds(self, thresholds) :
         self.ptMuonMin = []  # reset, use thresholds from trigger name
         for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
@@ -36,6 +45,14 @@ class TrigMultiTrkFexPy (TrigMultiTrkFex):
                 self.ptMuonMin.append( thr )
         while len(self.ptMuonMin) < self.nEfMuon  :
             self.ptMuonMin.append(2000.)  # lower pt cut makes no sense at trigger
+
+    def setElectronTrackThresholds(self, thresholds) :
+        self.ptTrkMin = []  # reset, use thresholds from trigger name
+        for thr in sorted(thresholds)  : # should should have lowest pt first, which is what we want
+            if len(self.ptTrkMin) < self.nTrk :
+                self.ptTrkMin.append( thr )
+        while len(self.ptTrkMin) < self.nTrk  :
+            self.ptTrkMin.append(4500.)
 
     def setL2CombMuonThresholds(self, thresholds) :
         self.ptMuonMin = []  # reset, use thresholds from trigger name

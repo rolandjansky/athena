@@ -26,6 +26,7 @@ fi
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TARGETDIR="/tmp/${USER}/MaMGUI"
+mkdir -p $TARGETDIR
 
 javac $SCRIPTDIR/../java/TrigMaMGUI.java -d $TARGETDIR
 java -cp $TARGETDIR: TrigMaMGUI TRIGGERDBREPR

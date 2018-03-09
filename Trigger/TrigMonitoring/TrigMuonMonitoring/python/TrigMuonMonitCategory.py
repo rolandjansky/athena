@@ -7,9 +7,9 @@ monitoring_muonNonIso_HI = ['HLT_mu15_L1MU10','HLT_mu14']#8TeV
 monitoring_muonNonIso_pp = ['HLT_mu60']
 #monitoring_muonNonIso_pp = ['HLT_mu50']
 
-monitoring_muonIso = ['HLT_mu26_ivarmedium','HLT_mu26_imedium']
+monitoring_muonIso = ['HLT_mu26_ivarmedium']
 monitoring_muonIso_HI = ['']
-monitoring_muonIso_pp = ['HLT_mu26_ivarmedium','HLT_mu26_imedium']
+monitoring_muonIso_pp = ['HLT_mu26_ivarmedium']
 
 monitoring_MSonly = ['HLT_mu60_0eta105_msonly']
 monitoring_MSonly_HI = ['HLT_mu15_msonly']
@@ -24,3 +24,5 @@ monitoring_muonEFFS_pp = ['HLT_mu24_mu8noL1']
 monitoring_muon_Support = ['HLT_mu6_idperf','HLT_mu20_idperf']
 monitoring_muon_Support_HI = ['HLT_noalg_L1MU4','HLT_noalg_L1MU6']
 monitoring_muon_Support_pp = ['HLT_mu6_idperf','HLT_mu6_idperf']
+
+monitoring_muonLowpt = ["HLT_mu14"]

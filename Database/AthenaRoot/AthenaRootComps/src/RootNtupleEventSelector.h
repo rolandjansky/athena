@@ -12,7 +12,7 @@
 #define ATHENAROOTCOMPS_ATHENA_ROOTNTUPLEEVENTSELECTOR_H 1
 
 // STL includes
-#include "CxxUtils/unordered_map.h" // move to STL when available
+#include <unordered_map>
 
 // framework includes
 #include "AthenaBaseComps/AthService.h"
@@ -251,7 +251,7 @@ class RootNtupleEventSelector :
   //   m_needReload and m_fireBIF ?
   mutable bool m_fireBIF;
 
-  typedef SG::unordered_map<SG::TransientAddress*, bool> Addrs_t;
+  typedef std::unordered_map<SG::TransientAddress*, bool> Addrs_t;
   // the list of transient addresses we "manage" or know about
   // these addresses are the actual TTree's branch names
   // for the event data
@@ -261,6 +261,10 @@ class RootNtupleEventSelector :
   // these addresses are the actual TTree's branch names
   // for the metadata tree(s)
   //Addrs_t m_rootAddressesMetaData;
+
+  // List of files that we've created, so that we can delete them
+  // during finalize.  FIXME: get rid of the mutable.
+  mutable std::vector<TFile*> m_files;
 }; 
 
 /////////////////////////////////////////////////////////////////// 

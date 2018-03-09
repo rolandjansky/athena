@@ -38,6 +38,7 @@
 
 // pi etc
 #include "CLHEP/Units/PhysicalConstants.h"
+#include "AthenaKernel/Units.h"
 
 // To have histograms:
 #include "GaudiKernel/ITHistSvc.h"
@@ -52,6 +53,7 @@
 #include <sys/times.h>
 #include <string>
 
+namespace Units = Athena::Units;
 using HepGeom::Point3D;
 using CLHEP::HepLorentzVector;
 using CLHEP::mm;
@@ -117,13 +119,13 @@ public:
 };
 
 SingleTrackValidation::SingleTrackValidation (const std::string & name, ISvcLocator * pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator),c(new Clockwork())
+  AthAlgorithm(name,pSvcLocator),m_c(new Clockwork())
 {
   for (unsigned int i=0;i<162;++i) m_histos[i] = 0;
 }
 
 SingleTrackValidation::~SingleTrackValidation () {
-  if (c!=0){ delete c; c=0; }
+  if (m_c!=0){ delete m_c; m_c=0; }
 }
 
 StatusCode SingleTrackValidation::initialize() {
@@ -135,13 +137,13 @@ StatusCode SingleTrackValidation::initialize() {
   // Get the histogram service:                                              //
   //                                                                         //
   // actually, want an THistSvc
-  // c->histSvc=histoSvc();                                                  //
-  c->histSvc=NULL;
-  status = service("THistSvc", c->histSvc);
-  if (!status.isSuccess()) c->histSvc=NULL;                          //
+  // m_c->histSvc=histoSvc();                                                  //
+  m_c->histSvc=NULL;
+  status = service("THistSvc", m_c->histSvc);
+  if (!status.isSuccess()) m_c->histSvc=NULL;                          //
   //-------------------------------------------------------------------------//
 
-  if (!c->histSvc) throw std::runtime_error ("STV: Histogram Svc not found");     
+  if (!m_c->histSvc) throw std::runtime_error ("STV: Histogram Svc not found");     
 
   std::string names[162] = {  "eta", "pt", "phi", "pos_x", "pos_y", "pos_z",
              "emb0_cell", "emb1_cell", "emb2_cell", "emb3_cell", "emec0_cell", "emec1_cell", "emec2_cell", "emec3_cell", 
@@ -184,7 +186,7 @@ StatusCode SingleTrackValidation::initialize() {
     m_histos[i] = new TH1F( names[i].data(), names[i].data(),50,lim[i][0],lim[i][1]);
     filename = "/file1/Electron/";
     filename.append(names[i]);
-    if (c->histSvc->regHist( filename.data() , m_histos[i] ).isFailure()){
+    if (m_c->histSvc->regHist( filename.data() , m_histos[i] ).isFailure()){
       ATH_MSG_WARNING( "Failed to register historam " << names[i] << ".  Not sure what will happen now..." );
     }
   }
@@ -195,20 +197,20 @@ StatusCode SingleTrackValidation::initialize() {
   // to obtain charge & type & other properties of the primary particle and  //
   // other particles that may turn up in the debris.                         //
   //                                                                         //
-  c->partPropSvc=NULL;                                                       //
-  if (!service("PartPropSvc", c->partPropSvc).isSuccess()) c->partPropSvc=NULL;                      //
+  m_c->partPropSvc=NULL;                                                       //
+  if (!service("PartPropSvc", m_c->partPropSvc).isSuccess()) m_c->partPropSvc=NULL;                      //
   //-------------------------------------------------------------------------//
 
-  if (!c->partPropSvc) throw std::runtime_error ("STV: Part Prop Svc not found");
+  if (!m_c->partPropSvc) throw std::runtime_error ("STV: Part Prop Svc not found");
 
   //-------------------------------------------------------------------------//
   //                                                                         //
   // Retrieve the CaloDetDescrMgr from the detector store.                   //
   //                                                                         //
-  if (!detStore()->retrieve(c->mgr).isSuccess()) c->mgr=NULL;                              //
+  if (!detStore()->retrieve(m_c->mgr).isSuccess()) m_c->mgr=NULL;                              //
   //-------------------------------------------------------------------------//
  
-  if (!c->mgr) throw std::runtime_error ("STV: Calo Mgr not found");
+  if (!m_c->mgr) throw std::runtime_error ("STV: Calo Mgr not found");
 
   //----------------Now initialize the ntuples         ----------------------//
   //                                                                         //
@@ -220,12 +222,12 @@ StatusCode SingleTrackValidation::initialize() {
   NTuplePtr nt(ntupleSvc(),"/NTUPLES/FILE/COL/SingleTrackValidation");
   if (!nt) nt=ntupleSvc()->book(col, 1, CLID_ColumnWiseTuple, "SingleTrackValidation");
   
-  if (nt->addItem("Eta",          c->eta	).isFailure() ||
-      nt->addItem("Pt",           c->pt		).isFailure() ||
-      nt->addItem("BarrelX",      c->x		).isFailure() ||
-      nt->addItem("BarrelY",      c->y		).isFailure() ||
-      nt->addItem("BarrelZ",      c->z		).isFailure() ||
-      nt->addItem("Phi",	      c->phi	).isFailure() ){
+  if (nt->addItem("Eta",          m_c->eta	).isFailure() ||
+      nt->addItem("Pt",           m_c->pt		).isFailure() ||
+      nt->addItem("BarrelX",      m_c->x		).isFailure() ||
+      nt->addItem("BarrelY",      m_c->y		).isFailure() ||
+      nt->addItem("BarrelZ",      m_c->z		).isFailure() ||
+      nt->addItem("Phi",	      m_c->phi	).isFailure() ){
     ATH_MSG_WARNING( "Registration of some of the ntuple branches failed.  No idea what will happen next..." );
   }
 
@@ -238,47 +240,47 @@ StatusCode SingleTrackValidation::initialize() {
   for (int i=0;i<15;i++){
     if (i<12) sprintf(title,"S%i_C00",i);
     else sprintf(title,"FC%i_C00",i-11);
-    if (nt->addItem(title,c->s_c00[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
+    if (nt->addItem(title,m_c->s_c00[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
     if (i<12) sprintf(title,"S%i_SumE",i);
     else sprintf(title,"FC%i_SumE",i-11);
-    if (nt->addItem(title,c->s_sumE[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
+    if (nt->addItem(title,m_c->s_sumE[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
     if (i<12) sprintf(title,"S%i_Hits",i);
     else sprintf(title,"FC%i_Hits",i-11);
-    if (nt->addItem(title,c->s_hits[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." );
+    if (nt->addItem(title,m_c->s_hits[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." );
     if (i<12) sprintf(title,"S%i_DeltaPhi",i);
     else sprintf(title,"FC%i_DeltaX",i-11);
-    if (nt->addItem(title,c->s_deltaPhi[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
+    if (nt->addItem(title,m_c->s_deltaPhi[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
     if (i<12) sprintf(title,"S%i_SigmaPhi",i);
     else sprintf(title,"FC%i_SigmaX",i-11);
-    if (nt->addItem(title,c->s_sigmaPhi[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
+    if (nt->addItem(title,m_c->s_sigmaPhi[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
     if (i<12) sprintf(title,"S%i_DeltaEta",i);
     else sprintf(title,"FC%i_DeltaY",i-11);
-    if (nt->addItem(title,c->s_deltaEta[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
+    if (nt->addItem(title,m_c->s_deltaEta[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
     if (i<12) sprintf(title,"S%i_SigmaEta",i);
     else sprintf(title,"FC%i_SigmaY",i-11);
-    if (nt->addItem(title,c->s_sigmaEta[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
+    if (nt->addItem(title,m_c->s_sigmaEta[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
     if (i<12) sprintf(title,"S%i_Time",i);
     else sprintf(title,"FC%i_Time",i-11);
-    if (nt->addItem(title,c->s_t00[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
+    if (nt->addItem(title,m_c->s_t00[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
     if (i<12) sprintf(title,"S%i_WidthX",i);
     else sprintf(title,"FC%i_WidthX",i-11);
-    if (nt->addItem(title,c->s_widthX[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
+    if (nt->addItem(title,m_c->s_widthX[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
     if (i<12) sprintf(title,"S%i_WidthY",i);
     else sprintf(title,"FC%i_WidthY",i-11);
-    if (nt->addItem(title,c->s_widthY[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
+    if (nt->addItem(title,m_c->s_widthY[i]).isFailure()) ATH_MSG_INFO( "Registration of a branch failed in the ntupler..." ); 
   }
 
-  if (nt->addItem("CPU"        ,  c->cpuTime	).isFailure() ||
-      nt->addItem("TrackEnergy"  ,  c->Energy 	).isFailure() ||
-      nt->addItem("ParticleID" ,  c->PDG		).isFailure() ||
-      nt->addItem("Run#"      ,  c->RunNo  	).isFailure() ||
-      nt->addItem("Event#"    ,  c->EventNo	).isFailure() ||
-      nt->addItem("DepositedEnergy", c->E_Deposit  ).isFailure() ){
+  if (nt->addItem("CPU"        ,  m_c->cpuTime	).isFailure() ||
+      nt->addItem("TrackEnergy"  ,  m_c->Energy 	).isFailure() ||
+      nt->addItem("ParticleID" ,  m_c->PDG		).isFailure() ||
+      nt->addItem("Run#"      ,  m_c->RunNo  	).isFailure() ||
+      nt->addItem("Event#"    ,  m_c->EventNo	).isFailure() ||
+      nt->addItem("DepositedEnergy", m_c->E_Deposit  ).isFailure() ){
     ATH_MSG_WARNING( "Registration of some of the ntuple branches failed.  No idea what will happen next..." );
   }
    
-  c->cpuTime=0.0;
-  c->nt = nt;
+  m_c->cpuTime=0.0;
+  m_c->nt = nt;
     
   //==~                               ~                                   ~==//
   //                                                                         //
@@ -289,12 +291,12 @@ StatusCode SingleTrackValidation::initialize() {
 
 StatusCode SingleTrackValidation::execute() {
 
-  if (c->cpuTime==0) {
-    c->cpuTime=getCpu();
-    c->cpuTime+=1;   // Fill the histogram with -1 for the first event
+  if (m_c->cpuTime==0) {
+    m_c->cpuTime=getCpu();
+    m_c->cpuTime+=1;   // Fill the histogram with -1 for the first event
   }
-  c->cpuTime= getCpu()-c->cpuTime;
-  m_histos[156]->Fill( c->cpuTime/100. , 1. );
+  m_c->cpuTime= getCpu()-m_c->cpuTime;
+  m_histos[156]->Fill( m_c->cpuTime/100. , 1. );
 
   StatusCode sc;
   
@@ -308,8 +310,8 @@ StatusCode SingleTrackValidation::execute() {
   int EvtNum=evt->event_ID()->event_number();
   double RunStr=double(RunNum);
   double EvtStr=double(EvtNum);
-  c->EventNo=EvtStr;
-  c->RunNo=RunStr;
+  m_c->EventNo=EvtStr;
+  m_c->RunNo=RunStr;
   m_histos[160]->Fill(EvtStr);
   m_histos[159]->Fill(RunNum);
   
@@ -325,7 +327,7 @@ StatusCode SingleTrackValidation::execute() {
     const HepMC::GenParticle *theParticle= *((**e).particles_begin());
 
     // Fetch whatever particle properties will be used in the following:
-    const HepPDT::ParticleDataTable * dataTable = c->partPropSvc->PDT();
+    const HepPDT::ParticleDataTable * dataTable = m_c->partPropSvc->PDT();
     const HepPDT::ParticleData      * particleData = dataTable->particle(iabs(theParticle->pdg_id()));
 
     // Get the kinematic variables:
@@ -339,21 +341,21 @@ StatusCode SingleTrackValidation::execute() {
     //HepMC::GenVertex *decayVertex = theParticle->end_vertex();
     double           charge = theParticle->pdg_id() > 0 ? particleData->charge() : - particleData->charge();
     // Put Eta and Phi into the Ntuple
-    c->phi = theParticle->momentum().phi();
-    c->eta = -log(tan(theParticle->momentum().theta()/2));
-    if (!finite(c->eta)) c->eta=0;
-    c->pt  = theParticle->momentum().perp();
+    m_c->phi = theParticle->momentum().phi();
+    m_c->eta = -log(tan(theParticle->momentum().theta()/2));
+    if (!finite(m_c->eta)) m_c->eta=0;
+    m_c->pt  = theParticle->momentum().perp();
     int partID = theParticle->pdg_id();
     double pID = double(partID);
-    c->PDG = pID;
-    c->Energy = theParticle->momentum().e();
+    m_c->PDG = pID;
+    m_c->Energy = theParticle->momentum().e();
     m_histos[2]->Fill( theParticle->momentum().phi() );
     double myEta = -log(tan(theParticle->momentum().theta()/2));
     if (!finite(myEta)) m_histos[0]->Fill(0);
     else m_histos[0]->Fill( myEta );
     m_histos[158]->Fill( pID );
-    m_histos[1]->Fill( theParticle->momentum().perp()/1000. );
-    m_histos[157]->Fill( c->Energy = theParticle->momentum().e()/1000. );
+    m_histos[1]->Fill( theParticle->momentum().perp()/Units::GeV );
+    m_histos[157]->Fill( m_c->Energy = theParticle->momentum().e()/Units::GeV );
 
     // Make an extrapolator:
     static const Genfun::AbsFunction  * Bx = new Genfun::AtlasBComponent(0);
@@ -362,9 +364,9 @@ StatusCode SingleTrackValidation::execute() {
     GeoXPEngine extrapolator(*Bx,*By,*Bz, origin, momentum, charge);
     
     // Extrapolate to the first layer in the barrel:
-    c->x = 0;
-    c->y = 0;
-    c->z = 0;
+    m_c->x = 0;
+    m_c->y = 0;
+    m_c->z = 0;
     double x=0,y=0,z=0;
     bool hitsBarrel=false;
     //bool hitsEndcap=false;
@@ -375,16 +377,16 @@ StatusCode SingleTrackValidation::execute() {
       double magicZ=3640.0*mm;
       double magicR=1500.0*mm;
       if (x*x+y*y > magicR*magicR) {
-	c->x = x;
-	c->y = y;
-	c->z = z;
+	m_c->x = x;
+	m_c->y = y;
+	m_c->z = z;
 	hitsBarrel=true;
 	break;
       }
       else if (z*z > magicZ*magicZ) {
-	c->x = x;
-	c->y = y;
-	c->z = z;
+	m_c->x = x;
+	m_c->y = y;
+	m_c->z = z;
 	//hitsEndcap=true;
           break;
       }
@@ -404,7 +406,7 @@ StatusCode SingleTrackValidation::execute() {
 
     for (int i=0;i<4;i++) {
       try {
-        element[i] = c->mgr->get_element(CaloCell_ID::LAREM,i, hitsBarrel, etaImpact, phiImpact);
+        element[i] = m_c->mgr->get_element(CaloCell_ID::LAREM,i, hitsBarrel, etaImpact, phiImpact);
       }
       catch (const LArID_Exception & e) {
         std::cerr << "SingleTrackValidation EXCEPTION (LAREM)" << e.message() << std::endl;
@@ -412,7 +414,7 @@ StatusCode SingleTrackValidation::execute() {
     }
     for (int i=0;i<4;i++) {
       try {
-        element[i+4] = c->mgr->get_element(CaloCell_ID::LAREM,i, hitsBarrel, etaImpact, phiImpact);
+        element[i+4] = m_c->mgr->get_element(CaloCell_ID::LAREM,i, hitsBarrel, etaImpact, phiImpact);
       }
       catch (const LArID_Exception & e) {
         std::cerr << "SingleTrackValidation EXCEPTION (LAREM)" << e.message() << std::endl;
@@ -420,7 +422,7 @@ StatusCode SingleTrackValidation::execute() {
     }     
     for (int i=0;i<4;i++) {
       try {
-        element[i+8] = c->mgr->get_element(CaloCell_ID::LARHEC,i, hitsBarrel, etaImpact, phiImpact);
+        element[i+8] = m_c->mgr->get_element(CaloCell_ID::LARHEC,i, hitsBarrel, etaImpact, phiImpact);
       }
       catch (const LArID_Exception & e) {
         std::cerr << "SingleTrackValidation EXCEPTION in (LARHEC)" << e.message() << std::endl;
@@ -428,7 +430,7 @@ StatusCode SingleTrackValidation::execute() {
     }
     for (int i=1;i<4;i++) {
       try {
-        element[i+11] = c->mgr->get_element(CaloCell_ID::LARFCAL,i, hitsBarrel, etaImpact, phiImpact);
+        element[i+11] = m_c->mgr->get_element(CaloCell_ID::LARFCAL,i, hitsBarrel, etaImpact, phiImpact);
       }
       catch (const LArID_Exception & e) {
         std::cerr << "SingleTrackValidation EXCEPTIONin LARFCAL" << e.message() << std::endl;
@@ -438,8 +440,8 @@ StatusCode SingleTrackValidation::execute() {
      
     // Now go and find out how much energy is there:
     for (int z=0;z<15;z++){
-      c->s_c00[z]=0;
-      c->s_t00[z]=0;
+      m_c->s_c00[z]=0;
+      m_c->s_t00[z]=0;
     }
       
     std::string lArKey = hitsBarrel ? "LArHitEMB" : "LArHitEMEC" ;
@@ -532,32 +534,32 @@ StatusCode SingleTrackValidation::execute() {
     double dThetaDEta = -1.0/cosh(etaImpact);
 	
     //Fill the E Sum, center cell E, hit count fields:
-    c->E_Deposit=e_dep;
+    m_c->E_Deposit=e_dep;
     for (int z=0;z<15;z++){
-      c->s_sumE[z]=eSum[z];
-      c->s_c00[z]=c00[z];
-      c->s_t00[z]=t00[z];
-      c->s_hits[z]=hit_count[z];
+      m_c->s_sumE[z]=eSum[z];
+      m_c->s_c00[z]=c00[z];
+      m_c->s_t00[z]=t00[z];
+      m_c->s_hits[z]=hit_count[z];
       if (z<12){
-        c->s_deltaPhi[z]=radImpact*sin(thetaImpact)*(ePhi[z]);
-        c->s_sigmaPhi[z]=radImpact*sin(thetaImpact)*sqrt(ePhiPhi[z]- ePhi[z]*ePhi[z]);
-        c->s_deltaEta[z]=radImpact*dThetaDEta*(eEta[z]-etaImpact);
-        c->s_sigmaEta[z]=radImpact*fabs(dThetaDEta)*sqrt(eEtaEta[z]- eEta[z]*eEta[z]);
+        m_c->s_deltaPhi[z]=radImpact*sin(thetaImpact)*(ePhi[z]);
+        m_c->s_sigmaPhi[z]=radImpact*sin(thetaImpact)*sqrt(ePhiPhi[z]- ePhi[z]*ePhi[z]);
+        m_c->s_deltaEta[z]=radImpact*dThetaDEta*(eEta[z]-etaImpact);
+        m_c->s_sigmaEta[z]=radImpact*fabs(dThetaDEta)*sqrt(eEtaEta[z]- eEta[z]*eEta[z]);
       } else {
-        c->s_deltaPhi[z]=(eX[z]-x);
-        c->s_sigmaPhi[z]=sqrt(eXX[z]- eX[z]*eX[z]);
-        c->s_deltaEta[z]=(eY[z]-y);
-        c->s_sigmaEta[z]=sqrt(eYY[z]-eY[z]*eY[z]);
+        m_c->s_deltaPhi[z]=(eX[z]-x);
+        m_c->s_sigmaPhi[z]=sqrt(eXX[z]- eX[z]*eX[z]);
+        m_c->s_deltaEta[z]=(eY[z]-y);
+        m_c->s_sigmaEta[z]=sqrt(eYY[z]-eY[z]*eY[z]);
       }
-      c->s_widthX[z]=sqrt(eXX[z]-eX[z]*eX[z]);
-      c->s_widthY[z]=sqrt(eYY[z]-eY[z]*eY[z]);
+      m_c->s_widthX[z]=sqrt(eXX[z]-eX[z]*eX[z]);
+      m_c->s_widthY[z]=sqrt(eYY[z]-eY[z]*eY[z]);
     }
 	
-    m_histos[161]->Fill(e_dep/1000.);
+    m_histos[161]->Fill(e_dep/Units::GeV);
     for (int i=0;i<15;i++){
-      m_histos[6+i]->Fill( c00[i]/1000. );
+      m_histos[6+i]->Fill( c00[i]/Units::GeV );
       m_histos[21+i]->Fill( hit_count[i] );
-      m_histos[36+i]->Fill( eSum[i]/1000. );
+      m_histos[36+i]->Fill( eSum[i]/Units::GeV );
       m_histos[111+i]->Fill( t00[i] );
       m_histos[126+i]->Fill( sqrt(eXX[i]-eX[i]*eX[i]) );
       m_histos[141+i]->Fill( sqrt(eYY[i]-eY[i]*eY[i]) );
@@ -574,11 +576,11 @@ StatusCode SingleTrackValidation::execute() {
       }
     }
 
-    ntupleSvc()->writeRecord(c->nt);
+    ntupleSvc()->writeRecord(m_c->nt);
       
   }
 
-  c->cpuTime= getCpu();
+  m_c->cpuTime= getCpu();
 
   return StatusCode::SUCCESS;
   

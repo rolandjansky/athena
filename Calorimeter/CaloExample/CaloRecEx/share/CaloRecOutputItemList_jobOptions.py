@@ -1,6 +1,7 @@
 #**************   ESD list  ************************************************
 
 from AthenaCommon.JobProperties import jobproperties
+from AthenaCommon.Logging import logging
 
 CaloESDList = []
 
@@ -83,9 +84,9 @@ if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() =
 
 #List of AOD moments: (copied from CaloClusterTopoGetter)
 
-AODMoments=["LATERAL"
-            ,"LONGITUDINAL"
-            ,"SECOND_R" 
+AODMoments=[#"LATERAL"
+            #,"LONGITUDINAL"
+            "SECOND_R" 
             ,"SECOND_LAMBDA"
             ,"CENTER_MAG"
             ,"CENTER_LAMBDA"
@@ -95,18 +96,50 @@ AODMoments=["LATERAL"
             ,"ENG_BAD_CELLS"
             ,"N_BAD_CELLS"
             ,"BADLARQ_FRAC"
-            ,"ENG_BAD_HV_CELLS"
-            ,"N_BAD_HV_CELLS"
+            #,"ENG_BAD_HV_CELLS"
+            #,"N_BAD_HV_CELLS"
             ,"ENG_POS"
-            ,"SIGNIFICANCE"
-            ,"CELL_SIGNIFICANCE"
-            ,"CELL_SIG_SAMPLING"
+            #,"SIGNIFICANCE"
+            #,"CELL_SIGNIFICANCE"
+            #,"CELL_SIG_SAMPLING"
             ,"AVG_LAR_Q"
             ,"AVG_TILE_Q"
             ,"EM_PROBABILITY"
-            ,"PTD"
+            #,"PTD"
             ,"BadChannelList"
+            ,#"LATERAL"
             ]
+try:
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.doDigiTruth():
+
+      AODMoments+=["SECOND_R_Truth"
+                ,"SECOND_LAMBDA_Truth"
+                ,"CENTER_MAG_Truth"
+                ,"CENTER_LAMBDA_Truth"
+                ,"FIRST_ENG_DENS_Truth"
+                ,"ENG_FRAC_MAX_Truth"
+                ,"ISOLATION_Truth"
+                ,"ENG_BAD_CELLS_Truth"
+                ,"N_BAD_CELLS_Truth"
+                ,"BADLARQ_FRAC_Truth"
+                #,"ENG_BAD_HV_CELLS_Truth"
+                #,"N_BAD_HV_CELLS_Truth"
+                ,"ENG_POS_Truth"
+                #,"SIGNIFICANCE_Truth"
+                #,"CELL_SIGNIFICANCE_Truth"
+                #,"CELL_SIG_SAMPLING_Truth"
+                ,"AVG_LAR_Q_Truth"
+                ,"AVG_TILE_Q_Truth"
+                ,"EM_PROBABILITY_Truth"
+                #,"PTD_Truth"
+                ,"ENERGY_Truth"
+                ,"ETA_Truth"
+                ,"PHI_Truth"
+                ]
+except:
+    log = logging.getLogger('CaloRecOutputItemList')
+    log.info('Unable to import DigitizationFlags in CaloRecOutputItemList_jobOptions. Expected in AthenaP1')
 
 
 CaloAODList = []

@@ -19,13 +19,13 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolHitsOutput = "atlasG4.hits.pool.root"
 athenaCommonFlags.EvtMax = 3
 
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags()
-SimFlags.SimLayout='ATLAS-GEO-18-01-00'
-SimFlags.EventFilter.set_Off()
-SimFlags.MagneticField.set_Off()
-SimFlags.ForwardDetectors.set_On()
-SimFlags.ForwardDetectors=2
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags()
+simFlags.SimLayout='ATLAS-GEO-18-01-00'
+simFlags.EventFilter.set_Off()
+simFlags.MagneticField.set_Off()
+simFlags.ForwardDetectors.set_On()
+simFlags.ForwardDetectors=2
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -45,6 +45,8 @@ from ParticleGenerator.ParticleGeneratorConf import ParticleGenerator
 topSeq += ParticleGenerator()
 topSeq.ParticleGenerator.orders = sorted(spgorders)
 
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 

@@ -12,6 +12,7 @@
 
 // Athena
 #include "LongLivedParticleDPDMaker/DiLepFilters.h"
+#include "xAODEgamma/ElectronxAODHelpers.h"
 
 DerivationFramework::DiLepFilters::DiLepFilters(const std::string& t, const std::string& n, const IInterface* p)
                                                : AthAlgTool(t, n, p), m_tdt("Trig::TrigDecisionTool/TrigDecisionTool"),
@@ -193,10 +194,10 @@ bool DerivationFramework::DiLepFilters::PassEta(const xAOD::IParticle& part, dou
 
 bool DerivationFramework::DiLepFilters::Passd0(const xAOD::Electron& el, double d0_cut) const
 {
-  const xAOD::TrackParticle* el_tr = el.trackParticle();
+  const xAOD::TrackParticle* el_tr = xAOD::EgammaHelpers::getOriginalTrackParticle(&el);
   if(el_tr == nullptr)
   {
-    ATH_MSG_WARNING("Could not retrieve electron track!");
+    ATH_MSG_WARNING("Could not retrieve electron ID track!");
     return false;
   }
 

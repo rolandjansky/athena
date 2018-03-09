@@ -11,6 +11,8 @@
 // reports, feature suggestions, praise and complaints.
 
 #include <AsgTools/MessageCheck.h>
+#include <AsgTools/MessagePrinterErrorCollect.h>
+#include <AsgTools/MessagePrinterOverlay.h>
 #include <string>
 #include <exception>
 #include <gtest/gtest.h>
@@ -42,6 +44,41 @@ namespace asg
 
 #define EXPECT_FAILURE(x)					\
   EXPECT_EQ (asg::CheckHelper<decltype(x)>::failureCode(), x)
+
+
+#ifndef ROOTCORE
+#define ASSERT_FAILURE_REGEX(x,regex)                           \
+  ASSERT_FAILURE(x)
+#define EXPECT_FAILURE_REGEX(x,regex)                           \
+  EXPECT_FAILURE(x)
+#else
+#define ASSERT_FAILURE_REGEX(x,regex)                                   \
+  { MessagePrinterErrorCollect errorPrinter;                            \
+    MessagePrinterOverlay overlayPrinter (&errorPrinter);               \
+    auto code = (x);                                                    \
+    if (asg::CheckHelper<decltype(x)>::isSuccess (code)) {              \
+      FAIL () << "command didn't fail as expected: " << #x;             \
+    } else if (errorPrinter.empty()) {                                  \
+      FAIL () << "command printed no error message on failure: " << #x; \
+    } else if (!errorPrinter.matchesRegex (regex)) {                    \
+      FAIL () << "invalid error message for: " << #x             \
+              << "\nexpected:\n  " << regex << "\nfound:\n"             \
+              << errorPrinter.asString ("  ");                          \
+    } }
+#define EXPECT_FAILURE_REGEX(x,regex)                                   \
+  { MessagePrinterErrorCollect errorPrinter;                            \
+    MessagePrinterOverlay overlayPrinter (&errorPrinter);               \
+    auto code = (x);                                                    \
+    if (asg::CheckHelper<decltype(x)>::isSuccess (code)) {              \
+      ADD_FAILURE () << "command didn't fail as expected: " << #x;      \
+    } else if (errorPrinter.empty()) {                                  \
+      ADD_FAILURE () << "command printed no error message on failure: " << #x; \
+    } else if (!errorPrinter.matchesRegex (regex)) {                    \
+      ADD_FAILURE () << "invalid error message for: " << #x             \
+                     << "\nexpected:\n  " << regex << "\nfound:\n"      \
+                     << errorPrinter.asString ("  ");                   \
+    } }
+#endif
 
 #define ASSERT_THROW_REGEX(x,regex)					\
   { std::string internalTestMessage; try {				\

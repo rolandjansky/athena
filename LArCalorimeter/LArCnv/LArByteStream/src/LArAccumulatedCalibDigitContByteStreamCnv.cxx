@@ -57,26 +57,26 @@ LArAccumulatedCalibDigitContByteStreamCnv::initialize()
    IService* svc;
   //Get ByteStreamCnvSvc
   if(StatusCode::SUCCESS != serviceLocator()->getService("ByteStreamCnvSvc",svc)){
-    (*m_log) << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endreq;
+    (*m_log) << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endmsg;
     return StatusCode::FAILURE;
   }
   m_ByteStreamEventAccess=dynamic_cast<ByteStreamCnvSvc*>(svc);
   if (m_ByteStreamEventAccess==NULL)
     {
-      (*m_log) <<MSG::ERROR<< "  LArAccumulatedCalibDigitContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " <<endreq; 
+      (*m_log) <<MSG::ERROR<< "  LArAccumulatedCalibDigitContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " <<endmsg; 
       return StatusCode::FAILURE ;
     }
 
   //Get ByteStreamInputSvc (only necessary for reading of digits, not for writing and for channels)
   
   if(StatusCode::SUCCESS != serviceLocator()->getService("ROBDataProviderSvc",svc)){
-    (*m_log) << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endreq;
+    (*m_log) << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endmsg;
     m_rdpSvc=0;
   }
   else {
     m_rdpSvc=dynamic_cast<IROBDataProviderSvc*>(svc);
     if(m_rdpSvc == 0 ) {
-      (*m_log) <<MSG::ERROR<< "  LArAccumulatedCalibDigitContByteStreamCnv: Can't cast to  ByteStreamInputSvc " <<endreq; 
+      (*m_log) <<MSG::ERROR<< "  LArAccumulatedCalibDigitContByteStreamCnv: Can't cast to  ByteStreamInputSvc " <<endmsg; 
       return StatusCode::FAILURE;
     }
   }
@@ -85,7 +85,7 @@ LArAccumulatedCalibDigitContByteStreamCnv::initialize()
   IToolSvc* toolSvc;
 
   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endreq;
+    (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -93,7 +93,7 @@ LArAccumulatedCalibDigitContByteStreamCnv::initialize()
   std::string toolType = "LArRawDataContByteStreamTool" ; 
   if(StatusCode::SUCCESS !=toolSvc->retrieveTool(toolType,m_tool))
   {
-    (*m_log) << MSG::ERROR << " Can't get LArRawDataByteStreamTool " << endreq;
+    (*m_log) << MSG::ERROR << " Can't get LArRawDataByteStreamTool " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -105,24 +105,24 @@ LArAccumulatedCalibDigitContByteStreamCnv::initialize()
 StatusCode
 LArAccumulatedCalibDigitContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {//Convert Accumulated Calib Digits from ByteStream to StoreGate
-  MsgStream log(messageService(), "LArAccumulatedCalibDigitContByteStreamCnv");
-  (*m_log) << MSG::VERBOSE << "Executing CreateObj method for LArAccumulatedCalibDigitContainer " << endreq;
+  MsgStream log(msgSvc(), "LArAccumulatedCalibDigitContByteStreamCnv");
+  (*m_log) << MSG::VERBOSE << "Executing CreateObj method for LArAccumulatedCalibDigitContainer " << endmsg;
   
 
   if (!m_rdpSvc)
-    {(*m_log) << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endreq;
+    {(*m_log) << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endmsg;
      return StatusCode::FAILURE;
     }
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); //Cast from OpaqueAddress to ByteStreamAddress
   if (!pRE_Addr)
-    {(*m_log) << MSG::ERROR << "dynamic_cast of OpaqueAdress to ByteStreamAddress failed!" << endreq;
+    {(*m_log) << MSG::ERROR << "dynamic_cast of OpaqueAdress to ByteStreamAddress failed!" << endmsg;
      return StatusCode::FAILURE;
     }
 
   const RawEvent* re = m_rdpSvc->getEvent();
   if (!re)
-    {(*m_log) << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endreq;
+    {(*m_log) << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endmsg;
      return StatusCode::FAILURE;
     }
   const std::string& key = *(pAddr->par()); // Get key used in the StoreGateSvc::retrieve function
@@ -136,11 +136,11 @@ LArAccumulatedCalibDigitContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Data
     gain=CaloGain::LARLOWGAIN;
 
   // Convert the RawEvent to  LArAccumulatedCalibDigitContainer
-  (*m_log) << MSG::DEBUG << "Converting LArAccumulatedCalibDigits (from ByteStream). key=" << key << " ,gain=" << gain << endreq; 
+  (*m_log) << MSG::DEBUG << "Converting LArAccumulatedCalibDigits (from ByteStream). key=" << key << " ,gain=" << gain << endmsg; 
   LArAccumulatedCalibDigitContainer *DigitContainer=new LArAccumulatedCalibDigitContainer;
   StatusCode sc=m_tool->convert(re,DigitContainer,gain);
   if (sc!=StatusCode::SUCCESS)
-    (*m_log) << MSG::WARNING << "Conversion tool returned an error. LArAccumulatedCalibDigitContainer might be empty." << endreq;
+    (*m_log) << MSG::WARNING << "Conversion tool returned an error. LArAccumulatedCalibDigitContainer might be empty." << endmsg;
   DigitContainer->setDelayScale(25./240.);  //FIXME should not be hardcoded! 
   pObj = SG::asStorable(DigitContainer) ;
 
@@ -151,7 +151,7 @@ LArAccumulatedCalibDigitContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Data
  StatusCode 
  LArAccumulatedCalibDigitContByteStreamCnv::createRep(DataObject* /*pObj*/, IOpaqueAddress*& /*pAddr*/) 
 {// convert LArAccumulatedCalibDigits from StoreGate into ByteStream
-  (*m_log) << MSG::ERROR << "CreateRep method of LArAccumulatedCalibDigitContainer not implemented" << endreq;
+  (*m_log) << MSG::ERROR << "CreateRep method of LArAccumulatedCalibDigitContainer not implemented" << endmsg;
   return StatusCode::SUCCESS;
 }
 

@@ -56,16 +56,11 @@ from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 #jp.AthenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlasdatadisk/data11_7TeV/AOD/v83_m1095/data11_7TeV.00191715.physics_Muons.merge.AOD.v83_m1095/data11_7TeV.00191715.physics_Muons.merge.AOD.v83_m1095._lb0077._0001.1"]
 #myPath="/eos/atlas/atlascerngroupdisk/proj-pat/data/ESD/data11_7TeV.00191715.physics_Egamma.recon.ESD.v83/"
 #myPath="/eos/atlas/atlascerngroupdisk/proj-pat/data/ESD/data11_7TeV.00191715.physics_Muons.recon.ESD.v83/"
-#from InDetBeamSpotExample import DiskUtils
-#inFileList = DiskUtils.filelist( myPath, "root://eosatlas.cern.ch/" )
-#jp.AthenaCommonFlags.FilesInput = inFileList
 
-myPath = os.getenv("DataMC")+"/mc/xAOD/valid2.117050.PowhegPythia_P2011C_ttbar.digit.AOD.e2657_s1933_s1964_r5534/"
+myPath = os.getenv("DataMC")+"/mc/xAOD/valid2.117050.PowhegPythia_P2011C_ttbar.digit.AOD.e2657_s1933_s1964_r5534/*"
 #myPath = "/atlas/scratch0/kkoeneke/DataMC/mc/xAOD/valid2.147807.PowhegPythia8_AU2CT10_Zmumu.digit.AOD.e2657_s1933_s1964_r5493_tid01466650_00/"
-from InDetBeamSpotExample import DiskUtils
-#inFileList = DiskUtils.filelist( myPath, "root://eosatlas.cern.ch/" )
-inFileList = DiskUtils.filelist( myPath, "" )
-jp.AthenaCommonFlags.FilesInput = inFileList
+from glob import glob
+jp.AthenaCommonFlags.FilesInput = glob(myPath)
 
 
 

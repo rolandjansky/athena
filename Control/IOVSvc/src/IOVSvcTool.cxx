@@ -117,7 +117,7 @@ IOVSvcTool::IOVSvcTool(const std::string& type, const std::string& name,
   p_startSet(nullptr),
   p_stopSet(nullptr),
   m_first(true), m_checkOnce(false),
-  m_triggered(false), m_firstEventOfRun(false), m_resetAllCallbacks(false)
+  m_triggered(false), m_resetAllCallbacks(false)
 
 {
 
@@ -333,17 +333,6 @@ IOVSvcTool::handle(const Incident &inc) {
 
 
   set< const DataProxy*, SortDPptr > proxiesToReset;
-
-  if (inc.type() == "BeginRun") {
-    m_firstEventOfRun = true;
-  }
-
-  if (inc.type() == "BeginEvent" && m_firstEventOfRun) {
-    m_firstEventOfRun = false;
-    if (m_checkTrigger == "BeginEvent") {
-      return;
-    }
-  }
 
   if ( inc.type() == m_checkTrigger || inc.type() == "BeginRun" ||
        inc.type() == "CheckIOV" ) {  

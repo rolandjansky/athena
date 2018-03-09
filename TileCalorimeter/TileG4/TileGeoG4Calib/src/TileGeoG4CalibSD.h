@@ -63,7 +63,7 @@ class TileCalibHitNtuple;
 class TileCalibHitCntNtup;
 #endif
 
-class TileGeoG4SDCalc;
+class ITileCalculator;
 class TileGeoG4LookupBuilder;
 class TileGeoG4DMLookupBuilder;
 
@@ -72,6 +72,8 @@ class TileGeoG4Cell;
 class TileGeoG4CalibSection;
 class TileGeoG4PlateCell;
 class TileGeoG4GirderCell;
+
+struct TileHitData;
 
 class G4TouchableHistory;
 class G4VPhysicalVolume;
@@ -83,199 +85,200 @@ class EventInformation;
 typedef std::vector<double> E_4;
 
 class TileGeoG4CalibSD: public G4VSensitiveDetector {
+public:
+  TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& m_outputCollectionNames,
+                   ITileCalculator* tileCalculator, ServiceHandle<StoreGateSvc> &detStore,
+                   const TileSDOptions &opts);
+  ~TileGeoG4CalibSD();
+
+  void InvokeUserRunAction();
+  void InvokeUserEventAction();
+  void InvokeUserTrackingAction();
+  void InvokeUserSteppingAction();
+
+  //SD MAIN METHODS FOR A STEP PROCESSING
+  void Initialize(G4HCofThisEvent*) override final;
+  G4bool ProcessHits(G4Step*, G4TouchableHistory*) override final;
+  void EndOfAthenaEvent();
+
+  //METHOD FOR CLASSIFYING STEP ENERGY AND THE METHODS,
+  //WHICH CALCULATE IDENTIFIER FOR CELL OR DEAD MATERIAL
+  //CALIBRATION HITS ON THE CURRENT STEP
+  void ClassifyEnergy();bool FindTileCalibSection();
+  Identifier CellIDCalculator();
+  Identifier ScintIDCalculator(TileHitData& hitData);
+  Identifier GirderCellIDCalculator();
+  Identifier PlateCellIDCalculator();
+  Identifier DefaultHitIDCalculator();
+
+  //GET RESULT FOR THE STEP HIT ID AND CLASSIFYED ENERGIES
+  Identifier GetCellIDOnStep();
+  CaloG4::SimulationEnergies::ClassifyResult_t GetEnergiesOnStep();
+
+  //DEBUG CELL AND DM CELL ID FIELDS
+  void DebugCellIDFields();
+  void DebugDMCellIDFields(int);
+
+  //added by Sergey
+  void CellNumCorrectToHit(int, int);
+#ifdef HITSINFO
+  void HitsInfoPrint (bool, int);
+#endif
+
+  //RESET ALL CLASS MEMBER ID FIELDS, NEW & DEFAULT HIT FLAGS,
+  //SECTION & SIDE FLAGS, DEPOSITED ENERGIES IN SCINTILLATOR/PMTs
+  // ! THESE METHODS ARE NEEDED AT THE BEGGINING OF EACH STEP !
+  void ResetCellIDFields();
+  void ResetDMCellIDFields();
+  void ResetSectSideFlags();
+
+protected:
+  Identifier DM_ID_Maker(int det, int type, int sample, int region, int tower, int module);
+
+  //THIS METHOD IS USED BY IDENTIFIER CALCULATOR METHODS FOR FINDING TILE SECTION
+  //WHERE THE CURRENT STEP IS AND FOR DETERMINING SOME RELATED IDENTIFIER FIELD
+  //VALUES. ALSO, DETRMINES SOME FLAGS USED IN A FURTHER PROCESSING OF THE STEP
+  bool AreClassifiedEnergiesAllZero();
+  void SetEscapedEnergy(double escapedEnergy);
+
+  void EnergiesSimpleCounter();
+  void DebugEnergies();
+
+private:
+  TileGeoG4CalibSD(const TileGeoG4CalibSD&);
+  TileGeoG4CalibSD& operator=(const TileGeoG4CalibSD&);
+
+  //CALIBRATION HIT CONTAINERS
+  SG::WriteHandle<CaloCalibrationHitContainer> m_tileActiveCellCalibHits;
+  SG::WriteHandle<CaloCalibrationHitContainer> m_tileInactiveCellCalibHits;
+  SG::WriteHandle<CaloCalibrationHitContainer> m_tileDeadMaterialCalibHits;
+  SG::WriteHandle<TileHitVector> m_tileHits;
+
+  TileSDOptions m_options;
+
+  // Handles for later use
+  const CaloCell_ID* m_caloCell_ID;
+  const CaloDM_ID* m_caloDM_ID;
+
+  ServiceHandle<IRDBAccessSvc> m_rdbSvc;
+  ServiceHandle<IGeoModelSvc> m_geoModSvc;
+
+#ifdef HITSINFO
+  ToolHandle<TileCalibHitNtuple> m_ntuple;
+  ToolHandle<TileCalibHitCntNtup> m_ntupleCnt;
+#endif
+
+  //ORDINARY AND CALIBRATION LOOKUP BUILDERS
+  ITileCalculator* m_calc;
+  TileGeoG4LookupBuilder* m_lookup;
+  TileGeoG4DMLookupBuilder* m_lookupDM;
+
+  //CALIBRATION ENERGY CLASSIFYER
+  CaloG4::SimulationEnergies* m_simEn;
+  TileEscapedEnergyProcessing* m_tile_eep;
+
+  //ENERGY AND POSITION AT CURRENT STEP
+  G4Step* m_aStep;
+
+  //FOR SIMPLE ENERGY DEBUGGING
+  double m_E_tot;
+  double m_E_em;
+  double m_E_nonem;
+  double m_E_invisible;
+  double m_E_escaped;
+
+  //FOR ENERGY DEBUGGING DIRECTLY FROM
+  //CALIBHITS AT THE END OF EVENT
+  double m_E0;
+  double m_E1;
+  double m_E2;
+  double m_E3;
+
+  //STEP TOUCHABLE HISTORY AND VOLUME
+  G4TouchableHistory* m_stepTouchable;
+  G4VPhysicalVolume* m_stepPhysVol;
+
+  //CALIBRATION SECTION & CELLS
+  TileGeoG4CalibSection* m_cSection;
+  TileGeoG4Cell* m_cell;
+  TileGeoG4PlateCell* m_pCell;
+  TileGeoG4GirderCell* m_gCell;
+
+  //CLASSIFIED ENERGY VECTOR
+  CaloG4::SimulationEnergies::ClassifyResult_t m_result;
+
+  //IDENTIFIERS FOR CALIBRATION AND ORDINARY HITS
+  Identifier m_id, m_id_pmt_up, m_id_pmt_down;
+
+  //CELL ACTIVE || CELL INACTIVE || DM
+  int m_calibHitType;
+
+  //REAL CELL ID VALUES
+  int m_subCalo;
+  int m_detector;
+  int m_side;
+  int m_module;
+  int m_tower;
+  int m_sample;
+
+  //DM CELL ID VALUES
+  int m_dm_subDet;
+  int m_dm_type;
+  int m_dm_sample;
+  int m_dm_region;
+  int m_dm_neta;
+  int m_dm_nphi;
+
+  //GLOBAL HIT POSITION -- added by Sergey
+  double m_xGlobal;
+  double m_yGlobal;
+  double m_zGlobal;
+  double m_phiGlobal;
+  int m_cellNum;
+#ifdef HITSINFO
+  int m_nEvent;
+  int m_det_side;
+#endif
+
+  //FLAG FOR DEFAULT HIT
+  bool m_defaultHit;
+
+  /** @brief set to true to apply Birks' law for a given hit
+      this flag is set to false for DM hits and true for normal hits */
+  bool m_doBirkFlag;
+
+  /** @brief set to true if hit is in extended barrel */
+  bool m_isExtended;
+
+  /** @brief set to true if hit is in negative side */
+  bool m_isNegative;
+
+  /** @brief set to true if DM hit in end/front plate is added to a real cell (taken from DB) */
+  bool m_plateToCell;
+
+  /** @brief set to true if DM hit in front plate is added to a real cell 
+      (currently equal to _plateToCell) */
+  bool m_addToCell;
+
+  /** @brief set to true if DM hit in absorber at outer radius is added to girder
+      (currently inverse of  _plateToCell) */
+  bool m_addToGirder;
+
+  /** variable used for producing calibration hits signed with primary particle ID */
+  EventInformation* m_event_info;
+
+  class LessHit {
   public:
-    TileGeoG4CalibSD(const G4String& name, const std::vector<std::string>& m_outputCollectionNames,
-                     ServiceHandle<StoreGateSvc> &detStore, const TileSDOptions &opts);
-    ~TileGeoG4CalibSD();
+    bool operator()(CaloCalibrationHit* const & p, CaloCalibrationHit* const & q) const {
+      return p->Less(q);
+    }
+  };
 
-    void InvokeUserRunAction();
-    void InvokeUserEventAction();
-    void InvokeUserTrackingAction();
-    void InvokeUserSteppingAction();
-
-    //SD MAIN METHODS FOR A STEP PROCESSING
-    void Initialize(G4HCofThisEvent*) override final;
-    G4bool ProcessHits(G4Step*, G4TouchableHistory*) override final;
-    void EndOfAthenaEvent();
-
-    //METHOD FOR CLASSIFYING STEP ENERGY AND THE METHODS,
-    //WHICH CALCULATE IDENTIFIER FOR CELL OR DEAD MATERIAL
-    //CALIBRATION HITS ON THE CURRENT STEP
-    void ClassifyEnergy();bool FindTileCalibSection();
-    Identifier CellIDCalculator();
-    Identifier ScintIDCalculator();
-    Identifier GirderCellIDCalculator();
-    Identifier PlateCellIDCalculator();
-    Identifier DefaultHitIDCalculator();
-
-    //GET RESULT FOR THE STEP HIT ID AND CLASSIFYED ENERGIES
-    Identifier GetCellIDOnStep();
-    CaloG4::SimulationEnergies::ClassifyResult_t GetEnergiesOnStep();
-
-    //DEBUG CELL AND DM CELL ID FIELDS
-    void DebugCellIDFields();
-    void DebugDMCellIDFields(int);
-
-    //added by Sergey
-    void CellNumCorrectToHit(int, int);
-#ifdef HITSINFO
-    void HitsInfoPrint (bool, int);
-#endif
-
-    //RESET ALL CLASS MEMBER ID FIELDS, NEW & DEFAULT HIT FLAGS,
-    //SECTION & SIDE FLAGS, DEPOSITED ENERGIES IN SCINTILLATOR/PMTs
-    // ! THESE METHODS ARE NEEDED AT THE BEGGINING OF EACH STEP !
-    void ResetCellIDFields();
-    void ResetDMCellIDFields();
-    void ResetSectSideFlags();
-
-  protected:
-    Identifier DM_ID_Maker(int det, int type, int sample, int region, int tower, int module);
-
-    //THIS METHOD IS USED BY IDENTIFIER CALCULATOR METHODS FOR FINDING TILE SECTION
-    //WHERE THE CURRENT STEP IS AND FOR DETERMINING SOME RELATED IDENTIFIER FIELD
-    //VALUES. ALSO, DETRMINES SOME FLAGS USED IN A FURTHER PROCESSING OF THE STEP
-    bool AreClassifiedEnergiesAllZero();
-    void SetEscapedEnergy(double escapedEnergy);
-
-    void EnergiesSimpleCounter();
-    void DebugEnergies();
-
-  private:
-    TileGeoG4CalibSD(const TileGeoG4CalibSD&);
-    TileGeoG4CalibSD& operator=(const TileGeoG4CalibSD&);
-
-    //CALIBRATION HIT CONTAINERS
-    SG::WriteHandle<CaloCalibrationHitContainer> m_tileActiveCellCalibHits;
-    SG::WriteHandle<CaloCalibrationHitContainer> m_tileInactiveCellCalibHits;
-    SG::WriteHandle<CaloCalibrationHitContainer> m_tileDeadMaterialCalibHits;
-    SG::WriteHandle<TileHitVector> m_tileHits;
-
-    TileSDOptions m_options;
-
-    // Handles for later use
-    const CaloCell_ID* m_caloCell_ID;
-    const CaloDM_ID* m_caloDM_ID;
-
-    ServiceHandle<IRDBAccessSvc> m_rdbSvc;
-    ServiceHandle<IGeoModelSvc> m_geoModSvc;
-
-#ifdef HITSINFO
-    ToolHandle<TileCalibHitNtuple> m_ntuple;
-    ToolHandle<TileCalibHitCntNtup> m_ntupleCnt;
-#endif
-
-    //ORDINARY AND CALIBRATION LOOKUP BUILDERS
-    TileGeoG4SDCalc* m_calc;
-    TileGeoG4LookupBuilder* m_lookup;
-    TileGeoG4DMLookupBuilder* m_lookupDM;
-
-    //CALIBRATION ENERGY CLASSIFYER
-    CaloG4::SimulationEnergies* m_simEn;
-    TileEscapedEnergyProcessing* m_tile_eep;
-
-    //ENERGY AND POSITION AT CURRENT STEP
-    G4Step* m_aStep;
-
-    //FOR SIMPLE ENERGY DEBUGGING
-    double m_E_tot;
-    double m_E_em;
-    double m_E_nonem;
-    double m_E_invisible;
-    double m_E_escaped;
-
-    //FOR ENERGY DEBUGGING DIRECTLY FROM
-    //CALIBHITS AT THE END OF EVENT
-    double m_E0;
-    double m_E1;
-    double m_E2;
-    double m_E3;
-
-    //STEP TOUCHABLE HISTORY AND VOLUME
-    G4TouchableHistory* m_stepTouchable;
-    G4VPhysicalVolume* m_stepPhysVol;
-
-    //CALIBRATION SECTION & CELLS
-    TileGeoG4CalibSection* m_cSection;
-    TileGeoG4Cell* m_cell;
-    TileGeoG4PlateCell* m_pCell;
-    TileGeoG4GirderCell* m_gCell;
-
-    //CLASSIFIED ENERGY VECTOR
-    CaloG4::SimulationEnergies::ClassifyResult_t m_result;
-
-    //IDENTIFIERS FOR CALIBRATION AND ORDINARY HITS
-    Identifier m_id, m_id_pmt_up, m_id_pmt_down;
-
-    //CELL ACTIVE || CELL INACTIVE || DM
-    int m_calibHitType;
-
-    //REAL CELL ID VALUES
-    int m_subCalo;
-    int m_detector;
-    int m_side;
-    int m_module;
-    int m_tower;
-    int m_sample;
-
-    //DM CELL ID VALUES
-    int m_dm_subDet;
-    int m_dm_type;
-    int m_dm_sample;
-    int m_dm_region;
-    int m_dm_neta;
-    int m_dm_nphi;
-
-    //GLOBAL HIT POSITION -- added by Sergey
-    double m_xGlobal;
-    double m_yGlobal;
-    double m_zGlobal;
-    double m_phiGlobal;
-    int m_cellNum;
-#ifdef HITSINFO
-    int m_nEvent;
-    int m_det_side;
-#endif
-
-    //FLAG FOR DEFAULT HIT
-    bool m_defaultHit;
-
-    /** @brief set to true to apply Birks' law for a given hit
-     this flag is set to false for DM hits and true for normal hits */
-    bool m_doBirkFlag;
-
-    /** @brief set to true if hit is in extended barrel */
-    bool m_isExtended;
-
-    /** @brief set to true if hit is in negative side */
-    bool m_isNegative;
-
-    /** @brief set to true if DM hit in end/front plate is added to a real cell (taken from DB) */
-    bool m_plateToCell;
-
-    /** @brief set to true if DM hit in front plate is added to a real cell 
-     (currently equal to _plateToCell) */
-    bool m_addToCell;
-
-    /** @brief set to true if DM hit in absorber at outer radius is added to girder
-     (currently inverse of  _plateToCell) */
-    bool m_addToGirder;
-
-    /** variable used for producing calibration hits signed with primary particle ID */
-    EventInformation* m_event_info;
-
-    class LessHit {
-      public:
-        bool operator()(CaloCalibrationHit* const & p, CaloCalibrationHit* const & q) const {
-          return p->Less(q);
-        }
-    };
-
-    typedef std::set<CaloCalibrationHit*, LessHit> m_calibrationHits_t;
-    typedef m_calibrationHits_t::iterator m_calibrationHits_ptr_t;
-    m_calibrationHits_t m_activeCalibrationHits;
-    m_calibrationHits_t m_inactiveCalibrationHits;
-    m_calibrationHits_t m_deadCalibrationHits;
+  typedef std::set<CaloCalibrationHit*, LessHit> m_calibrationHits_t;
+  typedef m_calibrationHits_t::iterator m_calibrationHits_ptr_t;
+  m_calibrationHits_t m_activeCalibrationHits;
+  m_calibrationHits_t m_inactiveCalibrationHits;
+  m_calibrationHits_t m_deadCalibrationHits;
 
 };
 //CLASS TileGeoG4CalibSD

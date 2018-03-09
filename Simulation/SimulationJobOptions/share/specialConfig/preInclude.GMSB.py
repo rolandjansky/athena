@@ -129,16 +129,9 @@ if doG4SimConfig:
     from G4AtlasApps.SimFlags import simFlags
     if GMSBIndex == 1: # generic neutralino to photon scenario
         simFlags.PhysicsOptions += ["GauginosPhysicsTool"]
+        simFlags.PhysicsOptions += ["NeutralinoToPhotonGravitino"]
     elif GMSBIndex == 2 or GMSBIndex == 3 or GMSBIndex == 4: # generic stau scenario
         simFlags.PhysicsOptions += ["SleptonsPhysicsTool"]
     del GMSBIndex
-
-    def gmsb_applycalomctruthstrategy():
-    ## Applying the MCTruth strategies: add decays in the Calorimeter
-        from G4AtlasApps import AtlasG4Eng
-        myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
-        myDecay.add_Volumes('CALO::CALO', 1)
-
-    simFlags.InitFunctions.add_function("postInit", gmsb_applycalomctruthstrategy)
 
 del doG4SimConfig, simdict

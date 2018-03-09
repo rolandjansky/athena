@@ -6,7 +6,7 @@
 
 #include "DataModel/DataPool.h"
     
-#include "EventCommonTPCnv/Compressor.h"
+#include "AthenaPoolCnvSvc/Compressor.h"
 #include "CaloEvent/CaloSamplingData.h"
 #include "CaloConditions/CaloBadChannel.h"
 //#include "CaloEvent/CaloSampling.h"

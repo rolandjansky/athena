@@ -1,7 +1,218 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: TProperty.icc 612908 2014-08-21 16:19:03Z krasznaa $
+// $Id: TProperty.icc 802972 2017-04-15 18:13:17Z krumnack $
 #ifndef ASGTOOLS_TPROPERTY_ICC
 #define ASGTOOLS_TPROPERTY_ICC
+
+#include <AsgTools/MessageCheck.h>
+#include <sstream>
+#include <typeinfo>
+
+namespace asg
+{
+  namespace detail
+  {
+    /// \brief pack a single string into a property string
+    StatusCode packStringSingle (const std::string& value,
+				 std::string& result);
+
+    /// \brief pack a vector of strings into a property string
+    StatusCode packStringVector (const std::vector<std::string>& value,
+				 std::string& result);
+
+    /// \brief unpack a single string from a property string
+    StatusCode unpackStringSingle (const std::string& value,
+				   std::string& result);
+
+    /// \brief unpack a vector of strings from a property string
+    StatusCode unpackStringVector (const std::string& value,
+				   std::vector<std::string>& result);
+
+    /// \brief check for the existence of an output streamer
+    template <typename T>
+    class HasOStreamer
+    {
+      typedef char one;
+      typedef long two;
+
+      template <typename C> static one test( decltype(&(*(std::ostream*)0 << *(C*)0)));
+      template <typename C> static two test(...);    
+
+    public:
+      enum { value = sizeof(test<T>(0)) == sizeof(char) };
+    };
+
+    /// \brief check for the existence of conversion to string
+    template <typename T>
+    class HasOStringConvert
+    {
+      typedef char one;
+      typedef long two;
+
+      template <typename C> static one test( decltype((std::string (*(C*)0)))*);
+      template <typename C> static two test(...);    
+
+    public:
+      enum { value = sizeof(test<T>(0)) == sizeof(char) };
+    };
+
+
+    /// \brief base class for getting the string content using
+    /// streamers/default conversions
+    template<typename T,
+	     bool hasOStreamer = HasOStreamer<T>::value,
+	     bool hasOConvert = HasOStringConvert<T>::value>
+    struct GetStringHelperBase
+    {
+      static StatusCode get (const T& /*value*/, std::string& /*result*/) {
+	using namespace msgProperty;
+	ANA_MSG_ERROR ("GetStringHelper: not implemented for " << typeid (T).name());
+	return StatusCode::FAILURE;
+      }
+    };
+
+    template<typename T> struct GetStringHelperBase<T,true,false>
+    {
+      static StatusCode get (const T& value, std::string& result) {
+	using namespace msgProperty;
+	std::ostringstream str;
+	if (str << value)
+	{
+	  result = str.str();
+	  return StatusCode::SUCCESS;
+	} else
+	{
+	  ANA_MSG_ERROR ("failed to write type " << typeid(T).name() << " to string");
+	  return StatusCode::FAILURE;
+	}
+      }
+    };
+
+    template<typename T,bool X> struct GetStringHelperBase<T,X,true>
+    {
+      static StatusCode get (const T& value, std::string& result) {
+        return packStringSingle (std::string (value), result);
+      }
+    };
+
+    /// \brief helper class for converting properties to strings
+    template<typename T> struct GetStringHelper : GetStringHelperBase<T>
+    {
+    };
+
+    template<typename T> struct GetStringHelper<std::vector<T> >
+    {
+      static StatusCode get (const std::vector<T>& value,
+			     std::string& result) {
+	using namespace msgProperty;
+	std::vector<std::string> subresult;
+	for (auto subvalue : value) {
+	  std::string myresult;
+	  ANA_CHECK (GetStringHelper<T>::get (subvalue, myresult));
+	  subresult.push_back (myresult);
+	}
+	ANA_CHECK (packStringVector (subresult, result));
+	return StatusCode::SUCCESS;
+      }
+    };
+
+
+
+
+
+    /// \brief check for the existence of an output streamer
+    template <typename T>
+    class HasIStreamer
+    {
+      typedef char one;
+      typedef long two;
+
+      template <typename C> static one test( decltype(&(*(std::istream*)0 >> *(C*)0)));
+      template <typename C> static two test(...);    
+
+    public:
+      enum { value = sizeof(test<T>(0)) == sizeof(char) };
+    };
+
+    /// \brief check for the existence of conversion to string
+    template <typename T>
+    class HasIStringConvert
+    {
+      typedef char one;
+      typedef long two;
+
+      template <typename C> static one test( decltype(C (std::string ()))*);
+      template <typename C> static two test(...);    
+
+    public:
+      enum { value = sizeof(test<T>(0)) == sizeof(char) };
+    };
+
+
+    /// \brief base class for setting the string content using
+    /// streamers/default conversions
+    template<typename T,
+	     bool hasIStreamer = HasIStreamer<T>::value,
+	     bool hasOConvert = HasIStringConvert<T>::value>
+    struct SetStringHelperBase
+    {
+      static StatusCode set (const std::string& /*value*/, T& /*result*/) {
+	using namespace msgProperty;
+	ANA_MSG_ERROR ("SetStringHelper: not implemented for " << typeid (T).name());
+	return StatusCode::FAILURE;
+      }
+    };
+
+    template<typename T> struct SetStringHelperBase<T,true,false>
+    {
+      static StatusCode set (const std::string& value, T& result) {
+	using namespace msgProperty;
+	std::istringstream str (value);
+	if (str >> result && str.eof())
+	{
+	  return StatusCode::SUCCESS;
+	} else
+	{
+	  ANA_MSG_ERROR ("failed to read type " << typeid(T).name() << " from string " << value);
+	  return StatusCode::FAILURE;
+	}
+      }
+    };
+
+    template<typename T,bool X> struct SetStringHelperBase<T,X,true>
+    {
+      static StatusCode set (const std::string& value, T& result) {
+	using namespace msgProperty;
+        std::string subvalue;
+        if (unpackStringSingle (value, subvalue).isFailure())
+          return StatusCode::FAILURE;
+        result = subvalue;
+        return StatusCode::SUCCESS;
+      }
+    };
+
+    /// \brief helper class for getting property values from strings
+    template<typename T> struct SetStringHelper : SetStringHelperBase<T>
+    {
+    };
+
+    template<typename T> struct SetStringHelper<std::vector<T> >
+    {
+      static StatusCode set (const std::string& value, std::vector<T>& result) {
+	using namespace msgProperty;
+	std::vector<std::string> myvalue;
+	ANA_CHECK (unpackStringVector (value, myvalue));
+	std::vector<T> myresult;
+	for (std::string subvalue : myvalue) {
+	  T subresult;
+	  ANA_CHECK (SetStringHelper<T>::set (subvalue, subresult));
+	  myresult.push_back (subresult);
+	}
+	swap (myresult, result);
+	return StatusCode::SUCCESS;
+      }
+    };
+  }
+}
 
 template< typename T >
 TProperty< T >::TProperty( T& val, Type type )
@@ -23,10 +234,14 @@ int TProperty< T >::setFrom( const Property& rhs ) {
       return 1;
    }
 
+   const TProperty< std::string >* sprop = dynamic_cast< const TProperty< std::string >* >( &rhs );
+   if (sprop)
+     return this->setString (*sprop->pointer()).isFailure();
+
    // Check if the other object is of the same type:
    const TProperty< T >* pprop = dynamic_cast< const TProperty< T >* >( &rhs );
    if( ! pprop ) {
-      return 1;
+       return 1;
    }
 
    // Check that the other object has a valid pointer:
@@ -37,6 +252,28 @@ int TProperty< T >::setFrom( const Property& rhs ) {
    // Do the assignment:
    *m_ptr = *( pprop->pointer() );
    return 0;
+}
+
+template< typename T >
+StatusCode TProperty< T >::getString (std::string& result) const {
+  using namespace asg::msgProperty;
+  if( ! this->pointer() ) {
+    ANA_MSG_ERROR ("property does not have a pointer associated");
+    return StatusCode::FAILURE;
+  }
+  ANA_CHECK (asg::detail::GetStringHelper<T>::get (*m_ptr, result));
+  return StatusCode::SUCCESS;
+}
+
+template< typename T >
+StatusCode TProperty< T >::setString (const std::string& value) {
+  using namespace asg::msgProperty;
+  if( ! this->pointer() ) {
+    ANA_MSG_ERROR ("property does not have a pointer associated");
+    return StatusCode::FAILURE;
+  }
+  ANA_CHECK (asg::detail::SetStringHelper<T>::set (value, *m_ptr));
+  return StatusCode::SUCCESS;
 }
 
 template< typename T >

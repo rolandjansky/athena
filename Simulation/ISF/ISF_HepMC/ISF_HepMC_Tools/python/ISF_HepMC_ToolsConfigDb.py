@@ -11,9 +11,6 @@ addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterWorld", 
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getParticlePositionFilterDynamic",     "ISF_ParticlePositionFilterDynamic")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getGenParticleInteractingFilter",      "ISF_GenParticleInteractingFilter")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getEtaPhiFilter",                      "ISF_EtaPhiFilter")
-## Stack Fillers
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getStackFiller",                       "ISF_StackFiller")
-addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getLongLivedStackFiller",              "ISF_LongLivedStackFiller")
 ## Truth Strategies
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getTruthStrategyGroupID",              "ISF_MCTruthStrategyGroupID")
 addTool("ISF_HepMC_Tools.ISF_HepMC_ToolsConfig.getTruthStrategyGroupID_MC15",         "ISF_MCTruthStrategyGroupID_MC15")

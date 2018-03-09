@@ -39,7 +39,8 @@ use TileRecUtils		TileRecUtils-*		TileCalorimeter
 use TileByteStream		TileByteStream-*	TileCalorimeter/TileSvc
 use TileCalibBlobObjs		TileCalibBlobObjs-*	TileCalorimeter/TileCalib
 use TileMonitoring              TileMonitoring-*        TileCalorimeter
-use TrigT1CaloEvent		TrigT1CaloEvent-*	Trigger/TrigT1
+
+use xAODTrigL1Calo              xAODTrigL1Calo-*        Event/xAOD
 
 end_private
 

@@ -17,6 +17,7 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
+# art-output: TotalEventsProcessed.txt
 
 export NAME="physics_pp_v7_rdotobstoesd_build"
 export COST_MONITORING="False"
@@ -27,7 +28,7 @@ export JOBOPTION="TrigAnalysisTest/testAthenaTrigRDOtoBS.py"
 
 source exec_athena_art_trigger_validation.sh
 athena.py -c "jp.AthenaCommonFlags.BSRDOInput=['raw.data']" testAthenaTrigBStoESD.py | tee ${JOB_LOG%%.*}2.${JOB_LOG#*.}
-echo "art-result: $?"
+echo "art-result: ${PIPESTATUS[0]} ${JOB_LOG%%.*}2"
 
 source exec_art_triggertest_post.sh
 

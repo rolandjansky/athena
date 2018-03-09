@@ -11,7 +11,7 @@ use  AtlasPolicy                AtlasPolicy-*
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  AtlasHepMC                 AtlasHepMC-*                    External
 use  GaudiInterface             GaudiInterface-*                External
-use  BarcodeInterfaces          BarcodeInterfaces-*             Simulation/Barcode
+use  BarcodeEvent               BarcodeEvent-*                  Simulation/Barcode
 use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
 use  TestTools                  TestTools-*                     AtlasTest 

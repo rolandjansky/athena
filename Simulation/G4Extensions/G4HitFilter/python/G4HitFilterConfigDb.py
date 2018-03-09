@@ -2,6 +2,5 @@
 
 from AthenaCommon.CfgGetter import addTool
 
-addTool("G4HitFilter.G4HitFilterConf.G4HitFilter", "G4HitFilter")
 addTool("G4HitFilter.G4HitFilterConfig.getG4HitFilterTool", "G4UA::G4HitFilterTool")
 

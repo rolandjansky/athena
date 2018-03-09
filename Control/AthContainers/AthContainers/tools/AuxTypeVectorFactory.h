@@ -39,10 +39,33 @@ public:
    * @brief Create a vector object of this type.
    * @param size Initial size of the new vector.
    * @param capacity Initial capacity of the new vector.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
    */
   virtual IAuxTypeVector* create (size_t size, size_t capacity) const;
 
 
+  /**
+   * @brief Create a vector object of this type from a data blob.
+   * @param data The vector object.
+   * @param isPacked If true, @c data is a @c PackedContainer.
+   * @param ownFlag If true, the newly-created IAuxTypeVector object
+   *                will take ownership of @c data.
+   *
+   * If the element type is T, then @c data should be a pointer
+   * to a std::vector<T> object, which was obtained with @c new.
+   * But if @c isPacked is @c true, then @c data
+   * should instead point at an object of type @c SG::PackedContainer<T>.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
+   */
+  virtual IAuxTypeVector* createFromData (void* data,
+                                          bool isPacked,
+                                          bool ownFlag) const;
+
+  
   /**
    * @brief Copy an element between vectors.
    * @param dst Pointer to the start of the destination vector's data.
@@ -95,6 +118,14 @@ public:
    *        if the std::vector code is used directly.
    */
   virtual bool isDynamic() const;
+
+
+private:
+  /// Helpers for creating vector from a data blob,
+  IAuxTypeVector* createFromData (void* data, bool isPacked, bool ownFlag,
+                                  std::true_type) const;
+  IAuxTypeVector* createFromData (void* data, bool isPacked, bool ownFlag,
+                                  std::false_type) const;
 };
 
 

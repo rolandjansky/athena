@@ -54,6 +54,7 @@ if DetFlags.overlay.LAr_on():
     from LArROD.LArDigits import DefaultLArDigitThinner
     LArDigitThinner = DefaultLArDigitThinner('LArDigitThinner') # automatically added to topSequence
     if isRealData:
+       job.LArDigitThinner.RawChannelContainerName = "LArRawChannels_FromDigits"
        #job.digitmaker1.LArPileUpTool.OutputLevel=DEBUG
        #MessageSvc.debugLimit = 100000
        #job.digitmaker1.LArPileUpTool.useLArFloat=False
@@ -66,7 +67,9 @@ if DetFlags.overlay.Tile_on():
     include( "TileIdCnv/TileIdCnv_jobOptions.py" )
     include( "TileConditions/TileConditions_jobOptions.py" )        
 
-    include("TileSimAlgs/TileDigitization_jobOptions.py")
+    include( "TileSimAlgs/TileDigitization_jobOptions.py" )
+    include( "TileL2Algs/TileL2Algs_jobOptions.py" )
+
     job.TileHitVecToCnt.DigitizationTool.RndmEvtOverlay = True
     theTileDigitsMaker.RndmEvtOverlay = True
     if readBS and isRealData:

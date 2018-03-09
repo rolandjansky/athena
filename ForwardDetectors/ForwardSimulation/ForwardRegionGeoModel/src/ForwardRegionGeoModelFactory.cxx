@@ -74,10 +74,10 @@ void FWD_CONFIGURATION::clear()
 
 
 ForwardRegionGeoModelFactory::ForwardRegionGeoModelFactory(StoreGateSvc *detStore, const PFWD_CONFIGURATION pConfig)
-  :detectorStore(detStore),
+  :m_detectorStore(detStore),
    m_properties("ForwardRegionProperties")
 {
-    detectorManager = NULL;
+    m_detectorManager = NULL;
     MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionGeoModel::ForwardRegionGeoModel()");
 
     m_Config = *pConfig;
@@ -102,7 +102,7 @@ void ForwardRegionGeoModelFactory::DefineMaterials()
     std::string matName;
 
     DataHandle<StoredMaterialManager> materialManager;
-    if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
+    if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
       return;
     }
 
@@ -384,7 +384,7 @@ void ForwardRegionGeoModelFactory::constructElements(GeoPhysVol *fwrPhys,std::ve
 
 void ForwardRegionGeoModelFactory::create(GeoPhysVol *world)
 {
-  detectorManager=new ForwardRegionGeoModelManager();
+  m_detectorManager=new ForwardRegionGeoModelManager();
 
   MsgStream LogStream(Athena::getMessageSvc(), "ForwardRegionGeoModel::create()");
 
@@ -437,7 +437,7 @@ void ForwardRegionGeoModelFactory::create(GeoPhysVol *world)
   GeoNameTag *tag = new GeoNameTag("ForwardRegionGeoModel");
   world->add(tag);
   world->add(fwrPhys);
-  detectorManager->addTreeTop(fwrPhys);
+  m_detectorManager->addTreeTop(fwrPhys);
 
   constructElements(fwrPhys,loadedDataFileR,1);
   constructElements(fwrPhys,loadedDataFileL,2);
@@ -447,7 +447,7 @@ void ForwardRegionGeoModelFactory::create(GeoPhysVol *world)
 
 const ForwardRegionGeoModelManager * ForwardRegionGeoModelFactory::getDetectorManager() const
 {
-  return detectorManager;
+  return m_detectorManager;
 }
 
 // Load data from file into 2D array of strings. Input is filename and wanted numbestd::stringof columns

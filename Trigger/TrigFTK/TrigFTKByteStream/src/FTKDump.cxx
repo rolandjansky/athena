@@ -5,16 +5,16 @@
 #include "FTKDump.h"
 #include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 #include "AthenaKernel/errorcheck.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 FTKDump::FTKDump(const std::string &name, ISvcLocator *pSvcLocator)
    : AthAlgorithm( name, pSvcLocator ) {
 
-  m_log = new MsgStream(messageService(), "FTKDump");
+
 }
 
 FTKDump::~FTKDump(){
-  delete m_log;
+
 }
 
 StatusCode FTKDump::initialize() {
@@ -26,10 +26,11 @@ StatusCode FTKDump::execute() {
 
   const FTK_RawTrackContainer* tracks_ptr;
 
-  CHECK(evtStore()->retrieve(tracks_ptr, "dummy_tracks"));
+  CHECK(evtStore()->retrieve(tracks_ptr, "FTK_RDO_Tracks"));
 
-  //ATH_MSG_INFO( "Got the tracks" );
-  (*m_log) << MSG::INFO << "Got no of tracks: " << tracks_ptr->size() << endreq;
+
+  ATH_MSG_INFO( "Got the tracks " << tracks_ptr->size() );
 
   return StatusCode::SUCCESS;
 }
+

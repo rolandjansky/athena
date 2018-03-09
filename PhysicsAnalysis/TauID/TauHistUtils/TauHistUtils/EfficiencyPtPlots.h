@@ -21,6 +21,9 @@ class EfficiencyPtPlots: public PlotBase {
     TProfile* m_eff_pt_jetBDTloose;
     TProfile* m_eff_pt_jetBDTmed;
     TProfile* m_eff_pt_jetBDTtight;
+    TProfile* m_eff_pt_jetBDTlooseHighPt;
+    TProfile* m_eff_pt_jetBDTmedHighPt;
+    TProfile* m_eff_pt_jetBDTtightHighPt;
 
     TProfile* m_eff_jetBDTloose;
     TProfile* m_eff_jetBDTmed;

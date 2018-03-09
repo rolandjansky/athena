@@ -15,19 +15,22 @@
 #include <string>
 
 class LArG4CalibSD;
+class ILArCalibCalculatorSvc;
 
 class LArG4H8CalibSDTool : public LArG4SDTool
 {
 public:
   LArG4H8CalibSDTool(const std::string& type, const std::string& name, const IInterface *parent);
   ~LArG4H8CalibSDTool() {}
-    
+
   StatusCode initializeSD() override final;
 
   // Calls down to all the SDs to get them to pack their hits into a central collection
   StatusCode Gather() override final;
-    
+
 private:
+  StatusCode initializeCalculators() override final;
+
   // The actual hit container - here because the base class is for both calib and standard SD tools
   SG::WriteHandle<CaloCalibrationHitContainer> m_HitColl;
 
@@ -38,6 +41,11 @@ private:
   std::vector<std::string> m_bpCalibVolumes;
   std::vector<std::string> m_barInVolumes;
   std::vector<std::string> m_barDeadVolumes;
+
+  ServiceHandle<ILArCalibCalculatorSvc> m_tbbarcrycalc;
+  ServiceHandle<ILArCalibCalculatorSvc> m_barpscalc;
+  ServiceHandle<ILArCalibCalculatorSvc> m_barcalc;
+  ServiceHandle<ILArCalibCalculatorSvc> m_h8defaultcalc;
 
   // The actual SD pointers
   LArG4CalibSD* m_barCrySD;

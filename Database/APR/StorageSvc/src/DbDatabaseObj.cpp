@@ -150,9 +150,9 @@ DbStatus DbDatabaseObj::cleanup()  {
 DbStatus DbDatabaseObj::makeLink(const Token* pTok, Token::OID_t& refLnk) {
   if ( pTok )   {
     int   is_dbTok  = (typeid(*pTok) == typeid(DbToken));
-    DbToken* pdbTok = (DbToken*)pTok;
     LinkMap::iterator i;
     if ( is_dbTok )   {
+      DbToken* pdbTok = (DbToken*)pTok;
       pdbTok->setKey(DbToken::TOKEN_CONT_KEY);
       i = m_linkMap.find(pdbTok->contKey());
     }
@@ -718,7 +718,10 @@ std::string DbDatabaseObj::cntName(const Token& token) {
       }
       if ( lnk < int(m_linkVec.size()) )   {
 	DbToken* link = m_linkVec[lnk];
-        return link != 0 ? link->contID() : ""; // in ##Links
+        if ( link != 0 ) {
+          if ( token.contID().empty() ) const_cast<Token*>(&token)->setCont(link->contID());
+          return link->contID(); // in ##Links
+        }
       }
     }
   }

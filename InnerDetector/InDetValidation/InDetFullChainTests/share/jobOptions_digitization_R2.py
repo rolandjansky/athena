@@ -1,5 +1,5 @@
 #--------------------------------------------------------------
-# Template jobOptions: ID only simulation for run 1 ATLAS
+# Template jobOptions: ID only simulation for run 2 ATLAS
 #  - Digitization
 #--------------------------------------------------------------
 
@@ -16,12 +16,12 @@ DetFlags.Truth_setOn()
 DetFlags.LVL1_setOff()
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-01-05-00'
+jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-03-01-00'
 
 ## Random Number Seed offsets
 ## should be altered between jobs in order to change noise etc.
-from Digitization.DigitizationFlags import jobproperties 
-jobproperties.Digitization.rndmSeedOffset1=11 
+from Digitization.DigitizationFlags import jobproperties
+jobproperties.Digitization.rndmSeedOffset1=11
 jobproperties.Digitization.rndmSeedOffset2=22
 
 ## Main Digitization configuration
@@ -34,5 +34,5 @@ MessageSvc = Service( "MessageSvc" )
 MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
 # to change the default limit on number of message per alg
 MessageSvc.defaultLimit = 9999999  # all messages
-# Set output level threshold among DEBUG, INFO, WARNING, ERROR, FATAL 
+# Set output level threshold among DEBUG, INFO, WARNING, ERROR, FATAL
 MessageSvc.OutputLevel = INFO

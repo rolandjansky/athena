@@ -74,6 +74,7 @@ HLTMuonMonTool::HLTMuonMonTool(const std::string & type,
   declareProperty("monitoring_muonIso", m_chainsEFiso);
   declareProperty("monitoring_MSonly", m_chainsMSonly);
   declareProperty("monitoring_muonEFFS", m_chainsEFFS);
+  declareProperty("monitoring_muonLowpt", m_chainsLowpt);
   declareProperty("monitoring_muon_Support", m_chainSupport);
   declareProperty("HI_pp_mode", m_HI_pp_mode);
   
@@ -238,9 +239,9 @@ StatusCode HLTMuonMonTool::init()
     m_FS_pre_trigger = "HLT_mu4";
     m_FS_pre_trigger = "HLT_mu10";
   }else{
-    m_FS_pre_trigger = "HLT_mu18";
+    m_FS_pre_trigger = "HLT_mu20";
   }
-  m_FS_pre_trigger_second = "HLT_mu24_imedium";
+  m_FS_pre_trigger_second = "HLT_mu26_ivarmedium";
   for(unsigned int ich = 0; ich < m_chainsEFFS.size(); ich++){
 	if(ich > 0) continue;
 	m_histChainEFFS.push_back("muChainEFFS");
@@ -763,6 +764,7 @@ StatusCode HLTMuonMonTool::fill()
   for(it=m_chainsMSonly.begin(), itr=0; it != m_chainsMSonly.end() ; it++, itr++ ) mchainlist.push_back((*it).c_str());
   for(it=m_chainsEFFS.begin(), itr=0; it != m_chainsEFFS.end() ; it++, itr++ ) mchainlist.push_back((*it).c_str());
   for(it=m_chainsGeneric.begin(), itr=0; it != m_chainsGeneric.end() ; it++, itr++ )mchainlist.push_back((*it).c_str());
+  for(it=m_chainsLowpt.begin(), itr=0; it != m_chainsLowpt.end() ; it++, itr++ )mchainlist.push_back((*it).c_str());
   for(int i=0; i<(int)mchainlist.size(); i++){
     TString s=mchainlist[i];
     hist("Monitoring_Chain",m_histdir)->GetXaxis()->SetBinLabel(i+1,s);

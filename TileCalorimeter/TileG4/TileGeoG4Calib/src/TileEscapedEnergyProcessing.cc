@@ -23,10 +23,10 @@
 #include "G4VSensitiveDetector.hh"
 
 TileEscapedEnergyProcessing::TileEscapedEnergyProcessing(const int /*verboseLevel*/)
-    : m_escaped(false),
-      m_escapedEnergy(0),
-      m_energy5(0)//,
-      //m_verboseLevel(verboseLevel)
+  : m_escaped(false),
+    m_escapedEnergy(0),
+    m_energy5(0)//,
+    //m_verboseLevel(verboseLevel)
 {
   ;
 }

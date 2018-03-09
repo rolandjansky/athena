@@ -283,7 +283,7 @@ inline bool LArRodDecoder::check_valid (const T* frag, MsgStream& /*log*/)
   } 
   //catch ( .... ) {
   catch (eformat::Issue& ex) {
-    msg(MSG::WARNING) << "Exception while checking eformat fragment validity: " << ex.what() << endreq; 
+    msg(MSG::WARNING) << "Exception while checking eformat fragment validity: " << ex.what() << endmsg; 
     ret=false;
   }
   return ret;
@@ -292,7 +292,7 @@ inline bool LArRodDecoder::check_valid (const T* frag, MsgStream& /*log*/)
 
 /*
 inline void LArRodDecoder::report_error (const ers::Issue& error, MsgStream& log)
-{ log << MSG::FATAL << "Error reading bytestream event: " << error.what() << endreq;
+{ log << MSG::FATAL << "Error reading bytestream event: " << error.what() << endmsg;
 }
 */
 
@@ -312,13 +312,13 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
   ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragement of size " << n);
 #endif
 /*  if (n<2) //Avoid segmentation fault
-    {(*m_log) << MSG::WARNING << "Got empty Rod Fragment!" << endreq;
+    {(*m_log) << MSG::WARNING << "Got empty Rod Fragment!" << endmsg;
      return;
     }
 */
   const uint32_t blocksize=p[0]; //First word contains block size
   if (blocksize>n) {
-    msg(MSG::ERROR) << "Got truncated ROD Fragment!" << endreq;
+    msg(MSG::ERROR) << "Got truncated ROD Fragment!" << endmsg;
     // First Bit is truncated (see also below)
     m_error|= 0x1;
     return;
@@ -335,13 +335,13 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
 
 
   if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
-    {msg(MSG::ERROR) << "Unknown Rod block type " << (int)rodBlockType << endreq;
+    {msg(MSG::ERROR) << "Unknown Rod block type " << (int)rodBlockType << endmsg;
      // Second Bit is block empty or unknown
      m_error|= 0x2;
      return;
     }
   if (rodMinorVersion>=m_BlStructArray[rodBlockType].size() || m_BlStructArray[rodBlockType][rodMinorVersion]==NULL)
-    {msg(MSG::ERROR) << "No version " << rodMinorVersion  << " of Rod Block Type  " << (int)rodBlockType << "known." << endreq;
+    {msg(MSG::ERROR) << "No version " << rodMinorVersion  << " of Rod Block Type  " << (int)rodBlockType << "known." << endmsg;
      // Second Bit is block empty or unknown
      m_error|= 0x2;
     return;
@@ -388,9 +388,9 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
     uint32_t onsum  = BlStruct->onlineCheckSum();
     uint32_t offsum = BlStruct->offlineCheckSum();
     if(onsum!=offsum) {
-      msg(MSG::WARNING) << "Checksum error:" << endreq;
-      msg(MSG::WARNING) << " online checksum  = 0x" << MSG::hex << onsum  << endreq;
-      msg(MSG::WARNING) << " offline checksum = 0x" << MSG::hex << offsum << MSG::dec << endreq;
+      msg(MSG::WARNING) << "Checksum error:" << endmsg;
+      msg(MSG::WARNING) << " online checksum  = 0x" << MSG::hex << onsum  << endmsg;
+      msg(MSG::WARNING) << " offline checksum = 0x" << MSG::hex << offsum << MSG::dec << endmsg;
      // Fourth Bit CheckSum issue (maybe disabled!)
      m_error|= 0x8;
       continue;
@@ -463,12 +463,12 @@ void LArRodDecoder::fillCollectionHLTFeb(const uint32_t* p, uint32_t n
   ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragement of size " << n);
 #endif
   if (n<2) //Avoid segmentation fault
-    {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endreq;
+    {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endmsg;
      return;
     }
   const uint32_t blocksize=p[0]; //First word contains block size
   if (blocksize>n)
-    {msg(MSG::ERROR) << "Got truncated ROD Fragment!" << endreq;
+    {msg(MSG::ERROR) << "Got truncated ROD Fragment!" << endmsg;
      return;
     }
 
@@ -483,11 +483,11 @@ void LArRodDecoder::fillCollectionHLTFeb(const uint32_t* p, uint32_t n
 
 
   if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
-    {msg(MSG::ERROR) << "Unknown Rod block type " << (int)rodBlockType << endreq;
+    {msg(MSG::ERROR) << "Unknown Rod block type " << (int)rodBlockType << endmsg;
      return;
     }
   if (rodMinorVersion>=m_BlStructArray[rodBlockType].size() || m_BlStructArray[rodBlockType][rodMinorVersion]==NULL)
-    {msg(MSG::ERROR) << "No version " << rodMinorVersion  << " of Rod Block Type  " << (int)rodBlockType << "known." << endreq;
+    {msg(MSG::ERROR) << "No version " << rodMinorVersion  << " of Rod Block Type  " << (int)rodBlockType << "known." << endmsg;
     return;
     }
 #ifndef NDEBUG
@@ -522,9 +522,9 @@ void LArRodDecoder::fillCollectionHLTFeb(const uint32_t* p, uint32_t n
 	uint32_t onsum  = BlStruct->onlineCheckSum();
 	uint32_t offsum = BlStruct->offlineCheckSum();
 	if(onsum!=offsum) {
-	  msg(MSG::WARNING) << "Checksum error:" << endreq;
-	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endreq;
-	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << std::dec << endreq;
+	  msg(MSG::WARNING) << "Checksum error:" << endmsg;
+	  msg(MSG::WARNING) << " online checksum  = " << MSG::hex << onsum  << endmsg;
+	  msg(MSG::WARNING) << " offline checksum = " << MSG::hex << offsum << std::dec << endmsg;
 	  continue;
 	}
       }
@@ -541,11 +541,11 @@ void LArRodDecoder::fillCollectionHLTFeb(const uint32_t* p, uint32_t n
       febenergy->setFebSumE(BlStruct->getSumE());
 #ifndef NDEBUG
       if (msgLvl(MSG::DEBUG)){
-	msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb ID = " << febenergy->getFebId() << endreq;
-        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb Ex = " << febenergy->getFebEx() << endreq;
-        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb Ey = " << febenergy->getFebEy() << endreq;
-        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb Ez = " << febenergy->getFebEz() << endreq;
-        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb SumE = " << febenergy->getFebSumE() << endreq;
+	msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb ID = " << febenergy->getFebId() << endmsg;
+        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb Ex = " << febenergy->getFebEx() << endmsg;
+        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb Ey = " << febenergy->getFebEy() << endmsg;
+        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb Ez = " << febenergy->getFebEz() << endmsg;
+        msg(MSG::DEBUG) << "FillCollectionHLTFeb Feb SumE = " << febenergy->getFebSumE() << endmsg;
       }
 #endif
       coll.push_back(febenergy);
@@ -562,7 +562,7 @@ void LArRodDecoder::fillCollectionHLTROSFeb(const uint32_t* p, uint32_t n
   ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragement of size " << n);
 #endif
   if (n<2) //Avoid segmentation fault
-    {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endreq;
+    {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endmsg;
      return;
     }
   if ( m_larblockstruct == (LArRodBlockStructure*)NULL){
@@ -576,11 +576,11 @@ void LArRodDecoder::fillCollectionHLTROSFeb(const uint32_t* p, uint32_t n
 
 
   if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
-    {msg(MSG::ERROR) << "Unknown Rod block type " << (int)rodBlockType << endreq;
+    {msg(MSG::ERROR) << "Unknown Rod block type " << (int)rodBlockType << endmsg;
      return;
     }
   if (rodMinorVersion>=m_BlStructArray[rodBlockType].size() || m_BlStructArray[rodBlockType][rodMinorVersion]==NULL)
-    {msg(MSG::ERROR) << "No version " << rodMinorVersion  << " of Rod Block Type  " << (int)rodBlockType << "known." << endreq;
+    {msg(MSG::ERROR) << "No version " << rodMinorVersion  << " of Rod Block Type  " << (int)rodBlockType << "known." << endmsg;
     return;
     }
 #ifndef NDEBUG

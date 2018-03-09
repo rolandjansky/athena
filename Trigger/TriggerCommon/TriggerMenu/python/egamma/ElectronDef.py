@@ -136,7 +136,13 @@ class L2EFChain_e(L2EFChainDef):
             log.debug('Ringer selection applied for all chains above 15 GeV %s',thr)
             if 'merged' in self.chainPart['IDinfo']:
                 self._ringer_selection=False
+            elif 'bloose' in self.chainPart['IDinfo']:
+                self._ringer_selection=False
             elif float(thr)>15.0:
+                log.debug('Ringer selection applied for all chains above 15 GeV %s',thr)
+                self._ringer_selection=True
+            elif float(thr) <= 15.0 and TriggerFlags.EgammaSlice.doRingerBelow15GeV:
+                log.debug('Ringer selection applied for all chains below 15 GeV %s',thr)
                 self._ringer_selection=True
             else:
                 self._ringer_selection=False
@@ -144,6 +150,8 @@ class L2EFChain_e(L2EFChainDef):
             self._ringer_selection = True
         elif self.chainPart['trkInfo']=='idperf': 
             if float(thr)>15.0:
+                self._ringer_selection=True
+            elif float(thr) <= 15.0 and TriggerFlags.EgammaSlice.doRingerBelow15GeV:
                 self._ringer_selection=True
             else:
                 self._ringer_selection=False

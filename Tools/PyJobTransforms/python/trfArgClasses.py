@@ -695,7 +695,7 @@ class argFile(argList):
                 msg.debug('Found root filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
-                    if str(filename).startswith("https") or not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
+                    if str(filename).startswith("https") or str(filename).startswith("davs") or not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
                         msg.debug('Seems that only one file was given: {0}'.format(filename))
                         newValue.extend(([filename]))
                     else:
@@ -1891,6 +1891,47 @@ class argSubstepList(argSubstep):
             subStepList = [(s[0], [s[1]]) for s in subStepList]
         return subStepList
 
+## @brief String substep argument
+class argSubstepString(argSubstep):
+
+    # Reset getter
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def prodsysDescription(self):
+        desc = {'type': 'substep', 'substeptype': 'str', 'separator': self._separator,
+                'default': self._defaultSubstep}
+        return desc
+
+    @value.setter
+    def value(self, value):
+        msg.debug('Attempting to set argSubstep from {0!s} (type {1}'.format(value, type(value)))
+        if value is None:
+            self._value = {}
+        elif isinstance(value, str):
+            subStepList = self._parseStringAsSubstep(value)
+            self._value = dict([(subStep[0], subStep[1]) for subStep in subStepList])
+        elif isinstance(value, (list, tuple)):
+            # This is a list of strings to parse
+            self._value = {}
+            for item in value:
+                if not isinstance(item, str):
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
+                subStepList = self._parseStringAsSubstep(item)
+                for subStep in subStepList:
+                    self._value[subStep[0]] = subStep[1]
+        elif isinstance(value, dict):
+            for k, v in value.iteritems():
+                if not isinstance(k, str):
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary key {0!s} for substep is not a string'.format(k))
+                if not isinstance(v, str):
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary value {0!s} for substep is not a string'.format(v))
+            self._value = value
+        else:
+            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
+
 ## @brief Boolean substep argument
 class argSubstepBool(argSubstep):
     
@@ -2057,11 +2098,14 @@ class argSubstepSteering(argSubstep):
     # usecases of steering. 
     # "no" - a convenience null option for production managers, does nothing
     # "doRDO_TRIG" - run split trigger for Reco_tf and friends
+    # "doOverlay" - run event overlay on premixed RDOs instead of standard HITtoRDO digitization
     # "afterburn" - run the B decay afterburner for event generation
     # "doRAWtoALL" - produce all DESDs and AODs directly from bytestream
     steeringAlises = {
                       'no': {},
                       'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
+                      'doOverlay': {'HITtoRDO': [('in', '-', 'HITS'), ('out', '-', 'RDO'), ('out', '-', 'RDO_FILT')],
+                                    'OverlayPool': [('in', '+', ('HITS', 'RDO_BKG')), ('out', '+', 'RDO')]},
                       'afterburn': {'generate': [('out', '-', 'EVNT')]},
                       'doRAWtoALL': {'RAWtoALL': [('in', '+', 'BS'), ('in', '+', 'RDO'), ('in', '+', 'RDO_FTK'),
                                                   ('in', '+', 'DRAW_ZMUMU'), ('in', '+', 'DRAW_ZEE'), ('in', '+', 'DRAW_EMU'), ('in', '+', 'DRAW_RPVLL'), 

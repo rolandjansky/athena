@@ -22,7 +22,6 @@
 #ifndef TestActionTimer_H
 #define TestActionTimer_H
 
-#include "G4AtlasTools/UserActionBase.h"
 
 #include "G4String.hh"
 
@@ -35,49 +34,10 @@ class G4Step;
 class G4Timer;
 class ITHistSvc;
 
-class TestActionTimer final: public UserActionBase 
-{  
- public:
 
-  TestActionTimer(const std::string& type, const std::string& name, const IInterface* parent);
-  virtual void BeginOfEvent(const G4Event*) override; //!< Action that starts the new event timers
-  virtual void EndOfEvent(const G4Event*) override;   //!< Action that prints all available information at the end of each event
-  virtual void BeginOfRun(const G4Run*) override;     //!< Action that starts the timers at the beginning of the run
-  virtual void EndOfRun(const G4Run*) override;       //!< Action that prints all information at the end of the run
-  virtual void Step(const G4Step*) override;      //!< Stepping action that increments the appropriate timer
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
-
-private:
-  /* Enumeration for timers to be used
-  First timers are by subdetector, second few are by particle
-  These are not straightforward for the non-expert to interpret*/
-  enum { eEMB, eEMEC, eFC1, eFC23, eFCO, eHEC, eCry, eLAr, eHCB, 
-	 ePre, eMu, ePx, eSct, eSev, eTrt, eOther, 
-	 eElec, ePos, eGam, eNeut, eMax };
-
-  G4Timer* m_runTimer;                     //!< Timer for the entire run
-  G4Timer* m_eventTimer;                   //!< Timer for this event
-  double m_runTime, m_eventTime;           //!< Double for storing this event and run time
-    
-  std::vector<G4Timer*> m_timer;           //!< Vector of timers for each of the enum
-  std::vector<double> m_time;              //!< Vector of times for each of the enum
-  std::vector<std::string> m_timeName;     //!< Vector of names for each of the timers
-  
-  double TimerSum(G4Timer* timer) const;   //!< Gets the appropriate time from the timer for adding to the sum
-  int m_nev;
-
-  ServiceHandle<ITHistSvc> m_histSvc;
-
-  void PPanic();                           //!< Method to shut down all particle timers
-  void VPanic();                           //!< Method to shut down all volume timers
-  int ClassifyVolume( G4String& ) const; //!< Method to sort out which volume we are in
-};
-
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IBeginRunAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserEventAction.hh"
+#include "G4UserRunAction.hh"
+#include "G4UserSteppingAction.hh"
 namespace G4UA{
   
   /// @class TestActionTimer
@@ -88,7 +48,7 @@ namespace G4UA{
   ///         @author Wolfgang Ehrenfeld, University of Hamburg, Germany
 
   class TestActionTimer:
-  public IBeginEventAction,  public IEndEventAction,  public IBeginRunAction,  public IEndRunAction,  public ISteppingAction
+  public G4UserEventAction, public G4UserRunAction,  public G4UserSteppingAction
   {
     
   public:
@@ -120,11 +80,11 @@ namespace G4UA{
     const Report& getReport() const
     { return m_report; }
     
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfRun(const G4Run*) override;
-    virtual void endOfRun(const G4Run*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
+    virtual void EndOfRunAction(const G4Run*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
 
     /* Enumeration for timers to be used
        First timers are by subdetector, second few are by particle

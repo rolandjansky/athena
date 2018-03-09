@@ -218,7 +218,7 @@ bool LArHitEMap::AddEnergy(const Identifier & cellid, float energy, float time)
   return true;
 }
 
-bool LArHitEMap::AddDigit(LArDigit* digit)
+bool LArHitEMap::AddDigit(const LArDigit* digit)
 {
  HWIdentifier ch_id = digit->channelID();
  if (m_cablingService->isOnlineConnected(ch_id)) {

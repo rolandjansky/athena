@@ -14,14 +14,7 @@ Python module for managing TileCal ADC status words.
 
 """
 
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
 from TileCalibBlobObjs.Classes import *
 from TileCalibBlobPython import TileCalibTools
@@ -64,7 +57,7 @@ class TileBchMgr(TileCalibLogger):
         return TileCalibUtils.getAdcIdx(ros,drawer,channel,adc)
 
     #____________________________________________________________________
-    def __updateFromDb(self, db, folderPath, tag, runLumi, fillTable=1):
+    def __updateFromDb(self, db, folderPath, tag, runLumi, fillTable=1, ros=-1, module=-1):
         """
         Updates the internal bad channel cache with the content
         found in the database. An open database instance (db) has to
@@ -82,15 +75,22 @@ class TileBchMgr(TileCalibLogger):
 
         #=== print status information
         reader = TileCalibTools.TileBlobReader(db,folderPath,tag)
-        self.log().info("Updating dictionary from \'%s\'" % db.databaseName())
-        self.log().info("... using tag \'%s\', run-lumi=%s" % (tag,runLumi))
-        self.__multiVersion = reader.folderIsMultiVersion()
-        self.__comment = reader.getComment(runLumi)
-        self.log().info("... comment: %s" % self.__comment)
+        if ros==-2:
+            ros=0
+            module=TileCalibUtils.definitions_draweridx()
+            self.log().info("Updating dictionary from \'%s\'" % db.databaseName())
+            self.log().info("... using tag \'%s\', run-lumi=%s" % (tag,runLumi))
+            self.__multiVersion = reader.folderIsMultiVersion()
+            self.__comment = reader.getComment(runLumi)
+            self.log().info("... comment: %s" % self.__comment)
 
         #=== loop over the whole detector
-        for ros in xrange(0,TileCalibUtils.max_ros()):
-            for mod in xrange(TileCalibUtils.getMaxDrawer(ros)):
+        rosmin = ros if ros>=0 else 0
+        rosmax = ros+1 if ros>=0 else TileCalibUtils.max_ros()
+        for ros in xrange(rosmin,rosmax):
+            modmin = module if module>=0 else 0
+            modmax = module+1 if module>=0 else TileCalibUtils.getMaxDrawer(ros)
+            for mod in xrange(modmin,modmax):
                 bch = reader.getDrawer(ros, mod, runLumi, False)
                 if bch is None:
                     if fillTable>=0: self.log().warning("Missing IOV in condDB: ros=%i mod=%i runLumi=%s" % (ros,mod,runLumi))
@@ -121,12 +121,12 @@ class TileBchMgr(TileCalibLogger):
         return self.__comment
 
     #____________________________________________________________________
-    def updateFromDb(self, db, folderPath, tag, runLumi, fillTable=1, mode=None):
+    def updateFromDb(self, db, folderPath, tag, runLumi, fillTable=1, mode=None, ros=-1, module=-1):
         if mode: self.__mode = mode
-        self.__updateFromDb(db, folderPath, tag, runLumi, fillTable)
+        self.__updateFromDb(db, folderPath, tag, runLumi, fillTable, ros, module)
 
     #____________________________________________________________________
-    def initialize(self, db, folderPath, tag="", runLumi=(MAXRUN,MAXLBK-1), mode=None):
+    def initialize(self, db, folderPath, tag="", runLumi=(MAXRUN,MAXLBK-1), mode=None, ros=-1, module=-1):
         """
         Initializes the internal bad channel cache. Any changes applied to the
         cache previous to calling this function are lost. Typically this function
@@ -137,18 +137,22 @@ class TileBchMgr(TileCalibLogger):
         #=== initialize reference to current status
         self.__runLumi = runLumi
         if mode: self.__mode = mode
+        fT = -1
         if self.__mode<0: # silent mode
             self.__mode = -self.__mode
             if self.__mode==2:
-                self.updateFromDb(db,folderPath,tag,runLumi,-3)
+                fT = -3
             else:
-                self.updateFromDb(db,folderPath,tag,runLumi,-2)
+                fT = -2
         else:
             if self.__mode==2:
-                self.updateFromDb(db,folderPath,tag,runLumi,3)
+                fT = 3
             else:
-                self.updateFromDb(db,folderPath,tag,runLumi,2)
+                fT = 2
 
+        if ros!=-2:
+            self.__updateFromDb(db,folderPath,tag,runLumi,fT,-2)
+        self.__updateFromDb(db,folderPath,tag,runLumi,fT,ros,module)
         #=== update TileBchStatus::isBad() definition from DB
         self.log().info("Updating TileBchStatus::isBad() definition from DB")
         status = self.getBadDefinition()
@@ -432,14 +436,14 @@ class TileBchMgr(TileCalibLogger):
         self.log().info("... comment: \'%s\'" % comment )
 
         #=== default for drawer initialization
-        loGainDefVec = PyCintex.gbl.std.vector('unsigned int')()
+        loGainDefVec = cppyy.gbl.std.vector('unsigned int')()
         loGainDefVec.push_back(0)
-        hiGainDefVec = PyCintex.gbl.std.vector('unsigned int')()
+        hiGainDefVec = cppyy.gbl.std.vector('unsigned int')()
         hiGainDefVec.push_back(0)
-        comChnDefVec = PyCintex.gbl.std.vector('unsigned int')()
+        comChnDefVec = cppyy.gbl.std.vector('unsigned int')()
         comChnDefVec.push_back(0)
-        PyCintex.makeClass('std::vector<unsigned int>')
-        defVec = PyCintex.gbl.std.vector('std::vector<unsigned int>')()
+        cppyy.makeClass('std::vector<unsigned int>')
+        defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
         defVec.push_back(loGainDefVec)
         defVec.push_back(hiGainDefVec)
         defVec.push_back(comChnDefVec)

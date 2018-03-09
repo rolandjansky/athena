@@ -125,6 +125,44 @@ void* AuxStoreInternal::getData (auxid_t auxid, size_t size, size_t capacity)
 
 
 /**
+ * @brief Explicitly add a vector to the store.
+ * @param auxid The identifier of the aux data item being added.
+ * @param vec Vector data being added.
+ * @param isDecoration Should this variable be marked as a decoration?
+ *
+ * For internal use.  The @c auxid must not already exist in the store.
+ */
+void
+AuxStoreInternal::addVector (auxid_t auxid,
+                             std::unique_ptr<IAuxTypeVector> vec,
+                             bool isDecoration)
+{
+  guard_t guard (m_mutex);
+  if (m_locked)
+    throw ExcStoreLocked (auxid);
+
+  // Resize the vectors if needed.
+  if (m_vecs.size() <= auxid) {
+    m_vecs.resize (auxid+1);
+    m_isDecoration.resize (auxid+1);
+  }
+
+  // Give up if the variable is already present in the store.
+  if (m_vecs[auxid]) std::abort();
+
+  // Make sure the length is consistent with the rest of the store.
+  size_t sz = this->size_noLock();
+  if (vec->size() < sz)
+    vec->resize (sz);
+
+  // Add it to the store.
+  m_vecs[auxid] = vec.release();
+  m_isDecoration[auxid] = isDecoration;
+  addAuxID (auxid);
+}
+
+
+/**
  * @brief Return the data vector for one aux data decoration item.
  * @param auxid The identifier of the desired aux data item.
  * @param size The current size of the container (in case the data item

@@ -62,6 +62,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import (T2CaloEgamma_eGamma,
                                                      T2CaloEgamma_Ringer)
 
 from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
+                                           TrigCaloCellMaker_eGamma_LargeRoI,
                                            TrigCaloTowerMaker_eGamma)
 
 from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
@@ -71,6 +72,8 @@ from TrigEgammaHypo.TrigL2ElectronFexConfig import L2ElectronFex_1
 from TrigEgammaHypo.TrigL2PhotonFexConfig import L2PhotonFex_1
 
 from TrigEgammaRec.TrigEgammaRecConfig import TrigEgammaRec
+from TrigEgammaRec.TrigEgammaRecConfig import TrigTopoEgammaBuilder
+
 from TrigEgammaHypo.TrigEFCaloCalibFexConfig import (TrigEFCaloCalibFex_Electron,TrigEFCaloCalibFex_Photon)
 
 
@@ -176,6 +179,18 @@ class EgammaFexBuilder(object):
                                                     PhotonContainerName="egamma_Iso_Photons",
                                                     doCaloTopoIsolation=True,doPrint=False)()
                                                      
+
+        self._egamma_rec_sc         = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_eGamma",doPrint=False)()
+        self._egamma_rec_sc_conv    = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_Conv_eGamma", doConversions = True,doPrint=False)()
+        self._egamma_rec_sc_noid    = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)()
+        self._egamma_rec_sc_ph_caloiso    = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_CaloIso_photon",PhotonContainerName="egamma_Iso_Photons",
+                                                        doTrackMatching = False,doTrackIsolation = False,
+                                                        doCaloTopoIsolation=True,doPrint=False)()
+        self._egamma_rec_sc_el_caloiso    = TrigTopoEgammaBuilder.copy(name = "TrigTopoEgammaBuilder_CaloIso_electron",
+                                                    ElectronContainerName="egamma_Iso_Electrons",
+                                                    PhotonContainerName="egamma_Iso_Photons",
+                                                    doCaloTopoIsolation=True,doPrint=False)()
+                                                     
         self._cell_maker = TrigCaloCellMaker_eGamma()
         self._tower_maker    = TrigCaloTowerMaker_eGamma()
         self._tower_maker_ion    = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
@@ -273,14 +288,18 @@ class EgammaFexBuilder(object):
     
     def _get_precisecalo(self,chainDict):
         chain_part = chainDict['chainParts']
+        idinfo = chain_part['IDinfo']
         calo_ion = False
         seq=[]
 
+        
         if 'extra' in chain_part:
             if chain_part['extra'] == 'ion':
                 calo_ion = True
         if calo_ion: 
             seq = [theTrigCaloCellMaker_eGammaHI, self._tower_maker_ion, self._cluster_maker] 
+        elif 'bloose' in idinfo  :
+            seq = [TrigCaloCellMaker_eGamma_LargeRoI(), self._tower_maker_ion, self._cluster_maker] 
         else:
             seq = [self._cell_maker,self._tower_maker,self._cluster_maker]
         
@@ -314,6 +333,12 @@ class EgammaFexBuilder(object):
     def _get_electronrec(self,chainDict):
         chain_part = chainDict['chainParts']
         do_caloiso = False
+        do_superclusters=False
+        if 'addInfo' in chain_part:
+            if 'sc' in chain_part['addInfo']:
+                do_superclusters=True
+                log.debug('Superclusters for electron')
+
         log.debug('Electron preciserec')
         if 'isoInfo' in chain_part:
             iso = [x for x in chain_part['isoInfo'] if 'icalo' in x]
@@ -322,16 +347,31 @@ class EgammaFexBuilder(object):
                 do_caloiso = True
     
         if do_caloiso:
-            log.debug('Electron calo + track isolation')
-            return self._egamma_rec_el_caloiso
+            if do_superclusters:
+                log.debug('SuperClusters Electron calo + track isolation')
+                return self._egamma_rec_sc_el_caloiso
+            else:
+                log.debug('Electron calo + track isolation')
+                return self._egamma_rec_el_caloiso
         else:
-            log.debug('Electron default rec')
-            return self._egamma_rec
+            if do_superclusters:
+                log.debug('SuperClusters Electron default rec')
+                return self._egamma_rec_sc
+            else:
+                log.debug('Electron default rec')
+                return self._egamma_rec
+
 
     def _get_photonrec(self,chainDict):
         chain_part = chainDict['chainParts']
         do_conv = False
         do_caloiso = False
+        do_superclusters=False
+        if 'addInfo' in chain_part:
+            if 'sc' in chain_part['addInfo']:
+                log.debug('Superclusters for photon')
+                do_superclusters=True
+
         log.debug('Photon preciserec') 
         if 'addInfo' in chain_part:
             if 'conv' in chain_part['addInfo']:
@@ -343,14 +383,28 @@ class EgammaFexBuilder(object):
                 log.debug('Electron calo isolation %s',iso[0])
                 do_caloiso = True
         if do_caloiso:
-            log.debug('Photon isolation')
-            return self._egamma_rec_ph_caloiso
+            if do_superclusters:
+                log.debug('SuperClusterse Photon isolation')
+                return self._egamma_rec_sc_ph_caloiso
+            else:
+                log.debug('Photon isolation')
+                return self._egamma_rec_ph_caloiso
+
         elif do_conv:
-            log.debug('Photon conversions')
-            return self._egamma_rec_conv
+            if do_superclusters:
+                log.debug('SuperClusters Photon conversions')
+                return self._egamma_rec_sc_conv
+            else:
+                log.debug('Photon conversions')
+                return self._egamma_rec_conv
         else:
-            log.debug('Photon default rec')
-            return self._egamma_rec_noid
+            if do_superclusters:
+                log.debug('SuperClusters Photon default rec')
+                return self._egamma_rec_sc_noid
+            else:
+                log.debug('Photon default rec')
+                return self._egamma_rec_noid
+
 
 class EgammaHypoBuilder(object):
     '''
@@ -378,6 +432,7 @@ class EgammaHypoBuilder(object):
                             'etcut':False,
                             'perf':False,
                             'ringer':False,
+                            'sc':False,
                             'g':False,
                             'e':False,
                             'hiptrt':False,
@@ -548,7 +603,7 @@ class EgammaHypoBuilder(object):
         if self._properties['hiptrt']:   
             return [None,None]
         
-        if 'merged' in idinfo:  
+        if 'merged' in idinfo or 'bloose' in idinfo  :  
             fex,hypo = TrigL2CaloRingerFexHypo_e_EtCut(thr)
         elif self._properties['perf']:
             if(tt == 'e'):

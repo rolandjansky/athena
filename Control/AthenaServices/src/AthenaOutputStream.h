@@ -98,7 +98,7 @@ protected:
    /// Objects overridden by `exact' handling.
    IDataSelector m_altObjects;
    /// Collection of DataObject instances owned by this service.
-   /// FIXME: it would be simpler to just have m_objets be a vector
+   /// FIXME: it would be simpler to just have m_objects be a vector
    /// of DataObjectSharedPtr<DataObject>, but that implies interface changes.
    std::vector<std::unique_ptr<DataObject> > m_ownedObjects;
    /// Number of events written to this output stream

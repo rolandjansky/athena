@@ -160,6 +160,8 @@ def addTrigFTKSimRFOptions(parser):
 
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKRoadFinder")
+    parser.add_argument("--Ibl3DRealistic",type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=True),
+                        help="Do the IBL 3D realistic(HWlike) clustering? Default is false",group="TrigFTKRoadFinder")
     parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the SCT clustering [def: False]", group="TrigFTKRoadFinder")
 
@@ -250,7 +252,8 @@ def addTrigFTKSimTFOptions(parser):
                         help='when SSFTRDefn=1 (by eta), the min eta', group='TrigFTKTrackFitter')
     parser.add_argument('--SSFTRMaxEta', type=trfArgClasses.argFactory(trfArgClasses.argFloat, runarg=True),
                         help='when SSFTRDefn=1 (by eta), the max eta', group='TrigFTKTrackFitter')
-
+    parser.add_argument('--Chi2DofCut', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='Chi2 cut on second stage tracks', group='TrigFTKTrackFitter')    
     return None
 
 

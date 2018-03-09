@@ -32,6 +32,11 @@
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
+#include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
+#include "TrigT1CaloCalibConditions/L1CaloRunParameters.h"  
+#include "TrigT1CaloCalibConditions/L1CaloRunParametersContainer.h"  
+
+
 // ============================================================================
 namespace LVL1 {
 // ============================================================================
@@ -42,6 +47,7 @@ PPMSimBSMon::PPMSimBSMon(const std::string & type,
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
     m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
+    m_l1CondSvc("L1CaloCondSvc",name),
     m_histBooked(false),
     m_h_ppm_em_2d_etaPhi_tt_lutCp_SimEqData(0),
     m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData(0),
@@ -108,9 +114,33 @@ StatusCode PPMSimBSMon:: initialize()
   CHECK(m_ttTool.retrieve());
   CHECK(m_errorTool.retrieve());
   CHECK(m_histTool.retrieve());
+  CHECK(m_l1CondSvc.retrieve());
+
 
   return StatusCode::SUCCESS;
 }
+
+/*---------------------------------------------------------*/
+StatusCode PPMSimBSMon:: retrieveConditions()
+/*---------------------------------------------------------*/
+{
+  ATH_MSG_VERBOSE("PPMSimBSMon::retrieveConditions");
+  if (m_l1CondSvc) {
+    ATH_MSG_VERBOSE( "Retrieving Conditions Containers" );
+    CHECK_WITH_CONTEXT(m_l1CondSvc->retrieve(m_runParametersContainer),"PPMSimBSMon");
+
+    if (std::cbegin(*m_runParametersContainer) == std::cend(*m_runParametersContainer)) {
+      ATH_MSG_ERROR("Empty L1CaloRunParametersContainer");
+      return StatusCode::FAILURE;
+      }
+
+  }else{
+    ATH_MSG_ERROR("L1CondSvc not present!");
+  }
+
+  return StatusCode::SUCCESS;
+}
+
 
 /*---------------------------------------------------------*/
 StatusCode PPMSimBSMon:: finalize()
@@ -321,6 +351,17 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       return;
   }
 
+  if(this->retrieveConditions().isFailure()) {
+      REPORT_MESSAGE(MSG::WARNING);
+      return;
+  }
+
+  unsigned int readoutConfigID   = std::cbegin(*m_runParametersContainer)->readoutConfigID();
+
+  if(msgLvl(MSG::DEBUG)){
+    ATH_MSG_VERBOSE("ReadoutConfigID = " << readoutConfigID );
+  }
+
   bool isRun2 = true;
   const EventInfo* evInfo = nullptr;
   if (evtStore()->retrieve(evInfo).isFailure() || !evInfo) {
@@ -346,9 +387,6 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
     const double phi = tt->phi();
     const int datCp = tt->cpET();
     const int datJep = tt->lut_jep().empty() ? 0 : tt->jepET();
-    const std::vector<uint_least16_t>& ADC = tt->adc();
-    const int Slices = ADC.size();
-    const int Peak = tt->adcPeak();
     bool pedCorrOverflow = false;
     const std::size_t nPedCorr = tt->correction().size();
     int simCp = 0;
@@ -359,6 +397,33 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
     if ( datBcidVec.size() > 0) {
       datBcid = datBcidVec[tt->peak()];
     }
+
+  //Retrieve RunParameters container from COOL database and check if run was taken with 80MHz readout. If yes, drop the 80MHz samples to emulate 40 MHz readout
+
+    std::vector<uint16_t> digits40;
+
+    if(readoutConfigID==5 or readoutConfigID==6){
+
+      int nSlices = tt->adc().size();
+
+      if((nSlices%4)==3){
+	for (int i=0 ; i < (nSlices-1)/2 ; i++ ){
+	  digits40.push_back(tt->adc().at(2*i+1));
+	}
+      }
+      else if((nSlices%4)==1){
+	for (int i=0 ; i <= (nSlices-1)/2 ; i++ ){
+	  digits40.push_back(tt->adc().at(2*i));
+	}
+      }
+
+    }else{
+      digits40 = tt->adc();
+    }
+
+    const std::vector<uint_least16_t>& ADC = digits40;
+    const int Slices = ADC.size();
+    const int Peak = Slices/2.;
 
     //Check for over-/underflow of pedestalCorrection
     for(std::size_t i = 0; i < nPedCorr; ++i) {
@@ -463,17 +528,13 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       hist1 = 0;
       if (simCp && simCp == datCp) { // non-zero match
         hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimEqData;
-      } else if (simCp != datCp) {  // mis-match
+      } else if (simCp != datCp && !pedCorrOverflow) {  // mis-match
         mismatch = 1;
         if (simCp && datCp) {       // non-zero mis-match
-          if (!pedCorrOverflow){		// no pedCorr over- or underflow
-	          hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData;
-          }else{
-            mismatch = 0;           //If the pedestal Correction overflows do not fill mismatch Event Histogram
-          }    
+	  hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData;
         } else if (!datCp) {        // no data
           if ((Slices >= 7) && (nPedCorr >= 3)) {
-            hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData;
+	    hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData;
           } else mismatch = 0;
         } else {                    // no sim
           hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_DataNoSim;
@@ -487,14 +548,10 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       hist1 = 0;
       if (simJep && simJep == datJep) { // non-zero match
         hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimEqData;
-      } else if (simJep != datJep) {  // mis-match
+      } else if (simJep != datJep && !pedCorrOverflow) {  // mis-match
         mismatch = 1;
         if (simJep && datJep) {       // non-zero mis-match
-          if (!pedCorrOverflow){		// no pedCorr over- or underflow
-	          hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData;
-          }else{
-            mismatch = 0;           //If the pedestal Correction overflows do not fill mismatch Event Histogram
-          }
+          hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData;
         } else if (!datJep) {        // no data
           if ((Slices >= 7) && (nPedCorr >= 3)) {
             hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNoData;
@@ -513,14 +570,10 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       hist1 = 0;
       if (simCp && simCp == datCp) { // non-zero match
         hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimEqData;
-      } else if (simCp != datCp) {  // mis-match
+      } else if (simCp != datCp  && !pedCorrOverflow ) {  // mis-match
         mismatch = 1;
         if (simCp && datCp) {       // non-zero mis-match
-           if (!pedCorrOverflow){		// no pedCorr over- or underflow
             hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData;
-           }else{
-            mismatch = 0;           //If the pedestal Correction overflows do not fill mismatch Event Histogram
-          }
         } else if (!datCp) {        // no data
           if ((Slices >= 7) && (nPedCorr >= 3)) {
             hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNoData;
@@ -537,14 +590,10 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       hist1 = 0;
       if (simJep && simJep == datJep) { // non-zero match
         hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimEqData;
-      } else if (simJep != datJep) {  // mis-match
+      } else if (simJep != datJep && !pedCorrOverflow ) {  // mis-match
         mismatch = 1;
         if (simJep && datJep) {       // non-zero mis-match
-           if (!pedCorrOverflow){		// no pedCorr over- or underflow
-            hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData;
-           }else{
-            mismatch = 0;           //If the pedestal Correction overflows do not fill mismatch Event Histogram
-          }
+           hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData;
         } else if (!datJep) {        // no data
           if ((Slices >= 7) && (nPedCorr >= 3)) {
             hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNoData;
@@ -575,7 +624,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
   }
 
   m_ttTool->setDebug(true);
-}
+ }
 
 void PPMSimBSMon::fillEventSample(int crate, int module)
 {

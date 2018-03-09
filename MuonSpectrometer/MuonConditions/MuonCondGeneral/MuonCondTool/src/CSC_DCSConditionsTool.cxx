@@ -261,15 +261,17 @@ StatusCode CSC_DCSConditionsTool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
        if( m_debug ) m_log<<MSG::DEBUG<< "Layers Off = " <<WireLayerstring<< endmsg;
       m_cachedDeadWireLayersId.push_back(WireLayerId);
       
-      m_CSC_LayerMap.insert(std::make_pair(ChamberId,wirelayer));
-      ret= m_CSC_LayerMap.insert(std::make_pair(ChamberId,wirelayer));
-      if (ret.second==false)
+      //m_CSC_LayerMap.insert(std::make_pair(ChamberId,wirelayer));
+      //ret= m_CSC_LayerMap.insert(std::make_pair(ChamberId,wirelayer));
+      //if (ret.second==false)
+      if(m_CSC_LayerMap.count(ChamberId))
 	{
 	  if( m_debug ) m_log<<MSG::DEBUG<< "element 'ChamberId' already existed";
-	  if( m_debug ) m_log<<MSG::DEBUG<< " with a value of " << ret.first->second << endmsg;
+	  //if( m_debug ) m_log<<MSG::DEBUG<< " with a value of " << ret.first->second << endmsg;
+	  if( m_debug ) m_log<<MSG::DEBUG<< " with a value of " << m_CSC_LayerMap[ChamberId] << endmsg;
 	  layer_index++;
 	}
-      
+      m_CSC_LayerMap[ChamberId]=wirelayer;
       
     }
     

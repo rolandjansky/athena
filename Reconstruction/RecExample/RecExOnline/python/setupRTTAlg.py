@@ -4,7 +4,7 @@ output_directory = "./"
 #ref_filename = "/afs/cern.ch/user/y/yunju/working/yunju/public/GM_ref_plots/r0000284484_All_ATLAS_Global-MDA_Histogramming-Global.root"
 ref_filename = "/afs/cern.ch/user/y/yunju/working/yunju/public/GM_ref_plots/r0000302347_l0420_ATLAS_Global-MDA_Histogramming-Global.root"
 ref_treename = "Histogramming-Global-iss/GM-Gatherer-MIG_GlobalMonitoringSegment"
-rtt_filename = "/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/20.11.X.Y.Z-VAL/x86_64-slc6-gcc49-opt/AtlasP1MON/Reconstruction/RecExample/RecExOnline/OfflineChainJob/Monitor.root"
+rtt_filename = "/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/chainstore/21.1/x86_64-slc6-gcc62-opt/AthenaP1/Reconstruction/RecExample/RecExOnline/OfflineChainJob/Monitor.root"
 #this file is only for debug
 #rtt_filename = "/afs/cern.ch/user/y/yunju/ATLAS_Ana/P1MON_20.11.0.19.2/Monitor.root"
 #rtt_treename = "run_284484"

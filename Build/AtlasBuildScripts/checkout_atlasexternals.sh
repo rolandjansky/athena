@@ -18,6 +18,29 @@ usage() {
     echo "    -t branch/tag: Mandatory branch/tag/hash to check out"
     echo "    -s directory: Mandatory source directory to use"
     echo "    -e url: Optional source URL to use for the checkout"
+    echo
+    echo "  This script will allow the environment variables"
+    echo "  AtlasExternals_URL and AtlasExternals_REF to override"
+    echo "  other values (even those on the command line)."
+    echo "  If AtlasExternals_URL is set to 'current' then"
+	echo "  no clone or checkout is done and the working copy"
+	echo "  in the source directory is left untouched."
+}
+
+_max_retry_=5
+
+_retry_ () {
+    local cmd="$*"
+    local n=0
+    while ! $cmd ; do
+        if test $n -eq $_max_retry_ ; then
+            echo "ERROR: $cmd FAILED $_max_retry_ times. EXIT(1)" >&2
+            exit 1
+        fi
+        echo "WARNING: $cmd FAILED, retry in 30 sec ... "
+        sleep 30s
+        n=`expr $n + 1`
+    done
 }
 
 _max_retry_=5
@@ -67,6 +90,20 @@ while getopts ":t:o:s:e:h" opt; do
             ;;
     esac
 done
+
+if [ "$AtlasExternals_URL" != "" ]; then
+	EXTERNALSURL=$AtlasExternals_URL
+	echo "Externals URL overridden to $EXTERNALSURL from environment"
+	if [ "$AtlasExternals_URL" = "current" ]; then
+		echo "Leaving current checkout in place for build"
+		exit 0
+	fi 
+fi
+
+if [ "$AtlasExternals_REF" != "" ]; then
+	TAGBRANCH=$AtlasExternals_REF
+	echo "Externals ref overridden to $TAGBRANCH from environment"
+fi
 
 # The tag/branch and a source directory must have been specified:
 if [ "$TAGBRANCH" = "" ] || [ "$SOURCEDIR" = "" ]; then

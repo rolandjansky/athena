@@ -105,7 +105,7 @@ thinningTools = []
 
 if dumpPixInfo: 
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
-    thinning_expression = "(PixelClusters.layer == 0) && ((PixelClusters.eta_module >= -10 && PixelClusters.eta_module <= -5) || (PixelClusters.eta_module >= 4 && PixelClusters.eta_module <= 9))"
+    thinning_expression = "(PixelClusters.layer == 0) && ((PixelClusters.eta_module >= -10 && PixelClusters.eta_module <= -6) || (PixelClusters.eta_module >= 5 && PixelClusters.eta_module <= 9)) && (((PixelClusters.eta_module <= -7||PixelClusters.eta_module >= 6) && (PixelClusters.eta_pixel_index > 0 && (PixelClusters.eta_pixel_index + PixelClusters.sizeZ-1) < 79)) || ((PixelClusters.eta_module > -7 && PixelClusters.eta_module < 6) && (PixelClusters.eta_pixel_index > 0 && (PixelClusters.eta_pixel_index + PixelClusters.sizeZ - 1) < 159))) && (PixelClusters.phi_pixel_index > 0 && (PixelClusters.phi_pixel_index + PixelClusters.sizePhi-1) < 335)"
     IDPIXLUMIThinningTool = DerivationFramework__TrackMeasurementThinning( name = "IDPIXLUMIThinningTool",
         ThinningService = IDPIXLUMIThinningHelper.ThinningSvc(),
         SelectionString = thinning_expression,
@@ -137,7 +137,7 @@ if (printIdTrkDxAODConf):
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 IDPIXLUMISlimmingHelper = SlimmingHelper("IDPIXLUMISlimmingHelper")
 IDPIXLUMISlimmingHelper.AppendToDictionary = {'PixelClusters': 'xAOD::TrackMeasurementValidationContainer', 'PixelClustersAux': 'xAOD::TrackMeasurementValidationAuxContainer'}
-IDPIXLUMISlimmingHelper.ExtraVariables = [ "PixelClusters.bec.layer.phi_module.eta_module.sizePhi.sizeZ.nRDO.charge.ToT.LVL1A.isFake.gangedPixel.isSplit" ]
+IDPIXLUMISlimmingHelper.ExtraVariables = [ "PixelClusters.bec.layer.phi_module.eta_module.sizePhi.sizeZ.nRDO.charge.ToT.LVL1A.isFake.gangedPixel.isSplit.eta_pixel_index.phi_pixel_index" ]
 IDPIXLUMISlimmingHelper.AppendContentToStream(IDPIXLUMIStream)
 
 ## Add PrimaryVertices and InDetTrackParticles excluding variables that we don't want or can't be written to xAOD

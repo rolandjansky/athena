@@ -11,7 +11,7 @@ use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  GaudiInterface             GaudiInterface-*                External
 end_private
 
-apply_pattern dual_use_library files="*.cxx ../Root/AsgHelloTool.cxx ../Root/UnitTestTool1.cxx ../Root/UnitTestTool2.cxx ../Root/UnitTestTool1A.cxx"
+apply_pattern dual_use_library files="*.cxx ../Root/AsgHelloTool.cxx ../Root/UnitTestTool1.cxx ../Root/UnitTestTool2.cxx ../Root/UnitTestTool3.cxx ../Root/UnitTestTool1A.cxx"
 
 private
 # make the unit tests work

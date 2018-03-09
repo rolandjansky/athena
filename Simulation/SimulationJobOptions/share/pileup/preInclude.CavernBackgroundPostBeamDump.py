@@ -250,9 +250,10 @@ JobMaker=[
 ]
 if 'runArgs' in dir():
     if hasattr(runArgs,"jobNumber") and hasattr(runArgs,"maxEvents"):
-    trfJobNumber = runArgs.jobNumber
-    trfMaxEvents = runArgs.maxEvents
-    else: digilog.error('Tried to include RunLumiOverride configuration without knowing this runArgs.jobNumber or runArgs.maxEvents!')
+        trfJobNumber = runArgs.jobNumber
+        trfMaxEvents = runArgs.maxEvents
+    else:
+        digilog.error('Tried to include RunLumiOverride configuration without knowing this runArgs.jobNumber or runArgs.maxEvents!')
 else:
     #this is a test job not a trf job
     trfJobNumber=0

@@ -37,12 +37,7 @@ SctSensorSD::SctSensorSD( const std::string& name, const std::string& hitCollect
 
 void SctSensorSD::Initialize(G4HCofThisEvent *)
 {
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#endif
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -99,14 +94,13 @@ G4bool SctSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   int phiMod = 0;
   int side = 0;
   this->indexMethod(myTouch, coord1.z(), brlEcap, layerDisk, etaMod, phiMod, side);
-  // get the barcode from the trackhelper
+  // get the HepMcParticleLink from the TrackHelper
   TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode();
   m_HitColl->Emplace(lP1,
                      lP2,
                      edep,
                      aStep->GetPreStepPoint()->GetGlobalTime(),//use the global time. i.e. the time from the beginning of the event
-                     barcode,
+                     trHelp.GetParticleLink(),
                      1,brlEcap,layerDisk,etaMod,phiMod,side);
   return true;
 }

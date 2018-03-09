@@ -2,7 +2,7 @@ include.block ( "EventOverlayJobTransforms/InnerDetectorOverlay_jobOptions.py" )
 
 from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon import CfgMgr, CfgGetter
+from AthenaCommon import CfgGetter
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 from AthenaCommon.Resilience import treatException,protectedInclude
@@ -32,6 +32,9 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
            job.InDetPixelRawDataProvider.EvtStore = "OriginalEvent_SG"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "PixelRDO_Container/PixelRDOs" ]
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "Trk::PixelClusterContainer/PixelOnlineClusters" ]
+        else:
+            if not conddb.folderRequested('PIXEL/PixReco'):
+                conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
     else:
         indetovl.do_Pixel = False
 
@@ -78,13 +81,32 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         job += CfgGetter.getAlgorithm("TRT_OverlayDigitization")
   
         indetovl.do_TRT = True
+        
+        
+        from Digitization.DigitizationFlags import digitizationFlags
+        rndmStream = "InDetOverlay"
+        indetovl.RndmEngine = rndmStream
+        indetovl.RndmSvc = digitizationFlags.rndmSvc.get_Value();
+
+        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+        TRT_LocalOccupancy = InDet__TRT_LocalOccupancy(      name              ="TRT_LocalOccupancy",
+                                                             isTrigger         = False, 
+        )
+        ToolSvc += TRT_LocalOccupancy
+        indetovl.TRT_LocalOccupancyTool = TRT_LocalOccupancy  
+        
+        #HT hit correction fraction 
+        indetovl.TRT_HT_OccupancyCorrectionBarrel = 0.160
+        indetovl.TRT_HT_OccupancyCorrectionEndcap = 0.130
+
+
+        from InDetRecExample.InDetJobProperties import InDetFlags
+        include("InDetRecExample/InDetRecConditionsAccess.py")
+
         if readBS and isRealData:
            job.InDetTRTRawDataProvider.EvtStore = "OriginalEvent_SG"
            #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "TRT_RDO_Container/TRT_RDOs" ]
   
-           from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-           InDetTRTCalDbSvc = TRT_CalDbSvc()
-           ServiceMgr += InDetTRTCalDbSvc
           #from IOVDbSvc.CondDB import conddb
 #           conddb.addFolder("TRT","/TRT/Calib/T0","<tag>TrtCalibt0-UPD2-FDR2-01</tag>")
 #           conddb.addFolder("TRT","/TRT/Calib/RT","<tag>TrtCalibRt-UPD2-FDR2-01</tag>")
@@ -98,3 +120,15 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
        include ("EventOverlayJobTransforms/InDetMcSignal_jobOptions.py")
 
     job += indetovl
+    
+    if DetFlags.overlay.Truth_on():
+        from InDetOverlay.InDetOverlayConf import InDetSDOOverlay
+        sdoovl = InDetSDOOverlay()
+        sdoovl.do_Pixel = DetFlags.overlay.pixel_on()
+        sdoovl.do_Pixel_background = not isRealData
+        sdoovl.do_SCT = DetFlags.overlay.SCT_on()
+        sdoovl.do_SCT_background = not isRealData
+        sdoovl.do_TRT = DetFlags.overlay.TRT_on()
+        sdoovl.do_TRT_background = not isRealData
+
+        job += sdoovl

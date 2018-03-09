@@ -34,7 +34,7 @@ class bunchSpacing(JobProperty):
     """
     statusOn=True
     allowedTypes=['int']
-    StoredValue=50  
+    StoredValue=25  
 #
 #
 class numberOfCollisions(JobProperty):

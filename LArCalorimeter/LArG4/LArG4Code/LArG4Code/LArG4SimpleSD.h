@@ -20,7 +20,7 @@ class LArFCAL_ID;
 class LArHEC_ID;
 class LArMiniFCAL_ID;
 
-class LArVCalculator;
+class ILArCalculatorSvc;
 class LArHitContainer;
 
 class StoreGateSvc;
@@ -43,7 +43,7 @@ public:
   };
 
   /// Constructor
-  LArG4SimpleSD(G4String a_name, LArVCalculator* calc,
+  LArG4SimpleSD(G4String a_name, ILArCalculatorSvc* calc,
                 const std::string& type="Default",
                 const float width=2.5*CLHEP::ns);
 
@@ -81,7 +81,7 @@ protected:
   G4int getTimeBin(G4double time) const;
 
   /// Member variable - the calculator we'll use
-  LArVCalculator * m_calculator;
+  ILArCalculatorSvc * m_calculator;
 
   /// Count the number of invalid hits.
   G4int m_numberInvalidHits;

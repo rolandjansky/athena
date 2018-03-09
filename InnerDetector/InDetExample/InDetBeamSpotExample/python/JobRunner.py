@@ -21,6 +21,7 @@ import time
 import pprint
 import glob
 import re
+import subprocess
 
 
 # Default template of job submission script
@@ -78,15 +79,15 @@ class JobRunnerParameter:
                 return "%-20s = %-20s" % (self.name,self.value)
 
 def GetRelease():
-    asetup=os.path.expandvars('$AtlasVersion,$AtlasProject')
-    if os.path.expandvars('$AtlasPatchVersion,$AtlasPatch') != '':
-        asetup=os.path.expandvars('$AtlasPatchVersion,$AtlasPatch') 
-    oper=(os.path.expandvars('$CMTCONFIG')).split('-')[1]
-    arch=(os.path.expandvars('$CMTCONFIG')).split('-')[0]
-    bits="32"
-    if arch == "x86_64":
-        bits="64"
-    return "%s,%s,%s" % (asetup,oper,bits)
+    stamp = os.getenv('AtlasBuildStamp')
+    if stamp: # nightly
+        branch = os.getenv('AtlasBuildBranch')
+        version = ','.join([branch, stamp])
+    else:
+        version = os.getenv('AtlasVersion')
+    project = os.getenv('AtlasProject')
+    platform = os.getenv('%s_PLATFORM' % project, os.getenv('CMTCONFIG'))
+    return ','.join([project, version] + platform.split('-'))
 
 # Main JobRunner class
 class JobRunner:
@@ -221,8 +222,8 @@ class JobRunner:
         """Show current job parameters."""
         for p in self.paramOrder:
             s = str(self.params[p])
-            if len(s)>maxLineLength:
-                s = s[0:maxLineLength-3]+'...'
+            if maxLineLength > 0 and len(s) > maxLineLength:
+                s = s[0:maxLineLength-3] + '...'
             print s
 
 
@@ -342,7 +343,6 @@ class JobRunner:
 
         # Make sure start directory where script and config files will be written to exists
         os.makedirs('%(jobdir)s' % jobConfig) 
-        #os.system('mkdir -p %(jobdir)s' % jobConfig)
 
         # Write job configuration file
         config = open(jobConfig['configfile'],'w')
@@ -439,9 +439,10 @@ class JobRunner:
         logfile = jobConfig['logfile']
         exitstatus = jobConfig['exitstatus']
         # Write only to standard output, don't produce log file
-        #status = os.system(scriptfile) >> 8   # Convert to standard Unix exit code
+        #status = subprocess.call(scriptfile, shell=True) >> 8   # Convert to standard Unix exit code
         # Write to both stdout and log file, preserve exit status code
-        status = os.system('%s 2>&1 | tee %s ; exit `cat %s`' % (scriptfile,logfile,exitstatus)) >> 8   # Convert to standard Unix exit code 
+        status = subprocess.call('%s 2>&1 | tee %s ; exit `cat %s`'
+            % (scriptfile,logfile,exitstatus), shell=True) >> 8   # Convert to standard Unix exit code
         return status
 
 
@@ -450,7 +451,7 @@ class JobRunner:
         if not jobnr in self.jobs:
             raise JobRunnerError, 'Job number %s is not configured' % jobnr
         jobConfig = self.jobs[jobnr]
-        os.system('touch '+jobConfig['subflag'])
+        subprocess.call('touch '+jobConfig['subflag'], shell=True)
         status = self.submitJob(jobConfig)
         self.jobStatus[jobnr] = status
 
@@ -517,7 +518,8 @@ class JobRunner:
                         msg += "\n    %-20s = %s" % (i,data[k][i])
                 else:
                     msg += "\n\n%-20s = %s" % (k,data[k])
-            os.system("echo '%s' | mail -s '%s' '%s'" % (msg,subject,self.getParam('logmail')))
+            subprocess.call("echo '%s' | mail -s '%s' '%s'" %
+                (msg,subject,self.getParam('logmail')), shell=True)
 
 
 #

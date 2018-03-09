@@ -454,6 +454,16 @@ void MonitoringFile::merge_weightedEff( TH1& a, const TH1& b )
     return;
   }
 
+  if (entries_b == 0) { 
+    // nothing to merge with, return
+    return;
+  }
+  if (entries_a == 0) {
+    // replace my contents with b
+    a.Add(&b);
+    return;
+  }
+
   // do not attempt to automatically extend!
   a.SetCanExtend(TH1::kNoAxis);
 
@@ -467,6 +477,7 @@ void MonitoringFile::merge_weightedEff( TH1& a, const TH1& b )
       double binContent_b = b.GetBinContent(bin);
 
       //Error treatment added by Evan Wulf:
+      //Note that the errors are not used in the calculation!
       double binError_a = a.GetBinError(bin);
       double binError_b = b.GetBinError(bin);
 
@@ -692,17 +703,21 @@ void MonitoringFile::merge_lowerLB( TH1& a, const TH1& b ) {
   if (strcmp(a.GetTitle(),b.GetTitle())>0){
     // The LB of histo a is greater than the LB of histo b
     // a is overwritten by b - Otherwise do nothing
+    a.SetTitle(b.GetTitle());
+    /*
     for( int bin = 0; bin < ncells; bin++ ) {
-      a.SetTitle(b.GetTitle());
       a.SetBinContent(bin,b.GetBinContent(bin));
       a.SetBinError(bin,b.GetBinError(bin));
     }
+    */
+    a.Add(&a, &b, 0, 1);
     // If the original histo did not contain sumw2, delete the sumw2 array created
     // by SetBinError. This may look dirty but this is the recommandation by R.Brun:
     // http://root.cern.ch/phpBB3/viewtopic.php?f=3&t=1620&p=51674&hilit=sumw2#p51674
+    /*
     if ((b.GetSumw2N()) == 0) (a.GetSumw2())->Set(0);
     
-    a.SetEntries(b.GetEntries());
+    a.SetEntries(b.GetEntries()); */
   } 
   return;
 }

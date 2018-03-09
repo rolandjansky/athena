@@ -2142,9 +2142,16 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	const Trk::MaterialEffectsOnTrack* meot	=
 	    dynamic_cast<const Trk::MaterialEffectsOnTrack*>(materialEffects);
 	if (meot && meot->energyLoss()) energyDeposit = meot->energyLoss()->deltaE();
-	++s;
-	materialEffects	= (**s).materialEffectsOnTrack();
-	parameters	= (**s).trackParameters();
+	if (s != combinedTrack.trackStateOnSurfaces()->end()) ++s;
+
+	if (s != combinedTrack.trackStateOnSurfaces()->end()) {
+	  materialEffects	= (**s).materialEffectsOnTrack();
+	  parameters	= (**s).trackParameters();
+        } else {
+	  materialEffects	= 0;
+	  parameters	= 0;
+        }
+
     }
     else
     {
@@ -2194,7 +2201,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack,
 	}
 	*/
 	
-	++s;
+	if (s != combinedTrack.trackStateOnSurfaces()->end()) ++s;
 
 	// get parameters at middleSurface for energy correction,
 	// start with parameters from middle surface when vertex in fit

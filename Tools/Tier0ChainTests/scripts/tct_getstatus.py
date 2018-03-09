@@ -8,7 +8,7 @@ __doc__    = 'Print tct status. Usage tct_getstatus.py -h'
 import os, sys, datetime, glob
 import xml.etree.ElementTree as eTree # HAZ
 
-tctdir = '/afs/cern.ch/atlas/project/RTT/prod/Results/tct'
+tctdir = '/afs/cern.ch/atlas/project/RTT/prod/Results/rtt'
 jobstatus = ['\033[31mFailure\033[0m', '\033[32mSuccess\033[0m', '\033[37mN/A\033[m']
 jobstatusNoColor = ['Failure', 'Success', 'N/A']
 
@@ -91,7 +91,7 @@ def getJobResults(workdir,config):
             jobLineNoCol = '%-65s  %14s - %14s   %9s   %-9s' % (job,startTimeString,endTimeString,jobstatusNoColor[success], jobstatusNoColor[testSuc])
 
         else:
-            jobLineNoCol = jobLine = '%40s  Not started yet' % (job)
+            jobLineNoCol = jobLine = '%-65s  >>>>>>>>>>>>>>>>>  NOT STARTED YET  <<<<<<<<<<<<<<<<<' % (job)
             pass
         print jobLine
         if config.dump: 

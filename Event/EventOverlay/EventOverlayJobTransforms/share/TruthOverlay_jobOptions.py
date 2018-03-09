@@ -18,3 +18,6 @@ job += CopyMcEventCollection()
 if readBS and isRealData:
     job.CopyMcEventCollection.RealData = True
 
+if not isRealData:
+    from OverlayCommonAlgs.OverlayCommonAlgsConf import CopyTruthInfo
+    job += CopyTruthInfo()

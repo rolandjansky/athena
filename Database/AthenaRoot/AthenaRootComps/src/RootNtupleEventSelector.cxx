@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 #include <stdint.h>
+#include <unordered_map>
+#include <unordered_set>
 
 // ROOT includes
 #include "TROOT.h"
@@ -36,9 +38,6 @@
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IDictLoaderSvc.h"
 
-// CxxUtils
-#include "CxxUtils/unordered_set.h" // FIXME: move to stl
-
 // StoreGate includes
 
 #include "SGTools/BuiltinsClids.h"   // to make sure we have their clids
@@ -58,7 +57,6 @@ CLASS_DEF( TObject,    74939790 , 1 )
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
 
-#include "CxxUtils/unordered_map.h"
 
 // Package includes
 #include "RootNtupleEventSelector.h"
@@ -69,7 +67,7 @@ namespace {
   std::string
   root_typename(const std::string& root_type_name)
   {
-    static SG::unordered_map<std::string,std::string> s;
+    static std::unordered_map<std::string,std::string> s;
     static bool first = true;
     if (first) {
       first = false;
@@ -271,7 +269,7 @@ RootNtupleEventSelector::RootNtupleEventSelector( const std::string& name,
     ( &RootNtupleEventSelector::setupInputCollection, this );
 
   declareProperty( "TupleName",
-                   m_tupleName = "",
+                   m_tupleName = "CollectionTree",
                    "Name of the TTree to load/read from input file(s)" );
 
   declareProperty( "SkipEvents",           
@@ -320,14 +318,14 @@ StatusCode RootNtupleEventSelector::initialize()
   const std::size_t nbrInputFiles = m_inputCollectionsName.value().size();
   if ( nbrInputFiles < 1 ) {
     ATH_MSG_ERROR
-      ("You need to give at least 1 input file !!" << endreq
+      ("You need to give at least 1 input file !!" << endmsg
        << "(Got [" << nbrInputFiles << "] file instead !)");
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_INFO
       ("Selector configured to read [" << nbrInputFiles << "] file(s)..."
-       << endreq
-       << "                      tuple [" << m_tupleName.value() << "]");
+       << endmsg
+       << "                      TTree [" << m_tupleName.value() << "]");
   }
 
   {
@@ -368,6 +366,7 @@ StatusCode RootNtupleEventSelector::initialize()
   // as our branches (which need a valid m_ntuple pointer)
   // may be asked to be registered as we are a ProxyProvider.
   // retrieving the event store will poke the ProxyProviderSvc...
+  /*
   if ( !m_dataStore.retrieve().isSuccess() ) {
     ATH_MSG_ERROR
       ("Could not retrieve [" << m_dataStore.typeAndName() << "] !!");
@@ -387,6 +386,27 @@ StatusCode RootNtupleEventSelector::initialize()
       ("Could not retrieve [" << m_ometaStore.typeAndName() << "] !!");
     return StatusCode::FAILURE;
   }
+  */
+
+  //ensure the Athena::NtupleCnvSvc is in the EventPersistencySvc
+  ServiceHandle<IProperty> epSvc("EventPersistencySvc",name());
+  std::vector<std::string> propVal;
+  CHECK( Gaudi::Parsers::parse( propVal , epSvc->getProperty("CnvServices").toString() ) );
+  bool foundSvc(false);
+  for(auto s : propVal) {
+    if(s=="Athena::xAODCnvSvc") { foundSvc=true; break; }
+  }
+  if(!foundSvc) {
+    propVal.push_back("Athena::NtupleCnvSvc");
+    CHECK( epSvc->setProperty("CnvServices", Gaudi::Utils::toString( propVal ) ));
+  }
+
+  //we should also add ourself as a proxy provider
+  ServiceHandle<IProxyProviderSvc> ppSvc("ProxyProviderSvc",name());
+  CHECK( ppSvc.retrieve() );
+  ppSvc->addProvider( this );
+
+
 
   return StatusCode::SUCCESS;
 }
@@ -397,6 +417,14 @@ StatusCode RootNtupleEventSelector::finalize()
   // FIXME: this should be tweaked/updated if/when a selection function
   //        or filtering predicate is applied (one day?)
   ATH_MSG_INFO ("Total events read: " << (m_nbrEvts - m_skipEvts));
+
+  // Explicitly delete all the files we created.
+  // If we leave it up to root, then xrootd can get cleaned up before
+  // the root destructors run, leading to a crash.
+  for (TFile* f : m_files)
+    delete f;
+  m_files.clear();
+
   return StatusCode::SUCCESS;
 }
 
@@ -854,9 +882,9 @@ RootNtupleEventSelector::createRootBranchAddresses(StoreID::type storeID,
                                               TClassEdit::kDropAllDefault);
           if (!m_clidsvc->getIDOfTypeInfoName(ti_typename, id)
               .isSuccess()) {
-            ATH_MSG_INFO("** could not find a CLID from type-info ["
+            ATH_MSG_DEBUG("** could not find a CLID from type-info ["
                          << System::typeinfoName(*ti) << "]");
-            ATH_MSG_INFO("** could not find a CLID from type-info-alias ["
+            ATH_MSG_DEBUG("** could not find a CLID from type-info-alias ["
                          << ti_typename << "]");
             continue;
           }
@@ -865,13 +893,13 @@ RootNtupleEventSelector::createRootBranchAddresses(StoreID::type storeID,
         // probably a built-in type...
         if (!m_clidsvc->getIDOfTypeName(::root_typename(type_name), id)
             .isSuccess()) {
-          ATH_MSG_INFO("** could not find a CLID for type-name [" 
+          ATH_MSG_DEBUG("** could not find a CLID for type-name [" 
                        << type_name << "]");
           continue;
         }
       }
       if (id == 0) {
-        ATH_MSG_INFO("** could not find a CLID for type-name ["
+        ATH_MSG_DEBUG("** could not find a CLID for type-name ["
                      << type_name << "]");
         continue;
       }
@@ -1047,8 +1075,10 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname) const
   RootGlobalsRestore rgr;
   // std::cout << "::TFile::Open()..." << std::endl;
   TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(fname.c_str());
+  TFile* fnew = nullptr;
   if (!f) {
     f = TFile::Open(fname.c_str(), "READ");
+    fnew = f;
     if (f) {
       f->SetName(fname.c_str());
     }
@@ -1069,6 +1099,10 @@ RootNtupleEventSelector::fetchNtuple(const std::string& fname) const
     f->Close();
     return tree;
   }
+
+  if (fnew)
+    m_files.push_back(fnew);
+
   // std::cout << "::TTree::SetBranchStatus()..." << std::endl;
   // disable all branches
   tree->SetBranchStatus("*", 0);
@@ -1092,7 +1126,7 @@ void RootNtupleEventSelector::addMetadataFromDirectoryName(const std::string &me
 
 void RootNtupleEventSelector::addMetadataFromDirectory(TDirectoryFile *metadir, const std::string &prefix) const
 {
-  SG::unordered_set<std::string> meta_keys;
+  std::unordered_set<std::string> meta_keys;
   const TList *keys = metadir->GetListOfKeys();
   for (Int_t i=0; i < keys->GetSize(); ++i) {
     TKey* key = dynamic_cast<TKey*>(keys->At(i));
@@ -1140,7 +1174,7 @@ void RootNtupleEventSelector::addMetadata(TTree *metatree, const std::string &pa
     return;
   }
 
-  if (!createMetaDataRootBranchAddresses(&*m_imetaStore, metatree, path).isSuccess()) {
+  if (!createMetaDataRootBranchAddresses(m_imetaStore.get(), metatree, path).isSuccess()) {
     ATH_MSG_INFO("Could not create metadata for tree [" << path << "]");
   }
 }

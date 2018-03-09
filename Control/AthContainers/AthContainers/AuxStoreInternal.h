@@ -344,6 +344,19 @@ protected:
                                  bool no_lock_check);
 
 
+  /**
+   * @brief Explicitly add a vector to the store.
+   * @param auxid The identifier of the aux data item being added.
+   * @param vec Vector data being added.
+   * @param isDecoration Should this variable be marked as a decoration?
+   *
+   * For internal use.  The @c auxid must not already exist in the store.
+   */
+  void addVector (SG::auxid_t auxid,
+                  std::unique_ptr<IAuxTypeVector> vec,
+                  bool isDecoration);
+
+
 private:
   /// Implementation of getDataInternal; no locking.
   virtual void* getDataInternal_noLock (SG::auxid_t auxid,

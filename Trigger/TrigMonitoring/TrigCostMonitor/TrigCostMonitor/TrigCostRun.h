@@ -83,7 +83,7 @@ private:
 
      bool ReadConfig(ServiceHandle<StoreGateSvc> &storeGate);
      bool ReadConfigDB(ServiceHandle<StoreGateSvc> &storeGate, 
-                       const TrigMonEvent* trigMonEvent,
+                       std::set<const TrigMonEvent*> trigMonEvents,
                        ToolHandle<Trig::ITrigNtTool> &confTool);
 
      bool ReadEvent (ServiceHandle<StoreGateSvc> &storeGate, 

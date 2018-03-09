@@ -22,8 +22,8 @@
 #include <sstream>
 
 TileCalibDddbManager::TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access, std::string version_tag,
-    std::string version_node, const int verboseLevel)
-    : m_currentTile(0),
+                                           std::string version_node, const int verboseLevel)
+  : m_currentTile(0),
     m_currentSection(0),
     m_currentCell(0),
     m_currentPlateCell(0),
@@ -32,8 +32,8 @@ TileCalibDddbManager::TileCalibDddbManager(ServiceHandle<IRDBAccessSvc> &access,
     m_currentPlateCellInd( -1),
     m_currentGirderCellInd( -1),
     m_tag(version_tag),
-    m_node(version_node),
-    m_verboseLevel(verboseLevel)
+  m_node(version_node),
+  m_verboseLevel(verboseLevel)
 {
 
   access->connect();
@@ -218,7 +218,7 @@ int TileCalibDddbManager::SetNextDetGirderCell() {
   int currentDetector = (*m_tileGirderCell)[m_currentGirderCellInd]->getInt("DETECTOR");
 
   if ( (++m_currentGirderCellInd == static_cast<int>(m_nTileGCell))
-      || ( (*m_tileGirderCell)[m_currentGirderCellInd]->getInt("DETECTOR") != currentDetector)) {
+       || ( (*m_tileGirderCell)[m_currentGirderCellInd]->getInt("DETECTOR") != currentDetector)) {
     m_currentGirderCellInd--;
     return 0;  // FAILURE
   }
@@ -429,15 +429,15 @@ double TileCalibDddbManager::GetPlateCellZBound() const {
     if (m_currentPlateCell->isFieldNull("ZBOUND")) {
       if (m_verboseLevel > 5)
         G4cout << "GetPlateCellZBound() - ZBOUND" << " in DETECTOR " << m_currentPlateCell->getInt("DETECTOR")
-        << " SAMPLE " << m_currentPlateCell->getInt("SAMPLE") << " TOWER " << m_currentPlateCell->getInt("TOWER")
-        << " is NULL, returning -9999.9" << G4endl;
+               << " SAMPLE " << m_currentPlateCell->getInt("SAMPLE") << " TOWER " << m_currentPlateCell->getInt("TOWER")
+               << " is NULL, returning -9999.9" << G4endl;
       return -9999.9;
     } else {
       return m_currentPlateCell->getDouble("ZBOUND");
     }
   } else {
     G4cout << "GetPlateCellZBound() - Current PlateCell not set, returning -9999.9"
-    << G4endl;
+           << G4endl;
     return -9999.9;
   }
 }
@@ -447,15 +447,15 @@ int TileCalibDddbManager::GetPlateCellNeighborPeriod() const {
     if (m_currentPlateCell->isFieldNull("NEIGHPERIOD")) {
       if (m_verboseLevel > 5)
         G4cout << "GetPlateCellNeighborPeriod() - NEIGHPERIOD " << " in DETECTOR "
-        << m_currentPlateCell->getInt("DETECTOR") << " SAMPLE " << m_currentPlateCell->getInt("SAMPLE")
-        << " TOWER " << m_currentPlateCell->getInt("TOWER") << " is NULL, returning -999" << G4endl;
+               << m_currentPlateCell->getInt("DETECTOR") << " SAMPLE " << m_currentPlateCell->getInt("SAMPLE")
+               << " TOWER " << m_currentPlateCell->getInt("TOWER") << " is NULL, returning -999" << G4endl;
       return -999;
     } else {
       return m_currentPlateCell->getInt("NEIGHPERIOD");
     }
   } else {
     G4cout << "GetPlateCellNeighborPeriod() - Current PlateCell not set, returning -999"
-    << G4endl;
+           << G4endl;
     return -999;
   }
 }
@@ -518,7 +518,7 @@ int TileCalibDddbManager::SetNextDetCell() {
   int currentDetector = (*m_tileCell)[m_currentCellInd]->getInt("DETECTOR");
 
   if ( (++m_currentCellInd == static_cast<int>(m_nTileCell)) || ( (*m_tileCell)[m_currentCellInd]->getInt("DETECTOR")
-       != currentDetector)) {
+                                                                  != currentDetector)) {
     m_currentCellInd--;
     return 0;  // FAILURE
   }
@@ -535,7 +535,7 @@ int TileCalibDddbManager::SetNextDetCellInSample() {
   int currentSample = (*m_tileCell)[m_currentCellInd]->getInt("SAMPLE");
 
   if ( (++m_currentCellInd == static_cast<int>(m_nTileCell)) || ( (*m_tileCell)[m_currentCellInd]->getInt("DETECTOR")
-       != currentDetector)
+                                                                  != currentDetector)
        || ( (*m_tileCell)[m_currentCellInd]->getInt("SAMPLE") != currentSample)) {
     m_currentCellInd--;
     return 0;  // FAILURE
@@ -558,14 +558,14 @@ int TileCalibDddbManager::GetNumOfPeriodsInCell(int period_set) const {
     if (m_currentCell->isFieldNull("PERIODS_" + indx)) {
       if (m_verboseLevel > 5)
         G4cout << "GetNumOfPeriodsInCell() - PERIODS_" << indx << " in DETECTOR " << m_currentCell->getInt("DETECTOR")
-        << " SAMPLE " << m_currentCell->getInt("SAMPLE") << " is NULL, returning -999" << G4endl;
+               << " SAMPLE " << m_currentCell->getInt("SAMPLE") << " is NULL, returning -999" << G4endl;
       return -999;
     } else {
       return m_currentCell->getInt("PERIODS", period_set);
     }
   } else {
     G4cout << "GetNumOfPeriodsInCell() - Current Cell not set, returning -999"
-    << G4endl;
+           << G4endl;
     return -999;
   }
 }

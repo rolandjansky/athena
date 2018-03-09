@@ -1,5 +1,6 @@
+#
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+#
 import argparse
 import logging
 msg = logging.getLogger(__name__)
@@ -47,7 +48,13 @@ def addEI_Basic_tfArgs(parser):
                         help="Include provenance information (default: true)", group='Event Index')
     parser.add_argument("--sendtobroker", 
                         type=argFactory(argBool),
-                        help="Send event index to message broker (default: true)", group='Event Index')
+                        help="Send event index to message broker (default: false)", group='Event Index')
+    parser.add_argument("--testbrk", 
+                        type=argFactory(argBool),
+                        help="Use test message broker (default: false)", group='Event Index')
+    parser.add_argument("--eifmt", 
+                        type=argFactory(argInt),
+                        help="0: produce old PKL format, 1: produce new SPB format, 2: both formats. (default: 0)", group='Event Index')
 
     # internal options for T0 jobs
     parser.add_argument("--_taskid", 

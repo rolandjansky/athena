@@ -13,6 +13,8 @@
 #include "../LucidHitAnalysis.h"
 #include "../ZDCHitAnalysis.h"
 #include "../AFPHitAnalysis.h"
+#include "../MMHitAnalysis.h"
+#include "../sTGCHitAnalysis.h"
 
 DECLARE_ALGORITHM_FACTORY( CaloHitAnalysis )
 DECLARE_ALGORITHM_FACTORY( SiHitAnalysis )
@@ -27,6 +29,8 @@ DECLARE_ALGORITHM_FACTORY( ALFAHitAnalysis )
 DECLARE_ALGORITHM_FACTORY( LucidHitAnalysis )
 DECLARE_ALGORITHM_FACTORY( ZDCHitAnalysis )
 DECLARE_ALGORITHM_FACTORY( AFPHitAnalysis )
+DECLARE_ALGORITHM_FACTORY( MMHitAnalysis )
+DECLARE_ALGORITHM_FACTORY( sTGCHitAnalysis )
 
 DECLARE_FACTORY_ENTRIES( HitAnalysis ) {
   DECLARE_ALGORITHM( CaloHitAnalysis )
@@ -42,6 +46,8 @@ DECLARE_FACTORY_ENTRIES( HitAnalysis ) {
     DECLARE_ALGORITHM( LucidHitAnalysis )
     DECLARE_ALGORITHM( ZDCHitAnalysis )
     DECLARE_ALGORITHM( AFPHitAnalysis )
+    DECLARE_ALGORITHM( MMHitAnalysis )
+    DECLARE_ALGORITHM( sTGCHitAnalysis )
  
 
 }

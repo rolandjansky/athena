@@ -33,9 +33,9 @@ AthenaYamplTool::AthenaYamplTool(const std::string& type,
   ,  m_many2one(true)
   ,  m_chronoStatSvc("ChronoStatSvc", name)
   ,  m_incidentSvc("IncidentSvc", name)
-  ,  m_socketFactory(0)
-  ,  m_clientSocket(0)
-  ,  m_serverSocket(0)
+  ,  m_socketFactory(nullptr)
+  ,  m_clientSocket(nullptr)
+  ,  m_serverSocket(nullptr)
 {
   declareProperty("ChannelName", m_channel = name);
   declareProperty("Many2One", m_many2one);
@@ -131,16 +131,16 @@ bool AthenaYamplTool::isClient() const {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::putEvent(long eventNumber, const void* source, std::size_t nbytes, unsigned int status) {
+StatusCode AthenaYamplTool::putEvent(long eventNumber, const void* source, std::size_t nbytes, unsigned int status) const {
    if(!m_serverSocket) {
      ATH_MSG_ERROR("putEvent called when Tool is not a Server!");
      return StatusCode::FAILURE;
    }
-   if (source == 0 && nbytes == 0) {
+   if (source == nullptr && nbytes == 0) {
       ATH_MSG_DEBUG("putEvent got last Event marker");
       return(StatusCode::SUCCESS);
    }
-   if (source == 0) {
+   if (source == nullptr) {
       ATH_MSG_ERROR("putEvent got null source");
       return(StatusCode::FAILURE);
    }
@@ -160,14 +160,14 @@ StatusCode AthenaYamplTool::putEvent(long eventNumber, const void* source, std::
    memcpy((char*)message+sizeof(evtH),source,nbytes);
 
    // Wait for incoming request
-   char *ping = 0; // can be something else
+   char *ping = nullptr; // can be something else
    m_serverSocket->recv(ping);
    m_serverSocket->send(message,nbytes+sizeof(evtH));
    return(StatusCode::SUCCESS);
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::getLockedEvent(void** target, unsigned int& status) {
+StatusCode AthenaYamplTool::getLockedEvent(void** target, unsigned int& status) const {
 
   void* receive_message;
 
@@ -193,7 +193,7 @@ StatusCode AthenaYamplTool::getLockedEvent(void** target, unsigned int& status) 
   if (evtH.fileSeqNumber != m_fileSeqNumber && m_fileSeqNumber > 0) {
     FileIncident endFileIncident(name(), "EndInputFile", "SHM");
     m_incidentSvc->fireIncident(endFileIncident);
-    m_fileSeqNumber = evtH.fileSeqNumber;
+    const_cast<AthenaYamplTool*>(this)->m_fileSeqNumber = evtH.fileSeqNumber;
     FileIncident beginFileIncident(name(), "BeginInputFile", "SHM");
     m_incidentSvc->fireIncident(beginFileIncident);
   }
@@ -220,26 +220,26 @@ StatusCode AthenaYamplTool::getLockedEvent(void** target, unsigned int& status) 
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::lockEvent(long) {
+StatusCode AthenaYamplTool::lockEvent(long) const {
   return StatusCode::SUCCESS;
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::putObject(const void*, size_t, int) {
+StatusCode AthenaYamplTool::putObject(const void*, size_t, int) const {
   return(StatusCode::FAILURE);
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::getObject(void**, size_t&, int) {
+StatusCode AthenaYamplTool::getObject(void**, size_t&, int) const {
   return(StatusCode::FAILURE);
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::clearObject(char**, int&) {
+StatusCode AthenaYamplTool::clearObject(char**, int&) const {
   return(StatusCode::FAILURE);
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::lockObject(const char*, int) {
+StatusCode AthenaYamplTool::lockObject(const char*, int) const {
    return(StatusCode::SUCCESS);
 }

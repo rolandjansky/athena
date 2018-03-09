@@ -11,7 +11,7 @@
 #include "TrackRecord/TrackRecordCollection.h"
 #include "MuGirlCandidate/Intersection.h"
 #include "GeneratorObjects/McEventCollection.h"
-#include "TruthTools/ITruthSelector.h"
+#include "GenInterfaces/ITruthSelector.h"
 #include "iPatInterfaces/ITruthParameters.h"
 #include "iPatTrackParameters/PerigeeParameters.h"
 

@@ -5,18 +5,18 @@
 #ifndef G4DEBUGGINGTOOLS_G4UA__GEANT4SETUPCHECKER_H 
 #define G4DEBUGGINGTOOLS_G4UA__GEANT4SETUPCHECKER_H 
 
-#include "G4AtlasInterfaces/IBeginRunAction.h"
+#include "G4UserRunAction.hh"
 #include <string>
 
 namespace G4UA{ 
 
 class Geant4SetupChecker: 
-  public IBeginRunAction
+  public G4UserRunAction
   {
     
   public:
     Geant4SetupChecker(const std::string&,const bool);
-    virtual void beginOfRun(const G4Run*) override;
+    virtual void BeginOfRunAction(const G4Run*) override;
   private:
     /// File location for reference file
     std::string m_file_location;

@@ -11,7 +11,7 @@
 
 class G4VNotifier;
 
-class G4GeometryNotifierSvc : public AthService , public virtual IG4GeometryNotifierSvc {
+class G4GeometryNotifierSvc : public extends<AthService, IG4GeometryNotifierSvc> {
 public:
   // Standard constructor and destructor
   G4GeometryNotifierSvc( const std::string& name, ISvcLocator* pSvcLocator );
@@ -20,8 +20,6 @@ public:
   // Gaudi methods
   StatusCode initialize() override final;
   StatusCode finalize() override final;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
-  static const InterfaceID& interfaceID() { return IG4GeometryNotifierSvc::interfaceID(); }
 
   //FIXME This is a bit nasty as it is not thread-safe, but we assume
   //that the geometry building will be done in a single thread.

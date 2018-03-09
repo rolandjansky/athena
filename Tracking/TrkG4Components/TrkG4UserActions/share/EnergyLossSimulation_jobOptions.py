@@ -65,10 +65,10 @@ athenaCommonFlags.PoolEvgenInput.set_Off()   ### is this necessary?
 athenaCommonFlags.PoolHitsOutput = 'Hits.pool.root'
 
 #--- Simulation flags -----------------------------------------
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags() # Going to use an ATLAS layout
-SimFlags.SimLayout = myGeo
-SimFlags.EventFilter.set_Off()
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags() # Going to use an ATLAS layout
+simFlags.SimLayout = myGeo
+simFlags.EventFilter.set_Off()
 
 include("GeneratorUtils/StdEvgenSetup.py")
 theApp.EvtMax = 50000
@@ -79,8 +79,8 @@ pg.sampler.pid = (-13, 13)
 pg.sampler.mom = PG.PtEtaMPhiSampler(pt=5000, eta=[-3.5,3.5])
 topSeq += pg
 
-SimFlags.RandomSeedOffset = myRandomOffset
-SimFlags.RandomSeedList.addSeed( "ParticleGun", myRandomSeed1, myRandomSeed2 )
+simFlags.RandomSeedOffset = myRandomOffset
+simFlags.RandomSeedList.addSeed( "ParticleGun", myRandomSeed1, myRandomSeed2 )
 
 from RngComps.RngCompsConf import AtRndmGenSvc 
 myAtRndmGenSvc = AtRndmGenSvc()
@@ -110,16 +110,12 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='/tmp/salzburg/EnergyLossRecorder.
 
 ##############################################################
 
-## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+simFlags.OptionalUserActionList.addAction('G4UA::EnergyLossRecorderTool',['Step','BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun'])
 
-from AthenaCommon.CfgGetter import getPublicTool
-ServiceMgr.UserActionSvc.BeginOfRunActions += [getPublicTool("EnergyLossRecorder")]
-ServiceMgr.UserActionSvc.EndOfRunActions += [getPublicTool("EnergyLossRecorder")]
-ServiceMgr.UserActionSvc.BeginOfEventActions += [getPublicTool("EnergyLossRecorder")]
-ServiceMgr.UserActionSvc.EndOfEventActions += [getPublicTool("EnergyLossRecorder")]
-ServiceMgr.UserActionSvc.SteppingActions += [getPublicTool("EnergyLossRecorder")]
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
+## Populate alg sequence
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------
 

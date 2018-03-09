@@ -175,7 +175,7 @@ class AlgFactory(object):
         factory = 'TrigHLTJetRecFromCluster'
         # add factory to instance label to facilitate log file searches
         trkstr = self.menu_data.trkopt
-        if 'ftk' in self.menu_data.trkopt:
+        if 'ftk' in trkstr:
             name = '"%s_%s%s"' %(factory, self.fex_params.fex_label, trkstr)	
             outputcollectionlabel = "'%s%s'" % (self.fex_params.fex_label, trkstr)
         else:
@@ -228,13 +228,20 @@ class AlgFactory(object):
 
         factory = 'TrigHLTTrackMomentHelpers'
 
-        name = '"%s"' % factory
+        trkstr = self.menu_data.trkopt
+        
+        name = '"%s_%s"' % ( factory, trkstr )
+        
+        tvassocsgkey = 'HLT_'+trkstr+'_JetTrackVtxAssoc'
+        tracksgkey = 'HLT_'+trkstr+'_InDetTrackParticles'
+        primvtxsgkey = 'HLT_'+trkstr+'_PrimaryVertices'
         
         kwds = {
             'name': name,  # instance label
-            'tvassocSGkey': "'HLT_FTK_JetTrackVtxAssoc'",
-            'trackSGkey': "'HLT_FTK_InDetTrackParticles'",
-            'primVtxSGkey': "'HLT_FTK_PrimaryVertices'",
+            'trkopt' : "'%s'" % trkstr,
+            'tvassocSGkey': "'%s'" % tvassocsgkey,
+            'trackSGkey': "'%s'" % tracksgkey,
+            'primVtxSGkey': "'%s'" % primvtxsgkey,
         }
 
         return [Alg(factory, (), kwds)]
@@ -254,11 +261,12 @@ class AlgFactory(object):
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
             'cluster_calib': "'%s'" % self.fex_params.cluster_calib_fex,
+            'do_substructure': "'True'", # "'%s'" % (self.fex_params.do_substructure),
             'output_collection_label': "'%s'" % (self.fex_params.fex_label),
             'rclus': self.fex_params.rclus,
             'ptfrac': self.fex_params.ptfrac,
         }
-        print 'after kwds' #Nima!
+
         return [Alg(factory, (), kwds)]
    
     #HI
@@ -283,15 +291,17 @@ class AlgFactory(object):
         return [Alg(factory, (), kwds)]        
 
 
-    def etaet_kargs(self, algType):
+    def etaet_kargs(self, algType, hypo):
 
-        ja = self.hypo_params.attributes_toString()
+        # ja = self.hypo_params.attributes_toString()
+        ja = hypo.attributes_toString()
 
 
         # the hypo instance name is constructed from the
 
         # last jet fex run.
-        cleaningAlg = self.hypo_params.cleaner
+        # cleaningAlg = self.hypo_params.cleaner
+        cleaningAlg = hypo.cleaner
         # matchingAlg = self.hypo_params.matcher
 
         name_extension = '_'.join([str(e) for  e in
@@ -306,8 +316,7 @@ class AlgFactory(object):
                                 )])
         
         name = '"%s_%s"' % (algType, name_extension)
-        # name = '"%s_%s"' % (algType, self.chain_name_esc)
-        hypo = self.menu_data.hypo_params
+        # hypo = self.menu_data.hypo_params
 
         eta_mins = [jatt.eta_min for jatt in hypo.jet_attributes]
         eta_maxs = [jatt.eta_max for jatt in hypo.jet_attributes]
@@ -326,20 +335,20 @@ class AlgFactory(object):
 
         return kargs
 
-    def hlthypo2_EtaEt(self):
+    def hlthypo2_EtaEt(self, hypo):
         """ run TrigHLTJetHypo2 with hypoStrategy EtaEt """
 
         
         # assert len(self.hypo_params.jet_attributes) > 1
         algType = 'TrigHLTJetHypo_EtaEt'
-        kargs = self.etaet_kargs(algType)
+        kargs = self.etaet_kargs(algType, hypo)
         return [Alg(algType, (), kargs)]
 
 
-    def smc_kargs(self, algType):
-        kargs = self.etaet_kargs(algType)
+    def smc_kargs(self, algType, hypo):
+        kargs = self.etaet_kargs(algType, hypo)
 
-        hypo = self.menu_data.hypo_params
+        # hypo = self.menu_data.hypo_params
         smc_mins = [ja.smc_min for ja in hypo.jet_attributes]
         smc_maxs = [ja.smc_max for ja in hypo.jet_attributes]
 
@@ -348,21 +357,22 @@ class AlgFactory(object):
 
         return kargs
         
-    def hlthypo2_singleMass(self):
+    def hlthypo2_singleMass(self, hypo):
         """ run TrigHLTJetHypo2 with hypoStrategy SingleJetMass """
         
         algType = 'TrigHLTJetHypo_SMC'
-        kargs = self.smc_kargs(algType)
+        kargs = self.smc_kargs(algType, hypo)
 
         return [Alg(algType, (), kargs)]
 
-    def tla_kargs(self, algType):
+    def tla_kargs(self, algType, hypo):
 
         name = '"%s_tla_%s"' % (algType,
-                            self.hypo_params.tla_string)
+                                hypo.tla_string)
+                            # self.hypo_params.tla_string)
         # name = '"%s_%s"' % (algType, self.chain_name_esc)
 
-        hypo = self.menu_data.hypo_params
+        # hypo = self.menu_data.hypo_params
 
         eta_min = -2.8
         eta_max = 2.8
@@ -392,24 +402,64 @@ class AlgFactory(object):
         return kargs
 
 
-    def hlthypo2_tla(self):
+    def hlthypo2_tla(self, hypo):
 
         algType = 'TrigHLTJetHypo_TLA'
-        kargs = self.tla_kargs(algType)
+        kargs = self.tla_kargs(algType, hypo)
         
         return [Alg(algType,(), kargs)]
 
 
-    def dimass_deta_kargs(self, algType):
-        kargs = self.etaet_kargs(algType)
+    def dijet_kargs(self, algType, hypo): 
+
+        kargs = {}
+
+        kargs['name'] = '"%s_%s"' % (algType, hypo.dijet_string.replace('!', '-'))
         
-        mass_min = self.hypo_params.mass_min
+        kargs['aet_mins'] = hypo.aet_mins
+        # kargs['aet_mins'] = self.hypo_params.aet_mins
+        # kargs['aet_maxs'] = self.hypo_params.aet_maxs
+
+        kargs['aeta_mins'] = hypo.aeta_mins
+        kargs['aeta_maxs'] = hypo.aeta_maxs
+
+        kargs['bet_mins'] = hypo.bet_mins
+        # kargs['bet_maxs'] = self.hypo_params.bet_maxs
+
+        kargs['beta_mins'] = hypo.beta_mins
+        kargs['beta_maxs'] = hypo.beta_maxs
+        
+        kargs['m_mins'] = hypo.m_mins
+        kargs['m_maxs'] = hypo.m_maxs
+               
+        kargs['deta_mins'] = hypo.deta_mins
+        kargs['deta_maxs'] = hypo.deta_maxs
+               
+        kargs['dphi_mins'] = hypo.dphi_mins
+        kargs['dphi_maxs'] = hypo.dphi_maxs
+
+        kargs['chain_name'] =  "'%s'" % self.chain_config.chain_name
+
+        return kargs
+
+    
+    def hlthypo2_dijet(self, hypo):
+
+        algType = 'TrigHLTJetHypo_Dijet'
+        kargs = self.dijet_kargs(algType, hypo)
+        return [Alg(algType,(), kargs)]
+
+
+    def dimass_deta_kargs(self, algType, hypo): 
+        kargs = self.etaet_kargs(algType, hypo)
+        
+        mass_min = hypo.mass_min
         if mass_min is not None:
             kargs['mass_mins'] = [mass_min * GeV]
         else:
             kargs['mass_mins'] = []
 
-        dEta_min = self.hypo_params.dEta_min
+        dEta_min = hypo.dEta_min
         if dEta_min is not None:
             kargs['dEta_mins'] = [dEta_min]
         else:
@@ -417,19 +467,37 @@ class AlgFactory(object):
 
         return kargs
         
-    def hlthypo2_dimass_deta(self):
+    def hlthypo2_dimass_deta(self, hypo):
 
         algType = 'TrigHLTJetHypo_DijetMassDEta'
-        kargs = self.dimass_deta_kargs(algType)
+        kargs = self.dimass_deta_kargs(algType, hypo)
         return [Alg(algType,(), kargs)]
 
 
-    def ht_kargs(self, algType):
+    def dimass_deta_dphi_kargs(self, algType, hypo):
+        kargs = self.dimass_deta_kargs(algType, hypo)
+        
+        dPhi_max = hypo.dPhi_max
+        if dPhi_max is not None:
+            kargs['dPhi_maxs'] = [dPhi_max]
+        else:
+            kargs['dPhi_maxs'] = []
+
+        return kargs
+        
+    def hlthypo2_dimass_deta_dphi(self, hypo):
+
+        algType = 'TrigHLTJetHypo_DijetMassDEtaDPhi'
+        kargs = self.dimass_deta_dphi_kargs(algType, hypo)
+        return [Alg(algType,(), kargs)]
+
+
+    def ht_kargs(self, algType, hypo):
         """set up a HT hypo"""
     
-        eta_range = self.hypo_params.eta_range
+        eta_range = hypo.eta_range
         name_extension = '_'.join([str(e) for  e in (
-            self.hypo_params.attributes_toString(),
+            hypo.attributes_toString(),
             self.fex_params.fex_alg_name,
             self.fex_params.data_type,
             self.fex_params.cluster_calib_fex,
@@ -445,18 +513,18 @@ class AlgFactory(object):
                  'chain_name':  "'%s'" % self.chain_config.chain_name,
                  'eta_mins': [eta_min],
                  'eta_maxs': [eta_max],
-                 'htMin': self.hypo_params.ht_threshold * GeV,
-                 'EtThresholds': [self.hypo_params.jet_et_threshold * GeV],
+                 'htMin': hypo.ht_threshold * GeV,
+                 'EtThresholds': [hypo.jet_et_threshold * GeV],
                  }
                  
         return kargs
 
 
-    def hlthypo2_ht(self):
+    def hlthypo2_ht(self, hypo):
         """set up an HT hypo"""
 
         algType = 'TrigHLTJetHypo_HT'
-        kargs = self.ht_kargs(algType)
+        kargs = self.ht_kargs(algType, hypo)
         return [Alg(algType, (), kargs)]
 
 

@@ -25,10 +25,10 @@ MergeTruthJetsTool::MergeTruthJetsTool(const std::string& type,
   , m_outOfTimePtCut(15.0*Gaudi::Units::GeV)
   , m_activateFilter(false)
   , m_includeSignalJets(false)
+  , m_first_event(true)
   , m_signal_max_pT(-1.)
   , m_pileup_max_pT(-1.)
 {
-  declareInterface<IPileUpTool>(this);
   declareProperty("InputTruthJetCollKey", m_inputJetCollKey);
   declareProperty("InTimeOutputTruthJetCollKey", m_inTimeOutputJetCollKey);
   declareProperty("OutOfTimeTruthJetCollKey", m_outOfTimeOutputJetCollKey);
@@ -48,6 +48,7 @@ StatusCode MergeTruthJetsTool::prepareEvent(unsigned int nInputEvents)
 {
   ATH_MSG_VERBOSE ( "prepareEvent()" );
   ATH_MSG_DEBUG ( "prepareEvent: there are " << nInputEvents << " subevents in this event." );
+  m_first_event = true;
   m_inTimeOutputJetContainer = new xAOD::JetContainer();
   m_inTimeOutputJetContainer->setStore(new xAOD::JetAuxContainer);
   m_outOfTimeOutputJetContainer = new xAOD::JetContainer();
@@ -192,6 +193,7 @@ StatusCode MergeTruthJetsTool::processAllSubEvents()
         }
     }
 
+  m_first_event = true;
   m_inTimeOutputJetContainer = new xAOD::JetContainer();
   m_inTimeOutputJetContainer->setStore(new xAOD::JetAuxContainer);
   m_outOfTimeOutputJetContainer = new xAOD::JetContainer();

@@ -10,6 +10,7 @@
 
 #include "MuonSimEventTPCnv/RPCSimHitCollectionCnv_p1.h"
 #include "MuonSimEventTPCnv/RPCSimHitCollectionCnv_p2.h"
+#include "MuonSimEventTPCnv/RPCSimHitCollectionCnv_p3.h"
 
 
 // the latest persistent representation type of DataCollection:
@@ -36,6 +37,7 @@ public:
 private:
     RPCSimHitCollectionCnv_p1    m_TPConverter;
     RPCSimHitCollectionCnv_p2    m_TPConverter_p2;
+    RPCSimHitCollectionCnv_p3    m_TPConverter_p3;
 };
 
 #endif

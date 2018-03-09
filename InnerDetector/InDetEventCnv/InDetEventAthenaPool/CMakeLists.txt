@@ -66,7 +66,10 @@ if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Database/AthenaPOOL/AthenaPoolUtilities )
 endif()
 find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-   run_tpcnv_test( InDetEventTPCnv_16.6.2.1 ESD-16.6.2.1 )
+   set( INDETEVENTATHENAPOOL_REFERENCE_TAG
+        InDetEventAthenaPoolReference-01-00-00 )
+   run_tpcnv_test( InDetEventTPCnv_16.6.2.1 ESD-16.6.2.1
+                   REFERENCE_TAG ${INDETEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()

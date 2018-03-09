@@ -60,10 +60,10 @@ MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel = 4
 
 ## Use verbose G4 tracking
-def use_verbose_tracking():
-    from G4AtlasApps import AtlasG4Eng
-    AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(1)
-#simFlags.InitFunctions.add_function("postInit", use_verbose_tracking)
+#from G4AtlasApps.SimFlags import simFlags
+#simFlags.G4Commands += ['/tracking/verbose 1']
+
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 
 #==============================================================
@@ -71,7 +71,8 @@ def use_verbose_tracking():
 # ***>> Do not add flags or simulation options below this line
 #==============================================================
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+topSeq.G4AtlasAlg.InputTruthCollection='GEN_EVENT'
 
 #--- End jobOptions.G4Ctb_Sim.py file  -----------------------

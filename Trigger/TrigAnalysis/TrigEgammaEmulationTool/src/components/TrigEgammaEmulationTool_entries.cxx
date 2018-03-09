@@ -9,6 +9,7 @@
 #include "TrigEgammaEmulationTool/TrigEgammaEFCaloSelectorTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEFElectronSelectorTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEFPhotonSelectorTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaIsolationSelectorTool.h"
 #include "../TrigEgammaEmulationToolTest.h"
 #include "../TrigEgammaEmulationToolAlg.h"
 
@@ -22,6 +23,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2CaloRingerSelectorTool)
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEFCaloSelectorTool)   
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEFElectronSelectorTool)   
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEFPhotonSelectorTool)   
+DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaIsolationSelectorTool)   
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(Trig,TrigEgammaEmulationToolTest) 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY(Trig,TrigEgammaEmulationToolAlg) 
 
@@ -36,6 +38,7 @@ DECLARE_FACTORY_ENTRIES(TrigEgammaEmulationTool) {
   DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaEFCaloSelectorTool)
   DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaEFElectronSelectorTool)
   DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaEFPhotonSelectorTool)
+  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaIsolationSelectorTool)
   DECLARE_NAMESPACE_ALGORITHM(Trig,TrigEgammaMatchingToolTest)
 }
 

@@ -18,9 +18,14 @@ CaloMonToolBase::CaloMonToolBase(const std::string& type, const std::string& nam
  {
   declareProperty("useBadLBTool", m_useBadLBTool=false);
   declareProperty("BadLBTool", m_BadLBTool);
+
   declareProperty("useReadyFilterTool",m_useReadyFilterTool=true);
   declareProperty("ReadyFilterTool",m_ReadyFilterTool);
+
+  declareProperty("useLArCollisionFilterTool",m_useCollisionFilterTool=true);
+
   declareProperty("useLArNoisyAlg",m_useLArNoisyAlg=false);
+
   declareProperty("useBeamBackgroundRemoval",m_useBeamBackgroundRemoval=false);
  //Key of the beam background object
   declareProperty("BeamBackgroundKey",m_beamBackgroundKey="CSCBackgroundForCaloMon");
@@ -56,10 +61,10 @@ StatusCode CaloMonToolBase::initialize() {
 
 
 StatusCode CaloMonToolBase::bookBaseHists(MonGroup* group) {
-  m_h_EvtRejSumm  = new TH1I("nEvtsRejectByDifferentTool","Total Events: bin 1, ATLAS Ready: 2, && Good LAr LB: 3, && LArCollisionTime: 4, && No Beam Background: 5, && No Trigger Filer: 6, && No LArError: 7 ",7,1.,8.);
+  m_h_EvtRejSumm  = new TH1I("nEvtsRejectByDifferentTool","Total Events: bin 1, ATLAS Ready: 2, && Good LAr LB: 3, && No LAr collision: 4, && No Beam Background: 5, && No Trigger Filer: 6, && No LArError: 7 ",7,1.,8.);
   m_h_EvtRejSumm->GetYaxis()->SetTitle("RejectedEvents");
 
-  const std::array<const char*,7> binLabels={{"TotalEvents","ATLAS Ready","with Good LAr LB","with LArCollisionTime","with No Beam Background", "with No Trigger Filter","with No LArError"}};
+  const std::array<const char*,7> binLabels={{"TotalEvents","ATLAS Ready","with Good LAr LB","with No LAr Collision","with No Beam Background", "with No Trigger Filter","with No LArError"}};
 
   for (unsigned i=0;i<binLabels.size();++i) {
     m_h_EvtRejSumm->GetXaxis()->SetBinLabel(i+1,binLabels[i]);
@@ -69,6 +74,9 @@ StatusCode CaloMonToolBase::bookBaseHists(MonGroup* group) {
   }
   if (!m_useBadLBTool){
     m_h_EvtRejSumm->GetXaxis()->SetBinLabel(3,"Good LAr LB-OFF");
+  }
+  if (!m_useCollisionFilterTool){
+    m_h_EvtRejSumm->GetXaxis()->SetBinLabel(3,"LAr collision-OFF");
   }
   if (!m_useBeamBackgroundRemoval){
     m_h_EvtRejSumm->GetXaxis()->SetBinLabel(5,"Beam backgr.-OFF");
@@ -121,22 +129,29 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
     if(ifPass) m_h_EvtRejSumm->Fill(3); 
   }
 
- 
-  const LArCollisionTime * larTime;
-  sc = evtStore()->retrieve(larTime,"LArCollisionTime");
-  if(sc.isFailure()){
-    ATH_MSG_WARNING("Unable to retrieve LArCollisionTime event store");
+  // Filter the events identfied as collision by the LAr system
+  // Useful in CosmicCalo to reject collision candidates
+  if (m_useCollisionFilterTool){
+    const LArCollisionTime * larTime;
+    sc = evtStore()->retrieve(larTime,"LArCollisionTime");
+    if(sc.isFailure()){
+      ATH_MSG_WARNING("Unable to retrieve LArCollisionTime event store");
+      if(ifPass) m_h_EvtRejSumm->Fill(4); 
+    }
+    else {
+      if (larTime->timeC()!=0 && larTime->timeA()!=0 && std::fabs(larTime->timeC() - larTime->timeA())<10)  {
+	ifPass = 0;
+      }
+      else { 
+	ifPass = ifPass && 1;
+	if(ifPass) m_h_EvtRejSumm->Fill(4); //All events with ATLAS Ready and Good LB and Good LAr collision time
+      }
+    }
+  }
+  else{
     if(ifPass) m_h_EvtRejSumm->Fill(4); 
   }
-  else {
-    if (larTime->timeC()!=0 && larTime->timeA()!=0 && std::fabs(larTime->timeC() - larTime->timeA())<10)  {
-      ifPass = 0;
-    }
-    else { 
-      ifPass = ifPass && 1;
-      if(ifPass) m_h_EvtRejSumm->Fill(4); //All events with ATLAS Ready and Good LB and Good LAr collision time
-    }
-  }
+
 
   m_passBeamBackgroundRemoval=true;
   if(m_useBeamBackgroundRemoval){

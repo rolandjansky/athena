@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
+
 
 #ifndef ITrigEgammaEmulationTool_H_
 #define ITrigEgammaEmulationTool_H_
@@ -26,7 +27,6 @@
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "PATCore/TAccept.h"
-#include <boost/any.hpp>
 #include <vector>
 #include <map>
 
@@ -47,12 +47,10 @@ namespace Trig{
             virtual bool isPassed(const std::string&)=0;
             virtual bool isPassed(const std::string&, const std::string&)=0;
             virtual const Root::TAccept& getAccept()=0;
- 
             /* Experimental methods */
             virtual void ExperimentalAndExpertMethods()=0;
-            virtual std::map<std::string,boost::any> * getDecorations()=0;
-
-
+            virtual void match( const xAOD::Egamma *, const HLT::TriggerElement *&)=0;
+            virtual const HLT::TriggerElement* getTEMatched()=0;
         private:
     };
 }

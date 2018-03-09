@@ -164,23 +164,25 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
   // Add avgmu!
   output.push_back(avgmu);
-    
 
   if(doTiming())  m_decisionTimer->start();
   
   if(m_discriminators.size() > 0){
       
     for(unsigned i=0; i<m_discriminators.size(); ++i){
-      if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
-        if(eta > m_discriminators[i]->etamin() && eta <= m_discriminators[i]->etamax()){
-          discr   = m_discriminators[i];
-          preproc = m_preproc[i];
-          break;
+      if(avgmu > m_discriminators[i]->mumin() && avgmu <= m_discriminators[i]->mumax()){
+        if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
+          if(eta > m_discriminators[i]->etamin() && eta <= m_discriminators[i]->etamax()){
+            discr   = m_discriminators[i];
+            preproc = m_preproc[i];
+            break;
+          }// mu conditions
         }///eta conditions
       }///Et conditions
     }///Loop over discriminators
 
     ATH_MSG_DEBUG( "Et = " << et << " GeV, |eta| = " << eta );
+    
     ///Apply the discriminator
     if(discr){
 

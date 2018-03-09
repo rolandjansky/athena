@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ##############################################################
 # Modifiers.py
@@ -1132,9 +1132,9 @@ class L1TopoCheck(_modifier):
     def postSetup(self):
         from AthenaCommon.Include import include, IncludeError
         try:
-            include("TrigOnlineMonitor/TrigL1TopoROBMonitor.py")
+            include("TrigOnlineMonitor/TrigL1TopoWriteValData.py")
         except IncludeError:
-            print '  No L1Topo ROB monitoring available.'        
+            print '  No L1Topo WriteValData available.'        
 
 class muCTPicheck(_modifier):
     """
@@ -1284,7 +1284,19 @@ class fpeAuditor(_modifier):
         theApp.AuditServices = True
         theApp.AuditTools = True
         svcMgr.AuditorSvc += CfgMgr.FPEAuditor()    
-        
+
+class athMemAuditor(_modifier):
+    """
+    Turn on AthMemoryAuditor
+    """
+    def postSetup(self):
+        from AthenaCommon import CfgMgr
+        theApp.AuditAlgorithms = True
+        theApp.AuditServices = True
+        theApp.AuditTools = True
+        svcMgr.AuditorSvc += CfgMgr.AthMemoryAuditor(MaxStacktracesPerAlg=20,
+                                      DefaultStacktraceDepth=50,
+                                      StacktraceDepthPerAlg=["Stream1 100"])
 class detailedTiming(_modifier):
     """
     Add detailed timing information

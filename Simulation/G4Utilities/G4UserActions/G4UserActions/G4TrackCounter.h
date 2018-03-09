@@ -2,51 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4UserActions_G4TrackCounter_H
-#define G4UserActions_G4TrackCounter_H
-
-#include <string>
-
-#include "G4AtlasTools/UserActionBase.h"
-
-
-
-class G4TrackCounter final: public UserActionBase {
-
-  private:
-   unsigned int ntracks;
-   unsigned int ntracks_tot;
-   unsigned int ntracks_en;
-   unsigned int ntracks_sec;
-   unsigned int nevts;
-   double avtracks;
-   double avtracks_en;
-   double avtracks_sec;
-
-  public:
-   G4TrackCounter(const std::string& type, const std::string& name, const IInterface* parent):UserActionBase(type,name,parent),
-     ntracks(0),ntracks_tot(0),ntracks_en(0),
-                                 ntracks_sec(0),nevts(0),avtracks(0),avtracks_en(0),avtracks_sec(0){};
-
-   virtual StatusCode initialize() override;
-   virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
-   virtual void BeginOfEvent(const G4Event*) override;
-   virtual void EndOfRun(const G4Run*) override;
-   virtual void PreTracking(const G4Track* aTrack) override;
-
-};
-
-#endif
-
-
 #ifndef G4USERACTIONS__G4UA_G4TRACKCOUNTER_H
 #define G4USERACTIONS__G4UA_G4TRACKCOUNTER_H
 
-// Infrastructure includes
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
+// Geant4 includes
+#include "G4UserEventAction.hh"
+#include "G4UserTrackingAction.hh"
 
 
 namespace G4UA
@@ -55,14 +16,10 @@ namespace G4UA
   /// @class G4TrackCounter
   /// @brief A simple action which counts tracks.
   ///
-  /// This action currently implements BeginEvent, EndRun, and PreTracking
-  /// interfaces. It's not clear if we really want to implement EndRun here.
-  /// Presumably we'll need to merge the counter results across threads, so it
-  /// might make sense to move some of that functionality in the finalize
-  /// method of the corresponding tool.
+  /// This action currently implements BeginEvent and PreTracking interfaces.
   ///
-  class G4TrackCounter : public IBeginEventAction,
-                         public IPreTrackingAction
+  class G4TrackCounter : public G4UserEventAction,
+                         public G4UserTrackingAction
   {
 
     public:
@@ -88,10 +45,10 @@ namespace G4UA
       /// @brief Increments event counter.
       /// I feel like there must be a better way to get this info.
       /// Hmm, the G4Run has a numberOfEvent field...
-      virtual void beginOfEvent(const G4Event* event) override;
+      virtual void BeginOfEventAction(const G4Event* event) override final;
 
       /// Increments the track counters
-      virtual void preTracking(const G4Track* track) override;
+      virtual void PreUserTrackingAction(const G4Track* track) override final;
 
       /// Retrieve my counts
       const Report& getReport() const

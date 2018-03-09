@@ -35,10 +35,16 @@ endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-  run_tpcnv_test( egammaEventTPCnv_15.1.0    AOD-15.1.0-full )
-  run_tpcnv_test( egammaEventTPCnv_15.6.9    AOD-15.6.9-full )
-  run_tpcnv_test( egammaEventTPCnv_16.6.7.1  AOD-16.6.7.1-full )
-  run_tpcnv_test( egammaEventTPCnv_18.0.0    AOD-18.0.0-full )
+   set( EGAMMAATHENAPOOL_REFERENCE_TAG
+        egammaAthenaPoolReference-01-00-00 )
+  run_tpcnv_test( egammaEventTPCnv_15.1.0    AOD-15.1.0-full
+                   REFERENCE_TAG ${EGAMMAATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( egammaEventTPCnv_15.6.9    AOD-15.6.9-full
+                   REFERENCE_TAG ${EGAMMAATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( egammaEventTPCnv_16.6.7.1  AOD-16.6.7.1-full
+                   REFERENCE_TAG ${EGAMMAATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( egammaEventTPCnv_18.0.0    AOD-18.0.0-full
+                   REFERENCE_TAG ${EGAMMAATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   

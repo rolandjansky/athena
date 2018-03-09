@@ -10,17 +10,42 @@ class TriggerInfo:
     ''' Object containing all the HLT information related to a given period.
         Stores a list of TriggerChain objects and the functions to skim them
     '''
-    def __init__(self,period):
+    def __init__(self,period=0, customGRL=None):
         self.triggerChains = []
         self.period = period
+        self.totalLB = 0
 
+        if not period: return
         from TriggerDataAccess import getHLTlist
-        HLTlist = getHLTlist(period)
-        for hlt, l1, ps in HLTlist:
-            self.triggerChains.append( TriggerChain(hlt, l1, ps))
+        HLTlist, totalLB = getHLTlist(period, customGRL)
+        self.totalLB = totalLB
+        for hlt, l1, livefraction, activeLB in HLTlist:
+            self.triggerChains.append( TriggerChain(hlt, l1, livefraction, activeLB))
+
+    @classmethod
+    def merge(cls,listofTI):
+        from copy import deepcopy
+        mergedTI = TriggerInfo()
+        mergedHLTmap = {}
+        for ti in listofTI:
+            mergedTI.period |= ti.period
+            mergedTI.totalLB += ti.totalLB
+            for tc in ti.triggerChains:
+                if tc.name not in mergedHLTmap: mergedHLTmap[tc.name] = deepcopy(tc)
+                else: mergedHLTmap[tc.name].activeLB += tc.activeLB
+        for tc in mergedHLTmap.itervalues():
+            tc.livefraction = tc.activeLB/float(mergedTI.totalLB)
+        mergedTI.triggerChains = mergedHLTmap.values()
+        return mergedTI
+        
+
+    @classmethod
+    def testCustomGRL(cls, grl):
+        from TriggerMenu.api.TriggerPeriodData import TriggerPeriodData
+        return TriggerPeriodData.testCustomGRL(grl)
 
     def reparse(self):
-        self.triggerChains = [ TriggerChain(t.name, t.l1seed, t.prescale) for t in self.triggerChains ]
+        self.triggerChains = [ TriggerChain(t.name, t.l1seed, t.livefraction, t.activeLB) for t in self.triggerChains ]
 
     def _getUnprescaled(self,triggerType, additionalTriggerType, matchPattern, livefraction=1.0):
         return [x.name for x in self.triggerChains if x.isUnprescaled(livefraction) and x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)]
@@ -46,7 +71,7 @@ class TriggerInfo:
 
 
     def _getAllHLT(self,triggerType, additionalTriggerType, matchPattern):
-        return {x.name: x.prescale for x in self.triggerChains if x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)}
+        return {x.name: x.livefraction for x in self.triggerChains if x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)}
 
 
 class TriggerLeg:
@@ -249,12 +274,13 @@ class TriggerChain:
     l1types        = ('EM','J','MU','TAU','XE','XS','HT')
     l1pattern      = re.compile('([0-9]*)(%s)([0-9]+)' % '|'.join(l1types))
 
-    def __init__(self,name,l1seed,prescale):
+    def __init__(self,name,l1seed,livefraction,activeLB):
         self.name = name
         self.l1seed = l1seed
         tmplegs = TriggerLeg.parse_legs(name,l1seed,name)
         self.legs = self.splitAndOrderLegs(tmplegs)
-        self.prescale = prescale
+        self.livefraction = livefraction
+        self.activeLB = activeLB
         self.triggerType = self.getTriggerType(self.legs, l1seed)
 
     def splitAndOrderLegs(self, legs):
@@ -322,13 +348,11 @@ class TriggerChain:
             if m:
                 count,legtype,thr = m.groups()
                 count = int(count) if count else 1
-                if legtype == 'EM':
-                    assert(mtype & TriggerType.g or mtype & TriggerType.el or mtype & TriggerType.exotics), (legtype, mtype, self.name)
+                if legtype == 'EM' or legtype == 'TAU':
+                    pass
                 elif legtype == 'MU':
                     if count > 1: mtype |= TriggerType.mu_multi
                     elif not mtype & TriggerType.mu_multi: mtype |= TriggerType.mu_single
-                elif legtype == 'TAU':
-                    assert(mtype & TriggerType.tau or mtype & TriggerType.exotics), (legtype, mtype, self.name)
                 elif legtype == 'J':
                     if not mtype & TriggerType.bj and not mtype & TriggerType.j and not mtype & TriggerType.tau and not mtype & TriggerType.ht:
                         if count > 1: mtype |= TriggerType.j_multi
@@ -338,11 +362,11 @@ class TriggerChain:
                 elif legtype == 'HT':
                     mtype |= TriggerType.ht
                 else:
-                    print "Unknown trigger type:",legtype
+                    print "Unknown trigger type:",(legtype, mtype, token, self.name)
         return mtype
 
     def isUnprescaled(self, livefraction=1.0):
-        return self.prescale >= livefraction
+        return self.livefraction >= livefraction
 
     def getType(self):
         return self.triggerType
@@ -368,7 +392,7 @@ class TriggerChain:
         return tmpType == TriggerType.UNDEFINED #After matches nothing remains
 
     def __repr__(self):
-        print self.name, self.legs, "{0:b}".format(self.triggerType), self.prescale
+        print self.name, self.legs, "{0:b}".format(self.triggerType), self.livefraction, self.activeLB
         return ""
 
     def isLowerThan(self, other):

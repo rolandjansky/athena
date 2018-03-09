@@ -20,11 +20,10 @@
 ISF::GenParticleFinalStateFilter::GenParticleFinalStateFilter( const std::string& t,
                                                                const std::string& n,
                                                                const IInterface* p )
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_checkGenSimStable(true),
     m_checkGenInteracting(true)
 {
-    declareInterface<ISF::IGenParticleFilter>(this);
     // different options
     declareProperty("CheckGenSimStable",        m_checkGenSimStable);
     declareProperty("CheckGenInteracting",      m_checkGenInteracting);
@@ -62,5 +61,5 @@ bool ISF::GenParticleFinalStateFilter::isFinalState(const HepMC::GenParticle &p)
   // particle is in its final state if both:
   //  * no end_vertex
   //  * status==1
-  return ( (!p.end_vertex()) && (p.status()==1) );
+  return ( !p.end_vertex() && p.status()==1 );
 }

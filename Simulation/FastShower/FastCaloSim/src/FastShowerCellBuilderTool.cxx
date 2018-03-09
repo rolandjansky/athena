@@ -1030,10 +1030,10 @@ bool FastShowerCellBuilderTool::get_calo_etaphi(std::vector<Trk::HitInfo>* hitVe
       double eta_avg=0.5*(hitPos1.eta()+hitPos2.eta());
       double t;
       double tmp_target=0;
-      if(isCaloBarrel(sample)) {
+      double r1=hitPos1.perp();
+      double r2=hitPos2.perp();
+      if(isCaloBarrel(sample) && std::abs(r1-r2) > 1e-3) {
         double r=rmid(sample,eta_avg);
-        double r1=hitPos1.perp();
-        double r2=hitPos2.perp();
         t=(r-r1)/(r2-r1);
         tmp_target=r;
       } else {

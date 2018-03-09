@@ -36,6 +36,5 @@ addTool("G4AtlasTests.G4AtlasTestsConfig.PileupTruthTestTool", "PileupTruthTestT
 addTool("G4AtlasTests.G4AtlasTestsConfig.CaloEntryLayerTestTool", "CaloEntryLayerTestTool")
 addTool("G4AtlasTests.G4AtlasTestsConfig.MuonEntryLayerTestTool", "MuonEntryLayerTestTool")
 addTool("G4AtlasTests.G4AtlasTestsConfig.MuonExitLayerTestTool",  "MuonExitLayerTestTool")
-addTool("G4AtlasTests.G4AtlasTestsConfig.SteppingValidation", "SteppingValidation")
 addTool("G4AtlasTests.G4AtlasTestsConfig.getSteppingValidationTool", "G4UA::SteppingValidationTool")
 addTool("G4AtlasTests.G4AtlasTestsConfig.LucidHitsTestTool", "LucidHitsTestTool")

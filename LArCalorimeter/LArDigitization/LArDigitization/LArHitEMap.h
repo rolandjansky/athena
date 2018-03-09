@@ -27,7 +27,7 @@ class LArHitEMap
 
 public: 
  typedef std::vector<LArHitList*>  EMAP;
- typedef std::vector<LArDigit*> DIGMAP;
+ typedef std::vector<const LArDigit*> DIGMAP;
 
  enum { EMBARREL_INDEX  = 0
        ,EMENDCAP_INDEX  = 1
@@ -67,8 +67,8 @@ public:
   int find(Identifier cellid);
   bool  initialized(); 
   void DigitReset();
-  bool AddDigit(LArDigit* digit);
-  inline LArDigit* GetDigit(unsigned int index) {
+  bool AddDigit(const LArDigit* digit);
+  inline const LArDigit* GetDigit(unsigned int index) {
     if (index<m_digmap.size()) return m_digmap[index];
     else return 0; 
   }

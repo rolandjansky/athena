@@ -216,7 +216,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   //Use the std tool and the cached result always. For TRT only it does not matter if perigee or rescaled requested.
   if (isTRT){
     if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
-      ATH_MSG_WARNING("Could not create an extension for TRT only track with : "<< " Track Pt "
+      ATH_MSG_INFO("Could not create an extension for TRT only track with : "<< " Track Pt "
 		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
 		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
       return StatusCode::SUCCESS;
@@ -242,7 +242,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   //GSF track Particles, extrapolate from perigee , using the egamma tool instance and the egamma dedicated cache.
   else if( trkPB->trackFitter() == xAOD::GaussianSumFilter && fromPerigee == extrapFrom){
     if(!m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,extension, m_useCaching)){
-      ATH_MSG_WARNING("Could not create an extension from perigee for a silicon GSF track with : "<< " Track Pt "
+      ATH_MSG_INFO("Could not create an extension from perigee for a silicon GSF track with : "<< " Track Pt "
 		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
 		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
       return StatusCode::SUCCESS;
@@ -251,7 +251,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   //GSF track Particles, from last measurement , the cache for GSF is used for the perigee so do not use it here 
   else if( trkPB->trackFitter() == xAOD::GaussianSumFilter && fromLastMeasurement == extrapFrom){
     if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension, false)){
-      ATH_MSG_WARNING("Could not create an extension from last measurement for a silicon GSF track with : "<< " Track Pt "
+      ATH_MSG_INFO("Could not create an extension from last measurement for a silicon GSF track with : "<< " Track Pt "
 		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
 		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
       return StatusCode::SUCCESS;
@@ -260,7 +260,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   //Else track Particles before GSF, or failed GSF, or last measurement use the std tool/cache
   else {
     if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
-      ATH_MSG_WARNING("Could not create an extension from last measurement for a standard (non-GSF) track with : "<< " Track Pt "
+      ATH_MSG_INFO("Could not create an extension from last measurement for a standard (non-GSF) track with : "<< " Track Pt "
 		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
 		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
       return StatusCode::SUCCESS;
@@ -268,7 +268,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   }
   //------------------------------------------------------------------------------------------------------------------------------------//
   if(!extension){
-    ATH_MSG_WARNING("Could not create an extension for "<< " Track Pt "
+    ATH_MSG_INFO("Could not create an extension for "<< " Track Pt "
 		    <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
 		    << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
     return StatusCode::SUCCESS;
@@ -612,8 +612,7 @@ int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
     ATH_MSG_DEBUG("No trt ID guessing TRT section based on eta: " << trkPB->eta());
     return (trkPB->eta() > 0 ? 1 : -1) * (fabs(trkPB->eta()) < 0.6 ? 1 : 2);
   }
-  const Trk::TrackParameters* trkPar =0;
-  Trk::CurvilinearParameters temp;
+  const Trk::MeasurementBase* trkPar =0;  
   if( trkPB->trackLink().isValid() && trkPB->track() != 0 ) {
     ATH_MSG_DEBUG("Will get TrackParameters from Trk::Track");
     const DataVector<const Trk::TrackStateOnSurface> *trackStates = trkPB->track()->trackStateOnSurfaces();
@@ -621,16 +620,14 @@ int EMExtrapolationTools::getTRTsection(const xAOD::TrackParticle* trkPB) const{
       ATH_MSG_WARNING("NULL pointer to trackStateOnSurfaces");
       return 0;
     }   
-    //Loop over the TrkStateOnSurfaces
-    // search last valid TSOS first
-    for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS)
-      {
-	if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 && (*rItTSoS)->measurementOnTrack()!=0 
-	     && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())){
-	  trkPar = (*rItTSoS)->trackParameters();
-	  break;
-	}
+    //Loop over the TrkStateOnSurfaces search last valid TSOS first
+    for ( DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS){
+      if ( (*rItTSoS)->type(Trk::TrackStateOnSurface::Measurement) && !((*rItTSoS)->type(Trk::TrackStateOnSurface::Outlier)) && (*rItTSoS)->measurementOnTrack()!=0 
+	   && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*rItTSoS)->measurementOnTrack())){
+	trkPar = (*rItTSoS)->measurementOnTrack();
+	break;
       }
+    }
   }
   else {
     ATH_MSG_WARNING("Track particle without Trk::Track");

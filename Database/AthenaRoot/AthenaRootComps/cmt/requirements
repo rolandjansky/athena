@@ -16,7 +16,6 @@ use TestPolicy      TestPolicy-*
 use GaudiInterface  GaudiInterface-* 	External
 use AtlasPOOL       AtlasPOOL-*         External
 
-use CxxUtils        CxxUtils-*          Control
 use AthenaKernel    AthenaKernel-*	Control
 use DataModelRoot   DataModelRoot-*     Control
 use RootUtils       RootUtils-*         Control
@@ -58,3 +57,4 @@ apply_pattern athenarun_test name="AthenaRootCompsEventless" pre_script="../test
 macro_append ROOT_linkopts " -lGraf"
 
 end_private
+

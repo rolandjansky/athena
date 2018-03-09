@@ -9,6 +9,7 @@ atlas_subdir( PFOHistUtils )
 atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODPFlow
+			  Event/xAOD/xAODTracking
                           Tracking/TrkValidation/TrkValHistUtils )
 
 # External dependencies:

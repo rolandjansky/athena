@@ -469,14 +469,14 @@ StatusCode HLTTauMonTool::proc()
 
 	}
 
-    	for(unsigned int i=0;i<m_topo_chains.size(); ++i){ 
-        	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i));  
+    	for(unsigned int i=0;i<m_topo_chains_ditau.size(); ++i){ 
+        	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i));  
 		plotUnderOverFlow(hist("hHLTdR"));  
     	}
 
 	if(m_doTopoValidation){
-		for(unsigned int topo=0;topo<m_topo_chains.size();topo++){
-			setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation/"+m_topo_chains.at(topo));
+		for(unsigned int topo=0;topo<m_topo_chains_ditau.size();topo++){
+			setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation/"+m_topo_chains_ditau.at(topo));
 			plotUnderOverFlow(hist("hDR"));	
 			plotUnderOverFlow(hist("hDRjets"));
 			plotUnderOverFlow(hist("hDRnoJets"));
@@ -666,9 +666,10 @@ StatusCode HLTTauMonTool::proc()
 	    cloneHistogram("hL1Counts","HLT/TauMon/Expert");
 	    cloneHistogram("hHLTCounts","HLT/TauMon/Expert");
 	    if(m_emulation) cloneProfile("hL1Emulation","HLT/TauMon/Expert/Emulation");
-            for(unsigned int j=0;j<m_topo_chains.size(); ++j){
-		setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots/"+m_topo_chains.at(j));
-		cloneProfile("TProfRecoL1_dREfficiency","HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(j));	
+            for(unsigned int j=0;j<m_topo_chains_ditau.size(); ++j){
+		setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots/"+m_topo_chains_ditau.at(j));
+		cloneProfile("TProfRecoL1_dREfficiency","HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(j));	
+
             }
 	    
             

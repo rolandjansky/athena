@@ -43,14 +43,27 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     //Set the base directory from the plot()
     m_dir=plot()->getBasePath();
     std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
+    //TrigEgammaAnalysisBaseTool::write_trigger_list(chains);
 
     for(const auto trigName:m_trigInputList){ 
         if (std::find(chains.begin(), chains.end(), trigName) != chains.end()){ 
             if(plot()->getTrigInfoMap().count(trigName) != 0)
                 ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
-            else 
+            else {
                 m_trigList.push_back(trigName);
+                setTrigInfo(trigName);
+            }
         }
+
+        // specail code to add trigger without the menu
+        else if(getEmulation() && m_forceTrigAttachment){// 
+          ATH_MSG_INFO("Trigger doesn't exist in menu. Attach to emulate.");
+          if(plot()->getTrigInfoMap().count(trigName) == 0){
+            m_trigList.push_back(trigName);
+            setTrigEmulation();
+            setTrigInfo(trigName);
+          }
+        }// emulation 
     }
     // Book histograms for average efficiencies and counters
     const int nTrigger = (int) m_trigList.size();
@@ -104,9 +117,6 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
         setLabels(hist1(m_anatype+"_EffHLT"),m_trigList);
         setLabels(hist1(m_anatype+"_CutCounter"),m_cutlabels);
     }
-    // Book the histograms per signature
-    for (int i = 0; i < (int) m_trigList.size(); i++)
-        setTrigInfo(m_trigList[i]);
  
     plot()->setEmulation(getEmulation()); 
     if(plot()->book(getTrigInfoMap()).isFailure()){

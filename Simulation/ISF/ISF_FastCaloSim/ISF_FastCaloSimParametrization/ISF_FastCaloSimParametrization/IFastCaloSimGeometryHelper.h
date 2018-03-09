@@ -11,14 +11,16 @@
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
-#include "ISF_FastCaloSimParametrization/ICaloGeometry.h"
+#include "ISF_FastCaloSimEvent/ICaloGeometry.h"
  
 static const InterfaceID IID_IFastCaloSimGeometryHelper("IFastCaloSimGeometryHelper", 1, 0);
    
 class IFastCaloSimGeometryHelper : virtual public IAlgTool,virtual public ICaloGeometry {
   public:
-    /** AlgTool interface methods */
-    static const InterfaceID& interfaceID() { return IID_IFastCaloSimGeometryHelper; }
+
+  virtual ~IFastCaloSimGeometryHelper() {}
+  /** AlgTool interface methods */
+  static const InterfaceID& interfaceID() { return IID_IFastCaloSimGeometryHelper; }
     
 };
 

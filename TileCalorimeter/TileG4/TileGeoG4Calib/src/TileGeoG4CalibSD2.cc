@@ -23,7 +23,7 @@
 #include "TileGeoG4DMLookupBuilder.h"
 #include "TileGeoG4DMLookup.h"
 #include "TileEscapedEnergyProcessing.h"
-#include "TileGeoG4SD/TileGeoG4SDCalc.hh"
+#include "TileG4Interfaces/ITileCalculator.h"
 #include "TileGeoG4SD/TileGeoG4Lookup.hh"
 #include "TileGeoG4SD/TileGeoG4LookupBuilder.hh"
 #include "TileSimEvent/TileHitVector.h"
@@ -237,8 +237,8 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
 
   if ( (nameVol).find("Period") != G4String::npos) nPeriod = m_stepPhysVol->GetCopyNo();
   else
-  // Move up by one level to retrieve TilePeriod replica number
-  nPeriod = m_stepTouchable->GetVolume(1)->GetCopyNo();
+    // Move up by one level to retrieve TilePeriod replica number
+    nPeriod = m_stepTouchable->GetVolume(1)->GetCopyNo();
 
   // calculate z coordinate of the hit against the center of TilePeriod
   // or z coordinate of the TileWrapper's center against the center of TilePeriod
@@ -254,7 +254,7 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
   // by using of 'zLocal' calculate Sample of the step corresponding Cell
   switch (m_detector) {
 
-    case 1:  // Barrel
+  case 1:  // Barrel
     {
       if (zLocal < m_cSection->sample_ZBound[0]) {//-48.0
 
@@ -274,7 +274,7 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
       break;
     }
 
-    case 2:  // Ext.Barrel
+  case 2:  // Ext.Barrel
     {
       if (zLocal < m_cSection->sample_ZBound[0]) {//-48.0
 
@@ -291,7 +291,7 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
       break;
     }
 
-    case 3:  // ITC
+  case 3:  // ITC
     {
       if (zLocal < m_cSection->sample_ZBound[3]) {//17.0
 
@@ -302,7 +302,7 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
       break;
     }
 
-    case 4:  // Gap/Crack
+  case 4:  // Gap/Crack
     {
       if (zLocal < m_cSection->sample_ZBound[0]) { //1.4 - Gap,  -5.8 - Crack
 
@@ -356,12 +356,12 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
 #ifdef HITSINFO    //added by Sergey
   if (IDcalc==0 || IDcalc==1) {
     if (m_cellNum < 0)
-    det_side = -abs(m_detector);
+      det_side = -abs(m_detector);
     else
-    det_side = m_detector;
-    if (doHitsTXT) HitsInfoPrint(false,1);  // 1-CellIDCalculator
+      det_side = m_detector;
+    if (doHitsTXT) this->HitsInfoPrint(false,1);  // 1-CellIDCalculator
     if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-        1,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                       1,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
   }
 #endif
 
@@ -370,8 +370,8 @@ Identifier TileGeoG4CalibSD::CellIDCalculator() {
   return m_id;
 }
 
-Identifier TileGeoG4CalibSD::ScintIDCalculator() {
-  m_cell = m_calc->cell;  //retrieve Cell from TileGeoG4SDCalc
+Identifier TileGeoG4CalibSD::ScintIDCalculator(TileHitData& hitData) {
+  m_cell = hitData.cell;  //retrieve Cell from TileGeoG4SDCalc
   if (!m_cell) {
     G4cout << "ERROR: ScintIDCalculator: zero pointer to the current cell!" << G4endl;
     m_defaultHit = true;
@@ -385,32 +385,32 @@ Identifier TileGeoG4CalibSD::ScintIDCalculator() {
   m_calibHitType = 1;  //Cell Active CalibHit
 
   //determine remined ID fields
-  m_detector = m_calc->nDetector;
-  m_sample = m_calc->nSample - 1;
-  m_tower = m_calc->nTower - 1;
-  m_module = m_calc->nModule - 1;
-  m_side = m_calc->nSide;
+  m_detector = hitData.nDetector;
+  m_sample = hitData.nSample - 1;
+  m_tower = hitData.nTower - 1;
+  m_module = hitData.nModule - 1;
+  m_side = hitData.nSide;
   m_cellNum = m_cell->cellNum;
 
   //just a debugging of CaloCell ID fields
-  DebugCellIDFields();
+  this->DebugCellIDFields();
 
 #ifdef HITSINFO    //added by Sergey
   if (IDcalc==0 || IDcalc==2) {
     if (m_cellNum < 0)
-    det_side = -abs(m_detector);
+      det_side = -abs(m_detector);
     else
-    det_side = m_detector;
-    if (doHitsTXT) HitsInfoPrint(false,2);  // 2-ScintIDCalculator
+      det_side = m_detector;
+    if (doHitsTXT) this->HitsInfoPrint(false,2);  // 2-ScintIDCalculator
     if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-        2,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                       2,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
   }
 #endif
 
   //reetrieve CaloCell & Tile IDs
   m_id = m_caloCell_ID->cell_id(m_subCalo, m_detector, m_side, m_module, m_tower, m_sample);
-  m_id_pmt_down = m_calc->pmtID_down;
-  m_id_pmt_up = m_calc->pmtID_up;
+  m_id_pmt_down = hitData.pmtID_down;
+  m_id_pmt_up = hitData.pmtID_up;
 
   return m_id;
 }
@@ -490,12 +490,12 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     if (IDcalc==0 || IDcalc==3) {
       m_cellNum = m_cell->cellNum;
       if (m_cellNum < 0)
-      det_side = -abs(m_detector);
+        det_side = -abs(m_detector);
       else
-      det_side = m_detector;
+        det_side = m_detector;
       if (doHitsTXT) HitsInfoPrint(false,3);  // 3-PlateCellIDCalculator
       if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-          3,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                         3,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
@@ -582,12 +582,12 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     if (IDcalc==0 || IDcalc==3) {
       m_cellNum = m_cell->cellNum;
       if (m_cellNum < 0)
-      det_side = -abs(m_detector);
+        det_side = -abs(m_detector);
       else
-      det_side = m_detector;
+        det_side = m_detector;
       if (doHitsTXT) HitsInfoPrint(false,3);  // 3-PlateCellIDCalculator
       if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-          3,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                         3,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
@@ -661,7 +661,7 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator() {
     if (IDcalc==0 || IDcalc==3) {
       if (doHitsTXT) HitsInfoPrint(true,3);  // 3-PlateCellIDCalculator
       if (doHitsNTup) m_ntuple->storeHit(m_dm_subDet,m_dm_nphi,m_dm_neta,m_dm_sample,m_dm_region,
-          3,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                         3,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
@@ -696,11 +696,11 @@ Identifier TileGeoG4CalibSD::GirderCellIDCalculator() {
     }
     nGirderCell = static_cast<int>( (m_cSection->girderCells).size());
     if (m_side > 0)
-    //Finger on the positive side
-    m_gCell = m_cSection->girderCells[nGirderCell - 1];
+      //Finger on the positive side
+      m_gCell = m_cSection->girderCells[nGirderCell - 1];
     else
-    //Finger on the negative side
-    m_gCell = m_cSection->girderCells[nGirderCell - 2];
+      //Finger on the negative side
+      m_gCell = m_cSection->girderCells[nGirderCell - 2];
   } else {
     //Extended Finger or Extended EndPlate's last cell
     nGirderCell = static_cast<int>( (m_cSection->girderCells).size());
@@ -741,7 +741,7 @@ Identifier TileGeoG4CalibSD::GirderCellIDCalculator() {
   if (IDcalc==0 || IDcalc==4) {
     if (doHitsTXT) HitsInfoPrint(true,4);  // 4-GirderCellIDCalculator
     if (doHitsNTup) m_ntuple->storeHit(m_dm_subDet,m_dm_nphi,m_dm_neta,m_dm_sample,m_dm_region,
-        4,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                       4,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
   }
 #endif
 
@@ -826,7 +826,7 @@ Identifier TileGeoG4CalibSD::DefaultHitIDCalculator() {
     //barrel active zone
     isZinActiveRegion = true;
   } else if ( ( (m_zGlobal >= zEBarrelActiveMaxNeg) && (m_zGlobal <= zEBarrelActiveMinNeg))
-      || ( (m_zGlobal >= zEBarrelActiveMinPos) && (m_zGlobal <= zEBarrelActiveMaxPos))) {
+              || ( (m_zGlobal >= zEBarrelActiveMinPos) && (m_zGlobal <= zEBarrelActiveMaxPos))) {
     //ext.barrel active zone
     isZinActiveRegion = true;
   }
@@ -1070,7 +1070,7 @@ Identifier TileGeoG4CalibSD::DefaultHitIDCalculator() {
     if (IDcalc==0 || IDcalc==6) {
       if (doHitsTXT) HitsInfoPrint(true,6);  // 6-DefaultHitIDCalculator-DM hit
       if (doHitsNTup) m_ntuple->storeHit(m_dm_subDet,m_dm_nphi,m_dm_neta,m_dm_sample,m_dm_region,
-          6,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                         6,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
@@ -1085,12 +1085,12 @@ Identifier TileGeoG4CalibSD::DefaultHitIDCalculator() {
 #ifdef HITSINFO    //added by Sergey
     if (IDcalc==0 || IDcalc==5) {
       if (m_cellNum < 0)
-      det_side = -abs(m_detector);
+        det_side = -abs(m_detector);
       else
-      det_side = m_detector;
+        det_side = m_detector;
       if (doHitsTXT) HitsInfoPrint(false,5);  // 5-DefaultHitIDCalculator-Cell hit
       if (doHitsNTup) m_ntuple->storeHit(det_side,m_module,m_tower,m_sample,m_cellNum,
-          5,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
+                                         5,nEvent,m_xGlobal,m_yGlobal,m_zGlobal,m_E_tot);
     }
 #endif
 
@@ -1126,11 +1126,11 @@ bool TileGeoG4CalibSD::AreClassifiedEnergiesAllZero() {
   if ((m_result.energy[CaloG4::SimulationEnergies::kEm] == 0.) && (m_result.energy[CaloG4::SimulationEnergies::kNonEm] == 0.)
       && (m_result.energy[CaloG4::SimulationEnergies::kInvisible0] == 0.)
       && (m_result.energy[CaloG4::SimulationEnergies::kEscaped] == 0.))
-  //All of them are zero
-  return true;
+    //All of them are zero
+    return true;
   else
-  //they aren't all zero
-  return false;
+    //they aren't all zero
+    return false;
 }
 
 void TileGeoG4CalibSD::SetEscapedEnergy(double escapedEnergy) {
@@ -1150,8 +1150,8 @@ void TileGeoG4CalibSD::EnergiesSimpleCounter() {
 
   // calculate E_tot for current event only
   m_E_tot = m_result.energy[CaloG4::SimulationEnergies::kEm] + m_result.energy[CaloG4::SimulationEnergies::kNonEm]
-            + m_result.energy[CaloG4::SimulationEnergies::kInvisible0]
-            + m_result.energy[CaloG4::SimulationEnergies::kEscaped];
+    + m_result.energy[CaloG4::SimulationEnergies::kInvisible0]
+    + m_result.energy[CaloG4::SimulationEnergies::kEscaped];
 }
 
 void TileGeoG4CalibSD::DebugCellIDFields() {

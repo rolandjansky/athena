@@ -300,16 +300,6 @@ lctopo_groomed_modifiers = []
 lctopo_groomed_modifiers += [jtm.constitfourmom_lctopo]
 lctopo_groomed_modifiers += groomed_modifiers
 
-
-
-### XAOD SIZE REDUCTION
-# define a reduced set for AOD size reduction
-pflow_reduced_modifiers  = [jtm.constitfourmom_pflow,  jtm.jetens, "calib", jtm.jetsorter]
-emtopo_reduced_modifiers = [jtm.constitfourmom_emtopo, jtm.jetens, "calib", jtm.jetsorter]
-lctopo_reduced_modifiers = [jtm.constitfourmom_lctopo, jtm.jetens, "calib", jtm.jetsorter]
-
-
-
 # Filter out skipped tools.
 if len(jetFlags.skipTools()):
   jetlog.info( myname + "Tools to be skipped: " + str(jetFlags.skipTools()) )
@@ -337,10 +327,6 @@ jtm.modifiersMap["pflow_ungroomed"]       =      list(pflow_ungroomed_modifiers)
 jtm.modifiersMap["emtopo_groomed"]        =       list(emtopo_groomed_modifiers)
 jtm.modifiersMap["lctopo_groomed"]        =       list(lctopo_groomed_modifiers)
 jtm.modifiersMap["pflow_groomed"]         =        list(pflow_groomed_modifiers)
-
-jtm.modifiersMap["emtopo_reduced"]        =       list(emtopo_reduced_modifiers)
-jtm.modifiersMap["lctopo_reduced"]        =       list(lctopo_reduced_modifiers)
-jtm.modifiersMap["pflow_reduced"]         =        list(pflow_reduced_modifiers)
 
 if jetFlags.useTruth():
   jtm.modifiersMap["truth_ungroomed"]     =      list(truth_ungroomed_modifiers)

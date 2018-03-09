@@ -34,6 +34,10 @@ class IMCTruthClassifier;
 class MuonSimDataCollection;
 class CscSimDataCollection;
 
+namespace MuonGM {
+  class MuonDetectorManager;
+}
+
 namespace Muon {
 
 class MuonTruthDecorationAlg : public AthAlgorithm  {
@@ -72,6 +76,7 @@ private:
   ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
   ToolHandle<IMCTruthClassifier>        m_truthClassifier;
   ToolHandle<Trk::IExtrapolator>        m_extrapolator;
+  const MuonGM::MuonDetectorManager * m_muonMgr;
   bool m_createTruthSegment;
   std::string m_muonTruthSegmentContainerName;
   int m_barcodeOffset;

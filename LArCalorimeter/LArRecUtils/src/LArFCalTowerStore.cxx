@@ -88,7 +88,7 @@ bool LArFCalTowerStore::buildLookUp(CaloTowerContainer* theTowers)
   // get cell description manager
   const CaloDetDescrManager* theManager = CaloDetDescrManager::instance();
   if ( ! theManager->isInitialized() ){
-      msg << MSG::ERROR<< "CaloDetDescrManager is not initialized, module unusable!" << endreq;
+      msg << MSG::ERROR<< "CaloDetDescrManager is not initialized, module unusable!" << endmsg;
       return false;
     }
 
@@ -101,7 +101,7 @@ bool LArFCalTowerStore::buildLookUp(CaloTowerContainer* theTowers)
   // check
   if ( m_indxBound <= m_indxOffset ){
       msg << MSG::ERROR  << "cannot initialize internal store properly, index offset = " << m_indxOffset << ", index boundary = "
-	  << m_indxBound<< " -> module inactivated!"<< endreq;
+	  << m_indxBound<< " -> module inactivated!"<< endmsg;
       return false;
     }
 
@@ -113,7 +113,7 @@ bool LArFCalTowerStore::buildLookUp(CaloTowerContainer* theTowers)
 
   // report data store size
 //  msg << MSG::INFO << "internal matrix set up with " << m_dataMatrix.size()
- //     << " rows: Index Offset: " << m_indxOffset << " Index Boundary: "<< m_indxBound << endreq;
+ //     << " rows: Index Offset: " << m_indxOffset << " Index Boundary: "<< m_indxBound << endmsg;
 
 //  m_weightInModule.resize(m_rowsMatrix);
 //  m_binDescriptor.resize(m_rowsMatrix);
@@ -143,7 +143,7 @@ bool LArFCalTowerStore::buildLookUp(CaloTowerContainer* theTowers)
       const CaloDetDescrElement* theElement = theManager->get_element(cellIndex);
       if (!theElement) {
         msg << MSG::ERROR<< "Can't find element for index " << cellIndex
-            << endreq;
+            << endmsg;
         return false;
       }
       double xCell  = theElement->x();
@@ -220,7 +220,7 @@ bool LArFCalTowerStore::buildLookUp(CaloTowerContainer* theTowers)
       << minTowers << "/" << cellTowers << "/" << maxTowers
       << ", total number of cell fragments "
       << aveTowers
-      << endreq; */
+      << endmsg; */
   
 		  
 

@@ -84,7 +84,7 @@
 
    <TEST name="AtlasG4_trf_R1_single_particle_sim" type="script" suite="InDetFullChainTests_trf">
       <options_atn>
-        AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=OUT.HITS.pool.root --maxEvents=10 --skipEvents=0 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-02-00-00_VALIDATION --conditionsTag=OFLCOND-RUN12-SDR-10 --postInclude='sim:RecJobTransforms/UseFrontier.py'
+        AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=OUT.HITS.pool.root --maxEvents=10 --skipEvents=0 --randomSeed=10 --geometryVersion=ATLAS-R1-2012-03-00-00 --conditionsTag=OFLCOND-RUN12-SDR-19 --DataRunNumber '212272' --postInclude='sim:PyJobTransforms/UseFrontier.py'
       </options_atn>
       <timelimit>30</timelimit>
       <author>Nick Styles</author>
@@ -98,7 +98,7 @@
 
    <TEST name="Digi_trf_R1_single_particle_digi" type="script" suite="InDetFullChainTests_trf">
       <options_atn>
-        Digi_tf.py --inputHITSFile=OUT.HITS.pool.root --outputRDOFile=OUT.RDO.pool.root --geometryVersion=ATLAS-R1-2012-02-00-00 --maxEvents=10 --skipEvents=0 --digiSeedOffset1=11 --digiSeedOffset2=22 --postInclude='HITtoRDO:RecJobTransforms/UseFrontier.py' --conditionsTag=OFLCOND-RUN12-SDR-10
+        Digi_tf.py --inputHITSFile=OUT.HITS.pool.root --outputRDOFile=OUT.RDO.pool.root --geometryVersion=ATLAS-R1-2012-03-00-00 --maxEvents=10 --skipEvents=0 --digiSeedOffset1=11 --digiSeedOffset2=22 --postInclude='HITtoRDO:PyJobTransforms/UseFrontier.py' --conditionsTag=OFLCOND-RUN12-SDR-25
       </options_atn>
       <timelimit>20</timelimit>
       <author>Nick Styles</author>
@@ -112,7 +112,7 @@
 
    <TEST name="Reco_trf_R1_single_particle_reco" type="script" suite="InDetFullChainTests_trf">
       <options_atn>
-        Reco_tf.py inputRDOFile=OUT.RDO.pool.root outputESDFile=OUT.ESD.root outputAODFile=OUT.AOD.root postInclude=RecJobTransforms/UseFrontier.py --omitvalidation=ALL --test
+        Reco_tf.py inputRDOFile=OUT.RDO.pool.root outputESDFile=OUT.ESD.root outputAODFile=OUT.AOD.root postInclude=PyJobTransforms/UseFrontier.py --omitvalidation=ALL --test
       </options_atn>
       <timelimit>20</timelimit>
       <author>Nick Styles</author>
@@ -126,7 +126,7 @@
 
    <TEST name="Reco_trf_R1_single_particle_reco_ESDtoESD" type="script" suite="IBL_Example_trf">
       <options_atn>
-        Reco_tf.py inputESDFile=OUT.ESD.root outputESDFile=OUT.ESD.copy.root postInclude=RecJobTransforms/UseFrontier.py  --omitvalidation=ALL --test
+        Reco_tf.py inputESDFile=OUT.ESD.root outputESDFile=OUT.ESD.copy.root postInclude=PyJobTransforms/UseFrontier.py  --omitvalidation=ALL --test
       </options_atn>
       <timelimit>20</timelimit>
       <author>Nick Styles</author>
@@ -140,7 +140,7 @@
 
     <TEST name="AtlasG4_trf_R2_single_particle_sim" type="script" suite="InDetFullChainTests_trf">
       <options_atn>
-        AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=OUT.HITS.pool.root --maxEvents=10 --skipEvents=0 --randomSeed=10 --geometryVersion=ATLAS-R2-2015-01-05-00_VALIDATION --conditionsTag=OFLCOND-RUN12-SDR-10 --postInclude='sim:RecJobTransforms/UseFrontier.py'
+        AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=OUT.HITS.pool.root --maxEvents=10 --skipEvents=0 --randomSeed=10 --geometryVersion=ATLAS-R2-2015-03-01-00 --DataRunNumber '222525' --conditionsTag=OFLCOND-RUN12-SDR-19 --postInclude='sim:PyJobTransforms/UseFrontier.py'
       </options_atn>
       <timelimit>30</timelimit>
       <author>Nick Styles</author>
@@ -154,7 +154,7 @@
 
        <TEST name="Digi_trf_R2_single_particle_digi" type="script" suite="InDetFullChainTests_trf">
       <options_atn>
-        Digi_tf.py --inputHITSFile=OUT.HITS.pool.root --outputRDOFile=OUT.RDO.pool.root --geometryVersion=ATLAS-R2-2015-01-05-00 --maxEvents=10 --skipEvents=0 --digiSeedOffset1=11 --digiSeedOffset2=22 --postInclude='HITtoRDO:RecJobTransforms/UseFrontier.py' --conditionsTag=OFLCOND-RUN12-SDR-10
+        Digi_tf.py --inputHITSFile=OUT.HITS.pool.root --outputRDOFile=OUT.RDO.pool.root --geometryVersion=ATLAS-R2-2015-03-01-00 --maxEvents=10 --skipEvents=0 --digiSeedOffset1=11 --digiSeedOffset2=22 --postInclude='HITtoRDO:PyJobTransforms/UseFrontier.py' --conditionsTag=OFLCOND-RUN12-SDR-25
       </options_atn>
       <timelimit>20</timelimit>
       <author>Nick Styles</author>
@@ -168,7 +168,7 @@
 
        <TEST name="Reco_trf_R2_single_particle_reco" type="script" suite="InDetFullChainTests_trf">
       <options_atn>
-        Reco_tf.py inputRDOFile=OUT.RDO.pool.root outputESDFile=OUT.ESD.root outputAODFile=OUT.AOD.root postInclude=RecJobTransforms/UseFrontier.py --omitvalidation=ALL --test
+        Reco_tf.py inputRDOFile=OUT.RDO.pool.root outputESDFile=OUT.ESD.root outputAODFile=OUT.AOD.root postInclude=PyJobTransforms/UseFrontier.py --omitvalidation=ALL --test
       </options_atn>
       <timelimit>20</timelimit>
       <author>Nick Styles</author>
@@ -182,7 +182,7 @@
 
         <TEST name="Reco_trf_R2_single_particle_reco_ESDtoESD" type="script" suite="IBL_Example_trf">
       <options_atn>
-        Reco_tf.py inputESDFile=OUT.ESD.root outputESDFile=OUT.ESD.copy.root postInclude=RecJobTransforms/UseFrontier.py  --omitvalidation=ALL --test
+        Reco_tf.py inputESDFile=OUT.ESD.root outputESDFile=OUT.ESD.copy.root postInclude=PyJobTransforms/UseFrontier.py  --omitvalidation=ALL --test
       </options_atn>
       <timelimit>20</timelimit>
       <author>Nick Styles</author>

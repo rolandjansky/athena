@@ -23,7 +23,7 @@ if svcMgr.MessageSvc.OutputLevel <= DEBUG :
   print larCondFlags
 
 # POOL Converters
-include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
+#include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 #include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
 
 # Access to IOVSvc and IOVDbSvc

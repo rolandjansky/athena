@@ -41,6 +41,7 @@ class LArRTMParamExtractor : public AthAlgorithm
  private:
 
   std::vector<std::string> m_keylist;
+  bool m_isSC;
   bool m_testmode, m_dumpOmegaScan, m_dumpResOscill;
   std::string m_omegaScanKey, m_resOscillKeyBefore, m_resOscillKeyAfter;
   

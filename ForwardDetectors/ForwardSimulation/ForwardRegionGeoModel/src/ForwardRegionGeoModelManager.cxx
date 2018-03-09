@@ -16,14 +16,14 @@ ForwardRegionGeoModelManager::~ForwardRegionGeoModelManager()
 
 unsigned int ForwardRegionGeoModelManager::getNumTreeTops() const
 {
-  return volume.size(); 
+  return m_volume.size(); 
 }
 
 PVConstLink ForwardRegionGeoModelManager::getTreeTop(unsigned int i) const
 {
-  return volume[i];
+  return m_volume[i];
 }
 
 void  ForwardRegionGeoModelManager::addTreeTop(PVLink vol){
-  volume.push_back(vol);
+  m_volume.push_back(vol);
 }

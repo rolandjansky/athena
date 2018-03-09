@@ -22,11 +22,6 @@ xAOD::PFOContainer* xAODPFOContainerCnv::createPersistent(xAOD::PFOContainer* tr
 
   xAOD::PFOContainer* viewContainer = new xAOD::PFOContainer(trans->begin(),trans->end(), SG::VIEW_ELEMENTS);
 
-  xAOD::PFOContainer::iterator firstPFO = viewContainer->begin();
-  xAOD::PFOContainer::iterator lastPFO = viewContainer->end();
-  
-  for (; firstPFO != lastPFO; ++firstPFO) toPersistent(*firstPFO);
-
   return viewContainer;
 
 }

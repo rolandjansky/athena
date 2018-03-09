@@ -32,6 +32,7 @@
   <class name="xAOD::TruthEvent_v1" />
   <class name="xAOD::TruthPileupEvent_v1" />
   <class name="xAOD::TruthEvent_v1::PdfInfo" />
+  <class name="xAOD::TruthMetaData_v1" />
 
   <!-- The persistent classes: -->
   <class name="xAOD::TruthParticleContainer_v1"

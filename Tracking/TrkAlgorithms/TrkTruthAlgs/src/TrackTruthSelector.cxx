@@ -6,10 +6,12 @@
 
 TrackTruthSelector::TrackTruthSelector(const std::string &name,ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
+  m_detailed("DetailedTrackTruth"),
+  m_out("TrackTruthNew"),
   m_subDetWeights(SubDetHitStatistics::NUM_SUBDETECTORS, 1.)
 {
-  declareProperty("DetailedTrackTruthName",  m_detailedTrackTruthName="DetailedTrackTruth");
-  declareProperty("OutputName",  m_outputName="TrackTruthNew");
+  declareProperty("DetailedTrackTruthName",  m_detailed);
+  declareProperty("OutputName",  m_out);
 
   declareProperty("WeightPixel",  m_subDetWeights[SubDetHitStatistics::Pixel]);
   declareProperty("WeightSCT",    m_subDetWeights[SubDetHitStatistics::SCT]);
@@ -37,34 +39,27 @@ StatusCode TrackTruthSelector::finalize() {
 StatusCode TrackTruthSelector::execute() {
   ATH_MSG_DEBUG ("TrackTruthSelector::execute()");
 
-  StatusCode sc;
-
   //----------------------------------------------------------------
   // Retrieve the input
-  const DetailedTrackTruthCollection *detailed = 0;
-  sc = evtStore()->retrieve(detailed, m_detailedTrackTruthName);
-  if (sc.isFailure()){
-    ATH_MSG_WARNING ("DetailedTrackTruthCollection "<<m_detailedTrackTruthName<<" NOT found");
+
+  if (!m_detailed.isValid()){
+    ATH_MSG_WARNING ("DetailedTrackTruthCollection "<<m_detailed.name()<<" NOT found");
     return StatusCode::SUCCESS;
   } else {
-    ATH_MSG_DEBUG ("Got DetailedTrackTruthCollection "<<m_detailedTrackTruthName);
+    ATH_MSG_DEBUG ("Got DetailedTrackTruthCollection "<<m_detailed.name());
   }
 
 
   //----------------------------------------------------------------
   // Produce and store the output.
 
-  TrackTruthCollection *out = new TrackTruthCollection(detailed->trackCollectionLink());
+  m_out = std::unique_ptr<TrackTruthCollection>(new TrackTruthCollection(m_detailed->trackCollectionLink()));
 
-  fillOutput(out, detailed);
+  fillOutput(m_out.ptr(), m_detailed.cptr());
 
-  sc=evtStore()->record(out, m_outputName, false);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ("TrackTruthCollection '" << m_outputName << "' could not be registered in StoreGate !");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG ("TrackTruthCollection '" << m_outputName << "' is registered in StoreGate, size="<<out->size());
-  }
+
+  ATH_MSG_DEBUG ("TrackTruthCollection '" << m_out.name() << "' is registered in StoreGate, size="<<m_out->size());
+  
   
   return StatusCode::SUCCESS;
 

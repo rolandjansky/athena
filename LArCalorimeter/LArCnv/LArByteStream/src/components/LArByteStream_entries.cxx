@@ -8,12 +8,14 @@
 #include "LArByteStream/LArFebHeaderContByteStreamCnv.h"
 #include "LArByteStream/LArRawDataContByteStreamTool.h"
 #include "LArByteStream/LArRodDecoder.h"
+#include "LArByteStream/LArABBADecoder.h"
 #include "ByteStreamCnvSvcBase/CollectionByteStreamCnv.h"
 //#include "LArByteStream/LArRawChannelCollByteStreamTool.h"
 
 // Containers 
 DECLARE_TOOL_FACTORY( LArRawDataContByteStreamTool )
 DECLARE_TOOL_FACTORY( LArRodDecoder )
+DECLARE_TOOL_FACTORY( LArABBADecoder )
 DECLARE_CONVERTER_FACTORY( LArRawChannelContByteStreamCnv )
 DECLARE_CONVERTER_FACTORY( LArDigitContByteStreamCnv )
 DECLARE_CONVERTER_FACTORY( LArCalibDigitContByteStreamCnv )

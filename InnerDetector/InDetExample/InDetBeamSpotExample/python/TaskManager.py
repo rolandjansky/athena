@@ -14,9 +14,9 @@ analysis accross tasks.
 Written by Juerg Beringer (LBNL) in 2009.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: TaskManager.py 739379 2016-04-11 14:52:08Z amorley $'
+__version__ = 'TaskManager.py atlas/athena'
 
-import time, os, glob, dircache
+import time, os, glob, dircache, sys
 
 from InDetBeamSpotExample.Utils import getRunFromName
 from InDetBeamSpotExample.Utils import getUserName
@@ -82,7 +82,7 @@ def getFullTaskNames(taskman,dsname,taskname,requireSingleTask=False,confirmWith
         m += "    %-50s  %s\n" % ('DATASET NAME','TASK NAME')
         m += "    %s\n" % (75*'-')
         for t in taskList:
-            m += "    %-50s  %s\n" % (t[0],t[1])  
+            m += "    %-50s  %s\n" % (t[0],t[1])
         m += '\n'
         raise TaskManagerCheckError, m
     if confirmWithUser:
@@ -90,7 +90,7 @@ def getFullTaskNames(taskman,dsname,taskname,requireSingleTask=False,confirmWith
         print "    %-50s  %s" % ('DATASET NAME','TASK NAME')
         print "    %s" % (75*'-')
         for t in taskList:
-            print "    %-50s  %s" % (t[0],t[1])  
+            print "    %-50s  %s" % (t[0],t[1])
         a = raw_input('\nARE YOU SURE [n] ? ')
         if a!='y':
             raise TaskManagerCheckError, 'ERROR: Aborted by user'
@@ -140,6 +140,29 @@ class TaskManager:
                     'ARCHIVED': 10,
                     'DELETED': 11 }
 
+    @classmethod
+    def parseConnectionInfo(self, connstring=''):
+        if not connstring:
+            connstring = os.environ.get('TASKDB', 'sqlite_file:taskdata.db')
+
+        try:
+            dbtype, dbname = connstring.split(':', 1)
+        except:
+            raise ValueError, 'Illegal database connection string {}'.format(connstring)
+
+        if dbtype == 'auth_file':
+            # dbname is a file with the actual connection information
+            authfile = dbname
+            try:
+                with open(authfile) as af:
+                    connstring = af.read().strip()
+                dbtype, dbname = connstring.split(':', 1)
+            except:
+                raise ValueError, 'Invalid authorization file {} (not readable or invalid format)'.format(authfile)
+
+        return dbtype, dbname
+
+
     def __init__(self, connstring='', createDatabase=False):
         """Constructor. connstring is a connection string specifying either a SQLite file
            ("sqlite_file:..."), an Oracle database ("oracle://..."), or an authorization file
@@ -149,40 +172,22 @@ class TaskManager:
 
         self.debug = False
         self.paramstyle = None
+        self.is_managing_context = False
 
-        if not connstring:
-            if 'TASKDB' in os.environ:
-                connstring = os.environ['TASKDB']
-            else:
-                connstring = 'sqlite_file:taskdata.db'
+        self.dbtype, self.dbname = self.__class__.parseConnectionInfo(connstring)
 
-        try:
-            self.dbtype, self.dbname = connstring.split(':',1)
-        except:
-            raise ValueError, "Illegal database connection string "+connstring
-
-        if self.dbtype=='auth_file':
-            # self.dbname is a file with the actual connection information
-            authfile = self.dbname
-            try:
-                connstring = open(authfile).read().strip()
-                self.dbtype, self.dbname = connstring.split(':',1)
-            except:
-                raise ValueError, "Invalid authorization file %s (not readable or invalid format)" % authfile
-
-        if self.dbtype=='sqlite_file':
+        if self.dbtype == 'sqlite_file':
             import sqlite3
             self.paramstyle = 'qmark'
-            dbexists = os.access(self.dbname,os.F_OK)
+            dbexists = os.access(self.dbname, os.F_OK)
             if dbexists and createDatabase:
-                raise ValueError, "SQLite file "+self.dbname+" exists already - remove before recreating"
+                raise ValueError, 'SQLite file {} exists already - remove before recreating'.format(self.dbname)
             if not (dbexists or createDatabase):
-                raise ValueError, "TaskManager database not found (SQLite file "+self.dbname+")"
+                raise ValueError, 'TaskManager database not found (SQLite file {})'.format(self.dbname)
             self.dbcon = sqlite3.connect(self.dbname)
             if createDatabase:
                 self._createSQLiteSchema()
-
-        if self.dbtype=='oracle':
+        elif self.dbtype == 'oracle':
             import cx_Oracle
             self.paramstyle = 'named'
             try:
@@ -193,18 +198,20 @@ class TaskManager:
                 self.dbcon = cx_Oracle.connect(self.dbname)
             if createDatabase:
                 self._createOracleSchema()
+        else:
+            raise ValueError, 'Unknown database type: {}'.format(self.dbtype)
 
-        if not hasattr(self,'dbcon'):
-            raise ValueError, "Unknown database type: "+self.dbtype
+    def __enter__(self):
+        ''' Remember that we're inside a 'with' statement so we can warn otherwise: '''
+        self.is_managing_context = True
+        return self
 
-
-    def __del__(self):
-        """Destructor to close database connection"""
+    def __exit__(self, exc_type, exc_value, traceback):
+        ''' Close the database connection at the end of the 'with' statement. '''
         try:
             self.dbcon.close()
         except:
             print 'ERROR: Unable to close database connection'
-
 
     def _createSQLiteSchema(self):
         """Create the database schema for a SQLite3 database."""
@@ -308,6 +315,12 @@ end;
            of the current database) and executed, and the resulting cursor is returned.
            Loosely follows the method discussed in the Python Cookbook.
            WARNING: At present, limit doesn't work when ordering rows for Oracle!"""
+        if not self.is_managing_context:
+            print '**WARN**  TaskManager will keep the database connection open until it is deleted.'
+            print '**INFO**  TaskManager should generally only be used inside a with statement:'
+            print '**INFO**      with TaskManager(...) as taskman:'
+            print '**INFO**        # do something ...'
+
         if not statementParts:
             return None
         if isinstance(statementParts,str):
@@ -402,7 +415,7 @@ end;
                 updateStr = ['update TASKS set UPDATED =',DbParam(tstamp),
                              ', NJOBS = ',DbParam(task['NJOBS']+njobs),
                              ', ONDISK = ',DbParam(onDisk)]
-                
+
                 if not release in task['ATLREL']:
                     print 'WARNING: Updating task using different release: DSNAME = %s, TASKNAME = %s, release = = %s vs %s' % (dsName,taskName,task['ATLREL'],release)
                     release = '; '.join([task['ATLREL'],release])
@@ -413,7 +426,7 @@ end;
 
                 updateStr += ['where DSNAME = ',DbParam(dsName),'and TASKNAME = ',DbParam(taskName)]
 
-                self.execute( updateStr)    
+                self.execute( updateStr)
 
         else:
             # New task entry
@@ -513,7 +526,7 @@ end;
         q = [ 'select count(*) from TASKS' ]
         q.extend(qual)
         return self.execute(q).fetchone()[0]
-        
+
     def getTaskValue(self, dsName,taskName, what):
         """Get a single value from the task database. If the query results in more than one value, only
            the first value is returned."""

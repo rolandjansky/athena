@@ -20,8 +20,8 @@
 using namespace HLT;
 
 BSFilter::BSFilter( const std::string& name,ISvcLocator* pSvcLocator ) :
-  AthAlgorithm (name, pSvcLocator),All(0),pass(0),EventCounter(0),
-  m_trigbit(63),m_filterfile(""),efile(nullptr),m_EventIdFile(""),
+  AthAlgorithm (name, pSvcLocator),m_All(0),m_pass(0),m_EventCounter(0),
+  m_trigbit(63),m_filterfile(""),m_efile(nullptr),m_EventIdFile(""),
   m_trigConf( "TrigConf::TrigConfigSvc/TrigConfigSvc", name )
 {
   declareProperty("TriggerBit", m_trigbit);
@@ -33,7 +33,7 @@ BSFilter::~BSFilter(){}
 
 StatusCode BSFilter::initialize()
 {
-  All=0; pass=0;
+  m_All=0; m_pass=0;
   ATH_MSG_INFO( "Initializing BSFilter" );
   CHECK( m_trigConf.retrieve() );
 
@@ -47,13 +47,13 @@ StatusCode BSFilter::initialize()
         int r = fscanf(vfile, "%i %lu %i %i %lf\n", &vrun, &vevent, &vtrig, &vnvtx, &vdt);
         if (r>0){
           msg(MSG::DEBUG) << "Read "<<r<<" filter values: "<<vrun<<"/"<<vevent<<" "<<vtrig<<","<<vnvtx<<","<<vdt<<endmsg;
-          if (filtermap[vrun][vevent].magic==777){
-            msg(MSG::WARNING)<<"Already filter info for run/event "<<vrun<<"/"<<vevent<<", magic="<<filtermap[vrun][vevent].magic<<endmsg;
+          if (m_filtermap[vrun][vevent].magic==777){
+            msg(MSG::WARNING)<<"Already filter info for run/event "<<vrun<<"/"<<vevent<<", magic="<<m_filtermap[vrun][vevent].magic<<endmsg;
           }
-          filtermap[vrun][vevent].trig=vtrig;
-          filtermap[vrun][vevent].nvtx=vnvtx;
-          filtermap[vrun][vevent].dt=vdt;
-          filtermap[vrun][vevent].magic=777;
+          m_filtermap[vrun][vevent].trig=vtrig;
+          m_filtermap[vrun][vevent].nvtx=vnvtx;
+          m_filtermap[vrun][vevent].dt=vdt;
+          m_filtermap[vrun][vevent].magic=777;
           ++ne;
         }
         else{
@@ -70,10 +70,10 @@ StatusCode BSFilter::initialize()
   }
 
   //////////////////////////
-  efile=NULL;
+  m_efile=NULL;
   if (m_EventIdFile!=""){
-    efile = fopen(m_EventIdFile.c_str(),"w");
-    if (efile){
+    m_efile = fopen(m_EventIdFile.c_str(),"w");
+    if (m_efile){
       msg(MSG::INFO)<<"Opended EventIdFile: "<<m_EventIdFile<<endmsg;
     }
     else{
@@ -86,13 +86,13 @@ StatusCode BSFilter::initialize()
 
 StatusCode BSFilter::finalize()
 {
-  ATH_MSG_INFO("BS Filter PASSED "<<pass<<" FROM "<< All);
+  ATH_MSG_INFO("BS Filter PASSED "<<m_pass<<" FROM "<< m_All);
   return StatusCode::SUCCESS;
 }
 
 StatusCode BSFilter::execute()
 {
-  All++;
+  m_All++;
   ATH_MSG_INFO("BS Filter");
 
 
@@ -199,11 +199,11 @@ StatusCode BSFilter::execute()
     
 
     if(item_fired_after_veto && m_filterfile=="") {//don't bother to write out RAW if we're only running to make the trigs.txt file
-      // assert(item_fired_before_veto); //or else how could it pass after veto??
+      // assert(item_fired_before_veto); //or else how could it m_pass after veto??
       ATH_MSG_INFO("Filter Passed");
       setFilterPassed(true);
-      pass++;
-      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn); //"%ld" for evt_nbr since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
+      m_pass++;
+      if (m_efile) fprintf(m_efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn); //"%ld" for evt_nbr since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
     }
     else    {
       ATH_MSG_INFO("Filter Failed");
@@ -221,16 +221,16 @@ StatusCode BSFilter::execute()
     //Here is where you'd check for TAG info of some kind...
     if (m_filterfile!=""){
       passed=false;
-      if (filtermap[run][event].magic!=777){
+      if (m_filtermap[run][event].magic!=777){
         ATH_MSG_WARNING("Dont have info in filtermap for "<<run<<" "<<event);
       }
       else{
-        if (filtermap[run][event].nvtx==1 && filtermap[run][event].trig==1 && fabs(filtermap[run][event].dt) <3.0){
+        if (m_filtermap[run][event].nvtx==1 && m_filtermap[run][event].trig==1 && fabs(m_filtermap[run][event].dt) <3.0){
           passed=true;
-          ATH_MSG_INFO("Passing filter event "<<run<<" "<<event<<", trig run dt magic: "<<filtermap[run][event].trig<<" "<<filtermap[run][event].nvtx<<" "<<filtermap[run][event].dt<<" "<<filtermap[run][event].magic);
+          ATH_MSG_INFO("Passing filter event "<<run<<" "<<event<<", trig run dt magic: "<<m_filtermap[run][event].trig<<" "<<m_filtermap[run][event].nvtx<<" "<<m_filtermap[run][event].dt<<" "<<m_filtermap[run][event].magic);
         }
         else{
-          ATH_MSG_INFO("Not passing filter event "<<run<<" "<<event<<", trig run dt magic: "<<filtermap[run][event].trig<<" "<<filtermap[run][event].nvtx<<" "<<filtermap[run][event].dt<<" "<<filtermap[run][event].magic);
+          ATH_MSG_INFO("Not passing filter event "<<run<<" "<<event<<", trig run dt magic: "<<m_filtermap[run][event].trig<<" "<<m_filtermap[run][event].nvtx<<" "<<m_filtermap[run][event].dt<<" "<<m_filtermap[run][event].magic);
         }
       }
     }
@@ -241,8 +241,8 @@ StatusCode BSFilter::execute()
     if(passed)    {
       ATH_MSG_INFO("Filter Passed");
       setFilterPassed(true);
-      pass++;
-      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn); //"%ld" for evt_n    br since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
+      m_pass++;
+      if (m_efile) fprintf(m_efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn); //"%ld" for evt_n    br since it's 64 bit, but need fix for https://its.cern.ch/jira/browse/ATEAM-286 first!
     }
     else    {
       ATH_MSG_INFO("Filter Failed");

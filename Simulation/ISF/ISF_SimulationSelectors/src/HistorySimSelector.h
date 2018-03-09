@@ -13,49 +13,51 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // ISF includes
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 #include "ISF_Event/SimSvcID.h"
 
-namespace ISF {
+namespace ISF
+{
 
   // forward declarations
   class ISimulationSvc;
 
 
   /** @class HistorySimSelector
-  
+
       Simplistic simulation selector using the particle's history
-  
+
       @author Elmar.Ritsch -at- cern.ch
-     */
-  class HistorySimSelector : public ISimulationSelector {
-      
-    public: 
-     /** Constructor with parameters */
-     HistorySimSelector( const std::string& t, const std::string& n, const IInterface* p );
+  */
+  class HistorySimSelector final : public BaseSimulationSelector
+  {
 
-     /** Destructor */
-     ~HistorySimSelector();
+  public:
+    /** Constructor with parameters */
+    HistorySimSelector( const std::string& t, const std::string& n, const IInterface* p );
 
-     // Athena algtool's Hooks
-     virtual StatusCode  initialize();
-     virtual StatusCode  finalize();
+    /** Destructor */
+    ~HistorySimSelector();
 
-     /** called at the beginning of each athena event */
-     virtual void beginEvent();
+    // Athena algtool's Hooks
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  finalize() override;
 
-     /** check whether given particle passes all cuts -> will be used for routing decision*/
-     virtual bool passSelectorCuts(const ISFParticle& particle) const;
+    /** called at the beginning of each athena event */
+    virtual void beginEvent() override;
 
-    private:
-     /** will check given particles if they were previously simulated by
-         the SimulationSvc/ID defined in here */
-     ServiceHandle<ISF::ISimulationSvc>          m_prevSimSvcHandle; //!< SimSvc handle
-     SimSvcID                                    m_prevSimSvcID;     //!< same SimSvc ID
+    /** check whether given particle passes all cuts -> will be used for routing decision*/
+    virtual bool passSelectorCuts(const ISFParticle& particle) const override;
 
-     bool                                        m_checkSameGeoID;   //!< check that geoID did not change
+  private:
+    /** will check given particles if they were previously simulated by
+        the SimulationSvc/ID defined in here */
+    ServiceHandle<ISF::ISimulationSvc>          m_prevSimSvcHandle; //!< SimSvc handle
+    SimSvcID                                    m_prevSimSvcID;     //!< same SimSvc ID
+
+    bool                                        m_checkSameGeoID;   //!< check that geoID did not change
   };
-  
+
 }
 
 #endif //> !ISF_TOOLS_PASSPORTSIMSELECTOR_H

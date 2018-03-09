@@ -18,7 +18,7 @@ LArDAC2uASC::LArDAC2uASC(const CondAttrListCollection* attrList) {
    readBlob(attrList,"DAC2uA",*m_log);
 
   if (m_pValues.size()!=1) {
-    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endreq;
+    (*m_log) << MSG::ERROR << "Found unexpected number of gains (" << m_pValues.size() <<"). Expected exactly one gain." << endmsg;
   }
 
   return;

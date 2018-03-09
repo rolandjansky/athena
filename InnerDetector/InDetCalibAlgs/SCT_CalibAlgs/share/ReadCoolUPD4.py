@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 ############################################################################################
 # @file: Script to extract information for the uploaded in the COOL DB runs with UPD4 Tag
 #       

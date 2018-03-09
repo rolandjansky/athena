@@ -138,7 +138,7 @@ def main():
     parser.add_argument('--oldTimestamp',default="",help="If specified, will instead display a diff between the old and new timestamp, showing explanation of any changed parameters")
 
     parser.add_argument('--explainFields',nargs='+',default=[],help="The fields you would like explained .. will appear as comment lines after each row in the output")
-    parser.add_argument('--explainInfo',nargs='+',default=[],help="Properties of the parameter you want to show in the explanation. Can list from: explanation, insert_time, physicsGroup, createdby")
+    parser.add_argument('--explainInfo',nargs='+',default=['explanation','insert_time'],help="Properties of the parameter you want to show in the explanation. Can list from: explanation, insert_time, physicsGroup, createdby. Default is: explanation,insert_time")
     parser.add_argument('--outFile',default=sys.stdout,type=argparse.FileType('w'),help="Where to print the output to. Leave blank to print to stdout")
     parser.add_argument('--delim',default="",help="The delimiter character. Defaults to spaces leading to nice formatting table")
     parser.add_argument('-v',action='store_true',help="Verbose output for debugging")
@@ -272,7 +272,7 @@ def main():
         if ds in dataset_values.keys():
             sorted_values[ds] = dataset_values[ds]
 
-    for ds in dataset_values.keys():
+    for ds in sorted(dataset_values):
         if ds not in sorted_values.keys():
             sorted_values[ds] = dataset_values[ds]
     dataset_values = sorted_values
@@ -394,12 +394,13 @@ def main():
                     paramVals[param] = str(r[u'paramValue'])
                     if param=="crossSection_pb": paramVals[param] = str(float(paramVals[param])*1000.0)
                     bestGroupIndex=args.physicsGroups.index(str(r[u'physicsGroup']))
-                    #keep the explanation info 
-                    for e in args.explainInfo: 
-                        if unicode(e) not in r:
-                            logging.error("Unrecognised explainInfo field: %s" % e)
-                            return -1
-                        explainInfo[param][e]=str(r[unicode(e)])
+                    #keep the explanation info for the requested fields
+                    if param in explainInfo.keys():
+                        for e in args.explainInfo: 
+                            if unicode(e) not in r:
+                                logging.error("Unrecognised explainInfo field: %s" % e)
+                                return -1
+                            explainInfo[param][e]=str(r[unicode(e)])
                 if args.oldTimestamp!="":
                     bestGroupIndex = len(args.physicsGroups)
                     paramVals2[param] = copy.copy(fieldDefaults[param])
@@ -490,7 +491,8 @@ def main():
                     else: outString += "%s: %s" % (eField,expl[eField])
                     doneFirst=True
                 outString += " }"
-                print(outString,file=args.outFile)
+                #print(outString,file=args.outFile)
+                outputTable += [["COMMENT",outString]]
 
     if args.oldTimestamp!="":
         args.outFile.close()

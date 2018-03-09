@@ -1,0 +1,11 @@
+K 10
+svn:ignore
+V 79
+cleanup.*sh
+setup.*sh
+install.*history
+native_version.cmt
+version.cmt
+Makefile
+
+END

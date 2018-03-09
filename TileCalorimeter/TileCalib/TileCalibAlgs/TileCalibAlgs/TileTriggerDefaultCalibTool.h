@@ -16,6 +16,7 @@
 
 class TileBeamInfoProvider;
 class TileCablingService;
+class TileCondToolEmscale;
 class CaloLVL1_ID;
 class TileHWID;
 class TileID;
@@ -47,7 +48,7 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   std::string m_ntupleID;
   std::string m_triggerTowerLocation;     //trigger tower container name
   int m_maxNTT;
-  int m_nevpmt;
+  unsigned int m_nevpmt;
 
   // Tools / storegate info
   TileBeamInfoProvider *m_beamPrv;
@@ -55,6 +56,7 @@ class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalib
   const TileHWID* m_tileHWID;
   const TileID*   m_tileID;
   const TileCablingService* m_tileCablingService;
+  ToolHandle<TileCondToolEmscale> m_tileToolEmscale; //!< main Tile Calibration tool
  
   // Results Tile
   float m_meanTile[5][64][48];

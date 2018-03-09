@@ -16,7 +16,7 @@
 
 
 #include "AuxStoreARA.h"
-#include "RootAuxVectorFactory.h"
+#include "AthContainersRoot/RootAuxVectorFactory.h"
 #include "AthenaROOTAccess/branchSeek.h"
 #include "AthContainers/tools/error.h"
 
@@ -183,7 +183,7 @@ AuxStoreARA::AuxStoreARA(IAuxBranches &container, long long entry, bool standalo
           TClass* vec_class = TClass::GetClass (branch_type_name.c_str());
 
           if (vec_class) {
-            SG::IAuxTypeVectorFactory* fac = new RootAuxVectorFactory (vec_class);
+            SG::IAuxTypeVectorFactory* fac = new SG::RootAuxVectorFactory (vec_class);
             r.addFactory (*ti, fac);
             auxid = r.getAuxID(*ti, attr);
           }

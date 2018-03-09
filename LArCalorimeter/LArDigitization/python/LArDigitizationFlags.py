@@ -23,6 +23,15 @@ class useFcalHighGain(JobProperty):
     statusOn     = False
     allowedTypes = ['bool']
     StoredValue  = False
+
+#
+class useEmecIwHighGain(JobProperty):
+    """ Flag to decide if using high gain for EMEC IW or not
+    """  
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
                            
 # Defines the container for the cell making flags
 class LArDigitizationFlags(JobPropertyContainer):
@@ -38,7 +47,7 @@ jobproperties.add_Container(LArDigitizationFlags)
 
 # We want always the following flags in the container  
 list_jobproperties = [
-    useFcalHighGain
+    useFcalHighGain,useEmecIwHighGain
     ]
 
 for i in list_jobproperties:

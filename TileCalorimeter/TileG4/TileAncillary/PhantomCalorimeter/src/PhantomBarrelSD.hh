@@ -9,8 +9,8 @@
 //
 //************************************************************
 
-#ifndef PhantomCalorimeter_PhantomBarrelSD_H
-#define PhantomCalorimeter_PhantomBarrelSD_H
+#ifndef PHANTOMCALORIMETER_PHANTOMBARRELSD_H
+#define PHANTOMCALORIMETER_PHANTOMBARRELSD_H
 
 // Base class
 #include "G4VSensitiveDetector.hh"
@@ -29,28 +29,27 @@ class G4Step;
 class G4HCofThisEvent;
 class TileTBID;
 
-class PhantomBarrelSD : public G4VSensitiveDetector
-{
-public:
-  PhantomBarrelSD(const std::string& name, const std::string& hitCollectionName);
-  ~PhantomBarrelSD();
+class PhantomBarrelSD: public G4VSensitiveDetector {
+  public:
+    PhantomBarrelSD(const std::string& name, const std::string& hitCollectionName);
+    ~PhantomBarrelSD();
 
-  // Called from PhantomBarrelSDTool::SetupEvent
-  void StartOfAthenaEvent ();
-  void Initialize(G4HCofThisEvent*) override final;
-  G4bool ProcessHits(G4Step*, G4TouchableHistory*) override final;
-  void EndOfAthenaEvent();
+    // Called from PhantomBarrelSDTool::SetupEvent
+    void StartOfAthenaEvent();
+    void Initialize(G4HCofThisEvent*) override final;
+    G4bool ProcessHits(G4Step*, G4TouchableHistory*) override final;
+    void EndOfAthenaEvent();
 
-private:
-  const TileTBID* m_tileTBID;
+  private:
+    const TileTBID* m_tileTBID;
 
-  static const int nCell = 8;
+    static const int N_CELLS = 8;
 
-  int m_nhits[nCell];
-  TileSimHit* m_hit[nCell];
-  Identifier m_id[nCell];
-  // The hits collections
-  SG::WriteHandle<TileHitVector> m_HitColl;
+    int m_nhits[N_CELLS];
+    TileSimHit* m_hit[N_CELLS];
+    Identifier m_id[N_CELLS];
+    // The hits collections
+    SG::WriteHandle<TileHitVector> m_HitColl;
 };
 
-#endif
+#endif  // PHANTOMCALORIMETER_PHANTOMBARRELSD_H

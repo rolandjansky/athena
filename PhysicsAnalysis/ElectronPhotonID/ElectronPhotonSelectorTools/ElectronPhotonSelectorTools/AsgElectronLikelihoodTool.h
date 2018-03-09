@@ -10,7 +10,7 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "PATCore/TAccept.h"            // for TAccept
 #include "PATCore/TResult.h"            // for TResult
@@ -125,6 +125,8 @@ private:
 
   /// Get the name of the current operating point
 
+  /// check for FwdElectron
+  bool isForwardElectron( const xAOD::Egamma* eg, const float eta ) const;
 
 
   // Private member variables

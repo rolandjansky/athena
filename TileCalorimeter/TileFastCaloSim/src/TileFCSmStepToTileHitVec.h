@@ -34,42 +34,44 @@ class TileHit;
 class TileInfo;
 class TileDetDescrManager;
 class TileGeoG4SDCalc;
-
+class ITileCalculator;
 class FCS_StepInfoCollection;
-
-#include "TileGeoG4SD/TileSDOptions.h"
+class IGeoModelSvc;
 
 // C++ STL includes
 #include <string>
 #include <vector>
 
 class TileFCSmStepToTileHitVec: public AthAlgorithm {
-  public:
-    // Constructor
-    TileFCSmStepToTileHitVec(const std::string& name, ISvcLocator* pSvcLocator);
+public:
+  // Constructor
+  TileFCSmStepToTileHitVec(const std::string& name, ISvcLocator* pSvcLocator);
 
-    // Destructor
-    virtual ~TileFCSmStepToTileHitVec();
+  // Destructor
+  virtual ~TileFCSmStepToTileHitVec();
 
-    // Gaudi Hooks
-    StatusCode initialize();
-    StatusCode execute();
-    StatusCode finalize();
+  // Gaudi Hooks
+  StatusCode initialize();
+  StatusCode execute();
+  StatusCode finalize();
 
-  private:
-    std::string m_FCS_StepInfo;
-    std::string m_hitVec;
-    std::string m_infoName;
+private:
+  int getUshapeFromGM() const;
 
-    const TileID*               m_tileID;
-    const TileInfo*             m_tileInfo;
-    const TileDetDescrManager*  m_tileMgr;
-    TileGeoG4SDCalc*            m_calc;
+  ServiceHandle<IGeoModelSvc> m_geoModSvc;
+  std::string m_FCS_StepInfo;
+  std::string m_hitVec;
+  std::string m_infoName;
 
-    float   m_deltaT;
-    std::vector<TileHit*> m_allHits;
+  const TileID*               m_tileID;
+  const TileInfo*             m_tileInfo;
+  const TileDetDescrManager*  m_tileMgr;
+  ServiceHandle<ITileCalculator> m_calc;
 
-    TileSDOptions m_options;
+  float   m_deltaT;
+  std::vector<TileHit*> m_allHits;
+
+  int m_Ushape;
 };
 
 #endif // TILERECALGS_TILEFCSMSTEPTOTILEHITVEC_H

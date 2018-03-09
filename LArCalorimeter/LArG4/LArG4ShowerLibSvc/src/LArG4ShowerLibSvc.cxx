@@ -18,11 +18,11 @@
 #include "TTree.h"
 
 LArG4ShowerLibSvc::LArG4ShowerLibSvc(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc),
-  m_fileNameList(),
-  m_rndmEngineName("FROZENSHOWERS"),
-  m_rndmGenSvc("AtDSFMTGenSvc", name),
-  m_rndmEngine(0)
+  : AthService(name,svc)
+  , m_fileNameList()
+  , m_rndmEngineName("FROZENSHOWERS")
+  , m_rndmGenSvc("AtDSFMTGenSvc", name)
+  , m_rndmEngine(nullptr)
 {
   declareProperty( "FileNameList",    m_fileNameList,   "List of filenames for direct reading" );
   declareProperty( "RndmEngineName",  m_rndmEngineName, "Name of athena RNG engine" );
@@ -40,94 +40,94 @@ LArG4ShowerLibSvc::LArG4ShowerLibSvc(const std::string& name,ISvcLocator* svc)
   m_detmap["HEC"]=HEC;
 }
 
-LArG4ShowerLibSvc::~LArG4ShowerLibSvc() 
+LArG4ShowerLibSvc::~LArG4ShowerLibSvc()
 {
 }
 
-StatusCode LArG4ShowerLibSvc::initialize() 
+StatusCode LArG4ShowerLibSvc::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name()
-      << " - package version " << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO("Initializing " << name()
+               << " - package version " << PACKAGE_VERSION);
 
   std::vector<std::string>::const_iterator iter;
 
   // iterate through filenames in list
   for (iter = m_fileNameList.value().begin(); iter != m_fileNameList.value().end(); iter++) {
-	  std::string resolvedFilename = PathResolver::find_file (*iter, "DATAPATH");
-      if (resolvedFilename.empty()) {
-    	  msg(MSG::WARNING) << "Could not resolve input filename " << (*iter) << ". Ignoring!" << endmsg;
-    	  continue;
-      } else {
-    	  msg(MSG::INFO) << "Resolving input filename to " << resolvedFilename << endmsg;
-      }
+    std::string resolvedFilename = PathResolverFindCalibFile(*iter);
+    if (resolvedFilename.empty()) {
+      ATH_MSG_WARNING("Could not resolve input filename " << (*iter) << ". Ignoring!");
+      continue;
+    } else {
+      ATH_MSG_INFO("Resolving input filename to " << resolvedFilename);
+    }
 
-      TFile rootfile(resolvedFilename.c_str(),"READ");
+    TFile rootfile(resolvedFilename.c_str(),"READ");
 
-      if (rootfile.IsZombie()) {
-         msg(MSG::WARNING) << "File " << resolvedFilename << " is not a valid ROOT file" << endmsg;
-         continue;
-      }
+    if (rootfile.IsZombie()) {
+      ATH_MSG_WARNING("File " << resolvedFilename << " is not a valid ROOT file");
+      continue;
+    }
 
-      const ShowerLib::IShowerLib* library = NULL;
+    const ShowerLib::IShowerLib* library = nullptr;
 
-      // trying to create a library out of provided file
-      library = ShowerLib::iterateTTree(&rootfile);
+    // trying to create a library out of provided file
+    library = ShowerLib::iterateTTree(&rootfile);
 
-      // if no library can be created based on the file NULL is returned
-      if (library == NULL) {
-    	  msg(MSG::WARNING) << "File " << resolvedFilename << " is not a valid library file" << endmsg;
-    	  continue;
-      }
+    // if no library can be created based on the file nullptr is returned
+    if (library == nullptr) {
+      ATH_MSG_WARNING("File " << resolvedFilename << " is not a valid library file");
+      continue;
+    }
 
-      if (m_detmap.find(library->detector()) == m_detmap.end()) {
-    	  msg(MSG::WARNING) << "Library " << resolvedFilename << " is produced for unknown detector: " << library->detector() << endmsg;
-    	  delete library;
-    	  continue;
-      }
+    if (m_detmap.find(library->detector()) == m_detmap.end()) {
+      ATH_MSG_WARNING("Library " << resolvedFilename << " is produced for unknown detector: " << library->detector());
+      delete library;
+      continue;
+    }
 
-      std::stringstream location;
-      location << library->detector() << "/" << library->particle_id();
-      int key = m_detmap.find(library->detector())->second + library->particle_id();
+    std::stringstream location;
+    location << library->detector() << "/" << library->particle_id();
+    int key = m_detmap.find(library->detector())->second + library->particle_id();
 
-      // put the library into map
-      m_libraryMap[key] = library;
-      m_locations[key] = location.str();
+    // put the library into map
+    m_libraryMap[key] = library;
+    m_locations[key] = location.str();
 
-      msg(MSG::DEBUG) << "Filename: " << resolvedFilename.c_str() << endmsg;
-      msg(MSG::DEBUG) << "Location: " << location.str() << endmsg;
-      msg(MSG::DEBUG) << "Release: " << library->release().c_str() << endmsg;
-      msg(MSG::DEBUG) << "Geant ver: " << library->geantVersion().c_str() << endmsg;
-      msg(MSG::DEBUG) << "Phys list: " << library->physicsList().c_str() << endmsg;
+    ATH_MSG_DEBUG("Filename: " << resolvedFilename.c_str());
+    ATH_MSG_DEBUG("Location: " << location.str());
+    ATH_MSG_DEBUG("Release: " << library->release().c_str());
+    ATH_MSG_DEBUG("Geant ver: " << library->geantVersion().c_str());
+    ATH_MSG_DEBUG("Phys list: " << library->physicsList().c_str());
   }
 
   // no point in the service with no libraries
   if (m_libraryMap.empty()) {
-	  msg(MSG::WARNING) << "No library files found" << endmsg;
+    ATH_MSG_WARNING("No library files found");
   } else {
-    msg(MSG::INFO) << "List of loaded libraries:" << endmsg;
+    ATH_MSG_INFO("List of loaded libraries:");
     libmap::const_iterator it;
     for(it = m_libraryMap.begin();it != m_libraryMap.end(); it++) {
-	    msg(MSG::INFO) << "      " << m_locations[(*it).first] << ": " << (*it).second->comment() << endmsg;
-	    m_statisticsMap[(*it).second] = (*it).second->createStatistics();
+      ATH_MSG_INFO("      " << m_locations[(*it).first] << ": " << (*it).second->comment());
+      m_statisticsMap[(*it).second] = (*it).second->createStatistics();
     }
     // we have loaded some libs, so there is a point in RNG service
     if (m_rndmEngineName.value().length() > 0) {
       if (m_rndmGenSvc.retrieve().isSuccess()) {
-          m_rndmEngine = m_rndmGenSvc->GetEngine(m_rndmEngineName.value());
-	  if (m_rndmEngine)
-              msg(MSG::INFO) << "Successfully retrieved random number stream " << m_rndmEngineName.value() << endmsg;
-	  else
-	      msg(MSG::WARNING) << "Couldn't retrieve random number stream " << m_rndmEngineName.value() << ". The simulation result may be biased." << endmsg;
-    }
-    else {
-        msg(MSG::WARNING) << "Couldn't retrieve random number service. The simulation result may be biased." << endmsg;
-    }
+        m_rndmEngine = m_rndmGenSvc->GetEngine(m_rndmEngineName.value());
+        if (m_rndmEngine)
+          ATH_MSG_INFO("Successfully retrieved random number stream " << m_rndmEngineName.value());
+        else
+          ATH_MSG_WARNING("Couldn't retrieve random number stream " << m_rndmEngineName.value() << ". The simulation result may be biased.");
+      }
+      else {
+        ATH_MSG_WARNING("Couldn't retrieve random number service. The simulation result may be biased.");
+      }
     } else {
-        msg(MSG::WARNING) << "Empty name for random stream. No randomization will be applied." << endmsg;
+      ATH_MSG_WARNING("Empty name for random stream. No randomization will be applied.");
     }
   }
 
-  msg(MSG::INFO) << "Shower library successfully initialized." << endmsg;
+  ATH_MSG_INFO("Shower library successfully initialized.");
 
   return StatusCode::SUCCESS;
 }
@@ -135,17 +135,19 @@ StatusCode LArG4ShowerLibSvc::initialize()
 StatusCode LArG4ShowerLibSvc::finalize()
 {
 
-  msg(MSG::INFO) << "Finalizing shower library service." << endmsg;
+  ATH_MSG_INFO("Finalizing shower library service.");
 
   libmap::const_iterator iter;
 
   for (iter = m_libraryMap.begin(); iter != m_libraryMap.end(); ++iter) {
-    msg(MSG::INFO) << "Found ShowerLib at location " << m_locations[(*iter).first] << endmsg;
-    msg(MSG::INFO) << std::endl << (*iter).second->statistics();
+    ATH_MSG_INFO("Found ShowerLib at location " << m_locations[(*iter).first]);
+    ATH_MSG_INFO(std::endl << (*iter).second->statistics());
     if (m_statisticsMap.find((*iter).second) != m_statisticsMap.end())
-    	msg(MSG::INFO) << m_statisticsMap.find((*iter).second)->second->statistics() << endmsg;
+      ATH_MSG_INFO(m_statisticsMap.find((*iter).second)->second->statistics());
     else
-    	msg(MSG::INFO) << "No statistics available for this kind of library" << endmsg;
+      ATH_MSG_INFO("No statistics available for this kind of library");
+    // delete the library:
+    delete (*iter).second ;
   }
 
   return StatusCode::SUCCESS;
@@ -154,43 +156,41 @@ StatusCode LArG4ShowerLibSvc::finalize()
 StatusCode
 LArG4ShowerLibSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  if ( IID_ILArG4ShowerLibSvc == riid )    {
+  if ( IID_ILArG4ShowerLibSvc == riid ) {
     *ppvInterface = (ILArG4ShowerLibSvc*)this;
+    addRef();
+    return StatusCode::SUCCESS;
   }
-  else  {
-    // Interface is not directly available: try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
+  // Interface is not directly available: try out a base class
+  return AthService::queryInterface(riid, ppvInterface);
 }
 
 
 /*
- * Returns library from internal map based on the particle. Returns NULL if there
+ * Returns library from internal map based on the particle. Returns nullptr if there
  * is no library for needed particle/detector.
  */
 const ShowerLib::IShowerLib* LArG4ShowerLibSvc::getShowerLib(G4int particleCode, int detectorTag)
 {
-	int location;
+  int location;
 
-	location = detectorTag + particleCode;
+  location = detectorTag + particleCode;
 
-	libmap::const_iterator iter = m_libraryMap.find(location);
-	if (iter != m_libraryMap.end()) {
-	return (*iter).second;
-	}
+  libmap::const_iterator iter = m_libraryMap.find(location);
+  if (iter != m_libraryMap.end()) {
+    return (*iter).second;
+  }
 
-	return NULL;
+  return nullptr;
 }
 
 bool
 LArG4ShowerLibSvc::checkLibrary(G4int particleCode, int detectorTag)
 {
-	const ShowerLib::IShowerLib* library = getShowerLib(particleCode, detectorTag);
-	if (library != NULL) return true;
+  const ShowerLib::IShowerLib* library = getShowerLib(particleCode, detectorTag);
+  if (library != nullptr) return true;
 
-	return false;
+  return false;
 }
 
 /*
@@ -199,15 +199,15 @@ LArG4ShowerLibSvc::checkLibrary(G4int particleCode, int detectorTag)
  */
 std::vector<EnergySpot>
 LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
-{ 
+{
   // get shower lib from the map
   const ShowerLib::IShowerLib* library = getShowerLib(track.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding(), detectorTag);
 
-  if (library == 0) {
-	  // no library in map
-	  msg(MSG::ERROR) << "No library for location: " << detectorTag << "/" << track.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding() << endmsg;
-	  return std::vector<EnergySpot>();
-  }    
+  if (library == nullptr) {
+    // no library in map
+    ATH_MSG_ERROR("No library for location: " << detectorTag << "/" << track.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding());
+    return std::vector<EnergySpot>();
+  }
 
   // starting point of the shower:
   G4ThreeVector PositionShower = track.GetPrimaryTrack()->GetPosition();
@@ -215,12 +215,12 @@ LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
   // get a shower from the library
   int randomShift = 0;
   if (m_rndmEngine) {
-	  randomShift = (int)(CLHEP::RandGauss::shoot(m_rndmEngine, 0., 2.5)+0.5);
+    randomShift = (int)(CLHEP::RandGauss::shoot(m_rndmEngine, 0., 2.5)+0.5);
   }
   std::vector<EnergySpot>* shower = library->getShower(track.GetPrimaryTrack(), m_statisticsMap[library], randomShift);
 
-  if (shower == NULL) {
-	  return std::vector<EnergySpot>();
+  if (shower == nullptr) {
+    return std::vector<EnergySpot>();
   }
 
   // axis of the shower, in global reference frame:
@@ -228,23 +228,23 @@ LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
 
   // time of the track (as in LArBarrelCalculator.cc)
   G4double tof = track.GetPrimaryTrack()->GetGlobalTime() / CLHEP::ns;
-  G4double time = tof - ( track.GetPrimaryTrack()->GetPosition().mag()/CLHEP::c_light ) / CLHEP::ns; 
+  G4double time = tof - ( track.GetPrimaryTrack()->GetPosition().mag()/CLHEP::c_light ) / CLHEP::ns;
 
   std::vector<EnergySpot>::iterator hit;
 
-   // Create energy spots
+  // Create energy spots
   for (hit = shower->begin(); hit != shower->end(); ++hit) {
-	G4ThreeVector hitpos = (*hit).GetPosition();
-	hitpos.rotateUz(DirectionShower); // rotate the hit to the needed direction
-	(*hit).SetPosition(hitpos+PositionShower);
-	(*hit).SetTime((*hit).GetTime() + time);
+    G4ThreeVector hitpos = (*hit).GetPosition();
+    hitpos.rotateUz(DirectionShower); // rotate the hit to the needed direction
+    (*hit).SetPosition(hitpos+PositionShower);
+    (*hit).SetTime((*hit).GetTime() + time);
   }
 
   if (msgSvc()->outputLevel(name()) <= MSG::VERBOSE) {
-    msg(MSG::VERBOSE) << "Prepared " << shower->size() << " EnergySpot" << endmsg;
+    ATH_MSG_VERBOSE("Prepared " << shower->size() << " EnergySpot");
     for (std::vector<EnergySpot>::const_iterator iter = shower->begin(); iter != shower->end(); ++iter) {
-      msg(MSG::VERBOSE) << "EnergySpot: " << iter->GetPosition().x() << " " << iter->GetPosition().y() << " " << iter->GetPosition().z()
-		<< " " << iter->GetEnergy() << " " << iter->GetTime() << endmsg;
+      ATH_MSG_VERBOSE("EnergySpot: " << iter->GetPosition().x() << " " << iter->GetPosition().y() << " " << iter->GetPosition().z()
+                      << " " << iter->GetEnergy() << " " << iter->GetTime());
     }
   }
 
@@ -254,25 +254,25 @@ LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
 double
 LArG4ShowerLibSvc::getContainmentZ(const G4FastTrack& track, int detectorTag)
 {
-	  // get shower lib from the map
-	  const ShowerLib::IShowerLib* library = getShowerLib(track.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding(), detectorTag);
+  // get shower lib from the map
+  const ShowerLib::IShowerLib* library = getShowerLib(track.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding(), detectorTag);
 
-	  if (library == 0) {
-		  return 0.0;
-	  }
+  if (library == 0) {
+    return 0.0;
+  }
 
-	  return library->getContainmentZ(track.GetPrimaryTrack());
+  return library->getContainmentZ(track.GetPrimaryTrack());
 }
 
 double
 LArG4ShowerLibSvc::getContainmentR(const G4FastTrack& track, int detectorTag)
 {
-	  // get shower lib from the map
-	  const ShowerLib::IShowerLib* library = getShowerLib(track.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding(), detectorTag);
+  // get shower lib from the map
+  const ShowerLib::IShowerLib* library = getShowerLib(track.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding(), detectorTag);
 
-	  if (library == 0) {
-		  return 0.0;
-	  }
+  if (library == 0) {
+    return 0.0;
+  }
 
-	  return library->getContainmentR(track.GetPrimaryTrack());
+  return library->getContainmentR(track.GetPrimaryTrack());
 }

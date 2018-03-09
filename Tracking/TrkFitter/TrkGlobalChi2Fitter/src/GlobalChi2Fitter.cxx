@@ -3896,7 +3896,7 @@ public:
           GXFMaterialEffects *meff = matstates[layerno]->materialEffects();
           if (meff->sigmaDeltaPhi() > .4 || (meff->sigmaDeltaPhi() == 0 && meff->sigmaDeltaE() <= 0)) {
             if (meff->sigmaDeltaPhi() > .4) {
-              msg(MSG::WARNING) << "Material state with excessive scattering, skipping it" << endmsg;
+              msg(MSG::DEBUG) << "Material state with excessive scattering, skipping it" << endmsg;
             }
             if (meff->sigmaDeltaPhi() == 0) {
               msg(MSG::WARNING) << "Material state with zero scattering, skipping it" << endmsg;

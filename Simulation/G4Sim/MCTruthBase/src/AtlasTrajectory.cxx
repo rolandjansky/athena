@@ -40,11 +40,7 @@ void AtlasTrajectory::AppendStep(const G4Step* aStep)
         {
           TruthStrategyManager* sManager =
             TruthStrategyManager::GetStrategyManager();
-          if (sManager->IsApplicable())
-            {
-              sManager->SetNrOfSecondaries(numNewSec);
-              sManager->AnalyzeVertex(aStep);
-            }
+          sManager->CreateTruthIncident(aStep);
         }
     }
 
@@ -71,7 +67,7 @@ void AtlasTrajectory::DrawTrajectory(G4int i_mode) const
   G4VVisManager* pVVisManager = G4VVisManager::GetConcreteInstance();
   if (!pVVisManager) return;
 
-  const G4double markerSize = abs(i_mode)/1000;
+  const G4double markerSize = abs(i_mode)*0.001;
   G4bool lineRequired (i_mode >= 0);
   G4bool markersRequired (markerSize > 0.);
 
@@ -112,8 +108,8 @@ void AtlasTrajectory::DrawTrajectory(G4int i_mode) const
 
   if (lineRequired)
     {
-      int visScheme=TruthController::GetTruthController()->
-        GetVisualizationHelper()->TrackVisualizationScheme();
+      int visScheme=TruthController::getTruthController()->
+        getVisualizationHelper()->trackVisualizationScheme();
       G4Colour colour;
       const G4double charge = GetCharge();
       if (visScheme==1)

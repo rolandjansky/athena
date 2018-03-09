@@ -45,11 +45,7 @@ def getEnvelopeMap():
             envelopeMap['MUONQ02::MUONQ02'] = 'MuonExitLayer'
     return envelopeMap
 
-def getMCTruthSteppingAction(name="MCTruthSteppingAction", **kwargs):
-    kwargs.setdefault("VolumeCollectionMap", getEnvelopeMap())
-    return CfgMgr.MCTruthSteppingAction(name, **kwargs)
 
-# V2 MCTruthSteppingActionTool
 def getMCTruthSteppingActionTool(name='G4UA::MCTruthSteppingActionTool', **kwargs):
     """Retrieve the MCTruthSteppingActionTool"""
     kwargs.setdefault("VolumeCollectionMap", getEnvelopeMap())

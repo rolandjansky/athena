@@ -204,6 +204,40 @@ namespace xAODMaker {
 
   }
 
+  template <typename CONT> 
+  class AssociationHelper;
+
+  template<>
+  class AssociationHelper<TrackCollection> {
+  public:
+    AssociationHelper(const TrackCollection &, xAOD::TrackParticleContainer *) {}
+    const Trk::Track *operator()(xAOD::TrackParticle *track_particle, unsigned int) const {
+      return track_particle->track();
+    }
+  };
+
+  template<>
+  class AssociationHelper<Rec::TrackParticleContainer> {
+  public:
+    AssociationHelper(const Rec::TrackParticleContainer &cont_src, xAOD::TrackParticleContainer *cont_dest)
+      : m_contSrc(&cont_src)
+    {
+      if (cont_src.size() != cont_dest->size()) {
+        std::stringstream message;
+        message << __FILE__ << ":" << __LINE__
+                << " Expected one-to-one conversion from AOD to xAOD TrackParticles but sizes differ: "
+                << cont_src.size() << " != " << cont_dest->size();
+        throw std::runtime_error(  message.str() );
+      }
+    }
+
+    const Rec::TrackParticle *operator()(xAOD::TrackParticle *, unsigned int idx) const {
+      return m_contSrc->at(idx);
+    }
+  private:
+    const Rec::TrackParticleContainer *m_contSrc;
+  };
+
   template<typename CONT, typename TRUTHCONT, typename CONVTOOL>
   int TrackParticleCnvAlg::convert(const CONT& container, const TRUTHCONT& truth, CONVTOOL& conv_tool, SG::WriteHandle<xAOD::TrackParticleContainer> &xaod){    
     // Create the xAOD container and its auxiliary store:
@@ -216,32 +250,21 @@ namespace xAODMaker {
       return -1;
     }
     // Create the xAOD objects:
-    typename CONT::const_iterator itr = container.begin();
-    typename CONT::const_iterator end = container.end();
     xAOD::TrackParticleContainer::iterator itr_xaod = xaod->begin();
     xAOD::TrackParticleContainer::iterator end_xaod = xaod->end();
 
+    AssociationHelper<CONT> association_to_src(container,xaod.ptr());
     // loop over AOD and converted xAOD for summary info and truth links
-    for( ;itr!=end;++itr ) {
+    for( ;itr_xaod!=end_xaod;++itr_xaod ) {
       //protect if something went wrong and there is no converted xaod equivalent
-      if( itr_xaod == end_xaod ) {
-      	ATH_MSG_ERROR("No xAOD equivalent of the AOD track was found");
-      	return -1;
-      }
 
       m_nTracksProcessed++;
 
-      // Create the xAOD object:
-      if (!(*itr)) {
-        ATH_MSG_WARNING("WTaF? Empty element in AOD container!");
-        continue;
-      }
       if (!(*itr_xaod)) {
 	ATH_MSG_WARNING("WTaF? Empty element in xAOD container!");
 	continue;
       }
 
-      //      xAOD::TrackParticle* particle = createParticle(*xaod, container, **itr);
       xAOD::TrackParticle* particle =  *itr_xaod;
 
       if(!particle){
@@ -334,7 +357,8 @@ namespace xAODMaker {
         MCTruthPartClassifier::ParticleOrigin origin = MCTruthPartClassifier::NonDefined;
         float probability = -1.0;
         ElementLink<xAOD::TruthParticleContainer> link;
-        ElementLink<CONT> tpLink(*itr, container);
+
+        ElementLink<CONT> tpLink(association_to_src(*itr_xaod,itr_xaod-xaod->begin()), container);
         if( !tpLink.isValid() ){
           ATH_MSG_WARNING("Failed to create ElementLink to Track/TrackParticle");
         }else{
@@ -373,16 +397,14 @@ namespace xAODMaker {
           theOrigin = static_cast<int>(origin);
         }
       }
-      ++itr_xaod;
     }// loop over aod tracks
 
     ATH_MSG_DEBUG( "Converted [" << container.size() << " -> " << xaod->size() << "] TrackParticles and stored in " << xaod.name() );
     if(container.size() != xaod->size()) {
-      ATH_MSG_ERROR( "number of items in the AOD container: " 
-		     << container.size() 
-		     << " is not equal to the number of items in its converted xAOD equivalent: " 
-		     << xaod->size() );
-      return -1;
+      ATH_MSG_WARNING( "number of items in the AOD container: " 
+                       << container.size() 
+                       << " is not equal to the number of items in its converted xAOD equivalent: " 
+                       << xaod->size() );
     }
     
     return 1; 

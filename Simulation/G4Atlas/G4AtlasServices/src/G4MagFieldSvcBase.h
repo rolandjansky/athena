@@ -26,7 +26,7 @@ class G4MagneticField;
  *  @author Andrea Dell'Acqua
  *  @date   2015-11-17
  */
-class G4MagFieldSvcBase : public AthService, virtual public IG4FieldSvc {
+class G4MagFieldSvcBase : public extends<AthService, IG4FieldSvc> {
 
  public:
   /// Standard constructor
@@ -38,9 +38,6 @@ class G4MagFieldSvcBase : public AthService, virtual public IG4FieldSvc {
   /// @brief Retrieve a G4 magnetic field object.
   /// If one doesn't yet exist in the current thread, it will be created.
   G4MagneticField* getField() override final;
-
-  /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
  protected:
 

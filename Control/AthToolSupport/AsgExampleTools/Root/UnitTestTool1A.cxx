@@ -25,6 +25,7 @@ namespace asg
     : AsgTool (val_name)
   {
     declareProperty ("propertyInt", m_propertyInt, "the integer property");
+    declareProperty ("propertyString", m_propertyString, "the string property");
     declareProperty ("initializeFail", m_initializeFail, "whether initialize should fail");
   }
 
@@ -33,6 +34,7 @@ namespace asg
   StatusCode UnitTestTool1A ::
   initialize ()
   {
+    m_origMsgLevel = msg().level();
     if (m_initializeFail)
     {
       ATH_MSG_ERROR ("tool configured to fail initialize");
@@ -45,6 +47,14 @@ namespace asg
     }
     m_isInitialized = true;
     return StatusCode::SUCCESS;
+  }
+
+
+
+  std::string UnitTestTool1A ::
+  getPropertyString () const
+  {
+    return m_propertyString;
   }
 
 
@@ -69,5 +79,13 @@ namespace asg
   isInitialized () const
   {
     return m_isInitialized;
+  }
+
+
+
+  MSG::Level UnitTestTool1A ::
+  getOrigMsgLevel () const
+  {
+    return m_origMsgLevel;
   }
 }

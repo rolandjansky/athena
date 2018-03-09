@@ -20,13 +20,6 @@
 #include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-//#include "LWHists/TH1I_LW.h"
-//#include "LWHists/TH2I_LW.h"
-//#include "LWHists/TH1F_LW.h"
-//#include "LWHists/TH2F_LW.h"
-//#include "LWHists/TProfile2D_LW.h"
-//#include "LWHists/TProfile_LW.h"
-
 class TH1I_LW;
 class TH1F_LW;
 class TH2F_LW;
@@ -49,9 +42,9 @@ public:
   StatusCode fillHistograms();
   StatusCode procHistograms();
 
-  void AddHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2);
-  void AddHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2, float s1, float s2);
-  bool nbOfFebOK(float nfeb,TH1I_LW* h);
+  void addHistos(TH2F_LW* h0,TH2F_LW* h1,TH2F_LW* h2);
+  void addHistos(TH1F_LW* h0,TH1F_LW* h1,TH1F_LW* h2, float s1, float s2);
+  //  bool nbOfFebOK(float nfeb,TH1I_LW* h);
   
 private:
   
@@ -64,12 +57,12 @@ private:
   std::string m_keyDSPThresholds;
   bool m_isOnline;
   unsigned int m_lumi_blocks; 
-  bool m_eventRejected;
   std::bitset<13> m_rejectionBits;
   bool m_currentFebStatus;
   unsigned int m_eventTime;
   unsigned int m_eventTime_ns;
 
+  std::vector<std::string> m_partitionNames;
   //Added for Stream aware:
   std::vector<std::string> m_streams;
   std::vector<unsigned int> m_streamsThisEvent;
@@ -139,7 +132,7 @@ private:
     TH2I_LW* LArAllErrors;
     TH2F_LW* LArAllErrorsYield;
     TH2I_LW* maskedFEB;
-    // Not (yet?) an error - Stored in Misc directory
+    // Stored in Misc directory
     TH2I_LW* missingTriggerType;
     // These are general data histograms
     TH2I_LW* nbOfEvts;
@@ -156,16 +149,8 @@ private:
     bool histBooked;
   };
   
-  summaryPartition m_barrelCSummary;
-  summaryPartition m_barrelASummary;
-  
-  // Partition below are instantiated only if m_compactEndCap == false
-  summaryPartition m_emecCSummary;
-  summaryPartition m_emecASummary;
-  summaryPartition m_hecCSummary;
-  summaryPartition m_hecASummary;
-  summaryPartition m_fcalCSummary;
-  summaryPartition m_fcalASummary;
+  //  0->EMBC / 1->EMBA / 2->EMECC / 3->EMECA / 4->HECC / 5->HECA / 6->FCalC / 7->FCalA    
+  std::vector<summaryPartition> m_partHistos; 
   
   TH2I_LW* m_LArAllErrors_dE;
   TH1F_LW* m_rejectedYield;
@@ -174,7 +159,7 @@ private:
   TH1I_LW* m_rejBitsHisto;
   
   TH1I_LW* m_eventsLB;
-  //   TH1I_LW* m_rejectedEventsTime;
+  TProfile_LW* m_oneErrorYieldLB;
   TProfile_LW* m_rejectedYieldLB;
   TProfile_LW* m_rejectedYieldLBout;
   TProfile_LW* m_eventSizeLB;
@@ -197,10 +182,11 @@ private:
   
   TTree* m_CorruptTree;
   
-  StatusCode bookNewPartitionSumm(summaryPartition& summ,std::string summName);
-  void fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0, bool lar_inerror = false );
+  StatusCode bookNewPartitionSumm(int partNb);
+  void fillErrorsSummary(int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0, bool lar_inerror = false );
   void plotMaskedFEB();
-  void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName);
+  //  void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName);
+  void fillFebInError(int partNb,int errorType);
   void fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto);
   int returnPartition(int be,int pn,int ft,int sl);
 };

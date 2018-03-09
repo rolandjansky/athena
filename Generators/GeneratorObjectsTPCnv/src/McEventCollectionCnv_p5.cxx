@@ -18,7 +18,7 @@
 #include "GeneratorObjectsTPCnv/McEventCollectionCnv_p5.h"
 #include "HepMcDataPool.h"
 
-#include "HepMCWeightSvc/IHepMCWeightSvc.h"
+#include "GenInterfaces/IHepMCWeightSvc.h"
 
 namespace {
   // helper method to compute the number of particles and vertices in a

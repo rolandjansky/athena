@@ -32,10 +32,12 @@ using namespace std;
 void wiggle_closure_inputs(TString sampling="Sampling_0"){
 
   CaloGeometryFromFile* geo=new CaloGeometryFromFile();
-  geo->LoadGeometryFromFile("ATLAS-GEO-20-00-01.root","ATLAS-GEO-20-00-01");
+  geo->LoadGeometryFromFile("/afs/cern.ch/atlas/groups/Simulation/FastCaloSim/ATLAS-GEO-20-00-01.root","ATLAS-GEO-20-00-01");
+  geo->LoadFCalGeometryFromFiles("FCal1-electrodes.sorted.HV.09Nov2007.dat","FCal2-electrodes.sorted.HV.April2011.dat","FCal3-electrodes.sorted.HV.09Nov2007.dat");
   
-  TFile *inputFile = TFile::Open("root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/LArShift020715/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
-  
+  TFile *inputFile = TFile::Open("/eos/atlas/user/s/schaarsc/FCS/user.fladias.428137.FastCalo_pid11_E65536_etam35_35_zv_m100.e4001_s2864_r7736.w0_162706_matched_output.root/user.fladias.8834798._000001.matched_output.root");
+ 
+	// TFile *inputFile = TFile::Open("root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/LArShift020715/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
   //  TFile *inputFile = TFile::Open("root://eosatlas//eos/atlas/user/z/zhubacek/FastCaloSim/NTUP_110216/ISF_HitAnalysis_Zach1_merged.root");
 
   TTree *inputTree = ( TTree* ) inputFile->Get( "FCS_ParametrizationInput" );
@@ -76,32 +78,50 @@ void wiggle_closure_inputs(TString sampling="Sampling_0"){
       cell_ID = ((FCS_matchedcell)(*vec)[j]).cell.cell_identifier;
 
       //now I use the geomery lookup tool to get the cell eta/phi
-      const CaloDetDescrElement* cell;
+      const CaloGeoDetDescrElement* cell;
       Identifier cellid(cell_ID);
       cell=geo->getDDE(cellid); //This is working also for the FCal
       
       //loop over hits in the cell
-      for (int ihit=0; ihit<((FCS_matchedcell)(*vec)[j]).hit.size(); ihit++){
+      for (unsigned int ihit=0; ihit<((FCS_matchedcell)(*vec)[j]).hit.size(); ihit++){
 	
 	//now I check what is the hit position
 	float x = ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_x;
 	float y = ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_y;
 	float z = ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_z;
-	float t = ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_time;	
+	float t = ((FCS_matchedcell)(*vec)[j]).hit[ihit].hit_time;
+	int hitSampling =((FCS_matchedcell)(*vec)[j]).hit[ihit].sampling;
+	
 	TLorentzVector *hitVec = new TLorentzVector(x, y, z, t);
-	const CaloDetDescrElement* foundCell;
-	foundCell=geo->getDDE(((FCS_matchedcell)(*vec)[j]).hit[ihit].sampling,hitVec->Eta(),hitVec->Phi());
+	const CaloGeoDetDescrElement* foundCell;
+	if(hitSampling<21)foundCell=geo->getDDE(hitSampling,hitVec->Eta(),hitVec->Phi());
+	else if(hitSampling<24)foundCell=geo->getFCalDDE(hitSampling,x,y,z);
+	else {
+		cout << endl << "Warning: Found hit with sampling > 23 !!!!!!!!!!!!!!" << endl << endl;
+		foundCell =0;
+	}
 	
 	if (foundCell){// && cell){
-	  
-	  eff_tot_phi->Fill(((2*(hitVec->Phi()-foundCell->phi()))/foundCell->dphi()),weight);	  
-	  eff_tot_count_phi->Fill(((2*(hitVec->Phi()-foundCell->phi()))/foundCell->dphi()));
-	  
-	  if (foundCell->identify() == cell->identify()){
-	    
-	    eff_corr_phi->Fill(((2*(hitVec->Phi()-foundCell->phi()))/foundCell->dphi()),weight);
-	    eff_corr_count_phi->Fill(((2*(hitVec->Phi()-foundCell->phi()))/foundCell->dphi()));
-	  }
+	  if(hitSampling<21){
+		  eff_tot_phi->Fill(((2*(hitVec->Phi()-foundCell->phi()))/foundCell->dphi()),weight);	  
+		  eff_tot_count_phi->Fill(((2*(hitVec->Phi()-foundCell->phi()))/foundCell->dphi()));
+		  
+		  if (foundCell->identify() == cell->identify()){
+		    
+		    eff_corr_phi->Fill(((2*(hitVec->Phi()-foundCell->phi()))/foundCell->dphi()),weight);
+		    eff_corr_count_phi->Fill(((2*(hitVec->Phi()-foundCell->phi()))/foundCell->dphi()));
+		  }
+		}
+		else if(hitSampling<24){
+		  eff_tot_phi->Fill(((2*(x-foundCell->x()))/foundCell->dx()),weight);	  
+		  eff_tot_count_phi->Fill(((2*(x-foundCell->x()))/foundCell->dx()));
+		  
+		  if (foundCell->identify() == cell->identify()){
+		    
+		    eff_corr_phi->Fill(((2*(x-foundCell->x()))/foundCell->dx()),weight);
+		    eff_corr_count_phi->Fill(((2*(x-foundCell->x()))/foundCell->dx()));
+		  }
+		}
 	  
 	} //end if cell ok
       } //end loop over hits

@@ -13,7 +13,7 @@ class GMSBGravitino: public G4ParticleDefinition
 {
 private:
 
-  static GMSBGravitino* theInstance;
+  static GMSBGravitino* s_theInstance;
   GMSBGravitino(){}
   ~GMSBGravitino(){}
 

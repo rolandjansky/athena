@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
 ## -- Overview of all default local settings that one can change 
@@ -71,12 +72,13 @@ projectName       = 'data16_13TeV'
 ### ConditionsTag     = 'CONDBR2-BLKPA-2015-14'  ### 2015-08-31
 ### ConditionsTag     = 'CONDBR2-BLKPA-2015-15'  ### 2015-09-06
 ConditionsTag     = 'CONDBR2-BLKPA-2016-06'  ### 2016-02-26
-
+#ConditionsTag = 'CONDBR2-BLKPA-2017-07' ### 2017-11-04
 
 ### DetDescrVersion   = 'ATLAS-R2-2015-02-00-00'
+#DetDescrVersion   = 'ATLAS-R2-2015-03-01-00'
+
 DetDescrVersion   = 'ATLAS-R2-2015-03-01-00'
-
-
+#DetDescrVersion   = 'ATLAS-R2-2016-01-00-01'
 
 
 doESD             = True

@@ -19,7 +19,7 @@
 #include "GeneratorObjectsTPCnv/McEventCollectionCnv_p4.h"
 #include "HepMcDataPool.h"
 
-#include "HepMCWeightSvc/IHepMCWeightSvc.h"
+#include "GenInterfaces/IHepMCWeightSvc.h"
 
 namespace
 {

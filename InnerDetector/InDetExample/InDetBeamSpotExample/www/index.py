@@ -17,7 +17,7 @@ Sample Apache configuration:
 """
 
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: index.py 500226 2012-05-11 11:01:22Z beringer $'
+__version__ = 'index.py atlas/athena'
 
 import os
 import cherrypy

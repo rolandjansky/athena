@@ -92,6 +92,10 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
                     print "Run %s : run selection passed ---> job will be launched" %(Run0)
                 line = f.readline()
             f.close()
+
+        else: 
+            print "ERROR problem in access to /data/MyLBCollection.xml file produced by AtlRunQuery.py --- probably due to AtlRunQuery crash..."
+            sys.exit( -1 )
             
         if not StableBeam:
             print "Run %s : run selection didn't pass Stable Beam check--- job will be finished" %(Run0)
@@ -164,7 +168,7 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
                 if 'Project tag:' in line and runPro=='':
                     runPro = line.split('\'')[1]
                 if runNum!='' and runPro!='':
-                    if 'data15_cos' in runPro or 'data15_13TeV' in runPro or 'data15_hi' in runPro or 'data15_5TeV' in runPro:
+                    if 'data18_cos' in runPro or 'data18_13TeV' in runPro or 'data18_5TeV' in runPro or 'data18_900GeV' in runPro or 'data18_hi' in runPro:
                         runList.append(runNum)
                         runDict[runNum] = runPro
                     runNum=''

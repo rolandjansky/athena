@@ -88,7 +88,7 @@ namespace Trk
      void			refinePointers (void);
      
      // initialize matrices - set appropriate dimensions for a given set of measurements 
-     int	       		setDimensions (std::list<FitMeasurement*>&	measurements,
+     int	       		setDimensions (std::vector<FitMeasurement*>&	measurements,
 					       FitParameters*			parameters);
     
      // solve matrix equations for parameters change
@@ -116,7 +116,7 @@ namespace Trk
      double				m_largePhiWeight;
      std::vector<int>			m_lastRowForParameter;
      bool				m_matrixFromCLHEP;
-     std::list<FitMeasurement*>*	m_measurements;
+     std::vector<FitMeasurement*>*	m_measurements;
      int			       	m_numberDoF;
      int		       		m_numberDriftCircles;
      int		      	 	m_numberPerigee;

@@ -12,7 +12,7 @@
 
 #include "TH1D.h"
 #include "TH2D.h"
-
+#include <math.h> 
 
 
 MuonHitTestToolBase::MuonHitTestToolBase(const std::string& type, const std::string& name, const IInterface* parent)

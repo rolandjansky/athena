@@ -50,6 +50,7 @@ class TProfile;
 
 namespace InDetDD{
   class SiDetectorElement;
+  class SCT_ModuleSideDesign;
 }
 
 namespace CLHEP {
@@ -87,7 +88,7 @@ private:
   void setCosmicsRun(bool cosmicsRun)                            {m_cosmicsRun = cosmicsRun;}
   void setComTimeFlag(bool useComTime)                           {m_useComTime = useComTime;}      
   void setRandomEngine(CLHEP::HepRandomEngine *rndmEngine)       {m_rndmEngine = rndmEngine;}
-  void setDetectorElement(const InDetDD::SiDetectorElement *ele) {m_element = ele;} 
+  void setDetectorElement(const InDetDD::SiDetectorElement *ele) {m_element = ele; setVariables();} 
 
   /** create a list of surface charges from a hit */
   virtual void process(const TimedHitPtr<SiHit> & phit, const ISiSurfaceChargesInserter& inserter) const;
@@ -167,6 +168,18 @@ private:
   std::string                        m_rndmEngineName;      //!< name of random engine, actual pointer in SiDigitization
 
   bool m_isOverlay; // flag for overlay
+
+  void setVariables();
+  const InDetDD::SCT_ModuleSideDesign* m_design;
+  float m_depletionVoltage;
+  float m_biasVoltage;
+  double m_holeDriftMobility;
+  double m_holeDiffusionConstant;
+  double m_electronHolePairsPerEnergy;
+  double m_thickness;
+  double m_center;
+  double m_tanLorentz;
+  bool m_isBarrel;
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H

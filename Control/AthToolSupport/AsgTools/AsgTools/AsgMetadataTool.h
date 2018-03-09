@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: AsgMetadataTool.h 676319 2015-06-18 12:12:45Z krasznaa $
+// $Id: AsgMetadataTool.h 771072 2016-08-31 14:50:22Z krasznaa $
 #ifndef ASGTOOLS_ASGMETADATATOOL_H
 #define ASGTOOLS_ASGMETADATATOOL_H
 
@@ -41,8 +41,8 @@ namespace asg {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 676319 $
-   /// $Date: 2015-06-18 14:12:45 +0200 (Thu, 18 Jun 2015) $
+   /// $Revision: 771072 $
+   /// $Date: 2016-08-31 16:50:22 +0200 (Wed, 31 Aug 2016) $
    ///
    class AsgMetadataTool : public AsgTool,
                            public virtual IIncidentListener {
@@ -126,6 +126,10 @@ namespace asg {
       mutable MetaStore_t m_inputMetaStore;
       /// Object accessing the output metadata store
       mutable MetaStore_t m_outputMetaStore;
+
+      /// Flag helping to discover when the tool misses the opening of the first
+      /// input file
+      bool m_beginInputFileCalled;
 
    }; // class AsgMetadataTool
 

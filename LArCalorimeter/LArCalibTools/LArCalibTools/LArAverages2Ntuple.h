@@ -25,9 +25,11 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "LArCabling/LArCablingService.h"
+#include "LArCabling/LArSuperCellCablingTool.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "LArIdentifier/LArOnline_SuperCellID.h"
 
 #include <fstream>
 #include <math.h>
@@ -45,10 +47,13 @@ class LArAverages2Ntuple : public AthAlgorithm
   StatusCode execute() ;
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
-  const LArEM_ID* m_emId;
-  const LArOnlineID* m_onlineHelper;
+  const LArEM_Base_ID* m_emId;
+  const LArOnlineID_Base* m_onlineHelper;
 
-  ToolHandle<LArCablingService> m_larCablingSvc;
+  //ToolHandle<LArCablingService> larCablingSvc;
+  LArCablingBase* m_larCablingSvc;
+  
+  bool m_isSC;
 
   std::string m_ntuplePath;
   std::string m_contKey;
@@ -58,7 +63,7 @@ class LArAverages2Ntuple : public AthAlgorithm
 
   int m_ipass;
 
-  NTuple::Item<long> m_region, m_layer, m_eta, m_phi;
+  NTuple::Item<long> m_region, m_layer, m_eta, m_phi, m_onlChanId;
   NTuple::Item<long> m_pos_neg, m_barrel_ec, m_FT, m_slot, m_channel;
   NTuple::Item<long> m_calibLine;
   NTuple::Item<long> m_isConnected;

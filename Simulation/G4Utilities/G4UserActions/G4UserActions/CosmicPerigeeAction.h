@@ -5,67 +5,50 @@
 #ifndef G4UserActions_CosmicPerigeeAction_H
 #define G4UserActions_CosmicPerigeeAction_H
 
-#include "G4AtlasTools/UserActionBase.h"
-
 #include "StoreGate/WriteHandle.h"
 #include "TrackRecord/TrackRecordCollection.h" // Can't be forward declared - it's a type def
 
-#include <string>
+#include "G4UserSteppingAction.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserTrackingAction.hh"
 
-class CosmicPerigeeAction final: public UserActionBase {
-
- public:
-  CosmicPerigeeAction(const std::string& type, const std::string& name, const IInterface* parent);
-
-  virtual void BeginOfEvent(const G4Event*) override;
-  virtual void EndOfEvent(const G4Event*) override;
-  virtual void BeginOfRun(const G4Run*) override;
-  virtual void Step(const G4Step*) override;
-
-  StatusCode initialize() override;
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
-
- private:
-  SG::WriteHandle<TrackRecordCollection> m_trackRecordCollection;
-  double m_idZ, m_idR;
-  bool m_allowMods;
-};
-
-
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 namespace G4UA
 {
 
   /// @brief NEEDS DOCUMENTATION
-  class CosmicPerigeeAction final : public ISteppingAction, public IEndEventAction,
-                                    public IBeginEventAction, public IPreTrackingAction
+  class CosmicPerigeeAction final : public G4UserSteppingAction,
+                                    public G4UserEventAction,
+                                    public G4UserTrackingAction
   {
 
   public:
 
     struct Config
     {
-      bool AllowMods=false;
-      float pMinPrimary=100*CLHEP::MeV;
+      float pMinPrimary = 100*CLHEP::MeV;
     };
 
     CosmicPerigeeAction(const Config& config);
 
-    virtual void processStep(const G4Step*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void preTracking(const G4Track*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void PreUserTrackingAction(const G4Track*) override;
 
   private:
 
+    /// Configuration options
     Config m_config;
+
+    /// Output track track record
     SG::WriteHandle<TrackRecordCollection> m_trackRecordCollection;
-    bool hasBeenSaved;
-    double m_idZ, m_idR;
+
+    /// State members
+    bool m_hasBeenSaved;
+    double m_idZ;
+    double m_idR;
 
   }; // class CosmicPerigeeAction
 

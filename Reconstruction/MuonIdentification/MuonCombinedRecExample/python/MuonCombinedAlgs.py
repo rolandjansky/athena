@@ -5,7 +5,7 @@ from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm,getPublicToolClon
 from MuonRecExample.ConfiguredMuonRec import ConfiguredMuonRec
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
-
+from AthenaCommon.BeamFlags import jobproperties
 
 def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs):
     tools = []
@@ -82,11 +82,12 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
 
         topSequence = AlgSequence()
                       
-        # creates input collections for ID and MS candidates
+        #if jobproperties.Beam.beamType()=='collisions':
+            # creates input collections for ID and MS candidates
         topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg") 
         topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg") 
-
-        # runs ID+MS combinations (fit, staco, mugirl, ID-taggers)
+            
+            # runs ID+MS combinations (fit, staco, mugirl, ID-taggers)
         if muonCombinedRecFlags.doStatisticalCombination() or muonCombinedRecFlags.doCombinedFit():
             topSequence += getAlgorithm("MuonCombinedAlg") 
 

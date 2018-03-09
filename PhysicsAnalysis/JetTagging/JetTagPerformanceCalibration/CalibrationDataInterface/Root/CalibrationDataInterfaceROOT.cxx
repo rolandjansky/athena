@@ -451,7 +451,8 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
     }
 
     cout << " List of uncertainties to exclude:";
-    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)"; cout << endl;
+    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)";
+    cout << endl;
     for (unsigned int i = 0; i < m_excludeFromCovMatrix.size(); ++i) {
       cout << "\t"<< m_excludeFromCovMatrix[i] << endl;
     }
@@ -588,7 +589,8 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
     m_excludeFromCovMatrix = excludeFromEV;
 
     cout << " List of uncertainties to exclude:";
-    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)"; cout << endl;
+    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)";
+    cout << endl;
     for (unsigned int i = 0; i < m_excludeFromCovMatrix.size(); ++i) {
       cout << "\t"<< m_excludeFromCovMatrix[i] << endl;
     }
@@ -2383,7 +2385,8 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
       TMap* mapSF = 0; m_fileSF->GetObject(hadronisationRefs.c_str(), mapSF);
       TMap* mapEff = 0; if (m_fileEff != m_fileSF) m_fileEff->GetObject(hadronisationRefs.c_str(), mapEff);
       m_refMap[dir] = new HadronisationReferenceHelper(mapSF, mapEff);
-      if (mapSF) delete mapSF; if (mapEff) delete mapEff;
+      delete mapSF;
+      delete mapEff;
     } else {
       string SFCalibName = getContainername(getBasename(dir), true);
       if (m_objectIndices.find(SFCalibName) == m_objectIndices.end()) retrieveContainer(dir, SFCalibName, true);

@@ -83,7 +83,7 @@ def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
         if isProduction:
             import smtplib
             server = smtplib.SMTP('localhost')
-            mail_cc = ['ponyisi@utexas.edu', 'yuriy.ilchenko@cern.ch']
+            mail_cc = ['ponyisi@utexas.edu', 'rnarayan@utexas.edu']
             msg = ['From: atlasdqm@cern.ch',
                    'To: %s' % ', '.join(mail_to),
                    'Cc: %s' % ', '.join(mail_cc),
@@ -106,8 +106,10 @@ def _ProtectPostProcessing( funcinfo, outFileName, isIncremental ):
         print
     finally:
         if success:
-            shutil.copy2(tmpfilename, outFileName)
-        os.unlink(tmpfilename)
+            shutil.move(tmpfilename, outFileName)
+        else:
+            os.unlink(tmpfilename)
+    return success
 
 def DQPostProcess( outFileName, isIncremental=False ):
     ## Import the ROOT library for reading han results
@@ -130,6 +132,11 @@ def DQPostProcess( outFileName, isIncremental=False ):
                                                            createMDTConditionDBNoisy)
             createMDTConditionDBDead()
             createMDTConditionDBNoisy()
+
+    def zlumi(fname, isIncremental):
+        if not isIncremental:
+            from DataQualityUtils.doZLumi import go
+            go(fname)
  
     funclist = [ 
                  (mf.fitMergedFile_IDPerfMonManager,
@@ -179,8 +186,19 @@ def DQPostProcess( outFileName, isIncremental=False ):
                  (mf.PixelPostProcess,
                   ['daiki.yamaguchi@cern.ch']),
                  (mf.MuonTrackPostProcess,
-                  ['baojia.tong@cern.ch', 'alexander.tuna@cern.ch'])
+                  ['baojia.tong@cern.ch', 'alexander.tuna@cern.ch']),
+                 (zlumi,
+                  ['ponyisi@utexas.edu', 'harish.potti@utexas.edu']),
                ]
 
-    for funcinfo in funclist:
-        _ProtectPostProcessing( funcinfo, outFileName, isIncremental )
+    # first try all at once
+    def go_all(fname, isIncremental):
+        for funcinfo in funclist:
+            funcinfo[0](fname, isIncremental)
+    
+    success = _ProtectPostProcessing( (go_all, []), outFileName, isIncremental )
+
+    if not success:
+    #if True:
+        for funcinfo in funclist:
+            _ProtectPostProcessing( funcinfo, outFileName, isIncremental )

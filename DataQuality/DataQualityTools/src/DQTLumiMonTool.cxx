@@ -26,6 +26,7 @@
 
 #include "xAODEventInfo/EventInfo.h"
 //##include "Tracking/TrkVertexFitter/TrkVxEdmCnv.h"
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 using namespace std;
 using namespace Trk;
@@ -37,6 +38,9 @@ DQTLumiMonTool::DQTLumiMonTool(const std::string & type,
     m_failedBooking(false),
     m_VertexContainerKey(""),
     m_aveMu_vs_LB(nullptr),
+    m_actualMu_vs_LB(nullptr),
+    m_actualMu(nullptr),
+    m_aveMu(nullptr),
     m_nLooseVtx_vs_LB(nullptr),
     m_nTightVtx_vs_LB(nullptr),
     m_nLooseVtx_perMu_vs_LB(nullptr),
@@ -60,7 +64,9 @@ DQTLumiMonTool::DQTLumiMonTool(const std::string & type,
     m_nClustersECC_vs_aveMu(nullptr),
     m_nClustersB0_vs_aveMu(nullptr),
     m_nClustersB1_vs_aveMu(nullptr),
-    m_nClustersB2_vs_aveMu(nullptr)
+    m_nClustersB2_vs_aveMu(nullptr),
+    m_bunchtool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool"),
+    m_turnoffbunchtool(false)
 {
   declareInterface<IMonitorToolBase>(this);
   declareProperty("histoPath", m_path = "");
@@ -70,6 +76,8 @@ DQTLumiMonTool::DQTLumiMonTool(const std::string & type,
   declareProperty("MinTrackWeightForTight", m_MinTrackWeightForTight = 0.01);
   declareProperty("PixelClustersKey", m_PixelClustersKey = "PixelClusters");
   declareProperty("PixelIDKey", m_PixelIDKey = "PixelID");
+  declareProperty("bunchCrossingTool",m_bunchtool);
+  declareProperty("TurnOffBunchTool",m_turnoffbunchtool);
 }
 
 DQTLumiMonTool::~DQTLumiMonTool(){
@@ -79,7 +87,22 @@ DQTLumiMonTool::~DQTLumiMonTool(){
 StatusCode DQTLumiMonTool::bookHistograms( ){ // avoid compilation warnings
   //if(newRun){
   m_failedBooking = false
-    || registerHist(m_path, m_aveMu_vs_LB = new TProfile("aveMu_vs_LB", "Number of interactions per event;LB;<#mu>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_aveMu_vs_LB = new TProfile("aveMu_vs_LB", "Average number of interactions per event;LB;<#mu>_{LB}", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_actualMu_vs_LB = new TProfile("actualMu_vs_LB", "Actual number of interactions per event;LB;#mu_{LB}", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+
+    //Luminosity Histograms  
+    || registerHist(m_path, m_nAvgLumi_vs_LB = new TProfile("m_nAvgLumi_vs_LB", "Average Lumi vs LB", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_nAvgIntPerXing_vs_LB = new TProfile("m_nAvgIntPerXing_vs_LB", "Average Mu  vs LB", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_lumiperBCID_vs_LB = new TProfile("m_lumiperBCID_vs_LB", "Instant Luminosity vs LB", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_lbintperxing_vs_LB = new TProfile("m_lbintperxing_vs_LB", "Instantaneous interactions per bunch Xing vs LB", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_duration_vs_LB = new TProfile("m_duration_vs_LB", "Lumi Block time in sec vs LB", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_avglivefrac_vs_LB = new TProfile("m_avglivefrac_vs_LB", "Average live fraction lumi over all BCIDs vs LB", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_fracperBCID_vs_LB = new TProfile("m_fracperBCID_vs_LB", "Current BCID lumi vs LB", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_lumiweight_VS_LB = new TProfile("m_lumiweight_VS_LB", "Current BCID lumi vs LB", 201, -0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
+    || registerHist(m_path, m_actualMu = TH1F_LW::create("actualMu", "Actual number of interactions per bunch Xing", 101, -0.5, 100.5),run).isFailure()
+    || registerHist(m_path, m_aveMu = TH1F_LW::create("aveMu", "Average number of interactions per bunch Xing", 101, -0.5, 100.5),run).isFailure()
+
+
     || registerHist(m_path, m_nLooseVtx_vs_LB = new TProfile("nLooseVtx_vs_LB", "Number of loose vertices per event;LB;<NlooseVtx/event>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
     || registerHist(m_path, m_nTightVtx_vs_LB = new TProfile("nTightVtx_vs_LB", "Number of tight vertices per event;LB;<NtightVtx/event>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
     || registerHist(m_path, m_nLooseVtx_perMu_vs_LB = new TProfile("nLooseVtx_perMu_vs_LB", "Number of loose vertices per event per Mu;LB;<NlooseVtx/event/#mu>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
@@ -107,16 +130,6 @@ StatusCode DQTLumiMonTool::bookHistograms( ){ // avoid compilation warnings
 	|| registerHist(m_path, m_nClustersB0_vs_aveMu = new TProfile("nClustersB0_vs_aveMu", "Number of pixel clusters per event, barrel layer 0;#mu;NclustersB0/event", 250, 0, 25)).isFailure()
 	|| registerHist(m_path, m_nClustersB1_vs_aveMu = new TProfile("nClustersB1_vs_aveMu", "Number of pixel clusters per event, barrel layer 1;#mu;NclustersB1/event", 250, 0, 25)).isFailure()
 	|| registerHist(m_path, m_nClustersB2_vs_aveMu = new TProfile("nClustersB2_vs_aveMu", "Number of pixel clusters per event, barrel layer 2;#mu;NclustersB2/event", 250, 0, 25)).isFailure()
-	//Luminosity Histograms
-	|| registerHist(m_path, m_nAvgLumi_vs_LB = new TProfile("m_nAvgLumi_vs_LB", "Average Lumi vs LB", 1000, 0, 10000)).isFailure()
-        || registerHist(m_path, m_nAvgIntPerXing_vs_LB = new TProfile("m_nAvgIntPerXing_vs_LB", "Average Mu  vs LB", 1000, 0, 10000)).isFailure()
-        || registerHist(m_path, m_lumiperBCID_vs_LB = new TProfile("m_lumiperBCID_vs_LB", "Instant Luminosity vs LB", 1000, 0, 10000)).isFailure()
-        || registerHist(m_path, m_lbintperxing_vs_LB = new TProfile("m_lbintperxing_vs_LB", "Instaneous interactions vs LB", 1000, 0, 10000)).isFailure()
-        || registerHist(m_path, m_duration_vs_LB = new TProfile("m_duration_vs_LB", "Lumi Block time in sec vs LB", 1000, 0, 10000)).isFailure()
-        || registerHist(m_path, m_avglivefrac_vs_LB = new TProfile("m_avglivefrac_vs_LB", "Average live fraction lumi over all BCIDs vs LB", 1000, 0, 10000)).isFailure()
-        || registerHist(m_path, m_fracperBCID_vs_LB = new TProfile("m_fracperBCID_vs_LB", "Current BCID lumi vs LB", 1000, 0, 10000)).isFailure()
-        || registerHist(m_path, m_lumiweight_VS_LB = new TProfile("m_lumiweight_VS_LB", "Current BCID lumi vs LB", 1000, 0, 10000)).isFailure()
-
 
 	);
   }
@@ -134,7 +147,8 @@ bool DQTLumiMonTool::bookDQTLumiMonTool(){
 
 StatusCode DQTLumiMonTool::fillHistograms(){
   if(m_failedBooking) return StatusCode::SUCCESS;
-
+  
+  CHECK(m_bunchtool.retrieve());
   const xAOD::EventInfo* thisEventInfo;
   StatusCode sc = evtStore()->retrieve(thisEventInfo);
   if(sc.isFailure()  || !thisEventInfo){
@@ -144,6 +158,8 @@ StatusCode DQTLumiMonTool::fillHistograms(){
 
   unsigned LB = thisEventInfo->lumiBlock();
   double aveMu = thisEventInfo->averageInteractionsPerCrossing();
+  double actualMu = thisEventInfo->actualInteractionsPerCrossing();
+  unsigned int bcid = thisEventInfo->bcid();
 
   //Read from Lumi API's                                                                                                                                                                    
   double lbavglumi_h = lbAverageLuminosity();
@@ -157,17 +173,28 @@ StatusCode DQTLumiMonTool::fillHistograms(){
   double lumiweight_h = lbLumiWeight();
 
   m_aveMu_vs_LB->Fill(LB, aveMu);
+  m_aveMu->Fill(aveMu);
 
-  if ( m_environment != AthenaMonManager::AOD ) {
-    m_nAvgLumi_vs_LB->Fill(LB,lbavglumi_h);
-    m_nAvgIntPerXing_vs_LB->Fill(LB,avgintperxing);
-    m_avglivefrac_vs_LB->Fill(LB,avglivefrac_h);
-    m_duration_vs_LB->Fill(LB,duration_h);
-    m_lbintperxing_vs_LB->Fill(LB,lbintperxing_h);
-    m_lumiperBCID_vs_LB->Fill(LB,lumiperBCID);
-    m_fracperBCID_vs_LB->Fill(LB,fracperBCID_h);
-    m_lumiweight_VS_LB->Fill(LB,lumiweight_h);
+  if(m_turnoffbunchtool) {
+    m_actualMu_vs_LB->Fill(LB, actualMu);
+    m_actualMu->Fill(actualMu);
   }
+  else if (m_bunchtool->isFilled(bcid))
+    {
+      m_actualMu_vs_LB->Fill(LB, actualMu);
+      m_actualMu->Fill(actualMu);
+    }
+
+
+  m_nAvgLumi_vs_LB->Fill(LB,lbavglumi_h);
+  m_nAvgIntPerXing_vs_LB->Fill(LB,avgintperxing);
+  m_avglivefrac_vs_LB->Fill(LB,avglivefrac_h);
+  m_duration_vs_LB->Fill(LB,duration_h);
+  m_lbintperxing_vs_LB->Fill(LB,lbintperxing_h);
+  m_lumiperBCID_vs_LB->Fill(LB,lumiperBCID);
+  m_fracperBCID_vs_LB->Fill(LB,fracperBCID_h);
+  m_lumiweight_VS_LB->Fill(LB,lumiweight_h);
+    
 
 
   // Get vertex related info

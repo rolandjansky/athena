@@ -54,7 +54,7 @@
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArElecCalib/ILArPedestal.h"
 #include "CaloIdentifier/LArEM_ID.h"
 

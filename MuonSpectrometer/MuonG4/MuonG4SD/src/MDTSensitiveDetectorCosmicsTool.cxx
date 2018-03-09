@@ -8,11 +8,10 @@
 MDTSensitiveDetectorCosmicsTool::MDTSensitiveDetectorCosmicsTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SensitiveDetectorBase( type , name , parent )
 {
-  declareInterface<ISensitiveDetector>(this);
 }
 
 G4VSensitiveDetector* MDTSensitiveDetectorCosmicsTool::makeSD()
 {
-  ATH_MSG_INFO( "Initializing SD" );
+  ATH_MSG_DEBUG( "Initializing SD" );
   return new MDTSensitiveDetectorCosmics(name(), m_outputCollectionNames[0]);
 }

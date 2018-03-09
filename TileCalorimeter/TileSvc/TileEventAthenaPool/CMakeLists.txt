@@ -36,8 +36,12 @@ endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-  run_tpcnv_test( TileTPCnv_15.6.4    ESD-15.6.4 )
-  run_tpcnv_test( TileTPCnv_20.1.7.2  ESD-20.1.7.2 )
+  set( TILEEVENTATHENAPOOL_REFERENCE_TAG
+       TileEventAthenaPoolReference-01-00-00 )
+  run_tpcnv_test( TileTPCnv_15.6.4    ESD-15.6.4
+                  REFERENCE_TAG ${TILEEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( TileTPCnv_20.1.7.2  ESD-20.1.7.2
+                  REFERENCE_TAG ${TILEEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   

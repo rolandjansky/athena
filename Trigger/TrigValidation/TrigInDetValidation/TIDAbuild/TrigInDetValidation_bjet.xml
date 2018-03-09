@@ -1,6 +1,6 @@
          <athena trendId='bjet5200Trend' userJobId='TrigInDetValidation_bjet'>
-            <doc>Bjetslice, ttbar, run2 chains</doc>
-            <displayName>BjetSlice, ttbar, run2 chains</displayName>
+            <doc>Bjetslice, ttbar</doc>
+            <displayName>BjetSlice, ttbar</displayName>
 	    <commandLineFlags>EventMax=2000;</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>

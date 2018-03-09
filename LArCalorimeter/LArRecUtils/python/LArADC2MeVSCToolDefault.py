@@ -19,16 +19,27 @@ def LArADC2MeVSCToolDefault (name="LArADC2MeVSCToolDefault", **kw):
 
     tool.IsSC=True
     tool.MCSym = False
-    tool.UseHVScaleCorr = False
-    tool.UseMphysOverMcal = False
+    
     tool.UseFEBGainTresholds=True
 
     # do the configuration
     if globalflags.DataSource()=='data':
         # to be changed to True when everything is ready
         mlog.info("in data case")
+        tool.UseMphysOverMcal = True
+        tool.UseHVScaleCorr = False
+        
+        if larCondFlags.useLArFEBGainThresholds():
+            from LArRecUtils.LArFEBConfigReaderDefault import LArFEBConfigReaderDefault
+            theLArFebConfigReader=LArFEBConfigReaderDefault()
+            #theLArFebConfigReader.OutputLevel=DEBUG
+            ServiceMgr.ToolSvc+=theLArFebConfigReader
+            tool.FebConfigReader=theLArFebConfigReader
+            tool.UseFEBGainTresholds=True
     else:
         mlog.info("in MC case")
+        tool.UseMphysOverMcal = False
+        tool.UseHVScaleCorr = False
         tool.keyADC2DAC='LArRampSC'
         tool.keyDAC2uA='LArDAC2uASC'
         tool.keyuA2MeV='LAruA2MeVSC'

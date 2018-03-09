@@ -6,7 +6,7 @@
 #define PILEUPREWEIGHTINGDICT_H
 
 #include "PileupReweighting/PileupReweightingTool.h"
-#include "PileupReweighting/IPileupReweightingTool.h"
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 #ifdef XAOD_ANALYSIS
 #include "AsgTools/AnaToolHandle.h"

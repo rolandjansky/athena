@@ -47,7 +47,7 @@
 iFatras::TransportEngine::TransportEngine( const std::string& t,
 				       const std::string& n,
 				       const IInterface*  p )
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_rndGenSvc("AtDSFMTGenSvc", n), 
     m_randomEngine(0),
     m_randomEngineName("FatrasRnd"),
@@ -61,8 +61,6 @@ iFatras::TransportEngine::TransportEngine( const std::string& t,
     m_validationMode(false),
     m_validationTool("")
 {
-  declareInterface<ISF::IParticleProcessor>(this);
-
   // validation output section
   declareProperty( "ValidationMode",  m_validationMode );
   declareProperty( "PhysicsValidationTool",     m_validationTool  );
@@ -263,12 +261,14 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
                                                                                   materialLimitX0,
                                                                                   materialLimitL0);
     ecc.materialProcess = materialProcess;
-    if (ecc.materialLimitL0 != -1)
+    if (ecc.materialLimitL0 != -1) {
       ecc.materialL0 = materialL0;
       ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);   
-    if (ecc.materialLimitX0 != -1)
+    }
+    if (ecc.materialLimitX0 != -1) {
       ecc.materialX0 = materialX0;
       ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+    }
       
     ecc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
 
@@ -325,12 +325,14 @@ ISF::ISFParticle* iFatras::TransportEngine::process( const ISF::ISFParticle& isp
                                                                                 materialLimitL0);
     ecc.addConfigurationMode(Trk::ExtrapolationMode::CollectSensitive);
     ecc.materialProcess = materialProcess;
-    if (ecc.materialLimitL0 != -1)
+    if (ecc.materialLimitL0 != -1) {
       ecc.materialL0 = materialL0;
-     ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);
-    if (ecc.materialLimitX0 != -1)
+      ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitL0);
+    }
+    if (ecc.materialLimitX0 != -1) {
       ecc.materialX0 = materialX0;
       ecc.addConfigurationMode(Trk::ExtrapolationMode::StopWithMaterialLimitX0);
+    }
 
     ecc.addConfigurationMode(Trk::ExtrapolationMode::FATRAS);   
 

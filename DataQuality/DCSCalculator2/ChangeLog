@@ -1,6 +1,9 @@
 Note: Production system is located in atlasdqm account, ~atlasdqm/DQCalculators/DCSCalc.
 	* code checkout is "prodarea", scripts are in RunDCSCalc (ExecuteDCSC{1,2}.sh).
 
+2017-05-09 - run > 321813 - Philipp Stolte <Philipp.Stolte@cern.ch>
+	* Update lumi accounting tag to "OflLumiAcct-001" in global_system.py
+
 2017-03-17 - run > 317398 - Peter Onyisi <ponyisi at cern.ch>
 	* Calculator will send email if --email-on-failure option is set
 	* Disable Lucid due to continual failure

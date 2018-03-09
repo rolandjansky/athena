@@ -15,9 +15,8 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
-//#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
-//#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 
 
@@ -33,11 +32,8 @@ public:
   /// In G4 some of it is called instead under BeamOn
   void Initialize() override final;
 
-  /// Random generation of a G4Event for simulation
-  G4Event* GenerateEvent(G4int iEvent) override final;
-
   /// Does the work of simulating an ATLAS event
-  bool SimulateFADSEvent();
+  bool ProcessEvent(G4Event* event);
 
   /// G4 function called at end of run
   void RunTermination() override final;
@@ -46,6 +42,9 @@ protected:
 
   /// Initialize the geometry on the worker
   void InitializeGeometry() override final;
+
+  /// Initialize the physics on the worker
+  void InitializePhysics() override final;
 
 private:
 
@@ -69,7 +68,7 @@ private:
   ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
 
   /// Handle to the FastSim tool
-  //ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
+  ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
 
   /// Handle to the user action service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;

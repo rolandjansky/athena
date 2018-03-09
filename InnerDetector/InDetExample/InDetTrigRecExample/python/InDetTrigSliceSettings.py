@@ -26,7 +26,7 @@ class InDetTrigSliceSettingsDB:
   def __init__(self):
     from AthenaCommon.SystemOfUnits import GeV
     _slices = ['electron','photon',
-               'muon','muonCore','muonIso',
+               'muon','muonCore','muonIso', 'muonBtrk',
                'tau','bjet','bphysics','fullScan','minBias','beamgas',
                'cosmicsN', 'lowPt',   #these are not real slices, rather different setups of tools
                'hadCalib', 'fullScan500',       #hadCalib instances
@@ -77,6 +77,7 @@ class InDetTrigSliceSettingsDB:
     ptmin['fullScan500'] = 0.5 * GeV
     ptmin['fullScan2'] = 2. * GeV
     ptmin['minBias400'] = 0.39 * GeV
+    ptmin['muonBtrk'] = 1.5 * GeV
     ptmin['bphysHighPt'] = 2. * GeV
     ptmin['bjetVtx'] = 5. * GeV
 
@@ -89,6 +90,7 @@ class InDetTrigSliceSettingsDB:
     d0seedmax['bphysics'] = 10.0
     d0seedmax['bphysHighPt'] = 10.0
     d0seedmax['muon'] = 10.0
+    d0seedmax['muonBtrk'] = 10.0
     d0seedmax['muonCore'] = 10.0
 
     d0seedmax['cosmics'] = 1000.0
@@ -114,6 +116,7 @@ class InDetTrigSliceSettingsDB:
       dospphifiltering[i] = True
     # Turn off spacepoint phi filtering for muons
     dospphifiltering['muon'] = False
+    dospphifiltering['muonBtrk'] = False
     dospphifiltering['muonCore'] = False
     dospphifiltering['bphysics'] = False
     dospphifiltering['bphysHighPt'] = False
@@ -130,6 +133,7 @@ class InDetTrigSliceSettingsDB:
       checkseedredundancy[i] = False
     checkseedredundancy['electron'] = True
     checkseedredundancy['muon'] = True
+    checkseedredundancy['muonBtrk'] = True
     checkseedredundancy['muonCore'] = True
     checkseedredundancy['bphysics'] = True
     self.db['checkRedundantSeeds'] = checkseedredundancy
@@ -148,6 +152,7 @@ class InDetTrigSliceSettingsDB:
       'electron'  : 0.1,
       'photon'    : 0.1,
       'muon'      : 0.1,
+      'muonBtrk'  : 0.2,
       'muonCore'  : 0.1,
       'muonIso'   : 0.35,
       'tau'       : 0.4,
@@ -179,6 +184,7 @@ class InDetTrigSliceSettingsDB:
       'electron'  : 0.1,
       'photon'    : 0.1,
       'muon'      : 0.1,
+      'muonBtrk'  : 0.2,
       'muonCore'  : 0.1,
       'muonIso'   : 0.35,
       'tau'       : 0.4,

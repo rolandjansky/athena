@@ -89,7 +89,6 @@ bool TRTProcessingOfEndCapHits::ProcessHit(G4Step* pStep)
   G4Track* pTrack = pStep->GetTrack();
   // get the HepMC barcode using the track helper
   TrackHelper trHelp(pTrack);
-  int trackID = trHelp.GetBarcode();
 
   G4StepPoint* pPreStepPoint = pStep->GetPreStepPoint();
   G4StepPoint* pPostStepPoint = pStep->GetPostStepPoint();
@@ -160,14 +159,14 @@ bool TRTProcessingOfEndCapHits::ProcessHit(G4Step* pStep)
 
       if (preStepR > 2.0000001 || postStepR > 2.0000001)
         {
-          G4int particleEncoding = pSensitiveDetector->particleEncoding;
-          G4double kineticEnergy = pSensitiveDetector->kineticEnergy;
-          G4double energyDeposit = pSensitiveDetector->energyDeposit;
+          G4int particleEncoding = pSensitiveDetector->m_particleEncoding;
+          G4double kineticEnergy = pSensitiveDetector->m_kineticEnergy;
+          G4double energyDeposit = pSensitiveDetector->m_energyDeposit;
 
           std::cout << "!!!!! End-caps. Error in local coordinates of hits!" << std::endl;
           std::cout << "  endCapID=" << endCapID << "  wheelID=" << wheelID
                     << "  planeID=" << planeID << "  strawID=" << strawID
-                    << "  trackID=" << trackID << std::endl;
+                    << "  trackID=" << trHelp.GetBarcode() << std::endl;
           std::cout << "  particleEncoding=" << particleEncoding;
 
           if (kineticEnergy < 0.0001)
@@ -245,15 +244,15 @@ bool TRTProcessingOfEndCapHits::ProcessHit(G4Step* pStep)
   hitID += (planeID << 5);
   hitID += strawID;
 
-  pSensitiveDetector->hitID = hitID;
-  pSensitiveDetector->trackID = trackID;
-  pSensitiveDetector->preStepX = preStepX;
-  pSensitiveDetector->preStepY = preStepY;
-  pSensitiveDetector->preStepZ = preStepZ;
-  pSensitiveDetector->postStepX = postStepX;
-  pSensitiveDetector->postStepY = postStepY;
-  pSensitiveDetector->postStepZ = postStepZ;
-  pSensitiveDetector->globalTime = globalTime;
+  pSensitiveDetector->m_hitID = hitID;
+  pSensitiveDetector->m_partLink = trHelp.GetParticleLink();
+  pSensitiveDetector->m_preStepX = preStepX;
+  pSensitiveDetector->m_preStepY = preStepY;
+  pSensitiveDetector->m_preStepZ = preStepZ;
+  pSensitiveDetector->m_postStepX = postStepX;
+  pSensitiveDetector->m_postStepY = postStepY;
+  pSensitiveDetector->m_postStepZ = postStepZ;
+  pSensitiveDetector->m_globalTime = globalTime;
 
   return true;
 }

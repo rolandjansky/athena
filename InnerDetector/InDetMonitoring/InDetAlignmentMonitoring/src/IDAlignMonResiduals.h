@@ -125,8 +125,6 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 	
   StatusCode setupTools();
 	
-  bool isEdge(const Trk::RIO_OnTrack*);	
-	
   std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> findOverlapHit(const Trk::Track*, const Trk::RIO_OnTrack*);
   StatusCode getSiResiduals(const Trk::Track*, const Trk::TrackStateOnSurface*, bool, double*);
   const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::Track*, const Trk::TrackStateOnSurface*);

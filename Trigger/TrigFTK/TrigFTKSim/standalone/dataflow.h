@@ -32,7 +32,7 @@ float nConn[MAXTOWER], nExtrapAUX[MAXTOWER];
 FTKRoadStream *stream[MAXTOWER];
 FTKTrackStream *trackstream[MAXTOWER];
 
-vector< vector<float>> nRoadArr, nFitIArr;
+vector<float> nRoad_tow_evt[MAXTOWER], nFitI_tow_evt[MAXTOWER];
 
 
 // events to run over
@@ -72,9 +72,3 @@ void Process(unsigned int ientry);
 void Terminate();
 void printinfo(float towers[MAXTOWER], TString text);
 void AddBreak(int n = 1);
-
-/*int quick_select(vector<float> input, int p, int r, int k);
-  int partition(vector<float> input, int p, int r);*/
-
-int quick_select(int* input, int p, int r, int k);
-int partition(int* input, int p, int r);

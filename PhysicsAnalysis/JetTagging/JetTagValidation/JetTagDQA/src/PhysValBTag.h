@@ -93,10 +93,10 @@ namespace JetTagDQA {
     std::map<std::string, JetTagDQA::BTaggingValidationPlots> m_btagplots;
 
     JetTagDQA::BTaggingValidationPlots m_antiKt2PV0TrackJetPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKt3PV0TrackJetPlots;
     JetTagDQA::BTaggingValidationPlots m_antiKt4PV0TrackJetPlots;
     JetTagDQA::BTaggingValidationPlots m_antiKt4EMTopoPlots;
-    JetTagDQA::BTaggingValidationPlots m_antiKt4LCTopoPlots;
+    JetTagDQA::BTaggingValidationPlots m_antiKtVR30Rmax4Rmin02TrackJetsPlots;
+    JetTagDQA::BTaggingValidationPlots m_antiKt4EMPFlowJetsPlots;
 
     int m_nevents;
     //int m_nTruthB;

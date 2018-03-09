@@ -10,11 +10,11 @@ setupATLAS
 lsetup git
 mkdir testdir
 cd testdir
-git atlas init-workdir https://:@gitlab.cern.ch:8443/giulini/athena.git
+git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas-ftk/athena.git -p FTKStandaloneMonitoring
 cd athena/
-git atlas addpkg FTKStandaloneMonitoring
-git fetch upstream 
-git checkout -b FTKSM-ckeckout upstream/21.1 --no-track
+git checkout <present-branch> # a present branch, or:
+git checkout -b new-feature --no-track # new development, or:
+git checkout -b new-feature upstream/21.1 --no-track # or from upstream
 cd ..
 ```
 

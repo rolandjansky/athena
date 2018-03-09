@@ -724,7 +724,7 @@ void EMECSupportConstruction::put_front_outer_barettes(GeoPhysVol *motherPhysica
 	double dr = getNumber(m_DB_numbers, numbers, "DRabs", "PARVALUE", 41.4);         // start of barrette rel to start of abs.
 	double dx = getNumber(m_DB_numbers, numbers, "Labs", "PARVALUE", 1290.) / 2.;         // length of the connected part
 	assert(rmn + dr > rminFOB && rmn + dr + dx*2 < rmaxFOB);
-	double dy = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::OuterAbsorberWheel);
+	double dy = LArWheelCalculator::GetFanHalfThickness(LArG4::OuterAbsorberWheel);
 	const double r0A = rmn + dr + dx;
 	GeoBox *shapeFOBA = new GeoBox(dx, dy, dzFOB);
 	GeoLogVol *logicalFOBA = new GeoLogVol(name, shapeFOBA, m_G10FeOuter);
@@ -736,7 +736,7 @@ void EMECSupportConstruction::put_front_outer_barettes(GeoPhysVol *motherPhysica
 	dr = getNumber(m_DB_numbers, numbers, "DRele", "PARVALUE", 48.4);
 	dx = getNumber(m_DB_numbers, numbers, "Lele", "PARVALUE", 1283.8) / 2.;
 	assert(rmn + dr > rminFOB && rmn + dr + dx*2 < rmaxFOB);
-	dy = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::OuterElectrodWheel);
+	dy = LArWheelCalculator::GetFanHalfThickness(LArG4::OuterElectrodWheel);
 	const double r0E = rmn + dr + dx;
 	double x0 = r0E * cos(dfi/2.);
 	double y0 = r0E * sin(dfi/2.);
@@ -821,7 +821,7 @@ void EMECSupportConstruction::put_front_inner_barettes(GeoPhysVol *motherPhysica
 	double dr = getNumber(m_DB_numbers, numbers, "DRabs", "PARVALUE", 75.6);      // start of barrette rel to start of abs.
 	double dx = getNumber(m_DB_numbers, numbers, "Labs", "PARVALUE", 192.) / 2.;       // length of the connected part
 	assert(rmn + dr > rminFIB && rmn + dr + dx*2 < rmaxFIB);
-	double dy = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::InnerAbsorberWheel);
+	double dy = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerAbsorberWheel);
 	const double r0A = rmn + dr + dx;
 	GeoBox *shapeFIBA = new GeoBox(dx, dy, dzFIB);
 	GeoLogVol *logicalFIBA = new GeoLogVol(name, shapeFIBA, m_G10FeInner);
@@ -833,7 +833,7 @@ void EMECSupportConstruction::put_front_inner_barettes(GeoPhysVol *motherPhysica
 	dr = getNumber(m_DB_numbers, numbers, "DRele", "PARVALUE", 106.3);
 	dx = getNumber(m_DB_numbers, numbers, "Lele", "PARVALUE", 144.4) / 2.;
 	assert(rmn + dr > rminFIB && rmn + dr + dx*2 < rmaxFIB);
-	dy = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::InnerElectrodWheel);
+	dy = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerElectrodWheel);
 	const double r0E = rmn + dr + dx;
 	double x0 = r0E * cos(dfi/2.);
 	double y0 = r0E * sin(dfi/2.);
@@ -918,7 +918,7 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 	double dr = getNumber(m_DB_numbers, numbers, "DRabs", "PARVALUE", 42.1);        // start of barrette rel to start of abs
 	double dx = getNumber(m_DB_numbers, numbers, "Labs", "PARVALUE", 1229.) / 2.;        // length of the connected part
 	assert(rmn + dr > rminBOB && rmn + dr + dx * 2 < rmaxBOB);
-	double dy = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::OuterAbsorberWheel);
+	double dy = LArWheelCalculator::GetFanHalfThickness(LArG4::OuterAbsorberWheel);
 	const double r0A = rmn + dr + dx;
 	GeoBox *shapeBOBA = new GeoBox(dx, dy, dzBOB);
 	GeoLogVol *logicalBOBA = new GeoLogVol(name, shapeBOBA, m_G10FeOuter);
@@ -930,7 +930,7 @@ void EMECSupportConstruction::put_back_outer_barettes(GeoPhysVol *motherPhysical
 	dr = getNumber(m_DB_numbers, numbers, "DRele", "PARVALUE", 41.);
 	dx = getNumber(m_DB_numbers, numbers, "Lele", "PARVALUE", 1246.9) / 2.;
 	assert(rmn + dr > rminBOB && rmn + dr + dx*2 < rmaxBOB);
-	dy = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::OuterElectrodWheel);
+	dy = LArWheelCalculator::GetFanHalfThickness(LArG4::OuterElectrodWheel);
 	double r0E = rmn + dr + dx;
 	double y0 = r0E * sin(dfi/2.);
 	double x0 = r0E * cos(dfi/2.);
@@ -1017,7 +1017,7 @@ void EMECSupportConstruction::put_back_inner_barettes(GeoPhysVol *motherPhysical
 	double rmn = getNumber(m_DB_numbers, numbers, "R0", "PARVALUE", 344.28); // start of abs.
 	double dr = getNumber(m_DB_numbers, numbers, "DRabs", "PARVALUE", 56.1); // start of barrette rel to start of abs.
 	double dx = getNumber(m_DB_numbers, numbers, "Labs", "PARVALUE", 255.) / 2.;
-	double dy = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::InnerAbsorberWheel);
+	double dy = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerAbsorberWheel);
 	assert(rmn+dr>rminBIB && rmn+dr+dx*2.<rmaxBIB);
 	const double r0A = rmn + dr + dx;
 	GeoBox *shapeBIBA = new GeoBox(dx, dy, dzBIB);
@@ -1031,7 +1031,7 @@ void EMECSupportConstruction::put_back_inner_barettes(GeoPhysVol *motherPhysical
 	dr = getNumber(m_DB_numbers, numbers, "DRele", "PARVALUE", 76.6);
 	dx = getNumber(m_DB_numbers, numbers, "Lele", "PARVALUE", 208.9) / 2.;
 	assert(rmn + dr > rminBIB && rmn + dr + dx * 2. < rmaxBIB);
-	dy = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::InnerElectrodWheel);
+	dy = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerElectrodWheel);
 	const double r0E = rmn + dr + dx;
 	double y0 = r0E * sin(dfi * 0.5);
 	double x0 = r0E * cos(dfi * 0.5);

@@ -26,7 +26,9 @@ protected:
     //Encoding
     //0R0P PPPP
     PEAKSAMPLE_MASK=0x1F,
+    HGRAMPINTERCEPT_MASK=0x20,
     MGRAMPINTERCEPT_MASK=0x40,
+    LGRAMPINTERCEPT_MASK=0x80,
   };
 
 
@@ -37,8 +39,16 @@ protected:
 
 
   bool  useMGRampInterceptByHash(const IdentifierHash& febHash) const;
+  bool  useHGRampInterceptByHash(const IdentifierHash& febHash) const;
+  bool  useLGRampInterceptByHash(const IdentifierHash& febHash) const;
   bool useMGRampIntercept(const HWIdentifier FEBid) const {
     return useMGRampInterceptByHash(m_onlineHelper->feb_Hash(FEBid));
+  };
+  bool useHGRampIntercept(const HWIdentifier FEBid) const {
+    return useHGRampInterceptByHash(m_onlineHelper->feb_Hash(FEBid));
+  };
+  bool useLGRampIntercept(const HWIdentifier FEBid) const {
+    return useLGRampInterceptByHash(m_onlineHelper->feb_Hash(FEBid));
   };
 
   uint8_t peakSampleByHash(const IdentifierHash& febHash) const;

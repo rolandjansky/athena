@@ -100,6 +100,7 @@ namespace InDet {
     bool m_configured;
 
     bool m_checkDeadRegions;
+    bool m_checkDisabledFEs;
     double m_phiRegionSize;
     double m_etaRegionSize;
     double m_goodFracCut;
