@@ -23,6 +23,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTruth
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/TrkTrackSummary )
@@ -36,12 +38,12 @@ atlas_add_library( TrigFTK_RawDataAlgsLib
                    PUBLIC_HEADERS TrigFTK_RawDataAlgs
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkEventPrimitives FTK_DataProviderInterfaces TrigFTKPool TrigFTK_RawData PileUpToolsLib TrigFTKSimLib
-                   PRIVATE_LINK_LIBRARIES AtlasDetDescr EventInfo xAODTracking xAODTruth InDetIdentifier InDetReadoutGeometry TrkTrack TrkTrackSummary VxVertex )
+                   PRIVATE_LINK_LIBRARIES AtlasDetDescr EventInfo xAODTracking xAODTruth InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry TrkTrack TrkTrackSummary VxVertex )
 
 atlas_add_component( TrigFTK_RawDataAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps PileUpToolsLib GaudiKernel TrkEventPrimitives FTK_DataProviderInterfaces TrigFTKPool TrigFTKSimLib TrigFTK_RawData AtlasDetDescr EventInfo xAODTracking  xAODTruth InDetIdentifier InDetReadoutGeometry TrkTrack TrkTrackSummary VxVertex TrigFTK_RawDataAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps PileUpToolsLib GaudiKernel TrkEventPrimitives FTK_DataProviderInterfaces TrigFTKPool TrigFTKSimLib TrigFTK_RawData AtlasDetDescr EventInfo xAODTracking  xAODTruth InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry TrkTrack TrkTrackSummary VxVertex TrigFTK_RawDataAlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -23,6 +23,9 @@ use AthenaBaseComps     AthenaBaseComps-*       Control
 use AtlasDetDescr               AtlasDetDescr-*         DetectorDescription
 use InDetIdentifier             InDetIdentifier-*       InnerDetector/InDetDetDescr
 use InDetReadoutGeometry  InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
+use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
+use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use xAODBase            xAODBase-*             Event/xAOD
 
 

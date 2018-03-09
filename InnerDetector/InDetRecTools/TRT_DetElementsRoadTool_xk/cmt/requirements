@@ -17,6 +17,7 @@ use GaudiInterface         GaudiInterface-*         External
 use MagFieldInterfaces *   MagneticField
 use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
 use InDetReadoutGeometry   InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
 use TrkGeometry            TrkGeometry-*            Tracking/TrkDetDescr
 

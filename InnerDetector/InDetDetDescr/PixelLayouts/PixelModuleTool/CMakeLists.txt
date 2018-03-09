@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoModelInterfaces
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/PixelGeoModel
                           Tools/PathResolver )
@@ -26,7 +27,7 @@ atlas_add_component( PixelModuleTool
                      src/*.cxx
                      src/components/*.cxx
 		     LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel PixelGeoComponent PixelGeoModelModule PixelLayoutUtils                     
-		     PRIVATE_LINK_LIBRARIES StoreGateLib InDetReadoutGeometry PathResolver)
+		     PRIVATE_LINK_LIBRARIES StoreGateLib InDetReadoutGeometry PixelReadoutGeometry PathResolver)
 
 # Install files from the package:
 atlas_install_headers( PixelModuleTool )

@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Event/xAOD/xAODEventInfo
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack )
 
@@ -30,7 +31,7 @@ atlas_add_component( TRT_ToT_Tools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib TrkEventPrimitives TrkParameters TrkTrack StoreGateLib SGtests AthenaPoolUtilities xAODEventInfo InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ConditionsServicesLib TrkEventPrimitives TrkParameters TrkTrack StoreGateLib SGtests AthenaPoolUtilities xAODEventInfo InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetRIO_OnTrack )
 
 # Install files from the package:
 atlas_install_headers( TRT_ToT_Tools )

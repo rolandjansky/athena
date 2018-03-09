@@ -58,7 +58,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include <map>
 
 // Constructor with parameters:

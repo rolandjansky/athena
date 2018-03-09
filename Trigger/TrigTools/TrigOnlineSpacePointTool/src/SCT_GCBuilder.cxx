@@ -10,7 +10,7 @@
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include <cmath>
 
 

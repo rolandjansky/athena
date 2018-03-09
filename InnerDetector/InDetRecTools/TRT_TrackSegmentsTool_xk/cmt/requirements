@@ -14,6 +14,7 @@ use TrkParameters          TrkParameters-*          Tracking/TrkEvent
 use InDetPrepRawData       InDetPrepRawData-*       InnerDetector/InDetRecEvent
 use InDetRIO_OnTrack       InDetRIO_OnTrack-*       InnerDetector/InDetRecEvent 
 use InDetReadoutGeometry   InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
 
 private

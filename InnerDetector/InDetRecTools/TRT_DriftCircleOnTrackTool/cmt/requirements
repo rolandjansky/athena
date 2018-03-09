@@ -6,6 +6,7 @@ private
 
 use TRT_DriftFunctionTool TRT_DriftFunctionTool-* InnerDetector/InDetRecTools
 use InDetReadoutGeometry  InDetReadoutGeometry-*  InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TrkEventPrimitives    TrkEventPrimitives-*    Tracking/TrkEvent
 
 public

@@ -35,6 +35,7 @@ use AtlasDetDescr            AtlasDetDescr-*              DetectorDescription
 use IdDictDetDescr           IdDictDetDescr-*             DetectorDescription
 
 use InDetReadoutGeometry     InDetReadoutGeometry-*       InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use SiClusterizationTool     SiClusterizationTool-*       InnerDetector/InDetRecTools
 
 ########## ISF dependencies ########################################################

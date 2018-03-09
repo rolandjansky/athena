@@ -9,7 +9,7 @@
 #include "DetDescrConditions/AlignableTransform.h"
 #include "DetDescrConditions/DetCondCFloat.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelCalibAlgs/PixelBarrelSurveyUtils.h"
 //#include "GeoPrimitives/CLHEPtoEigenConverter.h" 

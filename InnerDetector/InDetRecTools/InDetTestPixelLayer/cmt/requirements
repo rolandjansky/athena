@@ -15,6 +15,7 @@ apply_tag ROOTMathLibs
 use GeoPrimitives           GeoPrimitives-*         DetectorDescription
 use InDetConditionsSummaryService InDetConditionsSummaryService* InnerDetector/InDetConditions
 use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TrkTrack             TrkTrack-*           Tracking/TrkEvent
 use TrkExInterfaces      TrkExInterfaces-*         Tracking/TrkExtrapolation
 use TrkMeasurementBase   TrkMeasurementBase-*      Tracking/TrkEvent

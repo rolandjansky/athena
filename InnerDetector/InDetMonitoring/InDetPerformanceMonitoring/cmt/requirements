@@ -69,6 +69,9 @@ use egammaEvent                 egammaEvent-*                   Reconstruction/e
 
 #Other InDet Packages
 use InDetReadoutGeometry 	InDetReadoutGeometry-* 		InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
+use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
+use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetRIO_OnTrack 		InDetRIO_OnTrack-* 		InnerDetector/InDetRecEvent
 #use InDetRawData 		InDetRawData-* 			InnerDetector/InDetRawEvent
 #use TRT_ConditionsServices 	TRT_ConditionsServices-* 	InnerDetector/InDetConditions

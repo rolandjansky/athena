@@ -8,6 +8,7 @@ use GaudiInterface      	GaudiInterface-*        	External
 # TRT RDOs
 use InDetRawData		InDetRawData-*			InnerDetector/InDetRawEvent
 use InDetReadoutGeometry        InDetReadoutGeometry-*  	InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 
 private
 # TRT RDOs

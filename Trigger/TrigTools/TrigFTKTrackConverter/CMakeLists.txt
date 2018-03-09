@@ -20,6 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Generators/GeneratorObjects
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -36,7 +38,7 @@ atlas_add_component( TrigFTKTrackConverter
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel TrkFitterInterfaces TrkFitterUtils TrigFTKSimLib StoreGateLib SGtests AtlasDetDescr GeoPrimitives GeneratorObjects InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTruthData )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel TrkFitterInterfaces TrkFitterUtils TrigFTKSimLib StoreGateLib SGtests AtlasDetDescr GeoPrimitives GeneratorObjects InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetRIO_OnTrack TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkTruthData )
 
 # Install files from the package:
 atlas_install_headers( TrigFTKTrackConverter )

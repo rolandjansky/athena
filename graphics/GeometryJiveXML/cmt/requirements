@@ -18,6 +18,7 @@ use GeoModelKernel 	  GeoModelKernel-*    	     DetectorDescription/GeoModel
 use CaloDetDescr          CaloDetDescr-*             Calorimeter
 use TileDetDescr          TileDetDescr-*             TileCalorimeter
 use InDetReadoutGeometry  InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetIdentifier       InDetIdentifier-*          InnerDetector/InDetDetDescr
 use MuonIdHelpers	  MuonIdHelpers-*            MuonSpectrometer
 use MuonReadoutGeometry   MuonReadoutGeometry-*      MuonSpectrometer/MuonDetDescr

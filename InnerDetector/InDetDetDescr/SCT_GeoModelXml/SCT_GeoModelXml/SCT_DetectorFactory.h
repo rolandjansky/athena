@@ -9,7 +9,7 @@
 //    DetectorManager.
 // 
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h" 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "SCT_GeoModelXml/WaferTree.h"
 
 namespace InDetDD {class AthenaComps; class SiCommonItems;}

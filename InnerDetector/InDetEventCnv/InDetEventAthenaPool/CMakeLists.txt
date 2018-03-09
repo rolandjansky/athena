@@ -24,6 +24,9 @@ atlas_depends_on_subdirs(
    Database/AtlasSealCLHEP
    GaudiKernel
    InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetEventCnv/InDetEventTPCnv
    InnerDetector/InDetRawEvent/InDetRawData
@@ -47,7 +50,7 @@ atlas_add_poolcnv_library( InDetEventAthenaPoolPoolCnv
    LINK_LIBRARIES Identifier GeneratorObjectsTPCnv AthAllocators AthContainers
    AthenaBaseComps AthenaKernel SGTools StoreGateLib AthenaPoolCnvSvcLib
    AthenaPoolUtilities AtlasSealCLHEP GaudiKernel InDetIdentifier
-   InDetReadoutGeometry InDetEventTPCnv InDetRawData InDetSimData
+   InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetEventTPCnv InDetRawData InDetSimData
    InDetLowBetaInfo InDetPrepRawData TrkTrack )
 
 atlas_add_dictionary( InDetEventAthenaPoolCnvDict

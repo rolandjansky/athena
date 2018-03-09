@@ -37,6 +37,7 @@ use InDetPrepRawData         InDetPrepRawData-*        InnerDetector/InDetRecEve
 use TrkTrackSummary          TrkTrackSummary-*         Tracking/TrkEvent
 use TrkTrackSummaryTool      TrkTrackSummaryTool-*     Tracking/TrkTools
 use InDetReadoutGeometry     InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use CommissionEvent          CommissionEvent-*         Commission
 use TRT_ConditionsData       TRT_ConditionsData-*      InnerDetector/InDetConditions
 use InDetIdentifier          InDetIdentifier-*         InnerDetector/InDetDetDescr

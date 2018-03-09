@@ -7,7 +7,7 @@
 #include "InDetRawData/SCT_RDO_Collection.h"
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/SCT3_RawData.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/SCT_ID.h"
 //#include "TrkEventPrimitives/LocalPosition.h"

@@ -29,7 +29,7 @@
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/TRT_RDO_Container.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "FakeTrackBuilder.h"
 class PixelID;
 class SCT_ID;

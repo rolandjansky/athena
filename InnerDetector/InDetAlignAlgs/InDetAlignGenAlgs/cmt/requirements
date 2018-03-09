@@ -39,6 +39,9 @@ use TrkExInterfaces             TrkExInterfaces-*             Tracking/TrkExtrap
 use TrkToolInterfaces           TrkToolInterfaces-*           Tracking/TrkTools
 use InDetBeamSpotService        InDetBeamSpotService-*        InnerDetector/InDetConditions
 use InDetReadoutGeometry        InDetReadoutGeometry-*        InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
+use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
+use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 
 
 public

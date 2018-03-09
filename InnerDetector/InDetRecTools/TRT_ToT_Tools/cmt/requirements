@@ -18,6 +18,7 @@ use StoreGate			StoreGate-*			Control
 use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
 use InDetRIO_OnTrack 	   	InDetRIO_OnTrack-*     	 	InnerDetector/InDetRecEvent
 use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use xAODEventInfo               xAODEventInfo-*               Event/xAOD
 use AtlasCORAL           AtlasCORAL-*              External
 use AthenaPoolUtilities     AthenaPoolUtilities-*  Database/AthenaPOOL

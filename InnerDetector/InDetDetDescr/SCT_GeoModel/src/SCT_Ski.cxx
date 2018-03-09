@@ -14,7 +14,7 @@
 #include "SCT_GeoModel/SCT_CoolingBlock.h" // 14th Aug 2005 S.Mima added.
 #include "SCT_GeoModel/SCT_CoolingPipe.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTube.h"

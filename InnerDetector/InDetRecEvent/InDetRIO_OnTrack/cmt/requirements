@@ -19,6 +19,7 @@ library InDetRIO_OnTrack *.cxx
 private
 use TrkSurfaces          	TrkSurfaces-* 	         	Tracking/TrkDetDescr
 use InDetReadoutGeometry 	InDetReadoutGeometry-*  	InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"

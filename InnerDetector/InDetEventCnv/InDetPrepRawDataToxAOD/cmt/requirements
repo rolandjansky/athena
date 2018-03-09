@@ -33,6 +33,8 @@ use TrkSurfaces           TrkSurfaces-*          Tracking/TrkDetDescr
 use PixelConditionsServices 		PixelConditionsServices-* 	InnerDetector/InDetConditions
 use InDetCondServices           InDetCondServices-*         InnerDetector/InDetConditions
 use InDetReadoutGeometry        InDetReadoutGeometry-*      InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
+use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 
 use  AtlasHepMC                 AtlasHepMC-*           External
 use  AtlasCLHEP                 AtlasCLHEP-*           External

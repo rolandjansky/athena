@@ -15,6 +15,7 @@ use PixelGeoComponent PixelGeoComponent-*  InnerDetector/InDetDetDescr/PixelLayo
 private 
 use StoreGate              StoreGate-*              Control
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use GeoModelInterfaces     GeoModelInterfaces-*      DetectorDescription/GeoModel
 use PixelGeoModel   PixelGeoModel-*   InnerDetector/InDetDetDescr
 

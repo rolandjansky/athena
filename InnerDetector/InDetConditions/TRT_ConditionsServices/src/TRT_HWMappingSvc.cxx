@@ -19,7 +19,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TFile.h"
 #include "TGraph.h"

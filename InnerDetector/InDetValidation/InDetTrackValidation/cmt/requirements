@@ -42,6 +42,9 @@ use PixelGeoModel           PixelGeoModel-*             InnerDetector/InDetDetDe
 use InDetIdentifier         InDetIdentifier-*           InnerDetector/InDetDetDescr
 use InDetRIO_OnTrack        InDetRIO_OnTrack-*          InnerDetector/InDetRecEvent
 use InDetReadoutGeometry    InDetReadoutGeometry-*      InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
+use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
+use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use PixelConditionsServices PixelConditionsServices-*   InnerDetector/InDetConditions
 use SCT_ConditionsServices  SCT_ConditionsServices-*    InnerDetector/InDetConditions
 use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions

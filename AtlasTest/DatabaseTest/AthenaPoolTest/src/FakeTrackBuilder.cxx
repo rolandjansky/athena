@@ -37,7 +37,7 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 

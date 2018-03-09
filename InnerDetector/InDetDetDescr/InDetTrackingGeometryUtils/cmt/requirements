@@ -14,6 +14,7 @@ use AtlasROOT              AtlasROOT-*              External
 use StoreGate              StoreGate-*              Control
 use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
 use InDetReadoutGeometry   InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use Identifier             Identifier-*             DetectorDescription
 
 public

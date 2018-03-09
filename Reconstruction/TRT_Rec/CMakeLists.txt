@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/RoiDescriptor
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Reconstruction/iPat/iPatTrack
@@ -45,7 +46,7 @@ atlas_add_component( TRT_Rec
                      src/TRT_RoadData.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives IRegionSelector Identifier GaudiKernel iPatInterfaces RoiDescriptor InDetIdentifier InDetReadoutGeometry InDetPrepRawData iPatTrack iPatTrackParameters TrkGeometry TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkExUtils TrkToolInterfaces )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives IRegionSelector Identifier GaudiKernel iPatInterfaces RoiDescriptor InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData iPatTrack iPatTrackParameters TrkGeometry TrkSurfaces TrkEventPrimitives TrkMeasurementBase TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkExUtils TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TRT_Rec )

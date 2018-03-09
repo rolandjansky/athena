@@ -10,7 +10,7 @@
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterCnv_p2.h"
 #include "InDetEventTPCnv/PixelClusterContainerCnv_p2.h"
 #include "DataModel/DataPool.h"

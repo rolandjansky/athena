@@ -26,3 +26,4 @@ apply_pattern declare_joboptions files="TRT_PAI_Process.py"
 private
 
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr

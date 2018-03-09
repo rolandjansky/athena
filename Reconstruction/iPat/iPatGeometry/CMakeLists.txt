@@ -9,6 +9,7 @@ atlas_subdir( iPatGeometry )
 atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
                           PRIVATE
@@ -31,6 +32,6 @@ atlas_add_library( iPatGeometry
                    src/SiliconTrapezoid.cxx
                    PUBLIC_HEADERS iPatGeometry
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives Identifier InDetReadoutGeometry TrkSurfaces
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives Identifier InDetReadoutGeometry SCT_ReadoutGeometry TrkSurfaces
                    PRIVATE_LINK_LIBRARIES EventPrimitives GaudiKernel )
 

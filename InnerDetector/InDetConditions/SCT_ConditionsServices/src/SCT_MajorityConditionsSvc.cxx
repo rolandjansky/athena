@@ -16,7 +16,7 @@
 #include "Identifier/IdentifierHash.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 // Note, up till Friday 23rd Oct the conditions update was too frequent (every 10 sec).

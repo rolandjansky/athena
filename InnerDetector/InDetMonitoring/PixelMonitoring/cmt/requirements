@@ -13,6 +13,7 @@ use InDetRIO_OnTrack               InDetRIO_OnTrack-*              InnerDetector
 use TrkParameters                  TrkParameters-*                 Tracking/TrkEvent
 #use StoreGate                      StoreGate-02-*                  Control
 use InDetReadoutGeometry           InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetRIO_OnTrack               InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent
 #use PixelConditionsServices        PixelConditionsServices*        InnerDetector/InDetConditions
 #use InDetConditionsSummaryService  InDetConditionsSummaryService*  InnerDetector/InDetConditions

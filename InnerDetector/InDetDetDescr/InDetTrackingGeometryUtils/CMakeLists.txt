@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/StoreGate
                           DetectorDescription/Identifier
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkDetDescr/TrkSurfaces )
 
@@ -29,5 +30,5 @@ atlas_add_library( InDetTrackingGeometryUtils
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES}
 		   GeoPrimitives InDetIdentifier TrkDetDescrUtils TrkGeometry 
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} Identifier InDetReadoutGeometry TrkSurfaces StoreGateLib SGtests )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} Identifier InDetReadoutGeometry TRT_ReadoutGeometry TrkSurfaces StoreGateLib SGtests )
 

@@ -15,7 +15,7 @@
 
 #include <vector>
 #include "Identifier/IdentifierHash.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
 #include "SiSpacePointFormation/SiElementProperties.h"
 
 class SiDetectorElementCollection;

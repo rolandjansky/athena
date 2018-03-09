@@ -9,6 +9,7 @@ atlas_subdir( TRT_DriftFunctionTool )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           PRIVATE
                           DetectorDescription/GeoModel/GeoModelInterfaces
@@ -25,7 +26,7 @@ atlas_add_component( TRT_DriftFunctionTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry GeoModelUtilities EventInfo TRT_ConditionsServicesLib InDetIdentifier )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry GeoModelUtilities EventInfo TRT_ConditionsServicesLib InDetIdentifier )
 
 # Install files from the package:
 atlas_install_headers( TRT_DriftFunctionTool )

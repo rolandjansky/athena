@@ -20,7 +20,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 #include "TrkParameters/TrackParameters.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"

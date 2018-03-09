@@ -18,6 +18,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventKernel
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Reconstruction/Particle
@@ -59,19 +62,19 @@ atlas_add_library( PrimaryDPDMakerLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel IRegionSelector Identifier EventKernel GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkTrack TrkToolInterfaces StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel IRegionSelector Identifier EventKernel GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData Particle TrkTrack TrkToolInterfaces StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools RoiDescriptor FourMom FourMomUtils NavFourMom xAODEventInfo xAODMuon xAODTracking InDetRIO_OnTrack LArRecEvent AnalysisTriggerEvent JetEvent muonEvent egammaEvent tauEvent TileEvent TileIdentifier TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkTrackSummary VxVertex )
 
 atlas_add_component( PrimaryDPDMaker
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel StoreGateLib SGtests IRegionSelector Identifier EventKernel GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkTrack TrkToolInterfaces SGTools RoiDescriptor FourMom FourMomUtils NavFourMom xAODEventInfo xAODMuon xAODTracking InDetRIO_OnTrack LArRecEvent AnalysisTriggerEvent JetEvent muonEvent egammaEvent tauEvent TileEvent TileIdentifier TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkTrackSummary VxVertex PrimaryDPDMakerLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel StoreGateLib SGtests IRegionSelector Identifier EventKernel GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData Particle TrkTrack TrkToolInterfaces SGTools RoiDescriptor FourMom FourMomUtils NavFourMom xAODEventInfo xAODMuon xAODTracking InDetRIO_OnTrack LArRecEvent AnalysisTriggerEvent JetEvent muonEvent egammaEvent tauEvent TileEvent TileIdentifier TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkTrackSummary VxVertex PrimaryDPDMakerLib )
 
 atlas_add_dictionary( PrimaryDPDMakerDict
                       PrimaryDPDMaker/PrimaryDPDMakerDict.h
                       PrimaryDPDMaker/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel StoreGateLib SGtests IRegionSelector Identifier EventKernel GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkTrack TrkToolInterfaces SGTools RoiDescriptor FourMom FourMomUtils NavFourMom xAODEventInfo xAODMuon xAODTracking InDetRIO_OnTrack LArRecEvent AnalysisTriggerEvent JetEvent muonEvent egammaEvent tauEvent TileEvent TileIdentifier TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkTrackSummary VxVertex PrimaryDPDMakerLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthenaKernel DataModel StoreGateLib SGtests IRegionSelector Identifier EventKernel GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData Particle TrkTrack TrkToolInterfaces SGTools RoiDescriptor FourMom FourMomUtils NavFourMom xAODEventInfo xAODMuon xAODTracking InDetRIO_OnTrack LArRecEvent AnalysisTriggerEvent JetEvent muonEvent egammaEvent tauEvent TileEvent TileIdentifier TrkParameters TrkParticleBase TrkPseudoMeasurementOnTrack TrkTrackSummary VxVertex PrimaryDPDMakerLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

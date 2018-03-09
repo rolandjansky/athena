@@ -31,6 +31,9 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/TRT_ConditionsData
    InnerDetector/InDetConditions/TRT_ConditionsServices
    InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetDetDescr/PixelGeoModel
    InnerDetector/InDetDetDescr/SCT_Cabling
@@ -57,7 +60,7 @@ atlas_add_component( InDetTrackValidation
    AthenaBaseComps AthenaKernel GaudiKernel InDetRawData InDetPrepRawData
    InDetSimEvent TrkParameters TrkTrack TrkValInterfaces DataModel AtlasDetDescr
    EventPrimitives xAODEventInfo GeneratorObjects TRT_ConditionsData
-   TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib
+   TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SCT_CablingLib
    InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkMeasurementBase
    TrkPrepRawData TrkRIO_OnTrack TrkSpacePoint TrkToolInterfaces
    PixelGeoModelLib )

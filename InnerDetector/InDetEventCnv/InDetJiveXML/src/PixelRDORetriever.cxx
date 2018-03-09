@@ -6,7 +6,7 @@
 
 //#include "StoreGate/DataHandle.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 //#include "TrkEventPrimitives/LocalPosition.h"
 //#include "GaudiKernel/SystemOfUnits.h"

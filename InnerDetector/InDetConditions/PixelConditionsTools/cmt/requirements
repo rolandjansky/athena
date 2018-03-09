@@ -21,6 +21,7 @@ use AthenaBaseComps      AthenaBaseComps-*           Control
 use AthenaPoolUtilities  AthenaPoolUtilities-*       Database/AthenaPOOL
 use InDetIdentifier      InDetIdentifier-*              InnerDetector/InDetDetDescr
 use InDetReadoutGeometry InDetReadoutGeometry-*      InnerDetector/InDetDetDescr
+use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use PathResolver         PathResolver-*                 Tools
 use RegistrationServices RegistrationServices-*      Database
 use AtlasCORAL           AtlasCORAL-*                External

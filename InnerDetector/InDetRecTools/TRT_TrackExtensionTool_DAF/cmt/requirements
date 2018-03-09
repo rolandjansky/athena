@@ -18,6 +18,7 @@ private
 use StoreGate              StoreGate-*              Control
 #use AtlasCLHEP             AtlasCLHEP-*             External
 use InDetReadoutGeometry   InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 #use TrkRIO_OnTrack         TrkRIO_OnTrack-*         Tracking/TrkEvent
 #use TrkEventPrimitives     TrkEventPrimitives-*     Tracking/TrkEvent
 use TrkMeasurementBase     TrkMeasurementBase-*     Tracking/TrkEvent

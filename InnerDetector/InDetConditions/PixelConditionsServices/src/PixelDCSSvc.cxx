@@ -13,7 +13,7 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
 #include "AthenaPoolUtilities/AthenaAttributeList.h" 
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "AthenaKernel/IIOVDbSvc.h"

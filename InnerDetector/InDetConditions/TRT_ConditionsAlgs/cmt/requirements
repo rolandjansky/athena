@@ -13,6 +13,7 @@ private
 
 use InDetIdentifier        InDetIdentifier-*      InnerDetector/InDetDetDescr
 use InDetReadoutGeometry   InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TRT_ConditionsData     TRT_ConditionsData-*   InnerDetector/InDetConditions
 #use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
 

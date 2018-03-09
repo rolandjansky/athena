@@ -15,6 +15,7 @@ use AthenaBaseComps      AthenaBaseComps-*		Control
 use Identifier		 Identifier-*		DetectorDescription
 use InDetIdentifier 	 InDetIdentifier-* 	InnerDetector/InDetDetDescr
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use PathResolver         PathResolver-*         Tools
 
 end_private

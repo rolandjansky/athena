@@ -18,7 +18,7 @@
 #include "SCT_GeoModel/SCT_OuterSide.h"
 #include "SCT_GeoModel/SCT_BaseBoard.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoShapeShift.h"
