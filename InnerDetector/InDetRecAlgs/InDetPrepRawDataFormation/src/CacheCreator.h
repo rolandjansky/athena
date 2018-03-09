@@ -60,11 +60,11 @@ namespace InDet{
         SG::ReadCondHandleKey<SCT_ConfigurationCondData> m_condKey3{ this, "SCT_ConfigurationCondData", "SCT_ConfigurationCondData", "" };
         SG::ReadCondHandleKey<SCT_AllGoodStripInfo> m_condKey4{ this, "SCT_AllGoodStripInfo", "SCT_AllGoodStripInfo", "" };
         SG::ReadCondHandleKey<PixelCalib::PixelOfflineCalibData> m_condKey5{ this, "PixelOfflineCalibData", "PixelOfflineCalibData", "" };
-        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey6{ this, "SCT_DCSFloatCondData", "SCT_DCSHVCondData", "" };
-        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey7{ this, "SCT_DCSFloatCondData", "SCT_DCSTemp0CondData", "" };
+        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey6{ this, "SCT_DCSFloatCondData_DCSHV", "SCT_DCSHVCondData", "" };
+        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey7{ this, "SCT_DCSFloatCondData_DCSTemp", "SCT_DCSTemp0CondData", "" };
         SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKey8{ this, "SCT_DCSStatCondData", "SCT_DCSStatCondData", "" };
-        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey9{ this, "SCT_DCSFloatCondData", "SCT_SiliconBiasVoltCondData", "" };
-        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey10{ this, "SCT_DCSFloatCondData", "SCT_SiliconTempCondData", "" };
+        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey9{ this, "SCT_DCSFloatCondData_SiHV", "SCT_SiliconBiasVoltCondData", "" };
+        SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey10{ this, "SCT_DCSFloatCondData_SiTemp", "SCT_SiliconTempCondData", "" };
         SG::ReadCondHandleKey<SiLorentzAngleCondData> m_condKey11{ this, "SiLorentzAngleCondData", "SCTSiLorentzAngleCondData", "" };
 
         template<typename T>
