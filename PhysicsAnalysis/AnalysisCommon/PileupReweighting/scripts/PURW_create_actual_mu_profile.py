@@ -1,8 +1,11 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import ROOT
-import argparse, sys, os, array
+import argparse, sys, os, array, logging
+
+logger = logging.getLogger('PURW actual mu profile tool')
+logging.basicConfig()
 
 parser = argparse.ArgumentParser(description='Make a BCID-aware pileup reweighting file')
 parser.add_argument('--grl', type=str,
@@ -17,25 +20,25 @@ parser.add_argument('--outfile', type=str,
 args = parser.parse_args()
 
 if not args.bcidfile:
-    print 'ERROR: BCID File must be specified\n'
+    logger.error('BCID File must be specified\n')
     parser.print_help()
     sys.exit(2)
 
 bcidfile = ROOT.TFile.Open(args.bcidfile)
 if not bcidfile:
-    print 'ERROR: cannot open the BCID lumi file', args.bcidfile
-    print 'Exiting'
+    logger.error('Cannot open the BCID lumi file %s', args.bcidfile)
+    logger.error('Exiting')
     sys.exit(1)
 
 grl = None
 if not args.grl:
-    print 'ERROR: Must specify GRL file\n'
+    logger.error('Must specify GRL file\n')
     parser.print_help()
     sys.exit(2)
 
 if not os.path.isfile(args.grl):
-    print 'ERROR: Cannot find GRL file', args.grl
-    print 'Exiting'
+    logger.error('Cannot find GRL file %s', args.grl)
+    logger.error('Exiting')
     sys.exit(1)
 
 outfile = ROOT.TFile.Open(args.outfile, 'RECREATE')
@@ -57,7 +60,7 @@ for run in grl.GetGoodRuns():
     histname_arr[-7:-1] = array.array('c', `runno`)
     rdir = bcidfile.Get(`runno`)
     if not rdir:
-        print 'ERROR retrieving mu distributions for run %s, skipping ...' % runno
+        logger.warning('Unable to retrieve mu distributions for run %s, skipping ...', runno)
         continue
     #print rdir
     runhist = None
@@ -66,7 +69,7 @@ for run in grl.GetGoodRuns():
         for lb in xrange(lbrange.Begin(), lbrange.End()+1):
             inhist = rdir.Get('%srec' % lb)
             if not inhist:
-                print 'ERROR retrieving mu distribution for run %s LB %s' % (runno, lb)
+                logger.warning('Unable to retrieve mu distribution for run %s LB %s', (runno, lb))
             else:
                 if not runhist:
                     runhist = inhist.Clone('pileup_data_run_%s' % runno)
@@ -80,8 +83,8 @@ outfile.WriteTObject(metadata)
 #make some other metadata
 lumitag = bcidfile.Get('LuminosityTag')
 if not lumitag:
-    print "Unfortunately, LuminosityTag object not found in BCID info file"
-    print "This is not fatal, but reduces trackability of information."
+    logger.warning("Unfortunately, LuminosityTag object not found in BCID info file")
+    logger.warning("This is not fatal, but reduces trackability of information.")
 else:
     outfile.WriteTObject(lumitag)
 
