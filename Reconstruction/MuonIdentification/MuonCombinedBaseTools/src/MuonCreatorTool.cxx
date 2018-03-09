@@ -59,7 +59,6 @@
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "TrackToCalo/CaloCellCollector.h"
-#include "CaloEvent/CaloCellContainer.h"
 
 #include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 
@@ -125,7 +124,6 @@ namespace MuonCombined {
     declareProperty("PrintSummary", m_printSummary=false);
     declareProperty("UseUpdatedExtrapolatedTrack", m_useUpdatedExtrapolatedTrack = true );
     //Default data source for the calocells
-    declareProperty("CaloCellContainer", m_cellContainerName="AllCalo");
     declareProperty("CaloNoiseTool", m_caloNoiseTool);
     declareProperty("DoCaloNoiseCut", m_applyCaloNoiseCut=false);
     declareProperty("SigmaCaloNoiseCut", m_sigmaCaloNoiseCut=3.4);
@@ -179,6 +177,8 @@ namespace MuonCombined {
                  << m_applyCaloNoiseCut << " " << m_sigmaCaloNoiseCut);
 
     ATH_CHECK(m_caloMaterialProvider.retrieve());
+
+    ATH_CHECK(m_cellContainerName.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -1733,12 +1733,7 @@ namespace MuonCombined {
       return;
     };
 
-    const CaloCellContainer* container = 0;
-    //retrieve the cell container
-    if( evtStore()->retrieve(container, m_cellContainerName).isFailure() || !container ) {
-      ATH_MSG_WARNING( "Unable to retrieve the cell container  " << m_cellContainerName << " container ptr " << container );
-      return;
-    }
+    SG::ReadHandle<CaloCellContainer> container(m_cellContainerName);
 
     xAOD::CaloCluster* cluster = m_cellCollector.collectCells( *caloExtension, *container, *clusterContainer );
     if( !cluster ){
