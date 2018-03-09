@@ -11,6 +11,8 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+scheduleTauTruthTools()
 from DerivationFrameworkSM import STDMTriggers
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
@@ -97,7 +99,7 @@ thinningTools.append(STDM4PhotonTPThinningTool)
 
 # Truth leptons and their ancestors and descendants
 truth_cond_boson = "((abs(TruthParticles.pdgId) == 23) || (abs(TruthParticles.pdgId) == 24))"
-truth_cond_lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 14) &&(TruthParticles.pt > 1*GeV) && (TruthParticles.status ==1) && (TruthParticles.barcode<200000))"
+truth_cond_lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) &&(TruthParticles.pt > 1*GeV) && (TruthParticles.status ==1) && (TruthParticles.barcode<200000))"
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 
@@ -312,6 +314,7 @@ ExtraDictionary["BTagging_AntiKt2Track"]     = "xAOD::BTaggingContainer"
 ExtraDictionary["BTagging_AntiKt2TrackAux"]  = "xAOD::BTaggingAuxContainer"
 
 if globalflags.DataSource()=='geant4':
+
     STDM4SlimmingHelper.ExtraVariables += ExtraContentAllTruth
     STDM4SlimmingHelper.AllVariables += ExtraContainersTruth
     STDM4SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
@@ -320,5 +323,3 @@ addJetOutputs(STDM4SlimmingHelper,["STDM4","STDM4Jets"])
 
 STDM4SlimmingHelper.AppendContentToStream(STDM4Stream)
 
-
-    
