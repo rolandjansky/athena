@@ -231,7 +231,8 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
         if (nGoodTracks >= m_truthVertexTracks)
         {
     	  truth.push_back(vTruth);
-	  modeClosestDistance = std::min(modeClosestDistance, mode - vTruth[2]);
+	  if (abs(modeClosestDistance) > abs(mode - vTruth[2]))
+	    modeClosestDistance = mode - vTruth[2];
         }
       }
     }
@@ -293,7 +294,8 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
         if (nGoodTracks >= m_truthVertexTracks)
 	{
 	    truth.push_back(vTruth);
- 	    modeClosestDistance = std::min(modeClosestDistance, mode - vTruth[2]);
+	  if (abs(modeClosestDistance) > abs(mode - vTruth[2]))
+	    modeClosestDistance = mode - vTruth[2];
 	}
       }
     }
