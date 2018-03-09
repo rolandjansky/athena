@@ -10,7 +10,7 @@ class LArDigitGetter (Configured) :
     _outputType = "LArDigitContainer"
     _outputType_DigiHSTruth = "LArDigitContainer_DigiHSTruth"
     _output = { _outputType : "LArDigitContainer_MC" }
-    _output_DigiHSTruth = { _outputType_DigiHSTruth : "LArDigitContainer_DigiHSTruth" }
+    _output_DigiHSTruth = { _outputType_DigiHSTruth : "LArDigitContainer_DigiHSTruth"}
 
     def configure(self):
         mlog = logging.getLogger( 'LArDigitGetter.py::configure :' )
@@ -35,6 +35,7 @@ class LArDigitGetter (Configured) :
                 job += CfgGetter.getAlgorithm("digitmaker1", tryDefaultConfigurable=True)
                 job.digitmaker1.LArPileUpTool.DigitContainer = self.outputKey()
                 job.digitmaker1.LArPileUpTool.DigitContainer_DigiHSTruth = self.outputKey_DigiHSTruth()
+                #job.digitmaker1.LArPileUpTool.DigitContainer_DigiHSTruth = "LArDigitContainer_DigiHSTruth"
                 job.digitmaker1.LArPileUpTool.DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
                 # if pileup or overlay
                 from AthenaCommon.DetFlags import DetFlags
@@ -55,7 +56,7 @@ class LArDigitGetter (Configured) :
         return cls._output[cls._outputType]
 
     def outputKey_DigiHSTruth(cls):
-        return cls._output[cls._outputType_DigiHSTruth]
+        return cls._output_DigiHSTruth[cls._outputType_DigiHSTruth]
 
     def outputType(cls):
         return cls._outputType
