@@ -144,16 +144,20 @@ StatusCode
 SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                ISCT_RDO_Container& rdoIdc,
                                InDetBSErrContainer* errs,
+                               SCT_ByteStreamFractionContainer* bsFracCont,
                                std::vector<IdentifierHash>* vecHash)
 {
   uint32_t robid{robFrag.rod_source_id()};
   /**determine whether this data was generated using the ROD simulator */
   uint32_t rod_datatype{robFrag.rod_detev_type()};
-  if ((rod_datatype >> 20) & 1) m_byteStreamErrSvc->setRODSimulatedData();
+  const bool rodSimulatedData{(rod_datatype >> 20) & 1};
+
+  if (rodSimulatedData) m_byteStreamErrSvc->setRODSimulatedData();
+  if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::SimulatedData, robid, rodSimulatedData);
 
   /** look for the bit that denotes "Super-condensed" mode.*/
   m_superCondensedMode = ((rod_datatype >> 21) & 1);   
-
+  if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::SuperCondensedMode, robid, m_superCondensedMode);
 
   int strip{0};
   int oldstrip{-1};
@@ -233,8 +237,9 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
       }
       /** look at bits 20-23 for DCS HV */
       int hvBits{static_cast<int>((statusWord >> 20) & 0xf)};
-      if (hvBits==0xf) m_byteStreamErrSvc->addRODHVCounter(true); 
-      else m_byteStreamErrSvc->addRODHVCounter(false); 
+      const bool hvOn{hvBits==0xf};
+      m_byteStreamErrSvc->addRODHVCounter(hvOn);
+      if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::HVOn, robid, hvOn);
     }
   }
   
@@ -815,6 +820,8 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
       saved[side*768+strip] = rdoMade; 
     }
   }
+
+  if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::CondensedMode, robid, m_condensedMode);
 
   if (sc.isFailure()) ATH_MSG_DEBUG("One or more ByteStream errors found ");
   return sc;

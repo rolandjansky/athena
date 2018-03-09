@@ -35,6 +35,7 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   declareProperty("LVL1IDKey", m_lvl1CollectionKey = std::string{"SCT_LVL1ID"});
   declareProperty("BCIDKey", m_bcidCollectionKey = std::string{"SCT_BCID"});
   declareProperty("ByteStreamErrContainer", m_bsErrContainerKey = std::string{"SCT_ByteStreamErrs"});
+  declareProperty("ByteStreamFracContainer", m_bsFracContainerKey = std::string{"SCT_ByteStreamFractionContainer"});
   declareProperty("CablingSvc", m_cabling);
   declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
 }
@@ -59,6 +60,7 @@ StatusCode SCTRawDataProvider::initialize() {
   ATH_CHECK(m_lvl1CollectionKey.initialize());
   ATH_CHECK(m_bcidCollectionKey.initialize());
   ATH_CHECK(m_bsErrContainerKey.initialize());
+  ATH_CHECK(m_bsFracContainerKey.initialize());
   ATH_CHECK(m_rdoContainerCacheKey.initialize(!m_rdoContainerCacheKey.key().empty()));
 
   ATH_CHECK( m_rawDataTool.retrieve() );
@@ -90,6 +92,9 @@ StatusCode SCTRawDataProvider::execute()
   
   SG::WriteHandle<InDetBSErrContainer> bsErrContainer(m_bsErrContainerKey);
   ATH_CHECK(bsErrContainer.record(std::make_unique<InDetBSErrContainer>()));
+
+  SG::WriteHandle<SCT_ByteStreamFractionContainer> bsFracContainer(m_bsFracContainerKey);
+  ATH_CHECK(bsFracContainer.record(std::make_unique<SCT_ByteStreamFractionContainer>()));
 
   //// do we need this??  rdoIdc->cleanup();
 
@@ -152,7 +157,7 @@ StatusCode SCTRawDataProvider::execute()
   ISCT_RDO_Container *rdoInterface = externalcacheRDO ? static_cast< ISCT_RDO_Container*> (dummyrdo.get()) 
                      : static_cast<ISCT_RDO_Container* >(rdoContainer.ptr());
   /** ask SCTRawDataProviderTool to decode it and to fill the IDC */
-  if (m_rawDataTool->convert(listOfRobf, *rdoInterface, bsErrContainer.ptr()).isFailure()) {
+  if (m_rawDataTool->convert(listOfRobf, *rdoInterface, bsErrContainer.ptr(), bsFracContainer.ptr()).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
   if(dummyrdo) dummyrdo->MergeToRealContainer(rdoContainer.ptr());

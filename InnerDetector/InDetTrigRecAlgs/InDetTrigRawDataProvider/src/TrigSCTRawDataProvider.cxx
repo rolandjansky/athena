@@ -187,7 +187,7 @@ namespace InDet {
     // ask SCTRawDataProviderTool to decode it and to fill the IDC
     StatusCode scon = StatusCode::FAILURE;
     if (m_container){
-      scon =  m_rawDataTool->convert(listOfRobf,*m_container,nullptr);
+      scon =  m_rawDataTool->convert(listOfRobf,*m_container,nullptr,nullptr);
       if (scon==StatusCode::FAILURE)
 	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
     }

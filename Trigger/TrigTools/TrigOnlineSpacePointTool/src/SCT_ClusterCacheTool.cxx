@@ -332,10 +332,10 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 
 	      StatusCode scRod = StatusCode::SUCCESS;
 	      if(!isFullScan) {
-		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,nullptr,&reducedList);
+		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,nullptr,nullptr,&reducedList);
 	      }
 	      else {
-		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,nullptr,NULL);
+		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,nullptr,nullptr,NULL);
 	      }
 	      if(scRod.isRecoverable())
 		{
