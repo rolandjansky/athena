@@ -116,6 +116,10 @@ private:
   L1CaloRunParametersContainer* m_runParametersContainer;
   /// Database container for the readout configuration
   L1CaloReadoutConfigContainer* m_readoutConfigContainer;
+
+  //Control maximum number of histograms per job
+  int m_maxHistos;
+  int m_curHistos;
   
   //  Athena hist service
   ServiceHandle<ITHistSvc> m_thistSvc;

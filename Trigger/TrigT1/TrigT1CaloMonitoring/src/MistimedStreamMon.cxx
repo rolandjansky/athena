@@ -55,11 +55,14 @@ MistimedStreamMon::MistimedStreamMon(const std::string & type, const std::string
       m_h_1d_cutFlow_mistimedStreamAna(0),
       m_h_1d_selectedEvents_mistimedStreamAna(0),
       m_l1CondSvc("L1CaloCondSvc",name),
-      m_thistSvc("THistSvc", name)
+      m_thistSvc("THistSvc", name),
+      m_maxHistos(1),
+      m_curHistos(0)
 {
      declareProperty("PathInRootFile", m_PathInRootFile = "L1Calo/MistimedStream");
      declareProperty("TrigDecisionTool", m_trigDec, "The tool to access TrigDecision" );
      declareProperty("BS_xAODTriggerTowerContainer", m_xAODTriggerTowerContainerName = LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
+     declareProperty("maxHistos",m_maxHistos = 1);
 }
 
 MistimedStreamMon::~MistimedStreamMon()
@@ -546,155 +549,161 @@ StatusCode MistimedStreamMon::fillHistograms()
   }
   m_h_1d_cutFlow_mistimedStreamAna->Fill(9.5);
 
-  //adding the histos dynamically using THistSvc into an event-specific sub-directory
-  // Construct a subdirectory name for the histograms:
-  std::ostringstream fullPathInFile;
-  fullPathInFile  << "/" << m_fileKey << "/" << "run_" << AthenaMonManager::runNumber() << "/" << m_PathInRootFile << "/run_" << std::to_string(currentRunNo) << "_event_" << std::to_string(currentEventNo) << "/";
+  if(m_curHistos < m_maxHistos){
 
-  std::string name, title;
-  name = "em_2d_etaPhi_tt_classification_mistimedStreamAna";
-  title = "#eta - #phi Map of TT classification, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *emClass = createEtaPhiMap(name, title);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emClass));
+    //adding the histos dynamically using THistSvc into an event-specific sub-directory
+    // Construct a subdirectory name for the histograms:
+    std::ostringstream fullPathInFile;
+    fullPathInFile  << "/" << m_fileKey << "/" << "run_" << AthenaMonManager::runNumber() << "/" << m_PathInRootFile << "/run_" << std::to_string(currentRunNo) << "_event_" << std::to_string(currentEventNo) << "/";
   
-  name = "had_2d_etaPhi_tt_classification_mistimedStreamAna";
-  title = "#eta - #phi Map of TT classification, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *hadClass = createEtaPhiMap(name, title, true);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadClass));
-
-  name = "em_2d_etaPhi_tt_pseBits_mistimedStreamAna";
-  title = "#eta - #phi Map of TT PSE Bits, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *emPSE = createEtaPhiMap(name, title);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emPSE));
-
-  name = "had_2d_etaPhi_tt_pseBits_mistimedStreamAna";
-  title = "#eta - #phi Map of TT PSE Bits, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *hadPSE = createEtaPhiMap(name, title, true);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadPSE));
-
-  // histos for the LUT values. They show a combination of CP (central) and JEP (forward) output 
-  name = "em_2d_etaPhi_tt_lut0_mistimedStreamAna";
-  title = "#eta - #phi Map of TT LUT in timeslice 0 = BCID-1, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *emLUT0 = createEtaPhiMap(name, title);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emLUT0));
-  
-  name = "had_2d_etaPhi_tt_lut0_mistimedStreamAna";
-  title = "#eta - #phi Map of TT LUT in timeslice 0 = BCID-1, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *hadLUT0 = createEtaPhiMap(name, title, true);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadLUT0));
-  
-  name = "em_2d_etaPhi_tt_lut1_mistimedStreamAna";
-  title = "#eta - #phi Map of TT LUT in timeslice 1 = BCID, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *emLUT1 = createEtaPhiMap(name, title);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emLUT1));
-
-  name = "had_2d_etaPhi_tt_lut1_mistimedStreamAna";
-  title = "#eta - #phi Map of TT LUT in timeslice 1 = BCID, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *hadLUT1 = createEtaPhiMap(name, title, true);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadLUT1));
-
-  name = "em_2d_etaPhi_tt_lut2_mistimedStreamAna";
-  title = "#eta - #phi Map of TT LUT in timeslice 2 = BCID+1, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *emLUT2 = createEtaPhiMap(name, title);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emLUT2));
-
-  name = "had_2d_etaPhi_tt_lut2_mistimedStreamAna";
-  title = "#eta - #phi Map of TT LUT in timeslice 2 = BCID+1, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
-  TH2F *hadLUT2 = createEtaPhiMap(name, title, true);
-  CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadLUT2));
-  
-  
-  // loop over the decorated TTcollection to fill the classification and pse histos
-  for(auto decoratedIterator = ttContainer->begin() ; decoratedIterator != ttContainer->end() ; ++decoratedIterator ){
-
-      const int layer = (*decoratedIterator)->layer();
-      const double eta = (*decoratedIterator)->eta();
-      const double phi = (*decoratedIterator)->phi();
-      const float pulseCat = (*decoratedIterator)->auxdata<float>("pulseClassification");
-      uint8_t bcidWord = (*decoratedIterator)->bcidVec()[0]; // look at the status bit in the central time slice. Hard coded for now as we do the 5 slice check above
-        
-      // Check if TT is in EM or HAD layer:
-      if (layer == 0) { //========== ELECTROMAGNETIC LAYER =========================
-          fillEtaPhiMap(emClass, eta, phi, pulseCat);
-          if(pulseCat > 0.5) fillEtaPhiMap(emPSE, eta, phi, (unsigned int)bcidWord);
-      }
-      else if(layer == 1) { //========== HADRONIC LAYER ===============================
-          fillEtaPhiMap(hadClass, eta, phi, pulseCat);
-          if(pulseCat > 0.5) fillEtaPhiMap(hadPSE, eta, phi, (unsigned int)bcidWord);
-      }
-   }
-
-   //loop over the cpm tower container to fill the lut histos 
-   for(auto thisCT:*cpmTowCon){
-      double eta = thisCT->eta();
-      double phi = thisCT->phi();
-      std::vector<uint8_t> cpmEMenergy = thisCT->emEnergyVec();
-      std::vector<uint8_t> cpmHADenergy = thisCT->hadEnergyVec();
-
-      if(cpmEMenergy.size() > 2){ // expect 3 slices to be read out
-          fillEtaPhiMap(emLUT0, eta, phi, (int) cpmEMenergy.at(0));
-          fillEtaPhiMap(emLUT1, eta, phi, (int) cpmEMenergy.at(1));
-          fillEtaPhiMap(emLUT2, eta, phi, (int) cpmEMenergy.at(2));
-      }
-      if(cpmHADenergy.size() > 2){
-          fillEtaPhiMap(hadLUT0, eta, phi, (int) cpmHADenergy.at(0));
-          fillEtaPhiMap(hadLUT1, eta, phi, (int) cpmHADenergy.at(1));
-          fillEtaPhiMap(hadLUT2, eta, phi, (int) cpmHADenergy.at(2));
-      }
-    }
-    // and the jet element container for the forward region
-    for(auto thisJE:*jetEleCon){
-      double eta = thisJE->eta();
-      double phi = thisJE->phi();
-      int signeta = 1;
-      if(eta < 0) signeta = -1;
-      std::vector<uint16_t> jepEMenergy = thisJE->emJetElementETVec();
-      std::vector<uint16_t> jepHADenergy = thisJE->hadJetElementETVec();
-      
-      if (eta < -2.5 || eta > 2.5) {// Use JEP info to fill the forward part of the lut plots, but since this has TT granularity we have to play some tricks
-         if(jepEMenergy.size() > 2){
-           fillEtaPhiMap(emLUT0, eta, phi, (int)jepEMenergy.at(0));
-           fillEtaPhiMap(emLUT1, eta, phi, (int)jepEMenergy.at(1));
-           fillEtaPhiMap(emLUT2, eta, phi, (int)jepEMenergy.at(2));           
-           if (eta < -3.2 || eta > 3.2) {//for the FCal, the jep elements eta will be 4.05 -> to mimic this in the PPM histo histos fill 3 more bins in eta 
-              fillEtaPhiMap(emLUT0, signeta*4.7, phi, (int)jepEMenergy.at(0));
-              fillEtaPhiMap(emLUT1, signeta*4.7, phi, (int)jepEMenergy.at(1));
-              fillEtaPhiMap(emLUT2, signeta*4.7, phi, (int)jepEMenergy.at(2));
-              fillEtaPhiMap(emLUT0, signeta*3.7, phi, (int)jepEMenergy.at(0));
-              fillEtaPhiMap(emLUT1, signeta*3.7, phi, (int)jepEMenergy.at(1));
-              fillEtaPhiMap(emLUT2, signeta*3.7, phi, (int)jepEMenergy.at(2));
-              fillEtaPhiMap(emLUT0, signeta*3.5, phi, (int)jepEMenergy.at(0));
-              fillEtaPhiMap(emLUT1, signeta*3.5, phi, (int)jepEMenergy.at(1));
-              fillEtaPhiMap(emLUT2, signeta*3.5, phi, (int)jepEMenergy.at(2));    
-           }else if (eta < -2.9 || eta > 2.9) {//here the jep element eta will be 3.05 -> to mimic this in the PPM histo fill one more eta bin
-              fillEtaPhiMap(emLUT0, signeta*3.15, phi, (int)jepEMenergy.at(0));
-              fillEtaPhiMap(emLUT1, signeta*3.15, phi, (int)jepEMenergy.at(1));
-              fillEtaPhiMap(emLUT2, signeta*3.15, phi, (int)jepEMenergy.at(2));   
-            } 
-         }
-         if(jepHADenergy.size()> 2){
-           fillEtaPhiMap(hadLUT0, eta, phi, (int)jepHADenergy.at(0));
-           fillEtaPhiMap(hadLUT1, eta, phi, (int)jepHADenergy.at(1));
-           fillEtaPhiMap(hadLUT2, eta, phi, (int)jepHADenergy.at(2));   
-           if (eta < -3.2 || eta > 3.2) {//for the FCal, the jep elements are summed horizontally, mimic this in the TH2TT histos -> fill 3 more bins in eta
-             fillEtaPhiMap(hadLUT0, signeta*4.7, phi, (int)jepHADenergy.at(0));
-             fillEtaPhiMap(hadLUT1, signeta*4.7, phi, (int)jepHADenergy.at(1));
-             fillEtaPhiMap(hadLUT2, signeta*4.7, phi, (int)jepHADenergy.at(2));
-             fillEtaPhiMap(hadLUT0, signeta*3.7, phi, (int)jepHADenergy.at(0));
-             fillEtaPhiMap(hadLUT1, signeta*3.7, phi, (int)jepHADenergy.at(1));
-             fillEtaPhiMap(hadLUT2, signeta*3.7, phi, (int)jepHADenergy.at(2));
-             fillEtaPhiMap(hadLUT0, signeta*3.5, phi, (int)jepHADenergy.at(0));
-             fillEtaPhiMap(hadLUT1, signeta*3.5, phi, (int)jepHADenergy.at(1));
-             fillEtaPhiMap(hadLUT2, signeta*3.5, phi, (int)jepHADenergy.at(2));     
-           }else if (eta < -2.9 || eta > 2.9) {
-             fillEtaPhiMap(hadLUT0, signeta*3.15, phi, (int)jepHADenergy.at(0));
-             fillEtaPhiMap(hadLUT1, signeta*3.15, phi, (int)jepHADenergy.at(1));
-             fillEtaPhiMap(hadLUT2, signeta*3.15, phi, (int)jepHADenergy.at(2));
-          } 
-       }
-     }
-   }
+    std::string name, title;
+    name = "em_2d_etaPhi_tt_classification_mistimedStreamAna";
+    title = "#eta - #phi Map of TT classification, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *emClass = createEtaPhiMap(name, title);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emClass));
     
+    name = "had_2d_etaPhi_tt_classification_mistimedStreamAna";
+    title = "#eta - #phi Map of TT classification, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *hadClass = createEtaPhiMap(name, title, true);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadClass));
+  
+    name = "em_2d_etaPhi_tt_pseBits_mistimedStreamAna";
+    title = "#eta - #phi Map of TT PSE Bits, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *emPSE = createEtaPhiMap(name, title);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emPSE));
+  
+    name = "had_2d_etaPhi_tt_pseBits_mistimedStreamAna";
+    title = "#eta - #phi Map of TT PSE Bits, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *hadPSE = createEtaPhiMap(name, title, true);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadPSE));
+  
+    // histos for the LUT values. They show a combination of CP (central) and JEP (forward) output 
+    name = "em_2d_etaPhi_tt_lut0_mistimedStreamAna";
+    title = "#eta - #phi Map of TT LUT in timeslice 0 = BCID-1, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *emLUT0 = createEtaPhiMap(name, title);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emLUT0));
+    
+    name = "had_2d_etaPhi_tt_lut0_mistimedStreamAna";
+    title = "#eta - #phi Map of TT LUT in timeslice 0 = BCID-1, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *hadLUT0 = createEtaPhiMap(name, title, true);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadLUT0));
+    
+    name = "em_2d_etaPhi_tt_lut1_mistimedStreamAna";
+    title = "#eta - #phi Map of TT LUT in timeslice 1 = BCID, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *emLUT1 = createEtaPhiMap(name, title);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emLUT1));
+  
+    name = "had_2d_etaPhi_tt_lut1_mistimedStreamAna";
+    title = "#eta - #phi Map of TT LUT in timeslice 1 = BCID, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *hadLUT1 = createEtaPhiMap(name, title, true);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadLUT1));
+  
+    name = "em_2d_etaPhi_tt_lut2_mistimedStreamAna";
+    title = "#eta - #phi Map of TT LUT in timeslice 2 = BCID+1, EM layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *emLUT2 = createEtaPhiMap(name, title);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), emLUT2));
+  
+    name = "had_2d_etaPhi_tt_lut2_mistimedStreamAna";
+    title = "#eta - #phi Map of TT LUT in timeslice 2 = BCID+1, HAD layer: event no. " + std::to_string(currentEventNo) + " in lb. " + std::to_string(lumiNo) + " of run " + std::to_string(currentRunNo);
+    TH2F *hadLUT2 = createEtaPhiMap(name, title, true);
+    CHECK(m_thistSvc->regHist(fullPathInFile.str() + name.c_str(), hadLUT2));
+    
+    
+    // loop over the decorated TTcollection to fill the classification and pse histos
+    for(auto decoratedIterator = ttContainer->begin() ; decoratedIterator != ttContainer->end() ; ++decoratedIterator ){
+  
+        const int layer = (*decoratedIterator)->layer();
+        const double eta = (*decoratedIterator)->eta();
+        const double phi = (*decoratedIterator)->phi();
+        const float pulseCat = (*decoratedIterator)->auxdata<float>("pulseClassification");
+        uint8_t bcidWord = (*decoratedIterator)->bcidVec()[0]; // look at the status bit in the central time slice. Hard coded for now as we do the 5 slice check above
+          
+        // Check if TT is in EM or HAD layer:
+        if (layer == 0) { //========== ELECTROMAGNETIC LAYER =========================
+            fillEtaPhiMap(emClass, eta, phi, pulseCat);
+            if(pulseCat > 0.5) fillEtaPhiMap(emPSE, eta, phi, (unsigned int)bcidWord);
+        }
+        else if(layer == 1) { //========== HADRONIC LAYER ===============================
+            fillEtaPhiMap(hadClass, eta, phi, pulseCat);
+            if(pulseCat > 0.5) fillEtaPhiMap(hadPSE, eta, phi, (unsigned int)bcidWord);
+        }
+     }
+  
+     //loop over the cpm tower container to fill the lut histos 
+     for(auto thisCT:*cpmTowCon){
+        double eta = thisCT->eta();
+        double phi = thisCT->phi();
+        std::vector<uint8_t> cpmEMenergy = thisCT->emEnergyVec();
+        std::vector<uint8_t> cpmHADenergy = thisCT->hadEnergyVec();
+  
+        if(cpmEMenergy.size() > 2){ // expect 3 slices to be read out
+            fillEtaPhiMap(emLUT0, eta, phi, (int) cpmEMenergy.at(0));
+            fillEtaPhiMap(emLUT1, eta, phi, (int) cpmEMenergy.at(1));
+            fillEtaPhiMap(emLUT2, eta, phi, (int) cpmEMenergy.at(2));
+        }
+        if(cpmHADenergy.size() > 2){
+            fillEtaPhiMap(hadLUT0, eta, phi, (int) cpmHADenergy.at(0));
+            fillEtaPhiMap(hadLUT1, eta, phi, (int) cpmHADenergy.at(1));
+            fillEtaPhiMap(hadLUT2, eta, phi, (int) cpmHADenergy.at(2));
+        }
+      }
+      // and the jet element container for the forward region
+      for(auto thisJE:*jetEleCon){
+        double eta = thisJE->eta();
+        double phi = thisJE->phi();
+        int signeta = 1;
+        if(eta < 0) signeta = -1;
+        std::vector<uint16_t> jepEMenergy = thisJE->emJetElementETVec();
+        std::vector<uint16_t> jepHADenergy = thisJE->hadJetElementETVec();
+        
+        if (eta < -2.5 || eta > 2.5) {// Use JEP info to fill the forward part of the lut plots, but since this has TT granularity we have to play some tricks
+           if(jepEMenergy.size() > 2){
+             fillEtaPhiMap(emLUT0, eta, phi, (int)jepEMenergy.at(0));
+             fillEtaPhiMap(emLUT1, eta, phi, (int)jepEMenergy.at(1));
+             fillEtaPhiMap(emLUT2, eta, phi, (int)jepEMenergy.at(2));           
+             if (eta < -3.2 || eta > 3.2) {//for the FCal, the jep elements eta will be 4.05 -> to mimic this in the PPM histo histos fill 3 more bins in eta 
+                fillEtaPhiMap(emLUT0, signeta*4.7, phi, (int)jepEMenergy.at(0));
+                fillEtaPhiMap(emLUT1, signeta*4.7, phi, (int)jepEMenergy.at(1));
+                fillEtaPhiMap(emLUT2, signeta*4.7, phi, (int)jepEMenergy.at(2));
+                fillEtaPhiMap(emLUT0, signeta*3.7, phi, (int)jepEMenergy.at(0));
+                fillEtaPhiMap(emLUT1, signeta*3.7, phi, (int)jepEMenergy.at(1));
+                fillEtaPhiMap(emLUT2, signeta*3.7, phi, (int)jepEMenergy.at(2));
+                fillEtaPhiMap(emLUT0, signeta*3.5, phi, (int)jepEMenergy.at(0));
+                fillEtaPhiMap(emLUT1, signeta*3.5, phi, (int)jepEMenergy.at(1));
+                fillEtaPhiMap(emLUT2, signeta*3.5, phi, (int)jepEMenergy.at(2));    
+             }else if (eta < -2.9 || eta > 2.9) {//here the jep element eta will be 3.05 -> to mimic this in the PPM histo fill one more eta bin
+                fillEtaPhiMap(emLUT0, signeta*3.15, phi, (int)jepEMenergy.at(0));
+                fillEtaPhiMap(emLUT1, signeta*3.15, phi, (int)jepEMenergy.at(1));
+                fillEtaPhiMap(emLUT2, signeta*3.15, phi, (int)jepEMenergy.at(2));   
+              } 
+           }
+           if(jepHADenergy.size()> 2){
+             fillEtaPhiMap(hadLUT0, eta, phi, (int)jepHADenergy.at(0));
+             fillEtaPhiMap(hadLUT1, eta, phi, (int)jepHADenergy.at(1));
+             fillEtaPhiMap(hadLUT2, eta, phi, (int)jepHADenergy.at(2));   
+             if (eta < -3.2 || eta > 3.2) {//for the FCal, the jep elements are summed horizontally, mimic this in the TH2TT histos -> fill 3 more bins in eta
+               fillEtaPhiMap(hadLUT0, signeta*4.7, phi, (int)jepHADenergy.at(0));
+               fillEtaPhiMap(hadLUT1, signeta*4.7, phi, (int)jepHADenergy.at(1));
+               fillEtaPhiMap(hadLUT2, signeta*4.7, phi, (int)jepHADenergy.at(2));
+               fillEtaPhiMap(hadLUT0, signeta*3.7, phi, (int)jepHADenergy.at(0));
+               fillEtaPhiMap(hadLUT1, signeta*3.7, phi, (int)jepHADenergy.at(1));
+               fillEtaPhiMap(hadLUT2, signeta*3.7, phi, (int)jepHADenergy.at(2));
+               fillEtaPhiMap(hadLUT0, signeta*3.5, phi, (int)jepHADenergy.at(0));
+               fillEtaPhiMap(hadLUT1, signeta*3.5, phi, (int)jepHADenergy.at(1));
+               fillEtaPhiMap(hadLUT2, signeta*3.5, phi, (int)jepHADenergy.at(2));     
+             }else if (eta < -2.9 || eta > 2.9) {
+               fillEtaPhiMap(hadLUT0, signeta*3.15, phi, (int)jepHADenergy.at(0));
+               fillEtaPhiMap(hadLUT1, signeta*3.15, phi, (int)jepHADenergy.at(1));
+               fillEtaPhiMap(hadLUT2, signeta*3.15, phi, (int)jepHADenergy.at(2));
+	     } 
+	   }
+	}
+      }
+      
+      m_curHistos++;
+  }
+
+
   m_h_1d_selectedEvents_mistimedStreamAna->Fill(lumiNo);
   
   //dont forget to delete the decorated TTcontainers
