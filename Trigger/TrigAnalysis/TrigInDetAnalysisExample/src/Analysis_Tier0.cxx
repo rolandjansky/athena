@@ -454,7 +454,7 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_chain->Fill(2.5);
 
 
-    if(test){
+    if (test) {
 
       h_chain->Fill(3.5);
 

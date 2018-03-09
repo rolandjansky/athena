@@ -90,7 +90,6 @@ TileHitVecToCntTool::TileHitVecToCntTool(const std::string& type,
     , m_cablingSvc("TileCablingSvc", name)
     , m_cabling(0)
 {
-    declareInterface<IPileUpTool>(this);
 
     m_hitVectorNames.push_back("TileHitVec");
 

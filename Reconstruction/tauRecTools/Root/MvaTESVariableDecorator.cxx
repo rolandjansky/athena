@@ -158,8 +158,11 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   xTau.setDetail(xAOD::TauJetParameters::ClustersMeanEMProbability, (float) mean_em_probability);
   xTau.setDetail(xAOD::TauJetParameters::ClustersMeanSecondLambda, (float) mean_second_lambda);
   xTau.setDetail(xAOD::TauJetParameters::ClustersMeanPresamplerFrac, (float) mean_presampler_frac);  
-  xTau.setDetail(xAOD::TauJetParameters::LeadClusterFrac, (float) lead_cluster_frac);
-  xTau.setDetail(xAOD::TauJetParameters::UpsilonCluster, (float) upsilon_cluster);
+  // online-specific, not defined in TauDefs enum
+  static SG::AuxElement::Accessor<float> acc_LeadClusterFrac("LeadClusterFrac");
+  static SG::AuxElement::Accessor<float> acc_UpsilonCluster("UpsilonCluster");
+  acc_LeadClusterFrac(xTau) = (float) lead_cluster_frac;
+  acc_UpsilonCluster(xTau) = (float) upsilon_cluster;
 
   if(!inTrigger()) {
 

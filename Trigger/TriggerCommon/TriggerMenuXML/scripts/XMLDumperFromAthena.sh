@@ -30,6 +30,8 @@ while true; do
     esac
 done
 
+if [ -z ${PYTHONDONTWRITEBYTE+x} ]; then export PYTHONDONTWRITEBYTECODE=1; fi # don't write .pyc files, keep source directory clean
+
 menu=$1
 dest=$2
 if [ -z "$dest" ]; then
@@ -93,4 +95,4 @@ grep --colour -A 100 "Shortened traceback" ${dest}/$logfile
 rm -rf $rundir
 
 # Do not return real athena exit code as we want to pretend everything was fine
-
+unset PYTHONDONTWRITEBYTECODE

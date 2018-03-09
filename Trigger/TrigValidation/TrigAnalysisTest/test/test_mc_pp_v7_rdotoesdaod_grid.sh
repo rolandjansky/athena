@@ -18,6 +18,9 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
+# art-output: AOD.pool.root.checkFile0
+# art-output: AOD.pool.root.checkFiletrigSize.txt
+
 
 export NAME="mc_pp_v7_rdotoesdaod_grid"
 export COST_MONITORING="False"

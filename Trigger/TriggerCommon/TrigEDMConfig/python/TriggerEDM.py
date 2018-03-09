@@ -86,7 +86,6 @@ UnusedOldTau = ["ipZ0SinThetaSigLeadTrk", "trkWidth2", "numEffTopoClusters", "to
                 "lead2ClusterEOverAllClusterE", "lead3ClusterEOverAllClusterE", "secMaxStripEt",
                 "sumEMCellEtOverLeadTrkPt", "hadLeakEt", "caloIso", "caloIsoCorrected" ]
 
-# "LeadClusterFrac" and "UpsilonCluster" are used for online MVA TES, but keeping them would violate T0 policy...
 UnusedProperties = ["Likelihood", "SafeLikelihood", "BDTEleScore", "BDTJetScoreSigTrans", "BDTJetScoreBkgTrans",
                     "vetoFlags", "isTauFlags", "trackFlags", "trackFilterProngs", "trackFilterQuality", "trackEtaStrip", "trackPhiStrip",
                     "TauJetVtxFraction", "LeadClusterFrac", "UpsilonCluster" ]

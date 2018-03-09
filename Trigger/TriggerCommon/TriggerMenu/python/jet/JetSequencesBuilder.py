@@ -237,8 +237,8 @@ class JetSequencesBuilder(object):
                         self.__class__.__name__, str(hypo_type))
                     raise RuntimeError(msg)
 
-            if self.chain_config.data_scouting:
-                seq_order.append(('ds', None))
+        if self.chain_config.data_scouting:
+            seq_order.append(('ds', None))
 
         seq_order = tuple(seq_order)
         return seq_order

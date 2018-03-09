@@ -26,6 +26,10 @@ console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
 def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
+
+    if "maxEvents" not in extraArg:
+        extraArg += " --maxEvents=20 "
+
     s=stest 
     logging.info("Running clean in rel "+release)
     logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
@@ -45,6 +49,10 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     pass
 
 def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
+
+    if "maxEvents" not in extraArg:
+        extraArg += " --maxEvents=20 "
+
     s=stest 
     logging.info("Running patched in rel "+release)
     logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
@@ -286,6 +294,11 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
     
     _Test=True 
     for step in qTestsToRun[q]:
+
+        # Memory leak test is not very reliable for nEvents < 50 in AODtoTAG so skipping it...
+        if "AODtoTAG" in step and "Memory Leak" in TestName:
+            logging.info("Skipping Memory Leak Test for AODtoTAG step...")
+            continue
 
         cmd = "grep \""+SearchString+"\" " + test_dir + "/log."+str(step)
 
