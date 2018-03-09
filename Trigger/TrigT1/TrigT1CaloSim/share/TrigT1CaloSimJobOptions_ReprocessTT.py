@@ -1,8 +1,8 @@
 # Import the configurable algorithms for TrigT1Calo
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.Logging import logging  # loads logger
-log = logging.getLogger('TrigT1CaloSim_ReprocessTT.py')
-log.debug("Hello from TrigCaloSim/TrigT1CaloSimJobOptions_ReprocessTT.py")
+log = logging.getLogger('TrigT1CaloSimJO_reprocessTT')
+log.debug("Starting reprocessing!!!")
 
 globalflags.DatabaseInstance = 'CONDBR2'
 
@@ -20,9 +20,16 @@ include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
 
 from IOVDbSvc.CondDB import conddb
 #default database /Calibration/Physics/Calib
-conddb.addMarkup("/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
-#conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
-#conddb.addFolder("","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>", force=True)
+###conddb.addMarkup("/TRIGGER/L1Calo/V2/Calibration/PprChanCalib","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
+###conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
+#conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/PprChanCalib")
+#conddb.addFolder("", "<dbConnection>dbname=COOLOFL_TRIGGER/OFLP200</dbConnection> /Trigger/L1Calo/V2/Configuration/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
+
+
+conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
+conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-03</tag>", force=True)
+
+###conddb.addFolder("","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>", force=True)
 
 #conddb.addFolder("","<dbConnection>dbname=COOLOFL_TRIGGER/OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Configuration/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
 
@@ -159,8 +166,57 @@ job += CfgMgr.RoIBResultToxAOD(
 
 
 '''
+'''
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.out.root" )
+xaod = [
+    (True, "TriggerTower","ReprocessedTriggerTowers"),
+    (True, "TriggerTower", "xAODTriggerTowers"),
+    (True, "CPMTower", "CPMTowers"),
+    (True, "CMXCPTob", "CMXCPTobs"),
+    (True, "CMXCPHits", "CMXCPHits"),
+    (True, "CMXCPHits", "CMXCPHits"),
+    (True, "CMXJetTob", "CMXJetTobs"),
+    (True, "CMXJetHits", "CMXJetHits"),
+    (True, "CMXEtSums", "CMXEtSums"),
+    (True, "JEMEtSums", "JEMEtSums"),
+    (True, "CPMTobRoI", "CPMTobRoIs"),
+    (True, "CPMTobRoI", "CPMTobRoIsRoIB"),
+    (True, "JetElement", "JetElements"),
+    (True, "JetElement", "JetElementsOverlap"),
+    (True, "CMXRoI", "CMXRoIs"),
+    (True, "CMXRoI", "CMXRoIsRoIB"),
+    (False, "RODHeader", "RODHeaders"),
+    (False, "L1TopoRawData", "L1TopoRawData"),
+]
 
+for enabled, prefix, key in xaod:
+    if not enabled:
+        continue
+    print "xAOD::%sContainer#%s" % (prefix, key)
+    print "xAOD::%sAuxContainer#%sAux." % (prefix, key)
+    xaodStream.AddItem( "xAOD::%sContainer#%s" % (prefix, key))
+    xaodStream.AddItem( "xAOD::%sAuxContainer#%sAux." % (prefix, key))
 
+#two weird cases
 
+xaodStream.AddItem( ["xAOD::EnergySumRoI#*","xAOD::LVL1EnergySumRoI#*"] )
+xaodStream.AddItem( ["xAOD::EnergySumRoIAuxInfo#*","xAOD::LVL1EnergySumRoIAux#*"] )
 
+xaodStream.AddItem( ["xAOD::JetEtRoI#*","xAOD::LVL1JetEtRoI#*"] )
+xaodStream.AddItem( ["xAOD::JetEtRoIAuxInfo#*","xAOD::LVL1JetEtRoIAux#*"] )
+
+outputL1 =[
+    (True,"JetRoI"),
+    (True,"EmTauRoI"),
+    (True,"MuonRoI"),
+    ]
+
+for enabled, key in outputL1:
+    if not enabled:
+        continue
+    xaodStream.AddItem( ["xAOD::%sContainer#*" % key,"xAOD::LVLV1%ss#*" % key] )
+    xaodStream.AddItem(["xAOD::%sAuxContainer#*" % key,"xAOD::LVLV1%ssAux#*" % key] )
+
+'''
 

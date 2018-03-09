@@ -773,7 +773,7 @@ class FakeLVL1(_modifier):
 
 class reprocessTT(_modifier):
     """
-    Flags the reprocesing of trigger towsers in rerunLVL1
+    Flags the reproccesing of trigger towsers in rerunLVL1
     """
     def preSetup(self):
         log.info("Changing reprocessTT flag = True")
@@ -812,7 +812,8 @@ class rerunLVL1(_modifier):
         include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
         if self.doReprocess:
             include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReprocessTT.py")
-        include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
+        else:
+            include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
 
         #rederive MuCTPI inputs to CTP from muon RDO
         #writes this to the usual MuCTPICTP storegate location
