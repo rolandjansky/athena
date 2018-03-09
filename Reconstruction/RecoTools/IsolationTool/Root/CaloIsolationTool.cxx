@@ -790,8 +790,8 @@ namespace xAOD {
 
     // Now for super cluster : the improved one : only constituent clusters go in the core
     double topoCoreSC   = 0;
-    topoCore     = 0; // I overwrite this for a check of onlyEM case...
     if (egObj && egObj->caloCluster()->clusterSize() == CaloCluster::ClusterSize::SuperCluster) {
+      topoCore     = 0; // I overwrite this for a check of onlyEM case...
       ATH_MSG_DEBUG("Now trying the SC-based one");
       const std::vector<const CaloCluster*> assocClus = EgammaHelpers::getAssociatedTopoClusters(egObj->caloCluster());
       for (unsigned int ic = 0; ic < assocClus.size(); ic++) {
