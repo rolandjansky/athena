@@ -771,18 +771,19 @@ class FakeLVL1(_modifier):
             if (TriggerFlags.CosmicSlice.filterEmptyROB()):
                 svcMgr.ROBDataProviderSvc.filterEmptyROB=True
 
-
 class reprocessTT(_modifier):
     """
-    Set simple boolean to flag reprocessing of the trigger towers
+    Flags the reprocesing of trigger towsers in rerunLVL1
     """
     def preSetup(self):
-        log.info("Will reprocess trigger towers!")
+        log.info("Changing reprocessTT flag = True")
+        rerunLVL1.doReprocess = True
 
 class rerunLVL1(_modifier):
     """
     Reruns the L1 simulation on real data
     """
+    doReprocess = False
     def preSetup(self):
 
         # Do nothing for EF only running
@@ -809,10 +810,9 @@ class rerunLVL1(_modifier):
 
         # rerun L1calo simulation
         include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
-        if reprocessTT:
+        if self.doReprocess:
             include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReprocessTT.py")
-        else: 
-            include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
+        include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
 
         #rederive MuCTPI inputs to CTP from muon RDO
         #writes this to the usual MuCTPICTP storegate location

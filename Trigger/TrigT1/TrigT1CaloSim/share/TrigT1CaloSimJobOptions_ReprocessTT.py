@@ -1,8 +1,8 @@
 # Import the configurable algorithms for TrigT1Calo
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.Logging import logging  # loads logger
-log = logging.getLogger('TrigT1CaloSimJobOptions_ReprocessTT.py')
-log.info("TrigCaloSim now reprocessing")
+log = logging.getLogger('TrigT1CaloSim_ReprocessTT.py')
+log.debug("Hello from TrigCaloSim/TrigT1CaloSimJobOptions_ReprocessTT.py")
 
 globalflags.DatabaseInstance = 'CONDBR2'
 
