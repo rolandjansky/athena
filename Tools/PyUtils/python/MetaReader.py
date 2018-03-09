@@ -12,9 +12,9 @@ from PyCool import coral
 def read_metadata(filenames, file_type=None, mode='lite'):
     """
     This tool is independent of Athena framework and returns the metadata from a given file.
-    :param filename: the input file from which metadata needs to be extracted.
+    :param filenames: the input file from which metadata needs to be extracted.
     :param file_type: the type of file. POOL or BS (bytestream: RAW, DRAW) files.
-    :param full: if true, will return all metadata associated with the filename. By default, is false and this will
+    :param mode: if true, will return all metadata associated with the filename. By default, is false and this will
     return a "lite" version which have only the following keys: 'file_guid', 'file_size', 'file_type', 'nentries'.
     :return: a dictionary of metadata for the given input file.
     """
