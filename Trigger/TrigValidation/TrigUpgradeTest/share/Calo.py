@@ -52,7 +52,7 @@ if TriggerFlags.doCalo:
 
 
 
-  #svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
+  svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
   
   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_ReFastAlgo
   algo=T2CaloEgamma_ReFastAlgo("testReFastAlgo")

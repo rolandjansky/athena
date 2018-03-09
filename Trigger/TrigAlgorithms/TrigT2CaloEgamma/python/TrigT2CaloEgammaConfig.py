@@ -441,18 +441,20 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
        svcMgr += TrigCaloDataAccessSvc()
        ToolSvc+=EgammaSamp2FexNoTimerConfig("ReFaAlgoSamp2FexConfig")
-       ToolSvc+=EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig")
-       ToolSvc+=EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig")
-       ToolSvc+=EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig")
+       ToolSvc+=EgammaSamp1FexNoTimerConfig("ReFaAlgoSamp1FexConfig")
+       ToolSvc+=EgammaEmEnFexNoTimerConfig("ReFaAlgoEmEnFexConfig")
+       ToolSvc+=EgammaHadEnFexNoTimerConfig("ReFaAlgoHadEnFexConfig")
        #ToolSvc+=RingerFexConfig("RingsMaker") 
        #ToolSvc.RingsMaker.OutputLevel=DEBUG
        #ToolSvc.RingsMaker.RingsKey="CaloRings"
        self.IAlgToolList = [ EgammaSamp2FexNoTimerConfig("ReFaAlgoSamp2FexConfig") ]
-       self.IAlgToolList+= [ EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig") ]
-       self.IAlgToolList+= [ EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig") ]
-       self.IAlgToolList+= [ EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig") ]
+       self.IAlgToolList+= [ EgammaSamp1FexNoTimerConfig("ReFaAlgoSamp1FexConfig") ]
+       self.IAlgToolList+= [ EgammaEmEnFexNoTimerConfig("ReFaAlgoEmEnFexConfig") ]
+       self.IAlgToolList+= [ EgammaHadEnFexNoTimerConfig("ReFaAlgoHadEnFexConfig") ]
+       print 'Did this work?! DENIS'
        for ii in self.IAlgToolList :
           ii.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+          ii.TrigDataAccess=None
        #self.IAlgToolList+= [ ToolSvc.RingsMaker ] 
 
        self.EtaWidth = 0.2
