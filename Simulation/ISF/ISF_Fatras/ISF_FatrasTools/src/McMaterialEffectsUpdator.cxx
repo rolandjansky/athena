@@ -621,9 +621,19 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
       double co = m_layer->surfaceRepresentation().normal().dot( childs[ic]->momentum().unit() );
       double remMat =  ci*co <0 ? (1-matFraction)    : matFraction;
 
-      // loop back      
-      const Trk::TrackParameters* uPar = updateInLay(childs[ic],cparm,remMat,timeLim, pLim, dir, pHypothesis);
-      if (uPar) ATH_MSG_VERBOSE( "Check this: parameters should be dummy here " << isp->pdgCode()<<","<<uPar->position() );
+      // in the validation mode, add process info
+      if (m_validationMode) {
+	ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();
+	validInfo->setProcess(childs[ic]->getUserInformation()->process());
+	if (isp->getUserInformation()) validInfo->setGeneration(isp->getUserInformation()->generation()+1);
+	else validInfo->setGeneration(1);     // assume parent is a primary track
+        childs[ic]->setUserInformation(validInfo);
+      }
+      // register next geo (is current), next flavor can be defined by filter
+      childs[ic]->setNextGeoID( isp->nextGeoID() );
+      // feed it the particle broker with parent information
+      m_particleBroker->push(childs[ic], isp);
+
 
     }
     
