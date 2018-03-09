@@ -52,6 +52,8 @@ class PixelLorentzAngleSvcSetup:
             pixelSiliconConditionsSvc=PixelSiliconConditionsSvc()
             svcMgr+=pixelSiliconConditionsSvc
 
+        pixelSiliconConditionsSvc.DepletionVoltage=10.0
+
         # Pass the silicon conditions services to the Lorentz angle service
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
         # if loaded first.
