@@ -171,17 +171,11 @@ if l1caloRawMon:
             ToolSvc += L1MistimedStreamTool
             L1CaloMan.AthenaMonTools += [L1MistimedStreamTool]
                 
-        #rootStreamName = "HistoStream"
-        #rootFileName   = "mistimedMon.root"
-        #ToolSvc.L1MistimedStreamTool.RootStreamName = rootStreamName
-        #ToolSvc.L1MistimedStreamTool.RootDirName    = "/"
-        #HistoStream = MSMgr.NewRootStream( rootStreamName, rootFileName )
-        
-        from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
-        ServiceMgr += L1CaloCondSvc()
-        from IOVDbSvc.CondDB import conddb
-        conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V1/Conditions/RunParameters","HEAD")
-        conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V2/Configuration/ReadoutConfig","HEAD")
+            from TrigT1CaloCondSvc.TrigT1CaloCondSvcConf import L1CaloCondSvc
+            ServiceMgr += L1CaloCondSvc()
+            from IOVDbSvc.CondDB import conddb
+            conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V1/Conditions/RunParameters","HEAD")
+            conddb.addFolderWithTag("TRIGGER","/TRIGGER/L1Calo/V2/Configuration/ReadoutConfig","HEAD")
         
         if isData:
 
