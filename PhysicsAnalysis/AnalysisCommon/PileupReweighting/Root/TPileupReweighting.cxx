@@ -748,11 +748,11 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
    //iterator over bins of histogram, filling the TH1 stored in the data map
    Double_t numEntries = inputHist->GetEntries();
    
-   TH1* tmpHist = 0;
+   std::unique_ptr<TH1> tmpHist;
    if(channelNumber<0) {
     m_runs[runNumber].nominalFromHists = true;
     //for data we will do an interpolation to build the shape and then scale it to the integral ...
-    tmpHist = static_cast<TH1*>(inputHist->Clone("tmpHist"));
+    tmpHist.reset( static_cast<TH1*>(inputHist->Clone("tmpHist")) );
     tmpHist->Reset();
     Int_t bin,binx,biny;
     for(biny=1; biny<=tmpHist->GetNbinsY(); biny++) {
@@ -769,7 +769,7 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
     }
     tmpHist->Scale( hist->Integral() / tmpHist->Integral() );
     tmpHist->SetEntries( hist->GetEntries() );
-    hist = tmpHist;
+    hist = tmpHist.get();
    }
    
    Int_t bin,binx,biny;
@@ -792,7 +792,6 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
    //SetBinContent screws with the entry count, so had to record it before the loops above
    inputHist->SetEntries(numEntries+hist->GetEntries());
    
-   if(tmpHist) delete tmpHist;
    
    m_countingMode=false;
    return 0;
@@ -848,9 +847,13 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString& fileName, const TSt
                if(!m_parentTool->runLbnOK(runNbr,lbn)) continue;
 
                Run& r = m_runs[runNbr];
-               if(trigger=="None") {r.lumiByLbn[lbn].first += intLumi; r.lumiByLbn[lbn].second = mu;}
+               if(trigger=="None") {
+                r.lumiByLbn[lbn].first += intLumi; 
+                r.lumiByLbn[lbn].second = mu;
+                if(r.nominalFromHists) continue; //don't fill runs that we already filled from hists ... only happens for the 'None' trigger
+               }
                
-               if(r.nominalFromHists) continue; //don't fill runs that we already filled from hists
+               
                
                //rescale the mu value  ... do this *after* having stored the mu value in the lumiByLbn map
                mu *= m_dataScaleFactorX; 
