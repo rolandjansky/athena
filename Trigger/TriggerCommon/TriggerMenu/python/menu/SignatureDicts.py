@@ -121,7 +121,7 @@ JetChainParts = {
     'gscThreshold' : ['gsc'],
     'trigType'     : ['j'],
     'extra'        : ['noL1','test1','test2','test3', 'test4',
-                      'test5', 'test6', 'delayed','AND'],
+                      'test5', 'test6', 'delayed','AND','noTRT'],
     'cleaning'     : ['cleanL','cleanT','cleanLLP',
                       'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
                       ],

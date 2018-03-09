@@ -16,6 +16,8 @@ dumpTrtInfo = InDetDxAODFlags.DumpTrtInfo()
 TrtZSel = InDetDxAODFlags.TrtZSelection()
 TrtJSel = InDetDxAODFlags.TrtJpsiSelection()
 
+DRAWZSel = InDetDxAODFlags.DRAWZSelection()
+
 # Thin hits to store only the ones on-track
 thinHitsOnTrack= InDetDxAODFlags.ThinHitsOnTrack()
 
@@ -310,6 +312,27 @@ if TrtZSel or TrtJSel:
 
 
 
+DRAW_ZMUMU_SkimmingTool=None
+if DRAWZSel:
+  sel_muon1  = 'Muons.pt > 25*GeV && Muons.ptcone40/Muons.pt < 0.3 && Muons.passesIDCuts && (Muons.quality <= 2)'
+  sel_muon2  = 'Muons.pt > 20*GeV && Muons.ptcone40/Muons.pt < 0.3 && Muons.passesIDCuts && (Muons.quality <= 2)'
+  draw_zmumu = '( count (  DRZmumuMass > 70*GeV   &&  DRZmumuMass < 110*GeV ) >= 1 )'
+  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__InvariantMassTool
+  DRZmumuMassTool = DerivationFramework__InvariantMassTool(name = "DRZmumuMassTool",
+                                                           ContainerName              = "Muons",
+                                                           ObjectRequirements         = sel_muon1,
+                                                           SecondObjectRequirements   = sel_muon2,
+                                                           MassHypothesis             = 105.66,
+                                                           SecondMassHypothesis       = 105.66,
+                                                           StoreGateEntryName         = "DRZmumuMass")
+  ToolSvc += DRZmumuMassTool
+  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+  DRAW_ZMUMU_SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "DRAW_ZMUMU_SkimmingTool",
+                                                                        expression = draw_zmumu)
+  ToolSvc += DRAW_ZMUMU_SkimmingTool
+  print DRAW_ZMUMU_SkimmingTool
+
+
 #################
 ### Setup decorators tools
 #################
@@ -398,6 +421,10 @@ if TrtZSel:
     augmentationTools.append(ZeeMassTool, ZmmMassTool)
 if TrtJSel:
     augmentationTools.append(JPSIeeMassTool, JPSImmMassTool)
+
+if DRAWZSel:
+    augmentationTools.append(DRZmumuMassTool)
+
 
 from AthenaCommon import CfgMgr
 
@@ -522,6 +549,10 @@ if TrtZSel:
 if TrtJSel:
     skimmingTools.append(JPSI_SkimmingTool)
 
+if DRAWZSel:
+  skimmingTools.append(DRAW_ZMUMU_SkimmingTool)
+
+
 #minimumbiasTrig = '(L1_RD0_FILLED)'
 #
 #if not IsMonteCarlo:
@@ -632,6 +663,22 @@ IDTRKVALIDStream.AddItem("xAOD::ElectronContainer#Electrons")
 IDTRKVALIDStream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#GSFTrackParticles")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."+excludedAuxData)
+
+if DRAWZSel:
+  IDTRKVALIDStream.AddItem("xAOD::TauJetContainer#TauJets")
+  IDTRKVALIDStream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.")
+  IDTRKVALIDStream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
+  IDTRKVALIDStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
+  IDTRKVALIDStream.AddItem("xAOD::JetContainer#AntiKt2PV0TrackJets")
+  IDTRKVALIDStream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.")
+  IDTRKVALIDStream.AddItem("xAOD::JetContainer#AntiKt3PV0TrackJets")
+  IDTRKVALIDStream.AddItem("xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.")
+  IDTRKVALIDStream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo")
+  IDTRKVALIDStream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.")
+  IDTRKVALIDStream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt2Track")
+  IDTRKVALIDStream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt2TrackAux.")
+  IDTRKVALIDStream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt3Track")
+  IDTRKVALIDStream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt3TrackAux.")
 
 # Add truth-related information
 if dumpTruthInfo:

@@ -216,19 +216,11 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
 
 #ifdef DEBUG_TRUTHSVC
       const std::string survival = (ti.parentSurvivesIncident()) ? "parent survives" : "parent destroyed";
-      const ISF::InteractionClass_t classification = ti.interactionClassification();
-      if(classification!=ISF::STD_VTX) {
-        ATH_MSG_INFO("TruthSvc: Quasi-stable vertex + " << survival
-                                                        << ", TI Class: " << ti.interactionClassification()
-                                                        << ", ProcessType: " << ti.physicsProcessCategory()
-                                                        << ", ProcessSubType: " << ti.physicsProcessCode());
-    }
-      else {
-        ATH_MSG_INFO("TruthSvc: Normal vertex + " << survival
-                                                  << ", TI Class: " << ti.interactionClassification()
-                                                  << ", ProcessType: " << ti.physicsProcessCategory()
-                                                  << ", ProcessSubType: " << ti.physicsProcessCode());
-    }
+      const std::string vtxType = (ti.interactionClassification()==ISF::STD_VTX) ? "Normal" : "Quasi-stable";
+      ATH_MSG_INFO("TruthSvc: " << vtxType << " vertex + " << survival
+                   << ", TI Class: " << ti.interactionClassification()
+                   << ", ProcessType: " << ti.physicsProcessCategory()
+                   << ", ProcessSubType: " << ti.physicsProcessCode());
 #endif
 
     }
@@ -253,25 +245,22 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
   HepMC::GenVertex *vtx = createGenVertexFromTruthIncident(ti, replaceVertex);
   const ISF::InteractionClass_t classification = ti.interactionClassification();
 #ifdef DEBUG_TRUTHSVC
-  std::string survival = (ti.parentSurvivesIncident()) ? "parent survives" : "parent destroyed";
-  if (classification!=ISF::STD_VTX) {
-  ATH_MSG_INFO("TruthSvc: Quasi-stable vertex + " << survival
-                                                  << ", TI Class: " << ti.interactionClassification()
-                                                  << ", ProcessType: " << ti.physicsProcessCategory()
-                                                  << ", ProcessSubType: " << ti.physicsProcessCode());
-}
-  else {
-  ATH_MSG_INFO("TruthSvc: Normal vertex + " << survival
-                                            << ", TI Class: " << ti.interactionClassification()
-                                                  << ", ProcessType: " << ti.physicsProcessCategory()
-                                                  << ", ProcessSubType: " << ti.physicsProcessCode());
-}
+  const std::string survival = (ti.parentSurvivesIncident()) ? "parent survives" : "parent destroyed";
+  const std::string vtxType = (ti.interactionClassification()==ISF::STD_VTX) ? "Normal" : "Quasi-stable";
+  ATH_MSG_INFO("TruthSvc: " << vtxType << " vertex + " << survival
+               << ", TI Class: " << ti.interactionClassification()
+               << ", ProcessType: " << ti.physicsProcessCategory()
+               << ", ProcessSubType: " << ti.physicsProcessCode());
 #endif
 
   ATH_MSG_VERBOSE ( "Outgoing particles:" );
   // update parent barcode and add it to the vertex as outgoing particle
   Barcode::ParticleBarcode newPrimBC = Barcode::fUndefinedBarcode;
   if (classification == ISF::QS_SURV_VTX) {
+    // Special case when a particle with a pre-defined decay interacts
+    // and survives.
+    // Set the barcode to the next available value below the simulation
+    // barcode offset.
     newPrimBC = this->maxGeneratedParticleBarcode(ti.parentParticle()->parent_event())+1;
   }
   else {
@@ -286,33 +275,24 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
     }
   }
 
-  //bool isQuasiStableVertex(classification!=ISF::STD_VTX);
-  HepMC::GenParticle *parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC );
+  HepMC::GenParticle *parentBeforeIncident = ti.parentParticle();
+  HepMC::GenParticle *parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC ); // This call changes ti.parentParticle() output
   if(parentAfterIncident) {
     ATH_MSG_VERBOSE ( "Parent After Incident: " << *parentAfterIncident);
-    if (classification!=ISF::STD_VTX) {
-      // Here we expect to be dealing with the case where a particle
-      // with a pre-defined decay under-goes an non-destructive
-      // interaction.  In this case we want to inject a new
-      // GenVertex.
-      // FIXME Unclear how the barcode of the surviving parent
-      // should be set in this case. Otherwise the vertex should not
-      // be treated as quasi-stable.
-      // FIXME Depending on how Geant4 treats pre-defined "decays"
-      // where one of the child particles has the same pdgid as the
-      // parent, then we could also get a pre-generated vertex were the parent
-      // survives. Should probably be treated list a normal
-      // quasi-stable vertex.
-#ifdef DEBUG_TRUTHSVC
-      if (classification!=ISF::QS_SURV_VTX) { ATH_MSG_WARNING("Expected classification = 1(QS_SURV_VTX), got " << classification); }
-#endif
+    if (classification==ISF::QS_SURV_VTX) {
+      // Special case when a particle with a pre-defined decay
+      // interacts and survives.
+      // 1) As the parentParticleAfterIncident has a pre-defined decay
+      // its status should be to 2.
+      parentAfterIncident->set_status(2);
+      // 2) A new GenVertex for the intermediate interaction should be
+      // added.
       std::unique_ptr<HepMC::GenVertex> newVtx = std::make_unique<HepMC::GenVertex>( vtx->position(), vtx->id(), vtx->weights() );
 #ifdef DEBUG_TRUTHSVC
       ATH_MSG_INFO("New GenVertex 1: " << *(newVtx.get()) );
       ATH_MSG_INFO("New QS GenVertex 1: " << *(newVtx.get()) );
 #endif
-      HepMC::GenParticle *parent = ti.parentParticle();
-      HepMC::GenEvent *mcEvent = parent->parent_event();
+      HepMC::GenEvent *mcEvent = parentBeforeIncident->parent_event();
       newVtx->suggest_barcode( this->maxGeneratedVertexBarcode(mcEvent)-1 );
 #ifdef DEBUG_TRUTHSVC
       ATH_MSG_INFO("New QSGenVertex 2: " << *(newVtx.get()) );
@@ -325,7 +305,7 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
         ATH_MSG_FATAL("Failed to add GenVertex to GenEvent.");
         abort();
       }
-      tmpVtx->add_particle_in( parent );
+      tmpVtx->add_particle_in( parentBeforeIncident );
       tmpVtx->add_particle_out( parentAfterIncident );
       vtx->add_particle_in( parentAfterIncident );
       vtx = tmpVtx;
@@ -335,9 +315,10 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
     }
   }
 
+  const bool isQuasiStableVertex = (classification == ISF::QS_PREDEF_VTX); // QS_DEST_VTX and QS_SURV_VTX should be treated as normal from now on.
   // add child particles to the vertex
   unsigned short numSec = ti.numberOfChildren();
-  if (classification!=ISF::STD_VTX) {
+  if (isQuasiStableVertex) {
     // Here we are checking if the existing GenVertex has the same
     // number of child particles as the truth incident.
     // FIXME should probably make this part a separate function and
@@ -352,9 +333,8 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
     ATH_MSG_VERBOSE("Existing vertex has " << nVertexChildren << " children. " <<
                  "Number of secondaries in current truth incident = " << numSec);
   }
-  const auto childParticleVector = MC::findChildren(ti.parentParticle());
+  const std::vector<HepMC::GenParticle*> childParticleVector = (isQuasiStableVertex) ? MC::findChildren(ti.parentParticle()) : std::vector<HepMC::GenParticle*>();
   std::vector<HepMC::GenParticle*> matchedChildParticles;
-  const bool isQuasiStableVertex = (classification == ISF::QS_DEST_VTX || classification == ISF::QS_PREDEF_VTX); // classification == QS_SURV_VTX should be treated as normal from now on.
   for ( unsigned short i=0; i<numSec; ++i) {
 
     bool writeOutChild = isQuasiStableVertex || m_passWholeVertex || ti.childPassedFilters(i);

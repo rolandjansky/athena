@@ -139,6 +139,7 @@ class RunToTimestampDict(JobProperty):
         295000:1475000000, ##MC15c/MC16 pPb at 8.16 TeV (2016)
         300000:1500000000, ##MC16 pp (25 ns bunch spacing, nominal mu, 2017)
         305000:1525000000, ##MC16 pp (5 TeV 2017)
+        309000:1540000000, ##MC16 XeXe (2017)
         310000:1550000000  ##MC16 pp (25 ns bunch spacing, nominal mu, 2018)
         }
     def addEntry( self, run, timestamp, force=False):

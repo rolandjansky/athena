@@ -102,12 +102,12 @@ private:
   //    template <typename T>
   //    StatusCode registerCondition(std::string key, T*& pobj); // to be replaced
   template <typename T>
-  StatusCode registerCondition(T*& pobj);
+  StatusCode registerCondition(T*& pobj, const std::string& mykey="");
 
   std::map<std::string, const DataHandle<AthenaAttributeList>* > m_mDataHandleAttrList;
   std::map<std::string, const DataHandle<CondAttrListCollection>* > m_mDataHandleAttrListColl;
-  //std::map<std::string, IL1CaloPersistenceCapable*> m_mConditions;
   std::map<std::string, std::vector<IL1CaloPersistenceCapable*> > m_mConditions;
+  std::map<IL1CaloPersistenceCapable*,std::vector<std::string> > m_map_conditions2key;
 
 };
 

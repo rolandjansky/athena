@@ -76,7 +76,7 @@ def setupMenu():
         ['mu20_iloose_mu8noL1',     'L1_MU20MU21',  ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_iloose','mu8noL1']]],
         ['mu20_iloose_2mu4noL1',    'L1_MU20MU21',  ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_iloose','2mu4noL1']]],
         ### ATR-14543
-        ['mu20_ivarmedium_mu8noL1',    'L1_MU20MU21',  ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_ivarmedium','mu8noL1']]],
+
         ['mu20_ivarloose_mu8noL1',     'L1_MU20MU21',  ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_ivarloose','mu8noL1']]],
         ['mu20_ivarloose_2mu4noL1',    'L1_MU20MU21',  ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20_ivarloose','2mu4noL1']]],
 
@@ -805,9 +805,6 @@ def setupMenu():
         ['xe90_mht_L1XE40',                  'L1_XE40',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ### ATR- 15096
-
- 	['xe50_mht_FStracks_L1XE50',                  'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
- 	['xe110_mht_FStracks_L1XE50',                  'L1_XE50',[], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
         ['xe50_pueta',                             'L1_XE35', [], [PhysicsStream], ['RATE:MET', 'BW:MET'], -1],
 
@@ -3079,7 +3076,6 @@ ps_perform_list = [
     'xe90_pueta_wEFMu',
     'xe90_pueta_wEFMu_L1XE50',
     'xe95_pueta_wEFMu_L1XE50',
-    'xe110_mht_FStracks_L1XE50',
     'xe35_mht',
     'xe35_mht_em',
     'xe35_pufit',
@@ -3097,7 +3093,6 @@ ps_perform_list = [
     'xe45_tc_lcw_wEFMu',
     'xe45_wEFMu',
     'xe50',
-    'xe50_mht_FStracks_L1XE50',
     'xe110_mht_em_L1KF-XE60',
     'xe110_mht_em_L1KF-XE65',
     'xe110_mht_em_L1KF-XE75',
