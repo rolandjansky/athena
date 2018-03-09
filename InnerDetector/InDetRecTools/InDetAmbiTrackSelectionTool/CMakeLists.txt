@@ -28,10 +28,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkPrepRawData
    Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
    Tracking/TrkEvent/TrkTrackSummary 
-   Tracking/TrkEvent/TrkParameters
-   Tracking/TrkEvent/TrkTruthData
-   InnerDetector/InDetRawEvent/InDetSimData
-   Control/StoreGate/StoreGate )
+   Tracking/TrkEvent/TrkParameters )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core MathCore )
@@ -44,4 +41,4 @@ atlas_add_component( InDetAmbiTrackSelectionTool
    TrkTrack TrkToolInterfaces TrkValInterfaces DataModel StoreGateLib
    InDetIdentifier InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase
    TrkSurfaces TrkCaloClusterROI TrkMeasurementBase TrkPrepRawData
-   TrkPseudoMeasurementOnTrack TrkTrackSummary TrkParameters TrkTruthData InDetSimData PixelGeoModelLib )
+   TrkPseudoMeasurementOnTrack TrkTrackSummary TrkParameters PixelGeoModelLib )

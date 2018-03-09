@@ -26,14 +26,14 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
-
+/* //stuff needed for truth
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "InDetSimData/InDetSimData.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "HepMC/GenParticle.h"
 #include "StoreGate/ReadHandleKey.h"
-
+*/
 
 #include "TMath.h"
 #include "TString.h"
@@ -54,8 +54,8 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   m_incidentSvc("IncidentSvc", n),
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
   m_mapFilled(false),
-  m_monitorTracks(false),
-  m_doSCTSplitting(false)
+  m_monitorTracks(false)
+  //m_doSCTSplitting(false)
 {
   declareInterface<IAmbiTrackSelectionTool>(this);
   //declareProperty("SelectionTool"        , m_selectionTool);//WPM
@@ -376,7 +376,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
             totalSiHits+std::min(trackHitDetails.numShared,m_maxShared) >= m_minHits && score > m_minScoreShareTracks ) ) //That is the traditional statement
 	  ||  //here comes WPM's addendum, which should allow tracks with many merged sct hits to pass:
 
-	  ( totalSiHits+merged_sct >= m_minHits && score > m_minScoreShareTracks )
+	  ( m_doSCTSplitting && totalSiHits+merged_sct >= m_minHits && score > m_minScoreShareTracks )
 
 	     )
 ) 
@@ -439,16 +439,16 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
         
         int  numberOfTracksWithThisPrd = checkOtherTracksValidity( rot, isSplitable, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
 
-	if(m_detID->is_pixel(rot->identify())){  //WPM
-	  ATH_MSG_VERBOSE ( "pixel with numtrackswithprd "<<numberOfTracksWithThisPrd);
-	}
+	//if(m_detID->is_pixel(rot->identify())){  //WPM
+	//ATH_MSG_VERBOSE ( "pixel with numtrackswithprd "<<numberOfTracksWithThisPrd);
+	//}
 
-	if(m_detID->is_sct(rot->identify())){  //WPM
-	  if(isSplitable){
-	    ATH_MSG_DEBUG ("SCT and is splitable with numtrackswithprd "<<numberOfTracksWithThisPrd);
-	  }
-	  else ATH_MSG_DEBUG ("SCT and is not splitable with numtrackswithprd "<<numberOfTracksWithThisPrd);
-	}
+	//if(m_detID->is_sct(rot->identify())){  //WPM
+	//if(isSplitable){
+	//ATH_MSG_DEBUG ("SCT and is splitable with numtrackswithprd "<<numberOfTracksWithThisPrd);
+	//}
+	//else ATH_MSG_DEBUG ("SCT and is not splitable with numtrackswithprd "<<numberOfTracksWithThisPrd);
+	//}
 
         // now decide what to do, can we keep the shared hit
 	/*
@@ -466,7 +466,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
              !otherfailsMinUniqueHits                                 && //It will not invalidate another track
              ( maxiShared < m_maxShared || (isPixel && !trackHitDetails.firstisshared) ) && // do not allow other accepted track to exceed the shared limit, if first pixel hit is shared
              (!isPixel || trackHitDetails.thishasblayer == maxotherhasblayer )           && // only allow shared pixel if both have blayer or both not
-		(!isPixel || trackHitDetails.numPixelHits >= maxothernpixel )  )  ||  ( m_detID->is_sct(rot->identify()) && isSplitable )                  ) { //WPM only allow shared pixel if new track as at least as many pixel hits 
+		(!isPixel || trackHitDetails.numPixelHits >= maxothernpixel )  )  ||  ( m_doSCTSplitting && m_detID->is_sct(rot->identify()) && isSplitable )                  ) { //WPM only allow shared pixel if new track as at least as many pixel hits 
 
           ATH_MSG_VERBOSE ("---> Accepted hit shared with " << numberOfTracksWithThisPrd << " tracks !");
 
@@ -487,7 +487,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
     }
 
     // this still may happen per (**) see above.
-    //if ( trackHitDetails.numUnused+trackHitDetails.numPixelDeadSensor+trackHitDetails.numSCTDeadSensor+trackHitDetails.numSplitSharedPix  < m_minHits || newTSOS.size() <= 3 ) {
+    //if ( ( trackHitDetails.numUnused+trackHitDetails.numPixelDeadSensor+trackHitDetails.numSCTDeadSensor+trackHitDetails.numSplitSharedPix  < m_minHits || newTSOS.size() <= 3 ) || ( m_doSCTSplitting && trackHitDetails.numUnused+trackHitDetails.numPixelDeadSensor+trackHitDetails.numSCTDeadSensor+trackHitDetails.numSplitSharedPix+merged_sct  < m_minHits || newTSOS.size() <= 3 ) ) {
     if ( trackHitDetails.numUnused+trackHitDetails.numPixelDeadSensor+trackHitDetails.numSCTDeadSensor+trackHitDetails.numSplitSharedPix+merged_sct  < m_minHits || newTSOS.size() <= 3 ) {
       //WPM another problematic if statment
       ATH_MSG_DEBUG ("=> Too few hits, reject track with shared hits");
@@ -685,7 +685,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
   ATH_MSG_VERBOSE ("--> Looping over TSOS's");
   DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd = tsos->end();
-  int numissplit = 0; //WPM
+  //int numissplit = 0; //WPM
   for (int index = 0 ; iTsos != iTsosEnd ; ++iTsos, ++index) {
 
     // get measurment from TSOS
@@ -743,11 +743,11 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
         if ( !clus->tooBigToBeSplit() )  {                
           tsosDetails.splitProb1[index] = clus->splitProbability1();
           tsosDetails.splitProb2[index] = clus->splitProbability2();      
-	  if(clus->isSplit()) numissplit++;
+	  //if(clus->isSplit()) numissplit++;
         } else {
           tsosDetails.splitProb1[index] = 0.51;
           tsosDetails.splitProb2[index] = 0.51;        
-	  numissplit++;
+	  //numissplit++;
         }
       }
     }
@@ -767,19 +767,19 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
 	  //std::cout<<"surface_center? "<<(*iTsos)->surface().center()<<std::endl; //WPM
 
 	  //get layer info
-	  float sx = (*iTsos)->surface().center()(0);
-	  float sy = (*iTsos)->surface().center()(1);
+	  //float sx = (*iTsos)->surface().center()(0);
+	  //float sy = (*iTsos)->surface().center()(1);
 	  //float sz = (*iTsos)->surface().position()(2);
-	  float sR = sqrt( sx*sx + sy*sy );
+	  //float sR = sqrt( sx*sx + sy*sy );
 	  //std::cout<<"sR? "<<sR<<std::endl; //WPM
 
-	  int layer;
-	  if(sR < 290) layer = -1;
-	  if(sR > 290 && sR < 310) layer = 0;
-	  if(sR > 360 && sR < 380) layer = 1;
-	  if(sR > 435 && sR < 455) layer = 2;
-	  if(sR > 500 && sR < 525) layer = 3;
-	  if(sR > 525) layer = 4;
+	  //int layer;
+	  //if(sR < 290) layer = -1;
+	  //if(sR > 290 && sR < 310) layer = 0;
+	  //if(sR > 360 && sR < 380) layer = 1;
+	  //if(sR > 435 && sR < 455) layer = 2;
+	  //if(sR > 500 && sR < 525) layer = 3;
+	  //if(sR > 525) layer = 4;
 
 	  //std::cout<<"layer? "<<layer<<std::endl; //WPM
 
@@ -804,7 +804,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
 	  //  std::cout<<"barcode? "<< truth_barcode <<std::endl; //WPM
 	  //}
 
-
+/*  //This should comment out the truth block
 	  /////////////////////////
 	  //geting the truth info
 
@@ -855,7 +855,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
 	  }
 
 	  nPartContributing = barcodes.size();
-
+*/
 	  //std::cout<<"numparticles? "<<nPartContributing<<std::endl; //WPM
 	  //std::cout<<"barcodes: "<<barcodes<<std::endl; //WPM
 	
