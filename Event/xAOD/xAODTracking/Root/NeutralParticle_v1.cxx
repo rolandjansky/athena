@@ -139,7 +139,6 @@ namespace xAOD {
     static Accessor< float > acc5( "oneOverP" );
     acc5( *this ) = oneOverP;
 
-    m_p4Cached = false;
     return;
   }
 

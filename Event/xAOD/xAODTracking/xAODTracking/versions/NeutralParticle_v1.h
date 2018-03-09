@@ -26,6 +26,9 @@
 #endif // not XAOD_MANACORE
 #endif // not XAOD_STANDALONE
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
+
 namespace xAOD {
   /// Class describing a NeutralParticle.
   ///

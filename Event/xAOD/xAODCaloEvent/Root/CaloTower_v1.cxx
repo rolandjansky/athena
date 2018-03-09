@@ -21,17 +21,14 @@ xAOD::CaloTower_v1::~CaloTower_v1()
 
 void xAOD::CaloTower_v1::addEnergy(double energy) { 
   f_ref_e() += energy; 
-  m_isComplete=false;
 }
 
 void xAOD::CaloTower_v1::setEnergy(double energy) { 
   f_ref_e()  = energy; 
-  m_isComplete=false;
 }
 
 void xAOD::CaloTower_v1::reset() { 
   f_ref_e()  = 0.;     
-  m_isComplete=false;
 }
 
 
@@ -52,13 +49,13 @@ double xAOD::CaloTower_v1::phi()      const {
 
 double xAOD::CaloTower_v1::m()        const { return m_towerMass; }
 double xAOD::CaloTower_v1::rapidity() const { return eta(); }
-double xAOD::CaloTower_v1::pt()       const { return genvecP4().Pt() } 
+double xAOD::CaloTower_v1::pt()       const { return genvecP4().Pt(); } 
 
 // FIXME!!!
 xAOD::Type::ObjectType xAOD::CaloTower_v1::type() const { return Type::ObjectType::Other; }
 
 
-const xAOD::CaloTower_v1::FourMom_t xAOD::CaloTower_v1::p4() const { 
+xAOD::CaloTower_v1::FourMom_t xAOD::CaloTower_v1::p4() const { 
 
   FourMom_t p4;
 
@@ -74,12 +71,12 @@ const xAOD::CaloTower_v1::FourMom_t xAOD::CaloTower_v1::p4() const {
   const double eta=pTowCont->eta(index());
   const double phi=pTowCont->phi(index());
   const double invcosheta = 1./std::cosh(eta);
-  const double pt=e()*m_invcosheta;
+  const double pt=e()*invcosheta;
   p4.SetPtEtaPhiM(pt,eta,phi,m()); 
   return p4;
 }
 
-const xAOD::CaloTower_v1::GenVecFourMom_t xAOD::CaloTower_v1::genvecP4() const { 
+xAOD::CaloTower_v1::GenVecFourMom_t xAOD::CaloTower_v1::genvecP4() const { 
 
   if (e() <= 0) {
     // negative energy towers do not have a valid four-momentum representation (but a valid energy, eta, phi)
@@ -93,6 +90,6 @@ const xAOD::CaloTower_v1::GenVecFourMom_t xAOD::CaloTower_v1::genvecP4() const {
   const double eta=pTowCont->eta(index());
   const double phi=pTowCont->phi(index());
   const double invcosheta = 1./std::cosh(eta);
-  const double pt=e()*m_invcosheta;
+  const double pt=e()*invcosheta;
   return GenVecFourMom_t(pt,eta,phi,m()); 
 }

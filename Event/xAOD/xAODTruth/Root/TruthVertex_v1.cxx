@@ -17,7 +17,7 @@
 namespace xAOD {
 
    TruthVertex_v1::TruthVertex_v1()
-   : SG::AuxElement(), m_v4(), m_v4Cached( false ) {
+   : SG::AuxElement() {
 
    }
 

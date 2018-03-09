@@ -515,18 +515,19 @@ namespace xAOD {
   }
   
 
-  CaloCluster_v1::GenVecFourMom_t genvecP4(const State s) const {
-  case CALIBRATED:
-    return GenVecFourMom_t(pt(s),calEta(),calPhi(),calM());
-  case UNCALIBRATED:
-    return GenVecFourMom_t(pt(s),rawEta(),rawPhi(), rawM());
-  case ALTCALIBRATED:
-    return GenVecFourMom_t(pt(s),altEta(),altPhi(), altM());
-  default:
-    return GenVecFourMom_t();
+  CaloCluster_v1::GenVecFourMom_t CaloCluster_v1::genvecP4(const CaloCluster_v1::State s) const {
+    switch (s) {
+    case CALIBRATED:
+      return GenVecFourMom_t(pt(s),calEta(),calPhi(),calM());
+    case UNCALIBRATED:
+      return GenVecFourMom_t(pt(s),rawEta(),rawPhi(), rawM());
+    case ALTCALIBRATED:
+      return GenVecFourMom_t(pt(s),altEta(),altPhi(), altM());
+    default:
+      return GenVecFourMom_t();
+    }
   }
-
-  CaloCluster_v1::GenVecFourMom_t genvecP4() const {
+  CaloCluster_v1::GenVecFourMom_t CaloCluster_v1::genvecP4() const {
     return genvecP4(m_signalState);
   }
 

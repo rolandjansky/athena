@@ -129,7 +129,7 @@ namespace xAOD {
       typedef TLorentzVector FourVec_t;
 
       /// The full 4-vector of the vertex
-      const FourVec_t v4() const;
+      FourVec_t v4() const;
 
       /// Base 4 Momentum type for TruthVector
       typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > GenVecFourVec_t;
