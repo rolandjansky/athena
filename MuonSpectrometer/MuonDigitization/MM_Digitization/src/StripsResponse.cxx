@@ -23,16 +23,16 @@ using namespace std;
 
 /*******************************************************************************/
 StripsResponse::StripsResponse():
-  qThreshold(0.001), 
-  diffusSigma(0.360/10.),
-  LogitundinalDiffusSigma(0.190/10.),
-  pitch(0.500), 
-  stripwidth(pitch - 0.0),
+  m_qThreshold(0.001), 
+  m_diffusSigma(0.360/10.),
+  m_LogitundinalDiffusSigma(0.190/10.),
+  m_pitch(0.500), 
+  m_stripwidth(m_pitch - 0.0),
   //  gain(1.),  
-  gain(5.e+3),
-  polya(0),
-  conv_gaus(0),
-  gas(0), 
+  m_gain(5.e+3),
+  m_polya(0),
+  m_conv_gaus(0),
+  m_gas(0), 
   driftGap(5.128),
   driftVelocity(0.047),
   nstrip(0),
@@ -64,12 +64,12 @@ void StripsResponse::loadGasFile(std::string fileName){
     log << MSG::FATAL << "StripResponse::loadGasFile(): Could not find file " << fileName << endmsg;
     exit(1);
   }
-  bool ok = gas->LoadGasFile(fileWithPath);
+  bool ok = m_gas->LoadGasFile(fileWithPath);
   if(!ok){
     log << MSG::FATAL << "StripResponse::loadGasFile(): Could not load file " << fileName << endmsg;
     exit(1);
   }
-  gas->PrintGas();
+  m_gas->PrintGas();
 }
 /*******************************************************************************/
 void StripsResponse::initHistos()
@@ -82,10 +82,10 @@ void StripsResponse::writeHistos()
 /*******************************************************************************/
 void StripsResponse::initFunctions()
 {
-  polya  = new TF1("polya","(1./[1])*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x,[0])*TMath::Exp(-([0]+1)*x)", 0., 4.);
-  conv_gaus  = new TF1("conv_gaus","1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
-  LongitudinalDiffusionFunction = new TF1("longdiff","gaus", 0., 5.);
-  TransverseDiffusionFunction = new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
+  m_polya  = new TF1("polya","(1./[1])*(TMath::Power([0]+1,[0]+1)/TMath::Gamma([0]+1))*TMath::Power(x,[0])*TMath::Exp(-([0]+1)*x)", 0., 4.);
+  m_conv_gaus  = new TF1("conv_gaus","1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
+  m_LongitudinalDiffusionFunction = new TF1("longdiff","gaus", 0., 5.);
+  m_TransverseDiffusionFunction = new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
   Athena::MsgStreamMember log("StripsResponse::initFunctions");
   log << MSG::DEBUG << "StripsResponse::initFunctions DONE" << endmsg;
   // if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "\t \t StripsResponse::initFunctions DONE " << endmsg;
@@ -94,12 +94,12 @@ void StripsResponse::initFunctions()
 void StripsResponse::clearValues()
 {
   /// Delete Gen:
-  if (conv_gaus !=0) delete conv_gaus;
-  if (polya !=0) delete polya;
+  if (m_conv_gaus !=0) delete m_conv_gaus;
+  if (m_polya !=0) delete m_polya;
   if (gRandom_loc !=0) delete gRandom_loc;
-  if (gas !=0) {
-    delete gas;
-    gas=0;
+  if (m_gas !=0) {
+    delete m_gas;
+    m_gas=0;
   }
   //--------------------
 
@@ -107,21 +107,21 @@ void StripsResponse::clearValues()
 /*******************************************************************************/
 void StripsResponse::initializationFrom()
 {
-  crossTalk1=0.0;
-  crossTalk2=0.0;
-  Lorentz_Angle = 0.0;
+  m_crossTalk1=0.0;
+  m_crossTalk2=0.0;
+  m_Lorentz_Angle = 0.0;
 
   initHistos ();
   initFunctions();
   randomNum = new TRandom3(0);
 
-  gas = new GarfieldGas(); 
+  m_gas = new GarfieldGas(); 
 
   Athena::MsgStreamMember log("StripsResponse::initializationFrom");
   log << MSG::DEBUG << "StripsResponse::initializationFrom set values" << endmsg;
-  polya->SetParameter(0, 2.3);
-  polya->SetParameter(1, 1.);
-  //  log << MSG::DEBUG << "StripsResponse::initializationFrom getRandom: " << polya->GetRandom() << endmsg;
+  m_polya->SetParameter(0, 2.3);
+  m_polya->SetParameter(1, 1.);
+  //  log << MSG::DEBUG << "StripsResponse::initializationFrom getRandom: " << m_polya->GetRandom() << endmsg;
 }
 /*******************************************************************************/
 MmStripToolOutput StripsResponse::GetResponseFrom(const MmDigitToolInput & digiInput) 
@@ -130,23 +130,23 @@ MmStripToolOutput StripsResponse::GetResponseFrom(const MmDigitToolInput & digiI
   Athena::MsgStreamMember log("StripsResponse::GetResponseFrom"); 
   log << MSG::DEBUG << "\t \t StripsResponse::GetResponseFrom start " << endmsg;
 
-  Lorentz_Angle = 0.0;
+  m_Lorentz_Angle = 0.0;
   Amg::Vector3D b = digiInput.magneticField()*1e+3;//kT->T
   double ez=600.;//V/cm
   double vx,vy,vz;//X:#strip(radius,increasing to outer) Z:z(positive to IP)
-  bool ok = gas->ElectronVelocity(0.,0.,ez,b.x(),b.y(),b.z(),vx,vy,vz); 
+  bool ok = m_gas->ElectronVelocity(0.,0.,ez,b.x(),b.y(),b.z(),vx,vy,vz); 
   if(!ok){
     log << MSG::INFO << "StripsResponse::GetResponseFrom failed to get drift velocity" << endmsg;
   }
-  Lorentz_Angle = atan2(vx,-vz)*180./TMath::Pi();// positive to outer strips
+  m_Lorentz_Angle = atan2(vx,-vz)*180./TMath::Pi();// positive to outer strips
 
-  IonizationClusters.clear();
+  m_IonizationClusters.clear();
   finalNumberofStrip.clear();
   finalqStrip.clear();
   finaltStrip.clear();
-  crossTalk1=0.0; 
-  crossTalk2=0.0; 
-  Lorentz_Angle = 0.0; 
+  m_crossTalk1=0.0; 
+  m_crossTalk2=0.0; 
+  m_Lorentz_Angle = 0.0; 
   log << MSG::DEBUG << "\t \t StripsResponse::calculateResponseFrom call whichStrips " << endmsg;
   whichStrips(digiInput.positionWithinStrip(), digiInput.stripIDLocal(), digiInput.incomingAngle(), digiInput.stripMaxID(), digiInput);
 
@@ -169,7 +169,7 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
   float eventTime = digiInput.eventTime();
   float theta = thetaD*TMath::Pi()/180.0;
   
-  pitch = get_stripWidth();
+  m_pitch = get_stripWidth();
   dimClusters=7000; //dimClusters=total number of collisions
   pt=0.;
 
@@ -186,42 +186,42 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
 
     MM_IonizationCluster IonizationCluster(hitx, ll*sin(theta), ll*cos(theta));
     IonizationCluster.createElectrons(randomNum);
-    //    IonizationCluster.diffuseElectrons(LogitundinalDiffusSigma, diffusSigma, randomNum);
+    //    IonizationCluster.diffuseElectrons(m_LogitundinalDiffusSigma, m_diffusSigma, randomNum);
     //---
     TVector2 initialPosition = IonizationCluster.getIonizationStart();
     for (auto& Electron : IonizationCluster.getElectrons()){
-      LongitudinalDiffusionFunction->SetParameters(1.0, initialPosition.Y(), initialPosition.Y()*LogitundinalDiffusSigma);
-      if (LogitundinalDiffusSigma == 0 || diffusSigma == 0) {
-	TransverseDiffusionFunction->SetParameters(initialPosition.Y()*diffusSigma, 0.0);
+      m_LongitudinalDiffusionFunction->SetParameters(1.0, initialPosition.Y(), initialPosition.Y()*m_LogitundinalDiffusSigma);
+      if (m_LogitundinalDiffusSigma == 0 || m_diffusSigma == 0) {
+	m_TransverseDiffusionFunction->SetParameters(initialPosition.Y()*m_diffusSigma, 0.0);
       } else {
-	TransverseDiffusionFunction->SetParameters(initialPosition.Y()*diffusSigma, 1.0);
+	m_TransverseDiffusionFunction->SetParameters(initialPosition.Y()*m_diffusSigma, 1.0);
       }
       gRandom = randomNum;
-      Electron->setOffsetPosition(TransverseDiffusionFunction->GetRandom(), LongitudinalDiffusionFunction->GetRandom());
+      Electron->setOffsetPosition(m_TransverseDiffusionFunction->GetRandom(), m_LongitudinalDiffusionFunction->GetRandom());
     }
     //---
 
     Amg::Vector3D b = digiInput.magneticField() * 1000.;
     double ez=600.;
     double vx, vy, vz;
-    bool ok = gas->ElectronVelocity(0.,0.,ez,b.x(),b.y(),b.z(),vx,vy,vz);    
+    bool ok = m_gas->ElectronVelocity(0.,0.,ez,b.x(),b.y(),b.z(),vx,vy,vz);    
     if(!ok) {
       msglog << MSG::WARNING << "StripsResponse::GetResponseFrom failed to get drift velocity " << endmsg;
     }
 
     IonizationCluster.propagateElectrons(vx, -vz, driftVelocity);
-    //    IonizationCluster.avalancheElectrons(gain, randomNum);
+    //    IonizationCluster.avalancheElectrons(m_gain, randomNum);
     //---
     for (auto& Electron : IonizationCluster.getElectrons()){
-      polya->SetParameters(2.3, 1.0);
+      m_polya->SetParameters(2.3, 1.0);
       gRandom = randomNum;
-      Electron->setCharge(gain*polya->GetRandom());
+      Electron->setCharge(m_gain*m_polya->GetRandom());
 
       // Add eventTime in Electron time
       Electron->setTime(Electron->getTime() + eventTime);
     }
     //---
-    IonizationClusters.push_back(IonizationCluster);
+    m_IonizationClusters.push_back(IonizationCluster);
 
     pt = randomNum->Uniform();
     ll -= lmean*log(pt);
@@ -233,11 +233,11 @@ void StripsResponse::whichStrips(const float & hitx, const int & stripID, const 
 
   float timeresolution = 0.01; //ns
   
-  MM_StripResponse StripResponse(IonizationClusters, timeresolution, pitch, stripID, stripMaxID);
+  MM_StripResponse StripResponse(m_IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
   StripResponse.timeOrderElectrons();
   StripResponse.calculateTimeSeries(thetaD, digiInput.gasgap());
-  StripResponse.simulateCrossTalk(crossTalk1, crossTalk2);
-  StripResponse.calculateSummaries(qThreshold);
+  StripResponse.simulateCrossTalk(m_crossTalk1, m_crossTalk2);
+  StripResponse.calculateSummaries(m_qThreshold);
   //Connect the output with the rest of the existing code
   finalNumberofStrip = StripResponse.getStripVec();
   finalqStrip = StripResponse.getTotalChargeVec();
