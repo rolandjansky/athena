@@ -13,7 +13,7 @@
 namespace Trk
 {
   GaussianTrackDensity::GaussianTrackDensity(const std::string& t, const std::string& n, const IInterface* p):
-    AthAlgTool(t, n, p)
+    AthAlgTool(t, n, p), m_maxRange(0.0)
   {
     declareInterface<IVertexTrackDensityEstimator>(this);
   }
@@ -34,34 +34,56 @@ namespace Trk
     firstDerivative = 0.0;
     secondDerivative = 0.0;
     TrackEntry target(z);
-    lowerMapIterator first = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
-    upperMapIterator final = m_upperMap.upper_bound(target);  // first track whose LOWER bound is greater than z
-    trackMapIterator firstLoop = m_trackMap.find(first->second);  // this will be the first track we include
-    trackMapIterator finalLoop = m_trackMap.find(final->second);  // this will be the track after the last we include
-    if (firstLoop->second.lowerBound > z || finalLoop->second.upperBound < z) return;
-    for (auto itrk = firstLoop; itrk != finalLoop && itrk != m_trackMap.end(); itrk++)
+    trackMap overlaps;
+    lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
+    if (left == m_lowerMap.end()) return;                    // z is to the right of every track's range
+    upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
+    if (right == m_upperMap.begin()) return;                 // z is to the left of every track's range
+    for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
     {
-      double delta = exp(itrk->second.c_0+z*(itrk->second.c_1 + z*itrk->second.c_2));
+      if ( itrk->first.upperBound > z + m_maxRange ) break;
+      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+    }
+    for (auto itrk = right; itrk-- != m_upperMap.begin(); )
+    {
+      if ( itrk->first.lowerBound < z - m_maxRange ) break;
+      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+    }
+    for (const auto& entry : overlaps)
+    {
+      if (entry.second.lowerBound > z || entry.second.upperBound < z) continue;
+      double delta = exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
       density += delta;
-      double qPrime = itrk->second.c_1 + 2*z*itrk->second.c_2;
+      double qPrime = entry.second.c_1 + 2*z*entry.second.c_2;
       double deltaPrime = delta * qPrime;
       firstDerivative += deltaPrime;
-      secondDerivative += 2*itrk->second.c_2*delta + qPrime*deltaPrime;
+      secondDerivative += 2*entry.second.c_2*delta + qPrime*deltaPrime;
     }
   }
 
   double GaussianTrackDensity::trackDensity(double z) const
   {
+    ATH_MSG_VERBOSE("Inside trackDensity function; z=" << z);
     double sum = 0.0;
     TrackEntry target(z);
-    lowerMapIterator first = m_lowerMap.lower_bound(target);
-    upperMapIterator final = m_upperMap.upper_bound(target);
-    trackMapIterator firstLoop = m_trackMap.find(first->second);
-    trackMapIterator finalLoop = m_trackMap.find(final->second);
-    if (firstLoop->second.lowerBound > z || finalLoop->second.upperBound < z) return sum;
-    for (auto itrk = firstLoop; itrk != finalLoop && itrk != m_trackMap.end(); itrk++)
+    trackMap overlaps;
+    lowerMapIterator left = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
+    if (left == m_lowerMap.end()) return sum;                // z is to the right of every track's range
+    upperMapIterator right = m_upperMap.upper_bound(target); // first track whose LOWER bound is greater than z
+    if (right == m_upperMap.begin()) return sum;             // z is to the left of every track's range
+    for (auto itrk = left; itrk != m_lowerMap.end(); itrk++)
     {
-      sum += exp(itrk->second.c_0+z*(itrk->second.c_1 + z*itrk->second.c_2));
+      if ( itrk->first.upperBound > z + m_maxRange ) break;
+      if ( z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+    }
+    for (auto itrk = right; itrk-- != m_upperMap.begin(); )
+    {
+      if ( itrk->first.lowerBound < z - m_maxRange ) break;
+      if (z >= itrk->first.lowerBound && z <= itrk->first.upperBound ) overlaps[itrk->second] = itrk->first;
+    }
+    for (const auto& entry : overlaps)
+    {
+      sum += exp(entry.second.c_0+z*(entry.second.c_1 + z*entry.second.c_2));
     }
     return sum;
   }
@@ -155,6 +177,7 @@ namespace Trk
 	discriminant = sqrt(discriminant);
 	double zMax = (-linearTerm - discriminant)/(2*quadraticTerm);
 	double zMin = (-linearTerm + discriminant)/(2*quadraticTerm);
+	m_maxRange = std::max(m_maxRange, std::max(zMax-z0, z0-zMin));
 	constantTerm -= log(2*Gaudi::Units::pi*sqrt(covDeterminant));
 	m_trackMap.emplace(std::piecewise_construct,
                            std::forward_as_tuple(*itrk),
@@ -190,6 +213,7 @@ namespace Trk
     m_trackMap.clear();
     m_lowerMap.clear();
     m_upperMap.clear();
+    m_maxRange = 0.0;
   }
 
   GaussianTrackDensity::TrackEntry::TrackEntry(double c0, double c1, double c2, double zMin, double zMax) 
