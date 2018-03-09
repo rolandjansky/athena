@@ -29,7 +29,6 @@ EXOT2Stream.AcceptAlgs(["EXOT2Kernel"])
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT2ThinningHelper = ThinningHelper( "EXOT2ThinningHelper" )
 #trigger navigation content
-EXOT2ThinningHelper.TriggerChains = 'HLT_j.*|HLT_noalg_L1J.*'
 EXOT2ThinningHelper.AppendToStream( EXOT2Stream )
 
 #=======================================
@@ -118,34 +117,33 @@ exot2Seq += CfgMgr.DerivationFramework__DerivationKernel(name = "EXOT2Kernel",
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EXOT2SlimmingHelper = SlimmingHelper("EXOT2SlimmingHelper")
-EXOT2SlimmingHelper.SmartCollections = ["PrimaryVertices",
-                                    "AntiKt4EMTopoJets",
-                                    "AntiKt4LCTopoJets",
-                                    "BTagging_AntiKt4EMTopo",
-                                    "BTagging_AntiKt4LCTopo",
+EXOT2SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
+                                        "BTagging_AntiKt4EMTopo",
                                        ]
 TrigJetCleaningVars = '.ECPSFraction.N90Constituents.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterCenterLambda.LeadingClusterSecondR.CentroidR.OotFracClusters5.OotFracClusters10.Timing.GhostTruthAssociationFraction'
 TruthAssociationVars = '.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount'
 EXOT2SlimmingHelper.ExtraVariables = ["AntiKt4TruthJets.pt.eta.phi.m",
                                       "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"+TruthAssociationVars+TrigJetCleaningVars,
-                                      "AntiKt4LCTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"
-                                     ]
+                                      "PrimaryVertices.trackParticleLinks.x.y.z.vertexType.neutralParticleLinks"
+                                      ]
 EXOT2SlimmingHelper.AllVariables = ["TruthEvents",
-                                    #"AntiKt4TruthJets",
-                                    #"AntiKt4EMTopoJets",
-                                    #"AntiKt4LCTopoJets",
-                                    #"BTagging_AntiKt4EMTopo",
-                                    #"BTagging_AntiKt4LCTopo",
-                                    #"MuonSegments",
                                     "TruthParticles",
                                     "LVL1JetRoIs",
                                     "HLT_xAOD__JetContainer_a4tcemsubFS",
                                     "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
-                                    "MSDisplacedVertex",
-                                    "MSonlyTracklets",
-                                    "LVL1MuonRoIs",
+                                    "HLT_xAOD__JetContainer_GSCJet",
                                    ]
-EXOT2SlimmingHelper.IncludeJetTriggerContent = True
-EXOT2SlimmingHelper.IncludeBJetTriggerContent = True
-addMETOutputs(EXOT2SlimmingHelper, ["EXOT2"])
+
 EXOT2SlimmingHelper.AppendContentToStream(EXOT2Stream)
+
+EXOT2Stream.RemoveItem("xAOD::TrigNavigation#*")
+EXOT2Stream.RemoveItem("xAOD::TrigNavigationAuxInfo#*")
+
+EXOT2Stream.RemoveItem("HLT_xAOD__JetContainer_a10ttclcwjesFS")
+EXOT2Stream.RemoveItem("HLT_xAOD__JetContainer_a10r_tcemsubjesFS")
+EXOT2Stream.RemoveItem("HLT_xAOD__JetContainer_a10tclcwsubFS")
+EXOT2Stream.RemoveItem("HLT_xAOD__JetContainer_a10r_tcemsubjesISFS")
+EXOT2Stream.RemoveItem("HLT_xAOD__JetContainer_a10tclcwsubjesFS")
+EXOT2Stream.RemoveItem("HLT_xAOD__JetContainer_EFJet")
+EXOT2Stream.RemoveItem("HLT_xAOD__JetContainer_a4tcemsubFS")
+
