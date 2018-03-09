@@ -772,6 +772,18 @@ class FakeLVL1(_modifier):
                 svcMgr.ROBDataProviderSvc.filterEmptyROB=True
 
 
+class reprocessTT(_modifier):
+    """
+    Reprocesses the trigger towers
+    """
+    def preSetup(self):
+        from AthenaCommon.Include import include
+        from AthenaCommon.AlgSequence import AlgSequence
+        log.info("Now reprocessing trigger towers..")
+        include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
+        include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
+        include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReprocessTT.py")
+
 class rerunLVL1(_modifier):
     """
     Reruns the L1 simulation on real data
@@ -801,9 +813,9 @@ class rerunLVL1(_modifier):
         LVL1ConfigSvc.XMLMenuFile = TriggerFlags.inputLVL1configFile() 
 
         # rerun L1calo simulation
-        include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
+        #include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
         #include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
-        include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReprocessTT.py")
+        #include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReprocessTT.py")
 
         #rederive MuCTPI inputs to CTP from muon RDO
         #writes this to the usual MuCTPICTP storegate location
