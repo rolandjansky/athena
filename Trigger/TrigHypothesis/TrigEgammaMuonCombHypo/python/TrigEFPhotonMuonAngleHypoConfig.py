@@ -31,5 +31,3 @@ class TrigEFPhotonMuonAngleHypo_tau ( TrigEFElectronMuonAngleHypo ):
         self.MaxDPhiCut=1.5
 
         self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
-
-
