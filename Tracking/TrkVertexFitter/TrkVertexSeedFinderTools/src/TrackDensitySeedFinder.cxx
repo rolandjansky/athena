@@ -56,10 +56,6 @@ namespace Trk
     for (std::vector<const Trk::Track*>::const_iterator iter=begin;
 	 iter!=end;++iter) 
     {
-      if (isnan((*iter)->perigeeParameters()->parameters()[Trk::d0])) 
-      {
-	continue;
-      }  
       perigeeList.push_back((*iter)->perigeeParameters());
     }
    
