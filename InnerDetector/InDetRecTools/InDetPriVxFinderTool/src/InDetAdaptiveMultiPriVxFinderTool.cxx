@@ -15,6 +15,9 @@
               Fix memory leak.  Don't use a map for sorting.
               2007-10-xx  Giacinto Piacquadio
                           Many improvements (MultiVertexFinder v. 2) 
+              2016-03-09  D. Casper
+                          Change default value of TracksMaxZinterval to 1 mm
+                          (trial working point for high luminosities)
 
  ***************************************************************************/
 // #include <algorithm>
@@ -68,7 +71,7 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(const std::
     m_trkFilter("InDet::InDetTrackSelection"),
     m_iBeamCondSvc("BeamCondSvc",n),
     m_useBeamConstraint(true),
-    m_TracksMaxZinterval(5.),
+    m_TracksMaxZinterval(1.),
     m_maxVertexChi2(18.42),
     m_realMultiVertex(true),
     m_useFastCompatibility(true),
