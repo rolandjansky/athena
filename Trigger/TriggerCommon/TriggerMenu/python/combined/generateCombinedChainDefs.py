@@ -388,7 +388,6 @@ def _addTauMass(theChainDef,chainDicts,listOfChainDefs):
 def _addXemu(theChainDef,chainDicts,listOfChainDefs): 
 
     # determine which thresholds are needed for L2 MultiTrk algo
-    mult = 0
     tracksThr = []
     fexNameExt = ""
 
