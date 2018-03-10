@@ -81,7 +81,7 @@ namespace Trk
 
     if (constraint)
     {
-      return Amg::Vector3D(constraint->position().x(), constraint->position().y(), zResult);
+      return Amg::Vector3D(constraint->position().x(), constraint->position().y(), zResult + constraint->position().z());
     }
     else
     {
