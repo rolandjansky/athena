@@ -9,8 +9,12 @@ atlas_subdir( SystematicsHandles )
 # The package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Event/xAOD/xAODBase
+   PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   Control/AthToolSupport/AsgTools )
+   Event/xAOD/xAODCore
+   PRIVATE
+   PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
