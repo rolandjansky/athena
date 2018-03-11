@@ -522,8 +522,8 @@ namespace CP {
             for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 ATH_MSG_DEBUG("\t" << (*t).name());
             }
-            return SystematicCode::Unsupported;
         }
+        return SystematicCode::Unsupported;
     }
     MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors(const MuonEfficiencyScaleFactors& toCopy) :
                 MuonEfficiencyScaleFactors(toCopy.name() + "_copy") {
