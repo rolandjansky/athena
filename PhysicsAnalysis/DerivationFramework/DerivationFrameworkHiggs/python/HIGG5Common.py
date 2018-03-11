@@ -24,7 +24,7 @@ def getHIGG5Common() :
         ]
 
 def getHIGG5CommonTruthContainers() :
-    return ["TruthElectrons", "TruthMuons", "TruthTaus","TruthNeutrinos","TruthTop","TruthBSM","TruthBoson"]
+    return ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 def getHIGG5CommonTruth() :
     return [
@@ -34,9 +34,9 @@ def getHIGG5CommonTruth() :
         "TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
          # "TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome.dressedPhoton.polarizationTheta.polarizationPhi",
         ("TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag"
-            ".classifierParticleOrigin.classifierParticleType.classifierParticleOutCome"
-            ".dressedPhoton.polarizationPhi.polarizationTheta"
-            ".truthOrigin.truthParticleLink.truthType"),
+         ".classifierParticleOrigin.classifierParticleType.classifierParticleOutCome"
+         ".dressedPhoton.polarizationPhi.polarizationTheta"
+         ".truthOrigin.truthParticleLink.truthType"),
         "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthParticleLink.truthType"
         ]
 
@@ -53,22 +53,24 @@ def filterContentList(pattern, content_list) :
 # --- common thinning tools
 def getTruthThinningTool(tool_prefix, thinning_helper) :
     from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkIsMonteCarlo
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
     if not DerivationFrameworkIsMonteCarlo :
         return None
     # MC truth thinning (not for data)
-    truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
-    truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-    truth_cond_Top_Quark  = "((abs(TruthParticles.pdgId) == 6))"
-    truth_cond_BC_Quark  = "((abs(TruthParticles.pdgId) ==  5))||((abs(TruthParticles.pdgId) ==  4))" # C quark and Bottom quark
-    truth_cond_Hadrons = "((abs(TruthParticles.pdgId) >=  400)&&(abs(TruthParticles.pdgId)<600))||((abs(TruthParticles.pdgId) >=  4000)&&(abs(TruthParticles.pdgId)<6000))||((abs(TruthParticles.pdgId) >=  10400)&&(abs(TruthParticles.pdgId)<10600))||((abs(TruthParticles.pdgId) >=  20400)&&(abs(TruthParticles.pdgId)<20600))"
-    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Top_Quark+') || (('+   truth_cond_BC_Quark + " || " + truth_cond_Hadrons+')&&(sqrt(TruthParticles.px*TruthParticles.px+TruthParticles.py*TruthParticles.py)>5000))'
-    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
+#    truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
+#    truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
+    truth_cond_Quark  = "((abs(TruthParticles.pdgId) ==  5))" # Top quark and Bottom quark
+#    truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
+#    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark +' || '+truth_cond_Photon+')'
+    truth_expression = truth_cond_Quark
+
     MCThinningTool = DerivationFramework__GenericTruthThinning(
         name                         = tool_prefix + "MCThinningTool",
         ThinningService              = thinning_helper.ThinningSvc(),
         ParticleSelectionString      = truth_expression,
         PreserveDescendants          = False,
-        PreserveGeneratorDescendants = False,
+        # PreserveGeneratorDescendants = False,
+        PreserveGeneratorDescendants  = True,   # giacinto
         PreserveAncestors            = True)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += MCThinningTool
@@ -141,7 +143,6 @@ def getAntiKt4EMTopoTrackParticleThinning(tool_prefix, thinning_helper, **kwargs
     kwargs.setdefault( 'SelectionString','(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV)')
     return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
 
-#PFlow
 def getAntiKt4EMPFlowTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault( 'name',tool_prefix + 'AntiKt4EMPFlowJetTPThinningTool')
     kwargs.setdefault( 'JetKey','AntiKt4EMPFlowJets')

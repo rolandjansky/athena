@@ -23,7 +23,6 @@ from AthenaCommon.GlobalFlags import globalflags
 if DerivationFrameworkIsMonteCarlo :
   from DerivationFrameworkHiggs.TruthCategories import *
 
-
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -46,22 +45,37 @@ HIGG5D2ThinningHelper.TriggerChains = 'HLT_e.*|HLT_mu.*|HLT_xe.*|HLT_j.*'
 HIGG5D2ThinningHelper.AppendToStream(HIGG5D2Stream) 
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
-thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
-# thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
+#Do not store anymore tracks that are associated to jets
+#TrackParticles thinning
+#thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
+#thinningTools.append( HIGG5Common.getAntiKt4EMPFlowTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
+#thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D2',HIGG5D2ThinningHelper) )
-thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D2',HIGG5D2ThinningHelper) )
+##thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG5D2',HIGG5D2ThinningHelper) )
-thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG5D2',HIGG5D2ThinningHelper) )
-thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'HIGG5D2',HIGG5D2ThinningHelper) )
 
-thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
+#Track Particles + CaloCluster thinning
 thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
 
-# MC truth thinning (not for data)
-if DerivationFrameworkIsMonteCarlo :
-    thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D2', HIGG5D2ThinningHelper))
+#calocluster thinning
+thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG5D2',HIGG5D2ThinningHelper) )
+thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D2',HIGG5D2ThinningHelper) )
+
+
+#generic object thinning
+thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
+
+
+if DerivationFrameworkIsMonteCarlo: 
+  #thinning tool is only for b-quarks, the rest now relies on Truth3
+  thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D2', HIGG5D2ThinningHelper))
+  #add Truth3 information
+  from DerivationFrameworkMCTruth.MCTruthCommon import *
+  addStandardTruthContents()
+
+
 
 #========================================================================
 # lepton selection (keep isolation failed leptons for QCD-MJ estimation)
@@ -72,6 +86,7 @@ lepSel = '( count( (Muons.pt > 20.0*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFC
 # jet selection 
 #====================================================================
 jetSel = '(( count( (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15.*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.6) ) ) > 0)'
+jetSel += '|| (( count( (AntiKt4EMPFlowJets.pt > 15.*GeV) && (abs(AntiKt4EMPFlowJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt4EMTopoJets.pt > 100.0*GeV) && (abs(AntiKt4EMTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoJets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
@@ -304,6 +319,10 @@ from BTagging.BTaggingFlags import BTaggingFlags
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg5d2Seq)
+FlavorTagInit(JetCollections = ['AntiKt4PV0TrackJets'], Sequencer = higg5d2Seq)
+
 # Jet calibration should come after fat jets
 # applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d2Seq)
 # # applyJetCalibration_CustomColl(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20", sequence=higg5d2Seq)
@@ -353,6 +372,14 @@ HIGG5D2SlimmingHelper.AppendToDictionary = {
   "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt4EMPFlow" : "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt4EMPFlowAux" : "xAOD::BTaggingAuxContainer"   ,
+  "TruthBoson" : "xAOD::TruthParticleContainer" ,
+  "TruthBosonAux" : "xAOD::TruthParticleAuxContainer" ,
+  "TruthTop" : "xAOD::TruthParticleContainer" ,
+  "TruthTopAux" : "xAOD::TruthParticleAuxContainer" ,
+  "TruthBSM" : "xAOD::TruthParticleContainer" ,
+  "TruthBSMAux" : "xAOD::TruthParticleAuxContainer" ,
   }
 
 HIGG5D2SlimmingHelper.SmartCollections = [ "Electrons",
@@ -360,11 +387,14 @@ HIGG5D2SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Muons",
                                            "TauJets",
                                            "MET_Reference_AntiKt4EMTopo",
+                                           "MET_Reference_AntiKt4EMPFlow",
                                            "AntiKt4EMTopoJets",
+                                           "AntiKt4EMPFlowJets",
                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                            "AntiKt4TruthJets",
 #                                            "AntiKtVR30Rmax4Rmin02Track",
                                            "BTagging_AntiKt4EMTopo",
+                                           "BTagging_AntiKt4EMPFlow",
                                            "BTagging_AntiKt2Track",
 #                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
 #                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
