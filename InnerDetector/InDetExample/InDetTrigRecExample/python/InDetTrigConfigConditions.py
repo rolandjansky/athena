@@ -417,15 +417,15 @@ class SCT_ConditionsServicesSetup:
 
   def initLorentzAngleSvc(self, instanceName):
     # Set up Silicon Conditions Service
-    from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
-    sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
-    sct_SiliconConditionsSvcSetup.setDcsSvc(self.dcsSvc)
-    sct_SiliconConditionsSvcSetup.setSvcName("InDetSCT_SiliconConditionsSvc")
-    sct_SiliconConditionsSvcSetup.setup()
-    sctSiliconConditionsSvc = sct_SiliconConditionsSvcSetup.getSvc()
-    sctSiliconConditionsSvc.CheckGeoModel = False
-    sctSiliconConditionsSvc.ForceUseGeoModel = False
-    if self._print: print sctSiliconConditionsSvc
+    from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+    sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+    sct_SiliconConditionsToolSetup.setDcsSvc(self.dcsSvc)
+    sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
+    sct_SiliconConditionsToolSetup.setup()
+    sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
+    sctSiliconConditionsTool.CheckGeoModel = False
+    sctSiliconConditionsTool.ForceUseGeoModel = False
+    if self._print: print sctSiliconConditionsTool
 
     # Set up SCTSiLorentzAngleCondAlg
     from AthenaCommon.AlgSequence import AthSequencer
@@ -434,7 +434,7 @@ class SCT_ConditionsServicesSetup:
       from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
       from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
       condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
-                                          SiConditionsServices = sctSiliconConditionsSvc,
+                                          SiConditionsTool = sctSiliconConditionsTool,
                                           UseMagFieldSvc = True,
                                           UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
       sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg

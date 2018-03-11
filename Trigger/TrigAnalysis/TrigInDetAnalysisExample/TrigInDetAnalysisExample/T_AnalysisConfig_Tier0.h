@@ -87,8 +87,6 @@
 
 
 
-
-
 template<typename T>
 void HighestPTOnly( std::vector<T*>& tracks ) { 
 
@@ -171,7 +169,8 @@ public:
     m_runPurity(false),
     m_shifter(false),
     m_pTthreshold(0),
-    m_first(true)
+    m_first(true),
+    m_containTracks(false)
   {
     m_event = new TIDA::Event();
     m_chainNames.push_back(testChainName);
@@ -189,6 +188,8 @@ public:
 
     std::cout << "\tpost:  " << chain.post()          << std::endl; 
     std::cout << "\tpt:    " << chain.postvalue("pt") << std::endl;
+
+    std::cout << "\tcontainTracks: " << m_containTracks << std::endl; 
 #endif
     
     m_testType = testType;
@@ -201,6 +202,8 @@ public:
   void setShifter( bool b )    { m_shifter=b; }
 
   void useBeamCondSvc( bool b ) { m_useBeamCondSvc = b; }
+
+  void containTracks( bool b ) { m_containTracks = b; }
 
 public:
 
@@ -904,7 +907,7 @@ protected:
 
         m_selectorRef->clear();
 
-	if ( this->filterOnRoi() ) filterRef.setRoi( &chain.rois().at(iroi).roi() );
+	if ( this->filterOnRoi() ) { filterRef.setRoi( &chain.rois().at(iroi).roi() ); filterRef.containtracks( m_containTracks ); }
 	else                       filterRef.setRoi( 0 );
 
         test_tracks.clear();
@@ -1171,7 +1174,6 @@ protected:
 	  m_associator->match( ref_tracks, test_tracks );
 	 
 	  //	  std::cout << "SUTT: execute : N tracks " << ref_tracks.size() << " " << test_tracks.size() << std::endl; 
-
 	  
 	  _analysis->execute( ref_tracks, test_tracks, m_associator );
 	  
@@ -1494,6 +1496,8 @@ protected:
 
   bool   m_first;
   
+  bool   m_containTracks;
+
 };
 
 

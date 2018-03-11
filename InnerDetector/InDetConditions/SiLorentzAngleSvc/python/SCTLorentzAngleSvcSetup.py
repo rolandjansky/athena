@@ -50,18 +50,18 @@ class SCTLorentzAngleSvcSetup:
             sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
             sct_DCSConditionsSvcSetup.setup()
 
-        # Set up SCT_SiliconConditionsSvc
-        from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
-        sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
+        # Set up SCT_SiliconConditionsTool
+        from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+        sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
         if forceUseGeoModel:
-            sct_SiliconConditionsSvcSetup.setUseDB(False)
-            sct_SiliconConditionsSvcSetup.setForceUseGeoModel(True)
+            sct_SiliconConditionsToolSetup.setUseDB(False)
+            sct_SiliconConditionsToolSetup.setForceUseGeoModel(True)
         else:
-            sct_SiliconConditionsSvcSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
-        sct_SiliconConditionsSvcSetup.setup()
-        sctSiliconConditionsSvc = sct_SiliconConditionsSvcSetup.getSvc()
-        self.sctSiliconConditionsSvc = sctSiliconConditionsSvc
-        self.SCT_SiliconConditionsSvc = sctSiliconConditionsSvc
+            sct_SiliconConditionsToolSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
+        sct_SiliconConditionsToolSetup.setup()
+        sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
+        self.sctSiliconConditionsTool = sctSiliconConditionsTool
+        self.SCT_SiliconConditionsTool = sctSiliconConditionsTool
 
         # Set up SCTSiLorentzAngleCondAlg
         from AthenaCommon.AlgSequence import AthSequencer
@@ -70,7 +70,7 @@ class SCTLorentzAngleSvcSetup:
             from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
-                                                SiConditionsServices = sctSiliconConditionsSvc,
+                                                SiConditionsTool = sctSiliconConditionsTool,
                                                 UseMagFieldSvc = True,
                                                 UseMagFieldDcs = (not athenaCommonFlags.isOnline()),
                                                 UseGeoModel = forceUseGeoModel)
@@ -84,7 +84,7 @@ class SCTLorentzAngleSvcSetup:
             from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleCHSvc
             ServiceMgr += SiLorentzAngleCHSvc(name="SCTLorentzAngleSvc", DetectorName="SCT")
         sctLorentzAngleSvc = ServiceMgr.SCTLorentzAngleSvc
-        # Pass the silicon conditions services to the Lorentz angle service
+        # Pass the silicon conditions tool to the Lorentz angle service
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
         # if loaded first.
         sctLorentzAngleSvc.UseMagFieldSvc = True
@@ -94,7 +94,7 @@ class SCTLorentzAngleSvcSetup:
     # Default is to decide based on GeoModel.
     def forceUseDB(self) :
         "Force usage of conditions DB"
-        self.SCT_SiliconConditionsSvc.CheckGeoModel = False
+        self.SCT_SiliconConditionsTool.CheckGeoModel = False
         from AthenaCommon import Logging
         msg = Logging.logging.getLogger("SCTLorentzAngleSvcSetup")
         msg.warning("Please set forceUseDB in constructor. Unnecessary service, algorithms, folders are configured")
@@ -102,5 +102,5 @@ class SCTLorentzAngleSvcSetup:
     # Force to use the defaults from GeoModel. In case it is not possible to use DCS
     def forceUseGeoModel(self) :
         "Force usage of GeoModel defaults"
-        self.SCT_SiliconConditionsSvc.ForceUseGeoModel = True
+        self.SCT_SiliconConditionsTool.ForceUseGeoModel = True
         msg.warning("Please set forceUseGeoModel in constructor. Unnecessary service, algorithms, folders are configured")

@@ -212,13 +212,26 @@ ASCIICondDbSvc::parse(IOVEntryT<IASCIICondDbSvc::dbData_t>& ie, const std::strin
 
   if (m.size() != 6) { return false; }
 
-  // set run# and timestamp
-  EventIDBase start(std::stoi(m[1]), EventIDBase::UNDEFEVT, std::stoi(m[2]));
-  EventIDBase   end(std::stoi(m[3]), EventIDBase::UNDEFEVT, std::stoi(m[4]));
+  // set run#, lumi and timestamp
+  // EventIDBase start(std::stoi(m[1]), EventIDBase::UNDEFEVT, std::stoi(m[2]));
+  // EventIDBase   end(std::stoi(m[3]), EventIDBase::UNDEFEVT, std::stoi(m[4]));
+  // start.set_lumi_block(m_lbn);
+  // end.set_lumi_block(m_lbn);
 
-  start.set_lumi_block(m_lbn);
-  end.set_lumi_block(m_lbn);
+  // set lumi and Timestamp
+  EventIDBase start(EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,
+                    std::stoi(m[2]));
+  EventIDBase   end(EventIDBase::UNDEFNUM, EventIDBase::UNDEFEVT,
+                    std::stoi(m[4]));
+  start.set_lumi_block(std::stoi(m[1]));
+  end.set_lumi_block(std::stoi(m[3]));
 
+  // Set Run/Lumi
+  // EventIDBase start(std::stoi(m[1]), EventIDBase::UNDEFEVT);
+  // EventIDBase   end(std::stoi(m[3]), EventIDBase::UNDEFEVT);
+  // start.set_lumi_block(std::stoi(m[2]));
+  // end.set_lumi_block(std::stoi(m[4]));
+  
   ie.setRange(EventIDRange(start,end));
   
   IASCIICondDbSvc::dbData_t *v = new IASCIICondDbSvc::dbData_t( std::stof(m[5]) );

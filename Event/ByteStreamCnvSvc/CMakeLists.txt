@@ -99,7 +99,8 @@ endfunction( _add_test )
 # Test(s) in the package:
 _add_test( BSEventSelector
    "athena.py ByteStreamCnvSvc/BSEventSelector_test_jobOptions.py"
-   POST_EXEC test/post_check.sh )
+   POST_EXEC test/post_check.sh
+   PROPERTIES TIMEOUT 300 )
 
 _add_test( AtlCopyBSEvent1_test
    "AtlCopyBSEvent -e 14350,14356,14382 -o test.data /afs/cern.ch/atlas/offline/test/daq.m4_combined.0020720.extract.L1TT-b00000010._0001.data"

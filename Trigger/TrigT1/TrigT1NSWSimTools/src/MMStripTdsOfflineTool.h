@@ -105,35 +105,35 @@ namespace NSWL1 {
 
     //MMTrigger stuff
     int eta_bin(double theta) const;
-    string eta_str(int eta) const;
+    std::string eta_str(int eta) const;
     int n_etabins;
     int correct_bcid;
-    vector<double> m_etabins;
+    std::vector<double> m_etabins;
     double etalo,etahi;
     
-    string nom;
+    std::string nom;
 
     //MMT_Loader stuff
     //debug stuff
-    vector<vector<vector<double> > >strip_poss,yvals;
-    map<int,double> strip500;
-    map<int,int> zplanes;
-    vector<TH1D*> m_diff_xuv;
+    std::vector<std::vector<std::vector<double> > >strip_poss,yvals;
+    std::map<int,double> strip500;
+    std::map<int,int> zplanes;
+    std::vector<TH1D*> m_diff_xuv;
     MMT_Parameters *m_par;
     //MMT_Finder m_find;
 
     //load event stuff
-    vector<hitData_entry> event_hitDatas(int find_event) const;
-    vector<hitData_key> event_hitData_keys(int find_event) const;
+    std::vector<hitData_entry> event_hitDatas(int find_event) const;
+    std::vector<hitData_key> event_hitData_keys(int find_event) const;
 
-    map<int,evFit_entry> Event_Fit;//key is event no.
-    map<int,evInf_entry> Event_Info;//key is event no.
-    map<int,evAna_entry> Event_Analysis;//key is event no.
-    map<hitData_key,hitData_entry> Hits_Data_Set_Time;//key is hit_index? <BC_time,time>?
+    std::map<int,evFit_entry> Event_Fit;//key is event no.
+    std::map<int,evInf_entry> Event_Info;//key is event no.
+    std::map<int,evAna_entry> Event_Analysis;//key is event no.
+    std::map<hitData_key,hitData_entry> Hits_Data_Set_Time;//key is hit_index? <BC_time,time>?
 
     //VMM info
-    vector<vector<bool> > VMM_chip_status;
-    vector<vector<int> > VMM__chip_last_hit_time;
+    std::vector<std::vector<bool> > VMM_chip_status;
+    std::vector<std::vector<int> > VMM__chip_last_hit_time;
     bool Mimic_VMM_Chip_Deadtime(hitData_entry& candy);
     double VMM_deadtime;
     int num_VMM_per_plane;

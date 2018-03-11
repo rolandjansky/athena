@@ -10,8 +10,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
-
 #include "GaudiKernel/EventIDRange.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -23,7 +21,6 @@ SCTSiPropertiesCondAlg::SCTSiPropertiesCondAlg(const std::string& name, ISvcLoca
   , m_readKeyHV{"SCT_SiliconBiasVoltCondData"}
   , m_writeKey{"SCTSiliconPropertiesVector"}
   , m_condSvc{"CondSvc", name}
-  , m_siCondSvc{"SCT_SiliconConditionsSvc", name}
   , m_pHelper{nullptr}
   , m_detManager{nullptr}
 {
@@ -33,14 +30,13 @@ SCTSiPropertiesCondAlg::SCTSiPropertiesCondAlg(const std::string& name, ISvcLoca
   declareProperty("ReadKeyeTemp", m_readKeyTemp, "Key of input sensor temperature conditions folder");
   declareProperty("ReadKeyHV", m_readKeyHV, "Key of input bias voltage conditions folder");
   declareProperty("WriteKey", m_writeKey, "Key of output silicon properties conditions folder");
-  declareProperty("SiConditionsServices", m_siCondSvc, "SiConditionsServices to be used");
 }
 
 StatusCode SCTSiPropertiesCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  // SCT silicon conditions service
-  ATH_CHECK(m_siCondSvc.retrieve());
+  // SCT silicon conditions tool
+  ATH_CHECK(m_siCondTool.retrieve());
 
   // SCT ID helper
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
@@ -121,7 +117,7 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
   for (SCT_ID::size_type hash{0}; hash<wafer_hash_max; hash++) {
     const IdentifierHash elementHash{static_cast<IdentifierHash::value_type>(hash)};
 
-    double temperatureC{m_siCondSvc->temperature(elementHash)};
+    double temperatureC{m_siCondTool->temperature(elementHash)};
 
     if (not ((temperatureC>m_temperatureMin) and (temperatureC<m_temperatureMax))) {
       ATH_MSG_DEBUG("Invalid temperature: "  
@@ -132,8 +128,8 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
     }
 
     double temperature{temperatureC + 273.15};
-    double deplVoltage{m_siCondSvc->depletionVoltage(elementHash) * CLHEP::volt};
-    double biasVoltage{m_siCondSvc->biasVoltage(elementHash) * CLHEP::volt};
+    double deplVoltage{m_siCondTool->depletionVoltage(elementHash) * CLHEP::volt};
+    double biasVoltage{m_siCondTool->biasVoltage(elementHash) * CLHEP::volt};
 
     const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
     double depletionDepth{element->thickness()};

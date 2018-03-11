@@ -7,12 +7,11 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "TrkCollectionAliasAlg/TrkCollectionAliasAlg.h"
-#include "TrkTrack/TrackCollection.h"
 
 //================ Constructor =================================================
 
 Trk::TrkCollectionAliasAlg::TrkCollectionAliasAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name,pSvcLocator)
+  AthReentrantAlgorithm(name,pSvcLocator)
 {
   //  template for property decalration
   declareProperty("CollectionName", m_collectionName = "ResolvedTracks");
@@ -29,6 +28,9 @@ Trk::TrkCollectionAliasAlg::~TrkCollectionAliasAlg()
 
 StatusCode Trk::TrkCollectionAliasAlg::initialize()
 {
+  ATH_CHECK( m_collectionName.initialize() );
+  ATH_CHECK( m_aliasName.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -41,26 +43,10 @@ StatusCode Trk::TrkCollectionAliasAlg::finalize()
 
 //================ Execution ====================================================
 
-StatusCode Trk::TrkCollectionAliasAlg::execute()
+StatusCode Trk::TrkCollectionAliasAlg::execute_r(const EventContext& ctx) const
 {
-  const TrackCollection* trkColPtr=0;
-  StatusCode sc;
-    
-  sc = evtStore()->retrieve(trkColPtr,m_collectionName);
-  if (sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not retrieve TrackCollection " << m_collectionName << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-  sc = evtStore()->setAlias(trkColPtr,m_aliasName);
-  if (sc.isFailure())
-    {
-      msg(MSG::ERROR) << "Could not alias TrackCollection " << m_collectionName << " to " << m_aliasName << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-  return StatusCode::SUCCESS;
+  SG::ReadHandle<TrackCollection> tracks(m_collectionName, ctx );
+  return tracks.alias(m_aliasName);
 }
 
 //============================================================================================

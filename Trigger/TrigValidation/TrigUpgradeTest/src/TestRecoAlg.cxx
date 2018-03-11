@@ -89,37 +89,53 @@ namespace HLTTest {
     using namespace TrigCompositeUtils;
     ATH_MSG_DEBUG ("Executing " << name() << "...");
 
+    const EventContext& context = Gaudi::Hive::currentContext();
+    const size_t eventNo = context.evt() % m_data.size();
+    auto objects= m_data[eventNo];
+
     auto output = std::make_unique<xAOD::TrigCompositeContainer>();
     auto aux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
     output->setStore( aux.get() );
-    if ( not m_input.key().empty() ) {
-      auto inputHandle = SG::makeHandle(m_input);
-      ATH_MSG_DEBUG("Input " << m_input.key() << " should be available, scanning it");
-      for ( auto i: *inputHandle.cptr() ) {
-	auto roiLink = findLink<TrigRoiDescriptorCollection>(i, "initialRoI");
-	if ( roiLink.isValid() ) {
-	  auto roiPtr(roiLink.link.cptr());
-	  ATH_MSG_DEBUG("RoI" << **roiPtr );
-	} else {
-	  ATH_MSG_DEBUG("RoI information missing");
+    //    if ( not m_input.key().empty() ) {
+    auto inputHandle = SG::makeHandle(m_input);
+    ATH_MSG_DEBUG("Input " << m_input.key() << " has "<<inputHandle->size() <<" elements, scanning it");
+    for ( auto i: *inputHandle.cptr() ) {
+      auto roiLink = findLink<TrigRoiDescriptorCollection>(i, "initialRoI");
+      if ( roiLink.isValid() ) {
+	auto roiPtr(roiLink.link.cptr());
+	ATH_MSG_DEBUG("RoI" << **roiPtr );
+	// create new outpu objects and add the properties
+	if (objects.size() > output->size()) {
+	  auto object=objects[output->size()];
+	  auto xobj = new xAOD::TrigComposite;
+	  output->push_back( xobj );
+	  ATH_MSG_DEBUG( "Reconstructed object" );
+	  for ( auto prop : object )  {
+	    xobj->setDetail( prop.first, prop.second );
+	    ATH_MSG_DEBUG( "  " << prop.first << " : " << prop.second );
+	  }
 	}
+	else {
+	  ATH_MSG_DEBUG( "No reco object created for this RoI because it's not found in the event");
+	}
+      } else {
+	ATH_MSG_DEBUG("RoI information missing");
       }
     }
+    //}
 
       
     
-    const EventContext& context = Gaudi::Hive::currentContext();
-    const size_t eventNo = context.evt() % m_data.size();
     
-    for ( auto object: m_data[eventNo] ) {
-      auto xobj = new xAOD::TrigComposite;
-      output->push_back( xobj );
-      ATH_MSG_DEBUG( "Reconstructed object" );
-      for ( auto prop : object )  {
-	xobj->setDetail( prop.first, prop.second );
-	ATH_MSG_DEBUG( "  " << prop.first << " : " << prop.second );
-      }
-    }
+    // for ( auto object: m_data[eventNo] ) {
+    //   auto xobj = new xAOD::TrigComposite;
+    //   output->push_back( xobj );
+    //   ATH_MSG_DEBUG( "Reconstructed object" );
+    //   for ( auto prop : object )  {
+    // 	xobj->setDetail( prop.first, prop.second );
+    // 	ATH_MSG_DEBUG( "  " << prop.first << " : " << prop.second );
+    //   }
+    // }
 
     ATH_MSG_DEBUG("Reconstructed "<<output->size() <<" objects");
   

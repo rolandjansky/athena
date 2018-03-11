@@ -155,6 +155,7 @@ CombChains =[
 
 
 group_of_chains = MuChains + ElChains + CombChains
+#+ CombChains
 #+ ElChains + CombChains
 
 
@@ -170,16 +171,18 @@ topSequence += TopHLTRootSeq
 TopHLTRootSeq += L1UnpackingSeq
 
 # add the HLT steps Node
-HLTAllStepsSeq = seqAND("HLTAllStepsSeq")
+HLTAllStepsSeq = seqAND("EmuTest_HLTAllStepsSequence")
 TopHLTRootSeq += HLTAllStepsSeq
 
+# make CF tree
+
 decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains, NSTEPS=nsteps)
+
+
+
 
 
 #from AthenaCommon.AlgSequence import dumpMasterSequence
 #dumpMasterSequence()
 
 theApp.EvtMax = 3
-
-
-

@@ -38,15 +38,15 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
     sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
     sct_DCSConditionsSvcSetup.setup()
-    # Set up SCT_SiliconConditionsSvc
-    from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
-    sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
-    sct_SiliconConditionsSvcSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
-    sct_SiliconConditionsSvcSetup.setup()
+    # Set up SCT_SiliconConditionsTool
+    from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+    sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+    sct_SiliconConditionsToolSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
+    sct_SiliconConditionsToolSetup.setup()
     # Set up SCT_SiPropertiesTool
     from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
     sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
-    sct_SiPropertiesToolSetup.setSiliconSvc(sct_SiliconConditionsSvcSetup.getSvc())
+    sct_SiPropertiesToolSetup.setSiliconTool(sct_SiliconConditionsToolSetup.getTool())
     sct_SiPropertiesToolSetup.setup()
     ## Charge trapping tool - used by SCT_SurfaceChargesGenerator
     from AthenaCommon.AppMgr import ToolSvc

@@ -29,7 +29,7 @@ class TriggerSummaryAlg : public ::AthReentrantAlgorithm {
  private: 
   //Gaudi::Propert std::vector<m_chainCounters> { this,  "ChainCounters", {},
   //      "Chain names maping to counters. In the form of: name counter" };
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_l1decisionKey{ this, "L1Decision", "", 
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_inputDecisionKey{ this, "InputDecision", "", 
       "Partial decisions from the last stage of chains processing, they nay be missing from event to event"};
 
   

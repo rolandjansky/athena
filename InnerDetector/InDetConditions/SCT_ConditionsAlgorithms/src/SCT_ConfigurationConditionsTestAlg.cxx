@@ -12,17 +12,14 @@
 // Athena includes
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 
 // C++ includes
 #include <string>
 
 SCT_ConfigurationConditionsTestAlg::SCT_ConfigurationConditionsTestAlg(const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ),
-  m_configConditions("SCT_ConfigurationConditionsSvc",name),
   m_sctId{nullptr}
 {
-  declareProperty("ConfigConditions" , m_configConditions);
 }
 
 StatusCode SCT_ConfigurationConditionsTestAlg::initialize(){  

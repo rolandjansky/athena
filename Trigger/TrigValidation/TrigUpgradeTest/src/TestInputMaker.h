@@ -40,12 +40,15 @@ namespace HLTTest {
 
   private: 
     TestInputMaker();
-    //SG::WriteHandleKey<ConstDataVector<xAOD::TrigCompositeContainer> > m_recoOutput;
-    //    SG::WriteHandleKey<ConstDataVector<TrigRoiDescriptorCollection> > m_recoOutput;
-    //SG::WriteHandleKey<ConstDataVector<TestCluster> > m_recoOutput;
+ 
+    typedef TrigRoiDescriptor FeatureOBJ;
+    typedef TrigRoiDescriptorCollection FeatureContainer;
 
-    SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs;
-    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput;
+    SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs  { this, "InputDecisions", {}, "Input Decisions (implicit)" };
+    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput { this, "Output", "undefined", "name of the output collection for input to next reco alg in sequence" };
+    SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey { this, "OutputDecisions", "Unspecified", "Ouput Decisions" };
+
+    
     StringProperty m_linkName; 
     StringProperty m_outputType; 
   }; 

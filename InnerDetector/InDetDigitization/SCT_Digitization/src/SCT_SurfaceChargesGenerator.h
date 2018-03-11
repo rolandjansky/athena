@@ -37,6 +37,7 @@
 #include "SiPropertiesSvc/ISiPropertiesTool.h"
 
 #include "SCT_ConditionsTools/ISCT_RadDamageSummaryTool.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include <iostream>
@@ -59,8 +60,6 @@ namespace InDetDD{
 namespace CLHEP {
   class HepRandomEngine;
 }
-
-class ISiliconConditionsSvc;
 
 template <class HIT> class TimedHitPtr;
 
@@ -161,8 +160,7 @@ private:
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
   ToolHandle<ISCT_RadDamageSummaryTool> m_radDamageTool{this, "RadDamageSummaryTool", "SCT_RadDamageSummaryTool", "Tool to retrieve SCT radiation damages"};
-  //ServiceHandles
-  ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
+  ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
 
   const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine

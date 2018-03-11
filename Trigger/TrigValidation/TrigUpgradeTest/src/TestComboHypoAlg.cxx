@@ -10,66 +10,81 @@
 
 namespace HLTTest {
 
-TestComboHypoAlg::TestComboHypoAlg( const std::string& name, 
-			  ISvcLocator* pSvcLocator ) : 
-  ::AthReentrantAlgorithm( name, pSvcLocator )  {
-  //declareProperty( "Property", m_nProperty );
-  declareProperty( "Input1", m_recoInput1 ); 
-  declareProperty( "Input2", m_recoInput2 );
-  declareProperty( "Property1", m_property1 );
-  declareProperty( "Property2", m_property2 );
-  declareProperty( "Threshold1", m_threshold1 = 0);
-  declareProperty( "Threshold2", m_threshold2 = 0);
-  declareProperty( "Output1", m_output1 );
-  declareProperty( "Output2", m_output2 );
-  declareProperty( "DecisionLabel", m_decisionLabel );
-}
+  TestComboHypoAlg::TestComboHypoAlg( const std::string& name, 
+				      ISvcLocator* pSvcLocator ) : 
+    ::AthReentrantAlgorithm( name, pSvcLocator )  {
+    //declareProperty( "Property", m_nProperty );
+    declareProperty( "Input1", m_recoInput1 ); 
+    declareProperty( "Input2", m_recoInput2 );
+    declareProperty( "Property1", m_property1 );
+    declareProperty( "Property2", m_property2 );
+    declareProperty( "Threshold1", m_threshold1 = 0);
+    declareProperty( "Threshold2", m_threshold2 = 0);
+    declareProperty( "Output1", m_output1 );
+    declareProperty( "Output2", m_output2 );
+    declareProperty( "DecisionLabel", m_decisionLabel );
+  }
 
-TestComboHypoAlg::~TestComboHypoAlg() {}
+  TestComboHypoAlg::~TestComboHypoAlg() {}
 
-StatusCode TestComboHypoAlg::initialize() {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
-  CHECK( m_recoInput1.initialize() );
-  CHECK( m_recoInput2.initialize() );
-  CHECK( m_output1.initialize() );
-  CHECK( m_output2.initialize() );
-  CHECK( m_previousDecisions1.initialize() );
-  renounce(m_previousDecisions1);
-  CHECK( m_previousDecisions2.initialize() );
-  renounce(m_previousDecisions2);
+  StatusCode TestComboHypoAlg::initialize() {
+    ATH_MSG_INFO ("Initializing " << name() << "...");
+    CHECK( m_recoInput1.initialize() );
+    CHECK( m_recoInput2.initialize() );
+    CHECK( m_output1.initialize() );
+    CHECK( m_output2.initialize() );
+    CHECK( m_previousDecisions1.initialize() );
+    renounce(m_previousDecisions1);
+    CHECK( m_previousDecisions2.initialize() );
+    renounce(m_previousDecisions2);
 
-  CHECK( not m_chainsProperty.empty() );
+    CHECK( not m_chainsProperty.empty() );
   
-  for ( const std::string& el: m_chainsProperty ) 
-    m_chains.insert( HLT::Identifier( el ).numeric() );
+    for ( const std::string& el: m_chainsProperty ) 
+      m_chains.insert( HLT::Identifier( el ).numeric() );
   
-  for ( const HLT::Identifier& id: m_chains )
-    ATH_MSG_DEBUG( "Configured to require chain " << id );
+    for ( const HLT::Identifier& id: m_chains )
+      ATH_MSG_DEBUG( "Configured to require chain " << id );
   
-  return StatusCode::SUCCESS;
-}
+    return StatusCode::SUCCESS;
+  }
 
-StatusCode TestComboHypoAlg::finalize() {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  StatusCode TestComboHypoAlg::finalize() {
+    ATH_MSG_INFO ("Finalizing " << name() << "...");
 
-  return StatusCode::SUCCESS;
-}
+    return StatusCode::SUCCESS;
+  }
 
   bool TestComboHypoAlg::passed( const Decision* d1, const Decision* d2 ) const {
     {
-      auto feature1 = d1->objectLink<xAOD::TrigCompositeContainer>( "feature" );    
-      float v = (*feature1)->getDetail<float>( m_property1 );
-      ATH_MSG_DEBUG("Prop1="<<v);
-      if ( v < m_threshold1 )
-	return false;
+      auto feature1 = d1->objectLink<xAOD::TrigCompositeContainer>( "feature" );
+      if ( not feature1.isValid() )  {
+	ATH_MSG_ERROR( "Can not find reference to the object from the decision1" );
+	return false; //StatusCode::FAILURE;
+      }
+      if ( (*feature1)->hasDetail<float>(m_property1 ) ){
+	float v = (*feature1)->getDetail<float>( m_property1 );
+	ATH_MSG_DEBUG("Prop1="<<v);
+	if ( v < m_threshold1 )
+	  return false;
+      }
+      else ATH_MSG_ERROR( "Cannot find detail "<<m_property1<<" in feature1");
     }
-    {
-      auto feature2 = d2->objectLink<xAOD::TrigCompositeContainer>( "feature" );    
-      float v = (*feature2)->getDetail<float>( m_property2 );
-      ATH_MSG_DEBUG("Prop2="<<v);
-      if ( v < m_threshold2 )
-	return false;
+    
+    {      
+      auto feature2 = d2->objectLink<xAOD::TrigCompositeContainer>( "feature" );
+      if ( not feature2.isValid() )  {
+	ATH_MSG_ERROR( "Can not find reference to the object from the decision2" );
+	return false;//StatusCode::FAILURE;
+      }
+      if ( (*feature2)->hasDetail<float>(m_property2 ) ){
+	float v = (*feature2)->getDetail<float>( m_property2 );
+	ATH_MSG_DEBUG("Prop2="<<v);
+	if ( v < m_threshold2 )
+	  return false;
+      } else ATH_MSG_ERROR( "Cannot find detail "<<m_property2<<" in feature2");
     }
+    
     return true;    
   }
 
@@ -101,26 +116,40 @@ StatusCode TestComboHypoAlg::finalize() {
     size_t counter1 = 0;
     for ( auto previousDecision: *previousDecisionsHandle1 ) {
       auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-      CHECK( roiEL.isValid() );    
-      //    for ( auto obj1Iter = input1->begin(); obj1Iter != input1->end(); ++obj1Iter, ++counter1 ) {
+      CHECK( roiEL.isValid() );
       auto d = newDecisionIn( decisions1.get() );
-      d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput1.key(),  counter1) );
-      d->setObjectLink( "initialRoI", roiEL );// this is used by the InputMaker
+      if (counter1<input1->size())
+	d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput1.key(),  counter1) );
+      else
+	ATH_MSG_DEBUG( "Feature not added to the new decision of type 1: counter =" << counter1<<" list size = "<<input1->size());
+      d->setObjectLink( "initialRoI", roiEL );
       d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions1.key(), counter1) );
+      counter1++;
     }
+    ATH_MSG_DEBUG( "Found  "<<counter1<<" rois from input 1 " );
     
     size_t counter2 = 0;
     for ( auto previousDecision: *previousDecisionsHandle2 ) {
       auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( roiEL.isValid() );    
-      //    for ( auto obj2Iter = input2->begin(); obj2Iter != input2->end(); ++obj2Iter, ++counter2 ) {
       auto d = newDecisionIn( decisions2.get() );
-      d->setObjectLink("feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput2.key(),  counter2) );
+      //get the feature
+      if (counter2<input2->size())
+	d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput2.key(),  counter2) );
+      else
+	ATH_MSG_DEBUG( "Feature not added to the new decision of type 2");      
       d->setObjectLink( "initialRoI", roiEL );// this is used by the InputMaker
       d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions2.key(), counter2) );
+      counter2++;
     }
-    
+    ATH_MSG_DEBUG( "Found  "<<counter2<<" rois from input 2 " );
+
     // this is the tool
+    if (decisions1->size() ==0 || decisions2->size() == 0)
+      ATH_MSG_DEBUG("No combined hypo found, Do not go to the tool since n.dec1="<<  decisions1->size() << " and n.dec2="<< decisions2->size() <<" ");
+    else
+      ATH_MSG_DEBUG("Go to the tool with n.dec1="<<  decisions1->size() << " and n.dec2="<< decisions2->size() <<" ");
+
     counter1 = 0;
     for ( auto obj1Iter = decisions1->begin(); obj1Iter != decisions1->end(); ++obj1Iter, ++counter1 ) {
       auto previousDecisions1 = (*obj1Iter)->objectLink<DecisionContainer>( "previousDecisions" ); 
@@ -135,8 +164,8 @@ StatusCode TestComboHypoAlg::finalize() {
       
       std::vector<TrigCompositeUtils::DecisionID> intersection1;
       std::set_intersection( m_chains.begin(), m_chains.end(),
-			   objDecisions1.begin(), objDecisions1.end(),
-			   std::back_inserter( intersection1 ) );
+			     objDecisions1.begin(), objDecisions1.end(),
+			     std::back_inserter( intersection1 ) );
     
       if ( not intersection1.empty() ) {
 
@@ -190,7 +219,7 @@ StatusCode TestComboHypoAlg::finalize() {
       auto h = SG::makeHandle( m_output2 );
       CHECK( h.record( std::move( decisions2 ) , std::move( aux2 ) ) );
     }
-    
+    //    ATH_MSG_DEBUG ( "Exit with "<<decisions1->size() <<" decision from input 1 and " <<decisions2->size()<<" form input 2");
     return StatusCode::SUCCESS;
   }
 

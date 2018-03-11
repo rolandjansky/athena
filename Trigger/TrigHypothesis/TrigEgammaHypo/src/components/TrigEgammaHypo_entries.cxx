@@ -14,6 +14,7 @@
 #include "TrigEgammaHypo/TrigL2PhotonFex.h"
 #include "TrigEgammaHypo/TrigL2CaloLayersHypo.h"
 
+
 DECLARE_COMPONENT( TrigL2CaloHypo )
 DECLARE_COMPONENT( TrigL2ElectronFex )
 DECLARE_COMPONENT( TrigL2ElectronHypo )
@@ -28,4 +29,8 @@ DECLARE_COMPONENT( TrigEFElectronHypo )
 DECLARE_COMPONENT( TrigEFPhotonHypo )
 DECLARE_COMPONENT( TrigEFTrackHypo )
 DECLARE_COMPONENT( TrigL2CaloLayersHypo )
+
+
+
+
 

@@ -12,14 +12,14 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 
 // C++ includes
 #include <string>
 
 // Forward declarations
-class ISCT_ConfigurationConditionsSvc;
 class SCT_ID;
 
 namespace InDetDD{class SCT_DetectorManager;}
@@ -40,7 +40,7 @@ class SCT_ConfigurationConditionsTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
   
  private:
-  ServiceHandle<ISCT_ConfigurationConditionsSvc> m_configConditions;
+  ToolHandle<ISCT_ConfigurationConditionsTool> m_configConditions{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool", "Tool to retrieve SCT DAQ configuration"};
   const SCT_ID*                                  m_sctId;
   
 };

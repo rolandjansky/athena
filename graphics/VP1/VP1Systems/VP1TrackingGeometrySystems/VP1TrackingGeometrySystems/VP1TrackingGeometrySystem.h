@@ -57,7 +57,7 @@ private:
   void restoreFromState( QByteArray ba);
     
   class Imp;
-  Imp* d;
+  Imp* m_d;
 };
 
 #endif

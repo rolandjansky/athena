@@ -756,8 +756,8 @@ class rerunLVL1(_modifier):
         #writes this to the usual MuCTPICTP storegate location
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
         topSequence += L1Muctpi_on_RDO()
-        topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
-        topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "/Run/L1MuCTPItoRoIBLocation"
+        topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
+        topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
 
         topSequence.L1Muctpi_on_RDO.OverlapStrategyName = "NULL"    
 
@@ -800,7 +800,7 @@ class rerunLVL1(_modifier):
         topSequence += RoIBuilder("RoIBuilder")
         # For backwards compatibility with 16.1.X (see Savannah #85927)
         if "RoIOutputLocation_Rerun" in topSequence.CTPSimulation.properties():
-            topSequence.RoIBuilder.CTPSLinkLocation = '/Event/CTPSLinkLocation_Rerun'
+            topSequence.RoIBuilder.CTPSLinkLocation = 'CTPSLinkLocation_Rerun'
 
         # Get run number from input file if running in athena
         global _run_number
@@ -857,8 +857,8 @@ class rerunDMLVL1(_modifier):
          #writes this to the usual MuCTPICTP storegate location
          from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
          topSequence += L1Muctpi_on_RDO()
-         topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
-         topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "/Run/L1MuCTPItoRoIBLocation"
+         topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
+         topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
 
          topSequence.L1Muctpi_on_RDO.OverlapStrategyName = "NULL"    
 

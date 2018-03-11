@@ -29,7 +29,6 @@
 // Athena
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetSimEvent/SiHit.h"        // for SiHit, SiHit::::xDep, etc
-#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 
 using InDetDD::SiDetectorElement;
 using InDetDD::SCT_ModuleSideDesign;
@@ -73,7 +72,6 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
   m_ExValue150{{0.}},
   m_EyValue150{{0.}},
   m_stripCharge{{{{0.}}}},
-  m_siConditionsSvc("SCT_SiliconConditionsSvc",name),
   m_element(0),
   m_rndmEngine(0),
   m_rndmEngineName("SCT_Digitization")
@@ -93,7 +91,6 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
     declareProperty("SensorTemperature",m_sensorTemperature=273.15);
     declareProperty("TransportTimeStep",m_transportTimeStep=0.25);
     declareProperty("TransportTimeMax",m_transportTimeMax=25.0);
-    declareProperty("SiConditionsSvc", m_siConditionsSvc);
     //  declareProperty("rndmEngineName",m_rndmEngineName="SCT_Digitization");
     declareProperty("doDistortions",   m_doDistortions, "Simulation of module distortions");
     declareProperty("doHistoTrap", m_doHistoTrap, "Allow filling of histos for charge trapping effect"); 
@@ -137,10 +134,10 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
     return sc ;
   }
   
-  //Get ISiliconConditionsSvc
-  sc = m_siConditionsSvc.retrieve();
+  //Get ISiliconConditionsTool
+  sc = m_siConditionsTool.retrieve();
   if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
+    ATH_MSG_FATAL ( "Could not retrieve silicon conditions service: " << m_siConditionsTool.name() );
     return sc ;
   }
   
@@ -260,8 +257,8 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit) const {
     return -2.0 ;
   }
 
-  float vdepl=m_siConditionsSvc->depletionVoltage(m_hashId) * CLHEP::volt;
-  float vbias=m_siConditionsSvc->biasVoltage(m_hashId) * CLHEP::volt;
+  float vdepl=m_siConditionsTool->depletionVoltage(m_hashId) * CLHEP::volt;
+  float vbias=m_siConditionsTool->biasVoltage(m_hashId) * CLHEP::volt;
   float denominator = vdepl+vbias-(2.0*zhit*vdepl/sensorThickness);
   if (denominator<=0.0) {
     if(vbias>=vdepl) { //Should not happen

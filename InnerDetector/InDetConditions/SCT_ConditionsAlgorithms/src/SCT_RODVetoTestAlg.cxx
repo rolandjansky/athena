@@ -13,16 +13,13 @@
 
 #include "SCT_RODVetoTestAlg.h"
 
-
-//Gaudi includes
-#include "GaudiKernel/StatusCode.h"
-
+// Athena include
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
 
 SCT_RODVetoTestAlg::SCT_RODVetoTestAlg(const std::string& name, 
                                        ISvcLocator* pSvcLocator) : 
-  AthAlgorithm( name, pSvcLocator ), m_pRODVetoSvc("SCT_RODVetoSvc",name){
+  AthAlgorithm( name, pSvcLocator ) {
   //nop
 }
 
@@ -30,7 +27,7 @@ SCT_RODVetoTestAlg::SCT_RODVetoTestAlg(const std::string& name,
 StatusCode 
 SCT_RODVetoTestAlg::initialize(){
   ATH_MSG_INFO("Calling initialize");
-  StatusCode sc{m_pRODVetoSvc.retrieve()};
+  StatusCode sc{m_pRODVetoTool.retrieve()};
   if (StatusCode::SUCCESS not_eq sc) {
     ATH_MSG_ERROR("Could not retrieve the veto service");
   }
@@ -44,7 +41,7 @@ SCT_RODVetoTestAlg::execute() {
   // so the INFO level messages have no impact on performance of these services when used by clients
   ATH_MSG_INFO("Calling execute");
   for (unsigned int hash=0; hash<8176; hash+=2) {
-    bool result=m_pRODVetoSvc->isGood(IdentifierHash(hash));//invented, no idea what this is
+    bool result=m_pRODVetoTool->isGood(IdentifierHash(hash));//invented, no idea what this is
     ATH_MSG_INFO("Call to module in ROD : Module (hash=" << hash << ") is " << (result?"good":"bad"));
   }
  

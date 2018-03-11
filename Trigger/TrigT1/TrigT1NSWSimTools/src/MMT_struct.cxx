@@ -13,6 +13,15 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 
+using std::vector;
+using std::string;
+using std::map;
+using std::pair;
+using std::ostringstream;
+using std::setprecision;
+using std::setw;
+
+
 // double MMTStructConst{return 8192.;}
 
 float MMTStructConst = 8192.;

@@ -18,7 +18,6 @@
 
 // Athena includes
 #include "MagFieldInterfaces/IMagFieldSvc.h"
-#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -32,7 +31,6 @@ SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvc
   // The /GLOBAL/BField/Maps folder is run-lumi folder and has just one IOV. The folder is not used for IOV determination.
   m_writeKey{"SCTSiLorentzAngleCondData"},
   m_condSvc{"CondSvc", name},
-  m_siConditionsSvc{"SCT_SiliconConditionsSvc", name},
   m_magFieldSvc{"AtlasFieldSvc", name},
   m_detManager{nullptr},
   m_maxHash{0}
@@ -42,7 +40,6 @@ SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvc
   declareProperty("ReadKeyBFieldSensor", m_readKeyBFieldSensor, "Key of input B-field sensor");
   declareProperty("WriteKey", m_writeKey, "Key of output SiLorentzAngleCondData");
   // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCT_LorentzAngleSvc!!!
-  declareProperty("SiConditionsServices", m_siConditionsSvc);
   declareProperty("MagFieldSvc", m_magFieldSvc);
   declareProperty("Temperature", m_temperature = -7., "Default temperature in Celcius.");
   declareProperty("DepletionVoltage", m_deplVoltage = 70., "Default depletion voltage in Volt.");
@@ -58,16 +55,18 @@ SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvc
 
 StatusCode SCTSiLorentzAngleCondAlg::initialize()
 {
-  if (m_siConditionsSvc.empty()) m_sctDefaults = true;
+  if (m_siConditionsTool.empty()) m_sctDefaults = true;
 
   if (not m_sctDefaults) {
     // SCTSiliconConditionsSvc
-    ATH_CHECK(m_siConditionsSvc.retrieve());
+    ATH_CHECK(m_siConditionsTool.retrieve());
     // Read Cond handle
     if (not m_useGeoModel) {
       ATH_CHECK(m_readKeyTemp.initialize());
       ATH_CHECK(m_readKeyHV.initialize());
     }
+  } else {
+    m_siConditionsTool.disable();
   }
 
   if (m_useMagFieldSvc) {
@@ -208,9 +207,9 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
       deplVoltage = m_deplVoltage * CLHEP::volt;
       biasVoltage = m_biasVoltage * CLHEP::volt;
     } else {
-      temperatureC = m_siConditionsSvc->temperature(elementHash);
-      deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash) * CLHEP::volt;
-      biasVoltage = m_siConditionsSvc->biasVoltage(elementHash) * CLHEP::volt;
+      temperatureC = m_siConditionsTool->temperature(elementHash);
+      deplVoltage = m_siConditionsTool->depletionVoltage(elementHash) * CLHEP::volt;
+      biasVoltage = m_siConditionsTool->biasVoltage(elementHash) * CLHEP::volt;
       ATH_MSG_DEBUG("SCT Hash = " << elementHash << " Temperature = " << temperatureC << " [deg C], BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
     }
 
