@@ -8,18 +8,13 @@
 #ifndef SYSTEMATICS_HANDLES__SYS_WRITE_HANDLE_H
 #define SYSTEMATICS_HANDLES__SYS_WRITE_HANDLE_H
 
+#include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AsgTools/MsgStream.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <memory>
 #include <string>
 #include <unordered_map>
-
-#ifdef ROOTCORE
-#include <AsgTools/SgTEvent.h>
-#else
-#include <StoreGate/StoreGateSvc.h>
-#endif
 
 class StatusCode;
 
@@ -72,23 +67,24 @@ namespace CP
   private:
     mutable std::unordered_map<CP::SystematicSet,std::string> m_outputNameCache;
 
-#ifdef ROOTCORE
+
+    /// \brief the type of the event store we use
+  private:
+    typedef std::decay<decltype(*((EL::AnaAlgorithm*)0)->evtStore())>::type StoreType;
+
     /// \brief the event store we use
   private:
-    mutable asg::SgTEvent *m_evtStore = nullptr;
+    mutable StoreType *m_evtStore = nullptr;
 
     /// \brief the function to retrieve the event store
+    ///
+    /// This is an std::function to allow the parent to be either a
+    /// tool or an algorithm.  Though we are not really supporting
+    /// tools as parents when using \ref SysListHandle, so in
+    /// principle this could be replaced with a pointer to the
+    /// algorithm instead.
   private:
-    std::function<asg::SgTEvent*()> m_evtStoreGetter;
-#else
-    /// \brief the event store we use
-  private:
-    mutable StoreGateSvc *m_evtStore = nullptr;
-
-    /// \brief the function to retrieve the event store
-  private:
-    std::function<StoreGateSvc*()> m_evtStoreGetter;
-#endif
+    std::function<StoreType*()> m_evtStoreGetter;
 
 
     /// \brief the message stream we use
@@ -148,23 +144,24 @@ namespace CP
   private:
     mutable std::unordered_map<CP::SystematicSet,std::string> m_outputNameCache;
 
-#ifdef ROOTCORE
+
+    /// \brief the type of the event store we use
+  private:
+    typedef std::decay<decltype(*((EL::AnaAlgorithm*)0)->evtStore())>::type StoreType;
+
     /// \brief the event store we use
   private:
-    mutable asg::SgTEvent *m_evtStore = nullptr;
+    mutable StoreType *m_evtStore = nullptr;
 
     /// \brief the function to retrieve the event store
+    ///
+    /// This is an std::function to allow the parent to be either a
+    /// tool or an algorithm.  Though we are not really supporting
+    /// tools as parents when using \ref SysListHandle, so in
+    /// principle this could be replaced with a pointer to the
+    /// algorithm instead.
   private:
-    std::function<asg::SgTEvent*()> m_evtStoreGetter;
-#else
-    /// \brief the event store we use
-  private:
-    mutable StoreGateSvc *m_evtStore = nullptr;
-
-    /// \brief the function to retrieve the event store
-  private:
-    std::function<StoreGateSvc*()> m_evtStoreGetter;
-#endif
+    std::function<StoreType*()> m_evtStoreGetter;
 
 
     /// \brief the message stream we use
