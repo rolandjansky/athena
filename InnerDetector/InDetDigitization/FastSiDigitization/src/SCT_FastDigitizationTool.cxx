@@ -422,11 +422,9 @@ StatusCode SCT_FastDigitizationTool::digitize()
       const double par = -localEntryZ/(localExitZ-localEntryZ);
       const double interX = localEntryX + par*(localExitX-localEntryX);
       const double interY = localEntryY + par*(localExitY-localEntryY);
-      //  double interX = 0.5*(localEntryX+localExitX);
-      //  double interY = 0.5*(localEntryY+localExitY);
+    
       const Amg::Vector2D intersection(interX,interY);
       const Identifier intersectionId            =  hitSiDetElement->identifierOfPosition(intersection);
-      //InDetDD::SiCellId intersectionCellId = hitSiDetElement->cellIdFromIdentifier(intersectionId);
       
       // apply the lorentz correction
       const double tanLorAng     = m_sctTanLorentzAngleScalor*hitSiDetElement->getTanLorentzAnglePhi();
@@ -451,10 +449,8 @@ StatusCode SCT_FastDigitizationTool::digitize()
       int phiIndexMaxRaw = -1000;
       
       // is it a single strip w/o drift effect ? - also check the numerical stability
-//       const bool singleStrip = ( (entryCellId == exitCellId && entryValid) || (distX*distX < 10e-5) ); //ffabbri fix on small cluster
       const bool singleStrip = (entryCellId == exitCellId && entryValid);
       if (singleStrip && !useLorentzDrift)
-      //if (singleStrip)
       {
 	// ----------------------- single strip lucky case  ----------------------------------------
 	// 1 strip cluster without drift effect
@@ -761,9 +757,6 @@ StatusCode SCT_FastDigitizationTool::digitize()
 	
 	// get the position according to the identifier
 	const Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(chargeId);
-	// the cut off
-	//        if ( !aboveThreshold ) abTh += 1; continue;
-	// path statistics
 	potentialClusterPath_Used += chargeWeight;
 	// taken Weight (Fatras can do analog SCT clustering)
 	const double takenWeight =  m_sctAnalogStripClustering ? chargeWeight : 1.;
@@ -1056,7 +1049,7 @@ bool SCT_FastDigitizationTool::NeighbouringClusters(const std::vector<Identifier
 }
 
 
-bool SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ){
+bool SCT_FastDigitizationTool::Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const{
     
     double localEntryX = localEntry.x();
     double localExitX = localExit.x();
