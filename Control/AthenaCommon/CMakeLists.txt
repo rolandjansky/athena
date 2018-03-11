@@ -25,6 +25,7 @@ atlas_add_test( ConfigurableUnitTests SCRIPT test/test_ConfigurableUnitTests.sh
                 EXTRA_PATTERNS "^Ran .* tests in" )
 atlas_add_test( JobOptionsUnitTests SCRIPT test/test_JobOptionsUnitTests.sh 
                 EXTRA_PATTERNS "^Ran .* tests in" )
-atlas_add_test( JobPropertiesUnitTests SCRIPT test/test_JobPropertiesUnitTests.sh )
+atlas_add_test( JobPropertiesUnitTests SCRIPT test/test_JobPropertiesUnitTests.sh
+                EXTRA_PATTERNS "^Ran .* tests in" )
 atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh
                 EXTRA_PATTERNS "^Ran .* tests in|^outFileName: " )
