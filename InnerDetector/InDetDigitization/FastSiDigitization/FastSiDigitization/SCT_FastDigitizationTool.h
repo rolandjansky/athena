@@ -111,10 +111,9 @@ public:
 private:
 
   StatusCode digitize();
-  //  void addSDO(const DiodeCollectionPtr& collection);
   StatusCode createOutputContainers();
   bool NeighbouringClusters(const std::vector<Identifier>& potentialClusterRDOList,  const InDet::SCT_Cluster *existingCluster) const;
-  bool Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY );
+  bool Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const;
 
   std::string m_inputObjectName;     //! name of the sub event  hit collections.
 
