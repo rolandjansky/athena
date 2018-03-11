@@ -409,7 +409,8 @@ namespace Trk
     if(m_doSmoothing) {
       msg(MSG::VERBOSE) << "Now SMOOTHING!" << endmsg;
       for (std::vector<xAOD::Vertex*>::iterator iter=vtxbegin;iter!=vtxend;++iter) {   
-	m_VertexSmoother->smooth(**iter);
+	if ((*iter)->vxTrackAtVertexAvailable() && ((*iter)->vxTrackAtVertex()).size() > 0 ) 
+	  m_VertexSmoother->smooth(**iter);
       }
     } else { // TODO: I added this during xAOD migration
       for (std::vector<xAOD::Vertex*>::iterator iter=vtxbegin;iter!=vtxend;++iter) {
