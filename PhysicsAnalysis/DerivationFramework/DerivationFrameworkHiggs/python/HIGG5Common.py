@@ -59,19 +59,18 @@ def getTruthThinningTool(tool_prefix, thinning_helper) :
     # MC truth thinning (not for data)
 #    truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
 #    truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-    truth_cond_Quark  = "((abs(TruthParticles.pdgId) ==  5))" # Top quark and Bottom quark
+    truth_cond_Quark  = "((abs(TruthParticles.pdgId) ==  5))||((abs(TruthParticles.pdgId) ==  4))" # C quark and Bottom quark
+    truth_cond_Hadrons = "((abs(TruthParticles.pdgId) >=  400)&&(abs(TruthParticles.pdgId)<500))||((abs(TruthParticles.pdgId) >=  5000)&&(abs(TruthParticles.pdgId)<6000))"
 #    truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
 #    truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark +' || '+truth_cond_Photon+')'
-    truth_expression = truth_cond_Quark
-
+    truth_expression = '('+truth_cond_Quark+' || '+    truth_cond_Hadrons+')&&(sqrt(TruthParticles.px*TruthParticles.px+TruthParticles.py*TruthParticles.py)>5000)'
     MCThinningTool = DerivationFramework__GenericTruthThinning(
         name                         = tool_prefix + "MCThinningTool",
         ThinningService              = thinning_helper.ThinningSvc(),
         ParticleSelectionString      = truth_expression,
         PreserveDescendants          = False,
-        # PreserveGeneratorDescendants = False,
-        PreserveGeneratorDescendants  = True,   # giacinto
-        PreserveAncestors            = True)
+        PreserveGeneratorDescendants = False,
+        PreserveAncestors            = False)
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += MCThinningTool
     return MCThinningTool
