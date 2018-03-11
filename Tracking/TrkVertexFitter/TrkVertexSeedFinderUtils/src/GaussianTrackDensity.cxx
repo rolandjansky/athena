@@ -121,7 +121,7 @@ namespace Trk
       if ( curvature >= 0.0 || density <= 0.0) continue;
       updateMaximum( trialZ, density, maximumPosition, maximumDensity );
     }
-    if ( maximumDensity <= 0 ) ATH_MSG_WARNING("Global maximum at density of 0; track map contains " << 
+    if ( maximumDensity <= 0 ) ATH_MSG_DEBUG("Global maximum at density of 0; track map contains " << 
 					       m_trackMap.size() << " tracks");
     return maximumPosition;
   }
