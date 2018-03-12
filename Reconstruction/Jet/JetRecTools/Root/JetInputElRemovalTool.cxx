@@ -10,6 +10,7 @@
 
 #include "JetRecTools/JetInputElRemovalTool.h"
 #include "xAODEgamma/EgammaContainer.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -23,7 +24,7 @@ JetInputElRemovalTool::JetInputElRemovalTool(const std::string& t)
   ,m_elPt(25000)
   ,m_clInputContainer("CaloCalTopoClusters")
   ,m_clOutputContainer("CaloCalTopoClustersNoEl")
-  ,m_useOnlyclInJets(false)
+  ,m_clusterSelectionType(1)
   ,m_jetINputContainer("AntiKt4EMTopoJets")
   ,m_clRemovRadius(0.15)
   ,m_clEMFrac(0.8)
@@ -37,7 +38,7 @@ JetInputElRemovalTool::JetInputElRemovalTool(const std::string& t)
   declareProperty("ClusterNoElName",m_clOutputContainer);
   declareProperty("ClusterRemovRadius",m_clRemovRadius);
   declareProperty("ClusterEMFrac",m_clEMFrac);
-  declareProperty("UseOnlyclInJets",m_useOnlyclInJets);
+  declareProperty("ClusterSelectionType",m_clusterSelectionType);
   declareProperty("JetINputContainer",m_jetINputContainer);
   declareProperty("TrkInputContainer",m_trkInputContainer);
   declareProperty("TrkOutputContainer",m_trkOutputContainer);
@@ -64,16 +65,22 @@ int JetInputElRemovalTool::execute() const{
   int nb_removed_clusters=0;
   //Select the clusters away from electrons
   
-  //Use all the clusters in the event
-  if(!m_useOnlyclInJets){
-    //nb_removed_clusters=fillSelectedClusters(el_vector,*filtered_clusters);
+  //Use the topo cluster associated with the electrons
+  if(m_clusterSelectionType==1){
     nb_removed_clusters=filterElectronClusters(el_vector,*filtered_clusters);    
   }
-  //Use only the cluster from jets in the event
-  else{
-    nb_removed_clusters=fillSelectedClustersInJets(el_vector,*filtered_clusters);
-
+  //Use a position matching with all the clusters in the event  
+  else if (m_clusterSelectionType==2){
+    nb_removed_clusters=fillSelectedClusters(el_vector,*filtered_clusters);
   }
+  //Use a position matching with only the cluster from jets in the event
+  else if (m_clusterSelectionType==3){
+    nb_removed_clusters=fillSelectedClustersInJets(el_vector,*filtered_clusters);
+  }
+  else{
+    ATH_MSG_WARNING("not supported cluster selection : "<<m_clusterSelectionType);
+  }
+
   ATH_MSG_WARNING("number of removed clusters = "<<nb_removed_clusters);
   //Record clusters vector
   StatusCode sc=evtStore()->record( filtered_clusters ,  m_clOutputContainer );
@@ -174,21 +181,6 @@ int JetInputElRemovalTool::filterElectronClusters(std::vector<const xAOD::Electr
   //Loop over all the clusters
   for (const xAOD::CaloCluster* cluster_itr : *clusterContainer){
     
-    //Compute the EMP proportion of the cluster
-    //propEM=0;
-    
-    //double EMB_Enegy=cluster_itr->eSample(CaloSampling::CaloSample::PreSamplerB)+cluster_itr->eSample(CaloSampling::CaloSample::EMB1)+cluster_itr->eSample(CaloSampling::CaloSample::EMB2)+cluster_itr->eSample(CaloSampling::CaloSample::EMB3);
-    
-    //double EMEC_Energy=cluster_itr->eSample(CaloSampling::CaloSample::PreSamplerE)+cluster_itr->eSample(CaloSampling::CaloSample::EME1)+cluster_itr->eSample(CaloSampling::CaloSample::EME2)+cluster_itr->eSample(CaloSampling::CaloSample::EME3);
-    
-    //Remove clusters w/o energy
-    //if (cluster_itr->rawE()==0) {
-    //  continue;
-    //}
-    //propEM=(EMB_Enegy+EMEC_Energy)/cluster_itr->rawE();
-    
-    
-    
     //Check if close to electron
     bool is_elclus=false;
     
@@ -197,31 +189,21 @@ int JetInputElRemovalTool::filterElectronClusters(std::vector<const xAOD::Electr
     //For each el in the vector
     for ( ; it != itE ;++it){
       ATH_MSG_DEBUG( "Deleta R electron cluster = "<<(*it)->p4().DeltaR(cluster_itr->p4()) );
-      //Check if electron close to cluster
-      //if ((*it)->p4().DeltaR(cluster_itr->p4())<m_clRemovRadius){
+      // Get the electron cluster
       const xAOD::CaloCluster* el_clus=(*it)->caloCluster();
-      std::cout<<"el_clus initial seed cluster ="<<el_clus->altE()<<" cluster"<<cluster_itr->e()<<std::endl;
+      // Get the associated topoclusters
+      const std::vector<const xAOD::CaloCluster*> el_assocClus = xAOD::EgammaHelpers::getAssociatedTopoClusters(el_clus);
+      for (unsigned int ic = 0; ic < el_assocClus.size(); ic++) {
+	const xAOD::CaloCluster* cl = el_assocClus.at(ic); // Loop over the topocluster associated to the electron
       
-      if (el_clus->pt()==cluster_itr->pt()){
-	
-	is_elclus=true;
-	std::cout<<"pt Match found"<<std::endl;
-	std::cout<<"el_clus="<<el_clus->eta()<<" cluster"<<cluster_itr->eta()<<std::endl;
-	//if ((*it)->caloCluster()->p4().DeltaR(cluster_itr->p4())<m_clRemovRadius){
-	
-	//if (TMath::Abs((*it)->caloCluster()->etaBE(2))<1.52 && TMath::Abs((*it)->caloCluster()->etaBE(2))>1.37){
-	//if (TMath::Abs(cluster_itr->eta())<1.52 && TMath::Abs(cluster_itr->eta())>1.37){
-	//  closetoel=true;
-	//}
-	
-	//Check if the proportion of EM enegy above threshold
-	//else if(propEM>=m_clEMFrac){
-	//  closetoel=true;
-      }
-    }
+	if (cl==cluster_itr){
+	  is_elclus=true;
+	}
+
+      }//End loop over the topotcluster associated to the electron
+    }//End loop over the electrons
       
-    //}
-    //If the cluster not used as electron it is kept
+    //If the cluster not associated to the electron it is kept
     if (!is_elclus){
       selected_cl.push_back(dynamic_cast<const xAOD::CaloCluster*> (cluster_itr));
     }
@@ -229,9 +211,7 @@ int JetInputElRemovalTool::filterElectronClusters(std::vector<const xAOD::Electr
       m_countRemoved_clusters+=1;
     }
   }//End loop over clusters
-  
-  
-  //ANA_CHECK(evtStore()->record( filtered_clusters , "CaloCalTopoClustersNoElec" ));
+
   
   return  m_countRemoved_clusters;
 }//End of FilterElClusters()
