@@ -81,7 +81,7 @@ int JetInputElRemovalTool::execute() const{
     ATH_MSG_WARNING("not supported cluster selection : "<<m_clusterSelectionType);
   }
 
-  ATH_MSG_WARNING("number of removed clusters = "<<nb_removed_clusters);
+  ATH_MSG_DEBUG("number of removed clusters = "<<nb_removed_clusters);
   //Record clusters vector
   StatusCode sc=evtStore()->record( filtered_clusters ,  m_clOutputContainer );
   
@@ -146,16 +146,13 @@ std::vector<const xAOD::Electron*> JetInputElRemovalTool::selectElectron()const{
     
     if (! isTight) continue ;
     
-    ATH_MSG_WARNING("pass electron id");
     //Select only el with pt>25GeV
     if (electron_itr->pt()<m_elPt) continue;
     
     selected_electrons_v.push_back(dynamic_cast<const xAOD::Electron*>(electron_itr));
-    
-    
+        
   }
   
-  //ANA_CHECK(evtStore()->record( selected_electrons_v , "Selected_LHtight_above25GeV_electrons" ));
   return selected_electrons_v ;
   
 }
@@ -164,9 +161,7 @@ std::vector<const xAOD::Electron*> JetInputElRemovalTool::selectElectron()const{
 int JetInputElRemovalTool::filterElectronClusters(std::vector<const xAOD::Electron*>&selected_el,ConstDataVector<xAOD::CaloClusterContainer> & selected_cl)const{
   
   //Initialiaze variables
-  
   int m_countRemoved_clusters=0;
-  //double propEM=0;
   
   //Get the Topo clusters of the event
   const xAOD::CaloClusterContainer* clusterContainer;
@@ -188,7 +183,7 @@ int JetInputElRemovalTool::filterElectronClusters(std::vector<const xAOD::Electr
     std::vector<const xAOD::Electron*>::iterator itE =selected_el.end();
     //For each el in the vector
     for ( ; it != itE ;++it){
-      ATH_MSG_DEBUG( "Deleta R electron cluster = "<<(*it)->p4().DeltaR(cluster_itr->p4()) );
+      //ATH_MSG_DEBUG( "Deleta R electron cluster = "<<(*it)->p4().DeltaR(cluster_itr->p4()) );
       // Get the electron cluster
       const xAOD::CaloCluster* el_clus=(*it)->caloCluster();
       // Get the associated topoclusters
@@ -212,7 +207,6 @@ int JetInputElRemovalTool::filterElectronClusters(std::vector<const xAOD::Electr
     }
   }//End loop over clusters
 
-  
   return  m_countRemoved_clusters;
 }//End of FilterElClusters()
 
