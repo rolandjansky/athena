@@ -1,14 +1,14 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
-// $Id: errorcheck.h 299732 2014-03-27 17:41:34Z krasznaa $
 #ifndef MUONEFFICIENCYCORRECTIONS_MUONEFFICIENCYTYPE_H
 #define MUONEFFICIENCYCORRECTIONS_MUONEFFICIENCYTYPE_H
 
 #include <string>
+#include <functional>
 
 namespace CP {
     enum MuonEfficiencyType {
@@ -66,4 +66,39 @@ namespace CP {
     }
 
 }
-#endif // CPTOOLTESTS_ERRORCHECK_H
+
+namespace std {
+
+   /// Specialisation of @c std::hash for @c CP::MuonEfficiencyType
+   ///
+   /// This is necessary to be able to use @c CP::MuonEfficiencyType as the
+   /// key in an @c std::unordered_map. Weirdly enough it's only GCC 5.4 that
+   /// freaks out without this specialisation though...
+   ///
+   template<>
+   struct hash< CP::MuonEfficiencyType > {
+   public:
+      size_t operator()( CP::MuonEfficiencyType value ) const {
+         static const hash< unsigned int > hasher;
+         return hasher( static_cast< unsigned int >( value ) );
+      }
+   };
+
+   /// Specialisation of @c std::hash for @c CP::MuonEfficiencySystType
+   ///
+   /// This is necessary to be able to use @c CP::MuonEfficiencySystType as the
+   /// key in an @c std::unordered_map. Weirdly enough it's only GCC 5.4 that
+   /// freaks out without this specialisation though...
+   ///
+   template<>
+   struct hash< CP::MuonEfficiencySystType > {
+   public:
+      size_t operator()( CP::MuonEfficiencySystType value ) const {
+         static const hash< unsigned int > hasher;
+         return hasher( static_cast< unsigned int >( value ) );
+      }
+   };
+
+} // namespace std
+
+#endif // MUONEFFICIENCYCORRECTIONS_MUONEFFICIENCYTYPE_H
