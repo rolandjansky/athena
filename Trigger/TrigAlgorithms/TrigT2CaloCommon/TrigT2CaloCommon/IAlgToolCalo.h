@@ -75,8 +75,8 @@ class IAlgToolCalo: public virtual IAlgTool,
          declareProperty("TrigTimerSvc",m_timersvc,"Trigger Timer Service for benchmarking algorithms");
          declareProperty("T2GeometryTool",m_geometryTool,
 		"Tool to check that a cells are contained in a given cluster - for different cluster sizes");
-         declareProperty("TrigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
-         declareProperty("TrigDataAccessMT",m_dataSvc,"Data Access for LVL2 Calo Algorithms in MT");
+         declareProperty("trigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
+         declareProperty("trigDataAccessMT",m_dataSvc,"Data Access for LVL2 Calo Algorithms in MT");
          declareProperty("ThresholdKeepCells",m_cellkeepthr,"Threshold to keep cells into container");
     }
     /** Destructor */

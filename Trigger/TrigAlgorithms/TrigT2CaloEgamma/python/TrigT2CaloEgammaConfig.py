@@ -24,14 +24,14 @@ from AthenaCommon.Constants import VERBOSE,DEBUG
 
 class EgammaSamp2FexConfig (EgammaSamp2Fex):
    __slots__ = []
-   def __init__ (self, name="EgammaSamp2Fex"):
+   def __init__ (self, name="EgammaSamp2FexConfig"):
        super(EgammaSamp2FexConfig, self).__init__(name)
        self.MaxDetaHotCell=0.15
        self.MaxDphiHotCell=0.15
 
 class EgammaSamp2FexNoTimerConfig (EgammaSamp2Fex):
    __slots__ = []
-   def __init__ (self, name="EgammaSamp2Fex"):
+   def __init__ (self, name="EgammaSamp2FexNoTimerConfig"):
        super(EgammaSamp2FexNoTimerConfig, self).__init__(name)
        self.MaxDetaHotCell=0.15
        self.MaxDphiHotCell=0.15
@@ -60,12 +60,18 @@ class T2CaloEgamma_eGamma (T2CaloEgamma):
    def __init__ (self, name="T2CaloEgamma_eGamma"):
        super(T2CaloEgamma_eGamma, self).__init__(name)
        # here put your customizations
-       self.IAlgToolList= [EgammaSamp2FexConfig(),
-			   EgammaSamp1Fex(),
-			   EgammaEmEnFex() ,
-			   EgammaHadEnFex()]
-       for ii in self.IAlgToolList :
-          ii.TrigDataAccessMT=None
+       samp2 = EgammaSamp2FexConfig()
+       samp2.trigDataAccessMT=""
+       samp1 = EgammaSamp1Fex()
+       samp1.trigDataAccessMT=""
+       sampe = EgammaEmEnFex()
+       sampe.trigDataAccessMT=""
+       samph = EgammaHadEnFex()
+       samph.trigDataAccessMT=""
+       self.IAlgToolList= [ samp2,
+			    samp1,
+			    sampe,
+			    samph]
        self.EtaWidth = 0.2
        self.PhiWidth = 0.2
        self.EtaWidthForID = 0.1
@@ -406,18 +412,35 @@ class T2CaloEgamma_FastAlgo (T2CaloEgammaFastAlgo):
        super(T2CaloEgamma_FastAlgo, self).__init__(name)
        # here put your customizations
        from AthenaCommon.AppMgr import ToolSvc
-       ToolSvc+=EgammaSamp2FexNoTimerConfig("FaAlgoSamp2FexConfig")
-       ToolSvc+=EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig")
-       ToolSvc+=EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig")
-       ToolSvc+=EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig")
-       ToolSvc+=RingerFexConfig("RingsMaker") 
-       ToolSvc.RingsMaker.OutputLevel=DEBUG
-       ToolSvc.RingsMaker.RingsKey="CaloRings"
-       self.IAlgToolList = [ EgammaSamp2FexNoTimerConfig("FaAlgoSamp2FexConfig") ]
-       self.IAlgToolList+= [ EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig") ]
-       self.IAlgToolList+= [ EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig") ]
-       self.IAlgToolList+= [ EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig") ]
-       self.IAlgToolList+= [ ToolSvc.RingsMaker ] 
+
+       samp2 = EgammaSamp2FexNoTimerConfig(name="FaAlgoSamp2FexConfig")
+       samp2.trigDataAccessMT=""
+       samp2.trigDataAccess=svcMgr.TrigDataAccess
+       ToolSvc+=samp2
+       samp1 = EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig")
+       samp1.trigDataAccessMT=""
+       samp1.trigDataAccess=svcMgr.TrigDataAccess
+       ToolSvc+=samp1
+       sampe = EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig")
+       sampe.trigDataAccessMT=""
+       sampe.trigDataAccess=svcMgr.TrigDataAccess
+       ToolSvc+=sampe
+       samph = EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig")
+       samph.trigDataAccessMT=""
+       samph.trigDataAccess=svcMgr.TrigDataAccess
+       ToolSvc+=samph
+       ring = RingerFexConfig("RingsMaker")
+       ring.trigDataAccessMT=""
+       ring.trigDataAccess=svcMgr.TrigDataAccess
+       ToolSvc+=ring
+
+       ring.OutputLevel=DEBUG
+       ring.RingsKey="CaloRings"
+       self.IAlgToolList = [ samp2 ]
+       self.IAlgToolList+= [ samp1 ]
+       self.IAlgToolList+= [ sampe ]
+       self.IAlgToolList+= [ samph ]
+       self.IAlgToolList+= [ ring ] 
 
        self.EtaWidth = 0.2
        self.PhiWidth = 0.2
@@ -442,20 +465,29 @@ class T2CaloEgamma_ReFastAlgo (T2CaloEgammaReFastAlgo):
        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
        from TrigT2CaloCommon.TrigT2CaloCommonConf import TrigCaloDataAccessSvc
        svcMgr += TrigCaloDataAccessSvc()
-       ToolSvc+=EgammaSamp2FexNoTimerConfig("ReFaAlgoSamp2FexConfig")
-       ToolSvc+=EgammaSamp1FexNoTimerConfig("ReFaAlgoSamp1FexConfig")
-       ToolSvc+=EgammaEmEnFexNoTimerConfig("ReFaAlgoEmEnFexConfig")
-       ToolSvc+=EgammaHadEnFexNoTimerConfig("ReFaAlgoHadEnFexConfig")
+       samp2 = EgammaSamp2FexNoTimerConfig(name="ReFaAlgoSamp2FexConfig")
+       samp2.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+       samp2.trigDataAccess=""
+       ToolSvc+=samp2
+       samp1 = EgammaSamp1FexNoTimerConfig("ReFaAlgoSamp1FexConfig")
+       samp1.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+       samp1.trigDataAccess=""
+       ToolSvc+=samp1
+       sampe = EgammaEmEnFexNoTimerConfig("ReFaAlgoEmEnFexConfig")
+       sampe.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+       sampe.trigDataAccess=""
+       ToolSvc+=sampe
+       samph = EgammaHadEnFexNoTimerConfig("ReFaAlgoHadEnFexConfig")
+       samph.trigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+       samph.trigDataAccess=""
+       ToolSvc+=samph
        #ToolSvc+=RingerFexConfig("RingsMaker") 
        #ToolSvc.RingsMaker.OutputLevel=DEBUG
        #ToolSvc.RingsMaker.RingsKey="CaloRings"
-       self.IAlgToolList = [ EgammaSamp2FexNoTimerConfig("ReFaAlgoSamp2FexConfig") ]
-       self.IAlgToolList+= [ EgammaSamp1FexNoTimerConfig("ReFaAlgoSamp1FexConfig") ]
-       self.IAlgToolList+= [ EgammaEmEnFexNoTimerConfig("ReFaAlgoEmEnFexConfig") ]
-       self.IAlgToolList+= [ EgammaHadEnFexNoTimerConfig("ReFaAlgoHadEnFexConfig") ]
-       for ii in self.IAlgToolList :
-          ii.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
-          ii.TrigDataAccess=None
+       self.IAlgToolList = [ samp2 ]
+       self.IAlgToolList+= [ samp1 ]
+       self.IAlgToolList+= [ sampe ]
+       self.IAlgToolList+= [ samph ]
        #self.IAlgToolList+= [ ToolSvc.RingsMaker ] 
 
        self.EtaWidth = 0.2
