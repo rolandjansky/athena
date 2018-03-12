@@ -26,14 +26,6 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
-/* //stuff needed for truth
-#include "TrkToolInterfaces/IPRD_AssociationTool.h"
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "InDetSimData/InDetSimData.h"
-#include "InDetSimData/InDetSimDataCollection.h"
-#include "HepMC/GenParticle.h"
-#include "StoreGate/ReadHandleKey.h"
-*/
 
 #include "TMath.h"
 #include "TString.h"
@@ -55,10 +47,8 @@ InDet::InDetDenseEnvAmbiTrackSelectionTool::InDetDenseEnvAmbiTrackSelectionTool(
   m_observerTool("Trk::TrkObserverTool/TrkObserverTool"),
   m_mapFilled(false),
   m_monitorTracks(false)
-  //m_doSCTSplitting(false)
 {
   declareInterface<IAmbiTrackSelectionTool>(this);
-  //declareProperty("SelectionTool"        , m_selectionTool);//WPM
   //  template for property decalration
   declareProperty("AssociationTool"      , m_assoTool);
   declareProperty("DriftCircleCutTool"   , m_selectortool);
@@ -139,8 +129,6 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
   } 
   else
     ATH_MSG_INFO( "Retrieved tool " << m_assoTool);
-
-  //ATH_CHECK( m_selectionTool.retrieve());//WPM
 
   // Get segment selector tool
   //
@@ -300,39 +288,42 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
   //WPM add in a loop to check how many splitable SCT clusters there are here!!!!
   ATH_MSG_DEBUG ("How many SCT clusters can be split? ");
   
-  // new TSOS vector
-  std::vector<const Trk::TrackStateOnSurface*> newTSOS_sct;
   
   // counter for the weighted number of added shared hits 
   int merged_sct = 0;
   
-  // loop over all TSOS (and types) and copy the good ones over
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos_sct    = tsos->begin();
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd_sct = tsos->end(); 
-  
-  for (int index_sct = 0 ; iTsos_sct != iTsosEnd_sct ; ++iTsos_sct,++index_sct ) {
-
-    const Trk::RIO_OnTrack*  rot_sct =  tsosDetails.RIO[index_sct];
+  if(m_doSCTSplitting){
     
-    if (!rot_sct) {
-      ATH_MSG_WARNING ("No ROTs failed, should never happen !");
-      continue;
-    }  
+    // new TSOS vector
+    std::vector<const Trk::TrackStateOnSurface*> newTSOS_sct;
   
-    if(m_detID->is_sct(rot_sct->identify())){  //WPM
+    // loop over all TSOS (and types) and copy the good ones over
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos_sct    = tsos->begin();
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsosEnd_sct = tsos->end(); 
+  
+    for (int index_sct = 0 ; iTsos_sct != iTsosEnd_sct ; ++iTsos_sct,++index_sct ) {
+
+        const Trk::RIO_OnTrack*  rot_sct =  tsosDetails.RIO[index_sct];
+    
+        if (!rot_sct) {
+        ATH_MSG_WARNING ("No ROTs failed, should never happen !");
+        continue;
+        }  
+  
+        if(m_detID->is_sct(rot_sct->identify())){  //WPM
       
-      bool isSplitable = tsosDetails.splitProb1[index_sct] >= m_sharedProbCut || tsosDetails.splitProb2[index_sct] >= m_sharedProbCut2;
+        bool isSplitable = tsosDetails.splitProb1[index_sct] >= m_sharedProbCut || tsosDetails.splitProb2[index_sct] >= m_sharedProbCut2;
       
-      if(isSplitable){
-	merged_sct++;
-	ATH_MSG_DEBUG ("+1 Merged SCT ");
+        if(isSplitable){
+	    merged_sct++;
+	    ATH_MSG_DEBUG ("+1 Merged SCT ");
 	
-      }
+        }
+        }
     }
-  }
     
-  ATH_MSG_DEBUG ("There are "<<merged_sct<<" merged SCT clusters.");
-
+    ATH_MSG_DEBUG ("There are "<<merged_sct<<" merged SCT clusters.");
+  }
 
 
   //
@@ -381,7 +372,7 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
 	     )
 ) 
   {
-    //WPM THIS IF STATEMENT IS WHERE THE PROBLEM SEEMS TO BE
+    //WPM
     ATH_MSG_DEBUG ("Passed track hits if? "); //WPM
     // catch, if this is cosmics, accept the incoming track
     if (m_cosmics) {
@@ -439,16 +430,6 @@ const Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::getCleanedOutTrack
         
         int  numberOfTracksWithThisPrd = checkOtherTracksValidity( rot, isSplitable, maxiShared, maxothernpixel, maxotherhasblayer, otherfailsMinUniqueHits);
 
-	//if(m_detID->is_pixel(rot->identify())){  //WPM
-	//ATH_MSG_VERBOSE ( "pixel with numtrackswithprd "<<numberOfTracksWithThisPrd);
-	//}
-
-	//if(m_detID->is_sct(rot->identify())){  //WPM
-	//if(isSplitable){
-	//ATH_MSG_DEBUG ("SCT and is splitable with numtrackswithprd "<<numberOfTracksWithThisPrd);
-	//}
-	//else ATH_MSG_DEBUG ("SCT and is not splitable with numtrackswithprd "<<numberOfTracksWithThisPrd);
-	//}
 
         // now decide what to do, can we keep the shared hit
 	/*
@@ -760,18 +741,12 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
 
 	const InDet::SCT_Cluster* clussct = dynamic_cast <const InDet::SCT_Cluster*> (rot->prepRawData());
 	if( abs((*iTsos)->surface().normal()(2)) < 0.1 ){
-	  //std::cout<<"lphi? "<<(*iTsos)->trackParameters()->momentum().phi()<<std::endl; //WPM
 
-	  //std::cout<<"momentum? "<<(*iTsos)->trackParameters()->momentum()<<std::endl; //WPM
-	  //std::cout<<"surface tilt? "<<(*iTsos)->surface().normal()<<std::endl; //WPM
-	  //std::cout<<"surface_center? "<<(*iTsos)->surface().center()<<std::endl; //WPM
-
-	  //get layer info
+	  //layer info; not used now but may be used later
 	  //float sx = (*iTsos)->surface().center()(0);
 	  //float sy = (*iTsos)->surface().center()(1);
 	  //float sz = (*iTsos)->surface().position()(2);
 	  //float sR = sqrt( sx*sx + sy*sy );
-	  //std::cout<<"sR? "<<sR<<std::endl; //WPM
 
 	  //int layer;
 	  //if(sR < 290) layer = -1;
@@ -781,96 +756,21 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
 	  //if(sR > 500 && sR < 525) layer = 3;
 	  //if(sR > 525) layer = 4;
 
-	  //std::cout<<"layer? "<<layer<<std::endl; //WPM
-
 	  float px = (*iTsos)->trackParameters()->momentum()(0);
 	  float py = (*iTsos)->trackParameters()->momentum()(1);
-	  //double pz = (*iTsos)->trackParameters()->momentum()(2);
 	  float nx = (*iTsos)->surface().normal()(0);
 	  float ny = (*iTsos)->surface().normal()(1);
 
-	  //localphi will be the momentum's angle in the x-y plane minus the surface's normal angle
+	  //lphi will be the momentum's angle in the x-y plane minus the surface's normal angle
 	  double lphi = atan2( py, px ) - atan2( ny, nx );
-	  //std::cout<<"lphi? "<<lphi<<std::endl; //WPM
-
-	  //std::cout<<"width? "<<clussct->width().colRow()(0)<<std::endl; //WPM
 
 	  double diff = ((285*abs( tan(lphi)-tan(-0.07)) ) -  80*clussct->width().colRow()(0));
-	  //std::cout<<"diff? "<< diff <<std::endl; //WPM
 	  ATH_MSG_DEBUG ("Calculated width - observed width? "<< diff );
 
-	  //if((*iTsos)->isAvailable< std::vector<int> >( "truth_barcode" )){
-	  //  truth_barcode = (*iTsos)->auxdataConst< std::vector<int> >("truth_barcode");
-	  //  std::cout<<"barcode? "<< truth_barcode <<std::endl; //WPM
-	  //}
+	  //track pT would be sqrt( ( px * px ) + ( py * py ) )
+	  //isStereo?: (*iTsos)->surface().isStereo()
+	  //Number of split pixel clusters: numissplit <- would have to uncomment stuff out from above
 
-/*  //This should comment out the truth block
-	  /////////////////////////
-	  //geting the truth info
-
-	  //SG::ReadHandleKey<InDetSimDataCollection> m_simDataCollectionName {this, "InputSDOMap", "PixelSDO_Map", "sim data collection name"};
-	  SG::ReadHandle<InDetSimDataCollection> sctSdoColl("SCT_SDO_Map");
-	  const InDetSimDataCollection*   m_simDataCollection = &(*sctSdoColl); 
-
-	  //std::cout<<"test1 "<<std::endl;
-
-	  auto rdos = clussct->rdoList();
-	  int nPartContributing = 0;
-	  std::vector<int> barcodes;
-
-	  //std::cout<<"test npart 0: "<<nPartContributing<<std::endl;
-
-	  for (auto rdoIter :  rdos){
-	    //std::cout<<"rdoiter"<<std::endl;
-	    if (m_simDataCollection){
-	      auto simDataIter = m_simDataCollection->find(rdoIter);
-	      //std::cout<<"found iter"<<std::endl;
-	      if (simDataIter != m_simDataCollection->end()){
-	      
-		auto simData = (simDataIter->second);
-		//std::cout<<"found simdata"<<std::endl;
-
-		for( auto deposit : simData.getdeposits() ){
-		
-		  if (deposit.first){
-		    //Now iterate over all barcodes
-		  
-		    std::vector<int>::iterator barcodeIterator;
-		    //Look for the barcode of the specific particle depositing energy in the barcodes vector
-		  
-		    barcodeIterator  = find(barcodes.begin(), barcodes.end(), deposit.first->barcode());
-		    //If this barcode is not found
-		    //std::cout<<"barcodes"<<std::endl;
-
-		    if (!(barcodeIterator != barcodes.end())){
-		      //Add the barcode to the barcodes vector
-		    
-		      barcodes.push_back(deposit.first->barcode());
-		      //std::cout<<deposit.first->barcode()<<" ";
-		    }
-		  }
-		}
-	      }
-	    }
-	  }
-
-	  nPartContributing = barcodes.size();
-*/
-	  //std::cout<<"numparticles? "<<nPartContributing<<std::endl; //WPM
-	  //std::cout<<"barcodes: "<<barcodes<<std::endl; //WPM
-	
-	  //ATH_MSG_VERBOSE ("barcodes: "<<barcodes );
-
-	  /////////////////////////
-
-
-	  //std::cout<<"track pT?  "<< sqrt( ( px * px ) + ( py * py ) ) <<std::endl; //WPM
-	  //std::cout<<"isStereo?  "<<(*iTsos)->surface().isStereo()<<std::endl; //WPM
-	  //std::cout<<"numpixisSplit?  "<<numissplit<<std::endl; //WPM
-
-	  //std::cout<<" "<<std::endl; //WPM
-	  
-	  //if(nPartContributing >= 2){
 	  if(abs(diff) > 80){
 	    tsosDetails.splitProb1[index] = .99;
 	    tsosDetails.splitProb2[index] = .99;
