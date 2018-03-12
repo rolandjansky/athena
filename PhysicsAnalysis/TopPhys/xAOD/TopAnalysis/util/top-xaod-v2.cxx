@@ -1104,6 +1104,9 @@ bool PassPreselection(AnalysisTopTools analysisTopTools){
 
 void CreateObjectCollection(AnalysisTopTools analysisTopTools, bool executeNominal){
 
+  // Get the config object                                               
+  std::shared_ptr<top::TopConfig> topConfig = analysisTopTools.topConfig;
+
   ///-- Calibrate objects and make all required systematic copies --///
   top::check( analysisTopTools.topObjectCollectionMaker->execute(executeNominal) , "Failed to execute systObjMaker" );
 
@@ -1117,7 +1120,7 @@ void CreateObjectCollection(AnalysisTopTools analysisTopTools, bool executeNomin
   if (topConfig->isMC() && executeNominal)
     top::check( analysisTopTools.topScaleFactorCalculator->execute() , "Failed to calculate scale factors" );
 
-  return true;
+  return;
 }
 
 void ProcessRecoEventTight(AnalysisTopTools analysisTopTools, unsigned int &eventSavedReco){

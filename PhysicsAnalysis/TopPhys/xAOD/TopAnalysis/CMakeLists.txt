@@ -80,34 +80,34 @@ atlas_install_data( share/* )
 atlas_install_scripts( scripts/* )
 
 # Build the executables of the package:
-atlas_add_executable( top-xaod
-                      util/top-xaod.cxx
-                      LINK_LIBRARIES xAODCore
-                                     xAODRootAccess
-                                     xAODEgamma
-                                     xAODMuon
-                                     xAODJet
-                                     xAODMissingET
-                                     xAODCutFlow
-				     xAODMetaData
-                                     AsgTools
-                                     AthContainers
-                                     PATInterfaces
-                                     TopCPTools
-                                     TopEventSelectionTools
-                                     TopConfiguration
-                                     TopCorrections
-                                     TopEvent
-                                     TopParticleLevel
-                                     TopPartons
-                                     TopObjectSelectionTools
-                                     TopSystematicObjectMaker
-                                     TopFakes
-				     TopDataPreparation
-                                     TopHLUpgrade
-				     PathResolver
-                                     ${ROOT_LIBRARIES}
-                                     TopAnalysis )
+#atlas_add_executable( top-xaod
+#                      util/top-xaod.cxx
+#                      LINK_LIBRARIES xAODCore
+#                                     xAODRootAccess
+#                                     xAODEgamma
+#                                     xAODMuon
+#                                     xAODJet
+#                                     xAODMissingET
+#                                     xAODCutFlow
+#				      xAODMetaData
+#                                     AsgTools
+#                                     AthContainers
+#                                     PATInterfaces
+#                                     TopCPTools
+#                                     TopEventSelectionTools
+#                                     TopConfiguration
+#                                     TopCorrections
+#                                     TopEvent
+#                                     TopParticleLevel
+#                                     TopPartons
+#                                     TopObjectSelectionTools
+#                                     TopSystematicObjectMaker
+#                                     TopFakes
+#				      TopDataPreparation
+#                                     TopHLUpgrade
+#     				      PathResolver
+#                                     ${ROOT_LIBRARIES}
+#                                     TopAnalysis )
 
 atlas_add_executable( top-tool-ftag
                       util/top-tool-ftag.cxx

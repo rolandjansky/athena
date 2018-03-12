@@ -125,9 +125,9 @@ namespace top{
   }
     
 
-  StatusCode ObjectCollectionMaker::recalculateMET()
+  StatusCode ObjectCollectionMaker::recalculateMET(bool executeNominal)
   {
-    top::check( m_metMaker->recalculateMET() , "Failed to recalculateMET()" );
+    top::check( m_metMaker->recalculateMET(executeNominal) , "Failed to recalculateMET()" );
     return StatusCode::SUCCESS;
   }
 

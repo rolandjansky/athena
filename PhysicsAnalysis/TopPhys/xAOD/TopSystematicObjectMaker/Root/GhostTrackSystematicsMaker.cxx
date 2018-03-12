@@ -265,7 +265,7 @@ namespace top {
         }
 
         ///-- Only run this on the systematic execution --///
-        if(executeNominal) continue;
+        if(executeNominal) return StatusCode::SUCCESS;
         
         ///-- Get nominal jets --///
         xAOD::JetContainer * nominalJets(nullptr);

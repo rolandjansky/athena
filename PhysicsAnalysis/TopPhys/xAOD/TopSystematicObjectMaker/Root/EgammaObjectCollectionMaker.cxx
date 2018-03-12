@@ -206,7 +206,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }   
     
-  StatusCode EgammaObjectCollectionMaker::executeElectrons()
+  StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal)
   {
 
     const xAOD::EventInfo* eventInfo(nullptr);
@@ -222,6 +222,10 @@ namespace top{
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematicsElectrons ){
       
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///                                 
+      if(executeNominal && !m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+      if(!executeNominal && m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+
       ///-- Tell tool which systematic to use -///
       top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
       

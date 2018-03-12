@@ -54,7 +54,7 @@ namespace top{
       StatusCode execute(bool);
       StatusCode executeNominal();
       StatusCode executeSystematics();
-      StatusCode recalculateMET();
+      StatusCode recalculateMET(bool);
       StatusCode printout();
       
       bool isTruthDxAOD() const;

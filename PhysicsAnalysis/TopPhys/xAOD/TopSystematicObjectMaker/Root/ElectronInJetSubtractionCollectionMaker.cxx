@@ -48,8 +48,8 @@ namespace top{
     for (auto currentSystematic : *m_config->systHashElectronInJetSubtraction()) {
       
       ///-- if executeNominal, skip other systematics (and vice-versa) --///
-      if(executeNominal && !m_config->isSystNominal(m_config->systematicName(systematic.hash()))) continue;
-      if(!executeNominal && m_config->isSystNominal(m_config->systematicName(systematic.hash()))) continue;
+      if(executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic))) continue;
+      if(!executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic))) continue;
         
       // Get the Electrons
       const xAOD::ElectronContainer* electrons(nullptr);

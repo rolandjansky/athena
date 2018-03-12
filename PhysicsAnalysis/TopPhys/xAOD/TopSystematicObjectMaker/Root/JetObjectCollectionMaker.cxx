@@ -564,7 +564,7 @@ StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<IJERSmearingTool
 StatusCode JetObjectCollectionMaker::executeTrackJets(bool executeNominal) {
   ///-- No calibrations or systematics yet --///
   ///-- Only run this on the nominal execution --///
-  if(!executeNominal) continue;
+  if(!executeNominal) return StatusCode::SUCCESS;
     
   ///-- Just make a shallow copy to keep these in line with everything else --///
 

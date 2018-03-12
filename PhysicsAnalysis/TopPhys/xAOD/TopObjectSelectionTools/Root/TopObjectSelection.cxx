@@ -173,7 +173,7 @@ void TopObjectSelection::applySelectionPreOverlapRemoval()
   if( m_config->useElectrons()  ){applySelectionPreOverlapRemovalElectrons()  ;}
   
   if (m_config->applyElectronInJetSubtraction()) {
-    top::check( m_electronInJetSubtractor->execute() , "Failed to execute top::ElectronInJetSubtractionCollectionMaker" );
+    top::check( m_electronInJetSubtractor->execute(m_executeNominal) , "Failed to execute top::ElectronInJetSubtractionCollectionMaker" );
   }
 
 
@@ -729,7 +729,7 @@ void TopObjectSelection::decorateEventInfoPostOverlapRemoval(std::size_t hash, i
     const xAOD::EventInfo* eventInfo(nullptr);
     top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
     // Decorate with number of good jets
-    event.m_info->auxdecor< int >("Njet") = nGoodJets;
+    eventInfo->auxdecor< int >("Njet") = nGoodJets;
     
     return;
 }

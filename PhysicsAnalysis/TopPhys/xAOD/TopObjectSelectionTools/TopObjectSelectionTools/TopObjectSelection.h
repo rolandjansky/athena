@@ -270,7 +270,7 @@ private:
     // Boolean to handle only running selection on nominal/systematics
     bool m_executeNominal;
     // Function to decorate event info
-    decorateEventInfoPostOverlapRemoval(std::size_t, int, bool);
+    void decorateEventInfoPostOverlapRemoval(std::size_t, int, bool);
 };
 }
 #endif
