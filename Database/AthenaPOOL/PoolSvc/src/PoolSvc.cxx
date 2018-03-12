@@ -250,13 +250,17 @@ StatusCode PoolSvc::finalize() {
 //__________________________________________________________________________
 StatusCode PoolSvc::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
-   unsigned int streamId = 0;
-   for (std::vector<pool::IPersistencySvc*>::const_iterator iter = m_persistencySvcVec.begin(),
-		   last = m_persistencySvcVec.end(); iter != last; iter++, streamId++) {
-      ATH_MSG_DEBUG("Deleting PersSvc stream " << streamId);
-      delete *iter;
+   if (!disconnect(IPoolSvc::kOutputStream).isSuccess()) {
+      ATH_MSG_WARNING("Cannot disconnect output Stream");
+   }
+   for (const auto& persistencySvc : m_persistencySvcVec) {
+      delete persistencySvc;
    }
    m_persistencySvcVec.clear();
+   for (const auto& persistencyMutex : m_pers_mut) {
+      delete persistencyMutex;
+   }
+   m_pers_mut.clear();
    if (m_catalog != nullptr) {
       m_catalog->commit();
       delete m_catalog; m_catalog = nullptr;
