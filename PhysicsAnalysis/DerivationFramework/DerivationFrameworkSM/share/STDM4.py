@@ -2,7 +2,6 @@
 # STDM4.py 
 # reductionConf flag STDM4 in Reco_tf.py   
 #********************************************************************
-
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
