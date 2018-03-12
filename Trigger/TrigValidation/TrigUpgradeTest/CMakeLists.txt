@@ -45,7 +45,9 @@ atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh
 # atlas_add_test( creatingEVTest SCRIPT forward.sh ViewAlgsTest/test/creatingEVTest.sh )
 
 atlas_add_test( merge
-		SCRIPT test/test_merge.sh)
+                SCRIPT test/test_merge.sh 
+		PROPERTIES TIMEOUT 500 
+	      )
 
 atlas_add_test( IDRunMC
 		SCRIPT test/test_id_run_mc.sh
@@ -63,19 +65,20 @@ atlas_add_test( IDRunData SCRIPT test/test_id_run_data.sh
 
 atlas_add_test( egammaRunData
 		SCRIPT test/test_egamma_run_data.sh
-                PROPERTIES TIMEOUT 500
+                PROPERTIES TIMEOUT 500 
               )
+
 #		EXTRA_PATTERNS "TriggerSummary"
 
 atlas_add_test( egammaMenu
-		SCRIPT test/test_egamma_menu.sh
-                PROPERTIES TIMEOUT 500
+		SCRIPT test/test_egamma_menu.sh	
+                PROPERTIES TIMEOUT 500 
               )
 #		EXTRA_PATTERNS "TriggerSummary"
 
 atlas_add_test( muRunData
-		SCRIPT test/test_mu_run_data.sh
-                PROPERTIES TIMEOUT 500
+		SCRIPT test/test_mu_run_data.sh		
+                PROPERTIES TIMEOUT 500 
               )
 
 
@@ -90,12 +93,16 @@ atlas_add_test( EmuL1Decoding
 
 atlas_add_test( EmuStepProcessing
 		SCRIPT	test/test_emu_step_processing.sh
-		)
+                PROPERTIES TIMEOUT 500 
+	      )
 #	EXTRA_PATTERNS "TriggerSummary"
 
 
 
-atlas_add_test( NewJO SCRIPT test/test_newJO.sh)
+atlas_add_test( NewJO 
+		SCRIPT test/test_newJO.sh
+                PROPERTIES TIMEOUT 500 
+		)
 
 atlas_install_joboptions( share/*.py )
 atlas_install_python_modules( python/*.py )
