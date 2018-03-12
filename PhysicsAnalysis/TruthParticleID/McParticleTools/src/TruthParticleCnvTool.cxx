@@ -23,7 +23,6 @@
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/Polarization.h"
-#include "GeneratorObjects/McEventCollection.h"
 #include "HepPDT/ParticleData.hh"
 
 // McParticleKernel includes
@@ -31,7 +30,6 @@
 
 // McParticleEvent includes
 #include "McParticleEvent/TruthParticle.h"
-#include "McParticleEvent/TruthParticleContainer.h"
 
 // McParticleUtils includes
 #include "McParticleUtils/McUtils.h" // for chargeFromPdgId
@@ -67,16 +65,6 @@ TruthParticleCnvTool::TruthParticleCnvTool( const std::string& type,
   declareProperty( "DataType", 
 		   m_dataType_int = 4,
 		   "Type of data we are dealing with (Full/Fast/Truth...)" );
-
-  declareProperty( "McEvents", 
-		   m_mcEventsName = "GEN_AOD",
-		   "Name of the McEventCollection the TruthParticles will be "
-		   "constructed from" );
-
-  declareProperty( "TruthParticlesOutput", 
-		   m_mcPartsOutputName = "SpclMC",
-		   "Name of the output TruthParticle collection (built from the "
-		   "McEventCollection)" );
 
   declareProperty( "TruthIsolationTool",
 		   m_isolationTool = IsolTool_t( "TruthIsolationTool" ),
@@ -139,6 +127,9 @@ StatusCode TruthParticleCnvTool::initialize()
     m_isolationTool.disable();
   }
 
+  //initialize DataHandleKeys
+  ATH_CHECK(m_mcPartsOutputWriteHandleKey.initialize());
+  ATH_CHECK(m_mcEventsReadHandleKey.initialize());
 
   // for compatibility with earlier version we accept <0 values :
   if(m_selectSignalTypeProp<0) m_selectSignalType = PileUpClassification::ALLMINBIAS;
@@ -148,8 +139,8 @@ StatusCode TruthParticleCnvTool::initialize()
   ATH_MSG_INFO
     (" DoEtIsolations:       [" << std::boolalpha 
      << m_doEtIsolation.value() << "]" << endmsg
-     << " McEvents:             [" << m_mcEventsName.value() << "]" << endmsg
-     << " TruthParticlesOutput: [" << m_mcPartsOutputName.value() << "]"
+     << " McEvents:             [" << m_mcEventsReadHandleKey.key() << "]" << endmsg
+     << " TruthParticlesOutput: [" << m_mcPartsOutputWriteHandleKey.key() << "]"
      << endmsg
      << " SelectSignalType:     [" << m_selectSignalType << "]");
 
@@ -160,32 +151,25 @@ StatusCode TruthParticleCnvTool::execute()
 {  
   ATH_MSG_DEBUG("Executing " << name() << "...");
 
-  TruthParticleContainer * mcParts = new TruthParticleContainer;
-  if ( evtStore()->record( mcParts, m_mcPartsOutputName.value() ).isFailure() ) {
-    ATH_MSG_ERROR("Could not record TruthParticleContainer at ["
-                  << m_mcPartsOutputName.value() << "] !!");
-    delete mcParts;
-    mcParts = 0;
+  SG::WriteHandle<TruthParticleContainer> mcPartsOutputWriteHandle(m_mcPartsOutputWriteHandleKey);
+
+  if (!mcPartsOutputWriteHandle.isValid()){
+    ATH_MSG_ERROR("Invalid WriteHandle for TruthParticleContainer with key: " << m_mcPartsOutputWriteHandleKey.key());
     return StatusCode::FAILURE;
   }
 
-  if ( !evtStore()->setConst( mcParts ).isSuccess() ) {
-    ATH_MSG_WARNING("Could not setConst TruthParticleContainer at ["
-                    << m_mcPartsOutputName.value() << "]");
-  }
+  SG::ReadHandle<McEventCollection> mcEventsReadHandle(m_mcEventsReadHandleKey);
 
-  const McEventCollection * mcEvent = 0;
-  if ( evtStore()->retrieve( mcEvent, m_mcEventsName.value() ).isFailure() || 
-       0 == mcEvent ) {
-    ATH_MSG_WARNING("Could not retrieve McEventCollection at ["
-                    << m_mcEventsName.value() << "] !!"
-                    << endmsg
-                    << "TruthParticleContainer [" << m_mcPartsOutputName.value()
-                    << "] will be EMPTY !!");
-    return StatusCode::RECOVERABLE;
+  if (!mcEventsReadHandle.isValid()){
+     ATH_MSG_WARNING("Invalid ReadHamdle for McEventCollection with key ["
+		     << m_mcEventsReadHandleKey.key() << "] !!"
+		     << endmsg
+		     << "TruthParticleContainer [" << m_mcPartsOutputWriteHandleKey.key()
+		     << "] will be EMPTY !!");
+     return StatusCode::RECOVERABLE;
   }
-
-  ATH_MSG_DEBUG(" Found McEventCollection of size = "<< mcEvent->size() );
+  
+  ATH_MSG_DEBUG(" Found McEventCollection of size = "<< mcEventsReadHandle->size() );
   // do the actual convertion (it is merely an interface adaptation now...)
   //  selection for particles from minbias copied from the JetsFromTruthTool
 
@@ -193,11 +177,11 @@ StatusCode TruthParticleCnvTool::execute()
   const ITruthParticleVisitor* dummyVisitor = 0;
   bool all_good = true;
 
-  McEventCollection::const_iterator fEvt = mcEvent->begin();
-  McEventCollection::const_iterator lEvt = mcEvent->end();
+  McEventCollection::const_iterator fEvt = mcEventsReadHandle->begin();
+  McEventCollection::const_iterator lEvt = mcEventsReadHandle->end();
   PileUpClassification::findEventIterators(m_selectSignalType, fEvt,lEvt);
 
-  ATH_MSG_DEBUG(" Found McEventCollection iterators : "<< (fEvt-mcEvent->begin()) << " to "<< (lEvt-mcEvent->begin()) );
+  ATH_MSG_DEBUG(" Found McEventCollection iterators : "<< (fEvt-mcEventsReadHandle->begin()) << " to "<< (lEvt-mcEventsReadHandle->begin()) );
 
   for(McEventCollection::const_iterator it=fEvt ; it != lEvt; it++){
     const HepMC::GenEvent* evt = *it;
@@ -206,11 +190,11 @@ StatusCode TruthParticleCnvTool::execute()
     if (0 == evt) {
       continue;
     }
-    genEventIndex = (it - mcEvent->begin());
+    genEventIndex = (it - mcEventsReadHandle->begin());
     ATH_MSG_DEBUG(" adding event id="<< evt->signal_process_id()<<"  genEventIndex="<< genEventIndex );
 
     if( evt->signal_process_id() == 0 ) continue;
-    if (!this->convert( mcEvent, genEventIndex, mcParts, dummyVisitor ).isSuccess()) {
+    if (!this->convert( mcEventsReadHandle.ptr(), genEventIndex, mcPartsOutputWriteHandle.ptr(), dummyVisitor ).isSuccess()) {
       ATH_MSG_DEBUG("Failed to convert an event...");
       all_good = false;
     }
@@ -218,7 +202,7 @@ StatusCode TruthParticleCnvTool::execute()
 
   // VERY IMPORTANT ! Reset the index to the first GenEvent included
   // in this TruthParticleContainer. This will be used when read back from disk.
-  mcParts->setGenEvent( mcEvent, (fEvt - mcEvent->begin() ) );
+  mcPartsOutputWriteHandle->setGenEvent( mcEventsReadHandle.ptr(), (fEvt - mcEventsReadHandle->begin() ) );
 
   
   return all_good 
