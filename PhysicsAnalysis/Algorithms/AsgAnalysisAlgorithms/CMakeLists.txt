@@ -3,18 +3,21 @@
 # @author Nils Krumnack
 
 
-# The name of the package:
 atlas_subdir( AsgAnalysisAlgorithms )
 
-# The package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm )
+   PhysicsAnalysis/Algorithms/SystematicsHandles
+   PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/D3PDTools/AnaAlgorithm
+   PRIVATE
+   Control/AthToolSupport/AsgTools )
 
 atlas_add_library( AsgAnalysisAlgorithmsLib
    AsgAnalysisAlgorithms/*.h AsgAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS AsgAnalysisAlgorithms
-   LINK_LIBRARIES SystematicsHandlesLib )
+   LINK_LIBRARIES SystematicsHandlesLib PATInterfaces AnaAlgorithmLib
+   PRIVATE_LINK_LIBRARIES AsgTools )
 
 atlas_add_dictionary( AsgAnalysisAlgorithmsDict
    AsgAnalysisAlgorithms/AsgAnalysisAlgorithmsDict.h
