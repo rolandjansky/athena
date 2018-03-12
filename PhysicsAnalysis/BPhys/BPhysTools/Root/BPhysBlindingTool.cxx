@@ -214,7 +214,7 @@ namespace xAOD {
     float bval(val), cval(val);
     if (negativeSign) bval *= -1.;
     // if ( bval > 0. || isnan(bval) ) {
-    if ( bval > 0. || !isnormal(bval) ) {
+    if ( bval > 0. || !std::isnormal(bval) ) {
       // perform actual unblinding
       cval = m_senc.decrypt(bval);
       if ( factor != 0. ) {

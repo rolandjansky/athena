@@ -9,10 +9,8 @@
 #********************************************
 set(extra_dep)
 if( XAOD_STANDALONE )
-  message(STATUS "Setting dependencies for STANDALONE build.")
   set(extra_dep)
 else()
-  message(STATUS "Setting dependencies for ATHENA build.")
   set( extra_dep
          GaudiKernel
          Control/AthenaKernel
@@ -21,10 +19,8 @@ endif()
 #********************************************
 set(extra_libs)
 if( XAOD_STANDALONE )
-  message(STATUS "Setting libraries for STANDALONE build.")
   set(extra_libs)
 else()
-  message(STATUS "Setting libraries for ATHENA build")
   set( extra_libs
          GaudiKernel
          AthenaKernel
