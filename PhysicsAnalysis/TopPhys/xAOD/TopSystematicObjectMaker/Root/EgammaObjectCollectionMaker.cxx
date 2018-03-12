@@ -136,8 +136,8 @@ namespace top{
     for( auto systematic : m_specifiedSystematicsPhotons ){
         
       ///-- if executeNominal, skip other systematics (and vice-versa) --///
-      if(executeNominal && !m_config->isSystNominal(systematic)) continue;
-      if(!executeNominal && m_config->isSystNominal(systematic)) continue;
+      if(executeNominal && !m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+      if(!executeNominal && m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
 
       ///-- Tell tool which systematic to use --///
       top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" ); 

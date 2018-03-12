@@ -113,8 +113,8 @@ namespace top{
     for( auto systematic : m_specifiedSystematics ){
 
       ///-- if executeNominal, skip other systematics (and vice-versa) --///
-      if(executeNominal && !m_config->isSystNominal(systematic)) continue;
-      if(!executeNominal && m_config->isSystNominal(systematic)) continue;
+      if(executeNominal && !m_config->isSystNominal(m_config->systematicName(systematic.hash()))) continue;
+      if(!executeNominal && m_config->isSystNominal(m_config->systematicName(systematic.hash()))) continue;
         
       ///-- Tell tool which systematic to use --///
       if(thisYear == "2015" || thisYear == "2016")	 
