@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-AllVariablesDisallowed = [ "BPHY7",
+AllVariablesDisallowed = [ "BPHY7", "BPHY8",
                            "EXOT13","EXOT2","EXOT21","EXOT8",
                            "HIGG2D1",
                            "HIGG3D1",

@@ -43,6 +43,10 @@ namespace DerivationFramework {
     // include trigger
     recordPropertyB("doTriggerInfo"  , true);
 
+    // trigger navigation thinning
+    recordPropertyB("doTrigNavThinning", true);
+    recordPropertyVS("TrigNavThinList" , {});
+    
     // wide mumu mass range
     recordPropertyB("doUseWideMuMuMassRange", false);
 
