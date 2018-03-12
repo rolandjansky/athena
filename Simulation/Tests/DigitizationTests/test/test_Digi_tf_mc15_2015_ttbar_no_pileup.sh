@@ -16,12 +16,12 @@ source DigitizationCheckReferenceLocation.sh
 echo "Reference set being used: " ${DigitizationTestsVersion} 
 
 # Do reference comparisons 
-art-diff.py ./$DigiOutFileName /eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
+art-diff.py ./$DigiOutFileName   /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
 echo  "art-result: $? diff-pool" 
 
 
 
-art-diff.py ./$DigiOutFileName /eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName --diff-type=diff-root
+art-diff.py ./$DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName --diff-type=diff-root
 echo  "art-result: $? diff-root" 
 
 
