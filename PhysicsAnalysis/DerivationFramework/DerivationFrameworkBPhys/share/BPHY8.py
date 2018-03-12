@@ -83,8 +83,22 @@ BPHY8cf.mcNoTrigger       = [300446,300447,300448,300449]
 #====================================================================
 # Defaults for BPHY8 configuration
 #====================================================================
-# Blind search?
+# 
+# Blind search setup
+#
+# Enable?
 BPHY8cf.doBmumuBlinding = True
+# Cut blinded values/vertices?
+BPHY8cf.doCutBlinded    = False
+## BPHY8cf.doCutBlinded = True
+# Variables to blind (of vertices)
+BPHY8cf.BlindedVars     = "Bsmumu_mass.Bsmumu_MUCALC_mass"
+# Pass flag indicating blinded candidates
+BPHY8cf.BlindingFlag    = "Bsmumu_blinded"
+# Blinding key for testing
+## BPHY8cf.BlindingKey     = "0b0408d1f5c4760e7d4b50e97095"
+# Blinding key for production
+BPHY8cf.BlindingKey     = "0b04087bdac4564252fd778ac351"
 #
 # Thinning level
 # 0 - simple vertex thinning using Thin_vtxTrk.
@@ -1173,6 +1187,7 @@ if "Bsmumu" in BPHY8cf.doChannels:
         BlindMassMin           = BPHY8cf.GlobalBlindLowerCut,
         BlindMassMax           = BPHY8cf.GlobalBlindUpperCut,
         DoBlinding             = BPHY8cf.doBmumuBlinding,
+        DoCutBlinded           = BPHY8cf.doCutBlinded,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
 # b) for BJpsiK and BsJpsiPhi retain the Jpsi
@@ -1264,6 +1279,51 @@ for BPHY8_name in BPHY8_SelectTools.keys():
     print BPHY8_SelectTools[BPHY8_name] 
     pprint(BPHY8_SelectTools[BPHY8_name].properties())
 
+#--------------------------------------------------------------------
+# Setup the vertex variable blinding tools.
+# These tools are only used by the Bsmumu channel in case
+# blinding is enabled.
+
+BPHY8_BlindingTools = OrderedDict()
+BPHY8_BlinderTools  = OrderedDict()
+
+if BPHY8cf.doBmumuBlinding and not BPHY8cf.doCutBlinded:
+    # BlindingTools
+    from BPhysTools.BPhysToolsConf import xAOD__BPhysBlindingTool
+    # 1) for Bsmumu
+    if "Bsmumu" in BPHY8cf.doChannels :
+        # setup blinding tool
+        BPHY8_BlindingTools["Bsmumu"] = xAOD__BPhysBlindingTool(
+            name                = "BPHY8_BlindingTool_Bsmumu",
+            VertexContainerName = BPHY8cf.DerivationName+"DiMuonCandidates",
+            VarToBlindNames     = BPHY8cf.BlindedVars,
+            BlindingFlag        = BPHY8cf.BlindingFlag,
+            NegativeSigns       = [True, True],
+            BlindingKey         = BPHY8cf.BlindingKey,
+            OutputLevel         = INFO)
+
+    ToolSvc += BPHY8_BlindingTools.values()
+    for BPHY8_name in BPHY8_BlindingTools.keys():
+        print BPHY8_BlindingTools[BPHY8_name] 
+        pprint(BPHY8_BlindingTools[BPHY8_name].properties())
+
+    # Blinders    
+    from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf \
+        import DerivationFramework__BPhysVarBlinder
+    # a2) for Bsmumu
+    if "Bsmumu" in BPHY8cf.doChannels :
+        # blind mass values for B(s)->mumu candidates
+        BPHY8_BlinderTools["Bsmumu"] = DerivationFramework__BPhysVarBlinder(
+            name           = "BPHY8_Blinder_Bsmumu",
+            BlindingTool   = BPHY8_BlindingTools["Bsmumu"],
+            EnableBlinding = True,
+            OutputLevel    = INFO)
+
+    ToolSvc += BPHY8_BlinderTools.values()
+    for BPHY8_name in BPHY8_BlinderTools.keys():
+        print BPHY8_BlinderTools[BPHY8_name] 
+        pprint(BPHY8_BlinderTools[BPHY8_name].properties())
+    
 #====================================================================
 # Skimming tool to select only events with the correct vertices
 #====================================================================
@@ -1489,7 +1549,8 @@ BPHY8_seq += CfgMgr.DerivationFramework__DerivationKernel(
     AugmentationTools = [ BPHY8_MetaDataTool, BPHY8_AugOriginalCounts ] \
     + BPHY8_RecoTools.values() + BPHY8_MuMassTools.values() \
     + BPHY8_IsoTools.values() \
-    + BPHY8_SelectTools.values(),
+    + BPHY8_SelectTools.values() \
+    + BPHY8_BlinderTools.values(),
     SkimmingTools     = [BPHY8_SkimmingTool],
     ThinningTools     = BPHY8ThinningTools
    )

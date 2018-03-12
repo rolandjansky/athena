@@ -35,7 +35,11 @@ namespace DerivationFramework {
     
     // blind search
     recordPropertyB("doBmumuBlinding", true);
-
+    recordPropertyB("doCutBlinded"   , true);
+    recordPropertyS("BlindingKey"    , "");
+    recordPropertyS("BlindedVars"    , "");
+    recordPropertyS("BlindingFlag"   , "");
+    
     // include trigger
     recordPropertyB("doTriggerInfo"  , true);
 

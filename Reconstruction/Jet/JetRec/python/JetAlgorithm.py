@@ -105,14 +105,21 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   # Add the algorithm. It runs the jetrec tools.
   from JetRec.JetRecConf import JetAlgorithm
   ctools = []
+  # For now we want to disable this, because data17 T0 AODs have corrupted PFOs,
+  # on which the CHSPFO addition breaks
+  # To be reenabled when results on these are complete and it is possible to
+  # only use reprocessed AODs with the bugfix
+  doCHSPFO = False
   if jetFlags.useTracks:
     if not IsInInputFile("xAOD::CaloClusterContainer","LCOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_LCOrigin]
     if not IsInInputFile("xAOD::CaloClusterContainer","EMOriginTopoClusters"):
       ctools += [jtm.JetConstitSeq_EMOrigin]
-    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
+
+    if doCHSPFO and not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
       if not hasattr(job,"jetalgCHSPFlow"):
         ctools += [jtm.JetConstitSeq_PFlowCHS]
+
   ctools += constitModTools
   from JetRec.JetRecConf import JetToolRunner
   runners = []

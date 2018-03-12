@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 
 # $Id: CMakeLists.txt 805745 2017-05-31 17:23:48Z wwalko $
@@ -59,7 +59,7 @@ atlas_add_library( BPhysToolsLib
 		   xAODTracking
 		   xAODBPhysLib
 		   AsgTools
-                   ${extra_libs}
+       ${extra_libs}
 		   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES}
 		   xAODEventInfo
 		   )
@@ -68,14 +68,31 @@ if(NOT XAOD_STANDALONE)
 atlas_add_component( BPhysTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		     PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+		                 PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} 
-		     xAODTracking
-		     xAODBPhysLib
-		     AsgTools
+		                 xAODTracking
+		                 xAODBPhysLib
+		                 AsgTools
                      ${extra_libs}
                      BPhysToolsLib
-		     PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES}
-		     xAODEventInfo
-		     )
+		                 PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES}
+		                 xAODEventInfo
+		                 )
 endif()
+
+# Build the dictionary 
+atlas_add_dictionary( BPhysToolsDict
+  BPhysTools/BPhysToolsDict.h
+  BPhysTools/selection.xml
+  LINK_LIBRARIES BPhysToolsLib
+  )  
+
+
+# Executables in util subdirectory
+file (GLOB util_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+  "${CMAKE_CURRENT_SOURCE_DIR}/util/*.cxx")
+foreach (source ${util_sources})
+   string (REGEX REPLACE "util/(.*).cxx" "\\1" util ${source})
+   atlas_add_executable (${util} ${source} LINK_LIBRARIES BPhysToolsLib)
+endforeach (source ${util_sources})
+ 
