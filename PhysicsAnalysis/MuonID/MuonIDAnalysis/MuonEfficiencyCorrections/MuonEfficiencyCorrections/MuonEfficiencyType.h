@@ -72,8 +72,10 @@ namespace std {
    /// Specialisation of @c std::hash for @c CP::MuonEfficiencyType
    ///
    /// This is necessary to be able to use @c CP::MuonEfficiencyType as the
-   /// key in an @c std::unordered_map. Weirdly enough it's only GCC 5.4 that
-   /// freaks out without this specialisation though...
+   /// key in an @c std::unordered_map. Note that this is only needed with
+   /// GCC <6.1 (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60970). But it
+   /// didn't seem smart to introduce compiler checks into this code, since
+   /// all our compilers accept the hash specialisation.
    ///
    template<>
    struct hash< CP::MuonEfficiencyType > {
@@ -87,8 +89,10 @@ namespace std {
    /// Specialisation of @c std::hash for @c CP::MuonEfficiencySystType
    ///
    /// This is necessary to be able to use @c CP::MuonEfficiencySystType as the
-   /// key in an @c std::unordered_map. Weirdly enough it's only GCC 5.4 that
-   /// freaks out without this specialisation though...
+   /// key in an @c std::unordered_map. Note that this is only needed with
+   /// GCC <6.1 (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60970). But it
+   /// didn't seem smart to introduce compiler checks into this code, since
+   /// all our compilers accept the hash specialisation.
    ///
    template<>
    struct hash< CP::MuonEfficiencySystType > {
