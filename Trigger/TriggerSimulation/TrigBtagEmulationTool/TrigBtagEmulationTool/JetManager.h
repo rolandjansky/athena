@@ -13,15 +13,21 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #include "xAODTrigger/JetRoIContainer.h"
 
-#include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAttributes.h"
+
+#include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
 
-#include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+
 #include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
+
 #include "xAODBTagging/BTagging.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -62,7 +68,7 @@ namespace Trig {
     StatusCode retagOnline();
 
     JetManager& merge(const std::unique_ptr< JetManager >&);
-    JetManager& merge(const std::vector<const xAOD::Jet*>&, double minPt = 0, double maxPt = 0);
+    JetManager& merge(std::unique_ptr< xAOD::JetContainer >&, double minPt = 0, double maxPt = 0);
 
     void use4x4( bool set4x4 = true );
 
@@ -83,14 +89,13 @@ namespace Trig {
   private:
     bool clear();
     template<typename T> 
-      bool getFromCombo(std::vector<const T*>&,const Trig::Combination&,std::string key="");
-    bool getTPfromCombo(std::vector<const xAOD::TrackParticleContainer*>&,const Trig::Combination&,std::string);
-
+      bool getFromCombo(std::unique_ptr< DataVector< T > >&,const Trig::Combination&,std::string key="");
+    bool getTPfromCombo(std::vector< std::unique_ptr< xAOD::TrackParticleContainer > >&,const Trig::Combination&,std::string);
 
     StatusCode retrieveJetContainer();
 
-    void jetCopy( std::vector< const xAOD::Jet* >& );
-    void jetCopy( std::vector< const xAOD::JetRoI* >&);
+    void jetCopy( std::unique_ptr< xAOD::JetContainer >& );
+    void jetCopy( std::unique_ptr< xAOD::JetRoIContainer>& );
     bool matchedSPLITjet(const xAOD::Jet*,const xAOD::Jet*);
 
     // ========================== //
@@ -113,11 +118,11 @@ namespace Trig {
     bool m_uses4x4;
 
     // Local containers
-    std::vector<const xAOD::Jet*> m_jet_Containers;
-    std::vector<const xAOD::JetRoI*> m_jetRoI_Containers;
-    std::vector<const xAOD::Vertex*> m_primaryVertex_Containers;
-    std::vector<const xAOD::TrackParticleContainer*> m_trackParticle_Containers;
-    std::vector<const xAOD::BTagging*> m_btagging_Containers;
+    std::unique_ptr< xAOD::JetContainer > m_jet_Containers;
+    std::unique_ptr< xAOD::JetRoIContainer > m_jetRoI_Containers;
+    std::unique_ptr< xAOD::BTaggingContainer > m_btagging_Containers;
+    std::unique_ptr< xAOD::VertexContainer > m_primaryVertex_Containers;
+    std::vector< std::unique_ptr< xAOD::TrackParticleContainer > > m_trackParticle_Containers;
 
     std::vector< std::unique_ptr< TrigBtagEmulationJet > > m_outputJets;
 

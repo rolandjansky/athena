@@ -18,7 +18,24 @@ JetManager::JetManager(std::string name,ToolHandle<Trig::TrigDecisionTool>& trig
   : AsgTool(name), m_chain(chain), 
     m_containers( "","" ), m_keys( "","","","" ),
     m_uses4x4(false),
-    m_trigDec(trigDec) {}
+    m_trigDec(trigDec) 
+{
+  m_jet_Containers = std::unique_ptr< xAOD::JetContainer >( new xAOD::JetContainer() );
+  std::unique_ptr< xAOD::AuxContainerBase > jet_Containers_Aux( new xAOD::AuxContainerBase() );
+  m_jet_Containers->setStore( jet_Containers_Aux.release() );
+
+  m_jetRoI_Containers = std::unique_ptr< xAOD::JetRoIContainer >( new xAOD::JetRoIContainer() );
+  std::unique_ptr< xAOD::AuxContainerBase > jetRoI_Containers_Aux( new xAOD::AuxContainerBase() );
+  m_jetRoI_Containers->setStore( jetRoI_Containers_Aux.release() );
+
+  m_btagging_Containers = std::unique_ptr< xAOD::BTaggingContainer >( new xAOD::BTaggingContainer() );
+  std::unique_ptr< xAOD::AuxContainerBase > btagging_Containers_Aux( new xAOD::AuxContainerBase() );
+  m_btagging_Containers->setStore( btagging_Containers_Aux.release() );
+
+  m_primaryVertex_Containers = std::unique_ptr< xAOD::VertexContainer >( new xAOD::VertexContainer );
+  std::unique_ptr< xAOD::AuxContainerBase > primaryVertex_Containers_Aux( new xAOD::AuxContainerBase() );
+  m_primaryVertex_Containers->setStore( primaryVertex_Containers_Aux.release() );
+}
 JetManager::~JetManager() {}
 
 
@@ -42,10 +59,10 @@ std::string JetManager::btaggingKeyName() const { return std::get< EventElement:
 std::string JetManager::primaryVertexKeyName() const { return std::get< EventElement::PRIM_VTX >( m_keys ); }
 std::string JetManager::trackParticleKeyName() const { return std::get< EventElement::TRK_PARTICLE >( m_keys ); }
 
-unsigned int JetManager::jetSize() const { return m_jet_Containers.size(); }
-unsigned int JetManager::jetRoISize() const { return m_jetRoI_Containers.size(); }
-unsigned int JetManager::btaggingSize() const { return m_btagging_Containers.size(); }
-unsigned int JetManager::primaryVertexSize() const { return m_primaryVertex_Containers.size(); }
+unsigned int JetManager::jetSize() const { return m_jet_Containers->size(); }
+unsigned int JetManager::jetRoISize() const { return m_jetRoI_Containers->size(); }
+unsigned int JetManager::btaggingSize() const { return m_btagging_Containers->size(); }
+unsigned int JetManager::primaryVertexSize() const { return m_primaryVertex_Containers->size(); }
 unsigned int JetManager::trackParticleSize() const { return m_trackParticle_Containers.size(); }
 
 StatusCode JetManager::retrieveByNavigation() {
@@ -66,8 +83,8 @@ StatusCode JetManager::retrieveByNavigation() {
   return StatusCode::SUCCESS;
 }
 
-template<typename T> bool JetManager::getFromCombo(std::vector<const T*> &output,const Trig::Combination& combo,std::string key) {
-  const DataVector<T> *tmpContainer = nullptr;
+template<typename T> bool JetManager::getFromCombo(std::unique_ptr< DataVector< T > > &output,const Trig::Combination& combo,std::string key) {
+  const DataVector< T > *tmpContainer = nullptr;
   const std::vector< Trig::Feature< DataVector<T> > > tmpFeatures = combo.containerFeature< DataVector<T> >(key.c_str());
   
   if (tmpFeatures.size())
@@ -75,38 +92,51 @@ template<typename T> bool JetManager::getFromCombo(std::vector<const T*> &output
   if (tmpContainer == nullptr)
     return false;
   
-  output.push_back( (*tmpContainer)[0] );
+  T* toBeAdded = new T();
+  output->push_back( toBeAdded );
+  *toBeAdded = *tmpContainer->at(0);
+
   return true;
 }
 
-bool JetManager::getTPfromCombo(std::vector<const xAOD::TrackParticleContainer*>& tpContainers,const Trig::Combination& combo,std::string key) {
-  const xAOD::TrackParticleContainer* trackParticleContainer = nullptr;
-  const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > trackParticleContainerFeatures = combo.containerFeature<xAOD::TrackParticleContainer>(key.c_str());
-  
-  if (trackParticleContainerFeatures.size()) 
-    trackParticleContainer = trackParticleContainerFeatures[0].cptr();
-  if (trackParticleContainer == nullptr)
+bool JetManager::getTPfromCombo(std::vector< std::unique_ptr< xAOD::TrackParticleContainer > >& tpContainers,const Trig::Combination& combo,std::string key) {
+  std::unique_ptr< xAOD::TrackParticleContainer > trackParticles( new xAOD::TrackParticleContainer() );
+  std::unique_ptr< xAOD::AuxContainerBase > trackParticlesAux( new xAOD::AuxContainerBase );
+  trackParticles->setStore( trackParticlesAux.release() );
+
+  const xAOD::TrackParticleContainer *tmpTrackContainer = nullptr;
+  const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > trackParticleContainerFeatures = combo.containerFeature<xAOD::TrackParticleContainer>( key.c_str() );
+
+  if (trackParticleContainerFeatures.size())
+    tmpTrackContainer = trackParticleContainerFeatures[0].cptr();
+  if (tmpTrackContainer == nullptr)
     return false;
 
-  tpContainers.push_back( trackParticleContainer );
+  for ( const xAOD::TrackParticle* el : *tmpTrackContainer ) {
+    xAOD::TrackParticle *particle = new xAOD::TrackParticle();
+    trackParticles->push_back( particle );
+    *particle = *el;
+  }
+
+  tpContainers.push_back( std::move( trackParticles ) );
   return true;
 }
 
-void JetManager::jetCopy( std::vector< const xAOD::Jet* >& container ) {
-  for (const xAOD::Jet *theJet : container) 
+void JetManager::jetCopy( std::unique_ptr< xAOD::JetContainer >& container ) {
+  for ( const xAOD::Jet *theJet : *container.get() ) 
     m_outputJets.push_back( std::unique_ptr< TrigBtagEmulationJet >( new TrigBtagEmulationJet( theJet ) ) );
 }
-void JetManager::jetCopy( std::vector< const xAOD::JetRoI* >& container ) {
-  for (const xAOD::JetRoI *theJetRoI : container)
+void JetManager::jetCopy( std::unique_ptr< xAOD::JetRoIContainer >& container ) {
+  for ( const xAOD::JetRoI *theJetRoI : *container.get() ) 
     m_outputJets.push_back( std::unique_ptr< TrigBtagEmulationJet >( new TrigBtagEmulationJet( theJetRoI,m_uses4x4 ) ) );
 }
 
 StatusCode JetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnline) {
-  if ( m_jet_Containers.size() == 0 ) return StatusCode::SUCCESS;
+  if ( m_jet_Containers->size() == 0 ) return StatusCode::SUCCESS;
 
   for (unsigned int i(0); i<m_outputJets.size(); i++) {
     std::unique_ptr< TrigBtagEmulationJet >& out = m_outputJets.at(i);
-    const xAOD::BTagging *btag = m_btagging_Containers.at(i);
+    const xAOD::BTagging *btag = m_btagging_Containers->at(i);
 
     const double mv2c10 = btag->isAvailable<double>("MV2c10_discriminant") ? btag->auxdataConst<double>("MV2c10_discriminant") : -99 ;
     const double mv2c20 = btag->isAvailable<double>("MV2c20_discriminant") ? btag->auxdataConst<double>("MV2c20_discriminant") : -99 ;
@@ -130,11 +160,11 @@ StatusCode JetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnli
 }
 
 bool JetManager::clear() {
-  m_jet_Containers.clear();
-  m_jetRoI_Containers.clear();
-  m_primaryVertex_Containers.clear();
+  m_jet_Containers->clear();
+  m_jetRoI_Containers->clear();
+  m_primaryVertex_Containers->clear();
   m_trackParticle_Containers.clear();
-  m_btagging_Containers.clear();
+  m_btagging_Containers->clear();
 
   m_outputJets.clear();
 
@@ -142,14 +172,14 @@ bool JetManager::clear() {
 }
 
 StatusCode JetManager::retagOffline() {
-  if ( m_jet_Containers.size() == 0 ) return StatusCode::SUCCESS;
+  if ( m_jet_Containers->size() == 0 ) return StatusCode::SUCCESS;
 
 #if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
-  auto pv  = m_primaryVertex_Containers.begin();
+  auto pv  = m_primaryVertex_Containers->begin();
   auto tp  = m_trackParticle_Containers.begin();
   auto out = m_outputJets.begin();
 
-  for (auto & jet : m_jet_Containers) {
+  for ( xAOD::Jet *jet : *m_jet_Containers.get() ) {
 
     // Create container for copied jets
     xAOD::JetContainer* output_jets = new xAOD::JetContainer(SG::OWN_ELEMENTS);
@@ -193,7 +223,7 @@ StatusCode JetManager::retagOffline() {
     if (!m_bTagTrackAssocTool->empty()) {
       std::vector<xAOD::Jet*> jetsList;
       jetsList.push_back(output_jet);
-      sc = (*m_bTagTrackAssocTool)->BTagTrackAssociation_exec(&jetsList, *tp);
+      sc = (*m_bTagTrackAssocTool)->BTagTrackAssociation_exec( &jetsList, tp->get() ); 
     }
     else {
       ATH_MSG_WARNING( "#BTAG# Empty track association tool" );
@@ -251,9 +281,9 @@ std::vector< std::unique_ptr< TrigBtagEmulationJet > > JetManager::getJets() {
 }
 
 
-JetManager& JetManager::merge(const std::unique_ptr< JetManager >& other) { return merge(other->m_jet_Containers); }
-JetManager& JetManager::merge(const std::vector<const xAOD::Jet*>& jets, double minPt, double maxPt) {
-  for (const xAOD::Jet* jet : jets) {
+JetManager& JetManager::merge(const std::unique_ptr< JetManager >& other) { return merge( other->m_jet_Containers ); }
+JetManager& JetManager::merge( std::unique_ptr< xAOD::JetContainer >& jets, double minPt, double maxPt) {
+  for ( const xAOD::Jet* jet : *jets.get() ) {
     std::unique_ptr< TrigBtagEmulationJet > backupJet( new TrigBtagEmulationJet( jet ) );
     backupJet->weights( "MV2c10" ,-1 );
     backupJet->weights( "MV2c20" ,-1 );
@@ -297,9 +327,18 @@ StatusCode JetManager::retrieveJetContainer() {
     
     for ( const xAOD::JetRoI *jetRoI : *theJetRoIContainer ) {
       bool unique = true;
-      for ( const xAOD::JetRoI *storedJetRoI : m_jetRoI_Containers )
-	if ( jetRoI == storedJetRoI ) unique = false;
-      if (unique)  m_jetRoI_Containers.push_back( jetRoI ); 
+      for ( const xAOD::JetRoI *storedJetRoI : *m_jetRoI_Containers.get() ) 
+	if ( jetRoI->et4x4() == storedJetRoI->et4x4() &&
+	     jetRoI->et8x8() == storedJetRoI->et8x8() &&
+	     jetRoI->eta() == storedJetRoI->eta() &&
+	     jetRoI->phi() == storedJetRoI->phi() ) 
+	  unique = false;
+
+      if (unique) { 
+	xAOD::JetRoI *toBeAdded = new xAOD::JetRoI();
+	m_jetRoI_Containers->push_back( toBeAdded );
+	*toBeAdded = *jetRoI;
+      }
     }
 
     jetCopy( m_jetRoI_Containers );
@@ -317,9 +356,17 @@ StatusCode JetManager::retrieveJetContainer() {
 
     for ( const xAOD::Jet *jet : *theJetContainer ) {
       bool unique = true;
-      for ( const xAOD::Jet *storedJet : m_jet_Containers )
-	if ( jet == storedJet ) unique = false;
-      if ( unique ) m_jet_Containers.push_back( jet );
+      for ( const xAOD::Jet *storedJet : *m_jet_Containers.get() )
+	if ( jet->p4().Et() == storedJet->p4().Et() &&
+	     jet->eta() == storedJet->eta() &&
+	     jet->phi() == storedJet->phi() ) 
+	  unique = false;
+
+      if ( unique ) {
+	xAOD::Jet *toBeAdded = new xAOD::Jet();
+	m_jet_Containers->push_back( toBeAdded );
+	*toBeAdded = *jet;
+      }
     }
 
     jetCopy( m_jet_Containers );
@@ -402,13 +449,13 @@ StatusCode JetManager::retrieveByContainer() {
       // First check if the btagged jet is present in the jets retrieved by the container
       const xAOD::Jet *matchedJet = nullptr;
 
-      bool isJetPresent=false;
+      bool isJetPresent = false;
       for ( const xAOD::Jet *theJet : *theJetContainer ) {
 	
 	if ( ( !isGSCchain && btaggedJet == theJet ) || // For non-GSC chains check if the btagged and container jets are the same 
 	     ( isGSCchain && matchedSPLITjet( btaggedJet,theJet ) ) ) { // For GSC chains check if the container jets satisfy the dR matching with the btagged jet
 	  matchedJet = theJet;
-	  isJetPresent=true;
+	  isJetPresent = true;
 	  break;
 	}
 
@@ -416,13 +463,21 @@ StatusCode JetManager::retrieveByContainer() {
       
       // Check if the linked Jet has already been found
       bool isJetUnique = true;
-      for (const xAOD::Jet *j : m_jet_Containers)
-	if( matchedJet == j ) isJetUnique = false;
+      for ( const xAOD::Jet *j : *m_jet_Containers.get() )
+	if( matchedJet->p4().Et() == j->p4().Et() &&
+	    matchedJet->eta() == j->eta() &&
+	    matchedJet->phi() == j->phi() ) 
+	  isJetUnique = false;
 
       // Save Jet and BTagging objects if jet is found and unique
       if (isJetPresent && isJetUnique) {
-	m_jet_Containers.push_back( matchedJet );
-	m_btagging_Containers.push_back(bjet);
+	xAOD::Jet *toBeAdded_Jet = new xAOD::Jet();
+	m_jet_Containers->push_back( toBeAdded_Jet );
+	*toBeAdded_Jet = *matchedJet;
+
+	xAOD::BTagging *toBeAdded_Btag = new xAOD::BTagging();
+	m_btagging_Containers->push_back( toBeAdded_Btag );
+	*toBeAdded_Btag = *bjet;
       }
     }
 
