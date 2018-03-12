@@ -33,14 +33,21 @@ namespace HLTTest {
     virtual StatusCode  execute_r( const EventContext& context ) const override;
     StatusCode  finalize() override;
 
-  private: 
+
+  private:
+    typedef TrigRoiDescriptor FeatureOBJ;
+    typedef TrigRoiDescriptorCollection FeatureContainer;
+
     TestHypoAlg();
     ToolHandleArray<ITestHypoTool> m_tools                       { this, "HypoTools", {}, "Hypo tools" };
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput  { this, "Input", "Input", "Key for reco input"};
+    
     SG::ReadHandleKey <DecisionContainer> m_previousDecisions    { this, "previousDecisions", "previousDecisions", "Key for decisions per RoI" };
     SG::WriteHandleKey<DecisionContainer> m_output               { this, "Output", "Output", "Key for decision output"};
 
-  
+    StringProperty m_linkName {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
+
+   
   }; 
 
 } //> end namespace HLTTest
