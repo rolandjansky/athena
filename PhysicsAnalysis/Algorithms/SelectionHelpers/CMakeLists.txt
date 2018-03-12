@@ -3,20 +3,23 @@
 # @author Nils Krumnack
 
 
-# The name of the package:
 atlas_subdir( SelectionHelpers )
 
-# The package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Control/AthContainers
+   Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODBase
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   Control/AthToolSupport/AsgTools )
+   PRIVATE
+   PhysicsAnalysis/AnalysisCommon/PATCore
+   PhyaicsAnalysis/AnalysisCommon/PATInterfaces )
 
 atlas_add_library( SelectionHelpersLib
    SelectionHelpers/*.h SelectionHelpers/*.icc Root/*.cxx
    PUBLIC_HEADERS SelectionHelpers
-   LINK_LIBRARIES PATCoreLib xAODBase PATInterfaces
-   PRIVATE_LINK_LIBRARIES RootCoreUtils )
+   LINK_LIBRARIES AthContainers AsgTools xAODBase AnaAlgorithmLib
+   PRIVATE_LINK_LIBRARIES PATCoreLib PATInterfaces )
 
 atlas_add_dictionary( SelectionHelpersDict
    SelectionHelpers/SelectionHelpersDict.h
