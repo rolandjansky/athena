@@ -310,7 +310,6 @@ namespace InDet
       
       /**Observer tool      This tool is used to observe the tracks and their 'score' */
       ToolHandle<Trk::ITrkObserverTool> m_observerTool;
-
       
       /** some cut values */
       int m_minHits;                // Min Number of hits on track            
