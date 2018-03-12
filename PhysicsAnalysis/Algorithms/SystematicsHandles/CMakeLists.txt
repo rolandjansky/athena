@@ -3,35 +3,39 @@
 # @author Nils Krumnack
 
 
-# The name of the package:
 atlas_subdir( SystematicsHandles )
 
-# The package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Event/xAOD/xAODBase
+   Control/AthToolSupport/AsgTools
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
+   Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    PRIVATE
+   Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODJet
    PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS SystematicsHandles
-   LINK_LIBRARIES xAODBase PATInterfaces AnaAlgorithmLib
-   # note that xAODCore is needed in Athena, don't remove
-   xAODCore
+   LINK_LIBRARIES AsgTools PATInterfaces AnaAlgorithmLib xAODBase xAODCore
    PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
-add_executable (SystematicsHandles_cc_SysReadHandle test/cc_SysReadHandle.cxx)
-target_link_libraries (SystematicsHandles_cc_SysReadHandle SystematicsHandlesLib)
+atlas_add_test( cc_SysReadHandle
+   SOURCES test/cc_SysReadHandle.cxx
+   LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )
 
-add_executable (SystematicsHandles_cc_SysCopyHandle test/cc_SysCopyHandle.cxx)
-target_link_libraries (SystematicsHandles_cc_SysCopyHandle SystematicsHandlesLib xAODEventInfo xAODJet)
+atlas_add_test( cc_SysCopyHandle
+   SOURCES test/cc_SysCopyHandle.cxx
+   LINK_LIBRARIES AsgTools AnaAlgorithmLib xAODEventInfo xAODJet
+   SystematicsHandlesLib )
 
-add_executable (SystematicsHandles_cc_SysWriteHandle test/cc_SysWriteHandle.cxx)
-target_link_libraries (SystematicsHandles_cc_SysWriteHandle SystematicsHandlesLib)
+atlas_add_test( cc_SysWriteHandle
+   SOURCES test/cc_SysWriteHandle.cxx
+   LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )
 
-add_executable (SystematicsHandles_cc_SysListHandle test/cc_SysListHandle.cxx)
-target_link_libraries (SystematicsHandles_cc_SysListHandle SystematicsHandlesLib)
+atlas_add_test( cc_SysListHandle
+   SOURCES test/cc_SysListHandle.cxx
+   LINK_LIBRARIES AsgTools AnaAlgorithmLib SystematicsHandlesLib )

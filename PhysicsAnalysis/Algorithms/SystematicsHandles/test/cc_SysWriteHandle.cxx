@@ -18,7 +18,7 @@
 //
 
 // this tries to instantiate the various handles
-int main ()
+void test ()
 {
   CP::SystematicSet *sys = nullptr;
 
@@ -29,4 +29,9 @@ int main ()
   asg::AsgTool *tool = nullptr;
   CP::SysWriteHandle<float,double> toolHandle (tool, "test", "test", "test");
   toolHandle.record (std::unique_ptr<float> (), std::unique_ptr<double> (), *sys);
+}
+
+int main ()
+{
+  return 0;
 }

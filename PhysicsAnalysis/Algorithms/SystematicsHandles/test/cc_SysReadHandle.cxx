@@ -18,7 +18,7 @@
 //
 
 // this tries to instantiate the various handles
-int main ()
+void test ()
 {
   CP::SystematicSet *sys = nullptr;
   const float *object = nullptr;
@@ -30,4 +30,9 @@ int main ()
   asg::AsgTool *tool = nullptr;
   CP::SysReadHandle<float> toolHandle (tool, "test", "test", "test");
   toolHandle.retrieve (object, *sys);
+}
+
+int main ()
+{
+  return 0;
 }

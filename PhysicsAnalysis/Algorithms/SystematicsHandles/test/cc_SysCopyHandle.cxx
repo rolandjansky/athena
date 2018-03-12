@@ -20,7 +20,7 @@
 //
 
 // this tries to instantiate the various handles
-int main ()
+void test ()
 {
   CP::SystematicSet *sys = nullptr;
   xAOD::EventInfo *object1 = nullptr;
@@ -33,4 +33,9 @@ int main ()
   asg::AsgTool *tool = nullptr;
   CP::SysCopyHandle<xAOD::JetContainer> toolHandle (tool, "test", "test", "test");
   toolHandle.getCopy (object2, *sys);
+}
+
+int main ()
+{
+  return 0;
 }

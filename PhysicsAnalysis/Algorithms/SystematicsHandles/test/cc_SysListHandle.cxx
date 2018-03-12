@@ -20,7 +20,7 @@
 //
 
 // this tries to instantiate the various templates
-int main ()
+void test ()
 {
   EL::AnaAlgorithm *alg = nullptr;
   CP::SysListHandle algProperty (alg);
@@ -33,4 +33,9 @@ int main ()
   CP::SysListHandle toolProperty (tool);
   CP::SysReadHandle<float> toolHandle (tool, "test", "test", "test");
   toolProperty.addHandle (toolHandle);
+}
+
+int main ()
+{
+  return 0;
 }
