@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/PersistentDataModel
                           Event/EventInfo

@@ -19,7 +19,6 @@ atlas_depends_on_subdirs(
    Control/StoreGate
    Database/APR/CollectionBase
    Database/APR/FileCatalog
-   Database/AthenaPOOL/AthenaPoolKernel
    Database/AthenaPOOL/AthenaPoolUtilities
    Database/PersistentDataModel
    Event/EventInfo

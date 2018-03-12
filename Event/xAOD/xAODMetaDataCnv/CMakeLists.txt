@@ -8,7 +8,7 @@ atlas_subdir( xAODMetaDataCnv )
 
 # Extra dependencies, based on the environment that we're in:
 if( NOT XAOD_STANDALONE )
-   set( extra_deps Database/AthenaPOOL/AthenaPoolKernel
+   set( extra_deps
       GaudiKernel
       PRIVATE
       Control/AthenaKernel

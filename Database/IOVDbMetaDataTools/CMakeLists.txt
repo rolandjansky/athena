@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolKernel
                           Database/IOVDbDataModel )
 
 # Component(s) in the package:

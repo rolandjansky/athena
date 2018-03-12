@@ -10,14 +10,13 @@ atlas_subdir( xAODTriggerCnv )
 if( XAOD_STANDALONE )
    set( extra_deps PRIVATE Control/xAODRootAccess )
 elseif( XAOD_ANALYSIS )
-   set( extra_deps GaudiKernel Database/AthenaPOOL/AthenaPoolKernel )
+   set( extra_deps GaudiKernel Control/AthenaKernel )
 else()
    set( extra_deps GaudiKernel
       PRIVATE
       Control/AthenaBaseComps
       Control/AthenaKernel
       Control/StoreGate
-      Database/AthenaPOOL/AthenaPoolKernel
       Event/EventInfo
       PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
       Trigger/TrigAnalysis/TrigAnalysisInterfaces

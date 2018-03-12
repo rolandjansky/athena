@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaKernel
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolExample/AthenaPoolExampleData
-                          Database/AthenaPOOL/AthenaPoolKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/AthenaPOOL/DBDataModel
                           Event/ByteStreamData
