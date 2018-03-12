@@ -93,7 +93,7 @@ namespace xAOD {
     typedef IParticle::FourMom_t FourMom_t;
 
     /// The full 4-momentum of the particle
-    virtual const FourMom_t& p4() const;
+    virtual FourMom_t p4() const;
 
 
     /// The type of the object as a simple enumeration
@@ -107,8 +107,14 @@ namespace xAOD {
     /// @{
     ///    
 
+    /// define enum ot follow naming conventions
+    typedef JetFourMom_t GenVecFourMom_t;
+
+
     /// The full 4-momentum of the particle : internal jet type.
-    virtual const JetFourMom_t& jetP4() const;
+    GenVecFourMom_t jetP4() const;
+    /// The full 4-momentum of the particle : internal jet type (same).
+    GenVecFourMom_t genvecP4() const;
 
     /// The x-component of the jet's momentum
     float px() const;
@@ -128,8 +134,10 @@ namespace xAOD {
     /// For now provide the minimum by returning only FourMomentum.
     /// Access by the enum to the historical states
     JetFourMom_t jetP4(JetScale s) const ;
+    JetFourMom_t genvecP4(JetScale s) const ;
     /// Generic access to states
     JetFourMom_t jetP4(const std::string& statename) const ;
+    JetFourMom_t genvecP4(const std::string& statename) const ;
 
     void setJetP4(const JetFourMom_t & p4);
     void setJetP4(JetScale s, const JetFourMom_t & p4);
@@ -345,17 +353,8 @@ namespace xAOD {
     
 
   private:
-    /// Cached 4-momentum object (IParticle interface)
-    mutable FourMom_t m_pxpypze;
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_pxpypzeCached;
 
-    /// Cached Jet prefered 4-momentum object
-    mutable JetFourMom_t m_momentum;
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_momentumCached;
-
-    ///
+    /// JM: CACHING NEEDS UPDATING FOR MT
     typedef std::map<std::string, std::vector<const IParticle*> > VectIPartMap_t; 
     /// cached container for vector<IParticle*>
     mutable VectIPartMap_t m_assoParticleCache;

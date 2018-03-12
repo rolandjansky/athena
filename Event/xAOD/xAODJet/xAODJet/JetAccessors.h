@@ -58,7 +58,7 @@ namespace xAOD {
         v = m_a(p);
       }
 
-      const TYPE & getAttribute(const SG::AuxElement& p){
+      TYPE getAttribute(const SG::AuxElement& p){
         return m_a(p);
       }
       

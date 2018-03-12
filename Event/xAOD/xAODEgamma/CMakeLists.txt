@@ -30,7 +30,7 @@ atlas_add_library( xAODEgamma
    xAODEgamma/*.h xAODEgamma/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODEgamma
    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers AthLinks CxxUtils
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils
    GeoPrimitives EventPrimitives xAODBase xAODCaloEvent xAODCore
    xAODPrimitives xAODTracking xAODTruth )
 

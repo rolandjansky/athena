@@ -15,20 +15,14 @@ namespace xAOD {
 
   Jet_v1::Jet_v1()
     : IParticle() 
-    , m_pxpypzeCached(false)
-    , m_momentumCached(false)
     , m_fastJetLink(NULL) 
   {
   }
 
-  static JetAttributeAccessor::AccessorWrapper<JetFourMom_t> momentumAcc;
+  static JetAttributeAccessor::AccessorWrapper<Jet_v1::GenVecFourMom_t> momentumAcc;
   
   
   Jet_v1::Jet_v1(const Jet_v1& o ) : IParticle( o )
-                                   , m_pxpypze(o.m_pxpypze)
-                                   , m_pxpypzeCached(o.m_pxpypzeCached) 
-                                   , m_momentum(o.m_momentum) 
-                                   , m_momentumCached(o.m_momentumCached) 
                                    , m_fastJetLink(NULL)
   {
     makePrivateStore( o );
@@ -40,10 +34,6 @@ namespace xAOD {
 
     if( ( ! hasStore() ) && ( ! container() ) ) makePrivateStore();
     this->IParticle::operator=( o );
-    m_pxpypze = o.m_pxpypze;
-    m_pxpypzeCached = o.m_pxpypzeCached;
-    m_momentum = o.m_momentum;
-    m_momentumCached = o.m_momentumCached;
     if( (o.m_fastJetLink) && (m_fastJetLink==NULL) ) m_fastJetLink = o.m_fastJetLink->clone();    
     return *this;
   }
@@ -80,19 +70,18 @@ namespace xAOD {
      return jetP4().Rapidity();
    }
 
-   const Jet_v1::FourMom_t& Jet_v1::p4() const {
-     if(m_pxpypzeCached) return m_pxpypze;
-     JetFourMom_t p = jetP4();
-     m_pxpypze.SetPxPyPzE(p.Px(), p.Py(), p.Pz(), p.E() );
-     m_pxpypzeCached = true;
-     return m_pxpypze;
+   Jet_v1::FourMom_t Jet_v1::p4() const {
+     GenVecFourMom_t p = jetP4();
+     return FourMom_t(p.Px(), p.Py(), p.Pz(), p.E() );
    }
 
-   const JetFourMom_t& Jet_v1::jetP4() const {
-     if(m_momentumCached) return m_momentum;
-     momentumAcc.getAttribute( *this, m_momentum);
-     m_momentumCached = true;
-     return m_momentum;
+   Jet_v1::GenVecFourMom_t Jet_v1::jetP4() const {
+     return momentumAcc.getAttribute( *this);
+   }
+
+  
+   Jet_v1::GenVecFourMom_t Jet_v1::genvecP4() const {
+     return jetP4();
    }
 
   Type::ObjectType Jet_v1::type() const {    
@@ -181,20 +170,17 @@ namespace xAOD {
 
 
   
-  void Jet_v1::setJetP4( const JetFourMom_t& p4 ) {
+  void Jet_v1::setJetP4( const Jet_v1::GenVecFourMom_t& p4 ) {
     
     momentumAcc.setAttribute( *this, p4 );
-    m_momentum = p4;
-    m_momentumCached = true;
-    m_pxpypzeCached = false; 
     return;
   }
 
-  static JetAttributeAccessor::AccessorWrapper< JetFourMom_t > jetEMScaleAcc("JetEMScaleMomentum");
-  static JetAttributeAccessor::AccessorWrapper< JetFourMom_t > jetConstitScaleAcc("JetConstitScaleMomentum");
+  static JetAttributeAccessor::AccessorWrapper< Jet_v1::GenVecFourMom_t > jetEMScaleAcc("JetEMScaleMomentum");
+  static JetAttributeAccessor::AccessorWrapper< Jet_v1::GenVecFourMom_t > jetConstitScaleAcc("JetConstitScaleMomentum");
 
   /// Access by the enum to the historical states
-  JetFourMom_t Jet_v1::jetP4(JetScale s) const {
+  Jet_v1::GenVecFourMom_t Jet_v1::jetP4(JetScale s) const {
     switch( s ){ 
     case JetEMScaleMomentum: return jetEMScaleAcc.getAttribute( *this );
     case JetConstitScaleMomentum : return jetConstitScaleAcc.getAttribute( *this );
@@ -203,11 +189,15 @@ namespace xAOD {
       std::cerr << " Error p4(P4SignalState) unknown state "<< s << std::endl;
       break;
     }
-    return JetFourMom_t();
+    return GenVecFourMom_t();
+  }
+
+  Jet_v1::GenVecFourMom_t Jet_v1::genvecP4(JetScale s) const {
+    return jetP4(s);
   }
 
   /// Access by the enum to the historical states
-  void Jet_v1::setJetP4(JetScale s, const JetFourMom_t &p4)  {
+  void Jet_v1::setJetP4(JetScale s, const Jet_v1::GenVecFourMom_t &p4)  {
     switch( s ){ 
     case JetEMScaleMomentum: 
       jetEMScaleAcc.setAttribute( *this, p4 );
@@ -226,14 +216,18 @@ namespace xAOD {
 
 
   /// Generic access to states
-  JetFourMom_t Jet_v1::jetP4(const std::string& statename) const {
+  Jet_v1::GenVecFourMom_t Jet_v1::jetP4(const std::string& statename) const {
     if(statename=="JetAssignedScaleMomentum") return jetP4();
-    return getAttribute<JetFourMom_t>(statename);
+    return getAttribute<GenVecFourMom_t>(statename);
   }
 
-  void Jet_v1::setJetP4(const std::string& statename, const JetFourMom_t &p4)  {
+  Jet_v1::GenVecFourMom_t Jet_v1::genvecP4(const std::string& statename) const {
+    return jetP4(statename);
+  }
+
+  void Jet_v1::setJetP4(const std::string& statename, const GenVecFourMom_t &p4)  {
     if(statename=="JetAssignedScaleMomentum") return setJetP4(JetAssignedScaleMomentum,p4);
-    return setAttribute<JetFourMom_t>(statename, p4);
+    return setAttribute<GenVecFourMom_t>(statename, p4);
   }
 
 
@@ -243,7 +237,6 @@ namespace xAOD {
     m_assoParticleCache.clear();
     if(m_fastJetLink) delete m_fastJetLink; 
     m_fastJetLink = NULL;
-    m_momentumCached = false;
   }
 
 
