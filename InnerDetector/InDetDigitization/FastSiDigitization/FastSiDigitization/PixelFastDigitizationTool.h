@@ -173,7 +173,7 @@ private:
   Trk::DigitizationModule * buildDetectorModule(const InDetDD::SiDetectorElement* ) const;
 
  Amg::Vector3D CalculateIntersection(const Amg::Vector3D & Point, const Amg::Vector3D & Direction, Amg::Vector2D PlaneBorder, double halfthickness) const;
- bool Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY );
+ bool Diffuse(HepGeom::Point3D<double>& localEntry, HepGeom::Point3D<double>& localExit, double shiftX, double shiftY ) const;
   //   void addSDO( const DiodeCollectionPtr& collection );
 
 
