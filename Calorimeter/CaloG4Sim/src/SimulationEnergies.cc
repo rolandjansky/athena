@@ -144,38 +144,8 @@ namespace CaloG4 {
   G4bool SimulationEnergies::m_calledForStep = false;
 #endif
 
-  SimulationEnergies::SimulationEnergies() 
-  {
-    // Initialize some static variables.
-
-    static G4bool initialized = false;
-    if ( ! initialized )
-      { 
-	initialized = true;
-
-	/*
-	// Constructor: initialize some useful constants.
-	electronMass = G4ParticleTable::GetParticleTable()->FindParticle("e-")      ->GetPDGMass();
-	protonMass   = G4ParticleTable::GetParticleTable()->FindParticle("proton")  ->GetPDGMass();
-	neutronMass  = G4ParticleTable::GetParticleTable()->FindParticle("neutron") ->GetPDGMass();
-	deuteronMass = G4ParticleTable::GetParticleTable()->FindParticle("deuteron")->GetPDGMass();
-	tritonMass   = G4ParticleTable::GetParticleTable()->FindParticle("triton")  ->GetPDGMass();
-	alphaMass    = G4ParticleTable::GetParticleTable()->FindParticle("alpha")   ->GetPDGMass();
-	helium3Mass  = G4ParticleTable::GetParticleTable()->FindParticle("He3")     ->GetPDGMass();
-    
-#ifdef DEBUG_ENERGIES
-	G4cout << "SimulationEnergies initialization: " << G4endl;
-	G4cout << ">>>> electronMass="<<electronMass << G4endl;
-	G4cout << ">>>> protonMass="<<protonMass << G4endl;
-	G4cout << ">>>> neutronMass="<<neutronMass << G4endl;
-	G4cout << ">>>> deuteronMass="<<deuteronMass << G4endl;
-	G4cout << ">>>> tritonMass="<<tritonMass << G4endl;
-	G4cout << ">>>> alphaMass="<<alphaMass << G4endl;
-	G4cout << ">>>> helium3Mass="<<helium3Mass << G4endl;
-#endif
-	*/
-      }
-  }
+  SimulationEnergies::SimulationEnergies()
+  {;}
 
 
   SimulationEnergies::~SimulationEnergies()
