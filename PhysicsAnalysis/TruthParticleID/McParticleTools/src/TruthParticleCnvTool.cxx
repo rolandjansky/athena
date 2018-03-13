@@ -151,13 +151,16 @@ StatusCode TruthParticleCnvTool::execute()
 {  
   ATH_MSG_DEBUG("Executing " << name() << "...");
 
+  //Setup WriteHandle, and record new TruthParticleContainer
   SG::WriteHandle<TruthParticleContainer> mcPartsOutputWriteHandle(m_mcPartsOutputWriteHandleKey);
-
+  ATH_CHECK(mcPartsOutputWriteHandle.record(std::make_unique<TruthParticleContainer>()));  
+  
   if (!mcPartsOutputWriteHandle.isValid()){
     ATH_MSG_ERROR("Invalid WriteHandle for TruthParticleContainer with key: " << m_mcPartsOutputWriteHandleKey.key());
     return StatusCode::FAILURE;
   }
 
+  //Setup ReadHandle for input McEventCollection
   SG::ReadHandle<McEventCollection> mcEventsReadHandle(m_mcEventsReadHandleKey);
 
   if (!mcEventsReadHandle.isValid()){

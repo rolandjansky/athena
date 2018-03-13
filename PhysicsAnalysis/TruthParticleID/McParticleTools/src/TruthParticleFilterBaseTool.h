@@ -105,7 +105,7 @@ class TruthParticleFilterBaseTool : virtual public ITruthParticleFilterTool,
   
   /** ReadHandleKey for the input McEventCollection one wants to filter
    */
-  SG::ReadHandleKey<McEventCollection> m_mcEventsReadHandleKey{this,"McEvents","TruthEvents","ReadHandleKey for input  McEventCollection one wants to filter"};
+  SG::ReadHandleKey<McEventCollection> m_mcEventsReadHandleKey{this,"McEvents","TruthEvent","ReadHandleKey for input  McEventCollection one wants to filter"};
 
   /** Location of the output McEventCollection which has been filtered
    */

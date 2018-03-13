@@ -125,6 +125,7 @@ StatusCode TruthParticleFilterBaseTool::execute()
 {  
   ATH_MSG_DEBUG("Executing " << name() << "...");
 
+  //Setup Handle to read input container
   SG::ReadHandle<McEventCollection> mcEventsReadHandle(m_mcEventsReadHandleKey);
 
   if (!mcEventsReadHandle.isValid()){
@@ -132,8 +133,10 @@ StatusCode TruthParticleFilterBaseTool::execute()
     return StatusCode::FAILURE;
   }
 
+  //Setup WriteHandle, and then record new McEventCollection.
   SG::WriteHandle<McEventCollection> mcEventsOutputWriteHandle(m_mcEventsOutputWriteHandleKey);
-
+  ATH_CHECK(mcEventsOutputWriteHandle.record(std::make_unique<McEventCollection>()));  
+  
   if (!mcEventsOutputWriteHandle.isValid()){
     ATH_MSG_ERROR("Invalid WriteHamdle for McEventCollection with key ["
                   <<m_mcEventsOutputWriteHandleKey.key()  << "] !!");
