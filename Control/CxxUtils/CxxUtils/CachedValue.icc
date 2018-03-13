@@ -95,6 +95,9 @@ CachedValue<T>::CachedValue (const CachedValue<U>& other)
     m_cacheValid = VALID;
     m_val = other.m_val;
   }
+  else {
+    m_val = T();
+  }
 }
 
 
