@@ -14,7 +14,7 @@ find_package( AtlasCMake QUIET )
 # Try to figure out what project is our parent. Just using a hard-coded list
 # of possible project names. Basically the names of all the other
 # sub-directories inside the Projects/ directory in the repository.
-set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysisBase
+set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysisBase AthDataQuality
    AthSimulation )
 set( _defaultParentProject Athena )
 set( _defaultUseFortran TRUE )
