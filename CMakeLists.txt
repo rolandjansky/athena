@@ -4,6 +4,7 @@
 # release.
 #
 
+
 # Set the minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
@@ -42,10 +43,8 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
    DESTINATION . )
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic")
-include(GNUInstallDirs)
-set(ACTS_BUILD_EXAMPLES OFF)
-set(ACTS_BUILD_TESTS OFF)
+set(ACTS_BUILD_TESTS OFF CACHE BOOL "Build ACTS unit tests")
+set(ACTS_BUILD_EXAMPLES OFF CACHE BOOL "Build ACTS examples")
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/acts-core)
 
 # Set up CPack:
