@@ -41,11 +41,11 @@ const SCT_SensorCondData* SCT_SensorsTool::getSensorsData(const unsigned int tru
   return nullptr;
 }
 
-void SCT_SensorsTool::getSensorsData(std::vector<std::string>& /*userVector*/) {
+void SCT_SensorsTool::getSensorsData(std::vector<std::string>& /*userVector*/) const {
   ATH_MSG_WARNING("This void SCT_SensorsTool::getSensorsData(std::vector<std::string>& userVector) method is not implemented.");
 }
 
-std::string SCT_SensorsTool::getManufacturer(unsigned int truncatedSerialNumber) {
+std::string SCT_SensorsTool::getManufacturer(unsigned int truncatedSerialNumber) const {
   std::string manufacturer{""};
   
   const EventContext& ctx{Gaudi::Hive::currentContext()};
@@ -59,7 +59,7 @@ std::string SCT_SensorsTool::getManufacturer(unsigned int truncatedSerialNumber)
   return manufacturer;
 }
 
-void SCT_SensorsTool::printManufacturers() {
+void SCT_SensorsTool::printManufacturers() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_SensorsCondData* condData{getCondData(ctx)};
   if (condData==nullptr) return;

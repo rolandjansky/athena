@@ -46,7 +46,7 @@ StatusCode SCT_RadDamageSummaryTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-bool SCT_RadDamageSummaryTool::doCTrap(const IdentifierHash & elementHash, const double & zpos) {
+bool SCT_RadDamageSummaryTool::doCTrap(const IdentifierHash & elementHash, const double & zpos) const {
   m_doCTrap = false;
   if (m_useTrapping) {
     m_doCTrap =  m_chargeTrappingTool->getdoCTrap(elementHash, zpos);
@@ -56,7 +56,7 @@ bool SCT_RadDamageSummaryTool::doCTrap(const IdentifierHash & elementHash, const
 
 
 // -- Charge trapping probability
-double SCT_RadDamageSummaryTool::ChargeTrappingProbability(const IdentifierHash & elementHash, const double & zpos) {
+double SCT_RadDamageSummaryTool::ChargeTrappingProbability(const IdentifierHash & elementHash, const double & zpos) const {
   double prob = 0.0;
   if (m_useTrapping) {
     prob = m_chargeTrappingTool->getTrappingProbability(elementHash, zpos);
@@ -65,7 +65,7 @@ double SCT_RadDamageSummaryTool::ChargeTrappingProbability(const IdentifierHash 
 }
 
 // -- Trapping Constant
-double SCT_RadDamageSummaryTool::TrappingConstant(const IdentifierHash & elementHash, const double & zpos) {
+double SCT_RadDamageSummaryTool::TrappingConstant(const IdentifierHash & elementHash, const double & zpos) const {
   double k = 0.0;
   if (m_useTrapping) {
     k = m_chargeTrappingTool->getTrappingHoles(elementHash, zpos);
@@ -75,7 +75,7 @@ double SCT_RadDamageSummaryTool::TrappingConstant(const IdentifierHash & element
 
 
 // -- Electric Field
-double SCT_RadDamageSummaryTool::ElectricField(const IdentifierHash & elementHash, const double & zpos) {
+double SCT_RadDamageSummaryTool::ElectricField(const IdentifierHash & elementHash, const double & zpos) const {
   double k = 0.0;
   if (m_useTrapping) {
     k = m_chargeTrappingTool->getElectricField(elementHash, zpos);
@@ -84,7 +84,7 @@ double SCT_RadDamageSummaryTool::ElectricField(const IdentifierHash & elementHas
 }
 
 // -- Trapping time: Time at which the trapping happened
-double SCT_RadDamageSummaryTool::TrappingTime(const IdentifierHash & elementHash, const double & zpos) {
+double SCT_RadDamageSummaryTool::TrappingTime(const IdentifierHash & elementHash, const double & zpos) const {
   double k = 0.0;
   if (m_useTrapping) {
     k = m_chargeTrappingTool->getTrappingTime(elementHash, zpos);
@@ -93,7 +93,7 @@ double SCT_RadDamageSummaryTool::TrappingTime(const IdentifierHash & elementHash
 }
 
 // -- Time to electrode: Time that the charge needs to arrive to the electrode
-double SCT_RadDamageSummaryTool::TimeToElectrode(const IdentifierHash & elementHash, const double & zpos) {
+double SCT_RadDamageSummaryTool::TimeToElectrode(const IdentifierHash & elementHash, const double & zpos) const {
   double k = 0.0;
   if (m_useTrapping) {
     k = m_chargeTrappingTool->getTimeToElectrode(elementHash, zpos);
@@ -102,7 +102,7 @@ double SCT_RadDamageSummaryTool::TimeToElectrode(const IdentifierHash & elementH
 }
 
 // -- Trapping position: position at which the trapping happened
-double SCT_RadDamageSummaryTool::TrappingPositionZ(const IdentifierHash & elementHash, const double & zpos) {
+double SCT_RadDamageSummaryTool::TrappingPositionZ(const IdentifierHash & elementHash, const double & zpos) const {
   double k = 0.0;
   if (m_useTrapping) {
     k = m_chargeTrappingTool->getTrappingPositionZ(elementHash, zpos);
@@ -111,7 +111,7 @@ double SCT_RadDamageSummaryTool::TrappingPositionZ(const IdentifierHash & elemen
 }
 
 // -- Hole drift mobility
-double SCT_RadDamageSummaryTool::HoleDriftMobility(const IdentifierHash & elementHash, const double & zpos) {
+double SCT_RadDamageSummaryTool::HoleDriftMobility(const IdentifierHash & elementHash, const double & zpos) const {
   double k = 0.0;
   if (m_useTrapping) {
     k = m_chargeTrappingTool->getHoleDriftMobility(elementHash, zpos);
@@ -122,7 +122,7 @@ double SCT_RadDamageSummaryTool::HoleDriftMobility(const IdentifierHash & elemen
 //------------------------------------------------
 // -- Ramo Potential
 //-----------------------------------------------
-void SCT_RadDamageSummaryTool::InitPotentialValue() {
+void SCT_RadDamageSummaryTool::InitPotentialValue() const {
   if (m_useTrapping) {
     m_chargeTrappingTool->getInitPotentialValue(); 
   }

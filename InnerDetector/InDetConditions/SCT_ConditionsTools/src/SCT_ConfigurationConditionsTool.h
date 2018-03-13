@@ -49,26 +49,26 @@ public:
   //@}
   
   /**Can the service report about the given component? (chip, module...)*/
-  virtual bool                          canReportAbout(InDetConditions::Hierarchy h) override;
+  virtual bool                          canReportAbout(InDetConditions::Hierarchy h) const override;
   
   /**Is the detector element good?*/
-  virtual bool                          isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  virtual bool                          isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   
   /**Is it good?, using wafer hash*/
-  virtual bool                          isGood(const IdentifierHash& hashId) override;
+  virtual bool                          isGood(const IdentifierHash& hashId) const override;
 
   /**List of bad modules*/
-  virtual const std::set<Identifier>*   badModules() override;
+  virtual const std::set<Identifier>*   badModules() const override;
   /**List of bad strips*/
-  virtual void                          badStrips(std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) override;
+  virtual void                          badStrips(std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) const override;
   /**List of bad strips for a given module*/
-  virtual void                          badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) override;
+  virtual void                          badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) const override;
   /**List of bad links*/
-  virtual std::pair<bool, bool>         badLinks(const Identifier& moduleId) override;
+  virtual std::pair<bool, bool>         badLinks(const Identifier& moduleId) const override;
   /**Bad links for a given module*/
-  virtual const std::map<Identifier, std::pair<bool, bool>>* badLinks() override;
+  virtual const std::map<Identifier, std::pair<bool, bool>>* badLinks() const override;
   /**List of bad chips*/
-  virtual const std::map<Identifier, unsigned int>* badChips() override;
+  virtual const std::map<Identifier, unsigned int>* badChips() const override;
   /**Bad chips for a given module*/
   virtual unsigned int                  badChips(const Identifier& moduleId) const override;
   /** Get the chip number containing a particular strip*/
@@ -88,9 +88,9 @@ private:
   bool                                  m_checkStripsInsideModules; //!< Do we want to check if a strip is bad because it is inside a bad module
 
   /** Is a strip within a bad module*/
-  bool                                  isStripInBadModule(const Identifier& stripId);
+  bool                                  isStripInBadModule(const Identifier& stripId) const;
   /** Is a wafer in a bad module*/
-  bool                                  isWaferInBadModule(const Identifier& waferId);
+  bool                                  isWaferInBadModule(const Identifier& waferId) const;
   
   /**Is a chip with this Identifier good?*/
   bool isGoodChip(const Identifier& stripId) const;

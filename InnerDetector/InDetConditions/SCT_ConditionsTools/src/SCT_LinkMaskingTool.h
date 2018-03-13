@@ -45,16 +45,16 @@ public:
   //@}
   
   /**Can the service report about the given component? (chip, module...)*/
-  virtual bool                          canReportAbout(InDetConditions::Hierarchy h) override;
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
   
   /**Is the detector element good?*/
-  virtual bool                          isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   
   /**Is it good?, using wafer hash*/
-  virtual bool                          isGood(const IdentifierHash& hashId) override;
+  virtual bool isGood(const IdentifierHash& hashId) const override;
 
 private:
-  const SCT_ID*                            m_sctHelper; //!< ID helper for SCT
+  const SCT_ID* m_sctHelper; //!< ID helper for SCT
 
   // Mutex to protect the contents.
   mutable std::mutex m_mutex;

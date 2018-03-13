@@ -40,19 +40,19 @@ StatusCode SCT_FlaggedConditionTool::finalize() {
 }
 
 // Detector elements that this service can report about
-bool SCT_FlaggedConditionTool::canReportAbout(InDetConditions::Hierarchy h){
+bool SCT_FlaggedConditionTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h == InDetConditions::SCT_SIDE or h == InDetConditions::DEFAULT);
 }
 
 // Is this element good (by Identifier)?
-bool SCT_FlaggedConditionTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h){
+bool SCT_FlaggedConditionTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   const IdentifierHash hashId = m_sctID->wafer_hash(elementId);
   return isGood(hashId);
 }
 
 // Is this element good (by IdentifierHash)?
-bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId){
+bool SCT_FlaggedConditionTool::isGood(const IdentifierHash& hashId) const {
   const SCT_FlaggedCondData* badIds{getCondData()};
   if (badIds==nullptr) {
     ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (isGood)");
