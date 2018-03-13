@@ -44,11 +44,10 @@ atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh
 # out until we find a way to properly invoke tests from other packages
 # atlas_add_test( creatingEVTest SCRIPT forward.sh ViewAlgsTest/test/creatingEVTest.sh )
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_merge )
+
 atlas_add_test( merge
                 SCRIPT test/test_merge.sh 
 		PROPERTIES TIMEOUT 500 
-		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_merge
 	      )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_IDRunMC )
@@ -97,17 +96,14 @@ atlas_add_test( idCaloRunData
 		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_idCaloRunData
               )
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EmuL1Decoding )
 atlas_add_test( EmuL1Decoding
 		SCRIPT test/test_emu_l1_decoding.sh
-		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EmuL1Decoding
 		)
 
-file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EmuStepProcessing )
+
 atlas_add_test( EmuStepProcessing
 		SCRIPT	test/test_emu_step_processing.sh
                 PROPERTIES TIMEOUT 500 
-		PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EmuStepProcessing
 	      )
 #	EXTRA_PATTERNS "TriggerSummary"
 
