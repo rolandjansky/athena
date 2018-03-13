@@ -450,7 +450,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
          if (toolInstName != toolName) {
             toolInstName = toolName + "/" + toolInstName;
          }
-         ToolHandle<IAlgTool> metadataTool(toolInstName);
+         ToolHandle<IMetaDataTool> metadataTool(toolInstName);
          m_metaDataTools.push_back(metadataTool);
          if (!metadataTool.retrieve().isSuccess()) {
             ATH_MSG_FATAL("Cannot get " << toolInstName);

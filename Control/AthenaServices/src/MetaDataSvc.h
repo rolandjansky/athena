@@ -115,7 +115,6 @@ private: // properties
    /// MetaDataContainer, POOL container name for MetaData.
    StringProperty                 m_metaDataCont;
    /// MetaDataTools, vector with the MetaData tools.
-   //ToolHandleArray<IAlgTool> m_metaDataTools;
    ToolHandleArray<IMetaDataTool> m_metaDataTools;
 };
 
