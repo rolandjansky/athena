@@ -22,6 +22,7 @@ theLArNoisyROMon.ProcessNEvents= EventBlockSize
 theLArNoisyROMon.NoisyFEBDefStr =  '(>'+str(larNoisyROFlags.BadChanPerFEB())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
 theLArNoisyROMon.MNBLooseFEBDefStr =  '(>'+str(larNoisyROFlags.MNBLooseCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
 theLArNoisyROMon.MNBTightFEBDefStr =  '(>'+str(larNoisyROFlags.MNBTightCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
+theLArNoisyROMon.MNBTight_PsVetoFEBDefStr =  '(>'+str(larNoisyROFlags.MNBTight_PsVetoCut())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')'
 theLArNoisyROMon.KnownMNBFEBs =  larNoisyROFlags.KnownMNBFEBs()
 theLArNoisyROMon.BadFEBCut = larNoisyROFlags.BadFEBCut() 
 
