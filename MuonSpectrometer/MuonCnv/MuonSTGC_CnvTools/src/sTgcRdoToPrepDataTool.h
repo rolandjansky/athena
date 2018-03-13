@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
-// STGC_RawDataToPrepDataTool.h, (c) ATLAS Detector software
+// sTgcRdoToPrepDataTool.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
-#ifndef MUONATGC_CNVTOOLS_STGC_RAWDATATOPREPDATATOOL
-#define MUONATGC_CNVTOOLS_STGC_RAWDATATOPREPDATATOOL
+#ifndef MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOL
+#define MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOL
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
@@ -36,17 +36,14 @@ namespace Muon
    *  This is the algorithm that convert STGC Raw data  To STGC PRD  as a tool.
    */  
 
-  class STGC_RawDataToPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
+  class sTgcRdoToPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
     {
     public:
       /** Constructor */
-      STGC_RawDataToPrepDataTool(const std::string& t, const std::string& n, const IInterface* p);
+      sTgcRdoToPrepDataTool(const std::string& t, const std::string& n, const IInterface* p);
       
       /** Destructor */
-      virtual ~STGC_RawDataToPrepDataTool();
-      
-      /** Query the IMuonRdoToPrepDataTool interface */
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
+      virtual ~sTgcRdoToPrepDataTool();
       
       /** Standard AthAlgTool initialize method */
       virtual StatusCode initialize() override;
@@ -58,7 +55,12 @@ namespace Muon
        *  @param requestedIdHashVect          Vector of hashes to convert i.e. the hashes of ROD collections in a 'Region of Interest'  
        *  @return selectedIdHashVect This is the subset of requestedIdVect which were actually found to contain data   
        *  (i.e. if you want you can use this vector of hashes to optimise the retrieval of data in subsequent steps.) */ 
-      virtual StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect) override;
+      StatusCode decode(std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& idWithDataVect);
+      StatusCode decode(const std::vector<uint32_t>& robIds);
+
+      
+      StatusCode processCollection(const STGC_RawDataCollection *rdoColl, 
+				   std::vector<IdentifierHash>& idWithDataVect);
 
       virtual void printPrepData() override;
       virtual void printInputRdo() override;
@@ -68,27 +70,32 @@ namespace Muon
       
     private:
       
-      void processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds );
-      bool handlePRDHash( IdentifierHash hash, const STGC_RawDataContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect, sTgcPrepDataContainer& prds );
-      
+      enum SetupSTGC_PrepDataContainerStatus {
+	FAILED = 0, ADDED, ALREADYCONTAINED
+      };
+
+      SetupSTGC_PrepDataContainerStatus setupSTGC_PrepDataContainer();
+
+      const STGC_RawDataContainer* getRdoContainer();
+
+      void processRDOContainer(std::vector<IdentifierHash>& idWithDataVect);
+
       /** muon detector manager */
       const MuonGM::MuonDetectorManager * m_muonMgr;
 
       /** TGC identifier helper */
-      const sTgcIdHelper* m_sTGC_Helper;
+      const sTgcIdHelper* m_stgcIdHelper;
+      const MuonIdHelper* m_muonIdHelper;
+
+      bool m_fullEventDone;
 
       /** TgcPrepRawData container key for current BC */ 
       std::string m_outputCollectionLocation;      
-            
-      /** ToolHandle of the TGC_RawDataProviderTool */
-      ToolHandle<IMuonRawDataProviderTool> m_rawDataProviderTool;
+      Muon::sTgcPrepDataContainer* m_stgcPrepDataContainer;
+      SG::ReadHandleKey<STGC_RawDataContainer> m_rdoContainerKey;//"TGCRDO"
+      SG::WriteHandleKey<sTgcPrepDataContainer> m_stgcPrepDataContainerKey;
 
-      SG::ReadHandleKey<STGC_RawDataContainer> m_RDO_Key;//"TGCRDO"
-      SG::WriteHandleKey<sTgcPrepDataContainer> m_PRD_Key;
-
-      /** Aboid compiler warning **/
-      virtual StatusCode decode( const std::vector<uint32_t>& /*robIds*/ ) override {return StatusCode::FAILURE;}
    }; 
 } // end of namespace
 
-#endif // MUONTGC_CNVTOOLS_TGCRDOTOPREPDATATOOL_H
+#endif // MUONTGC_CNVTOOLS_STGCRDOTOPREPDATATOOL_H
