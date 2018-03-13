@@ -257,7 +257,6 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
                                                        PileUpEventInfo::SubEvent::const_iterator eSubEvents)
 {
 
-  //m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
   if (m_HardScatterSplittingMode == 2 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
@@ -518,7 +517,6 @@ StatusCode PixelFastDigitizationTool::digitize()
 
     Pixel_detElement_RIO_map PixelDetElClusterMap;
 
-    //std::cout<<"Next Detector element  "<<std::endl;
     int nnn = 0;
 
     std::vector<int> trkNo;
@@ -543,7 +541,6 @@ StatusCode PixelFastDigitizationTool::digitize()
       
       
       
-     // std::cout<<"Next Hit  "<<std::endl;
       std::vector<HepMcParticleLink> hit_vector; //Store the hits in merged cluster
 
       const IdentifierHash waferID = m_pixel_ID->wafer_hash(hitSiDetElement->identify());
@@ -579,7 +576,6 @@ StatusCode PixelFastDigitizationTool::digitize()
       double shiftX = m_DiffusionShiftX;
       double shiftY = m_DiffusionShiftY;
 
-//       std::cout<<"Thr "<<m_ThrConverted<<std::endl;
           
           
       //New function to tune the cluster size
@@ -601,8 +597,6 @@ StatusCode PixelFastDigitizationTool::digitize()
       InDetDD::SiCellId entryCellId = hitSiDetElement->cellIdFromIdentifier(entryId);
       InDetDD::SiCellId exitCellId = hitSiDetElement->cellIdFromIdentifier(exitId);
       
-//       std::cout<<"Entry index eta e phi "<<entryCellId.etaIndex()<<" "<<entryCellId.phiIndex()<<std::endl;
-//       std::cout<<"Exit index eta e phi "<<exitCellId.etaIndex()<<" "<<exitCellId.phiIndex()<<std::endl;
       
       double halfthickness = hitSiDetElement->thickness()/2.;
       
@@ -622,9 +616,7 @@ StatusCode PixelFastDigitizationTool::digitize()
       { 
 	//If entry or exit aren't valid search for the valid entry/exit of the hit as Intersection with the module
 	
-	//std::cout<<"Valid ? "<<halfthickness<<" "<<localStartPosition.z()<<" "<<localEndPosition.z()<<std::endl;
 	if ( !EntryValid && !ExitValid) continue;
-	//std::cout<<"Yes "<<std::endl;
 	
 	Amg::Vector3D Point = EntryValid ? entryPoint : exitPoint ;
 	
@@ -636,13 +628,11 @@ StatusCode PixelFastDigitizationTool::digitize()
 	  continue;
 	}
 	
-	//std::cout<<"Intersection "<<Intersection<<std::endl;
 	const Amg::Vector2D Intersection_2d(Intersection.x(),Intersection.y());
 	Identifier Intersection_2dId = hitSiDetElement->identifierOfPosition(Intersection_2d);
 	
 	InDetDD::SiCellId Intersection_2dCellId = hitSiDetElement->cellIdFromIdentifier(Intersection_2dId);
 	
-	//std::cout<<"Intersection "<<Intersection_2dCellId.etaIndex()<<" "<<Intersection_2dCellId.phiIndex()<<std::endl;
 	
 	if(!Intersection_2dCellId.isValid()) continue;
 	
@@ -717,7 +707,6 @@ StatusCode PixelFastDigitizationTool::digitize()
 	
 	Amg::Vector2D chargeCenterPosition = hitSiDetElement->rawLocalPositionOfCell(diode);
 	
-	//ATTENTION passaggio inutile? SiCellId -> Identifier?
 	const Identifier rdoId            =  hitSiDetElement->identifierOfPosition(chargeCenterPosition);
 	clusterPosition += pathlenght * chargeCenterPosition;
 
@@ -728,14 +717,12 @@ StatusCode PixelFastDigitizationTool::digitize()
 	if(currentPhiIndex > phiIndexMax) phiIndexMax = currentPhiIndex;
 	if(currentPhiIndex < phiIndexMin) phiIndexMin = currentPhiIndex;
 	
-	//std::cout<<"Index Step "<<currentEtaIndex<<" "<<currentPhiIndex<<std::endl;
 	
         // record - positions, rdoList and totList
 	m_accumulatedPathLength += pathlenght;
         //Fail
 	rdoList.push_back(rdoId);
         totList.push_back(int(pathlenght*m_pixPathLengthTotConv));
-	//std::cout<<"path lenght "<<pathlenght<<std::endl;
 	
       }
 
@@ -967,26 +954,6 @@ StatusCode PixelFastDigitizationTool::createAndStoreRIOs()
 
   return StatusCode::SUCCESS;
 }
-
-
-/*// copied from FATRAS
-bool PixelFastDigitizationTool::isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char * elementName, const char * failureMessage) const
-{
-  //     if (!m_useConditions) return true; // shortcut: assume all elements to be active and good when not using conditions services
-
-  bool isActive, isGood;
-  if (!querySingleChannel) {
-    isActive = svc->isActive(idHash); // active = "element returns data"
-    isGood   = svc->isGood(idHash);   // good   = "data are reliable"
-  } else {
-    // Christoph Ruwiedel says: When querying a single channel, use both the IdentifierHash (of the element) and the Identifier (of the channel).
-    isActive = svc->isActive(idHash, id); // active = "element returns data"
-    isGood   = svc->isGood(idHash, id);   // good   = "data are reliable"
-  }
-
-  return isActive && isGood;
-} */
-
 // copied from PixelClusteringToolBase
 bool PixelFastDigitizationTool::areNeighbours
 (const std::vector<Identifier>& group,
@@ -1119,7 +1086,7 @@ Trk::DigitizationModule* PixelFastDigitizationTool::buildDetectorModule(const In
 }
 
 
-Amg::Vector3D PixelFastDigitizationTool::CalculateIntersection(Amg::Vector3D Point, Amg::Vector3D Direction, Amg::Vector2D PlaneBorder, double halfthickness) const
+Amg::Vector3D PixelFastDigitizationTool::CalculateIntersection(const Amg::Vector3D & Point, const Amg::Vector3D & Direction, Amg::Vector2D PlaneBorder, double halfthickness) const
 {  
   Amg::Vector3D Intersection(0.,0.,0.);
   
@@ -1133,15 +1100,12 @@ Amg::Vector3D PixelFastDigitizationTool::CalculateIntersection(Amg::Vector3D Poi
   for(double parameter: parameters)
   {
     double z =  Point.z() + Direction.z() * parameter;
-//     std::cout<<"z "<<z<<std::endl;
     if( fabs(z) > halfthickness )
       continue;
     
     
     double x = Point.x() + Direction.x() * parameter;
     double y = Point.y() + Direction.y() * parameter;
-//     std::cout<<"x "<<x<<std::endl;
-//     std::cout<<"y "<<y<<std::endl;
     
     if(fabs(x) > PlaneBorder.x() || fabs(y) > PlaneBorder.y())
       continue;
