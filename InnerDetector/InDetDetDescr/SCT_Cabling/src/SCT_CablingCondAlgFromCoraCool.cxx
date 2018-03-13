@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**   
- *   @file SCT_FillCablingFromCoraCool.cxx
+ *   @file SCT_CablingCondAlgFromCoraCool.cxx
  *
  *   @brief Fills an SCT cabling object from the database using CoraCool
  *
@@ -12,25 +12,21 @@
  */
 
 //package includes
-#include "SCT_FillCablingFromCoraCool.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_CablingCondAlgFromCoraCool.h"
 #include "SCT_CablingUtilities.h"
+
+// Gaudi include
+#include "GaudiKernel/EventIDRange.h"
 
 //indet includes
 #include "InDetIdentifier/SCT_ID.h"
 
 //Athena includes
-#include "PathResolver/PathResolver.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
 //DB utilities
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-
-//Gaudi includes
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 //STL
 #include <set>
@@ -173,86 +169,95 @@ namespace{
     validLinkNumber(const int link) {
     return ((link>-1) and (link<96)) or (link==defaultLink) or (link==disabledFibre);
   }
+  //make a number even
+  IdentifierHash even(const IdentifierHash& hash) {
+    return (hash>>1) << 1;
+  }
 }//end of anonymous namespace
 
 // Constructor
-SCT_FillCablingFromCoraCool::SCT_FillCablingFromCoraCool(const std::string& name, ISvcLocator* pSvcLocator):
-  AthService(name,pSvcLocator), m_filled{false}, m_detStore{"DetectorStore", name} {
-  //nop
+SCT_CablingCondAlgFromCoraCool::SCT_CablingCondAlgFromCoraCool(const std::string& name, ISvcLocator* pSvcLocator):
+  AthAlgorithm(name, pSvcLocator),
+  m_readKeyRod{"/SCT/DAQ/Config/ROD"},
+  m_readKeyRodMur{"/SCT/DAQ/Config/RODMUR"},
+  m_readKeyMur{"/SCT/DAQ/Config/MUR"},
+  m_readKeyGeo{"/SCT/DAQ/Config/Geog"},
+  m_writeKey{"SCT_CablingData"},
+  m_condSvc{"CondSvc", name}
+{
+  declareProperty("ReadKeyRod", m_readKeyRod, "Key of input (raw) conditions folder of Rods");
+  declareProperty("ReadKeyRodMur", m_readKeyRodMur, "Key of input (raw) conditions folder of RodMurs");
+  declareProperty("ReadKeyMur", m_readKeyMur, "Key of input (raw) conditions folder of Murs");
+  declareProperty("ReadKeyGeo", m_readKeyGeo, "Key of input (raw) conditions folder of Geography");
+  declareProperty("WriteKey", m_writeKey, "Key of output (derived) conditions folder");
 }
 
 //
 StatusCode
-SCT_FillCablingFromCoraCool::initialize() {
-  return StatusCode::SUCCESS;
-}
-
-//
-StatusCode 
-SCT_FillCablingFromCoraCool::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-//
-StatusCode 
-SCT_FillCablingFromCoraCool::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (ISCT_FillCabling::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<ISCT_FillCabling*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
-//
-StatusCode 
-SCT_FillCablingFromCoraCool::setDataSource(const std::string& dataSource) {
-  //should check for db existence here
-  m_source=dataSource;
-  ATH_MSG_INFO("Reading cabling from "<<m_source);
-  return StatusCode::SUCCESS;
-}
-
-//
-std::string 
-SCT_FillCablingFromCoraCool::getDataSource() const {
-  return m_source;
-}
-
-//
-bool 
-SCT_FillCablingFromCoraCool::filled() const {
-  return m_filled;
-}
-
-//
-StatusCode 
-SCT_FillCablingFromCoraCool::fillMaps(ISCT_CablingSvc* cabling) {
-  m_filled=false;
-  if (readDataFromDb(cabling).isFailure()) {
-    ATH_MSG_FATAL("Could not read cabling from database");
+SCT_CablingCondAlgFromCoraCool::initialize() {
+  // Check conditions folder names
+  if((m_readKeyRod.key()!=rodFolderName) and (m_readKeyRod.key()!=rodFolderName2)) {
+    ATH_MSG_FATAL(m_readKeyRod.key() << " is incorrect.");
     return StatusCode::FAILURE;
   }
-  m_filled=true;
+  if((m_readKeyRodMur.key()!=rodMurFolderName) and (m_readKeyRodMur.key()!=rodMurFolderName2)) {
+    ATH_MSG_FATAL(m_readKeyRodMur.key() << " is incorrect.");
+    return StatusCode::FAILURE;
+  }
+  if((m_readKeyMur.key()!=murFolderName) and (m_readKeyMur.key()!=murFolderName2)) {
+    ATH_MSG_FATAL(m_readKeyMur.key() << " is incorrect.");
+    return StatusCode::FAILURE;
+  }
+  if((m_readKeyGeo.key()!=geoFolderName) and (m_readKeyGeo.key()!=geoFolderName2)) {
+    ATH_MSG_FATAL(m_readKeyGeo.key() << " is incorrect.");
+    return StatusCode::FAILURE;
+  }
+
+  // Read Cond Handle
+  ATH_CHECK(m_readKeyRod.initialize());
+  ATH_CHECK(m_readKeyRodMur.initialize());
+  ATH_CHECK(m_readKeyMur.initialize());
+  ATH_CHECK(m_readKeyGeo.initialize());
+
+  // CondSvc
+  ATH_CHECK(m_condSvc.retrieve());
+
+  // Write Cond Handle
+  ATH_CHECK(m_writeKey.initialize());
+  // Register write handle
+  if (m_condSvc->regHandle(this, m_writeKey).isFailure()) {
+    ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//
+StatusCode 
+SCT_CablingCondAlgFromCoraCool::finalize() {
   return StatusCode::SUCCESS;
 }
 
 //
 StatusCode
-SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
+SCT_CablingCondAlgFromCoraCool::execute() {
   const SCT_ID* idHelper{nullptr};
-  if (m_detStore->retrieve(idHelper,"SCT_ID").isFailure()) {
+  if (detStore()->retrieve(idHelper,"SCT_ID").isFailure()) {
     ATH_MSG_ERROR("SCT mgr failed to retrieve");
     return StatusCode::FAILURE;
   }
+
+  // Determine the folders are Run2 or Run1
+  bool isRun2{m_readKeyRod.key()==rodFolderName2};
+
   // let's get the ROD AttrLists
-  const DataHandle<CondAttrListVec> pRod;
-  std::string folder{determineFolder(rodFolderName,rodFolderName2)};
-  enum DBTYPE {COMP200, CONDBR2};
-  const DBTYPE db{(folder==rodFolderName) ? COMP200 : CONDBR2};
-  if (not successfulFolderRetrieve(pRod, folder)) return StatusCode::FAILURE;
+  SG::ReadCondHandle<CondAttrListVec> readHandleRod{m_readKeyRod};
+  const CondAttrListVec* pRod{*readHandleRod};
+  if (pRod==nullptr) {
+    ATH_MSG_FATAL("Could not find ROD configuration data: " << m_readKeyRod.key());
+    return StatusCode::FAILURE;
+  }
   // build rod-rob map, and store the crate/slot to RobId mapping
   CondAttrListVec::const_iterator rodIt{pRod->begin()};
   CondAttrListVec::const_iterator last_rod{pRod->end()};
@@ -266,7 +271,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
     S slots;
     for (; rodIt != last_rod; ++rodIt) {
       //type of 'slot' changed between COMP200 and CONDBR2:
-      if (db==CONDBR2) {
+      if (isRun2) {
         slots.insert(int(rodIt->second["slot"].data<unsigned char>())); //all but 15 inserts will fail, and these 15 should be sorted
       } else {
         slots.insert(int(rodIt->second["slot"].data<short>())); //all but 15 inserts will fail, and these 15 should be sorted
@@ -285,12 +290,10 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
   std::set<int> tempRobSet;
   for (; rodIt != last_rod; ++rodIt) {
     AthenaAttributeList rodAttributes{rodIt->second};
-    //int rod=rodAttributes["SRCid"].data<int>();
     int rob{rodAttributes["ROB"].data<int>()};
     if (not tempRobSet.insert(rob).second) ATH_MSG_WARNING("Duplicate rob? :"<<std::hex<<rob<<std::dec);
-    //std::cout<<"shaunROB "<<std::hex<<rob<<std::endl;
-    int crate{(db==CONDBR2) ? static_cast<int>(rodAttributes["crate"].data<unsigned char>()) : (rodAttributes["crate"].data<int>())};
-    int crateSlot{(db==CONDBR2) ? static_cast<int>(rodAttributes["slot"].data<unsigned char>()) : static_cast<int>(rodAttributes["slot"].data<short>())};
+    int crate{isRun2 ? static_cast<int>(rodAttributes["crate"].data<unsigned char>()) : (rodAttributes["crate"].data<int>())};
+    int crateSlot{isRun2 ? static_cast<int>(rodAttributes["slot"].data<unsigned char>()) : static_cast<int>(rodAttributes["slot"].data<short>())};
     //see note in header; these may be 0-15, but not necessarily, so we need to map these onto 0-15
     IntMap::const_iterator pSlot{slotMap.find(crateSlot)};
     int slot{(pSlot==slotMap.end()) ? -1 : pSlot->second};
@@ -315,51 +318,93 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
    * In fact for the barrel its obvious, so only extract the endcap ones
    **/
   IntMap geoMurMap;
-  const DataHandle<CondAttrListVec> pGeo;
-  folder = determineFolder(geoFolderName, geoFolderName2);
-  if (not successfulFolderRetrieve(pGeo, folder)) return StatusCode::FAILURE;
+  SG::ReadCondHandle<CondAttrListVec> readHandleGeo{m_readKeyGeo};
+  const CondAttrListVec* pGeo{*readHandleGeo};
+  if (pGeo==nullptr) {
+    ATH_MSG_FATAL("Could not find Geog configuration data: " << m_readKeyGeo.key());
+    return StatusCode::FAILURE;
+  }
   CondAttrListVec::const_iterator geoIt{pGeo->begin()};
   CondAttrListVec::const_iterator last_geo{pGeo->end()};
   for (;geoIt != last_geo;++geoIt) {
     AthenaAttributeList geoAttributes{geoIt->second};
-    int mur{(db==COMP200) ? (geoAttributes["MUR"].data<int>()) : static_cast<int>(geoAttributes["MUR"].data<unsigned int>())};
-    int position{(db==COMP200) ? (geoAttributes["position"].data<int>()) : static_cast<int>(geoAttributes["position"].data<short>())};
+    int mur{isRun2 ? static_cast<int>(geoAttributes["MUR"].data<unsigned int>()) : (geoAttributes["MUR"].data<int>())};
+    int position{isRun2 ? static_cast<int>(geoAttributes["position"].data<short>()) : (geoAttributes["position"].data<int>())};
     if (mur > 10000) geoMurMap[mur]=position; //only for endcap case
   }
+
   /**
    * get the RODMUR which gives where the individual MURs are; this is an intermediate step, 
    * so make a temporary data structure.
    **/
   IntMap murPositionMap;
-  const DataHandle<CondAttrListVec> pRodMur;
-  folder = determineFolder(rodMurFolderName,rodMurFolderName2);
-  if (not successfulFolderRetrieve(pRodMur, folder)) return StatusCode::FAILURE;
+  SG::ReadCondHandle<CondAttrListVec> readHandleRodMur{m_readKeyRodMur};
+  const CondAttrListVec* pRodMur{*readHandleRodMur};
+  if (pRodMur==nullptr) {
+    ATH_MSG_FATAL("Could not find RodMur configuration data: " << m_readKeyRodMur.key());
+    return StatusCode::FAILURE;
+  }
   CondAttrListVec::const_iterator rodMurIt{pRodMur->begin()};
   CondAttrListVec::const_iterator last_rodMur{pRodMur->end()};
   allInsertsSucceeded = true;
   std::set<int> tempRobSet2;
   for (; rodMurIt!=last_rodMur; ++rodMurIt) {
     AthenaAttributeList rodMurAttributes{rodMurIt->second};
-    int mur{(db==CONDBR2) ? static_cast<int>(rodMurAttributes["MUR"].data<unsigned int>()) : (rodMurAttributes["MUR"].data<int>())};
-    int crate{(db==CONDBR2) ? static_cast<int>(rodMurAttributes["crate"].data<unsigned char>()) : (rodMurAttributes["crate"].data<int>())};
-    int crateSlot{(db==CONDBR2) ? static_cast<int>(rodMurAttributes["rod"].data<unsigned char>()) : (rodMurAttributes["rod"].data<int>())};//slot is int16, others are int32
+    int mur{isRun2 ? static_cast<int>(rodMurAttributes["MUR"].data<unsigned int>()) : (rodMurAttributes["MUR"].data<int>())};
+    int crate{isRun2 ? static_cast<int>(rodMurAttributes["crate"].data<unsigned char>()) : (rodMurAttributes["crate"].data<int>())};
+    int crateSlot{isRun2 ? static_cast<int>(rodMurAttributes["rod"].data<unsigned char>()) : (rodMurAttributes["rod"].data<int>())};//slot is int16, others are int32
     //map slot onto 0-15 range
     IntMap::const_iterator pSlot{slotMap.find(crateSlot)};
     int slot{(pSlot==slotMap.end()) ? -1 : pSlot->second};
     if (slot==-1) ATH_MSG_ERROR("Failed to find a crate slot in the crate map");
     //
-    int order{(db==CONDBR2) ? static_cast<int>(rodMurAttributes["position"].data<unsigned char>()) : (rodMurAttributes["position"].data<int>())};
+    int order{isRun2 ? static_cast<int>(rodMurAttributes["position"].data<unsigned char>()) : (rodMurAttributes["position"].data<int>())};
     int fibreOrder{((((crate * slotsPerCrate) + slot ) * mursPerRod) + order) * fibresPerMur};
     bool thisInsertSucceeded{murPositionMap.insert(IntMap::value_type(mur, fibreOrder)).second};
     if (not thisInsertSucceeded) ATH_MSG_WARNING("Insert (mur, fibre) "<<mur<<", "<<fibreOrder<<" failed.");
     allInsertsSucceeded = thisInsertSucceeded and allInsertsSucceeded;
   }
   if (not allInsertsSucceeded) ATH_MSG_WARNING("Some MUR-position map inserts failed.");
-  //
+
   // let's get the MUR AttrLists
-  const DataHandle<CondAttrListVec> pMur;
-  folder=determineFolder(murFolderName,murFolderName2);
-  if (not successfulFolderRetrieve(pMur, folder)) return StatusCode::FAILURE;
+  SG::ReadCondHandle<CondAttrListVec> readHandleMur{m_readKeyMur};
+  const CondAttrListVec* pMur{*readHandleMur};
+  if (pMur==nullptr) {
+    ATH_MSG_FATAL("Could not find ROD configuration data: " << m_readKeyMur.key());
+    return StatusCode::FAILURE;
+  }
+
+  // Get the validitiy ranges
+  EventIDRange rangeRod;
+  if (not readHandleRod.range(rangeRod)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleRod.key());
+    return StatusCode::FAILURE;
+  }
+  EventIDRange rangeRodMur;
+  if (not readHandleRodMur.range(rangeRodMur)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleRodMur.key());
+    return StatusCode::FAILURE;
+  }
+  EventIDRange rangeMur;
+  if (not readHandleMur.range(rangeMur)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleMur.key());
+    return StatusCode::FAILURE;
+  }
+  EventIDRange rangeGeo;
+  if (not readHandleGeo.range(rangeGeo)) {
+    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleGeo.key());
+    return StatusCode::FAILURE;
+  }
+  // Define validity of the output cond obbject and record it
+  EventIDRange rangeW{EventIDRange::intersect(rangeRod, rangeRodMur, rangeMur, rangeGeo)};
+  if(rangeW.start()>rangeW.stop()) {
+    ATH_MSG_FATAL("Invalid intersection range: " << rangeW << " " << rangeRod << " " << rangeRodMur << " " << rangeMur << " " << rangeGeo);
+    return StatusCode::FAILURE;
+  }
+
+  // Construct the output Cond Object and fill it in
+  std::unique_ptr<SCT_CablingData> writeCdo{std::make_unique<SCT_CablingData>()};
+
   //build identifier map
   CondAttrListVec::const_iterator murIt{pMur->begin()};
   CondAttrListVec::const_iterator last_mur{pMur->end()};
@@ -367,13 +412,12 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
   std::set<int> onlineIdSet, robSet;
   std::set<Identifier> offlineIdSet;
   long long lastSerialNumber{0};
-  
   for (; murIt != last_mur; ++murIt) {
     AthenaAttributeList murAttributes{murIt->second};
-    int mur{(db==CONDBR2) ? static_cast<int>(murAttributes["MUR"].data<unsigned int>()) : (murAttributes["MUR"].data<int>())};
+    int mur{isRun2 ? static_cast<int>(murAttributes["MUR"].data<unsigned int>()) : (murAttributes["MUR"].data<int>())};
     bool nullMur{murAttributes["moduleID"].isNull() or murAttributes["module"].isNull()};
     if (9999 == mur or nullMur) continue;
-    int fibreInMur{( (db==CONDBR2) ? static_cast<int>(murAttributes["module"].data<unsigned char>()) : (murAttributes["module"].data<int>()) ) - 1};
+    int fibreInMur{ (isRun2 ? static_cast<int>(murAttributes["module"].data<unsigned char>()) : (murAttributes["module"].data<int>()) ) - 1};
     long long sn{murAttributes["moduleID"].data<long long>()};
     if (lastSerialNumber==sn) { //old version (<2.6) of Coral/Cool doesn't detect a 'null' value, instead it simply repeats the last known value.
       continue;
@@ -418,7 +462,7 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
       eta = (((mur / 100) % 10) *2 -1) * (fibreInMur+1);//second digit gives eta sign, 0-> -, 1-> +
     }
     int rxLink[2];
-    if (db==CONDBR2) {
+    if (isRun2) {
       rxLink[0]=murAttributes["rx0Fibre"].data<unsigned char>();rxLink[1]= murAttributes["rx1Fibre"].data<unsigned char>();
     } else {
       rxLink[0]=murAttributes["rx0Fibre"].data<int>();rxLink[1]=murAttributes["rx1Fibre"].data<int>();
@@ -471,10 +515,21 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
         ATH_MSG_INFO("MUR, position "<<mur<<", "<<harnessPosition);
       } 
       IdentifierHash offlineIdHash{idHelper->wafer_hash(offlineId)};
-      cabling->insert(offlineIdHash, onlineId, SCT_SerialNumber(sn));
+      insert(offlineIdHash, onlineId, SCT_SerialNumber(sn), writeCdo.get());
       numEntries++;
     }
   }
+
+  // Write Cond Handle
+  SG::WriteCondHandle<SCT_CablingData> writeHandle{m_writeKey};
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
+    ATH_MSG_FATAL("Could not record SCT_CablingData " << writeHandle.key() 
+                  << " with EventRange " << rangeW
+                  << " into Conditions Store");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+
   const int robLo{*(tempRobSet2.cbegin())};
   const int robHi{*(tempRobSet2.crbegin())};
   ATH_MSG_INFO(numEntries<<" entries were made to the identifier map.");
@@ -488,38 +543,36 @@ SCT_FillCablingFromCoraCool::readDataFromDb(ISCT_CablingSvc* cabling) {
     std::cout<<std::dec<<std::endl;
   }
   tempRobSet.clear();
-  m_filled=(numEntries not_eq 0);
   return (numEntries==0) ? (StatusCode::FAILURE) : (StatusCode::SUCCESS);
 }
 
-bool  SCT_FillCablingFromCoraCool::successfulFolderRetrieve(const DataHandle<CondAttrListVec>& pDataVec, const std::string& folderName) {
-  if (!m_detStore) {
-    ATH_MSG_FATAL("The detector store pointer is NULL");
+//
+bool
+SCT_CablingCondAlgFromCoraCool::insert(const IdentifierHash& hash, const SCT_OnlineId& onlineId, const SCT_SerialNumber& sn, SCT_CablingData* data) {
+  if (not sn.isWellFormed()) {
+    ATH_MSG_FATAL("Serial number is not in correct format");
     return false;
   }
-  if (m_detStore->retrieve(pDataVec, folderName).isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve AttrListVec for "<<folderName);
+  if (not hash.is_valid()) {
+    ATH_MSG_FATAL("Invalid hash: "<<hash);
     return false;
   }
-  if (0==pDataVec->size()) {
-    ATH_MSG_FATAL("This folders data set appears to be empty: "<<folderName);
+  // Check if the pointer of derived conditions object is valid.
+  if (data==nullptr) {
+    ATH_MSG_FATAL("Pointer of derived conditions object is null");
     return false;
+  }
+  
+  if (not data->setHashForOnlineId(hash, onlineId)) return false;
+  if (not data->setOnlineIdForHash(onlineId, hash)) return false;
+
+  //only insert even hashes for serial numbers
+  IdentifierHash evenHash{even(hash)};
+  bool successfulInsert{data->setHashForSerialNumber(evenHash, sn)};
+  successfulInsert &= data->setSerialNumberForHash(sn, evenHash);
+  // in this form, the data->getHashEntries() will be half the number of hashes
+  if (successfulInsert) {
+    data->setRod(onlineId.rod()); //move this here so insertion only happens for valid onlineId, hash
   }
   return true;
-}
-
-std::string SCT_FillCablingFromCoraCool::determineFolder(const std::string& option1, const std::string& option2) const {
-  std::string result{""};
-  const bool option1Exists{m_detStore->contains<CondAttrListVec>(option1)};
-  const bool option2Exists{m_detStore->contains<CondAttrListVec>(option2)};
-  //its only sensible if either of these exists (but not both)
-  const bool nonsense{option1Exists == option2Exists};
-  if (nonsense) {
-    if (not option1Exists) ATH_MSG_ERROR("The folder names "<<option1<<" or "<<option2<<" could not be found");
-    else ATH_MSG_ERROR("Both folders "<<option1<<" and "<<option2<<" have been loaded; cannot determine run1/run2");
-  } else {
-    result = option1Exists ? option1 : option2;
-    ATH_MSG_INFO("SCT_FillCablingFromCoraCool will use the folder "<<result);
-  }
-  return result;
 }
