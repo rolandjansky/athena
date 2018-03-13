@@ -41,7 +41,7 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     # Set up SCT_SiliconConditionsTool
     from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
     sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
-    sct_SiliconConditionsToolSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
+    sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsSvcSetup.getTool())
     sct_SiliconConditionsToolSetup.setup()
     # Set up SCT_SiPropertiesTool
     from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
