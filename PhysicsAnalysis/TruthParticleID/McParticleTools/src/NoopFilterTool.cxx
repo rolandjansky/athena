@@ -77,7 +77,7 @@ StatusCode NoopFilterTool::buildMcAod( const McEventCollection* in,
       ATH_MSG_WARNING
 	("Could not launch filtering procedure for GenEvent number ["
 	 << iEvt << "] from McEventCollection ["
-	 << m_mcEventsName.value() << "] !!"
+	 << m_mcEventsReadHandleKey.key() << "] !!"
 	 << endmsg
 	 << "  outEvt: " << outEvt);
       continue;
