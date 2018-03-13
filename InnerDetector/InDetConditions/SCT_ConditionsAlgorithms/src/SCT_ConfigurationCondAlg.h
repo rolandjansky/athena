@@ -62,7 +62,6 @@ class SCT_ConfigurationCondAlg : public AthAlgorithm
   SG::WriteCondHandleKey<SCT_ConfigurationCondData> m_writeKey;
   ServiceHandle<ICondSvc> m_condSvc;
   ServiceHandle<ISCT_CablingSvc> m_cablingSvc; //!< Handle on SCT cabling service
-  ServiceHandle<StoreGateSvc> m_detStore; //!< Handle on the detector store
   const SCT_ID* m_pHelper; //!< ID helper for SCT
   const InDetDD::SCT_DetectorManager* m_pManager; //!< SCT detector manager
   ToolHandle<ISCT_ReadoutTool> m_readoutTool{this, "SCT_ReadoutTool", "SCT_ReadoutTool", "Handle on readout tool"}; //!< Handle on readout tool
