@@ -1,0 +1,28 @@
+Mon Mar  5 17:12:34 EST 2018
+WARNING: TCMALLOCDIR not defined, will use libc malloc
+Py:Athena            INFO including file "AthenaCommon/Preparation.py"
+Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
+Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
+Py:Athena            INFO executing ROOT6Setup
+Py:Athena            INFO including file "AthenaCommon/Execution.py"
+Py:Athena            INFO including file "AthenaCommon/ConfigurableUnitTests.py"
+test1LoadAutoConfigurable (__main__.BasicConfigurableDbTestCase)
+Test autoloading of a configurable (w/ getConfigurable) ... Py:ConfigurableDb    INFO Read module info for 470 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+ok
+test2LoadAutoConfigurable (__main__.BasicConfigurableDbTestCase)
+Test autoloading of a configurable (w/ CfgMgr) ... ok
+test1MethodChecking (__main__.BasicConfigurableTestCase)
+Test that needed methods are properly checked ... ok
+test1PicklePersistency (__main__.ConfigurablePersistencyTestCase)
+Test r/w a job from/to a pickle file ... ok
+test2ConfigurableShelveConfigs (__main__.ConfigurablePersistencyTestCase)
+Test config names of shelves ... ok
+test1ConstructorKeywords (__main__.KeywordHandlingTestCase)
+Test proper handling of constructor keywords ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.774s
+
+OK
