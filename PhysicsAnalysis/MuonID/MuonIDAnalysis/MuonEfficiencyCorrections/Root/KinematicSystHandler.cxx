@@ -40,7 +40,7 @@ namespace CP {
         if (cc != CorrectionCode::Ok) {
             return cc;
         }
-        Eff *= (1. + m_SystWeight * m_Handler->GetBinContent(binsys) * mu.pt() / 1.0e6);
+        Eff *= (1. + m_SystWeight * fabs(m_Handler->GetBinContent(binsys)) * mu.pt() / 1.0e6);
         return CorrectionCode::Ok;
     }
     void PtDependentSystHandler::SetSystematicWeight(float SystWeight) {
