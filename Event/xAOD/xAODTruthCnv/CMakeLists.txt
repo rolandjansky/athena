@@ -8,7 +8,7 @@ atlas_subdir( xAODTruthCnv )
 # Extra package dependencies, based on the build environment:
 set( extra_dep )
 if( NOT XAOD_STANDALONE )
-   set( extra_dep Database/AthenaPOOL/AthenaPoolKernel
+   set( extra_dep Control/AthenaKernel
       PRIVATE
       Control/AthLinks
       Control/AthenaBaseComps

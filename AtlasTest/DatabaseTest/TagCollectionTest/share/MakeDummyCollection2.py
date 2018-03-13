@@ -113,24 +113,6 @@ TagEventTagWriter = TagEventTagWriter( "TagEventTagWriter" )
 topSequence+=EventTagWriter
 topSequence+=TagEventTagWriter
 
-from RegistrationServices.RegistrationServicesConf import InputCollectionMetadataCopy
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamDefMeta
-  
-# Add tool for copying input collection metadata
-copyTool = InputCollectionMetadataCopy("copyTool")
-copyTool.OutputLevel = DEBUG
-ToolSvc += copyTool
-svcMgr.MetaDataSvc.MetaDataTools += [copyTool]
-  
-# Add algorithm to add default collection metadata
-DefaultCollMeta = RegistrationStreamDefMeta("DefaultCollMeta")
-DefaultCollMeta.Project = "TagCollectionTest"
-try:
-  DefaultCollMeta.Stream = OutColl
-except:
-  DefaultCollMeta.Stream = "TEST"
-topSequence+=DefaultCollMeta
-
 #--------------------------------------------------------------
 # Converter
 #--------------------------------------------------------------

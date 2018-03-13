@@ -18,7 +18,7 @@
 #include "GaudiKernel/IFileMgr.h"  // for FILEMGR_CALLBACK_ARGS
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthService.h"
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 
 #include "boost/bind.hpp"
 

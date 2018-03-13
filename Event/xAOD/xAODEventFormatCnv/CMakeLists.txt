@@ -13,8 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthContainers
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolKernel )
+                          Control/StoreGate )
 
 # Component(s) in the package:
 atlas_add_component( xAODEventFormatCnv
