@@ -38,25 +38,25 @@ class ISCT_ConfigurationConditionsTool: virtual public ISCT_ConditionsTool {
   //@}
 
   /** Set of bad module Identifiers */
-  virtual const std::set<Identifier>* badModules()=0;
+  virtual const std::set<Identifier>* badModules() const =0;
 
   /** Map of link status for all modules with at least one bad link (true = good, false = bad)*/
-  virtual const std::map<Identifier, std::pair<bool, bool> >* badLinks()=0;
+  virtual const std::map<Identifier, std::pair<bool, bool> >* badLinks() const =0;
   /** Link status for a particluar module (true = good, false = bad)*/
-  virtual std::pair<bool, bool> badLinks(const Identifier& moduleId)=0;
+  virtual std::pair<bool, bool> badLinks(const Identifier& moduleId) const =0;
 
   /** Map of chips status for all modules with at least one bad chip (packed as 1st 12 bits of unsigned int)*/
-  virtual const std::map<Identifier, unsigned int>* badChips()=0;
+  virtual const std::map<Identifier, unsigned int>* badChips() const =0;
   /** Chips status for a particular module (packed as 1st 12 bits of unsigned int)*/ 
-  virtual unsigned int badChips(const Identifier& moduleId) const=0;
+  virtual unsigned int badChips(const Identifier& moduleId) const =0;
 
   /** Set of bad strip Identifiers */ 
-  virtual void badStrips(std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false)=0;  
+  virtual void badStrips(std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) const =0;  
   /** Set of bad strip Identifiers for a particular module*/
-  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false)=0;
+  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) const =0;
 
   /** Get the chip number containing a particular strip*/
-  virtual int getChip(const Identifier& stripId) const=0;
+  virtual int getChip(const Identifier& stripId) const =0;
 
  private:
 };

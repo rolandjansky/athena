@@ -80,13 +80,13 @@ StatusCode SCT_ReadCalibDataTool::finalize() {
 
 //----------------------------------------------------------------------
 //Can only report good/bad at strip level
-bool SCT_ReadCalibDataTool::canReportAbout(InDetConditions::Hierarchy h) {
+bool SCT_ReadCalibDataTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h==InDetConditions::SCT_STRIP);
 }
 
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
-bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+bool SCT_ReadCalibDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   // Status of the compId
   bool status{true};
   // Extract the moduleId from the comp identifier

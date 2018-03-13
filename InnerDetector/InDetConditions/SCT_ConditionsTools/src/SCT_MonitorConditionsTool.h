@@ -44,22 +44,22 @@ public:
   virtual StatusCode finalize() override;
 
   ///Can the service report about the given component? (chip, module...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
 
   ///Is the detector element good?
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
 
   ///is it good?, using wafer hash
-  virtual bool isGood(const IdentifierHash& hashId) override;
+  virtual bool isGood(const IdentifierHash& hashId) const override;
 
   /// List of bad strip Identifiers
-  virtual void badStrips(std::set<Identifier>& strips) override;
+  virtual void badStrips(std::set<Identifier>& strips) const override;
   
   /// List of bad strip Identifiers for a given module
-  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips) override;
+  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const override;
 
   /// String of bad strip numbers for a given module
-  virtual std::string badStripsAsString(const Identifier& moduleId) override;
+  virtual std::string badStripsAsString(const Identifier& moduleId) const override;
 
 private:
   // ------------------------------------------------------------------------------------
@@ -89,9 +89,9 @@ private:
 
   bool inRange(const int x, const int min, const int max) const;
 
-  void expandRange(const std::string& rangeStr, std::set<int>& rangeList);
+  void expandRange(const std::string& rangeStr, std::set<int>& rangeList) const;
   
-  void expandList(const std::string& defectStr, std::set<int>& defectList);
+  void expandList(const std::string& defectStr, std::set<int>& defectList) const;
 
   // small helper function
   unsigned int computeIstrip4moncond(const Identifier& elementId) const;

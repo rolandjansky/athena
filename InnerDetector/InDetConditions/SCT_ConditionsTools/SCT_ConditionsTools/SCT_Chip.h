@@ -36,7 +36,7 @@ public:
   /** Actual constructor: create chip from id, config and four 32-bit masks */
   SCT_Chip(short id, short config, uint32_t mask0, uint32_t mask1, uint32_t mask2, uint32_t mask3);  
   /** Default destructor */
-  ~SCT_Chip(){}
+  ~SCT_Chip() = default;
 
   /** Chip Id*/
   inline short id()          const {return m_id;}

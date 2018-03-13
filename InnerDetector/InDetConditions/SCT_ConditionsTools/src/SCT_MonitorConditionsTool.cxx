@@ -74,7 +74,7 @@ SCT_MonitorConditionsTool::finalize() {
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool 
-SCT_MonitorConditionsTool::canReportAbout(InDetConditions::Hierarchy h) {
+SCT_MonitorConditionsTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return ((h==InDetConditions::SCT_MODULE) or (h==InDetConditions::SCT_SIDE) or
           (h==InDetConditions::SCT_CHIP) or (h==InDetConditions::SCT_STRIP));
 }
@@ -82,7 +82,7 @@ SCT_MonitorConditionsTool::canReportAbout(InDetConditions::Hierarchy h) {
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool
-SCT_MonitorConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+SCT_MonitorConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   Identifier waferid{m_pHelper->wafer_id(elementId)};
   Identifier iimodule{m_pHelper->module_id(waferid)};
   // defectlist is based on each module
@@ -109,7 +109,7 @@ SCT_MonitorConditionsTool::isGood(const Identifier& elementId, InDetConditions::
 ///////////////////////////////////////////////////////////////////////////////////
 
 bool 
-SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId) {
+SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId) const {
   //bool result(true);
   Identifier elementId{m_pHelper->wafer_id(hashId)};
   return isGood(elementId);
@@ -118,7 +118,7 @@ SCT_MonitorConditionsTool::isGood(const IdentifierHash& hashId) {
 //////////////////////////////////////////////////////////////////////////////////////////
 
 void 
-SCT_MonitorConditionsTool::badStrips(std::set<Identifier>& strips) {
+SCT_MonitorConditionsTool::badStrips(std::set<Identifier>& strips) const {
   // Set of bad strip Identifers for all modules
   SCT_ID::const_id_iterator waferItr{m_pHelper->wafer_begin()}, waferEnd{m_pHelper->wafer_end()};
   // Loop over modules (side-0 of wafers)
@@ -131,8 +131,8 @@ SCT_MonitorConditionsTool::badStrips(std::set<Identifier>& strips) {
 
 //////////////////////////////////////////////////////////////////////////////////////////
 
-void 
-SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips) {
+void
+SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identifier>& strips) const {
   // Set of bad strip Identifers for a given module
   // Get defect string and check it is sensible, i.e. non-empty and contains numbers
   std::string defectStr{getList(moduleId)};
@@ -163,7 +163,7 @@ SCT_MonitorConditionsTool::badStrips(const Identifier& moduleId, std::set<Identi
 //////////////////////////////////////////////////////////////////////////////////////////
 
 std::string 
-SCT_MonitorConditionsTool::badStripsAsString(const Identifier& moduleId) {
+SCT_MonitorConditionsTool::badStripsAsString(const Identifier& moduleId) const {
    return getList(moduleId);
 }
 
@@ -323,7 +323,7 @@ SCT_MonitorConditionsTool::inRange(const int x, const int min, const int max) co
 ///////////////////////////////////////////////////////////////////////////////////
 
 void
-SCT_MonitorConditionsTool::expandRange(const std::string& rangeStr, std::set<int>& rangeList) {
+SCT_MonitorConditionsTool::expandRange(const std::string& rangeStr, std::set<int>& rangeList) const {
   // Expand a given defect range
   // Find separator
   std::string::size_type sepPos{rangeStr.find(s_separator)};
@@ -344,7 +344,7 @@ SCT_MonitorConditionsTool::expandRange(const std::string& rangeStr, std::set<int
 ///////////////////////////////////////////////////////////////////////////////////
 
 void
-SCT_MonitorConditionsTool::expandList(const std::string& defectStr, std::set<int>& defectList) {
+SCT_MonitorConditionsTool::expandList(const std::string& defectStr, std::set<int>& defectList) const {
   // Expand a given defect list
 
   // Empty list or one without numbers

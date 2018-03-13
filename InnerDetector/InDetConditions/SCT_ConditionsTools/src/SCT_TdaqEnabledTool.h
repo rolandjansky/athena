@@ -48,13 +48,13 @@ public:
   //@}
   
   ///Can the service report about the given component? (TdaqEnabledSvc can answer questions about a module or module side)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
 
   ///Is the detector element good?
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
 
   ///is it good?, using wafer hash
-  virtual bool isGood(const IdentifierHash& hashId) override;
+  virtual bool isGood(const IdentifierHash& hashId) const override;
 
  private:
   // Mutex to protect the contents.

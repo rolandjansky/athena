@@ -55,12 +55,12 @@ SCT_TdaqEnabledTool::finalize() {
 }
 
 bool 
-SCT_TdaqEnabledTool::canReportAbout(InDetConditions::Hierarchy h) {
+SCT_TdaqEnabledTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h==InDetConditions::DEFAULT or h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_MODULE); 
 }
 
 bool 
-SCT_TdaqEnabledTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+SCT_TdaqEnabledTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
   //turn to hash, given the identifier
   const IdentifierHash hashId{m_pHelper->wafer_hash(elementId)};
@@ -68,7 +68,7 @@ SCT_TdaqEnabledTool::isGood(const Identifier& elementId, InDetConditions::Hierar
 }
 
 bool 
-SCT_TdaqEnabledTool::isGood(const IdentifierHash& hashId) {
+SCT_TdaqEnabledTool::isGood(const IdentifierHash& hashId) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_TdaqEnabledCondData* condData{getCondData(ctx)};
   if (!condData) return false;
