@@ -8,6 +8,7 @@ import StatusFiles
 
 fLocalPath = os.getcwd()
 
+
 def ReturnDerivationTags():
     Tags = ["TOPQ", "EXOT", "HIGG", "STDM", "SUSY", "JETM", "FTAG", "TAUP", "MUON", "EGAM", "TRUTH"]
     return Tags
@@ -17,7 +18,7 @@ def ReturnProductionTags():
     Tags = ["mc15_13TeV"]
     return Tags
 
-    
+
 def ReturnSampleCategory():
     Tags = ["TTbar", "TTbarBulk", "SingleTop",
             "Wjets_PowPy8_incl", "Wjets_PowPy8_slice", "Wjets_Sherpa_light", "Wjets_Sherpa_Cfilter", "Wjets_Sherpa_Bfilter", "Wjets_Sherpa22_light", "Wjets_Sherpa22_Cfilter", "Wjets_Sherpa22_Bfilter", "Wjets_Sherpa221",  
@@ -125,6 +126,7 @@ def StringIsInFile(AODname, Map):
         if entry in AODname:
             return True
     return False
+
 
 def StringsAreInFile(AODname, Map):
     for entries in Map:
