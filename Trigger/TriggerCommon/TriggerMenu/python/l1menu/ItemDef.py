@@ -1741,6 +1741,7 @@ class ItemDef:
   
                     LVL1MenuItem('L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4').setLogic( TOPO_8INVM15_MU6ab_MU4ab & TOPO_0DR22_MU6ab_MU4ab & physcond) # 86% for Upsi        # noqa: F821
                     LVL1MenuItem('L1_BPH-2M9-2MU6_BPH-2DR15-2MU6'     ).setLogic( TOPO_2INVM9_2MU6ab & TOPO_2DR15_2MU6ab & physcond)            # 96% for Bs,J/psi    # noqa: F821
+                    LVL1MenuItem('L1_BPH-2M9-2MU6'     ).setLogic( TOPO_2INVM9_2MU6ab & physcond)           # noqa: F821
      
                     LVL1MenuItem('L1_BPH-8M15-2MU6_BPH-0DR22-2MU6'    ).setLogic( TOPO_8INVM15_2MU6ab & TOPO_0DR22_2MU6ab & physcond)           # 96% for Upsi        # noqa: F821
 
