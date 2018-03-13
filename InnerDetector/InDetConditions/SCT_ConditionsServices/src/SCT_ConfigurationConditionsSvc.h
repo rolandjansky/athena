@@ -51,7 +51,7 @@ public:
   virtual ~SCT_ConfigurationConditionsSvc() = default;
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
   static const InterfaceID& interfaceID();
   //@}
   
@@ -91,7 +91,7 @@ public:
   /**Bad chips for a given module*/
   virtual unsigned int                  badChips(const Identifier& moduleId) const override;
   /** Get the chip number containing a particular strip*/
-  int                                   getChip(const Identifier& stripId) const;
+  virtual int                           getChip(const Identifier& stripId) const override;
 
 private:
   // Mutex to protect the contents.
