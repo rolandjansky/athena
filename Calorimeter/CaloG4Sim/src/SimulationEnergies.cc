@@ -121,7 +121,10 @@
 #include "G4ios.hh"
 #include <vector>
 #include <string>
+#include <mutex>
 
+static std::once_flag warning1OnceFlag;
+static std::once_flag warning2OnceFlag;
 
 namespace CaloG4 {
 
@@ -618,17 +621,13 @@ namespace CaloG4 {
         return eep->Process( touchableHandle, a_point, a_energy );
 
       // If we get here, the registry was never initialized for LAr.
-      static G4bool errorDisplayed = false;
-      if ( ! errorDisplayed )
-        {
-	  errorDisplayed = true;
-	  G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
-	         << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
-	         << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl
-	         << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
-	         << "   will be recorded." << G4endl;
-	}
-    
+      std::call_once(warning1OnceFlag, [](){
+          G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
+                 << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
+                 << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl
+                 << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
+                 << "   will be recorded." << G4endl;
+        });
       return false;
     }
     else {
@@ -639,19 +638,16 @@ namespace CaloG4 {
       eep = registry->GetProcessing( "LAr::" );
       if ( eep != 0 )
         return eep->Process( touchableHandle, a_point, a_energy );
- 
+
       // If we get here, the registry was never initialized for LAr.
-      static G4bool errorDisplayed1 = false;
-      if ( ! errorDisplayed1 )
-        {
-	  errorDisplayed1 = true;
-	  G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
-		 <<"   WARNING! touchableHandle->GetVolume()==0  geometry problem ?  and also" << G4endl
-	         << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
-	         << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl
-	         << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
-	         << "   will be recorded." << G4endl;
-        }
+      std::call_once(warning2OnceFlag, [](){
+          G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
+                 <<"   WARNING! touchableHandle->GetVolume()==0  geometry problem ?  and also" << G4endl
+                 << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
+                 << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl
+                 << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
+                 << "   will be recorded." << G4endl;
+        });
       return false;
     }
   }
