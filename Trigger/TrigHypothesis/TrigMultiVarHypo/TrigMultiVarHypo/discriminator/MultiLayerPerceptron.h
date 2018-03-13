@@ -41,8 +41,8 @@ class MultiLayerPerceptron {
 
   public:
 
-    MultiLayerPerceptron(std::vector<unsigned int> &, 
-                         std::vector<REAL> &, std::vector<REAL> &, 
+    MultiLayerPerceptron(const std::vector<unsigned int> &, 
+                         const std::vector<REAL> &, const std::vector<REAL> &, 
                          REAL th, REAL etmin,  REAL etmax, 
                          REAL etamin,  REAL etamax);
 
