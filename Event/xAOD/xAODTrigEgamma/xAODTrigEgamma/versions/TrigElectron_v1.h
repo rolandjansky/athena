@@ -19,6 +19,9 @@ extern "C" {
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
+
 namespace xAOD {
 
    /// Class describing an electron reconstructed in the HLT
@@ -56,7 +59,13 @@ namespace xAOD {
       virtual double           rapidity() const;
 
       /// The full 4-momentum of the particle
-      virtual const FourMom_t& p4() const;
+      virtual FourMom_t        p4() const;
+
+      /// Base 4 Momentum type for egamma
+      typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
+
+      ///  The full 4-momentum of the particle : internal egamma type.
+      GenVecFourMom_t genvecP4() const; 
 
       /// The type of the object as a simple enumeration
       virtual Type::ObjectType type() const { return Type::TrigElectron; }
@@ -136,6 +145,7 @@ namespace xAOD {
       /// @name Four-momentum properties
       /// @{
 
+
       /// Get the track's pseudorapidity extrapolated to the calorimeter
       float trkEtaAtCalo() const;
       /// Set the track's pseudorapidity extrapolated to the calorimeter
@@ -202,11 +212,6 @@ namespace xAOD {
                  const EMClusterLink_t& clLink,
                  const TrackParticleLink_t& tpLink );
 
-   private:
-      /// Cached 4-momentum object.
-      mutable FourMom_t m_p4;
-      /// Cache state of the internal 4-momentum (reset from the streamer)
-      mutable bool m_p4Cached;
 
    }; // class TrigElectron_v1
 
