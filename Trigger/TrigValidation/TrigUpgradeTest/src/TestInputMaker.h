@@ -44,13 +44,15 @@ namespace HLTTest {
     typedef TrigRoiDescriptor FeatureOBJ;
     typedef TrigRoiDescriptorCollection FeatureContainer;
 
-    SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs  { this, "InputDecisions", {}, "Input Decisions (implicit)" };
-    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput { this, "Output", "undefined", "name of the output collection for input to next reco alg in sequence" };
-    SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_decisionsKey { this, "OutputDecisions", "Unspecified", "Ouput Decisions" };
 
+    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput { this, "Output", "undefined", "name of the output collection for input to next reco alg in sequence" };
     
-    StringProperty m_linkName; 
-    StringProperty m_outputType; 
+    SG::ReadHandleKeyArray <TrigCompositeUtils::DecisionContainer> m_inputs       { this, "InputDecisions",  {}, "Input Decisions (implicit)" };
+    SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_decisionsKey { this, "OutputDecisions", {}, "Ouput Decisions" };
+
+    StringProperty m_linkName   {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
+    StringProperty m_outputType {this, "OutputType","outputType", "reserved for future use"};
+
   }; 
 
 } //> end namespace HLTTest

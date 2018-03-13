@@ -39,10 +39,14 @@ namespace HLTTest {
 
 
   StatusCode TestHypoAlg::execute_r( const EventContext& context ) const {  
-    //  StatusCode TestHypoAlg::execute() {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
-
+    
     auto previousDecisionsHandle = SG::makeHandle( m_previousDecisions, context );
+    if( not previousDecisionsHandle.isValid() ) {//implicit
+      ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  m_previousDecisions.key()<<": is this expected?" );
+      return StatusCode::SUCCESS;      
+    }
+    
     ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
 
     auto recoInput = SG::makeHandle(m_recoInput, context);
@@ -54,18 +58,53 @@ namespace HLTTest {
     decisions->setStore( aux.get() );
 
     
-    // loop over previous decisions
-    size_t counter = 0;
-    for ( auto previousDecision: *previousDecisionsHandle ) {
-      auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-      CHECK( roiEL.isValid() );
-      // const TrigRoiDescriptor* roi = *roiEL;      
-      auto d = newDecisionIn(decisions.get());
-      d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), counter) );// feature used by the Tool
-      d->setObjectLink( "initialRoI", roiEL );// this is used by the InputMaker
-      d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions.key(), counter) );// link to previous decision object
-      counter++;
+    std::vector<const FeatureOBJ*> featureFromDecision;
+    for ( auto previousDecision: *previousDecisionsHandle ) {     
+      auto featurelink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
+      CHECK( featurelink.isValid() );
+      const FeatureOBJ* feature = *featurelink;
+      featureFromDecision.push_back( feature);
     }
+   
+    
+    ATH_MSG_DEBUG("Found "<<featureFromDecision.size()<<" features "<<m_linkName.value() <<" mapped from previous decisions");
+    
+    size_t counter = 0;
+    //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
+    for (auto recoobj: *recoInput){
+      auto roiEL = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      CHECK( roiEL.isValid() );
+      auto featurelink = (recoobj)->objectLink<FeatureContainer>( m_linkName.value() );
+      CHECK( featurelink.isValid() );
+      if ( not featurelink.isValid() )  {
+	ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
+	return StatusCode::FAILURE;
+      }
+      
+      ATH_MSG_DEBUG(" Found link from the reco object to feature "<<m_linkName.value() );
+      const FeatureOBJ* feature = *featurelink;
+      // find the same roi in the previous decisions
+      bool foundRoIInDecision=false;
+       size_t pos=distance(featureFromDecision.begin(), find(featureFromDecision.begin(), featureFromDecision.end(), feature));
+       if (pos < featureFromDecision.size()){
+	 foundRoIInDecision=true;	 
+       }
+       
+       if (foundRoIInDecision){
+	 ATH_MSG_DEBUG(" Found link from the reco object to the previous decision at position "<<pos);
+	 auto d = newDecisionIn(decisions.get());
+	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), counter) );// feature used by the Tool
+	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
+	 d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions.key(), pos) );// link to previous decision object
+       }
+       else{
+	 ATH_MSG_ERROR( " Can not find reference to previous decision from feature " + m_linkName.value() + " from reco object " << counter );
+	 return StatusCode::FAILURE;
+       }
+       counter++;
+    }
+    
+ 
 
     if (decisions->size()>0){
       for ( auto tool: m_tools ) {
