@@ -37,7 +37,6 @@
 #include "RelationalAccess/AuthenticationServiceException.h"
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "PoolSvc/IPoolSvc.h"
 
 #include <thread>
 
@@ -480,8 +479,6 @@ void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list,
 
 StatusCode RDBAccessSvc::initialize()
 {
-  ServiceHandle<IPoolSvc> poolSvc("PoolSvc",name());
-  ATH_CHECK(poolSvc.retrieve());
   return StatusCode::SUCCESS;
 }
 
