@@ -16,7 +16,7 @@
 // Framework include files
 #include "DbSessionObj.h"
 #include "DbDomainObj.h"
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/DbInstanceCount.h"
 

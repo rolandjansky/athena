@@ -8,10 +8,8 @@
 
 #include "PersistentDataModel/Guid.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCLeaf.h"
-#include "FileCatalog/FCImpl.h"
-#include "FileCatalog/FCEntry.h"
 #include "FileCatalog/URIParser.h"
+#include "POOLCore/SystemTools.h"
 
 class InsertFileToCatalogApplication {
 public:
@@ -109,13 +107,7 @@ InsertFileToCatalogApplication::execute()
     catalog->setWriteCatalog( p.contactstring() );
     catalog->connect();
     catalog->start();
-    
-    pool::PFNEntry entry( m_fileNames[0], m_guid, m_technologyName );
-    pool::FCLeaf* leaf = 
-      dynamic_cast< pool::FCLeaf* >( catalog->getWriteCatalog() );
-    if (leaf)
-      leaf->getImpl()->insertPFN( entry );
-    
+    catalog->registerPFN( m_guid, m_fileNames[0], m_technologyName );
     catalog->commit();
   }
 }
@@ -131,6 +123,7 @@ InsertFileToCatalogApplication::printSyntax()
 
 int main( int argc, char* argv[] )
 {
+  pool::SystemTools::initGaudi();
   try {
     InsertFileToCatalogApplication app( argc, argv );
     if ( app.parseArguments() ) {

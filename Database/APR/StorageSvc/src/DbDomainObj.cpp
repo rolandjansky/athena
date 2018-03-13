@@ -20,7 +20,7 @@
 #include "StorageSvc/IDbDomain.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/DbInstanceCount.h"
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "DbDatabaseObj.h"
 #include "DbDomainObj.h"
 

@@ -20,7 +20,7 @@
 #include "StorageSvc/DatabaseConnection.h"
 #include "StorageSvc/FileDescriptor.h"
 #include "StorageSvc/DbType.h"
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 
 #include <stdexcept>
 #include <iostream>

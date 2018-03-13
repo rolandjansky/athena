@@ -16,7 +16,7 @@
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbOption.h"
 #include "StorageSvc/DbDomain.h"
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "StorageSvc/DbTransaction.h"
 
 #include "GaudiKernel/Bootstrap.h"

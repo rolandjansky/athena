@@ -18,7 +18,7 @@
 #include "DbContainerObj.h"
 
 // Public POOL include files
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "StorageSvc/DbIter.h"
 #include "StorageSvc/DbToken.h"
 #include "StorageSvc/DbReflex.h"

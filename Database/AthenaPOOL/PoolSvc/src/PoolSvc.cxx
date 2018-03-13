@@ -22,8 +22,7 @@
 #include "CollectionBase/CollectionDescription.h"
 
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCAction.h"
-
+#include "POOLCore/DbPrint.h"
 #include "PersistencySvc/IPersistencySvc.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/IDatabase.h"
@@ -355,12 +354,10 @@ const pool::IFileCatalog* PoolSvc::catalog() const {
 //__________________________________________________________________________
 void PoolSvc::lookupBestPfn(const std::string& token, std::string& pfn, std::string& type) const {
    std::string dbID;
-   pool::FCregister action;
-   m_catalog->setAction(action);
    if (token.substr(0, 4) == "PFN:") {
-      action.lookupFileByPFN(token.substr(4), dbID, type); // PFN -> FID
+      m_catalog->lookupFileByPFN(token.substr(4), dbID, type); // PFN -> FID
    } else if (token.substr(0, 4) == "LFN:") {
-      action.lookupFileByLFN(token.substr(4), dbID); // LFN -> FID
+      m_catalog->lookupFileByLFN(token.substr(4), dbID); // LFN -> FID
    } else if (token.substr(0, 4) == "FID:") {
       dbID = token.substr(4);
    } else if (token.size() > Guid::null().toString().size()) { // full token
@@ -370,24 +367,22 @@ void PoolSvc::lookupBestPfn(const std::string& token, std::string& pfn, std::str
    } else { // guid only
       dbID = token;
    }
-   action.lookupBestPFN(dbID, pool::FileCatalog::READ, pool::FileCatalog::SEQUENTIAL, pfn, type); // FID -> best PFN
+   m_catalog->getFirstPFN(dbID, pfn, type); // FID -> best PFN
 }
 //__________________________________________________________________________
 void PoolSvc::renamePfn(const std::string& pf, const std::string& newpf) const {
    std::string dbID, type;
-   pool::FCregister action;
-   m_catalog->setAction(action);
-   action.lookupFileByPFN(pf, dbID, type);
+    m_catalog->lookupFileByPFN(pf, dbID, type);
    if (dbID.empty()) {
       ATH_MSG_WARNING("Failed to lookup: " << pf << " in FileCatalog");
       return;
    }
-   action.lookupFileByPFN(newpf, dbID, type);
+   m_catalog->lookupFileByPFN(newpf, dbID, type);
    if (!dbID.empty()) {
       ATH_MSG_INFO("Found: " << newpf << " in FileCatalog");
       return;
    }
-   action.renamePFN(pf, newpf);
+   m_catalog->renamePFN(pf, newpf);
 }
 //__________________________________________________________________________
 pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
@@ -420,10 +415,8 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
    // Check POOL FileCatalog entry.
    bool insertFile = false;
    if (connection.substr(0, 4) == "PFN:") {
-      pool::IFCAction action;
-      m_catalog->setAction(action);
       std::string fid, fileType;
-      action.lookupFileByPFN(connection.substr(4), fid, fileType);
+      m_catalog->lookupFileByPFN(connection.substr(4), fid, fileType);
       if (fid.empty()) { // No entry in file catalog
          insertFile = true;
          ATH_MSG_INFO("File is not in Catalog! Attempt to open it anyway.");
@@ -454,10 +447,8 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
             ATH_MSG_INFO("Failed to find container " << collection << " to create POOL collection.");
             if (insertFile && m_attemptCatalogPatch.value()) {
                dbH->setTechnology(pool::ROOT_StorageType.type());
-               pool::FCregister action;
-               m_catalog->setAction(action);
                std::string fid = dbH->fid();
-               action.registerPFN(connection.substr(4), "ROOT_All", fid);
+               m_catalog->registerPFN(connection.substr(4), "ROOT_All", fid);
             }
             return(nullptr); // no events
          }
@@ -495,10 +486,8 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
                       << connection << "' - FileCatalog will NOT be updated.");
       } else {
          dbH->setTechnology(pool::ROOT_StorageType.type());
-         pool::FCregister action;
-         m_catalog->setAction(action);
          std::string fid = dbH->fid();
-         action.registerPFN(connection.substr(4), "ROOT_All", fid);
+         m_catalog->registerPFN(connection.substr(4), "ROOT_All", fid);
       }
    }
    return(collPtr);
@@ -877,6 +866,7 @@ StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
 //__________________________________________________________________________
 pool::IFileCatalog* PoolSvc::createCatalog() {
    pool::IFileCatalog* ctlg = new pool::IFileCatalog;
+   ctlg->removeCatalog("*");
    for (auto& catalog : m_readCatalog.value()) {
       ATH_MSG_DEBUG("POOL ReadCatalog is " << catalog);
       if (catalog.substr(0, 8) == "apcfile:" || catalog.substr(0, 7) == "prfile:") {

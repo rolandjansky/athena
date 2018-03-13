@@ -12,7 +12,7 @@
 //====================================================================
 
 /// Framework include files
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "StorageSvc/DbHeap.h"
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbContainer.h"

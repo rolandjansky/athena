@@ -11,7 +11,7 @@
 
 #include "StorageSvc/pool.h"
 #include "StorageSvc/DbType.h"
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include <cstdio>
 using namespace pool;
 
