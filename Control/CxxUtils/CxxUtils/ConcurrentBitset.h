@@ -830,6 +830,21 @@ private:
   {
   public:
     /**
+     * @brief Allocate an Impl structure.
+     * @param sz Size of an Impl structure.
+     * @param nbits Number of bits to allocate.
+     */
+    void* operator new (size_t /*sz*/, bit_t nbits);
+
+
+    /*
+     * @brief Free an Impl structure.
+     * @param p Pointer to the object to free.
+     */
+    void operator delete (void* p);
+
+    
+    /**
      * @brief Constructor.
      * @param nbits Number of bits in the set.
      */
