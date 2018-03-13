@@ -15,6 +15,8 @@
 // #include <random>
 #include "TF1.h"
 
+using std::vector;
+
 std::vector<float> shaperInputTime;
 std::vector<float> shaperInputCharge;
 // set drift electron's timing and charge via above vector before use function

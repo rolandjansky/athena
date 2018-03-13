@@ -48,9 +48,6 @@ Comments to be added here....
 //VMM Mapping
 #include "MM_Digitization/MMStripVmmMappingTool.h"
 
-using std::vector;
-using std::cout;
-using std::endl;
 
 /// ROOT Classed
 class TF1;
@@ -85,8 +82,8 @@ public :
   ElectronicsResponse();
   virtual ~ElectronicsResponse();
   void clearValues ();
-  void bnlPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
-  void bnlThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
+  void bnlPeakResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
+  void bnlThresholdResponseFunction(const std::vector <int> & numberofStrip, const std::vector<std::vector <float>> & qStrip, const std::vector<std::vector <float>> & tStrip);
   MmDigitToolOutput GetPeakResponseFrom(const MmElectronicsToolInput & digiInput);
   MmDigitToolOutput GetThresholdResponseFrom(const MmElectronicsToolInput & digiInput);
 
@@ -98,9 +95,9 @@ public :
   MmElectronicsToolTriggerOutput ApplyARTTiming(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset);
   bool DeadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime);
 
-  vector <float> m_tStripElectronicsAbThr;
-  vector <float> m_qStripElectronics;
-  vector <int> m_nStripElectronics;
+  std::vector <float> m_tStripElectronicsAbThr;
+  std::vector <float> m_qStripElectronics;
+  std::vector <int> m_nStripElectronics;
 
   inline void set_peakTime(float val) {
     m_peakTime = val;
@@ -124,9 +121,9 @@ public :
   float get_ARTdeadtime() const { return m_ARTdeadtime;};
 
 
-  vector <float>  get_tStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
-  vector <float>  get_qStripElectronics () const { return m_qStripElectronics;};
-  vector <int>  get_nStripElectronics () const { return m_nStripElectronics;};
+  std::vector <float>  get_tStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
+  std::vector <float>  get_qStripElectronics () const { return m_qStripElectronics;};
+  std::vector <int>  get_nStripElectronics () const { return m_nStripElectronics;};
 
 
 };
