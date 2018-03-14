@@ -56,9 +56,13 @@ namespace APRTest
          : SG::AuxStoreInternal::getData( auxid);
    }
 
- 
+
+   class AClassWithDict {
+    public:
+     AClassWithDict(int v=54321) { _val=v; };
+     int _val;
+   };
+
 }
 
-
 #endif
-
