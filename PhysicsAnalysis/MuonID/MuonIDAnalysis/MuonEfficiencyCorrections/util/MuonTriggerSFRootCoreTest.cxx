@@ -130,6 +130,7 @@ int main(int argc, char* argv[]) {
             ASG_CHECK_SA(APP_NAME, tool->setProperty("filename", customFileName));
             ASG_CHECK_SA(APP_NAME, tool->setProperty("CustomInputFolder", customInputFolder));
 	    ASG_CHECK_SA(APP_NAME, tool->setProperty("UseExperimental", true));
+	    ASG_CHECK_SA(APP_NAME, tool->setProperty("AllowZeroSF", true));
 	    tool->msg().setLevel( MSG::ERROR );
             ASG_CHECK_SA(APP_NAME, tool->initialize());
             //CP::CorrectionCode result = tool->setRunNumber(atoi(runNumber));
@@ -151,7 +152,7 @@ int main(int argc, char* argv[]) {
         event.getEntry(entry);
         const xAOD::EventInfo* ei = 0;
         RETURN_CHECK(APP_NAME, event.retrieve(ei, "EventInfo"));
-        Info(APP_NAME, "Processing event #%i, ", static_cast<int>(ei->eventNumber()));
+        // Info(APP_NAME, "Processing event #%i, ", static_cast<int>(ei->eventNumber()));
 	
         const xAOD::MuonContainer* muons = 0;
         RETURN_CHECK(APP_NAME, event.retrieve(muons, "Muons"));
@@ -243,7 +244,7 @@ int main(int argc, char* argv[]) {
 		    auto sfSingleCalc = (1. - tmpEffData)/(1. - tmpEffMC);
 		    if ( triggerSF > 0.2 && (sfSingleCalc - triggerSF) / triggerSF > 0.02) {
 
-		      Warning(APP_NAME, "Invalid single muon SF result. Parameters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s \n Systematic = %s \n single SF: %f \n combined SF %f \n ", static_cast<int>(ei->eventNumber()), qualities[i].c_str(), binnings[j].c_str(), systematics[k].name().c_str(), sfSingleCalc, triggerSF);
+		      // Warning(APP_NAME, "Invalid single muon SF result. Parameters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s \n Systematic = %s \n single SF: %f \n combined SF %f \n ", static_cast<int>(ei->eventNumber()), qualities[i].c_str(), binnings[j].c_str(), systematics[k].name().c_str(), sfSingleCalc, triggerSFrSF);
 		      warningsCount++;
 		    }
 		}

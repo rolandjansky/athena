@@ -47,10 +47,8 @@ namespace CP {
                 m_fileName(),
                 m_efficiencyMap(),
                 m_efficiencyMapReplicaArray(),
-
                 m_muonquality("Medium"),
-
-                m_calibration_version("180214_Moriond21"),
+                m_calibration_version("180312_TriggerUpdate"),
                 m_custom_dir(),
                 m_binning("fine"),
 		m_eventInfoContName("EventInfo"),
@@ -87,7 +85,7 @@ namespace CP {
         if (fileName.empty() && !m_useRel207) {
             if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v01.root";
             else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v01.root";
-	    else if (year == 2017) fileName = "muontrigger_sf_2017_mc16c_v01.root";
+	    else if (year == 2017) fileName = "muontrigger_sf_2017_mc16c_v02.root";
             else {
                 ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
                 return StatusCode::SUCCESS;
