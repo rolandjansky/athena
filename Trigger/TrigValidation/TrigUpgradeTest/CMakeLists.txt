@@ -90,8 +90,10 @@ atlas_add_test( EmuL1Decoding
 
 atlas_add_test( EmuStepProcessing
 		SCRIPT	test/test_emu_step_processing.sh
-		EXTRA_PATTERNS "^TriggerSummary"
-		)
+		EXTRA_PATTERNS "\[Alg\]"
+)
+
+
 
 
 
