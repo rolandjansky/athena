@@ -15,6 +15,7 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AtlasDetDescr/AtlasRegion.h"
 
 // ISF includes
 #include "ISF_HepMC_Interfaces/ITruthStrategy.h"
@@ -39,16 +40,18 @@ namespace ISF {
      ~CylinderVolumeTruthStrategy();
 
      // Athena algtool's Hooks
-     StatusCode  initialize();
-     StatusCode  finalize();
+     virtual StatusCode  initialize() override final;
+     virtual StatusCode  finalize() override final;
 
      /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
-     bool pass( ITruthIncident& incident) const;
+     virtual bool pass( ITruthIncident& incident) const override final;
 
+     virtual bool appliesToRegion(unsigned short geoID) const override final;
 	  private:
      double                 m_ri;    //!< inner cylinder radius
      double                 m_ro;    //!< outer cylinder radius
 
+     IntegerArrayProperty            m_regionListProperty;
    }; 
   
 }

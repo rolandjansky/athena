@@ -116,6 +116,7 @@ def getTruthStrategyGroupID_MC15(name="ISF_MCTruthStrategyGroupID_MC15", **kwarg
     kwargs.setdefault('VertexTypes'         , [ 3, 14, 15, 4, 5, 6, 7, 2, 12, 13 ])
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
+    kwargs.setdefault('Regions', [1,2]) # Could import AtlasDetDescr::AtlasRegion enum as in TruthService CfgGetter methods here
     return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
 
 
@@ -125,6 +126,7 @@ def getTruthStrategyGroupID(name="ISF_MCTruthStrategyGroupID", **kwargs):
     kwargs.setdefault('VertexTypes'         , [ 3, 14, 15, 4, 5, 6, 7, 2, 12, 13 ])
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
+    kwargs.setdefault('Regions', [1,2])
     return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
 
 
@@ -133,6 +135,7 @@ def getTruthStrategyGroupIDHadInt_MC15(name="ISF_MCTruthStrategyGroupIDHadInt_MC
     kwargs.setdefault('ChildMinPt'                        , 300.*MeV)
     kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
     kwargs.setdefault('AllowChildrenOrParentPassKineticCuts' , True)
+    kwargs.setdefault('Regions', [1])
     return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
 
 
@@ -141,6 +144,7 @@ def getTruthStrategyGroupIDHadInt(name="ISF_MCTruthStrategyGroupIDHadInt", **kwa
     kwargs.setdefault('ChildMinPt'                        , 100.*MeV)
     kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
     kwargs.setdefault('AllowChildrenOrParentPassKineticCuts' , True)
+    kwargs.setdefault('Regions', [1])
     return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
 
 
@@ -149,6 +153,7 @@ def getTruthStrategyGroupCaloMuBrem_MC15(name="ISF_MCTruthStrategyGroupCaloMuBre
     kwargs.setdefault('ChildMinEkin'        , 300.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 3 ])
     kwargs.setdefault('ParentPDGCodes'      , [ 13, -13 ])
+    kwargs.setdefault('Regions', [3])
     return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
 
 def getTruthStrategyGroupCaloMuBrem(name="ISF_MCTruthStrategyGroupCaloMuBrem", **kwargs):
@@ -156,6 +161,7 @@ def getTruthStrategyGroupCaloMuBrem(name="ISF_MCTruthStrategyGroupCaloMuBrem", *
     kwargs.setdefault('ChildMinEkin'        , 100.*MeV)
     kwargs.setdefault('VertexTypes'         , [ 3 ])
     kwargs.setdefault('ParentPDGCodes'      , [ 13, -13 ])
+    kwargs.setdefault('Regions', [3])
     return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
 
 def getTruthStrategyGroupCaloDecay_MC15(name="ISF_MCTruthStrategyGroupCaloDecay_MC15", **kwargs):
@@ -164,6 +170,7 @@ def getTruthStrategyGroupCaloDecay_MC15(name="ISF_MCTruthStrategyGroupCaloDecay_
     kwargs.setdefault('VertexTypes'         , [ 5, 6, 7 ])
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
+    kwargs.setdefault('Regions', [3])
     return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
 
 def getTruthStrategyGroupCaloDecay(name="ISF_MCTruthStrategyGroupCaloDecay", **kwargs):
@@ -172,10 +179,12 @@ def getTruthStrategyGroupCaloDecay(name="ISF_MCTruthStrategyGroupCaloDecay", **k
     kwargs.setdefault('VertexTypes'         , [ 5, 6, 7 ])
     kwargs.setdefault('VertexTypeRangeLow'  , 201)  # All kinds of decay processes
     kwargs.setdefault('VertexTypeRangeHigh' , 298)  # ...
+    kwargs.setdefault('Regions', [3])
     return CfgMgr.ISF__GenericTruthStrategy(name, **kwargs);
 
 def getValidationTruthStrategy(name="ISF_ValidationTruthStrategy", **kwargs):
     kwargs.setdefault('ParentMinP'          , 50.*MeV)
+    kwargs.setdefault('Regions', [1,3])
     return CfgMgr.ISF__ValidationTruthStrategy(name, **kwargs);
 
 def getLLPTruthStrategy(name="ISF_LLPTruthStrategy", **kwargs):
@@ -184,4 +193,5 @@ def getLLPTruthStrategy(name="ISF_LLPTruthStrategy", **kwargs):
     # ProcessCategory==9 corresponds to the 'fUserDefined' G4ProcessType:
     #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
     kwargs.setdefault('PassProcessCategory',      9   ) # ==
+    kwargs.setdefault('Regions', [1,2,3,4])
     return CfgMgr.ISF__LLPTruthStrategy(name, **kwargs);
