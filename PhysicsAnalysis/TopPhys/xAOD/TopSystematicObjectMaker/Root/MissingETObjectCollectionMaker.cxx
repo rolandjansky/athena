@@ -88,8 +88,12 @@ namespace top{
     if (m_config->doTightEvents()) {
       // All the tight systematic events
       const xAOD::SystematicEventContainer* systEvents(nullptr);
-      top::check( evtStore()->retrieve(systEvents,m_config->sgKeyTopSystematicEvents()) , "Failed to retrieve TopEvents" );
-
+      if(executeNominal){
+	top::check( evtStore()->retrieve(systEvents,m_config->sgKeyTopSystematicEvents()+"Nominal") , "Failed to retrieve nominal TopEvents" );
+      }
+      else{
+	top::check( evtStore()->retrieve(systEvents,m_config->sgKeyTopSystematicEvents()) , "Failed to retrieve TopEvents" );
+      }
         for (auto x : *systEvents){
           ///-- if executeNominal, skip other systematics (and vice-versa) --///
           if(!executeNominal && m_config->isSystNominal(m_config->systematicName(x->hashValue()))) continue;
@@ -100,7 +104,12 @@ namespace top{
     if (m_config->doLooseEvents()) {
       // All the loose systematic events
       const xAOD::SystematicEventContainer* systEventsLoose(nullptr);
-      top::check( evtStore()->retrieve(systEventsLoose,m_config->sgKeyTopSystematicEventsLoose()) , "Failed to retrieve TopEventsLoose" );
+      if(executeNominal){
+	top::check( evtStore()->retrieve(systEventsLoose,m_config->sgKeyTopSystematicEventsLoose()+"Nominal") , "Failed to retrieve nominal TopEventsLoose" );
+      }
+      else{
+	top::check( evtStore()->retrieve(systEventsLoose,m_config->sgKeyTopSystematicEventsLoose()) , "Failed to retrieve TopEventsLoose" );
+      }
 
       for (auto x : *systEventsLoose){
         ///-- if executeNominal, skip other systematics (and vice-versa) --///

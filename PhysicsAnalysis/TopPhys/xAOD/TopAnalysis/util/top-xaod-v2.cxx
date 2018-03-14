@@ -1117,7 +1117,7 @@ void CreateObjectCollection(AnalysisTopTools analysisTopTools, bool executeNomin
   top::check( analysisTopTools.topObjectCollectionMaker->recalculateMET(executeNominal) , "Failed to recalculateMET with systObjMaker" );
 
   ///-- Scale Factor calculation --///
-  if (topConfig->isMC() && executeNominal)
+  if (topConfig->isMC() && !executeNominal)
     top::check( analysisTopTools.topScaleFactorCalculator->execute() , "Failed to calculate scale factors" );
 
   return;

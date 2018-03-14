@@ -490,10 +490,11 @@ StatusCode TopObjectSelection::applyOverlapRemoval(const bool isLoose,const std:
             });
 
   for (auto systematicNumber : sortedSystHashAll) {
+    ATH_MSG_DEBUG(systematicNumber << " " << m_config->systematicName(systematicNumber) );
     ///-- if executeNominal, skip other systematics (and vice-versa) --///
     if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
     if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
-      
+
     xAOD::SystematicEvent* systEvent = new xAOD::SystematicEvent{};
     systEventCont->push_back( systEvent );
     systEvent->setHashValue( systematicNumber );
@@ -502,17 +503,44 @@ StatusCode TopObjectSelection::applyOverlapRemoval(const bool isLoose,const std:
     if (isLoose)  {systEvent->setTtreeIndex( m_config->ttreeIndexLoose( systematicNumber ) );}
     systEvent->auxdecor<char> (m_config->passEventSelectionDecoration()) = 0;
     top::check( applyOverlapRemoval( systEvent ) , "Failed to apply overlap removal" );
+    
   }
   
-  // Save to StoreGate / TStore
-  std::string outputSGKeyAux = sgKey + "Aux.";
-  
-  xAOD::TReturnCode save = evtStore()->tds()->record( systEventCont ,sgKey  );
-  xAOD::TReturnCode saveAux = evtStore()->tds()->record( systEventAuxCont , outputSGKeyAux );
-  if( !save || !saveAux ){
-    return StatusCode::FAILURE;
+  if(m_executeNominal){
+    // Create a new StoreGate key
+    std::string sgKeyNominal = sgKey + "Nominal";
+
+    // Save to StoreGate / TStore                                                              
+    std::string outputSGKeyNominalAux = sgKeyNominal + "Aux.";
+
+    xAOD::TReturnCode save = evtStore()->tds()->record( systEventCont ,sgKeyNominal );
+    xAOD::TReturnCode saveAux = evtStore()->tds()->record( systEventAuxCont , outputSGKeyNominalAux );
+    if( !save || !saveAux ){
+      return StatusCode::FAILURE;
+    }
+    return StatusCode::SUCCESS;
+
   }
-  return StatusCode::SUCCESS;  
+  else{
+    // Retrieve nominal container, get nominal event, copy into full systematic container
+    xAOD::SystematicEventContainer* systEventContNominal = new xAOD::SystematicEventContainer{};
+    top::check( evtStore()->retrieve(systEventContNominal, sgKey+"Nominal"), "Failed to retrieve nominal container");
+    for (auto x: *systEventContNominal){
+      xAOD::SystematicEvent* systEventNominal = new xAOD::SystematicEvent{};      
+      systEventCont->push_back( systEventNominal );
+      *systEventNominal = *x;
+    }
+
+    // Save to StoreGate / TStore
+    std::string outputSGKeyAux = sgKey + "Aux.";
+  
+    xAOD::TReturnCode save = evtStore()->tds()->record( systEventCont ,sgKey  );
+    xAOD::TReturnCode saveAux = evtStore()->tds()->record( systEventAuxCont , outputSGKeyAux );
+    if( !save || !saveAux ){
+      return StatusCode::FAILURE;
+    }
+    return StatusCode::SUCCESS;  
+  }
 }
 
 
