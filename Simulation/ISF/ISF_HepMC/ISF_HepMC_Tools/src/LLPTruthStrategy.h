@@ -29,7 +29,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class LLPTruthStrategy : public extends<AthAlgTool, ITruthStrategy> {
+  class LLPTruthStrategy final : public extends<AthAlgTool, ITruthStrategy> {
       
     public: 
       /** Constructor with parameters */
@@ -39,13 +39,13 @@ namespace ISF {
       ~LLPTruthStrategy();
 
       // Athena algtool's Hooks
-      virtual StatusCode  initialize() override final;
-      virtual StatusCode  finalize() override final;
+      virtual StatusCode  initialize() override;
+      virtual StatusCode  finalize() override;
 
       /** True if the ITruthStrategy implementationapplies to the given ITruthIncident */
-      virtual bool pass( ITruthIncident& incident) const override final;
+      virtual bool pass( ITruthIncident& incident) const override;
 
-      virtual bool appliesToRegion(unsigned short geoID) const override final;
+      virtual bool appliesToRegion(unsigned short geoID) const override;
 
 	private:
       /** The process code range (low-high) and the category of processes that

@@ -25,7 +25,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class ValidationTruthStrategy : public extends<AthAlgTool, ITruthStrategy> {
+  class ValidationTruthStrategy final : public extends<AthAlgTool, ITruthStrategy> {
       
     public: 
      /** Constructor with parameters */
@@ -35,13 +35,13 @@ namespace ISF {
      ~ValidationTruthStrategy();
 
      // Athena algtool's Hooks
-     virtual StatusCode  initialize() override final;
-     virtual StatusCode  finalize() override final;
+     virtual StatusCode  initialize() override;
+     virtual StatusCode  finalize() override;
 
      /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
-     virtual bool pass( ITruthIncident& incident) const override final;
+     virtual bool pass( ITruthIncident& incident) const override;
 
-     virtual bool appliesToRegion(unsigned short geoID) const override final;
+     virtual bool appliesToRegion(unsigned short geoID) const override;
 
 
 	  private:

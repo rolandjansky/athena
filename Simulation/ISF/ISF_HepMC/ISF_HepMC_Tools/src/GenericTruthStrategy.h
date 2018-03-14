@@ -32,7 +32,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class GenericTruthStrategy : public extends<AthAlgTool, ITruthStrategy> {
+  class GenericTruthStrategy final : public extends<AthAlgTool, ITruthStrategy> {
       
     public: 
      /** Constructor with parameters */
@@ -42,13 +42,13 @@ namespace ISF {
      ~GenericTruthStrategy();
 
      // Athena algtool's Hooks
-     virtual StatusCode  initialize() override final;
-     virtual StatusCode  finalize() override final;
+     virtual StatusCode  initialize() override;
+     virtual StatusCode  finalize() override;
 
      /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
-     virtual bool pass( ITruthIncident& incident) const override final;
+     virtual bool pass( ITruthIncident& incident) const override;
 
-     virtual bool appliesToRegion(unsigned short geoID) const override final;
+     virtual bool appliesToRegion(unsigned short geoID) const override;
 	  private:
      /** parent kinetic energy / transverse momentum cuts
          (pT is stored as pT^2 which allows for faster comparisons) */

@@ -129,10 +129,7 @@ def getGenericTruthService(name="ISF_TruthService", **kwargs):
 
 
 def getValidationTruthService(name="ISF_ValidationTruthService", **kwargs):
-    kwargs.setdefault('BeamPipeTruthStrategies', [])
-    kwargs.setdefault('IDTruthStrategies', ['ISF_ValidationTruthStrategy'] )
-    kwargs.setdefault('CaloTruthStrategies', ['ISF_ValidationTruthStrategy'] )
-    kwargs.setdefault('MSTruthStrategies', [])
+    kwargs.setdefault('TruthStrategies', ['ISF_ValidationTruthStrategy'] )
     kwargs.setdefault('IgnoreUndefinedBarcodes', True)
     kwargs.setdefault('PassWholeVertices', True)
     return getGenericTruthService(name, **kwargs)
@@ -159,15 +156,9 @@ def getMC12MSTruthStrategies():
 
 
 def getMC12TruthService(name="ISF_MC12TruthService", **kwargs):
-    beam_pipe_strategies = getMC12BeamPipeTruthStrategies()
-    id_strategies = getMC12IDTruthStrategies()
-    calo_strategies = getMC12CaloTruthStrategies()
-    ms_strategies = getMC12MSTruthStrategies()
-
-    kwargs.setdefault('BeamPipeTruthStrategies', beam_pipe_strategies) # this is used for beam pipe but not BeamPipeCentral which uses same as ID
-    kwargs.setdefault('IDTruthStrategies', id_strategies)
-    kwargs.setdefault('CaloTruthStrategies', calo_strategies)
-    kwargs.setdefault('MSTruthStrategies', ms_strategies)
+    kwargs.setdefault('TruthStrategies', ['ISF_MCTruthStrategyGroupID',
+                                          'ISF_MCTruthStrategyGroupIDHadInt',
+                                          'ISF_MCTruthStrategyGroupCaloMuBrem'])
     kwargs.setdefault('IgnoreUndefinedBarcodes', False)
     kwargs.setdefault('PassWholeVertices', True)
     return getGenericTruthService(name, **kwargs)
@@ -182,16 +173,10 @@ def getTruthService(name="ISF_TruthService", **kwargs):
 
 
 def getMC12LLPTruthService(name="ISF_MC12TruthLLPService", **kwargs):
-    llp_strategies = ['ISF_LLPTruthStrategy']
-    beam_pipe_strategies =  getMC12BeamPipeTruthStrategies() + llp_strategies
-    id_strategies = getMC12IDTruthStrategies() + llp_strategies
-    calo_strategies = getMC12CaloTruthStrategies() + llp_strategies
-    ms_strategies = getMC12MSTruthStrategies() + llp_strategies
-
-    kwargs.setdefault('BeamPipeTruthStrategies', beam_pipe_strategies)
-    kwargs.setdefault('IDTruthStrategies', id_strategies)
-    kwargs.setdefault('CaloTruthStrategies', calo_strategies)
-    kwargs.setdefault('MSTruthStrategies', ms_strategies)
+    kwargs.setdefault('TruthStrategies', ['ISF_MCTruthStrategyGroupID',
+                                          'ISF_MCTruthStrategyGroupIDHadInt',
+                                          'ISF_MCTruthStrategyGroupCaloMuBrem',
+                                          'ISF_LLPTruthStrategy'])
     return getMC12TruthService(name, **kwargs)
 
 
@@ -217,7 +202,7 @@ def getMC15IDTruthStrategies():
 
 
 def getMC15CaloTruthStrategies():
-    return ['ISF_MCTruthStrategyGroupCaloMuBrem', 'ISF_MCTruthStrategyGroupCaloDecay_MC15']
+    return ['ISF_MCTruthStrategyGroupCaloMuBrem', 'ISF_MCTruthStrategyGroupCaloDecay_MC15']#FIXME this should be ISF_MCTruthStrategyGroupCaloMuBrem_MC15!!
 
 
 def getMC15MSTruthStrategies():
@@ -229,17 +214,10 @@ def getMC15TruthService(name="ISF_MC15TruthService", **kwargs):
     import ROOT, cppyy
     cppyy.loadDictionary('AtlasDetDescrDict')
     AtlasRegion = ROOT.AtlasDetDescr
-
-    beam_pipe_strategies = getMC15BeamPipeTruthStrategies()
-    id_strategies = getMC15IDTruthStrategies()
-    calo_strategies = getMC15CaloTruthStrategies()
-    ms_strategies = getMC15MSTruthStrategies()
-
-    kwargs.setdefault('BeamPipeTruthStrategies', beam_pipe_strategies) # this is used for beam pipe but not BeamPipeCentral which uses same as ID
-    kwargs.setdefault('IDTruthStrategies', id_strategies)
-    kwargs.setdefault('CaloTruthStrategies', calo_strategies)
-    kwargs.setdefault('MSTruthStrategies', ms_strategies)
-
+    kwargs.setdefault('TruthStrategies', ['ISF_MCTruthStrategyGroupID_MC15',
+                                          'ISF_MCTruthStrategyGroupIDHadInt_MC15',
+                                          'ISF_MCTruthStrategyGroupCaloMuBrem', #FIXME this should be ISF_MCTruthStrategyGroupCaloMuBrem_MC15!!
+                                          'ISF_MCTruthStrategyGroupCaloDecay_MC15'])
     kwargs.setdefault('IgnoreUndefinedBarcodes', False)
     kwargs.setdefault('PassWholeVertices', False) # new for MC15 - can write out partial vertices.
     kwargs.setdefault('ForceEndVtxInRegions', [AtlasRegion.fAtlasID])
@@ -261,16 +239,11 @@ def getMC15aPlusTruthService(name="ISF_MC15aPlusTruthService", **kwargs):
 
 
 def getMC15aPlusLLPTruthService(name="ISF_MC15aPlusLLPTruthService", **kwargs):
-    llp_strategies = ['ISF_LLPTruthStrategy']
-    beam_pipe_strategies =  getMC15BeamPipeTruthStrategies() + llp_strategies
-    id_strategies = getMC15IDTruthStrategies() + llp_strategies
-    calo_strategies = getMC15CaloTruthStrategies() + llp_strategies
-    ms_strategies = getMC15MSTruthStrategies() + llp_strategies
-
-    kwargs.setdefault('BeamPipeTruthStrategies', beam_pipe_strategies)
-    kwargs.setdefault('IDTruthStrategies', id_strategies)
-    kwargs.setdefault('CaloTruthStrategies', calo_strategies)
-    kwargs.setdefault('MSTruthStrategies', ms_strategies)
+    kwargs.setdefault('TruthStrategies', ['ISF_MCTruthStrategyGroupID_MC15',
+                                          'ISF_MCTruthStrategyGroupIDHadInt_MC15',
+                                          'ISF_MCTruthStrategyGroupCaloMuBrem', #FIXME this should be ISF_MCTruthStrategyGroupCaloMuBrem_MC15!!
+                                          'ISF_MCTruthStrategyGroupCaloDecay_MC15',
+                                          'ISF_LLPTruthStrategy'])
     return getMC15aPlusTruthService(name, **kwargs)
 
 
