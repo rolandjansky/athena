@@ -862,6 +862,10 @@ private:
     Impl (const Impl& other, bit_t nbits = 0);
 
 
+    // Assignment is unimplemented.
+    Impl& operator= (const Impl&) = delete;
+
+
     /**
      * @brief Copy from another instance.
      * @param other Object from which to copy.
