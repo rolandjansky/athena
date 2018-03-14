@@ -329,7 +329,6 @@ StatusCode SCT_FastDigitizationTool::digitize()
     while (i != e)
     {
       TimedHitPtr<SiHit> currentSiHit(*i++);
-      //const HepMcParticleLink McLink = HepMcParticleLink(trkn,currentSiHit.eventId());
       
       const InDetDD::SiDetectorElement *hitSiDetElement = m_manager->getDetectorElement(currentSiHit->getBarrelEndcap(), currentSiHit->getLayerDisk(), currentSiHit->getPhiModule(), currentSiHit->getEtaModule(), currentSiHit->getSide());
       if (!hitSiDetElement)
