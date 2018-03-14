@@ -11,24 +11,25 @@ Digi_tf.py  --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Di
 
 echo  "art-result: $? Digi_tf.py"
 
-# get reference directory 
+# get reference directory
 source DigitizationCheckReferenceLocation.sh
-echo "Reference set being used: " ${DigitizationTestsVersion} 
+echo "Reference set being used: " ${DigitizationTestsVersion}
 
-# Do reference comparisons 
+# Do reference comparisons
 art-diff.py ./$DigiOutFileName   /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName
-echo  "art-result: $? diff-pool" 
+echo  "art-result: $? diff-pool"
 
 
 
 art-diff.py ./$DigiOutFileName /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ReferenceFiles/$DigitizationTestsVersion/$CMTCONFIG/$DigiOutFileName --diff-type=diff-root
-echo  "art-result: $? diff-root" 
+echo  "art-result: $? diff-root"
+
+checkFile ./$DigiOutFileName
+echo "art-result: $? checkFile"
 
 
 ArtPackage=$1
 ArtJobName=$2
-# TODO This is a regression test I think. We would also need to compare these files to fixed references and add DCube tests
-
 
 art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo  "art-result: $? art-compare" 
+echo  "art-result: $? art-compare"
