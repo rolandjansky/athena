@@ -29,7 +29,7 @@ if not ('PoolRDOInput' in dir()):
 
 import os,commands
 def getEosDirectoryList(path,fileRange):
-    cmd = '/afs/cern.ch/project/eos/installation/0.1.0-22d/bin/eos.select -b ls %s/ ' % (path)
+    cmd = 'eos -b ls %s/ ' % (path)
     files = []
     for i in commands.getoutput(cmd).split('\n'):
         fileNumber = i[i.rfind(".pool.root")-5:i.rfind(".pool.root")]

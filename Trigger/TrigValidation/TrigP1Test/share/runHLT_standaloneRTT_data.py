@@ -8,7 +8,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 import os,commands
 def getEosDirectoryList(path,lbRange,sfoRange):
 
-    cmd = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select -b ls %s/ ' % (path)
+    cmd = 'eos -b ls %s/ ' % (path)
     file = []
     pool=os.getenv("WORKDIR")
     if pool == "NONE":
