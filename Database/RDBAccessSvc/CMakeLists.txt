@@ -9,8 +9,7 @@ atlas_subdir( RDBAccessSvc )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
-                          Control/AthenaBaseComps
-                          Database/AthenaPOOL/PoolSvc )
+                          Control/AthenaBaseComps )
 
 # External dependencies:
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
