@@ -179,7 +179,7 @@ class Config:
         self.addOption('release','',"The release tag number",  'Release number:'      , QtWidgets.QLabel())
         self.addOption('relName',  '',"The release build name",    'Release build:'        , QtWidgets.QLabel())
         self.addOption('swpath','',"The software path", 'Software path:', QtWidgets.QLabel())
-        self.addOption('tt','/afs/cern.ch/user/a/attrgcnf/TriggerTool/run_TriggerTool.sh',"The TriggerTool run script", 'TriggerTool:')
+        self.addOption('tt','/afs/cern.ch/user/a/attrgcnf/TriggerTool/cmake/run_TriggerTool.sh',"The TriggerTool run script", 'TriggerTool:')
         # green
         self.addOption('jobName', 'Default',"Job name", 'Job name:')
         self.addOption('jobOption','',"The python job option file", 'Joboption file')
