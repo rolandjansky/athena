@@ -71,6 +71,7 @@ LArNoisyROTool::LArNoisyROTool( const std::string& type,
   declareProperty( "KnownMNBFEBsTool", m_badMNBFEBsTool);
   declareProperty( "MNBLooseCut",m_MNBLooseCut=5,"Number of cells above CellQualityCut");
   declareProperty( "MNBTightCut",m_MNBTightCut=17,"Number of cells above CellQualityCut");
+  declareProperty( "MNBTight_PsVetoCut",m_MNBTight_PsVetoCut={13,3},"Number of cells above CellQualityCut");
 
   
   declareProperty( "OutputKey", m_outputKey="LArNoisyROSummary");
@@ -106,6 +107,23 @@ StatusCode LArNoisyROTool::initialize() {
 
   if(m_badFEBsTool.name() != "ILArBadChanTool") ATH_CHECK( m_badFEBsTool.retrieve() );
   if(m_badMNBFEBsTool.name() != "ILArBadChanTool") ATH_CHECK( m_badMNBFEBsTool.retrieve() );
+
+  // Fill the map betw<een any EMB FEB and the same FT PS FEB
+  // Filled only for EMB so far
+  for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineID->feb_begin(); 
+       allFeb != m_onlineID->feb_end(); ++allFeb) {
+    
+    HWIdentifier febid = HWIdentifier(*allFeb);    
+    int FEBIndex = febid.get_identifier32().get_compact();
+    int FEBIndex_PS = 0;
+    int barrel_ec = m_onlineID->barrel_ec(febid);
+    if (barrel_ec == 0){
+      int pos_neg   = m_onlineID->pos_neg(febid);
+      int ft        = m_onlineID->feedthrough(febid);
+      FEBIndex_PS = (m_onlineID->feb_Id(0,pos_neg,ft,1)).get_identifier32().get_compact();      
+    }
+    mapPSFEB[FEBIndex] = FEBIndex_PS;
+  }
 
   //convert std::vector (jobO) to std::set (internal representation)
   //m_knownBadFEBs.insert(m_knownBadFEBsVec.begin(),m_knownBadFEBsVec.end());
@@ -151,6 +169,8 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
      ATH_MSG_INFO("Number of known MNB FEBs: "<<m_knownMNBFEBs.size());
   }
 
+  // First loop on all cells and store the number of bad channel (i.e bad q factor) per EM FEB
+  // and the number of saturated cells per partition
   CaloCellContainer::const_iterator cellItr    = cellContainer->begin();
   CaloCellContainer::const_iterator cellItrEnd = cellContainer->end();
   for ( ; cellItr != cellItrEnd; ++cellItr )
@@ -198,6 +218,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     }
   }
 
+  // Store the Saturated flag per partition
   uint8_t SatTightPartitions = 0;
   if ( NsaturatedTightCutBarrelA >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBAMask;
   if ( NsaturatedTightCutBarrelC >= m_SaturatedCellTightCut ) SatTightPartitions |= LArNoisyROSummary::EMBCMask;
@@ -212,7 +233,8 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     m_SaturatedCellTightCutEvents++;
   }
 
-  // are there any bad FEB or preamp ?
+  // loop on all FEBs and check whether FEB can be declared as bad for the different type of flags:
+  // regular noise burst, weighted noise burst, MNB tight and loose
   for ( FEBEvtStatMapCstIt it = FEBStats.begin(); it != FEBStats.end(); it++ ) {
     ATH_MSG_DEBUG(" bad FEB " << it->first << " with " << it->second.badChannels() << " bad channels");
     if ( it->second.badChannels() > m_BadChanPerFEB ) {
@@ -221,14 +243,21 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
       //BadFEBCount++;
     }
 
-    // Tight MNBs
-    if ( it->second.badChannels() > m_MNBTightCut ){
-       noisyRO->add_MNBTight_feb(HWIdentifier(it->first));
-    }
-
     // Loose MNBs
     if ( it->second.badChannels() > m_MNBLooseCut ){
        noisyRO->add_MNBLoose_feb(HWIdentifier(it->first));
+       // Tight_PsVeto MNBs
+       if ( it->second.badChannels() > m_MNBTight_PsVetoCut[0] ){
+	 unsigned int associatedPSFEB = mapPSFEB[it->first];
+	 if (associatedPSFEB != 0){ // Check if a PS FEB is associated (TRUE only for EMB FEBs)
+	   if (FEBStats.count(associatedPSFEB) == 0) noisyRO->add_MNBTight_PsVeto_feb(HWIdentifier(it->first));
+	   else if (FEBStats[associatedPSFEB].badChannels() < m_MNBTight_PsVetoCut[1]) noisyRO->add_MNBTight_PsVeto_feb(HWIdentifier(it->first));
+	 }
+       }
+       // Tight MNBs
+       if ( it->second.badChannels() > m_MNBTightCut ){
+	 noisyRO->add_MNBTight_feb(HWIdentifier(it->first));	 
+       }
     }
  
 //  // Noisy preamp removed as no used currently
@@ -312,15 +341,26 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
 
   //Check for Mini Noise Bursts:
   uint8_t MNBTightPartition=0;
+  uint8_t MNBTight_PsVetoPartition=0;
   uint8_t MNBLoosePartition=0;
   
   std::array<unsigned,5> nTightMNBFEBSperPartition({{0,0,0,0,0}});
+  std::array<unsigned,5> nTight_PsVetoMNBFEBSperPartition({{0,0,0,0,0}});
   std::array<unsigned,5> nLooseMNBFEBSperPartition({{0,0,0,0,0}});
   for (HWIdentifier febid: m_knownMNBFEBs) { //Loop over known MNB FEBs
     FEBEvtStatMapCstIt statIt=FEBStats.find(febid.get_identifier32().get_compact());
     if (statIt!=FEBStats.end()) {
       if (statIt->second.badChannels()>=m_MNBLooseCut) {
 	(nLooseMNBFEBSperPartition[partitionNumber(febid)])++;
+	// Tight_PsVeto MNBs
+	if ( statIt->second.badChannels() > m_MNBTight_PsVetoCut[0] ){
+	  unsigned int associatedPSFEB = mapPSFEB[statIt->first];
+	  if (associatedPSFEB != 0){
+	    if (FEBStats.count(associatedPSFEB) == 0) (nTight_PsVetoMNBFEBSperPartition[partitionNumber(febid)])++;
+	    else if (FEBStats[associatedPSFEB].badChannels() < m_MNBTight_PsVetoCut[1]) (nTight_PsVetoMNBFEBSperPartition[partitionNumber(febid)])++;
+	  }
+	}
+	// Tight MNBs
 	if (statIt->second.badChannels()>=m_MNBTightCut)
 	  (nTightMNBFEBSperPartition[partitionNumber(febid)])++;
       }
@@ -333,9 +373,11 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     ATH_MSG_DEBUG( "Partition " << iP << ": Found " << nTightMNBFEBSperPartition[iP] << " MNB FEBs with more than " <<  m_MNBTightCut << " bad-Q channels"  );
     if (nLooseMNBFEBSperPartition[iP]>0) MNBLoosePartition |= m_partitionMask[iP];
     if (nTightMNBFEBSperPartition[iP]>0) MNBTightPartition |= m_partitionMask[iP];
+    if (nTight_PsVetoMNBFEBSperPartition[iP]>0) MNBTight_PsVetoPartition |= m_partitionMask[iP];
   }// end loop over partitions      
   
   noisyRO->SetMNBTightFlaggedPartitions(MNBTightPartition);
+  noisyRO->SetMNBTight_PsVetoFlaggedPartitions(MNBTight_PsVetoPartition);
   noisyRO->SetMNBLooseFlaggedPartitions(MNBLoosePartition);
 
   return noisyRO;

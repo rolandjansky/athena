@@ -30,7 +30,7 @@ LArNoisyROMon::LArNoisyROMon(const std::string& type,
   declareProperty("IsOnline",       m_IsOnline=false);
   declareProperty("NoisyFEBDefStr", m_NoisyFEBDefStr="(unknown)");
   declareProperty("MNBTightFEBDefStr", m_MNBTightFEBDefStr="(unknown)");
-  declareProperty("MNBTight_PsVetoFEBDefStr", m_MNBTightFEBDefStr="(unknown)");
+  declareProperty("MNBTight_PsVetoFEBDefStr", m_MNBTight_PsVetoFEBDefStr="(unknown)");
   declareProperty("MNBLooseFEBDefStr", m_MNBLooseFEBDefStr="(unknown)");
   declareProperty("BadFEBCut",  m_BadFEBCut=999999);
   declareProperty("KnownMNBFEBs",   m_knownMNBFEBs={});
@@ -297,14 +297,17 @@ StatusCode LArNoisyROMon::fillHistograms()
   // Loop on all FEBs noisy in MNB-tight definition
   // And fill the 2D maps of fraction of fraction of noisy events
   // Fill two histograms with veto cut and all events
+  //  std::cout << "Nb of tight FEB" << mnbtightFEB.size() << std::endl;
   for (size_t i = 0; i<mnbtightFEB.size(); i++)
   {
-    //std::cout << "MNBTight FEB " <<  noisyFEB[i].get_compact() << std::endl;
     const HWIdentifier& febid = mnbtightFEB[i];
     HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
     int FT = m_LArOnlineIDHelper->feedthrough(id);
     int slot = m_LArOnlineIDHelper->slot(id);
     int partition = partitionNumber(febid);
+
+//    std::cout << "MNBTight " <<  mnbtightFEB[i].get_compact() << std::endl;
+//    std::cout << "Partitions : " << (noisyRO->MNBTightFlaggedPartitions() & partMask[partition]) << std::endl;
 
     if (partition<4){
       if (m_IsOnline)
@@ -326,14 +329,16 @@ StatusCode LArNoisyROMon::fillHistograms()
   // Loop on all FEBs noisy in MNB-tight-PsVeto definition
   // And fill the 2D maps of fraction of fraction of noisy events
   // Fill two histograms with veto cut and all events
+  //  std::cout << "Nb of tight_PsVeto FEB" << mnbtightFEB.size() << std::endl;
   for (size_t i = 0; i<mnbtight_PsVetoFEB.size(); i++)
   {
-    //std::cout << "MNBTight_PsVeto FEB " <<  noisyFEB[i].get_compact() << std::endl;
     const HWIdentifier& febid = mnbtight_PsVetoFEB[i];
     HWIdentifier id = m_LArOnlineIDHelper->channel_Id(febid,0);
     int FT = m_LArOnlineIDHelper->feedthrough(id);
     int slot = m_LArOnlineIDHelper->slot(id);
     int partition = partitionNumber(febid);
+//    std::cout << "MNBTight_PsVeto FEB " <<  mnbtight_PsVetoFEB[i].get_compact() << std::endl;
+//    std::cout << "Partitions : " << (noisyRO->MNBTight_PsVetoFlaggedPartitions() & partMask[partition]) << std::endl;
 
     if (partition<4){
       if (m_IsOnline)
