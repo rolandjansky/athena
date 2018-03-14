@@ -306,7 +306,6 @@ if DetFlags.haveRIO.SCT_on():
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ sct_ConfigurationConditionsSvcSetup.getSvcName(),
                                                             sct_FlaggedConditionSvcSetup.getSvcName(),
                                                             sct_MonitorConditionsSvcSetup.getSvcName(),
-                                                            sct_ByteStreamErrorsSvcSetup.getSvcName(),
                                                             sct_ReadCalibDataSvcSetup.getSvcName()]
 
 
