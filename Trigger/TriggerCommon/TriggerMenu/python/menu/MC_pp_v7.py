@@ -1385,7 +1385,6 @@ def setupMenu():
         ['mu6_mu4_bDimu_novtx_noos_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4',     'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4',     ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
         ['mu6_mu4_bDimu_noL2_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4',     'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4',     ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
         ['mu6_mu4_bDimu_novtx_noos_noL2_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4',     'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4',     ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B', 'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B',     ['L1_MU6','L1_MU4'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False], 
 
         ['2mu4_bBmumuxv2',                'L1_2MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['2mu4_bBmumux_BpmumuKp',         'L1_2MU4', [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
@@ -1432,7 +1431,6 @@ def setupMenu():
         ['2mu6_bBmumuxv2_noL2_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',  'L1_BPH-2M9-2MU6_BPH-2DR15-2MU6',     ['L1_2MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],       
        
         ['2mu6_bTau_L1LFV-MU6',  'L1_LFV-MU6', ['L1_2MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['2mu6_bPhi_L1LFV-MU6',  'L1_LFV-MU6', ['L1_2MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
 		
         # chains with invm are for SM DY
         ['mu4_iloose_mu4_11invm60_noos', 'L1_2MU4', [], [PhysicsStream], [RATE_DYTag,BW_DYTag], -1],
