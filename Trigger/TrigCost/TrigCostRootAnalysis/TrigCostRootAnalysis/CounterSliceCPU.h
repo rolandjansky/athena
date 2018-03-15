@@ -30,14 +30,14 @@ namespace TrigCostRootAnalysis {
    */
   class CounterSliceCPU: public CounterBase {
   public:
-    CounterSliceCPU(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
-                    MonitorBase* _parent = 0);
+    CounterSliceCPU(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel = 10,
+                    MonitorBase* parent = 0);
     ~CounterSliceCPU();
     void startEvent();
-    void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
-    void endEvent(Float_t _weight = 1);
+    void processEventCounter(UInt_t e, UInt_t f, Float_t weight = 1.);
+    void endEvent(Float_t weight = 1);
   private:
-    Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
+    Double_t getPrescaleFactor(UInt_t e = INT_MAX);
   }; //class CounterSliceCPU
 } // namespace TrigCostRootAnalysis
 

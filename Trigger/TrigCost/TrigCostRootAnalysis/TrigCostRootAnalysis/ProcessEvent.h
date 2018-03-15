@@ -35,21 +35,21 @@ namespace TrigCostRootAnalysis {
    */
   class ProcessEvent {
   public:
-    ProcessEvent(const TrigCostData* _costData, UInt_t _level, const std::string& _name);
+    ProcessEvent(const TrigCostData* costData, UInt_t level, const std::string& name);
     ~ProcessEvent();
-    void setMonitoringMode(ConfKey_t _type, Bool_t _isActive);
-    Bool_t newEvent(Float_t _weight = 1.);
+    void setMonitoringMode(ConfKey_t type, Bool_t isActive);
+    Bool_t newEvent(Float_t weight = 1.);
     const monitorMap_t& getMonitors();
-    MonitorBase* getMonitor(ConfKey_t _type);
+    MonitorBase* getMonitor(ConfKey_t type);
     void saveOutput();
-    void setLevel(UInt_t _level);
-    void setPass(UInt_t _pass);
+    void setLevel(UInt_t level);
+    void setPass(UInt_t pass);
     UInt_t getLevel();
     UInt_t getPass();
     const std::string& getLevelStr();
     const std::string& getName() {return m_name;}
   private:
-    static void newEventThreaded(MonitorBase* _monitor, Float_t _weight);
+    static void newEventThreaded(MonitorBase* monitor, Float_t weight);
 
     void (* m_threadFnPtr)(MonitorBase*, Float_t); //<! Pointer to my static run function - used to spawn threads
     const TrigCostData* m_costData; //!< Provider of my data
