@@ -27,6 +27,7 @@ public:
     m_tripletPtMin      = 2500.0;//was 1000.0
     m_tripletDoPSS      = false; // Allow Pixel SCT SCT seeds?
     m_doubletFilterRZ   = true;
+    m_doubletFilter_paramByRes = false; // parametrisation of doublet filter by doublet resolutions
     m_tripletDtCut      = 3.0;//in sigmas of mult.scattering for m_tripletPtMin track at eta=0
     m_magFieldZ = 2.0;//switch to configured value
     m_nMaxPhiSlice = 53;
@@ -49,6 +50,7 @@ public:
   float m_seedRadBinWidth;
   bool  m_tripletDoPSS;
   bool  m_doubletFilterRZ;
+  bool  m_doubletFilter_paramByRes;
   float m_tripletDtCut;
   int m_nMaxPhiSlice;
   unsigned int m_maxTripletBufferLength;
