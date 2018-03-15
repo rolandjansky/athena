@@ -2,4 +2,4 @@
 
 #include "GaudiKernel/LoadFactoryEntries.h"
 
-LOAD_FACTORY_ENTRIES(JetAnalysisAlgorithms)
+LOAD_FACTORY_ENTRIES(MuonAnalysisAlgorithms)
