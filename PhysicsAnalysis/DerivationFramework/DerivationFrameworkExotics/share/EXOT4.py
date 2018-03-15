@@ -63,6 +63,7 @@ EXOT16ElRemovalTool=JetInputElRemovalTool(
    ElectronMinpT                 =25000.0,
    ClusterContainerName          ='CaloCalTopoClusters',
    ClusterNoElName               ='CaloCalTopoClustersNoEl',
+   ClusterSelectionType          =1,
    ClusterRemovRadius            =0.1,
    ClusterEMFrac                 =0.8,
    TrkInputContainer             ="InDetTrackParticles",
