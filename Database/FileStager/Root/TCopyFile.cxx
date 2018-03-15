@@ -42,13 +42,11 @@ TCopyFile::~TCopyFile()
 const char* 
 TCopyFile::GetCopyFile(const char* fname) 
 {
-  string filename(fname);
-
   //cout << "TCopyFile::GetCopyFile fname = " << (!filename.empty()?filename:"<null>") << endl ;
-  if (s_originalTFile) return filename.c_str();
+  if (s_originalTFile) return fname;
 
   TStageManager& manager(TStageManager::instance());
-  return manager.getFile(filename.c_str());
+  return manager.getFile(fname);
 }
 
 

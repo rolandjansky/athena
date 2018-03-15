@@ -266,7 +266,10 @@ TStageManager::getFile(const char* fname)
     if (m_stageMap[filename].status == TStageFileInfo::STAGED) {
       if (m_verbose) cout << "TStageManager::getFile() : <" << filename << "> finished staging" << endl;
 
-      stat64(m_stageMap[filename].outFile.c_str(),&(m_stageMap[filename].statFile));
+      if (stat64(m_stageMap[filename].outFile.c_str(),&(m_stageMap[filename].statFile)) < 0) {
+        std::cerr << "ERROR: Cannot stat " << m_stageMap[filename].outFile << std::endl;
+        std::abort();
+      }
       // start next stage
       stageNext();
       return m_stageMap[filename].outFile.c_str();
@@ -300,7 +303,7 @@ TStageManager::getFile(const char* fname)
 
   stageNext();
 
-  return name.c_str(); // Let TFile handle error
+  return ""; // Let TFile handle error
 }
 
 
@@ -515,7 +518,10 @@ TStageManager::stageNext(bool forceStage)
       if ( fileExists(m_stageMap[cf].outFile.c_str()) ) {
         if (m_verbose) cout << "TStageManager::stageNext() : found previous stage of <" << cf << ">. Skip staging." << endl;
         m_stageMap[cf].status = TStageFileInfo::STAGED;
-        stat64(m_stageMap[cf].outFile.c_str(),&(m_stageMap[cf].statFile));
+        if (stat64(m_stageMap[cf].outFile.c_str(),&(m_stageMap[cf].statFile)) < 0) {
+          std::cerr << "ERROR: Cannot stat " << m_stageMap[cf].outFile << std::endl;
+          std::abort();
+        }
         needToStageFile = false ;
       }
     }
