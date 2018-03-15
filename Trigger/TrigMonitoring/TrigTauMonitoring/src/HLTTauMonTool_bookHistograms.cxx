@@ -10,7 +10,6 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////
 void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 
-		m_trigMVA_chains = {"tau25_idperf_tracktwoMVA", "tau25_perf_tracktwoMVA", "tau25_verylooseRNN_tracktwoMVA", "tau25_looseRNN_tracktwoMVA", "tau25_mediumRNN_tracktwoMVA", "tau25_tightRNN_tracktwoMVA"};
     bool isMVAtrig (false);
     for (unsigned int i=0; i<m_trigMVA_chains.size(); i++) {
       if ( trigItem == m_trigMVA_chains.at(i) ) {
@@ -29,9 +28,11 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     double bins_eta[nbin_eta] = {-2.47,-1.52,-1.37,-0.69,0.,0.69,1.37,1.52,2.47};
     const int nbin_nvtx = 6;
     double bins_nvtx[nbin_nvtx] = {0.,5.,10.,15.,20.,25.};
-    const int nbin_mu = 34;
-    float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40., 42., 44., 44., 46., 48., 50., 52., 54., 56., 58., 60., 62., 72};
-
+    //const int nbin_mu = 34;
+    //float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40., 42., 44., 44., 46., 48., 50., 52., 54., 56., 58., 60., 62., 72};
+    const int nbin_mu = 51;
+    float bins_mu[nbin_mu] = {0.,2.,4.,6.,8.,10.,12.,14.,16.,18.,20.,22.,24.,26.,28.,30.,32.,34.,36.,38.,40.,42.,44.,\
+		46.,48.,50.,52.,54.,56.,58.,60.,62.,64.,66.,68.,70.,72.,74.,76.,78., 80.,82.,84.,86.,88.,90.,92.,94.,96.,98.,100.};
 
 //    const int nbin_met = 14;
 //    double bins_met[nbin_met] = {0.,5.,10.,20.,25.,30.,35.,40.,45.,50.,60.,70.,100.,150.};
@@ -212,8 +213,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		addProfile(new TProfile("hEFmEflowApproxMPCmu", "mEflowApprox at EF vs mu m-prong mu-corrected;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
 	}
 	// RNN variables
-//	if (m_doRNNInOutMonitoring && isMVAtrig) 
-//	{
+	if (m_doRNNInOutMonitoring && isMVAtrig) 
+	{
 		// output
 		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/Output",run));
 		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/Output");
@@ -221,57 +222,57 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		addHistogram(new TH1F("hEFRNNJetScoreSigTrans", "hRNNJetScoreSigTrans distribution ; hRNNJetScoreSigTrans; Events",20,0,1));        
 
 		// Scalar input variables
-		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/id1p",run));
-    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/id1p");
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID1p",run));
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID1p");
 		addHistogram(new TH1F("hEFRNNInput_Scalar_centFrac_1P", "Centrality Fraction (1Prong); centFrac; Events",50,-0.05,1.2));      
 		addHistogram(new TH1F("hEFRNNInput_Scalar_etOverPtLeadTrk_1P", "etOverPtLeadTrk (1Prong); etOverPtLeadTrk; Events",51,-0.1,25.0));  
+		addHistogram(new TH1F("hEFRNNInput_Scalar_dRmax_1P", "max dR of associated tracks (1Prong); dRmax; Events",50,-0.1,0.3));        
 		addHistogram(new TH1F("hEFRNNInput_Scalar_absipSigLeadTrk_1P", "AbsIpSigLeadTrk (1Prong); absipSigLeadTrk; Events",25,0.0,20.0));     
 		addHistogram(new TH1F("hEFRNNInput_Scalar_SumPtTrkFrac_1P", "SumPtTrkFrac (1Prong); SumPtTrkFrac; Events",50,-0.5,1.1));  
 		addHistogram(new TH1F("hEFRNNInput_Scalar_EMPOverTrkSysP_1P", "EMPOverTrkSysP (1Prong); EMPOverTrkSysP; Events",41,0.0,40.0));  
 		addHistogram(new TH1F("hEFRNNInput_Scalar_ptRatioEflowApprox_1P", "ptRatioEflowApprox (1Prong); ptRatioEflowApprox; Events",50,0.0,2.0)); 
 		addHistogram(new TH1F("hEFRNNInput_Scalar_mEflowApprox_1P", "mEflowApprox (1Prong); mEflowApprox; Events",61,-0.2,60.2));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_dRmax_1P", "max dR of associated tracks (1Prong); dRmax; Events",50,-0.1,0.3));        
 		addHistogram(new TH1F("hEFRNNInput_Scalar_ptIntermediateAxis_1P", "ptIntermediateAxis (1Prong); ptIntermediateAxis; Events",nbin_pt-1,bins_pt));  
     
-		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/id3p",run));
-    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/id3p");
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID3p",run));
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID3p");
 		addHistogram(new TH1F("hEFRNNInput_Scalar_centFrac_3P", "Centrality Fraction (3Prong); centFrac; Events",50,-0.05,1.2));      
 		addHistogram(new TH1F("hEFRNNInput_Scalar_etOverPtLeadTrk_3P", "etOverPtLeadTrk (3Prong); etOverPtLeadTrk; Events",51,-0.1,25.0));     
+		addHistogram(new TH1F("hEFRNNInput_Scalar_dRmax_3P", "max dR of associated tracks (3Prong); dRmax; Events",50,-0.1,0.3));        
+		addHistogram(new TH1F("hEFRNNInput_Scalar_trFlightPathSig_3P", "trFlightPathSig (3Prong); trFlightPathSig; Events",50,-20.0,20.0));      
 		addHistogram(new TH1F("hEFRNNInput_Scalar_SumPtTrkFrac_3P", "SumPtTrkFrac (3Prong); SumPtTrkFrac; Events",50,-0.5,1.1));
 		addHistogram(new TH1F("hEFRNNInput_Scalar_EMPOverTrkSysP_3P", "EMPOverTrkSysP (3Prong); EMPOverTrkSysP; Events",41,0.0,40.0));  
 		addHistogram(new TH1F("hEFRNNInput_Scalar_ptRatioEflowApprox_3P", "ptRatioEflowApprox (3Prong); ptRatioEflowApprox; Events",50,0.0,2.0));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_mEflowApprox_3P", "mEflowApprox (3Prong); mEflowApprox; Events",61,-0.2,60.2));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_dRmax_3P", "max dR of associated tracks (3Prong); dRmax; Events",50,-0.1,0.3));        
-		addHistogram(new TH1F("hEFRNNInput_Scalar_trFlightPathSig_3P", "trFlightPathSig (3Prong); trFlightPathSig; Events",50,-20.0,20.0));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_massTrkSys_3P", "massTrkSys (3Prong); massTrkSys; Events",50,-0.1,15.0)); 
-		addHistogram(new TH1F("hEFRNNInput_Scalar_ptIntermediateAxis_3P", "ptIntermediateAxis (3Prong); ptIntermediateAxis; Events",nbin_pt-1,bins_pt));      
+		addHistogram(new TH1F("hEFRNNInput_Scalar_mEflowApprox_3P", "mEflowApprox (3Prong); mEflowApprox; Events",35,0.,7000.));//61,-0.2,60.2));      
+		addHistogram(new TH1F("hEFRNNInput_Scalar_ptIntermediateAxis_3P", "ptIntermediateAxis (3Prong); ptIntermediateAxis; Events",24,-1.2,1.2));//nbin_pt-1,bins_pt));      
+		addHistogram(new TH1F("hEFRNNInput_Scalar_massTrkSys_3P", "massTrkSys (3Prong); massTrkSys; Events",28,0.,14000.));//50,-0.1,15.0)); 
  
 		// Track input variables
-		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/track",run));
-	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/track");
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputTrack",run));
+	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputTrack");
 		addHistogram(new TH1F("hEFRNNInput_Track_pt", "pt ; pt; Events",nbin_pt-1,bins_pt));    
 		addHistogram(new TH1F("hEFRNNInput_Track_eta", "eta ; eta; Events",nbin_eta-1,bins_eta));    
 		addHistogram(new TH1F("hEFRNNInput_Track_phi", "phi ; phi; Events",16,-3.2,3.2));    
 		addHistogram(new TH1F("hEFRNNInput_Track_dEta", "dEta ; dEta; Events",nbin_eta-1,bins_eta));    
 		addHistogram(new TH1F("hEFRNNInput_Track_dPhi", "dPhi ; dPhi; Events",16,-3.2,3.2));
 		addHistogram(new TH1F("hEFRNNInput_Track_d0", "d0 ; d0; Events",20,-5.,5.));
-		addHistogram(new TH1F("hEFRNNInput_Track_z0sinThetaTJVA", "z0sinThetaTJVA ; z0sinThetaTJVA; Events",15,-200.,200.));   
-		addHistogram(new TH1F("hEFRNNInput_Track_nInnermostPixelHits", "nInnermostPixelHits ; nInnermostPixelHits; Events",30,0.,6));
-		addHistogram(new TH1F("hEFRNNInput_Track_nPixelHits", "nPixelHits ; nPixelHits; Events",44,0.,22));  
-		addHistogram(new TH1F("hEFRNNInput_Track_nSCTHits", "nSCTHits ; nSCTHits; Events",38,0.,38));     
+		//addHistogram(new TH1F("hEFRNNInput_Track_z0sinThetaTJVA", "z0sinThetaTJVA ; z0sinThetaTJVA; Events",15,-200.,200.));   
+		addHistogram(new TH1F("hEFRNNInput_Track_nInnermostPixelHits", "nInnermostPixelHits ; nInnermostPixelHits; Events",3,0.,3));
+		addHistogram(new TH1F("hEFRNNInput_Track_nPixelHits", "nPixelHits ; nPixelHits; Events",11,0.,11));  
+		addHistogram(new TH1F("hEFRNNInput_Track_nSCTHits", "nSCTHits ; nSCTHits; Events",20,0.,20));     
 		// Cluster input variables
-		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/cluster",run));
-	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/cluster");
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputCluster",run));
+	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputCluster");
 		addHistogram(new TH1F("hEFRNNInput_Cluster_e", "e ; e; Events",nbin_pt-1,bins_pt));     
 		addHistogram(new TH1F("hEFRNNInput_Cluster_et", "et ; et; Events",nbin_pt-1,bins_pt));  // or 260,0.,130.    
 		addHistogram(new TH1F("hEFRNNInput_Cluster_eta", "eta ; eta; Events",nbin_eta-1,bins_eta));
 		addHistogram(new TH1F("hEFRNNInput_Cluster_phi", "phi ; phi; Events",16,-3.2,3.2));    
 		addHistogram(new TH1F("hEFRNNInput_Cluster_dEta", "dEta ; dEta; Events",nbin_eta-1,bins_eta));
 		addHistogram(new TH1F("hEFRNNInput_Cluster_dPhi", "dPhi ; dPhi; Events",16,-3.2,3.2));    
-		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_R", "SECOND_R ; SECOND_R; Events",31,0.,155000.));
-		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_LAMBDA", "SECOND_LAMBDA ; SECOND_LAMBDA; Events",45,0.,450000.));      
-		addHistogram(new TH1F("hEFRNNInput_Cluster_CENTER_LAMBDA", "CENTER_LAMBDA ; CENTER_LAMBDA; Events",40,0.,4000.));      
-//	}
+		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_R_log10", "SECOND_R ; SECOND_R; Events",10,-3.,7.));
+		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_LAMBDA_log10", "SECOND_LAMBDA ; SECOND_LAMBDA; Events",10,-3.,7.));      
+		addHistogram(new TH1F("hEFRNNInput_Cluster_CENTER_LAMBDA_log10", "CENTER_LAMBDA ; CENTER_LAMBDA; Events",7,-2.,5.));      
+	}
 
     //--------------------
     // L1 vs Offline
@@ -875,6 +876,7 @@ void HLTTauMonTool::bookHistogramsAllItem(){
 
     std::vector<string> lowest_names;
     lowest_names.push_back("lowest_singletau");
+    lowest_names.push_back("lowest_singletauMVA");
     //    lowest_names.push_back("lowest_ditau");
     //    lowest_names.push_back("lowest_etau");
     //    lowest_names.push_back("lowest_mutau");

@@ -54,6 +54,15 @@ def TrigTauMonitoringTool():
 			'e17_lhmedium_nod0_tau25_medium1_tracktwo_03dR30_L1DR-EM15TAU12I-J25',
 	]
 
+	MVA_chains = [
+			"tau25_idperf_tracktwoMVA",
+			"tau25_perf_tracktwoMVA",
+			"tau25_verylooseRNN_tracktwoMVA",
+			"tau25_looseRNN_tracktwoMVA",
+			"tau25_mediumRNN_tracktwoMVA",
+			"tau25_tightRNN_tracktwoMVA",
+	]
+
 	tau_topo_support_chains = [
 
 	]
@@ -118,6 +127,7 @@ def TrigTauMonitoringTool():
 				primary_tau		= full_tau, #[]
 				prescaled_tau		= [], #tau_track_test, #[],
 				LowestSingleTau		= hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
+				LowestSingleTauMVA		= "tau25_mediumRNN_tracktwoMVA",
 				Highpt_tau		= highpt_tau,
 				Ztt_tau		 	= ztt_tau,
 				EffOffTauPtCut	 	= 25000.,  #MeV
@@ -144,6 +154,7 @@ def TrigTauMonitoringTool():
 				topo_ditau_chains	= ditau_topo_chains,
 				topo_mutau_chains	= mutau_topo_chains,
 				topo_eltau_chains	= eltau_topo_chains,
+				trigMVA_chains	= MVA_chains,
 				topo_support_chains	= tau_topo_support_chains,
 				doTopoValidation	= False,
 				L1TriggerCondition	= "Physics", #allowResurrectedDecision, alsoDeactivateTEs, Physics [default]

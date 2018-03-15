@@ -139,8 +139,10 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("topo_ditau_chains",    m_topo_chains_ditau);
     declareProperty("topo_eltau_chains",    m_topo_chains_eltau);
     declareProperty("topo_mutau_chains",    m_topo_chains_mutau);
+    declareProperty("trigMVA_chains",    m_trigMVA_chains);
     declareProperty("topo_support_chains",  m_topo_support_chains);
     declareProperty("LowestSingleTau", 		m_lowest_singletau="");
+    declareProperty("LowestSingleTauMVA", 		m_lowest_singletauMVA="");
     declareProperty("L1TriggerCondition", 	m_L1StringCondition="Physics");
     declareProperty("HLTTriggerCondition",      m_HLTStringCondition="Physics");
     declareProperty("nTrkMax",			m_selection_nTrkMax=-1);
@@ -255,7 +257,6 @@ StatusCode HLTTauMonTool::init() {
   m_LST_HLTsel_tracktwo_chains = {"tau25_idperf_tracktwo", "tau25_perf_tracktwo", "tau25_medium1_tracktwo"};	// Reference 
   m_Ratio = {"idperf", "perf", "medium1"};
   // List of MVA triggers
-  m_trigMVA_chains = {"tau25_idperf_tracktwoMVA", "tau25_perf_tracktwoMVA", "tau25_verylooseRNN_tracktwoMVA", "tau25_looseRNN_tracktwoMVA", "tau25_mediumRNN_tracktwoMVA", "tau25_tightRNN_tracktwoMVA"};
 
 
 
@@ -896,16 +897,11 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_muCorr");
      		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
      		if(isMVAtrig && m_doRNNInOutMonitoring) {
-     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_1P"); // 9
-					ATH_MSG_WARNING("RNN_inScalar_1P reported: " << sc);
-     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_3P"); // 10
-					ATH_MSG_WARNING("RNN_inScalar_3P reported: " << sc);
-       		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack"); // 10 (-1) --> 9
-					ATH_MSG_WARNING("RNN_inTrack reported: " << sc);
-     		  //if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster"); // 9
-					//ATH_MSG_WARNING("RNN_inCluster reported: " << sc);
-     		  //if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_out"); // 2
-					//ATH_MSG_WARNING("RNN_out reported: " << sc);
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_1P");
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_3P");
+       		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack");
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster");
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_out");
      		  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
      		}
      		if(m_truth) if(*tauItr) sc = fillEFTauVsTruth(*tauItr, trigItem);
@@ -1115,6 +1111,18 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   //Pileup
   mu = m_mu_offline;
 
+  // special treatment for the track multiplicity plot depending on the "quality" of the tau charged tracks.
+  // if a charged track has been recovered via the "failTrackFilter" flag, 
+  // then treat this tau as 0-track for the track multiplicity plot. 
+  bool failsTrackFilter = aEFTau->nTracks(xAOD::TauJetParameters::failTrackFilter);
+  bool isMVAtrig_here (false);
+  for (int i=0; i<m_trigMVA_chains.size(); i++) {
+    if ( trigItem == m_trigMVA_chains.at(i) ) {
+      isMVAtrig_here = true;
+      continue;
+    }
+  }
+  
   if(BDTinput_type == "basicVars")
     {
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau");
@@ -1126,8 +1134,11 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       hist("hEFNUM")->Fill(num_vxt);
       hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
       hist("hEFPhi")->Fill(aEFTau->phi());
-      hist("hEFnTrack")->Fill(EFnTrack);
-   
+      if ( isMVAtrig_here && failsTrackFilter && (trigItem != "tau25_idperf_tracktwoMVA") ) {
+        hist("hEFnTrack")->Fill(0);
+      } else {
+        hist("hEFnTrack")->Fill(EFnTrack);
+      }   
       int EFWidenTrack(-1); 
       #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
       EFWidenTrack = aEFTau->nWideTracks();
@@ -1371,7 +1382,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
     {
 		// RNN Input Variables
 		// Scalars
-    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/id1p");
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID1p");
 		if(is1P)
 		  {
 				float RNN_scalar_centFrac(-999.);
@@ -1401,7 +1412,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 					hist("hEFRNNInput_Scalar_SumPtTrkFrac_1P")->Fill(RNN_scalar_SumPtTrkFrac);
 				}
 				if (aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, RNN_scalar_EMPOverTrkSysP)){
-					RNN_scalar_EMPOverTrkSysP = TMath::Log10(std::max(RNN_scalar_EMPOverTrkSysP, 1e-3f));
+					//RNN_scalar_EMPOverTrkSysP = TMath::Log10(std::max(RNN_scalar_EMPOverTrkSysP, 1e-3f));
 					hist("hEFRNNInput_Scalar_EMPOverTrkSysP_1P")->Fill(RNN_scalar_EMPOverTrkSysP);
 				}
 				if (aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, RNN_scalar_ptRatioEflowApprox)){
@@ -1409,17 +1420,17 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 					hist("hEFRNNInput_Scalar_ptRatioEflowApprox_1P")->Fill(RNN_scalar_ptRatioEflowApprox);
 				}
 				if (aEFTau->detail(xAOD::TauJetParameters::mEflowApprox, RNN_scalar_mEflowApprox)){
-					RNN_scalar_mEflowApprox = TMath::Log10(std::max(RNN_scalar_mEflowApprox, 140.0f));
+					//RNN_scalar_mEflowApprox = TMath::Log10(std::max(RNN_scalar_mEflowApprox, 140.0f));
 					hist("hEFRNNInput_Scalar_mEflowApprox_1P")->Fill(RNN_scalar_mEflowApprox);
 				}
 				RNN_scalar_ptIntermediateAxis = aEFTau->ptIntermediateAxis();
-				RNN_scalar_ptIntermediateAxis = TMath::Log10(std::min(RNN_scalar_ptIntermediateAxis / 1000.0, 100.0));
+				//RNN_scalar_ptIntermediateAxis = TMath::Log10(std::min(RNN_scalar_ptIntermediateAxis / 1000.0, 100.0));
 				hist("hEFRNNInput_Scalar_ptIntermediateAxis_1P")->Fill(RNN_scalar_ptIntermediateAxis);
 		}
 	} 
 	else if(BDTinput_type == "RNN_inScalar_3P")
     {
-    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/id3p");
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID3p");
 		if(isMP) {
 				float RNN_scalar_centFrac(-999.);
 				float RNN_scalar_etOverPtLeadTrk(-999.);
@@ -1442,14 +1453,14 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 					hist("hEFRNNInput_Scalar_dRmax_3P")->Fill(RNN_scalar_dRmax);
 				}
 				if (aEFTau->detail(xAOD::TauJetParameters::trFlightPathSig, RNN_scalar_trFlightPathSig)){
-					RNN_scalar_trFlightPathSig = TMath::Log10(std::max(RNN_scalar_trFlightPathSig, 0.01f));
+					//RNN_scalar_trFlightPathSig = TMath::Log10(std::max(RNN_scalar_trFlightPathSig, 0.01f));
 					hist("hEFRNNInput_Scalar_trFlightPathSig_3P")->Fill(RNN_scalar_trFlightPathSig);
 				}
 				if (aEFTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, RNN_scalar_SumPtTrkFrac)){
 					hist("hEFRNNInput_Scalar_SumPtTrkFrac_3P")->Fill(RNN_scalar_SumPtTrkFrac);
 				}
 				if (aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, RNN_scalar_EMPOverTrkSysP)){
-					RNN_scalar_EMPOverTrkSysP = TMath::Log10(std::max(RNN_scalar_EMPOverTrkSysP, 1e-3f));
+					//RNN_scalar_EMPOverTrkSysP = TMath::Log10(std::max(RNN_scalar_EMPOverTrkSysP, 1e-3f));
 					hist("hEFRNNInput_Scalar_EMPOverTrkSysP_3P")->Fill(RNN_scalar_EMPOverTrkSysP);
 				}
 				if (aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, RNN_scalar_ptRatioEflowApprox)){
@@ -1457,120 +1468,96 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 					hist("hEFRNNInput_Scalar_ptRatioEflowApprox_3P")->Fill(RNN_scalar_ptRatioEflowApprox);
 				}
 				if (aEFTau->detail(xAOD::TauJetParameters::mEflowApprox, RNN_scalar_mEflowApprox)){
-					RNN_scalar_mEflowApprox = TMath::Log10(std::max(RNN_scalar_mEflowApprox, 140.0f));
+					//RNN_scalar_mEflowApprox = TMath::Log10(std::max(RNN_scalar_mEflowApprox, 140.0f));
 					hist("hEFRNNInput_Scalar_mEflowApprox_3P")->Fill(RNN_scalar_mEflowApprox);
 				}
 				RNN_scalar_ptIntermediateAxis = aEFTau->ptIntermediateAxis();
-				RNN_scalar_ptIntermediateAxis = TMath::Log10(std::min(RNN_scalar_ptIntermediateAxis / 1000.0, 100.0));
+				//RNN_scalar_ptIntermediateAxis = TMath::Log10(std::min(RNN_scalar_ptIntermediateAxis / 1000.0, 100.0));
 				hist("hEFRNNInput_Scalar_ptIntermediateAxis_3P")->Fill(RNN_scalar_ptIntermediateAxis);
 				if (aEFTau->detail(xAOD::TauJetParameters::massTrkSys, RNN_scalar_massTrkSys)){
-					RNN_scalar_massTrkSys = TMath::Log10(std::max(RNN_scalar_massTrkSys, 140.0f));
+					//RNN_scalar_massTrkSys = TMath::Log10(std::max(RNN_scalar_massTrkSys, 140.0f));
 					hist("hEFRNNInput_Scalar_massTrkSys_3P")->Fill(RNN_scalar_massTrkSys);
 				}
 		}
 	} 
 	else if(BDTinput_type == "RNN_inTrack")
     {
-		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/track");
-		ATH_MSG_WARNING("In RNN_inTrack");
+		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputTrack");
 		// Tracks
 		float RNN_tracks_pt(-999.);
 		float RNN_tracks_eta(-999.);
 		float RNN_tracks_phi(-999.);
 		float RNN_tracks_dEta(-999.);
 		float RNN_tracks_dPhi(-999.);
+		//float RNN_tracks_z0sinThetaTJVA(-999.);
 		float RNN_tracks_d0(-999.);
 		bool success_InPixHits(false);
 		uint8_t RNN_tracks_nInnermostPixelHits = 0;
-		//ATH_MSG_WARNING("RNN_tracks_nInnermostPixelHits is initialized.");
 		bool success_PixHits(false);
 		uint8_t RNN_tracks_nPixelHits = 0;
-		//ATH_MSG_WARNING("RNN_tracks_nPixelHits is initialized.");
 		bool success_SCTHits(false);
 		uint8_t RNN_tracks_nSCTHits = 0;
-		//ATH_MSG_WARNING("RNN_tracks_nSCTHits is initialized.");
 
-		//ATH_MSG_WARNING("All variables are initialized.");
 		if (is1P || isMP) {
-			//ATH_MSG_WARNING("There are charged tracks.");
 			for (int track = 0; track < EFnTrack; ++track){
-				ATH_MSG_WARNING("In track: " << track);
 				const xAOD::TrackParticle* trk = 0;
-				#ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
-				ATH_MSG_WARNING("trying TAUJET_V2");
-				trk = aEFTau->track(track);
-				ATH_MSG_WARNING("TAUJET_V2");
-				#else
-				ATH_MSG_WARNING("trying TAUJET_V3");
-				trk = aEFTau->track(track)->track();
-				ATH_MSG_WARNING("TAUJET_V3");
-				#endif
-				if ( trk != NULL ) {
-					ATH_MSG_WARNING("track exists in: " << track);
-					RNN_tracks_pt = trk->pt()*1e-3;
-					if ( (RNN_tracks_pt) ){
-						ATH_MSG_WARNING("track pt: " << RNN_tracks_pt);
-						//hist("hEFRNNInput_Track_pt")->Fill(RNN_tracks_pt);
-					}
-					ATH_MSG_WARNING("hEFRNNInput_Track_pt was fine!");
-					RNN_tracks_eta = trk->eta();
-					if ( (RNN_tracks_eta) ){
-						ATH_MSG_WARNING("track et: " << RNN_tracks_eta);
-						//hist("hEFRNNInput_Track_eta")->Fill(RNN_tracks_eta);
-					}
-					ATH_MSG_WARNING("hEFRNNInput_Track_eta was fine!");
-					RNN_tracks_phi = trk->phi();
-					if ( (RNN_tracks_phi) ){
-						ATH_MSG_WARNING("track phi: " << RNN_tracks_phi);
-						//hist("hEFRNNInput_Track_phi")->Fill(RNN_tracks_phi);
-					}
-					ATH_MSG_WARNING("hEFRNNInput_Track_phi was fine!");
-					RNN_tracks_dEta = trk->eta() - aEFTau->eta();
-					if (RNN_tracks_dEta){
-						ATH_MSG_WARNING("track dEta: " << RNN_tracks_dEta);
-						//hist("hEFRNNInput_Track_dEta")->Fill(RNN_tracks_dEta);
-					}
-					ATH_MSG_WARNING("hEFRNNInput_Track_dEta was fine!");
-					RNN_tracks_dPhi = trk->p4().DeltaPhi(aEFTau->p4());
-					if ( (RNN_tracks_dPhi) ){
-						ATH_MSG_WARNING("track dPhi: " << RNN_tracks_dPhi);
-						//hist("hEFRNNInput_Track_dPhi")->Fill(RNN_tracks_dPhi);
-					}
-					ATH_MSG_WARNING("hEFRNNInput_Track_dPhi was fine!");
-					//float RNN_tracks_z0sinThetaTJVA = m_taus.at(t)->track(track)->z0sinThetaTJVA(m_taus.at(t)));
-					RNN_tracks_d0 = trk->d0();
-					ATH_MSG_WARNING("track d0: " << RNN_tracks_d0);
-					//hist("hEFRNNInput_Track_d0")->Fill(RNN_tracks_d0);
-					ATH_MSG_WARNING("hEFRNNInput_Track_d0 was fine!");
-					success_InPixHits =  trk->summaryValue(RNN_tracks_nInnermostPixelHits, xAOD::numberOfInnermostPixelLayerHits);
-					if (success_InPixHits){
-						ATH_MSG_WARNING("track nInnermostPixelHits: " << RNN_tracks_nInnermostPixelHits);
-						//hist("hEFRNNInput_Track_nInnermostPixelHits")->Fill(RNN_tracks_nInnermostPixelHits);
-					}
-					ATH_MSG_WARNING("hEFRNNInput_Track_nInnermostPixelHits was fine!");
-					success_PixHits =  trk->summaryValue(RNN_tracks_nPixelHits, xAOD::numberOfPixelHits);
-					if (success_PixHits){
-						ATH_MSG_WARNING("track nPixelHits: " << RNN_tracks_nPixelHits);
-						//hist("hEFRNNInput_Track_nPixelHits")->Fill(RNN_tracks_nPixelHits);
-					}
-					ATH_MSG_WARNING("hEFRNNInput_Track_nPixelHits was fine!");
-					success_SCTHits =  trk->summaryValue(RNN_tracks_nSCTHits, xAOD::numberOfSCTHits);
-					if (success_SCTHits){
-						ATH_MSG_WARNING("track nSCTHits: " << RNN_tracks_nSCTHits);
-						//hist("hEFRNNInput_Track_nSCTHits")->Fill(RNN_tracks_nSCTHits);
-					}
-					ATH_MSG_WARNING("hEFRNNInput_Track_nSCTHits was fine!");
+				if ( (aEFTau->track(track) != NULL) ) {
+					trk = aEFTau->track(track)->track();
+					if ( trk != NULL ) {
+						ATH_MSG_WARNING("track exists in: " << track);
+						RNN_tracks_pt = trk->pt()*1e-3;
+						if ( (RNN_tracks_pt) ){
+							hist("hEFRNNInput_Track_pt")->Fill(RNN_tracks_pt);
+						}
+						RNN_tracks_eta = trk->eta();
+						if ( (RNN_tracks_eta) ){
+							hist("hEFRNNInput_Track_eta")->Fill(RNN_tracks_eta);
+						}
+						RNN_tracks_phi = trk->phi();
+						if ( (RNN_tracks_phi) ){
+							hist("hEFRNNInput_Track_phi")->Fill(RNN_tracks_phi);
+						}
+						RNN_tracks_dEta = trk->eta() - aEFTau->eta();
+						if (RNN_tracks_dEta){
+							hist("hEFRNNInput_Track_dEta")->Fill(RNN_tracks_dEta);
+						}
+						RNN_tracks_dPhi = trk->p4().DeltaPhi(aEFTau->p4());
+						if ( (RNN_tracks_dPhi) ){
+							hist("hEFRNNInput_Track_dPhi")->Fill(RNN_tracks_dPhi);
+						}
+						/*RNN_tracks_z0sinThetaTJVA = trk->z0sinThetaTJVA();
+						if ( (RNN_tracks_z0sinThetaTJVA) ){
+							hist("hEFRNNInput_Track_z0sinThetaTJVA")->Fill(RNN_tracks_z0sinThetaTJVA);
+						}*/
+						RNN_tracks_d0 = trk->d0();
+						if ( (RNN_tracks_d0) ){
+							hist("hEFRNNInput_Track_d0")->Fill(RNN_tracks_d0);
+						}
+						success_InPixHits =  trk->summaryValue(RNN_tracks_nInnermostPixelHits, xAOD::numberOfInnermostPixelLayerHits);
+						if (success_InPixHits){
+							hist("hEFRNNInput_Track_nInnermostPixelHits")->Fill(RNN_tracks_nInnermostPixelHits);
+						}
+						success_PixHits =  trk->summaryValue(RNN_tracks_nPixelHits, xAOD::numberOfPixelHits);
+						if (success_PixHits){
+							hist("hEFRNNInput_Track_nPixelHits")->Fill(RNN_tracks_nPixelHits);
+						}
+						success_SCTHits =  trk->summaryValue(RNN_tracks_nSCTHits, xAOD::numberOfSCTHits);
+						if (success_SCTHits){
+							hist("hEFRNNInput_Track_nSCTHits")->Fill(RNN_tracks_nSCTHits);
+						}
+					} else {
+						ATH_MSG_WARNING("->track() does not exists in: " << track);
+					}//end if trk exists
 				} else {
-					ATH_MSG_ERROR("track does not exists in: " << track);
-				}//end if trk exists
+						ATH_MSG_WARNING("->track(track) does not exists in: " << track);
+				}
 			} // end for-loop for tracks
 		} // end if(is1P||isMP)
 	}
   else if(BDTinput_type == "RNN_inCluster")
     {
 		// Cluster 
-		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/cluster");
-		ATH_MSG_WARNING("In RNN_inCluster");
+		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputCluster");
 		float RNN_clusters_e(-999.);
 		float RNN_clusters_et(-999.);
 		float RNN_clusters_eta(-999.);
@@ -1580,62 +1567,50 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 		double RNN_clusters_SECOND_R(-999.);
 		double RNN_clusters_SECOND_LAMBDA(-999.);
 		double RNN_clusters_CENTER_LAMBDA(-999.);
-		const xAOD::Jet* pJetSeed = *(aEFTau->jetLink());  
 		const xAOD::CaloClusterContainer *caloCont;
-		if ( m_storeGate->retrieve( caloCont, "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex").isSuccess() ){//"TauPi0Clusters").isSuccess() ){
+		if ( m_storeGate->retrieve( caloCont, "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker").isSuccess() ){//"TauPi0Clusters").isSuccess() ){
 			ATH_MSG_INFO("caloCluster retrieved!");
-			//xAOD::JetConstituentVector::const_iterator clusItr  = pJetSeed->getConstituents().begin();
 			xAOD::CaloClusterContainer::const_iterator clusItr  = caloCont->begin();
-			//xAOD::JetConstituentVector::const_iterator clusItrE = pJetSeed->getConstituents().end();
 			xAOD::CaloClusterContainer::const_iterator clusItrE = caloCont->end();
 			for (; clusItr != clusItrE; ++clusItr) {
 				RNN_clusters_e = (*clusItr)->e();
 				if ( (RNN_clusters_e) ) {
-					ATH_MSG_WARNING("cluster e: " << RNN_clusters_e);
-					//hist("hEFRNNInput_Cluster_e")->Fill(RNN_clusters_e);
+					hist("hEFRNNInput_Cluster_e")->Fill(RNN_clusters_e);
 				}
 				RNN_clusters_et = (*clusItr)->pt()*1e-3;//etLarge();
 				if ( (RNN_clusters_et) ) {
-					ATH_MSG_WARNING("cluster et: " << RNN_clusters_et);
-					//hist("hEFRNNInput_Cluster_et")->Fill(RNN_clusters_et);
+					hist("hEFRNNInput_Cluster_et")->Fill(RNN_clusters_et);
 				}
 				RNN_clusters_eta = (*clusItr)->eta();
 				if ( (RNN_clusters_eta) ) {
-					ATH_MSG_WARNING("cluster eta: " << RNN_clusters_eta);
-					//hist("hEFRNNInput_Cluster_eta")->Fill(RNN_clusters_eta);
+					hist("hEFRNNInput_Cluster_eta")->Fill(RNN_clusters_eta);
 				}
 				RNN_clusters_phi = (*clusItr)->phi();
 				if ( (RNN_clusters_phi) ) {
-					ATH_MSG_WARNING("cluster phi: " << RNN_clusters_phi);
-					//hist("hEFRNNInput_Cluster_phi")->Fill(RNN_clusters_phi);
+					hist("hEFRNNInput_Cluster_phi")->Fill(RNN_clusters_phi);
 				}
 				RNN_clusters_dEta = ((*clusItr)->eta() - (aEFTau->eta()));
 				if ( (RNN_clusters_dEta) ) {
-					ATH_MSG_WARNING("cluster dEta: " << RNN_clusters_dEta);
-					//hist("hEFRNNInput_Cluster_dEta")->Fill(RNN_clusters_dEta);
+					hist("hEFRNNInput_Cluster_dEta")->Fill(RNN_clusters_dEta);
 				}
 				RNN_clusters_dPhi = deltaPhi((*clusItr)->phi(),(aEFTau->phi()));
 				if ( (RNN_clusters_dPhi) ) {
-					ATH_MSG_WARNING("cluster dPhi: " << RNN_clusters_dPhi);
-					//hist("hEFRNNInput_Cluster_dPhi")->Fill(RNN_clusters_dPhi);
+					hist("hEFRNNInput_Cluster_dPhi")->Fill(RNN_clusters_dPhi);
 				}
 				const auto success_SECOND_R = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R, RNN_clusters_SECOND_R);
 				if ( (success_SECOND_R) ) {
 					RNN_clusters_SECOND_R =TMath::Log10(RNN_clusters_SECOND_R + 0.1);
-					ATH_MSG_WARNING("cluster SECOND_R: " << RNN_clusters_SECOND_R);
-					//hist("hEFRNNInput_Cluster_SECOND_R")->Fill(RNN_clusters_SECOND_R);
+					hist("hEFRNNInput_Cluster_SECOND_R_log10")->Fill(RNN_clusters_SECOND_R);
 				}
 				const auto success_SECOND_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, RNN_clusters_SECOND_LAMBDA);
 				if ( (success_SECOND_LAMBDA) ) {
 					RNN_clusters_SECOND_LAMBDA =TMath::Log10(RNN_clusters_SECOND_LAMBDA + 0.1);
-					ATH_MSG_WARNING("cluster SECOND_LAMBDA: " << RNN_clusters_SECOND_LAMBDA);
-					//hist("hEFRNNInput_Cluster_SECOND_LAMBDA")->Fill(RNN_clusters_SECOND_LAMBDA);
+					hist("hEFRNNInput_Cluster_SECOND_LAMBDA_log10")->Fill(RNN_clusters_SECOND_LAMBDA);
 				}
 				const auto success_CENTER_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, RNN_clusters_CENTER_LAMBDA);
 				if ( (success_CENTER_LAMBDA) ) {
 					RNN_clusters_CENTER_LAMBDA =TMath::Log10(RNN_clusters_CENTER_LAMBDA + 1e-6);
-					ATH_MSG_WARNING("cluster CENTER_LAMBDA: " << RNN_clusters_CENTER_LAMBDA);
-					//hist("hEFRNNInput_Cluster_CENTER_LAMBDA")->Fill(RNN_clusters_CENTER_LAMBDA);
+					hist("hEFRNNInput_Cluster_CENTER_LAMBDA_log10")->Fill(RNN_clusters_CENTER_LAMBDA);
 				}
 			}
 		} 
@@ -1644,7 +1619,6 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
     {
 		// RNN Output Variables
 		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/Output");
-		ATH_MSG_WARNING("In RNN_out");
 		float RNNJetScore(-999.);
 		float RNNJetScoreSigTrans(-999.);
 		RNNJetScore = aEFTau->discriminant(xAOD::TauJetParameters::RNNJetScore);
