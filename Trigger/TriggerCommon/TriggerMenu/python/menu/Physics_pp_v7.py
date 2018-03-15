@@ -2319,7 +2319,10 @@ def setupMenu():
         ['2e15_loose_L12EM12',                     'L1_2EM12',[], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         ['2e15_lhloose_nod0_L12EM12',                     'L1_2EM12',[], [PhysicsStream], ['RATE:MultiElectron', 'BW:Egamma'],-1],
         
-        ['e9_etcut_e5_etcut_bBeexM6000',  'L1_EM7_2EM3',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_e5_etcut_bBeexM6000',                    'L1_EM7_2EM3',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_e5_etcut_bBeexM6000_L1BPH-0M9-EM7-EM5',  'L1_BPH-0M9-EM7-EM5',   ['L1_EM7','L1_EM3'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_bBeexM6000_L1BPH-0DR3-EM7J15',           'L1_BPH-0DR3-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+        ['e9_etcut_bBeexM6000_L1EM7',                       'L1_EM7',            [], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
 
 			 ]
 
