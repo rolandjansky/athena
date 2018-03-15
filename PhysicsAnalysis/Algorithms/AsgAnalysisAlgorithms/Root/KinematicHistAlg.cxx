@@ -58,35 +58,44 @@ namespace CP
           ANA_CHECK (book (TH1F (name.c_str(), "multiplicity", 20, 0, 20)));
           group.multiplicity = hist (name);
 
-          name = RCU::substitute (m_histPattern, "%VAR%", "pt");
-          name = makeSystematicsName (name, sys);
-          ANA_CHECK (book (TH1F (name.c_str(), "pt", 20, 0, 200e3)));
-          group.pt = hist (name);
-
-          name = RCU::substitute (m_histPattern, "%VAR%", "eta");
-          name = makeSystematicsName (name, sys);
-          ANA_CHECK (book (TH1F (name.c_str(), "eta", 20, -5, 5)));
-          group.eta = hist (name);
-
-          name = RCU::substitute (m_histPattern, "%VAR%", "phi");
-          name = makeSystematicsName (name, sys);
-          ANA_CHECK (book (TH1F (name.c_str(), "phi", 20, -M_PI, M_PI)));
-          group.phi = hist (name);
-
           m_hist.insert (std::make_pair (sys, group));
           histIter = m_hist.find (sys);
           assert (histIter != m_hist.end());
         }
 
-        std::size_t multiplicity = 0;
-        for (const xAOD::IParticle *particle : *input)
+        while (histIter->second.perObject.size() < input->size())
         {
-          histIter->second.pt->Fill (particle->pt());
-          histIter->second.eta->Fill (particle->eta());
-          histIter->second.phi->Fill (particle->phi());
-          ++ multiplicity;
+          std::string name;
+          HistSubgroup group;
+
+          name = RCU::substitute (m_histPattern, "%VAR%", "pt" + std::to_string(histIter->second.perObject.size()));
+          name = makeSystematicsName (name, sys);
+          ANA_CHECK (book (TH1F (name.c_str(), "pt", 20, 0, 200e3)));
+          group.pt = hist (name);
+
+          name = RCU::substitute (m_histPattern, "%VAR%", "eta" + std::to_string(histIter->second.perObject.size()));
+          name = makeSystematicsName (name, sys);
+          ANA_CHECK (book (TH1F (name.c_str(), "eta", 20, -5, 5)));
+          group.eta = hist (name);
+
+          name = RCU::substitute (m_histPattern, "%VAR%", "phi" + std::to_string(histIter->second.perObject.size()));
+          name = makeSystematicsName (name, sys);
+          ANA_CHECK (book (TH1F (name.c_str(), "phi", 20, -M_PI, M_PI)));
+          group.phi = hist (name);
+
+          histIter->second.perObject.push_back (group);
         }
-        histIter->second.multiplicity->Fill (multiplicity);
+
+        histIter->second.multiplicity->Fill (input->size());
+        for (std::size_t iter = 0; iter != input->size(); ++ iter)
+        {
+          const xAOD::IParticle *particle = (*input)[iter];
+          HistSubgroup& group = histIter->second.perObject[iter];
+
+          group.pt->Fill (particle->pt());
+          group.eta->Fill (particle->eta());
+          group.phi->Fill (particle->phi());
+        }
 
         return StatusCode::SUCCESS;
       });

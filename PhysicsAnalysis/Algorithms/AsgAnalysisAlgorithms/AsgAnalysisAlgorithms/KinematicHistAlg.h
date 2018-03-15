@@ -50,14 +50,22 @@ namespace CP
     std::string m_histPattern {"%VAR%_%SYS%"};
 
 
+    /// \brief the histograms we fill per systematic and object
+  private:
+    struct HistSubgroup
+    {
+      TH1 *pt = nullptr;
+      TH1 *eta = nullptr;
+      TH1 *phi = nullptr;
+    };
+
+
     /// \brief the histograms we fill per systematic
   private:
     struct HistGroup
     {
       TH1 *multiplicity = nullptr;
-      TH1 *pt = nullptr;
-      TH1 *eta = nullptr;
-      TH1 *phi = nullptr;
+      std::vector<HistSubgroup> perObject;
     };
 
     /// \brief the created histograms
