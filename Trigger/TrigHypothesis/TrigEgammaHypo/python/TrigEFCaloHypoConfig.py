@@ -33,8 +33,6 @@ class TrigEFCaloHypoBase (TrigEFCaloHypo):
         mlog = logging.getLogger( 'TrigEFCaloHypoBase:' )
         #Load Tool Service
         from AthenaCommon.AppMgr import ToolSvc
-        from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-        ToolSvc += LuminosityToolOnline()
         self.ShowerBuilderTool=TrigEMShowerBuilderTool
         self.FourMomBuilderTool=TrigEMFourMomBuilder
         #-----------------------------------------------------------

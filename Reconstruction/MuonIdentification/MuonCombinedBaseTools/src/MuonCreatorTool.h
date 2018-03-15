@@ -34,6 +34,9 @@
 #include "MuonSegment/MuonSegment.h"
 #include "TrackToCalo/CaloCellCollector.h"
 #include "CaloInterface/ICaloNoiseTool.h"
+#include "CaloEvent/CaloCellContainer.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 namespace Muon {
   class MuonEDMPrinterTool;
@@ -209,7 +212,7 @@ namespace MuonCombined {
     ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool;
     ToolHandle<Rec::IMuonTrackQuery>              m_trackQuery;
     Rec::CaloCellCollector                        m_cellCollector;
-    std::string                                   m_cellContainerName;
+    SG::ReadHandleKey<CaloCellContainer>          m_cellContainerName{this,"CaloCellContainer","AllCalo","calo cells"};
   };
 
   inline void MuonCreatorTool::setP4( xAOD::Muon& muon, const xAOD::TrackParticle& tp ) const {

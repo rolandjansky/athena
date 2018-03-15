@@ -14,7 +14,7 @@
 #include "SCT_ConditionsData/SCT_WaferGoodStripInfo.h"
 
 // Definition of the number of elements
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 typedef boost::array<SCT_WaferGoodStripInfo, SCT_ConditionsServices::NUMBER_OF_WAFERS> SCT_AllGoodStripInfo;
 

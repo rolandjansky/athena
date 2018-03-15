@@ -125,11 +125,6 @@ else:
   conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
   conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
 
-  from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
-  ToolSvc = ServiceMgr.ToolSvc
-  ServiceMgr+=SCT_CablingSvc()
-  ServiceMgr.SCT_CablingSvc.DataSource='COOLVECTOR'
-
 from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
 sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
 sct_ConfigurationConditionsToolSetup.setChannelFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")

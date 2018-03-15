@@ -161,6 +161,14 @@ public:
 
 
   /**
+   * @brief Move constructor.
+   *
+   * Allow passing these objects via move.
+   */
+  IRCUObject (IRCUObject&& other);
+
+
+  /**
    * @brief Destructor.
    *
    * Remove this object from the service if it has been registered.
@@ -272,6 +280,14 @@ public:
    */
   template <typename... Args>
   RCUObject (size_t nslots, Args&&... args);
+
+
+  /**
+   * @brief Move constructor.
+   *
+   * Allow passing these objects via move.
+   */
+  RCUObject (RCUObject&& other);
 
 
   /**

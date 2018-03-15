@@ -14,7 +14,7 @@
 #include "SCT_ConditionsData/SCT_ModuleCalibParameter.h"
 
 // Definition of the number of elements
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 typedef boost::array<SCT_ModuleCalibParameter, SCT_ConditionsServices::N_NPTGAIN> SCT_ModuleGainCalibData;
 

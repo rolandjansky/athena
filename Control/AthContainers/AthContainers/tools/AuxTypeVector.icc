@@ -440,7 +440,12 @@ std::unique_ptr<SG::IAuxTypeVector> makePacked (std::vector<T>& v, std::true_typ
   auto iv =
     std::make_unique<SG::AuxTypeVector<T, SG::PackedContainer<T> > > (0, 0);
   iv->vec().swap (v);
+#ifdef __COVERITY__
+  // Coverity gives a bogus complaint about the derived->base conversion here.
+  return std::unique_ptr<SG::IAuxTypeVector> (iv.release());
+#else
   return iv;
+#endif
 }
 
 

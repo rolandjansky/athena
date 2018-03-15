@@ -52,7 +52,7 @@ class SCT_PortMap {
     m_output[1] = out1;
   }
 
-  ~SCT_PortMap() {}
+  ~SCT_PortMap() = default;
   
   /** Functions to retrieve the chip mapped to the input and output ports*/
   inline SCT_Parameters::ChipType input(int port) const  { return m_input[port];}

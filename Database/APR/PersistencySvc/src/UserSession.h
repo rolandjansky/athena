@@ -9,7 +9,6 @@
 
 namespace pool {
 
-  class IFileCatalog;
   class DatabaseConnectionPolicy;
 
   namespace PersistencySvc {

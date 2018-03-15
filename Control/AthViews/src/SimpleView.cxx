@@ -22,6 +22,13 @@ SimpleView::SimpleView( std::string Name, bool AllowFallThrough ) :
 {
 }
 
+SimpleView::SimpleView( std::string Name, bool AllowFallThrough, std::string const& storeName ) :
+	m_store( storeName, "SimpleView" ),
+	m_name( Name ),
+  m_allowFallThrough( AllowFallThrough )
+{
+}
+
 SimpleView::~SimpleView()
 {
 }

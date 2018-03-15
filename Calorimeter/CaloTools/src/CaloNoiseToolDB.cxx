@@ -16,6 +16,8 @@
 #include "CLHEP/Random/RandGauss.h"
 
 #include "TMath.h"
+#include <boost/math/special_functions/erf.hpp>
+
 
 using CLHEP::RandGauss;
 
@@ -747,8 +749,13 @@ CaloNoiseToolDB::calcSig(double e, double sigma1, double ratio, double sigma2) {
   //  return z;
  
   // if instead you want to return the sigma-equivalent C.L.
-  // (with sign!) use the following line
-  return sqrt2*TMath::ErfInverse(z);
+  // (with sign!) use the following lines
+  
+  //erf_inv throws an exception for z >= 1.0: TMath::ErfInverse() returns 0, so keep this behaviour
+  if (std::abs(z) < 1.0) { 
+    return sqrt2*boost::math::erf_inv(z);
+  }
+  return 0.0;
 
 }
 

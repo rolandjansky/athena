@@ -40,7 +40,7 @@ SiPropertiesTool::finalize()
 }
 
 const InDet::SiliconProperties&
-SiPropertiesTool::getSiProperties(const IdentifierHash& elementHash) {
+SiPropertiesTool::getSiProperties(const IdentifierHash& elementHash) const {
   SG::ReadCondHandle<InDet::SiliconPropertiesVector> handle{m_propertiesVector};
   if (handle.isValid()) {
     const InDet::SiliconPropertiesVector* vector{*handle};

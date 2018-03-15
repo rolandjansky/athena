@@ -33,7 +33,7 @@ class ISCT_FlaggedConditionTool: virtual public ISCT_ConditionsTool {
  public:
   //@name Service methods
   //@{
-  virtual ~ISCT_FlaggedConditionTool() {}
+  virtual ~ISCT_FlaggedConditionTool() = default;
 
   /// Creates the InterfaceID and interfaceID() method
   DeclareInterfaceID(ISCT_FlaggedConditionTool, 1, 0);

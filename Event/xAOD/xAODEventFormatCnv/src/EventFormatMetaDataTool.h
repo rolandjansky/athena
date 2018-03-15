@@ -14,7 +14,7 @@
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/StoreGateSvc.h"
 

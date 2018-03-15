@@ -23,6 +23,9 @@ class SCT_DCSConditionsSvcSetup:
         self.svcName = "InDetSCT_DCSConditionsSvc"
         self.svc = None
 
+        self.toolName = "InDetSCT_DCSConditionsTool"
+        self.tool = None
+
     def getStateFolder(self):
         return self.stateFolder
 
@@ -86,6 +89,15 @@ class SCT_DCSConditionsSvcSetup:
     def getSvc(self):
         return self.svc
 
+    def getToolName(self):
+        return self.toolName
+
+    def setToolName(self, toolName):
+        self.toolName = toolName
+
+    def getTool(self):
+        return self.tool
+
     def setFolders(self):
         from IOVDbSvc.CondDB import conddb
 
@@ -134,7 +146,17 @@ class SCT_DCSConditionsSvcSetup:
                                                ReturnHVTemp = self.returnHVTemp)
         self.svc = getattr(ServiceMgr, self.svcName)
 
+    def setTool(self):
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, self.toolName):
+            from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_DCSConditionsTool
+            ToolSvc += SCT_DCSConditionsTool(name = self.toolName,
+                                             ReadAllDBFolders = self.readAllDBFolders,
+                                             ReturnHVTemp = self.returnHVTemp)
+        self.tool = getattr(ToolSvc, self.toolName)
+
     def setup(self):
         self.setFolders()
         self.setAlgs()
         self.setSvc()
+        self.setTool()

@@ -29,7 +29,7 @@ class ISiPropertiesTool: virtual public IAlgTool
   DeclareInterfaceID(ISiPropertiesTool, 1, 0);
 
   /// Get Silicon properties for a given detector element.
-  virtual const InDet::SiliconProperties& getSiProperties(const IdentifierHash& elementHash) = 0;
+  virtual const InDet::SiliconProperties& getSiProperties(const IdentifierHash& elementHash) const = 0;
 };
 
 #endif // ISiPropertiesTool_h

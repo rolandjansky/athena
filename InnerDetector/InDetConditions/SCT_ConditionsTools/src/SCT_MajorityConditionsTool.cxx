@@ -44,7 +44,7 @@ StatusCode SCT_MajorityConditionsTool::finalize() {
 }
 
 // Is the detector good?
-bool SCT_MajorityConditionsTool::isGood() {
+bool SCT_MajorityConditionsTool::isGood() const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
   if (!condData) return false;
@@ -62,7 +62,7 @@ bool SCT_MajorityConditionsTool::isGood() {
 }
 
 // Is a barrel/endcap good?
-bool SCT_MajorityConditionsTool::isGood(int bec) {
+bool SCT_MajorityConditionsTool::isGood(int bec) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
   if (!condData) return false;

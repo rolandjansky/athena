@@ -53,9 +53,6 @@ Comments to be added here...
 #include <sstream>
 #include <sys/stat.h>
 
-using std::vector;
-using std::cout;
-using std::endl;
 
 /// ROOT Classed
 class TF1;
@@ -145,21 +142,21 @@ public :
   float get_tminIntegrationAboveThreshold () const { return tminIntegrationAboveThreshold;};
 */  
   
-  vector <float> get_tStripElectronicsAbThr() const { return tStripElectronicsAbThr;};
-  vector <float> get_qStripElectronics() const { return qStripElectronics;};
-  vector <float> get_finaltStripNoSlewing() const { return finaltStripNoSlewing;};
-  vector < vector <float> > get_finalqStrip() const { return finalqStrip;};
-  vector < vector <float> > get_finaltStrip() const { return finaltStrip;};
-  vector <int>   get_nStripElectronics() const { return nStripElectronics;};
-  vector <int>   get_finalNumberofStrip() const { return finalNumberofStrip;};
+  std::vector <float> get_tStripElectronicsAbThr() const { return tStripElectronicsAbThr;};
+  std::vector <float> get_qStripElectronics() const { return qStripElectronics;};
+  std::vector <float> get_finaltStripNoSlewing() const { return finaltStripNoSlewing;};
+  std::vector < std::vector <float> > get_finalqStrip() const { return finalqStrip;};
+  std::vector < std::vector <float> > get_finaltStrip() const { return finaltStrip;};
+  std::vector <int>   get_nStripElectronics() const { return nStripElectronics;};
+  std::vector <int>   get_finalNumberofStrip() const { return finalNumberofStrip;};
 
-  vector <int>   finalNumberofStrip;
-  vector <int>   nStripElectronics;
-  vector < vector <float> > finalqStrip;
-  vector < vector <float> > finaltStrip;
-  vector <float> finaltStripNoSlewing;
-  vector <float> tStripElectronicsAbThr;
-  vector <float> qStripElectronics;
+  std::vector <int>   finalNumberofStrip;
+  std::vector <int>   nStripElectronics;
+  std::vector < std::vector <float> > finalqStrip;
+  std::vector < std::vector <float> > finaltStrip;
+  std::vector <float> finaltStripNoSlewing;
+  std::vector <float> tStripElectronicsAbThr;
+  std::vector <float> qStripElectronics;
  
   int    nstrip;
   float  temp_polya;
@@ -175,20 +172,20 @@ public :
 // whichStrips()
   int dimClusters; //dimClusters=total number of collisions
   int MaxPrimaryIons;
-  vector <int> stripNumber;
+  std::vector <int> stripNumber;
   double pt,xx, xxDiffussion, yy, yyDiffussion ;
   int primaryion; 
-  vector <int> firstq;
+  std::vector <int> firstq;
   float lmean;
-  vector <float> qstrip; 
-  vector <float> cntTimes;
-  vector <float> tStrip;
-  vector <float> qStrip;
-  vector <float> time;  //Drift velocity [mm/ns]
-  vector <int> numberofStrip;
+  std::vector <float> qstrip; 
+  std::vector <float> cntTimes;
+  std::vector <float> tStrip;
+  std::vector <float> qStrip;
+  std::vector <float> time;  //Drift velocity [mm/ns]
+  std::vector <int> numberofStrip;
   
-  vector <float> clusterelectrons;
-  vector <float> l;
+  std::vector <float> clusterelectrons;
+  std::vector <float> l;
   float totalelectrons;
   float ll;
    

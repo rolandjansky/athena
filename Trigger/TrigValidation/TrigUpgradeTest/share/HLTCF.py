@@ -5,7 +5,7 @@ from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 from TrigUpgradeTest.HLTCFConfig import *
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRoRSeqFilter
-def seqFilter(name, Inputs=[], Outputs=[], Chains=[]):
+def ObsoleteSeqFilter(name, Inputs=[], Outputs=[], Chains=[]):
     global allAlgs
     input_list = list(set(Inputs))
     output_list = list (set(Outputs))
@@ -17,6 +17,23 @@ def seqFilter(name, Inputs=[], Outputs=[], Chains=[]):
     allAlgs[name] = f
     return f
 
+
+
+def seqFilter(name, Inputs=[], Outputs=[], Chains=[]):
+    from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
+    global allAlgs
+    input_list = list(set(Inputs))
+    output_list = list (set(Outputs))
+    chain_list = list (set(Chains))
+    fname = "F_"+name
+    f = RoRSeqFilter(fname, OutputLevel = DEBUG, Input=input_list, Output=output_list,  Chains=chain_list)
+    if "Step1" in name: # so that we see events running through, will be gone once L1 emulation is included
+        f.AlwaysPass = True        
+    allAlgs[name] = f
+    return f
+
+    
+   
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRecoAlg
 def TestRecoAlg(name, Output,  FileName="noreco.dat", Input=""):
     fname = "R_"+name
@@ -33,9 +50,17 @@ def TestHypoAlg(name, Input, Output):
     return h
 
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestMerger
-def merger(name, Inputs, Output ):
+
+def ObsoleteMerger(name, Inputs, Output ):
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestMerger
     return remember(name,   HLTTest__TestMerger( "M_"+name, OutputLevel=DEBUG, Inputs=Inputs, Output=Output ) )
+
+
+def merger(name, Inputs, Output ):
+    from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
+    outdec=["%s_decision"%i for i in Output]
+    return remember(name,   HLTTest__TestInputMaker( "M_"+name, OutputLevel=DEBUG, InputDecisions=Inputs, Output=Output, OutputDecisions=outdec, LinkName="initialRoI" ) )
+
 
 def addSteps(s):
     return seqAND("HLTChainsSeq", s)

@@ -44,7 +44,7 @@ class SCTLorentzAngleSvcSetup:
             msg.error("Setting is wrong: both forceUseDB and forceUseGeoModel cannot be True at the same time")
             return
 
-        # Set up SCT_DCSConditiosnSvc if necessary
+        # Set up SCT_DCSConditiosnSvc/Tool if necessary
         if not forceUseGeoModel:
             from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
             sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
@@ -57,7 +57,7 @@ class SCTLorentzAngleSvcSetup:
             sct_SiliconConditionsToolSetup.setUseDB(False)
             sct_SiliconConditionsToolSetup.setForceUseGeoModel(True)
         else:
-            sct_SiliconConditionsToolSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
+            sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsSvcSetup.getTool())
         sct_SiliconConditionsToolSetup.setup()
         sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()
         self.sctSiliconConditionsTool = sctSiliconConditionsTool
