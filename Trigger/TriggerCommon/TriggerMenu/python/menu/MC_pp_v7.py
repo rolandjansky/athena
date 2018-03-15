@@ -273,13 +273,6 @@ def setupMenu():
         ['j0_perf_ds1_L1All',      'L1_All',  [], ['DataScouting_05_Jets'], ['RATE:Cosmic_Jets_DS', 'BW:Jet'], -1],
         ['j0_lcw_jes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1], 
 
-        #ATR-17198
-        ['j0_perf_ds1_L1J50_DETA20-J50J',     'L1_J50_DETA20-J50J',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
-        ['j110_ds1_L1J100',                    'L1_J100',             [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
-        ['j60_ds1_L1J50_DETA20-J50J',         'L1_J50_DETA20-J50J',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
-	  ['j150_ds1_L1J100',				'L1_J100',		[], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],	
-	  ['j100_ds1_L1J50_DETA20-J50J',		'L1_J50_DETA20-J50J', [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],	
-
         #####
         ######################### Single-jet small-R trigger chains
         #####
@@ -2155,6 +2148,23 @@ def setupMenu():
 
         ['2g10_tight_icalotight_j200_L1J100', 'L1_J100', ['L1_2EM8I','L1_J100'],  [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["2g10_tight_icalotight","j200_L1J100"] ]], 
         ['2g6_tight_icalotight_j200_L1J100', 'L1_J100', ['L1_2EM3','L1_J100'], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["2g6_tight_icalotight","j200_L1J100"] ]],
+
+        #move razor triggers from physics to MC: ATR-17795
+        ['j30_xe10_razor170', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe10']]],
+
+        #razor triggers
+        ['j30_xe10_razor100', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe10']]],
+        ['j30_xe10_razor185', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe10']]],
+        ['j30_xe10_razor195', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe10']]],
+
+        # tighter razor triggers
+        ['j30_xe60_razor100', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe60']]],
+        ['j30_xe60_razor170', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe60']]],
+        ['j30_xe60_razor185', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe60']]],
+        ['j30_xe60_razor195', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe60']]],
+        #ATR-14196
+        ['j30_xe60_razor220', 'L1_2J15_XE55', ['',''], [PhysicsStream], ['Primary:20000','RATE:JetMET', 'BW:Jet'], -1, ['serial',-1,['j30','xe60']]],
+
 
 			 ]
 

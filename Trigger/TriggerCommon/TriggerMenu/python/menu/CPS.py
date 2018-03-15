@@ -599,15 +599,16 @@ def defineCPSGroups():
     if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
 
-          "RATE:CPS:HLT_razor"   :  [''
-                                     'j30_xe10_razor100',
-                                     'j30_xe60_razor100',
-                                     'j30_xe10_razor170',
-                                     'j30_xe10_razor185',
-                                     'j30_xe10_razor195',
-                                     'j30_xe60_razor170',
-                                     'j30_xe60_razor185',
-                                     ],	
+          #Moved from physics to MC menu: ATR-17795
+          #"RATE:CPS:HLT_razor"   :  [''
+           #                          'j30_xe10_razor100',
+           #                          'j30_xe60_razor100',
+           #                          'j30_xe10_razor170',
+           #                          'j30_xe10_razor185',
+           #                          'j30_xe10_razor195',
+           #                          'j30_xe60_razor170',
+           #                          'j30_xe60_razor185',
+           #                          ],	
 
          "RATE:CPS:HLT_mu6_mu4_bBmumu"   : ['mu6_mu4_bBmumu',
 	                                    'mu6_mu4_bBmumu_Lxy0',],
