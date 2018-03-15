@@ -319,7 +319,7 @@ class TrigHltRates(object):
         # finish
         db.closeDatabase()
         self.__sor_eor[runno] = (sor_time, eor_time)
-        return sor_time,eor_time
+        return long(sor_time),long(eor_time)
 
     def __getChains(self,runno):
         """ Private method to get all chain names for a run number """
@@ -392,7 +392,14 @@ class TrigHltRates(object):
         try:
             db=dbSvc.openDatabase(dbconnect,readonly)
             ratefolder=db.getFolder(rate_foldername)
-            rateobjs = ratefolder.browseObjects(int(iov_start), int(iov_end),cool.ChannelSelection(int(coolchannel)),self.__ratetag)
+
+            # 341649 is the last physics run of 2017
+            # Starting 2018, the iov of rate folder is in ns instead of s.
+            if runno > 341649:
+                iov_start = iov_start*1000000000
+                iov_end = iov_end*1000000000
+
+            rateobjs = ratefolder.browseObjects(iov_start, iov_end,cool.ChannelSelection(int(coolchannel)),self.__ratetag)
         except Exception,e:
             msg.error("Can't open DB or get folders, Exception: {0}".format(e))
             raise CantAccessDB
@@ -407,6 +414,12 @@ class TrigHltRates(object):
 
             ratedataexist = 1
 
+            # 341649 is the last physics run of 2017
+            # Starting 2018, the iov of rate folder is in ns instead of s.
+            if runno > 341649:
+                since = since /1E9
+                until = until /1E9
+                print ("since,until = {},{}".format(since,until))
             iov = (since,until)
 
             payload = obj.payload()
