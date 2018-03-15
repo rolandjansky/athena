@@ -1,12 +1,11 @@
 /*
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
-
 // ================================================
-// Run2TriggerTowerMaker class Implementation
+// OverlayRun2TriggerTowerMaker class Implementation
 // ================================================
 
-#include "TrigT1CaloSim/Run2TriggerTowerMaker.h"
+#include "TrigT1CaloSim/OverlayRun2TriggerTowerMaker.h"
 
 // trigger include(s)
 #include "TrigT1CaloCalibConditions/L1CaloModuleType.h"
@@ -76,7 +75,7 @@ namespace {
 
 namespace LVL1 {
 
-  Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocator* pSvcLocator)
+  OverlayRun2TriggerTowerMaker::OverlayRun2TriggerTowerMaker(const std::string& name, ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_rndGenSvc("AtRndmGenSvc", name),
@@ -157,13 +156,13 @@ namespace LVL1 {
     m_sinThetaHash[ (unsigned int)(32 + (3.5*0.425)*10.) ] = 1.0/cosh(3.2 + 3.5*0.425);
   }
 
-  Run2TriggerTowerMaker::~Run2TriggerTowerMaker() {}
+  OverlayRun2TriggerTowerMaker::~OverlayRun2TriggerTowerMaker() {}
 
-  StatusCode Run2TriggerTowerMaker::initialize()
+  StatusCode OverlayRun2TriggerTowerMaker::initialize()
   {
-    ATH_MSG_DEBUG("Initialising");
+    ATH_MSG_INFO("ACH445: Initialising");
 
-    CHECK(detStore()->retrieve(m_caloId));
+    CHECK(detStore()->retrieve(m_caloId).isSuccess());
     CHECK(m_configSvc.retrieve());
     CHECK(m_mappingTool.retrieve());
     CHECK(m_TTtool.retrieve());
@@ -191,13 +190,19 @@ namespace LVL1 {
 
   /** Best if initialisation which uses COOL-derived values is done here
       rather than in initialize() */
-  void Run2TriggerTowerMaker::handle(const Incident& inc)
+  void OverlayRun2TriggerTowerMaker::handle(const Incident& inc)
   {
     if(inc.type() != "BeginRun") return;
     /// Get global scales from configSvc
     double globalScale = m_configSvc->thresholdConfig()->caloInfo().globalScale();
     m_cpLutScale = m_configSvc->thresholdConfig()->caloInfo().globalEmScale();
     m_jepLutScale = m_configSvc->thresholdConfig()->caloInfo().globalJetScale();
+
+    ATH_MSG_INFO("doOverlay: "<<m_doOverlay<<", isReco: "<<m_isReco);
+    if (m_doOverlay && m_isReco) {
+      ATH_MSG_INFO("ACH555: doing nuttin");
+      return;
+    }
 
     ATH_MSG_INFO("REGTEST Digit scale = " << globalScale << " GeV/count");
     ATH_MSG_INFO("REGTEST CP scale = " << m_cpLutScale << " count/GeV");
@@ -217,13 +222,13 @@ namespace LVL1 {
     if(!m_chanCalibContainer || !cDC ||
       !m_disabledTowersContainer || !m_deadChannelsContainer) {
       ATH_MSG_ERROR("Could not retrieve database containers. Aborting ...");
-      throw std::runtime_error("Run2TriggerTowerMaker: database container not accesible");
+      throw std::runtime_error("OverlayRun2TriggerTowerMaker: database container not accesible");
     }
     
     auto* defaults = cDC->pprChanDefaults(0); // non-owning ptr
     if(!defaults) {
       ATH_MSG_ERROR("Could not retrieve channel 0 PprChanDefaults folder. Aborting ...");
-      throw std::runtime_error("Run2TriggerTowerMaker: channel 0 of PprChanDefaults not accesible");
+      throw std::runtime_error("OverlayRun2TriggerTowerMaker: channel 0 of PprChanDefaults not accesible");
     }
     m_chanDefaults = *defaults;    
     
@@ -239,13 +244,13 @@ namespace LVL1 {
       if(!m_chanCalibContaineroverlay || !cDCoverlay ||
         !m_disabledTowersContaineroverlay || !m_deadChannelsContaineroverlay) {
         ATH_MSG_ERROR("Could not retrieve database containers for overlay. Aborting ...");
-        throw std::runtime_error("Run2TriggerTowerMaker: database container for overlay not accesible");
+        throw std::runtime_error("OverlayRun2TriggerTowerMaker: database container for overlay not accesible");
       }
     
       auto* defaultsoverlay = cDCoverlay->pprChanDefaults(0); // non-owning ptr
       if(!defaultsoverlay) {
         ATH_MSG_ERROR("Could not retrieve channel 0 PprChanDefaults folder for overlay. Aborting ...");
-        throw std::runtime_error("Run2TriggerTowerMaker: channel 0 of PprChanDefaults for overlay not accesible");
+        throw std::runtime_error("OverlayRun2TriggerTowerMaker: channel 0 of PprChanDefaults for overlay not accesible");
       }
       m_chanDefaultsoverlay = *defaultsoverlay;
     
@@ -267,25 +272,12 @@ namespace LVL1 {
     if(!ei) {
       ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
     } else {
-      const EventType *eventType = ei->eventInfo().event_type();
-      
-      if (eventType == nullptr){
-        const EventInfo* eventInfo = nullptr;
-        if (evtStore()->retrieve(eventInfo).isSuccess() ) {
-          eventType = eventInfo->event_type();
-        }
-      }
-      
-      if (eventType == nullptr) {
-        ATH_MSG_WARNING("Could not determine if input file is data or simulation. Will assume simulation.");
+      bool isData = !(ei->eventInfo().event_type()->test(EventType::IS_SIMULATION));
+      m_isDataReprocessing = isData;
+      if(m_isDataReprocessing) {
+        ATH_MSG_INFO("Detected data reprocessing. Will take pedestal correction values from input trigger towers.");
       } else {
-        bool isData = !eventType->test(EventType::IS_SIMULATION);
-        m_isDataReprocessing = isData;
-        if(m_isDataReprocessing) {
-          ATH_MSG_INFO("Detected data reprocessing. Will take pedestal correction values from input trigger towers.");
-        } else {
-          ATH_MSG_VERBOSE("No data reprocessing - running normal simulation.");
-        }
+        ATH_MSG_VERBOSE("No data reprocessing - running normal simulation.");
       }
     }
     
@@ -298,7 +290,7 @@ namespace LVL1 {
     
   }
 
-  StatusCode Run2TriggerTowerMaker::finalize() {
+  StatusCode OverlayRun2TriggerTowerMaker::finalize() {
     ATH_MSG_DEBUG("Finalizing");
     return StatusCode::SUCCESS;
   }
@@ -306,7 +298,7 @@ namespace LVL1 {
   /** Checks that the Cell Type is supported (terminates with errors if not)
       and calls relevant routine to look for the cells.
   */
-  StatusCode Run2TriggerTowerMaker::execute() {
+  StatusCode OverlayRun2TriggerTowerMaker::execute() {
     ATH_MSG_VERBOSE("Executing");
 
     if (m_isReco && m_doOverlay) return StatusCode::SUCCESS; // nothing to to, since we did overlay and made towers during digi
@@ -316,6 +308,9 @@ namespace LVL1 {
     m_xaodTowers->setStore(m_xaodTowersAux.get());
     m_xaodTowers->resize(7168); // avoid frequent reallocations
     m_curIndex = 0u;
+
+    ATH_MSG_INFO("ACH555: inputTTLocation is "<<m_inputTTLocation);
+    if ("NoneForOverlay"==m_inputTTLocation) return StatusCode::SUCCESS; // ACH - do nothin for overlay during reco
 
     switch(m_cellType) {
     case TRIGGERTOWERS:
@@ -349,21 +344,21 @@ namespace LVL1 {
   }
   
   /** Database helper functions for dead and disabled towers **/
-  bool Run2TriggerTowerMaker::IsDeadChannel(const L1CaloPpmDeadChannels* db) const
+  bool OverlayRun2TriggerTowerMaker::IsDeadChannel(const L1CaloPpmDeadChannels* db) const
   {
     if (!db) return false; // No DB entry - assume that this is not a dead channel
     if (db->errorCode() > 0 || db->noiseCut() > 0) return true; // We do not want these 
     return false;
   }
   
-  bool Run2TriggerTowerMaker::IsDisabledChannel(const L1CaloDisabledTowers* db) const
+  bool OverlayRun2TriggerTowerMaker::IsDisabledChannel(const L1CaloDisabledTowers* db) const
   {
     if (!db) return false; // No DB entry - assume that this is not a disabled channel
     if (db->disabledBits() > 0) return true; // We do not want these
     return false;
   }
   
-  bool Run2TriggerTowerMaker::IsGoodTower(const xAOD::TriggerTower* tt,const L1CaloPpmDeadChannelsContainer* dead,const L1CaloDisabledTowersContainer* disabled) const
+  bool OverlayRun2TriggerTowerMaker::IsGoodTower(const xAOD::TriggerTower* tt,const L1CaloPpmDeadChannelsContainer* dead,const L1CaloDisabledTowersContainer* disabled) const
   {
     bool isDead = IsDeadChannel(dead->ppmDeadChannels(tt->coolId()));
     bool isDisabled = IsDisabledChannel(disabled->disabledTowers(tt->coolId()));
@@ -371,7 +366,7 @@ namespace LVL1 {
     return false;
   }
 
-  StatusCode Run2TriggerTowerMaker::addOverlay(const int eventBCID)
+  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const int eventBCID)
   {
     // Get the overlay data TTs from Bytestream
     xAOD::TriggerTowerContainer* overlayDataTTs = new xAOD::TriggerTowerContainer();
@@ -449,7 +444,7 @@ namespace LVL1 {
   }
   
   /** Add the overlay TriggerTower to the signal TriggerTower **/
-  StatusCode Run2TriggerTowerMaker::addOverlay(const int eventBCID,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT)
+  StatusCode OverlayRun2TriggerTowerMaker::addOverlay(const int eventBCID,xAOD::TriggerTower* sigTT,xAOD::TriggerTower* ovTT)
   {
     // Get the relevant databases 
     const L1CaloPprChanCalib* sigDB = m_chanCalibContainer->pprChanCalib(sigTT->coolId());
@@ -494,7 +489,7 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
   }
   
-  StatusCode Run2TriggerTowerMaker::calcLutOutCP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output)
+  StatusCode OverlayRun2TriggerTowerMaker::calcLutOutCP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output)
   {
     if (sigDB->lutCpStrategy() > 2 || ovDB->lutCpStrategy() > 2) {
       ATH_MSG_ERROR("Cannot process calcLutOutCP as lutCpStrategy > 2");
@@ -515,7 +510,7 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
   }
   
-  StatusCode Run2TriggerTowerMaker::calcLutOutJEP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output)
+  StatusCode OverlayRun2TriggerTowerMaker::calcLutOutJEP(const std::vector<int>& sigLutIn,const L1CaloPprChanCalib* sigDB,const std::vector<int>& ovLutIn,const L1CaloPprChanCalib* ovDB,std::vector<int>& output)
   {
     if (sigDB->lutJepStrategy() > 2 || ovDB->lutJepStrategy() > 2) {
       ATH_MSG_ERROR("Cannot process calcLutOutJEP as lutJepStrategy > 2");
@@ -536,7 +531,7 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
   }  
   
-  void Run2TriggerTowerMaker::calcCombinedLUT(const std::vector<int>& sigIN,const int sigSlope,const int sigOffset,
+  void OverlayRun2TriggerTowerMaker::calcCombinedLUT(const std::vector<int>& sigIN,const int sigSlope,const int sigOffset,
                               const std::vector<int>& ovIN,const int ovSlope,const int ovOffset,const int ovNoiseCut,std::vector<int>& output)
   {
     // Modified version of TrigT1CaloTools/src/L1TriggerTowerTool
@@ -571,9 +566,9 @@ namespace LVL1 {
     }     
   }
   
-  StatusCode Run2TriggerTowerMaker::preProcessTower_getLutIn(const int eventBCID,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output)
+  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower_getLutIn(const int eventBCID,xAOD::TriggerTower* tower,const L1CaloPprChanCalib* db,const std::vector<int>& digits,std::vector<int>& output)
   {
-    // factorised version of Run2TriggerTowerMaker::preProcessTower 
+    // factorised version of OverlayRun2TriggerTowerMaker::preProcessTower 
     
     // process tower -- digital filter
     std::vector<int> fir;
@@ -621,7 +616,7 @@ namespace LVL1 {
     return StatusCode::SUCCESS; 
   }
   
-  void Run2TriggerTowerMaker::normaliseDigits(const std::vector<int>& sigDigits,const std::vector<int>& ovDigits,std::vector<int>& normDigits)
+  void OverlayRun2TriggerTowerMaker::normaliseDigits(const std::vector<int>& sigDigits,const std::vector<int>& ovDigits,std::vector<int>& normDigits)
   {
 
     // 3 possible cases:
@@ -657,7 +652,7 @@ namespace LVL1 {
 
   /** Emulate FIR filter, bunch-crossing identification & LUT, and create & fill
       TriggerTowers. */
-  StatusCode Run2TriggerTowerMaker::preProcess(const int eventBCID)
+  StatusCode OverlayRun2TriggerTowerMaker::preProcess(const int eventBCID)
   {
     // Loop over all existing towers and simulate preprocessor functions
     for(auto tower : *m_xaodTowers) {
@@ -666,7 +661,7 @@ namespace LVL1 {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode Run2TriggerTowerMaker::preProcessTower(const int eventBCID,xAOD::TriggerTower *tower)
+  StatusCode OverlayRun2TriggerTowerMaker::preProcessTower(const int eventBCID,xAOD::TriggerTower *tower)
   {
     
     const L1CaloPprChanCalib* chanCalib =  m_chanCalibContainer->pprChanCalib(tower->coolId());
@@ -849,9 +844,6 @@ namespace LVL1 {
       etResultVectorJep[0] = 0;
     }
 
-    // Overlay protection
-    if (m_inputTTLocation == "NoneForOverlay") return StatusCode::SUCCESS;
-
     tower->setLut_cp(std::move(etResultVectorCp));
     tower->setLut_jep(std::move(etResultVectorJep));
     tower->setBcidVec({uint8_t(BCIDOut[BCIDOut.size()/2])});
@@ -884,7 +876,7 @@ namespace LVL1 {
 
       Returns FAILURE if the towers could not be saved.
   */
-  StatusCode Run2TriggerTowerMaker::store()
+  StatusCode OverlayRun2TriggerTowerMaker::store()
   {
     ATH_MSG_DEBUG("Storing TTs in DataVector");
     if(m_outputLocation.empty()) return StatusCode::SUCCESS;
@@ -902,12 +894,12 @@ namespace LVL1 {
     CHECK(evtStore()->record(m_xaodTowersAux.release(), m_outputLocation+"Aux."));
 
     return StatusCode::SUCCESS;
-  } // end of LVL1::Run2TriggerTowerMaker::store(){
+  } // end of LVL1::OverlayRun2TriggerTowerMaker::store(){
 
 
   /** gets TriggerTowers from input collection and copies ADC digits into
       xAOD::TriggerTowers for reprocessing */
-  StatusCode Run2TriggerTowerMaker::getTriggerTowers()
+  StatusCode OverlayRun2TriggerTowerMaker::getTriggerTowers()
   {
     const xAOD::TriggerTowerContainer* inputTTs = nullptr;
     ATH_MSG_INFO("Retrieve input TriggerTowers " << m_inputTTLocation);
@@ -934,7 +926,7 @@ namespace LVL1 {
   } // end of getTriggerTowers()
 
   /** fetches LAr & Tile calorimeter towers */
-  StatusCode Run2TriggerTowerMaker::getCaloTowers()
+  StatusCode OverlayRun2TriggerTowerMaker::getCaloTowers()
   {
     // Find LAr towers in TES
     StatusCode sc1;
@@ -1002,7 +994,7 @@ namespace LVL1 {
   }
 
   /** steps over Calo towers and creates/fills trigger towers */
-  void Run2TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
+  void OverlayRun2TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
   {
     int towerNumber=0;
     for(const auto& tower : *towers){
@@ -1047,7 +1039,7 @@ namespace LVL1 {
     } // end for loop
   }
 
-  void Run2TriggerTowerMaker::processTileTowers(const TileTTL1Container * towers)
+  void OverlayRun2TriggerTowerMaker::processTileTowers(const TileTTL1Container * towers)
   {
     // Step over all towers
     int towerNumber=0;
@@ -1109,7 +1101,7 @@ namespace LVL1 {
   }
 
   /** Digitize pulses and store results back in xAOD::TriggerTowers */
-  void Run2TriggerTowerMaker::digitize()
+  void OverlayRun2TriggerTowerMaker::digitize()
   {
     // Loop over all existing towers and digitize pulses
     for(auto tower : *m_xaodTowers) {
@@ -1121,7 +1113,7 @@ namespace LVL1 {
     }
   }
 
-  std::vector<int> Run2TriggerTowerMaker::ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps) const
+  std::vector<int> OverlayRun2TriggerTowerMaker::ADC(L1CaloCoolChannelId channel, const std::vector<double>& amps) const
   {
     auto* chanCalib = m_chanCalibContainer->pprChanCalib(channel);
     if(!chanCalib) { ATH_MSG_WARNING("No database entry for tower " << channel.id()); return {}; }
@@ -1145,14 +1137,14 @@ namespace LVL1 {
     return digits;
   }
 
-  int Run2TriggerTowerMaker::EtRange(int et, unsigned short bcidEnergyRangeLow, unsigned short bcidEnergyRangeHigh) const
+  int OverlayRun2TriggerTowerMaker::EtRange(int et, unsigned short bcidEnergyRangeLow, unsigned short bcidEnergyRangeHigh) const
   {
     if(et < bcidEnergyRangeLow)  return 0;
     if(et < bcidEnergyRangeHigh) return 1;
     return 2;
   }
-  
-  double Run2TriggerTowerMaker::IDeta(const Identifier& id, const CaloLVL1_ID* l1id)
+
+  double OverlayRun2TriggerTowerMaker::IDeta(const Identifier& id, const CaloLVL1_ID* l1id)
   {
     int region = l1id->region(id);
     int ieta = l1id->eta(id);
@@ -1173,7 +1165,7 @@ namespace LVL1 {
   }
 
 
-  double Run2TriggerTowerMaker::IDphi(const Identifier& id, const CaloLVL1_ID* l1id)
+  double OverlayRun2TriggerTowerMaker::IDphi(const Identifier& id, const CaloLVL1_ID* l1id)
   {
     Identifier regId = l1id->region_id(id);
 
@@ -1188,7 +1180,7 @@ namespace LVL1 {
       Unlike L1TriggerTowerTool::channelID this function can cope with old geometries (hence
       the hard-coded numbers). So don't remove this until all ATLAS-CSC datasets are irrevokably
       deprecated */
-  L1CaloCoolChannelId Run2TriggerTowerMaker::channelId(double eta, double phi, int layer)
+  L1CaloCoolChannelId OverlayRun2TriggerTowerMaker::channelId(double eta, double phi, int layer)
   {
     int crate, module, channel;
     m_mappingTool->mapping(eta, phi, layer, crate, module, channel);
@@ -1198,7 +1190,7 @@ namespace LVL1 {
     return L1CaloCoolChannelId(crate, L1CaloModuleType::Ppm, slot, pin, asic, false);
   }
 
-  int Run2TriggerTowerMaker::etaToElement(float feta, int layer) const
+  int OverlayRun2TriggerTowerMaker::etaToElement(float feta, int layer) const
   {
     constexpr static int NELEMENTS = 33;
     /// Get integer eta bin
@@ -1237,7 +1229,7 @@ namespace LVL1 {
   // This should actually go into LVL1::L1TriggerTowerTools (TrigT1CaloTools)
   // but for now we keep it here to keep the number of touched packages small
   // and make it easier to change some parts of the definition later on.
-  int Run2TriggerTowerMaker::non_linear_lut(int lutin, unsigned short offset, unsigned short slope, unsigned short noiseCut, unsigned short scale, short par1, short par2, short par3, short par4) {
+  int OverlayRun2TriggerTowerMaker::non_linear_lut(int lutin, unsigned short offset, unsigned short slope, unsigned short noiseCut, unsigned short scale, short par1, short par2, short par3, short par4) {
     // turn shorts into double (database fields are shorts ... )
 
     // turn shorts into double
