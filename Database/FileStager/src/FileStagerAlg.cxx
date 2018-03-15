@@ -58,9 +58,6 @@ FileStagerAlg::FileStagerAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
   m_stopwatch = new TStopwatch();
   m_waithist = new TH1D("stagehist","Time for next file to finish staging (s)",600,0.,60.);
-
-  // file statistics about number of bytes processed by root
-  TCopyFile::PrintInfo();
 }
 
 
@@ -68,9 +65,6 @@ FileStagerAlg::~FileStagerAlg()
 {
   if (m_stopwatch) delete m_stopwatch;
   if (m_waithist) delete m_waithist;
-
-  // file statistics about number of bytes processed by root
-  TCopyFile::PrintInfo();
 
   // release last file 
   // ... assuming is has been closed by pool ;-)
@@ -108,6 +102,9 @@ FileStagerAlg::initialize()
   setupNextFile();
 
   log << MSG::DEBUG << name() << "Initialize() successful" << endmsg;
+
+  // file statistics about number of bytes processed by root
+  TCopyFile::PrintInfo();
   return StatusCode::SUCCESS;
 }
 
@@ -140,6 +137,9 @@ FileStagerAlg::finalize()
   }
 
   // release remaining staged files in destructor
+
+  // file statistics about number of bytes processed by root
+  TCopyFile::PrintInfo();
 
   log << MSG::DEBUG << name() << "Finalize() successful" << endmsg;
   return StatusCode::SUCCESS;
