@@ -911,24 +911,6 @@ def setupMenu():
         ['tau25_perf_tracktwo2015',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_medium1_tracktwo2015',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 
-        # TracktwoEF
-        ['tau25_idperf_tracktwoEF',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_perf_tracktwoEF',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_medium1_tracktwoEF',                     'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        # MVA TES (ATR-17687)
-        ['tau25_idperf_tracktwoEFmvaTES',                'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_perf_tracktwoEFmvaTES',                  'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_medium1NoPt_tracktwoEFmvaTES',           'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-
-        # expected 2018 config: MVA TES + BDT track counting + RNN TauID
-        ['tau25_idperf_tracktwoMVA',                      'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_perf_tracktwoMVA',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_verylooseRNN_tracktwoMVA',                'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_looseRNN_tracktwoMVA',                    'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_mediumRNN_tracktwoMVA',                   'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-        ['tau25_tightRNN_tracktwoMVA',                    'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
-
-
         # Run-I comparison
         ['tau20_r1medium1',                        'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau20_r1perf',                           'L1_TAU12', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
@@ -3206,18 +3188,6 @@ ps_perform_list = [
     'tau5_perf_ptonly_L1TAU8',
     'tau80_medium1_calo',
     'tau80_medium1_track',
-    'tau25_idperf_tracktwoEF',
-    'tau25_perf_tracktwoEF',
-    'tau25_medium1_tracktwoEF',
-    'tau25_idperf_tracktwoEFmvaTES',
-    'tau25_perf_tracktwoEFmvaTES',
-    'tau25_medium1NoPt_tracktwoEFmvaTES',
-    'tau25_idperf_tracktwoMVA',
-    'tau25_perf_tracktwoMVA',
-    'tau25_verylooseRNN_tracktwoMVA',
-    'tau25_looseRNN_tracktwoMVA',
-    'tau25_mediumRNN_tracktwoMVA',
-    'tau25_tightRNN_tracktwoMVA',         
     'tau35_perf_ptonly_tau25_perf_ptonly_L1TAU20IM_2TAU12IM',
     'j0_perf_bperf_L1J12_EMPTY',
     'j0_perf_bperf_L1MU10',
