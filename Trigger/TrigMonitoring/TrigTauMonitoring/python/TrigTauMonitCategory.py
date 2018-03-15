@@ -26,7 +26,7 @@ monitoring_singleTau = 'tau25_medium1_tracktwo'
 monitoring_tau = [
     'tau0_perf_ptonly_L1TAU12',
     'tau0_perf_ptonly_L1TAU100', #TES change. 'tau0_perf_ptonly_L1TAU60',
-    'tau25_idperf_track',
+    #'tau25_idperf_track',
     'tau25_idperf_tracktwo',
     'tau25_perf_tracktwo',
     'tau25_medium1_tracktwo',
@@ -47,7 +47,7 @@ monitoring_tau = [
 monitoring_tau_pp = [
     'tau0_perf_ptonly_L1TAU12',
     'tau0_perf_ptonly_L1TAU100',
-    'tau25_idperf_track',
+    #'tau25_idperf_track',
     'tau25_idperf_tracktwo',
     'tau25_idperf_tracktwoMVA',
     'tau25_perf_tracktwo',
@@ -104,7 +104,7 @@ monitoring_tau_pp = [
 monitoring_tau_validation = [
     'tau0_perf_ptonly_L1TAU12',
     'tau0_perf_ptonly_L1TAU100', # 'tau0_perf_ptonly_L1TAU60',
-    'tau25_idperf_track',
+    #'tau25_idperf_track',
     'tau25_idperf_tracktwo',
     'tau25_idperf_tracktwoMVA',
     'tau25_perf_ptonly',

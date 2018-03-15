@@ -116,6 +116,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
     addHistogram(new TH1F("hEFEMFraction", "Em Fraction at EF; EM Fraction at EF; Candidates",50,-0.05,1.1));
     addHistogram(new TH1F("hScore1p", "1p BDT Score; HLT BDT Score; Candidates",50,0.,1.));
     addHistogram(new TH1F("hScoremp", "mp BDT Score; HLT BDT Score; Candidates",50,0.,1.));
+    addHistogram(new TH1F("hScoreSigTrans1p", "1p BDT Score (signal transformed/flattened); HLT BDT Score; Candidates",50,0.,1.));
+    addHistogram(new TH1F("hScoreSigTransmp", "mp BDT Score (signal transformed/flattened); HLT BDT Score; Candidates",50,0.,1.));
     //BDT inputs for 1-prong Non-Corrected
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/BDT/1p_nonCorrected",run));
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/BDT/1p_nonCorrected");
@@ -164,6 +166,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		addProfile(new TProfile("hEFmassTrkSysMPNCmu", "MassTrkSys at EF vs mu m-prong non-corrected;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
 		addProfile(new TProfile("hEFmEflowApproxMPNCmu", "mEflowApprox at EF vs mu m-prong non-corrected;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));	
 	}
+/* // These were condsidered not needed for the time being
     //BDT inputs for 1-prong mu-Corrected
     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/BDT/1p_Corrected",run));
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/BDT/1p_Corrected");
@@ -212,6 +215,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		addProfile(new TProfile("hEFmassTrkSysMPCmu", "MassTrkSys at EF vs mu m-prong mu-corrected;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
 		addProfile(new TProfile("hEFmEflowApproxMPCmu", "mEflowApprox at EF vs mu m-prong mu-corrected;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
 	}
+*/ // end of mu-corrected BDT inputs
 	// RNN variables
 	if (m_doRNNInOutMonitoring && isMVAtrig) 
 	{

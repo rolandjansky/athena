@@ -680,8 +680,8 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 	  sc = fillEFTau(*CI, trigItem, "basicVars");
 	  sc = fillEFTau(*CI, trigItem, "1p_NonCorr");
 	  sc = fillEFTau(*CI, trigItem, "mp_NonCorr");
-	  sc = fillEFTau(*CI, trigItem, "1p_muCorr");
-	  sc = fillEFTau(*CI, trigItem, "mp_muCorr");
+	  //sc = fillEFTau(*CI, trigItem, "1p_muCorr");
+	  //sc = fillEFTau(*CI, trigItem, "mp_muCorr");
 	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
     if(isMVAtrig && m_doRNNInOutMonitoring) {
       sc = fillEFTau(*CI, trigItem, "RNN_inScalar_1P");
@@ -893,8 +893,8 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "basicVars");
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_NonCorr");
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_NonCorr");
-     		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_muCorr");
-     		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_muCorr");
+     		//if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_muCorr");
+     		//if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_muCorr");
      		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
      		if(isMVAtrig && m_doRNNInOutMonitoring) {
      		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_1P");
@@ -1072,6 +1072,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   float EMFrac = -1.0;
 //  float PSSFraction = 0;
   float BDTJetScore = 0;
+  float BDTJetScoreSigTrans = 0;
   float innerTrkAvgDist = 0;
   float etOverPtLeadTrk = 0;
   float ipSigLeadTrk = 0;
@@ -1084,7 +1085,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   float dRmax = 0;
   float mEflowApprox = 0;
   float ptRatioEflowApprox = 0;
-
+/*
   float innerTrkAvgDistCorr = 0;
   float etOverPtLeadTrkCorr = 0;
   float ipSigLeadTrkCorr = 0;
@@ -1097,6 +1098,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   float dRmaxCorr = 0;
   float mEflowApproxCorr = 0;
   float ptRatioEflowApproxCorr = 0;
+*/
   float mu = 0;
 
   int EFnTrack(-1);
@@ -1166,6 +1168,14 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	  if(is1P) hist("hScore1p")->Fill(BDTJetScore);
 	  if(isMP) hist("hScoremp")->Fill(BDTJetScore);
 	}
+	BDTJetScoreSigTrans = aEFTau->discriminant(xAOD::TauJetParameters::TauID::BDTJetScoreSigTrans);
+      if( BDTJetScoreSigTrans )
+	{
+	  if(is1P) hist("hScoreSigTrans1p")->Fill(BDTJetScoreSigTrans);
+	  if(isMP) hist("hScoreSigTransmp")->Fill(BDTJetScoreSigTrans);
+	}
+
+
     }
   else if(BDTinput_type == "1p_NonCorr")
     {
@@ -1274,7 +1284,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	    }
         }
     }
-  else if(BDTinput_type == "1p_muCorr")
+/*  else if(BDTinput_type == "1p_muCorr")
     {
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/BDT/1p_Corrected");
       if(is1P)
@@ -1377,7 +1387,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFmEflowApproxMPCmu")->Fill(mu, mEflowApproxCorr);
 	    }
         }
-    }
+    }*/
   else if(BDTinput_type == "RNN_inScalar_1P")
     {
 		// RNN Input Variables
