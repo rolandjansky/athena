@@ -7,9 +7,9 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetTrackingGeometry/SiLayerBuilder.h"
-#include "InDetTrackingGeometry/PixelOverlapDescriptor.h"
-#include "InDetTrackingGeometry/SCT_OverlapDescriptor.h"
-#include "InDetTrackingGeometry/DiscOverlapDescriptor.h"
+#include "InDetTrackingGeometryUtils/PixelOverlapDescriptor.h"
+#include "InDetTrackingGeometryUtils/SCT_OverlapDescriptor.h"
+#include "InDetTrackingGeometryUtils/DiscOverlapDescriptor.h"
 //InDet include
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
@@ -732,7 +732,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
               
        // this causes a reverse order for the phi sectors
        if (reverseRsectors){
-           ATH_MSG_VERBOSE("Auto-detect: rings in R are in " << ( reverseRsectors ? "reversed" : "standard") << " order.");
+           ATH_MSG_VERBOSE("Auto-detect: rings in R are in reversed order.");
            std::reverse(discPhiSectors[discCounter].begin(),discPhiSectors[discCounter].end());
            std::reverse(discPhiMin[discCounter].begin(),discPhiMin[discCounter].end()); 
            std::reverse(discPhiMax[discCounter].begin(),discPhiMax[discCounter].end()); 
@@ -888,7 +888,7 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
 	    for ( ; binIter != singleBinUtils->end(); ++binIter)
 	      BinUtils->push_back((*binIter)->clone());
 	  }
-	  olDescriptor = new  InDet::DiscOverlapDescriptor(currentBinnedArray, BinUtils);
+	  olDescriptor = new  InDet::DiscOverlapDescriptor(m_pixelCase, currentBinnedArray, BinUtils);
 	}
         
         // layer creation

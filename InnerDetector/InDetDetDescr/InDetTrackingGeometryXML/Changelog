@@ -1,0 +1,263 @@
+2017-09-15 Noemi Calace <noemi.calace@cern.ch>
+	* Adding configuration for Step2 layouts with 25x100
+	* tagged as InDetTrackingGeometryXML-00-00-71
+
+2017-07-13 Sharka Todorova <sarka.todorova@cern.ch>
+	* import LightBrl(v1.9) and LightBrl(v2)
+	* tag as InDetTrackingGeometryXML-00-00-70
+	 
+2017-06-28 Sharka Todorova <sarka.todorova@cern.ch>
+	* adding forgotten initialization of the radial tilt
+
+2017-06-27 Sharka Todorova <sarka.todorova@cern.ch>
+	* adding tilt around radial axis for inclined modules
+	* tag as InDetTrackingGeometryXML-00-00-68
+	 
+
+2017-06-18 Ben Smart <Ben.Smart@cern.ch>
+	* Adding 3D sensors for pixel layer zero of Inclined Quads and Inclined Duals layouts
+
+2017-06-09 Nathan Readioff <nathan.peter.readioff@cern.ch>
+	* InclinedDuals Layers now feature phi rotation
+2017-06-09 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing module definition in ITK_PixelModules.xml
+2017-06-09 Noemi Calace <noemi.calace@cern.ch>
+	* Adding flag in the GMXReaderSvc to add the BCL in the IdDictionary
+
+
+2017-06-08 Alessandro Calandri <alessandro.calandri@cern.ch>
+	* Adding CMOS modules in ITK_PixelModules.xml
+	
+2017-06-06 Nathan Readioff <nathan.peter.readioff@cern.ch>
+	* Including InclinedDual XMl
+	* InclinedQuads Layers now feature phi rotation
+2017-05-31 Noemi Calace <Noemi.Calace@cern.ch>
+	* Including implementation of the InclinedQuad
+	* Updating again for the split ring offset implementation
+	* Tag as InDetTrackingGeometryXML-00-00-66
+
+2017-05-24 Noemi Calace <Noemi.Calace@cern.ch>
+	* Updating builder to adapt changes in the split rings
+	* Tag as InDetTrackingGeometryXML-00-00-65
+
+2017-05-10 Noemi Calace <Noemi.Calace@cern.ch>
+	* Updating builder to adapt changes in the AlpineLayer and PixelOverlapDescriptor
+	* Tag as InDetTrackingGeometryXML-00-00-64
+
+2017-04-27 Nathan Readioff <nathan.peter.readioff@cern.ch> (on behalf of Noemi Calace)
+	* Fixed XML for AlternativeInclined L0/L1 stave tilt
+	* Tag as InDetTrackingGeometryXML-00-00-63
+	
+2017-05-03 Noemi Calace <Noemi.Calace@cern.ch>
+	* Completing AlternativeInclined
+	* Tag as InDetTrackingGeometryXML-00-00-62
+
+2017-04-27 Nathan Readioff <nathan.peter.readioff@cern.ch>
+	* Added L3 phi rotation for InclBrl4 InclinedQuads layout
+	* Tag as InDetTrackingGeometryXML-00-00-61
+
+2017-04-25 Noemi Calace <Noemi.Calace@cern.ch>
+	* Adding xmls for AlternativeInclined
+	* Tag as InDetTrackingGeometryXML-00-00-60
+
+2017-04-21 Noemi Calace <Noemi.Calace@cern.ch>
+	* Correcting xmls for Inclined_Quads
+	* Tag as InDetTrackingGeometryXML-00-00-59
+
+2017-04-19 Nathan Readioff <nathan.peter.readioff@cern.ch>
+	* Added xml for InclBrl4 InclinedQuads layout
+	* Tag as InDetTrackingGeometryXML-00-00-58
+
+2017-03-13 Simon Viel
+        * Add optimised ring system for Inclined layout with 25x100 pixels
+        * Tag as InDetTrackingGeometryXML-00-00-57
+
+2017-02-20 Thorsten Kuhl
+        * add <chipGap> 0. </chipGap> to Frontendchips in XML where missing
+        * Tag as InDetTrackingGeometryXML-00-00-56
+
+2017-01-29 Noemi Calace <Noemi.Calace@cern.ch>
+	* Checking Optimised ring system for Inclined layout
+	* Tag as InDetTrackingGeometryXML-00-00-55
+
+2017-01-12 Noemi Calace <Noemi.Calace@cern.ch>
+	* Fixing CMakeLists.txt
+	* Tag as InDetTrackingGeometryXML-00-00-54
+
+2017-01-04 Sharka Todorova <sarka.todorova@cern.ch>
+	* Fixing Phi limits in binning
+	* Tag as InDetTrackingGeometryXML-00-00-53
+
+2016-11-23 Noemi Calace <Noemi.Calace@cern.ch>
+	* Fixing Phi binning in the BinUtility in the mis-alignment case
+	* Tag as InDetTrackingGeometryXML-00-00-52
+
+2016-10-27 Thorsten Kuhl <thorsten.kuhl@cern.ch>
+	* cleaning up log file output (first iteration)
+	* Tag as InDetTrackingGeometryXML-00-00-51
+
+2016-10-11 Noemi Calace <noemi.calace@cern.ch>
+        * removing trt dictionary creation
+        * Tag as InDetTrackingGeometryXML-00-00-50
+
+2016-10-06 Noemi Calace <noemi.calace@cern.ch>
+        * Restoring trt dictionary creation to run on step1.5 RDOs
+        * Tag as InDetTrackingGeometryXML-00-00-49
+
+2016-09-30 Simon Viel
+        * Create ExtBrl4Ref33mm, identical to ExtBrl4Ref except for the innermost pixel barrel radius (nominal is 39 mm)
+        * Tag as InDetTrackingGeometryXML-00-00-48
+
+2016-09-30 Simon Viel
+        * Thin pixel sensors (100 um instead of 150 um) for ITk inside the IST
+        * Tag as InDetTrackingGeometryXML-00-00-47
+
+2016-09-27 Noemi Calace <noemi.calace@cern.ch>
+	* Bugfix on top of InDetTrackingGeometryXML-00-00-45
+	* Tag as InDetTrackingGeometryXML-00-00-46
+
+2016-09-27 Noemi Calace <noemi.calace@cern.ch>
+	* Adding the SurfaceArray to Alpine Layers in the BarrelBuilderXML (needed for Tracking!!)
+	* Tag as InDetTrackingGeometryXML-00-00-44 and InDetTrackingGeometryXML-00-00-45
+
+2016-09-19 Noemi Calace <noemi.calace@cern.ch>
+	* Creation of the dictionary on-the-fly for GMX-based strip
+	* Tag as InDetTrackingGeometryXML-00-00-43
+
+2016-07-04 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing dictionary for GMX-based strip
+	* Tag as InDetTrackingGeometryXML-00-00-42
+
+2016-06-14 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing typo
+	* Tag as InDetTrackingGeometryXML-00-00-41
+
+2016-06-07 Noemi Calace <noemi.calace@cern.ch>
+	* Add dictionary fragment for gmx based strip
+	* Tag as InDetTrackingGeometryXML-00-00-40
+
+2016-06-01 Sabine Elles
+	* Add XML-CLOB read from geometry DB
+	* Tag as InDetTrackingGeometryXML-00-00-39
+
+2016-04-28 Sabine Elles
+	* Add CMakeLists.txt
+	* Tag as InDetTrackingGeometryXML-00-00-38
+
+2016-04-21 Simon Viel
+        * Remove copied ModuleGeo XML blocks from ITK_PixelModules.xml
+        * Move ITK_PixelModulesGeo.xml from PixelLayoutUtils/data into InDetTrackingGeometryXML/share
+        * tagged as InDetTrackingGeometryXML-00-00-37
+
+2016-04-15 Simon Viel
+        * Temporary fix for 25 x 100 micron pixels ("hybridMat" segfault):
+            copy ModuleGeo XML blocks into ITK_PixelModules.xml
+        * tagged as InDetTrackingGeometryXML-00-00-36
+
+2016-04-12 Simon Viel
+        * InclBrl4 layout with 25 x 100 micron pixels available
+        * tagged as InDetTrackingGeometryXML-00-00-35
+
+2016-04-08 Simon Viel
+        * ExtBrl4 layout with 25 x 100 micron pixels available
+        * tagged as InDetTrackingGeometryXML-00-00-34
+
+2016-03-21 Noemi Calace <noemi.calace@cern.ch>
+	* Adding BinnedLayerMaterial to layers
+	* Adding custom material flag
+	* Adding segmentation for the material layers
+	* tagged as InDetTrackingGeometryXML-00-00-33
+
+2016-02-18 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing tilt angle in the barrel region of inclined layouts
+	* tagged as InDetTrackingGeometryXML-00-00-32
+
+2016-02-17 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing tilt angle in the barrel region of inclined layouts
+	* tagged as InDetTrackingGeometryXML-00-00-30 and InDetTrackingGeometryXML-00-00-31
+
+2016-02-16 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing 5mm shift in FourLayersNoStub_23-25-dev0 layout
+	* tagged as InDetTrackingGeometryXML-00-00-29
+
+2016-02-11 Sabine Elles
+	* Update moduel size : set to chip size without outer edges 
+	       in order to match the SiDetectorElement surface size 
+	* Fix inlined module Z position (based on sensor thickness not on module thickness)
+	* Tag as InDetTrackingGeometryXML-00-00-28
+
+2016-02-04 Eric Feng <Eric.Feng@cern.ch>
+	* Correcting bug in stereo angle in Strip endcap from [-40, 40] mrad to [-20, 20]:
+	  share/FourLayersNoStub_23-25-dev0_SCTEndcap.xml
+	* Tagged as InDetTrackingGeometryXML-00-00-27
+
+2016-02-04 Noemi Calace <noemi.calace@cern.ch>
+	* Fixing identifiers and module phi position
+	* REMEMBER: You need to have InDetTrackingGeometryUtils to make it work
+        * tagged as InDetTrackingGeometryXML-00-00-26
+
+2016-02-03 Noemi Calace <noemi.calace@cern.ch>
+	* Adding the OverlapDescriptors
+	* You need to have InDetTrackingGeometryUtils to make it work
+        * tagged as InDetTrackingGeometryXML-00-00-25
+
+2016-01-31 Noemi Calace <noemi.calace@cern.ch>
+	* Changing Barrel description for IExtBrl4Ref layout
+        * tagged as InDetTrackingGeometryXML-00-00-24
+
+2016-01-29 Noemi Calace <noemi.calace@cern.ch>
+	* Adding phi offset for layers
+        * tagged as InDetTrackingGeometryXML-00-00-23
+
+2016-01-27 Noemi Calace <noemi.calace@cern.ch>
+        * Adding creation of the dictionary folder if it doesn't exist
+        * tagged as InDetTrackingGeometryXML-00-00-22
+
+2016-01-26 Noemi Calace <noemi.calace@cern.ch>
+        * Fixing memory leak: https://its.cern.ch/jira/browse/ATLPHYSVAL-386
+        * Thanks to Robert Harrington and Shaun Roe
+        * tagged as InDetTrackingGeometryXML-00-00-21
+
+2016-01-24 Noemi Calace <noemi.calace@cern.ch>
+	* Added changes to fix binUtiliy errors for Barrel and Endcaps
+	* tagged as InDetTrackingGeometryXML-00-00-20
+
+2016-01-24 Noemi Calace <noemi.calace@cern.ch>
+	* Adding FourLayersNoStub_23-25-dev0 layout to match Strip fro GeoModel 
+	* with SCT_Version = SCT_SLHC_05 and SLHC_Version = 23-25-dev0
+	* tagged as InDetTrackingGeometryXML-00-00-19
+
+2016-01-11 Noemi Calace <noemi.calace@cern.ch>
+	* Updated z displacement in pixel rings description: moving to 6mm
+	* tagged as InDetTrackingGeometryXML-00-00-18
+
+2015-12-16 Noemi Calace <noemi.calace@cern.ch>
+	* Fixed a bug in the bin utility segmentation for the barrel	
+	* tagged as InDetTrackingGeometryXML-00-00-17
+
+2015-12-15 Noemi Calace <noemi.calace@cern.ch>
+	* Many changes in the builder to add DiscSurface representation for trapezoidal modules
+        * Updating layout description: changing to RD53 modules
+        * Updating layout description: moving to 0.5 mm gap for rings
+	* tagged as InDetTrackingGeometryXML-00-00-16
+
+2015-12-10 Sabine Elles
+	* Update pixl module names IBL/RD53 and xml description files
+	* tagged as InDetTrackingGeometryXML-00-00-15
+
+2015-11-30 Sabine Elles
+	* Adding XMLReader jobProperties
+	* Adapt ConfiguredSLHC script to new tracking geometry interface
+	
+2015-11-14 Noemi Calace <noemi.calace@cern.ch>
+	* Adding module tilt on the top of the stave tilt (J. Leveque)
+	* Adding InclBrl layouts
+	* tagged as InDetTrackingGeometryXML-00-00-12
+	
+
+2015-11-03 Noemi Calace <noemi.calace@cern.ch>
+        * Adding surfaces to layer association
+	* tagged as InDetTrackingGeometryXML-00-00-11
+
+2015-06-16 Remi Lafaye < Remi.Lafaye -at- cern.ch >
+        * Initial import

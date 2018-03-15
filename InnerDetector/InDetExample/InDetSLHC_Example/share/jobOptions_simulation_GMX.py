@@ -10,9 +10,9 @@ import random
 if 'randomSeedPhrase' not in dir() :
     randomSeedPhrase = "youSexyThing"
 random.seed(randomSeedPhrase)
-simFlags.RandomSeedList.addSeed('VERTEX',  random.randint(10000, 99999999), random.randint(10000, 99999999))
-simFlags.RandomSeedList.addSeed('AtlasG4', random.randint(10000, 99999999), random.randint(10000, 99999999))
-simFlags.RandomSeedList.addSeed('SINGLE',  random.randint(10000, 99999999), random.randint(10000, 99999999))
+SimFlags.RandomSeedList.addSeed('VERTEX',  random.randint(10000, 99999999), random.randint(10000, 99999999))
+SimFlags.RandomSeedList.addSeed('AtlasG4', random.randint(10000, 99999999), random.randint(10000, 99999999))
+SimFlags.RandomSeedList.addSeed('SINGLE',  random.randint(10000, 99999999), random.randint(10000, 99999999))
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolHitsOutput = "singleMuon_" + randomSeedPhrase + "_slhc_Hits.pool.root"
@@ -27,12 +27,12 @@ athenaCommonFlags.PoolEvgenInput.set_Off()
 import AthenaCommon.AtlasUnixGeneratorJob
 import ParticleGun as PG
 
-from G4AtlasApps.SimFlags import simFlags
+from G4AtlasApps.SimFlags import SimFlags
 # The following will work in later releases than 20.0 (From Nick) for breaking up jobs: athena -c 'myRandomSeed = 777'
 #if 'myRandomSeed' not in dir() :
 #    myRandomSeed = 12398190
-#pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE", randomSeed=myRandomSeed)
-pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+#pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE", randomSeed=myRandomSeed)
+pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
 pg.sampler.pid = 13
 pg.sampler.mom = PG.PtEtaMPhiSampler(pt=100000, eta=[-2.7, 2.7])
 
@@ -43,10 +43,8 @@ topSeq += pg
 #    from GeneratorModules.GeneratorModulesConf import CopyEventWeight
 #topSeq += CopyEventWeight(TruthCollKey="GEN_EVENT")
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()
 
 # Output
 MessageSvc.defaultLimit = 500

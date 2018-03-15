@@ -136,6 +136,8 @@ private:
   std::string              m_corrDBFolder;
   bool                     m_pixelDefaults;
   bool                     m_sctDefaults;
+  bool                     m_ITkL03D;          // dirty hack while we develop the ITk to use the cond DB for Si cond - Ben Smart
+  double                   m_depletedFraction;
 
   // needed services
   ServiceHandle<ISiliconConditionsSvc>   m_siConditionsSvc;

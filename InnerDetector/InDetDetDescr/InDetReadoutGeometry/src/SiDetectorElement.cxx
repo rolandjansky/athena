@@ -629,8 +629,33 @@ bool SiDetectorElement::isNextToInnermostPixelLayer() const
   }
 }  
 
+int SiDetectorElement::getPixelLayer() const {
+  if( isPixel() ){
+    const PixelID *p_pixelId = static_cast<const PixelID *>(getIdHelper());
+    return p_pixelId->layer_disk(m_id);
+  }else{
+    return -1;
+  }
+}
 
-  Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const
+bool SiDetectorElement::isInclined() const {
+  if (isPixel() && isBarrel()) {
+    double myNormalZ = this->normal()[Amg::z];
+    // inclined barrel modules (in the ITk Step 2.2 Inclined Duals layout)
+    // have myNormalZ values of -0.965926 or -0.829044.
+    // Flat barrel modules have myNormalZ = 0
+    // in a perfectly-aligned detector
+    // but once misalignment is added, perhaps the value of 0 below should be changed
+    // to 0.1 or whatever is a reasonable value.
+    double epsilon = 0.1;
+    return(fabs(myNormalZ) > epsilon);
+  }
+  else {
+    return false;
+  }
+}
+
+Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const
 {
   Amg::Vector2D correctedPosition(position);
   correctedPosition[distPhi] += getLorentzCorrection();

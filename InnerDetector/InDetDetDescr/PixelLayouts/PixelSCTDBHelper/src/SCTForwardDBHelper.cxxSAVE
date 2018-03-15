@@ -1,0 +1,820 @@
+#include "SCTLayoutStdTools/SCTForwardDBHelper.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+#include <cmath>
+
+using std::abs;
+
+const double SCT_SAFETY = 0.01 * CLHEP::mm; // Used in some places to make envelopes slightly larger to ensure
+                                     // no overlaps due to rounding errors.
+
+
+
+InDet::SCTForwardDBHelper::SCTForwardDBHelper(const OraclePixGeoAccessor* geoAccessor):
+  m_geoAccessor(geoAccessor)
+{
+
+  m_fwdRing = geoAccessor->getTable("SctFwdRing");
+  m_fwdWheel = geoAccessor->getTable("SctFwdWheel");
+  m_fwdWheelRingMap = geoAccessor->getTable("SctFwdWheelRingMap");
+  m_fwdDiscSupport = geoAccessor->getTable("SctFwdDiscSupport");
+  m_fwdPatchPanelLoc = geoAccessor->getTable("SctFwdPatchPanelLoc");
+  m_fwdPatchPanel = geoAccessor->getTable("SctFwdPatchPanel");
+  m_fwdPPConnector = geoAccessor->getTable("SctFwdPPConnector");
+  m_fwdPPCooling = geoAccessor->getTable("SctFwdPPCooling");
+  m_fwdCoolingBlock = geoAccessor->getTable("SctFwdCoolingBlock");
+  m_fwdRingServices = geoAccessor->getTable("SctFwdRingServices");
+  m_fwdServices = geoAccessor->getTable("SctFwdServices");
+  m_fwdFSILocation = geoAccessor->getTable("SctFwdFSILocation");
+  m_fwdFSIType = geoAccessor->getTable("SctFwdFSIType");
+  m_fwdFSI = geoAccessor->getTable("SctFwdFSI");
+  m_fwdThermalShield = geoAccessor->getTable("SctFwdThermalShield");
+  m_fwdGeneral = geoAccessor->getTable("SctFwdGeneral");
+  m_fwdOptoHarness = geoAccessor->getTable("SctFwdOptoHarness");
+  m_fwdDiscFixation = geoAccessor->getTable("SctFwdDiscFixation");
+  m_fwdCylServ = geoAccessor->getTable("SctFwdCylServ");
+  m_fwdCylServLoc = geoAccessor->getTable("SctFwdCylServLoc");
+
+}
+
+//
+// General
+//
+double 
+InDet::SCTForwardDBHelper::safety() const
+{
+  return SCT_SAFETY;
+}
+
+
+//
+// Barrel Ski
+//
+int 
+InDet::SCTForwardDBHelper::skiFirstStagger() const
+{
+  return m_geoAccessor->getInt(skiTable,"SKIFIRSTSTAGGER");
+}
+
+double 
+InDet::SCTForwardDBHelper::skiRadialSep() const
+{
+  return m_geoAccessor->getDouble(skiTable,"SKIRADIALSEP") * CLHEP::mm;
+}
+
+int
+InDet::SCTForwardDBHelper::modulesPerSki() const
+{
+  //  return m_rdb->brlSkiZSize();
+  return m_geoAccessor->getTableSize(skiZTable);
+}
+
+
+//
+// Forward Ring
+//
+int 
+SCTForwardDBHelper::fwdRingNumModules(int iRing) const
+{
+  return m_geoAccessor->fwdRing(iRing)->getInt("NUMMODULES");
+}
+
+double
+SCTForwardDBHelper::fwdRingModuleStagger(int iRing) const
+{
+  return m_geoAccessor->fwdRing(iRing)->getDouble("MODULESTAGGER") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdRingPhiOfRefModule(int iRing) const
+{
+  return m_geoAccessor->fwdRing(iRing)->getDouble("PHIOFREFMODULE") * CLHEP::deg;
+}
+
+
+int
+SCTForwardDBHelper::fwdRingUsualRingSide(int iRing) const
+{
+  return  m_geoAccessor->fwdRing(iRing)->getInt("USUALRINGSIDE");
+}
+
+double
+SCTForwardDBHelper::fwdRingDistToDiscCenter(int iRing) const
+{
+  return m_geoAccessor->fwdRing(iRing)->getDouble("RINGTODISCCENTER") * CLHEP::mm;
+}
+
+
+
+//
+// Forward Wheel
+//
+double
+SCTForwardDBHelper::fwdWheelZPosition(int iWheel) const
+{
+  return m_geoAccessor->fwdWheel(iWheel)->getDouble("ZPOSITION") * CLHEP::mm;
+}
+
+// Returns +/-1 
+int
+SCTForwardDBHelper::fwdWheelStereoType(int iWheel) const
+{
+  return m_geoAccessor->fwdWheel(iWheel)->getInt("STEREOTYPE");
+}
+
+int
+SCTForwardDBHelper::fwdWheelNumRings(int iWheel) const
+{
+  return m_geoAccessor->fwdWheel(iWheel)->getInt("NUMRINGS");
+}
+
+
+int 
+SCTForwardDBHelper::fwdWheelRingMapIndex(int iWheel, int iRing, int ec) const
+{
+  // In SCT_GeoModel the wheel number is generally 0-8. 
+  // In the table "SctFwdWheelRingMap" the wheel number is 1 to 9.
+
+  // The postive and negative endcap are not identical.  If the negative
+  // endcap is different from the positive endcap there will be in an entry
+  // with the wheel number negative. For the negative endcap we first look for
+  // an entry with -ve wheel number. If no entry wee try the positive endcap.
+
+  int iWheelDB = iWheel + 1;
+
+  // If it is in the -ve endcap we first look for an entry with -ve wheel number 
+  int index = -1;
+  if (ec < 0) {
+    index = fwdWheelRingMapIndexDB(-iWheelDB, iRing);
+    if (index >= 0) return index;
+  }
+  // Look for it in the positive endcap
+  index = fwdWheelRingMapIndexDB(iWheelDB, iRing);
+  if (index < 0) {
+    std::cout << "Wheel (numbering from 1)" << iWheelDB << ", Ring " << iRing 
+	      << " not in table SctFwdWheelRingMap" << std::endl;
+  }
+  return index;
+}
+
+// Get index in SctFwdWheelRing table for wheel/ring combination
+// It just loops through the table until it finds a match. 
+// This is not particularly efficient but its fine for the purpose.
+// Returns -1 if not found.
+
+int 
+SCTForwardDBHelper::fwdWheelRingMapIndexDB(int iWheelDB, int iRing) const
+{
+
+  for (int i=0; i < m_geoAccessor->fwdWheelRingMapSize(); i++) {
+    if ((m_geoAccessor->fwdWheelRingMap(i)->getInt("WHEELNUM") == iWheelDB) &&
+      (m_geoAccessor->fwdWheelRingMap(i)->getInt("RINGNUM") == iRing))
+    {
+      return i;
+      break; 
+    }
+  }
+  return -1;
+}
+
+int
+SCTForwardDBHelper::fwdRingStaggerOfRefModule(int iWheel, int iRing, int ec) const
+{
+  int index = fwdWheelRingMapIndex(iWheel, iRing, ec);
+  if (index < 0) return 0;
+  return m_geoAccessor->fwdWheelRingMap(index)->getInt("STAGGEROFREFMODULE");
+}
+
+
+int
+SCTForwardDBHelper::fwdWheelRingSide(int iWheel, int iRing, int ec) const
+{
+  int index = fwdWheelRingMapIndex(iWheel, iRing, ec);
+  if (index < 0) return 0;
+  return m_geoAccessor->fwdWheelRingMap(index)->getInt("SIDE");
+}
+
+
+int
+SCTForwardDBHelper::fwdWheelModuleType(int iWheel, int iRing, int ec) const
+{
+  int index = fwdWheelRingMapIndex(iWheel, iRing, ec);
+  if (index < 0) return 0;
+  return m_geoAccessor->fwdWheelRingMap(index)->getInt("MODULETYPE");
+}
+
+
+//
+// Forward DiscSupport
+//
+
+double
+SCTForwardDBHelper::fwdDiscSupportInnerRadius() const
+{
+  return m_geoAccessor->fwdDiscSupport()->getDouble("INNERRADIUS") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdDiscSupportOuterRadius() const
+{
+  return m_geoAccessor->fwdDiscSupport()->getDouble("OUTERRADIUS") * CLHEP::mm;
+}
+ 
+double
+SCTForwardDBHelper::fwdDiscSupportThickness() const
+{
+  return m_geoAccessor->fwdDiscSupport()->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdDiscSupportMaterial() const
+{
+  return m_geoAccessor->fwdDiscSupport()->getString("MATERIAL");
+}
+
+//
+// Forward PatchPanel
+//
+int
+SCTForwardDBHelper::fwdNumPatchPanelLocs() const
+{
+  return m_geoAccessor->fwdPatchPanelLocSize();
+}
+
+int
+SCTForwardDBHelper::fwdPatchPanelType(int iLoc) const
+{
+  return m_geoAccessor->fwdPatchPanelLoc(iLoc)->getInt("TYPENUM");
+}
+
+double
+SCTForwardDBHelper::fwdPatchPanelLocAngle(int iLoc) const
+{
+  return m_geoAccessor->fwdPatchPanelLoc(iLoc)->getDouble("LOCANGLE") * CLHEP::degree;
+}
+
+bool
+SCTForwardDBHelper::fwdPatchPanelRepeatQuadrant(int iLoc) const
+{
+  return m_geoAccessor->fwdPatchPanelLoc(iLoc)->getInt("REPEATQUADRANT");
+}
+
+int
+SCTForwardDBHelper::fwdNumPatchPanelTypes() const
+{
+  return m_geoAccessor->fwdPatchPanelSize();
+}
+
+double
+SCTForwardDBHelper::fwdPatchPanelThickness(int iType) const
+{
+  return m_geoAccessor->fwdPatchPanel(iType)->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdPatchPanelMidRadius(int iType) const
+{
+  return m_geoAccessor->fwdPatchPanel(iType)->getDouble("MIDRADIUS") * CLHEP::mm;
+}
+
+ 
+double
+SCTForwardDBHelper::fwdPatchPanelDeltaR(int iType) const
+{
+  return m_geoAccessor->fwdPatchPanel(iType)->getDouble("DELTAR") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdPatchPanelRPhi(int iType) const
+{
+  return m_geoAccessor->fwdPatchPanel(iType)->getDouble("RPHI") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdPatchPanelMaterial(int iType) const
+{
+  return m_geoAccessor->fwdPatchPanel(iType)->getString("MATERIAL");
+}
+
+//
+// Forward PatchPanel Connector
+//
+bool
+SCTForwardDBHelper::fwdPPConnectorPresent() const
+{
+  if (m_geoAccessor->fwdPPCoolingSize() > 0) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+double
+SCTForwardDBHelper::fwdPPConnectorThickness() const
+{
+  return m_geoAccessor->fwdPPConnector()->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdPPConnectorDeltaR() const
+{
+  return m_geoAccessor->fwdPPConnector()->getDouble("DELTAR") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdPPConnectorRPhi() const
+{
+  return m_geoAccessor->fwdPPConnector()->getDouble("RPHI") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdPPConnectorMaterial() const
+{
+ return m_geoAccessor->fwdPPConnector()->getString("MATERIAL");
+}
+
+//
+// Forward PatchPanel Cooling
+//
+bool
+SCTForwardDBHelper::fwdPPCoolingPresent() const
+{
+  if (m_geoAccessor->fwdPPCoolingSize() > 0) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+double
+SCTForwardDBHelper::fwdPPCoolingThickness() const
+{
+  return m_geoAccessor->fwdPPCooling()->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdPPCoolingDeltaR() const
+{
+  return m_geoAccessor->fwdPPCooling()->getDouble("DELTAR") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdPPCoolingRPhi() const
+{
+  return m_geoAccessor->fwdPPCooling()->getDouble("RPHI") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdPPCoolingMaterial() const
+{
+ return m_geoAccessor->fwdPPCooling()->getString("MATERIAL");
+}
+
+//
+// Cooling Block
+//
+int
+SCTForwardDBHelper::fwdCoolingBlockHiLo(int iType) const
+{
+  return m_geoAccessor->fwdCoolingBlock(iType)->getInt("HILO");
+}
+
+int
+SCTForwardDBHelper::fwdCoolingBlockMainOrSecondary(int iType) const
+{
+  // true is main, false is secondary
+  return m_geoAccessor->fwdCoolingBlock(iType)->getInt("MAINSECONDARY");
+}
+
+double
+SCTForwardDBHelper::fwdCoolingBlockDeltaR(int iType) const
+{
+  return m_geoAccessor->fwdCoolingBlock(iType)->getDouble("DELTAR") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdCoolingBlockRPhi(int iType) const
+{
+  return m_geoAccessor->fwdCoolingBlock(iType)->getDouble("RPHI") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdCoolingBlockThickness(int iType) const
+{
+  return m_geoAccessor->fwdCoolingBlock(iType)->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdCoolingBlockOffsetFromDisc(int iType) const
+{
+  return m_geoAccessor->fwdCoolingBlock(iType)->getDouble("OFFSETFROMDISC") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdCoolingBlockMaterial(int iType) const
+{
+  return m_geoAccessor->fwdCoolingBlock(iType)->getString("MATERIAL");
+}
+
+
+//
+// Forward DiscPowerTape
+//
+double 
+SCTForwardDBHelper::fwdDiscPowerTapeInnerRadius(int iRing) const
+{
+  return m_geoAccessor->fwdRingServices(iRing)->getDouble("POWERTAPEINNERRADIUS") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdDiscPowerTapeOuterRadius(int iRing) const
+{
+  return m_geoAccessor->fwdRingServices(iRing)->getDouble("POWERTAPEOUTERRADIUS") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdDiscPowerTapeThickness(int iRing) const
+{
+  return m_geoAccessor->fwdRingServices(iRing)->getDouble("POWERTAPETHICKNESS") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdDiscPowerTapeMaterial(int iRing) const
+{
+  return m_geoAccessor->fwdRingServices(iRing)->getString("POWERTAPEMATERIAL");
+}
+
+
+
+//
+// Forward RingCooling
+//
+double 
+SCTForwardDBHelper::fwdRingCoolingInnerRadius(int iRing) const
+{
+  return m_geoAccessor->fwdRingServices(iRing)->getDouble("COOLINGINNERRADIUS") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdRingCoolingOuterRadius(int iRing) const
+{
+  return m_geoAccessor->fwdRingServices(iRing)->getDouble("COOLINGOUTERRADIUS") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdRingCoolingThickness(int iRing) const
+{
+  return m_geoAccessor->fwdRingServices(iRing)->getDouble("COOLINGTHICKNESS") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdRingCoolingMaterial(int iRing) const
+{
+  return m_geoAccessor->fwdRingServices(iRing)->getString("COOLINGMATERIAL");
+}
+
+//
+// Forward Disc Fixation
+//
+bool
+SCTForwardDBHelper::fwdDiscFixationPresent() const
+{
+  if (m_geoAccessor->fwdDiscFixationTable()->size() > 0) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+double
+SCTForwardDBHelper::fwdDiscFixationThickness() const
+{
+  return m_geoAccessor->fwdDiscFixation()->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdDiscFixationRadius() const
+{
+  return m_geoAccessor->fwdDiscFixation()->getDouble("RADIUS") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdDiscFixationMaterial() const
+{
+  return m_geoAccessor->fwdDiscFixation()->getString("MATERIAL");
+}
+
+//
+// Forward SupportFrame
+//
+double 
+SCTForwardDBHelper::fwdSupportFrameRadialThickness() const
+{
+  return m_geoAccessor->fwdServices()->getDouble("SUPPORTFRAMEDELTAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdSupportFrameInnerRadius() const
+{
+  return m_geoAccessor->fwdServices()->getDouble("SUPPORTFRAMEINNERRAD") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdSupportFrameZMin() const 
+{
+  return m_geoAccessor->fwdServices()->getDouble("SUPPORTFRAMEZMIN") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdSupportFrameZMax() const 
+{
+  return m_geoAccessor->fwdServices()->getDouble("SUPPORTFRAMEZMAX") * CLHEP::mm;
+} 
+
+std::string 
+SCTForwardDBHelper::fwdSupportFrameMaterial() const 
+{
+  return m_geoAccessor->fwdServices()->getString("SUPPORTFRAMEMATERIAL");
+} 
+
+//
+// Forward CoolingPipe
+//
+double
+SCTForwardDBHelper::fwdCoolingPipeRadius() const
+{
+  return m_geoAccessor->fwdServices()->getDouble("COOLINGPIPERADIUS") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdCoolingPipeMaterial() const
+{
+  return m_geoAccessor->fwdServices()->getString("COOLINGPIPEMATERIAL");
+}
+
+//
+// Forward PowerTape
+//
+double
+SCTForwardDBHelper::fwdPowerTapeCrossSectArea() const
+{
+  return m_geoAccessor->fwdServices()->getDouble("POWERTAPECROSSSECT") * CLHEP::mm2;
+}
+
+
+std::string
+SCTForwardDBHelper::fwdPowerTapeMaterial() const
+{ 
+  return m_geoAccessor->fwdServices()->getString("POWERTAPEMATERIAL");
+}
+
+//
+// FSI
+//
+int 
+SCTForwardDBHelper::fwdFSINumGeomTypes() const
+{
+  return m_geoAccessor->fwdFSITypeSize();
+}
+
+double
+SCTForwardDBHelper::fwdFSIGeomDeltaR(int iType) const
+{
+  return m_geoAccessor->fwdFSIType(iType)->getDouble("DELTAR") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdFSIGeomRPhi(int iType) const
+{
+  return m_geoAccessor->fwdFSIType(iType)->getDouble("RPHI") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdFSIGeomThickness(int iType) const
+{
+  // Fix for SCT-DC3-03. May be removed when ATLAS-DC3-07 is obsolete.
+  if (iType == 0 && m_geoAccessor->versionTag() == "SCT-DC3-03") return  26*CLHEP::mm;
+  return m_geoAccessor->fwdFSIType(iType)->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdFSIGeomMaterial(int iType) const
+{
+  return m_geoAccessor->fwdFSIType(iType)->getString("MATERIAL");
+}
+
+double
+SCTForwardDBHelper::fwdFSIGeomZOffset(int iType) const
+{
+  // Fix for SCT-DC3-03. May be removed when ATLAS-DC3-07 is obsolete.
+  if (iType == 0 && m_geoAccessor->versionTag() == "SCT-DC3-03") return  22*CLHEP::mm;
+  return m_geoAccessor->fwdFSIType(iType)->getDouble("ZOFFSET") * CLHEP::mm;
+}
+
+
+const FSIHelper & 
+SCTForwardDBHelper::fsiHelper() const
+{
+  if (!m_fsiHelper) m_fsiHelper = new FSIHelper(m_geoAccessor);
+  return *m_fsiHelper;
+}
+
+
+const std::vector<const FSIDetails *> &
+SCTForwardDBHelper::fsiVector(int iWheel) const
+{
+  return fsiHelper().fsiVector(iWheel);
+}
+
+
+//
+// Forward Cylinder Services
+//
+bool
+SCTForwardDBHelper::fwdCylinderServicePresent() const
+{
+  if (m_geoAccessor->fwdCylServSize() > 0) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+int
+SCTForwardDBHelper::fwdNumCylinderServiceLocs() const
+{
+
+  return m_geoAccessor->fwdCylServLocSize();
+}
+
+std::string
+SCTForwardDBHelper::fwdCylinderServiceLocName(int iLoc) const
+{
+  return m_geoAccessor->fwdCylServLoc(iLoc)->getString("NAME");
+}
+
+double
+SCTForwardDBHelper::fwdCylinderServiceLocAngle(int iLoc) const
+{
+  return m_geoAccessor->fwdCylServLoc(iLoc)->getDouble("LOCANGLE") * CLHEP::degree;
+}
+
+int
+SCTForwardDBHelper::fwdNumCylinderServiceTypes() const
+{
+  return m_geoAccessor->fwdCylServSize();
+}
+
+std::string
+SCTForwardDBHelper::fwdCylinderServiceName(int iType) const
+{
+  return m_geoAccessor->fwdCylServ(iType)->getString("NAME");
+}
+
+std::string
+SCTForwardDBHelper::fwdCylinderServiceMaterial(int iType) const
+{
+  return m_geoAccessor->fwdCylServ(iType)->getString("MATERIAL");
+}
+
+double
+SCTForwardDBHelper::fwdCylinderServiceDeltaR(int iType) const
+{
+  return m_geoAccessor->fwdCylServ(iType)->getDouble("DELTAR") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdCylinderServiceRPhi(int iType) const
+{
+  return m_geoAccessor->fwdCylServ(iType)->getDouble("RPHI") * CLHEP::mm;
+}
+
+//
+// Forward ThermalShieldElement
+//
+int
+SCTForwardDBHelper::fwdNumThermalShieldElements() const
+{
+  return m_geoAccessor->fwdThermalShieldSize();
+}
+
+std::string
+SCTForwardDBHelper::fwdThermalShieldMaterial(int iElement) const
+{
+  return m_geoAccessor->fwdThermalShield(iElement)->getString("MATERIAL");
+}
+
+double
+SCTForwardDBHelper::fwdThermalShieldInnerRadius(int iElement) const
+{
+  return m_geoAccessor->fwdThermalShield(iElement)->getDouble("INNERRADIUS") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdThermalShieldOuterRadius(int iElement) const
+{
+  return m_geoAccessor->fwdThermalShield(iElement)->getDouble("OUTERRADIUS") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdThermalShieldZMin(int iElement) const 
+{
+  return m_geoAccessor->fwdThermalShield(iElement)->getDouble("ZMIN") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdThermalShieldZMax(int iElement) const 
+{
+  return m_geoAccessor->fwdThermalShield(iElement)->getDouble("ZMAX") * CLHEP::mm;
+} 
+
+
+//
+// Forward General
+//
+int
+SCTForwardDBHelper::fwdNumWheels() const
+{
+  return m_geoAccessor->fwdGeneral()->getInt("NUMWHEELS");
+}
+
+double
+SCTForwardDBHelper::fwdInnerRadius() const
+{
+  return m_geoAccessor->fwdGeneral()->getDouble("INNERRADIUS") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdOuterRadius() const
+{
+  return m_geoAccessor->fwdGeneral()->getDouble("OUTERRADIUS") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdZMin() const
+{
+  return m_geoAccessor->fwdGeneral()->getDouble("ZMIN") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdZMax() const
+{
+  return m_geoAccessor->fwdGeneral()->getDouble("ZMAX") * CLHEP::mm;
+}
+
+double
+SCTForwardDBHelper::fwdTrtGapPos() const
+{
+  return m_geoAccessor->fwdGeneral()->getDouble("TRTGAPPOS") * CLHEP::mm;
+}
+
+//
+// OptoHarness
+//
+bool
+SCTForwardDBHelper::fwdOptoHarnessPresent() const
+{
+  if (m_geoAccessor->fwdOptoHarnessTable()->size() > 0) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+int 
+SCTForwardDBHelper::fwdOptoHarnessDiscType(int index) const
+{
+  return m_geoAccessor->fwdOptoHarness(index)->getInt("DISCTYPE");
+}
+
+double 
+SCTForwardDBHelper::fwdOptoHarnessInnerRadius(int index) const
+{
+  return m_geoAccessor->fwdOptoHarness(index)->getDouble("INNERRADIUS") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdOptoHarnessOuterRadius(int index) const
+{
+  return m_geoAccessor->fwdOptoHarness(index)->getDouble("OUTERRADIUS") * CLHEP::mm;
+}
+
+double 
+SCTForwardDBHelper::fwdOptoHarnessThickness(int index) const
+{
+  return m_geoAccessor->fwdOptoHarness(index)->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+std::string
+SCTForwardDBHelper::fwdOptoHarnessMaterial(int index) const
+{
+  return m_geoAccessor->fwdOptoHarness(index)->getString("MATERIAL");
+}
+
+
+

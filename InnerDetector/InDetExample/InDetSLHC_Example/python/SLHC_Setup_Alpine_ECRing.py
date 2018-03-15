@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 """ SLHC_Setup
     Python module to hold storegate keys of InDet objects.
 """
@@ -17,6 +15,9 @@ class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
       
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from AthenaCommon.AppMgr import ToolSvc as toolSvc
+
         # Only use local text file and dictionary if SLHC_Version set
         if (SLHC_Flags.SLHC_Version() and not (SLHC_Flags.SLHC_Version() == 'None')) : 
 
@@ -39,7 +40,6 @@ class SLHC_Setup :
             database_full_path_name = database_file_path+'/'+database_file
 
             # Pass text file name to GeometryDBSvc
-            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             if not hasattr(svcMgr,'InDetGeometryDBSvc'):
                 from GeometryDBSvc.GeometryDBSvcConf import GeometryDBSvc
                 svcMgr+=GeometryDBSvc("InDetGeometryDBSvc")
@@ -58,10 +58,9 @@ class SLHC_Setup :
         else:
             print 'SLHC_Setup: Geometry coming fully from database'
             
-        # Alignments have to disabled for Pixels
-        from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-        pixelTool =  PixelDetectorTool()
-        pixelTool.Alignable = False
+##        # Alignments have to disabled for Pixels
+##        pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
+##        pixelTool.Alignable = False
 
         # GeoModelConfiguration 
         xmlFileDict={}
@@ -86,9 +85,6 @@ class SLHC_Setup :
                 os.environ[envName]=fileName
                 print "ENV ",envName," ",fileName
 
-
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaCommon.AppMgr import ToolSvc as toolSvc
 
         # Service used to build module geometry
         from PixelModuleTool.PixelModuleToolConf import PixelModuleBuilder
@@ -117,10 +113,12 @@ class SLHC_Setup :
         
         print "******************************************************************************************"
         
+        print "PixelGeoModel - import GeoPixelLayerECRingTool"
         from PixelLayoutECRing.PixelLayoutECRingConf import GeoPixelLayerECRingTool
         geoECLayerTool=GeoPixelLayerECRingTool(name="GeoPixelLayerECRingTool")
         toolSvc+=geoECLayerTool
         
+        print "PixelGeoModel - import GeoPixelEndcapECRingTool"
         from PixelLayoutECRing.PixelLayoutECRingConf import GeoPixelEndcapECRingTool
         geoEndcapTool=GeoPixelEndcapECRingTool(name="GeoPixelEndcapECRingTool")
         geoEndcapTool.GeoPixelEndcapLayerTool = geoECLayerTool
@@ -139,8 +137,7 @@ class SLHC_Setup :
         
         print "******************************************************************************************"
         
-        from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-        pixelTool =  PixelDetectorTool()
+        pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
         pixelTool.Alignable = False
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
