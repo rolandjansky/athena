@@ -49,3 +49,7 @@ atlas_add_alias( setupWorkArea "setupWorkArea.py" )
 atlas_add_alias( tc-submit-tag "tcSubmitTag.py" )
 atlas_add_alias( getMetadata "getMetadata.py" )
 atlas_add_alias( xAODBrowser "xAODBrowser.py" )
+
+# Tests:
+atlas_add_test( xAODBrowserTests
+	SCRIPT test/xAODBrowserTests.py )
