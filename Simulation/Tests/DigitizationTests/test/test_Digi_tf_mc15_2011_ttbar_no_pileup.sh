@@ -2,6 +2,7 @@
 #
 # art-description: Run digitization of an MC15 ttbar sample with 2011 geometry and conditions, without pile-up
 # art-type: grid
+# art-output: mc15_2011_ttbar_no_pileup.RDO.pool.root
 
 DigiOutFileName="mc15_2011_ttbar_no_pileup.RDO.pool.root"
 

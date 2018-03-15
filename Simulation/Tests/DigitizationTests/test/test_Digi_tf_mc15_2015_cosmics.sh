@@ -2,6 +2,7 @@
 #
 # art-description: Run digitization of a cosmics sample produced with MC15 using 2015 geometry and conditions
 # art-type: grid
+# art-output: mc15_2015_cosmics.RDO.pool.root
 
 DigiOutFileName="mc15_2015_cosmics.RDO.pool.root"
 

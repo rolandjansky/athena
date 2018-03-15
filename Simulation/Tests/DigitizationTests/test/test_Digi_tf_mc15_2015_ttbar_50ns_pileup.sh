@@ -2,6 +2,7 @@
 #
 # art-description: Run digitization of an MC15 ttbar sample with 2015 geometry and conditions, 50ns pile-up and using digitizationFlags.doXingByXingPileUp=True
 # art-type: grid
+# art-output: mc15_2015_ttbar_50ns_pileup.RDO.pool.root
 
 DigiOutFileName="mc15_2015_ttbar_50ns_pileup.RDO.pool.root"
 

@@ -2,6 +2,9 @@
 #
 # art-description: Run pile-up premixing with a MC15 nu sample with 2015 geometry and conditions, 25ns pile-up
 # art-type: grid
+# art-output: mc15_2015_nu_25ns_premixing.RDO.pool.root
+
+
 DigiOutFileName="mc15_2015_nu_25ns_premixing.RDO.pool.root"
 
 HighPtMinbiasHitsFiles="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/mc15a/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387.*00067*.pool.root.?"
