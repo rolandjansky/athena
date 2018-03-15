@@ -26,7 +26,6 @@
 #include <vector>
 #include <map>
   
-using namespace std ;
   
 typedef char* pchar;
 
@@ -41,15 +40,15 @@ class TStagerInfo : public TObject
 
   int pipeLength;
   int pid;
-  string infilePrefix;
-  string outfilePrefix;
-  string logfileDir;
-  string baseTmpdir;
-  string tmpdir;
-  string cpcommand;
-  string stagemonitorcmd;
-  vector<string> cparg;
-  map<string,string> inPrefixMap;
+  std::string infilePrefix;
+  std::string outfilePrefix;
+  std::string logfileDir;
+  std::string baseTmpdir;
+  std::string tmpdir;
+  std::string cpcommand;
+  std::string stagemonitorcmd;
+  std::vector<std::string> cparg;
+  std::map<std::string,std::string> inPrefixMap;
  
  private:
 
