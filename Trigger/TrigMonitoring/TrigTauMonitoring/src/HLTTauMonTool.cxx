@@ -132,6 +132,8 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("doTopoValidation",         m_doTopoValidation=false);
     declareProperty("doL1JetPlots", 		m_doL1JetPlots=false);
     declareProperty("doEFTProfiles", 		m_doEFTProfiles=false);
+    declareProperty("doFailTrackFilterBitMonitoring", 		m_doFailTrackFilterBitMonitoring=true);
+    declareProperty("doRNNInOutMonitoring", 		m_doRNNInOutMonitoring=true);
     declareProperty("domuCut40", 		m_domuCut40=false);    
     declareProperty("doL1TopoLeptonsMonitoringWarnings",	m_doL1TopoLeptonsMonitoringWarnings=false);
     declareProperty("topo_ditau_chains",    m_topo_chains_ditau);
@@ -245,13 +247,17 @@ StatusCode HLTTauMonTool::init() {
       m_trigItemsZtt.push_back(*it);
     }
 
-	// List of chains of interest for Efficiency Ratio plots between FTK and Reference (i.e. non-FTK/"tracktwo") chains.
-	m_LST_HLTsel_FTK_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTK"};
-	m_LST_HLTsel0Prong_FTK_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTK"};
-	m_LST_HLTsel_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTKNoPrec"};
-	m_LST_HLTsel0Prong_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTKNoPrec"};
-	m_LST_HLTsel_tracktwo_chains = {"tau25_idperf_tracktwo", "tau25_perf_tracktwo", "tau25_medium1_tracktwo"};	// Reference 
-	m_Ratio = {"idperf", "perf", "medium1"};
+  // List of chains of interest for Efficiency Ratio plots between FTK and Reference (i.e. non-FTK/"tracktwo") chains.
+  m_LST_HLTsel_FTK_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTK"};
+  m_LST_HLTsel0Prong_FTK_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTK"};
+  m_LST_HLTsel_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTKNoPrec"};
+  m_LST_HLTsel0Prong_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTKNoPrec"};
+  m_LST_HLTsel_tracktwo_chains = {"tau25_idperf_tracktwo", "tau25_perf_tracktwo", "tau25_medium1_tracktwo"};	// Reference 
+  m_Ratio = {"idperf", "perf", "medium1"};
+  // List of MVA triggers
+  m_trigMVA_chains = {"tau25_idperf_tracktwoMVA", "tau25_perf_tracktwoMVA", "tau25_verylooseRNN_tracktwoMVA", "tau25_looseRNN_tracktwoMVA", "tau25_mediumRNN_tracktwoMVA", "tau25_tightRNN_tracktwoMVA"};
+
+
 
 // 	HERE DOESN'T WORK SINCE TDT NOT YET INITIALISED
 //	const Trig::ChainGroup* m_allHLTTauItems = getTDT()->getChainGroup("HLT_.*");
@@ -535,6 +541,15 @@ StatusCode HLTTauMonTool::fill() {
 		if(!sc.isSuccess())	ATH_MSG_WARNING("Failed TopoLeptons() for eltau");
 	}
 
+	if (m_doFailTrackFilterBitMonitoring) {
+		for(unsigned int i=0;i<m_trigMVA_chains.size(); ++i){
+		// monitor failtrackfilter bit 
+			sc = FailTrackFilterMonitor ( m_trigMVA_chains.at(i) );
+			if(!sc.isSuccess())	ATH_MSG_WARNING("Failed FailTrackFilterMonitor()");
+		}
+	}
+
+
 	// muCut on filling the histograms
 	if (muCut40Passed)
 	{
@@ -616,6 +631,14 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
     std::string trig_item_EF = "HLT_"+trigItem;
     std::string trig_item_L1(LowerChain( trig_item_EF ) );
     if(trig_item_L1=="") {ATH_MSG_DEBUG("L1 chain for "<< trig_item_EF << " not found");}
+
+    bool isMVAtrig (false);
+    for (unsigned int i=0; i<m_trigMVA_chains.size(); i++) {
+      if ( trigItem == m_trigMVA_chains.at(i) ) {
+        isMVAtrig = true;
+			  continue;
+      }
+    }
     
     if(trigItem=="Dump"){
 
@@ -659,6 +682,14 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 	  sc = fillEFTau(*CI, trigItem, "1p_muCorr");
 	  sc = fillEFTau(*CI, trigItem, "mp_muCorr");
 	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
+    if(isMVAtrig && m_doRNNInOutMonitoring) {
+      sc = fillEFTau(*CI, trigItem, "RNN_inScalar_1P");
+      sc = fillEFTau(*CI, trigItem, "RNN_inScalar_3P");
+      sc = fillEFTau(*CI, trigItem, "RNN_inTrack");
+      sc = fillEFTau(*CI, trigItem, "RNN_inCluster");
+      sc = fillEFTau(*CI, trigItem, "RNN_out");
+      if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
+    }
 	  sc = fillEFTauVsOffline(*CI, trigItem, "basicVars");
 	  sc = fillEFTauVsOffline(*CI, trigItem, "1p_NonCorr");
 	  sc = fillEFTauVsOffline(*CI, trigItem, "mp_NonCorr");
@@ -864,6 +895,19 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_muCorr");
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_muCorr");
      		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
+     		if(isMVAtrig && m_doRNNInOutMonitoring) {
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_1P"); // 9
+					ATH_MSG_WARNING("RNN_inScalar_1P reported: " << sc);
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_3P"); // 10
+					ATH_MSG_WARNING("RNN_inScalar_3P reported: " << sc);
+       		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack"); // 10 (-1) --> 9
+					ATH_MSG_WARNING("RNN_inTrack reported: " << sc);
+     		  //if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster"); // 9
+					//ATH_MSG_WARNING("RNN_inCluster reported: " << sc);
+     		  //if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_out"); // 2
+					//ATH_MSG_WARNING("RNN_out reported: " << sc);
+     		  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
+     		}
      		if(m_truth) if(*tauItr) sc = fillEFTauVsTruth(*tauItr, trigItem);
      		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "basicVars");
      		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "1p_NonCorr");
@@ -1322,6 +1366,291 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFmEflowApproxMPCmu")->Fill(mu, mEflowApproxCorr);
 	    }
         }
+    }
+  else if(BDTinput_type == "RNN_inScalar_1P")
+    {
+		// RNN Input Variables
+		// Scalars
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/id1p");
+		if(is1P)
+		  {
+				float RNN_scalar_centFrac(-999.);
+				float RNN_scalar_etOverPtLeadTrk(-999.);
+				float RNN_scalar_dRmax(-999.);
+				float RNN_scalar_absipSigLeadTrk(-999.);
+				float RNN_scalar_SumPtTrkFrac(-999.);
+				float RNN_scalar_EMPOverTrkSysP(-999.);
+				float RNN_scalar_ptRatioEflowApprox(-999.);
+				float RNN_scalar_mEflowApprox(-999.);
+				double RNN_scalar_ptIntermediateAxis(-999.);
+
+				if (aEFTau->detail(xAOD::TauJetParameters::centFrac, RNN_scalar_centFrac)){
+					hist("hEFRNNInput_Scalar_centFrac_1P")->Fill(RNN_scalar_centFrac);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, RNN_scalar_etOverPtLeadTrk)){
+					hist("hEFRNNInput_Scalar_etOverPtLeadTrk_1P")->Fill(RNN_scalar_etOverPtLeadTrk);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::dRmax, RNN_scalar_dRmax)){
+					hist("hEFRNNInput_Scalar_dRmax_1P")->Fill(RNN_scalar_dRmax);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::ipSigLeadTrk, RNN_scalar_absipSigLeadTrk)){
+					RNN_scalar_absipSigLeadTrk = std::min(TMath::Abs(RNN_scalar_absipSigLeadTrk), 30.0f);
+					hist("hEFRNNInput_Scalar_absipSigLeadTrk_1P")->Fill(RNN_scalar_absipSigLeadTrk);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, RNN_scalar_SumPtTrkFrac)){
+					hist("hEFRNNInput_Scalar_SumPtTrkFrac_1P")->Fill(RNN_scalar_SumPtTrkFrac);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, RNN_scalar_EMPOverTrkSysP)){
+					RNN_scalar_EMPOverTrkSysP = TMath::Log10(std::max(RNN_scalar_EMPOverTrkSysP, 1e-3f));
+					hist("hEFRNNInput_Scalar_EMPOverTrkSysP_1P")->Fill(RNN_scalar_EMPOverTrkSysP);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, RNN_scalar_ptRatioEflowApprox)){
+					RNN_scalar_ptRatioEflowApprox = std::min(RNN_scalar_ptRatioEflowApprox, 4.0f);
+					hist("hEFRNNInput_Scalar_ptRatioEflowApprox_1P")->Fill(RNN_scalar_ptRatioEflowApprox);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::mEflowApprox, RNN_scalar_mEflowApprox)){
+					RNN_scalar_mEflowApprox = TMath::Log10(std::max(RNN_scalar_mEflowApprox, 140.0f));
+					hist("hEFRNNInput_Scalar_mEflowApprox_1P")->Fill(RNN_scalar_mEflowApprox);
+				}
+				RNN_scalar_ptIntermediateAxis = aEFTau->ptIntermediateAxis();
+				RNN_scalar_ptIntermediateAxis = TMath::Log10(std::min(RNN_scalar_ptIntermediateAxis / 1000.0, 100.0));
+				hist("hEFRNNInput_Scalar_ptIntermediateAxis_1P")->Fill(RNN_scalar_ptIntermediateAxis);
+		}
+	} 
+	else if(BDTinput_type == "RNN_inScalar_3P")
+    {
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/id3p");
+		if(isMP) {
+				float RNN_scalar_centFrac(-999.);
+				float RNN_scalar_etOverPtLeadTrk(-999.);
+				float RNN_scalar_dRmax(-999.);
+				float RNN_scalar_trFlightPathSig(-999.);
+				float RNN_scalar_SumPtTrkFrac(-999.);
+				float RNN_scalar_EMPOverTrkSysP(-999.);
+				float RNN_scalar_ptRatioEflowApprox(-999.);
+				float RNN_scalar_mEflowApprox(-999.);
+				double RNN_scalar_ptIntermediateAxis(-999.);
+				float RNN_scalar_massTrkSys(-999.);
+
+				if (aEFTau->detail(xAOD::TauJetParameters::centFrac, RNN_scalar_centFrac)){
+					hist("hEFRNNInput_Scalar_centFrac_3P")->Fill(RNN_scalar_centFrac);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, RNN_scalar_etOverPtLeadTrk)){
+					hist("hEFRNNInput_Scalar_etOverPtLeadTrk_3P")->Fill(RNN_scalar_etOverPtLeadTrk);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::dRmax, RNN_scalar_dRmax)){
+					hist("hEFRNNInput_Scalar_dRmax_3P")->Fill(RNN_scalar_dRmax);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::trFlightPathSig, RNN_scalar_trFlightPathSig)){
+					RNN_scalar_trFlightPathSig = TMath::Log10(std::max(RNN_scalar_trFlightPathSig, 0.01f));
+					hist("hEFRNNInput_Scalar_trFlightPathSig_3P")->Fill(RNN_scalar_trFlightPathSig);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, RNN_scalar_SumPtTrkFrac)){
+					hist("hEFRNNInput_Scalar_SumPtTrkFrac_3P")->Fill(RNN_scalar_SumPtTrkFrac);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, RNN_scalar_EMPOverTrkSysP)){
+					RNN_scalar_EMPOverTrkSysP = TMath::Log10(std::max(RNN_scalar_EMPOverTrkSysP, 1e-3f));
+					hist("hEFRNNInput_Scalar_EMPOverTrkSysP_3P")->Fill(RNN_scalar_EMPOverTrkSysP);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, RNN_scalar_ptRatioEflowApprox)){
+					RNN_scalar_ptRatioEflowApprox = std::min(RNN_scalar_ptRatioEflowApprox, 4.0f);
+					hist("hEFRNNInput_Scalar_ptRatioEflowApprox_3P")->Fill(RNN_scalar_ptRatioEflowApprox);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::mEflowApprox, RNN_scalar_mEflowApprox)){
+					RNN_scalar_mEflowApprox = TMath::Log10(std::max(RNN_scalar_mEflowApprox, 140.0f));
+					hist("hEFRNNInput_Scalar_mEflowApprox_3P")->Fill(RNN_scalar_mEflowApprox);
+				}
+				RNN_scalar_ptIntermediateAxis = aEFTau->ptIntermediateAxis();
+				RNN_scalar_ptIntermediateAxis = TMath::Log10(std::min(RNN_scalar_ptIntermediateAxis / 1000.0, 100.0));
+				hist("hEFRNNInput_Scalar_ptIntermediateAxis_3P")->Fill(RNN_scalar_ptIntermediateAxis);
+				if (aEFTau->detail(xAOD::TauJetParameters::massTrkSys, RNN_scalar_massTrkSys)){
+					RNN_scalar_massTrkSys = TMath::Log10(std::max(RNN_scalar_massTrkSys, 140.0f));
+					hist("hEFRNNInput_Scalar_massTrkSys_3P")->Fill(RNN_scalar_massTrkSys);
+				}
+		}
+	} 
+	else if(BDTinput_type == "RNN_inTrack")
+    {
+		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/track");
+		ATH_MSG_WARNING("In RNN_inTrack");
+		// Tracks
+		float RNN_tracks_pt(-999.);
+		float RNN_tracks_eta(-999.);
+		float RNN_tracks_phi(-999.);
+		float RNN_tracks_dEta(-999.);
+		float RNN_tracks_dPhi(-999.);
+		float RNN_tracks_d0(-999.);
+		bool success_InPixHits(false);
+		uint8_t RNN_tracks_nInnermostPixelHits = 0;
+		//ATH_MSG_WARNING("RNN_tracks_nInnermostPixelHits is initialized.");
+		bool success_PixHits(false);
+		uint8_t RNN_tracks_nPixelHits = 0;
+		//ATH_MSG_WARNING("RNN_tracks_nPixelHits is initialized.");
+		bool success_SCTHits(false);
+		uint8_t RNN_tracks_nSCTHits = 0;
+		//ATH_MSG_WARNING("RNN_tracks_nSCTHits is initialized.");
+
+		//ATH_MSG_WARNING("All variables are initialized.");
+		if (is1P || isMP) {
+			//ATH_MSG_WARNING("There are charged tracks.");
+			for (int track = 0; track < EFnTrack; ++track){
+				ATH_MSG_WARNING("In track: " << track);
+				const xAOD::TrackParticle* trk = 0;
+				#ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+				ATH_MSG_WARNING("trying TAUJET_V2");
+				trk = aEFTau->track(track);
+				ATH_MSG_WARNING("TAUJET_V2");
+				#else
+				ATH_MSG_WARNING("trying TAUJET_V3");
+				trk = aEFTau->track(track)->track();
+				ATH_MSG_WARNING("TAUJET_V3");
+				#endif
+				if ( trk != NULL ) {
+					ATH_MSG_WARNING("track exists in: " << track);
+					RNN_tracks_pt = trk->pt()*1e-3;
+					if ( (RNN_tracks_pt) ){
+						ATH_MSG_WARNING("track pt: " << RNN_tracks_pt);
+						//hist("hEFRNNInput_Track_pt")->Fill(RNN_tracks_pt);
+					}
+					ATH_MSG_WARNING("hEFRNNInput_Track_pt was fine!");
+					RNN_tracks_eta = trk->eta();
+					if ( (RNN_tracks_eta) ){
+						ATH_MSG_WARNING("track et: " << RNN_tracks_eta);
+						//hist("hEFRNNInput_Track_eta")->Fill(RNN_tracks_eta);
+					}
+					ATH_MSG_WARNING("hEFRNNInput_Track_eta was fine!");
+					RNN_tracks_phi = trk->phi();
+					if ( (RNN_tracks_phi) ){
+						ATH_MSG_WARNING("track phi: " << RNN_tracks_phi);
+						//hist("hEFRNNInput_Track_phi")->Fill(RNN_tracks_phi);
+					}
+					ATH_MSG_WARNING("hEFRNNInput_Track_phi was fine!");
+					RNN_tracks_dEta = trk->eta() - aEFTau->eta();
+					if (RNN_tracks_dEta){
+						ATH_MSG_WARNING("track dEta: " << RNN_tracks_dEta);
+						//hist("hEFRNNInput_Track_dEta")->Fill(RNN_tracks_dEta);
+					}
+					ATH_MSG_WARNING("hEFRNNInput_Track_dEta was fine!");
+					RNN_tracks_dPhi = trk->p4().DeltaPhi(aEFTau->p4());
+					if ( (RNN_tracks_dPhi) ){
+						ATH_MSG_WARNING("track dPhi: " << RNN_tracks_dPhi);
+						//hist("hEFRNNInput_Track_dPhi")->Fill(RNN_tracks_dPhi);
+					}
+					ATH_MSG_WARNING("hEFRNNInput_Track_dPhi was fine!");
+					//float RNN_tracks_z0sinThetaTJVA = m_taus.at(t)->track(track)->z0sinThetaTJVA(m_taus.at(t)));
+					RNN_tracks_d0 = trk->d0();
+					ATH_MSG_WARNING("track d0: " << RNN_tracks_d0);
+					//hist("hEFRNNInput_Track_d0")->Fill(RNN_tracks_d0);
+					ATH_MSG_WARNING("hEFRNNInput_Track_d0 was fine!");
+					success_InPixHits =  trk->summaryValue(RNN_tracks_nInnermostPixelHits, xAOD::numberOfInnermostPixelLayerHits);
+					if (success_InPixHits){
+						ATH_MSG_WARNING("track nInnermostPixelHits: " << RNN_tracks_nInnermostPixelHits);
+						//hist("hEFRNNInput_Track_nInnermostPixelHits")->Fill(RNN_tracks_nInnermostPixelHits);
+					}
+					ATH_MSG_WARNING("hEFRNNInput_Track_nInnermostPixelHits was fine!");
+					success_PixHits =  trk->summaryValue(RNN_tracks_nPixelHits, xAOD::numberOfPixelHits);
+					if (success_PixHits){
+						ATH_MSG_WARNING("track nPixelHits: " << RNN_tracks_nPixelHits);
+						//hist("hEFRNNInput_Track_nPixelHits")->Fill(RNN_tracks_nPixelHits);
+					}
+					ATH_MSG_WARNING("hEFRNNInput_Track_nPixelHits was fine!");
+					success_SCTHits =  trk->summaryValue(RNN_tracks_nSCTHits, xAOD::numberOfSCTHits);
+					if (success_SCTHits){
+						ATH_MSG_WARNING("track nSCTHits: " << RNN_tracks_nSCTHits);
+						//hist("hEFRNNInput_Track_nSCTHits")->Fill(RNN_tracks_nSCTHits);
+					}
+					ATH_MSG_WARNING("hEFRNNInput_Track_nSCTHits was fine!");
+				} else {
+					ATH_MSG_ERROR("track does not exists in: " << track);
+				}//end if trk exists
+			} // end for-loop for tracks
+		} // end if(is1P||isMP)
+	}
+  else if(BDTinput_type == "RNN_inCluster")
+    {
+		// Cluster 
+		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/cluster");
+		ATH_MSG_WARNING("In RNN_inCluster");
+		float RNN_clusters_e(-999.);
+		float RNN_clusters_et(-999.);
+		float RNN_clusters_eta(-999.);
+		float RNN_clusters_phi(-999.);
+		float RNN_clusters_dEta(-999.);
+		float RNN_clusters_dPhi(-999.);
+		double RNN_clusters_SECOND_R(-999.);
+		double RNN_clusters_SECOND_LAMBDA(-999.);
+		double RNN_clusters_CENTER_LAMBDA(-999.);
+		const xAOD::Jet* pJetSeed = *(aEFTau->jetLink());  
+		const xAOD::CaloClusterContainer *caloCont;
+		if ( m_storeGate->retrieve( caloCont, "HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex").isSuccess() ){//"TauPi0Clusters").isSuccess() ){
+			ATH_MSG_INFO("caloCluster retrieved!");
+			//xAOD::JetConstituentVector::const_iterator clusItr  = pJetSeed->getConstituents().begin();
+			xAOD::CaloClusterContainer::const_iterator clusItr  = caloCont->begin();
+			//xAOD::JetConstituentVector::const_iterator clusItrE = pJetSeed->getConstituents().end();
+			xAOD::CaloClusterContainer::const_iterator clusItrE = caloCont->end();
+			for (; clusItr != clusItrE; ++clusItr) {
+				RNN_clusters_e = (*clusItr)->e();
+				if ( (RNN_clusters_e) ) {
+					ATH_MSG_WARNING("cluster e: " << RNN_clusters_e);
+					//hist("hEFRNNInput_Cluster_e")->Fill(RNN_clusters_e);
+				}
+				RNN_clusters_et = (*clusItr)->pt()*1e-3;//etLarge();
+				if ( (RNN_clusters_et) ) {
+					ATH_MSG_WARNING("cluster et: " << RNN_clusters_et);
+					//hist("hEFRNNInput_Cluster_et")->Fill(RNN_clusters_et);
+				}
+				RNN_clusters_eta = (*clusItr)->eta();
+				if ( (RNN_clusters_eta) ) {
+					ATH_MSG_WARNING("cluster eta: " << RNN_clusters_eta);
+					//hist("hEFRNNInput_Cluster_eta")->Fill(RNN_clusters_eta);
+				}
+				RNN_clusters_phi = (*clusItr)->phi();
+				if ( (RNN_clusters_phi) ) {
+					ATH_MSG_WARNING("cluster phi: " << RNN_clusters_phi);
+					//hist("hEFRNNInput_Cluster_phi")->Fill(RNN_clusters_phi);
+				}
+				RNN_clusters_dEta = ((*clusItr)->eta() - (aEFTau->eta()));
+				if ( (RNN_clusters_dEta) ) {
+					ATH_MSG_WARNING("cluster dEta: " << RNN_clusters_dEta);
+					//hist("hEFRNNInput_Cluster_dEta")->Fill(RNN_clusters_dEta);
+				}
+				RNN_clusters_dPhi = deltaPhi((*clusItr)->phi(),(aEFTau->phi()));
+				if ( (RNN_clusters_dPhi) ) {
+					ATH_MSG_WARNING("cluster dPhi: " << RNN_clusters_dPhi);
+					//hist("hEFRNNInput_Cluster_dPhi")->Fill(RNN_clusters_dPhi);
+				}
+				const auto success_SECOND_R = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R, RNN_clusters_SECOND_R);
+				if ( (success_SECOND_R) ) {
+					RNN_clusters_SECOND_R =TMath::Log10(RNN_clusters_SECOND_R + 0.1);
+					ATH_MSG_WARNING("cluster SECOND_R: " << RNN_clusters_SECOND_R);
+					//hist("hEFRNNInput_Cluster_SECOND_R")->Fill(RNN_clusters_SECOND_R);
+				}
+				const auto success_SECOND_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, RNN_clusters_SECOND_LAMBDA);
+				if ( (success_SECOND_LAMBDA) ) {
+					RNN_clusters_SECOND_LAMBDA =TMath::Log10(RNN_clusters_SECOND_LAMBDA + 0.1);
+					ATH_MSG_WARNING("cluster SECOND_LAMBDA: " << RNN_clusters_SECOND_LAMBDA);
+					//hist("hEFRNNInput_Cluster_SECOND_LAMBDA")->Fill(RNN_clusters_SECOND_LAMBDA);
+				}
+				const auto success_CENTER_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, RNN_clusters_CENTER_LAMBDA);
+				if ( (success_CENTER_LAMBDA) ) {
+					RNN_clusters_CENTER_LAMBDA =TMath::Log10(RNN_clusters_CENTER_LAMBDA + 1e-6);
+					ATH_MSG_WARNING("cluster CENTER_LAMBDA: " << RNN_clusters_CENTER_LAMBDA);
+					//hist("hEFRNNInput_Cluster_CENTER_LAMBDA")->Fill(RNN_clusters_CENTER_LAMBDA);
+				}
+			}
+		} 
+	}
+  else if(BDTinput_type == "RNN_out")
+    {
+		// RNN Output Variables
+		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/Output");
+		ATH_MSG_WARNING("In RNN_out");
+		float RNNJetScore(-999.);
+		float RNNJetScoreSigTrans(-999.);
+		RNNJetScore = aEFTau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+		RNNJetScoreSigTrans = aEFTau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+		hist("hEFRNNJetScore")->Fill(RNNJetScore);
+		hist("hEFRNNJetScoreSigTrans")->Fill(RNNJetScoreSigTrans);
     }
   else
     {
