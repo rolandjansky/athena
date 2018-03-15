@@ -46,7 +46,7 @@ namespace DerivationFramework {
     // trigger navigation thinning
     recordPropertyB("doTrigNavThinning", true);
     recordPropertyVS("TrigNavThinList" , {});
-    
+
     // wide mumu mass range
     recordPropertyB("doUseWideMuMuMassRange", false);
 
