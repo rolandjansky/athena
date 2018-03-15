@@ -1622,6 +1622,7 @@ for BPHY8_reco in BPHY8_recoList:
 # (note: for tagged muons there is no extra TrackParticle collection since
 # the ID tracks are stored in InDetTrackParticles collection)
 BPHY8_AllVariables += ["CombinedMuonTrackParticles"]
+
 BPHY8_AllVariables += ["ExtrapolatedMuonTrackParticles"]
 # TODO: copy smart slimming for calibrated muons.
 if BPHY8cf.useCalibratedMuons > 1:
@@ -1642,13 +1643,6 @@ BPHY8_ExtraVariables   += ["%s.etcone30.etcone40" % BPHY8cf.MuonCollection
                            +".msOuterMatchDOF.msOuterMatchChi2"
                            +".EnergyLoss.ParamEnergyLoss.MeasEnergyLoss"
                            +".ET_Core" ]
-
-# remove superfluous information from muon extrapolation tool
-# check with Heather R. whether it is save to remove it
-## DOES NOT WORK THIS WAY.
-# BPHY8_StaticContent += ["xAOD::TrackParticleAuxContainer#"
-#                        +"CombinedMuonTrackParticlesAux."
-#                        +"-DecorationOutcome"]
 
 # ID track particles
 BPHY8_SmartCollections += [BPHY8cf.TrkPartContName]
