@@ -268,7 +268,7 @@ int PixelCalibSvc::PixelType(const Identifier pix_id, const Identifier wafer_id,
       }
       col = columnsPerFE-1-eta_index%columnsPerFE; // check the col order in FEI4 ?
       row = 0;
-      circ = p_design->numberOfCircuits()==1 ? 0: eta_index/columnsPerFE;
+      circ = p_design->numberOfCircuits()==1 ? 0: 1-eta_index/columnsPerFE;
     }
     else { // FEI3
       if (barrel_ec==2 || barrel_ec==-2) {
@@ -337,7 +337,7 @@ int PixelCalibSvc::PixelCirc(const Identifier& pix_id, const Identifier& wafer_i
   else {
     int columnsPerFE = p_design->columnsPerCircuit();
     if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-      circ = p_design->numberOfCircuits()==1 ? 0: eta_index/columnsPerFE;
+      circ = p_design->numberOfCircuits()==1 ? 0: 1-eta_index/columnsPerFE;
     }
     else{ // FEI3 chips
       if (barrel_ec==2 || barrel_ec==-2) {
