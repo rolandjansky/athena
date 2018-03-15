@@ -49,17 +49,17 @@ public:
   virtual StatusCode finalize() override;
  
   // -- Get the Electric Field for the charge position under consideration
-  virtual double getElectricField(const IdentifierHash &  elementHash, const double & zpos) override;
+  virtual double getElectricField(const IdentifierHash &  elementHash, const double & zpos) const override;
   // -- Get the Mean Free Path for the charge position under consideration
   virtual double getMeanFreePathElectrons(const IdentifierHash &  elementHash, const double & pos);
   virtual double getMeanFreePathHoles(const IdentifierHash &  elementHash, const double & pos);
-  virtual double getTrappingElectrons(const IdentifierHash &  elementHash, const double & pos) override;
-  virtual double getTrappingHoles(const IdentifierHash &  elementHash, const double & pos) override;
-  virtual double getTrappingProbability(const IdentifierHash &  elementHash, const double & pos) override;
-  virtual double getTrappingTime(const IdentifierHash &  elementHash, const double & pos) override;
-  virtual double getTimeToElectrode(const IdentifierHash &  elementHash, const double & pos) override;
-  virtual double getTrappingPositionZ(const IdentifierHash &  elementHash, const double & pos) override;
-  virtual double getHoleDriftMobility(const IdentifierHash &  elementHash, const double & pos) override;
+  virtual double getTrappingElectrons(const IdentifierHash &  elementHash, const double & pos) const override;
+  virtual double getTrappingHoles(const IdentifierHash &  elementHash, const double & pos) const override;
+  virtual double getTrappingProbability(const IdentifierHash &  elementHash, const double & pos) const override;
+  virtual double getTrappingTime(const IdentifierHash &  elementHash, const double & pos) const override;
+  virtual double getTimeToElectrode(const IdentifierHash &  elementHash, const double & pos) const override;
+  virtual double getTrappingPositionZ(const IdentifierHash &  elementHash, const double & pos) const override;
+  virtual double getHoleDriftMobility(const IdentifierHash &  elementHash, const double & pos) const override;
   virtual bool getdoCTrap(const IdentifierHash & elementHash, const  double & pos) override;
   virtual void getHoleTransport(double & x0, double & y0, double & xfin, double & yfin, double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 ) const override;
   virtual void getInitPotentialValue() override;
