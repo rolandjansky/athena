@@ -67,12 +67,18 @@ public:
   virtual void streamAllDQAssessments( std::ostream& o, bool streamAll );
   virtual void streamHistoAssessments( std::ostream& o, bool streamAll );
   virtual void streamAllHistograms( std::ostream& o, bool streamAll );
-  virtual int  saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB );
+  virtual int  saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB,bool pngOnly=true );
   static bool containsDir(std::string dirname, std::string maindir);
 
   virtual bool saveHistogramToFile( std::string nameHis, std::string location,
-                 TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName );
+                 TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName,bool pngOnly=true);
+  virtual std::pair<std::string,std::string> getHistogram( std::string nameHis,
+				       TDirectory* groupDir, bool drawRefs,
+				       std::string run_min_LB, std::string pathName,bool pngonly=true );
   virtual std::string getHistogramPNG( std::string nameHis,
+				       TDirectory* groupDir, bool drawRefs,
+				       std::string run_min_LB, std::string pathName );
+  virtual std::pair<std::string,std::string> getHistogramJSON( std::string nameHis,
 				       TDirectory* groupDir, bool drawRefs,
 				       std::string run_min_LB, std::string pathName );
   virtual bool saveHistogramToFileSuperimposed( std::string nameHis, std::string location,

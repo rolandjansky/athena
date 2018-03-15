@@ -23,14 +23,16 @@ from ROOT import dqutils
 
 ## LumiBlock length (in minutes)
 LBlength = 1.0
+jsonFileCull = set()
 
-def handiWithComparisons( name, resultsFile, htmlDir, runlistLoc, compare, browserMenu, allDirsScriptDir ):
+def handiWithComparisons( name, resultsFile, htmlDir, runlistLoc, compare, browserMenu,allDirsScriptDir,jsRoot=False ):
   ## compare: True if you want a "compare" button on every 1histo page, False by default
   ## javaScriptLoc = url of the javascript for the "compare" button
   ## HjavaScriptLoc = url of the javascript for the "history" button
   ## runlistLoc = url where to find runlist.xml (runlist catalog)
   ## browserMenu = True if you want a browser menu instead of the 
   ## allDirsScript = url of javascript to create browser menu
+  ## jsRoot = enable jsRoot interactive display for histograms
   
   if ( htmlDir.rfind("/")!=(len(htmlDir)-1) ):  # htmlDir needs "/" at the end
         htmlDir+="/"
@@ -63,7 +65,7 @@ def handiWithComparisons( name, resultsFile, htmlDir, runlistLoc, compare, brows
     hi_limit = int(digit*30.0/LBlength)
     LB_range = ', LB '+str(low_limit)+' - ' + str(hi_limit)
 
-  nSaved = saveAllHistograms( resultsFile, htmlDir, True, (name+LB_range) )
+  nSaved = saveAllHistograms( resultsFile, htmlDir, True, (name+LB_range), jsRoot)
   if nSaved == 0:
     print "There are no histograms in this file; writing a dummy index file"
     if( not os.access(htmlDir,os.F_OK) ):
@@ -96,21 +98,25 @@ def handiWithComparisons( name, resultsFile, htmlDir, runlistLoc, compare, brows
 
   if (browserMenu):
     makeAllDirsXml( htmlDir, name, s, number, resultsFile)
-    list, namelist = makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,allDirsScriptDir )
+    list, namelist = makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,allDirsScriptDir)
   else:
-    list, namelist = makeAllDirsFile( htmlDir, name, s, number, resultsFile )
+    list, namelist = makeAllDirsFile( htmlDir, name, s, number, resultsFile)
     
   for x in range(0,len(list)):
-    makeSubDirFile( htmlDir, name, s, number, namelist[x], list[x], runlistLoc, compare, allDirsScriptDir )
-    makeColorFile( htmlDir, name, s, number, namelist[x], list[x], 'Red', runlistLoc, compare, allDirsScriptDir)
-    makeColorFile( htmlDir, name, s, number, namelist[x], list[x], 'Yellow', runlistLoc, compare, allDirsScriptDir)
-    makeColorFile( htmlDir, name, s, number, namelist[x], list[x], 'Green', runlistLoc, compare, allDirsScriptDir )
+    makeSubDirFile( htmlDir, name, s, number, namelist[x], list[x], runlistLoc, compare, allDirsScriptDir,jsRoot)
+    makeColorFile( htmlDir, name, s, number, namelist[x], list[x], 'Red', runlistLoc, compare, allDirsScriptDir,jsRoot)
+    makeColorFile( htmlDir, name, s, number, namelist[x], list[x], 'Yellow', runlistLoc, compare, allDirsScriptDir,jsRoot)
+    makeColorFile( htmlDir, name, s, number, namelist[x], list[x], 'Green', runlistLoc, compare, allDirsScriptDir,jsRoot)
     makeCSSFile( htmlDir,"", namelist[x] )
   
   makeCSSFile( htmlDir,"", "." )
 
+  for path in jsonFileCull:
+      if os.path.isfile(path):
+          os.system("rm "+path)
 
-def makeAllDirsXml( htmlDir, name, s, number, resultsFile ):
+
+def makeAllDirsXml( htmlDir, name, s, number, resultsFile):
   g=open(htmlDir+'AllDirs.xml','w')
   g.write('<?xml version="1.0" encoding="ISO-8859-1"?>\n')  
   # initial number of white spaces, will change to positive value once we go over the lines
@@ -161,7 +167,7 @@ def makeAllDirsXml( htmlDir, name, s, number, resultsFile ):
     sub=sub[3:len(sub)]
   g.close()
 
-def makeAllDirsFile( htmlDir, name, s, number, resultsFile ):
+def makeAllDirsFile( htmlDir, name, s, number, resultsFile):
   g=open(htmlDir+'index.html','w')
   g.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n')
   g.write('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n')
@@ -243,7 +249,7 @@ def makeAllDirsFile( htmlDir, name, s, number, resultsFile ):
   return list, namelist
 
 
-def makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,AllDirsScriptDir ):
+def makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,AllDirsScriptDir):
   g=open(htmlDir+'index.html','w')
   g.write('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">\n')
   g.write('<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">\n')
@@ -287,7 +293,7 @@ def makeAllDirsBrowserFile( htmlDir, name, s, number, resultsFile,AllDirsScriptD
   g.close()
   return list, namelist
 
-def makeSubDirFile( htmlDir, name, s, number, subname, assessIndex, runlistLoc,compare, AllDirsScriptDir):
+def makeSubDirFile( htmlDir, name, s, number, subname, assessIndex, runlistLoc,compare, AllDirsScriptDir,jsRoot):
   
   if( subname == '.' ):
     h=open(htmlDir+'/'+subname+'/toplevel.html','w')
@@ -335,7 +341,7 @@ def makeSubDirFile( htmlDir, name, s, number, subname, assessIndex, runlistLoc,c
       h.write('<td class="' + sp[1] + '" align="center"><a href="'+sp[0]+'.html" class="hintanchor" onmouseover="showhint(\'' +title+'\', this, event, \'400px\')"><img src="'+ sp[0] +'.png" height="200" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a><br/><div style="text-overflow:ellipsis;overflow:hidden;max-width:240px">'+sp[0]+'</div></td>\n')
     temp = s[y].rsplit(" title ")
     sp = temp[0].split()
-    makeOneHistFile( htmlDir, name, subname, sp, runlistLoc,compare )
+    makeOneHistFile( htmlDir, name, subname, sp, runlistLoc,compare,jsRoot)
     y=y+1
     if y< number:
       sp=s[y].rsplit()
@@ -345,7 +351,7 @@ def makeSubDirFile( htmlDir, name, s, number, subname, assessIndex, runlistLoc,c
   h.close()
 
 
-def makeColorFile( htmlDir, name, s, number, subname, assessIndex , color, runlistLoc,compare,AllDirsScriptDir):
+def makeColorFile( htmlDir, name, s, number, subname, assessIndex , color, runlistLoc,compare,AllDirsScriptDir,jsRoot):
   
   if( subname == '.' ):
     h=open(htmlDir+'/'+subname+'/'+color+'.html','w')
@@ -392,7 +398,7 @@ def makeColorFile( htmlDir, name, s, number, subname, assessIndex , color, runli
         h.write('<td class="' + sp[1] + '"><a href="'+sp[0]+'.html" class="hintanchor" onmouseover="showhint(\'' +title+'\', this, event, \'400px\')"><img src="'+ sp[0] +'.png" height="200" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
       temp = s[y].rsplit(" title ")
       sp = temp[0]  
-      makeOneHistFile( htmlDir, name, subname, sp, runlistLoc,compare)
+      makeOneHistFile( htmlDir, name, subname, sp, runlistLoc,compare,jsRoot)
     y=y+1
     if y< number:
       sp=s[y].rsplit()
@@ -423,7 +429,7 @@ def writeLimitDiagram( k, limitName, lowColor, hiColor, loVal, hiVal ):
   k.write('</tr>\n</table>\n')
 
 
-def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare ):
+def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare,jsRoot):
   import re
   runmatch = re.compile('^Run ([0-9]+), ([0-9]+)/(.+)$')
   subrunmatch = re.compile('^Run ([0-9]+), (.+)_(.*), ([0-9]+)/(.+)$')
@@ -443,6 +449,8 @@ def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare ):
   k.write('<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n')
   k.write('<title>'+name+ ' ' + subname+ ' ' + sp[0]+'</title>\n')
   k.write('<link rel="stylesheet" href="AutomChecks.css" type="text/css" />\n')
+  k.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>\n')
+  k.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>')
 ##   k.write('<script type=\"text/javascript\" src=\"'+javaScriptLoc +'\"><!-- dont contract-->\n</script>\n')
   k.write('</head>\n')
   k.write('<body>\n')
@@ -571,10 +579,25 @@ def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare ):
       cc+=2
       extra-=2
   k.write('</table>\n</td>\n')
+  jsonPath = htmlDir+'/'+sp[21]+".json" if sp[0] else ""
+  jsonFileCull.add(jsonPath)
+  jsonFile = open(jsonPath,'r') if os.path.isfile(jsonPath) else "" 
   if subname == '.':
-    k.write('<td><a href="toplevel.html"><img src="'+ sp[0] +'.png" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
+    if(jsRoot and os.path.isfile(jsonPath)):
+       jsonFile.seek(0)
+       jsonStr = jsonFile.read()
+       jsonStr = jsonStr.replace('\n','')
+       k.write('<td><a href="#" onclick="history.go(-1);return false;"><div id="root_plot_1" style="width: 800px; height: 600px"></div></a>\n<script>\n requirejs.config( { paths: { \'JSRootCore\'    : \'https://root.cern.ch/js/dev//scripts/JSRootCore\', \'JSRootPainter\' : \'https://root.cern.ch/js/dev//scripts/JSRootPainter\', } });require([\'JSRootCore\', \'JSRootPainter\'], function(Core, Painter) {\n var obj = Core.parse(\''+jsonStr+'\');\nPainter.draw("root_plot_1", obj, ""); });</script>\n')
+    else:
+       k.write('<td><a href="toplevel.html"><img src="'+ sp[0] +'.png" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
   else:
-    k.write('<td><a href="index.html"><img src="'+ sp[0] +'.png" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
+      if(jsRoot and os.path.isfile(jsonPath)):
+         jsonFile.seek(0)
+         jsonStr = jsonFile.read()
+         jsonStr = jsonStr.replace('\n','');
+         k.write('<td><a href="#" onclick="history.go(-1);return false;"><div id="root_plot_1" style="width: 800px; height: 600px"></div></a>\n<script>\n requirejs.config( { paths: { \'JSRootCore\'    : \'https://root.cern.ch/js/dev//scripts/JSRootCore\', \'JSRootPainter\' : \'https://root.cern.ch/js/dev//scripts/JSRootPainter\', } });require([\'JSRootCore\', \'JSRootPainter\'], function(Core, Painter) {\n var obj = Core.parse(\''+jsonStr+'\');\nPainter.draw("root_plot_1", obj, ""); });</script>\n')
+      else: 
+         k.write('<td><a href="index.html"><img src="'+ sp[0] +'.png" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
   k.write('</tr></table>\n')
   k.write('</center>\n')
   now = time.localtime()
@@ -691,10 +714,9 @@ def stringAllDQAssessments( resultsFile ):
   return total
 
 
-def saveAllHistograms( resultsFile, location, drawRefs, run_min_LB ):
+def saveAllHistograms( resultsFile, location, drawRefs, run_min_LB ,jsRoot):
   of = dqutils.HanOutputFile( resultsFile )
-  nSaved = of.saveAllHistograms( location, drawRefs, run_min_LB )
+  pngOnly= not jsRoot
+  nSaved = of.saveAllHistograms( location, drawRefs, run_min_LB ,pngOnly)
   of.setFile('')
   return nSaved
-
-

@@ -33,6 +33,7 @@
 #include <TMath.h>
 #include <THStack.h>
 #include <TImage.h>
+#include <TBufferJSON.h>
 
 #define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
 #define BINWIDTH(h,n) h->GetXaxis()->GetBinWidth(n)
@@ -789,7 +790,7 @@ streamAllHistograms( std::ostream& o, bool streamAll )
 
 int
 HanOutputFile::
-saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB ) 
+saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB ,bool pngOnly)
 {
   if( m_file == 0 ) {
     std::cerr << "HanOutputFile::saveAllHistograms(): "
@@ -826,7 +827,7 @@ saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB )
       completeDir += "/";
       std::cout << "Saving " << completeDir << " " << hisName << "\n" << std::flush;
       bool isSaved = saveHistogramToFile(hisName,completeDir,idir->second,drawRefs,run_min_LB,
-                                         (hisPath + "/" + hisName));
+                                         (hisPath + "/" + hisName),pngOnly);
       if( isSaved )
         ++nSaved;
     }
@@ -839,31 +840,57 @@ void getImageBuffer(TImage* img, TCanvas* myC, char** x, int* y){
   img->GetImageBuffer(x, y, TImage::kPng);
 }
 
-bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
-  std::string tosave = getHistogramPNG(nameHis, groupDir, drawRefs, run_min_LB, pathName);
-  if (tosave == "") {
+bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName,bool pngOnly){
+  std::pair<std::string,std::string> pngAndJson = getHistogram(nameHis,groupDir,drawRefs,run_min_LB,pathName,pngOnly);
+  //std::string tosave = getHistogramPNG(nameHis, groupDir, drawRefs, run_min_LB, pathName);
+  if (pngAndJson.first== "") {
     return false;
   }
-  std::string name=nameHis;
-  name+=".png";
+  std::string namePNG   = nameHis;
+  namePNG+=".png";
   std::string::size_type i = location.find_last_of( '/' );
   if( i != (location.size()-1) ) {
     location+="/";
   }
-  name=location + name;
-  std::ofstream outfile(name);
-  if (!outfile.is_open()) {
-    std::cerr << "Error writing file to " << name << std::endl;
+  namePNG   = location + namePNG;
+  std::ofstream outfilePNG(namePNG);
+  if (!outfilePNG.is_open()) {
+    std::cerr << "Error writing file to " << namePNG << std::endl;
     return false;
   }
-  outfile << tosave;
-  outfile.close();
+  outfilePNG << pngAndJson.first;
+  outfilePNG.close();
+    
+  if( !(pngAndJson.second ==""))
+  {
+    std::string nameJSON  = nameHis;
+    nameJSON+=".json";
+    nameJSON  = location + nameJSON;
+    std::ofstream outfileJSON(nameJSON);
+    if (!outfileJSON.is_open()){
+      std::cerr << "Error writing file to " << nameJSON <<std::endl;
+      return false;
+    }
+    outfileJSON <<pngAndJson.second;
+    outfileJSON.close();
+  }
+
   return true;
 }
 
 std::string
 HanOutputFile::
 getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+    bool pngOnly = true;
+    return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,pngOnly).first;
+}
+
+std::pair<std::string,std::string> HanOutputFile:: getHistogramJSON( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+    bool pngOnly = false;
+    return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,pngOnly);
+}
+
+std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nameHis, TDirectory* groupDir, bool drawRefs, std::string run_min_LB, std::string pathName,bool pngOnly){
   dqi::DisableMustClean disabled;
   groupDir->cd();
  
@@ -890,6 +917,7 @@ getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::s
   
   char* x;
   int y;
+  std::string json;
   TImage* img = TImage::Create();  
 
   gROOT->SetBatch();
@@ -966,7 +994,7 @@ getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::s
   TKey* hkey = groupDir->FindKey( nameHis.c_str() );
   if( hkey == 0 ) {
     std::cerr << "Did not find TKey for \"" << nameHis << "\", will not save this histogram.\n";
-    return "";
+    return std::pair<std::string,std::string>{"",""};
   }
   TLegend* legend(0);
   TObject* hobj = hkey->ReadObj();
@@ -1046,13 +1074,13 @@ getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::s
       std::string fitopt("");
       fpos=display.find("FitOption");
       if (fpos!= std::string::npos){
-	  fpos1=display.find("(",fpos+1);
-	  if (fpos1!=std::string::npos) {
-	    fpos2 = display.find(")",fpos1+1);
-	    if (fpos2!=std::string::npos) {
-	      fitopt=display.substr(fpos1+1,fpos2-fpos1-1);
-	    }    
-	  }
+          fpos1=display.find("(",fpos+1);
+          if (fpos1!=std::string::npos) {
+              fpos2 = display.find(")",fpos1+1);
+              if (fpos2!=std::string::npos) {
+                  fitopt=display.substr(fpos1+1,fpos2-fpos1-1);
+              }    
+          }
       }
       //plot double gaus
       std::size_t found1 = display.find("doublegaus");
@@ -1188,14 +1216,14 @@ getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::s
                   << "Inconsistent x-axis settings:  min=" << h->GetXaxis()->GetXmin() << ", "
                   << "max=" << h->GetXaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return "";
+        return std::pair<std::string,std::string>{"",""};
       }
       if( h->GetYaxis()->GetXmin() >= h->GetYaxis()->GetXmax() ) {
         std::cerr << "HanOutputFile::saveHistogramToFile(): "
                   << "Inconsistent y-axis settings:  min=" << h->GetYaxis()->GetXmin() << ", "
                   << "max=" << h->GetYaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return "";
+        return std::pair<std::string,std::string>{"",""};
       }
       axisOption(display,h2);
       if (drawopt =="") {
@@ -1232,8 +1260,12 @@ getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::s
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-
-      getImageBuffer(img, myC, &x, &y);
+ 
+      getImageBuffer(img,myC,&x,&y);
+      if (!pngOnly)
+      {
+          json = TBufferJSON::ConvertToJSON(myC);
+      }
 
     } else if( h != 0 ){
       formatTH1( myC, h );
@@ -1245,7 +1277,7 @@ getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::s
                   << "Inconsistent x-axis settings:  min=" << h->GetXaxis()->GetXmin() << ", "
                   << "max=" << h->GetXaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return "";
+        return std::pair<std::string,std::string>{"",""};
       }
       h->SetLineColor(kBlack);
       h->SetMarkerColor(1);
@@ -1434,6 +1466,11 @@ getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::s
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
       getImageBuffer(img, myC, &x, &y);
+      if (!pngOnly)
+      {
+         json =  TBufferJSON::ConvertToJSON(myC);
+      }
+
     }
     delete myC;
     gStyle->Reset();
@@ -1466,15 +1503,23 @@ getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::s
     tt.DrawLatex(0.02,0.01,pathName.c_str());
     //myC->SaveAs( name.c_str() );
     getImageBuffer(img, myC, &x, &y);
+    if (!pngOnly)
+    {
+        json= TBufferJSON::ConvertToJSON(myC);
+    }
+
     delete myC;
     gStyle->Reset();
   }
   std::string rv(x, y);
+  std::pair<std::string,std::string>rvPair{rv,json};
+
   delete img;
   delete hobj;
   delete hRef;
   delete legend;
-  return rv;
+  return rvPair;
+  
 }
 
 bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::string location, 

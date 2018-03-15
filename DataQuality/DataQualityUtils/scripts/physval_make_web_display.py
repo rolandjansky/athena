@@ -226,7 +226,8 @@ def super_process(fname, options):
                                            hanoutput,
                                            options.outdir,
                                            '', False, False, 
-                                           'https://atlasdqm.web.cern.ch/atlasdqm/js/')
+                                           'https://atlasdqm.web.cern.ch/atlasdqm/js/',
+                                           options.jsRoot)
 ##            print '====> Copying to', hantargetdir
 ##            hantargetfile = os.path.join(hantargetdir, 'out_han.root')
 ##            if not os.access(hantargetdir, os.W_OK):
@@ -291,6 +292,8 @@ if __name__=="__main__":
                       help='Draw histograms with ratio plots')
     parser.add_option('--ratio2D', default=False, action='store_true',
                       help='Draw 2D histograms with ratio plots')
+    parser.add_option('--jsRoot',action='store_true', default=False,
+                      help="make interactive jsRoot displays")
 
 
     options, args = parser.parse_args()
