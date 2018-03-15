@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "GeoModelInterfaces/AbsMaterialManager.h"
@@ -255,11 +251,12 @@ InDetMaterialManager::getMaterialInternal(const std::string & origMaterialName,
   // First see if we already have the modified material
   const GeoMaterial* material = getAdditionalMaterial(newName2);
   if (material) {
-    if (!compareDensity(material->getDensity(), density)) {
-      msg(MSG::WARNING) << "Density is not consistent for material " << newName2 
+    if( abs(material->getDensity()-density) >0.001*density){
+      msg(MSG::WARNING) << "Density is not consistent for material " << newName2
 			<< "  "<<material->getDensity()/(CLHEP::gram/CLHEP::cm3)
-			<<" / "<<density/(CLHEP::gram/CLHEP::cm3)<<endmsg;
-    }    
+			<<" / "<<density/(CLHEP::gram/CLHEP::cm3)
+                        << endmsg;
+    }
     newMaterial = material;
   } else {
     const GeoMaterial * origMaterial = getMaterialInternal(origMaterialName);    
@@ -496,7 +493,7 @@ InDetMaterialManager::addScalingTable(IRDBRecordset_ptr scalingTable)
 
 
 const GeoMaterial *
-InDetMaterialManager::getMaterialForVolume(const std::string & materialName, double volume, const std::string & newName) 
+InDetMaterialManager::getMaterialForVolume(const std::string & materialName, double volume, const std::string & newName, const double fudgeFactor) 
 {
   // Make sure we have a valid volume size.
   if (volume <= 0) {
@@ -518,9 +515,9 @@ InDetMaterialManager::getMaterialForVolume(const std::string & materialName, dou
   if ((iter = m_weightMap.find(materialName)) != m_weightMap.end()) {
     const std::string & materialBase = iter->second.name;
     double weight = iter->second.weight;
-    double density = weight/volume;
+    double density = fudgeFactor*weight/volume;
     if (iter->second.linearWeightFlag) {
-      msg(MSG::ERROR) << "Material defined by linear weight cannot be created with getMaterialForVolume method: " << materialName << endmsg;
+      msg(MSG::WARNING) << "Material defined by linear weight cannot be created with getMaterialForVolume method: " << materialName << endmsg;
     } 
 
     if (msgLvl(MSG::VERBOSE)) { 
@@ -557,7 +554,7 @@ InDetMaterialManager::getMaterialForVolume(const std::string & materialName, dou
 
 
 const GeoMaterial *
-InDetMaterialManager::getMaterialForVolumeLength(const std::string & materialName, double volume, double length, const std::string & newName)
+InDetMaterialManager::getMaterialForVolumeLength(const std::string & materialName, double volume, double length, const std::string & newName, const double fudgeFactor)
 {
   // In the case there is no material composition table (MaterialCompositionMap) and no linear weights are used this will 
   // behave the same way as getMaterialForVolume.
@@ -604,7 +601,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & materialNam
   MaterialWeightMap::const_iterator iter;
   if ((iter = m_weightMap.find(materialName)) != m_weightMap.end()) {
     const std::string & materialBase = iter->second.name;
-    double weight = iter->second.weight;
+    double weight = iter->second.weight*fudgeFactor;
     if (iter->second.linearWeightFlag) weight *= length;
     double density = weight/volume;
 
@@ -644,7 +641,8 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & name,
 						 const std::vector<std::string> & materialComponents, 
 						 const std::vector<double> factors, 
 						 double volume, 
-						 double length)
+						 double length,
+						 const double fudgeFactor)
 {
 
   // Make sure we have a valid volume size.
@@ -728,7 +726,7 @@ InDetMaterialManager::getMaterialForVolumeLength(const std::string & name,
   for (unsigned int i = 0; i < fracWeight.size(); ++i) {
     fracWeight[i] /= totWeight;
   }
-  double density = totWeight/volume;
+  double density = totWeight/volume*fudgeFactor;
 
   return getMaterial(name,baseMaterials,fracWeight,density);
 }

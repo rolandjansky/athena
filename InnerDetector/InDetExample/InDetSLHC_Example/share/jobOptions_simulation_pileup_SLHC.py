@@ -23,17 +23,17 @@ from AthenaCommon.AthenaCommonFlags import jobproperties
 jobproperties.AthenaCommonFlags.PoolHitsOutput=os.environ['OUTFILENAME']
 jobproperties.AthenaCommonFlags.EvtMax=int(os.environ['EVTMAX'])
 
-from G4AtlasApps.SimFlags import simFlags
-simFlags.load_atlas_flags()
-simFlags.SimLayout='ATLAS-SLHC-01-00-00_VALIDATION'
-simFlags.SimLayout.set_On() 
+from G4AtlasApps.SimFlags import SimFlags
+SimFlags.load_atlas_flags()
+SimFlags.SimLayout='ATLAS-SLHC-01-00-00_VALIDATION'
+SimFlags.SimLayout.set_On() 
 #sets the EtaPhi, VertexSpread and VertexRange checks on
-simFlags.EventFilter.set_On()
-#simFlags.EventFilter.set_Value({'VertexPositioners': True, 'VertexRangeChecker': True})
-simFlags.EventFilter.set_Value({'VertexPositioners': True, 'VertexRangeChecker': True, 'EtaPhiFilters': False})
+SimFlags.EventFilter.set_On()
+#SimFlags.EventFilter.set_Value({'VertexPositioners': True, 'VertexRangeChecker': True})
+SimFlags.EventFilter.set_Value({'VertexPositioners': True, 'VertexRangeChecker': True, 'EtaPhiFilters': False})
 
-simFlags.KinematicsMode='EventGenerator'
-simFlags.GeneratorPath=os.environ["SCRIPTDIR"] + '/jobOptions_pythia_SLHC.py' # path?
+SimFlags.KinematicsMode='EventGenerator'
+SimFlags.GeneratorPath=os.environ["SCRIPTDIR"] + '/jobOptions_pythia_SLHC.py' # path?
 
 MessageSvc = Service( "MessageSvc" )
 MessageSvc.OutputLevel = WARNING

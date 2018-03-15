@@ -15,13 +15,13 @@ from AthenaCommon.AppMgr import ToolSvc
 from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
 TrkDetFlags.MaterialSource           = 'None'
 TrkDetFlags.MaterialVersion          = 16
-##         TrkDetFlags.ConfigurationOutputLevel = VERBOSE
 
-##         TrkDetFlags.PixelBuildingOutputLevel     = VERBOSE
-##         TrkDetFlags.SCT_BuildingOutputLevel      = VERBOSE
-##         TrkDetFlags.TRT_BuildingOutputLevel      = VERBOSE
-##         TrkDetFlags.InDetBuildingOutputLevel     = VERBOSE
-##         TrkDetFlags.ConfigurationOutputLevel     = VERBOSE
+#TrkDetFlags.ConfigurationOutputLevel     = VERBOSE #INFO #VERBOSE
+#TrkDetFlags.PixelBuildingOutputLevel     = VERBOSE #INFO #VERBOSE
+#TrkDetFlags.SCT_BuildingOutputLevel      = VERBOSE #INFO #VERBOSE
+#TrkDetFlags.InDetBuildingOutputLevel     = VERBOSE #INFO #VERBOSE
+#TrkDetFlags.ConfigurationOutputLevel     = VERBOSE #INFO #VERBOSE
+
 TrkDetFlags.SLHC_Geometry = True
 TrkDetFlags.XMLFastCustomGeometry = True
 TrkDetFlags.InDetTrackingGeometryBuilderName = 'InDetTrackingGeometryBuilder'

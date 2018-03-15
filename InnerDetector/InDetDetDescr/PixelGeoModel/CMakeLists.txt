@@ -15,6 +15,7 @@ atlas_depends_on_subdirs(
    DetectorDescription/GeoModel/GeoModelKernel
    DetectorDescription/GeoModel/GeoModelUtilities
    DetectorDescription/Identifier
+   InnerDetector/InDetDetDescr/PixelLayouts/PixelInterfaces
    GaudiKernel
    InnerDetector/InDetDetDescr/InDetGeoModelUtils
    InnerDetector/InDetDetDescr/InDetReadoutGeometry

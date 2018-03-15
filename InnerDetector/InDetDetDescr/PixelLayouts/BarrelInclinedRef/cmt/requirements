@@ -1,0 +1,39 @@
+
+package BarrelInclinedRef
+author LAPP team  
+
+private
+
+use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
+use Identifier           Identifier-*           DetectorDescription
+use GeoModelInterfaces   GeoModelInterfaces-*   DetectorDescription/GeoModel
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
+use PathResolver   PathResolver-*    Tools
+use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
+use GeoPrimitives       GeoPrimitives-*    DetectorDescription
+
+
+public
+
+use AtlasPolicy          AtlasPolicy-*
+use GaudiInterface       GaudiInterface-*       External
+use AthenaKernel         AthenaKernel-*         Control
+use AtlasCLHEP           AtlasCLHEP-*           External
+use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
+use AthenaBaseComps	 AthenaBaseComps-*      Control
+use AtlasXercesC         AtlasXercesC-*         External
+use AtlasROOT 			AtlasROOT-*			    External
+
+use PixelGeoModel   PixelGeoModel-*   InnerDetector/InDetDetDescr
+use PixelInterfaces   PixelInterfaces-*   InnerDetector/InDetDetDescr/PixelLayouts
+use PixelLayoutUtils   PixelLayoutUtils-*   InnerDetector/InDetDetDescr/PixelLayouts
+use PixelGeoModelModule   PixelGeoModelModule-*   InnerDetector/InDetDetDescr/PixelLayouts
+use InDetTrackingGeometryXML        InDetTrackingGeometryXML-* 	InnerDetector/InDetDetDescr
+#use PixelServicesTool PixelServicesTool-* InnerDetector/InDetDetDescr/PixelLayouts
+
+library BarrelInclinedRef *.cxx components/*.cxx
+apply_pattern component_library
+
+#apply_pattern declare_runtime files="*.xml"
+apply_pattern declare_runtime files="-s=../data/ *.xml"
+

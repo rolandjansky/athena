@@ -1,0 +1,22 @@
+The package GmxLayouts collects together the xml input files (also known as .gmx files) for layouts
+described with GeoModelXml.
+
+Structure:
+
+trunk/data/ITk/Strip: For all Strip layouts for the future ITk system (LoI, 4 layers, ...)
+               Pixel: For pixel layouts, currently a geometry from Joakim gradin
+               Beampipe: If anyone wants to put it in GeoModelXml
+
+Each subdirectory of these contains a set of .gmx files making up the description, e.g.:
+trunk/data/ITk/Strip/LoI for the LoI strip layout.
+
+The geomodel.dtd file is part of the GeoModelXml package, and should be obtained from there.
+
+The LTF Strip layout contains two bash scripts that may be useful elsewhere:
+
+check: uses xmllint to check your .gmx files. Very much quicker than trying to start VP1 only to find a simple error.
+
+makeblob: combines all .gmx files into one, with the intention to upload this into the geometry database.
+
+Nigel Hessey Aug 3 2015.
+Updated April 27 2016.

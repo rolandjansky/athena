@@ -20,6 +20,7 @@
 // STL
 #include <vector>
 #include <string>
+#include <utility>
 
 #ifndef TRKDETDESCR_TAKESMALLERBIGGER
 #define TRKDETDESCR_TAKESMALLERBIGGER
@@ -193,6 +194,8 @@ namespace InDet {
 
       /** helper method needed for the Ring layout */
       void checkForInsert(std::vector<double>& radii, double radius) const;
+      
+      void checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const;
 
       // helper tools for the geometry building
       ToolHandleArray<Trk::ILayerProvider>           m_layerProviders;          //!< Helper Tools for the Layer creation, includes beam pipe builder   
@@ -244,7 +247,24 @@ namespace InDet {
       std::sort(radii.begin(),radii.end());   
   }
 
-
+  inline void StagedTrackingGeometryBuilder::checkForInsert(double rmin, double rmax, std::vector<std::pair<double, double>>& radii) const {
+    
+    bool exists = false;
+    for ( auto& p : radii) {
+      if (((p.first-rmin)*(p.first-rmin) < m_ringTolerance*m_ringTolerance) and ((p.second-rmax)*(p.second-rmax) < m_ringTolerance*m_ringTolerance)) {
+	exists = true; break;
+      } else if ((p.first-rmin)*(p.first-rmin) < m_ringTolerance*m_ringTolerance) {
+	p.second = std::max(p.second, rmax);
+	exists = true; break;
+      } else if ((p.second-rmax)*(p.second-rmax) < m_ringTolerance*m_ringTolerance) {
+	p.first = std::min(p.first, rmin);
+	exists = true; break;
+      } 
+    }
+    //insert
+    if (!exists) radii.push_back(std::pair<double,double>(rmin,rmax));
+  }
+  
 } // end of namespace
 
 #endif //INDETTRACKINGGEOMETRY_STAGEDTRACKINGGEOMETRYBUILDER_H

@@ -13,8 +13,8 @@ from AthenaCommon.CfgGetter import getService, getPublicTool
 if DetFlags.digitize.pixel_on():
     outStream.ItemList+=["SiHitCollection#PixelHits"]
     #disable some Pixel stuff
-    from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-    pixelTool =  PixelDetectorTool()
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
     pixelTool.Alignable = False
     from Digitization.DigitizationFlags import digitizationFlags
     pixeldigi = None

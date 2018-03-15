@@ -362,19 +362,19 @@
 
   <subregion name="SCTBarrel_layer0_phi">
     <range field="layer_disk" value="0"/>
-    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="true"/>
+    <range field="phi_module" minvalue="0" maxvalue="27" wraparound="TRUE"/>
   </subregion>
   <subregion name="SCTBarrel_layer1_phi">
     <range field="layer_disk" value="1"/>
-    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="true"/>
+    <range field="phi_module" minvalue="0" maxvalue="39" wraparound="TRUE"/>
   </subregion>
   <subregion name="SCTBarrel_layer2_phi">
     <range field="layer_disk" value="2"/>
-    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="true"/>
+    <range field="phi_module" minvalue="0" maxvalue="51" wraparound="TRUE"/>
   </subregion>
   <subregion name="SCTBarrel_layer3_phi">
     <range field="layer_disk" value="3"/>
-    <range field="phi_module" minvalue="0" maxvalue="71" wraparound="true"/>
+    <range field="phi_module" minvalue="0" maxvalue="71" wraparound="TRUE"/>
   </subregion>
 
   <subregion name="side">
@@ -419,7 +419,7 @@
     <reference subregion="SCT_barrel"/>
     <reference subregion="SCTBarrel_layer2_phi"/>
     <reference subregion="SCT_NegativeStave_eta_side"/>
-    <reference subregion="ShortStrip_row_strip"/>
+    <reference subregion="MediumStrip_row_strip"/>
   </region>
   <region group="sct" name="SCT_NegativeBarrel3">  
     <reference subregion="SCT_barrel"/>
@@ -444,7 +444,7 @@
     <reference subregion="SCT_barrel"/>
     <reference subregion="SCTBarrel_layer2_phi"/>
     <reference subregion="SCT_PositiveStave_eta_side"/>
-    <reference subregion="ShortStrip_row_strip"/>
+    <reference subregion="MediumStrip_row_strip"/>
   </region>
   <region group="sct" name="SCT_PositiveBarrel3">  
     <reference subregion="SCT_barrel"/>
@@ -462,13 +462,13 @@
    \ __________|___________/      -> last three rings have 64 sensors
     \          | 2        /
      \ ________|_________/    
-      \        | 2      /
+      \        | 4      /
        \ ______|_______/    
         \      2      /
          \___________/     -> first three rings have 32 sensors
           \    4    /
            \_______/
-            \  8  / 
+            \  4  / 
              \___/
 	 
   -->
@@ -529,21 +529,11 @@
     <range field="row" minvalue="2" maxvalue="3"/>
     <range field="strip" minvalue="0" maxvalue="1151"/>
   </region>
-  <region group="sct" name="SCTEndcap_ring0_hybrid2"> 
-    <reference subregion="SCTEndcap_ring0"/>
-    <range field="row" minvalue="4" maxvalue="5"/>
-    <range field="strip" minvalue="0" maxvalue="1151"/>
-  </region>
-  <region group="sct" name="SCTEndcap_ring0_hybrid3"> 
-    <reference subregion="SCTEndcap_ring0"/>
-    <range field="row" minvalue="6" maxvalue="7"/>
-    <range field="strip" minvalue="0" maxvalue="1279"/>
-  </region>
 
   <region group="sct" name="SCTEndcap_ring1_hybrid0"> 
     <reference subregion="SCTEndcap_ring1"/>
     <range field="row" minvalue="0" maxvalue="1"/>
-    <range field="strip" minvalue="0" maxvalue="1407"/>
+    <range field="strip" minvalue="0" maxvalue="1279"/>
   </region>
   <region group="sct" name="SCTEndcap_ring1_hybrid1"> 
     <reference subregion="SCTEndcap_ring1"/>
@@ -560,6 +550,11 @@
   <region group="sct" name="SCTEndcap_ring3_hybrid0"> 
     <reference subregion="SCTEndcap_ring3"/>
     <range field="row" minvalue="0" maxvalue="1"/>
+    <range field="strip" minvalue="0" maxvalue="895"/>
+  </region>
+  <region group="sct" name="SCTEndcap_ring3_hybrid1"> 
+    <reference subregion="SCTEndcap_ring3"/>
+    <range field="row" minvalue="2" maxvalue="3"/>
     <range field="strip" minvalue="0" maxvalue="895"/>
   </region>
 

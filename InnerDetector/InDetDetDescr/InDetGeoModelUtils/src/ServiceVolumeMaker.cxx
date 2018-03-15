@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "InDetGeoModelUtils/ServiceVolumeMaker.h"
 #include "InDetGeoModelUtils/ServiceVolume.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
