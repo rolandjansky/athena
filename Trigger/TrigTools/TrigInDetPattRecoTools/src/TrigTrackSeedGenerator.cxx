@@ -526,7 +526,7 @@ bool TrigTrackSeedGenerator::getSpacepointRange(int lJ, const std::vector<const 
 
 // Make old function signature avaiable by calling new function with a default value for lI
 int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, bool checkPSS, const SP_RANGE& delta) {
-  return processSpacepointRangeNew(-1, lJ, rm, zm, checkPSS, delta);
+  return processSpacepointRangeNew(999, lJ, rm, zm, checkPSS, delta);
 }
 
 int TrigTrackSeedGenerator::processSpacepointRangeNew(int lI, int lJ, float rm, float zm, bool checkPSS, const SP_RANGE& delta) {

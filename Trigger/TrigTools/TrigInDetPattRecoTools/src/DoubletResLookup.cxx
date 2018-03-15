@@ -1,4 +1,5 @@
 #include "TrigInDetPattRecoTools/DoubletResLookup.h"
+#include <stdexcept> // out_of_range exception
 
 DoubletResLookup::DoubletResLookup() {
   // create vectors of fit parameters for fits to z0 residual vs eta:
@@ -74,10 +75,27 @@ DoubletResLookup::DoubletResLookup() {
 
 double DoubletResLookup::getRes(unsigned int layer, DoubletType type, double eta) {
   if (type == DoubletType::inner) {
-    return ( m_fitPars_inn.at(layer).at(0) + m_fitPars_inn.at(layer).at(1)*(eta*eta) + m_fitPars_inn.at(layer).at(2)*(eta*eta*eta*eta) );
+    std::vector<double>* fitPars;
+    
+    try {
+      fitPars = &m_fitPars_inn.at(layer);
+    } catch (const std::out_of_range& outOfRange) {
+      return 0.;
+    }
+    
+    return ( fitPars->at(0) + fitPars->at(1)*(eta*eta) + fitPars->at(2)*(eta*eta*eta*eta) );
   }
+  
   else if (type == DoubletType::outer) {
-    return ( m_fitPars_outr.at(layer).at(0) + m_fitPars_outr.at(layer).at(1)*(eta*eta) + m_fitPars_outr.at(layer).at(2)*(eta*eta*eta*eta) );
+    std::vector<double>* fitPars;
+    
+    try {
+      fitPars = &m_fitPars_outr.at(layer);
+    } catch (const std::out_of_range& outOfRange) {
+      return 0.;
+    }
+    
+    return ( fitPars->at(0) + fitPars->at(1)*(eta*eta) + fitPars->at(2)*(eta*eta*eta*eta) );
   }
 
   return 0.;
