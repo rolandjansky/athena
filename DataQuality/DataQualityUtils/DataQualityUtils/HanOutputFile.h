@@ -67,14 +67,18 @@ public:
   virtual void streamAllDQAssessments( std::ostream& o, bool streamAll );
   virtual void streamHistoAssessments( std::ostream& o, bool streamAll );
   virtual void streamAllHistograms( std::ostream& o, bool streamAll );
-  virtual int  saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB,bool pngOnly=true );
+
+  /**
+   * cnvsType: 0=pngOnly;1=jsonOnly;2=pngAndJson
+   */
+  virtual int  saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB,int cnvsType = 0);
   static bool containsDir(std::string dirname, std::string maindir);
 
   virtual bool saveHistogramToFile( std::string nameHis, std::string location,
-                 TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName,bool pngOnly=true);
+                 TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName,int cnvsType = 0);
   virtual std::pair<std::string,std::string> getHistogram( std::string nameHis,
 				       TDirectory* groupDir, bool drawRefs,
-				       std::string run_min_LB, std::string pathName,bool pngonly=true );
+				       std::string run_min_LB, std::string pathName,int cnvsType=0);
   virtual std::string getHistogramPNG( std::string nameHis,
 				       TDirectory* groupDir, bool drawRefs,
 				       std::string run_min_LB, std::string pathName );
@@ -82,7 +86,7 @@ public:
 				       TDirectory* groupDir, bool drawRefs,
 				       std::string run_min_LB, std::string pathName );
   virtual bool saveHistogramToFileSuperimposed( std::string nameHis, std::string location,
-                 TDirectory* groupDir1, TDirectory* groupDir2, bool drawRefs,std::string run_min_LB, std::string pathName );
+                 TDirectory* groupDir1, TDirectory* groupDir2, bool drawRefs,std::string run_min_LB, std::string pathName,int cnvsType=0);
 
   virtual bool drawH2(TCanvas* canv,TH2* hist,std::string &drawopt,std::string &display);
   virtual bool drawH1(TCanvas* canv,TH1* hist,TH1* reference,std::string &drawopt,std::string &display,std::string &AlgoName);
@@ -109,6 +113,7 @@ public:
 protected:
   
   virtual void clearData();
+  virtual bool writeToFile(std::string fName, std::string content);
 
   
   TFile*        m_file;

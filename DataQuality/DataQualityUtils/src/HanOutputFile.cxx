@@ -790,7 +790,7 @@ streamAllHistograms( std::ostream& o, bool streamAll )
 
 int
 HanOutputFile::
-saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB ,bool pngOnly)
+saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB ,int cnvsType)
 {
   if( m_file == 0 ) {
     std::cerr << "HanOutputFile::saveAllHistograms(): "
@@ -827,7 +827,7 @@ saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB ,
       completeDir += "/";
       std::cout << "Saving " << completeDir << " " << hisName << "\n" << std::flush;
       bool isSaved = saveHistogramToFile(hisName,completeDir,idir->second,drawRefs,run_min_LB,
-                                         (hisPath + "/" + hisName),pngOnly);
+                                         (hisPath + "/" + hisName),cnvsType);
       if( isSaved )
         ++nSaved;
     }
@@ -840,57 +840,47 @@ void getImageBuffer(TImage* img, TCanvas* myC, char** x, int* y){
   img->GetImageBuffer(x, y, TImage::kPng);
 }
 
-bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName,bool pngOnly){
-  std::pair<std::string,std::string> pngAndJson = getHistogram(nameHis,groupDir,drawRefs,run_min_LB,pathName,pngOnly);
+bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName,int cnvsType){
+  std::pair<std::string,std::string> pngAndJson = getHistogram(nameHis,groupDir,drawRefs,run_min_LB,pathName,cnvsType);
   //std::string tosave = getHistogramPNG(nameHis, groupDir, drawRefs, run_min_LB, pathName);
   if (pngAndJson.first== "") {
     return false;
   }
   std::string namePNG   = nameHis;
-  namePNG+=".png";
+  std::string nameJSON  = nameHis;
+
+  namePNG   +=".png";
+  nameJSON  +=".json";
+
   std::string::size_type i = location.find_last_of( '/' );
   if( i != (location.size()-1) ) {
     location+="/";
   }
   namePNG   = location + namePNG;
-  std::ofstream outfilePNG(namePNG);
-  if (!outfilePNG.is_open()) {
-    std::cerr << "Error writing file to " << namePNG << std::endl;
-    return false;
-  }
-  outfilePNG << pngAndJson.first;
-  outfilePNG.close();
-    
-  if( !(pngAndJson.second ==""))
-  {
-    std::string nameJSON  = nameHis;
-    nameJSON+=".json";
-    nameJSON  = location + nameJSON;
-    std::ofstream outfileJSON(nameJSON);
-    if (!outfileJSON.is_open()){
-      std::cerr << "Error writing file to " << nameJSON <<std::endl;
-      return false;
-    }
-    outfileJSON <<pngAndJson.second;
-    outfileJSON.close();
-  }
+  nameJSON  = location + nameJSON;
 
-  return true;
+  switch (cnvsType)
+  {
+      case 0: return writeToFile(namePNG,pngAndJson.first);
+      case 1: return writeToFile(nameJSON,pngAndJson.second);
+      case 2: return (writeToFile(namePNG,pngAndJson.first) && writeToFile(nameJSON,pngAndJson.second));
+  }
+  return false ;
 }
 
 std::string
 HanOutputFile::
 getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
-    bool pngOnly = true;
-    return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,pngOnly).first;
+    int cnvsType = 0;
+    return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,cnvsType).first;
 }
 
 std::pair<std::string,std::string> HanOutputFile:: getHistogramJSON( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
-    bool pngOnly = false;
-    return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,pngOnly);
+    int cnvsType = 1;
+    return getHistogram(nameHis, groupDir,drawRefs,run_min_LB,pathName,cnvsType);
 }
 
-std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nameHis, TDirectory* groupDir, bool drawRefs, std::string run_min_LB, std::string pathName,bool pngOnly){
+std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nameHis, TDirectory* groupDir, bool drawRefs, std::string run_min_LB, std::string pathName,int cnvsType){
   dqi::DisableMustClean disabled;
   groupDir->cd();
  
@@ -1260,11 +1250,12 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
- 
-      getImageBuffer(img,myC,&x,&y);
-      if (!pngOnly)
+       
+      switch(cnvsType)
       {
-          json = TBufferJSON::ConvertToJSON(myC);
+        case 0 : getImageBuffer(img,myC,&x,&y);
+        case 1 : json = TBufferJSON::ConvertToJSON(myC);
+        case 2 : getImageBuffer(img,myC,&x,&y); json = TBufferJSON::ConvertToJSON(myC);
       }
 
     } else if( h != 0 ){
@@ -1465,10 +1456,12 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-      getImageBuffer(img, myC, &x, &y);
-      if (!pngOnly)
+
+      switch(cnvsType)
       {
-         json =  TBufferJSON::ConvertToJSON(myC);
+          case 0 : getImageBuffer(img,myC,&x,&y);
+          case 1 : json = TBufferJSON::ConvertToJSON(myC);
+          case 2 : getImageBuffer(img,myC,&x,&y); json = TBufferJSON::ConvertToJSON(myC);
       }
 
     }
@@ -1502,10 +1495,12 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
     //myC->SaveAs( name.c_str() );
-    getImageBuffer(img, myC, &x, &y);
-    if (!pngOnly)
+
+    switch(cnvsType)
     {
-        json= TBufferJSON::ConvertToJSON(myC);
+        case 0 : getImageBuffer(img,myC,&x,&y);
+        case 1 : json = TBufferJSON::ConvertToJSON(myC);
+        case 2 : getImageBuffer(img,myC,&x,&y); json= TBufferJSON::ConvertToJSON(myC);
     }
 
     delete myC;
@@ -1524,7 +1519,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 
 bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::string location, 
 				 TDirectory* groupDir1, TDirectory* groupDir2, 
-				 bool drawRefs,std::string run_min_LB, std::string pathName){
+				 bool drawRefs,std::string run_min_LB, std::string pathName,int cnvsType){
   dqi::DisableMustClean disabled;
   groupDir1->cd();
   gStyle->SetFrameBorderMode(0);
@@ -1586,13 +1581,17 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
   TH2* h2(0),*h2_2(0),*h2Diff(0);
   TGraph* g(0),*g2(0);
 
-  std::string name=nameHis;
-  name+=".png";
+  std::string json;
+  std::string nameJSON  = nameHis;
+  std::string namePNG   = nameHis;
+  namePNG+=".png";
+  nameJSON+=".json";
   std::string::size_type i = location.find_last_of( '/' );
   if( i != (location.size()-1) ) {
     location+="/";
   }
-  name=location + name;
+  namePNG   =location + namePNG;
+  nameJSON  =location + nameJSON;
   std::string AlgoName=getStringName(pathname+"/"+nameHis+"_/Config/name");
   int ww = 550;
   int wh = 490;
@@ -1638,7 +1637,13 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      myC->SaveAs( name.c_str() );
+      switch(cnvsType)
+      {   
+          case 0 :  myC->SaveAs( namePNG.c_str() );
+          case 1 :  json = TBufferJSON::ConvertToJSON(myC); writeToFile(nameJSON,json);
+          case 2 :  myC->SaveAs( namePNG.c_str() ); json= TBufferJSON::ConvertToJSON(myC); writeToFile(nameJSON,json);
+      }
+
     } else if( h != 0 && hist2!=0){
       h->SetMarkerColor(1);
       h->SetFillStyle(0);
@@ -1675,7 +1680,13 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-      myC->SaveAs(name.c_str());
+      switch(cnvsType)
+      {
+          case 1 : myC->SaveAs( namePNG.c_str() );
+          case 2 : json = TBufferJSON::ConvertToJSON(myC);
+          case 3 : myC->SaveAs( namePNG.c_str() ); json= TBufferJSON::ConvertToJSON(myC);
+      }
+
     } //end histogram drawing
     delete myC;
     delete h2Diff;
@@ -1704,7 +1715,14 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
     tt.SetNDC();
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
-    myC->SaveAs( name.c_str() );
+    
+    switch(cnvsType)
+    {
+        case 0 : myC->SaveAs( namePNG.c_str() );
+        case 1 : json = TBufferJSON::ConvertToJSON(myC); writeToFile(nameJSON,json);
+        case 2 : myC->SaveAs( namePNG.c_str() ); json= TBufferJSON::ConvertToJSON(myC); writeToFile(nameJSON,json);
+    }
+
     delete myC;
     gStyle->Reset();
   }
@@ -2652,6 +2670,20 @@ clearData()
   m_assessMap.clear();
   
 //   gROOT->SetMustClean(useRecursiveDelete);
+}
+
+bool
+HanOutputFile::
+writeToFile(std::string fname ,std::string content)
+{
+    std::ofstream outfile(fname);
+    if (!outfile.is_open()){
+        std::cerr << "Error writing file to " << fname <<std::endl;
+        return false;
+    }
+    outfile<<content;
+    outfile.close();
+    return true;
 }
 
 

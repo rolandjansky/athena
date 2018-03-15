@@ -25,14 +25,14 @@ from ROOT import dqutils
 LBlength = 1.0
 jsonFileCull = set()
 
-def handiWithComparisons( name, resultsFile, htmlDir, runlistLoc, compare, browserMenu,allDirsScriptDir,jsRoot=False ):
+def handiWithComparisons( name, resultsFile, htmlDir, runlistLoc, compare, browserMenu,allDirsScriptDir,jsRoot=0 ):
   ## compare: True if you want a "compare" button on every 1histo page, False by default
   ## javaScriptLoc = url of the javascript for the "compare" button
   ## HjavaScriptLoc = url of the javascript for the "history" button
   ## runlistLoc = url where to find runlist.xml (runlist catalog)
   ## browserMenu = True if you want a browser menu instead of the 
   ## allDirsScript = url of javascript to create browser menu
-  ## jsRoot = enable jsRoot interactive display for histograms
+  ## jsRoot = enable jsRoot ;0=png;1=json;2=pngAndJson
   
   if ( htmlDir.rfind("/")!=(len(htmlDir)-1) ):  # htmlDir needs "/" at the end
         htmlDir+="/"
@@ -587,7 +587,7 @@ def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare,jsRoot):
        jsonFile.seek(0)
        jsonStr = jsonFile.read()
        jsonStr = jsonStr.replace('\n','')
-       k.write('<td><a href="#" onclick="history.go(-1);return false;"><div id="root_plot_1" style="width: 800px; height: 600px"></div></a>\n<script>\n requirejs.config( { paths: { \'JSRootCore\'    : \'https://root.cern.ch/js/dev//scripts/JSRootCore\', \'JSRootPainter\' : \'https://root.cern.ch/js/dev//scripts/JSRootPainter\', } });require([\'JSRootCore\', \'JSRootPainter\'], function(Core, Painter) {\n var obj = Core.parse(\''+jsonStr+'\');\nPainter.draw("root_plot_1", obj, ""); });</script>\n')
+       k.write('<td><div id="root_plot_1" style="width: 600px; height: 400px"></div></td>\n<script>\n requirejs.config( { paths: { \'JSRootCore\'    : \'https://root.cern.ch/js/dev//scripts/JSRootCore\', \'JSRootPainter\' : \'https://root.cern.ch/js/dev//scripts/JSRootPainter\', } });require([\'JSRootCore\', \'JSRootPainter\'], function(Core, Painter) {\n var obj = Core.parse(\''+jsonStr+'\');\nPainter.draw("root_plot_1", obj, ""); });</script>\n')
     else:
        k.write('<td><a href="toplevel.html"><img src="'+ sp[0] +'.png" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
   else:
@@ -595,7 +595,7 @@ def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare,jsRoot):
          jsonFile.seek(0)
          jsonStr = jsonFile.read()
          jsonStr = jsonStr.replace('\n','');
-         k.write('<td><a href="#" onclick="history.go(-1);return false;"><div id="root_plot_1" style="width: 800px; height: 600px"></div></a>\n<script>\n requirejs.config( { paths: { \'JSRootCore\'    : \'https://root.cern.ch/js/dev//scripts/JSRootCore\', \'JSRootPainter\' : \'https://root.cern.ch/js/dev//scripts/JSRootPainter\', } });require([\'JSRootCore\', \'JSRootPainter\'], function(Core, Painter) {\n var obj = Core.parse(\''+jsonStr+'\');\nPainter.draw("root_plot_1", obj, ""); });</script>\n')
+         k.write('<td><div id="root_plot_2" style="width: 600px; height: 400px"></div></td>\n<script>\n requirejs.config( { paths: { \'JSRootCore\'    : \'https://root.cern.ch/js/dev//scripts/JSRootCore\', \'JSRootPainter\' : \'https://root.cern.ch/js/dev//scripts/JSRootPainter\', } });require([\'JSRootCore\', \'JSRootPainter\'], function(Core, Painter) {\n var obj = Core.parse(\''+jsonStr+'\');\nPainter.draw("root_plot_2", obj, ""); });</script>\n')
       else: 
          k.write('<td><a href="index.html"><img src="'+ sp[0] +'.png" alt="' + name + ' ' + subname+'/'+sp[0]+'.png" /></a></td>\n')
   k.write('</tr></table>\n')
@@ -716,7 +716,7 @@ def stringAllDQAssessments( resultsFile ):
 
 def saveAllHistograms( resultsFile, location, drawRefs, run_min_LB ,jsRoot):
   of = dqutils.HanOutputFile( resultsFile )
-  pngOnly= not jsRoot
-  nSaved = of.saveAllHistograms( location, drawRefs, run_min_LB ,pngOnly)
+  cnvType=0 if jsRoot==0 else 2
+  nSaved = of.saveAllHistograms( location, drawRefs, run_min_LB ,cnvType)
   of.setFile('')
   return nSaved
