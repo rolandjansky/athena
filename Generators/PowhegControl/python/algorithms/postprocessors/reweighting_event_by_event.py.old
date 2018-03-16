@@ -1,0 +1,113 @@
+from AthenaCommon import Logging
+from ..decorators import timed
+from ..utility import FileParser
+from .generation_singlecore import untimed_generation_singlecore
+import collections
+import os
+import shutil
+
+## Get handle to Athena logging
+logger = Logging.logging.getLogger("PowhegControl")
+
+## Tuple to contain arbitrary grouped weights
+SingleWeight = collections.namedtuple("SingleWeight", ["parameter_settings", "keywords", "ID", "name", "combine", "group"])
+
+
+@timed("reweighting")
+def postprocess_reweighting(process, weight_groups):
+    """! Add a series of additional weights to an LHE file.
+
+    @param process       PowhegBox process.
+    @param weight_groups OrderedDict containing groups of weights to add.
+    """
+    # List of tuples holding reweighting information
+    weight_list = []
+
+    # Construct ordered list of weights
+    for group_name, weight_group in weight_groups.items():
+        keyword_dict = dict((n, k) for n, k in zip(weight_group["parameter_names"], weight_group["keywords"]))
+        method = weight_group["combination_method"]
+        # Nominal variation: ID=0
+        if group_name == "nominal":
+            weight_list.append(SingleWeight(parameter_settings=weight_group["nominal"], keywords=keyword_dict, ID=0, name="nominal", combine=method, group=group_name))
+
+        # Scale variations: ID=1001+
+        elif group_name == "scale_variations":
+            for idx, name in enumerate([k for k in weight_group.keys() if k not in ["parameter_names", "combination_method", "keywords"]], start=1001):
+                weight_list.append(SingleWeight(parameter_settings=weight_group[name], keywords=keyword_dict, ID=idx, name=name, combine=method, group=group_name))
+
+        # PDF variations: ID=2001+
+        elif group_name == "PDF_variation":
+            for idx, name in enumerate([k for k in weight_group.keys() if k not in ["parameter_names", "combination_method", "keywords"]], start=2001):
+                weight_list.append(SingleWeight(parameter_settings=weight_group[name], keywords=keyword_dict, ID=idx, name=name, combine=method, group=group_name))
+
+        # Other variations: ID=3001+
+        else:
+            for idx, name in enumerate([k for k in weight_group.keys() if k not in ["parameter_names", "combination_method", "keywords"]], start=3001):
+                weight_list.append(SingleWeight(parameter_settings=weight_group[name], keywords=keyword_dict, ID=idx, name=name, combine=method, group=group_name))
+
+    print weight_list
+
+    # Make backup of generation statistics
+    if os.path.isfile("pwgcounters.dat"):
+        shutil.copy("pwgcounters.dat", "pwgcounters.dat.bak")
+
+    # Iterate over variations: they are cast to int to mitigate vulnerability from shell=True
+    for idx_weight, weight in enumerate(weight_list, start=1):
+        add_single_weight(process, weight, idx_weight, len(weight_list))
+
+    # Remove rwgt lines, which crash Pythia and are not needed if lhrwgt xml is present
+    FileParser("pwgevents.lhe").text_remove("^#rwgt")
+    FileParser("pwgevents.lhe").text_remove("^#new weight")
+
+    # Correct LHE version identification; otherwise Pythia will treat all files as v1
+    FileParser("pwgevents.lhe").text_replace('LesHouchesEvents version="1.0"', 'LesHouchesEvents version="3.0"')
+
+    # Restore generation statistics and initial runcard
+    shutil.move("powheg_nominal.input", "powheg.input")
+    if os.path.isfile("pwgcounters.dat.bak"):
+        shutil.move("pwgcounters.dat.bak", "pwgcounters.dat")
+
+
+def add_single_weight(process, weight, idx_weight, n_total):
+    """! Add a single additional weight to an LHE file.
+
+    @param process       PowhegBox process.
+    @param weight     Tuple with details of the weight to be added.
+    @param idx_weight Which number this weight is.
+    @param n_total    Total number of weights to add.
+    """
+    @timed("weight variation {}/{}".format(idx_weight, n_total))
+    def __timed_inner_fn():
+        logger.info("... weight name is:     {}".format(weight.name))
+        logger.info("... weight index ID is: {}".format(weight.ID))
+        shutil.copy("powheg_nominal.input", "powheg.input")
+
+        # As the nominal process has already been run, turn on compute_rwgt
+        FileParser("powheg.input").text_replace("compute_rwgt 0", "compute_rwgt 1")
+
+        # Ensure that manyseeds is turned off,  as this would cause the reweighting to crash
+        FileParser("powheg.input").text_replace("manyseeds .*", "manyseeds 0")
+        FileParser("powheg.input").text_replace("parallelstage .*", "parallelstage -1")
+
+        # Apply weight settings
+        for (parameter, value) in weight.parameter_settings:
+            try:
+                for keyword in weight.keywords[parameter]:
+                    FileParser("powheg.input").text_replace("^{}.*".format(keyword), "{} {}".format(keyword, value))
+                logger.info("... setting {} to {}".format(parameter, value))
+            except KeyError:
+                logger.warning("Parameter '{}' not recognised. Cannot reweight!".format(parameter))
+
+        # Set reweighting metadata
+        FileParser("powheg.input").text_replace("lhrwgt_descr .*", "lhrwgt_descr '{}'".format(weight.name))
+        FileParser("powheg.input").text_replace("lhrwgt_id .*", "lhrwgt_id '{}'".format(weight.ID))
+        FileParser("powheg.input").text_replace("lhrwgt_group_combine .*", "lhrwgt_group_combine '{}'".format(weight.combine))
+        FileParser("powheg.input").text_replace("lhrwgt_group_name .*", "lhrwgt_group_name '{}'".format(weight.group))
+
+        # Run the process until termination
+        untimed_generation_singlecore(process)
+        shutil.move("pwgevents-rwgt.lhe", "pwgevents.lhe")
+
+    # Run single weight variation
+    __timed_inner_fn()
