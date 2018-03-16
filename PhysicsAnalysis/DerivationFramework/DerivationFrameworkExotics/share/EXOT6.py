@@ -22,7 +22,7 @@ if DerivationFrameworkIsMonteCarlo:
     addStandardTruthContents()
 
     # Redo ghost association
-#    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=exot6Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=exot6Seq, algname="JetPtAssociationAlg")
 
 #====================================================================
 # THINNING TOOL 
