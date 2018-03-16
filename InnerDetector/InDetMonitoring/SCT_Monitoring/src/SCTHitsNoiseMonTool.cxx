@@ -39,7 +39,7 @@
 #include "InDetRawData/SCT_TB03_RawData.h" // ?
 #include "InDetRawData/InDetRawDataContainer.h" // ?
 #include "InDetRawData/InDetRawDataCLASS_DEF.h" // ?
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h" // ?
