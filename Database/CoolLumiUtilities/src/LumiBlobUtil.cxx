@@ -246,7 +246,7 @@ LumiBlobUtil::unpack(const cool::Float &ARI, const coral::Blob &blobBC, const st
           m_bunchLumis.push_back(element);
         }
       } // This ends y=2               
-      AB1 = AB1/len;
+      if (len > 0) AB1 = AB1/len;
       //  std::cout << AB1 << std::endl;
     } // This ends x=2     
     if (x==4) {
