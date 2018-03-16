@@ -46,6 +46,7 @@
 + InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
 + MuonSpectrometer/MuonIdHelpers
++ PhysicsAnalysis/Algorithms/.*
 + PhysicsAnalysis/AnalysisCommon/AssociationUtils
 + PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 + PhysicsAnalysis/AnalysisCommon/EventUtils
