@@ -16,6 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/IRegionSelector
                           Event/ByteStreamCnvSvcBase
+                          InnerDetector/InDetConditions/InDetByteStreamErrors
+                          InnerDetector/InDetConditions/SCT_ConditionsData
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/PixelCabling
                           InnerDetector/InDetDetDescr/SCT_Cabling
@@ -29,7 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrigRawDataProvider
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRawData AthenaKernel StoreGateLib SGtests IRegionSelector ByteStreamCnvSvcBaseLib InDetIdentifier SCT_CablingLib TrigSteeringEvent PixelCablingLib )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRawData AthenaKernel StoreGateLib SGtests IRegionSelector ByteStreamCnvSvcBaseLib SCT_ConditionsData InDetIdentifier SCT_CablingLib TrigSteeringEvent PixelCablingLib )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigRawDataProvider )
