@@ -40,6 +40,10 @@ namespace HepMC {
   class GenEvent;
 }
 
+namespace ISFTesting {
+  class TruthSvc_test;
+}
+
 namespace ISF {
 
   class ITruthStrategy;
@@ -54,6 +58,10 @@ namespace ISF {
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
   class TruthSvc : public extends<AthService, ITruthSvc> {
+
+    // allow test to access private data
+    friend ISFTesting::TruthSvc_test;
+
   public:
 
     //** Constructor with parameters */
