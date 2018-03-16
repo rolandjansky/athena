@@ -86,7 +86,9 @@ else
 		egrep -a -v 'RootDBase'  |\
 		egrep -a -v 'RootDatabase.open'  |\
 		# ignore root collect key 
-		egrep -a -v 'NewEventCollection.root, recovered'
+		egrep -a -v 'NewEventCollection.root, recovered' |\
+                # ignore new file catalog messages
+                egrep -a -v 'registerPFN'
 
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 
