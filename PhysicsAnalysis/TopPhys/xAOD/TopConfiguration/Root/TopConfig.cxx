@@ -242,7 +242,9 @@ namespace top{
     m_outputEvents("SetMe"),
     m_saveOnlySelectedEvents(true),
     m_outputFileSetAutoFlushZero(false),
-
+    m_outputFileNEventAutoFlush(1000), // 1000 events
+    m_outputFileBasketSizePrimitive(4096), // 4kB 
+    m_outputFileBasketSizeVector(40960),   // 40kB
     // Number of events to run on (only for testing)
     m_numberOfEventsToRun(0),
 
@@ -604,8 +606,19 @@ namespace top{
     this->outputEvents( settings->value("OutputEvents") );
     // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
     m_outputFileSetAutoFlushZero = false;
-    if (settings->value( "OutputFileSetAutoFlushZero" ) == "True")
-        m_outputFileSetAutoFlushZero = true;
+    if (settings->value( "OutputFileSetAutoFlushZero" ) != "False"){
+      std::cout << "OutputFileSetAutoFlushZero is deprecated in favour of more custom memory options" << std::endl;
+    }
+    // Configurable TTree options (ANALYSISTO-463)
+    if (settings->value( "OutputFileNEventAutoFlush" ) != ""){
+      m_outputFileNEventAutoFlush = std::stoi( settings->value( "OutputFileNEventAutoFlush" ) );
+    }
+    if (settings->value( "OutputFileBasketSizePrimitive" ) != ""){
+      m_outputFileBasketSizePrimitive = std::stoi( settings->value( "OutputFileBasketSizePrimitive" ) );
+    }
+    if (settings->value( "OutputFileBasketSizeVector" ) != ""){
+      m_outputFileBasketSizeVector = std::stoi( settings->value( "OutputFileBasketSizeVector" ) );
+    }
 
     // The systematics want much much more configuration options.....
     this->systematics( settings->value("Systematics") );

@@ -176,7 +176,10 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("OutputFormat", "Format, can be user defined, e.g. top::EventSaverFlatNtuple");
     registerParameter("OutputEvents", "AllEvents (saves all events + decison bits), SelectedEvents (saves only the events passing your cuts)");
     registerParameter("OutputFilename", "The file that will contain the output histograms and trees");
-    registerParameter("OutputFileSetAutoFlushZero", "setAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround. Default False","False");
+    registerParameter("OutputFileSetAutoFlushZero", "setAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround. (default: False)","False");
+    registerParameter("OutputFileNEventAutoFlush", "Set the number of events after which the TTree cache is optimised, ie setAutoFlush(nEvents). (default: 1000)" , "1000");
+    registerParameter("OutputFileBasketSizePrimitive", "Set the TTree basket size for primitive objects (int, float, ...). (default: 4096)" , "4096");
+    registerParameter("OutputFileBasketSizeVector", "Set the TTree basket size for vector objects. (default: 40960)" , "40960");   
 
     registerParameter("EventVariableSaveList", "The list of event variables to save (EventSaverxAODNext only).", "runNumber.eventNumber.eventTypeBitmask.averageInteractionsPerCrossing");
     registerParameter("PhotonVariableSaveList", "The list of photon variables to save (EventSaverxAODNext only).", "pt.eta.phi.m.charge.ptvarcone20.topoetcone20.passPreORSelection");
