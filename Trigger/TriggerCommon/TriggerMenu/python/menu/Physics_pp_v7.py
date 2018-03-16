@@ -4356,7 +4356,14 @@ def setupMenu():
  	["noalg_l1topo_L1SC85-CJ15",          		"L1_SC85-CJ15",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
  	["noalg_l1topo_L1LATE-MU10_J50",          		"L1_LATE-MU10_J50",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
  	["noalg_l1topo_L1LATE-MU10_XE40",          		"L1_LATE-MU10_XE40",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
- 
+
+      #L1Topo streamers (ATR-17812)
+ 	["noalg_l1topo_L1MJJ-500-NFF",          		"L1_MJJ-500-NFF",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+	["noalg_l1topo_L1J50_DETA20-J50J",          		"L1_J50_DETA20-J50J",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+	["noalg_l1topo_L1BPH-0M9-EM7-EM5",          "L1_BPH-0M9-EM7-EM5",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+	["noalg_l1topo_L1BPH-0DR3-EM7J15",          "L1_BPH-0DR3-EM7J15",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+	["noalg_l1topo_L1DPHI-2EM3",          		"L1_DPHI-2EM3",          [], ["L1Topo"], ["RATE:L1TopoStreamers", "BW:Other"], -1 ],
+
         # #minbias streamer
         ['noalg_mb_L1MBTS_1',             'L1_MBTS_1',        [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['noalg_mb_L1MBTS_1_EMPTY',       'L1_MBTS_1_EMPTY',        [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
