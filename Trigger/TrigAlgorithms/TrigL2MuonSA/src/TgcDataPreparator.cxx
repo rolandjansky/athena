@@ -75,20 +75,10 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
      ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
       return sc;
    }
-   
-   // Locate the StoreGateSvc
-   sc =  m_storeGateSvc.retrieve();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
-      return sc;
-   }
 
-   // Locate TGC RawDataProvider
-   sc = m_tgcRawDataProvider.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_tgcRawDataProvider);
-      return sc;
-   }
+   ATH_CHECK( m_storeGateSvc.retrieve() );
+
+   ATH_CHECK( m_tgcRawDataProvider.retrieve() );
    ATH_MSG_DEBUG("Retrieved tool " << m_tgcRawDataProvider);
 
    // Locate RegionSelector
@@ -127,8 +117,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_tgcIdHelper = m_muonMgr->tgcIdHelper();
 
-   sc = m_tgcPrepDataProvider.retrieve();
-   if (sc.isFailure()) return sc;
+   ATH_CHECK( m_tgcPrepDataProvider.retrieve() );
    ATH_MSG_DEBUG("Retrieved m_tgcPrepDataProvider");
 
    sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
