@@ -744,6 +744,12 @@ def defineCPSGroups():
                                             'j260_a10r_L1J75',
                                         ],
 
+
+        'RATE:CPS:HLT_j460_a10L1SC111' : [	'j460_a10_lcw_subjes_L1SC111',
+                                                'j460_a10r_L1SC111',
+                                                'j460_a10t_lcw_jes_L1SC111',],
+
+
         'RATE:CPS:HLT_j480_a10_L1J100': [   'j480_a10_sub_L1J100',
                                             'j480_a10_nojcalib_L1J100',
                                             'j480_a10_lcw_subjes_L1J100',
