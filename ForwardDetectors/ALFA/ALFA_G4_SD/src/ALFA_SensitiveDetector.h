@@ -52,9 +52,9 @@ private:
   SG::WriteHandle<ALFA_HitCollection> m_HitCollection;
   SG::WriteHandle<ALFA_ODHitCollection> m_ODHitCollection;
 
-  int pos1, pos2;
+  int m_pos1, m_pos2;
 
-  int num[3];
+  int m_num[3];
 };
 
 #endif //ALFA_G4_SD_ALFA_SensitiveDetector_h

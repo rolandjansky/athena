@@ -93,3 +93,6 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 # Increment LBN every two events.
 from McEventSelector import McEventSelectorConf
 svcMgr+=McEventSelectorConf.McEventSelector('EventSelector',EventsPerLB=2)
+
+PoolSvc = Service( "PoolSvc" )
+PoolSvc.ReadCatalog = ["file:CondWriter_catalog.xml"]

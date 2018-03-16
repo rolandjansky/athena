@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ================================================
@@ -849,6 +849,9 @@ namespace LVL1 {
       etResultVectorJep[0] = 0;
     }
 
+    // Overlay protection
+    if (m_inputTTLocation == "NoneForOverlay") return StatusCode::SUCCESS;
+
     tower->setLut_cp(std::move(etResultVectorCp));
     tower->setLut_jep(std::move(etResultVectorJep));
     tower->setBcidVec({uint8_t(BCIDOut[BCIDOut.size()/2])});
@@ -1148,7 +1151,7 @@ namespace LVL1 {
     if(et < bcidEnergyRangeHigh) return 1;
     return 2;
   }
-
+  
   double Run2TriggerTowerMaker::IDeta(const Identifier& id, const CaloLVL1_ID* l1id)
   {
     int region = l1id->region(id);

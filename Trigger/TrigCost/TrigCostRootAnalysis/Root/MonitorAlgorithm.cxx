@@ -25,7 +25,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
-  MonitorAlgorithm::MonitorAlgorithm(const TrigCostData* _costData) : MonitorBase(_costData, "Algorithm") {
+  MonitorAlgorithm::MonitorAlgorithm(const TrigCostData* costData) : MonitorBase(costData, "Algorithm") {
     m_dummyCounter = newCounter(Config::config().getStr(kDummyString), INT_MIN);
   }
 
@@ -33,30 +33,30 @@ namespace TrigCostRootAnalysis {
    * Process new event for this monitor.
    * For algorithms, all sequences are looped over, all individual algorithms in the sequences are looped over.
    * Each algorithm call has low-level information recorded.
-   * @param _weight The event weight.
+   * @param weight The event weight.
    */
-  void MonitorAlgorithm::newEvent(Float_t _weight) {
+  void MonitorAlgorithm::newEvent(Float_t weight) {
     m_timer.start();
     if (Config::config().debug()) Info("MonitorAlgorithm::newEvent", "*** Processing Algorithms ***");
 
     //Now loop over the counter collections;
-    for (CounterMapSetIt_t _cmsIt = m_collectionsToProcess.begin(); _cmsIt != m_collectionsToProcess.end(); ++_cmsIt) {
-      CounterMap_t* _counterMap = *_cmsIt;
+    for (CounterMapSetIt_t cmsIt = m_collectionsToProcess.begin(); cmsIt != m_collectionsToProcess.end(); ++cmsIt) {
+      CounterMap_t* counterMap = *cmsIt;
 
       startEvent();
 
-      std::vector<AlgsInEvent>::iterator _itAlgs = m_algsInEvent.begin();
-      for (; _itAlgs != m_algsInEvent.end(); ++_itAlgs) {
-        CounterBase* _counter = getCounter(_counterMap, _itAlgs->m_algName, _itAlgs->m_algNameID);
+      std::vector<AlgsInEvent>::iterator itAlgs = m_algsInEvent.begin();
+      for (; itAlgs != m_algsInEvent.end(); ++itAlgs) {
+        CounterBase* counter = getCounter(counterMap, itAlgs->m_algName, itAlgs->m_algNameID);
         // If this counter is new, we can set it's secondary name which in this case is its class
-        if (_counter->getCalls() == 0) {
-          _counter->decorate(kDecAlgClassName, _itAlgs->m_algClassName);
+        if (counter->getCalls() == 0) {
+          counter->decorate(kDecAlgClassName, itAlgs->m_algClassName);
         }
-        _counter->processEventCounter(_itAlgs->m_seqD3PDIndex, _itAlgs->m_algD3PDIndex, _weight);
+        counter->processEventCounter(itAlgs->m_seqD3PDIndex, itAlgs->m_algD3PDIndex, weight);
       }
 
       // Do end of event
-      endEvent(_weight);
+      endEvent(weight);
     }
     m_timer.stop();
   }
@@ -66,8 +66,8 @@ namespace TrigCostRootAnalysis {
    * Note these are currently hard-coded. We may want to make them configurable
    * @return If this monitor should be active for a given mode.
    */
-  Bool_t MonitorAlgorithm::getIfActive(ConfKey_t _mode) {
-    switch (_mode) {
+  Bool_t MonitorAlgorithm::getIfActive(ConfKey_t mode) {
+    switch (mode) {
     case kDoAllSummary:       return kTRUE;
 
     case kDoKeySummary:       return kTRUE;
@@ -75,7 +75,7 @@ namespace TrigCostRootAnalysis {
     case kDoLumiBlockSummary: return kTRUE;
 
     default: Error("MonitorAlgorithm::getIfActive", "An invalid summary mode was provided (key %s)",
-                   Config::config().getName(_mode).c_str());
+                   Config::config().getName(mode).c_str());
     }
     return kFALSE;
   }
@@ -86,23 +86,23 @@ namespace TrigCostRootAnalysis {
   void MonitorAlgorithm::saveOutput() {
     m_filterOutput = kTRUE; // Apply any user-specified name filter to output
 
-    VariableOptionVector_t _toSavePlots; //Leave blank = each counter gets asked what hists it contains
-    sharedHistogramOutputRoutine(_toSavePlots);
+    VariableOptionVector_t toSavePlots; //Leave blank = each counter gets asked what hists it contains
+    sharedHistogramOutputRoutine(toSavePlots);
 
-    std::vector<TableColumnFormatter> _toSaveTable;
-    addCommonTableEntries(_toSaveTable);
-    sharedTableOutputRoutine(_toSaveTable);
+    std::vector<TableColumnFormatter> toSaveTable;
+    addCommonTableEntries(toSaveTable);
+    sharedTableOutputRoutine(toSaveTable);
   }
 
   /**
    * Construct new counter of correct derived type, pass back as base type.
    * This function must be implemented by all derived monitor types.
-   * @see MonitorBase::addCounter( const std::string &_name, Int_t _ID )
-   * @param _name Cost reference to name of counter.
-   * @param _ID Reference to ID number of counter.
+   * @see MonitorBase::addCounter( const std::string &name, Int_t ID )
+   * @param name Cost reference to name of counter.
+   * @param ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct serived type.
    */
-  CounterBase* MonitorAlgorithm::newCounter(const std::string& _name, Int_t _ID) {
-    return new CounterAlgorithm(m_costData, _name, _ID, m_detailLevel, (MonitorBase*) this);
+  CounterBase* MonitorAlgorithm::newCounter(const std::string& name, Int_t ID) {
+    return new CounterAlgorithm(m_costData, name, ID, m_detailLevel, (MonitorBase*) this);
   }
 } // namespace TrigCostRootAnalysis

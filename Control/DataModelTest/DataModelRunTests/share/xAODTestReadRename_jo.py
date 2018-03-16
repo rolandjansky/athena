@@ -88,3 +88,6 @@ ChronoStatSvc.StatPrintOutTable   = FALSE
 
 #svcMgr.ExceptionSvc.Catch = "None"
 
+# Avoid races when running tests in parallel.
+FILECATALOG = 'xAODTestReadRename_catalog.xml'
+include ('DataModelRunTests/setCatalog.py')
