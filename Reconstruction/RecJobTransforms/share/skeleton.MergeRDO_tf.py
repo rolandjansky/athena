@@ -172,9 +172,14 @@ MessageSvc.OutputLevel = INFO
 StreamRDO.ExtendProvenanceRecord = False
 
 ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
-ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_ALGORITHM = '2'" ]
-ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_LEVEL = '1'" ]
 
+if athenaCommonFlags.UseLZMA():
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_ALGORITHM = '2'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_LEVEL = '1'" ]
+else:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_LEVEL = '4'" ]
+ 
 ## Post-include
 if hasattr(runArgs,"postInclude"):
     for fragment in runArgs.postInclude:

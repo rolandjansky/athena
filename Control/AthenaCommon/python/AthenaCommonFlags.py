@@ -197,6 +197,13 @@ class isOnlineStateless(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class UseLZMA(JobProperty):
+    """ Set the compression algorith to LZMA
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class RuntimeStrictness(JobProperty):
     """Controls setting 
     """
@@ -283,6 +290,7 @@ jobproperties.AthenaCommonFlags.add_JobProperty(isOnline)
 jobproperties.AthenaCommonFlags.add_JobProperty(isOnlineStateless)
 jobproperties.AthenaCommonFlags.add_JobProperty(RuntimeStrictness)
 jobproperties.AthenaCommonFlags.add_JobProperty(DoFullChain)
+jobproperties.AthenaCommonFlags.add_JobProperty(UseLZMA)
 
 ##-----------------------------------------------------------------------------
 ## 5th step
