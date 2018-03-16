@@ -150,7 +150,6 @@ class TrigHLTJetHypo_Dijet (TrigHLTJetHypoConf.TrigHLTJetHypo_Dijet):
     def __init__(self, name, **kwargs):
         super( TrigHLTJetHypo_Dijet, self ).__init__( name, **kwargs )
 
-        self.OutputLevel=VERBOSE
         
         if  KeepMonitoring(self.chain_name,
                            JetChainsToKeepMonitoring,
