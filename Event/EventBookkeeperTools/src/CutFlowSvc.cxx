@@ -349,19 +349,19 @@ CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
     xAOD::CutBookkeeperContainer::iterator iterEnd = m_completeBook->end();
     for ( ; iter != iterEnd; ++iter ) {
       xAOD::CutBookkeeper* ebk = *iter;
-      CutIdentifier cutID = ebk->uniqueIdentifier();
+      CutIdentifier cutID2 = ebk->uniqueIdentifier();
       ATH_MSG_VERBOSE( "addEvent: Have CutBookkeeper with"
                        << " skimming cycle " << ebk->cycle()
                        << " and input Stream name " << ebk->inputStream()
                        << " and logic " << ebk->cutLogic()
                        << " isTopFilter " << ebk->isTopFilter()
-                       << " and cutID " << cutID
+                       << " and cutID " << cutID2
                        << " and name " << ebk->name() );
       if ( m_skimmingCycle == ebk->cycle() ) {
         if ( m_inputStream == ebk->inputStream() ) {
-          CutIDMap_t::iterator mapIter = m_ebkMap.find(cutID);
+          CutIDMap_t::iterator mapIter = m_ebkMap.find(cutID2);
           ATH_MSG_DEBUG( "BeginInputFile: Have CutBookkeeper with"
-                         << " cutID " << cutID
+                         << " cutID " << cutID2
                          <<  " and name " << ebk->name() );
           if ( mapIter != m_ebkMap.end() ) { // we found this CutBookkeeper in the existing map
             (*mapIter).second = ebk;
