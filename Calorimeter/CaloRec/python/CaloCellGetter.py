@@ -8,6 +8,7 @@ from RecExConfig.Configured import Configured
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
 
+
 class CaloCellGetter (Configured)  :
     _outputType = "CaloCellContainer"
     _output = { _outputType : "AllCalo" }
@@ -43,34 +44,15 @@ class CaloCellGetter (Configured)  :
         # handle tile
 
         if doStandardCellReconstruction:
-            # handle LAr
-            import traceback
-            try:
-                from LArROD.LArRODFlags import larRODFlags
-                from AthenaCommon.GlobalFlags import globalflags
-                if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
-                    from AthenaCommon.KeyStore import CfgItemList
-                    CfgItemList("KeyStore_inputFile").removeItem("LArRawChannelContainer#LArRawChannels")
-                if (not larRODFlags.readDigits()) and globalflags.InputFormat() == 'bytestream':
-                    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                    try:
-                        if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                            svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
-                    except:
-                        mlog.warning("Cannot remove LArRawChannelContainer/LArRawChannels from bytestream list")
-                from LArROD.LArRawChannelGetter import LArRawChannelGetter
-                theLArRawChannelGetter = LArRawChannelGetter()
-            except:
-                mlog.error("could not get handle to LArRawChannel Quit")
-                print traceback.format_exc()
-                return False
-
-            if not theLArRawChannelGetter.usable():
-                if not self.ignoreConfigError():
-                    mlog.error("LArRawChannelGetter unusable. Quit.")
-                    return False
-                else:
-                    mlog.error("LArRawChannelGetter unusable. Continue nevertheless")
+            from LArROD.LArRODFlags import larRODFlags
+            from AthenaCommon.GlobalFlags import globalflags
+            if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
+                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+                if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
+                    svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
+                from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
+                LArRawChannelBuilderDefault()
+          
         
         # writing of thinned digits
         if jobproperties.CaloCellFlags.doLArThinnedDigits.statusOn and jobproperties.CaloCellFlags.doLArThinnedDigits():

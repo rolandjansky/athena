@@ -55,7 +55,7 @@ StatusCode LArOnOffMappingAlg::execute() {
   
   if (writeHandle.isValid()) {
     writeHandle.updateStore(); //????
-    ATH_MSG_WARNING("Found valid write handle");
+    ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }  
 

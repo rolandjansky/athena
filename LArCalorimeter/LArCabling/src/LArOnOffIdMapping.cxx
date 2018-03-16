@@ -1,4 +1,4 @@
-#include "LArRecConditions/LArOnOffIdMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 LArOnOffIdMapping::LArOnOffIdMapping(const LArOnlineID_Base* onlineId, const CaloCell_Base_ID * caloId) :
 

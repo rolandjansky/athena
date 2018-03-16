@@ -98,37 +98,35 @@ StatusCode DumpLArRawChannels::execute()
      //if ((*vec_it)->energy()==0)
      //continue;
     const HWIdentifier chid=(*vec_it)->channelID();//hardwareID();
-    const HWIdentifier febid=m_onlineHelper->feb_Id(chid);
-    std::cout << "FEB_ID: 0x" << std::hex << febid.get_compact() 
-	      << " channel: " << std::dec <<  m_onlineHelper->channel(chid) 
-	      << " (" << m_onlineHelper->channelInSlotMax(febid) << "/FEB), ";
-    m_outfile << "FEB_ID: 0x" << std::hex << febid.get_compact() 
-	      << " channel: " << std::dec <<  m_onlineHelper->channel(chid) 
-	      << " (" << m_onlineHelper->channelInSlotMax(febid) << "/FEB), ";
-    if (!m_larCablingSvc->isOnlineConnected(chid))
-      {std::cout << "disconnected: \n";
-       m_outfile << "disconnected: \n";
-       continue;
-      }
+    std::cout << "Channel: " << m_onlineHelper->channel_name(chid);
+    m_outfile << "Channel: " << m_onlineHelper->channel_name(chid);
+
+    if (!m_larCablingSvc->isOnlineConnected(chid)) {
+      std::cout << " disconnected" << std::endl;
+      m_outfile << " disconnected" << std::endl;
+      continue;
+    }
     const Identifier id=m_larCablingSvc->cnvToIdentifier(chid);
-    //std::cout << "Compact onlineid=" << id.get_compact() << std::endl;
-    eta=m_emId->eta(id); 
-    phi=m_emId->phi(id);
-    layer=m_emId->sampling(id);
-    //std::cout << "LArRawChannel #" << chid.get_compact();
-    if(!m_emId->is_lar_em(id))
-      {std::cout << "Is not EM! \n" << std::endl; 
-       m_outfile << "Is not EM! \n" << std::endl;
-       continue;
+
+    if(!m_emId->is_lar_em(id)) {
+      eta=m_emId->eta(id); 
+      phi=m_emId->phi(id);
+      layer=m_emId->sampling(id);      
+      if (m_emId->is_em_endcap(id)) {
+	std::cout << " Endcap l/e/p= " << layer << "/" << eta << "/" << phi << ":";
+	m_outfile << " Endcap l/e/p= " << layer << "/" << eta << "/" << phi << ":";
       }
-    if (m_onlineHelper->isEmEndcapOnline(chid))
-     {std::cout << "Endcap ";
-      m_outfile << "Endcap ";
-     }
-    if (m_onlineHelper->isEmBarrelOnline(chid))
-      {std::cout << "Barrel ";
-       m_outfile << "Barrel ";
+      else {
+	std::cout << " Barrel l/e/p= " << layer << "/" << eta << "/" << phi << ":";
+	m_outfile << " Barrel l/e/p= " << layer << "/" << eta << "/" << phi << ":";
       }
+    }
+    else {
+      std::cout << " (is not EM)";
+      m_outfile << " (is not EM)";
+    }
+
+
     int Time=(*vec_it)->time();
     /*
     if (Time>0x1fff)
@@ -138,13 +136,12 @@ StatusCode DumpLArRawChannels::execute()
     */
     //if (abs(Time)>24000)
     //Time=0;
-    std::cout << "  l/e/p= " << layer << "/" << eta << "/" << phi << ":"// << std::endl;
-	      << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " G=" 
-	      << (*vec_it)->gain() << std::endl;
+    std::cout << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " P=0x" 
+	      << std::hex << (*vec_it)->provenance() << std::dec << " G=" << (*vec_it)->gain() << std::endl;
     
-    m_outfile << "l/e/p= " << layer << "/" << eta << "/" << phi << ":" 
-	      << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " G=" 
-	      << (*vec_it)->gain() << std::endl;
+    m_outfile << " E= " << (*vec_it)->energy() << " t= " << Time << " Q= " << (*vec_it)->quality() << " P=0x"
+	      << std::hex << (*vec_it)->provenance() << std::dec << " G=" << (*vec_it)->gain() << std::endl;
+
    }
  //std::cout << "Collection #" << ++nColl << " contains " << chan_coll->size() << " elementes." << std::endl;
  std::cout << "Event " << m_count << " contains " << m_chan << " (" <<channelVector.size() <<")  channels\n";

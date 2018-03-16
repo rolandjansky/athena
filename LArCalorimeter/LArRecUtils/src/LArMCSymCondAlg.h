@@ -12,7 +12,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "GaudiKernel/ICondSvc.h"
 
-#include "LArRecConditions/LArOnOffIdMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArRawConditions/LArMCSym.h"
 
 class LArMCSymCondAlg: public AthAlgorithm {

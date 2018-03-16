@@ -21,6 +21,7 @@
 #include "../LArFebRodMappingAlg.h"
 #include "../LArSymConditionsAlg.h"
 #include "../LArMCSymCondAlg.h"
+#include "LArRecUtils/LArADC2MeVCondAlg.h"
 
 DECLARE_COMPONENT( LArADC2MeVTool )
 DECLARE_COMPONENT( LArAutoCorrNoiseTool )
@@ -70,3 +71,4 @@ DECLARE_COMPONENT( LArfSamplSymCondAlg )
 DECLARE_COMPONENT( LArMinBiasSymCondAlg )
 DECLARE_COMPONENT( LArNoiseSymCondAlg )
 
+DECLARE_COMPONENT( LArADC2MeVCondAlg )
