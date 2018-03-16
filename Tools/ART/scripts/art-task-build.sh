@@ -23,8 +23,10 @@ else
    return 1
 fi
 
-alias abeta="source /afs/cern.ch/atlas/software/dist/beta/AtlasSetup/scripts/asetup.sh"
-abeta ${PROJECT} --platform ${PLATFORM} --releasebase ${RELEASE_BASE}/build/install --noLcgReleaseBase
+[[ "${ATLAS_LOCAL_ROOT_BASE}" = "" ]] && export ATLAS_LOCAL_ROOT_BASE="/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase"
+source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh --quiet
+lsetup -a testing asetup
+asetup ${PROJECT} --platform ${PLATFORM} --releasebase ${RELEASE_BASE}/build/install --noLcgReleaseBase
 
 # setup AtlasBuildBranch since that is not set bu the above asetup for the local build setup
 export AtlasBuildBranch=$BRANCH
