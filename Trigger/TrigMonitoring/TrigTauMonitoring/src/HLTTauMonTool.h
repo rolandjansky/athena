@@ -214,6 +214,7 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_LST_HLTsel_tracktwo_chains;
   std::vector<std::string> m_Ratio;
   std::vector<std::string> m_trigMVA_chains;
+  std::vector<std::string> m_trigRNN_chains;
   std::string m_lowest_singletau;
   std::string m_lowest_singletauMVA;
   //std::string m_lowest_ditau;

@@ -4,6 +4,8 @@
 
 #include "TProfile.h"
 #include "HLTTauMonTool.h"
+#include "AthenaMonitoring/AthenaMonManager.h"
+#include "AthenaMonitoring/ManagedMonitorToolTest.h"
 
 using namespace std;
 
@@ -33,6 +35,14 @@ StatusCode HLTTauMonTool::proc()
 	
         for(unsigned int i=0;i<m_trigItems.size();++i)
 	  {
+            bool monRNN (false);
+            for(unsigned int j=0;j<m_trigRNN_chains.size();++j)
+            {
+                if(m_trigItems.at(i)==m_trigRNN_chains.at(j)) monRNN = true;
+            }
+            bool monBDT (false);
+            if (!monRNN) monBDT = true;
+
             if(m_truth && m_turnOnCurves)
 	      {
 		//                setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
@@ -196,55 +206,57 @@ StatusCode HLTTauMonTool::proc()
             plotUnderOverFlow(hist("hEFIsoFrac"));
             //plotUnderOverFlow(hist("hEFPSSFraction"));
             plotUnderOverFlow(hist("hEFEMFraction"));
-            plotUnderOverFlow(hist("hScore1p"));
-            plotUnderOverFlow(hist("hScoremp"));
-            plotUnderOverFlow(hist("hScoreSigTrans1p"));
-            plotUnderOverFlow(hist("hScoreSigTransmp"));
-            
-            setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/BDT/1p_nonCorrected");
-            plotUnderOverFlow(hist("hEFinnerTrkAvgDist1PNCorr"));
-            plotUnderOverFlow(hist("hEFetOverPtLeadTrk1PNCorr"));
-            plotUnderOverFlow(hist("hEFipSigLeadTrk1PNCorr"));
-            plotUnderOverFlow(hist("hEFSumPtTrkFrac1PNCorr"));
-            plotUnderOverFlow(hist("hEFChPiEMEOverCaloEME1PNCorr"));
-            plotUnderOverFlow(hist("hEFEMPOverTrkSysP1PNCorr"));
-            plotUnderOverFlow(hist("hEFcentFrac1PNCorr"));
-            plotUnderOverFlow(hist("hEFptRatioEflowApprox1PNCorr"));
-            
-            setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/BDT/mp_nonCorrected");
-            plotUnderOverFlow(hist("hEFinnerTrkAvgDistMPNCorr"));
-            plotUnderOverFlow(hist("hEFetOverPtLeadTrkMPNCorr"));
-            plotUnderOverFlow(hist("hEFChPiEMEOverCaloEMEMPNCorr"));
-            plotUnderOverFlow(hist("hEFEMPOverTrkSysPMPNCorr"));
-            plotUnderOverFlow(hist("hEFcentFracMPNCorr"));
-            plotUnderOverFlow(hist("hEFptRatioEflowApproxMPNCorr"));
-            plotUnderOverFlow(hist("hEFdRmaxMPNCorr"));
-            plotUnderOverFlow(hist("hEFtrFlightPathSigMPNCorr"));
-            plotUnderOverFlow(hist("hEFmassTrkSysMPNCorr"));
-            plotUnderOverFlow(hist("hEFmEflowApproxMPNCorr"));
-/*            
-            setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/BDT/1p_Corrected");
-            plotUnderOverFlow(hist("hEFinnerTrkAvgDist1PCorr"));
-            plotUnderOverFlow(hist("hEFetOverPtLeadTrk1PCorr"));
-            plotUnderOverFlow(hist("hEFipSigLeadTrk1PCorr"));
-            plotUnderOverFlow(hist("hEFSumPtTrkFrac1PCorr"));
-            plotUnderOverFlow(hist("hEFChPiEMEOverCaloEME1PCorr"));
-            plotUnderOverFlow(hist("hEFEMPOverTrkSysP1PCorr"));
-            plotUnderOverFlow(hist("hEFcentFrac1PCorr"));
-            plotUnderOverFlow(hist("hEFptRatioEflowApprox1PCorr"));
-            
-            setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/BDT/mp_Corrected");
-            plotUnderOverFlow(hist("hEFinnerTrkAvgDistMPCorr"));
-            plotUnderOverFlow(hist("hEFetOverPtLeadTrkMPCorr"));
-            plotUnderOverFlow(hist("hEFChPiEMEOverCaloEMEMPCorr"));
-            plotUnderOverFlow(hist("hEFEMPOverTrkSysPMPCorr"));
-            plotUnderOverFlow(hist("hEFcentFracMPCorr"));
-            plotUnderOverFlow(hist("hEFptRatioEflowApproxMPCorr"));
-            plotUnderOverFlow(hist("hEFdRmaxMPCorr"));
-            plotUnderOverFlow(hist("hEFtrFlightPathSigMPCorr"));
-            plotUnderOverFlow(hist("hEFmassTrkSysMPCorr"));
-            plotUnderOverFlow(hist("hEFmEflowApproxMPCorr"));
-*/            
+						if (monBDT) {
+		          plotUnderOverFlow(hist("hScore1p"));
+		          plotUnderOverFlow(hist("hScoremp"));
+		          plotUnderOverFlow(hist("hScoreSigTrans1p"));
+		          plotUnderOverFlow(hist("hScoreSigTransmp"));
+		          
+		          setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/BDT/1p_nonCorrected");
+		          plotUnderOverFlow(hist("hEFinnerTrkAvgDist1PNCorr"));
+		          plotUnderOverFlow(hist("hEFetOverPtLeadTrk1PNCorr"));
+		          plotUnderOverFlow(hist("hEFipSigLeadTrk1PNCorr"));
+		          plotUnderOverFlow(hist("hEFSumPtTrkFrac1PNCorr"));
+		          plotUnderOverFlow(hist("hEFChPiEMEOverCaloEME1PNCorr"));
+		          plotUnderOverFlow(hist("hEFEMPOverTrkSysP1PNCorr"));
+		          plotUnderOverFlow(hist("hEFcentFrac1PNCorr"));
+		          plotUnderOverFlow(hist("hEFptRatioEflowApprox1PNCorr"));
+		          
+		          setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/BDT/mp_nonCorrected");
+		          plotUnderOverFlow(hist("hEFinnerTrkAvgDistMPNCorr"));
+		          plotUnderOverFlow(hist("hEFetOverPtLeadTrkMPNCorr"));
+		          plotUnderOverFlow(hist("hEFChPiEMEOverCaloEMEMPNCorr"));
+		          plotUnderOverFlow(hist("hEFEMPOverTrkSysPMPNCorr"));
+		          plotUnderOverFlow(hist("hEFcentFracMPNCorr"));
+		          plotUnderOverFlow(hist("hEFptRatioEflowApproxMPNCorr"));
+		          plotUnderOverFlow(hist("hEFdRmaxMPNCorr"));
+		          plotUnderOverFlow(hist("hEFtrFlightPathSigMPNCorr"));
+		          plotUnderOverFlow(hist("hEFmassTrkSysMPNCorr"));
+		          plotUnderOverFlow(hist("hEFmEflowApproxMPNCorr"));
+	/*            
+		          setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/BDT/1p_Corrected");
+		          plotUnderOverFlow(hist("hEFinnerTrkAvgDist1PCorr"));
+		          plotUnderOverFlow(hist("hEFetOverPtLeadTrk1PCorr"));
+		          plotUnderOverFlow(hist("hEFipSigLeadTrk1PCorr"));
+		          plotUnderOverFlow(hist("hEFSumPtTrkFrac1PCorr"));
+		          plotUnderOverFlow(hist("hEFChPiEMEOverCaloEME1PCorr"));
+		          plotUnderOverFlow(hist("hEFEMPOverTrkSysP1PCorr"));
+		          plotUnderOverFlow(hist("hEFcentFrac1PCorr"));
+		          plotUnderOverFlow(hist("hEFptRatioEflowApprox1PCorr"));
+		          
+		          setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/EFTau/BDT/mp_Corrected");
+		          plotUnderOverFlow(hist("hEFinnerTrkAvgDistMPCorr"));
+		          plotUnderOverFlow(hist("hEFetOverPtLeadTrkMPCorr"));
+		          plotUnderOverFlow(hist("hEFChPiEMEOverCaloEMEMPCorr"));
+		          plotUnderOverFlow(hist("hEFEMPOverTrkSysPMPCorr"));
+		          plotUnderOverFlow(hist("hEFcentFracMPCorr"));
+		          plotUnderOverFlow(hist("hEFptRatioEflowApproxMPCorr"));
+		          plotUnderOverFlow(hist("hEFdRmaxMPCorr"));
+		          plotUnderOverFlow(hist("hEFtrFlightPathSigMPCorr"));
+		          plotUnderOverFlow(hist("hEFmassTrkSysMPCorr"));
+		          plotUnderOverFlow(hist("hEFmEflowApproxMPCorr"));
+	*/            
+						}
             setCurrentMonGroup("HLT/TauMon/Expert/"+m_trigItems[i]+"/L1VsOffline");
             plotUnderOverFlow(hist("hL1EtRatio"));
             
@@ -506,8 +518,13 @@ StatusCode HLTTauMonTool::proc()
         for(unsigned int i=0;i<lowest_names.size();++i)
         {
 
-            bool isMVA (false);
-            if ( lowest_names.at(i) == "lowest_singletauMVA" ) isMVA = true;
+            bool monRNN (false);
+            for(unsigned int j=0;j<m_trigRNN_chains.size();++j)
+            {
+                if(m_trigRNN_chains.at(j)==lowest_trigger_names.at(i)) monRNN = true;
+            }
+            bool monBDT (false);
+            if (!monRNN) monBDT = true;
 
             bool good_item(false);
             for(unsigned int j=0;j<m_trigItems.size();++j)
@@ -559,56 +576,58 @@ StatusCode HLTTauMonTool::proc()
             cloneHistogram("hEFIsoFrac","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
             //cloneHistogram("hEFPSSFraction","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
             cloneHistogram("hEFEMFraction","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
-            cloneHistogram("hScore1p","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
-            cloneHistogram("hScoremp","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
-            cloneHistogram("hScoreSigTrans1p","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
-            cloneHistogram("hScoreSigTransmp","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
-            cloneHistogram2("hEFEtaVsPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
-            cloneHistogram2("hEFEtVsPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
-            cloneHistogram2("hEFEtVsEta","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
-            //      setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
-            cloneHistogram("hEFinnerTrkAvgDist1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
-            cloneHistogram("hEFetOverPtLeadTrk1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
-            cloneHistogram("hEFipSigLeadTrk1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
-            cloneHistogram("hEFSumPtTrkFrac1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
-            //      cloneHistogram("hEFChPiEMEOverCaloEME1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
-            cloneHistogram("hEFEMPOverTrkSysP1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
-            cloneHistogram("hEFcentFrac1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
-            //      cloneHistogram("hEFptRatioEflowApprox1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
-            //      setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            cloneHistogram("hEFinnerTrkAvgDistMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            cloneHistogram("hEFetOverPtLeadTrkMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            //      cloneHistogram("hEFChPiEMEOverCaloEMEMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            cloneHistogram("hEFEMPOverTrkSysPMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            cloneHistogram("hEFcentFracMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            //      cloneHistogram("hEFptRatioEflowApproxMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            cloneHistogram("hEFdRmaxMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            cloneHistogram("hEFtrFlightPathSigMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            //      cloneHistogram("hEFmassTrkSysMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
-            //      cloneHistogram("hEFmEflowApproxMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+	          cloneHistogram2("hEFEtaVsPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
+	          cloneHistogram2("hEFEtVsPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
+	          cloneHistogram2("hEFEtVsEta","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
+						if (monBDT) {
+		          cloneHistogram("hScore1p","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
+		          cloneHistogram("hScoremp","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
+		          cloneHistogram("hScoreSigTrans1p","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
+		          cloneHistogram("hScoreSigTransmp","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau");
+		          //      setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
+		          cloneHistogram("hEFinnerTrkAvgDist1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
+		          cloneHistogram("hEFetOverPtLeadTrk1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
+		          cloneHistogram("hEFipSigLeadTrk1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
+		          cloneHistogram("hEFSumPtTrkFrac1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
+		          //      cloneHistogram("hEFChPiEMEOverCaloEME1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
+		          cloneHistogram("hEFEMPOverTrkSysP1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
+		          cloneHistogram("hEFcentFrac1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
+		          //      cloneHistogram("hEFptRatioEflowApprox1PNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_nonCorrected");
+		          //      setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          cloneHistogram("hEFinnerTrkAvgDistMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          cloneHistogram("hEFetOverPtLeadTrkMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          //      cloneHistogram("hEFChPiEMEOverCaloEMEMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          cloneHistogram("hEFEMPOverTrkSysPMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          cloneHistogram("hEFcentFracMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          //      cloneHistogram("hEFptRatioEflowApproxMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          cloneHistogram("hEFdRmaxMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          cloneHistogram("hEFtrFlightPathSigMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          //      cloneHistogram("hEFmassTrkSysMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
+		          //      cloneHistogram("hEFmEflowApproxMPNCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_nonCorrected");
 /*
-            //      setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/1p_Corrected");
-            cloneHistogram("hEFinnerTrkAvgDist1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
-            cloneHistogram("hEFetOverPtLeadTrk1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
-            cloneHistogram("hEFipSigLeadTrk1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
-            cloneHistogram("hEFSumPtTrkFrac1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
-            //      cloneHistogram("hEFChPiEMEOverCaloEME1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
-            cloneHistogram("hEFEMPOverTrkSysP1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
-            cloneHistogram("hEFcentFrac1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
-            //      cloneHistogram("hEFptRatioEflowApprox1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
-            //      setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            cloneHistogram("hEFinnerTrkAvgDistMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            cloneHistogram("hEFetOverPtLeadTrkMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            //      cloneHistogram("hEFChPiEMEOverCaloEMEMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            cloneHistogram("hEFEMPOverTrkSysPMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            cloneHistogram("hEFcentFracMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            //      cloneHistogram("hEFptRatioEflowApproxMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            cloneHistogram("hEFdRmaxMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            cloneHistogram("hEFtrFlightPathSigMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            //      cloneHistogram("hEFmassTrkSysMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
-            //      cloneHistogram("hEFmEflowApproxMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          //      setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/1p_Corrected");
+		          cloneHistogram("hEFinnerTrkAvgDist1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
+		          cloneHistogram("hEFetOverPtLeadTrk1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
+		          cloneHistogram("hEFipSigLeadTrk1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
+		          cloneHistogram("hEFSumPtTrkFrac1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
+		          //      cloneHistogram("hEFChPiEMEOverCaloEME1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
+		          cloneHistogram("hEFEMPOverTrkSysP1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
+		          cloneHistogram("hEFcentFrac1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
+		          //      cloneHistogram("hEFptRatioEflowApprox1PCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/1p_Corrected");
+		          //      setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          cloneHistogram("hEFinnerTrkAvgDistMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          cloneHistogram("hEFetOverPtLeadTrkMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          //      cloneHistogram("hEFChPiEMEOverCaloEMEMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          cloneHistogram("hEFEMPOverTrkSysPMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          cloneHistogram("hEFcentFracMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          //      cloneHistogram("hEFptRatioEflowApproxMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          cloneHistogram("hEFdRmaxMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          cloneHistogram("hEFtrFlightPathSigMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          //      cloneHistogram("hEFmassTrkSysMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
+		          //      cloneHistogram("hEFmEflowApproxMPCorr","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/BDT/mp_Corrected");
 */
-            if (m_doRNNInOutMonitoring && isMVA) {
+						}
+            if (monRNN) {
                   // scalar RNN inputs 1prong
                   cloneHistogram("hEFRNNInput_Scalar_centFrac_1P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputID1p");
                   cloneHistogram("hEFRNNInput_Scalar_etOverPtLeadTrk_1P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputID1p");
