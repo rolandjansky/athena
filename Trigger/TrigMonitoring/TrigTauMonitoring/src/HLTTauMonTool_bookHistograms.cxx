@@ -248,7 +248,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		addHistogram(new TH1F("hEFRNNInput_Scalar_EMPOverTrkSysP_log_1P", "EMPOverTrkSysP log (1Prong); EMPOverTrkSysP_log; Events",40,-5.,3.));  
 		addHistogram(new TH1F("hEFRNNInput_Scalar_ptRatioEflowApprox_1P", "ptRatioEflowApprox (1Prong); ptRatioEflowApprox; Events",50,0.0,2.0)); 
 		addHistogram(new TH1F("hEFRNNInput_Scalar_mEflowApprox_log_1P", "mEflowApprox log (1Prong); mEflowApprox_log; Events",35,0.,5.));//61,-0.2,60.2));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_ptDetectorAxis_log_1P", "ptDetectorAxis log (1Prong); ptDetectorAxis_log; Events",12,0.,5.));  
+		addHistogram(new TH1F("hEFRNNInput_Scalar_ptDetectorAxis_log_1P", "ptDetectorAxis log (1Prong); ptDetectorAxis_log; Events",50,0.,5.));  
     
 		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar3p",run));
     setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar3p");
@@ -260,20 +260,20 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		addHistogram(new TH1F("hEFRNNInput_Scalar_EMPOverTrkSysP_log_3P", "EMPOverTrkSysP log (3Prong); EMPOverTrkSysP_log; Events",40,-5.,3.));//41,0.0,40.0));  
 		addHistogram(new TH1F("hEFRNNInput_Scalar_ptRatioEflowApprox_3P", "ptRatioEflowApprox (3Prong); ptRatioEflowApprox; Events",50,0.0,2.0));      
 		addHistogram(new TH1F("hEFRNNInput_Scalar_mEflowApprox_log_3P", "mEflowApprox log (3Prong); mEflowApprox_log; Events",35,0.,5.));//35,0.,7000.));//61,-0.2,60.2));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_ptDetectorAxis_log_3P", "ptDetectorAxis log (3Prong); ptDetectorAxis_log; Events",12,0.,5.)); //nbin_pt-1,bins_pt));     
+		addHistogram(new TH1F("hEFRNNInput_Scalar_ptDetectorAxis_log_3P", "ptDetectorAxis log (3Prong); ptDetectorAxis_log; Events",50,0.,5.)); //nbin_pt-1,bins_pt));     
 		addHistogram(new TH1F("hEFRNNInput_Scalar_massTrkSys_log_3P", "massTrkSys log (3Prong); massTrkSys_log; Events",50,0.,3.));//50,-0.1,15.0)); 
  
 		// Track input variables
 		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputTrack",run));
 	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputTrack");
-		addHistogram(new TH1F("hEFRNNInput_Track_pt_log", "pt_log ; pt_log; Events",12,-5,7));//nbin_pt-1,bins_pt));    
-		addHistogram(new TH1F("hEFRNNInput_Track_pt_jetseed_log", "pt_jetseed_log ; pt_jetseed_log; Events",12,2,7));//nbin_pt-1,bins_pt));    
+		addHistogram(new TH1F("hEFRNNInput_Track_pt_log", "pt_log ; pt_log; Events",50,-5,7));//nbin_pt-1,bins_pt));    
+		addHistogram(new TH1F("hEFRNNInput_Track_pt_jetseed_log", "pt_jetseed_log ; pt_jetseed_log; Events",50,2,7));//nbin_pt-1,bins_pt));    
 		//addHistogram(new TH1F("hEFRNNInput_Track_eta", "eta ; eta; Events",nbin_eta-1,bins_eta));    
 		//addHistogram(new TH1F("hEFRNNInput_Track_phi", "phi ; phi; Events",16,-3.2,3.2));    
-		addHistogram(new TH1F("hEFRNNInput_Track_dEta", "dEta ; dEta; Events",nbin_eta-1,bins_eta));    
-		addHistogram(new TH1F("hEFRNNInput_Track_dPhi", "dPhi ; dPhi; Events",16,-3.2,3.2));
-		addHistogram(new TH1F("hEFRNNInput_Track_d0_abs_log", "d0_abs_log ; d0_abs_log; Events",5,-7.,2.));//50,-5.,5.));
-		addHistogram(new TH1F("hEFRNNInput_Track_z0sinThetaTJVA_abs_log", "z0sinThetaTJVA_abs_log ; z0sinThetaTJVA_abs_log; Events",15,-10,4));//15,-200.,200.));   
+		addHistogram(new TH1F("hEFRNNInput_Track_dEta", "dEta ; dEta; Events",100,-2.6,2.6));//nbin_eta-1,bins_eta));    
+		addHistogram(new TH1F("hEFRNNInput_Track_dPhi", "dPhi ; dPhi; Events",100,-3.2,3.2));
+		addHistogram(new TH1F("hEFRNNInput_Track_d0_abs_log", "d0_abs_log ; d0_abs_log; Events",50,-7.,2.));//50,-5.,5.));
+		addHistogram(new TH1F("hEFRNNInput_Track_z0sinThetaTJVA_abs_log", "z0sinThetaTJVA_abs_log ; z0sinThetaTJVA_abs_log; Events",50,-10,4));//15,-200.,200.));   
 		addHistogram(new TH1F("hEFRNNInput_Track_nInnermostPixelHits", "nInnermostPixelHits ; nInnermostPixelHits; Events",3,0.,3));
 		addHistogram(new TH1F("hEFRNNInput_Track_nPixelHits", "nPixelHits ; nPixelHits; Events",11,0.,11));  
 		addHistogram(new TH1F("hEFRNNInput_Track_nSCTHits", "nSCTHits ; nSCTHits; Events",20,0.,20));     
@@ -284,15 +284,15 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		//addHistogram(new TH1F("hEFRNNInput_Cluster_et", "et ; et; Events",nbin_pt-1,bins_pt));  // or 260,0.,130.    
 		//addHistogram(new TH1F("hEFRNNInput_Cluster_eta", "eta ; eta; Events",nbin_eta-1,bins_eta));
 		//addHistogram(new TH1F("hEFRNNInput_Cluster_phi", "phi ; phi; Events",16,-3.2,3.2));    
-		addHistogram(new TH1F("hEFRNNInput_Cluster_et_log", "et_log ; et_log; Events",12,0.,5.));//nbin_pt-1,bins_pt));  // or 260,0.,130.    
-		addHistogram(new TH1F("hEFRNNInput_Cluster_pt_jetseed_log", "pt_jetseed_log ; pt_jetseed_log; Events",12,2,7));//nbin_pt-1,bins_pt));  // or 260,0.,130.    
-		addHistogram(new TH1F("hEFRNNInput_Cluster_dEta", "dEta ; dEta; Events",nbin_eta-1,bins_eta));
-		addHistogram(new TH1F("hEFRNNInput_Cluster_dPhi", "dPhi ; dPhi; Events",16,-3.2,3.2));    
-		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_R_log10", "SECOND_R ; SECOND_R; Events",10,-3.,7.));
-		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_LAMBDA_log10", "SECOND_LAMBDA ; SECOND_LAMBDA; Events",10,-3.,7.));      
-		addHistogram(new TH1F("hEFRNNInput_Cluster_CENTER_LAMBDA_log10", "CENTER_LAMBDA ; CENTER_LAMBDA; Events",7,-2.,5.));      
+		addHistogram(new TH1F("hEFRNNInput_Cluster_et_log", "et_log ; et_log; Events",30,0.,6.));//nbin_pt-1,bins_pt));  // or 260,0.,130.    
+		addHistogram(new TH1F("hEFRNNInput_Cluster_pt_jetseed_log", "pt_jetseed_log ; pt_jetseed_log; Events",50,2,7));//nbin_pt-1,bins_pt));  // or 260,0.,130.    
+		addHistogram(new TH1F("hEFRNNInput_Cluster_dEta", "dEta ; dEta; Events",100,-2.6,2.6));//nbin_eta-1,bins_eta));
+		addHistogram(new TH1F("hEFRNNInput_Cluster_dPhi", "dPhi ; dPhi; Events",100,-3.2,3.2));    
+		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_R_log10", "SECOND_R ; SECOND_R; Events",50,-3.,7.));
+		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_LAMBDA_log10", "SECOND_LAMBDA ; SECOND_LAMBDA; Events",50,-3.,7.));      
+		addHistogram(new TH1F("hEFRNNInput_Cluster_CENTER_LAMBDA_log10", "CENTER_LAMBDA ; CENTER_LAMBDA; Events",50,-2.,5.));      
 	}
-//50,-0.3,0.3,50,-0.3,0.3
+
     //--------------------
     // L1 vs Offline
     //--------------------
