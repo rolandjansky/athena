@@ -124,7 +124,9 @@ if jobproperties.Global.DataSource.get_Value() == 'data':
     theLArRODMonTool.LArPedestalKey='Pedestal'
 else:
     theLArRODMonTool.LArPedestalKey='LArPedestal'
-              
+
+from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
+theLArRODMonTool.ADC2MeVTool=LArADC2MeVToolDefault()
 
 ToolSvc += theLArRODMonTool
 LArMon.AthenaMonTools+=[ theLArRODMonTool ] 
