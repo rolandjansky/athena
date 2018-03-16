@@ -34,15 +34,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_storeGate("StoreGateSvc", this->name()), 
     m_timerSvc(0),
     m_regionSelector(0),
-    m_dataPreparator("TrigL2MuonSA::MuFastDataPreparator"),
-    m_patternFinder("TrigL2MuonSA::MuFastPatternFinder"),
-    m_stationFitter("TrigL2MuonSA::MuFastStationFitter"),
-    m_trackFitter("TrigL2MuonSA::MuFastTrackFitter"),
-    m_trackExtrapolator("TrigL2MuonSA::MuFastTrackExtrapolator"),
-    m_backExtrapolatorTool("TrigMuonBackExtrapolator"),
-    m_calStreamer("TrigL2MuonSA::MuCalStreamerTool"),
     m_recMuonRoIUtils(),
-    m_cscsegmaker("TrigL2MuonSA::CscSegmentMaker"),
     m_rpcHits(), m_tgcHits(),
     m_mdtRegion(), m_muonRoad(),
     m_rpcFitResult(), m_tgcFitResult(),
@@ -50,52 +42,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_cscHits(),
     m_jobOptionsSvc(0) 
 {
-  declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
-  declareProperty("PatternFinder",     m_patternFinder,     "pattern finder");
-  declareProperty("StationFitter",     m_stationFitter,     "station fitter");
-  declareProperty("TrackFitter",       m_trackFitter,       "track fitter");
-  declareProperty("TrackExtrapolator", m_trackExtrapolator, "track extrapolator");
-
-  declareProperty("BackExtrapolator", m_backExtrapolatorTool, "public tool for back extrapolating the muon tracks to the IV");
-  declareProperty("CscSegmentMaker", m_cscsegmaker);
-  declareProperty("Timing", m_use_timer=false);
-  declareProperty("UseLUTForMC", m_use_mcLUT=true);
-
-  // options for the calibration stream
-  declareProperty("DoCalibrationStream", m_doCalStream=false);
-  declareProperty("AllowOksConfig", m_allowOksConfig=true);
-  declareProperty("MuonCalBufferName", m_calBufferName="/tmp/testOutput");
-  declareProperty("MuonCalBufferSize", m_calBufferSize=1024*1024);
-  declareProperty("MuonCalDataScouting",m_calDataScouting=false);
-
-  declareProperty("ESD_RPC_size",m_esd_rpc_size=100);
-  declareProperty("ESD_TGC_size",m_esd_tgc_size=50);
-  declareProperty("ESD_MDT_size",m_esd_mdt_size=100);
-  declareProperty("ESD_CSC_size",m_esd_csc_size=100);
-
-  declareProperty("R_WIDTH_RPC_FAILED",m_rWidth_RPC_Failed=400);
-  declareProperty("R_WIDTH_TGC_FAILED",m_rWidth_TGC_Failed=200);
-
-  declareProperty("USE_RPC", m_use_rpc = true);
-  declareProperty("USE_MDTCSM", m_use_mdtcsm = false);
-  declareProperty("USE_ROIBASEDACCESS_MDT", m_use_RoIBasedDataAccess_MDT = true);
-  declareProperty("USE_ROIBASEDACCESS_TGC", m_use_RoIBasedDataAccess_TGC = true);
-  declareProperty("USE_ROIBASEDACCESS_RPC", m_use_RoIBasedDataAccess_RPC = true);
-  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = true);
-
-  declareProperty("USE_NEW_SEGMENTFIT", m_use_new_segmentfit = true);
-
-  declareProperty("Scale_Road_BarrelInner",m_scaleRoadBarrelInner=1);
-  declareProperty("Scale_Road_BarrelMiddle",m_scaleRoadBarrelMiddle=1);
-  declareProperty("Scale_Road_BarrelOuter",m_scaleRoadBarrelOuter=1);
-  
-  declareProperty("WinPt",m_winPt=4.0);
-
-  declareProperty("RpcErrToDebugStream",m_rpcErrToDebugStream = false);
-
-  declareProperty("UseEndcapInnerFromBarrel",m_use_endcapInnerFromBarrel = false);
 }
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -639,8 +586,6 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
 
   if (m_timerSvc) m_timers[ITIMER_TOTAL_PROCESSING]->resume();
   if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->resume();
-
-  m_currentStage = 1;
 
   DataVector<const TrigRoiDescriptor>::const_iterator p_roids;
   DataVector<const LVL1::RecMuonRoI>::const_iterator p_roi;
