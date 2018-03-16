@@ -2,9 +2,11 @@
 
 
 #from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloSwCluster
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp1Fex,EgammaSamp2Fex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex, EgammaHadEnFex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp1Fex as _EgammaSamp1Fex 
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp2Fex as _EgammaSamp2Fex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex as _EgammaEmEnFex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaHadEnFex as _EgammaHadEnFex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex as _RingerFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaAllFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo, T2CaloEgammaReFastAlgo
@@ -21,6 +23,36 @@ t2catime = TrigTimeHistToolConfig("Time")
 #t2catime=TrigTimeTreeToolConfig("T2CaloEgammaTimer")
 
 from AthenaCommon.Constants import VERBOSE,DEBUG
+
+class EgammaSamp2Fex (_EgammaSamp2Fex):
+   __slots__ = []
+   def __init__ (self, name="EgammaSamp2Fex"):
+       super(EgammaSamp2Fex, self).__init__(name)
+       self.trigDataAccessMT=""
+
+class EgammaSamp1Fex (_EgammaSamp1Fex):
+   __slots__ = []
+   def __init__ (self, name="EgammaSamp1Fex"):
+       super(EgammaSamp1Fex, self).__init__(name)
+       self.trigDataAccessMT=""
+
+class EgammaEmEnFex (_EgammaEmEnFex):
+   __slots__ = []
+   def __init__ (self, name="EgammaEmEnFex"):
+       super(EgammaEmEnFex, self).__init__(name)
+       self.trigDataAccessMT=""
+
+class EgammaHadEnFex (_EgammaHadEnFex):
+   __slots__ = []
+   def __init__ (self, name="EgammaHadEnFex"):
+       super(EgammaHadEnFex, self).__init__(name)
+       self.trigDataAccessMT=""
+
+class RingerFex (_RingerFex):
+   __slots__ = []
+   def __init__ (self, name="RingerFex"):
+       super(RingerFex, self).__init__(name)
+       self.trigDataAccessMT=""
 
 class EgammaSamp2FexConfig (EgammaSamp2Fex):
    __slots__ = []
@@ -61,13 +93,9 @@ class T2CaloEgamma_eGamma (T2CaloEgamma):
        super(T2CaloEgamma_eGamma, self).__init__(name)
        # here put your customizations
        samp2 = EgammaSamp2FexConfig()
-       samp2.trigDataAccessMT=""
        samp1 = EgammaSamp1Fex()
-       samp1.trigDataAccessMT=""
        sampe = EgammaEmEnFex()
-       sampe.trigDataAccessMT=""
        samph = EgammaHadEnFex()
-       samph.trigDataAccessMT=""
        self.IAlgToolList= [ samp2,
 			    samp1,
 			    sampe,
@@ -414,24 +442,14 @@ class T2CaloEgamma_FastAlgo (T2CaloEgammaFastAlgo):
        from AthenaCommon.AppMgr import ToolSvc
 
        samp2 = EgammaSamp2FexNoTimerConfig(name="FaAlgoSamp2FexConfig")
-       samp2.trigDataAccessMT=""
-       samp2.trigDataAccess=svcMgr.TrigDataAccess
        ToolSvc+=samp2
        samp1 = EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig")
-       samp1.trigDataAccessMT=""
-       samp1.trigDataAccess=svcMgr.TrigDataAccess
        ToolSvc+=samp1
        sampe = EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig")
-       sampe.trigDataAccessMT=""
-       sampe.trigDataAccess=svcMgr.TrigDataAccess
        ToolSvc+=sampe
        samph = EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig")
-       samph.trigDataAccessMT=""
-       samph.trigDataAccess=svcMgr.TrigDataAccess
        ToolSvc+=samph
        ring = RingerFexConfig("RingsMaker")
-       ring.trigDataAccessMT=""
-       ring.trigDataAccess=svcMgr.TrigDataAccess
        ToolSvc+=ring
 
        ring.OutputLevel=DEBUG
