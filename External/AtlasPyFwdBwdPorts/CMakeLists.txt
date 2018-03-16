@@ -186,7 +186,11 @@ _setup_python_package( gcovr
    85af705ca6e1187d2bae967d26810c55
    SINGLE_VERSION )
 
-
+# Install scandir:
+_setup_python_package( scandir
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/scandir-1.6.tar.gz
+   0180ddb97c96cbb2d4f25d2ae11c64ac
+   )
 
 
 # Clean up:
