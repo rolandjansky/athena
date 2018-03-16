@@ -154,8 +154,6 @@ private:
   /// The event store
   StoreGateSvc_t m_eventStore;
 
-  DataHandle<xAOD::CutBookkeeperContainer> m_completeBook;
-
   /// The name of the completed, i.e., fully processed, CutBookkeeperContainer
   std::string m_completeCollName;
 

@@ -83,13 +83,10 @@ CutFlowSvc::initialize()
   incSvc->addListener(this, IncidentType::EndInputFile, 50); // pri has to be > 10 to be before MetaDataSvc.
   incSvc->addListener(this, "MetaDataStop", 50);
 
+  // Create bookkeeper container for bookkeepers in _this_ processing
   xAOD::CutBookkeeperContainer* fileBook(NULL);
   fileBook = new xAOD::CutBookkeeperContainer();
   ATH_CHECK( recordCollection( fileBook, m_fileCollName) );
-  if (m_outMetaDataStore->retrieve(m_completeBook,m_fileCollName).isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve handle to cutflowsvc bookkeeper");
-    //return StatusCode::RECOVERABLE;
-  }
 
   // Determine the skimming cycle number that we should use now from the input file
   ATH_MSG_VERBOSE("Have currently the cycle number = " << m_skimmingCycle );
@@ -144,12 +141,18 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
   tmpEBK->setCycle(m_skimmingCycle);
   CutIdentifier cutID = tmpEBK->uniqueIdentifier();
 
+  DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+  if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
+    ATH_MSG_ERROR("Could not retrieve handle to cutflowsvc bookkeeper");
+    return 0;
+  }
+
   // Let's see if an CutBookkeeper of this name already exists
   ATH_MSG_VERBOSE("in registerFilter(" << name << ", " << description << "): "
                   << "Going to search if this CutBookkeeper already exists" );
   bool existsAlready=false;
-  for ( std::size_t i=0; i<m_completeBook->size(); ++i ) {
-    xAOD::CutBookkeeper* ebk = m_completeBook->at(i);
+  for ( std::size_t i=0; i<fileBook->size(); ++i ) {
+    xAOD::CutBookkeeper* ebk = fileBook->at(i);
     if( tmpEBK->isEqualTo( ebk) ) {
       ATH_MSG_DEBUG("The CutBookkeeper with name " << name
                     << " and cutID " << cutID << " already exists... not adding!" );
@@ -172,7 +175,7 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
   // If it is a new CutBookkeeper, add it to the container
   ATH_MSG_DEBUG( "You are DECLARING a new filter of name " << name
                  << " and cutID " << cutID );
-  m_completeBook->push_back(tmpEBK);
+  fileBook->push_back(tmpEBK);
 
   ATH_MSG_VERBOSE("done calling registerFilter(" << name << ", " << description << ")" );
   return cutID;
@@ -263,10 +266,16 @@ CutIdentifier CutFlowSvc::declareUsedOtherFilter( const std::string& name,
   tmpEBK->setCycle(m_skimmingCycle);
   CutIdentifier cutID = tmpEBK->uniqueIdentifier();
 
+  DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+  if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
+    ATH_MSG_ERROR("Could not retrieve handle to cutflowsvc bookkeeper");
+    return 0;
+  }
+
   // See if the CutBookkeeper already exists or not
   bool existsAlready = false;
-  for ( std::size_t i=0; i<m_completeBook->size(); ++i ) {
-    xAOD::CutBookkeeper* ebk = m_completeBook->at(i);
+  for ( std::size_t i=0; i<fileBook->size(); ++i ) {
+    xAOD::CutBookkeeper* ebk = fileBook->at(i);
     if( tmpEBK->isEqualTo( ebk ) ) {
       originEBK->addUsedOther( ebk );
       cutID = ebk->uniqueIdentifier();
@@ -284,7 +293,7 @@ CutIdentifier CutFlowSvc::declareUsedOtherFilter( const std::string& name,
   // Otherwise, add the new one to the collection
   tmpEBK->setDescription( "Registered by origin filter" );
   originEBK->addUsedOther( tmpEBK );
-  m_completeBook->push_back( tmpEBK );
+  fileBook->push_back( tmpEBK );
 
   return cutID;
 }
@@ -336,17 +345,28 @@ CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
 {
   ATH_MSG_INFO("calling addEvent(" << cutID << ", " << weight << ")" );
 
+  // Create bookkeeper container for bookkeepers in _this_ processing
+  DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+  if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
+    ATH_MSG_WARNING("Could not retrieve handle to cutflowsvc bookkeeper " << m_fileCollName << " creating new one");
+    xAOD::CutBookkeeperContainer* fileBook(NULL);
+    fileBook = new xAOD::CutBookkeeperContainer();
+    if( recordCollection( fileBook, m_fileCollName).isFailure() ) {
+      ATH_MSG_ERROR("Could not create empty " << m_fileCollName << " CutBookkeeperContainer");
+    }
+  }
+
   xAOD::CutBookkeeper* eb = this->getCutBookkeeper(cutID);
   if ( !eb ) {
     ATH_MSG_INFO("Could not find eb");
 
     // Iterate over the complete bookkeepers and update the cutID-to-bookkeeper map
     ATH_MSG_DEBUG( "addEvent: Going to re-populate the map. Have "
-                   << m_completeBook->size() << " CutBookkeepers"
+                   << fileBook->size() << " CutBookkeepers"
                    << " and skimming cycle " << m_skimmingCycle
                    << " and input Stream name " << m_inputStream );
-    xAOD::CutBookkeeperContainer::iterator iter    = m_completeBook->begin();
-    xAOD::CutBookkeeperContainer::iterator iterEnd = m_completeBook->end();
+    xAOD::CutBookkeeperContainer::iterator iter    = fileBook->begin();
+    xAOD::CutBookkeeperContainer::iterator iterEnd = fileBook->end();
     for ( ; iter != iterEnd; ++iter ) {
       xAOD::CutBookkeeper* ebk = *iter;
       CutIdentifier cutID = ebk->uniqueIdentifier();
@@ -419,11 +439,16 @@ void CutFlowSvc::handle( const Incident& inc )
       }
     }
 
+    DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+    if( !(m_outMetaDataStore->retrieve(fileBook, m_fileCollName) ).isSuccess() ) {
+      ATH_MSG_WARNING( "Could not get " << m_fileCollName 
+                       << " CutBookkeepers from output MetaDataStore" );
+    }
     // Clear the file bookkeeper
-    if (m_completeBook.isValid()) {
+    if (fileBook.isValid()) {
       // Reset existing container
-      for (xAOD::CutBookkeeperContainer::iterator it = m_completeBook->begin();
-           it != m_completeBook->end(); ++it) {
+      for (xAOD::CutBookkeeperContainer::iterator it = fileBook->begin();
+           it != fileBook->end(); ++it) {
         (*it)->setNAcceptedEvents(0);
         (*it)->setSumOfEventWeights(0);
         (*it)->setSumOfEventWeightsSquared(0);
@@ -432,27 +457,18 @@ void CutFlowSvc::handle( const Incident& inc )
   }
 
   // Clean up the bookkeeper before output
-  //if ( inc.type() == "MetaDataStop" || inc.type() == "EndInputFile") {
   if ( inc.type() == "MetaDataStop" ) {
-    if (m_completeBook.isValid()) {
-      // Reset existing container
-      for (xAOD::CutBookkeeperContainer::iterator it = m_completeBook->begin();
-           it != m_completeBook->end(); ++it) {
-      }
-    }
-    const xAOD::CutBookkeeperContainer* fileBook(NULL);
+    DataHandle<xAOD::CutBookkeeperContainer> fileBook;
     if( !(m_outMetaDataStore->retrieve(fileBook, m_fileCollName) ).isSuccess() ) {
       ATH_MSG_WARNING( "Could not get " << m_fileCollName 
                        << " CutBookkeepers from output MetaDataStore" );
     }
-    else {
-      const SG::IConstAuxStore* fileBookAux = fileBook->getConstStore();
-      if (m_outMetaDataStore->removeDataAndProxy(fileBook).isFailure()) {
-        ATH_MSG_ERROR("Unable to remove " << m_fileCollName);
-      }
-      if (m_outMetaDataStore->removeDataAndProxy(fileBookAux).isFailure()) {
-        ATH_MSG_ERROR("Unable to remove " << m_fileCollName);
-      }
+    // reset counters
+    for (xAOD::CutBookkeeperContainer::iterator it = fileBook->begin();
+         it != fileBook->end(); ++it) {
+      (*it)->setNAcceptedEvents(0);
+      (*it)->setSumOfEventWeights(0);
+      (*it)->setSumOfEventWeightsSquared(0);
     }
   }
 
@@ -531,13 +547,18 @@ CutFlowSvc::recordCollection( xAOD::CutBookkeeperContainer * coll,
 
 xAOD::CutBookkeeper*
 CutFlowSvc::getCutBookkeeper( const CutIdentifier cutID ) {
-  xAOD::CutBookkeeperContainer::iterator it = m_completeBook->begin();
-  xAOD::CutBookkeeperContainer::iterator ite = m_completeBook->end();
+  DataHandle<xAOD::CutBookkeeperContainer> fileBook;
+  if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
+    ATH_MSG_ERROR("Could not retrieve handle to cutflowsvc bookkeeper");
+    return nullptr;
+  }
+  xAOD::CutBookkeeperContainer::iterator it = fileBook->begin();
+  xAOD::CutBookkeeperContainer::iterator ite = fileBook->end();
   while (it != ite) {
     if ((*it)->uniqueIdentifier()==cutID) return (*it);
     ++it;
   }
-  return 0;
+  return nullptr;
 }
 
 
