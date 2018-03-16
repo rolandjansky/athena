@@ -9,6 +9,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 
 exot6Seq = CfgMgr.AthSequencer("EXOT6Sequence")
 
@@ -19,6 +20,9 @@ augTools = []
 if DerivationFrameworkIsMonteCarlo:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
     addStandardTruthContents()
+
+    # Redo ghost association
+#    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=exot6Seq, algname="JetPtAssociationAlg")
 
 #====================================================================
 # THINNING TOOL 
@@ -81,7 +85,8 @@ ToolSvc += EXOT6ElectronCCThinningTool
 # SKIMMING TOOL 
 #====================================================================
 
-expression = '(HLT_g140_loose || HLT_g160_loose || HLT_xe90_tc_lcw_L1XE50||HLT_g75_tight_3j50noL1_L1EM22VHI||HLT_g75_tight_3j25noL1_L1EM22VHI||HLT_xe90_mht_L1XE50||HLT_xe100_mht_L1XE50||HLT_xe110_mht_L1XE50||HLT_xe130_mht_L1XE50) && ((count(Photons.pt > 80*GeV) > 0) || ( ( HLT_g140_loose || HLT_g160_loose) && (count(Electrons.pt > 100*GeV) > 0) ) )'
+expression = '(HLT_g140_loose || HLT_g160_loose || HLT_xe90_tc_lcw_L1XE50||HLT_g75_tight_3j50noL1_L1EM22VHI||HLT_g75_tight_3j25noL1_L1EM22VHI || HLT_g85_tight_L1EM22VHI_3j50noL1 || HLT_xe90_mht_L1XE50||HLT_xe100_mht_L1XE50||HLT_xe110_mht_L1XE50||HLT_xe130_mht_L1XE50) && ((count(Photons.pt > 80*GeV) > 0) || ( ( HLT_g140_loose || HLT_g160_loose) && (count(Electrons.pt > 100*GeV) > 0) ) )'
+
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EXOT6SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT6SkimmingTool1", expression = expression)
