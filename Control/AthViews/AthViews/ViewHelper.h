@@ -16,6 +16,8 @@
 #include "StoreGate/ReadHandle.h"
 #include "AthViews/View.h"
 #include "AthContainers/DataVector.h"
+#include "AthContainers/AuxElement.h"
+#include "AthContainers/AuxStoreInternal.h"
 
 #include "tbb/task.h"
 
@@ -170,16 +172,38 @@ namespace ViewHelper
     return StatusCode::SUCCESS;
   }
 
-  //Function merging view data into a single collection - overload for datavectors because aux stores are annoying
+  //Function merging view data into a single collection - overload for datavectors to do all the bookkeeping
+  //Adds aux data element "viewIndex" to indicate which element of the merged collection came from where
+  //Calls remap for ElementLinks so that they point to the merged collection
   template< typename T >
   inline StatusCode MergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< DataVector< T > > const& QueryKey, EventContext const& SourceContext, DataVector< T > & OutputData )
   {
-    //Make a ReadHandle to use
-    SG::ReadHandle<T> queryHandle( QueryKey, SourceContext );
+    //Check that there's a non-const aux store for output bookkeeping
+    if ( !OutputData.getStore() )
+    {
+      return StatusCode::FAILURE;
+    }
+
+    //Make ReadHandle to access views
+    SG::ReadHandle< DataVector< T > > queryHandle( QueryKey, SourceContext );
+
+    //Make accessor for bookkeeping
+    SG::AuxElement::Accessor< int > viewBookkeeper( "viewIndex" );
+
+    //Retrieve StoreGate service
+    Atlas::ExtendedEventContext const* extendedContext = SourceContext.template getExtension<Atlas::ExtendedEventContext>();
+    StoreGateSvc * storeGate = dynamic_cast< StoreGateSvc* >( extendedContext->proxy() );
+    if ( !storeGate )
+    {
+      return StatusCode::FAILURE;
+    }
 
     //Loop over all views
-    for ( SG::View* inputView : ViewVector )
+    unsigned int offset = 0;
+    for ( unsigned int viewIndex = 0; viewIndex < ViewVector.size(); ++viewIndex )
     {
+      SG::View * inputView = ViewVector.at( viewIndex );
+
       //Attach the handle to the view
       StatusCode sc = queryHandle.setProxyDict( inputView );
       if ( !sc.isSuccess() )
@@ -188,19 +212,24 @@ namespace ViewHelper
         return sc;
       }
 
+      //Nothing to do for empty collections
+      if ( queryHandle->size() == 0 ) continue;
+
       //Merge the data
       for ( const auto inputObject : *queryHandle.cptr() )
       {
-        //Relies on non-existant assignment operator in TrigComposite
+        //Element-wise copy data
         T * outputObject = new T();
         OutputData.push_back( outputObject );
         *outputObject = *inputObject;
+
+        //Add aux data for bookkeeping
+        viewBookkeeper( *outputObject ) = viewIndex;
       }
 
-      //Tomasz version
-      //const size_t sizeSoFar = OutputData.size();
-      //OutputData.resize( sizeSoFar + QueryHandle->size() );
-      //std::swap_ranges( QueryHandle.ptr()->begin(), QueryHandle.ptr()->end(), OutputData.begin() + sizeSoFar );
+      //Declare remapping
+      storeGate->remap( ClassID_traits< DataVector< T > >::ID(), inputView->name() + "_" + queryHandle.name(), queryHandle.name(), offset );
+      offset += queryHandle->size();
     }
 
     return StatusCode::SUCCESS;

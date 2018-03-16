@@ -18,7 +18,6 @@
 
 // Framework include files
 #include <string>
-#include "StorageSvc/DbPrint.h"
 
 /*
  *   POOL namespace declaration
@@ -26,7 +25,7 @@
 namespace pool    {
 
   // Forward declarations
-  //class DbPrint;
+  class DbPrint;
 
   /** @class DbType DbType.h  StorageSvc/DbType.h
   */

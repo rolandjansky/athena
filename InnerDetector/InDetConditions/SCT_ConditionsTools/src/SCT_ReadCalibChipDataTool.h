@@ -47,16 +47,16 @@ class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDa
   
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
   ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   ///same thing with id hash, introduced by shaun with dummy method for now
-  virtual bool isGood(const IdentifierHash& hashId) override;
+  virtual bool isGood(const IdentifierHash& hashId) const override;
   //@}
   
   // Methods to return calibration data
-  virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) override; //!<Get NPtGain data per wafer
-  virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) override; //!<Get NoiseOccupancy data wafer
+  virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) const override; //!<Get NPtGain data per wafer
+  virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) const override; //!<Get NoiseOccupancy data wafer
 
  private:
   // Private enums

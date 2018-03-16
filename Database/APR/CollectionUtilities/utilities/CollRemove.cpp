@@ -11,9 +11,6 @@
 #include "CollectionBase/CollectionService.h"
 #include "CollectionBase/ICollection.h"
 
-#include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCAction.h"
-
 #include "CoralBase/MessageStream.h"
 #include "POOLCore/Exception.h"
 

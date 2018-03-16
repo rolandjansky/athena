@@ -8,31 +8,23 @@
 #include <string>
 
 #include "PersistentDataModel/Token.h"
-//#include "AttributeList/AttributeList.h"
 
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCContainer.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/FCException.h"
+#include "POOLCore/SystemTools.h"
 
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/CollectionDescription.h"
 #include "CollectionBase/CollectionFactory.h"
 
-#include <stdlib.h>
-#include "CoralBase/AttributeSpecification.h"
-
-#include "TInterpreter.h"
-#include "TClass.h"
 
 using namespace std;
 using namespace pool;
 
+
 int main(int argc, char** )
 {
-  gInterpreter->EnableAutoLoading();
-  TClass::GetClass("map<string,string>");
-
+  SystemTools::initGaudi();
+  
   bool crude = argc>1;
 
   (void)remove ("CollectionCatalog0.xml");
@@ -94,7 +86,7 @@ int main(int argc, char** )
     }
     
     factory->setDefaultCatalog(0);
-    
+
     // retrieve the guid of collection 1 and register a replica for it.
     FileCatalog::FileID guid;   // FileCatalog::FileID is a std::string
     {
@@ -103,11 +95,9 @@ int main(int argc, char** )
       IFileCatalog catalog;
       catalog.setWriteCatalog("xmlcatalog_file:CollectionCatalog1.xml");
       catalog.connect();
-      FCregister act;
-      catalog.setAction(act);
       catalog.start();
-      act.lookupFileByLFN( logicalName, guid);
-      act.addReplicaPFN( physicalName, physicalName+"REPLICA");
+      guid = catalog.lookupLFN( logicalName );
+      catalog.addReplicaPFN( physicalName, physicalName+"REPLICA");
       catalog.commit();
       catalog.disconnect();
     }
@@ -116,7 +106,6 @@ int main(int argc, char** )
     setenv( "POOL_COLLECTION_READ_CATALOGS", "xmlcatalog_file:CollectionCatalog1.xml xmlcatalog_file:CollectionCatalog2.xml", 1);
     
     ICollection* collection = 0;
-    
     
     
     cout << "Open collection 0 with physical name .... ";
@@ -128,8 +117,7 @@ int main(int argc, char** )
        collection = factory->openWithPhysicalName(physicalName, 0);
     }
     cout << (collection ? "OK":"KO") << endl;
-    
-    
+
     
     cout << "Open collection 1 with guid .... ";
     if(crude) {
@@ -139,8 +127,7 @@ int main(int argc, char** )
        collection = factory->openWithGuid(guid, 0);
     cout << (collection ? "OK":"KO") << endl;
     
-    
-    
+
     cout << "Open collection 2 with logical name .... ";
     if(crude) {
        CollectionDescription	desc( "logicalName2", "" ); 
@@ -148,8 +135,7 @@ int main(int argc, char** )
     } else
        collection = factory->openWithLogicalName("logicalName2", 0);
     cout << (collection ? "OK":"KO") << endl;
-    
-    
+        
  
     cout << "Try to create the existing collection 0 ... ";
     physicalName =  collType+"|"+collConnection+"|"+"Collection0";

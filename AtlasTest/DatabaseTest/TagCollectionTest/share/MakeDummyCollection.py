@@ -158,24 +158,6 @@ topSequence+=Stream1
 #--------------------------------------------------------------
 # Registration stream:
 
-from RegistrationServices.RegistrationServicesConf import InputCollectionMetadataCopy
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamDefMeta
-
-# Add tool for copying input collection metadata
-copyTool = InputCollectionMetadataCopy("copyTool")
-copyTool.OutputLevel = DEBUG
-ToolSvc += copyTool
-svcMgr.MetaDataSvc.MetaDataTools += [copyTool]
-
-# Add algorithm to add default collection metadata
-DefaultCollMeta = RegistrationStreamDefMeta("DefaultCollMeta")
-DefaultCollMeta.Project = "TagCollectionTest"
-try: 
-  DefaultCollMeta.Stream = OutColl
-except:
-  DefaultCollMeta.Stream = "TEST"
-topSequence+=DefaultCollMeta
-
 from RegistrationServices.RegistrationServicesConf import RegistrationStream
 
 RegStream1 = RegistrationStream( "RegStream1" )

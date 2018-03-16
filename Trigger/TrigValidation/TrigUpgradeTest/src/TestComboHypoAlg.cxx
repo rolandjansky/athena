@@ -89,20 +89,102 @@ namespace HLTTest {
   }
 
 
+  // StatusCode TestComboHypoAlg::execute_oninput( int inputCounter, const EventContext& context ) const {
+  //   ReadHandle<DecisionContainer> previousDecisionsHandle;
+  //   if (inputCounter==0)       previousDecisionsHandle = SG::makeHandle( m_previousDecisions1, context );
+  //   else if (inputCounter==1)  previousDecisionsHandle = SG::makeHandle( m_previousDecisions2, context );
+
+  //   if( not previousDecisionsHandle.isValid() ) {//implicit
+  //     ATH_MSG_ERROR( "No implicit RH for previous decisions on input "<<inputCounter<<": is this expected?" );
+  //     return StatusCode::SUCCESS;      
+  //   }
+    
+  //   ATH_MSG_DEBUG( "Running on input "<<inputCounter<<" with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
+
+  //   ReadHandle<DecisionContainer> recoInput;
+  //   if (inputCounter==0)  recoInput = SG::makeHandle(m_recoInput1, context);
+  //   else if (inputCounter==1)  recoInput = SG::makeHandle(m_recoInput2, context);
+  //   ATH_MSG_DEBUG( "and with "<< recoInput->size() <<" reco inputs");
+    
+  //   // new output decisions
+  //   auto decisions = std::make_unique<DecisionContainer>();
+  //   auto aux = std::make_unique<DecisionAuxContainer>();
+  //   decisions->setStore( aux.get() );
+
+    
+  //   std::vector<const FeatureOBJ*> featureFromDecision;
+  //   for ( auto previousDecision: *previousDecisionsHandle ) {     
+  //     auto featurelink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
+  //     CHECK( featurelink.isValid() );
+  //     const FeatureOBJ* feature = *featurelink;
+  //     featureFromDecision.push_back( feature);
+  //   }
+
+  //   // reduce if same feature is found
+  //   //
+    
+  //   ATH_MSG_DEBUG("Found "<<featureFromDecision.size()<<" features "<<m_linkName.value() <<" mapped from previous decisions");
+    
+  //   size_t counter = 0;
+  //   //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
+  //   for (auto recoobj: *recoInput){
+  //     auto roiEL = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+  //     CHECK( roiEL.isValid() );
+  //     auto featurelink = (recoobj)->objectLink<FeatureContainer>( m_linkName.value() );
+  //     CHECK( featurelink.isValid() );
+  //     if ( not featurelink.isValid() )  {
+  // 	ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
+  // 	return StatusCode::FAILURE;
+  //     }
+      
+  //     ATH_MSG_DEBUG("Found link from the reco object to feature "<<m_linkName.value() );
+  //     const FeatureOBJ* feature = *featurelink;
+  //     // find the same roi in the previous decisions
+  //     bool foundRoIInDecision=false;
+  //      size_t pos=distance(featureFromDecision.begin(), find(featureFromDecision.begin(), featureFromDecision.end(), feature));
+  //      if (pos < featureFromDecision.size()){
+  // 	 foundRoIInDecision=true;	 
+  //      }
+       
+  //      if (foundRoIInDecision){
+  // 	 ATH_MSG_DEBUG("Found link from the reco object to the previous decision at position "<<pos);
+  // 	 auto d = newDecisionIn(decisions.get());
+  // 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), counter) );// feature used by the Tool
+  // 	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
+  // 	 d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions.key(), pos) );// link to previous decision object
+  //      }
+  //      else{
+  // 	 ATH_MSG_ERROR( " Can not find reference to previous decision from feature " + m_linkName.value() + " from reco object " << counter );
+  // 	 return StatusCode::FAILURE;
+  //      }
+  //      counter++;
+  //   }
+    
+
+  // }
+
   StatusCode TestComboHypoAlg::execute_r( const EventContext& context ) const {  
 
     ATH_MSG_DEBUG ("Executing " << name() << "...");
 
     auto previousDecisionsHandle1 = SG::makeHandle( m_previousDecisions1, context );
+    if( not previousDecisionsHandle1.isValid() ) {//implicit
+      ATH_MSG_DEBUG( "No implicit RH for previous decisions1: is this expected?" );
+      return StatusCode::SUCCESS;      
+    }
     ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle1->size() <<" implicit " <<previousDecisionsHandle1.key()<<" for previous decisions of input 1");
 
     auto previousDecisionsHandle2 = SG::makeHandle( m_previousDecisions2, context );
+    if( not previousDecisionsHandle2.isValid() ) {//implicit
+      ATH_MSG_DEBUG( "No implicit RH for previous decisions2: is this expected?" );
+      return StatusCode::SUCCESS;      
+    }
     ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle2->size() <<" implicit "<<previousDecisionsHandle2.key()<<" for previous decisions of input 2");
     
-    auto input1 = SG::makeHandle(m_recoInput1);
-    auto input2 = SG::makeHandle(m_recoInput2);
+    auto recoInput1 = SG::makeHandle(m_recoInput1);
+    auto recoInput2 = SG::makeHandle(m_recoInput2);
 
-    ATH_MSG_DEBUG( "and with "<< input1->size() <<" reco1 inputs, and "<<input2->size() <<" reco2 inputs");
+    ATH_MSG_DEBUG( "and with "<< recoInput1->size() <<" reco1 inputs, and "<<recoInput2->size() <<" reco2 inputs");
     
     auto decisions1 = std::make_unique<DecisionContainer>();
     auto aux1 = std::make_unique<DecisionAuxContainer>();
@@ -111,37 +193,113 @@ namespace HLTTest {
     auto decisions2 = std::make_unique<DecisionContainer>();
     auto aux2 = std::make_unique<DecisionAuxContainer>();
     decisions2->setStore( aux2.get() );
-    
-    // pre-recate decision objects for each container
-    size_t counter1 = 0;
+
+
+    // find RoIs from previous decisions
+    std::vector<const FeatureOBJ*> featureFromDecision1;
     for ( auto previousDecision: *previousDecisionsHandle1 ) {
-      auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-      CHECK( roiEL.isValid() );
-      auto d = newDecisionIn( decisions1.get() );
-      if (counter1<input1->size())
-	d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput1.key(),  counter1) );
-      else
-	ATH_MSG_DEBUG( "Feature not added to the new decision of type 1: counter =" << counter1<<" list size = "<<input1->size());
-      d->setObjectLink( "initialRoI", roiEL );
-      d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions1.key(), counter1) );
-      counter1++;
+      auto featurelink = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      CHECK( featurelink.isValid() );
+      const FeatureOBJ* feature = *featurelink;
+      featureFromDecision1.push_back( feature);
     }
+    ATH_MSG_DEBUG("Found "<<featureFromDecision1.size()<<" RoIs from decision input1");
+
+   std::vector<const FeatureOBJ*> featureFromDecision2;
+    for ( auto previousDecision: *previousDecisionsHandle2 ) {
+      auto featurelink = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      CHECK( featurelink.isValid() );
+      const FeatureOBJ* feature = *featurelink;
+      featureFromDecision2.push_back( feature);
+    }
+    ATH_MSG_DEBUG("Found "<<featureFromDecision2.size()<<" RoIs from decision input2");
+
+    //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
+    size_t counter1 = 0;
+    for (auto recoobj: *recoInput1){
+      auto featurelink = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      CHECK( featurelink.isValid() );      
+      ATH_MSG_DEBUG("Found link from the reco object1 to RoI" );
+      const FeatureOBJ* feature = *featurelink;
+      // find the same roi in the previous decisions
+      bool foundRoIInDecision=false;
+       size_t pos=distance(featureFromDecision1.begin(), find(featureFromDecision1.begin(), featureFromDecision1.end(), feature));
+       if (pos < featureFromDecision1.size()){
+	 foundRoIInDecision=true;	 
+       }
+       
+       if (foundRoIInDecision){
+	 ATH_MSG_DEBUG("Found the same RoI on decision at pos "<<pos);
+	 auto d = newDecisionIn(decisions1.get());
+	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput1.key(), counter1) );// feature used by the Tool
+	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
+	 d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions1.key(), pos) );// link to previous decision object
+       }
+       else{
+	 ATH_MSG_ERROR( " Can not find reference to previous decision from RoI from reco object " << counter1 );
+	 return StatusCode::FAILURE;
+       }
+       counter1++;
+    }
+
+
+    size_t counter2 = 0;
+     for (auto recoobj: *recoInput2){
+      auto featurelink = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+      CHECK( featurelink.isValid() );      
+      ATH_MSG_DEBUG("Found link from the reco object2 to RoI" );
+      const FeatureOBJ* feature = *featurelink;
+      // find the same roi in the previous decisions
+      bool foundRoIInDecision=false;
+       size_t pos=distance(featureFromDecision2.begin(), find(featureFromDecision2.begin(), featureFromDecision2.end(), feature));
+       if (pos < featureFromDecision2.size()){
+	 foundRoIInDecision=true;	 
+       }
+       
+       if (foundRoIInDecision){
+	 ATH_MSG_DEBUG("Found the same RoI on decision at pos "<<pos);
+	 auto d = newDecisionIn(decisions2.get());
+	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput2.key(), counter2) );// feature used by the Tool
+	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
+	 d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions2.key(), pos) );// link to previous decision object
+       }
+       else{
+	 ATH_MSG_ERROR( " Can not find reference to previous decision from RoI from reco object " << counter2 );
+	 return StatusCode::FAILURE;
+       }
+       counter2++;
+    }
+    
+    // // pre-recate decision objects for each container
+    // size_t counter1 = 0;
+    // for ( auto previousDecision: *previousDecisionsHandle1 ) {
+    //   auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    //   CHECK( roiEL.isValid() );
+    //   auto d = newDecisionIn( decisions1.get() );
+    //   if (counter1<input1->size())
+    // 	d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput1.key(),  counter1) );
+    //   else
+    // 	ATH_MSG_DEBUG( "Feature not added to the new decision of type 1: counter =" << counter1<<" list size = "<<input1->size());
+    //   d->setObjectLink( "initialRoI", roiEL );
+    //   d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions1.key(), counter1) );
+    //   counter1++;
+    // }
     ATH_MSG_DEBUG( "Found  "<<counter1<<" rois from input 1 " );
     
-    size_t counter2 = 0;
-    for ( auto previousDecision: *previousDecisionsHandle2 ) {
-      auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
-      CHECK( roiEL.isValid() );    
-      auto d = newDecisionIn( decisions2.get() );
-      //get the feature
-      if (counter2<input2->size())
-	d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput2.key(),  counter2) );
-      else
-	ATH_MSG_DEBUG( "Feature not added to the new decision of type 2");      
-      d->setObjectLink( "initialRoI", roiEL );// this is used by the InputMaker
-      d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions2.key(), counter2) );
-      counter2++;
-    }
+    // size_t counter2 = 0;
+    // for ( auto previousDecision: *previousDecisionsHandle2 ) {
+    //   auto roiEL = previousDecision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+    //   CHECK( roiEL.isValid() );    
+    //   auto d = newDecisionIn( decisions2.get() );
+    //   //get the feature
+    //   if (counter2<input2->size())
+    // 	d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>( m_recoInput2.key(),  counter2) );
+    //   else
+    // 	ATH_MSG_DEBUG( "Feature not added to the new decision of type 2");      
+    //   d->setObjectLink( "initialRoI", roiEL );// this is used by the InputMaker
+    //   d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions2.key(), counter2) );
+    //   counter2++;
+    // }
     ATH_MSG_DEBUG( "Found  "<<counter2<<" rois from input 2 " );
 
     // this is the tool

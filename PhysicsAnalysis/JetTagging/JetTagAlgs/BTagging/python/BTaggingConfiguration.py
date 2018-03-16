@@ -192,6 +192,9 @@ class Configuration:
     # This dictionary keeps track of all JetBTaggerTools for each jet collection.
     self._BTaggingConfig_JetBTaggerTools = {}
 
+    # This dictionary keeps track of all JetBTaggerAlgs for each jet collection.
+    self._BTaggingConfig_JetBTaggerAlgs = {}
+
     # These dictionaries keeps track of all particle associators for each jet collection. Photon associators are counted
     # as electron associators.
     self._BTaggingConfig_TrackAssociators = {}
@@ -359,6 +362,9 @@ class Configuration:
           print '--- JetBTaggerTools ---'
           for tool in self._BTaggingConfig_JetBTaggerTools:
               print str(tool)+': ',self._BTaggingConfig_JetBTaggerTools[tool]
+          print '--- JetBTaggerAlgs ---'
+          for tool in self._BTaggingConfig_JetBTaggerAlgs:
+              print str(tool)+': ',self._BTaggingConfig_JetBTaggerAlgs[tool]
           print '--- Main Associator Tools ---'
           for tool in self._BTaggingConfig_MainAssociatorTools:
               print str(tool)+': ',self._BTaggingConfig_MainAssociatorTools[tool]
@@ -384,8 +390,23 @@ class Configuration:
       """Updates the JetBTaggerTool for the selected JetCollection if they already exist. This is in order to keep
       them up-to-date, as someone might set up a tool after these main tools already exist. And such a tool might require a new associator
       which we need to add to the main associator tool."""
-      if JetCollection in self._BTaggingConfig_JetBTaggerTools:
-          self.setupJetBTaggerTools(JetCollections=JetCollection)
+      if JetCollection in self._BTaggingConfig_JetBTaggerAlgs:
+          self.setupJetBTaggerAlgs(JetCollections=JetCollection)
+
+  def setupJetBTaggerAlg(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = True, AddToToolSvc = True, options={}, StripJetsSuffix = True):
+      """Convenience function which takes only a single jet collection and returns an instance instead
+      of a list; see setupJetBTaggerAlgs for more info. This function is mainly here for easy calling BTagging.
+
+      This function also strips any trailing 'Jets' in the JetCollection if StripJetsSuffix=True (which is the default)."""
+      if (JetCollection.lower()).endswith("jets"):
+          if Verbose is None:
+              if BTaggingFlags.OutputLevel < 3:
+                  print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
+          elif Verbose:
+              print(self.BTagTag()+" - DEBUG - Stripping trailing 'jets' from jet collection '"+JetCollection+"' prior to setup.")
+          JetCollection = JetCollection[:-4]
+      btagger = self.setupJetBTaggerAlgs(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme)
+      return btagger[0]
 
   def setupJetBTaggerTool(self, ToolSvc=None, JetCollection="", TaggerList=[], SetupScheme="", topSequence=None, Verbose = None, AddToToolSvc = True, options={}, StripJetsSuffix = True):
       """Convenience function which takes only a single jet collection and returns an instance instead
@@ -401,6 +422,103 @@ class Configuration:
           JetCollection = JetCollection[:-4]
       btagger = self.setupJetBTaggerTools(ToolSvc, [JetCollection,], topSequence, Verbose, AddToToolSvc, options, TaggerList, SetupScheme)
       return btagger[0]
+
+  def setupJetBTaggerAlgs(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = ""):
+      """Sets up JetBTaggerAlg tools and adds them to the topSequence (one per jet collection). This function just updates
+      the tool if such a tool already exists for the specified jet collections. This function should only be used for
+      jet collections that one need reconstruction. Note that it is allowed to set topSequence to None,
+      in this case the tool will not be added to the topSequence. (This is actually used in the default set up). Note
+      that we do need the ToolSvc, this is needed to set up the associator tool.
+
+      This function returns None for all jet collections specified if the BTaggingFlags do not allow for B-tagging to run.
+
+      input: ToolSvc:          The ToolSvc. (not needed when updating)
+             JetCollections:   List of jet collection name (can also accept string in the case of one collection).
+             topSequence:      The topSequence. (not needed when updating)
+             Verbose:          Whether to print some additional information. If None then BTaggingFlags.OutputLevel will be used.
+             AddToToolSvc:     Whether to add the JetBTaggerAlg to the ToolSvc or not.
+             options:          List of options to be passed to the JetBTaggerAlgs. This has the following defaults:
+
+      OutputLevel:                                  default: BTaggingFlags.OutputLevel
+      name:                                         default: (BTaggingFlags.OutputFilesPrefix + JetCollection).lower()
+      BTagName:                                     default: BTaggingFlags.OutputFilesPrefix + JetCollection
+      BTagJFVtxName:                                default: BTaggingFlags.OutputFilesJFVxname
+      BTagSVName:                                   default: BTaggingFlags.OutputFilesSVname
+
+             TaggerList:       List of taggers to setup. If left empty the defaults are used. The entries correspond to the names found in
+                               the BTaggingFlags class. If used all other taggers are switched off. Note however that if you enable a tagger
+                               which depends on other taggers then those taggers it depends on will also be set up regardless of this list.
+                               Note: It is up to the scheme to ultimately determine the taggers, although the Default scheme will adhere to this
+                               list.
+             SetupScheme:      Type of setup scheme to use. This allows the b-tagging group to specify more elaborate setup scripts. They are defined
+                               in ./python/BTaggingConfiguration_LoadTools.py. If left empty (which is the default) the one specified in the BTaggingFlags
+                               will be used.
+
+      output: List of JetBTaggerAlgs (this includes those for which no tool was set up because it already existed)."""
+      if len(SetupScheme) == 0:
+        SetupScheme = BTaggingFlags.ConfigurationScheme
+      from BTagging.BTaggingConfiguration_LoadTools import SetupJetCollection
+      import sys
+      if Verbose is None:
+          Verbose = (BTaggingFlags.OutputLevel < 3)
+      if Verbose:
+          print self.BTagTag()+' - DEBUG - Setting up JetBTaggerAlgs for jet collections: '+str(JetCollections)
+      returnlist = []
+      # Allow for string input
+      if type(JetCollections) == str:
+          JetCollections = [JetCollections,]
+      if not self.checkFlagsUsingBTaggingFlags():
+          for jetcol in JetCollections:
+              returnlist.append(None)
+          return returnlist
+      for jetcol in JetCollections:
+          # Make sure we have this jet collection; if not use defaults
+          if not SetupJetCollection(jetcol, TaggerList, SetupScheme, self):
+              returnlist.append(None)
+              continue
+          if jetcol in self._BTaggingConfig_JetBTaggerAlgs:
+              returnlist.append(self._BTaggingConfig_JetBTaggerAlgs.get(jetcol, None))
+              print self.BTagTag()+' - INFO - Updating JetBTaggerAlg for '+jetcol
+              self.ConfigureMainAssociatorTool(self._BTaggingConfig_MainAssociatorTools[jetcol], jetcol)
+              continue
+          # Check if this jet collection has been correctly set up.
+          if not jetcol in self._BTaggingConfig_JetCollections:
+              print self.BTagTag()+' - ERROR - setupJetBTaggerAlgs() called for jet collection with name "'+jetcol+'" but this jet collection has not been initialized.'
+              raise RuntimeError
+          print self.BTagTag()+' - INFO - Adding JetBTaggerAlg for '+jetcol
+          from BTagging.BTaggingConf import Analysis__JetBTaggerAlg as JetBTaggerAlg
+          options = dict(options)
+          options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
+          # setup the Analysis__BTagTrackAssociation tool
+          # Note that this tool is tied to the JetBTaggerAlg
+          thisBTagTrackAssociation = self.setupBTagTrackAssociation('thisBTagTrackAssociation_'+jetcol+self.GeneralToolSuffix(), ToolSvc, Verbose = Verbose)
+          self._BTaggingConfig_MainAssociatorTools[jetcol] = thisBTagTrackAssociation
+          options.setdefault('BTagTrackAssocTool', thisBTagTrackAssociation)
+          # setup the secondary vertexing tool
+          options.setdefault('BTagSecVertexing', self.getJetCollectionSecVertexingTool(jetcol))
+          # Set remaining options
+          btagname = self.getOutputFilesPrefix() + jetcol
+          options.setdefault('name', (btagname + self.GeneralToolSuffix()).lower())
+          options.setdefault('JetCollectionName', jetcol.replace('Track','PV0Track') + "Jets")
+          options.setdefault('BTaggingCollectionName', btagname)
+          options['BTagTool'] = self._BTaggingConfig_JetCollections.get(jetcol, None)
+          jetbtaggeralg = JetBTaggerAlg(**options)
+          # Setup the associator tool
+          self.ConfigureMainAssociatorTool(thisBTagTrackAssociation, jetcol)
+          # -- add tool to topSequence
+          if not topSequence is None:
+              topSequence += jetbtaggeralg
+          # -- add tool to ToolSvc
+          if AddToToolSvc:
+              ToolSvc += jetbtaggeralg
+          if Verbose:
+              print jetbtaggeralg
+              print self.BTagTag()+' - INFO - Attached to the beforementioned JetBTaggerAlg we have the following BTagTool:'
+              print self._BTaggingConfig_JetCollections.get(jetcol, None)
+          # Register
+          self._BTaggingConfig_JetBTaggerAlgs[jetcol] = jetbtaggeralg
+          returnlist.append(jetbtaggeralg)
+      return returnlist
 
   def setupJetBTaggerTools(self, ToolSvc=None, JetCollections=[], topSequence=None, Verbose = None, AddToToolSvc = True, options={}, TaggerList=[], SetupScheme = ""):
       """Sets up JetBTaggerTool tools and adds them to the topSequence (one per jet collection). This function just updates

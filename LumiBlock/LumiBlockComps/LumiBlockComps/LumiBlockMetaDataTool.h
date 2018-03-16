@@ -15,7 +15,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 #include "LumiBlockComps/ILumiBlockMetaDataTool.h"
 #include "GaudiKernel/ITHistSvc.h" 
 #include "TTree.h"

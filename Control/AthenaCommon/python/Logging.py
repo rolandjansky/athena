@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/Logging.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
@@ -84,7 +84,7 @@ class AthenaLogger( logging.getLoggerClass(), object ):
 # now change the Logger class and make sure to reset the 'root' logger (which
 # is created on logging import and will otherwise have the old class)
 logging.setLoggerClass( AthenaLogger )
-logging.root = AthenaLogger( 'root', logging.WARNING )
+logging.root = AthenaLogger( 'root', logging.INFO )
 logging.Logger.root = logging.root
 logging.Logger.manager = logging.Manager( logging.Logger.root )
 

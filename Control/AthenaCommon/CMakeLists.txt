@@ -19,9 +19,15 @@ atlas_install_scripts( share/athena.py share/athena-app.py share/chappy.py share
 atlas_add_alias( athena-app "athena-app.py" )
 atlas_add_alias( athena "athena.py" )
 
-atlas_add_test( AthAppMgrUnitTests SCRIPT test/test_AthAppMgrUnitTests.sh )
-atlas_add_test( ConfigurableUnitTests SCRIPT test/test_ConfigurableUnitTests.sh )
-atlas_add_test( JobOptionsUnitTests SCRIPT test/test_JobOptionsUnitTests.sh )
-atlas_add_test( JobPropertiesUnitTests SCRIPT test/test_JobPropertiesUnitTests.sh )
-atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh )
+atlas_add_test( AthAppMgrUnitTests SCRIPT test/test_AthAppMgrUnitTests.sh
+                EXTRA_PATTERNS "^Ran .* tests in|built on" )
+atlas_add_test( ConfigurableUnitTests SCRIPT test/test_ConfigurableUnitTests.sh
+                EXTRA_PATTERNS "^Ran .* tests in" )
+atlas_add_test( JobOptionsUnitTests SCRIPT test/test_JobOptionsUnitTests.sh 
+                EXTRA_PATTERNS "^Ran .* tests in" )
+atlas_add_test( JobPropertiesUnitTests SCRIPT test/test_JobPropertiesUnitTests.sh
+                EXTRA_PATTERNS "^Ran .* tests in" )
+atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh
+                EXTRA_PATTERNS "^Ran .* tests in|^outFileName: " )
 atlas_add_test( CFElementsTest SCRIPT python -m AthenaCommon.CFElements ) 
+

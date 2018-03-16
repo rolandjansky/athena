@@ -5,9 +5,6 @@
 // Framework include(s):
 #include "PathResolver/PathResolver.h"
 
-// EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
-
 // Local include(s):
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include <cmath>
@@ -277,6 +274,8 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       }
     }
   }
+
+  ATH_CHECK(m_eventInfo.initialize());
   //::: Return gracefully:
   return StatusCode::SUCCESS;
 }
@@ -769,13 +768,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   }
 
   //::: Retrieve the event information:
-  const xAOD::EventInfo* evtInfo = 0;
-  ATH_MSG_VERBOSE( "Retrieving EventInfo from the EventStore..." );
-  if( evtStore()->retrieve( evtInfo, "EventInfo" ).isFailure() ) {
-    ATH_MSG_ERROR( "No EventInfo object could be retrieved" );
-    ATH_MSG_ERROR( "Random number generation not configured correctly, impossible to determine if dealing with data or MC" );
-    return CorrectionCode::Error;
-  }
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfo);
   ATH_MSG_VERBOSE( "Checking Simulation flag: " << evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) );
 
   if( !evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
@@ -835,7 +828,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
 
   if( !m_useExternalSeed ) {
     //::: Get Event Number:
-    const unsigned long long eventNumber = evtInfo ? evtInfo->eventNumber() : 0;
+    const unsigned long long eventNumber = evtInfo->eventNumber();
     //::: Construct a seed for the random number generator:
     const UInt_t seed = 1 + std::abs( mu.phi() ) * 1E6 + std::abs( mu.eta() ) * 1E3 + eventNumber;
     m_random3.SetSeed( seed );

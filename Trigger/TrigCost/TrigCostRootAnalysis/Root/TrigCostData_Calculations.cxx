@@ -68,35 +68,35 @@ namespace TrigCostRootAnalysis {
   /**
    * Figure out if the alg is part of a chain which was resurrected
    */
-  Bool_t TrigCostData::getSeqIsRerun(UInt_t _n) const {
-    Int_t _chainID = getSequenceChannelCounter(_n);
+  Bool_t TrigCostData::getSeqIsRerun(UInt_t n) const {
+    Int_t chainID = getSequenceChannelCounter(n);
 
-    return m_chainRerunStatus[ _chainID ];
+    return m_chainRerunStatus[ chainID ];
   }
 
   /**
    * Used when full chain (L1+HLT) prescale weights are needed outside of the Rates monitor.
    * Use the data store to distribute the information
-   * @param _name Const reference to the chain name.
-   * @param _value 1/total chain prescale
+   * @param name Const reference to the chain name.
+   * @param value 1/total chain prescale
    */
-  void TrigCostData::setChainPrescaleWeight(const std::string& _name, Double_t _value) const {
-    m_chainPSWeight[_name] = _value;
+  void TrigCostData::setChainPrescaleWeight(const std::string& name, Double_t value) const {
+    m_chainPSWeight[name] = value;
   }
 
   /**
    * Get the prescale weight for a chain - is filled by the Rates monitor
-   * @param _name Const reference to the chain name.
-   * @return _value 1/total chain prescale
+   * @param name Const reference to the chain name.
+   * @return value 1/total chain prescale
    */
-  Double_t TrigCostData::getChainPrescaleWeight(const std::string& _name) const {
-    StringDoubleMapIt_t _it = m_chainPSWeight.find(_name);
+  Double_t TrigCostData::getChainPrescaleWeight(const std::string& name) const {
+    StringDoubleMapIt_t it = m_chainPSWeight.find(name);
 
-    if (_it == m_chainPSWeight.end()) {
-      Error("TrigCostData::getChainPrescaleWeight", "Cannot find chain prescale weight for %s", _name.c_str());
+    if (it == m_chainPSWeight.end()) {
+      Error("TrigCostData::getChainPrescaleWeight", "Cannot find chain prescale weight for %s", name.c_str());
       return DBL_MIN;
     }
-    return _it->second;
+    return it->second;
   }
 
   /**
@@ -106,115 +106,115 @@ namespace TrigCostRootAnalysis {
    * In addition, calculates the number of sequence calls and buffers this too.
    **/
   void TrigCostData::bufferChainSeqTime() const {
-    for (UInt_t _c = 0; _c < this->getNChains(); ++_c) {
-      Int_t _chainID = this->getChainID(_c);
+    for (UInt_t c = 0; c < this->getNChains(); ++c) {
+      Int_t chainID = this->getChainID(c);
 
-      Float_t _timer = 0.;
-      UInt_t _nSeq = 0;
-      for (UInt_t _s = 0; _s < this->getNSequences(); ++_s) {
-        if (this->getSequenceChannelCounter(_s) != _chainID) continue; // If sequence does not belong to correct chain
+      Float_t timer = 0.;
+      UInt_t nSeq = 0;
+      for (UInt_t s = 0; s < this->getNSequences(); ++s) {
+        if (this->getSequenceChannelCounter(s) != chainID) continue; // If sequence does not belong to correct chain
 
-        if (this->getSequenceTime(_s) > 0.) {
-          _timer += this->getSequenceTime(_s);
+        if (this->getSequenceTime(s) > 0.) {
+          timer += this->getSequenceTime(s);
         } else {
-          _timer += this->getSequenceAlgTotalTime(_s);
+          timer += this->getSequenceAlgTotalTime(s);
         }
 
-        ++_nSeq;
+        ++nSeq;
       }
 
       // Buffer answer
-      m_chainSeqTimeMap[ _chainID ] = _timer;
-      m_chainSeqCallMap[ _chainID ] = _nSeq; // Also buffer this
+      m_chainSeqTimeMap[ chainID ] = timer;
+      m_chainSeqCallMap[ chainID ] = nSeq; // Also buffer this
     }
   }
 
   /**
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Total chain execution time in the event as sum of all algorithm time associated to the chain.
    */
-  Float_t TrigCostData::getChainTimerFromSequences(UInt_t _n) const {
-    return m_chainSeqTimeMap[ this->getChainID(_n) ];
+  Float_t TrigCostData::getChainTimerFromSequences(UInt_t n) const {
+    return m_chainSeqTimeMap[ this->getChainID(n) ];
   }
 
   /**
    * Calculate the number of sequences which are called by a chain. This is buffered.
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Total number of sequences called by the chain in the event.
    */
-  UInt_t TrigCostData::getChainSeqCalls(UInt_t _n) const {
-    return m_chainSeqCallMap[ this->getChainID(_n) ];
+  UInt_t TrigCostData::getChainSeqCalls(UInt_t n) const {
+    return m_chainSeqCallMap[ this->getChainID(n) ];
   }
 
   /**
    * Calculate the number of algorithms which are called by a chain. This is buffered, along with caches.
    * Also buffers the rerun status flag
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Total number of algorithm calls by the chain in the event.
    **/
   void TrigCostData::bufferChainAlgCalls() const {
-    for (UInt_t _c = 0; _c < this->getNChains(); ++_c) {
-      Int_t _chainID = this->getChainID(_c);
+    for (UInt_t c = 0; c < this->getNChains(); ++c) {
+      Int_t chainID = this->getChainID(c);
 
-      m_chainRerunStatus[ _chainID ] = (Bool_t) getIsChainResurrected(_c);
+      m_chainRerunStatus[ chainID ] = (Bool_t) getIsChainResurrected(c);
 
-      UInt_t _called = 0;
-      UInt_t _cached = 0;
-      for (UInt_t _s = 0; _s < this->getNSequences(); ++_s) {
-        if (this->getSequenceChannelCounter(_s) != _chainID) continue; // If sequence does not belong to correct chain
-        _called += getSequenceAlgCalls(_s);
-        _cached += getSequenceAlgCaches(_s);
+      UInt_t called = 0;
+      UInt_t cached = 0;
+      for (UInt_t s = 0; s < this->getNSequences(); ++s) {
+        if (this->getSequenceChannelCounter(s) != chainID) continue; // If sequence does not belong to correct chain
+        called += getSequenceAlgCalls(s);
+        cached += getSequenceAlgCaches(s);
       }
 
-      m_chainAlgCallMap [ _chainID ] = _called;
-      m_chainAlgCacheMap[ _chainID ] = _cached; // Also buffer this
+      m_chainAlgCallMap [ chainID ] = called;
+      m_chainAlgCacheMap[ chainID ] = cached; // Also buffer this
     }
   }
 
   /**
    * Get the number of algorithms which are called by a chain. T Result is buffered.
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Total number of algorithm calls by the chain in the event.
    */
-  UInt_t TrigCostData::getChainAlgCalls(UInt_t _n) const {
-    return m_chainAlgCallMap[ this->getChainID(_n) ];
+  UInt_t TrigCostData::getChainAlgCalls(UInt_t n) const {
+    return m_chainAlgCallMap[ this->getChainID(n) ];
   }
 
   /**
    * Get the number of algorithms whose cached results were used by a chain. Result is buffered.
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Total number of cached algorithm calls by the chain in the event.
    */
-  UInt_t TrigCostData::getChainAlgCaches(UInt_t _n) const {
-    return m_chainAlgCacheMap[ this->getChainID(_n) ];
+  UInt_t TrigCostData::getChainAlgCaches(UInt_t n) const {
+    return m_chainAlgCacheMap[ this->getChainID(n) ];
   }
 
   /**
    * Get a set of D3PD locations of algorithms associated to a chain. Result is buffered.
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Cont reference to set of pairs of <seqLocation,algLocation> identifiers of algorithms in the event.
    */
-  const std::set< std::pair<Int_t, Int_t> >& TrigCostData::getChainAlgs(UInt_t _n) const {
-    return m_chainAlgMap[ getChainID(_n) ];
+  const std::set< std::pair<Int_t, Int_t> >& TrigCostData::getChainAlgs(UInt_t n) const {
+    return m_chainAlgMap[ getChainID(n) ];
   }
 
   /**
    * Helper function to map a chain or sequence ID to a list of algs which ran.
    */
   void TrigCostData::mapChainAndSeqToAlg() const {
-    for (UInt_t _s = 0; _s < getNSequences(); ++_s) {
-      for (UInt_t _a = 0; _a < getNSeqAlgs(_s); ++_a) {
+    for (UInt_t s = 0; s < getNSequences(); ++s) {
+      for (UInt_t a = 0; a < getNSeqAlgs(s); ++a) {
         // Seq ID and chain ID, alg location
-        const UInt_t _seqId = getSequenceIndex(_s);
-        const UInt_t _chainId = getSequenceChannelCounter(_s);
-        const std::pair<Int_t, Int_t> _myAlgLocation(_s, _a);
+        const UInt_t seqId = getSequenceIndex(s);
+        const UInt_t chainId = getSequenceChannelCounter(s);
+        const std::pair<Int_t, Int_t> myAlgLocation(s, a);
 
-        m_chainAlgMap[ _chainId ].insert(_myAlgLocation);
-        m_seqAlgMap[ _seqId ].insert(_myAlgLocation);
+        m_chainAlgMap[ chainId ].insert(myAlgLocation);
+        m_seqAlgMap[ seqId ].insert(myAlgLocation);
 
         if (Config::config().debug()) {
           Info("TrigCostData::mapChainAndSeqToAlg", "Mapping Chain ID %i and sequence ID %i to alg location %i,%i",
-               _chainId, _seqId, _myAlgLocation.first, _myAlgLocation.second);
+               chainId, seqId, myAlgLocation.first, myAlgLocation.second);
         }
       }
     }
@@ -228,23 +228,23 @@ namespace TrigCostRootAnalysis {
       Error("TrigCostData::bufferChainPassed", "No chain data in this cost object.");
       return;
     }
-    for (UInt_t _c = 0; _c < this->getNChains(); ++_c) {
-      const Int_t _id = this->getChainID(_c);
-      const Int_t _level = this->getChainLevel(_c);
-      this->m_chainPassMap[ TrigConfInterface::getHLTNameFromChainID(_id, _level) ] = this->getIsChainPassed(_c);
+    for (UInt_t c = 0; c < this->getNChains(); ++c) {
+      const Int_t id = this->getChainID(c);
+      const Int_t level = this->getChainLevel(c);
+      this->m_chainPassMap[ TrigConfInterface::getHLTNameFromChainID(id, level) ] = this->getIsChainPassed(c);
     }
   }
 
   /**
    * Allows for a query if a particular chain passed the event where the chain is supplied by name.
    * A map of this information is formed on the first call and buffered for the event.
-   * @param _n Name of the chain.
+   * @param n Name of the chain.
    * @return If the chain passed the physics requirements in the event.
    */
-  Bool_t TrigCostData::getIsChainPassed(std::string& _n) const {
-    if (this->m_chainPassMap.count(_n) == 1) {
+  Bool_t TrigCostData::getIsChainPassed(std::string& n) const {
+    if (this->m_chainPassMap.count(n) == 1) {
       // If we have a record of this chain, return its reported PASS or FAIL
-      return this->m_chainPassMap[ _n ];
+      return this->m_chainPassMap[ n ];
     } else {
       // If the chain asked for was not in the event, it cannot have passed, return FAIL
       return kFALSE;
@@ -253,63 +253,63 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Get the number of ROBs requested (cached) by all algorithms run by a chain
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Number of cached ROB requests
    */
-  UInt_t TrigCostData::getChainROBRequests(UInt_t _n) const {
-    return m_chainROBRequests[ _n ];
+  UInt_t TrigCostData::getChainROBRequests(UInt_t n) const {
+    return m_chainROBRequests[ n ];
   }
 
   /**
    * Get the size of all requested (cached) ROBs by all algorithms run by a chain
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Size in kB of cached ROB requests
    */
-  Float_t TrigCostData::getChainROBRequestSize(UInt_t _n) const {
-    return m_chainROBRequestSize[ _n ];
+  Float_t TrigCostData::getChainROBRequestSize(UInt_t n) const {
+    return m_chainROBRequestSize[ n ];
   }
 
   /**
    * Get the number of ROBs retrieved by by all algorithms run by a chain
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Number of ROB retrievals
    */
-  UInt_t TrigCostData::getChainROBRetrievals(UInt_t _n) const {
-    return m_chainROBRetrievals[ _n ];
+  UInt_t TrigCostData::getChainROBRetrievals(UInt_t n) const {
+    return m_chainROBRetrievals[ n ];
   }
 
   /**
    * Get the size of all ROBs retrieved by by all algorithms run by a chain
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    * @return Size in kB of ROB retrievals
    */
-  Float_t TrigCostData::getChainROBRetrievalSize(UInt_t _n) const {
-    return m_chainROBRetrievalSize[ _n ];
+  Float_t TrigCostData::getChainROBRetrievalSize(UInt_t n) const {
+    return m_chainROBRetrievalSize[ n ];
   }
 
   /**
    * Loop over the ROS info of all algs run under a given chain. Buffer the data.
-   * @param _n Chain index in D3PD.
+   * @param n Chain index in D3PD.
    */
   void TrigCostData::bufferChainRosInformation() const {
-    for (UInt_t _n = 0; _n < this->getNChains(); ++_n) {
-      std::set< std::pair<Int_t, Int_t> > _algs = getChainAlgs(_n);
+    for (UInt_t n = 0; n < this->getNChains(); ++n) {
+      std::set< std::pair<Int_t, Int_t> > algs = getChainAlgs(n);
 
-      UInt_t _req = 0, _ret = 0;
-      Float_t _reqSize = 0., _retSize = 0.;
+      UInt_t req = 0, ret = 0;
+      Float_t reqSize = 0., retSize = 0.;
       // Loop over all algorithms called by this chain
-      std::set< std::pair<Int_t, Int_t> >::iterator _it = _algs.begin();
-      for (; _it != _algs.end(); ++_it) {
-        _req += getSeqAlgROBRequests(_it->first, _it->second);
-        _ret += getSeqAlgROBRetrievals(_it->first, _it->second);
-        _reqSize += getSeqAlgROBRequestSize(_it->first, _it->second);
-        _retSize += getSeqAlgROBRetrievalSize(_it->first, _it->second);
+      std::set< std::pair<Int_t, Int_t> >::iterator it = algs.begin();
+      for (; it != algs.end(); ++it) {
+        req += getSeqAlgROBRequests(it->first, it->second);
+        ret += getSeqAlgROBRetrievals(it->first, it->second);
+        reqSize += getSeqAlgROBRequestSize(it->first, it->second);
+        retSize += getSeqAlgROBRetrievalSize(it->first, it->second);
       }
 
-      m_chainROBRequests[ _n ] = _req;
-      m_chainROBRetrievals[ _n ] = _ret;
-      m_chainROBRequestSize[ _n ] = _reqSize;
-      m_chainROBRetrievalSize[ _n ] = _retSize;
+      m_chainROBRequests[ n ] = req;
+      m_chainROBRetrievals[ n ] = ret;
+      m_chainROBRequestSize[ n ] = reqSize;
+      m_chainROBRetrievalSize[ n ] = retSize;
     }
   }
 
@@ -321,22 +321,22 @@ namespace TrigCostRootAnalysis {
       Error("TrigCostData::getIsL1PassedBeforePrescale", "No L1 data in this cost object.");
       return;
     }
-    for (UInt_t _c = 0; _c < this->getNL1(); ++_c) {
-      const Int_t _id = this->getL1CtpId(_c);
-      this->m_L1BeforePrescalePassMap[ TrigConfInterface::getNameFromCtpId(_id) ] =
-        this->getIsL1PassedBeforePrescale(_c);
+    for (UInt_t c = 0; c < this->getNL1(); ++c) {
+      const Int_t id = this->getL1CtpId(c);
+      this->m_L1BeforePrescalePassMap[ TrigConfInterface::getNameFromCtpId(id) ] =
+        this->getIsL1PassedBeforePrescale(c);
     }
   }
 
   /**
    * String based check for an event passing L1. On request, this is buffered for the event.
-   * @param _n Name of a chain in the current menu.
+   * @param n Name of a chain in the current menu.
    * @return If chain passed before L1 prescale was applied.
    */
-  Bool_t TrigCostData::getIsL1PassedBeforePrescale(std::string& _n) const {
-    if (this->m_L1BeforePrescalePassMap.count(_n) == 1) {
+  Bool_t TrigCostData::getIsL1PassedBeforePrescale(std::string& n) const {
+    if (this->m_L1BeforePrescalePassMap.count(n) == 1) {
       // If we have a record of this chain, return its reported PASS or FAIL
-      return this->m_L1BeforePrescalePassMap[ _n ];
+      return this->m_L1BeforePrescalePassMap[ n ];
     } else {
       // If the chain asked for was not in the event, it cannot have passed, return FAIL
       return kFALSE;
@@ -347,11 +347,11 @@ namespace TrigCostRootAnalysis {
    * Find the location of a L1 item in the D3PD
    * @return D3PD index or -1 if cannot be found
    */
-  Int_t TrigCostData::getL1Location(const std::string& _n) const {
-    const Int_t _CTIPD = TrigConfInterface::getCtpId(_n);
+  Int_t TrigCostData::getL1Location(const std::string& n) const {
+    const Int_t CTIPD = TrigConfInterface::getCtpId(n);
 
-    for (UInt_t _c = 0; _c < this->getNL1(); ++_c) {
-      if (_CTIPD == (Int_t) this->getL1CtpId(_c)) return _c;
+    for (UInt_t c = 0; c < this->getNL1(); ++c) {
+      if (CTIPD == (Int_t) this->getL1CtpId(c)) return c;
     }
     return -1;
   }
@@ -360,100 +360,100 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Gets the number of algorithms called by a sequence. Result is buffered.
-   * @param _n Sequence index in D3PD.
+   * @param n Sequence index in D3PD.
    * @return Total number of algorithm calls by the sequence.
    */
-  UInt_t TrigCostData::getSequenceAlgCalls(UInt_t _n) const {
-    return m_seqAlgCallMap[ _n ];
+  UInt_t TrigCostData::getSequenceAlgCalls(UInt_t n) const {
+    return m_seqAlgCallMap[ n ];
   }
 
   /**
    * Get the number of cached algorithm calls by a sequence. Result is buffered.
-   * @param _n Sequence index in D3PD.
+   * @param n Sequence index in D3PD.
    * @return Total number of cached algorithm calls by the sequence.
    */
-  UInt_t TrigCostData::getSequenceAlgCaches(UInt_t _n) const {
-    return m_seqAlgCacheMap[ _n ];
+  UInt_t TrigCostData::getSequenceAlgCaches(UInt_t n) const {
+    return m_seqAlgCacheMap[ n ];
   }
 
   /**
    * Calculate the number of algorithms called by a sequence.
    */
   void TrigCostData::bufferSequenceAlgCallsCaches() const {
-    for (UInt_t _n = 0; _n < this->getNSequences(); ++_n) {
-      UInt_t _called = 0;
-      UInt_t _cached = 0;
-      for (UInt_t _a = 0; _a < getNSeqAlgs(_n); ++_a) {
-        if (this->getSeqAlgIsCalled(_n, _a) == kTRUE) {
-          ++_called;
-        } else if (this->getSeqAlgIsCached(_n, _a) == kTRUE) {
-          ++_cached;
+    for (UInt_t n = 0; n < this->getNSequences(); ++n) {
+      UInt_t called = 0;
+      UInt_t cached = 0;
+      for (UInt_t a = 0; a < getNSeqAlgs(n); ++a) {
+        if (this->getSeqAlgIsCalled(n, a) == kTRUE) {
+          ++called;
+        } else if (this->getSeqAlgIsCached(n, a) == kTRUE) {
+          ++cached;
         }
         //Assert that I cannot be both cached and called
-        assert((this->getSeqAlgIsCached(_n, _a) == kTRUE && this->getSeqAlgIsCalled(_n, _a) == kTRUE) == kFALSE);
+        assert((this->getSeqAlgIsCached(n, a) == kTRUE && this->getSeqAlgIsCalled(n, a) == kTRUE) == kFALSE);
       }
 
-      m_seqAlgCallMap [ _n ] = _called;
-      m_seqAlgCacheMap[ _n ] = _cached; // Also buffer this
+      m_seqAlgCallMap [ n ] = called;
+      m_seqAlgCacheMap[ n ] = cached; // Also buffer this
     }
   }
 
   /////////////////////////////////
 
-  UInt_t TrigCostData::getSeqROSCalls(UInt_t _n) const {
-    return m_seqROSCallMap[_n];
+  UInt_t TrigCostData::getSeqROSCalls(UInt_t n) const {
+    return m_seqROSCallMap[n];
   }
 
-  Float_t TrigCostData::getSeqROSTime(UInt_t _n) const {
-    return m_seqROSTimeMap[_n];
+  Float_t TrigCostData::getSeqROSTime(UInt_t n) const {
+    return m_seqROSTimeMap[n];
   }
 
-  UInt_t TrigCostData::getSeqROBRequests(UInt_t _n) const {
-    return m_seqROBReqs[_n];
+  UInt_t TrigCostData::getSeqROBRequests(UInt_t n) const {
+    return m_seqROBReqs[n];
   }
 
-  Float_t TrigCostData::getSeqROBRequestSize(UInt_t _n) const {
-    return m_seqROBReqSize[_n];
+  Float_t TrigCostData::getSeqROBRequestSize(UInt_t n) const {
+    return m_seqROBReqSize[n];
   }
 
-  UInt_t TrigCostData::getSeqROBRetrievals(UInt_t _n) const {
-    return m_seqROBRets[_n];
+  UInt_t TrigCostData::getSeqROBRetrievals(UInt_t n) const {
+    return m_seqROBRets[n];
   }
 
-  Float_t TrigCostData::getSeqROBRetrievalSize(UInt_t _n) const {
-    return m_seqROBRetSize[_n];
+  Float_t TrigCostData::getSeqROBRetrievalSize(UInt_t n) const {
+    return m_seqROBRetSize[n];
   }
 
-  UInt_t TrigCostData::getSeqROBOthers(UInt_t _n) const {
-    return m_seqROBOther[_n];
+  UInt_t TrigCostData::getSeqROBOthers(UInt_t n) const {
+    return m_seqROBOther[n];
   }
 
   /**
    * Internal call to buffer the ROB data for a sequence from its algorithms
-   * @param _n Sequnce D3PD index to buffer
+   * @param n Sequnce D3PD index to buffer
    */
   void TrigCostData::bufferSeqROSInformation() const {
-    for (UInt_t _n = 0; _n < this->getNSequences(); ++_n) {
-      Float_t _rosTime = 0., _robReqSize = 0., _robRetSize = 0.;
-      Int_t _robReq = 0, _robRet = 0, _robOther = 0, _rosCalls = 0;
+    for (UInt_t n = 0; n < this->getNSequences(); ++n) {
+      Float_t rosTime = 0., robReqSize = 0., robRetSize = 0.;
+      Int_t robReq = 0, robRet = 0, robOther = 0, rosCalls = 0;
       // Loop over all algorithms in sequence
-      for (UInt_t _a = 0; _a < this->getNSeqAlgs(_n); ++_a) {
-        _rosCalls += this->getSeqAlgROSCalls(_n, _a);
-        _rosTime += this->getSeqAlgROSTime(_n, _a);
-        _robRet += this->getSeqAlgROBRetrievals(_n, _a);
-        _robReq += this->getSeqAlgROBRequests(_n, _a);
-        _robRetSize += this->getSeqAlgROBRetrievalSize(_n, _a);
-        _robReqSize += this->getSeqAlgROBRequestSize(_n, _a);
-        _robOther += this->getSeqAlgROBOthers(_n, _a);
+      for (UInt_t a = 0; a < this->getNSeqAlgs(n); ++a) {
+        rosCalls += this->getSeqAlgROSCalls(n, a);
+        rosTime += this->getSeqAlgROSTime(n, a);
+        robRet += this->getSeqAlgROBRetrievals(n, a);
+        robReq += this->getSeqAlgROBRequests(n, a);
+        robRetSize += this->getSeqAlgROBRetrievalSize(n, a);
+        robReqSize += this->getSeqAlgROBRequestSize(n, a);
+        robOther += this->getSeqAlgROBOthers(n, a);
       }
 
-      m_seqROSCallMap[_n] = _rosCalls;
-      m_seqROSTimeMap[_n] = _rosTime;
-      m_seqROBRets[_n] = _robRet;
-      m_seqROBReqs[_n] = _robReq;
-      m_seqROBRetSize[_n] = _robRetSize;
-      m_seqROBReqSize[_n] = _robReqSize;
-      m_seqROBOther[_n] = _robOther;
+      m_seqROSCallMap[n] = rosCalls;
+      m_seqROSTimeMap[n] = rosTime;
+      m_seqROBRets[n] = robRet;
+      m_seqROBReqs[n] = robReq;
+      m_seqROBRetSize[n] = robRetSize;
+      m_seqROBReqSize[n] = robReqSize;
+      m_seqROBOther[n] = robOther;
     }
   }
 
@@ -463,168 +463,168 @@ namespace TrigCostRootAnalysis {
    * Get the location in the D3PD of the ROS request from an algorithm.
    * Take a pair as input as this is the standard format from chain->alg lookup
    * Regular method also available,
-   * @see TrigCostData::getSeqAlgROBLocations(UInt_t _n, UInt_t _a) const
-   * @param _algLocation std::pair of <seqLocation,algLocation>
+   * @see TrigCostData::getSeqAlgROBLocations(UInt_t n, UInt_t a) const
+   * @param algLocation std::pair of <seqLocation,algLocation>
    * @return Location of ROS request, or -1 if none found.
    */
-  std::set<Int_t> TrigCostData::getSeqAlgROBLocations(const std::pair<Int_t, Int_t>& _algLocation) const {
-    if (m_algRosMap.count(_algLocation) == 0) return m_emptySet;
+  std::set<Int_t> TrigCostData::getSeqAlgROBLocations(const std::pair<Int_t, Int_t>& algLocation) const {
+    if (m_algRosMap.count(algLocation) == 0) return m_emptySet;
 
-    return m_algRosMap[ _algLocation ];
+    return m_algRosMap[ algLocation ];
   }
 
   /**
    * Get the location in the D3PD of the ROS request from an algorithm.
-   * @see TrigCostData::getSeqAlgROBLocations(const std::pair<Int_t,Int_t>& _algLocation) const
-   * @param _n Sequence index in D3PD.
-   * @param _a Algorithm index in sequence.
+   * @see TrigCostData::getSeqAlgROBLocations(const std::pair<Int_t,Int_t>& algLocation) const
+   * @param n Sequence index in D3PD.
+   * @param a Algorithm index in sequence.
    * @return Location of ROS request, or -1 if none found.
    */
-  std::set<Int_t> TrigCostData::getSeqAlgROBLocations(UInt_t _n, UInt_t _a) const {
-    _recyclablePair.first = (Int_t) _n;
-    _recyclablePair.second = (Int_t) _a;
-    return getSeqAlgROBLocations(_recyclablePair);
+  std::set<Int_t> TrigCostData::getSeqAlgROBLocations(UInt_t n, UInt_t a) const {
+    m_recyclablePair.first = (Int_t) n;
+    m_recyclablePair.second = (Int_t) a;
+    return getSeqAlgROBLocations(m_recyclablePair);
   }
 
   /**
    * Calculates and buffers for the event statistics on ROS information for all algorithms
-   * @see TrigCostData::getSeqAlgROSCalls(UInt_t _n, UInt_t _a)
-   * @see TrigCostData::getSeqAlgROSTime(UInt_t _n, UInt_t _a)
-   * @see TrigCostData::getSeqAlgROBRequests(UInt_t _n, UInt_t _a)
-   * @see TrigCostData::getSeqAlgROBRequestSize(UInt_t _n, UInt_t _a)
-   * @see TrigCostData::getSeqAlgROBRetrievals(UInt_t _n, UInt_t _a)
-   * @see TrigCostData::getSeqAlgROBRetrievalSize(UInt_t _n, UInt_t _a)
-   * @see TrigCostData::getSeqAlgROBOthers(UInt_t _n, UInt_t _a)
+   * @see TrigCostData::getSeqAlgROSCalls(UInt_t n, UInt_t a)
+   * @see TrigCostData::getSeqAlgROSTime(UInt_t n, UInt_t a)
+   * @see TrigCostData::getSeqAlgROBRequests(UInt_t n, UInt_t a)
+   * @see TrigCostData::getSeqAlgROBRequestSize(UInt_t n, UInt_t a)
+   * @see TrigCostData::getSeqAlgROBRetrievals(UInt_t n, UInt_t a)
+   * @see TrigCostData::getSeqAlgROBRetrievalSize(UInt_t n, UInt_t a)
+   * @see TrigCostData::getSeqAlgROBOthers(UInt_t n, UInt_t a)
    */
   void TrigCostData::bufferAlgRosInformation() const {
-    for (UInt_t _s = 0; _s < getNSequences(); ++_s) {
-      for (UInt_t _a = 0; _a < getNSeqAlgs(_s); ++_a) {
+    for (UInt_t s = 0; s < getNSequences(); ++s) {
+      for (UInt_t a = 0; a < getNSeqAlgs(s); ++a) {
         // For this function - recyclable pair holds this algorithm's execution
-        _recyclablePair.first = (Int_t) _s;
-        _recyclablePair.second = (Int_t) _a;
+        m_recyclablePair.first = (Int_t) s;
+        m_recyclablePair.second = (Int_t) a;
 
         // Get the ROS requests I made
-        std::set<Int_t> _ros = getSeqAlgROBLocations(_recyclablePair);
+        std::set<Int_t> ros = getSeqAlgROBLocations(m_recyclablePair);
 
-        Float_t _rosTime = 0., _robReqSize = 0., _robRetSize = 0.;
-        Int_t _robReq = 0, _robRet = 0, _robOther = 0;
+        Float_t rosTime = 0., robReqSize = 0., robRetSize = 0.;
+        Int_t robReq = 0, robRet = 0, robOther = 0;
 
         // Loop over the request's ROS call's data
-        for (std::set<Int_t>::iterator _robIt = _ros.begin(); _robIt != _ros.end(); ++_robIt) {
-          Int_t _rob = (*_robIt);
-          _rosTime += getROBTimer(_rob);
+        for (std::set<Int_t>::iterator robIt = ros.begin(); robIt != ros.end(); ++robIt) {
+          Int_t rob = (*robIt);
+          rosTime += getROBTimer(rob);
 
-          Int_t _TEMP_REQ = 0, _TEMP_RET = 0;
-          for (UInt_t _robData = 0; _robData < getROBDataN(_rob); ++_robData) {
-            if (getIsROBDataRetrieved(_rob, _robData)) {
-              ++_robRet;
-              ++_TEMP_RET;
-              _robRetSize += getROBDataSize(_rob, _robData);
+          Int_t TEMP_REQ = 0, TEMP_RET = 0;
+          for (UInt_t robData = 0; robData < getROBDataN(rob); ++robData) {
+            if (getIsROBDataRetrieved(rob, robData)) {
+              ++robRet;
+              ++TEMP_RET;
+              robRetSize += getROBDataSize(rob, robData);
             }
-            if (getIsROBDataCached(_rob, _robData)) {
-              ++_robReq;
-              ++_TEMP_REQ;
-              _robReqSize += getROBDataSize(_rob, _robData);
+            if (getIsROBDataCached(rob, robData)) {
+              ++robReq;
+              ++TEMP_REQ;
+              robReqSize += getROBDataSize(rob, robData);
             }
-            if (getIsROBDataUnclassified(_rob, _robData)
-                || getIsROBDataDisabled(_rob, _robData)
-                || getIsROBDataIgnored(_rob, _robData)) {
-              ++_robOther;
+            if (getIsROBDataUnclassified(rob, robData)
+                || getIsROBDataDisabled(rob, robData)
+                || getIsROBDataIgnored(rob, robData)) {
+              ++robOther;
             }
           }
           // This can come out at some point.
           // as the CACHE flag applies only to a ROB, not the ROS request - I am checking here that there is never a
           // ROS request which is listed as both
-          assert((_TEMP_REQ == 0 && _TEMP_RET == 0) || (_TEMP_REQ > 0 && _TEMP_RET == 0) ||
-                 (_TEMP_REQ == 0 && _TEMP_RET > 0));
+          assert((TEMP_REQ == 0 && TEMP_RET == 0) || (TEMP_REQ > 0 && TEMP_RET == 0) ||
+                 (TEMP_REQ == 0 && TEMP_RET > 0));
         }
 
-        m_algRosCalls[ _recyclablePair ] = _ros.size();
-        m_algRosTime[ _recyclablePair ] = _rosTime;
-        m_algROBRequests[ _recyclablePair ] = _robReq;
-        m_algROBRetrievals[ _recyclablePair ] = _robRet;
-        m_algROBOther[ _recyclablePair ] = _robOther;
-        m_algROBRequestSize[ _recyclablePair ] = _robReqSize;
-        m_algROBRetrievalSize[ _recyclablePair ] = _robRetSize;
+        m_algRosCalls[ m_recyclablePair ] = ros.size();
+        m_algRosTime[ m_recyclablePair ] = rosTime;
+        m_algROBRequests[ m_recyclablePair ] = robReq;
+        m_algROBRetrievals[ m_recyclablePair ] = robRet;
+        m_algROBOther[ m_recyclablePair ] = robOther;
+        m_algROBRequestSize[ m_recyclablePair ] = robReqSize;
+        m_algROBRetrievalSize[ m_recyclablePair ] = robRetSize;
       }
     }
   }
 
   /**
    * Get the number of calls made to the ROS from an algorithm.
-   * @param _n Sequence index in D3PD.
-   * @param _a Algorithm index in sequence.
+   * @param n Sequence index in D3PD.
+   * @param a Algorithm index in sequence.
    */
-  UInt_t TrigCostData::getSeqAlgROSCalls(UInt_t _n, UInt_t _a) const {
-    _recyclablePair.first = (Int_t) _n;
-    _recyclablePair.second = (Int_t) _a;
-    return m_algRosCalls[ _recyclablePair ];
+  UInt_t TrigCostData::getSeqAlgROSCalls(UInt_t n, UInt_t a) const {
+    m_recyclablePair.first = (Int_t) n;
+    m_recyclablePair.second = (Int_t) a;
+    return m_algRosCalls[ m_recyclablePair ];
   }
 
   /**
    * Get the total time spent on ROS access for all ROS requests from an algorithm
-   * @param _n Sequence index in D3PD.
-   * @param _a Algorithm index in sequence.
+   * @param n Sequence index in D3PD.
+   * @param a Algorithm index in sequence.
    */
-  Float_t TrigCostData::getSeqAlgROSTime(UInt_t _n, UInt_t _a) const {
-    _recyclablePair.first = (Int_t) _n;
-    _recyclablePair.second = (Int_t) _a;
-    return m_algRosTime[ _recyclablePair ];
+  Float_t TrigCostData::getSeqAlgROSTime(UInt_t n, UInt_t a) const {
+    m_recyclablePair.first = (Int_t) n;
+    m_recyclablePair.second = (Int_t) a;
+    return m_algRosTime[ m_recyclablePair ];
   }
 
   /**
    * Get the number of ROBs requested (cached) by an algorithm
-   * @param _n Sequence index in D3PD.
-   * @param _a Algorithm index in sequence.
+   * @param n Sequence index in D3PD.
+   * @param a Algorithm index in sequence.
    */
-  UInt_t TrigCostData::getSeqAlgROBRequests(UInt_t _n, UInt_t _a) const {
-    _recyclablePair.first = (Int_t) _n;
-    _recyclablePair.second = (Int_t) _a;
-    return m_algROBRequests[ _recyclablePair ];
+  UInt_t TrigCostData::getSeqAlgROBRequests(UInt_t n, UInt_t a) const {
+    m_recyclablePair.first = (Int_t) n;
+    m_recyclablePair.second = (Int_t) a;
+    return m_algROBRequests[ m_recyclablePair ];
   }
 
   /**
    * Get the size of all requested (cached) ROBs by an algorithm
-   * @param _n Sequence index in D3PD.
-   * @param _a Algorithm index in sequence.
+   * @param n Sequence index in D3PD.
+   * @param a Algorithm index in sequence.
    */
-  Float_t TrigCostData::getSeqAlgROBRequestSize(UInt_t _n, UInt_t _a) const {
-    _recyclablePair.first = (Int_t) _n;
-    _recyclablePair.second = (Int_t) _a;
-    return m_algROBRequestSize[ _recyclablePair ];
+  Float_t TrigCostData::getSeqAlgROBRequestSize(UInt_t n, UInt_t a) const {
+    m_recyclablePair.first = (Int_t) n;
+    m_recyclablePair.second = (Int_t) a;
+    return m_algROBRequestSize[ m_recyclablePair ];
   }
 
   /**
    * Get the number of ROBs retrieved by an algorithm
-   * @param _n Sequence index in D3PD.
-   * @param _a Algorithm index in sequence.
+   * @param n Sequence index in D3PD.
+   * @param a Algorithm index in sequence.
    */
-  UInt_t TrigCostData::getSeqAlgROBRetrievals(UInt_t _n, UInt_t _a) const {
-    _recyclablePair.first = (Int_t) _n;
-    _recyclablePair.second = (Int_t) _a;
-    return m_algROBRetrievals[ _recyclablePair ];
+  UInt_t TrigCostData::getSeqAlgROBRetrievals(UInt_t n, UInt_t a) const {
+    m_recyclablePair.first = (Int_t) n;
+    m_recyclablePair.second = (Int_t) a;
+    return m_algROBRetrievals[ m_recyclablePair ];
   }
 
   /**
    * Get the size of all ROBs retrieved by an algorithm
-   * @param _n Sequence index in D3PD.
-   * @param _a Algorithm index in sequence.
+   * @param n Sequence index in D3PD.
+   * @param a Algorithm index in sequence.
    */
-  Float_t TrigCostData::getSeqAlgROBRetrievalSize(UInt_t _n, UInt_t _a) const {
-    _recyclablePair.first = (Int_t) _n;
-    _recyclablePair.second = (Int_t) _a;
-    return m_algROBRetrievalSize[ _recyclablePair ];
+  Float_t TrigCostData::getSeqAlgROBRetrievalSize(UInt_t n, UInt_t a) const {
+    m_recyclablePair.first = (Int_t) n;
+    m_recyclablePair.second = (Int_t) a;
+    return m_algROBRetrievalSize[ m_recyclablePair ];
   }
 
   /**
    * Get the number of ROBs requested by an algorithm which are marked as 'Ignored', 'Disabled' or 'Unclassified'
-   * @param _n Sequence index in D3PD.
-   * @param _a Algorithm index in sequence.
+   * @param n Sequence index in D3PD.
+   * @param a Algorithm index in sequence.
    */
-  UInt_t TrigCostData::getSeqAlgROBOthers(UInt_t _n, UInt_t _a) const {
-    _recyclablePair.first = (Int_t) _n;
-    _recyclablePair.second = (Int_t) _a;
-    return m_algROBOther[ _recyclablePair ];
+  UInt_t TrigCostData::getSeqAlgROBOthers(UInt_t n, UInt_t a) const {
+    m_recyclablePair.first = (Int_t) n;
+    m_recyclablePair.second = (Int_t) a;
+    return m_algROBOther[ m_recyclablePair ];
   }
 
   /////////////////////////////////
@@ -639,91 +639,91 @@ namespace TrigCostRootAnalysis {
    * Given this complexity, it is probably better to look at the example below.
    *
    * @see getRoIIndexFromId( _roiID )
-   * @param _n Sequence index in D3PD.
-   * @param _a Algorithm index in sequence.
-   * @param _roi Which ROI to get the ID for - this still needs to be mapped to the location in the D3PD using
+   * @param n Sequence index in D3PD.
+   * @param a Algorithm index in sequence.
+   * @param roi Which ROI to get the ID for - this still needs to be mapped to the location in the D3PD using
    *getRoIIndexFromId
-   * @return ID of _roi'th attached region of interest.
+   * @return ID of roi'th attached region of interest.
    */
-  Int_t TrigCostData::getSeqAlgRoIID(UInt_t _n, UInt_t _a, UInt_t _roi) const {
+  Int_t TrigCostData::getSeqAlgRoIID(UInt_t n, UInt_t a, UInt_t roi) const {
     // Info("TrigCostData::getSeqAlgRoIID"," ---   ---   --- " );
-    // Info("TrigCostData::getSeqAlgRoIID","Requested ROI #%i from alg. ", _roi );
+    // Info("TrigCostData::getSeqAlgRoIID","Requested ROI #%i from alg. ", roi );
 
-    UInt_t _nRoi = getSeqAlgNRoI(_n, _a);
+    UInt_t nRoi = getSeqAlgNRoI(n, a);
 
-    // Info("TrigCostData::getSeqAlgRoIID","This alg has %i ROIs. ", _nRoi );
+    // Info("TrigCostData::getSeqAlgRoIID","This alg has %i ROIs. ", nRoi );
 
-    if (_roi >= _nRoi) {
+    if (roi >= nRoi) {
       Warning("TrigCostData::getSeqAlgRoIID", "Requested RoI ID out-of-range");
       return 0;
     }
 
-    UInt_t _sizeOuter = m_trigCostObject->seq_alg_roi_index()->size(); // Range check
-    if (_sizeOuter <= _n) {
+    UInt_t sizeOuter = m_trigCostObject->seq_alg_roi_index()->size(); // Range check
+    if (sizeOuter <= n) {
       Warning("TrigCostData::getSeqAlgRoIID", "Cannot find any RoI lists for alg (out of range).");
       return 0;
     }
 
-    UInt_t _sizeInner = m_trigCostObject->seq_alg_roi_index()->at(_n).size(); // Range check
-    if (_sizeInner <= _a) {
+    UInt_t sizeInner = m_trigCostObject->seq_alg_roi_index()->at(n).size(); // Range check
+    if (sizeInner <= a) {
       Warning("TrigCostData::getSeqAlgRoIID", "Cannot find location of RoI list for alg (out of range).");
       return 0;
     }
 
-    UInt_t _algRoIs = (Int_t) m_trigCostObject->seq_alg_roi_index()->at(_n).at(_a);
-    // Info("TrigCostData::getSeqAlgRoIID"," The requested ROIs have index in the ALG-ROI container %i.", _algRoIs );
+    UInt_t algRoIs = (Int_t) m_trigCostObject->seq_alg_roi_index()->at(n).at(a);
+    // Info("TrigCostData::getSeqAlgRoIID"," The requested ROIs have index in the ALG-ROI container %i.", algRoIs );
 
     // Info("TrigCostData::getSeqAlgRoIID"," The ALG-ROI container is size %i",  (Int_t)
     // m_trigCostObject->seq_roi()->size() );
 
-    _sizeOuter = m_trigCostObject->seq_roi()->size(); // Range check
-    if (_sizeOuter <= _algRoIs) {
+    sizeOuter = m_trigCostObject->seq_roi()->size(); // Range check
+    if (sizeOuter <= algRoIs) {
       Warning("TrigCostData::getSeqAlgRoIID", "Cannot find RoI list for alg (out of range).");
       return 0;
     }
 
-    _sizeInner = m_trigCostObject->seq_roi()->at(_algRoIs).size(); // Range check
-    if (_sizeInner <= _roi) {
+    sizeInner = m_trigCostObject->seq_roi()->at(algRoIs).size(); // Range check
+    if (sizeInner <= roi) {
       if (Config::config().getDisplayMsg(kMsgRoISize) == kTRUE) {
         Warning("TrigCostData::getSeqAlgRoIID",
-                "Cannot find RoI #%u within the list for this alg (out of range [size:%u]).", _roi, _sizeInner);
+                "Cannot find RoI #%u within the list for this alg (out of range [size:%u]).", roi, sizeInner);
       }
       return 0;
     }
 
-    UInt_t _roiID = m_trigCostObject->seq_roi()->at(_algRoIs).at(_roi);
+    UInt_t roiID = m_trigCostObject->seq_roi()->at(algRoIs).at(roi);
     // Info("TrigCostData::getSeqAlgRoIID","   At location %i of the ALG-ROI container there are %i entries, the %i'th
     // has ROI-ID %i",
-    //  _algRoIs, (Int_t) m_trigCostObject->seq_roi()->at(_algRoIs).size(), _roi, _roiID  );
+    //  algRoIs, (Int_t) m_trigCostObject->seq_roi()->at(algRoIs).size(), roi, roiID  );
 
-    //UInt_t _roiLocation = getRoIIndexFromId( _roiID );
-    // Info("TrigCostData::getSeqAlgRoIID","    The location of ROI with index %i is %i ", _roiID, _roiLocation );
+    //UInt_t roiLocation = getRoIIndexFromId( roiID );
+    // Info("TrigCostData::getSeqAlgRoIID","    The location of ROI with index %i is %i ", roiID, roiLocation );
 
-    // const std::string _type = getRoITypeString( _roiLocation );
-    // Info("TrigCostData::getSeqAlgRoIID","     This ROI at location %i is type %s", _roiLocation, _type.c_str() );
-    return _roiID;
+    // const std::string type = getRoITypeString( roiLocation );
+    // Info("TrigCostData::getSeqAlgRoIID","     This ROI at location %i is type %s", roiLocation, type.c_str() );
+    return roiID;
   }
 
   /**
-   * @see TrigCostData::getSeqAlgRoIID(UInt_t _n, UInt_t _a, UInt_t _roi)
+   * @see TrigCostData::getSeqAlgRoIID(UInt_t n, UInt_t a, UInt_t roi)
    */
-  Int_t TrigCostData::getSeqAlgRoILocation(UInt_t _n, UInt_t _a, UInt_t _roi) const {
-    return getRoIIndexFromId(getSeqAlgRoIID(_n, _a, _roi));
+  Int_t TrigCostData::getSeqAlgRoILocation(UInt_t n, UInt_t a, UInt_t roi) const {
+    return getRoIIndexFromId(getSeqAlgRoIID(n, a, roi));
   }
 
   /**
    * Check if this ROB can be associated to an algorithm in the event, if so get the D3PD
    * location of the algorithm.
    * Association is done via checking the algorithm name hash and by time window.
-   * @param _n ROB index in D3PD.
+   * @param n ROB index in D3PD.
    * @return D3PD location in this event of associated algorithm, or (-1,-1) if not found.
    */
-  const std::pair< Int_t, Int_t >& TrigCostData::getROBAlgLocation(UInt_t _n) const {
-    const static std::pair<Int_t, Int_t> _noMatch(-1, -1);
+  const std::pair< Int_t, Int_t >& TrigCostData::getROBAlgLocation(UInt_t n) const {
+    const static std::pair<Int_t, Int_t> noMatch(-1, -1);
 
-    if (m_rosAlgMap.count(_n) == 0) return _noMatch;
+    if (m_rosAlgMap.count(n) == 0) return noMatch;
 
-    return m_rosAlgMap[ _n ];
+    return m_rosAlgMap[ n ];
   }
 
   /**
@@ -736,199 +736,199 @@ namespace TrigCostRootAnalysis {
     // Buffer this data for this event
 
     // First loop over algs - build map of which algs were processed this event, linked to the hash of their name.
-    for (UInt_t _s = 0; _s < getNSequences(); ++_s) {
+    for (UInt_t s = 0; s < getNSequences(); ++s) {
       // Loop over all algorithms in sequence
-      for (UInt_t _a = 0; _a < getNSeqAlgs(_s); ++_a) {
+      for (UInt_t a = 0; a < getNSeqAlgs(s); ++a) {
         // Map this location for easy access later (in next, ROS loop)
         // This prevents a nested loop in a per-event method which would be mighty slow
-        Int_t _seqIndex = getSequenceIndex(_s);
-        Int_t _seqAlgPos = getSeqAlgPosition(_s, _a);
-        UInt_t _algNameHash = TrigConfInterface::getHLTAlgNameIDFromSeqIDAndAlgPos(_seqIndex, _seqAlgPos);
+        Int_t seqIndex = getSequenceIndex(s);
+        Int_t seqAlgPos = getSeqAlgPosition(s, a);
+        UInt_t algNameHash = TrigConfInterface::getHLTAlgNameIDFromSeqIDAndAlgPos(seqIndex, seqAlgPos);
 
-        m_algExecMap[ _algNameHash ].insert(std::make_pair(_s, _a));
+        m_algExecMap[ algNameHash ].insert(std::make_pair(s, a));
 
         // if (Config::config().debug()) {
-        //   Info("TrigCostData::mapRosToAlgs","Mapped Alg Name Hash %u to Alg %i,%i", _algNameHash, _s, _a);
+        //   Info("TrigCostData::mapRosToAlgs","Mapped Alg Name Hash %u to Alg %i,%i", algNameHash, s, a);
         // }
       }
     }
 
     // Second loop over all ROS, map ROS requests to algorithms.
-    for (UInt_t _r = 0; _r < getNROBs(); ++_r) {
+    for (UInt_t r = 0; r < getNROBs(); ++r) {
       // * NOTE * If we have been told NOT to do ROB information. Here is a good place to break this loop and save on
       // execution time
       if (Config::config().getInt(kEnableROSToAlgMatching) == kFALSE) break;
 
-      UInt_t _rosAlgId = getROBReqID(_r);
+      UInt_t rosAlgId = getROBReqID(r);
 
       // Check if this alg's exec data is saved
-      if (m_algExecMap.count(_rosAlgId) == 0) {
+      if (m_algExecMap.count(rosAlgId) == 0) {
         if (Config::config().debug()) Info("TrigCostData::mapRosToAlgs", "No Mapped Alg with name hash %u for ROB # %i",
-                                           _rosAlgId, _r);
+                                           rosAlgId, r);
         continue;
       }
 
       if (Config::config().debug()) {
-        Info("TrigCostData::mapRosToAlgs", "Finding match for ROB %i", _r);
+        Info("TrigCostData::mapRosToAlgs", "Finding match for ROB %i", r);
       }
 
       // Loop over alg exec's and check timing to see if compatible
-      std::set< std::pair< UInt_t, UInt_t > >::iterator _it = m_algExecMap[ _rosAlgId ].begin();
-      for (; _it != m_algExecMap[ _rosAlgId ].end(); ++_it) {
-        if (getRosReqBelongsToAlg(_it->first, _it->second, _r) == kFALSE) {
-          if ((Config::config().debug()) && _it == --m_algExecMap[ _rosAlgId ].end()) {
-            Info("TrigCostData::mapRosToAlgs", "  Temporal match failed for Alg with hash %u and ROB # %u", _rosAlgId,
-                 _r);
+      std::set< std::pair< UInt_t, UInt_t > >::iterator it = m_algExecMap[ rosAlgId ].begin();
+      for (; it != m_algExecMap[ rosAlgId ].end(); ++it) {
+        if (getRosReqBelongsToAlg(it->first, it->second, r) == kFALSE) {
+          if ((Config::config().debug()) && it == --m_algExecMap[ rosAlgId ].end()) {
+            Info("TrigCostData::mapRosToAlgs", "  Temporal match failed for Alg with hash %u and ROB # %u", rosAlgId,
+                 r);
           }
           continue;
         }
         // We have a name hash and temporal match! This alg can be associated to this ROS request.
         // Should only get one match...
-        if (m_rosAlgMap.count(_r) == 1) {
+        if (m_rosAlgMap.count(r) == 1) {
           Warning("TrigCostData::mapRosToAlgs", "Found two matches for a ROS request. (%i->%i,%i and %i->%i,%i)",
-                  _r, _it->first, _it->second, _r, m_rosAlgMap[_r].first, m_rosAlgMap[_r].second);
+                  r, it->first, it->second, r, m_rosAlgMap[r].first, m_rosAlgMap[r].second);
         }
 
         //if (Config::config().debug()) {
-        //  Info("TrigCostData::mapRosToAlgs"," Mapped Alg %i,%i to ROB # %i", _it->first, _it->second, _r);
+        //  Info("TrigCostData::mapRosToAlgs"," Mapped Alg %i,%i to ROB # %i", it->first, it->second, r);
         //}
         // Each ROS Req is associated to only one Alg (1-to-1)
-        m_rosAlgMap[_r] = (*_it); // This dereferences to the pair
+        m_rosAlgMap[r] = (*it); // This dereferences to the pair
         // Each alg can have many ROS requests
-        if (m_algRosMap.count(*_it) == 0) {
-          m_algRosMap[ (*_it) ] = std::set<Int_t>();
+        if (m_algRosMap.count(*it) == 0) {
+          m_algRosMap[ (*it) ] = std::set<Int_t>();
         }
-        m_algRosMap[ (*_it) ].insert(_r); // Make the map go both ways (1-to-many)
+        m_algRosMap[ (*it) ].insert(r); // Make the map go both ways (1-to-many)
       }
-      if ((Config::config().debug()) && m_rosAlgMap.count(_r) == 0) {
-        Warning("TrigCostData::mapRosToAlgs", " Found zero matches for a ROS request. (%i)", _r);
+      if ((Config::config().debug()) && m_rosAlgMap.count(r) == 0) {
+        Warning("TrigCostData::mapRosToAlgs", " Found zero matches for a ROS request. (%i)", r);
       }
     }
   }
 
   /**
    * Helper function, returns if an algorithm requested a given ROS req based on the time of the request
-   * @param _seq D3PD index of sequence to test
-   * @param _alg D3PD index of algorithm in sequence to test
-   * @param _Ros D3PD index of ROS to test
+   * @param seq D3PD index of sequence to test
+   * @param alg D3PD index of algorithm in sequence to test
+   * @param Ros D3PD index of ROS to test
    * @returns kTRUE if the ROS request time falls within the algorithm execution time.
    */
-  Bool_t TrigCostData::getRosReqBelongsToAlg(UInt_t _seq, UInt_t _alg, UInt_t _ros) const {
-    if (isZero(getROBTimeStartSec(_ros)) || isZero(getSeqAlgTimeStartSec(_seq, _alg))) return kFALSE;
+  Bool_t TrigCostData::getRosReqBelongsToAlg(UInt_t seq, UInt_t alg, UInt_t ros) const {
+    if (isZero(getROBTimeStartSec(ros)) || isZero(getSeqAlgTimeStartSec(seq, alg))) return kFALSE;
 
-    Float_t _startTimeDif = ((Float_t) getROBTimeStartSec(_ros) - (Float_t) getSeqAlgTimeStartSec(_seq, _alg));
+    Float_t startTimeDif = ((Float_t) getROBTimeStartSec(ros) - (Float_t) getSeqAlgTimeStartSec(seq, alg));
     //Check that this did not go over an hour boundary
-    Bool_t _flagStartSpansHourBoundary = kFALSE;
-    if (_startTimeDif > 1800.) { //This is 30m
-      _startTimeDif = 3600. - _startTimeDif;
-      _flagStartSpansHourBoundary = kTRUE;
+    Bool_t flagStartSpansHourBoundary = kFALSE;
+    if (startTimeDif > 1800.) { //This is 30m
+      startTimeDif = 3600. - startTimeDif;
+      flagStartSpansHourBoundary = kTRUE;
       if (Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
         Info("TrigCostData::getRosReqBelongsToAlg",
              "Hour Boundary in START AlgStart:%i.%i ROSStart:%i.%i - ROSEnd:%i.%i AlgEnd:%i.%i. TimeDifStart:%f",
-             getSeqAlgTimeStartSec(_seq, _alg),
-             getSeqAlgTimeStartMicroSec(_seq, _alg),
-             getROBTimeStartSec(_ros),
-             getROBTimeStartMicroSec(_ros),
-             getROBTimeStopSec(_ros),
-             getROBTimeStopMicroSec(_ros),
-             getSeqAlgTimeStopSec(_seq, _alg),
-             getSeqAlgTimeStopMicroSec(_seq, _alg),
-             _startTimeDif);
+             getSeqAlgTimeStartSec(seq, alg),
+             getSeqAlgTimeStartMicroSec(seq, alg),
+             getROBTimeStartSec(ros),
+             getROBTimeStartMicroSec(ros),
+             getROBTimeStopSec(ros),
+             getROBTimeStopMicroSec(ros),
+             getSeqAlgTimeStopSec(seq, alg),
+             getSeqAlgTimeStopMicroSec(seq, alg),
+             startTimeDif);
       }
     }
-    _startTimeDif += ((Float_t) getROBTimeStartMicroSec(_ros) - (Float_t) getSeqAlgTimeStartMicroSec(_seq, _alg)) / 1e6;
-    if (_startTimeDif < 0) {
-      if (_flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
-        Info("TrigCostData::getRosReqBelongsToAlg", "Hour boundary in start, therefore modified _startTimeDif:%f"
+    startTimeDif += ((Float_t) getROBTimeStartMicroSec(ros) - (Float_t) getSeqAlgTimeStartMicroSec(seq, alg)) / 1e6;
+    if (startTimeDif < 0) {
+      if (flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+        Info("TrigCostData::getRosReqBelongsToAlg", "Hour boundary in start, therefore modified startTimeDif:%f"
                                                     " should be >= 0, but this is not the case it seems. Odd - this should be investigated. Failing this alg-ros match.",
-             _startTimeDif);
+             startTimeDif);
       }
       return kFALSE;
     }
 
     // Note we reverse the order here as we want to know if the ROS request is in the middle of the alg
-    Float_t _stopTimeDif = (Float_t) getSeqAlgTimeStopSec(_seq, _alg) - (Float_t) getROBTimeStopSec(_ros);
-    if (_stopTimeDif < -1800.) { //This is 30m
-      if (_flagStartSpansHourBoundary == kTRUE) {
+    Float_t stopTimeDif = (Float_t) getSeqAlgTimeStopSec(seq, alg) - (Float_t) getROBTimeStopSec(ros);
+    if (stopTimeDif < -1800.) { //This is 30m
+      if (flagStartSpansHourBoundary == kTRUE) {
         // If both the start and stop appear to span the hour-boundary then this ROS req cannot be contained within the
         // alg
         // Only if one of the two span the hour boundary is this possible
         if (Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
           Info("TrigCostData::getRosReqBelongsToAlg",
-               "Hour Boundary in STOP, therefore ROS cannot be associated to this ALG. TimeDifStop:%f", _stopTimeDif);
+               "Hour Boundary in STOP, therefore ROS cannot be associated to this ALG. TimeDifStop:%f", stopTimeDif);
         }
         return kFALSE;
       }
-      _stopTimeDif = 3600. + _stopTimeDif;
+      stopTimeDif = 3600. + stopTimeDif;
       if (Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
         Info("TrigCostData::getRosReqBelongsToAlg",
              "Hour Boundary in STOP AlgStart:%i.%i ROSStart:%i.%i - ROSEnd:%i.%i AlgEnd:%i.%i. TimeDifStop:%f",
-             getSeqAlgTimeStartSec(_seq, _alg),
-             getSeqAlgTimeStartMicroSec(_seq, _alg),
-             getROBTimeStartSec(_ros),
-             getROBTimeStartMicroSec(_ros),
-             getROBTimeStopSec(_ros),
-             getROBTimeStopMicroSec(_ros),
-             getSeqAlgTimeStopSec(_seq, _alg),
-             getSeqAlgTimeStopMicroSec(_seq, _alg),
-             _stopTimeDif);
+             getSeqAlgTimeStartSec(seq, alg),
+             getSeqAlgTimeStartMicroSec(seq, alg),
+             getROBTimeStartSec(ros),
+             getROBTimeStartMicroSec(ros),
+             getROBTimeStopSec(ros),
+             getROBTimeStopMicroSec(ros),
+             getSeqAlgTimeStopSec(seq, alg),
+             getSeqAlgTimeStopMicroSec(seq, alg),
+             stopTimeDif);
       }
     }
-    _stopTimeDif += ((Float_t) getSeqAlgTimeStopMicroSec(_seq, _alg) - (Float_t) getROBTimeStopMicroSec(_ros)) / 1e6;
-    if (_flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
-      Info("TrigCostData::getRosReqBelongsToAlg", "Stop TimeDifStop:%f", _stopTimeDif);
+    stopTimeDif += ((Float_t) getSeqAlgTimeStopMicroSec(seq, alg) - (Float_t) getROBTimeStopMicroSec(ros)) / 1e6;
+    if (flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+      Info("TrigCostData::getRosReqBelongsToAlg", "Stop TimeDifStop:%f", stopTimeDif);
     }
 
     // One of the checks needs to have a veto on == 0 as we can get a ROS on the temporal border between two ALGS
     // e.g. Alg A: AlgStart:339.450639 ROSStart:339.453074 --- ROSEnd:339.453074 AlgEnd:339.453074
     // e.g. Alg B: AlgStart:339.453074 ROSStart:339.453074 --- ROSEnd:339.453074 AlgEnd:339.458076
     // Without this, this ROS req would be assigned to them both.
-    if (_stopTimeDif < 0 || isZero(_stopTimeDif)) {
-      if (_flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
-        Info("TrigCostData::getRosReqBelongsToAlg", "Match failed due to _stopTimeDif <= 0 (%f)", _stopTimeDif);
+    if (stopTimeDif < 0 || isZero(stopTimeDif)) {
+      if (flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+        Info("TrigCostData::getRosReqBelongsToAlg", "Match failed due to stopTimeDif <= 0 (%f)", stopTimeDif);
       }
       return kFALSE;
     }
 
-    if (_flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
-      Info("TrigCostData::getRosReqBelongsToAlg", "Match suceeded due to _stopTimeDif > 0 (%f)", _stopTimeDif);
+    if (flagStartSpansHourBoundary == kTRUE && Config::config().getDisplayMsg(kMsgHourBoundary) == kTRUE) {
+      Info("TrigCostData::getRosReqBelongsToAlg", "Match suceeded due to stopTimeDif > 0 (%f)", stopTimeDif);
     }
     return kTRUE;
   }
 
   /**
    * Get D3PD index location of a ROI in an event from its ID number.
-   * @param _id Read Out Buffer ID number.
+   * @param id Read Out Buffer ID number.
    * @return The index location of the ROI or -1 if it could not be found.
    */
-  Int_t TrigCostData::getRoIIndexFromId(Int_t _id) const {
+  Int_t TrigCostData::getRoIIndexFromId(Int_t id) const {
     //TODO buffer me.
-    for (UInt_t _i = 0; _i < getNRoIs(); ++_i) {
-      if (getRoIID(_i) == _id) return _i;
+    for (UInt_t i = 0; i < getNRoIs(); ++i) {
+      if (getRoIID(i) == id) return i;
     }
     // Can't find it? try the hack. Note this is a XXX TODO HACK
-    for (UInt_t _i = 0; _i < getNRoIs(); ++_i) {
-      if ((_id == 0 || _id == 255) && getRoIID(_i) == 253) {
+    for (UInt_t i = 0; i < getNRoIs(); ++i) {
+      if ((id == 0 || id == 255) && getRoIID(i) == 253) {
         if (Config::config().getDisplayMsg(kMsgRoIHack) == kTRUE) {
           Warning("TrigCostData::getRoIIndexFromId",
                   "Using RoI hack with %s RoI. NRoIs:%i. Requested RoI ID:%i, returning RoI #:%i with ID:%i",
-                  getRoITypeString(_i).c_str(),
+                  getRoITypeString(i).c_str(),
                   getNRoIs(),
-                  _id,
-                  _i,
-                  getRoIID(_i));
+                  id,
+                  i,
+                  getRoIID(i));
         }
-        return _i;
+        return i;
       }
     }
     if (Config::config().getDisplayMsg(kMsgCannotFindRoI) == kTRUE) {
       Warning("TrigCostData::getRoIIndexFromId",
-              "No RoI found with ID %i (going to return an invalid location, -1). The posibilities were:", _id);
-      for (UInt_t _i = 0; _i < getNRoIs(); ++_i) {
+              "No RoI found with ID %i (going to return an invalid location, -1). The posibilities were:", id);
+      for (UInt_t i = 0; i < getNRoIs(); ++i) {
         Warning("TrigCostData::getRoIIndexFromId", " -- RoI at location %i (%s) has ID %i",
-                _i,
-                this->getRoITypeString(_i).c_str(),
-                this->getRoIID(_i));
+                i,
+                this->getRoITypeString(i).c_str(),
+                this->getRoIID(i));
       }
     }
     return -1;
@@ -936,34 +936,34 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Return a string representing this ROI's name
-   * @param _n RoI ID number.
+   * @param n RoI ID number.
    * @return Const reference to ROI type string.
    */
-  const std::string& TrigCostData::getRoITypeString(Int_t _n) const {
-    if (_n >= 0 && _n < (Int_t) getNRoIs()) {
-      if (getIsRoINone(_n) == kTRUE) return Config::config().getStr(kNoneString);
-      else if (getIsRoIMuon(_n) == kTRUE) return Config::config().getStr(kMuonString);
-      else if (getIsRoIEmTau(_n) == kTRUE) {
+  const std::string& TrigCostData::getRoITypeString(Int_t n) const {
+    if (n >= 0 && n < (Int_t) getNRoIs()) {
+      if (getIsRoINone(n) == kTRUE) return Config::config().getStr(kNoneString);
+      else if (getIsRoIMuon(n) == kTRUE) return Config::config().getStr(kMuonString);
+      else if (getIsRoIEmTau(n) == kTRUE) {
         return Config::config().getStr(kEmTauString);
-        //if (getIsRoITau(_n))  return Config::config().getStr(kTauString); // For later
+        //if (getIsRoITau(n))  return Config::config().getStr(kTauString); // For later
         //else return Config::config().getStr(kEmString);
-      } else if (getIsRoIJet(_n) == kTRUE) return Config::config().getStr(kJetString);
-      else if (getIsRoIJetEt(_n) == kTRUE) return Config::config().getStr(kJetEtString);
-      else if (getIsRoIEnergy(_n) == kTRUE) return Config::config().getStr(kEnergyString);
+      } else if (getIsRoIJet(n) == kTRUE) return Config::config().getStr(kJetString);
+      else if (getIsRoIJetEt(n) == kTRUE) return Config::config().getStr(kJetEtString);
+      else if (getIsRoIEnergy(n) == kTRUE) return Config::config().getStr(kEnergyString);
     }
     if (Config::config().getDisplayMsg(kMsgUnknownRoIType) == kTRUE) {
-      Warning("TrigCostData::getRoITypeString", "Encountered an ROI at location:%i with no type.", _n);
+      Warning("TrigCostData::getRoITypeString", "Encountered an ROI at location:%i with no type.", n);
     }
     return Config::config().getStr(kUnknownString);
   }
 
   /**
-   * @param _n TE index in D3PD.
+   * @param n TE index in D3PD.
    * @return Find location in D3PD of TE with given index
    */
-  Int_t TrigCostData::getTEPositionFromTEIndex(UInt_t _n) const {
+  Int_t TrigCostData::getTEPositionFromTEIndex(UInt_t n) const {
     for (UInt_t i = 0; i < getNTEs(); ++i) {
-      if (getTEIndex(i) == _n) return _n;
+      if (getTEIndex(i) == n) return n;
     }
     return -1;
   }

@@ -117,45 +117,45 @@ namespace TrigCostRootAnalysis {
   /**
    * Parse information about Tests from XML and create an AutoMonTest object.
    */
-  void AutoMonControl::parseTestXml(TXMLEngine* _xml, XMLNodePointer_t _listNode) {
-    XMLNodePointer_t _testNode = _xml->GetChild(_listNode);
+  void AutoMonControl::parseTestXml(TXMLEngine* xml, XMLNodePointer_t listNode) {
+    XMLNodePointer_t testNode = xml->GetChild(listNode);
 
-    while (_testNode != 0) {
+    while (testNode != 0) {
       bool doNotInstantiateTest = false;
       std::string testName, varName, varOpt, doFrac, alert, warn, advise;
       ConfKey_t confVar;
       VariableOption_t confVarOpts;
 
-      if (_xml->HasAttr(_testNode, "name")) {
-        testName = _xml->GetAttr(_testNode, "name");
+      if (xml->HasAttr(testNode, "name")) {
+        testName = xml->GetAttr(testNode, "name");
       } else {
         doNotInstantiateTest = true;
       }
-      if (_xml->HasAttr(_testNode, "var")) {
-        varName = _xml->GetAttr(_testNode, "var");
+      if (xml->HasAttr(testNode, "var")) {
+        varName = xml->GetAttr(testNode, "var");
       } else {
         doNotInstantiateTest = true;
       }
-      if (_xml->HasAttr(_testNode, "opt")) {
-        varOpt = _xml->GetAttr(_testNode, "opt");
+      if (xml->HasAttr(testNode, "opt")) {
+        varOpt = xml->GetAttr(testNode, "opt");
       } else {
         doNotInstantiateTest = true;
       }
-      if (_xml->HasAttr(_testNode, "alert")) {
-        alert = _xml->GetAttr(_testNode, "alert");
+      if (xml->HasAttr(testNode, "alert")) {
+        alert = xml->GetAttr(testNode, "alert");
       } else {
         doNotInstantiateTest = true;
       }
-      if (_xml->HasAttr(_testNode, "dofrac")) {
-        doFrac = _xml->GetAttr(_testNode, "dofrac");
+      if (xml->HasAttr(testNode, "dofrac")) {
+        doFrac = xml->GetAttr(testNode, "dofrac");
       } else {
         doFrac = "false";
       }
-      if (_xml->HasAttr(_testNode, "warn")) {
-        warn = _xml->GetAttr(_testNode, "warn");
+      if (xml->HasAttr(testNode, "warn")) {
+        warn = xml->GetAttr(testNode, "warn");
       }
-      if (_xml->HasAttr(_testNode, "advise")) {
-        advise = _xml->GetAttr(_testNode, "advise");
+      if (xml->HasAttr(testNode, "advise")) {
+        advise = xml->GetAttr(testNode, "advise");
       }
 
       if (!Config::config().getConfKeyNameFromString(varName, confVar)) {
@@ -210,17 +210,17 @@ namespace TrigCostRootAnalysis {
         Info("infoString", infoString.c_str());
       }
 
-      _testNode = _xml->GetNext(_testNode); //iterate to next test node
+      testNode = xml->GetNext(testNode); //iterate to next test node
     }//end loop over test Nodes
   }//end parseExamXml
 
   /**
    * Parse the control options, currently only the interest level
    */
-  void AutoMonControl::parseControlOptionsXml(TXMLEngine* _xml, XMLNodePointer_t _listNode) {
+  void AutoMonControl::parseControlOptionsXml(TXMLEngine* xml, XMLNodePointer_t listNode) {
     std::string levelString = "alert";
-    if (_xml->GetAttr(_listNode, "level")) {
-      levelString = _xml->GetAttr(_listNode, "level");
+    if (xml->GetAttr(listNode, "level")) {
+      levelString = xml->GetAttr(listNode, "level");
     }
 
     if (levelString == "warn" || levelString == "warning" || levelString == "Warn" || levelString == "Warning" ||
@@ -235,39 +235,39 @@ namespace TrigCostRootAnalysis {
   /**
    * Parse information about exam and create AutoMonExam object.
    */
-  void AutoMonControl::parseExamXml(TXMLEngine* _xml, XMLNodePointer_t _listNode) {
-    XMLNodePointer_t _examNode = _xml->GetChild(_listNode);
+  void AutoMonControl::parseExamXml(TXMLEngine* xml, XMLNodePointer_t listNode) {
+    XMLNodePointer_t examNode = xml->GetChild(listNode);
     MonitorBase* monitor;
 
-    while (_examNode != 0) {
+    while (examNode != 0) {
       bool doNotInstantiateExam = false;
       bool userDefinedRange = false;
       std::string nameString, monitorString, excludeString, specifyString, testsString, rangeString;
       monitor = nullptr;
 
-      if (_xml->HasAttr(_examNode, "name")) {
-        nameString = _xml->GetAttr(_examNode, "name");
+      if (xml->HasAttr(examNode, "name")) {
+        nameString = xml->GetAttr(examNode, "name");
       } else {
         doNotInstantiateExam = true;
       }
-      if (_xml->HasAttr(_examNode, "monitor")) {
-        monitorString = _xml->GetAttr(_examNode, "monitor");
+      if (xml->HasAttr(examNode, "monitor")) {
+        monitorString = xml->GetAttr(examNode, "monitor");
       } else {
         doNotInstantiateExam = true;
       }
-      if (_xml->HasAttr(_examNode, "tests")) {
-        testsString = _xml->GetAttr(_examNode, "tests");
+      if (xml->HasAttr(examNode, "tests")) {
+        testsString = xml->GetAttr(examNode, "tests");
       } else {
         doNotInstantiateExam = true;
       }
-      if (_xml->HasAttr(_examNode, "exclude")) {
-        excludeString = _xml->GetAttr(_examNode, "exclude");
+      if (xml->HasAttr(examNode, "exclude")) {
+        excludeString = xml->GetAttr(examNode, "exclude");
       }
-      if (_xml->HasAttr(_examNode, "specify")) {
-        specifyString = _xml->GetAttr(_examNode, "specify");
+      if (xml->HasAttr(examNode, "specify")) {
+        specifyString = xml->GetAttr(examNode, "specify");
       }
-      if (_xml->HasAttr(_examNode, "range")) {
-        rangeString = _xml->GetAttr(_examNode, "range");
+      if (xml->HasAttr(examNode, "range")) {
+        rangeString = xml->GetAttr(examNode, "range");
         userDefinedRange = true;
       }
 
@@ -314,7 +314,7 @@ namespace TrigCostRootAnalysis {
           testsString << '\n';
         }
       }
-      _examNode = _xml->GetNext(_examNode);   //Move on to next exam
+      examNode = xml->GetNext(examNode);   //Move on to next exam
     } // end of loop over exam nodes
   } // end parseExamXml
 
@@ -322,28 +322,28 @@ namespace TrigCostRootAnalysis {
    * Iterate through the XML and parse the different options.
    */
   void AutoMonControl::loadXml() {
-    TXMLEngine* _xml = new TXMLEngine();
-    XMLDocPointer_t _xmlDoc = _xml->ParseFile(m_xml_location.c_str());
-    XMLNodePointer_t _mainNode = _xml->DocGetRootElement(_xmlDoc);
+    TXMLEngine* xml = new TXMLEngine();
+    XMLDocPointer_t xmlDoc = xml->ParseFile(m_xml_location.c_str());
+    XMLNodePointer_t mainNode = xml->DocGetRootElement(xmlDoc);
 
-    if (_xml->GetNodeName(_mainNode) != std::string("AutoCostMon")) {
+    if (xml->GetNodeName(mainNode) != std::string("AutoCostMon")) {
       std::cout << "XML Head node not correct (AutoCostMon)" << '\n';
     }
-    XMLNodePointer_t _listNode = _xml->GetChild(_mainNode);
-    while (_listNode != 0) {
-      const std::string _listName = _xml->GetNodeName(_listNode);
-      if (_listName == "ControlOptions") {
-        parseControlOptionsXml(_xml, _listNode);
+    XMLNodePointer_t listNode = xml->GetChild(mainNode);
+    while (listNode != 0) {
+      const std::string listName = xml->GetNodeName(listNode);
+      if (listName == "ControlOptions") {
+        parseControlOptionsXml(xml, listNode);
       }
 
-      if (_listName == "TestDef") {
-        parseTestXml(_xml, _listNode);
+      if (listName == "TestDef") {
+        parseTestXml(xml, listNode);
       }
 
-      if (_listName == "ExamDef") {
-        parseExamXml(_xml, _listNode);
+      if (listName == "ExamDef") {
+        parseExamXml(xml, listNode);
       }
-      _listNode = _xml->GetNext(_listNode); //go to next node
+      listNode = xml->GetNext(listNode); //go to next node
     } // end loop over nodes
   }// end loadxml
 

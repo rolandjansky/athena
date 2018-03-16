@@ -138,9 +138,9 @@ CONCURRENTRANGEMAP::find (const key_query_type& key) const
   const_iterator begin = getBegin (last);
   if (!last) return nullptr;
   const_iterator pos = std::upper_bound (begin, last+1, key,
-                                         [this](const key_query_type& key,
+                                         [this](const key_query_type& key2,
                                                 const value_type& v)
-                                         { return m_compare (key, v.first); } );
+                                         { return m_compare (key2,v.first); } );
 
   // Fail if it would be before the first value.
   if (pos == begin) return nullptr;

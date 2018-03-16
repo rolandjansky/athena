@@ -9,6 +9,7 @@ atlas_subdir( Tests )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PRIVATE
+   Database/APR/POOLCore
    Database/APR/FileCatalog
    Database/APR/PersistencySvc
    Database/APR/StorageSvc
@@ -37,7 +38,7 @@ function( _add_test name )
       atlas_add_dictionary( test_${name}Dict
          ${ARG_DICTHEADER} ${name}/classes.xml
          INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-         LINK_LIBRARIES ${Boost_LIBRARIES} FileCatalog PersistencySvc
+         LINK_LIBRARIES ${Boost_LIBRARIES} PersistencySvc
          StorageSvc AthContainers
          NO_ROOTMAP_MERGE )
    endif()
@@ -50,8 +51,8 @@ function( _add_test name )
    atlas_add_test( "${name}_test"
       SOURCES ${name}/*.cpp
       INCLUDE_DIRS ${CPPUNIT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${CPPUNIT_LIBRARIES} FileCatalog PersistencySvc
-      StorageSvc AthContainers
+      LINK_LIBRARIES ${CPPUNIT_LIBRARIES} PersistencySvc
+      StorageSvc AthContainers  FileCatalog
       PersistentDataModel TestTools
       PRE_EXEC_SCRIPT "rm -f pool*.root *xml"
       POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${name}_test"

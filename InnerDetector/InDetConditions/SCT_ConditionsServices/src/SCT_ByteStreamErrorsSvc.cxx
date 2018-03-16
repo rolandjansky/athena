@@ -7,19 +7,16 @@
  * implementation file for service that keeps track of errors in the bytestream
  * @author nbarlow@cern.ch
  **/
+
 /// header file for this class.
 #include "SCT_ByteStreamErrorsSvc.h"
-///STL includes
-#include <set>
-#include <map>
 
 ///Gaudi includes
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/IIncidentSvc.h"
+
 ///Athena includes
 #include "InDetIdentifier/SCT_ID.h"
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
+
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
@@ -31,31 +28,27 @@
 /** Constructor */
 SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator), 
-  m_sct_id{nullptr},
-  m_storeGate{"StoreGateSvc", name},
+  m_evtStore{"StoreGateSvc", name},
   m_detStore{"DetectorStore", name},
   m_cabling{"SCT_CablingSvc", name},
   m_config{"InDetSCT_ConfigurationConditionsSvc", name},
+  m_sct_id{nullptr},
+  m_pManager{nullptr},
   m_filled{false},
   m_lookForSGErrContainer{true},
+  m_firstTempMaskedChips{},
   m_tempMaskedChips{},
   m_isRODSimulatedData{false},
   m_numRODsHVon{0},
   m_numRODsTotal{0},
-  m_condensedMode{true},
-  m_rodFailureFraction{0.1},
-  m_pManager{nullptr}
+  m_condensedMode{true}
 {
-  declareProperty("EventStore", m_storeGate);
+  declareProperty("EventStore", m_evtStore);
   declareProperty("DetectorStore", m_detStore);
   declareProperty("ContainerName", m_bsErrContainerName=std::string{"SCT_ByteStreamErrs"});
   declareProperty("CablingService", m_cabling);
   declareProperty("ConfigService", m_config);
-  declareProperty("useDCSfromBS", m_useDCSfromBS=false);
   declareProperty("UseRXRedundancyInfo", m_useRXredundancy=true);
-  declareProperty("disableRODs", m_disableRODs=false);
-  declareProperty("RODFailureFraction", m_rodFailureFraction=0.1);
-  declareProperty("RandomNumberSeed", m_randomSeed=1); // The seed of random numbers for ROD disabling
 
   for (int errorType{0}; errorType<SCT_ByteStreamErrors::NUM_ERROR_TYPES; errorType++) {
     m_bsErrors[errorType].clear();
@@ -82,17 +75,17 @@ SCT_ByteStreamErrorsSvc::initialize() {
   }
  
   /** Get a StoreGateSvc */
-  if (m_storeGate.retrieve().isFailure()) {
-    ATH_MSG_FATAL( "Failed to retrieve service " << m_storeGate);
-    return StatusCode::SUCCESS;
+  if (m_evtStore.retrieve().isFailure()) {
+    ATH_MSG_FATAL( "Failed to retrieve service " << m_evtStore);
+    return StatusCode::FAILURE;
   } 
   else {
-    ATH_MSG_INFO("Retrieved service " << m_storeGate);
+    ATH_MSG_INFO("Retrieved service " << m_evtStore);
   }
   /**  Get a detector store */
   if (m_detStore.retrieve().isFailure()) {
     ATH_MSG_FATAL("Failed to retrieve service " << m_detStore);
-    return StatusCode::SUCCESS;
+    return StatusCode::FAILURE;
   }
   else {
     ATH_MSG_INFO("Retrieved service " << m_detStore);
@@ -101,22 +94,21 @@ SCT_ByteStreamErrorsSvc::initialize() {
   sc = m_detStore->retrieve(m_sct_id, "SCT_ID") ;
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Cannot retrieve SCT ID helper!");
-    return StatusCode::SUCCESS;
+    return StatusCode::FAILURE;
   } 
-
   m_cntx_sct = m_sct_id->wafer_context();
 
   sc = m_config.retrieve() ;
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Cannot retrieve ConfigurationConditionsSvc!");
-    return StatusCode::SUCCESS;
+    return StatusCode::FAILURE;
   } 
   
-  if (m_disableRODs or m_useRXredundancy) {
+  if (m_useRXredundancy) {
     sc = m_cabling.retrieve() ;
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Cannot retrieve cabling!");
-      return StatusCode::SUCCESS;
+      return StatusCode::FAILURE;
     } 
   }
 
@@ -150,37 +142,10 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     m_filled = false;
     m_numRODsHVon=0;
     m_numRODsTotal=0;
-    if (m_disableRODs) disableRODs();
     m_firstTempMaskedChips.clear();
     m_tempMaskedChips.clear();
   }
   return;
-}
-
-void 
-SCT_ByteStreamErrorsSvc::disableRODs() {
-
-  std::vector<boost::uint32_t> listOfRODs;
-  m_cabling->getAllRods(listOfRODs);
-
-  /* initialize random seed: */
-  srand ( m_randomSeed );
-
-  /* generate secret number: */
-
-  for (int irod{0}; irod < int(m_rodFailureFraction*listOfRODs.size()); ++irod) {
-    uint32_t RODindex{static_cast<uint32_t>(rand() % listOfRODs.size())};
-  
-    if (RODindex < listOfRODs.size()) {
-      std::vector<IdentifierHash> listOfHashes;
-      m_cabling->getHashesForRod(listOfHashes,listOfRODs.at(RODindex));
-      std::vector<IdentifierHash>::iterator hashIt{listOfHashes.begin()};
-      std::vector<IdentifierHash>::iterator hashEnd{listOfHashes.end()};
-      for (; hashIt != hashEnd; ++hashIt) {
-        addError(*hashIt,SCT_ByteStreamErrors::MaskedROD);
-      }
-    }
-  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -262,8 +227,6 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash& elementIdHash) {
     }
   }
   
-  if (m_useDCSfromBS and (not HVisOn())) return false;
-
   if (m_isRODSimulatedData) return false;
   
   bool result{true};
@@ -473,8 +436,7 @@ SCT_ByteStreamErrorsSvc::fillData() {
      * want to flood the user with error messages.  Should just have a bunch
      * of empty sets, and keep quiet.
      */
-    bool gotErrors{m_storeGate->contains<InDetBSErrContainer>(m_bsErrContainerName.key())};
-    if ((not gotErrors) or (not errCont.isValid())) {
+    if (not errCont.isValid()) {
       ATH_MSG_INFO("Failed to retrieve BS error container "
                    << m_bsErrContainerName.key()
                    << " from StoreGate.  "
@@ -493,7 +455,7 @@ SCT_ByteStreamErrorsSvc::fillData() {
     /** OK, so we found the StoreGate container, now lets iterate
      * over it to populate the sets of errors owned by this Svc.
      */
-    ATH_MSG_DEBUG("size of error container is "<<errCont->size());
+    ATH_MSG_DEBUG("size of error container is " << errCont->size());
     for (const auto* elt : *errCont) {
       addError(elt->first,elt->second);
       if (m_useRXredundancy) {

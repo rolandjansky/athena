@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __Tools_h__
-#define __Tools_h__
+#ifndef MUONCALIBRATIONFIT_TOOLS_H
+#define MUONCALIBRATIONFIT_TOOLS_H
 
 #include <iostream>
 #include <iomanip>
@@ -104,7 +104,7 @@ namespace Tools {
     float g3;
     float g4;
     //::://:::
-    RandomValues( float _g1_, float _g2_, float _g3_, float _g4_ ) : g1( _g1_ ), g2( _g2_ ), g3( _g3_ ), g4( _g4_ ) {}
+    RandomValues( float g1_, float g2_, float g3_, float g4_ ) : g1( g1_ ), g2( g2_ ), g3( g3_ ), g4( g4_ ) {}
   };
   
   typedef struct {

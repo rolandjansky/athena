@@ -84,7 +84,7 @@ public:
   
 private:
   /// The managed object.
-  std::unique_ptr<RCUObject<T> > m_obj;
+  RCUObject<T> m_obj;
 };
 
 

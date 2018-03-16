@@ -19,33 +19,33 @@
 
 class MM_StripResponse {
 
-  float timeResolution;
-  float stripPitch;
-  int stripID;
-  int maxstripID;
+  float m_timeResolution;
+  float m_stripPitch;
+  int m_stripID;
+  int m_maxstripID;
 
-  std::vector<MM_Electron*> Electrons;
+  std::vector<MM_Electron*> m_Electrons;
 
   // First argument is time bin, second argument is strip ID
-  std::map< int, std::map<int,float> > stripCharges;
+  std::map< int, std::map<int,float> > m_stripCharges;
 
   // Useful info for clustering later 
-  std::map<int, int> stripTimeThreshold;
-  std::map<int, float> stripTotalCharge;
-  std::map<int, float> stripMaxCharge;
-  std::map<int, int> stripTimeMaxCharge;
+  std::map<int, int> m_stripTimeThreshold;
+  std::map<int, float> m_stripTotalCharge;
+  std::map<int, float> m_stripMaxCharge;
+  std::map<int, int> m_stripTimeMaxCharge;
 
   //using vector for the moment -- hopefully this has better access and is not so expensive on the memory
-  std::vector<int> v_strip;
-  std::vector < std::vector <float> > v_stripTimeThreshold;
-  std::vector < std::vector <float> > v_stripTotalCharge;
-  std::vector<float> v_stripMaxCharge;
-  std::vector<float> v_stripTimeMaxCharge;
+  std::vector<int> m_v_strip;
+  std::vector < std::vector <float> > m_v_stripTimeThreshold;
+  std::vector < std::vector <float> > m_v_stripTotalCharge;
+  std::vector<float> m_v_stripMaxCharge;
+  std::vector<float> m_v_stripTimeMaxCharge;
 
  public:
 
   MM_StripResponse();
-  MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float _timeResolution, float _stripPitch, int _stripID, int _maxstripID);
+  MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float timeResolution, float stripPitch, int stripID, int maxstripID);
   void timeOrderElectrons();
   void calculateTimeSeries(float thetaD, int gasgap);
   //  void calculateTimeSeries();

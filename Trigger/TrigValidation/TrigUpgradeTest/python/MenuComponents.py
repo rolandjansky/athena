@@ -21,9 +21,13 @@ class NodeSequence():
         self.hypo.setInput(Alg.getOutput())
 
         # add decisions: from InputMaker to Hypo
-        sequence_outDecisions= "%s_decisions"%self.maker.algname
-        self.addOutputDecision(sequence_outDecisions) #FPP
-        self.hypo.setPreviousDecision(sequence_outDecisions) # works for one        
+#        sequence_outDecisions= ["%s_decisions"%out for out in self.maker.getInputList()]
+#        for out in sequence_outDecisions: self.addOutputDecision(out) #
+#        for out in sequence_outDecisions: self.hypo.setPreviousDecision(out)
+        
+#        sequence_outDecisions= "%s_decisions"%self.maker.algname
+            #    self.addOutputDecision(sequence_outDecisions) #
+#        self.hypo.setPreviousDecision(sequence_outDecisions) # works for one        
         print "connect NodeSequence %s"%self.name
 
     def addNode(self,node):
@@ -37,9 +41,9 @@ class NodeSequence():
         self.maker.addInput(theinput)
 
 
-    def addOutputDecision(self,input):
-        print "adding output decisions (%s) to sequence %s  (to alg %s)"%(input, self.name, self.maker.algname )
-        self.maker.setPar("OutputDecisions",input)
+    def addOutputDecision(self,theinput):
+        print "adding output decisions (%s) to sequence %s  (output of alg %s)"%(theinput, self.name, self.maker.algname )
+        self.maker.setPar("OutputDecisions", theinput)
         
     def __str__(self):
         return "NodeSequence::%s with \n Seed::%s \n %s \n Hypo::%s"%(self.name, self.seed, ',\n '.join(map(str, self.algs)), self.hypo)

@@ -108,16 +108,16 @@ AsgPhotonEfficiencyCorrectionTool::~AsgPhotonEfficiencyCorrectionTool()
 StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
 {
   // Resolve the paths to the input files
-  std::vector < std::string > m_corrFileNameList;
+  std::vector < std::string > corrFileNameList;
 
   // First check if the tool is initialized using the input files or map
   if(m_mapFile.size()){ // using map file
-     m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,true));	// converted photons input
-	 m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,false));  // unconverted photons input
+     corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,true));	// converted photons input
+	 corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,false));  // unconverted photons input
   }
   else if(m_corrFileNameConv.size() && m_corrFileNameUnconv.size()){ // initialize the tool using input files (old scheme)
-  	m_corrFileNameList.push_back(m_corrFileNameConv);
-	m_corrFileNameList.push_back(m_corrFileNameUnconv);
+  	corrFileNameList.push_back(m_corrFileNameConv);
+	corrFileNameList.push_back(m_corrFileNameUnconv);
   }
   else{
       ATH_MSG_ERROR ( "Fail to resolve input file name, check if you set MapFilePath or CorrectionFileName properly" );
@@ -125,31 +125,31 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   }
 
   // once the input files are retrieved, update the path using PathResolver or TOOL/data folder
-  for ( unsigned int i=0; i<m_corrFileNameList.size(); ++i ){
+  for ( unsigned int i=0; i<corrFileNameList.size(); ++i ){
 
     //Using the PathResolver to locate the file
-    std::string filename = PathResolverFindCalibFile( m_corrFileNameList.at(i) );
+    std::string filename = PathResolverFindCalibFile( corrFileNameList.at(i) );
 
     if (filename.empty()){
-      ATH_MSG_ERROR ( "Could NOT resolve file name " << m_corrFileNameList.at(i) );
+      ATH_MSG_ERROR ( "Could NOT resolve file name " << corrFileNameList.at(i) );
       return StatusCode::FAILURE ;
     } else{
       ATH_MSG_INFO(" Using path = "<<filename);
     }
 
-    m_corrFileNameList.at(i) = filename;
+    corrFileNameList.at(i) = filename;
 
   }
    
   // Set prefix for sustematics if this is ISO, Trigger or ID SF
-  if( m_corrFileNameList[0].find(file_prefix_ID) != std::string::npos) m_sysSubstring="ID_";
-  if( m_corrFileNameList[0].find(file_prefix_ISO) != std::string::npos) m_sysSubstring="ISO_";
-  if( m_corrFileNameList[0].find(file_prefix_Trig) != std::string::npos) m_sysSubstring="TRIGGER_";
+  if( corrFileNameList[0].find(m_file_prefix_ID) != std::string::npos) m_sysSubstring="ID_";
+  if( corrFileNameList[0].find(m_file_prefix_ISO) != std::string::npos) m_sysSubstring="ISO_";
+  if( corrFileNameList[0].find(m_file_prefix_Trig) != std::string::npos) m_sysSubstring="TRIGGER_";
   if(m_sysSubstring == "") {ATH_MSG_ERROR ( "Invalid input file" ); return StatusCode::FAILURE;}
 
   // Configure the underlying Root tool
-  m_rootTool_con->addFileName( m_corrFileNameList[0] );
-  m_rootTool_unc->addFileName( m_corrFileNameList[1] );
+  m_rootTool_con->addFileName( corrFileNameList[0] );
+  m_rootTool_unc->addFileName( corrFileNameList[1] );
 
     // Forward the message level
   m_rootTool_con->msg().setLevel(this->msg().level());
@@ -157,12 +157,12 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
 
   
   // Check if ForceDataType is set up properly (should be 3 for AtlFast2)
-  if(TString(m_corrFileNameList[0]).Contains("AFII") && m_dataTypeOverwrite!=3)
+  if(TString(corrFileNameList[0]).Contains("AFII") && m_dataTypeOverwrite!=3)
   {
       ATH_MSG_ERROR("Property ForceDataType is set to "<< m_dataTypeOverwrite << ", while it should be 3 for FastSim");
       return StatusCode::FAILURE;
   }
-  if(!TString(m_corrFileNameList[0]).Contains("AFII") && m_dataTypeOverwrite!=1)
+  if(!TString(corrFileNameList[0]).Contains("AFII") && m_dataTypeOverwrite!=1)
   {
       ATH_MSG_ERROR("Property ForceDataType is set to "<< m_dataTypeOverwrite << ", while it should be 1 for FullSim");
       return StatusCode::FAILURE;
@@ -324,9 +324,9 @@ CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::getEfficiencyScaleFactor(c
   }
   
   //Get the result + the uncertainty
-  float m_sigma(0);
-  m_sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
-  efficiencyScaleFactor=calculate(&inputObject).getScaleFactor()+m_sigma*calculate(&inputObject).getTotalUncertainty();
+  float sigma(0);
+  sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
+  efficiencyScaleFactor=calculate(&inputObject).getScaleFactor()+sigma*calculate(&inputObject).getTotalUncertainty();
   
   return  CP::CorrectionCode::Ok;
 }
@@ -355,10 +355,10 @@ CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::applyEfficiencyScaleFactor
   
   float eff;
   if(m_appliedSystematics==nullptr) eff  = calculate(&inputObject).getScaleFactor();
-  else{ // if SF is up or down varies by m_sigma
-    float m_sigma(0);
-	m_sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
-	eff=calculate(&inputObject).getScaleFactor()+m_sigma*calculate(&inputObject).getTotalUncertainty();
+  else{ // if SF is up or down varies by sigma
+    float sigma(0);
+	sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
+	eff=calculate(&inputObject).getScaleFactor()+sigma*calculate(&inputObject).getTotalUncertainty();
   }
   // decorate photon
   ATH_MSG_INFO("decorate object");

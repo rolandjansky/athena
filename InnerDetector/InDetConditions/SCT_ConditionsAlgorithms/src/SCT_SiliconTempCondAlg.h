@@ -11,7 +11,7 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SCT_ConditionsData/SCT_DCSStatCondData.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
-#include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 
 #include "GaudiKernel/ICondSvc.h"
 
@@ -32,7 +32,7 @@ class SCT_SiliconTempCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyTemp0;
   SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey;
   ServiceHandle<ICondSvc> m_condSvc;
-  ServiceHandle<ISCT_DCSConditionsSvc> m_sctDCSSvc;
+  ToolHandle<ISCT_DCSConditionsTool> m_sctDCSTool{this, "DCSConditionsTool", "InDetSCT_DCSConditionsTool", "Tool to retrived SCT DCS information"};
   const SCT_ID* m_pHelper;//!< ID helper for SCT
 };
 

@@ -14,6 +14,7 @@
 #include "TrigT1CaloSim/CPCMX.h"
 #include "TrigT1CaloSim/JetCMX.h"
 #include "TrigT1CaloSim/EnergyCMX.h"
+#include "TrigT1CaloSim/OverlayRun2TriggerTowerMaker.h"
 #include "TrigT1CaloSim/TransientDatabaseOverride.h"
 
 
@@ -36,4 +37,5 @@ DECLARE_COMPONENT( CPCMX )
 DECLARE_COMPONENT( JetCMX )
 DECLARE_COMPONENT( EnergyCMX )
 DECLARE_COMPONENT( TransientDatabaseOverride )
+DECLARE_COMPONENT( OverlayRun2TriggerTowerMaker )
 

@@ -266,6 +266,7 @@ class SCT_ConditionsServicesSetup:
       self.monitorSvc  = self.initMonitorSvc(self.instanceName('InDetSCT_MonitorConditionsSvc'))
 
     self.dcsSvc      = self.initDcsSvc('InDetSCT_DCSConditionsSvc')     
+    self.dcsTool     = self.initDcsTool('InDetSCT_DCSConditionsTool')
     self.lorentzSvc  = self.initLorentzAngleSvc('SCTLorentzAngleSvc')
 
     self.summarySvcWoFlagged = self.initSummarySvcWithoutFlagged(self.instanceName('InDetSCT_ConditionsSummarySvcWithoutFlagged'))
@@ -387,6 +388,42 @@ class SCT_ConditionsServicesSetup:
       
     return dcsSvc           
 
+  def initDcsTool(self, instanceName):
+    "Init DCS conditions tool"
+
+    from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+    sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+    sct_DCSConditionsToolSetup.setToolName(instanceName)
+
+    dcs_folder="/SCT/DCS"
+    db_loc = "DCS_OFL"
+    if (not self.isMC):
+      dcs_folder="/SCT/HLT/DCS"
+      db_loc = "SCT"
+    sct_DCSConditionsToolSetup.setDbInstance(db_loc)
+    sct_DCSConditionsToolSetup.setStateFolder(dcs_folder+"/CHANSTAT")
+    sct_DCSConditionsToolSetup.setHVFolder(dcs_folder+"/HV")
+    sct_DCSConditionsToolSetup.setTempFolder(dcs_folder+"/MODTEMP")
+
+    readAllDBFolders = True
+    if (not self.isMC):
+      readAllDBFolders = False
+    if self.onlineMode:
+      readAllDBFolders = False
+    sct_DCSConditionsToolSetup.setReadAllDBFolders(readAllDBFolders)
+
+    sct_DCSConditionsToolSetup.setup()
+    dcsTool = sct_DCSConditionsToolSetup.getTool()
+
+    # if not (instanceName in self.summaryTool.ConditionsTools):
+    #   self.summaryTool.ConditionsTools+=[instanceName]
+
+    # if self.isMC:
+    #   if not self.condDB.folderRequested("/SCT/DCS/MPS/LV"):
+    #     self.condDB.addFolder(db_loc,"/SCT/DCS/MPS/LV")
+
+    return dcsTool
+
   def initBSErrSvc(self, instanceName):
     "Init ByteStream errors service"
     from SCT_ConditionsServices.SCT_ByteStreamErrorsSvcSetup import SCT_ByteStreamErrorsSvcSetup
@@ -419,7 +456,7 @@ class SCT_ConditionsServicesSetup:
     # Set up Silicon Conditions Service
     from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
     sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
-    sct_SiliconConditionsToolSetup.setDcsSvc(self.dcsSvc)
+    sct_SiliconConditionsToolSetup.setDcsTool(self.dcsTool)
     sct_SiliconConditionsToolSetup.setToolName("InDetSCT_SiliconConditionsTool")
     sct_SiliconConditionsToolSetup.setup()
     sctSiliconConditionsTool = sct_SiliconConditionsToolSetup.getTool()

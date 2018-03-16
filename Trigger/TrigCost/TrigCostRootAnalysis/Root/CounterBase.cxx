@@ -26,17 +26,17 @@ namespace TrigCostRootAnalysis {
   /**
    * Base class constructor. Sets name and ID.
    */
-  CounterBase::CounterBase(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel,
-                           MonitorBase* _parent) :
-    m_costData(_costData),
+  CounterBase::CounterBase(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel,
+                           MonitorBase* parent) :
+    m_costData(costData),
     m_dataStore(this),
-    m_parent(_parent),
+    m_parent(parent),
     m_strDecorations(),
     m_decorations(),
-    m_detailLevel(_detailLevel),
-    m_name(_name),
+    m_detailLevel(detailLevel),
+    m_name(name),
     m_calls(0) {
-    decorate(kDecID, _ID);
+    decorate(kDecID, ID);
   }
 
   /**
@@ -54,111 +54,111 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Return data for this counter from within the DataStore.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
    * @return The stored value requested.
    */
-  Float_t CounterBase::getValue(ConfKey_t _name, VariableOption_t _vo) const {
-    return m_dataStore.getValue(_name, _vo);
+  Float_t CounterBase::getValue(ConfKey_t name, VariableOption_t vo) const {
+    return m_dataStore.getValue(name, vo);
   }
 
   /**
    * Return if the key is registered in the data store.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
    * @return If the key is present in the data store for the given VO.
    */
-  Bool_t CounterBase::getValueExists(ConfKey_t _name, VariableOption_t _vo) const {
-    return m_dataStore.getValueExists(_name, _vo);
+  Bool_t CounterBase::getValueExists(ConfKey_t name, VariableOption_t vo) const {
+    return m_dataStore.getValueExists(name, vo);
   }
 
   /**
    * Return the error on data for this counter from within the DataStore.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
    * @return The stored value requested.
    */
-  Float_t CounterBase::getValueError(ConfKey_t _name, VariableOption_t _vo) const {
-    return m_dataStore.getValueError(_name, _vo);
+  Float_t CounterBase::getValueError(ConfKey_t name, VariableOption_t vo) const {
+    return m_dataStore.getValueError(name, vo);
   }
 
   /**
    * Return data for this counter from within the DataStore, normalised to the number of entries.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
    * @return The stored value divided by the number of entries.
    */
-  Float_t CounterBase::getValueNormalised(ConfKey_t _name, VariableOption_t _vo) const {
-    Float_t _nom = getValue(_name, _vo);
-    Float_t _denom = getEntries(_name, _vo);
+  Float_t CounterBase::getValueNormalised(ConfKey_t name, VariableOption_t vo) const {
+    Float_t num = getValue(name, vo);
+    Float_t denom = getEntries(name, vo);
 
-    if (isZero(_denom) == kTRUE) {
+    if (isZero(denom) == kTRUE) {
       Error("CounterBase::getValueNormalised", "Cannot get normalised value for %s, no entries. [/0].",
-            Config::config().getStr(_name).c_str());
+            Config::config().getStr(name).c_str());
       return 0.;
     }
-    return(_nom / _denom);
+    return(num / denom);
   }
 
   /**
    * Return data for this counter from within the DataStore.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
    * @return The number of entries stored for this variable and VariableOption.
    */
-  Int_t CounterBase::getEntries(ConfKey_t _name, VariableOption_t _vo) const {
-    return m_dataStore.getEntries(_name, _vo);
+  Int_t CounterBase::getEntries(ConfKey_t name, VariableOption_t vo) const {
+    return m_dataStore.getEntries(name, vo);
   }
 
   /**
    * Set data for this counter from within the DataStore.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
-   * @param _val The value store for this variable and VariableOption.
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
+   * @param val The value store for this variable and VariableOption.
    */
-  void CounterBase::setValue(ConfKey_t _name, VariableOption_t _vo, Float_t _val) {
-    return m_dataStore.setValue(_name, _vo, _val);
+  void CounterBase::setValue(ConfKey_t name, VariableOption_t vo, Float_t val) {
+    return m_dataStore.setValue(name, vo, val);
   }
 
   /**
    * Set data entries for this counter from within the DataStore.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
-   * @param _val The number of entries to store for this variable and VariableOption.
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
+   * @param val The number of entries to store for this variable and VariableOption.
    */
-  void CounterBase::setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val) {
-    return m_dataStore.setEntries(_name, _vo, _val);
+  void CounterBase::setEntries(ConfKey_t name, VariableOption_t vo, UInt_t val) {
+    return m_dataStore.setEntries(name, vo, val);
   }
 
   /**
    * Overwrite the sumw2 error of this counter. Note that this should be the SQUARE of the error.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
-   * @param _val The SQUARE of the error for this variable
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
+   * @param val The SQUARE of the error for this variable
    */
-  void CounterBase::setErrorSquared(ConfKey_t _name, VariableOption_t _vo, Float_t _val) {
-    return m_dataStore.setErrorSquared(_name, _vo, _val);
+  void CounterBase::setErrorSquared(ConfKey_t name, VariableOption_t vo, Float_t val) {
+    return m_dataStore.setErrorSquared(name, vo, val);
   }
 
   /**
    * Return data for this counter from within the DataStore.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
    * @return The corresponding histogram pointer for this variable and VariableOption.
    */
-  TH1F* CounterBase::getHist(ConfKey_t _name, VariableOption_t _vo) {
-    return m_dataStore.getHist(_name, _vo);
+  TH1F* CounterBase::getHist(ConfKey_t name, VariableOption_t vo) {
+    return m_dataStore.getHist(name, vo);
   }
 
   /**
    * Return data for this counter from within the DataStore.
    * NOTE: 2D historgams are currently not implemented. This will always return 0.
-   * @param _name The name of the variable required.
-   * @param _vo The VariableOption_t requested for this variable.
+   * @param name The name of the variable required.
+   * @param vo The VariableOption_t requested for this variable.
    * @return The corresponding 2D histogram pointer for this variable and VariableOption.
    */
-  // TH2F* CounterBase::getHist2D(ConfKey_t _name, VariableOption_t _vo) {
-  //   return m_dataStore.getHist2D(_name, _vo);
+  // TH2F* CounterBase::getHist2D(ConfKey_t name, VariableOption_t vo) {
+  //   return m_dataStore.getHist2D(name, vo);
   // }
 
   /**
@@ -203,106 +203,106 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Records additional ID number for counter. For counters with multiple IDs, like ROBINs with many ROBs.
-   * @param _multiId The (additional) ID to store. Ignores duplicates.
+   * @param multiId The (additional) ID to store. Ignores duplicates.
    */
-  void CounterBase::addMultiID(UInt_t _multiId) {
-    m_multiId.insert(_multiId);
+  void CounterBase::addMultiID(UInt_t multiId) {
+    m_multiId.insert(multiId);
   }
 
   /**
    * Alternate method format, passing both variable name and option in a pair.
-   * @see getHist(std::string _name, VariableOption_t _vo)
+   * @see getHist(std::string name, VariableOption_t vo)
    * @return The corresponding histogram pointer for this variable and VariableOption.
    */
-  TH1F* CounterBase::getHist(ConfVariableOptionPair_t _pair) {
-    return getHist(_pair.first, _pair.second);
+  TH1F* CounterBase::getHist(ConfVariableOptionPair_t pair) {
+    return getHist(pair.first, pair.second);
   }
 
   /**
    * For some counters, like algorithm ones, it is handy to decorate the counter with additional information.
    * Such as the algorithm class, the algorithm's chain.
-   * @param _key ConfKey_t key to associate the data with.
-   * @param _value Data to save
+   * @param key ConfKey_t key to associate the data with.
+   * @param value Data to save
    */
-  void CounterBase::decorate(ConfKey_t _key, const std::string _value) {
-    m_strDecorations[_key] = _value;
+  void CounterBase::decorate(ConfKey_t key, const std::string value) {
+    m_strDecorations[key] = value;
   }
 
   /**
    * For some counters, like algorithm ones, it is handy to decorate the counter with additional information.
-   * @param _key ConfKey_t key to associate the data with.
-   * @param _value Data to save
+   * @param key ConfKey_t key to associate the data with.
+   * @param value Data to save
    */
-  void CounterBase::decorate(ConfKey_t _key, const Float_t _value) {
-    m_decorations[_key] = _value;
+  void CounterBase::decorate(ConfKey_t key, const Float_t value) {
+    m_decorations[key] = value;
   }
 
   /**
    * Additional decorate call for Int_t values
-   * @param _key ConfKey_t key to associate the data with.
-   * @param _value Data to save
+   * @param key ConfKey_t key to associate the data with.
+   * @param value Data to save
    */
-  void CounterBase::decorate(ConfKey_t _key, Int_t _value) {
-    m_intDecorations[_key] = _value;
+  void CounterBase::decorate(ConfKey_t key, Int_t value) {
+    m_intDecorations[key] = value;
   }
 
   /**
    * Get a string decoration.
-   * @see decorate( ConfKey_t _key, const std::string _value )
+   * @see decorate( ConfKey_t key, const std::string value )
    * @return Const reference to decoration.
    */
-  const std::string& CounterBase::getStrDecoration(ConfKey_t _key) const {
-    if (m_strDecorations.count(_key) == 0) {
+  const std::string& CounterBase::getStrDecoration(ConfKey_t key) const {
+    if (m_strDecorations.count(key) == 0) {
       if (Config::config().getDisplayMsg(kMsgUnknownDecoration) == kTRUE) {
         Warning("CounterBase::getStrDecoration", "Unknown decoration %s requested in %s.", Config::config().getStr(
-                  _key).c_str(), getName().c_str());
+                  key).c_str(), getName().c_str());
       }
       return Config::config().getStr(kUnknownString);
     }
-    return m_strDecorations.at(_key);
+    return m_strDecorations.at(key);
   }
 
   /**
    * Get a float decoration.
-   * @see decorate( ConfKey_t _key, Float_t _value )
+   * @see decorate( ConfKey_t key, Float_t value )
    * @return Const reference to float decoration
    */
-  Float_t CounterBase::getDecoration(ConfKey_t _key) const {
-    if (m_decorations.count(_key) == 0) {
+  Float_t CounterBase::getDecoration(ConfKey_t key) const {
+    if (m_decorations.count(key) == 0) {
       if (Config::config().getDisplayMsg(kMsgUnknownDecoration) == kTRUE) {
         Warning("CounterBase::getDecoration", "Unknown decoration %s requested in %s.", Config::config().getStr(
-                  _key).c_str(), getName().c_str());
+                  key).c_str(), getName().c_str());
       }
       return 0.;
     }
-    return m_decorations.at(_key);
+    return m_decorations.at(key);
   }
 
   /**
    * Get a int decoration.
-   * @see decorate( ConfKey_t _key, Int_t _value )
+   * @see decorate( ConfKey_t key, Int_t value )
    * @return Const reference to int decoration
    */
-  Int_t CounterBase::getIntDecoration(ConfKey_t _key) const {
-    if (m_intDecorations.count(_key) == 0) {
+  Int_t CounterBase::getIntDecoration(ConfKey_t key) const {
+    if (m_intDecorations.count(key) == 0) {
       if (Config::config().getDisplayMsg(kMsgUnknownDecoration) == kTRUE) {
         Warning("CounterBase::getIntDecoration", "Unknown decoration %s requested in %s.", Config::config().getStr(
-                  _key).c_str(), getName().c_str());
+                  key).c_str(), getName().c_str());
       }
       return 0.;
     }
-    return m_intDecorations.at(_key);
+    return m_intDecorations.at(key);
   }
 
   /**
    * @return true if a decoration of any type is stored for the given key
    */
-  Bool_t CounterBase::hasDecoration(ConfKey_t _key) const {
-    if (m_decorations.count(_key) > 0) return kTRUE;
+  Bool_t CounterBase::hasDecoration(ConfKey_t key) const {
+    if (m_decorations.count(key) > 0) return kTRUE;
 
-    if (m_intDecorations.count(_key) > 0) return kTRUE;
+    if (m_intDecorations.count(key) > 0) return kTRUE;
 
-    if (m_strDecorations.count(_key) > 0) return kTRUE;
+    if (m_strDecorations.count(key) > 0) return kTRUE;
 
     return kFALSE;
   }

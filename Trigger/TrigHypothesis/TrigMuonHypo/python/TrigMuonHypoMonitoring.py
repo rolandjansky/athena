@@ -68,20 +68,8 @@ class MufastHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms  = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #muFast; P_{T} (GeV)",
                                              xbins=200, xmin=-100, xmax=100) ]
-        self.Histograms += [ defineHistogram('Eta , Phi', type='TH2F', title="Eta vs Phi reconstruction of #muFast; Eta; Phi",
-                                             xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15) ] 
         self.Histograms += [ defineHistogram('Eta', type='TH1F', title="Eta reconstruction from #muFast; Eta",
                                              xbins=100, xmin=-3.2, xmax=3.2) ]
-        self.Histograms += [ defineHistogram('Phi', type='TH1F', title="Phi reconstruction from #muFast; Phi",
-                                             xbins=100, xmin=-3.15, xmax=3.15) ]
-        self.Histograms += [ defineHistogram('ZatSt, Phi', type='TH2F', title="Z vs Phi reconstructed in MIDDLE station; Z (cm); Phi (rad)",
-                                             xbins=50, xmin=-1200., xmax=1200., ybins=25, ymin=-3.2, ymax=3.2) ]
-        self.Histograms += [ defineHistogram('XatSt , YatSt', type='TH2F', title="Y vs X reconstructed in MIDDLE station; X (cm); Y(cm)",
-                                             xbins=50, xmin=-1200., xmax=1200., ybins=50, ymin=-1200., ymax=1200.) ]
-        self.Histograms += [ defineHistogram('ZatBe', type='TH1F', title="DCA along Z; Z (cm)",
-                                             xbins=100, xmin=-2100, xmax=2100) ]
-        self.Histograms += [ defineHistogram('XatBe', type='TH1F', title="DCA along X; X (cm)",
-                                             xbins=100, xmin=-1000, xmax=1000) ]
 
 class MufastHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="MufastHypoCosmicMonitoring"):
@@ -491,10 +479,6 @@ class TrigMuonEFCombinerMultiHypoOnlineMonitoring(TrigGenericMonitoringToolConfi
 
         self.Histograms  = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #TrigMuonEFCombinerMultiHypo; P_{T} (GeV)",
                                             xbins=200, xmin=-100, xmax=100) ]
-        self.Histograms += [ defineHistogram('Eta', type='TH1F', title="Eta reconstruction from #TrigMuonEFCombinerMultiHypo; Eta",
-                                            xbins=100, xmin=-3.2, xmax=3.2) ]
-        self.Histograms += [ defineHistogram('Phi', type='TH1F', title="Phi reconstruction from #TrigMuonEFCombinerMultiHypo; Phi",
-                                             xbins=100, xmin=-3.15, xmax=3.15) ]
         self.Histograms += [ defineHistogram('Nmuons', type='TH1F', title="nr of muons from #TrigMuonEFCBSeededFSDiMuonHypo; N muons",
                                              xbins=10, xmin=0, xmax=10) ]
 
@@ -520,10 +504,6 @@ class TrigMuonEFExtrapolatorMultiHypoOnlineMonitoring(TrigGenericMonitoringToolC
 
         self.Histograms  = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #TrigMuonEFExtrapolatorMultiHypo; P_{T} (GeV)",
                                             xbins=200, xmin=-100, xmax=100) ]
-        self.Histograms += [ defineHistogram('Eta', type='TH1F', title="Eta reconstruction from #TrigMuonEFExtrapolatorMultiHypo; Eta",
-                                            xbins=100, xmin=-3.2, xmax=3.2) ]
-        self.Histograms += [ defineHistogram('Phi', type='TH1F', title="Phi reconstruction from #TrigMuonEFExtrapolatorMultiHypo; Phi",
-                                             xbins=100, xmin=-3.15, xmax=3.15) ]
         self.Histograms += [ defineHistogram('Nmuons', type='TH1F', title="nr of muons from #TrigMuonEFCBSeededFSDiMuonHypo; N muons",
                                              xbins=10, xmin=0, xmax=10) ]
 

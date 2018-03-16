@@ -48,7 +48,8 @@ public:
 
   SvcTestScenario ( ExpensiveCompCacheSvc* svc, int request )
     : m_svc(svc),
-      m_request(request) {}
+      m_request(request),
+      m_firstResponse(0) {}
   
 
   virtual void firstCall() override {

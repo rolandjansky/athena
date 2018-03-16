@@ -104,8 +104,8 @@ atlas_add_test( EmuL1Decoding
 atlas_add_test( EmuStepProcessing
 		SCRIPT	test/test_emu_step_processing.sh
                 PROPERTIES TIMEOUT 500 
-	      )
-#	EXTRA_PATTERNS "TriggerSummary"
+		EXTRA_PATTERNS "^TriggerSummary"
+		)
 
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )

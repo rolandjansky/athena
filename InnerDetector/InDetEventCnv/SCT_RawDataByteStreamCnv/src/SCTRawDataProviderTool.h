@@ -49,7 +49,8 @@ class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool,
   //! this is the main decoding method
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
                              ISCT_RDO_Container& rdoIdc,
-                             InDetBSErrContainer* errs) override;
+                             InDetBSErrContainer* errs,
+                             SCT_ByteStreamFractionContainer* bsFracCont) override;
 
   virtual void BeginNewEvent() override;
 

@@ -58,6 +58,8 @@ StatusCode HiveAlgF::execute() {
   ATH_MSG_INFO("  read: " << rdh2.key() << " = " << rdh2->val() );
   ATH_MSG_INFO("  read: " << rdh3.key() << " = " << rdh3->val() );
 
+  ATH_MSG_INFO("test: " << rdh1->val() + rdh2->val() + rdh3->val() );
+
   return StatusCode::SUCCESS;
 
 }

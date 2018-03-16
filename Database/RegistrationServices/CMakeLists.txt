@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Database/APR/CollectionBase
                           Database/APR/FileCatalog
-                          Database/AthenaPOOL/AthenaPoolKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/AthenaPOOL/DBDataModel
                           Database/AthenaPOOL/PoolSvc
@@ -33,7 +32,6 @@ atlas_add_component( RegistrationServices
                      src/RegistrationStreamDefMeta.cxx
                      src/RegistrationStreamLCGTool.cxx
                      src/RegistrationStreamTagTool.cxx
-                     src/InputCollectionMetadataCopy.cxx
                      src/IOVRegistrationSvc.cxx
                      src/OutputConditionsAlg.cxx
                      src/components/*.cxx

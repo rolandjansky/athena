@@ -31,7 +31,7 @@ class ISCT_ByteStreamErrorsSvc: virtual public ISCT_ConditionsSvc {
   //@name Service methods
   //@{
 
-  virtual ~ISCT_ByteStreamErrorsSvc() {}
+  virtual ~ISCT_ByteStreamErrorsSvc() = default;
 
   static const InterfaceID& interfaceID();
 

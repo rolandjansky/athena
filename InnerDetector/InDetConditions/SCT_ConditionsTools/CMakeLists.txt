@@ -9,6 +9,7 @@ atlas_subdir( SCT_ConditionsTools )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           DetectorDescription/Identifier
+                          InnerDetector/InDetConditions/InDetConditionsSummaryService
                           GaudiKernel
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetConditions/SCT_ConditionsData
@@ -20,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Database/AthenaPOOL/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
+                          InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetConditions/SiPropertiesSvc
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
@@ -41,10 +43,9 @@ atlas_add_component ( SCT_ConditionsTools
 
 atlas_add_library( SCT_ConditionsToolsLib
                    src/*.cxx
-                   src/components/*.cxx
                    PUBLIC_HEADERS SCT_ConditionsTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GeoModelUtilities GaudiKernel AthenaBaseComps StoreGateLib SGtests EventInfo xAODEventInfo SCT_ConditionsData SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GeoModelUtilities GaudiKernel AthenaBaseComps StoreGateLib SGtests EventInfo xAODEventInfo SCT_ConditionsData SCT_ConditionsServicesLib SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib )
 
 # Add unit tests
 atlas_add_test( SCT_RODVetoTool_test

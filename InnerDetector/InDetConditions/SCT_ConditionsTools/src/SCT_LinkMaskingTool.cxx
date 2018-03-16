@@ -42,12 +42,12 @@ StatusCode SCT_LinkMaskingTool::finalize() {
 }
 
 // What level of element can this service report about
-bool SCT_LinkMaskingTool::canReportAbout(InDetConditions::Hierarchy h) {
+bool SCT_LinkMaskingTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return (h==InDetConditions::SCT_SIDE or h==InDetConditions::DEFAULT); 
 }
 
 // Is an element with this Identifier and hierachy good?
-bool SCT_LinkMaskingTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+bool SCT_LinkMaskingTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
 
   const EventContext& ctx{Gaudi::Hive::currentContext()};
@@ -60,7 +60,7 @@ bool SCT_LinkMaskingTool::isGood(const Identifier& elementId, InDetConditions::H
 }
 
 // Is a wafer with this IdentifierHash good?
-bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId) {
+bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId) const {
   Identifier elementId{m_sctHelper->wafer_id(hashId)};
   return isGood(elementId);
 }

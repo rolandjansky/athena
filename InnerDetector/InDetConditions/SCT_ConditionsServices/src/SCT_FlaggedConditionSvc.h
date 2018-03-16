@@ -44,7 +44,7 @@ public:
   virtual ~SCT_FlaggedConditionSvc() = default;
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   static const InterfaceID & interfaceID();
   //@}
 

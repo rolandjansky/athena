@@ -48,10 +48,10 @@ class SCT_MajorityConditionsTool: public extends<AthAlgTool, ISCT_DetectorLevelC
   //@}
   
   /**Is the detector good?*/
-  virtual bool                             isGood();
+  virtual bool                             isGood() const override;
 
   /**Is a barrel/endcap good?*/
-  virtual bool                             isGood(int bec);
+  virtual bool                             isGood(int bec) const override;
 
  private:
   bool                                     m_overall;                       //!< Use overall vvalue or ECA/B/ECC

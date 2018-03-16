@@ -76,6 +76,7 @@ class AlgNode():
 
 
     def setOutput(self, name):
+        print "setOutput %s on %s of %s"%(name, self.outputProp, self.name)
         return self.setPar(self.outputProp,name)
 
     def getOutput(self):
@@ -156,9 +157,9 @@ class HypoAlgNode(AlgNode):
             ##     status= self.setPar('previousDecisions1',prev)
             ## if  "Output2" in prev:
             ##     status= self.setPar('previousDecisions2',prev)
-            if "Mu" in prev:
+            if "MuInputMaker" in prev:
                 status= self.setPar('previousDecisions1',prev)
-            if "El" in prev:
+            if "ElInputMaker" in prev:
                 status= self.setPar('previousDecisions2',prev)
                 
         
@@ -195,15 +196,15 @@ class SequenceFilterNode(AlgNode):
          
 
 
-from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRoRSeqFilter
-class TestRoRSequenceFilterNode(SequenceFilterNode):       
-    def __init__(self, name):
-        Alg= HLTTest__TestRoRSeqFilter(name, OutputLevel = 2)
-        inputProp='Inputs'
-        outputProp='Outputs'
-        SequenceFilterNode.__init__(self,  Alg, inputProp, outputProp)
-        if "Step1" in self.name: # so that we see events running through, will be gone once L1 emulation is included
-            self.Alg.AlwaysPass = True   
+## from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestRoRSeqFilter
+## class TestRoRSequenceFilterNode(SequenceFilterNode):       
+##     def __init__(self, name):
+##         Alg= HLTTest__TestRoRSeqFilter(name, OutputLevel = 2)
+##         inputProp='Inputs'
+##         outputProp='Outputs'
+##         SequenceFilterNode.__init__(self,  Alg, inputProp, outputProp)
+##         if "Step1" in self.name: # so that we see events running through, will be gone once L1 emulation is included
+##             self.Alg.AlwaysPass = True   
   
    
 
@@ -357,7 +358,7 @@ def addChainToHypoAlg(hypoAlg, chain):
 
 #######################################
 def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
-    print "decisionTree_From_Chains on %s"%(HLTAllStepsSeq.name())
+    print "ACC decisionTree_From_Chains on %s"%(HLTAllStepsSeq.name())
     HLTNodeName= HLTAllStepsSeq.name()
     testRoR=False
     from TrigUpgradeTest.MenuComponents import CFSequence
@@ -429,10 +430,10 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
                     sfilter.setChains(chain.name)
                     continue
                 else:
-                    if (testRoR):
-                        sfilter = TestRoRSequenceFilterNode(name=filter_name)
-                    else:
-                        sfilter = RoRSequenceFilterNode(name=filter_name)
+                    ## if (testRoR):
+                    ##     sfilter = TestRoRSequenceFilterNode(name=filter_name)
+                    ## else:
+                    sfilter = RoRSequenceFilterNode(name=filter_name)
 
                     print "Adding these seeds to filter: %s"%(previous_seeds)
                     for i in previous_seeds: sfilter.addSeed(i)
@@ -459,7 +460,20 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
                         sys.exit("ERROR, no inputs to sequence are set!") 
 #                        return                    
                     for i in input_maker_input: nodeSeq.addInput(i)
-                    
+
+                    print "connecting InputMaker to HypoAlg"
+                    input_maker_output=["%s_from_%s_output"%(nodeSeq.maker.algname,i)  for i in input_maker_input  ]
+                    #input_maker_output=["%s_output"%i  for i in input_maker_input  ]
+                    print "Adding %d output to InputMaker::%s and sending to HypoAlg::%s"%(len(input_maker_output), nodeSeq.maker.algname, nodeSeq.hypo.algname)
+                    for i in input_maker_output: print i
+                    if len(input_maker_output) == 0:
+#                        print "ERROR, no inputs to sequence are set!"
+                        sys.exit("ERROR, no outputs to sequence are set!") 
+#                        return                    
+                    for out in input_maker_output:
+                          nodeSeq.addOutputDecision(out) 
+                          nodeSeq.hypo.setPreviousDecision(out)
+                    print nodeSeq.hypo.Alg
 
                     #sequence_outDecisions= "SequenceDecision_%s"%nodeSeq.name
                     #nodeSeq.addDecision(sequence_outDecisions) #FPP
@@ -472,7 +486,6 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
                     #needed for the summary
                     step_decisions.append(nodeSeq.output)
 
-                    #if len(nodeSeq.sub) != 0: otherSubsequence.extend(nodeSeq.sub)
                 
                                     
                 CF_seq = CFSequence( cfseq_name, FilterAlg=sfilter, MenuSequence=sequence)    

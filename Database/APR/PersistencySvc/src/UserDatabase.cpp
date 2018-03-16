@@ -13,14 +13,14 @@
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/pool.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCAction.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/DbPrint.h"
+
 
 static const std::string& emptyString = "";
 
 pool::PersistencySvc::UserDatabase::UserDatabase( pool::PersistencySvc::TechnologyDispatcher& technologyDispatcher,
                                                   const pool::DatabaseConnectionPolicy& policy,
-                                                  pool::IFileCatalog& catalog,
+                                                  IFileCatalog& catalog,
                                                   pool::ITransaction& transaction,
                                                   pool::PersistencySvc::DatabaseRegistry& registry,
                                                   const std::string& name,
@@ -167,9 +167,9 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
 	  // register in the catalog 
 	  pool::DbType dbType( m_technology );
 	  pool::DbType dbTypeMajor( dbType.majorType() );
-	  pool::IFCAction action;
-	  m_catalog.setAction( action );
-	  action.registerPFN( m_the_pfn, dbTypeMajor.storageName(), m_the_fid );
+	  m_catalog.registerPFN( m_the_pfn, dbTypeMajor.storageName(), m_the_fid );
+          DbPrint log("PersistencySvc::UserDB::connectForWrite()" );
+          log << DbPrintLvl::Debug << "registered PFN: " << m_the_pfn << " with FID:" << m_the_fid << endmsg;
 	  dbRegistered = true;
 	  accessMode = pool::CREATE;
         }
@@ -223,9 +223,7 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
       if( !m_databaseHandler ) {
 	 if( dbRegistered ) {
 	    // creation failed, remove entry from the in-memory catalog
-	    pool::FCAdmin action;
-	    m_catalog.setAction( action );
-	    action.deleteEntry( m_the_fid );
+	    m_catalog.deleteFID( m_the_fid );
 	 }
 	 throw pool::PersistencySvcException( "Could not connect to the file",
 					      "PersistencySvc::UserDatabase::connectForWrite" );
@@ -291,29 +289,27 @@ pool::PersistencySvc::UserDatabase::fid() const
     else if ( ! m_the_fid.empty() ) return m_the_fid;
     else {
       if ( m_nameType == pool::DatabaseSpecification::PFN ) {
-        std::string technology;
-        pool::IFCAction action;
-        m_catalog.setAction( action );
-        action.lookupFileByPFN( m_name, m_the_fid, technology );
-        if ( ! m_the_fid.empty() ) {
-           if( technology.empty() ) {
-              m_nameType = DatabaseSpecification::LFN;
-              coral::MessageStream log( "PersistencySvc::UserDatabase::fid()" );
-              log << coral::Debug << "Retrying 'connect' using assumed PFN " << m_name
-                  << " as LFN (no tech found in PFC)" << coral::MessageStream::endmsg;
-              return m_the_fid;
-           }
-          m_the_pfn = m_name;
-          this->setTechnologyIdentifier( technology );
-          m_alreadyConnected = true;
-        }
-        else {
+         std::string technology;
+         m_catalog.lookupFileByPFN( m_name, m_the_fid, technology );
+         DbPrint log("PersistencySvc::UserDB::fid()" );
+         log << DbPrintLvl::Debug << "lookupPFN: " << m_name << " returned FID: '" << m_the_fid << "'"
+             << " tech=" << technology << endmsg;
+         if ( ! m_the_fid.empty() ) {
+            if( technology.empty() ) {
+               m_nameType = DatabaseSpecification::LFN;
+               log << DbPrintLvl::Debug << "Retrying 'connect' using assumed PFN " << m_name
+                   << " as LFN (no tech found in PFC)" << endmsg;
+               return m_the_fid;
+            }
+            m_the_pfn = m_name;
+            this->setTechnologyIdentifier( technology );
+            m_alreadyConnected = true;
+         }
+         else {
            if( m_transaction.type() != pool::ITransaction::UPDATE ) { // Fetch the FID from the db itself !
               if( !m_technologySet ) {
-                 coral::MessageStream log( "PersistencySvc::UserDatabase::fid()" );
-                 log << coral::Debug << "Opening database '" << m_name
-                     << "' with no catalog entry and no technology set - assuming ROOT storage"
-                     << coral::MessageStream::endmsg;
+                 log << DbPrintLvl::Debug << "Opening database '" << m_name
+                     << "' with no catalog entry and no technology set - assuming ROOT storage" << endmsg;
                  m_technology = pool::ROOT_StorageType.type();
                  m_technologySet = true;
               }
@@ -327,15 +323,13 @@ pool::PersistencySvc::UserDatabase::fid() const
         }
       } /* not PFN */
       else if ( m_nameType == pool::DatabaseSpecification::LFN ) {
-        pool::IFCAction action;
-        m_catalog.setAction( action );
-        action.lookupFileByLFN( m_name, m_the_fid );
+         m_the_fid = m_catalog.lookupLFN( m_name );
       }
       if ( ! m_the_fid.empty() ) {
         m_name = m_the_fid;
         m_nameType = pool::DatabaseSpecification::FID;
       }
-      return m_the_fid;
+     return m_the_fid;
     }
     return emptyString;
   }
@@ -345,45 +339,27 @@ pool::PersistencySvc::UserDatabase::fid() const
 const std::string&
 pool::PersistencySvc::UserDatabase::pfn() const
 {
-  if ( m_databaseHandler ) return m_databaseHandler->pfn();
-  else {
-    if ( m_nameType == pool::DatabaseSpecification::PFN ) return m_name;
-    else if ( ! m_the_pfn.empty() ) return m_the_pfn;
-    else {
-      if ( m_nameType == pool::DatabaseSpecification::FID ) {
-        std::string technology;
-        pool::IFCAction action;
-        m_catalog.setAction( action );
-        action.lookupBestPFN( m_name, pool::FileCatalog::READ,
-                              pool::FileCatalog::SEQUENTIAL,
-                              m_the_pfn, technology );
-        if ( ! m_the_pfn.empty() ) {
-          m_the_fid = m_name;
-          this->setTechnologyIdentifier( technology );
-          m_alreadyConnected = true;
-        }
-      }
-      else if ( m_nameType == pool::DatabaseSpecification::LFN ) {
-        pool::IFCAction action;
-        m_catalog.setAction( action );
-        action.lookupFileByLFN( m_name, m_the_fid );
-        if ( ! m_the_fid.empty() ) {
-          std::string technology;
-          action.lookupBestPFN( m_the_fid, pool::FileCatalog::READ,
-                                pool::FileCatalog::SEQUENTIAL,
-                                m_the_pfn, technology );
-          if ( ! m_the_pfn.empty() ) {
-            this->setTechnologyIdentifier( technology );
-            m_alreadyConnected = true;
-            m_name = m_the_fid;
-            m_nameType = pool::DatabaseSpecification::FID;
-          }
-        }
-      }
-      return m_the_pfn;
-    }
-    return emptyString;
+  if( m_databaseHandler )  return m_databaseHandler->pfn();
+  if( m_nameType == pool::DatabaseSpecification::PFN )  return m_name;
+  if( ! m_the_pfn.empty() )  return m_the_pfn;
+  
+  if( m_nameType == pool::DatabaseSpecification::LFN ) {
+     m_the_fid = m_catalog.lookupLFN( m_name );
+     if ( ! m_the_fid.empty() ) {
+        m_name = m_the_fid;
+        m_nameType = pool::DatabaseSpecification::FID;
+        // go from FID=>PFN in the next step
+     }
   }
+  if( m_nameType == pool::DatabaseSpecification::FID ) {
+     std::string technology;
+     m_catalog.getFirstPFN( m_name, m_the_pfn, technology );
+     m_the_fid = m_name;
+     setTechnologyIdentifier( technology );
+     m_alreadyConnected = true;
+     return m_the_pfn;
+  }
+  return emptyString;
 }
 
 

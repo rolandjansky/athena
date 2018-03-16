@@ -53,9 +53,6 @@ Comments to be added here...
 #include <sstream>
 #include <sys/stat.h>
 
-using std::vector;
-using std::cout;
-using std::endl;
 
 /// ROOT Classed
 class TF1;
@@ -75,32 +72,32 @@ class StripsResponse {
 private:
 
   /** qThreshold=2e, we accept a good strip if the charge is >=2e */
-  float qThreshold; 
+  float m_qThreshold; 
   /** // 0.350/10 diffusSigma=transverse diffusion (350 μm per 1cm ) for 93:7 @ 600 V/cm, according to garfield  */
-  float diffusSigma; 
-  float LogitundinalDiffusSigma;  
-  float pitch; 
-  /** //pitch=0.500 properties of the micromegas ToDo: to be reviewed */
-  float stripwidth; 
+  float m_diffusSigma; 
+  float m_LogitundinalDiffusSigma;  
+  float m_pitch; 
+  /** //m_pitch=0.500 properties of the micromegas ToDo: to be reviewed */
+  float m_stripwidth; 
   /** crosstalk of neighbor strips, it's 15%  */
-  float crossTalk1;//0.10; // 
+  float m_crossTalk1;//0.10; // 
   /** // crosstalk of second neighbor strips, it's 6% */
-  float crossTalk2;//0.03; 
+  float m_crossTalk2;//0.03; 
   /** // (degrees) Magnetic Field 0.5 T */
-  float Lorentz_Angle; 
+  float m_Lorentz_Angle; 
   // Avalanche gain
-  float gain;
+  float m_gain;
 
   /// ToDo: random number from custom functions
-  TF1 *polya, *conv_gaus;
-  TF1 *LongitudinalDiffusionFunction, *TransverseDiffusionFunction;
+  TF1 *m_polya, *m_conv_gaus;
+  TF1 *m_LongitudinalDiffusionFunction, *m_TransverseDiffusionFunction;
 
-  GarfieldGas* gas; 
+  GarfieldGas* m_gas; 
 
   StripsResponse & operator=(const StripsResponse &right);
   StripsResponse(const StripsResponse&);
 
-  std::vector<MM_IonizationCluster> IonizationClusters;
+  std::vector<MM_IonizationCluster> m_IonizationClusters;
 
 public :
 
@@ -124,17 +121,17 @@ public :
 
   void loadGasFile      (const std::string fileName); // 27/05/2015 T.Saito
   
-  inline void set_qThreshold (float val) { qThreshold = val; };
-  inline void set_diffusSigma (float val) { diffusSigma = val; };
-  inline void set_LogitundinalDiffusSigma (float val) { LogitundinalDiffusSigma = val; };
+  inline void set_qThreshold (float val) { m_qThreshold = val; };
+  inline void set_diffusSigma (float val) { m_diffusSigma = val; };
+  inline void set_LogitundinalDiffusSigma (float val) { m_LogitundinalDiffusSigma = val; };
   inline void set_driftVelocity (float val) { driftVelocity = val; };
-  inline void set_crossTalk1 (float val) { crossTalk1 = val; };
-  inline void set_crossTalk2 (float val) { crossTalk2 = val; };
+  inline void set_crossTalk1 (float val) { m_crossTalk1 = val; };
+  inline void set_crossTalk2 (float val) { m_crossTalk2 = val; };
   inline void set_driftGap      (float val) {driftGap = val;};
-  inline void set_stripWidth      (float val) {stripwidth = val;};
+  inline void set_stripWidth      (float val) {m_stripwidth = val;};
    
-  float get_stripWidth    () const { return stripwidth   ;};
-  float get_qThreshold    () const { return qThreshold   ;};
+  float get_stripWidth    () const { return m_stripwidth   ;};
+  float get_qThreshold    () const { return m_qThreshold   ;};
   float get_driftGap      () const { return driftGap     ;};
   float get_driftVelocity () const { return driftVelocity;};
 
@@ -145,21 +142,21 @@ public :
   float get_tminIntegrationAboveThreshold () const { return tminIntegrationAboveThreshold;};
 */  
   
-  vector <float> get_tStripElectronicsAbThr() const { return tStripElectronicsAbThr;};
-  vector <float> get_qStripElectronics() const { return qStripElectronics;};
-  vector <float> get_finaltStripNoSlewing() const { return finaltStripNoSlewing;};
-  vector < vector <float> > get_finalqStrip() const { return finalqStrip;};
-  vector < vector <float> > get_finaltStrip() const { return finaltStrip;};
-  vector <int>   get_nStripElectronics() const { return nStripElectronics;};
-  vector <int>   get_finalNumberofStrip() const { return finalNumberofStrip;};
+  std::vector <float> get_tStripElectronicsAbThr() const { return tStripElectronicsAbThr;};
+  std::vector <float> get_qStripElectronics() const { return qStripElectronics;};
+  std::vector <float> get_finaltStripNoSlewing() const { return finaltStripNoSlewing;};
+  std::vector < std::vector <float> > get_finalqStrip() const { return finalqStrip;};
+  std::vector < std::vector <float> > get_finaltStrip() const { return finaltStrip;};
+  std::vector <int>   get_nStripElectronics() const { return nStripElectronics;};
+  std::vector <int>   get_finalNumberofStrip() const { return finalNumberofStrip;};
 
-  vector <int>   finalNumberofStrip;
-  vector <int>   nStripElectronics;
-  vector < vector <float> > finalqStrip;
-  vector < vector <float> > finaltStrip;
-  vector <float> finaltStripNoSlewing;
-  vector <float> tStripElectronicsAbThr;
-  vector <float> qStripElectronics;
+  std::vector <int>   finalNumberofStrip;
+  std::vector <int>   nStripElectronics;
+  std::vector < std::vector <float> > finalqStrip;
+  std::vector < std::vector <float> > finaltStrip;
+  std::vector <float> finaltStripNoSlewing;
+  std::vector <float> tStripElectronicsAbThr;
+  std::vector <float> qStripElectronics;
  
   int    nstrip;
   float  temp_polya;
@@ -175,20 +172,20 @@ public :
 // whichStrips()
   int dimClusters; //dimClusters=total number of collisions
   int MaxPrimaryIons;
-  vector <int> stripNumber;
+  std::vector <int> stripNumber;
   double pt,xx, xxDiffussion, yy, yyDiffussion ;
   int primaryion; 
-  vector <int> firstq;
+  std::vector <int> firstq;
   float lmean;
-  vector <float> qstrip; 
-  vector <float> cntTimes;
-  vector <float> tStrip;
-  vector <float> qStrip;
-  vector <float> time;  //Drift velocity [mm/ns]
-  vector <int> numberofStrip;
+  std::vector <float> qstrip; 
+  std::vector <float> cntTimes;
+  std::vector <float> tStrip;
+  std::vector <float> qStrip;
+  std::vector <float> time;  //Drift velocity [mm/ns]
+  std::vector <int> numberofStrip;
   
-  vector <float> clusterelectrons;
-  vector <float> l;
+  std::vector <float> clusterelectrons;
+  std::vector <float> l;
   float totalelectrons;
   float ll;
    

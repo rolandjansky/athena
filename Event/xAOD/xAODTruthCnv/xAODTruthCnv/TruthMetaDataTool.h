@@ -13,7 +13,7 @@
 // Gaudi/Athena include(s):
 #include "AsgTools/AsgMetadataTool.h"
 #ifdef ASGTOOL_ATHENA
-#   include "AthenaPoolKernel/IMetaDataTool.h"
+#   include "AthenaKernel/IMetaDataTool.h"
 #endif // ASGTOOL_ATHENA
 
 // EDM include(s):

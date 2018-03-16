@@ -71,14 +71,6 @@ topSequence        += EventTagWriter
 topSequence        += TagEventTagWriter
 topSequence        += DummyLumirangeTool
 
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamDefMeta
-
-# Add algorithm to add default collection metadata
-Metatool2 = RegistrationStreamDefMeta("default")
-Metatool2.Project = "AthenaPoolMultiTest"
-Metatool2.Stream = "BuildInput"
-topSequence+=Metatool2
-
 theApp.CreateSvc += ['xAODMaker::EventFormatSvc']
 
 from AthenaPoolExampleAlgorithms.AthenaPoolExampleAlgorithmsConf import AthPoolEx__WriteData

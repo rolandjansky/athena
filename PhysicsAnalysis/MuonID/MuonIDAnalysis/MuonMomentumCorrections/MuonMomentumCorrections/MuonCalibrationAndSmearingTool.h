@@ -7,6 +7,10 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/ReadHandleKey.h"
+
+//EDM include(s)
+#include "xAODEventInfo/EventInfo.h"
 
 // ROOT include(s)
 #include "TRandom3.h"
@@ -193,7 +197,7 @@ protected:
 
   int m_scaleRegion;
 
- 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"}; 
   
   boost::unordered_map< SystematicSet, ParameterSet > m_Parameters;
   ParameterSet *m_currentParameters;

@@ -42,10 +42,10 @@ class SCT_SensorsTool: public extends<AthAlgTool, ISCT_SensorsTool> {
   virtual StatusCode finalize() override;
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  virtual void getSensorsData(std::vector<std::string>& userVector);
-  virtual const SCT_SensorCondData* getSensorsData(const unsigned int truncatedSerialNumber) const;
-  virtual std::string getManufacturer(unsigned int truncatedSerialNumber);
-  virtual void printManufacturers();
+  virtual void getSensorsData(std::vector<std::string>& userVector) const override;
+  virtual const SCT_SensorCondData* getSensorsData(const unsigned int truncatedSerialNumber) const override;
+  virtual std::string getManufacturer(unsigned int truncatedSerialNumber) const override;
+  virtual void printManufacturers() const override;
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   

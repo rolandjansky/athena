@@ -31,13 +31,13 @@ class ISCT_ConditionsTool: virtual public IAlgTool {
   DeclareInterfaceID(ISCT_ConditionsTool, 1, 0);
   
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h)=0;
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const =0;
   
   ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT)=0;
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const =0;
   
   //@todo introduce hash identifier method
-  virtual bool isGood(const IdentifierHash& hashId)=0;
+  virtual bool isGood(const IdentifierHash& hashId) const =0;
 };
 
 #endif // ISCT_ConditionsTool_h

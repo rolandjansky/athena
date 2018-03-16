@@ -36,16 +36,16 @@ class SCT_RadDamageSummaryTool: public extends<AthAlgTool, ISCT_RadDamageSummary
   virtual StatusCode finalize() override;
  
   // virtual double RamoPotential(const IdentifierHash & elementHash, const Hep3Vector & pos);
-  virtual double ChargeTrappingProbability(const IdentifierHash & elementHash, const double & zpos) override;
-  virtual double TrappingConstant(const IdentifierHash & elementHash, const double & zpos) override;
-  virtual double ElectricField(const IdentifierHash & elementHash, const double & zpos) override;
-  virtual double TrappingTime(const IdentifierHash & elementHash, const double & zpos) override;
-  virtual double TimeToElectrode(const IdentifierHash & elementHash, const double & zpos) override;
-  virtual double TrappingPositionZ(const IdentifierHash & elementHash, const double & zpos) override;
-  virtual double HoleDriftMobility(const IdentifierHash & elementHash, const double & zpos) override; 
-  virtual bool doCTrap(const IdentifierHash & elementHash,  const double & zpos) override;
-  virtual void HoleTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const override;
-  virtual void InitPotentialValue() override;
+  virtual double ChargeTrappingProbability(const IdentifierHash & elementHash, const double & zpos) const override;
+  virtual double TrappingConstant(const IdentifierHash & elementHash, const double & zpos) const override;
+  virtual double ElectricField(const IdentifierHash & elementHash, const double & zpos) const override;
+  virtual double TrappingTime(const IdentifierHash & elementHash, const double & zpos) const override;
+  virtual double TimeToElectrode(const IdentifierHash & elementHash, const double & zpos) const override;
+  virtual double TrappingPositionZ(const IdentifierHash & elementHash, const double & zpos) const override;
+  virtual double HoleDriftMobility(const IdentifierHash & elementHash, const double & zpos) const override; 
+  virtual bool doCTrap(const IdentifierHash & elementHash,  const double & zpos) const override;
+  virtual void HoleTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 ) const override;
+  virtual void InitPotentialValue() const override;
 
  private:
   ToolHandle<ISCT_ChargeTrappingTool> m_chargeTrappingTool{this, "ChargeTrappingTool", "SCT_ChargeTrappingTool", "Tool to retrieve charge trapping properties"};

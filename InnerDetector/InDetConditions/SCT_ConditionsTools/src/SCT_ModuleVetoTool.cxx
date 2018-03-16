@@ -95,12 +95,12 @@ SCT_ModuleVetoTool::finalize() {
 }
 
 bool 
-SCT_ModuleVetoTool::canReportAbout(InDetConditions::Hierarchy h) {
+SCT_ModuleVetoTool::canReportAbout(InDetConditions::Hierarchy h) const {
   return ((h==InDetConditions::DEFAULT) or (h==InDetConditions::SCT_SIDE));
 }
 
 bool 
-SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) const {
   if (not canReportAbout(h)) return true;
 
   // Bad wafer in properties
@@ -118,7 +118,7 @@ SCT_ModuleVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarc
 }
 
 bool 
-SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId) {
+SCT_ModuleVetoTool::isGood(const IdentifierHash& hashId) const {
   Identifier elementId{m_pHelper->wafer_id(hashId)};
   return isGood(elementId);
 }
