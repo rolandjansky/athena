@@ -15,39 +15,17 @@ class LArRawChannelGetter_DigiHSTruth ( Configured )  :
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         from AthenaCommon.AppMgr import ToolSvc
-
-
-        # get LArDigitGetter in MC case
-        #from AthenaCommon.DetFlags import DetFlags
-        #if DetFlags.digitize.LAr_on() :
-        #    try:
-        #        from LArDigitization.LArDigitGetter import LArDigitGetter
-        #        theLArDigitGetter = LArDigitGetter()
-        #    except Exception as configException:
-        #        print configException
-        #        mlog.error("could not get handle to LArDigitGetter Quit")
-        #        return False
-        #    if not theLArDigitGetter.usable():
-        #        mlog.error("LArDigitGetter unusable. Quite")
-        #        return False
-
         from LArROD.LArRODFlags import larRODFlags
 
         from AthenaCommon.GlobalFlags import globalflags
+        # This should never be run in data
         if globalflags.DataSource()=='data' or larRODFlags.forceIter() :
             return True
 
         else:
-
             # MC Case
             try:
                 from AthenaCommon import CfgGetter
-                #topSequence += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
-                #theLArRawSignalChannelBuilder=LArRawChannelBuilderDriver("LArRawSignalChannelBuilder")
-                #theLArRawSignalChannelBuilder = CfgGetter.getAlgorithm("LArRawChannelBuilder", "LArRawSignalChannelBuilder")
-                #theLArRawSignalChannelBuilder.DataLocation    = "LArSignalDigitContainer"
-                #theLArRawSignalChannelBuilder.LArRawChannelContainerName = "LArRawSignalChannels"
-                #topSequence += theLArRawSignalChannelBuilder
                 from LArRODConfig import getLArRawChannelBuilder_DigiHSTruth
                 theLArRawChannelBuilder_DigiHSTruth = getLArRawChannelBuilder_DigiHSTruth()
                 topSequence += theLArRawChannelBuilder_DigiHSTruth
