@@ -85,7 +85,7 @@ ToolSvc += EXOT6ElectronCCThinningTool
 # SKIMMING TOOL 
 #====================================================================
 
-expression = '(HLT_g140_loose || HLT_g160_loose || HLT_xe90_tc_lcw_L1XE50||HLT_g75_tight_3j50noL1_L1EM22VHI||HLT_g75_tight_3j25noL1_L1EM22VHI || HLT_g85_tight_L1EM22VHI_3j50noL1 || HLT_xe90_mht_L1XE50||HLT_xe100_mht_L1XE50||HLT_xe110_mht_L1XE50||HLT_xe130_mht_L1XE50) && ((count(Photons.pt > 70*GeV) > 0) || ( ( HLT_g140_loose || HLT_g160_loose) && (count(Electrons.pt > 100*GeV) > 0) ) )'
+expression = '(HLT_g60_loose && (count(Photons.pt > 60*GeV) > 0))  ||  ((HLT_g140_loose || HLT_g160_loose) && (count(Photons.pt > 130*GeV) > 0 || count(Electrons.pt > 100*GeV) > 0))  ||  ((HLT_xe90_tc_lcw_L1XE50||HLT_g75_tight_3j50noL1_L1EM22VHI||HLT_g75_tight_3j25noL1_L1EM22VHI || HLT_g85_tight_L1EM22VHI_3j50noL1 || HLT_xe90_mht_L1XE50||HLT_xe100_mht_L1XE50||HLT_xe110_mht_L1XE50||HLT_xe130_mht_L1XE50) && (count(Photons.pt > 70*GeV) > 0))'
 
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
