@@ -1015,7 +1015,7 @@ namespace top {
             return;
         }
 
-        m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileSetAutoFlushZero() );
+        m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
         m_particleLevelTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
@@ -1176,7 +1176,7 @@ namespace top {
             return;
         }
 
-        m_upgradeTreeManager = std::make_shared<top::TreeManager>( "upgrade", m_outputFile, m_config->outputFileSetAutoFlushZero() );
+        m_upgradeTreeManager = std::make_shared<top::TreeManager>( "upgrade", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
         m_upgradeTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
