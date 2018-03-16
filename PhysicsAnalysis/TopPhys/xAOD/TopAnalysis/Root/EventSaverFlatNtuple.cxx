@@ -226,8 +226,8 @@ namespace top {
         std::string nominalTTreeName("SetMe"),nominalLooseTTreeName("SetMe");
         if (m_config->doTightEvents() && !m_config->HLLHC()) {
           for (auto treeName : *config->systAllTTreeNames()) {
-              m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileSetAutoFlushZero()) ) );
-              m_treeManagers.back()->branchFilters() = branchFilters();
+    	      m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()  ) ) );
+	      m_treeManagers.back()->branchFilters() = branchFilters();
               if (treeName.first == m_config->nominalHashValue()) {
                   nominalTTreeName = treeName.second;
               }
@@ -236,7 +236,7 @@ namespace top {
 
         if (m_config->doLooseEvents()) {
             for (auto treeName : *config->systAllTTreeNames()) {
-                m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileSetAutoFlushZero()) ) );
+	        m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()) ) );
                 m_treeManagers.back()->branchFilters() = branchFilters();
                 if (treeName.first == m_config->nominalHashValue()) {
                     nominalLooseTTreeName = treeName.second+"_Loose";
@@ -249,7 +249,7 @@ namespace top {
 
             m_sfRetriever = std::unique_ptr<top::ScaleFactorRetriever> ( new top::ScaleFactorRetriever( m_config ) );
 
-            m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileSetAutoFlushZero()) );
+            m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector() ) );
             m_truthTreeManager->branchFilters() = branchFilters();
             m_truthTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
             m_truthTreeManager->makeOutputVariable(m_eventNumber, "eventNumber");
@@ -1015,7 +1015,7 @@ namespace top {
             return;
         }
 
-        m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileSetAutoFlushZero() );
+        m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
         m_particleLevelTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
@@ -1176,7 +1176,7 @@ namespace top {
             return;
         }
 
-        m_upgradeTreeManager = std::make_shared<top::TreeManager>( "upgrade", m_outputFile, m_config->outputFileSetAutoFlushZero() );
+        m_upgradeTreeManager = std::make_shared<top::TreeManager>( "upgrade", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
         m_upgradeTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
