@@ -25,8 +25,7 @@ using eformat::helper::SourceIdentifier;
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-
-#define MAXNUM_SCT_BS_ERRORS 14
+#include "SCT_ConditionsData/SCT_ByteStreamFractionContainer.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -43,6 +42,8 @@ SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type,
   declareProperty( "SCT_ROD_Decoder", m_offlineDecoder,"SCT_RodDecoder");
   declareProperty( "UseOfflineDecoder", m_useOfflineDecoder = true);
   declareProperty( "RDO_ContainerName", m_rdoContainerName = "SCT_RDO_Cache");
+  declareProperty( "ByteStreamErrContainer", m_bsErrContainerName = "SCT_ByteStreamErrs_Cache");
+  declareProperty( "ByteStreamFracContainer", m_bsFracContainerName = "SCT_ByteStreamFractionContainer_Cache");
   declareProperty( "UseOfflineClustering", m_useOfflineClustering = true);
   declareProperty( "SCT_ByteStreamErrorsSvc",m_byteStreamErrSvc );
   declareProperty( "SCT_ClusteringTool", m_clusteringTool,"InDet::SCT_ClusteringTool/InDetTrigSCT_ClusteringTool");
@@ -229,6 +230,39 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 	    << " is found in StoreGate");
     }
 
+  InDetBSErrContainer* bsErrCont{nullptr};
+  SCT_ByteStreamFractionContainer* bsFracCont{nullptr};
+  if (m_useOfflineDecoder) {
+    if (!evtStore()->transientContains<InDetBSErrContainer>(m_bsErrContainerName)) {
+      bsErrCont = new InDetBSErrContainer();
+      if (evtStore()->record(bsErrCont, m_bsErrContainerName).isFailure()) {
+        ATH_MSG_FATAL("Unable to record " << m_bsErrContainerName);
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG(m_bsErrContainerName << " recorded into SG");
+    } else {
+      if (!evtStore()->retrieve(bsErrCont, m_bsErrContainerName)) {
+        ATH_MSG_FATAL("Unable to retrieve existing " << m_bsErrContainerName);
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG("Retrieved existing " << m_bsErrContainerName);
+    }
+    if (!evtStore()->transientContains<SCT_ByteStreamFractionContainer>(m_bsFracContainerName)) {
+      bsFracCont = new SCT_ByteStreamFractionContainer();
+      if (evtStore()->record(bsFracCont, m_bsFracContainerName).isFailure()) {
+        ATH_MSG_FATAL("Unable to record " << m_bsFracContainerName);
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG(m_bsFracContainerName << " recorded into SG");
+    } else {
+      if (!evtStore()->retrieve(bsFracCont, m_bsFracContainerName)) {
+        ATH_MSG_FATAL("Unable to retrieve existing " << m_bsFracContainerName);
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG("Retrieved existing " << m_bsFracContainerName);
+    }
+  }
+
   if(!m_doBS) {
     //retrieve m_rdoContainer here 
 
@@ -332,15 +366,15 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 
 	      StatusCode scRod = StatusCode::SUCCESS;
 	      if(!isFullScan) {
-		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,nullptr,nullptr,&reducedList);
+		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,bsErrCont,bsFracCont,&reducedList);
 	      }
 	      else {
-		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,nullptr,nullptr,NULL);
+		scRod=m_offlineDecoder->fillCollection(*robFrag,*m_rdoContainer,bsErrCont,bsFracCont,NULL);
 	      }
 	      if(scRod.isRecoverable())
 		{
 		  n_recov_errors++;
-		  for(int idx=0;idx<MAXNUM_SCT_BS_ERRORS;idx++)
+		  for(int idx=0;idx<SCT_ByteStreamErrors::NUM_ERROR_TYPES;idx++)
 		    {
 		      int n_error = m_byteStreamErrSvc->getNumberOfErrors(idx);
 		      for(int ierror = 0;ierror<n_error;ierror++)

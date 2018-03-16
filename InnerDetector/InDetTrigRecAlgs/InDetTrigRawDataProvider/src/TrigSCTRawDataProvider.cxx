@@ -14,7 +14,8 @@
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
-
+#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "SCT_ConditionsData/SCT_ByteStreamFractionContainer.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -35,11 +36,15 @@ namespace InDet {
     m_storeGate       ("StoreGateSvc",name),
     m_detStore        ("DetectorStore",name),
     m_cablingSvc      ("SCT_CablingSvc",name),
-    m_id(0),
-    m_container(0)
+    m_id(nullptr),
+    m_container(nullptr),
+    m_bsErrCont(nullptr),
+    m_bsFracCont(nullptr)
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "SCT_RDOs_EFID");
+    declareProperty("ByteStreamErrContainer", m_bsErrCont_Key = "SCT_ByteStreamErrs_EFID");
+    declareProperty("ByteStreamFracContainer", m_bsFracCont_Key = "SCT_ByteStreamFractionContainer_EFID");
     declareProperty("RawDataTool", m_rawDataTool);
   }
 
@@ -149,6 +154,38 @@ namespace InDet {
       }
     }
 
+    m_bsFracCont = nullptr;
+    if (!m_storeGate->transientContains<SCT_ByteStreamFractionContainer>(m_bsFracCont_Key)) {
+      m_bsFracCont = new SCT_ByteStreamFractionContainer();
+      if (m_storeGate->record(m_bsFracCont, m_bsFracCont_Key).isFailure()) {
+        ATH_MSG_FATAL("Unable to record " << m_bsFracCont_Key);
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG(m_bsFracCont_Key << " recorded into SG");
+    } else {
+      if (!m_storeGate->retrieve(m_bsFracCont, m_bsFracCont_Key)) {
+        ATH_MSG_FATAL("Unable to retrieve existing " << m_bsFracCont_Key);
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG("Retrieved existing " << m_bsFracCont_Key);
+    }
+
+    m_bsErrCont = nullptr;
+    if (!m_storeGate->transientContains<InDetBSErrContainer>(m_bsErrCont_Key)) {
+      m_bsErrCont = new InDetBSErrContainer();
+      if (m_storeGate->record(m_bsErrCont, m_bsErrCont_Key).isFailure()) {
+        ATH_MSG_FATAL("Unable to record " << m_bsErrCont_Key);
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG(m_bsErrCont_Key << " recorded into SG");
+    } else {
+      if (!m_storeGate->retrieve(m_bsErrCont, m_bsErrCont_Key)) {
+        ATH_MSG_FATAL("Unable to retrieve existing " << m_bsErrCont_Key);
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG("Retrieved existing " << m_bsErrCont_Key);
+    }
+
     return sc;
   }
 
@@ -187,7 +224,7 @@ namespace InDet {
     // ask SCTRawDataProviderTool to decode it and to fill the IDC
     StatusCode scon = StatusCode::FAILURE;
     if (m_container){
-      scon =  m_rawDataTool->convert(listOfRobf,*m_container,nullptr,nullptr);
+      scon =  m_rawDataTool->convert(listOfRobf,*m_container,m_bsErrCont,m_bsFracCont);
       if (scon==StatusCode::FAILURE)
 	msg(MSG::ERROR) << "BS conversion into RDOs failed" << endmsg;
     }
