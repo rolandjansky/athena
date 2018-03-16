@@ -49,7 +49,6 @@ class FitProcedure
 public:
     FitProcedure (bool					constrainedAlignmentEffects,
 		  bool					extendedDebug,
-		  bool					eigenMatrixTreatment,
 		  bool					lineFit,
 		  ToolHandle<IIntersector>&		rungeKuttaIntersector,
 		  ToolHandle<IIntersector>&		solenoidalIntersector,
