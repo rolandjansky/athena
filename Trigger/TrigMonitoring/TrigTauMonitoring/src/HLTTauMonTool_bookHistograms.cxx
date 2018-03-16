@@ -10,20 +10,23 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////
 void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 
-    bool isMVAtrig (false);
-    for (unsigned int i=0; i<m_trigMVA_chains.size(); i++) {
-      if ( trigItem == m_trigMVA_chains.at(i) ) {
-        isMVAtrig = true;
-			  continue;
-      }
-    }
-    bool monRNN (false);
-    for(unsigned int j=0;j<m_trigRNN_chains.size();++j)
-    {
-			if(trigItem==m_trigRNN_chains.at(j)) monRNN = true;
-    }
+		bool monRNN (false);
+		for (unsigned int j=0; j<m_trigRNN_chains.size(); j++) {
+		  if ( trigItem == m_trigRNN_chains.at(j) ) {
+		    monRNN = true;
+				continue;
+		  }
+		}
 		bool monBDT (false);
-		if (!monRNN) monBDT = true;
+		for (unsigned int j=0; j<m_trigBDTRNN_chains.size(); j++) {
+		  if ( trigItem == m_trigBDTRNN_chains.at(j) ) {
+				if (!monRNN) monRNN = true;
+				if (!monBDT) monBDT = true;
+				continue;
+		  }
+		} 
+		if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
+
 
     const int nbin_pt = 13;
     double bins_pt[nbin_pt] = {20.,25.,30.,35.,40.,45.,50.,55.,60.,70.,100.,150.,200.};
@@ -235,58 +238,61 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		addHistogram(new TH1F("hEFRNNJetScoreSigTrans", "hRNNJetScoreSigTrans distribution ; hRNNJetScoreSigTrans; Events",20,0,1));        
 
 		// Scalar input variables
-		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID1p",run));
-    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID1p");
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar1p",run));
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar1p");
 		addHistogram(new TH1F("hEFRNNInput_Scalar_centFrac_1P", "Centrality Fraction (1Prong); centFrac; Events",50,-0.05,1.2));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_etOverPtLeadTrk_1P", "etOverPtLeadTrk (1Prong); etOverPtLeadTrk; Events",51,-0.1,25.0));  
+		addHistogram(new TH1F("hEFRNNInput_Scalar_etOverPtLeadTrk_log_1P", "etOverPtLeadTrk log (1Prong); etOverPtLeadTrk_log; Events",60,-3.,3.));  
 		addHistogram(new TH1F("hEFRNNInput_Scalar_dRmax_1P", "max dR of associated tracks (1Prong); dRmax; Events",50,-0.1,0.3));        
 		addHistogram(new TH1F("hEFRNNInput_Scalar_absipSigLeadTrk_1P", "AbsIpSigLeadTrk (1Prong); absipSigLeadTrk; Events",25,0.0,20.0));     
 		addHistogram(new TH1F("hEFRNNInput_Scalar_SumPtTrkFrac_1P", "SumPtTrkFrac (1Prong); SumPtTrkFrac; Events",50,-0.5,1.1));  
-		addHistogram(new TH1F("hEFRNNInput_Scalar_EMPOverTrkSysP_1P", "EMPOverTrkSysP (1Prong); EMPOverTrkSysP; Events",41,0.0,40.0));  
+		addHistogram(new TH1F("hEFRNNInput_Scalar_EMPOverTrkSysP_log_1P", "EMPOverTrkSysP log (1Prong); EMPOverTrkSysP_log; Events",40,-5.,3.));  
 		addHistogram(new TH1F("hEFRNNInput_Scalar_ptRatioEflowApprox_1P", "ptRatioEflowApprox (1Prong); ptRatioEflowApprox; Events",50,0.0,2.0)); 
-		addHistogram(new TH1F("hEFRNNInput_Scalar_mEflowApprox_1P", "mEflowApprox (1Prong); mEflowApprox; Events",61,-0.2,60.2));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_ptIntermediateAxis_1P", "ptIntermediateAxis (1Prong); ptIntermediateAxis; Events",nbin_pt-1,bins_pt));  
+		addHistogram(new TH1F("hEFRNNInput_Scalar_mEflowApprox_log_1P", "mEflowApprox log (1Prong); mEflowApprox_log; Events",35,0.,5.));//61,-0.2,60.2));      
+		addHistogram(new TH1F("hEFRNNInput_Scalar_ptDetectorAxis_log_1P", "ptDetectorAxis log (1Prong); ptDetectorAxis_log; Events",12,0.,5.));  
     
-		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID3p",run));
-    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputID3p");
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar3p",run));
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar3p");
 		addHistogram(new TH1F("hEFRNNInput_Scalar_centFrac_3P", "Centrality Fraction (3Prong); centFrac; Events",50,-0.05,1.2));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_etOverPtLeadTrk_3P", "etOverPtLeadTrk (3Prong); etOverPtLeadTrk; Events",51,-0.1,25.0));     
+		addHistogram(new TH1F("hEFRNNInput_Scalar_etOverPtLeadTrk_log_3P", "etOverPtLeadTrk log (3Prong); etOverPtLeadTrk_log; Events",60,-3.,3.)); //51,-0.1,25.0));     
 		addHistogram(new TH1F("hEFRNNInput_Scalar_dRmax_3P", "max dR of associated tracks (3Prong); dRmax; Events",50,-0.1,0.3));        
-		addHistogram(new TH1F("hEFRNNInput_Scalar_trFlightPathSig_3P", "trFlightPathSig (3Prong); trFlightPathSig; Events",50,-20.0,20.0));      
+		addHistogram(new TH1F("hEFRNNInput_Scalar_trFlightPathSig_log_3P", "trFlightPathSig log (3Prong); trFlightPathSig_log; Events",60,-3.,3.)); //50,-20.0,20.0));      
 		addHistogram(new TH1F("hEFRNNInput_Scalar_SumPtTrkFrac_3P", "SumPtTrkFrac (3Prong); SumPtTrkFrac; Events",50,-0.5,1.1));
-		addHistogram(new TH1F("hEFRNNInput_Scalar_EMPOverTrkSysP_3P", "EMPOverTrkSysP (3Prong); EMPOverTrkSysP; Events",41,0.0,40.0));  
+		addHistogram(new TH1F("hEFRNNInput_Scalar_EMPOverTrkSysP_log_3P", "EMPOverTrkSysP log (3Prong); EMPOverTrkSysP_log; Events",40,-5.,3.));//41,0.0,40.0));  
 		addHistogram(new TH1F("hEFRNNInput_Scalar_ptRatioEflowApprox_3P", "ptRatioEflowApprox (3Prong); ptRatioEflowApprox; Events",50,0.0,2.0));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_mEflowApprox_3P", "mEflowApprox (3Prong); mEflowApprox; Events",35,0.,7000.));//61,-0.2,60.2));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_ptIntermediateAxis_3P", "ptIntermediateAxis (3Prong); ptIntermediateAxis; Events",24,-1.2,1.2));//nbin_pt-1,bins_pt));      
-		addHistogram(new TH1F("hEFRNNInput_Scalar_massTrkSys_3P", "massTrkSys (3Prong); massTrkSys; Events",28,0.,14000.));//50,-0.1,15.0)); 
+		addHistogram(new TH1F("hEFRNNInput_Scalar_mEflowApprox_log_3P", "mEflowApprox log (3Prong); mEflowApprox_log; Events",35,0.,5.));//35,0.,7000.));//61,-0.2,60.2));      
+		addHistogram(new TH1F("hEFRNNInput_Scalar_ptDetectorAxis_log_3P", "ptDetectorAxis log (3Prong); ptDetectorAxis_log; Events",12,0.,5.)); //nbin_pt-1,bins_pt));     
+		addHistogram(new TH1F("hEFRNNInput_Scalar_massTrkSys_log_3P", "massTrkSys log (3Prong); massTrkSys_log; Events",50,0.,3.));//50,-0.1,15.0)); 
  
 		// Track input variables
 		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputTrack",run));
 	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputTrack");
-		addHistogram(new TH1F("hEFRNNInput_Track_pt", "pt ; pt; Events",nbin_pt-1,bins_pt));    
-		addHistogram(new TH1F("hEFRNNInput_Track_eta", "eta ; eta; Events",nbin_eta-1,bins_eta));    
-		addHistogram(new TH1F("hEFRNNInput_Track_phi", "phi ; phi; Events",16,-3.2,3.2));    
+		addHistogram(new TH1F("hEFRNNInput_Track_pt_log", "pt_log ; pt_log; Events",12,-5,7));//nbin_pt-1,bins_pt));    
+		addHistogram(new TH1F("hEFRNNInput_Track_pt_jetseed_log", "pt_jetseed_log ; pt_jetseed_log; Events",12,2,7));//nbin_pt-1,bins_pt));    
+		//addHistogram(new TH1F("hEFRNNInput_Track_eta", "eta ; eta; Events",nbin_eta-1,bins_eta));    
+		//addHistogram(new TH1F("hEFRNNInput_Track_phi", "phi ; phi; Events",16,-3.2,3.2));    
 		addHistogram(new TH1F("hEFRNNInput_Track_dEta", "dEta ; dEta; Events",nbin_eta-1,bins_eta));    
 		addHistogram(new TH1F("hEFRNNInput_Track_dPhi", "dPhi ; dPhi; Events",16,-3.2,3.2));
-		addHistogram(new TH1F("hEFRNNInput_Track_d0", "d0 ; d0; Events",20,-5.,5.));
-		//addHistogram(new TH1F("hEFRNNInput_Track_z0sinThetaTJVA", "z0sinThetaTJVA ; z0sinThetaTJVA; Events",15,-200.,200.));   
+		addHistogram(new TH1F("hEFRNNInput_Track_d0_abs_log", "d0_abs_log ; d0_abs_log; Events",5,-7.,2.));//50,-5.,5.));
+		addHistogram(new TH1F("hEFRNNInput_Track_z0sinThetaTJVA_abs_log", "z0sinThetaTJVA_abs_log ; z0sinThetaTJVA_abs_log; Events",15,-10,4));//15,-200.,200.));   
 		addHistogram(new TH1F("hEFRNNInput_Track_nInnermostPixelHits", "nInnermostPixelHits ; nInnermostPixelHits; Events",3,0.,3));
 		addHistogram(new TH1F("hEFRNNInput_Track_nPixelHits", "nPixelHits ; nPixelHits; Events",11,0.,11));  
 		addHistogram(new TH1F("hEFRNNInput_Track_nSCTHits", "nSCTHits ; nSCTHits; Events",20,0.,20));     
 		// Cluster input variables
 		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputCluster",run));
 	  setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputCluster");
-		addHistogram(new TH1F("hEFRNNInput_Cluster_e", "e ; e; Events",nbin_pt-1,bins_pt));     
-		addHistogram(new TH1F("hEFRNNInput_Cluster_et", "et ; et; Events",nbin_pt-1,bins_pt));  // or 260,0.,130.    
-		addHistogram(new TH1F("hEFRNNInput_Cluster_eta", "eta ; eta; Events",nbin_eta-1,bins_eta));
-		addHistogram(new TH1F("hEFRNNInput_Cluster_phi", "phi ; phi; Events",16,-3.2,3.2));    
+		//addHistogram(new TH1F("hEFRNNInput_Cluster_e", "e ; e; Events",nbin_pt-1,bins_pt));     
+		//addHistogram(new TH1F("hEFRNNInput_Cluster_et", "et ; et; Events",nbin_pt-1,bins_pt));  // or 260,0.,130.    
+		//addHistogram(new TH1F("hEFRNNInput_Cluster_eta", "eta ; eta; Events",nbin_eta-1,bins_eta));
+		//addHistogram(new TH1F("hEFRNNInput_Cluster_phi", "phi ; phi; Events",16,-3.2,3.2));    
+		addHistogram(new TH1F("hEFRNNInput_Cluster_et_log", "et_log ; et_log; Events",12,0.,5.));//nbin_pt-1,bins_pt));  // or 260,0.,130.    
+		addHistogram(new TH1F("hEFRNNInput_Cluster_pt_jetseed_log", "pt_jetseed_log ; pt_jetseed_log; Events",12,2,7));//nbin_pt-1,bins_pt));  // or 260,0.,130.    
 		addHistogram(new TH1F("hEFRNNInput_Cluster_dEta", "dEta ; dEta; Events",nbin_eta-1,bins_eta));
 		addHistogram(new TH1F("hEFRNNInput_Cluster_dPhi", "dPhi ; dPhi; Events",16,-3.2,3.2));    
 		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_R_log10", "SECOND_R ; SECOND_R; Events",10,-3.,7.));
 		addHistogram(new TH1F("hEFRNNInput_Cluster_SECOND_LAMBDA_log10", "SECOND_LAMBDA ; SECOND_LAMBDA; Events",10,-3.,7.));      
 		addHistogram(new TH1F("hEFRNNInput_Cluster_CENTER_LAMBDA_log10", "CENTER_LAMBDA ; CENTER_LAMBDA; Events",7,-2.,5.));      
 	}
-
+//50,-0.3,0.3,50,-0.3,0.3
     //--------------------
     // L1 vs Offline
     //--------------------

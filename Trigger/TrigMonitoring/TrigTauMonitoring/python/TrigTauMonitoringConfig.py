@@ -73,6 +73,18 @@ def TrigTauMonitoringTool():
 			'tau25_tightRNN_tracktwoMVA',
 	]
 
+	BDTRNN_chains = [
+			'tau25_perf_tracktwo',
+			'tau25_idperf_tracktwo',
+			'tau25_medium1_tracktwo',
+			'tau25_idperf_tracktwoEF',
+			'tau25_perf_tracktwoEF',
+			'tau25_idperf_tracktwoEFmvaTES',
+			'tau25_perf_tracktwoEFmvaTES',
+			'tau25_idperf_tracktwoMVA',
+			'tau25_perf_tracktwoMVA',
+	]
+
 	tau_topo_support_chains = [
 
 	]
@@ -166,6 +178,7 @@ def TrigTauMonitoringTool():
 				topo_eltau_chains	= eltau_topo_chains,
 				trigMVA_chains	= MVA_chains,
 				trigRNN_chains	= RNN_chains,
+				trigBDTRNN_chains	= BDTRNN_chains,
 				topo_support_chains	= tau_topo_support_chains,
 				doTopoValidation	= False,
 				L1TriggerCondition	= "Physics", #allowResurrectedDecision, alsoDeactivateTEs, Physics [default]
