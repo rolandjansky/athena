@@ -99,6 +99,7 @@
 + Reconstruction/tauRecTools
 + Tools/PathResolver
 + Tools/ART
++ Tools/DirectIOART
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool
