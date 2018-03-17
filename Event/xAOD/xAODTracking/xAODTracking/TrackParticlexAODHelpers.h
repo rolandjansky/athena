@@ -119,10 +119,7 @@ namespace xAOD {
     double z0significanceUnsafe(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx) {
       // use z0 relative to the given primary vertex.
       double z0 = tp->z0() - vx->z();
-      // assume that z0 was expressed relative to the associated vertex.
-      if (tp->vertex()) {
-	z0 += tp->vertex()->z();
-      }
+
       // elements in definingParametersCovMatrixVec should be : sigma_z0^2, sigma_d0_z0, sigma_z0^2
       double sigma_z0 = std::sqrt( tp->definingParametersCovMatrixVec()[2] );
       return z0/sigma_z0;

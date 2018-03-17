@@ -21,7 +21,6 @@ extern "C" {
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
 #include "xAODTracking/TrackingPrimitives.h" 
-#include "xAODTracking/VertexContainerFwd.h" 
 
 #ifndef XAOD_STANDALONE
 #ifndef XAOD_MANACORE
@@ -307,12 +306,6 @@ namespace xAOD {
 		 const Trk::Track* track() const; 
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
         
-        /// @brief Returns a link (which can be invalid) to the xAOD::Vertex associated with this TrackParticle.
-        const ElementLink< VertexContainer >& vertexLink() const;
-        /// @brief Set the link to the vertex
-         void setVertexLink(const ElementLink< VertexContainer >& vertex);
-         /// @brief Returns a pointer (which can be NULL) to the xAOD::Vertex associated with this TrackParticle.
-         const Vertex* vertex() const; 
       /// @}
     private:
       /// Cached 4-momentum object.

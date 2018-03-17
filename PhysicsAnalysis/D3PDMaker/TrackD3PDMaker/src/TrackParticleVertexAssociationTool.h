@@ -15,8 +15,9 @@
 #define TRACKD3PDMAKER_TRACKPARTICLEVERTEXASSOCIATIONTOOL_H
 
 #include "D3PDMakerUtils/SingleAssociationTool.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/Vertex.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODTracking/VertexFwd.h"
+#include "xAODTracking/VertexContainer.h"
 #include "StoreGate/StoreGateSvc.h"
 
 namespace Trk {
@@ -82,6 +83,9 @@ private:
 
   /** weight of the track at the associated vertex */
   float *m_weight;
+
+  /** xAOD vertex container handle key */
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
 
 }; // class TrackParticleVertexAssociationTool
 

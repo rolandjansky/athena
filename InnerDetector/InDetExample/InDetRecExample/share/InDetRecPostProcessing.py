@@ -471,17 +471,6 @@ if InDetFlags.doParticleCreation() and not InDetFlags.useExistingTracksAsInput()
         trackToVertexTool = Reco__TrackToVertex('TrackToVertex')
         ToolSvc += trackToVertexTool
      
- from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetVxLinksToTrackParticles
- InDetVxLinkSetter = InDet__InDetVxLinksToTrackParticles(name          = "InDetVxLinkSetter",
-                                                         TracksName    = InDetKeys.xAODTrackParticleContainer(),
-                                                         VerticesName  = InDetKeys.xAODVertexContainer(),
-                                                         TrackToVertex = trackToVertexTool)
-
- topSequence += InDetVxLinkSetter
-
- if InDetFlags.doPrintConfigurables():
-  print InDetVxLinkSetter
-
 if rec.doPhysicsValidationAugmentation() :
   try:
     import InDetPhysValMonitoring.InDetPhysValDecoration
