@@ -84,8 +84,9 @@ print FTAG1DstarVertexing
 # CREATE PRIVATE SEQUENCE
 #====================================================================
 
-FTAG1Seq = CfgMgr.AthSequencer("FTAG1Sequence");
-DerivationFrameworkJob += FTAG1Seq
+FTAG1Seq = CfgMgr.AthSequencer("FTAG1Sequence")
+FTAG1PreSeq = CfgMgr.AthSequencer("FTAG1PreSelectionSequence")
+DerivationFrameworkJob += FTAG1PreSeq
 
 #====================================================================
 # Basic Jet Collections 
@@ -126,10 +127,17 @@ FlavorTagInit(isFTAG1 = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer 
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
 
+FTAG1PreSeq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1PreSelectionKernel",
+                                                            SkimmingTools = [FTAG1TriggerSkimmingTool],
+                                                           )
+
+
+
 FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1Kernel",
-                                                         SkimmingTools = [FTAG1TriggerSkimmingTool],
                                                          AugmentationTools = [FTAG1DstarVertexing]
-                                                         )
+                                                        )
+
+FTAG1Seq += FTAG1PreSeq
 
 #====================================================================
 # SET UP STREAM   
@@ -143,8 +151,7 @@ FTAG1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # Name must match that of the kernel above
 # AcceptAlgs  = logical OR of filters
 # RequireAlgs = logical AND of filters
-FTAG1Stream.AcceptAlgs(["FTAG1Kernel"])
-
+FTAG1Stream.AcceptAlgs(["FTAG1PreSelectionKernel"])
 FTAG1SlimmingHelper = SlimmingHelper("FTAG1SlimmingHelper")
 
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
