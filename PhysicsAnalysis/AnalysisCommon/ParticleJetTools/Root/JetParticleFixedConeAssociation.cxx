@@ -14,7 +14,7 @@ JetParticleFixedConeAssociation::JetParticleFixedConeAssociation(const string& n
     : JetParticleAssociation(name) {
 
         declareProperty("InputParticleCollectionName", m_InputParticleCollectionName);
-        declareProperty("ConeSize", m_ConeSize=0);
+        declareProperty("coneSize", m_coneSize=0);
 
         return;
     }
@@ -61,7 +61,7 @@ JetParticleFixedConeAssociation::match(const xAOD::JetContainer& jets) const {
 
 
         if (matchjetidx >= 0) {
-            if (drmin > m_ConeSize) continue;
+            if (drmin > m_coneSize) continue;
 
             ElementLink<IParticleContainer> EL; 
             EL.toContainedElement(*parts, *part_itr);

@@ -14,9 +14,9 @@ JetParticleShrinkingConeAssociation::JetParticleShrinkingConeAssociation(const s
     : JetParticleAssociation(name) {
 
         declareProperty("InputParticleCollectionName", m_InputParticleCollectionName);
-        declareProperty("ConeSizeFitPar1", m_ConeSizeFitPar1=0);
-        declareProperty("ConeSizeFitPar2", m_ConeSizeFitPar2=0);
-        declareProperty("ConeSizeFitPar3", m_ConeSizeFitPar3=0);
+        declareProperty("coneSizeFitPar1", m_coneSizeFitPar1=0);
+        declareProperty("coneSizeFitPar2", m_coneSizeFitPar2=0);
+        declareProperty("coneSizeFitPar3", m_coneSizeFitPar3=0);
 
         return;
     }

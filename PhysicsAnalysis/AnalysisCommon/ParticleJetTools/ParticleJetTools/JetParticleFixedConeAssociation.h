@@ -24,7 +24,7 @@ class JetParticleFixedConeAssociation : public JetParticleAssociation {
 
     private:
         std::string m_InputParticleCollectionName;
-        double m_ConeSize;
+        double m_coneSize;
 };
 
 #endif
