@@ -51,7 +51,7 @@ namespace Analysis {
     StatusCode BTagTrackAssociation::BTagTrackAssociation_exec(jetcollection_t* theJets) const {
 
         StatusCode sc;
-        // track association
+
         for (const xAOD::Jet* jet : *theJets) {
             xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(jet->btagging());
             if (!tagInfo) {
@@ -59,8 +59,9 @@ namespace Analysis {
                 return StatusCode::FAILURE;
             }
 
-            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acc(m_AssociatedTrackLinks);
-            std::vector< ElementLink< xAOD::IParticleContainer > > tmp = acc(*jet);
+            // track association
+            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acctrack(m_AssociatedTrackLinks);
+            std::vector< ElementLink< xAOD::IParticleContainer > > tmptrks = acctrack(*jet);
 
             const xAOD::TrackParticleContainer * tpContainer(0);
             sc = evtStore()->retrieve( tpContainer, m_TrackContainerName);
@@ -70,8 +71,8 @@ namespace Analysis {
             }
 
             // we have to convert the IParticle*s to TrackParticle*s
-            std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks;
-            for( const auto& link : tmp ) {
+            std::vector< ElementLink< xAOD::TrackParticleContainer > > tpLinks;
+            for( const auto& link : tmptrks ) {
                 const xAOD::IParticle* ipart = *link;
 
                 if( ipart->type() != xAOD::Type::TrackParticle ) {
@@ -80,33 +81,27 @@ namespace Analysis {
                 const xAOD::TrackParticle* tpart = static_cast< const xAOD::TrackParticle* >( ipart );
                 ElementLink<xAOD::TrackParticleContainer> EL;
                 EL.toContainedElement(*tpContainer, tpart);
-                associationLinks.push_back(EL);
+                tpLinks.push_back(EL);
             }
 
-            tagInfo->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_TrackAssociationName) = associationLinks;
-        }
+            tagInfo->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_TrackAssociationName) = tpLinks;
 
-        // muon association
-        for (const xAOD::Jet* jet : *theJets) {
-            xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>(jet->btagging());
-            if (!tagInfo) {
-                ATH_MSG_FATAL("The pointer from Jet to BTagging object is invalid");
-                return StatusCode::FAILURE;
-            }
+            ATH_MSG_INFO("Attached tracks to jet as " + m_TrackAssociationName);
 
-            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acc(m_AssociatedMuonLinks);
-            std::vector< ElementLink< xAOD::IParticleContainer > > tmp = acc(*jet);
+            // muon association
+            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > accmu(m_AssociatedMuonLinks);
+            std::vector< ElementLink< xAOD::IParticleContainer > > tmpmus = accmu(*jet);
 
-            const xAOD::MuonContainer * tpContainer( 0 );
-            sc = evtStore()->retrieve( tpContainer, m_MuonContainerName);
-            if ( sc.isFailure() || tpContainer==0) {
+            const xAOD::MuonContainer * mpContainer( 0 );
+            sc = evtStore()->retrieve( mpContainer, m_MuonContainerName);
+            if ( sc.isFailure() || mpContainer==0) {
                 ATH_MSG_ERROR("#BTAG# Failed to retrieve Muons through name: " << m_MuonContainerName);
                 return StatusCode::FAILURE;
             }
 
             // we have to convert the IParticle*s to Muon*s
-            std::vector< ElementLink< xAOD::MuonContainer > > associationLinks;
-            for( const auto& link : tmp ) {
+            std::vector< ElementLink< xAOD::MuonContainer > > mpLinks;
+            for( const auto& link : tmpmus ) {
                 const xAOD::IParticle* ipart = *link;
                 if( ipart->type() != xAOD::Type::Muon ) {
                     ATH_MSG_ERROR("#BTAG# Failed to change xAOD::IParticle type to xAOD::Type::Muon ");
@@ -114,15 +109,14 @@ namespace Analysis {
 
                 const xAOD::Muon* tpart = static_cast< const xAOD::Muon* >( ipart );
                 ElementLink<xAOD::MuonContainer> EL;
-                EL.toContainedElement(*tpContainer, tpart);
-                associationLinks.push_back(EL);
+                EL.toContainedElement(*mpContainer, tpart);
+                mpLinks.push_back(EL);
             }
 
-            tagInfo->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_MuonAssociationName) = associationLinks;
+            tagInfo->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_MuonAssociationName) = mpLinks;
 
             ATH_MSG_INFO("Attached mouns to jet as " + m_MuonAssociationName);
         }
-
 
         return StatusCode::SUCCESS;
     }

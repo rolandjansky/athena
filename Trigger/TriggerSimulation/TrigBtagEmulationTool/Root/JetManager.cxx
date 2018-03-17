@@ -340,7 +340,10 @@ StatusCode JetManager::retagOffline() {
     if (!m_bTagTrackAssocTool->empty()) {
       std::vector<xAOD::Jet*> jetsList;
       jetsList.push_back(output_jet);
-      sc = (*m_bTagTrackAssocTool)->BTagTrackAssociation_exec(&jetsList, *tp);
+      printf("### WARNING ::: #BTAG# YOU ARE RUNNING THE BJET TRIGGER WHICH HAS A BROKEN TRACK ASSOCIATION!!!!\n");
+      printf("### WARNING ::: #BTAG# THIS WILL NOT WORK!!!!\n");
+
+      sc = (*m_bTagTrackAssocTool)->BTagTrackAssociation_exec(&jetsList);
     }
     else {
       printf("### WARNING ::: #BTAG# Empty track association tool\n");
