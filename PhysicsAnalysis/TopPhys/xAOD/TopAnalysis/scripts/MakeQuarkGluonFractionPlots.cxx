@@ -478,7 +478,8 @@ std::vector<TH2D*> MakeQuarkGluonFractionPlots::subtracthist (std::vector<std::v
     
     TH2D *hist_diff;
     hist_diff =  (TH2D*)(((systhistos.at(0)).at(i))->Clone(histname.c_str()));
-    hist_diff->Add((TH2D*)((systhistos.at(1)).at(i)), -1*diff);
+    hist_diff->Add((TH2D*)((systhistos.at(1)).at(i)), -1);
+    hist_diff->Scale(diff);
     hist_diff->SetTitle(hist_diff->GetName());
     hist_diff->SetStats(kFALSE);
     QuarkGluonDiffFractionhistos.push_back(hist_diff);
