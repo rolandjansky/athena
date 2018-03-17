@@ -14,7 +14,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		for (unsigned int j=0; j<m_trigRNN_chains.size(); j++) {
 		  if ( trigItem == m_trigRNN_chains.at(j) ) {
 		    monRNN = true;
-				continue;
+				break;
 		  }
 		}
 		bool monBDT (false);
@@ -22,7 +22,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
 		  if ( trigItem == m_trigBDTRNN_chains.at(j) ) {
 				if (!monRNN) monRNN = true;
 				if (!monBDT) monBDT = true;
-				continue;
+				break;
 		  }
 		} 
 		if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 

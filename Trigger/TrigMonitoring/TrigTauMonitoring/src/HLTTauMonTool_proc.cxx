@@ -39,7 +39,7 @@ StatusCode HLTTauMonTool::proc()
 						for (unsigned int j=0; j<m_trigRNN_chains.size(); j++) {
 							if ( m_trigItems.at(i) == m_trigRNN_chains.at(j) ) {
 								monRNN = true;
-								continue;
+								break;
 							}
 						}
 						bool monBDT (false);
@@ -47,7 +47,7 @@ StatusCode HLTTauMonTool::proc()
 							if ( m_trigItems.at(i) == m_trigBDTRNN_chains.at(j) ) {
 								if (!monRNN) monRNN = true;
 								if (!monBDT) monBDT = true;
-								continue;
+								break;
 							}
 						} 
 						if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
@@ -532,7 +532,7 @@ StatusCode HLTTauMonTool::proc()
 						for (unsigned int j=0; j<m_trigRNN_chains.size(); j++) {
 							if ( m_trigRNN_chains.at(j)==lowest_trigger_names.at(i) ) {
 								monRNN = true;
-								continue;
+								break;
 							}
 						}
 						bool monBDT (false);
@@ -540,7 +540,7 @@ StatusCode HLTTauMonTool::proc()
 							if ( m_trigBDTRNN_chains.at(j)==lowest_trigger_names.at(i) ) {
 								if (!monRNN) monRNN = true;
 								if (!monBDT) monBDT = true;
-								continue;
+								break;
 							}
 						} 
 						if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
