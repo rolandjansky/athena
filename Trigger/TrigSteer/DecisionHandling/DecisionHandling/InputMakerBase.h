@@ -17,22 +17,24 @@ class InputMakerBase : public ::AthReentrantAlgorithm {
 This is a base class for HLT InputMakers to reduce boilerplate and enforce the common naming scheme for decision handle keys. Derived classes will have to add specific reco data read & write keys to suit their purpose.
    **/
  public:
-  // initialise and as needed renounce standard handles
+  /// initialise this base class and renounce input decision key handles
   StatusCode initialize() override;
+  /// execute to be implemented in derived clas
   virtual StatusCode execute_r(const EventContext&) const = 0;
   //StatusCode execute(){};
   virtual StatusCode finalize() = 0;
-  // for initialisation of derived classes, to be implemented by sub-classes
+  /// special method for initialisation of derived classes, to be implemented by them, called from base class initialize
   virtual StatusCode subInitialize()= 0;  
  protected:
-  // methods for derived classes to access input and output decisions
+  /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionInputs() const;
   const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionOutputs() const;
  private:
-  // input and output decisions, input will be implicit (renounced).
+  /// input decisions, will be implicit (renounced).
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "InputDecisions", {}, "Input Decisions (implicit)" };
+  /// output decisions
   SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "OutputDecisions", {}, "Ouput Decisions" };
 };
 
 
-#endif //> DECISIONHANDLING_INPUTMAKERBASE_H
+#endif // DECISIONHANDLING_INPUTMAKERBASE_H
