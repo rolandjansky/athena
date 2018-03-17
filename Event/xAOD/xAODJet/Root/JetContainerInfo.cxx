@@ -89,6 +89,18 @@ namespace xAOD {
       nameToTypemap["EMPFlow"] =            EMPFlow;
       nameToTypemap["EMCPFlow"] =           EMCPFlow;
       nameToTypemap["TrackCaloCluster"] =   TrackCaloCluster;
+      nameToTypemap["EMTopoOriginSK"] =     EMTopoOriginSK;
+      nameToTypemap["EMTopoOriginCS"] =     EMTopoOriginCS;
+      nameToTypemap["EMTopoOriginCSSK"] =   EMTopoOriginCSSK;
+      nameToTypemap["EMTopoOriginVorSK"] =  EMTopoOriginVorSK;
+      nameToTypemap["LCTopoOriginSK"] =     LCTopoOriginSK;
+      nameToTypemap["LCTopoOriginCS"] =     LCTopoOriginCS;
+      nameToTypemap["LCTopoOriginCSSK"] =   LCTopoOriginCSSK;
+      nameToTypemap["LCTopoOriginVorSK"] =  LCTopoOriginVorSK;
+      nameToTypemap["EMPFlowSK"] =          EMPFlowSK;
+      nameToTypemap["EMPFlowCS"] =          EMPFlowCS;
+      nameToTypemap["EMPFlowCSSK"] =        EMPFlowCSSK;
+      nameToTypemap["EMPFlowVorSK"] =       EMPFlowVorSK;     
       nameToTypemap[c_unCategorized] =      Uncategorized;
 
       std::map<std::string, Type>::iterator it = nameToTypemap.begin();

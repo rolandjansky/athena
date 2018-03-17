@@ -160,6 +160,7 @@ namespace CP {
 
     ANA_CHECK( ASG_MAKE_ANA_TOOL( m_jetTrackFilterTool, InDet::JetTrackFilterTool ) );
     ANA_CHECK( m_jetTrackFilterTool.setProperty( "Seed", 1234 ) );
+    ANA_CHECK( m_jetTrackFilterTool.setProperty( "trackOriginTool", m_originTool ) ); 
     ANA_CHECK( m_jetTrackFilterTool.retrieve() );
     CP::SystematicSet systSetJet = {
       InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_TIDE]
@@ -207,8 +208,7 @@ namespace CP {
     m_accept.addCut( "ValidEtaRange"       , "True if the jet is not too forward"     );
     m_accept.addCut( "ValidJetContent"     , "True if the jet is alright technicall (e.g. all attributes necessary for tag)"        );
     m_accept.addCut( "ValidEventContent"   , "True if the event is alright technicall (e.g. primary vertices)"        );
-    m_accept.addCut( "QuarkJetTag"         , "True if the jet is deemed a quark jet because NTrack<NCut"       );
-    m_accept.addCut( "GluonJetTag"         , "True if the jet is deemed a quark jet because NTrack>NCut"       );
+    m_accept.addCut( "QuarkJetTag"         , "True if the jet is deemed a quark jet because NTrack<NCut, False if jet deemed gluon jet because NTrack<NCut"       );
 
     //loop over and print out the cuts that have been configured
     ATH_MSG_INFO( "After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)" );
@@ -328,10 +328,6 @@ namespace CP {
     if(jetNTrack<m_NTrackCut){
       m_accept.setCutResult("QuarkJetTag", true);
     }
-    else{
-      m_accept.setCutResult("GluonJetTag", true);
-    }
-
     // return the m_accept object
     return m_accept;
 

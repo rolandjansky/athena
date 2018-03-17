@@ -172,14 +172,14 @@ if( XAOD_STANDALONE )
 
    atlas_add_test( ut_event_data_filler SCRIPT test/ut_event_data_filler.sh )
    atlas_add_test( ut_eventloop_example SCRIPT test/ut_eventloop_example.sh )
-   atlas_add_test( ut_python SCRIPT test/ut_python.py )
+   atlas_add_test( ut_python SCRIPT test/ut_python.py PROPERTIES TIMEOUT 600 )
    atlas_add_test( ut_python_no_qa SCRIPT test/ut_python_no_qa.py )
    atlas_add_test( ut_quickana_basic SCRIPT test/ut_quickana_basic.sh )
    atlas_add_test( ut_quickana_hammercloud
       SCRIPT test/ut_quickana_hammercloud.sh )
    atlas_add_test( ut_quickana_multi_wp SCRIPT test/ut_quickana_multi_wp.sh )
    atlas_add_test( ut_quickana_optimized SCRIPT test/ut_quickana_optimized.sh )
-   atlas_add_test( ut_quickana_output SCRIPT test/ut_quickana_output.sh )
+   atlas_add_test( ut_quickana_output SCRIPT test/ut_quickana_output.sh PROPERTIES TIMEOUT 600 )
    atlas_add_test( ut_quickana_trigger SCRIPT test/ut_quickana_trigger.sh )
    atlas_add_test( ut_quickana_validate SCRIPT test/ut_quickana_validate.sh )
    atlas_add_test( ut_quickana_validate_electron

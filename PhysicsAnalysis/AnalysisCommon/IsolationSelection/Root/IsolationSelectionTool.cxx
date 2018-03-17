@@ -205,23 +205,34 @@ namespace CP {
         } else if (muWPname == "FixedCutHighPtTrackOnly") {
             wp->addCut(new IsolationConditionFormula("ptcone20_1p25", xAOD::Iso::ptcone20, "1.25E03"));  //units are MeV!
         } else if (muWPname == "FixedCutHighMuTrackOnly") {
-            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTrackOnly", xAOD::Iso::ptvarcone30_TightTTVA_pt500, "0.075*x"));
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTrackOnly_lowPt", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.06*(x>50e3?1e9:x)"));
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTrackOnly_highPt", xAOD::Iso::ptcone20_TightTTVA_pt1000, "0.06*(x>50e3?x:1e9)"));
         } else if (muWPname == "FixedCutHighMuTight") {
-            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTight_track", xAOD::Iso::ptvarcone30_TightTTVA_pt500, "0.04*x"));
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTight_track_lowPt", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.04*(x>50e3?1e9:x)"));
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTight_track_highPt", xAOD::Iso::ptcone20_TightTTVA_pt1000, "0.04*(x>50e3?x:1e9)"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuTight_calo", xAOD::Iso::topoetcone20, "0.15*x"));
         } else if (muWPname == "FixedCutHighMuLoose") {
-            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_track", xAOD::Iso::ptvarcone30_TightTTVA_pt500, "0.15*x"));
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_track_lowPt", xAOD::Iso::ptvarcone30_TightTTVA_pt1000, "0.15*(x>50e3?1e9:x)"));
+            wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_track_highPt", xAOD::Iso::ptcone20_TightTTVA_pt1000, "0.15*(x>50e3?x:1e9)"));
             wp->addCut(new IsolationConditionFormula("MuonFixedCutHighMuLoose_calo", xAOD::Iso::topoetcone20, "0.30*x"));
         } else if (muWPname == "FixedCutPflowTight") {
-            std::vector<xAOD::Iso::IsolationType> isoTypes;
-            isoTypes.push_back(xAOD::Iso::ptvarcone30_TightTTVA_pt500);
-            isoTypes.push_back(xAOD::Iso::neflowisol30);
-            wp->addCut(new IsolationConditionCombined("MuonPFlowTight", isoTypes, TF2("pflowFunction","fabs(x)+0.4*fabs(y)"), "0.055*x"));
+            std::vector<xAOD::Iso::IsolationType> isoTypesHighPt;
+            std::vector<xAOD::Iso::IsolationType> isoTypesLowPt;
+            isoTypesHighPt.push_back(xAOD::Iso::ptcone20_TightTTVA_pt500);
+            isoTypesHighPt.push_back(xAOD::Iso::neflowisol20);
+            isoTypesLowPt.push_back(xAOD::Iso::ptvarcone30_TightTTVA_pt500);
+            isoTypesLowPt.push_back(xAOD::Iso::neflowisol20);
+            wp->addCut(new IsolationConditionCombined("MuonPFlowTightLowPt", isoTypesLowPt, TF2("pflowTFunctionLowPt","fabs(x)+0.4*fabs(y)"), "0.045*(x>50e3?1e9:x)"));
+            wp->addCut(new IsolationConditionCombined("MuonPFlowTightHighPt", isoTypesHighPt, TF2("pflowTFunctionHighPt","fabs(x)+0.4*fabs(y)"), "0.045*(x>50e3?x:1e9)"));
         } else if (muWPname == "FixedCutPflowLoose") {
-            std::vector<xAOD::Iso::IsolationType> isoTypes;
-            isoTypes.push_back(xAOD::Iso::ptvarcone30_TightTTVA_pt500);
-            isoTypes.push_back(xAOD::Iso::neflowisol30);
-            wp->addCut(new IsolationConditionCombined("MuonPFlowLoose", isoTypes, TF2("pflowFunction","fabs(x)+0.4*fabs(y)"), "0.18*x"));
+            std::vector<xAOD::Iso::IsolationType> isoTypesHighPt;
+            std::vector<xAOD::Iso::IsolationType> isoTypesLowPt;
+            isoTypesHighPt.push_back(xAOD::Iso::ptcone20_TightTTVA_pt500);
+            isoTypesHighPt.push_back(xAOD::Iso::neflowisol20);
+            isoTypesLowPt.push_back(xAOD::Iso::ptvarcone30_TightTTVA_pt500);
+            isoTypesLowPt.push_back(xAOD::Iso::neflowisol20);
+            wp->addCut(new IsolationConditionCombined("MuonPFlowLooseLowPt", isoTypesLowPt, TF2("pflowLFunctionLowPt","fabs(x)+0.4*fabs(y)"), "0.16*(x>50e3?1e9:x)"));
+            wp->addCut(new IsolationConditionCombined("MuonPFlowLooseHighPt", isoTypesHighPt, TF2("pflowLFunctionHighPt","fabs(x)+0.4*fabs(y)"), "0.16*(x>50e3?x:1e9)"));
         } else {
             ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
             delete wp;

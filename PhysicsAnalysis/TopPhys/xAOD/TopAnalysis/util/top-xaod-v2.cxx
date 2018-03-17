@@ -35,6 +35,7 @@
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/SelectionConfigurationData.h"
 
+#include "TopAnalysis/AnalysisTrackingHelper.h"
 #include "TopAnalysis/EventSelectionManager.h"
 #include "TopAnalysis/Tools.h"
 #include "TopCPTools/TopToolStore.h"
@@ -115,6 +116,7 @@ struct AnalysisTopTools{
   std::shared_ptr<top::TopToolStore> topToolStore;
   std::shared_ptr<top::ParticleLevelLoader> topParticleLevelLoader;
   std::shared_ptr<top::UpgradeObjectLoader> topUpgradeObjectLoader;
+  std::shared_ptr<top::AnalysisTrackingHelper> topAnalysisTrackingHelper;
   xAOD::TEvent* xaodEvent;
   xAOD::TStore* store;
 };
@@ -227,6 +229,16 @@ int main(int argc, char** argv) {
   // Create the event saver
   std::shared_ptr<top::EventSaverBase> topEventSaver = CreateEventSaver(outputFile, topEventSelectionManager, topConfig);
 
+  // Create the analysis tracking helper
+  std::shared_ptr<top::AnalysisTrackingHelper> topAnalysisTrackingHelper;
+  {
+    bool useTracking = true;
+    top::ConfigurationSettings::get()->retrieve("WriteTrackingData", useTracking);
+    if (useTracking) {
+      topAnalysisTrackingHelper.reset(new top::AnalysisTrackingHelper());
+      topAnalysisTrackingHelper->setTopConfig(topConfig);
+    }
+  }
 
   // At this point, we have configured a lot of tools... let's store them somewhere safe
   AnalysisTopTools analysisTopTools;
@@ -246,6 +258,7 @@ int main(int argc, char** argv) {
   analysisTopTools.topToolStore                = topToolStore;
   analysisTopTools.topParticleLevelLoader      = topParticleLevelLoader;
   analysisTopTools.topUpgradeObjectLoader      = topUpgradeObjectLoader;
+  analysisTopTools.topAnalysisTrackingHelper   = topAnalysisTrackingHelper;
   analysisTopTools.xaodEvent                   = xaodEvent;
   analysisTopTools.store                       = store;
 
@@ -260,6 +273,10 @@ int main(int argc, char** argv) {
   analysisTopTools.outputFile->cd();
   analysisTopTools.topEventSelectionManager->finalise();
   analysisTopTools.topEventSaver->finalize();
+  analysisTopTools.outputFile->cd();
+  if (analysisTopTools.topAnalysisTrackingHelper) {
+    analysisTopTools.topAnalysisTrackingHelper->writeTree("AnalysisTracking");
+  }
   analysisTopTools.outputFile->Close();
   bool outputFileGood = !analysisTopTools.outputFile->TestBit(TFile::kWriteError);
   if (outputFileGood) {
@@ -360,7 +377,7 @@ void SetMetadata(bool useAodMetaData, std::string usethisfile, std::string input
   std::shared_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
 
   // This function reads directly the Metadata object in xAOD file (we don't use it)
-  if(! top::readMetaData(testFile.get()) ){
+  if(! top::readMetaData(testFile.get(), topConfig) ){
     std::cerr << "Unable to access metadata object in this file : " << usethisfile << std::endl;
     std::cerr << "Please report this message" << std::endl;
   }
@@ -690,7 +707,8 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
     }
 
     // Start processing events
-    for (unsigned int entry = firstEvent; entry < entries; ++entry, ++totalYieldSoFar) {     
+    unsigned int entry;
+    for (entry = firstEvent; entry < entries; ++entry, ++totalYieldSoFar) {     
 
       // Work out if we stop processing
       if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun() ) break;
@@ -735,6 +753,9 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
       // Needed for xAOD output, all systematics go into the same TTree
       analysisTopTools.topEventSaver->saveEventToxAOD();
     } // End events in file
+    if (analysisTopTools.topAnalysisTrackingHelper) {
+      analysisTopTools.topAnalysisTrackingHelper->addInputFile(inputFile->GetName(), entry-firstEvent);
+    }
     analysisTopTools.metadataTree->Update();
     // Handle the LHAPDF weights after processing current file
     ProcessLHAPDFWeights(analysisTopTools);

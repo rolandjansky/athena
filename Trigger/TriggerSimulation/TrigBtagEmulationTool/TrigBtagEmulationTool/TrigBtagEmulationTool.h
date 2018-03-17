@@ -41,6 +41,7 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include <bitset>
 #include <vector>
 #include <map>
+#include <tuple>
 
 #include "AsgTools/AsgTool.h"
 
@@ -69,7 +70,7 @@ namespace Trig {
     
     //****************************************************************************** 
     TrigBtagEmulationTool(const std::string& name);
-    ~TrigBtagEmulationTool() {};
+    ~TrigBtagEmulationTool();
     
     StatusCode initialize();
     StatusCode execute();
@@ -84,23 +85,24 @@ namespace Trig {
 
     void clear();
     StatusCode initTriggerChainsMenu();
+    StatusCode initTriggerChainsMenu(const int);
 
-    StatusCode getInputContainerSG(std::vector<const xAOD::Jet*>& jetContainers,
-                                   std::string& inputItem, std::string& jetName);
     StatusCode retrieve( std::unique_ptr< Trig::JetManager >&,bool );
 
     // *** Attributes ** //
   private:
-    std::map< std::string,std::string > m_2015Menu;
-    std::map< std::string,std::string > m_2016Menu;
-    std::map< std::string,std::string > m_2017Menu;
+    enum TriggerMenu { YEAR_2015=0, YEAR_2016=1, YEAR_2017=2 };
+    std::tuple< 
+      std::map< const std::string,const std::string >, 
+      std::map< const std::string,const std::string >, 
+      std::map< const std::string,const std::string > > m_triggerMenus;
 
     // SERVICES
     ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
 #ifdef XAOD_STANDALONE
-    std::string m_TrigDecToolName; //! 
-    std::string m_xAODConfToolName; //!
+    std::string m_TrigDecToolName;  
+    std::string m_xAODConfToolName; 
 
 #elif defined( XAOD_ANALYSIS )
     ServiceHandle<StoreGateSvc> m_storeGate;
@@ -117,23 +119,16 @@ namespace Trig {
     bool m_useTriggerNavigation;
     bool m_tagOfflineWeights;
     bool m_tagOnlineWeights;
-    std::string m_input_chain;
-    std::string m_input_chainSplit;
-    std::string m_input_chainGSC;
-    std::string m_input_pvKey;
-    std::string m_input_jetKey;
-    std::string m_input_tpKey;
-    std::string m_input_pvKeySplit;
-    std::string m_input_jetKeySplit;
-    std::string m_input_tpKeySplit;
-    std::string m_input_btagName;
-    std::string m_input_jetName;
-    std::string m_input_jetNameSplit;
-    std::string m_input_JetName_GSC;
 
-    std::string m_input_pvKey_GSC;
-    std::string m_input_jetKey_GSC;
-    std::string m_input_tpKey_GSC;
+    enum jetCollections { EF=0, SPLIT=1, GSC=2 };
+
+    std::tuple< std::string,std::string,std::string > m_inputChains;
+    std::tuple< std::string,std::string,std::string > m_jetKeys;
+    std::tuple< std::string,std::string,std::string > m_pvKeys;
+    std::tuple< std::string,std::string,std::string > m_tpKeys;
+    std::tuple< std::string,std::string,std::string > m_jetContainers;
+
+    std::string m_input_btagName;
 
     std::string m_trigger_menu;
     std::string m_autoconfiguredMenu;
@@ -142,10 +137,14 @@ namespace Trig {
     long long int m_previousEvent;
 
     // jet Managers
+    std::unique_ptr< Trig::JetManager > m_manager_lvl1_8x8;
+    std::unique_ptr< Trig::JetManager > m_manager_lvl1_4x4;
+
+    std::unique_ptr< Trig::JetManager > m_manager_HT;
+
     std::unique_ptr< Trig::JetManager > m_manager_ef;
     std::unique_ptr< Trig::JetManager > m_manager_split;
     std::unique_ptr< Trig::JetManager > m_manager_gsc;
-    std::unique_ptr< Trig::JetManager > m_manager_ef_gsc;
     std::unique_ptr< Trig::JetManager > m_manager_split_gsc;
 
     // OUTPUT PROPERTIES

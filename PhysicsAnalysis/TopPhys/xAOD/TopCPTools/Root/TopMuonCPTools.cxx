@@ -259,7 +259,7 @@ StatusCode MuonCPTools::setupScaleFactors() {
 CP::IMuonSelectionTool*
 MuonCPTools::setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta) {
   std::map<std::string, int> muon_quality_map = {
-    {"Tight" , 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose", 3}};
+    {"Tight" , 0}, {"Medium", 1}, {"Loose", 2}, {"VeryLoose", 3}, {"HighPt", 4}, {"LowPtEfficiency", 5}};
   int qual_int;
   try {
     qual_int = muon_quality_map.at(quality);
@@ -270,7 +270,9 @@ MuonCPTools::setupMuonSelectionTool(const std::string& name, const std::string& 
                   " \n\t- Tight"
                   " \n\t- Medium"
                   " \n\t- Loose"
-                  " \n\t- VeryLoose");
+                  " \n\t- VeryLoose"
+		  " \n\t- HighPt"
+		  " \n\t- LowPtEfficiency");
     throw;  // Re-throw
   }
 

@@ -63,6 +63,14 @@ if globalflags.DataSource()!='data':
 FTAG3Seq = CfgMgr.AthSequencer("FTAG3Sequence");
 DerivationFrameworkJob += FTAG3Seq
 
+#====================================================================
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
+#====================================================================
+
+FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3Kernel",
+                                                         SkimmingTools = [FTAG3TriggerSkimmingTool],
+                                                         )
+
 
 #====================================================================
 # Basic Jet Collections 
@@ -83,15 +91,6 @@ addDefaultTrimmedJets(FTAG3Seq,"FTAG3",dotruth=True)
 #===================================================================
 
 FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG3Seq)
-
-#====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
-#====================================================================
-
-FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3Kernel",
-                                                         SkimmingTools = [FTAG3TriggerSkimmingTool],
-                                                         )
-
 
 #====================================================================
 # SET UP STREAM

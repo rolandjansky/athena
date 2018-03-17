@@ -489,10 +489,10 @@ int BTaggingSelectionTool::getQuantile( const xAOD::Jet& jet ) const{
   double eta = jet.eta();
   // Retrieve the tagger weight which was assigned to the jet
   double weight_mv2(-10.);
-  if (!jet.btagging()->MVx_discriminant(m_taggerName, weight_mv2)){
+  if (getTaggerWeight(jet, weight_mv2)==CorrectionCode::Error){
     ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
   }
-  ATH_MSG_VERBOSE( "MV2c20 " <<  weight_mv2 );
+  ATH_MSG_VERBOSE( m_taggerName << " " <<  weight_mv2 );
 
   return getQuantile(pT, eta, weight_mv2 );
 }
