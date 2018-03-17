@@ -273,6 +273,7 @@ SUSY15SlimmingHelper.AllVariables = [
                                      # additions for DV specific content /CO
                                      "PrimaryVertices",
                                      "VrtSecInclusive_SecondaryVertices",
+                                     "VrtSecInclusive_SecondaryVertices_Leptons",
                                      "VrtSecInclusive_SelectedTrackParticles",
                                      "VrtSecInclusive_All2TrksVertices",
                                      "MET_LocHadTopo",
@@ -289,7 +290,7 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant
 					"TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
 					"MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.decayVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType.charge",
 					"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType" # from Dominik (DVANALYSUSY-53)
+                                        "TruthParticles.px.py.pz.m.e.status.pdgId.charge.barcode.prodVtxLink.decayVtxLink.truthOrigin.truthType", # from Dominik (DVANALYSUSY-53)
 					"Electrons.bkgMotherPdgId.bkgTruthOrigin"]
 SUSY15SlimmingHelper.IncludeMuonTriggerContent = True # needed? /CO
 SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True # can change to photons only? /CO
