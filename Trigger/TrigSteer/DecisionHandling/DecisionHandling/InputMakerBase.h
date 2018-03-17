@@ -5,21 +5,9 @@
 #ifndef DECISIONHANDLING_INPUTMAKERBASE_H
 #define DECISIONHANDLING_INPUTMAKERBASE_H 1
 
-// can use either type of algorithm base class
-//class AthAlgorithm;
-//class AthReentrantAlgorithm;
-//class StatusCode;
-//class TrigCompositeContainer;
-//namespace SG {
-// class ReadHandleKeyArray;
-//  class WriteHandleKeyArray;
-//}
-//#include "xAODTrigger/TrigCompositeContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-//#include "GaudiKernel/ToolHandle.h"
-//#include "AthContainers/ConstDataVector.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 
 class InputMakerBase : public ::AthReentrantAlgorithm {

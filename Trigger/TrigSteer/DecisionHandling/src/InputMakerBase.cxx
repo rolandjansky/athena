@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "DecisionHandling/InputMakerBase.h"
 
 const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMakerBase::decisionInputs() const{
@@ -11,15 +15,15 @@ const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMaker
 StatusCode InputMakerBase::initialize() {
   CHECK( m_inputs.initialize() );
   renounceArray(m_inputs); // make inputs implicit, not required by scheduler
-
   ATH_MSG_DEBUG("Will consume implicit decisions:" );
   for (auto& input: m_inputs){  
-    ATH_MSG_DEBUG(" "<<input.key());
+    ATH_MSG_DEBUG( " "<<input.key() );
   }
   ATH_MSG_DEBUG(" and produce decisions: " << m_outputs );
   for (auto& output: m_outputs){  
-    ATH_MSG_DEBUG(" "<<output.key());
+    ATH_MSG_DEBUG( " "<<output.key() );
   }
   // initialise sub class
   CHECK ( subInitialize() );
+  return StatusCode::SUCCESS;
 }
