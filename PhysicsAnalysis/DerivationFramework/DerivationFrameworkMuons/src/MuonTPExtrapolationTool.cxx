@@ -21,7 +21,7 @@ MuonTPExtrapolationTool::MuonTPExtrapolationTool(std::string myname) :
          m_endcapPivotPlaneZ(15525.),
          m_endcapPivotPlaneMinimumRadius(0.),
          m_endcapPivotPlaneMaximumRadius(11977),
-         m_barrelPivotPlaneRadius(8000.)
+         m_barrelPivotPlaneRadius(8000.),
          m_barrelPivotPlaneHalfLength(9700),
          m_is_on_DAOD(false) {
     declareProperty("EndcapPivotPlaneZ", m_endcapPivotPlaneZ = 15525.); // z position of pivot plane in endcap region
