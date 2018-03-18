@@ -100,7 +100,7 @@ namespace xAOD {
     ///In case the track particle does not exist the behaviour is undefined (segmentation fault or random return value).
     inline
     double z0significanceUnsafe(const xAOD::TrackParticle *tp) {
-      double z0 = tp->z0();
+      double z0 = tp->z0() + tp->vz();
       // elements in definingParametersCovMatrixVec should be : sigma_z0^2, sigma_d0_z0, sigma_z0^2
       double sigma_z0 = std::sqrt( tp->definingParametersCovMatrixVec()[2] );
       return z0/sigma_z0;
@@ -118,7 +118,7 @@ namespace xAOD {
     inline
     double z0significanceUnsafe(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx) {
       // use z0 relative to the given primary vertex.
-      double z0 = tp->z0() - vx->z();
+      double z0 = tp->z0() + tp->vz() - vx->z();
 
       // elements in definingParametersCovMatrixVec should be : sigma_z0^2, sigma_d0_z0, sigma_z0^2
       double sigma_z0 = std::sqrt( tp->definingParametersCovMatrixVec()[2] );
@@ -179,7 +179,7 @@ namespace xAOD {
     ///The method will also return false if the track particle or vertex are invalid or if the track particle
     ///does not have a valid d0 uncertainty.
     inline
-    bool checkPVReference(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx, const double max_pv_dxy_sqr=0.5*0.5) {
+    bool checkPVReference(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx, const double max_pv_dxy_sqr=3.0*3.0) {
         if (hasValidCovD0(tp) && vx) {
 	     return std::abs( sqr(vx->x())+ sqr(vx->y())) <  max_pv_dxy_sqr * tp->definingParametersCovMatrixVec()[0];
         }

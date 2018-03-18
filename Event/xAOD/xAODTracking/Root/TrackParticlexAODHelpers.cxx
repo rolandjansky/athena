@@ -54,7 +54,7 @@ namespace xAOD {
 
   double TrackingHelpers::z0significance(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx) {
     checkTPAndDefiningParamCov(tp);
-    double z0 = tp->z0();
+    double z0 = tp->z0() + tp->vz();
     if (vx) {
         if (!checkPVReference(tp,vx)) {
            throw std::runtime_error("Given primary vertex does not fulfil the requirements i.e. does not exist, or is too far away from the beam axis.");
