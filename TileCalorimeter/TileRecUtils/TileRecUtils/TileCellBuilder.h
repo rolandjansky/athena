@@ -45,6 +45,7 @@
 class TileID;
 class TileTBID;
 class TileHWID;
+class TileCablingService;
 class TileCell;
 class TileRawChannel;
 class MbtsDetDescrManager;
@@ -176,6 +177,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     const TileID* m_tileID;   //!< Pointer to TileID
     const TileTBID* m_tileTBID; //!< Pointer to TileTBID
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID
+    const TileCablingService* m_cabling; //!< TileCabling instance
     const TileDQstatus* m_DQstatus;
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
@@ -321,6 +323,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
 
     enum CELL_CHANNEL {E1_CHANNEL = 12};
     enum CELL_TOWER {E1_TOWER = 10};
+    bool m_run2;
 };
 
 #endif
