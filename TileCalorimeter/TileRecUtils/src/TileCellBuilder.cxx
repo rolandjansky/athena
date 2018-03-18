@@ -67,6 +67,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_tileID(0)
   , m_tileTBID(0)
   , m_tileHWID(0)
+  , m_cabling(0)
   , m_DQstatus(0)
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileToolEmscale("TileCondToolEmscale")
@@ -206,10 +207,11 @@ StatusCode TileCellBuilder::initialize() {
   //=== get TileCondToolTiming
   CHECK( m_tileToolTiming.retrieve() );
 
+  m_cabling = TileCablingService::getInstance();
+
   reset(true, false);
 
-  m_run2 = ((TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2Cabling
-            || (TileCablingService::getInstance())->getCablingType() == TileCablingService::UpgradeABC);
+  m_run2 = (m_cabling->isRun2Cabling() || m_cabling->getCablingType() == TileCablingService::UpgradeABC);
 
   if (m_run2 && !m_E4prContainerKey.key().empty()) {
     ATH_CHECK( m_E4prContainerKey.initialize() );
@@ -872,11 +874,9 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
       }
     }
 
-    static const TileCablingService * s_cabling = TileCablingService::getInstance();
-
     single_PMT_C10 = (((ros2 == TileHWID::EXTBAR_POS && chan1 == 4)
                       || (ros2 == TileHWID::EXTBAR_NEG && chan2 == 4))
-                      && !s_cabling->C10_connected(drawer2));
+                      && !m_cabling->C10_connected(drawer2));
     if (single_PMT_C10) {
       // for special C10 disconnected channel might be masked in DB
       // and energy of good channel is taken twice with correct weight
