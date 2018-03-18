@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -50,8 +50,9 @@ def getFwdRegionPhysicsRegionTool(name='FwdRegionPhysicsRegionTool', **kwargs):
 def getPixelPhysicsRegionTool(name='PixelPhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'Pixel')
     volumeList = ['Pixel::siLog', 'Pixel::siBLayLog']
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    if geoFlags.Run()=="RUN2" or (geoFlags.Run()=="UNDEFINED" and geoFlags.isIBL()):
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    if commonGeoFlags.Run()=="RUN2" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL()):
         volumeList += ['Pixel::dbmDiamondLog']
     kwargs.setdefault("VolumeList",  volumeList)
     kwargs.setdefault("ElectronCut", 0.05)

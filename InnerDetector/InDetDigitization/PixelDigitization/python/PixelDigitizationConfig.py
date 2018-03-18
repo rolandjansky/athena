@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Pixel Digitization code.
@@ -187,7 +187,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("InputObjectName", "PixelHits")
     chargeTools = [] #Tools in array for flexibility
     feSimTools = []
-    if GeometryFlags.isSLHC():
+    if InDetGeometryFlags.isSLHC():
       chargeTools += ['SensorSimPlanarTool']
       feSimTools += ['BarrelRD53SimTool']
       feSimTools += ['EndcapRD53SimTool']
