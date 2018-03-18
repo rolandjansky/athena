@@ -42,9 +42,9 @@ class HLTCaloCellMaker: public AthReentrantAlgorithm {
 
 	SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
 	SG::WriteHandleKey<ConstDataVector<CaloCellContainerVector> > m_cellContainerVKey;
-	SG::ReadHandle<TrigRoiDescriptorCollection> m_roiCollection;
-	//SG::WriteHandle<ConstDataVector<CaloCellContainerVector> > m_cellContainerV;
+	SG::WriteHandleKey<ConstDataVector<CaloCellContainer> > m_cellContainerKey;
 	ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
+	bool m_roiMode;
 };
 
 #endif

@@ -44,10 +44,12 @@ if TriggerFlags.doCalo:
      algo1=HLTCaloCellMaker("testFastAlgo1")
      algo1.RoIs="StoreGateSvc+EMRoIs"
      algo1.TrigDataAccessMT=svcMgr.TrigCaloDataAccessSvc
+     #algo1.roiMode=False
      algo1.OutputLevel=VERBOSE
      topSequence += algo1
      algo2=HLTCaloCellSumMaker("testSumFastAlgo")
      algo2.OutputLevel=VERBOSE
+     #algo2.roiMode=False
      topSequence += algo2
 
 

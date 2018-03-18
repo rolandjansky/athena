@@ -35,6 +35,9 @@ class HLTCaloCellSumMaker: public AthReentrantAlgorithm {
 
         SG::ReadHandleKey<ConstDataVector<CaloCellContainerVector> > m_cellContainerVKey;
 	SG::ReadHandle<ConstDataVector<CaloCellContainerVector> > m_cellContainerV;
+        SG::ReadHandleKey<CaloCellContainer > m_cellContainerKey;
+	SG::ReadHandle<CaloCellContainerVector > m_cellContainer;
+        bool m_roiMode;
 };
 
 #endif
