@@ -15,10 +15,10 @@ def makeMuonAnalysisSequence (dataType) :
                        "sys" : "(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)"} )
 
 
-    alg = createAlgorithm( 'CP::MuonSelectionAlg', 'MuonSelectionAlg' )
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'MuonSelectionAlg' )
     addPrivateTool (alg, "selectionTool", "CP::MuonSelectionTool")
     alg.selectionDecoration = "good_muon"
-    sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut" } )
+    sequence.append ( {"alg" : alg, "in" : "particles", "out" : "particlesOut" } )
 
     alg = createAlgorithm( 'CP::MuonIsolationAlg', 'MuonIsolationAlg' )
     addPrivateTool (alg, "isolationTool", "CP::IsolationSelectionTool")
