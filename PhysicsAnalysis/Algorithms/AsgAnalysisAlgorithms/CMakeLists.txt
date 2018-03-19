@@ -19,8 +19,8 @@ atlas_depends_on_subdirs(
 atlas_add_library( AsgAnalysisAlgorithmsLib
    AsgAnalysisAlgorithms/*.h AsgAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS AsgAnalysisAlgorithms
-   LINK_LIBRARIES  SelectionHelpersLib SystematicsHandlesLib
-     PATInterfaces AnaAlgorithmLib xAODBase
+   LINK_LIBRARIES xAODBase SelectionHelpersLib SystematicsHandlesLib
+     PATInterfaces AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES AsgTools RootCoreUtils )
 
 atlas_add_dictionary( AsgAnalysisAlgorithmsDict
