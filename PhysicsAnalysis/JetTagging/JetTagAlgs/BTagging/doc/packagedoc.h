@@ -35,7 +35,10 @@ has a pointer to a tagged JetTag object. For more details on the JetTag object p
 PhysicsAnalysis/JetTagging/JetTagEvent.
 
 @section BTagging_jettagInfoFlowBTagging Info flow in the new JetTagging structure
+
+@internal
 @image html InfoFlowNew.jpg "JetTagging Information Flow" width=10cm
+@endinternal
 
 @section BTagging_packagecontentBTagging Package Contents
 BTagging contains the following files/classes:
