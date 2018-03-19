@@ -136,12 +136,12 @@ RE: [0]\n");
   std::ostringstream exp2;
   exp2 << "id: 'key'  proxy: 0\n"
        << "clock: [1]\n"
-       << "{[4294967295,t:123] - [4294967295,t:456]} " << ptrs[2] << "\n"
+       << "{[t:123] - [t:456]} " << ptrs[2] << "\n"
        << "RE: [2]\n"
        << "{[10,l:15] - [10,l:20]} " << ptrs[0] << "\n"
        << "{[20,l:17] - [2147483647,l:2147483647]} " << ptrs[1] << "\n";
 
-  //  std::cout << "ss2: " << ss2.str() << "\nexp2: " << exp2.str() << "\n";
+  //std::cout << "ss2: " << ss2.str() << "\nexp2: " << exp2.str() << "\n";
 
   assert (ss2.str() == exp2.str());
 
