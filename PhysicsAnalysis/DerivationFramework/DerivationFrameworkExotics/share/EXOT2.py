@@ -102,6 +102,12 @@ reducedJetList = [
     "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,exot2Seq,"EXOT2")
 
+# redo ghost association
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addJetPtAssociation
+if DerivationFrameworkIsMonteCarlo :
+
+    addJetPtAssociation(jetalg="AntiKt4EMTopo",  truthjetalg="AntiKt4TruthJets", sequence=exot2Seq, algname="JetPtAssociationAlg")
+
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
