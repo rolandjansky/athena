@@ -102,6 +102,10 @@ void Analysis_Tier0::initialise() {
   h_trkd0  = new TH1F("reftrk_d0" , "Reference track d0", 101,   -5.0,     5.0 );
   h_trkz0  = new TH1F("reftrk_z0" , "Reference track z0",  50,   -225.,    225.);
 
+  h_trketaroi  = new TH1F("reftrk_etaroi",  "Reference track Eta - Roi Eta",      100,   -2.5,     2.5) ;
+  h_trketazroi = new TH1F("reftrk_etazroi", "Reference track (Eta - Roi Eta)*Dz", 100,   -2.5,     2.5) ;
+
+
   h_trkdd0  = new TH1F("reftrk_dd0" , "Reference track sigma(d0)", 101,   -0.5,     0.5);
   h_trkdz0  = new TH1F("reftrk_dz0" , "Reference track sigma(z0)", 101,   -2.5,     2.5);
 
@@ -112,6 +116,10 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_trketa);
   addHistogram(h_trkd0);
   addHistogram(h_trkz0);
+
+  addHistogram(h_trketaroi);
+  addHistogram(h_trketazroi);
+
 
   addHistogram(h_trkdd0);
   addHistogram(h_trkdz0);
@@ -365,10 +373,12 @@ void Analysis_Tier0::initialise() {
 
 }
 
+extern TIDARoiDescriptor* agroi;
+
 
 void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 			     const std::vector<TIDA::Track*>& testTracks,
-			     TrackAssociator* associator) {
+			     TrackAssociator* associator ) { 
   
   /// Loop over reference tracks
   std::vector<TIDA::Track*>::const_iterator  reference    = referenceTracks.begin();
@@ -542,6 +552,31 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_d0vsphi_rec->Fill( test->phi(), test->a0() );
 
     }
+    else { 
+      //  std::cout << "Analysis: " << name() << " " << roi();
+      //  if ( roi() ) std::cout << "\t" << *roi();
+      //  std::cout << std::endl; 
+
+      //      std::cout << "about to crash ? " << std::endl;
+
+      if ( roi() ) { 
+
+	double deta = 0.5*(roi()->etaPlus() - roi()->etaMinus()); 
+	
+	double Dzed = 0.5*(roi()->zedPlus() - roi()->zedMinus());
+	double dzed = referenceZ0 - roi()->zed();
+	
+	h_trketaroi->Fill( (referenceEta - roi()->eta())/deta );
+
+	h_trketazroi->Fill( (referenceEta - roi()->eta())*dzed/Dzed );
+      
+      }
+
+      //      std::cout << "not crashed yet" << std::endl;
+
+
+    }
+
     //    else { 
     //      if ( referencePT*0.001 > 10 ) { /// in GeV
     // 	      m_debug = true;
@@ -574,5 +609,8 @@ double Analysis_Tier0::phi(double p) {
   if(p >  M_PI) p -= 2*M_PI;
   return p;
 }
+
+
+
 
 
