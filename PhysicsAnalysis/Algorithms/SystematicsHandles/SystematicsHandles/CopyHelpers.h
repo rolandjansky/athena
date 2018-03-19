@@ -9,6 +9,7 @@
 #define SYSTEMATICS_HANDLES__COPY_HELPERS_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AsgTools/MessageCheck.h>
 #include <AsgTools/StatusCode.h>
 #include <xAODBase/IParticleContainer.h>
 #include <xAODBase/IParticleHelpers.h>
