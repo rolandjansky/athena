@@ -9,20 +9,21 @@ include.block ('InDetRecExample/ConfiguredLowBetaFinder.py')
 
 class ConfiguredLowBetaFinder:
 
-    def __init__(self, InputCollection=None, IsSimulation=False):
+    def __init__(self, InputCollection=None, IsSimulation=False, unslimmed_tracks_container="CombinedInDetTracks"):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         from InDetLowBetaFinder.InDetLowBetaFinderConf import InDet__LowBetaAlg
         InDetLowBetaTrkAlgorithm = InDet__LowBetaAlg( name                   = "InDetLowBetaTrkAlgorithm",
                                                       MinimumTRThitsForIDpid = 5,
                                                       TracksName             = InputCollection,
+                                                      UnslimmedTracksContainer = unslimmed_tracks_container,
                                                       InDetLowBetaOutputName = InDetKeys.LowBetaCandidates(),
                                                       CSMP_Rcorrection_Zero  = 11.0,
                                                       CSMP_Rcorrection_One   = -3.0,
                                                       CSMP_Rcorrection_Two   = 0.0,
                                                       CSMP_TimingOffset      =  0.0,
                                                       MC_flag                = IsSimulation)
-        
+
         topSequence += InDetLowBetaTrkAlgorithm
         if (InDetFlags.doPrintConfigurables()):
             print InDetLowBetaTrkAlgorithm

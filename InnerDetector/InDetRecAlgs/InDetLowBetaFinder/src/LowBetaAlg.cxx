@@ -19,16 +19,10 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 #include "InDetLowBetaInfo/InDetLowBetaCandidate.h"
-#include "InDetLowBetaInfo/InDetLowBetaContainer.h"
 
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "TRT_ConditionsData/RtRelation.h"
 #include "TRT_ConditionsData/BasicRtRelation.h"
-
-#include "TrkParticleBase/TrackParticleBaseCollection.h"
-#include "TrkParticleBase/TrackParticleBase.h"
-#include "Particle/TrackParticleContainer.h"
-#include "Particle/TrackParticle.h"
 
 #include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
 
@@ -47,17 +41,17 @@ namespace InDet
     m_RcorrTwo(0.0),
     m_TimingOffset(0.0),
     m_mcswitch(false),
-    m_trackParticleCollection("TrackParticleCandidates"),
+    m_trackParticleCollection("InDetTrackParticles"),
     m_InDetLowBetaOutputName("InDetLowBetaCandidates"),
     m_trtconddbsvc("TRT_CalDbSvc",name),
-    m_fieldServiceHandle("AtlasFieldSvc",name), 
+    m_fieldServiceHandle("AtlasFieldSvc",name),
     m_TrtTool(0),
     m_TRTdEdxTool("TRT_ToT_dEdx"),
-    m_TrtToolsSuccess(0),
     m_TrtToolInitSuccess(0)
   {
     declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
     declareProperty("TracksName",             m_trackParticleCollection);
+    declareProperty("UnslimmedTracksContainer", m_UnslimmedTracksContainerName="CombinedInDetTracks");
     declareProperty("CSMP_Rcorrection_Zero",  m_RcorrZero);
     declareProperty("CSMP_Rcorrection_One",   m_RcorrOne);
     declareProperty("CSMP_Rcorrection_Two",   m_RcorrTwo);
@@ -70,131 +64,97 @@ namespace InDet
     
   }
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-  StatusCode LowBetaAlg::initialize(){    
+  StatusCode LowBetaAlg::initialize(){
 
-    if (msgLvl(MSG::INFO)) msg() << "initialize()" << endmsg;
+    ATH_CHECK( m_fieldServiceHandle.retrieve() );
+    ATH_CHECK(detStore()->retrieve(m_trtId, "TRT_ID"));
+    m_TrtToolInitSuccess = !(initializeTrtToolBetaLiklihood().isFailure());
 
-    if (m_fieldServiceHandle.retrieve().isFailure()){
-      if (msgLvl(MSG::WARNING)) msg()  << "Could not find " << m_fieldServiceHandle << endmsg;
-      return( StatusCode::SUCCESS );
-    }
+    ATH_CHECK(m_TRTdEdxTool.retrieve( EnableTool{ !m_TRTdEdxTool.name().empty() } ) );
 
-    // Get the TRT Identifier-helper:
-    if (detStore()->retrieve(m_trtId, "TRT_ID").isFailure()) {
-      ATH_MSG_FATAL ("Could not get TRT ID helper");
-      return StatusCode::FAILURE;
-    }
-
-    if (initializeTrtToolBetaLiklihood().isFailure())
-      m_TrtToolInitSuccess = false;
-    else
-      m_TrtToolInitSuccess = true;
-
-
-  
-    if (m_TRTdEdxTool.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve ToT dE/dx tool " << m_TRTdEdxTool);
-      m_TrtToolsSuccess = false;}
-    else m_TrtToolsSuccess = true;
-
-   
- 
-
+    ATH_CHECK( m_trackParticleCollection.initialize() );
+    ATH_CHECK( m_UnslimmedTracksContainerName.initialize() );
+    ATH_CHECK( m_InDetLowBetaOutputName.initialize() );
     return StatusCode::SUCCESS;
   }
   // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   StatusCode LowBetaAlg::execute() {
 
-    if (msgLvl(MSG::DEBUG)) msg() << "execute()" << endmsg; 
-
     std::vector<float> CSMP_indicators;
-    InDet::InDetLowBetaContainer*  myInDetLowBetaContainer = new InDet::InDetLowBetaContainer;
-  
+    SG::WriteHandle<InDet::InDetLowBetaContainer> myInDetLowBetaContainer(m_InDetLowBetaOutputName);
+    if (myInDetLowBetaContainer.record( std::make_unique<InDet::InDetLowBetaContainer>()).isFailure()) {
+      ATH_MSG_ERROR( "Unable to record InDetLowBeta Container in TDS" );
+      return StatusCode::FAILURE;
+    }
+
     if (m_fieldServiceHandle->solenoidOn()){//B field
-      
-      //if ( evtStore()->contains<TrackCollection> ( m_tracksName )){
-      if (evtStore()->contains<Rec::TrackParticleContainer>(m_trackParticleCollection)){
-	
-	//const TrackCollection *trackTES ( 0 );
-	const Rec::TrackParticleContainer *trackTES ( 0 );
 
-	//if ( evtStore()->retrieve ( trackTES, m_tracksName ).isFailure() )
-	if (evtStore()->retrieve(trackTES, m_trackParticleCollection).isFailure()) 
-	  {
-	    if (msgLvl(MSG::WARNING)) msg() << "Could not find TrackParticleCollection " << m_trackParticleCollection << " in StoreGate." << endmsg;
-	  }
+      if (!m_trackParticleCollection.key().empty()){
+
+        SG::ReadHandle<xAOD::TrackParticleContainer> trackTES ( m_trackParticleCollection);
+	if (!trackTES.isValid()) {
+	    ATH_MSG_WARNING( "Could not find TrackParticleCollection " << m_trackParticleCollection.key() << " in StoreGate." );
+        }
 	else{
-	
-	  //for (TrackCollection::const_iterator itrk = (*trackTES).begin(); itrk < (*trackTES).end(); itrk++){
-	  for (Rec::TrackParticleContainer::const_iterator itrk = (*trackTES).begin(); itrk < (*trackTES).end(); itrk++){  
-	    
-	    
-	    ///const Trk::Track& track = Trk::Track(**itrk);
-	    const Trk::TrackSummary* testSum = (*itrk)->trackSummary();
-	    int Trt_hits = testSum->get(Trk::numberOfTRTHits);
-	    double  Trk_pt = (*itrk)->pt();
-	    const Trk::Track*  origtrack =  (*itrk)->originalTrack();
-	    if (( origtrack) && (Trt_hits != 0) && (Trk_pt > 400.0) ){
-	      const Trk::Track& newtrack = Trk::Track(*origtrack);
-	      
-	      CSMP_indicators.clear();
-	      CSMP_indicators = ChargedSMPindicators(newtrack);
 
-	      
-	      if (CSMP_indicators.size() > 1){
-		if(  ( (CSMP_indicators[5] > 15000.0)  || ((int)CSMP_indicators[4] > 10))   && ((unsigned int)CSMP_indicators[6] > m_minTRThits) )  {
-		  
-		  float TRTToTdEdx           = CSMP_indicators[0];
-		  float TRTTrailingEdge      = CSMP_indicators[1];
-		  float TRTTGapdEdx          = CSMP_indicators[2];
-		  int   TRTNLastBits         = (int)CSMP_indicators[3];
-		  float TRTToolsdEdx         = CSMP_indicators[10];
-		  float TRTLikelihoodBeta    = CSMP_indicators[7];
-		  float TRTLikelihoodError   = CSMP_indicators[8];
-		  float TRTHighTbits         = CSMP_indicators[9];
-		  
-		  InDet::InDetLowBetaCandidate* CSMP_Candidate = new InDet::InDetLowBetaCandidate(TRTToTdEdx, TRTTrailingEdge, TRTTGapdEdx, TRTNLastBits,  TRTToolsdEdx, TRTLikelihoodBeta, TRTLikelihoodError, TRTHighTbits);
-		  
-		  myInDetLowBetaContainer->push_back(CSMP_Candidate);
-		}
-		
-		else {
-		  myInDetLowBetaContainer->push_back(0);
-		}
-		
-		
-	      }//check for valid CSMP
-	      
-	      else {myInDetLowBetaContainer->push_back(0);}	
-	      
-	    }//original track exists
-	    else {myInDetLowBetaContainer->push_back(0);}
-	    
-	  }//track loop
-	}//track collection retrieved
-      }// track collection exists
-    }//B field
-    
-    //---- Recording section: write the results to StoreGate ---//
-    if ( evtStore()->record ( myInDetLowBetaContainer, m_InDetLowBetaOutputName,false ).isFailure() )
-      {
-	if (msgLvl(MSG::ERROR)) msg() << "Unable to record InDetLowBeta Container in TDS" << endmsg;
-	return StatusCode::FAILURE;
+	  for (const xAOD::TrackParticle *trk: *trackTES){
+
+            std::unique_ptr<InDet::InDetLowBetaCandidate> CSMP_Candidate;
+	    uint8_t Trt_hits = 0;
+            if (trk->summaryValue(Trt_hits, xAOD::numberOfTRTHits)) {
+              const Trk::Track*  origtrack =  trk->track();
+              if (origtrack) {
+                double  Trk_pt = trk->pt();
+                if ((Trt_hits != 0) && (Trk_pt > 400.0) ){
+                  const Trk::Track& newtrack = Trk::Track(*origtrack);
+
+                  CSMP_indicators.clear();
+                  CSMP_indicators = ChargedSMPindicators(newtrack);
+
+                  if (CSMP_indicators.size() > 1){
+                    if(  ( (CSMP_indicators[5] > 15000.0)  || ((int)CSMP_indicators[4] > 10))   && ((unsigned int)CSMP_indicators[6] > m_minTRThits) )  {
+
+                      float TRTToTdEdx           = CSMP_indicators[0];
+                      float TRTTrailingEdge      = CSMP_indicators[1];
+                      float TRTTGapdEdx          = CSMP_indicators[2];
+                      int   TRTNLastBits         = (int)CSMP_indicators[3];
+                      float TRTToolsdEdx         = CSMP_indicators[10];
+                      float TRTLikelihoodBeta    = CSMP_indicators[7];
+                      float TRTLikelihoodError   = CSMP_indicators[8];
+                      float TRTHighTbits         = CSMP_indicators[9];
+
+                      CSMP_Candidate = std::move (
+                          std::make_unique<InDet::InDetLowBetaCandidate>(TRTToTdEdx,
+                                                                         TRTTrailingEdge,
+                                                                         TRTTGapdEdx,
+                                                                         TRTNLastBits,
+                                                                         TRTToolsdEdx,
+                                                                         TRTLikelihoodBeta,
+                                                                         TRTLikelihoodError,
+                                                                         TRTHighTbits) );
+		    }
+	          }//check for valid CSMP
+                }
+	      }//original track exists
+            }
+            myInDetLowBetaContainer->push_back(CSMP_Candidate.release());
+         }//track loop
+        }// track collection exists
       }
-    
+    }//B field
+
     return StatusCode::SUCCESS;
   }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
   StatusCode LowBetaAlg::finalize() {
-    if (msgLvl(MSG::INFO)) msg() << "finalize()" << endmsg;
     finalizeTrtToolBetaLiklihood();
     return StatusCode::SUCCESS;
   }
 
   //============================================================================================
 
-  std::vector<float> InDet::LowBetaAlg::ChargedSMPindicators(const Trk::Track& track)
+  std::vector<float> InDet::LowBetaAlg::ChargedSMPindicators(const Trk::Track& track) const
   {
 
     //m_mcswitch = false;
@@ -205,7 +165,7 @@ namespace InDet
     float RcorrThree = -1.5598;
     float RcorrFour  = 0.15772;
     
-    float st_R_zero = 25.545; 
+    float st_R_zero = 25.545;
     float st_R_one =  2.7807;
     float st_R_two =  16.753;
     float st_R_three = -11.605;
@@ -228,14 +188,14 @@ namespace InDet
     float tb_eta_five = 0.01778;
     float tb_eta_six  = -1.405;
     
-    float EC_st_eta_zero =  -2.385; 
+    float EC_st_eta_zero =  -2.385;
     float EC_st_eta_one = 46.107;
     float EC_st_eta_two = -95.367;
     float EC_st_eta_three = 79.6244;
     float EC_st_eta_four = -30.333;
     float EC_st_eta_five = 4.371;
     
-    float EC_tb_eta_zero = -1.831;  
+    float EC_tb_eta_zero = -1.831;
     float EC_tb_eta_one = 16.451;
     float EC_tb_eta_two =  -32.532;
     float EC_tb_eta_three = 26.645;
@@ -260,14 +220,14 @@ namespace InDet
       tb_eta_five = 0.02041;
       tb_eta_six  = 0.0307;
       
-      EC_st_eta_zero =  -7.99; 
+      EC_st_eta_zero =  -7.99;
       EC_st_eta_one = 69.589;
       EC_st_eta_two = -129.318;
       EC_st_eta_three = 102.96;
       EC_st_eta_four = -38.1655;
       EC_st_eta_five = 5.4164;
       
-      EC_tb_eta_zero = -2.957;  
+      EC_tb_eta_zero = -2.957;
       EC_tb_eta_one = 22.8;
       EC_tb_eta_two =  -41.215;
       EC_tb_eta_three = 32.0628;
@@ -284,7 +244,7 @@ namespace InDet
     // Check for perigee:
     const Trk::TrackParameters* perigee = track.perigeeParameters();
     if (!perigee) {
-      return Discriminators; 
+      return Discriminators;
     }
 
     // Get parameters at perigee and check that they are reasonable:
@@ -295,13 +255,13 @@ namespace InDet
     double trk_z0   = parameterVector[Trk::z0];
     
     if (tan(theta/2.0) < 0.0001) {
-      if (msgLvl(MSG::DEBUG)) msg() <<"  Track has negative theta or is VERY close to beampipe! (tan(theta/2) < 0.0001) " << endmsg;
-      return Discriminators; // to allow RVO 
+      ATH_MSG_DEBUG( "  Track has negative theta or is VERY close to beampipe! (tan(theta/2) < 0.0001) " );
+      return Discriminators; // to allow RVO
     }
 
     if (qOverP == 0.0) {
-      if (msgLvl(MSG::DEBUG)) msg() << "  Track momentum infinite! (i.e. q/p = 0) " << endmsg;
-      return Discriminators; // to allow RVO 
+      ATH_MSG_DEBUG( " Track momentum infinite! (i.e. q/p = 0) " );
+      return Discriminators; // to allow RVO
     }
     else pTrk = fabs(1.0 / qOverP);
     double trk_pt = pTrk*sin(theta);
@@ -343,13 +303,13 @@ namespace InDet
     float trackzlast = 0.;
 
     
-    // Start TGap variables  
-    float totoverl =0.; 
+    // Start TGap variables
+    float totoverl =0.;
     double tegap = 0.;
-    int hont =0;  
+    int hont =0;
     int hontb = 0;
     int honte =0;
-    int hbad =0;	        
+    int hbad =0;
 
     // Check for track states:
     const DataVector<const Trk::TrackStateOnSurface>* recoTrackStates = track.trackStateOnSurfaces();
@@ -449,7 +409,7 @@ namespace InDet
 		//if ((BitPattern & CheckBit) == 0) {bitstring[j] = '0';}
 		//else                              {bitstring[j] = '1';}
 		
-		if (j%9 == 0) {if ((BitPattern & CheckBit) != 0) NHTbits++;} 
+		if (j%9 == 0) {if ((BitPattern & CheckBit) != 0) NHTbits++;}
 		else {
 		  if ((BitPattern & CheckBit) != 0) {
 		    NLTbits++;
@@ -465,7 +425,7 @@ namespace InDet
 
 		      LE_found = true;
 		    }
-		  }	  
+		  }
 		}
 		if (j == 26) {if ((BitPattern & CheckBit) != 0) NLastBits++;}
 		
@@ -490,8 +450,8 @@ namespace InDet
 		  trailingbittime = trailingbittime-(st_eta_zero+st_eta_one*(trk_eta)+st_eta_two*(pow(trk_eta,2))+st_eta_three*(pow(trk_eta,3))
 						     +st_eta_four*(pow(trk_eta,4))+st_eta_five*(pow(trk_eta,5))+st_eta_six*(pow(trk_eta,6)));
 		  
-		  RCorrectedTotBits = RCorrectedTotBits-(tb_eta_zero + tb_eta_one*(trk_eta)+tb_eta_two*(pow(trk_eta,2))+tb_eta_three*(pow(trk_eta,3)) 
-							 +tb_eta_four*(pow(trk_eta,4))+tb_eta_five*(pow(trk_eta,5))+tb_eta_six*(pow(trk_eta,6))); 		
+		  RCorrectedTotBits = RCorrectedTotBits-(tb_eta_zero + tb_eta_one*(trk_eta)+tb_eta_two*(pow(trk_eta,2))+tb_eta_three*(pow(trk_eta,3))
+							 +tb_eta_four*(pow(trk_eta,4))+tb_eta_five*(pow(trk_eta,5))+tb_eta_six*(pow(trk_eta,6)));
 		}
 		else if (trk_eta > 0) {
 		  trailingbittime = trailingbittime-(EC_st_eta_zero+EC_st_eta_one*trk_eta+EC_st_eta_two*(pow(trk_eta,2))+EC_st_eta_three*(pow(trk_eta,3))+EC_st_eta_four*(pow(trk_eta,4))+EC_st_eta_five*(pow(trk_eta,5)));
@@ -499,7 +459,7 @@ namespace InDet
 		}
 		else {
 		  trailingbittime = trailingbittime-(EC_st_eta_zero-EC_st_eta_one*trk_eta+EC_st_eta_two*(pow(trk_eta,2))-EC_st_eta_three*(pow(trk_eta,3))+EC_st_eta_four*(pow(trk_eta,4))-EC_st_eta_five*(pow(trk_eta,5)));
-		  RCorrectedTotBits = RCorrectedTotBits-(EC_tb_eta_zero-EC_tb_eta_one*trk_eta+EC_tb_eta_two*trk_eta*trk_eta-EC_tb_eta_three*(pow(trk_eta,3))+ EC_tb_eta_four*(pow(trk_eta,4))- EC_tb_eta_five*(pow(trk_eta,5))); 
+		  RCorrectedTotBits = RCorrectedTotBits-(EC_tb_eta_zero-EC_tb_eta_one*trk_eta+EC_tb_eta_two*trk_eta*trk_eta-EC_tb_eta_three*(pow(trk_eta,3))+ EC_tb_eta_four*(pow(trk_eta,4))- EC_tb_eta_five*(pow(trk_eta,5)));
 		}
 		//End of  Eta Corrections
 
@@ -527,11 +487,11 @@ namespace InDet
 	      if((bec==1 || bec ==-1)&&fabs(eta)>1.1) Valid = false;  //0.7
 	      
 	      float Rdrift =  TrkAnodeDist;
-	      float Rtrack = Rdrift;  
+	      float Rtrack = Rdrift;
 	      int Ltbit= LE_bit;
-	      int Ttbit= TE_bit; 
+	      int Ttbit= TE_bit;
 	      
-	      // Add the cut on holes (from HO)     
+	      // Add the cut on holes (from HO)
 	      if( Ttbit-Ltbit+1 != NLTbits)Valid = false;
 
 	      float tot = TOT;
@@ -551,8 +511,8 @@ namespace InDet
 		  }
 		
 		hont += 1;  // #hits on track
-		if (bec==-1 || bec==1)  hontb += 1;  
-		if (bec==-2 || bec==2)  honte += 1;  
+		if (bec==-1 || bec==1)  hontb += 1;
+		if (bec==-2 || bec==2)  honte += 1;
 		
 		double gap = 0.0;
 		double gapE = 0.0;
@@ -560,22 +520,22 @@ namespace InDet
 		
 		if (m_mcswitch == 1 && (bec==1 || bec==-1))     gap = (double) (22.5  - Ttbit);  // MC BARREL
 		if (m_mcswitch == 1 && (bec!=1 && bec!=-1))     gapE = (double) (22.5 - Ttbit);// ENDCAP MC
-		if (m_mcswitch ==1 && (bec==1 || bec==-1))      gap = gap + t0/3.125 - 5.571; // correct for t0 Barrel  new MC 
+		if (m_mcswitch ==1 && (bec==1 || bec==-1))      gap = gap + t0/3.125 - 5.571; // correct for t0 Barrel  new MC
 		if (m_mcswitch ==1 && (bec!=1 && bec!=-1))      gapE = gapE + t0/3.125 - 5.0656;// correct for t0 Endcap new MC
 		
 		
-		if (m_mcswitch ==1 && (bec==1 || bec==-1))      gap = gap*0.66; //MC BARREL 
+		if (m_mcswitch ==1 && (bec==1 || bec==-1))      gap = gap*0.66; //MC BARREL
 		if (m_mcswitch ==1 && (bec!=1 && bec!=-1))      gap = 0.74*gapE;//MC ENDCAP
 		
-		if (m_mcswitch ==0 && (bec==1 || bec==-1))     gap = (double) (20.   - Ttbit);// FOR BARREL DATA 	      	 
-		if (m_mcswitch ==0 && (bec!=1 && bec!=-1))     gapE = (double) (20. - Ttbit);   //ENDCAP DATA 		      
-		if (m_mcswitch ==0 && (bec==1 || bec==-1))     gap = gap + t0/3.125 - 2.9498; //correct for t0 Barrel DATA 
-		if (m_mcswitch ==0 && (bec!=1 && bec!=-1))     gapE = gapE + t0/3.125 - 2.9075;//correct for t0 Endcap DATA 
-		if (m_mcswitch ==0 && (bec==1 || bec==-1))     gap = (double) gap*0.66;// FOR BARREL DATA 	      	 
-		if (m_mcswitch ==0 && (bec!=1 && bec!=-1))     gap = (double) gapE*0.98;   //ENDCAP DATA 	
+		if (m_mcswitch ==0 && (bec==1 || bec==-1))     gap = (double) (20.   - Ttbit);// FOR BARREL DATA
+		if (m_mcswitch ==0 && (bec!=1 && bec!=-1))     gapE = (double) (20. - Ttbit);   //ENDCAP DATA
+		if (m_mcswitch ==0 && (bec==1 || bec==-1))     gap = gap + t0/3.125 - 2.9498; //correct for t0 Barrel DATA
+		if (m_mcswitch ==0 && (bec!=1 && bec!=-1))     gapE = gapE + t0/3.125 - 2.9075;//correct for t0 Endcap DATA
+		if (m_mcswitch ==0 && (bec==1 || bec==-1))     gap = (double) gap*0.66;// FOR BARREL DATA
+		if (m_mcswitch ==0 && (bec!=1 && bec!=-1))     gap = (double) gapE*0.98;   //ENDCAP DATA
 		
 		
-		double TGap = -999.;  // trailing edge gap corrected for R- and eta dependence (by Ben Weinert) 
+		double TGap = -999.;  // trailing edge gap corrected for R- and eta dependence (by Ben Weinert)
 				
 		//  ========Barrel DATA ToTal=================================================
 		if (m_mcswitch ==0 &&(bec==1 || bec==-1)) {
@@ -584,7 +544,7 @@ namespace InDet
 		  if (fabs(eta)<.3 && fabs(eta)>0.2) TGap = gap/((.00881969*pow(fabs(Rtrack),7.09242)-2.36686*pow(fabs(Rtrack),1.72337)+7.52207));
 		  if (fabs(eta)<.4 && fabs(eta)>0.3) TGap = gap/((.0131694*pow(fabs(Rtrack),6.59031)-2.39547*pow(fabs(Rtrack),1.72373)+7.52161));
 		  if (fabs(eta)<.5 && fabs(eta)>0.4) TGap = gap/((.0236602*pow(fabs(Rtrack),5.87639)-2.43456*pow(fabs(Rtrack),1.72005)+7.48029));
-		  if (fabs(eta)<.6 && fabs(eta)>0.5) TGap = gap/((.0547144*pow(fabs(Rtrack),4.99237)-2.47208*pow(fabs(Rtrack),1.74454)+7.36295));   
+		  if (fabs(eta)<.6 && fabs(eta)>0.5) TGap = gap/((.0547144*pow(fabs(Rtrack),4.99237)-2.47208*pow(fabs(Rtrack),1.74454)+7.36295));
 		  if (fabs(eta)<.7 && fabs(eta)>0.6) TGap = gap/((.0723406*pow(fabs(Rtrack),4.76311)-2.47704*pow(fabs(Rtrack),1.74222)+7.14952));
 		  if (fabs(eta)<.8 && fabs(eta)>0.7) TGap = gap/((.137036*pow(fabs(Rtrack),4.23644)-2.48428*pow(fabs(Rtrack),1.79610)+6.85699));
 		  if (fabs(eta)<.9 && fabs(eta)>0.8) TGap = gap/((.285357*pow(fabs(Rtrack),3.71480)-2.56711*pow(fabs(Rtrack),1.87888)+6.50990));
@@ -593,18 +553,18 @@ namespace InDet
 		}
 		//=========Barrel MC Total===============================
 		if (m_mcswitch ==1 && (bec==1 || bec==-1)) {
-		  if(fabs(eta)<.1 && fabs(eta)>0.0) TGap = gap/((.00000123128*pow(fabs(Rtrack),19.3147)-1.06782*pow(fabs(Rtrack),2.29312)+5.62686)); 
+		  if(fabs(eta)<.1 && fabs(eta)>0.0) TGap = gap/((.00000123128*pow(fabs(Rtrack),19.3147)-1.06782*pow(fabs(Rtrack),2.29312)+5.62686));
 		  if (fabs(eta)<.2 && fabs(eta)>0.1) TGap = gap/((.00000170888*pow(fabs(Rtrack),18.8841)-1.07002*pow(fabs(Rtrack),2.29326)+5.60175));
 		  if (fabs(eta)<.3 && fabs(eta)>0.2) TGap = gap/((.000000918115*pow(fabs(Rtrack),19.7785)-1.09601*pow(fabs(Rtrack),2.25662)+5.68679));
 		  if (fabs(eta)<.4 && fabs(eta)>0.3) TGap = gap/((.00000142286*pow(fabs(Rtrack),19.1558)-1.09694*pow(fabs(Rtrack),2.24469)+5.50375));
 		  if (fabs(eta)<.5 && fabs(eta)>0.4) TGap = gap/((.00000483637*pow(fabs(Rtrack),17.5425)-1.09179*pow(fabs(Rtrack),2.25701)+5.39363));
-		  if (fabs(eta)<.6 && fabs(eta)>0.5) TGap = gap/((.0000114224*pow(fabs(Rtrack),16.3431)-1.09874*pow(fabs(Rtrack),2.23981)+5.28368));	 
+		  if (fabs(eta)<.6 && fabs(eta)>0.5) TGap = gap/((.0000114224*pow(fabs(Rtrack),16.3431)-1.09874*pow(fabs(Rtrack),2.23981)+5.28368));
 		  if (fabs(eta)<.7 && fabs(eta)>0.6) TGap = gap/((.0000101658*pow(fabs(Rtrack),16.5468)-1.07799*pow(fabs(Rtrack),2.24312)+5.13952));
 		  if (fabs(eta)<.8 && fabs(eta)>0.7) TGap = gap/((.0000109867*pow(fabs(Rtrack),16.4814)-1.00968*pow(fabs(Rtrack),2.29445)+4.95406));
 		  if (fabs(eta)<.9 && fabs(eta)>0.8) TGap = gap/((.00000887578*pow(fabs(Rtrack),16.8073)-.945814*pow(fabs(Rtrack),2.32505)+4.76174));
 		  if (fabs(eta)<1. && fabs(eta)>0.9) TGap = gap/((.0000721159*pow(fabs(Rtrack),13.8838)-.794514*pow(fabs(Rtrack),2.52852)+4.48742));
 		  if (fabs(eta)<1.1 && fabs(eta)>1.) TGap = gap/((-.00147754*pow(fabs(Rtrack),2.05287)-.949485*pow(fabs(Rtrack),2.05281)+4.40570));
-		}	   	      
+		}
 		//============ENDCAP DATA===========================================
 		if (m_mcswitch==0 &&(bec!=1 && bec!=-1)){
 		  if (fabs(eta)<0.9 && fabs(eta)>0.8) TGap = gap/((.280989*pow(fabs(Rtrack),3.78618)-2.52785*pow(fabs(Rtrack),1.98014)+8.22240));
@@ -619,7 +579,7 @@ namespace InDet
 		  if (fabs(eta)<1.8 && fabs(eta)>1.7) TGap = gap/((.0153687*pow(fabs(Rtrack),6.24080)-2.36323*pow(fabs(Rtrack),1.67239)+8.91872));
 		  if (fabs(eta)<1.9 && fabs(eta)>1.8) TGap = gap/((.0111157*pow(fabs(Rtrack),6.57710)-2.32227*pow(fabs(Rtrack),1.65943)+8.94240));
 		  if (fabs(eta)<2.0 && fabs(eta)>1.9) TGap = gap/((.00890940*pow(fabs(Rtrack),6.86340)-2.26815*pow(fabs(Rtrack),1.65027)+8.90461));
-		}	  	  
+		}
 		//========ENDCAP MC===============================
 		if (m_mcswitch ==1 && (bec!=1 && bec!=-1)) {
 		  if (fabs(eta)<0.9 && fabs(eta)>0.8) TGap = gap/((.00000282950*pow(fabs(Rtrack),18.3737)-1.05569*pow(fabs(Rtrack),2.27545)+5.97535));
@@ -633,7 +593,7 @@ namespace InDet
 		  if (fabs(eta)<1.7 && fabs(eta)>1.6) TGap = gap/((.000000777268*pow(fabs(Rtrack),19.7132)-1.54808*pow(fabs(Rtrack),1.93878)+7.37986));
 		  if (fabs(eta)<1.8 && fabs(eta)>1.7) TGap = gap/((.000000314758*pow(fabs(Rtrack),20.9848)-1.54640*pow(fabs(Rtrack),1.91034)+7.40800));
 		  if (fabs(eta)<1.9 && fabs(eta)>1.8) TGap = gap/((.000000850534*pow(fabs(Rtrack),19.6195)-1.52880*pow(fabs(Rtrack),1.90915)+7.43214));
-		  if (fabs(eta)<2.0 && fabs(eta)>1.9) TGap = gap/((.00000245275*pow(fabs(Rtrack),18.1615)-1.49520*pow(fabs(Rtrack),1.92057)+7.42649));		
+		  if (fabs(eta)<2.0 && fabs(eta)>1.9) TGap = gap/((.00000245275*pow(fabs(Rtrack),18.1615)-1.49520*pow(fabs(Rtrack),1.92057)+7.42649));
 		  if (fabs(eta)<2.1 && fabs(eta)>2.0) TGap = gap/((.0000271320*pow(fabs(Rtrack),14.8130)-1.50875*pow(fabs(Rtrack),1.90915)+7.38428));
 		  if (fabs(eta)<2.2 && fabs(eta)>2.1) TGap = gap/((.0000687527*pow(fabs(Rtrack),17.5651)-.0315462*pow(fabs(Rtrack),8.53188)+4.39271));
 		  //=============================================================================================
@@ -649,7 +609,7 @@ namespace InDet
 	      
 	    }//bitpattern?
 	    //else bitpatternfail = true;
-	  } //driftcircle	  
+	  } //driftcircle
 	} //measurement
       } //generalized hits
 
@@ -672,8 +632,7 @@ namespace InDet
 	if (tegap>0.&& hont>1.0) tegap = tegap/(hont-1.0); // average TE gap for a track
 	
 
-	//m_TrtToolsSuccess ==false;
-	if ( m_TrtToolsSuccess) dEdx =  m_TRTdEdxTool->dEdx((&track), !m_mcswitch, true, true);
+	if ( !m_TRTdEdxTool.name().empty() ) dEdx =  m_TRTdEdxTool->dEdx((&track), !m_mcswitch, true, true);
 	else 	dEdx =  -999.0;
       }
       else{
@@ -698,7 +657,7 @@ namespace InDet
       HighTbits  = -999;
       dEdx       = -999.;
       tegap = -999.0;
-      if (msgLvl(MSG::WARNING)) msg() << "No TRT Bitpattern found for some straws"<< endmsg;
+      ATH_MSG_WARNING( "No TRT Bitpattern found for some straws" );
     }
     else if (m_TrtToolInitSuccess)
       {
@@ -708,13 +667,13 @@ namespace InDet
 	  LikelihoodBeta   = LikelihoodValues[0];
 	  LikelihoodError  = LikelihoodValues[1];
 	}
-      } 
+      }
      
     //CSMP_ind Discriminators;
 
     Discriminators.push_back(RCorrectedAverageBitsOverThreshold);
     Discriminators.push_back(TrailingEdge);
-    Discriminators.push_back(tegap); 
+    Discriminators.push_back(tegap);
     Discriminators.push_back(float(NLastBits));
     Discriminators.push_back(HighThresholdHits);
     Discriminators.push_back(pTrk);
@@ -724,7 +683,7 @@ namespace InDet
     Discriminators.push_back(float(HighTbits));
     Discriminators.push_back(dEdx);
 			     
-    return Discriminators;  
+    return Discriminators;
   }
   
 }//end of namespace
