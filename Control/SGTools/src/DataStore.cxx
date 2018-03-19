@@ -218,8 +218,9 @@ DataStore::removeProxy(DataProxy* proxy, bool forceRemove, bool hard)
     // Remove all symlinks too.
     for (CLID symclid : clids) 
     {
-      if (symclid == clid) continue;
-      m_keyMap.erase (m_pool.stringToKey (name, symclid));
+      sgkey_t sgkey = m_pool.stringToKey (name, symclid);
+      m_keyMap.erase (sgkey);
+      if (clid == symclid) continue;
       storeIter = m_storeMap.find(symclid);
       if (storeIter != m_storeMap.end()) {
         SG::ProxyIterator it = storeIter->second.find (name);
