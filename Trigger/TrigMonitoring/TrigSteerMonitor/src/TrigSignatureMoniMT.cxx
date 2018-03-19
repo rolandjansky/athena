@@ -72,8 +72,10 @@ StatusCode TrigSignatureMoniMT::fillChains(const TrigCompositeUtils::DecisionIDC
     auto id2bin = m_chainIDToBinMap.find( id );
     if ( id2bin == m_chainIDToBinMap.end() ) {
       ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitred" );
+    } else {
+      ATH_MSG_DEBUG( "Passed " <<  id2bin->second << " " << row );
+      m_outputHistogram->Fill( id2bin->second, double(row) );
     }
-    m_outputHistogram->Fill( id2bin->second, double(row) );
   }
   return StatusCode::SUCCESS;
 }
@@ -86,8 +88,9 @@ StatusCode TrigSignatureMoniMT::execute()  {
   CHECK( l1Decisions->at( 1 )->name() == "unprescaled" ); // see L1Decoder implementation
 
   auto fillL1 = [&]( int index ) -> StatusCode {    
-    TrigCompositeUtils::DecisionIDContainer ids;
-    TrigCompositeUtils::passingIDs( l1Decisions->at( index ), ids );
+    TrigCompositeUtils::DecisionIDContainer ids;    
+    TrigCompositeUtils::decisionIDs( l1Decisions->at( index ), ids );
+    ATH_MSG_DEBUG( "L1 " << index << " N positive decisions " << ids.size()  );
     CHECK( fillChains( ids, index ) );
     if ( not ids.empty() )
       m_outputHistogram->Fill( 0., double( index+1 ) );
@@ -103,6 +106,7 @@ StatusCode TrigSignatureMoniMT::execute()  {
   for ( auto d: m_finalDecisionsKey ) {
     auto decisions = SG::makeHandle( d );
     if ( decisions.isValid() )  { // may be invalid and that is perfectly correct (early rejection
+      ATH_MSG_DEBUG( "Decision for " << decisions->size() << " objects available in " << d.key() );
       // we need one entry per chain only and the "sum" is used for that
       TrigCompositeUtils::DecisionIDContainer sum;
       
@@ -170,11 +174,5 @@ StatusCode TrigSignatureMoniMT::initHist() {
     y->SetBinLabel(bin, ( "Step " + std::to_string( bin - 2 ) ).c_str() );
   }
  
-  for ( int xbin = 1; xbin <= x->GetNbins(); ++xbin )  {
-    for ( int ybin = 1; ybin <= y->GetNbins(); ++ybin )  {
-      m_outputHistogram->SetBinContent( xbin, ybin, -1 );
-    }
-  }
-
   return StatusCode::SUCCESS;
 }
