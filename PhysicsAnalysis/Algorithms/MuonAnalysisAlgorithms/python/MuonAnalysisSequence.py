@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
+import ROOT
 
 def makeMuonAnalysisSequence (dataType) :
     if not dataType in ["data", "mc", "afii"] :
@@ -33,7 +34,8 @@ def makeMuonAnalysisSequence (dataType) :
         alg.isData = 0
         pass
     alg.efficiencyDecoration = "muon_eff"
-    alg.outOfValidity = "bad_eff"
+    alg.outOfValidity = 2 #silent
+    alg.outOfValidityDeco = "bad_eff"
     sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut",
                        "sys" : "(^MUON_EFF_.*)"} )
 
