@@ -319,7 +319,7 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     
     if (m_met_feature==0) {
       if(msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING
+	msg() << MSG::ERROR //WARNING
 	      << "cannot create the TrigMissingET object!" << endreq;
       return HLT::NO_HLT_RESULT;
     }
@@ -414,14 +414,14 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     }
     tes_in0_size=tes_in[0].size();
     if (tes_in0_size != 1) {
-      msg() << MSG::WARNING // ERROR
+      msg() << MSG::ERROR
 	    << "Configuration error: expecting exactly 1 L1 result.  Aborting chain" << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
     }
     break;
 
   default:
-    msg() << MSG::WARNING // ERROR
+    msg() << MSG::ERROR
 	  << "Configuration error: tes_in.size() is " << tes_in_size
 	  << " but can only be 1 or 0 in unseeded mode.  Aborting chain" << endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);
@@ -435,8 +435,8 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     HLT::ErrorCode status = getFeatures(tes_in[0][0], vectorOfEnergyRoI);
     if(status == HLT::OK) {
       if ( vectorOfEnergyRoI.size() < 1 ) {
-	msg() << MSG::WARNING << "Cannot find L1 result!" << endreq;
-	return HLT::NAV_ERROR; 
+	msg() << MSG::ERROR << "Cannot find L1 result! Aborting" << endreq;
+        return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
       }
       else if ( vectorOfEnergyRoI.size() > 1 ) {
 	msg() << MSG::WARNING << "found " << vectorOfEnergyRoI.size() 
@@ -444,9 +444,9 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       }
       lvl1_energyRoi = vectorOfEnergyRoI.front();
     } else {
-      msg() << MSG::WARNING
+      msg() << MSG::ERROR
 	    << "RecEnergyRoI feature not found.  Aborting" << endreq;
-      return HLT::NAV_ERROR; 
+      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
     }
   } else { // unseeded mode: get all RoIs and look for the good one
     HLT::Navigation* nav = config()->getNavigation();
@@ -458,8 +458,9 @@ HLT::ErrorCode T2MissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
       }
     }
     if(!lvl1_energyRoi) {
-      msg() << MSG::WARNING << "No RecEnergyRoI object found!  Aborting" << endreq;
-      return HLT::NAV_ERROR;
+      msg() << MSG::ERROR
+            << "No RecEnergyRoI object found!  Aborting" << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
     }
   }
 

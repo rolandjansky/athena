@@ -252,8 +252,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	continue;
       }
       
-      if(passIsolatedTracklet)
-	break;
+      if(passIsolatedTracklet)	break;
     }// for Tracklet
     
     if(passIsolatedTracklet==false){

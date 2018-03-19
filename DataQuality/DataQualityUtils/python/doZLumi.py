@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration                   
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration                   
 
 def getRun(fname):
     import ROOT
@@ -107,4 +107,5 @@ def go(fname):
     subprocess.call(['dqt_zlumi_combine_lumi.py', 'zlumiraw.root', 'zlumieff.root', 'zlumi.root'])
     subprocess.call(['dqt_zlumi_display_z_rate.py', 'zlumi.root'])
     copyPlot('zlumi.root', fname)
-    shutil.move('zlumi.root_zrate.csv', 'zrate.csv')
+    if os.path.isfile('zlumi.root_zrate.csv'):
+        shutil.move('zlumi.root_zrate.csv', 'zrate.csv')

@@ -8,10 +8,6 @@
 #include "MuonHitTestToolBase.h"
 
 
-//#include "MuonIdHelpers/MdtIdHelper.h"
-//class MdtIdHelper;
-
-
 class sTGCHitsTestTool : public MuonHitTestToolBase {
 
 
@@ -19,26 +15,28 @@ public:
 
   sTGCHitsTestTool(const std::string& type, const std::string& name, const IInterface* parent)
     : MuonHitTestToolBase(type, name, parent)
-      //m_pMdtIdHelper(0)
   {
-    declareProperty("DosTGCTest", m_DosTGCTest=true);
+    declareProperty("DosTGCTest", m_DosTGCTest);
     m_BarrelEtaCut=10.;
   }
 
-  StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
-  StatusCode processEvent();
+  virtual StatusCode processEvent() override final;
 
  protected:
- 
- 	TH2 *m_sTgc_TransverseView_TS11_posZ, *m_sTgc_TransverseView_TS21_posZ, *m_sTgc_TransverseView_TS31_posZ;
-  	TH2 *m_sTgc_TransverseView_TL11_posZ, *m_sTgc_TransverseView_TL21_posZ, *m_sTgc_TransverseView_TL31_posZ;
-  	TH2 *m_sTgc_rZview_positiveZ;
-  // Identifier getIdentifier(HitID cschit);
-//   StatusCode checkIdentifier(Identifier offid);
+
+  TH2 *m_sTgc_TransverseView_TS11_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_TS21_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_TS31_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_TL11_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_TL21_posZ = nullptr;
+  TH2 *m_sTgc_TransverseView_TL31_posZ = nullptr;
+  TH2 *m_sTgc_rZview_positiveZ = nullptr;
+
 private:
 
-  bool m_DosTGCTest;
+  bool m_DosTGCTest = true;
 
   //const MdtIdHelper* m_pMdtIdHelper;
 

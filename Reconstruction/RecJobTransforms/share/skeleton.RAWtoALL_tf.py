@@ -94,7 +94,14 @@ if hasattr(runArgs,"outputNTUP_MUONCALIBFile"):
 if hasattr(runArgs, 'outputTXT_JIVEXMLTGZFile'):
     jp.Rec.doJiveXML.set_Value_and_Lock(True)
 
-# DESD and DRAW
+# DESD, DAOD and DRAW
+DRAWOutputs = [ prop for prop in dir(runArgs) if prop.startswith('outputDRAW') and prop.endswith('File')]
+DAODOutputs = [ prop for prop in dir(runArgs) if prop.startswith('outputDAOD') and prop.endswith('File')]
+DESDOutputs = [ prop for prop in dir(runArgs) if prop.startswith('outputDESD') and prop.endswith('File')]
+
+if len(DESDOutputs) > 0 or len(DAODOutputs) > 0:
+    rec.doWriteDPD.set_Value_and_Lock(True)
+
 listOfFlags=[]
 try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
@@ -104,9 +111,6 @@ except ImportError:
 
 from RecJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
-
-DRAWOutputs = [ prop for prop in dir(runArgs) if prop.startswith('outputDRAW') and prop.endswith('File')]
-
 
 # Need to handle this properly in RecExCommon top options
 rec.OutputFileNameForRecoStep="RAWtoALL"

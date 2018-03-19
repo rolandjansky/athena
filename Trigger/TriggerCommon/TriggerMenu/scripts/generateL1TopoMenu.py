@@ -4,7 +4,6 @@
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenu.TriggerConfigL1Topo import TriggerConfigL1Topo
-from TriggerMenu.l1topo.L1TopoFlags import L1TopoFlags
 
 def generateL1TopoMenu(menu):
 
@@ -38,9 +37,10 @@ def main():
         generateL1TopoMenu(menu="MC_HI_v4")
         generateL1TopoMenu(menu="LS1_v1" )
         generateL1TopoMenu(menu="DC14")
+        generateL1TopoMenu(menu="MC_PhaseII")
         return 0
 
-    if sys.argv[1] in ["Physics_HI_v4", "MC_HI_v4", "Physics_HI_v3", "MC_HI_v3", "LS1_v1", "DC14","Physics_pp_v7", "MC_pp_v7","Physics_pp_v6", "MC_pp_v6"]: # explicit names for TMXML nightly
+    if sys.argv[1] in ["Physics_HI_v4", "MC_HI_v4", "Physics_HI_v3", "MC_HI_v3", "LS1_v1", "DC14","Physics_pp_v7", "MC_pp_v7","Physics_pp_v6", "MC_pp_v6", "MC_PhaseII"]: # explicit names for TMXML nightly
         generateL1TopoMenu(menu=sys.argv[1])
         return 0
 

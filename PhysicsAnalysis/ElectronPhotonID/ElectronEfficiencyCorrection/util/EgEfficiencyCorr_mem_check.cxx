@@ -14,24 +14,35 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 #include <iostream>
 #include <vector>
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "AsgTools/AsgMessaging.h"
+#include "AsgTools/AnaToolHandle.h"
 
 int main( ) {
+
+
 
   std::vector<std::string> inputFiles ={
     "ElectronEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v1/offline/efficiencySF.offline.LooseAndBLayerLLH_d0z0_v11.2015_2016.13TeV.rel20.7.25ns.v01.root"} ;
 
-  AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");
-  myEgCorrections.msg().setLevel(MSG::INFO);
-  if (myEgCorrections.setProperty("CorrelationModel", "FULL" ) &&
-      myEgCorrections.setProperty("ForceDataType",1) &&
-      myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) &&
-      myEgCorrections.initialize())
+  asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>  tool ("AsgElectronEfficiencyCorrectionTool/myEgCorrections");
+  if (tool.setProperty("CorrelationModel", "FULL" ) &&
+      tool.setProperty("ForceDataType",1) &&
+      tool.setProperty("CorrectionFileNameList",inputFiles) &&
+      tool.retrieve())
     {
       std::cout<<"ALL FINE" <<std::endl;
       
     }
 
+  asg::AnaToolHandle<CP::IEfficiencyScaleFactorTool> eccTool;
+  eccTool.setTypeAndName("CP::ElectronChargeEfficiencyCorrectionTool/myTool");
+  if(
+     eccTool.setProperty( "CorrectionFileName", "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/charge_misID/ChargeCorrectionSF.Medium_FixedCutTight.root" )&&
+     eccTool.retrieve()){
+    std::cout<<"ALL FINE" <<std::endl;
+  }
   
   return 0;
 }

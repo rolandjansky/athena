@@ -1,7 +1,7 @@
   <athena trendId='muonTrend' userJobId='TrigInDetValidation_mu_single_mu_larged0_PU'>
-            <doc>Single muon 100 GeV, run2 chains </doc>
-            <displayName>MuonSlice-single muon larged0, pu, run2 chains</displayName>
-            <commandLineFlags>EventMax=15000;runMergedChain=True</commandLineFlags>
+            <doc>Single muon 100 GeV </doc>
+            <displayName>MuonSlice-single muon larged0, pu</displayName>
+            <commandLineFlags>EventMax=15000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

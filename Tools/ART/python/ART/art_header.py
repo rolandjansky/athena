@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-"""TBD."""
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+"""Class to handle art-headers."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
@@ -15,37 +15,46 @@ MODULE = "art.header"
 
 
 class ArtHeader(object):
-    """TBD."""
+    """Class to handle art-headers."""
+
+    ART_CI = 'art-ci'
+    ART_DESCRIPTION = 'art-description'
+    ART_INCLUDE = 'art-include'
+    ART_INPUT = 'art-input'
+    ART_INPUT_NFILES = 'art-input-nfiles'
+    ART_INPUT_SPLIT = 'art-input-split'
+    ART_OUTPUT = 'art-output'
+    ART_TYPE = 'art-type'
 
     def __init__(self, filename):
-        """TBD."""
+        """Keep arguments, setup patterns for re-use, define possible art-header definitions."""
         self.header_format = re.compile(r'#\s(art-[\w-]+):\s+(.+)$')
-        self.header_format_error1 = re.compile(r'#(art-[\w-]+):\s*(.+)$')
-        self.header_format_error2 = re.compile(r'#\s\s+(art-[\w-]+):\s*(.+)$')
-        self.header_format_error3 = re.compile(r'#\s(art-[\w-]+):\S(.*)$')
+        self.header_format_error1 = re.compile(r'#(art-[\w-]*):\s*(.+)$')
+        self.header_format_error2 = re.compile(r'#\s\s+(art-[\w-]*):\s*(.+)$')
+        self.header_format_error3 = re.compile(r'#\s(art-[\w-]*):\S(.*)$')
 
         self.filename = filename
 
         self.header = {}
 
         # general
-        self.add('art-description', StringType, '')
-        self.add('art-type', StringType, None, ['build', 'grid'])
+        self.add(ArtHeader.ART_DESCRIPTION, StringType, '')
+        self.add(ArtHeader.ART_TYPE, StringType, None, ['build', 'grid'])
+        self.add(ArtHeader.ART_INCLUDE, ListType, ['*'])
 
         # "build" type only
-        self.add('art-ci', ListType, [])
+        self.add(ArtHeader.ART_CI, ListType, [])
 
         # "grid" type only
-        self.add('art-include', ListType, ['*'])
-        self.add('art-output', ListType, [])
-        self.add('art-input', StringType, None)
-        self.add('art-input-nfiles', IntType, 1)
-        self.add('art-input-split', IntType, 0)
+        self.add(ArtHeader.ART_OUTPUT, ListType, [])
+        self.add(ArtHeader.ART_INPUT, StringType, None)
+        self.add(ArtHeader.ART_INPUT_NFILES, IntType, 1)
+        self.add(ArtHeader.ART_INPUT_SPLIT, IntType, 0)
 
         self.read(filename)
 
     def add(self, key, value_type, default_value=None, constraint=None):
-        """TBD."""
+        """Add a single header definition."""
         self.header[key] = {}
         self.header[key]['type'] = value_type
         self.header[key]['default'] = default_value
@@ -53,7 +62,7 @@ class ArtHeader(object):
         self.header[key]['value'] = None    # e.g. the value was never set
 
     def is_list(self, key):
-        """TBD."""
+        """Return true if key exists and is of ListType."""
         return self.header[key]['type'] is ListType if key in self.header else False
 
     def read(self, filename):
@@ -80,13 +89,21 @@ class ArtHeader(object):
                         # handle values
                         if key not in self.header:
                             log.warning("Unknown art-header %s: %s in file %s", key, value, filename)
-                            self.header[key] = {}
-                        self.header[key]['value'] = value
+                            self.add(key, StringType)
+                        if self.header[key]['value'] is None:
+                            self.header[key]['value'] = value
+                        else:
+                            log.warning("key %s: already set to %s in file %s", key, self.header[key]['value'], filename)
                 except ValueError:
                     log.error("Invalid value in art-header %s: %s in file %s", key, value, filename)
 
     def get(self, key):
-        """TBD."""
+        """
+        Get the value of a header by key.
+
+        Return default if header not specified.
+        Warn and return None if header is not defined.
+        """
         log = logging.getLogger(MODULE)
         if key not in self.header:
             log.warning("Art seems to look for a header key %s which is not in the list of defined headers.", key)
@@ -98,7 +115,7 @@ class ArtHeader(object):
         return self.header[key]['value']
 
     def print_it(self):
-        """TBD."""
+        """Print content of the headers for this file."""
         log = logging.getLogger(MODULE)
         for key in self.header:
             log.info("%s: %s %s %s %s", key, self.header[key]['type'], self.header[key]['default'], self.header[key]['value'], self.header[key]['constraint'])

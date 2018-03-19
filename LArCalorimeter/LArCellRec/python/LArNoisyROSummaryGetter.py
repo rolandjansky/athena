@@ -38,15 +38,34 @@ class LArNoisyROSummaryGetter ( Configured )  :
             print traceback.format_exc()
             return False
 
-        theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
+        from AthenaCommon.AppMgr import ToolSvc    
+        # Noise and MNB Febs from COOL only for data
+        from AthenaCommon.GlobalFlags import globalflags
+        from IOVDbSvc.CondDB import conddb
+        if globalflags.DataSource.get_Value() != 'geant4' and ('COMP200' not in conddb.GetInstance()):
+           from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
+           theBadFebTool=LArBadChanTool("KnownBADFEBsTool")
+           theBadFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownBADFEBs"
+           ToolSvc+=theBadFebTool
+           theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
+           theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
+           ToolSvc+=theMNBFebTool
+           theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
                                          CellQualityCut=larNoisyROFlags.CellQualityCut(),
                                          BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
                                          BadFEBCut=larNoisyROFlags.BadFEBCut(),
-                                         KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs(),
                                          MNBLooseCut=larNoisyROFlags.MNBLooseCut(),
-                                         MNBTightCut=larNoisyROFlags.MNBTightCut()
+                                         MNBTightCut=larNoisyROFlags.MNBTightCut(),
+                                         KnownBADFEBsTool=theBadFebTool,
+                                         KnownMNBFEBsTool=theMNBFebTool
                                          )
-
+        else:   
+           theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
+                                         CellQualityCut=larNoisyROFlags.CellQualityCut(),
+                                         BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
+                                         BadFEBCut=larNoisyROFlags.BadFEBCut(),
+                                         )
+        pass   
 
         theLArNoisyROAlg=LArNoisyROAlg()
         theLArNoisyROAlg.Tool=theLArNoisyROTool

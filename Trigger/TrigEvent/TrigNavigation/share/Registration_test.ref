@@ -1,7 +1,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3e/Trigger/TrigEvent/TrigNavigation/share/../share/test.txt
+JobOptionsSvc        INFO # =======> /afs/cern.ch/work/s/smh/MR_5043/athena/Trigger/TrigEvent/TrigNavigation/share/../share/test.txt
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.DLLs += ["StoreGate", "TrigNavigation", "TrigSerializeCnvSvc"]
 JobOptionsSvc        INFO # (3,1): ApplicationMgr.ExtSvc += ["ClassIDSvc"]
 JobOptionsSvc        INFO # (4,1): ApplicationMgr.ExtSvc += ["TrigSerializeCnvSvc"]
@@ -12,27 +12,27 @@ JobOptionsSvc        INFO # (8,1): AuditorSvc.Auditors += ["AlgContextAuditor"]
 JobOptionsSvc        INFO # (9,1): StoreGateSvc.OutputLevel = 0
 JobOptionsSvc        INFO # (10,1): StoreGateSvc.ActivateHistory = 0
 JobOptionsSvc        INFO # (14,1): MessageSvc.useColors = 0
-JobOptionsSvc        INFO # (30,1): ToolSvc.Navigation.ReferenceAllClasses = 1
-JobOptionsSvc        INFO # (31,1): ToolSvc.Navigation.ClassesToPreregister = ["TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty", "TestA#", "TestBContainer#BContainer1", "TestBContainer#BContainer2", "TestDContainer#DContainer1"]
-JobOptionsSvc        INFO # (34,1): ToolSvc.Navigation.OutputLevel = 1
-JobOptionsSvc        INFO # (35,1): Holder_test.OutputLevel = 1
-JobOptionsSvc        INFO # (36,1): RoICache_test.OutputLevel = 3
+JobOptionsSvc        INFO # (15,1): MessageSvc.setDebug = ["NavigationCore"]
+JobOptionsSvc        INFO # (31,1): ToolSvc.Navigation.ReferenceAllClasses = 1
+JobOptionsSvc        INFO # (32,1): ToolSvc.Navigation.ClassesToPreregister = ["TestA#EverEmptyButPresent", "TestA#AgainPresentButEmpty", "TestA#", "TestBContainer#BContainer1", "TestBContainer#BContainer2", "TestDContainer#DContainer1"]
+JobOptionsSvc        INFO # (35,1): ToolSvc.Navigation.OutputLevel = 1
+JobOptionsSvc        INFO # (36,1): Holder_test.OutputLevel = 1
+JobOptionsSvc        INFO # (37,1): RoICache_test.OutputLevel = 1
 JobOptionsSvc        INFO Job options successfully read in from ../share/test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v4r1)
-                                          running on lxplus051.cern.ch on Tue Jul 19 18:33:48 2016
+                                          running on pc-tbed-pub-01.cern.ch on Sat Oct  7 17:04:22 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, TrigNavigation, TrigSerializeCnvSvc
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-20
-ClassIDSvc           INFO  getRegistryEntries: read 1319 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1369 CLIDRegistry entries for module ALL
 TrigSerializeCn...   INFO initialize()
 StoreGateSvc        DEBUG Service base class initialized successfully
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
 StoreGateSvc      VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
-ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-02-08
-ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-03-07-04
+ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-00-00-00
+ActiveStoreSvc       INFO Initializing ActiveStoreSvc - package version StoreGate-00-00-00
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
@@ -40,7 +40,7 @@ ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 ToolSvc.Navigation  DEBUG Property update for OutputLevel : new value = 1
 ToolSvc.Navigation  DEBUG Navigation::initialize() got TrigSerializeCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 343 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 357 CLIDRegistry entries for module ALL
 ToolSvc.Navigation  DEBUG Recognized CLID : TestA and key: EverEmptyButPresent
 ToolSvc.Navigation  DEBUG Recognized CLID : TestA and key: AgainPresentButEmpty
 ToolSvc.Navigation  DEBUG Recognized CLID : TestA and key: 
@@ -53,75 +53,18 @@ ToolSvc.NavigationVERBOSE type: TestBContainer(96422) container: TestBContainer(
 ToolSvc.NavigationVERBOSE type: TestBContainerView(96423) container: TestBContainerView(96423)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.NavigationVERBOSE type: TestDContainer(96477) container: TestDContainer(96477)label: "" subTypeIndex: 0 container not allocated yet
 ToolSvc.Navigation  DEBUG  successfully initialized Navigation 
-ToolSvc.Navigation  DEBUG Navigation reset done
-ToolSvc.NavigationVERBOSE NavigationCore::prepare Compile time known types : type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE NavigationCore::prepare Compile time known types : type: TestC(7800) container: DataVector<TestC>(78001)label: "" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE NavigationCore::prepare Compile time known types : type: TestBContainer(96422) container: TestBContainer(96422)label: "" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE NavigationCore::prepare Compile time known types : type: TestBContainerView(96423) container: TestBContainerView(96423)label: "" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE NavigationCore::prepare Compile time known types : type: TestDContainer(96477) container: TestDContainer(96477)label: "" subTypeIndex: 0 container not allocated yet
-ToolSvc.NavigationVERBOSE NavigationCore::prepare Preregistering objects #:6
-ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: EverEmptyButPresent
-ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label: EverEmptyButPresent index: 0
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: EverEmptyButPresent and index: 0
-ToolSvc.NavigationVERBOSE Holder created, registering 0x27c8d70 type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x27c9360 with key HLT_DataVector<TestA>_EverEmptyButPresentAux. of type TestAuxA(CLID 642300)
- in DataObject @0x2725f90
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x27c7950 with key HLT_DataVector<TestA>_EverEmptyButPresent of type DataVector<TestA>(CLID 64210)
- in DataObject @0x27e2e70
- object modifiable when retrieved
-ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: AgainPresentButEmpty
-ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label: AgainPresentButEmpty index: 1
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label: AgainPresentButEmpty and index: 1
-ToolSvc.NavigationVERBOSE Holder created, registering 0x27ca4f0 type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x27e3d10 with key HLT_DataVector<TestA>_AgainPresentButEmptyAux. of type TestAuxA(CLID 642300)
- in DataObject @0x27c8ef0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x27ca0c0 with key HLT_DataVector<TestA>_AgainPresentButEmpty of type DataVector<TestA>(CLID 64210)
- in DataObject @0x27e3f90
- object modifiable when retrieved
-ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 6421 label: 
-ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 6421 label:  index: 2
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 6421 label:  and index: 2
-ToolSvc.NavigationVERBOSE Holder created, registering 0x27e4320 type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x27e4690 with key HLT_DataVector<TestA>Aux. of type TestAuxA(CLID 642300)
- in DataObject @0x27e49a0
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x27e4580 with key HLT_DataVector<TestA> of type DataVector<TestA>(CLID 64210)
- in DataObject @0x27e41f0
- object modifiable when retrieved
-ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 96422 label: BContainer1
-ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 96422 label: BContainer1 index: 0
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: BContainer1 and index: 0
-ToolSvc.NavigationVERBOSE Holder created, registering 0x27e4f30 type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x27e5450 with key HLT_TestBContainer_BContainer1Aux. of type TestAuxB(CLID 642311)
- in DataObject @0x27e5270
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x27e5340 with key HLT_TestBContainer_BContainer1 of type TestBContainer(CLID 96422)
- in DataObject @0x27e56f0
- object modifiable when retrieved
-ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 96422 label: BContainer2
-ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 96422 label: BContainer2 index: 1
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96422 label: BContainer2 and index: 1
-ToolSvc.NavigationVERBOSE Holder created, registering 0x27e5f10 type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x27e6380 with key HLT_TestBContainer_BContainer2Aux. of type TestAuxB(CLID 642311)
- in DataObject @0x27e6220
- object modifiable when retrieved
-StoreGateSvc        DEBUG Recorded object @0x27e6270 with key HLT_TestBContainer_BContainer2 of type TestBContainer(CLID 96422)
- in DataObject @0x27e67a0
- object modifiable when retrieved
-ToolSvc.NavigationVERBOSE NavigationCore::prepare preregistering objects of clid: 96477 label: DContainer1
-ToolSvc.NavigationVERBOSE NavigationCore::prepare creating handler for type (CLID): 96477 label: DContainer1 index: 0
-ToolSvc.Navigation  DEBUG createHolder: creating holder for CLID: 96477 label: DContainer1 and index: 0
-ToolSvc.NavigationVERBOSE Holder created, registering 0x27e6c10 type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
-ToolSvc.Navigation  DEBUG registerHolder for OK type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
-StoreGateSvc        DEBUG Recorded object @0x27e7010 with key HLT_TestDContainer_DContainer1 of type TestDContainer(CLID 96477)
- in DataObject @0x27e6ed0
- object modifiable when retrieved
-ToolSvc.Navigation  DEBUG NavigationCore::prepare Navigation structure prepared for next event
-Registration_test    INFO LINE:96 Test progress fine:  Test finished
+NavigationCore      DEBUG Navigation reset done
+NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: EverEmptyButPresent and index: 0
+NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "EverEmptyButPresent" subTypeIndex: 0 container not allocated yet
+NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label: AgainPresentButEmpty and index: 1
+NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "AgainPresentButEmpty" subTypeIndex: 1 container not allocated yet
+NavigationCore      DEBUG createHolder: creating holder for CLID: 6421 label:  and index: 2
+NavigationCore      DEBUG registerHolder for OK type: TestA(6421) container: DataVector<TestA>(64210)label: "" subTypeIndex: 2 container not allocated yet
+NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: BContainer1 and index: 0
+NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer1" subTypeIndex: 0 container not allocated yet
+NavigationCore      DEBUG createHolder: creating holder for CLID: 96422 label: BContainer2 and index: 1
+NavigationCore      DEBUG registerHolder for OK type: TestBContainer(96422) container: TestBContainer(96422)label: "BContainer2" subTypeIndex: 1 container not allocated yet
+NavigationCore      DEBUG createHolder: creating holder for CLID: 96477 label: DContainer1 and index: 0
+NavigationCore      DEBUG registerHolder for OK type: TestDContainer(96477) container: TestDContainer(96477)label: "DContainer1" subTypeIndex: 0 container not allocated yet
+NavigationCore      DEBUG NavigationCore::prepare Navigation structure prepared for next event
+Registration_test    INFO LINE:100 Test progress fine:  Test finished

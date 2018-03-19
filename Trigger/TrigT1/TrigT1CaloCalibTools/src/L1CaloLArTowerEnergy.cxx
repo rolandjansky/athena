@@ -10,7 +10,7 @@ namespace LVL1{
     asg::AsgTool( name ),
     m_condSvc(nullptr),
     m_lvl1Helper(nullptr),
-    caloMgr(nullptr),
+    m_caloMgr(nullptr),
     m_LArOnlineHelper(nullptr),
     m_ttService(nullptr),
     m_cells2tt("LVL1::L1CaloCells2TriggerTowers/L1CaloCells2TriggerTowers"),
@@ -30,14 +30,14 @@ namespace LVL1{
     sc = service("L1CaloCondSvc", m_condSvc);
     if(sc.isFailure()){ATH_MSG_ERROR( "Cannot access L1CaloCondSvc!" );return sc;}
 
-    sc = detStore()->retrieve(caloMgr) ;
+    sc = detStore()->retrieve(m_caloMgr) ;
     if(sc.isFailure()){ATH_MSG_ERROR( "Cannot access caloMgr");return sc;}
 
     sc = detStore()->retrieve(m_LArOnlineHelper,"LArOnlineID") ;
     if(sc.isFailure()){ATH_MSG_ERROR( "Cannot access LArOnlineID");return sc;}
     
     //Use the CaloIdManager to get a pointer to an instance of the CaloLVL1_ID helper
-    m_lvl1Helper = caloMgr->getLVL1_ID();
+    m_lvl1Helper = m_caloMgr->getLVL1_ID();
     if(!m_lvl1Helper) {
       ATH_MSG_ERROR( "Cannot access CaloLVL1_ID helper." );
       return StatusCode::FAILURE;
@@ -83,13 +83,13 @@ namespace LVL1{
     sc = m_ttTool->retrieveConditions();
     if(!sc.isSuccess()) {
       ATH_MSG_ERROR( "Cannot retrieve Conditions in L1TriggerTowerTool." );
-      return StatusCode::RECOVERABLE;
+      return false;
     }
 
     // init trigger tower to cell mapping - needed each event?
     if(!m_cells2tt->initCaloCellsTriggerTowers(caloCellContainer)) {
       ATH_MSG_ERROR( "Can not initialize L1CaloCells2TriggerTowers with CaloCellContainer "<< m_caloCellContainerName );
-      return StatusCode::RECOVERABLE;
+      return false;
     }
 
     Identifier TTid;
@@ -99,7 +99,7 @@ namespace LVL1{
 
     mapSum::iterator it_map;
 
-    LVL1::TriggerTower *tt;
+    const LVL1::TriggerTower *tt;
     TriggerTowerCollection::const_iterator p_itTT = triggerTowerCollection.begin();
     TriggerTowerCollection::const_iterator p_itTTEnd = triggerTowerCollection.end();
 

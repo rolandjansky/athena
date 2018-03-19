@@ -73,5 +73,6 @@ include("G4AtlasApps/G4Atlas.flat.configuration.py")
 ## Populate alg sequence
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+topSeq.G4AtlasAlg.InputTruthCollection='GEN_EVENT'
 
 #--- End jobOptions.G4Ctb_Sim.py file  -----------------------

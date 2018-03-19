@@ -63,6 +63,8 @@ namespace InDet
     std::vector<float>   m_zOfPileUp;
     std::vector<float>   m_zOfNoVtx;
     bool                 m_runWithoutField;
+    bool                 m_useTracksAsInput;
+    bool                 m_createVtxTPLinks;
     
     ToolHandle< IVertexFinder > m_VertexFinderTool;
     ServiceHandle< MagField::IMagFieldSvc> m_fieldSvc;

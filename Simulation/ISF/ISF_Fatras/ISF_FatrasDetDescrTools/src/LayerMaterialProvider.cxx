@@ -58,11 +58,12 @@ StatusCode iFatras::LayerMaterialProvider::process(const Trk::TrackingGeometry& 
               int layIndex = lay->layerIndex().value();  
               // only move on if layer index is different from 0
               if (layIndex){
-                  StatusCode sc = process(*lay, 0).isSuccess();
+                  StatusCode sc( process(*lay, 0) );
+		  // @TODO Currently recoverable errors are treated as failure. Is this the intended behaviour ? Elsewhere recoverable errors are treated as recoverable
                   if (sc.isSuccess())
                       ATH_MSG_DEBUG("---[B] Boundary layer with " << layCount << " references : successfully loaded material map for layer " << layIndex );
-                  else if (sc.isRecoverable())
-                      ATH_MSG_WARNING("Failed to call process(const Layer&) on layers - but recoverable.");
+                  // else if (sc.isRecoverable())
+                  //    ATH_MSG_WARNING("Failed to call process(const Layer&) on layers - but recoverable.");
                   else {
                       ATH_MSG_FATAL("Failed to call process(const Layer&) on layer. Aborting.");
                       return StatusCode::FAILURE;            

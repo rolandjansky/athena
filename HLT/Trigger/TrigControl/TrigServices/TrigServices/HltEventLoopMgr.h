@@ -380,7 +380,10 @@ private:
   
   StringProperty            m_jobOptionsType;        //!< JobOptions type (="NONE" or "DB", same as in PSC)
 
-  Histo1DProperty           m_histProp_Hlt_result_size;  
+  Histo1DProperty           m_histProp_Hlt_result_size;
+  Histo1DProperty           m_histProp_Hlt_result_size_physics;
+  Histo1DProperty           m_histProp_Hlt_result_size_express;
+  Histo1DProperty           m_histProp_Hlt_result_size_DataScouting;
   Histo1DProperty           m_histProp_numStreamTags;              
   Histo1DProperty           m_histProp_streamTagNames;  
   Histo1DProperty           m_histProp_num_partial_eb_robs;

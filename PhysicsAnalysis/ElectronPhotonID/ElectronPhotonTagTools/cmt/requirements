@@ -13,10 +13,11 @@ use EventInfo              EventInfo-*             Event
 use TagEvent               TagEvent-*              PhysicsAnalysis/EventTag
 use xAODEgamma		   xAODEgamma-*	 	   Event/xAOD 
 use xAODMissingET	   xAODMissingET-*	   Event/xAOD 
-use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-*  PhysicsAnalysis/ElectronPhotonID
-use ElectronPhotonShowerShapeFudgeTool ElectronPhotonShowerShapeFudgeTool-*  PhysicsAnalysis/ElectronPhotonID
+use ElectronPhotonSelectorTools          ElectronPhotonSelectorTools-*          PhysicsAnalysis/ElectronPhotonID
+use ElectronPhotonShowerShapeFudgeTool   ElectronPhotonShowerShapeFudgeTool-*   PhysicsAnalysis/ElectronPhotonID
 use ElectronPhotonFourMomentumCorrection ElectronPhotonFourMomentumCorrection-* PhysicsAnalysis/ElectronPhotonID
 use IsolationSelection     IsolationSelection-*    PhysicsAnalysis/AnalysisCommon
+use IsolationCorrections   IsolationCorrections-*  PhysicsAnalysis/ElectronPhotonID/
 use xAODEventInfo          xAODEventInfo-*         Event/xAOD
 
 private
@@ -24,13 +25,13 @@ use AnalysisUtils          AnalysisUtils-*         PhysicsAnalysis/AnalysisCommo
 use xAODTracking           xAODTracking-*          Event/xAOD
 use xAODCore               xAODCore-*              Event/xAOD
 use xAODParticleEvent      xAODParticleEvent-*     Event/xAOD   
+use AthContainers          AthContainers-*         Control
+
 end_private
 
 private
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
-end_private
 
-public
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*.py"

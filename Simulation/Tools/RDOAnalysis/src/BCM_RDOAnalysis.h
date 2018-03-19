@@ -58,19 +58,19 @@ private:
   std::vector< std::vector<float> >* m_charge_vec;
 
   // HISTOGRAMS
-  TH1* h_word1;
-  TH1* h_word2;
-  TH1* h_chan;
-  TH1* h_pulse1Pos;
-  TH1* h_pulse1Width;
-  TH1* h_pulse2Pos;
-  TH1* h_pulse2Width;
+  TH1* m_h_word1;
+  TH1* m_h_word2;
+  TH1* m_h_chan;
+  TH1* m_h_pulse1Pos;
+  TH1* m_h_pulse1Width;
+  TH1* m_h_pulse2Pos;
+  TH1* m_h_pulse2Width;
 
-  TH1* h_sdoID;
-  TH1* h_sdoWord;
-  TH1* h_barcode;
-  TH1* h_eventIndex;
-  TH1* h_charge;
+  TH1* m_h_sdoID;
+  TH1* m_h_sdoWord;
+  TH1* m_h_barcode;
+  TH1* m_h_eventIndex;
+  TH1* m_h_charge;
 
   TTree* m_tree;
   std::string m_ntupleFileName;

@@ -21,7 +21,7 @@ ConditionsTag = '' # empty in default
 # Global flags and beam flag
 #--------------------------------------------------------------
 DataSource = 'data'       # 'data' or 'geant4'
-beamType   = 'cosmics' # 'cosmics', 'singlebeam' or 'collisions'
+beamType   = 'collisions' # 'cosmics', 'singlebeam' or 'collisions'
 
 #------------------------------------------------------------
 # Flags for input 
@@ -71,7 +71,6 @@ LbsPerWindow           = 20
 
 #--- Noisy strips
 NoisyUpdate            = True     # True = Write out difference from the existing data, False = Write out all
-#NoisyMinStat           = 100    # 50000 (enough), 10000 (still possible), 5000 (for commissioning)
 NoisyMinStat           = 10000    # 50000 (enough), 10000 (still possible), 5000 (for commissioning)
 NoisyStripAll          = True     # True = All noisy strips into DB, False = Only newly found strips
 NoisyStripThrDef       = True     # True = Offline, False = Calib

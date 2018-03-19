@@ -18,7 +18,8 @@ msg.info('logging set in %s' % sys.argv[0])
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor
-from PyJobTransforms.trfArgs import addAthenaArguments
+from PyJobTransforms.trfArgs import addDetectorArguments
+
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 
 import PyJobTransforms.trfExceptions as trfExceptions
@@ -114,6 +115,14 @@ def getTransform():
             perfMonFile='ntuple_RDOFTKCreator.pmon.gz'))
 
     executorSet.add(
+         athenaExecutor(
+            name='AODFTKCreator',
+            skeletonFile='TrigFTKSim/skeleton.AOD_FTK_Creator.py',
+            substep='rFTK2aFTK', inData=[('RDO_FTK'),('BS_FTK')],
+            outData=[('AOD')], inputEventTest = False,
+            perfMonFile='ntuple_AODFTKCreator.pmon.gz'))
+
+    executorSet.add(
         athenaExecutor(
             name='BSFTKCreator',
             skeletonFile='TrigFTKSim/skeleton.BS_FTK_Creator.py',
@@ -127,7 +136,8 @@ def getTransform():
                                 'subregions merge and final merge.'.format(
                                     ntowers, subregions))
 
-    #addAthenaArguments(trf.parser)
+    addTrigFTKAthenaOptions(trf.parser)
+    addDetectorArguments(trf.parser)
     addTrigFTKSimOptions(trf.parser, nsubregions=subregions)
     addTrigFTKSimMergeOptions(trf.parser);
     addTrigFTKSimTFOptions(trf.parser)

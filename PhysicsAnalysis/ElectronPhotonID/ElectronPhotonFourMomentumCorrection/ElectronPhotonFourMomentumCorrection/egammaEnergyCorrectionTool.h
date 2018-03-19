@@ -42,7 +42,9 @@
 class eg_resolution;
 class get_MaterialResolutionEffect;
 class e1hg_systematics;
-namespace egGain { class GainTool; }
+namespace egGain { class GainTool;            // run1 tool
+                   class GainUncertainty;     // run2 tool
+                 }
 
 // Create a namespace for all needed enums
 namespace egEnergyCorr {
@@ -76,6 +78,10 @@ namespace egEnergyCorr {
 
       // Pileup uncertainty
       PileUpDown, PileUpUp,
+
+      // IBL+PP0 for run 2
+      MaterialIBLUp, MaterialIBLDown, MaterialPP0Up, MaterialPP0Down,
+
 
       // to help with loops
       LastResolutionVariation
@@ -138,6 +144,9 @@ namespace egEnergyCorr {
       // ... Layer scale variations : data driven, uncorrelated vs eta
       PSUp, PSDown, S12Up, S12Down,
 
+      // extra E12 for es2017 run2
+      S12ExtraLastEtaBinRun2Up, S12ExtraLastEtaBinRun2Down,
+
       // ... Material variations : data driven, uncorrelated vs eta
       MatIDUp, MatIDDown, MatCryoUp, MatCryoDown, MatCaloUp, MatCaloDown,
 
@@ -147,6 +156,11 @@ namespace egEnergyCorr {
       // ... Pedestal
       PedestalUp, PedestalDown,
 
+      // ... wtots1
+      Wtots1Up, Wtots1Down,
+
+      // PP0
+      MatPP0Up, MatPP0Down,
 
       // The following apply to photons only
 
@@ -194,7 +208,11 @@ namespace egEnergyCorr {
     es2015cPRE_res_improved,
     es2015c_summer,         // data-driven for mc15c (to be used in summer 2016)
     es2016PRE,              // as es2015c_summer + temperature extrapolation
-
+    es2017,                 // Moriond 2017
+    es2017_summer,          // Summer 2017
+    es2017_summer_improved, // Recommendations for Higgs mass paper
+    es2017_R21_PRE,         // Pre-recommendations for release 21
+    
     UNDEFINED
 
   };
@@ -273,10 +291,10 @@ namespace AtlasRoot {
 			       PATCore::ParticleDataType::DataType dataType,
 			       PATCore::ParticleType::Type ptype,
 			       double cl_eta,
-             double cl_etaCalo,
+			       double cl_etaCalo,
 			       double energy,
 			       double energyS2,
-             double eraw,
+			       double eraw,
 			       egEnergyCorr::Scale::Variation scaleVar = egEnergyCorr::Scale::None,
 			       egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
                                egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
@@ -304,24 +322,26 @@ namespace AtlasRoot {
     const TAxis& get_ZeeStat_eta_axis() const { return *m_zeeNom->GetXaxis(); }
 
   private:
-    mutable egGain::GainTool* m_gain_tool;
+    // TODO: remove mutable
+    mutable egGain::GainTool* m_gain_tool;                    // run 1
+    egGain::GainUncertainty* m_gain_tool_run2;        // based on special run for run2
     mutable eg_resolution* m_resolution_tool;
     mutable get_MaterialResolutionEffect* m_getMaterialDelta;
     mutable e1hg_systematics* m_e1hg_tool;
 
     double getAlphaValue(long int runnumber, double cl_eta, double cl_etaCalo,
-      double energy, double energyS2, double eraw,
-      PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
-      egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,
-      double varSF = 1. ) const;
+			 double energy, double energyS2, double eraw,
+			 PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
+			 egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,
+			 double varSF = 1. ) const;
 
     double getAlphaUncertainty(long int runnumber, double cl_eta, double cl_etaCalo,
-				double energy,
-				double energyS2,
-        double eraw,
-                                PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
-                                egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,
-                                double varSF = 1. ) const;
+			       double energy,
+			       double energyS2,
+			       double eraw,
+			       PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
+			       egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,
+			       double varSF = 1. ) const;
 
 
     /// smearing corrections
@@ -366,6 +386,8 @@ namespace AtlasRoot {
 
     double getE4Uncertainty(double eta) const;
     double getE4NonLinearity(double cl_eta, double meanE, PATCore::ParticleType::Type) const;
+
+    double getWtots1Uncertainty(double cl_eta, double energy, PATCore::ParticleType::Type ptype) const;
 
     double getLayerUncertainty( int iLayer, double cl_eta,
 				egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF=1. ) const;
@@ -429,6 +451,8 @@ namespace AtlasRoot {
     TH1D*         m_daS12Cor;
 
     TH1D*         m_zeeNom;
+    TH1D*         m_zeeNom_data2015;
+
     TH1D*         m_zeeSyst;
     TH1D*         m_zeePhys;
     TH1*          m_uA2MeV_2015_first2weeks_correction;
@@ -478,6 +502,8 @@ namespace AtlasRoot {
     TH1D*         m_pedestalL2;
     TH1D*         m_pedestalL3;
 
+    TH1F*         m_pedestals_es2017;
+
     TH1D*         m_convRadius;
     TH1D*         m_convFakeRate;
     TH1D*         m_convRecoEfficiency;
@@ -487,6 +513,27 @@ namespace AtlasRoot {
 
     TH1D*         m_zeeES2Profile;
 
+    TH2D*         m_pp0_elec;
+    TH2D*         m_pp0_unconv;
+    TH2D*         m_pp0_conv;
+
+    TH1D*         m_wstot_slope_A_data;
+    TH1D*         m_wstot_slope_B_MC;
+    TH1D*         m_wstot_40GeV_data;
+    TH1D*         m_wstot_40GeV_MC;
+    TH1D*         m_wstot_pT_data_p0_electrons;
+    TH1D*         m_wstot_pT_data_p1_electrons;
+    TH1D*         m_wstot_pT_data_p0_unconverted_photons;
+    TH1D*         m_wstot_pT_data_p1_unconverted_photons;
+    TH1D*         m_wstot_pT_data_p0_converted_photons;
+    TH1D*         m_wstot_pT_data_p1_converted_photons;
+    TH1D*         m_wstot_pT_MC_p0_electrons;
+    TH1D*         m_wstot_pT_MC_p1_electrons;
+    TH1D*         m_wstot_pT_MC_p0_unconverted_photons;
+    TH1D*         m_wstot_pT_MC_p1_unconverted_photons;
+    TH1D*         m_wstot_pT_MC_p0_converted_photons;
+    TH1D*         m_wstot_pT_MC_p1_converted_photons;
+    
     // Geometry distortion vectors (to be ordered as in the the Geometry enum!)
 
     std::vector<TH1D*> m_matElectronScale;

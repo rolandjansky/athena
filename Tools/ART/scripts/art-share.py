@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """
 ART  - ATLAS Release Tester - Share.
 
@@ -9,7 +9,7 @@ Usage:
 Options:
   -h --help               Show this screen
   --version               Show version
-  --q --quiet             Show less information, only warnings and errors
+  -q --quiet              Show less information, only warnings and errors
   --write                 Write to directory
   -v --verbose            Show more information, debug level
 

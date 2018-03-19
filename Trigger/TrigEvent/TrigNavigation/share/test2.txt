@@ -12,6 +12,7 @@ StoreGateSvc.ActivateHistory = false;
 //ClassIDSvc.OutputLevel = 1;
 //MessageSvc.OutputLevel = 1;
 MessageSvc.useColors        = false;
+MessageSvc.setDebug = {"NavigationCore"};
 
 //StoreGateSvc.FolderNameList = { "MyFolder", "YourFolder" };
 //MyFolder.ItemList = {"Foo#Bla", "Bar#*"};

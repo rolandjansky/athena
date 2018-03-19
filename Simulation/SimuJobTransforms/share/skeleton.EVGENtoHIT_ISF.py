@@ -46,10 +46,8 @@ if hasattr(runArgs, "inputFile"):
 # We don't expect both inputFile and inputEVNT*File to be specified
 if hasattr(runArgs, "inputEVNTFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNTFile )
-elif hasattr(runArgs, "inputEVNT_COSMICSFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_COSMICSFile )
-elif hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_CAVERNFile )
+elif hasattr(runArgs, "inputEVNT_TRFile"):
+    setInputEvgenFileJobProperties( runArgs.inputEVNT_TRFile )
 elif hasattr(runArgs, "inputEVNT_STOPPEDFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNT_STOPPEDFile )
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
@@ -62,7 +60,7 @@ else:
 ## Handle cosmics configs
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     simFlags.load_cosmics_flags()
-    if hasattr(runArgs, "inputEVNT_COSMICSFile"):
+    if hasattr(runArgs, "inputEVNT_TRFile"):
         if simFlags.CosmicFilterVolumeName.statusOn and simFlags.CosmicFilterVolumeName.get_Value() != "Muon":
             atlasG4log.warning("Filtering was already done. Using CosmicFilterVolumeName=Muon rather than "
                                "provided value (%s)" % str(runArgs.CosmicFilterVolumeName))
@@ -89,6 +87,12 @@ else:
 atlasG4log.info( '**** Transformation run arguments' )
 atlasG4log.info( str(runArgs) )
 
+## Set up the top sequence
+from AthenaCommon.AlgSequence import AlgSequence
+topSeq = AlgSequence()
+
+## Set Overall per-Algorithm time-limit on the AlgSequence
+topSeq.TimeOut = 43200 * Units.s
 
 #==============================================================
 # Job Configuration parameters:
@@ -105,15 +109,16 @@ if hasattr(runArgs, "preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
-# Avoid command line preInclude for stopped particles
-if hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
-
 # Avoid command line preInclude for cavern background
-if hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    include('SimulationJobOptions/preInclude.G4ReadCavern.py')
-if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
-    include('SimulationJobOptions/preInclude.G4WriteCavern.py')
+if jobproperties.Beam.beamType.get_Value() != 'cosmics':
+    # If it was already there, then we have a stopped particle file
+    if hasattr(runArgs, "inputEVNT_TRFile") and\
+        not hasattr(topSeq,'TrackRecordGenerator'):
+        include('SimulationJobOptions/preInclude.G4ReadCavern.py')
+    # If there's a stopped particle file, don't do all the cavern stuff
+    if hasattr(runArgs, "outputEVNT_TRFile") and\
+        not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
+        include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
@@ -219,11 +224,11 @@ elif hasattr(runArgs,'jobNumber'):
 ## Handle cosmics track record
 from AthenaCommon.BeamFlags import jobproperties
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    if hasattr(runArgs, "inputEVNT_COSMICSFile"):
+    if hasattr(runArgs, "inputEVNT_TRFile"):
         simFlags.ReadTR = athenaCommonFlags.PoolEvgenInput()[0]
     else:
-        if hasattr(runArgs, "outputEVNT_COSMICSTRFile"):
-            simFlags.WriteTR = runArgs.outputEVNT_COSMICSTRFile
+        if hasattr(runArgs, "outputEVNT_TRFile"):
+            simFlags.WriteTR = runArgs.outputEVNT_TRFile
         #include( 'CosmicGenerator/jobOptions_ConfigCosmicProd.py' )
 
 ## Add filters for non-cosmics simulation
@@ -235,12 +240,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
         simFlags.WorldZRange.set_Value(26050)
     else:
         simFlags.EventFilter.set_On()
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSeq = AlgSequence()
-
-## Set Overall per-Algorithm time-limit on the AlgSequence
-topSeq.TimeOut = 43200 * Units.s
 
 try:
     from RecAlgs.RecAlgsConf import TimingAlg

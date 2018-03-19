@@ -487,7 +487,11 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           self.doSeedRedundancyCheck = InDetTrigSliceSettings[('checkRedundantSeeds',remapped_type)]
           self.Triplet_D0Max        = InDetTrigSliceSettings[('d0SeedMax',remapped_type)]
           self.Triplet_D0_PPS_Max   = InDetTrigSliceSettings[('d0SeedPPSMax',remapped_type)] 
-          self.TrackInitialD0Max   = InDetTrigSliceSettings[('d0TrackInitialMax',remapped_type)] 
+          self.TrackInitialD0Max = 20.
+          if remapped_type=='cosmics':
+            self.TrackInitialD0Max = 1000.
+            self.TrackZ0Max   = 1000.
+
           self.TripletDoPSS   = False
           self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
           self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
@@ -574,7 +578,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
             ToolSvc += theTrigZFinder
             self.trigZFinder = theTrigZFinder
             self.doFastZVertexSeeding = True
-            self.zVertexResolution = 7.5
+            self.zVertexResolution = 1
           
           from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
           self.TrackSummaryTool = InDetTrigFastTrackSummaryTool

@@ -1,7 +1,7 @@
 	 <athena trendId='electron_merging_lowpt' userJobId='TrigInDetValidation_el_single_e_5'>
-           <doc>Single electron 5GeV, pu0, run2 chains</doc>
-           <displayName>ElectronSlice-single e 5GeV, pu0, run2 chains</displayName>
-           <commandLineFlags>EventMax=10000;runMergedChain=True</commandLineFlags>
+           <doc>Single electron 5GeV, pu0</doc>
+           <displayName>ElectronSlice-single e 5GeV, pu0</displayName>
+           <commandLineFlags>EventMax=10000</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>

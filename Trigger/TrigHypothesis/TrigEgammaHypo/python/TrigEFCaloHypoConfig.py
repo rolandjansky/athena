@@ -33,8 +33,6 @@ class TrigEFCaloHypoBase (TrigEFCaloHypo):
         mlog = logging.getLogger( 'TrigEFCaloHypoBase:' )
         #Load Tool Service
         from AthenaCommon.AppMgr import ToolSvc
-        from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-        ToolSvc += LuminosityToolOnline()
         self.ShowerBuilderTool=TrigEMShowerBuilderTool
         self.FourMomBuilderTool=TrigEMFourMomBuilder
         #-----------------------------------------------------------
@@ -64,6 +62,11 @@ class TrigEFCaloHypo_e_ID (TrigEFCaloHypoBase):
         if( 'lh' in IDinfo):
             self.LHSelectorToolName='AsgElectronLikelihoodTool/'+ElectronCaloToolName[IDinfo]
             self.ApplyLH = True
+        elif( 'bloose' in IDinfo    ):
+            self.ApplyIsEM = True
+            from TrigEgammaHypo.TrigEgammaPidTools import BLooseISEMBits
+            self.IsEMrequiredBits =  BLooseISEMBits[IDinfo]
+            self.SelectorToolName = 'AsgElectronIsEMSelector/'+ElectronCaloToolName[IDinfo]
         else:
             self.ApplyIsEM = True
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]

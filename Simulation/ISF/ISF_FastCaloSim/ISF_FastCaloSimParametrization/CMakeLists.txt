@@ -56,10 +56,10 @@ atlas_add_root_dictionary( ISF_FastCaloSimParametrizationLib
                            ISF_FastCaloSimParametrizationLibDictSource
                            ROOT_HEADERS
                            ISF_FastCaloSimParametrization/MeanAndRMS.h
-                           ISF_FastCaloSimParametrization/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TFCSNNLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h
                            ISF_FastCaloSimParametrization/TreeReader.h
+                           ISF_FastCaloSimParametrization/FCS_Cell.h
                            Root/LinkDef.h
                            EXTERNAL_PACKAGES  ROOT HepPDT XercesC CLHEP HepMC Geant4 )
 
@@ -82,3 +82,4 @@ atlas_add_component( ISF_FastCaloSimParametrization
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
+atlas_install_runtime( scripts/*.py )

@@ -108,6 +108,20 @@ StatusCode photonSuperClusterBuilder::execute(){
     ATH_MSG_ERROR("Could not record egammaRecContainer " << m_photonSuperRecCollectionName);
     return StatusCode::FAILURE;
   } 
+
+  return executeImpl(egammaRecs, newEgammaRecs, outputClusterContainer);
+}
+
+StatusCode photonSuperClusterBuilder::hltExecute(const EgammaRecContainer *egammaRecs,
+                                                   EgammaRecContainer *newEgammaRecs,
+                                                   xAOD::CaloClusterContainer *outputClusterContainer) {
+
+  return executeImpl(egammaRecs, newEgammaRecs, outputClusterContainer);
+}
+
+StatusCode photonSuperClusterBuilder::executeImpl(const EgammaRecContainer *egammaRecs,
+                                                    EgammaRecContainer *newEgammaRecs,
+                                                    xAOD::CaloClusterContainer *outputClusterContainer) {
   //Loop over input egammaRec objects, build superclusters.
   std::vector<bool> isUsed (egammaRecs->size(),0);
 

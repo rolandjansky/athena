@@ -7,6 +7,8 @@ import ROOT
 import math
 import random
 
+RUN2016 = 297730l
+RUN2015 = 252604l
 
 def arange(xmin, xmax, delta):
     # just to don't inject dep from numpy
@@ -94,6 +96,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         """
         tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
         self.assertTrue(tool.setProperty("ESModel", "es2012c").isSuccess())
+        self.assertTrue(tool.setProperty("int")("randomRunNumber", RUN2015).isSuccess())
         self.assertTrue(tool.setProperty("int")("doSmearing", 0).isSuccess())
         tool.msg().setLevel(ROOT.MSG.WARNING)
 
@@ -294,14 +297,14 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
 
                 spamwriter.writerow(args + [calibrated_energy])
 
-    @unittest.expectedFailure  # FIXME: the problem is in the factory
+    @unittest.skip("ATLASG-694")  # FIXME: the problem is in the factory
     def test_MVA_all_simulation(self):
         for particle in 'electron', 'photon':
             self._test_MVA('es2015PRE', particle, False)
             self._test_MVA('es2015cPRE', particle, False)
             self._test_MVA('es2012c', particle, False)
 
-    @unittest.expectedFailure  # FIXME: the problem is in the factory
+    @unittest.skip("ATLASG-694")  # FIXME: the problem is in the factory
     def test_MVA_all_data(self):
         for particle in 'electron', 'photon':
             self._test_MVA('es2015PRE', particle, True)
@@ -339,6 +342,9 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
             return [ss.name() for ss in s]
 
         def _test_list_syst(model, decorrelation, decorrelation_scale, decorrelation_resolution, allsyst, success=True):
+            """
+            test that the systematic variations are the expected ones
+            """
             tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
             tool.msg().setLevel(ROOT.MSG.WARNING)
             self.assertTrue(tool.setProperty("int")("useMVACalibration", 0).isSuccess())
@@ -358,7 +364,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
                 return
             sys_list = get_names_sys(tool)
             if type(allsyst) is int:
-                self.assertEqual(len(sys_list), allsyst)
+                self.assertEqual(len(sys_list), allsyst, msg='actual (expected) number of sys %d(%d): %s' % (len(sys_list), allsyst, sys_list))
             else:
                 self.assertItemsEqual(sys_list, allsyst)
             return sys_list
@@ -390,6 +396,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         _test_list_syst("es2012c", "FULL_ETACORRELATED_v1", None, None, 54)
         _test_list_syst("es2016PRE", "FULL_ETACORRELATED_v1", None, None, 62)
         _test_list_syst("es2015c_summer", "FULL_ETACORRELATED_v1", None, None, 60)
+        _test_list_syst("es2016data_mc15c",  "FULL_ETACORRELATED_v1", None, None, 68)
         _test_list_syst("es2012c", "FULL_v1", None, None, 148)
         _test_list_syst("es2012c", None, "FULL_v1", "FULL_v1", 148)
         _test_list_syst("es2015PRE", "FULL_v1", None, None, 158)
@@ -507,17 +514,20 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
                 self.assertAlmostEqual(pt1, pt2)
                 self.assertAlmostEqual(eta1, eta2)
 
-    def test_1NP_vs_FULL_es2015PRE(self):
+    def test_1NP_vs_FULL_es2017(self):
         """ check that the 1NP model is the squared sum of the single systematics """
-        tool_1NP = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2015PRE_1NP")
-        tool_1NP.setProperty("ESModel", "es2015PRE").ignore()
+        tool_1NP = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2016data_mc15c_1NP")
+        tool_1NP.setProperty("ESModel", "es2016data_mc15c").ignore()
         tool_1NP.setProperty("decorrelationModel", "1NP_v1").ignore()
+        tool_1NP.setProperty("int")("randomRunNumber", RUN2015).ignore()
         #tool_1NP.setProperty("int")("doSmearing", 0).ignore()   # remove
         #tool_1NP.msg().setLevel(ROOT.MSG.DEBUG)
+        
         tool_1NP.initialize().ignore()
 
-        tool_FULL = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2015PRE_FULL")
-        tool_FULL.setProperty("ESModel", "es2015PRE").ignore()
+        tool_FULL = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2016data_mc15c_FULL")
+        tool_FULL.setProperty("ESModel", "es2016data_mc15c").ignore()
+        tool_FULL.setProperty("int")("randomRunNumber", RUN2015).ignore()
         # use ETACORRELATED to compare. FULL_v1 will differ (very small difference) since by default
         # FULL_v1 divide the ZEESTAT by the sqrt(#bins)
         tool_FULL.setProperty("decorrelationModel", "FULL_ETACORRELATED_v1").ignore()
@@ -716,5 +726,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
 if __name__ == '__main__':
     ROOT.PyConfig.IgnoreCommandLineOptions = True
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
+#    from ROOT import EgammaCalibPeriodRunNumbersExample
+
     #ROOT.xAOD.TReturnCode.enableFailure()
     unittest.main()

@@ -499,8 +499,8 @@ SCTCalib.BSErrorModuleFile         = 'BSErrorModuleSummary.xml'        # Summary
 
 SCTCalib.LorentzAngleFile          = 'LorentzAngleFile.xml'          # Summary of LorentzAngle ------- Roger
 
-#SCTCalib.NoisyModuleAverageInDB    = NoisyModuleAverageInDB  #noisyModulesAverageInDB
-#SCTCalib.NoisyStripLastRunInDB     = NoisyStripLastRunInDB   #noisyStripsInDB_lastRun
+SCTCalib.NoisyModuleAverageInDB    = NoisyModuleAverageInDB  #noisyModulesAverageInDB
+SCTCalib.NoisyStripLastRunInDB     = NoisyStripLastRunInDB   #noisyStripsInDB_lastRun
 
 SCTCalib.OutputLevel     = INFO # DEBUG
 SCTCalib.AuditAlgorithms = True # False

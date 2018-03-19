@@ -38,15 +38,6 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
         from RecExConfig.RecFlags import rec
         self.doTruth= rec.doTruth()
-        self.TrainingBeamspotX= 0.0
-        self.TrainingBeamspotY= 0.0
-        self.TrainingBeamspotZ = 0.0
-        self.TrainingBeamspotTiltX= 0.0
-        self.TrainingBeamspotTiltY= 0.0
-        self. PixelBarrelPhiOffsets=[0.,0.,0.,0.]
-        self. PixelBarrelEtaOffsets=[0.,0.,0.,0.]
-        self. PixelEndCapPhiOffsets=[0,0.,0.]
-        self. PixelEndCapEtaOffsets=[0.,0.,0.]
 
         
 

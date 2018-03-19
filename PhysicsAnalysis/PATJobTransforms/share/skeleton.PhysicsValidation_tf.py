@@ -11,7 +11,7 @@
 include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
 from AthenaCommon.Logging import logging
-skelLog = logging.getLogger('PhysicsValidaiton')
+skelLog = logging.getLogger('PhysicsValidation')
 skelLog.info( '****************** Starting Physics Validation *****************' )
 
 from RecExConfig.RecFlags import rec
@@ -34,19 +34,6 @@ monMan.ManualRunLBSetup    = True
 monMan.Run                 = 1
 monMan.LumiBlock           = 1
 
-# Only for now due to xAOD issues
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-topSequence += monMan
-
-from AthenaCommon.AppMgr import ServiceMgr
-from GaudiSvc.GaudiSvcConf import THistSvc
-ServiceMgr += THistSvc()
-svcMgr.THistSvc.Output += ["PhysVal DATAFILE='" + runArgs.outputNTUP_PHYSVALFile + "' OPT='RECREATE'"]
-monMan.FileKey = "PhysVal" 
-
-
-
 if hasattr(runArgs,"inputESDFile"):
     rec.readESD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolESDInput.set_Value_and_Lock( runArgs.inputESDFile )
@@ -59,6 +46,9 @@ elif hasattr(runArgs,"inputAODFile"):
     rec.readAOD = True
 else:
     raise RuntimeError('No input file argument given (ESD or AOD input required)')
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
 # Validation dictionary with default run setting:
 validationDict = {
@@ -98,6 +88,23 @@ if hasattr(runArgs,"validationFlags"):
             skelLog.warning("Ignored unrecognised validation control string for {0}: {1}".format(validationType, flag))
             
 skelLog.info("Validation switches are set to: {0}".format(validationDict))
+
+# Add containers needed for running on AOD if necessary
+# This will check for existence, so no action will be taken
+# if running on DAOD_PHYSVAL or non-reduced derivations
+from PhysValMonitoring.PhysValUtils import addPhysValAODContent
+addPhysValAODContent(topSequence,
+                     doJets=validationDict['Jet'],
+                     doTopoCluster=validationDict['TopoCluster'])
+
+# Only for now due to xAOD issues?
+topSequence += monMan
+
+from AthenaCommon.AppMgr import ServiceMgr
+from GaudiSvc.GaudiSvcConf import THistSvc
+ServiceMgr += THistSvc()
+svcMgr.THistSvc.Output += ["PhysVal DATAFILE='" + runArgs.outputNTUP_PHYSVALFile + "' OPT='RECREATE'"]
+monMan.FileKey = "PhysVal" 
 
 # Schedule individual validations
 from PyJobTransforms.trfUtils import findFile

@@ -7,5 +7,5 @@
 
 
 TRTHit::TRTHit(unsigned first, unsigned second, unsigned third, unsigned fourth,
-  unsigned fifth): firstWord(first), secondWord(second), thirdWord(third),
-  fourthWord(fourth), fifthWord(fifth) {}
+  unsigned fifth): m_firstWord(first), m_secondWord(second), m_thirdWord(third),
+  m_fourthWord(fourth), m_fifthWord(fifth) {}

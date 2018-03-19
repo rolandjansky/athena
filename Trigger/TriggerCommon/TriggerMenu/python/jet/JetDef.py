@@ -4,7 +4,6 @@
 validity and repackage before forwarding ot to the ChainDef generating
 code."""
 import os
-import re
 import copy
 import sys
 import getopt
@@ -104,7 +103,8 @@ def _check_chainpart_consistency(chain_parts):
                      'bConfig',
                      'topo',
                      'bMatching',
-                     'extra']
+                     'extra',
+                     'dPhi']
 
         for tr in to_remove: 
             try:
@@ -114,10 +114,23 @@ def _check_chainpart_consistency(chain_parts):
 
     [remove_hypodata(c) for c in check_chain_parts]
     c0 = check_chain_parts[0]
+    cp = 0
     for c in check_chain_parts[1:]:
+        cp += 1
         if c != c0:
+            msg = 'Chain part %d differs ' % cp
+            missing_keys = [k for k in c if not k in c0]
+            missing_keys.extend([k for k in c0 if not k in c])
+            if missing_keys: msg += ' missing keys %s' % ' '.join(missing_keys)
+            different_vals = []
+            for k in c0:
+                if k in c:
+                    if c0[k] != c[k]:
+                        different_vals.append(k)
+            if different_vals: msg += ' different vals for keys ' + ' '.join(different_vals)
+            
             msg = '_check_chainpart_consistency: chain parts differ: '\
-                '%s %s' % (str(c0), str(c))
+                '%s %s' % (str(c0), str(c)) + msg
             raise RuntimeError(msg)
 
 
@@ -168,8 +181,6 @@ def _make_chaindef(from_central, instantiator):
 
     # rearrange the input data to produce chain_config
     chain_config = chainConfigMaker(from_central)
-
-    chain_name = chain_config.chain_name
 
     alg_factory = AlgFactory(chain_config)
     seq_builder = JetSequencesBuilder(alg_factory, chain_config)

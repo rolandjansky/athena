@@ -41,7 +41,6 @@
     ServiceHandle<IFTK_DataProviderSvc> m_DataProviderSvc;
     bool m_useRawTracks;
     bool m_useRefittedTracks;
-    bool m_getVertexContainer;
     ftk::FTK_TrackType m_trackType;
     std::string m_vertexContainerName;
     std::string m_vxContainerName;

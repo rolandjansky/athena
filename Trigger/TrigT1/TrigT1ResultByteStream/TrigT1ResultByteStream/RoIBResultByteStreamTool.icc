@@ -9,9 +9,6 @@
 
 #include <exception>
 
-// Gaudi/Athena include(s):
-#include "GaudiKernel/MsgStream.h"
-
 // eformat include(s):
 #include "eformat/SourceIdentifier.h"
 
@@ -30,8 +27,7 @@ template< class ROBF >
 StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
                                               ROIB::RoIBResult*& result ) {
 
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "executing convert() from ROBFragments to RDO" << endreq;
+  ATH_MSG_DEBUG("executing convert() from ROBFragments to RDO");
 
   /* Create all RDOs */
   ROIB::CTPResult cTPResult;
@@ -86,10 +82,12 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
     DataType status;
     rob.rod_status( status );
     uint32_t nstatus = rob.rod_nstatus();
-    log << MSG::VERBOSE << "Number of status words: " << nstatus << endreq;
-    for( uint32_t i = 0; i < nstatus; ++i, ++status ) {
-       log << MSG::VERBOSE << "   Status word: 0x" << MSG::hex << std::setw( 8 )
-           << std::setfill( '0' ) << *status << endreq;
+    ATH_MSG_VERBOSE("Number of status words: " << nstatus);
+    if (msgLvl(MSG::VERBOSE)) {
+      for( uint32_t i = 0; i < nstatus; ++i, ++status ) {
+        ATH_MSG_VERBOSE("   Status word: 0x" << MSG::hex << std::setw( 8 )
+            << std::setfill( '0' ) << *status);
+      }
     }
     rob.rod_status( status );
 
@@ -102,16 +100,16 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
        statInfo = static_cast< uint32_t >( *status );
     }
 
-    log << MSG::DEBUG << "ROB ID 0x" << MSG::hex << robId <<  " ROD ID 0x" 
+    ATH_MSG_DEBUG("ROB ID 0x" << MSG::hex << robId <<  " ROD ID 0x" 
         << rodId << MSG::dec << " ROB fragment size " 
-        << robFragSize << " ROD fragment size " << rodFragSize << endreq;
+        << robFragSize << " ROD fragment size " << rodFragSize);
 
     /* CTP ROB */
     eformat::helper::SourceIdentifier helpCTPID( eformat::TDAQ_CTP, m_ctpModuleID );
     eformat::helper::SourceIdentifier helpCTPID_II( eformat::TDAQ_CTP, 0 );
     
-    log << MSG::DEBUG << "Check ROD ID against CTP 0x" << MSG::hex 
-	<< helpCTPID.code() << MSG::dec << endreq;
+    ATH_MSG_DEBUG("Check ROD ID against CTP 0x" << MSG::hex 
+	<< helpCTPID.code() << MSG::dec);
     if( rodId == helpCTPID.code() || 
         // this is a hack to catch the early data with the old CTP
         // firmware, which assigns 0x770000 to both DAQ and LVL2 ROD
@@ -121,10 +119,10 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
         ( rodId == helpCTPID_II.code() && rodFragSize == 46 ) ) {
 
       if( rodId == helpCTPID_II.code() && rodFragSize == 46 ) {
-        log << MSG::DEBUG << "Take CTP ROD fragment with ID 0x" << MSG::hex << rodId << MSG::dec  << endreq;
+        ATH_MSG_DEBUG("Take CTP ROD fragment with ID 0x" << MSG::hex << rodId << MSG::dec );
       }
-      log << MSG::DEBUG << "   Found CTP ROB." << endreq;
-      log << MSG::VERBOSE << "   Dumping RoI Words:" << endreq;
+      ATH_MSG_DEBUG("   Found CTP ROB.");
+      ATH_MSG_VERBOSE("   Dumping RoI Words:");
 
       /* Celebrate finding the ROD */
       cTPFound = true;
@@ -135,14 +133,16 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
       rob.rod_data( data );
       uint32_t ndata = rob.rod_ndata();
       std::vector< ROIB::CTPRoI > cTPContent;
+      cTPContent.reserve(ndata);
       for( uint32_t i = 0; i < ndata; ++i, ++data ) {
-        log << MSG::VERBOSE << "       0x" << MSG::hex << std::setw( 8 )
-            << static_cast< uint32_t >( *data ) << endreq;
+        ATH_MSG_VERBOSE("       0x" << MSG::hex << std::setw( 8 )
+            << static_cast< uint32_t >( *data ));
         ROIB::CTPRoI thisRoI( static_cast<uint32_t>( *data ) );
         cTPContent.push_back( thisRoI );
       }
       /* Create Trailer */
       std::vector< uint32_t > words;
+      words.reserve(5);
       words.push_back( errorStat );         // error status
       words.push_back( statInfo );          // status info
       words.push_back( 2 );                 // number of status words
@@ -164,8 +164,8 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
     eformat::helper::SourceIdentifier helpMuonID( eformat::TDAQ_MUON_CTP_INTERFACE, m_muCTPIModuleID );
     if( rodId == helpMuonID.code() ) {
 
-      log << MSG::DEBUG << "   Found MuCTPI ROB." << endreq;
-      log << MSG::VERBOSE << "   Dumping RoI Words:" << endreq;
+      ATH_MSG_DEBUG( "   Found MuCTPI ROB.");
+      ATH_MSG_VERBOSE( "   Dumping RoI Words:");
 
       /* Celebrate finding the ROB */
       muCTPIFound = true;
@@ -176,15 +176,17 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
       rob.rod_data( data );
       uint32_t ndata = rob.rod_ndata();
       std::vector< ROIB::MuCTPIRoI > muCTPIContent;
+      muCTPIContent.reserve(ndata);
       for( uint32_t i = 0; i < ndata; ++i, ++data ) {
-        log << MSG::VERBOSE << "       0x" << MSG::hex << std::setw( 8 )
-            << static_cast< uint32_t >( *data ) << endreq;
+        ATH_MSG_VERBOSE("       0x" << MSG::hex << std::setw( 8 )
+            << static_cast< uint32_t >( *data ));
         ROIB::MuCTPIRoI thisRoI( static_cast< uint32_t >( *data ) );
         muCTPIContent.push_back( thisRoI );
       }
 
       /* Create trailer */
       std::vector< uint32_t > words;
+      words.reserve(5);
       words.push_back( errorStat );            // error status
       words.push_back( statInfo );             // status info
       words.push_back( 2 );                    // number of status words
@@ -202,8 +204,8 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
 	 eformat::helper::SourceIdentifier helpJetID_1( eformat::TDAQ_CALO_JET_PROC_ROI, m_jetModuleID[1] );
     if( rodId == helpJetID_0.code() || rodId == helpJetID_1.code() ) {
 
-      log << MSG::DEBUG << "   Found Jet/Energy ROB." << endreq;
-      log << MSG::VERBOSE << "   Dumping RoI Words:" << endreq;
+      ATH_MSG_DEBUG("   Found Jet/Energy ROB.");
+      ATH_MSG_VERBOSE("   Dumping RoI Words:");
 
       /* Create header */
       ROIB::Header jetEnergyHead( rodId, evtNum, formatVersion );
@@ -212,14 +214,16 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
       rob.rod_data( data );
       uint32_t ndata = rob.rod_ndata();
       std::vector< ROIB::JetEnergyRoI > jetEnergyContent;
+      jetEnergyContent.reserve(ndata);
       for( uint32_t i = 0; i < ndata; ++i, ++data ) {
-        log << MSG::VERBOSE << "       0x" << MSG::hex << std::setw( 8 )
-            << static_cast< uint32_t >( *data ) << endreq;
+        ATH_MSG_VERBOSE("       0x" << MSG::hex << std::setw( 8 )
+            << static_cast< uint32_t >( *data ));
         ROIB::JetEnergyRoI thisRoI( static_cast< uint32_t >( *data ) );
         jetEnergyContent.push_back( thisRoI );
       }
       /* Create trailer */
       std::vector< uint32_t > words;
+      words.reserve(5);
       words.push_back( errorStat );               // error status
       words.push_back( statInfo );                // status info
       words.push_back( 2 );                       // number of status words
@@ -244,8 +248,8 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
     if( rodId == helpEMTauID_0.code() || rodId == helpEMTauID_1.code() ||
         rodId == helpEMTauID_2.code() || rodId == helpEMTauID_3.code() ) {
 
-      log << MSG::DEBUG << "   Found EM/Tau ROB." << endreq;
-      log << MSG::VERBOSE << "   Dumping RoI Words:" << endreq;
+      ATH_MSG_DEBUG("   Found EM/Tau ROB.");
+      ATH_MSG_VERBOSE("   Dumping RoI Words:");
 
       /* Create header */
       ROIB::Header eMTauHead( rodId, evtNum, formatVersion );
@@ -254,14 +258,16 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
       rob.rod_data( data );
       uint32_t ndata = rob.rod_ndata();
       std::vector<ROIB::EMTauRoI> eMTauContent;
+      eMTauContent.reserve(ndata);
       for( uint32_t i = 0; i < ndata; ++i, ++data ) {
-        log << MSG::VERBOSE << "       0x" << MSG::hex << std::setw( 8 )
-            << static_cast< uint32_t >( *data ) << endreq;
+        ATH_MSG_VERBOSE("       0x" << MSG::hex << std::setw( 8 )
+            << static_cast< uint32_t >( *data ));
         ROIB::EMTauRoI thisRoI( static_cast<uint32_t>( *data ) );
         eMTauContent.push_back( thisRoI );
       }
       /* Create Trailer */
       std::vector< uint32_t > words;
+      words.reserve(5);
       words.push_back( errorStat );           // error status
       words.push_back( statInfo );            // status info
       words.push_back( 2 );                   // number of status words
@@ -303,19 +309,20 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
       L1TopoRDO l1TopoContent;
       ATH_MSG_VERBOSE( "   Dumping RoI Words:" );
       std::vector<uint32_t> vDataWords;
+      vDataWords.reserve(ndata);
       for ( uint32_t i = 0; i < ndata; ++i, ++data ) {
-	vDataWords.push_back( static_cast<uint32_t>( *data ) );
-	ATH_MSG_VERBOSE( "     0x" << MSG::hex << std::setfill ('0') << std::setw( 8 )  << static_cast<uint32_t>( *data ) << MSG::dec);
+        vDataWords.push_back( static_cast<uint32_t>( *data ) );
+        ATH_MSG_VERBOSE( "     0x" << MSG::hex << std::setfill ('0') << std::setw( 8 )  << static_cast<uint32_t>( *data ) << MSG::dec);
       }
       l1TopoContent.setDataWords(vDataWords);
       l1TopoContent.setSourceID(rodId);
       /* Create Trailer */
       std::vector< uint32_t > words;
       // the two status words
+      words.reserve(5);
       words.push_back( errorStat );         // error status
       words.push_back( statInfo );          // status info
       l1TopoContent.setStatusWords(words);  // copy 2 status words to RDO
-      //
       words.push_back( 2 );                 // number of status words
       words.push_back( ndata );             // number of data words
       words.push_back( 1 );                 // status block position
@@ -352,33 +359,33 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
       eMTauFound[ 0 ] && eMTauFound[ 1 ] && eMTauFound[ 2 ] && eMTauFound[ 3 ] ) {
 
     result = new ROIB::RoIBResult( muCTPIResult, cTPResult, jetEnergyResult, eMTauResult );
-    log << MSG::DEBUG << "All RoI Builder ROB fragments found" << endreq;
+    ATH_MSG_DEBUG("All RoI Builder ROB fragments found");
 
   } else if( cTPFound && jetEnergyFound[ 0 ] && jetEnergyFound[ 1 ] &&
              eMTauFound[ 0 ] && eMTauFound[ 1 ] && eMTauFound[ 2 ] && eMTauFound[ 3 ] ) {
 
     result = new ROIB::RoIBResult( cTPResult, eMTauResult, jetEnergyResult );
-    log << MSG::DEBUG << "MuCTPI ROB fragment not found, built RoIBResult object without it." << endreq;
+    ATH_MSG_DEBUG("MuCTPI ROB fragment not found, built RoIBResult object without it.");
 
   } else if( cTPFound && eMTauFound[ 0 ] && eMTauFound[ 1 ] &&
              eMTauFound[ 2 ] && eMTauFound[ 3 ] ) {
 
     result = new ROIB::RoIBResult( cTPResult, eMTauResult );
-    log << MSG::DEBUG << "MuCTPI and Jet/Energy fragments not found, built RoIBResult object without them." << endreq;
+    ATH_MSG_DEBUG("MuCTPI and Jet/Energy fragments not found, built RoIBResult object without them.");
 
   } else if( cTPFound && muCTPIFound ) {
 	  // jetEnergyResult and eMTauResult are empty
     result = new ROIB::RoIBResult( muCTPIResult, cTPResult, jetEnergyResult, eMTauResult );
-    log << MSG::DEBUG << "Calo fragments not found, built RoIBResult from CTPResult and MuCTPIResult only." << endreq;
+    ATH_MSG_DEBUG("Calo fragments not found, built RoIBResult from CTPResult and MuCTPIResult only.");
 
   } else if( cTPFound ) {
 
     result = new ROIB::RoIBResult( cTPResult );
-    log << MSG::DEBUG << "MuCTPI and calo fragments not found, built RoIBResult from CTPResult only." << endreq;
+    ATH_MSG_DEBUG("MuCTPI and calo fragments not found, built RoIBResult from CTPResult only.");
 
   } else {
     result = new ROIB::RoIBResult();
-    log << MSG::DEBUG << "No LVL1 fragments found, create empty RoIBResult." << endreq;
+    ATH_MSG_DEBUG("No LVL1 fragments found, create empty RoIBResult.");
   }
 
   if( l1TopoFound ){

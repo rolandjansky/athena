@@ -372,9 +372,13 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
       }
       return(StatusCode::SUCCESS);
    }
-   if (!m_outputStreamingTool.empty()
-		   && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[0]->isServer())) {
+   if (!m_outputStreamingTool.empty() && m_metadataContainerProp.value().empty()
+                  && m_streamServer == m_outputStreamingTool.size()) {
       ATH_MSG_DEBUG("commitOutput SKIPPED for expired server.");
+      return(StatusCode::SUCCESS);
+   }
+   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer()) {
+      ATH_MSG_DEBUG("commitOutput SKIPPED for uninitialized server.");
       return(StatusCode::SUCCESS);
    }
    std::map<void*, RootType> commitCache;
@@ -391,7 +395,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
             ATH_MSG_ERROR("Failed to connectOutput for " << fileName);
             return(StatusCode::FAILURE);
          }
-         while (strncmp(placementStr, "release", 7) != 0) {
+         while (num > 0 && strncmp(placementStr, "release", 7) != 0) {
             std::string objName = "ALL";
             if (m_useDetailChronoStat.value()) {
                std::string objName(placementStr); //FIXME, better descriptor
@@ -690,12 +694,16 @@ const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
       }
       if (own) { delete [] static_cast<const char*>(buffer); }
       buffer = nullptr;
+      if (!sc.isSuccess()) {
+         ATH_MSG_ERROR("Could not share object for: " << placementStr);
+         return(nullptr);
+      }
       AuxDiscoverySvc auxDiscover;
       if (!auxDiscover.sendStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[streamClient].get()), obj, pool::DbReflex::guid(classDesc), placement->containerName()).isSuccess()) {
          ATH_MSG_ERROR("Could not share dynamic aux store for: " << placementStr);
          return(nullptr);
       }
-      if (!sc.isSuccess() || !m_outputStreamingTool[streamClient]->putObject(nullptr, 0).isSuccess()) {
+      if (!m_outputStreamingTool[streamClient]->putObject(nullptr, 0).isSuccess()) {
          ATH_MSG_ERROR("Failed to put Data for " << placementStr);
          return(nullptr);
       }
@@ -750,7 +758,7 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
          std::size_t nbytes = 0;
          StatusCode sc = m_outputStreamingTool[m_streamServer]->getObject(&buffer, nbytes, num);
          while (sc.isRecoverable()) {
-            //usleep(100);
+            usleep(100);
             sc = m_outputStreamingTool[m_streamServer]->getObject(&buffer, nbytes, num);
          }
          if (!sc.isSuccess()) {
@@ -834,8 +842,8 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
    if (par[0] == "SHM") {
       token = new Token();
       token->setOid(Token::OID_t(ip[0], ip[1]));
-      token->setAuxString("[PNAME=" + par[1] + "]");
-      RootType classDesc = RootType::ByName(par[1]);
+      token->setAuxString("[PNAME=" + par[2] + "]");
+      RootType classDesc = RootType::ByName(par[2]);
       token->setClassID(pool::DbReflex::guid(classDesc));
    } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       Token addressToken;
@@ -869,7 +877,7 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
    if (token == nullptr) {
       return(StatusCode::RECOVERABLE);
    }
-   refpAddress = new TokenAddress(POOL_StorageType, clid, "", "", 0, token);
+   refpAddress = new TokenAddress(POOL_StorageType, clid, "", par[1], ip[0], token);
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
@@ -992,6 +1000,10 @@ StatusCode AthenaPoolCnvSvc::readData() const {
       std::size_t nbytes = 0;
       buffer = m_serializeSvc->serialize(instance, cltype, nbytes);
       sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
+      while (sc.isRecoverable()) {
+         usleep(100);
+         sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
+      }
       delete [] static_cast<char*>(buffer); buffer = nullptr;
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Could not share object for: " << token.toString());

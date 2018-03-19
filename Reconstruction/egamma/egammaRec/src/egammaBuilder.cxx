@@ -38,7 +38,7 @@ PURPOSE:  Algorithm which makes a egammaObjectCollection. For each cluster
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h" 
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"

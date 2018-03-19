@@ -23,7 +23,7 @@
 #include "AsgTools/AsgTool.h"
 
 // Include the interfaces
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODEgamma/ElectronFwd.h"

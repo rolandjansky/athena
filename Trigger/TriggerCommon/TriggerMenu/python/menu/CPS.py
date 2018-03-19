@@ -52,7 +52,7 @@ def defineCPSGroups():
         #Egamma chains
         "RATE:CPS:HLT_e5_vloose"  :  ['e5_lhvloose_nod0',],
                                       
-
+        "RATE:CPS:HLT_2g3" : ['2g3_loose_L12EM3_VTE50','2g3_loose_dPhi15_L12EM3_VTE50','2g3_medium_dPhi15_L12EM3_VTE50'],
         ########################################################################
 
         "RATE:CPS:HLT_e20_vloose"        : ['e20_lhvloose_nod0'],
@@ -66,7 +66,7 @@ def defineCPSGroups():
 #                                                'e24_lhmedium_nod0_L1EM18VH', 
 #                                                ],
         
-        "RATE:CPS:HLT_e24_tight_L1EM20VH" :  ['e24_lhtight_L1EM20VH',
+        "RATE:CPS:HLT_e24_tight_L1EM20VH" :  [
                                                 'e24_lhtight_nod0_L1EM20VH',
                                                 ],
         
@@ -91,6 +91,11 @@ def defineCPSGroups():
                                                'e13_etcut_trkcut_j20_perf_xe15_2dphi05_mt25',
                                                'e13_etcut_trkcut_xs15_j20_perf_xe15_2dphi05_mt25',],
 
+        #muon chains
+        'RATE:CPS:HLT_muon_idperf'         :['mu20_idperf',
+                                             'mu24_idperf',
+                                             'mu40_idperf',],
+
         #tau chains   
         'RATE:CPS:HLT_tau25_express'         :['tau25_idperf_track',
                                                'tau25_perf_tracktwo',
@@ -98,32 +103,34 @@ def defineCPSGroups():
                                                'tau25_medium1_tracktwo',],  
         'RATE:CPS:HLT_tau160'		     :['tau160_idperf_track',
                                                'tau160_idperf_tracktwo',
-                                               'tau160_perf_tracktwo',],  
+                                               'tau160_perf_tracktwo',],  					       
+        'RATE:CPS:HLT_tau160_L1TAU100'	     :['tau160_idperf_tracktwo_L1TAU100',
+                                               'tau160_perf_tracktwo_L1TAU100',],  
         
         #BJet chains                                                                                                                                                    
         'RATE:CPS:HLT_j35b' : [#'j35_bperf',
-                               'j35_boffperf',
+#                               'j35_boffperf',
                                #'j35_bperf_split',
                                'j35_boffperf_split',
                                ],
 
         
-        'RATE:CPS:HLT_j55b' : ['j55_bperf',
-                               'j55_bperf_split',
-                               'j55_boffperf',
+        'RATE:CPS:HLT_j55b' : [#'j55_bperf',
+                               #'j55_bperf_split',
+#                               'j55_boffperf',
                                'j55_boffperf_split',
                                ],
 
 
-        'RATE:CPS:HLT_j150b' : ['j150_bperf',
-                                'j150_bperf_split',
-                                'j150_boffperf',
+        'RATE:CPS:HLT_j150b' : [#'j150_bperf',
+                                #'j150_bperf_split',
+#                                'j150_boffperf',
                                 'j150_boffperf_split',
                                ],
 
-        'RATE:CPS:HLT_j320b' : ['j320_bperf',
-                                'j320_bperf_split',
-                                'j320_boffperf',
+        'RATE:CPS:HLT_j320b' : [#'j320_bperf',
+                                #'j320_bperf_split',
+#                                'j320_boffperf',
                                 'j320_boffperf_split',
                                ],         
         #Bphys	
@@ -137,7 +144,6 @@ def defineCPSGroups():
                                        ],
 				       
         'RATE:CPS:HLT_mu6_mu4_bBmumuX' : ['mu6_mu4_bBmumuxv2',            
-                                          'mu6_mu4_bBmumux_BcmumuDsloose',
                                           'mu6_mu4_bBmumux_BpmumuKp',
                                           'mu6_mu4_bJpsimumu', 
                                           ],
@@ -145,7 +151,6 @@ def defineCPSGroups():
         'RATE:CPS:HLT_mu6_mu4_bBmumu'   : ['mu6_mu4_bBmumu',],
 				 
         'RATE:CPS:HLT_2mu6_bBmumuX'   :  ['2mu6_bBmumuxv2',
-                                          '2mu6_bBmumux_BcmumuDsloose',
                                           '2mu6_bBmumux_BpmumuKp',
                                           '2mu6_bJpsimumu',
                                          ],
@@ -154,8 +159,7 @@ def defineCPSGroups():
                                         'mu6_mu4_bDimu_novtx_noos',
                                         ],
 
-        'RATE:CPS:HLT_2mu10_bDimu' : ['2mu10_bBmumux_BcmumuDsloose',
-                                      '2mu10_bJpsimumu',
+        'RATE:CPS:HLT_2mu10_bDimu' : ['2mu10_bJpsimumu',
                                       '2mu10_bUpsimumu',
                                       '2mu10_bBmumuxv2',
                                       '2mu10_bDimu',
@@ -176,66 +180,54 @@ def defineCPSGroups():
                               '2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumuxv2_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bBmumux_BcmumuDsloose_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumux_BsmumuPhi_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                              ],
 
-                 
-        'RATE:CPS:HLT_mu6_mu4_bDimu_L1BPH-8M15-MU6MU4' : 
-                             ['mu6_mu4_bDimu_L1BPH-8M15-MU6MU4',
-                              'mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4',
-                             ],
-
-        'RATE:CPS:HLT_2mu6_bDimu_L1BPH-8M15-2MU6' :
-                              ['2mu6_bDimu_L1BPH-8M15-2MU6',
-                               '2mu6_bUpsimumu_L1BPH-8M15-2MU6',
-                              ],
-
 
         # mu+jets chains 
-        'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_bperf_split_dr05_dz02',
-                                       'mu4_j25_bperf_split_dr05_dz02',
-                                       'mu4_j35_bperf_split_dr05_dz02',
-				       'mu4_j35_bperf_split',
+        'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_boffperf_split_dr05_dz02',
+                                       'mu4_j25_boffperf_split_dr05_dz02',
+                                       'mu4_j35_boffperf_split_dr05_dz02',
+				       'mu4_j35_boffperf_split',
 				       ],
 				       
 				       
       #  'RATE:CPS:HLT_mu_jet_L1MU6_J20' : [	
-				#	'mu6_j60_gsc85_bperf_split_dr05_dz02',
-				#	'mu6_j60_gsc110_bperf_split_dr05_dz02',
+				#	'mu6_j60_gsc85_boffperf_split_dr05_dz02',
+				#	'mu6_j60_gsc110_boffperf_split_dr05_dz02',
 				#       ],
         'RATE:CPS:HLT_mu_jet_L1MU6_J40' : [
-					'mu6_j150_bperf_split_dr05_dz02',
-					'mu6_j150_bperf_split',
-					'mu6_j175_bperf_split_dr05_dz02',	
+					'mu6_j150_boffperf_split_dr05_dz02',
+					'mu6_j150_boffperf_split',
+					'mu6_j175_boffperf_split_dr05_dz02',	
 				       ],
         'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
-						'mu6_j175_gsc260_bperf_split_dr05_dz02',
-						'mu6_j225_gsc320_bperf_split_dr05_dz02',
-						'mu6_j320_bperf_split',
-						'mu6_j400_bperf_split_dr05_dz02',     
+						'mu6_j175_gsc260_boffperf_split_dr05_dz02',
+						'mu6_j225_gsc320_boffperf_split_dr05_dz02',
+						'mu6_j320_boffperf_split',
+						'mu6_j400_boffperf_split_dr05_dz02',     
 				       ],			    
         }
 
     if "v6"  in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
             'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
-                'mu6_j260_bperf_split_dr05_dz02',
-                'mu6_j320_bperf_split_dr05_dz02',
-                'mu6_j320_bperf_split',
-                'mu6_j400_bperf_split_dr05_dz02',     
+                'mu6_j260_boffperf_split_dr05_dz02',
+                'mu6_j320_boffperf_split_dr05_dz02',
+                'mu6_j320_boffperf_split',
+                'mu6_j400_boffperf_split_dr05_dz02',     
             ],
             'RATE:CPS:HLT_mu_jet_L1MU6_J40' : [
-                'mu6_j150_bperf_split_dr05_dz02',
-                'mu6_j150_bperf_split',
-                'mu6_j175_bperf_split_dr05_dz02',	
+                'mu6_j150_boffperf_split_dr05_dz02',
+                'mu6_j150_boffperf_split',
+                'mu6_j175_boffperf_split_dr05_dz02',	
             ],
-            'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_bperf_split_dr05_dz02',
-                                           'mu4_j25_bperf_split_dr05_dz02',
-                                           'mu4_j35_bperf_split_dr05_dz02',
-                                           'mu4_j35_bperf_split',
+            'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_boffperf_split_dr05_dz02',
+                                           'mu4_j25_boffperf_split_dr05_dz02',
+                                           'mu4_j35_boffperf_split_dr05_dz02',
+                                           'mu4_j35_boffperf_split',
 				       ],
         'RATE:CPS:HLT_e24_medium_L1EM18VH' : ['e24_lhmedium_L1EM18VH',
                                                 'e24_lhmedium_nod0_L1EM18VH',
@@ -285,28 +277,32 @@ def defineCPSGroups():
                 'RATE:CPS:HLT_e24_medium_L1EM18VHI' : ['e24_lhmedium_L1EM18VHI',
                                                        'e24_lhmedium_nod0_L1EM18VHI',
                                                        ],
-                'RATE:CPS:HLT_mu_jet_L1MU6_J75' : ['mu6_j175_gsc260_bperf_split_dr05_dz02',
-                                                   'mu6_j225_gsc320_bperf_split_dr05_dz02',
-                                                   'mu6_j225_gsc320_bperf_split_dr05_dz99',
-                                                   'mu6_j225_gsc320_bperf_split',
-                                                   'mu6_j225_gsc400_bperf_split_dr05_dz02',     
+                'RATE:CPS:HLT_mu_jet_L1MU6_J75' : ['mu6_j175_gsc260_boffperf_split_dr05_dz02',
+                                                   'mu6_j225_gsc320_boffperf_split_dr05_dz02',
+                                                   'mu6_j225_gsc320_boffperf_split_dr05_dz99',
+                                                   'mu6_j225_gsc320_boffperf_split',
+                                                   'mu6_j225_gsc400_boffperf_split_dr05_dz02',     
                                                    ],
-                'RATE:CPS:HLT_mu_jet_L1MU6_J40' : ['mu6_j110_gsc150_bperf_split_dr05_dz02',
-                                                   'mu6_j110_gsc150_bperf_split_dr05_dz99',
-                                                   'mu6_j110_gsc150_bperf_split',
-                                                   'mu6_j150_gsc175_bperf_split_dr05_dz02',	
+                'RATE:CPS:HLT_mu_jet_L1MU6_J40' : ['mu6_j110_gsc150_boffperf_split_dr05_dz02',
+                                                   'mu6_j110_gsc150_boffperf_split_dr05_dz99',
+                                                   'mu6_j110_gsc150_boffperf_split',
+                                                   'mu6_j150_gsc175_boffperf_split_dr05_dz02',	
                                                    ],
-                'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_bperf_split_dr05_dz02',
-                                               'mu4_j25_bperf_split_dr05_dz02',
-                                               'mu4_j15_gsc35_bperf_split_dr05_dz02',
-                                               'mu4_j15_gsc35_bperf_split_dr05_dz99',
-                                               'mu4_j15_gsc35_bperf_split',
+                'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_boffperf_split_dr05_dz02',
+                                               'mu4_j25_boffperf_split_dr05_dz02',
+##                                               'mu4_j15_gsc35_boffperf_split_dr05_dz02',
+##                                               'mu4_j15_gsc35_boffperf_split_dr05_dz99',
+##                                               'mu4_j15_gsc35_boffperf_split',
                                                ],
 
-                'RATE:CPS:HLT_mu_jet_L1MU6_J20' : ['mu6_j60_gsc85_bperf_split_dr05_dz02',
-                                                   'mu6_j60_gsc110_bperf_split_dr05_dz02',
+                'RATE:CPS:HLT_mu_jet_L1MU6_J20' : ['mu6_j60_gsc85_boffperf_split_dr05_dz02',
+                                                   'mu6_j85_gsc110_boffperf_split_dr05_dz02',
                                                    ],
 
+                'RATE:CPS:HLT_mu4_bJpsi_Trk' : ['mu4_bJpsi_TrkPEB','mu4_bJpsi_Trkloose','mu4_mu2noL1_L1MU4'],
+                'RATE:CPS:HLT_mu6_bJpsi_Trk' : ['mu6_bJpsi_TrkPEB','mu6_bJpsi_lowpt_TrkPEB', 'mu6_bJpsi_Trkloose','mu6_mu2noL1_L1MU6'],
+                'RATE:CPS:HLT_mu10_bJpsi_Trk' : ['mu10_bJpsi_TrkPEB','mu10_bJpsi_Trkloose', 'mu10_bJpsi_TrkPEBmon'],
+                'RATE:CPS:HLT_mu14_bJpsi_Trk' : ['mu14_bJpsi_TrkPEB','mu14_bJpsi_Trkloose'],
 
 #        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
 #                                      'xe75_L1XE50',
@@ -408,18 +404,18 @@ def defineCPSGroups():
                                             'xe90_pufit_wEFMu_L1XE70_BGRP7',
                                             ],
 					    
-         'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_bperf_split_dr05_dz02',
-                                       'mu4_j25_bperf_split_dr05_dz02',
-                                       'mu4_j35_bperf_split_dr05_dz02',
+         'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_boffperf_split_dr05_dz02',
+                                       'mu4_j25_boffperf_split_dr05_dz02',
+                                       'mu4_j35_boffperf_split_dr05_dz02',
 				       ],   
         'RATE:CPS:HLT_mu_jet_L1MU6_J40' : [
-					'mu6_j150_bperf_split_dr05_dz02',
-					'mu6_j175_bperf_split_dr05_dz02',	
+					'mu6_j150_boffperf_split_dr05_dz02',
+					'mu6_j175_boffperf_split_dr05_dz02',	
 				       ],
         'RATE:CPS:HLT_mu_jet_L1MU6_J75' : [
-						'mu6_j260_bperf_split_dr05_dz02',
-						'mu6_j320_bperf_split_dr05_dz02',
-						'mu6_j400_bperf_split_dr05_dz02',     
+						'mu6_j260_boffperf_split_dr05_dz02',
+						'mu6_j320_boffperf_split_dr05_dz02',
+						'mu6_j400_boffperf_split_dr05_dz02',     
 				       ],      
 					    }) 
     if "v6" in TriggerFlags.triggerMenuSetup():
@@ -547,11 +543,7 @@ def defineCPSGroups():
 
         #Met chains
         'RATE:CPS:HLT_xe35' : ['xe35',
-                               'xe35_tc_lcw',
-                               'xe35_tc_em',
                                'xe35_pueta',
-                               'xe35_pufit',
-                               'xe35_mht',
                                'xe35_wEFMu',
                                'xe35_tc_lcw_wEFMu', 
                                'xe35_tc_em_wEFMu',
@@ -594,19 +586,6 @@ def defineCPSGroups():
    #                                    'xe100_pufit_wEFMu_L1XE50', 
                                        ],         
 
-        'RATE:CPS:HLT_xe45' : ['xe45',
-                               'xe45_mht',
-                               'xe45_mht_wEFMu',
-                               'xe45_pueta',
-                               'xe45_pueta_wEFMu',
-                               'xe45_pufit',
-                               'xe45_pufit_wEFMu',
-                               'xe45_tc_em',
-                               'xe45_tc_em_wEFMu',
-                               'xe45_tc_lcw',
-                               'xe45_tc_lcw_wEFMu',
-                               'xe45_wEFMu',
-                               ],
         'RATE:CPS:HLT_xe100_L1XE35' : ['xe100_L1XE35',  
                                        'xe100_tc_lcw_L1XE35', 
                                        'xe100_tc_em_L1XE35',  
@@ -619,14 +598,6 @@ def defineCPSGroups():
         })
     if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
-          'RATE:CPS:HLT_mu10_mu6_bBmumuX'   :  ['mu10_mu6_bBmumuxv2',
-                                      'mu10_mu6_bBmumux_BcmumuDsloose',
-                                      'mu10_mu6_bBmumux_BpmumuKp',
-                                      'mu10_mu6_bJpsimumu',
-                                      'mu10_mu6_bJpsimumu_Lxy0',
-                                      'mu10_mu6_bBmumux_Taumumux',
-                                      'mu10_mu6_bBmumux_Taumumux_noL2',
-                                     ],
 
           "RATE:CPS:HLT_razor"   :  [''
                                      'j30_xe10_razor100',
@@ -646,15 +617,11 @@ def defineCPSGroups():
                                             ],
 
         'RATE:CPS:HLT_2mu6_bBmumuX'   :  ['2mu6_bBmumuxv2',
-                                          '2mu6_bBmumux_BcmumuDsloose',
                                           '2mu6_bBmumux_BpmumuKp',
                                           '2mu6_bJpsimumu',
                                           '2mu6_bJpsimumu_Lxy0',
-                                          '2mu6_bBmumux_Taumumux',
-                                          '2mu6_bBmumux_Taumumux_noL2',
                                          ],
         'RATE:CPS:HLT_mu6_mu4_bBmumuX' : ['mu6_mu4_bBmumuxv2',            
-                                          'mu6_mu4_bBmumux_BcmumuDsloose',
                                           'mu6_mu4_bBmumux_BpmumuKp',
                                           'mu6_mu4_bJpsimumu', 
                                           'mu6_mu4_bJpsimumu_Lxy0',
@@ -674,16 +641,6 @@ def defineCPSGroups():
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35',
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35',
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35',],
-
-                
-        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_3j20noL1' : ['e28_lhvloose_nod0_L1EM20VH_3j20noL1',],
-      
-        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_4j20noL1' : ['e28_lhvloose_nod0_L1EM20VH_4j20noL1',],
-      
-        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_5j15noL1' : ['e28_lhvloose_nod0_L1EM20VH_5j15noL1',],
-      
-        'RATE:CPS:HLT_e28_lhvloose_L1EM20VH_6j15noL1' : ['e28_lhvloose_nod0_L1EM20VH_6j15noL1',],
-
         
         'RATE:CPS:HLT_3mu6_bDimu' : ['3mu6_bDimu',
                                      '3mu6_bJpsi',
@@ -695,37 +652,10 @@ def defineCPSGroups():
                                       '2mu6_bBmumu_Lxy0',
                                        ],
 
-
-        
-
-#        'RATE:CPS:HLT_2mu4_bJpsimumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4' : ['2mu4_bJpsimumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
-#                                                                          '2mu4_bJpsimumu_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
-#                                                                          '2mu4_bJpsimumu_noL2_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
-#                                                                          '2mu4_bJpsimumu_noL2_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
-#                                                                          ],
-
-#        'RATE:CPS:HLT_2mu4_bUpsimumu_L1BPH-7M15-2MU4_BPH-0DR24-2MU4-BO' : ['2mu4_bUpsimumu_L1BPH-7M15-2MU4_BPH-0DR24-2MU4-BO',
-#                                                                           '2mu4_bUpsimumu_L1BPH-7M15-2MU4_BPH-0DR24-2MU4-B',
-#                                                                           ],
-
-#        'RATE:CPS:HLT_2mu4_bBmumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4' : ['2mu4_bBmumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
-#                                                                       '2mu4_bBmumu_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
-#                                                                       ],
         })
 
     if "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
-        'RATE:CPS:HLT_xe45' : ['xe45',
-                               'xe45_mht',
-                               'xe45_mht_wEFMu',
-                               'xe45_pufit',
-                               'xe45_pufit_wEFMu',
-                               'xe45_tc_em',
-                               'xe45_tc_em_wEFMu',
-                               'xe45_tc_lcw',
-                               'xe45_tc_lcw_wEFMu',
-                               'xe45_wEFMu',
-                               ],
 
         # Single-jet chains
         'RATE:CPS:HLT_j35' :    [   'j35',
@@ -943,6 +873,13 @@ def defineCPSGroups():
         "RATE:CPS:HLT_g60_loose" : ['g60_loose',],
 
         "RATE:CPS:HLT_g60_loose_L1EM24VHIM" : ['g60_loose_L1EM24VHIM',],
+
+        "RATE:CPS:HLT_jX_L1AFP_A_OR_C_J12" : ['j20_L1AFP_A_OR_C_J12',
+                                              'j45_L1AFP_A_OR_C_J12'],
+        "RATE:CPS:HLT_jX_L1AFP_A_AND_C_J12" : ['j20_L1AFP_A_AND_C_J12',
+                                              'j45_L1AFP_A_AND_C_J12'],
+        "RATE:CPS:HLT_jX_L1J12" : ['j20_L1J12',
+                                   'j45_L1J12'],
 
 
         })

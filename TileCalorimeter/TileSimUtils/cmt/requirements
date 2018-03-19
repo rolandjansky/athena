@@ -12,20 +12,10 @@ use CaloSimEvent        CaloSimEvent-*          Calorimeter
 
 apply_pattern dual_use_library files=*.cxx
 
-apply_pattern declare_joboptions files="*.py"
-
-apply_pattern declare_python_modules files="*.py"
-
-
 private
 
 use AtlasROOT     AtlasROOT-*       External
 use AtlasReflex   AtlasReflex-*     External
 use StoreGate     StoreGate-*       Control
 use AthenaKernel  AthenaKernel-*    Control
-
-apply_pattern lcgdict dict=TileSimUtils \
-                headerfiles="../TileSimUtils/TileSimUtilsDict.h" \
-                selectionfile=selection.xml
-macro_prepend TileSimUtilsDict_shlibflags " -lTileSimUtils "
 

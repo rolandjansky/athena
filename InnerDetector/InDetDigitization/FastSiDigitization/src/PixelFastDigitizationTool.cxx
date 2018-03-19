@@ -1267,8 +1267,8 @@ bool PixelFastDigitizationTool::areNeighbours
  const PixelID& pixelID) const
 {
 
-  int m_splitClusters = 0;
-  int m_acceptDiagonalClusters = 1;
+  int splitClusters = 0;
+  int acceptDiagonalClusters = 1;
 
   std::vector<Identifier>::const_iterator groupBegin = group.begin();
   std::vector<Identifier>::const_iterator groupEnd = group.end();
@@ -1278,7 +1278,7 @@ bool PixelFastDigitizationTool::areNeighbours
   int row2 = pixelID.phi_index(rdoID);
   int col2 = pixelID.eta_index(rdoID);
   int maxZsize=999;
-  if(m_splitClusters == 1){
+  if(splitClusters == 1){
     int etamodule = pixelID.eta_module(rdoID);
     int isBarrel = pixelID.barrel_ec(rdoID);
     if(isBarrel == 0){
@@ -1294,7 +1294,7 @@ bool PixelFastDigitizationTool::areNeighbours
       ATH_MSG_WARNING (" areNeighbours - problems ");
     }
   }
-  if(m_splitClusters == 2) maxZsize = 2;
+  if(splitClusters == 2) maxZsize = 2;
 
   int rowmin = row2;
   int rowmax = row2;
@@ -1312,11 +1312,11 @@ bool PixelFastDigitizationTool::areNeighbours
 
       // a side in common
       if(deltacol+deltarow < 2) match = true;
-      if(m_acceptDiagonalClusters != 0 && deltacol == 1
+      if(acceptDiagonalClusters != 0 && deltacol == 1
          && deltarow == 1) match = true;
 
       // check cluster size
-      if(m_splitClusters != 0){
+      if(splitClusters != 0){
         if(row1 > rowmax) rowmax = row1;
         if(row1 < rowmin) rowmin = row1;
         if(col1 > colmax) colmax = row1;
@@ -1325,7 +1325,7 @@ bool PixelFastDigitizationTool::areNeighbours
 
       ++groupBegin;
     }
-  if(match && m_splitClusters != 0){
+  if(match && splitClusters != 0){
     if(colmax-colmin > maxZsize-1) match = false;
     if(rowmax-rowmin > 1) match = false;
   }

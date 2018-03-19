@@ -399,6 +399,12 @@ class TrigMuonEFCombinerHypoValidationMonitoring(TrigGenericMonitoringToolConfig
                                             xbins=100, xmin=-3.2, xmax=3.2) ]
         self.Histograms += [ defineHistogram('Phi', type='TH1F', title="Phi reconstruction from #TrigMuonEFCombinerHypo; Phi",
                                              xbins=100, xmin=-3.15, xmax=3.15) ]
+        self.Histograms += [ defineHistogram('BCID', type='TH1F', title="BCID from TrigMuonEFCombinerHypo; BCID",
+                                            xbins=3564, xmin=0, xmax=3563) ]
+        self.Histograms += [ defineHistogram('Rate', type='TH1F', title="Rate from TrigMuonEFCombinerHypo; Rate (Hz)",
+                                            xbins=100, xmin=0, xmax=500) ]
+        self.Histograms += [ defineHistogram('BCID, Rate', type='TProfile', title="Rate vs BCID from TrigMuonEFCombinerHypo; BCID; Rate (Hz)",
+                                             xbins=3564, xmin=0, xmax=3563) ]
 
 class TrigMuonEFCombinerHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigMuonEFCombinerHypoOnlineMonitoring"):
@@ -407,6 +413,13 @@ class TrigMuonEFCombinerHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #TrigMuonEFCombinerHypo; P_{T} (GeV)",
                                             xbins=200, xmin=-100, xmax=100) ]
+        self.Histograms += [ defineHistogram('BCID', type='TH1F', title="BCID from TrigMuonEFCombinerHypo; BCID",
+                                            xbins=3564, xmin=0, xmax=3563) ]
+        self.Histograms += [ defineHistogram('Rate', type='TH1F', title="Rate from TrigMuonEFCombinerHypo; Rate (Hz)",
+                                            xbins=100, xmin=0, xmax=500) ]
+        self.Histograms += [ defineHistogram('BCID, Rate', type='TProfile', title="Rate vs BCID from TrigMuonEFCombinerHypo; BCID; Rate (Hz)",
+                                             xbins=3564, xmin=0, xmax=3563) ]
+
 
 
 
@@ -619,6 +632,28 @@ class TrigMuonEFTrackIsolationHypoValidationMonitoring(TrigGenericMonitoringTool
         self.Histograms  += [ defineHistogram('PtCone03', type='TH1F', title="Sum pT in 0.3 cone #TrigMuonEFTrackIsolationHypo; P_{T} (GeV)",
                                             xbins=50, xmin=0.0, xmax=25.0) ]
 
+class TrigMuonEFTrackIsolationMultiHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigMuonEFTrackIsolationMultiHypoOnlineMonitoring"):
+        super(TrigMuonEFTrackIsolationMultiHypoOnlineMonitoring, self).__init__(name)
+        self.defineTarget("Online")
+
+        self.Histograms  = [ defineHistogram('PtCone02', type='TH1F', title="Sum pT in 0.2 cone #TrigMuonEFTrackIsolationMultiHypo; Sum p_{T} [GeV]",
+                                            xbins=50, xmin=0.0, xmax=25.0) ]
+        self.Histograms  += [ defineHistogram('PtCone03', type='TH1F', title="Sum pT in 0.3 cone #TrigMuonEFTrackIsolationMultiHypo; Sum p_{T} [GeV]",
+                                            xbins=50, xmin=0.0, xmax=25.0) ]
+        pass
+
+
+class TrigMuonEFTrackIsolationMultiHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigMuonEFTrackIsolationMultiHypoValidationMonitoring"):
+        super(TrigMuonEFTrackIsolationMultiHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
+
+        self.Histograms  = [ defineHistogram('PtCone02', type='TH1F', title="Sum pT in 0.2 cone #TrigMuonEFTrackIsolationMultiHypo; P_{T} (GeV)",
+                                            xbins=50, xmin=0.0, xmax=25.0) ]
+        self.Histograms  += [ defineHistogram('PtCone03', type='TH1F', title="Sum pT in 0.3 cone #TrigMuonEFTrackIsolationMultiHypo; P_{T} (GeV)",
+                                            xbins=50, xmin=0.0, xmax=25.0) ]
+        
 class TrigMuonEFCombinerDiMuonMassHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigMuonEFCombinerDiMuonMassHypoOnlineMonitoring"):
         super(TrigMuonEFCombinerDiMuonMassHypoOnlineMonitoring, self).__init__(name)

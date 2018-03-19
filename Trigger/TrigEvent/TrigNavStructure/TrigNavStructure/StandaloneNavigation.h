@@ -17,8 +17,8 @@ namespace HLT{
     virtual ~StandaloneNavigation();
 
     /**
-     * @brief method serizlizes the helper objects allowing use of FeatureAccessHelpers w/o CLID
-     * This methods should be owerwritten by the derived classes
+     * @brief method serializes the helper objects allowing use of FeatureAccessHelpers w/o CLID
+     * This methods should be overwritten by the derived classes
      *
      * @param output vector to place the result
      *
@@ -28,7 +28,7 @@ namespace HLT{
     virtual bool deserializeHolders(std::vector<uint32_t>::const_iterator& start,  const std::vector<uint32_t>::const_iterator& end);
 
     /**
-     * @brief method serizlizes entire navigation
+     * @brief method serializes entire navigation
      *
      * @param output vector to place the result
      *

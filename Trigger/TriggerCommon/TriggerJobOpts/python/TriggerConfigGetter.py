@@ -155,7 +155,7 @@ class TriggerConfigGetter(Configured):
 
         self.readPool       = globalflags.InputFormat() == 'pool'
         self.readRDO        = rec.readRDO()
-        self.writeESDAOD    = rec.doWriteESD() or rec.doWriteAOD()
+        self.writeESDAOD    = rec.doWriteESD() or rec.doWriteAOD() or rec.doWriteDPD()
         self.ConfigSrcList  = TriggerFlags.configurationSourceList()
         self.readMC         = globalflags.DataSource()=='geant3' or globalflags.DataSource()=='geant4'
         self.readTriggerDB  = TriggerFlags.readMenuFromTriggerDb() and self.readRDO

@@ -829,28 +829,42 @@ void HLTTauMonTool::bookHistogramsAllItem(){
         //      addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFVsOffline/BDT/mp_nonCorrected",run));
         addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/TurnOnCurves",run));
 	addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots",run));
-        for(unsigned int j=0;j<m_topo_chains.size(); ++j){
-                addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots/"+m_topo_chains.at(j),run));
+        for(unsigned int j=0;j<m_topo_chains_ditau.size(); ++j){
+                addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots/"+m_topo_chains_ditau.at(j),run));
         }
     }
  
-    for(unsigned int i=0;i<m_topo_chains.size(); ++i){
-   	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i),run));
-    	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i));
+    for(unsigned int i=0;i<m_topo_chains_ditau.size(); ++i){
+   	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i),run));
+    	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains_ditau.at(i));
         addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(tau,tau); Efficiency",50,0.,4.));
         addHistogram(new TH1F("hHLTdR", "dR; dR(tau,tau); Events",50,0.,4.));        
+    }
+
+    for(unsigned int i=0;i<m_topo_chains_mutau.size(); ++i){
+   	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoMuTau/"+m_topo_chains_mutau.at(i),run));
+    	setCurrentMonGroup("HLT/TauMon/Expert/TopoMuTau/"+m_topo_chains_mutau.at(i));
+        addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(muon,tau); Efficiency",50,0.,4.)); 
+        addHistogram(new TH1F("hHLTdR", "dR; dR(muon,tau); Events",50,0.,4.));        
+    }
+
+    for(unsigned int i=0;i<m_topo_chains_eltau.size(); ++i){
+   	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoElTau/"+m_topo_chains_eltau.at(i),run));
+    	setCurrentMonGroup("HLT/TauMon/Expert/TopoElTau/"+m_topo_chains_eltau.at(i));
+        addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(electron,tau); Efficiency",50,0.,4.));
+        addHistogram(new TH1F("hHLTdR", "dR; dR(electron,tau); Events",50,0.,4.));        
     }
 
     if(m_doTopoValidation){
 	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoValidation",run));
         setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation");
-	addHistogram(new TH1F("hSupportMismatch"," Events passing Topo chain, but not support chain; ;",m_topo_chains.size(),-0.5,m_topo_chains.size()-0.5));
-        for(unsigned int i=0;i<m_topo_chains.size(); ++i){
-            hist("hSupportMismatch")->GetXaxis()->SetBinLabel(i+1,m_topo_chains.at(i).c_str()); 
+	addHistogram(new TH1F("hSupportMismatch"," Events passing Topo chain, but not support chain; ;",m_topo_chains_ditau.size(),-0.5,m_topo_chains_ditau.size()-0.5));
+        for(unsigned int i=0;i<m_topo_chains_ditau.size(); ++i){
+            hist("hSupportMismatch")->GetXaxis()->SetBinLabel(i+1,m_topo_chains_ditau.at(i).c_str()); 
         }
-	for(unsigned int i=0;i<m_topo_chains.size(); ++i){    
-            addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoValidation/"+m_topo_chains.at(i),run));
-            setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation/"+m_topo_chains.at(i));
+	for(unsigned int i=0;i<m_topo_chains_ditau.size(); ++i){    
+            addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoValidation/"+m_topo_chains_ditau.at(i),run));
+            setCurrentMonGroup("HLT/TauMon/Expert/TopoValidation/"+m_topo_chains_ditau.at(i));
             addHistogram(new TH1F("hDR","dR between all RoIs;  DR;",32,0.,3.2));
             addHistogram(new TH1F("hDRjets","dR between jet and other RoIs;  DR;",32,0.,3.2));
             addHistogram(new TH1F("hDRnoJets","dR between non-jet RoIs;  DR;",32,0.,3.2));
@@ -933,23 +947,32 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addProfile(new TProfile("TProfRecoHLT25Pt1PEfficiency", "idperf_tracktwo Vs perf_tracktwo;  1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addProfile(new TProfile("TProfRecoHLT25Pt3PEfficiency", "idperf_tracktwo Vs perf_tracktwo; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addProfile(new TProfile("TProfRecoHLT25EtaEfficiency", "idperf_tracktwo Vs perf_tracktwo;  #eta; Efficiency",nbin_eta-1,bins_eta));
+    addProfile(new TProfile("TProfRecoHLT25Eta1PEfficiency", "idperf_tracktwo Vs perf_tracktwo;  1 prong #eta; Efficiency",nbin_eta-1,bins_eta));
+    addProfile(new TProfile("TProfRecoHLT25Eta3PEfficiency", "idperf_tracktwo Vs perf_tracktwo;  3 prong #eta; Efficiency",nbin_eta-1,bins_eta));
     addProfile(new TProfile("TProfRecoHLT25PhiEfficiency", "idperf_tracktwo Vs perf_tracktwo;  #phi; Efficiency",16,-3.2,3.2));
     addProfile(new TProfile("TProfRecoHLT25NTrackEfficiency", "idperf_tracktwo Vs perf_tracktwo; Number of tracks; Efficiency",10,0,10));
     addProfile(new TProfile("TProfRecoHLT25NVtxEfficiency", "idperf_tracktwo Vs perf_tracktwo; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
     addProfile(new TProfile("TProfRecoHLT25MuEfficiency", "idperf_tracktwo Vs perf_tracktwo; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+	addProfile(new TProfile("TProfRecoHLT25Mu1PEfficiency", "perf_tracktwo Vs medium1_tracktwo; 1 prong Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+    addProfile(new TProfile("TProfRecoHLT25Mu3PEfficiency", "perf_tracktwo Vs medium1_tracktwo; 3 prong Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
     
     addProfile(new TProfile("TProfRecoHLT25PtEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addProfile(new TProfile("TProfRecoHLT160PtEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; p_{T} [GeV]; Efficiency",nbin_pt-1,hbins_pt));
     addProfile(new TProfile("TProfRecoHLT25Pt1PEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addProfile(new TProfile("TProfRecoHLT25Pt3PEfficiency_2", "perf_tracktwo Vs medium1_tracktwo;  3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
     addProfile(new TProfile("TProfRecoHLT25EtaEfficiency_2", "perf_tracktwo Vs medium1_tracktwo;  #eta; Efficiency",nbin_eta-1,bins_eta));
+    addProfile(new TProfile("TProfRecoHLT25Eta1PEfficiency_2", "idperf_tracktwo Vs perf_tracktwo;  1 prong #eta; Efficiency",nbin_eta-1,bins_eta));
+    addProfile(new TProfile("TProfRecoHLT25Eta3PEfficiency_2", "idperf_tracktwo Vs perf_tracktwo;  3 prong #eta; Efficiency",nbin_eta-1,bins_eta));
     addProfile(new TProfile("TProfRecoHLT25PhiEfficiency_2", "perf_tracktwo Vs medium1_tracktwo;  #phi; Efficiency",16,-3.2,3.2));
     addProfile(new TProfile("TProfRecoHLT25NTrackEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; Number of tracks; Efficiency",10,0,10));
     addProfile(new TProfile("TProfRecoHLT25NVtxEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
     addProfile(new TProfile("TProfRecoHLT25MuEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
-
+	addProfile(new TProfile("TProfRecoHLT25Mu1PEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; 1 prong Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+    addProfile(new TProfile("TProfRecoHLT25Mu3PEfficiency_2", "perf_tracktwo Vs medium1_tracktwo; 3 prong Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
 
     addProfile(new TProfile("TProfRecoL1_J25PtEfficiency", "TAU20IM_2TAU12IM_3J25_2J20_3J12 vs TAU20IM_2TAU12IM ; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));    
+    addProfile(new TProfile("TProfRecoL1_J25Pt1PEfficiency", "TAU20IM_2TAU12IM_3J25_2J20_3J12 vs TAU20IM_2TAU12IM ; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));    
+    addProfile(new TProfile("TProfRecoL1_J25Pt3PEfficiency", "TAU20IM_2TAU12IM_3J25_2J20_3J12 vs TAU20IM_2TAU12IM ; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));    
 
 /*    addHistogram(new TH1F("hRecoHLT25PtNum","idperf_tracktwo Vs perf_tracktwo; p_{T} [GeV];",nbin_pt-1,bins_pt));
     addHistogram(new TH1F("hRecoHLT25Pt1PNum","idperf_tracktwo Vs perf_tracktwo;  1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -1013,4 +1036,287 @@ void HLTTauMonTool::bookHistogramsAllItem(){
     addHistogram(new TH1F("hRecoHLT25MuEfficiency_2","perf_tracktwo Vs medium1_tracktwo Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
 */
     addHistogram(new TH2F("hRecoHLT25EtaVsPhiEfficiency_2","perf_tracktwo Vs medium1_tracktwo in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+
+	// FTK LST HLT efficiency
+	// pt
+	if (doFTKEffTProf)
+	{
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_FTK_1", "idperf_FTK Vs perf_FTK; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_FTK_1", "idperf_FTK Vs perf_FTK; #eta; Efficiency",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_FTK_1", "idperf_FTK Vs perf_FTK; Number of tracks; Efficiency",10,0,10));
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_FTK_1", "idperf_FTK Vs perf_FTK; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_FTK_1", "idperf_FTK Vs perf_FTK; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_FTK_1", "idperf_FTK Vs perf_FTK; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	}
+	if (doFTKEffTProf_2)
+	{
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");		
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_FTK_2", "perf_FTK Vs medium1_FTK; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_FTK_2", "perf_FTK Vs medium1_FTK; #eta; Efficiency",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_FTK_2", "perf_FTK Vs medium1_FTK; Number of tracks; Efficiency",10,0,10));
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_FTK_2", "perf_FTK Vs medium1_FTK; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_FTK_2", "perf_FTK Vs medium1_FTK; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_FTK_2", "perf_FTK Vs medium1_FTK; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	}
+	if (doFTKNoPrecEffTProf_2)
+	{
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_FTKNoPrec_2", "perf_FTK Vs medium1_FTKNoPrec; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_FTKNoPrec_2", "perf_FTK Vs medium1_FTKNoPrec; #eta; Efficiency",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_FTKNoPrec_2", "perf_FTK Vs medium1_FTKNoPrec; Number of tracks; Efficiency",10,0,10));
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_FTKNoPrec_2", "perf_FTK Vs medium1_FTKNoPrec; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_FTKNoPrec_2", "perf_FTK Vs medium1_FTKNoPrec; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_FTKNoPrec_2", "perf_FTK Vs medium1_FTKNoPrec; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	}
+	if (do0prongFTKEffTProf)
+	{
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");		
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_1", "idperf_FTK Vs perf0_FTK; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_1", "idperf_FTK Vs perf0_FTK; #eta; Efficiency",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_1", "idperf_FTK Vs perf0_FTK; Number of tracks; Efficiency",10,0,10));
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_1", "idperf_FTK Vs perf0_FTK; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_1", "idperf_FTK Vs perf0_FTK; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_1", "idperf_FTK Vs perf0_FTK; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	}
+	if (do0prongFTKEffTProf_2)
+	{
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");		
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_0prong_FTK_2", "perf0_FTK Vs medium0_FTK; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_0prong_FTK_2", "perf0_FTK Vs medium0_FTK; #eta; Efficiency",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTK_2", "perf0_FTK Vs medium0_FTK; Number of tracks; Efficiency",10,0,10));
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_0prong_FTK_2", "perf0_FTK Vs medium0_FTK; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTK_2", "perf0_FTK Vs medium0_FTK; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTK_2", "perf0_FTK Vs medium0_FTK; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	}
+	if (do0prongFTKNoPrecEffTProf_2)
+	{
+		addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");		
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_0prong_FTKNoPrec_2", "perf0_FTK Vs medium0_FTKNoPrec; p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_0prong_FTKNoPrec_2", "perf0_FTK Vs medium0_FTKNoPrec; #eta; Efficiency",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_0prong_FTKNoPrec_2", "perf0_FTK Vs medium0_FTKNoPrec; Number of tracks; Efficiency",10,0,10));
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_0prong_FTKNoPrec_2", "perf0_FTK Vs medium0_FTKNoPrec; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_0prong_FTKNoPrec_2", "perf0_FTK Vs medium0_FTKNoPrec; 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_0prong_FTKNoPrec_2", "perf0_FTK Vs medium0_FTKNoPrec; 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	}
+
+	//old
+	//addHistogram(new TH1F("hRecoHLTLST_FTKvsTrackTwo_Pt_idperf","HLT FTK vs tracktwo Efficiency - idperf; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	//addHistogram(new TH1F("hRecoHLTLST_FTKvsTrackTwo_Pt_perf","HLT FTK vs tracktwo Efficiency - perf; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+	//addHistogram(new TH1F("hRecoHLTLST_FTKvsTrackTwo_Pt_medium1","HLT FTK vs tracktwo Efficiency - medium1; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+
+	//Efficiency Ratio plots
+	if (m_doEfficiencyRatioPlots && effRatioChains_Active)
+	{
+	 	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK");
+		addProfile(new TProfile("TProfRecoHLTPtEfficiencyRatio_idperf", "HLT FTK vs tracktwo Efficiency - idperf; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTPtEfficiencyRatio_perf", "HLT FTK vs tracktwo Efficiency - perf; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTPtEfficiencyRatio_medium1", "HLT FTK vs tracktwo Efficiency - medium1; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+
+		addHistogram(new TH1D("hRecoHLTPtEfficiencyRatio_idperf_numFTK", "HLT FTK Efficiency x-axis - idperf; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addHistogram(new TH1F("hRecoHLTPtEfficiencyRatio_idperf_denTrackTwo", "HLT tracktwo Efficiency x-axis - idperf; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addHistogram(new TH1F("hRecoHLTPtEfficiencyRatio_idperf", "HLT FTK vs tracktwo Efficiency - idperf; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+
+		//addHistogram(new TH1F("hRecoHLTPtEfficiencyRatio_perf", "HLT FTK vs tracktwo Efficiency - perf; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		//addHistogram(new TH1F("hRecoHLTPtEfficiencyRatio_medium1", "HLT FTK vs tracktwo Efficiency - medium1; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+
+		// idperf sel. step
+		// -- pt
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 3 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta3PEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 3 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- NTracks
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; Number of tracks; Efficiency Ratio",10,0,10));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu3PEfficiency_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 3 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+
+		// perf sel. step
+		// -- pt
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; 3 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta3PEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; 3 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- NTracks
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; Number of tracks; Efficiency Ratio",10,0,10));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu3PEfficiency_CompFTKvsNonFTK_perf", "HLT FTK vs tracktwo Efficiency - perf; 3 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+
+		// medium1 sel. step
+		// -- pt
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; 3 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta3PEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; 3 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- NTracks
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; Number of tracks; Efficiency Ratio",10,0,10));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu3PEfficiency_CompFTKvsNonFTK_medium1", "HLT FTK vs tracktwo Efficiency - medium1; 3 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+
+/*		// (perf, if idperf) and (medium1, if perf) HLT sel. steps
+		// -- pt
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKvsNonFTK_1", "idperf Vs perf - FTK/non-FTK; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKvsNonFTK_2", "perf Vs medium1 - FTK/non-FTK; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKvsNonFTK_1", "idperf Vs perf - FTK/non-FTK; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKvsNonFTK_2", "perf Vs medium1 - FTK/non-FTK; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- NTracks
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_CompFTKvsNonFTK_1", "idperf Vs perf - FTK/non-FTK; #eta; Efficiency Ratio",10,0,10));
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_CompFTKvsNonFTK_2", "perf Vs medium1 - FTK/non-FTK; 1 prong Number of tracks; Efficiency Ratio",10,0,10));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKvsNonFTK_1", "idperf Vs perf - FTK/non-FTK; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKvsNonFTK_2", "perf Vs medium1 - FTK/non-FTK; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu)); */
+
+	}
+	if (m_doEfficiencyRatioPlots && effRatioBDTChains_Active)
+	{
+	 	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK");
+		// medium1 sel. step
+		// -- pt
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; 3 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta3PEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; 3 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- NTracks
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; Number of tracks; Efficiency Ratio",10,0,10));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu3PEfficiency_CompFTKNoPrecvsNonFTK_medium1", "HLT FTKNoPrec vs tracktwo Efficiency - medium1; 3 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+
+		// (perf, if idperf) and (medium1, if perf) HLT sel. steps
+		// -- pt
+//		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKNoPrecvsNonFTK_0prong_1", "idperf Vs perf0- FTK/non-FTK; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+//		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKNoPrecvsNonFTK_0prong_2", "perf0 Vs medium0 - FTK/non-FTK; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+//		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKNoPrecvsNonFTK_0prong_1", "idperf Vs perf0 - FTK/non-FTK; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+//		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKNoPrecvsNonFTK_0prong_2", "perf0 Vs medium0 - FTK/non-FTK; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- mu
+//		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKNoPrecvsNonFTK_0prong_1", "idperf Vs perf0 - FTK/non-FTK; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+//		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKNoPrecvsNonFTK_0prong_2", "perf0 Vs medium0 - FTK/non-FTK; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+
+	} 
+
+	if (m_doEfficiencyRatioPlots && effRatio0ProngChains_Active)
+	{
+	 	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK");
+		// idperf sel. step
+		// -- pt
+/*		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_0prong_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_0prong_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_0prong_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 3 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_0prong_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_0prong_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta3PEfficiency_0prong_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 3 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_0prong_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_0prong_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu3PEfficiency_0prong_CompFTKvsNonFTK_idperf", "HLT FTK vs tracktwo Efficiency - idperf; 3 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));*/ //same selection as "TProfRecoHLTLST*Efficiency_CompFTKvsNonFTK_idperf"
+
+		// perf0 sel. step
+		// -- pt
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; 3 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta3PEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; 3 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- NTracks
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; Number of tracks; Efficiency Ratio",10,0,10));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu3PEfficiency_CompFTKvsNonFTK_perf0", "HLT FTK vs tracktwo Efficiency - perf0; 3 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+
+		// medium0 sel. step
+		// -- pt
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; 3 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta3PEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; 3 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- NTracks
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; Number of tracks; Efficiency Ratio",10,0,10));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu3PEfficiency_CompFTKvsNonFTK_medium0", "HLT FTK vs tracktwo Efficiency - medium0; 3 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+
+/*		// (perf, if idperf) and (medium1, if perf) HLT sel. steps
+		// -- pt
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKvsNonFTK_0prong_1", "idperf Vs perf0- FTK/non-FTK; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKvsNonFTK_0prong_2", "perf0 Vs medium0 - FTK/non-FTK; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKvsNonFTK_0prong_1", "idperf Vs perf0 - FTK/non-FTK; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKvsNonFTK_0prong_2", "perf0 Vs medium0 - FTK/non-FTK; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKvsNonFTK_0prong_1", "idperf Vs perf0 - FTK/non-FTK; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKvsNonFTK_0prong_2", "perf0 Vs medium0 - FTK/non-FTK; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));*/
+
+	}
+
+	if (m_doEfficiencyRatioPlots && effRatio0ProngBDTChains_Active)
+	{
+	 	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK",run));
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency/EffRatios_FTKvsNonFTK");
+		// medium0 sel. step
+		// -- pt
+		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt1PEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		addProfile(new TProfile("TProfRecoHLTLSTPt3PEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; 3 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		addProfile(new TProfile("TProfRecoHLTLSTEta3PEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; 3 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- NTracks
+		addProfile(new TProfile("TProfRecoHLTLSTNTrackEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; Number of tracks; Efficiency Ratio",10,0,10));
+		// -- mu
+		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+		addProfile(new TProfile("TProfRecoHLTLSTMu3PEfficiency_CompFTKNoPrecvsNonFTK_medium0", "HLT FTKNoPrec vs tracktwo Efficiency - medium0; 3 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+
+		// (perf, if idperf) and (medium1, if perf) HLT sel. steps
+		// -- pt
+//		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKNoPrecvsNonFTK_0prong_1", "idperf Vs perf0- FTK/non-FTK; p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+//		addProfile(new TProfile("TProfRecoHLTLSTPtEfficiency_CompFTKNoPrecvsNonFTK_0prong_2", "perf0 Vs medium0 - FTK/non-FTK; 1 prong p_{T} [GeV]; Efficiency Ratio",nbin_pt-1,bins_pt));
+		// -- eta
+//		addProfile(new TProfile("TProfRecoHLTLSTEtaEfficiency_CompFTKNoPrecvsNonFTK_0prong_1", "idperf Vs perf0 - FTK/non-FTK; #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+//		addProfile(new TProfile("TProfRecoHLTLSTEta1PEfficiency_CompFTKNoPrecvsNonFTK_0prong_2", "perf0 Vs medium0 - FTK/non-FTK; 1 prong #eta; Efficiency Ratio",nbin_eta-1,bins_eta));
+		// -- mu
+//		addProfile(new TProfile("TProfRecoHLTLSTMuEfficiency_CompFTKNoPrecvsNonFTK_0prong_1", "idperf Vs perf0 - FTK/non-FTK; Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+//		addProfile(new TProfile("TProfRecoHLTLSTMu1PEfficiency_CompFTKNoPrecvsNonFTK_0prong_2", "perf0 Vs medium0 - FTK/non-FTK; 1 prong Average interactions per bunch crossing; Efficiency Ratio",nbin_mu-1,bins_mu));
+
+	}
+
 }

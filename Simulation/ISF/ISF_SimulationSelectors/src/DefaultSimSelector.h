@@ -10,7 +10,7 @@
 #define ISF_TOOLS_DEFAULTSIMFILTER_H 1
 
 // ISF includes
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 
 namespace ISF
 {
@@ -22,7 +22,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class DefaultSimSelector : public ISimulationSelector
+  class DefaultSimSelector final : public BaseSimulationSelector
   {
 
   public:
@@ -33,11 +33,11 @@ namespace ISF
     ~DefaultSimSelector();
 
     // Athena algtool's Hooks
-    StatusCode  initialize() override final;
-    StatusCode  finalize() override final;
+    StatusCode  initialize() override;
+    StatusCode  finalize() override;
 
     /** check whether given particle passes all cuts -> will be used for routing decision*/
-    inline virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
+    inline virtual bool passSelectorCuts(const ISFParticle& particle) const override;
   };
 
 }

@@ -10,17 +10,13 @@
 #include "G4Colour.hh"
 
 
-TRTVisualization* TRTVisualization::pVisualization = NULL;
+TRTVisualization* TRTVisualization::s_pVisualization = NULL;
 
 
   // Called by GetPointer
 
 TRTVisualization::TRTVisualization(): m_msg("TRTVisualization")
 {
-  TRTParameters* pParameters = TRTParameters::GetPointer();
-
-  printMessages = pParameters->GetInteger("PrintMessages");
-
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Constructor TRTVisualization" << endreq;
 
   Initialize();
@@ -35,7 +31,7 @@ TRTVisualization::~TRTVisualization()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization" << endreq;
 
-  pVisualization = NULL;
+  s_pVisualization = NULL;
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "##### Destructor TRTVisualization done" << endreq;
 }
@@ -47,26 +43,26 @@ void TRTVisualization::Initialize()
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTVisualization::Initialize" << endreq;
 
-  pVisAttributeRed = new G4VisAttributes(G4Colour(1., 0., 0.));
-  pVisAttributeRed->SetVisibility(true);
+  m_pVisAttributeRed = new G4VisAttributes(G4Colour(1., 0., 0.));
+  m_pVisAttributeRed->SetVisibility(true);
 
-  pVisAttributeGreen = new G4VisAttributes(G4Colour(0., 1., 0.));
-  pVisAttributeGreen->SetVisibility(true);
+  m_pVisAttributeGreen = new G4VisAttributes(G4Colour(0., 1., 0.));
+  m_pVisAttributeGreen->SetVisibility(true);
 
-  pVisAttributeBlue = new G4VisAttributes(G4Colour(0., 0., 1.));
-  pVisAttributeBlue->SetVisibility(true);
+  m_pVisAttributeBlue = new G4VisAttributes(G4Colour(0., 0., 1.));
+  m_pVisAttributeBlue->SetVisibility(true);
 
-  pVisAttributeYellow = new G4VisAttributes(G4Colour(1., 1., 0.));
-  pVisAttributeYellow->SetVisibility(true);
+  m_pVisAttributeYellow = new G4VisAttributes(G4Colour(1., 1., 0.));
+  m_pVisAttributeYellow->SetVisibility(true);
 
-  pVisAttributeMagenta = new G4VisAttributes(G4Colour(1., 0., 1.));
-  pVisAttributeMagenta->SetVisibility(true);
+  m_pVisAttributeMagenta = new G4VisAttributes(G4Colour(1., 0., 1.));
+  m_pVisAttributeMagenta->SetVisibility(true);
 
-  pVisAttributeCyan = new G4VisAttributes(G4Colour(0., 1., 1.));
-  pVisAttributeCyan->SetVisibility(true);
+  m_pVisAttributeCyan = new G4VisAttributes(G4Colour(0., 1., 1.));
+  m_pVisAttributeCyan->SetVisibility(true);
 
-  pVisAttributeBlack = new G4VisAttributes(G4Colour(0., 0., 0.));
-  pVisAttributeBlack->SetVisibility(true);
+  m_pVisAttributeBlack = new G4VisAttributes(G4Colour(0., 0., 0.));
+  m_pVisAttributeBlack->SetVisibility(true);
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "######### Method TRTVisualization::Initialize done" << endreq;
 }
@@ -83,25 +79,25 @@ void TRTVisualization::Visualize(G4LogicalVolume* pLogicalVolume,
       pLogicalVolume->SetVisAttributes(G4VisAttributes::Invisible);
       break;
     case 1:
-      pLogicalVolume->SetVisAttributes(pVisAttributeRed);
+      pLogicalVolume->SetVisAttributes(m_pVisAttributeRed);
       break;
     case 2:
-      pLogicalVolume->SetVisAttributes(pVisAttributeGreen);
+      pLogicalVolume->SetVisAttributes(m_pVisAttributeGreen);
       break;
     case 3:
-      pLogicalVolume->SetVisAttributes(pVisAttributeBlue);
+      pLogicalVolume->SetVisAttributes(m_pVisAttributeBlue);
       break;
     case 4:
-      pLogicalVolume->SetVisAttributes(pVisAttributeYellow);
+      pLogicalVolume->SetVisAttributes(m_pVisAttributeYellow);
       break;
     case 5:
-      pLogicalVolume->SetVisAttributes(pVisAttributeMagenta);
+      pLogicalVolume->SetVisAttributes(m_pVisAttributeMagenta);
       break;
     case 6:
-      pLogicalVolume->SetVisAttributes(pVisAttributeCyan);
+      pLogicalVolume->SetVisAttributes(m_pVisAttributeCyan);
       break;
     case 7:
-      pLogicalVolume->SetVisAttributes(pVisAttributeBlack);
+      pLogicalVolume->SetVisAttributes(m_pVisAttributeBlack);
       break;
     default:
       std::cerr << std::endl;

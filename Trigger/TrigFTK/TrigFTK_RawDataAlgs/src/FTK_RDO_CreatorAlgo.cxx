@@ -3,7 +3,6 @@
 */
 
 #include "TrigFTKSim/FTKTrack.h"
-
 #include "TrigFTK_RawDataAlgs/FTK_RDO_CreatorAlgo.h"
 #include "TrigFTKSim/MultiTruth.h"
 
@@ -54,7 +53,8 @@ FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* p
   m_trainingBeamspotX(0.),
   m_trainingBeamspotY(0.),
   m_trainingBeamspotTiltX(0.),
-  m_trainingBeamspotTiltY(0.)
+  m_trainingBeamspotTiltY(0.),
+  m_reverseIBLlocx(true)
 {
   declareProperty("mergedTrackPaths",m_ftktrack_paths_merged,
       "Paths of the merged tracks");
@@ -64,6 +64,7 @@ FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* p
   declareProperty("TrainingBeamspotY", m_trainingBeamspotY);
   declareProperty("TrainingBeamspotTiltX", m_trainingBeamspotTiltX);
   declareProperty("TrainingBeamspotTiltY", m_trainingBeamspotTiltY);
+  declareProperty("ReverseIBLlocX",m_reverseIBLlocx, "reverse the direction of IBL locX from FTK");
 
   m_FTK_RawTrack_checkFails.reserve(9);
   m_FTK_RawSCT_Cluster_checkFails.reserve(5);
@@ -81,19 +82,20 @@ FTK_RDO_CreatorAlgo::~FTK_RDO_CreatorAlgo()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_RDO_CreatorAlgo::initialize(){
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "FTK_RDO_CreatorAlgo::initialize()" << endmsg;
+  ATH_MSG_INFO("FTK_RDO_CreatorAlgo::initialize()");
 
-  log << MSG::VERBOSE << "mergedTrackPaths: "<<m_ftktrack_paths_merged<<
-    "Paths of the merged tracks: "<< endmsg;
-  log << MSG::VERBOSE << "mergeTrackBName: "<<m_mergedtracks_bname<<" - Branch name for the merged tracks"<< endmsg;
-
-  log << MSG::INFO << "Correcting for FTK training beamspot at x " <<  m_trainingBeamspotX <<" y " << 	m_trainingBeamspotY
-      << " z " <<  m_trainingBeamspotZ << " TiltX " << m_trainingBeamspotTiltX << "TiltY " << m_trainingBeamspotTiltY << endmsg;
+  ATH_MSG_VERBOSE("mergedTrackPaths: "<<m_ftktrack_paths_merged<<
+		  "Paths of the merged tracks: ");
+  ATH_MSG_VERBOSE("mergeTrackBName: "<<m_mergedtracks_bname<<" - Branch name for the merged tracks");
+  
+  ATH_MSG_INFO("Correcting for FTK training beamspot at x " <<  m_trainingBeamspotX <<" y " << 	m_trainingBeamspotY
+	       << " z " <<  m_trainingBeamspotZ << " TiltX " << m_trainingBeamspotTiltX << "TiltY " << m_trainingBeamspotTiltY);
+  if (m_reverseIBLlocx)ATH_MSG_INFO(" Reversing direction of IBL hit phi position");
 
 
   StatusCode scSG = service( "StoreGateSvc", m_StoreGate );
   if (scSG.isFailure()) {
-    log << MSG::FATAL << "Unable to retrieve StoreGate service" << endmsg;
+    ATH_MSG_FATAL("Unable to retrieve StoreGate service");
     return scSG;
   }
 
@@ -108,17 +110,17 @@ StatusCode FTK_RDO_CreatorAlgo::initialize(){
   // prepare the input from the FTK tracks, merged in an external simulation
   m_mergedtracks_chain = new TChain("ftkdata","Merged tracks chain");
   // add the file to the chain
-  log << MSG::INFO << "Loading " << m_ftktrack_paths_merged.size() << " files with FTK merged tracks" << endmsg;
+  ATH_MSG_INFO("Loading " << m_ftktrack_paths_merged.size() << " files with FTK merged tracks" );
   vector<string>::const_iterator imtp = m_ftktrack_paths_merged.begin();
   for (;imtp!=m_ftktrack_paths_merged.end();++imtp) {
     Int_t addres = m_mergedtracks_chain->Add((*imtp).c_str());
-    log << MSG::DEBUG << "Added: " << *imtp << '[' << addres << ']' <<endmsg;
+    ATH_MSG_DEBUG("Added: " << *imtp << '[' << addres << ']');
   }
   m_mergedtracks_stream = new FTKTrackStream();
   TBranch *mergedtracks_branch;
   Int_t res = m_mergedtracks_chain->SetBranchAddress(m_mergedtracks_bname.c_str(),&m_mergedtracks_stream,&mergedtracks_branch);
   if (res<0) {
-    log << MSG::FATAL << "Branch \"" << m_mergedtracks_bname << "\" with merged tracks not found" << endmsg;
+    ATH_MSG_FATAL("Branch \"" << m_mergedtracks_bname << "\" with merged tracks not found" );
     return StatusCode::FAILURE;
   }
 
@@ -146,24 +148,24 @@ StatusCode FTK_RDO_CreatorAlgo::initialize(){
         prevEventNumber = eventNumber;
       }
       else {
-        log << MSG::FATAL << "A duplicated event was found before the end of file, the error cannot be recoverd" << endmsg;
+        ATH_MSG_FATAL("A duplicated event was found before the end of file, the error cannot be recoverd" );
         return StatusCode::FAILURE;
       }
     }
     else if (eventNumber==prevEventNumber) {
-      log << MSG::WARNING << "Event " << eventNumber << " found in the previous event, failure condition masked if this happens at the end of the file" << endmsg;
+      ATH_MSG_WARNING("Event " << eventNumber << " found in the previous event, failure condition masked if this happens at the end of the file" );
       hasRepeatedEvents = true;
     }
     else {
       // Duplicate events are a condition error at the moment, this
       // can be fixed using a runNumber and eventNumber paier as key
-      log << MSG::FATAL << "Tracks for the current event (" << eventNumber << ") already exist. Duplication not allowed" << endmsg;
+      ATH_MSG_FATAL("Tracks for the current event (" << eventNumber << ") already exist. Duplication not allowed" );
       return StatusCode::FAILURE;
     }
 
   }
 
-  log << MSG::DEBUG << "Tracks from " << m_trackVectorMap.size() << " events loaded"<<endmsg;
+  ATH_MSG_DEBUG("Tracks from " << m_trackVectorMap.size() << " events loaded");
 
   return StatusCode::SUCCESS;
 }
@@ -171,37 +173,37 @@ StatusCode FTK_RDO_CreatorAlgo::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_RDO_CreatorAlgo::execute() {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "FTK_RDO_CreatorAlgo::execute() start" << endmsg;
+  ATH_MSG_DEBUG("FTK_RDO_CreatorAlgo::execute() start" );
   // Get information on the events
   const EventInfo* eventInfo(0);
   if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
-    log << MSG::ERROR << "Could not retrieve event info" << endmsg;
+    ATH_MSG_ERROR("Could not retrieve event info" );
     return StatusCode::FAILURE;
   }
   const EventID* eventID( eventInfo->event_ID() );
   int eventNumber =  eventID->event_number();
 
-  log << MSG::DEBUG
-    << "entered execution for run " << eventID->run_number()
-    << "   event " << eventNumber
-    << endmsg;
+  ATH_MSG_DEBUG(
+		"entered execution for run " << eventID->run_number()
+		<< "   event " << eventNumber
+		);
 
   // Extract the vector of tracks found by the FTK for the current event
   std::map<int, Long64_t >::iterator mapIt = m_trackVectorMap.find(eventNumber);
   if(mapIt == m_trackVectorMap.end()) {
-    log << MSG::ERROR << "No FTK tracks for event " << eventNumber << " found, possible mismatch between RDO and FTK files"<<endmsg;
+    ATH_MSG_ERROR("No FTK tracks for event " << eventNumber << " found, possible mismatch between RDO and FTK files");
     return StatusCode::FAILURE;
   }
 
   //Have Tracks
   const Long64_t &FTKEntry = (*mapIt).second;
   if (m_mergedtracks_chain->GetEntry(FTKEntry)==-1) {
-    log << MSG::ERROR << "Error reading the FTK entry: " << FTKEntry <<endmsg;
+    ATH_MSG_ERROR("Error reading the FTK entry: " << FTKEntry);
     return StatusCode::FAILURE;
   }
 
   int ntracks_merged = m_mergedtracks_stream->getNTracks();
-  log << MSG::DEBUG << "Number of FTK tracks to merge in SG: " << ntracks_merged << endmsg;
+  ATH_MSG_DEBUG("Number of FTK tracks to merge in SG: " << ntracks_merged );
 
 
 
@@ -209,10 +211,10 @@ StatusCode FTK_RDO_CreatorAlgo::execute() {
 
   StatusCode scJ = m_StoreGate->record(m_ftk_raw_trackcollection, m_ftk_raw_trackcollection_Name);
   if (scJ.isFailure()) {
-    log << MSG::FATAL << "Failure registering FTK_RawTrackContainer" << endmsg;
+    ATH_MSG_FATAL("Failure registering FTK_RawTrackContainer" );
     return StatusCode::FAILURE;
   } else{
-    log << MSG::DEBUG << "Setting FTK_RawTrackContainer registered" << endmsg;
+    ATH_MSG_DEBUG("Setting FTK_RawTrackContainer registered" );
   }
 
   //
@@ -233,7 +235,7 @@ StatusCode FTK_RDO_CreatorAlgo::execute() {
   // prepare to move to the next event
   m_mergedtracks_iev += 1;
 
-  log << MSG::DEBUG << "FTK_RDO_CreatorAlgo::execute() end" << endmsg;
+  ATH_MSG_DEBUG("FTK_RDO_CreatorAlgo::execute() end" );
 
   return StatusCode::SUCCESS;
 }
@@ -241,7 +243,7 @@ StatusCode FTK_RDO_CreatorAlgo::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_RDO_CreatorAlgo::finalize() {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endmsg;
+  ATH_MSG_INFO("finalize()" );
 
   //
   //  Clean up output and input merged files
@@ -276,10 +278,10 @@ StatusCode FTK_RDO_CreatorAlgo::finalize() {
 
 
   // cleanup the map containing the list of FTK tracks found in each event
-  log << MSG::DEBUG << "Clear Track map" << endmsg;
+  ATH_MSG_DEBUG("Clear Track map" );
   m_trackVectorMap.clear();
 
-  log << MSG::DEBUG << "end Finalize() " << endmsg;
+  ATH_MSG_DEBUG("end Finalize() " );
   return StatusCode::SUCCESS;
 }
 
@@ -332,10 +334,20 @@ FTK_RawTrack* FTK_RDO_CreatorAlgo::SimToRaw(const FTKTrack &track)
 	valid = false;
       }
       ATH_MSG_VERBOSE( " Creating Pixel cluster for layer " << iPlane);
-      //Identifier wafer_id = m_pixelId->wafer_id(hitHashId);
+      
 
       float phi_index= hit.getHwCoord(0);
       float eta_index = hit.getHwCoord(1);
+
+      if (m_reverseIBLlocx) {
+	Identifier wafer_id = m_pixelId->wafer_id(hitHashId);
+	bool isBarrel = (m_pixelId->barrel_ec(wafer_id)==0);
+	unsigned int layer = m_pixelId->layer_disk(wafer_id);
+
+	if (isBarrel && layer==0) {
+	  phi_index = 2680. -   phi_index; //335*8=2680
+	} 
+      }
 
       //      if (phi_index > m_pixelId->phi_index_max(wafer_id)){
         //ATH_MSG_INFO( " Invalid Pixel phi_index " << phi_index << " max phi index " <<  m_pixelId->phi_index_max(wafer_id) << " and original value before scaling = " <<  hit.getHwCoord(0));
@@ -469,7 +481,7 @@ void FTK_RDO_CreatorAlgo::printTrack(const FTKTrack& track, const FTK_RawTrack *
     " invPt= " << raw_track->getInvPt()   <<
     " chi2= " << raw_track->getChi2()   <<
     " barcode= " << raw_track->getBarcode()<< 
-    " layermap bits: ";
+    " layermap bits: "<<std::endl;
   this->printBits(raw_track->getLayerMap() ,12);
   std::cout << std::endl;
   std::cout << "FTKTRack:   "<<
@@ -545,8 +557,6 @@ void FTK_RDO_CreatorAlgo::printTrack(const FTKTrack& track, const FTK_RawTrack *
   std::cout << std::endl;
 }
 
-
-bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) {
 #define d0Res 0.001
 #define z0Res 0.01
 #define phiRes 0.0001
@@ -556,6 +566,8 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 #define sctStripRes 0.5
 #define pixColRes 0.1
 #define pixRowRes 0.1
+
+bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) {
 
   bool check_ok= true;
   if (!(this->checkInt(track.getRoadID(), rdo.getRoadID(), "RoadID"))) {
@@ -625,21 +637,37 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 	  if (!(this->checkInt(hit.getIdentifierHash(), rdo.getPixelClusters()[i].getModuleID(), "Pixel moduleID"))){
 	    m_FTK_RawPixelCluster_checkFails[0]+=1;hitOK=false;
 	  }
-	  if (!(this->checkValue(hit.getHwCoord(0), rdo.getPixelClusters()[i].getRowCoord(),pixRowRes,"Pixel Row"))){
+
+	  float phi_index= hit.getHwCoord(0);
+	  
+	  if (m_reverseIBLlocx) {
+	    Identifier wafer_id = m_pixelId->wafer_id(hit.getIdentifierHash());
+	    bool isBarrel = (m_pixelId->barrel_ec(wafer_id)==0);
+	    unsigned int layer = m_pixelId->layer_disk(wafer_id);
+	    
+	    if (isBarrel && layer==0) {
+	      phi_index = 2680 -   phi_index; //335*8=2680
+	    } 
+	  }
+	  if (!(this->checkValue(phi_index, rdo.getPixelClusters()[i].getRowCoord(),pixRowRes,"Pixel Row"))){
 	    m_FTK_RawPixelCluster_checkFails[1]+=1;hitOK=false;
 	  }
 	  if (!(this->checkValue(hit.getHwCoord(1), rdo.getPixelClusters()[i].getColCoord(),pixColRes,"Pixel Column"))){
 	    m_FTK_RawPixelCluster_checkFails[2]+=1;hitOK=false;
 	  }
 	  unsigned int wphi=hit.getPhiWidth();
-	  if (wphi>7) wphi=7; // 3 bits values 0 to 7
+	  if (wphi>8) wphi=8; // expect values 1 to 8
+	  if (wphi<1) wphi=1; // expect values 1 to 8
 	  if (!(this->checkInt(wphi,rdo.getPixelClusters()[i].getRowWidth(),"Pixel RowWidth"))){ 
 	    m_FTK_RawPixelCluster_checkFails[3]+=1;hitOK=false;
+	    ATH_MSG_VERBOSE("Pix PhiWidth Check fails hit.getPhiWidth() " << hit.getPhiWidth()  << " expect "  << wphi << " got " << rdo.getPixelClusters()[i].getRowWidth());
 	  }
 	  unsigned int weta=hit.getEtaWidth(); 
-	  if (weta>7) weta=7; // 3 bits values 0 to 7
+	  if (weta>8) weta=8; // expect values 1 to 8
+	  if (weta<1) weta=1; // expect values 1 to 8
 	  if (!(this->checkInt(weta, rdo.getPixelClusters()[i].getColWidth(),"Pixel ColWidth"))){ 
 	    m_FTK_RawPixelCluster_checkFails[4]+=1;hitOK=false;
+	    ATH_MSG_VERBOSE("Pix EtaWidth Check fails hit.getEtaWidth() " << hit.getEtaWidth()  << " expect "  << weta << " got " << rdo.getPixelClusters()[i].getColWidth());
 	  }
 	} else {
 	  if (!(this->checkInt(hit.getIdentifierHash(), rdo.getSCTClusters()[i-4].getModuleID(), "SCT moduleID"))){
@@ -649,9 +677,11 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 	    m_FTK_RawSCT_Cluster_checkFails[1]+=1;hitOK=false;
 	  }
 	  unsigned int wstrip=hit.getPhiWidth();
-	  if (wstrip>7) wstrip=7; // 3 bits values 0 to 7
+	  if (wstrip>8) wstrip=8; // expect values 1 to 8
+	  if (wstrip<1) wstrip=1; // expect values 1 to 8
 	  if (!(this->checkInt(wstrip,rdo.getSCTClusters()[i-4].getHitWidth(),"SCT cluster width"))){  
 	    m_FTK_RawSCT_Cluster_checkFails[2]+=1;hitOK=false;
+	    ATH_MSG_VERBOSE("SCT clusWidth Check fails hit.getPhiWidth() " << hit.getPhiWidth()  << " expect "  << wstrip << " got " << rdo.getSCTClusters()[i-4].getHitWidth());
 	  }
 	}
 
@@ -694,7 +724,7 @@ void FTK_RDO_CreatorAlgo::printBits(unsigned int num, unsigned int length){
   unsigned int bit=length;
   for(unsigned int i=0; i<length; i++){
     bit--;
-    std::cout << int( (num & (0x1<<bit))>>bit);
+    std::cout << int( (num & (0x1<<bit))>>bit)<<std::endl;
   }
 }
 

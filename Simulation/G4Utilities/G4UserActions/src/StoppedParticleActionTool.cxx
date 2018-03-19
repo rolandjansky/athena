@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CxxUtils/make_unique.h"
 #include "G4UserActions/StoppedParticleActionTool.h"
 
 namespace G4UA
@@ -21,7 +20,7 @@ namespace G4UA
   std::unique_ptr<StoppedParticleAction> StoppedParticleActionTool::makeAction()
   {
     ATH_MSG_DEBUG("makeAction");
-    return CxxUtils::make_unique<StoppedParticleAction>();
+    return std::make_unique<StoppedParticleAction>();
   }
 
 } // namespace G4UA

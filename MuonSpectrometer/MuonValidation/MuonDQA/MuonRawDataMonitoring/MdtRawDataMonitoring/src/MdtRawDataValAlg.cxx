@@ -1668,7 +1668,7 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for TotalNumber_of_MDT_hits_per_event without a cut on ADC 
     sc = bookMDTHisto_overview(mdteventsLumi, "TotalNumber_of_MDT_hits_per_event", "[counts]", "Number of Events",
-        500, 0., 10000., mg->mongroup_overview_shiftLumi);
+	500, 0., 20000., mg->mongroup_overview_shiftLumi);
     
      
     ////////////////////////////////////////////////////////////////////////////////////// 
@@ -2099,8 +2099,8 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
               int ilayer = chamber->GetLayerEnum();
               int statphi = chamber->GetStationPhi();
               int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
-              if(overalladc_segm_PR_Lumi[iregion]) overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
 
+              if(overalladc_segm_PR_Lumi[iregion] && adc > m_ADCCut) overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
               if(adc > m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
                 if(statphi > 15) {
                   ATH_MSG_ERROR( "MDT StationPhi: " << statphi << " Is too high.  Chamber name: " << chamber->getName() );
