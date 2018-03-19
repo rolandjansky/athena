@@ -10,6 +10,7 @@
 #define MUON_ANALYSIS_ALGORITHMS__MUON_CALIBRATION_AND_SMEARING_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
@@ -17,8 +18,6 @@
 
 namespace CP
 {
-  class IMuonCalibrationAndSmearingTool;
-
   /// \brief an algorithm for calling \ref IMuonCalibrationAndSmearingTool
 
   class MuonCalibrationAndSmearingAlg final : public EL::AnaAlgorithm

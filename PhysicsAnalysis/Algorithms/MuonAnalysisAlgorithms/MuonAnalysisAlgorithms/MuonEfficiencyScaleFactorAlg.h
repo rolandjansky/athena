@@ -9,6 +9,7 @@
 #define MUON_ANALYSIS_ALGORITHMS__MUON_EFFICIENCY_SCALE_FACTOR_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h>
 #include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
@@ -18,8 +19,6 @@
 
 namespace CP
 {
-  class IMuonEfficiencyScaleFactors;
-
   /// \brief an algorithm for calling \ref IMuonEfficiencyScaleFactorTool
 
   class MuonEfficiencyScaleFactorAlg final : public EL::AnaAlgorithm

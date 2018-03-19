@@ -12,7 +12,6 @@
 
 #include <MuonAnalysisAlgorithms/MuonIsolationAlg.h>
 
-#include <IsolationSelection/IIsolationSelectionTool.h>
 #include <RootCoreUtils/Assert.h>
 
 //

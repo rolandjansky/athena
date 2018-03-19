@@ -10,6 +10,7 @@
 #define MUON_ANALYSIS_ALGORITHMS__MUON_ISOLATION_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <IsolationSelection/IIsolationSelectionTool.h>
 #include <SelectionHelpers/SelectionHelpers.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
@@ -17,8 +18,6 @@
 
 namespace CP
 {
-  class IIsolationSelectionTool;
-
   /// \brief an algorithm for calling \ref IMuonSelectionTool
 
   class MuonIsolationAlg final : public EL::AnaAlgorithm
