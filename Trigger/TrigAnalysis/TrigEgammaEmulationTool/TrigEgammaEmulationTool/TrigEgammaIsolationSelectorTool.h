@@ -10,6 +10,17 @@
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
 #include "AsgTools/AsgTool.h"
 
+// track isolation tool
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/IsolationCommon.h" 
+//#include "IsolationTool/IsolationHelper.h" 
+#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+
+//namespace xAOD {     
+//     class ITrackIsolationTool;
+//     class ITrackSelectionTool;
+// }
+
 namespace Trig{
 class TrigEgammaIsolationSelectorTool: 
   public Trig::TrigEgammaSelectorBaseTool,///TDT utilities
@@ -34,11 +45,14 @@ class TrigEgammaIsolationSelectorTool:
     
   private:
     
+    /** @brief Tool for tracking isolation calculation */   
+    ToolHandle<xAOD::ITrackIsolationTool> m_trackIsolationTool;
     //Isolation
     unsigned int m_EtConeSizes;
     unsigned int m_PtConeSizes;
     bool m_useClusETforCaloIso;
     bool m_useClusETforTrackIso;
+    float m_maxZ0SinTheta;
     std::vector<float> m_RelEtConeCut;
     std::vector<float> m_EtConeCut;
     std::vector<float> m_RelPtConeCut;
@@ -46,6 +60,8 @@ class TrigEgammaIsolationSelectorTool:
     std::vector<float> m_PtConeCut;
     std::map<int, std::string> m_mapEtCone,m_mapPtCone;
     std::map<int, std::string> m_mapRelEtCone,m_mapRelPtCone;
+
+    StoreGateSvc                    *m_storeGate;
 
 };
 

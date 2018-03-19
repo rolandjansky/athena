@@ -2,11 +2,31 @@
 def createIsoToolElectronSelector():
 
   from AthenaCommon.AppMgr import ToolSvc
+  from AthenaCommon import CfgMgr
+  from egammaRec.Factories                                          import ToolFactory
   from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaIsolationSelectorTool
   from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig        import OutputLevel
   
   from TrigEgammaHypo.TrigEFElectronHypoConfig import isolation_dict, caloisolation_dict
   from TrigEgammaHypo.TrigEFPhotonHypoConfig   import TrigEFPhotonIsoCutDefs
+
+  # Track isolation -- remember to add TrackIsolation as a property of the class
+  from IsolationTool.IsolationToolConf import xAOD__TrackIsolationTool
+
+
+  TrackIsoTool = xAOD__TrackIsolationTool("TrackIsoTool")
+  TrackIsoTool.TrackSelectionTool.maxZ0SinTheta= 3.
+  TrackIsoTool.OutputLevel=0
+  #TrackIsoTool.OverlapCone=0.15
+  TrackIsoTool.TrackParticleLocation="HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig"
+  TrackIsoTool.TrackSelectionTool.OutputLevel=0
+  TrackIsoTool.TrackSelectionTool.minPt= 1000.
+  #TrackIsoTool.TrackSelectionTool.CutLevel= "Tight"
+  TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
+  ToolSvc += TrackIsoTool
+
+  print("TrkIsoCfg done")
+
 
   # the order matter, do not change this order!
   isolations = ['ivartight','ivarmedium','ivarloose','iloose','icalotight','icalomedium','icaloloose']
@@ -25,8 +45,23 @@ def createIsoToolElectronSelector():
                                           EtConeCut = [-1,-1,-1,-1,-1,-1],
                                           PtConeCut = [-1,-1,-1,-1,-1,-1],
                                           OutputLevel=OutputLevel,
+                                          #TrackIsolationTool = TrigTrackIsolationTool
+                                          TrackIsolationTool = TrackIsoTool
                                           )
     ToolSvc += tool
     IsoToolSelectors.append( tool )
+
+    #Just to see WTF!
+    _toolname='IsolationTool_'+wp
+    RelEtConeCut = caloisolation_dict[wp] if caloiso else [-1,-1,-1,-1,-1,-1],
+    RelPtConeCut = isolation_dict[wp] if trkiso else [-1,-1,-1,-1,-1,-1],
+    # Just to see WTF 
+    print('Trig__TrigEgammaIsolationSelectorTool')
+    print(_toolname)
+    print('RelEtConeCut')
+    print(RelEtConeCut)
+    print('RelPtConeCut')
+    print(RelPtConeCut)
+    print()
 
   return IsoToolSelectors
