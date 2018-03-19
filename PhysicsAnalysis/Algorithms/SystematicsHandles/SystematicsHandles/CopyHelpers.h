@@ -8,6 +8,7 @@
 #ifndef SYSTEMATICS_HANDLES__COPY_HELPERS_H
 #define SYSTEMATICS_HANDLES__COPY_HELPERS_H
 
+#include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AsgTools/StatusCode.h>
 #include <xAODBase/IParticleContainer.h>
 #include <xAODBase/IParticleHelpers.h>
@@ -68,6 +69,64 @@ namespace CP
       {
 	return ::StatusCode::SUCCESS;
       }
+    };
+
+
+
+    /// \brief a helper class to create shallow copies and register
+    /// them in the event store
+    ///
+    /// The main purpose of this class is to make it (fairly)
+    /// straightforward to do partial specializations for base classes
+    /// which need special handling to register their objects with the
+    /// correct type.
+    template<typename T>
+    struct ShallowCopy
+    {
+      /// \brief the type of the event store we use
+    public:
+      typedef std::decay<decltype(*((EL::AnaAlgorithm*)0)->evtStore())>::type StoreType;
+
+      static StatusCode
+      getCopy (MsgStream& msgStream, StoreType& store,
+               T*& object, const T *inputObject,
+               const std::string& outputName, const std::string& auxName)
+      {
+        const auto msg = [&] (MSG::Level lvl) -> MsgStream& {msgStream << lvl; return msgStream;};
+
+        assert (inputObject != nullptr);
+        auto copy = ShallowCopyCore<T>::copy (*inputObject);
+        if (!copy.first || !copy.second)
+        {
+          ANA_MSG_ERROR ("failed to shallow copy object: " << outputName);
+          ANA_MSG_ERROR ("likely shallow copying a view container");
+          return StatusCode::FAILURE;
+        }
+
+        if (ShallowCopyCore<T>::setLink (*inputObject, *copy.first).isFailure())
+          return StatusCode::FAILURE;
+
+        if (store.record (copy.second, auxName).isFailure())
+          return StatusCode::FAILURE;
+        if (store.record (copy.first, outputName).isFailure())
+          return StatusCode::FAILURE;
+        object = copy.first;
+        return StatusCode::SUCCESS;
+      }
+    };
+
+    template<>
+    struct ShallowCopy<xAOD::IParticleContainer>
+    {
+      /// \brief the type of the event store we use
+    public:
+      typedef std::decay<decltype(*((EL::AnaAlgorithm*)0)->evtStore())>::type StoreType;
+
+      static StatusCode
+      getCopy (MsgStream& msgStream, StoreType& store,
+               xAOD::IParticleContainer*& object,
+               const xAOD::IParticleContainer *inputObject,
+               const std::string& outputName, const std::string& auxName);
     };
   }
 }
