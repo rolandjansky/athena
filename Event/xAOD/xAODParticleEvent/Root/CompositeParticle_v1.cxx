@@ -432,8 +432,8 @@ namespace xAOD {
     float weight(1.0);
     std::size_t nParts = compPart->nParts();
     for ( std::size_t i=0; i<nParts; ++i ) {
-      const xAOD::IParticle* part = compPart->part(i);
-      weight *= this->weightHelper( part, varAcc );
+      const xAOD::IParticle* part2 = compPart->part(i);
+      weight *= this->weightHelper( part2, varAcc );
     }
     const xAOD::MissingET* met = compPart->missingET();
     if ( met && varAcc.isAvailable(*met) ) { weight *= varAcc(*met); }
