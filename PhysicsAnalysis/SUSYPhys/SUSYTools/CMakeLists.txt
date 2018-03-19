@@ -59,6 +59,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/TriggerAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
    Reconstruction/Jet/JetCPInterfaces
@@ -94,7 +95,7 @@ atlas_add_library( SUSYToolsLib
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
    EgammaAnalysisInterfacesLib EgammaAnalysisHelpersLib		
-   IsolationCorrectionsLib JetSelectorToolsLib
+   IsolationCorrectionsLib JetSelectorToolsLib TriggerAnalysisInterfacesLib
    FTagAnalysisInterfacesLib TauAnalysisToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
    JetUncertaintiesLib JetMomentToolsLib METInterface METUtilitiesLib
