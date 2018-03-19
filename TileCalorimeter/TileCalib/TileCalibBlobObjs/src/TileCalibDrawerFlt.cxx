@@ -263,7 +263,7 @@ float
 TileCalibDrawerFlt::getDY(unsigned int channel, unsigned int adc, float x) const 
 {
   float y(-9999.), dy(-9999.);
-  getYDY(channel,adc,x,y,dy);
+  (void)getYDY(channel,adc,x,y,dy);
   return dy;
 }
 
