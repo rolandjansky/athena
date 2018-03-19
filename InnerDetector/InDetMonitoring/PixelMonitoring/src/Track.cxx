@@ -116,10 +116,15 @@ StatusCode PixelMainMon::bookTrackMon(void) {
     sc = m_misshits_ratio_mon->regHist(trackHistos);
   }
 
-  for (int i = 0; i < PixLayerDisk::COUNT; i++) {
-    hname = makeHistname(("HitEff_all_" + m_modLabel_PixLayerDisk[i]), false);
-    htitles = makeHisttitle(("hit efficiency, " + m_modLabel_PixLayerDisk[i]), ";lumi block;hit efficiency", false);
+  for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
+    hname = makeHistname(("HitEff_all_" + m_modLabel_PixLayerIBL2D3D[i][i]), false);
+    htitles = makeHisttitle(("hit efficiency, " + m_modLabel_PixLayerIBL2D3D[i][i]), ";lumi block;hit efficiency", false);
     sc = trackHistos.regHist(m_hiteff_incl_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
+    if (m_doOnline) {
+      hname = makeHistname(("HitEff_last100lb_" + m_modLabel_PixLayerIBL2D3D[i]), false);
+      htitles = makeHisttitle(("hit efficiency last 100 LB, " + m_modLabel_PixLayerIBL2D3D[i]), ";last 100 lumi blocks;hit efficiency", false);
+      sc = trackHistos.regHist(m_hiteff_lastXlb_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100, 0, 100));
+    }
   }
 
   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Track histograms");
@@ -202,7 +207,6 @@ StatusCode PixelMainMon::fillTrackMon(void) {
       if (!m_idHelper->is_pixel(surfaceID)) continue;
 
       int pixlayer = getPixLayerID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
-      int pixlayerdisk = getPixLayerDiskID(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_doIBL);
       int pixlayeribl2d3d = pixlayer;
       if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL) {
         pixlayeribl2d3d = getPixLayerIDIBL2D3D(m_pixelid->barrel_ec(surfaceID), m_pixelid->layer_disk(surfaceID), m_pixelid->eta_module(surfaceID), m_doIBL);
@@ -215,7 +219,7 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         clus = dynamic_cast<const InDet::SiClusterOnTrack *>(mesb);
 
         if (m_tsos_hitmap) m_tsos_hitmap->fill(surfaceID, m_pixelid);
-        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 1.0);
+        if (m_hiteff_incl_mod[pixlayer] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), 1.0);
       }
 
       if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) {
@@ -223,7 +227,7 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         nOutlier = 1.0;
 
         if (m_tsos_holemap) m_tsos_holemap->fill(surfaceID, m_pixelid);
-        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 0.0);
+        if (m_hiteff_incl_mod[pixlayer] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), 0.0);
       }
 
       if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Hole)) {
@@ -231,7 +235,7 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         nHole = 1.0;
 
         if (m_tsos_outliermap) m_tsos_outliermap->fill(surfaceID, m_pixelid);
-        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 0.0);
+        if (m_hiteff_incl_mod[pixlayer] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), 0.0);
       }
 
       if (pass1hole1GeVptTightCut) {
@@ -343,9 +347,34 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 }
 
 StatusCode PixelMainMon::procTrackMon(void) {
-  for (int i = 0; i < PixLayerDisk::COUNT; i++) {
-    if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
-    if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMaximum(1.01);
+  if (m_doOnline) {
+    int bing = m_manager->lumiBlockNumber()-1;
+    float cont(0.0), err(0.0);
+    int entries(0);
+    for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
+      if (m_hiteff_incl_mod[i] && m_hiteff_lastXlb_mod[i]) {
+	for (int binf=m_hiteff_lastXlb_mod->GetNbins(); binf>0; binf--) {
+	  if (bing>0) {
+	    cont = m_hiteff_incl_mod[i]->GetBinContent(bing);
+	    err = m_hiteff_incl_mod[i]->GetBinError(bing);
+	    entries += m_hiteff_incl_mod[i]->GetBinEntries(bing);
+	    bing--;
+	  } else {
+	    cont = 0.0;
+	    err  = 0.0;
+	  }
+	  m_hiteff_lastXlb_mod[i]->SetBinContent(binf, cont);
+	  m_hiteff_lastXlb_mod[i]->SetBinError(binf, err);
+	}
+	//m_hiteff_lastXlb_mod[i]->SetEntries(entries); // could be useful
+	m_hiteff_lastXlb_mod[i]->SetEntries(bing);      // for testing
+      }
+    }
+  } else {
+    for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
+      if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
+      if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMaximum(1.01);
+    }
   }
   return StatusCode::SUCCESS;
 }

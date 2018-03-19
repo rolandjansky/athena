@@ -180,8 +180,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   int m_lumiBlockNum;
   unsigned int m_firstBookTime;
   unsigned int m_currentTime;
-  unsigned int m_LBstartTime;
-  unsigned int m_LBendTime;
   unsigned int m_currentBCID;
   int m_runNum;
   int m_ntracksPerEvent;
@@ -265,7 +263,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   bool m_doIBL;
 
   bool m_isNewRun;
-  bool m_isNewLumiBlock;
   bool m_newLowStatInterval;
 
   double m_occupancy_cut;
@@ -299,6 +296,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DMapsLW> m_hitmap_tmp;
   TH1F_LW* m_nhits_mod[PixLayer::COUNT];
   TProfile_LW* m_hits_per_lumi_mod[PixLayer::COUNT];
+  TH1F_LW* m_hits_lastXlb_mod[PixLayer::COUNT];
   TH1F_LW* m_nlargeevt_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_totalhits_per_bcid_mod[PixLayerIBL2D3D::COUNT];
 
@@ -380,8 +378,9 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DProfilesLW> m_misshits_ratio_mon;
 
   // hit efficiency
-  TProfile_LW* m_hiteff_incl_mod[PixLayerDisk::COUNT];
-
+  TProfile_LW* m_hiteff_incl_mod[PixLayer::COUNT];
+  TH1F_LW* m_hiteff_lastXlb_mod[PixLayer::COUNT];
+  
   // lorentz angle
   TProfile2D_LW* m_LorentzAngle_IBL;
   TProfile2D_LW* m_LorentzAngle_IBL2D;

@@ -118,7 +118,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_lbRange = 3000;
   m_bcidRange = 3600;
   m_isNewRun = false;
-  m_isNewLumiBlock = false;
   m_newLowStatInterval = false;
   m_doRefresh = false;
   m_doRefresh5min = false;
@@ -136,8 +135,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_majorityDisabled = 0;
   m_lumiBlockNum = 0;
   m_currentTime = 0;
-  m_LBstartTime = 0;
-  m_LBendTime = 0;
   m_runNum = 0;
   m_idHelper = 0;
   m_Pixel_clcontainer = 0;
@@ -157,6 +154,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_num_hits = 0;
   memset(m_nhits_mod, 0, sizeof(m_nhits_mod));
   memset(m_hits_per_lumi_mod, 0, sizeof(m_hits_per_lumi_mod));
+  memset(m_hits_lastXlb_mod, 0, sizeof(m_hits_lastXlb_mod));
   memset(m_nlargeevt_per_lumi_mod, 0, sizeof(m_nlargeevt_per_lumi_mod));
   memset(m_totalhits_per_bcid_mod, 0, sizeof(m_totalhits_per_bcid_mod));
 
@@ -218,7 +216,8 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_tracksPerEvt_per_lumi = 0;
   m_tracksPerEvtPerMu_per_lumi = 0;
   memset(m_hiteff_incl_mod, 0, sizeof(m_hiteff_incl_mod));
-
+  memset(m_hiteff_lastXlb_mod, 0, sizeof(m_hiteff_lastXlb_mod));
+  
   // Lorentz Angle
   m_LorentzAngle_IBL = 0;
   m_LorentzAngle_IBL2D = 0;
@@ -865,7 +864,6 @@ StatusCode PixelMainMon::fillHistograms() {
 
 StatusCode PixelMainMon::procHistograms() {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "finalize()" << endmsg;
-  if (endOfLumiBlockFlag()) m_LBendTime = m_currentTime;
 
   if (!m_doOnline && endOfRunFlag()) {
     if (m_doRDO) {
@@ -893,7 +891,17 @@ StatusCode PixelMainMon::procHistograms() {
         if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
       }
     }
+  } else if (m_doOnline && (endOfLumiBlockFlag() || endOfRunFlag())) {
+    if (m_doRDO) {
+      if (procHitsMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+      }
+    }
+    if (m_doTrack) {
+      if (procTrackMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+      }
+    }
   }
-
   return StatusCode::SUCCESS;
 }

@@ -103,6 +103,10 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     htitles = makeHisttitle(("Average number of pixel hits per event, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_hit), false);
     sc = rdoExpert.regHist(m_hits_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
+    hname = makeHistname(("Hits_last100lb_" + m_modLabel_PixLayerIBL2D3D[i]), false);
+    htitles = makeHisttitle(("Relative occupancy to IBL per event, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_hit), false);
+    sc = rdoExpert.regHist(m_hits_lastXlb_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100, 0, 100));
+    
     hname = makeHistname(("nHits_per_module_per_event_" + m_modLabel_PixLayerIBL2D3D[i]), false);
     htitles = makeHisttitle(("Number of hits in a module in an event, " + m_modLabel_PixLayerIBL2D3D[i]), ";#hits in a module in an event;#events #times #modules", false);
     sc = rdoShift.regHist(m_nhits_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 1000, -0.5, -0.5 + 1000.0));
@@ -752,6 +756,36 @@ StatusCode PixelMainMon::procHitsMon(void) {
                       m_occupancy_summary_mod[PixLayer::kB0],
                       m_occupancy_summary_mod[PixLayer::kB1],
                       m_occupancy_summary_mod[PixLayer::kB2]);
+  }
+  
+  if (m_doOnline) {
+    int bing = m_manager->lumiBlockNumber()-1;
+    float cont(0.0), err(0.0);
+    int entries(0);
+    for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
+      if (m_hits_per_lumi_mod[i] && m_hits_lastXlb_mod[i]) {
+	m_hits_lastXlb_mod[i]->Sumw2();
+	for (int binf=m_hits_lastXlb_mod->GetNbins(); binf>0; binf--) {
+	  if (bing>0) {
+	    cont = m_hits_per_lumi_mod[i]->GetBinContent(bing);
+	    err = m_hits_per_lumi_mod[i]->GetBinError(bing);
+	    entries += m_hits_per_lumi_mod[i]->GetBinEntries(bing);
+	    bing--;
+	  } else {
+	    cont = 0.0;
+	    err  = 0.0;
+	  }
+	  m_hits_lastXlb_mod[i]->SetBinContent(binf, cont);
+	  m_hits_lastXlb_mod[i]->SetBinError(binf, err);
+	}
+	//m_hits_lastXlb_mod[i]->SetEntries(entries); // could be useful
+	m_hits_lastXlb_mod[i]->SetEntries(bing);      // for testing
+      }
+    }
+   for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
+     if (m_doIBL) m_hits_lastXlb_mod[i]->Divide(m_hits_lastXlb_mod[PixLayer::kIBL]);
+     else m_hits_lastXlb_mod[i]->Divide(m_hits_lastXlb_mod[PixLayer::kB0]);
+   }
   }
 
   return StatusCode::SUCCESS;
