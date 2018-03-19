@@ -113,6 +113,15 @@ BPHY8cf.TrkPartContName = "InDetTrackParticles"
 # Primary vertex collection
 BPHY8cf.PVContName = "PrimaryVertices"
 #
+# Trigger navigation object thinning
+#
+# Apply thinning?
+BPHY8cf.doTrigNavThinning = True
+#
+# Keep muon based HLT items for now
+BPHY8cf.TrigNavThinList = [ "HLT_[0-9]*mu[0-9]+.*" ]
+
+#
 # Muon collection
 BPHY8cf.MuonCollection = "Muons"
 #
@@ -149,44 +158,46 @@ BPHY8cf.useCalibratedMuons = 3
 # MuonMomentumCorrections-01-00-60.
 # For now these options will be disabled further below.
 #
+# Note: (2018-03-12)
+# Updated to new rel. 21 pre-recommendations
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16
+# Page revision r19 (as of 2018-02-28)
+#
 # MC
 if BPHY8cf.isSimulation:
     BPHY8cf.McstYear                  = "Data16";
-    BPHY8cf.McstRelease               = "_READ_"
-    BPHY8cf.McstStatComb              = True
+    BPHY8cf.McstRelease               = "Recs2017_08_02"
+    BPHY8cf.McstStatComb              = False
     BPHY8cf.McstSagittaCorr           = True
-    BPHY8cf.McstSagittaRelease        = "_READ_"
+    BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
     BPHY8cf.McstDoSagittaMCDistortion = False
 #
 # data 15
 else:
     if BPHY8cf.projectTag.startswith("data15"):
         BPHY8cf.McstYear                  = "Data15";
-        BPHY8cf.McstRelease               = "_READ_"
-        BPHY8cf.McstStatComb              = True
-        BPHY8cf.McstSagittaCorr           = False
-        BPHY8cf.McstSagittaRelease        = "_READ_"
+        BPHY8cf.McstRelease               = "Recs2017_08_02"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = True
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
         BPHY8cf.McstDoSagittaMCDistortion = False
 #
 # data 16
     if BPHY8cf.projectTag.startswith("data16"):
         BPHY8cf.McstYear                  = "Data16";
-        BPHY8cf.McstRelease               = "_READ_"
-        BPHY8cf.McstStatComb              = True
+        BPHY8cf.McstRelease               = "Recs2017_08_02"
+        BPHY8cf.McstStatComb              = False
         BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "_READ_"
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
         BPHY8cf.McstDoSagittaMCDistortion = False
 #
 # data 17
-# w.w., 2017-10-07 for now the Data16 tag as there  is no Data17
-# tag for McstYear in the MuonCalibrationAndSmearingTool yet.
-# TODO: Revise once Data17 tag becomes available.
     if BPHY8cf.projectTag.startswith("data17"):
-        BPHY8cf.McstYear                  = "Data16";
-        BPHY8cf.McstRelease               = "_READ_"
-        BPHY8cf.McstStatComb              = True
-        BPHY8cf.McstSagittaCorr           = True
-        BPHY8cf.McstSagittaRelease        = "_READ_"
+        BPHY8cf.McstYear                  = "Data17";
+        BPHY8cf.McstRelease               = "Recs2017_08_02"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = False
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
         BPHY8cf.McstDoSagittaMCDistortion = False
 
 # wide mumu mass range?
@@ -501,7 +512,7 @@ if BPHY8cf.useCalibratedMuons > 0:
         BPHY8_MuonCalTool.SagittaRelease = BPHY8cf.McstSagittaRelease
     # read back string value
     BPHY8cf.McstSagittaRelease = getPropertyValue(BPHY8_MuonCalTool,
-                                                      "SagittaRelease")
+                                                  "SagittaRelease")
     ToolSvc +=  BPHY8_MuonCalTool
     print BPHY8_MuonCalTool
     pprint(BPHY8_MuonCalTool.properties())
@@ -518,6 +529,24 @@ if BPHY8cf.useCalibratedMuons > 0:
 for BPHY8_name in BPHY8_CalibrationAlgs.keys():
     print BPHY8_CalibrationAlgs[BPHY8_name] 
     pprint(BPHY8_CalibrationAlgs[BPHY8_name].properties())
+
+#====================================================================
+# Muon extrapolation for trigger scaling
+#====================================================================
+# Introduced by BPhys trigger group, see merge request 7857
+# (https://gitlab.cern.ch/atlas/athena/merge_requests/7857)
+#
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf \
+    import DerivationFramework__MuonExtrapolationTool
+
+BPHY8_MuonExtrapTool = DerivationFramework__MuonExtrapolationTool(
+    name           = "BPHY8_MuonExtrapolationTool",
+    MuonCollection = BPHY8cf.UsedMuonCollection,
+    OutputLevel    = INFO )
+
+ToolSvc += BPHY8_MuonExtrapTool
+print BPHY8_MuonExtrapTool
+pprint(BPHY8_MuonExtrapTool.properties())
 
 #====================================================================
 # AUGMENTATION TOOLS 
@@ -1402,7 +1431,10 @@ BPHY8Stream.AddMetaDataItem([ "xAOD::FileMetaData#%s*" %
 #
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 BPHY8ThinningHelper = ThinningHelper( BPHY8cf.DerivationName+"ThinningHelper" )
-## BPHY8ThinningHelper.TriggerChains = 'HLT_.*mu.*' #triggerList	# . = any character; * = 0 or more times; + = 1 or more times; ? 0 or 1 times  "Regular_Expression"
+
+if BPHY8cf.doTrigNavThinning and BPHY8cf.doTriggerInfo:
+    BPHY8ThinningHelper.TriggerChains = '|'.join(BPHY8cf.TrigNavThinList)
+
 BPHY8ThinningHelper.AppendToStream( BPHY8Stream )
 
 #--------------------------------------------------------------------
@@ -1546,7 +1578,8 @@ BPHY8_seq += BPHY8_CalibrationAlgs.values()
 BPHY8_seq += CfgMgr.DerivationFramework__DerivationKernel(
     "BPHY8Kernel",
     OutputLevel = INFO,
-    AugmentationTools = [ BPHY8_MetaDataTool, BPHY8_AugOriginalCounts ] \
+    AugmentationTools = [ BPHY8_MetaDataTool, BPHY8_AugOriginalCounts,
+                          BPHY8_MuonExtrapTool] \
     + BPHY8_RecoTools.values() + BPHY8_MuMassTools.values() \
     + BPHY8_IsoTools.values() \
     + BPHY8_SelectTools.values() \
@@ -1570,7 +1603,15 @@ BPHY8SlimmingHelper.IncludeMuonTriggerContent  = BPHY8cf.doTriggerInfo
 BPHY8SlimmingHelper.IncludeBPhysTriggerContent = BPHY8cf.doTriggerInfo
 
 # primary vertices
-BPHY8_AllVariables += [BPHY8cf.PVContName]
+BPHY8_SmartCollections += [BPHY8cf.PVContName]
+#
+# 2018-03-12: These extra variables are not used by NtupleMaker
+#             which are removed by using SmartCollection instead of
+#             AllVariables.
+## BPHY8_ExtraVariables   += ["%s.covariance" % BPHY8cf.PVContName
+##                            + ".chiSquared.numberDoF.sumPt2"
+##                         + ".trackParticleLinks.trackWeights.neutralWeights"]
+
 for BPHY8_reco in BPHY8_recoList:
     BPHY8_StaticContent \
         += ["xAOD::VertexContainer#BPHY8"+BPHY8_reco+"RefittedPrimaryVertices"]
@@ -1581,6 +1622,7 @@ for BPHY8_reco in BPHY8_recoList:
 # (note: for tagged muons there is no extra TrackParticle collection since
 # the ID tracks are stored in InDetTrackParticles collection)
 BPHY8_AllVariables += ["CombinedMuonTrackParticles"]
+
 BPHY8_AllVariables += ["ExtrapolatedMuonTrackParticles"]
 # TODO: copy smart slimming for calibrated muons.
 if BPHY8cf.useCalibratedMuons > 1:
