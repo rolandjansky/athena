@@ -34,6 +34,7 @@
 #include <THStack.h>
 #include <TImage.h>
 #include <TBufferJSON.h>
+#include <TString.h>
 
 #define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
 #define BINWIDTH(h,n) h->GetXaxis()->GetBinWidth(n)
@@ -859,13 +860,7 @@ bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string locati
   namePNG   = location + namePNG;
   nameJSON  = location + nameJSON;
 
-  switch (cnvsType)
-  {
-      case 0: return writeToFile(namePNG,pngAndJson.first);
-      case 1: return writeToFile(nameJSON,pngAndJson.second);
-      case 2: return (writeToFile(namePNG,pngAndJson.first) && writeToFile(nameJSON,pngAndJson.second));
-  }
-  return false ;
+  return saveFile(cnvsType, namePNG,pngAndJson.first,nameJSON,pngAndJson.second);
 }
 
 std::string
@@ -1250,13 +1245,8 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-       
-      switch(cnvsType)
-      {
-        case 0 : getImageBuffer(img,myC,&x,&y);
-        case 1 : json = TBufferJSON::ConvertToJSON(myC);
-        case 2 : getImageBuffer(img,myC,&x,&y); json = TBufferJSON::ConvertToJSON(myC);
-      }
+      
+      convertToGraphics(cnvsType,myC,json,img,&x,&y);
 
     } else if( h != 0 ){
       formatTH1( myC, h );
@@ -1457,12 +1447,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      switch(cnvsType)
-      {
-          case 0 : getImageBuffer(img,myC,&x,&y);
-          case 1 : json = TBufferJSON::ConvertToJSON(myC);
-          case 2 : getImageBuffer(img,myC,&x,&y); json = TBufferJSON::ConvertToJSON(myC);
-      }
+      convertToGraphics(cnvsType,myC,json,img,&x,&y);
 
     }
     delete myC;
@@ -1495,13 +1480,8 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
     //myC->SaveAs( name.c_str() );
-
-    switch(cnvsType)
-    {
-        case 0 : getImageBuffer(img,myC,&x,&y);
-        case 1 : json = TBufferJSON::ConvertToJSON(myC);
-        case 2 : getImageBuffer(img,myC,&x,&y); json= TBufferJSON::ConvertToJSON(myC);
-    }
+   
+    convertToGraphics(cnvsType,myC,json,img,&x,&y);
 
     delete myC;
     gStyle->Reset();
@@ -1637,12 +1617,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      switch(cnvsType)
-      {   
-          case 0 :  myC->SaveAs( namePNG.c_str() );
-          case 1 :  json = TBufferJSON::ConvertToJSON(myC); writeToFile(nameJSON,json);
-          case 2 :  myC->SaveAs( namePNG.c_str() ); json= TBufferJSON::ConvertToJSON(myC); writeToFile(nameJSON,json);
-      }
+      convertToGraphics(cnvsType,myC,namePNG,nameJSON);
 
     } else if( h != 0 && hist2!=0){
       h->SetMarkerColor(1);
@@ -1680,12 +1655,8 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-      switch(cnvsType)
-      {
-          case 1 : myC->SaveAs( namePNG.c_str() );
-          case 2 : json = TBufferJSON::ConvertToJSON(myC);
-          case 3 : myC->SaveAs( namePNG.c_str() ); json= TBufferJSON::ConvertToJSON(myC);
-      }
+
+      convertToGraphics(cnvsType,myC,namePNG,nameJSON);
 
     } //end histogram drawing
     delete myC;
@@ -1715,14 +1686,9 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
     tt.SetNDC();
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
-    
-    switch(cnvsType)
-    {
-        case 0 : myC->SaveAs( namePNG.c_str() );
-        case 1 : json = TBufferJSON::ConvertToJSON(myC); writeToFile(nameJSON,json);
-        case 2 : myC->SaveAs( namePNG.c_str() ); json= TBufferJSON::ConvertToJSON(myC); writeToFile(nameJSON,json);
-    }
 
+    convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+    
     delete myC;
     gStyle->Reset();
   }
@@ -2686,6 +2652,55 @@ writeToFile(std::string fname ,std::string content)
     return true;
 }
 
+void HanOutputFile::
+convertToGraphics(int cnvsType, TCanvas* myC,std::string &json, TImage *img,char **x, int *y)
+{
+    int GENERATE_PNG        = 1; // Make PNG with TImage
+    int GENERATE_JSON       = 2; // Make JSON
+    if (cnvsType & GENERATE_PNG) 
+    {
+        if(img) getImageBuffer(img,myC,x,y);
+    }
+    if (cnvsType & GENERATE_JSON)
+    {
+        json = TBufferJSON::ConvertToJSON(myC);
+    }
+}
+
+void HanOutputFile::
+convertToGraphics(int cnvsType, TCanvas* myC,std::string namePNG,std::string nameJSON)
+{
+    int GENERATE_PNG        = 1; // Make PNG with TImage
+    int GENERATE_JSON       = 2; // Make JSON
+    if (cnvsType & GENERATE_PNG) 
+    {
+        myC->SaveAs(namePNG.c_str());
+    }
+    if (cnvsType & GENERATE_JSON)
+    {
+        std::string json = std::string(TBufferJSON::ConvertToJSON(myC));
+        writeToFile(nameJSON,json);
+    }
+}
+
+bool HanOutputFile::
+saveFile(int cnvsType, std::string pngfName,std::string pngContent, std::string jsonfName, std::string jsonfContent)
+{
+    int GENERATE_PNG        = 1; // Make PNG with TImage
+    int GENERATE_JSON       = 2; // Make JSON
+
+    bool png =false;
+    bool json=false;
+    if (cnvsType & GENERATE_PNG) 
+    {
+      png   = writeToFile(pngfName,pngContent);
+    }
+    if (cnvsType & GENERATE_JSON) 
+    {
+      json  = writeToFile(jsonfName,jsonfContent);
+    }
+    return (png || json);
+}
 
 } // namespace dqutils
 

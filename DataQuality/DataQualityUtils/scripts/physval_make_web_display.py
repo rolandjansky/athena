@@ -227,7 +227,7 @@ def super_process(fname, options):
                                            options.outdir,
                                            '', False, False, 
                                            'https://atlasdqm.web.cern.ch/atlasdqm/js/',
-                                           2 if options.jsRoot else 0)
+                                           3 if options.jsRoot else 1)
 ##            print '====> Copying to', hantargetdir
 ##            hantargetfile = os.path.join(hantargetdir, 'out_han.root')
 ##            if not os.access(hantargetdir, os.W_OK):
