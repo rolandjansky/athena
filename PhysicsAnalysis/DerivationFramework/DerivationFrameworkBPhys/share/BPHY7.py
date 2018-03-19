@@ -5,56 +5,19 @@
 #====================================================================
 
 
-# Version with extensive use of BPhysics tools...
-
-
-# Schematic representation of the Derivation code:
-
-# Stream Setup
-#
-# Preselection (primary kernel for trigger selection, can take DiMuon part if that is faster)
-#
-# Selection of 2mu vertices
-#
-# Selection of 3mu/2mu+trk vertices
-#
-# Skimming based on passing vertices 
-#
-# ThinningHelper
-# 	Duplicate vertex removal
-#	Track and vertex thinning + keep tracks in a cone around candidate
-#	Keep muon ID tracks (probably obsolete after the previous tool)
-#	Truth thinning
-#	Jet thinning
-#
-# Sequence (for kernels)
-#	Kernel n1 (now only triggering)
-#	Kernel n2 (The main kernel)
-#
-# SlimmingHelper
-#	Statement of all needed variables
-#	SmartCollections, AllVariables etc.
-#		
-
-
 #====================================================================
 # FLAGS TO PERSONALIZE THE DERIVATION
 #====================================================================
-# Set to True to deactivate thinning and skimming, and only keep augmentations (to generate a sample with full xAOD plus all the extra)
-onlyAugmentations = False
+
+onlyAugmentations = False  # Set to True to deactivate thinning and skimming, and only keep augmentations (to generate a sample with full xAOD plus all the extra)
 thinTruth = True
 addMuExtrapolationForTrigger = True
 
 
-
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
-
 isSimulation = False
 if globalflags.DataSource()=='geant4':
     isSimulation = True
-
-print isSimulation
-
 
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
@@ -191,22 +154,12 @@ BPHY7TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata(name =
 
 ToolSvc += BPHY7TriggerCountToMetadata
 
-# Additional metadata output
-#BPHY7Stream.AddMetaDataItem(["xAOD::FileMetaData#%s*" % BPHY7TriggerCountToMetadata.FolderName,
-#                             "xAOD::FileMetaDataAuxInfo#%s*Aux." % BPHY7TriggerCountToMetadata.FolderName] )
-
-#BPHY7Stream.AddMetaDataItem([ "TH1D#%s*" %BPHY7TriggerCountToMetadata.HistogramName ] )
-
 #====================================================================
 # PRESELECTION for Kernel1 #Added by Matteo
 #====================================================================
-
-#--------------------------------------------------------------------
 ## 1/ Setup the skimming based on triggers
 ##     
 
-#To inhibit triggers one can remove this tool from Kernel1 (look for "BPHY7TriggerSkim")
-#This list is used for the trigger thinning tool
 triggerList = [ "HLT_2mu10",
                 "HLT_2mu10_l2msonly",
                 "HLT_2mu10_nomucomb",
@@ -460,14 +413,8 @@ ToolSvc += BPHY7CaloIsolationDecorator
 #====================================================================
 
 #--------------------------------------------------------------------
-## 9/ select the event. We only want to keep events that contain certain vertices which passed certain selection.
-##    Exactli like in the preselection, where only 2mu vertices are treated.
-##    This is specified by the "SelectionExpression" property, which contains the expression in the following format:
-##
-##       "ContainerName.passed_HypoName > count"
-##
-##    where "ContainerName" is output container form some Reco_* tool, "HypoName" is the hypothesis name setup in some "Select_*"
-##    tool and "count" is the number of candidates passing the selection you want to keep. 
+## 9/ select the event. We only want to keep events that contain certain three-mu vertices which passed certain selection.
+##    Exactly like in the preselection, where only 2mu vertices are treated.
 
 expression = "count(BPHY7Tau3MuCandidates.passed_Tau3MuLoose) > 0 || count(BPHY7Tau3MuCandidates.passed_Ds2MuPi) > 0"
 
@@ -500,9 +447,6 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 BPHY7ThinningHelper = ThinningHelper( "BPHY7ThinningHelper" )
 BPHY7ThinningHelper.TriggerChains = 'HLT_.*mu.*' #triggerList	# . = any character; * = 0 or more times; + = 1 or more times; ? 0 or 1 times  "Regular_Expression"
 BPHY7ThinningHelper.AppendToStream( BPHY7Stream )
-
-# Use the following line for the ThinningTools which follow
-#  ThinningService = BPHY7ThinningHelper.ThinningSvc()  
 
 
 #--------------------------------------------------------------------
@@ -577,40 +521,21 @@ BPHY7TruthThinTool = DerivationFramework__GenericTruthThinning(name             
                                                                PreserveAncestors      = True)
 ToolSvc += BPHY7TruthThinTool
 
-# Only save truth informtion directly associated with muons
+# Only save truth neutrino and b/c quarks information
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-BPHY7TruthMetTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY7TruthMetTool",
+BPHY7TruthThinNoChainTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY7TruthThinNoChainTool",
                                                               ThinningService         = BPHY7ThinningHelper.ThinningSvc(),
-                                                              ParticleSelectionString = "abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14 || abs(TruthParticles.pdgId) == 16",
+                                                              ParticleSelectionString = "abs(TruthParticles.pdgId) == 4 || abs(TruthParticles.pdgId) == 5 || abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14 || abs(TruthParticles.pdgId) == 16",
                                                               PreserveDescendants     = False,
                                                               PreserveAncestors      = False)
-ToolSvc += BPHY7TruthMetTool
-
-
-#--------------------------------------------------------------------
-## 14/ Jet thinning based on generic object thinning tool
-selection = "(AntiKt4EMTopoJets.pt > 20*GeV)"
-
-#### Thinning of jets using the generic object thinning tool
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-BPHY7JetThinningTool = DerivationFramework__GenericObjectThinning( name		          = "BPHY7JetThinningTool",
-								   ThinningService	  = BPHY7ThinningHelper.ThinningSvc(),
-                                                                   ContainerName          = "AntiKt4EMTopoJets",
-								   SelectionString        = selection,
-								   ApplyAnd               = False)
-
-ToolSvc += BPHY7JetThinningTool;
+ToolSvc += BPHY7TruthThinNoChainTool
 
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
-# !! DUAL Kernel to allow PRESELECTION     #Added by Matteo  
-#====================================================================
-## 15/ IMPORTANT bit. Don't forget to pass the tools to the DerivationKernel! If you don't do that, they will not be 
-##     be executed!
 
-BPHY7ThinningTools = [ BPHY7MuonTPThinningTool, BPHY7Thin_vtxDuplicates, BPHY7Thin_vtxTrk, BPHY7_thinningTool_PV,  BPHY7TauTPThinningTool] #  BPHY7Thin_refittedVtxTrk (removed to eliminate redundancy)
+BPHY7ThinningTools = [ BPHY7MuonTPThinningTool, BPHY7Thin_vtxDuplicates, BPHY7Thin_vtxTrk, BPHY7_thinningTool_PV,  BPHY7TauTPThinningTool]
 
 BPHY7SkimmingTools = [BPHY7_SelectEvent]
 
@@ -625,7 +550,7 @@ if isSimulation:
     #BPHY7AugmentationTools.append(DFCommonTauTruthMatchingWrapper)
     if thinTruth:
        BPHY7ThinningTools.append(BPHY7TruthThinTool)
-       BPHY7ThinningTools.append(BPHY7TruthMetTool)
+       BPHY7ThinningTools.append(BPHY7TruthThinNoChainTool)
 
 #The sequence object. Is in principle just a wrapper which allows to run two kernels in sequence
 BPHY7_Sequence = CfgMgr.AthSequencer("BPHY7_Sequence")
@@ -637,19 +562,12 @@ if onlyAugmentations:
     BPHY7SkimmingTools = []
     BPHY7ThinningTools = []
 
-
-#  REMOVED THE PRE-SELECTION!!
-
-#  ////// k 1 \\\\\\
 # Kernel n1 PRESELECTION
 # The name of the kernel (BPHY7Kernel1 in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 BPHY7_Sequence += CfgMgr.DerivationFramework__DerivationKernel("BPHY7Kernel1",
                                                                AugmentationTools = [BPHY7TriggerCountToMetadata] ,
                                                                SkimmingTools     = Kernel1Tools)
-
-
-#  ////// k 2 \\\\\\
 # Kernel n2 deep Derivation
 # The name of the kernel (BPHY7Kernel2 in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -669,71 +587,38 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY7SlimmingHelper = SlimmingHelper("BPHY7SlimmingHelper")
 
 
-# Smart collection will add all extra info needed to have the selecte object fully functional
-# Includes loads of variables. TODO: can we reduce this information???
-SmartCollections = ["MET_Reference_AntiKt4EMTopo"]
+SmartCollections = ["Electrons", "Photons", "TauJets", "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo", "PrimaryVertices", "Muons", "InDetTrackParticles", "MET_Reference_AntiKt4EMTopo"]
 
-#for calculation of MET
-#if isSimulation:
-SmartCollections += ["Electrons", "Photons", "TauJets", "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo", "PrimaryVertices", "Muons"]
 
-if isSimulation:
-    SmartCollections += ["AntiKt4TruthJets"] 
-SmartCollections += ["InDetTrackParticles"]
+AllVariables = ["METAssoc_AntiKt4EMTopo",
+                 "MET_Core_AntiKt4EMTopo",
+                 "MET_Truth",
+                 "MET_Track",
+                 "MET_LocHadTopo"]
 
-AllVariables = []
+AllVariables += ["Kt4EMTopoOriginEventShape",
+                 "Kt4EMTopoEventShape"]
 
-AllVariables += ['METAssoc_AntiKt4EMTopo',
-                 'MET_Core_AntiKt4EMTopo',
-                 'MET_Truth',
-                 'MET_Track',
-                 'MET_LocHadTopo']
+AllVariables += ["CombinedMuonTrackParticles",
+                 "ExtrapolatedMuonTrackParticles",
+                 "MuonSpectrometerTrackParticles"]
 
-AllVariables += ["Kt4EMTopoOriginEventShape"]
-AllVariables += ["Kt4EMTopoEventShape"]
 
-StaticContent = [] 
+ExtraVariables = ["Photons.pt.eta.phi.m",
+                  "Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink",
+                  "AntiKt4EMTopoJets.JetPileupScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_m", 
+                  "AntiKt4EMTopoJets.JvtJvfcorr", 
+                  "AntiKt4EMTopoJets.JetEtaJESScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_m"]
 
-# Needed for trigger objects
-BPHY7SlimmingHelper.IncludeMuonTriggerContent = True
-BPHY7SlimmingHelper.IncludeBPhysTriggerContent = True
+ExtraVariables += ["Muons.etaLayer1Hits.etaLayer2Hits.etaLayer3Hits.etaLayer4Hits.phiLayer1Hits.phiLayer2Hits.phiLayer3Hits.phiLayer4Hits",
+                   "Muons.numberOfTriggerEtaLayers.numberOfPhiLayers",
+                   "CombinedMuonTrackParticles.numberOfTRTHits.numberOfTRTHighThresholdHits", 
+                   "InDetTrackParticles.numberOfTRTHits.numberOfTRTHighThresholdHits.vx.vy.vz",
+                   "PrimaryVertices.chiSquared.covariance"]
 
-ExtraVariables = ["Photons.pt.eta.phi.m","Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink", "AntiKt4EMTopoJets.JetPileupScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_m", "AntiKt4EMTopoJets.JvtJvfcorr", "AntiKt4EMTopoJets.JetEtaJESScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_m"]
 
-ExtraVariables += ["Muons.etaLayer1Hits.etaLayer2Hits.etaLayer3Hits.etaLayer4Hits.phiLayer1Hits.phiLayer2Hits.phiLayer3Hits.phiLayer4Hits"]
-ExtraVariables += ["Muons.numberOfTriggerEtaLayers.numberOfPhiLayers"]
-ExtraVariables += ["CombinedMuonTrackParticles.numberOfTRTHits.numberOfTRTHighThresholdHits"] 
-ExtraVariables += ["InDetTrackParticles.numberOfTRTHits.numberOfTRTHighThresholdHits.vx.vy.vz"]
-
-ExtraVariables += ["PrimaryVertices.chiSquared.covariance"]
-BPHY7SlimmingHelper.ExtraVariables = ExtraVariables
-
-#AllVariables += ["PrimaryVertices"]
-StaticContent += ["xAOD::VertexContainer#BPHY7RefittedPrimaryVertices"]
-StaticContent += ["xAOD::VertexAuxContainer#BPHY7RefittedPrimaryVerticesAux."]
-
-## TruthTaus (needed to calibrate taus, then used for MET)
-
-#if isSimulation:
-#    AllVariables += ["AntiKt4TruthJets"] 
-
-#AllVariables += ["InDetTrackParticles"]
-
-## combined / extrapolated muon track particles 
-## (note: for tagged muons there is no extra TrackParticle collection since the ID tracks
-##        are store in InDetTrackParticles collection)
-AllVariables += ["CombinedMuonTrackParticles"]
-AllVariables += ["ExtrapolatedMuonTrackParticles"]
-AllVariables += ["MuonSpectrometerTrackParticles"]
-
-## muon container
-#AllVariables += ["Muons"]
-
-#print "Something's off, since I do not have the desired Aux info for my verteces"
-## Jpsi candidates 
-#StaticContent += ["xAOD::VertexContainer#%s"        % BPHY7DiMuon_SelectAndWrite.OutputVtxContainerName]
-#StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY7DiMuon_SelectAndWrite.OutputVtxContainerName]
-#StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY7DiMuon_SelectAndWrite.OutputVtxContainerName]
+StaticContent =  ["xAOD::VertexContainer#BPHY7RefittedPrimaryVertices",
+                  "xAOD::VertexAuxContainer#BPHY7RefittedPrimaryVerticesAux."]
 
 # ThreeBody candidates (vertices)
 StaticContent += ["xAOD::VertexContainer#%s"        % BPHY7ThreeMuon_SelectAndWrite.OutputVtxContainerName]
@@ -741,11 +626,17 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux." % BPHY7ThreeMuon_SelectAndWr
 ## we have to disable vxTrackAtVertex branch since it is not xAOD compatible
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY7ThreeMuon_SelectAndWrite.OutputVtxContainerName]
 
-# Added by ASC
 # Truth information for MC only
 if isSimulation:
     AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles", "METMap_Truth"]
+    SmartCollections += ["AntiKt4TruthJets"] 
 
+# Needed for trigger objects
+BPHY7SlimmingHelper.IncludeMuonTriggerContent = True
+BPHY7SlimmingHelper.IncludeBPhysTriggerContent = True
+
+# Pass all lists to the SlimmingHelper
+BPHY7SlimmingHelper.ExtraVariables = ExtraVariables
 BPHY7SlimmingHelper.AllVariables = AllVariables
 BPHY7SlimmingHelper.StaticContent = StaticContent
 BPHY7SlimmingHelper.SmartCollections = SmartCollections
