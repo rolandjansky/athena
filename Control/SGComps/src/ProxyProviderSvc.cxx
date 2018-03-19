@@ -178,14 +178,17 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
   // std::cout << "PPS:addAdress: proxy for key " << tAddr->name() << " has resetOnly " << resetOnly << std::endl;
   SG::DataProxy* dp = new SG::DataProxy(std::move(tAddr),
                                         m_pDataLoader, true, resetOnly );
-  //  store.addToStore(tAddr->clID(),dp);
+
+  // Must add the primary CLID first.
+  bool addedProxy = store.addToStore(dp->clID(), dp).isSuccess();
   //  ATH_MSG_VERBOSE("created proxy for " << tAddr->clID() << "/" << tAddr->name() << "using " << m_pDataLoader->repSvcType());
 
-  bool addedProxy(false);
   // loop over all the transient CLIDs:
   SG::TransientAddress::TransientClidSet tClid = dp->transientID();
   for (CLID clid : tClid) {
-    addedProxy |= (store.addToStore(clid, dp)).isSuccess();
+    if (clid != dp->clID()) {
+      addedProxy &= (store.addToStore(clid, dp)).isSuccess();
+    }
   }
 
   if (addedProxy) {
