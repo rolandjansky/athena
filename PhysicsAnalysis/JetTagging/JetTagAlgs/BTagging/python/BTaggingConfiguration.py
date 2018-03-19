@@ -1963,9 +1963,9 @@ defaultTrackAssoc = \
         "DefaultBTaggingTrackAssoc",
         InputParticleCollectionName="InDetTrackParticles",
         OutputCollectionName="MatchedTracks",
-        ConeSizeFitPar1=+0.239,
-        ConeSizeFitPar2=-1.220,
-        ConeSizeFitPar3=-1.64e-5
+        coneSizeFitPar1=+0.239,
+        coneSizeFitPar2=-1.220,
+        coneSizeFitPar3=-1.64e-5
     )
 
 defaultMuonAssoc = \
@@ -1973,7 +1973,7 @@ defaultMuonAssoc = \
         "DefaultBTaggingMuonAssoc",
         InputParticleCollectionName="Muons",
         OutputCollectionName="MatchedMuons",
-        ConeSize=0.4,
+        coneSize=0.4,
     )
 
 
