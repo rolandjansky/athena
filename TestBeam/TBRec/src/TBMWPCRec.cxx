@@ -9,7 +9,6 @@
 
 #include "TBRec/TBMWPCRec.h"
 
-//#include "GaudiKernel/AlgFactory.h"
 // static const AlgFactory<TBMWPCRec> s_factory;
 // const IAlgFactory& TBMWPCRecFactory = s_factory;
 

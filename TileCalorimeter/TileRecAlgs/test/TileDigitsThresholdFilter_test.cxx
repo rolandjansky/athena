@@ -23,7 +23,7 @@
 // ATLAS C++
 #include "CxxUtils/make_unique.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include <algorithm>
 #include <cassert>

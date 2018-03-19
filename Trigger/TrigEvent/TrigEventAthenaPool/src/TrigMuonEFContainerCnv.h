@@ -21,7 +21,9 @@ class TrigMuonEFContainerCnv : public TrigMuonEFContainerCnvBase {
   
  protected:
   
+public:
   TrigMuonEFContainerCnv( ISvcLocator *svcloc ): TrigMuonEFContainerCnvBase(svcloc) {}
+protected:
   
   virtual TrigMuonEFContainer_PERS *createPersistent( TrigMuonEFContainer *transObj);
   virtual TrigMuonEFContainer      *createTransient();

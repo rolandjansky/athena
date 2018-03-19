@@ -40,7 +40,9 @@ class VxContainerCnv : public VxContainerCnvBase, public AthenaPoolCnvTPExtensio
  
  protected:
   
+public:
   VxContainerCnv( ISvcLocator *svcloc );
+protected:
   ~VxContainerCnv();
   virtual StatusCode initialize();
   

@@ -5,7 +5,6 @@
 #include "LArCafJobs/LArSimpleShapeDumper.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArRawConditions/LArShapeComplete.h"

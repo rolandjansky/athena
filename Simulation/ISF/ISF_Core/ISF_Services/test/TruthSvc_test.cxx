@@ -15,7 +15,6 @@
 
 // Framework
 #include "GaudiKernel/PhysicalConstants.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ISvcManager.h"
@@ -65,7 +64,7 @@ namespace ISFTesting {
     MOCK_CONST_METHOD1(pass, bool(ISF::ITruthIncident&));
   };
 
-  DECLARE_TOOL_FACTORY( MockTruthStrategy )
+  DECLARE_COMPONENT( MockTruthStrategy )
 
   class DummyTruthIncident : public ISF::ITruthIncident {
   public:

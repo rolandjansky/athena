@@ -12,7 +12,6 @@
 
 // the user data-class defintions
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ISvcLocator.h"

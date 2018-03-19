@@ -12,7 +12,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
       
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
  
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"

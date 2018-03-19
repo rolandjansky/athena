@@ -27,7 +27,9 @@ typedef LArSingleFloatConverter<LArMphysOverMcalComplete> LArMphysOverMcalComple
 class LArMphysOverMcalCompleteCnv : public LArMphysOverMcalCompleteCnvBase {
 friend class CnvFactory<LArMphysOverMcalCompleteCnv >;
 protected:
+public:
     LArMphysOverMcalCompleteCnv (ISvcLocator* svcloc) : LArMphysOverMcalCompleteCnvBase(svcloc) {}
+protected:
     virtual LArConditionsSubset<LArSingleFloatP>*  createTransient ();
     LArConditionsSubset<LArSingleFloatP>*          createTransient(LArConditionsSubset<LArMphysOverMcalP>* orig);
 };

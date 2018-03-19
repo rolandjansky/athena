@@ -12,12 +12,13 @@
 // Containers 
 DECLARE_COMPONENT( LArRawDataContByteStreamTool )
 DECLARE_COMPONENT( LArRodDecoder )
-DECLARE_CONVERTER_FACTORY( LArRawChannelContByteStreamCnv )
-DECLARE_CONVERTER_FACTORY( LArDigitContByteStreamCnv )
-DECLARE_CONVERTER_FACTORY( LArCalibDigitContByteStreamCnv )
-DECLARE_CONVERTER_FACTORY( LArAccumulatedCalibDigitContByteStreamCnv )
-DECLARE_CONVERTER_FACTORY( LArAccumulatedDigitContByteStreamCnv )
-DECLARE_CONVERTER_FACTORY( LArFebHeaderContByteStreamCnv )
+
+DECLARE_CONVERTER( LArRawChannelContByteStreamCnv )
+DECLARE_CONVERTER( LArDigitContByteStreamCnv )
+DECLARE_CONVERTER( LArCalibDigitContByteStreamCnv )
+DECLARE_CONVERTER( LArAccumulatedCalibDigitContByteStreamCnv )
+DECLARE_CONVERTER( LArAccumulatedDigitContByteStreamCnv )
+DECLARE_CONVERTER( LArFebHeaderContByteStreamCnv )
 
 // Collections
 
@@ -26,5 +27,5 @@ DECLARE_CONVERTER_FACTORY( LArFebHeaderContByteStreamCnv )
 //							 LARCELLTOOL;
 //typedef CollectionByteStreamCnv<LARCELLTOOL> LArCellCollByteStreamCnv ;
 //DECLARE_COMPONENT( LARCELLTOOL )  
-//DECLARE_CONVERTER_FACTORY( LArCellCollByteStreamCnv )
+//DECLARE_CONVERTER( LArCellCollByteStreamCnv )
 

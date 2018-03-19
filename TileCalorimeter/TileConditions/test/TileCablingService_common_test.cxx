@@ -19,7 +19,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 
-// #include "GaudiKernel/DeclareFactoryEntries.h"
+// //#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include <algorithm>
 #include <cassert>

@@ -43,8 +43,10 @@ class SegmentCollectionCnv
 {
 friend class CnvFactory<SegmentCollectionCnv>;
 
-protected:
+public:
   SegmentCollectionCnv( ISvcLocator *svcloc );
+
+protected:
   ~SegmentCollectionCnv();
   virtual StatusCode initialize();
 

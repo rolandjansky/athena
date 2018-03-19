@@ -43,7 +43,9 @@ class AthExFatObjectCnv: public T_AthenaPoolCustomCnv<
 
   /** Create the converter from the service locator
    */
+public:
   AthExFatObjectCnv(ISvcLocator* svcloc);
+protected:
 
   /** Build the persistent representation from the transient one.
    */

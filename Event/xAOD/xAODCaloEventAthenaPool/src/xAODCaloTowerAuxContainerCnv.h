@@ -37,7 +37,9 @@ class xAODCaloTowerAuxContainerCnv : public xAODCaloTowerAuxContainerCnvBase {
 
 protected:
    /// Converter constructor
+public:
    xAODCaloTowerAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::CaloTowerAuxContainer*

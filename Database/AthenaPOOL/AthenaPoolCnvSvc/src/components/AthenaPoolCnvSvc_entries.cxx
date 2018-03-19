@@ -6,7 +6,7 @@
 
 DECLARE_COMPONENT( AthenaPoolCnvSvc )
 DECLARE_COMPONENT( AthenaRootSerializeSvc )
-DECLARE_CONVERTER_FACTORY( AthenaAttributeListCnv )
-DECLARE_CONVERTER_FACTORY( CondAttrListCollCnv )
-DECLARE_CONVERTER_FACTORY( CondAttrListVecCnv )
+DECLARE_CONVERTER( AthenaAttributeListCnv )
+DECLARE_CONVERTER( CondAttrListCollCnv )
+DECLARE_CONVERTER( CondAttrListVecCnv )
 

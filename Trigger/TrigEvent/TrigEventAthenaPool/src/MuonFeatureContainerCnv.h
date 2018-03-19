@@ -19,7 +19,9 @@ class MuonFeatureContainerCnv : public MuonFeatureContainerCnvBase {
 
  protected:
 
+public:
   MuonFeatureContainerCnv( ISvcLocator *svcloc ): MuonFeatureContainerCnvBase(svcloc){}
+protected:
 
   virtual MuonFeatureContainer_PERS *createPersistent( MuonFeatureContainer *transObj);
   virtual MuonFeatureContainer      *createTransient();

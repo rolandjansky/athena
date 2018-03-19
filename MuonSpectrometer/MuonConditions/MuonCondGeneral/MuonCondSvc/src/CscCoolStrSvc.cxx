@@ -15,7 +15,6 @@
 #include <algorithm>//for transform
 #include <cctype> //for toupper
 #include <inttypes.h> 
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"

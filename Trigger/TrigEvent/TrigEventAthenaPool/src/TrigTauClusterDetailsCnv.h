@@ -34,7 +34,9 @@ class TrigTauClusterDetailsCnv : public T_AthenaPoolCustomCnv<TrigTauClusterDeta
   friend class CnvFactory<TrigTauClusterDetailsCnv>;
   
  protected:
+public:
   TrigTauClusterDetailsCnv(ISvcLocator* svcloc);
+protected:
   ~TrigTauClusterDetailsCnv();
 
   TrigTauClusterDetails_PERS*  createPersistent(TrigTauClusterDetails* transCont);

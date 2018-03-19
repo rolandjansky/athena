@@ -11,8 +11,6 @@
 
 // Gaudi includes
 #include "StoreGate/StoreGate.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 //tools

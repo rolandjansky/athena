@@ -5,7 +5,6 @@
 #include "HiveExSvc.h"
 
 
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 

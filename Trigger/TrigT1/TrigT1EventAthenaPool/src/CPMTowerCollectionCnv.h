@@ -24,13 +24,15 @@ typedef T_AthenaPoolCustomCnv<CPMTowerCollection, CPMTowerCollection_PERS> CPMTo
 class CPMTowerCollectionCnv: public CPMTowerCollectionCnvBase {
 friend class CnvFactory<CPMTowerCollectionCnv>;
 
-protected:
+public:
 
   CPMTowerCollectionCnv (ISvcLocator* svcloc) :
     CPMTowerCollectionCnvBase(svcloc),
     m_msgSvc( msgSvc() ),
     m_log( m_msgSvc, "CPMTowerCollectionCnv" )
      {}
+
+protected:
   
   ~CPMTowerCollectionCnv() {}
   

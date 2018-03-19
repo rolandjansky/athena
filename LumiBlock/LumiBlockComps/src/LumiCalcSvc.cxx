@@ -14,7 +14,6 @@
 #include <cstddef>
 
 // GaudiKernel includes
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/IProperty.h"

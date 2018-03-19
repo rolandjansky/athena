@@ -25,7 +25,9 @@ class JetMomentMapCnv : public JetMomentMapCnvBase
   
  protected:
 
+public:
   JetMomentMapCnv (ISvcLocator* svcloc) : JetMomentMapCnvBase(svcloc) {};
+protected:
   virtual JetMomentMap_PERS*   createPersistent (JetMomentMap* transObj);
   virtual JetMomentMap*        createTransient ();
   

@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "TrigHLTJetRec/PseudoJetSelectorAll.h"
 
 using jet::PseudoJetVector;

@@ -3,7 +3,6 @@
 */
 
 // $Id: ToyNextPassFilterAlg.cxx,v 1.4 2008-09-23 22:00:47 binet Exp $
-#include "GaudiKernel/AlgFactory.h"
 #include "ToyNextPassFilterAlg.h"
 
 ToyNextPassFilterAlg::ToyNextPassFilterAlg( const std::string& name,

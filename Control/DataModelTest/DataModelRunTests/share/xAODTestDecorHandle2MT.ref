@@ -80,8 +80,6 @@ ClassIDSvc                                         INFO  getRegistryEntries: rea
 ClassIDSvc                                         INFO  getRegistryEntries: read 383 CLIDRegistry entries for module ALL
 ThreadPoolSvc                                      INFO no thread init tools attached
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                              INFO Waiting for AvalancheSchedulerSvc to activate
-AvalancheSchedulerSvc                              INFO Start checking the actionsQueue
 AvalancheSchedulerSvc                              INFO Found 6 algorithms
 AvalancheSchedulerSvc                              INFO Data Dependencies for Algorithms:
   BeginIncFiringAlg

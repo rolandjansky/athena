@@ -75,8 +75,6 @@ CondInputLoader                                    INFO Will create WriteCondHan
     +  ( 'DMTest::S2' , 'ConditionStore+/DMTest/S2' ) 
 ThreadPoolSvc                                      INFO no thread init tools attached
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                              INFO Waiting for AvalancheSchedulerSvc to activate
-AvalancheSchedulerSvc                              INFO Start checking the actionsQueue
 AvalancheSchedulerSvc                              INFO Found 8 algorithms
 AvalancheSchedulerSvc                              INFO Data Dependencies for Algorithms:
   BeginIncFiringAlg

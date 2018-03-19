@@ -13,9 +13,10 @@ typedef TileRawChannelContainer_p1  TileRawChannelContainer_PERS;
 
 class TileRawChannelContainerCnv  : public T_AthenaPoolCustomCnv<TileRawChannelContainer, TileRawChannelContainer_PERS > {
   friend class CnvFactory<TileRawChannelContainerCnv>;
-protected:
+public:
   TileRawChannelContainerCnv(ISvcLocator* svcloc) :
         T_AthenaPoolCustomCnv<TileRawChannelContainer, TileRawChannelContainer_PERS >( svcloc) {}
+protected:
   TileRawChannelContainer_PERS*  createPersistent(TileRawChannelContainer* transCont);
   TileRawChannelContainer*       createTransient ();
 };

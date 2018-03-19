@@ -32,7 +32,9 @@ class LArShapeCompleteCnv : public LArShapeCompleteCnvBase {
 friend class CnvFactory<LArShapeCompleteCnv >;
 
 protected:
+public:
     LArShapeCompleteCnv (ISvcLocator* svcloc) : LArShapeCompleteCnvBase(svcloc) {}
+protected:
     virtual LArShapePersType2*   createPersistent (LArShapeTransType2* transObj);
     virtual LArShapeTransType2*  createTransient ();
     LArShapeTransType1*          createTransient(LArConditionsSubset<LArShapeP>* orig);

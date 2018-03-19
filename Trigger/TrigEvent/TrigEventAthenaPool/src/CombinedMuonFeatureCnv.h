@@ -43,7 +43,9 @@ typedef T_AthenaPoolCustomCnv<CombinedMuonFeature, CombinedMuonFeature_PERS>
  friend class CnvFactory<CombinedMuonFeatureCnv>;
  
  protected:
+public:
  CombinedMuonFeatureCnv( ISvcLocator *svcloc );
+protected:
  ~CombinedMuonFeatureCnv();
     
    virtual CombinedMuonFeature_PERS* createPersistent( CombinedMuonFeature *transObj);

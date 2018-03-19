@@ -23,7 +23,9 @@ class PRD_MultiTruthCollectionCnv : public PRD_MultiTruthCollectionCnvBase
 {
   friend class CnvFactory<PRD_MultiTruthCollectionCnv>;
 protected:
+public:
   PRD_MultiTruthCollectionCnv(ISvcLocator*);
+protected:
   virtual PRD_MultiTruthCollection* createTransient();
   virtual PRD_MultiTruthCollectionPERS* createPersistent(PRD_MultiTruthCollection*);
 private:

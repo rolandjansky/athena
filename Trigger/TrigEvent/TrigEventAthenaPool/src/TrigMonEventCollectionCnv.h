@@ -21,9 +21,10 @@ class TrigMonEventCollectionCnv
 
   friend class CnvFactory<TrigMonEventCollectionCnv>;
 
- protected:
-  
+ public:  
   TrigMonEventCollectionCnv(ISvcLocator* svcloc);
+
+ protected:
   virtual ~TrigMonEventCollectionCnv();
 
   TrigMonEventCollection_PERS*  createPersistent(TrigMonEventCollection* transObj);

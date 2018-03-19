@@ -30,7 +30,9 @@ class TrigVertexCountsCnv : public TrigVertexCountsCnvBase {
   friend class CnvFactory<TrigVertexCountsCnv>;
   
  protected:
+public:
   TrigVertexCountsCnv(ISvcLocator* svcloc);
+protected:
   ~TrigVertexCountsCnv();
   
   TrigVertexCounts_PERS* createPersistent(TrigVertexCounts* transObj);

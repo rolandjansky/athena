@@ -13,7 +13,6 @@
 #include <stdexcept>
 
 // FrameWork includes
-#include "GaudiKernel/AudFactory.h"
 #include "GaudiKernel/INamedInterface.h"
 
 #include "FPEAuditor.h"

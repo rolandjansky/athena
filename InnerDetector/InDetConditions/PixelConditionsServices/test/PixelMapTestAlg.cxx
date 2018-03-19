@@ -10,7 +10,6 @@
 #include "AthenaKernel/IOVSvcDefs.h" 
 
 // Gaudi includes
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/GaudiException.h" 
 
 // geometry
