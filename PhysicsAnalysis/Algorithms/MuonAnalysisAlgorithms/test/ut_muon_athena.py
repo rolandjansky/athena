@@ -21,6 +21,9 @@ dataType = "data"
 #dataType = "mc"
 #dataType = "afii"
 
+config = CfgMgr.CP__SysListLoaderAlg('SysLoaderAlg' )
+config.sigmaRecommended = 1
+algSeq += config
 
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
 
