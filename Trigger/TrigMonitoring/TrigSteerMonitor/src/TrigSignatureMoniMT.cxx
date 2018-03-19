@@ -112,12 +112,14 @@ StatusCode TrigSignatureMoniMT::execute()  {
 	sum.insert( ids.begin(), ids.end() ); // merge with so far passing chains
       }
       CHECK( fillChains( sum, row ) );
+      anyPassed = anyPassed or ( not sum.empty() );
     } else {
       ATH_MSG_DEBUG( "Final decision " << d.key() << " absent, possibly early rejected" );
     }      
   } 
-
-  // missing intermediate steps
+  if ( anyPassed ) 
+    m_outputHistogram->Fill( 0., double( row ) );
+  // missing intermediate steps monitoring
 
     
   return StatusCode::SUCCESS;

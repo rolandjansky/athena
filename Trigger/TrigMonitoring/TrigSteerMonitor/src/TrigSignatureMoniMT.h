@@ -43,7 +43,7 @@ class TrigSignatureMoniMT : public ::AthAlgorithm
   std::map<unsigned int, int> m_chainIDToBinMap;
   
   ServiceHandle<ITHistSvc> m_histSvc{ this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
-  Gaudi::Property<std::string> m_bookingPath;
+  Gaudi::Property<std::string> m_bookingPath{ this, "HistParh", "EXPERT/TrigSteer_HLT", "Booking path for the histogram"};
 
   TH2* m_outputHistogram;
   
