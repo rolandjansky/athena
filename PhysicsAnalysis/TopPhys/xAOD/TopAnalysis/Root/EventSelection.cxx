@@ -25,6 +25,7 @@
 #include "TopParticleLevel/ParticleLevelEvent.h"
 
 #include "TopEventSelectionTools/FakesMMConfigs.h"
+#include "TopEventSelectionTools/NJetBtagSelector.h"
 
 namespace top {
 
@@ -327,7 +328,20 @@ void EventSelection::countPrimaryVertex(const float mcEventWeight,const float pi
 bool EventSelection::apply(const top::Event& event) const {
     unsigned int i(0);
     bool passEvent(false);
+    std::string btag_string  = "";
+    std::string nBtagCutName = "JET_N_BTAG";
 
+    // Find if this cutflow uses JET_N_BTAG to identify appropriate b-tagging WP SF (if available)
+    // Implicitly assumes you only apply one n-btag condition (and is only for cutflow use)
+    auto foundBtagSelection = std::find_if(m_allCuts.begin(), m_allCuts.end(),
+					   [&nBtagCutName](const auto& thisCut){
+					     return (thisCut->name().find(nBtagCutName) != std::string::npos);
+					   });
+    if(foundBtagSelection != m_allCuts.end()){
+      NJetBtagSelector* nJetBtagSelection = dynamic_cast<NJetBtagSelector*>((*foundBtagSelection).get());
+      btag_string = nJetBtagSelection->getFullCutName();
+    }
+    
     for (const auto& currentCut : m_allCuts) {
         const bool passed = currentCut->apply(event);
         //std::cout << (*it)->name() << " " << passed << std::endl;
@@ -350,10 +364,12 @@ bool EventSelection::apply(const top::Event& event) const {
 
 	    leptonSF = m_sfRetriever -> leptonSF(event, top::topSFSyst::nominal);
 
-	    for (auto& tag : ( m_config->useTrackJets() ? m_config->bTagWP_available_trkJet() : m_config->bTagWP_available())){
-	      btagSF = m_sfRetriever -> btagSF(event, top::topSFSyst::nominal, tag, m_config->useTrackJets());
+	    // Need to be careful with b-tagging. Can now load multiple taggers/calibrated or not.
+	    // Can only retrieve SF for cutflow if its calibrated
+	    if( (m_config->useTrackJets() && std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated_trkJet().end(), btag_string) != m_config->bTagWP_calibrated_trkJet().end()) ||
+		(!m_config->useTrackJets() && std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), btag_string) != m_config->bTagWP_calibrated().end()) ){
+	      btagSF = m_sfRetriever -> btagSF(event, top::topSFSyst::nominal, btag_string, m_config->useTrackJets());
 	    }
-
         }
 
         //add cutflow information for the nominal (not systematic) selection

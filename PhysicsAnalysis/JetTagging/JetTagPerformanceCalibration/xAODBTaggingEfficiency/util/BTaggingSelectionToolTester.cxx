@@ -2,6 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifdef XAOD_STANDALONE
+#include "xAODRootAccess/TEvent.h"
+#else
+#include "POOLRootAccess/TEvent.h"
+#endif
 #include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
 #include "PATInterfaces/CorrectionCode.h"
 #include "xAODJet/JetAuxContainer.h"
@@ -22,7 +27,7 @@ int main() {
 
 
   BTaggingSelectionTool * tool = new BTaggingSelectionTool("BTagSelecTest");
-  StatusCode code1 = tool->setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root" );
+  StatusCode code1 = tool->setProperty( "FlvTagCutDefinitionsFileName","xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root" );
   StatusCode code2 = tool->setProperty("TaggerName",    taggerName  );
   StatusCode code3 = tool->setProperty("OperatingPoint", workingPointName);
   StatusCode code4 = tool->setProperty("JetAuthor",      "AntiKt4EMTopoJets" );
@@ -41,7 +46,12 @@ int main() {
 
   //load some jets to show how to use the tool
 
-  xAOD::TEvent event;
+  //  xAOD::TEvent event;
+#ifdef XAOD_STANDALONE
+  xAOD::TEvent event(xAOD::TEvent::kClassAccess);
+#else
+  POOL::TEvent event(POOL::TEvent::kClassAccess);
+#endif
 
   TFile* m_file = TFile::Open("/afs/cern.ch/work/j/jshlomi/public/DAOD_FTAG2.12165764._000400.pool.root.1","read");
 

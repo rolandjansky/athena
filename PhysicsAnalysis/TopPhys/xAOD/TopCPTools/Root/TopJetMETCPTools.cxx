@@ -253,6 +253,14 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   // Is our MC full or fast simulation?
   std::string MC_type = (m_config->isAFII()) ? "AFII" : "MC16";
 
+  // Normally this is fine, but currently the jet group doesn't support uncertainties on AFII, so we have to tell it to configure for full sim
+  if(MC_type == "AFII"){
+    ATH_MSG_WARNING("JetUncertainties - CalibArea-02 does not support AFII uncertainties");
+    ATH_MSG_WARNING("JetUncertainties - Fast sim jets will need to have full sim uncertainties");
+    ATH_MSG_WARNING("JetUncertainties - This will be an underestimation of your JES uncertainty");
+    MC_type = "MC16";
+  }
+
   std::string conference = "Moriond2018";
 
   // interpret uncertainty model aliases
@@ -267,16 +275,8 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   
   // Rel21 calibrations are stored in a non-default area - therefore configure
   // the tool to look for the calibration in the correct fille.
-  std::string calib_area = "CalibArea-01";
+  std::string calib_area = "CalibArea-02";
 
-  // PFlow QG fraction file missing in calibarea-01 
-  // Use version loaded by AT - remove this as soon 
-  // as file becomes avaliable! 
-  if(jetCalibrationName.find("PFlow") != std::string::npos ){
-    m_config->jetUncertainties_QGFracFile("//cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/JetUncertainties/CalibArea-01-PFlow/analysisInputs/UnknownFlavourComp.root");
-
-    // m_config->jetUncertainties_QGFracFile("//afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/dev/AnalysisTop/JetUncertainties/CalibArea-01-PFlow/analysisInputs/UnknownFlavourComp.root");
-  }
   // Are we doing multiple JES for the reduced NP senarios?
   if (!m_config->doMultipleJES()) {
     m_jetUncertaintiesTool
@@ -389,7 +389,7 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
     // so just put it here for now.
     std::string calibConfigLargeR = "";
     const std::string calibChoice = m_config->largeRJESJMSConfig(); 
-    if (calibChoice == "CombinedMass") {
+    if (calibChoice == "CombMass") {
       //calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
       calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config";
     }
@@ -400,7 +400,7 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
       calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config";
     }
     else {
-      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TrackAssistedMass, CaloMass and CombinedMass) : "+calibChoice);
+      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TrackAssistedMass, CaloMass and CombMass) : "+calibChoice);
       return StatusCode::FAILURE;
     }
     const std::string calibSequenceLargeR = "EtaJES_JMS";
@@ -431,11 +431,11 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
   std::vector<std::string>* variables = nullptr;
   std::string largeRJES_config = m_config->largeRJESUncertaintyConfig();
   std::string calibArea  = "CalibArea-01";
-  std::string MC_type = "MC15";
+  std::string MC_type = "MC16";
 
-  conference = "Moriond2017";
-  configDir  = "UJ_2016";
-  MC_type += "c";
+  conference = "Moriond2018";
+  configDir  = "rel21";
+  MC_type += "a";
 
   variables = new std::vector<std::string>;
   variables->push_back("pT");
@@ -449,23 +449,23 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
   variables->push_back(largeRJES_config);
 
   largeRJES_config = m_config->largeRJESJMSConfig();
-  if (largeRJES_config.find("UJ2016_") != 0) largeRJES_config.insert(0, "UJ2016_");
+  //if (largeRJES_config.find("UJ2016_") != 0) largeRJES_config.insert(0, "UJ2016_");
 
   m_jetUncertaintiesToolLargeR_strong
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Strong",
                                 jetCalibrationNameLargeR, MC_type,
                                 configDir+"/"+conference
-                                + "/"+largeRJES_config+"_strong.config",variables);
+                                + "/R10_"+largeRJES_config+"_strong.config",variables,"",calibArea);
   m_jetUncertaintiesToolLargeR_medium
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Medium",
                                 jetCalibrationNameLargeR, MC_type,
                                 configDir+"/"+conference
-                                + "/"+largeRJES_config+"_medium.config",variables);
+                                + "/R10_"+largeRJES_config+"_medium.config",variables,"",calibArea);
   m_jetUncertaintiesToolLargeR_weak
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Weak",
                                 jetCalibrationNameLargeR, MC_type,
                                 configDir+"/"+conference
-                                + "/"+largeRJES_config+"_weak.config",variables);
+                                + "/R10_"+largeRJES_config+"_weak.config",variables,"",calibArea);
 
   if (variables) delete variables;
   return StatusCode::SUCCESS;

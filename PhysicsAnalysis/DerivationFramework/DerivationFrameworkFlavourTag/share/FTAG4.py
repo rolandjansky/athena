@@ -66,11 +66,18 @@ if globalflags.DataSource()!='data':
     addHFAndDownstreamParticles()
 
 #====================================================================
-# CREATE PRIVATE SEQUENCE
+# CREATE PRIVATE SEQUENCES
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
 
+FTAG4PreSeq = CfgMgr.AthSequencer("FTAG4PreSelectionSequence");
+DerivationFrameworkJob += FTAG4PreSeq
+
+FTAG4PreSeq += CfgMgr.DerivationFramework__DerivationKernel("FTAG4Kernel",
+                                                            SkimmingTools = [FTAG4StringSkimmingTool,FTAG4TriggerSkimmingTool])
+
 FTAG4Seq = CfgMgr.AthSequencer("FTAG4Sequence");
-DerivationFrameworkJob += FTAG4Seq
+FTAG4PreSeq += FTAG4Seq
 
 #====================================================================
 # Basic Jet Collections 
@@ -91,12 +98,6 @@ addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
 
 FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
 
-#====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
-#====================================================================
-FTAG4Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG4Kernel",
-                                                         SkimmingTools = [FTAG4StringSkimmingTool,FTAG4TriggerSkimmingTool])
-                                                                       
 #====================================================================
 # SET UP STREAM
 #====================================================================

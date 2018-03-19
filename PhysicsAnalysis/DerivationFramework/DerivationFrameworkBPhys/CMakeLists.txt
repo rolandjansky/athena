@@ -32,7 +32,8 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkCaloExtension
    InnerDetector/InDetConditions/InDetBeamSpotService
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
-   Trigger/TrigAnalysis/TrigDecisionTool )
+   Trigger/TrigAnalysis/TrigDecisionTool
+   InnerDetector/InDetRecAlgs/InDetV0Finder )
 
 # Component(s) in the package:
 atlas_add_library( DerivationFrameworkBPhysLib
@@ -44,7 +45,7 @@ atlas_add_library( DerivationFrameworkBPhysLib
    PRIVATE_LINK_LIBRARIES xAODBase xAODMetaData TrkVertexAnalysisUtils
    xAODEventInfo AthenaPoolUtilities xAODPrimitives CaloEvent TrackToCalo
    TrackToVertex TrkCaloExtension InDetBeamSpotServiceLib
-   InDetTrackSelectionToolLib TrigDecisionTool )
+   InDetTrackSelectionToolLib TrigDecisionTool InDetV0FinderLib)
 
 atlas_add_component( DerivationFrameworkBPhys
    src/components/*.cxx

@@ -38,7 +38,7 @@ public:
      * @param file The file to write the tree to.
      * @param name The name of the tree (e.g. nominal, systematic1 etc).
      */
-    TreeManager(const std::string& name, TFile* outputFile,const bool setAutoFlushZero = false);
+    TreeManager(const std::string& name, TFile* outputFile, const int, const int, const int);
 
     ///We do allow you to move it
     TreeManager(const TreeManager&& rhs);
@@ -52,7 +52,7 @@ public:
     /**
      * @brief Initialize the class with a new output file
      */
-    void initialize(const std::string& name, TFile* outputFile,const bool setAutoFlushZero = false);
+    void initialize(const std::string& name, TFile* outputFile, const int, const int, const int);
 
     /**
      * @brief Calls TTree::Fill.  Needed to fill the tree.
@@ -98,11 +98,11 @@ public:
         if (strlen( type_name ) == 1) {
             std::ostringstream leaflist;
             leaflist << name << "/" << RootType( type_name );
-            m_tree->Branch(name.c_str(), &obj, leaflist.str().c_str());
+            m_tree->Branch(name.c_str(), &obj, leaflist.str().c_str(), m_basketSizePrimitive);
         } else {
             m_outputVarPointers.push_back( &obj );
             T** pointer = reinterpret_cast< T** >( &m_outputVarPointers.back() );
-            m_tree->Branch( name.c_str(), pointer );
+            m_tree->Branch( name.c_str(), pointer, m_basketSizeVector );
         }
     }
 
@@ -170,6 +170,10 @@ private:
      * the variable is written to the n-tuple.
      */
     std::vector<BranchFilter> m_branchFilters;
+
+    // Two member variables to manage the size of the tree branch baskets
+    int m_basketSizePrimitive;
+    int m_basketSizeVector;
 
 };
 

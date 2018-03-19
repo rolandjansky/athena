@@ -8,8 +8,7 @@ EXOT9AllVariables = [
     "TruthVertices",
     "MET_Truth",
     "ExtrapolatedMuonTrackParticles",
-    "CombinedMuonTrackParticles",
-    "AntiKt4TruthWZJets"
+    "CombinedMuonTrackParticles"
 ]
 
 EXOT9SmartCollections = [
@@ -22,4 +21,9 @@ EXOT9SmartCollections = [
     "AntiKt4EMTopoJets",
     "PrimaryVertices",
     "InDetTrackParticles"
+]
+
+EXOT9Extravariables = [
+    "Muons.rpcHitTime.meanDeltaADCCountsMDT",
+    "InDetTrackParticles.numberOfIBLOverflowsdEdx.TRTdEdxUsedHits.TRTdEdx.numberOfTRTHighThresholdHitsTotal.numberOfTRTXenonHits.numberOfUsedHitsdEdx.pixeldEdx"
 ]

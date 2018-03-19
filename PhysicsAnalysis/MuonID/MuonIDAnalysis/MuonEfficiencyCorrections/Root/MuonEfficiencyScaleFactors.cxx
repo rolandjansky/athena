@@ -39,7 +39,7 @@ namespace CP {
                 m_sf_replica_decoration_name(),
                 m_eff_replica_decoration_name(),
                 m_mc_eff_replica_decoration_name(),
-                m_calibration_version("180216_Moriond21"),
+                m_calibration_version("180312_TriggerUpdate"),
                 m_lowpt_threshold(15.e3),
                 m_effDec(),
                 m_MCeffDec(),
@@ -522,8 +522,8 @@ namespace CP {
             for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 ATH_MSG_DEBUG("\t" << (*t).name());
             }
-            return SystematicCode::Unsupported;
         }
+        return SystematicCode::Unsupported;
     }
     MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors(const MuonEfficiencyScaleFactors& toCopy) :
                 MuonEfficiencyScaleFactors(toCopy.name() + "_copy") {

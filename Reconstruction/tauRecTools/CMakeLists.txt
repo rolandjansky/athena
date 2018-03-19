@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 796274 2017-02-08 17:13:03Z griffith $ 
+# $Id: CMakeLists.txt 796274 2017-02-08 17:13:03Z griffith $
 ################################################################################
 # Package: tauRecTools
 ################################################################################
@@ -60,7 +60,7 @@ else()
       Reconstruction/RecoTools/ITrackToVertex
       Reconstruction/RecoTools/RecoToolInterfaces
       Tools/PathResolver
-      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools	
+      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
       Tracking/TrkEvent/TrkLinks
       Tracking/TrkEvent/TrkParametersIdentificationHelpers
       Tracking/TrkEvent/TrkTrackSummary
@@ -79,6 +79,7 @@ find_package( ROOT COMPONENTS Core Tree Hist RIO )
 find_package( FastJet COMPONENTS fastjetplugins fastjettools siscone
 	        siscone_spherical )
 find_package( FastJetContrib COMPONENTS VariableR )
+find_package( lwtnn )
 
 atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   ROOT_HEADERS
@@ -95,6 +96,7 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauChargedPFOCreator.h
   tauRecTools/TauWPDecorator.h
   tauRecTools/TauJetBDTEvaluator.h
+  tauRecTools/TauJetRNNEvaluator.h
   tauRecTools/TauIDVarCalculator.h
   tauRecTools/TauEleOLRDecorator.h
   tauRecTools/TauProcessorTool.h
@@ -114,11 +116,11 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}
-      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
+      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking MCTruthClassifierLib
-      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
+      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib IsolationSelectionLib
       MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib)
 else()
@@ -127,11 +129,11 @@ else()
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}
-      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
+      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking MCTruthClassifierLib CaloUtilsLib Particle
-      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
+      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib IsolationSelectionLib
       MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib)
 endif()
@@ -140,8 +142,8 @@ if( NOT XAOD_STANDALONE )
    if( XAOD_ANALYSIS )
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
-         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODTau
+         INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
+         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} xAODTau
          xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
          xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib
 	 IsolationSelectionLib MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib)
@@ -149,7 +151,8 @@ if( NOT XAOD_STANDALONE )
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloUtilsLib
+         ${LWTNN_INCLUDE_DIRS}
+         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} CaloUtilsLib
          xAODTau xAODTracking xAODEgamma AthContainers FourMomUtils NavFourMom
          xAODCaloEvent xAODJet xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel
          InDetRecToolInterfaces JetEDM Particle ITrackToVertex

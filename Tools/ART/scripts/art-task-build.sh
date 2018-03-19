@@ -37,6 +37,7 @@ export AtlasBuildBranch=$BRANCH
 export AtlasProject=$PROJECT
 export ${AtlasProject}_PLATFORM=$PLATFORM
 export AtlasBuildStamp=$DATESTAMP
+export AtlasVersion=${AtlasBuildStamp}
 
 ART_DIRECTORY=`which art.py`
 ART_VERSION=`art.py --version`

@@ -395,7 +395,7 @@ top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config) {
 }
 
 
-  bool readMetaData(TFile* inputFile){
+  bool readMetaData(TFile* inputFile, std::shared_ptr<top::TopConfig> config){
 
   // Load the file into a TEvent
   xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);
@@ -408,6 +408,7 @@ top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config) {
   // Check it exists, and if it does we will work with it
   if ( ! ATMetaData.inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") ) {
     std::cout << "TopAnalysis::Tools::readMetaData - There is no FileMetaData in the input file." << std::endl;
+    config->setAmiTag("?");
     return false;
   }
 
@@ -457,6 +458,8 @@ top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config) {
   std::cout << "TopAnalysis::Tools::readMetaData : mcProcID           -> "  << mcProcID << std::endl;
   std::cout << "TopAnalysis::Tools::readMetaData : simFlavour         -> "  << simFlavour << std::endl;
   std::cout << "This information is not yet propagated to TopConfig      "  << std::endl;
+
+  config->setAmiTag(amiTag);
 
   return true;
 

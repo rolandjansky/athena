@@ -2918,7 +2918,7 @@ namespace AtlasRoot {
     if (m_esmodel == egEnergyCorr::es2017_R21_v0) {
        double et = energy/cosh(eta);
        if (et<5000.) et=5000.;
-       if (et>50.) et=50000.;
+       if (et>50000.) et=50000.;
        pileupNoise=sqrt(32.)*(60.+40.*log(et/10000.)/log(5.));
     }
     else {

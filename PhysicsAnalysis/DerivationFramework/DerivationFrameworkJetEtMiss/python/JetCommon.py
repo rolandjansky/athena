@@ -327,7 +327,7 @@ def addSoftDropJets(jetalg, rsize, inputtype, beta=0, zcut=0.1, mods="groomed",
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                     mods="default", calibOpt="none", ghostArea=0.01,
                     algseq=None, namesuffix="",
-                    outputGroup="CustomJets", customGetters=None):
+                    outputGroup="CustomJets", customGetters=None, pretools = []):
     jetnamebase = "{0}{1}{2}{3}".format(jetalg,int(rsize*10),inputtype,namesuffix)
     jetname = jetnamebase+"Jets"
     algname = "jetalg"+jetnamebase
@@ -390,7 +390,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
                                       )
 
         from JetRec.JetRecConf import JetAlgorithm
-        alg = JetAlgorithm(algname, Tools = [finderTool])
+        alg = JetAlgorithm(algname, Tools = pretools+[finderTool])
         dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
         algseq += alg
         DFJetAlgs[algname] = alg;

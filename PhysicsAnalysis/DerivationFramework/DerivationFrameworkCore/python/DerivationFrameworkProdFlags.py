@@ -346,18 +346,18 @@ class WriteDAOD_HIGG2D1Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D1Stream)
 listAODtoDPD.append(WriteDAOD_HIGG2D1Stream.StreamName)
 
-class WriteDAOD_HIGG2D2Stream(JobProperty):
-    """HIGG2D2 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_HIGG2D2'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkHiggs/HIGG2D2.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D2Stream)
-listAODtoDPD.append(WriteDAOD_HIGG2D2Stream.StreamName)
+#class WriteDAOD_HIGG2D2Stream(JobProperty):
+#    """HIGG2D2 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_HIGG2D2'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkHiggs/HIGG2D2.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D2Stream)
+#listAODtoDPD.append(WriteDAOD_HIGG2D2Stream.StreamName)
 
 #class WriteDAOD_HIGG2D3Stream(JobProperty):
 #    """HIGG2D3 derivation"""
@@ -751,6 +751,19 @@ class WriteDAOD_STDM9Stream (JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM9Stream)
 listAODtoDPD.append(WriteDAOD_STDM9Stream.StreamName)
+
+class WriteDAOD_STDM10Stream (JobProperty):
+    """STDM Heavy ION Derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM10'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM10.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM10Stream)
+listAODtoDPD.append(WriteDAOD_STDM10Stream.StreamName)
 
 
 

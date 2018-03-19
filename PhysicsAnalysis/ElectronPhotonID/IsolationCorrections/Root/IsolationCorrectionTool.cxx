@@ -23,8 +23,8 @@ namespace CP {
   IsolationCorrectionTool::IsolationCorrectionTool( const std::string &name )
     : asg::AsgMetadataTool(name), m_systDDonoff("PH_Iso_DDonoff"){
     declareProperty("CorrFile",                    m_corr_file                    = "IsolationCorrections/v1/isolation_ptcorrections_rel20_2.root");
-    declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file  = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_REL21_2016.root");
-    declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file       = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_REL21_2017.root");
+    declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file  = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_rel21_2016.root");
+    declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file       = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_rel21_2017.root");
     declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file         = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root");
     declareProperty("ToolVer",                     m_tool_ver_str                 = "REL21");
     declareProperty("DataDrivenVer",               m_ddVersion                    = "2017");

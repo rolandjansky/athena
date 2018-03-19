@@ -121,6 +121,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   dec_selected(input) = 0;
   dec_signal(input) = false;
   dec_isol(input) = false;
+  dec_isolHighPt(input) = false;
   dec_passSignalID(input) = false;
   dec_passChID(input) = false;
   dec_ecisBDT(input) = -999.;
@@ -203,6 +204,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   dec_baseline(input) = true;
   dec_selected(input) = 2;
   dec_isol(input) = m_isoTool->accept(input);
+  dec_isolHighPt(input) = m_isoHighPtTool->accept(input);
 
   //ChargeIDSelector
   if( m_runECIS ){
@@ -260,7 +262,9 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
   ATH_MSG_VERBOSE( "IsSignalElectron: " << m_eleId << " " << acc_passSignalID(input) << " d0sig " << acc_d0sig(input) << " z0 sin(theta) " << acc_z0sinTheta(input) );
 
   if (acc_isol(input) || !m_doElIsoSignal) {
-    ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
+    if (acc_isolHighPt(input) || input.pt()<400e3) { // patch for removing the high-pt electron fakes /KY
+      ATH_MSG_VERBOSE( "IsSignalElectron: passed isolation");
+    }
   } else return false; //isolation selection with IsoTool
 
 
