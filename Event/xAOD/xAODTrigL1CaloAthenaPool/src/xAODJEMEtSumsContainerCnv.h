@@ -5,52 +5,10 @@
 #ifndef XAODTRIGL1CALOATHENAPOOL_XAODJEMETSUMSCONTAINERCNV_H
 #define XAODTRIGL1CALOATHENAPOOL_XAODJEMETSUMSCONTAINERCNV_H
 
-// Gaudi/Athena include(s):
-#include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-
-// EDM include(s):
+#include "AthenaPoolCnvSvc/T_AthenaPoolxAODCnv.h"
 #include "xAODTrigL1Calo/JEMEtSumsContainer.h"
 
-/// Type definition for the converter's base
-typedef T_AthenaPoolCustomCnv< xAOD::JEMEtSumsContainer,
-                               xAOD::JEMEtSumsContainer >
-   xAODJEMEtSumsContainerCnvBase;
-
-/**
- *  @short POOL converter for the xAOD::JEMEtSumsContainer class
- *
- *         Simple converter class making the xAOD::JEMEtSums
- *         class known to POOL.
- *
- * @author Edward Moyse <Edward.Moyse@cern.ch>
- * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
- * @author John Morris <john.morris@cern.ch>
- *
- */
-class xAODJEMEtSumsContainerCnv : public xAODJEMEtSumsContainerCnvBase {
-
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODJEMEtSumsContainerCnv >;
-
-public:
-   /// Converter constructor
-   xAODJEMEtSumsContainerCnv( ISvcLocator* svcLoc );
-
-   /// Re-implemented function in order to get access to the SG key
-   virtual StatusCode createObj( IOpaqueAddress* pAddr, DataObject*& pObj );    
-   /// Function preparing the container to be written out
-   virtual xAOD::JEMEtSumsContainer*
-   createPersistent( xAOD::JEMEtSumsContainer* trans );
-   /// Function reading in the persistent object
-   virtual xAOD::JEMEtSumsContainer* createTransient();
-
-private:
-   /// Function preparing a vertex object for persistence
-   void toPersistent( xAOD::JEMEtSums* cluster ) const;
-   
-   /// StoreGate key of the container just being created
-   std::string m_key;
-
-}; // class xAODJEMEtSumsContainerCnv
-
-#endif 
+typedef T_AthenaPoolxAODCnv<xAOD::JEMEtSumsContainer>
+  xAODJEMEtSumsContainerCnv;
+  
+#endif   
