@@ -425,3 +425,20 @@ bool PixelMainMon::getFEID(int pixlayer, int phiid, int etaid, int& oufephi, int
   outfeeta = etaid / npixPerFe_eta;
   return isValid;
 }
+
+void PixelMainMon::divide_TH1F_LW(TH1F_LW* num, TH1F_LW* den) {
+  if (!num || !den || (num->GetXaxis()->GetNbins() != den->GetXaxis()->GetNbins())) return;
+  unsigned int binidx;
+  double numVal, numErr;
+  double denVal, denErr;
+  const unsigned int entries = num->GetEntries();
+  num->resetActiveBinLoop();
+  while (num->getNextActiveBin(binidx, numVal, numErr)) {
+    den->GetBinContentAndError(binidx, denVal, denErr);
+    if (denVal == 0)
+      num->SetBinContentAndError(binidx, 0, 0);
+    else
+      num->SetBinContentAndError(binidx, numVal / denVal, sqrt(pow(numErr*denVal,2)+pow(denErr*numVal,2)) / pow(denVal,2));
+  }
+  num->SetEntries(entries);
+}

@@ -128,6 +128,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::string makeHistname(std::string set, bool ontrk);
   std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
   bool getFEID(int pixlayer, int phiid, int etaid, int& oufephi, int& outfeeta);
+  void divide_TH1F_LW(TH1F_LW* num, TH1F_LW* den); //!< returns num = num/den w/ error propagation
 
   StatusCode bookClustersMon(void);
   StatusCode bookClustersLumiBlockMon(void);

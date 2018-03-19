@@ -117,8 +117,8 @@ StatusCode PixelMainMon::bookTrackMon(void) {
   }
 
   for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
-    hname = makeHistname(("HitEff_all_" + m_modLabel_PixLayerIBL2D3D[i][i]), false);
-    htitles = makeHisttitle(("hit efficiency, " + m_modLabel_PixLayerIBL2D3D[i][i]), ";lumi block;hit efficiency", false);
+    hname = makeHistname(("HitEff_all_" + m_modLabel_PixLayerIBL2D3D[i]), false);
+    htitles = makeHisttitle(("hit efficiency, " + m_modLabel_PixLayerIBL2D3D[i]), ";lumi block;hit efficiency", false);
     sc = trackHistos.regHist(m_hiteff_incl_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
     if (m_doOnline) {
       hname = makeHistname(("HitEff_last100lb_" + m_modLabel_PixLayerIBL2D3D[i]), false);
@@ -353,7 +353,7 @@ StatusCode PixelMainMon::procTrackMon(void) {
     int entries(0);
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_hiteff_incl_mod[i] && m_hiteff_lastXlb_mod[i]) {
-	for (int binf=m_hiteff_lastXlb_mod->GetNbins(); binf>0; binf--) {
+	for (int binf=m_hiteff_lastXlb_mod[i]->GetNbinsX(); binf>0; binf--) {
 	  if (bing>0) {
 	    cont = m_hiteff_incl_mod[i]->GetBinContent(bing);
 	    err = m_hiteff_incl_mod[i]->GetBinError(bing);

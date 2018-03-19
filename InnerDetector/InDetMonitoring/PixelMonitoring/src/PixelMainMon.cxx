@@ -580,9 +580,6 @@ StatusCode PixelMainMon::bookHistograms() {
     } else {
       m_histTitleExt = "";
     }
-    if (newLumiBlockFlag()) {
-      m_LBstartTime = thisEventInfo->event_ID()->time_stamp();
-    }
     if (!m_isFirstBook) {
       m_firstBookTime = thisEventInfo->event_ID()->time_stamp();
       m_isFirstBook = true;
