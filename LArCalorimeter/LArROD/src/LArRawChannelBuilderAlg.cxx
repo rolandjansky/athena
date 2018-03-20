@@ -105,7 +105,7 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
       if (samples[i]==4096 || samples[i]==0) saturated=true;
     }
     
-    const float tau=At/A;
+    const float tau=(std::fabs(A)>1.0) ? At/A : 0.0;
     
     //Apply Ramp
     const float E=adc2mev[0]+A*adc2mev[1];
@@ -157,7 +157,9 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
     const float time=(tau-timeOffset)*(Gaudi::Units::nanosecond/
 				       Gaudi::Units::picosecond); //Convert time to ps
 
-    outputContainer->emplace_back(id,(int)(floor(E+0.5)),(int)floor(time+0.5),iquaShort,prov,(CaloGain::CaloGain)gain);
+    outputContainer->emplace_back(id,static_cast<int>(std::floor(E+0.5)),
+				  static_cast<int>(std::floor(time+0.5)),
+				  iquaShort,prov,(CaloGain::CaloGain)gain);
 
   }
   return StatusCode::SUCCESS;
