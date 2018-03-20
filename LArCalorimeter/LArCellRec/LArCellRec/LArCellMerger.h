@@ -1,3 +1,4 @@
+//Dear emacs, this is -*-c++-*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -20,12 +21,13 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
-class LArCablingService;
-class StoreGateSvc;
+class LArOnOffIdMapping;
 class CaloCell_ID;
+class LArRawChannelContainer;
 
 class LArCellMerger: public AthAlgTool,
 	             virtual public ICaloCellMakerTool 
@@ -41,40 +43,30 @@ public:
 
   /** initialize the tool
   */
-  virtual StatusCode initialize() ; 
+  virtual StatusCode initialize() override; 
 
-  /** finalize   the tool
+  /** finalize the tool
   */
-  virtual StatusCode finalize() ; 
+  virtual StatusCode finalize() override; 
 
   /** update theCellContainer
   */
-  virtual StatusCode process( CaloCellContainer * theCellContainer) ;
+  virtual StatusCode process( CaloCellContainer * theCellContainer) override; //could be const if the abstract base-class were const
 
 
 
  private:
 
-  /** handle to LAr cabling service
+  /** handle to LAr cabling
   */
-  ToolHandle<LArCablingService> m_cablingService;
-  /** flags to select which errors to mask
-  */
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey;
+
 
   /** key for raw channel container to merge to cells
-  */
-  std::string m_rawChannelContainerName;
+  */  
+  SG::ReadHandleKey<LArRawChannelContainer>  m_rawChannelContainerName; 
 
   const CaloCell_ID* m_calo_id;
-
-  /** Number of events processed
-  */
-  int m_evt;
-
-  /** Number of cells read from new container
-  */
-  int m_ncell;
-
 };
 
 #endif
