@@ -19,6 +19,7 @@ StatusCode LArRawChannelBuilderAlg::initialize() {
   ATH_CHECK(m_adc2MeVKey.initialize());	 
   ATH_CHECK(m_ofcKey.initialize());	 
   ATH_CHECK(m_shapeKey.initialize());
+  ATH_CHECK( m_cablingKey.initialize() );
 
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));
 
@@ -78,6 +79,21 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
       return StatusCode::FAILURE;
     }
 
+    if(ATH_UNLIKELY(adc2mev.size()<2)) {
+      //Apparently we got digits for a disconnected channel. 
+      //Check if it is really disconncted
+      SG::ReadCondHandle<LArOnOffIdMapping> cabling(m_cablingKey,ctx);
+      if ((*cabling)->isOnlineConnected(id)) {
+	ATH_MSG_ERROR("No valid ADC2MeV for connected channel " << m_onlineId->channel_name(id) 
+		      << " gain " << gain);
+	return StatusCode::FAILURE;
+      }
+      else {
+ 	//as expected, a disconnected channel
+	continue; //simply skip over this channl 
+      }
+    }
+
 
     //Apply OFCs to get amplitude and time
     float A=0;
@@ -89,7 +105,7 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
       if (samples[i]==4096 || samples[i]==0) saturated=true;
     }
     
-    const float tau=At/A;
+    const float tau=(std::fabs(A)>1.0) ? At/A : 0.0;
     
     //Apply Ramp
     const float E=adc2mev[0]+A*adc2mev[1];
@@ -141,7 +157,9 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
     const float time=(tau-timeOffset)*(Gaudi::Units::nanosecond/
 				       Gaudi::Units::picosecond); //Convert time to ps
 
-    outputContainer->emplace_back(id,(int)(floor(E+0.5)),(int)floor(time+0.5),iquaShort,prov,(CaloGain::CaloGain)gain);
+    outputContainer->emplace_back(id,static_cast<int>(std::floor(E+0.5)),
+				  static_cast<int>(std::floor(time+0.5)),
+				  iquaShort,prov,(CaloGain::CaloGain)gain);
 
   }
   return StatusCode::SUCCESS;

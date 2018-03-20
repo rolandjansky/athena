@@ -16,6 +16,7 @@
 #include "LArRawConditions/LArADC2MeV.h"
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h" 
+#include "LArCabling/LArOnOffIdMapping.h"
 
 //Event classes
 class LArDigitContainer;
@@ -46,6 +47,9 @@ class LArRawChannelBuilderAlg : public AthReentrantAlgorithm {
   SG::ReadCondHandleKey<LArADC2MeV> m_adc2MeVKey{this,"ADC2MeVKey","LArADC2MeV","SG Key of ADC2MeV conditions object"};
   SG::ReadCondHandleKey<ILArOFC> m_ofcKey{this,"OFCKey","LArOFC","SG Key of OFC conditions object"};
   SG::ReadCondHandleKey<ILArShape> m_shapeKey{this,"ShapeKey","LArShape","SG Key of Shape conditions object"};
+
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping object"};
 
   //Other jobOptions:
   Gaudi::Property<float> m_eCutForQ{this,"ECutForQ",250.0,"Q will be computed only for channels with E above this value"};
