@@ -45,7 +45,7 @@ sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcL
   , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
   , m_rndmSvc("AtRndmGenSvc", name )
   , m_rndmEngine(0)
-  , m_sdoName("STGCfast_SDO")
+  , m_sdoName("sTGCfast_SDO")
   , m_timeWindowOffsetWire(0.)
   , m_timeWindowOffsetStrip(0.)
   , m_timeWindowWire(24.95) // TGC  29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns

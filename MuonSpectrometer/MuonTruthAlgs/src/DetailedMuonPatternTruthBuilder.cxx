@@ -607,9 +607,9 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
     ATH_MSG_WARNING(" failed to retrieve MuonSimDataCollection: " << "MM_SDO" );
     return Amg::Vector3D(0, 0, 0);
   }
-  const MuonSimDataCollection* stgcSimDataMap = retrieveTruthCollection( "STGC_SDO" );
+  const MuonSimDataCollection* stgcSimDataMap = retrieveTruthCollection( "sTGC_SDO" );
   if( !stgcSimDataMap) {
-    ATH_MSG_WARNING(" failed to retrieve MuonSimDataCollection: " << "STGC_SDO" );
+    ATH_MSG_WARNING(" failed to retrieve MuonSimDataCollection: " << "sTGC_SDO" );
     return Amg::Vector3D(0, 0, 0);
   }
 
