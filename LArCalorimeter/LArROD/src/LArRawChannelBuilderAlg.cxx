@@ -19,6 +19,7 @@ StatusCode LArRawChannelBuilderAlg::initialize() {
   ATH_CHECK(m_adc2MeVKey.initialize());	 
   ATH_CHECK(m_ofcKey.initialize());	 
   ATH_CHECK(m_shapeKey.initialize());
+  ATH_CHECK( m_cablingKey.initialize() );
 
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));
 
@@ -76,6 +77,21 @@ StatusCode LArRawChannelBuilderAlg::execute_r(const EventContext& ctx) const {
       ATH_MSG_ERROR("No valid pedestal for channel " << m_onlineId->channel_name(id) 
 		    << " gain " << gain);
       return StatusCode::FAILURE;
+    }
+
+    if(ATH_UNLIKELY(adc2mev.size()<2)) {
+      //Apparently we got digits for a disconnected channel. 
+      //Check if it is really disconncted
+      SG::ReadCondHandle<LArOnOffIdMapping> cabling(m_cablingKey,ctx);
+      if ((*cabling)->isOnlineConnected(id)) {
+	ATH_MSG_ERROR("No valid ADC2MeV for connected channel " << m_onlineId->channel_name(id) 
+		      << " gain " << gain);
+	return StatusCode::FAILURE;
+      }
+      else {
+ 	//as expected, a disconnected channel
+	continue; //simply skip over this channl 
+      }
     }
 
 
