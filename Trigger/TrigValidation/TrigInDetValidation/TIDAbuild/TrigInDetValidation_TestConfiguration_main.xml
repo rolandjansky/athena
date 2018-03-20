@@ -30,6 +30,7 @@
 
 
 #     include   "TrigInDetValidation_all_ttbar_pu40.xml"
+#     include   "TrigInDetValidation_all_ttbar_pu60.xml"
 <!-- #     include   "TrigInDetValidation_all_ttbar_pu46.xml" -->
 #     include   "TrigInDetValidation_all_ttbar_pu80.xml"
 
