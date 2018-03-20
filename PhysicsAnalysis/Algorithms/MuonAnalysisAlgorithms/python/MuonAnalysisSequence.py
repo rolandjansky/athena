@@ -39,4 +39,17 @@ def makeMuonAnalysisSequence (dataType) :
     sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut",
                        "sys" : "(^MUON_EFF_.*)"} )
 
+
+
+    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'MuonViewFromSelectionAlg' )
+    alg.selection = ['good_muon', 'isolated_muon']
+    sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
+
+
+
+    alg = createAlgorithm( 'CP::KinematicHistAlg', 'MuonKinematicDumperAlg' )
+    alg.histPattern = "muon_%VAR%_%SYS%"
+    sequence.append ( {"alg" : alg, "in" : "input"} )
+
+
     return sequence
