@@ -38,6 +38,11 @@ namespace CP
                    const std::string& propertyDescription);
 
 
+    /// \brief get the name we retrieve from the event store
+  public:
+    const std::string& getName (const CP::SystematicSet& sys) const;
+
+
     /// \brief retrieve the object for the given name
   public:
     ::StatusCode retrieve (const T*& object,
