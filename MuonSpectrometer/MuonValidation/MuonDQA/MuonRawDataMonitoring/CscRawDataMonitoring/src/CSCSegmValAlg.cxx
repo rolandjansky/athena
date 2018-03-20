@@ -45,6 +45,7 @@
 
 // STL
 #include <sstream>
+#include <utility>
 using CLHEP::cm3;
 
 //________________________________________________________________________________________________________
@@ -73,11 +74,6 @@ CSCSegmValAlg::CSCSegmValAlg( const std::string & type, const std::string & name
 
 //________________________________________________________________________________________________________
 CSCSegmValAlg::~CSCSegmValAlg() {
-  if(m_segmDetail_EA) { delete m_segmDetail_EA; m_segmDetail_EA = 0; }
-  if(m_segmDetail_EC) { delete m_segmDetail_EC; m_segmDetail_EC = 0; }
-  if(m_segmOview_EA) { delete m_segmOview_EA; m_segmOview_EA = 0; }
-  if(m_segmOview_EC) { delete m_segmOview_EC; m_segmOview_EC = 0; }
-  
   ATH_MSG_INFO( " in CSCSegmValAlg::~CSCSegmValAlg() " );
 }
 
@@ -230,10 +226,10 @@ void CSCSegmValAlg::bookSegmentHistograms() {
   float binmax = float(nbins) + binmin;
   
   MgmtAttr_t attr = ATTRIB_MANAGED;
-  m_segmDetail_EA=new MonGroup(this, segm_detailA+theKey+"/CSC", run, attr );
-  m_segmDetail_EC=new MonGroup(this, segm_detailC+theKey+"/CSC", run, attr );  
-  m_segmOview_EA=new MonGroup(this, segm_oviewA+theKey+"/CSC", run, attr );
-  m_segmOview_EC=new MonGroup(this, segm_oviewC+theKey+"/CSC", run, attr );
+  m_segmDetail_EA=std::move(std::unique_ptr<MonGroup>(new MonGroup(this, segm_detailA+theKey+"/CSC", run, attr )));
+  m_segmDetail_EC=std::move(std::unique_ptr<MonGroup>(new MonGroup(this, segm_detailC+theKey+"/CSC", run, attr )));  
+  m_segmOview_EA=std::move(std::unique_ptr<MonGroup>(new MonGroup(this, segm_oviewA+theKey+"/CSC", run, attr )));
+  m_segmOview_EC=std::move(std::unique_ptr<MonGroup>(new MonGroup(this, segm_oviewC+theKey+"/CSC", run, attr )));
   
   // segment hists
   m_h2CSC_Segm_NumOfSegs_EA= new TH2F("Muon_Segm_NumSegments_EA",
@@ -242,8 +238,8 @@ void CSCSegmValAlg::bookSegmentHistograms() {
   m_h2CSC_Segm_NumOfSegs_EC= new TH2F("Muon_Segm_NumSegments_EC",
 						Form("EndCap C: No. of segments; #segments;[sector] + [0.2 #times layer]"),
 						nsegbins,nsegmin,nsegmax,nybinsEC,nyminEC,nymaxEC);
-  regCSCHist(m_h2CSC_Segm_NumOfSegs_EA, m_segmOview_EA);
-  regCSCHist(m_h2CSC_Segm_NumOfSegs_EC, m_segmOview_EC);
+  regCSCHist(m_h2CSC_Segm_NumOfSegs_EA, m_segmOview_EA.get());
+  regCSCHist(m_h2CSC_Segm_NumOfSegs_EC, m_segmOview_EC.get());
   
   // precision clusters on segment
   
@@ -255,8 +251,8 @@ void CSCSegmValAlg::bookSegmentHistograms() {
 							Form("EndCap C: #eta-number of 3 and 4 cluster segments with each layer;counts;[sector] + [0.2 #times layer]"),
 							nclustbins,nclustmin,nclustmax,nybinsEC,nyminEC,nymaxEC);
   setCSCLayerLabels(m_h2CSC_Segm_NumOfNClusSegs_Eta_EC, -1);
-  regCSCHist(m_h2CSC_Segm_NumOfNClusSegs_Eta_EA, m_segmDetail_EA);
-  regCSCHist(m_h2CSC_Segm_NumOfNClusSegs_Eta_EC, m_segmDetail_EC);
+  regCSCHist(m_h2CSC_Segm_NumOfNClusSegs_Eta_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h2CSC_Segm_NumOfNClusSegs_Eta_EC, m_segmDetail_EC.get());
   
   for (size_t j = 0; j < m_NClusWord.size(); j++) {
     m_h2CSC_Segm_NumOfNClusSegs_Eta_EA->GetXaxis()->SetBinLabel(j*10+5, m_NClusWord[j].c_str());
@@ -272,8 +268,8 @@ void CSCSegmValAlg::bookSegmentHistograms() {
 						    nybinsEC,nyminEC,nymaxEC);
   setCSCLayerLabels(m_h1CSC_Segm_Efficiency_Eta_EC, -1);
   
-  regCSCHist(m_h1CSC_Segm_Efficiency_Eta_EA, m_segmOview_EA);
-  regCSCHist(m_h1CSC_Segm_Efficiency_Eta_EC, m_segmOview_EC);
+  regCSCHist(m_h1CSC_Segm_Efficiency_Eta_EA, m_segmOview_EA.get());
+  regCSCHist(m_h1CSC_Segm_Efficiency_Eta_EC, m_segmOview_EC.get());
   
   m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA=new TH2F("Muon_Segm_QSumEtaGoodClusPerLayer_EA",
 							   Form("EndCap A: #eta-cluster charge per layer;counts;[sector] + [0.2 #times layer]"),
@@ -283,8 +279,8 @@ void CSCSegmValAlg::bookSegmentHistograms() {
 							   Form("EndCap C: #eta-cluster charge per layer;counts;[sector] + [0.2 #times layer]"),
 							   nqbins,nqmin,nqmax,nybinsEC,nyminEC,nymaxEC);
   
-  regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA, m_segmOview_EA);
-  regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC, m_segmOview_EC);
+  regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EA, m_segmOview_EA.get());
+  regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Eta_EC, m_segmOview_EC.get());
   
   m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA=new TH2F("Muon_Segm_TimeEtaGoodClusPerLayer_EA",
 							   Form("EndCap A: #eta-cluster time per layer;time [ns];[sector] + [0.2 #times layer]"),
@@ -294,8 +290,8 @@ void CSCSegmValAlg::bookSegmentHistograms() {
 							   Form("EndCap C: #eta-cluster time per layer;time [ns];[sector] + [0.2 #times layer]"),
 							   ntbins,ntmin,ntmax,nybinsEC,nyminEC,nymaxEC);
   
-  regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA, m_segmOview_EA);
-  regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC, m_segmOview_EC);
+  regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EA, m_segmOview_EA.get());
+  regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Eta_EC, m_segmOview_EC.get());
   
   
   m_h1CSC_Segm_StatOfClus_Eta_EA= new TH1F("Muon_Segm_EtaClusterStatus_EA", 
@@ -307,50 +303,50 @@ void CSCSegmValAlg::bookSegmentHistograms() {
     m_h1CSC_Segm_StatOfClus_Eta_EA->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
     m_h1CSC_Segm_StatOfClus_Eta_EC->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
   }
-  regCSCHist(m_h1CSC_Segm_StatOfClus_Eta_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_StatOfClus_Eta_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_StatOfClus_Eta_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_StatOfClus_Eta_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_NumOfClus_Eta_EA= new TH1F("Muon_Segm_NumEtaCluster_EA", 
 						    "Endcap A: No. of #eta-clusters on segment;#clusters;entries", nsbins,nsmin,nsmax);
   m_h1CSC_Segm_NumOfClus_Eta_EC= new TH1F("Muon_Segm_NumEtaCluster_EC", 
 						    "Endcap C: No. of #eta-clusters on segment;#clusters;entries", nsbins,nsmin,nsmax);
-  regCSCHist(m_h1CSC_Segm_NumOfClus_Eta_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_NumOfClus_Eta_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_NumOfClus_Eta_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_NumOfClus_Eta_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_NumOfGoodClus_Eta_EA= new TH1F("Muon_Segm_NumGoodEtaCluster_EA",
 							"Endcap A: No. of good #eta-clusters on segment;#good-clusters;entries", nsbins,nsmin,nsmax);
   m_h1CSC_Segm_NumOfGoodClus_Eta_EC= new TH1F("Muon_Segm_NumGoodEtaCluster_EC",
 							"Endcap C: No. of good #eta-clusters on segment;#good-clusters;entries", nsbins,nsmin,nsmax);
-  regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Eta_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Eta_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Eta_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Eta_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_QsumOfClus_Eta_EA= new TH1F("Muon_Segm_QSumEtaCluster_EA", 
 						     "Endcap A: #eta-cluster Qsum;counts;entries", nqbins,nqmin,nqmax );
   m_h1CSC_Segm_QsumOfClus_Eta_EC= new TH1F("Muon_Segm_QSumEtaCluster_EC", 
 						     "Endcap C: #eta-cluster Qsum;counts;entries", nqbins,nqmin,nqmax );
-  regCSCHist(m_h1CSC_Segm_QsumOfClus_Eta_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_QsumOfClus_Eta_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_QsumOfClus_Eta_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_QsumOfClus_Eta_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_TimeOfClus_Eta_EA= new TH1F("Muon_Segm_TimeEtaCluster_EA", 
 						     "Endcap A: #eta-cluster Time;time [ns];entries", ntbins,ntmin,ntmax );
   m_h1CSC_Segm_TimeOfClus_Eta_EC= new TH1F("Muon_Segm_TimeEtaCluster_EC", 
 						     "Endcap C: #eta-cluster Time;time [ns];entries", ntbins,ntmin,ntmax );
-  regCSCHist(m_h1CSC_Segm_TimeOfClus_Eta_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_TimeOfClus_Eta_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_TimeOfClus_Eta_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_TimeOfClus_Eta_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_QsumOfGoodClus_Eta_EA= new TH1F("Muon_Segm_QSumGoodEtaCluster_EA", 
 							 "Endcap A: Good #eta-cluster Qsum;counts;entries", nqbins,nqmin,nqmax );
   m_h1CSC_Segm_QsumOfGoodClus_Eta_EC= new TH1F("Muon_Segm_QSumGoodEtaCluster_EC", 
 							 "Endcap C: Good #eta-cluster Qsum;counts;entries", nqbins,nqmin,nqmax );
-  regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Eta_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Eta_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Eta_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Eta_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_TimeOfGoodClus_Eta_EA= new TH1F("Muon_Segm_TimeGoodEtaCluster_EA", 
 							 "Endcap A: Good #eta-cluster Time;time [ns];entries", ntbins,ntmin,ntmax );
   m_h1CSC_Segm_TimeOfGoodClus_Eta_EC= new TH1F("Muon_Segm_TimeGoodEtaCluster_EC", 
 							 "Endcap C: Good #eta-cluster Time;time [ns];entries", ntbins,ntmin,ntmax );
-  regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Eta_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Eta_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Eta_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Eta_EC, m_segmDetail_EC.get());
   
   
   // transverse clusters on segment
@@ -362,8 +358,8 @@ void CSCSegmValAlg::bookSegmentHistograms() {
 							   Form("EndCap C: #phi-cluster charge per layer;counts;[sector] + [0.2 #times layer]"),
 							   nqbins,nqmin,nqmax,nybinsEC,nyminEC,nymaxEC);
   
-  regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA, m_segmOview_EA);
-  regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC, m_segmOview_EC);
+  regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EA, m_segmOview_EA.get());
+  regCSCHist(m_h2CSC_Segm_QsumOfGoodClusMap_Phi_EC, m_segmOview_EC.get());
   
   m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA=new TH2F("Muon_Segm_TimePhiGoodClusPerLayer_EA",
 							   Form("EndCap A: #phi-cluster time per layer;time [ns];[sector] + [0.2 #times layer]"),
@@ -373,8 +369,8 @@ void CSCSegmValAlg::bookSegmentHistograms() {
 							   Form("EndCap C: #phi-cluster time per layer;time [ns];[sector] + [0.2 #times layer]"),
 							   ntbins,ntmin,ntmax,nybinsEC,nyminEC,nymaxEC);
   
-  regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA, m_segmOview_EA);
-  regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC, m_segmOview_EC);
+  regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EA, m_segmOview_EA.get());
+  regCSCHist(m_h2CSC_Segm_TimeOfGoodClusMap_Phi_EC, m_segmOview_EC.get());
   
   m_h1CSC_Segm_StatOfClus_Phi_EA= new TH1F("Muon_Segm_PhiClusterStatus_EA", 
 						     "Endcap A: #phi-cluster status;;entries",nbins,binmin,binmax);
@@ -386,58 +382,58 @@ void CSCSegmValAlg::bookSegmentHistograms() {
     m_h1CSC_Segm_StatOfClus_Phi_EA->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
     m_h1CSC_Segm_StatOfClus_Phi_EC->GetXaxis()->SetBinLabel(j+1, m_clusStatWord[j].c_str());
   }
-  regCSCHist(m_h1CSC_Segm_StatOfClus_Phi_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_StatOfClus_Phi_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_StatOfClus_Phi_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_StatOfClus_Phi_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_NumOfClus_Phi_EA= new TH1F("Muon_Segm_NumPhiCluster_EA", 
 						    "Endcap A: No. of #phi-clusters on segment;#clusters;entries", nsbins,nsmin,nsmax);
   m_h1CSC_Segm_NumOfClus_Phi_EC= new TH1F("Muon_Segm_NumPhiCluster_EC", 
 						    "Endcap C: No. of #phi-clusters on segment;#clusters;entries", nsbins,nsmin,nsmax);
-  regCSCHist(m_h1CSC_Segm_NumOfClus_Phi_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_NumOfClus_Phi_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_NumOfClus_Phi_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_NumOfClus_Phi_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_NumOfGoodClus_Phi_EA= new TH1F("Muon_Segm_NumGoodPhiCluster_EA",
 							"Endcap A: No. of good #phi-clusters on segment;#good-clusters;entries", nsbins,nsmin,nsmax);
   m_h1CSC_Segm_NumOfGoodClus_Phi_EC= new TH1F("Muon_Segm_NumGoodPhiCluster_EC",
 							"Endcap C: No. of good #phi-clusters on segment;#good-clusters;entries", nsbins,nsmin,nsmax);
-  regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Phi_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Phi_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Phi_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_NumOfGoodClus_Phi_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_QsumOfClus_Phi_EA= new TH1F("Muon_Segm_QSumPhiCluster_EA", 
 						     "Endcap A: #phi-cluster Qsum;counts;entries", nqbins,nqmin,nqmax );
   m_h1CSC_Segm_QsumOfClus_Phi_EC= new TH1F("Muon_Segm_QSumPhiCluster_EC", 
 						     "Endcap C: #phi-cluster Qsum;counts;entries", nqbins,nqmin,nqmax );
-  regCSCHist(m_h1CSC_Segm_QsumOfClus_Phi_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_QsumOfClus_Phi_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_QsumOfClus_Phi_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_QsumOfClus_Phi_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_TimeOfClus_Phi_EA= new TH1F("Muon_Segm_TimePhiCluster_EA", 
 						     "Endcap A: #phi-cluster Time;time [ns];entries", ntbins,ntmin,ntmax );
   m_h1CSC_Segm_TimeOfClus_Phi_EC= new TH1F("Muon_Segm_TimePhiCluster_EC", 
 						     "Endcap C: #phi-cluster Time;time [ns];entries", ntbins,ntmin,ntmax );
-  regCSCHist(m_h1CSC_Segm_TimeOfClus_Phi_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_TimeOfClus_Phi_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_TimeOfClus_Phi_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_TimeOfClus_Phi_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_QsumOfGoodClus_Phi_EA= new TH1F("Muon_Segm_QSumGoodPhiCluster_EA", 
 							 "Endcap A: Good #phi-cluster Qsum;counts;entries", nqbins,nqmin,nqmax );
   m_h1CSC_Segm_QsumOfGoodClus_Phi_EC= new TH1F("Muon_Segm_QSumGoodPhiCluster_EC", 
 							 "Endcap C: Good #phi-cluster Qsum;counts;entries", nqbins,nqmin,nqmax );
-  regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Phi_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Phi_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Phi_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_QsumOfGoodClus_Phi_EC, m_segmDetail_EC.get());
   
   m_h1CSC_Segm_TimeOfGoodClus_Phi_EA= new TH1F("Muon_Segm_TimeGoodPhiCluster_EA", 
 							 "Endcap A: Good #phi-cluster Time;time [ns];entries", ntbins,ntmin,ntmax );
   m_h1CSC_Segm_TimeOfGoodClus_Phi_EC= new TH1F("Muon_Segm_TimeGoodPhiCluster_EC", 
 							 "Endcap C: Good #phi-cluster Time;time [ns];entries", ntbins,ntmin,ntmax );
-  regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Phi_EA, m_segmDetail_EA);
-  regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Phi_EC, m_segmDetail_EC);
+  regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Phi_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h1CSC_Segm_TimeOfGoodClus_Phi_EC, m_segmDetail_EC.get());
   
   // eta vs. phi correlation 
   m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA= new TH2F("Muon_Segm_QSumGoodClusCorrelation_EA", 
 							      "Endcap A: #phi-cluster vs. good #eta-cluster;good #eta-cluster counts;good #phi-cluster counts", nqbins,nqmin,nqmax, nqbins,nqmin,nqmax);
   m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC= new TH2F("Muon_Segm_QSumGoodClusCorrelation_EC", 
 							      "Endcap A: #phi-cluster vs. good #eta-cluster;good #eta-cluster counts;good #phi-cluster counts", nqbins,nqmin,nqmax, nqbins,nqmin,nqmax);
-  regCSCHist(m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA, m_segmDetail_EA);
-  regCSCHist(m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC, m_segmDetail_EC);
+  regCSCHist(m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EA, m_segmDetail_EA.get());
+  regCSCHist(m_h2CSC_Segm_QsumOfGoodClus_PhiVsEta_EC, m_segmDetail_EC.get());
   
   //m_h2csc_clus_r_vs_z_hitmap = new TH2F("h2csc_clus_r_vs_z_hitmap", "R vs. Z Cluster hitmap;z(CLHEP::mm);R(CLHEP::mm)",200, -10000., 10000., 40, 0., 4000);
   //m_h2csc_clus_y_vs_x_hitmap = new TH2F("h2csc_clus_y_vs_x_hitmap", "Y vs. X Cluster hitmap;x(CLHEP::mm);y(CLHEP::mm)",100, -5000., 5000., 100, -5000., 5000);

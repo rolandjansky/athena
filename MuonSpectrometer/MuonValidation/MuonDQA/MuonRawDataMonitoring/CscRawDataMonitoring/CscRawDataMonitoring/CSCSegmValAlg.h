@@ -47,6 +47,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
 
 class TH1;
 class TH1F;
@@ -92,10 +93,10 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   typedef std::vector<const Trk::MeasurementBase*> TrkSegmType;
   typedef std::vector<const Trk::MeasurementBase*>::const_iterator TrkSegmIter;
    
-  MonGroup * m_segmDetail_EA;
-  MonGroup*  m_segmDetail_EC;
-  MonGroup * m_segmOview_EA;
-  MonGroup*  m_segmOview_EC;
+  std::unique_ptr<MonGroup> m_segmDetail_EA;
+  std::unique_ptr<MonGroup>  m_segmDetail_EC;
+  std::unique_ptr<MonGroup> m_segmOview_EA;
+  std::unique_ptr<MonGroup> m_segmOview_EC;
 
   typedef enum EndCaps { ECA = 0, ECC } EndCapType;
 
