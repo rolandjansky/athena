@@ -41,6 +41,14 @@ def makeMuonAnalysisSequence (dataType) :
 
 
 
+    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'MuonCutFlowDumperAlg' )
+    alg.histPattern = "muon_cflow_%SYS%"
+    alg.selection = ['good_muon', 'isolated_muon']
+    alg.selectionNCuts = [4,1]
+    sequence.append ( {"alg" : alg, "in" : "input"} )
+
+
+
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'MuonViewFromSelectionAlg' )
     alg.selection = ['good_muon', 'isolated_muon']
     sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
