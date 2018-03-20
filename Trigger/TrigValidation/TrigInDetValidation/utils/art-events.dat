@@ -1,4 +1,5 @@
 test_trigindetvalidation_all_ttbar_pu40 1000
+test_trigindetvalidation_all_ttbar_pu60 1000
 test_trigindetvalidation_all_ttbar_pu80 1000
 test_trigindetvalidation_beamspot_ttbar_pu40 1000
 test_trigindetvalidation_beamspot_ttbar_pu40_zfinder 1000
