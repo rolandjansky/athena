@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef NSWPRDVALALG_H
@@ -12,6 +12,7 @@
 class MMDigitVariables;
 class MMSimHitVariables;
 class MMFastDigitVariables;
+class MMRDOVariables;
 
 class sTGCDigitVariables;
 class sTGCSimHitVariables;
@@ -50,6 +51,7 @@ class NSWPRDValAlg:public AthAlgorithm
   MMSimHitVariables*      m_MmSimHitVar;
   MMFastDigitVariables*   m_MmFastDigitVar;
   MMDigitVariables*       m_MmDigitVar;
+  MMRDOVariables*         m_MmRdoVar;
   CSCDigitVariables*      m_CscDigitVar;
 
   ITHistSvc *m_thistSvc;
@@ -68,6 +70,7 @@ class NSWPRDValAlg:public AthAlgorithm
   BooleanProperty  m_doMMHit;            // switch on the output of the MicroMegas data
   BooleanProperty  m_doMMFastDigit;      // switch on the output of the MicroMegas fast digitization
   BooleanProperty  m_doMMDigit;          // switch on the output of the MicroMegas digitization
+  BooleanProperty  m_doMMRDO;          // switch on the output of the MicroMegas digitization
   BooleanProperty  m_doCSCDigit;          // switch on the output of the MicroMegas digitization
 
   unsigned int m_runNumber;
@@ -81,6 +84,7 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_NSWMM_ContainerName;
   std::string m_NSWMM_FastDigitContainerName;
   std::string m_NSWMM_DigitContainerName;
+  std::string m_NSWMM_RDOContainerName;
   std::string m_CSC_DigitContainerName;
 };
 

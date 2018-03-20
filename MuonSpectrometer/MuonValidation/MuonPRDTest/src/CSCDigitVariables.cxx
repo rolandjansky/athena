@@ -199,7 +199,7 @@ StatusCode CSCDigitVariables::initializeVariables()
 
 /** ---------- freeing resources and resetting pointers */
 /** ---------- to be called on finalize level of main alg */
-StatusCode CSCDigitVariables::deleteVariables()
+void CSCDigitVariables::deleteVariables()
 {
   delete m_CSC_dig_stationName;
   delete m_CSC_dig_stationEta;
@@ -234,5 +234,5 @@ StatusCode CSCDigitVariables::deleteVariables()
   m_CSC_dig_truth_globalPosZ = nullptr;
   m_CSC_dig_truth_charge = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }

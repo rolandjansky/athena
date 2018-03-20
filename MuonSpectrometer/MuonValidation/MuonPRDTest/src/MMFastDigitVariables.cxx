@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMFastDigitVariables.h"
@@ -21,7 +21,7 @@ StatusCode MMFastDigitVariables::fillVariables()
   CHECK( this->clearVariables() );
 
   const MuonSimDataCollection* nsw_MmSdoContainer = nullptr;
-  CHECK( m_evtStore->retrieve(nsw_MmSdoContainer, "MM_SDO") );
+  CHECK( m_evtStore->retrieve(nsw_MmSdoContainer, "MMfast_SDO") );
 
   const Muon::MMPrepDataContainer *nsw_MMPrepDataContainer = nullptr;
   CHECK( m_evtStore->retrieve(nsw_MMPrepDataContainer, m_ContainerName.c_str()) );
@@ -101,7 +101,7 @@ StatusCode MMFastDigitVariables::fillVariables()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MMFastDigitVariables::deleteVariables()
+void MMFastDigitVariables::deleteVariables()
 {
   delete m_NSWMM_fdg_stationName;
   delete m_NSWMM_fdg_stationEta;
@@ -142,7 +142,7 @@ StatusCode MMFastDigitVariables::deleteVariables()
   m_NSWMM_fdg_truth_hitOnSurfaceX = nullptr; 
   m_NSWMM_fdg_truth_hitOnSurfaceY = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }
 
 
