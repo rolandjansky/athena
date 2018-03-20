@@ -1597,6 +1597,8 @@ getHist( TH2*& h, const std::string& hName, const MonGroup& group )
 
 StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup& group ) {
     if (!e) return StatusCode::FAILURE;
+    if (group.histo_mgmt() == ATTRIB_X_VS_LB)
+      ATH_MSG_WARNING("Attemting to register a cross-LB TEfficiency. This is not yet supported. Will be implemented shortly. (CDB 20/3/18)");
     return regGraph( reinterpret_cast<TGraph*>(e), group );
 }
 
