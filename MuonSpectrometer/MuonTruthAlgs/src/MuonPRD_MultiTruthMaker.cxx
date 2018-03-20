@@ -37,7 +37,7 @@ MuonPRD_MultiTruthMaker::MuonPRD_MultiTruthMaker(const std::string &name, ISvcLo
   m_CSC_SimDataMapName("CSC_SDO"),
   m_RPC_SimDataMapName("RPC_SDO"),
   m_TGC_SimDataMapName("TGC_SDO"),
-  m_STGC_SimDataMapName("STGC_SDO"),
+  m_STGC_SimDataMapName("sTGC_SDO"),
   m_MM_SimDataMapName("MM_SDO"),
   m_MDT_PRD_TruthName("MDT_TruthMap"),
   m_CSC_PRD_TruthName("CSC_TruthMap"),
@@ -58,7 +58,7 @@ MuonPRD_MultiTruthMaker::MuonPRD_MultiTruthMaker(const std::string &name, ISvcLo
     declareProperty("CSC_SDO_Container",          m_CSC_SimDataMapName);
     declareProperty("RPC_SDO_Container",          m_RPC_SimDataMapName);
     declareProperty("TGC_SDO_Container",          m_TGC_SimDataMapName);
-    declareProperty("STGC_SDO_Container",         m_STGC_SimDataMapName);
+    declareProperty("sTGC_SDO_Container",         m_STGC_SimDataMapName);
     declareProperty("MM_SDO_Container",           m_MM_SimDataMapName);
 
   // Output
