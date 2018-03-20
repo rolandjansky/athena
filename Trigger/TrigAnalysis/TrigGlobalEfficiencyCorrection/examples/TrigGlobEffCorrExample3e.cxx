@@ -82,17 +82,18 @@ namespace { vector<string> split_comma_delimited(const std::string&); }
 int main(int argc, char* argv[])
 {
     const char* filename = nullptr;
-    bool debug = false, cmdline_error = false;
+    bool debug = false, cmdline_error = false, toys = false;
     for(int i=1;i<argc;++i)
     {
         if(string(argv[i]) == "--debug") debug = true;
+        else if(string(argv[i]) == "--toys") toys = true;
         else if(!filename && *argv[i]!='-') filename = argv[i];
         else cmdline_error = true;
     }
     if(!filename || cmdline_error)
     {
         Error(MSGSOURCE, "No file name received!");
-        Error(MSGSOURCE, "  Usage: %s [--debug] [DxAOD file name]", argv[0]);
+        Error(MSGSOURCE, "  Usage: %s [--debug] [--toys] [DxAOD file name]", argv[0]);
         return 1;
     }
     #ifdef XAOD_STANDALONE
@@ -225,6 +226,7 @@ int main(int argc, char* argv[])
     myTool.setProperty("ListOfLegsPerTag", legsPerTag).ignore();
 
     if(debug) myTool.setProperty("OutputLevel", MSG::DEBUG).ignore();
+    if(toys) myTool.setProperty("NumberOfToys", 1000).ignore();
     if(myTool.initialize() != StatusCode::SUCCESS)
     {
         Error(MSGSOURCE, "Unable to initialize the TrigGlob tool!");
