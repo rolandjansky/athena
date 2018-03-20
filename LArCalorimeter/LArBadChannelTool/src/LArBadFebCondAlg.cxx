@@ -45,7 +45,7 @@ StatusCode LArBadFebCondAlg::execute() {
   
    if (writeHandle.isValid()) {
     writeHandle.updateStore(); //????
-    msg(MSG::WARNING) << "Found valid write handle" << endmsg;
+    msg(MSG::DEBUG) << "Found valid write handle" << endmsg;
     return StatusCode::SUCCESS;
   }  
 
