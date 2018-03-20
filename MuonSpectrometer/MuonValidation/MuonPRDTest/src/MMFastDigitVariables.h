@@ -42,10 +42,7 @@ class MMFastDigitVariables : public ValAlgVariables
 
   ~MMFastDigitVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete MMFastDigitVariables.");
-      throw;
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -61,7 +58,7 @@ class MMFastDigitVariables : public ValAlgVariables
     }
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   const MmIdHelper* m_MmIdHelper;

@@ -450,7 +450,7 @@ StatusCode MMDigitVariables::initializeVariables()
 
 /** ---------- freeing resources and resetting pointers */
 /** ---------- to be called on finalize level of main alg */
-StatusCode MMDigitVariables::deleteVariables()
+void MMDigitVariables::deleteVariables()
 {
   delete m_NSWMM_dig_stationName;
   delete m_NSWMM_dig_stationEta;
@@ -531,5 +531,5 @@ StatusCode MMDigitVariables::deleteVariables()
   m_NSWMM_dig_MMFE_VMM_id_trigger = nullptr;
   m_NSWMM_dig_VMM_id_trigger = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }
