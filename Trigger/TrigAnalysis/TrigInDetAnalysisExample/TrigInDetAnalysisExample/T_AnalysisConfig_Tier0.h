@@ -1174,7 +1174,9 @@ protected:
 	  m_associator->match( ref_tracks, test_tracks );
 	 
 	  //	  std::cout << "SUTT: execute : N tracks " << ref_tracks.size() << " " << test_tracks.size() << std::endl; 
-	  
+	
+
+	  _analysis->setroi( &chain.rois().at(iroi).roi() );  
 	  _analysis->execute( ref_tracks, test_tracks, m_associator );
 	  
 	  //	  std::cout << "chain " << m_chainNames[ichain]  << " " << "\tvtx name " << vtx_name << std::endl;
