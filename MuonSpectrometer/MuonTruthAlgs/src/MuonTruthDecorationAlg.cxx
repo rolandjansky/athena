@@ -60,7 +60,7 @@ namespace Muon {
     m_SDO_TruthNames.push_back("TGC_SDO");
     m_SDO_TruthNames.push_back("MDT_SDO");
     m_SDO_TruthNames.push_back("MM_SDO");
-    m_SDO_TruthNames.push_back("STGC_SDO");
+    m_SDO_TruthNames.push_back("sTGC_SDO");
     declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
     declareProperty("SDOs",      m_SDO_TruthNames);
     std::stable_sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
