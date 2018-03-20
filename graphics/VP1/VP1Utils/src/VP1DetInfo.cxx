@@ -21,9 +21,9 @@
 #include "VP1Base/VP1AthenaPtrs.h"
 
 #include "GeoModelKernel/GeoPVConstLink.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 //#include "InDetServMatGeoModel/InDetServMatManager.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "LArReadoutGeometry/EMBDetectorManager.h"
