@@ -111,9 +111,9 @@ hlt_hltContainers={'j360':'a4tcemsubjesISFS'}
 hlt_offlineEtThresholds={'j360':250.}
 #Dijet chains
   
-l1_DijetChains  = ['L1_J75']
-hlt_DijetChains = ['j360']
-of_DijetChains  = ['AntiKt4EMTopoJets']
+#l1_DijetChains  = ['L1_J75']
+#hlt_DijetChains = ['j360']
+#of_DijetChains  = ['AntiKt4EMTopoJets']
 
 
 ############################################ pp Config ###############################################
@@ -126,12 +126,14 @@ if (pp) or (mc):
                   "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
                   "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
                   "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
-                  "a4TTemnojcalibFS": "HLT_xAOD__JetContainer_a4TTemnojcalibFS"
+                  #"a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
+                  #"a10rtcemsubjesFS"   : "HLT_xAOD__JetContainer_a10r_tcemsubjesFS",
+                  "a10tclcwsubjesFS"   : "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
+                  "a10ttclcwjesFS"   : "HLT_xAOD__JetContainer_a10ttclcwjesFS"
                   }
   
   hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets",   
-                        "AntiKt4LCTopoJets":"AntiKt4LCTopoJets", 
-                        "AntiKt10LCTopoJets":"AntiKt10LCTopoJets"}
+                        "AntiKt4LCTopoJets":"AntiKt4LCTopoJets"}
   
   
   
@@ -172,130 +174,144 @@ if (pp) or (mc):
                                      'j200_jes_PS':100.,
                                      'j260':150.,
                                      'j360':250.,
-                                     'j460':250.,
-                                     'j460_a10_lcw_sub_L1J100':350.,
+                                     'j420':250.,
+                                     #'j225_gsc420_boffperf_split':250.,
+                                     'j460_a10_lcw_subjes_L1SC111':250.,
+                                     #'j460_a10r_L1SC111':250.,
+                                     'j460_a10t_lcw_jes_L1SC111':250.,
+                                     '2j330_a10t_lcw_jes_35smcINF_SC111':250.,
                                      'j80_xe80':50.,
                                      '4j45':20.,
-                                     '6j60':20.,
-                                     '5j60':30.,
-                                     '10j40_L14J20':0.,
-                                     'j0_perf_ds1_L1J75':0.,
-                                     'j0_perf_ds1_L1J100':0.,
-                                     'ht850_L1J100':50.,
-                                     'j60_TT':20,
-                                     'j85_cleanLLP':30,
-                                     'j85_cleanL':30,
-                                     'j85_cleanT':30,
-                                     'j0_1i2c300m500TLA':0.,
-                                     'j0_0i1c500m900TLA':0.
-                                     }
-  
-  hlt_hltEtaHighThresholds       = { 'j25':3.2,                          #Chose eta range for efficiency calculation
-                                     'j25_320eta490':4.9,
-                                     'j60':3.2 , 
-                                     'j60_L1RD0_FILLED':3.2,
+                                     '6j45':20.,
+                                     '6j45_0eta240':20.,
+                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':20.,
+                                     '10j40_L14J20':0.}
+    
+  hlt_hltEtaHighThresholds       = { 'j35':3.2,
+                                     'j35_jes':3.2,
+                                     'j35_lcw':3.2,
+                                     'j35_jes':3.2,
+                                     'j35_sub':3.2,
+                                     'j35_subjes':3.2,
+                                     'j35_nojcalib':3.2,
+                                     'j35_320eta490':4.9,
+                                     'j35_320eta490_lcw':4.9,
+                                     'j35_320eta490_jes':4.9,
+                                     'j35_320eta490_sub':4.9,
+                                     'j35_320eta490_subjes':4.9,
+                                     'j60':3.2,
                                      'j60_280eta320':3.2,
                                      'j60_320eta490':4.9,
-                                     'j200_jes_PS':3.2,
-                                     'j260':3.2, 
-                                     'j360':3.2, 
-                                     'j460':3.2, 
-                                     'j460_a10_lcw_sub_L1J100':3.2,
+                                     'j60_L1RD0_FILLED':3.2,
+                                     'j260':3.2,
+                                     'j360':3.2,
+                                     'j420':3.2,
+                                     #'j225_gsc420_boffperf_split':3.2,
+                                     'j460_a10_lcw_subjes_L1SC111':3.2,
+                                     #'j460_a10r_L1SC111':3.2,
+                                     'j460_a10t_lcw_jes_L1SC111':3.2,
+                                     '2j330_a10t_lcw_jes_35smcINF_SC111':3.2,
                                      'j80_xe80':3.2,
                                      '4j45':3.2,
-                                     '6j60':3.2,
-                                     '5j60':3.2,
-                                     '10j40_L14J20':3.2,
-                                     'j0_perf_ds1_L1J75':3.2,
-                                     'j0_perf_ds1_L1J100':3.2,
-                                     'ht850_L1J100':3.2,
-                                     'j60_TT':3.2,
-                                     'j85_cleanLLP':3.2,
-                                     'j85_cleanL':3.2,
-                                     'j85_cleanT':3.2,
-                                     'j0_1i2c300m500TLA':3.2,
-                                     'j0_0i1c500m900TLA':3.2}
+                                     '6j45':3.2,
+                                     '6j45_0eta240':2.4,
+                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':2.4,
+                                     '10j40_L14J20':3.2}
   
-  hlt_hltEtaLowThresholds        = { 'j25':0.,
-                                     'j25_320eta490':3.2, 
-                                     'j60':0.,   
-                                     'j60_L1RD0_FILLED':0., 
+  hlt_hltEtaLowThresholds        = { 'j35':0.0,
+                                     'j35_jes':0.0,
+                                     'j35_lcw':0.0,
+                                     'j35_jes':0.0,
+                                     'j35_sub':0.0,
+                                     'j35_subjes':0.0,
+                                     'j35_nojcalib':0.0,
+                                     'j35_320eta490':3.2,
+                                     'j35_320eta490_lcw':3.2,
+                                     'j35_320eta490_jes':3.2,
+                                     'j35_320eta490_sub':3.2,
+                                     'j35_320eta490_subjes':3.2,
+                                     'j60':0.0,
                                      'j60_280eta320':2.8,
                                      'j60_320eta490':3.2,
-                                     'j200_jes_PS':0.,
-                                     'j260':0.,   
-                                     'j360':0.,  
-                                     'j460':0.,  
-                                     'j460_a10_lcw_sub_L1J100':0.,
-                                     'j80_xe80':0.,
-                                     '4j45':0.,
-                                     '6j60':0.,
-                                     '5j60':0.,
-                                     '10j40_L14J20':0.,
-                                     'j0_perf_ds1_L1J75':0.,
-                                     'j0_perf_ds1_L1J100':0.,
-                                     'ht850_L1J100':0.,
-                                     'j60_TT':0.,
-                                     'j85_cleanLLP':0.,
-                                     'j85_cleanL':0.,
-                                     'j85_cleanT':0.,
-                                     'j0_1i2c300m500TLA':0.,
-                                     'j0_0i1c500m900TLA':0.}
+                                     'j60_L1RD0_FILLED':0.0,
+                                     'j260':0.0,
+                                     'j360':0.0,
+                                     'j420':0.0,
+                                     #'j225_gsc420_boffperf_split':0.0,
+                                     'j460_a10_lcw_subjes_L1SC111':0.0,
+                                     #'j460_a10r_L1SC111':0.0,
+                                     'j460_a10t_lcw_jes_L1SC111':0.0,
+                                     '2j330_a10t_lcw_jes_35smcINF_SC111':0.0,
+                                     'j80_xe80':0.0,
+                                     '4j45':0.0,
+                                     '6j45':0.0,
+                                     '6j45_0eta240':0.0,
+                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':0.0,
+                                     '10j40_L14J20':0.0}
   
   
-  hlt_hltJetn                    = { 'j25':1,                           #Select the nth jet for efficiency calcultaion of single/multijet HLT chains
-                                     'j25_320eta490':1, 
-                                     'j60':1,   
-                                     'j60_L1RD0_FILLED':1, 
+  hlt_hltJetn                    = { 'j35':1,
+                                     'j35_jes':1,
+                                     'j35_lcw':1,
+                                     'j35_jes':1,
+                                     'j35_sub':1,
+                                     'j35_subjes':1,
+                                     'j35_nojcalib':1,
+                                     'j35_320eta490':1,
+                                     'j35_320eta490_lcw':1,
+                                     'j35_320eta490_jes':1,
+                                     'j35_320eta490_sub':1,
+                                     'j35_320eta490_subjes':1,
+                                     'j60':1,
                                      'j60_280eta320':1,
                                      'j60_320eta490':1,
-                                     'j200_jes_PS':1,
-                                     'j260':1,   
-                                     'j360':1,  
-                                     'j460':1,
-                                     'j460_a10_lcw_sub_L1J100':1,
+                                     'j60_L1RD0_FILLED':1,
+                                     'j260':1,
+                                     'j360':1,
+                                     'j420':1,
+                                     #'j225_gsc420_boffperf_split':1,
+                                     'j460_a10_lcw_subjes_L1SC111':1,
+                                     #'j460_a10r_L1SC111':1,
+                                     'j460_a10t_lcw_jes_L1SC111':1,
+                                     '2j330_a10t_lcw_jes_35smcINF_SC111':2,
                                      'j80_xe80':1,
                                      '4j45':4,
-                                     '6j60':6,
-                                     '5j60':5,
-                                     '10j40_L14J20':10,
-                                     'j0_perf_ds1_L1J75':1,
-                                     'j0_perf_ds1_L1J100':1,
-                                     'ht850_L1J100':1,
-                                     'j60_TT':1,
-                                     'j85_cleanLLP':1,
-                                     'j85_cleanL':1,
-                                     'j85_cleanT':1,
-                                     'j0_1i2c300m500TLA':1,
-                                     'j0_0i1c500m900TLA':1}
+                                     '6j45':6,
+                                     '6j45_0eta240':6,
+                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':6,
+                                     '10j40_L14J20':10}
   
   
-  hlt_hltContainers              = {'j25':'a4tcemsubjesISFS',                  #Chose container to retrieve the features of a given chain
-                                    'j25_320eta490':'a4tcemsubjesISFS',
-                                    'j60':'a4tcemsubjesISFS',
-                                    'j60_L1RD0_FILLED':'a4tcemsubjesISFS',
-                                    'j60_280eta320':'a4tcemsubjesISFS',
-                                    'j60_320eta490':'a4tcemsubjesISFS',
-                                    'j200_jes_PS':'a4tcemjesPS',
-                                    'j260':'a4tcemsubjesISFS',
-                                    'j360':'a4tcemsubjesISFS',
-                                    'j460':'a4tcemsubjesISFS',
-                                    'j460_a10_lcw_sub_L1J100':'a10tclcwsubFS',
-                                    'j80_xe80':'a4tcemsubjesISFS',
-                                    '4j45':'a4tcemsubjesISFS',
-                                    '6j60':'a4tcemsubjesISFS',
-                                    '5j60':'a4tcemsubjesISFS',
-                                    '10j40_L14J20':'a4tcemsubjesISFS',
-                                    'j0_perf_ds1_L1J75':'a4tcemsubjesISFS',
-                                    'j0_perf_ds1_L1J100':'a4tcemsubjesISFS',
-                                    'ht850_L1J100':'a4tcemsubjesISFS',
-                                    'j60_TT':'a4TTemnojcalibFS',
-                                    'j85_cleanLLP':'a4tcemsubjesISFS',
-                                    'j85_cleanL':'a4tcemsubjesISFS',
-                                    'j85_cleanT':'a4tcemsubjesISFS',
-                                    'j0_1i2c300m500TLA':'a4tcemsubjesISFS',
-                                    'j0_0i1c500m900TLA':'a4tcemsubjesISFS'}
-                
+  hlt_hltContainers              = { 'j35':'a4tcemsubjesISFS',
+                                     'j35_sub':'a4tcemsubFS',
+                                     'j35_jes':'a4tcemjesFS',
+                                     'j35_subjes':'a4tcemsubjesFS',
+                                     'j35_nojcalib':'a4tcemnojcalibFS',
+                                     'j35_lcw':'a4tclcwsubjesISFS',
+                                     'j35_320eta490':'a4tcemsubjesISFS',
+                                     'j35_320eta490_sub':'a4tcemsubFS',
+                                     'j35_320eta490_jes':'a4tcemjesFS',
+                                     'j35_320eta490_subjes':'a4tcemsubjesFS',
+                                     'j35_320eta490_nojcalib':'a4tcemnojcalibFS',
+                                     'j35_320eta490_lcw':'a4tclcwsubjesISFS',
+                                     'j60':'a4tcemsubjesISFS',
+                                     'j60_280eta320':'a4tcemsubjesISFS',
+                                     'j60_320eta490':'a4tcemsubjesISFS',
+                                     'j60_L1RD0_FILLED':'a4tcemsubjesISFS',
+                                     'j260':'a4tcemsubjesISFS',
+                                     'j360':'a4tcemsubjesISFS',
+                                     'j420':'a4tcemsubjesISFS',
+                                     #'j225_gsc420_boffperf_split':'a4GSC',
+                                     'j460_a10_lcw_subjes_L1SC111':'a10tclcwsubjesFS',
+                                     #'j460_a10r_L1SC111':'a10rtcemsubjesFS',
+                                     'j460_a10t_lcw_jes_L1SC111':'a10ttclcwjesFS',
+                                     '2j330_a10t_lcw_jes_35smcINF_SC111':'a10ttclcwjesFS',
+                                     'j80_xe80':'a4tcemsubjesISFS',
+                                     '4j45':'a4tcemsubjesISFS',
+                                     '6j45':'a4tcemsubjesISFS',
+                                     '6j45_0eta240':'a4tcemsubjesISFS',
+                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':'a4GSC',
+                                     '10j40_L14J20':'a4tcemsubjesISFS'}
                 
 # Offline 
   hlt_offlineEtThresholds        = { 'L1_J15':10., 
@@ -308,27 +324,24 @@ if (pp) or (mc):
                                      'j200_jes_PS':100.,
                                      'j260':150.,
                                      'j360':250.,
-                                     'j460':250.,
-                                     'j460_a10_lcw_sub_L1J100':350.,
+                                     'j420':250.,
+                                     #'j225_gsc420_boffperf_split':250.,
+                                     'j460_a10_lcw_subjes_L1SC111':250.,
+                                     #'j460_a10r_L1SC111':250.,
+                                     'j460_a10t_lcw_jes_L1SC111':250.,
+                                     '2j330_a10t_lcw_jes_35smcINF_SC111':250.,
                                      'j80_xe80':50.,
                                      '4j45':20.,
-                                     '6j60':20.,
-                                     '5j60':30.,
-                                     '10j40_L14J20':0.,
-                                     'j0_perf_ds1_L1J75':0.,
-                                     'j0_perf_ds1_L1J100':0.,
-                                     'ht850_L1J100':50.,
-                                     'j60_TT':20,
-                                     'j85_cleanLLP':30,
-                                     'j85_cleanL':30,
-                                     'j85_cleanT':30,
-                                     'j0_1i2c300m500TLA':0.,
-                                     'j0_0i1c500m900TLA':0.}
+                                     '6j45':20.,
+                                     '6j45_0eta240':20.,
+                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':20.,
+                                     '10j40_L14J20':0.}
+
 #Dijet chains
   
-  l1_DijetChains  = ['L1_J400']
-  hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
-  of_DijetChains  = ['AntiKt4EMTopoJets']
+  #l1_DijetChains  = ['L1_J400']
+  #hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
+  #of_DijetChains  = ['AntiKt4EMTopoJets']
 
 
 
@@ -575,9 +588,9 @@ if (hi):
                                      'j50_2j30_0eta490_L1J10':0.}
 #Dijet chains
   
-  l1_DijetChains  = ['L1_J400']
-  hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
-  of_DijetChains  = ['AntiKt4HIJets']
+  #l1_DijetChains  = ['L1_J400']
+  #hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
+  #of_DijetChains  = ['AntiKt4HIJets']
 
 
 
@@ -632,9 +645,9 @@ if (cosmics):
                                      'j25':20.}
 #Dijet chains
   
-  l1_DijetChains  = ['L1_J400']
-  hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
-  of_DijetChains  = ['AntiKt4EMTopoJets']
+  #l1_DijetChains  = ['L1_J400']
+  #hlt_DijetChains = ['j0_perf_ds1_L1J75','j0_perf_ds1_L1J100']
+  #of_DijetChains  = ['AntiKt4EMTopoJets']
 
 
 ##################################################################################################################
@@ -683,9 +696,9 @@ def TrigJetMonitoringTool():
             monitoring_l1jet       = hltmonList.monitoring_l1jet,
             monitoring_jet         = hltmonList.monitoring_jet,
 
-            L1DijetChains          = l1_DijetChains,
-            HLTDijetChains         = hlt_DijetChains,
-            OFDijetChains          = of_DijetChains,
+            #L1DijetChains          = l1_DijetChains,
+            #HLTDijetChains         = hlt_DijetChains,
+            #OFDijetChains          = of_DijetChains,
 
             # Binning for NJets
             NJetNBins               = hlt_njetbins,
