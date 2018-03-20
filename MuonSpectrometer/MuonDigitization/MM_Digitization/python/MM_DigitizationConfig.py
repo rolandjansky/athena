@@ -18,7 +18,7 @@ def MM_FirstXing():
 def MM_LastXing():
     return 200
 
-def MmDigitizationTool(name="MmDigitizationTool",**kwargs):
+def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     kwargs.setdefault("RndmSvc", jobproperties.Digitization.rndmSvc() )
     # set rndm seeds
     mmRndm = kwargs.setdefault("RndmEngine","MM_Digitization")
@@ -31,7 +31,7 @@ def MmDigitizationTool(name="MmDigitizationTool",**kwargs):
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
     kwargs.setdefault("OutputSDOName", "MM_SDO")
 
-    return CfgMgr.MmDigitizationTool(name,**kwargs)
+    return CfgMgr.MM_DigitizationTool(name,**kwargs)
        #return CfgMgr.MM_PileUpTool(name,**kwargs)
     #else:
        #return CfgMgr.MdtDigitizationTool(name,**kwargs)
