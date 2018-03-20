@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
     /// For property 'MuonTools':
     ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");
-    muonTool.setProperty("CalibrationRelease", "180216_Moriond21").ignore();
+    muonTool.setProperty("CalibrationRelease", "180312_TriggerUpdate").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
     muonTool.setProperty("useRel207", true).ignore();
     // muonTool.setProperty("Isolation", "GradientLoose").ignore();
