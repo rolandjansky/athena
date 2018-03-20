@@ -1,7 +1,7 @@
-Mon Mar 12 20:32:55 CET 2018
+Mon Mar 19 11:33:11 CET 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [menu6/e222f62f96] -- built on [2018-03-12T1122]
+Py:Athena            INFO using release [WorkDir-22.0.1] [x86_64-slc6-gcc62-opt] [fpastore/684f80dd02] -- built on [2018-03-19T1029]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
@@ -11,13 +11,13 @@ Py:Athena            INFO configuring AthenaHive with [1] concurrent threads and
 Py:AlgScheduler      INFO setting up AvalancheSchedulerSvc/AvalancheSchedulerSvc with 1 threads
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "TrigUpgradeTest/EmuStepProcessingTest.py"
-Py:ConfigurableDb    INFO Read module info for 5468 configurables from 10 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 10 genConfDb files :
+Py:ConfigurableDb    INFO Read module info for 5475 configurables from 4 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 4 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
-Py:ConfigurableDb WARNING   -IDTrackCaloDepositsDecoratorTool: DerivationFrameworkMuons.DerivationFrameworkMuonsConf - ['MuonTPTools.MuonTPToolsConf', 'MuonTPTools.MuonTPToolsConf']
-Py:ConfigurableDb WARNING   -MuonTPExtrapolationTool: DerivationFrameworkMuons.DerivationFrameworkMuonsConf - ['MuonTPTools.MuonTPToolsConf', 'MuonTPTools.MuonTPToolsConf']
+Py:ConfigurableDb WARNING   -IDTrackCaloDepositsDecoratorTool: DerivationFrameworkMuons.DerivationFrameworkMuonsConf - ['MuonTPTools.MuonTPToolsConf']
+Py:ConfigurableDb WARNING   -MuonTPExtrapolationTool: DerivationFrameworkMuons.DerivationFrameworkMuonsConf - ['MuonTPTools.MuonTPToolsConf']
 Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 /***** Algorithm AthSequencer/L1UnpackingSeq *******************************************************
 |-Atomic                     = False
@@ -958,7 +958,7 @@ MessageSvc           INFO Activating in a separate thread
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
-                                          running on pc-tbed-pub-30.cern.ch on Mon Mar 12 20:33:03 2018
+                                          running on pc-tbed-pub-25.cern.ch on Mon Mar 19 11:33:31 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -970,7 +970,7 @@ ChronoStatSvc                                      INFO  Number of skipped event
 CoreDumpSvc                                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaHiveEventLoopMgr                             INFO Initializing AthenaHiveEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc                                         INFO  getRegistryEntries: read 7798 CLIDRegistry entries for module ALL
+ClassIDSvc                                         INFO  getRegistryEntries: read 7813 CLIDRegistry entries for module ALL
 L1Decoder                                         DEBUG Property update for OutputLevel : new value = 2
 L1Decoder                                          INFO Reading RoIB infromation from:  :  ( 'ROIB::RoIBResult' , '' )  : 
 L1Decoder.CTPUnpackingEmulationTool               DEBUG Property update for OutputLevel : new value = 2
@@ -1383,222 +1383,6 @@ PrecedenceSvc                                      INFO
         IncidentProcAlg2 [Alg]  [n= 1] [unclonable] 
     AthOutSeq [Seq]  [Concurrent]  [Prompt] 
     AthRegSeq [Seq]  [Concurrent]  [Prompt] 
-
-PrecedenceSvc                                      INFO 
-===================== Data Flow Configuration ====================
-
-      ====================================
-      Data origins and destinations:
-      ====================================
-        Step2ElInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2ElInputMaker_from_FilterStep2_on_combStep1Seq_from_Step1ComboMuElHypo_Output2_out_out_output' ) 
-        V
-      ====================================
-        Step1MuInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1MuInputMaker_Output_out' ) 
-        V
-        muMSRecAlg
-      ====================================
-        Step2MuInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2MuInputMaker_Output_out' ) 
-        V
-        muMSRecAlg2
-      ====================================
-        L1Decoder
-        V
-        o  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L1MURoIs' ) 
-        V
-      ====================================
-        L1Decoder
-        V
-        o  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+L1EMRoIs' ) 
-        V
-      ====================================
-        L1Decoder
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+L1MU' ) 
-        V
-      ====================================
-        Step1MuInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1MuInputMaker_from_FilterStep1_on_L1MU_from_L1MU_out_output' ) 
-        V
-      ====================================
-        Step1ComboMuElHypo
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1ComboMuElHypo_Output1_out' ) 
-        V
-      ====================================
-        FilterStep2_on_combStep1Seq
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+FilterStep2_on_combStep1Seq_from_Step1ComboMuElHypo_Output1_out_out' ) 
-        V
-      ====================================
-        Step1ElInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1ElInputMaker_from_FilterStep1_on_L1EML1MU_from_L1EM_out_output' ) 
-        V
-      ====================================
-        Step1MuInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1MuInputMaker_from_FilterStep1_on_L1EML1MU_from_L1MU_out_output' ) 
-        V
-      ====================================
-        FilterStep2_on_muStep1Seq
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+FilterStep2_on_muStep1Seq_from_Step1MuHypo_Output_out_out' ) 
-        V
-      ====================================
-        Step1ElInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1ElInputMaker_Output_out' ) 
-        V
-        CaloClustering
-      ====================================
-        Step2ComboMuElHypo
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2ComboMuElHypo_Output1_out' ) 
-        V
-      ====================================
-        muMSRecAlg2
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+muMSRecAlg2_Output_out' ) 
-        V
-        Step2ComboMuElHypo
-        Step2MuHypo2
-      ====================================
-        FilterStep2_on_elStep1Seq
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+FilterStep2_on_elStep1Seq_from_Step1ElHypo_Output_out_out' ) 
-        V
-      ====================================
-        Step2ComboMuElHypo
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2ComboMuElHypo_Output2_out' ) 
-        V
-      ====================================
-        Step2ElInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2ElInputMaker_from_FilterStep2_on_elStep1Seq_from_Step1ElHypo_Output_out_out_output' ) 
-        V
-      ====================================
-        Step1ElInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1ElInputMaker_from_FilterStep1_on_L1EM_from_L1EM_out_output' ) 
-        V
-      ====================================
-        Step2MuInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2MuInputMaker_from_FilterStep2_on_muStep1Seq_from_Step1MuHypo_Output_out_out_output' ) 
-        V
-      ====================================
-        CaloClustering2
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+CaloClustering2_Output_out' ) 
-        V
-        Step2ComboMuElHypo
-        Step2ElHypo
-      ====================================
-        Step1ComboMuElHypo
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1ComboMuElHypo_Output2_out' ) 
-        V
-      ====================================
-        FilterStep2_on_combStep1Seq
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+FilterStep2_on_combStep1Seq_from_Step1ComboMuElHypo_Output2_out_out' ) 
-        V
-      ====================================
-        TriggerSummaryStep1
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+MonitoringSummaryTriggerSummaryStep1' ) 
-        V
-      ====================================
-        Step2ElInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2ElInputMaker_Output_out' ) 
-        V
-        CaloClustering2
-      ====================================
-        FilterStep1_on_L1MU
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+FilterStep1_on_L1MU_from_L1MU_out' ) 
-        V
-      ====================================
-        L1Decoder
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+L1EM' ) 
-        V
-      ====================================
-        FilterStep1_on_L1EML1MU
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+FilterStep1_on_L1EML1MU_from_L1EM_out' ) 
-        V
-      ====================================
-        CaloClustering
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+CaloClustering_Output_out' ) 
-        V
-        Step1ComboMuElHypo
-        Step1ElHypo
-      ====================================
-        FilterStep1_on_L1EML1MU
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+FilterStep1_on_L1EML1MU_from_L1MU_out' ) 
-        V
-      ====================================
-        Step2MuInputMaker
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2MuInputMaker_from_FilterStep2_on_combStep1Seq_from_Step1ComboMuElHypo_Output1_out_out_output' ) 
-        V
-      ====================================
-        Step1ElHypo
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1ElHypo_Output_out' ) 
-        V
-      ====================================
-        Step1MuHypo
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step1MuHypo_Output_out' ) 
-        V
-      ====================================
-        FilterStep1_on_L1EM
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+FilterStep1_on_L1EM_from_L1EM_out' ) 
-        V
-      ====================================
-        Step2MuHypo2
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2MuHypo2_Output_out' ) 
-        V
-      ====================================
-        L1Decoder
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+HLTChains' ) 
-        V
-        TriggerSummaryStep1
-        TriggerSummaryStep2
-      ====================================
-        TriggerSummaryStep2
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+MonitoringSummaryTriggerSummaryStep2' ) 
-        V
-      ====================================
-        Step2ElHypo
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+Step2ElHypo_Output_out' ) 
-        V
-      ====================================
-        muMSRecAlg
-        V
-        o  ( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+muMSRecAlg_Output_out' ) 
-        V
-        Step1ComboMuElHypo
-        Step1MuHypo
-      ====================================
 
 HistogramPersistencySvc                         WARNING Histograms saving not required.
 ApplicationMgr                                     INFO Application Manager Initialized successfully
@@ -2218,7 +2002,7 @@ TriggerSummaryStep2                     2   0     DEBUG In summary 2 chains pass
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_mu8 ID#3370546555
 TriggerSummaryStep2                     2   0     DEBUG  +++ HLT_mu8_e8 ID#3385806166
 AthenaHiveEventLoopMgr                             INFO   ===>>>  done processing event #2, run #1 on slot 0,  3 events processed so far  <<<===
-AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.0291918
+AthenaHiveEventLoopMgr                             INFO ---> Loop Finished (seconds): 0.0315553
 ApplicationMgr                                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                                   INFO Finalize
 SGInputLoader                                      INFO Finalizing SGInputLoader...
@@ -2251,7 +2035,7 @@ Step1MuHypo.step1mu20                              INFO Finalizing Step1MuHypo.s
 *****Chrono*****                                   INFO ****************************************************************************************************
 *****Chrono*****                                   INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                                   INFO ****************************************************************************************************
-ChronoStatSvc                                      INFO Time User   : Tot= 0.58  [s]                                             #=  1
+ChronoStatSvc                                      INFO Time User   : Tot= 0.63  [s]                                             #=  1
 *****Chrono*****                                   INFO ****************************************************************************************************
 ChronoStatSvc.finalize()                           INFO  Service finalized successfully 
 ApplicationMgr                                     INFO Application Manager Finalized successfully

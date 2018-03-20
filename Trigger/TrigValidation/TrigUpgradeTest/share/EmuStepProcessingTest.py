@@ -13,7 +13,7 @@
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
-AlgScheduler.ShowDataFlow( True )
+#AlgScheduler.ShowDataFlow( True )
 
 # include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 # svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]
