@@ -761,11 +761,12 @@ StatusCode PixelMainMon::procHitsMon(void) {
   }
   
   if (m_doOnline) {
-    int bing = m_manager->lumiBlockNumber()-1;
+    unsigned int lastlb = m_manager->lumiBlockNumber()-1;
     float cont(0.0), err(0.0);
     int entries(0);
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_hits_per_lumi_mod[i] && m_hits_lastXlb_mod[i]) {
+	unsigned int bing(lastlb);
 	for (int binf=m_hits_lastXlb_mod[i]->GetNbinsX(); binf>0; binf--) {
 	  if (bing>0) {
 	    cont = m_hits_per_lumi_mod[i]->GetBinContent(bing);
