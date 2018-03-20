@@ -4,15 +4,15 @@
 
 #include "TopHLUpgrade/UpgradePerformanceFunctionsxAOD.h"
 
-UpgradePerformanceFunctionsxAOD::UpgradePerformanceFunctionsxAOD() :
-  UpgradePerformanceFunctions(),
+UpgradePerformanceFunctionsxAOD::UpgradePerformanceFunctionsxAOD( const std::string& name ) :
+  UpgradePerformanceFunctions(name),
   m_randgen(811) //fix random seed
 {
 
 }
 
-UpgradePerformanceFunctionsxAOD::UpgradePerformanceFunctionsxAOD(UpgradeLayout layout, double avgMu) :
-  UpgradePerformanceFunctions(layout, avgMu),
+UpgradePerformanceFunctionsxAOD::UpgradePerformanceFunctionsxAOD( const std::string& name, UpgradeLayout layout, double avgMu) :
+  UpgradePerformanceFunctions(name, layout, avgMu),
   m_randgen(811) // fix random seed
 {
 
