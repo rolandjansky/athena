@@ -25,8 +25,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
 
-
-
 #include <bitset>
 
 LArCellBuilderFromLArRawChannelTool::LArCellBuilderFromLArRawChannelTool(
@@ -151,30 +149,32 @@ StatusCode LArCellBuilderFromLArRawChannelTool::process(CaloCellContainer * theC
 
   for (const LArRawChannel& rawChan : *rawColl) {
     const HWIdentifier hwid=rawChan.channelID();
-    const Identifier id=cabling->cnvToIdentifier(hwid);
-    const IdentifierHash hashid= m_caloCID->calo_cell_hash(id);
-    const CaloDetDescrElement * theDDE=m_caloDDM->get_element(hashid);
+    if ( cabling->isOnlineConnected(hwid)) {
+      const Identifier id=cabling->cnvToIdentifier(hwid);
+      const IdentifierHash hashid= m_caloCID->calo_cell_hash(id);
+      const CaloDetDescrElement * theDDE=m_caloDDM->get_element(hashid);
         
-    LArCell *pCell   = pool.nextElementPtr();
+      LArCell *pCell   = pool.nextElementPtr();
 
-    *pCell = LArCell (theDDE,
-                      id,
-                      rawChan.energy(),
-                      rawChan.time(),
-                      rawChan.quality(),
-                      rawChan.provenance(),
-                      rawChan.gain());
+      *pCell = LArCell (theDDE,
+			id,
+			rawChan.energy(),
+			rawChan.time(),
+			rawChan.quality(),
+			rawChan.provenance(),
+			rawChan.gain());
 
-    if ((*theCellContainer)[hashid]) {
-      ATH_MSG_WARNING( "Channel added twice! Data corruption? hash=" << hashid  
-		       << " online ID=0x" << std::hex << hwid.get_identifier32().get_compact()  
-		       << std::dec << "  " << m_onlineID->channel_name(hwid));
-    }
-    else {
-      (*theCellContainer)[hashid]=pCell;
-      ++nCellsAdded;
-      includedSubcalos.set(m_caloCID->sub_calo(hashid));
-    }
+      if ((*theCellContainer)[hashid]) {
+	ATH_MSG_WARNING( "Channel added twice! Data corruption? hash=" << hashid  
+			 << " online ID=0x" << std::hex << hwid.get_identifier32().get_compact()  
+			 << std::dec << "  " << m_onlineID->channel_name(hwid));
+      }
+      else {
+	(*theCellContainer)[hashid]=pCell;
+	++nCellsAdded;
+	includedSubcalos.set(m_caloCID->sub_calo(hashid));
+      }
+    }//end if connected
   }//end loop over LArRawChannelContainer
 
   //Now add in dummy cells (if requested)
