@@ -115,7 +115,7 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
 
     alg = createAlgorithm( 'CP::JetViewFromSelectionAlg', 'JetViewFromSelectionAlg' )
     alg.selection = ['clean_jet','jvt_selection']
-    sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut", "needOut" : True} )
+    sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
 
 
 
