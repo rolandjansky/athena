@@ -118,7 +118,6 @@ private:
 	
 	std::vector<TagDecorator> m_leptonTagDecorators; //!
 	SG::AuxElement::Decorator<unsigned int> m_runNumberDecorator; //!
-	SG::AuxElement::Decorator<unsigned long> m_eventNumberDecorator; //!
 	std::unique_ptr<TrigGlobEffCorr::Calculator> m_calculator; //!
 	
 	template<typename Key> using flat_set = boost::container::flat_set<Key>;
