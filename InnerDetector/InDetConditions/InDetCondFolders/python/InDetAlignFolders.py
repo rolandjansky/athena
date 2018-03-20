@@ -18,7 +18,7 @@ conddb.addFolderSplitOnline("INDET","/Indet/Onl/IBLDist","/Indet/IBLDist")
 # In future we might want to add also to MC DB
 # Solution below is not pretty but in response to JIRA ATLASSIM-2746
 
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 if geoFlags.useDynamicAlignFolders():
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL1/ID","/Indet/AlignL1/ID")
     conddb.addFolderSplitOnline("INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX")

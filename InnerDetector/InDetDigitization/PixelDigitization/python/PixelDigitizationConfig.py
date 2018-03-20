@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Pixel Digitization code.
@@ -40,7 +40,7 @@ def SurfaceChargesTool(name="SurfaceChargesTool", **kwargs):
         kwargs.setdefault("IblPlanarChargeTool","IblPlanarChargeTool")
         kwargs.setdefault("Ibl3DChargeTool","Ibl3DChargeTool")
     kwargs.setdefault("DBMChargeTool","DBMChargeTool") # No separate implementation when using Bichsel model
-    kwargs.setdefault("doITk", GeometryFlags.isSLHC())
+    kwargs.setdefault("doITk", InDetGeometryFlags.isSLHC())
     return CfgMgr.SurfaceChargesTool(name, **kwargs)
 
 def DBMChargeTool(name="DBMChargeTool", **kwargs):
@@ -233,7 +233,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     if jobproperties.Beam.beamType == "cosmics" :
         kwargs.setdefault("UseComTime", True)
         kwargs.setdefault("PixelConditionsSummarySvc", "")
-    if GeometryFlags.isSLHC():
+    if InDetGeometryFlags.isSLHC():
         LVL1Latency = [255, 255, 255, 255, 255, 16, 255]
         ToTMinCut = [0, 0, 0, 0, 0, 0, 0]
         ApplyDupli = [False, False, False, False, False, False, False]
