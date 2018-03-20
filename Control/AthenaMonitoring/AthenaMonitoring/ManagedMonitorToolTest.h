@@ -75,7 +75,9 @@ class ManagedMonitorToolTest : public ManagedMonitorToolBase
 
       TEfficiency*       m_efficiency;
       TEfficiency*       m_managedEfficiency;
+      TEfficiency*       m_managedEfficiencyXLB;
 
+      TGraph*            m_managedGraphXLB;
 };
 
 #endif

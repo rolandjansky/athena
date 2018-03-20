@@ -64,6 +64,8 @@ ManagedMonitorToolTest( const std::string & type, const std::string & name,
    , m_gen(65539)
    , m_efficiency(0)
    , m_managedEfficiency(0)
+   , m_managedEfficiencyXLB(0)
+   , m_managedGraphXLB(0)
 {
    declareProperty( "GeneratorSeed", m_generatorSeedProp );
 }
@@ -253,6 +255,17 @@ bookHistograms( )
    m_managedEfficiency = new TEfficiency("ManagedEfficiency","Efficiency (Managed)",10,0,10);
    managed_efficiency.regEfficiency( m_managedEfficiency ).ignore();
 
+   // Example for the managed TEfficiency across lumiblocks
+   MonGroup managed_efficiency_xlb( this, "Managed/EfficiencyXLB", run, ATTRIB_X_VS_LB, "", "merge");
+   m_managedEfficiencyXLB = new TEfficiency("ManagedEfficiencyXLB","EfficiencyXLB (Managed)",1200,0,1200);
+   managed_efficiency_xlb.regEfficiency( m_managedEfficiencyXLB ).ignore();
+
+   // Example for the managed TGraph across lumiblocks
+   MonGroup managed_graph_xlb( this, "Managed/GraphXLB", run, ATTRIB_X_VS_LB, "", "merge");
+   m_managedGraphXLB = new TGraph();
+   m_managedGraphXLB->SetNameTitle("ManagedGraphXLB","GraphXLB (Managed)");
+   managed_graph_xlb.regGraph( m_managedGraphXLB ).ignore();
+   
    return StatusCode::SUCCESS;
 }
 

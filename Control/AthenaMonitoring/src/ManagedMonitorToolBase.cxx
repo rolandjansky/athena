@@ -805,204 +805,217 @@ StatusCode
 ManagedMonitorToolBase::
 fillHists()
 {
+    if (m_d->m_warnAboutMissingInitialize) {
+        m_d->m_warnAboutMissingInitialize = false;
+        msg(MSG::WARNING) << "ManagedMonitorToolBase::initialize() never called from reimplementation!" << endmsg;
+    }
+    
+    bool isNewEventsBlock = ( m_procNEventsProp > 0  && ((m_nEvents % m_procNEventsProp) == 1) && m_haveClearedLastEventBlock );
+    if (isNewEventsBlock) m_haveClearedLastEventBlock = false;
+        
+    m_newLowStat = false;
+    m_newLumiBlock = false;
+    m_newRun = false;
+    newLowStat = false;
+    newLumiBlock = false;
+    newRun = false;
+    
+    m_newLowStatInterval = false;
+    m_newMedStatInterval = false;
+    m_newHigStatInterval = false;
+    newLowStatInterval = false;
+    newMedStatInterval = false;
+    newHigStatInterval = false;
+    
+    m_useTrigger = ( (m_triggerChainProp != "" || m_triggerGroupProp != "")  && (!m_trigDecTool.empty()) );
+    
+    if( m_manager != 0 ) {
+        m_newLumiBlock = ( (m_lastLumiBlock != m_manager->lumiBlockNumber()) || m_manager->forkedProcess());
+        m_newRun = ( m_lastRun != m_manager->runNumber() );
+        newLumiBlock = m_newLumiBlock;
+        newRun = m_newRun;
+        
+        if(m_newRun) {
+            m_newLumiBlock = true;
+            newLumiBlock = m_newLumiBlock;
+            isNewEventsBlock = true;
+        }
+            
+        m_newEventsBlock = isNewEventsBlock;
+        newEventsBlock = m_newEventsBlock;
+        
+        if( m_newLumiBlock ) {
+            // check if a new LB interval has started
+            // lowest lumiBlockNumber() is 1
+            // m_lastLowStatInterval is -1 initially
+            int currentLB = m_manager->lumiBlockNumber();
+            int LBsLowStat = m_manager->getLBsLowStat();
+            int LBsMedStat = m_manager->getLBsMedStat();
+            int LBsHigStat = m_manager->getLBsHigStat();
+            
+            if( LBsLowStat*LBsMedStat*LBsHigStat == 0) {
+                msg(MSG::WARNING) << "zero LBs requested for interval" << endmsg;
+            }
+            else {
+                if( ((currentLB-1)/LBsLowStat) != m_lastLowStatInterval ) m_newLowStatInterval = true;
+                if( ((currentLB-1)/LBsMedStat) != m_lastMedStatInterval ) m_newMedStatInterval = true;
+                if( ((currentLB-1)/LBsHigStat) != m_lastHigStatInterval ) m_newHigStatInterval = true;
+                newLowStatInterval = m_newLowStatInterval;
+                newMedStatInterval = m_newHigStatInterval;
+                newHigStatInterval = m_newHigStatInterval;
+            }
+        }
+        // Allow inheriting classes the option of using the lastLumiBloc/lastRun values
+        // before updating them
+    }
+    
+    StatusCode sc0( StatusCode::SUCCESS );
+    sc0.setChecked();
+    StatusCode sc1( StatusCode::SUCCESS );
+    sc1.setChecked();
+    StatusCode sc2( StatusCode::SUCCESS );
+    sc2.setChecked();
+    StatusCode sc3( StatusCode::SUCCESS );
+    sc3.setChecked();
+    
+    // Set end of LowStat, LumiBlock and Run variables
+    // These are needed to be used in procHistograms().
+    m_endOfEventsBlock = m_newEventsBlock;
+    m_endOfLowStat = m_newLowStatInterval;
+    m_endOfLumiBlock = m_newLumiBlock;
+    m_endOfRun = m_newRun;
+    endOfEventsBlock = m_newEventsBlock;
+    endOfLowStat = m_newLowStatInterval;
+    endOfLumiBlock = m_newLumiBlock;
+    endOfRun = m_newRun;
+    
+    // just duplicates m_newLowStatInterval
+    m_newLowStat = m_newLowStatInterval;
+    newLowStat = m_newLowStatInterval;
+    
+    if( m_newEventsBlock || m_newLumiBlock || m_newRun ) {
+        ATH_MSG_DEBUG("Interval transition processing");
+        // Process histograms from the previous lumiBlock/run
+        if( m_nEvents != 1 ) {
+            m_d->benchPreProcHistograms();
+            sc0 = procHistograms();
+            m_d->benchPostProcHistograms();
+            sc0.setChecked();
+        }
+        // Re-book new histograms
+        m_d->benchPreBookHistograms();
+        
+        if (!m_bookHistogramsInitial) {
+            sc1 = bookHistograms();
+            m_bookHistogramsInitial = true;
+        } else {
+            std::vector<Interval_t> intervals_to_process;
+            if (m_newEventsBlock) intervals_to_process.push_back(eventsBlock);
+            if (m_newLumiBlock) intervals_to_process.push_back(lumiBlock);
+            if (m_newLowStatInterval) intervals_to_process.push_back(lowStat);
+            if (m_newRun) intervals_to_process.push_back(run);
+            for (const auto interval: intervals_to_process) {
+                sc1 = regManagedHistograms(m_templateHistograms[interval]);
+                sc1 = regManagedGraphs(m_templateGraphs[interval]);
+                sc1 = regManagedTrees(m_templateTrees[interval]);
+                sc1 = regManagedLWHistograms(m_templateLWHistograms[interval]);
+                sc1 = regManagedEfficiencies(m_templateEfficiencies[interval]);
+            }
+        }
 
-   if (m_d->m_warnAboutMissingInitialize) {
-       m_d->m_warnAboutMissingInitialize = false;
-       msg(MSG::WARNING) << "ManagedMonitorToolBase::initialize() never called from reimplementation!" << endmsg;
-   }
-
-
-   bool isNewEventsBlock = ( m_procNEventsProp > 0  && ((m_nEvents % m_procNEventsProp) == 1) && m_haveClearedLastEventBlock );
-   if (isNewEventsBlock) m_haveClearedLastEventBlock = false;
-
-   m_newLowStat = false;
-   m_newLumiBlock = false;
-   m_newRun = false;
-   newLowStat = false;
-   newLumiBlock = false;
-   newRun = false;
-
-   m_newLowStatInterval = false;
-   m_newMedStatInterval = false;
-   m_newHigStatInterval = false;
-   newLowStatInterval = false;
-   newMedStatInterval = false;
-   newHigStatInterval = false;
-   
-   m_useTrigger = ( (m_triggerChainProp != "" || m_triggerGroupProp != "")  && (!m_trigDecTool.empty()) );
-
-   if( m_manager != 0 ) {
-     m_newLumiBlock = ( (m_lastLumiBlock != m_manager->lumiBlockNumber()) || m_manager->forkedProcess());
-      m_newRun = ( m_lastRun != m_manager->runNumber() );
-      newLumiBlock = m_newLumiBlock;
-      newRun = m_newRun;
-
-      if(m_newRun) {
-         m_newLumiBlock = true;
-         newLumiBlock = m_newLumiBlock;
-         isNewEventsBlock = true;
-      }
-
-      m_newEventsBlock = isNewEventsBlock;
-      newEventsBlock = m_newEventsBlock;
-
-      if( m_newLumiBlock ) {
-         // check if a new LB interval has started
-         // lowest lumiBlockNumber() is 1
-         // m_lastLowStatInterval is -1 initially
-         int currentLB = m_manager->lumiBlockNumber();
-         int LBsLowStat = m_manager->getLBsLowStat();
-         int LBsMedStat = m_manager->getLBsMedStat();
-         int LBsHigStat = m_manager->getLBsHigStat();
-
-         if( LBsLowStat*LBsMedStat*LBsHigStat == 0) {
-            msg(MSG::WARNING) << "zero LBs requested for interval" << endmsg;
-         }
-         else {
-            if( ((currentLB-1)/LBsLowStat) != m_lastLowStatInterval ) m_newLowStatInterval = true;
-            if( ((currentLB-1)/LBsMedStat) != m_lastMedStatInterval ) m_newMedStatInterval = true;
-            if( ((currentLB-1)/LBsHigStat) != m_lastHigStatInterval ) m_newHigStatInterval = true;
-            newLowStatInterval = m_newLowStatInterval;
-            newMedStatInterval = m_newHigStatInterval;
-            newHigStatInterval = m_newHigStatInterval;
-         }
-      }
-
-      // Allow inheriting classes the option of using the lastLumiBloc/lastRun values
-      // before updating them
-   }
-
-
-   StatusCode sc0( StatusCode::SUCCESS );
-   sc0.setChecked();
-   StatusCode sc1( StatusCode::SUCCESS );
-   sc1.setChecked();
-   StatusCode sc2( StatusCode::SUCCESS );
-   sc2.setChecked();
-   StatusCode sc3( StatusCode::SUCCESS );
-   sc3.setChecked();
-
-   // Set end of LowStat, LumiBlock and Run variables
-   // These are needed to be used in procHistograms().
-   m_endOfEventsBlock = m_newEventsBlock;
-   m_endOfLowStat = m_newLowStatInterval;
-   m_endOfLumiBlock = m_newLumiBlock;
-   m_endOfRun = m_newRun;
-   endOfEventsBlock = m_newEventsBlock;
-   endOfLowStat = m_newLowStatInterval;
-   endOfLumiBlock = m_newLumiBlock;
-   endOfRun = m_newRun;
-
-   // just duplicates m_newLowStatInterval
-   m_newLowStat = m_newLowStatInterval; 
-   newLowStat = m_newLowStatInterval; 
-
-   if( m_newEventsBlock || m_newLumiBlock || m_newRun ) {
-     ATH_MSG_DEBUG("Interval transition processing");
-      // Process histograms from the previous lumiBlock/run
-      if( m_nEvents != 1 ) {
-	     m_d->benchPreProcHistograms();
-         sc0 = procHistograms();
-	     m_d->benchPostProcHistograms();
-         sc0.setChecked();
-      }
-      // Re-book new histograms
-      m_d->benchPreBookHistograms();
-
-      if (!m_bookHistogramsInitial) {
-          sc1 = bookHistograms();
-          m_bookHistogramsInitial = true;
-      } else {
-          std::vector<Interval_t> intervals_to_process;
-          if (m_newEventsBlock) intervals_to_process.push_back(eventsBlock);
-          if (m_newLumiBlock) intervals_to_process.push_back(lumiBlock);
-          if (m_newLowStatInterval) intervals_to_process.push_back(lowStat);
-          if (m_newRun) intervals_to_process.push_back(run);
-          for (const auto interval: intervals_to_process) {
-            sc1 = regManagedHistograms(m_templateHistograms[interval]);     
-            sc1 = regManagedGraphs(m_templateGraphs[interval]);
-            sc1 = regManagedTrees(m_templateTrees[interval]);
-            sc1 = regManagedLWHistograms(m_templateLWHistograms[interval]);     
-          }
-      }
-      for (const auto& interval: std::vector<Interval_t>{ eventsBlock, lumiBlock, lowStat, run }) {
-	for (const auto& it: m_templateHistograms[interval]) {
-	  //ATH_MSG_WARNING("Oi, considering " << it.m_templateHist->GetName() << it.m_group.histo_mgmt());
-	  // is histogram too small in x axis for LB range?
-	  if (it.m_group.histo_mgmt() == ATTRIB_X_VS_LB) {
-	    //ATH_MSG_WARNING("We are rebinning for " << it.m_templateHist->GetName());
-	    while ( it.m_templateHist->GetXaxis()->GetXmax() <= AthenaMonManager::lumiBlockNumber() ) {
-	      it.m_templateHist->LabelsInflate("X");
-	    }
-	  }
-	}
-      }
-
-      if (auto streamname = dynamic_cast<OfflineStream*>(streamNameFunction())) {
-	streamname->updateRunLB();
-      }
-      
-      sc3 = bookHistogramsRecurrent( );
-      
-      m_d->benchPostBookHistograms();
-      sc1.setChecked();
-      sc3.setChecked();
-      
-
-      if (m_manager->forkedProcess()) {
-	ATH_MSG_INFO("Child process: Resetting all " << m_lwhists.size() <<  " LW Histograms");
-	for (LWHist* h : m_lwhists) {
-	  h->Reset();
-	}
-      }
-   }//end if new RUN/LB/Block
-
-   // check filters
-   bool filterresult(true);
-   if (! m_DQFilterTools.empty()) {
-     ToolHandleArray<IDQFilterTool>::const_iterator ifilter(m_DQFilterTools.begin()), filterend(m_DQFilterTools.end());
-     for (; filterresult && (ifilter != filterend);
-   	  ++ifilter) {
-       filterresult = (filterresult && (*ifilter)->accept());
-     }
-   }
-   
-
-   // ...and fill as normal
-   if(filterresult &&
-      (!m_useTrigger
-       || (m_vTrigChainNames.size()>0 && trigChainsArePassed(m_vTrigChainNames))
-       || (m_vTrigGroupNames.size()>0 && trigChainsArePassed(m_vTrigGroupNames))) ) {
-     ATH_MSG_DEBUG("Passed trigger, presumably");
-      m_d->benchPreFillHistograms();
-      StatusCode sc3 = fillHistograms();
-      m_haveClearedLastEventBlock = true;
-      m_d->benchPostFillHistograms();
-      sc3.setChecked();
-      ++m_nEvents;
-   } else { ATH_MSG_DEBUG("Failed trigger, presumably"); }
-
-   ++m_nEventsIgnoreTrigger;
-   if( m_newLumiBlock && (m_nEventsIgnoreTrigger != 1) ) {
-      ++m_nLumiBlocks;
-   }
-   if( m_manager != 0 ) {
-      m_lastRun = m_manager->runNumber();
-      if( m_newLumiBlock ) {
-         m_lastLumiBlock = m_manager->lumiBlockNumber();
-
-         int LBsLowStat = m_manager->getLBsLowStat();
-         int LBsMedStat = m_manager->getLBsMedStat();
-         int LBsHigStat = m_manager->getLBsHigStat();
-         if( LBsLowStat*LBsMedStat*LBsHigStat > 0) {
-            if( m_newLowStatInterval ) m_lastLowStatInterval = (m_lastLumiBlock-1)/LBsLowStat;
-            if( m_newMedStatInterval ) m_lastMedStatInterval = (m_lastLumiBlock-1)/LBsMedStat;
-            if( m_newHigStatInterval ) m_lastHigStatInterval = (m_lastLumiBlock-1)/LBsHigStat;
-         }
-      }
-   }
-
-   return StatusCode::SUCCESS;
+        for (const auto& interval: std::vector<Interval_t>{ eventsBlock, lumiBlock, lowStat, run }) {
+            for (const auto& it: m_templateHistograms[interval]) {
+                //ATH_MSG_WARNING("Oi, considering " << it.m_templateHist->GetName() << it.m_group.histo_mgmt());
+                // is histogram too small in x axis for LB range?
+                if (it.m_group.histo_mgmt() == ATTRIB_X_VS_LB) {
+                    //ATH_MSG_WARNING("We are rebinning for " << it.m_templateHist->GetName());
+                    while ( it.m_templateHist->GetXaxis()->GetXmax() <= AthenaMonManager::lumiBlockNumber() ) {
+                        it.m_templateHist->LabelsInflate("X");
+                    }
+                }
+            }
+            for (auto& it: m_templateEfficiencies[interval]) {
+                if (it.m_group.histo_mgmt() == ATTRIB_X_VS_LB) {
+                    TEfficiency* currentEff = it.m_templateHist;
+                    TH1* passedHist = currentEff->GetCopyPassedHisto();
+                    TH1* totalHist = currentEff->GetCopyTotalHisto();
+                    const char* currentName = currentEff->GetName();
+                    const char* currentTitle = currentEff->GetTitle();
+                    while (passedHist->GetXaxis()->GetXmax() <= AthenaMonManager::lumiBlockNumber() ) {
+                        passedHist->LabelsInflate("X");
+                        totalHist->LabelsInflate("X");
+                        uint xmax = passedHist->GetXaxis()->GetXmax();
+                        TEfficiency* inflatedEfficiency = new TEfficiency( currentName, currentTitle, xmax, 0, xmax);
+                        inflatedEfficiency->SetPassedHistogram(*passedHist, " ");
+                        inflatedEfficiency->SetTotalHistogram(*totalHist, " ");
+                        it.m_templateHist = inflatedEfficiency;
+                    }
+                }
+            }
+        }
+        
+        if (auto streamname = dynamic_cast<OfflineStream*>(streamNameFunction())) {
+            streamname->updateRunLB();
+        }
+        
+        sc3 = bookHistogramsRecurrent( );
+        
+        m_d->benchPostBookHistograms();
+        sc1.setChecked();
+        sc3.setChecked();
+        
+        if (m_manager->forkedProcess()) {
+            ATH_MSG_INFO("Child process: Resetting all " << m_lwhists.size() <<  " LW Histograms");
+            for (LWHist* h : m_lwhists) {
+                h->Reset();
+            }
+        }
+    }//end if new RUN/LB/Block
+    
+    // check filters
+    bool filterresult(true);
+    if (! m_DQFilterTools.empty()) {
+        ToolHandleArray<IDQFilterTool>::const_iterator ifilter(m_DQFilterTools.begin()), filterend(m_DQFilterTools.end());
+        for (; filterresult && (ifilter != filterend);
+             ++ifilter) {
+            filterresult = (filterresult && (*ifilter)->accept());
+        }
+    }
+    
+    // ...and fill as normal
+    if(filterresult &&
+       (!m_useTrigger
+        || (m_vTrigChainNames.size()>0 && trigChainsArePassed(m_vTrigChainNames))
+        || (m_vTrigGroupNames.size()>0 && trigChainsArePassed(m_vTrigGroupNames))) ) {
+        ATH_MSG_DEBUG("Passed trigger, presumably");
+        m_d->benchPreFillHistograms();
+        StatusCode sc3 = fillHistograms();
+        m_haveClearedLastEventBlock = true;
+        m_d->benchPostFillHistograms();
+        sc3.setChecked();
+        ++m_nEvents;
+    } else { ATH_MSG_DEBUG("Failed trigger, presumably"); }
+    
+    ++m_nEventsIgnoreTrigger;
+    if( m_newLumiBlock && (m_nEventsIgnoreTrigger != 1) ) {
+        ++m_nLumiBlocks;
+    }
+    if( m_manager != 0 ) {
+        m_lastRun = m_manager->runNumber();
+        if( m_newLumiBlock ) {
+            m_lastLumiBlock = m_manager->lumiBlockNumber();
+            
+            int LBsLowStat = m_manager->getLBsLowStat();
+            int LBsMedStat = m_manager->getLBsMedStat();
+            int LBsHigStat = m_manager->getLBsHigStat();
+            if( LBsLowStat*LBsMedStat*LBsHigStat > 0) {
+                if( m_newLowStatInterval ) m_lastLowStatInterval = (m_lastLumiBlock-1)/LBsLowStat;
+                if( m_newMedStatInterval ) m_lastMedStatInterval = (m_lastLumiBlock-1)/LBsMedStat;
+                if( m_newHigStatInterval ) m_lastHigStatInterval = (m_lastLumiBlock-1)/LBsHigStat;
+            }
+        }
+    }
+    return StatusCode::SUCCESS;
 }
 
 StatusCode
@@ -1200,6 +1213,78 @@ regManagedGraphs(std::vector< MgmtParams<TGraph> >& templateGraphs)
       
       return StatusCode::SUCCESS;
 }
+
+
+StatusCode ManagedMonitorToolBase::regManagedEfficiencies(std::vector< MgmtParams<TEfficiency> >& templateEfficiencies) {
+    bool allIsOk = true;
+    for( auto& it : templateEfficiencies ) {
+        MonGroup group = (it).m_group;
+
+        // Get a handle to the efficiency and its graph cast
+        TEfficiency* theEfficiency = (it).m_templateHist;
+        TGraph* theGraph = reinterpret_cast<TGraph*>(theEfficiency);
+
+        // Clone the efficiency and its graph cast
+        TEfficiency* e = static_cast<TEfficiency*>(theEfficiency->Clone());
+        TGraph* g = static_cast<TGraph*>(theGraph->Clone());
+
+        // Reset the efficiency and its graph cast
+        //theEfficiency->Set(0);
+        theGraph->Set(0);
+
+        // Get names
+        std::string eName = e->GetName();
+        std::string gName = g->GetName();
+
+        // Get the streamName for the previous interval
+        //std::string eStreamName = streamNameFunction()->getStreamName( this, group, eName, true );
+        std::string streamName = streamNameFunction()->getStreamName( this, group, gName, true );
+
+        // REGISTER 
+        // 1) De-register the original graph with the THistSvc
+        StatusCode sc1 = m_THistSvc->deReg( theGraph );
+        if (sc1 == StatusCode::FAILURE)
+            allIsOk = false;
+        // 2) Fix THistSvc->deReg for TGraphs
+        bool doneCleaning = false;
+        std::string directoryName = streamNameFunction()->getDirectoryName( this, group, gName, true );
+        TSeqCollection *filelist=gROOT->GetListOfFiles();
+        for (int i=0; i<filelist->GetEntries(); i++) {
+            ATH_MSG_DEBUG( "List of files: " << filelist->At(i)->GetName());
+            TFile* file = static_cast<TFile*>(filelist->At(i));
+            StatusCode sc2 = THistSvc_deReg_fixTGraph(file, theGraph, directoryName);
+            if (sc2 == StatusCode::SUCCESS)
+                doneCleaning = true;
+        }
+        // 3) Check if TGraph fix has been applied successfully 
+        if (!doneCleaning) { 
+            ATH_MSG_ERROR("THistSvc_deReg_fixTGraph: failed to apply TGraph fix for the THist Svc!");
+            allIsOk = false;
+        }
+
+        // Register clonned histogram under previous interval streamName
+        StatusCode sc3 = m_THistSvc->regGraph( streamName, g );
+        if (sc3 == StatusCode::FAILURE) 
+            allIsOk = false;
+
+        // Get streamName for the current interval
+        streamName = streamNameFunction()->getStreamName( this, group, gName, false );
+        // Register metadata information with the current interval streamname
+        StatusCode smd = registerMetadata(streamName, gName, group);
+        if (smd != StatusCode::SUCCESS) 
+            allIsOk = false;
+
+        // Re-register the original graph with the current interval streamName
+        StatusCode sc4 = m_THistSvc->regGraph( streamName, theGraph );
+        if (sc4 == StatusCode::FAILURE) 
+            allIsOk = false;
+    }
+
+    if (!allIsOk) return StatusCode::FAILURE;
+    
+    return StatusCode::SUCCESS;
+}
+
 
 StatusCode 
 ManagedMonitorToolBase::
@@ -1595,11 +1680,54 @@ getHist( TH2*& h, const std::string& hName, const MonGroup& group )
 }
 
 
+// StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup& group ) {
+//     if (!e) return StatusCode::FAILURE;
+//     if (group.histo_mgmt() == ATTRIB_X_VS_LB)
+//       ATH_MSG_WARNING("Attemting to register a cross-LB TEfficiency. This is not yet supported. Will be implemented shortly. (CDB 20/3/18)");
+//     return regGraph( reinterpret_cast<TGraph*>(e), group );
+// }
+
 StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup& group ) {
-    if (!e) return StatusCode::FAILURE;
-    if (group.histo_mgmt() == ATTRIB_X_VS_LB)
-      ATH_MSG_WARNING("Attemting to register a cross-LB TEfficiency. This is not yet supported. Will be implemented shortly. (CDB 20/3/18)");
-    return regGraph( reinterpret_cast<TGraph*>(e), group );
+    if (!e)
+        return StatusCode::FAILURE;
+
+    TGraph* g = reinterpret_cast<TGraph*>(e);
+    std::string name = e->GetName();
+
+    // MANAGED
+    if ( group.histo_mgmt() != ATTRIB_UNMANAGED ) {
+        // warn about not using merge algorithms
+        if (group.histo_mgmt() == ATTRIB_X_VS_LB && group.merge() == "") {
+            ATH_MSG_WARNING("HEY! Attempting to register "<<name<<" as a per-LB histogram, but not setting the merge algorithm! Use \"merge\", at least.");
+        }
+        // add the efficiency to rebooking vector
+        if (m_supportedIntervalsForRebooking.count(group.interval())) {
+            m_templateEfficiencies[group.interval()].push_back( MgmtParams<TEfficiency>(e, group) );
+        } else {
+            ATH_MSG_ERROR("Attempt to book managed graph " << name << " with invalid interval type " << intervalEnumToString(group.interval()));
+            return StatusCode::FAILURE;
+        }
+        // make a copy of the group that is unmanaged.
+        MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
+        std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
+        StatusCode smd = registerMetadata(streamName, name, group);
+        smd.setChecked();
+        return m_THistSvc->regGraph( streamName, g );
+    } else {
+    // UNMANAGED
+        if( m_manager != 0 ) {
+            std::string genericName = NoOutputStream().getStreamName( this, group, name );
+            m_manager->writeAndDelete( genericName );
+            m_manager->passOwnership( e, genericName );
+        }
+
+        std::string streamName = streamNameFunction()->getStreamName( this, group, name, false );
+        StatusCode smd = registerMetadata(streamName, name, group);
+        if (smd != StatusCode::SUCCESS) 
+            return StatusCode::FAILURE;
+
+        return m_THistSvc->regGraph( streamName, g );
+    }
 }
 
 

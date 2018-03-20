@@ -736,6 +736,10 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
       // Runs over the vector of managed histograms and register them (just a helper method).
       StatusCode regManagedLWHistograms(std::vector< MgmtParams<LWHist> >& templateLWHistograms);
 
+      std::map< Interval_t, std::vector< MgmtParams<TEfficiency> > > m_templateEfficiencies;
+      // Runs over the vector of managed graphs, register clonned graph and saves it to a file.
+      StatusCode regManagedEfficiencies(std::vector< MgmtParams<TEfficiency> >& templateEfficiencies);
+
       std::vector<std::string> m_vTrigChainNames, m_vTrigGroupNames;
       StatusCode parseList(const std::string&, std::vector<std::string>&);
       void updateTriggersForGroups(std::vector<std::string>&);
