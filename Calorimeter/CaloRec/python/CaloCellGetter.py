@@ -97,17 +97,10 @@ class CaloCellGetter (Configured)  :
                     return False
 
                 if jobproperties.CaloCellFlags.doLArCreateMissingCells():
-                    # bad channel tools
-                    try:
-                        from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                        theLArBadChannelTool = LArBadChanTool()
-                    except:
-                        mlog.error("could not access bad channel tool Quit")
-                        print traceback.format_exc()
-                        return False
-                    ToolSvc += theLArBadChannelTool
                     theLArCellBuilder.addDeadOTX = True
-                    theLArCellBuilder.badChannelTool = theLArBadChannelTool
+                    from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
+                    LArBadFebAccess()
+                    #theLArCellBuilder.MissingFebKey = 
 
                 # add the tool to list of tool ( should use ToolHandle eventually) 
                 theCaloCellMaker += theLArCellBuilder
