@@ -81,7 +81,9 @@ else
 		egrep -a -v 'NewEventCollection.root, recovered'  |\
                 # ignore destructor messages
                 egrep -a -v 'destructor' |\
-                egrep -a -v 'Property update'
+                egrep -a -v 'Property update' |\
+                # ignore new file catalog messages
+                egrep -a -v 'registerPFN'
 
 	    diffStatus=$?
 	    if [ $diffStatus = 0 ] 

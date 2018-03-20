@@ -33,24 +33,24 @@ namespace TrigCostRootAnalysis {
    */
   class CounterBaseRates: public CounterBase {
   public:
-    CounterBaseRates(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
-                     MonitorBase* _parent = 0);
+    CounterBaseRates(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel = 10,
+                     MonitorBase* parent = 0);
     ~CounterBaseRates();
 
     void startEvent();
-    void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 0.);
-    void endEvent(Float_t _weight = 1);
+    void processEventCounter(UInt_t e, UInt_t f, Float_t weight = 0.);
+    void endEvent(Float_t weight = 1);
 
-    void addL1Item(RatesChainItem* _toAdd);
-    void addL2Item(RatesChainItem* _toAdd);
-    void addL2Items(ChainItemSet_t _toAdd);
-    void addL3Item(RatesChainItem* _toAdd);
-    void addL3Items(ChainItemSet_t _toAdd);
-    void addCPSItem(RatesCPSGroup* _toAdd, std::string _name);
-    void addOverlap(CounterBase* _overlap);
-    void setMyUniqueCounter(CounterBaseRates* _c) {m_myUniqueCounter = _c;}
-    void setGlobalRateCounter(CounterBaseRates* _c) {m_globalRates = _c;}
-    void setLowerRateCounter(CounterBaseRates* _c) {m_lowerRates = _c;}
+    void addL1Item(RatesChainItem* toAdd);
+    void addL2Item(RatesChainItem* toAdd);
+    void addL2Items(ChainItemSet_t toAdd);
+    void addL3Item(RatesChainItem* toAdd);
+    void addL3Items(ChainItemSet_t toAdd);
+    void addCPSItem(RatesCPSGroup* toAdd, std::string name);
+    void addOverlap(CounterBase* overlap);
+    void setMyUniqueCounter(CounterBaseRates* c) {m_myUniqueCounter = c;}
+    void setGlobalRateCounter(CounterBaseRates* c) {m_globalRates = c;}
+    void setLowerRateCounter(CounterBaseRates* c) {m_lowerRates = c;}
 
     Bool_t getInEvent();
 
@@ -64,13 +64,13 @@ namespace TrigCostRootAnalysis {
     Double_t getLastWeight();
 
     virtual void finalise();
-    virtual Float_t runDirect(Bool_t _usePrescale = kTRUE) = 0; // Pure virtual calls! Please override-me with
+    virtual Float_t runDirect(Bool_t usePrescale = kTRUE) = 0; // Pure virtual calls! Please override-me with
                                                                 // appropriate trigger logic
-    virtual Double_t runWeight(Bool_t _includeExpress = kFALSE) = 0;
+    virtual Double_t runWeight(Bool_t includeExpress = kFALSE) = 0;
   protected:
     void startRun();
-    Double_t getPrescaleFactor(UInt_t _e = INT_MAX); // Unused here
-    Bool_t checkMultiSeed(RatesChainItem* _toAdd);
+    Double_t getPrescaleFactor(UInt_t e = INT_MAX); // Unused here
+    Bool_t checkMultiSeed(RatesChainItem* toAdd);
 
     CounterSet_t m_ovelapCounters; //!< List of all counters to be queried at end of run to get my overlap with them
     CPSGroupSet_t m_cpsGroups;      //!< List of groups of L2 chains in this combination which are to be treated
@@ -85,7 +85,7 @@ namespace TrigCostRootAnalysis {
     CounterBaseRates* m_globalRates;    //!< Pointer to the global rates counter. Used currently by Unique
                                         // CounterRatesUnion derived counters.
     CounterBaseRates* m_lowerRates;     //!< Pointer to the rates counter at lower level, for getting "Input Rate"
-    Bool_t m_doSacleByPS;    //!< If we are configured to scale all rates by their PS
+    Bool_t m_doScaleByPS;    //!< If we are configured to scale all rates by their PS
     Bool_t m_doDirectPS;     //!< If we are applying prescales directly (not with weights)
     Double_t m_cachedWeight;   //!< Holds the most recently calculated weight. Used so other chains can get the global
                                // monitor's weight for the current event.

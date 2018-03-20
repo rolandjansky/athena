@@ -76,3 +76,8 @@ ChronoStatSvc = Service( "ChronoStatSvc" )
 ChronoStatSvc.ChronoPrintOutTable = FALSE
 ChronoStatSvc.PrintUserTime       = FALSE
 ChronoStatSvc.StatPrintOutTable   = FALSE
+
+
+# Avoid races when running tests in parallel.
+FILECATALOG = 'CondWriter_catalog.xml'
+include ('DataModelRunTests/setCatalog.py')

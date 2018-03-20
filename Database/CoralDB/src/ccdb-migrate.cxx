@@ -61,7 +61,15 @@ public:
 
   enum WorkMode { NOT_SET, DUMP, RESTORE };
 
-  CCDB_Migrate_Config() {}
+  CCDB_Migrate_Config()
+    : m_mode (NOT_SET),
+      m_debug (false),
+      m_noSchema (false),
+      m_lockAllTags (false),
+      m_sloppyAliases (false),
+      m_noHistory (false),
+      m_noIdTag (false)
+  {}
   CCDB_Migrate_Config(int argc, char *argv[]);
 
   const string& dbConnectionString() const { return m_dbConnectionString; }

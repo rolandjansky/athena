@@ -34,7 +34,7 @@ namespace TrigCostRootAnalysis {
    */
   class Timer {
   public:
-    Timer(std::string _type, std::string _name);
+    Timer(std::string type, std::string name);
     ~Timer();
     void start();
     void stop();

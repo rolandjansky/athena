@@ -1,40 +1,20 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #
 # InDet GeoModel initialization
 #
-from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-
-from AtlasGeoDBInterface import AtlasGeoDBInterface
+from AtlasGeoModel.CommonGMJobProperties import CommonGMFlags, CommonGeometryFlags
 
 # -------------------------------------------------------------------------------------
 #  InDet geometry flags initialization
 # -------------------------------------------------------------------------------------
 
-class InDetGMFlags:
+class InDetGMFlags(CommonGMFlags, object):
 
     def __init__(self, geoTag="none"):
 
-        self.__dict__={}
-
-        # set geometry tag name
-        self.__dict__["geomTag"]= globalflags.DetDescrVersion()
-        if geoTag!="none": self.__dict__["geomTag"] = geoTag
-        
-        self.dbGeomCursor = 0
-        self.connectToDB()
-    
-        self.InitializeGeometryParameters()
-
-    def connectToDB(self):
-
-        bVerbose=False
-        self.dbGeomCursor = AtlasGeoDBInterface(self.__dict__["geomTag"],bVerbose)
-        self.dbGeomCursor.ConnectAndBrowseGeoDB()
-
-        return
-
+        super(InDetGMFlags, self).__init__()
 
     def InitializeGeometryParameters(self):
 
@@ -84,37 +64,15 @@ class InDetGMFlags:
         self.__dict__["IBLlayout"]=_IBLlayout
 
         # ----------------------------------------------------------------------------    
-        # Read versionname, layout and dbm from AtlasCommon table
-
-        dbId,dbCommon,dbParam = self.dbGeomCursor.GetCurrentLeafContent("AtlasCommon")
-
-        _run = "UNDEFINED"
-        _geotype = "UNDEFINED"
-        _stripgeotype = "UNDEFINED"
-        if len(dbId)>0:
-            key=dbId[0] 
-            if "CONFIG" in dbParam : _run = dbCommon[key][dbParam.index("CONFIG")]
-            if "GEOTYPE" in dbParam : _geotype = dbCommon[key][dbParam.index("GEOTYPE")]
-            if "STRIPGEOTYPE" in dbParam : _stripgeotype = dbCommon[key][dbParam.index("STRIPGEOTYPE")]
-        
-        self.__dict__["Run"]=_run
-        self.__dict__["GeoType"]=_geotype
-        self.__dict__["StripGeoType"]=_stripgeotype
-
-        # ----------------------------------------------------------------------------    
         # IBL and SLHC parameters
 
         self.__dict__["IBL"] = False
         self.__dict__["SLHC"] = False
         if _layout in ['IBL'] : self.__dict__["IBL"] = True
         if self.__dict__["IBL"] == False: self.__dict__["IBLlayout"]="noIBL"
-        if _layout not in ['SLHC'] and _run.lower()=="run2": self.__dict__["IBL"] = True
+        if _layout not in ['SLHC'] and CommonGeometryFlags.Run().lower()=="run2": self.__dict__["IBL"] = True
         if _layout in ['SLHC'] : self.__dict__["SLHC"] = True
 
-
-    def getValue(self,name):
-
-        return self.__dict__[name]
 
     def dump(self):
 
@@ -126,10 +84,6 @@ class InDetGMFlags:
         print "SLHC flag : ",self.__dict__["SLHC"]
         print "IBL flag   : ",self.__dict__["IBL"]
         print "IBL layout : ", self.__dict__["IBLlayout"]
-        print "RUN flag      : ",self.__dict__["Run"]
-        print "GeoType flag  : ",self.__dict__["GeoType"]
-        print "Strip GeoType flag  : ",self.__dict__["StripGeoType"]
-
 
 
 # -------------------------------------------------------------------------------------
@@ -173,27 +127,9 @@ class isDBM(JobProperty):
      allowedTypes = ['bool']
      StoredValue  = False
 
-class Run(JobProperty):
-     """ RUN1/RUN2 parameter  """
-     statusOn     = True
-     allowedTypes = ['str']
-     StoredValue  = "UNDEFINED"
-
-class GeoType(JobProperty):
-     """ Geometry type ( ITKLoI, ITkLoI-VF, etc...) """
-     statusOn     = True
-     allowedTypes = ['str']
-     StoredValue  = "UNDEFINED"
-
-class StripGeoType(JobProperty):
-     """ Geometry strip type ( disc, petal,  etc...) """
-     statusOn     = True
-     allowedTypes = ['str']
-     StoredValue  = "UNDEFINED"
-
 
 # add to jobproperties
-class GeometryFlags_JobProperties(JobPropertyContainer):
+class InDetGeometryFlags_JobProperties(JobPropertyContainer):
     """ The geometry flag/job property container """
 
     def __init__(self, context=""):
@@ -210,9 +146,6 @@ class GeometryFlags_JobProperties(JobPropertyContainer):
         self.IBLLayout.set_Value_and_Lock(InDetGeoFlags.getValue("IBLlayout"))
         self.GeoVersionName.set_Value_and_Lock(InDetGeoFlags.getValue("VersionName"))
         self.GeoLayout.set_Value_and_Lock(InDetGeoFlags.getValue("Layout"))
-        self.Run.set_Value_and_Lock(InDetGeoFlags.getValue("Run"))
-        self.GeoType.set_Value_and_Lock(InDetGeoFlags.getValue("GeoType"))
-        self.StripGeoType.set_Value_and_Lock(InDetGeoFlags.getValue("StripGeoType"))
 
 
     def reset(self,geoTagName="none"):
@@ -223,9 +156,6 @@ class GeometryFlags_JobProperties(JobPropertyContainer):
         self.IBLLayout.unlock()
         self.GeoVersionName.unlock()
         self.GeoLayout.unlock()
-        self.Run.unlock()
-        self.GeoType.unlock()
-        self.StripGeoType.unlock()
 
 
     def dump(self):
@@ -237,25 +167,18 @@ class GeometryFlags_JobProperties(JobPropertyContainer):
         print "SLHC flag : ", self.isSLHC()
         print "IBL flag   : ", self.isIBL()
         print "IBL layout : ", self.IBLLayout()
-        print "RUN flag      :", self.Run()
-        print "GeoType flag  : ", self.GeoType()
-        print "Strip geoType flag  : ", self.StripGeoType()
 
 
-jobproperties.add_Container(GeometryFlags_JobProperties)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(GeoVersionName)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(GeoLayout)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(isIBL)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(IBLLayout)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(isSLHC)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(isDBM)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(Run)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(GeoType)
-jobproperties.GeometryFlags_JobProperties.add_JobProperty(StripGeoType)
+jobproperties.add_Container(InDetGeometryFlags_JobProperties)
+jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(GeoVersionName)
+jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(GeoLayout)
+jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(isIBL)
+jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(IBLLayout)
+jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(isSLHC)
+jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(isDBM)
 
-GeometryFlags = jobproperties.GeometryFlags_JobProperties
-GeometryFlags.setupValuesFromDB()
-        
+InDetGeometryFlags = jobproperties.InDetGeometryFlags_JobProperties
+InDetGeometryFlags.setupValuesFromDB()
 
 
 

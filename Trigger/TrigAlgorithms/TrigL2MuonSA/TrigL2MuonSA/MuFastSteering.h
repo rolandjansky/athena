@@ -139,23 +139,31 @@ class MuFastSteering : public HLT::FexAlgo,
   IRegSelSvc*        m_regionSelector;
   
   // Tools
-  ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator;
-  ToolHandle<TrigL2MuonSA::MuFastPatternFinder>      m_patternFinder;
-  ToolHandle<TrigL2MuonSA::MuFastStationFitter>      m_stationFitter;
-  ToolHandle<TrigL2MuonSA::MuFastTrackFitter>        m_trackFitter;
-  ToolHandle<TrigL2MuonSA::MuFastTrackExtrapolator>  m_trackExtrapolator;
+  ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator {
+	this, "DataPreparator", "TrigL2MuonSA::MuFastDataPreparator", "data preparator" };
+  ToolHandle<TrigL2MuonSA::MuFastPatternFinder>      m_patternFinder {
+	this, "PatternFinder", "TrigL2MuonSA::MuFastPatternFinder", "pattern finder" };
+  ToolHandle<TrigL2MuonSA::MuFastStationFitter>      m_stationFitter {
+	this, "StationFitter", "TrigL2MuonSA::MuFastStationFitter", "station fitter" };
+  ToolHandle<TrigL2MuonSA::MuFastTrackFitter>        m_trackFitter {
+	this, "TrackFitter", "TrigL2MuonSA::MuFastTrackFitter", "track fitter" };
+  ToolHandle<TrigL2MuonSA::MuFastTrackExtrapolator>  m_trackExtrapolator {
+	this, "TrackExtrapolator", "TrigL2MuonSA::MuFastTrackExtrapolator", "track extrapolator" };
 
   /** Handle to MuonBackExtrapolator tool */
-  ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool;
+  ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool {
+	this, "BackExtrapolator", "TrigMuonBackExtrapolator", "public tool for back extrapolating the muon tracks to the IV" };
   
   // calibration streamer tool
-  ToolHandle<TrigL2MuonSA::MuCalStreamerTool>        m_calStreamer;
+  ToolHandle<TrigL2MuonSA::MuCalStreamerTool> m_calStreamer {
+	this, "CalibrationStreamer", "TrigL2MuonSA::MuCalStreamerTool", "" };
 
   // Utils
   TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;
 
   //Tools for CSC
-  ToolHandle<TrigL2MuonSA::CscSegmentMaker> m_cscsegmaker;
+  ToolHandle<TrigL2MuonSA::CscSegmentMaker> m_cscsegmaker {
+	this, "CscSegmentMaker", "TrigL2MuonSA::CscSegmentMaker", "" };
 
 
  private:
@@ -169,33 +177,44 @@ class MuFastSteering : public HLT::FexAlgo,
   TrigL2MuonSA::MdtHits      m_mdtHits_overlap;
   TrigL2MuonSA::CscHits      m_cscHits;
   
-  float m_scaleRoadBarrelInner;
-  float m_scaleRoadBarrelMiddle;
-  float m_scaleRoadBarrelOuter;
+  // Property
+  Gaudi::Property< float > m_scaleRoadBarrelInner { this, "Scale_Road_BarrelInner", 1, "" };
+  Gaudi::Property< float > m_scaleRoadBarrelMiddle { this, "Scale_Road_BarrelMiddle", 1, "" };
+  Gaudi::Property< float > m_scaleRoadBarrelOuter { this, "Scale_Road_BarrelOuter", 1, "" };
   
-  BooleanProperty  m_use_timer;
-  BooleanProperty  m_use_mcLUT;
-  BooleanProperty  m_use_new_segmentfit;
-  BooleanProperty  m_use_rpc;
-  BooleanProperty  m_use_mdtcsm;
-  BooleanProperty  m_use_RoIBasedDataAccess_MDT;
-  BooleanProperty  m_use_RoIBasedDataAccess_RPC;
-  BooleanProperty  m_use_RoIBasedDataAccess_TGC;
-  BooleanProperty  m_use_RoIBasedDataAccess_CSC;
-  BooleanProperty  m_doCalStream;
-  BooleanProperty  m_calDataScouting;
-  BooleanProperty  m_rpcErrToDebugStream;
-  BooleanProperty  m_use_endcapInnerFromBarrel;
+  Gaudi::Property< bool > m_use_timer { this, "Timing", false, "" };
+  Gaudi::Property< bool > m_use_mcLUT { this, "UseLUTForMC", true, ""};
+  Gaudi::Property< bool > m_use_new_segmentfit { this, "USE_NEW_SEGMENTFIT", true, ""};
+  Gaudi::Property< bool > m_use_rpc { this, "USE_RPC", true, ""};
+  Gaudi::Property< bool > m_use_mdtcsm { this, "USE_MDTCSM", false, ""};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_MDT { this, "USE_ROIBASEDACCESS_MDT", true, ""};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_RPC { this, "USE_ROIBASEDACCESS_RPC", true, ""};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_TGC { this, "USE_ROIBASEDACCESS_TGC", true, ""};
+  Gaudi::Property< bool > m_use_RoIBasedDataAccess_CSC { this, "USE_ROIBASEDACCESS_CSC", true, ""};
+  Gaudi::Property< bool > m_doCalStream { this, "DoCalibrationStream", false, ""};
+  Gaudi::Property< bool > m_calDataScouting { this, "MuonCalDataScouting", false, ""};
+  Gaudi::Property< bool > m_rpcErrToDebugStream { this, "RpcErrToDebugStream", false, ""};
+  Gaudi::Property< bool > m_use_endcapInnerFromBarrel { this, "UseEndcapInnerFromBarrel", false, ""};
   
-  IntegerProperty m_esd_rpc_size;
-  IntegerProperty m_esd_tgc_size;
-  IntegerProperty m_esd_mdt_size;      
-  IntegerProperty m_esd_csc_size;      
+  Gaudi::Property< int > m_esd_rpc_size { this, "ESD_RPC_size", 100, "" };
+  Gaudi::Property< int > m_esd_tgc_size { this, "ESD_TGC_size", 50, "" };
+  Gaudi::Property< int > m_esd_mdt_size { this, "ESD_MDT_size", 100, "" };
+  Gaudi::Property< int > m_esd_csc_size { this, "ESD_CSC_size", 100, "" };
   
-  DoubleProperty m_rWidth_RPC_Failed;
-  DoubleProperty m_rWidth_TGC_Failed;
+  Gaudi::Property< double > m_rWidth_RPC_Failed { this, "R_WIDTH_RPC_FAILED", 400, "" };
+  Gaudi::Property< double > m_rWidth_TGC_Failed { this, "R_WIDTH_TGC_FAILED", 200, "" };
 
-  DoubleProperty m_winPt;
+  Gaudi::Property< double > m_winPt { this, "WinPt", 4.0, "" };
+
+  ECRegions whichECRegion(const float eta, const float phi) const;
+  float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
+
+  // calibration streamer properties
+  IJobOptionsSvc*       m_jobOptionsSvc;
+  //ServiceHandle<IJobOptionsSvc> m_jobOptionsSvc("JobOptionsSvc");
+  Gaudi::Property< bool > m_allowOksConfig { this, "AllowOksConfig", true, ""};
+  Gaudi::Property< std::string > m_calBufferName { this, "MuonCalBufferName", "/tmp/testOutput", ""};
+  Gaudi::Property< int > m_calBufferSize { this, "MuonCalBufferSize", 1024*1024, ""};
 
   //adding a part of DataHandle for AthenaMT
   //ReadHandle MURoIs
@@ -224,18 +243,6 @@ class MuFastSteering : public HLT::FexAlgo,
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-
-  int m_currentStage;  // The last stage reached during the processing of a given RoI
-
-  ECRegions whichECRegion(const float eta, const float phi) const;
-  float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
-
-  // calibration streamer properties
-  IJobOptionsSvc*       m_jobOptionsSvc;
-  BooleanProperty m_allowOksConfig; 
-  StringProperty  m_calBufferName;
-  int m_calBufferSize;
- 
 };
 
 #endif // MUFASTSTEERING_H

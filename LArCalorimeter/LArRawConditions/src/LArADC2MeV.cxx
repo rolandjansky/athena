@@ -3,8 +3,9 @@
 
 #include <cassert>
 
-LArADC2MeV::LArADC2MeV(const LArOnlineID_Base* onlineID, const size_t nGains) :
+LArADC2MeV::LArADC2MeV(const LArOnlineID_Base* onlineID, const LArOnOffIdMapping* cabling, const size_t nGains) :
   m_onlineID(onlineID),
+  m_cabling(cabling),
   m_nGains(nGains) {
 
   assert(m_onlineID); 
@@ -13,13 +14,14 @@ LArADC2MeV::LArADC2MeV(const LArOnlineID_Base* onlineID, const size_t nGains) :
   for (size_t i=0;i<nGains;++i) {
     m_adc2MeV[i].resize(onlineID->channelHashMax());
   }
-  
+  //std::cout << "Created a LArADC2MeV obj with " << CaloGain::LARNGAIN 
+  //	    << " gains and " << onlineID->channelHashMax() << " hashes." << std::endl;
 }
 
 LArADC2MeV::~LArADC2MeV() {}
 
 bool LArADC2MeV::set(const IdentifierHash& hid, const int gain, std::vector<float>& adc2mev) {
-  if (gain>=CaloGain::LARNGAIN || m_adc2MeV[gain].size() >= hid) return false;
+  if (gain>=CaloGain::LARNGAIN || hid >= m_adc2MeV[gain].size()) return false;
   //assert (gain<3);
   //assert (hid< m_adc2MeV[gain].size());
 

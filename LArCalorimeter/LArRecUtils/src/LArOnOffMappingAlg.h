@@ -13,7 +13,7 @@
 #include "GaudiKernel/ICondSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "LArRecConditions/LArOnOffIdMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
 class LArOnOffMappingAlg: public AthAlgorithm {
 

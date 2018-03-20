@@ -40,45 +40,44 @@ namespace TrigCostRootAnalysis {
    * Global "table function" to caclulate a given value in a table column.
    * Buffer the total chain execution time for all chains in a counterMap.
    * Return a chains fractional time w.r.t. this total.
-   * @param _map Map of CounterBase pointers.
-   * @param _TCCB Pointer to the counter being assessed for this row.
+   * @param map Map of CounterBase pointers.
+   * @param TCCB Pointer to the counter being assessed for this row.
    * @returns The table column value.
    */
-  Float_t tableFnChainGetTotalFracTime(CounterMap_t* _map, CounterBase* _TCCB) {
-    static Float_t _bufferedTotalTime = 0.;
-    static CounterMap_t* _bufferedMap = 0;
+  Float_t tableFnChainGetTotalFracTime(CounterMap_t* map, CounterBase* TCCB) {
+    static Float_t bufferedTotalTime = 0.;
+    static CounterMap_t* bufferedMap = 0;
 
     // Get this chain's fraction of the total time.
     // We first need to get what the total time of all chains is for a given counterMap.
-    if (_bufferedMap != _map) {
-      _bufferedMap = _map;
-      _bufferedTotalTime = 0.;
-      CounterMapIt_t _counterMapIt = _map->begin();
-      for (; _counterMapIt != _map->end(); ++_counterMapIt) {
-        CounterBase* _counter = _counterMapIt->second;
-        _bufferedTotalTime += _counter->getValue(kVarTime, kSavePerEvent);
+    if (bufferedMap != map) {
+      bufferedMap = map;
+      bufferedTotalTime = 0.;
+      CounterMapIt_t counterMapIt = map->begin();
+      for (; counterMapIt != map->end(); ++counterMapIt) {
+        CounterBase* counter = counterMapIt->second;
+        bufferedTotalTime += counter->getValue(kVarTime, kSavePerEvent);
       }
     }
 
     // Now we can return a fractional value (check for /0)
-    if (isZero(_bufferedTotalTime)) return 0.;
+    if (isZero(bufferedTotalTime)) return 0.;
 
-    Float_t _thisChainTime = _TCCB->getValue(kVarTime, kSavePerEvent);
+    Float_t thisChainTime = TCCB->getValue(kVarTime, kSavePerEvent);
 
-    return (_thisChainTime / _bufferedTotalTime) * 100; // In %
+    return (thisChainTime / bufferedTotalTime) * 100; // In %
   }
 
   /**
    * Returns the fractional statistical error of the kVarTime variable (kSavePerEvent)
-   * @param _map Unused
-   * @param _TCCB Pointer to the counter being assessed.
+   * @param map Unused
+   * @param TCCB Pointer to the counter being assessed.
    * @returns The % error.
    */
-  Float_t tableFnChainGetTotalTimeErr(CounterMap_t* _map, CounterBase* _TCCB) {
-    UNUSED(_map);
-    const Float_t _val = _TCCB->getValue(kVarTime, kSavePerEvent); 
-    const Float_t _err = _TCCB->getValueError(kVarTime, kSavePerEvent); 
-    return 100. * (_err / _val);
+  Float_t tableFnChainGetTotalTimeErr(CounterMap_t* /*map*/, CounterBase* TCCB) {
+    const Float_t val = TCCB->getValue(kVarTime, kSavePerEvent); 
+    const Float_t err = TCCB->getValueError(kVarTime, kSavePerEvent); 
+    return 100. * (err / val);
   }
 
   ///////////////////////////////////
@@ -93,74 +92,64 @@ namespace TrigCostRootAnalysis {
   /// BEGIN GLOBAL MONITOR FUNCTIONS ///
   //////////////////////////////////////
 
-  Float_t tableFnGlobalGetSteeringFarmUse(CounterMap_t* _map, CounterBase* _TCCB) {
-    UNUSED(_map);
-
-    UInt_t _nPUs = _TCCB->getValue(kVarHLTPUs, kSavePerCall); //Filled with '1' for every unique processing unit seen by
+  Float_t tableFnGlobalGetSteeringFarmUse(CounterMap_t* /*map*/, CounterBase* TCCB) {
+    UInt_t nPUs = TCCB->getValue(kVarHLTPUs, kSavePerCall); //Filled with '1' for every unique processing unit seen by
                                                               // this counter
-    Float_t _lbTime = _TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB
-    Float_t _steeringTime = _TCCB->getValue(kVarSteeringTime, kSavePerEvent) / 1000.; // Total steering time, convert to
+    Float_t lbTime = TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB
+    Float_t steeringTime = TCCB->getValue(kVarSteeringTime, kSavePerEvent) / 1000.; // Total steering time, convert to
                                                                                       // seconds
-    return 100. * (_steeringTime / static_cast<Float_t>(_nPUs * _lbTime)); // Convert to %
+    return 100. * (steeringTime / static_cast<Float_t>(nPUs * lbTime)); // Convert to %
   }
 
-  Float_t tableFnGlobalGetHLTNodePrediction(CounterMap_t* _map, CounterBase* _TCCB) {
-    UNUSED(_map);
-
-    Float_t _lbTime = _TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB - taking into account how
+  Float_t tableFnGlobalGetHLTNodePrediction(CounterMap_t* /*map*/, CounterBase* TCCB) {
+    Float_t lbTime = TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB - taking into account how
                                                           // much of the run we've seen
-    Float_t _algTime = _TCCB->getValue(kVarAlgTime, kSavePerEvent) / 1000.; // Total alg wall time, convert to seconds
-    if (isZero(_lbTime) == kTRUE) return 0.;
+    Float_t algTime = TCCB->getValue(kVarAlgTime, kSavePerEvent) / 1000.; // Total alg wall time, convert to seconds
+    if (isZero(lbTime) == kTRUE) return 0.;
 
     // We enough HLT XPUs to process algTime amount of info in lbTime.
-    return _algTime / _lbTime;
+    return algTime / lbTime;
   }
 
-  Float_t tableFnGlobalGetHLTNodePredictionErr(CounterMap_t* _map, CounterBase* _TCCB) {
+  Float_t tableFnGlobalGetHLTNodePredictionErr(CounterMap_t* /*map*/, CounterBase* TCCB) {
     // err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
-    UNUSED(_map);
-    Float_t _algTimeErr = _TCCB->getValueError(kVarAlgTime, kSavePerCall); // Get sqrt(sumW2)
-    Float_t _walltime = _TCCB->getDecoration(kDecLbLength);
-    return _algTimeErr / _walltime;
+    Float_t algTimeErr = TCCB->getValueError(kVarAlgTime, kSavePerCall); // Get sqrt(sumW2)
+    Float_t walltime = TCCB->getDecoration(kDecLbLength);
+    return algTimeErr / walltime;
   }
 
-  Float_t tableFnGlobalGetHLTNodePredictionSteering(CounterMap_t* _map, CounterBase* _TCCB) {
-    UNUSED(_map);
-
-    Float_t _lbTime = _TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB - taking into account how
+  Float_t tableFnGlobalGetHLTNodePredictionSteering(CounterMap_t* /*map*/, CounterBase* TCCB) {
+    Float_t lbTime = TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB - taking into account how
                                                           // much of the run we've seen
-    Float_t _algTime = _TCCB->getValue(kVarSteeringTime, kSavePerEvent) / 1000.; // Total alg wall time, convert to
+    Float_t algTime = TCCB->getValue(kVarSteeringTime, kSavePerEvent) / 1000.; // Total alg wall time, convert to
                                                                                  // seconds
-    if (isZero(_lbTime) == kTRUE) return 0.;
+    if (isZero(lbTime) == kTRUE) return 0.;
 
     // We enough HLT XPUs to process algTime amount of info in lbTime.
-    return _algTime / _lbTime;
+    return algTime / lbTime;
   }
 
-  Float_t tableFnGlobalGetHLTNodePredictionErrSteering(CounterMap_t* _map, CounterBase* _TCCB) {
+Float_t tableFnGlobalGetHLTNodePredictionErrSteering(CounterMap_t* /*map*/, CounterBase* TCCB) {
     // err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
-    UNUSED(_map);
-    Float_t _algTimeErr = _TCCB->getValueError(kVarSteeringTime, kSavePerEvent); // Get sqrt(sumW2)
-    Float_t _walltime = _TCCB->getDecoration(kDecLbLength);
-    return _algTimeErr / _walltime;
+    Float_t algTimeErr = TCCB->getValueError(kVarSteeringTime, kSavePerEvent); // Get sqrt(sumW2)
+    Float_t walltime = TCCB->getDecoration(kDecLbLength);
+    return algTimeErr / walltime;
   }
 
   /////////////////////////////////////
   /// BEGIN RATES MONITOR FUNCTIONS ///
   /////////////////////////////////////
 
-  Float_t tableFnRateGetWeightedRateErr(CounterMap_t* _map, CounterBase* _TCCB) {
+  Float_t tableFnRateGetWeightedRateErr(CounterMap_t* /*map*/, CounterBase* TCCB) {
     // err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
-    UNUSED(_map);
-    Float_t _evPassErr = _TCCB->getValueError(kVarEventsPassed, kSavePerCall); // Get sqrt(sumW2)
-    Float_t _walltime = _TCCB->getDecoration(kDecLbLength);
-    return _evPassErr / _walltime;
+    Float_t evPassErr = TCCB->getValueError(kVarEventsPassed, kSavePerCall); // Get sqrt(sumW2)
+    Float_t walltime = TCCB->getDecoration(kDecLbLength);
+    return evPassErr / walltime;
   }
 
-  Float_t tableFnRateGetDirectRateErr(CounterMap_t* _map, CounterBase* _TCCB) {
-    UNUSED(_map);
-    Float_t _evPassErr = _TCCB->getValueError(kVarEventsPassedDP, kSavePerCall); // Get sqrt(sumW2)
-    Float_t _walltime = _TCCB->getDecoration(kDecLbLength);
-    return _evPassErr / _walltime;
+  Float_t tableFnRateGetDirectRateErr(CounterMap_t* /*map*/, CounterBase* TCCB) {
+    Float_t evPassErr = TCCB->getValueError(kVarEventsPassedDP, kSavePerCall); // Get sqrt(sumW2)
+    Float_t walltime = TCCB->getDecoration(kDecLbLength);
+    return evPassErr / walltime;
   }
 } // namespace TrigCostRootAnalysis

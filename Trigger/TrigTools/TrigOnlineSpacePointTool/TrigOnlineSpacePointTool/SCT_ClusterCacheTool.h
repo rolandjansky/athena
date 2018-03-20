@@ -65,7 +65,8 @@ private:
   ToolHandle<InDet::ISCT_ClusteringTool> m_clusteringTool;
   SCT_RDO_Container* m_rdoContainer;
   std::string m_rdoContainerName;
-
+  std::string m_bsErrContainerName;
+  std::string m_bsFracContainerName;
   bool m_doBS;
 
 #define SCT_CL_CACHE_NTIMERS 5

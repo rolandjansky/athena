@@ -31,15 +31,15 @@ namespace TrigCostRootAnalysis {
    */
   class CounterROB: public CounterBase {
   public:
-    CounterROB(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10,
-               MonitorBase* _parent = 0);
+    CounterROB(const TrigCostData* costData, const std::string& name, Int_t ID, UInt_t detailLevel = 10,
+               MonitorBase* parent = 0);
     ~CounterROB();
     void startEvent();
-    void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
-    void endEvent(Float_t _weight = 1.);
-    void debug(UInt_t _e, UInt_t _f);
+    void processEventCounter(UInt_t e, UInt_t f, Float_t weight = 1.);
+    void endEvent(Float_t weight = 1.);
+    void debug(UInt_t e, UInt_t f);
   private:
-    Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
+    Double_t getPrescaleFactor(UInt_t e = INT_MAX);
   }; //class CounterROB
 } // namespace TrigCostRootAnalysis
 

@@ -92,19 +92,9 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
       return sc;
    }
    
-   // Locate the StoreGateSvc
-   sc =  m_storeGateSvc.retrieve();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
-      return sc;
-   }
+   ATH_CHECK( m_storeGateSvc.retrieve() );
 
-   // Locate MDT RawDataProvider
-   sc = m_mdtRawDataProvider.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_mdtRawDataProvider);
-      return sc;
-   }
+   ATH_CHECK( m_mdtRawDataProvider.retrieve() );
    ATH_MSG_DEBUG("Retrieved tool " << m_mdtRawDataProvider);
 
    //
@@ -134,12 +124,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    }
    ATH_MSG_DEBUG("Retrieved service " << serviceName);
 
-   //
-   sc =m_mdtRegionDefiner.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_mdtRegionDefiner);
-     return sc;
-   }
+   ATH_CHECK( m_mdtRegionDefiner.retrieve() );
    ATH_MSG_DEBUG("Retrieved service " << m_mdtRegionDefiner);
 
    // initialize the NEW cabling service
@@ -164,13 +149,8 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_mdtIdHelper = m_muonMgr->mdtIdHelper();
    
-   sc = m_mdtPrepDataProvider.retrieve();
-   if (sc.isSuccess()) {
-     ATH_MSG_DEBUG("Retrieved " << m_mdtPrepDataProvider);
-   } else {
-     ATH_MSG_FATAL("Could not get " << m_mdtPrepDataProvider);
-     return sc;
-   }
+   ATH_CHECK( m_mdtPrepDataProvider.retrieve() );
+   ATH_MSG_DEBUG("Retrieved " << m_mdtPrepDataProvider);
 
    // Retrieve ActiveStore
    sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);

@@ -19,7 +19,7 @@
 #include "TH2F.h"
 #include "TProfile2D.h"
 #include "TF1.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"

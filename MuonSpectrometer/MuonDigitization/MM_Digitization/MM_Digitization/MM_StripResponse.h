@@ -45,7 +45,7 @@ class MM_StripResponse {
  public:
 
   MM_StripResponse();
-  MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float timeResolution, float stripPitch, int stripID, int maxstripID);
+  MM_StripResponse(const std::vector<MM_IonizationCluster>& IonizationClusters, float timeResolution, float stripPitch, int stripID, int maxstripID);
   void timeOrderElectrons();
   void calculateTimeSeries(float thetaD, int gasgap);
   //  void calculateTimeSeries();

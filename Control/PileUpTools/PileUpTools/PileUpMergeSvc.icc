@@ -145,7 +145,6 @@ PileUpMergeSvc::retrieveSubSetEvtData(const KEY& dataKey, //orig evt key
 {
   typedef typename TIMEDDATA::value_type value_type;  //pair<time_t,DataLink..
   typedef typename value_type::second_type DataLink_t;
-  typedef typename DataLink_t::value_type data_t;
 
   SubEventIterator iEvt = bSubEvents;
   for (; iEvt != eSubEvents; iEvt++) {

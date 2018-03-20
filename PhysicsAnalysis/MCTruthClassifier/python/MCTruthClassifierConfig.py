@@ -10,7 +10,7 @@ def firstSimCreatedBarcode():
     # without a proper input file.
     # Is there a better way of doing this test?
     from AthenaCommon.AppMgr import theApp
-    if theApp.EvtSel == 'McEventSelector/EventSelector':
+    if getattr (theApp, 'EvtSel', None) == 'McEventSelector/EventSelector':
         print 'Generator job: leaving SimBarcodeOffset at 200k'
 
     else:

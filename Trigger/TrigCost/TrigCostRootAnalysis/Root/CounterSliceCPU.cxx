@@ -27,12 +27,12 @@
 
 namespace TrigCostRootAnalysis {
   /**
-   * @param _name Const ref to algorithm's chain's first group
-   * @param _ID Unused
+   * @param name Const ref to algorithm's chain's first group
+   * @param ID Unused
    */
-  CounterSliceCPU::CounterSliceCPU(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
-                                   UInt_t _detailLevel, MonitorBase* _parent) :
-    CounterBase(_costData, _name, _ID, _detailLevel, _parent) {
+  CounterSliceCPU::CounterSliceCPU(const TrigCostData* costData, const std::string& name, Int_t ID,
+                                   UInt_t detailLevel, MonitorBase* parent) :
+    CounterBase(costData, name, ID, detailLevel, parent) {
     m_dataStore.newVariable(kVarCalls).setSavePerCall().setSavePerEvent();
     m_dataStore.newVariable(kVarEventsActive).setSavePerCall().setSavePerEvent();
     m_dataStore.newVariable(kVarTime)
@@ -54,28 +54,26 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Perform monitoring of a single algorithm call within a slice. Just CPU
-   * @param _e Sequence index in D3PD.
-   * @param _f Location of algorithm within parent sequence.
-   * @param _weight Event weight.
+   * @param e Sequence index in D3PD.
+   * @param f Location of algorithm within parent sequence.
+   * @param weight Event weight.
    */
-  void CounterSliceCPU::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
-    UNUSED(_f);
+  void CounterSliceCPU::processEventCounter(UInt_t e, UInt_t /*f*/, Float_t weight) {
     ++m_calls;
 
-    m_dataStore.store(kVarCalls, 1., _weight);
-    m_dataStore.store(kVarTime, m_costData->getChainTimerFromSequences(_e), _weight);
+    m_dataStore.store(kVarCalls, 1., weight);
+    m_dataStore.store(kVarTime, m_costData->getChainTimerFromSequences(e), weight);
   }
 
   /**
    * Perform end-of-event monitoring for this algorithm.
    */
-  void CounterSliceCPU::endEvent(Float_t _weight) {
-    m_dataStore.store(kVarEventsActive, 1., /*m_eventWeight * */ _weight);
+  void CounterSliceCPU::endEvent(Float_t weight) {
+    m_dataStore.store(kVarEventsActive, 1., /*m_eventWeight * */ weight);
     m_dataStore.endEvent();
   }
 
-  Double_t CounterSliceCPU::getPrescaleFactor(UInt_t _e) {
-    UNUSED(_e);
+  Double_t CounterSliceCPU::getPrescaleFactor(UInt_t /*e*/) {
     return 0;
   }
 } // namespace TrigCostRootAnalysis

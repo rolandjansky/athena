@@ -6,7 +6,11 @@
 // Richard Hawkings, started 19/12/06
 #include "DetDescrConditions/DetStatus.h"
 
-DetStatus::DetStatus() {}
+DetStatus::DetStatus() :
+  m_code(0),
+  m_deadfrac(0),
+  m_deadthrust(0)
+{}
 
 DetStatus::DetStatus(const int fullcode, const float deadfrac,
  			    const float deadthrust) :

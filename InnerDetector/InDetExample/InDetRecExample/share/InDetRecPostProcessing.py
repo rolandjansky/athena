@@ -159,11 +159,9 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
 if InDetFlags.doLowBetaFinder():
   include ("InDetRecExample/ConfiguredLowBetaFinder.py")
   from AthenaCommon.GlobalFlags import globalflags
-  if (globalflags.DataSource is not "data"):
-    InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.TrackParticles(), True)
-  else:
-    InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.TrackParticles(), False)
-          
+  InDetLowBetaTrkAlgorithm = ConfiguredLowBetaFinder(InDetKeys.xAODTrackParticleContainer(),
+                                                     True if (globalflags.DataSource is not "data") else False,
+                                                     InDetKeys.UnslimmedTracks())
 
 # -------------------------------------------------------------------------
 #
