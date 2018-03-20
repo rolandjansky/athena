@@ -7,6 +7,8 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
 
@@ -263,17 +265,6 @@ MUON1ThinningTools.append(MUON1ThinningTool2f)
 from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
 theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"],
                                        outputCellKey="DFMUONCellContainer")
-#====================================================================
-# JetTagNonPromptLepton decorations
-#====================================================================
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
-if not hasattr(DerivationFrameworkJob,"MUONSequence"):
-    MUONSeq = CfgMgr.AthSequencer("MUONSequence")
-
-    if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
-        JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUONSeq,"MUON1")
-        MUONSeq += JetTagConfig.GetDecoratePromptLeptonAlgs()
-    DerivationFrameworkJob += MUONSeq
 
 import IsolationAlgs.IsoUpdatedTrackCones as isoCones
 if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
@@ -298,11 +289,20 @@ MUON1ThinningTools.append(MUON1Thin_vtxTrk)
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON1Kernel",
+MUON1Seq = CfgMgr.AthSequencer("MUON1Sequence")
+DerivationFrameworkJob += MUON1Seq
+MUON1Seq += CfgMgr.DerivationFramework__DerivationKernel("MUON1Kernel",
                                                                        AugmentationTools = MUON1AugmentTools,
                                                                        SkimmingTools = [MUON1SkimmingTool1],
                                                                        ThinningTools = MUON1ThinningTools
                                                                        )
+#====================================================================
+# JetTagNonPromptLepton decorations
+#====================================================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+if not hasattr(MUON1Seq,"Muons_decoratePromptLepton"):
+    JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUON1Seq,"MUON1")
+    MUON1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
