@@ -53,7 +53,7 @@ namespace CP
       return StatusCode::FAILURE;
     case CP::CorrectionCode::OutOfValidityRange:
       if (m_accessor) (*m_accessor) (particle) = selectionReject();
-      switch (m_action)
+      switch (OutOfValidityAction (m_action))
       {
       case OutOfValidityAction::ABORT:
         ANA_MSG_ERROR ("encountered OutOfValidity: " << context);
