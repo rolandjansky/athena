@@ -27,7 +27,7 @@ class LArNoisyROSummary_p5
     m_SatTightFlaggedPartitions(0),
     m_MNBLooseFlaggedPartitions(0),
     m_MNBTightFlaggedPartitions(0),
-    m_MNBTightFlaggedPartitions_PsVeto(0)
+    m_MNBTight_PsVetoFlaggedPartitions(0)
   {};
 
  private:
@@ -41,7 +41,7 @@ class LArNoisyROSummary_p5
   uint8_t m_SatTightFlaggedPartitions;
   uint8_t m_MNBLooseFlaggedPartitions;
   uint8_t m_MNBTightFlaggedPartitions;
-  uint8_t m_MNBTightFlaggedPartitions_PsVeto;
+  uint8_t m_MNBTight_PsVetoFlaggedPartitions;
   
 };
 
