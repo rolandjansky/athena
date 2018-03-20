@@ -25,7 +25,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRIG4Ker
 # First define the content list from TriggerEDM
 
 # Configure collection list via TriggerEDM.py
-from TrigEDMConfig.TriggerEDM import *
+from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 edmlist=[]
 for item in getTriggerEDMList('AODSUPERSLIM',2):
     edmlist.extend(getTriggerEDMList('AODSUPERSLIM',2)[item])
