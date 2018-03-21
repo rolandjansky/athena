@@ -11,9 +11,9 @@ class _BTaggingFlags:
     ExpertTaggers = \
       StandardTaggers + \
       [ 'SV1Flip', 'JetFitterNNFlip', 'IP2DNeg', 'IP3DNeg',
-        'MV2c10Flip', 'MV2c100Flip' ]
+        'MV2c10Flip', 'MV2c100Flip', 'DL1Flip' ]
       # do we have these already?
-      # 'DL1Flip', 'DL1muFlip', 'RNNIPFlip', 'DL1rnnFlip'
+      # 'DL1muFlip', 'RNNIPFlip', 'DL1rnnFlip'
 
 
 
