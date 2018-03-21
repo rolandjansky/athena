@@ -14,7 +14,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
 
-#include "xAODEventInfo/EventInfo.h" 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
@@ -68,10 +67,9 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
   m_Tower_out = 0 ;
   m_Tower_in = 0 ;
   m_in_sectorid = 0 ;
-  m_sectorLogicContainer = 0 ;
       
-  // Retrieve the active store
-  ATH_CHECK( serviceLocator() -> service("ActiveStoreSvc", m_activeStore) );
+  ATH_CHECK(m_sectorLogicContainerKey.initialize());
+  ATH_CHECK(m_eventInfo.initialize());
 
   // Ignore the checking code
   ManagedMonitorToolBase::initialize().ignore();
@@ -83,8 +81,7 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
 //***********************************************************************************************************************
 StatusCode RpcLv1RawDataSectorLogic::StoreTriggerType() 
 {
-  const xAOD::EventInfo* eventInfo;
-  ATH_CHECK(  evtStore() -> retrieve(eventInfo) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
   ATH_MSG_DEBUG( "RpcLv1RawDataSectorLogic::retrieved eventInfo"  );
   
   m_trigtype = eventInfo->level1TriggerType();
@@ -179,25 +176,19 @@ StatusCode RpcLv1RawDataSectorLogic::fillHistograms( )
     m_nTriggerHits = 0;
 
     // Retrieve the Sector Logic container
-    sc = (*m_activeStore) -> retrieve(m_sectorLogicContainer);     
-    
-    if (sc.isFailure()) {
-      ATH_MSG_INFO( "Cannot retrieve the RpcSectorLogicContainer"  );
-      return StatusCode::SUCCESS;
-    }
-    else {
-      ///////////////////////////////////////////
-      // Loop over the Sector Logic containers //
-      ///////////////////////////////////////////
-      RpcSectorLogicContainer::const_iterator it = m_sectorLogicContainer -> begin();
-      for ( ; it != m_sectorLogicContainer -> end() ; ++it ) 
-	{
-	  int i_sectorid = (*it)->sectorId();
-	  m_nTriggerHitsperSector = 0;
-
-	  // Loop over the trigger hits of each sector
-	  RpcSectorLogic::const_iterator ithit = (*it) -> begin();
-	  for ( ; ithit != (*it) -> end() ; ++ithit ) 
+    SG::ReadHandle<RpcSectorLogicContainer> sectorLogicContainer(m_sectorLogicContainerKey);
+    ///////////////////////////////////////////
+    // Loop over the Sector Logic containers //
+    ///////////////////////////////////////////
+    RpcSectorLogicContainer::const_iterator it = sectorLogicContainer -> begin();
+    for ( ; it != sectorLogicContainer -> end() ; ++it ) 
+      {
+	int i_sectorid = (*it)->sectorId();
+	m_nTriggerHitsperSector = 0;
+	
+	// Loop over the trigger hits of each sector
+	RpcSectorLogic::const_iterator ithit = (*it) -> begin();
+	for ( ; ithit != (*it) -> end() ; ++ithit ) 
           {
             // from RpcSLTriggerHit
             bool b_isInput        = (*ithit) -> isInput();
@@ -320,19 +311,17 @@ StatusCode RpcLv1RawDataSectorLogic::fillHistograms( )
 		
           } // End Loop over the trigger hits of each sector	  
 	  
-	  // Fill the trigger hits per event per sector histogram here
-	  if (m_nTriggerHitsperSector > 0) {
-	    m_rpclv1_TriggerHitsperEventperTriggerSector -> Fill(float(i_sectorid), float(m_nTriggerHitsperSector));
-	    //per lumi block
-	    if(m_lumiblockhist)m_rpclv1_TriggerHitsperEventperTriggerSector_LB -> Fill(float(i_sectorid), float(m_nTriggerHitsperSector));
-	  }
-
-	} // End Loop over the Sector Logic containers
-      
-      // Fill the trigger hits per event histogram here
-      m_rpclv1_TriggerHitsperEvent -> Fill(float(m_nTriggerHits));
-
-    }
+	// Fill the trigger hits per event per sector histogram here
+	if (m_nTriggerHitsperSector > 0) {
+	  m_rpclv1_TriggerHitsperEventperTriggerSector -> Fill(float(i_sectorid), float(m_nTriggerHitsperSector));
+	  //per lumi block
+	  if(m_lumiblockhist)m_rpclv1_TriggerHitsperEventperTriggerSector_LB -> Fill(float(i_sectorid), float(m_nTriggerHitsperSector));
+	}
+	
+      } // End Loop over the Sector Logic containers
+    
+    // Fill the trigger hits per event histogram here
+    m_rpclv1_TriggerHitsperEvent -> Fill(float(m_nTriggerHits));
     
   } // AthenaMonManager::tier0 || AthenaMonManager::tier0Raw   
   

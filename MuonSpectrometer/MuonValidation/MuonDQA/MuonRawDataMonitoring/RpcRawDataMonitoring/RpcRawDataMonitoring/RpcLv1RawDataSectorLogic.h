@@ -38,6 +38,8 @@
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonRDO/RpcSectorLogicContainer.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include <sstream>
 #include <string.h>
 #include <vector>
@@ -65,11 +67,12 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
     
   // Private functions and members and histograms
   
-  ActiveStoreSvc* m_activeStore;
-  
   StatusCode StoreTriggerType();
   int GetTriggerType() { return m_trigtype; }
   int m_trigtype;
+
+  SG::ReadHandleKey<RpcSectorLogicContainer> m_sectorLogicContainerKey{this,"RPCSec","RPC_SECTORLOGIC","RPC sector logic"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
 
   int m_rpc_eventstotal;
   int m_rpc_event_inarea;  
@@ -113,7 +116,6 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
   int m_Tower_in;
   int m_in_sectorid;
 
-  const RpcSectorLogicContainer* m_sectorLogicContainer;
  };
 
 #endif

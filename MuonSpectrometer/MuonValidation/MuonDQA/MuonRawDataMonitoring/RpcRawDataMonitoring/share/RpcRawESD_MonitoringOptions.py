@@ -71,7 +71,9 @@ RPCStandaloneTracksMon = RPCStandaloneTracksMon(name='RPCStandaloneTracksMon',
 						       rpc_readout_window    = 0.2, ## micro sec
                                                        doRadiography         = False,
 						       doCoolDB              = False,
-                                                       ClusterContainer      = "rpcClusters") 
+                                                       ClusterContainer      = "rpcClusters")
+if globalflags.DataSource() != 'data':
+    RPCStandaloneTracksMon.isMC = True
 ToolSvc += RPCStandaloneTracksMon
 rpcTrackMonMan.AthenaMonTools += [ RPCStandaloneTracksMon ]
 topSequence += rpcTrackMonMan

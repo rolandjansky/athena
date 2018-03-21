@@ -35,10 +35,6 @@
 
 #include "MuonDigitContainer/RpcDigitContainer.h"
  
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-
-#include "MuonTrigCoinData/RpcCoinDataContainer.h"
-
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
@@ -93,9 +89,6 @@ RpcRawDataValAlg::RpcRawDataValAlg( const std::string & type, const std::string 
   declareProperty("lv1Thres_2",		 m_lv1Thres_2		= 2	);
   declareProperty("lv1Thres_3",		 m_lv1Thres_3		= 3	);
   declareProperty("doCoolDB",		 m_doCoolDB		= true	);
-  declareProperty("ClusterContainer",    m_clusterContainerName = "rpcClusters"		);
-  declareProperty("RpcPrepDataContainer",m_key_rpc		= "RPC_Measurements"	);
-  declareProperty("RPCTriggerContainer", m_key_trig		= "RPC_triggerHits"	);
   declareProperty("MinimunEntries",      m_MinEntries		= 10	);    // min entries required for summary plot 
   declareProperty("LB_Nbins"      ,      m_LB_Nbins		= 300	);     
   declareProperty("LBmax"         ,      m_LBmax		= 1500	);
@@ -129,19 +122,6 @@ StatusCode RpcRawDataValAlg::initialize(){
   ATH_MSG_DEBUG (  "RpcFile: "<< m_rpcfile );
   
   StatusCode sc;
-
-  // Store Gate store
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR (  " Cannot get StoreGateSvc " );
-    return sc ;
-  }
-  // retrieve the active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR (  " Cannot get ActiveStoreSvc " );
-    return sc ;
-  }
 
   // Initialize the IdHelper
   StoreGateSvc* detStore = 0;
@@ -245,6 +225,10 @@ StatusCode RpcRawDataValAlg::initialize(){
  
   m_first = true ;
   
+  ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK( m_key_rpc.initialize());
+  ATH_CHECK( m_key_trig.initialize());
+  ATH_CHECK(m_clusterContainerName.initialize(m_doClusters));
   
   return StatusCode::SUCCESS;
 }
@@ -263,31 +247,18 @@ StatusCode RpcRawDataValAlg::fillHistograms()
        
       int lumiblock = -1 ;
 	
-      const DataHandle<xAOD::EventInfo> eventInfo;
-      StatusCode sc = m_eventStore->retrieve( eventInfo );
-      if (sc.isFailure()) {
-	ATH_MSG_INFO ( "no event info" );
-	return StatusCode::SUCCESS;
-      }
-      else {
+      SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
 	  
-	lumiblock = eventInfo->lumiBlock()  ;
+      lumiblock = eventInfo->lumiBlock()  ;
 	  
-	ATH_MSG_DEBUG ( "event LB " << lumiblock ); 
-	      
-      }
+      ATH_MSG_DEBUG ( "event LB " << lumiblock ); 
               
       float AverageLuminosityWeight = 1;
       
   
     
     
-      const Muon::RpcPrepDataContainer* rpc_container;
-      sc = (*m_activeStore)->retrieve(rpc_container, m_key_rpc);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR (  " Cannot retrieve RpcPrepDataContainer " << m_key_rpc );
-	return sc;
-      }
+      SG::ReadHandle<Muon::RpcPrepDataContainer> rpc_container(m_key_rpc);
 
       ATH_MSG_DEBUG ( "****** rpc->size() : " << rpc_container->size()) ;  
     
@@ -1222,13 +1193,8 @@ StatusCode RpcRawDataValAlg::fillHistograms()
       // loop on trigger hits
       if(m_doTriggerHits){  
     
-        const Muon::RpcCoinDataContainer* rpc_trigcontainer;
+	SG::ReadHandle<Muon::RpcCoinDataContainer> rpc_trigcontainer(m_key_trig );
     
-        sc = (*m_activeStore)->retrieve(rpc_trigcontainer, m_key_trig );
-        if (sc.isFailure()) {
-          ATH_MSG_ERROR (  " Cannot retrieve RPC trigger Hits container " << m_key_trig );
-          return sc;
-        }
         Muon::RpcCoinDataContainer::const_iterator trigcontainerIt;
         for ( trigcontainerIt = rpc_trigcontainer->begin(); trigcontainerIt != rpc_trigcontainer->end(); ++trigcontainerIt ) 
 	{
@@ -1832,25 +1798,12 @@ StatusCode RpcRawDataValAlg::fillHistograms()
        m_rpcTriggerHitsPerEvents_Phi_HighPt ->  Fill (NTrigger_Phi_HighPt)  ;
       }
       // begin cluster monitoring
-      const Muon::RpcPrepDataContainer* rpc_clusterContainer;
-      bool Clus_Retr = false;
-      if(m_eventStore->contains<Muon::RpcPrepDataContainer>(m_clusterContainerName)){
-	sc = m_eventStore->retrieve(rpc_clusterContainer, m_clusterContainerName);
-	if ( sc.isSuccess() ) {
-	  Clus_Retr = true ; 
-	}
-	else {
-	  ATH_MSG_DEBUG (  " RpcRawDataValAlg :: Cannot retrieve the RPC cluster container " );
-	  Clus_Retr = false;
-	  return sc;
-	}
-      }  
-      else { Clus_Retr = false;}
    
-      if (m_doClusters && Clus_Retr )
+      if (m_doClusters )
 	{  
 	  ATH_MSG_DEBUG (  "Start RPC Cluster Monitoring" );
-  
+	  SG::ReadHandle<Muon::RpcPrepDataContainer> rpc_clusterContainer(m_clusterContainerName);
+
 	  // RPC clusters histograms
 
 	  m_nClus=0;
