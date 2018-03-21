@@ -346,9 +346,10 @@ bool TrigEgammaIsolationSelectorTool::emulation(const xAOD::IParticle* part, boo
     if(caloIso_ele_pt > 0.) RelEtCone.push_back(EtCone[iConeSize]/caloIso_ele_pt);
     else RelEtCone.push_back(99990.);
   }
-  
-  for (std::size_t iConeSize = 0; iConeSize < PtCone_recalculated.size(); iConeSize++){
-    if(trkIso_ele_pt > 0.) RelPtCone.push_back(PtCone_recalculated[iConeSize]/trkIso_ele_pt);
+ 
+  // Here use PtCone for xAOD values and PtCone_recalulated if using track isolation tool 
+  for (std::size_t iConeSize = 0; iConeSize < PtCone.size(); iConeSize++){
+    if(trkIso_ele_pt > 0.) RelPtCone.push_back(PtCone[iConeSize]/trkIso_ele_pt);
     else RelPtCone.push_back(99990.);
   }
  
