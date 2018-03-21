@@ -41,11 +41,7 @@ namespace CP
         }
       }
       if (keep)
-      {
-        /// \todo not quite sure why I need the const cast here,
-        /// but that is for the xAOD experts to figure out.
         output->push_back (particle);
-      }
     }
     ANA_CHECK (evtStore()->record (output.release(), m_outputHandle.getName (sys)));
 
