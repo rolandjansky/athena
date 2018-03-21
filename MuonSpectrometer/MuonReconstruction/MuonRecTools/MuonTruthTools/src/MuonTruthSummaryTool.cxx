@@ -123,6 +123,7 @@ namespace Muon {
   void MuonTruthSummaryTool::getTruth() const {
 
     for(SG::ReadHandle<PRD_MultiTruthCollection>& col : m_TruthNames.makeHandles()){
+      if(!col.isValid() || !col.isPresent()) continue;
       ATH_MSG_DEBUG(  "PRD_MultiTruthCollection " << col.key() << " found");
       PRD_MultiTruthCollection::const_iterator it = col->begin();
       PRD_MultiTruthCollection::const_iterator it_end = col->end();
