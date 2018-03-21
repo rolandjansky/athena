@@ -360,7 +360,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     }
     else{ //is trig-matched electron, go for it!
       if (trigExpr==mixedLepStr && trigExpr==diLepStr) {
-        ATH_MSG_INFO( "The dilepton or multilepton trigger SFs are not supported in GetSignalElecSF(). Use GetEleTriggerGlobalEfficiencySF()!");
+        ATH_MSG_INFO( "The dilepton or multilepton trigger SFs are not supported in GetSignalElecSF(). Use GetTriggerGlobalEfficiencySF()!");
       }
       else {
         double trig_sf = GetEleTriggerEfficiencySF( el , theExpr );
@@ -443,9 +443,9 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiencySF(const xAOD::Electron& el, cons
   if ( trigExpr.find(single_str) != std::string::npos ) 
     result = m_elecEfficiencySFTool_trig_singleLep->getEfficiencyScaleFactor(el, trig_sf);
   else if ( trigExpr.find(dilep_str) != std::string::npos )
-    ATH_MSG_ERROR( "Use GetEleTriggerGlobalEfficiency for logical OR of lepton triggers"); 
+    ATH_MSG_ERROR( "Use GetTriggerGlobalEfficiency for logical OR of lepton triggers"); 
   else if ( trigExpr.find(mixed_str) != std::string::npos ) 
-    ATH_MSG_ERROR( "Use GetEleTriggerGlobalEfficiency for logical OR of lepton triggers"); 
+    ATH_MSG_ERROR( "Use GetTriggerGlobalEfficiency for logical OR of lepton triggers"); 
   else 
     ATH_MSG_ERROR( "The trigger expression (" << trigExpr << ") is not supported by the electron trigger SF!");
   
@@ -463,7 +463,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiencySF(const xAOD::Electron& el, cons
   return trig_sf;
 }
 
-double SUSYObjDef_xAOD::GetEleTriggerGlobalEfficiencySF(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
 
   double trig_sf(1.);
 
@@ -525,9 +525,9 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
   if ( m_electronTriggerSFStringSingle.find(single_str) != std::string::npos ) 
     result = m_elecEfficiencySFTool_trigEff_singleLep->getEfficiencyScaleFactor(el, trig_eff);
   else if ( trigExpr.find(dilep_str) != std::string::npos ) 
-    ATH_MSG_ERROR( "Use GetEleTriggerGlobalEfficiency for logical OR of lepton triggers"); 
+    ATH_MSG_ERROR( "Use GetTriggerGlobalEfficiency for logical OR of lepton triggers"); 
   else if ( trigExpr.find(mixed_str) != std::string::npos ) 
-    ATH_MSG_ERROR( "Use GetEleTriggerGlobalEfficiency for logical OR of lepton triggers"); 
+    ATH_MSG_ERROR( "Use GetTriggerGlobalEfficiency for logical OR of lepton triggers"); 
   else 
     ATH_MSG_ERROR( "The trigger expression (" << trigExpr << ") is not supported by the electron trigger efficiency!");
   
@@ -545,7 +545,7 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
   return trig_eff;
 }
 
-double SUSYObjDef_xAOD::GetEleTriggerGlobalEfficiency(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
+double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer& electrons, const xAOD::MuonContainer& muons, const std::string& trigExpr) {
 
   double trig_eff(1.);
   double trig_eff_data(1.);
