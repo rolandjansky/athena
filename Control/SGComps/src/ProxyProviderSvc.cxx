@@ -13,15 +13,41 @@
 #include "AthenaKernel/IProxyRegistry.h"
 #include "AthenaKernel/EventContextClid.h"
 
+#include "GaudiKernel/IClassIDSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/ListItem.h"
 #include "GaudiKernel/GaudiException.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "ProxyProviderSvc.h"
 
 #include "boost/range/adaptor/reversed.hpp"
+#include "TClass.h"
 
 using namespace std;
+
+
+namespace {
+
+
+const SG::BaseInfoBase* getBaseInfo (CLID clid)
+{
+  const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (clid);
+  if (bi) return bi;
+
+  // Try to force a dictionary load to get it defined.
+  ServiceHandle<IClassIDSvc> clidsvc ("ClassIDSvc", "ProxyProviderSvc");
+  if (!clidsvc.retrieve()) return nullptr;
+  std::string name;
+  if (!clidsvc->getTypeNameOfID (clid, name).isSuccess()) {
+    return nullptr;
+  }
+  (void)TClass::GetClass (name.c_str());
+  return SG::BaseInfoBase::find (clid);
+}
+
+
+} // anonyous namespace
 
 ProxyProviderSvc::ProxyProviderSvc(const std::string& name, 
                                    ISvcLocator* svcLoc): 
@@ -195,7 +221,7 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
     }
     
     // Add any other allowable conversions.
-    const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (dp->clID());
+    const SG::BaseInfoBase* bi = getBaseInfo (dp->clID());
     if (bi) {
       for (CLID clid : bi->get_bases()) {
         if (std::find (tClid.begin(), tClid.end(), clid) == tClid.end()) {
