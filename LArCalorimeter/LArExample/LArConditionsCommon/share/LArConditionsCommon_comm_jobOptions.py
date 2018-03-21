@@ -215,7 +215,10 @@ if larCondFlags.LoadElecCalib():
       addLArFolder ('LAR_ONL', 'DAC2uA', 'LArDAC2uAMC')
 
       #3. Pedestal
-      addLArFolder ('LAR_ONL', 'Pedestal', 'LArPedestalComplete')
+      addLArFolder ('LAR_ONL', 'Pedestal', 'LArPedestalComplete',
+                    # POOL files set the key for this to `Pedestal',
+                    # but we want to use `LArPedestal'.
+                    '<key>LArPedestal</key>')
 
       #4. Ramp
       addLArFolder ('LAR_ONL', 'Ramp', 'LArRampComplete')
