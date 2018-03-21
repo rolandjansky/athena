@@ -936,20 +936,21 @@ fillHists()
             }
             for (auto& it: m_templateEfficiencies[interval]) {
                 if (it.m_group.histo_mgmt() == ATTRIB_X_VS_LB) {
-                    TEfficiency* currentEff = it.m_templateHist;
-                    TH1* passedHist = currentEff->GetCopyPassedHisto();
-                    TH1* totalHist = currentEff->GetCopyTotalHisto();
-                    const char* currentName = currentEff->GetName();
-                    const char* currentTitle = currentEff->GetTitle();
+                    // get the underlying passed and total TH1's from the TEfficiency
+                    TH1* passedHist = it.m_templateHist->GetCopyPassedHisto();
+                    TH1* totalHist = it.m_templateHist->GetCopyTotalHisto();
+                    // inflate them until they exceed the lumi-block number
                     while (passedHist->GetXaxis()->GetXmax() <= AthenaMonManager::lumiBlockNumber() ) {
                         passedHist->LabelsInflate("X");
                         totalHist->LabelsInflate("X");
-                        uint xmax = passedHist->GetXaxis()->GetXmax();
-                        TEfficiency* inflatedEfficiency = new TEfficiency( currentName, currentTitle, xmax, 0, xmax);
-                        inflatedEfficiency->SetPassedHistogram(*passedHist, " ");
-                        inflatedEfficiency->SetTotalHistogram(*totalHist, " ");
-                        it.m_templateHist = inflatedEfficiency;
                     }
+                    // Replace them in the TEfficiency. First one has force ("f") option, since the 
+                    // histograms will not be consistent. This is corrected in the next line, so we
+                    // do check for consistency then.
+                    it.m_templateHist->SetPassedHistogram(*passedHist, "f");
+                    it.m_templateHist->SetTotalHistogram(*totalHist, " ");
+                    delete passedHist; // not owned by THistSvc, so need to be deleted.
+                    delete totalHist;
                 }
             }
         }
@@ -1218,70 +1219,58 @@ regManagedGraphs(std::vector< MgmtParams<TGraph> >& templateGraphs)
 StatusCode ManagedMonitorToolBase::regManagedEfficiencies(std::vector< MgmtParams<TEfficiency> >& templateEfficiencies) {
     bool allIsOk = true;
     for( auto& it : templateEfficiencies ) {
-        MonGroup group = (it).m_group;
-
-        // Get a handle to the efficiency and its graph cast
-        TEfficiency* theEfficiency = (it).m_templateHist;
-        TGraph* theGraph = reinterpret_cast<TGraph*>(theEfficiency);
-
-        // Clone the efficiency and its graph cast
+        // get components of MgmtParams and copy efficiency
+        MonGroup group = it.m_group;
+        TEfficiency* theEfficiency = it.m_templateHist;
         TEfficiency* e = static_cast<TEfficiency*>(theEfficiency->Clone());
-        TGraph* g = static_cast<TGraph*>(theGraph->Clone());
+        int nbins = theEfficiency->GetTotalHistogram()->GetNbinsX();
+        int xlow = theEfficiency->GetTotalHistogram()->GetXaxis()->GetXmin();
+        int xhigh = theEfficiency->GetTotalHistogram()->GetXaxis()->GetXmax();
+        e->SetBins(nbins,xlow,xhigh); // reset histogram
+        std::string name = e->GetName();
 
-        // Reset the efficiency and its graph cast
-        //theEfficiency->Set(0);
-        theGraph->Set(0);
-
-        // Get names
-        std::string eName = e->GetName();
-        std::string gName = g->GetName();
+        // make TGraph casts of TEfficiencies
+        TGraph* theGraph = reinterpret_cast<TGraph*>(theEfficiency);
+        TGraph* g = reinterpret_cast<TGraph*>(e);
 
         // Get the streamName for the previous interval
-        //std::string eStreamName = streamNameFunction()->getStreamName( this, group, eName, true );
-        std::string streamName = streamNameFunction()->getStreamName( this, group, gName, true );
+        std::string streamName = streamNameFunction()->getStreamName( this, group, name, true );
 
-        // REGISTER 
+        // RE-REGISTER 
         // 1) De-register the original graph with the THistSvc
         StatusCode sc1 = m_THistSvc->deReg( theGraph );
-        if (sc1 == StatusCode::FAILURE)
-            allIsOk = false;
+        if (sc1 == StatusCode::FAILURE) allIsOk = false;
         // 2) Fix THistSvc->deReg for TGraphs
         bool doneCleaning = false;
-        std::string directoryName = streamNameFunction()->getDirectoryName( this, group, gName, true );
+        std::string directoryName = streamNameFunction()->getDirectoryName( this, group, name, true );
         TSeqCollection *filelist=gROOT->GetListOfFiles();
         for (int i=0; i<filelist->GetEntries(); i++) {
             ATH_MSG_DEBUG( "List of files: " << filelist->At(i)->GetName());
             TFile* file = static_cast<TFile*>(filelist->At(i));
             StatusCode sc2 = THistSvc_deReg_fixTGraph(file, theGraph, directoryName);
-            if (sc2 == StatusCode::SUCCESS)
-                doneCleaning = true;
+            if (sc2 == StatusCode::SUCCESS) doneCleaning = true;
         }
-        // 3) Check if TGraph fix has been applied successfully 
+        // 3) Check if TGraph fix has been applied successfully
         if (!doneCleaning) { 
             ATH_MSG_ERROR("THistSvc_deReg_fixTGraph: failed to apply TGraph fix for the THist Svc!");
             allIsOk = false;
         }
-
-        // Register clonned histogram under previous interval streamName
+        // 4) Register cloned histogram under previous interval streamName
         StatusCode sc3 = m_THistSvc->regGraph( streamName, g );
         if (sc3 == StatusCode::FAILURE) 
             allIsOk = false;
 
-        // Get streamName for the current interval
-        streamName = streamNameFunction()->getStreamName( this, group, gName, false );
-        // Register metadata information with the current interval streamname
-        StatusCode smd = registerMetadata(streamName, gName, group);
-        if (smd != StatusCode::SUCCESS) 
-            allIsOk = false;
-
-        // Re-register the original graph with the current interval streamName
+        // get streamname for interval
+        streamName = streamNameFunction()->getStreamName( this, group, name, false );
+        // store metadata
+        StatusCode smd = registerMetadata(streamName, name, group);
+        if (smd != StatusCode::SUCCESS) allIsOk = false;
+        // Re-register the original graph
         StatusCode sc4 = m_THistSvc->regGraph( streamName, theGraph );
-        if (sc4 == StatusCode::FAILURE) 
-            allIsOk = false;
+        if (sc4 == StatusCode::FAILURE) allIsOk = false;
     }
 
     if (!allIsOk) return StatusCode::FAILURE;
-    
     return StatusCode::SUCCESS;
 }
 
@@ -1680,13 +1669,6 @@ getHist( TH2*& h, const std::string& hName, const MonGroup& group )
 }
 
 
-// StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup& group ) {
-//     if (!e) return StatusCode::FAILURE;
-//     if (group.histo_mgmt() == ATTRIB_X_VS_LB)
-//       ATH_MSG_WARNING("Attemting to register a cross-LB TEfficiency. This is not yet supported. Will be implemented shortly. (CDB 20/3/18)");
-//     return regGraph( reinterpret_cast<TGraph*>(e), group );
-// }
-
 StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup& group ) {
     if (!e)
         return StatusCode::FAILURE;
@@ -1707,7 +1689,7 @@ StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup
             ATH_MSG_ERROR("Attempt to book managed graph " << name << " with invalid interval type " << intervalEnumToString(group.interval()));
             return StatusCode::FAILURE;
         }
-        // make a copy of the group that is unmanaged.
+
         MonGroup group_unmanaged( this, group.system(), group.interval(), ATTRIB_UNMANAGED, group.chain(), group.merge());
         std::string streamName = streamNameFunction()->getStreamName( this, group_unmanaged, name, false );
         StatusCode smd = registerMetadata(streamName, name, group);

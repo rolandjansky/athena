@@ -337,6 +337,11 @@ fillHistograms()
       m_efficiency->Fill(b,a);
       m_managedEfficiency->Fill(b,a);
 
+      double lb = AthenaMonManager::lumiBlockNumber();
+      m_managedEfficiencyXLB->Fill(b,lb);
+
+      m_managedGraphXLB->SetPoint(m_managedGraphXLB->GetN(), lb, lb);
+
    return StatusCode::SUCCESS;
 }
 
