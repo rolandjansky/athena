@@ -1045,16 +1045,16 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
       if (comb_trig_check) {
         if (objTool.IsTrigPassed("HLT_e17_lhloose_mu14") || objTool.IsTrigPassed("HLT_e17_lhloose_nod0_mu14")) {
-          std::cout << "e-mu trigger SFs (e17 chain):  " << objTool.GetEleTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
-          std::cout << "e-mu trigger Effs (e17 chain): " << objTool.GetEleTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger SFs (e17 chain):  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger Effs (e17 chain): " << objTool.GetTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         } 
         if (objTool.IsTrigPassed("HLT_2e12_lhloose_mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_2mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_nod0_2mu10") || objTool.IsTrigPassed("HLT_2e12_lhloose_nod0_mu10")) { 
-          std::cout << "e-mu trigger SFs (e12 chain):  " << objTool.GetEleTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
-          std::cout << "e-mu trigger Effs (e12 chain): " << objTool.GetEleTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger SFs (e12 chain):  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger Effs (e12 chain): " << objTool.GetTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         } 
         if (objTool.IsTrigPassed("HLT_e7_lhmedium_mu24") || objTool.IsTrigPassed("HLT_e7_lhmedium_nod0_mu24")) {
-          std::cout << "e-mu trigger SFs (e7 chain):  " << objTool.GetEleTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
-          std::cout << "e-mu trigger Effs (e7 chain): " << objTool.GetEleTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger SFs (e7 chain):  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger Effs (e7 chain): " << objTool.GetTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         }
       }
 
