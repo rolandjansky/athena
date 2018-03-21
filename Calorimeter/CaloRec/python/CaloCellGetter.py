@@ -7,7 +7,7 @@ from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
-
+from AthenaCommon.Include import Include, IncludeError, include
 
 class CaloCellGetter (Configured)  :
     _outputType = "CaloCellContainer"
@@ -88,6 +88,7 @@ class CaloCellGetter (Configured)  :
             from RecExConfig.RecFlags import rec
 
             if rec.doLArg():
+                include("LArRecUtils/LArOnOffMappingAlg.py")
                 try:
                     from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
                     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
