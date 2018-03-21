@@ -59,7 +59,7 @@ namespace iFatras {
        StatusCode  finalize();
 
        /** return a vector of PrepRawData trajectories - uses internal cache**/
-       const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& truthTrajectories() const;
+       const std::vector< Trk::PRD_TruthTrajectory >& truthTrajectories() const;
 
        /** Event refresh - can't be an IIncident, because it has to run after PRD creation and PRD truth creation */
        StatusCode refreshEvent();
@@ -85,6 +85,7 @@ namespace iFatras {
        //!< Track geantinos or not        
        bool                                                   m_geantinos;
        //!< the cache for the return (cleared by Incident)
+       mutable std::vector< Trk::PRD_TruthTrajectory > m_prdTruthTrajectories;
        mutable std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory > m_gpPrdTruthTrajectories; 
   };
 
