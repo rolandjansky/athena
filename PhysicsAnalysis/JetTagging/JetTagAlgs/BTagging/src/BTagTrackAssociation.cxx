@@ -27,12 +27,12 @@ namespace Analysis {
         // if this option is set, run tagging on the named collection
         // already attached to the jet instead of performing the
         // association.
-        declareProperty("AssociatedTrackLinks", m_AssociatedTrackLinks=std::string());
-        declareProperty("AssociatedMuonLinks", m_AssociatedMuonLinks=std::string());
-        declareProperty("TrackContainerName", m_TrackContainerName=std::string());
-        declareProperty("MuonContainerName", m_MuonContainerName=std::string());
-        declareProperty("TrackAssociationName", m_TrackAssociationName=std::string());
-        declareProperty("MuonAssociationName", m_MuonAssociationName=std::string());
+        declareProperty("AssociatedTrackLinks", m_associatedTrackLinks=std::string());
+        declareProperty("AssociatedMuonLinks", m_associatedMuonLinks=std::string());
+        declareProperty("TrackContainerName", m_trackContainerName=std::string());
+        declareProperty("MuonContainerName", m_muonContainerName=std::string());
+        declareProperty("TrackAssociationName", m_trackAssociationName=std::string());
+        declareProperty("MuonAssociationName", m_muonAssociationName=std::string());
     }
 
     BTagTrackAssociation::~BTagTrackAssociation() {
@@ -60,13 +60,13 @@ namespace Analysis {
             }
 
             // track association
-            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acctrack(m_AssociatedTrackLinks);
+            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acctrack(m_associatedTrackLinks);
             std::vector< ElementLink< xAOD::IParticleContainer > > tmptrks = acctrack(*jet);
 
             const xAOD::TrackParticleContainer * tpContainer(0);
-            sc = evtStore()->retrieve( tpContainer, m_TrackContainerName);
+            sc = evtStore()->retrieve( tpContainer, m_trackContainerName);
             if ( sc.isFailure() || tpContainer==0) {
-                ATH_MSG_ERROR("#BTAG# Failed to retrieve TrackParticles through name: " << m_TrackContainerName);
+                ATH_MSG_ERROR("#BTAG# Failed to retrieve TrackParticles through name: " << m_trackContainerName);
                 return StatusCode::FAILURE;
             }
 
@@ -84,18 +84,26 @@ namespace Analysis {
                 tpLinks.push_back(EL);
             }
 
-            tagInfo->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_TrackAssociationName) = tpLinks;
+            tagInfo->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName) = tpLinks;
 
-            ATH_MSG_INFO("Attached tracks to jet as " + m_TrackAssociationName);
+            ATH_MSG_INFO("Attached tracks to jet as " + m_trackAssociationName);
 
             // muon association
-            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > accmu(m_AssociatedMuonLinks);
+            // this is optional. currently (2018 03 21) online b-tagging has no
+            // muons, so we continue if there is no muon container name passed.
+            if (m_muonContainerName == "") {
+              ATH_MSG_WARNING("#BTAG# no muon container name given to the association tool. this is interpreted to mean no muon association should take place.");
+              continue;
+            }
+
+            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > accmu(m_associatedMuonLinks);
             std::vector< ElementLink< xAOD::IParticleContainer > > tmpmus = accmu(*jet);
 
+
             const xAOD::MuonContainer * mpContainer( 0 );
-            sc = evtStore()->retrieve( mpContainer, m_MuonContainerName);
+            sc = evtStore()->retrieve( mpContainer, m_muonContainerName);
             if ( sc.isFailure() || mpContainer==0) {
-                ATH_MSG_ERROR("#BTAG# Failed to retrieve Muons through name: " << m_MuonContainerName);
+                ATH_MSG_ERROR("#BTAG# Failed to retrieve Muons through name: " << m_muonContainerName);
                 return StatusCode::FAILURE;
             }
 
@@ -113,9 +121,11 @@ namespace Analysis {
                 mpLinks.push_back(EL);
             }
 
-            tagInfo->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_MuonAssociationName) = mpLinks;
+            tagInfo->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_muonAssociationName) = mpLinks;
 
-            ATH_MSG_INFO("Attached mouns to jet as " + m_MuonAssociationName);
+            ATH_MSG_INFO("Attached mouns to jet as " + m_muonAssociationName);
+
+            continue;
         }
 
         return StatusCode::SUCCESS;

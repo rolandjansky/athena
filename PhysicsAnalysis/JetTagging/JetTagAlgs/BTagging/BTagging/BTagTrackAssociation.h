@@ -27,12 +27,12 @@ namespace Analysis
             virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets) const override;
 
         private:
-            std::string m_AssociatedTrackLinks;
-            std::string m_AssociatedMuonLinks;
-            std::string m_TrackContainerName;
-            std::string m_MuonContainerName;
-            std::string m_TrackAssociationName;
-            std::string m_MuonAssociationName;
+            std::string m_associatedTrackLinks;
+            std::string m_associatedMuonLinks;
+            std::string m_trackContainerName;
+            std::string m_muonContainerName;
+            std::string m_trackAssociationName;
+            std::string m_muonAssociationName;
 
     }; // End class
 
