@@ -89,7 +89,7 @@ namespace CP
 
     /// \brief the action to take
   private:
-    OutOfValidityAction m_action {OutOfValidityAction::ABORT};
+    unsigned m_action {unsigned (OutOfValidityAction::ABORT)};
 
     /// \brief the message stream we use
   private:

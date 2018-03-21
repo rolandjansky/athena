@@ -25,10 +25,10 @@ class UpgradePerformanceFunctionsxAOD : public UpgradePerformanceFunctions {
  public:
 
   /// Default constructor
-  UpgradePerformanceFunctionsxAOD();
+  UpgradePerformanceFunctionsxAOD( const std::string& name );
 
   /// Constructor specifing layout & mu
-  UpgradePerformanceFunctionsxAOD(UpgradeLayout layout, double avgMu);
+  UpgradePerformanceFunctionsxAOD( const std::string& name, UpgradeLayout layout, double avgMu);
 
   /// Destructor
   ~UpgradePerformanceFunctionsxAOD() {};

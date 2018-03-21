@@ -8,6 +8,7 @@
     <class name="JetModifierAlg" />  
     <class name="JetAssocConstAlg" />  
     <class name="JetParticleAssociation" />  
+    <class name="Analysis::JetPartonTruthLabel" />
     <class name="JetParticleShrinkingConeAssociation" />  
     <class name="JetParticleFixedConeAssociation" />  
     <class name="JetParticleCenterOfMassAssociation" />  

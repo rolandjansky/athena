@@ -13,6 +13,7 @@
 #include "ParticleJetTools/ParticleJetDeltaRLabelTool.h"
 #include "ParticleJetTools/JetModifierAlg.h"
 #include "ParticleJetTools/JetAssocConstAlg.h"
+#include "ParticleJetTools/JetPartonTruthLabel.h"
 #include "ParticleJetTools/JetParticleAssociation.h"
 #include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
