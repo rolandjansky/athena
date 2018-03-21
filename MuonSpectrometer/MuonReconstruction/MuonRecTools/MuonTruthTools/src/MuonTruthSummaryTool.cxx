@@ -6,7 +6,6 @@
 #include "MuonSegment/MuonSegment.h"
 #include "TrkTrack/Track.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "HepMC/GenParticle.h"
 #include <iostream>
 #include "TTree.h"
@@ -29,16 +28,11 @@ namespace Muon {
     m_level(0)
   {
     declareInterface<IMuonTruthSummaryTool>(this);
-    declareProperty("CSC_TruthName",    m_CSC_TruthName = "CSC_TruthMap");
-    declareProperty("RPC_TruthName",    m_RPC_TruthName = "RPC_TruthMap");
-    declareProperty("TGC_TruthName",    m_TGC_TruthName = "TGC_TruthMap");
-    declareProperty("MDT_TruthName",    m_MDT_TruthName = "MDT_TruthMap");
-    declareProperty("MM_TruthName",     m_MM_TruthName  = "MM_TruthMap");
-    declareProperty("STGC_TruthName",   m_STGC_TruthName = "STGC_TruthMap");
     declareProperty("WriteNtuple",      m_writeTree);
     declareProperty("NtupleTreeName",   m_treeName = "MuonTruthSummaryTree");
     declareProperty("HistStream",       m_histStream = "Summary");
     declareProperty("SelectedPdgId",    m_selectedPdgId = 13, "Should be positive as absolute value is used" );
+    declareProperty("UseNSW",           m_useNSW=false);
   }
 
   StatusCode  MuonTruthSummaryTool::initialize()
@@ -93,6 +87,13 @@ namespace Muon {
       ATH_MSG_WARNING("SelectedPdgId should be positive, taking the absolute value");
       m_selectedPdgId = abs(m_selectedPdgId);
     }
+
+    if(m_useNSW){
+      m_TruthNames.emplace_back("MM_TruthMap");
+      m_TruthNames.emplace_back("STGC_TruthMap");
+    }
+    else m_TruthNames.emplace_back("CSC_TruthMap");
+    ATH_CHECK(m_TruthNames.initialize());
     return StatusCode::SUCCESS;
   }
 
@@ -113,35 +114,25 @@ namespace Muon {
   }
 
   void MuonTruthSummaryTool::init() const {
-    getTruth(m_CSC_TruthName);
-    getTruth(m_RPC_TruthName);
-    getTruth(m_TGC_TruthName);
-    getTruth(m_MDT_TruthName);
-    getTruth(m_MM_TruthName);
-    getTruth(m_STGC_TruthName);
+    getTruth();
     
     m_wasInit = true;
     ATH_MSG_DEBUG(" Total collected muon truth hits " << m_truthHits.size() ); 
   }
 
-  void MuonTruthSummaryTool::getTruth(std::string name ) const {
-    const PRD_MultiTruthCollection* col = 0;
+  void MuonTruthSummaryTool::getTruth() const {
 
-    if( !evtStore()->contains<PRD_MultiTruthCollection>(name) ) return; 
-
-    if( evtStore()->retrieve(col, name).isFailure() || !col ) {
-      ATH_MSG_WARNING(  "PRD_MultiTruthCollection " << name << " NOT found");
-      return;
-    }
-    ATH_MSG_DEBUG(  "PRD_MultiTruthCollection " << name << " found");
-    PRD_MultiTruthCollection::const_iterator it = col->begin();
-    PRD_MultiTruthCollection::const_iterator it_end = col->end();
-    for( ;it!=it_end;++it ){
-      const HepMcParticleLink& link = it->second;
-      if( link.cptr() && 
-          (abs(link.cptr()->pdg_id()) ==  m_selectedPdgId || abs(link.cptr()->pdg_id()) == 13 ) ) {
-        m_truthHits[it->first] = link.cptr()->barcode();
-        m_pdgIdLookupFromBarcode[link.cptr()->barcode()]=link.cptr()->pdg_id();
+    for(SG::ReadHandle<PRD_MultiTruthCollection>& col : m_TruthNames.makeHandles()){
+      ATH_MSG_DEBUG(  "PRD_MultiTruthCollection " << col.key() << " found");
+      PRD_MultiTruthCollection::const_iterator it = col->begin();
+      PRD_MultiTruthCollection::const_iterator it_end = col->end();
+      for( ;it!=it_end;++it ){
+	const HepMcParticleLink& link = it->second;
+	if( link.cptr() && 
+	    (abs(link.cptr()->pdg_id()) ==  m_selectedPdgId || abs(link.cptr()->pdg_id()) == 13 ) ) {
+	  m_truthHits[it->first] = link.cptr()->barcode();
+	  m_pdgIdLookupFromBarcode[link.cptr()->barcode()]=link.cptr()->pdg_id();
+	}
       }
     }
   }
