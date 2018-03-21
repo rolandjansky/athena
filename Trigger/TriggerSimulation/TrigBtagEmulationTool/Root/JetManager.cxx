@@ -3,6 +3,9 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBtagEmulationTool/JetManager.h"
+#include "AthLinks/ElementLink.h"
+#include "AthLinks/ElementLinkVector.h"
+
 
 using namespace Trig;
 
@@ -32,7 +35,7 @@ JetManager::JetManager(std::string name,ToolHandle<Trig::TrigDecisionTool>& trig
   std::unique_ptr< xAOD::AuxContainerBase > btagging_Containers_Aux( new xAOD::AuxContainerBase() );
   m_btagging_Containers->setStore( btagging_Containers_Aux.release() );
 
-  m_primaryVertex_Containers = std::unique_ptr< xAOD::VertexContainer >( new xAOD::VertexContainer );
+  m_primaryVertex_Containers = std::unique_ptr< xAOD::VertexContainer >( new xAOD::VertexContainer() );
   std::unique_ptr< xAOD::AuxContainerBase > primaryVertex_Containers_Aux( new xAOD::AuxContainerBase() );
   m_primaryVertex_Containers->setStore( primaryVertex_Containers_Aux.release() );
 }
@@ -175,12 +178,12 @@ StatusCode JetManager::retagOffline() {
   if ( m_jet_Containers->size() == 0 ) return StatusCode::SUCCESS;
 
 #if !defined( XAOD_STANDALONE ) && !defined( XAOD_ANALYSIS )
+
   auto pv  = m_primaryVertex_Containers->begin();
   auto tp  = m_trackParticle_Containers.begin();
   auto out = m_outputJets.begin();
 
   for ( xAOD::Jet *jet : *m_jet_Containers.get() ) {
-
     // Create container for copied jets
     xAOD::JetContainer* output_jets = new xAOD::JetContainer(SG::OWN_ELEMENTS);
     xAOD::JetAuxContainer* output_jetsAux = new xAOD::JetAuxContainer;
@@ -224,10 +227,43 @@ StatusCode JetManager::retagOffline() {
       std::vector<xAOD::Jet*> jetsList;
       jetsList.push_back(output_jet);
 
-      printf("### WARNING ::: #BTAG# YOU ARE RUNNING THE BJET TRIGGER WHICH HAS A BROKEN TRACK ASSOCIATION!!!!\n");
-      printf("### WARNING ::: #BTAG# THIS WILL NOT WORK!!!!\n");
+      // ==========================================
+      // There is need of some work in order to accomodate the new track to jet associator interface
+      // Make a copy container
+      std::unique_ptr< xAOD::TrackParticleContainer > toBeSaved( new xAOD::TrackParticleContainer() );
+      std::unique_ptr< xAOD::AuxContainerBase > toBeSavedAux( new xAOD::AuxContainerBase() );
+      toBeSaved->setStore( toBeSavedAux.release() );
+
+      for ( const xAOD::TrackParticle *particle : *tp->get() ) {
+	xAOD::TrackParticle *newParticle = new xAOD::TrackParticle();
+	toBeSaved->push_back(newParticle);
+	*newParticle = *particle;
+      }
+
+      // Create Element Link
+      std::vector< ElementLink< xAOD::IParticleContainer > > toBeUsed;  
+      for ( const auto& particle : *toBeSaved.get() ) { 
+	ElementLink< xAOD::IParticleContainer > cellLink; 
+	cellLink.toContainedElement( *toBeSaved.get(),particle ); 
+	toBeUsed.push_back( cellLink );   
+      }
+
+      // Save this copy
+      if ( evtStore()->contains< xAOD::TrackParticleContainer >("TrigBtagEmulationTool_RetaggingTracks") )
+	CHECK( evtStore()->overwrite( toBeSaved.release(),"TrigBtagEmulationTool_RetaggingTracks" ) );
+      else 
+	CHECK( evtStore()->record( toBeSaved.release(),"TrigBtagEmulationTool_RetaggingTracks" ) );
+
+      if ( toBeUsed.size() == 0 ) {
+	ATH_MSG_ERROR("Did not find matched tracks");
+	return StatusCode::FAILURE;
+      }
+
+      output_jet->auxdata< std::vector< ElementLink< xAOD::IParticleContainer > > >("MatchedTracks") = toBeUsed;      
+      // ==========================================
 
       sc = (*m_bTagTrackAssocTool)->BTagTrackAssociation_exec(&jetsList);
+
     }
     else {
       ATH_MSG_WARNING( "#BTAG# Empty track association tool" );
@@ -268,7 +304,7 @@ StatusCode JetManager::retagOffline() {
     delete output_btags; delete output_btagsAux;
 
     // Increment
-    pv++; tp++; out++;
+    pv++; tp++; out++; 
   }
 #endif
   return StatusCode::SUCCESS;
