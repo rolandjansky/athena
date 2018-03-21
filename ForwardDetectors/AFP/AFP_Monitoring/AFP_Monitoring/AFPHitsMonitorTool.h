@@ -12,9 +12,7 @@
 #include <vector>
 #include <string>
 
-#include "AFP_Monitoring/AFPSiStationMonitor.h"
-#include "AFP_Monitoring/AFPSiLayerMonitor.h"
-
+#include "AFP_Monitoring/IAFPSiStationMonitor.h"
 
 class AFPHitsMonitorTool : public ManagedMonitorToolBase
 {
@@ -25,6 +23,8 @@ public:
 
   virtual ~AFPHitsMonitorTool();
 
+  StatusCode initialize() override;
+  
   StatusCode bookHistogramsRecurrent() override;
   StatusCode bookHistograms() override;
   StatusCode fillHistograms() override;
@@ -35,13 +35,14 @@ public:
 
 protected:
   const std::string m_histsDirectoryName; ///< name of directory for all histograms
-  
-  AFPSiStationMonitor m_cNearStation;		///< station on C side that is closer to the interaction point
-  AFPSiStationMonitor m_cFarStation;		///< station on C side that is further away from the interaction point
-  AFPSiStationMonitor m_aNearStation;		///< station on A side that is closer to the interaction point
-  AFPSiStationMonitor m_aFarStation;		///< station on A side that is further away from the interaction point
 
-  std::vector<AFPSiStationMonitor*> m_stationsMonitors;
+  
+  // AFPSiStationMonitor m_cNearStation;		///< station on C side that is closer to the interaction point
+  // AFPSiStationMonitor m_cFarStation;		///< station on C side that is further away from the interaction point
+  // AFPSiStationMonitor m_aNearStation;		///< station on A side that is closer to the interaction point
+  // AFPSiStationMonitor m_aFarStation;		///< station on A side that is further away from the interaction point
+
+  ToolHandleArray<IAFPSiStationMonitor> m_stationsMonitors;
   
   void makeLayerSummaryHist (const std::string inputHistName, const std::string outputHistName, const std::string outputHistTitle);
 };

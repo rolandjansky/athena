@@ -5,41 +5,50 @@
 #ifndef AFP_MONITORING_AFPSILAYERMONITOR_H
 #define AFP_MONITORING_AFPSILAYERMONITOR_H
 
-#include <xAODForward/AFPSiHit.h>
+#include "AFP_Monitoring/IAFPSiLayerMonitor.h"
 
-// forward declarations for lightweight histograms
+// FrameWork includes
+#include <xAODForward/AFPSiHit.h>
+#include "AthenaBaseComps/AthAlgTool.h"
+
+// forward declarations
 class LWHist2D;
 class TH1;
 
 class ManagedMonitorToolBase;
 
-class AFPSiLayerMonitor
+class AFPSiLayerMonitor : virtual public IAFPSiLayerMonitor, public AthAlgTool
 {
 public:
-  AFPSiLayerMonitor(const int pixelLayerID, const int stationID);
+  AFPSiLayerMonitor(const std::string& type,
+		    const std::string& name,
+		    const IInterface* parent);
   ~AFPSiLayerMonitor();
 
+  StatusCode initialize() override;
+  StatusCode finalize() override;
+  
   //  void bookHistogramsRecurrent(ManagedMonitorToolBase* toolToStoreHistograms);
-  void bookHistograms(ManagedMonitorToolBase* toolToStoreHistograms, std::string histsDirName = "");
-  void fillHistograms(const xAOD::AFPSiHit& hit);
-  void eventEnd();		///< method that should be called when event processing is finished
+  void bookHistograms(ManagedMonitorToolBase* toolToStoreHistograms, std::string histsDirName = "") override;
+  void fillHistograms(const xAOD::AFPSiHit& hit) override;
+  void eventEnd() override;		///< method that should be called when event processing is finished
 
-  void endOfLumiBlock(ManagedMonitorToolBase* toolToStoreHistograms); ///< Process histograms at the end of lumiblock
+  void endOfLumiBlock() override; ///< Process histograms at the end of lumiblock
 
   /// number of hits counted so far in the event
-  unsigned int hitsInEvent() const {return m_hitsInEvent;}
+  unsigned int hitsInEvent() const override {return m_hitsInEvent;}
 
-  int layerID () const {return m_pixelLayerID;}
+  int layerID () const override {return m_pixelLayerID;}
 
-  std::string makeHistName (const std::string name) const; ///< create a name suffixed with station and layer numbers
-  std::string makeHistTitle (const std::string title) const; ///< create a title suffixed with station and layer numbers
+  std::string makeHistName (const std::string name) const override; ///< create a name suffixed with station and layer numbers
+  std::string makeHistTitle (const std::string title) const override; ///< create a title suffixed with station and layer numbers
 
-  const std::string& histsDirName () const {return m_histsDirName;}
+  const std::string& histsDirName () const override {return m_histsDirName;}
 
 protected:
   // internal variables
-  const int m_pixelLayerID;
-  const int m_stationID;
+  int m_pixelLayerID;
+  int m_stationID;
 
   std::string m_histsDirName;
   

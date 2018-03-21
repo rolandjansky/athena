@@ -11,34 +11,41 @@
 
 #include "xAODForward/AFPStationID.h"
 
-#include "../AFP_Monitoring/AFPSiLayerMonitor.h"
+#include "AFP_Monitoring/AFPSiLayerMonitor.h"
 
-AFPSiLayerMonitor::AFPSiLayerMonitor(const int pixelLayerID, const int stationID)
-   : m_pixelLayerID (pixelLayerID)
-   ,m_stationID (stationID)
-   ,m_hitsInEvent (0)
-   ,m_hitMap(nullptr)
-   ,m_hitMultiplicity(nullptr)
-   ,m_timeOverThreshold(nullptr)
+AFPSiLayerMonitor::AFPSiLayerMonitor(const std::string& type,
+				     const std::string& name,
+				     const IInterface* parent) : 
+  AthAlgTool  (type, name, parent),
+  m_hitsInEvent (0),
+  m_hitMap(nullptr),
+  m_hitMultiplicity(nullptr),
+  m_timeOverThreshold(nullptr),
+  m_hitMultiplicityHotSpot(nullptr)
 {
-  m_hotSpotStartRow  = 0;
-  m_hotSpotEndRow = 50;
+  declareInterface<IAFPSiLayerMonitor>(this);
 
-  if (m_stationID == xAOD::AFPStationID::nearC || m_stationID == xAOD::AFPStationID::farC) {
-    m_hotSpotStartCol = 0;
-    m_hotSpotEndCol = 30;
-  }
-  else {
-    m_hotSpotStartCol = 50;
-    m_hotSpotEndCol = 80;
-  }
-
-  m_hitMultiplicityHotSpot = nullptr;
+  declareProperty("pixelLayerID", m_pixelLayerID = -1, "ID number of pixel layer.");
+  declareProperty("stationID", m_stationID = -1, "ID number of station in which is the monitored layer.");
+  
+  declareProperty("hotSpotStartRow", m_hotSpotStartRow = 0, "First row of the hot spot.");
+  declareProperty("hotSpotEndRow", m_hotSpotEndRow = 50, "Last row of the hot spot.");
+  declareProperty("hotSpotStartCol", m_hotSpotStartCol = 0, "First column of the hot spot.");
+  declareProperty("hotSpotEndCol", m_hotSpotEndCol = 30, "Last column of the hot spot.");
 }
-
 
 AFPSiLayerMonitor::~AFPSiLayerMonitor()
 {
+}
+
+StatusCode AFPSiLayerMonitor::initialize()
+{
+  return StatusCode::SUCCESS;
+}
+
+StatusCode AFPSiLayerMonitor::finalize()
+{
+  return StatusCode::SUCCESS;
 }
 
 // Description: Used for re-booking managed histograms       
@@ -131,7 +138,7 @@ void AFPSiLayerMonitor::eventEnd()
   m_hitsInEventHotSpot = 0;
 }
 
-void AFPSiLayerMonitor::endOfLumiBlock(ManagedMonitorToolBase* /* toolToStoreHistograms */)
+void AFPSiLayerMonitor::endOfLumiBlock()
 {
   
 }

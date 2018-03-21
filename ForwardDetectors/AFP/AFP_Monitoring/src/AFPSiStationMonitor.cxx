@@ -2,41 +2,49 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//#include <AsgTools/MsgStreamMacros.h>
+#include "AFP_Monitoring/AFPHitsMonitorTool.h"
+#include "AFP_Monitoring/IAFPSiLayerMonitor.h"
+#include "AFP_Monitoring/AFPSiStationMonitor.h"
 
 #include <sstream>
 
-#include <LWHists/TH1F_LW.h>
-#include <LWHists/TH2F_LW.h>
-
-#include "../AFP_Monitoring/AFPHitsMonitorTool.h"
-#include "../AFP_Monitoring/AFPSiLayerMonitor.h"
-#include "../AFP_Monitoring/AFPSiStationMonitor.h"
-
-const int AFPSiStationMonitor::s_firstLayerIndex = 0;
-const int AFPSiStationMonitor::s_secondLayerIndex = 1;
-const int AFPSiStationMonitor::s_thirdLayerIndex = 2;
-const int AFPSiStationMonitor::s_fourthLayerIndex = 3;
-
-
-AFPSiStationMonitor::AFPSiStationMonitor(const int stationID)
-  : m_stationID (stationID)
-  , m_firstLayer (nullptr)
-  , m_secondLayer (nullptr)
-  , m_thirdLayer (nullptr)
-  , m_fourthLayer (nullptr)
+AFPSiStationMonitor::AFPSiStationMonitor(const std::string& type,
+					 const std::string& name,
+					 const IInterface* parent) : 
+  AthAlgTool  (type, name, parent)
 {
-  m_firstLayer = createAndAddLayerMonitor(s_firstLayerIndex);
-  m_secondLayer = createAndAddLayerMonitor(s_secondLayerIndex);
-  m_thirdLayer = createAndAddLayerMonitor(s_thirdLayerIndex);
-  m_fourthLayer = createAndAddLayerMonitor(s_fourthLayerIndex);
+  declareInterface<IAFPSiStationMonitor>(this);
+
+  declareProperty("stationID", m_stationID = -1, "ID number of station in which is the monitored layer.");
+  declareProperty("layersMonitors", m_layersMonitors, "Array of tools monitoring layers.");
 }
 
+StatusCode AFPSiStationMonitor::initialize()
+{
+  ATH_MSG_WARNING("GACH DEBU m_layersMonitors.size = " << m_layersMonitors.size());
+  if (m_layersMonitors.size() != 0) {
+    // loop over tools
+    for (ToolHandle<IAFPSiLayerMonitor>& layerMon : m_layersMonitors) {
+      // retrieve tools
+      if (layerMon.retrieve().isFailure())
+	ATH_MSG_WARNING("Failed to retrieve layerMon " << layerMon);
+      else
+	ATH_MSG_WARNING("GACH DEBU retrieved " << layerMon);
+    }
+  }
+  else
+    ATH_MSG_WARNING("No layers monitors in station "<<m_stationID);
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode AFPSiStationMonitor::finalize()
+{
+  return StatusCode::SUCCESS;
+}
 
 AFPSiStationMonitor::~AFPSiStationMonitor()
 {
-  for (AFPSiLayerMonitor* layerMonitor : m_layersMonitors)
-    delete layerMonitor;
 }
 
 // Description: Used for re-booking managed histograms       
@@ -54,7 +62,7 @@ void AFPSiStationMonitor::bookHistograms(AFPHitsMonitorTool* toolToStoreHistogra
   histsDirName += makeName("");
 
   // register histograms in layers
-  for (AFPSiLayerMonitor* layerMonitor : m_layersMonitors)
+  for (ToolHandle<IAFPSiLayerMonitor>& layerMonitor : m_layersMonitors)
     layerMonitor->bookHistograms(toolToStoreHistograms, histsDirName);
 }
 
@@ -63,25 +71,17 @@ void AFPSiStationMonitor::bookHistograms(AFPHitsMonitorTool* toolToStoreHistogra
 void AFPSiStationMonitor::fillHistograms(const xAOD::AFPSiHit& hit)
 {
   const int hitLayerID = hit.pixelLayerID();
-  for (AFPSiLayerMonitor* layerMonitor : m_layersMonitors)
+  for (ToolHandle<IAFPSiLayerMonitor> layerMonitor : m_layersMonitors)
     if (layerMonitor->layerID() == hitLayerID) {
       layerMonitor->fillHistograms(hit);
       break;
     }
 }
 
-AFPSiLayerMonitor* AFPSiStationMonitor::createAndAddLayerMonitor (const int layerID)
-{
-  AFPSiLayerMonitor* newMonitor = new AFPSiLayerMonitor (layerID, m_stationID);
-  m_layersMonitors.push_back(newMonitor);
-
-  return newMonitor;
-}
-
 void AFPSiStationMonitor::eventEnd()
 {
   // must be at the end because it zeroes hitsInEvent
-  for (AFPSiLayerMonitor* layerMonitor : m_layersMonitors)
+  for (ToolHandle<IAFPSiLayerMonitor> layerMonitor : m_layersMonitors)
     layerMonitor->eventEnd();
 }
 
@@ -89,8 +89,8 @@ void AFPSiStationMonitor::eventEnd()
 void AFPSiStationMonitor::endOfLumiBlock(AFPHitsMonitorTool* toolToStoreHistograms)
 {
   // Calls endOfLumiBlock on each layer.
-  for (AFPSiLayerMonitor* layer : m_layersMonitors)
-    layer->endOfLumiBlock(toolToStoreHistograms);
+  for (ToolHandle<IAFPSiLayerMonitor> layer : m_layersMonitors)
+    layer->endOfLumiBlock();
 }
 
 std::string AFPSiStationMonitor::makeName (const std::string name) const

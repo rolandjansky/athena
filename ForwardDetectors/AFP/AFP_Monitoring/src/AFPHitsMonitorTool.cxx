@@ -18,31 +18,45 @@
 #include <xAODForward/AFPSiHitContainer.h>
 
 #include "AFP_Monitoring/AFPHitsMonitorTool.h"
-#include "AFP_Monitoring/AFPSiStationMonitor.h"
-#include "AFP_Monitoring/AFPSiLayerMonitor.h"
+#include "AFP_Monitoring/IAFPSiStationMonitor.h"
+#include "AFP_Monitoring/IAFPSiLayerMonitor.h"
 
 
 
 AFPHitsMonitorTool::
 AFPHitsMonitorTool( const std::string & type, const std::string & name,
       const IInterface* parent )
-   : ManagedMonitorToolBase( type, name, parent )
-   , m_histsDirectoryName ("AFP/")
-   , m_cNearStation (xAOD::AFPStationID::nearC)
-   , m_cFarStation (xAOD::AFPStationID::farC)
-   , m_aNearStation (xAOD::AFPStationID::nearA)
-   , m_aFarStation (xAOD::AFPStationID::farA)
+  : ManagedMonitorToolBase( type, name, parent ),
+    m_histsDirectoryName ("AFP/")
 {
-  m_stationsMonitors.push_back(&m_aFarStation);
-  m_stationsMonitors.push_back(&m_aNearStation);
-  m_stationsMonitors.push_back(&m_cNearStation);
-  m_stationsMonitors.push_back(&m_cFarStation);
+  declareProperty("stationsMonitors", m_stationsMonitors, "Array of station monitors.");
 }
 
 
 AFPHitsMonitorTool::
 ~AFPHitsMonitorTool()
 {
+}
+
+StatusCode AFPHitsMonitorTool::initialize()
+{
+  ATH_MSG_WARNING("GACH DEBU m_stationsMonitors.size = " << m_stationsMonitors.size());
+  
+  if (m_stationsMonitors.size() != 0) {
+    // loop over tools
+    for (ToolHandle<IAFPSiStationMonitor>& stationMon : m_stationsMonitors) {
+      if (stationMon.retrieve().isFailure())
+	ATH_MSG_WARNING("Failed to retrieve AlgTool " << stationMon);
+      else
+	ATH_MSG_WARNING("GACH DEBU retrieved " << stationMon);
+    }
+  }
+  else {
+    ATH_MSG_ERROR("No station monitors defined. Aborting.");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 // Description: Used for rebooking unmanaged histograms       
@@ -54,7 +68,7 @@ StatusCode AFPHitsMonitorTool::bookHistogramsRecurrent()
 // Description: Used for re-booking managed histograms       
 StatusCode AFPHitsMonitorTool::bookHistograms()
 {
-  for (AFPSiStationMonitor* station : m_stationsMonitors)
+  for (ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
     station->bookHistograms(this);
 
   return StatusCode::SUCCESS;
@@ -67,7 +81,7 @@ StatusCode AFPHitsMonitorTool::fillHistograms()
 
   for (const xAOD::AFPSiHit* hit : *afpHitContainer) {
     bool matchStation = false;
-    for (AFPSiStationMonitor* station : m_stationsMonitors)
+    for (ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
       if (station->stationID() == hit->stationID()) {
   	station->fillHistograms(*hit);
   	matchStation = true;
@@ -78,7 +92,7 @@ StatusCode AFPHitsMonitorTool::fillHistograms()
       ATH_MSG_WARNING("Unrecognised station index: "<<hit->stationID());
   }
 
-  for (AFPSiStationMonitor* station : m_stationsMonitors)
+  for (ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
     station->eventEnd();
       
   return StatusCode::SUCCESS;
@@ -91,7 +105,7 @@ void AFPHitsMonitorTool::makeLayerSummaryHist (const std::string inputHistName, 
 
   // make histogram
   int totalPlanes = 0;
-  for (AFPSiStationMonitor* station : m_stationsMonitors)
+  for (const ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
     totalPlanes += station->layersMonitors().size();
   
   TProfile* outputHist = new TProfile(outputHistName.data(),
@@ -102,8 +116,8 @@ void AFPHitsMonitorTool::makeLayerSummaryHist (const std::string inputHistName, 
 
   TAxis* axis = outputHist->GetXaxis();
   int binCounter = 1;
-  for (const AFPSiStationMonitor* station : m_stationsMonitors)
-    for (const AFPSiLayerMonitor* layer : station->layersMonitors()) {
+  for (const ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
+    for (const ToolHandle<IAFPSiLayerMonitor>& layer : station->layersMonitors()) {
       std::stringstream binName;
       binName<<"st."<<station->stationID();
       binName<<"/lay."<<layer->layerID();
@@ -135,7 +149,7 @@ StatusCode AFPHitsMonitorTool::procHistograms( )
 {
   if( endOfLumiBlockFlag() ) {
 
-    for (AFPSiStationMonitor* station : m_stationsMonitors)
+    for (ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
       station->endOfLumiBlock(this);
 
     makeLayerSummaryHist ("h_hitMultiplicity",

@@ -5,57 +5,49 @@
 #ifndef AFP_MONITORING_AFPSISTATIONMONITOR_H
 #define AFP_MONITORING_AFPSISTATIONMONITOR_H
 
-#include <vector>
-#include <string>
+#include "AFP_Monitoring/IAFPSiStationMonitor.h"
+#include "AFP_Monitoring/IAFPSiLayerMonitor.h"
 
 #include <xAODForward/AFPSiHit.h>
 
-// forward declarations for lightweight histograms
-class LWHist1D;
-class LWHist2D;
+#include "AthenaBaseComps/AthAlgTool.h"
 
+#include <string>
+
+// forward declarations
 class AFPHitsMonitorTool;
 class AFPSiLayerMonitor;
 
-class AFPSiStationMonitor
+class AFPSiStationMonitor : virtual public IAFPSiStationMonitor, public AthAlgTool
 {
 public:
-
-  AFPSiStationMonitor(const int stationID);
+  AFPSiStationMonitor(const std::string& type,
+		      const std::string& name,
+		      const IInterface* parent);
   ~AFPSiStationMonitor();
 
+  StatusCode initialize() override;
+  StatusCode finalize() override;
+
   //  void bookHistogramsRecurrent(ManagedMonitorToolBase* toolToStoreHistograms);
-  void bookHistograms(AFPHitsMonitorTool* toolToStoreHistograms);
-  void fillHistograms(const xAOD::AFPSiHit& hit);
-  void eventEnd();		///< method to call eventEnd in layers
+  void bookHistograms(AFPHitsMonitorTool* toolToStoreHistograms) override;
+  void fillHistograms(const xAOD::AFPSiHit& hit) override;
+  void eventEnd() override;		///< method to call eventEnd in layers
 
-  void endOfLumiBlock(AFPHitsMonitorTool* toolToStoreHistograms); ///< process histograms at the end of lumi block
+  void endOfLumiBlock(AFPHitsMonitorTool* toolToStoreHistograms) override; ///< process histograms at the end of lumi block
 
-  int stationID () const {return m_stationID;}
-  const std::vector<AFPSiLayerMonitor*>& layersMonitors () const {return m_layersMonitors;}
+  int stationID () const override {return m_stationID;}
+  const ToolHandleArray<IAFPSiLayerMonitor>& layersMonitors () const override {return m_layersMonitors;}
 
+  std::string makeName (const std::string name) const override;
+  std::string makeTitle (const std::string title) const override;
 
 protected:
-  AFPSiLayerMonitor* createAndAddLayerMonitor(const int layerID);
-  std::string makeName (const std::string name) const;
-  std::string makeTitle (const std::string title) const;
-
-  static const int s_firstLayerIndex;
-  static const int s_secondLayerIndex;
-  static const int s_thirdLayerIndex;
-  static const int s_fourthLayerIndex;
-  
   // internal variables
-  const int m_stationID;
+  int m_stationID;
 
   // layers
-  std::vector<AFPSiLayerMonitor*> m_layersMonitors;
-  AFPSiLayerMonitor* m_firstLayer;
-  AFPSiLayerMonitor* m_secondLayer;
-  AFPSiLayerMonitor* m_thirdLayer;
-  AFPSiLayerMonitor* m_fourthLayer;
-
-  // histograms
+  ToolHandleArray<IAFPSiLayerMonitor> m_layersMonitors;
 };
 
 #endif
