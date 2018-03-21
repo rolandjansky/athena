@@ -227,25 +227,6 @@ namespace MuonGM {
 
     // AGDDParameterBagsTGCTech* parameterBagTech = dynamic_cast<AGDDParameterBagsTGCTech*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(stgc->GetName()));
 
-    /* This is where we Calculate the active values of A and B from the given values A and B included in the xml file.
-     * In the Parameter book, A is derived from ActiveA. We simply reverse the procedure here.
-     * To see the calculation, refer to Parameter Book. */
-
-    double activeA;
-    double activeB;
-    double phi;
-
-    /* The current version of the xml file used to get the sTGC parameters
-     * does not include the opening angle to the sTGC.
-     * As such, we can not directly read these values */
-    if (sector_l == 'L') phi = 28.; // if stgc sector is large
-    else if (sector_l == 'S') phi = 17.; // if stgc sector is small
-    else {
-      phi = 0.; 
-      reLog()<<MSG::ERROR <<"Failed To get if Large or Small sector for stgc element :" << stgc->GetName() << endmsg;      
-    }
-    double halfphi = (phi / 2) * (M_PI /180.0); // Calculates phi/2 in radians
-
     /* Here we define a new variable called m_sTGC_type.
      * It is to be used when creating the sTGC trapezoid geometry.
      * Currently, the default trapezoid surface class creates a geometry which is
@@ -260,12 +241,6 @@ namespace MuonGM {
     if (quadNo == "3" && sector_l == 'L') m_sTGC_type = 3; // if its QL3P or QL3C
     else if (quadNo == "1") m_sTGC_type = 1;
     else m_sTGC_type = 2;
-
-    // The values of A and B active should be taken directly from parameter book
-    activeA = sWidth - 2 * (1./cos(halfphi) * xFrame - tan(halfphi)*ysFrame);
-    if (m_sTGC_type == 3) // if cut-off trapezoid
-      activeB = lWidth - 2 * xFrame;
-    else activeB = lWidth - 2 * (1./cos(halfphi) * xFrame + tan(halfphi)*ylFrame);
 
     // This block here was moved from another place in code in order to reduce repetitions 
     m_halfX=std::vector<double>(m_nlayers);
@@ -292,20 +267,20 @@ namespace MuonGM {
       m_etaDesign[il].xLength  = length;
       m_etaDesign[il].ysFrame  = ysFrame;
       m_etaDesign[il].ylFrame  = ylFrame;
-      m_etaDesign[il].minYSize = activeA;
-      m_etaDesign[il].maxYSize = activeB;
+      m_etaDesign[il].minYSize = roParam.sStripWidth;
+      m_etaDesign[il].maxYSize = roParam.lStripWidth;;
 
       m_halfX[il] = (length - ysFrame - ylFrame)/2.0;
-      m_minHalfY[il] = activeA/2.0;
-      m_maxHalfY[il] = activeB/2.0;
+      m_minHalfY[il] = roParam.sStripWidth/2.0;
+      m_maxHalfY[il] = roParam.lStripWidth/2.0;
       
       m_etaDesign[il].deadO = 0.;
       m_etaDesign[il].deadI = 0.;
       m_etaDesign[il].deadS = 0.;
 
-      m_etaDesign[il].inputPitch = 3.2; // parameterBagTech->stripPitch;
+      m_etaDesign[il].inputPitch = stgc->stripPitch(); // parameterBagTech->stripPitch;
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
-      m_etaDesign[il].inputWidth = 2.7; // parameterBagTech->stripWidth;
+      m_etaDesign[il].inputWidth = stgc->stripPitch() - .5; // parameterBagTech->stripWidth;
       if (!tech){
 	reLog()<<MSG::ERROR <<"Failed To get Technology for stgc element :" << stgc->GetName() << endmsg;      
 	m_etaDesign[il].thickness = 0;
@@ -344,7 +319,7 @@ namespace MuonGM {
       m_phiDesign[il].deadI = 0.;
       m_phiDesign[il].deadS = 0.;
 
-      m_phiDesign[il].inputPitch = 1.8; // parameterBagTech->wirePitch;
+      m_phiDesign[il].inputPitch = stgc->wirePitch(); // parameterBagTech->wirePitch;
       m_phiDesign[il].inputLength = m_phiDesign[il].xSize;
       m_phiDesign[il].inputWidth = 0.015; // parameterBagTech->wireWidth;
       m_phiDesign[il].thickness = stgc->Tck();
