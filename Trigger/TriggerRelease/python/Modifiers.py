@@ -447,6 +447,9 @@ class forceTileRODMap(_modifier):
         if _run_number<318000:  # use old readout scheme (default is new one)
             log.info('Reverting to pre-2017 Tile ROD map')
             svcMgr.ToolSvc.TileROD_Decoder.fullTileMode=0
+        if _run_number>=343000:  # use 2018 version of cabling after 31-Jan-2018
+            log.info('Setting RUN2a (2018) cabling in TileCal')
+            svcMgr.TileCablingSvc.CablingType=5
 
 
 

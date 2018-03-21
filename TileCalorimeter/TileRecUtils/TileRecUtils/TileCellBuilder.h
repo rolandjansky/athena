@@ -53,6 +53,7 @@
 class TileID;
 class TileTBID;
 class TileHWID;
+class TileCablingService;
 class TileCell;
 class TileRawChannel;
 class MbtsDetDescrManager;
@@ -193,6 +194,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     const TileID* m_tileID;   //!< Pointer to TileID
     const TileTBID* m_tileTBID; //!< Pointer to TileTBID
     const TileHWID* m_tileHWID; //!< Pointer to TileHWID
+    const TileCablingService* m_cabling; //!< TileCabling instance
     const TileDQstatus* m_DQstatus;
 
     ToolHandle<ITileBadChanTool> m_tileBadChanTool; //!< Tile Bad Channel tool
