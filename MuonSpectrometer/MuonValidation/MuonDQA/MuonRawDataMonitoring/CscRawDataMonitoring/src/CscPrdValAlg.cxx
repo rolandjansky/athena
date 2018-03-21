@@ -17,12 +17,10 @@
 // Athena include(s)
 #include "CscRawDataMonitoring/CscPrdValAlg.h"
 #include "MuonPrepRawData/CscStripPrepDataCollection.h"
-#include "MuonPrepRawData/CscStripPrepDataContainer.h"
 #include "MuonPrepRawData/CscStripPrepData.h"
 
 #include "CscClusterization/ICscStripFitter.h"
 #include "MuonIdHelpers/CscIdHelper.h"
-#include "xAODEventInfo/EventInfo.h"
 
 // ROOT include(s)
 #include "TClass.h"
@@ -77,7 +75,6 @@ CscPrdValAlg::CscPrdValAlg(const std::string & type, const std::string & name,
 
   declareProperty("CSCStripFitter", m_stripFitter);
   declareProperty("CSCPrepRawDataPath", m_cscPRDPath = "Muon/MuonRawDataMonitoring/CSC/PRD");
-  declareProperty("CSCPrepRawDataKey", m_cscPrdKey = "CSC_Measurements");
   declareProperty("NoiseCutADC", m_cscNoiseCut = 50);
   declareProperty("MapYXandRZ", m_mapxyrz = false);
 
@@ -132,12 +129,8 @@ StatusCode CscPrdValAlg::initialize() {
     ATH_MSG_DEBUG( "CscPrdValAlg " << name() << ": retrieved " << m_stripFitter );
   }
 
-  // retrieve the active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR(" Cannot get ActiveStoreSvc " );
-    return sc ;
-  }
+  ATH_CHECK(m_cscPrdKey.initialize());
+  ATH_CHECK(m_eventInfo.initialize());
 
   ManagedMonitorToolBase::initialize().ignore();  // Ignore the checking code;
   return StatusCode::SUCCESS;
@@ -485,22 +478,10 @@ StatusCode CscPrdValAlg::fillHistograms()  {
   // Part 1: Get the messaging service, print where you are
   ATH_MSG_DEBUG( "CscPrdValAlg: in fillHistograms" );
 
-  const DataHandle<CscStripPrepDataContainer> CscPRD(0);
-
-  StatusCode sc(evtStore()->contains<CscStripPrepDataContainer>(m_cscPrdKey));
-  if(sc.isFailure() || m_cscPrdKey == "") {
-    ATH_MSG_WARNING (  "PRD container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPrdKey << "\" NOT found in StoreGate" );
-    return sc;
-  } else {
-    sc = evtStore()->retrieve(CscPRD, m_cscPrdKey);
-    if( sc.isFailure() ) {
-      ATH_MSG_WARNING ( "Could not retrieve PRD container of type Muon::CscStripPrepDataContainer and key \"" << m_cscPrdKey << "\"" );
-      return sc;
-    }
-  }
+  SG::ReadHandle<CscStripPrepDataContainer> CscPRD(m_cscPrdKey);
 
   //Get lumiblock info
-  sc = fillLumiBlock();
+  StatusCode sc = fillLumiBlock();
   if( sc.isFailure() ){
     ATH_MSG_ERROR( "Could Not Get LumiBlock Info" );
     return sc;
@@ -782,17 +763,10 @@ StatusCode CscPrdValAlg::procHistograms() {
 
     m_lumiblock = -1;
 
-    const xAOD::EventInfo* evt(0);
-
-    StatusCode sc = StatusCode::SUCCESS;
-    sc = (*m_activeStore)->retrieve(evt);
-    if (sc.isFailure() || evt==0){
-      ATH_MSG_ERROR("Could not find Event Info");
-      return sc;
-    }
+    SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo);
 
     m_lumiblock = evt->lumiBlock();
 
-    return sc;
+    return StatusCode::SUCCESS;
 
   }
