@@ -81,7 +81,7 @@ hlt_jetDepbinhi = [ 6.0 ]
 # 4-Feb-2015 Modified to match default naming scheme for menu-aware monitoring
 
 # L1 items   
-hlt_primary_l1jet                 = [ 'L1_J15' ]
+hlt_primary_l1jet             = [ 'L1_J15' ]
 hlt_level1EtThresholds        = { 'L1_J15':50. }
 hlt_level1EtNBins             = [ 40 ]
 hlt_level1EtBinsLow           = [ 0. ]

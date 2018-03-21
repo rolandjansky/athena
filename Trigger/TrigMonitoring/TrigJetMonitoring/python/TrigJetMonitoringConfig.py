@@ -86,27 +86,17 @@ hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets"}
 
 # L1 items   
 hlt_level1EtThresholds        = {'L1_J75':30.}
-
 hlt_l1EtaLowThresholds        = {'L1_J75':0.}
-
-
-hlt_l1EtaHighThresholds        = {'L1_J75':4.9}
+hlt_l1EtaHighThresholds       = {'L1_J75':4.9}
 
 
 # HLT items
 hlt_hltEtThresholds={'j360':250.}
-
 hlt_hltEtaHighThresholds={'j360':3.2}
-
 hlt_hltEtaLowThresholds={'j360':0.}
-
-
 hlt_hltJetn={'j360':1}
-  
-  
 hlt_hltContainers={'j360':'a4tcemsubjesISFS'}
-  
-                
+
 # Offline 
 hlt_offlineEtThresholds={'j360':250.}
 #Dijet chains
@@ -120,11 +110,11 @@ hlt_offlineEtThresholds={'j360':250.}
 
 if (pp) or (mc):
 
-  hlt_JetKeys = { "a10tclcwsubFS"   : "HLT_xAOD__JetContainer_a10tclcwsubFS",
-                  "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
+  hlt_JetKeys = { "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                   "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
-                  "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
+                  "a4tcemsubjesFS"     : "HLT_xAOD__JetContainer_a4tcemsubjesFS", 
                   "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
+                  "a4tcemnojcalibFS"     : "HLT_xAOD__JetContainer_a4tcemnojcalibFS", 
                   "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
                   #"a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
                   #"a10rtcemsubjesFS"   : "HLT_xAOD__JetContainer_a10r_tcemsubjesFS",
@@ -154,7 +144,6 @@ if (pp) or (mc):
                                     'L1_J100.31ETA49':3.1,
                                     'L1_J400':0.}
   
-  
   hlt_l1EtaHighThresholds        = { 'L1_J10':4.9,
                                      'L1_TE50':4.9,
                                      'L1_J15':4.9,
@@ -162,16 +151,25 @@ if (pp) or (mc):
                                      'L1_J100':4.9,
                                      'L1_J100.31ETA49':4.9,
                                      'L1_J400':4.9}
-  
-  
+    
 # HLT items
-  hlt_hltEtThresholds            = { 'j25':20.,
-                                     'j25_320eta490':20.,
-                                     'j60':50., 
-                                     'j60_L1RD0_FILLED':50.,
+  hlt_hltEtThresholds            = { 'j35':20.,
+                                     'j35_jes':20.,
+                                     'j35_lcw':20.,
+                                     'j35_jes':20.,
+                                     'j35_sub':20.,
+                                     'j35_subjes':20.,
+                                     'j35_nojcalib':20.,
+                                     'j35_320eta490':20.,
+                                     'j35_320eta490_lcw':20.,
+                                     'j35_320eta490_jes':20.,
+                                     'j35_320eta490_sub':20.,
+                                     'j35_320eta490_subjes':20.,
+                                     'j35_320eta490_nojcalib':20.,
+                                     'j60':50.,
                                      'j60_280eta320':50.,
                                      'j60_320eta490':50.,
-                                     'j200_jes_PS':100.,
+                                     'j60_L1RD0_FILLED':50.,
                                      'j260':150.,
                                      'j360':250.,
                                      'j420':250.,
@@ -314,14 +312,23 @@ if (pp) or (mc):
                                      '10j40_L14J20':'a4tcemsubjesISFS'}
                 
 # Offline 
-  hlt_offlineEtThresholds        = { 'L1_J15':10., 
-                                     'j25':20.,
-                                     'j25_320eta490':20., 
-                                     'j60':50.  , 
-                                     'j60_L1RD0_FILLED':50.,
+  hlt_offlineEtThresholds        = { 'L1_J15':0., 
+                                     'j35_jes':20.,
+                                     'j35_lcw':20.,
+                                     'j35_jes':20.,
+                                     'j35_sub':20.,
+                                     'j35_subjes':20.,
+                                     'j35_nojcalib':20.,
+                                     'j35_320eta490':20.,
+                                     'j35_320eta490_lcw':20.,
+                                     'j35_320eta490_jes':20.,
+                                     'j35_320eta490_sub':20.,
+                                     'j35_320eta490_subjes':20.,
+                                     'j35_320eta490_nojcalib':20.,
+                                     'j60':50.,
                                      'j60_280eta320':50.,
                                      'j60_320eta490':50.,
-                                     'j200_jes_PS':100.,
+                                     'j60_L1RD0_FILLED':50.,
                                      'j260':150.,
                                      'j360':250.,
                                      'j420':250.,

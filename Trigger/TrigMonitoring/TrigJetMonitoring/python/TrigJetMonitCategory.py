@@ -11,7 +11,6 @@ monitoring_l1jet = [ 'L1_J10',
                      'L1_J100.31ETA49',
                      'L1_J400']
 
-
 monitoring_jet = ['j35',
                   'j35_jes',
                   'j35_lcw',
@@ -25,7 +24,10 @@ monitoring_jet = ['j35',
                   'j35_320eta490_sub',
                   'j35_320eta490_subjes',
                   'j35_320eta490_nojcalib',
-                  'j60', 
+                  'j60',
+                  'j60_280eta320',
+                  'j60_320eta490',
+                  'j60_L1RD0_FILLED',
                   'j260',
                   'j360',
                   'j420',
@@ -65,6 +67,7 @@ primary_jet = ['j35',
                'j60',
                'j60_280eta320',
                'j60_320eta490',
+               'j60_L1RD0_FILLED',
                'j260',
                'j360',
                'j420',
@@ -90,6 +93,7 @@ monitoring_l1jet_pp = [ 'L1_J10',
                         'L1_J100.31ETA49',
                         'L1_J400']
 
+
 monitoring_jet_pp = ['j35',
                      'j35_jes',
                      'j35_lcw',
@@ -106,6 +110,7 @@ monitoring_jet_pp = ['j35',
                      'j60',
                      'j60_280eta320',
                      'j60_320eta490',
+                     'j60_L1RD0_FILLED',
                      'j260',
                      'j360',
                      'j420',
@@ -129,10 +134,6 @@ primary_l1jet_pp = ['L1_J10',
                     'L1_J100.31ETA49',
                     'L1_J400']
 
-monitoring_jet_validation = ['j25',
-                             'j25_320eta490',
-                             'j60', 
-                             'j60_L1RD0_FILLED',
 primary_jet_pp = ['j35',
                   'j35_jes',
                   'j35_lcw',
@@ -149,6 +150,7 @@ primary_jet_pp = ['j35',
                   'j60',
                   'j60_280eta320',
                   'j60_320eta490',
+                  'j60_L1RD0_FILLED',
                   'j260',
                   'j360',
                   'j420',
@@ -192,6 +194,9 @@ monitoring_jet_validation = ['j35',
                              'j60',
                              'j60_280eta320',
                              'j60_320eta490',
+                             'j60_L1RD0_FILLED',
+                             'j260',
+                             'j360',
                              'j420',
                              #'j225_gsc420_boffperf_split',
                              'j460_a10_lcw_subjes_L1SC111',
@@ -213,6 +218,7 @@ primary_l1jet_validation = ['L1_J10',
                             'L1_J100.31ETA49',
                             'L1_J400']
 
+
 primary_jet_validation = ['j35',
                           'j35_320eta490',
                           'j35_jes',
@@ -225,6 +231,7 @@ primary_jet_validation = ['j35',
                           'j60',
                           'j60_280eta320',
                           'j60_320eta490',
+                          'j60_L1RD0_FILLED',
                           'j260',
                           'j360',
                           'j420',
@@ -256,9 +263,6 @@ primary_jet_cosmic = ['j25']
 
 ###################################### HI Config #######################################
 
-
-
-
 monitoring_l1jet_hi = ['L1_J10',
                        'L1_TE50',
                        'L1_J15',
@@ -267,8 +271,6 @@ monitoring_l1jet_hi = ['L1_J10',
                        'L1_J100.31ETA49',
                        'L1_J20',
                        'L1_J400'] 
-
-                     
 
 monitoring_jet_hi = ['j25',
                      'j25_320eta490',
@@ -311,8 +313,6 @@ primary_l1jet_hi = ['L1_J10',
                     'L1_J20',
                     'L1_J400'] 
                      
-                     
-
 primary_jet_hi = ['j25',
                   'j25_320eta490',
                   'j60', 
@@ -343,6 +343,4 @@ primary_jet_hi = ['j25',
                   'j45_320eta490_ion',
                   'j45_320eta490',
                   'j50_ion_2j30_ion_0eta490_L1J10',
-                  'j50_2j30_0eta490_L1J10'] 
-
-
+                  'j50_2j30_0eta490_L1J10']
