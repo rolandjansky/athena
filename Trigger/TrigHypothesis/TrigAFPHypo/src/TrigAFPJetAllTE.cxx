@@ -41,7 +41,7 @@ TrigAFPJetAllTE::TrigAFPJetAllTE(const std::string& name, ISvcLocator* pSvcLocat
                   "Shift due to alignment in x for protons in near station A .");
   declareProperty("alignmentCorrection_nearC", m_alignmentCorrection_nearC = 0,
 		  "Shift due to alignment in x for protons in near station C .");
-  declareProperty("requireDoubleTag", m_requireDoubleTag = "true",
+  declareProperty("requireDoubleTag", m_requireDoubleTag = true,
 		  "Determine if a single or double tag is required in the hypo decision");
 
 
