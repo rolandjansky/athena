@@ -542,13 +542,6 @@ namespace ST {
     double m_muCosmicd0;
     double m_badmuQoverP;
 
-    std::string m_trig2015combination_diLep;
-    std::string m_trig2016combination_diLep;
-    std::string m_trig2017combination_diLep;
-    std::string m_trig2015combination_multiLep;
-    std::string m_trig2016combination_multiLep;
-    std::string m_trig2017combination_multiLep;
-
     double m_photonBaselinePt;
     double m_photonBaselineEta;
     double m_photonEta;
@@ -717,7 +710,13 @@ namespace ST {
     asg::AnaToolHandle<IMETSystematicsTool> m_metSystTool;
     asg::AnaToolHandle<IMETSignificance> m_metSignif;
     //
+    std::string m_trig2015combination_diLep;
+    std::string m_trig2016combination_diLep;
+    std::string m_trig2017combination_diLep;
     asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_trigGlobalEffCorrTool_diLep;
+    std::string m_trig2015combination_multiLep;
+    std::string m_trig2016combination_multiLep;
+    std::string m_trig2017combination_multiLep;
     asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_trigGlobalEffCorrTool_multiLep;
     asg::AnaToolHandle<TrigConf::ITrigConfigTool> m_trigConfTool;
     asg::AnaToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
