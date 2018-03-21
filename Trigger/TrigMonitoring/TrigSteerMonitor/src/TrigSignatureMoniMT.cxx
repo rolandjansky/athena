@@ -26,6 +26,7 @@ StatusCode TrigSignatureMoniMT::initialize() {
   {
     const int x = nBinsX();
     const int y = nBinsY();
+    ATH_MSG_DEBUG( "Histogram " << x << " x " << y << " bins");
     // this type to be replaced by LBN tagged hist available for MT
     // the new way, (does not work)
     /*
@@ -39,8 +40,8 @@ StatusCode TrigSignatureMoniMT::initialize() {
     m_outputHistogram = m_histSvc.getHist( fullName );
     */
     m_outputHistogram = new TH2I( "SignatureAcceptance", "Raw acceptance of signatures in;chain;step",
-				  x, -0.5, x -0.5,
-				  y, -0.5, y - 0.5 );
+				  x, 1, x + 1,
+				  y, 1, y + 1 ); // Fill and GetBinContent use the same indexing then
     m_histSvc->regHist( m_bookingPath + "/SignatureAcceptance", m_outputHistogram );
     
   }
@@ -52,16 +53,20 @@ StatusCode TrigSignatureMoniMT::initialize() {
 
 StatusCode TrigSignatureMoniMT::finalize() {
   
-  auto collToVec = [&]( int xbin){ 
-    std::vector<int> v;
-    for ( int ybin = 1; ybin <= m_outputHistogram->GetYaxis()->GetNbins(); ++ybin )
-      v.push_back( m_outputHistogram->GetBinContent( xbin, ybin ) );
+  auto collToString = [&]( int xbin){ 
+    std::string v;
+    for ( int ybin = 1; ybin <= m_outputHistogram->GetYaxis()->GetNbins(); ++ybin ) {
+      v += std::to_string( int(m_outputHistogram->GetBinContent( xbin, ybin )) );
+      v += std::string( 10*ybin - v.size(),  ' ' ); // fill with spaces
+    }
+    
     return v;
   };
 
-  ATH_MSG_DEBUG("Signatures count chain name L1, After PS [... steps ...] Output"  );
+  ATH_MSG_INFO("Chain name                   L1,      AfterPS, [... steps ...], Output"  );
   for ( int bin = 1; bin <= m_outputHistogram->GetXaxis()->GetNbins(); ++bin ) {
-    ATH_MSG_DEBUG( m_outputHistogram->GetXaxis()->GetBinLabel(bin) << " " << collToVec( bin ) );
+    const std::string chainName = m_outputHistogram->GetXaxis()->GetBinLabel(bin);
+    ATH_MSG_DEBUG( chainName << std::string( 30 - chainName.size(), ' ' ) << collToString( bin ) );
   }
 
   return StatusCode::SUCCESS;
@@ -73,7 +78,6 @@ StatusCode TrigSignatureMoniMT::fillChains(const TrigCompositeUtils::DecisionIDC
     if ( id2bin == m_chainIDToBinMap.end() ) {
       ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitred" );
     } else {
-      ATH_MSG_DEBUG( "Passed " <<  id2bin->second << " " << row );
       m_outputHistogram->Fill( id2bin->second, double(row) );
     }
   }
@@ -91,9 +95,9 @@ StatusCode TrigSignatureMoniMT::execute()  {
     TrigCompositeUtils::DecisionIDContainer ids;    
     TrigCompositeUtils::decisionIDs( l1Decisions->at( index ), ids );
     ATH_MSG_DEBUG( "L1 " << index << " N positive decisions " << ids.size()  );
-    CHECK( fillChains( ids, index ) );
+    CHECK( fillChains( ids, index + 1 ) );
     if ( not ids.empty() )
-      m_outputHistogram->Fill( 0., double( index+1 ) );
+      m_outputHistogram->Fill( 1, double(index + 1) );
     return StatusCode::SUCCESS;
   };
 
@@ -112,7 +116,7 @@ StatusCode TrigSignatureMoniMT::execute()  {
       
       for ( auto decisionObj : *decisions.get() ) {
 	TrigCompositeUtils::DecisionIDContainer ids;
-	TrigCompositeUtils::passingIDs( decisionObj, ids );	  
+	TrigCompositeUtils::decisionIDs( decisionObj, ids );	  
 	sum.insert( ids.begin(), ids.end() ); // merge with so far passing chains
       }
       CHECK( fillChains( sum, row ) );
@@ -121,8 +125,10 @@ StatusCode TrigSignatureMoniMT::execute()  {
       ATH_MSG_DEBUG( "Final decision " << d.key() << " absent, possibly early rejected" );
     }      
   } 
-  if ( anyPassed ) 
-    m_outputHistogram->Fill( 0., double( row ) );
+  if ( anyPassed ) {
+    ATH_MSG_DEBUG( "Event passsed, filling " << row );
+    m_outputHistogram->Fill( 1, double( row ) );
+  }
   // missing intermediate steps monitoring
 
     
