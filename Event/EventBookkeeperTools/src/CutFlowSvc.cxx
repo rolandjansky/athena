@@ -84,8 +84,7 @@ CutFlowSvc::initialize()
   incSvc->addListener(this, "MetaDataStop", 50);
 
   // Create bookkeeper container for bookkeepers in _this_ processing
-  xAOD::CutBookkeeperContainer* fileBook(NULL);
-  fileBook = new xAOD::CutBookkeeperContainer();
+  auto fileBook = new xAOD::CutBookkeeperContainer();
   ATH_CHECK( recordCollection( fileBook, m_fileCollName) );
 
   // Determine the skimming cycle number that we should use now from the input file
@@ -134,6 +133,7 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
 {
   ATH_MSG_DEBUG("calling registerFilter(" << name << ", " << description << ")" );
 
+  // *FIXME* This should probably be a unique_ptr, but requires changes in xAODCutFlow as well
   xAOD::CutBookkeeper* tmpEBK = new xAOD::CutBookkeeper();
   tmpEBK->setName(name);
   tmpEBK->setDescription(description);
@@ -259,8 +259,8 @@ CutIdentifier CutFlowSvc::declareUsedOtherFilter( const std::string& name,
   }
 
   // Create a temporary CutBookkeeper object
+  // *FIXME* This should probably be a unique_ptr, but requires changes in xAODCutFlow as well
   xAOD::CutBookkeeper* tmpEBK = new xAOD::CutBookkeeper();
-  // tmpEBK->makePrivateStore();
   tmpEBK->setName(name);
   tmpEBK->setInputStream(m_inputStream);
   tmpEBK->setCycle(m_skimmingCycle);
@@ -321,9 +321,9 @@ CutFlowSvc::addEvent( CutIdentifier cutID )
 
   double evtWeight=1.0;
 
-  const xAOD::EventInfo* evtInfo = 0;
+  const xAOD::EventInfo* evtInfo = nullptr;
   StatusCode sc = m_eventStore->retrieve(evtInfo);
-  if ( sc.isFailure() || NULL == evtInfo ) {
+  if ( sc.isFailure() || nullptr == evtInfo ) {
     ATH_MSG_WARNING("Could not retrieve EventInfo from StoreGate  ");
     evtWeight=-1000.;
   } else {
@@ -349,8 +349,7 @@ CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
   DataHandle<xAOD::CutBookkeeperContainer> fileBook;
   if (m_outMetaDataStore->retrieve(fileBook,m_fileCollName).isFailure()) {
     ATH_MSG_WARNING("Could not retrieve handle to cutflowsvc bookkeeper " << m_fileCollName << " creating new one");
-    xAOD::CutBookkeeperContainer* fileBook(NULL);
-    fileBook = new xAOD::CutBookkeeperContainer();
+    auto fileBook = new xAOD::CutBookkeeperContainer();
     if( recordCollection( fileBook, m_fileCollName).isFailure() ) {
       ATH_MSG_ERROR("Could not create empty " << m_fileCollName << " CutBookkeeperContainer");
     }
@@ -534,7 +533,7 @@ CutFlowSvc::recordCollection( xAOD::CutBookkeeperContainer * coll,
 
 
   // Take care of the peculiarities of the new xAOD EDM, i.e., create the needed AuxStore
-  xAOD::CutBookkeeperAuxContainer* auxCont = new xAOD::CutBookkeeperAuxContainer;
+  auto auxCont = new xAOD::CutBookkeeperAuxContainer;
   coll->setStore( auxCont ); //gives it a new associated aux container
 
   // Record the aux container
