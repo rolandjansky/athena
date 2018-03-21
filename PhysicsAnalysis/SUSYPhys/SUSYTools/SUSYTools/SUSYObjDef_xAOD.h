@@ -516,7 +516,6 @@ namespace ST {
     std::string m_BtagTagger;
     std::string m_BtagSystStrategy;
 
-
     //configurable cuts here
     double m_eleBaselinePt;
     double m_eleBaselineEta;
@@ -542,6 +541,13 @@ namespace ST {
     double m_muCosmicz0;
     double m_muCosmicd0;
     double m_badmuQoverP;
+
+    std::string m_trig2015combination_diLep;
+    std::string m_trig2016combination_diLep;
+    std::string m_trig2017combination_diLep;
+    std::string m_trig2015combination_multiLep;
+    std::string m_trig2016combination_multiLep;
+    std::string m_trig2017combination_multiLep;
 
     double m_photonBaselinePt;
     double m_photonBaselineEta;
