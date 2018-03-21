@@ -92,6 +92,7 @@ emulator = Trig__TrigBtagEmulationTool()
 
 trackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
 trackAssocTool.TrackContainerName = "TrigBtagEmulationTool_RetaggingTracks" # Necessary for new track associator in 21.2
+trackAssocTool.MuonContainerName  = "" # Necessary for new track associator in 21.2  
 
 emulator.BTagTrackAssocTool = trackAssocTool
 emulator.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")

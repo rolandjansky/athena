@@ -254,11 +254,6 @@ StatusCode JetManager::retagOffline() {
       else 
 	CHECK( evtStore()->record( toBeSaved.release(),"TrigBtagEmulationTool_RetaggingTracks" ) );
 
-      if ( toBeUsed.size() == 0 ) {
-	ATH_MSG_ERROR("Did not find matched tracks");
-	return StatusCode::FAILURE;
-      }
-
       output_jet->auxdata< std::vector< ElementLink< xAOD::IParticleContainer > > >("MatchedTracks") = toBeUsed;      
       // ==========================================
 
