@@ -269,8 +269,9 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       ATH_MSG_VERBOSE("Case "<<i<<" track Name "<<trackNames.at(i)<<" and iterations "<<m_SagittaIterations.at(i));
       for( unsigned int j=0; j< m_SagittaIterations.at(i) ;  j++){
         ATH_MSG_VERBOSE("Track "<<i<<" file "<< PathResolverFindCalibFile(Form("MuonMomentumCorrections/sagittaBiasDataAll/outqDeltamPlots_iter%d/",j) + trackNames.at(i) + "_data.root"));
-        
-        setSagittaHistogramsSingle(GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/sagittaBiasDataAll/outqDeltamPlots_iter%d/",j) + trackNames.at(i) + "_data.root"),"inclusive",m_GlobalZScales.at(i)),i);
+        std::unique_ptr<TProfile2D> hist(GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/sagittaBiasDataAll/outqDeltamPlots_iter%d/",j) + trackNames.at(i) + "_data.root"),"inclusive",m_GlobalZScales.at(i)));
+
+        setSagittaHistogramsSingle(hist.get() , i);
       }
     }
   }
@@ -290,7 +291,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     h->GetZaxis()->SetRangeUser(-1,+1);
   }
   
-  TProfile2D* MuonCalibrationAndSmearingTool::GetHist(std::string fname, std::string hname,double GlobalScale){
+  TProfile2D* MuonCalibrationAndSmearingTool::GetHist(const std::string &fname, const std::string &hname, double GlobalScale){
     if( fname.size() == 0 || hname.size()==0 ) return NULL;
     
     ATH_MSG_INFO("Opening correction file : " <<fname);
@@ -301,16 +302,16 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       return NULL;
     }
 
-    TH3F *h3=NULL;
-    h3=(TH3F*)fmc->Get(hname.c_str());
+    TH3 *h3=NULL;
+    h3= dynamic_cast<TH3*>(fmc->Get(hname.c_str()));
     
     if( h3==NULL ){ 
       ATH_MSG_ERROR("NULL sagitta map");
       return NULL; 
-    } 
+    }
 
     h3->SetDirectory(0);
-    TProfile2D *hinclusive=(TProfile2D*)h3->Project3DProfile("yx");
+    TProfile2D *hinclusive= dynamic_cast<TProfile2D*>(h3->Project3DProfile("yx"));
     hinclusive->SetDirectory(0);
     hinclusive->GetXaxis()->SetTitle(h3->GetXaxis()->GetTitle());
     hinclusive->GetYaxis()->SetTitle(h3->GetYaxis()->GetTitle());
@@ -320,6 +321,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     
     delete h3;
     fmc->Close();
+    delete fmc;
     return hinclusive;
 }
 
