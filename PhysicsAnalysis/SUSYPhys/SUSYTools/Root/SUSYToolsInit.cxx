@@ -666,8 +666,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       triggerEleIso   = "GradientLoose";
 
       if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringSingle+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
-        ATH_MSG_WARNING("  ***  THERE IS A PROBLEM WITH THE ELECTRON TRIGGER SF YOU SELECTED:  " << m_electronTriggerSFStringSingle << " ***");
-        ATH_MSG_WARNING("  ***     THE ELECTRON TRIGGER SF ARE NOT SUPPORTED FOR THE ISOLATION WP YOU PICKED (" << m_eleIso_WP << ") . FALLING TO 'GRADIENTLOOSE' HERE (ONLY) -- Use at your own risk! ***");
+        ATH_MSG_WARNING("The electron trigger SF is not supported for the Iso WP you picked (" << m_eleIso_WP << "). Falling to 'FixedCutLoose'");
       }
       else{
         ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringSingle << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << ") ***");
@@ -675,81 +674,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
     }
 
-    //dilepton
-    std::string triggerDiEleIso("");
-    if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringDiLepton+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
-      triggerDiEleIso   = m_eleIso_WP;
-    }
-    else{
-      // Many iso WPs are still missing, we need to update this when the trigger map is updated with more iso WP /KY as of Mar12
-      triggerDiEleIso   = "FixedCutLoose";
-
-      if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringDiLepton+"_"+eleId+"_"+triggerDiEleIso) != eSF_keys.end()){
-        ATH_MSG_WARNING("  ***  THERE IS A PROBLEM WITH THE ELECTRON TRIGGER SF YOU SELECTED:  " << m_electronTriggerSFStringDiLepton << " ***");
-        ATH_MSG_WARNING("  ***     THE ELECTRON TRIGGER SF ARE NOT SUPPORTED FOR THE ISOLATION WP YOU PICKED (" << m_eleIso_WP << ") . FALLING TO 'FIXEDCUTLOOSE' HERE (ONLY) -- Use at your own risk! ***");
-      }
-      else{
-        ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringDiLepton << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
-        return StatusCode::FAILURE;
-      }
-    }
-
-    //mixed-leptons
-    std::string triggerMixedEleIso_e17_lhloose("");
-    if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringMixedLepton_e17_lhloose+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
-      triggerMixedEleIso_e17_lhloose = m_eleIso_WP;
-    }
-    else{
-      // Many iso WPs are still missing, we need to update this when the trigger map is updated with more iso WP /KY as of Mar12
-      triggerMixedEleIso_e17_lhloose  = "FixedCutLoose";
-
-      if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringMixedLepton_e17_lhloose+"_"+eleId+"_"+triggerMixedEleIso_e17_lhloose) != eSF_keys.end()){
-        ATH_MSG_WARNING("  ***  THERE IS A PROBLEM WITH THE  ELECTRON TRIGGER SF YOU SELECTED:  " << m_electronTriggerSFStringMixedLepton_e17_lhloose << " ***");
-        ATH_MSG_WARNING("  ***     THE ELECTRON TRIGGER SF ARE NOT SUPPORTED FOR THE ISOLATION WP YOU PICKED (" << m_eleIso_WP << ") . FALLING TO 'FIXEDCUTLOOSE' HERE (ONLY) -- Use at your own risk! ***");
-      }
-      else{
-        ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringMixedLepton_e17_lhloose << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
-        return StatusCode::FAILURE;
-      }
-    }
-
-    std::string triggerMixedEleIso_e12_lhloose("");
-    if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringMixedLepton_e12_lhloose+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
-      triggerMixedEleIso_e12_lhloose = m_eleIso_WP;
-    }
-    else{
-      // Many iso WPs are still missing, we need to update this when the trigger map is updated with more iso WP /KY as of Mar12
-      triggerMixedEleIso_e12_lhloose  = "FixedCutLoose";
-
-      if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringMixedLepton_e12_lhloose+"_"+eleId+"_"+triggerMixedEleIso_e12_lhloose) != eSF_keys.end()){
-        ATH_MSG_WARNING("  ***  THERE IS A PROBLEM WITH THE  ELECTRON TRIGGER SF YOU SELECTED:  " << m_electronTriggerSFStringMixedLepton_e12_lhloose << " ***");
-        ATH_MSG_WARNING("  ***     THE ELECTRON TRIGGER SF ARE NOT SUPPORTED FOR THE ISOLATION WP YOU PICKED (" << m_eleIso_WP << ") . FALLING TO 'FIXEDCUTLOOSE' HERE (ONLY) -- Use at your own risk! ***");
-      }
-      else{
-        ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringMixedLepton_e12_lhloose << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
-        return StatusCode::FAILURE;
-      }
-    }
-
-    std::string triggerMixedEleIso_e7_lhmedium("");
-    if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringMixedLepton_e7_lhmedium+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
-      triggerMixedEleIso_e7_lhmedium = m_eleIso_WP;
-    }
-    else{
-      // Many iso WPs are still missing, we need to update this when the trigger map is updated with more iso WP /KY as of Mar12
-      triggerMixedEleIso_e7_lhmedium  = "FixedCutLoose";
-
-      if (std::find(eSF_keys.begin(), eSF_keys.end(), m_electronTriggerSFStringMixedLepton_e7_lhmedium+"_"+eleId+"_"+triggerMixedEleIso_e7_lhmedium) != eSF_keys.end()){
-        ATH_MSG_WARNING("  ***  THERE IS A PROBLEM WITH THE  ELECTRON TRIGGER SF YOU SELECTED:  " << m_electronTriggerSFStringMixedLepton_e7_lhmedium << " ***");
-        ATH_MSG_WARNING("  ***     THE ELECTRON TRIGGER SF ARE NOT SUPPORTED FOR THE ISOLATION WP YOU PICKED (" << m_eleIso_WP << ") . FALLING TO 'FIXEDCUTLOOSE' HERE (ONLY) -- Use at your own risk! ***");
-      }
-      else{
-        ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << m_electronTriggerSFStringMixedLepton_e7_lhmedium << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
-        return StatusCode::FAILURE;
-      }
-    }
-
-    //configure the tools now!
     toolName = "AsgElectronEfficiencyCorrectionTool_trig_singleLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trig_singleLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trig_singleLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
@@ -763,69 +687,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
       ATH_CHECK( m_elecEfficiencySFTool_trig_singleLep.initialize() );
     }
-    toolName = "AsgElectronEfficiencyCorrectionTool_trig_diLep_" + m_eleId;
-    if ( !m_elecEfficiencySFTool_trig_diLep.isUserConfigured() ) {
-      m_elecEfficiencySFTool_trig_diLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("MapFilePath", m_eleEffMapFilePath) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("TriggerKey", m_electronTriggerSFStringDiLepton) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("IsoKey", triggerDiEleIso) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("CorrelationModel", m_EG_corrModel) );
-      if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.setProperty("ForceDataType", (int) data_type) );
-      }
-      ATH_CHECK( m_elecEfficiencySFTool_trig_diLep.initialize() );
-    }
 
-    toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_e17_lhloose" + m_eleId;
-    if ( !m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.isUserConfigured() ) {
-      m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.setProperty("MapFilePath", m_eleEffMapFilePath) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.setProperty("TriggerKey", m_electronTriggerSFStringMixedLepton_e17_lhloose) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.setProperty("IsoKey", triggerMixedEleIso_e17_lhloose) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.setProperty("CorrelationModel", m_EG_corrModel) );
-      if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.setProperty("ForceDataType", (int) data_type) );
-      }
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.initialize() );
-      m_elecTrigSFTools.push_back(m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.getHandle());
-      m_legsPerTool["ToolSvc."+toolName] = "e17_lhloose_nod0";
-    }
-
-    toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_e12_lhloose" + m_eleId;
-    if ( !m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.isUserConfigured() ) {
-      m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.setProperty("MapFilePath", m_eleEffMapFilePath) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.setProperty("TriggerKey", m_electronTriggerSFStringMixedLepton_e12_lhloose) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.setProperty("IsoKey", triggerMixedEleIso_e12_lhloose) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.setProperty("CorrelationModel", m_EG_corrModel) );
-      if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.setProperty("ForceDataType", (int) data_type) );
-      }
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.initialize() );
-      m_elecTrigSFTools.push_back(m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.getHandle());
-      m_legsPerTool["ToolSvc."+toolName] = "e12_lhloose_nod0";
-    }
-
-    toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_e7_lhmedium" + m_eleId;
-    if ( !m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.isUserConfigured() ) {
-      m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.setProperty("MapFilePath", m_eleEffMapFilePath) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.setProperty("TriggerKey", m_electronTriggerSFStringMixedLepton_e7_lhmedium) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.setProperty("IsoKey", triggerMixedEleIso_e7_lhmedium) );
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.setProperty("CorrelationModel", m_EG_corrModel) );
-      if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.setProperty("ForceDataType", (int) data_type) );
-      }
-      ATH_CHECK( m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.initialize() );
-      m_elecTrigSFTools.push_back(m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.getHandle());
-      m_legsPerTool["ToolSvc."+toolName] = "e7_lhmedium_nod0";
-    }
-
-    // then efficiencies
     toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_singleLep_" + m_eleId;
     if ( !m_elecEfficiencySFTool_trigEff_singleLep.isUserConfigured() ) {
       m_elecEfficiencySFTool_trigEff_singleLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
@@ -840,68 +702,73 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_trigEff_singleLep.initialize() );
     }
 
-    toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_diLep_" + m_eleId;
-    if ( !m_elecEfficiencySFTool_trigEff_diLep.isUserConfigured() ) {
-      m_elecEfficiencySFTool_trigEff_diLep.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("MapFilePath", m_eleEffMapFilePath) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringDiLepton) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("IsoKey", triggerDiEleIso) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("CorrelationModel", m_EG_corrModel) );
-      if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.setProperty("ForceDataType", (int) data_type) );
-      }
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_diLep.initialize() );
-    }
+    //mixed-leptons
+    std::map<std::string,std::string> electronTriggerSFMapMixedLepton {
+      // legs, Trigger keys, 
+      {"e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", m_electronTriggerSFStringSingle},
+      {"e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0", m_electronTriggerSFStringSingle},
+      {"e12_lhloose_L1EM10VH","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"},
+      {"e17_lhvloose_nod0","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"},
+      {"e24_lhvloose_nod0_L1EM20VH","DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH"},
+      {"e17_lhloose","MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0"},
+      {"e17_lhloose_nod0","MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0"},
+      {"e12_lhloose","MULTI_L_2015_e12_lhloose_2016_e12_lhloose_nod0_2017_e12_lhloose_nod0"},
+      {"e12_lhloose_nod0","MULTI_L_2015_e12_lhloose_2016_e12_lhloose_nod0_2017_e12_lhloose_nod0"},
+      {"e7_lhmedium","MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0_2017_e7_lhmedium"},
+      {"e7_lhmedium_nod0","MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0_2017_e7_lhmedium"}
+    };
 
-    toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_mixLep_e17_lhloose" + m_eleId;
-    if ( !m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.isUserConfigured() ) {
-      m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.setProperty("MapFilePath", m_eleEffMapFilePath) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringMixedLepton_e17_lhloose) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.setProperty("IsoKey", triggerMixedEleIso_e17_lhloose) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.setProperty("CorrelationModel", m_EG_corrModel) );
-      if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.setProperty("ForceDataType", (int) data_type) );
-      }
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.initialize() );
-      m_elecTrigEffTools.push_back(m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.getHandle());
-      m_legsPerTool["ToolSvc."+toolName] = "e17_lhloose_nod0";
-    }
+    std::string triggerMixedEleIso("");
 
-    toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_mixLep_e12_lhloose" + m_eleId;
-    if ( !m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.isUserConfigured() ) {
-      m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.setProperty("MapFilePath", m_eleEffMapFilePath) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringMixedLepton_e12_lhloose) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.setProperty("IsoKey", triggerMixedEleIso_e12_lhloose) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.setProperty("CorrelationModel", m_EG_corrModel) );
-      if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.setProperty("ForceDataType", (int) data_type) );
-      }
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.initialize() );
-      m_elecTrigEffTools.push_back(m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.getHandle());
-      m_legsPerTool["ToolSvc."+toolName] = "e12_lhloose_nod0";
-    }
+    for(auto const& item : electronTriggerSFMapMixedLepton){
 
-    toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_mixLep_e7_lhmedium" + m_eleId;
-    if ( !m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.isUserConfigured() ) {
-      m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.setProperty("MapFilePath", m_eleEffMapFilePath) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.setProperty("TriggerKey", "Eff_"+m_electronTriggerSFStringMixedLepton_e7_lhmedium) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.setProperty("IdKey", eleId) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.setProperty("IsoKey", triggerMixedEleIso_e7_lhmedium) );
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.setProperty("CorrelationModel", m_EG_corrModel) );
-      if (!isData()) {
-        ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.setProperty("ForceDataType", (int) data_type) );
+      if (std::find(eSF_keys.begin(), eSF_keys.end(), item.second+"_"+eleId+"_"+m_eleIso_WP) != eSF_keys.end()){
+        triggerMixedEleIso = m_eleIso_WP;
       }
-      ATH_CHECK( m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.initialize() );
-      m_elecTrigEffTools.push_back(m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.getHandle());
-      m_legsPerTool["ToolSvc."+toolName] = "e7_lhmedium_nod0";
-    }
+      else{
+      // Many iso WPs are still missing, we need to update this when the trigger map is updated with more iso WP /KY as of Mar12
+        triggerMixedEleIso = "FixedCutLoose";
 
+        if (std::find(eSF_keys.begin(), eSF_keys.end(), item.second+"_"+eleId+"_"+triggerMixedEleIso) != eSF_keys.end()){
+            ATH_MSG_WARNING("The electron trigger SF is not supported for the Iso WP you picked (" << m_eleIso_WP << "). Falling to 'FixedCutLoose'");
+        }
+        else{
+          ATH_MSG_ERROR("***  THE ELECTRON TRIGGER SF YOU SELECTED (" << item.second << ") GOT NO SUPPORT FOR YOUR ID+ISO WPs (" << m_eleId << "+" << m_eleIso_WP << "). The fallback options failed as well sorry! ***");
+          return StatusCode::FAILURE;
+        }
+      }
+
+      ATH_MSG_VERBOSE ("Selected WP: " << item.second << "_" << eleId << "_" << triggerMixedEleIso);
+
+      toolName = "AsgElectronEfficiencyCorrectionTool_trig_mixLep_" + item.first + m_eleId;
+      auto t_sf = m_elecEfficiencySFTool_trig_mixLep.emplace(m_elecEfficiencySFTool_trig_mixLep.end(), "AsgElectronEfficiencyCorrectionTool/"+toolName);
+      ATH_CHECK( t_sf->setProperty("MapFilePath", m_eleEffMapFilePath) );
+      ATH_CHECK( t_sf->setProperty("TriggerKey", item.second) );
+      ATH_CHECK( t_sf->setProperty("IdKey", eleId) );
+      ATH_CHECK( t_sf->setProperty("IsoKey", triggerMixedEleIso) );
+      ATH_CHECK( t_sf->setProperty("CorrelationModel", m_EG_corrModel) );
+      if (!isData()) {
+        ATH_CHECK( t_sf->setProperty("ForceDataType", (int) data_type) );
+      }
+      ATH_CHECK( t_sf->initialize() );
+      m_elecTrigSFTools.push_back(t_sf->getHandle());
+      m_legsPerTool["ToolSvc."+toolName] = item.first;
+
+      toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_mixLep_" + item.first + m_eleId;
+      auto t_eff = m_elecEfficiencySFTool_trigEff_mixLep.emplace(m_elecEfficiencySFTool_trigEff_mixLep.end(), "AsgElectronEfficiencyCorrectionTool/"+toolName);
+      ATH_CHECK( t_eff->setProperty("MapFilePath", m_eleEffMapFilePath) );
+      ATH_CHECK( t_eff->setProperty("TriggerKey", "Eff_"+item.second) );
+      ATH_CHECK( t_eff->setProperty("IdKey", eleId) );
+      ATH_CHECK( t_eff->setProperty("IsoKey", triggerMixedEleIso) );
+      ATH_CHECK( t_eff->setProperty("CorrelationModel", m_EG_corrModel) );
+      if (!isData()) {
+        ATH_CHECK( t_eff->setProperty("ForceDataType", (int) data_type) );
+      }
+      ATH_CHECK( t_eff->initialize() );
+      m_elecTrigEffTools.push_back(t_eff->getHandle());
+      m_legsPerTool["ToolSvc."+toolName] = item.first;
+
+    }
   }
 
   // electron charge-flip  :: NEW
@@ -1311,24 +1178,43 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise trigGlobalEfficiencyCorrection tool
 
-  if (!m_trigGlobalEffCorrTool.isUserConfigured()) {
+  if (!m_trigGlobalEffCorrTool_diLep.isUserConfigured()) {
 
-    const char* trig2015combination = "2e12_lhloose_mu10 || e12_lhloose_2mu10 || e17_lhloose_mu14 || e7_lhmedium_mu24"; 
-    const char* trig2016combination = "e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10";
-    const char* trig2017combination = "e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10";
+    const char* trig2015combination = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || 2e12_lhloose_L12EM10VH || e17_lhloose_mu14 || e7_lhmedium_mu24"; 
+    const char* trig2016combination = "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24";
+    const char* trig2017combination = "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24";
     
-    m_trigGlobalEffCorrTool.setTypeAndName("TrigGlobalEfficiencyCorrectionTool/TrigGlobal");
-    ATH_CHECK( m_trigGlobalEffCorrTool.setProperty("ElectronEfficiencyTools", m_elecTrigEffTools) );
-    ATH_CHECK( m_trigGlobalEffCorrTool.setProperty("ElectronScaleFactorTools", m_elecTrigSFTools) );
-    ATH_CHECK( m_trigGlobalEffCorrTool.setProperty("MuonTools", m_muonTrigSFTools) );
-    ATH_CHECK( m_trigGlobalEffCorrTool.setProperty("TriggerCombination2015", trig2015combination) );
-    ATH_CHECK( m_trigGlobalEffCorrTool.setProperty("TriggerCombination2016", trig2016combination) );
-    ATH_CHECK( m_trigGlobalEffCorrTool.setProperty("TriggerCombination2017", trig2017combination) );
-    ATH_CHECK( m_trigGlobalEffCorrTool.setProperty("ListOfLegsPerTool", m_legsPerTool) );
-    ATH_CHECK( m_trigGlobalEffCorrTool.setProperty("NumberOfToys", 250) );
-    ATH_CHECK( m_trigGlobalEffCorrTool.initialize() );
+    m_trigGlobalEffCorrTool_diLep.setTypeAndName("TrigGlobalEfficiencyCorrectionTool/TrigGlobal_diLep");
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("ElectronEfficiencyTools", m_elecTrigEffTools) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("ElectronScaleFactorTools", m_elecTrigSFTools) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("MuonTools", m_muonTrigSFTools) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2015", trig2015combination) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2016", trig2016combination) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("TriggerCombination2017", trig2017combination) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("ListOfLegsPerTool", m_legsPerTool) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.setProperty("NumberOfToys", 250) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_diLep.initialize() );
   }
 
+  if (!m_trigGlobalEffCorrTool_multiLep.isUserConfigured()) {
+
+    const char* trig2015combination = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || 2e12_lhloose_L12EM10VH || 2e12_lhloose_mu10 || e12_lhloose_2mu10 || e17_lhloose_mu14 || e7_lhmedium_mu24"; 
+    const char* trig2016combination = "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10";
+    const char* trig2017combination = "e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || 2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14 || e7_lhmedium_nod0_mu24 || e12_lhloose_nod0_2mu10 || 2e12_lhloose_nod0_mu10";
+    
+    m_trigGlobalEffCorrTool_multiLep.setTypeAndName("TrigGlobalEfficiencyCorrectionTool/TrigGlobal_multiLep");
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("ElectronEfficiencyTools", m_elecTrigEffTools) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("ElectronScaleFactorTools", m_elecTrigSFTools) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("MuonTools", m_muonTrigSFTools) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2015", trig2015combination) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2016", trig2016combination) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2017", trig2017combination) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("ListOfLegsPerTool", m_legsPerTool) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("NumberOfToys", 250) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.initialize() );
+  }
+
+// /////////////////////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise Isolation Correction Tool
 

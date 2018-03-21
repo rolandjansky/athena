@@ -1040,26 +1040,21 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
       }
 
-
       ///CHECK FOR COMBINED E-MU TRIGGERS
-      for (const auto& mu : *muons) {
-        if (!mu->auxdata<char>("passOR")) continue;
-        if (!mu->auxdata<char>("signal")) continue;
+      bool comb_trig_check = false;
 
-        for (const auto& el : *electrons) {
-          if (!el->auxdata<char>("passOR")) continue;
-          if (!el->auxdata<char>("signal")) continue;
-
-          if (objTool.IsTrigPassed("HLT_e17_lhloose_mu14") || objTool.IsTrigPassed("HLT_e17_lhloose_nod0_mu14")) {
-            std::cout << "e-mu trigger SFs (e17 chain): " << objTool.GetEleTriggerEfficiencySF(*el, *mu, "MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0") << std::endl;
-            std::cout << "e-mu trigger Effs (e17 chain): " << objTool.GetEleTriggerEfficiency(*el, *mu, "MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0") << std::endl;
-          } else if (objTool.IsTrigPassed("HLT_2e12_lhloose_mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_2mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_nod0_2mu10") || objTool.IsTrigPassed("HLT_2e12_lhloose_nod0_mu10")) { 
-            std::cout << "e-mu trigger SFs (e12 chain): " << objTool.GetEleTriggerEfficiencySF(*el, *mu, "MULTI_L_2015_e12_lhloose_2016_e12_lhloose_nod0_2017_e12_lhloose_nod0") << std::endl;
-            std::cout << "e-mu trigger Effs (e12 chain): " << objTool.GetEleTriggerEfficiency(*el, *mu, "MULTI_L_2015_e12_lhloose_2016_e12_lhloose_nod0_2017_e12_lhloose_nod0") << std::endl;
-          } else if (objTool.IsTrigPassed("HLT_e7_lhmedium_mu24") || objTool.IsTrigPassed("HLT_e7_lhmedium_nod0_mu24")) {
-            std::cout << "e-mu trigger SFs (e7 chain): " << objTool.GetEleTriggerEfficiencySF(*el, *mu, "MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0_2017_e7_lhmedium") << std::endl;
-            std::cout << "e-mu trigger Effs (e7 chain): " << objTool.GetEleTriggerEfficiency(*el, *mu, "MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0_2017_e7_lhmedium") << std::endl;
-          }
+      if (comb_trig_check) {
+        if (objTool.IsTrigPassed("HLT_e17_lhloose_mu14") || objTool.IsTrigPassed("HLT_e17_lhloose_nod0_mu14")) {
+          std::cout << "e-mu trigger SFs (e17 chain):  " << objTool.GetEleTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger Effs (e17 chain): " << objTool.GetEleTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        } 
+        if (objTool.IsTrigPassed("HLT_2e12_lhloose_mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_2mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_nod0_2mu10") || objTool.IsTrigPassed("HLT_2e12_lhloose_nod0_mu10")) { 
+          std::cout << "e-mu trigger SFs (e12 chain):  " << objTool.GetEleTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger Effs (e12 chain): " << objTool.GetEleTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        } 
+        if (objTool.IsTrigPassed("HLT_e7_lhmedium_mu24") || objTool.IsTrigPassed("HLT_e7_lhmedium_nod0_mu24")) {
+          std::cout << "e-mu trigger SFs (e7 chain):  " << objTool.GetEleTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger Effs (e7 chain): " << objTool.GetEleTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
         }
       }
 

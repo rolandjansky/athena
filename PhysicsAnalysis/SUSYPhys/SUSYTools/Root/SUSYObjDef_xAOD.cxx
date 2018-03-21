@@ -126,10 +126,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_prwDataSF_UP(1.), // old value for mc15 (mc16 uncertainties still missing)
     m_prwDataSF_DW(1./1.18), // old value for mc15 (mc16 uncertainties still missing)
     m_electronTriggerSFStringSingle(""),
-    m_electronTriggerSFStringDiLepton(""),
-    m_electronTriggerSFStringMixedLepton_e17_lhloose(""),
-    m_electronTriggerSFStringMixedLepton_e12_lhloose(""),
-    m_electronTriggerSFStringMixedLepton_e7_lhmedium(""),
     m_eleId(""),
     m_eleIdBaseline(""),
     m_muId(static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))),
@@ -265,18 +261,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_elecEfficiencySFTool_reco(""),
     m_elecEfficiencySFTool_id(""),
     m_elecEfficiencySFTool_trig_singleLep(""),
-    m_elecEfficiencySFTool_trig_diLep(""),
-    m_elecEfficiencySFTool_trig_mixLep_e17_lhloose(""),
-    m_elecEfficiencySFTool_trig_mixLep_e12_lhloose(""),
-    m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium(""),
     m_elecEfficiencySFTool_iso(""),
     m_elecEfficiencySFTool_chf(""),
-    //
     m_elecEfficiencySFTool_trigEff_singleLep(""),
-    m_elecEfficiencySFTool_trigEff_diLep(""),
-    m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose(""),
-    m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose(""),
-    m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium(""),
     //
     m_egammaCalibTool(""),
     m_elecSelLikelihood(""),
@@ -311,7 +298,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_metSystTool(""),
     m_metSignif(""),
     //
-    m_trigGlobalEffCorrTool(""),
+    m_trigGlobalEffCorrTool_diLep(""),
+    m_trigGlobalEffCorrTool_multiLep(""),
     m_trigConfTool(""),
     m_trigDecTool(""),
     m_trigMatchingTool(""),
@@ -485,10 +473,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   //For electron trigger SF tools
   declareProperty( "ElectronTriggerSFStringSingle",      m_electronTriggerSFStringSingle);
-  declareProperty( "ElectronTriggerSFStringDi",          m_electronTriggerSFStringDiLepton);
-  declareProperty( "ElectronTriggerSFStringMixedLepton_e17_lhloose", m_electronTriggerSFStringMixedLepton_e17_lhloose);
-  declareProperty( "ElectronTriggerSFStringMixedLepton_e12_lhloose", m_electronTriggerSFStringMixedLepton_e12_lhloose);
-  declareProperty( "ElectronTriggerSFStringMixedLepton_e7_lhmedium", m_electronTriggerSFStringMixedLepton_e7_lhmedium);
 
   //--- Tool pointers    /MT : we may want to improve the descriptions :)
   m_jetCalibTool.declarePropertyFor( this, "JetCalibTool", "The JetCalibTool" );
@@ -514,14 +498,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //
   m_elecEfficiencySFTool_reco.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_reco", "The ElectronEfficiencyCorrectionTool for reconstruction SFs" );
   m_elecEfficiencySFTool_trig_singleLep.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trig_singleLep", "The ElectronEfficiencyCorrectionTool for single-e triggers" );
-  m_elecEfficiencySFTool_trig_diLep.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trig_diLep", "The ElectronEfficiencyCorrectionTool for di-e triggers" );
-  m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trig_mixLep_e17_lhloose", "The ElectronEfficiencyCorrectionTool for mixed e-mu triggers e17_lhloose" );
-  m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trig_mixLep_e12_lhloose", "The ElectronEfficiencyCorrectionTool for mixed e-mu triggers e12_lhloose" );
-  m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trig_mixLep_e7_lhmedium", "The ElectronEfficiencyCorrectionTool for mixed e-mu triggers e7_lhmedium" );
-  m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trigEff_mixLep_e17_lhloose", "The ElectronEfficiencyCorrectionTool for mixed e-mu triggers e17_lhloose Eff" );
-  m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trigEff_mixLep_e12_lhloose", "The ElectronEfficiencyCorrectionTool for mixed e-mu triggers e12_lhloose Eff" );
-  m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trigEff_mixLep_e7_lhmedium", "The ElectronEfficiencyCorrectionTool for mixed e-mu triggers e7_lhmedium Eff" );
-
   m_elecEfficiencySFTool_id.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_id", "The ElectronEfficiencyCorrectionTool for ID SFs" );
   m_elecEfficiencySFTool_iso.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_iso" , "The ElectronEfficiencyCorrectionTool for iso SFs" );
   m_elecEfficiencySFTool_chf.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_chf" , "The ElectronEfficiencyCorrectionTool for charge-flip SFs" );
@@ -560,7 +536,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_metSystTool.declarePropertyFor( this, "METSystTool", "The METSystematicsTool");
   m_metSignif.declarePropertyFor( this, "METSignificance", "The METSignifiance instance");
   //
-  m_trigGlobalEffCorrTool.declarePropertyFor( this, "TrigGlobalEfficiencyCorrection", "The TrigGlobalEfficiencyCorrection tool" );
+  m_trigGlobalEffCorrTool_diLep.declarePropertyFor( this, "TrigGlobalEfficiencyCorrection_diLep", "The TrigGlobalEfficiencyCorrection tool for dilepton" );
+  m_trigGlobalEffCorrTool_multiLep.declarePropertyFor( this, "TrigGlobalEfficiencyCorrection_multiLep", "The TrigGlobalEfficiencyCorrection tool for trilepton" );
   m_trigConfTool.declarePropertyFor( this, "TrigConfigTool", "The TrigConfigTool" );
   m_trigDecTool.declarePropertyFor( this, "TrigDecisionTool", "The TrigDecisionTool" );
   m_trigMatchingTool.declarePropertyFor( this, "TrigMatchTool", "The TrigMatchingTool" );
@@ -1041,10 +1018,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_elebaselinez0, "EleBaseline.z0", rEnv, 0.5);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
-  configFromFile(m_electronTriggerSFStringDiLepton, "Ele.TriggerSFStringDi", rEnv, "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0_2017_e24_lhvloose_nod0_L1EM20VH");
-  configFromFile(m_electronTriggerSFStringMixedLepton_e17_lhloose, "Ele.TriggerSFStringMixedLepton_e17_lhloose", rEnv, "MULTI_L_2015_e17_lhloose_2016_e17_lhloose_nod0_2017_e17_lhloose_nod0");
-  configFromFile(m_electronTriggerSFStringMixedLepton_e12_lhloose, "Ele.TriggerSFStringMixedLepton_e12_lhloose", rEnv, "MULTI_L_2015_e12_lhloose_2016_e12_lhloose_nod0_2017_e12_lhloose_nod0");
-  configFromFile(m_electronTriggerSFStringMixedLepton_e7_lhmedium, "Ele.TriggerSFStringMixedLepton_e7_lhmedium", rEnv, "MULTI_L_2015_e7_lhmedium_2016_e7_lhmedium_nod0_2017_e7_lhmedium");
   configFromFile(m_eleEffMapFilePath, "Ele.EffMapFilePath", rEnv, "ElectronEfficiencyCorrection/2015_2017/rel21.2/Moriond_February2018_v1/map1.txt"); 
   //
   configFromFile(m_muBaselinePt, "MuonBaseline.Pt", rEnv, 10000.);
@@ -1198,9 +1171,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
 
   //** cache trigger chains for matching
   GetTriggerTokens(m_electronTriggerSFStringSingle, v_trigs15_cache_single, v_trigs16_cache_single, v_trigs17_cache_single);
-  GetTriggerTokens(m_electronTriggerSFStringDiLepton, v_trigs15_cache_dilep, v_trigs16_cache_dilep, v_trigs17_cache_dilep);
-  // e17_lhloose is just the representation for combined triggers. The trigger matching is not supported for combined e-mu triggers for now.
-  GetTriggerTokens(m_electronTriggerSFStringMixedLepton_e17_lhloose, v_trigs15_cache_mixlep, v_trigs16_cache_mixlep, v_trigs17_cache_mixlep); 
   return StatusCode::SUCCESS;
 }
 
@@ -1472,7 +1442,6 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
 
 
 std::string SUSYObjDef_xAOD::TrigSingleLep() const { return m_electronTriggerSFStringSingle; }
-std::string SUSYObjDef_xAOD::TrigDiLep()     const { return m_electronTriggerSFStringDiLepton; }
 
 CP::SystematicCode SUSYObjDef_xAOD::resetSystematics() {
   return this->applySystematicVariation(m_defaultSyst);
@@ -1645,42 +1614,6 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_elecEfficiencySFTool_trig_diLep.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trig_diLep->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trig_mixLep_e17_lhloose->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trig_mixLep_e12_lhloose->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
-    }
-  }
   if (!m_elecEfficiencySFTool_trigEff_singleLep.empty()) {
     CP::SystematicCode ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
@@ -1690,44 +1623,17 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_elecEfficiencySFTool_trigEff_diLep.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trigEff_diLep->applySystematicVariation(systConfig);
+  if (!m_trigGlobalEffCorrTool_diLep.empty()) {
+    CP::SystematicCode ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+      ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
-      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
+      ATH_MSG_VERBOSE("TrigGlobalEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
     }
   }
-  if (!m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
-      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
-      return ret;
-    } else {
-      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (trigger) configured for systematic var. " << systConfig.name() );
-    }
-  }
-  if (!m_trigGlobalEffCorrTool.empty()) {
-    CP::SystematicCode ret = m_trigGlobalEffCorrTool->applySystematicVariation(systConfig);
+  if (!m_trigGlobalEffCorrTool_multiLep.empty()) {
+    CP::SystematicCode ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
       ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
       return ret;
@@ -2032,34 +1938,6 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
     }
   }
-  if (!m_elecEfficiencySFTool_trig_diLep.empty()) {
-    if ( m_elecEfficiencySFTool_trig_diLep->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Electron;
-      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
-    }
-  }
-  if (!m_elecEfficiencySFTool_trig_mixLep_e17_lhloose.empty()) {
-    if ( m_elecEfficiencySFTool_trig_mixLep_e17_lhloose->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Electron;
-      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
-    }
-  }
-  if (!m_elecEfficiencySFTool_trig_mixLep_e12_lhloose.empty()) {
-    if ( m_elecEfficiencySFTool_trig_mixLep_e12_lhloose->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Electron;
-      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
-    }
-  }
-  if (!m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium.empty()) {
-    if ( m_elecEfficiencySFTool_trig_mixLep_e7_lhmedium->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Electron;
-      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
-    }
-  }
   if (!m_elecEfficiencySFTool_trigEff_singleLep.empty()) {
     if ( m_elecEfficiencySFTool_trigEff_singleLep->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
@@ -2067,36 +1945,15 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
     }
   }
-  if (!m_elecEfficiencySFTool_trigEff_diLep.empty()) {
-    if ( m_elecEfficiencySFTool_trigEff_diLep->isAffectedBySystematic(sys) ) {
+  if (!m_trigGlobalEffCorrTool_diLep.empty()) {
+    if ( m_trigGlobalEffCorrTool_diLep->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Electron;
       sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
     }
   }
-  if (!m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose.empty()) {
-    if ( m_elecEfficiencySFTool_trigEff_mixLep_e17_lhloose->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Electron;
-      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
-    }
-  }
-  if (!m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose.empty()) {
-    if ( m_elecEfficiencySFTool_trigEff_mixLep_e12_lhloose->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Electron;
-      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
-    }
-  }
-  if (!m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium.empty()) {
-    if ( m_elecEfficiencySFTool_trigEff_mixLep_e7_lhmedium->isAffectedBySystematic(sys) ) {
-      sysInfo.affectsWeights = true;
-      sysInfo.affectsType = SystObjType::Electron;
-      sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
-    }
-  }
-  if (!m_trigGlobalEffCorrTool.empty()) {
-    if ( m_trigGlobalEffCorrTool->isAffectedBySystematic(sys) ) {
+  if (!m_trigGlobalEffCorrTool_multiLep.empty()) {
+    if ( m_trigGlobalEffCorrTool_multiLep->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Electron;
       sysInfo.affectedWeights.insert(ST::Weights::Electron::Trigger);
