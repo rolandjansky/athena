@@ -93,6 +93,8 @@ if not hasattr(topSequence,"RpcClusterBuilderPRD"):
     topSequence += RpcClusterBuilderPRD(ClusterTimeSpread = 10000,
                                         OutputLevel = FATAL)
 rpcLv1RawDataEfficiency = RpcLv1RawDataEfficiency(name='rpcLv1RawDataEfficiency')
+if globalflags.DataSource() != 'data':
+    rpcLv1RawDataEfficiency.isMC = True
 ToolSvc += rpcLv1RawDataEfficiency
 rpcLv1RawEfficiencyMonMan.AthenaMonTools += [ rpcLv1RawDataEfficiency ]
 topSequence += rpcLv1RawEfficiencyMonMan

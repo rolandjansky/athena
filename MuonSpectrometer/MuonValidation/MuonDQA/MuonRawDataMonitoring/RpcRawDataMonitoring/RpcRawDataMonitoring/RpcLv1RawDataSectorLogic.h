@@ -78,6 +78,7 @@ class RpcLv1RawDataSectorLogic: public ManagedMonitorToolBase {
   int m_rpc_event_inarea;  
   
   bool m_lumiblockhist			;
+  bool m_isMC;
   
   // Declare Histograms
   TH1* m_rpclv1_Hits_per_TriggerSector;

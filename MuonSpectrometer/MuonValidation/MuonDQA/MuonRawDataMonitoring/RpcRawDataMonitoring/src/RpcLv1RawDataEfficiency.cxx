@@ -39,7 +39,9 @@ RpcLv1RawDataEfficiency::RpcLv1RawDataEfficiency( const std::string & type,
 						  const std::string & name, 
 						  const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent )
-{}
+{
+  declareProperty("isMC"                        , m_isMC                       = false  );
+}
 
 //================================================================================================================================
 RpcLv1RawDataEfficiency::~RpcLv1RawDataEfficiency()
@@ -84,7 +86,7 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
 
   ATH_CHECK(m_rpcCoinKey.initialize());
   ATH_CHECK(m_eventInfo.initialize());
-  ATH_CHECK(m_sectorLogicContainerKey.initialize());
+  ATH_CHECK(m_sectorLogicContainerKey.initialize(m_isMC));
 
   // Ignore the checking code
   ManagedMonitorToolBase::initialize().ignore();
@@ -215,34 +217,35 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
 
   // == Filling the Histograms                                                                                                                               
   //--------------------Sector Hits---------------------------------
-  // Retrieve the Sector Logic container
-  SG::ReadHandle<RpcSectorLogicContainer> sectorLogicContainer(m_sectorLogicContainerKey);
+  if(!m_isMC){
+    // Retrieve the Sector Logic container
+    SG::ReadHandle<RpcSectorLogicContainer> sectorLogicContainer(m_sectorLogicContainerKey);
 
-  RpcSectorLogicContainer::const_iterator it = sectorLogicContainer -> begin();
-  
-  for ( ; it != sectorLogicContainer -> end() ; ++it ) 
-    {
-      int i_sectorid = (*it)->sectorId();
-      // Loop over the trigger hits of each sector
-      RpcSectorLogic::const_iterator ithit = (*it) -> begin();
-      for ( ; ithit != (*it) -> end() ; ++ithit ) 
-	{
-	  bool b_isInput        = (*ithit) -> isInput();
-	  int i_ptid   = (*ithit) -> ptId();
-	  if (b_isInput == true) // fill histograms only if there was a trigger hit
-	    {
-	      for( int iThresholdIndex=0; iThresholdIndex < 6; iThresholdIndex++) {
-		if (i_ptid == (iThresholdIndex + 1))
-		  {
-		    m_rpclv1_sectorhits_all[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
-		    m_rpclv1_sectorhits_A[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
-		    m_rpclv1_sectorhits_C[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
-		  }
+    RpcSectorLogicContainer::const_iterator it = sectorLogicContainer -> begin();
+    
+    for ( ; it != sectorLogicContainer -> end() ; ++it ) 
+      {
+	int i_sectorid = (*it)->sectorId();
+	// Loop over the trigger hits of each sector
+	RpcSectorLogic::const_iterator ithit = (*it) -> begin();
+	for ( ; ithit != (*it) -> end() ; ++ithit ) 
+	  {
+	    bool b_isInput        = (*ithit) -> isInput();
+	    int i_ptid   = (*ithit) -> ptId();
+	    if (b_isInput == true) // fill histograms only if there was a trigger hit
+	      {
+		for( int iThresholdIndex=0; iThresholdIndex < 6; iThresholdIndex++) {
+		  if (i_ptid == (iThresholdIndex + 1))
+		    {
+		      m_rpclv1_sectorhits_all[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
+		      m_rpclv1_sectorhits_A[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
+		      m_rpclv1_sectorhits_C[iThresholdIndex]->Fill(m_lumiblock,i_sectorid);
+		    }
+		}
 	      }
-	    }
-	}
-    }
-  
+	  }
+      }
+  }
   return StatusCode::SUCCESS;
 }
 

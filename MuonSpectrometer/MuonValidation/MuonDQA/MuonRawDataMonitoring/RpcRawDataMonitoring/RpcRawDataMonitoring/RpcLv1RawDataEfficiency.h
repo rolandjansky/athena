@@ -201,6 +201,8 @@ class RpcLv1RawDataEfficiency: public ManagedMonitorToolBase {
   int m_lumiblock;
   int m_BCID;
 
+  bool m_isMC;
+
   SG::ReadHandleKey<Muon::RpcCoinDataContainer> m_rpcCoinKey{this,"RpcCoinKey","RPC_triggerHits","RPC coincidences"};
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"};
   SG::ReadHandleKey<RpcSectorLogicContainer> m_sectorLogicContainerKey{this,"RPCSec","RPC_SECTORLOGIC","RPC sector logic"};
