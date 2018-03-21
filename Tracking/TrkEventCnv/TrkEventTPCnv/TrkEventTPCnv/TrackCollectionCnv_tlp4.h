@@ -49,11 +49,7 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalPositionCnv_p1.h"           
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"         
 
-#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3DCnv_p1.h"      
-
 #include "TrkEventTPCnv/TrkTrackSummary/TrackSummaryCnv_p2.h"
-
-#include <iostream>
 
 
 class TrackCollectionCnv_tlp4
@@ -122,7 +118,6 @@ protected:
   LocalPositionCnv_p1               m_localPositionsCnv;
   LocalParametersCnv_p1             m_localParametersCnv;            
 
-  HepPoint3DCnv_p1                  m_pointsCnv;            	
   TrackInfoCnv_p1                   m_trackInfosCnv;
 
   TrackSummaryCnv_p2                m_trackSummaryCnv;
