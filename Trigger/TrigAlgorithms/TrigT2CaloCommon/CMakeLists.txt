@@ -32,7 +32,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigTools/TrigTimeAlgs
-                          Trigger/TrigDataAccess/TrigCaloDataAccessSvc
                           PRIVATE
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloUtils
@@ -52,13 +51,13 @@ atlas_add_library( TrigT2CaloCommonLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT2CaloCommon
                    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel IRegionSelector Identifier EventInfo xAODTrigCalo ZdcEvent GaudiKernel LArRecEvent TileEvent TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ZdcByteStreamLib ZdcRecLib LArByteStreamLib LArRawUtilsLib LArCablingLib TileByteStreamLib TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloUtilsLib ByteStreamData_test LArRecUtilsLib TrigCaloDataAccessSvc
+                   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel IRegionSelector Identifier EventInfo xAODTrigCalo ZdcEvent GaudiKernel LArRecEvent TileEvent TrigSteeringEvent StoreGateLib SGtests ByteStreamCnvSvcBaseLib ZdcByteStreamLib ZdcRecLib LArByteStreamLib LArRawUtilsLib LArCablingLib TileByteStreamLib TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloUtilsLib ByteStreamData_test LArRecUtilsLib
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities ByteStreamData LArIdentifier LArRecConditions TrigT1Interfaces )
 
 atlas_add_component( TrigT2CaloCommon
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector Identifier ByteStreamCnvSvcBaseLib EventInfo xAODTrigCalo ZdcByteStreamLib ZdcEvent ZdcRecLib GaudiKernel LArByteStreamLib LArRawUtilsLib LArRecEvent LArCablingLib TileEvent TileByteStreamLib TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloUtilsLib AthenaPoolUtilities ByteStreamData ByteStreamData_test LArIdentifier LArRecConditions LArRecUtilsLib TrigT1Interfaces TrigCaloDataAccessSvcLib TrigT2CaloCommonLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector Identifier ByteStreamCnvSvcBaseLib EventInfo xAODTrigCalo ZdcByteStreamLib ZdcEvent ZdcRecLib GaudiKernel LArByteStreamLib LArRawUtilsLib LArRecEvent LArCablingLib TileEvent TileByteStreamLib TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloUtilsLib AthenaPoolUtilities ByteStreamData ByteStreamData_test LArIdentifier LArRecConditions LArRecUtilsLib TrigT1Interfaces TrigT2CaloCommonLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
