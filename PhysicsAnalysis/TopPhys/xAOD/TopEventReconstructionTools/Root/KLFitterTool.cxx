@@ -42,7 +42,7 @@ namespace top{
     }
     m_config->setKLFitter();
     m_LHType = m_config -> KLFitterLH();
-    m_transferFunctionsPathPrefix = PathResolverFindCalibDirectory( "KLFitter/transferfunctions/" );
+    m_transferFunctionsPathPrefix = PathResolverFindCalibDirectory( "dev/AnalysisTop/KLFitterTFs/" );
     m_transferFunctionsPath = m_config->KLFitterTransferFunctionsPath();
     
     std::string transferFunctionAbsPath = m_transferFunctionsPathPrefix + m_transferFunctionsPath + "/";
