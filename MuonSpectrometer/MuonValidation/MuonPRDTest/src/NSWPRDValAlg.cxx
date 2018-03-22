@@ -59,7 +59,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("MuonEntryLayer_ContainerName", m_MuEntry_ContainerName="MuonEntryLayer");
   declareProperty("NSWsTGC_ContainerName", m_NSWsTGC_ContainerName="sTGCSensitiveDetector");
   declareProperty("NSWsTGC_FastDigitContainerName", m_NSWsTGC_FastDigitContainerName="STGC_Measurements");
-  declareProperty("NSWsTGC_DigitContainerName", m_NSWsTGC_DigitContainerName="");
+  declareProperty("NSWsTGC_DigitContainerName", m_NSWsTGC_DigitContainerName="sTGC_DIGITS");
   declareProperty("NSWsTGC_PRDContainerName", m_NSWsTGC_PRDContainerName="STGC_Measurements");
   declareProperty("NSWMM_ContainerName", m_NSWMM_ContainerName="MicromegasSensitiveDetector");
   declareProperty("NSWMM_FastDigitContainerName", m_NSWMM_FastDigitContainerName="MM_Measurements");
