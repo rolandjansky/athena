@@ -31,7 +31,7 @@ using Lepton = TrigGlobEffCorr::Lepton;
 
 TrigGlobalEfficiencyCorrectionTool::TrigGlobalEfficiencyCorrectionTool(const std::string& name)
 	: asg::AsgTool(name), m_checkElectronLegTag(false), m_checkMuonLegTag(false), m_seed(1), 
-	m_runNumberDecorator("RandomRunNumber"), m_eventNumberDecorator("EventNumber"), m_calculator()
+	m_runNumberDecorator("RandomRunNumber"), m_calculator()
 {
 	declareProperty("ElectronEfficiencyTools", m_suppliedElectronEfficiencyTools, "electron MC efficiency tools (one for each kind of electron trigger leg)");
 	declareProperty("ElectronScaleFactorTools", m_suppliedElectronScaleFactorTools, "electron scale factor tools (one for each kind of electron trigger leg)");
@@ -561,13 +561,13 @@ bool TrigGlobalEfficiencyCorrectionTool::retrieveRunNumber(unsigned& runNumber)
 bool TrigGlobalEfficiencyCorrectionTool::retrieveEventNumber(unsigned long& eventNumber)
 {
 	auto eventInfo = evtStore()->retrieve<const xAOD::EventInfo>("EventInfo");
-	if(!eventInfo || !m_eventNumberDecorator.isAvailable(*eventInfo))
+	if(!eventInfo)
 	{
 		ATH_MSG_WARNING("Can't retrieve event number from evtStore()");
 		eventNumber = 0;
 		return false;
 	}
-	eventNumber = m_eventNumberDecorator(*eventInfo);
+	eventNumber = eventInfo->eventNumber();
 	return true;
 }
 
