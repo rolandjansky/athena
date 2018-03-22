@@ -2,7 +2,7 @@
 
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeElectronAnalysisSequence (dataType,electronContainer="Electrons",isolationWP="GradientLoose") :
+def makeElectronAnalysisSequence (dataType,electronContainer="Electrons",isolationWP="GradientLoose",likelihoodWP="LooseLHElectron") :
     if not dataType in ["data", "mc", "afii"] :
         raise Exception ("invalid data type: " + dataType)
 
@@ -23,6 +23,16 @@ def makeElectronAnalysisSequence (dataType,electronContainer="Electrons",isolati
 
 
 
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' )
+    addPrivateTool (alg, "selectionTool", "AsgElectronLikelihoodTool")
+    alg.selectionTool.primaryVertexContainer = "PrimaryVertices"
+    alg.selectionTool.WorkingPoint = likelihoodWP
+    alg.selectionDecoration = "selectLikelihood"
+    sequence.append ( {"alg" : alg, "in" : "particles", "out" : "particlesOut"} )
+    pass
+
+
+
     alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg', 'ElectronIsolationSelectionAlg' )
     addPrivateTool (alg, "selectionTool", "CP::IsolationSelectionTool")
     alg.selectionTool.ElectronWP = isolationWP
@@ -33,14 +43,14 @@ def makeElectronAnalysisSequence (dataType,electronContainer="Electrons",isolati
 
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'ElectronCutFlowDumperAlg' )
     alg.histPattern = "electron_cflow_%SYS%"
-    alg.selection = ['isolated']
-    alg.selectionNCuts = [1]
+    alg.selection = ["selectLikelihood",'isolated']
+    alg.selectionNCuts = [7,1]
     sequence.append ( {"alg" : alg, "in" : "input"} )
 
 
 
     alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'ElectronViewFromSelectionAlg' )
-    alg.selection = ['isolated']
+    alg.selection = ["selectLikelihood",'isolated']
     sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
 
 
