@@ -214,7 +214,6 @@ topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR
 topology_selection_2jet =  "(" + topology_selection_2jet_lowpt + " || " + topology_selection_2jet_highpt + ")"
 
 #event selection: photons and electrons
-#EXOT3_trigger1 = "(EF_g120_loose || EF_xe80_tclcw_tight)"#NOTE this is not used #CHECK
 EXOT3_trigger2 = "(HLT_g120_loose || HLT_g140_loose || HLT_xe100 || HLT_xe90_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50)"
 EXOT3_selection = "((count(Photons.pt > 100*GeV) > 0) || (count(Electrons.pt > 100*GeV) > 0))"
 
@@ -254,10 +253,10 @@ ToolSvc += EXOT3TriggerSkimmingTool
 #------------------------------------------
 #pre-skimming tools combinations
 
-#combination: (1 jet, photons and electrons) || (2 jets && triggers)
-EXOT3FinalPreSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORPreSkimmingTool",
-                                                                     FilterList = [EXOT3TriggerPreSkimmingTool, EXOT3PreSkimmingTool1])
-ToolSvc += EXOT3FinalPreSkimmingTool
+#combination: (1 jet, photons and electrons) || (triggers)
+EXOT3CombinedPreSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORPreSkimmingTool",
+                                                                        FilterList = [EXOT3TriggerPreSkimmingTool, EXOT3PreSkimmingTool1])
+ToolSvc += EXOT3CombinedPreSkimmingTool
 
 #------------------------------------------
 #skimming tools combinations
@@ -268,27 +267,21 @@ EXOT3ANDSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT3AN
 ToolSvc += EXOT3ANDSkimmingTool
 
 #combination: (1 jet, photons and electrons) || (2 jets && triggers)
-EXOT3FinalSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORSkimmingTool",
-                                                                  FilterList = [EXOT3ANDSkimmingTool, EXOT3SkimmingTool1])
-ToolSvc += EXOT3FinalSkimmingTool
+EXOT3CombinedSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORSkimmingTool",
+                                                                     FilterList = [EXOT3ANDSkimmingTool, EXOT3SkimmingTool1])
+ToolSvc += EXOT3CombinedSkimmingTool
 
 #=======================================
 # CREATE PRIVATE SEQUENCES
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE SKIMMING, THINNING AND AUGMENTATION TOOLS
 #=======================================
+#this pre-sequence skims events based on what is available from the input xAOD, thus reducing the use of CPU resources
 exot3PreSeq = CfgMgr.AthSequencer("EXOT3PreSequence")
-exot3Seq = CfgMgr.AthSequencer("EXOT3Sequence")
-
-#appnd pre-sequance to the DerivationFramework job
+exot3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3PreKernel_skim", SkimmingTools = [EXOT3CombinedPreSkimmingTool])
 DerivationFrameworkJob += exot3PreSeq
 
-#pass the tools to the pre-sequence
-#NOTE sequence tools will be passed after jets have been reconstructed #TEST
-exot3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3PreKernel_skim", SkimmingTools = [EXOT3FinalPreSkimmingTool])
-#exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim",    SkimmingTools = [EXOT3FinalSkimmingTool])
-#exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",         ThinningTools = thinningTools)
-
-#append sequence to pre-sequence
+#the main sequence tools will be passed after jets have been reconstructed
+exot3Seq = CfgMgr.AthSequencer("EXOT3Sequence")
 exot3PreSeq += exot3Seq
 
 #=======================================
@@ -344,13 +337,11 @@ addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, mods="groomed"
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
 
-#------------------------------------------
-#TEST
-#pass the tools to the sequence
-exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim",    SkimmingTools = [EXOT3FinalSkimmingTool])
-exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",         ThinningTools = thinningTools)
-#END TEST
-#------------------------------------------
+#=======================================
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE SKIMMING, THINNING AND AUGMENTATION TOOLS
+#=======================================
+exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim", SkimmingTools = [EXOT3CombinedSkimmingTool])
+exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",      ThinningTools = thinningTools)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
