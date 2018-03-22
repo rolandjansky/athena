@@ -2,7 +2,7 @@
 from AthenaCommon.GlobalFlags  import globalflags
 from AthenaCommon.Logging import logging  # loads logger
 log = logging.getLogger('TrigT1CaloSimJO_reprocessTT')
-log.debug("Starting reprocessing!!!")
+log.debug("Starting reprocessing of LVL1 trigger towers")
 
 globalflags.DatabaseInstance = 'CONDBR2'
 
@@ -12,11 +12,8 @@ LVL1ConfigSvc = LVL1ConfigSvc('LVL1ConfigSvc')
 LVL1ConfigSvc.XMLFile = findFileInXMLPATH(TriggerFlags.inputLVL1configFile())
 svcMgr +=  LVL1ConfigSvc
 
-'''
 # Do the reprocessing of TriggerTowers      
-                                                                                                                                                  
-include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
-'''
+#include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
 
 from IOVDbSvc.CondDB import conddb
 #default database /Calibration/Physics/Calib
@@ -131,92 +128,4 @@ job += LVL1__CPCMX( 'CPCMX',)
 job += LVL1__JetCMX( 'JetCMX',)
 job += LVL1__EnergyCMX( 'EnergyCMX',)
 job += LVL1__RoIROD( 'RoIROD',)
-'''
-#RoIBuilder
-
-job += CfgMgr.ROIB__RoIBuilder(
-      'RoIBuilder',
-      DoMuon = False,
-      DoCalo = True,
-      
-      #CTPSLinkLocation = 'Event/CTPSLinkLocation'+self.modName,
-      #CaloEMTauLocation = 'CaloTriggerDataLocation/EmTauSlink'+self.modName,
-      #CaloJetEnergyLocation = 'CaloTriggerDataLocation/JEPSlink'+self.modName,
-      RoIBRDOLocation = 'RoIBResult'
-)
-#job.append(roib)
-
-job += CfgMgr.RoIBResultToxAOD(
-  'RoIBResultToxAOD',
-  DoMuon = False,
-  DoCalo = True,
-      
-  CPMTowerLocation = 'CPMTowers',
-  JetElementLocation = 'JetElements',
-  RoIBResultInputKey = 'RoIBResult',
-  LVL1_ROIOutputKey = 'LVL1_ROI',
-      
-  xAODKeyEmTau = 'LVL1EmTauRoIs',
-  xAODKeyEsum = 'LVL1EnergySumRoI',
-  xAODKeyJetEt = 'LVL1JetEtRoI',
-  xAODKeyJet = 'LVL1JetRoIs',
-  xAODKeyMu = 'LVL1MuonRoIs'
-) 
-
-
-
-'''
-'''
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.out.root" )
-xaod = [
-    (True, "TriggerTower","ReprocessedTriggerTowers"),
-    (True, "TriggerTower", "xAODTriggerTowers"),
-    (True, "CPMTower", "CPMTowers"),
-    (True, "CMXCPTob", "CMXCPTobs"),
-    (True, "CMXCPHits", "CMXCPHits"),
-    (True, "CMXCPHits", "CMXCPHits"),
-    (True, "CMXJetTob", "CMXJetTobs"),
-    (True, "CMXJetHits", "CMXJetHits"),
-    (True, "CMXEtSums", "CMXEtSums"),
-    (True, "JEMEtSums", "JEMEtSums"),
-    (True, "CPMTobRoI", "CPMTobRoIs"),
-    (True, "CPMTobRoI", "CPMTobRoIsRoIB"),
-    (True, "JetElement", "JetElements"),
-    (True, "JetElement", "JetElementsOverlap"),
-    (True, "CMXRoI", "CMXRoIs"),
-    (True, "CMXRoI", "CMXRoIsRoIB"),
-    (False, "RODHeader", "RODHeaders"),
-    (False, "L1TopoRawData", "L1TopoRawData"),
-]
-
-for enabled, prefix, key in xaod:
-    if not enabled:
-        continue
-    print "xAOD::%sContainer#%s" % (prefix, key)
-    print "xAOD::%sAuxContainer#%sAux." % (prefix, key)
-    xaodStream.AddItem( "xAOD::%sContainer#%s" % (prefix, key))
-    xaodStream.AddItem( "xAOD::%sAuxContainer#%sAux." % (prefix, key))
-
-#two weird cases
-
-xaodStream.AddItem( ["xAOD::EnergySumRoI#*","xAOD::LVL1EnergySumRoI#*"] )
-xaodStream.AddItem( ["xAOD::EnergySumRoIAuxInfo#*","xAOD::LVL1EnergySumRoIAux#*"] )
-
-xaodStream.AddItem( ["xAOD::JetEtRoI#*","xAOD::LVL1JetEtRoI#*"] )
-xaodStream.AddItem( ["xAOD::JetEtRoIAuxInfo#*","xAOD::LVL1JetEtRoIAux#*"] )
-
-outputL1 =[
-    (True,"JetRoI"),
-    (True,"EmTauRoI"),
-    (True,"MuonRoI"),
-    ]
-
-for enabled, key in outputL1:
-    if not enabled:
-        continue
-    xaodStream.AddItem( ["xAOD::%sContainer#*" % key,"xAOD::LVLV1%ss#*" % key] )
-    xaodStream.AddItem(["xAOD::%sAuxContainer#*" % key,"xAOD::LVLV1%ssAux#*" % key] )
-
-'''
 
