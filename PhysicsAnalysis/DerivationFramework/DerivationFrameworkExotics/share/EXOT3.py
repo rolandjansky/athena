@@ -282,10 +282,11 @@ exot3Seq = CfgMgr.AthSequencer("EXOT3Sequence")
 #appnd pre-sequance to the DerivationFramework job
 DerivationFrameworkJob += exot3PreSeq
 
-#pass the tools to the sequences
+#pass the tools to the pre-sequence
+#NOTE sequence tools will be passed after jets have been reconstructed #TEST
 exot3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3PreKernel_skim", SkimmingTools = [EXOT3FinalPreSkimmingTool])
-exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim",    SkimmingTools = [EXOT3FinalSkimmingTool])
-exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",         ThinningTools = thinningTools)
+#exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim",    SkimmingTools = [EXOT3FinalSkimmingTool])
+#exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",         ThinningTools = thinningTools)
 
 #append sequence to pre-sequence
 exot3PreSeq += exot3Seq
@@ -342,6 +343,14 @@ addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, mods="groomed"
 
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
+
+#------------------------------------------
+#TEST
+#pass the tools to the sequence
+exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim",    SkimmingTools = [EXOT3FinalSkimmingTool])
+exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",         ThinningTools = thinningTools)
+#END TEST
+#------------------------------------------
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
