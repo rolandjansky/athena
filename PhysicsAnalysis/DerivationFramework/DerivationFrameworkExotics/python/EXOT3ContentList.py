@@ -10,38 +10,37 @@ EXOT3SmartContent = [
     "AntiKt4EMTopoJets",
     "BTagging_AntiKt4EMTopo",
     "BTagging_AntiKt2Track",
-    "TauJets"
+    "TauJets",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets",
+    "AntiKt10TruthTrimmedPtFrac5SmallR20Jets"
 ]
 
 EXOT3ExtraVariables = [
     "Electrons.AverageLArQF",
     "Electrons.author.Medium.Tight.Loose.charge", 
-    "Muons.etcone30"
+    "Muons.etcone30",
+    "MuonSpectrometerTrackParticles.phi.theta.qOverP",
+    "TruthParticles.prodVtxLink.decayVtxLink.m.px.py.pz.barcode.e.pdgId.status",
+    "AntiKt4TruthJets.pt.eta.phi.m",
+    "TruthVertices.incomingParticleLinks.outgoingParticleLinks",
+    "AntiKt10LCTopoJets.NumTrkPt500.SumPtTrkPt500.GhostAntiKt2TrackJet.TrackWidthPt500.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostHBosons.GhostTausFinal.GhostVR30Rmax4Rmin02TrackJet.GhostWBosonsCount.GhostZBosonsCount.NumTrkPt1000.SumPtTrkPt1000.TrackWidthPt1000",
+    "AntiKt10TrackCaloClusterJets.NumTrkPt500.SumPtTrkPt500.TrackWidthPt500.GhostWBosonsCount.GhostZBosonsCount.NumTrkPt1000.SumPtTrkPt1000.TrackWidthPt1000",
+    "AntiKt4EMTopoJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.btaggingLink.EnergyPerSampling.NumTrkPt500.SumPtTrkPt500.EMFrac.Width.Jvt.TrackWidthPt500.GhostMuonSegmentCount.isBJet.DetectorEta.HadronConeExclTruthLabelID.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.FracSamplingMax.FracSamplingMaxIndex.GhostTrack.HECFrac.HECQuality.JVFCorr.LArQuality.NegativeE.NumTrkPt1000.TrackWidthPt1000.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.OriginCorrected.PileupCorrected",
+    "AntiKt2PV0TrackJets.pt.eta.phi.m.constituentLinks.btaggingLink.HadronConeExclTruthLabelID.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostHBosons.GhostTausFinal",
+    "TauJets.pt",
+    "BTagging_AntiKt4EMTopo.DL1_pb.DL1_pc.DL1_pu.DL1mu_pb.DL1mu_pc.DL1mu_pu.DL1rnn_pb.DL1rnn_pc.DL1rnn_pu.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.MV2cl100_discriminant.MV2c100_discriminant",
+    "BTagging_AntiKt2Track.DL1_pb.DL1_pc.DL1_pu.DL1mu_pb.DL1mu_pc.DL1mu_pu.DL1rnn_pb.DL1rnn_pc.DL1rnn_pu.MV2c10_discriminant.MV2c10mu_discriminant.MV2c10rnn_discriminant.MV2cl100_discriminant",
+    "CombinedMuonTrackParticles.phi.z0.d0.theta.vz.chiSquared.definingParametersCovMatrix.numberDoF.numberOfPixelDeadSensors.numberOfPixelHits.numberOfPixelHoles.numberOfSCTDeadSensors.numberOfSCTHits.numberOfSCTHoles.numberOfTRTHits.numberOfTRTOutliers.qOverP",
+    "ExtrapolatedMuonTrackParticles.phi.z0.d0.theta.vz.definingParametersCovMatrix.numberOfPixelDeadSensors.numberOfPixelHits.qOverP",
+    "GSFTrackParticles.phi.z0.d0.theta.vz.definingParametersCovMatrix.eProbabilityHT.expectInnermostPixelLayerHit.expectNextToInnermostPixelLayerHit.numberOfInnermostPixelLayerHits.numberOfInnermostPixelLayerOutliers.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers.numberOfPixelDeadSensors.numberOfPixelHits.numberOfSCTDeadSensors.numberOfSCTHits.parameterPX.parameterPY.parameterPZ.parameterPosition.parameterX.qOverP"
 ]
 
 EXOT3AllVariablesContent = [
      ### TRUTH ###
      "TruthEvents",
      "TruthVertices",
-     "MuonTruthParticles",
-     "TruthParticles",
-     "MET_Truth",
-     "AntiKt10TruthJets",
-     "AntiKt4TruthJets",
-
-     ### JETS ###
-     "AntiKt10LCTopoJets",
-     "AntiKt10TrackCaloClusterJets",
-     "AntiKt4EMTopoJets",
-     "AntiKt2PV0TrackJets",
-     "TauJets",
-     
-     ### MET ###
-     "MET_LocHadTopo",
-     
-     ### B JETS ###
-     "BTagging_AntiKt4EMTopo",
-     "BTagging_AntiKt2Track",
 
      ### MUONS ###
      "MuonSegments",
@@ -53,14 +52,7 @@ EXOT3AllVariablesContent = [
      "TrackCaloClustersCombinedAndNeutral",
 
      "METAssoc_AntiKt4EMTopo",
-     "MET_Core_AntiKt4EMTopo",
-     "MET_Reference_AntiKt4EMTopo",
-
-     "egammaTopoSeededClusters",
-
-     "CombinedMuonTrackParticles",
-     "ExtrapolatedMuonTrackParticles",
-     "GSFTrackParticles",
+     "MET_Core_AntiKt4EMTopo"
 ]
 
 EXOT3StaticContent = []
