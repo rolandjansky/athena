@@ -14,13 +14,15 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/Algorithms/SystematicsHandles
    PhysicsAnalysis/AnalysisCommon/IsolationSelection
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
+   PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces )
 
 atlas_add_library( EgammaAnalysisAlgorithmsLib
    EgammaAnalysisAlgorithms/*.h EgammaAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS EgammaAnalysisAlgorithms
    LINK_LIBRARIES xAODEgamma SelectionHelpersLib SystematicsHandlesLib
-   IsolationSelectionLib AnaAlgorithmLib EgammaAnalysisInterfacesLib
+   IsolationSelectionLib AnaAlgorithmLib IsolationCorrectionsLib
+   EgammaAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES  )
 
 atlas_add_dictionary( EgammaAnalysisAlgorithmsDict

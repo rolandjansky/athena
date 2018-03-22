@@ -22,7 +22,7 @@ namespace CP
   EgammaCalibrationAndSmearingAlg (const std::string& name, 
                      ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
-    , m_calibrationAndSmearingTool ("JERSmearingTool", this)
+    , m_calibrationAndSmearingTool ("CP::EgammaCalibrationAndSmearingTool", this)
   {
     declareProperty ("calibrationAndSmearingTool", m_calibrationAndSmearingTool, "the smearing tool we apply");
   }
