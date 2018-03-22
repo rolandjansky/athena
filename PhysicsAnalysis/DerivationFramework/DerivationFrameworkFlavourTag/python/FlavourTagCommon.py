@@ -207,7 +207,7 @@ def FlavorTagInit(DoReduceInfo   =False,
 
 
     #List of taggers used in RUN2
-    Taggers = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'DL1Flip', 'RNNIP','MV2c10Flip']
+    Taggers = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu',  'RNNIP']
     #Taggers = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'MV2c10', 'MV2c100', 'JetVertexCharge', 'MV2cl100', 'MVb']
     #if the user has defined a list of desired taggers use that one, otherwise use only the active taggers
     if len( myTaggers ) >0:
@@ -215,7 +215,7 @@ def FlavorTagInit(DoReduceInfo   =False,
  
 
     if isFTAG1==True:
-        FlipTaggers = ['SV1Flip','JetFitterNNFlip','IP2DNeg','IP3DNeg','MV2c10Flip','MV2c100Flip','MV2cl100Flip']
+        FlipTaggers = ['SV1Flip','JetFitterNNFlip','IP2DNeg','IP3DNeg','MV2c10Flip','MV2c100Flip','MV2cl100Flip', 'DL1Flip', 'DL1rnnFlip', 'DL1muFlip', 'RNNIPFlip','MV2c10Flip']
         for tag in FlipTaggers:
             if tag not in Taggers:
                 Taggers.append( tag )

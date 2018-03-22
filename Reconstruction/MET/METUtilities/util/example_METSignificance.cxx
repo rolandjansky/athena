@@ -87,7 +87,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016_rel21.config") );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config") );
   ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
   ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
@@ -115,12 +115,14 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( metSignif.setProperty("SoftTermParam", met::Random) );
   ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
   ANA_CHECK( metSignif.setProperty("DoPhiReso",     true) );
+  ANA_CHECK( metSignif.setProperty("IsDataJet",     false) );
+  if(debug) ANA_CHECK( metSignif.setProperty("OutputLevel", MSG::VERBOSE) );
   ANA_CHECK( metSignif.retrieve() );
   
   // reconstruct the MET
   asg::AnaToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
-  ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
+  ANA_CHECK( metMaker.setProperty("DoMuonEloss", false) );
   ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );
   ANA_CHECK( metMaker.setProperty("DoSetMuonJetEMScale", true) );
   ANA_CHECK( metMaker.retrieve() );
@@ -157,10 +159,13 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     //this is a non-const copy of the jet collection that you can calibrate.
     xAOD::JetContainer* calibJets = jets_shallowCopy.first;
     xAOD::setOriginalObjectLink(*jets,*calibJets);
+    unsigned ij=0;
     for ( const auto& jet : *calibJets ) {
       //Shallow copy is needed (see links below)
       if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
 	return 1;
+      if(debug) std::cout << " jet: " << ij << " pt: " << jet->pt() << " eta: "<< jet->eta() << std::endl;
+      ++ij;
     }
 
     //retrieve the MET association map
@@ -241,7 +246,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    calibJets,       //using this jet collection to calculate jet met
 				    coreMet,         //core met container
 				    metMap,          //with this association map
-				    false            //don't apply jet jvt cut
+				    true             //apply jet jvt cut
 				    )
 	     );
 

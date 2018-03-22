@@ -27,7 +27,7 @@ class ConfigWP(object):
 
 def writeConfig(myConfig):
 
-    ConfigTemp = string.Template(""" 
+    ConfigTemp = string.Template("""
 ##################################################
 # SUSYTools configuration file
 ##################################################
@@ -38,7 +38,7 @@ EleBaseline.CrackVeto: false
 #
 Ele.Et: 25000.
 Ele.Eta: 2.47
-Ele.CrackVeto: false 
+Ele.CrackVeto: false
 Ele.Iso: ${ELE_ISO}
 Ele.Id: ${ELE_ID}
 Ele.d0sig: 5.
@@ -79,7 +79,6 @@ Tau.IDRedecorate: False
 Jet.Pt: 20000.
 Jet.Eta: 2.8
 Jet.InputType: 1 # EMTopo
-Jet.JESNPSet: 1
 Jet.JVT_WP: Medium
 #
 FwdJet.doJVT: false
@@ -88,8 +87,8 @@ FwdJet.JvtPtMax: 50e3
 FwdJet.JvtUseTightOP: false
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-Jet.LargeRuncConfig: None 
-# 80% efficiency working points 
+Jet.LargeRuncConfig: None
+# 80% efficiency working points
 Jet.WtaggerConfig: SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
 Jet.ZtaggerConfig: SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
 # JMS Calibration (None, Extrap, Frozen)
@@ -102,7 +101,7 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root
+Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true
@@ -151,7 +150,7 @@ MET.DoCaloSyst: 0
 #
 METSys.ConfigPrefix: METUtilities/data17_13TeV/prerec_Jan16
 #
-#METSig.SoftTermParam: met::Random 
+#METSig.SoftTermParam: met::Random
 METSig.TreatPUJets: true
 METSig.DoPhiReso: true
 #
@@ -195,14 +194,14 @@ class TestSUSYTools(unittest.TestCase):
 
     #Working points
     EL_ID_WP  = [ 'LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
-    EL_ISO_WP = ['Gradient','GradientLoose','FixedCutTightTrackOnly'] 
-    MU_ID_WP  = ['1'] 
+    EL_ISO_WP = ['Gradient','GradientLoose','FixedCutTightTrackOnly']
+    MU_ID_WP  = ['1']
     MU_ISO_WP = ['GradientLoose']
     PH_ID_WP  = ['Loose','Tight']
     PH_ISO_WP = ['FixedCutTight','FixedCutLoose']
     BTAG_WP   = ['FixedCutBEff_77'] #,'FixedCutBEff_85']
     #...
-    
+
     #default settings
     defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH',
                      'el_id'      : 'TightLLH',
@@ -230,17 +229,17 @@ class TestSUSYTools(unittest.TestCase):
     #Default Initialization
 #    def test_initialization_data(self):
 #        st = ROOT.ST.SUSYObjDef_xAOD('ST_data')
-#        st.setDataSource(0)        
+#        st.setDataSource(0)
 #        self.assertTrue(st.initialize().isSuccess())
-#         
+#
 #    def test_initialization_mc_full(self):
 #        st = ROOT.ST.SUSYObjDef_xAOD('ST_full')
-#        st.setDataSource(1)        
+#        st.setDataSource(1)
 #       self.assertTrue(st.initialize().isSuccess())
-#        
+#
 #    def test_initialization_mc_fast(self):
 #        st = ROOT.ST.SUSYObjDef_xAOD('ST_fast')
-#        st.setDataSource(2)        
+#        st.setDataSource(2)
 #        self.assertTrue(st.initialize().isSuccess())
 
 
@@ -258,7 +257,7 @@ class TestSUSYTools(unittest.TestCase):
             OFile.write( writeConfig(self.myConf) )
             OFile.close()
 
-            ## run the test 
+            ## run the test
             print '   Testing ',wp
             print self.myConf
             output = subprocess.Popen(self.theTest, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=os.environ.copy())
@@ -327,4 +326,4 @@ if __name__ == '__main__':
     #unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestSUSYTools)
     result = unittest.TextTestRunner(verbosity=0).run(suite).wasSuccessful()
-    sys.exit( not result ) #convert True -> 0 
+    sys.exit( not result ) #convert True -> 0

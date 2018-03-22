@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTau
                           Event/xAOD/xAODTracking
 			  PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
-                          PhysicsAnalysis/MuonID/MuonSelectorTools
+                          PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
                           PhysicsAnalysis/TauID/TauAnalysisTools
                           Reconstruction/Jet/JetInterface
                           Reconstruction/MET/METInterface )
@@ -32,5 +32,5 @@ atlas_add_component( MissingEtDQA
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AsgTools AthenaBaseComps AthenaMonitoringLib xAODEgamma xAODJet xAODMissingET xAODMuon xAODTau xAODTracking EgammaAnalysisInterfacesLib MuonSelectorToolsLib JetInterface METInterface )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AsgTools AthenaBaseComps AthenaMonitoringLib xAODEgamma xAODJet xAODMissingET xAODMuon xAODTau xAODTracking EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib JetInterface METInterface )
 

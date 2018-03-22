@@ -6,7 +6,7 @@ include("MuonEfficiencyCorrections/CommonToolSetup.py")
 
 # a simple testing macro for the MuonEfficiencyCorrections_xAOD package in athena
 #
-# Usage: athena -c "inputFile='<input file>'" MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
+# Usage: athena --filesInput <InputFile> MuonEfficiencyCorrections/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py
 
 # Access the algorithm sequence:
 AssembleIO("MUONEFFTESTER")
@@ -17,10 +17,16 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
+alg.DefaultRelease="cMoriond18"
+alg.ValidationRelease="cCaloFix"
 
 WPs = [
          # reconstruction WPs
-         "Loose", "Medium", "Tight", "HighPt",
+        # "LowPt",
+         "Loose", 
+         "Medium", 
+         "Tight", 
+         "HighPt",
          # track-to-vertex-association WPs
          "TTVA",
          # BadMuon veto SFs
@@ -30,7 +36,9 @@ WPs = [
          "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
         ]
 
-for WP in WPs: alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
+for WP in WPs: 
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="CaloTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180312_TriggerUpdate")]
 theJob += alg
 
 # Do some additional tweaking:

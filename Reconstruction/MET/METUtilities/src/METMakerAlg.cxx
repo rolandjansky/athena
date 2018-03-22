@@ -19,8 +19,8 @@
 #include "xAODTau/TauJetContainer.h"
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
 
 using std::string;
@@ -267,7 +267,7 @@ namespace met {
     }
 
     if( m_metmaker->rebuildJetMET("RefJet", m_softclname, m_softtrkname, newMet,
-				  jetCont, coreMet, metMap, false ).isFailure() ) {
+				  jetCont, coreMet, metMap, true ).isFailure() ) {
       ATH_MSG_WARNING("Failed to build jet and soft terms.");
     }
     ATH_MSG_DEBUG("Of " << jetCont->size() << " jets, "

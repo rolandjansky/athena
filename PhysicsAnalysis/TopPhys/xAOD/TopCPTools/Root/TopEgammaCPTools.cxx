@@ -78,6 +78,11 @@ StatusCode EgammaCPTools::initialize() {
   else {
     ATH_MSG_INFO("top::EgammaCPTools: no need to initialise anything since using neither electrons nor photons");
   }
+
+  // Update for R21 is to remove radiative Z corrections, so if the option is used, it will be ignored
+  if(m_config->photonUseRadiativeZ()){
+    ATH_MSG_INFO("top::EgammaCPTools: You have requested radiative corrections for photons however these are not yet available in R21. This options will be ignored.");
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -149,27 +154,15 @@ StatusCode EgammaCPTools::setupCalibration() {
   bool af2 = m_config->isAFII();
   int data_type = 0; // Data
   if (m_config->isMC()) {
-    data_type = 1; // Full sim
     if (af2) {
-      data_type = 3; // AF2
+      ATH_MSG_WARNING("PhotonEfficiencies - Currently there are no recommendations for FastSimulation photons");
+      ATH_MSG_WARNING("PhotonEfficiencies - Therefore we are advised to treat FastSim as FullSim for configuration");
+      //data_type = 3; // AF2
+      data_type = 1; // AF2 masquerading as full sim
     }
-  }
-
-  // The file to make the tool with.
-  std::string file_base = "PhotonEfficiencyCorrection/";
-  std::string file_map = file_base + "2015_2016/rel20.7/Moriond2017_v1/map0.txt";
-  file_map = PathResolverFindCalibFile(file_map);
-  std::string file_con = "";
-  std::string file_unc = "";
-  if (af2) {
-    // for AFII we keep using the previous recommendations
-    file_base += "v1/efficiencySF.offline.Tight.2015.13TeV.rel20.AFII.";
-    file_con = file_base; // Conv file
-    file_unc = file_base; // Unconv file
-    file_con += "con.v01.root";
-    file_con = PathResolverFindCalibFile(file_con);
-    file_unc += "unc.v01.root";
-    file_unc = PathResolverFindCalibFile(file_unc);
+    else{
+      data_type = 1; // Full sim
+    }
   }
 
   using IPhotonEffTool = IAsgPhotonEfficiencyCorrectionTool;
@@ -179,21 +172,6 @@ StatusCode EgammaCPTools::setupCalibration() {
   } else {
     if (m_config->isMC()) {  // Seem to only be able to setup the tool for MC
       IPhotonEffTool* photonEffSF = new AsgPhotonEfficiencyCorrectionTool(photonSFName);
-      if (!af2) {
-        top::check(asg::setProperty(photonEffSF,
-                                    "MapFilePath",
-                                    file_map),
-                    "Failed to set MapFilePath for " + photonSFName);
-      } else {
-        top::check(asg::setProperty(photonEffSF,
-                                    "CorrectionFileNameConv",
-                                    file_con),
-                    "Failed to set CorrectionFileNameConv for " + photonSFName);
-        top::check(asg::setProperty(photonEffSF,
-                                    "CorrectionFileNameUnconv",
-                                    file_unc),
-                    "Failed to set CorrectionFileNameUnconv for " + photonSFName);
-      }
       top::check(asg::setProperty(photonEffSF, "ForceDataType", data_type),
                   "Failed to set ForceDataType for " + photonSFName);
       top::check(photonEffSF->initialize(),
@@ -206,24 +184,18 @@ StatusCode EgammaCPTools::setupCalibration() {
   // To retrieve Isolation Eff scale factors
   // N.B. Naming for isolation working points for AsgPhotonEfficiencyCorrectionTool isolation scale factors
   // are different than those for the IsolationCorrectionTool (preceded by FixedCut)
-  std::set<std::string> photon_isolations = {"TightCaloOnly",
-					     "Tight",
-					     "Loose",};
+  std::set<std::string> photon_isolations = {"Tight",
+					     "Loose",
+					     "TightCaloOnly"};
   for (const std::string& isoWP : photon_isolations) {
     std::string photonIsoSFName = "AsgPhotonEfficiencyCorrectionTool_IsoSF" + isoWP;
     if (!asg::ToolStore::contains<IPhotonEffTool>(photonIsoSFName)) {
       if (m_config->isMC() && !af2) { // only available for full simulation
         IPhotonEffTool* photonIsoSFTool = new AsgPhotonEfficiencyCorrectionTool(photonIsoSFName);
-        top::check(asg::setProperty(photonIsoSFTool,
-                                    "MapFilePath",
-                                    file_map),
-                    "Failed to set MapFilePath for " + photonIsoSFName);
         top::check(asg::setProperty(photonIsoSFTool, "ForceDataType", data_type),
                     "Failed to set ForceDataType for " + photonIsoSFName);
-        top::check(asg::setProperty(photonIsoSFTool, "UseRadiativeZSF_mediumPT", m_config->photonUseRadiativeZ()),
-                    "Failed to set useRadiativeZSF_mediumPT for " + photonIsoSFName);
-        top::check(asg::setProperty(photonIsoSFTool, "IsoWP", isoWP),
-                    "Failed to set IsoWP for " + photonIsoSFName);
+        top::check(asg::setProperty(photonIsoSFTool, "IsoKey", isoWP),
+                    "Failed to set IsoKey for " + photonIsoSFName);
         top::check(photonIsoSFTool->initialize(),
                     "Failed to initialize " + photonIsoSFName);
         m_photonIsoSFTools.push_back(photonIsoSFTool);

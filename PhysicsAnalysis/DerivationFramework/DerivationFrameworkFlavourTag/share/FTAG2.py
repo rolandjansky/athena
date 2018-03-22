@@ -61,11 +61,21 @@ print FTAG2IPETool
 #print FTAG2TrackToVertexWrapper
 
 #====================================================================
-# CREATE PRIVATE SEQUENCE
+# CREATE PRIVATE SEQUENCES
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
 
+FTAG2PreSeq = CfgMgr.AthSequencer("FTAG2PreSelectionSequence");
+DerivationFrameworkJob += FTAG2PreSeq
+
+FTAG2PreSeq += CfgMgr.DerivationFramework__DerivationKernel("FTAG2Kernel",
+                                                            SkimmingTools = [FTAG2StringSkimmingTool],
+                                                            AugmentationTools = []
+                                                           )
+
 FTAG2Seq = CfgMgr.AthSequencer("FTAG2Sequence");
-DerivationFrameworkJob += FTAG2Seq
+FTAG2PreSeq += FTAG2Seq
+
 
 #====================================================================
 # Basic Jet Collections
@@ -119,16 +129,6 @@ for jc in ["AntiKt4EMTopoJets"]:
         TrackToVertexIPEstimator = FTAG2IPETool,
         SaveTrackVectors = True,
     )
-
-#====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
-#====================================================================
-
-FTAG2Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG2Kernel",
-                                                         SkimmingTools = [FTAG2StringSkimmingTool],
-                                                         AugmentationTools = []
-                                                         )
-
 
 #====================================================================
 # SET UP STREAM

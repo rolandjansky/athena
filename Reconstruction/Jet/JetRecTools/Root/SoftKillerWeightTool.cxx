@@ -10,6 +10,8 @@
 #include "fastjet/contrib/SoftKiller.hh"
 
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/TrackCaloCluster.h"
+
 
 using namespace std;
 
@@ -124,6 +126,10 @@ double SoftKillerWeightTool::getSoftKillerMinPt(xAOD::IParticleContainer& cont) 
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
       accept = fabs(pfo->charge())>1e-9;
     }
+    if(m_inputType==xAOD::Type::TrackCaloCluster ) {
+      xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
+      accept = (tcc->taste()!= 0);
+    }
     if(accept) {
       partPJ.push_back( fastjet::PseudoJet( part->p4() ));
     }
@@ -152,6 +158,10 @@ std::pair<double,double> SoftKillerWeightTool::getSoftKillerMinPtSplit(xAOD::IPa
     if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
       accept = fabs(pfo->charge())>1e-9;
+    }
+    if(m_inputType==xAOD::Type::TrackCaloCluster) {
+      xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
+      accept = (tcc->taste()!= 0);
     }
     if(accept) {
       double center_lambda = acc_clambda.isAvailable(*part) ? acc_clambda(*part) : 0.;
