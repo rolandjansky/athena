@@ -56,5 +56,4 @@ class TrigMuonEFMSonlyHypoAlg
 	this, "L1Decisions", "MuonEFMSonly_Decisions", "Name of the input decisions object"};
 };
 
-DECLARE_ALGORITHM_FACTORY( TrigMuonEFMSonlyHypoAlg )
 #endif
