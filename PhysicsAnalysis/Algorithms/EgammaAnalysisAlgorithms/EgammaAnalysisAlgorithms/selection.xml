@@ -1,5 +1,6 @@
 <lcgdict>
 
    <class name="CP::EgammaCalibrationAndSmearingAlg" />
+   <class name="CP::EgammaIsolationSelectionAlg" />
    
 </lcgdict>

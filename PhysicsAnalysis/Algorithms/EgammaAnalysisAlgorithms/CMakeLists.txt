@@ -12,6 +12,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEgamma
    PhysicsAnalysis/Algorithms/SelectionHelpers
    PhysicsAnalysis/Algorithms/SystematicsHandles
+   PhysicsAnalysis/AnalysisCommon/IsolationSelection
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces )
 
@@ -19,7 +20,7 @@ atlas_add_library( EgammaAnalysisAlgorithmsLib
    EgammaAnalysisAlgorithms/*.h EgammaAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS EgammaAnalysisAlgorithms
    LINK_LIBRARIES xAODEgamma SelectionHelpersLib SystematicsHandlesLib
-   AnaAlgorithmLib EgammaAnalysisInterfacesLib
+   IsolationSelectionLib AnaAlgorithmLib EgammaAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES  )
 
 atlas_add_dictionary( EgammaAnalysisAlgorithmsDict

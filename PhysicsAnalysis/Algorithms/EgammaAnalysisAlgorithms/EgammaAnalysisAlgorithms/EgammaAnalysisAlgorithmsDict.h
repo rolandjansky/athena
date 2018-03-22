@@ -9,5 +9,6 @@
 #define EGAMMA_ANALYSIS_ALGORITHMS__EGAMMA_ANALYSIS_ALGORITHMS_DICT_H
 
 #include <EgammaAnalysisAlgorithms/EgammaCalibrationAndSmearingAlg.h>
+#include <EgammaAnalysisAlgorithms/EgammaIsolationSelectionAlg.h>
 
 #endif
