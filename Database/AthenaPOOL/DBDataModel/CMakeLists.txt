@@ -7,9 +7,8 @@ atlas_subdir( DBDataModel )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           PRIVATE
                           Database/APR/CollectionBase )
 
@@ -21,12 +20,12 @@ atlas_add_library( DBDataModel
                    src/*.cxx
                    PUBLIC_HEADERS DBDataModel
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools
+                   LINK_LIBRARIES AthContainers 
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CollectionBase )
 
 atlas_add_dictionary( DBDataModelDict
                       DBDataModel/DBDataModelDict.h
                       DBDataModel/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools CollectionBase DBDataModel )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers CollectionBase DBDataModel )
 
