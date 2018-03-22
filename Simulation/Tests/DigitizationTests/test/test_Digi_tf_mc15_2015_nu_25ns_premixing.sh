@@ -1,6 +1,10 @@
 #!/bin/sh
 #
 # art-description: Run pile-up premixing with a MC15 nu sample with 2015 geometry and conditions, 25ns pile-up
+# art-include: 21.0/Athena
+# art-include: 21.3/Athena
+# art-include: 21.9/Athena
+# art-include: master/Athena
 # art-type: grid
 # art-output: mc15_2015_nu_25ns_premixing.RDO.pool.root
 
