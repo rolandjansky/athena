@@ -12,9 +12,7 @@ EXOT3SmartContent = [
     "BTagging_AntiKt2Track",
     "TauJets",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets",
-    "AntiKt10TruthTrimmedPtFrac5SmallR20Jets"
+    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"
 ]
 
 EXOT3ExtraVariables = [
@@ -25,8 +23,10 @@ EXOT3ExtraVariables = [
     "TruthParticles.prodVtxLink.decayVtxLink.m.px.py.pz.barcode.e.pdgId.status",
     "AntiKt4TruthJets.pt.eta.phi.m",
     "TruthVertices.incomingParticleLinks.outgoingParticleLinks",
-    "AntiKt10LCTopoJets.NumTrkPt500.SumPtTrkPt500.GhostAntiKt2TrackJet.TrackWidthPt500.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostHBosons.GhostTausFinal.GhostVR30Rmax4Rmin02TrackJet.GhostWBosonsCount.GhostZBosonsCount.NumTrkPt1000.SumPtTrkPt1000.TrackWidthPt1000",
-    "AntiKt10TrackCaloClusterJets.NumTrkPt500.SumPtTrkPt500.TrackWidthPt500.GhostWBosonsCount.GhostZBosonsCount.NumTrkPt1000.SumPtTrkPt1000.TrackWidthPt1000",
+    "AntiKt10LCTopoJets.NumTrkPt500.SumPtTrkPt500.GhostAntiKt2TrackJet.TrackWidthPt500.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostHBosons.GhostTausFinal.GhostVR30Rmax4Rmin02TrackJet.GhostWBosonsCount.GhostZBosonsCount.NumTrkPt1000.SumPtTrkPt1000.TrackWidthPt1000.GhostTrack.GhostTrackCount",
+    "AntiKt10TrackCaloClusterJets.NumTrkPt500.SumPtTrkPt500.GhostAntiKt2TrackJet.TrackWidthPt500.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostHBosons.GhostTausFinal.GhostVR30Rmax4Rmin02TrackJet.GhostWBosonsCount.GhostZBosonsCount.NumTrkPt1000.SumPtTrkPt1000.TrackWidthPt1000.GhostTrack.GhostTrackCount",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.NumTrkPt500.SumPtTrkPt500.GhostAntiKt2TrackJet.TrackWidthPt500.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostHBosons.GhostTausFinal.GhostVR30Rmax4Rmin02TrackJet.GhostWBosonsCount.GhostZBosonsCount.NumTrkPt1000.SumPtTrkPt1000.TrackWidthPt1000.GhostTrack.GhostTrackCount",
+    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.NumTrkPt500.SumPtTrkPt500.GhostAntiKt2TrackJet.TrackWidthPt500.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostHBosons.GhostTausFinal.GhostVR30Rmax4Rmin02TrackJet.GhostWBosonsCount.GhostZBosonsCount.NumTrkPt1000.SumPtTrkPt1000.TrackWidthPt1000.GhostTrack.GhostTrackCount",
     "AntiKt4EMTopoJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.btaggingLink.EnergyPerSampling.NumTrkPt500.SumPtTrkPt500.EMFrac.Width.Jvt.TrackWidthPt500.GhostMuonSegmentCount.isBJet.DetectorEta.HadronConeExclTruthLabelID.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.FracSamplingMax.FracSamplingMaxIndex.GhostTrack.HECFrac.HECQuality.JVFCorr.LArQuality.NegativeE.NumTrkPt1000.TrackWidthPt1000.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.OriginCorrected.PileupCorrected",
     "AntiKt2PV0TrackJets.pt.eta.phi.m.constituentLinks.btaggingLink.HadronConeExclTruthLabelID.ConeExclBHadronsFinal.ConeExclCHadronsFinal.GhostHBosons.GhostTausFinal",
     "TauJets.pt",
@@ -52,7 +52,8 @@ EXOT3AllVariablesContent = [
      "TrackCaloClustersCombinedAndNeutral",
 
      "METAssoc_AntiKt4EMTopo",
-     "MET_Core_AntiKt4EMTopo"
+     "MET_Core_AntiKt4EMTopo",
+     "AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets"
 ]
 
 EXOT3StaticContent = []
