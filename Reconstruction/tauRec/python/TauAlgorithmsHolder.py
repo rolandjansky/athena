@@ -226,8 +226,7 @@ def getTauAdaptiveVertexFitter():
                                                         ImpactPoint3dEstimator=TauInDetImpactPoint3dEstimator, 
                                                         VertexSmoother=TauSequentialVertexSmoother, 
                                                         AnnealingMaker=TauDetAnnealingMaker,
-                                                        LinearizedTrackFactory=getTauFullLinearizedTrackFactory(),
-                                                        XAODConverter="Trk::VxCandidateXAODVertex/VertexInternalEdmFactory")
+                                                        LinearizedTrackFactory=getTauFullLinearizedTrackFactory())
     
     cached_instances[_name] = TauAdaptiveVertexFitter
     ToolSvc +=TauAdaptiveVertexFitter
@@ -290,7 +289,6 @@ def getTauVertexVariables():
         return cached_instances[_name]
 
     from tauRec.tauRecFlags import jobproperties
-    useOldSeedFinderAPI = jobproperties.tauRecFlags.useOldVertexFitterAPI()
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
@@ -299,9 +297,7 @@ def getTauVertexVariables():
                                             VertexFitter = getTauAdaptiveVertexFitter(),
                                             #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                             SeedFinder = getTauCrossDistancesSeedFinder(),
-                                            XAODConverter = "Trk::VxCandidateXAODVertex/VertexInternalEdmFactory", # ATM only needed in case old API is used
                                             TrackParticleContainer = _DefaultTrackContainer, # ATM only needed in case old API is used
-                                            useOldSeedFinderAPI = useOldSeedFinderAPI,
                                             runOnAOD = bAODmode,
                                             #OutputLevel = 2                                            
                                               )
