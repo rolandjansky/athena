@@ -32,127 +32,132 @@ StatusCode sTGCSimHitVariables::fillVariables()
     const GenericMuonSimHit hit = it;
     if(hit.depositEnergy()==0.) continue; // SimHits without energy loss are not recorded. 
 
-    // connect the hit with the MC truth
-    int barcode = hit.particleLink().barcode();
-    m_NSWsTGC_trackId->push_back(barcode);
-//    for (unsigned int tr=0;tr<m_Truth_particleBarcode->size();tr++) {
-//        if (barcode==m_Truth_particleBarcode->at(tr)) {
-//            m_NSWsTGC_truthEl->push_back(tr);
-//        }
-//    }
-
-    m_NSWsTGC_globalTime->push_back(hit.globalTime());
-    const  Amg::Vector3D globalPosition = hit.globalPosition();
-    m_NSWsTGC_hitGlobalPositionX->push_back(globalPosition.x());
-    m_NSWsTGC_hitGlobalPositionY->push_back(globalPosition.y());
-    m_NSWsTGC_hitGlobalPositionZ->push_back(globalPosition.z());
-    m_NSWsTGC_hitGlobalPositionR->push_back(globalPosition.perp());
-    m_NSWsTGC_hitGlobalPositionP->push_back(globalPosition.phi());
-    const  Amg::Vector3D globalDirection = hit.globalDirection();
-    m_NSWsTGC_hitGlobalDirectionX->push_back(globalDirection.x());
-    m_NSWsTGC_hitGlobalDirectionY->push_back(globalDirection.y());
-    m_NSWsTGC_hitGlobalDirectionZ->push_back(globalDirection.z());
-
-    const  Amg::Vector3D localPosition = hit.localPosition();
-    m_NSWsTGC_hitLocalPositionX->push_back(localPosition.x());
-    m_NSWsTGC_hitLocalPositionY->push_back(localPosition.y());
-    m_NSWsTGC_hitLocalPositionZ->push_back(localPosition.z());
-
-    m_NSWsTGC_particleEncoding->push_back(hit.particleEncoding());
-    m_NSWsTGC_kineticEnergy->push_back(hit.kineticEnergy());
-    m_NSWsTGC_depositEnergy->push_back(hit.depositEnergy());
-    m_NSWsTGC_StepLength->push_back(hit.StepLength());
-
-    // Read information about the sTGC hits; make sanity checks and printout
-    int simId = hit.GenericId(); 
-    std::string sim_stationName = hitHelper->GetStationName(simId);
-    int sim_stationEta          = hitHelper->GetZSector(simId);
-    int sim_stationPhi          = hitHelper->GetPhiSector(simId);
-    int sim_multilayer          = hitHelper->GetMultiLayer(simId);
-    int sim_layer               = hitHelper->GetLayer(simId);
-    int sim_side                = hitHelper->GetSide(simId);
-
-    ATH_MSG_DEBUG(     "sTGC SimHit  id:  Station Name [" << sim_stationName << " ]"
-                    << " Station Eta ["  << sim_stationEta               << "]"
-                    << " Station Phi ["  << sim_stationPhi               << "]"
-                    << " MultiLayer ["   << sim_multilayer               << "]"
-                    << " Layer  ["       << sim_layer                    << "]"
-                    << " Side ["         << sim_side                     << "]" );
-
-    if ( sim_stationPhi==0 ) {
-        ATH_MSG_ERROR("unexpected phi range: " << sim_stationPhi);
-        return StatusCode::FAILURE;
-    }
-    // Current [7/12/12] implementation of the Station Name is: T[0-3][L/S][P/C] 
-    int detNumber = -999, wedgeId = -999, wedgeType = -999;
-    if(sim_stationName.length()!=4) {
-      ATH_MSG_WARNING("sTGC validation: station Name exceeds 4 charactes, filling dummy information for detNumber, wedgeId and wedgeType");
-    } 
-    else {
-      detNumber = atoi(sim_stationName.substr(1,1).c_str());
-      wedgeId   = (sim_stationName.substr(2,1).compare("L")) ? 0 : 1;
-      wedgeType = (sim_stationName.substr(3,1).compare("P")) ? 0 : 1;
-    }
-
-    // Fill Ntuple with SimId data
-    m_NSWsTGC_sim_stationName   ->push_back(sim_stationName);
-    m_NSWsTGC_sim_stationEta    ->push_back(sim_stationEta);
-    m_NSWsTGC_sim_stationPhi    ->push_back(sim_stationPhi);
-    m_NSWsTGC_wedgeId           ->push_back(wedgeId);
-    m_NSWsTGC_wedgeType         ->push_back(wedgeType);
-    m_NSWsTGC_detectorNumber    ->push_back(detNumber);
-    m_NSWsTGC_sim_multilayer    ->push_back(sim_multilayer);
-    m_NSWsTGC_sim_layer         ->push_back(sim_layer);
-    m_NSWsTGC_sim_side          ->push_back(sim_side);
-
-    //  convert simHit id to offline id; make sanity checks; retrieve the associated detector element.
-    Identifier offId = simToOffline.convert(hit.GenericId());
-    if( !m_sTgcIdHelper->is_stgc(offId) ){
-        ATH_MSG_WARNING("sTgc id is not a stgc id! " << m_sTgcIdHelper->print_to_string(offId));
-    }
-    if( !m_sTgcIdHelper->is_muon(offId) ){
-        ATH_MSG_WARNING("sTgc id is not a muon id! " << m_sTgcIdHelper->print_to_string(offId));
-    }
-    if( m_sTgcIdHelper->is_mdt(offId)||m_sTgcIdHelper->is_rpc(offId)||m_sTgcIdHelper->is_tgc(offId)||m_sTgcIdHelper->is_csc(offId)||m_sTgcIdHelper->is_mm(offId) ){
-        ATH_MSG_WARNING("sTgc id has wrong technology type! " << m_sTgcIdHelper->is_mdt(offId) << " " << m_sTgcIdHelper->is_rpc(offId)
-                        << " " << m_sTgcIdHelper->is_tgc(offId) << " " << m_sTgcIdHelper->is_csc(offId) << " " << m_sTgcIdHelper->is_mm(offId) );
-    }
-    if( m_sTgcIdHelper->gasGap(offId) != sim_layer ) {
-        ATH_MSG_WARNING("sTgc id has bad layer field! " << m_sTgcIdHelper->print_to_string(offId)  );
-    }
-
-    std::string stName   = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(offId));
-    int off_stationEta   = m_sTgcIdHelper->stationEta(offId); 
-    int off_stationPhi   = m_sTgcIdHelper->stationPhi(offId);
-    int off_multiplet    = m_sTgcIdHelper->multilayer(offId);
-    int off_gas_gap      = m_sTgcIdHelper->gasGap(offId);
-    int off_channel_type = m_sTgcIdHelper->channelType(offId);
-    int off_channel      = m_sTgcIdHelper->channel(offId);
-    
-    ATH_MSG_DEBUG(     "sTGC Offline id:  Station Name [" << stName << "]"
-                    << " Station Eta ["  << off_stationEta      << "]"
-                    << " Station Phi ["  << off_stationPhi      << "]"
-                    << " Multiplet  ["   << off_multiplet       << "]"
-                    << " GasGap ["       << off_gas_gap         << "]"
-                    << " Type ["         << off_channel_type    << "]"
-                    << " ChNr ["         << off_channel         << "]" );
-
-    int isSmall = stName[2] == 'S';
-
-    ATH_MSG_DEBUG("sTGC geometry, retrieving detector element for: isSmall " << isSmall << " eta " << m_sTgcIdHelper->stationEta(offId)
-                  << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
-
-    const MuonGM::sTgcReadoutElement* detEl = m_detManager->getsTgcReadoutElement(offId);
-    if( !detEl ){
-      ATH_MSG_WARNING("sTGC geometry, failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_sTgcIdHelper->stationEta(offId)
-                      << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
-      continue;
-    }
-
     // SimHits do not have channel type (1 is assigned as dummy value).
     // Compute channel type in Val Alg to be able to validate
     for( int type=0;type<=2;++type ){ 
+
+      // Read information about the sTGC hits; make sanity checks and printout
+      int simId = hit.GenericId(); 
+      std::string sim_stationName = hitHelper->GetStationName(simId);
+      int sim_stationEta          = hitHelper->GetZSector(simId);
+      int sim_stationPhi          = hitHelper->GetPhiSector(simId);
+      int sim_multilayer          = hitHelper->GetMultiLayer(simId);
+      int sim_layer               = hitHelper->GetLayer(simId);
+      int sim_side                = hitHelper->GetSide(simId);
+
+      ATH_MSG_DEBUG(     "sTGC SimHit  id:  Station Name [" << sim_stationName << " ]"
+                      << " Station Eta ["  << sim_stationEta               << "]"
+                      << " Station Phi ["  << sim_stationPhi               << "]"
+                      << " MultiLayer ["   << sim_multilayer               << "]"
+                      << " Layer  ["       << sim_layer                    << "]"
+                      << " Side ["         << sim_side                     << "]" );
+
+      if ( sim_stationPhi==0 ) {
+          ATH_MSG_ERROR("unexpected phi range: " << sim_stationPhi);
+          return StatusCode::FAILURE;
+      }
+      // Current [7/12/12] implementation of the Station Name is: T[0-3][L/S][P/C] 
+      int detNumber = -999, wedgeId = -999, wedgeType = -999;
+      if(sim_stationName.length()!=4) {
+        ATH_MSG_WARNING("sTGC validation: station Name exceeds 4 charactes, filling dummy information for detNumber, wedgeId and wedgeType");
+      } 
+      else {
+        detNumber = atoi(sim_stationName.substr(1,1).c_str());
+        wedgeId   = (sim_stationName.substr(2,1).compare("L")) ? 0 : 1;
+        wedgeType = (sim_stationName.substr(3,1).compare("P")) ? 0 : 1;
+      }
+
+
+      //  convert simHit id to offline id; make sanity checks; retrieve the associated detector element.
+      Identifier offId = simToOffline.convert(hit.GenericId());
+      
       if( type == 2 && abs(m_sTgcIdHelper->stationEta(offId)) < 3 ) continue;
+
+      std::string stName   = m_sTgcIdHelper->stationNameString(m_sTgcIdHelper->stationName(offId));
+      int off_stationEta   = m_sTgcIdHelper->stationEta(offId); 
+      int off_stationPhi   = m_sTgcIdHelper->stationPhi(offId);
+      int off_multiplet    = m_sTgcIdHelper->multilayer(offId);
+      int off_gas_gap      = m_sTgcIdHelper->gasGap(offId);
+      int off_channel_type = m_sTgcIdHelper->channelType(offId);
+      int off_channel      = m_sTgcIdHelper->channel(offId);
+
+      int isSmall = stName[2] == 'S';
+
+      const MuonGM::sTgcReadoutElement* detEl = m_detManager->getsTgcReadoutElement(offId);
+      if( !detEl ){
+        ATH_MSG_WARNING("sTGC geometry, failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_sTgcIdHelper->stationEta(offId)
+                        << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
+        continue;
+      }
+
+      if( !m_sTgcIdHelper->is_stgc(offId) ){
+          ATH_MSG_WARNING("sTgc id is not a stgc id! " << m_sTgcIdHelper->print_to_string(offId));
+      }
+      if( !m_sTgcIdHelper->is_muon(offId) ){
+          ATH_MSG_WARNING("sTgc id is not a muon id! " << m_sTgcIdHelper->print_to_string(offId));
+      }
+      if( m_sTgcIdHelper->is_mdt(offId)||m_sTgcIdHelper->is_rpc(offId)||m_sTgcIdHelper->is_tgc(offId)||m_sTgcIdHelper->is_csc(offId)||m_sTgcIdHelper->is_mm(offId) ){
+          ATH_MSG_WARNING("sTgc id has wrong technology type! " << m_sTgcIdHelper->is_mdt(offId) << " " << m_sTgcIdHelper->is_rpc(offId)
+                          << " " << m_sTgcIdHelper->is_tgc(offId) << " " << m_sTgcIdHelper->is_csc(offId) << " " << m_sTgcIdHelper->is_mm(offId) );
+      }
+      if( m_sTgcIdHelper->gasGap(offId) != sim_layer ) {
+          ATH_MSG_WARNING("sTgc id has bad layer field! " << m_sTgcIdHelper->print_to_string(offId)  );
+      }
+      // connect the hit with the MC truth
+      int barcode = hit.particleLink().barcode();
+      m_NSWsTGC_trackId->push_back(barcode);
+  		// for (unsigned int tr=0;tr<m_Truth_particleBarcode->size();tr++) {
+  		//		if (barcode==m_Truth_particleBarcode->at(tr)) {
+  		//    	m_NSWsTGC_truthEl->push_back(tr);
+  		//    }
+  		// }
+
+      m_NSWsTGC_globalTime->push_back(hit.globalTime());
+      const  Amg::Vector3D globalPosition = hit.globalPosition();
+      m_NSWsTGC_hitGlobalPositionX->push_back(globalPosition.x());
+      m_NSWsTGC_hitGlobalPositionY->push_back(globalPosition.y());
+      m_NSWsTGC_hitGlobalPositionZ->push_back(globalPosition.z());
+      m_NSWsTGC_hitGlobalPositionR->push_back(globalPosition.perp());
+      m_NSWsTGC_hitGlobalPositionP->push_back(globalPosition.phi());
+      const  Amg::Vector3D globalDirection = hit.globalDirection();
+      m_NSWsTGC_hitGlobalDirectionX->push_back(globalDirection.x());
+      m_NSWsTGC_hitGlobalDirectionY->push_back(globalDirection.y());
+      m_NSWsTGC_hitGlobalDirectionZ->push_back(globalDirection.z());
+
+      const  Amg::Vector3D localPosition = hit.localPosition();
+      m_NSWsTGC_hitLocalPositionX->push_back(localPosition.x());
+      m_NSWsTGC_hitLocalPositionY->push_back(localPosition.y());
+      m_NSWsTGC_hitLocalPositionZ->push_back(localPosition.z());
+
+      m_NSWsTGC_particleEncoding->push_back(hit.particleEncoding());
+      m_NSWsTGC_kineticEnergy->push_back(hit.kineticEnergy());
+      m_NSWsTGC_depositEnergy->push_back(hit.depositEnergy());
+      m_NSWsTGC_StepLength->push_back(hit.StepLength());
+
+
+      // Fill Ntuple with SimId data
+      m_NSWsTGC_sim_stationName   ->push_back(sim_stationName);
+      m_NSWsTGC_sim_stationEta    ->push_back(sim_stationEta);
+      m_NSWsTGC_sim_stationPhi    ->push_back(sim_stationPhi);
+      m_NSWsTGC_wedgeId           ->push_back(wedgeId);
+      m_NSWsTGC_wedgeType         ->push_back(wedgeType);
+      m_NSWsTGC_detectorNumber    ->push_back(detNumber);
+      m_NSWsTGC_sim_multilayer    ->push_back(sim_multilayer);
+      m_NSWsTGC_sim_layer         ->push_back(sim_layer);
+      m_NSWsTGC_sim_side          ->push_back(sim_side);
+      
+      ATH_MSG_DEBUG(     "sTGC Offline id:  Station Name [" << stName << "]"
+                      << " Station Eta ["  << off_stationEta      << "]"
+                      << " Station Phi ["  << off_stationPhi      << "]"
+                      << " Multiplet  ["   << off_multiplet       << "]"
+                      << " GasGap ["       << off_gas_gap         << "]"
+                      << " Type ["         << off_channel_type    << "]"
+                      << " ChNr ["         << off_channel         << "]" );
+
+      ATH_MSG_DEBUG("sTGC geometry, retrieving detector element for: isSmall " << isSmall << " eta " << m_sTgcIdHelper->stationEta(offId)
+                    << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
+
+      
       Identifier newId = m_sTgcIdHelper->channelID(m_sTgcIdHelper->parentID(offId), m_sTgcIdHelper->multilayer(offId), m_sTgcIdHelper->gasGap(offId),type,1,0);
       
       // compute hit position within the detector element/surfaces
@@ -189,7 +194,6 @@ StatusCode sTGCSimHitVariables::fillVariables()
       Amg::Vector2D fastDigitPos(0,0);
       if( !detEl->stripPosition(offId,fastDigitPos) ){
         ATH_MSG_WARNING("sTGC validation: failed to obtain local position for identifier " << m_sTgcIdHelper->print_to_string(offId) );
-        continue;
       }
 
       Amg::Vector3D detpos = detEl->globalPosition();
