@@ -22,7 +22,7 @@
 #include <sstream>
 #include <map>
 #include <string>
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
  
 class ByteStreamFreeMetadataString : public std::pair<std::string,std::string>
 {
