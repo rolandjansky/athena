@@ -61,12 +61,31 @@ config.sigmaRecommended = 1
 job.algsAdd( config )
 
 
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import makePileupAnalysisSequence
+
+sequence = makePileupAnalysisSequence (dataType=dataType)
+
+
+from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
+
+sequencePostConfiguration (sequence, "EventInfo")
+
+for alg in sequence :
+    config = alg["alg"]
+
+    # set everything to debug output
+    config.OutputLevel = 1
+
+    job.algsAdd( config )
+    pass
+
+
 from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import makeElectronAnalysisSequence
 
 sequence = makeElectronAnalysisSequence (electronContainer=electronContainer,dataType=dataType)
 
 
-from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
+#from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
 
 sequencePostConfiguration (sequence, electronContainer)
 

@@ -47,7 +47,6 @@ def makeElectronAnalysisSequence (dataType,electronContainer="Electrons",isolati
     alg.selectionTool.WorkingPoint = likelihoodWP
     alg.selectionDecoration = "selectLikelihood"
     sequence.append ( {"alg" : alg, "in" : "particles", "out" : "particlesOut"} )
-    pass
 
 
 
@@ -55,14 +54,35 @@ def makeElectronAnalysisSequence (dataType,electronContainer="Electrons",isolati
     addPrivateTool (alg, "selectionTool", "CP::IsolationSelectionTool")
     alg.selectionTool.ElectronWP = isolationWP
     sequence.append ( {"alg" : alg, "in" : "egammas", "out" : "egammasOut"} )
-    pass
+
+
+
+    egMapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Summer2017_Prerec_v1/map0.txt"
+
+    alg = createAlgorithm( 'CP::ElectronEfficiencyCorrectionAlg', 'ElectronEfficiencyCorrectionAlg' )
+    addPrivateTool (alg, "efficiencyCorrectionTool", "AsgElectronEfficiencyCorrectionTool")
+    alg.efficiencyCorrectionTool.MapFilePath = egMapFile
+    alg.efficiencyCorrectionTool.RecoKey = "Reconstruction"
+    alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
+    alg.efficiencyCorrectionTool.CorrelationModel = "TOTAL"
+    alg.efficiencyDecoration = "effCor"
+    if dataType == "afii" :
+        alg.efficiencyCorrectionTool.ForceDataType = 3
+        pass
+    else :
+        alg.efficiencyCorrectionTool.ForceDataType = 1
+        pass
+    alg.outOfValidity = 2 #silent
+    alg.outOfValidityDeco = "bad_eff"
+    sequence.append ( {"alg" : alg, "in" : "electrons", "out" : "electronsOut",
+                       "sys" : "(^EL_EFF_.*)"} )
 
 
 
     alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'ElectronCutFlowDumperAlg' )
     alg.histPattern = "electron_cflow_%SYS%"
-    alg.selection = ["selectLikelihood",'isolated']
-    alg.selectionNCuts = [7,1]
+    alg.selection = ["selectLikelihood",'isolated','bad_eff']
+    alg.selectionNCuts = [7,1,1]
     sequence.append ( {"alg" : alg, "in" : "input"} )
 
 
