@@ -116,7 +116,7 @@ if (pp) or (mc):
                   "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
                   "a4tcemnojcalibFS"     : "HLT_xAOD__JetContainer_a4tcemnojcalibFS", 
                   "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
-                  #"a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
+                  "a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
                   #"a10rtcemsubjesFS"   : "HLT_xAOD__JetContainer_a10r_tcemsubjesFS",
                   "a10tclcwsubjesFS"   : "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
                   "a10ttclcwjesFS"   : "HLT_xAOD__JetContainer_a10ttclcwjesFS"
@@ -173,7 +173,7 @@ if (pp) or (mc):
                                      'j260':150.,
                                      'j360':250.,
                                      'j420':250.,
-                                     #'j225_gsc420_boffperf_split':250.,
+                                     'j225_gsc420_boffperf_split':250.,
                                      'j460_a10_lcw_subjes_L1SC111':250.,
                                      #'j460_a10r_L1SC111':250.,
                                      'j460_a10t_lcw_jes_L1SC111':250.,
@@ -182,7 +182,7 @@ if (pp) or (mc):
                                      '4j45':20.,
                                      '6j45':20.,
                                      '6j45_0eta240':20.,
-                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':20.,
+                                     #'6j50_gsc70_boffperf_split':20.,
                                      '10j40_L14J20':0.}
     
   hlt_hltEtaHighThresholds       = { 'j35':3.2,
@@ -204,7 +204,7 @@ if (pp) or (mc):
                                      'j260':3.2,
                                      'j360':3.2,
                                      'j420':3.2,
-                                     #'j225_gsc420_boffperf_split':3.2,
+                                     'j225_gsc420_boffperf_split':3.2,
                                      'j460_a10_lcw_subjes_L1SC111':3.2,
                                      #'j460_a10r_L1SC111':3.2,
                                      'j460_a10t_lcw_jes_L1SC111':3.2,
@@ -213,7 +213,7 @@ if (pp) or (mc):
                                      '4j45':3.2,
                                      '6j45':3.2,
                                      '6j45_0eta240':2.4,
-                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':2.4,
+                                     #'6j50_gsc70_boffperf_split':2.4,
                                      '10j40_L14J20':3.2}
   
   hlt_hltEtaLowThresholds        = { 'j35':0.0,
@@ -235,7 +235,7 @@ if (pp) or (mc):
                                      'j260':0.0,
                                      'j360':0.0,
                                      'j420':0.0,
-                                     #'j225_gsc420_boffperf_split':0.0,
+                                     'j225_gsc420_boffperf_split':0.0,
                                      'j460_a10_lcw_subjes_L1SC111':0.0,
                                      #'j460_a10r_L1SC111':0.0,
                                      'j460_a10t_lcw_jes_L1SC111':0.0,
@@ -244,7 +244,7 @@ if (pp) or (mc):
                                      '4j45':0.0,
                                      '6j45':0.0,
                                      '6j45_0eta240':0.0,
-                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':0.0,
+                                     #'6j50_gsc70_boffperf_split':0.0,
                                      '10j40_L14J20':0.0}
   
   
@@ -267,7 +267,7 @@ if (pp) or (mc):
                                      'j260':1,
                                      'j360':1,
                                      'j420':1,
-                                     #'j225_gsc420_boffperf_split':1,
+                                     'j225_gsc420_boffperf_split':1,
                                      'j460_a10_lcw_subjes_L1SC111':1,
                                      #'j460_a10r_L1SC111':1,
                                      'j460_a10t_lcw_jes_L1SC111':1,
@@ -276,7 +276,7 @@ if (pp) or (mc):
                                      '4j45':4,
                                      '6j45':6,
                                      '6j45_0eta240':6,
-                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':6,
+                                     #'6j50_gsc70_boffperf_split':6,
                                      '10j40_L14J20':10}
   
   
@@ -299,7 +299,7 @@ if (pp) or (mc):
                                      'j260':'a4tcemsubjesISFS',
                                      'j360':'a4tcemsubjesISFS',
                                      'j420':'a4tcemsubjesISFS',
-                                     #'j225_gsc420_boffperf_split':'a4GSC',
+                                     'j225_gsc420_boffperf_split':'a4GSC',
                                      'j460_a10_lcw_subjes_L1SC111':'a10tclcwsubjesFS',
                                      #'j460_a10r_L1SC111':'a10rtcemsubjesFS',
                                      'j460_a10t_lcw_jes_L1SC111':'a10ttclcwjesFS',
@@ -308,7 +308,7 @@ if (pp) or (mc):
                                      '4j45':'a4tcemsubjesISFS',
                                      '6j45':'a4tcemsubjesISFS',
                                      '6j45_0eta240':'a4tcemsubjesISFS',
-                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':'a4GSC',
+                                     #'6j50_gsc70_boffperf_split':'a4GSC',
                                      '10j40_L14J20':'a4tcemsubjesISFS'}
                 
 # Offline 
@@ -332,7 +332,7 @@ if (pp) or (mc):
                                      'j260':150.,
                                      'j360':250.,
                                      'j420':250.,
-                                     #'j225_gsc420_boffperf_split':250.,
+                                     'j225_gsc420_boffperf_split':250.,
                                      'j460_a10_lcw_subjes_L1SC111':250.,
                                      #'j460_a10r_L1SC111':250.,
                                      'j460_a10t_lcw_jes_L1SC111':250.,
@@ -341,7 +341,7 @@ if (pp) or (mc):
                                      '4j45':20.,
                                      '6j45':20.,
                                      '6j45_0eta240':20.,
-                                     #'6j35_gsc45_boffperf_split_0eta240_L14J15':20.,
+                                     #'6j50_gsc70_boffperf_split':20.,
                                      '10j40_L14J20':0.}
 
 #Dijet chains

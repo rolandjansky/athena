@@ -23,7 +23,7 @@ hlt_JetKeys = { "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS",
                 "a4tcemsubjesISFS"  : "HLT_xAOD__JetContainer_a4tcemsubjesISFS",
                 "a4tcemnojcalibFS"     : "HLT_xAOD__JetContainer_a4tcemnojcalibFS",
                 "a4tclcwjesFS"    : "HLT_xAOD__JetContainer_a4tclcwjesFS",
-                #"a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
+                "a4GSC" : "HLT_xAOD__JetContainer_GSCJet",
                 #"a10rtcemsubjesFS"   : "HLT_xAOD__JetContainer_a10r_tcemsubjesFS",
                 "a10tclcwsubjesFS"   : "HLT_xAOD__JetContainer_a10tclcwsubjesFS",
                 "a10ttclcwjesFS"   : "HLT_xAOD__JetContainer_a10ttclcwjesFS"
