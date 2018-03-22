@@ -677,6 +677,7 @@ namespace CP {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
         double denominator = (  muonInfo.ptcb  ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+        //double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
         double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
         if(m_currentParameters->SagittaRho==MCAST::SystVariation::Up){
