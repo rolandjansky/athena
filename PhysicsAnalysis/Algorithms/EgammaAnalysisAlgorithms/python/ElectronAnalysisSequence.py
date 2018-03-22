@@ -23,6 +23,24 @@ def makeElectronAnalysisSequence (dataType,electronContainer="Electrons",isolati
 
 
 
+    alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg', 'ElectronIsolationCorrectionAlg' )
+    addPrivateTool (alg, "isolationCorrectionTool", "CP::IsolationCorrectionTool")
+    if dataType == "data" :
+        alg.isolationCorrectionTool.IsMC = 0
+        pass
+    else :
+        alg.isolationCorrectionTool.IsMC = 1
+        pass
+    # if dataType == "afii" :
+    #     alg.isolationCorrectionTool.AFII_coor = 1
+    #     pass
+    # else :
+    #     alg.isolationCorrectionTool.AFII_coor = 0
+    #     pass
+    sequence.append ( {"alg" : alg, "in" : "egammas", "out" : "egammasOut" } )
+
+
+
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'ElectronLikelihoodAlg' )
     addPrivateTool (alg, "selectionTool", "AsgElectronLikelihoodTool")
     alg.selectionTool.primaryVertexContainer = "PrimaryVertices"
