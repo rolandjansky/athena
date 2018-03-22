@@ -96,6 +96,8 @@ StatusCode MMRDOVariables::clearVariables()
   m_NSWMM_rdo_multiplet->clear();
   m_NSWMM_rdo_gas_gap->clear();
   m_NSWMM_rdo_channel->clear();
+  m_NSWMM_rdo_time->clear();
+  m_NSWMM_rdo_charge->clear();
 
   return StatusCode::SUCCESS;
 }
@@ -118,13 +120,15 @@ StatusCode MMRDOVariables::initializeVariables()
 
 
   if(m_tree) {
-    m_tree->Branch("nrdo_MM",            &m_NSWMM_nrdo);
+    m_tree->Branch("RDO_MM_n",           &m_NSWMM_nrdo);
     m_tree->Branch("RDO_MM_stationName", &m_NSWMM_rdo_stationName);
     m_tree->Branch("RDO_MM_stationEta",  &m_NSWMM_rdo_stationEta);
     m_tree->Branch("RDO_MM_stationPhi",  &m_NSWMM_rdo_stationPhi);
     m_tree->Branch("RDO_MM_multiplet",   &m_NSWMM_rdo_multiplet);
     m_tree->Branch("RDO_MM_gas_gap",     &m_NSWMM_rdo_gas_gap);
     m_tree->Branch("RDO_MM_channel",     &m_NSWMM_rdo_channel);
+    m_tree->Branch("RDO_MM_time",        &m_NSWMM_rdo_time);
+    m_tree->Branch("RDO_MM_charge",      &m_NSWMM_rdo_charge);
   }
 
   return StatusCode::SUCCESS;
@@ -141,6 +145,8 @@ void MMRDOVariables::deleteVariables()
   delete m_NSWMM_rdo_multiplet;
   delete m_NSWMM_rdo_gas_gap;
   delete m_NSWMM_rdo_channel;
+  delete m_NSWMM_rdo_time;
+  delete m_NSWMM_rdo_charge;
   
 
   m_NSWMM_nrdo = 0;
@@ -150,6 +156,8 @@ void MMRDOVariables::deleteVariables()
   m_NSWMM_rdo_multiplet = nullptr;
   m_NSWMM_rdo_gas_gap = nullptr;
   m_NSWMM_rdo_channel = nullptr;
+  m_NSWMM_rdo_time = nullptr;
+  m_NSWMM_rdo_charge = nullptr;
 
   return;
 }
