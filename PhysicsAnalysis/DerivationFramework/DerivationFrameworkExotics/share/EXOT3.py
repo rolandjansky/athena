@@ -14,6 +14,10 @@ from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from JetRec.JetRecStandard import jtm
 from AthenaCommon.GlobalFlags import globalflags
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 
 #set MC flag
 isMC = False
@@ -210,48 +214,60 @@ topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR
 topology_selection_2jet =  "(" + topology_selection_2jet_lowpt + " || " + topology_selection_2jet_highpt + ")"
 
 #event selection: photons and electrons
-#EXOT3_trigger1 = "(EF_g120_loose || EF_xe80_tclcw_tight)"#NOTE this not used #CHECK
+#EXOT3_trigger1 = "(EF_g120_loose || EF_xe80_tclcw_tight)"#NOTE this is not used #CHECK
 EXOT3_trigger2 = "(HLT_g120_loose || HLT_g140_loose || HLT_xe100 || HLT_xe90_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50)"
 EXOT3_selection = "((count(Photons.pt > 100*GeV) > 0) || (count(Electrons.pt > 100*GeV) > 0))"
 
-#skimming tool expressions
-#1 jet, photons and electrons
-expression1 = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' && ' + topology_selection_1jet + ' )'
-#2 jets
-expression2 = topology_selection_2jet
+#------------------------------------------
+#pre-skimming tools
+
+#photons and electrons
+#NOTE this does *NOT* include 1 jet selection
+EXOT3PreSkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3PreSkimmingTool1",
+                                                                    expression = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' )')#photons and electrons
+ToolSvc += EXOT3PreSkimmingTool1
+
+#trigger
+EXOT3TriggerPreSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT3TriggerPreSkimmingTool",
+                                                                       TriggerListAND = [],
+                                                                       TriggerListOR  = triggers)#triggers
+ToolSvc += EXOT3TriggerPreSkimmingTool
 
 #------------------------------------------
 #skimming tools
-
 #1 jet, photons and electrons
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EXOT3SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool1",
-                                                                 expression = expression1)#1 jet, photons and electrons
+                                                                 expression = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' && ' + topology_selection_1jet + ' )')#1 jet, photons and electrons
 ToolSvc += EXOT3SkimmingTool1
 
 #2 jets
 EXOT3SkimmingTool2 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool2",
-                                                                 expression = expression2)#2 jets
+                                                                 expression = topology_selection_2jet)#2 jets
 ToolSvc += EXOT3SkimmingTool2
 
 #trigger
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 EXOT3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT3TriggerSkimmingTool",
                                                                     TriggerListAND = [],
                                                                     TriggerListOR  = triggers)#triggers
 ToolSvc += EXOT3TriggerSkimmingTool
 
 #------------------------------------------
+#pre-skimming tools combinations
+
+#combination: (1 jet, photons and electrons) || (2 jets && triggers)
+EXOT3FinalPreSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORPreSkimmingTool",
+                                                                     FilterList = [EXOT3TriggerPreSkimmingTool, EXOT3PreSkimmingTool1])
+ToolSvc += EXOT3FinalPreSkimmingTool
+
+#------------------------------------------
 #skimming tools combinations
 
 #2 jets && triggers
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 EXOT3ANDSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT3ANDSkimmingTool",
                                                                  FilterList = [EXOT3SkimmingTool2, EXOT3TriggerSkimmingTool])
 ToolSvc += EXOT3ANDSkimmingTool
 
 #combination: (1 jet, photons and electrons) || (2 jets && triggers)
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 EXOT3FinalSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORSkimmingTool",
                                                                   FilterList = [EXOT3ANDSkimmingTool, EXOT3SkimmingTool1])
 ToolSvc += EXOT3FinalSkimmingTool
@@ -266,13 +282,13 @@ exot3Seq = CfgMgr.AthSequencer("EXOT3Sequence")
 #appnd pre-sequance to the DerivationFramework job
 DerivationFrameworkJob += exot3PreSeq
 
+#pass the tools to the sequences
+exot3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3PreKernel_skim", SkimmingTools = [EXOT3FinalPreSkimmingTool])
+exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim",    SkimmingTools = [EXOT3FinalSkimmingTool])
+exot3Seq    += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",         ThinningTools = thinningTools)
+
 #append sequence to pre-sequence
 exot3PreSeq += exot3Seq
-
-#pass the tools to the sequences
-exot3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3PreKernel_skim", SkimmingTools = [EXOT3PreFinalSkimmingTool])
-exot3Seq +=    CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim", SkimmingTools = [EXOT3FinalSkimmingTool])
-exot3Seq +=    CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel", ThinningTools = thinningTools)
 
 #=======================================
 # JETS
