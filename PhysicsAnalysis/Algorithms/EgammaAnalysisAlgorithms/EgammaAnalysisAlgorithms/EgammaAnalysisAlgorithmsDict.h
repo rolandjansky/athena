@@ -11,5 +11,6 @@
 #include <EgammaAnalysisAlgorithms/EgammaCalibrationAndSmearingAlg.h>
 #include <EgammaAnalysisAlgorithms/EgammaIsolationCorrectionAlg.h>
 #include <EgammaAnalysisAlgorithms/EgammaIsolationSelectionAlg.h>
+#include <EgammaAnalysisAlgorithms/ElectronEfficiencyCorrectionAlg.h>
 
 #endif

@@ -3,5 +3,6 @@
    <class name="CP::EgammaCalibrationAndSmearingAlg" />
    <class name="CP::EgammaIsolationCorrectionAlg" />
    <class name="CP::EgammaIsolationSelectionAlg" />
+   <class name="CP::ElectronEfficiencyCorrectionAlg" />
    
 </lcgdict>
