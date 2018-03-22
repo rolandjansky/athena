@@ -7,7 +7,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp2Fex as _EgammaSamp2
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex as _EgammaEmEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaHadEnFex as _EgammaHadEnFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex as _RingerFex
-from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaAllFex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaAllFex as _EgammaAllFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgammaFastAlgo, T2CaloEgammaReFastAlgo
 
@@ -23,6 +23,12 @@ t2catime = TrigTimeHistToolConfig("Time")
 #t2catime=TrigTimeTreeToolConfig("T2CaloEgammaTimer")
 
 from AthenaCommon.Constants import VERBOSE,DEBUG
+
+class EgammaAllFex (_EgammaAllFex):
+   __slots__ = []
+   def __init__ (self, name="EgammaAllFex"):
+       super(EgammaAllFex, self).__init__(name)
+       self.trigDataAccessMT=""
 
 class EgammaSamp2Fex (_EgammaSamp2Fex):
    __slots__ = []

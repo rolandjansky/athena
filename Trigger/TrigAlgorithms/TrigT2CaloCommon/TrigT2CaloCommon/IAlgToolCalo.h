@@ -218,8 +218,6 @@ class IAlgToolCalo: public virtual IAlgTool,
         bool m_saveCells;
         /** Pointer of the cell container */
         CaloCellContainer** m_CaloCellContPoint;
-        /** Pointer of the context */
-        const EventContext* m_context;
         // Objects that the Tools should not worry about
   protected:
 	bool m_lardecoded, m_tiledecoded;
@@ -229,6 +227,8 @@ class IAlgToolCalo: public virtual IAlgTool,
         const CaloDetDescrElement* m_caloDDE;      
         /** Threshold to keep cells  in RoI */
 	float m_cellkeepthr;
+        /** Pointer of the context */
+        const EventContext* m_context;
   private:
 };
 
