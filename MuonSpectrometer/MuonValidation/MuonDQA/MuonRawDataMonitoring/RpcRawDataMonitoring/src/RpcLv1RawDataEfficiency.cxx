@@ -86,7 +86,7 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
 
   ATH_CHECK(m_rpcCoinKey.initialize());
   ATH_CHECK(m_eventInfo.initialize());
-  ATH_CHECK(m_sectorLogicContainerKey.initialize(m_isMC));
+  ATH_CHECK(m_sectorLogicContainerKey.initialize(!m_isMC));
 
   // Ignore the checking code
   ManagedMonitorToolBase::initialize().ignore();

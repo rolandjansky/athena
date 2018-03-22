@@ -69,7 +69,7 @@ StatusCode RpcLv1RawDataSectorLogic::initialize()
   m_Tower_in = 0 ;
   m_in_sectorid = 0 ;
       
-  ATH_CHECK(m_sectorLogicContainerKey.initialize(m_isMC));
+  ATH_CHECK(m_sectorLogicContainerKey.initialize(!m_isMC));
   ATH_CHECK(m_eventInfo.initialize());
 
   // Ignore the checking code
