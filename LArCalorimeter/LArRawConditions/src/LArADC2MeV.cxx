@@ -9,7 +9,7 @@ LArADC2MeV::LArADC2MeV(const LArOnlineID_Base* onlineID, const LArOnOffIdMapping
   m_nGains(nGains) {
 
   assert(m_onlineID); 
-  assert(nGains<3 && nGains>0);
+  assert(nGains<=CaloGain::LARNGAIN && nGains>0);
 
   for (size_t i=0;i<nGains;++i) {
     m_adc2MeV[i].resize(onlineID->channelHashMax());
