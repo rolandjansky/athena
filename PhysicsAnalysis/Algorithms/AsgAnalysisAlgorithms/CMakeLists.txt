@@ -12,6 +12,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/Algorithms/SystematicsHandles
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PRIVATE
    Control/AthToolSupport/AsgTools
    Event/xAOD/xAODJet
@@ -23,7 +24,7 @@ atlas_add_library( AsgAnalysisAlgorithmsLib
    AsgAnalysisAlgorithms/*.h AsgAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS AsgAnalysisAlgorithms
    LINK_LIBRARIES xAODBase SelectionHelpersLib SystematicsHandlesLib
-     PATInterfaces AnaAlgorithmLib
+     PATInterfaces AnaAlgorithmLib AsgAnalysisInterfaces
    PRIVATE_LINK_LIBRARIES AsgTools RootCoreUtils
      xAODJet xAODMuon xAODEgamma )
 
