@@ -68,8 +68,8 @@ StatusCode MMRDOVariables::fillVariables()
       m_NSWMM_rdo_charge->push_back(rdo->charge());
 
       // get the readout element class where the RDO is recorded
-      int isSmall = (stName[2] == 'S');
-      const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
+      // int isSmall = (stName[2] == 'S');
+      // const MuonGM::MMReadoutElement* rdoEl = m_detManager->getMMRElement_fromIdFields(isSmall, stationEta, stationPhi, multiplet );
 
 
       // rdo counter for the ntuple
