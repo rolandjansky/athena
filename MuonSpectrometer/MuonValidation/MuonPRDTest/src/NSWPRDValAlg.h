@@ -96,4 +96,4 @@ class NSWPRDValAlg:public AthAlgorithm
   std::string m_CSC_DigitContainerName;
 };
 
-#endif // NSWHITSDUMPALG_H
+#endif // NSWPRDVALALG_H

@@ -106,11 +106,6 @@ StatusCode sTGCSimHitVariables::fillVariables()
       // connect the hit with the MC truth
       int barcode = hit.particleLink().barcode();
       m_NSWsTGC_trackId->push_back(barcode);
-  		// for (unsigned int tr=0;tr<m_Truth_particleBarcode->size();tr++) {
-  		//		if (barcode==m_Truth_particleBarcode->at(tr)) {
-  		//    	m_NSWsTGC_truthEl->push_back(tr);
-  		//    }
-  		// }
 
       m_NSWsTGC_globalTime->push_back(hit.globalTime());
       const  Amg::Vector3D globalPosition = hit.globalPosition();
@@ -269,7 +264,6 @@ StatusCode sTGCSimHitVariables::clearVariables()
 {
   m_NSWsTGC_nSimHits = 0;
   m_NSWsTGC_trackId->clear();
-  m_NSWsTGC_truthEl->clear();
 
   m_NSWsTGC_globalTime->clear();
   m_NSWsTGC_hitGlobalPositionX->clear();
@@ -335,7 +329,6 @@ StatusCode sTGCSimHitVariables::clearVariables()
 void sTGCSimHitVariables::deleteVariables() 
 { 
   delete m_NSWsTGC_trackId;
-  delete m_NSWsTGC_truthEl;
   delete m_NSWsTGC_globalTime;
   delete m_NSWsTGC_hitGlobalPositionX;
   delete m_NSWsTGC_hitGlobalPositionY;
@@ -367,12 +360,10 @@ void sTGCSimHitVariables::deleteVariables()
   delete m_NSWsTGC_FastDigitRsurfacePositionX;
   delete m_NSWsTGC_FastDigitRsurfacePositionY;
 
-
   delete m_NSWsTGC_particleEncoding;
   delete m_NSWsTGC_kineticEnergy;
   delete m_NSWsTGC_depositEnergy;
   delete m_NSWsTGC_StepLength;
-
 
   delete m_NSWsTGC_sim_stationName;
   delete m_NSWsTGC_sim_stationEta;
@@ -398,7 +389,6 @@ void sTGCSimHitVariables::deleteVariables()
 
   m_NSWsTGC_nSimHits = 0;
   m_NSWsTGC_trackId  = nullptr;
-  m_NSWsTGC_truthEl  = nullptr;
 
   m_NSWsTGC_globalTime = nullptr;
   m_NSWsTGC_hitGlobalPositionX = nullptr;
@@ -463,7 +453,6 @@ StatusCode sTGCSimHitVariables::initializeVariables()
 {
   m_NSWsTGC_nSimHits = 0;
   m_NSWsTGC_trackId  = new std::vector<int>();
-  m_NSWsTGC_truthEl  = new std::vector<int>();
 
   m_NSWsTGC_globalTime = new std::vector<double>;
   m_NSWsTGC_hitGlobalPositionX = new std::vector<double>;
@@ -525,7 +514,6 @@ StatusCode sTGCSimHitVariables::initializeVariables()
   if(m_tree) {
     m_tree->Branch("Hits_sTGC_n", &m_NSWsTGC_nSimHits, "Hits_sTGC_nSimHits/i");
     m_tree->Branch("Hits_sTGC_trackId", &m_NSWsTGC_trackId);
-    m_tree->Branch("Hits_sTGC_truthEl", &m_NSWsTGC_truthEl);
 
     m_tree->Branch("Hits_sTGC_globalTime", &m_NSWsTGC_globalTime);
     m_tree->Branch("Hits_sTGC_hitGlobalPositionX", &m_NSWsTGC_hitGlobalPositionX);
