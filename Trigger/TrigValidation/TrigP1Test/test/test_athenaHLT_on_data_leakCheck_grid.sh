@@ -19,6 +19,7 @@
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
 # art-output: *.regtest
+# art-output: LeakCheck.txt
 
 export NAME="athenaHLT_on_data_leakCheck_grid"
 export JOB_LOG="${NAME}.log"

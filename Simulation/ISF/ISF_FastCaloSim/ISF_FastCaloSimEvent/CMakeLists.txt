@@ -33,9 +33,18 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
                            ISF_FastCaloSimEvent/TFCSParametrization.h 
+                           ISF_FastCaloSimEvent/TFCSInitWithEkin.h
                            ISF_FastCaloSimEvent/TFCSParametrizationChain.h 
+                           ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h
+                           ISF_FastCaloSimEvent/TFCSParametrizationFloatSelectChain.h
+                           ISF_FastCaloSimEvent/TFCSParametrizationPDGIDSelectChain.h
+                           ISF_FastCaloSimEvent/TFCSParametrizationEbinChain.h
+                           ISF_FastCaloSimEvent/TFCSParametrizationEkinSelectChain.h
+                           ISF_FastCaloSimEvent/TFCSParametrizationEtaSelectChain.h
+                           ISF_FastCaloSimEvent/TFCSParametrizationAbsEtaSelectChain.h
                            ISF_FastCaloSimEvent/TFCSEnergyParametrization.h 
                            ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h 
+                           ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h

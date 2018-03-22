@@ -8,7 +8,7 @@ echo "art-result: $? RDO step"
 
 FastChain_tf.py --maxEvents 500 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile 'RDO_pileup_fastsim_fastdigi.pool.root' --outputAODFile AOD_noSplit_pseudoTracking_fastSim_fastDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.pixelClusterSplittingType.set_Value_and_Lock(\"AnalogClus\");InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True);InDetFlags.doPseudoTracking.set_Value_and_Lock(True);"
 echo "art-result: $? AOD step"
-echo "Finished ART test"
+
 ArtPackage=$1
 ArtJobName=$2
 art.py compare grid --entries 10  
