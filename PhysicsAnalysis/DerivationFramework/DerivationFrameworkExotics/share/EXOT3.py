@@ -321,7 +321,7 @@ EXOT3SlimmingHelper.AllVariables = EXOT3AllVariablesContent
 # Add jet collections created by derivation job
 EXOT3SlimmingHelper.StaticContent = EXOT3StaticContent
 
-addJetOutputs(EXOT3SlimmingHelper, [], ["EXOT3"])
+addJetOutputs(EXOT3SlimmingHelper, ["EXOT3"])
 
 EXOT3SlimmingHelper.AppendToDictionary = {}
 listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']
