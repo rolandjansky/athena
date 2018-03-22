@@ -2,7 +2,7 @@
 
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
 
-def makeElectronAnalysisSequence (dataType,electronContainer="Electrons") :
+def makeElectronAnalysisSequence (dataType,electronContainer="Electrons",isolationWP="GradientLoose") :
     if not dataType in ["data", "mc", "afii"] :
         raise Exception ("invalid data type: " + dataType)
 
@@ -20,6 +20,28 @@ def makeElectronAnalysisSequence (dataType,electronContainer="Electrons") :
         pass
     sequence.append ( {"alg" : alg, "in" : "egammas", "out" : "egammasOut",
                        "sys" : "(^EG_RESOLUTION_.*)|(^EG_SCALE_.*)"} )
+
+
+
+    alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg', 'ElectronIsolationSelectionAlg' )
+    addPrivateTool (alg, "selectionTool", "CP::IsolationSelectionTool")
+    alg.selectionTool.ElectronWP = isolationWP
+    sequence.append ( {"alg" : alg, "in" : "egammas", "out" : "egammasOut"} )
+    pass
+
+
+
+    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'ElectronCutFlowDumperAlg' )
+    alg.histPattern = "electron_cflow_%SYS%"
+    alg.selection = ['isolated']
+    alg.selectionNCuts = [1]
+    sequence.append ( {"alg" : alg, "in" : "input"} )
+
+
+
+    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'ElectronViewFromSelectionAlg' )
+    alg.selection = ['isolated']
+    sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
 
 
 
