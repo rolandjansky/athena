@@ -25,18 +25,6 @@ def muonChains(doIDNewTracking, doFTK):
   if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
   
-  idTrigChainlist.append(['mu24_L2Star_idperf', 'L1_MU20', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
-  idTrigChainlist.append(['mu6_L2Star_idperf', 'L1_MU6', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:0')
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:1')
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:2')
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:InDetTrigParticleCreation_Muon_EFID')
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:InDetTrigTrackingxAODCnv_Muon_EFID')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:0')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:1')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:2')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:InDetTrigParticleCreation_Muon_EFID')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:InDetTrigTrackingxAODCnv_Muon_EFID')
 
   idTrigChainlist.append(['mu24_idperf',  'L1_MU20', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
   idTrigChainlist.append(['mu6_idperf',   'L1_MU6', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
