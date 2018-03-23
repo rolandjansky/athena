@@ -42,25 +42,25 @@ namespace top {
     m_trig_sf_syst_UP("MUON_EFF_TrigSystUncertainty__1up"),
     m_trig_sf_syst_DOWN("MUON_EFF_TrigSystUncertainty__1down"),
 
-    m_reco_stat_UP("MUON_EFF_STAT__1up"),
-    m_reco_stat_DOWN("MUON_EFF_STAT__1down"),
-    m_reco_syst_UP("MUON_EFF_SYS__1up"),
-    m_reco_syst_DOWN("MUON_EFF_SYS__1down"),
+    m_reco_stat_UP("MUON_EFF_RECO_STAT__1up"),
+    m_reco_stat_DOWN("MUON_EFF_RECO_STAT__1down"),
+    m_reco_syst_UP("MUON_EFF_RECO_SYS__1up"),
+    m_reco_syst_DOWN("MUON_EFF_RECO_SYS__1down"),
 
-    m_reco_stat_lowpt_UP("MUON_EFF_STAT_LOWPT__1up"),
-    m_reco_stat_lowpt_DOWN("MUON_EFF_STAT_LOWPT__1down"),
-    m_reco_syst_lowpt_UP("MUON_EFF_SYS_LOWPT__1up"),
-    m_reco_syst_lowpt_DOWN("MUON_EFF_SYS_LOWPT__1down"),
+    m_reco_stat_lowpt_UP("MUON_EFF_RECO_STAT_LOWPT__1up"),
+    m_reco_stat_lowpt_DOWN("MUON_EFF_RECO_STAT_LOWPT__1down"),
+    m_reco_syst_lowpt_UP("MUON_EFF_RECO_SYS_LOWPT__1up"),
+    m_reco_syst_lowpt_DOWN("MUON_EFF_RECO_SYS_LOWPT__1down"),
 
-    m_iso_stat_UP("MUON_ISO_STAT__1up"),
-    m_iso_stat_DOWN("MUON_ISO_STAT__1down"),
-    m_iso_syst_UP("MUON_ISO_SYS__1up"),
-    m_iso_syst_DOWN("MUON_ISO_SYS__1down"),
+    m_iso_stat_UP("MUON_EFF_ISO_STAT__1up"),
+    m_iso_stat_DOWN("MUON_EFF_ISO_STAT__1down"),
+    m_iso_syst_UP("MUON_EFF_ISO_SYS__1up"),
+    m_iso_syst_DOWN("MUON_EFF_ISO_SYS__1down"),
 
-    m_TTVA_stat_UP("MUON_TTVA_STAT__1up"),
-    m_TTVA_stat_DOWN("MUON_TTVA_STAT__1down"),
-    m_TTVA_syst_UP("MUON_TTVA_SYS__1up"),
-    m_TTVA_syst_DOWN("MUON_TTVA_SYS__1down") {
+    m_TTVA_stat_UP("MUON_EFF_TTVA_STAT__1up"),
+    m_TTVA_stat_DOWN("MUON_EFF_TTVA_STAT__1down"),
+    m_TTVA_syst_UP("MUON_EFF_TTVA_SYS__1up"),
+    m_TTVA_syst_DOWN("MUON_EFF_TTVA_SYS__1down") {
     declareProperty("config", m_config);
   }
 
@@ -68,17 +68,9 @@ namespace top {
     ATH_MSG_INFO(" top::MuonScaleFactorCalculator initialize");
     
     // Different tools to retrieve, depending on the release
-    if(m_config->getReleaseSeries() == 24){
-      m_muonTriggerScaleFactors_2015      = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_2015");
-      m_muonTriggerScaleFactorsLoose_2015 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_2015");
-      m_muonTriggerScaleFactors_2016      = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_2016");
-      m_muonTriggerScaleFactorsLoose_2016 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_2016");
-    }
-    if(m_config->getReleaseSeries() == 25){
-      m_muonTriggerScaleFactors_R21      = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_R21");
-      m_muonTriggerScaleFactorsLoose_R21 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_R21");
-    }
-
+    m_muonTriggerScaleFactors_R21      = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_R21");
+    m_muonTriggerScaleFactorsLoose_R21 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_R21");
+    
     std::set<std::string> implemented_systematics;
     implemented_systematics = {"MUON_EFF_RECO_STAT",
 			       "MUON_EFF_RECO_STAT_LOWPT",
