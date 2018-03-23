@@ -1906,6 +1906,15 @@ mc15_13TeV.304630.Pythia8EvtGen_A14NNPDF23LO_ZHad_700_1000.evgen.EVNT.e4581
 mc15_13TeV.304631.Pythia8EvtGen_A14NNPDF23LO_ZHad_1000_1400.evgen.EVNT.e4581
 mc15_13TeV.304632.Pythia8EvtGen_A14NNPDF23LO_ZHad_1400.evgen.EVNT.e4581
 
+##########################################################################################################################
+# sherpa 2.1 hadronic V+jets samples
+
+mc16_13TeV.304307.Sherpa_CT10_Wqq_Pt280_500.merge.EVNT.e4692_e5984
+mc16_13TeV.304308.Sherpa_CT10_Wqq_Pt500_1000.merge.EVNT.e4692_e5984
+mc16_13TeV.304309.Sherpa_CT10_Wqq_Pt1000.merge.EVNT.e4692_e5984
+mc16_13TeV.304707.Sherpa_CT10_Zqq_Pt280_500.merge.EVNT.e4692_e5984
+mc16_13TeV.304708.Sherpa_CT10_Zqq_Pt500_1000.merge.EVNT.e4692_e5984
+mc16_13TeV.304709.Sherpa_CT10_Zqq_Pt1000.merge.EVNT.e4692_e5984
 
 ################################################################################################################
 # Sherpa gamma+jet
@@ -2596,6 +2605,7 @@ mc15_13TeV.426009.PowhegPythia8EvtGen_A14_NNPDF23LO_CT10ME_jetjet_JZ9.evgen.EVNT
 ################################################################################################################
 # Higgs
 
+mc16_13TeV.309450.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200.merge.EVNT.e6281_e5984
 mc15_13TeV.341000.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam.evgen.EVNT.e3806
 mc15_13TeV.341001.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_gamgam.evgen.EVNT.e3806
 mc15_13TeV.341067.Pythia8EvtGen_A14NNPDF23LO_WH125_gamgam.evgen.EVNT.e3796
@@ -2714,6 +2724,8 @@ mc16_13TeV.345318.PowhegPythia8EvtGen_NNPDF30_AZNLO_WpH125J_Hyy_Wincl_MINLO.merg
 mc16_13TeV.345319.PowhegPythia8EvtGen_NNPDF30_AZNLO_ZH125J_Hyy_Zincl_MINLO.merge.EVNT.e5743_e5984
 mc16_13TeV.345323.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_WWlvlv.merge.EVNT.e5901_e5984
 mc16_13TeV.345324.PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5.merge.EVNT.e5769_e5984
+mc16_13TeV.345338.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.merge.EVNT.e5684_e5984
+mc16_13TeV.345342.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb.merge.EVNT.e5739_e5984
 
 ################################################################################################################
 # Madgraph ttbar+X

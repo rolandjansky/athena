@@ -329,6 +329,16 @@ mc16_13TeV.361104.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wminusmunu.merge.EVNT.e3601_e
 mc16_13TeV.361105.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wminustaunu.merge.EVNT.e3601_e5984
 
 ##########################################################################################################################
+# sherpa 2.1 hadronic V+jets samples
+
+mc16_13TeV.304307.Sherpa_CT10_Wqq_Pt280_500.merge.EVNT.e4692_e5984
+mc16_13TeV.304308.Sherpa_CT10_Wqq_Pt500_1000.merge.EVNT.e4692_e5984
+mc16_13TeV.304309.Sherpa_CT10_Wqq_Pt1000.merge.EVNT.e4692_e5984
+mc16_13TeV.304707.Sherpa_CT10_Zqq_Pt280_500.merge.EVNT.e4692_e5984
+mc16_13TeV.304708.Sherpa_CT10_Zqq_Pt500_1000.merge.EVNT.e4692_e5984
+mc16_13TeV.304709.Sherpa_CT10_Zqq_Pt1000.merge.EVNT.e4692_e5984
+
+##########################################################################################################################
 # sherpa 2.2.2 diboson (VV and VVV)
 
 mc16_13TeV.345705.Sherpa_222_NNPDF30NNLO_ggllll_0M4l130.merge.EVNT.e6213_e5984
@@ -566,6 +576,7 @@ mc16_13TeV.364282.Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV280_E_CMS.merge.
 ##########################################################################################################################
 # Higgs
 
+mc16_13TeV.309450.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200.merge.EVNT.e6281_e5984
 mc16_13TeV.341069.Pythia8EvtGen_A14NNPDF23LO_ttH125_gamgam.merge.EVNT.e4397_e5984
 mc16_13TeV.341079.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_WWlvlv_EF_15_5.merge.EVNT.e3871_e5984
 mc16_13TeV.341080.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_WWlvlv_EF_15_5.merge.EVNT.e3871_e5984
@@ -638,6 +649,8 @@ mc16_13TeV.345318.PowhegPythia8EvtGen_NNPDF30_AZNLO_WpH125J_Hyy_Wincl_MINLO.merg
 mc16_13TeV.345319.PowhegPythia8EvtGen_NNPDF30_AZNLO_ZH125J_Hyy_Zincl_MINLO.merge.EVNT.e5743_e5984
 mc16_13TeV.345323.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_WWlvlv.merge.EVNT.e5901_e5984
 mc16_13TeV.345324.PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5.merge.EVNT.e5769_e5984
+mc16_13TeV.345338.PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb.merge.EVNT.e5684_e5984
+mc16_13TeV.345342.PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb.merge.EVNT.e5739_e5984
 
 ##########################################################################################################################
 # sherpa 2.2.2 W+gamma and Z+gamma

@@ -320,16 +320,17 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     return trigchains;
   }
 
-  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache) const {
+  void SUSYObjDef_xAOD::GetTriggerTokens(std::string trigExpr, std::vector<std::string>& v_trigs15_cache, std::vector<std::string>& v_trigs16_cache, std::vector<std::string>& v_trigs17_cache) const {
 
     static std::string del15 = "_2015_";
     static std::string del16 = "_2016_";
+    static std::string del17 = "_2017_";
     static std::string delOR = "_OR_";
 
     size_t pos = 0;
-    std::string token15, token16;
+    std::string token15, token16, token17;
 
-    //get trigger tokens for 2015 and 2016 
+    //get trigger tokens for 2015, 2016 and 2017 
     if ( (pos = trigExpr.find(del15)) != std::string::npos) {
       trigExpr.erase(0, pos + del15.length());
 
@@ -337,6 +338,10 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
       while ((pos = trigExpr.find(del16)) != std::string::npos) {
         token15 = trigExpr.substr(0, pos);
         token16 = trigExpr.erase(0, pos + del16.length());
+      }
+      pos = 0;
+      while ((pos = trigExpr.find(del17)) != std::string::npos) {
+        token17 = trigExpr.erase(0, pos + del17.length());
       }
     }
 
@@ -347,9 +352,13 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     if(token16.empty())
       token16 = trigExpr;
 
+    if(token17.empty())
+      token17 = trigExpr;
+
     //get trigger chains for matching in 2015 and 2016                                  
     v_trigs15_cache = GetTriggerOR(token15);
     v_trigs16_cache = GetTriggerOR(token16);
+    v_trigs17_cache = GetTriggerOR(token17);
   }
 
   Trig::FeatureContainer SUSYObjDef_xAOD::GetTriggerFeatures(const std::string& chainName, unsigned int condition) const
