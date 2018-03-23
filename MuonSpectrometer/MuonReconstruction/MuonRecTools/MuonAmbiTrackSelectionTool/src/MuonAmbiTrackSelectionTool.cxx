@@ -128,7 +128,7 @@ const Trk::Track* Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk
           const Trk::RIO_OnTrack* rot = &competingROT->rioOnTrack(i);
           if( !rot || !rot->prepRawData() || !m_idHelperTool->isMuon(rot->identify()) ) continue;
           //only use precision hits for muon track overlap
-          if(!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify()))) continue;
+          if(!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify())) && !m_idHelperTool->isMM(rot->identify()) && !m_idHelperTool->issTgc(rot->identify())) continue;
 	  Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(rot->identify());
 	  ++precisionPerLayer[stIndex];
 	  if ( m_assoTool->isUsed(*(rot->prepRawData()))) {
@@ -141,7 +141,7 @@ const Trk::Track* Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk
     }else{
 
       if(!m_idHelperTool->isMuon(rot->identify())) continue;
-      if(!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify()))) continue; //only precision hits used for overlap
+      if(!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify())) && !m_idHelperTool->isMM(rot->identify()) && !m_idHelperTool->issTgc(rot->identify())) continue; //only precision hits used for overlap
 
       ++numhits;
 
