@@ -14,6 +14,7 @@
 #include "LArElecCalib/ILArHVScaleCorr.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
+#include "CaloIdentifier/CaloGain.h"
 
 #include "LArElecCalib/ILArFEBConfigReader.h"
 
@@ -271,8 +272,14 @@ StatusCode LArADC2MeVCondAlg::execute() {
 	// ADC2DAC is a vector (polynomial fit of ramps)
 	const ILArRamp::RampRef_t adc2dac = larRamp->ADC2DAC(chid,igain);
 	if (adc2dac.size()<2) {
-	  msg(MSG::ERROR) << "No Ramp found for channel " << larOnlineID->channel_name(chid) << ", gain " << igain << endmsg;
-	  ++nNoRamp;
+          // Low gain can sometimes be missing: not an error.
+          if (igain == CaloGain::LARLOWGAIN) {
+            msg(MSG::VERBOSE) << "No Ramp found for channel " << larOnlineID->channel_name(chid) << ", gain " << igain << endmsg;
+          }
+          else {
+            msg(MSG::ERROR) << "No Ramp found for channel " << larOnlineID->channel_name(chid) << ", gain " << igain << endmsg;
+            ++nNoRamp;
+          }
 	  continue;
 	}
 
