@@ -9,7 +9,7 @@
 // includes
 //
 
-#include <AsgAnalysisAlgorithms/AsgPileupReweightingAlg.h>
+#include <AsgAnalysisAlgorithms/PileupReweightingAlg.h>
 
 //
 // method implementations
@@ -17,9 +17,9 @@
 
 namespace CP
 {
-  AsgPileupReweightingAlg ::
-  AsgPileupReweightingAlg (const std::string& name, 
-                     ISvcLocator* pSvcLocator)
+  PileupReweightingAlg ::
+  PileupReweightingAlg (const std::string& name, 
+                        ISvcLocator* pSvcLocator)
     : AnaAlgorithm (name, pSvcLocator)
     , m_pileupReweightingTool ("PileupReweightingTool", this)
   {
@@ -28,7 +28,7 @@ namespace CP
 
 
 
-  StatusCode AsgPileupReweightingAlg ::
+  StatusCode PileupReweightingAlg ::
   initialize ()
   {
     ANA_CHECK (m_pileupReweightingTool.retrieve());
@@ -41,7 +41,7 @@ namespace CP
 
 
 
-  StatusCode AsgPileupReweightingAlg ::
+  StatusCode PileupReweightingAlg ::
   execute ()
   {
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {

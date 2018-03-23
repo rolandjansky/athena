@@ -5,8 +5,8 @@
 /// @author Nils Krumnack
 
 
-#ifndef ASG_ANALYSIS_ALGORITHMS__ASG_PILEUP_REWEIGHTING_ALG_H
-#define ASG_ANALYSIS_ALGORITHMS__ASG_PILEUP_REWEIGHTING_ALG_H
+#ifndef ASG_ANALYSIS_ALGORITHMS__PILEUP_REWEIGHTING_ALG_H
+#define ASG_ANALYSIS_ALGORITHMS__PILEUP_REWEIGHTING_ALG_H
 
 #include <xAODEventInfo/EventInfo.h>
 #include <AnaAlgorithm/AnaAlgorithm.h>
@@ -19,12 +19,12 @@ namespace CP
 {
   /// \brief an algorithm for calling \ref IPileupReweightingTool
 
-  class AsgPileupReweightingAlg final : public EL::AnaAlgorithm
+  class PileupReweightingAlg final : public EL::AnaAlgorithm
   {
     /// \brief the standard constructor
   public:
-    AsgPileupReweightingAlg (const std::string& name, 
-                             ISvcLocator* pSvcLocator);
+    PileupReweightingAlg (const std::string& name, 
+                          ISvcLocator* pSvcLocator);
 
 
   public:
