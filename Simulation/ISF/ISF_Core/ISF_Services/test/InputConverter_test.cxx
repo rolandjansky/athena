@@ -64,7 +64,7 @@ class MockFilterTool : public AthAlgTool,
   MOCK_CONST_METHOD1(pass, bool(const HepMC::GenParticle&));
 };
 
-DECLARE_TOOL_FACTORY( MockFilterTool )
+DECLARE_COMPONENT( MockFilterTool )
 
 
 class InputConverter_test: public ::testing::Test {

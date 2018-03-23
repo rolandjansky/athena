@@ -115,7 +115,7 @@ class TileCondProxyMock: public AthAlgTool, virtual public ITileCondProxy<T> {
 
 
 typedef TileCondProxyMock< TileCalibDrawerOfc > TileCondProxyMockOfc;
-DECLARE_TOOL_FACTORY( TileCondProxyMockOfc )
+DECLARE_COMPONENT( TileCondProxyMockOfc )
 
 
 

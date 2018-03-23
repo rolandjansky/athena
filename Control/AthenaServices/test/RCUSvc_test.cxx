@@ -58,7 +58,7 @@ public:
 };
 
 
-DECLARE_SERVICE_FACTORY( TestWhiteBoard )
+DECLARE_COMPONENT( TestWhiteBoard )
 
 
 struct Payload

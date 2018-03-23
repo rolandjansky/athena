@@ -65,7 +65,7 @@ public:
 
 }; // MockInputConverter class
 
-DECLARE_SERVICE_FACTORY( MockInputConverter )
+DECLARE_COMPONENT( MockInputConverter )
 
 
 // Athena Service to mock an SimulationService
@@ -86,7 +86,7 @@ public:
   MOCK_METHOD0(releaseEvent, StatusCode());
 }; // MockSimulationSvc class
 
-DECLARE_SERVICE_FACTORY( MockSimulationSvc )
+DECLARE_COMPONENT( MockSimulationSvc )
 
 
 // Athena Tool to mock a SimulationSelector
@@ -126,7 +126,7 @@ private:
 
 }; // MockSimulationSelector class
 
-DECLARE_TOOL_FACTORY( MockSimulationSelector )
+DECLARE_COMPONENT( MockSimulationSelector )
 
 
 // Gaudi Test fixture that provides a clean Gaudi environment for

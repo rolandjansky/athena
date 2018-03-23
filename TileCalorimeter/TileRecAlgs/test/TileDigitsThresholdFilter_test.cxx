@@ -100,7 +100,7 @@ class TileCondToolDspThresholdMock: public AthAlgTool, virtual public ITileCondT
 };
 
 
-DECLARE_TOOL_FACTORY( TileCondToolDspThresholdMock )
+DECLARE_COMPONENT( TileCondToolDspThresholdMock )
 
 void test1() {
 
