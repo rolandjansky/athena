@@ -388,12 +388,15 @@ class ThresholdDef:
         thresholdC=[ 55.42, 31.98, 32.81, 49.48, 98.44, 32.11, 32.62, 29.90, 24.06, 25.81, 25.52, 35.00, 27.71, 36.46, 26.25, 30.63]
 
         # run 2 above MBTS_A08 only the even numbers are used
-        thresholdA=[ 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
-        thresholdC=[ 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0]
+        thresholdA=[ 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0]
+        thresholdC=[ 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0]
 
         for i, (vA, vC) in enumerate(zip(thresholdA, thresholdC)):
-            tc.registerThr('MBTS_A%i' % i, 'MBTSSI').addThrValue(vA)
-            tc.registerThr('MBTS_C%i' % i, 'MBTSSI').addThrValue(vC)
+            #if(thresholdA[i]!=0):
+            tc.registerThr('MBTS_A%i' % i, 'MBTSSI').addThrValue(thresholdA[i])
+            #if(thresholdC[i]!=0):
+            tc.registerThr('MBTS_C%i' % i, 'MBTSSI').addThrValue(thresholdC[i])
+
 
         thr_mbtsA = tc.registerThr('MBTS_A', 'MBTS', mapping=0)
         thr_mbtsC = tc.registerThr('MBTS_C', 'MBTS', mapping=1)
