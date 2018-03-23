@@ -1614,8 +1614,8 @@ class useDynamicAlignFolders(_modifier):
     enable the new (2016-) alignment scheme
     """
     def preSetup(self):
-        from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;
-        GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
+        from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+        InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
 
 class PixelOnlyZFinder(_modifier):
