@@ -12,8 +12,6 @@
 
 #include <EgammaAnalysisAlgorithms/ElectronEfficiencyCorrectionAlg.h>
 
-#include <RootCoreUtils/Assert.h>
-
 //
 // method implementations
 //
