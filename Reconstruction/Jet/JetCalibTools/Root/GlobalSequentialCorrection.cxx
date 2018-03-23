@@ -310,7 +310,7 @@ double GlobalSequentialCorrection::getPunchThroughResponse(double E, double eta_
     //this could probably be improved, but to avoid a seg fault...
     return 1;
   }
-  double PunchThroughResponse = readPtJetPropertyHisto(E,log(Nsegments),m_respFactorsPunchThrough[etabin]);
+  double PunchThroughResponse = readPtJetPropertyHisto(E,Nsegments,m_respFactorsPunchThrough[etabin]);
   if(!m_pTResponseRequirementOff && PunchThroughResponse>1) return 1;
   return PunchThroughResponse;
 }

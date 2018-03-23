@@ -784,6 +784,10 @@ class TopConfig final {
 
   // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
   inline bool outputFileSetAutoFlushZero() const {return m_outputFileSetAutoFlushZero;}
+  // Better configurable settings for TTree memory optimisation (ANALYSISTO-44, ANALYSISTO-463)
+  inline int outputFileNEventAutoFlush() const {return m_outputFileNEventAutoFlush;}
+  inline int outputFileBasketSizePrimitive() const {return m_outputFileBasketSizePrimitive;}
+  inline int outputFileBasketSizeVector() const {return m_outputFileBasketSizeVector;}
 
   // Number of events to run on (only for testing)
   inline virtual unsigned int numberOfEventsToRun() const { return m_numberOfEventsToRun;}
@@ -1314,7 +1318,10 @@ class TopConfig final {
   bool m_saveOnlySelectedEvents;
   // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
   bool m_outputFileSetAutoFlushZero;
-
+  // Better configurable settings for TTree memory optimisation (ANALYSISTO-44, ANALYSISTO-463)
+  int m_outputFileNEventAutoFlush;
+  int m_outputFileBasketSizePrimitive;
+  int m_outputFileBasketSizeVector;
   // Number of events to run on (for testing)
   unsigned int m_numberOfEventsToRun;
 

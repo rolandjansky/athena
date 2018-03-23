@@ -162,7 +162,7 @@ namespace xAOD {
     float b = a;
 
     // As nan is a valid encrypted value, decrypt it as well.
-    if ( a > 0. || isnan(a) ) {
+    if ( a > 0. || std::isnan(a) ) {
       if ( isOkForDec() ) {
         ULLI_t ia = floatBitsToInt(a);
         ULLI_t ib = decryptFPECycle(ia);

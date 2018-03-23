@@ -91,8 +91,11 @@ def setup(HIGG4DxName, ToolSvc):
     elif HIGG4DxName == 'HIGG4D6':
         # here we only apply selection based on trigger and DiTau. After this skim, fat jet building is called. Second DerivationKernel will then apply selection based on jat jets (see below the skimming tool setup)
         ditaujet = '(count((DiTauJets.pt > 300.0*GeV)) >= 1)'
-        trigger_main = '( HLT_j360_a10r_L1J100 || HLT_j360_a10_lcw_L1J100 || HLT_j400_a10r_L1J100 || HLT_j400_a10_lcw_L1J100 || HLT_j420_a10_lcw_L1J100 || HLT_j420_a10r_L1J100 || HLT_j390_a10t_lcw_jes_30smcINF_L1J100 || HLT_j420_a10r_L1J100 || HLT_j420_a10t_lcw_jes_L1J100 || HLT_j420_a10_lcw_subjes_L1J100 || HLT_j420_a10t_lcw_jes_40smcINF_L1J100 || HLT_j440_a10r_L1J100 || HLT_j440_a10t_lcw_jes_L1J100 || HLT_j440_a10_lcw_subjes_L1J100 || HLT_j440_a10t_lcw_jes_40smcINF_L1J100 || HLT_j460_a10r_L1J100 || HLT_j460_a10t_lcw_jes_L1J100 || HLT_j460_a10_lcw_subjes_L1J100 || HLT_j480_a10r_L1J100 || HLT_j480_a10t_lcw_jes_L1J100 || HLT_j480_a10_lcw_subjes_L1J100 )'
-        skim_expression = ditaujet + "&&" + trigger_main
+        trigger_main     = '( HLT_j360_a10r_L1J100 || HLT_j360_a10_lcw_L1J100 || HLT_j400_a10r_L1J100 || HLT_j400_a10_lcw_L1J100 || HLT_j420_a10_lcw_L1J100 || HLT_j420_a10r_L1J100 || HLT_j390_a10t_lcw_jes_30smcINF_L1J100 || HLT_j420_a10r_L1J100 || HLT_j420_a10t_lcw_jes_L1J100 || HLT_j420_a10_lcw_subjes_L1J100 || HLT_j420_a10t_lcw_jes_40smcINF_L1J100 || HLT_j440_a10r_L1J100 || HLT_j440_a10t_lcw_jes_L1J100 || HLT_j440_a10_lcw_subjes_L1J100 || HLT_j440_a10t_lcw_jes_40smcINF_L1J100 || HLT_j460_a10r_L1J100 || HLT_j460_a10t_lcw_jes_L1J100 || HLT_j460_a10_lcw_subjes_L1J100 || HLT_j480_a10r_L1J100 || HLT_j480_a10t_lcw_jes_L1J100 || HLT_j480_a10_lcw_subjes_L1J100 )'
+        trigger_electron = '(HLT_e26_lhtight_nod0_ivarloose || HLT_e60_lhmedium_nod0 || HLT_e140_lhloose_nod0 || HLT_e300_etcut)'  # for HH->WWtautau analysis
+        trigger_muon     = '(HLT_mu26_ivarmedium || HLT_mu50 || HLT_mu60_0eta105_msonly)'  # for HH->WWtautau analysis
+        trigger_all      = '({} || {} || {})'.format(trigger_main, trigger_electron, trigger_muon)
+        skim_expression = ditaujet + "&&" + trigger_all
     
     else:
         assert False, "HIGG4DxSkimming: Unknown derivation stream '{}'".format(HIGG4DxName)

@@ -1,0 +1,8 @@
+<lcgdict>
+
+   <class name="CP::AsgViewSelectionAlg" />
+   <class name="CP::KinematicHistAlg" />
+   <class name="CP::ObjectCutFlowHistAlg" />
+   <class name="CP::SysListLoaderAlg" />
+   
+</lcgdict>
