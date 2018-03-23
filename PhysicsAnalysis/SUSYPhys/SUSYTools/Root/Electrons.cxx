@@ -348,7 +348,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
       theExpr=m_electronTriggerSFStringSingle;
     } 
     else{
-      ATH_MSG_WARNING( "Only single lepton trigger SFs is supported in GetSignalElecSF(). Use GetTriggerGlobalEfficiencySF() for dilepton or multilepton triggers!");
+      ATH_MSG_WARNING( "Only single lepton trigger SFs are supported in GetSignalElecSF(). Use GetTriggerGlobalEfficiencySF() for dilepton or multilepton triggers!");
     }
 
     //check matching
