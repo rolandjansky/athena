@@ -1003,7 +1003,10 @@ StatusCode MM_DigitizationTool::doDigitization() {
 			//Record the SDO collection in StoreGate
 			std::vector<MuonSimData::Deposit> deposits;
 			deposits.push_back(deposit);
-			m_sdoContainer->insert ( std::make_pair ( digitID, MuonSimData(deposits,0) ) );
+                        MuonSimData simData(deposits,0);
+                        simData.setPosition(hitOnSurfaceGlobal);
+                        simData.setTime(globalHitTime);
+                        m_sdoContainer->insert ( std::make_pair ( digitID, simData ) );
 			ATH_MSG_DEBUG(" added MM SDO " <<  m_sdoContainer->size());
 
 
