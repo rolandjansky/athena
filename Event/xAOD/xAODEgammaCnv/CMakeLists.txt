@@ -7,7 +7,7 @@ atlas_subdir( xAODEgammaCnv )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
                           Event/xAOD/xAODEgamma
                           GaudiKernel
                           PRIVATE
@@ -24,7 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( xAODEgammaCnv
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES DataModel xAODEgamma GaudiKernel AthenaBaseComps AthenaKernel FourMom xAODTracking xAODTruth ParticleEvent Particle egammaEvent )
+                     LINK_LIBRARIES AthContainers xAODEgamma GaudiKernel AthenaBaseComps AthenaKernel FourMom xAODTracking xAODTruth ParticleEvent Particle egammaEvent )
 
 # Install files from the package:
 atlas_install_headers( xAODEgammaCnv )
