@@ -1386,9 +1386,10 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
 
     std::string theConfig = m_tauConfigPathBaseline;
     if( m_tauConfigPathBaseline=="default" ){
-      if (m_tauId == "Loose") theConfig = "SUSYTools/tau_selection_loose.conf";
-      if (m_tauId == "Medium") theConfig = "SUSYTools/tau_selection_medium.conf";
-      else if (m_tauId == "Tight") theConfig = "SUSYTools/tau_selection_tight.conf";
+      if (m_tauId == "Loose")       theConfig = "SUSYTools/tau_selection_veryloose.conf";
+      else if (m_tauId == "Loose")  theConfig = "SUSYTools/tau_selection_loose.conf";
+      else if (m_tauId == "Medium") theConfig = "SUSYTools/tau_selection_medium.conf";
+      else if (m_tauId == "Tight")  theConfig = "SUSYTools/tau_selection_tight.conf";
     }
 
     //read config
@@ -1421,9 +1422,10 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
 
     std::string theConfig = m_tauConfigPath;
     if( m_tauConfigPath=="default" ){
-      if (m_tauId == "Loose") theConfig = "SUSYTools/tau_selection_loose.conf";
-      if (m_tauId == "Medium") theConfig = "SUSYTools/tau_selection_medium.conf";
-      else if (m_tauId == "Tight") theConfig = "SUSYTools/tau_selection_tight.conf";
+      if (m_tauId == "VeryLoose")   theConfig = "SUSYTools/tau_selection_veryloose.conf";
+      else if (m_tauId == "Loose")  theConfig = "SUSYTools/tau_selection_loose.conf";
+      else if (m_tauId == "Medium") theConfig = "SUSYTools/tau_selection_medium.conf";
+      else if (m_tauId == "Tight")  theConfig = "SUSYTools/tau_selection_tight.conf";
     }
 
     getTauConfig(theConfig, pT_window, eta_window, elOLR, muVeto, muOLR);
