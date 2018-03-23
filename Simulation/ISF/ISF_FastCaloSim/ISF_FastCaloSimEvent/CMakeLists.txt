@@ -27,10 +27,13 @@ atlas_disable_as_needed()
 atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ROOT_HEADERS ISF_FastCaloSimEvent/IntArray.h 
                            ISF_FastCaloSimEvent/DoubleArray.h 
+                           ISF_FastCaloSimEvent/TFCSFunction.h 
                            ISF_FastCaloSimEvent/TFCS1DFunction.h 
                            ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h 
                            ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h 
                            ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunction.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
                            ISF_FastCaloSimEvent/TFCSParametrization.h 
                            ISF_FastCaloSimEvent/TFCSInitWithEkin.h
