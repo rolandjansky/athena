@@ -28,9 +28,9 @@ run_test_display()
 {
     ref_file=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthDataQuality/data17_13TeV.00337491.physics_Main.merge.HIST.f873_h264.root
 
-    DQWebDisplay.py $ref_file TestDisplay 2 0 "stream=physics_Main" > test_display.txt
-    DQWebDisplay.py $ref_file TestDisplayCosmics 3 0 "stream=physics_Main" > test_cosmics.txt
-    DQWebDisplay.py $ref_file TestDisplayHI 6 0 "stream=physics_Main" > test_HI.txt
+    DQWebDisplay.py $ref_file TestDisplay 2 0 "stream=physics_Main" 
+    DQWebDisplay.py $ref_file TestDisplayCosmics 3 0 "stream=physics_Main"
+    DQWebDisplay.py $ref_file TestDisplayHI 6 0 "stream=physics_Main" 
 }
 
 run_test()
@@ -49,18 +49,17 @@ run_test()
     hcfg_files=(collisions_run.hcfg collisions_minutes10.hcfg heavyions_run.hcfg heavyions_minutes10.hcfg) #cosmics_run.hcfg cosmics_minutes10.hcfg
     for f in "${hcfg_files[@]}"
     do
-	han-config-print.exe $f > /tmp/hcfg_out.txt
-	check_hcfg_hash $f
-	if ! [ $? -eq 0 ]; then
+    han-config-print.exe $f | grep -q "Hash = $"
+    if ! [ $? -eq 0 ]; then
             echo git hash missing from $f
 	    echo Tests failed
-            return 0
+            return 1
 	fi
-	check_hcfg_top_level $f
-	if ! [ $? -eq 0 ]; then
+    han-config-print.exe $f | grep -q "BEGIN ASSESSMENTS of \"top_level\""
+    if ! [ $? -eq 0 ]; then
             echo "Histograms found under \"Overall Status\" for $f (output was likely specified incorrectly)"
             echo Tests failed
-            return 0
+            return 1
 	fi
     done
 
