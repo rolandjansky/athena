@@ -71,7 +71,9 @@ RPCStandaloneTracksMon = RPCStandaloneTracksMon(name='RPCStandaloneTracksMon',
 						       rpc_readout_window    = 0.2, ## micro sec
                                                        doRadiography         = False,
 						       doCoolDB              = False,
-                                                       ClusterContainer      = "rpcClusters") 
+                                                       ClusterContainer      = "rpcClusters")
+if globalflags.DataSource() != 'data':
+    RPCStandaloneTracksMon.isMC = True
 ToolSvc += RPCStandaloneTracksMon
 rpcTrackMonMan.AthenaMonTools += [ RPCStandaloneTracksMon ]
 topSequence += rpcTrackMonMan
@@ -91,6 +93,8 @@ if not hasattr(topSequence,"RpcClusterBuilderPRD"):
     topSequence += RpcClusterBuilderPRD(ClusterTimeSpread = 10000,
                                         OutputLevel = FATAL)
 rpcLv1RawDataEfficiency = RpcLv1RawDataEfficiency(name='rpcLv1RawDataEfficiency')
+if globalflags.DataSource() != 'data':
+    rpcLv1RawDataEfficiency.isMC = True
 ToolSvc += rpcLv1RawDataEfficiency
 rpcLv1RawEfficiencyMonMan.AthenaMonTools += [ rpcLv1RawDataEfficiency ]
 topSequence += rpcLv1RawEfficiencyMonMan
