@@ -302,8 +302,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       return NULL;
     }
 
-    TH3 *h3=NULL;
-    h3= dynamic_cast<TH3*>(fmc->Get(hname.c_str()));
+    TH3 *h3= dynamic_cast<TH3*>(fmc->Get(hname.c_str()));
     
     if( h3==NULL ){ 
       ATH_MSG_ERROR("NULL sagitta map");
@@ -311,7 +310,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     }
 
     h3->SetDirectory(0);
-    TProfile2D *hinclusive= dynamic_cast<TProfile2D*>(h3->Project3DProfile("yx"));
+    TProfile2D *hinclusive= h3->Project3DProfile("yx");
     hinclusive->SetDirectory(0);
     hinclusive->GetXaxis()->SetTitle(h3->GetXaxis()->GetTitle());
     hinclusive->GetYaxis()->SetTitle(h3->GetYaxis()->GetTitle());
