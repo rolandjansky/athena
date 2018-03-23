@@ -82,7 +82,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True, doL2MultiTrack = False)
 
     topoAlgs = chainDict["topo"]
 
-    SameConfigTopos = ['bJpsi', 'bDimu', 'bDimu2700', 'bTau', 'bTauTrk', 'trkTau',
+    SameConfigTopos = ['bJpsi', 'bDimu', 'bDimu2700', 'bTau', 'bTauTrk', 'trkTau', 'bTauTight',
                        'bDsPhiXtight','bDsPhiX', 'bPhi', 
                        'bBmumu', 'bJpsimumu', 'bUpsimumu', 'Zmumu','bUpsi',
                        'bNocut', 'bVertex2', 'bVertex3']
@@ -106,7 +106,10 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True, doL2MultiTrack = False)
     elif (ntopos ==1) & (topoAlgs[0] in SameConfigTopos):
         theChainDef = bSingleOptionTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack)
     else:
-        theChainDef = bMultipleOptionTopos(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack)
+        if 'PEB' in topoAlgs:
+           theChainDef = bMultipleOptionTopos(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack, True)
+        else:
+           theChainDef = bMultipleOptionTopos(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack, False)
 
     return theChainDef
 
@@ -122,7 +125,7 @@ def getBphysThresholds(chainDict) :
         mult = mult + int(part['multiplicity'])
         if not 'noL1' in  part['extra'] :
             mult_without_noL1 = mult_without_noL1 + int(part['multiplicity'])
-
+    print "OI multiplicity ", mult, mult_without_noL1
     for dictpart in chainDict['chainParts']:
         #if 'noL1' in  dictpart['extra'] : continue
         if 'mu' in dictpart['trigType']:
@@ -194,11 +197,11 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
     mtopo = topoAlgs[0]
     # TE naming deifnition
     TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
-    L2TEname = "L2_" + TEname+'_'+mtopo+'_'+chainDict['L1item']
+    L2TEname = "L2_" + TEname+'_'+mtopo+'_'+chainDict['L1item'].replace(",","")
     EFTEname = "EF_" + chainDict['chainName']
     topo2StartFrom = None
     if topoStartFrom:
-        L2TEname = "L2_" + TEname+'_'+mtopo+'_tsf_'+chainDict['L1item']
+        L2TEname = "L2_" + TEname+'_'+mtopo+'_tsf_'+chainDict['L1item'].replace(",","")
         topo2StartFrom = L2TEname
 
     fexNameExt,trkmuons, mult, mult_without_noL1  = getBphysThresholds(chainDict)
@@ -373,6 +376,31 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
             EFHypo = EFMultiMuHypo_2700("EFMultiMuHypo_Tau3")
             EFHypo.bphysCollectionKey = "EFMultiMuFex"
 
+    elif (mtopo == 'bTauTight'):
+        # this option sets tracks pt cuts to 
+        
+        from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_trkTau
+        from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau3
+        from TrigBphysHypo.TrigEFMultiMuFexConfig import EFMultiMuFex_Tau2
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_2700
+
+        from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_trkTau
+        from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
+        L2Fex = TrigMultiTrkFex_trkTau("TrigMultiTrkFex_trkTauTight"+fexNameExt)
+        L2Fex.setNumberAndTrackThresholds( len(trkmuons), trkmuons )
+        L2Hypo = EFMultiMuHypo_2700("L2MultiMuHypo_bTau")
+        L2Hypo.bphysCollectionKey = "MultiTrkFex"
+
+        if mult == 2 :
+            EFFex = EFMultiMuFex_Tau2()
+            EFHypo = EFMultiMuHypo_2700("EFMultiMuHypo_bTau")
+            EFHypo.bphysCollectionKey = "EFMultiMuFex"
+
+        else :
+            EFFex = EFMultiMuFex_Tau3()
+            EFHypo = EFMultiMuHypo_2700("EFMultiMuHypo_Tau3")
+            EFHypo.bphysCollectionKey = "EFMultiMuFex"
+
 
             
     elif (mtopo == 'trkTau'):  # no EF muon hypo
@@ -529,6 +557,17 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
     # OI make sure that L2Fex is not running, when only 1 muon and therefore only 1 ID RoI is processed at L2
     if  L2Fex != None :
+
+        if "btrk" in chainDict['chainName'] : # add wider cone tracking
+            [trkfastw, trkprecw] = TrigInDetSequence("BphysicsCone02", "muonBtrk", "IDTrig").getSequence()
+
+            # OI: fast tracking seems to be enough to get tracks for muon seeding.
+            # precision tracking is then done after MS segments are identified, with default muon ID cone
+            theChainDef.addSequence( trkfastw ,inputTEsL2, L2TEname+"_widetrk", topo_start_from = None)
+            theChainDef.addSignatureL2([L2TEname+"_widetrk"])
+            inputTEsL2 = L2TEname+"_widetrk"
+
+            
         if mult_without_noL1 == mult :  # no noL1 parts
             theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
             theChainDef.addSignatureL2([L2TEname])
@@ -542,11 +581,16 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
                         position = min(position, signature['signature_counter'])
             if position > -1 :
                 locInputTEs = theChainDef.signatureList[position]['listOfTriggerElements']
-                locTEname = "EF_mTrk_" + TEname+'_'+mtopo+'_'+chainDict['L1item']
+                locTEname = "EF_mTrk_" + TEname+'_'+mtopo+'_'+chainDict['L1item'].replace(",","")
                 theChainDef.addSequence([L2Fex, L2Hypo], locInputTEs, locTEname, topo_start_from = None)
                 theChainDef.insertSignature(position+1, [locTEname])
             else :
                 log.error('Bphysics Chain %s  unknown noL1 configuration, please check!! ' %(chainDict['chainName'] ))
+
+        # Now catch place in muon sequence that should be seeded by Bphys FEX :
+        for sequence in theChainDef.sequenceList:
+            if sequence['input'][0].startswith( "L2BPHYS_TOBEFILLED" ) :
+                sequence['input'][0] = L2TEname
                 
     else :
         # that is to make sure that L1 topo seed is not give to EF-only chains..
@@ -579,12 +623,18 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
       theChainDef.addSequence([IDTP],myInputTEsEF,EFTEname+"_monit")
       theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1,[EFTEname+"_monit"])
 
+
+    if "bTau" in chainDict['chainName'] :
+        #print "OI btrk ", theChainDef
+            
+        print "OI resulting sequence ", sequence
+      
     return theChainDef
 
 
 ###################################################################################
 ###################################################################################
-def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack = False):
+def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack = False, doPEB = False):
 
     topoAlgs = chainDict["topo"]
     TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
@@ -592,12 +642,12 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
     myTopoString = ''
     for mtopo in topoAlgs:
         myTopoString =myTopoString+'_'+mtopo
-    L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item']
+    L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item'].replace(",","")
     EFTEname = "EF_" + chainDict['chainName']
 
     topo2StartFrom = None
     if topoStartFrom:
-        L2TEname = "L2_" + TEname+myTopoString+'_tsf_'+chainDict['L1item']
+        L2TEname = "L2_" + TEname+myTopoString+'_tsf_'+chainDict['L1item'].replace(",","")
         topo2StartFrom = L2TEname
 
     fexNameExt,trkmuons, mult, mult_without_noL1  = getBphysThresholds(chainDict)
@@ -847,6 +897,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi_noId
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_noId
         from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi_noId
+        
 
         if 'noL1' in chainDict['chainName'] : # OI then L2 is not available and L2Fex makes no sense
             L2Fex = None
@@ -1098,7 +1149,11 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         log.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
 
     # OI make sure that L2Fex is not running, when only 1 muon and therefore only 1 ID RoI is processed at L2
-    if  L2Fex != None :
+    if not doL2MultiTrack :
+        theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
+        theChainDef.addSignatureL2([L2TEname])
+    else :
+     if  L2Fex != None :
         if mult_without_noL1 == mult :  # no noL1 parts
             theChainDef.addSequence([L2Fex, L2Hypo], inputTEsL2, L2TEname, topo_start_from = topoStartFrom)
             theChainDef.addSignatureL2([L2TEname])
@@ -1112,7 +1167,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
                         position = min(position, signature['signature_counter'])
             if position > -1 :
                 locInputTEs = theChainDef.signatureList[position]['listOfTriggerElements']
-                locTEname = "EF_mTrk_" + TEname+'_'+mtopo+'_'+chainDict['L1item']
+                locTEname = "EF_mTrk_" + TEname+'_'+mtopo+'_'+chainDict['L1item'].replace(",","")
                 theChainDef.addSequence([L2Fex, L2Hypo], locInputTEs, locTEname, topo_start_from = None)
                 theChainDef.insertSignature(position+1, [locTEname])
             else :
@@ -1133,6 +1188,14 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from = topo2StartFrom)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])       
 
+    if doPEB:
+        from TrigDetCalib.TrigDetCalibConfig import TrigCheckForMuons_peb075
+        bphysROBWriter = TrigCheckForMuons_peb075("bphysROBWriter_peb075")
+        EFTEname = "EF_" + chainDict['chainName']+"_1"
+        inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+        theChainDef.addSequence([bphysROBWriter],inputTEsEF, EFTEname)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname]+inputTEsEF)
+        
     return theChainDef
 
 
@@ -1145,9 +1208,9 @@ def bMuTrackPEB(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, do
     mtopo = topoAlgs[0]
     TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
     if "lowpt" in chainDict['chainName'] :
-        L2TEname = "L2_" + TEname+'_'+mtopo+'_lowpt_'+chainDict['L1item']
+        L2TEname = "L2_" + TEname+'_'+mtopo+'_lowpt_'+chainDict['L1item'].replace(",","")
     else :
-        L2TEname = "L2_" + TEname+'_'+mtopo+'_'+chainDict['L1item']
+        L2TEname = "L2_" + TEname+'_'+mtopo+'_'+chainDict['L1item'].replace(",","")
 
     
     #--- 1: L2 first add large cone before duing superEF
@@ -1295,7 +1358,7 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
     myTopoString = ''
     for mtopo in topoAlgs:
         myTopoString =myTopoString+'_'+mtopo
-    L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item']
+    L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item'].replace(",","")
     EFTEname = "EF_" + chainDict['chainName']
 
     fexNameExt,trkmuons, mult, mult_without_noL1  = getBphysThresholds(chainDict)
@@ -1303,7 +1366,7 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, d
     
     topo2StartFrom = None
     if topoStartFrom:
-        L2TEname = "L2_" + TEname+myTopoString+'_tsf_'+chainDict['L1item']
+        L2TEname = "L2_" + TEname+myTopoString+'_tsf_'+chainDict['L1item'].replace(",","")
         topo2StartFrom = L2TEname
 
     from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu_noCut
@@ -1556,7 +1619,7 @@ def bBeexTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF ):
     myTopoString = ''
     for mtopo in topoAlgs:
         myTopoString =myTopoString+'_'+mtopo
-    L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item']
+    L2TEname = "L2_" + TEname+myTopoString+'_'+chainDict['L1item'].replace(",","")
     EFTEname = "EF_" + chainDict['chainName']
 
 

@@ -5,24 +5,15 @@
 #ifndef TFCSLateralShapeParametrizationHitBase_h
 #define TFCSLateralShapeParametrizationHitBase_h
 
-#include "ISF_FastCaloSimEvent/TFCSParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 
 class CaloGeometry;
 
-class TFCSLateralShapeParametrizationHitBase:public TFCSParametrization {
+class TFCSLateralShapeParametrizationHitBase:public TFCSLateralShapeParametrization {
 public:
   TFCSLateralShapeParametrizationHitBase(const char* name=nullptr, const char* title=nullptr);
 
-  bool is_match_Ekin_bin(int Ekin_bin) const {return Ekin_bin==m_Ekin_bin;};
-  bool is_match_calosample(int calosample) const {return calosample==m_calosample;};
-  
-  int Ekin_bin() const {return m_Ekin_bin;};
-  void set_Ekin_bin(int bin);
-
-  int calosample() const {return m_calosample;};
-  void set_calosample(int cs);
-
-  /// Call get_number_of_hits() only once per shower simulation, as it could be build with random numbers and give different results each time
+  ///Call get_number_of_hits() only once per shower simulation, as it could be calculated with random numbers and give different results each time
   virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
   class Hit
@@ -43,11 +34,7 @@ public:
   /// the hit should be mapped into a cell and this cell recorded in simulstate. 
   /// All hits/cells should be resacled such that their final sum is simulstate->E(sample)
   virtual void simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
-
-  void Print(Option_t *option = "") const;
 private:
-  int m_Ekin_bin;
-  int m_calosample;
 
   ClassDef(TFCSLateralShapeParametrizationHitBase,1)  //TFCSLateralShapeParametrizationHitBase
 };

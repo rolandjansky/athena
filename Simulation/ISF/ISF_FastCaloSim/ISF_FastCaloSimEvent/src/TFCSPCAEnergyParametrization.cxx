@@ -42,11 +42,13 @@ bool TFCSPCAEnergyParametrization::is_match_calosample(int calosample) const
 void TFCSPCAEnergyParametrization::Print(Option_t *option) const
 {
   TString opt(option);
-  if(!opt.IsWhitespace()) opt="";
+  bool shortprint=opt.Index("short")>=0;
+  bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
+  TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSEnergyParametrization::Print(option);
   
-  if(msgLvl(MSG::INFO)) {
-    ATH_MSG(INFO) << opt <<"  #bins="<<m_numberpcabins<<", layers=";
+  if(longprint) {
+    ATH_MSG(INFO) << optprint <<"  #bins="<<m_numberpcabins<<", layers=";
     for(unsigned int i=0;i<m_RelevantLayers.size();i++) {
       if(i>0) msg()<<", ";
       msg()<<m_RelevantLayers[i];
@@ -139,6 +141,7 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
 
   double total_energy=simdata[layer.size()-1];
   simulstate.set_E(total_energy);
+  ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
 
   for(int s=0;s<CaloCell_ID_FCS::MaxSample;s++)
     {

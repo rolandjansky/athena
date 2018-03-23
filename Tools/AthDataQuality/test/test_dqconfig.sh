@@ -36,7 +36,7 @@ run_test_display()
 run_test()
 {
 
-    hcfg_dir=$(python ../python/hcfg_path.py)
+    hcfg_dir=$(python -c "from DataQualityConfigurations._resolve_data_path import resolve_data_path; hcfg_dir = resolve_data_path('DataQualityConfigurations'); print hcfg_dir")
     if [[ $hcfg_dir == "" ]]; then
 	echo hcfg path not found
 	echo Tests failed

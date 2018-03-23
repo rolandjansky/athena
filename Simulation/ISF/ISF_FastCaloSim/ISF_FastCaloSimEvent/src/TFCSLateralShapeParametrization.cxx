@@ -23,11 +23,22 @@ void TFCSLateralShapeParametrization::set_calosample(int cs)
   m_calosample=cs;
 }
 
+void TFCSLateralShapeParametrization::set_pdgid_Ekin_eta_Ekin_bin_calosample(const TFCSLateralShapeParametrization& ref)
+{
+  set_calosample(ref.calosample());
+  set_Ekin_bin(ref.Ekin_bin());
+  set_pdgid_Ekin_eta(ref);
+}
+
 void TFCSLateralShapeParametrization::Print(Option_t *option) const
 {
   TString opt(option);
-  if(!opt.IsWhitespace()) opt="";
+  bool shortprint=opt.Index("short")>=0;
+  bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
+  TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSParametrization::Print(option);
-  ATH_MSG_INFO(opt <<"  Ekin_bin="<<Ekin_bin());
-  ATH_MSG_INFO(opt <<"  calosample="<<calosample());
+  if(longprint) {
+    if(Ekin_bin()==-1 ) ATH_MSG_INFO(optprint <<"  Ekin_bin=all ; calosample="<<calosample());
+     else               ATH_MSG_INFO(optprint <<"  Ekin_bin="<<Ekin_bin()<<" ; calosample="<<calosample());
+  }  
 }

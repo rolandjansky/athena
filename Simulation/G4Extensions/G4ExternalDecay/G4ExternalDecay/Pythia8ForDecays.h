@@ -46,6 +46,8 @@ class Pythia8ForDecays
 
    /// Get the quarks from a gluino R-hadron.  From Pythia8 code.
    std::pair<int,int> fromIdWithGluino( int idRHad, Pythia8::Rndm* rndmPtr) const;
+   std::pair<int,int> fromIdWithSquark( int idRHad) const;
+   bool isGluinoRHadron(int pdgId) const;
 
    /// My own class; singleton pattern; thread safe for future-proofing
    static std::unique_ptr<Pythia8ForDecays> s_instance;

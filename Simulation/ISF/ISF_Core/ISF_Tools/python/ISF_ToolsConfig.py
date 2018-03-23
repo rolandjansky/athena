@@ -116,6 +116,10 @@ def getCosmicEventFilterTool(name="ISF_CosmicEventFilter", **kwargs):
         kwargs.setdefault('ptMax'  , simFlags.CosmicFilterPTmax.get_Value() )
     return CfgMgr.ISF__CosmicEventFilterTool(name, **kwargs)
 
+def getStoppedParticleFilter(name="ISF_StoppedParticleFilter", **kwargs):
+    kwargs.setdefault("VolumeNames", ['StoppingPositions'] )
+    return  CfgMgr.ISF__CosmicEventFilterTool(name, **kwargs)
+
 def getInToOutSubDetOrderingTool(name="ISF_InToOutSubDetOrderingTool", **kwargs):
     # higher ordered particles will be simulated first
     kwargs.setdefault('OrderID'          , 100000000   )

@@ -91,9 +91,8 @@ iFatras::TransportTool::TransportTool( const std::string& t,
  *=======================================================================*/
 iFatras::TransportTool::~TransportTool()
 {
-    delete m_randomEngine;
+  delete m_randomEngine;
 }
-
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
