@@ -5,11 +5,10 @@
 # art-input-nfiles: 10
 # art-include: 21.0/Athena
 # art-include: master/Athena
-# art-output: InDetStandardPlots.root
-# art-output: comparison.root
-# art-output: comparison.ps
 # art-output: *.root
 # art-output: *.xml
+# art-output: dcube
+
 
 fileList="['${ArtInFile//,/', '}']"
 echo "List of files = ", $fileList
