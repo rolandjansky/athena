@@ -754,7 +754,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
       ATH_CHECK( t_sf->initialize() );
       m_elecTrigSFTools.push_back(t_sf->getHandle());
+#ifndef XAOD_STANDALONE
+      m_legsPerTool[toolName] = item.first;
+#else
       m_legsPerTool["ToolSvc."+toolName] = item.first;
+#endif
 
       toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_mixLep_" + item.first + m_eleId;
       auto t_eff = m_elecEfficiencySFTool_trigEff_mixLep.emplace(m_elecEfficiencySFTool_trigEff_mixLep.end(), "AsgElectronEfficiencyCorrectionTool/"+toolName);
@@ -768,7 +772,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
       ATH_CHECK( t_eff->initialize() );
       m_elecTrigEffTools.push_back(t_eff->getHandle());
+#ifndef XAOD_STANDALONE
+      m_legsPerTool[toolName] = item.first;
+#else
       m_legsPerTool["ToolSvc."+toolName] = item.first;
+#endif
 
     }
   }
