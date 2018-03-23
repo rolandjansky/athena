@@ -302,7 +302,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       return NULL;
     }
 
-    TH3 *h3= dynamic_cast<TH3*>(fmc->Get(hname.c_str()));
+    TH3 *h3= static_cast<TH3*>(fmc->Get(hname.c_str()));
     
     if( h3==NULL ){ 
       ATH_MSG_ERROR("NULL sagitta map");
