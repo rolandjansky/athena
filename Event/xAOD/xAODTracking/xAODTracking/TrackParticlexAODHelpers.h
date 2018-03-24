@@ -179,7 +179,7 @@ namespace xAOD {
     ///The method will also return false if the track particle or vertex are invalid or if the track particle
     ///does not have a valid d0 uncertainty.
     inline
-    bool checkPVReference(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx, const double max_pv_dxy_sqr=3.0*3.0) {
+    bool checkPVReference(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx, const double max_pv_dxy_sqr=0.5*0.5) {
         if (hasValidCovD0(tp) && vx) {
 	     return std::abs( sqr(vx->x())+ sqr(vx->y())) <  max_pv_dxy_sqr * tp->definingParametersCovMatrixVec()[0];
         }
