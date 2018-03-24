@@ -148,7 +148,6 @@ ${scriptsdir}/checkout_atlasexternals.sh \
         touch ${BUILDDIR}/../.${timestamp_tmp}
     }
    (set +e 
-    touch ${BUILDDIR}/.${timestamp_tmp}
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/src/checkout.AthenaExternals.log
    )
  } || true
