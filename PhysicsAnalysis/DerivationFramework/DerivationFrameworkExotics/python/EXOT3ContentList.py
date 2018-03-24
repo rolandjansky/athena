@@ -6,10 +6,11 @@ EXOT3SmartContent = [
     "Photons",
     "InDetTrackParticles",
     "PrimaryVertices", 
-    "MET_Reference_AntiKt4EMTopo",
+    "AntiKt4TruthJets",
     "AntiKt4EMTopoJets",
     "BTagging_AntiKt4EMTopo",
     "BTagging_AntiKt2Track",
+    "MET_Reference_AntiKt4EMTopo",
     "TauJets"
 ]
 
@@ -27,22 +28,17 @@ EXOT3AllVariablesContent = [
      "TruthParticles",
      "MET_Truth",
      "AntiKt10TruthJets",
-     "AntiKt4TruthJets",
 
      ### JETS ###
      "AntiKt10LCTopoJets",
      "AntiKt10TrackCaloClusterJets",
-     "AntiKt4EMTopoJets",
      "AntiKt2PV0TrackJets",
-     "TauJets",
      
      ### MET ###
      "MET_LocHadTopo",
+     "METAssoc_AntiKt4EMTopo",
+     "MET_Core_AntiKt4EMTopo",
      
-     ### B JETS ###
-     "BTagging_AntiKt4EMTopo",
-     "BTagging_AntiKt2Track",
-
      ### MUONS ###
      "MuonSegments",
 
@@ -52,15 +48,13 @@ EXOT3AllVariablesContent = [
      ### TRACKCALOCLUSTERS ###
      "TrackCaloClustersCombinedAndNeutral",
 
-     "METAssoc_AntiKt4EMTopo",
-     "MET_Core_AntiKt4EMTopo",
-     "MET_Reference_AntiKt4EMTopo",
-
+     ### CLUSTERS ###
      "egammaTopoSeededClusters",
 
+     ### TRACKPARTICLES ###
      "CombinedMuonTrackParticles",
      "ExtrapolatedMuonTrackParticles",
-     "GSFTrackParticles",
+     "GSFTrackParticles"
 ]
 
 EXOT3StaticContent = []
