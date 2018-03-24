@@ -26,9 +26,7 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
             import traceback
             try:
                 from LArROD.LArRawChannelGetter_DigiHSTruth import LArRawChannelGetter_DigiHSTruth
-                #from LArROD.LArRawChannelGetter_DigiHSTruth import LArRawChannelGetter
                 theLArRawChannelGetter = LArRawChannelGetter_DigiHSTruth()
-                #theLArRawChannelGetter = LArRawChannelGetter()
             except:
                 mlog.error("could not get handle to LArRawChannel_DigiHSTruth Quit")
                 print traceback.format_exc()
@@ -67,7 +65,6 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                 try:
                     from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
                     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool("LArCellBuilder_DigiHSTruth")
-                    #theLArCellBuilder.RawChannelsName = "LArRawChannels_DigiHSTruth"
                     theLArCellBuilder.RawChannelsName = "LArRawChannels_DigiHSTruth"
                 except:
                     mlog.error("could not get handle to LArCellBuilderFromLArRawChannel Quit")
@@ -92,19 +89,13 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
                 theCaloCellMaker.CaloCellMakerToolNames += [theLArCellBuilder]
 
 
-
-            #if rec.doTile():
-
                 from AthenaCommon.GlobalFlags import globalflags
                 try:
                     from TileRecUtils.TileRecUtilsConf import TileCellBuilder
                     theTileCellBuilder = TileCellBuilder("TileCellBuilder_DigiHSTruth")
-                    #from TileRecUtils.TileRecFlags import jobproperties
-                    #theTileCellBuilder.TileRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
                     theTileCellBuilder.TileRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
                     theTileCellBuilder.E4prContainer = "E4prContainer2_DigiHSTruth"
                     theTileCellBuilder.MBTSContainer = "MBTSContainer2_DigiHSTruth"
-                    #theTileCellBuilder.TileDSPRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
                     theTileCellBuilder.TileDSPRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
                     if not hasattr( ToolSvc, "TileBeamInfoProvider" ):
                         from TileRecUtils.TileRecUtilsConf import TileBeamInfoProvider
@@ -380,8 +371,6 @@ class CaloCellGetter_DigiHSTruth (Configured)  :
 
         from CaloRec.CaloRecConf import CaloCellContainerCheckerTool   
         theCaloCellContainerCheckerTool = CaloCellContainerCheckerTool()     
-        # FIXME
-        # theCaloCellContainerCheckerTool.OutputLevel=DEBUG
 
         ToolSvc += theCaloCellContainerCheckerTool
         theCaloCellMaker.CaloCellMakerToolNames += [theCaloCellContainerCheckerTool] 

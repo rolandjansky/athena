@@ -12,7 +12,7 @@ LArNoisyROSummary::LArNoisyROSummary():
   m_SatTightFlaggedPartitions(0),
   m_MNBLooseFlaggedPartitions(0),
   m_MNBTightFlaggedPartitions(0),
-  m_MNBTightFlaggedPartitions_PsVeto(0)
+  m_MNBTight_PsVetoFlaggedPartitions(0)
 {
 }
 
@@ -24,6 +24,7 @@ void LArNoisyROSummary::clear()
 {
   m_noisy_febs.clear();
   m_MNBTight_febs.clear();
+  m_MNBTight_PsVeto_febs.clear();
   m_MNBLoose_febs.clear();
   m_noisy_preamps.clear();
   m_BadFEBFlaggedPartitions = 0; 
@@ -32,7 +33,7 @@ void LArNoisyROSummary::clear()
   m_SatTightFlaggedPartitions = 0;
   m_MNBLooseFlaggedPartitions = 0;
   m_MNBTightFlaggedPartitions = 0;
-  m_MNBTightFlaggedPartitions_PsVeto = 0;
+  m_MNBTight_PsVetoFlaggedPartitions = 0;
 }
 
 
@@ -55,6 +56,16 @@ void LArNoisyROSummary::set_MNBTight_febs(const std::vector<HWIdentifier>& badfe
 void LArNoisyROSummary::add_MNBTight_feb(HWIdentifier febid)
 {
      m_MNBTight_febs.push_back(febid);
+}
+
+void LArNoisyROSummary::set_MNBTight_PsVeto_febs(const std::vector<HWIdentifier>& badfebs)
+{
+     m_MNBTight_PsVeto_febs = badfebs;
+}
+
+void LArNoisyROSummary::add_MNBTight_PsVeto_feb(HWIdentifier febid)
+{
+     m_MNBTight_PsVeto_febs.push_back(febid);
 }
 
 void LArNoisyROSummary::set_MNBLoose_febs(const std::vector<HWIdentifier>& badfebs)
@@ -103,6 +114,11 @@ const std::vector<HWIdentifier>& LArNoisyROSummary::get_noisy_febs() const
 const std::vector<HWIdentifier>& LArNoisyROSummary::get_MNBTight_febs() const
 {
      return m_MNBTight_febs;
+}
+
+const std::vector<HWIdentifier>& LArNoisyROSummary::get_MNBTight_PsVeto_febs() const
+{
+     return m_MNBTight_PsVeto_febs;
 }
 
 const std::vector<HWIdentifier>& LArNoisyROSummary::get_MNBLoose_febs() const
