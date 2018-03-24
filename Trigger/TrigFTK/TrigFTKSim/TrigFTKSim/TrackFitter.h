@@ -30,8 +30,11 @@ protected:
   float m_Chi2Cut_vetomaj; // Chi2 for full fits above which majority
 			   // is not attempted; not used by default
 
-  float m_Chi2DofCut; // Cut on the chi2 per degree of freedom; not
+  float m_Chi2DofCutAux; // Cut on the chi2 per degree of freedom for Aux; not
 		      // used by default
+
+  float m_Chi2DofCutSSB; // Cut on the chi2 per degree of freedom for SSB; not
+          // used by default
 
   int m_HitWarrior; // 1 means in-road HW enabled, 2 mean global HW (default)
 
@@ -176,8 +179,11 @@ public:
   void setChi2Cut_vetomaj(float v) { m_Chi2Cut_vetomaj = v; }
   float getChi2Cut_vetomaj() const { return m_Chi2Cut_vetomaj; }
 
-  void setChi2DofCut(float v) { m_Chi2DofCut = v; }
-  float getChi2DofCut() const { return m_Chi2DofCut; }
+  void setChi2DofCutAux(float v) { m_Chi2DofCutAux = v; }
+  float getChi2DofCutAux() const { return m_Chi2DofCutAux; }
+
+  void setChi2DofCutSSB(float v) { m_Chi2DofCutSSB = v; }
+  float getChi2DofCutSSB() const { return m_Chi2DofCutSSB; }
 
   void setBank(int, int, FTKConstantBank*);
 
