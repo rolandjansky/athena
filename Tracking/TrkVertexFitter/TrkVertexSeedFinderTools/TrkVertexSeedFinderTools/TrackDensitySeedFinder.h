@@ -51,10 +51,7 @@ namespace Trk
     virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0);
 
   private:
-    ToolHandle< IVertexTrackDensityEstimator > m_densityEstimator { this, 
-	                                                            "DensityEstimator", 
-	                                                            "Trk::GaussianTrackDensity",
-                                                                    "Track density tool" } ;
+    ToolHandle< IVertexTrackDensityEstimator > m_densityEstimator { "DensityEstimator" };
 
   };
 }

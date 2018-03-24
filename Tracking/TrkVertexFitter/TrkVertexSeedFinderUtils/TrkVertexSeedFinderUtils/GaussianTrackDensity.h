@@ -162,22 +162,13 @@ namespace Trk
     //  Cuts set by configurable properties
     
     //  Maximum allowed d0 significance to use (in sigma)
-    Gaudi::Property<double> m_d0MaxSignificance { this, 
-                                                  "MaxD0Significance", 
-	                                          3.5, 
-                                                  "Maximum radial impact parameter significance to use track" };
+    double m_d0MaxSignificance { 3.5 };
 
     // Tracks within this many sigma(z) are added to weight; increasing cut trades CPU efficiency for improved smoothness in tails
-    Gaudi::Property<double> m_z0MaxSignificance { this,
-	                                          "MaxZ0Significance",
-	                                          12.0,
-	                                          "Maximum longitudinal impact parameter significance to include track in weight"};
+    double m_z0MaxSignificance { 12.0 };
 
     // Assumed shape of density function near peak; Gaussian (true) or parabolic (false)
-    Gaudi::Property<bool> m_gaussStep           { this,
-	                                          "GaussianStep",
-	                                          true,
-	                                          "Peak search: True means assume Gaussian behavior, False means Newton/parabolic" };
+    bool m_gaussStep           { true };
                             
   };
 }

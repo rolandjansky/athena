@@ -90,29 +90,18 @@ class GaussianDensityTestAlg
   /////////////////////////////////////////////////////////////////// 
  private: 
   // Properties
-  Gaudi::Property<double> m_significanceTruthCut { this, 
-                                                   "SignificanceTruthCut", 
-                                                   3.0, 
-                                                   "Reco track must pass within this many sigma of pp vertex to be good" };
+  double m_significanceTruthCut;
 
-  Gaudi::Property<int> m_truthVertexTracks { this, 
-                                             "MinTruthVertexTracks", 
-                                             2, 
-                                             "Minimum associated reconstructed tracks for vertex to be considered visible" };
+  int m_truthVertexTracks;
 
   bool m_useBeamConstraint;
   bool m_firstEvent;
 
   // Tools
-  ToolHandle< InDet::IInDetTrackSelectionTool > m_trackFilter { this, "TrackSelector", 
-                                                               "InDet::InDetTrackSelectionTool/InDetDetailedTrackSelectionTool", 
-                                                               "Track selection tool" } ;
+  ToolHandle< InDet::IInDetTrackSelectionTool > m_trackFilter { "InDet::InDetTrackSelectionTool/InDetDetailedTrackSelectionTool" }; 
+  ToolHandle< Trk::IVertexTrackDensityEstimator > m_estimator { "Trk::GaussianTrackDensity"}; 
 
-  ToolHandle< Trk::IVertexTrackDensityEstimator > m_estimator { this, "Estimator", "Trk::GaussianTrackDensity", 
-                                                                "Track density function" };
-
-  ToolHandle< Trk::ITrackToVertexIPEstimator > m_ipEstimator { this, "IPEstimator", "Trk::TrackToVertexIPEstimator",
-                                                                 "Impact point estimator" };
+  ToolHandle< Trk::ITrackToVertexIPEstimator > m_ipEstimator { "Trk::TrackToVertexIPEstimator" };
 
   // Non-property private data
   
@@ -120,14 +109,11 @@ class GaussianDensityTestAlg
   ServiceHandle< ITHistSvc > m_iTHistSvc;
 
   /// Data handle keys
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticlesKey  { this, "TrackParticles", "InDetTrackParticles", 
-                                                                         "Input track particle collection" };
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticlesKey  { "InDetTrackParticles" };
 
-  SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventsKey { this, "TruthEvents", "TruthEvents",
-                                                                  "Key for truth event collection" };
+  SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventsKey { "TruthEvents" };
 
-  SG::ReadHandleKey<xAOD::TruthPileupEventContainer> m_pileupEventsKey { this, "TruthPileupEvents", "TruthPileupEvents",
-                                                                         "Key for truth pileup event collection" };
+  SG::ReadHandleKey<xAOD::TruthPileupEventContainer> m_pileupEventsKey { "TruthPileupEvents" };
   
   /// Histograms and trees
 

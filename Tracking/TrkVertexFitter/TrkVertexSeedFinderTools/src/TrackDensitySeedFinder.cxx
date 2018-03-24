@@ -26,6 +26,7 @@ namespace Trk
   AthAlgTool(t,n,p)
   {   
     declareInterface<IVertexSeedFinder>(this);
+    declareProperty( "DensityEstimator", m_densityEstimator );
   }
 
   TrackDensitySeedFinder::~TrackDensitySeedFinder() {}

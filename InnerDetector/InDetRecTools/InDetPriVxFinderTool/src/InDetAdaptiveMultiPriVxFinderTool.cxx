@@ -131,7 +131,7 @@ StatusCode InDetAdaptiveMultiPriVxFinderTool::initialize()
  
     // since some parameters special to an inherited class this method
     // will be overloaded by the inherited class
-    if (msgLvl(MSG::DEBUG)) printParameterSettings();
+    if (msgLvl(MSG::DEBUG)) m_printParameterSettings();
 
     ATH_MSG_INFO("Initialization successful");
 

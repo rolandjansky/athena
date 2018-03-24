@@ -33,6 +33,8 @@ namespace Trk
 GaussianDensityTestAlg::GaussianDensityTestAlg( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
+  m_significanceTruthCut(3.0),
+  m_truthVertexTracks(2),
   m_useBeamConstraint(true),
   m_firstEvent(true),
   m_iBeamCondSvc("BeamCondSvc", name),
@@ -41,6 +43,14 @@ GaussianDensityTestAlg::GaussianDensityTestAlg( const std::string& name,
   //
   // Property declaration
   // 
+  declareProperty( "SignificanceTruthCut", m_significanceTruthCut );
+  declareProperty( "MinTruthVertexTracks", m_truthVertexTracks );
+  declareProperty( "TrackSelector", m_trackFilter );
+  declareProperty( "Estimator", m_estimator );
+  declareProperty( "IPEstimator", m_ipEstimator );
+  declareProperty( "TrackParticles", m_trackParticlesKey );
+  declareProperty( "TruthEvents", m_truthEventsKey );
+  declareProperty( "TruthPileupEvents", m_pileupEventsKey );
 }
 
 // Destructor

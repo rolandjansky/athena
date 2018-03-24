@@ -16,6 +16,9 @@ namespace Trk
     AthAlgTool(t, n, p), m_maxRange(0.0)
   {
     declareInterface<IVertexTrackDensityEstimator>(this);
+    declareProperty( "MaxD0Significance", m_d0MaxSignificance );
+    declareProperty( "MaxZ0Significance", m_z0MaxSignificance );
+    declareProperty( "GaussianStep", m_gaussStep );
   }
 
   StatusCode GaussianTrackDensity::initialize()
