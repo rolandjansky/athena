@@ -140,10 +140,13 @@ ${scriptsdir}/checkout_atlasexternals.sh \
 
 # log analyzer never affects return status in the parent shell:
 {
- branch=$(basename $(cd .. ; pwd)) #FIXME: should be taken from env.
- timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ #to be used until the final stamp from ReleaseData is available
-
  test "X${NIGHTLY_STATUS}" != "X" && {
+    branch=$(basename $(cd .. ; pwd)) #FIXME: should be taken from env.
+    timestamp_tmp=` basename ${BUILDDIR}/../.@@__* 2>/dev/null | sed 's,^\.,,' ` #to be used until the final stamp from ReleaseData is available
+    test "X$timestamp_tmp" != "X" || {
+        timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ 
+        touch ${BUILDDIR}/../.${timestamp_tmp}
+    }
    (set +e 
     touch ${BUILDDIR}/.${timestamp_tmp}
     ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthenaExternals ${BUILDDIR}/src/checkout.AthenaExternals.log
