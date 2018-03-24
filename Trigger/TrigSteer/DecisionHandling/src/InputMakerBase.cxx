@@ -19,7 +19,8 @@ StatusCode InputMakerBase::initialize() {
   for (auto& input: m_inputs){  
     ATH_MSG_DEBUG( " "<<input.key() );
   }
-  ATH_MSG_DEBUG(" and produce decisions: " << m_outputs );
+  CHECK( m_outputs.initialize() );
+  ATH_MSG_DEBUG(" and produce decisions: ");
   for (auto& output: m_outputs){  
     ATH_MSG_DEBUG( " "<<output.key() );
   }
