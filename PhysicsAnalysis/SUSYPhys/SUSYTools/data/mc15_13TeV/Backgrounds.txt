@@ -1467,6 +1467,13 @@ dataset_number  physics_short                                                 cr
 361489          Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BFilter               0.70578               0.9013          1.2964E-01         0.0                           
 361490          Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BVeto               0.0074353             0.9013          0.84347            0.0                           
 361491          Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BFilter             0.0074746             0.9013          0.19323            0.0                           
+364358          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV70_140              566.82                1.0             1.0000E+00         0.0                           
+364359          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV70_140            458.6                 1.0             1.0000E+00         0.0                           
+364360          Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV70_140          140.84                1.0             1.0000E+00         0.0                           
+364361          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV140_280             206.81                1.0             1.0000E+00         0.0                           
+364362          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV140_280           164.0                 1.0             1.0000E+00         0.0                           
+364363          Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV140_280         43.273                1.0             1.0000E+00         0.0                           
+
 
 ################################################################################################################
 # Sherpa 2.2.1 Low Mass DY (from XsecSummaryZjetsOther 17.1.17, 364207 from AMI)
