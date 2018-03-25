@@ -1389,7 +1389,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
 
     std::string theConfig = m_tauConfigPathBaseline;
     if( m_tauConfigPathBaseline=="default" ){
-      if (m_tauId == "Loose")       theConfig = "SUSYTools/tau_selection_veryloose.conf";
+      if (m_tauId == "VeryLoose")   theConfig = "SUSYTools/tau_selection_veryloose.conf";
       else if (m_tauId == "Loose")  theConfig = "SUSYTools/tau_selection_loose.conf";
       else if (m_tauId == "Medium") theConfig = "SUSYTools/tau_selection_medium.conf";
       else if (m_tauId == "Tight")  theConfig = "SUSYTools/tau_selection_tight.conf";
