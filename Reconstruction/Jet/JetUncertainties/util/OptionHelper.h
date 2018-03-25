@@ -32,6 +32,9 @@ class OptionHelper : public asg::AsgMessaging
         bool    IsEtaDepPileup()  const { checkInit(); return m_isEtaDepPU;     }
         bool    IgnorePT()        const { checkInit(); return m_ignorePT;       }
         TString GetNamePrefix()   const { checkInit(); return m_compNamePrefix; }
+        TString GetCalibArea()    const { checkInit(); return m_calibArea;      }
+        TString GetPath()         const { checkInit(); return m_path;           }
+        TString GetAnalysisFile() const { checkInit(); return m_analysisFile;   }
 
         // Plot control
         bool    DoATLASLabel()    const { checkInit(); return m_doATLASLabel;  }
@@ -64,6 +67,7 @@ class OptionHelper : public asg::AsgMessaging
         bool IsDijetComposition()   const { checkInit(); return m_isDijetComp;   }
         bool IsGinosComposition()   const { checkInit(); return m_isGinosComp;   }
         bool IsReginasComposition() const { checkInit(); return m_isReginasComp; }
+        int  FixedTruthLabel()      const { checkInit(); return m_truthLabel;    }
 
         // Comparison helpers
         bool                 CompareOnly()    const { checkInit(); return m_onlyCompare; }
@@ -84,6 +88,9 @@ class OptionHelper : public asg::AsgMessaging
         bool    m_isEtaDepPU;
         bool    m_ignorePT;
         TString m_compNamePrefix;
+        TString m_calibArea;
+        TString m_path;
+        TString m_analysisFile;
 
         bool    m_doATLASLabel;
         TString m_ATLASLabel;
@@ -113,6 +120,7 @@ class OptionHelper : public asg::AsgMessaging
         bool    m_isDijetComp;
         bool    m_isGinosComp;
         bool    m_isReginasComp;
+        int     m_truthLabel;
 
         bool    m_onlyCompare;
         TString m_doCompare;
@@ -143,6 +151,9 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_isEtaDepPU(false)
     , m_ignorePT(false)
     , m_compNamePrefix("JET_")
+    , m_calibArea("")
+    , m_path("")
+    , m_analysisFile("")
 
     , m_doATLASLabel(true)
     , m_ATLASLabel("Internal")
@@ -172,6 +183,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_isDijetComp(false)
     , m_isGinosComp(false)
     , m_isReginasComp(false)
+    , m_truthLabel(0)
 
     , m_onlyCompare(false)
     , m_doCompare("")
@@ -180,7 +192,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_scaleVars()
     , m_systFilters()
   
-    , m_inputsDir("./")
+    , m_inputsDir("//eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/")
 { }
 
 bool OptionHelper::Initialize(const std::vector<TString>& options)
@@ -200,6 +212,9 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_isEtaDepPU     = getOptionValueWithDefault(options,"isEtaDepPileup",m_isEtaDepPU);
     m_ignorePT       = getOptionValueWithDefault(options,"ignorePT",m_ignorePT);
     m_compNamePrefix = getOptionValueWithDefault(options,"prefix",m_compNamePrefix);
+    m_calibArea      = getOptionValueWithDefault(options,"CalibArea",m_calibArea);
+    m_path           = getOptionValueWithDefault(options,"Path",m_path);
+    m_analysisFile   = getOptionValueWithDefault(options,"AnalysisFile",m_analysisFile);
 
     m_doATLASLabel   = getOptionValueWithDefault(options,"DoATLASLabel",m_doATLASLabel);
     m_ATLASLabel     = getOptionValueWithDefault(options,"ATLASLabel",m_ATLASLabel);
@@ -246,6 +261,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
       m_isDijetComp = false;
       m_isUnknownComp = false;
     }
+    m_truthLabel     = getOptionValueWithDefault(options,"TruthLabel",m_truthLabel);
 
     m_onlyCompare    = getOptionValueWithDefault(options,"compareOnly",m_onlyCompare);
     m_doCompare      = getOptionValueWithDefault(options,"doCompare",m_doCompare);

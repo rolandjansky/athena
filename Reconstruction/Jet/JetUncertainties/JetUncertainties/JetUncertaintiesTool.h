@@ -59,14 +59,15 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 
         
         // Tool information retrieval methods
-        virtual std::string getName()         const { return m_name;         }
-        virtual std::string getRelease()      const { return m_release;      }
-        virtual std::string getJetDef()       const { return m_jetDef;       }
-        virtual std::string getMCType()       const { return m_mcType;       }
-        virtual std::string getConfigFile()   const { return m_configFile;   }
-        virtual std::string getPath()         const { return m_path;         }
-        virtual std::string getAnalysisFile() const { return m_analysisFile; }
-        virtual float       getSqrtS()        const;
+        virtual std::string getName()           const { return m_name;         }
+        virtual std::string getRelease()        const { return m_release;      }
+        virtual std::string getJetDef()         const { return m_jetDef;       }
+        virtual std::string getMCType()         const { return m_mcType;       }
+        virtual std::string getConfigFile()     const { return m_configFile;   }
+        virtual std::string getPath()           const { return m_path;         }
+        virtual std::string getAnalysisFile()   const { return m_analysisFile; }
+        virtual std::string getDefaultAnaFile() const { return m_defAnaFile;   }
+        virtual float       getSqrtS()          const;
 
         // Tool information retrieval methods that require input
         virtual float getRefMu()  const;
@@ -177,8 +178,10 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::string m_path;
         std::string m_analysisFile;
         std::vector<std::string> m_systFilters;
+        bool m_flavourJetByJet;
 
         // Information to read in and store from the config file
+        std::string m_defAnaFile;
         float m_refNPV;
         float m_refMu;
         jet::UncertaintyHistogram* m_refNPVHist;

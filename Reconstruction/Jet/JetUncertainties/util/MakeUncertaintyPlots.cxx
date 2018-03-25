@@ -293,6 +293,11 @@ std::vector<TString> GetJetDesc(const TString& jetAlgoIn)
         jetAlgo.ReplaceAll("LCTopo","");
         jetAlgo.ReplaceAll("TopoLC","");
     }
+    else if (jetAlgo.Contains("EMPFlow"))
+    {
+        calib = "EMPFlow";
+        jetAlgo.ReplaceAll("EMPFlow","");
+    }
     if (calib == "")
     {
         printf("Failed to parse calib for: %s\n",jetAlgoIn.Data());
@@ -500,7 +505,7 @@ void DrawYearLabel(const JetUncertaintiesTool* provider, const double yPos)
         type = "Data 2015";
         sqrtS = "13 TeV";
     }
-    else if (release.BeginsWith("2016_Moriond"))
+    else if (release.BeginsWith("2016_Moriond") || release.BeginsWith("rel21_Moriond2018"))
     {
         type = "Data 2016";
         sqrtS = "13 TeV";
@@ -574,12 +579,13 @@ double GetPunchthroughProb(const JetUncertaintiesTool* provider, const xAOD::Jet
         std::istringstream ss(release.Data());
         std::string token;
         std::getline(ss, token, '_');
-        int year = std::stoi(token);
+        std::cout << "Year: " << token << std::endl;
+        int year = token == "rel21" ? 2017 : std::stoi(token);
         if (year > 2012) {
-          filename = optHelper.GetInputsDir()+"PTprob.root";
+          filename = optHelper.GetInputsDir()+"/PTprob.root";
           histName = "h_PT_pT_EMJES4_norm";
         } else {
-          filename = optHelper.GetInputsDir()+"PTprob_2012.root";
+          filename = optHelper.GetInputsDir()+"/PTprob_2012.root";
 
           if (jetType == "AntiKt4LCTopo")
               histName = "h_PT_pT_LCJES4_norm";
@@ -596,7 +602,7 @@ double GetPunchthroughProb(const JetUncertaintiesTool* provider, const xAOD::Jet
           }
         }
         std::cout << "Using pT file " << filename << std::endl;
-        TFile* PTfile = new TFile(filename,"READ");
+        TFile* PTfile = new TFile("/"+filename,"READ");
         if (!PTfile || PTfile->IsZombie())
         {
             printf("Failed to open PT fraction file\n");
@@ -642,7 +648,7 @@ void setPileupShiftsForYear(const JetUncertaintiesTool* provider, xAOD::EventInf
         sigmaMu = 1.9;
         sigmaNPV = 2.9;
     }
-    else if (release.BeginsWith("2016_"))
+    else if (release.BeginsWith("2016_") || release.BeginsWith("rel21_Moriond2018"))
     {
         // Kate, Nov 2016 
         // via Eric Corrigan's pileup studies
@@ -901,6 +907,13 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
         {
             jet->setJetP4(xAOD::JetFourMom_t(100.e3,0.,0.,0.));
             setPileupShiftsForYear(provider,eInfo,jet);
+        }
+
+        // Fix the jet flavour if relevant
+        if (optHelper.FixedTruthLabel())
+        {
+            jet->setAttribute("PartonTruthLabelID",optHelper.FixedTruthLabel());
+            std::cout << "Fixed PartonTruthLabelID to " << optHelper.FixedTruthLabel() << std::endl;
         }
         
         // One totalHist per provider
@@ -1321,9 +1334,9 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
 TString getCompFile() {
 
   TString tmpFile; // const
-  if (optHelper.IsDijetComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/DijetFlavourComp_Run2.root";
-  else if (optHelper.IsGinosComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/random_stuff/GinoComposition.root";
-  else if (optHelper.IsReginasComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/TTBarFlavourComp.root";
+  if (optHelper.IsDijetComposition()) tmpFile = optHelper.GetInputsDir()+"/DijetFlavourComp_13TeV.root";
+  else if (optHelper.IsGinosComposition()) tmpFile = optHelper.GetInputsDir()+"/GinoComposition.root";
+  else if (optHelper.IsReginasComposition()) tmpFile = optHelper.GetInputsDir()+"/TTBarFlavourComp.root";
   else tmpFile = "";
 
   return tmpFile;
@@ -1509,13 +1522,33 @@ int main (int argc, char* argv[])
                 }
 
                 // Check if we want to change topology from unknown to dijet
-                const TString analysisFile = getCompFile();
+                const TString analysisFile = optHelper.GetAnalysisFile() != "" ? optHelper.GetAnalysisFile() : getCompFile();
           
                 if (analysisFile) {
                   
                     if (providers.back()->setProperty("AnalysisFile",analysisFile.Data()).isFailure())
                     {
                         printf("Failed to set AnalysisFile to %s\n",analysisFile.Data());
+                        exit(7);
+                    }
+                }
+
+                // Check if we want to set the CalibArea
+                if (optHelper.GetCalibArea() != "")
+                {
+                    if (providers.back()->setProperty("CalibArea",optHelper.GetCalibArea().Data()).isFailure())
+                    {
+                        printf("Failed to set CalibArea to %s\n",optHelper.GetCalibArea().Data());
+                        exit(7);
+                    }
+                }
+
+                // Check if we want to set the Path
+                if (optHelper.GetPath() != "")
+                {
+                    if (providers.back()->setProperty("Path",optHelper.GetPath().Data()).isFailure())
+                    {
+                        printf("Failed to set Path to %s\n",optHelper.GetPath().Data());
                         exit(7);
                     }
                 }
@@ -1559,7 +1592,7 @@ int main (int argc, char* argv[])
             const TString jetDef = jetDefs.at(iJetDef);
             const TString config = configs.at(iJetDef);
             
-            //Make a new provier
+            //Make a new provider
             providers.push_back(new JetUncertaintiesTool(Form("%s_%zu",jetDef.Data(),iJetDef)));
 
             //Set properties
@@ -1580,13 +1613,34 @@ int main (int argc, char* argv[])
             }
 
             // Check if we want to change topology from unknown to dijet
-            const TString analysisFile = getCompFile();
+            const TString analysisFile = optHelper.GetAnalysisFile() != "" ? optHelper.GetAnalysisFile() : getCompFile();
           
             if (analysisFile) {
                   
                 if (providers.back()->setProperty("AnalysisFile",analysisFile.Data()).isFailure())
                 {
                     printf("Failed to set AnalysisFile to %s\n",analysisFile.Data());
+                    exit(7);
+                }
+            }
+            
+            
+            // Check if we want to set the CalibArea
+            if (optHelper.GetCalibArea() != "")
+            {
+                if (providers.back()->setProperty("CalibArea",optHelper.GetCalibArea().Data()).isFailure())
+                {
+                    printf("Failed to set CalibArea to %s\n",optHelper.GetCalibArea().Data());
+                    exit(7);
+                }
+            }
+
+            // Check if we want to set the Path
+            if (optHelper.GetPath() != "")
+            {
+                if (providers.back()->setProperty("Path",optHelper.GetPath().Data()).isFailure())
+                {
+                    printf("Failed to set Path to %s\n",optHelper.GetPath().Data());
                     exit(7);
                 }
             }
