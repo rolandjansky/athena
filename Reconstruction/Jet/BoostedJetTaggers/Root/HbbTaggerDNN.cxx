@@ -51,11 +51,16 @@ private:
   std::map<std::string, double> m_dummy_values;
 };
 
+namespace {
+  static const std::string NN_CONFIG = (
+    "BoostedJetTaggers/HbbTaggerDNN/PreliminaryConfigNovember2017.json");
+}
+
 
 HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   asg::AsgTool(name),
-  m_configFile(""),
-  m_variableMapFile(""),
+  m_neuralNetworkFile(""),
+  m_configurationFile(NN_CONFIG),
   m_lwnn(nullptr),
   m_input_builder(nullptr),
   m_tag_threshold(1000000000.),
@@ -63,10 +68,10 @@ HbbTaggerDNN::HbbTaggerDNN( const std::string& name ) :
   m_decoration_name(""),
   m_decorator("")
 {
-  declareProperty( "NeuralNetworkFile",   m_configFile);
-  declareProperty( "VariableMapFile",   m_variableMapFile);
-  declareProperty( "ScoreCut", m_tag_threshold);
-  declareProperty( "Decoration", m_decoration_name);
+  declareProperty( "neuralNetworkFile",   m_neuralNetworkFile);
+  declareProperty( "configurationFile",   m_configurationFile);
+  declareProperty( "tagThreshold", m_tag_threshold);
+  declareProperty( "decorationName", m_decoration_name);
 }
 
 HbbTaggerDNN::~HbbTaggerDNN() {}
@@ -77,8 +82,8 @@ StatusCode HbbTaggerDNN::initialize(){
   ATH_MSG_INFO("Initializing HbbTaggerDNN tool");
 
   // read json file for DNN weights
-  ATH_MSG_INFO("Using NN file: "+ m_configFile);
-  std::string configPath = PathResolverFindCalibFile(m_configFile);
+  ATH_MSG_INFO("Using NN file: "+ m_neuralNetworkFile);
+  std::string configPath = PathResolverFindCalibFile(m_neuralNetworkFile);
   ATH_MSG_INFO("NN file resolved to: " + configPath);
   lwt::GraphConfig config;
   try {
@@ -115,8 +120,8 @@ StatusCode HbbTaggerDNN::initialize(){
   }
 
   // setup the input builder
-  ATH_MSG_INFO( "Using variable map: "<< m_variableMapFile );
-  std::string var_map_file = PathResolverFindDataFile(m_variableMapFile);
+  ATH_MSG_INFO( "Using variable map: "<< m_configurationFile );
+  std::string var_map_file = PathResolverFindDataFile(m_configurationFile);
   ATH_MSG_INFO( "Variable map resolved to: "<< var_map_file );
   try {
     m_input_builder.reset(new InputMapBuilder(var_map_file, config));
