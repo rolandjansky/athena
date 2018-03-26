@@ -75,11 +75,9 @@ TrackFitter::~TrackFitter (void)
 void
 TrackFitter::clearMeasurements (void)
 {
-    for (std::list<Trk::FitMeasurement*>::iterator m = m_measurements.begin();
-	 m != m_measurements.end();
-	 ++m)
+  for (auto m : m_measurements)
     {
-	delete *m;
+	delete m;
     }
     m_measurements.clear();
 }
@@ -266,7 +264,7 @@ TrackFitter::fitProcedure (TrackStatus			status,
     
     // fail fit if there's a missing surface
     m_fitCode = 0;
-    for (std::list<Trk::FitMeasurement*>::const_iterator m = m_measurements.begin();
+    for (std::vector<Trk::FitMeasurement*>::const_iterator m = m_measurements.begin();
          m != m_measurements.end();
          ++m)
     {
@@ -383,7 +381,7 @@ TrackFitter::createScatterers (void) const
     int param 		= 5;
     double qOverP	= 0.;
     int scatter		= 0;
-    for (std::list<Trk::FitMeasurement*>::const_iterator m = m_measurements.begin();
+    for (std::vector<Trk::FitMeasurement*>::const_iterator m = m_measurements.begin();
 	 m != m_measurements.end();
 	 ++m)
     {
@@ -453,7 +451,7 @@ void
 TrackFitter::setResiduals (void) const
 {
     // set residual from FitMeasurement into corresponding HitOnTrack
-    for (std::list<Trk::FitMeasurement*>::const_iterator m = m_measurements.begin();
+    for (std::vector<Trk::FitMeasurement*>::const_iterator m = m_measurements.begin();
 	 m != m_measurements.end();
 	 ++m)
     {
