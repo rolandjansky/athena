@@ -25,11 +25,13 @@
 #include <regex>
 #include <set>
 
-// internal class
-class InputMapBuilder
+
+// internal class to read a jet and build an std::map of intputs that
+// will be passed to lwtnn.
+class HbbDNNInputMapBuilder
 {
 public:
-  InputMapBuilder(const std::string& config_file,
+  HbbDNNInputMapBuilder(const std::string& config_file,
                   const lwt::GraphConfig& network_config);
   typedef std::map<std::string, std::map<std::string, double> > VMap;
   VMap get_map(const xAOD::Jet&) const;
@@ -52,7 +54,8 @@ private:
 };
 
 namespace {
-  static const std::string NN_CONFIG = (
+  // constants, default configuration files
+  const std::string NN_CONFIG = (
     "BoostedJetTaggers/HbbTaggerDNN/PreliminaryConfigNovember2017.json");
 }
 
@@ -124,7 +127,7 @@ StatusCode HbbTaggerDNN::initialize(){
   std::string var_map_file = PathResolverFindDataFile(m_configurationFile);
   ATH_MSG_INFO( "Variable map resolved to: "<< var_map_file );
   try {
-    m_input_builder.reset(new InputMapBuilder(var_map_file, config));
+    m_input_builder.reset(new HbbDNNInputMapBuilder(var_map_file, config));
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("Config file is garbage: " << err.what());
     return StatusCode::FAILURE;
@@ -152,7 +155,7 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
 
   // build the jet properties into a map
   if (m_input_builder->n_subjets(jet) < 2) return -1000000000.;
-  InputMapBuilder::VMap inputs = m_input_builder->get_map(jet);
+  HbbDNNInputMapBuilder::VMap inputs = m_input_builder->get_map(jet);
   auto nn_output = m_lwnn->compute(inputs);
   return nn_output.at(m_output_value_name);
 }
@@ -166,10 +169,17 @@ size_t HbbTaggerDNN::n_subjets(const xAOD::Jet& jet) const {
 }
 
 namespace {
+
+  // Some things can't be accessed by name from the EDM. This includes
+  // things which are part of a lorentz vector and derived things like
+  // deltaR. Since we build the list things to read from the EDM from
+  // the NN configuration we have to specify which ones are skipped.
   static const std::set<std::string> NON_STRING_ACCESSOR{
     "pt", "eta", "mass", "deta", "dphi", "dr"
   };
 
+  // For things that we do access from the EDM, we need to know the
+  // type. We use regexes to assign these.
   typedef std::vector<std::pair<std::regex, std::string> > TypeRegexes;
   std::string get_var_type(const TypeRegexes& type_regexes,
                            const std::string& var_name) {
@@ -181,11 +191,13 @@ namespace {
     throw std::logic_error(
       "can't find a type match for variable " + var_name);
   }
+
 }
 
-// Input map builder implementation
-//
-InputMapBuilder::InputMapBuilder(
+////////////////////////////////////////
+/// Input map builder implementation ///
+////////////////////////////////////////
+HbbDNNInputMapBuilder::HbbDNNInputMapBuilder(
   const std::string& input_file,
   const lwt::GraphConfig& network_config):
   m_acc_parent("Parent"),
@@ -241,7 +253,8 @@ InputMapBuilder::InputMapBuilder(
       }
       m_subjet_node_names.push_back(node_config.name);
     } else {
-      throw std::logic_error("not sure how to find node " + node_config.name);
+      throw std::logic_error(
+        "not sure how to find node " + node_config.name);
     }
   }
   m_all_subjet_inputs.insert(
@@ -249,7 +262,8 @@ InputMapBuilder::InputMapBuilder(
     subjet_inputs.begin(), subjet_inputs.end());
 }
 
-InputMapBuilder::VMap InputMapBuilder::get_map(const xAOD::Jet& jet) const {
+HbbDNNInputMapBuilder::VMap HbbDNNInputMapBuilder::get_map(
+  const xAOD::Jet& jet) const {
 
   // inputs dict
   std::map<std::string, std::map<std::string, double> > inputs;
@@ -306,9 +320,11 @@ InputMapBuilder::VMap InputMapBuilder::get_map(const xAOD::Jet& jet) const {
   return inputs;
 }
 
-size_t InputMapBuilder::n_subjets(const xAOD::Jet& jet) const {
+size_t HbbDNNInputMapBuilder::n_subjets(const xAOD::Jet& jet) const {
   const xAOD::Jet* parent_jet = *m_acc_parent(jet);
   if (!parent_jet) throw std::logic_error("no valid parent");
   auto subjet_links = m_acc_subjets(*parent_jet);
   return subjet_links.size();
 }
+
+
