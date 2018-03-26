@@ -10,6 +10,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    PhysicsAnalysis/Algorithms/SelectionHelpers
    PhysicsAnalysis/Algorithms/SystematicsHandles
+   PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
    PRIVATE

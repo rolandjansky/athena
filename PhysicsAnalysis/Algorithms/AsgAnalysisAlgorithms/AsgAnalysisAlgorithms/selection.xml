@@ -1,5 +1,6 @@
 <lcgdict>
 
+   <class name="CP::AsgSelectionAlg" />
    <class name="CP::AsgViewSelectionAlg" />
    <class name="CP::KinematicHistAlg" />
    <class name="CP::ObjectCutFlowHistAlg" />
