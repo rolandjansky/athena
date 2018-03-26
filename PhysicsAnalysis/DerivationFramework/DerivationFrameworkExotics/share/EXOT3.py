@@ -11,13 +11,15 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
-
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from JetRec.JetRecStandard import jtm
-
-exot3Seq = CfgMgr.AthSequencer("EXOT3Sequence")
-
 from AthenaCommon.GlobalFlags import globalflags
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 
+#set MC flag
 isMC = False
 if globalflags.DataSource()=='geant4':
   isMC = True
@@ -140,6 +142,8 @@ if isMC:
 # SKIMMING TOOL 
 #====================================================================
 
+#------------------------------------------
+#triggers
 triggers = [
             # Standard large-R jet support triggers (bootstrap, etc)
             "HLT_j260_a10_lcw_L1J75",
@@ -196,51 +200,89 @@ triggers = [
             "HLT_ht1000_L1J100",
            ]
 
+#------------------------------------------
+#expressions
+
+#event selection: 1 jet
 topology_selection_1jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 1))"
 
-topology_selection_2jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 2)"
+#event selection: 2 jets
+topology_selection_2jet_lowpt =  "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 2)"
 
-topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 1000*GeV)  >= 2))"
+topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 1000*GeV)  >= 2)"
 
-topology_selection_2jet += " || " + topology_selection_2jet_highpt
+topology_selection_2jet =  "(" + topology_selection_2jet_lowpt + " || " + topology_selection_2jet_highpt + ")"
 
-EXOT3_trigger1 = "(EF_g120_loose || EF_xe80_tclcw_tight)"
+#event selection: photons and electrons
 EXOT3_trigger2 = "(HLT_g120_loose || HLT_g140_loose || HLT_xe100 || HLT_xe90_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50)"
 EXOT3_selection = "((count(Photons.pt > 100*GeV) > 0) || (count(Electrons.pt > 100*GeV) > 0))"
 
-expression = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' && ' + topology_selection_1jet + ' )'# || ( ' + r2_trigger_selection + ' && ' + topology_selection_2jet + ' ) '
-expression2 = topology_selection_2jet
+#------------------------------------------
+#pre-skimming tools
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+#photons and electrons
+#NOTE this does *NOT* include 1 jet selection
+EXOT3PreSkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3PreSkimmingTool1",
+                                                                    expression = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' )')#photons and electrons
+ToolSvc += EXOT3PreSkimmingTool1
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT3SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool1", expression = expression)
+#trigger
+EXOT3TriggerPreSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT3TriggerPreSkimmingTool",
+                                                                       TriggerListAND = [],
+                                                                       TriggerListOR  = triggers)#triggers
+ToolSvc += EXOT3TriggerPreSkimmingTool
+
+#------------------------------------------
+#skimming tools
+#1 jet, photons and electrons
+EXOT3SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool1",
+                                                                 expression = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' && ' + topology_selection_1jet + ' )')#1 jet, photons and electrons
 ToolSvc += EXOT3SkimmingTool1
 
-EXOT3SkimmingTool2 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool2", expression = expression2)
+#2 jets
+EXOT3SkimmingTool2 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool2",
+                                                                 expression = topology_selection_2jet)#2 jets
 ToolSvc += EXOT3SkimmingTool2
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+#trigger
 EXOT3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT3TriggerSkimmingTool",
                                                                     TriggerListAND = [],
-                                                                    TriggerListOR  = triggers)
+                                                                    TriggerListOR  = triggers)#triggers
 ToolSvc += EXOT3TriggerSkimmingTool
 
-# topology_selection_2jet && triggers
-EXOT3ANDSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT3ANDSkimmingTool", FilterList = [EXOT3SkimmingTool2, EXOT3TriggerSkimmingTool])
+#------------------------------------------
+#pre-skimming tools combinations
+
+#combination: (1 jet, photons and electrons) || (triggers)
+EXOT3CombinedPreSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORPreSkimmingTool",
+                                                                        FilterList = [EXOT3TriggerPreSkimmingTool, EXOT3PreSkimmingTool1])
+ToolSvc += EXOT3CombinedPreSkimmingTool
+
+#------------------------------------------
+#skimming tools combinations
+
+#2 jets && triggers
+EXOT3ANDSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT3ANDSkimmingTool",
+                                                                 FilterList = [EXOT3SkimmingTool2, EXOT3TriggerSkimmingTool])
 ToolSvc += EXOT3ANDSkimmingTool
 
-# expression || (topology_selection_2jet && triggers)
-EXOT3FinalSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORSkimmingTool", FilterList = [EXOT3ANDSkimmingTool, EXOT3SkimmingTool1])
-ToolSvc += EXOT3FinalSkimmingTool
+#combination: (1 jet, photons and electrons) || (2 jets && triggers)
+EXOT3CombinedSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORSkimmingTool",
+                                                                     FilterList = [EXOT3ANDSkimmingTool, EXOT3SkimmingTool1])
+ToolSvc += EXOT3CombinedSkimmingTool
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE PRIVATE SEQUENCES
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE SKIMMING, THINNING AND AUGMENTATION TOOLS
 #=======================================
+#this pre-sequence skims events based on what is available from the input xAOD, thus reducing the use of CPU resources
+exot3PreSeq = CfgMgr.AthSequencer("EXOT3PreSequence")
+exot3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3PreKernel_skim", SkimmingTools = [EXOT3CombinedPreSkimmingTool])
+DerivationFrameworkJob += exot3PreSeq
 
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += exot3Seq
+#the main sequence tools will be passed after jets have been reconstructed
+exot3Seq = CfgMgr.AthSequencer("EXOT3Sequence")
+exot3PreSeq += exot3Seq
 
 #=======================================
 # JETS
@@ -296,10 +338,10 @@ addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, mods="groomed"
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
 
 #=======================================
-# SKIMMING, THINNING, AUGMENTATION
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE SKIMMING, THINNING AND AUGMENTATION TOOLS
 #=======================================
-exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim", SkimmingTools = [EXOT3FinalSkimmingTool])
-exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel", ThinningTools = thinningTools)
+exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim", SkimmingTools = [EXOT3CombinedSkimmingTool])
+exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",      ThinningTools = thinningTools)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
