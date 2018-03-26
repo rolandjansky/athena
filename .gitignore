@@ -9,5 +9,11 @@
 *.pyc
 .asetup*
 .cproject
-.kdevelop
+*.kdevelop
+#Binary formats
 *.so*
+*.out
+*.exe*
+*.a
+*.la
+*.lib
