@@ -1466,6 +1466,12 @@ mc15_13TeV.361488.Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BVeto.evgen.EVNT.e4198
 mc15_13TeV.361489.Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BFilter.evgen.EVNT.e4198
 mc15_13TeV.361490.Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BVeto.evgen.EVNT.e4198
 mc15_13TeV.361491.Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BFilter.evgen.EVNT.e4198
+mc16_13TeV.364358.Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV70_140.merge.EVNT.e6544_e5984
+mc16_13TeV.364359.Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV70_140.merge.EVNT.e6544_e5984
+mc16_13TeV.364360.Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV70_140.merge.EVNT.e6544_e5984
+mc16_13TeV.364361.Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV140_280.merge.EVNT.e6544_e5984
+mc16_13TeV.364362.Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV140_280.merge.EVNT.e6544_e5984
+mc16_13TeV.364363.Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV140_280.merge.EVNT.e6544_e5984
 
 ################################################################################################################
 # Sherpa 2.2.1 Low Mass DY (from XsecSummaryZjetsOther 17.1.17, 364207 from AMI)

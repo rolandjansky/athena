@@ -1467,13 +1467,6 @@ dataset_number  physics_short                                                 cr
 361489          Sherpa_CT10_Ztautau_Mll10to40_Pt140_400_BFilter               0.70578               0.9013          1.2964E-01         0.0                           
 361490          Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BVeto               0.0074353             0.9013          0.84347            0.0                           
 361491          Sherpa_CT10_Ztautau_Mll10to40_Pt400_E_CMS_BFilter             0.0074746             0.9013          0.19323            0.0                           
-364358          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV70_140              566.82                1.0             1.0000E+00         0.0                           
-364359          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV70_140            458.6                 1.0             1.0000E+00         0.0                           
-364360          Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV70_140          140.84                1.0             1.0000E+00         0.0                           
-364361          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV140_280             206.81                1.0             1.0000E+00         0.0                           
-364362          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV140_280           164.0                 1.0             1.0000E+00         0.0                           
-364363          Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV140_280         43.273                1.0             1.0000E+00         0.0                           
-
 
 ################################################################################################################
 # Sherpa 2.2.1 Low Mass DY (from XsecSummaryZjetsOther 17.1.17, 364207 from AMI)
@@ -1504,6 +1497,12 @@ dataset_number  physics_short                                                 cr
 364280          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV280_E_CMS           46.041                0.9751          1.0000E+00         0.0                           
 364281          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV280_E_CMS         36.391                0.9751          1.0000E+00         0.0                           
 364282          Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV280_E_CMS       9.1378                1.0             1.0000E+00         0.0                           
+364358          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV70_140              566.82                1.0             1.0000E+00         0.0                           
+364359          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV70_140            458.6                 1.0             1.0000E+00         0.0 
+364360          Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV70_140          140.84                1.0             1.0000E+00         0.0                           
+364361          Sherpa_221_NNPDF30NNLO_Zee_Mll2Ml_MAXHTPTV140_280             206.81                1.0             1.0000E+00         0.0                           
+364362          Sherpa_221_NNPDF30NNLO_Zmumu_Mll2Ml_MAXHTPTV140_280           164.0                 1.0             1.0000E+00         0.0                           
+364363          Sherpa_221_NNPDF30NNLO_Ztautau_Mll2Ml_MAXHTPTV140_280         43.273                1.0             1.0000E+00         0.0  
 
 ################################################################################################################
 # Sherpa VBF V+jets
@@ -1914,15 +1913,6 @@ dataset_number  physics_short                                                 cr
 304631          Pythia8EvtGen_A14NNPDF23LO_ZHad_1000_1400                     0.015797              1.0             1.0000E+00         0.0                           
 304632          Pythia8EvtGen_A14NNPDF23LO_ZHad_1400                          0.001705              1.0             1.0000E+00         0.0                           
 
-##########################################################################################################################
-# sherpa 2.1 hadronic V+jets samples
-
-304307          Sherpa_CT10_Wqq_Pt280_500                                     29.425                1.0             1.0000E+00         0.0                           
-304308          Sherpa_CT10_Wqq_Pt500_1000                                    2.1769                1.0             1.0000E+00         0.0                           
-304309          Sherpa_CT10_Wqq_Pt1000                                        0.045538              1.0             1.0000E+00         0.0                           
-304707          Sherpa_CT10_Zqq_Pt280_500                                     12.591                1.0             1.0000E+00         0.0                           
-304708          Sherpa_CT10_Zqq_Pt500_1000                                    0.90842               1.0             1.0000E+00         0.0                           
-304709          Sherpa_CT10_Zqq_Pt1000                                        0.018183              1.0             1.0000E+00         0.0                           
 
 ################################################################################################################
 # Sherpa gamma+jet
@@ -2613,7 +2603,6 @@ dataset_number  physics_short                                                 cr
 ################################################################################################################
 # Higgs
 
-309450          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb_kt200                    0.4763                1.0             1.0000E+00         0.0                           
 341000          PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam           0.06881496            1.4551719568    1.0                0.0                           
 341001          PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_gamgam          0.00872602            0.979306020067  1.0                0.0                           
 341067          Pythia8EvtGen_A14NNPDF23LO_WH125_gamgam                       0.0025297             1.0             1.0                0.0                           
@@ -2732,8 +2721,6 @@ dataset_number  physics_short                                                 cr
 345319          PowhegPythia8EvtGen_NNPDF30_AZNLO_ZH125J_Hyy_Zincl_MINLO      0.76089               1.0             1.0000E+00         0.0                           
 345323          PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_WWlvlv               3.7365                1.0             5.1007E-01         0.0                           
 345324          PowhegPythia8EvtGen_NNLOPS_NN30_ggH125_WWlvlv_EF_15_5         28.303                1.0             4.9365E-01         0.0                           
-345338          PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_bb                   3.7363                1.0             1.0000E+00         0.0                           
-345342          PowhegPy8EG_NNLOPS_nnlo_30_ggH125_bb                          28.301                1.0             1.0000E+00         0.0                           
 
 ################################################################################################################
 # Madgraph ttbar+X

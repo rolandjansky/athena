@@ -935,6 +935,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_tauSelTool.isUserConfigured()) {
     std::string inputfile = "";
     if (!m_tauConfigPath.empty() && (m_tauConfigPath!="default")) inputfile = m_tauConfigPath;
+    else if (m_tauId == "VeryLoose") inputfile = "SUSYTools/tau_selection_veryloose.conf";
     else if (m_tauId == "Loose") inputfile = "SUSYTools/tau_selection_loose.conf";
     else if (m_tauId == "Medium") inputfile = "SUSYTools/tau_selection_medium.conf";
     else if (m_tauId == "Tight") inputfile = "SUSYTools/tau_selection_tight.conf";
@@ -952,6 +953,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_tauSelToolBaseline.isUserConfigured()) {
     std::string inputfile = "";
     if (!m_tauConfigPathBaseline.empty() && (m_tauConfigPathBaseline!="default")) inputfile = m_tauConfigPathBaseline;
+    else if (m_tauIdBaseline == "VeryLoose") inputfile = "SUSYTools/tau_selection_veryloose.conf";
     else if (m_tauIdBaseline == "Loose") inputfile = "SUSYTools/tau_selection_loose.conf";
     else if (m_tauIdBaseline == "Medium") inputfile = "SUSYTools/tau_selection_medium.conf";
     else if (m_tauIdBaseline == "Tight") inputfile = "SUSYTools/tau_selection_tight.conf";
@@ -986,7 +988,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 // Initialise tau trigger efficiency tool(s)
 
   int iTauID = (int) TauAnalysisTools::JETIDNONEUNCONFIGURED;
-  if (m_tauId == "Loose")       iTauID = (int) TauAnalysisTools::JETIDBDTLOOSE;
+  if (m_tauId == "VeryLoose")   iTauID = (int) TauAnalysisTools::JETIDBDTVERYLOOSE;
+  else if (m_tauId == "Loose")  iTauID = (int) TauAnalysisTools::JETIDBDTLOOSE;
   else if (m_tauId == "Medium") iTauID = (int) TauAnalysisTools::JETIDBDTMEDIUM;
   else if (m_tauId == "Tight")  iTauID = (int) TauAnalysisTools::JETIDBDTTIGHT;
   else {
