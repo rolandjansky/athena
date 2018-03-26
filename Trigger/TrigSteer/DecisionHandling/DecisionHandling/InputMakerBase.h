@@ -17,14 +17,16 @@ class InputMakerBase : public ::AthReentrantAlgorithm {
 This is a base class for HLT InputMakers to reduce boilerplate and enforce the common naming scheme for decision handle keys. Derived classes will have to add specific reco data read & write keys to suit their purpose.
    **/
  public:
+  /// constructor, to be called by sub-class constructors
+  InputMakerBase( const std::string& name, ISvcLocator* pSvcLocator );
+  /// destructor
+  virtual ~InputMakerBase(); 
   /// initialise this base class and renounce input decision key handles
-  StatusCode initialize() override;
+  StatusCode sysInitialize() override;
   /// execute to be implemented in derived clas
   virtual StatusCode execute_r(const EventContext&) const = 0;
-  //StatusCode execute(){};
   virtual StatusCode finalize() = 0;
-  /// special method for initialisation of derived classes, to be implemented by them, called from base class initialize
-  virtual StatusCode subInitialize()= 0;  
+  virtual StatusCode initialize()= 0;  
  protected:
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionInputs() const;
