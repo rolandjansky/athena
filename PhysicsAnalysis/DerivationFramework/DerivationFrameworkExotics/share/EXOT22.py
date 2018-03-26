@@ -87,10 +87,10 @@ EXOT22TruthTool = DerivationFramework__MenuTruthThinning(name                  =
                                                          WriteStatus3          = False,
                                                          PreserveGeneratorDescendants  = False,
                                                          PreserveAncestors     = True,
-                                                         WriteFirstN           = -1)
+                                                         WriteFirstN           = -1,
+                                                         SimBarcodeOffset      = DerivationFrameworkSimBarcodeOffset)
 
-from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
   ToolSvc += EXOT22TruthTool
   thinningTools.append(EXOT22TruthTool)
 
@@ -103,7 +103,7 @@ EXOT22TruthTool2 = DerivationFramework__GenericTruthThinning(name               
                                                              PreserveDescendants          = False,
                                                              PreserveGeneratorDescendants = True,
                                                              PreserveAncestors            = True)
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
   ToolSvc += EXOT22TruthTool2
   thinningTools.append(EXOT22TruthTool2)
 
@@ -149,7 +149,7 @@ EXOT22SlimmingHelper.StaticContent = EXOT22Content
 EXOT22SlimmingHelper.AllVariables = EXOT22AllVariables
 EXOT22SlimmingHelper.ExtraVariables = EXOT22ExtraVariables
 EXOT22SlimmingHelper.SmartCollections = EXOT22SmartCollections
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
   EXOT22SlimmingHelper.AllVariables += EXOT22AllVariablesTruth
   EXOT22SlimmingHelper.ExtraVariables += EXOT22ExtraVariablesTruth
   EXOT22SlimmingHelper.SmartCollections += EXOT22SmartCollectionsTruth
