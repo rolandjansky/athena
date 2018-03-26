@@ -297,7 +297,7 @@ HLT::ErrorCode T2CaloJet::hltExecute(const HLT::TriggerElement* inputTE,
   for (  ; it != itToolEnd; ++it ) {
     if (timerSvc()) m_timer[courant]->start();
     ///    if ((*it)->execute(m_jet, etamin, etamax, phimin, phimax).isFailure()){
-    if ((*it)->execute(m_jet, *roiDescriptor ).isFailure()){
+    if ((*it)->execute(m_jet, *roiDescriptor, caloDDENull, nullptr ).isFailure()){
       msg() << MSG::WARNING << "T2CaloJet AlgToolJets returned Failure" << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
     }

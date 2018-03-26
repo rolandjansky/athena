@@ -57,6 +57,8 @@ class EventContext;
 
 static const InterfaceID IID_IAlgToolCalo("IAlgToolCalo",1,0);
 
+static const CaloDetDescrElement* caloDDENull(nullptr);
+
 /** Base Class for Tools used for Egamma and Tau Feature
 	Extraction Algorithms */
 class IAlgToolCalo: public virtual IAlgTool, 
@@ -78,6 +80,7 @@ class IAlgToolCalo: public virtual IAlgTool,
          declareProperty("trigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
          declareProperty("trigDataAccessMT",m_dataSvc,"Data Access for LVL2 Calo Algorithms in MT");
          declareProperty("ThresholdKeepCells",m_cellkeepthr,"Threshold to keep cells into container");
+	 if ( caloDDENull != nullptr ) return;
     }
     /** Destructor */
     virtual ~IAlgToolCalo() { }
@@ -98,7 +101,10 @@ class IAlgToolCalo: public virtual IAlgTool,
     */
 
     virtual StatusCode execute(xAOD::TrigEMCluster& /*ptrigEMCluster*/,
-			       const IRoiDescriptor& /*roi*/ ) {return StatusCode::SUCCESS;}
+			       const IRoiDescriptor& /*roi*/,
+			       const CaloDetDescrElement*& /*caloDDE*/,
+                               const EventContext* /*context*/
+			        ) {return StatusCode::SUCCESS;}
 
     /// obsolete 
     virtual StatusCode execute(xAOD::TrigEMCluster& /*ptrigEMCluster*/
@@ -111,7 +117,9 @@ class IAlgToolCalo: public virtual IAlgTool,
     * @param[in] eta/phi-min/max : limits of RoI.
     */
     virtual HLT::ErrorCode execute(TrigTauCluster& /*ptrigTauCluster*/,
-				   const IRoiDescriptor& /*roi*/ ) {return HLT::OK;} 
+				   const IRoiDescriptor& /*roi*/,
+				   const CaloDetDescrElement*& /*caloDDE*/,
+                                   const EventContext* /*context*/ ) {return HLT::OK;} 
 
     /// obsolete
     virtual HLT::ErrorCode execute(TrigTauCluster& /*ptrigTauCluster*/
@@ -134,21 +142,10 @@ class IAlgToolCalo: public virtual IAlgTool,
       EMS3E0=12
     };
 
-    /** Method to get the caloDDE for some important cell in cluster */
-    const CaloDetDescrElement* getCaloDetDescrElement() const { return m_caloDDE; }
-
     /** Sets the pointer of the cell container */
     void setCellContainerPointer(CaloCellContainer** p )
 	{ m_CaloCellContPoint = p; }
 
-    /** Sets the pointer of the context for MT running */
-    void setContext(const EventContext *p )
-	{ m_context = p; }
-
-    /** Method to set the caloDDE for some important cell in cluster */
-    void setCaloDetDescrElement(const CaloDetDescrElement *caloDDE) {
-      m_caloDDE = caloDDE;    
-    }
   protected:
 
     /** methods to manage error bit inside the tools: general and tau-specific */

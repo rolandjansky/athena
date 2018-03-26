@@ -48,7 +48,9 @@ StatusCode T2CaloJetBaseTool::execute()
 
 //StatusCode T2CaloJetBaseTool::execute(TrigT2Jet* jet,double etamin, double etamax, double phimin, double phimax)
 // StatusCode T2CaloJetBaseTool::execute(TrigT2Jet* /*jet*/,double /*etamin*/, double /*etamax*/, double /*phimin*/, double /*phimax*/)
-StatusCode T2CaloJetBaseTool::execute(TrigT2Jet* /* jet */, const IRoiDescriptor& /* roi */ )
+StatusCode T2CaloJetBaseTool::execute(TrigT2Jet* /* jet */, const IRoiDescriptor& /* roi */,
+			       const CaloDetDescrElement*& caloDDE ,
+                               const EventContext* context )
 {
   return StatusCode::SUCCESS;
 }

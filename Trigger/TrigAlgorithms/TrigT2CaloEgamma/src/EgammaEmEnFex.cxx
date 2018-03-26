@@ -38,15 +38,17 @@ EgammaEmEnFex::~EgammaEmEnFex(){
 }
 
 StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
-				  const IRoiDescriptor& roi ){
+				  const IRoiDescriptor& roi,
+				  const CaloDetDescrElement*& caloDDE,
+                                  const EventContext* context ){
  
         // Time total AlgTool time
         if (!m_timersvc.empty()) m_timer[0]->start();
         // reset error
         m_error=0x0;
         bool cluster_in_barrel = true;
-        if ( m_caloDDE )
-          cluster_in_barrel = m_caloDDE->is_lar_em_barrel();
+        if ( caloDDE )
+          cluster_in_barrel = caloDDE->is_lar_em_barrel();
 
         // MsgStream log(msgSvc(), name());
         ATH_MSG_DEBUG( "in execute(TrigEMCluster &)" );
@@ -58,8 +60,8 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         int sampling = 0;
 
         LArTT_Selector<LArCellCont> sel;
-        if ( m_context ) {
-                m_dataSvc->loadCollections( *m_context, roi, TTEM, sampling, sel );
+        if ( context ) {
+                m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel );
                 m_iBegin = sel.begin();
                 m_iEnd = sel.end();
         } else { // old mode
@@ -100,9 +102,9 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 
   double energyEta = rtrigEmCluster.eta();
   double energyPhi = rtrigEmCluster.phi();
-  if ( m_caloDDE ){
-        energyEta = m_caloDDE->eta();
-        energyPhi = m_caloDDE->phi();
+  if ( caloDDE ){
+        energyEta = caloDDE->eta();
+        energyPhi = caloDDE->phi();
   }
 
   int ncells = 0;
@@ -162,8 +164,8 @@ StatusCode EgammaEmEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         sampling = 3;
 
         LArTT_Selector<LArCellCont> sel3;
-        if ( m_context ) {
-                m_dataSvc->loadCollections( *m_context, roi, TTEM, sampling, sel3 );
+        if ( context ) {
+                m_dataSvc->loadCollections( *context, roi, TTEM, sampling, sel3 );
                 m_iBegin = sel3.begin();
                 m_iEnd = sel3.end();
         } else { // old mode

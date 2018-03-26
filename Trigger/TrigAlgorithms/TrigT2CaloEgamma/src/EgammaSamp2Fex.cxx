@@ -40,7 +40,9 @@ EgammaSamp2Fex::~EgammaSamp2Fex(){
 }
 
 StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
-				   const IRoiDescriptor& roi ) { 
+				   const IRoiDescriptor& roi,
+				   const CaloDetDescrElement*& caloDDE,
+                                   const EventContext* context ) { 
   
 	// Time total AlgTool time 
 	if (!m_timersvc.empty()) m_timer[0]->start();      
@@ -56,8 +58,8 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
 	int sampling = 2;
 
 	LArTT_Selector<LArCellCont> sel;
-        if ( m_context ) {
-		m_dataSvc->loadCollections( *m_context, roi, TTEM, 2, sel );
+        if ( context ) {
+		m_dataSvc->loadCollections( *context, roi, TTEM, 2, sel );
 		m_iBegin = sel.begin();
 		m_iEnd = sel.end();
 	} else { // old mode
@@ -143,7 +145,7 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   seedEta    = seedCell->eta();
   seedPhi    = seedCell->phi();
   // For the S-shape correction, we store the caloDDE of the hottest cell
-  setCaloDetDescrElement(seedCell->caloDDE());
+  caloDDE = (seedCell->caloDDE());
   hotCell = seedCell;
   hotEta    = hotCell->eta();
   hotPhi    = hotCell->phi();
@@ -224,7 +226,7 @@ StatusCode EgammaSamp2Fex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   seedEta    = seedCell->eta();
   seedPhi    = seedCell->phi();
   // For the S-shape correction, we store the caloDDE of the hottest cell
-  setCaloDetDescrElement(seedCell->caloDDE());
+  caloDDE = (seedCell->caloDDE());
   } else {
         m_error|=0x80000000;
         if (!m_timersvc.empty()) m_timer[3]->stop();

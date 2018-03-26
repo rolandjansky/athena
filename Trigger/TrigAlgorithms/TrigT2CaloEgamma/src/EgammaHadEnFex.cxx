@@ -46,7 +46,9 @@ EgammaHadEnFex::~EgammaHadEnFex(){
 }
 
 StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
-				   const IRoiDescriptor& roi ) { 
+				   const IRoiDescriptor& roi,
+				   const CaloDetDescrElement*& /*caloDDE*/,
+                                   const EventContext* context ) { 
         // Time total AlgTool time
         if (!m_timersvc.empty()) m_timer[0]->start();
 	m_error=0x0;
@@ -90,8 +92,8 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
         if (!m_timersvc.empty()) m_timer[1]->resume();
 
         LArTT_Selector<LArCellCont> sel;
-        if ( m_context ) {
-                m_dataSvc->loadCollections( *m_context, roi, TTHEC, sampling, sel );
+        if ( context ) {
+                m_dataSvc->loadCollections( *context, roi, TTHEC, sampling, sel );
                 m_iBegin = sel.begin();
                 m_iEnd = sel.end();
         } else { // old mode
@@ -178,7 +180,7 @@ StatusCode EgammaHadEnFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   // MS       phimax=check_tilemax(phimax);
 	
   
-     if ( !m_context ) {
+     if ( !context ) {
         // Time to access RegionSelector
         if (!m_timersvc.empty()) m_timer[1]->resume();
 
