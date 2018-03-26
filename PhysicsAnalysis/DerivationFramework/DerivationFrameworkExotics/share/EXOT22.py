@@ -135,8 +135,9 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT22"] = []
 reducedJetList = [
   "AntiKt4TruthJets",
-  "AntiKt4TruthWZJets"]
-replaceAODReducedJets(reducedJetList,exot22Seq,"EXOT22")
+  "AntiKt4TruthWZJets"
+]
+replaceAODReducedJets(reducedJetList, exot22Seq, "EXOT22")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -151,6 +152,7 @@ EXOT22SlimmingHelper.SmartCollections = EXOT22SmartCollections
 if globalflags.DataSource()=='geant4':
   EXOT22SlimmingHelper.AllVariables += EXOT22AllVariablesTruth
   EXOT22SlimmingHelper.ExtraVariables += EXOT22ExtraVariablesTruth
+  EXOT22SlimmingHelper.SmartCollections += EXOT22SmartCollectionsTruth
 
 EXOT22SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT22SlimmingHelper.AppendContentToStream(EXOT22Stream)

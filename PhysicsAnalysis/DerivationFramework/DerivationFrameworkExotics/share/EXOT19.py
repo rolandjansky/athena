@@ -124,8 +124,9 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT19"] = []
 reducedJetList = [
   "AntiKt4TruthJets",
-  "AntiKt4TruthWZJets"]
-replaceAODReducedJets(reducedJetList,exot19Seq,"EXOT19")
+  "AntiKt4TruthWZJets"
+]
+replaceAODReducedJets(reducedJetList, exot19Seq, "EXOT19")
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -149,6 +150,7 @@ EXOT19SlimmingHelper.SmartCollections = EXOT19SmartCollections
 if globalflags.DataSource()=='geant4':
   EXOT19SlimmingHelper.AllVariables += EXOT19AllVariablesTruth
   EXOT19SlimmingHelper.ExtraVariables += EXOT19ExtraVariablesTruth
+  EXOT19SlimmingHelper.SmartCollections += EXOT19SmartCollectionsTruth
 
 EXOT19SlimmingHelper.IncludeEGammaTriggerContent = True
 EXOT19SlimmingHelper.AppendContentToStream(EXOT19Stream)
