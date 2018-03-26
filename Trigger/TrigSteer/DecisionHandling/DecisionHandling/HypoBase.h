@@ -22,7 +22,7 @@ This is a base class for HLT Hypos to reduce boilerplate and enforce the common 
   /// destructor
   virtual ~HypoBase(); 
   /// initialise this base class and renounce input decision key handles
-  StatusCode sysInitialize() override;
+  virtual StatusCode sysInitialize() override;
   /// execute to be implemented in derived clas
   virtual StatusCode execute_r(const EventContext&) const = 0;
   virtual StatusCode finalize() = 0;

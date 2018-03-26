@@ -27,9 +27,9 @@ namespace HLTTest {
     TestHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~TestHypoAlg(); 
 
-    StatusCode initialize() override;
+    virtual StatusCode initialize() override;
     virtual StatusCode execute_r( const EventContext& context ) const override;
-    StatusCode finalize() override;
+    virtual StatusCode finalize() override;
 
   private:
     typedef TrigRoiDescriptor FeatureOBJ;

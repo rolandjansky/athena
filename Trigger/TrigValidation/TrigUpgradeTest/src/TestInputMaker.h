@@ -29,9 +29,9 @@ namespace HLTTest {
   public: 
     TestInputMaker( const std::string& name, ISvcLocator* pSvcLocator );
     virtual ~TestInputMaker(); 
-    StatusCode  initialize() override;
-    StatusCode  execute_r(const EventContext&) const override;
-    StatusCode  finalize() override;
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  execute_r(const EventContext&) const override;
+    virtual StatusCode  finalize() override;
 
   private: 
     TestInputMaker();
