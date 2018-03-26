@@ -13,7 +13,6 @@
 // track isolation tool
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/IsolationCommon.h" 
-//#include "IsolationTool/IsolationHelper.h" 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 //namespace xAOD {     
@@ -39,8 +38,6 @@ class TrigEgammaIsolationSelectorTool:
     StatusCode initialize();
     StatusCode finalize(); 
     
-    //bool emulation( const xAOD::Electron*, bool &, const Trig::Info &);
-    //bool emulation( const xAOD::Photon*  , bool &, const Trig::Info &);
     bool emulation(const xAOD::IParticle*  , bool &, const Trig::Info &);
     
   private:

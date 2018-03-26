@@ -25,7 +25,6 @@ def createIsoToolElectronSelector():
   TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
   ToolSvc += TrackIsoTool
 
-  print("TrkIsoCfg done")
 
 
   # the order matter, do not change this order!
@@ -55,13 +54,5 @@ def createIsoToolElectronSelector():
     _toolname='IsolationTool_'+wp
     RelEtConeCut = caloisolation_dict[wp] if caloiso else [-1,-1,-1,-1,-1,-1],
     RelPtConeCut = isolation_dict[wp] if trkiso else [-1,-1,-1,-1,-1,-1],
-    # Just to see WTF 
-    print('Trig__TrigEgammaIsolationSelectorTool')
-    print(_toolname)
-    print('RelEtConeCut')
-    print(RelEtConeCut)
-    print('RelPtConeCut')
-    print(RelPtConeCut)
-    print()
 
   return IsoToolSelectors

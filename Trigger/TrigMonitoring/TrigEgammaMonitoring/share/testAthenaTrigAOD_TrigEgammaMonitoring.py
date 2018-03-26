@@ -15,7 +15,7 @@ elif 'RTT' in dir():
     rttfile='root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/'+RTT+'/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root'
     acf.PoolAODInput=[rttfile]
 if ('NOV' in dir()):
-    print('Setting Max events to ' +  str(NOV))
+    log.info('Setting Max events to ' +  str(NOV))
     acf.EvtMax=NOV
     acf.EvtMax.set_Value_and_Lock(NOV)
     theApp.EvtMax = NOV
@@ -108,13 +108,12 @@ svcMgr += THistSvc()
 svcMgr.THistSvc.Output += ["GLOBAL DATAFILE='" + DQMonFlags.histogramFile() + "' OPT='RECREATE'"] 
 HLTMonManager.FileKey = "GLOBAL"
 
-print HLTMonManager;
 if 'outputLevel' in dir():
     for tool in ToolSvc.getAllChildren():         
         # Set DEBUG output level for ALL HLTEgamma* tools
         Tool_Name = tool.getName()
         if 'HLTEgamma' in Tool_Name or 'Isolation' in Tool_Name or 'Track' in Tool_Name:
-            print('Setting tool %s.OutputLevel=%s'%(Tool_Name,str(outputLevel)))
+            log.info('Setting tool %s.OutputLevel=%s'%(Tool_Name,str(outputLevel)))
             tool.OutputLevel = outputLevel
         tool_prop = tool.getDefaultProperties()         
         for prop,value in tool_prop.iteritems():             
