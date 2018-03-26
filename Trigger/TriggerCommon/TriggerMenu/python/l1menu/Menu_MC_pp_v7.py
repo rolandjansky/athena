@@ -174,11 +174,13 @@ def defineMenu():
         # 2 x MBTS
         'MBTS_A', 'MBTS_C',
 
-        # 24 x MBTSSI (all FTHR)
-        'MBTS_A0', 'MBTS_A1', 'MBTS_A2', 'MBTS_A3', 'MBTS_A4'  , 'MBTS_A5', 'MBTS_A6', 'MBTS_A7', 
-        'MBTS_A8', 'MBTS_A10', 'MBTS_A12' , 'MBTS_A14',
-        'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4'  , 'MBTS_C5', 'MBTS_C6', 'MBTS_C7', 
-        'MBTS_C8', 'MBTS_C10', 'MBTS_C12' , 'MBTS_C14',
+        # 32 x MBTSSI (all FTHR)
+        # NOTE: THESE ARE OUT OF ORDER FOR A REASON! Do not change!
+        # The order defines the mapping - see ATR-17870.
+        'MBTS_A0', 'MBTS_A1', 'MBTS_A2', 'MBTS_A3', 'MBTS_A4', 'MBTS_A5', 'MBTS_A6', 'MBTS_A7',
+        'MBTS_A8', 'MBTS_A10', 'MBTS_A12', 'MBTS_A14', 'MBTS_A9', 'MBTS_A11','MBTS_A13', 'MBTS_A15',
+        'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4', 'MBTS_C5', 'MBTS_C6', 'MBTS_C7',
+        'MBTS_C8', 'MBTS_C10', 'MBTS_C12', 'MBTS_C14', 'MBTS_C11', 'MBTS_C13','MBTS_C9','MBTS_C15',
 
         # L1A for CTP monitoring itself
         'NIML1A',
@@ -784,6 +786,9 @@ def defineMenu():
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B',
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO',
 
+        'L1_BPH-8M15-2MU6',
+        'L1_BPH-2M9-2MU6',
+
         'L1_BPH-0M9-EM7-EM5',        
         'L1_BPH-0DR3-EM7J15',
         'L1_BPH-0M9-EM7-EM5_MU6',
@@ -1305,6 +1310,8 @@ def defineMenu():
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B' : 487,
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO' : 488,
 
+        'L1_BPH-2M9-2MU6'  : 302,
+        'L1_BPH-8M15-2MU6'  : 303,
         ### ATR-14350 - these should be replaced in 2017 with items 296 and 298
         'L1_BPH-2M9-2MU4_BPH-0DR15-2MU4' : 426,
         'L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4' : 427,

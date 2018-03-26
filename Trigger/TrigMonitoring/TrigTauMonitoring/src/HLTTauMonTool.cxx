@@ -132,13 +132,19 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     declareProperty("doTopoValidation",         m_doTopoValidation=false);
     declareProperty("doL1JetPlots", 		m_doL1JetPlots=false);
     declareProperty("doEFTProfiles", 		m_doEFTProfiles=false);
+    declareProperty("doFailTrackFilterBitMonitoring", 		m_doFailTrackFilterBitMonitoring=true);
+    declareProperty("doRNNInOutMonitoring", 		m_doRNNInOutMonitoring=true);
     declareProperty("domuCut40", 		m_domuCut40=false);    
     declareProperty("doL1TopoLeptonsMonitoringWarnings",	m_doL1TopoLeptonsMonitoringWarnings=false);
     declareProperty("topo_ditau_chains",    m_topo_chains_ditau);
     declareProperty("topo_eltau_chains",    m_topo_chains_eltau);
     declareProperty("topo_mutau_chains",    m_topo_chains_mutau);
+    declareProperty("trigMVA_chains",    m_trigMVA_chains);
+    declareProperty("trigRNN_chains",    m_trigRNN_chains);
+    declareProperty("trigBDTRNN_chains",    m_trigBDTRNN_chains);
     declareProperty("topo_support_chains",  m_topo_support_chains);
     declareProperty("LowestSingleTau", 		m_lowest_singletau="");
+    declareProperty("LowestSingleTauMVA", 		m_lowest_singletauMVA="");
     declareProperty("L1TriggerCondition", 	m_L1StringCondition="Physics");
     declareProperty("HLTTriggerCondition",      m_HLTStringCondition="Physics");
     declareProperty("nTrkMax",			m_selection_nTrkMax=-1);
@@ -245,13 +251,16 @@ StatusCode HLTTauMonTool::init() {
       m_trigItemsZtt.push_back(*it);
     }
 
-	// List of chains of interest for Efficiency Ratio plots between FTK and Reference (i.e. non-FTK/"tracktwo") chains.
-	m_LST_HLTsel_FTK_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTK"};
-	m_LST_HLTsel0Prong_FTK_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTK"};
-	m_LST_HLTsel_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTKNoPrec"};
-	m_LST_HLTsel0Prong_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTKNoPrec"};
-	m_LST_HLTsel_tracktwo_chains = {"tau25_idperf_tracktwo", "tau25_perf_tracktwo", "tau25_medium1_tracktwo"};	// Reference 
-	m_Ratio = {"idperf", "perf", "medium1"};
+  // List of chains of interest for Efficiency Ratio plots between FTK and Reference (i.e. non-FTK/"tracktwo") chains.
+  m_LST_HLTsel_FTK_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTK"};
+  m_LST_HLTsel0Prong_FTK_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTK"};
+  m_LST_HLTsel_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf_FTK", "tau12_medium1_FTKNoPrec"};
+  m_LST_HLTsel0Prong_FTKNoPrec_chains = {"tau12_idperf_FTK", "tau12_perf0_FTK", "tau12_medium0_FTKNoPrec"};
+  m_LST_HLTsel_tracktwo_chains = {"tau25_idperf_tracktwo", "tau25_perf_tracktwo", "tau25_medium1_tracktwo"};	// Reference 
+  m_Ratio = {"idperf", "perf", "medium1"};
+  // List of MVA triggers
+
+
 
 // 	HERE DOESN'T WORK SINCE TDT NOT YET INITIALISED
 //	const Trig::ChainGroup* m_allHLTTauItems = getTDT()->getChainGroup("HLT_.*");
@@ -535,6 +544,15 @@ StatusCode HLTTauMonTool::fill() {
 		if(!sc.isSuccess())	ATH_MSG_WARNING("Failed TopoLeptons() for eltau");
 	}
 
+	if (m_doFailTrackFilterBitMonitoring) {
+		for(unsigned int i=0;i<m_trigMVA_chains.size(); ++i){
+		// monitor failtrackfilter bit 
+			sc = FailTrackFilterMonitor ( m_trigMVA_chains.at(i) );
+			if(!sc.isSuccess())	ATH_MSG_WARNING("Failed FailTrackFilterMonitor()");
+		}
+	}
+
+
 	// muCut on filling the histograms
 	if (muCut40Passed)
 	{
@@ -616,6 +634,23 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
     std::string trig_item_EF = "HLT_"+trigItem;
     std::string trig_item_L1(LowerChain( trig_item_EF ) );
     if(trig_item_L1=="") {ATH_MSG_DEBUG("L1 chain for "<< trig_item_EF << " not found");}
+
+		bool monRNN (false);
+		for (unsigned int i=0; i<m_trigRNN_chains.size(); i++) {
+		  if ( trigItem == m_trigRNN_chains.at(i) ) {
+		    monRNN = true;
+				break;
+		  }
+		}
+		bool monBDT (false);
+		for (unsigned int i=0; i<m_trigBDTRNN_chains.size(); i++) {
+		  if ( trigItem == m_trigBDTRNN_chains.at(i) ) {
+				if (!monRNN) monRNN = true;
+				if (!monBDT) monBDT = true;
+				break;
+		  }
+		} 
+		if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
     
     if(trigItem=="Dump"){
 
@@ -654,14 +689,26 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
         for(; CI!=tauJetCont_end; ++CI){
           if(!Selection(*CI)) continue;
 	  sc = fillEFTau(*CI, trigItem, "basicVars");
-	  sc = fillEFTau(*CI, trigItem, "1p_NonCorr");
-	  sc = fillEFTau(*CI, trigItem, "mp_NonCorr");
-	  sc = fillEFTau(*CI, trigItem, "1p_muCorr");
-	  sc = fillEFTau(*CI, trigItem, "mp_muCorr");
+		if (monBDT) {
+			sc = fillEFTau(*CI, trigItem, "1p_NonCorr");
+			sc = fillEFTau(*CI, trigItem, "mp_NonCorr");
+			//sc = fillEFTau(*CI, trigItem, "1p_muCorr");
+			//sc = fillEFTau(*CI, trigItem, "mp_muCorr");
+		}
 	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
+    if(monRNN) {
+      sc = fillEFTau(*CI, trigItem, "RNN_inScalar_1P");
+      sc = fillEFTau(*CI, trigItem, "RNN_inScalar_3P");
+      sc = fillEFTau(*CI, trigItem, "RNN_inTrack");
+      sc = fillEFTau(*CI, trigItem, "RNN_inCluster");
+      sc = fillEFTau(*CI, trigItem, "RNN_out");
+      if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
+    }
 	  sc = fillEFTauVsOffline(*CI, trigItem, "basicVars");
-	  sc = fillEFTauVsOffline(*CI, trigItem, "1p_NonCorr");
-	  sc = fillEFTauVsOffline(*CI, trigItem, "mp_NonCorr");
+		if (monBDT) {
+			sc = fillEFTauVsOffline(*CI, trigItem, "1p_NonCorr");
+			sc = fillEFTauVsOffline(*CI, trigItem, "mp_NonCorr");
+		}
 	  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return sc;}
 	}
         
@@ -859,15 +906,27 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
              for(; tauItr != tauEnd; ++tauItr) {
      		if(!Selection(*tauItr)) continue;
      		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "basicVars");
-     		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_NonCorr");
-     		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_NonCorr");
-     		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_muCorr");
-     		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_muCorr");
+				if (monBDT) {
+		   		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_NonCorr");
+		   		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_NonCorr");
+		   		//if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "1p_muCorr");
+		   		//if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "mp_muCorr");
+				}
      		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill BDT input histograms for fillEFTau(). Exiting!"); return sc;}
+     		if(monRNN) {
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_1P");
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inScalar_3P");
+       		if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inTrack");
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_inCluster");
+     		  if(*tauItr) sc = fillEFTau(*tauItr, trigItem, "RNN_out");
+     		  if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill RNN input and output histograms for fillEFTau(). Exiting!"); return sc;}
+     		}
      		if(m_truth) if(*tauItr) sc = fillEFTauVsTruth(*tauItr, trigItem);
      		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "basicVars");
-     		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "1p_NonCorr");
-     		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "mp_NonCorr");
+				if (monBDT) {
+		   		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "1p_NonCorr");
+		   		if(*tauItr) sc = fillEFTauVsOffline(*tauItr, trigItem, "mp_NonCorr");
+				}
      		if(!sc.isSuccess()){ ATH_MSG_WARNING("Failed to Fill histograms for fillEFTauVsOffline(). Exiting!"); return sc;}
              }
             }
@@ -1032,6 +1091,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   float EMFrac = -1.0;
 //  float PSSFraction = 0;
   float BDTJetScore = 0;
+  float BDTJetScoreSigTrans = 0;
   float innerTrkAvgDist = 0;
   float etOverPtLeadTrk = 0;
   float ipSigLeadTrk = 0;
@@ -1044,7 +1104,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   float dRmax = 0;
   float mEflowApprox = 0;
   float ptRatioEflowApprox = 0;
-
+/*
   float innerTrkAvgDistCorr = 0;
   float etOverPtLeadTrkCorr = 0;
   float ipSigLeadTrkCorr = 0;
@@ -1057,6 +1117,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   float dRmaxCorr = 0;
   float mEflowApproxCorr = 0;
   float ptRatioEflowApproxCorr = 0;
+*/
   float mu = 0;
 
   int EFnTrack(-1);
@@ -1071,6 +1132,34 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
   //Pileup
   mu = m_mu_offline;
 
+  // special treatment for the track multiplicity plot depending on the "quality" of the tau charged tracks.
+  // if a charged track has been recovered via the "failTrackFilter" flag, 
+  // then treat this tau as 0-track for the track multiplicity plot. 
+  bool failsTrackFilter = aEFTau->nTracks(xAOD::TauJetParameters::failTrackFilter);
+  bool isMVAtrig_here (false);
+  for (unsigned int i=0; i<m_trigMVA_chains.size(); i++) {
+    if ( trigItem == m_trigMVA_chains.at(i) ) {
+      isMVAtrig_here = true;
+      break;
+    }
+  }
+  bool monRNN (false);
+  for (unsigned int i=0; i<m_trigRNN_chains.size(); i++) {
+    if ( trigItem == m_trigRNN_chains.at(i) ) {
+      monRNN = true;
+		  break;
+    }
+  }
+  bool monBDT (false);
+  for (unsigned int i=0; i<m_trigBDTRNN_chains.size(); i++) {
+    if ( trigItem == m_trigBDTRNN_chains.at(i) ) {
+			if (!monRNN) monRNN = true;
+			if (!monBDT) monBDT = true;
+			break;
+    }
+  } 
+	if ( (!monBDT) && (!monRNN) ) monBDT=true; // if the chain is not listed in BDTRNN, but it is also not in RNN, then it is BDT 
+
   if(BDTinput_type == "basicVars")
     {
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau");
@@ -1082,8 +1171,11 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       hist("hEFNUM")->Fill(num_vxt);
       hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
       hist("hEFPhi")->Fill(aEFTau->phi());
-      hist("hEFnTrack")->Fill(EFnTrack);
-   
+      if ( isMVAtrig_here && failsTrackFilter && (trigItem != "tau25_idperf_tracktwoMVA") ) {
+        hist("hEFnTrack")->Fill(0);
+      } else {
+        hist("hEFnTrack")->Fill(EFnTrack);
+      }   
       int EFWidenTrack(-1); 
       #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
       EFWidenTrack = aEFTau->nWideTracks();
@@ -1105,12 +1197,22 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       //if(aEFTau->detail(xAOD::TauJetParameters::hadRadius, hadRadius)) hist("hEFHADRadius")->Fill(hadRadius);  
       if(aEFTau->detail(xAOD::TauJetParameters::isolFrac, isoFrac)) hist("hEFIsoFrac")->Fill(isoFrac);
       //if(aEFTau->detail(xAOD::TauJetParameters::PSSFraction, PSSFraction)) hist("hEFPSSFraction")->Fill(PSSFraction);
-	BDTJetScore = aEFTau->discriminant(xAOD::TauJetParameters::TauID::BDTJetScore);
-      if( BDTJetScore )
-	{
-	  if(is1P) hist("hScore1p")->Fill(BDTJetScore);
-	  if(isMP) hist("hScoremp")->Fill(BDTJetScore);
+
+	if (monBDT) {
+		BDTJetScore = aEFTau->discriminant(xAOD::TauJetParameters::TauID::BDTJetScore);
+		    if( BDTJetScore )
+		{
+			if(is1P) hist("hScore1p")->Fill(BDTJetScore);
+			if(isMP) hist("hScoremp")->Fill(BDTJetScore);
+		}
+		BDTJetScoreSigTrans = aEFTau->discriminant(xAOD::TauJetParameters::TauID::BDTJetScoreSigTrans);
+		    if( BDTJetScoreSigTrans )
+		{
+			if(is1P) hist("hScoreSigTrans1p")->Fill(BDTJetScoreSigTrans);
+			if(isMP) hist("hScoreSigTransmp")->Fill(BDTJetScoreSigTrans);
+		}
 	}
+
     }
   else if(BDTinput_type == "1p_NonCorr")
     {
@@ -1219,7 +1321,7 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	    }
         }
     }
-  else if(BDTinput_type == "1p_muCorr")
+/*  else if(BDTinput_type == "1p_muCorr")
     {
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/BDT/1p_Corrected");
       if(is1P)
@@ -1322,6 +1424,228 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
 	      if ((trigItem == "tau25_medium1_tracktwo") || (m_doEFTProfiles))	profile("hEFmEflowApproxMPCmu")->Fill(mu, mEflowApproxCorr);
 	    }
         }
+    }*/
+  else if(BDTinput_type == "RNN_inScalar_1P")
+    {
+		// RNN Input Variables
+		// Scalars
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar1p");
+		if(is1P)
+		  {
+				float RNN_scalar_centFrac(-999.);
+				float RNN_scalar_etOverPtLeadTrk(-999.);
+				float RNN_scalar_dRmax(-999.);
+				float RNN_scalar_absipSigLeadTrk(-999.);
+				float RNN_scalar_SumPtTrkFrac(-999.);
+				float RNN_scalar_EMPOverTrkSysP(-999.);
+				float RNN_scalar_ptRatioEflowApprox(-999.);
+				float RNN_scalar_mEflowApprox(-999.);
+				double RNN_scalar_ptDetectorAxis(-999.);
+
+				if (aEFTau->detail(xAOD::TauJetParameters::centFrac, RNN_scalar_centFrac)){
+					RNN_scalar_centFrac = std::min(centFrac, 1.0f);
+					hist("hEFRNNInput_Scalar_centFrac_1P")->Fill(RNN_scalar_centFrac);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, RNN_scalar_etOverPtLeadTrk)){
+					RNN_scalar_etOverPtLeadTrk = TMath::Log10(std::max(etOverPtLeadTrk, 0.1f));
+					hist("hEFRNNInput_Scalar_etOverPtLeadTrk_log_1P")->Fill(RNN_scalar_etOverPtLeadTrk);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::dRmax, RNN_scalar_dRmax)){
+					hist("hEFRNNInput_Scalar_dRmax_1P")->Fill(RNN_scalar_dRmax);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::ipSigLeadTrk, RNN_scalar_absipSigLeadTrk)){
+					RNN_scalar_absipSigLeadTrk = std::min(TMath::Abs(RNN_scalar_absipSigLeadTrk), 30.0f);
+					hist("hEFRNNInput_Scalar_absipSigLeadTrk_1P")->Fill(RNN_scalar_absipSigLeadTrk);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, RNN_scalar_SumPtTrkFrac)){
+					hist("hEFRNNInput_Scalar_SumPtTrkFrac_1P")->Fill(RNN_scalar_SumPtTrkFrac);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, RNN_scalar_EMPOverTrkSysP)){
+					RNN_scalar_EMPOverTrkSysP = TMath::Log10(std::max(RNN_scalar_EMPOverTrkSysP, 1e-3f));
+					hist("hEFRNNInput_Scalar_EMPOverTrkSysP_log_1P")->Fill(RNN_scalar_EMPOverTrkSysP);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, RNN_scalar_ptRatioEflowApprox)){
+					RNN_scalar_ptRatioEflowApprox = std::min(RNN_scalar_ptRatioEflowApprox, 4.0f);
+					hist("hEFRNNInput_Scalar_ptRatioEflowApprox_1P")->Fill(RNN_scalar_ptRatioEflowApprox);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::mEflowApprox, RNN_scalar_mEflowApprox)){
+					RNN_scalar_mEflowApprox = TMath::Log10(std::max(RNN_scalar_mEflowApprox, 140.0f));
+					hist("hEFRNNInput_Scalar_mEflowApprox_log_1P")->Fill(RNN_scalar_mEflowApprox);
+				}
+				RNN_scalar_ptDetectorAxis = TMath::Log10(std::min(aEFTau->ptDetectorAxis() / 1000.0, 100.0));
+				hist("hEFRNNInput_Scalar_ptDetectorAxis_log_1P")->Fill(RNN_scalar_ptDetectorAxis);
+		}
+	} 
+	else if(BDTinput_type == "RNN_inScalar_3P")
+    {
+    setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputScalar3p");
+		if(isMP) {
+				float RNN_scalar_centFrac(-999.);
+				float RNN_scalar_etOverPtLeadTrk(-999.);
+				float RNN_scalar_dRmax(-999.);
+				float RNN_scalar_trFlightPathSig(-999.);
+				float RNN_scalar_SumPtTrkFrac(-999.);
+				float RNN_scalar_EMPOverTrkSysP(-999.);
+				float RNN_scalar_ptRatioEflowApprox(-999.);
+				float RNN_scalar_mEflowApprox(-999.);
+				double RNN_scalar_ptDetectorAxis(-999.);
+				float RNN_scalar_massTrkSys(-999.);
+
+				if (aEFTau->detail(xAOD::TauJetParameters::centFrac, RNN_scalar_centFrac)){
+					RNN_scalar_centFrac = std::min(centFrac, 1.0f);
+					hist("hEFRNNInput_Scalar_centFrac_3P")->Fill(RNN_scalar_centFrac);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, RNN_scalar_etOverPtLeadTrk)){
+					RNN_scalar_etOverPtLeadTrk = TMath::Log10(std::max(etOverPtLeadTrk, 0.1f));
+					hist("hEFRNNInput_Scalar_etOverPtLeadTrk_log_3P")->Fill(RNN_scalar_etOverPtLeadTrk);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::dRmax, RNN_scalar_dRmax)){
+					hist("hEFRNNInput_Scalar_dRmax_3P")->Fill(RNN_scalar_dRmax);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::trFlightPathSig, RNN_scalar_trFlightPathSig)){
+					RNN_scalar_trFlightPathSig = TMath::Log10(std::max(RNN_scalar_trFlightPathSig, 0.01f));
+					hist("hEFRNNInput_Scalar_trFlightPathSig_log_3P")->Fill(RNN_scalar_trFlightPathSig);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, RNN_scalar_SumPtTrkFrac)){
+					hist("hEFRNNInput_Scalar_SumPtTrkFrac_3P")->Fill(RNN_scalar_SumPtTrkFrac);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, RNN_scalar_EMPOverTrkSysP)){
+					RNN_scalar_EMPOverTrkSysP = TMath::Log10(std::max(RNN_scalar_EMPOverTrkSysP, 1e-3f));
+					hist("hEFRNNInput_Scalar_EMPOverTrkSysP_log_3P")->Fill(RNN_scalar_EMPOverTrkSysP);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, RNN_scalar_ptRatioEflowApprox)){
+					RNN_scalar_ptRatioEflowApprox = std::min(RNN_scalar_ptRatioEflowApprox, 4.0f);
+					hist("hEFRNNInput_Scalar_ptRatioEflowApprox_3P")->Fill(RNN_scalar_ptRatioEflowApprox);
+				}
+				if (aEFTau->detail(xAOD::TauJetParameters::mEflowApprox, RNN_scalar_mEflowApprox)){
+					RNN_scalar_mEflowApprox = TMath::Log10(std::max(RNN_scalar_mEflowApprox, 140.0f));
+					hist("hEFRNNInput_Scalar_mEflowApprox_log_3P")->Fill(RNN_scalar_mEflowApprox);
+				}
+				RNN_scalar_ptDetectorAxis = TMath::Log10(std::min(aEFTau->ptDetectorAxis() / 1000.0, 100.0));
+				hist("hEFRNNInput_Scalar_ptDetectorAxis_log_3P")->Fill(RNN_scalar_ptDetectorAxis);
+				if (aEFTau->detail(xAOD::TauJetParameters::massTrkSys, RNN_scalar_massTrkSys)){
+					RNN_scalar_massTrkSys = TMath::Log10(std::max(RNN_scalar_massTrkSys, 140.0f));
+					hist("hEFRNNInput_Scalar_massTrkSys_log_3P")->Fill(RNN_scalar_massTrkSys);
+				}
+		}
+	} 
+	else if(BDTinput_type == "RNN_inTrack")
+    {
+		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputTrack");
+		// Tracks
+		float RNN_tracks_pt_log(-999.);
+		float RNN_tracks_pt_jetseed_log(-999.);
+		float RNN_tracks_dEta(-999.);
+		float RNN_tracks_dPhi(-999.);
+		float RNN_tracks_z0sinThetaTJVA_abs_log(-999.);
+		float RNN_tracks_d0_abs_log(-999.);
+		bool success_InPixHits(false);
+		uint8_t RNN_tracks_nInnermostPixelHits = 0;
+		bool success_PixHits(false);
+		uint8_t RNN_tracks_nPixelHits = 0;
+		bool success_SCTHits(false);
+		uint8_t RNN_tracks_nSCTHits = 0;
+
+		if (is1P || isMP) {
+			for (int track = 0; track < EFnTrack; ++track){
+				const xAOD::TrackParticle* trk = 0;
+				if ( (aEFTau->track(track) != NULL) ) {
+					trk = aEFTau->track(track)->track();
+					if ( trk != NULL ) {
+						RNN_tracks_pt_log = TMath::Log10( trk->pt() );
+						hist("hEFRNNInput_Track_pt_log")->Fill(RNN_tracks_pt_log);
+						RNN_tracks_pt_jetseed_log = TMath::Log10( aEFTau->ptJetSeed() );
+						hist("hEFRNNInput_Track_pt_jetseed_log")->Fill(RNN_tracks_pt_jetseed_log);
+						RNN_tracks_dEta = trk->eta() - aEFTau->eta();
+						hist("hEFRNNInput_Track_dEta")->Fill(RNN_tracks_dEta);
+						RNN_tracks_dPhi = trk->p4().DeltaPhi(aEFTau->p4());
+						hist("hEFRNNInput_Track_dPhi")->Fill(RNN_tracks_dPhi);
+						RNN_tracks_z0sinThetaTJVA_abs_log = TMath::Log10(TMath::Abs( aEFTau->track(track)->z0sinThetaTJVA(*aEFTau) ));
+						hist("hEFRNNInput_Track_z0sinThetaTJVA_abs_log")->Fill(RNN_tracks_z0sinThetaTJVA_abs_log);					
+						RNN_tracks_d0_abs_log = TMath::Log10( TMath::Abs(trk->d0()) + 1e-6);
+						hist("hEFRNNInput_Track_d0_abs_log")->Fill(RNN_tracks_d0_abs_log);
+						success_InPixHits =  trk->summaryValue(RNN_tracks_nInnermostPixelHits, xAOD::numberOfInnermostPixelLayerHits);
+						if (success_InPixHits){
+							hist("hEFRNNInput_Track_nInnermostPixelHits")->Fill(RNN_tracks_nInnermostPixelHits);
+						}
+						success_PixHits =  trk->summaryValue(RNN_tracks_nPixelHits, xAOD::numberOfPixelHits);
+						if (success_PixHits){
+							hist("hEFRNNInput_Track_nPixelHits")->Fill(RNN_tracks_nPixelHits);
+						}
+						success_SCTHits =  trk->summaryValue(RNN_tracks_nSCTHits, xAOD::numberOfSCTHits);
+						if (success_SCTHits){
+							hist("hEFRNNInput_Track_nSCTHits")->Fill(RNN_tracks_nSCTHits);
+						}
+					} else {
+						ATH_MSG_WARNING("->track() does not exists in: " << track);
+					}//end if trk exists
+				} else {
+						ATH_MSG_WARNING("->track(track) does not exists in: " << track);
+				}
+			} // end for-loop for tracks
+		} // end if(is1P||isMP)
+	}
+  else if(BDTinput_type == "RNN_inCluster")
+    {
+		// Cluster 
+		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/InputCluster");
+		float RNN_clusters_et_log(-999.);
+		float RNN_clusters_pt_jetseed_log(-999.);
+		float RNN_clusters_dEta(-999.);
+		float RNN_clusters_dPhi(-999.);
+		double RNN_clusters_SECOND_R(-999.);
+		double RNN_clusters_SECOND_LAMBDA(-999.);
+		double RNN_clusters_CENTER_LAMBDA(-999.);
+		const xAOD::CaloClusterContainer *caloCont;
+		if ( m_storeGate->retrieve( caloCont, "HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker").isSuccess() ){//"TauPi0Clusters").isSuccess() ){
+			ATH_MSG_INFO("caloCluster retrieved!");
+			xAOD::CaloClusterContainer::const_iterator clusItr  = caloCont->begin();
+			xAOD::CaloClusterContainer::const_iterator clusItrE = caloCont->end();
+			for (; clusItr != clusItrE; ++clusItr) {
+				RNN_clusters_et_log = TMath::Log10( (*clusItr)->et() );
+				hist("hEFRNNInput_Cluster_et_log")->Fill(RNN_clusters_et_log);
+				RNN_clusters_pt_jetseed_log = TMath::Log10( aEFTau->ptJetSeed() );
+				hist("hEFRNNInput_Cluster_pt_jetseed_log")->Fill(RNN_clusters_pt_jetseed_log);
+				RNN_clusters_dEta = ((*clusItr)->eta() - (aEFTau->eta()));
+				hist("hEFRNNInput_Cluster_dEta")->Fill(RNN_clusters_dEta);
+				RNN_clusters_dPhi = (*clusItr)->p4().DeltaPhi(aEFTau->p4());//deltaPhi((*clusItr)->phi(),(aEFTau->phi()));
+				hist("hEFRNNInput_Cluster_dPhi")->Fill(RNN_clusters_dPhi);
+				const auto success_SECOND_R = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R, RNN_clusters_SECOND_R);
+				if ( (success_SECOND_R) ) {
+					RNN_clusters_SECOND_R =TMath::Log10(RNN_clusters_SECOND_R + 0.1);
+					hist("hEFRNNInput_Cluster_SECOND_R_log10")->Fill(RNN_clusters_SECOND_R);
+				}
+				const auto success_SECOND_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, RNN_clusters_SECOND_LAMBDA);
+				if ( (success_SECOND_LAMBDA) ) {
+					RNN_clusters_SECOND_LAMBDA =TMath::Log10(RNN_clusters_SECOND_LAMBDA + 0.1);
+					hist("hEFRNNInput_Cluster_SECOND_LAMBDA_log10")->Fill(RNN_clusters_SECOND_LAMBDA);
+				}
+				const auto success_CENTER_LAMBDA = (*clusItr)->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, RNN_clusters_CENTER_LAMBDA);
+				if ( (success_CENTER_LAMBDA) ) {
+					RNN_clusters_CENTER_LAMBDA =TMath::Log10(RNN_clusters_CENTER_LAMBDA + 1e-6);
+					hist("hEFRNNInput_Cluster_CENTER_LAMBDA_log10")->Fill(RNN_clusters_CENTER_LAMBDA);
+				}
+			}
+		} 
+	}
+  else if(BDTinput_type == "RNN_out")
+    {
+		// RNN Output Variables
+		setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFTau/RNN/Output");
+		float RNNJetScore(-999.);
+		float RNNJetScoreSigTrans(-999.);
+		if(aEFTau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScore)) {
+			RNNJetScore = aEFTau->discriminant(xAOD::TauJetParameters::RNNJetScore);
+		} else {
+			ATH_MSG_WARNING(" RNNJetScore not available.");
+		}
+		if(aEFTau->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans)) {
+			RNNJetScoreSigTrans = aEFTau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+		} else {
+			ATH_MSG_WARNING(" RNNJetScoreSigTrans not available.");
+		}
+		hist("hEFRNNJetScore")->Fill(RNNJetScore);
+		hist("hEFRNNJetScoreSigTrans")->Fill(RNNJetScoreSigTrans);
     }
   else
     {

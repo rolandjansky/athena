@@ -439,3 +439,32 @@ class TrigMultiTrkFex_Jpsi (TrigMultiTrkFexPy):
         online = TrigMultiTrkFexOnlineMonitoring()
                                 
         self.AthenaMonTools = [ validation, online, time ]
+
+
+class TrigMultiTrkFex_EMu (TrigMultiTrkFexPy):
+    __slots__ = []
+    def __init__(self, name = "MultiTrkFex_EMu"):
+        super( TrigMultiTrkFex_EMu, self ).__init__( name )
+        self.nTrk = 2
+        self.trkMass = 0.5  # looking for electron-muon resonances ; ignore muon mass      
+        self.nTrkVertexChi2 = 20
+        self.nTrkCharge = 0
+        self.nTrkMassMin = [100.]
+        self.nTrkMassMax = [7000.] 
+        self.ptTrkMin = [3600., 3600. ] # set minimal pt of tracks for 2mu passing L1
+        self.diTrkMassMin = []   # phi window
+        self.diTrkMassMax = []
+        self.diTrkCharge = 0
+
+        # muons are not matched to tracks, but still require to be present in TE
+        self.nEfMuon = 0
+        self.nL2CombMuon = 0
+        self.nL2SAMuon = 0  # as we run on muon RoIs all necessary muons are already requested.
+        self.ptMuonMin = [] #[3600.]
+        #self.overlapdR  = 0.005 
+
+        time = TrigTimeHistToolConfig("Time")
+        validation = TrigMultiTrkFexValidationMonitoring()
+        online = TrigMultiTrkFexOnlineMonitoring()
+                                
+        self.AthenaMonTools = [ validation, online, time ]
