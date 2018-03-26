@@ -47,6 +47,7 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   if (m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/HitsOnTrack");
   MonGroup rdoShift(this, path.c_str(), run, ATTRIB_MANAGED);   // declare a group of histograms
   MonGroup rdoExpert(this, path.c_str(), run, ATTRIB_MANAGED);  // declare a group of histograms
+  MonGroup rdoRatios(this, path.c_str(), run, ATTRIB_MANAGED, "", "weightedAverage");
 
   std::string pathT = "Pixel/Timing";
   if (m_doOnTrack) pathT.replace(pathT.begin(), pathT.end(), "Pixel/TimingOnTrack");
@@ -106,7 +107,7 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     if (m_doOnline) { 
       hname = makeHistname(("Hits_last100lb_" + m_modLabel_PixLayerIBL2D3D[i]), false);
       htitles = makeHisttitle(("Relative occupancy to IBL per event, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_hit), false);
-      sc = rdoExpert.regHist(m_hits_lastXlb_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100, 0, 100));
+      sc = rdoRatios.regHist(m_hits_lastXlb_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100, 0, 100));
     }
 
     hname = makeHistname(("nHits_per_module_per_event_" + m_modLabel_PixLayerIBL2D3D[i]), false);

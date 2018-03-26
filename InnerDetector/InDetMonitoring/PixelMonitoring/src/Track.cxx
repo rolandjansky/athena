@@ -123,7 +123,7 @@ StatusCode PixelMainMon::bookTrackMon(void) {
     if (m_doOnline) {
       hname = makeHistname(("HitEff_last100lb_" + m_modLabel_PixLayerIBL2D3D[i]), false);
       htitles = makeHisttitle(("hit efficiency last 100 LB, " + m_modLabel_PixLayerIBL2D3D[i]), ";last 100 lumi blocks;hit efficiency", false);
-      sc = trackHistos.regHist(m_hiteff_lastXlb_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100, 0, 100));
+      sc = trackHistos.regHist(m_hiteff_lastXlb_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), 100, 0, 100));
     }
   }
 
@@ -350,22 +350,24 @@ StatusCode PixelMainMon::procTrackMon(void) {
   if (m_doOnline) {
     unsigned int lastlb = m_manager->lumiBlockNumber()-1;
     float cont(0.0), err(0.0);
-    int entries(0);
+    int entr(0), entries(0);
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_hiteff_incl_mod[i] && m_hiteff_lastXlb_mod[i]) {
 	unsigned int bing(lastlb);
 	for (int binf=m_hiteff_lastXlb_mod[i]->GetNbinsX(); binf>0; binf--) {
 	  if (bing>0) {
 	    cont = m_hiteff_incl_mod[i]->GetBinContent(bing);
-	    err = m_hiteff_incl_mod[i]->GetBinError(bing);
-	    entries += m_hiteff_incl_mod[i]->GetBinEntries(bing);
+	    err  = m_hiteff_incl_mod[i]->GetBinError(bing);
+	    entr = m_hiteff_incl_mod[i]->GetBinEntries(bing);
+	    entries += entr;
 	    bing--;
 	  } else {
 	    cont = 0.0;
 	    err  = 0.0;
 	  }
-	  m_hiteff_lastXlb_mod[i]->SetBinContent(binf, cont);
-	  m_hiteff_lastXlb_mod[i]->SetBinError(binf, err);
+	  m_hiteff_lastXlb_mod[i]->SetBinEntries(binf, entr);
+	  m_hiteff_lastXlb_mod[i]->SetBinContent(binf, cont * entr);
+	  m_hiteff_lastXlb_mod[i]->SetBinError(binf, err * entr);    // approximation!
 	}
 	//m_hiteff_lastXlb_mod[i]->SetEntries(entries); // could be useful
 	m_hiteff_lastXlb_mod[i]->SetEntries(bing);      // for testing

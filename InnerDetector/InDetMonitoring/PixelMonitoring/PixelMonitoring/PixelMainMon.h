@@ -380,7 +380,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   // hit efficiency
   TProfile_LW* m_hiteff_incl_mod[PixLayer::COUNT];
-  TH1F_LW* m_hiteff_lastXlb_mod[PixLayer::COUNT];
+  TProfile_LW* m_hiteff_lastXlb_mod[PixLayer::COUNT];
   
   // lorentz angle
   TProfile2D_LW* m_LorentzAngle_IBL;
