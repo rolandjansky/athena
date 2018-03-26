@@ -150,7 +150,7 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
   uint32_t robid{robFrag.rod_source_id()};
   /**determine whether this data was generated using the ROD simulator */
   uint32_t rod_datatype{robFrag.rod_detev_type()};
-  const bool rodSimulatedData{(rod_datatype >> 20) & 1};
+  const bool rodSimulatedData{static_cast<bool>((rod_datatype >> 20) & 1)};
 
   if (rodSimulatedData) m_byteStreamErrSvc->setRODSimulatedData();
   if (bsFracCont) bsFracCont->insert(SCT_ByteStreamFractionContainer::SimulatedData, robid, rodSimulatedData);
