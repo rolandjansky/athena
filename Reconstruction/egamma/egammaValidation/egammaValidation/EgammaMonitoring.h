@@ -12,7 +12,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include <AsgTools/AnaToolHandle.h>
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 #include "TFile.h"
 #include "TH1.h"
