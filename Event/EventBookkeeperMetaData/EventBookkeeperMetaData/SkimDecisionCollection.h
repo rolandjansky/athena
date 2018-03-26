@@ -13,11 +13,9 @@
 #include <iostream>
 
 // DataModel includes
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "EventBookkeeperMetaData/SkimDecision.h"
-
-// CLIDSvc includes (for persistency)
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class SkimDecisionCollection: public DataVector<SkimDecision> 
 {
