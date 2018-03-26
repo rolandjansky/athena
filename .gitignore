@@ -9,3 +9,5 @@
 *.pyc
 .asetup*
 .cproject
+.kdevelop
+*.so*
