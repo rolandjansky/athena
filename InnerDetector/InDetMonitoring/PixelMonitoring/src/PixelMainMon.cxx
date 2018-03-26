@@ -865,38 +865,38 @@ StatusCode PixelMainMon::procHistograms() {
   if (!m_doOnline && endOfRunFlag()) {
     if (m_doRDO) {
       if (procHitsMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Hit histograms" << endmsg;
       }
     }
     if (m_doCluster) {
       if (procClustersMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Cluster histograms" << endmsg;
       }
     }
     if (m_doStatus) {
       if (procStatusMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Status histograms" << endmsg;
       }
     }
     if (m_doDCS) {
       if (procPixelDCSMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc DCS histograms" << endmsg;
       }
     }
     if (m_doTrack) {
       if (procTrackMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Track histograms" << endmsg;
       }
     }
   } else if (m_doOnline && (endOfLumiBlockFlag() || endOfRunFlag())) {
     if (m_doRDO) {
       if (procHitsMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Hit histograms" << endmsg;
       }
     }
     if (m_doTrack) {
       if (procTrackMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Track histograms" << endmsg;
       }
     }
   }
