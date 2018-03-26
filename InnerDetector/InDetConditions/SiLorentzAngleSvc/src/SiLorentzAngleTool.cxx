@@ -183,7 +183,7 @@ double SiLorentzAngleTool::getValue(const IdentifierHash& elementHash, const Amg
   // gives a more physical sign of the angle (ie dosen't flip sign when the detector is flipped).
   // The hit depth axis is pointing from the readout side to the backside if  m_design->readoutSide() < 0
   // The hit depth axis is pointing from the backside to the readout side if  m_design->readoutSide() > 0
-  if (variable==TanLorentzAngle and variable==LorentzShift) {
+  if (variable==TanLorentzAngle or variable==LorentzShift) {
     double tanLorentzAnglePhi{element->design().readoutSide()*mobility*element->hitDepthDirection()*element->hitPhiDirection()*(element->normal().cross(magneticField)).dot(element->phiAxis())};
     if (variable==TanLorentzAngle) {
       return correctionFactor*tanLorentzAnglePhi;
@@ -197,7 +197,7 @@ double SiLorentzAngleTool::getValue(const IdentifierHash& elementHash, const Amg
   // The Lorentz eta shift very small and so can be ignored, but we include it for completeness.
   // It is < ~0.1 um in the pixel.
   // In the SCT its largest in the stereo side of the barrel modules where it is about 0.3 micron along the strip. 
-  if (variable==TanLorentzAngleEta and variable==LorentzShiftEta) {
+  if (variable==TanLorentzAngleEta or variable==LorentzShiftEta) {
     double tanLorentzAngleEta{element->design().readoutSide()*mobility*element->hitDepthDirection()*element->hitEtaDirection()*(element->normal().cross(magneticField)).dot(element->etaAxis())};
     if (variable==TanLorentzAngleEta) {
       return correctionFactor*tanLorentzAngleEta;
