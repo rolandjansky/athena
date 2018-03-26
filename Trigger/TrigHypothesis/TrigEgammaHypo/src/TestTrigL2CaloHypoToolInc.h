@@ -58,5 +58,5 @@ class TestTrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool
   
   int findCutIndex( float eta ) const;
 }; 
-DECLARE_TOOL_FACTORY( TestTrigL2CaloHypoToolInc )
+
 #endif //> !TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOTOOL_H

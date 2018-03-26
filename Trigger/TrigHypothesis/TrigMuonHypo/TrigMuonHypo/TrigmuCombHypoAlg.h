@@ -54,5 +54,4 @@ class TrigmuCombHypoAlg
 	this, "MuonL2CBInfoFromMuCombAlg", "MuonL2CBInfo", "Name of the input data produced by muCombMT"};
 };
 
-DECLARE_ALGORITHM_FACTORY( TrigmuCombHypoAlg )
 #endif
