@@ -81,6 +81,8 @@ if DerivationFrameworkIsMonteCarlo:
 
 truth_cond = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))" # lepton conditions
 truth_cond += "|| (abs(TruthParticles.pdgId) == 9900041) || (abs(TruthParticles.pdgId) == 9900042)" # H++
+truth_cond += "|| (abs(TruthParticles.pdgId) == 8000018) || (abs(TruthParticles.pdgId) == 8000020)" # Type III seesaw
+truth_cond += "|| (abs(TruthParticles.pdgId) == 9900012) || (abs(TruthParticles.pdgId) == 9900014) || (abs(TruthParticles.pdgId) == 9900016) || (abs(TruthParticles.pdgId) == 9900024) || (abs(TruthParticles.pdgId) == 34)" # LRSM Heavy Neutrino
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT12TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT12TruthTool2",
