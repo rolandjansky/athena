@@ -14,7 +14,9 @@ namespace lwt {
   class LightweightGraph;
 }
 
-class HbbDNNInputMapBuilder;
+namespace BoostedJetTaggers {
+  class HbbInputBuilder;
+}
 
 class HbbTaggerDNN :   public asg::AsgTool ,
                        virtual public IJetSelector
@@ -46,7 +48,7 @@ protected:
   std::string m_neuralNetworkFile;
   std::string m_configurationFile;
   std::unique_ptr<lwt::LightweightGraph> m_lwnn;
-  std::unique_ptr<HbbDNNInputMapBuilder> m_input_builder;
+  std::unique_ptr<BoostedJetTaggers::HbbInputBuilder> m_input_builder;
 
   // threshold to cut on for keep()
   // default 1000000000 - but the user must set this to use the tool sensibly
