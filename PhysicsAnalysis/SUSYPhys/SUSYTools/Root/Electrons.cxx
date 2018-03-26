@@ -340,7 +340,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
   if (triggerSF) {
 
     std::vector<std::string> trigMChains={};
-    std::string theExpr = trigExpr;
+    std::string theExpr ("");
     if(trigExpr==singleLepStr) { 
       if (this->treatAsYear()==2015) trigMChains = v_trigs15_cache_single;
       else if (this->treatAsYear()==2016) trigMChains = v_trigs16_cache_single; 
@@ -348,8 +348,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
       theExpr=m_electronTriggerSFStringSingle;
     } 
     else{
-      //get chains for custom configuration
-      trigMChains = GetTriggerOR(theExpr);
+      ATH_MSG_WARNING( "Only single lepton trigger SFs are supported in GetSignalElecSF(). Use GetTriggerGlobalEfficiencySF() for dilepton or multilepton triggers!");
     }
 
     //check matching
@@ -360,7 +359,7 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     }
     else{ //is trig-matched electron, go for it!
       if (trigExpr==multiLepStr && trigExpr==diLepStr) {
-        ATH_MSG_INFO( "The dilepton or multilepton trigger SFs are not supported in GetSignalElecSF(). Use GetTriggerGlobalEfficiencySF()!");
+        ATH_MSG_WARNING( "The dilepton or multilepton trigger SFs are not supported in GetSignalElecSF(). Use GetTriggerGlobalEfficiencySF()!");
       }
       else {
         double trig_sf = GetEleTriggerEfficiencySF( el , theExpr );
