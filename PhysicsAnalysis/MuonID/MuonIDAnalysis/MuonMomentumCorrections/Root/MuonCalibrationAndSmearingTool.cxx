@@ -677,6 +677,7 @@ namespace CP {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
         double denominator = (  muonInfo.ptcb  ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+        //double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
         double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
         if(m_currentParameters->SagittaRho==MCAST::SystVariation::Up){
@@ -2119,7 +2120,8 @@ namespace CP {
       double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc ) * loc_ptms;
       ATH_MSG_VERBOSE("sigmaID,sigmaMS = "<<sigmaID<<"  "<<sigmaMS);
       double denominator = ( loc_ptcb ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
-      return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+      //return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+      return denominator ?  sigmaID * sigmaMS / denominator : 0.;
     }
     else {
       ATH_MSG_ERROR( "wrong DetType in input "<<DetType );
