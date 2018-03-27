@@ -12,13 +12,16 @@
 
 // std includes
 #include <string>
-#include <array>
 
 // local includes
 #include "xAODTracking/TrackParticle.h"
 #include "InDetPlotBase.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
+
+class TH1;
+class TH2;
+class TProfile;
 
 class InDetPerfPlot_TrtTest: public InDetPlotBase {
 public:
@@ -28,8 +31,8 @@ private:
   ///////////////1D Histograms/////////////////////
   ///////////////////general stuff/////////////////
   TH1* m_mu, * m_nPV;
-  TH1* m_matchProb;
-  TH1* m_trtTubeFrac;
+  TH1* m_matchProb, *m_matchProb_badFrac;
+  TH1* m_trtTubeFrac, *m_trtPrecFrac;
   ///////////////track categories//////////////////
   TH1* m_trackCategories, * m_slimTrackCategories;
 
@@ -40,6 +43,8 @@ private:
   TH1* m_z0, * m_z0_ext, * m_z0_trtHit, * m_z0_trtHitNoOut, * m_z0_trtOutlier, * m_z0_trtHitOut, * m_z0_noTrt;
   TH1* m_tube, * m_tube_ext, * m_tube_trtHit, * m_tube_trtHitNoOut, * m_tube_trtOutlier, * m_tube_trtHitOut,
      * m_tube_noTrt;
+  TH1 *m_tubeFrac,*m_tubeFrac_trtHit,*m_tubeFrac_trtHitNoOut,*m_tubeFrac_trtHitOut;
+  TH1 *m_precFrac,*m_precFrac_trtHit,*m_precFrac_trtHitNoOut,*m_precFrac_trtHitOut;
   ///////////split by tube fraction//////////////// ////////////not used at the moment///////////////////
   TH1* m_pt_tubeHitFrac_05_1, * m_eta_tubeHitFrac_05_1, * m_phi_tubeHitFrac_05_1, * m_d0_tubeHitFrac_05_1,
      * m_z0_tubeHitFrac_05_1;
@@ -50,16 +55,23 @@ private:
   TH1* m_pt_tubeHitFrac_0_03, * m_eta_tubeHitFrac_0_03, * m_phi_tubeHitFrac_0_03, * m_d0_tubeHitFrac_0_03,
      * m_z0_tubeHitFrac_0_03;
   ///////////////2D Histograms/////////////////////
+  TH2 *m_matchProb_vs_tubeFrac,*m_matchProb_vs_precFrac;
   TH2* m_pt_vs_nTrtTubeHits, * m_eta_vs_nTrtTubeHits, * m_phi_vs_nTrtTubeHits, * m_d0_vs_nTrtTubeHits,
      * m_z0_vs_nTrtTubeHits, * m_mu_vs_nTrtTubeHits, * m_nPV_vs_nTrtTubeHits;
-  TH2* m_pt_vs_nTrtHits, * m_eta_vs_nTrtHits, * m_phi_vs_nTrtHits, * m_d0_vs_nTrtHits, * m_z0_vs_nTrtHits,
-     * m_mu_vs_nTrtHits, * m_nPV_vs_nTrtHits;
+  TH2* m_pt_vs_nTrtHits, * m_eta_vs_nTrtHits, * m_phi_vs_nTrtHits, * m_d0_vs_nTrtHits, * m_z0_vs_nTrtHits, * m_mu_vs_nTrtHits, * m_nPV_vs_nTrtHits;
   TH2* m_pt_vs_tubeHitFrac, * m_eta_vs_tubeHitFrac, * m_phi_vs_tubeHitFrac, * m_d0_vs_tubeHitFrac,
-     * m_z0_vs_tubeHitFrac,
-     * m_mu_vs_tubeHitFrac, * m_nPV_vs_tubeHitFrac;
+     * m_z0_vs_tubeHitFrac, * m_mu_vs_tubeHitFrac, * m_nPV_vs_tubeHitFrac;
   TH2* m_nTrtHit_vs_nTrtTubeHit, * m_nTrtHit_vs_trtTubeFrac;
 
+  TH2 *m_nTrtHit_vs_nTrtOutlier, *m_nTrtTubeHit_vs_nTrtOutlier, *m_trtTubeFrac_vs_nTrtOutlier; 
+  TH2 *m_nTrtHit_vs_nTrtTubeHit_B, *m_nTrtHit_vs_nTrtTubeHit_E, *m_nTrtHit_vs_trtTubeFrac_B, *m_nTrtHit_vs_trtTubeFrac_E;
+
   TH2* m_d0_vs_eta;
+
+  ///////////////////TProfiles///////////////////////
+  TProfile *m_profile_mu_vs_trtTubeFrac, *m_profile_nPV_vs_trtTubeFrac, *m_profile_nTrtHit_vs_nTrtTubeHit, *m_profile_nTrtHit_vs_trtTubeFrac;
+  TProfile *m_profile_nTrtHit_vs_nTrtOutlier, *m_profile_nTrtOutlier_vs_nTrtHit, *m_profile_nTrtTubeHit_vs_nTrtOutlier, *m_profile_nTrtOutlier_vs_nTrtTubeHit, *m_profile_trtTubeFrac_vs_nTrtOutlier, *m_profile_nTrtOutlier_vs_trtTubeFrac;
+  TProfile *m_profile_nTrtHit_vs_nTrtTubeHit_B, *m_profile_nTrtHit_vs_nTrtTubeHit_E, *m_profile_nTrtHit_vs_trtTubeFrac_B, *m_profile_nTrtHit_vs_trtTubeFrac_E;
 
 
   // Plot base has no default implementation of this; we use it to book the histos
