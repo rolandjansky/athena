@@ -119,6 +119,8 @@ namespace Muon {
     TTree* m_tree;
 
     unsigned int m_candidateCounter;
+
+    bool m_isMC;
   };
   
 }
