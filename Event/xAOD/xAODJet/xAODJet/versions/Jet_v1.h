@@ -112,9 +112,9 @@ namespace xAOD {
 
 
     /// The full 4-momentum of the particle : internal jet type.
-    GenVecFourMom_t jetP4() const;
+    JetFourMom_t jetP4() const;
     /// The full 4-momentum of the particle : internal jet type (same).
-    GenVecFourMom_t genvecP4() const;
+    JetFourMom_t genvecP4() const;
 
     /// The x-component of the jet's momentum
     float px() const;
