@@ -438,7 +438,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
 
     float eta = eg->caloCluster()->etaBE(2);
     float phi = eg->phi();
-    float pt = eg->pt();
+    float pt = eg->pt()/1e3;
     float avgmu=getAvgMu();
     float npvtx=getNPVtx();
     ATH_MSG_DEBUG("Mu " << avgmu << " " << getAvgOnlineMu() << " "  << getAvgOfflineMu()); 
