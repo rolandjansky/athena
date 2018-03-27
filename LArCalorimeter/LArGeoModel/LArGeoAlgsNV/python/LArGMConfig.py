@@ -2,23 +2,23 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from IOVDbSvc.IOVDbSvcConfig import addFolders
 
-def LArGMCfg(ConfigFlags):
+def LArGMCfg(configFlags):
     result=ComponentAccumulator()
     
-    result.executeModule(GeoModelCfg,ConfigFlags)
+    result.addConfig(GeoModelCfg,configFlags)
 
-    doAlignment=ConfigFlags.get("LArGeoAlgsNV.LArGeoModelFlags.doAlign")
+    doAlignment=configFlags("LAr.doAlign")
     
     from LArGeoAlgsNV.LArGeoAlgsNVConf import LArDetectorToolNV
     result.getService("GeoModelSvc").DetectorTools += [ LArDetectorToolNV(ApplyAlignments=doAlignment) ]
 
     if doAlignment:
-        if ConfigFlags.get("AthenaConfiguration.GlobalFlags.isMC"):
+        if configFlags.get("global.isMC"):
             #Monte Carlo case:
-            result.executeModule(addFolders,ConfigFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL")
+            result.addConfig(addFolders,configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL")
         else:
             #Regular offline data processing
-            result.executeModule(addFolders, ConfigFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL")
+            result.addConfig(addFolders,configFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_ONL")
 
         
     return result

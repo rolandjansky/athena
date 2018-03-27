@@ -3,21 +3,21 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders
 from CaloTools.CaloToolsConf import CaloNoiseToolDB
 from AthenaConfiguration.CfgLogMsg import cfgLogMsg
 
-def CaloNoiseToolCfg(inputFlags):
+def CaloNoiseToolCfg(configFlags):
 
     result=ComponentAccumulator()
 
-    isMC=inputFlags.get("AthenaConfiguration.GlobalFlags.isMC")
-    fixedLumi=inputFlags.get("CaloRec.CaloRecConfigFlags.fixedLumiForNoise")
-    useCaloLumi=inputFlags.get("CaloRec.CaloRecConfigFlags.useCaloNoiseLumi")
+    isMC=configFlags.get("global.isMC")
+    fixedLumi=configFlags.get("Calo.Noise.fixedLumiForNoise")
+    useCaloLumi=configFlags.get("Calo.Noise.useCaloNoiseLumi")
     
     caloNoiseToolDB=CaloNoiseToolDB("CaloNoiseTool")
 
 
-    if inputFlags.get("AthenaConfiguration.GlobalFlags.isOnline"):
+    if configFlags.get("global.isOnline"):
         #online mode:
         folder  = "/CALO/Noise/CellNoise"
-        result.executeModule(addFolders,inputFlags,folder,'CALO_ONL')
+        result.addConfig(addFolders,configFlags,inputFlags,folder,'CALO_ONL')
         caloNoiseToolDB.FolderNames=[folder,]
         if fixedLumi >= 0 :
             caloNoiseToolDB.Luminosity = fixedLumi
@@ -25,7 +25,7 @@ def CaloNoiseToolCfg(inputFlags):
         else:
             if useCaloLumi:
                 lumiFolder='/CALO/Noise/PileUpNoiseLumi'
-                result.executeModule(addFolders,inputFlags,lumiFolder,'CALO')
+                result.addConfig(addFolders,configFlags,lumiFolder,'CALO')
                 caloNoiseToolDB.LumiFolderName = lumiFolder
                 caloNoiseToolDB.Luminosity = -1.
                 cfgLogMsg.info("online mode: use luminosity from /CALO/Noise/PileUpNoiseLumi to scale pileup noise")
@@ -44,12 +44,12 @@ def CaloNoiseToolCfg(inputFlags):
         else:
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
-                result.executeModule(addFolders,inputFlags,lumiFolder,'CALO_OFL')
+                result.addConfig(addFolders,configFlags,lumiFolder,'CALO_OFL')
                 cfgLogMsg.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileuUpNoiseLumi to scale pileup noise")
                 caloNoiseToolDB.LumiFolderName = lumiFolder
                 caloNoiseToolDB.Luminosity=-1.
             else:
-                estimatedLumi=inputFlags.get("AthenaConfiguration.GlobalFlags.estimatedLuminosity")
+                estimatedLumi=configFlag.get("global.estimatedLuminosity")
                 caloNoiseToolDB.Luminosity=estimatedLumi/1e+33
                 cfgLogMsg.info("  Luminosity (in 10**33) units used for pileup noise from global flags: %f"%caloNoiseToolDB.Luminosity)
 
@@ -68,11 +68,11 @@ def CaloNoiseToolCfg(inputFlags):
             caloNoiseToolDB.Luminosity = -1
             if useCaloLumi:
                 lumiFolder='/CALO/Ofl/Noise/PileUpNoiseLumi'
-                result.executeModule(addFolders,inputFlags,lumiFolder,'CALO_OFL')
+                result.addConfig(addFolders,configFlags,lumiFolder,'CALO_OFL')
                 cfgLogMsg.info("offline mode: use luminosity from /CALO/Ofl/Noise/PileUpNoiseLumi to scale pileup noise")
             else:
                 lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
-                result.executeModule(addFolders,inputFlags,lumiFolder,'TRIGGER_ONL');
+                result.addConfig(addFolders,configFlags,lumiFolder,'TRIGGER_ONL');
                 cfgLogMsg.info("offline mode: use luminosity = f(Lumiblock) to scale pileup noise")
                 caloNoiseToolDB.LumiFolderName = lumiFolder
 
@@ -81,7 +81,7 @@ def CaloNoiseToolCfg(inputFlags):
                  ("TILE_OFL","/TILE/OFL02/NOISE/CELL")
                  ]
         
-        if inputFlags.get("IOVDbSvc.IOVDbConfigFlags.DatabaseInstance")=="COMP200":
+        if configFlags.get("IOVDb.DatabaseInstance")=="COMP200":
             folders.append(("CALO_OFL","/CALO/Ofl/Noise/CellNoise")),
         
         #Fixme: Add rescaling of noise based on HV! 
@@ -90,7 +90,7 @@ def CaloNoiseToolCfg(inputFlags):
         pass #end of real data case
     
     for (db,fldr) in folders:
-        result.executeModule(addFolders,inputFlags,fldr,db)
+        result.addConfig(addFolders,configFlags,fldr,db)
     
     caloNoiseToolDB.FolderNames=[f[1] for f in folders]    
 
