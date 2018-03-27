@@ -33,6 +33,10 @@ if hasattr(runArgs,"beamType"):
 ##     from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
 ##     tf.triggerConfig=runArgs.triggerConfig
 
+# Avoid command line preInclude for event service
+if hasattr(runArgs, "eventService") and runArgs.eventService:
+    include('AthenaMP/AthenaMP_EventService.py')
+
 ## autoConfiguration keywords triggering pre-defined functions
 ## if hasattr(runArgs,"autoConfiguration"):
 ##     for key in runArgs.autoConfiguration:
