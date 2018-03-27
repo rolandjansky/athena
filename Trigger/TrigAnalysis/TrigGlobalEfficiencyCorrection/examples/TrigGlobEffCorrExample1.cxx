@@ -264,8 +264,8 @@ int main(int argc, char* argv[])
 
         /// Finally retrieve the global trigger scale factor
         double sf = 1.;
-        auto cc = myTool->getEfficiencyScaleFactor(runNumber,
-                myTriggeringElectrons, myTriggeringMuons, sf);
+        auto cc = myTool->getEfficiencyScaleFactor(myTriggeringElectrons,
+            myTriggeringMuons, sf);
         if(cc==CP::CorrectionCode::Ok)
         {
             nSuitableEvents += 1;
