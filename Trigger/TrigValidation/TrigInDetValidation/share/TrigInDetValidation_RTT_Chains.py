@@ -25,6 +25,7 @@ def muonChains(doIDNewTracking, doFTK):
   if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
   
+
   idTrigChainlist.append(['mu24_idperf',  'L1_MU20', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
   idTrigChainlist.append(['mu6_idperf',   'L1_MU6', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
   tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_FTF')
@@ -158,6 +159,8 @@ def beamspotChains(doIDNewTracking, doFTK):
     'HLT_beamspot_allTE_FTKRefit:InDetTrigTrackingxAODCnv_BeamSpot_FTKRefit',
     'HLT_beamspot_idperf_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTKMon',
     'HLT_beamspot_idperf_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTF',
+    ':FTKRefit_TrackParticleContainer',
+    ':FTK_TrackParticleContainer',
     ]
   return (idTrigChainlist, tidaAnalysischains)
 
