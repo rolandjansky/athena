@@ -20,6 +20,16 @@ GeneralTauPlots::GeneralTauPlots(PlotBase* pParent, std::string sDir, std::strin
    m_pt_jetBDTlooseHighPt(nullptr),
    m_pt_jetBDTmedHighPt(nullptr),
    m_pt_jetBDTtightHighPt(nullptr),
+   m_RNNScore(nullptr),
+   m_RNNScoreSigTrans(nullptr),
+   m_ptRNNVeryLoose(nullptr),
+   m_ptRNNLoose(nullptr),
+   m_ptRNNMedium(nullptr),
+   m_ptRNNTight(nullptr),
+   m_ptRNNVeryLooseHighPt(nullptr),
+   m_ptRNNLooseHighPt(nullptr),
+   m_ptRNNMediumHighPt(nullptr),
+   m_ptRNNTightHighPt(nullptr),
    m_sTauJetContainerName(sTauJetContainerName)
 {	
 }
@@ -41,6 +51,35 @@ void GeneralTauPlots::initializePlots(){
    m_pt_jetBDTlooseHighPt = Book1D("Pt_jetBDTlooseHighPt",m_sTauJetContainerName + " Loose tau pt; pt; # Taus", 20, 0.0, 1500.0);
    m_pt_jetBDTmedHighPt   = Book1D("Pt_jetBDTmedHighPt",m_sTauJetContainerName + " Medium tau pt; pt; # Taus", 20, 0.0, 1500.0);
    m_pt_jetBDTtightHighPt = Book1D("Pt_jetBDTtigthHighPt",m_sTauJetContainerName + " Tight tau pt; pt; # Taus", 20, 0.0, 1500.0);
+
+   m_RNNScore = Book1D("RNNJetScore", m_sTauJetContainerName
+		       +" RNNJetScore;RNNJetScore;# Tau", 10, 1.01, 1.01);
+   m_RNNScoreSigTrans = Book1D("RNNJetScoreSigTrans", m_sTauJetContainerName
+			       +" RNNJetScoreSigTrans;RNNJetScoreSigTrans;"
+			       +"# Tau", 10, 1.01, 1.01);
+   m_ptRNNVeryLoose = Book1D("ptRNNSigVeryLoose",m_sTauJetContainerName
+			     +" RNNSigVeryLoose; pt; # Taus",
+			     20, 0.0, 150.0);
+   m_ptRNNVeryLooseHighPt = Book1D("ptRNNSigVeryLooseHighPt",
+				   m_sTauJetContainerName
+				   +" RNNSigVeryLooseHighPt"+"; pt; # Taus",
+				   20, 0.0, 1500.0);
+   m_ptRNNLoose = Book1D("ptRNNSigLoose",m_sTauJetContainerName
+			 +" RNNSigLoose; pt; # Taus", 20, 0.0, 150.0);
+   m_ptRNNLooseHighPt = Book1D("ptRNNSigLooseHighPt", m_sTauJetContainerName
+			       +" RNNSigLooseHighPt; pt"+"; # Taus",
+			       20, 0.0, 1500.0);
+   m_ptRNNMedium = Book1D("ptRNNSigMedium",m_sTauJetContainerName
+			  +" RNNSigMedium; pt; # Taus", 20, 0.0, 150.0);
+   m_ptRNNMediumHighPt = Book1D("ptRNNSigMediumHighPt", m_sTauJetContainerName
+				+" RNNSigMediumHighPt; pt"+"; # Taus",
+				20, 0.0, 1500.0);
+   m_ptRNNTight = Book1D("ptRNNSigTight",m_sTauJetContainerName
+			 +" RNNSigTight; pt; # Taus", 20, 0.0, 150.0);
+   m_ptRNNTightHighPt = Book1D("ptRNNSigTightHighPt", m_sTauJetContainerName
+			       +" RNNSigTightHighPt; pt"+"; # Taus",
+			       20, 0.0, 1500.0);
+
 }
 
 void GeneralTauPlots::fill(const xAOD::TauJet& tau) {
@@ -48,6 +87,7 @@ void GeneralTauPlots::fill(const xAOD::TauJet& tau) {
   m_tauCharge->Fill(tau.charge(), 1.); 
   m_tauNCoreTracks->Fill(tau.nTracks(), 1.);
   //  m_tauNWideTracks->Fill(tau.nWideTracks(), 1.);
+  // BDT
   m_tauNWideTracks->Fill(tau.nTracks(xAOD::TauJetParameters::classifiedIsolation), 1.); // 
   if( tau.hasDiscriminant(xAOD::TauJetParameters::BDTJetScore) )m_id_BDTJetScore->Fill(tau.discriminant(xAOD::TauJetParameters::BDTJetScore));
   if ( tau.isTau(xAOD::TauJetParameters::JetBDTSigLoose) ) {
@@ -61,6 +101,32 @@ void GeneralTauPlots::fill(const xAOD::TauJet& tau) {
   if ( tau.isTau(xAOD::TauJetParameters::JetBDTSigTight) ) {
      m_pt_jetBDTtight       -> Fill(tau.pt()/1000, 1.0);
      m_pt_jetBDTtightHighPt -> Fill(tau.pt()/1000, 1.0);
+  }
+
+  // RNN
+  if ( tau.hasDiscriminant(xAOD::TauJetParameters::RNNJetScore) ) {
+     float rnnScore = tau.discriminant(xAOD::TauJetParameters::RNNJetScore);
+     if ( rnnScore > -2.0 ) m_RNNScore->Fill(rnnScore);
+  }
+  if ( tau.hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) ) {
+     float rnnScore = tau.discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);
+     if ( rnnScore > -2.0 ) m_RNNScoreSigTrans->Fill(rnnScore);
+  }
+  if ( tau.isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose) ) {
+     m_ptRNNVeryLoose      ->Fill(tau.pt()/1000, 1.0);
+     m_ptRNNVeryLooseHighPt->Fill(tau.pt()/1000, 1.0);
+  }
+  if ( tau.isTau(xAOD::TauJetParameters::JetRNNSigLoose) ) {
+     m_ptRNNLoose      ->Fill(tau.pt()/1000, 1.0);
+     m_ptRNNLooseHighPt->Fill(tau.pt()/1000, 1.0);
+  }
+  if ( tau.isTau(xAOD::TauJetParameters::JetRNNSigMedium) ) {
+     m_ptRNNMedium      ->Fill(tau.pt()/1000, 1.0);
+     m_ptRNNMediumHighPt->Fill(tau.pt()/1000, 1.0);
+  }
+  if ( tau.isTau(xAOD::TauJetParameters::JetRNNSigTight) ) {
+     m_ptRNNTight      ->Fill(tau.pt()/1000, 1.0);
+     m_ptRNNTightHighPt->Fill(tau.pt()/1000, 1.0);
   }
 
 }
