@@ -70,5 +70,5 @@ std::vector<std::pair<size_t,std::vector<bool> > > towersPerFile;
 void Init();
 void Process(unsigned int ientry);
 void Terminate();
-void printinfo(float towers[MAXTOWER], TString text);
+void printinfo(float towers[MAXTOWER], TString quantity_name, TString board, float HW_limit);
 void AddBreak(int n = 1);

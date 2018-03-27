@@ -10,6 +10,7 @@
 #include <TFile.h>
 
 int SIGDIGITS=2;
+int SIGDIGITS_ERR=1;
 
 int main(int argc, char **argv) {
   events = -1;
@@ -92,7 +93,7 @@ int main(int argc, char **argv) {
                       // disable this tower
                       if(processed[itower]>=nloop) {
                          activeTower[itower]=false;
-			 processedTower.at(itower)=true;
+			                   processedTower.at(itower)=true;
                       }
                    }
                 }
@@ -143,19 +144,19 @@ void Init() {
   myfileTeX.open (outputTeX);
   std::cout.precision (1) ;
 
-  myfileTeX << "\\documentclass[12pt]{article}" << std::endl;
-  myfileTeX << "\\usepackage[margin=1in]{geometry}" << std::endl;
+  myfileTeX << "\\documentclass[11pt]{article}" << std::endl;
+  myfileTeX << "\\usepackage[margin=0.5in]{geometry}" << std::endl;
   myfileTeX << "\\usepackage{graphicx}" << std::endl;
   myfileTeX << "\\usepackage{multirow}" << std::endl;
   myfileTeX << "\\usepackage{multicol}" << std::endl;
   myfileTeX << "\\begin{document}" << std::endl;
   myfileTeX << "\\begin{table}" << std::endl;
   myfileTeX << "\\centering" << std::endl;
-  myfileTeX << "\\begin{tabular}{|c|c|c|c|c|}" << std::endl;
+  myfileTeX << "\\begin{tabular}{|c|c|c|c|c|c|c|}" << std::endl;
   myfileTeX << "\\hline" << std::endl;
-  myfileTeX << "& \\multicolumn{2}{|c|}{Barrel} & \\multicolumn{2}{|c|}{Endcap} \\\\" << std::endl;
+  myfileTeX << "& Board & \\multicolumn{2}{|c|}{Barrel} & \\multicolumn{2}{|c|}{Endcap} & Hardware Limits \\\\" << std::endl;
   myfileTeX << "\\hline" << std::endl;
-  myfileTeX << "& Average & Max Tower & Average & Max Tower\\\\ " << std::endl;
+  myfileTeX << "& & Average & Max Tower & Average & Max Tower & \\\\ " << std::endl;
   myfileTeX << "\\hline" << std::endl;
 
   myfile << description << endl;
@@ -367,7 +368,7 @@ void Process(unsigned int ientry) {
       for (int il = 0; il < 8; il++) {
          nCluster[il][itower] += stream[itower]->naoGetNclus(il)*divide;
          nCluster_road[il][itower] += stream[itower]->naoGetNclus_road(il)*divide;
-         //SSID[il][itower] += stream[itower]->naoGetNss(il)*divide;
+         nSSID[il][itower] += stream[itower]->naoGetNss(il)*divide;
       }
    ADD_TO_HIST( stream[itower]->naoGetNclus(0),"nCluster0");
    ADD_TO_HIST( stream[itower]->naoGetNclus(1),"nCluster1");
@@ -404,8 +405,8 @@ void Process(unsigned int ientry) {
 }
 
 void Terminate() {
-  myfile << "Type\t\tbarrelmean\t\tbarrelmax\t\tendcapmean\t\tendcapmax" << endl;
-  myfile << "--------------" << endl;
+  myfile << "Type\t\tBoard\t\tBarrel Mean\t\tBarrel Max\t\tEndcap Mean\t\tEndcap Max\t\tHardware Limits" << endl;
+  myfile << "------------------------------------------" << endl;
   // kludge, can do this better but works for now
   float temp[MAXTOWER], temp2[MAXTOWER], temp3[MAXTOWER];
   for (int i = 0; i < 8; i++) {
@@ -414,34 +415,38 @@ void Terminate() {
       temp3[j] = nCluster_road[i][j];
       temp2[j] = nSSID[i][j];
     }
-    printinfo (temp, Form("NClusterL%d",i));
-    printinfo (temp3, Form("NCluster(road)L%d",i));
-    printinfo (temp2, Form("NSSIDL%d",i));
+    printinfo (temp, Form("NClusterL%d",i), "", 0);
+    // printinfo (temp3, Form("NCluster(road)L%d",i));
+    printinfo (temp2, Form("NSSIDL%d",i), "", 0);
   }
   AddBreak();
-  printinfo (nRoad, "NRoads");
+  printinfo (nRoad, "NRoads", "AUX", 4000);
+  printinfo (nFitI, "NFitAux (8/8)", "AUX", 90000);
+  printinfo (nFitRecoveryI, "NFitAux Recovery", "AUX", 700000);
+  printinfo (nTrackI, "NTrackAux", "AUX", 15000);
+  printinfo (nFitMajorityI, "NFitAux Majority", "AUX", 530000);
+  printinfo (nFitMajoritySCTI, "NFitAux Majority missing SCT", "AUX", 175000);
+  printinfo (nFitMajorityPixI, "NFitAux Majority missing Pix", "AUX", 350000);
   AddBreak();
-  printinfo (nFitI, "NFitAux (8/8 + 7/8)");
-  printinfo (nFitRecoveryI, "NFitAux Recovery");
-  printinfo (nTrackI, "NTrackAux");
-  AddBreak();
-  printinfo (nFitMajorityI, "NFitAux Majority");
-  printinfo (nFitMajoritySCTI, "NFitAux Majority missing SCT");
-  printinfo (nFitMajorityPixI, "NFitAux Majority missing Pix");
-  AddBreak();
-  printinfo (nFit, "NFitSSB (12/12 + Recovery)");
-  printinfo (nFitRecovery, "NFitSSB Recovery");
-  printinfo (nTrack, "NTrackSSB");
-  printinfo (nTrackBeforeHW, "NTrackSSB Before HW");
-  printinfo (nConn, "N Total Connections");
-  printinfo (nExtrapAUX, "N successful extrapolated AUX tracks");
-  AddBreak();
-  printinfo (nFitMajority, "NFitSSB Majority");
-  printinfo (nFitMajoritySCT, "NFitSSB Majority missing SCT");
-  printinfo (nFitMajorityPix, "NFitSSB Majority missing Pix");
+  printinfo (nFit, "NFitSSB Nominal", "SSB", 250);
+  printinfo (nFitRecovery, "NFitSSB Recovery", "SSB", 1000);
+  printinfo (nTrackBeforeHW, "NTrackSSB Before Hit Warrior", "SSB", 120);
+  printinfo (nTrack, "NTrackSSB After Hit Warrior", "SSB", 9);
+  printinfo (nConn, "N Total Connections", "SSB", 500);
+  printinfo (nExtrapAUX, "N successful extrapolated AUX tracks", "SSB", 250);
+  printinfo (nFitMajority, "NFitSSB Majority", "SSB", 500);
+  printinfo (nFitMajoritySCT, "NFitSSB Majority missing SCT", "SSB", 250);
+  printinfo (nFitMajorityPix, "NFitSSB Majority missing Pix", "SSB", 250);
+
+  myfileTeX << "\\hline" << std::endl;
+  myfileTeX << "\\end{tabular} " << std::endl;
+  myfileTeX << "\\caption{Data flow for " << nloop << " events, using " << ntower << " towers. " << description << "} " << std::endl;
+  myfileTeX << "\\end{table}" << std::endl;
+  myfileTeX << "\\end{document}" << std::endl;
+  myfileTeX.close();
 
   for (int itower = 0; itower < ntower; itower++) {
-     if(!processedTower[itower]) continue;
+     // if(!processedTower[itower]) continue; // This line causes the crash of the program.
      int first_decile_nRoad=0;
      int last_decile_nRoad=0;
      int first_decile_pos_nRoad=nRoad_tow_evt[itower].size()/10;
@@ -474,12 +479,12 @@ void Terminate() {
                     nFitI_tow_evt[itower].end());
         last_decile_nFitI=(*nth);
      }
-     AddBreak();
-     AddBreak();
+     AddBreak(2);
+
      myfile << " nRoad first decile position is " << first_decile_pos_nRoad
             << " for a value of " << first_decile_nRoad << endl;
 
-     myfile << "nRoad  last decile position is " << last_decile_pos_nRoad
+     myfile << " nRoad last decile position is " << last_decile_pos_nRoad
             << " for a value of " << last_decile_nRoad << endl;  
     
      myfile << " nFitI first decile position is " << first_decile_pos_nFitI
@@ -498,13 +503,6 @@ void Terminate() {
    //myfile << " first decile position is cool " << endl;
 
   myfile.close();
-
-  myfileTeX << "\\hline" << std::endl;
-  myfileTeX << "\\end{tabular} " << std::endl;
-  myfileTeX << "\\caption{Data flow for " << nloop << " events, using " << ntower << " towers. " << description << "} " << std::endl;
-  myfileTeX << "\\end{table}" << std::endl;
-  myfileTeX << "\\end{document}" << std::endl;
-  myfileTeX.close();
    
   outputHistFirstDecile->GetYaxis()->SetBinLabel(1,"nRoad");
   outputHistLastDecile->GetYaxis()->SetBinLabel(1,"nRoad");
@@ -530,12 +528,14 @@ double roundTo(double x,int precision) {
    return x;
 }
 
-void printinfo(float towers[MAXTOWER], TString text) {
+void printinfo(float towers[MAXTOWER], TString quantity_name, TString board, float HW_limit) {
 
    int barrelN=0,endcapN=0;
-  float barrelmean(0), endcapmean(0), barrelmax(0), endcapmax(0);
+  float barrelmean(0), endcapmean(0), barrelmax(0), endcapmax(0), hw_limit(HW_limit);
+  float barrelmean_err(0), endcapmean_err(0), barrelmax_err(0), endcapmax_err(0);
+
   for (int i = 0; i<ntower; i++) {
-     if(!processedTower[i]) continue;
+     // if(!processedTower[i]) continue; // This line causes the crash of the program.
     if (i < (ntower/4) || i >= 3*(ntower/4.)) { // kludge not always (?) guaranteed to work
       if (towers[i] > endcapmax) endcapmax = towers[i];
       endcapmean += towers[i];
@@ -550,13 +550,41 @@ void printinfo(float towers[MAXTOWER], TString text) {
   if(barrelN) barrelmean/=  barrelN;
   if(endcapN) endcapmean /=  endcapN;
 
+  barrelmean_err = sqrt(barrelmean/nloop);
+  barrelmax_err = sqrt(barrelmax/nloop);
+  endcapmean_err = sqrt(endcapmean/nloop);
+  endcapmax_err = sqrt(endcapmax/nloop);
+
   barrelmean = roundTo(barrelmean,SIGDIGITS);
   barrelmax = roundTo(barrelmax,SIGDIGITS);
   endcapmean = roundTo(endcapmean,SIGDIGITS);
   endcapmax = roundTo(endcapmax,SIGDIGITS);
 
-  myfile << text << "\t\t" << barrelmean << "\t\t" << barrelmax << "\t\t" << endcapmean << "\t\t" << endcapmax << endl;
-  myfileTeX << text << "&" << barrelmean << "&" << barrelmax << "&" << endcapmean << "&" << endcapmax << " \\\\" << endl;
+  barrelmean_err = roundTo(barrelmean_err,SIGDIGITS_ERR);
+  barrelmax_err = roundTo(barrelmax_err,SIGDIGITS_ERR);
+  endcapmean_err = roundTo(endcapmean_err,SIGDIGITS_ERR);
+  endcapmax_err = roundTo(endcapmax_err,SIGDIGITS_ERR);
+
+  myfile << quantity_name << "\t\t" << board << "\t\t";
+  myfile << barrelmean << "±" << barrelmean_err << "\t\t";
+  myfile << barrelmax << "±" << barrelmax_err << "\t\t";
+  myfile << endcapmean << "±" << endcapmean_err << "\t\t";
+  myfile << endcapmax << "±" << endcapmax_err << "\t\t";
+
+  myfileTeX << quantity_name << "&" << board << "&";
+  myfileTeX << barrelmean << "$\\pm$" << barrelmean_err << "&";
+  myfileTeX << barrelmax << "$\\pm$" << barrelmax_err << "&";
+  myfileTeX << endcapmean << "$\\pm$" << endcapmean_err << "&";
+  myfileTeX << endcapmax << "$\\pm$" << endcapmax_err << "&";
+
+  if (HW_limit == 0) {
+  	myfile << endl;
+  	myfileTeX << " \\\\" << endl;
+  }
+  else {
+  	myfile << hw_limit << endl;
+  	myfileTeX << hw_limit << " \\\\" << endl;
+  }
 }
 
 void AddBreak(int n) {
