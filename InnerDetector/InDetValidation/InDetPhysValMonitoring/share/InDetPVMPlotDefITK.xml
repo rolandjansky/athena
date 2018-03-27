@@ -13,6 +13,9 @@
 <!ENTITY ETASctECMin "1.0">
 <!-- term used for innermost pixel barrel layer in histogram text -->
 <!ENTITY L0PixBarr "Pix. Barr. layer0">
+<!-- pile-up dependence plots -->
+<!ENTITY NmuBINS "26">
+<!ENTITY muHIGH "260">
 <!-- histogram definitions common to Run2 and ITk -->
 <!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
 ]>
@@ -21,5 +24,133 @@
   <!-- Plots common to Run2 and ITK -->
   &Common;
   <!-- ITK-specific plots -->
+  <!--
+      =======================================================
+      efficiency vs mu plots [InDetPerfPlot_Eff]:
+      =======================================================
+  -->
+  <h id="eff_vs_mu" type="TEfficiency" title="efficiency vs #mu (|#eta| &lt; 2.7)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Efficiency" lo="0.0" hi="1.2"/>
+  </h>
+  <h id="eff_vs_mu2" type="TEfficiency" title="efficiency vs #mu (2.7 &gt; |#eta| &lt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Efficiency" lo="0.0" hi="1.2"/>
+  </h>
+  <h id="eff_vs_mu3" type="TEfficiency" title="efficiency vs #mu (|#eta| &gt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Efficiency" lo="0.0" hi="1.2"/>
+  </h>
+  <h id="eff_vs_muTotal" type="TEfficiency" title="efficiency vs #mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Efficiency" lo="0.0" hi="1.2"/>
+  </h>  
+  <!--
+      =======================================================
+      end of efficiency vs mu plots [InDetPerfPlot_Eff]
+      =======================================================
+  -->  
+  <h id="mu" type="TH1F" title="#mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Entries"/>
+  </h>
+  <!--
+      =======================================================
+      differential inclusive track rates 
+      (n_selected_reco_tracks/n_selected_truth_tracks):
+      =======================================================
+  -->
+  <!-- vs pt -->
+  <h id="nRecTrk_vs_eta_pt1" type="TH1F" title="# reco tracks vs #eta (p_{T} &gt; 1 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_eta_pt2" type="TH1F" title="# reco tracks vs #eta (p_{T} &gt; 2 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_eta_pt5" type="TH1F" title="# reco tracks vs #eta (p_{T} &gt; 5 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_eta_pt1" type="TH1F" title="# truth tracks vs #eta (p_{T} &gt; 1 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_eta_pt2" type="TH1F" title="# truth tracks vs #eta (p_{T} &gt; 2 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_eta_pt5" type="TH1F" title="# truth tracks vs #eta (p_{T} &gt; 5 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="incTrkRate_vs_eta_pt1" type="TH1F" title="Inclusive track rate vs #eta (p_{T} &gt; 1 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_eta_pt2" type="TH1F" title="Inclusive track rate vs #eta (p_{T} &gt; 2 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_eta_pt5" type="TH1F" title="Inclusive track rate vs #eta (p_{T} &gt; 5 GeV)">
+    <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+    <y title="reco/truth"/>
+  </h>
+  <!-- vs mu -->
+  <h id="nRecTrk_vs_mu_etalt2p7" type="TH1F" title="# reco tracks vs #mu (|#eta| &lt; 2.7)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_mu_etagt2p7_lt3p5" type="TH1F" title="# reco tracks vs #mu (2.7 &gt; |#eta| &lt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_mu_etagt3p5" type="TH1F" title="# reco tracks vs #mu (|#eta| &gt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nRecTrk_vs_mu_etaTotal" type="TH1F" title="# reco tracks vs #mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_mu_etalt2p7" type="TH1F" title="# truth tracks vs #mu (|#eta| &lt; 2.7)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_mu_etagt2p7_lt3p5" type="TH1F" title="# truth tracks vs #mu (2.7 &gt; |#eta| &lt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_mu_etagt3p5" type="TH1F" title="# truth tracks vs #mu (|#eta| &gt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="nTruthTrk_vs_mu_etaTotal" type="TH1F" title="# truth tracks vs #mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="Entries"/>
+  </h>
+  <h id="incTrkRate_vs_mu_etalt2p7" type="TH1F" title="inclusive track rate vs #mu (|#eta| &lt; 2.7)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_mu_etagt2p7_lt3p5" type="TH1F" title="inclusive track rate vs #mu (2.7 &gt; |#eta| &lt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_mu_etagt3p5" type="TH1F" title="inclusive track rate vs #mu (|#eta| &gt; 3.5)">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="reco/truth"/>
+  </h>
+  <h id="incTrkRate_vs_mu_etaTotal" type="TH1F" title="inclusive track rate vs #mu">
+    <x title="#mu" n="&NmuBINS;" lo="0.0" hi="&muHIGH;"/>
+    <y title="reco/truth"/>
+  </h>
+  <!--
+      =======================================================
+      end differential inclusive track rates
+      =======================================================
+  -->
+  
 </hdef>
 
