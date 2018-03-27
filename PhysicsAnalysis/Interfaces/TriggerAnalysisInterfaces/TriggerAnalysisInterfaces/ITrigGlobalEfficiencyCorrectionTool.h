@@ -11,6 +11,7 @@
 #include "PATInterfaces/CorrectionCode.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODMuon/Muon.h"
+#include "xAODEgamma/PhotonFwd.h"
 
 #include <vector>
 #include <map>
@@ -33,6 +34,8 @@ public:
 			const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) = 0;
 	virtual CP::CorrectionCode getEfficiency(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons,
 			const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) = 0;
+			
+	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::Photon*>& photons, double& efficiencyScaleFactor) = 0;
 };
 
 #endif //> !TRIGGERANALYSISINTERFACES_ITRIGGLOBALEFFICIENCYCORRECTIONTOOL_H

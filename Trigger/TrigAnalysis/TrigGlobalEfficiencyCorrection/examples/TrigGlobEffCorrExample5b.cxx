@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
         unsigned runNumber = 332720;
         eventInfo->auxdecor<unsigned>("RandomRunNumber") = runNumber;
 
-        vector<const xAOD::IParticle*> myTriggeringPhotons;
+        vector<const xAOD::Photon*> myTriggeringPhotons;
         const xAOD::PhotonContainer* photons = nullptr;
         event.retrieve(photons,"Photons").ignore();
         unsigned n36 = 0;
