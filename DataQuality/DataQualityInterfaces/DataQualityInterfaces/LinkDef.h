@@ -24,4 +24,7 @@
 #pragma link C++ class dqi::HanConfigMetadata+ ;
 #pragma link C++ class dqi::ConditionsSingleton- ;
 
+#Working around some brokenness in tdaq code
+#pragma link C++ class std::map<TString,double>+ ;
+
 #endif
