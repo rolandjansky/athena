@@ -266,7 +266,6 @@ function showBuildFailures(failures,link) {
     my $nicosWWWPage=dirname($testWWWPage);
 
     print HTMLOUT "<p>Last updated $now. Contact: Daniele.Zanzi @ cern.ch</p>\n";
-    print HTMLOUT "<p>Links to previous nightlies not working after ART migration, please move two folders up to find the webpages of all other nightlies</p>\n";
 
 #	my $atn_relno = $atn_rel;
 #	$atn_relno =~ s/rel_//;
