@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __SEMIL_CORR__
-#define __SEMIL_CORR__
+#ifndef SEMILEPTONICCORR_SEMILCORR_H
+#define SEMILEPTONICCORR_SEMILCORR_H
 
 #include "TH2F.h"
 #include "TFile.h"
@@ -29,11 +29,11 @@ public:
   
 private:
   vector<vector<TH1F*> > m_histos; 
-  vector<float> etas;
+  vector<float> m_etas;
 
-  TFile* f;
+  TFile* m_f;
 
-  bool Debug;
+  bool m_Debug;
 
   float getResponse(float pt, float eta, vector<TH1F*> h);  
   float getSemilCorrToIncl(TLorentzVector jet, TLorentzVector mu,
