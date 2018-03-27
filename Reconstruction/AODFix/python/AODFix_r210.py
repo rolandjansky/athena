@@ -49,7 +49,6 @@ class AODFix_r210(AODFix_base):
                 self.egammaStrips_postSystemRec(topSequence)
                 pass
 
-            ###JB
             if "elIso" not in oldMetadataList:
                 self.elIso_postSystemRec(topSequence)
                 pass
