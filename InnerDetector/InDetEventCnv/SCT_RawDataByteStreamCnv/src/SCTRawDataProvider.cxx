@@ -35,7 +35,7 @@ SCTRawDataProvider::SCTRawDataProvider(const std::string& name,
   declareProperty("LVL1IDKey", m_lvl1CollectionKey = std::string{"SCT_LVL1ID"});
   declareProperty("BCIDKey", m_bcidCollectionKey = std::string{"SCT_BCID"});
   declareProperty("ByteStreamErrContainer", m_bsErrContainerKey = std::string{"SCT_ByteStreamErrs"});
-  declareProperty("ByteStreamFracContainer", m_bsFracContainerKey = std::string{"SCT_ByteStreamFractionContainer"});
+  declareProperty("ByteStreamFracContainer", m_bsFracContainerKey = std::string{"SCT_ByteStreamFrac"});
   declareProperty("CablingSvc", m_cabling);
   declareProperty("RDOCacheKey", m_rdoContainerCacheKey);
 }

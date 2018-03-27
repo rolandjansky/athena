@@ -15,7 +15,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRegSelSvc.h" 
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#include "SCT_ConditionsData/SCT_ByteStreamFractionContainer.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -43,8 +43,8 @@ namespace InDet {
   {
     declareInterface<InDet::ITrigRawDataProviderTool>(this);
     declareProperty("RDOKey", m_RDO_Key = "SCT_RDOs_EFID");
-    declareProperty("ByteStreamErrContainer", m_bsErrCont_Key = "SCT_ByteStreamErrs_EFID");
-    declareProperty("ByteStreamFracContainer", m_bsFracCont_Key = "SCT_ByteStreamFractionContainer_EFID");
+    declareProperty("ByteStreamErrContainer", m_bsErrCont_Key = "SCT_ByteStreamErrs");
+    declareProperty("ByteStreamFracContainer", m_bsFracCont_Key = "SCT_ByteStreamFrac");
     declareProperty("RawDataTool", m_rawDataTool);
   }
 
@@ -157,7 +157,7 @@ namespace InDet {
     m_bsFracCont = nullptr;
     if (!m_storeGate->transientContains<SCT_ByteStreamFractionContainer>(m_bsFracCont_Key)) {
       m_bsFracCont = new SCT_ByteStreamFractionContainer();
-      if (m_storeGate->record(m_bsFracCont, m_bsFracCont_Key).isFailure()) {
+      if (m_storeGate->record(m_bsFracCont, m_bsFracCont_Key, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsFracCont_Key);
         return StatusCode::FAILURE;
       }
@@ -173,7 +173,7 @@ namespace InDet {
     m_bsErrCont = nullptr;
     if (!m_storeGate->transientContains<InDetBSErrContainer>(m_bsErrCont_Key)) {
       m_bsErrCont = new InDetBSErrContainer();
-      if (m_storeGate->record(m_bsErrCont, m_bsErrCont_Key).isFailure()) {
+      if (m_storeGate->record(m_bsErrCont, m_bsErrCont_Key, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsErrCont_Key);
         return StatusCode::FAILURE;
       }

@@ -14,7 +14,6 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
 #include "Identifier/IdContext.h" 
 #include "InDetReadoutGeometry/SiDetectorManager.h"
@@ -61,7 +60,6 @@ private:
   ToolHandle<ISCT_RodDecoder> m_offlineDecoder;
   bool m_useOfflineDecoder;
   bool m_useOfflineClustering;
-  ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
   ToolHandle<InDet::ISCT_ClusteringTool> m_clusteringTool;
   SCT_RDO_Container* m_rdoContainer;
   std::string m_rdoContainerName;
