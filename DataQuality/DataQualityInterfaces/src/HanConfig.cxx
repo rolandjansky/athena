@@ -505,7 +505,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	  if( algRefName == "same_name" ) {//sameName alg
 	    algRefName = assessorName;
 	    absAlgRefName += algRefName;
-	    std::string algRefFile( refConfig.GetStringAttribute(thisRefID,"file") );
+	    std::string algRefFile( m_refConfig.GetStringAttribute(thisRefID,"file") );
 	    algRefFile = SplitReference( refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
 
 	    if( algRefFile != "" ) {
