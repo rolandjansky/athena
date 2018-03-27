@@ -7,6 +7,8 @@
 //#include "TrigSteerEvent/Chain.h"
 
 
+
+
 TriggerSummaryAlg::TriggerSummaryAlg( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::AthReentrantAlgorithm( name, pSvcLocator ) {}
@@ -16,7 +18,7 @@ TriggerSummaryAlg::~TriggerSummaryAlg()
 
 StatusCode TriggerSummaryAlg::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+
   // processing of the chains mapping
 
   CHECK(  m_inputDecisionKey.initialize() );
@@ -26,13 +28,13 @@ StatusCode TriggerSummaryAlg::initialize()
 
   CHECK( m_summaryKey.initialize() );
 
+  CHECK( m_outputTools.retrieve() );
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
 {  
-  ATH_MSG_DEBUG ("Executing " << name() << "...");
-
   // that is certain input
   auto l1DecisionHandle = SG::makeHandle(  m_inputDecisionKey, context );
   auto inputHandles( m_finalDecisionKeys.makeHandles() );
@@ -79,6 +81,13 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   
   auto summaryHandle = SG::makeHandle( m_summaryKey, context );
   CHECK( summaryHandle.record( std::move( summaryCont ), std::move( summaryAuxCont ) ) );
+
+
+  for ( auto& tool: m_outputTools ) {
+    CHECK( tool->createOutput() );
+  }
+
+
 
   return StatusCode::SUCCESS;
 }

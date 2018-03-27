@@ -10,6 +10,7 @@
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
+#include "TrigOutputHandling/IHLTOutputTool.h"
 
 /**
  * @class An algorithm reading partial decisions and storing them in an HLTResult
@@ -43,6 +44,7 @@ class TriggerSummaryAlg : public ::AthReentrantAlgorithm {
   typedef short ChainCounter_t;
   std::map<HLT::Identifier, ChainCounter_t> m_chainIdToChainCounter;
   
+  ToolHandleArray<IHLTOutputTool> m_outputTools{ this, "OutputTools", {}, "Set of tools to prepare make HLT output ready for writing out" };
   
 }; 
 
