@@ -13,9 +13,14 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
         configFile = "JES_MC15Prerecommendation_AFII_June2015.config"
         pass
     else :
-        configFile = "JES_MC16Recommendation_28Nov2017.config"
+        configFile = "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config"
         pass
-    calibSeq = "JetArea_Residual_EtaJES_GSC"
+    if dataType == "data" :
+        calibSeq = "JetArea_Residual_EtaJES_GSC_Insitu"
+        pass
+    else :
+        calibSeq = "JetArea_Residual_EtaJES_GSC"
+        pass
 
     alg = createAlgorithm( 'CP::JetCalibrationAlg', 'JetCalibrationAlg' )
     addPrivateTool (alg, "calibrationTool", "JetCalibrationTool")
@@ -32,17 +37,18 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
     sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut"} )
 
 
-    uncertConfigFile = "JES_2016/Moriond2017/JES2016_SR_Scenario1.config"
+    uncertConfigFile = "rel21/Moriond2018/R4_StrongReduction_Scenario1.config"
 
     alg = createAlgorithm( 'CP::JetUncertaintiesAlg', 'JetUncertaintiesAlg' )
     addPrivateTool (alg, "uncertaintiesTool", "JetUncertaintiesTool")
     alg.uncertaintiesTool.JetDefinition = jetCollection
     alg.uncertaintiesTool.ConfigFile = uncertConfigFile
+    alg.uncertaintiesTool.CalibArea = "CalibArea-01"
     if dataType == "afii" :
         alg.uncertaintiesTool.MCType = "AFII"
         pass
     else :
-        alg.uncertaintiesTool.MCType = "MC15"
+        alg.uncertaintiesTool.MCType = "MC16"
         pass
     sequence.append ( {"alg" : alg, "in" : "jets", "out" : "jetsOut",
                        "sys" : "(^JET_RelativeNonClosure.*)|(^JET_GroupedNP.*)|(^JET_EtaIntercalibration.*)"} )
