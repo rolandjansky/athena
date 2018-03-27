@@ -86,7 +86,7 @@ LArDigitMon::LArDigitMon(const std::string& type,
   /**bool use to mask the bad channels*/
   declareProperty("IgnoreBadChannels", m_ignoreKnownBadChannels=false);
   declareProperty("LArBadChannelMask",m_badChannelMask);
-  declareProperty("LArPedestalKey", m_larPedestalKey="Pedestal");
+  declareProperty("LArPedestalKey", m_larPedestalKey="LArPedestal");
   declareProperty("LArDigitContainerKey", m_LArDigitContainerKey = "FREE");
   /**default cut to select events*/
   declareProperty("SigmaCut",               m_SigmaCut=5);
