@@ -35,10 +35,25 @@ public:
   // Get majority
   bool majority() const;
 
+  // Get entries
+  unsigned int entries() const;
+
+  // Get true set
+  std::set<uint32_t> getTrueSet() const;
+
+  // Get false set
+  std::set<uint32_t> getFalseSet() const;
+
+  // Set true set
+  void setTrueSet(const std::set<uint32_t>& trueSet);
+
+  // Set false set
+  void setFalseSet(const std::set<uint32_t>& falseSet);
+
 private:
   // Store RODIDs with true and false separately
-  std::set<uint32_t> m_trueSets;
-  std::set<uint32_t> m_falseSets;
+  std::set<uint32_t> m_trueSet;
+  std::set<uint32_t> m_falseSet;
 
 };
 

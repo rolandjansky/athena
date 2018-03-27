@@ -27,7 +27,7 @@
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#include "SCT_ConditionsData/SCT_ByteStreamFractionContainer.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"

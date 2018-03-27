@@ -25,7 +25,8 @@ using eformat::helper::SourceIdentifier;
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-#include "SCT_ConditionsData/SCT_ByteStreamFractionContainer.h"
+#include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
@@ -34,7 +35,6 @@ SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type,
 					    const IInterface* parent )
   : AthAlgTool(type, name, parent), 
     m_offlineDecoder("SCT_RodDecoder",this), 
-    m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
     m_clusteringTool("InDet::SCT_ClusteringTool/InDetTrigSCT_ClusteringTool") 
 {
   declareInterface< ISCT_ClusterCacheTool>( this );
@@ -42,10 +42,9 @@ SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type,
   declareProperty( "SCT_ROD_Decoder", m_offlineDecoder,"SCT_RodDecoder");
   declareProperty( "UseOfflineDecoder", m_useOfflineDecoder = true);
   declareProperty( "RDO_ContainerName", m_rdoContainerName = "SCT_RDO_Cache");
-  declareProperty( "ByteStreamErrContainer", m_bsErrContainerName = "SCT_ByteStreamErrs_Cache");
-  declareProperty( "ByteStreamFracContainer", m_bsFracContainerName = "SCT_ByteStreamFractionContainer_Cache");
+  declareProperty( "ByteStreamErrContainer", m_bsErrContainerName = "SCT_ByteStreamErrs");
+  declareProperty( "ByteStreamFracContainer", m_bsFracContainerName = "SCT_ByteStreamFracr");
   declareProperty( "UseOfflineClustering", m_useOfflineClustering = true);
-  declareProperty( "SCT_ByteStreamErrorsSvc",m_byteStreamErrSvc );
   declareProperty( "SCT_ClusteringTool", m_clusteringTool,"InDet::SCT_ClusteringTool/InDetTrigSCT_ClusteringTool");
   declareProperty( "DoBS_Conversion", m_doBS = true);
 }
@@ -133,10 +132,6 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
       return StatusCode::FAILURE; 
     } 
 
-    if (m_byteStreamErrSvc.retrieve().isFailure()) {
-	ATH_MSG_ERROR("initialize(): Can't get "<<m_byteStreamErrSvc);
-	return StatusCode::FAILURE; 
-    }
   } else {
     m_offlineDecoder.disable();
   }
@@ -186,7 +181,7 @@ StatusCode SCT_ClusterCacheTool::finalize()
 
 StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& robFrags,
                                                      const std::vector<IdentifierHash>& listOfSCTIds,
-                                                     std::vector<int>& errorVect, bool isFullScan)
+                                                     std::vector<int>& /*errorVect*/, bool isFullScan)
 {
   if(m_timers) 
     {
@@ -235,7 +230,7 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
   if (m_useOfflineDecoder) {
     if (!evtStore()->transientContains<InDetBSErrContainer>(m_bsErrContainerName)) {
       bsErrCont = new InDetBSErrContainer();
-      if (evtStore()->record(bsErrCont, m_bsErrContainerName).isFailure()) {
+      if (evtStore()->record(bsErrCont, m_bsErrContainerName, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsErrContainerName);
         return StatusCode::FAILURE;
       }
@@ -249,7 +244,7 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
     }
     if (!evtStore()->transientContains<SCT_ByteStreamFractionContainer>(m_bsFracContainerName)) {
       bsFracCont = new SCT_ByteStreamFractionContainer();
-      if (evtStore()->record(bsFracCont, m_bsFracContainerName).isFailure()) {
+      if (evtStore()->record(bsFracCont, m_bsFracContainerName, true, true).isFailure()) {
         ATH_MSG_FATAL("Unable to record " << m_bsFracContainerName);
         return StatusCode::FAILURE;
       }
@@ -362,7 +357,6 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 	  else
 	    {
 	      if(m_timers) m_timer[1]->resume();
-	      m_byteStreamErrSvc->resetCounts();
 
 	      StatusCode scRod = StatusCode::SUCCESS;
 	      if(!isFullScan) {
@@ -374,13 +368,6 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 	      if(scRod.isRecoverable())
 		{
 		  n_recov_errors++;
-		  for(int idx=0;idx<SCT_ByteStreamErrors::NUM_ERROR_TYPES;idx++)
-		    {
-		      int n_error = m_byteStreamErrSvc->getNumberOfErrors(idx);
-		      for(int ierror = 0;ierror<n_error;ierror++)
-			errorVect.push_back(idx);
-		    }
-		    
 		}
               else if(scRod.isFailure())
                 {
