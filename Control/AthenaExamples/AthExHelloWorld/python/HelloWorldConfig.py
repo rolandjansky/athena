@@ -3,7 +3,7 @@
 from AthenaCommon.JobProperties import jobproperties
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-def HelloWorldCfg(ConfigFlags=None):
+def HelloWorldCfg():
     result=ComponentAccumulator()
     
     from AthExHelloWorld.AthExHelloWorldConf import HelloAlg

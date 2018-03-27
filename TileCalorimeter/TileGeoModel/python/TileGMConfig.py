@@ -1,10 +1,10 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 
-def TileGMCfg(ConfigFlags):
+def TileGMCfg(configFlags):
     result=ComponentAccumulator()
     
-    result.executeModule(GeoModelCfg,ConfigFlags)
+    result.addConfig(GeoModelCfg,configFlags)
 
     from TileGeoModel.TileGeoModelConf import TileDetectorTool
     result.getService("GeoModelSvc").DetectorTools += [ TileDetectorTool() ]
