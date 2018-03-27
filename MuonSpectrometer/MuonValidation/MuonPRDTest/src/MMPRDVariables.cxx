@@ -16,7 +16,7 @@
 
 StatusCode MMPRDVariables::fillVariables()
 {
-  ATH_MSG_INFO(" do fillNSWMMPRDVariables()");
+  ATH_MSG_DEBUG(" do fillNSWMMPRDVariables()");
 
   CHECK( this->clearVariables() );
 
@@ -25,8 +25,7 @@ StatusCode MMPRDVariables::fillVariables()
 
   if(nsw_MMPrepDataContainer->size()==0) ATH_MSG_WARNING(" MM PRD Container empty ");
 
-  for(auto it : *nsw_MMPrepDataContainer) {
-    const Muon::MMPrepDataCollection* coll = it;
+  for(const Muon::MMPrepDataCollection* coll : *nsw_MMPrepDataContainer) {
     
     for (unsigned int item=0; item<coll->size(); item++) {
       const Muon::MMPrepData* prd = coll->at(item);
@@ -76,7 +75,7 @@ StatusCode MMPRDVariables::fillVariables()
     }
   }
 
-  ATH_MSG_INFO("processed " << m_NSWMM_nPRDs << " MicroMegas PRD's");
+  ATH_MSG_DEBUG("processed " << m_NSWMM_nPRDs << " MicroMegas PRD's");
   return StatusCode::SUCCESS;
 }
 

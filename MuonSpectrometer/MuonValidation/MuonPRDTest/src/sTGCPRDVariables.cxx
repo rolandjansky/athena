@@ -12,7 +12,7 @@
 
 StatusCode sTGCPRDVariables::fillVariables()
 {
-  ATH_MSG_INFO("do fillNSWsTGCPRDVariables()");
+  ATH_MSG_DEBUG("do fillNSWsTGCPRDVariables()");
   CHECK( this->clearVariables() );
 
   const Muon::sTgcPrepDataContainer *nsw_sTgcPrepDataContainer = nullptr; 
@@ -20,8 +20,7 @@ StatusCode sTGCPRDVariables::fillVariables()
 
   if(nsw_sTgcPrepDataContainer->size()==0) ATH_MSG_WARNING(" sTgc PRD Container empty ");
 
-  for(auto it : *nsw_sTgcPrepDataContainer ) {
-    const Muon::sTgcPrepDataCollection* coll = it;
+  for(const Muon::sTgcPrepDataCollection* coll : *nsw_sTgcPrepDataContainer ) {
     
     for (unsigned int item=0; item<coll->size(); item++) {
       const Muon::sTgcPrepData* prd = coll->at(item);
@@ -77,7 +76,7 @@ StatusCode sTGCPRDVariables::fillVariables()
     }
   }
 
-  ATH_MSG_INFO("processed " << m_NSWsTGC_nPRDs << " sTGC PRD's");
+  ATH_MSG_DEBUG("processed " << m_NSWsTGC_nPRDs << " sTGC PRD's");
 
   return StatusCode::SUCCESS;
 }
