@@ -339,7 +339,8 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   }
 
   // Restart the event selector in order to avoid segfault at stop()
-  ATH_CHECK(m_evtSelector->start());
+  // Removing the next line to fix https://its.cern.ch/jira/browse/ATLASG-935: might need to be revisited
+  //ATH_CHECK(m_evtSelector->start());
 
   if(sc.isSuccess())
     return generateOutputReport();

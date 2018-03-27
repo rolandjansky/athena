@@ -23,6 +23,14 @@
 namespace G4UA{
 
   
+  //----------------------------------------------------------------------------
+  // Constructor
+  //----------------------------------------------------------------------------
+  RadiationMapsMaker::RadiationMapsMaker(const Config& config)
+    : m_config(config)
+  {
+  }
+
   //---------------------------------------------------------------------------
   // Merge results
   //---------------------------------------------------------------------------
@@ -75,20 +83,20 @@ namespace G4UA{
 
     // then resize to proper size and initialize with 0's 
 
-    m_maps.m_rz_tid .resize(m_maps.nBinsz*m_maps.nBinsr,0.0);
-    m_maps.m_rz_eion.resize(m_maps.nBinsz*m_maps.nBinsr,0.0);
-    m_maps.m_rz_niel.resize(m_maps.nBinsz*m_maps.nBinsr,0.0);
-    m_maps.m_rz_h20 .resize(m_maps.nBinsz*m_maps.nBinsr,0.0);
+    m_maps.m_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
     
-    m_maps.m_full_rz_tid .resize(m_maps.nBinsz*m_maps.nBinsr,0.0);
-    m_maps.m_full_rz_eion.resize(m_maps.nBinsz*m_maps.nBinsr,0.0);
-    m_maps.m_full_rz_niel.resize(m_maps.nBinsz*m_maps.nBinsr,0.0);
-    m_maps.m_full_rz_h20 .resize(m_maps.nBinsz*m_maps.nBinsr,0.0);
+    m_maps.m_full_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_full_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_full_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_maps.m_full_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
     
-    m_maps.m_3d_tid .resize(m_maps.nBinsz3d*m_maps.nBinsr3d*m_maps.nBinsphi3d,0.0);
-    m_maps.m_3d_eion.resize(m_maps.nBinsz3d*m_maps.nBinsr3d*m_maps.nBinsphi3d,0.0);
-    m_maps.m_3d_niel.resize(m_maps.nBinsz3d*m_maps.nBinsr3d*m_maps.nBinsphi3d,0.0);
-    m_maps.m_3d_h20 .resize(m_maps.nBinsz3d*m_maps.nBinsr3d*m_maps.nBinsphi3d,0.0);
+    m_maps.m_3d_tid .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    m_maps.m_3d_eion.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    m_maps.m_3d_niel.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    m_maps.m_3d_h20 .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
 
     /// data files for NIEL damage factors in Si
     ///
@@ -209,38 +217,38 @@ namespace G4UA{
 	  int vBin3d   = -1;
 
 	  // zoom 2d
-	  if ( m_maps.zMinZoom < absz && 
-	       m_maps.zMaxZoom > absz ) {
-	    int iz = (absz-m_maps.zMinZoom)/(m_maps.zMaxZoom-m_maps.zMinZoom)*m_maps.nBinsz;
-	    if ( m_maps.rMinZoom < rr && 
-		 m_maps.rMaxZoom > rr ) {
-	      int ir = (rr-m_maps.rMinZoom)/(m_maps.rMaxZoom-m_maps.rMinZoom)*m_maps.nBinsr;
-	      vBinZoom = m_maps.nBinsr*iz+ir;
+	  if ( m_config.zMinZoom < absz && 
+	       m_config.zMaxZoom > absz ) {
+	    int iz = (absz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz;
+	    if ( m_config.rMinZoom < rr && 
+		 m_config.rMaxZoom > rr ) {
+	      int ir = (rr-m_config.rMinZoom)/(m_config.rMaxZoom-m_config.rMinZoom)*m_config.nBinsr;
+	      vBinZoom = m_config.nBinsr*iz+ir;
 	    }
 	  }
 
 	  // full 2d
-	  if ( m_maps.zMinFull < absz && 
-	       m_maps.zMaxFull > absz ) {
-	    int iz = (absz-m_maps.zMinFull)/(m_maps.zMaxFull-m_maps.zMinFull)*m_maps.nBinsz;
-	    if ( m_maps.rMinFull < rr && 
-		 m_maps.rMaxFull > rr ) {
-	      int ir = (rr-m_maps.rMinFull)/(m_maps.rMaxFull-m_maps.rMinFull)*m_maps.nBinsr;
-	      vBinFull = m_maps.nBinsr*iz+ir;
+	  if ( m_config.zMinFull < absz && 
+	       m_config.zMaxFull > absz ) {
+	    int iz = (absz-m_config.zMinFull)/(m_config.zMaxFull-m_config.zMinFull)*m_config.nBinsz;
+	    if ( m_config.rMinFull < rr && 
+		 m_config.rMaxFull > rr ) {
+	      int ir = (rr-m_config.rMinFull)/(m_config.rMaxFull-m_config.rMinFull)*m_config.nBinsr;
+	      vBinFull = m_config.nBinsr*iz+ir;
 	    }
 	  }
 
 	  // zoom 3d
-	  if ( m_maps.zMinZoom < absz && 
-	       m_maps.zMaxZoom > absz ) {
-	    int iz = (absz-m_maps.zMinZoom)/(m_maps.zMaxZoom-m_maps.zMinZoom)*m_maps.nBinsz3d;
-	    if ( m_maps.rMinZoom < rr && 
-		 m_maps.rMaxZoom > rr ) {
-	      int ir = (rr-m_maps.rMinZoom)/(m_maps.rMaxZoom-m_maps.rMinZoom)*m_maps.nBinsr3d;
-	      if ( m_maps.phiMinZoom < pphi && 
-		   m_maps.phiMaxZoom > pphi ) {
-	      int iphi = (pphi-m_maps.phiMinZoom)/(m_maps.phiMaxZoom-m_maps.phiMinZoom)*m_maps.nBinsphi3d;
-	      vBin3d = m_maps.nBinsr3d*m_maps.nBinsphi3d*iz+m_maps.nBinsphi3d*ir+iphi;
+	  if ( m_config.zMinZoom < absz && 
+	       m_config.zMaxZoom > absz ) {
+	    int iz = (absz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz3d;
+	    if ( m_config.rMinZoom < rr && 
+		 m_config.rMaxZoom > rr ) {
+	      int ir = (rr-m_config.rMinZoom)/(m_config.rMaxZoom-m_config.rMinZoom)*m_config.nBinsr3d;
+	      if ( m_config.phiMinZoom < pphi && 
+		   m_config.phiMaxZoom > pphi ) {
+	      int iphi = (pphi-m_config.phiMinZoom)/(m_config.phiMaxZoom-m_config.phiMinZoom)*m_config.nBinsphi3d;
+	      vBin3d = m_config.nBinsr3d*m_config.nBinsphi3d*iz+m_config.nBinsphi3d*ir+iphi;
 	      }
 	    }
 	  }

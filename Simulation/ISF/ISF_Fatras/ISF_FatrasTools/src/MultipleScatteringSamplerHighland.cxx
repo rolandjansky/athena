@@ -25,7 +25,7 @@ double iFatras::MultipleScatteringSamplerHighland::s_log_RossiGreisen  =  0.125;
 
 double iFatras::MultipleScatteringSamplerHighland::s_projectionFactor  =  sqrt(2.);
 
-Trk::MaterialInteraction       m_matInt;
+Trk::MaterialInteraction       matInt;
 
 // constructor
 iFatras::MultipleScatteringSamplerHighland::MultipleScatteringSamplerHighland(const std::string& t, const std::string& n, const IInterface* p) :
@@ -99,7 +99,7 @@ double iFatras::MultipleScatteringSamplerHighland::simTheta(const Trk::MaterialP
   
   double sigma2(0.);
   
-  double sigma = m_matInt.sigmaMS(t, p, beta);
+  double sigma = matInt.sigmaMS(t, p, beta);
   sigma2 = sigma*sigma;
   
   // Code below will not be used if the parameterization of TrkUtils is used 

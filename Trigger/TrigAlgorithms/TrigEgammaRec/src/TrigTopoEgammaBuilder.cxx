@@ -60,6 +60,9 @@ PURPOSE:  Modification of TrigEgammaRec to make use of superclusters at HLT
 #include "xAODEventShape/EventShape.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 
+#include "AthContainers/ConstDataVector.h"
+#include "xAODCore/ShallowCopy.h"
+
 #include "egammaEvent/egammaParamDefs.h"
 #include "xAODPrimitives/IsolationFlavour.h"
 #include "xAODPrimitives/IsolationConeSize.h"
@@ -91,6 +94,22 @@ namespace {
             return (DEST**)(ptr);
         }
 }
+
+/**
+ * @brief Evaluate an expression and check for errors,
+ *        with an explicitly specified context name.
+ * @param EXP The expression to evaluate.
+ * @param CONTEXT_NAME The name of the current context.
+ *
+ * This macro will evaluate @c EXP, which should return a @c StatusCode.
+ * If the status is not successful, then an HLT::ERROR is returned.
+ */
+#define TRIG_CHECK_SC(EXP) do {  \
+    StatusCode sc__ = (EXP);     \
+    if (! sc__.isSuccess())      \
+     return HLT::ERROR;          \
+  } while (0)
+
 /////////////////////////////////////////////////////////////////
 
 //  CONSTRUCTOR:
@@ -360,6 +379,45 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltInitialize() {
     }
     
     
+    // TopoClusterCopierTool
+    if (m_topoclustercopier.empty()) {
+        ATH_MSG_ERROR("TopoClusterCopierTool is empty");
+        return HLT::BAD_JOB_SETUP;
+    }
+
+    if((m_topoclustercopier.retrieve()).isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve "<<m_topoclustercopier);
+        return HLT::BAD_JOB_SETUP;
+    } else {
+        ATH_MSG_DEBUG("Retrieved Tool "<<m_topoclustercopier);
+    }
+
+    // ElectronSuperClusterBuilderTool
+    if (m_electronSCBuilder.empty()) {
+        ATH_MSG_ERROR("ElectronSuperClusterBuilderTool is empty");
+        return HLT::BAD_JOB_SETUP;
+    }
+
+    if((m_electronSCBuilder.retrieve()).isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve "<<m_electronSCBuilder);
+        return HLT::BAD_JOB_SETUP;
+    } else {
+        ATH_MSG_DEBUG("Retrieved Tool "<<m_electronSCBuilder);
+    }
+
+    // PhotonSuperClusterBuilderTool
+    if (m_photonSCBuilder.empty()) {
+        ATH_MSG_ERROR("PhotonSuperClusterBuilderTool is empty");
+        return HLT::BAD_JOB_SETUP;
+    }
+
+    if((m_photonSCBuilder.retrieve()).isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve "<<m_photonSCBuilder);
+        return HLT::BAD_JOB_SETUP;
+    } else {
+        ATH_MSG_DEBUG("Retrieved Tool "<<m_photonSCBuilder);
+    }
+
 
     /** @brief Retrieve EMPIDBuilders */ 
     if (m_electronPIDBuilder.empty()) {
@@ -835,12 +893,51 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     }
 
     /////////////////////////////////////////////////////////////////////////////
-    // Following offline egammaRec code
+    // Following offline code
 
-    // loop over clusters. 
+    //--------------------------------
+    //Create a shallow copy, the elements of this can be modified,
+    //but no need to recreate the cluster
+
+    ATH_MSG_DEBUG( "clusContainer: ownPolicy = " << clusContainer->ownPolicy() );
+    ATH_MSG_DEBUG( "clusContainer: getStore = " << clusContainer->getStore() << ", getConstStore = " << clusContainer->getConstStore() );
+    ATH_MSG_DEBUG( "clusContainer: hasStore = " << clusContainer->hasStore() << ", hasNonConstStore = " << clusContainer->hasNonConstStore() );
+
+    xAOD::CaloClusterContainer clusContainer_tmp;
+    xAOD::CaloClusterAuxContainer clusContainer_tmpAux;
+    clusContainer_tmp.setStore(&clusContainer_tmpAux);
+
+    ATH_MSG_DEBUG( "before copy clusters" );
+
+    xAOD::CaloClusterContainer::const_iterator cciter = clusContainer->begin();
+    xAOD::CaloClusterContainer::const_iterator ccend  = clusContainer->end();
+    for (; cciter != ccend; ++cciter) {
+        ATH_MSG_DEBUG("->CHECKING Cluster at eta,phi,et " << (*cciter)->eta() << " , "<< (*cciter)->phi() << " , " << (*cciter)->et());
+        clusContainer_tmp.push_back( new xAOD::CaloCluster( **cciter ) );
+    }
+
+    ATH_MSG_DEBUG( "before xAOD::shallowCopyContainer" );
+
+    std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer( clusContainer_tmp );
+
+    //Here it just needs to be a view copy ,
+    //i.e the collection we create does not really
+    //own its elements
+    ConstDataVector<xAOD::CaloClusterContainer>* viewCopy =  new ConstDataVector <xAOD::CaloClusterContainer> (SG::VIEW_ELEMENTS );
+
+    ATH_MSG_DEBUG( "before topoclustercopier" );
+
+    //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
+    TRIG_CHECK_SC(m_topoclustercopier->hltExecute(inputShallowcopy, viewCopy));
+
+    //Then retrieve them
+    const xAOD::CaloClusterContainer *clusters_copy = viewCopy->asDataVector();
+    //--------------------------------
+
+    // loop over clusters.
     // Add egammaRec into container
     // then do next steps
-    for( unsigned int i = 0; i<clusContainer->size(); i++){
+    for( unsigned int i = 0; i<clusters_copy->size(); i++){
         // create a new egamma object + corresponding egDetail container
         const ElementLink< xAOD::CaloClusterContainer > clusterLink( *clusContainer, i );
         const std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink}; 
@@ -906,158 +1003,152 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     } else{
         ATH_MSG_DEBUG(" REGTEST: Got VertexLinks from TE");
     }
-    for(const auto& egRec : *m_eg_container){
-        // For now set author as Electron
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Create SuperClusters
+  ////////////////////////////////////////////////
+  //Now all info should be added  the initial topoClusters build SuperClusters
+  //Electron superclusters Builder
+
+  // prepare output objects for SuperCluster Builder
+    //Create new EgammaRecContainer
+    EgammaRecContainer *electronSuperRecs = new EgammaRecContainer();
+
+    // Electrons
+    xAOD::CaloClusterContainer* electron_CSCContainer = new xAOD::CaloClusterContainer();
+    xAOD::CaloClusterAuxContainer electron_CSCAux;
+    electron_CSCContainer->setStore(&electron_CSCAux);
+
+    TRIG_CHECK_SC(m_electronSCBuilder->hltExecute(m_eg_container,
+                                                            electronSuperRecs,
+                                                            electron_CSCContainer));
+
+
+  //Track Match the final electron SuperClusters
+    ATH_MSG_DEBUG("Size of electronSuperClusterRecContainer: " << electronSuperRecs->size());
+
+    if (m_doTrackMatching){
+      for (auto egRec : *electronSuperRecs) {
+        if (m_trackMatchBuilder->trackExecute(egRec, pTrackParticleContainer).isFailure()){
+          ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
+          return HLT::ERROR;
+        }
+      }
+    }
+
+
+  //Photon superclusters Builder
+  // prepare output objects for SuperCluster Builder
+    //Create new EgammaRecContainer
+    EgammaRecContainer *photonSuperRecs = new EgammaRecContainer();
+    // Photons
+    xAOD::CaloClusterContainer* photon_CSCContainer = new xAOD::CaloClusterContainer();
+    xAOD::CaloClusterAuxContainer photon_CSCAux;
+    photon_CSCContainer->setStore(&photon_CSCAux);
+
+
+    TRIG_CHECK_SC(m_photonSCBuilder->hltExecute(m_eg_container,
+                                                          photonSuperRecs,
+                                                          photon_CSCContainer));
+
+
+    ATH_MSG_DEBUG("Size of photonSuperClusterRecContainer: " << photonSuperRecs->size());
+
+    //Redo conversion matching given the super cluster
+    if (m_doConversions) {
+      for (auto egRec : *photonSuperRecs) {
+        if (m_conversionBuilder->hltExecute(egRec, pVxContainer).isFailure()){
+          ATH_MSG_ERROR("Problem executing conversioBuilder on photonSuperRecs");
+          return HLT::ERROR;
+        }
+      }
+    }
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //
+  //For now naive double loops bases on the seed (constituent at position 0)
+  //For ambiguity. Probably we could mark in one pass , for now naive solution
+  //These should be the CaloCalTopo links for the clustes. the 0 should be the seed (always there)
+  static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
+
+  ATH_MSG_DEBUG("Build  "<< electronSuperRecs->size() << " electron Super Clusters");
+  ATH_MSG_DEBUG("Build  "<< photonSuperRecs->size() << " photon Super Clusters");
+  //
+  //Look at the constituents , for ambiguity resolution, for now based on the seed only
+  //We could add secondaries cluster in this logic.
+  //Also probably we could factor some common code.
+  //-----------------------------------------------------------------
+  //Build xAOD::Electron objects
+  for (const auto& electronRec : *electronSuperRecs) {
+
+    unsigned int author = xAOD::EgammaParameters::AuthorElectron;
+    xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::electron;
+
+    for (const auto& photonRec : *photonSuperRecs) {
+
+      //See if the same seed (0 element in the constituents) seed also a photon
+      if(caloClusterLinks(*(electronRec->caloCluster())).at(0)==
+	 caloClusterLinks(*(photonRec->caloCluster())).at(0)){
+	ATH_MSG_DEBUG("Running AmbiguityTool for electron");
+
         ATH_MSG_DEBUG("REGTEST:: Running AmbiguityTool");
         if (timerSvc()) m_timerTool3->start(); //timer
-        unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->caloCluster(),
-                egRec->vertex(),
-                egRec->trackParticle());
+	author = m_ambiguityTool->ambiguityResolve(electronRec->caloCluster(),
+						   photonRec->vertex(),
+						   electronRec->trackParticle(),
+						   type);
+
         if (timerSvc()) m_timerTool3->stop(); //timer
         ATH_MSG_DEBUG("REGTEST:: AmbiguityTool Author " << author);
-        // Set author
-        // Do we set as TrigElectron/Photon?
-        if (author == xAOD::EgammaParameters::AuthorUnknown) continue;//
-        if (author == xAOD::EgammaParameters::AuthorElectron || 
-                author == xAOD::EgammaParameters::AuthorAmbiguous){
-            //Get Electron
-            //eg->setAuthor(xAOD::EgammaParameters::AuthorTrigElectron);
-            xAOD::Electron *electron = new xAOD::Electron();
-            m_electron_container->push_back(electron);
-            electron->setAuthor(author);
-            std::vector< ElementLink< xAOD::CaloClusterContainer > > el_clusterLinks;
-            for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
-                const xAOD::CaloCluster *clus = egRec->caloCluster(i);
-                // Also check the original (non-calibrated cluster)
-                static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
-                if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
-                    ATH_MSG_DEBUG("Problem with original cluster link");
-                }
-                else {
-                    const xAOD::CaloCluster *origClus = *orig(*clus); 
-                    ATH_MSG_DEBUG("REGTEST:: Compare new and old clusters");
-                    ATH_MSG_DEBUG("REGTEST:: Original Cluster e,eta,phi " << origClus->e() << " " <<  origClus->eta() << " " << origClus->phi());
-                    ATH_MSG_DEBUG("REGTEST:: MVA      Cluster e,eta,phi " << clus->e() << " " <<  clus->eta() << " " << clus->phi());
-                }
 
-                ATH_MSG_DEBUG("Try to find ElementLink for CC with pT = " << clus->pt());
-                for(const auto cl_link : clusterLinks){
-                    if(!cl_link.isValid()) continue;
-                    ATH_MSG_DEBUG("Try next EleLink, pt = " << (*cl_link)->pt());
-                    if( *cl_link == clus ){
-                        el_clusterLinks.push_back(cl_link);
-                        ATH_MSG_DEBUG("Found matching CaloClusterLink to CaloCluster object in egRec, pt = "<< (*cl_link)->pt());
-                    }
-                }
-            }
-            electron->setCaloClusterLinks( el_clusterLinks);
+	break;
+      }
+    }
+    //Fill each electron
+    if (author == xAOD::EgammaParameters::AuthorElectron ||
+	author == xAOD::EgammaParameters::AuthorAmbiguous){
+      ATH_MSG_DEBUG("getElectron");
+      if ( !getElectron(electronRec, m_electron_container, author,type) ){
+	return HLT::ERROR;
+      }
+    }
+  }
 
-            std::vector< ElementLink< xAOD::TrackParticleContainer > > el_trackLinks;
-            for (unsigned int i = 0 ; i < egRec->getNumberOfTrackParticles(); ++i){
-                const xAOD::TrackParticle *trk = egRec->trackParticle(i);
-                ATH_MSG_DEBUG("Try to find ElementLink for TP with pT = " << trk->pt());
-                for(const auto trk_link : trackLinks){
-                    if(!trk_link.isValid()) continue;
-                    ATH_MSG_DEBUG("Try next EleLink, pt = " << (*trk_link)->pt());
-                    if( *trk_link == trk ){
-                        el_trackLinks.push_back(trk_link);
-                        ATH_MSG_DEBUG("Found matching TrackParticleLink to TrackParticle object in egRec, pt = "<< (*trk_link)->pt());
-                    }
-                }
-            }
-            electron->setTrackParticleLinks( el_trackLinks);
-            electron->setCharge(electron->trackParticle()->charge());
-            //Set DeltaEta, DeltaPhi , DeltaPhiRescaled
-            float deltaEta = static_cast<float>(egRec->deltaEta(0));
-            float deltaPhi = static_cast<float>(egRec->deltaPhi(0));
-            float deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(0));
-            electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta0 );
-            electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi0 );
-            electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled0 );
+  //-----------------------------------------------------------------
+  //Build xAOD::Photon objects.
+  for (const auto& photonRec : *photonSuperRecs) {
+    unsigned int author = xAOD::EgammaParameters::AuthorPhoton;
+    xAOD::AmbiguityTool::AmbiguityType type= xAOD::AmbiguityTool::photon;
 
-            deltaEta = static_cast<float>(egRec->deltaEta(1));
-            deltaPhi = static_cast<float>(egRec->deltaPhi(1));
-            deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(1));
-            electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta1 );
-            electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi1 );
-            electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled1);
+    //See if the same seed (0 element in the constituents) seed also an electron
+    for (const auto& electronRec : *electronSuperRecs) {
 
-            deltaEta = static_cast<float>(egRec->deltaEta(2));
-            deltaPhi = static_cast<float>(egRec->deltaPhi(2));
-            deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(2));
-            electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta2 );
-            electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi2 );
-            electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled2);
+    if(caloClusterLinks(*(photonRec->caloCluster())).at(0) ==
+       caloClusterLinks(*(electronRec->caloCluster())).at(0)){
+      ATH_MSG_DEBUG("Running AmbiguityTool for photon");
+        ATH_MSG_DEBUG("REGTEST:: Running AmbiguityTool");
+        if (timerSvc()) m_timerTool3->start(); //timer
 
-            deltaEta = static_cast<float>(egRec->deltaEta(3));
-            deltaPhi = static_cast<float>(egRec->deltaPhi(3));
-            deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(3));
-            electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta3 );
-            electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi3 );
-            electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled3);
+      author = m_ambiguityTool->ambiguityResolve(electronRec->caloCluster(),
+						 photonRec->vertex(),
+						 electronRec->trackParticle(),
+						 type);
+        if (timerSvc()) m_timerTool3->stop(); //timer
+        ATH_MSG_DEBUG("REGTEST:: AmbiguityTool Author " << author);
+      break;
+    }
+    }
+    //Fill each photon
+    if (author == xAOD::EgammaParameters::AuthorPhoton ||
+	author == xAOD::EgammaParameters::AuthorAmbiguous){
+      ATH_MSG_DEBUG("getPhoton");
+      if ( !getPhoton(photonRec, m_photon_container, author,type) ){
+	return HLT::ERROR;
+      }
+    }
+  }
 
-            float deltaPhiLast = static_cast<float>(egRec->deltaPhiLast ());
-            electron->setTrackCaloMatchValue(deltaPhiLast,xAOD::EgammaParameters::deltaPhiFromLastMeasurement );
-
-        }//Electron
-        if (author == xAOD::EgammaParameters::AuthorPhoton
-                || author == xAOD::EgammaParameters::AuthorAmbiguous){
-            //  eg->setAuthor(xAOD::EgammaParameters::AuthorTrigPhoton);
-            xAOD::Photon *photon = new xAOD::Photon();
-            m_photon_container->push_back(photon);
-            photon->setAuthor(author);
-            std::vector< ElementLink< xAOD::CaloClusterContainer > > ph_clusterLinks;
-            for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
-                const xAOD::CaloCluster *clus = egRec->caloCluster(i);
-                static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
-                if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
-                    ATH_MSG_DEBUG("Problem with original cluster link");
-                }
-                else {
-                    const xAOD::CaloCluster *origClus = *orig(*clus); 
-                    ATH_MSG_DEBUG("REGTEST:: Compare new and old clusters");
-                    ATH_MSG_DEBUG("REGTEST:: Original Cluster e,eta,phi" << origClus->e() << " " <<  origClus->eta() << " " << origClus->phi());
-                    ATH_MSG_DEBUG("REGTEST:: MVA      Cluster e,eta,phi" << clus->e() << " " <<  clus->eta() << " " << clus->phi());
-                }
-                ATH_MSG_DEBUG("Try to find ElementLink for CC with pT = " << clus->pt());
-                for(const auto cl_link : clusterLinks){
-                    if(!cl_link.isValid()) continue;
-                    ATH_MSG_DEBUG("Try next EleLink, pt = " << (*cl_link)->pt());
-                    if( *cl_link == clus ){
-                        ph_clusterLinks.push_back(cl_link);
-                        ATH_MSG_DEBUG("Found matching CaloClusterLink to CaloCluster object in egRec, pt = "<< (*cl_link)->pt());
-                    }
-                }
-            }
-            photon->setCaloClusterLinks( ph_clusterLinks);
-            std::vector< ElementLink< xAOD::VertexContainer > > ph_vxLinks;
-            for (unsigned int i = 0 ; i < egRec->getNumberOfVertices(); ++i){
-                const xAOD::Vertex *vx = egRec->vertex(i);
-                for(const auto vx_link : vxLinks){
-                    if(!vx_link.isValid()) continue;
-                    if( *vx_link == vx ){
-                        ph_vxLinks.push_back(vx_link);
-                        ATH_MSG_DEBUG("Found matching VertexLink to Vertex object in egRec");
-                    }
-                }
-            }
-            photon->setVertexLinks( ph_vxLinks);
-            // Transfer deltaEta/Phi info
-            float deltaEta = egRec->deltaEtaVtx(), deltaPhi = egRec->deltaPhiVtx();
-            if (!photon->setVertexCaloMatchValue( deltaEta, xAOD::EgammaParameters::convMatchDeltaEta1) )
-            {
-                ATH_MSG_WARNING("Could not transfer deltaEta to photon");
-                continue;
-            }
-            if (!photon->setVertexCaloMatchValue( deltaPhi,xAOD::EgammaParameters::convMatchDeltaPhi1) )
-            {
-                ATH_MSG_WARNING("Could not transfer deltaEta to photon");
-                continue;
-            }
-        } //Photon
-    }//end loop of egRec
-
-
+// -----------------------------------------------------------------------------------------------
     //Dress the Electron objects
     for (const auto& eg : *m_electron_container){
         // EMFourMomentum
@@ -1237,8 +1328,115 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     return HLT::OK;
 }
 
+
+// =====================================================
+bool TrigTopoEgammaBuilder::getElectron(const egammaRec* egRec,
+				    xAOD::ElectronContainer *electronContainer,
+				    const unsigned int author,
+				    const uint8_t type) const {
+
+    if (!egRec || !electronContainer) return false;
+
+    xAOD::Electron *electron = new xAOD::Electron();
+    electronContainer->push_back(electron);
+    electron->setAuthor(author);
+    static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+    acc(*electron)=type;
+
+    std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;
+    for (size_t i = 0 ; i < egRec->getNumberOfClusters(); ++i){
+        clusterLinks.push_back( egRec->caloClusterElementLink(i) );
+    }
+    electron->setCaloClusterLinks( clusterLinks );
+
+    std::vector< ElementLink< xAOD::TrackParticleContainer > > trackLinks;
+    for (size_t i = 0 ; i < egRec->getNumberOfTrackParticles(); ++i){
+        trackLinks.push_back( egRec->trackParticleElementLink(i) );
+    }
+    electron->setTrackParticleLinks( trackLinks );
+
+    electron->setCharge(electron->trackParticle()->charge());
+    //Set DeltaEta, DeltaPhi , DeltaPhiRescaled
+    float deltaEta = static_cast<float>(egRec->deltaEta(0));
+    float deltaPhi = static_cast<float>(egRec->deltaPhi(0));
+    float deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(0));
+    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta0 );
+    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi0 );
+    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled0 );
+
+    deltaEta = static_cast<float>(egRec->deltaEta(1));
+    deltaPhi = static_cast<float>(egRec->deltaPhi(1));
+    deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(1));
+    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta1 );
+    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi1 );
+    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled1);
+
+    deltaEta = static_cast<float>(egRec->deltaEta(2));
+    deltaPhi = static_cast<float>(egRec->deltaPhi(2));
+    deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(2));
+    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta2 );
+    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi2 );
+    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled2);
+
+    deltaEta = static_cast<float>(egRec->deltaEta(3));
+    deltaPhi = static_cast<float>(egRec->deltaPhi(3));
+    deltaPhiRescaled = static_cast<float>(egRec->deltaPhiRescaled(3));
+    electron->setTrackCaloMatchValue(deltaEta,xAOD::EgammaParameters::deltaEta3 );
+    electron->setTrackCaloMatchValue(deltaPhi,xAOD::EgammaParameters::deltaPhi3 );
+    electron->setTrackCaloMatchValue(deltaPhiRescaled,xAOD::EgammaParameters::deltaPhiRescaled3);
+
+    float deltaPhiLast = static_cast<float>(egRec->deltaPhiLast ());
+    electron->setTrackCaloMatchValue(deltaPhiLast,xAOD::EgammaParameters::deltaPhiFromLastMeasurement );
+
+    return true;
+}
+
+// =====================================================
+bool TrigTopoEgammaBuilder::getPhoton(const egammaRec* egRec,
+				  xAOD::PhotonContainer *photonContainer,
+				  const unsigned int author,
+				  const uint8_t type) const {
+    if (!egRec || !photonContainer) return false;
+
+    xAOD::Photon *photon = new xAOD::Photon();
+    photonContainer->push_back(photon);
+    photon->setAuthor(author);
+
+    static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+    acc(*photon)=type;
+
+    // Transfer the links to the clusters
+    std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;
+    for (size_t i = 0 ; i < egRec->getNumberOfClusters(); ++i){
+        clusterLinks.push_back( egRec->caloClusterElementLink(i) );
+    }
+    photon->setCaloClusterLinks( clusterLinks );
+
+    // Transfer the links to the vertices
+    std::vector< ElementLink< xAOD::VertexContainer > > vertexLinks;
+    for (size_t i = 0 ; i < egRec->getNumberOfVertices(); ++i){
+        vertexLinks.push_back( egRec->vertexElementLink(i) );
+    }
+    photon->setVertexLinks( vertexLinks );
+
+    // Transfer deltaEta/Phi info
+    float deltaEta = egRec->deltaEtaVtx(), deltaPhi = egRec->deltaPhiVtx();
+    if (!photon->setVertexCaloMatchValue( deltaEta, xAOD::EgammaParameters::convMatchDeltaEta1) )
+    {
+        ATH_MSG_WARNING("Could not transfer deltaEta to photon");
+        return true;
+    }
+    if (!photon->setVertexCaloMatchValue( deltaPhi,xAOD::EgammaParameters::convMatchDeltaPhi1) )
+    {
+        ATH_MSG_WARNING("Could not transfer deltaEta to photon");
+        return true;
+    }
+
+    return true;
+}
+
 /** @brief Decoration debug method for electrons */
-void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg){
+void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
     // This will return exception if string not correct
     // Safe method to pass value to fill
     unsigned int isEMbit=0;
@@ -1337,7 +1535,7 @@ void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg){
 }
 
 /** @brief Decoration debug method for photons */
-void TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg){
+void TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg) const {
     // This will return exception if string not correct
     // Safe method to pass value to fill
     unsigned int isEMbit=0;

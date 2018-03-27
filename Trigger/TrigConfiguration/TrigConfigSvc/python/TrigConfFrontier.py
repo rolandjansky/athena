@@ -212,7 +212,7 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
                 row = base64.decodestring(node.data)
                 if self.retrieveZiplevel != "":
                     row = zlib.decompress(row)
-            
+             
                 endFirstRow = row.find('\x07')
                 firstRow = row[:endFirstRow]
                 for c in firstRow:
@@ -239,11 +239,15 @@ Refresh cache:  %s""" % (self.url, self.refreshFlag)
                 row = str(row[endFirstRow+1:])
 
                 row_h = row.rstrip('\x07')
-
+                
                 import re
                 row_h = row_h.replace("\x07\x06",'.nNn.\x06')
 
-                pattern = re.compile("\x06\x00\x00\x00.",flags=re.S)
+#                pattern = re.compile("\x06\x00\x00\x00.",flags=re.S)
+#replace pattern above  more restrictive version, as longerstrings in the results
+#have a size variable in the column separate that becomes visible if the string
+#is large enough - this then broke the prevous  decoding
+                pattern = re.compile("\x06\x00\x00..",flags=re.S)
                 row_h = pattern.sub('.xXx.',row_h)
                 row_h = row_h.replace("\x86", '.xXx.')
 

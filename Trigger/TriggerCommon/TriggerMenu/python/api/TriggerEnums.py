@@ -62,6 +62,13 @@ class TriggerPeriod(IntEnum):
     y2016             = y2016periodAD3  | y2016periodD4plus
     future            = future1p8e34    | future2e34
 
+    def isBasePeriod(self):
+        return self >= TriggerPeriod.runNumber or all([self & x == 0 or self & x == self for x in TriggerPeriod])
+
+    @classmethod
+    def basePeriods(cls):
+        return [x for x in TriggerPeriod if x.isBasePeriod()]
+
 class LBexceptions:
     ''' List of LBs to be skipped. 
         Usually due to accidental prescales that will be taken into account in future GRLs or via reduced luminosity.
@@ -76,3 +83,8 @@ class LBexceptions:
        302831: [(4  , 10 )], #toroid off keys 
        336506: [(212, 260)], #Regular muscan but the defect is not in sync with the switch of keys
        }
+
+if __name__ == "__main__":
+   print TriggerPeriod.y2015.isBasePeriod() 
+   print TriggerPeriod.y2017.isBasePeriod() 
+   print TriggerPeriod.basePeriods() 

@@ -1604,7 +1604,8 @@ const IRoiDescriptor* TrigMuSuperEF::getRoiDescriptor(const HLT::TriggerElement*
 	m_roi = 0;
 	return 0;
       } else if (trigRoI) { // Found it!
-	ATH_MSG_VERBOSE("Found RoIDescriptor \"forMS\"");
+	ATH_MSG_DEBUG("Found RoIDescriptor \"forMS\""
+		      <<trigRoI->eta() << " " << trigRoI->phi());
       } else { // did not find it
 	ATH_MSG_DEBUG("Could not find RoIDescriptor \"forMS\", trying to recover the L1 one (with \"\")");
 	hltStatus = getFeature(inputTE, trigRoI, "");

@@ -50,6 +50,11 @@ if DQMonFlags.monManEnvironment() == 'online':
 else:
   tmp_useReadyFilterTool=TRUE
 
+if (rec.triggerStream()=='CosmicCalo'):
+  tmp_useLArCollisionTime = TRUE
+else:
+  tmp_useLArCollisionTime = FALSE
+
 if DQMonFlags.monManEnvironment() == 'online':
    tmp_useLArNoisyAlg = FALSE
 else:
@@ -75,11 +80,6 @@ if 'DQMonFlags' in dir():
    if not DQMonFlags.useTrigger:
       tmp_useTrigger = FALSE
 
-#if DQMonFlags.monManEnvironment() == 'online':
-#   tmp_sporadicSwitch = FALSE
-#else:
-#   tmp_sporadicSwitch = TRUE
-
 tmp_sporadicSwitch = FALSE
 if (rec.triggerStream()=='CosmicCalo') and not (DQMonFlags.monManEnvironment() == 'online'):
    tmp_sporadicSwitch = TRUE
@@ -102,6 +102,8 @@ CaloCellMon = CaloCellVecMon(
 
     useReadyFilterTool = tmp_useReadyFilterTool,
     ReadyFilterTool = monAtlasReadyFilterTool,
+
+   useLArCollisionFilterTool = tmp_useLArCollisionTime,
 
     useLArNoisyAlg = tmp_useLArNoisyAlg,
     useElectronicNoiseOnly = tmp_useElectronicNoiseOnly,

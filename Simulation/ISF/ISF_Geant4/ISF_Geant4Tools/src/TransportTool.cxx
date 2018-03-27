@@ -171,9 +171,6 @@ void iGeant4::G4TransportTool::initializeOnce()
     ui->ApplyCommand("/MagneticField/Initialize");
   }
 
-  ATH_MSG_DEBUG("Setting checkmode to true");
-  ui->ApplyCommand("/geometry/navigator/check_mode true");
-
   if (m_rndmGen=="athena" || m_rndmGen=="ranecu")     {
     // Set the random number generator to AtRndmGen
     if (m_rndmGenSvc.retrieve().isFailure()) {

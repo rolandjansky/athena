@@ -40,13 +40,13 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 
   // Quantum efficincy of PMT in 100 nm steps int(WeaveLength-100)/100
 
-  QuantumEff_PMT[0] = 0.00; 
-  QuantumEff_PMT[1] = 0.15; 
-  QuantumEff_PMT[2] = 0.20;    
-  QuantumEff_PMT[3] = 0.15;
-  QuantumEff_PMT[4] = 0.05;    
-  QuantumEff_PMT[5] = 0.01; 
-  QuantumEff_PMT[6] = 0.00; 
+  m_QuantumEff_PMT[0] = 0.00; 
+  m_QuantumEff_PMT[1] = 0.15; 
+  m_QuantumEff_PMT[2] = 0.20;    
+  m_QuantumEff_PMT[3] = 0.15;
+  m_QuantumEff_PMT[4] = 0.05;    
+  m_QuantumEff_PMT[5] = 0.01; 
+  m_QuantumEff_PMT[6] = 0.00; 
 
   m_digitCollection = 0; // initializing to null pointer
   m_SiDigiCollection = 0;
@@ -355,7 +355,7 @@ void AFP_PileUpTool::fillTDDigiCollection(TimedHitCollection<AFP_TDSimHit>& thpc
     StoreTDDigi();
 }
 
-void AFP_PileUpTool::fillTDDigiCollection(const AFP_TDSimHitCollection* m_AFP_TDSimHitCollection, 
+void AFP_PileUpTool::fillTDDigiCollection(const AFP_TDSimHitCollection* AFP_TDSimHitCollection, 
 CLHEP::HepRandomEngine* rndEngine)
 {
 
@@ -368,8 +368,8 @@ CLHEP::HepRandomEngine* rndEngine)
                             }
 
 
-  AFP_TDSimHitConstIter it    = m_AFP_TDSimHitCollection->begin();
-  AFP_TDSimHitConstIter itend = m_AFP_TDSimHitCollection->end();
+  AFP_TDSimHitConstIter it    = AFP_TDSimHitCollection->begin();
+  AFP_TDSimHitConstIter itend = AFP_TDSimHitCollection->end();
 
   
   for (; it != itend; it++) {
@@ -398,7 +398,7 @@ void AFP_PileUpTool::fillSiDigiCollection(TimedHitCollection<AFP_SIDSimHit>& thp
 //  const long indexend = (long)width * (long)height * (long)depth;
   while ( index != 645120 ) // here just 6 layers per detector are considered
   {
-            deposited_charge[index++] = 0;
+            m_deposited_charge[index++] = 0;
   } 
  
  
@@ -422,10 +422,10 @@ void AFP_PileUpTool::fillSiDigiCollection(TimedHitCollection<AFP_SIDSimHit>& thp
 }
 
 
-void AFP_PileUpTool::fillSiDigiCollection(const AFP_SIDSimHitCollection* m_AFP_SIDSimHitCollection)
+void AFP_PileUpTool::fillSiDigiCollection(const AFP_SIDSimHitCollection* AFP_SIDSimHitCollection)
 {
-  AFP_SIDSimHitConstIter it    = m_AFP_SIDSimHitCollection->begin();
-  AFP_SIDSimHitConstIter itend = m_AFP_SIDSimHitCollection->end();
+  AFP_SIDSimHitConstIter it    = AFP_SIDSimHitCollection->begin();
+  AFP_SIDSimHitConstIter itend = AFP_SIDSimHitCollection->end();
 
  //ATH_MSG_DEBUG ( "bum 2" );
 
@@ -434,7 +434,7 @@ void AFP_PileUpTool::fillSiDigiCollection(const AFP_SIDSimHitCollection* m_AFP_S
 //  const long indexend = (long)width * (long)height * (long)depth;
   while ( index != 645120 ) // here just 6 layers per detector are considered
   {
-            deposited_charge[index++] = 0;
+            m_deposited_charge[index++] = 0;
   } 
 
 
@@ -478,7 +478,7 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
 #endif
  
   
-  if (CLHEP::RandFlat::shoot(rndEngine, 0.0, 1.0) > QuantumEff_PMT[id]*m_CollectionEff/prescale) return;
+  if (CLHEP::RandFlat::shoot(rndEngine, 0.0, 1.0) > m_QuantumEff_PMT[id]*m_CollectionEff/prescale) return;
 
   double PheTime = CLHEP::RandGaussQ::shoot(rndEngine, GlobalTime + 5.* m_ConversionSpr, m_ConversionSpr);
   int NumberOfSecondaries =  CLHEP::RandPoissonQ::shoot(rndEngine, m_Gain);
@@ -544,19 +544,19 @@ void AFP_PileUpTool::StoreTDDigi(void)
  if( k==0 ) TDC = TDC-2130.;
  if( k==1 ) TDC	= TDC-2797.;
 
- AFP_TDDigi* m_AFP_TDDigi = new AFP_TDDigi ();
- m_AFP_TDDigi->m_nStationID=i;
- m_AFP_TDDigi->m_nDetectorID=j;
- m_AFP_TDDigi->m_nSensitiveElementID=2*k+1;
- m_AFP_TDDigi->m_fADC=ADC;
- m_AFP_TDDigi->m_fTDC=TDC;
+ AFP_TDDigi* tddigi = new AFP_TDDigi ();
+ tddigi->m_nStationID=i;
+ tddigi->m_nDetectorID=j;
+ tddigi->m_nSensitiveElementID=2*k+1;
+ tddigi->m_fADC=ADC;
+ tddigi->m_fTDC=TDC;
 
        Id1.Form("%d",i);
           Id2.Form("%d",j);
              Id3.Form("%d",k);
 //        m_Signal[i][j][k].Write();
 
- m_digitCollection->Insert(*m_AFP_TDDigi);                                              
+ m_digitCollection->Insert(*tddigi);                                              
                                           }
                                   }
                                }
@@ -586,7 +586,7 @@ void AFP_PileUpTool::createSiDigi(int Station, int Detector, int PixelRow, int P
   
     ATH_MSG_DEBUG ( "deposted charge for given hit " << distance*110.0 ); 
   
-  //deposited_charge[Station][Detector][PixelCol][PixelRow] += distance * 110.0; 
+  //m_deposited_charge[Station][Detector][PixelCol][PixelRow] += distance * 110.0; 
   //array[station_max=4][layers=6_max][PixelCol_max=336][PxelRow=80]
   
   if ((PixelCol>=336) || (PixelRow >= 80) || (Station >= 4) || (Detector >= 6 ) )
@@ -604,8 +604,8 @@ void AFP_PileUpTool::createSiDigi(int Station, int Detector, int PixelRow, int P
      return;
   }   
   
-  deposited_charge[6*336*80*Station + 80*336*Detector + 80*PixelCol + PixelRow] += distance * 110.0;
-  deposited_energy[6*336*80*Station + 80*336*Detector + 80*PixelCol + PixelRow] += DepEnergy;
+  m_deposited_charge[6*336*80*Station + 80*336*Detector + 80*PixelCol + PixelRow] += distance * 110.0;
+  m_deposited_energy[6*336*80*Station + 80*336*Detector + 80*PixelCol + PixelRow] += DepEnergy;
 
 return;
 
@@ -622,11 +622,11 @@ void AFP_PileUpTool::StoreSiDigi(void)
   {
           // here should  come noise
   
-          if (deposited_charge[index] > 1000.)
+          if (m_deposited_charge[index] > 1000.)
 	    {
 	    
-	    	  ATH_MSG_DEBUG ( " total # of pairs from length " << deposited_charge[index]);
-	        ATH_MSG_DEBUG ( " total # of pairs from dep_energy " << 1000000.*deposited_energy[index]/3.6);
+	    	  ATH_MSG_DEBUG ( " total # of pairs from length " << m_deposited_charge[index]);
+	        ATH_MSG_DEBUG ( " total # of pairs from dep_energy " << 1000000.*m_deposited_energy[index]/3.6);
 	    
 	        int station  = (int)(index/(80*336*6)); 
 		  int detector = (int)((index-station*80*336*6)/(80*336)); 
@@ -636,18 +636,18 @@ void AFP_PileUpTool::StoreSiDigi(void)
 		  ATH_MSG_DEBUG ( " reversed mapping, station " << station << ", detector " << detector << ", pixel_col " << column << ", pixel_row " << row ); 
 
 	    
-		  AFP_SiDigi* m_AFP_SiDigi = new AFP_SiDigi();	
+		  AFP_SiDigi* sidigi = new AFP_SiDigi();	
 		  
 		  //ATH_MSG_DEBUG ( "bum 3a" );	  
               
-		  m_AFP_SiDigi->m_nStationID = station;
-              m_AFP_SiDigi->m_nDetectorID = detector;
-              m_AFP_SiDigi->m_nPixelCol = column;
-		  m_AFP_SiDigi->m_nPixelRow = row;
+		  sidigi->m_nStationID = station;
+              sidigi->m_nDetectorID = detector;
+              sidigi->m_nPixelCol = column;
+		  sidigi->m_nPixelRow = row;
 		  
 		  //ATH_MSG_DEBUG ( "bum 3b" );
-              m_AFP_SiDigi->m_fADC = 1000000.*deposited_energy[index]/3.6;
-              m_AFP_SiDigi->m_fTDC = 0.;
+              sidigi->m_fADC = 1000000.*m_deposited_energy[index]/3.6;
+              sidigi->m_fTDC = 0.;
 
               //ATH_MSG_DEBUG ( "bum 3c" );
 
@@ -658,8 +658,8 @@ void AFP_PileUpTool::StoreSiDigi(void)
 		  
 		  //ATH_MSG_DEBUG ( "bum 3d" );
 		  
-		  m_SiDigiCollection->Insert(*m_AFP_SiDigi); 
-		  //m_SiDigiCollection->push_back(m_AFP_SiDigi); 
+		  m_SiDigiCollection->Insert(*sidigi); 
+		  //m_SiDigiCollection->push_back(sidigi); 
 		  
 		  
 		  
@@ -698,19 +698,19 @@ double AFP_PileUpTool::SiSignalFun(double Time, double RiseTime, double FallTime
    }   
 */
 
-StatusCode AFP_PileUpTool::recordContainers(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_digitCnt) 
+StatusCode AFP_PileUpTool::recordContainers(ServiceHandle<StoreGateSvc>& evtStore, std::string key_digitCnt) 
 {
   m_digitCollection = new AFP_TDDigiCollection();
 
-  StatusCode sc = evtStore->record(m_digitCollection, m_key_digitCnt);
+  StatusCode sc = evtStore->record(m_digitCollection, key_digitCnt);
   return sc;
 }
 
-StatusCode AFP_PileUpTool::recordSiCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_SidigitCnt) 
+StatusCode AFP_PileUpTool::recordSiCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string key_SidigitCnt) 
 {
   m_SiDigiCollection = new AFP_SiDigiCollection();
 
-  StatusCode sc = evtStore->record(m_SiDigiCollection, m_key_SidigitCnt);
+  StatusCode sc = evtStore->record(m_SiDigiCollection, key_SidigitCnt);
   
   return sc;
   //return StatusCode::SUCCESS;

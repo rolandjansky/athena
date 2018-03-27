@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCS1DFunctionRegression_h
@@ -33,5 +33,9 @@ class TFCS1DFunctionRegression:public TFCS1DFunction
   ClassDef(TFCS1DFunctionRegression,1)  //TFCS1DFunctionRegression
 
 };
+
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
+#pragma link C++ class TFCS1DFunctionRegression+;
+#endif
 
 #endif

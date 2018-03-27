@@ -21,36 +21,39 @@ namespace G4UA
     
     public:
 
+      struct Config
+      {
+	/// bin sizes and ranges match the requirements for the
+	/// Radiation Estimate Web tool for the default values given here.
+	/// They can be configured to other values/ranges for other purposes.
+
+	int nBinsr = 120;
+	int nBinsz = 240;
+	
+	double rMinZoom =    0.; // cm
+	double rMinFull =    0.; // cm
+	
+	double rMaxZoom =  480.; // cm
+	double rMaxFull = 1200.; // cm
+	
+	double zMinZoom =    0.; // cm
+	double zMinFull =    0.; // cm
+	
+	double zMaxZoom =  960.; // cm
+	double zMaxFull = 2400.; // cm
+
+	int nBinsr3d   = 30;
+	int nBinsz3d   = 60;
+	int nBinsphi3d = 32;
+	
+	double phiMinZoom = -180.; // degrees
+	double phiMaxZoom =  180.; // degrees
+      };
+
+
       /// @brief Simple struct for holding the radiation maps
       struct Report
       {
-	/// bin sizes and ranges match the requirements for the
-	/// Radiation Estimate Web tool and thus are hardcoded here
-	/// for now. 
-	/// These could be made configurable at some point ...
-	///
-	const int nBinsr = 120;
-	const int nBinsz = 240;
-	
-	const double rMinZoom =    0.; // cm
-	const double rMinFull =    0.; // cm
-	
-	const double rMaxZoom =  480.; // cm
-	const double rMaxFull = 1200.; // cm
-	
-	const double zMinZoom =    0.; // cm
-	const double zMinFull =    0.; // cm
-	
-	const double zMaxZoom =  960.; // cm
-	const double zMaxFull = 2400.; // cm
-
-	const int nBinsr3d   = 30;
-	const int nBinsz3d   = 60;
-	const int nBinsphi3d = 32;
-	
-	const double phiMinZoom = -180.; // degrees
-	const double phiMaxZoom =  180.; // degrees
-
         /// vector of tid seen by thread in zoomed area
 	std::vector<double> m_rz_tid;
         /// vector of ionizing energy density seen by thread in zoomed area
@@ -81,6 +84,8 @@ namespace G4UA
 	void merge(const Report& maps);
       };
 
+      RadiationMapsMaker(const Config& config);
+
       // initialize maps to 0
       virtual void BeginOfRunAction(const G4Run*) override final;
 
@@ -92,6 +97,8 @@ namespace G4UA
       { return m_maps; }
 
     private:
+
+      struct Config m_config;
 
       Report m_maps;
 

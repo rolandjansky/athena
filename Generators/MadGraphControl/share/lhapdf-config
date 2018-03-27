@@ -1,91 +1,60 @@
 #! /usr/bin/env bash
+## -*- sh -*-
+## lhapdf-config.  Generated from lhapdf-config.in by configure.
 
-# These variables need to exist
-
-#prefix=/afs/cern.ch/sw/lcg/external/MCGenerators/lhapdf/5.8.9/i686-slc5-gcc43-opt
-lhabase=$(echo $LHAPATH | awk '{split($1,a,"/share");print a[1];}')
-prefix=$lhabase
-
-athversion=$(echo $AtlasVersion | awk '{split($1,a,"."); print a[1]}')
-if [[ "$athversion" != "17" && "$athversion" != "19" ]]; then
-    #Hack for nightlies
-    athversion=$(echo $(basename $(echo $AtlasBaseDir)) | awk '{split($1,a,"."); print a[1]}')
-fi
-
-
-if [[ "$athversion" == "17" ]]; then
-    prefix=$prefix/$CMTCONFIG
-
-    version=$($prefix/bin/lhapdf-config --version)
-    
-    datadir=$lhabase/share/lhapdf
-    if [ ! -d $datadir ]; then
-	datadir=$lhabase/share/LHAPDF
-    fi
-
-else
-    
-    version=$(echo "$prefix" | awk '{split($1,a,"lhapdf/"); split(a[2],b,"/");print b[1];}')
-    datadir=$(echo $LHAPATH | awk '{split($1,a,":");print a[2];}')
-    #datadir=$(echo $LHAPDF_DATA_PATH)
-fi
-
-versionIs6=FALSE
-test=$(echo $version | grep 6. | wc -w)
-if [ $test -eq 1 ]; then
-    versionIs6=TRUE
-fi
-
-
+## These variables need to exist
+## Note no use of $DESTDIR... we ignore it so that destdir can be used
+## for temp installs later copied to /
+#prefix=/afs/.cern.ch/sw/lcg/external/MCGenerators_lcgcmt67c/lhapdf/6.1.5/x86_64-slc6-gcc47-opt
+prefix=$(echo $LHAPATH | awk '{split($1,a,"/share");print a[1];}')
 exec_prefix=${prefix}
 datarootdir=${prefix}/share
+
+version=$(echo "$prefix" | awk '{split($1,a,"lhapdf/"); split(a[2],b,"/");print b[1];}')
+
+boost=$(find $(ls -d /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc47-opt/19.2.4/sw/lcg/external/Boost/$BoostVers*/) -name "boost-*")
+
+datapath=$(echo $LHAPDF_DATA_PATH | awk '{n=split($1,a,":");if(n>1){print a[2];}else{print a[1];}}')
 
 if [[ $# -eq 0 || -n $( echo $* | egrep -- "--help|-h" ) ]]; then
     echo "lhapdf-config: configuration tool for the LHAPDF"
     echo "               parton density function evolution library"
     echo "               http://projects.hepforge.org/lhapdf/"
     echo
-    echo "Usage: lhapdf-config [[--help|-h] | [--prefix] | [--pdfsets-path]]"
+    echo "Usage: lhapdf-config [options]"
     echo "Options:"
-    echo "  --help | -h    : show this help message"
-    echo "  --prefix       : show the installation prefix (cf. autoconf)"
-    echo "  --incdir       : show the path to the LHAPDF header directory (for C++ interface)"
-    echo "  --libdir       : show the path to the LHAPDF library directory"
-    echo "  --datadir      : show the path to the LHAPDF installed data directory"
-    echo "  --pdfsets-path : show the path to the directory containing the PDF set data files"
+    echo "  --help | -h   : show this help message"
+    echo "  --prefix      : show the installation prefix (cf. autoconf)"
+    echo "  --incdir      : show the path to the LHAPDF C++ header directory"
+    echo "  --libdir      : show the path to the LHAPDF library directory"
+    echo "  --datadir     : show the path to the LHAPDF data directory"
     echo
-    echo "  --cppflags     : get compiler flags for use with the C preprocessor stage of C++ compilation"
-    echo "  --ldflags      : get compiler flags for use with the linker stage of any compilation"
+    echo "  --cflags      : get compiler flags (aka --cppflags|--cxxflags)"
+    echo "  --libs        : get linker flags (aka --ldflags)"
     echo
-    echo "  --version      : returns Rivet release version number"
+    echo "  --version     : return LHAPDF release version number"
 fi
 
 OUT=""
 
-
-
 tmp=$( echo "$*" | egrep -- '--\<prefix\>')
-test -n "$tmp" && OUT="$OUT ${prefix}"
+test -n "$tmp" && OUT="$OUT $prefix"
 
 tmp=$( echo "$*" | egrep -- '--\<incdir\>')
 test -n "$tmp" && OUT="$OUT ${prefix}/include"
 
-tmp=$( echo "$*" | egrep -- '--\<cppflags\>')
-test -n "$tmp" && OUT="$OUT -I${prefix}/include"
+tmp=$( echo "$*" | egrep -- '--\<cflags|cppflags|cxxflags\>')
+test -n "$tmp" && OUT="$OUT -I${prefix}/include -I$boost"
 
 tmp=$( echo "$*" | egrep -- '--\<libdir\>')
 test -n "$tmp" && OUT="$OUT ${exec_prefix}/lib"
 
-tmp=$( echo "$*" | egrep -- '--\<ldflags\>')
+tmp=$( echo "$*" | egrep -- '--\<libs|ldflags\>')
 test -n "$tmp" && OUT="$OUT -L${exec_prefix}/lib -lLHAPDF"
 
 tmp=$( echo "$*" | egrep -- '--\<datadir\>|--\<datarootdir\>')
-test -n "$tmp" && OUT="$OUT $datadir"
+test -n "$tmp" && OUT="$OUT $datapath"
 
-tmp=$( echo "$*" | egrep -- '--\<pdfsets-path\>')
-test -n "$tmp" && OUT="$OUT $LHAPATH"
-
-## Version
 tmp=$( echo "$*" | egrep -- '--\<version\>')
 test -n "$tmp" && OUT="$OUT $version"
 

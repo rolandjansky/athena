@@ -1,33 +1,37 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
+
+#include "TMath.h"
 
 //=============================================
 //======= TFCSLateralShapeParametrization =========
 //=============================================
 
 TFCSSimpleLateralShapeParametrization::TFCSSimpleLateralShapeParametrization(const char* name, const char* title) :
-  TFCSLateralShapeParametrization(name,title),
+  TFCSLateralShapeParametrizationHitBase(name,title),
   m_rnd(0)
 {
-
     m_sigmaX = 0;
     m_sigmaY = 0;
-
-    //sigma2_x = 0;
-    //sigma2_y = 0;
-
 }
 
-void TFCSSimpleLateralShapeParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+TFCSSimpleLateralShapeParametrization::~TFCSSimpleLateralShapeParametrization()
+{
+  if(m_rnd) delete m_rnd;
+}
+
+
+void TFCSSimpleLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
-  double hit_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
-  double hit_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-  double hit_weight=1;
+  hit.eta()=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
+  hit.phi()=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
+  hit.E()*=1;
 
   double x, y;
   getHitXY(x, y);
@@ -36,12 +40,21 @@ void TFCSSimpleLateralShapeParametrization::simulate(TFCSSimulationState& simuls
   double delta_eta = x;
   double delta_phi = y;
 
-  hit_eta += delta_eta;
-  hit_phi += delta_phi;
-  simulstate.deposit_HIT(cs,hit_eta,hit_phi,hit_weight);
+  hit.eta() += delta_eta;
+  hit.phi() += delta_phi;
 }
 
 
+bool TFCSSimpleLateralShapeParametrization::Initialize(float input_sigma_x, float input_sigma_y)
+{
+  // Setup random numbers
+  m_rnd = new TRandom3();
+  m_rnd->SetSeed(0);
+
+  m_sigmaX = input_sigma_x;
+  m_sigmaY = input_sigma_y;
+  return true;
+}
 
 bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, const char* histname)
 {
@@ -60,13 +73,8 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, con
 
     // Function to fit with
     double hiEdge  = inputShape->GetYaxis()->GetBinLowEdge( inputShape->GetNbinsY() );
-    //TF1 *x_func = new TF1("dlbgx","gaus(0)+gaus(3)",-hiEdge,hiEdge);
-    //TF1 *y_func = new TF1("dlbgy","gaus(0)+gaus(3)",-hiEdge,hiEdge);
     TF1 *x_func = new TF1("fx","gaus",-hiEdge,hiEdge);
     TF1 *y_func = new TF1("fy","gaus",-hiEdge,hiEdge);
-
-    //test
-    //TFile *out = new TFile("out.root","recreate");
 
     // Project into x and y histograms
     TH1F *h_xrms = new TH1F("h_xrms","h_xrms",100,-hiEdge,hiEdge);
@@ -106,10 +114,6 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, con
     TF1 *fity = h_yrms->GetFunction("fy");
     // posibly center
 
-    //test
-    //out->Write();
-    //out->Close();
-
     // Finally set sigma
     m_sigmaX = fitx->GetParameter(2);
     m_sigmaY = fity->GetParameter(2);
@@ -135,8 +139,3 @@ void TFCSSimpleLateralShapeParametrization::getHitXY(double &x, double &y)
 
 }
 
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-ClassImp(TFCSSimpleLateralShapeParametrization)
