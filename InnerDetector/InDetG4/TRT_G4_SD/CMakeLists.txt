@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PRIVATE
                           InnerDetector/InDetSimEvent
                           Simulation/G4Atlas/G4AtlasTools
                           Simulation/G4Sim/MCTruth
-                          Tools/AtlasDoxygen )
+                           )
 
 # External dependencies:
 find_package( CLHEP )
