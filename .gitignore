@@ -17,3 +17,5 @@
 *.a
 *.la
 *.lib
+*.root
+tmp.*
