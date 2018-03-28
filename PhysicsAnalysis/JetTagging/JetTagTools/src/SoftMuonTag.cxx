@@ -330,8 +330,7 @@ namespace Analysis
     }
 
     // #1: Preparation of MVA instance using tmva/egammaBDT
-    std::string alias = m_calibrationTool->channelAlias(author);
-    ATH_MSG_DEBUG("#BTAG# Jet author for SoftMuon: " << author << ", alias: " << alias );
+    ATH_MSG_DEBUG("#BTAG# Jet author for SoftMuon: " << author );
 
     /* check if calibration has to be updated: */
     std::pair<TObject*, bool> calib=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib");
@@ -345,7 +344,7 @@ namespace Analysis
     if(calibHasChanged) {
       ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
       if(!calib.first) {
-	ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for"<< m_taggerNameBase<<" "<<alias<<" "<<author);
+	ATH_MSG_WARNING("#BTAG# TObject can't be retrieved -> no calibration for"<< m_taggerNameBase<<" "<<author);
 	m_disableAlgo=true;
 	return StatusCode::SUCCESS;
       }
@@ -359,7 +358,7 @@ namespace Analysis
       }
     } 
 
-    m_calibrationTool->updateHistogramStatus(m_taggerNameBase, alias, m_taggerNameBase+"Calib", false);
+    m_calibrationTool->updateHistogramStatus(m_taggerNameBase, author, m_taggerNameBase+"Calib", false);
     std::vector<std::string> inputVars; inputVars.clear();
 
     std::pair<TObject*, bool> calibTree=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
@@ -388,15 +387,16 @@ namespace Analysis
 
     ATH_MSG_DEBUG("#BTAG# m_taggerNameBase= "<< m_taggerNameBase );
 
-    m_calibrationTool->storeCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib", inputVars, "", tree);
+    m_calibrationTool->storeCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib", inputVars, "", tree);
 
 
     /*KM: Get back the calib objects from calibration broker*/
-    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name()) ) {
+    std::string alias = m_calibrationTool->channelAlias(author);
+    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, author, m_taggerNameBase+"Calib", name()) ) {
       std::vector<float*>  inputPointers; inputPointers.clear();
       unsigned nConfgVar=0; bool badVariableFound=false;
 
-      CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib");
+      CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, author, m_taggerNameBase+"Calib");
       std::vector<std::string> inputVars = calib.inputVars;
       std::string str = calib.str;
       TTree* tree = (TTree*) calib.obj;
@@ -440,10 +440,9 @@ namespace Analysis
 	m_egammaBDTs.erase(it_egammaBDT);
       }
       m_egammaBDTs.insert( std::make_pair( alias, bdt ) );  
-      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,alias, m_taggerNameBase+"Calib", false, name());
+      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,author, m_taggerNameBase+"Calib", false, name());
  
-    }//if (!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name()) ) {
-
+    }
 
     // Reference only: Fill control histograms and get jet label
     std::string pref = "";
@@ -750,7 +749,7 @@ namespace Analysis
       else if (inputVars.at(ivar)=="j_m_s_L3d" 	     ) { inputPointers.push_back(&m_sm_mu_sv_L3d ) ; nConfgVar++; }
       else if (inputVars.at(ivar)=="j_m_s_dR"  	     ) { inputPointers.push_back(&m_sm_mu_sv_dR ) ; nConfgVar++; }
       else {
-	ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in SMT... CHECK PLEASE!!!");//<<alias<<" "<<author);
+	ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in SMT... CHECK PLEASE!!!");
 	badVariableFound=true;
       } 
     }
