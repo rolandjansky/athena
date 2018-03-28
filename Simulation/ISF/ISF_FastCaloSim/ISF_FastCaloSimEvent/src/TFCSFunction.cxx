@@ -8,6 +8,6 @@
 //======= TFCSFunction =========
 //=============================================
 
-void TFCSFunction::rnd_to_fct(float value[],const float rnd[])
+void TFCSFunction::rnd_to_fct(float* /*value*/,const float* /*rnd*/)
 {
 }

@@ -38,6 +38,13 @@ void TFCS2DFunctionHistogram::Initialize(TH2* hist)
       ++ibin;
     }
   }
+  if(integral<=0) {
+    std::cout<<"ERROR: histogram "<<hist->GetName()<<" : "<<hist->GetTitle()<<" integral="<<integral<<" is <=0"<<std::endl;
+    m_HistoBorders.resize(0);
+    m_HistoBordersy.resize(0);
+    m_HistoContents.resize(0);
+    return;
+  }
 
   for (int ix=1; ix<=nbinsx; ix++) m_HistoBorders[ix-1]=hist->GetXaxis()->GetBinLowEdge(ix);
   m_HistoBorders[nbinsx]=hist->GetXaxis()->GetXmax();
@@ -50,6 +57,11 @@ void TFCS2DFunctionHistogram::Initialize(TH2* hist)
 
 void TFCS2DFunctionHistogram::rnd_to_fct(float& valuex,float& valuey,float rnd0,float rnd1)
 {
+  if(m_HistoContents.size()==0) {
+    valuex=0;
+    valuey=0;
+    return;
+  }
   auto it = std::upper_bound(m_HistoContents.begin(),m_HistoContents.end(),rnd0);
   int ibin=std::distance(m_HistoContents.begin(),it);
   Int_t nbinsx=m_HistoBorders.size()-1;
