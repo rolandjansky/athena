@@ -89,8 +89,7 @@ int main(int argc, char* argv[])
     /// RAII on-the-fly creation of photon CP tools:
     vector<asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool>> factory;
 
-    const char* mapPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/"
-            "PhotonEfficiencyCorrection/2015_2017/"
+    const char* mapPath = "PhotonEfficiencyCorrection/2015_2017/"
             "rel21.2/Winter2018_Prerec_v1/map1.txt";
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {

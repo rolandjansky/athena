@@ -99,8 +99,7 @@ int main(int argc, char* argv[])
         {"g25_medium_L1EM20VH", "HLT_g25_medium_L1EM20VH"}
      };
 
-    const char* mapPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/"
-            "PhotonEfficiencyCorrection/2015_2017/"
+    const char* mapPath = "PhotonEfficiencyCorrection/2015_2017/"
             "rel21.2/Winter2018_Prerec_v1/map1.txt";
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs

@@ -99,8 +99,7 @@ int main(int argc, char* argv[])
 [MULTITRIGGERS]
 {electron_toolconfigs}
 [/MULTITRIGGERS]
-    const char* mapPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/"
-            "ElectronEfficiencyCorrection/2015_2016/"
+    const char* mapPath = "ElectronEfficiencyCorrection/2015_2016/"
             "rel20.7/Moriond_February2017_v3/map1.txt";
 [MULTITRIGGERS]
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
