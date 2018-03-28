@@ -48,8 +48,6 @@ from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import makeElectronAnalys
 sequence = makeElectronAnalysisSequence (electronContainer=electronContainer,dataType=dataType)
 
 
-#from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
-
 sequencePostConfiguration (sequence, electronContainer)
 
 for alg in sequence :
@@ -61,12 +59,6 @@ for alg in sequence :
     algSeq += config
     pass
 
-# create our algorithm with teh given name
-#alg = CfgMgr.MyxAODAnalysis()
-
-# later on we'll add some configuration options for our algorithm that go here
-
-#algSeq += alg
 
 # optional include for reducing printout from athena
 include("AthAnalysisBaseComps/SuppressLogging.py")

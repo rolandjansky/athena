@@ -84,9 +84,6 @@ from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import makeElectronAnalys
 
 sequence = makeElectronAnalysisSequence (electronContainer=electronContainer,dataType=dataType)
 
-
-#from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
-
 sequencePostConfiguration (sequence, electronContainer)
 
 for alg in sequence :
