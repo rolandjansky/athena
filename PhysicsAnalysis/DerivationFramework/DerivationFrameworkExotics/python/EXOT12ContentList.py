@@ -11,8 +11,6 @@ EXOT12AllVariablesTruth = [
     "TruthEvents",
     "TruthVertices",
     "MET_Truth",
-    "AntiKt4TruthJets",
-    "AntiKt4TruthWZJets",
     "MuonTruthParticles",
     "egammaTruthParticles"
 ]
@@ -29,8 +27,15 @@ EXOT12SmartCollections = [
     "InDetTrackParticles"
 ]
 
+EXOT12SmartCollectionsTruth = [
+    "AntiKt4TruthJets",
+    "AntiKt4TruthWZJets"
+]
+
 EXOT12ExtraVariables = []
 
 EXOT12ExtraVariablesTruth = [
-    "Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.bkgTruthParticleLink.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.firstEgMotherTruthParticleLink"
+    "Electrons.bkgTruthType.bkgTruthOrigin.bkgMotherPdgId.bkgTruthParticleLink.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId.firstEgMotherTruthParticleLink",
+    "AntiKt4TruthJets.PartonTruthLabelID.GhostWBosons.GhostWBosonsCount.GhostWBosonsPt.GhostZBosons.GhostZBosonsCount.GhostZBosonsPt",
+    "AntiKt4TruthWZJets.PartonTruthLabelID.GhostWBosons.GhostWBosonsCount.GhostWBosonsPt.GhostZBosons.GhostZBosonsCount.GhostZBosonsPt"
 ]

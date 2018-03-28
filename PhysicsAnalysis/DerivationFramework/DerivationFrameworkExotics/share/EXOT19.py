@@ -87,10 +87,10 @@ EXOT19TruthTool = DerivationFramework__MenuTruthThinning(name                  =
                                                          WriteStatus3          = False,
                                                          PreserveGeneratorDescendants  = False,
                                                          PreserveAncestors     = True,
-                                                         WriteFirstN           = -1)
+                                                         WriteFirstN           = -1,
+                                                         SimBarcodeOffset      = DerivationFrameworkSimBarcodeOffset)
 
-from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
   ToolSvc += EXOT19TruthTool
   thinningTools.append(EXOT19TruthTool)
 
@@ -103,7 +103,7 @@ EXOT19TruthTool2 = DerivationFramework__GenericTruthThinning(name               
                                                              PreserveDescendants          = False,
                                                              PreserveGeneratorDescendants = True,
                                                              PreserveAncestors            = True)
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
   ToolSvc += EXOT19TruthTool2
   thinningTools.append(EXOT19TruthTool2)
 
@@ -124,8 +124,9 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT19"] = []
 reducedJetList = [
   "AntiKt4TruthJets",
-  "AntiKt4TruthWZJets"]
-replaceAODReducedJets(reducedJetList,exot19Seq,"EXOT19")
+  "AntiKt4TruthWZJets"
+]
+replaceAODReducedJets(reducedJetList, exot19Seq, "EXOT19")
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -146,9 +147,10 @@ EXOT19SlimmingHelper.StaticContent = EXOT19Content
 EXOT19SlimmingHelper.AllVariables = EXOT19AllVariables
 EXOT19SlimmingHelper.ExtraVariables = EXOT19ExtraVariables
 EXOT19SlimmingHelper.SmartCollections = EXOT19SmartCollections
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
   EXOT19SlimmingHelper.AllVariables += EXOT19AllVariablesTruth
   EXOT19SlimmingHelper.ExtraVariables += EXOT19ExtraVariablesTruth
+  EXOT19SlimmingHelper.SmartCollections += EXOT19SmartCollectionsTruth
 
 EXOT19SlimmingHelper.IncludeEGammaTriggerContent = True
 EXOT19SlimmingHelper.AppendContentToStream(EXOT19Stream)
