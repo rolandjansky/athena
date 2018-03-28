@@ -34,16 +34,24 @@ if (not globals().has_key ('ATLAS_REFERENCE_TAG') and
     os.environ.has_key ('ATLAS_REFERENCE_TAG')):
     ATLAS_REFERENCE_TAG = os.environ['ATLAS_REFERENCE_TAG']
 
-testdata = '/afs/cern.ch/atlas/maxidisk/d33/referencefiles'
-refdata = '/afs/cern.ch/atlas/maxidisk/d33/referencefiles'
+refpaths = [os.environ.get ('ATLAS_REFERENCE_DATA', None),
+            '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art',
+            '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs',
+            '/afs/cern.ch/atlas/maxidisk/d33/referencefiles']
 if infile.startswith ('rtt:'):
-    testdata = '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV'
     infile = infile[4:]
-testdata = os.environ.get ('ATLAS_REFERENCE_DATA', testdata)
-refdata = os.environ.get ('ATLAS_REFERENCE_DATA', refdata)
 
-svcMgr.EventSelector.InputCollections        = [ os.path.join (testdata,
-                                                               infile) ]
+
+def find_file (fname):
+    for p in refpaths:
+        if p:
+            path = os.path.join (p, fname)
+            if os.path.exists (path):
+                return path
+    print 'ERROR: Cannot find file: ', fname
+    return None
+
+svcMgr.EventSelector.InputCollections        = [ find_file (infile) ]
 
 from AthenaCommon.DetFlags      import DetFlags
 if not globals().get ('noMuon',False):
@@ -88,9 +96,9 @@ class Dumper (PyAthena.Alg):
                 self.reffile_name = os.path.join (r, ATLAS_REFERENCE_TAG,
                                                   refbase)
 
-        if not os.path.exists (self.reffile_name):
-            self.reffile_name = os.path.join (refdata, ATLAS_REFERENCE_TAG,
-                                              refbase)
+        if not os.path.exists (self.reffile_name) and globals().has_key ('ATLAS_REFERENCE_TAG'):
+            self.reffile_name = find_file (os.path.join (ATLAS_REFERENCE_TAG,
+                                                         refbase))
 
         self.ofile = open (self.ofile_name, 'w')
         self.icount = 0
