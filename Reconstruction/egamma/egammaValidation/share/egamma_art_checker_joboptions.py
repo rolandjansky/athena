@@ -12,7 +12,7 @@ import AthenaRootComps.ReadAthenaxAODHybrid
 svcMgr.MessageSvc.OutputLevel = INFO
 
 # ART File
-testFile = 'ART_Rec_'+particleType+'.pool.root'
+testFile = 'Nightly_AOD_'+particleType+'.pool.root'
 svcMgr.EventSelector.InputCollections = [testFile]
 
 
@@ -20,10 +20,10 @@ job = CfgMgr.AthSequencer("AthAlgSeq")
 job += CfgMgr.EgammaMonitoring('MonitoringAlg', sampleType = particleType)
 
 
-theApp.EvtMax = 2000
+theApp.EvtMax = 10000
 
 
-outputFile = 'ART-monitoring_'+particleType+'.root'
+outputFile = 'Nightly-monitoring_'+particleType+'.hist.root'
 svcMgr += CfgMgr.THistSvc()
 svcMgr.THistSvc.Output = ["MONITORING DATAFILE='"+outputFile+"' OPT='RECREATE'"]
 
