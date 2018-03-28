@@ -75,6 +75,8 @@ public:
   /// Deletes the contents and sets size to 0 (same as stl::vector<T>::clear())
   void clear() {m_cont.clear();}
 
+  const BadChanVec& fullCont() const {return m_cont;}
+
 private:
   ///Comparison functor for sorting and searching
   struct ChannelLess {

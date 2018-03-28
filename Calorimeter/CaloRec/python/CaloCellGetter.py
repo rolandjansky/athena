@@ -7,7 +7,7 @@ from AthenaCommon.Constants import *
 from RecExConfig.Configured import Configured
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
-
+from AthenaCommon.Include import Include, IncludeError, include
 
 class CaloCellGetter (Configured)  :
     _outputType = "CaloCellContainer"
@@ -88,6 +88,7 @@ class CaloCellGetter (Configured)  :
             from RecExConfig.RecFlags import rec
 
             if rec.doLArg():
+                include("LArRecUtils/LArOnOffMappingAlg.py")
                 try:
                     from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
                     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
@@ -97,17 +98,10 @@ class CaloCellGetter (Configured)  :
                     return False
 
                 if jobproperties.CaloCellFlags.doLArCreateMissingCells():
-                    # bad channel tools
-                    try:
-                        from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                        theLArBadChannelTool = LArBadChanTool()
-                    except:
-                        mlog.error("could not access bad channel tool Quit")
-                        print traceback.format_exc()
-                        return False
-                    ToolSvc += theLArBadChannelTool
                     theLArCellBuilder.addDeadOTX = True
-                    theLArCellBuilder.badChannelTool = theLArBadChannelTool
+                    from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
+                    LArBadFebAccess()
+                    #theLArCellBuilder.MissingFebKey = 
 
                 # add the tool to list of tool ( should use ToolHandle eventually) 
                 theCaloCellMaker += theLArCellBuilder

@@ -45,8 +45,8 @@ if larCondFlags.LArForceIOVRunNumber.statusOn and larCondFlags.LArForceIOVRunNum
 
 rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"
 rekeyMF="<key>/LAR/BadChannels/MissingFEBs</key>"
-conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC)
-conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF)
+conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC,className="CondAttrListCollection")
+conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF,className='AthenaAttributeList')
 
 
 if not larCondFlags.LoadElecCalib.is_locked():
