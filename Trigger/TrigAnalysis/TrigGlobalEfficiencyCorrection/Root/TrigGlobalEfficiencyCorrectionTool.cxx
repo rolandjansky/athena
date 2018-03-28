@@ -695,6 +695,15 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(
 	return getEfficiencyScaleFactor(runNumber, leptons, efficiencyScaleFactor);
 }
 
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(const std::vector<const xAOD::Photon*>& photons, double& efficiencyData, double& efficiencyMc)
+{
+	unsigned runNumber;
+	if(!retrieveRunNumber(runNumber)) return CP::CorrectionCode::Error;
+	LeptonList leptons;
+	updateLeptonList(leptons, photons);
+	return getEfficiency(runNumber, leptons, efficiencyData, efficiencyMc);
+}
+
 CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiencyScaleFactor(const std::vector<const xAOD::IParticle*>& leptons, double& efficiencyScaleFactor)
 {
 	unsigned runNumber;
