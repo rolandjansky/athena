@@ -66,6 +66,9 @@ std::vector<std::string> files;
 TChain *ch;
 std::vector<std::pair<size_t,std::vector<bool> > > towersPerFile;
 
+// The switch to turn on/off stat uncertainties
+bool uncertainty;
+
 
 void Init();
 void Process(unsigned int ientry);

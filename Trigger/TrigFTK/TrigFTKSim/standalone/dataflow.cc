@@ -30,7 +30,8 @@ int main(int argc, char **argv) {
       ("events,e", po::value<int>(&events)->default_value(-1), "The number of events to run over. Set to -1 to use all events")
       ("ntower,n", po::value<int>(&ntower)->default_value(MAXTOWER), "The number of towers")
       ("files", po::value<std::vector<std::string> >(&files)->multitoken(), "FTK NTUP files")
-      ("sigdigits,s", po::value<int>(&SIGDIGITS)->default_value(2), "The number of significant digits");
+      ("sigdigits,s", po::value<int>(&SIGDIGITS)->default_value(2), "The number of significant digits")
+      ("uncertainty,u", po::value<bool>(&uncertainty)->default_value(false), "The switch to turn on/off stat uncertainties");
 
     po::variables_map vm;
     try
@@ -550,32 +551,42 @@ void printinfo(float towers[MAXTOWER], TString quantity_name, TString board, flo
   if(barrelN) barrelmean/=  barrelN;
   if(endcapN) endcapmean /=  endcapN;
 
-  barrelmean_err = sqrt(barrelmean/nloop);
-  barrelmax_err = sqrt(barrelmax/nloop);
-  endcapmean_err = sqrt(endcapmean/nloop);
-  endcapmax_err = sqrt(endcapmax/nloop);
-
   barrelmean = roundTo(barrelmean,SIGDIGITS);
   barrelmax = roundTo(barrelmax,SIGDIGITS);
   endcapmean = roundTo(endcapmean,SIGDIGITS);
   endcapmax = roundTo(endcapmax,SIGDIGITS);
+  
+  if (uncertainty) {
+  	barrelmean_err = sqrt(barrelmean/nloop);
+    barrelmax_err = sqrt(barrelmax/nloop);
+    endcapmean_err = sqrt(endcapmean/nloop);
+    endcapmax_err = sqrt(endcapmax/nloop);
 
-  barrelmean_err = roundTo(barrelmean_err,SIGDIGITS_ERR);
-  barrelmax_err = roundTo(barrelmax_err,SIGDIGITS_ERR);
-  endcapmean_err = roundTo(endcapmean_err,SIGDIGITS_ERR);
-  endcapmax_err = roundTo(endcapmax_err,SIGDIGITS_ERR);
+  	barrelmean_err = roundTo(barrelmean_err,SIGDIGITS_ERR);
+	barrelmax_err = roundTo(barrelmax_err,SIGDIGITS_ERR);
+	endcapmean_err = roundTo(endcapmean_err,SIGDIGITS_ERR);
+	endcapmax_err = roundTo(endcapmax_err,SIGDIGITS_ERR);
 
-  myfile << quantity_name << "\t\t" << board << "\t\t";
-  myfile << barrelmean << "±" << barrelmean_err << "\t\t";
-  myfile << barrelmax << "±" << barrelmax_err << "\t\t";
-  myfile << endcapmean << "±" << endcapmean_err << "\t\t";
-  myfile << endcapmax << "±" << endcapmax_err << "\t\t";
+	myfile << quantity_name << "\t\t" << board << "\t\t";
+  	myfile << barrelmean << "±" << barrelmean_err << "\t\t";
+  	myfile << barrelmax << "±" << barrelmax_err << "\t\t";
+  	myfile << endcapmean << "±" << endcapmean_err << "\t\t";
+  	myfile << endcapmax << "±" << endcapmax_err << "\t\t";
 
-  myfileTeX << quantity_name << "&" << board << "&";
-  myfileTeX << barrelmean << "$\\pm$" << barrelmean_err << "&";
-  myfileTeX << barrelmax << "$\\pm$" << barrelmax_err << "&";
-  myfileTeX << endcapmean << "$\\pm$" << endcapmean_err << "&";
-  myfileTeX << endcapmax << "$\\pm$" << endcapmax_err << "&";
+ 	myfileTeX << quantity_name << "&" << board << "&";
+  	myfileTeX << barrelmean << "$\\pm$" << barrelmean_err << "&";
+	myfileTeX << barrelmax << "$\\pm$" << barrelmax_err << "&";
+	myfileTeX << endcapmean << "$\\pm$" << endcapmean_err << "&";
+  	myfileTeX << endcapmax << "$\\pm$" << endcapmax_err << "&";
+  }
+
+  else {
+  	myfile << quantity_name << "\t\t" << board << "\t\t";
+    myfile << barrelmean << "\t\t" << barrelmax << "\t\t" << endcapmean << "\t\t" << endcapmax << "\t\t";
+
+    myfileTeX << quantity_name << "&" << board << "&";
+    myfileTeX << barrelmean << "&" << barrelmax << "&" << endcapmean << "&" << endcapmax << "&";
+  }
 
   if (HW_limit == 0) {
   	myfile << endl;
