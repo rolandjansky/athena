@@ -1,5 +1,5 @@
-Athena - 21.3 Branch for Simulation
+Athena - 21.9 Branch for Upgrade Phase-2
 ==========================
 
 This branch is currently used for:
-- MC18 Simulation Developments
+- Upgrade Phase-2 developments, such as ITK
