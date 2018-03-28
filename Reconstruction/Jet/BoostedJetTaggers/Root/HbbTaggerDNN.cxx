@@ -7,6 +7,7 @@
 #include "lwtnn/parse_json.hh"
 #include "lwtnn/Exceptions.hh"
 #include "lwtnn/lightweight_nn_streamers.hh"
+#include "lwtnn/NanReplacer.hh"
 
 #include "BoostedJetTaggers/HbbTaggerDNN.h"
 
@@ -119,6 +120,10 @@ StatusCode HbbTaggerDNN::initialize(){
     return StatusCode::FAILURE;
   }
   m_output_value_name = out_names.at(0);
+  for (const auto& node: config.inputs) {
+    m_var_cleaners.emplace_back(
+      node.name, new lwt::NanReplacer(node.defaults, lwt::rep::all));
+  }
   try {
     m_lwnn.reset(new lwt::LightweightGraph(config, output_node_name));
   } catch (lwt::NNConfigurationException& exc) {
@@ -160,9 +165,15 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
   using namespace BoostedJetTaggers;
 
   // build the jet properties into a map
-  if (m_input_builder->n_subjets(jet) < 2) return -1000000000.;
   HbbInputBuilder::VMap inputs = m_input_builder->get_map(jet);
-  auto nn_output = m_lwnn->compute(inputs);
+  // if we have any NaN or infinite values, replace them with defaults
+  HbbInputBuilder::VMap cleaned;
+  for (const auto& cleaner: m_var_cleaners) {
+    cleaned.emplace(
+      cleaner.first, cleaner.second->replace(inputs.at(cleaner.first)));
+  }
+
+  auto nn_output = m_lwnn->compute(cleaned);
   return nn_output.at(m_output_value_name);
 }
 
