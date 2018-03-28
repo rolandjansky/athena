@@ -618,6 +618,7 @@ StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *towe
       printVec(this->msg(MSG::VERBOSE), correction);
     } // in case the correction wasn't enabled in the readout nothing has to be done
   } else {
+      ATH_MSG_DEBUG("::correction: case 3, pedestal correction disabled!");
     // case 3.)
   }
 
@@ -641,6 +642,7 @@ StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *towe
                   false, // TODO - disabled?
                   lutOut_cp);
   } else if(chanCalib->lutCpStrategy() == 3) {
+    ATH_MSG_DEBUG("chanCalib->lutCpStrategy() == 3");
     for(auto l : lutIn) lutOut_cp.push_back(non_linear_lut(l, chanCalib->lutCpOffset(), chanCalib->lutCpSlope(), chanCalib->lutCpNoiseCut(), chanCalib->lutCpScale(), chanCalib->lutCpPar1(), chanCalib->lutCpPar2(), chanCalib->lutCpPar3(), chanCalib->lutCpPar4()));
   }
   ATH_MSG_VERBOSE("::cp-lut: lut:");
