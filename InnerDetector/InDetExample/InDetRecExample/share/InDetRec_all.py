@@ -75,7 +75,7 @@ else:
 
 
 # ---- Beam Spot service
-include("InDetBeamSpotService/BeamCondSvc.py")
+#include("InDetBeamSpotService/BeamCondSvc.py")
 # --- particle property service
 include("PartPropSvc/PartPropSvc.py")
 # --- if truth, get corresponding POOL converters
