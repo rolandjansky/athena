@@ -71,7 +71,7 @@ namespace xAOD {
    }
 
    Jet_v1::FourMom_t Jet_v1::p4() const {
-     GenVecFourMom_t p = jetP4();
+     JetFourMom_t p = jetP4();
      return FourMom_t(p.Px(), p.Py(), p.Pz(), p.E() );
    }
 
@@ -189,7 +189,7 @@ namespace xAOD {
       std::cerr << " Error p4(P4SignalState) unknown state "<< s << std::endl;
       break;
     }
-    return GenVecFourMom_t();
+    return JetFourMom_t();
   }
 
   JetFourMom_t Jet_v1::genvecP4(JetScale s) const {
@@ -218,16 +218,16 @@ namespace xAOD {
   /// Generic access to states
   JetFourMom_t Jet_v1::jetP4(const std::string& statename) const {
     if(statename=="JetAssignedScaleMomentum") return jetP4();
-    return getAttribute<GenVecFourMom_t>(statename);
+    return getAttribute<JetFourMom_t>(statename);
   }
 
   JetFourMom_t Jet_v1::genvecP4(const std::string& statename) const {
     return jetP4(statename);
   }
 
-  void Jet_v1::setJetP4(const std::string& statename, const GenVecFourMom_t &p4)  {
+  void Jet_v1::setJetP4(const std::string& statename, const JetFourMom_t &p4)  {
     if(statename=="JetAssignedScaleMomentum") return setJetP4(JetAssignedScaleMomentum,p4);
-    return setAttribute<GenVecFourMom_t>(statename, p4);
+    return setAttribute<JetFourMom_t>(statename, p4);
   }
 
 
