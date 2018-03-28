@@ -7,6 +7,8 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 #include "GaudiKernel/ICondSvc.h"
+#include "GaudiKernel/EventIDRange.h" 
+#include <limits>
 
 #include "BeamSpotConditionsData/BeamSpotData.h"
 
@@ -21,6 +23,7 @@ class BeamSpotCondAlg : public AthAlgorithm
   virtual StatusCode  execute();        //per event
   virtual StatusCode  finalize();       //once, after all events processed
   
+  static const EventIDRange alwaysValid;
 
  private: 
 

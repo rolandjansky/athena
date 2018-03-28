@@ -2,6 +2,18 @@
 #include "BeamSpotCondAlg.h"
 #include "CoralBase/AttributeListException.h"
 
+const EventIDRange BeamSpotCondAlg::alwaysValid { EventIDBase { 1,
+                                                                EventIDBase::UNDEFEVT,
+                                                                EventIDBase::UNDEFNUM,
+                                                                EventIDBase::UNDEFNUM,
+                                                                0 },
+                                                  EventIDBase { EventIDBase::UNDEFNUM - 1,
+	                                                        EventIDBase::UNDEFEVT,
+	                                                        EventIDBase::UNDEFNUM,
+	                                                        EventIDBase::UNDEFNUM,
+	                                                        EventIDBase::UNDEFNUM - 1 }
+                                                };
+
 BeamSpotCondAlg::BeamSpotCondAlg( const std::string& name, ISvcLocator* pSvcLocator ) 
   : AthAlgorithm( name, pSvcLocator )
 { }
@@ -48,37 +60,38 @@ StatusCode BeamSpotCondAlg::execute()
     return StatusCode::SUCCESS;
   }
 
-  SG::ReadCondHandle<AthenaAttributeList> readHandle { m_readKey };
-  
-  const AthenaAttributeList* raw { *readHandle };
-  if ( raw == nullptr )
-  {
-    ATH_MSG_ERROR("Beam Spot data for key " << m_readKey.fullKey() << " not found");
-    return StatusCode::FAILURE;
-  }
-  
-  int   status  { m_status };
-  float posX    { m_posX };
-  float posY    { m_posY };
-  float posZ    { m_posZ };
-  float sigmaX  { m_sigmaX };
-  float sigmaY  { m_sigmaY };
-  float sigmaZ  { m_sigmaZ };
-  float tiltX   { m_tiltX };
-  float tiltY   { m_tiltY };
-  float sigmaXY { m_sigmaXY };
+  EventIDRange rangeW;
+  InDet::BeamSpotData* writeCdo = nullptr;
 
-  if (m_useDB)
+  if ( !m_useDB )
   {
-    status = (*raw)["status"].data<int>();
-    posX = (*raw)["posX"].data<float>();
-    posY = (*raw)["posY"].data<float>();
-    posZ = (*raw)["posZ"].data<float>();
-    sigmaX = (*raw)["sigmaX"].data<float>();
-    sigmaY = (*raw)["sigmaY"].data<float>();
-    sigmaZ = (*raw)["sigmaZ"].data<float>();
-    tiltX = (*raw)["tiltX"].data<float>();
-    tiltY = (*raw)["tiltY"].data<float>();
+    rangeW = alwaysValid;
+    writeCdo = new InDet::BeamSpotData( m_status, m_posX, m_posY, m_posZ,
+				        m_sigmaX, m_sigmaY, m_sigmaZ,
+				        m_tiltX, m_tiltY, m_sigmaXY );
+  }
+  else
+  {
+
+    SG::ReadCondHandle<AthenaAttributeList> readHandle { m_readKey };
+  
+    const AthenaAttributeList* raw { *readHandle };
+    if ( raw == nullptr )
+    {
+      ATH_MSG_ERROR("Beam Spot data for key " << m_readKey.fullKey() << " not found");
+      return StatusCode::FAILURE;
+    }
+  
+    int status { (*raw)["status"].data<int>() };
+    float posX { (*raw)["posX"].data<float>() };
+    float posY { (*raw)["posY"].data<float>() };
+    float posZ { (*raw)["posZ"].data<float>() };
+    float sigmaX { (*raw)["sigmaX"].data<float>() };
+    float sigmaY { (*raw)["sigmaY"].data<float>() };
+    float sigmaZ { (*raw)["sigmaZ"].data<float>() };
+    float tiltX  { (*raw)["tiltX"].data<float>() };
+    float tiltY  { (*raw)["tiltY"].data<float>() };
+    float sigmaXY { m_sigmaXY };
     try
     {
       sigmaXY = (*raw)["sigmaXY"].data<float>();
@@ -89,31 +102,30 @@ StatusCode BeamSpotCondAlg::execute()
     }
 
     ATH_MSG_INFO( "Read from condDB"
-	       << " status " << status
+               << " status " << status
 	       << " pos (" << posX << "," << posY << "," << posZ << ")"
 	       << " sigma (" << sigmaX << "," << sigmaY << "," << sigmaZ << ")"
 	       << " tilt (" << tiltX << "," << tiltY << ")"
 	       << " sigmaXY " << sigmaXY );
+
+    if ( !readHandle.range(rangeW) )
+    {
+      ATH_MSG_ERROR( "Failed to retrieve validity range for " << readHandle.key() );
+      return StatusCode::FAILURE;
+    }
+
+    writeCdo = new InDet::BeamSpotData( status, posX, posY, posZ,
+				        sigmaX, sigmaY, sigmaZ,
+					tiltX, tiltY, sigmaXY );
   }
 
-  EventIDRange rangeW;
-  if ( !readHandle.range(rangeW) )
-  {
-    ATH_MSG_ERROR( "Failed to retrieve validity range for " << readHandle.key() );
-    return StatusCode::FAILURE;
-  }
-
-  InDet::BeamSpotData* writeCdo = new InDet::BeamSpotData( status, posX, posY, posZ,
-							   sigmaX, sigmaY, sigmaZ,
-							   tiltX, tiltY, sigmaXY );
-  
   if ( writeHandle.record( rangeW, writeCdo ).isFailure() )
   {
     ATH_MSG_ERROR( "Could not record InDet::BeamSpotData " << writeHandle.key() <<
-		   " with EventRange " << rangeW << " into conditions store." );
+                   " with EventRange " << rangeW << " into conditions store." );
     return StatusCode::FAILURE;
   }
-
+  
   ATH_MSG_INFO( "Recorded new InDet::BeamSpotData to " << writeHandle.key() << " with range " << rangeW <<
 		" into conditions store." );
 
