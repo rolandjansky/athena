@@ -260,8 +260,10 @@ class L2EFChain_met(L2EFChainDef):
         
         jetChainDict['chainCounter'] = 9151
         jetChainDef = generateHLTChainDef(jetChainDict)
-     
-        dummy_bjet_chain = ['j20_{0}_{1}_boffperf_split'.format(calibration, jetCalib),  '', [], ["Main"], ['RATE:SingleBJet', 'BW:BJet'], -1]
+        #This is a dummy b-jet chain, with a threshold at 20 GeV at the uncalibrated scale. It computes the tracks within each jet RoI. 
+        #Change the calibration by changing 'nojcalib' to the desired calibration scale. 
+        #For pufittrack, we found that the performance was superior using uncalibrated jets. 
+        dummy_bjet_chain = ['j20_{0}_{1}_boffperf_split'.format(calibration,'nojcalib'),  '', [], ["Main"], ['RATE:SingleBJet', 'BW:BJet'], -1]
         bjet_chain_dict = theDictFromChainName.getChainDict(dummy_bjet_chain)
         bjet_chain_dict["chainCounter"] = 9152
         bjet_chain_dict['topoThreshold'] = None
@@ -348,14 +350,14 @@ class L2EFChain_met(L2EFChainDef):
 
 
         elif EFrecoAlg=='pufittrack':
-            self.EFsequenceList +=[[ input0,algo0,  output0 ]]
-            self.EFsequenceList +=[[ input1,algo1,  output1 ]]
-            self.EFsequenceList +=[[ input2,algo2,  output2 ]]
-            self.EFsequenceList +=[[ input3,algo3,  output3 ]]
-            self.EFsequenceList +=[[ input4,algo4,  output4 ]]
             makelist = lambda x: x if isinstance(x, list) else [x]
             self.EFsequenceList += [ [ x['input'], makelist(x['algorithm']), x['output'] ] for x in bjet_chain_def.sequenceList[:-2] ]
-            self.EFsequenceList += [[ [output3, output4, self.EFsequenceList[-1][2],self.EFsequenceList[-5][2]], [theEFMETFex], 'EF_xe_step1' ]]
+            #print self.EFsequenceList[-14][2], "Clusters, output EF_FSTopoClusters"
+            #print self.EFsequenceList[-12][2], "Jets, output EF_8389636500743033767_jetrec_a4tclcwnojcalibFS"
+            #print self.EFsequenceList[-1][2], "Tracks, output HLT_j20_eta_jsplit_IDTrig"
+            #print self.EFsequenceList[-5][2], "Vertex, output HLT_superIDTrig_prmVtx"
+            #Fill the sequence with clusters, jets, tracks, vertices 
+            self.EFsequenceList += [[ [self.EFsequenceList[-14][2],self.EFsequenceList[-12][2],self.EFsequenceList[-1][2],self.EFsequenceList[-5][2]], [theEFMETFex], 'EF_xe_step1' ]]  
             self.EFsequenceList += [[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
 
         #trigger-jet based MET
