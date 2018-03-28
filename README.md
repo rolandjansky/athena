@@ -19,6 +19,7 @@ Branch                                                            | Purpose     
 [21.1-dev](https://gitlab.cern.ch/atlas/athena/tree/21.1-dev)     | HLT and P1 Run 2 Developments | AthenaP1, No production releases
 [21.2](https://gitlab.cern.ch/atlas/athena/tree/21.2)             | Derivations and Analysis     | AthDerivations + (Ath)AnalysisBase, 21.2.X
 [21.3](https://gitlab.cern.ch/atlas/athena/tree/21.3)             | MC18 Simulation              | Athena + AthSimulation, 21.3.X
+[21.9](https://gitlab.cern.ch/atlas/athena/tree/21.9)             | Phase-2 developments         | Athena + AthSimulation, 21.9.X
 [master](https://gitlab.cern.ch/atlas/athena/tree/master)         | AthenaMT development         | Athena, 22.0.X
 
 Links
