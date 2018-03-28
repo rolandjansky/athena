@@ -146,7 +146,7 @@ namespace xAOD {
 
   PFO_v1::FourMom_t PFO_v1::p4EM() const { 
 
-    if (fabs(this->charge()) > FLT_MIN) return FourMom_t();
+    if (fabs(this->charge()) > FLT_MIN) return p4();
 
     FourMom_t p4EM;
 
@@ -162,7 +162,7 @@ namespace xAOD {
 
   PFO_v1::GenVecFourMom_t PFO_v1::genvecP4EM() const { 
 
-    if (fabs(this->charge()) > FLT_MIN) return GenVecFourMom_t();
+    if (fabs(this->charge()) > FLT_MIN) return genvecP4();
 
     //change to use pt, eta, phi ,e 
     const static Accessor<float> accPt("ptEM");
