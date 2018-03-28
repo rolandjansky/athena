@@ -3,7 +3,12 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/WriteCondHandleKey.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+
+#include "GaudiKernel/ICondSvc.h"
+
+#include "BeamSpotConditionsData/BeamSpotData.h"
 
 class BeamSpotCondAlg : public AthAlgorithm 
 { 
@@ -19,8 +24,13 @@ class BeamSpotCondAlg : public AthAlgorithm
 
  private: 
 
-  SG::ReadCondHandleKey<AthenaAttributeList> m_key { this, "BeamSpotFolder", "/Indet/Beampos", 
-                                                     "DB folder from which to read raw beam spot data" };
+  SG::ReadCondHandleKey<AthenaAttributeList> m_readKey { this, "BeamSpotFolder", "/Indet/Beampos", 
+                                                         "DB folder from which to read raw beam spot data" };
+
+  SG::WriteCondHandleKey<InDet::BeamSpotData> m_writeKey { this, "BeamSpotDataKey", "BeamSpotData",
+                                                           "Key for derived conditions in conditions store" };
+
+  ServiceHandle<ICondSvc> m_condSvc { this, "ConditionsService", "CondSvc", "name of conditions service" };
 
   Gaudi::Property<bool>  m_useDB   { this, "useDB",   true,  "read beam spot from conditions DB" };
   Gaudi::Property<int>   m_status  { this, "status",  1,     "default status" };

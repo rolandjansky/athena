@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
     PUBLIC
 
     PRIVATE
+    BeamSpotConditionsData
     Control/AthenaBaseComps
     Control/AthenaKernel
     Control/StoreGate
@@ -22,7 +23,7 @@ atlas_depends_on_subdirs(
 atlas_add_component( BeamSpotConditions
 		     src/*.cxx 
 		     src/components/*.cxx
-                     LINK_LIBRARIES AthenaPoolUtilities AthenaBaseComps AthenaKernel StoreGateLib
+                     LINK_LIBRARIES AthenaPoolUtilities AthenaBaseComps AthenaKernel StoreGateLib BeamSpotConditionsData
                    )
 
 # if you add an application (exe) to this package
