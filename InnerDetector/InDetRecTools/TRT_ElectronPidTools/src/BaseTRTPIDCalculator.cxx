@@ -58,7 +58,9 @@ void InDet::BaseTRTPIDCalculator::checkInitialization(){
     ATH_MSG_DEBUG("Loading default calibration into memory.");
     setDefaultCalibrationConstants();
     HasBeenInitialized=1;
-    PrintBlob();
+    if (parent.msgLvl(MSG::DEBUG)) {
+        PrintBlob();
+    }
   }
 }
 
