@@ -37,7 +37,7 @@ except ImportError:
     conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos", className="AthenaAttributeList")
 
 
-from BeamSpotConditionsComps.BeamSpotConditionsCompsConf import BeamSpotCondAlg
+from BeamSpotConditions.BeamSpotConditionsConf import BeamSpotCondAlg
 condSeq += BeamSpotCondAlg( "BeamSpotCondAlg" )
 
 

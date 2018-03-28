@@ -19,7 +19,7 @@ atlas_depends_on_subdirs(
 
 # if you add components (tools, algorithms) to this package
 # uncomment the next lines
-atlas_add_component( BeamSpotConditionsComps
+atlas_add_component( BeamSpotConditions
 		     src/*.cxx 
 		     src/components/*.cxx
                      LINK_LIBRARIES AthenaPoolUtilities AthenaBaseComps AthenaKernel StoreGateLib

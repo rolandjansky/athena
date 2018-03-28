@@ -1,3 +1,3 @@
  
 #include "GaudiKernel/LoadFactoryEntries.h"
-LOAD_FACTORY_ENTRIES(BeamSpotConditionsComps)
+LOAD_FACTORY_ENTRIES(BeamSpotConditions)
