@@ -449,6 +449,7 @@ StatusCode TileDigitsMaker::execute() {
   int ntot_ch[nchMax];
   double ech_tot[nchMax];
   double ech_int[nchMax];
+  double ech_int_DigiHSTruth[nchMax];
   int over_gain[nchMax];
   memset(over_gain,-1,sizeof(over_gain));
 
@@ -715,9 +716,9 @@ StatusCode TileDigitsMaker::execute() {
     }
 
     std::vector<bool> signal_in_channel(nchMax, 0);
-    ATH_CHECK(FillDigitCollection( collItr, m_drawerBufferLo, m_drawerBufferHi, igain, over_gain));
+    ATH_CHECK(FillDigitCollection( collItr, m_drawerBufferLo, m_drawerBufferHi, igain, over_gain, ech_int));
     if(m_doDigiTruth){
-      ATH_CHECK(FillDigitCollection( collItr_DigiHSTruth, m_drawerBufferLo_DigiHSTruth, m_drawerBufferHi_DigiHSTruth, igain, over_gain));
+      ATH_CHECK(FillDigitCollection( collItr_DigiHSTruth, m_drawerBufferLo_DigiHSTruth, m_drawerBufferHi_DigiHSTruth, igain, over_gain, ech_int_DigiHSTruth));
     } // End DigiHSTruth stuff
 
     /* Now all signals for this collection are stored in m_drawerBuffer, 
@@ -1249,7 +1250,7 @@ StatusCode TileDigitsMaker::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int over_gain[]) const{
+StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int over_gain[], double ech_int[]) const{
   
   // Zero sums for monitoring.
   int nChSum = 0;
@@ -1260,7 +1261,7 @@ StatusCode TileDigitsMaker::FillDigitCollection(TileHitContainer::const_iterator
   const int nchMax = 48; // number of channels per drawer
   int ntot_ch[nchMax];
   double ech_tot[nchMax];
-  double ech_int[nchMax];
+  //double ech_int[nchMax];
 
     ATH_MSG_VERBOSE( "Dumping 2G noise parameters");
     IdContext drawer_context = m_tileHWID->drawer_context();

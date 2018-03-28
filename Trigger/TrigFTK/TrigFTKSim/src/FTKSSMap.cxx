@@ -1701,7 +1701,7 @@ FTKSSMap::compressed_ssid_word_pixel
   total_offset = (int)ceil(total_offset/(1.*(1<<(phi_dc_bits+eta_dc_bits))))*(1<<(phi_dc_bits+eta_dc_bits));
   const unsigned int global_ssid = total_offset*local_module_id + local_ssid;
   const unsigned int result = global_ssid;
-  const unsigned int result_mask = (1<<m_nbitsssid)-1;
+  const unsigned int result_mask = (1<<nbitsSSID_available)-1;
   if ( (result & result_mask) != result ) {
      std::cout<<"local id="<<local_module_id
               <<" plane="<<plane
@@ -1713,7 +1713,7 @@ FTKSSMap::compressed_ssid_word_pixel
               <<" local_ssid="<<local_ssid<<"\n";
      std::cout<<" result="<<result<<" [0x"<<std::setbase(16)<<result
               <<"] mask=0x"<<result_mask<<std::setbase(10)
-              <<" nbit="<<m_nbitsssid<<"\n";
+              <<" nbit="<<nbitsSSID_available<<"\n";
      throw FTKException("compressed_ssid_word_pixel: Error in the DC configuration (2)");
   }
   return result;
@@ -1792,9 +1792,9 @@ FTKSSMap::compressed_ssid_word_strip(int localID,int plane,int section,
   // the above needs to be a multiple of 2^(total dc bits)
   max_compressed_ssid = (int)ceil(max_compressed_ssid/(1.*(1<<phi_dc_bits)))*(1<<phi_dc_bits);
   const unsigned int ssPerModule = max_compressed_ssid;
-  const unsigned int offset = (localID*ssPerModule) & ((1<<m_nbitsssid)-1);
+  const unsigned int offset = (localID*ssPerModule) & ((1<<nbitsSSID_available)-1);
   const unsigned int result = offset + local_ssid;
-  assert( (result & ((1<<m_nbitsssid)-1)) == result );
+  assert( (result & ((1<<nbitsSSID_available)-1)) == result );
   return result;
 }
 

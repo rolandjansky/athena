@@ -90,7 +90,7 @@ private:
   int    m_zeroOffset;
   int    m_sliceIndex;
   int    m_filledLayerTotal;
-  int    m_layerMaximum;
+  //int    m_layerMaximum;
   int    m_barrelMaximum;
   bool   m_internalHistogramsAreValid;
 };

@@ -42,6 +42,7 @@
 
 #define ERROR_AlgorithmProblem           0
 #define ERROR_BphysColl_Fails            1
+#define ERROR_BphysTrackColl_Fails       2
 
 
 TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLocator):
@@ -50,6 +51,7 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   ,m_BmmHypTot(0)
   
   , m_trackCollectionKey()
+  , m_outputTrackCollectionKey()
   , m_bphysCollectionKey()
   , m_nTrk (2)
   , m_nTrkQ (-1)
@@ -77,6 +79,7 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
 
   declareProperty("AcceptAll",    m_acceptAll=true);
   declareProperty("trackCollectionKey", m_trackCollectionKey  = "" );
+  declareProperty("outputTrackCollectionKey", m_outputTrackCollectionKey  = "MultiTrkFex" );
   declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "MultiTrkFex" );
   declareProperty("nTrk"           , m_nTrk 	     = 2 );
   declareProperty("nTrkCharge"     , m_nTrkQ 	     = -1 );
@@ -477,8 +480,14 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
     xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
     std::vector<double> masses(2,m_trkMass);    
- 
+    
+    // record also tracks that are used in any collection
+    xAOD::TrackParticleContainer* outputTrackColl = new xAOD::TrackParticleContainer();
+    xAOD::TrackParticleAuxContainer outputTrackCollAuxCont;
+    outputTrackColl->setStore( &outputTrackCollAuxCont );
 
+
+    
     //=====make all requested m_nTrk combinations =================
 
     std::string bitmask( m_nTrk, 1); // K leading 1's
@@ -489,6 +498,8 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     // permute bitmask
     std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks; 
+    std::vector<int> thisIterationTracksIndex; 
+    std::vector<int> index_0;
     do {
       
       thisIterationTracks.clear();
@@ -498,6 +509,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	{
 	  if (bitmask[i]) {
 	    thisIterationTracks.push_back( highptTracks[i] );// std::cout << " " << i;
+	    thisIterationTracksIndex.push_back( i );
 	    combi << i << " ";  // for debug
 	    hpts << (*highptTracks[i])->pt() << ", " ;
 	  }
@@ -508,7 +520,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
                      << ", Ntrk="<< thisIterationTracks.size() 
                      << " pts=["<< hpts.str() << " ]" );
       
-
+      
       //==== re-check pts
       bool passPts = true;
       for(size_t ipt = 0; ipt <  thisIterationTracks.size(); ++ipt )
@@ -518,7 +530,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	  break;
 	}
       if( !passPts ) continue;
-
+      
       //== first check charge
       if( m_nTrkQ >= 0 ){
 	int charge = 0;
@@ -578,11 +590,9 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
        }
        passNTrkMass =true;
      }
-
-       //== calculate mass of pairs if requested ================
+      
+      //== calculate mass of pairs if requested ================
        
-       std::vector<int> index_0;
-       std::vector<int> index_1;
        std::vector<double> dimasses;
        
        int npair = 0; 
@@ -623,8 +633,8 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 		 { 
 
 		   foundPair = true;
-		   index_0.push_back(itrk0);
-		   index_1.push_back(itrk1);
+		   //index_0.push_back(thisIterationTracksIndex[itrk0]); // record index in original highpt track container
+		   //index_0.push_back(thisIterationTracksIndex[itrk1]);
 		   dimasses.push_back(dimass);	
 		 }
 	   }} // end loop over track pairs
@@ -639,7 +649,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	 }
 	 passPairMass = true;
        }
-    
+
 
        m_mon_NPair += npair;
        m_mon_acceptedNPair += npairAcc;
@@ -669,21 +679,16 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	   }else{
 	     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " nTrk Vertex chi2  "<< chi2
 					      << " required "<<m_nTrkVertexChi2 << " is good" << endmsg;
+	     index_0.insert( index_0.end(), thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );
 	   }
-	 }	
+	 }else{
+	     index_0.insert( index_0.end(), thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );    
+	 }
        } // end of vertexFit.isFailure
 
        passNTrkVertexChi2 = true;
 
-    
-       m_mon_NTrkFitMass.push_back(xaodobj->mass()*0.001 );
-       m_mon_NTrkChi2.push_back(xaodobj->fitchi2() );
-       //m_bphysHelperTool->fillTrigObjectKinematics(xaodobj,{mutrk,trk});
-
-        //std::cout << std::endl;
-
-
-    m_mon_accepted_highptNTrk =  highptTracks.size() ;
+       m_mon_accepted_highptNTrk =  highptTracks.size() ;
 
     } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
   //------------- end of combination loop
@@ -695,9 +700,12 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     if(  passPairCharge  )   m_mon_Acceptance.push_back( ACCEPT_PairCharge  );
     if(  passPairMass    )   m_mon_Acceptance.push_back( ACCEPT_PairMass    );
 
-
     // record collection now
     if ( timerSvc() )  m_BmmHypTot->stop();
+
+      
+    
+
     
     HLT::TriggerElement* outputTE = addRoI(output);  
 
@@ -725,6 +733,44 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
         delete xAODTrigBphysColl; xAODTrigBphysColl = nullptr;
     }
 
+    //OI if we did not reach this point, then we do not have a good combination at all, nothing to save
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " OI got # of indexes " << index_0.size() << endmsg;
+    sort( index_0.begin(), index_0.end() );
+    index_0.erase( unique( index_0.begin(), index_0.end() ), index_0.end() );
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " OI got unique # of indexes " << index_0.size() << endmsg;
+    for( auto ind : index_0 ){
+      xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
+      trk1->makePrivateStore(*highptTracks[ind]);
+      outputTrackColl->push_back(trk1);
+    }
+   
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " OI size of output Track collection " << outputTrackColl->size() << endmsg;
+ 
+
+
+    // add also containter with tracks for seeded EF Muon
+    if (m_outputTrackCollectionKey!= "" && outputTrackColl && outputTrackColl->size()) {
+      if ( msgLvl() <= MSG::DEBUG ) 
+	msg()  << MSG::DEBUG << "REGTEST: Store Bphys track Collection size: " << outputTrackColl->size() << endmsg;
+      outputTE->setActiveState(true);
+
+      HLT::ErrorCode sc = attachFeature(outputTE, outputTrackColl, m_outputTrackCollectionKey );
+      if(sc != HLT::OK) {
+	msg()  << MSG::WARNING << "Failed to store bphys track  Collection" << endmsg;
+	m_mon_Errors.push_back(  ERROR_BphysTrackColl_Fails );
+	delete outputTrackColl; outputTrackColl = nullptr; // assume deletion responsibility
+	afterExecMonitors().ignore();   
+	return HLT::ERROR;
+      }
+    } else {
+      if ( msgLvl() <= MSG::DEBUG ) 
+	msg()  << MSG::DEBUG << "REGTEST: no bphys track collection to store "  << endmsg;
+      delete outputTrackColl; outputTrackColl = nullptr;
+    }
+
+
+
+    
     m_countPassedEvents++;
 
 

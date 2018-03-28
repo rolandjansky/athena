@@ -165,15 +165,15 @@ topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.MergeClusters = Fal
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.PlanarClusterContainerName="SCT_PlanarClusters"
 topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.PRD_TruthPlanarContainerName="PRD_MultiTruthPlanarSCT"
 
-topSequence.StreamRDO.ItemList += ["iFatras::PlanarClusterContainer#Pixel_PlanarClusters"]
-##topSequence.StreamRDO.ItemList += ["InDet::SiClusterContainer#PixelClusters"]
-topSequence.StreamRDO.ItemList += ["iFatras::PlanarClusterContainer#SCT_PlanarClusters"]
-##topSequence.StreamRDO.ItemList += ["InDet::SiClusterContainer#SCT_Clusters"]
+AlgSequence("Streams").StreamRDO.ItemList += ["iFatras::PlanarClusterContainer#Pixel_PlanarClusters"]
+##AlgSequence("Streams").StreamRDO.ItemList += ["InDet::SiClusterContainer#PixelClusters"]
+AlgSequence("Streams").StreamRDO.ItemList += ["iFatras::PlanarClusterContainer#SCT_PlanarClusters"]
+##AlgSequence("Streams").StreamRDO.ItemList += ["InDet::SiClusterContainer#SCT_Clusters"]
 
-topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarPixel"]
-topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarSCT"]
-##topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPixel"]
-##topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthSCT"]
+AlgSequence("Streams").StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarPixel"]
+AlgSequence("Streams").StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarSCT"]
+##AlgSequence("Streams").StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPixel"]
+##AlgSequence("Streams").StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthSCT"]
 
 #from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
 #InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
@@ -209,8 +209,8 @@ topSequence.StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlana
 #topSequence += InDetSiTrackerSpacePointFinder
 #print InDetSiTrackerSpacePointFinder
 
-#topSequence.StreamRDO.ItemList += ["SpacePointContainer#PixelSpacePoints"]
-#topSequence.StreamRDO.ItemList += ["SpacePointContainer#SCT_SpacePoints"]
+#AlgSequence("Streams").StreamRDO.ItemList += ["SpacePointContainer#PixelSpacePoints"]
+#AlgSequence("Streams").StreamRDO.ItemList += ["SpacePointContainer#SCT_SpacePoints"]
 
 from ISF_FatrasRecoTools.ISF_FatrasRecoToolsConf import iFatras__ISF_PRDGeneralTruthTrajectorySorterID
 mysort=iFatras__ISF_PRDGeneralTruthTrajectorySorterID(name="ISFGeneralTruthTrajectorySorter")

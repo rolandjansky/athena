@@ -37,8 +37,8 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
 		     ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator)
 {
-// set unreasonable values to make sure that initialization is performed from outside
-// however we assume if one parameter is set from outside then they all set ok.
+  // set unreasonable values to make sure that initialization is performed from outside
+  // however we assume if one parameter is set from outside then they all set ok.
   declareProperty("NTrackMin",     m_numTrackMin       = -999);
   declareProperty("NTrackMax",     m_numTrackMax       = 0);
   declareProperty("NWideTrackMax", m_numWideTrackMax   = 999);
@@ -48,7 +48,7 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
   declareProperty("Highpt",        m_highpt            = true);
   declareProperty("HighptTrkThr",  m_highpttrkthr      = 200000.);
   declareProperty("HighptIDThr",   m_highptidthr       = 330000.);
-  declareProperty("HighptJetThr",  m_highptjetthr      = 410000.); 
+  declareProperty("HighptJetThr",  m_highptjetthr      = 440000.); 
   declareProperty("ApplyIDon0p",   m_applyIDon0p       = true);
 
   declareMonitoredVariable("CutCounter",m_cutCounter=0);
@@ -98,13 +98,14 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: param ApplyIDon0p " << m_applyIDon0p <<endmsg;
   msg() << MSG::INFO << " REGTEST: ------ "<<endmsg;
   
-  if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr))
+  if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr) )
     {
       msg() << MSG::ERROR << "EFTauMVHypo is uninitialized! " << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
   
-  std::string s_llh_cuts_file = PathResolverFindCalibFile("TrigTauRec/00-11-01/LMTCutsLLHTrigger.root");  
+  // this should be improved
+  std::string s_llh_cuts_file = PathResolverFindCalibFile("TrigTauRec/00-11-02/LMTCutsLLHTrigger.root");  
   msg() << MSG::DEBUG << "Try to open root file containing cuts: " << s_llh_cuts_file << endmsg;
  
   TFile* llhcuts = TFile::Open(s_llh_cuts_file.c_str());
@@ -115,7 +116,12 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
       return HLT::BAD_JOB_SETUP;
     }
 
-  if (m_level == 1)
+  // allow level 0 for RNN
+  if (m_level == 0 && m_method==3)
+    {
+      m_cut_level      = "veryloose";
+    }
+  else if (m_level == 1)
     {
       m_cut_level      = "medium";
       m_OneProngGraph    = (TGraph*)((llhcuts->Get("1prong/medium"))->Clone());
@@ -253,20 +259,20 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     if(!( EFet > m_EtCalibMin*1e-3)) continue;
     m_cutCounter++;
     m_mon_ptAccepted = EFet;
-
+    
+    // handled transparently whether using standard or MVA track counting
     m_numTrack = (*tauIt)->nTracks();
-    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
     m_numWideTrack = (*tauIt)->nWideTracks();
-    #else
+#else
     m_numWideTrack = (*tauIt)->nTracksIsolation();
-    #endif
-
+#endif
     
     if( msgLvl() <= MSG::DEBUG ){
       msg() << MSG::DEBUG << " REGTEST: Track size "<<m_numTrack <<endmsg;	
       msg() << MSG::DEBUG << " REGTEST: Wide Track size "<<m_numWideTrack <<endmsg;
     }    
-
+    
     // turn off track selection at highpt
     bool applyTrkSel(true);
     bool applyMaxTrkSel(true);
@@ -275,7 +281,7 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 
     if(applyMaxTrkSel) if( !(m_numTrack <= m_numTrackMax) ) continue;
     if(applyTrkSel)    if( !(m_numTrack >= m_numTrackMin) ) continue;
-    if(applyTrkSel)    if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
+    if(applyTrkSel)    if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;      
    
     m_cutCounter++;
     m_mon_nTrackAccepted = m_numTrack;
@@ -287,6 +293,7 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) local_level = -1111;
     if(!m_applyIDon0p && m_numTrack==0) local_level = -1111;
  
+    // likelihood
     if(m_method == 1 || m_method == 0)
       {
 	double llh_cut = 11111.;     
@@ -321,8 +328,8 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	
 	m_cutCounter++;
       }
-    
-    else if(m_method == 2 || m_method == 0)
+    // BDT
+    else if(m_method == 2)
       {
 	m_BDTScore = (*tauIt)->discriminant(xAOD::TauJetParameters::BDTJetScore);
 	
@@ -344,6 +351,32 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	
 	m_cutCounter++;
       }
+    // RNN
+    else if(m_method == 3)
+      {
+	if(!(*tauIt)->hasDiscriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans))
+	  msg() << MSG::WARNING <<" RNNJetScoreSigTrans not available. Make sure TauWPDecorator is run for RNN!"<<endmsg;
+	
+	msg() << MSG::DEBUG << " REGTEST: RNNJetScoreSigTrans "<< (*tauIt)->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans) << endmsg;
+	
+	if(local_level == -1111)
+	  { //noCut, accept this TE
+	    pass = true;
+	    m_cutCounter++;
+	    continue;
+	  }
+	if (local_level == 0 && (*tauIt)->isTau(xAOD::TauJetParameters::JetRNNSigVeryLoose) == 0)  
+	  continue;
+	else if (local_level == 1 && (*tauIt)->isTau(xAOD::TauJetParameters::JetRNNSigLoose) == 0)
+	  continue;
+	else if (local_level == 2 && (*tauIt)->isTau(xAOD::TauJetParameters::JetRNNSigMedium) == 0)
+	  continue;
+	else if (local_level == 3  && (*tauIt)->isTau(xAOD::TauJetParameters::JetRNNSigTight) == 0)
+	  continue;
+	
+	m_cutCounter++;
+      }
+    
     else
       {
 	msg() << MSG::ERROR << " no valid method defined "<<endmsg;	

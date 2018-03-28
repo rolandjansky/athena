@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo  "Execute AthenaHLT"
+echo  $(date "+%FT%H:%M %Z")"     Execute AthenaHLT test ${NAME}"
 
 ### DEFAULTS
 
@@ -45,11 +45,11 @@ ${ATHENAHLTCMD} ${ATHENAHLTOPT} \
 ${JOBOPTION} | tee ${JOB_LOG}
 
 ######################################
-
 COMMAND=$PREVIOUS_COMMAND 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "Command to reproduce: ${COMMAND}"
 echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
+echo  $(date "+%FT%H:%M %Z")"     Done executing AthenaHLT test ${NAME}"
 
 
 

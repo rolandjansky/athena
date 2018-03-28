@@ -144,7 +144,6 @@ def defineCPSGroups():
                                        ],
 				       
         'RATE:CPS:HLT_mu6_mu4_bBmumuX' : ['mu6_mu4_bBmumuxv2',            
-                                          'mu6_mu4_bBmumux_BcmumuDsloose',
                                           'mu6_mu4_bBmumux_BpmumuKp',
                                           'mu6_mu4_bJpsimumu', 
                                           ],
@@ -152,7 +151,6 @@ def defineCPSGroups():
         'RATE:CPS:HLT_mu6_mu4_bBmumu'   : ['mu6_mu4_bBmumu',],
 				 
         'RATE:CPS:HLT_2mu6_bBmumuX'   :  ['2mu6_bBmumuxv2',
-                                          '2mu6_bBmumux_BcmumuDsloose',
                                           '2mu6_bBmumux_BpmumuKp',
                                           '2mu6_bJpsimumu',
                                          ],
@@ -161,8 +159,7 @@ def defineCPSGroups():
                                         'mu6_mu4_bDimu_novtx_noos',
                                         ],
 
-        'RATE:CPS:HLT_2mu10_bDimu' : ['2mu10_bBmumux_BcmumuDsloose',
-                                      '2mu10_bJpsimumu',
+        'RATE:CPS:HLT_2mu10_bDimu' : ['2mu10_bJpsimumu',
                                       '2mu10_bUpsimumu',
                                       '2mu10_bBmumuxv2',
                                       '2mu10_bDimu',
@@ -183,22 +180,10 @@ def defineCPSGroups():
                               '2mu6_bJpsimumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumuxv2_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
-                              '2mu6_bBmumux_BcmumuDsloose_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bBmumux_BsmumuPhi_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                               '2mu6_bJpsimumu_Lxy0_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
                              ],
-
-                 
-        'RATE:CPS:HLT_mu6_mu4_bDimu_L1BPH-8M15-MU6MU4' : 
-                             ['mu6_mu4_bDimu_L1BPH-8M15-MU6MU4',
-                              'mu6_mu4_bUpsimumu_L1BPH-8M15-MU6MU4',
-                             ],
-
-        'RATE:CPS:HLT_2mu6_bDimu_L1BPH-8M15-2MU6' :
-                              ['2mu6_bDimu_L1BPH-8M15-2MU6',
-                               '2mu6_bUpsimumu_L1BPH-8M15-2MU6',
-                              ],
 
 
         # mu+jets chains 
@@ -305,13 +290,13 @@ def defineCPSGroups():
                                                    ],
                 'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_boffperf_split_dr05_dz02',
                                                'mu4_j25_boffperf_split_dr05_dz02',
-                                               'mu4_j15_gsc35_boffperf_split_dr05_dz02',
-                                               'mu4_j15_gsc35_boffperf_split_dr05_dz99',
-                                               'mu4_j15_gsc35_boffperf_split',
+##                                               'mu4_j15_gsc35_boffperf_split_dr05_dz02',
+##                                               'mu4_j15_gsc35_boffperf_split_dr05_dz99',
+##                                               'mu4_j15_gsc35_boffperf_split',
                                                ],
 
                 'RATE:CPS:HLT_mu_jet_L1MU6_J20' : ['mu6_j60_gsc85_boffperf_split_dr05_dz02',
-                                                   'mu6_j60_gsc110_boffperf_split_dr05_dz02',
+                                                   'mu6_j85_gsc110_boffperf_split_dr05_dz02',
                                                    ],
 
                 'RATE:CPS:HLT_mu4_bJpsi_Trk' : ['mu4_bJpsi_TrkPEB','mu4_bJpsi_Trkloose','mu4_mu2noL1_L1MU4'],
@@ -613,14 +598,6 @@ def defineCPSGroups():
         })
     if "v6" in TriggerFlags.triggerMenuSetup() or "v7" in TriggerFlags.triggerMenuSetup():
         HLT_CPS_Groups.update({
-          'RATE:CPS:HLT_mu10_mu6_bBmumuX'   :  ['mu10_mu6_bBmumuxv2',
-                                      'mu10_mu6_bBmumux_BcmumuDsloose',
-                                      'mu10_mu6_bBmumux_BpmumuKp',
-                                      'mu10_mu6_bJpsimumu',
-                                      'mu10_mu6_bJpsimumu_Lxy0',
-                                      'mu10_mu6_bBmumux_Taumumux',
-                                      'mu10_mu6_bBmumux_Taumumux_noL2',
-                                     ],
 
           "RATE:CPS:HLT_razor"   :  [''
                                      'j30_xe10_razor100',
@@ -640,15 +617,11 @@ def defineCPSGroups():
                                             ],
 
         'RATE:CPS:HLT_2mu6_bBmumuX'   :  ['2mu6_bBmumuxv2',
-                                          '2mu6_bBmumux_BcmumuDsloose',
                                           '2mu6_bBmumux_BpmumuKp',
                                           '2mu6_bJpsimumu',
                                           '2mu6_bJpsimumu_Lxy0',
-                                          '2mu6_bBmumux_Taumumux',
-                                          '2mu6_bBmumux_Taumumux_noL2',
                                          ],
         'RATE:CPS:HLT_mu6_mu4_bBmumuX' : ['mu6_mu4_bBmumuxv2',            
-                                          'mu6_mu4_bBmumux_BcmumuDsloose',
                                           'mu6_mu4_bBmumux_BpmumuKp',
                                           'mu6_mu4_bJpsimumu', 
                                           'mu6_mu4_bJpsimumu_Lxy0',
@@ -668,12 +641,6 @@ def defineCPSGroups():
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_6dphi15_mt35',
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi05_mt35',
                                                 'e18_etcut_trkcut_xs30_j15_perf_xe30_2dphi15_mt35',],
-
-                
-      
-      
-      
-
         
         'RATE:CPS:HLT_3mu6_bDimu' : ['3mu6_bDimu',
                                      '3mu6_bJpsi',
@@ -685,22 +652,6 @@ def defineCPSGroups():
                                       '2mu6_bBmumu_Lxy0',
                                        ],
 
-
-        
-
-#        'RATE:CPS:HLT_2mu4_bJpsimumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4' : ['2mu4_bJpsimumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
-#                                                                          '2mu4_bJpsimumu_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
-#                                                                          '2mu4_bJpsimumu_noL2_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
-#                                                                          '2mu4_bJpsimumu_noL2_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
-#                                                                          ],
-
-#        'RATE:CPS:HLT_2mu4_bUpsimumu_L1BPH-7M15-2MU4_BPH-0DR24-2MU4-BO' : ['2mu4_bUpsimumu_L1BPH-7M15-2MU4_BPH-0DR24-2MU4-BO',
-#                                                                           '2mu4_bUpsimumu_L1BPH-7M15-2MU4_BPH-0DR24-2MU4-B',
-#                                                                           ],
-
-#        'RATE:CPS:HLT_2mu4_bBmumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4' : ['2mu4_bBmumu_L1BPH-2M8-2MU4-BO_BPH-0DR15-2MU4',
-#                                                                       '2mu4_bBmumu_L1BPH-2M8-2MU4-B_BPH-0DR15-2MU4',
-#                                                                       ],
         })
 
     if "v7" in TriggerFlags.triggerMenuSetup():

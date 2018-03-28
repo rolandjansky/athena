@@ -1440,7 +1440,7 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     m_middle_mdt_hits = count_middle;
     m_outer_mdt_hits  = count_outer;
 
-    if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) 
+    if ( m_dataPreparator->isRpcFakeRoi() ) 
       m_invalid_rpc_roi_number = roi->getRoINumber();
     
     m_track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;

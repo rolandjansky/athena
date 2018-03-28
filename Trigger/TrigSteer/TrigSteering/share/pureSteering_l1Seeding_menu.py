@@ -68,7 +68,7 @@ chain.addStreamTag('muons', prescale='1')
 chain.addGroup('muons')
 menu.addHLTChain(chain)
 
-chain = HLTChain( chain_name='HLT_mu20_21', chain_counter='4', lower_chain_name='L1_MU20 L1_MU21', level='HLT', prescale='2', pass_through='0')
+chain = HLTChain( chain_name='HLT_mu20_21', chain_counter='4', lower_chain_name='L1_MU20,L1_MU21', level='HLT', prescale='1', pass_through='0', rerun_prescale='1')
 chain.addTriggerTypeBit('4')
 chain.addStreamTag('muons', prescale='1')
 chain.addGroup('muons')

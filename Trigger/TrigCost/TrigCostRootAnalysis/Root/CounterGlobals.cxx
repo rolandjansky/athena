@@ -84,6 +84,7 @@ namespace TrigCostRootAnalysis {
 
     m_dataStore.newVariable(kVarMonitoringTime).setSavePerEvent(
       "Time Taken by Monitoring Tools Per Event;Time [ms];Events");
+    
 
     TrigXMLService::trigXMLService().parseHLTFarmXML();
     for (int i = 0; i <= 90; ++i) {
@@ -93,6 +94,9 @@ namespace TrigCostRootAnalysis {
       m_dataStore.newVariable(ConfKey_t(kVarEventsCPUType + 16384 + i)).setSavePerCall();
       m_CPUBreakDown = kTRUE;
     }
+
+    decorate(kDecLBMuValue, TrigXMLService::trigXMLService().getLBMuValue(_ID));
+
   }
 
   /**

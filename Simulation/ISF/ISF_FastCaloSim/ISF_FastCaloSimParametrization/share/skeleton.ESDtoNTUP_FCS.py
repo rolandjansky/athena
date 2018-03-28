@@ -53,6 +53,12 @@ if hasattr(runArgs,"doG4Hits"):
 else:
     doG4Hits = False
 
+## Flag for saveAllBranches
+if hasattr(runArgs, "saveAllBranches"):
+    saveAllBranches = runArgs.saveAllBranches
+else:
+    saveAllBranches = False
+
 #==============================================================
 # Job Configuration parameters:
 #==============================================================
@@ -79,7 +85,7 @@ if hasattr(runArgs,"postInclude"):
 
 ## Post-exec
 if hasattr(runArgs,"postExec"):
-    digilog.info("transform post-exec")
+    fcsntuplog.info("transform post-exec")
     for cmd in runArgs.postExec:
         fcsntuplog.info(cmd)
         exec(cmd)

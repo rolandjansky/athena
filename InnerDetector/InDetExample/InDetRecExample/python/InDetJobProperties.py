@@ -1183,7 +1183,13 @@ class doHIP300(InDetFlagsJobProperty):
 
 class doStoreTrackSeeds(InDetFlagsJobProperty): 
   """Turn on to save the Track Seeds in a xAOD track collecting for development studies""" 
-  statusOn     = True 
+  statusOn     = False 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class doStoreTrackCandidates(InDetFlagsJobProperty):
+  """Turn on to save the Track Candidates (SiSpSeededTracks) in a xAOD track collecting for development studies"""
+  statusOn     = False
   allowedTypes = ['bool']
   StoredValue  = False
 
@@ -2819,6 +2825,7 @@ _list_InDetJobProperties = [Enabled,
                             doDBM,
                             doParticleConversion,
                             doStoreTrackSeeds,
+                            doStoreTrackCandidates,
                             doHIP300,
                             checkDeadElementsOnTrack
                            ]

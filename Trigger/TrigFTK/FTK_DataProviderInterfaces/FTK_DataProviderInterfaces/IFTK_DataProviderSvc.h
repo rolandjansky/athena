@@ -80,6 +80,7 @@ public:
   virtual unsigned int nTrackErrors(const bool withRefit)=0;
   virtual unsigned int nTrackParticleErrors(const bool withRefit)=0;
  
+  virtual Trk::Track* getCachedTrack(const unsigned int track, const bool do_refit)=0;
 
 };
 

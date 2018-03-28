@@ -346,7 +346,8 @@ TEST_F(InputConverter_test, passesFilters_one_pass_filter) {
   m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
-  ASSERT_EQ (genParticleFilters.size(), 1);
+  const unsigned int expectedSize(1);
+  ASSERT_EQ (genParticleFilters.size(), expectedSize);
   MockFilterTool* filterTool = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[0]));
   ASSERT_TRUE( filterTool );
   const HepMC::GenParticle genPart{};

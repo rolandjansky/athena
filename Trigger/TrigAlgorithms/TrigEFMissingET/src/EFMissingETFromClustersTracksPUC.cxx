@@ -55,7 +55,7 @@ EFMissingETFromClustersTracksPUC::EFMissingETFromClustersTracksPUC(const std::st
   // (*Do* add a property description...)
   declareProperty("TargetTowerWidth", m_targetTowerWidth = 0.7, "The target width of the towers");
   declareProperty("MaxEta", m_maxEta = 5., "The maximum eta");
-  declareProperty("ForwardpTCut", m_forward_ptcut = 40.0e3 ,"pT Cut for forward jets");
+  declareProperty("ForwardpTCut", m_forward_ptcut = 50.0e3 ,"pT Cut for forward jets");
   declareProperty("TrackpTCut", m_track_ptcut = 0.0 ,"pT Cut for online tracks");
   declareProperty("dRCut", m_dRCut = 0.4, "dR Cut for track - jet association");
   declareProperty("MinJetPtJvt", m_minJetPtJvt = 20.e3, "The minimum pT (in MeV) for jets to consider for JVT");
@@ -381,7 +381,6 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
   metComp->m_sumEt = sumEt;
   metComp->m_sumE  = sumE;
   metComp->m_usedChannels += 1;
-
 
   // You *can* store bits in other components (either spreading the met over several components or recording extra information that might be useful)
   // However you need to be very sure that the helper is adding up the right bits

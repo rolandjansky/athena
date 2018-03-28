@@ -1117,7 +1117,7 @@ int main(int argc, char** argv) {
 
     int mean_power = 0;
     int rms_power  = 0;
-    bool power_set = false;;
+    bool power_set = false;
     
 
     std::string xaxis = _histos[i][3];
