@@ -30,6 +30,14 @@
   <class name="std::vector<TileDigits_p1>" />
   <class name="TileDigitsContainer_p1" id="F9386A42-43A7-4482-8A5B-F33EDE586FB2" />
 
+  <class name="TileDigits_p2" />
+  <class name="std::vector<TileDigits_p2>" />
+  <class name="TileDigitsContainer_p2" id="2F82DE4C-65FA-4F01-BCB5-15330224E357" />
+
+  <class name="TileDigits_p3" />
+  <class name="std::vector<TileDigits_p3>" />
+  <class name="TileDigitsContainer_p3" id="8CC01C7A-B330-413E-BEF9-DFA18F15B1FA" />
+
   <class name="TileBeamElem_p1" />
   <class name="std::vector<TileBeamElem_p1>" />
   <class name="TileBeamElemContainer_p1" id="CF8DE6AB-8E15-4B5F-881B-39B736EAB4E0" />
