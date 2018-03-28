@@ -1525,6 +1525,19 @@ class WriteDAOD_JETM11Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM11Stream)
 listAODtoDPD.append(WriteDAOD_JETM11Stream.StreamName)
 
+class WriteDAOD_JETM12Stream(JobProperty):
+    """JETM12 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_JETM12'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkJetEtMiss/JETM12.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM12Stream)
+listAODtoDPD.append(WriteDAOD_JETM12Stream.StreamName)
+
 #####################################
 # Defined by the inner tracking group
 #####################################
