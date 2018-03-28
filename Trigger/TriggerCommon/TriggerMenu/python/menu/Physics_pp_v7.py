@@ -4567,8 +4567,8 @@ def setupMenu():
             ['noalg_ftk_L1TAU12IM_FTK', 'L1_TAU12IM_FTK', [], ['FTK'], ['RATE:SeededStreamers', 'BW:Tau'], -1],
             ['noalg_ftk_L1MU6_FTK',   'L1_MU6_FTK',  [], ['FTK'], ["RATE:SeededStreamers", "BW:Muon"], -1 ],
             ['noalg_ftk_L1FTK-EM',           'L1_FTK-EM',    [], ['FTK'], ['RATE:SeededStreamers', 'BW:Egamma'], -1], 
-            ['noalg_ftk_L1FTK-J',            'L1_FTK-J',     [], ['FTK'], ['RATE:SeededStreamers', 'BW:Egamma'], -1], 
-            ['noalg_ftk_L1FTK-MU',           'L1_FTK-MU',    [], ['FTK'], ['RATE:SeededStreamers', 'BW:Egamma'], -1], 
+            ['noalg_ftk_L1FTK-J',            'L1_FTK-J',     [], ['FTK'], ['RATE:SeededStreamers', 'BW:Jet'], -1], 
+            ['noalg_ftk_L1FTK-MU',           'L1_FTK-MU',    [], ['FTK'], ['RATE:SeededStreamers', 'BW:Muon'], -1], 
             ]
      
     TriggerFlags.MonitorSlice.signatures = [
