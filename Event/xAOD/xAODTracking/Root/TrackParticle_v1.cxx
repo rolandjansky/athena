@@ -13,7 +13,6 @@
 
 // Local include(s):
 #include "xAODTracking/versions/TrackParticle_v1.h"
-#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackSummaryAccessors_v1.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
@@ -511,24 +510,5 @@ namespace xAOD {
    }
    
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
-
-   AUXSTORE_OBJECT_SETTER_AND_GETTER( TrackParticle_v1,
-                                      ElementLink< VertexContainer >,
-                                      vertexLink, setVertexLink )
-
-   const Vertex* TrackParticle_v1::vertex() const {
-
-      // The accessor:
-      static SG::AuxElement::Accessor< ElementLink< VertexContainer > >
-         acc( "vertexLink" );
-
-      if( ! acc.isAvailable( *this ) ) {
-         return 0;
-      }
-      if( ! acc( *this ).isValid() ) {
-         return 0;
-      }
-      return *( acc( *this ) );
-   }
 
 } // namespace xAOD

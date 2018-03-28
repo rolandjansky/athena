@@ -342,14 +342,8 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   }
   //Refit Trk::Track has been created
 
-  //Get the vertex (may be pileup) that this track particle points to
-  const xAOD::Vertex* trkVtx(0);
-  if (tmpTrkPart->vertexLink().isValid()){ 
-    trkVtx = tmpTrkPart->vertex();
-  }
-
   // Use the the Refitted Trk::Track and the original vertex to construct a new TrackParticle
-  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, trkVtx, xAOD::electron );
+  xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, nullptr, xAOD::electron );
 
 
   //If no TrackParticle , then ERROR
@@ -358,10 +352,6 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     return StatusCode::FAILURE;
   }
 
-  //Set Vertex Link
-  aParticle->setVertexLink(tmpTrkPart->vertexLink());         
-
-   
   //Additional info, e/gamma  using the full  Trk::Track
 
   //Save extrapolated perigee to calo (eta,phi) for later usage in supercluster algorithm.

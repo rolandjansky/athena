@@ -20,6 +20,7 @@
 #include "xAODTrackParticleAuxContainerCnv.h"
 #include "xAODTrackParticleAuxContainerCnv_v1.h"
 #include "xAODTrackParticleAuxContainerCnv_v2.h"
+#include "xAODTrackParticleAuxContainerCnv_v3.h"
 
 // EDM include(s):
 #include "xAODTracking/TrackParticleContainer.h"
@@ -91,13 +92,21 @@ xAODTrackParticleAuxContainerCnv::createTransient() {
   static const pool::Guid v1_guid( "C3B01EA0-CA87-4C96-967F-E0F9A75BD370" );
   static const pool::Guid v2_guid( "53031BE5-2156-41E8-B70C-41A1C0572FC5" );
   static const pool::Guid v3_guid( "F41DF744-242D-11E6-B472-02163E010CEC" );
+  static const pool::Guid v4_guid( "403CEB6E-2A3D-11E8-B048-080027F5CBDA" );
 
   // Check which version of the container we're reading:
-  if ( compareClassGuid( v3_guid ) ){
-    return poolReadObject< xAOD::TrackParticleAuxContainer >(); 
-  } else if ( compareClassGuid( v2_guid ) ){
+  if ( compareClassGuid( v4_guid ) ){
     // It's the latest version, read it directly:
-    // Read in the v1 version: 
+    return poolReadObject< xAOD::TrackParticleAuxContainer >(); 
+  } else if ( compareClassGuid( v3_guid ) ){
+    // Read in the v3 version: 
+    static xAODTrackParticleAuxContainerCnv_v3 converter; 
+    std::unique_ptr< xAOD::TrackParticleAuxContainer_v3 > 
+      old( poolReadObject< xAOD::TrackParticleAuxContainer_v3 >() ); 
+
+    return converter.createTransient( old.get(), msg() );
+  } else if ( compareClassGuid( v2_guid ) ){
+    // Read in the v2 version: 
     static xAODTrackParticleAuxContainerCnv_v2 converter; 
     std::unique_ptr< xAOD::TrackParticleAuxContainer_v2 > 
       old( poolReadObject< xAOD::TrackParticleAuxContainer_v2 >() ); 
