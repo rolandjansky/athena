@@ -36,6 +36,14 @@
 #include "TileTPCnv/TileDigitsContainer_p1.h"
 #include "TileTPCnv/TileDigitsContainerCnv_p1.h"
 
+#include "TileTPCnv/TileDigits_p2.h"
+#include "TileTPCnv/TileDigitsContainer_p2.h"
+#include "TileTPCnv/TileDigitsContainerCnv_p2.h"
+
+#include "TileTPCnv/TileDigits_p3.h"
+#include "TileTPCnv/TileDigitsContainer_p3.h"
+#include "TileTPCnv/TileDigitsContainerCnv_p3.h"
+
 #include "TileTPCnv/TileBeamElem_p1.h"
 #include "TileTPCnv/TileBeamElemContainer_p1.h"
 #include "TileTPCnv/TileBeamElemContainerCnv_p1.h"
@@ -94,8 +102,20 @@ DECLARE_NAMED_TPCNV_FACTORY(TileDigitsContainerCnv_p1,
                             TileDigitsContainerCnv_p1,
                             TileDigitsContainer,
                             TileDigitsContainer_p1,
-                            Athena::TPCnvVers::Current)
+                            Athena::TPCnvVers::Old)
                       
+DECLARE_NAMED_TPCNV_FACTORY(TileDigitsContainerCnv_p2,
+                            TileDigitsContainerCnv_p2,
+                            TileDigitsContainer,
+                            TileDigitsContainer_p2,
+                            Athena::TPCnvVers::Old)
+
+DECLARE_NAMED_TPCNV_FACTORY(TileDigitsContainerCnv_p3,
+                            TileDigitsContainerCnv_p3,
+                            TileDigitsContainer,
+                            TileDigitsContainer_p3,
+                            Athena::TPCnvVers::Current)
+
 DECLARE_NAMED_TPCNV_FACTORY(TileHitContainerCnv_p1,
                             TileHitContainerCnv_p1,
                             TileHitContainer,
