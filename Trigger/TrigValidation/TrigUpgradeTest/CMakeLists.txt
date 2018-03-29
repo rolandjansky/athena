@@ -106,7 +106,6 @@ atlas_add_test( EmuStepProcessing
 		EXTRA_PATTERNS "\[Alg\]"
 )
 
-
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_NewJO )
 atlas_add_test( NewJO 
 		SCRIPT test/test_newJO.sh
