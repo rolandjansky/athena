@@ -1403,11 +1403,50 @@
 	      <chainfileout>AFIIF_ttbar.pool.root</chainfileout>
 	    </chainElement>
 	    <chainElement>
+	  <jobTransform userJobId="1reg_truth_21.3_vs_21.3-hmpl_ATLFASTIIF_ttbar_1sim">
+	  <doc>Regression test of FastChainPileup job ATLFASTIIF_ttbar_1sim in releases 21.3 vs 21.3-hmpl</doc>
+	  <jobTransformJobName>1reg_truth_21.3_vs_21.3-hmpl_ATLFASTIIF_ttbar_1sim</jobTransformJobName>
+	  <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 21.3 ATLFASTIIF_ttbar_1sim truth.root FastChainPileup 21.3-hmpl ATLFASTIIF_ttbar_1sim truth.root</jobTransformCmd>
+	  <group>FastChainPileup</group>
+	  <queue>medium</queue>
+	    <test position="1">
+	      <modulename>RttLibraryTools</modulename>
+	      <testname>DCubeRunner</testname>
+	      <arg>
+		<argname>DCubeCfg</argname>
+		<argvalue>ISF_Validation_HITS_truth.root.xml</argvalue>
+	      </arg>
+	      <arg>
+		<argname>tolerateWARN</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeRef</argname>
+		<argvalue>yesterday.truth.root</argvalue>
+	      </arg>
+	      <arg>
+		<argname>localRefFile</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeMon</argname>
+		<argvalue>today.truth.root</argvalue>
+	      </arg>
+	      <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
+	    </test>
+	    <testToRemove>
+		<jobGroupName>RTT:Top</jobGroupName>
+		<testidentifier>CheckFileRunner0</testidentifier>
+	    </testToRemove>		
+	  </jobTransform>
+	</chainElement>
+
+	    <chainElement>
 	      <jobTransform userJobId="ATLFASTIIF_ttbar_prodDigireco">
 		<doc>MC production-like reco job</doc>
 		<jobTransformJobName>ATLFASTIIF_ttbar_prodDigireco</jobTransformJobName>
 		<jobTransformCmd> 
-		  Reco_tf.py --inputHITSFile="AFIIF_ttbar.pool.root" --maxEvents="50" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); InDetFlags.doStandardPlots.set_Value_and_Lock(True)" "ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False)" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v1.py" --skipEvents="0" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-30" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --runNumber="110401" --digiSeedOffset1="2" --digiSeedOffset2="2" --digiSteeringConf='StandardSignalOnlyTruth' --outputRDOFile="RDO.pool.root" --AMITag="r9110" --inputHighPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098387._000006.pool.root.1" --inputLowPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098374._000016.pool.root.1" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --pileupFinalBunch="6" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root" --jobNumber="2"
+		  Reco_tf.py --inputHITSFile="AFIIF_ttbar.pool.root" --maxEvents="50" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" --postInclude "default:RecJobTransforms/UseFrontier.py" "HITtoRDO:G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); InDetFlags.doStandardPlots.set_Value_and_Lock(True)" "ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False)" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v1.py" --skipEvents="0" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-30" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --runNumber="110401" --digiSeedOffset1="2" --digiSeedOffset2="2" --digiSteeringConf='StandardSignalOnlyTruth' --outputRDOFile="RDO.pool.root" --AMITag="r9110" --inputHighPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098387._000006.pool.root.1" --inputLowPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098374._000016.pool.root.1" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --pileupFinalBunch="6" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root" --jobNumber="2"
 		</jobTransformCmd>
 		<group>FastChainPileup</group>
 		<chaindataset_info>
@@ -1428,6 +1467,46 @@
 		RDO.pool.root 
 	      </chainfileout>
 	    </chainElement>
+	    
+	    <chainElement>
+	  <jobTransform userJobId="1reg_RDO_truth_21.3_vs_21.3-hmpl_ATLFASTIIF_ttbar_prodDigireco">
+	  <doc>Regression test of FastChainPileup job ATLFASTIIF_ttbar_prodDigireco in releases 21.3 vs 21.3-hmpl</doc>
+	  <jobTransformJobName>1reg_RDO_truth_21.3_vs_21.3-hmpl_ATLFASTIIF_ttbar_prodDigireco</jobTransformJobName>
+	  <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 21.3 ATLFASTIIF_ttbar_prodDigireco RDO_truth.root FastChainPileup 21.3-hmpl ATLFASTIIF_ttbar_prodDigireco RDO_truth.root</jobTransformCmd>
+	  <group>FastChainPileup</group>
+	  <queue>medium</queue>
+	    <test position="1">
+	      <modulename>RttLibraryTools</modulename>
+	      <testname>DCubeRunner</testname>
+	      <arg>
+		<argname>DCubeCfg</argname>
+		<argvalue>ISF_Validation_RDO_truth.root.xml</argvalue>
+	      </arg>
+	      <arg>
+		<argname>tolerateWARN</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeRef</argname>
+		<argvalue>yesterday.RDO_truth.root</argvalue>
+	      </arg>
+	      <arg>
+		<argname>localRefFile</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeMon</argname>
+		<argvalue>today.RDO_truth.root</argvalue>
+	      </arg>
+	      <keepFilePattern>DCube-yesterday.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+	    </test>
+	    <testToRemove>
+		<jobGroupName>RTT:Top</jobGroupName>
+		<testidentifier>CheckFileRunner0</testidentifier>
+	    </testToRemove>		
+	  </jobTransform>
+	</chainElement>
+
 	    <chainElement>
 	      <jobTransform userJobId="1reg_InDetStandardPlots_21.3_vs_21.3-hmpl_ATLFASTIIF_ttbar_prodDigireco">
 	      <doc>Regression test of the job ATLFASTIIF_ttbar_prodDigireco in releases 21.3 vs 21.3-hmpl</doc>
@@ -1479,12 +1558,52 @@
 	      </jobTransform>
 	      <chainfileout>AFII_ttbar.pool.root</chainfileout>
 	    </chainElement>
+	    
+	    <chainElement>
+	  <jobTransform userJobId="1reg_truth_21.3_vs_21.3-hmpl_ATLFASTII_ttbar_1sim">
+	  <doc>Regression test of FastChainPileup job ATLFASTII_ttbar_1sim in releases 21.3 vs 21.3-hmpl</doc>
+	  <jobTransformJobName>1reg_truth_21.3_vs_21.3-hmpl_ATLFASTII_ttbar_1sim</jobTransformJobName>
+	  <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 21.3 ATLFASTII_ttbar_1sim truth.root FastChainPileup 21.3-hmpl ATLFASTII_ttbar_1sim truth.root</jobTransformCmd>
+	  <group>FastChainPileup</group>
+	  <queue>medium</queue>
+	    <test position="1">
+	      <modulename>RttLibraryTools</modulename>
+	      <testname>DCubeRunner</testname>
+	      <arg>
+		<argname>DCubeCfg</argname>
+		<argvalue>ISF_Validation_HITS_truth.root.xml</argvalue>
+	      </arg>
+	      <arg>
+		<argname>tolerateWARN</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeRef</argname>
+		<argvalue>yesterday.truth.root</argvalue>
+	      </arg>
+	      <arg>
+		<argname>localRefFile</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeMon</argname>
+		<argvalue>today.truth.root</argvalue>
+	      </arg>
+	      <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
+	    </test>
+	    <testToRemove>
+		<jobGroupName>RTT:Top</jobGroupName>
+		<testidentifier>CheckFileRunner0</testidentifier>
+	    </testToRemove>		
+	  </jobTransform>
+	</chainElement>
+
 	    <chainElement>
 	      <jobTransform userJobId="ATLFASTII_ttbar_prodDigireco">
 		<doc>MC production-like reco job</doc>
 		<jobTransformJobName>ATLFASTII_ttbar_prodDigireco</jobTransformJobName>
 		<jobTransformCmd> 
-		  Reco_tf.py --inputHITSFile="AFII_ttbar.pool.root" --maxEvents="50" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); InDetFlags.doStandardPlots.set_Value_and_Lock(True)" "ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False)" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v1.py" --skipEvents="0" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-30" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --runNumber="110401" --digiSeedOffset1="2" --digiSeedOffset2="2" --digiSteeringConf='StandardSignalOnlyTruth' --outputRDOFile="RDO.pool.root" --AMITag="r9110" --inputHighPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098387._000006.pool.root.1" --inputLowPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098374._000016.pool.root.1" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --pileupFinalBunch="6" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root" --jobNumber="2"
+		  Reco_tf.py --inputHITSFile="AFII_ttbar.pool.root" --maxEvents="50" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" --postInclude "default:RecJobTransforms/UseFrontier.py" "HITtoRDO:G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); InDetFlags.doStandardPlots.set_Value_and_Lock(True)" "ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False)" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v1.py" --skipEvents="0" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-30" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --runNumber="110401" --digiSeedOffset1="2" --digiSeedOffset2="2" --digiSteeringConf='StandardSignalOnlyTruth' --outputRDOFile="RDO.pool.root" --AMITag="r9110" --inputHighPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098387._000006.pool.root.1" --inputLowPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098374._000016.pool.root.1" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --pileupFinalBunch="6" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root" --jobNumber="2"
 		</jobTransformCmd>
 		<group>FastChainPileup</group>
 		<chaindataset_info>
@@ -1505,6 +1624,46 @@
 		RDO.pool.root 
 	      </chainfileout>
 	    </chainElement>
+	    
+	    <chainElement>
+	  <jobTransform userJobId="1reg_RDO_truth_21.3_vs_21.3-hmpl_ATLFASTII_ttbar_prodDigireco">
+	  <doc>Regression test of FastChainPileup job ATLFASTII_ttbar_prodDigireco in releases 21.3 vs 21.3-hmpl</doc>
+	  <jobTransformJobName>1reg_RDO_truth_21.3_vs_21.3-hmpl_ATLFASTII_ttbar_prodDigireco</jobTransformJobName>
+	  <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 21.3 ATLFASTII_ttbar_prodDigireco RDO_truth.root FastChainPileup 21.3-hmpl ATLFASTII_ttbar_prodDigireco RDO_truth.root</jobTransformCmd>
+	  <group>FastChainPileup</group>
+	  <queue>medium</queue>
+	    <test position="1">
+	      <modulename>RttLibraryTools</modulename>
+	      <testname>DCubeRunner</testname>
+	      <arg>
+		<argname>DCubeCfg</argname>
+		<argvalue>ISF_Validation_RDO_truth.root.xml</argvalue>
+	      </arg>
+	      <arg>
+		<argname>tolerateWARN</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeRef</argname>
+		<argvalue>yesterday.RDO_truth.root</argvalue>
+	      </arg>
+	      <arg>
+		<argname>localRefFile</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeMon</argname>
+		<argvalue>today.RDO_truth.root</argvalue>
+	      </arg>
+	      <keepFilePattern>DCube-yesterday.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+	    </test>
+	    <testToRemove>
+		<jobGroupName>RTT:Top</jobGroupName>
+		<testidentifier>CheckFileRunner0</testidentifier>
+	    </testToRemove>		
+	  </jobTransform>
+	</chainElement>
+
 	    <chainElement>
 	      <jobTransform userJobId="1reg_InDetStandardPlots_21.3_vs_21.3-hmpl_ATLFASTII_ttbar_prodDigireco">
 	      <doc>Regression test of the job ATLFASTII_ttbar_prodDigireco in releases 21.3 vs 21.3-hmpl</doc>
@@ -1557,12 +1716,52 @@
 		G4_ttbar.pool.root
 	      </chainfileout>
 	    </chainElement>
+	    
+	    <chainElement>
+	  <jobTransform userJobId="1reg_truth_21.3_vs_21.3-hmpl_FullG4_ttbar_1sim">
+	  <doc>Regression test of FastChainPileup job FullG4_ttbar_1sim in releases 21.3 vs 21.3-hmpl</doc>
+	  <jobTransformJobName>1reg_truth_21.3_vs_21.3-hmpl_FullG4_ttbar_1sim</jobTransformJobName>
+	  <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 21.3 FullG4_ttbar_1sim truth.root FastChainPileup 21.3-hmpl FullG4_ttbar_1sim truth.root</jobTransformCmd>
+	  <group>FastChainPileup</group>
+	  <queue>medium</queue>
+	    <test position="1">
+	      <modulename>RttLibraryTools</modulename>
+	      <testname>DCubeRunner</testname>
+	      <arg>
+		<argname>DCubeCfg</argname>
+		<argvalue>ISF_Validation_HITS_truth.root.xml</argvalue>
+	      </arg>
+	      <arg>
+		<argname>tolerateWARN</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeRef</argname>
+		<argvalue>yesterday.truth.root</argvalue>
+	      </arg>
+	      <arg>
+		<argname>localRefFile</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeMon</argname>
+		<argvalue>today.truth.root</argvalue>
+	      </arg>
+	      <keepFilePattern>DCube-yesterday.truth.root/today.truth.root.dcube.xml.php</keepFilePattern>
+	    </test>
+	    <testToRemove>
+		<jobGroupName>RTT:Top</jobGroupName>
+		<testidentifier>CheckFileRunner0</testidentifier>
+	    </testToRemove>		
+	  </jobTransform>
+	</chainElement>
+
 	    <chainElement>
 	      <jobTransform userJobId="G4_ttbar_prodDigireco">
 		<doc>MC production-like reco job</doc>
 		<jobTransformJobName>G4_ttbar_prodDigireco</jobTransformJobName>
 		<jobTransformCmd> 
-		  Reco_tf.py --inputHITSFile="G4_ttbar.pool.root" --maxEvents="50" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); InDetFlags.doStandardPlots.set_Value_and_Lock(True)" "ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False)" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v1.py" --skipEvents="0" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-30" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --runNumber="110401" --digiSeedOffset1="2" --digiSeedOffset2="2" --digiSteeringConf='StandardSignalOnlyTruth' --outputRDOFile="RDO.pool.root" --AMITag="r9110" --inputHighPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098387._000006.pool.root.1" --inputLowPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098374._000016.pool.root.1" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --pileupFinalBunch="6" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root" --jobNumber="2"
+		  Reco_tf.py --inputHITSFile="G4_ttbar.pool.root" --maxEvents="50" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" --postInclude "default:RecJobTransforms/UseFrontier.py" "HITtoRDO:G4AtlasTests/postInclude.DCubeTest.py,DigitizationTests/postInclude.RDO_Plots.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); InDetFlags.doStandardPlots.set_Value_and_Lock(True)" "ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False)" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v1.py" --skipEvents="0" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-30" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --runNumber="110401" --digiSeedOffset1="2" --digiSeedOffset2="2" --digiSteeringConf='StandardSignalOnlyTruth' --outputRDOFile="RDO.pool.root" --AMITag="r9110" --inputHighPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098387._000006.pool.root.1" --inputLowPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098374._000016.pool.root.1" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --pileupFinalBunch="6" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root" --jobNumber="2"
 		</jobTransformCmd>
 		<group>FastChainPileup</group>
 		<chaindataset_info>
@@ -1583,6 +1782,46 @@
 		RDO.pool.root 
 	      </chainfileout>
 	    </chainElement>
+	    
+	    <chainElement>
+	  <jobTransform userJobId="1reg_RDO_truth_21.3_vs_21.3-hmpl_G4_ttbar_prodDigireco">
+	  <doc>Regression test of FastChainPileup job G4_ttbar_prodDigireco in releases 21.3 vs 21.3-hmpl</doc>
+	  <jobTransformJobName>1reg_RDO_truth_21.3_vs_21.3-hmpl_G4_ttbar_prodDigireco</jobTransformJobName>
+	  <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 21.3 G4_ttbar_prodDigireco RDO_truth.root FastChainPileup 21.3-hmpl G4_ttbar_prodDigireco RDO_truth.root</jobTransformCmd>
+	  <group>FastChainPileup</group>
+	  <queue>medium</queue>
+	    <test position="1">
+	      <modulename>RttLibraryTools</modulename>
+	      <testname>DCubeRunner</testname>
+	      <arg>
+		<argname>DCubeCfg</argname>
+		<argvalue>ISF_Validation_RDO_truth.root.xml</argvalue>
+	      </arg>
+	      <arg>
+		<argname>tolerateWARN</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeRef</argname>
+		<argvalue>yesterday.RDO_truth.root</argvalue>
+	      </arg>
+	      <arg>
+		<argname>localRefFile</argname>
+		<argvalue>True</argvalue>
+	      </arg>
+	      <arg>
+		<argname>DCubeMon</argname>
+		<argvalue>today.RDO_truth.root</argvalue>
+	      </arg>
+	      <keepFilePattern>DCube-yesterday.RDO_truth.root/today.RDO_truth.root.dcube.xml.php</keepFilePattern>
+	    </test>
+	    <testToRemove>
+		<jobGroupName>RTT:Top</jobGroupName>
+		<testidentifier>CheckFileRunner0</testidentifier>
+	    </testToRemove>		
+	  </jobTransform>
+	</chainElement>
+
 	    <chainElement>
 	      <jobTransform userJobId="1reg_InDetStandardPlots_21.3_vs_21.3-hmpl_G4_ttbar_prodDigireco">
 	      <doc>Regression test of the job G4_ttbar_prodDigireco in releases 21.3 vs 21.3-hmpl</doc>
