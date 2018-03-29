@@ -33,4 +33,3 @@ DECLARE_COMPONENT( TrigL2CaloLayersHypo )
 
 
 
-
