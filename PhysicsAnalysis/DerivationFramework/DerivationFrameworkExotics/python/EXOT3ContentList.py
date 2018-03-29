@@ -53,8 +53,7 @@ EXOT3AllVariablesContent = [
      "TrackCaloClustersCombinedAndNeutral",
 
      "METAssoc_AntiKt4EMTopo",
-     "MET_Core_AntiKt4EMTopo",
-     "AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets"
+     "MET_Core_AntiKt4EMTopo"
 ]
 
 EXOT3StaticContent = []

@@ -330,10 +330,6 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 FlavorTagInit(JetCollections = ["AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = exot3Seq)
 
-#some jets collections are not included in the new jet restoring mechanism and need to be added the old way
-#trimmed jets
-addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, mods="groomed", algseq=exot3Seq, outputGroup="EXOT3")#AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets
-
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
 
@@ -370,7 +366,7 @@ EXOT3SlimmingHelper.StaticContent = EXOT3StaticContent
 # addJetOutputs(EXOT3SlimmingHelper, ["EXOT3"], ["AntiKt4TruthJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "BTagging_AntiKtVR30Rmax4Rmin02Track"])
 
 EXOT3SlimmingHelper.AppendToDictionary = {}
-listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']
+listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets']
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT3SlimmingHelper.AppendToDictionary = {
