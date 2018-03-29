@@ -289,7 +289,7 @@ const CablingRPCBase::RDOmap& TestRPC_CablingSvc::give_RDOs() const
 }
 
 
-DECLARE_SERVICE_FACTORY(  TestRPC_CablingSvc )
+DECLARE_COMPONENT( TestRPC_CablingSvc )
 
 
 //****************************************************************************

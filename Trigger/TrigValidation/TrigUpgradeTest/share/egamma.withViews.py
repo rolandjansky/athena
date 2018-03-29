@@ -211,15 +211,15 @@ summary.OutputLevel = DEBUG
 
 steps = seqAND("HLTSteps", [ step0, step1, summary ]  )
 
-mon = TriggerSummaryAlg( "TriggerMonitoringAlg" )
-mon.InputDecision = "HLTChains"
+from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
+mon = TrigSignatureMoniMT()
 mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
-mon.HLTSummary = "MonitoringSummary"
+from TrigUpgradeTest.TestUtils import MenuTest
+mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
 mon.OutputLevel = DEBUG
 
 hltTop = seqOR( "hltTop", [ steps, mon] )
 topSequence += hltTop
-
 
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)

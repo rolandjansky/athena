@@ -7,6 +7,8 @@
 //#include "TROOT.h"
 //#include "TEnv.h"
 
+using std::string;
+
 ClassImp(TCopyFile)
 
 bool TCopyFile::_originalTFile=true;

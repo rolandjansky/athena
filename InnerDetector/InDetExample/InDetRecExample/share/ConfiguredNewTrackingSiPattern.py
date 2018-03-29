@@ -324,8 +324,9 @@ class  ConfiguredNewTrackingSiPattern:
          prob1 = InDetFlags.pixelClusterSplitProb1()
          prob2 = InDetFlags.pixelClusterSplitProb2()
          nhitsToAllowSplitting = 9
-
-         if geoFlags.Run() == 1:
+         
+         from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+         if CommonGeometryFlags.Run() == 1:
             prob1 = InDetFlags.pixelClusterSplitProb1_run1()
             prob2 = InDetFlags.pixelClusterSplitProb2_run1() 
             nhitsToAllowSplitting = 8

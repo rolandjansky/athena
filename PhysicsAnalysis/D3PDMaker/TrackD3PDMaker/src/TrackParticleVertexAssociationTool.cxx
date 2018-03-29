@@ -17,6 +17,8 @@
 #include "VxVertex/VxContainer.h"
 #include <TrkParticleBase/LinkToTrackParticleBase.h>
 #include <VxVertex/VxTrackAtVertex.h>
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/Vertex.h"
 
 namespace D3PD {
 
@@ -43,6 +45,7 @@ TrackParticleVertexAssociationTool::TrackParticleVertexAssociationTool
   */
 StatusCode TrackParticleVertexAssociationTool::initialize()
 {
+  ATH_CHECK( m_vertexKey.initialize() );
   return Base::initialize();
 }
 
@@ -118,7 +121,26 @@ const Trk::VxCandidate *TrackParticleVertexAssociationTool::get (const Rec::Trac
 const xAOD::Vertex*
 TrackParticleVertexAssociationTool::get (const xAOD::TrackParticle& p)
 {
-  return p.vertex();
+  const xAOD::Vertex* foundVertex { nullptr };
+  SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+  if (!vertices.isValid())
+  {
+    ATH_MSG_WARNING("No VertexContainer with key = " << m_vertexKey.key() );
+    return foundVertex;
+  }
+  for ( const auto& vx : *vertices )
+  {
+    for ( const auto& tpLink : vx->trackParticleLinks() )
+    {
+      if ( *tpLink == &p )
+      {
+	foundVertex = vx;
+	break;
+      }
+    }
+    if (foundVertex) break;
+  }
+  return foundVertex;
 }
 
 

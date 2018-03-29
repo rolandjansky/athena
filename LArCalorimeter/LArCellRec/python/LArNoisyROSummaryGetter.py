@@ -3,6 +3,10 @@
 from RecExConfig.Configured import Configured
 from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 
+#Kind of hack to get the MT-version of the LArCabling
+from AthenaCommon.Include import Include, IncludeError, include
+include("LArRecUtils/LArOnOffMappingAlg.py")
+
 class LArNoisyROSummaryGetter ( Configured )  :
     _outputType = "LArNoisyROSummary"
     _output = { _outputType : "LArNoisyROSummary" }
@@ -38,8 +42,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
             print traceback.format_exc()
             return False
 
-        theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
-                                         CellQualityCut=larNoisyROFlags.CellQualityCut(),
+        theLArNoisyROTool=LArNoisyROTool(CellQualityCut=larNoisyROFlags.CellQualityCut(),
                                          BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
                                          BadFEBCut=larNoisyROFlags.BadFEBCut(),
                                          KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs(),

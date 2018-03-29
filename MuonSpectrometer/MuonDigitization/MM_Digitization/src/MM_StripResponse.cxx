@@ -8,12 +8,13 @@ using namespace std;
 
 MM_StripResponse::MM_StripResponse() {}
 
-MM_StripResponse::MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float timeResolution, float stripPitch, int stripID, int maxstripID) : m_timeResolution(timeResolution), m_stripPitch(stripPitch), m_stripID(stripID), m_maxstripID(maxstripID) {
+MM_StripResponse::MM_StripResponse(const std::vector<MM_IonizationCluster> &IonizationClusters, float timeResolution, float stripPitch, int stripID, int maxstripID) : m_timeResolution(timeResolution), m_stripPitch(stripPitch), m_stripID(stripID), m_maxstripID(maxstripID) {
 
-  for (auto& IonizationCluster : IonizationClusters)       
-    for (auto& Electron : IonizationCluster.getElectrons())	
-      m_Electrons.push_back(Electron);
-  
+  for (const MM_IonizationCluster& IonizationCluster : IonizationClusters) {
+    std::vector<MM_Electron*> eles = IonizationCluster.getElectrons();
+    m_Electrons.insert (m_Electrons.end(),
+                        eles.begin(), eles.end());
+  }  
 }
 
 void MM_StripResponse::timeOrderElectrons() {

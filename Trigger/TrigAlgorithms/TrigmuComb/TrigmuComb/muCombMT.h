@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -212,5 +212,5 @@ class muCombMT : public AthAlgorithm
    Gaudi::Property<std::vector<double>> m_IDSCANRes_endcap4 {this, "IDSCANEndcap4Res",{0.046, 0.0000002}, "ID parametrized rsolution for matching (ec4)"};
 
 };
-DECLARE_ALGORITHM_FACTORY( muCombMT )
-#endif // MUCOMB_H
+
+#endif // MUCOMBMT_H

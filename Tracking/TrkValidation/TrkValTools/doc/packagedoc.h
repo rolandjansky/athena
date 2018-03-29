@@ -36,7 +36,9 @@ One can give a list of Trk::IValidationNtupleHelperTool for each detector type b
 
 Each detector-specific helper tool list may contain several tools and some tools may even be contained in more than one list, if they fill data for different detector types. There exists also a general list, which tools are called for every type of measurement.
 
+@internal
 @image html ValidationNtupleToolScheme.png
+@endinternal
 
 @section TrkValTools_TrkValToolsOverview Class Overview
 The TrkValTools package contains the following classes:

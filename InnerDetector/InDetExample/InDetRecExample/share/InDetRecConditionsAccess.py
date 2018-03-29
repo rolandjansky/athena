@@ -87,9 +87,10 @@ if DetFlags.haveRIO.pixel_on():
                 conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATUS")
             if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
                 conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
-            from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
+            # from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as idGeoFlags
             if (rec.doMonitoring() and globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"): 
-                # geoFlags.isIBL() == True may work too instead of geoFlags.Run() == "RUN2"
+                # idGeoFlags.isIBL() == True may work too instead of geoFlags.Run() == "RUN2"
                 if not conddb.folderRequested('/PIXEL/DCS/PIPES'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/PIPES")
                 if not conddb.folderRequested('/PIXEL/DCS/LV'):

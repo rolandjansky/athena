@@ -269,8 +269,8 @@ class InDetTrkRoiMakerMonitoring(TrigGenericMonitoringToolConfig):
       
 
 class InDetTrkRoiMakerValidationMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="InDetTrkRoiMakerMonitoring",**kwargs):
-        super(InDetTrkRoiMakerMonitoring, self).__init__(name,**kwargs)
+    def __init__ (self, name="InDetTrkRoiMakerValidationMonitoring",**kwargs):
+        super(InDetTrkRoiMakerValidationMonitoring, self).__init__(name,**kwargs)
         self.defineTarget( ["Validation"] )
 
         self.Histograms += [ defineHistogram('nRoiToTrkRatio', type='TH1F', title="fraction of ID tracks that become ROI's",

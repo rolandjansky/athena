@@ -52,7 +52,6 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
 
         ConfiguredPixelClusterCacheTool = PixelClusterCacheTool(PixelClusteringTool=InDetL2TrigMergedPixelsTool)
         ConfiguredSCT_ClusterCacheTool = SCT_ClusterCacheTool(SCT_ClusteringTool = InDetL2TrigSCT_ClusteringTool,
-                                                              SCT_ByteStreamErrorsSvc= SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsSvc"),
                                                               )
 
         if not self.DoBS_Conversion :

@@ -42,5 +42,4 @@ class TestTrigL2CaloHypoAlg : public ::AthReentrantAlgorithm {
 
 }; 
 
-DECLARE_ALGORITHM_FACTORY( TestTrigL2CaloHypoAlg )
 #endif //> !TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOALG_H

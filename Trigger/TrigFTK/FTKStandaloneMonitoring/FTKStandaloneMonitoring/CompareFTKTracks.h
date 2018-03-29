@@ -1,8 +1,8 @@
 /*
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef __CompareFTKTracks__
-#define __CompareFTKTracks__
+#ifndef FTKSTANDALONEMONITORING_COMPAREFTKTRACKS_H
+#define FTKSTANDALONEMONITORING_COMPAREFTKTRACKS_H
 
 
 #include <iostream>
@@ -34,6 +34,6 @@ class CompareFTKTracks{
     FTKTrkAssoc* m_associator;
     double m_dmax=0.2;
     bool m_allmatched=true;
-    std::vector<std::string> variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};
+    std::vector<std::string> m_variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};
 };
-#endif //__CompareFTKTracks__
+#endif //FTKSTANDALONEMONITORING_COMPAREFTKTRACKS_H

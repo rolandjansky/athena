@@ -92,4 +92,3 @@ class TrigL2CaloRingerFexMT : public AthAlgorithm  {
     };
 
 };
-DECLARE_ALGORITHM_FACTORY( TrigL2CaloRingerFexMT )

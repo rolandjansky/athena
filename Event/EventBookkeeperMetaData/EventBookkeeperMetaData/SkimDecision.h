@@ -9,8 +9,7 @@
 #ifndef SKIMDECISION_H 
 #define SKIMDECISION_H 
  
-// CLIDSvc includes (for persistency)
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <string>
 
 class SkimDecision

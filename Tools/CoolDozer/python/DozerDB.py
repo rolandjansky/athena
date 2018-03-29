@@ -253,7 +253,9 @@ class DozerRTConfig( DozerObject.DozerObject ):
 # Once you add DozerSchema to DozerDB instance it creates internal structure of cool.IFolderSets, 
 # cool.IFolders and database channels as shown on picture below 
 #
+# @internal
 # @image html DozerDB_database_structure.png "The CoolDozer database internal structure" 
+# @endinternal
 #
 # <div style="color: #660000; background-color: #ff9999;">
 # <div style="position: relative; top: 0pt; left: 0pt; font-size: 20pt; width: 80pt; padding: 2pt 5pt; 

@@ -5,45 +5,31 @@
 // TrigUpgradeTest includes
 #include "TestHypoAlg.h"
 
-
-
 namespace HLTTest {
   
-  TestHypoAlg::TestHypoAlg( const std::string& name, 
-			    ISvcLocator* pSvcLocator )    :
-    ::AthReentrantAlgorithm( name, pSvcLocator ) {}
-
+  TestHypoAlg::TestHypoAlg( const std::string& name, ISvcLocator* pSvcLocator ) 
+    : ::HypoBase( name, pSvcLocator ) {}
 
   TestHypoAlg::~TestHypoAlg() {}
-
   
-  StatusCode TestHypoAlg::initialize() {
+  StatusCode TestHypoAlg::subInitialize() {
     ATH_MSG_INFO ("Initializing " << name() << "...");
-    CHECK( m_output.initialize() );
     CHECK( m_recoInput.initialize() );
-    CHECK( m_previousDecisions.initialize() );
-    renounce(m_previousDecisions);
-    ATH_MSG_DEBUG("Will consume implicit previous decisions "<< m_previousDecisions.key());
-    //    for (auto& input: m_previousDecisions){  
-    //ATH_MSG_DEBUG(" "<<input.key());
-    //}
     CHECK( m_tools.retrieve() );  
     return StatusCode::SUCCESS;
   }
 
   StatusCode TestHypoAlg::finalize() {
     ATH_MSG_INFO( "Finalizing " << name() << "..." );
-
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode TestHypoAlg::execute_r( const EventContext& context ) const {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
-    
-    auto previousDecisionsHandle = SG::makeHandle( m_previousDecisions, context );
+    auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
     if( not previousDecisionsHandle.isValid() ) {//implicit
-      ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  m_previousDecisions.key()<<": is this expected?" );
+      ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
       return StatusCode::SUCCESS;      
     }
     
@@ -96,7 +82,6 @@ namespace HLTTest {
 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), counter) );// feature used by the Tool
 	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
 	 linkToPrevious( d, m_previousDecisions.key(), pos );
-	 //	 d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisions.key(), pos) );// link to previous decision object
        }
        else{
 	 ATH_MSG_ERROR( " Can not find reference to previous decision from feature " + m_linkName.value() + " from reco object " << counter );
@@ -113,7 +98,7 @@ namespace HLTTest {
       }
     }
 
-    auto outputHandle = SG::makeHandle(m_output, context);
+    auto outputHandle = SG::makeHandle(decisionOutput(), context);
     CHECK( outputHandle.record(std::move(decisions), std::move(aux) ) );
   
     ATH_MSG_DEBUG( "Exiting with "<< outputHandle->size() <<" decisions");

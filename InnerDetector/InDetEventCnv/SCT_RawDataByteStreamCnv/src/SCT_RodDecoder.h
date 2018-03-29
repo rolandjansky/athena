@@ -20,9 +20,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "Identifier/IdContext.h"
 
 class ISCT_CablingSvc;
 class ISCT_ByteStreamErrorsSvc;
+class ISCT_ConfigurationConditionsSvc;
 class SCT_ID;
 
 namespace InDetDD{
@@ -82,10 +84,14 @@ class SCT_RodDecoder : public AthAlgTool, public ISCT_RodDecoder
   bool addSingleError(const IdentifierHash idHash,
                       const int bsErrorType,
                       InDetBSErrContainer* errs);
+  /** Set first temporarily masked chip information from byte stream trailer */
+  void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip, InDetBSErrContainer* errs);
   const SCT_ID* m_sct_id;
+  IdContext m_cntx_sct;
   const InDetDD::SCT_DetectorManager *m_indet_mgr;
   ServiceHandle<ISCT_CablingSvc> m_cabling;
   ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
+  ServiceHandle<ISCT_ConfigurationConditionsSvc> m_configSvc;
   bool m_condensedMode ;
   bool m_superCondensedMode ;
   /** Summary of the decoding process */

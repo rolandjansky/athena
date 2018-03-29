@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArNoisyROTool.h 
@@ -19,17 +19,16 @@
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-
 #include "CaloInterface/ILArNoisyROTool.h"
 
 #include "Identifier/HWIdentifier.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 class LArOnlineID;
 class CaloCell_ID;
-class LArCablingService;
+class LArOnOffIdMapping;
 class LArNoisyROSummary;
 class CaloCellContainer;
 
@@ -60,7 +59,7 @@ class LArNoisyROTool:
   virtual StatusCode  finalize();
 
   virtual 
-  std::unique_ptr<LArNoisyROSummary> process(const CaloCellContainer*);
+  std::unique_ptr<LArNoisyROSummary> process(const CaloCellContainer*) const;
 
  private: 
 
@@ -103,7 +102,7 @@ class LArNoisyROTool:
 
   };
 
-  size_t partitionNumber(const HWIdentifier);
+  size_t partitionNumber(const HWIdentifier) const;
 
 
   typedef std::unordered_map<unsigned int, FEBEvtStat> FEBEvtStatMap;
@@ -111,13 +110,10 @@ class LArNoisyROTool:
   typedef std::unordered_map<unsigned int, FEBEvtStat>::const_iterator FEBEvtStatMapCstIt;
 
  private: 
-  std::string m_CaloCellContainerName;
-  std::string m_outputKey;
-  //FEBEvtStatMap m_FEBstats;
 
   const CaloCell_ID* m_calo_id;
   const LArOnlineID* m_onlineID;
-  ToolHandle<LArCablingService> m_cablingService;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey;
 
   //** Qfactor value above which a channel is considered bad */
   unsigned int m_CellQualityCut;
@@ -154,13 +150,10 @@ class LArNoisyROTool:
   std::set<HWIdentifier> m_knownMNBFEBs;
 
   //** count bad FEB for job */
-  std::unordered_map<unsigned int, unsigned int> m_badFEB_counters;
+  //std::unordered_map<unsigned int, unsigned int> m_badFEB_counters;
 
   //** count bad PA for job */
-  std::map<uint64_t, unsigned int> m_badPA_counters;
-
-  //** event counter */
-  unsigned int m_invocation_counter;
+  //std::map<uint64_t, unsigned int> m_badPA_counters;
 
   //** Qfactor value above which (>=) a channel is considered with a saturated Qfactor*/
   unsigned int m_SaturatedCellQualityCut;
@@ -177,10 +170,6 @@ class LArNoisyROTool:
   float m_MNBLooseCut;
   float m_MNBTightCut;
 
-  //** jobO flag to turn on a summary printout in finalize
-  bool m_printSummary;
-
-
   std::array<uint8_t,4> m_partitionMask;
 
 }; 
@@ -188,7 +177,7 @@ class LArNoisyROTool:
 
 
 
-inline size_t LArNoisyROTool::partitionNumber(const HWIdentifier hwid) {
+inline size_t LArNoisyROTool::partitionNumber(const HWIdentifier hwid) const {
 
   int pn=m_onlineID->pos_neg(hwid);
   if (m_onlineID->isEMECchannel(hwid)) {

@@ -34,6 +34,7 @@
 
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 //Detector Managers
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -150,7 +151,8 @@ private:
     SG::ReadHandleKey<TrackCollection> m_CombinedTracksName{this,"TrackCollection","Tracks","Combined Track Collection for Global Monitoring"};
     SG::ReadHandleKey<TrackCollection> m_ForwardTracksName{this,"ForwardTrackCollection","ResolvedForwardTracks","Forward Track Collection for Global Monitoring"};
     SG::ReadHandleKey<xAOD::JetContainer> m_JetsName{this,"JetCollection","AntiKt4EMTopoJets","Jet Collection for Global Track Monitoring"};
-    
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
+
     //--- Shift histograms ----------------------------------------
     
     // Gaetano Holes : 

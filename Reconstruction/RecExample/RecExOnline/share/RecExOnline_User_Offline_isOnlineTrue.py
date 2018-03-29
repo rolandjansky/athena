@@ -38,11 +38,14 @@ DataSource        = 'data'
 InputFormat       = 'bytestream'
 #fileName          = '/afs/cern.ch/user/k/koutsman/OnlineNightly/data/data12_8TeV.00208931.express_express.daq.RAW._lb0123._SFO-9._0001.data'
 fileName          = 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204416/express_express/data12_8TeV.00204416.express_express.merge.RAW._lb0015._SFO-ALL._0001.1'
+from RecExConfig.RecFlags import rec
+rec.RunNumber.set_Value (204416)
 
 # update for comsics
 if beamType == 'cosmics':
-    fileName          = '/afs/cern.ch/atlas/offline/test/data11_cos.00182609.physics_CosmicCalo.merge.RAW._lb0100._SFO-ALL._0001.1.SFO-ALL._0001.1.10evts.data '
+    fileName          = '/afs/cern.ch/atlas/offline/test/data11_cos.00182609.physics_CosmicCalo.merge.RAW._lb0100._SFO-ALL._0001.1.SFO-ALL._0001.1.10evts.data'
     streamName        ='CosmicCalo_physics'
+    rec.RunNumber.set_Value (182609)
     
 doESD             = True
 writeESD          = False
@@ -86,7 +89,19 @@ DQMonFlags.doMuonPhysicsMon.set_Value_and_Lock(False)
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False)
 
+from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+preExec = ['cfg =  TriggerConfigGetter(); cfg.setupxAODWriting()']
+
 ## main online reco scripts
 include ("RecExOnline/RecExOnline_jobOptions.py")
 
+from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
+w=TrigConf__xAODMenuWriter()
+w.MetaDataStore='InputMetaDataStore'
+topSequence.remove(w)
+from AthenaCommon import AlgSequence
+athBeginSeq = AlgSequence.AthSequencer('AthBeginSeq')
+athBeginSeq += w
 
+ToolSvc.GSFBuildPixelToTPIDTool.ReadFromCOOL=False
+ToolSvc.CombinedMuonPixelToTPID.ReadFromCOOL=False

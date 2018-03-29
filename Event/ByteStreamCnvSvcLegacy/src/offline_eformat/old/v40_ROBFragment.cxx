@@ -51,9 +51,11 @@ offline_eformat::v40::ROBFragment::~ROBFragment ()
 
 offline_eformat::v40::ROBFragment& offline_eformat::v40::ROBFragment::operator=
 (const offline_eformat::v40::ROBFragment& other)
-{ 
-  Header::operator=(other); 
-  m_start=other.m_start; 
+{
+  if (this != &other) {
+    Header::operator=(other); 
+    m_start=other.m_start;
+  }
   return *this; 
 }
 

@@ -22,7 +22,8 @@ atlas_add_poolcnv_library( InDetByteStreamErrorsAthenaPoolPoolCnv src/*.cxx
    FILES InDetByteStreamErrors/InDetBSErrContainer.h
    InDetByteStreamErrors/TRT_BSIdErrContainer.h
    InDetByteStreamErrors/TRT_BSErrContainer.h
-   LINK_LIBRARIES AthenaPoolUtilities Identifier TestTools AthAllocators
+   InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h
+   LINK_LIBRARIES AthenaPoolUtilities Identifier InDetByteStreamErrors TestTools AthAllocators
    AthenaPoolCnvSvcLib )
 
 atlas_add_dictionary( InDetByteStreamErrorsAthenaPoolCnvDict

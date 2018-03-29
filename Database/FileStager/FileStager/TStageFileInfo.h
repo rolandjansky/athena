@@ -20,7 +20,6 @@
 #include <string>
 #include <map>
 
-using namespace std ;
 
 class TStageFileInfo  : public TObject 
 {
@@ -33,14 +32,14 @@ class TStageFileInfo  : public TObject
   virtual ~TStageFileInfo() {};
 
   int  pid;
-  string inFile;
-  string outFile;
+  std::string inFile;
+  std::string outFile;
   Status status;
 #ifndef __CINT__
   struct stat64 statFile;
 #endif
-  string stout;
-  string sterr;
+  std::string stout;
+  std::string sterr;
 
  private:
 

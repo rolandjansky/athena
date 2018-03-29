@@ -33,7 +33,9 @@ namespace Trk {
    @class AnnulusBounds
    Bounds for a annulus-like, planar Surface.
     
+   @internal
    @image html AnnulusBounds.gif
+   @endinternal
       <br>
    
    @todo can be speed optimized, inner radius check in inside() can be optimized

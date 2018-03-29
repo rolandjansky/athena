@@ -7,4 +7,5 @@
 #include "InDetByteStreamErrorsAthenaPool/InDetBSErrContainer_p1.h"
 #include "InDetByteStreamErrorsAthenaPool/TRT_BSErrContainer_p1.h"
 #include "InDetByteStreamErrorsAthenaPool/TRT_BSIdErrContainer_p1.h"
+#include "InDetByteStreamErrorsAthenaPool/SCT_ByteStreamFractionContainer_p1.h"
 #endif

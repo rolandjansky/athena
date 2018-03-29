@@ -6,7 +6,6 @@
 
 SegmentCollectionCnv_tlp2::SegmentCollectionCnv_tlp2( )
 {
-//    std::cout << "SegmentCollectionCnv_tlp2::SegmentCollectionCnv_tlp2( )" << std::endl;
    // Add all converters defined in this top level converter:
    // never change the order of adding converters!
 
@@ -50,7 +49,6 @@ SegmentCollectionCnv_tlp2::~SegmentCollectionCnv_tlp2()
 void SegmentCollectionCnv_tlp2::setPStorage( Trk::SegmentCollection_tlp2 *storage )
 {
    // for implicit TrackCollection_p1 from the base class:
-//      std::cout << "SegmentCollectionCnv_tlp2::setPStorage( Trk::SegmentCollection_tlp2 *storage )" << std::endl;
      setMainCnvPStorage( &storage->m_segmentCollections );
 
      // for all converters defined in this top level converter
@@ -74,7 +72,6 @@ void SegmentCollectionCnv_tlp2::setPStorage( Trk::SegmentCollection_tlp2 *storag
      m_errorMatricesCnv.            setPStorage( &storage->m_hepSymMatrices );        
      m_localParametersCnv.          setPStorage( &storage->m_localParameters );       
 
-     // m_RIOsCnv.                     setPStorage( &storage->m_RIO_OnTrack );       
      m_pseudoMeasurementOnTrackCnv. setPStorage( &storage->m_pseudoMeasurementOnTrack );  
      m_crotCnv.                     setPStorage( &storage->m_competingRotsOnTrack );     
      m_detElSurfCnv.                setPStorage( &storage->m_detElementSurfaces );      // 21

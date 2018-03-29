@@ -48,9 +48,6 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalPositionCnv_p1.h"           
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"         
 
-#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3DCnv_p1.h"         
-
-#include <iostream>
 
 class TrackCollectionCnv_tlp1
  : public AthenaPoolTopLevelTPConverter< TrackCollectionCnv_p1, Trk::TrackCollection_tlp1 >
@@ -110,8 +107,6 @@ protected:
   LocalPositionCnv_p1               m_localPositionsCnv;
   LocalParametersCnv_p1             m_localParametersCnv;            
 
-  HepPoint3DCnv_p1                  m_pointsCnv;      
-  
   CompetingRIOsOnTrackCnv_p1        m_crotCnv;
 };
 

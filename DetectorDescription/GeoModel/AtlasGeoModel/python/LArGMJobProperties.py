@@ -1,40 +1,20 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #
 # LAr GeoModel initialization
 #
-from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-
-from AtlasGeoDBInterface import AtlasGeoDBInterface
+from AtlasGeoModel.CommonGMJobProperties import CommonGMFlags
 
 # -------------------------------------------------------------------------------------
 #  LAr geometry flags initialization
 # -------------------------------------------------------------------------------------
 
-class LArGMFlags:
+class LArGMFlags(CommonGMFlags, object):
 
     def __init__(self, geoTag="none"):
 
-        self.__dict__={}
-
-        # set geometry tag name
-        self.__dict__["geomTag"]= globalflags.DetDescrVersion()
-        if geoTag!="none": self.__dict__["geomTag"] = geoTag
-        
-        self.dbGeomCursor = 0
-        self.connectToDB()
-    
-        self.InitializeGeometryParameters()
-
-    def connectToDB(self):
-
-        bVerbose=False
-        self.dbGeomCursor = AtlasGeoDBInterface(self.__dict__["geomTag"],bVerbose)
-        self.dbGeomCursor.ConnectAndBrowseGeoDB()
-
-        return
-
+        super(LArGMFlags, self).__init__()
 
     def InitializeGeometryParameters(self):
 
@@ -65,10 +45,6 @@ class LArGMFlags:
         self.__dict__["FCal_GeoType"] = _FCalFlag
         self.__dict__["DetAbs"] = _detAbsorber
         self.__dict__["DetAbs_EC"] = _detAbsorber_EC
-
-    def getValue(self,name):
-
-        return self.__dict__[name]
 
     def dump(self):
 
@@ -173,7 +149,4 @@ jobproperties.LArGeometryFlags_JobProperties.add_JobProperty(FCalGeoType)
 
 LArGeometryFlags = jobproperties.LArGeometryFlags_JobProperties
 LArGeometryFlags.setupValuesFromDB()
-        
-
-
 

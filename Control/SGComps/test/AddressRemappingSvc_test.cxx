@@ -110,7 +110,7 @@ StatusCode TestAlgResourcePool::initialize()
 }
 
 
-DECLARE_SERVICE_FACTORY (TestAlgResourcePool)
+DECLARE_COMPONENT( TestAlgResourcePool )
 
 
 class TestAddress
