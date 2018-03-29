@@ -20,7 +20,7 @@ class HZj_EW(PowhegRES):
         @param base_directory  path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "HZJ_ew", **kwargs)
+        super(HZj_EW, self).__init__(base_directory, "HZJ_ew", **kwargs)
 
         ## List of allowed decay modes
         self.allowed_decay_modes = ["z > e+ e-", "z > mu+ mu-", "z > tau+ tau-", "z > ve ve~", "z > vm vm~",

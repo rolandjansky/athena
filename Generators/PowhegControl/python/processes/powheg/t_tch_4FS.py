@@ -22,7 +22,7 @@ class t_tch_4FS(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "ST_tch_4f", **kwargs)
+        super(t_tch_4FS, self).__init__(base_directory, "ST_tch_4f", **kwargs)
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalMadSpin(process=None))

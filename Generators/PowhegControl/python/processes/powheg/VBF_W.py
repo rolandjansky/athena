@@ -18,7 +18,7 @@ class VBF_W(PowhegV1):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "VBF_W-Z", **kwargs)
+        super(VBF_W, self).__init__(base_directory, "VBF_W-Z", **kwargs)
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalVBFNLO("W", ["w+ > e+ ve", "w+ > mu+ vm", "w- > e- ve~", "w- > mu- vm~"]))
