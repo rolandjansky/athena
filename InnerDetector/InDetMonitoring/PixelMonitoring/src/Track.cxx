@@ -355,7 +355,9 @@ StatusCode PixelMainMon::procTrackMon(void) {
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_hiteff_incl_mod[i] && m_hiteff_lastXlb_mod[i]) {
 	unsigned int bing = m_hiteff_incl_mod[i]->GetXaxis()->FindBin(lastlb);
+	int lumilabel(lastlb);
 	for (int binf=m_hiteff_lastXlb_mod[i]->GetNbinsX(); binf>0; binf--) {
+	  m_hiteff_lastXlb_mod[i]->GetXaxis()->SetBinLabel(binf, Form("%d", lumilabel));
 	  if (bing>0) {
 	    cont = m_hiteff_incl_mod[i]->GetBinContent(bing);
 	    entr = m_hiteff_incl_mod[i]->GetBinEntries(bing);
@@ -367,6 +369,7 @@ StatusCode PixelMainMon::procTrackMon(void) {
 	    }
 	    bing--;
 	  } 
+	  lumilabel--;
 	}
 	m_hiteff_lastXlb_mod[i]->SetEntries(entries);
 	//m_hiteff_lastXlb_mod[i]->SetEntries(lastlb);      // for testing
