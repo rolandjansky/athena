@@ -479,6 +479,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     xAOD::TrigBphysContainer * xAODTrigBphysColl = new xAOD::TrigBphysContainer;
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
     xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
+    xAODTrigBphysColl->reserve(m_nTrk);
     std::vector<double> masses(2,m_trkMass);    
     
     // record also tracks that are used in any collection
@@ -498,11 +499,13 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     // permute bitmask
     std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks; 
-    std::vector<int> thisIterationTracksIndex; 
+    thisIterationTracks.reserve(NtracksTotal);
     std::set<int> index_0;
+    index_0.reserve(NtracksTotal);
     do {
       
-      thisIterationTracks.clear();
+      std::vector<int> thisIterationTracksIndex;
+      thisIterationTracksIndex.reserve(NtracksTotal);
       std::ostringstream combi;
       std::ostringstream hpts;
       for (size_t i = 0; i < NtracksTotal; ++i) // [0..N-1] integers	
@@ -510,8 +513,10 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	  if (bitmask[i]) {
 	    thisIterationTracks.push_back( highptTracks[i] );// std::cout << " " << i;
 	    thisIterationTracksIndex.push_back( i );
-	    combi << i << " ";  // for debug
-	    hpts << (*highptTracks[i])->pt() << ", " ;
+      if(msgLvl() <= MSG::DEBUG) {
+        combi << i << " ";  // for debug
+        hpts << (*highptTracks[i])->pt() << ", " ;
+      }
 	  }
 	}
       
@@ -594,6 +599,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
       //== calculate mass of pairs if requested ================
        
        std::vector<double> dimasses;
+       dimasses.reserve(m_nTrk);
        
        int npair = 0; 
        int npairAcc = 0;
@@ -738,6 +744,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     //sort( index_0.begin(), index_0.end() );
     //index_0.erase( unique( index_0.begin(), index_0.end() ), index_0.end() );
     //if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got unique # of indexes " << index_0.size() << endmsg;
+    outputTrackColl->reserve(index_0.size());
     for( auto ind : index_0 ){
       xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
       trk1->makePrivateStore(*highptTracks[ind]);
