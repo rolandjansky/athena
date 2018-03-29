@@ -4047,6 +4047,9 @@ def setupMenu():
         ['calibAFP_L1AFP_FSC_SIT', 'L1_AFP_FSC_SIT', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1RD0_FILLED',  'L1_RD0_FILLED', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
 
+        #AFP+ALFA BBA ATR-17865
+        ['calibAFPALFA_L1ALFA_BGT_BGRP1',    'L1_ALFA_BGT_BGRP1',   [],  ['AFPALFA'], ['RATE:CalibrationAFPALFA','BW:Detector'], -1],
+
         ['rpcpeb_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['RPCNoise'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
 
         ['idpsl1_L1IDprescaled','', [], ['IDprescaledL1'], ["RATE:SeededStreamers","BW:Other"], -1],
