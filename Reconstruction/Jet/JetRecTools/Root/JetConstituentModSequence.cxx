@@ -20,6 +20,9 @@
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
+#include "xAODPFlow/TrackCaloCluster.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterAuxContainer.h"
 
 JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name), m_trigInputConstits(NULL), m_trigOutputConstits(NULL) {
 
@@ -46,6 +49,8 @@ StatusCode JetConstituentModSequence::initialize() {
   case xAOD::Type::CaloCluster:
     break;
   case xAOD::Type::ParticleFlow:
+    break;
+  case xAOD::Type::TrackCaloCluster:
     break;
   default:
     ATH_MSG_ERROR(" Unsupported input type "<< m_inputType );
@@ -114,6 +119,11 @@ int JetConstituentModSequence::execute() const {
       }
     }
     break; }
+    case xAOD::Type::TrackCaloCluster : {
+    modifiedCont = copyAndRecord<xAOD::TrackCaloClusterContainer, xAOD::TrackCaloClusterAuxContainer, xAOD::TrackCaloCluster>(cont, !m_trigger);
+    break;}
+
+
 
   default: {
     ATH_MSG_WARNING( "Unsupported input type " << m_inputType );

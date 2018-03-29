@@ -166,6 +166,7 @@ namespace CP {
     bool is_topo = xAOD::Iso::isolationFlavour(isol) == xAOD::Iso::topoetcone ? true : false;
 
     if(is_topo){
+    
       isolation_ptcorrection = GetPtCorrectionTopo(  energy,
 						     etaS2,
 						     etaPointing,
@@ -531,19 +532,19 @@ namespace CP {
 	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.81_2.37_2015"));
 	
     }
-    for (auto gr : m_graph_dd_2015_cone40_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_cone40_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,40)");
     }
-    for (auto gr : m_graph_dd_2015_cone40_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_cone40_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv,40)");
     }
-    for (auto gr : m_graph_dd_2015_cone20_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_cone20_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,20)");
     }
-    for (auto gr : m_graph_dd_2015_cone20_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_cone20_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv, 20)");
     }
@@ -600,19 +601,19 @@ namespace CP {
 	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.81_2.37_2016"));
 	
     }
-    for (auto gr : m_graph_dd_2015_2016_cone40_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_2016_cone40_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,40)");
     }
-    for (auto gr : m_graph_dd_2015_2016_cone40_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_2016_cone40_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv,40)");
     }
-    for (auto gr : m_graph_dd_2015_2016_cone20_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_2016_cone20_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,20)");
     }
-    for (auto gr : m_graph_dd_2015_2016_cone20_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_2016_cone20_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv, 20)");
     }
@@ -668,19 +669,19 @@ namespace CP {
 	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.81_2.37_2017"));
 	
     }
-    for (auto gr : m_graph_dd_2017_cone40_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2017_cone40_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,40)");
     }
-    for (auto gr : m_graph_dd_2017_cone40_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2017_cone40_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv,40)");
     }
-    for (auto gr : m_graph_dd_2017_cone20_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2017_cone20_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,20)");
     }
-    for (auto gr : m_graph_dd_2017_cone20_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2017_cone20_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv, 20)");
     }
@@ -1235,7 +1236,7 @@ namespace CP {
       FreeClear( m_graph_dd_cone40_photon_shift );
       FreeClear( m_graph_dd_cone40_photon_smearing );
 
-    } else if (m_tool_ver == REL20_2) {
+    } else if (m_tool_ver == REL20_2 || m_tool_ver == REL21) {
 
       //---- Rel 20_2 pT leakage correction file
       FreeClear( m_function_2015_cone40_photon_unconverted );
@@ -1475,7 +1476,7 @@ namespace CP {
     double correction_value = 0.;
     if (ver== REL17_2) {
       correction_value = GetPtCorrection_FromGraph(energy,etaS2,etaPointing,etaCluster,radius,isConversion,parttype);
-    } else if (m_tool_ver == REL20_2){
+    } else if (m_tool_ver == REL20_2 || m_tool_ver == REL21){
       correction_value = GetPtCorrection_FromGraph_2015(energy, etaS2, radius, convFlag_int, author, conv_radius, conv_ratio, parttype);
     }
 

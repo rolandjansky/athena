@@ -293,7 +293,7 @@ namespace CP {
       ATH_MSG_INFO("Will be correcting the sagitta for data ");
     }
 
-    if(m_Tdata == MCAST::DataType::Data16 && ( m_doSagittaCorrection || m_doSagittaMCDistortion) ){
+    if(m_Tdata >= MCAST::DataType::Data15    && ( m_doSagittaCorrection || m_doSagittaMCDistortion) ){
       m_GlobalZScales.clear();
       m_GlobalZScales.push_back(90.2893);  m_GlobalZScales.push_back(90.4996);    m_GlobalZScales.push_back(90.1407);
 
@@ -677,6 +677,7 @@ namespace CP {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
         double denominator = (  muonInfo.ptcb  ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+        //double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
         double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
         if(m_currentParameters->SagittaRho==MCAST::SystVariation::Up){
@@ -2119,7 +2120,8 @@ namespace CP {
       double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc ) * loc_ptms;
       ATH_MSG_VERBOSE("sigmaID,sigmaMS = "<<sigmaID<<"  "<<sigmaMS);
       double denominator = ( loc_ptcb ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
-      return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+      //return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+      return denominator ?  sigmaID * sigmaMS / denominator : 0.;
     }
     else {
       ATH_MSG_ERROR( "wrong DetType in input "<<DetType );

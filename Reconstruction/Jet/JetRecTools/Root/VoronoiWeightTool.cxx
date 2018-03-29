@@ -10,6 +10,7 @@
 #include <fastjet/tools/Subtractor.hh>
 
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/TrackCaloCluster.h"
 
 namespace SortHelper {
   //
@@ -118,6 +119,10 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(part);
       accept &= fabs(pfo->charge())<FLT_MIN;
     }
+    if(m_inputType==xAOD::Type::TrackCaloCluster) {
+      xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
+      accept &= (tcc->taste()!= 0);
+    }
     if(accept) {
       particles.push_back( fastjet::PseudoJet(part->p4()) );
       // ATH_MSG_VERBOSE( "Accepted particle with pt " << part->pt() );
@@ -146,6 +151,10 @@ StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin
       // The auto loop returns an ElementProxy, so we need to dereference/reference
       const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(part);
       accept &= fabs(pfo->charge())<FLT_MIN;
+    }
+    if(m_inputType==xAOD::Type::TrackCaloCluster) {
+      xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
+      accept &= (tcc->taste()!= 0);
     }
 
     float newPt(0.);

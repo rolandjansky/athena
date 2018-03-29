@@ -7,6 +7,7 @@
     <class name="ParticleJetDeltaRLabelTool" />  
     <class name="JetParticleAssociationAlg" />  
     <class name="JetParticleAssociation" />  
+    <class name="Analysis::JetPartonTruthLabel" />
     <class name="JetParticleShrinkingConeAssociation" />  
     <class name="JetParticleCenterOfMassAssociation" />  
 </lcgdict>

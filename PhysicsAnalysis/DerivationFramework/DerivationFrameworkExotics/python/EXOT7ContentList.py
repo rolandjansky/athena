@@ -10,12 +10,10 @@ EXOT7Content = [
 EXOT7SmartCollections = [
     "Electrons",
     "Muons",
-    "MET_Reference_AntiKt4EMTopo",
     "PrimaryVertices",
-    'MET_Reference_AntiKt4EMTopo',
     'AntiKt4EMTopoJets',
-    "AntiKt4LCTopoJets",
     "BTagging_AntiKt4EMTopo",
+    'MET_Reference_AntiKt4EMTopo',
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
     "BTagging_AntiKt2Track"
 ]

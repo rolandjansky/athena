@@ -429,26 +429,28 @@ class SlimmingHelper:
                         items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets"))
                 elif collectionName=="BTagging_AntiKt2Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt2TrackJets"))
+                        items.extend(BTaggingStandardContent("AntiKt2PV0TrackJets"))
                 elif collectionName=="BTagging_AntiKt3Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt3TrackJets"))
+                        items.extend(BTaggingStandardContent("AntiKt3PV0TrackJets"))
                 elif collectionName=="BTagging_AntiKt4Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4TrackJets"))
+                        items.extend(BTaggingStandardContent("AntiKt4PV0TrackJets"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        # note that for other track jet collections,
+                        # "PV0" appears in the name. unfortunately
+                        # all the derivations I see using VR track
+                        # jets leave out the "PV0".
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_expert":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
                         items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets"))
                 elif collectionName=="InDetTrackParticles":
-                        #from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
-                        from DerivationFrameworkCore.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
+                        from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         items.extend(InDetTrackParticlesCPContent)
                 elif collectionName=="PrimaryVertices":
-                        #from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
-                        from DerivationFrameworkCore.PrimaryVerticesCPContent import PrimaryVerticesCPContent
+                        from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
                 elif collectionName=="HLT_xAOD__MuonContainer_MuonEFInfo":
                         from DerivationFrameworkMuons.MuonTriggerContent import MuonTriggerContent

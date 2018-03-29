@@ -2351,7 +2351,7 @@ Analysis::CalibrationDataInterfaceROOT::initialize(const string& jetauthor, cons
 
 //________________________________________________________________________________
 CalibrationDataContainer*
-Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, const string& cntname, bool isSF)
+Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, const string& cntname, bool isSF, bool doPrint)
 {
   // Attempt to retrieve the given container from file. Note that also the corresponding
   // "hadronisation" reference is retrieved (if possible and not yet done).
@@ -2361,6 +2361,7 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
   //     isSF:    set to false (true) if the object is to be retrieved from the MC efficiencies
   //              file (the calibration scale factor file). Note that it is assumed that scale
   //              factor objects will always be retrieved from the calibration scale factor file.
+  //     doPrint: if true, print out some basic information about the successfully retrieved container
 
   // construct the full object name
   string name = dir + "/" + cntname;
@@ -2383,6 +2384,13 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
     cout << "btag Calib: retrieveContainer: failed to retrieve container named " << name.c_str() << " from file" << endl;
     return 0;
   }
+
+  // For successfully retrieved containers, also print some more information (implemented on user request)
+  if (doPrint) {
+    cout << "CalibrationDataInterface: retrieved container " << name << " (with comment: '" << cnt->getComment()
+	 << "' and hadronisation setting '" << cnt->getHadronisation() << "')" << endl;
+  }
+
 
   // If the requested object is a MC efficiency container, make sure to retrieve the corresponding
   // calibration scale factor container first (a feature first thought to be necessary, erroneously,
@@ -2421,8 +2429,9 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
 	string refname(dir + "/" + ref);
 	std::map<string, unsigned int>::const_iterator it = m_objectIndices.find(refname);
 	// If the reference cannot be found, assume that it hasn't yet been retrieved so attempt it now.
-	if (it == m_objectIndices.end()) { 
-	  retrieveContainer(dir, ref, isSF); it = m_objectIndices.find(refname);
+	if (it == m_objectIndices.end()) {
+	  // Omit the printout of container information here (the idea being that showing MC/MC SF information would confuse rather than help)
+	  retrieveContainer(dir, ref, isSF, false); it = m_objectIndices.find(refname);
 	}
 	m_hadronisationReference[idx] = it->second;
       }

@@ -6,7 +6,7 @@ EXOT3SmartContent = [
     "Photons",
     "InDetTrackParticles",
     "PrimaryVertices", 
-    "MET_Reference_AntiKt4EMTopo",
+    "AntiKt4TruthJets",
     "AntiKt4EMTopoJets",
     "BTagging_AntiKt4EMTopo",
     "BTagging_AntiKt2Track",
