@@ -9,9 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 
-// User action infrastructure includes
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
+// Infrastructure includes
 #include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
