@@ -280,9 +280,13 @@ function showBuildFailures(failures,link) {
     print HTMLOUT "<?php\n";
     print HTMLOUT "             \$nightlies = glob(dirname(__FILE__) . '/../../*');\n";
     print HTMLOUT "             \$nightlies = array_reverse(\$nightlies);\n";
+    print HTMLOUT "             \$current_page_link = \"\$_SERVER[REQUEST_URI]\";\n";
+    print HTMLOUT "             // protect against multiple slashes in a row\n";
+    print HTMLOUT "             \$current_page_link = preg_replace('#/+#','/',\$current_page_link);\n";
+    print HTMLOUT "             \$full_link = (isset(\$_SERVER['HTTPS']) ? \"https\" : \"http\") . \"://\$_SERVER[HTTP_HOST]\" . \$current_page_link;\n";
     print HTMLOUT "             foreach(\$nightlies as \$nightly){\n";
     print HTMLOUT "                 \$nightly = basename(\$nightly);\n";
-    print HTMLOUT "                 echo \"<option value='../../\" . \$nightly . \"/$test_suite/\" . \"'>\".\$nightly.\"</option>\";\n";
+    print HTMLOUT "                 echo \"<option value='\" . \$full_link . \"../../\" . \$nightly . \"/$test_suite/\" . \"'>\".\$nightly.\"</option>\";\n";
     print HTMLOUT "    }\n";
     print HTMLOUT "?>\n";
     print HTMLOUT "</select>\n";
