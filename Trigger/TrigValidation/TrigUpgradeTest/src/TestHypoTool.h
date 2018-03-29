@@ -41,8 +41,9 @@ namespace HLTTest {
 
     float m_threshold;
     std::string m_property;
-    Gaudi::Property<std::vector<std::string> > m_chainsProperty{ this, "Chains", {}, "Chains of whihc this Hypo is concerned" };
-    std::set<HLT::Identifier> m_chains;
+    //Gaudi::Property<std::string > m_chainProperty{ this, "Chain", {}, "Chain of whihc this Hypo is concerned" };
+    
+
     
   }; 
 

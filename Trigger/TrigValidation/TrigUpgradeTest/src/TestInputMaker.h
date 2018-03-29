@@ -47,8 +47,9 @@ namespace HLTTest {
 
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput { this, "Output", "undefined", "name of the output collection for input to next reco alg in sequence" };
     
-    SG::ReadHandleKeyArray <TrigCompositeUtils::DecisionContainer> m_inputs       { this, "InputDecisions",  {}, "Input Decisions (implicit)" };
-    SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_decisionsKey { this, "OutputDecisions", {}, "Ouput Decisions" };
+    SG::ReadHandleKeyArray <TrigCompositeUtils::DecisionContainer> m_inputDecisionsKey  { this, "InputDecisions",  {}, "Input Decisions (implicit)" };
+    SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputDecisionsKey { this, "OutputDecisions", {}, "Ouput Decisions" };
+    //SG::WriteHandleKeyArray< ConstDataVector<TrigCompositeUtils::DecisionContainer> > m_outputDecisionsKey{ this, "OutputDecisions", {}, "Output Decisions" };
 
     StringProperty m_linkName   {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
     StringProperty m_outputType {this, "OutputType","outputType", "reserved for future use"};

@@ -122,9 +122,9 @@ StatusCode RoRSeqFilter::execute() {
     }
   }
 
-  ATH_MSG_DEBUG( "Filter " << ( passCounter != 0 ? "passed" : "rejected") <<" creating "<< outputIndex<<" outDecisions DH");
+  ATH_MSG_DEBUG( "Filter " << ( passCounter != 0 ? "passed" : "rejected") <<" creating "<< outputIndex<<" valid outDecisions DH");
   for (auto output: outputHandles){
-    ATH_MSG_DEBUG(output.key());
+    if( output.isValid() ) ATH_MSG_DEBUG(" "<<output.key());
   }
   setFilterPassed( passCounter != 0 );  
   return StatusCode::SUCCESS;

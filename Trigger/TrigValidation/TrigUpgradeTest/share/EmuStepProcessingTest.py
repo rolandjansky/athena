@@ -13,7 +13,7 @@
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
-AlgScheduler.ShowDataFlow( True )
+#AlgScheduler.ShowDataFlow( True )
 
 # include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 # svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]
@@ -70,6 +70,7 @@ data['photons'] = ['eta:1,phi:1,pt:130000;',
                    ';']
 
 
+
 from TrigUpgradeTest.TestUtils import writeEmulationFiles
 writeEmulationFiles(data)
 
@@ -117,24 +118,31 @@ print L1UnpackingSeq
 # filters: one SeqFilter per step, per chain
 # inputMakers: one per each first RecoAlg in a step (so one per step), one input per chain that needs that step
 
+# map L1 decisions for menu
+for unpack in l1Decoder.roiUnpackers:
+    if unpack.name() is "EMRoIsUnpackingTool":
+        unpack.Decisions="L1EM"
+    if unpack.name() is "MURoIsUnpackingTool":
+        unpack.Decisions="L1MU"
 
+        
+# signatures
 from TrigUpgradeTest.HLTCFConfig import *
 from TrigUpgradeTest.MenuComponents import *
 
-include("TrigUpgradeTest/HLTSignatureConfig.py")
 
-nsteps=2
+from TrigUpgradeTest.HLTSignatureConfig import *
+
 
 # muon chains
 muStep1 = muStep1Sequence()
 muStep2 = muStep2Sequence()
-MuChains  = [
-    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [SequenceHypoTool(muStep1,step1mu20())]),
-                                                         ChainStep("Step2_mu20", [SequenceHypoTool(muStep2,step2mu20())]) ] ),
 
-    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [SequenceHypoTool(muStep1,step1mu8())] ),
-                                                         ChainStep("Step2_mu8",  [SequenceHypoTool(muStep2,step2mu8())]) ] )
-    ]
+MuChains  = [
+    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep2("Step1_mu20", [muStep1]),  ChainStep2("Step2_mu20", [muStep2] )]) ,
+    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep2("Step1_mu8",  [muStep1] ), ChainStep2("Step2_mu8",  [muStep2] ) ] )
+     ]
+
 
 
 
@@ -142,8 +150,7 @@ MuChains  = [
 elStep1 = elStep1Sequence()
 elStep2 = elStep2Sequence()
 ElChains  = [
-    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [SequenceHypoTool(elStep1,step1e20())]),
-                                                        ChainStep("Step2_e20",  [SequenceHypoTool(elStep2,step2e20())]) ] )
+    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep2("Step1_e20",  [elStep1]), ChainStep2("Step2_e20",  [elStep2]) ] )
     ]
 
 
@@ -151,13 +158,12 @@ ElChains  = [
 muelStep1 = combStep1Sequence()
 muelStep2 = combStep2Sequence()
 CombChains =[
-    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [SequenceHypoTool(muelStep1, step1mu8_e8())]),
-                                                              ChainStep("Step2_mu8_e8",  [SequenceHypoTool(muelStep2, step2mu8_e8())]) ] )
+    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep2("Step1_mu8_e8",  [muelStep1]),
+                                                              ChainStep2("Step2_mu8_e8",  [muelStep2]) ] )
     ]
 
 
 group_of_chains = MuChains + ElChains + CombChains
-#+ CombChains
 #+ ElChains + CombChains
 
 
@@ -179,7 +185,7 @@ TopHLTRootSeq += HLTAllStepsSeq
 
 # make CF tree
 
-decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains, NSTEPS=nsteps)
+decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains)
 
 
 
@@ -189,3 +195,4 @@ from AthenaCommon.AlgSequence import dumpMasterSequence
 dumpMasterSequence()
 
 theApp.EvtMax = 3
+
