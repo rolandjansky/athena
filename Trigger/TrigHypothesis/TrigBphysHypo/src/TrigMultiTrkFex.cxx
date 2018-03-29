@@ -500,7 +500,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     // permute bitmask
     std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks; 
     thisIterationTracks.reserve(NtracksTotal);
-    std::set<int> index_0;
+    std::unordered_set<int> index_0;
     index_0.reserve(NtracksTotal);
     do {
       
