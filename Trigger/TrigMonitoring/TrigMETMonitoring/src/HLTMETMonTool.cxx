@@ -87,11 +87,11 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   // sumet
   declareProperty("sumet_bins", m_sumet_bins=305,  "Number of bins SumEt");
   declareProperty("sumet_min",  m_sumet_min=-27.,  "Minimum SumEt");
-  declareProperty("sumet_max",  m_sumet_max=2803., "Maximum SumEt");
+  declareProperty("sumet_max",  m_sumet_max=4203., "Maximum SumEt");
   // sume
   declareProperty("sume_bins", m_sume_bins=153,  "Number of bins SumE");
   declareProperty("sume_min",  m_sume_min=-27.,  "Minimum SumE");
-  declareProperty("sume_max",  m_sume_max=18003., "Maximum SumE");
+  declareProperty("sume_max",  m_sume_max=24003., "Maximum SumE");
   // phi, dphi
   declareProperty("phi_bins", m_phi_bins=32,     "Number of bins Phi, dPhi");
   declareProperty("phi_min",  m_phi_min=-3.1416, "Minimum Phi");
