@@ -49,7 +49,7 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   HLT::AllTEAlgo(name, pSvcLocator)
   ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
   ,m_BmmHypTot(0)
-  
+
   , m_trackCollectionKey()
   , m_outputTrackCollectionKey()
   , m_bphysCollectionKey()
@@ -499,7 +499,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     // permute bitmask
     std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks; 
     std::vector<int> thisIterationTracksIndex; 
-    std::vector<int> index_0;
+    std::set<int> index_0;
     do {
       
       thisIterationTracks.clear();
@@ -679,10 +679,10 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	   }else{
 	     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " nTrk Vertex chi2  "<< chi2
 					      << " required "<<m_nTrkVertexChi2 << " is good" << endmsg;
-	     index_0.insert( index_0.end(), thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );
+	       index_0.insert( thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );
 	   }
 	 }else{
-	     index_0.insert( index_0.end(), thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );    
+	     index_0.insert( thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );    
 	 }
        } // end of vertexFit.isFailure
 
@@ -734,10 +734,10 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     }
 
     //OI if we did not reach this point, then we do not have a good combination at all, nothing to save
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " OI got # of indexes " << index_0.size() << endmsg;
-    sort( index_0.begin(), index_0.end() );
-    index_0.erase( unique( index_0.begin(), index_0.end() ), index_0.end() );
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " OI got unique # of indexes " << index_0.size() << endmsg;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got # of indexes " << index_0.size() << endmsg;
+    //sort( index_0.begin(), index_0.end() );
+    //index_0.erase( unique( index_0.begin(), index_0.end() ), index_0.end() );
+    //if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got unique # of indexes " << index_0.size() << endmsg;
     for( auto ind : index_0 ){
       xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
       trk1->makePrivateStore(*highptTracks[ind]);
