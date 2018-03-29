@@ -30,7 +30,8 @@ atlas_depends_on_subdirs( PUBLIC
                           TopJetSubstructure
                           xAODTracking
                           InDetTrackSystematicsTools 
-			  MuonAnalysisInterfaces )
+			  MuonAnalysisInterfaces 
+			  FTagAnalysisInterfaces)
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -69,6 +70,7 @@ atlas_add_library( TopSystematicObjectMaker Root/*.cxx Root/*.h Root/*.icc
                                   xAODTracking
                                   InDetTrackSystematicsToolsLib
 				  MuonAnalysisInterfacesLib
+				  FTagAnalysisInterfacesLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

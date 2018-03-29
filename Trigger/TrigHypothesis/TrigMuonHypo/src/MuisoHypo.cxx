@@ -110,8 +110,9 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
 
    // Check that there is only one L2IsoMuon
    if (vectorOfMuons->size() != 1) {
-      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
-      return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::NAV_ERROR);
+     msg() << MSG::DEBUG << "Size of L2Iso muon vector is " << vectorOfMuons->size() << ", so isolation failed" << endreq;
+     pass = false;
+     return HLT::OK;
    }
 
    // Get first (and only) L2IsoMuon

@@ -29,7 +29,6 @@ LArHVToolMC::LArHVToolMC(const std::string& type,
                                          const IInterface* parent)
   : AthAlgTool(type,name,parent),
     m_readASCII(false),
-    m_first(false),
     m_larem_id(nullptr)
 {
  declareInterface< ILArHVTool >( this );
@@ -46,7 +45,6 @@ StatusCode LArHVToolMC::initialize()
   ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
 
   m_larem_id   = m_caloIdMgr->getEM_ID();
-  m_first=true;
 
   const LArElectrodeID* electrodeID = nullptr;
   ATH_CHECK( detStore()->retrieve(electrodeID) );
@@ -57,6 +55,7 @@ StatusCode LArHVToolMC::initialize()
     m_updatedElectrodes.push_back(electrodeID->ElectrodeId(IdentifierHash(i)));
   }
 
+  InitHV();
   return StatusCode::SUCCESS;
 }
 
@@ -66,10 +65,6 @@ StatusCode LArHVToolMC::getHV(const Identifier& id,
          std::vector< HV_t > & v  ) 
 {
 
-  if (m_first) {
-       this->InitHV();
-       m_first=false;
-  }
 
   v.clear();
 

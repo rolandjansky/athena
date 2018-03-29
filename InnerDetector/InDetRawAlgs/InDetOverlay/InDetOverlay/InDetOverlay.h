@@ -38,6 +38,10 @@ public:
   // do it once in InDetOverlay initialization and make available here
   const SCT_ID *get_sct_id() const { return m_sct_id; }
 
+  enum SCT_numbers {NextBC=0, CurrentBC=1, PreviousBC=2, AnyBC=3, NumberOfBCs=3, NumberOfBitSets=4,
+                    NumberOfStrips=768,
+                    MCSource=0, DataSource=1, NumberOfSources=2};
+
 private:
 
   ServiceHandle<StoreGateSvc> m_detStore;

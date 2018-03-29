@@ -30,8 +30,8 @@ class G4Step;
 class G4VSensitiveDetector;
 
 
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 
 
@@ -39,9 +39,8 @@ namespace G4UA {
 
   namespace CaloG4 {
 
-
     class CalibrationDefaultProcessing:
-    public AthMessaging, public IBeginEventAction,  public ISteppingAction
+      public AthMessaging, public G4UserEventAction, public G4UserSteppingAction
     {
 
     public:
@@ -53,9 +52,9 @@ namespace G4UA {
 
       CalibrationDefaultProcessing(const Config& config);
       /// the BoE actions
-      virtual void beginOfEvent(const G4Event*) override;
+      virtual void BeginOfEventAction(const G4Event*) override;
       /// the stepping action
-      virtual void processStep(const G4Step*) override;
+      virtual void UserSteppingAction(const G4Step*) override;
 
       /// Make the default sensitive detector available to other routines.
       G4VSensitiveDetector* GetDefaultSD() { return m_defaultSD; }
@@ -70,7 +69,5 @@ namespace G4UA {
   } // namespace CaloG4
 
 } // namespace G4UA
-
-
 
 #endif // CaloG4_CalibrationDefaultProcessing_h

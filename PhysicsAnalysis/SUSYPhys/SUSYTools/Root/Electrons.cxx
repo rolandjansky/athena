@@ -170,7 +170,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
     return StatusCode::FAILURE;
   }
 
-  if ( !m_elecSelLikelihoodBaseline->accept(input) )
+  if ( !m_elecSelLikelihoodBaseline->accept(&input) )
     if( !m_force_noElId )
       return StatusCode::SUCCESS;
   
@@ -206,7 +206,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
 
   //ChargeIDSelector
   if( m_runECIS ){
-    dec_passChID(input) = m_elecChargeIDSelectorTool->accept(input);
+    dec_passChID(input) = m_elecChargeIDSelectorTool->accept(&input);
     double bdt = m_elecChargeIDSelectorTool->calculate(&input).getResult("bdt");
     dec_ecisBDT(input) = bdt;
 
@@ -230,7 +230,7 @@ bool SUSYObjDef_xAOD::IsSignalElectron(const xAOD::Electron & input, float etcut
 {
   dec_passSignalID(input) = false;
   
-  if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(input) ) dec_passSignalID(input) = true;
+  if ( !m_elecSelLikelihood.empty() && m_elecSelLikelihood->accept(&input) ) dec_passSignalID(input) = true;
 
   //overwrite ID selection if forced by user
   if(m_force_noElId) dec_passSignalID(input) = true;

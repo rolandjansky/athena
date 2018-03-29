@@ -27,7 +27,9 @@ atlas_add_component( AFP_SiClusterTools
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib AthenaPoolUtilities GaudiKernel GeneratorObjects xAODForward AthLinks)
 
+
 # Install files from the package:
 atlas_install_headers( AFP_SiClusterTools )
+atlas_install_joboptions( share/*.py )
 
 

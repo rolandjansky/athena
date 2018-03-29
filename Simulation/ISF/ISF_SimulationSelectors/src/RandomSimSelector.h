@@ -10,7 +10,7 @@
 #define ISF_TOOLS_RANDOMSIMFILTER_H 1
 
 // ISF includes
-#include "ISF_Interfaces/ISimulationSelector.h"
+#include "BaseSimulationSelector.h"
 
 class TRandom;
 
@@ -24,7 +24,7 @@ namespace ISF
 
       @author Elmar.Ritsch -at- cern.ch
   */
-  class RandomSimSelector : public ISimulationSelector
+  class RandomSimSelector final : public BaseSimulationSelector
   {
 
   public:
@@ -35,11 +35,11 @@ namespace ISF
     ~RandomSimSelector();
 
     // Athena algtool's Hooks
-    StatusCode  initialize() override final;
-    StatusCode  finalize() override final;
+    StatusCode  initialize() override;
+    StatusCode  finalize() override;
 
     /** check whether given particle passes all cuts -> will be used for routing decision*/
-    inline virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
+    inline virtual bool passSelectorCuts(const ISFParticle& particle) const override;
 
   private:
 

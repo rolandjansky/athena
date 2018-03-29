@@ -108,17 +108,119 @@ class FtkHltEfficiencyMonitoring(TrigGenericMonitoringToolConfig):
         xbins=2, xmin=-.5, xmax=1.5) ]
 
     # others
-    nBins += 5 + 5
+    nBins += 50 + 50
     self.Histograms += [ defineHistogram(
         'numb_HLT_trks',
         type='TH1F',
-        title='number of HLT tracks;#tracks;#events',
+        title='number of HLT tracks (effic Denominator);#tracks;#events',
         xbins=50, xmin=0, xmax=500)]
     self.Histograms += [ defineHistogram(
         'numb_FTK_trks',
         type='TH1F',
-        title='number of FTK tracks;#tracks;#events',
+        title='number of FTK tracks (effic numerator);#tracks;#events',
         xbins=50, xmin=0, xmax=500)]
+
+
+    nBins += 50*3
+    self.Histograms += [ defineHistogram(
+        'nFTKRawTrk',
+        type='TH1F',
+        title='number of FTK RAW tracks;#tracks;#events',
+        xbins=50, xmin=0, xmax=500)]
+    self.Histograms += [ defineHistogram(
+        'nTrackErrors',
+        type='TH1F',
+        title='number of FTK tracks not converted due to errors;#tracks;#events',
+        xbins=50, xmin=0, xmax=500)]
+    self.Histograms += [ defineHistogram(
+        'nTPErrors',
+        type='TH1F',
+        title='number of FTK TrackParticles missing due to Errors;#tracks;#events',
+        xbins=50, xmin=0, xmax=500)]
+
+    nBins += 50*4
+
+    self.Histograms += [ defineHistogram(
+        'fTrkMissingPix0',
+        type='TH1F',
+        title='fraction of tracks per event missing IBL;Fraction of Tracks;No. Events',
+        xbins=50, xmin=0, xmax=1)]
+    self.Histograms += [ defineHistogram(
+        'fTrkMissingPix1',
+        type='TH1F',
+        title='fraction of tracks per event missing Pix1;Fraction of Tracks;No. Events',
+        xbins=50, xmin=0, xmax=1)]
+    self.Histograms += [ defineHistogram(
+        'fTrkMissingPix2',
+        type='TH1F',
+        title='fraction of tracks per event missing Pix2;Fraction of Tracks;No. Events',
+        xbins=50, xmin=0, xmax=1)]
+    self.Histograms += [ defineHistogram(
+        'fTrkMissingPix3',
+        type='TH1F',
+        title='fraction of tracks per event missing Pix3;Fraction of Tracks;No. Events',
+        xbins=50, xmin=0, xmax=1)]
+
+    nBins += 50*8
+
+
+    self.Histograms += [ defineHistogram(
+      'fTrkMissingSCT0',
+      type='TH1F',
+      title='fraction of tracks per event missing SCT0;Fraction of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
+
+    self.Histograms += [ defineHistogram(
+      'fTrkMissingSCT1',
+      type='TH1F',
+      title='fraction of tracks per event missing SCT1;Fraction of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
+    self.Histograms += [ defineHistogram(
+      'fTrkMissingSCT2',
+      type='TH1F',
+      title='fraction of tracks per event missing SCT2;Fraction of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
+    self.Histograms += [ defineHistogram(
+      'fTrkMissingSCT3',
+      type='TH1F',
+      title='fraction of tracks per event missing SCT3;Fraction of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
+    self.Histograms += [ defineHistogram(
+      'fTrkMissingSCT4',
+      type='TH1F',
+      title='fraction of tracks per event missing SCT4;Fraction of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
+    self.Histograms += [ defineHistogram(
+      'fTrkMissingSCT5',
+      type='TH1F',
+      title='fraction of tracks per event missing SCT5;Fraction of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
+
+    self.Histograms += [ defineHistogram(
+      'fTrkMissingSCT6',
+      type='TH1F',
+      title='fraction of tracks per event missing SCT6;Fraction of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
+
+    self.Histograms += [ defineHistogram(
+      'fTrkMissingSCT7',
+      type='TH1F',
+      title='fraction of tracks per event missing SCT7;Fraction of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
+
+    nBins += 50*2
+
+    self.Histograms += [ defineHistogram(
+      'nTrkFailedPix',
+      type='TH1F',
+      title='No. tracks per event with failed Pixel hit conversion;No. of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
+
+    self.Histograms += [ defineHistogram(
+      'nTrkFailedSCT',
+      type='TH1F',
+      title='No. tracks per event with failed SCT hit conversion;No. of Tracks;No. Events',
+      xbins=50, xmin=0, xmax=1)]
 
     print "FtkHltEfficiencyMonitoring: booked", nBins, " histogram bins"
 

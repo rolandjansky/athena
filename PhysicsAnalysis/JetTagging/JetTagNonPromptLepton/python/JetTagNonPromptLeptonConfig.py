@@ -13,18 +13,9 @@ log = logging.getLogger('JetTagNonPromptLeptonConfig.py')
 def ConfigureAntiKt4PV0TrackJets(privateSeq, name):
 
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-    from DerivationFrameworkFlavourTag.FlavourTagCommon import ReTag
 
-    # Run track jet clustering 
+    # Run track jet clustering. B-tagging is run at construction
     replaceAODReducedJets(['AntiKt4PV0TrackJets'], privateSeq, name)
-
-    # B-tagging algs to be run on AntiKt4PV0TrackJets
-    # Run all in case of inter-dependencies (will not be saved in derivation unless specified)
-    btag_algs  = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn']
-    btag_algs += ['JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP']
-
-    # B-tag algs to be run on new track jet collection
-    ReTag(btag_algs, ['AntiKt4PV0TrackJets'], privateSeq)
 
 #------------------------------------------------------------------------------
 def GetDecoratePromptLeptonAlgs(name=""):

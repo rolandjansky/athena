@@ -21,6 +21,7 @@ ConfVtxAnalysis::ConfVtxAnalysis( const std::string& n ) :
 
 extern TIDA::Event* gevent;
 
+
 void ConfVtxAnalysis::initialise() { 
   
   //  std::cerr << "ConfVtxAnalysis::initialise() " << name() << std::endl;
@@ -82,7 +83,7 @@ void ConfVtxAnalysis::initialise() {
   hzed    = new TH1F( "zed",   ";vtx z [mm]",       200, -300,   300   );
   //  hntrax  = new TH1F( "ntrax", ";number of tracks", 201,   -0.5, 200.5 );
   hntrax  = new TH1F( "ntrax", ";number of tracks", 80,  vnbins );
-  hmu     = new TH1F( "mu",    ";<mu>",    41, -0.5, 40.5   );
+  hmu     = new TH1F( "mu",    ";<mu>",    81, -0.5, 80.5   );
   hlb     = new TH1F( "lb",    ";lumi block",  301, -0.5, 3009.5   );
 
 
@@ -93,9 +94,9 @@ void ConfVtxAnalysis::initialise() {
   hzed_res = new TH1F( "zed_res", "Delta z [mm]", 400, -10, 10 );
 
   rdz_vs_zed    = new Resplot( "rdz_vs_zed",   100, -300,    300,    400, -20, 20 ); 
-  rdz_vs_ntrax  = new Resplot( "rdz_vs_ntrax", 200,   -0.5,  200.5,  400, -20, 20 ); 
-  rdz_vs_nvtx   = new Resplot( "rdz_vs_nvtx",  51,    -0.125, 50.125,  400, -20, 20 ); 
-  rdz_vs_mu     = new Resplot( "rdz_vs_mu",    30,     0,    30,    400, -20, 20 ); 
+  rdz_vs_ntrax  = new Resplot( "rdz_vs_ntrax", 201,   -0.5,  200.5,  400, -20, 20 ); 
+  rdz_vs_nvtx   = new Resplot( "rdz_vs_nvtx",  81,    -0.5,   80.5,  400, -20, 20 ); 
+  rdz_vs_mu     = new Resplot( "rdz_vs_mu",    30,     0,     30,    400, -20, 20 ); 
 
   eff_zed   = new Efficiency( hzed,   "zed_eff" );
   eff_ntrax = new Efficiency( hntrax, "ntrax_eff" );
@@ -116,7 +117,7 @@ void ConfVtxAnalysis::initialise() {
 
 template<typename T> 
 std::ostream& operator<<( std::ostream& s, const std::vector<T*>& v) { 
-  for ( int i=0 ; i<v.size() ; i++ ) { 
+  for ( size_t i=0 ; i<v.size() ; i++ ) { 
     if ( v[i] )  s << "\t" << *v[i] << "\n";
     else         s << "\t" << "----\n";
   }
@@ -179,7 +180,7 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
       
 	/// ah ha ! can fill some silly old histograms here 
 	/// ...
-	
+
 	hzed_rec->Fill( mv->z() );
 	hntrax_rec->Fill( mv->Ntracks() );
 
@@ -214,7 +215,28 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
 	//	std::cout << "missing vtx ref vertex size " << vtx0.size() << "\tonline " << vtx1.size() << std::endl;
 	//	std::cout << "\tref:  " << *vtx0[i] << std::endl;
 	//	for ( unsigned iv=0 ; iv<vtx1.size() ; iv++ ) if ( vtx1[iv] ) std::cout << "\t" << iv << " :  " << *vtx1[iv] << std::endl;
+
+#if 0
+	static int vtxcount=0;
+
+	if ( vtxcount<100 ) { 
+	  std::cout << "ConfVtxAnalysis::execute() " << name() << "\tnomatch\n"
+		    << "\tvtx0.size() " << vtx0.size()
+		    << "\tvtx1.size() " << vtx1.size()
+		    << std::endl;
+	  
+	  std::cout << "\tref:  " << vtx0 << std::endl;
+	  std::cout << "\ttest: " << vtx1 << std::endl;
+	  
+	  vtxcount++;
+
+	  //	  std::cout << *gevent << std::endl;
+	}
+
 	
+#endif
+
+
 	eff_zed->FillDenom( vtx0[i]->z() );
 	eff_ntrax->FillDenom( vtx0[i]->Ntracks() );
 	eff_nvtx->FillDenom( vtx0.size() );

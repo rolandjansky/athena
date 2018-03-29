@@ -42,7 +42,7 @@ ToolSvc                                         += TAUP4TriggerSkimmingTool
 # ==========================================================================================================================
 # String skimming tool
 # ==========================================================================================================================
-tau_requirement                                  = "( count( (TauJets.pt > 15.0*GeV) && (abs(TauJets.eta) < 2.6) ) >= 1 )"
+tau_requirement                                  = "( count( (TauJets.pt > 15.0*GeV || TauJets.ptFinalCalib > 15.0*GeV ) && (abs(TauJets.eta) < 2.6) ) >= 1 )"
 
 expression                                       = tau_requirement
 # print expression

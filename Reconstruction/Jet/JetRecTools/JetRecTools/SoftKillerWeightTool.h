@@ -45,21 +45,12 @@
 // applied.
 //
 
-
-
-
 #include <string>
+#include <utility>
 #include "JetRecTools/JetConstituentModifierBase.h"
 #include "xAODBase/IParticleContainer.h"
 
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "fastjet/ClusterSequenceArea.hh"
 #include "fastjet/PseudoJet.hh"
-#include "fastjet/Selector.hh"
-#include "fastjet/contrib/SoftKiller.hh"
-
-
 
 class SoftKillerWeightTool : public JetConstituentModifierBase{
   ASG_TOOL_CLASS(SoftKillerWeightTool, IJetConstituentModifier)
@@ -67,24 +58,29 @@ class SoftKillerWeightTool : public JetConstituentModifierBase{
   public:
   
   SoftKillerWeightTool(const std::string& name);
-  StatusCode process(xAOD::IParticleContainer* cont) const; 
-  StatusCode process(xAOD::CaloClusterContainer* cont) const; // MEN: Might need to rename this process
-  float calculateWeight(xAOD::CaloCluster* cl) const;
-  float calculateSplitWeight(xAOD::CaloCluster* cl) const;
-  void RunClusters(xAOD::CaloClusterContainer* m_clust) const;
-  void RunSplitClusters(xAOD::CaloClusterContainer* m_clust) const;
 
-  //		int execute() const;
+  // Check that the configuration is sane
+  StatusCode initialize();
+
+private:
+  // Implement the correction
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
+
+  // Detailed implementation methods where clusters in
+  // both calorimeters are treated consistently
+  float calculateWeight(xAOD::IParticle& part, double minPt) const;
+  double getSoftKillerMinPt(xAOD::IParticleContainer& cont) const;
+
+  // Detailed implementation methods where clusters in
+  // ECAL and HCAL are treated independently
+  float calculateSplitWeight(xAOD::IParticle& part, double minPtECal, double minPtHCal) const;
+  std::pair<double,double> getSoftKillerMinPtSplit(xAOD::IParticleContainer& cont) const;
+
+  double findMinPt(const std::vector<fastjet::PseudoJet> &partSK) const;
+  std::vector<fastjet::PseudoJet> makeSKParticles(const std::vector<fastjet::PseudoJet>& partPJ) const;
 
 
 private:
-
-  double findMinPt(std::vector<fastjet::PseudoJet> *clustSK) const;
-  std::vector<fastjet::PseudoJet> makeSKClust(std::vector<fastjet::PseudoJet> clustPJ) const;
-
-
-private:
-
   //mutable int m_initCount;
   float m_lambdaCalDivide;
 
@@ -97,9 +93,7 @@ private:
   float m_rapmax;
   float m_rapminApplied;
   float m_rapmaxApplied;
-  mutable double m_minPt;
-  mutable double m_minPtECal;
-  mutable double m_minPtHCal;
+  bool m_ignoreChargedPFOs;
 		
 };
 

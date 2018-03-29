@@ -43,6 +43,7 @@ namespace DerivationFramework {
     bool m_passAll;
     bool m_LeptonVeto;
     bool m_isolatedTrack;
+    float m_metHtCut;
     std::string m_jetSGKey;
     std::string m_metSGKey;
     std::string m_metTerm;

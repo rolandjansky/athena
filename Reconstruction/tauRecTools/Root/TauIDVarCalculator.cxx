@@ -63,11 +63,11 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   acc_numTrack(tau) = tau.nTracks();
 
 
-  const xAOD::EventInfo* m_xEventInfo;  //!
+  const xAOD::EventInfo* xEventInfo;  //!
 
   static SG::AuxElement::Accessor<float> acc_mu("MU");
-  ATH_CHECK( evtStore()->retrieve(m_xEventInfo,"EventInfo") );
-  acc_mu(tau) = m_xEventInfo->averageInteractionsPerCrossing();
+  ATH_CHECK( evtStore()->retrieve(xEventInfo,"EventInfo") );
+  acc_mu(tau) = xEventInfo->averageInteractionsPerCrossing();
 
   if(!inTrigger()){
     static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");

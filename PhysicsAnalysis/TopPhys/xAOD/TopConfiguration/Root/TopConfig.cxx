@@ -448,6 +448,9 @@ namespace top{
     this->setGrlDir( settings->value("GRLDir") );
     this->setGrlFile( settings->value("GRLFile") );
 
+    // Set TDP file name
+    this->setTDPPath( settings->value("TDPPath") );
+
     //we need storegate keys so people can pick different collections / met / jets etc.
     this->sgKeyPhotons( settings->value("PhotonCollectionName") );
     this->sgKeyElectrons( settings->value("ElectronCollectionName") );
@@ -976,6 +979,12 @@ namespace top{
         grl.erase(remove_if(grl.begin(), grl.end(), isspace), grl.end());
         m_grlFile.push_back(grl);
       }
+    }
+  }
+
+  void TopConfig::setTDPPath( const std::string& s){
+    if (!m_configFixed) {
+      m_topDataPreparationPath = s;
     }
   }
 
@@ -2541,6 +2550,22 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     }
     return;
   }
+
+  // Function to return the year of data taking based on either run number (data) or random run number (MC)
+  const std::string TopConfig::getYear(unsigned int runnumber){    
+
+    // 2015 : 266904 - 284484
+    if(runnumber >= 266904 && runnumber <= 284484) return "2015"; 
+
+    // 2016 : 296939 - 311481
+    if(runnumber >= 296939 && runnumber <= 311481) return "2016";
+
+    // 2017 : 324320 - 999999
+    if(runnumber >= 324320) return "2017";
+    
+    return "ERROR";
+  }
+
 
 }
 

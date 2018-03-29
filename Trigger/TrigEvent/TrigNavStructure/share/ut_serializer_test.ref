@@ -1,3 +1,5 @@
-INFO       LINE:8    Test contentMany
-INFO       LINE:23   Test contentOne
-OK         LINE:45   test passed
+INFO       LINE:12   
+INFO       LINE:12   Test contentMany
+INFO       LINE:27   
+INFO       LINE:27   Test contentOne
+OK         LINE:49   test passed

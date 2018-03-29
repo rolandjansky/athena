@@ -245,6 +245,7 @@ void FTKDataInput::processRegion(int curreg, bool clearOrig)
        MultiTruth mt;
        MultiTruth::Barcode uniquecode(curhit.getEventIndex(),curhit.getBarcode());
        mt.maximize(uniquecode,curhit.getBarcodePt());
+      cout << "actually I'm here ! " << endl; 
        curhit.setTruth(mt);
          } // end hit
        }

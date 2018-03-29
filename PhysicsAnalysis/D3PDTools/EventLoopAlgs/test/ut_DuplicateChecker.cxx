@@ -52,9 +52,9 @@ using namespace EL;
 
   // so apparently I need an input file to make an output file...
   std::unique_ptr<TFile> inputFile (TFile::Open (getenv ("ROOTCORE_TEST_FILE"), "READ"));
-  RCU_ASSERT (inputFile != nullptr);
+  RCU_ASSERT_SOFT (inputFile != nullptr);
   TTree *tree = dynamic_cast<TTree*>(inputFile->Get ("CollectionTree"));
-  RCU_ASSERT (tree);
+  RCU_ASSERT_SOFT (tree);
   if (event.readFrom (tree).isFailure())
     RCU_ASSERT0 ("failed to read from input tree");
   std::unique_ptr<TFile> myfile (TFile::Open (file.c_str(), "RECREATE"));
@@ -118,21 +118,21 @@ void checkHistograms (const std::string& submitdir,
 		      bool expect_success)
 {
   std::unique_ptr<TFile> file (TFile::Open ((submitdir + "/hist-sample.root").c_str(), "READ"));
-  RCU_ASSERT (file != nullptr);
+  RCU_ASSERT_SOFT (file != nullptr);
 
   TH1 *hist = dynamic_cast<TH1*>(file->Get ("EventLoop_EventCount"));
-  RCU_ASSERT (file != nullptr);
+  RCU_ASSERT_SOFT (file != nullptr);
 
   // hist->Print ("ALL");
-  RCU_ASSERT (hist->GetBinContent(1) == raw);
-  RCU_ASSERT (hist->GetBinContent(2) == raw);
-  RCU_ASSERT (hist->GetBinContent(3) == final);
+  RCU_ASSERT_SOFT (hist->GetBinContent(1) == raw);
+  RCU_ASSERT_SOFT (hist->GetBinContent(2) == raw);
+  RCU_ASSERT_SOFT (hist->GetBinContent(3) == final);
 
   TTree *summary = dynamic_cast<TTree*>(file->Get ("summary"));
-  RCU_ASSERT (summary != nullptr);
+  RCU_ASSERT_SOFT (summary != nullptr);
 
   // summary->Print ("ALL");
-  RCU_ASSERT (summary->GetEntries() == raw);
+  RCU_ASSERT_SOFT (summary->GetEntries() == raw);
 
   summary->SetBranchStatus ("*", 0);
   summary->SetBranchStatus ("processed", 1);
@@ -145,16 +145,20 @@ void checkHistograms (const std::string& submitdir,
     if (processed)
       ++ count;
   }
-  RCU_ASSERT (count == final);
+  RCU_ASSERT_SOFT (count == final);
 
   bool success = DuplicateChecker::processSummary (submitdir, "summary");
-  RCU_ASSERT (success == expect_success);
+  RCU_ASSERT_SOFT (success == expect_success);
 }
 
 int main ()
 {
   xAOD::TReturnCode::enableFailure();
   xAOD::Init ().ignore();
+
+  std::string prefix = "DuplicateCheckerSubmit";
+
+  RCU::Shell::exec ("rm -rf " + prefix + "[123]");
 
   if (makeXAOD ("test1.root", 1, 0).isFailure())
   {
@@ -188,15 +192,15 @@ int main ()
 
     {
       DirectDriver driver;
-      driver.submit (job, "submit1");
-      checkHistograms ("submit1", 30000, 26000, true);
+      driver.submit (job, prefix + "1");
+      checkHistograms (prefix + "1", 30000, 26000, true);
     }
     {
       LocalDriver driver;
-      driver.submit (job, "submit2");
-      checkHistograms ("submit2", 30000, 27000, false);
+      driver.submit (job, prefix + "2");
+      checkHistograms (prefix + "2", 30000, 27000, false);
     }
-    RCU::Shell::exec ("cmp submit1/duplicates submit2/duplicates");
+    RCU::Shell::exec ("cmp " + prefix + "1/duplicates " + prefix + "2/duplicates");
   }
 
   {
@@ -204,14 +208,14 @@ int main ()
     std::unique_ptr<DuplicateChecker> alg (new DuplicateChecker);
     alg->setEventInfoName ("MyEventInfo");
     alg->setOutputTreeName ("summary");
-    alg->addKnownDuplicatesFile ("submit1/duplicates");
+    alg->addKnownDuplicatesFile (prefix + "1/duplicates");
     job.algsAdd (alg.release());
     job.sampleHandler (sh);
 
     {
       LocalDriver driver;
-      driver.submit (job, "submit3");
-      checkHistograms ("submit3", 30000, 26000, true);
+      driver.submit (job, prefix + "3");
+      checkHistograms (prefix + "3", 30000, 26000, true);
     }
   }
 

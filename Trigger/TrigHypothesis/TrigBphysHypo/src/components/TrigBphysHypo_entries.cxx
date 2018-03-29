@@ -7,6 +7,7 @@
 #include "../TrigL2BMuMuFex.h"
 #include "../TrigEFBMuMuXHypo.h"
 #include "../TrigEFBMuMuXFex.h"
+#include "../TrigEFBEEXFex.h"
 #include "../TrigEFBMuMuHypo.h"
 #include "../TrigEFMultiMuHypo.h"
 //#include "../TrigL2DiMuHypo.h"
@@ -21,6 +22,7 @@
 #include "../TrigEFTrkMassHypo.h"
 #include "../TrigMultiTrkFex.h"
 #include "../TrigBphysMuonCounter.h"
+#include "../TrigBphysElectronCounter.h"
 
 //#include "../TrigL2LooseMuonHypo.h"
 
@@ -42,6 +44,7 @@ DECLARE_ALGORITHM_FACTORY( TrigL2MultiMuHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL2MultiMuFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuXHypo )
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuXFex )
+DECLARE_ALGORITHM_FACTORY( TrigEFBEEXFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuHypo )
 DECLARE_ALGORITHM_FACTORY( TrigEFMultiMuHypo )
 //DECLARE_ALGORITHM_FACTORY( TrigL2DiMuHypo )
@@ -59,6 +62,7 @@ DECLARE_ALGORITHM_FACTORY( TrigEFMultiMuFex )
 DECLARE_ALGORITHM_FACTORY( TrigMultiTrkFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFTrkMassFex )
 DECLARE_ALGORITHM_FACTORY( TrigBphysMuonCounter )
+DECLARE_ALGORITHM_FACTORY( TrigBphysElectronCounter )
 //DECLARE_ALGORITHM_FACTORY( TrigBphysL1DiMuComboFex )
 
 
@@ -73,6 +77,7 @@ DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
     DECLARE_ALGORITHM( TrigL2BMuMuFex )
     DECLARE_ALGORITHM( TrigEFBMuMuXHypo )
     DECLARE_ALGORITHM( TrigEFBMuMuXFex )
+    DECLARE_ALGORITHM( TrigEFBEEXFex )
     DECLARE_ALGORITHM( TrigEFBMuMuHypo )
     DECLARE_ALGORITHM( TrigEFMultiMuHypo )
 //    DECLARE_ALGORITHM( TrigL2DiMuHypo )
@@ -89,6 +94,7 @@ DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
     DECLARE_ALGORITHM( TrigEFMultiMuFex )
     DECLARE_ALGORITHM( TrigMultiTrkFex )
     DECLARE_ALGORITHM( TrigBphysMuonCounter )
+    DECLARE_ALGORITHM( TrigBphysElectronCounter )
     DECLARE_ALGORITHM( TrigEFTrkMassFex )
 //    DECLARE_ALGORITHM( TrigBphysL1DiMuComboFeX )
 

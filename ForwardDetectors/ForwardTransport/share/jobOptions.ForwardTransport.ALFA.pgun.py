@@ -9,12 +9,12 @@ athenaCommonFlags.PoolEvgenInput.set_Off()
 athenaCommonFlags.PoolHitsOutput =  "hits.ALFA.pool.root"
 athenaCommonFlags.EvtMax = 10
 
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags()
-SimFlags.EventFilter.set_Off()
-SimFlags.MagneticField.set_Off()
-SimFlags.ForwardDetectors.set_On()
-SimFlags.ForwardDetectors = 2
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags()
+simFlags.EventFilter.set_Off()
+simFlags.MagneticField.set_Off()
+simFlags.ForwardDetectors.set_On()
+simFlags.ForwardDetectors = 2
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
@@ -32,8 +32,10 @@ topSeq.ParticleGenerator.orders = [
     'phi:     flat     0 6.28318',
     'e:       constant 4000000']
 
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 include("ForwardTransportSvc/preInclude.ForwardTransportFlags_4.0TeV_0090.00m_nominal_v01.py")
 include("ForwardTransportSvc/ForwardTransportSvcConfig.ALFA.py")

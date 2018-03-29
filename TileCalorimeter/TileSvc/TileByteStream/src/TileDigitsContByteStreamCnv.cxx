@@ -75,6 +75,8 @@ StatusCode TileDigitsContByteStreamCnv::initialize() {
 
   CHECK( m_tool.retrieve() );
 
+  CHECK( m_tool.retrieve() );
+
   CHECK( m_robSvc.retrieve() );
 
   // create empty TileDigitsContainer and all collections inside

@@ -33,13 +33,13 @@ StatusCode LArPhysWaves2Ntuple::stop()
 
   sc=m_nt->addItem("gain",m_gain,0,3);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'gain' failed" << endreq;
+    ATH_MSG_ERROR( "addItem 'gain' failed" );
     return StatusCode::FAILURE;
   }
 
   sc=m_nt->addItem("timeOffset",m_timeOffset,0.,100.);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'timeOffset' failed" << endreq;
+    ATH_MSG_ERROR( "addItem 'timeOffset' failed" );
     return StatusCode::FAILURE;
   }
 
@@ -47,7 +47,7 @@ StatusCode LArPhysWaves2Ntuple::stop()
   if (m_addCorrUndo) {
     sc=m_nt->addItem("corrUndo",m_corrUndo,0,1);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'corrUndo' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'corrUndo' failed" );
       return StatusCode::FAILURE;
     }
   }
@@ -56,24 +56,24 @@ StatusCode LArPhysWaves2Ntuple::stop()
     const std::string& key = m_keylist[k] ;
 
 
-    (*m_log) << MSG::INFO << "Processing WaveContainer from StoreGate! key=" << m_keylist[k] << endreq; 
+    ATH_MSG_INFO( "Processing WaveContainer from StoreGate! key=" << m_keylist[k] ); 
     const LArPhysWaveContainer* physWaveContainer;
     LArPhysWaveContainer* physWaveContainer_nc;
     StatusCode sc;
     if (m_applyCorr) {
       sc = m_detStore->retrieve(physWaveContainer_nc,key);	    
       if (sc.isFailure()) {
-	(*m_log) << MSG::ERROR << "Cannot read non-const LArPhysWaveContainer from StoreGate! key=" << key << endreq;
-	(*m_log) << MSG::ERROR << "The ApplyCorrection option works only for non-const containers!" << endreq;
+	ATH_MSG_ERROR( "Cannot read non-const LArPhysWaveContainer from StoreGate! key=" << key );
+	ATH_MSG_ERROR( "The ApplyCorrection option works only for non-const containers!" );
 	return sc;
       }
       else
-	(*m_log) << MSG::INFO << "Read non-const LArPhysWaveContainer from StoreGate! key= "  << key << endreq;
+	ATH_MSG_INFO( "Read non-const LArPhysWaveContainer from StoreGate! key= "  << key );
 
       if (!physWaveContainer_nc->correctionsApplied()) {
 	sc=physWaveContainer_nc->applyCorrections();
 	if (sc.isFailure()) {
-	  (*m_log) << MSG::ERROR << "Failed to apply corrections to LArPhysWaveContainer!" << endreq;
+	  ATH_MSG_ERROR( "Failed to apply corrections to LArPhysWaveContainer!" );
 	}
       }
       physWaveContainer=physWaveContainer_nc;
@@ -81,10 +81,10 @@ StatusCode LArPhysWaves2Ntuple::stop()
     else {
       sc = m_detStore->retrieve(physWaveContainer,key);	    
       if (sc.isFailure()) {
-	(*m_log) << MSG::ERROR << "Cannot read LArPhysWaveContainer from StoreGate! key=" << key << endreq;
+	ATH_MSG_ERROR( "Cannot read LArPhysWaveContainer from StoreGate! key=" << key );
 	return StatusCode::FAILURE;
       } else 
-	(*m_log) << MSG::INFO << "Read const LArPhysWaveContainer from StoreGate! key= "  << key << endreq;
+	ATH_MSG_INFO( "Read const LArPhysWaveContainer from StoreGate! key= "  << key );
     }
     
     for (unsigned igain=CaloGain::LARHIGHGAIN;igain<CaloGain::LARNGAIN ;++igain){
@@ -100,7 +100,7 @@ StatusCode LArPhysWaves2Ntuple::stop()
 	m_timeOffset = wave.getTimeOffset();
 	sc=ntupleSvc()->writeRecord(m_nt);
 	if (sc!=StatusCode::SUCCESS) {
-	  (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+	  ATH_MSG_ERROR( "writeRecord failed" );
 	  return sc;
 	}
       }//end loop over identifiers
@@ -118,14 +118,14 @@ StatusCode LArPhysWaves2Ntuple::stop()
 	  fillWave(chid,wave); //Fill method from base-class
 	  sc=ntupleSvc()->writeRecord(m_nt);
 	  if (sc!=StatusCode::SUCCESS) {
-	    (*m_log) << MSG::ERROR << "writeRecord failed" << endreq;
+	    ATH_MSG_ERROR( "writeRecord failed" );
 	    return sc;
 	  }
 	}//end loop over corrections
       }//end loop over gain
     }//end if addCorrUndo
   }//end loop over container keys
-  (*m_log) << MSG::INFO << "LArWave2Ntuple has finished." << endreq;
+  ATH_MSG_INFO( "LArWave2Ntuple has finished." );
   return StatusCode::SUCCESS;
 } // end finalize-method.
 

@@ -25,31 +25,31 @@ StatusCode LArDSPConfig2Ntuple::initialize() {
 
   StatusCode sc=LArCond2NtupleBase::initialize();
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "Base init failed" << endreq;
+     ATH_MSG_ERROR( "Base init failed" );
      return StatusCode::FAILURE;
    }
 
    sc=m_nt->addItem("peakSample",m_peakSample);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem peakSample failed" << endreq;
+     ATH_MSG_ERROR( "addItem peakSample failed" );
      return StatusCode::FAILURE;
    }
    
    sc=m_nt->addItem("useHGIntercept",m_useHgIntercept);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem useHGIntercept failed" << endreq;
+     ATH_MSG_ERROR( "addItem useHGIntercept failed" );
      return StatusCode::FAILURE;
    }
    
    sc=m_nt->addItem("useMGIntercept",m_useMgIntercept);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem useMGIntercept failed" << endreq;
+     ATH_MSG_ERROR( "addItem useMGIntercept failed" );
      return StatusCode::FAILURE;
    }
    
    sc=m_nt->addItem("useLGIntercept",m_useLgIntercept);
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "addItem useLGIntercept failed" << endreq;
+     ATH_MSG_ERROR( "addItem useLGIntercept failed" );
      return StatusCode::FAILURE;
    }
    
@@ -67,7 +67,7 @@ StatusCode LArDSPConfig2Ntuple::stop() {
    const AthenaAttributeList* attrList=0;
    sc=detStore()->retrieve(attrList,m_folder);
    if (sc.isFailure()) {
-     msg(MSG::ERROR) << "Failed to retrieve AthenaAttributeList with key " << m_folder << endreq;
+     ATH_MSG_ERROR( "Failed to retrieve AthenaAttributeList with key " << m_folder );
      return sc;
    }
       
@@ -80,21 +80,22 @@ StatusCode LArDSPConfig2Ntuple::stop() {
    for(; itOnId!=itOnIdEnd;++itOnId){
      const HWIdentifier hwid = *itOnId;
      m_peakSample=larDSPConfig.peakSample(hwid);
-     msg(MSG::DEBUG)<<"hwid: "<<hwid.getString()<<" "<<m_peakSample<<endmsg;
+     //ATH_MSG_INFO("hwid: "<<hwid.getString()<<" "<<m_peakSample);
      m_useMgIntercept=larDSPConfig.useMGRampIntercept(hwid);
      m_useHgIntercept=larDSPConfig.useHGRampIntercept(hwid);
      m_useLgIntercept=larDSPConfig.useLGRampIntercept(hwid);
-     msg(MSG::DEBUG)<<"hwid: "<<hwid.getString()<<" "<<m_useHgIntercept<<" "<<m_useMgIntercept<<" "<<m_useLgIntercept<<endmsg;
+     //ATH_MSG_INFO("hwid: "<<hwid.getString()<<" "<<m_useHgIntercept<<" "<<m_useMgIntercept<<" "<<m_useLgIntercept);
      fillFromIdentifier(hwid);
+     //ATH_MSG_INFO("hwid: "<<hwid.getString()<<" "<<tQThr<<" : "<<samplesThr<<" : "<<trigThr);
      
      sc=ntupleSvc()->writeRecord(m_nt);      
      if (sc!=StatusCode::SUCCESS) {
-       msg(MSG::ERROR) << "writeRecord failed" << endreq;
+       ATH_MSG_ERROR( "writeRecord failed" );
        return StatusCode::FAILURE;
      }
    }
    
-   msg(MSG::INFO) << "LArDSPConfig2Ntuple has finished." << endreq;
+   ATH_MSG_INFO( "LArDSPConfig2Ntuple has finished." );
    return StatusCode::SUCCESS;
    
 }// end finalize-method.

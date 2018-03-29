@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <AnaAlgorithm/Global.h>
+#include <EventLoop/JobConfig.h>
 #include <SampleHandler/SampleHandler.h>
 #include <SampleHandler/MetaObject.h>
 
@@ -88,9 +89,7 @@ namespace EL
     /// failures: out of memory II
     /// invariant: alg != 0
   public:
-    typedef std::vector<EL::Algorithm*>::const_iterator algsIter;
-    algsIter algsBegin () const;
-    algsIter algsEnd () const;
+    void algsAdd (std::unique_ptr<Algorithm> val_algorithm);
     void algsAdd (Algorithm *alg_swallow);
     void algsAdd (const AnaAlgorithmConfig& config);
 
@@ -154,6 +153,13 @@ namespace EL
   public:
     SH::MetaObject *options ();
     const SH::MetaObject *options () const;
+
+
+    /// \brief the \ref JobConfig object we are wrapping
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    const JobConfig& jobConfig () const noexcept;
 
 
     /// description: the name of the option for overwriting the
@@ -424,11 +430,13 @@ namespace EL
   private:
     SH::SampleHandler m_sampleHandler;
   private:
-    std::vector<EL::Algorithm*> m_algs;
-  private:
     std::vector<EL::OutputStream> m_output;
   private:
     SH::MetaObject m_options;
+
+    /// \brief the \ref JobConfig object we use
+  private:
+    EL::JobConfig m_jobConfig;
   };
 }
 

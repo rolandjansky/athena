@@ -78,10 +78,32 @@ find_package( FastJet COMPONENTS fastjetplugins fastjettools siscone
 	        siscone_spherical )
 find_package( FastJetContrib COMPONENTS VariableR )
 
+atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
+  ROOT_HEADERS
+  tauRecTools/TauCalibrateLC.h
+  tauRecTools/TauSubstructureVariables.h
+  tauRecTools/TauCommonCalcVars.h
+  tauRecTools/TauGenericPi0Cone.h
+  tauRecTools/TauIDPileupCorrection.h
+  tauRecTools/TauTrackFilter.h
+  tauRecTools/MvaTESVariableDecorator.h
+  tauRecTools/MvaTESEvaluator.h
+  tauRecTools/CombinedP4FromRecoTaus.h
+  tauRecTools/TauTrackClassifier.h
+  tauRecTools/TauChargedPFOCreator.h
+  tauRecTools/TauWPDecorator.h
+  tauRecTools/TauJetBDTEvaluator.h
+  tauRecTools/TauIDVarCalculator.h
+  tauRecTools/TauEleOLRDecorator.h
+  tauRecTools/TauProcessorTool.h
+  Root/LinkDef.h
+  EXTERNAL_PACKAGES ROOT
+  )
+
 # Component(s) in the package:
 if( XAOD_STANDALONE OR XAOD_ANALYSIS )
    atlas_add_library( tauRecToolsLib
-      tauRecTools/*.h Root/*.cxx
+      tauRecTools/*.h Root/*.cxx  ${tauRecToolsLibCintDict}
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}
@@ -93,7 +115,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 else()
    atlas_add_library( tauRecToolsLib
-      tauRecTools/*.h Root/*.cxx
+      tauRecTools/*.h Root/*.cxx  ${tauRecToolsLibCintDict}
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}

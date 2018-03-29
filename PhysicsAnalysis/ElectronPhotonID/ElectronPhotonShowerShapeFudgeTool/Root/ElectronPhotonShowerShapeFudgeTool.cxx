@@ -30,7 +30,7 @@ ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(std::stri
 {
 
   declareProperty("Preselection",m_preselection=-999);
-  declareProperty("FFCalibFile", m_ffFile="ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root", "Calib path file for Photon MC corrections");
+  declareProperty("FFCalibFile", m_ffFile="ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root", "Calib path file for Photon MC corrections");
   declareProperty("ConfigFile",m_configFile="","The config file to use for the Electron Shifter");
 
   // Create an instance of the underlying ROOT tool

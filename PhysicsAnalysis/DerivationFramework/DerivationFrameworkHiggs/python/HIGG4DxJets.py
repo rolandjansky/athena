@@ -12,8 +12,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 
 def setup(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper):
     
-    jet_collection = HIGG4DxName+"Jets"
-    if not jet_collection in OutputJets:
+    if not HIGG4DxName in OutputJets:
         reducedJetList = ["AntiKt4TruthJets",
                           "AntiKt4TruthWZJets",
                           ]
@@ -29,5 +28,5 @@ def setup(HIGG4DxName, HIGG4DxSequence, HIGG4DxSlimmingHelper):
             
         if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
             # default trimmed jets.
-            addDefaultTrimmedJets(HIGG4DxSequence, jet_collection, True)
+            addDefaultTrimmedJets(HIGG4DxSequence, HIGG4DxName, True)
 

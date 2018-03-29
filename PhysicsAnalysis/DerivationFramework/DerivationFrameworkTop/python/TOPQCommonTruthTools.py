@@ -122,7 +122,8 @@ def setup(ToolSvc):
   # TAU TRUTH MATCHING
   #==============================================================================
   # Does the tau truth matching, and also gives us a tau truth collection
-  from DerivationFrameworkTau.TauTruthCommon import *
+  from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+  scheduleTauTruthTools()
 
   #=============
   # RETURN TOOLS

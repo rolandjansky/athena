@@ -122,11 +122,18 @@ class InDetHoleSearchTool(object) :
 
       @checkKWArgs
       def __init__(self, **kwargs) :
-          from AthenaCommon.AppMgr import ToolSvc
+          from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
+          # If InDetSCT_ConditionsSummarySvc instance configured by InDetRecConditionsAccess.py is available, use it.
+          # Otherwise, the default SCT_ConditionsSummarySvc instance is used.
+          # @TODO find a better to solution to get the correct service for the current job.
+          SctSummarySvc = "InDetSCT_ConditionsSummarySvc"
+          if not hasattr(ServiceMgr, SctSummarySvc):
+              SctSummarySvc = "SCT_ConditionsSummarySvc"
           from InDetRecExample.InDetJobProperties import InDetFlags
           super(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool,self).__init__(**_args( kwargs,
                                                                                                  name         = self.__class__.__name__,
                                                                                                  Extrapolator = ToolSvc.InDetExtrapolator,
+                                                                                                 SctSummarySvc = SctSummarySvc,
                                                                                                  usePixel     = True,
                                                                                                  useSCT       = True,
                                                                                                  checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),

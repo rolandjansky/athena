@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 SUSY8JetMETTriggers = [
 		'HLT_j100_xe80',
                 'HLT_j80_xe80',
@@ -30,7 +28,8 @@ SUSY8MuonTriggers = [
 
 SUSY8LateMuonTriggers = [
 		'HLT_mu10_mgonly_L1LATEMU10_J50',
-		'HLT_mu10_mgonly_L1LATEMU10_XE50'
+		'HLT_mu10_mgonly_L1LATEMU10_XE50',
+		'HLT_mu10_mgonly_L1LATE-MU10_XE40'
 ]
 
 SUSY8DimuonTriggers = [
@@ -61,6 +60,7 @@ SUSY8METTriggers = [
 		'HLT_xe120_pufit_L1XE50'
 		'HLT_xe110_pueta_L1XE50',
 		'HLT_xe110_pufit_L1XE50',
+		'HLT_xe110_pufit_L1XE55',
 		'HLT_xe110_L1XE50',
 		'HLT_xe110_tc_em_L1XE50',
 		'HLT_xe110_wEFMu_L1XE50',
@@ -79,6 +79,7 @@ SUSY8METTriggers = [
 		'HLT_xe100_mht_L1XE50',
 		'HLT_xe100_pueta_L1XE50',
 		'HLT_xe100_pufit_L1XE50',
+		'HLT_xe100_pufit_L1XE55',
 		'HLT_xe100_wEFMu_L1XE50',
 		'HLT_xe100_tc_lcw_wEFMu_L1XE50',
 		'HLT_xe100_tc_em_wEFMu_L1XE50',

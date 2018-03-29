@@ -13,7 +13,7 @@ public :
    virtual ~CaloGeometryFromFile();
    
    virtual bool LoadGeometryFromFile(TString filename,TString treename);
-   virtual bool LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3);
+   virtual void LoadFCalGeometryFromFiles(TString filename1,TString filename2,TString filename3);
    void DrawFCalGraph(int isam,int color);
 };
 

@@ -226,8 +226,17 @@ def getTB_FieldMgrList():
     fieldMgrList = []
     return fieldMgrList
 
+def getGeometryConfigurationTools():
+    geoConfigToolList = []
+    # CfgGetter methods for these tools should be defined in the
+    # package containing each tool, so G4AtlasTools in this case
+    geoConfigToolList += ["MaterialDescriptionTool"]
+    return geoConfigToolList
+
 def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):
     kwargs.setdefault("DetectorConstruction", 'G4AtlasDetectorConstructionTool')
+    ## For now just have the same geometry configurations tools loaded for ATLAS and TestBeam
+    kwargs.setdefault("GeometryConfigurationTools", getGeometryConfigurationTools())
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags,"Eta"): #FIXME ugly hack
         kwargs.setdefault("World", 'TileTB_World')
@@ -250,6 +259,12 @@ def getDetectorGeometrySvc(name="DetectorGeometrySvc", **kwargs):
     return CfgMgr.DetectorGeometrySvc(name, **kwargs)
 
 def getG4AtlasSvc(name="G4AtlasSvc", **kwargs):
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    if concurrencyProps.ConcurrencyFlags.NumThreads() > 0:
+        is_hive = True
+    else:
+        is_hive = False
+    kwargs.setdefault("isMT", is_hive)
     kwargs.setdefault("DetectorGeometrySvc", 'DetectorGeometrySvc')
     return CfgMgr.G4AtlasSvc(name, **kwargs)
 

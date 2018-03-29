@@ -1,0 +1,13 @@
+# SignalUncertainties for prompt RPC-RPV signal grid MGPy8EG_A14NNPDF23LO_TT_rpv
+# based on stop pair production with decays into heavy flavors(HF)
+# No event generator filters applied
+# No additional BRs of gluino or neutralino included here
+SAMPLE     FS   CROSSECTION[pb]    BR-FACTOR     FILTEREFF   REL.UNCERT     #COMMENT
+404960     61      1.8373506393   1.00000000   1.00000000    0.13791573     #TT_rpvHF_400_200 
+404961     61      0.5190579005   1.00000000   1.00000000    0.13476114     #TT_rpvHF_500_200 
+404962     61      0.1748178200   1.00000000   1.00000000    0.13316279     #TT_rpvHF_600_200 
+404963     61      0.0670475635   1.00000000   1.00000000    0.13342874     #TT_rpvHF_700_200 
+404964     61      0.0283338236   1.00000000   1.00000000    0.14171003     #TT_rpvHF_800_200 
+404965     61      0.0128894749   1.00000000   1.00000000    0.15202562     #TT_rpvHF_900_200
+404966     61      0.0061513427   1.00000000   1.00000000    0.16295286     #TT_rpvHF_1000_200
+

@@ -68,6 +68,11 @@ class TopConfig final {
   void setGrlFile( const std::string& s );
   inline const std::vector<std::string> grlFile() const {return m_grlFile;}
 
+  // TDP path
+  void setTDPPath( const std::string& s);
+  inline const std::string& getTDPPath() const { return m_topDataPreparationPath; }
+
+
   // What objects are we using
   inline bool usePhotons()    const {return m_usePhotons;   }
   inline bool useElectrons()  const {return m_useElectrons; }
@@ -849,7 +854,9 @@ class TopConfig final {
   // Switch to use event-level jet cleaning tool for studies
   inline bool useEventLevelJetCleaningTool() const { return m_useEventLevelJetCleaningTool; }
   inline void setUseEventLevelJetCleaningTool(const bool value) { m_useEventLevelJetCleaningTool = value; }
-
+  
+  // Just a function that might need to be used in multiple places - return the running year (2015, 2016, 2017)
+  const std::string getYear(unsigned int runnumber);
 
  private:
   // Prevent any more configuration
@@ -861,6 +868,9 @@ class TopConfig final {
   // GRL file
   std::string m_grlDir;
   std::vector<std::string> m_grlFile = {};
+
+  // TDP
+  std::string m_topDataPreparationPath;
 
   // Use which objects
   bool m_usePhotons;

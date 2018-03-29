@@ -11,10 +11,6 @@
 // Geant4 includes
 #include "G4UserEventAction.hh"
 
-// Local includes
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-
 
 namespace G4UA
 {
@@ -24,6 +20,8 @@ namespace G4UA
   ///
   /// Maintains a list of custom actions for the beginning and end of an event
   /// and when invoked by Geant4 will forward the call to each of them in turn.
+  ///
+  /// @todo TODO lifetime management of wrapper actions.
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
@@ -46,18 +44,12 @@ namespace G4UA
       void EndOfEventAction(const G4Event* event) override final;
 
       /// Add one action to the list
-      void addBeginEventAction(IBeginEventAction* action);
-
-      /// Add one action to the list
-      void addEndEventAction(IEndEventAction* action);
+      void addEventAction(G4UserEventAction* action);
 
     private:
 
-      /// List of ATLAS begin-event actions
-      std::vector<IBeginEventAction*> m_beginEventActions;
-
-      /// List of ATLAS end-event actions
-      std::vector<IEndEventAction*> m_endEventActions;
+      /// List of ATLAS event actions
+      std::vector<G4UserEventAction*> m_eventActions;
 
   }; // class G4AtlasEventAction
 

@@ -369,39 +369,20 @@ namespace asg
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-//               Implementation of the setFrom specialisations
+//               Implementation of function specialisations
 //
 
-/// Helper macro for implementing the setFrom functions
-#define TRY_TYPE( TYPE )                                    \
-   do {                                                     \
-      const TProperty< TYPE >* prop =                       \
-         dynamic_cast< const TProperty< TYPE >* >( &rhs );  \
-      if( prop && prop->pointer() ) {                       \
-         *m_ptr = *( prop->pointer() );                     \
-         return 0;                                          \
-      }                                                     \
-   } while( 0 )
-
-template<>
-int TProperty< float >::setFrom( const Property& rhs ) {
-
+template< >
+int TProperty< std::string >::setFrom( const Property& rhs ) {
    // Check that we have a valid pointer:
    if( ! this->pointer() ) {
       return 1;
    }
-
-   const TProperty< std::string >* sprop = dynamic_cast< const TProperty< std::string >* >( &rhs );
-   if (sprop)
-     return this->setString (*sprop->pointer()).isFailure();
-
-   // Try some compatible types:
-   TRY_TYPE( float );
-   TRY_TYPE( double );
-   TRY_TYPE( int );
-
-   // Apparently none of them succeeded:
-   return 1;
+     
+   std::string asString;
+   if (rhs.getCastString (asString).isFailure())
+     return 1;
+   return this->setString (asString).isFailure();
 }
 
 //

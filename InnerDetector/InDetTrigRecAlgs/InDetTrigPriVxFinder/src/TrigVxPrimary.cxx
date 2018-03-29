@@ -22,6 +22,9 @@
 #include "TrkParameters/TrackParameters.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
+#include "VxVertex/VxTrackAtVertex.h"
+#include "TrkTrackLink/ITrackLink.h"
+#include "TrkTrack/LinkToTrack.h"
 
 #include "TrkEventPrimitives/ParamDefs.h"
 
@@ -37,6 +40,8 @@ namespace InDet
   TrigVxPrimary::TrigVxPrimary(const std::string &n, ISvcLocator *pSvcLoc)
     : HLT::FexAlgo(n, pSvcLoc),
       m_runWithoutField(false),
+      m_useTracksAsInput(false),
+      m_createVtxTPLinks(false),
       m_VertexFinderTool("InDet::InDetPriVxFinderTool/InDetTrigPriVxFinderTool"),
       m_fieldSvc("AtlasFieldSvc", n),
       m_BeamCondSvc("BeamCondSvc", n)
@@ -44,6 +49,8 @@ namespace InDet
     declareProperty("VertexFinderTool",m_VertexFinderTool);
     declareProperty("RunWithoutField", m_runWithoutField, "It may be unsafe to run vertexing w/o field on");
     declareProperty("BeamCondSvc", m_BeamCondSvc);
+    declareProperty("UseTracksAsInput", m_useTracksAsInput, "If TrackParticle exist, do not use tracks");
+    declareProperty("CreateVtxTrackParticleLinks", m_createVtxTPLinks);
 
     
     declareMonitoredVariable("numTracks", m_nTracks   );
@@ -59,33 +66,34 @@ namespace InDet
   //-------------------------------------------------------------------------
   HLT::ErrorCode TrigVxPrimary::hltInitialize() {
     
-    msg() << MSG::INFO << "TrigVxPrimary::initialize(). "<< endreq;
+    ATH_MSG_INFO("TrigVxPrimary::initialize(). ");
     
     /* Get the VertexFinderTool */
     if ( m_VertexFinderTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_VertexFinderTool << endreq;
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_VertexFinderTool);
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " << m_VertexFinderTool << endreq;
+      ATH_MSG_INFO("Retrieved tool " << m_VertexFinderTool);
     }
     
     if (m_fieldSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_fieldSvc << endreq;
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_fieldSvc);
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
     else {
-      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endreq;
+      ATH_MSG_INFO("Retrieved service " << m_fieldSvc);
     }
 
     if (m_BeamCondSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_BeamCondSvc << endreq;
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_BeamCondSvc);
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
     else {
-      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endreq;
+      ATH_MSG_INFO("Retrieved service " << m_fieldSvc);
     }
 
+    ATH_MSG_INFO("UseTracksAsInput: " << m_useTracksAsInput << " CreateVtxTrackParticleLinks: " << m_createVtxTPLinks);
     return HLT::OK;
   }
 
@@ -102,75 +110,95 @@ namespace InDet
     m_zOfNoVtx.clear();
     bool runVtx(true);
     
-    int outputLevel = msgLvl();
     
-    if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endreq;
+    ATH_MSG_DEBUG(" In execHLTAlgorithm()");
+
+    if (!m_runWithoutField && !m_fieldSvc->solenoidOn()){
+      ATH_MSG_DEBUG("Solenoid Off and RunWithoutField=False. Algorithm not executed!");
+      runVtx = false;
+    }
+
     
     //----------------------------------------------------------------------
-    // Trigger specific part: navigate throw the trigger element to get the
-    // input track collection.
+    // get input track/ trackparticle  collection.
     //----------------------------------------------------------------------
     
     const TrackCollection* trackTES=0;
-    
-    if ( HLT::OK != getFeature(outputTE, trackTES)) {
-      msg() << MSG::ERROR << "Input track collection could not be found " << endreq;
-      return HLT::NAV_ERROR;
-    } 
-   
-    if (!trackTES){
-      if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG
-	      << "Input tracks by getFeature NULL, a previous algo attached nothing?" << endreq;
-      runVtx = false;
-    }
-    else if(trackTES->size()==0){
-      if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
-      runVtx = false;
-    }
+    if (m_useTracksAsInput){
 
-    if (!m_runWithoutField && !m_fieldSvc->solenoidOn()){
-      if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Solenoid Off and RunWithoutField=False. Algorithm not executed!" << endreq;
-      runVtx = false;
-    }
+      if  (HLT::OK != getFeature(outputTE, trackTES)) {
+	ATH_MSG_ERROR("Input track collection could not be found ");
+	return HLT::NAV_ERROR;
+      } 
 
-    if (runVtx){
-      m_nTracks = trackTES->size();
-      if (outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "REGTEST: Retrieved input track collection with "
-	      << m_nTracks << " tracks. " << endreq;
+      if (!trackTES){
+	ATH_MSG_DEBUG("Input tracks by getFeature NULL, a previous algo attached nothing?");
+	runVtx = false;
+      }
+      else if(trackTES->size()==0){
+	ATH_MSG_DEBUG("Input track collection has 0 size. Algorithm not executed!");
+	runVtx = false;
+      }
       
-      //check whether measured perigees are available, if not vertexing crashes
-      for (int i=0; i<m_nTracks; i++){
-	const Trk::Perigee *mp = (trackTES->at(i)->perigeeParameters());
-	if (mp){
-	  if (std::isnan(mp->parameters()[Trk::d0])){
-	    if(outputLevel <= MSG::DEBUG)
-	      msg() << MSG::DEBUG
-		    << "Algorithm not executed as measured perigees are not valid" << endreq;
+      //this is probably not needed anymore / will remove in the next iteration
+      if (runVtx){
+	m_nTracks = trackTES->size();
+	ATH_MSG_DEBUG("REGTEST: Retrieved input track collection with "
+		      << m_nTracks << " tracks. ");
+	
+	//
+	for (int i=0; i<m_nTracks; i++){
+	  const Trk::Perigee *mp = (trackTES->at(i)->perigeeParameters());
+	  if (mp){
+	    if (std::isnan(mp->parameters()[Trk::d0])){
+	      ATH_MSG_WARNING("Algorithm not executed as measured track parameters are not valid");
+	      runVtx = false;
+	    }
+	  }
+	  else {
+	    ATH_MSG_WARNING("Algorithm not executed as measured perigees are empty");
 	    runVtx = false;
 	  }
-	}
-	else {
-	  if(outputLevel <= MSG::DEBUG)
-	    msg() << MSG::DEBUG
-		  << "Algorithm not executed as measured perigees are empty" << endreq;
-	  runVtx = false;
 	}
       }
     }
 
+    const xAOD::TrackParticleContainer *xTPCont = 0;
+    if (!m_useTracksAsInput || m_createVtxTPLinks) {
+      if ( HLT::OK != getFeature(outputTE, xTPCont)) {
+	ATH_MSG_ERROR("xAOD Track particle collection could not be found ");
+	return HLT::NAV_ERROR;
+      } 
+
+      if (!xTPCont){
+	ATH_MSG_DEBUG("Input track particles by getFeature NULL, a previous algo attached nothing?");
+	runVtx = false;
+      }
+      else if(xTPCont->size()==0){
+	ATH_MSG_DEBUG("Input track particles have 0 size. Algorithm not executed!");
+	runVtx = false;
+      }
+    }
+   
+
+
+    //
     // Create the xAOD container and its auxiliary store:
+
     xAOD::VertexContainer* theVxContainer = 0;
     xAOD::VertexAuxContainer* theVxAuxContainer = 0;
     std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> theVxContainers
 	= std::make_pair( theVxContainer, theVxAuxContainer );
     
+    //
+    // Run the vertexing
+
     if (runVtx) {
-      theVxContainers = m_VertexFinderTool->findVertex(trackTES);
+      if (m_useTracksAsInput) {
+	theVxContainers = m_VertexFinderTool->findVertex(trackTES);
+      } else {
+	theVxContainers = m_VertexFinderTool->findVertex(xTPCont);
+      }
       theVxContainer = theVxContainers.first;
       theVxAuxContainer = theVxContainers.second;  // the vertex finder has already called setStore
     }
@@ -192,11 +220,43 @@ namespace InDet
 
     }
 
+
+
+    //
+    // Create links to TrackParticles if they are available but Trk::Tracks were used on input
+
+    if (m_useTracksAsInput && m_createVtxTPLinks){
+      if (trackTES->size() == xTPCont->size()){
+	auto itr = theVxContainer->begin();
+	auto end = theVxContainer->end();
+	for ( ; itr != end; itr++){
+	  std::vector<Trk::VxTrackAtVertex> trks = (*itr)->vxTrackAtVertex();
+	  size_t VTAVsize = trks.size();
+	  for (size_t i=0; i<VTAVsize; i++){
+	    Trk::ITrackLink*      trklink = trks[i].trackOrParticleLink();
+	    Trk::LinkToTrack* linkToTrackPB = dynamic_cast<Trk::LinkToTrack*>(trklink);  
+	    if (!linkToTrackPB) 
+	      {
+		ATH_MSG_DEBUG ("Cast of element link failed, skip this track !!!!!");
+	      } 
+	    else
+	      {
+		ElementLink<xAOD::TrackParticleContainer> newLink(*xTPCont, linkToTrackPB->index());
+		//Now set the newlink to the new xAOD vertex
+		(*itr)->addTrackAtVertex(newLink, trks[i].vtxCompatibility()); 
+	      } 
+	  }
+	}
+      } else {
+	ATH_MSG_WARNING("Inconsistent set of tracks and track particles, linking not done");
+      }
+    }
+
     //
     //  Attach resolved tracks to the trigger element.
     
     if ( HLT::OK !=  attachFeature(outputTE, theVxContainer, "xPrimVx") ) {
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+      ATH_MSG_ERROR("Could not attach feature to the TE");
 
       delete theVxAuxContainer; theVxAuxContainer=0;
       return HLT::NAV_ERROR;
@@ -216,33 +276,28 @@ namespace InDet
 	const Amg::MatrixX& verr = mvtx->covariancePosition();
 	if (mvtx->vertexType()==xAOD::VxType::PriVtx){
 	  ++privtxcount;
-	  if(outputLevel <= MSG::DEBUG){
-	    msg() << MSG::DEBUG << "REGTEST " << privtxcount
-		  << std::setw(10)
-		  << " x=" << vtx.x() << "+/-" << Amg::error(verr, Trk::x)
-		  << " y=" << vtx.y() << "+/-" << Amg::error(verr, Trk::y)
-		  << " z=" << vtx.z() << "+/-" << Amg::error(verr, Trk::z)
-		  << endreq; 
-	  }
+	  ATH_MSG_DEBUG("REGTEST " << privtxcount
+			<< std::setw(10)
+			<< " x=" << vtx.x() << "+/-" << Amg::error(verr, Trk::x)
+			<< " y=" << vtx.y() << "+/-" << Amg::error(verr, Trk::y)
+			<< " z=" << vtx.z() << "+/-" << Amg::error(verr, Trk::z)); 
+	  
 	  m_zOfPriVtx.push_back(vtx.z());
 	}
 	else if (mvtx->vertexType()==xAOD::VxType::PileUp){
 	  ++pileupvtxcount;
-	  if(outputLevel <= MSG::DEBUG){
-	    msg() << MSG::DEBUG << "REGTEST " << pileupvtxcount
-		  << std::setw(10)
-		  << " x=" << vtx.x()
-	      	  << " y=" << vtx.y()
-		  << " z=" << vtx.z()
-		  << endreq; 
-	  }
+	  ATH_MSG_DEBUG("REGTEST " << pileupvtxcount
+			<< std::setw(10)
+			<< " x=" << vtx.x()
+			<< " y=" << vtx.y()
+			<< " z=" << vtx.z());
 	  m_zOfPileUp.push_back(vtx.z());
 	}
 	else if (mvtx->vertexType()==xAOD::VxType::NoVtx){
 	  m_zOfNoVtx.push_back(vtx.z());
 	}
       } else {
-	msg() << MSG::DEBUG << "Bad VxCandidate=" << iv << endreq;
+	ATH_MSG_DEBUG("Bad VxCandidate=" << iv);
       }
     }
     
@@ -253,7 +308,7 @@ namespace InDet
   //---------------------------------------------------------------------------
   HLT::ErrorCode TrigVxPrimary::hltFinalize() {
 
-    msg() << MSG::INFO << "TrigVxPrimary::finalize()" << endreq;
+    ATH_MSG_DEBUG("TrigVxPrimary::finalize()");
 
     return HLT::OK;
   }

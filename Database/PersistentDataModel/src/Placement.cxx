@@ -39,8 +39,14 @@ Placement& Placement::fromString(const std::string& source) {
          } else if (::strncmp(fmt_tech, p1, 6) == 0) {
             ::sscanf(p1, fmt_tech, &m_technology);
          } else {
-            m_auxString = p1;
-            break;
+            while (*(p2 + 1) == '[' && *(++p3) != 0 && *p3 != ']') {
+               p3 = ::strchr(p3, ']');
+            }
+            char* p3mod = const_cast<char*>(p3);
+            *p3mod = 0;
+            m_auxString += p1;
+            m_auxString += "]";
+            *p3mod = ']';
          }
       }
    }

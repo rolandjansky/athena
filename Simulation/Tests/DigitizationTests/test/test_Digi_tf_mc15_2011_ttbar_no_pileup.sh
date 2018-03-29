@@ -6,14 +6,7 @@
 
 Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/ttbar.ATLAS-R1-2011-02-00-00.HITS.pool.root --outputRDOFile mc15_2011_ttbar.RDO.pool.root --maxEvents 25 --skipEvents 0  --digiSeedOffset1 11 --digiSeedOffset2 22 --geometryVersion ATLAS-R1-2011-02-00-00 --conditionsTag OFLCOND-RUN12-SDR-22  --DataRunNumber 180164 --postInclude 'default:PyJobTransforms/UseFrontier.py'
 
-SCRIPT_DIRECTORY=$1
-PACKAGE=$2
-TYPE=$3
-TEST_NAME=$4
-NIGHTLY_RELEASE=$5
-PROJECT=$6
-PLATFORM=$7
-NIGHTLY_TAG=$8
-
+ArtPackage=$1
+ArtJobName=$2
 # TODO This is a regression test I think. We would also need to compare these files to fixed references and add DCube tests
-art.py compare grid $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME mc15_2011_ttbar.RDO.pool.root
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}

@@ -545,7 +545,10 @@ class RunAndLumiOverrideList(JobProperty):
         pDicts = self.get_Value()
         #clear svc properties?
         for el in pDicts:
-            eventIdModSvc.add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'])
+            if 'evt_nbr' in el:
+                eventIdModSvc.add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'], evt_nbr=el['evt_nbr'])
+            else:
+                eventIdModSvc.add_modifier(run_nbr=el['run'], lbk_nbr=el['lb'], time_stamp=el['starttstamp'], nevts=el['evts'])
         return
     def SetPileUpEventLoopMgrProps(self,pileUpEventLoopMgr):
         if not (self._locked):

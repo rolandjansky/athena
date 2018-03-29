@@ -161,6 +161,10 @@ namespace met {
       return StatusCode::SUCCESS;
     }
 
+    // Lock the containers in SG
+    ATH_CHECK( evtStore()->setConst(metMap) );
+    ATH_CHECK( evtStore()->setConst(metCont) );
+
     return StatusCode::SUCCESS;
   }
 
@@ -258,6 +262,7 @@ namespace met {
     if ( m_timedetail > 0 ) m_clock.Stop();
     ATH_MSG_DEBUG("  " << this->name() << " total CPU/wall time: " << m_clock.CpuTime()*1000
 		  << "/" << m_clock.RealTime()*1000 << " ms");
+
     ++m_nevt;
     return StatusCode::SUCCESS;
   }

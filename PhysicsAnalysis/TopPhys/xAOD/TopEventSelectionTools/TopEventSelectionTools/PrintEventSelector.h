@@ -22,6 +22,7 @@ class PrintEventSelector : public EventSelectorBase {
      * @return Also marks the event as passed.
      */
     bool apply(const top::Event& event) const override;
+    bool applyParticleLevel(const top::ParticleLevelEvent& plEvent) const override;
 
     /**
      * @brief The word PRINT.

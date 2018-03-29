@@ -288,7 +288,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets()
       //decorate with b-tagging flags
       std::vector<std::string> availableWPs = m_config->bTagWP_available();
       for (auto& WP : availableWPs) {
-        if (WP!= "Continuous") {
+        if (WP.find("Continuous") == std::string::npos) {
           bool  isTagged = false;
           if (std::fabs(jetPtr->eta()) <= 2.5 ) {
             ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
@@ -302,7 +302,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets()
             ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
             tagWeightBin = btagsel->getQuantile(*jetPtr);
           }
-          jetPtr->auxdecor<int>("tagWeightBin") = tagWeightBin;
+          jetPtr->auxdecor<int>("tagWeightBin_"+WP) = tagWeightBin;
         }
       }
     }
@@ -336,7 +336,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets()
         //decorate with b-tagging flags
         std::vector<std::string> availableWPs = m_config->bTagWP_available();
         for (auto& WP : availableWPs) {
-          if (WP!= "Continuous") {
+          if (WP.find("Continuous") == std::string::npos) {
             bool  isTagged = false;
             if (std::fabs(jetPtr->eta()) < 2.5 ) {
               ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
@@ -350,7 +350,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets()
               ToolHandle<IBTaggingSelectionTool>& btagsel = m_btagSelTools[WP];
               tagWeightBin = btagsel->getQuantile(*jetPtr);
             }
-            jetPtr->auxdecor<int>("tagWeightBin") = tagWeightBin;
+            jetPtr->auxdecor<int>("tagWeightBin_"+WP) = tagWeightBin;
           }
         }
       }

@@ -23,7 +23,6 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
       Reconstruction/Jet/JetUtils
-      Reconstruction/PFlow/PFlowUtils
       PRIVATE
       Calorimeter/CaloGeoHelpers
       Event/xAOD/xAODEventInfo
@@ -47,7 +46,6 @@ else()
       Reconstruction/Jet/JetRecCalo
       Reconstruction/Jet/JetUtils
       PRIVATE
-      Reconstruction/PFlow/PFlowUtils
       Calorimeter/CaloDetDescr
       Calorimeter/CaloEvent
       Calorimeter/CaloGeoHelpers
@@ -85,12 +83,17 @@ if( NOT XAOD_STANDALONE )
       ${extra_libs} )
 endif()
 
-#if( XAOD_STANDALONE )
-atlas_add_dictionary( JetMomentToolsDict
-	Root/JetMomentToolsDict.h
-	Root/selection.xml
+if( XAOD_STANDALONE )
+   atlas_add_dictionary( JetMomentToolsDict
+	JetMomentTools/JetMomentToolsDict.h
+	JetMomentTools/selection_standalone.xml
 	LINK_LIBRARIES JetMomentToolsLib )
-#endif()
+else()
+    atlas_add_dictionary( JetMomentToolsDict
+	JetMomentTools/JetMomentToolsDict.h
+	JetMomentTools/selection.xml
+	LINK_LIBRARIES JetMomentToolsLib )
+endif()
 
 if( XAOD_ANALYSIS )
     atlas_add_executable( JetJvtTools_Example

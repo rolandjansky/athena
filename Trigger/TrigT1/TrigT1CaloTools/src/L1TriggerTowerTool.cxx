@@ -401,9 +401,17 @@ void L1TriggerTowerTool::simulateChannel(const xAOD::TriggerTower& tt, std::vect
  
     int nSlices = tt.adc().size();
 
-    for (int i=0 ; i < (nSlices-1)/2 ; i++ ){
-      digits40.push_back(tt.adc().at(2*i+1));
+    if((nSlices%4)==3){
+      for (int i=0 ; i < (nSlices-1)/2 ; i++ ){
+	digits40.push_back(tt.adc().at(2*i+1));
+      }
     }
+    else if((nSlices%4)==1){
+      for (int i=0 ; i <= (nSlices-1)/2 ; i++ ){
+	digits40.push_back(tt.adc().at(2*i));
+      }
+    }
+
 
   }else{
     if(m_debug){

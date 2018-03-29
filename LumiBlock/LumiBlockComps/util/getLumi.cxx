@@ -15,15 +15,6 @@
 
 #include <iostream>
 
-#ifndef XAOD_ANALYSIS
-//int main(int argc, char* argv[]) {
-int main( int, char** ) {
-   std::cout << " This application is currently only available in the analysis releases \n \
-      Please setup an AthAnalysisBase release to use this application." << std::endl;
-   return 0;
-}
-
-#else
 
 
 #include "TROOT.h"
@@ -396,10 +387,15 @@ static struct option long_options[] =
       l.AddGRL(grlReader.GetMergedGoodRunsList());
    }
 
-   double totalLumi = 0; double totalLumiIncomplete = 0; double totalLumiSuspect=0;double allMissing=0; double totalLumiPossiblySuspect=0;
+   double totalLumi = 0; 
+   double totalLumiIncomplete = 0; double estimateLumiIncomplete = 0;
+   double totalLumiSuspect=0;
+   double allMissing=0; 
+   double totalLumiPossiblySuspect=0;
+
    std::map<UInt_t, float> missingRuns;std::map<UInt_t,bool> allRuns;std::set<UInt_t> incompleteRuns;std::set<UInt_t> suspectRuns;
    std::map<UInt_t, std::string> missingRunLB; //lumiblocks that are missing
-
+   std::map<UInt_t, std::set<UInt_t>> incompleteRunLB; //lumiblocks that are incomplete
    
 
 
@@ -450,8 +446,20 @@ static struct option long_options[] =
         providedL.AddRunLumiBlock(runNbr,lb);
         bool hasLumi = l.HasRunLumiBlock(runNbr,lb);
         if(hasLumi) totalLumi += intLumi;
-        else if(lIncomplete.HasRunLumiBlock(runNbr,lb)) {hasLumi=true; totalLumiIncomplete += intLumi; incompleteRuns.insert(runNbr);} //else if ensures we never double count lumi
-        else if(lSuspect.HasRunLumiBlock(runNbr,lb)) {hasLumi=true;totalLumiSuspect += intLumi; suspectRuns.insert(runNbr); definitelySuspect << "(" << runNbr << "," << lb << "),";}
+        else if(lIncomplete.HasRunLumiBlock(runNbr,lb)) {
+	  hasLumi=true; 
+	  totalLumiIncomplete += intLumi; 
+	  //use the mismatch between seen and expected to estimate the lumi loss
+	  estimateLumiIncomplete += intLumi*(1. - (double(lbxs[runNbr][lb].nSeen)/lbxs[runNbr][lb].nExpected));
+	  incompleteRuns.insert(runNbr);
+	  incompleteRunLB[runNbr].insert(lb);
+	} //else if ensures we never double count lumi
+        else if(lSuspect.HasRunLumiBlock(runNbr,lb)) {
+	  hasLumi=true;
+	  totalLumiSuspect += intLumi; 
+	  suspectRuns.insert(runNbr); 
+	  definitelySuspect << "(" << runNbr << "," << lb << "),";
+	}
   
         if(lPossiblySuspect.HasRunLumiBlock(runNbr,lb)) {totalLumiPossiblySuspect += intLumi; possiblySuspect << "(" << runNbr << "," << lb << "),";  }
   
@@ -495,32 +503,50 @@ static struct option long_options[] =
 
 
 
-      std::cout << std::endl << "Runs with incomplete blocks: ";
-      for(auto r : incompleteRuns) {
-         std::cout << r << ",";
-      }
-      std::cout << std::endl << "Runs with missing blocks (missing blocks in brackets): " << std::endl << std::endl;
-      for(auto it=missingRuns.begin();it!=missingRuns.end();++it) {
-	std::cout << "  " << it->first << ": " << it->second << " pb-1 (" << missingRunLB[it->first] << ")" << std::endl;
-      }
-      std::cout << std::endl << "Complete runs: ";
-      for(std::map<UInt_t,bool>::iterator it=allRuns.begin();it!=allRuns.end();++it) {
-	if(missingRuns.find(it->first) == missingRuns.end() && incompleteRuns.find(it->first)==incompleteRuns.end() && suspectRuns.find(it->first) == suspectRuns.end()) std::cout << it->first << ",";
-      }
-      std::cout << std::endl;
+   std::cout << std::endl << "Runs with incomplete blocks: " << std::endl << std::endl;
+   for(auto r : incompleteRuns) {
+     std::cout << "  " << r << ": ";
+     int lastLB=-2;int endLB=-2;
+     for(auto lb : incompleteRunLB[r]) {
+       if(int(lb)==lastLB+1) { endLB=lb; }
+       else {
+	 if(endLB>=0) {
+	   std::cout << "-" << endLB << "," << lb;
+	   endLB=-2;
+	 }
+	 else if(lastLB==-2) std::cout << lb;
+	 else std::cout << "," << lb;
+       }
+       lastLB=lb;
+     }
+     std::cout << std::endl;
+   }
+   std::cout << std::endl << "Runs with missing blocks (missing blocks in brackets): " << std::endl << std::endl;
+   for(auto it=missingRuns.begin();it!=missingRuns.end();++it) {
+     std::cout << "  " << it->first << ": " << it->second << " pb-1 (" << missingRunLB[it->first] << ")" << std::endl;
+   }
+   std::cout << std::endl << "Complete runs: ";
+   for(std::map<UInt_t,bool>::iterator it=allRuns.begin();it!=allRuns.end();++it) {
+     if(missingRuns.find(it->first) == missingRuns.end() && incompleteRuns.find(it->first)==incompleteRuns.end() && suspectRuns.find(it->first) == suspectRuns.end()) std::cout << it->first << ",";
+   }
+   std::cout << std::endl;
 
    std::cout << std::endl;
    std::cout << "Complete Luminosity = " << totalLumi/1E6 << " pb-1" << std::endl;
-   if(totalLumiIncomplete) std::cout << "Incomplete Luminosity = " << totalLumiIncomplete/1E6 << " pb-1   (this is partially processed lumi blocks)" <<  std::endl;
+   if(totalLumiIncomplete) {
+     std::cout << "Incomplete Luminosity = " << totalLumiIncomplete/1E6 << " pb-1   (this is partially processed lumi blocks)" << std::endl;
+     std::cout << "  Estimate for missed lumi in the incomplete lumiblocks = " << estimateLumiIncomplete/1E6 << " pb-1" << std::endl;
+     std::cout << "  Therefore Partial Luminosity = " << (totalLumiIncomplete-estimateLumiIncomplete)/1E6 << " pb-1" << std::endl;
+   }
    if(totalLumiSuspect) std::cout << "Definitely Suspect Luminosity = " << totalLumiSuspect/1E6 << " pb-1   (this is problematic luminosity... please report!)" << std::endl;
-   std::cout << "Complete+Incomplete";
+   std::cout << "Complete+Partial";
    if(totalLumiSuspect) std::cout << "+Suspect";
-   std::cout << " Luminosity = " << (totalLumi+totalLumiIncomplete+totalLumiSuspect)/1E6 << " pb-1" << std::endl;
+   std::cout << " Luminosity = " << (totalLumi+totalLumiIncomplete-estimateLumiIncomplete+totalLumiSuspect)/1E6 << " pb-1" << std::endl;
    if(totalLumiPossiblySuspect) {
     std::cout << "   (of which is possibly suspect = " << totalLumiPossiblySuspect/1E6 << " pb-1  (caused by jobs that did not finish correctly))" << std::endl;
    }
    if(allMissing) {
-      std::cout << "(Missing Lumonisity = " << allMissing << " pb-1)   (this is luminosity in your lumicalc files that you appear not to have run over)"; //already divided by 1E6 in loop above
+     std::cout << "(Missing Lumonisity = " << allMissing << " + " << estimateLumiIncomplete/1E6 << " = " << (allMissing+estimateLumiIncomplete/1E6) << " pb-1)   (this is luminosity in your lumicalc files that you appear not to have run over)"; //already divided by 1E6 in loop above
       //if(!showMissing) std::cout << " rerun with the '-m' option to see runs where this luminosity resides";
       std::cout << std::endl; 
    }
@@ -535,4 +561,3 @@ static struct option long_options[] =
 
 }
 
-#endif

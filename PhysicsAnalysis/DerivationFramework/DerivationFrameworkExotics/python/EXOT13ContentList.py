@@ -5,15 +5,15 @@ EXOT13SmartContent = [
     "Electrons",
     "Muons",
     "PrimaryVertices",
+    "MET_Reference_AntiKt4EMTopo",
     "AntiKt4EMTopoJets"
 ]
 
 EXOT13AllVariablesContent = [
-    "ExtrapolatedMuonTrackParticles",
     "MuonSpectrometerTrackParticles",
+    "ExtrapolatedMuonTrackParticles",
     "METAssoc_AntiKt4EMTopo",
     "MET_Core_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4EMTopo",
     "MET_Truth",
     "TruthEvents",
     "TruthVertices",

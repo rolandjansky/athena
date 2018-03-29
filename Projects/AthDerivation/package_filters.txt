@@ -4,6 +4,7 @@
 
 # Testing package(s):
 + AtlasTest/TestTools
++ AsgExternal/Asg_Test
 
 # Common geometry package(s):
 + AtlasGeometryCommon/BeamPipeGeoModel
@@ -61,6 +62,7 @@
 + Database/RegistrationServices
 + Database/TPTools
 + Database/AthenaRoot/.*
++ Database/AtlasSTLAddReflex
 
 # DQ package(s):
 + DataQuality/GoodRunsLists
@@ -218,6 +220,7 @@
 + PhysicsAnalysis/EventTag/TagEvent
 + PhysicsAnalysis/EventTag/EventTagTPCnv
 + PhysicsAnalysis/EventTag/EventTagAthenaPOOL
++ PhysicsAnalysis/HeavyIonPhys/HIEventUtils
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetTagging/JetTagAlgs/.*
 + PhysicsAnalysis/JetTagging/JetTagCalibUtils/.*
@@ -244,6 +247,7 @@
 
 # Reconstruction package(s):
 + Reconstruction/AODFix
++ Reconstruction/RecoFix
 + Reconstruction/DiTauRec
 + Reconstruction/eflowRec
 + Reconstruction/egamma/egammaCaloTools
@@ -258,6 +262,7 @@
 + Reconstruction/egamma/egammaTrackTools
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
++ Reconstruction/HeavyIonRec/HIRecExample  
 - Reconstruction/Jet/JetEvent.+
 + Reconstruction/Jet/.*
 + Reconstruction/MET/METRecoInterface
@@ -380,6 +385,7 @@
 + Trigger/TrigFTK/TrigFTK_RawDataTPCnv
 + Trigger/TrigMonitoring/TrigMonitorBase
 + Trigger/TrigSteer/TrigInterfaces
++ Trigger/TrigT1/L1Common
 + Trigger/TrigT1/L1Topo/L1TopoCommon
 + Trigger/TrigT1/L1Topo/L1TopoConfig
 + Trigger/TrigT1/TrigT1CaloCalibConditions

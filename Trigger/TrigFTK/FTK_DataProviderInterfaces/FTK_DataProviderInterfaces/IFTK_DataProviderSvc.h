@@ -43,10 +43,15 @@ public:
   static const InterfaceID& interfaceID() { return IID_IFTK_DataProviderSvc; }
   
   virtual TrackCollection* getTracks(const bool withRefit) = 0;
+  virtual TrackCollection* getTracks(const bool withRefit, unsigned int& nErrors) = 0;
+
   virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit) = 0;
+  virtual TrackCollection* getTracksInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors) = 0;
 
   virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit) = 0;
+  virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit, unsigned int& nErrors) = 0;
   virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit) = 0;
+  virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit, unsigned int& nErrors) = 0;
 
   virtual xAOD::VertexContainer* getFastVertices(const ftk::FTK_TrackType trackType=ftk::RawTrack) =0;
 
@@ -63,6 +68,18 @@ public:
   virtual std::string getVertexCacheName(const bool withRefit)=0;
 
   virtual std::string getFastVertexCacheName(const bool withRefit)=0;
+
+  virtual std::vector<unsigned int> nMissingSCTClusters()=0;
+  virtual std::vector<unsigned int> nMissingPixelClusters()=0;
+  virtual std::vector<unsigned int> nFailedSCTClusters()=0;
+  virtual std::vector<unsigned int> nFailedPixelClusters()=0;
+
+  virtual unsigned int nRawTracks()=0;
+  virtual unsigned int nTracks(const bool withRefit)=0;
+  virtual unsigned int nTrackParticles(const bool withRefit)=0;
+  virtual unsigned int nTrackErrors(const bool withRefit)=0;
+  virtual unsigned int nTrackParticleErrors(const bool withRefit)=0;
+ 
 
 };
 

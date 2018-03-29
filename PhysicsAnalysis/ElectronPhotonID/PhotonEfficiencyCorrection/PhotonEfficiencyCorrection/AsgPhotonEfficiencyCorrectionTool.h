@@ -18,10 +18,10 @@
 // STL includes
 #include <vector>
 #include <string>
-#include <fstream>      // std::ifstream
+#include <fstream>
+#include <unordered_map>
 
 // Utility includes
-#include "boost/unordered_map.hpp"
 #include "boost/algorithm/string.hpp" // this one to replace std::string names
 
 // Include the return object and the underlying ROOT tool
@@ -111,7 +111,7 @@ private:
   Root::TResult m_resultDummy;
 
   /// Systematics filter map
-  boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
+  std::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
   
   /// Currently applied systematics
   CP::SystematicSet* m_appliedSystematics = nullptr;

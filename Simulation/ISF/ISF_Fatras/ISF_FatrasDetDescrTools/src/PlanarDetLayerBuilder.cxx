@@ -52,7 +52,7 @@
 
 // constructor
 iFatras::PlanarDetLayerBuilder::PlanarDetLayerBuilder(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_pixelCase(true),
   m_siMgr(0),
   m_siMgrLocation("Pixel"),
@@ -95,7 +95,6 @@ iFatras::PlanarDetLayerBuilder::PlanarDetLayerBuilder(const std::string& t, cons
   m_y_global(0),
   m_z_global(0)
 {
-  declareInterface<Trk::ILayerBuilder>(this);
   // general steering
   declareProperty("PixelCase"                        , m_pixelCase);
   declareProperty("SiDetManagerLocation"             , m_siMgrLocation);

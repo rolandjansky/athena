@@ -41,6 +41,9 @@ class IdentifierHash;
 class StatusCode;
 class ISCT_CablingSvc;
 class ISCT_ConfigurationConditionsSvc;
+namespace InDetDD {
+  class SCT_DetectorManager;
+}
 
 /**
  * @class SCT_ByteStreamErrorsSvc
@@ -146,6 +149,11 @@ private:
   unsigned int m_randomSeed; // The seed of random numbers for ROD disabling
 
   std::map<boost::uint32_t, bool> m_rodDecodeStatuses;
+
+  const InDetDD::SCT_DetectorManager* m_pManager; //!< SCT detector manager
+
+  bool isGoodChip(const Identifier& stripId) const;
+  int getChip(const Identifier& stripId) const;
 };
 
 #endif

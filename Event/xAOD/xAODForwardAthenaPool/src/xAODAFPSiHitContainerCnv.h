@@ -12,7 +12,6 @@
 #define AFPSiHitContainerCnv_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "xAODForward/AFPTrackContainer.h"
 #include "xAODForward/AFPSiHitContainer.h"
 #include "xAODForward/AFPSiHit.h"
 

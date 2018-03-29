@@ -1,0 +1,15 @@
+<!-- Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+
+  <!-- Tools in the package -->
+  <class name="CP::IRetrievePFOTool" />
+  <class name="CP::RetrievePFOTool" />
+
+  <class name="CP::IWeightPFOTool" />
+  <class name="CP::WeightPFOTool" />
+
+  <!-- Helper code -->
+  <enum name="CP::*" />
+  <struct name="CP::inputScaleMapper" />
+
+</lcgdict>

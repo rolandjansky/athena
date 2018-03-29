@@ -246,29 +246,6 @@ namespace TrigCostRootAnalysis {
                                            "Average per event number of Regions of Interest supplied from the lower trigger level.",
                                            kVarROI, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));
 
-    const IntStringMap_t _comp = TrigXMLService::trigXMLService().getComputerTypeToNameMap();
-    if (_comp.size() >= 4) {
-      _toSave.push_back(TableColumnFormatter(std::string(_comp.at(1) + " Steering Time/Event [ms]"),
-                                             "Total steering time per event for this type of CPU",
-                                             kVarSteeringTimeCPUType1, kSavePerEvent, kVarEventsCPUType1, kSavePerCall,
-                                             2));
-
-      _toSave.push_back(TableColumnFormatter(std::string(_comp.at(2) + " Steering Time/Event [ms]"),
-                                             "Total steering time per event for this type of CPU",
-                                             kVarSteeringTimeCPUType2, kSavePerEvent, kVarEventsCPUType2, kSavePerCall,
-                                             2));
-
-      _toSave.push_back(TableColumnFormatter(std::string(_comp.at(3) + " Steering Time/Event [ms]"),
-                                             "Total steering time per event for this type of CPU",
-                                             kVarSteeringTimeCPUType3, kSavePerEvent, kVarEventsCPUType3, kSavePerCall,
-                                             2));
-
-      _toSave.push_back(TableColumnFormatter(std::string(_comp.at(4) + " Steering Time/Event [ms]"),
-                                             "Total steering time per event for this type of CPU",
-                                             kVarSteeringTimeCPUType4, kSavePerEvent, kVarEventsCPUType4, kSavePerCall,
-                                             2));
-    }
-
     _toSave.push_back(TableColumnFormatter("CostMon Time/Event [ms]",
                                            "Average time per event to execute cost monitoring.",
                                            kVarTrigCostTime, kSavePerEvent, kVarEventsActive, kSavePerCall, 2));

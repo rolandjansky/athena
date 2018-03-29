@@ -308,6 +308,7 @@ class JetSequencesBuilder(object):
             ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
         elif ftkopt == 'ftkrefit':
             ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx", "refit"]).getSequence()
+            alias = 'ftkrefittracking'
         ftkalgo_list = []
 
         for seq in ftksequence_list:
@@ -360,7 +361,7 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         fex_params = menu_data.fex_params
-        cluster_params = menu_data.cluster_params
+        #cluster_params = menu_data.cluster_params
 
         alias = 'hijetrec_%s' % fex_params.fex_label
 
@@ -372,7 +373,7 @@ class JetSequencesBuilder(object):
 
         menu_data = self.chain_config.menu_data
         fex_params = menu_data.fex_params
-        cluster_params = menu_data.cluster_params
+        #cluster_params = menu_data.cluster_params
 
         # set jes label according to whether the JES corrections will
         # be done by JetRecTool
@@ -450,18 +451,16 @@ class JetSequencesBuilder(object):
         if f is None:
             msg = '%s._make_jh: unknown hypotype %s' % (
                 self.__class__.__name__, hypo.hypo_type)
-    
+            raise RuntimeError(msg)
+
         return AlgList(f(), alias)
 
 
     def make_jh_ht(self):
         """Create an alg_list for 2015 JetRec hypo sequence"""
 
-        menu_data = self.chain_config.menu_data
-        hypo = menu_data.hypo_params
         f = self.alg_factory.hlthypo2_ht
 
-        hypo = menu_data.hypo_params
         alias = 'hthypo_%s' % self.chain_name_esc
 
         return AlgList(f(), alias)

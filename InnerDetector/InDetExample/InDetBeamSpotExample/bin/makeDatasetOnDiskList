@@ -49,6 +49,10 @@ fi
 mkdir -p "$fdir"
 
 for ds in $(rucio list-dids "$pattern" --short --filter type=container); do
+  if { echo "$ds" | grep "_lb" > /dev/null; } then
+    echo "Skipping  $ds"
+    continue
+  fi
   echo
   replica="$(rucio list-dataset-replicas "$ds")";
   if { echo "$replica" | grep "$token" > /dev/null; } then

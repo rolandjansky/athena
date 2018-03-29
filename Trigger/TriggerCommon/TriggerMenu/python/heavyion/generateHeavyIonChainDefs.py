@@ -3,14 +3,14 @@
 ##########################################################################################
 ##########################################################################################
 __doc__=""
-__version__="Implementation of min bias signatures"
+__version__="Implementation of heavy ion signatures"
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 
 
-from TriggerMenu.heavyion.HeavyIonDef import *
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.heavyion.HeavyIonDef import L2EFChain_HI
+from TriggerMenu.menu.MenuUtils import splitChainDict,mergeChainDefs
 
 
 HeavyIon = []

@@ -12,6 +12,8 @@
 #include "xAODEventInfo/EventInfo.h"
 //#include "AthenaBaseComps/AthCheckMacros.h"
 
+#include "PathResolver/PathResolver.h"
+
 // Local include(s):
 #include "InDetTrackSystematicsTools/InDetTrackSmearingTool.h"
 
@@ -55,6 +57,11 @@ namespace InDet {
 #endif
 
     declareProperty("Seed", m_seed);
+
+    declareProperty("calibFileD0Dead", m_calibFileD0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/res_diff_d0_vs_pt.hist.root");
+    declareProperty("calibFileZ0Dead", m_calibFileZ0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/res_diff_z0_vs_pt.hist.root");
+
+    declareProperty("calibFileIP", m_calibFileIP = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/trackIPAlign_dec2017.root");
   }
     
 
@@ -63,19 +70,22 @@ namespace InDet {
     // Greet the user:
     ATH_MSG_INFO( "Initializing..." );
     
-    ATH_CHECK( initObject<TH1>(m_smearD0Dead, "res_diff_d0_vs_pt.hist.root", "res_pt_d0_0") );
-    ATH_CHECK( initObject<TH1>(m_smearZ0Dead, "res_diff_z0_vs_pt.hist.root", "res_pt_z0_0") );
-   
-    string rootfile = "trackIPAlign_r21.root";
-    ATH_CHECK( initObject<TH2>(m_smearD0, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_sys_up, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_up, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_sys_dw, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_dw" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_dw, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_dw" ) );
+    ATH_CHECK( initObject<TH1>(m_smearD0Dead, m_calibFileD0Dead, "res_pt_d0_0") );
+    ATH_CHECK( initObject<TH1>(m_smearZ0Dead, m_calibFileZ0Dead, "res_pt_z0_0") );
+
+    ATH_CHECK( initObject<TH2>(m_smearD0, m_calibFileIP, "d0quaddiff_comb_Pt_Eta" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0, m_calibFileIP, "z0quaddiff_comb_Pt_Eta" ) );
+    ATH_CHECK( initObject<TH2>(m_smearD0_sys_up, m_calibFileIP, "d0quaddiff_comb_Pt_Eta_sys_up" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_up, m_calibFileIP, "z0quaddiff_comb_Pt_Eta_sys_up" ) );
+    ATH_CHECK( initObject<TH2>(m_smearD0_sys_dw, m_calibFileIP, "d0quaddiff_comb_Pt_Eta_sys_dw" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_dw, m_calibFileIP, "z0quaddiff_comb_Pt_Eta_sys_dw" ) );
 
     ATH_MSG_INFO( "Using seed of " << m_seed << " to initialize RNG" );
     m_rnd = make_unique<TRandom3>(m_seed);
+
+    ATH_MSG_INFO( "Using for TRK_RES_D0_DEAD case the calibration file " << PathResolverFindCalibFile(m_calibFileD0Dead) );
+    ATH_MSG_INFO( "Using for TRK_RES_Z0_DEAD case the calibration file " << PathResolverFindCalibFile(m_calibFileZ0Dead) );
+    ATH_MSG_INFO( "Using for all other cases the calibration file " << PathResolverFindCalibFile(m_calibFileIP) );
 
     // do common initialization (at time of writing, register affecting systematics)
     ATH_CHECK( InDetTrackSystematicsTool::initialize() );

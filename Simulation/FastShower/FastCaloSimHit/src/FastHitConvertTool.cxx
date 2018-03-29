@@ -35,7 +35,7 @@ FastHitConvertTool::FastHitConvertTool(const std::string& type,
                                        const std::string& name,
                                        const IInterface*  parent )
   :
-  AthAlgTool(type,name,parent),
+  base_class(type,name,parent),
   m_fastHitContainer(nullptr),
   m_fastTileHits(nullptr),
   m_embHitContainer("LArHitEMB"),
@@ -52,8 +52,6 @@ FastHitConvertTool::FastHitConvertTool(const std::string& type,
   m_tileID(nullptr),
   m_pileup(false)
 {
-  declareInterface<ICaloCellMakerTool>(this);
-
   declareProperty("doPileup",m_pileup,"Pileup mode (default=false)");
   declareProperty("embHitContainername",m_embHitContainer,"Name of output FastSim LAr EM Barrel Hit Container");
   declareProperty("emecHitContainername",m_emecHitContainer,"Name of output FastSim LAr EM Endcap Hit Container");

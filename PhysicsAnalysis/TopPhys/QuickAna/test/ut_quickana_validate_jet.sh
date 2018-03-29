@@ -20,4 +20,6 @@ then
     exit 1
 fi
 
-quickana_validate --qa-no-default-def --qa-jet-def default --el-input-file "$FILE" output
+OUTPUT_DIR=output.$$
+rm -rf $OUTPUT_DIR
+quickana_validate --qa-no-default-def --qa-jet-def default --el-input-file "$FILE" $OUTPUT_DIR

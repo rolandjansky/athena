@@ -16,6 +16,7 @@
 #endif // XAOD_STANDALONE
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
@@ -124,12 +125,16 @@ namespace xAOD {
     std::string m_indetTrackParticleLocation; /// track particle location
 
     bool m_simpleIsolation; /// flag to select calculation type
+
+    bool m_useTTVAtool; // flag to use dedicated trackVertexAssociationTool instead of trackSelectionTool
     
     float m_overlapCone2; /// overlap cone size squared
 #ifndef XAOD_ANALYSIS
     ToolHandle<ITrackParticlesInConeTool> m_tracksInConeTool; /// tracks in cone tool
 #endif // XAOD_STANDALONE
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool; /// selection of tracks
+
+    ToolHandle<CP::ITrackVertexAssociationTool> m_ttvaTool; /// vertex association of tracks
 
     /** retrieve pvx if not given */
     const Vertex* retrieveIDBestPrimaryVertex() const;

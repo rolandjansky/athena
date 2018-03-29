@@ -22,12 +22,10 @@
 iFatras::G4ParticlePropertyTool::G4ParticlePropertyTool( const std::string& t,
                                                         const std::string& n,
                                                         const IInterface* p)
-        : AthAlgTool( t,n,p),
+        : base_class( t,n,p),
           m_pdgToG4Conv(
               "iFatras::PDGToG4Particle/FatrasPDGToG4ParticleConverter")
 {
-  declareInterface<IParticlePropertyTool>(this);
-
   // tool declarations
   declareProperty( "PDGToG4ParticleConverter", m_pdgToG4Conv);
 }

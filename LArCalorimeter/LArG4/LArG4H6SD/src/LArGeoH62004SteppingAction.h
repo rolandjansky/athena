@@ -10,12 +10,12 @@
 #define LARG4H6SD_LArGeoH62004SteppingAction_h 1
 
 
-#include "G4AtlasInterfaces/ISteppingAction.h"
+#include "G4UserSteppingAction.hh"
 
 namespace G4UA
 {
   /// @brief NEEDS DOCUMENTATION
-  class LArGeoH62004SteppingAction final: public ISteppingAction
+  class LArGeoH62004SteppingAction final: public G4UserSteppingAction
   {
   public:
 
@@ -27,7 +27,7 @@ namespace G4UA
     };
 
     LArGeoH62004SteppingAction(const Config& config);
-    virtual void processStep(const G4Step*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
 
   private:
     float m_yTable;

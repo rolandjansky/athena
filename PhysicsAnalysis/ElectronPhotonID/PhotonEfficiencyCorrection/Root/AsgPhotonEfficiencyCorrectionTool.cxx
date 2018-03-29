@@ -158,12 +158,7 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   m_rootTool_con->addFileName( m_corrFileNameList[0] );
   m_rootTool_unc->addFileName( m_corrFileNameList[1] );
 
-  m_rootTool_con->setResultPrefix( m_resultPrefix );
-  m_rootTool_con->setResultName( m_resultName );
-  m_rootTool_unc->setResultPrefix( m_resultPrefix );
-  m_rootTool_unc->setResultName( m_resultName );  
-  
-  // Forward the message level
+    // Forward the message level
   m_rootTool_con->msg().setLevel(this->msg().level());
   m_rootTool_unc->msg().setLevel(this->msg().level());
 
@@ -191,10 +186,6 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   if(m_isoWP.size()){
     m_rootTool_conRadZ->addFileName( m_corrFileNameList[2] );
     m_rootTool_uncRadZ->addFileName( m_corrFileNameList[3] ); 
-    m_rootTool_conRadZ->setResultPrefix( m_resultPrefix );
-    m_rootTool_conRadZ->setResultName( m_resultName );
-    m_rootTool_uncRadZ->setResultPrefix( m_resultPrefix );
-    m_rootTool_uncRadZ->setResultName( m_resultName );  
     m_rootTool_conRadZ->msg().setLevel(this->msg().level());
     m_rootTool_uncRadZ->msg().setLevel(this->msg().level());
     if ( (0 == m_rootTool_conRadZ->initialize()) || (0 == m_rootTool_uncRadZ->initialize()) )
@@ -265,6 +256,10 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
 
   // retrieve transvrse energy from e/cosh(etaS2)
   const xAOD::CaloCluster* cluster  = egam->caloCluster(); 
+  if (!cluster){
+        ATH_MSG_ERROR("ERROR no cluster associated to the Photon \n"); 
+        return m_resultDummy;
+    }
   double eta2   = fabsf(cluster->etaBE(2));
   double et = egam->pt();
   	
@@ -311,21 +306,26 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
 const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::IParticle *part ) const
 {
   const xAOD::Egamma* egam = dynamic_cast<const xAOD::Egamma*>(part);
-  if ( egam )
-    {
+  if ( egam ){
       return calculate(egam);
     } 
-  else
-    {
+  else{
       ATH_MSG_ERROR ( " Could not cast to const egamma pointer!" );
       return m_resultDummy;
     }
 }
 
 CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Egamma& inputObject, double& efficiencyScaleFactor) const{
-   
-  // if not in the range: return OutOfVelidityRange with SF = 1 +/- 1
-  if(fabs((inputObject.caloCluster())->etaBE(2))>MAXETA || inputObject.pt()<MIN_ET){
+
+    const xAOD::CaloCluster* cluster  = inputObject.caloCluster();  
+    if (!cluster){
+        ATH_MSG_ERROR("No  cluster associated to the Photon \n"); 
+        efficiencyScaleFactor=1;
+        return  CP::CorrectionCode::Error;
+    } 
+    // if not in the range: return OutOfVelidityRange with SF = 1 +/- 1
+  
+    if(fabs(cluster->etaBE(2))>MAXETA || inputObject.pt()<MIN_ET){
     efficiencyScaleFactor=1;
     if(m_appliedSystematics!=nullptr) efficiencyScaleFactor+=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
 	return CP::CorrectionCode::OutOfValidityRange;

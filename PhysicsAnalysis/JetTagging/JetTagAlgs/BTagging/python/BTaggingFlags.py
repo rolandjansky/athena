@@ -373,7 +373,7 @@ class _BTaggingFlags:
         setattr(self, attr, 'JetFitterCalibrationCoefficientsRel13')
 
       for attr in self._ForceMV2CalibrationAlias:
-        setattr(self, attr, True)
+        setattr(self, attr, False)
 
       for attr in self._MV2CalibAlias:
         setattr(self, attr, 'AntiKt4EMTopo')

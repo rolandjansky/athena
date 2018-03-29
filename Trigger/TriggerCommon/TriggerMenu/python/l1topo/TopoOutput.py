@@ -22,7 +22,6 @@ class TopoOutput(object):
 
 
 
-from collections import namedtuple
 class TriggerLine(object):
 
     import re

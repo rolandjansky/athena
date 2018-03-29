@@ -47,6 +47,8 @@
 
 #include "TopJetSubstructure/TopJetSubstructure.h"
 
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
+
 // Forward declaration(s):
 namespace top{
   class TopConfig;
@@ -142,7 +144,7 @@ namespace top{
       std::string m_truthJetCollForHS;
 
       std::unique_ptr<top::TopJetSubstructure> m_jetSubstructure;
-      
+
       systMap m_systMap_AllNP;
       systMap m_systMap_AllNP_FrozenJMS;
       systMap m_systMap_ReducedNPScenario1;
@@ -157,6 +159,12 @@ namespace top{
 
       StatusCode decorateBJets(xAOD::Jet& jet);
       StatusCode decorateHSJets();
+
+      // DL1 decoration                                                                          
+      std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelToolsDL1Decor;
+      bool m_DL1Possible;
+      StatusCode decorateDL1();
+
   };
 } // namespace
 #endif

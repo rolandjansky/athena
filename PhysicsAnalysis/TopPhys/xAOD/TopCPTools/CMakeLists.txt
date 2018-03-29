@@ -16,7 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           TriggerMatchingTool
                           TrigTauMatching
                           GoodRunsLists
-                          ElectronPhotonFourMomentumCorrection
+			  EgammaAnalysisInterfaces
+			  ElectronPhotonFourMomentumCorrection
                           ElectronPhotonSelectorTools
                           ElectronEfficiencyCorrection
                           ElectronPhotonShowerShapeFudgeTool
@@ -72,7 +73,8 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   TriggerMatchingToolLib
                                   TrigTauMatchingLib
                                   GoodRunsListsLib
-                                  ElectronPhotonFourMomentumCorrectionLib
+                                  EgammaAnalysisInterfacesLib
+				  ElectronPhotonFourMomentumCorrectionLib
                                   ElectronPhotonSelectorToolsLib
                                   ElectronEfficiencyCorrectionLib
                                   ElectronPhotonShowerShapeFudgeToolLib

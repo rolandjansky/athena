@@ -29,8 +29,7 @@ For each of these type 64 L1Items can be monitored independently
 
 """
 
-from TriggerMenu.l1.Lvl1Menu import Lvl1Menu
-from TriggerMenu.l1.Lvl1MonCounters import Lvl1MonCounters, Lvl1CtpinCounter, Lvl1CtpmonCounter
+from TriggerMenu.l1.Lvl1MonCounters import Lvl1CtpinCounter, Lvl1CtpmonCounter
 
 class MonitorDef:
 
@@ -134,34 +133,44 @@ class MonitorDef:
 
 
 
-        monItems[TBP] = [
-            "L1_ALFA_B7L1U", "L1_ALFA_B7L1L", "L1_ALFA_A7L1U", "L1_ALFA_A7L1L", "L1_ALFA_A7R1U", "L1_ALFA_A7R1L", "L1_ALFA_B7R1U", "L1_ALFA_B7R1L"
-            ]
-
-
         monItems[TBP|TAP|TAV] = [
-            "L1_EM3","L1_EM20VH","L1_EM22VHI",
-            "L1_MU4","L1_MU10","L1_MU20",
-            "L1_TAU12", "L1_TAU12IT", "L1_TAU20", "L1_TAU60",
-            "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20.31ETA49", "L1_J30.31ETA49",
-            "L1_XE35", "L1_XE80", "L1_XS20", 
-            "L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
-            "L1_LUCID", "L1_LUCID_A_C_EMPTY", "L1_ALFA_ANY",
-            "L1_ZDC_A", "L1_ZDC_C", "L1_ZDC_AND",
-            "L1_BPTX0_BGRP0","L1_BPTX1_BGRP0",
-            "L1_CALREQ2",
-            "L1_AFP_NSC","L1_AFP_FSC",
-            "L1_BPH-2M8-2MU4","L1_BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4","L1_BPH-2M9-2MU6_BPH-2DR15-2MU6",
-            "L1_MU6MU4-BO","L1_2MU4-B",
+            "L1_AFP_NSA_BGRP0", "L1_AFP_NSC_BGRP0",
+            "L1_AFP_FSA_SIT_BGRP0", "L1_AFP_FSC_SIT_BGRP0",
+            "L1_AFP_A_SPECTOF_BGRP0", "L1_AFP_C_SPECTOF_BGRP0",
+            "L1_EM12", "L1_EM22VHI", "L1_EM24VHI", "L1_EM24VHIM",
+            "L1_MU4", "L1_MU10", "L1_MU11", "L1_MU21", "L1_MU20",
+            "L1_TAU12IM", "L1_TAU20", "L1_TAU40", "L1_TAU100",
+            "L1_J20", "L1_J100",
+            "L1_J75.31ETA49",
+            "L1_4J15.0ETA25",
+            "L1_XE35", "L1_XE60",
+            "L1_TE50",
+            "L1_MBTS_4_A", "L1_MBTS_4_C",
+            "L1_LUCID",
+            "L1_ZB",
+            "L1_BPTX0_BGRP0", "L1_BPTX1_BGRP0",
+            "L1_LAR-EM", "L1_LAR-J",
+            "L1_HT150-J20s5.ETA31",
+            "L1_MJJ-700",
+            "L1_EM15TAU12I-J25",
+            "L1_DY-BOX-2MU6",
+            "L1_BPH-2M9-2MU6_BPH-2DR15-2MU6",
+            "L1_MU6MU4-BO",
+            "L1_BTAG-MU4J15",
             "L1_LFV-EM8I",
-            "L1_TGC_BURST",
-            "L1_LLP-NOMATCH",
+            "L1_SC85-CJ15",
+            "L1_LFV-MU",
+            "L1_HT150-J20.ETA31",
             "L1_DR-TAU20ITAU12I",
-            "L1_HT190-J15s5.ETA21",
-            "L1_3J15_BTAG-MU4J15",
-            "L1_MJJ-900",
-            "L1_J40_DPHI-J20s2XE50",
-            "L1_KF-XE55",
+            "L1_KF-XE40",
+            "L1_DR-TAU20ITAU12I-J25",
+            "L1_JPSI-1M5",
+            "L1_JPSI-1M5-EM7",
+            "L1_JPSI-1M5-EM12",
+            "L1_LATE-MU10_XE40",
+            "L1_LATE-MU10_J50",
+            "L1_LUCID_BGRP9",
+            "L1_LUCID_BGRP11",
             ]
 
         monItemsHF[TBP|TAP|TAV] = [

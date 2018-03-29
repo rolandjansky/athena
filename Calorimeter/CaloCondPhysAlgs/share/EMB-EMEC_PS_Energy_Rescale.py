@@ -9,13 +9,14 @@ sqlite="EMB-EMEC_PS_CellEnergyCorrection.db"
 
 # write here the run number and lumiblock of a time after temperature drop
 
-RunNumber = 212393
+RunNumber = 275429
 LumiBlock = 1
 
 #LastRunNumber = 999999
 
-GlobalTag =  'COMCOND-ES1PA-006-02'
-Geometry = 'ATLAS-GEO-18-00-00'
+#GlobalTag =  'COMCOND-ES1PA-006-02'
+GlobalTag =  'CONDBR2-ES1PA-2017-09'
+Geometry = 'ATLAS-R2-2015-04-00-00'
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(RunNumber)
@@ -23,7 +24,7 @@ rec.RunNumber.set_Value_and_Lock(RunNumber)
 from PyCool import cool
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
-trigDB=indirectOpen('COOLONL_TRIGGER/COMP200',oracle=True)
+trigDB=indirectOpen('COOLONL_TRIGGER/CONDBR2',oracle=True)
 trigfolder=trigDB.getFolder('/TRIGGER/LUMI/LBLB')
 runiov=(RunNumber << 32)+ LumiBlock
 print " runiov ", runiov
@@ -146,7 +147,7 @@ theOutputConditionsAlg.LB1 = 1
 #theOutputConditionsAlg.Run2 = LastRunNumber + 1
 #theOutputConditionsAlg.LB2 = 0
 	
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname=COMP200"
+svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+sqlite+";dbname=CONDBR2"
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()
 svcMgr.IOVRegistrationSvc.RecreateFolders = True #Allow add in a second tag

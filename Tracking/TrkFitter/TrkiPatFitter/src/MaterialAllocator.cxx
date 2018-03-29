@@ -1073,9 +1073,12 @@ MaterialAllocator::reallocateMaterial (std::list<FitMeasurement*>&	measurements,
     }              
 
 // correct track parameters for high momentum track (otherwise Eloss is too large)
-    trackParameters = (trackParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
-                                                              parameterVector[Trk::loc2],parameterVector[Trk::phi],
-                                                              parameterVector[Trk::theta],parameterVector[Trk::qOverP],0);
+    const TrackParameters* trackParametersTemp = (trackParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
+								  parameterVector[Trk::loc2],parameterVector[Trk::phi],
+								  parameterVector[Trk::theta],parameterVector[Trk::qOverP],0);
+
+    delete trackParameters;
+    trackParameters = trackParametersTemp;
 
     for (std::list<Trk::FitMeasurement*>::reverse_iterator r = measurements.rbegin();
 	 r != measurements.rend();
@@ -2677,9 +2680,11 @@ MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurement
     }              
 
 // correct track parameters for high momentum track (otherwise Eloss is too large)
-    endParameters = (endParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
+    const TrackParameters* endParametersTemp = (endParameters->associatedSurface()).createTrackParameters(parameterVector[Trk::loc1],
                                                               parameterVector[Trk::loc2],parameterVector[Trk::phi],
                                                               parameterVector[Trk::theta],parameterVector[Trk::qOverP],0);
+    delete endParameters;
+    endParameters = endParametersTemp;
 
     if (entranceParameters)
     {

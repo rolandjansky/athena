@@ -5,9 +5,8 @@
 #ifndef LARG4H6SD_RadLenNtuple_H
 #define LARG4H6SD_RadLenNtuple_H
 
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
+#include "G4UserSteppingAction.hh"
+#include "G4UserEventAction.hh"
 
 #include <string>
 #include "GaudiKernel/NTuple.h"
@@ -21,7 +20,7 @@
 namespace G4UA
 {
   /// @brief NEEDS DOCUMENTATION
-  class RadLenNtuple final: public ISteppingAction, public IBeginEventAction, public IEndEventAction {
+  class RadLenNtuple final: public G4UserSteppingAction, public G4UserEventAction {
 
   public:
 
@@ -32,9 +31,9 @@ namespace G4UA
     };
 
     RadLenNtuple(const Config& config): m_mcEvtColl(config.mcEventCollName), m_verboseLevel(config.verboseLevel) {}
-    virtual void beginOfEvent(const G4Event*) override;
-    virtual void endOfEvent(const G4Event*) override;
-    virtual void processStep(const G4Step*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
+    virtual void EndOfEventAction(const G4Event*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
 
     virtual StatusCode initialize();
 

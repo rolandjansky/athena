@@ -39,6 +39,7 @@ namespace DerivationFramework{
           || (m_DSID>=407037 && m_DSID<=407040) //Powheg+Hpp MET/HT sliced
           || m_DSID ==410536 || m_DSID == 410537
           || m_DSID == 410245 //aMC@NLO+H++ , ttbb
+          || m_DSID == 410557 || m_DSID == 410558 // new Powheg+H7, mc16
           ){
       m_GenUsed=HerwigPP;
       if (m_DSID==410245){
@@ -55,6 +56,9 @@ namespace DerivationFramework{
           || (m_DSID>=410225 && m_DSID<=410227) || m_DSID==410274 || m_DSID==410275 //aMC@NLO+P8, new settings
           || m_DSID==410568 || m_DSID==410569 // nonallhad boosted c-filtered
           || m_DSID==410244 //aMC@NLO+P8, ttbb
+          || m_DSID==410441 || m_DSID==410442 //new aMC@NLO+P8 mc16
+          || (m_DSID>=410470 && m_DSID<=410472) || (m_DSID>=410480 && m_DSID<=410482) //new Powheg+P8 mc16
+          || m_DSID==410452 //new aMC@NLO+P8 FxFx mc16
            ){
       m_GenUsed=Pythia8;
       if (m_DSID==410244){
@@ -71,6 +75,8 @@ namespace DerivationFramework{
           || (m_DSID>=410281 && m_DSID<=410283) //Sherpa BFilter
           || m_DSID==410051 //Sherpa ttbb (ICHEP sample)
           || m_DSID==410323 || m_DSID==410324 || m_DSID==410325 //New Sherpa ttbb
+          || (m_DSID>=364345 && m_DSID<=364348) //Sherpa 2.2.4 mc16 (test)
+          || (m_DSID>=410424 && m_DSID<=410427) //Sherpa 2.2.4 mc16
            ){
       m_GenUsed=Sherpa;
       if(m_DSID==410051 || m_DSID==410323 || m_DSID==410324 || m_DSID==410325){

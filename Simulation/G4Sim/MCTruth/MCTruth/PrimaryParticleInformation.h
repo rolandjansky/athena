@@ -21,18 +21,18 @@ public:
 	void SuggestBarcode(int bc);
 	void SetParticle(const HepMC::GenParticle*);
 	void Print() const {}
-	int GetRegenerationNr() {return  regenerationNr;}
-	void SetRegenerationNr(int i) {regenerationNr=i;}
+	int GetRegenerationNr() {return  m_regenerationNr;}
+	void SetRegenerationNr(int i) {m_regenerationNr=i;}
 
 	void SetISFParticle(const ISF::ISFParticle* isp);
 	const ISF::ISFParticle* GetISFParticle() const;
 
 private:
-	const HepMC::GenParticle *theParticle;
-	const ISF::ISFParticle* theISFParticle;
+	const HepMC::GenParticle *m_theParticle;
+	const ISF::ISFParticle* m_theISFParticle;
 
-	int regenerationNr;
-	int barcode;
+	int m_regenerationNr;
+	int m_barcode;
 };
 
 #endif

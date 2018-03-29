@@ -31,7 +31,7 @@
 
 /** Constructor **/
 ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
-  AthService(name,svc),
+  base_class(name,svc),
   m_barcodeSvc("BarcodeSvc",name),
   m_geoStrategies(),
   m_numStrategies(),
@@ -66,20 +66,6 @@ ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
 
 ISF::TruthSvc::~TruthSvc()
 {}
-
-
-/** Query the interfaces. */
-StatusCode ISF::TruthSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
- if ( IID_ITruthSvc == riid )
-    *ppvInterface = (ITruthSvc*)this;
- else  {
-   // Interface is not directly available: try out a base class
-   return Service::queryInterface(riid, ppvInterface);
- }
- addRef();
- return StatusCode::SUCCESS;
-}
 
 
 /** framework methods */
@@ -141,6 +127,21 @@ StatusCode ISF::TruthSvc::initializeTruthCollection()
   m_secondaryParticleBcOffset = m_barcodeSvc->secondaryParticleBcOffset();
 
   return StatusCode::SUCCESS;
+}
+
+/** Delete child vertex */
+void ISF::TruthSvc::deleteChildVertex(HepMC::GenVertex *vtx) {
+
+  for (HepMC::GenVertex::particles_out_const_iterator iter = vtx->particles_out_const_begin();
+       iter != vtx->particles_out_const_end(); ++iter) {
+     if( (*iter) && (*iter)->end_vertex() ) {
+       verticesToDelete.push_back( (*iter)->end_vertex() );
+     }
+  }
+
+  vtx->parent_event()->remove_vertex(vtx);
+   
+  return;
 }
 
 
@@ -330,7 +331,14 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
     }
 
     // Remove the old vertex from the event
-    parent->parent_event()->remove_vertex( parent->end_vertex() );
+    //parent->parent_event()->remove_vertex( parent->end_vertex() );
+     
+    // KB: Remove the old vertex and their all child vertices  from the event
+    verticesToDelete.resize(0);
+    verticesToDelete.push_back(parent->end_vertex());
+    for ( unsigned short i = 0; i<verticesToDelete.size(); ++i ) {
+       this->deleteChildVertex(verticesToDelete.at(i));
+    }
 
     // Now add the new vertex to the new parent
     vtx->add_particle_in( parent );

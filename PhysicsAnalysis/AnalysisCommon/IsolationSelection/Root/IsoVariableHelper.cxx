@@ -29,14 +29,8 @@ namespace CP {
             Error("IsoVariableHelper::GetOrignalIsolation()", "No particle given");
             return CorrectionCode::Error;
         }
-
         if (!m_BackupIso) {
-            const xAOD::IParticle* originalParticle = xAOD::getOriginalObject(*particle);
-            if (originalParticle && getIsolation(originalParticle, value) == CorrectionCode::Error) return CorrectionCode::Error;
-            else if (!originalParticle) {
-                Warning("IsoVariableHelper::GetOrignalIsolation()", "No original object was found");
-                return getIsolation(particle, value);
-            }
+            return getIsolationFromOriginal(particle,value);
         } else {
             if (!m_acc_IsoIsBackup.isAvailable(*particle) || !m_acc_IsoIsBackup(*particle)) {
                 Warning("IsoVariableHelper::GetOrignalIsolation()", "No isolation value was backuped thus far. Did you call the BackupIsolation before for %s?", xAOD::Iso::toString(isotype()));
@@ -46,7 +40,15 @@ namespace CP {
             }
         }
         return CorrectionCode::Ok;
-
+    }
+    CorrectionCode IsoVariableHelper::getIsolationFromOriginal(const xAOD::IParticle* particle, float& value) const{
+        const xAOD::IParticle* originalParticle = xAOD::getOriginalObject(*particle);
+        if (originalParticle && getIsolation(originalParticle, value) == CorrectionCode::Error) return CorrectionCode::Error;
+        else if (!originalParticle) {
+            Warning("IsoVariableHelper::GetOrignalIsolation()", "No original object was found");
+            return getIsolation(particle, value);
+        }    
+        return CorrectionCode::Ok;
     }
     CorrectionCode IsoVariableHelper::getIsolation(const xAOD::IParticle* particle, float& value) const {
         if (!particle || !m_acc_iso_variable.isAvailable(*particle)) {
@@ -63,7 +65,7 @@ namespace CP {
         }
         if (m_BackupIso && (!m_acc_IsoIsBackup.isAvailable(*particle) || !m_acc_IsoIsBackup(*particle))) {
             float Isovalue = 0;
-            if (getIsolation(particle, Isovalue) == CorrectionCode::Error) {
+            if (getIsolationFromOriginal(particle, Isovalue) == CorrectionCode::Error) {
                 return CorrectionCode::Error;
             }
             m_dec_IsoIsBackup(*particle) = true;

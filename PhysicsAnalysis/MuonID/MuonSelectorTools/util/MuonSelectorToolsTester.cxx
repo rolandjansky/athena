@@ -138,7 +138,7 @@ int main( int argc, char* argv[] ) {
 	allMuons++;
 
 	uint8_t PixHits = 0, PixDead = 0, SCTHits = 0, SCTDead = 0, PixHoles = 0, SCTHoles = 0, TRTHits = 0, TRTOut = 0;
-	uint8_t nprecisionLayers = 0, nprecisionHoleLayers = 0;
+	uint8_t nprecisionLayers = 0, nprecisionHoleLayers = 0, cscUnspoiledEtaHits = 0;
 	//float momSigBal = 0;
 	//float CaloLRLikelihood = 0;
 	//int CaloMuonIDTag = 0;
@@ -236,11 +236,14 @@ int main( int argc, char* argv[] ) {
 	  std::cout << "no nprecisionholelayers! " << std::endl;
 	Info( APP_NAME, "Primary track: NPrecisionLayers %i NPrecisionHoleLayers %i ", nprecisionLayers, nprecisionHoleLayers);
 	  // Info( APP_NAME, "Muon: momSigBal %f ", momSigBal);
-
-	// }
+	// }   
+	
+	if (!(*mu_itr)->summaryValue(cscUnspoiledEtaHits, xAOD::MuonSummaryType::cscUnspoiledEtaHits))
+	  std::cout << "no cscUnspoiledEtaHits! " << std::endl;
+	Info( APP_NAME, "cscUnspoiledEtaHits %i eta %f ", cscUnspoiledEtaHits, (*mu_itr)->eta() );
 
 	if(!m_muonSelection.accept(**mu_itr)) continue;
-	
+
 	if(!(*mu_itr)->primaryTrackParticle()->summaryValue(PixHits,xAOD::numberOfPixelHits))
 	  Info( APP_NAME, "Missing info!");
 	//Info( APP_NAME, "Primary track: PixHits %i ", PixHits);

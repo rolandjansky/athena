@@ -26,13 +26,8 @@ namespace G4UA{
     }
     StatusCode MCTruthUserActionTool::queryInterface(const InterfaceID& riid, void** ppvIf){
       
-      if(riid == IPreTrackingActionTool::interfaceID()) {
-	*ppvIf = (IPreTrackingActionTool*) this;
-	addRef();
-	return StatusCode::SUCCESS;
-      }
-      if(riid == IPostTrackingActionTool::interfaceID()) {
-	*ppvIf = (IPostTrackingActionTool*) this;
+      if(riid == IG4TrackingActionTool::interfaceID()) {
+	*ppvIf = (IG4TrackingActionTool*) this;
 	addRef();
 	return StatusCode::SUCCESS;
       }

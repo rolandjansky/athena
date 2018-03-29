@@ -21,6 +21,7 @@
 ////////////////////////////////////////////////////////////
 #include "xAODJet/Jet.h"
 #include "xAODTracking/VertexFwd.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 namespace jet {
 
@@ -31,7 +32,7 @@ namespace jet {
   ///
   /// The cluster constituents of jet are retrieved, set at the scale they were used to find
   /// jet, corrected according to vx. The 4-vector sum of this corrected cluster is returned
-  xAOD::JetFourMom_t clusterOriginCorrection(const xAOD::Jet& jet, const xAOD::Vertex & vx);
+  xAOD::JetFourMom_t clusterOriginCorrection(const xAOD::Jet& jet, const xAOD::Vertex & vx, const xAOD::CaloCluster::State & state);
 
 }
 

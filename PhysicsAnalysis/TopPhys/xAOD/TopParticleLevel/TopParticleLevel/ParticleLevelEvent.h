@@ -12,11 +12,13 @@
 
 #include <string>
 #include <unordered_map>
+#include <iostream>
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODMissingET/MissingET.h"
+#include "TopEvent/Event.h"
 
 namespace top {
 
@@ -31,6 +33,7 @@ namespace top {
           m_largeRJets( nullptr ),
 	      m_met( nullptr ),
 	      m_selectionDecisions(){}
+
 
 	/// Pointer to the event info object
 	const xAOD::EventInfo * m_info;
@@ -62,5 +65,8 @@ namespace top {
     };
 
 }
+
+    /// Ostream overload operator
+    std::ostream& operator<<(std::ostream& os, const top::ParticleLevelEvent& plEvent);
 
 #endif /* _TOP_PARTICLELEVELEVENT_H_ */

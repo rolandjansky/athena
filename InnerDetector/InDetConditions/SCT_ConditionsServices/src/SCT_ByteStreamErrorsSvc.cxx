@@ -22,6 +22,8 @@
 #include "Identifier/IdentifierHash.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 
 ///Read Handle
 #include "StoreGate/ReadHandle.h"
@@ -43,7 +45,8 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_numRODsHVon(0),
   m_numRODsTotal(0),
   m_condensedMode(true),
-  m_rodFailureFraction(0.1)
+  m_rodFailureFraction(0.1),
+  m_pManager{nullptr}
 {
   declareProperty("EventStore",m_storeGate);
   declareProperty("DetectorStore",m_detStore);
@@ -121,6 +124,8 @@ SCT_ByteStreamErrorsSvc::initialize(){
   }
 
   m_tempMaskedChips = new std::map<Identifier, unsigned int>;
+
+  ATH_CHECK(m_detStore->retrieve(m_pManager, "SCT"));
 
   // Read Handle Key
   ATH_CHECK(m_bsErrContainerName.initialize());
@@ -286,7 +291,7 @@ SCT_ByteStreamErrorsSvc::addRODHVCounter(bool HVisOn) {
 
 bool 
 SCT_ByteStreamErrorsSvc::canReportAbout(InDetConditions::Hierarchy h){
-  return (h==InDetConditions::SCT_SIDE); 
+  return (h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_CHIP);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -370,13 +375,101 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
 
 bool 
 SCT_ByteStreamErrorsSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h){
+  if (not canReportAbout(h)) return true;
   
   if (m_isRODSimulatedData) return false;
+
   if (h==InDetConditions::SCT_SIDE) {
     const IdentifierHash elementIdHash = m_sct_id->wafer_hash(elementId);
     return isGood(elementIdHash);
   }
+  if (h==InDetConditions::SCT_CHIP) {
+    return isGoodChip(elementId);
+  }
+
   return true;
+}
+
+bool
+SCT_ByteStreamErrorsSvc::isGoodChip(const Identifier& stripId) const {
+  // This check assumes present SCT.
+  // Get module number
+  const Identifier moduleId{m_sct_id->module_id(stripId)};
+  if (not moduleId.is_valid()) {
+    ATH_MSG_WARNING("moduleId obtained from stripId " << stripId << " is invalid.");
+    return false;
+  }
+
+  // tempMaskedChips and abcdErrorChips hold 12 bits.
+  // bit 0 (LSB) is chip 0 for side 0.
+  // bit 5 is chip 5 for side 0.
+  // bit 6 is chip 6 for side 1.
+  // bit 11 is chip 11 for side 1.
+  // Temporarily masked chip information
+  const unsigned int v_tempMaskedChips{tempMaskedChips(moduleId)};
+  // Information of chips with ABCD errors
+  const unsigned int v_abcdErrorChips{abcdErrorChips(moduleId)};
+  // Take 'OR' of tempMaskedChips and abcdErrorChips
+  const unsigned int badChips{v_tempMaskedChips | v_abcdErrorChips};
+
+  // If there is no bad chip, this check is done.
+  if (badChips==0) return true;
+
+  const int side{m_sct_id->side(stripId)};
+  // Check the six chips on the side
+  // 0x3F  = 0000 0011 1111
+  // 0xFC0 = 1111 1100 0000
+  // If there is no bad chip on the side, this check is done.
+  if ((side==0 and (badChips & 0x3F)==0) or (side==1 and (badChips & 0xFC0)==0)) return true;
+
+  int chip{getChip(stripId)};
+  if (chip<0 or chip>=12) {
+    ATH_MSG_WARNING("chip number is invalid: " << chip);
+    return false;
+  }
+
+  // Check if the chip is bad
+  const bool badChip{badChips & (1<<chip)};
+
+  return (not badChip);
+}
+
+int
+SCT_ByteStreamErrorsSvc::getChip(const Identifier& stripId) const {
+  const InDetDD::SiDetectorElement* siElement{m_pManager->getDetectorElement(stripId)};
+  if (!siElement) {
+    ATH_MSG_DEBUG ("InDetDD::SiDetectorElement is not obtained from stripId " << stripId);
+    return -1;
+  }
+
+  // Get strip number
+  const int strip{m_sct_id->strip(stripId)};
+  if (strip<0 or strip>=768) {
+    // This check assumes present SCT.
+    ATH_MSG_WARNING("strip number is invalid: " << strip);
+    return -1;
+  }
+
+  // Conversion from strip to chip (specific for present SCT)
+  int chip{strip/128}; // One ABCD chip reads 128 strips
+  // Relation between chip and offline strip is determined by the swapPhiReadoutDirection method.
+  // If swap is false
+  //  offline strip:   0            767
+  //  chip on side 0:  0  1  2  3  4  5
+  //  chip on side 1: 11 10  9  8  7  6
+  // If swap is true
+  //  offline strip:   0            767
+  //  chip on side 0:  5  4  3  2  1  0
+  //  chip on side 1:  6  7  8  9 10 11
+  const bool swap{siElement->swapPhiReadoutDirection()};
+  const int side{m_sct_id->side(stripId)};
+  if (side==0) {
+    chip = swap ?  5 - chip :     chip;
+  } else {
+    chip = swap ? 11 - chip : 6 + chip;
+  }
+
+  return chip;
 }
 
 /////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,34 @@
+{
+    "jet" : {
+        "prefix": "jets_"
+    },
+    "subjet": {
+        "collection": "GhostVR30Rmax4Rmin02TrackJet",
+        "number": 2,
+        "prefix": "subjet"
+    },
+    "btag": {
+        "doubles": [
+            "IP3D_pu", "IP3D_pc", "IP3D_pb"
+        ],
+        "ints": [
+            "JetFitter_N2Tpair",
+            "JetFitter_nTracksAtVtx",
+            "JetFitter_nVTX",
+            "JetFitter_nSingleTracks",
+            "SV1_N2Tpair",
+            "SV1_NGTinSvx"
+        ],
+        "floats": [
+            "JetFitter_dRFlightDir",
+            "JetFitter_energyFraction",
+            "JetFitter_mass",
+            "JetFitter_significance3d",
+            "JetFitter_deltaeta",
+            "JetFitter_deltaphi",
+            "SV1_efracsvx",
+            "SV1_masssvx",
+            "SV1_normdist"
+        ]
+    }
+}

@@ -395,7 +395,7 @@ top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config) {
 }
 
 
-  bool readMetaData(TFile* inputFile, std::shared_ptr<top::TopConfig> config){
+  bool readMetaData(TFile* inputFile){
 
   // Load the file into a TEvent
   xAOD::TEvent xaodEvent(xAOD::TEvent::kClassAccess);

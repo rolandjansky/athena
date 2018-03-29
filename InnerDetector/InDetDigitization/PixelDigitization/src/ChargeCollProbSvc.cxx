@@ -11,7 +11,8 @@
 #include "GaudiKernel/ServiceHandle.h"
  
 #include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/PathResolver.h"
+
+#include "PathResolver/PathResolver.h"
  
 #include <fstream>
  
@@ -22,9 +23,8 @@ ChargeCollProbSvc::ChargeCollProbSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc)
     //  : AthService(name,svc),log(msgSvc(),name)
 {
- 
-  declareProperty( "CCProbMapFileFEI3", m_cc_prob_file_fei3 = "3DFEI3-3E-problist-1um_v1.txt");  
-  declareProperty( "CCProbMapFileFEI4", m_cc_prob_file_fei4 = "3DFEI4-2E-problist-1um_v0.txt");  
+  declareProperty( "CCProbMapFileFEI3", m_cc_prob_file_fei3 = "PixelDigitization/3DFEI3-3E-problist-1um_v1.txt");  
+  declareProperty( "CCProbMapFileFEI4", m_cc_prob_file_fei4 = "PixelDigitization/3DFEI4-2E-problist-1um_v0.txt");  
 }
  
 ChargeCollProbSvc::~ChargeCollProbSvc()
@@ -80,7 +80,7 @@ StatusCode ChargeCollProbSvc::readProbMap(std::string fileE)
 {
   std::string line;
   const std::string fileName = fileE;
-  std::string inputFile=System::PathResolver::find_file(fileName,"DATAPATH");
+  std::string inputFile=PathResolverFindCalibFile(fileName);
   if (inputFile==""){
       ATH_MSG_ERROR ( "Could not open input file!!!!!" );
       return StatusCode::FAILURE;

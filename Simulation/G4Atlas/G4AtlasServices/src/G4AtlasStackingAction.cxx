@@ -4,7 +4,6 @@
 
 // Local includes
 #include "G4AtlasStackingAction.h"
-#include "G4AtlasInterfaces/IStackingAction.h"
 
 namespace G4UA
 {
@@ -26,8 +25,8 @@ namespace G4UA
     // TODO: decide how to properly handle multiple stacking action results.
     // Maybe we just need to forbid it. See ATLASSIM-2421.
     G4ClassificationOfNewTrack classification = fUrgent;
-    for(IStackingAction* action : m_actions){
-      classification = action->classifyNewTrack(track);
+    for(auto action : m_actions){
+      classification = action->ClassifyNewTrack(track);
       if(classification == fKill) return fKill;
     }
     return classification;
@@ -39,8 +38,8 @@ namespace G4UA
   void G4AtlasStackingAction::NewStage()
   {
     // Loop over my actions and apply each one in turn
-    for(IStackingAction* action : m_actions){
-      action->newStage();
+    for(auto action : m_actions){
+      action->NewStage();
     }
   }
 
@@ -50,15 +49,15 @@ namespace G4UA
   void G4AtlasStackingAction::PrepareNewEvent()
   {
     // Loop over my actions and apply each one in turn
-    for(IStackingAction* action : m_actions){
-      action->prepareNewEvent();
+    for(auto action : m_actions){
+      action->PrepareNewEvent();
     }
   }
 
   //---------------------------------------------------------------------------
   // Add one action to the action list
   //---------------------------------------------------------------------------
-  void G4AtlasStackingAction::addAction(IStackingAction* action)
+  void G4AtlasStackingAction::addAction(G4UserStackingAction* action)
   {
     m_actions.push_back(action);
   }

@@ -5,10 +5,9 @@
 #ifndef G4USERACTIONS__G4UA_G4TRACKCOUNTER_H
 #define G4USERACTIONS__G4UA_G4TRACKCOUNTER_H
 
-// Infrastructure includes
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndRunAction.h"
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
+// Geant4 includes
+#include "G4UserEventAction.hh"
+#include "G4UserTrackingAction.hh"
 
 
 namespace G4UA
@@ -17,14 +16,10 @@ namespace G4UA
   /// @class G4TrackCounter
   /// @brief A simple action which counts tracks.
   ///
-  /// This action currently implements BeginEvent, EndRun, and PreTracking
-  /// interfaces. It's not clear if we really want to implement EndRun here.
-  /// Presumably we'll need to merge the counter results across threads, so it
-  /// might make sense to move some of that functionality in the finalize
-  /// method of the corresponding tool.
+  /// This action currently implements BeginEvent and PreTracking interfaces.
   ///
-  class G4TrackCounter : public IBeginEventAction,
-                         public IPreTrackingAction
+  class G4TrackCounter : public G4UserEventAction,
+                         public G4UserTrackingAction
   {
 
     public:
@@ -50,10 +45,10 @@ namespace G4UA
       /// @brief Increments event counter.
       /// I feel like there must be a better way to get this info.
       /// Hmm, the G4Run has a numberOfEvent field...
-      virtual void beginOfEvent(const G4Event* event) override;
+      virtual void BeginOfEventAction(const G4Event* event) override final;
 
       /// Increments the track counters
-      virtual void preTracking(const G4Track* track) override;
+      virtual void PreUserTrackingAction(const G4Track* track) override final;
 
       /// Retrieve my counts
       const Report& getReport() const

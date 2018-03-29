@@ -14,7 +14,7 @@ void testValue(double v1, double v2) {
 
 int main() {
    //create a 'dummy' lumicalc file, with only a few runs, with a few lumiblocks 
-   TFile l("dummy.None.lumicalc.root","RECREATE");
+   TFile l("tool.dummy.None.lumicalc.root","RECREATE");
    TTree *t = new TTree("LumiMetaData","LumiMetaData");
    UInt_t runNbr=0;Float_t ps1=1;Float_t ps2=1; Float_t ps3=1;UInt_t lbn=0;Float_t intLumi=0;Float_t mu=0;
    t->Branch("RunNbr",&runNbr);t->Branch("L1Presc",&ps1);t->Branch("L2Presc",&ps2);t->Branch("L3Presc",&ps3);t->Branch("LBStart",&lbn);t->Branch("IntLumi",&intLumi);t->Branch("AvergeInteractionPerXing",&mu);
@@ -29,7 +29,7 @@ int main() {
    l.Close();
 
    //make some trigger lumicalcs... only the prescale numbers are important!
-   TFile l2("dummy.TriggerA.lumicalc.root","RECREATE");
+   TFile l2("tool.dummy.TriggerA.lumicalc.root","RECREATE");
    t = new TTree("LumiMetaData","LumiMetaData");
    t->Branch("RunNbr",&runNbr);t->Branch("L1Presc",&ps1);t->Branch("L2Presc",&ps2);t->Branch("L3Presc",&ps3);t->Branch("LBStart",&lbn);t->Branch("IntLumi",&intLumi);t->Branch("AvergeInteractionPerXing",&mu);
 
@@ -42,7 +42,7 @@ int main() {
    t->Write();delete t;
    l2.Close();
 
-   TFile l3("dummy.TriggerB.lumicalc.root","RECREATE");
+   TFile l3("tool.dummy.TriggerB.lumicalc.root","RECREATE");
    t = new TTree("LumiMetaData","LumiMetaData");
    t->Branch("RunNbr",&runNbr);t->Branch("L1Presc",&ps1);t->Branch("L2Presc",&ps2);t->Branch("L3Presc",&ps3);t->Branch("LBStart",&lbn);t->Branch("IntLumi",&intLumi);t->Branch("AvergeInteractionPerXing",&mu);
 
@@ -69,7 +69,7 @@ int main() {
    g.Fill(101,2002,1,2.5);
    g.Fill(101,2002,1,3.5);
 
-   g.WriteToFile("dummy1.prw.root");
+   g.WriteToFile("tool.dummy1.prw.root");
 
    CP::TPileupReweighting* genConfig = new CP::TPileupReweighting("genConfig");
    genConfig->AddPeriod(100,1,2);
@@ -85,11 +85,11 @@ int main() {
    genConfig->Fill(101,2001,2,1.5);
    genConfig->Fill(101,2001,1,2.5); 
 
-   genConfig->WriteToFile("dummy2.prw.root");
+   genConfig->WriteToFile("tool.dummy2.prw.root");
 
 
-   std::vector<std::string> configFiles = {"dummy2.prw.root"};
-   std::vector<std::string> lumicalcFiles = {"dummy.None.lumicalc.root"};
+   std::vector<std::string> configFiles = {"tool.dummy2.prw.root"};
+   std::vector<std::string> lumicalcFiles = {"tool.dummy.None.lumicalc.root"};
 
    //check multi period failure
    CP::IPileupReweightingTool* prw_bad = new CP::PileupReweightingTool("prw_bad");
@@ -125,8 +125,8 @@ int main() {
 
 
    CP::IPileupReweightingTool* prw1 = new CP::PileupReweightingTool("prw1");
-   std::vector<std::string> configFiles1 = {"dummy1.prw.root"};
-   std::vector<std::string> lumicalcFiles1 = {"dummy.None.lumicalc.root","dummy.TriggerA.lumicalc.root:TriggerA","dummy.TriggerB.lumicalc.root:TriggerB"};
+   std::vector<std::string> configFiles1 = {"tool.dummy1.prw.root"};
+   std::vector<std::string> lumicalcFiles1 = {"tool.dummy.None.lumicalc.root","tool.dummy.TriggerA.lumicalc.root:TriggerA","tool.dummy.TriggerB.lumicalc.root:TriggerB"};
    asg::setProperty(prw1, "ConfigFiles",configFiles1);
    asg::setProperty(prw1, "LumiCalcFiles",lumicalcFiles1);
    asg::setProperty(prw1,"UseMultiPeriods",true); //channel 2000 has periods 100 and 101

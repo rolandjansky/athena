@@ -19,8 +19,6 @@ namespace ISF {
 
   class ISFParticle;
  
-  static const InterfaceID IID_IParticleFilter("IParticleFilter", 1, 0);
-   
   /**
    @class IParticleFilter
        
@@ -33,8 +31,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IParticleFilter(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IParticleFilter; }
+       /// Creates the InterfaceID and interfaceID() method
+       DeclareInterfaceID(IParticleFilter, 1, 0);
        
        /** Returns a pass boolean on the particle  */
        virtual bool passFilter(const ISFParticle& isp) const = 0;

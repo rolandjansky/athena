@@ -23,6 +23,7 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/ITileBadChanTool.h"
+#include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileEvent/TileCell.h"
 
 #include "TH1F.h"
@@ -46,6 +47,7 @@ using Athena::Units::ns;
 TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & name, const IInterface* parent)
   : TileFatherMonTool(type, name, parent)
   , m_tileBadChanTool("TileBadChanTool")
+  , m_beamInfo("TileBeamInfoProvider")
   , m_TileCellTrig(0U)
   , m_delta_lumiblock(0U)
   , m_TileCellEneBal{}
@@ -58,6 +60,8 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   , m_TileMaskCellonFlyLumi{}
   , m_TileMaskChannonFlyLumi{}
   , m_TileMaskChannfromDBLumi{}
+  , m_maskedCellsOnFlyDueToDQvsLumiblock{}
+  , m_maskedChannelsOnFlyDueToDQvsLumiblock{}
   , m_nLumiblocks(3000)
   , m_nLastLumiblocks(-7)
   , m_fillMaskedOnFly4LastLumiblocks(false)
@@ -132,6 +136,8 @@ StatusCode TileCellMonTool:: initialize() {
 
   //=== get TileBadChanTool
   CHECK( m_tileBadChanTool.retrieve() );
+
+  CHECK( m_beamInfo.retrieve() );
 
   memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 
@@ -760,6 +766,7 @@ StatusCode TileCellMonTool::fillHistograms() {
     m_old_lumiblock = current_lumiblock;
   }
 
+  const TileDQstatus* dqStatus = m_beamInfo->getDQstatus();
 
   // Pointer to a Tile cell container
   const CaloCellContainer* cell_container;
@@ -779,6 +786,12 @@ StatusCode TileCellMonTool::fillHistograms() {
 
   //number of channels masked on the fly
   unsigned int badonfly[NPartHisto] = { 0 };
+
+  //number of channels masked on the fly due to bad DQ status
+  unsigned int nMaskedChannelsDueToDQ[NPartHisto] = { 0 };
+
+  //number of cells masked on the fly due to bad DQ status
+  unsigned int nMaskedCellsDueToDQ[NPartHisto] = { 0 };
 
   for (const CaloCell* cell : *cell_container) {
 
@@ -943,25 +956,43 @@ StatusCode TileCellMonTool::fillHistograms() {
           if (badch2 && ch2Ok) gn2 = 1 - gn2;
         }
 
+        bool channel1MaskedDueToDQ(false);
+
         if (badch1 && ch1Ok && !(single_PMT_C10 && ch1 == 4)) {
           if (m_TileCellStatFromDB[partition][gn1]->GetBinContent(drw + 1, ch1 + 1) == 0) {
             ++badonfly[partition];
             m_TileCellStatOnFly[partition]->Fill(drawer, ch1);
+
             if (m_fillMaskedOnFly4LastLumiblocks) {
               m_TileCellStatOnFlyLastLumiblocks[partition]->Fill(drawer, ch1);
               m_TileCellStatOnFlyLastLumiblocksShadow[partition][current_lumiblock % m_nLastLumiblocks]->Fill(drawer, ch1);
             }
+
+            if (!dqStatus->isAdcDQgood(ros1, drw, ch1, gn1)) {
+              channel1MaskedDueToDQ = true;
+              ++nMaskedChannelsDueToDQ[partition];
+            }
+
           }
         }
     
+        bool channel2MaskedDueToDQ(false);
+
         if (badch2 && ch2Ok && !(single_PMT_C10 && ch2 == 4)) {
           if (m_TileCellStatFromDB[partition2][gn2]->GetBinContent(drw + 1, ch2 + 1) == 0) {
             ++badonfly[partition2];
             m_TileCellStatOnFly[partition2]->Fill(drawer, ch2);
+
             if (m_fillMaskedOnFly4LastLumiblocks) {
               m_TileCellStatOnFlyLastLumiblocks[partition2]->Fill(drawer, ch2);
               m_TileCellStatOnFlyLastLumiblocksShadow[partition2][current_lumiblock % m_nLastLumiblocks]->Fill(drawer, ch2);
             }
+
+            if (!dqStatus->isAdcDQgood(ros2, drw, ch2, gn2)) {
+              channel2MaskedDueToDQ = true;
+              ++nMaskedChannelsDueToDQ[partition2];
+            }
+
           }
         }
     
@@ -992,6 +1023,11 @@ StatusCode TileCellMonTool::fillHistograms() {
           }
         } else {
           ++nBadCells[partition];
+
+          if (channel1MaskedDueToDQ || channel2MaskedDueToDQ) {
+            ++nMaskedCellsDueToDQ[partition];
+          }
+
         }
         
         // check if energy is below negative threshold
@@ -1224,12 +1260,15 @@ StatusCode TileCellMonTool::fillHistograms() {
   } // end of loop over the Cells                        
 
   // Calculate totals for all samples and all partitions
-  for (int partition=0; partition<NumPart; partition++) {
+  for (int partition = 0; partition < NumPart; ++partition) {
 
     badonfly[NumPart] += badonfly[partition];
     cellcnt[NumPart] += cellcnt[partition];
     nCells[NumPart] += nCells[partition];
     nBadCells[NumPart] += nBadCells[partition];
+
+    nMaskedChannelsDueToDQ[NumPart] += nMaskedChannelsDueToDQ[partition];
+    nMaskedCellsDueToDQ[NumPart] += nMaskedCellsDueToDQ[partition];
 
     m_TileBadCell->Fill(partition,nBadCells[partition]);
   
@@ -1350,6 +1389,12 @@ StatusCode TileCellMonTool::fillHistograms() {
       m_TileMaskChannonFlyLumi[p]->Fill(lumi, badonfly[p]);
       m_TileMaskCellonFlyLumi[p]->Fill(lumi, nBadCells[p]);
     }
+  }
+
+
+  for (int partition = 0; partition < NPartHisto; ++partition) {
+    m_maskedChannelsOnFlyDueToDQvsLumiblock[partition]->Fill(lumi, nMaskedChannelsDueToDQ[partition]);
+    m_maskedCellsOnFlyDueToDQvsLumiblock[partition]->Fill(lumi, nMaskedCellsDueToDQ[partition]);
   }
 
 
@@ -1621,6 +1666,7 @@ void TileCellMonTool::FirstEvInit() {
       m_TileMaskCellonFlyLumi[p]->SetYTitle("Number of masked cells");
       m_TileMaskCellonFlyLumi[p]->SetXTitle("Last LumiBlocks");
 
+
     } else {
 
       m_TileMaskChannonFlyLumi[p] = bookProfile("", "tileMaskChannOnFlyLumi_" + m_PartNames[p]
@@ -1645,6 +1691,20 @@ void TileCellMonTool::FirstEvInit() {
     m_TileMaskChannfromDBLumi[p]->SetYTitle("Number of masked channels");
     m_TileMaskChannfromDBLumi[p]->SetXTitle("LumiBlock");
 
+    m_maskedChannelsOnFlyDueToDQvsLumiblock[p] = bookProfile("", "tileMaskChannelOnFlyDueToDQLumi_" + m_PartNames[p],
+                                                             "Run " + runNumStr + " Partition " + m_PartNames[p] +
+                                                             ": Number of masked channels on the fly due to bad DQ status",
+                                                             m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
+    m_maskedChannelsOnFlyDueToDQvsLumiblock[p]->SetYTitle("Number of masked channels");
+    m_maskedChannelsOnFlyDueToDQvsLumiblock[p]->SetXTitle("LumiBlock");
+
+
+    m_maskedCellsOnFlyDueToDQvsLumiblock[p] = bookProfile("", "tileMaskCellOnFlyDueToDQLumi_" + m_PartNames[p],
+                                                          "Run " + runNumStr + " Partition " + m_PartNames[p] +
+                                                          ": Number of masked cells on the fly due to bad DQ status",
+                                                          m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
+    m_maskedCellsOnFlyDueToDQvsLumiblock[p]->SetYTitle("Number of masked cells");
+    m_maskedCellsOnFlyDueToDQvsLumiblock[p]->SetXTitle("LumiBlock");
 
   }
 

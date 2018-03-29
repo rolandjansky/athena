@@ -193,12 +193,12 @@ StatusCode PileupUncertaintyComponent::initialize(TFile* histFile)
         m_refType = PileupRef_NONE;
     else if (m_pileupType == PileupComp::PtTerm)
     {
-        if      (m_uncHistName.Contains("NPV") && m_secondUncName.Contains("Mu"))
+        if      (m_uncHistName.Contains("NPV",TString::kIgnoreCase) && m_secondUncName.Contains("Mu",TString::kIgnoreCase))
         {
             m_refType = PileupRef_NPV;
             m_secondRefType = PileupRef_MU;
         }
-        else if (m_uncHistName.Contains("Mu") && m_secondUncName.Contains("NPV"))
+        else if (m_uncHistName.Contains("Mu",TString::kIgnoreCase) && m_secondUncName.Contains("NPV",TString::kIgnoreCase))
         {
             m_refType = PileupRef_MU;
             m_secondRefType = PileupRef_NPV;

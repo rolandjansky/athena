@@ -100,6 +100,9 @@ namespace ana
     /// Muon Jet removal pT
     bool m_applyRelPt;
 
+    /// WP for 4l, only reject jets
+    bool m_onlyRejJets;
+
   }; // class ORTool
 
 } // namespace ana

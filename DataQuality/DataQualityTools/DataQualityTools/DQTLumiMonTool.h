@@ -23,6 +23,14 @@
 #include "TString.h"
 #include <string>
 #include <vector>
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+
+
+class TH1F_LW;
+
+namespace Trig {
+  class IBunchCrossingTool;
+}
 
 class DQTLumiMonTool: public DataQualityFatherMonTool{
  public:  
@@ -44,6 +52,9 @@ class DQTLumiMonTool: public DataQualityFatherMonTool{
   std::string m_PixelIDKey;
 
   TProfile* m_aveMu_vs_LB;
+  TProfile* m_actualMu_vs_LB;
+  TH1F_LW* m_actualMu;
+  TH1F_LW* m_aveMu;
 
   TProfile* m_nLooseVtx_vs_LB;
   TProfile* m_nTightVtx_vs_LB;
@@ -79,6 +90,8 @@ class DQTLumiMonTool: public DataQualityFatherMonTool{
   TProfile* m_avglivefrac_vs_LB;
   TProfile* m_fracperBCID_vs_LB;
   TProfile* m_lumiweight_VS_LB;
+  ToolHandle<Trig::IBunchCrossingTool> m_bunchtool;
+  bool m_turnoffbunchtool;
 };
 
 #endif

@@ -136,8 +136,12 @@ if larCondFlags.LoadElecCalib():
           theLArCondSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
       else:
           #Load from offline DB
-          conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
+          if 'RekeyOFC' in dir():    
+             conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN+"<key>"+RekeyOFC+"</key>")
+          else:   
+             conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
           pass
+      pass       
       #8.Shape
       if larCondFlags.useShape():
           if larCondFlags.OFCShapeFolder()=="":
@@ -145,7 +149,10 @@ if larCondFlags.LoadElecCalib():
               theLArCondSvc.ShapeInput="/LAR/ElecCalibFlat/Shape"
           else:
               #Load from offline database
-              conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
+              if 'RekeyShape' in dir():
+                 conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN+"<key>"+RekeyShape+"</key>")
+              else:   
+                 conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
               pass
           pass
       pass

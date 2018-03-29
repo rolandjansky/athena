@@ -26,8 +26,7 @@ namespace xAOD {
 
   // forward declaration
   class AFPTrack_v1;
-  typedef AFPTrack_v1 AFPTrack;
-  typedef DataVector< AFPTrack > AFPTrackContainer;
+  typedef DataVector< AFPTrack_v1 > AFPTrackContainer_v1;
 
   /**
    * @brief Class representing a hit in silicon detector.
@@ -40,7 +39,7 @@ namespace xAOD {
   {
   public:
     /// Type of a link to the track
-    typedef ElementLink< AFPTrackContainer > AFPTrackLink_t;
+    typedef ElementLink< AFPTrackContainer_v1 > AFPTrackLink_t;
 
     
     // needed by athenaRoot 

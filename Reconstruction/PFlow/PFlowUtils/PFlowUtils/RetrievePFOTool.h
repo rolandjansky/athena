@@ -18,12 +18,12 @@ namespace CP {
   class RetrievePFOTool : public virtual IRetrievePFOTool, public asg::AsgTool {
 
     /** Athena constructor */
-    ASG_TOOL_CLASS( RetrievePFOTool, IRetrievePFOTool );
+    ASG_TOOL_CLASS( RetrievePFOTool, IRetrievePFOTool )
 
   public:
     /** Rootcore constructor */
     RetrievePFOTool(const std::string& name);
-    
+
     /** Fills theContainer with PFO from EM or LC mode in eflowRec - the client owns theContainer */
     virtual const xAOD::PFOContainer* retrievePFO(const CP::PFO_JetMETConfig_inputScale& theScale) const override;
 
@@ -37,6 +37,9 @@ namespace CP {
 
     /** This retrieves a PFO container with theName and adds the PFO* to newContainer */
     StatusCode fillPFOContainer( xAOD::PFOContainer* newContainer, const std::string& theName) const;
+
+    std::string m_inCharged;
+    std::string m_inNeutral;
 
   };
 

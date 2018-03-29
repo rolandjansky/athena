@@ -11,6 +11,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicSet.h"
+#include "PathResolver/PathResolver.h"
 #include "InDetTrackSystematicsTools/InDetTrackSystematicsTool.h"
 
 #include "xAODTracking/TrackParticle.h"
@@ -96,6 +97,9 @@ namespace InDet {
     TH2* m_trkEffHistTightIBL = nullptr;
     TH2* m_trkEffHistTightPP0 = nullptr;
     TH2* m_trkEffHistTightPhysModel = nullptr;
+
+    // allow the user to configure which calibration files to use if desired
+    std::string m_calibFileNomEff;
 
     ToolHandle< IInDetTrackTruthOriginTool > m_trackOriginTool;
     

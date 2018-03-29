@@ -17,7 +17,7 @@ triggers = jetTriggers
 # NOTE: need to be able to OR isSimulated as an OR with the trigger
 orstr =' || '
 trigger = '('+orstr.join(triggers)+')'
-expression = trigger+' || (EventInfo.eventTypeBitmask==1)'
+expression = trigger+' || (EventInfo.eventTypeBitmask==1) || HLT_xe120_pufit_L1XE50'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 JETM1SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "JETM1SkimmingTool1",

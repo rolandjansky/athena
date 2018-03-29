@@ -62,6 +62,7 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import (T2CaloEgamma_eGamma,
                                                      T2CaloEgamma_Ringer)
 
 from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_eGamma,
+                                           TrigCaloCellMaker_eGamma_LargeRoI,
                                            TrigCaloTowerMaker_eGamma)
 
 from TrigEgammaRec.TrigEgammaToolFactories import TrigCaloClusterMaker_slw
@@ -76,6 +77,7 @@ from TrigEgammaHypo.TrigEFCaloCalibFexConfig import (TrigEFCaloCalibFex_Electron
 
 from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import (TrigL2CaloRingerFexHypo_e_ID,
                                                          TrigL2CaloRingerFexHypo_e_NoCut,
+                                                         TrigL2CaloRingerFexHypo_g_NoCut,
                                                          TrigL2CaloRingerFexHypo_e_EtCut,
                                                          TrigL2CaloRingerFexHypo_g_EtCut)
 
@@ -138,7 +140,6 @@ def update_map(seq):
 
 # Class to hold all possible Fex configurables
 # Can contain both sequences and single instances
-
 class EgammaFexBuilder(object):
     """
     Summary:
@@ -273,14 +274,18 @@ class EgammaFexBuilder(object):
     
     def _get_precisecalo(self,chainDict):
         chain_part = chainDict['chainParts']
+        idinfo = chain_part['IDinfo']
         calo_ion = False
         seq=[]
 
+        
         if 'extra' in chain_part:
             if chain_part['extra'] == 'ion':
                 calo_ion = True
         if calo_ion: 
             seq = [theTrigCaloCellMaker_eGammaHI, self._tower_maker_ion, self._cluster_maker] 
+        elif 'bloose' in idinfo  :
+            seq = [TrigCaloCellMaker_eGamma_LargeRoI(), self._tower_maker_ion, self._cluster_maker] 
         else:
             seq = [self._cell_maker,self._tower_maker,self._cluster_maker]
         
@@ -548,20 +553,24 @@ class EgammaHypoBuilder(object):
         if self._properties['hiptrt']:   
             return [None,None]
         
-        if 'merged' in idinfo:  
+        if 'merged' in idinfo or 'bloose' in idinfo  :  
             fex,hypo = TrigL2CaloRingerFexHypo_e_EtCut(thr)
         elif self._properties['perf']:
             if(tt == 'e'):
                 fex,hypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
             if(tt == 'g'):
-                fex,hypo = TrigL2CaloRingerFexHypo_e_NoCut(thr)
+                fex,hypo = TrigL2CaloRingerFexHypo_g_NoCut(thr)
         elif self._properties['etcut']:
             if(tt == 'e'):
                 fex,hypo = TrigL2CaloRingerFexHypo_e_EtCut(thr)
             if(tt == 'g'):
                 fex,hypo = TrigL2CaloRingerFexHypo_g_EtCut(thr)
         elif idinfo:
-            fex, hypo = TrigL2CaloRingerFexHypo_e_ID(thr,idinfo,tt)
+            if(tt == 'e'):
+                fex, hypo = TrigL2CaloRingerFexHypo_e_ID(thr,idinfo,tt)
+            if(tt == 'g'):
+                # For now, there is no photon ringer tuning. 
+                fex, hypo = TrigL2CaloRingerFexHypo_g_NoCut(thr)
         else:
             log.error('Cannot configure ringer')
         seq = [fex,hypo]

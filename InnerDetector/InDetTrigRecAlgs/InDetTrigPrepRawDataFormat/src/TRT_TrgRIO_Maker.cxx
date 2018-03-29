@@ -532,9 +532,8 @@ namespace InDet{
   //--------------------------------
   HLT::ErrorCode TRT_TrgRIO_Maker::prepareRobRequests(const HLT::TriggerElement* inputTE){
 
-    ATH_MSG_INFO( "TRT_TrgRIO_Maker::prepareRobRequests()" );
+    ATH_MSG_DEBUG( "TRT_TrgRIO_Maker::prepareRobRequests()" );
 
-    //Calculate ROBs needed - this code should be shared with hltExecute to avoid slightly different requests
     const TrigRoiDescriptor* roi = 0;
 
     if (getFeature(inputTE, roi) != HLT::OK || roi == 0){
@@ -542,15 +541,10 @@ namespace InDet{
       return HLT::NAV_ERROR;
     }
 
-    ATH_MSG_DEBUG( "REGTEST prepareROBs / event RoI ID " << roi->roiId()
-		   << " located at   phi = " << roi->phi()
-		   << ", eta = " << roi->eta() );
-
-    //const TrigRoiDescriptor fs(true);
+    ATH_MSG_DEBUG( "REGTEST prepareROBs / event RoI " << *roi);
 
     std::vector<unsigned int> uIntListOfRobs;
     m_regionSelector->DetROBIDListUint( TRT, *roi, uIntListOfRobs );
-    //m_regionSelector->DetROBIDListUint( TRT, fs, uIntListOfRobs );
 
     ATH_MSG_DEBUG( "list of pre-registered ROB ID in TRT: ");
     for(auto i : uIntListOfRobs)

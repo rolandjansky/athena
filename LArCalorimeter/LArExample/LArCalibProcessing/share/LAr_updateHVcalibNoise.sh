@@ -17,7 +17,6 @@ echo "    the new HV setting should be correct / stable for this Time "
 echo "    in case of HV mapping change, the new mapping should be valid (in the UPD4 tag) for this specified time (be careful of glitch at the mapping db is in run/lb IoV) "
 echo " "
 echo "It will also produce new noise tables for online/offline database"
-echo "   this assumes that the current state of the UPD1 offline noise database is in synch with the HV corrections used in DSP before this new setting, at the time specified by Time"
 echo " "
 
 
@@ -37,6 +36,7 @@ then
  dt=$5
 fi
 
+echo " $0 $1 $2 $3 $mu $dt"
 
 summaryFile=noise_summary.txt
 
@@ -166,8 +166,8 @@ cat > hvcheck.C << _EOF2_
 {
  TFile f1("hvcorr_read.root");
  TFile f2("hvcorr_ntuple.root");
- TTree* t1 = f1.Get("HVSCALE");
- TTree* t2 = f2.Get("HVSCALE");
+ TTree* t1 = (TTree*)f1.Get("HVSCALE");
+ TTree* t2 = (TTree*)f2.Get("HVSCALE");
  t2->AddFriend(t1,"t1");
  t2->SetScanField(99999999);
  ((TTreePlayer*)(t2->GetPlayer()))->SetScanRedirect(true); 
@@ -183,7 +183,33 @@ echo "        Look at the file hvlist.txt for the full list of these channels"
 
 echo " "
 
+# Now compute new L1Calo corrections based on new LArHV corr
+cat > getGlobalTagES.py << _EOF5_
+import sys
+from PyCool import cool
+sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
+from AtlCoolBKLib import resolveAlias
+resolver=resolveAlias()
+currentGlobal=resolver.getCurrentES().replace("*","ST")
+print currentGlobal
+_EOF5_
 
+globalTagES=`python getGlobalTagES.py | awk '{print($1)}'`
+echo " "
+echo "Running athena to compute L1Calo corrections"
+athena.py -c "date=\"${time}\";GlobalTag=\"${globalTagES}\";RunNumber=$run;LumiBlock=$lb;HVCorrDb=\"sqlite://;schema=HVScaleCorr.db;dbname=CONDBR2\";OutputSQLiteFile=\"hvcorrections_${time%%:*}.sqlite\"" TrigT1CaloCalibUtils/LArL1Calo_DumpHVCorr.py > l1calocorr.log 2>&1
+if [ $? -ne 0 ];  then
+      echo "Athena reported an error ! Please check l1calocorr.log!"
+      exit    
+fi
+
+if grep -q ERROR l1calocorr.log
+      then    
+      echo "An error occured ! Please check l1calocorr.log!"
+      exit    
+fi
+
+# Now noise
 echo " "
 echo "Running athena to scale noise values from reference noise database"
 echo "        asking mu=$mu and dt=$dt"
@@ -221,7 +247,7 @@ echo "Found $fulltag"
 
 
 echo "Produce sqlite file for LAr noise values" 
-CaloNoise_fillDB.py ${run} ${lb} -1 -1 ${fulltag} larnoisesqlite.db > makedb.log 2>&1
+CaloNoise_fillDB.py ${run} ${lb} -1 -1 ${fulltag} calonoise.txt larnoisesqlite.db > makedb.log 2>&1
 if [ $? -ne 0 ];  then
     echo "An error is reported, check makedb.log"
     exit
@@ -263,7 +289,9 @@ AtlCoolCopy.exe "sqlite://;schema=larnoisesqlite.db;dbname=CONDBR2" "sqlite://;s
 
 echo "Doing check of the noise sqlite against P1HLT cache....."
 echo "Will take 3-5 minutes, be patient......"
-(mkdir /tmp/noise_test_$$; cp caloSqlite_UPD1_online.db /tmp/noise_test_$$/; cd /tmp/noise_test_$$/; source $AtlasSetup/scripts/asetup.sh --tags=AtlasP1HLT,20.2.1.4,setup,here; athena.py -c "sqlite='caloSqlite_UPD1_online.db'" TriggerRelease/test_hltConditions.py >/dev/null 2>&1 ) >/dev/null 2>&1
+#(mkdir /tmp/noise_test_$$; cp caloSqlite_UPD1_online.db /tmp/noise_test_$$/; cd /tmp/noise_test_$$/; source $AtlasSetup/scripts/asetup.sh --tags=AtlasP1HLT,20.2.1.4,setup,here; athena.py -c "sqlite='caloSqlite_UPD1_online.db'" TriggerRelease/test_hltConditions.py >/dev/null 2>&1 ) >/dev/null 2>&1
+(mkdir /tmp/noise_test_$$; cp caloSqlite_UPD1_online.db /tmp/noise_test_$$/; cd /tmp/noise_test_$$/; athena.py -c "sqlite='caloSqlite_UPD1_online.db'" TriggerRelease/test_hltConditions.py >/dev/null 2>&1 ) >/dev/null 2>&1
+
 if [ $? -ne 0 ];  then
       echo "Testing job reported an error ! "
       echo "Please, do not upload constants to online ! "

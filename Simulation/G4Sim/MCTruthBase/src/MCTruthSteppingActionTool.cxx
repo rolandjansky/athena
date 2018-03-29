@@ -3,6 +3,8 @@
 */
 
 #include "MCTruthSteppingActionTool.h"
+#include "CxxUtils/make_unique.h"
+
 
 namespace G4UA
 {
@@ -15,8 +17,8 @@ namespace G4UA
                             const IInterface* parent)
     : ActionToolBase<MCTruthSteppingAction>(type, name, parent)
   {
-    declareInterface<ISteppingActionTool>(this);
-    declareInterface<IBeginEventActionTool>(this);
+    declareInterface<IG4EventActionTool>(this);
+    declareInterface<IG4SteppingActionTool>(this);
     declareProperty("VolumeCollectionMap", m_volumeCollectionMap,
                     "Map of volume name to output collection name");
   }
@@ -26,7 +28,7 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode MCTruthSteppingActionTool::initialize()
   {
-    ATH_MSG_DEBUG("initializing MCTruthSteppingActionTool");
+    ATH_MSG_DEBUG( "Initializing " << name() );
     return StatusCode::SUCCESS;
   }
 

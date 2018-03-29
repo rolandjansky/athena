@@ -17,7 +17,7 @@
  *  @author Edoardo Farina
  *  @date  2015-05-14
  */
-class RHadronsPhysicsTool :  public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool
+class RHadronsPhysicsTool :  public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>
 {
 public:
   /// Standard constructor

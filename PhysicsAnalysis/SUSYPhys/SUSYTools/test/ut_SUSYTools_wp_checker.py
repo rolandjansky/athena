@@ -102,7 +102,7 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root
+Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true
@@ -143,9 +143,17 @@ MET.MuonTerm: Muons
 MET.OutputTerm: Final
 MET.JetSelection: Tight
 MET.RemoveOverlappingCaloTaggedMuons: 1
-MET.DoMuonJetOR: 1
+MET.DoRemoveMuonJets: 1
+MET.UseGhostMuons: false
+MET.DoMuonEloss: false
 MET.DoTrkSyst: 1
 MET.DoCaloSyst: 0
+#
+METSys.ConfigPrefix: METUtilities/data17_13TeV/prerec_Jan16
+#
+#METSig.SoftTermParam: met::Random 
+METSig.TreatPUJets: true
+METSig.DoPhiReso: true
 #
 PRW.MuUncertainty: 0.2
 #
@@ -183,10 +191,10 @@ class TestSUSYTools(unittest.TestCase):
     theTest = 'SUSYToolsTester %s maxEvents=10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 
     #guess the MC campaign for the prw file if needed
-    theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root'
+    theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc16a_latest.root'
 
     #Working points
-    EL_ID_WP  = ['MediumLLH_Rel20p7','TightLLH_Rel20p7'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??
+    EL_ID_WP  = [ 'LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
     EL_ISO_WP = ['Gradient','GradientLoose','FixedCutTightTrackOnly'] 
     MU_ID_WP  = ['1'] 
     MU_ISO_WP = ['GradientLoose']
@@ -196,8 +204,8 @@ class TestSUSYTools(unittest.TestCase):
     #...
     
     #default settings
-    defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH_Rel20p7',
-                     'el_id'      : 'TightLLH_Rel20p7',
+    defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH',
+                     'el_id'      : 'TightLLH',
                      'el_iso'     : 'GradientLoose',
                      'mu_id_base' : '1',
                      'mu_id'      : '1',
@@ -274,7 +282,7 @@ class TestSUSYTools(unittest.TestCase):
 
     #Test Electron WPs
     def test_EL_WPs(self):
-        self.run_WPs('el_id_base', ['LooseAndBLayerLLH_Rel20p7']) #self.EL_ID_WP)
+        self.run_WPs('el_id_base', self.EL_ID_WP)
         self.run_WPs('el_id', self.EL_ID_WP)
         self.run_WPs('el_iso', self.EL_ISO_WP)
 

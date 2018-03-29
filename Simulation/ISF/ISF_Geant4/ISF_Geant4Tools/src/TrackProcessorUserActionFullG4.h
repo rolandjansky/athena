@@ -52,7 +52,7 @@ namespace G4UA{
       TrackProcessorUserActionFullG4(const Config& config);
       virtual ~TrackProcessorUserActionFullG4() {}
 
-      virtual void preTracking(const G4Track*) override final;
+      virtual void PreUserTrackingAction(const G4Track*) override final;
     private:
       /** Called by the base class after the G4Track->ISFParticle association
        *  has been established */

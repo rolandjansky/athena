@@ -3,6 +3,13 @@
 */
 
 #include "JetRecTools/VoronoiWeightTool.h"
+#include "fastjet/ClusterSequenceArea.hh"
+#include "fastjet/Selector.hh"
+#include "fastjet/JetDefinition.hh"
+#include "fastjet/tools/JetMedianBackgroundEstimator.hh"
+#include <fastjet/tools/Subtractor.hh>
+
+#include "xAODPFlow/PFO.h"
 
 namespace SortHelper {
   //
@@ -67,97 +74,118 @@ namespace SortHelper {
 VoronoiWeightTool :: VoronoiWeightTool(const std::string& name) :
   JetConstituentModifierBase(name)
 {
-  #ifdef ASG_TOOL_ATHENA
-    declareInterface<IJetConstituentModifier>(this);
-  #endif
 
-  declareProperty("doLCWeights", m_doLC);
   declareProperty("doSpread", m_doSpread);
   declareProperty("nSigma", m_nSigma);
+  declareProperty("maxArea", m_maxArea);
+
+  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs);
 }
 
 VoronoiWeightTool::~VoronoiWeightTool() {}
 
+StatusCode VoronoiWeightTool::initialize() {
+
+  if(m_inputType==xAOD::Type::ParticleFlow) {
+    if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
+		    <<  "will set all cPFOs to zero");
+      return StatusCode::FAILURE;
+    }
+    if(!m_applyToNeutralPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
 //Have to define custom comparator for PseudoJets in order to have a map from PJs to anything
 //Comparison is fuzzy to account for rounding errors
 
-StatusCode VoronoiWeightTool::process(xAOD::CaloClusterContainer* in_clusters) const
+StatusCode VoronoiWeightTool::process_impl(xAOD::IParticleContainer* particlesin) const
 {
-  const char* APP_NAME = "VoronoiWeightTool::process()";
+  std::vector<fastjet::PseudoJet> particles; particles.reserve(particlesin->size());
 
-  //clusters.clear();
-  std::vector<fastjet::PseudoJet> clusters; clusters.reserve(in_clusters->size());
-
-  CaloClusterChangeSignalStateList stateHelperList;
-  for(auto clust: *in_clusters){
-    //read in clusters as PseudoJets
-    //if(m_doLC) stateHelperList.add(clust,xAOD::CaloCluster::State(1)); //default is calibrated but we can make it explicit anyway
-    //else stateHelperList.add(clust,xAOD::CaloCluster::State(0));
-    if(!m_doLC) ATH_MSG_ERROR(APP_NAME << ": Unclear how we're going to implement EM scaling as an input to JetConstituentModiferBase tools.");
-    fastjet::PseudoJet test;
-    test = fastjet::PseudoJet(clust->p4());
-    if(clust->e() >= 0){
-	clusters.push_back(test);
-	if(m_debug) std::cout << clust->pt() << std::endl;
+  for(xAOD::IParticle* part: *particlesin){
+    // Only use positive E
+    bool accept = part->e() > -1*FLT_MIN;
+    // For PFlow we would only want to apply the correction to neutral PFOs,
+    // because charged hadron subtraction handles the charged PFOs.
+    // However, we might still want to use the cPFOs for the min pt calculation
+    if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
+      // The auto loop returns an ElementProxy, so we need to dereference/reference
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(part);
+      accept &= fabs(pfo->charge())<FLT_MIN;
+    }
+    if(accept) {
+      particles.push_back( fastjet::PseudoJet(part->p4()) );
+      // ATH_MSG_VERBOSE( "Accepted particle with pt " << part->pt() );
     }
   }
 
   std::vector< std::pair< fastjet::PseudoJet, std::vector<float> > > ptvec; //vector of pairs of PJs and their corrected pTs
-  if(makeVoronoiClusters(clusters, ptvec) != StatusCode::SUCCESS) ATH_MSG_ERROR(APP_NAME << ": Error in makeVoronoiClusters");
+  if(makeVoronoiParticles(particles, ptvec) != StatusCode::SUCCESS) ATH_MSG_ERROR("Error in makeVoronoiParticles");
   std::sort(ptvec.begin(), ptvec.end(), SortHelper::PJcomp());
 
-  if(m_doSpread && m_nSigma > 0) ATH_MSG_ERROR(APP_NAME << ": Can't combine spreading with nSigma yet");
+  if(m_doSpread && m_nSigma > 0) ATH_MSG_ERROR("Can't combine spreading with nSigma yet");
   int alg;
   if(m_doSpread && m_nSigma == 0) alg = 3;
   if(!m_doSpread && m_nSigma == 0) alg = 1;
   if(!m_doSpread && m_nSigma > 0) alg = 2;
 
+  // This tracks the index of the object in the fastjet container
   size_t i=0;
-  SG::AuxElement::Accessor<float> weightAcc("VoronoiWeight"); // Handle for PU weighting here
-  for(auto clust : SortHelper::sort_container_pt(in_clusters)){
-    float newE;
-   //There should be the same number of positive E Clusters in the container as clusters in the ptvec
-    bool endContainer = clust->e()<=0;
-    bool endVec = i>=ptvec.size();
-    if(endVec && endContainer){
-      newE = 0;  //remove negative energy clusters
+  const static SG::AuxElement::Accessor<float> weightAcc("VoronoiWeight"); // Handle for PU weighting here
+  for(xAOD::IParticle* part : SortHelper::sort_container_pt(particlesin)){
+    // Skip the check on charged PFOs if needed
+    // A subtle change in this check because fastjet will not return anything
+    // with <= 0 pt
+    bool accept = part->e() > FLT_MIN;
+    if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
+      // The auto loop returns an ElementProxy, so we need to dereference/reference
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(part);
+      accept &= fabs(pfo->charge())<FLT_MIN;
     }
-    else if(endContainer || endVec){
-      ATH_MSG_ERROR(APP_NAME << ": Clusters don't have same number of elements.");
-      return StatusCode::FAILURE;
-    }
-    else{
-      //And the clusters should match
-      float Containerpt = clust->pt();
-      float PJpt = ptvec[i].first.pt();
-      if(m_debug){
-        std::cout << "Container: " << Containerpt << std::endl;
-        std::cout << "Ptvec: " << PJpt << std::endl;
+
+    float newPt(0.);
+    if(accept) {
+      //There should be the same number of positive E particles in the container as particles in the ptvec
+      bool endContainer = part->e()<FLT_MIN;
+      bool endVec = i>=ptvec.size();
+      if(endVec && endContainer){
+	newPt = 0;  //remove negative energy particles
       }
-      if (fabs(Containerpt-PJpt) > 0.1){
-        if(m_debug) std::cout << fabs(Containerpt-PJpt) << std::endl;
-        ATH_MSG_ERROR(APP_NAME << ": Clusters don't match.");
-        return StatusCode::FAILURE;
+      else if(endContainer || endVec){
+	ATH_MSG_ERROR("Filtered particle list doesn't have same number of elements as the list returned by FastJet.");
+	return StatusCode::FAILURE;
       }
-      newE = ptvec[i].second[alg]*cosh(clust->eta());
+      else{
+	//And the particles should match
+	float Containerpt = part->pt();
+	float PJpt = ptvec[i].first.pt();
+	ATH_MSG_VERBOSE( "Container pt: " << Containerpt << ", fastjet initial pt: " << PJpt 
+			 << ", subtracted pt: " << ptvec[i].second[alg]);
+	if (fabs(Containerpt-PJpt) > 0.1){
+	  ATH_MSG_VERBOSE( fabs(Containerpt-PJpt) );
+	  ATH_MSG_ERROR("Particle pt's don't match.");
+	  return StatusCode::FAILURE;
+	}
+	newPt = ptvec[i].second[alg];
+      }
+      ++i; // Only increment if the particle was used.
     }
-    float w = newE/clust->e();
-    weightAcc(*clust) = w;
-    clust->setE(newE);
-    i++;
+    // Call set on every object
+    // Leave it to the base class to determine if the correction
+    // should not be applied
+    float w = part->pt()>FLT_MIN ? newPt/part->pt() : 0.;
+    ATH_CHECK(setEnergyPt(part,part->e()*w,newPt,&weightAcc));
   }
-
   return StatusCode::SUCCESS;
-}
+ }
 
-StatusCode VoronoiWeightTool::process(xAOD::IParticleContainer* cont) const {
-    xAOD::CaloClusterContainer* clusters = dynamic_cast<xAOD::CaloClusterContainer*> (cont); // Get CaloCluster container
-    if(clusters) return process(clusters);
-    return StatusCode::FAILURE;
-}
-
-StatusCode VoronoiWeightTool::makeVoronoiClusters(std::vector<fastjet::PseudoJet>& clusters,std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec) const{
-  std::vector<fastjet::PseudoJet> & inputConst = clusters;
+StatusCode VoronoiWeightTool::makeVoronoiParticles(std::vector<fastjet::PseudoJet>& particles,std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec) const{
+  std::vector<fastjet::PseudoJet> & inputConst = particles;
   fastjet::Selector jselector = fastjet::SelectorAbsRapRange(0.0,2.1);
   fastjet::JetAlgorithm algo = fastjet::kt_algorithm;
   float jetR = 0.4;
@@ -176,17 +204,11 @@ StatusCode VoronoiWeightTool::makeVoronoiClusters(std::vector<fastjet::PseudoJet
   for(unsigned int iJet = 0 ; iJet < inclusiveJets.size() ; iJet++){
     fastjet::PseudoJet jet = inclusiveJets[iJet];
     std::vector<fastjet::PseudoJet> constituents = jet.constituents();
-    for(auto cons : constituents){
+    for(const auto& cons : constituents){
       float pt = cons.pt();
-      float area = cons.area();
+      // Allow a limit on the area to prevent over-subtraction in sparse regions
+      float area = m_maxArea<cons.area() ? m_maxArea : cons.area();
       float subPt = pt-rho*area;
-      //std::cout << "Area: " << area << "; Rho: " << bge.rho() << "; pt: " << constituents[iCons].pt() << "; corrected: " << correctedPt << std::endl;
-      //std::cout << "Pt: " << cons.pt() << "; Eta: " << cons.eta() <<"; Phi: " << cons.phi() << std::endl;
-      //fastjet::PseudoJet constituentP;
-      /*if(correctedPt<0.) continue;
-      constituentP.reset_PtYPhiM(correctedPt, constituents[iCons].rap(), constituents[iCons].phi(), constituents[iCons].m());
-      clusters_voronoi.push_back(constituentP);*/
-      //correctedptmap[cons] = correctedPt;
       float voro0pt = subPt * (subPt > 0);
       float voro1pt = subPt * (subPt > sqrt(area)*sigma*(float)nsigma);
       std::vector<float> algopts;
@@ -198,67 +220,58 @@ StatusCode VoronoiWeightTool::makeVoronoiClusters(std::vector<fastjet::PseudoJet
       correctedptvec.push_back(pjcptpair);
     } // end loop over cons
   } // end loop over jets
-  //std::cout << "Size: " << correctedptmap.size() << std::endl;
 
   if(m_doSpread) spreadPt(correctedptvec);
 
-return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 void VoronoiWeightTool::spreadPt(std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec, float spreadr, float alpha) const{
   //default alpha = 2
   //Set up neighbors within spreadr:
-  int clusters = correctedptvec.size();
-  std::vector<float> spreadPT(clusters);
-  std::vector<bool> isPositive(clusters);
-  for(int iCl = 0; iCl < clusters; iCl++){
-    spreadPT[iCl] = correctedptvec[iCl].second[0];
-    isPositive[iCl] = spreadPT[iCl]>0;
+  size_t Nparticles = correctedptvec.size();
+  std::vector<float> spreadPT(Nparticles);
+  std::vector<bool> isPositive(Nparticles);
+  for(size_t iPart = 0; iPart < Nparticles; iPart++){
+    spreadPT[iPart] = correctedptvec[iPart].second[0];
+    isPositive[iPart] = spreadPT[iPart]>0;
   }
 
-  std::vector<std::vector<std::pair<int,float> > > cluster_drs; //for each cluster, list of nearby positive pT clusters and their distances
-  for(int iCl = 0; iCl < clusters; iCl++){
-    fastjet::PseudoJet icluster = correctedptvec[iCl].first;
-    //float ieta = icluster.eta();
-    //float iphi = icluster.phi();
-    std::vector<std::pair<int,float> > this_cluster_drs;
-    for(int jCl = 0; jCl < clusters; jCl++){
-      if(iCl == jCl) continue;
-      if(!isPositive[jCl]) continue;
-      fastjet::PseudoJet jcluster = correctedptvec[jCl].first;
-      //float jeta = jcluster.eta();
-      //float jphi = jcluster.phi();
-      float dphi = icluster.delta_phi_to(jcluster);
-      float deta = icluster.eta() - jcluster.eta(); //fastjet::pseudojet::delta_R(const PseudoJet& other) gives rap-phi distance
+  std::vector<std::vector<std::pair<size_t,float> > > particle_drs; //for each particle, list of nearby positive pT particles and their distances
+  for(size_t iPart = 0; iPart < Nparticles; iPart++){
+    fastjet::PseudoJet iparticle = correctedptvec[iPart].first;
+    std::vector<std::pair<size_t,float> > this_particle_drs;
+    for(size_t jPart = 0; jPart < Nparticles; jPart++){
+      if(iPart == jPart) continue;
+      if(!isPositive[jPart]) continue;
+      fastjet::PseudoJet jparticle = correctedptvec[jPart].first;
+      float dphi = iparticle.delta_phi_to(jparticle);
+      float deta = iparticle.eta() - jparticle.eta(); //fastjet::pseudojet::delta_R(const PseudoJet& other) gives rap-phi distance
       float dr2 = pow(dphi,2) + pow(deta,2);
       if(dr2 > pow(spreadr,2)) continue;
-      std::pair<int,float> jdrpair (jCl,dr2);
-      this_cluster_drs.push_back(jdrpair);
+      std::pair<size_t,float> jdrpair (jPart,dr2);
+      this_particle_drs.push_back(jdrpair);
     }
-    cluster_drs.push_back(this_cluster_drs);
+    particle_drs.push_back(this_particle_drs);
   }
 
-  for(int i = 0; i < clusters; i++){
-    if(!(spreadPT[i]<0)) continue; //only spread from negative pT clusters
-    //find closest positive PT cluster:
+  for(size_t i = 0; i < Nparticles; i++){
+    if(!(spreadPT[i]<0)) continue; //only spread from negative pT particles
+    //find closest positive PT particle:
     float sumdR2 = 0;
-    //iterate over nearby positive pT clusters
-    for(size_t j=0; j<cluster_drs[i].size(); j++){
-      //cout << "j: " << j << " realid: " << realid << " Eta: " << points[realid][0]<< " Phi: " << points[realid][1] << " Pt:" << spreadPT[realid] << " Dist: " << dists[j] << endl;  // dists[j] = dR^2
-      float dr = cluster_drs[i][j].second;
-      if(dr>0) sumdR2 += 1./(pow(dr,alpha/2));
+    //iterate over nearby positive pT particles
+    for(size_t j=0; j<particle_drs[i].size(); j++){
+      float dr = particle_drs[i][j].second;
+      if(dr>FLT_MIN) sumdR2 += 1./(pow(dr,alpha/2));
     }
     //if at least one neighbor
-    if(sumdR2 > 0){
+    if(sumdR2 > FLT_MIN){
       float spreadPT_orig = spreadPT[i];
-      //std::cout << "orig: " << spreadPT_orig << std::endl;
-      for(size_t j=0; j<cluster_drs[i].size(); j++){
-        float dr = cluster_drs[i][j].second;
-        float realid = cluster_drs[i][j].first;
-        if(dr>0){
+      for(size_t j=0; j<particle_drs[i].size(); j++){
+        float dr = particle_drs[i][j].second;
+        float realid = particle_drs[i][j].first;
+        if(dr>FLT_MIN){
           float weight = (1./pow(dr,alpha/2))/sumdR2;
-          //std::cout << dr << "; " << weight << std::endl;
-          //std::cout << "Before spreading: " << weight << ";" << weight*spreadPT_orig << ";" << spreadPT[realid] << std::endl;
           if(fabs(weight*spreadPT_orig)>spreadPT[realid]){
             spreadPT[i]+=spreadPT[realid];
             spreadPT[realid]=0;
@@ -267,19 +280,12 @@ void VoronoiWeightTool::spreadPt(std::vector< std::pair< fastjet::PseudoJet,std:
             spreadPT[realid]+=weight*spreadPT_orig;
             spreadPT[i]-=weight*spreadPT_orig;
           }
-          //std::cout << "After spreading: " << weight << ";" << weight*spreadPT_orig << ";" << spreadPT[realid] << std::endl;
         }
       }
-      //std::cout << "final: "  << spreadPT[i] << std::endl;
     }
-    //cout << i << ";" << cluster(i,key).Float("correctedPT") << ";" << spreadPT[i]<< endl;
   }
 
-  /*float totalcorrpt=0, totalspreadpt=0;
-    for(int i=0; i<clusters; i++){ totalcorrpt+=cluster(i,key).Float("correctedPT"); totalspreadpt+=spreadPT[i];}
-    cout << totalcorrpt << ";" << totalspreadpt << endl; //should be the same*/
-
-  for(int iCl = 0; iCl < clusters; iCl++){
-    correctedptvec[iCl].second[3] = spreadPT[iCl] * (spreadPT[iCl] > 0);
+  for(size_t iPart = 0; iPart < Nparticles; iPart++){
+    correctedptvec[iPart].second[3] = spreadPT[iPart] * (spreadPT[iPart] > 0);
   }
 }

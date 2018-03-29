@@ -102,6 +102,9 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
     mutable float m_ThrustMaj;
     mutable float m_FoxWolfram20;
 
+    // bool to check whether variables are undefined
+    mutable  bool m_undefInput;
+
     // parameters to store specific cut values
     std::string m_strMassCutLow;
     std::string m_strMassCutHigh;
@@ -114,6 +117,13 @@ class JSSWTopTaggerBDT : public JSSTaggerBase {
 
     // string for decorating jets with DNN output
     std::string m_decorationName;
+
+    // decorators
+    SG::AuxElement::Decorator<float> m_dec_mcutL;
+    SG::AuxElement::Decorator<float> m_dec_mcutH;
+    SG::AuxElement::Decorator<float> m_dec_scoreCut;
+    SG::AuxElement::Decorator<float> m_dec_scoreValue;
+
 };
 
 #endif

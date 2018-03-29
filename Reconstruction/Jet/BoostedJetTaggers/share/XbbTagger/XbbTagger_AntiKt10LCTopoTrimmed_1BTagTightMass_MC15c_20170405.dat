@@ -17,6 +17,8 @@
 # - only valid with combined mass calibration
 ####################################################################################
 
+DecorationName: XbbTagOneTagMassTight
+
 NumBTags                1
 BTagCut                 0.3706
 JetMassMin              TMath::Sqrt(pow((-13825.1/x+104.701),2)+pow((0.0336577*x-81.1632),2))

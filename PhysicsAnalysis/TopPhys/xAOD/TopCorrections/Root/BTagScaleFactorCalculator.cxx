@@ -84,7 +84,7 @@ namespace top{
         m_config->setBTaggingSFSysts( WP, base_names, true );
       }
     }
-    
+
     return StatusCode::SUCCESS;
   }
 
@@ -106,14 +106,13 @@ namespace top{
     ///-- Loop over all jet collections --///
     ///-- Lets assume that we're not doing ElectronInJet subtraction --///
     for (auto currentSystematic : *jet_syst_collections) {
-      const xAOD::JetContainer* jets(nullptr);
-      top::check(evtStore()->retrieve(jets, currentSystematic.second), "failed to retrieve jets");
+       const xAOD::JetContainer* jets(nullptr);
+       top::check(evtStore()->retrieve(jets, currentSystematic.second), "failed to retrieve jets");
 
-      ///-- Tell the SF tools to use the nominal systematic --///
-
-      /// -- Loop over all jets in each collection --///
-      for (auto jetPtr : *jets) {
-
+       ///-- Tell the SF tools to use the nominal systematic --///
+       /// -- Loop over all jets in each collection --///
+       for (auto jetPtr : *jets) {
+	 
 	bool passSelection(false);
 	if (jetPtr->isAvailable<char>("passPreORSelection")) {
 	  if (jetPtr->auxdataConst<char>("passPreORSelection") == 1) {
@@ -169,7 +168,7 @@ namespace top{
 	    float btag_SF(1.0);
             bool  isTagged = false;//unused in case of Continuous
             if (std::fabs(jetPtr->eta()) <= 2.5 ) {
-              if (tagWP != "Continuous") {
+              if (tagWP.find("Continuous") == std::string::npos) {
                 isTagged = btagsel->accept(*jetPtr);
                 if(isTagged)
                   top::check( btageff->getScaleFactor(*jetPtr, btag_SF),
@@ -195,7 +194,7 @@ namespace top{
                 top::check( btageff->applySystematicVariation(syst_set),
                             "Failed to set new b-tagging systematic variation "+syst_set.name() );
                 if (std::fabs(jetPtr->eta()) <= 2.5 ) {
-                  if (tagWP != "Continuous") {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     if (isTagged)
                       top::check( btageff->getScaleFactor(*jetPtr, btag_SF),
                                   "Failed to get b-tagging SF for variation "+syst_set.name() );

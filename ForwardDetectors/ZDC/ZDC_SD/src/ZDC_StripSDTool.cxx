@@ -14,7 +14,6 @@
 ZDC_StripSDTool::ZDC_StripSDTool(const std::string& type, const std::string& name, const IInterface* parent)
   : SensitiveDetectorBase(type,name,parent)
 {
-  declareInterface<ISensitiveDetector>(this);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

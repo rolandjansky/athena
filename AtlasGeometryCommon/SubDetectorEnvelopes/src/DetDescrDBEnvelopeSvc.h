@@ -27,7 +27,7 @@ class IGeoModelSvc;
 typedef std::vector< double >           FallbackDoubleVector;
 
 
-class DetDescrDBEnvelopeSvc : public IEnvelopeDefSvc, virtual public AthService {
+class DetDescrDBEnvelopeSvc : public extends<AthService, IEnvelopeDefSvc> {
 
   public:
     /** public AthService constructor */
@@ -35,9 +35,6 @@ class DetDescrDBEnvelopeSvc : public IEnvelopeDefSvc, virtual public AthService 
 
     /** Destructor */
     ~DetDescrDBEnvelopeSvc();
-
-    /** Query the interfaces. */
-    StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
     /** AthService initialize method.*/
     StatusCode initialize();

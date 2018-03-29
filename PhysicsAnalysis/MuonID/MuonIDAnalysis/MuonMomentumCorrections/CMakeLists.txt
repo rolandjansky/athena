@@ -29,15 +29,14 @@ atlas_depends_on_subdirs(
    ${extra_deps} )
 
 # External dependencies:
-find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree RIO Physics )
 
 # Libraries in the package:
 atlas_add_library( MuonMomentumCorrectionsLib
    MuonMomentumCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonMomentumCorrections
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODMuon MuonAnalysisInterfacesLib
+   INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon MuonAnalysisInterfacesLib
    PATInterfaces
    PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
 

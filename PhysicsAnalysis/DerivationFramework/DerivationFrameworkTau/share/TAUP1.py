@@ -12,8 +12,6 @@ from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
-from DerivationFrameworkTau.TauCommon import *
-
 
 
 # =============================================
@@ -37,7 +35,7 @@ TAUP1Stream.AcceptAlgs(["TAUP1Kernel"])
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 TAUP1ThinningHelper                              = ThinningHelper( "TAUP1ThinningHelper" )
-TAUP1ThinningHelper.TriggerChains                = 'HLT_e.*'
+TAUP1ThinningHelper.TriggerChains                = '^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*'
 TAUP1ThinningHelper.AppendToStream( TAUP1Stream )
 
 thinningTools = []
@@ -192,12 +190,12 @@ if DerivationFrameworkIsMonteCarlo:
                                         "xAOD::TruthParticleContainer#TruthNeutrinos",
                                         "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux."]
 
-TAUP1SlimmingHelper.IncludeMuonTriggerContent    = True
+TAUP1SlimmingHelper.IncludeMuonTriggerContent    = False
 TAUP1SlimmingHelper.IncludeTauTriggerContent     = True
 TAUP1SlimmingHelper.IncludeEGammaTriggerContent  = True
-TAUP1SlimmingHelper.IncludeEtMissTriggerContent  = True
-TAUP1SlimmingHelper.IncludeJetTriggerContent     = True
-TAUP1SlimmingHelper.IncludeBJetTriggerContent    = True
+TAUP1SlimmingHelper.IncludeEtMissTriggerContent  = False
+TAUP1SlimmingHelper.IncludeJetTriggerContent     = False
+TAUP1SlimmingHelper.IncludeBJetTriggerContent    = False
 
 TAUP1SlimmingHelper.ExtraVariables               = ExtraContentTAUP1
 TAUP1SlimmingHelper.AllVariables                 = ExtraContainersTAUP1

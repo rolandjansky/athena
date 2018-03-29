@@ -93,9 +93,9 @@ StatusCode BichselSimTool::initialize() {
   for(int iParticleType = 1; iParticleType <= n_ParticleType; iParticleType++){
     // configure file name
     std::ifstream inputFile;
-    TString inputFileName = TString::Format("Bichsel_%d%s.dat", iParticleType, m_nCols == 1 ? "" : TString::Format("_%dsteps", m_nCols).Data());
+    TString inputFileName = TString::Format("PixelDigitization/Bichsel_%d%s.dat", iParticleType, m_nCols == 1 ? "" : TString::Format("_%dsteps", m_nCols).Data());
 
-    std::string FullFileName = PathResolver::find_file(std::string(inputFileName.Data()), "DATAPATH");
+    std::string FullFileName = PathResolverFindCalibFile(std::string(inputFileName.Data()));
     inputFile.open(FullFileName.data());
 
     ATH_MSG_INFO( "Loading file name : " << inputFileName.Data());

@@ -21,7 +21,7 @@
 
 #include "boost/bind.hpp"
 
-#include <vector>
+#include <map>
 
 // Forward declarations
 class IAddressCreator;
@@ -90,6 +90,8 @@ public: // Non-static members
    StatusCode rootOpenAction(FILEMGR_CALLBACK_ARGS);
 
 private:
+   /// Add proxy to input metadata store - can be called directly or via BeginInputFile incident
+   StatusCode addProxyToInputMetaDataStore(const std::string& tokenStr);
    /// Initialize input metadata store - can be called directly or via BeginInputFile incident
    StatusCode initInputMetaDataStore(const std::string& fileName);
 
@@ -98,10 +100,14 @@ private: // data
    ServiceHandle<StoreGateSvc> m_outputDataStore;
    ServiceHandle<IAddressCreator> m_addrCrtr;
    ServiceHandle<IFileMgr> m_fileMgr;
+   ServiceHandle<IIncidentSvc> m_incSvc;
 
    long m_storageType;
    bool m_clearedInputDataStore;
    bool m_allowMetaDataStop;
+   std::map<std::string, CLID> m_persToClid;
+   std::map<CLID, std::string> m_toolForClid;
+   std::map<std::string, std::string> m_streamForKey;
 
 private: // properties
    /// MetaDataContainer, POOL container name for MetaData.

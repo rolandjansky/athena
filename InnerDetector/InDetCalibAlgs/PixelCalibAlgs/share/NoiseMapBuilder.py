@@ -1,231 +1,156 @@
-## job options for standalone running of NoiseMapBuilder
+doClusterization = False
+doMonitoring     = False
+doValidate       = False
+filelist         = 'inputfilelist'
+nevents          = -1
 
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AlgSequence import AlgSequence
-
 topSequence = AlgSequence()
+from AthenaCommon.AppMgr import ToolSvc
 
-from GaudiSvc.GaudiSvcConf import THistSvc
-
-if not hasattr(ServiceMgr, 'THistSvc'):
-    ServiceMgr += THistSvc()
-
-THistSvc = ServiceMgr.THistSvc
-THistSvc.Output += ["histfile DATAFILE='NoiseMap.root' OPT='RECREATE'"]
-
-
-## NoiseMapBuilder algorithm
-
-from PixelCalibAlgs.PixelCalibAlgsConf import NoiseMapBuilder
-
-NoiseMapBuilder = NoiseMapBuilder()
-
-doClusterization = False
-doMonitoring = False
-doValidate = False
-
-
-## Input files
-
+#------------------------------------------
+# Input files
+#------------------------------------------
 collection = []
-if os.path.isfile("inputfilelist"):
-  for line in open("inputfilelist"):
-    collection.append(line.strip())
+if os.path.isfile(filelist):
+    for line in open(filelist):
+        if line[0] != '#':
+            collection.append(line.strip())
 else:
-  raise RuntimeError, "Unable to open inputfilelist"
-  
+    errmess="### Unable to open input filelist: '%s'" % filelist
+    raise RuntimeError(errmess)
 
-## GlobalFlags
-
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetGeo = 'atlas'
-globalflags.DataSource = 'data'
-
-
-## input file parameters
-
-import PyUtils.AthFile as AthFile
-inputfile = AthFile.fopen( collection[0] )
-
-if inputfile.fileinfos['file_type'] == 'bs':
-  globalflags.InputFormat = 'bytestream'
-elif inputfile.fileinfos['file_type'] == 'pool':
-  globalflags.InputFormat = 'pool'
-else:
-  raise RuntimeError, "Unable to read input file (format not supported)"
-  
-
-if inputfile.fileinfos['file_type'] == 'pool':
-  globalflags.DetDescrVersion = inputfile.fileinfos['geometry']
-else:
-  globalflags.DetDescrVersion = 'ATLAS-GEO-08-00-02'
-
-globalflags.print_JobProperties()
-
-
-## DetFlags
-
+#------------------------------------------
+# DetFlags
+#------------------------------------------
 from AthenaCommon.DetFlags import DetFlags
-
 DetFlags.all_setOff()
 DetFlags.pixel_setOn()
 DetFlags.Print()
 
+#------------------------------------------
+# GlobalFlags
+#------------------------------------------
+from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetDescrVersion = "ATLAS-R2-2016-01-00-01" # [SGS] how to know exact version (e.g. AMI) ?
+globalflags.DetGeo = 'atlas'
+globalflags.DataSource = 'data'
 
-## GeoModel
+# set InputFormat
+import PyUtils.AthFile as AthFile
+inputfile = AthFile.fopen( collection[0] )
+if inputfile.fileinfos['file_type'] == 'bs':
+    globalflags.InputFormat = 'bytestream'
+elif inputfile.fileinfos['file_type'] == 'pool':
+    globalflags.InputFormat = 'pool'
+else:
+    raise RuntimeError, "Unable to read input file (format not supported)"
 
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.FilesInput = collection
+
+# show debug info [SGS]
+print '## globalflags.InputFormat = %s' % globalflags.InputFormat
+print '## printing inputfile.fileinfos...'
+for k,v in inputfile.fileinfos.iteritems():
+    print '  * %s = %s' % (k,v)
+
+if globalflags.InputFormat() == 'pool':
+    globalflags.DetDescrVersion = inputfile.fileinfos['geometry']
+else:
+    globalflags.ConditionsTag = 'CONDBR2-BLKPA-2017-06' 
+    globalflags.DatabaseInstance = 'CONDBR2'  
+
+globalflags.print_JobProperties()
+
+#------------------------------------------
+# GeoModel
+#------------------------------------------
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 
+#------------------------------------------
+# ByteStream
+#------------------------------------------
+if globalflags.InputFormat() == 'pool':
+  import AthenaPoolCnvSvc.ReadAthenaPool
+  ServiceMgr.EventSelector.InputCollections = collection
+  include("PixelConditionsServices/PixelByteStreamErrorsSvc_jobOptions.py") ## why ? 
+elif globalflags.InputFormat() == 'bytestream':
+    include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
+    include("InDetRecExample/InDetReadBS_jobOptions.py")
+    ServiceMgr.ByteStreamInputSvc.FullFileName = collection
 
-
-## Offline Conditions
-
+#------------------------------------------
+# Offline Condition
+#------------------------------------------
 from IOVDbSvc.CondDB import conddb
+
+conddb.addOverride("/PIXEL/NoiseMapLong","PixNoiseMapLong-RUN2-DATA-UPD4-03");
+conddb.addOverride("/PIXEL/NoiseMapShort","PixNoiseMapShort-RUN2-DATA-UPD4-03");
+conddb.addOverride("/PIXEL/PixMapLong","PixMapLong-RUN2-DATA-UPD1-02");
+conddb.addOverride("/PIXEL/PixMapShort","PixMapShort-RUN2-DATA-UPD1-02");
+
+if globalflags.InputFormat() == 'bytestream':
+    if len(globalflags.ConditionsTag())!=0:
+        conddb.setGlobalTag(globalflags.ConditionsTag())
+#conddb.setGlobalTag('CONDBR2-BLKPA-2014-03')  # [SGS] shy different from globalflags.conditionsTag ????
 
 include("PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py")
 
-if not 'doValidate' in dir() :
-  doValidate=False
+if not 'doValidate' in dir():
+    doValidate=False
 
-if doValidate == False :
-  conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-empty');
-  conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-empty');
-else :
-  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=COMP200</dbConnection> /PIXEL/NoiseMapShort<tag>NoiseMapShort-000-00</tag>" ]
-  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=COMP200</dbConnection> /PIXEL/NoiseMapLong<tag>NoiseMapLong-000-00</tag>" ]
-  ServiceMgr.SpecialPixelMapSvc.DBFolders = [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
-  ServiceMgr.SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "NoiseMapLong" ]
-
-conddb.setGlobalTag('COMCOND-000-00')
-
-
-#
-#-- set that if using some ModuleOverlay maks
-#
-#conddb.iovdbsvc.Folders += [ "<dbConnection>impl=cool;techno=sqlite;schema=module_overlay.db;X:COMP200</dbConnection> /PIXEL/PixMapOverlay <tag>PixMapOverlay-Test-00</tag>" ]
-#ServiceMgr.SpecialPixelMapSvc.ModuleOverlayFolder = "/PIXEL/PixMapOverlay"
-#ServiceMgr.SpecialPixelMapSvc.ModuleOverlayKey = "PixMapOverlay"
-
+if doValidate == False:
+    conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-RUN2-DATA-UPD1-02')
+    conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-RUN2-DATA-UPD1-02')
+else:
+    conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=CONDBR2</dbConnection> /PIXEL/NoiseMapShort<tag>PixNoiseMapShort-RUN2-DATA-UPD4-03</tag>" ]
+    conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=CONDBR2</dbConnection> /PIXEL/NoiseMapLong<tag>PixNoiseMapLong-RUN2-DATA-UPD4-03</tag>" ]
+    ServiceMgr.SpecialPixelMapSvc.DBFolders = [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
+    ServiceMgr.SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "NoiseMapLong" ]
 
 from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
-
 ServiceMgr += PixelConditionsSummarySvc()
 ServiceMgr.PixelConditionsSummarySvc.UseSpecialPixelMap = False
 ServiceMgr.PixelConditionsSummarySvc.UseDCS = False
 ServiceMgr.PixelConditionsSummarySvc.UseByteStream = True
 
+#------------------------------------------
+# histo service
+#------------------------------------------
+from GaudiSvc.GaudiSvcConf import THistSvc
+if not hasattr(ServiceMgr, 'THistSvc'):
+    ServiceMgr += THistSvc()
+THistSvc = ServiceMgr.THistSvc
+THistSvc.Output += ["histfile DATAFILE='NoiseMap.root' OPT='RECREATE'"]
 
-## Input files
-
-if globalflags.InputFormat() == 'pool':
-  import AthenaPoolCnvSvc.ReadAthenaPool
-  ServiceMgr.EventSelector.InputCollections = collection
-  include("PixelConditionsServices/PixelByteStreamErrorsSvc_jobOptions.py")
-elif globalflags.InputFormat() == 'bytestream':
-  include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-  include("InDetRecExample/InDetReadBS_jobOptions.py")
-  ServiceMgr.ByteStreamInputSvc.FullFileName = collection
-
-
+#------------------------------------------
+# NoiseMapBuilder algorithm
+#------------------------------------------
+from PixelCalibAlgs.PixelCalibAlgsConf import NoiseMapBuilder
+NoiseMapBuilder = NoiseMapBuilder()
+NoiseMapBuilder.LBMin = 0  
+NoiseMapBuilder.LBMax = -1 
+print NoiseMapBuilder
 topSequence += NoiseMapBuilder
 
+#--------------------------------------------------------------
+# events 
+#--------------------------------------------------------------
+ServiceMgr.EventSelector.SkipEvents = 0
+theApp.EvtMax = nevents
 
-#
-# include clusterization
-#
-
-if doClusterization :
-
-  include( "PixelConditionsServices/PixelCalibSvc_jobOptions.py" )
-
-  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
-  topSequence += InDet__PixelClusterization("PixelClusterization")
-  print topSequence.PixelClusterization
-
-#
-# include pixel monitoring package
-#
-
-
-#if doMonitoring :
-#
-#  ## Root file definition
-#  if not hasattr(ServiceMgr, 'THistSvc'):
-#    from GaudiSvc.GaudiSvcConf import THistSvc
-#    ServiceMgr += THistSvc()
-#
-#  ServiceMgr.THistSvc.Output += [ "GLOBAL DATAFILE='TestMon.root' OPT='RECREATE'"]
-#
-#
-### add an AthenaMonManager algorithm to the list of algorithms to be ran
-### AthenaMonManager is the Algorithm that manages many classes inheriting
-### from ManagedMonitorToolBase
-#
-#  from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-#  monMan = AthenaMonManager( "PixelMonManager" )
-#
-#  from PixelMonitoring.PixelMonitoringConf import *
-#  PixelMainsMon=PixelMainMon()
-#  ToolSvc += PixelMainsMon
-#  monMan.AthenaMonTools += [ PixelMainsMon ]
-#  print PixelMainsMon
-#
-### FileKey must match that given to THistSvc
-#  monMan.FileKey = "GLOBAL"
-#
-### Set global monitoring parameters: see the AthenaMonManager class
-### in the Control/AthenaMonitoring package
-#  monMan.ManualDataTypeSetup = True
-#  monMan.DataType            = "cosmics"
-#  monMan.Environment         = "user"
-#  monMan.ManualRunLBSetup    = True
-#  monMan.Run                 = 1
-#  monMan.LumiBlock           = 1
-#
-### Set pixel monitoring parameters
-###Flags for data container types
-#  PixelMainsMon.doRDO = True
-#  PixelMainsMon.doRODError = True
-#  PixelMainsMon.doSpacePoint = False 
-#  PixelMainsMon.doCluster = True 
-#  PixelMainsMon.doTrack = False 
-#  PixelMainsMon.OfflineDoPixelOccupancy = True
-#
-###Flags for environment types
-#  PixelMainsMon.doPitPix = False 
-#  PixelMainsMon.doCosmics = False
-#  PixelMainsMon.doBeam = False
-#  PixelMainsMon.doRodSim = False
-#  PixelMainsMon.doOffline = True 
-#
-###Names of storegate containers
-#  PixelMainsMon.RDOName = "PixelRDOs"
-#  PixelMainsMon.RODErrorName = "pixel_error_summary"
-#  PixelMainsMon.ClusterName = "PixelClusters"
-###Other parameters
-#  PixelMainsMon.PitPixMod1 = 1000000 #first digit always1 (keeps leading 0's from being an issue)
-#
-#  topSequence += monMan
-#
-
-# include Pixel ntuple writer alg (useful if some further validation is needed)
-# adds information about all PRDs in the Pixels
-#from InDetTrackValidation.InDetTrackValidationConf import InDet__PixelClusterValidationNtupleWriter
-#PixelNtupleWriter = InDet__PixelClusterValidationNtupleWriter(name                       = 'InDetPixelClusterValidationNtupleWriter',
-#                                                              NtupleFileName           = 'TRKVAL',
-#                                                              NtupleDirectoryName      = 'Validation',
-#                                                              NtupleTreeName           = 'PixelRIOs',
-#                                                              PixelClusterContainer    = 'PixelClusters')
-#topSequence += PixelNtupleWriter
-#ServiceMgr.THistSvc.Output += [ "TRKVAL DATAFILE='/tmp/aandreaz/TrkValidation.root' TYPE='ROOT' OPT='RECREATE'" ]
-
-
-
-#ServiceMgr.EventSelector.SkipEvents = 0
-theApp.EvtMax = -1
-
+#--------------------------------------------------------------
+# events and MessageSvc
+#--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel  = INFO
+#ServiceMgr.MessageSvc.OutputLevel  = DEBUG
+ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
+ServiceMgr.MessageSvc.defaultLimit = 9999999 # all messages 
+ServiceMgr.MessageSvc.useColors = True 
+
 
 

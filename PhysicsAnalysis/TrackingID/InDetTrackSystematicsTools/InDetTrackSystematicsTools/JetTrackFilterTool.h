@@ -75,6 +75,10 @@ namespace InDet {
     TH1* m_effForJetPt = nullptr; //!
     TH2* m_trkNomEff = nullptr; //!
 
+    // allow the user to configure which calibration files to use if desired
+    std::string m_calibFileNomEff;
+    std::string m_calibFileJetEff;
+
 }; // class JetTrackFilterTool
 
 } // namespace InDet

@@ -79,31 +79,14 @@ StatusCode TrackParticleClusterAssociationAlg::execute()
 
     // get ParticleCellAssociation
     ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() );
-    const Rec::ParticleClusterAssociation* association = 0;
-    if( !m_caloClusterAssociationTool->particleClusterAssociation(*tp,association,0.1) ){
+    std::vector< ElementLink< xAOD::CaloClusterContainer > > caloClusterLinks;
+    if( !m_caloClusterAssociationTool->particleClusterAssociation(*tp,caloClusterLinks,0.1) ){
       ATH_MSG_DEBUG("failed to obtain the ParticleClusterAssociation");
       continue;
     }
-
-    // require container as it should be there
-    if( !association->container() ){
-      ATH_MSG_WARNING("Failed to obtain CaloClusterContainer from ParticleCellAssociation");
-      continue;
-    }
-    
+   
     // create element links
     ElementLink< xAOD::TrackParticleContainer > trackLink(m_trackParticleCollectionName,i);
-    std::vector< ElementLink< xAOD::CaloClusterContainer > > caloClusterLinks;
-    
-    for(auto cluster : association->data())
-    {
-        ElementLink< xAOD::CaloClusterContainer >   clusterLink(m_caloClusters,cluster->index());
-        // if valid create TrackParticleClusterAssociation
-        if( clusterLink.isValid() ){
-            caloClusterLinks.push_back( clusterLink );
-        }
-        ATH_MSG_DEBUG(" New cluster: eta " << cluster->eta() << " phi " << cluster->phi() );
-    }
     
     if( trackLink.isValid() && caloClusterLinks.size()!=0){
         xAOD::TrackParticleClusterAssociation* trackAssociation = new xAOD::TrackParticleClusterAssociation();

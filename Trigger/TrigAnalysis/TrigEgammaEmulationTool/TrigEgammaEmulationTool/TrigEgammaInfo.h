@@ -2,7 +2,6 @@
  *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
  *   */
 
-
 #ifndef TrigEgammaEmulationTool_TrigEgammaInfo_H
 #define TrigEgammaEmulationTool_TrigEgammaInfo_H
 

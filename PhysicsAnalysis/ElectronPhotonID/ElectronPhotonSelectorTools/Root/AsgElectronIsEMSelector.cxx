@@ -517,7 +517,7 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
     ATH_MSG_ERROR("Something is bad with the variables as passed");
     // if object is bad then use the bit for "bad eta"
     iflag = (0x1 << egammaPID::ClusterEtaRange_Electron); 
-    return StatusCode::SUCCESS; 
+    return iflag; 
   }
  
   // Track quality cuts

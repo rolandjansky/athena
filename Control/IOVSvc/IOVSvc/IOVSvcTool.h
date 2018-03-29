@@ -239,7 +239,6 @@ private:
   StringProperty  m_updateInterval;
   bool m_checkOnce;
   bool m_triggered;
-  bool m_firstEventOfRun;
   bool m_resetAllCallbacks;
   std::string m_checkTrigger;
 

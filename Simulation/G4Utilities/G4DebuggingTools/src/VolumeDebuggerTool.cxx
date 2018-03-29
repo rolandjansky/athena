@@ -28,8 +28,8 @@ namespace G4UA{
   }
   StatusCode VolumeDebuggerTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
-    if(riid == IBeginRunActionTool::interfaceID()) {
-      *ppvIf = (IBeginRunActionTool*) this;
+    if(riid == IG4RunActionTool::interfaceID()) {
+      *ppvIf = (IG4RunActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }

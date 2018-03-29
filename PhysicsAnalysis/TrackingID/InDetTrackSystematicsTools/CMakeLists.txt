@@ -47,6 +47,11 @@ if( NOT XAOD_STANDALONE )
       xAODTracking GaudiKernel InDetTrackSystematicsToolsLib )
 endif()
 
+atlas_add_dictionary( InDetTrackSystematicsToolsDict
+   InDetTrackSystematicsTools/InDetTrackSystematicsToolsDict.h
+   InDetTrackSystematicsTools/selection.xml
+   LINK_LIBRARIES InDetTrackSystematicsToolsLib )
+
 # Executable(s) in the package:
 if( XAOD_STANDALONE )
    atlas_add_executable( InDetTrackSystsToolTester
@@ -63,6 +68,7 @@ atlas_add_executable( graph_to_function
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_data( data/* )
 
 # This will allow us to put files into data/ to test new calibration files
 # Uncomment this line after putting test files into data/, then run "make" again to install.

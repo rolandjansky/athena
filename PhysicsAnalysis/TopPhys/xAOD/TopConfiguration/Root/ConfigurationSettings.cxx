@@ -41,6 +41,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("GRLDir","Location of GRL File","TopAnalysis");
     registerParameter("GRLFile","Name of GRL File", " ");
 
+    registerParameter("TDPPath","Path to TopDataPreparation file (accessible via PathResolver)","dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data");
+
     registerParameter("DumpBtagSystsInSystTrees", "Dump systematics-shifted b-tagging SFs in systematic TTrees, True or False (default: False)","False");
 
     registerParameter("ElectronID", "Type of electron. IsEM : Loose, Medium, Tight or Likelihood LooseAndBLayerLH, MediumLH, TightLH","TightLH");
@@ -197,7 +199,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ApplyTightSFsInLooseTree","Special: in Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)", "False");
 
     registerParameter("ApplyElectronInJetSubtraction","Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory","ttbar, tb, False (default)", "False");
+    registerParameter("TopPartonHistory","ttbar, tb, Wtb, False (default)", "False");
 
     registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",
@@ -285,9 +287,9 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","8TeV/ttbar/mc12_LCJets_v1");
     registerParameter("KLFitterOutput","Select the KLFitter output (FULL, FITTEDTOPS_ONLY, JETPERM_ONLY)","FULL");
-    registerParameter("KLFitterJetSelectionMode","kLeadingFour , kLeadingFive , kBtagPriorityFourJets , kBtagPriorityFiveJets","kBtagPriorityFourJets");
+    registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
-    registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH", "ttbar");
+    registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets", "ttbar");
     registerParameter("KLFitterTopMassFixed","Fix the mass of the top quark? True or False","True");
     registerParameter("KLFitterSaveAllPermutations","Save All permutations to the output file (False will save only the best)","False");
 

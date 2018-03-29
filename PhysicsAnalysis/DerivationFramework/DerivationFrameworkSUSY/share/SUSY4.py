@@ -41,9 +41,9 @@ SUSY4ThinningHelper.AppendToStream( SUSY4Stream )
 # THINNING TOOLS 
 #====================================================================
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 # TrackParticles directly
 #SUSY4TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY4TPThinningTool",
 #                                                                 ThinningService         = SUSY4ThinningHelper.ThinningSvc(),
@@ -132,7 +132,10 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY4)
+
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY4)
+
 muonsRequirements = '(Muons.pt >= 15.*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 15.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 #jetRequirements = '(AntiKt4EMTopoJets.JetConstitScaleMomentum_pt - AntiKt4EMTopoJets.ActiveArea4vec_pt * Kt4EMTopoEventShape.Density >= 22.*GeV && (abs(AntiKt4EMTopoJets.JetConstitScaleMomentum_eta)<2.2))'
@@ -173,9 +176,9 @@ TrackIsoTool500.TrackSelectionTool.CutLevel= "Loose"
 ToolSvc += TrackIsoTool500
 
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
-import ROOT, PyCintex
-PyCintex.loadDictionary('xAODCoreRflxDict')
-PyCintex.loadDictionary('xAODPrimitivesDict')
+import ROOT, cppyy
+cppyy.loadDictionary('xAODCoreRflxDict')
+cppyy.loadDictionary('xAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 Pt1000IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt1000IsoTrackDecorator",
                                                                 TrackIsolationTool = TrackIsoTool,

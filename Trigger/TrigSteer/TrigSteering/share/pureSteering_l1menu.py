@@ -33,6 +33,8 @@ LVL1MenuItem('L1_2MU06').setLogic( ThrCondition(thr).x(2) & bgrp ).setTriggerTyp
 thr = l1menu.registerThr('MU20','MUON').addThrValue(20)
 LVL1MenuItem('L1_MU20').setLogic( ThrCondition(thr) & bgrp ).setTriggerType( TT.muon )
 
+
+
 thr = l1menu.registerThr('J200','JET').addThrValue(200)
 LVL1MenuItem('L1_J200').setLogic( ThrCondition(thr) & bgrp ).setTriggerType( TT.calo )
 

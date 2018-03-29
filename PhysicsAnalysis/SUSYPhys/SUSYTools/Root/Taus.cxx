@@ -102,7 +102,7 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   
 
   // If the MVA calibration is being used, be sure to apply the calibration to data as well
-  if (fabs(input.eta()) <= 2.5 && input.nTracks() > 0 && (!isData() || m_tauMVACalib)) {
+  if (fabs(input.eta()) <= 2.5 && input.nTracks() > 0) {
 
     if(m_tauDoTTM) m_tauTruthMatch->getTruth(input);  // do truth matching first if required (e.g. for running on primary xAOD)
                                                                         

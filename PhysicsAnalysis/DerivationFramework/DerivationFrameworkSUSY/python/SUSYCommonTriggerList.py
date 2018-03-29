@@ -145,3 +145,7 @@ SinglePhoton_2015 = [
 'HLT_g200_etcut',
 ]
 
+
+JetTrigger_2016 = [
+    "HLT_noalg_L1J400"
+    ]

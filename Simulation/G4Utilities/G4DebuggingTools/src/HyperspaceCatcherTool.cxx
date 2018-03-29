@@ -22,12 +22,12 @@ namespace G4UA{
   }
   StatusCode HyperspaceCatcherTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
-    if(riid == IBeginRunActionTool::interfaceID()) {
-      *ppvIf = (IBeginRunActionTool*) this;
+    if(riid == IG4RunActionTool::interfaceID()) {
+      *ppvIf = (IG4RunActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
-    } if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
+    } if(riid == IG4SteppingActionTool::interfaceID()) {
+      *ppvIf = (IG4SteppingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     } return ActionToolBase<HyperspaceCatcher>::queryInterface(riid, ppvIf);

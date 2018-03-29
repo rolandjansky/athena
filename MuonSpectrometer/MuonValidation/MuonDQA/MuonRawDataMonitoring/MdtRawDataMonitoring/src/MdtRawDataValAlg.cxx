@@ -30,6 +30,7 @@
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "MuonCalibIdentifier/MuonFixedId.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
+#include "MuonIdHelpers/MuonIdHelper.h"
 #include "MdtCalibFitters/MTStraightLine.h"
 #include "MuonSegment/MuonSegment.h"
 
@@ -42,6 +43,16 @@
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 // #include "GaudiKernel/Property.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/Muon.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackingPrimitives.h"
+
+#include "TrkTrack/TrackCollection.h"
+#include "TrkTrack/Track.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "GaudiKernel/MsgStream.h"
 
 //root includes
 #include <TH1.h>
@@ -76,6 +87,8 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
 :ManagedMonitorToolBase( type, name, parent ),
  mg(0),
  m_masked_tubes(NULL),
+ m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+ m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
  m_atlas_ready(0),
  trig_BARREL(false),
  trig_ENDCAP(false),
@@ -185,6 +198,7 @@ StatusCode MdtRawDataValAlg::initialize()
   //initialize to stop coverity bugs
    m_activeStore = 0;
    m_mdtIdHelper=0;
+   m_idHelper=0;
    p_MuonDetectorManager=0;
    //mdtevents_RPCtrig = 0;
    //mdtevents_TGCtrig=0;
@@ -271,11 +285,21 @@ StatusCode MdtRawDataValAlg::initialize()
     ATH_MSG_DEBUG(" Found the MdtIdHelper. " );
   }
 
+
+  if (m_idHelper.retrieve().isFailure()){
+    ATH_MSG_WARNING("Could not get " << m_idHelper); 
+    return StatusCode::FAILURE;
+  }  else {
+    ATH_MSG_DEBUG(" Found the MuonIdHelper. " );
+  }  
+  
   sc = m_DQFilterTools.retrieve();
   if( !sc ) {
     ATH_MSG_ERROR("Could Not Retrieve AtlasFilterTool " << m_DQFilterTools);
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK(m_muonSelectionTool.retrieve());
 
   //   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
   //   sc = m_trigDec.retrieve();
@@ -518,9 +542,53 @@ StatusCode MdtRawDataValAlg::fillHistograms()
   std::string hardware_name;
 
   std::map<std::string,float> evnt_hitsperchamber_map;
+  std::set<std::string>  chambers_from_tracks;
   
   if (m_doMdtESD==true) { 
     if(m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online) {
+
+      const xAOD::MuonContainer* muons = evtStore()->retrieve< const xAOD::MuonContainer >("Muons");
+      if (!muons) {
+	ATH_MSG_ERROR ("Couldn't retrieve Muons container with key: Muons");
+	return StatusCode::FAILURE;
+      } 
+      
+      for(const auto mu : *muons){
+	if(! (mu->muonType() == xAOD::Muon::Combined)) continue;
+	xAOD::Muon::Quality quality = m_muonSelectionTool->getQuality(*mu);
+	if (!(quality <= xAOD::Muon::Medium)) continue;
+	const   xAOD::TrackParticle* tp = mu->primaryTrackParticle();
+	if(tp){
+	  const Trk::Track * trk= tp->track();
+	  if(!trk){
+	    continue;
+	  }
+
+	  uint8_t ntri_eta=0;
+	  uint8_t n_phi=0; 
+	  tp->summaryValue(ntri_eta, xAOD::numberOfTriggerEtaLayers); 
+	  tp->summaryValue(n_phi, xAOD::numberOfPhiLayers); 
+	  if(ntri_eta+n_phi==0) continue;
+	  
+	  std::vector< const Trk::MeasurementBase* >::const_iterator hit = trk->measurementsOnTrack()->begin();
+	  std::vector< const Trk::MeasurementBase* >::const_iterator hit_end = trk->measurementsOnTrack()->end();
+	  for( ;hit!=hit_end;++hit ){
+	   
+	    const Trk::RIO_OnTrack* rot_from_track = dynamic_cast<const Trk::RIO_OnTrack*>(*hit);
+	    if(!rot_from_track) continue;
+	    //              rot_from_track->dump(msg());
+	    Identifier rotId = rot_from_track->identify();
+	    if(!m_idHelper->isMdt(rotId)) continue;
+	    IdentifierHash mdt_idHash;
+	    MDTChamber* mdt_chamber = 0;
+	    m_mdtIdHelper->get_module_hash( rotId, mdt_idHash );
+	    sc = getChamber(mdt_idHash, mdt_chamber);
+	    std::string mdt_chambername = mdt_chamber->getName();
+	    chambers_from_tracks.insert(mdt_chambername);
+	  }
+	  
+	}
+      }
 
       //loop in MdtPrepDataContainer
       for (Muon::MdtPrepDataContainer::const_iterator containerIt = mdt_container->begin(); containerIt != mdt_container->end(); ++containerIt) {
@@ -556,7 +624,8 @@ StatusCode MdtRawDataValAlg::fillHistograms()
             return sc;
           }
 
-          sc = fillMDTSummaryHistograms(*mdtCollection, isNoiseBurstCandidate);
+	  //          sc = fillMDTSummaryHistograms(*mdtCollection, isNoiseBurstCandidate);
+	  sc = fillMDTSummaryHistograms(*mdtCollection,  chambers_from_tracks, isNoiseBurstCandidate);
           if(sc.isSuccess())
           {
             ATH_MSG_DEBUG("Filled MDTSummaryHistograms " );
@@ -1447,6 +1516,44 @@ StatusCode MdtRawDataValAlg::bookMDTSummaryHistograms(/* bool isNewEventsBlock, 
           return sc;
         }
 
+	std::string lbCrate_ontrack_histtitle = "OccupancyVsLB_ontrack_"+ecap[iecap]+crate[ilayer];
+	
+	if(iecap==enumBarrelA){
+	  sc = bookMDTHisto_OccVsLB(mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,1,100,mg->mongroup_brA_shift);
+	  if(sc.isFailure()) {
+	    ATH_MSG_ERROR("mdtoccvslb_ontrack_by_crate Failed to register histogram " );
+	    return sc;
+	  }
+	}
+	else if(iecap==enumBarrelC){
+	  sc = bookMDTHisto_OccVsLB(mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_brC_shift);
+	  if(sc.isFailure()) {
+	    ATH_MSG_ERROR("mdtoccvslb_ontrack_by_crate Failed to register histogram " );
+	    return sc;
+	  }
+	}
+	else if(iecap==enumEndCapA){
+	  sc = bookMDTHisto_OccVsLB(mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_ecA_shift);
+	  if(sc.isFailure()) {
+	    ATH_MSG_ERROR("mdtoccvslb_ontrack_by_crate Failed to register histogram " );
+	    return sc;
+	  }
+	}
+	else{
+	  sc = bookMDTHisto_OccVsLB(mdtoccvslb_ontrack_by_crate[iecap][ilayer],lbCrate_ontrack_histtitle,"LB","[Eta,Phi]",834,1,2502,100,0,100,mg->mongroup_ecC_shift);
+	  if(sc.isFailure()) {
+                 ATH_MSG_ERROR("mdtoccvslb_ontrack_by_crate Failed to register histogram " );
+                 return sc;
+	  }
+	}
+	
+	sc = binMdtOccVsLB_Crate(mdtoccvslb_ontrack_by_crate[iecap][ilayer],iecap,ilayer);
+	if(sc.isFailure()) {
+	  ATH_MSG_ERROR("mdtoccvslb_by_crate Failed to register histogram " );       
+	  return sc;
+	}
+	
+	
       ////////////////////////////////////////////////////////////////////////////////////////////////////
       //Finished number of MDT hits per multilayer
       ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1561,7 +1668,7 @@ StatusCode MdtRawDataValAlg::bookMDTOverviewHistograms(/* bool isNewEventsBlock,
     ////////////////////////////////////////////////////////////////////////////////////// 
     //histo path for TotalNumber_of_MDT_hits_per_event without a cut on ADC 
     sc = bookMDTHisto_overview(mdteventsLumi, "TotalNumber_of_MDT_hits_per_event", "[counts]", "Number of Events",
-        500, 0., 10000., mg->mongroup_overview_shiftLumi);
+	500, 0., 20000., mg->mongroup_overview_shiftLumi);
     
      
     ////////////////////////////////////////////////////////////////////////////////////// 
@@ -1762,7 +1869,9 @@ StatusCode MdtRawDataValAlg::fillMDTHistograms( const Muon::MdtPrepData* mdtColl
   return sc;
 }
 
-StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, bool &isNoiseBurstCandidate ) {
+//StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, bool &isNoiseBurstCandidate ) {
+StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* mdtCollection, std::set<std::string>  chambers_from_tracks, bool &isNoiseBurstCandidate ) {
+
   StatusCode sc = StatusCode::SUCCESS;
   Identifier digcoll_id = (mdtCollection)->identify();
   IdentifierHash digcoll_idHash = (mdtCollection)->collectionHash();
@@ -1782,6 +1891,10 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
   int stationEta = chamber->GetStationEta(); 
   int stationPhi = chamber->GetStationPhi();
   std::string chambername = chamber->getName();
+  bool is_on_track = false;
+  for(auto ch : chambers_from_tracks) {
+    if(chambername==ch) is_on_track=true;
+  }
   bool isBIM = (chambername.at(2)=='M');
 
   float tdc = mdtCollection->tdc()*25.0/32.0;
@@ -1843,6 +1956,10 @@ StatusCode MdtRawDataValAlg::fillMDTSummaryHistograms( const Muon::MdtPrepData* 
     }
     //use stationPhi+1 becuase that's the actual phi, not phi indexed from zero.
     mdtoccvslb_by_crate[crate_region][icrate-1]->Fill(m_lumiblock,get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,stationEta,chambername));
+
+    if (is_on_track)    {
+      mdtoccvslb_ontrack_by_crate[crate_region][icrate-1]->Fill(m_lumiblock,get_bin_for_LB_crate_hist(crate_region,icrate,stationPhi+1,stationEta,chambername));
+    }
 
   }  
 
@@ -1982,8 +2099,8 @@ StatusCode MdtRawDataValAlg::handleEvent_effCalc(const Trk::SegmentCollection* s
               int ilayer = chamber->GetLayerEnum();
               int statphi = chamber->GetStationPhi();
               int ibarrel_endcap = chamber->GetBarrelEndcapEnum();
-              if(overalladc_segm_PR_Lumi[iregion]) overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
 
+              if(overalladc_segm_PR_Lumi[iregion] && adc > m_ADCCut) overalladc_segm_PR_Lumi[iregion]->Fill(adc);        
               if(adc > m_ADCCut) { // This is somewhat redundant because this is usual cut for segment-reconstruction, but that's OK
                 if(statphi > 15) {
                   ATH_MSG_ERROR( "MDT StationPhi: " << statphi << " Is too high.  Chamber name: " << chamber->getName() );

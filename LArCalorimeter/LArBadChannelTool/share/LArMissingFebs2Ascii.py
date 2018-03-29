@@ -18,7 +18,7 @@ globalflags.DataSource="data"
 globalflags.InputFormat="bytestream"
 	
 from AthenaCommon.JobProperties import jobproperties
-jobproperties.Global.DetDescrVersion = "ATLAS-GEO-08-00-00"
+jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-04-00-00"
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOff()
@@ -53,11 +53,11 @@ from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 
 if "sqlite" in dir():
-    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db><tag>LARBadChannelsOflMissingFEBs-UPD3-01</tag>")
+    conddb.addFolder("","/LAR/BadChannelsOfl/MissingFEBs<db>sqlite://;schema="+sqlite+";dbname="+DBInstance+"</db><tag>LARBadChannelsOflMissingFEBs-RUN2-UPD3-01</tag>")
 else:
     conddb.addFolder("LAR_OFL","/LAR/BadChannelsOfl/MissingFEBs")#<tag>LARBadChannelsMissingFEBs-empty</tag>")
                  
-svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2014-01" 
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2017-04" 
 
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool

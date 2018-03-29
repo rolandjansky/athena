@@ -55,9 +55,11 @@ include("G4AtlasApps/fragment.SimCopyWeights.py")
 simFlags.ReleaseGeoModel = False
 
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Add the G4 sim to the alg sequence after the generator
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-job += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 
 ## User algorithms
@@ -86,7 +88,8 @@ job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EMBHitsTestTool", check
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("EMECHitsTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("FCALHitsTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("HECHitsTestTool", checkType=True)]
-job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileHitsTestTool", checkType=True)] 
+job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("TileHitsTestTool", checkType=True)]
+job.G4TestAlg.SimTestTools["TileHitsTestTool"].TestMBTS=True
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("MDTHitsTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("RPCHitsTestTool", checkType=True)]
 job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("CSCHitsTestTool", checkType=True)]

@@ -8,6 +8,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkInDet.InDetCommon import *
 
 if globalflags.DataSource()=='geant4':
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
@@ -23,13 +24,12 @@ EXOT21Stream.AcceptAlgs(["EXOT21Kernel"])
 
 exot21Seq = CfgMgr.AthSequencer("EXOT21Sequence")
 
-triggerNavChains  = ""
-triggerNavChains += "HLT_3mu6* | HLT_3mu4 | HLT_mu* |"
-triggerNavChains += "HLT_2mu14.* | HLT_2mu10.* | HLT_e* |"
-triggerNavChains += "HLT_2e15_lhvloose_nod0_L12EM13VH |"
-triggerNavChains += "HLT_g15_loose_2mu10_msonly.*| HLT_2e17_lhvloose_nod0 |"
-triggerNavChains += "HLT_g35_loose_g25_loose | HLT_e17_lhloose_nod0_2e9_lhloose_nod0 |"
-triggerNavChains += "HLT_j*"
+triggerNavChains  = "HLT_mu50 | HLT_mu24_ivarloose_L1MU15 | HLT_mu26_ivarmedium |"
+triggerNavChains += "HLT_2mu14 | HLT_2mu10 | HLT_3mu6 | HLT_3mu6_msonly | HLT_3mu4 |"
+triggerNavChains += "HLT_g15_loose_2mu10_msonly |"
+triggerNavChains += "HLT_e60_lhmedium_nod0 | HLT_e24_lhtight_nod0_ivarloose | HLT_e26_lhtight_nod0_ivarloose |"
+triggerNavChains += "HLT_2e15_lhvloose_nod0_L12EM13VH | HLT_2e17_lhvloose_nod0 |"
+triggerNavChains += "HLT_e17_lhloose_nod0_2e9_lhloose_nod0 | HLT_g35_loose_g25_loose"
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT21ThinningHelper = ThinningHelper("EXOT21ThinningHelper")
@@ -78,7 +78,7 @@ thinningTools=[]
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 EXOT21TPThinningTool = DerivationFramework__TrackParticleThinning(name                    =  "EXOT21TPThinningTool",
                                                                   ThinningService = EXOT21ThinningHelper.ThinningSvc(),
-                                                                  SelectionString         =  "InDetTrackParticles.pt > 0.5*GeV && InDetTrackParticles.eta > -2.5 && InDetTrackParticles.eta < 2.5",
+                                                                  SelectionString         =  "InDetTrackParticles.pt > 0.5*GeV && InDetTrackParticles.eta > -2.5 && InDetTrackParticles.eta < 2.5 && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) <= 1.5",
                                                                   InDetTrackParticlesKey  =  "InDetTrackParticles")
 ToolSvc += EXOT21TPThinningTool
 thinningTools.append(EXOT21TPThinningTool)

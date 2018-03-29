@@ -12,13 +12,8 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODBase/IParticleContainer.h"
-#include "JetInterface/IJetExecuteTool.h" 
 
-// Include below?
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
-
-class IJetConstituentModifier: public IJetExecuteTool { 
+class IJetConstituentModifier: virtual public asg::IAsgTool { 
 ASG_TOOL_INTERFACE(IJetConstituentModifier)
 
 public:

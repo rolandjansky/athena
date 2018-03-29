@@ -35,6 +35,7 @@ class TrigEgammaEFPhotonSelectorTool:
   private:
 
     bool ApplyPhotonPid(const xAOD::Photon *eg, const std::string pidname);
+    bool ApplyIsolation(const xAOD::Photon *, const Trig::Info &);
 
     // ToolHandles
     /* In python order will matter. Should always be tight, medium, loose
@@ -43,6 +44,7 @@ class TrigEgammaEFPhotonSelectorTool:
     /* Photon selectors */
     ToolHandleArray<IAsgPhotonIsEMSelector>   m_photonOnlIsEMTool;
   
+    ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_isolationTool;
 
 
 };

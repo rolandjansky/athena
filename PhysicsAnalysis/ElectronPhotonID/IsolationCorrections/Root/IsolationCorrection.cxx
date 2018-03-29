@@ -25,35 +25,31 @@ namespace CP {
 
   IsolationCorrection::IsolationCorrection(std::string name)
     : asg::AsgMessaging(name),
-      m_tool_ver(REL20_2),
+      m_tool_ver(REL21),
       m_nBinsEtaFine(10),
       m_nBinsEtaCoarse(5),
-      m_nBinsEtaDD(16),
-      m_nBinsEtaDD_2015(12),
       m_corr_file(""),
       m_corr_ddshift_2015_file(""),
-      m_corr_ddshift_file(""),
+      m_corr_ddshift_2015_2016_file(""),
+      m_corr_ddshift_2017_file(""),
       m_corr_ddsmearing_file(""),
       m_nBinsfEtaDD_2015(5),
+      m_nBinsfEtaDD_2017(5),
       m_is_mc(false),
       m_AFII_corr(false),
       m_set_mc(false),
       m_correct_etcone(false),
       m_trouble_categories(false),
-      m_shower(nullptr),
-      m_isv2(false),
-      m_isv3(false)
+      m_shower(nullptr)
   {
   }
 
-  void IsolationCorrection::SetCorrectionFile(std::string corr_file, std::string corr_ddshift_file, std::string corr_ddsmearing_file,
-                                              std::string corr_ddshift_2015_file){
+  void IsolationCorrection::SetCorrectionFile(std::string corr_file, std::string corr_ddshift_2017_file, std::string corr_ddsmearing_file,
+                                              std::string corr_ddshift_2015_2016_file){
     m_corr_file = PathResolverFindCalibFile(corr_file);
-    m_corr_ddshift_2015_file = PathResolverFindCalibFile(corr_ddshift_2015_file);
-    m_corr_ddshift_file = PathResolverFindCalibFile(corr_ddshift_file);
+    m_corr_ddshift_2015_2016_file = PathResolverFindCalibFile(corr_ddshift_2015_2016_file);
+    m_corr_ddshift_2017_file = PathResolverFindCalibFile(corr_ddshift_2017_file);
     m_corr_ddsmearing_file = PathResolverFindCalibFile(corr_ddsmearing_file);
-    if (m_corr_ddshift_2015_file.find("v2") != std::string::npos) m_isv2 = true;
-    if (m_corr_ddshift_2015_file.find("v3") != std::string::npos) m_isv3 = true;
   }
 
   StatusCode IsolationCorrection::initialize() {
@@ -97,12 +93,13 @@ namespace CP {
       - Etcone_value: value of uncorrected EtconeXX variable (ph_EtconeXX) *** in MeV!
       - isConversion: photons only: conversion flag (ph_isConv)
       - parttype: ELECTRON or PHOTON, enum defined below
-      - version: REL20_2, REL17_2, REL17 or REL16, enum defined below
+      - version: REL21, REL20_2, REL17_2, REL17 or REL16, enum defined below
     */
     float isolation_ptcorrection = 0;
     float energy = 0;
 
     //energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3); //input.e()
+    if(m_tool_ver == REL21) energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3);
     if(m_tool_ver == REL20_2) energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3); //input.e()
     else energy = input.caloCluster()->e();
 
@@ -204,7 +201,7 @@ namespace CP {
         return hypot(tp->parameterPX(i), tp->parameterPY(i));
     return tp->pt();
   }
-
+  
 
   float IsolationCorrection::GetDDCorrection_2015(const xAOD::Egamma& input, const xAOD::Iso::IsolationType isol ) const {
     if( m_corr_ddshift_2015_file == ""){
@@ -224,23 +221,17 @@ namespace CP {
     float etaS2  = input.eta();
     int eta_bin  = 0;
 
-    if (m_isv2) {
-      for(unsigned int i = 0; i < m_eta_bins_dd_2015.size(); i+=2){
-        if(etaS2 > m_eta_bins_dd_2015[i] && etaS2 < m_eta_bins_dd_2015[i+1]) eta_bin = i/2;
+
+    double feta = fabs(etaS2);
+    for (unsigned int i = 0; i < m_nBinsfEtaDD_2015; i++) {
+      if (feta >= m_feta_bins_dd_2015[i] && feta < m_feta_bins_dd_2015[i+1])
+        eta_bin = i;
       }
-    } else {
-      double feta = fabs(etaS2);
-      for (unsigned int i = 0; i < m_nBinsfEtaDD_2015; i++) {
-        if (feta >= m_feta_bins_dd_2015[i] && feta < m_feta_bins_dd_2015[i+1])
-          eta_bin = i;
-      }
-      if (eta_bin == 2) {
-        //ATH_MSG_WARNING("Photon in the crack ! No DD correction");
+    if (eta_bin == 2) {
         eta_bin = -1;
         return 0;
-      } else if (eta_bin > 2)
-      eta_bin -= 1;
-    }
+    } else if (eta_bin > 2) eta_bin -= 1;
+    
     if (eta_bin < 0) {
       ATH_MSG_WARNING("Strange cluster S2 eta for photon isolation DD correction ! eta = " << etaS2 << ". No correction");
       return 0;
@@ -251,11 +242,7 @@ namespace CP {
 		    << " eta: " << etaS2 << " etabin: " << eta_bin);
 		  
     float pt_gev = input.pt()*0.001;
-
-    if (m_isv2 && pt_gev > 400.)
-      pt_gev = 400.;
-    else if (m_isv3 && pt_gev > 750.)
-      pt_gev = 750.;
+    if (pt_gev > 999.) pt_gev = 999. ;
       
     float isolation_ddcorrection = 0;
     if(isol==xAOD::Iso::topoetcone40){
@@ -273,63 +260,122 @@ namespace CP {
     return isolation_ddcorrection;
   }
 
-  float IsolationCorrection::GetDDCorrection(const xAOD::Egamma& input) const {
-    /*
-      - nPV: number of primary vertices (corrections were derived requiring >= 2 tracks/vertex in 2011 data)
 
-      - Etcone40: (ph_Etcone40) *** in MeV!
-      - Etcone40_ED_corrected: ED corrected version of Etcone40 (ph_Etcone40_ED_corrected) *** in Mev!
-
-      - energy: cluster energy (ph_cl_E) *** in MeV!
-      - etaS2: eta in the 2nd calo sampling (ph_etas2)
-      - etaPointing: pointing eta -> from 1st and 2nd calo samplings (ph_etap)
-      - etaCluster: cluster eta (ph_cl_eta)
-      - radius: radius of the input EtconeXX variable.  Can be given as, e.g., .20 or 20
-      - is_mc: set to true if running on MC
-      - Etcone_value: value of uncorrected EtconeXX variable (ph_EtconeXX) *** in MeV!
-      - isConversion: photons only: conversion flag (ph_isConv)
-      - parttype: ELECTRON or PHOTON, enum defined below
-      - version: REL20_2, REL17_2, REL17 or REL16, enum defined below
-    */
-    float etaS2 = input.caloCluster()->etaBE(2);
-    if(fabs(etaS2) > 2.37) return 0.;
-
-    if( m_corr_ddshift_file == "" || m_corr_ddsmearing_file == "" ){
-      ATH_MSG_WARNING("IsolationCorrection::GetDDCorrection: the file(s) containing the data-driven isolation corrections is(are) not initialized.\nNo correction is applied.\n");
+  float IsolationCorrection::GetDDCorrection_2015_2016(const xAOD::Egamma& input, const xAOD::Iso::IsolationType isol ) const {
+    if( m_corr_ddshift_2015_2016_file == ""){
+      ATH_MSG_WARNING("IsolationCorrection::GetDDCorrection 2015+2016: the file(s) containing the data-driven isolation corrections is(are) not initialized.\nNo correction is applied.\n");
       return 0;
     }
 
-    float isolation_ddcorrection = 0;
+    // corrections only for MC and photon
+    if(!m_is_mc || input.type() == xAOD::Type::Electron) return 0;
 
-    bool is_mc = m_is_mc;
+    const xAOD::Photon* ph_input = ((const xAOD::Photon_v1*) &input);
+    int convFlag_int = xAOD::EgammaHelpers::conversionType(ph_input);
 
-    // corrections only for MC
-    if(!is_mc) return 0;
+    bool converted = false;
+    if(convFlag_int > 0) converted = true;
 
-    float energy = 0;
-    //energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3); //input.e()
-    if(m_tool_ver == REL20_2) energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3); //input.e()
-    else energy = input.caloCluster()->e();
+    float etaS2  = input.eta();
+    int eta_bin  = 0;
 
-    int eta_bin_dd = GetEtaBinDD(etaS2);
 
-    if(eta_bin_dd == -1 || eta_bin_dd>=14 ) return 0;
-
-    // barrel + crack => no smearing corrections
-    if(fabs(etaS2) <= 1.56) isolation_ddcorrection = m_graph_dd_cone40_photon_shift.at(eta_bin_dd)->Eval(energy/GeV)*GeV;
-    // end caps => shift + smearing corrections
-    else
-    {
-      TRandom3 r(0); // seed guaranteed to be unique in space and time
-      isolation_ddcorrection = GeV*r.Gaus(m_graph_dd_cone40_photon_shift.at(eta_bin_dd)->Eval(energy/GeV),
-                                          m_graph_dd_cone40_photon_smearing.at(eta_bin_dd)->Eval(energy/GeV));
-
+    double feta = fabs(etaS2);
+    for (unsigned int i = 0; i < m_nBinsfEtaDD_2017; i++) {
+      if (feta >= m_feta_bins_dd_2017[i] && feta < m_feta_bins_dd_2017[i+1])
+        eta_bin = i;
+      }
+    if (eta_bin == 4) {
+        eta_bin = -1;
+        return 0;
+    } else if (eta_bin > 4) eta_bin -= 1;
+    
+    if (eta_bin < 0) {
+      ATH_MSG_WARNING("Strange cluster S2 eta for photon isolation DD correction ! eta = " << etaS2 << ". No correction");
+      return 0;
     }
-
-    //std::cout << "eta: " << etaS2 << " etabin: " << eta_bin_dd << " energy:" << energy << " corr: " << isolation_ddcorrection << std::endl;
+    
+    if (input.pt() > 25e3) 
+      ATH_MSG_DEBUG("Getting correction for photon pt: " <<input.pt()
+		    << " eta: " << etaS2 << " etabin: " << eta_bin);
+		  
+    float pt_gev = input.pt()*0.001;
+    if (pt_gev > 999.) pt_gev = 999. ;
+      
+    float isolation_ddcorrection = 0;
+    if(isol==xAOD::Iso::topoetcone40){
+      if(!converted)
+        isolation_ddcorrection = 1e3*m_graph_dd_2015_2016_cone40_unconv_photon_shift[eta_bin]->Eval(pt_gev);
+      else
+        isolation_ddcorrection = 1e3*m_graph_dd_2015_2016_cone40_conv_photon_shift[eta_bin]->Eval(pt_gev);
+    }else if(isol==xAOD::Iso::topoetcone20){
+      if(!converted)
+        isolation_ddcorrection = 1e3*m_graph_dd_2015_2016_cone20_unconv_photon_shift[eta_bin]->Eval(pt_gev);
+      else
+        isolation_ddcorrection = 1e3*m_graph_dd_2015_2016_cone20_conv_photon_shift[eta_bin]->Eval(pt_gev);
+    }else isolation_ddcorrection = 0;
 
     return isolation_ddcorrection;
   }
+
+
+  float IsolationCorrection::GetDDCorrection_2017(const xAOD::Egamma& input, const xAOD::Iso::IsolationType isol ) const {
+    if( m_corr_ddshift_2017_file == ""){
+      ATH_MSG_WARNING("IsolationCorrection::GetDDCorrection 2017: the file(s) containing the data-driven isolation corrections is(are) not initialized.\nNo correction is applied.\n");
+      return 0;
+    }
+
+    // corrections only for MC and photon
+    if(!m_is_mc || input.type() == xAOD::Type::Electron) return 0;
+
+    const xAOD::Photon* ph_input = ((const xAOD::Photon_v1*) &input);
+    int convFlag_int = xAOD::EgammaHelpers::conversionType(ph_input);
+
+    bool converted = false;
+    if(convFlag_int > 0) converted = true;
+
+    float etaS2  = input.eta();
+    int eta_bin  = 0;
+
+
+    double feta = fabs(etaS2);
+    for (unsigned int i = 0; i < m_nBinsfEtaDD_2017; i++) {
+      if (feta >= m_feta_bins_dd_2017[i] && feta < m_feta_bins_dd_2017[i+1])
+        eta_bin = i;
+      }
+    if (eta_bin == 4) {
+        eta_bin = -1;
+        return 0;
+    } else if (eta_bin > 4) eta_bin -= 1;
+    
+    if (eta_bin < 0) {
+      ATH_MSG_WARNING("Strange cluster S2 eta for photon isolation DD correction ! eta = " << etaS2 << ". No correction");
+      return 0;
+    }
+    
+    if (input.pt() > 25e3) 
+      ATH_MSG_DEBUG("Getting correction for photon pt: " <<input.pt()
+		    << " eta: " << etaS2 << " etabin: " << eta_bin);
+		  
+    float pt_gev = input.pt()*0.001;
+    if (pt_gev > 999.) pt_gev = 999. ;
+      
+    float isolation_ddcorrection = 0;
+    if(isol==xAOD::Iso::topoetcone40){
+      if(!converted)
+        isolation_ddcorrection = 1e3*m_graph_dd_2017_cone40_unconv_photon_shift[eta_bin]->Eval(pt_gev);
+      else
+        isolation_ddcorrection = 1e3*m_graph_dd_2017_cone40_conv_photon_shift[eta_bin]->Eval(pt_gev);
+    }else if(isol==xAOD::Iso::topoetcone20){
+      if(!converted)
+        isolation_ddcorrection = 1e3*m_graph_dd_2017_cone20_unconv_photon_shift[eta_bin]->Eval(pt_gev);
+      else
+        isolation_ddcorrection = 1e3*m_graph_dd_2017_cone20_conv_photon_shift[eta_bin]->Eval(pt_gev);
+    }else isolation_ddcorrection = 0;
+
+    return isolation_ddcorrection;
+  }
+
 
 
   float IsolationCorrection::GetEtaPointing(const xAOD::Egamma* input){
@@ -378,22 +424,22 @@ namespace CP {
   void IsolationCorrection::setEtaBins(){
     m_eta_bins_fine.reserve(m_nBinsEtaFine);
     m_eta_bins_coarse.reserve(m_nBinsEtaCoarse);
-    m_eta_bins_dd.reserve(m_nBinsEtaDD);
-    m_eta_bins_dd_2015.reserve(m_nBinsEtaDD_2015);
     m_eta_bins_fine = {0.0, 0.10, 0.60, 0.80, 1.15, 1.37, 1.52, 1.81, 2.01, 2.37, 2.47};
     m_eta_bins_coarse = {0.0, 0.60, 1.37, 1.52, 1.81, 2.47};
-    m_eta_bins_dd = {0.0, 0.15, 0.30, 0.45, 0.60, 0.80, 0.95, 1.17, 1.56, 1.64, 1.72, 1.81, 2.01, 2.17, 2.37};
-    m_eta_bins_dd_2015 = {-2.37, -1.52, -1.37, -0.6, -0.6, 0., 0., 0.6, 0.6, 1.37, 1.52, 2.37};
 
-    //JB
     m_nBinsfEtaDD_2015 = 5; // there are four bins in |eta| + the crack
     m_feta_bins_dd_2015.reserve(m_nBinsfEtaDD_2015+1);
-    m_feta_bins_dd_2015 = { 0., 0.6, 1.37, 1.52, 1.81, 2.37 };
+    m_feta_bins_dd_2015 = {0., 0.6, 1.37, 1.52, 1.81, 2.37 };
+    
+    m_nBinsfEtaDD_2017 = 7;
+    m_feta_bins_dd_2017.reserve(m_nBinsfEtaDD_2017+1);
+    m_feta_bins_dd_2017 = {0., 0.6, 0.82, 1.15, 1.37, 1.52, 1.81, 2.37 };
   }
 
   void IsolationCorrection::setIsolCorr(){
-    if      (m_tool_ver == REL17_2) { set2011Corr(); set2012Corr(); setDDCorr(); }
-    else if (m_tool_ver == REL20_2) { set2015Corr(); setDDCorr();   setDDCorr_2015();}
+    if      (m_tool_ver == REL17_2) { set2011Corr(); set2012Corr(); 		setDDCorr(); }
+    else if (m_tool_ver == REL20_2) { set2015Corr(); setDDCorr();   		setDDCorr_2015(); }
+    else if (m_tool_ver == REL21)   { set2015Corr(); setDDCorr_2015_2016(); setDDCorr_2017(); }
   }
 
   // This for etcone !!! From 2011 !
@@ -446,6 +492,7 @@ namespace CP {
     m_mc_rel17_leakage_correction_offsets_photon_unconverted_40 = { 13.30, 62.00, 177.00, 267.10, 406.20, 0.0, 419.80, 89.40, 105.90, 0.0 };
   }
 
+
   void IsolationCorrection::setDDCorr_2015() {
     if( m_corr_ddshift_2015_file != ""){
       load2015DDCorr();
@@ -455,42 +502,13 @@ namespace CP {
   }
 
   void IsolationCorrection::load2015DDCorr() {
-    TFile* file_ptleakagecorr = new TFile( m_corr_ddshift_2015_file.c_str(), "read" );
+    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( m_corr_ddshift_2015_file.c_str(), "READ" ) );
 
     if(!file_ptleakagecorr){
       ATH_MSG_WARNING("Correction file for 2015 data driven corrections not found, tool not initialized for 2015 corrections\n");
       m_corr_ddshift_2015_file = "";
     }else{
-      if (m_isv2) {
-	m_graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-2.37_-1.52_2015"));
-	m_graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-1.37_-0.6_2015"));
-	m_graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_-0.6_0.0_2015"));
-	m_graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
-	m_graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
-	m_graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.52_2.37_2015"));
-	
-	m_graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_-2.37_-1.52_2015"));
-	m_graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_-1.37_-0.6_2015"));
-	m_graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_-0.6_0.0_2015"));
-	m_graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.0_0.6_2015"));
-	m_graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.6_1.37_2015"));
-	m_graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.52_2.37_2015"));
-
-	m_graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_-2.37_-1.52_2015"));
-	m_graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_-1.37_-0.6_2015"));
-	m_graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_-0.6_0.0_2015"));
-	m_graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
-	m_graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
-	m_graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.52_2.37_2015"));
-	
-	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_-2.37_-1.52_2015"));
-	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_-1.37_-0.6_2015"));
-	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_-0.6_0.0_2015"));
-	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.0_0.6_2015"));
-	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.6_1.37_2015"));
-	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.52_2.37_2015"));
-	
-      } else {
+    
 	m_graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
 	m_graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
 	m_graph_dd_2015_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.52_1.81_2015"));
@@ -500,6 +518,7 @@ namespace CP {
 	m_graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.6_1.37_2015"));
 	m_graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.52_1.81_2015"));
 	m_graph_dd_2015_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.81_2.37_2015"));
+	
 
 	m_graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2015"));
 	m_graph_dd_2015_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.6_1.37_2015"));
@@ -510,36 +529,172 @@ namespace CP {
 	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.6_1.37_2015"));
 	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.52_1.81_2015"));
 	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.81_2.37_2015"));
-      }
-      
-
+	
     }
     for (auto gr : m_graph_dd_2015_cone40_conv_photon_shift) {
       if (gr == nullptr)
-	ATH_MSG_ERROR("Null pointer for one of the DD correction bin (conv,40)");
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,40)");
     }
     for (auto gr : m_graph_dd_2015_cone40_unconv_photon_shift) {
       if (gr == nullptr)
-	ATH_MSG_ERROR("Null pointer for one of the DD correction bin (unconv,40)");
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv,40)");
     }
     for (auto gr : m_graph_dd_2015_cone20_conv_photon_shift) {
       if (gr == nullptr)
-	ATH_MSG_ERROR("Null pointer for one of the DD correction bin (conv,20)");
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,20)");
     }
     for (auto gr : m_graph_dd_2015_cone20_unconv_photon_shift) {
       if (gr == nullptr)
-	ATH_MSG_ERROR("Null pointer for one of the DD correction bin (unconv, 20)");
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv, 20)");
     }
 
     file_ptleakagecorr->Close();
 
   }
 
+
+
+  void IsolationCorrection::setDDCorr_2015_2016() {
+    if( m_corr_ddshift_2015_2016_file != ""){
+      load20152016DDCorr();
+    }else{
+      ATH_MSG_WARNING("Correction file for 2015 data/mc not specified, tool not initialized for 2015 corrections\n");
+    }
+  }
+
+  void IsolationCorrection::load20152016DDCorr() {
+    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( m_corr_ddshift_2015_2016_file.c_str(), "READ" ) );
+
+    if(!file_ptleakagecorr){
+      ATH_MSG_WARNING("Correction file for 2015+2016 data driven corrections not found, tool not initialized for 2015+2016 corrections\n");
+      m_corr_ddshift_2015_2016_file = "";
+    }else{
+    
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_0.0_0.6_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_0.6_0.82_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_0.82_1.15_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_1.15_1.37_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_1.52_1.81_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_1.81_2.37_2016"));
+	
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_0.0_0.6_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_0.6_0.82_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_0.82_1.15_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_1.15_1.37_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_1.52_1.81_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_1.81_2.37_2016"));
+	
+
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.6_0.82_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.82_1.15_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.15_1.37_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.52_1.81_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.81_2.37_2016"));
+	
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.0_0.6_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.6_0.82_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.82_1.15_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.15_1.37_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.52_1.81_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.81_2.37_2016"));
+	
+    }
+    for (auto gr : m_graph_dd_2015_2016_cone40_conv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,40)");
+    }
+    for (auto gr : m_graph_dd_2015_2016_cone40_unconv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv,40)");
+    }
+    for (auto gr : m_graph_dd_2015_2016_cone20_conv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,20)");
+    }
+    for (auto gr : m_graph_dd_2015_2016_cone20_unconv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv, 20)");
+    }
+
+    file_ptleakagecorr->Close();
+
+  }
+  
+  
+  void IsolationCorrection::setDDCorr_2017() {
+    if( m_corr_ddshift_2017_file != ""){
+      load2017DDCorr();
+    }else{
+      ATH_MSG_WARNING("Correction file for 2015 data/mc not specified, tool not initialized for 2015 corrections\n");
+    }
+  }
+
+  void IsolationCorrection::load2017DDCorr() {
+    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( m_corr_ddshift_2017_file.c_str(), "READ" ) );
+
+    if(!file_ptleakagecorr){
+      ATH_MSG_WARNING("Correction file for 2015+2016 data driven corrections not found, tool not initialized for 2015+2016 corrections\n");
+      m_corr_ddshift_2017_file = "";
+    }else{
+    
+	m_graph_dd_2017_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.0_0.6_2017"));
+	m_graph_dd_2017_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.6_0.82_2017"));
+	m_graph_dd_2017_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.82_1.15_2017"));
+	m_graph_dd_2017_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.15_1.37_2017"));
+	m_graph_dd_2017_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.52_1.81_2017"));
+	m_graph_dd_2017_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.81_2.37_2017"));
+	
+	m_graph_dd_2017_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.0_0.6_2017"));
+	m_graph_dd_2017_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.6_0.82_2017"));
+	m_graph_dd_2017_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.82_1.15_2017"));
+	m_graph_dd_2017_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.15_1.37_2017"));
+	m_graph_dd_2017_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.52_1.81_2017"));
+	m_graph_dd_2017_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.81_2.37_2017"));
+	
+
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.6_0.82_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.82_1.15_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.15_1.37_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.52_1.81_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.81_2.37_2017"));
+	
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.0_0.6_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.6_0.82_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.82_1.15_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.15_1.37_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.52_1.81_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.81_2.37_2017"));
+	
+    }
+    for (auto gr : m_graph_dd_2017_cone40_conv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,40)");
+    }
+    for (auto gr : m_graph_dd_2017_cone40_unconv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv,40)");
+    }
+    for (auto gr : m_graph_dd_2017_cone20_conv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,20)");
+    }
+    for (auto gr : m_graph_dd_2017_cone20_unconv_photon_shift) {
+      if (gr == nullptr)
+	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv, 20)");
+    }
+
+    file_ptleakagecorr->Close();
+
+  }  
+  
+
   void IsolationCorrection::set2012Corr() {
     if( m_corr_file != ""){
       load2012Corr();
     }else{
-      ATH_MSG_WARNING("Correction file for 2012 data/mc not specified, tool not initialized for 2012 corrections\n");
+      ATH_MSG_WARNING("Correction file for 2017 data/mc not specified, tool not initialized for 2017 corrections\n");
     }
   }
 
@@ -649,6 +804,7 @@ namespace CP {
       m_graph_cone20_electron.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone20_electron_etabin8_extrap") );
       m_graph_cone20_electron.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone20_electron_etabin9_extrap") );
     }
+        
     file_ptleakagecorr->Close();
   }
 
@@ -953,11 +1109,12 @@ namespace CP {
   }
 
   void IsolationCorrection::loadDDCorr() {
-    TFile* file_ddshiftcorr = new TFile( m_corr_ddshift_file.c_str(), "read" );
-    TFile* file_ddsmearingcorr = new TFile( m_corr_ddsmearing_file.c_str(), "read" );
+    std::unique_ptr< TFile > file_ddshift_corr( TFile::Open( m_corr_ddshift_file.c_str(), "READ" ) );
+    std::unique_ptr< TFile > file_ddsmearingcorr( TFile::Open( m_corr_ddsmearing_file.c_str(), "READ" ) );
+    
     if(m_AFII_corr) ATH_MSG_INFO("Using corrections for AFII, are you sure you're selecting the right file? (must be _AFII or something)");
 
-    if(!file_ddshiftcorr || !file_ddsmearingcorr){
+    if(!file_ddshift_corr || !file_ddsmearingcorr){
       ATH_MSG_WARNING("Correction file for data-driven corrections not found, tool not initialized for data-driven corrections\n");
       m_corr_ddshift_file = "";
       m_corr_ddsmearing_file = "";
@@ -970,20 +1127,20 @@ namespace CP {
 
 	  // Photon shift corrections
 	  std::vector< std::shared_ptr<TGraphAsymmErrors> > graph_shift;
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_0"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_1"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_2"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_3"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_4"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_5"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_6"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_7"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_8"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_9"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_10"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_11"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_12"))) );
-          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshiftcorr->Get("graph_13"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_0"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_1"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_2"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_3"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_4"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_5"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_6"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_7"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_8"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_9"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_10"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_11"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_12"))) );
+          graph_shift.push_back( std::shared_ptr<TGraphAsymmErrors>(dynamic_cast<TGraphAsymmErrors*>(file_ddshift_corr->Get("graph_13"))) );
 
           m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(0)->GetFunction("f") );
           m_graph_dd_cone40_photon_shift.push_back( graph_shift.at(1)->GetFunction("f") );
@@ -1031,10 +1188,19 @@ namespace CP {
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(11)->GetFunction("f_3") );
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(12)->GetFunction("f_3") );
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(13)->GetFunction("f_3") );
-
+	
+	  for (auto gr : graph_shift) {
+        if (gr == nullptr)
+		  ATH_MSG_ERROR("Null pointer for one of the DD correction graphs");
+      }
+      for (auto gr : graph_smearing) {
+        if (gr == nullptr)
+		  ATH_MSG_ERROR("Null pointer for one of the smearing graphs");
+      }
+	
     }
     
-    file_ddshiftcorr->Close();
+    file_ddshift_corr->Close();
     file_ddsmearingcorr->Close();
 
   }
@@ -1105,11 +1271,11 @@ namespace CP {
 
     }
 
-    if (m_corr_ddshift_2015_file != "") {
-      FreeClear(m_graph_dd_2015_cone40_unconv_photon_shift);
-      FreeClear(m_graph_dd_2015_cone40_conv_photon_shift);
-      FreeClear(m_graph_dd_2015_cone20_unconv_photon_shift);
-      FreeClear(m_graph_dd_2015_cone20_conv_photon_shift);
+    if (m_corr_ddshift_2015_2016_file != "") {
+      FreeClear(m_graph_dd_2015_2016_cone40_unconv_photon_shift);
+      FreeClear(m_graph_dd_2015_2016_cone40_conv_photon_shift);
+      FreeClear(m_graph_dd_2015_2016_cone20_unconv_photon_shift);
+      FreeClear(m_graph_dd_2015_2016_cone20_conv_photon_shift);
     }
 
     // For etcone, we only have very old corrections...
@@ -1365,25 +1531,6 @@ namespace CP {
     return eta_bin;
   }
   //-----------------------------------------------------------------------
-
-
-  //-----------------------------------------------------------------------
-  // Internal function
-  // Used to retrieve the correct (dd) eta bin number
-  //
-  int IsolationCorrection::GetEtaBinDD(float eta) const {
-    int eta_bin=-1;
-    float fabs_eta = fabs(eta);
-    for (unsigned int i=0; i < m_nBinsEtaDD; ++i) {
-      if ((fabs_eta >= m_eta_bins_dd[i]) && (fabs_eta < m_eta_bins_dd[i+1])) {
-	eta_bin = i;
-	break;
-      }
-    }
-    return eta_bin;
-  }
-  //-----------------------------------------------------------------------
-
 
   //-----------------------------------------------------------------------
   // Internal function

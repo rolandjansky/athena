@@ -91,6 +91,7 @@ private:
   double m_trainingBeamspotZ;
   double m_trainingBeamspotTiltX;
   double m_trainingBeamspotTiltY;
+  bool m_reverseIBLlocx;
 
   // Convertor for RDO objects 
   FTK_RawTrack* SimToRaw(const FTKTrack&);

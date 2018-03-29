@@ -15,7 +15,7 @@
 
 TaggerType: WBoson
 
-DecorationName: DNNTaggerScoreWBoson
+DecorationName: DNNTaggerWBoson50
 
 CalibArea: BoostedJetTaggers/JSSWTopTaggerDNN/Boost2017/
 #CalibArea: Local

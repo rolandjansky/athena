@@ -24,17 +24,17 @@ def _check_smc(smc_min, smc_max):
         return 'min smc > max smc'
 
     try:
-        test = float(smc_min)  # float('INF'), float('-INF') work...
+        float(smc_min)  # float('INF'), float('-INF') work...
     except:
         return 'min smc does not convert to float'
 
     try:
-        test = float(smc_max)  # float('INF'), float('-INF') work...
+        float(smc_max)  # float('INF'), float('-INF') work...
     except:
         return 'max smc does not convert to float'
 
 
-    if not  float(smc_min) <= float(smc_max):
+    if not float(smc_min) <= float(smc_max):
         return 'min smc > max smc'
 
     return ''

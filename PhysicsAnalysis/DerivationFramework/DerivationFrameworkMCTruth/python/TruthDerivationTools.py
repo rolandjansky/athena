@@ -11,36 +11,43 @@ ToolSvc += DFCommonTruthClassifier
 #==============================================================================
 # Schedule the tools for adding new truth collection
 # Note that taus are handled separately (see MCTruthCommon.py)
+# Note also that navigation info is dropped here and added separately
 #==============================================================================
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
 
 DFCommonTruthMuonTool = DerivationFramework__TruthCollectionMaker(name           = "DFCommonTruthMuonTool",
                                                          NewCollectionName       = "TruthMuons",
+                                                         KeepNavigationInfo      = False,
                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 13) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset))
 ToolSvc += DFCommonTruthMuonTool
 DFCommonTruthElectronTool = DerivationFramework__TruthCollectionMaker(name       = "DFCommonTruthElectronTool",
                                                          NewCollectionName       = "TruthElectrons",
+                                                         KeepNavigationInfo      = False,
                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 11) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset))
 ToolSvc += DFCommonTruthElectronTool
 DFCommonTruthPhotonTool = DerivationFramework__TruthCollectionMaker(name         = "DFCommonTruthPhotonTool",
                                                          NewCollectionName       = "TruthPhotons",
+                                                         KeepNavigationInfo      = False,
                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset))
 ToolSvc += DFCommonTruthPhotonTool
 # this tool is needed for making TruthPhotons from sim samples, where extra cuts are needed
 DFCommonTruthPhotonToolSim = DerivationFramework__TruthCollectionMaker(name      = "DFCommonTruthPhotonToolSim",
                                                          NewCollectionName       = "TruthPhotons",
+                                                         KeepNavigationInfo      = False,
                                                          ParticleSelectionString = "(abs(TruthParticles.pdgId) == 22) && (TruthParticles.status == 1) && ((TruthParticles.classifierParticleOrigin != 42) || (TruthParticles.pt > 20.0*GeV)) && ( TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)+")")
 ToolSvc += DFCommonTruthPhotonToolSim
 
 neutrinoexpression = "(TruthParticles.isNeutrino && TruthParticles.status == 1) && TruthParticles.barcode < "+str(DerivationFrameworkSimBarcodeOffset)
 DFCommonTruthNeutrinoTool = DerivationFramework__TruthCollectionMaker(name                 = "DFCommonTruthNeutrinoTool",
                                                                    NewCollectionName       = "TruthNeutrinos",
+                                                                   KeepNavigationInfo      = False,
                                                                    ParticleSelectionString = neutrinoexpression)
 ToolSvc += DFCommonTruthNeutrinoTool
 
 DFCommonTruthTopTool = DerivationFramework__TruthCollectionMaker(name                   = "DFCommonTruthTopTool",
                                                                 NewCollectionName       = "TruthTop",
+                                                                KeepNavigationInfo      = False,
                                                                 ParticleSelectionString = "(abs(TruthParticles.pdgId) == 6)",
                                                                 Do_Compress             = True,
                                                           )
@@ -48,6 +55,7 @@ ToolSvc += DFCommonTruthTopTool
 
 DFCommonTruthBosonTool = DerivationFramework__TruthCollectionMaker(name                   = "DFCommonTruthBosonTool",
                                                                   NewCollectionName       = "TruthBoson",
+                                                                  KeepNavigationInfo      = False,
                                                                   ParticleSelectionString = "(abs(TruthParticles.pdgId) == 23 || abs(TruthParticles.pdgId) == 24 || abs(TruthParticles.pdgId) == 25)",
                                                                   Do_Compress             = True,
                                                                   Do_Sherpa               = True)
@@ -55,6 +63,7 @@ ToolSvc += DFCommonTruthBosonTool
 
 DFCommonTruthBSMTool = DerivationFramework__TruthCollectionMaker(name                   = "DFCommonTruthBSMTool",
                                                                 NewCollectionName       = "TruthBSM",
+                                                                KeepNavigationInfo      = False,
                                                                 ParticleSelectionString = "(TruthParticles.isBSM)",
                                                                 Do_Compress             = True)
 ToolSvc += DFCommonTruthBSMTool

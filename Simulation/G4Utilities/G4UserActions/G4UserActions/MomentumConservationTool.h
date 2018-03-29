@@ -5,8 +5,8 @@
 #ifndef G4USERACTIONS_G4UA__MOMENTUMCONSERVATIONTOOL_H
 #define G4USERACTIONS_G4UA__MOMENTUMCONSERVATIONTOOL_H
 
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "G4UserActions/MomentumConservation.h"
 
@@ -16,8 +16,8 @@ namespace G4UA
   /// @brief Tool which manages the MomentumConservation user action.
   ///
   class MomentumConservationTool : public ActionToolBase<MomentumConservation>,
-                                   public IEndEventActionTool,
-                                   public ISteppingActionTool
+                                   public IG4EventActionTool,
+                                   public IG4SteppingActionTool
   {
 
     public:
@@ -26,15 +26,11 @@ namespace G4UA
       MomentumConservationTool(const std::string& type, const std::string& name,
                                const IInterface* parent);
 
-      virtual IEndEventAction* getEndEventAction() override final
-      { return static_cast<IEndEventAction*>( getAction() ); }
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
 
-      virtual ISteppingAction* getSteppingAction() override final
-      { return static_cast<ISteppingAction*>( getAction() ); }
-
-      /// Baudi boilerplate
-      virtual StatusCode
-      queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+      virtual G4UserSteppingAction* getSteppingAction() override final
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
     protected:
 

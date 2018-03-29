@@ -971,6 +971,10 @@ CutFlowSvc::queryInterface( const InterfaceID& riid, void** ppvi )
     *ppvi = static_cast<ICutFlowSvc*>(this);
     addRef(); // NB! : inrement the reference count!
     return StatusCode::SUCCESS;                     // RETURN
+  } else if ( IIncidentListener::interfaceID() == riid ) {
+    *ppvi = static_cast<IIncidentListener*>(this);
+    addRef(); // NB! : inrement the reference count!
+    return StatusCode::SUCCESS;                     // RETURN
   }
   // Interface is not directly availible: try out a base class
   return AthService::queryInterface( riid, ppvi );

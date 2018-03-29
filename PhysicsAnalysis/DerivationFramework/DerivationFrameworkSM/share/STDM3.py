@@ -243,7 +243,6 @@ STDM3SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "AntiKt4LCTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]

@@ -218,13 +218,13 @@ namespace ST {
 
     virtual const xAOD::Vertex* GetPrimVtx() const = 0;
 		
-    virtual StatusCode GetJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=false, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
-    virtual StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets,xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux, const bool recordSG=false, const std::string& jetkey="") = 0;
+    virtual StatusCode GetJets(xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& jetkey="", const xAOD::JetContainer* containerToBeCopied = 0) = 0;
+    virtual StatusCode GetJetsSyst(const xAOD::JetContainer& calibjets,xAOD::JetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux, const bool recordSG=true, const std::string& jetkey="") = 0;
     virtual StatusCode GetFatJets(xAOD::JetContainer*& copy, xAOD::ShallowAuxContainer*& copyaux, const bool recordSG = false, const std::string& jetkey = "", const bool doLargeRdecorations = false, const xAOD::JetContainer* containerToBeCopied = 0) = 0;
-    virtual StatusCode GetTaus(xAOD::TauJetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=false,const std::string& taukey="TauJets", const xAOD::TauJetContainer* containerToBeCopied = 0) = 0;
-    virtual StatusCode GetMuons(xAOD::MuonContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=false,const std::string& muonkey="Muons", const xAOD::MuonContainer* containerToBeCopied = 0) = 0;
-    virtual StatusCode GetElectrons(xAOD::ElectronContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=false,const std::string& elekey="Electrons", const xAOD::ElectronContainer* containerToBeCopied = 0) = 0;
-    virtual StatusCode GetPhotons(xAOD::PhotonContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=false,const std::string& photonkey="Photons", const xAOD::PhotonContainer* containerToBeCopied = 0) = 0;
+    virtual StatusCode GetTaus(xAOD::TauJetContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& taukey="TauJets", const xAOD::TauJetContainer* containerToBeCopied = 0) = 0;
+    virtual StatusCode GetMuons(xAOD::MuonContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true, const std::string& muonkey="Muons", const xAOD::MuonContainer* containerToBeCopied = 0) = 0;
+    virtual StatusCode GetElectrons(xAOD::ElectronContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true,const std::string& elekey="Electrons", const xAOD::ElectronContainer* containerToBeCopied = 0) = 0;
+    virtual StatusCode GetPhotons(xAOD::PhotonContainer*& copy,xAOD::ShallowAuxContainer*& copyaux,const bool recordSG=true,const std::string& photonkey="Photons", const xAOD::PhotonContainer* containerToBeCopied = 0) = 0;
     virtual StatusCode GetMET(xAOD::MissingETContainer& met,
 			      const xAOD::JetContainer* jet,
 			      const xAOD::ElectronContainer* elec = 0,
@@ -241,6 +241,16 @@ namespace ST {
 				   // const xAOD::PhotonContainer* gamma = 0,
 				   // const xAOD::TauJetContainer* taujet = 0,
 				   ) = 0;
+
+    virtual StatusCode GetMETSig(xAOD::MissingETContainer& met,
+			      double& metSignificance,
+			      const xAOD::JetContainer* jet,
+			      const xAOD::ElectronContainer* elec = 0,
+			      const xAOD::MuonContainer* muon = 0,
+			      const xAOD::PhotonContainer* gamma = 0,
+			      const xAOD::TauJetContainer* taujet = 0,
+                      	      bool doTST = true, bool doJVTCut = true,
+			      const xAOD::IParticleContainer* invis = 0) = 0;
 
     virtual bool IsSignalJet(const xAOD::Jet& input,  const float ptcut, const float etacut) const = 0;
 

@@ -36,11 +36,11 @@ StatusCode TopToolStore::initialize() {
   else if(m_release_series == 24)
     ATH_MSG_INFO( "Setting release series to 2.4" );
   else if(m_release_series == 25)
-    ATH_MSG_INFO( "Setting release series to 2.6" );
+    ATH_MSG_INFO( "Setting release series to R21" );
   else
     {
-      m_release_series = 24;
-      ATH_MSG_WARNING( "Error occured reading release series from TopConfig -> Setting release series to 2.4" );
+      m_release_series = 25;
+      ATH_MSG_WARNING( "Error occured reading release series from TopConfig -> Setting release series to R21" );
     }
     
 

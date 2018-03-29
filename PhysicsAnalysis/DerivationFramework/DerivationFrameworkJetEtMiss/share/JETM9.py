@@ -86,7 +86,7 @@ reducedJetList = ["AntiKt2PV0TrackJets",
 replaceAODReducedJets(reducedJetList,jetm9Seq,"JETM9")
 
 OutputJets["JETM9"] = ["AntiKt4EMTopoJets","AntiKt4LCTopoJets",
-                       "AntiKt4TruthJets","AntiKt4TruthWZJets"]
+                       "AntiKt4TruthJets","AntiKt4TruthWZJets","AntiKt2PV0TrackJets"]
 
 #====================================================================
 # Jets for R-scan 

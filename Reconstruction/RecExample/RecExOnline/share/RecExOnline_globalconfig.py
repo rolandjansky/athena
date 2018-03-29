@@ -50,6 +50,10 @@ if (not 'doPixelOnlyMon' in dir()):
 if (not 'REO_doAutoConfiguration' in dir()):
     REO_doAutoConfiguration = False
 
+### harmonize conditions tag and geometry for all monitoring jobs; 26 May 2017
+DetDescrVersion = 'ATLAS-R2-2016-01-00-01' # for new ID alignment 26 May 2017
+if isOnline:
+    ConditionsTag = 'CONDBR2-HLTP-2017-03' # for new ID alignment 26 May 2017
 
 ## -------------------------------------------------------------------
 ## configuration from pickle file
@@ -204,6 +208,10 @@ THistSvc.OutputLevel = ERROR
 ### switch off NN Pixel cluster splitting, as suggested in bug #91340
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doPixelClusterSplitting.set_Value(False) # does not work online
+
+## new ID alignment 26 May 2017
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
 # ----------------------------------------------- Online flag
 athenaCommonFlags.EvtMax.set_Value_and_Lock(evtMax)

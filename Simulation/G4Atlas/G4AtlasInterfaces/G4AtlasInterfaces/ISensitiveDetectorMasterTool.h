@@ -17,12 +17,13 @@
 
 class ISensitiveDetectorMasterTool : virtual public IAlgTool {
  public:
+
   ISensitiveDetectorMasterTool() {}
+
   virtual ~ISensitiveDetectorMasterTool() {}
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID_ISensitiveDetectorMasterTool( "ISensitiveDetectorMasterTool" , 1 , 0 ) ;
-    return IID_ISensitiveDetectorMasterTool ;
-  }
+
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISensitiveDetectorMasterTool, 1, 0);
 
   /** Method for initializing the SDs of each tool.  Not done in the athena-level
    initialize() function, as this may need to happen once per thread in a multi-threaded

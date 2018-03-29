@@ -6,7 +6,6 @@
 
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
-#include "MCTruthBase/TruthStrategyManager.h"
 
 #include "G4EventManager.hh"
 #include "G4LogicalVolume.hh"
@@ -40,7 +39,7 @@ namespace G4UA{
     m_config(config),m_evtCount(0){;
   }
 
-  void VerboseSelector::beginOfEvent(const G4Event*){
+  void VerboseSelector::BeginOfEventAction(const G4Event*){
 
     SG::ReadHandle<EventInfo> eic("McEventInfo");
     if (!eic.isValid()){
@@ -53,7 +52,7 @@ namespace G4UA{
     }
   }
     
-  void VerboseSelector::processStep(const G4Step* aStep){
+  void VerboseSelector::UserSteppingAction(const G4Step* aStep){
     
     if(m_evtCount==(uint64_t)m_config.targetEvent||m_config.targetEvent<0){
 
@@ -103,7 +102,7 @@ namespace G4UA{
     
   }
   
-  void VerboseSelector::preTracking(const G4Track* aTrack){
+  void VerboseSelector::PreUserTrackingAction(const G4Track* aTrack){
    
     if(m_evtCount==(uint64_t)m_config.targetEvent||m_config.targetEvent<0)
       {
@@ -112,7 +111,8 @@ namespace G4UA{
 	G4Track *itr=const_cast<G4Track*>(aTrack);
 	TrackHelper trackHelper(itr);
 
-	EventInformation* eventInfo=TruthStrategyManager::GetStrategyManager()->GetEventInformation();
+	EventInformation* eventInfo=static_cast<EventInformation*>
+    (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 
 	//int primaryBarcode(0);
 	int currentBarcode(0);
@@ -139,7 +139,7 @@ namespace G4UA{
      
   }
   
-  void VerboseSelector::postTracking(const G4Track* aTrack){
+  void VerboseSelector::PostUserTrackingAction(const G4Track* aTrack){
     if(m_evtCount==(uint64_t)m_config.targetEvent||m_config.targetEvent<0){
       if(aTrack->GetTrackID()==m_config.targetTrack||m_config.targetTrack<0)
 	G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(0);

@@ -104,7 +104,7 @@ StatusCode OtherCPTools::setupPileupReweighting() {
 
     // data scale-factors, initialised to recommended values
     // can also be customised, thanks to PRWCustomScaleFactor option
-    double SF_nominal = 1.0/1.09;
+    double SF_nominal = 1.0/1.03;
     double SF_up = 1.0;
     double SF_down = 1.0/1.18;
 

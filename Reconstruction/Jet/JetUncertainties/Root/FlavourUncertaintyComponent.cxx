@@ -39,13 +39,15 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const std::string& name
 FlavourUncertaintyComponent::FlavourUncertaintyComponent(   const ComponentHelper& component,
                                                             const TString jetType,
                                                             const TString analysisRootFileName,
-                                                            const TString path
+                                                            const TString path,
+                                                            const TString calibArea
                                                             )
     : UncertaintyComponent(component,component.flavourType == FlavourComp::Composition ? 2 : 1)
     , m_flavourType(component.flavourType)
     , m_jetType(jetType)
     , m_analysisFileName(analysisRootFileName)
     , m_path(path)
+    , m_calibArea(calibArea)
     , m_absEta(CompParametrization::isAbsEta(component.parametrization))
     , m_secondUncName(component.uncNames.size()>1 ? component.uncNames.at(1) : "")
     , m_secondUncHist(NULL)
@@ -69,6 +71,7 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const FlavourUncertaint
     , m_jetType(toCopy.m_jetType)
     , m_analysisFileName(toCopy.m_analysisFileName)
     , m_path(toCopy.m_path)
+    , m_calibArea(toCopy.m_calibArea)
     , m_absEta(toCopy.m_absEta)
     , m_secondUncName(toCopy.m_secondUncName)
     , m_secondUncHist(NULL)
@@ -171,7 +174,7 @@ StatusCode FlavourUncertaintyComponent::initialize(TFile* histFile)
     // Now read the analysis input histograms if this is not a bJES component
     if (m_flavourType != FlavourComp::bJES)
     {
-        TFile* analysisFile = utils::readRootFile(m_analysisFileName,m_path);
+        TFile* analysisFile = utils::readRootFile(m_analysisFileName,m_path,m_calibArea);
         if (!analysisFile || analysisFile->IsZombie())
         {
             ATH_MSG_ERROR("Cannot open analysis histogram file: " << m_analysisFileName.Data());

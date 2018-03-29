@@ -47,7 +47,7 @@ BuildTruthTaus::BuildTruthTaus( const std::string& name )
   , m_iNNeutralOthers(0)
   , m_iNChargedDaughters(0)
   , m_bIsHadronicTau(false)
-  , m_tMCTruthClassifier("MCTruthClassifierTool", this)
+  , m_tMCTruthClassifier("MCTruthClassifier", this)
 {
   declareProperty( "WriteTruthTaus", m_bWriteTruthTaus = false);
 
@@ -497,7 +497,7 @@ void BuildTruthTaus::printDecay(const xAOD::TruthParticle& xTruthParticle, int d
     const xAOD::TruthParticle* xTruthDaughter = xDecayVertex->outgoingParticle(iOutgoingParticle);
     if (!xTruthDaughter)
     {
-      ATH_MSG_FATAL("Truth daughter of tau decay was not found in "<<m_sTruthParticlesContainerName<<" container. Please ensure that this container has the full tau decay information or produce the TruthTaus container in AtlasDerivation.\nInformation on how to do this can be found here:\nhttps://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information");
+      ATH_MSG_WARNING("Truth daughter of tau decay was not found in "<<m_sTruthParticlesContainerName<<" container. Please ensure that this container has the full tau decay information or produce the TruthTaus container in AtlasDerivation.\nInformation on how to do this can be found here:\nhttps://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information");
       return;
     }
     ATH_MSG_WARNING("depth "<<depth

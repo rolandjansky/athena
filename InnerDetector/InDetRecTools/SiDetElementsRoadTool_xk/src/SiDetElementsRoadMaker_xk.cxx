@@ -374,7 +374,7 @@ std::ostream& InDet::operator <<
 
 void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 (const std::list<const Trk::SpacePoint*>& Sp,
- std::list<const InDetDD::SiDetectorElement*>& Road)
+ std::vector<const InDetDD::SiDetectorElement*>& Road)
 {
   if ((!m_usePIX && !m_useSCT)) return;
   
@@ -390,7 +390,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
 void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 (std::list<Amg::Vector3D>& GP,
- std::list<const InDetDD::SiDetectorElement*>& Road) 
+ std::vector<const InDetDD::SiDetectorElement*>& Road) 
 {  
   if (!m_usePIX && !m_useSCT) return;
 
@@ -407,7 +407,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   for(; n1!=m_map[1]; ++n1) {if(Po[3] < m_layer[1][n1].r()) break;}
   for(; n2!=m_map[2]; ++n2) {if(Po[2] < m_layer[2][n2].z()) break;}
 
-  std::list<InDet::SiDetElementLink_xk*> lDE;
+  std::vector<InDet::SiDetElementLink_xk*> lDE;
 
   ++g; while(g!=ge) {
 
@@ -498,7 +498,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
   // Sort list in propogation order
   //
-  std::list<InDet::SiDetElementLink_xk*>::iterator l=lDE.begin(),le=lDE.end(),n,m;
+  std::vector<InDet::SiDetElementLink_xk*>::iterator l=lDE.begin(),le=lDE.end(),n,m;
   if(l==le) return;
 
   bool nc =true;
@@ -531,7 +531,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 
 void InDet::SiDetElementsRoadMaker_xk::detElementsRoad 
 (const Trk::TrackParameters& Tp,Trk::PropDirection D,
- std::list<const InDetDD::SiDetectorElement*>& R)
+ std::vector<const InDetDD::SiDetectorElement*>& R)
 {
   if (!m_usePIX && !m_useSCT) return;
   

@@ -80,9 +80,11 @@ simFlags.InitFunctions.add_function("postInit", test_postInit)
 #     theApp.exit(0)
 # simFlags.InitFunctions.add_function(1, force_exit)
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Add app to alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 include("InDetSLHC_Example/postInclude.SLHC_Setup.py")
 
