@@ -23,7 +23,9 @@ typedef  T_AthenaPoolCustomCnv<TBScintillatorCont, TBScintillatorCont_PERS >   T
 class TBScintillatorContCnv : public TBScintillatorContCnvBase {
 friend class CnvFactory<TBScintillatorContCnv >;
 protected:
+public:
   TBScintillatorContCnv (ISvcLocator* svcloc) : TBScintillatorContCnvBase(svcloc) {}
+protected:
   virtual TBScintillatorCont_PERS*   createPersistent (TBScintillatorCont* transCont);
   virtual TBScintillatorCont*        createTransient ();
 

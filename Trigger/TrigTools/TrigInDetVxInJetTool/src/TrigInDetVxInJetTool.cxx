@@ -8,7 +8,6 @@
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TMath.h"
 
-#include "GaudiKernel/ToolFactory.h"
 
 #include<iostream>
 

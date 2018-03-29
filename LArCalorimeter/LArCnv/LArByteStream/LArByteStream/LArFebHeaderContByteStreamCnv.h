@@ -38,12 +38,8 @@ template <class TYPE> class CnvFactory;
 extern long ByteStream_StorageType;
 
 class LArFebHeaderContByteStreamCnv: public Converter {
-  friend class CnvFactory<LArFebHeaderContByteStreamCnv>;
-
- protected:
-  LArFebHeaderContByteStreamCnv(ISvcLocator* svcloc);
-
  public:
+  LArFebHeaderContByteStreamCnv(ISvcLocator* svcloc);
 
   typedef LArRawDataContByteStreamTool  BYTESTREAMTOOL ; 
 

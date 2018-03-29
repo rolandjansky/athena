@@ -16,7 +16,7 @@
 #include "RPCcablingInterface/IRPCcablingSvc.h"
 #include "RPCcablingInterface/RpcPadIdHash.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>

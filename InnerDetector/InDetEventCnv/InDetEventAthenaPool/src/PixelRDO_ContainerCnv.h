@@ -37,12 +37,13 @@ class PixelRDO_ContainerCnv : public PixelRDO_ContainerCnvBase {
   // Should not be needed at some point.
   StoreGateSvc*  m_storeGate;
 
-protected:
+public:
   PixelRDO_ContainerCnv (ISvcLocator* svcloc)
     : PixelRDO_ContainerCnvBase(svcloc, "PixelRDO_ContainerCnv"),
       m_converter_p0(),
       m_storeGate(nullptr)
   {}
+protected:
   virtual PixelRDO_Container_PERS*   createPersistent (PixelRDO_Container* transCont);
   virtual PixelRDO_Container* createTransient ();
 

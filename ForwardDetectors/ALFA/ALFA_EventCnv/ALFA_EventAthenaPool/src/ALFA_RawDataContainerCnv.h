@@ -11,8 +11,7 @@
 #include "ALFA_EventTPCnv/ALFA_RawDataContainer_p1.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/CnvFactory.h"
-
+
 
 typedef ALFA_RawDataContainer_p1 ALFA_RawDataContainer_PERS;
 
@@ -26,7 +25,9 @@ class ALFA_RawDataContainerCnv: public ALFA_RawDataContainerCnvBase {
   
  protected:
   
+public:
   ALFA_RawDataContainerCnv(ISvcLocator* svcloc): ALFA_RawDataContainerCnvBase(svcloc) {}
+protected:
     
     virtual ALFA_RawDataContainer_PERS* createPersistent(ALFA_RawDataContainer* transCont);
     virtual ALFA_RawDataContainer*      createTransient ();

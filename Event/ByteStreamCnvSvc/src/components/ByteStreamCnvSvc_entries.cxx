@@ -11,7 +11,7 @@
 #include "../ByteStreamMetadataTool.h"
 #include "../ByteStreamAttListMetadataSvc.h"
 
-DECLARE_CONVERTER_FACTORY( EventInfoByteStreamCnv )
+DECLARE_CONVERTER( EventInfoByteStreamCnv )
 DECLARE_COMPONENT( ByteStreamCnvSvc )
 DECLARE_COMPONENT( EventSelectorByteStream )
 DECLARE_COMPONENT( ByteStreamMergeOutputSvc )

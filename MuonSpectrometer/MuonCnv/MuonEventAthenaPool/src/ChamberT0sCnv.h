@@ -16,7 +16,9 @@ typedef  T_AthenaPoolCustomCnv<Muon::ChamberT0s, ChamberT0s_PERS >   ChamberT0sC
 class ChamberT0sCnv : public ChamberT0sCnvBase {
 friend class CnvFactory<ChamberT0sCnv >;
 protected:
+public:
   ChamberT0sCnv (ISvcLocator* svcloc) : ChamberT0sCnvBase(svcloc) {}
+protected:
   virtual ChamberT0s_PERS*   createPersistent (Muon::ChamberT0s* transObj);
   virtual Muon::ChamberT0s*  createTransient ();
 };

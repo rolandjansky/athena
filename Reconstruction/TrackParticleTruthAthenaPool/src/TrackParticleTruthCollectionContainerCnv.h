@@ -27,7 +27,9 @@ class TrackParticleTruthCollectionContainerCnv : public TrackParticleTruthCollec
 {
   friend class CnvFactory<TrackParticleTruthCollectionContainerCnv>;
 protected:
+public:
    TrackParticleTruthCollectionContainerCnv(ISvcLocator* svcloc);
+protected:
    ~TrackParticleTruthCollectionContainerCnv();
   virtual TrackParticleTruthCollectionContainer* createTransient();
   virtual TrackParticleTruthCollectionContainerPERS* createPersistent(TrackParticleTruthCollectionContainer*);

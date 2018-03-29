@@ -34,7 +34,9 @@ class LayerMaterialMapCnv : public LayerMaterialMapCnvBase
 friend class CnvFactory<LayerMaterialMapCnv>;
 
 protected:
+public:
   LayerMaterialMapCnv( ISvcLocator *svcloc );
+protected:
   ~LayerMaterialMapCnv();
   virtual StatusCode initialize();
 

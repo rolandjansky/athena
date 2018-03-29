@@ -36,7 +36,9 @@ class xAODTrigEMClusterAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
   xAODTrigEMClusterAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::TrigEMClusterAuxContainer*

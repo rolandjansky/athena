@@ -9,7 +9,6 @@
 //
 //-------------------------------------------------
 // Other stuff
-#include "GaudiKernel/ToolFactory.h"
 //
 #include<iostream>
 

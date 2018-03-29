@@ -32,7 +32,6 @@
 #include <cfloat>
 
 // Gaudi stuff
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
 

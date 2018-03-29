@@ -13,9 +13,10 @@ typedef ZdcRawChannelCollection_p1  ZdcRawChannelCollection_PERS;
 
 class ZdcRawChannelCollectionCnv  : public T_AthenaPoolCustomCnv<ZdcRawChannelCollection, ZdcRawChannelCollection_PERS > {
   friend class CnvFactory<ZdcRawChannelCollectionCnv>;
-protected:
+public:
   ZdcRawChannelCollectionCnv(ISvcLocator* svcloc) :
         T_AthenaPoolCustomCnv<ZdcRawChannelCollection, ZdcRawChannelCollection_PERS >( svcloc) {}
+protected:
   ZdcRawChannelCollection_PERS*  createPersistent(ZdcRawChannelCollection* transCont);
   ZdcRawChannelCollection*       createTransient ();
 };

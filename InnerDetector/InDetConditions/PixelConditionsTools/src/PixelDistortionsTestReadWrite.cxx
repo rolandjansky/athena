@@ -9,7 +9,6 @@
 //#include "StoreGate/StoreGateSvc.h"
 
 // Gaudi includes
-#include "GaudiKernel/AlgFactory.h"
 
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"

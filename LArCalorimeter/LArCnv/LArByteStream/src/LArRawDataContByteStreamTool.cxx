@@ -20,7 +20,6 @@
 #include "LArByteStream/LArRodBlockPhysicsV3.h"
 #include "LArByteStream/LArRodBlockPhysicsV5.h"
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 

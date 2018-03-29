@@ -21,7 +21,6 @@ to the third digit of decimal number of the  pdgid.
 #include "MuonSimData/MuonSimData.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonSimEvent/MdtHitIdHelper.h"

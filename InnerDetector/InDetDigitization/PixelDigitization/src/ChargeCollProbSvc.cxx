@@ -6,7 +6,6 @@
 #include "src/IChargeCollProbSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
  

@@ -33,7 +33,6 @@
  **/
 
 class MDT_IDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<MDT_IDDetDescrCnv>;
 
 public:
     virtual long int   repSvcType() const;
@@ -45,7 +44,6 @@ public:
     static long  storageType();
     static const CLID& classID();
 
-protected:
     MDT_IDDetDescrCnv(ISvcLocator* svcloc);
 
 };

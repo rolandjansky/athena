@@ -42,7 +42,9 @@ class xAODMissingETAuxAssociationMapCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODMissingETAuxAssociationMapCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::MissingETAuxAssociationMap*

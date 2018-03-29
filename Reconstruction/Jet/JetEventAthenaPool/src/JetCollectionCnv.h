@@ -72,7 +72,9 @@ class JetCollectionCnv: public JetCollectionCnvBase,
 
   /** Create the converter from the service locator
    */
+public:
   JetCollectionCnv(ISvcLocator* svcloc);
+protected:
 
   /** Build the persistent representation from the transient one.
    */

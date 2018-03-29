@@ -4,7 +4,6 @@
 
 #include "TrigL2MuonSA/CscDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 

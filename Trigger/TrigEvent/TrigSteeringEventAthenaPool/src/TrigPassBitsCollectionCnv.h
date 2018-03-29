@@ -19,7 +19,9 @@ class TrigPassBitsCollectionCnv : public TrigPassBitsCollectionCnvBase {
 
  protected:
 
+public:
   TrigPassBitsCollectionCnv( ISvcLocator *svcloc ): TrigPassBitsCollectionCnvBase(svcloc){}
+protected:
 
   virtual TrigPassBitsCollection_PERS *createPersistent( TrigPassBitsCollection *transObj);
   virtual TrigPassBitsCollection      *createTransient();

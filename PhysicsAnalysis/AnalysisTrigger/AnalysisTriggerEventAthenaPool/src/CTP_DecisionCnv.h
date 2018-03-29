@@ -33,7 +33,9 @@ class CTP_DecisionCnv : public CTP_DecisionCnvBase {
   friend class CnvFactory< CTP_DecisionCnv >;
 
 protected:
+public:
   CTP_DecisionCnv( ISvcLocator* svcloc ) : CTP_DecisionCnvBase( svcloc ) {}
+protected:
 
   virtual CTP_Decision_PERS* createPersistent( CTP_Decision* transObj );
   virtual CTP_Decision*      createTransient();

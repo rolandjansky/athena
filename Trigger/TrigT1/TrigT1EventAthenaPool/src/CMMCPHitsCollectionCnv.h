@@ -24,14 +24,14 @@ typedef T_AthenaPoolCustomCnv<CMMCPHitsCollection, CMMCPHitsCollection_PERS> CMM
 class CMMCPHitsCollectionCnv: public CMMCPHitsCollectionCnvBase {
 friend class CnvFactory<CMMCPHitsCollectionCnv>;
 
-protected:
-
+public:
   CMMCPHitsCollectionCnv (ISvcLocator* svcloc) :
     CMMCPHitsCollectionCnvBase(svcloc),
     m_msgSvc( msgSvc() ),
     m_log( m_msgSvc, "CMMCPHitsCollectionCnv" )
      {}
   
+protected:
   ~CMMCPHitsCollectionCnv() {}
   
   virtual CMMCPHitsCollection_PERS*   createPersistent (CMMCPHitsCollection* transCont);

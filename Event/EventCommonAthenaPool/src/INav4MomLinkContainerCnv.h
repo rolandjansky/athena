@@ -43,7 +43,9 @@ class INav4MomLinkContainerCnv : public T_AthenaPoolCustomCnv< INav4MomLinkConta
 protected:
 
   /** The constructor */
+public:
   INav4MomLinkContainerCnv( ISvcLocator* svcloc );
+protected:
 
   /** Member method to create the persistent version */
   virtual INav4MomLinkContainer_PERS*   createPersistent ( INav4MomLinkContainer* transCont );

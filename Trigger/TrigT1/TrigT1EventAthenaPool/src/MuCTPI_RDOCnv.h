@@ -33,7 +33,9 @@ class MuCTPI_RDOCnv : public MuCTPI_RDOCnvBase {
    friend class CnvFactory< MuCTPI_RDOCnv >;
 
 protected:
+public:
    MuCTPI_RDOCnv( ISvcLocator* svcLoc ) : MuCTPI_RDOCnvBase( svcLoc ) {}
+protected:
 
    virtual MuCTPI_RDO_PERS* createPersistent( MuCTPI_RDO* transObj );
    virtual MuCTPI_RDO*      createTransient();

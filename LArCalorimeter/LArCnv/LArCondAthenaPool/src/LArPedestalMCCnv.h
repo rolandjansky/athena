@@ -24,7 +24,9 @@ typedef T_AthenaPoolCustomCnv<LArPedestalMCTransType, LArPedestalMCPersType > LA
 class LArPedestalMCCnv : public LArPedestalMCCnvBase {
 friend class CnvFactory<LArPedestalMCCnv >;
 protected:
+public:
     LArPedestalMCCnv (ISvcLocator* svcloc) : LArPedestalMCCnvBase(svcloc) {}
+protected:
     virtual LArPedestalMCPersType*   createPersistent (LArPedestalMCTransType* transObj);
     virtual LArPedestalMCTransType*  createTransient ();
 };

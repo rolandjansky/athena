@@ -12,7 +12,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ToolHandle.h"
  
 #include "MuonRDO/TgcRdo.h"

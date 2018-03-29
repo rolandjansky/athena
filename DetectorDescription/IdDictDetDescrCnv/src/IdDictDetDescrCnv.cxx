@@ -27,7 +27,6 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
  
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/CnvFactory.h"
 
 #include "StoreGate/StoreGate.h" 
 #include "SGTools/StorableConversions.h"

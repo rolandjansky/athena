@@ -11,7 +11,7 @@
 
 class LArHVScaleCorrCompleteCnv : public LArSingleFloatConverter<LArHVScaleCorrComplete> {
   friend class CnvFactory<LArHVScaleCorrCompleteCnv>;
- protected: 
+public:
   LArHVScaleCorrCompleteCnv (ISvcLocator* svcloc) :
     LArSingleFloatConverter<LArHVScaleCorrComplete>(svcloc) {}
 }; 

@@ -4,7 +4,6 @@
 
 #include "MuonCombinePatternTools/MuonCombinePatternTool.h"
 
-#include "GaudiKernel/ToolFactory.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/sincos.h"

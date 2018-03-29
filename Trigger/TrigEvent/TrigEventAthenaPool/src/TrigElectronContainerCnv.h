@@ -20,7 +20,9 @@ class TrigElectronContainerCnv  : public TrigElectronContainerCnvBase {
 
   protected:
   
+public:
    TrigElectronContainerCnv(ISvcLocator* svcloc): TrigElectronContainerCnvBase(svcloc){}
+protected:
 
    virtual TrigElectronContainer_PERS*  createPersistent(TrigElectronContainer* transCont);
    virtual TrigElectronContainer*       createTransient ();

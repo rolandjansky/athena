@@ -7,7 +7,6 @@
 
 #include "TBCnv/TBCheckBCIDs.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 

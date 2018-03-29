@@ -18,7 +18,6 @@
 
 #include "TBRec/TBBPCRec.h"
 
-//#include "GaudiKernel/AlgFactory.h"
 // static const AlgFactory<TBBPCRec> s_factory;
 // const IAlgFactory& TBBPCRecFactory = s_factory;
 

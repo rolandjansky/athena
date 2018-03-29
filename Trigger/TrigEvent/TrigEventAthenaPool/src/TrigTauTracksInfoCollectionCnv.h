@@ -20,7 +20,9 @@ class TrigTauTracksInfoCollectionCnv : public TrigTauTracksInfoCollectionCnvBase
   
  protected:
 
+public:
   TrigTauTracksInfoCollectionCnv( ISvcLocator *svcloc ) : TrigTauTracksInfoCollectionCnvBase(svcloc){}
+protected:
 
   virtual TrigTauTracksInfoCollection_PERS *createPersistent( TrigTauTracksInfoCollection *transObj);
   virtual TrigTauTracksInfoCollection      *createTransient();
