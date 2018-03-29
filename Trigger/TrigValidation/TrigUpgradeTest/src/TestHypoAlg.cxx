@@ -81,7 +81,7 @@ namespace HLTTest {
 	 auto d = newDecisionIn(decisions.get());
 	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), counter) );// feature used by the Tool
 	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
-	 linkToPrevious( d, m_previousDecisions.key(), pos );
+	 linkToPrevious( d, decisionInput().key(), pos );
        }
        else{
 	 ATH_MSG_ERROR( " Can not find reference to previous decision from feature " + m_linkName.value() + " from reco object " << counter );

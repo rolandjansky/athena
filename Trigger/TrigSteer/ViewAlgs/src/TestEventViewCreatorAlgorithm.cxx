@@ -23,7 +23,7 @@ StatusCode TestEventViewCreatorAlgorithm::initialize()
 {
 
   CHECK( m_inputDecisionsKey.initialize() );
-xs  renounceArray(m_inputDecisionsKey);
+  renounceArray(m_inputDecisionsKey);
   ATH_MSG_DEBUG("Will consume implicit input data:" );
   for (auto& input: m_inputDecisionsKey){  
     ATH_MSG_DEBUG(" "<<input.key());
