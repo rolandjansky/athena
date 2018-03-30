@@ -297,7 +297,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DMapsLW> m_hitmap_tmp;
   TH1F_LW* m_nhits_mod[PixLayer::COUNT];
   TProfile_LW* m_hits_per_lumi_mod[PixLayer::COUNT];
-  TH1F_LW* m_hits_lastXlb_mod[PixLayer::COUNT];
   TH1F_LW* m_nlargeevt_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_totalhits_per_bcid_mod[PixLayerIBL2D3D::COUNT];
 
@@ -305,6 +304,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_avgocc_per_lumi;
   TProfile_LW* m_avgocc_ratioIBLB0_per_lumi;
   TProfile_LW* m_avgocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+  TH1F* m_avgocc_ratio_lastXlb_mod[PixLayer::COUNT];
   TProfile_LW* m_avgocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_avgocc_active_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH2F_LW* m_maxocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
@@ -382,6 +382,10 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_hiteff_incl_mod[PixLayer::COUNT];
   TProfile* m_hiteff_lastXlb_mod[PixLayer::COUNT];
   
+  // npixhits/track/lumi
+  TH2F_LW* m_npixhits_per_track_lumi;
+  TH2F* m_npixhits_per_track_lastXlb;
+
   // lorentz angle
   TProfile2D_LW* m_LorentzAngle_IBL;
   TProfile2D_LW* m_LorentzAngle_IBL2D;

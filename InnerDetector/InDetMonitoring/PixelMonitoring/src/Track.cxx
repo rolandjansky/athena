@@ -128,6 +128,15 @@ StatusCode PixelMainMon::bookTrackMon(void) {
     }
   }
 
+  hname = makeHistname("NPixhits_per_track_lumi", false);
+  htitles = makeHisttitle("Number of pixhits per track", ";lumi block;number of hits", false);
+  sc = trackHistos.regHist(m_npixhits_per_track_lumi = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 10, -0.5, 9.5));
+  if (m_doOnline) {
+    hname = makeHistname("NPixhits_per_track_last100lb", false);
+    htitles = makeHisttitle("Number of pixhits per track last 100 LB", ";last 100 lumi blocks;number of hits", false);
+    sc = trackHistos.regHist(m_npixhits_per_track_lastXlb = new TH2F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, 10, -0.5, 9.5));
+  }
+
   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Track histograms");
   return StatusCode::SUCCESS;
 }
@@ -146,7 +155,6 @@ StatusCode PixelMainMon::fillTrackMon(void) {
   }
 
   m_ntracksPerEvent = 0;
-  int nPixelHits = 0;
 
   if (m_doOnTrack) {
     m_RDOIDs.clear();
@@ -170,7 +178,7 @@ StatusCode PixelMainMon::fillTrackMon(void) {
     if (m_doHoleSearch && npixholes > 0) {
       track = m_holeSearchTool->getTrackWithHoles(*track0);
     }
-
+    int nPixelHits = 0;
     bool passJOTrkTightCut = m_trackSelTool->accept(*track0);
     bool passTightCut = (passJOTrkTightCut && npixholes == 0);                                 // lorentz angle
     bool pass1hole1GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 1.0));  // misshit ratios
@@ -320,9 +328,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
     }  // end of TSOS loop
 
     if (m_track_chi2 && track0->fitQuality()->numberDoF() != 0) m_track_chi2->Fill(track0->fitQuality()->chiSquared() / track0->fitQuality()->numberDoF());
-    if (nPixelHits > 0) {
-      m_ntracksPerEvent++;
-    }
+    if (m_npixhits_per_track_lumi) m_npixhits_per_track_lumi->Fill(m_manager->lumiBlockNumber(), nPixelHits);
+    m_ntracksPerEvent++;
 
     if (m_doHoleSearch && npixholes > 0) delete track;
   }  // end of track loop
@@ -355,9 +362,12 @@ StatusCode PixelMainMon::procTrackMon(void) {
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_hiteff_incl_mod[i] && m_hiteff_lastXlb_mod[i]) {
 	unsigned int bing = m_hiteff_incl_mod[i]->GetXaxis()->FindBin(lastlb);
-	int lumilabel(lastlb);
+
+	unsigned int nXbins = m_hiteff_lastXlb_mod[i]->GetNbinsX();
+	m_hiteff_lastXlb_mod[i]->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
+	m_hiteff_lastXlb_mod[i]->Reset();
+
 	for (int binf=m_hiteff_lastXlb_mod[i]->GetNbinsX(); binf>0; binf--) {
-	  m_hiteff_lastXlb_mod[i]->GetXaxis()->SetBinLabel(binf, Form("%d", lumilabel));
 	  if (bing>0) {
 	    cont = m_hiteff_incl_mod[i]->GetBinContent(bing);
 	    entr = m_hiteff_incl_mod[i]->GetBinEntries(bing);
@@ -369,11 +379,31 @@ StatusCode PixelMainMon::procTrackMon(void) {
 	    }
 	    bing--;
 	  } 
-	  lumilabel--;
 	}
 	m_hiteff_lastXlb_mod[i]->SetEntries(entries);
 	//m_hiteff_lastXlb_mod[i]->SetEntries(lastlb);      // for testing
       }
+    }
+    if (m_npixhits_per_track_lumi && m_npixhits_per_track_lastXlb) {
+      unsigned int bingx = m_npixhits_per_track_lumi->GetXaxis()->FindBin(lastlb);
+      unsigned int nbingy = m_npixhits_per_track_lumi->GetNbinsY();
+
+      unsigned int nXbins = m_npixhits_per_track_lastXlb->GetNbinsX();
+      m_npixhits_per_track_lastXlb->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
+      m_npixhits_per_track_lastXlb->Reset();
+
+      for (int binfx=m_npixhits_per_track_lastXlb->GetNbinsX(); binfx>0; binfx--) {
+	if (bingx>0) {
+	  for (unsigned int bingy = 1; bingy <= nbingy; bingy++) {
+	    cont = m_npixhits_per_track_lumi->GetBinContent(bingx, bingy);
+	    if (cont!=0) {
+	      m_npixhits_per_track_lastXlb->SetBinContent(binfx, bingy, cont);
+	    }
+	  }
+	  bingx--;
+	} 
+      }
+      //m_npixhits_per_track_lastXlb->SetEntries(lastlb);      // for testing 
     }
   }
   if (m_doOffline) {
