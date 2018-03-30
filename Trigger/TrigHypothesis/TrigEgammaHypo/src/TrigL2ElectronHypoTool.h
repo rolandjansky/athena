@@ -87,5 +87,4 @@ class TrigL2ElectronHypoTool : virtual public ::AthAlgTool
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
 }; 
 
-DECLARE_TOOL_FACTORY( TrigL2ElectronHypoTool )
 #endif //> !TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOL_H

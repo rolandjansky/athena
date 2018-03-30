@@ -35,6 +35,9 @@ namespace HLTTest {
   
  private: 
 
+  typedef TrigRoiDescriptor FeatureOBJ;
+  typedef TrigRoiDescriptorCollection FeatureContainer;
+
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput1;
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput2;
   SG::ReadHandleKey <DecisionContainer> m_previousDecisions1    { this, "previousDecisions1", "previousDecisions1", "Key for decisions per RoI for input 1" };

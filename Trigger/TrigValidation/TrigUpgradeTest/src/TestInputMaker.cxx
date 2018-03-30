@@ -13,13 +13,8 @@ namespace HLTTest {
   
   TestInputMaker::TestInputMaker( const std::string& name, 
 			    ISvcLocator* pSvcLocator )    
-    : AthAlgorithm( name, pSvcLocator ),
-      m_linkName("feature") {
-    declareProperty( "Inputs", m_inputs, "Input Decisions (implicit)" );
-    declareProperty( "Output", m_recoOutput, "name of the output collection for input to next reco alg in sequence");
-    declareProperty( "OutputType", m_outputType, "reserved for future use");
-    declareProperty( "LinkName", m_linkName, "name of the link to the features in the decision, e.g. 'feature', 'InitialRoI'");
-  }
+    : AthAlgorithm( name, pSvcLocator ) {}
+   
 
   TestInputMaker::~TestInputMaker() {}
 
@@ -32,8 +27,16 @@ namespace HLTTest {
     for (auto& input: m_inputs){  
       ATH_MSG_DEBUG(" "<<input.key());
     }
-    ATH_MSG_DEBUG(" and produce " << m_recoOutput);
 
+    CHECK( m_decisionsKey.initialize() );
+    //   renounceArray(m_decisionsKey);
+    ATH_MSG_DEBUG(" and produce decisions: ");
+    for (auto& output: m_decisionsKey){  
+      ATH_MSG_DEBUG(" "<<output.key());
+    }
+
+    // specific:
+    ATH_MSG_DEBUG(" with reco collections: " << m_recoOutput);
     CHECK( m_recoOutput.initialize() );
     return StatusCode::SUCCESS;
   }
@@ -47,70 +50,137 @@ namespace HLTTest {
   StatusCode TestInputMaker::execute() {
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
 
-    //auto outputHandle = SG::makeHandle(m_recoOutput);
+ 
+    auto outputHandles = m_decisionsKey.makeHandles();
 
-    // make the new output collection, as a view container so it can be given const features
-    //    auto output = std::make_unique<ConstDataVector<xAOD::TrigCompositeContainer> >();
-    auto output = std::make_unique<xAOD::TrigCompositeContainer>();
+    // output collection, as a view container so it can be given const features
+    auto reco_output = std::make_unique<xAOD::TrigCompositeContainer>();
     auto aux = std::make_unique<xAOD::TrigCompositeAuxContainer>();
-    output->setStore( aux.get() );
+    reco_output->setStore( aux.get() );
 
-    //auto c = std::make_unique<ConstDataVector<TrigRoiDescriptorCollection> >();
-    //output->clear( SG::VIEW_ELEMENTS );
-    // view containers do not have aux stores of their own so no need to create nor call output->setStore
-
-    ATH_MSG_DEBUG( "number of implicit ReadHandles is " << m_inputs.size() );
-
-    // Loop over contents of this, which are of course TrigComposites, and request their features
-    //    auto inputHandles = m_inputs.makeHandles();
+    size_t validInput=0;
+    for ( auto inputKey: m_inputs ) {
+      auto inputHandle = SG::makeHandle( inputKey );
+      ATH_MSG_DEBUG(" "<<inputKey.key()<<(inputHandle.isValid()? "valid": "not valid" ) );
+      if (inputHandle.isValid()) validInput++;
+    }
+    ATH_MSG_DEBUG( "number of implicit ReadHandles is " << m_inputs.size() <<", "<< validInput<<" are valid" );
+    
+    // Loop over all input containers, which are of course TrigComposites, and request their features    
+    std::vector<const FeatureOBJ*> featureFromDecision;
+    size_t count_reco=0;
     size_t outputIndex = 0;
     for ( auto inputKey: m_inputs ) {
       auto inputHandle = SG::makeHandle( inputKey );
-      //    for (auto inputHandle: inputHandles){
-      ATH_MSG_DEBUG( "Got DecisionContainer from input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
-
-      // loop over decisions retrieved from this input
-      // The input is a DecisionContainer, alias for a TrigCompositeContainer.
-      for (auto decision=inputHandle->begin(); decision!=inputHandle->end(); ++decision){
-	//        ATH_MSG_DEBUG( "Got Decision (TrigComposite): " << *decision);
-        // retrieve feature from TrigComposite, will in this case be a TrigRoiDescriptor
-        // objectLink method is templated with container but returns single contained class
-        //ElementLink<xAOD::TrigCompositeContainer> feature = (*decision)->objectLink<xAOD::TrigCompositeContainer>( m_linkName.value() );
-        auto featurelink = (*decision)->objectLink<TrigRoiDescriptorCollection>( m_linkName.value() );
-        if ( not featurelink.isValid() )  {
-          ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
-          return StatusCode::FAILURE;
-        }
-        
-	auto featurePtr(featurelink.cptr());
-	ATH_MSG_DEBUG("    Found feature " <<m_linkName.value() <<": " << **featurePtr );
-
-        // copy all features to a single output collection 
-        // they just happen to be TrigComposites in this case but should be whatever is needed as input by the reco algorithm next in the sequence, e.g. CaloCells.
-      
-	//auto output = std::make_unique< ConstDataVector< xAOD::TrigCompositeContainer > > ();
-	//output->clear( SG::VIEW_ELEMENTS );
-	auto tc = new xAOD::TrigComposite;
-	output->push_back(tc); 
-	tc->setObjectLink(m_linkName.value(), featurelink);
-	//output->setObjectLink(m_linkName.value(), featurelink);
-        ATH_MSG_DEBUG( "    copied feature " << m_linkName.value() <<" to output " <<outputIndex);
-	//	CHECK( outputHandle.record( std::move( output ) ) );
+      if( not inputHandle.isValid() ) {
+	ATH_MSG_DEBUG( "Got no decisions from input "<< inputKey.key());
 	outputIndex++;
-	//        tc->setDetail( m_linkName.value(), feature );
+	continue;
+      }
+      if( inputHandle->size() == 0){ // input filtered out
+	ATH_MSG_ERROR( "Got 0 decisions from valid input "<< inputKey.key()<<". Is it expected?");
+	return StatusCode::FAILURE;
+      }
+      ATH_MSG_DEBUG( "Got input "<< inputKey.key()<<" with " << inputHandle->size() << " elements" );
+       // crete the output container
+       auto Outdecisions = std::make_unique<DecisionContainer>();
+       auto dec_aux = std::make_unique<DecisionAuxContainer>();
+       Outdecisions->setStore( dec_aux.get() );
+       
+      // loop over decisions retrieved from this input
+      size_t counter =0;
+      for ( auto decision : *inputHandle){
+	auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
+	CHECK( roiEL.isValid() );
 	
-        // For early tests, create TC, link to RoiD, push back onto TCC.
-        // Later will output RoID collection directly via tool.
+	// retrieve feature  from TrigComposite, will in this case be a TrigRoiDescriptor
+	auto featurelink = (decision)->objectLink<FeatureContainer>( m_linkName.value() );
+	if ( not featurelink.isValid() )  {
+	  ATH_MSG_ERROR( " Can not find reference to " + m_linkName.value() + " from the decision" );
+	  return StatusCode::FAILURE;
+	}
         
-      } // loop over decisions
-    } // loop over input keys
-    
+	const FeatureOBJ* feature = *featurelink;
+	ATH_MSG_DEBUG(" Found feature " <<m_linkName.value() );
 
-    ATH_MSG_DEBUG("Produced "<<output->size() <<" objects");
-    // Finally, record output
-    auto outputHandle = SG::makeHandle(m_recoOutput);
-    CHECK( outputHandle.record(std::move(output), std::move(aux)) );
-  
+       // merge reco outputs that are linked to the same feature (RoI): this avoids processing the same RoI from TC decisions from different chains
+	bool already_exist=false;
+	size_t pos=distance(featureFromDecision.begin(), find(featureFromDecision.begin(), featureFromDecision.end(), feature));
+	if (pos < featureFromDecision.size()){
+	  already_exist=true;	 
+       }
+
+	if (! already_exist) {
+	  // create the "reco" output
+	  auto tc = new xAOD::TrigComposite;
+	  reco_output->push_back(tc);	  
+	  // copy all features to a single output collection 
+	  //  tc->setObjectLink(m_linkName.value(), featurelink);
+	  tc->setObjectLink("initialRoI", roiEL);
+	  ATH_MSG_DEBUG(" Added " <<m_linkName.value() <<" to reco object");
+	  featureFromDecision.push_back( feature);
+	  count_reco++;
+	}
+	
+	// create new decision for each input	
+	TrigCompositeUtils::Decision* newd;
+	newd = newDecisionIn( Outdecisions.get() );
+	//newd->setObjectLink( m_linkName.value(), featurelink);
+	newd->setObjectLink( "initialRoI", roiEL );
+	newd->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(inputKey.key(), counter) );// link to previous decision object
+
+	{
+          //copy decisions ID
+          TrigCompositeUtils::DecisionIDContainer objDecisions;      
+          TrigCompositeUtils::decisionIDs( decision, objDecisions );
+          for ( const HLT::Identifier& id: objDecisions ){
+	    TrigCompositeUtils::addDecisionID( id, newd );
+	  }
+        }
+	counter++;	
+        // For early tests, create TC, link to RoiD, push back onto TCC.
+        // Later will output RoID collection directly via tool.        
+      } // loop over decisions
+        
+      ATH_MSG_DEBUG( "Recording output key " <<  m_decisionsKey[ outputIndex ].key() <<" of size "<<Outdecisions->size()  <<" at index "<< outputIndex);
+      CHECK( outputHandles[outputIndex].record( std::move( Outdecisions ), std::move( dec_aux ) ) );
+      outputIndex++;	       
+    } // loop over input keys
+
+    
+      // Finally, record output
+    ATH_MSG_DEBUG("Produced "<<reco_output->size() <<" reco objects");
+    auto reco_outputHandle = SG::makeHandle(m_recoOutput);
+    CHECK( reco_outputHandle.record(std::move(reco_output), std::move(aux)) );
+
+
+    //debug
+    size_t validOutput=0;
+    for ( auto outHandle: outputHandles ) {
+      if( not outHandle.isValid() ) continue;
+      validOutput++;
+    }
+    ATH_MSG_DEBUG("Produced "<<validOutput<<" decisions containers");
+    if(validInput != validOutput) {
+      ATH_MSG_ERROR("Found "<<validInput<<" inputs and "<<validOutput<<" outputs");
+    }
+
+    for ( auto outHandle: outputHandles ) {
+      if( not outHandle.isValid() ) continue;
+      ATH_MSG_DEBUG(outHandle.key() <<" with "<< outHandle->size() <<" decisions:");
+      for (auto outdecision:  *outHandle){
+    	TrigCompositeUtils::DecisionIDContainer objDecisions;      
+    	TrigCompositeUtils::decisionIDs( outdecision, objDecisions );
+	
+    	ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
+	
+    	for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
+    	  ATH_MSG_DEBUG( " ---  decision " << HLT::Identifier( id ) );
+    	}  
+      }
+    }
+
+
     return StatusCode::SUCCESS;
   }
 

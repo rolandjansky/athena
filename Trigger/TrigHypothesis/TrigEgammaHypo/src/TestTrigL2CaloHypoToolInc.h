@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLINC_H
-#define TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOLINC_H 1
+#ifndef TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOTOOLINC_H
+#define TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOTOOLINC_H 1
 
 //#include "GaudiKernel/IAlgTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -19,13 +19,13 @@
  * @brief 
  **/
 
-class TrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> { 
+class TestTrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> { 
  public: 
-  TrigL2CaloHypoToolInc( const std::string& type, 
+  TestTrigL2CaloHypoToolInc( const std::string& type, 
 			 const std::string& name, 
 			 const IInterface* parent );
 
-  virtual ~TrigL2CaloHypoToolInc();
+  virtual ~TestTrigL2CaloHypoToolInc();
   virtual StatusCode initialize() override;
 
   virtual StatusCode decide( std::vector<ITrigL2CaloHypoTool::ClusterInfo>& input )  const override;
@@ -33,7 +33,10 @@ class TrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> {
   virtual bool decide( const ITrigL2CaloHypoTool::ClusterInfo& i ) const override;
 
  private:
-  HLT::Identifier m_decisionId;
+  //  HLT::Identifier m_decisionId;
+
+  Gaudi::Property<std::vector<std::string> > m_chainsProperty{ this, "Chains", {}, "Chains of whihc this Hypo is concerned" };
+  std::set<HLT::Identifier> m_chains;
   
   //Calorimeter electron ID  cuts
   Gaudi::Property< std::vector<float> > m_etabin { this, "EtaBins", {} , "Bins of eta" }; //!<  selection variable for L2 calo selection:eta bins
@@ -56,4 +59,4 @@ class TrigL2CaloHypoToolInc : public extends<AthAlgTool, ITrigL2CaloHypoTool> {
   int findCutIndex( float eta ) const;
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2CALOHYPOTOOL_H
+#endif //> !TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOTOOL_H

@@ -44,6 +44,5 @@ class TrigL2ElectronHypoAlg
   SG::ReadHandleKey< xAOD::TrigElectronContainer > m_electronsKey {this, "Electrons", "L2ElectronContainer", "Input"};
 
 }; 
-DECLARE_ALGORITHM_FACTORY( TrigL2ElectronHypoAlg )
 
 #endif //> !TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOALG_H
