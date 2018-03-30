@@ -4,7 +4,7 @@ use File::Basename;
 use Date::Manip::Date;
 
 # Produce summary table for trigtest.pl tests in same dir or first parameter to script
-my $output="index.html";
+my $output="index.php";
 
 # If given, use first argument as output file
 if ($#ARGV>=0) {
@@ -274,8 +274,20 @@ function showBuildFailures(failures,link) {
 #	print HTMLOUT "<script src=\"".$nicosWWWPage."/build_failures_".$atn_relno.".js\" language=\"JavaScript\"></script>\n";
 #	print HTMLOUT "<script type=\"text/javascript\">showBuildFailures(failures_".$atn_relno."(),"."\"".$nicosWWWPage."/nicos_buildsummary_".$atn_relno.".html\")</script>";
 #
-
-    print HTMLOUT "<p>Nightly test: $project, $gitbranch, $release</p>\n";
+    my $test_suite = gettestpkgdir(); # this is a basename of pwd (expected to be e.g. TrigP1Test)
+    print HTMLOUT "<p>Nightly test: $project, $gitbranch, $release\n\n";
+    print HTMLOUT "&emsp;Check other builds: <select name=\"select_other_builds\" onchange=\"location = this.value;\">\n";
+    print HTMLOUT "<option value=\"\" selected=\"selected\">-----</option>\n";
+    print HTMLOUT "<?php\n";
+    print HTMLOUT "             \$nightlies = glob(dirname(__FILE__) . '/../../*');\n";
+    print HTMLOUT "             \$nightlies = array_reverse(\$nightlies);\n";
+    print HTMLOUT "             foreach(\$nightlies as \$nightly){\n";
+    print HTMLOUT "                 \$nightly = basename(\$nightly);\n";
+    print HTMLOUT "                 echo \"<option value='../../\" . \$nightly . \"/$test_suite/\" . \"'>\".\$nightly.\"</option>\";\n";
+    print HTMLOUT "    }\n";
+    print HTMLOUT "?>\n";
+    print HTMLOUT "</select>\n";
+    print HTMLOUT "</p>\n";
 
     # Link to GitLab diff between today's and yesterday's release
     my $fmt="%Y-%m-%dT%H%M";
