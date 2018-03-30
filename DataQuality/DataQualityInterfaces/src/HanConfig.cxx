@@ -506,7 +506,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    algRefName = assessorName;
 	    absAlgRefName += algRefName;
 	    std::string algRefFile( m_refConfig.GetStringAttribute(thisRefID,"file") );
-	    algRefFile = SplitReference( refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
+	    algRefFile = SplitReference( m_refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
 
 	    if( algRefFile != "" ) {
 	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
@@ -861,7 +861,7 @@ Visit( const MiniConfigTreeNode* node ) const
       std::string objPath("");
       std::string absObjPath("");
       
-      refFile = SplitReference( refConfig.GetStringAttribute(refID,"location"), refFile);
+      refFile = SplitReference( m_refConfig.GetStringAttribute(refID,"location"), refFile);
       //std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
       std::shared_ptr<TFile> infile( GetROOTFile(refFile) );
       TDirectory* basedir(0);
