@@ -506,10 +506,11 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       if (m_occupancy) m_occupancy->fill(rdoID, m_pixelid);
       if (m_occupancy_10min && m_doLumiBlock) m_occupancy_10min->fill(rdoID, m_pixelid);
       if (m_hitmap_tmp) m_hitmap_tmp->fill(rdoID, m_pixelid);
-      if (m_average_pixocc && pixlayeribl2d3d < PixLayerIBL2D3D::COUNT && nChannels_mod[pixlayeribl2d3d] > 0) {
-        m_average_pixocc->fill(rdoID, m_pixelid, 1.0 / (1.0 * nChannels_mod[pixlayeribl2d3d]));
+      if (m_average_pixocc && pixlayer!=99 && pixlayeribl2d3d!=99) {
+	if (pixlayer == PixLayer::kIBL) m_average_pixocc->fill(rdoID, m_pixelid, inv_nChannels_mod[pixlayer]);
+	else m_average_pixocc->fill(rdoID, m_pixelid, inv_nChannels_mod[pixlayeribl2d3d]);
       }
-
+      
       // Fill Lvl1A
       if (m_Lvl1A) {
         m_Lvl1A->Fill((*p_rdo)->getLVL1A());
