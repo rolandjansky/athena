@@ -12,11 +12,14 @@
 #include "xAODForward/AFPStationID.h"
 
 #include "AFP_Monitoring/AFPSiLayerMonitor.h"
+#include "AFP_Monitoring/AFPHitsMonitorTool.h"
+#include "AFP_Monitoring/AFPSiLayerSummaryManager.h"
 
 AFPSiLayerMonitor::AFPSiLayerMonitor(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent) : 
   AthAlgTool  (type, name, parent),
+  m_parentMonitor (nullptr),
   m_hitsInEvent (0),
   m_hitMap(nullptr),
   m_hitMultiplicity(nullptr),
@@ -27,6 +30,8 @@ AFPSiLayerMonitor::AFPSiLayerMonitor(const std::string& type,
 
   declareProperty("pixelLayerID", m_pixelLayerID = -1, "ID number of pixel layer.");
   declareProperty("stationID", m_stationID = -1, "ID number of station in which is the monitored layer.");
+
+  declareProperty("hitsScaleFactor", m_hitsScaleFactor = 3, "Scale factor for normalising hits in event to pile-up.");
   
   declareProperty("hotSpotStartRow", m_hotSpotStartRow = 0, "First row of the hot spot.");
   declareProperty("hotSpotEndRow", m_hotSpotEndRow = 50, "Last row of the hot spot.");
@@ -40,6 +45,12 @@ AFPSiLayerMonitor::~AFPSiLayerMonitor()
 
 StatusCode AFPSiLayerMonitor::initialize()
 {
+  // set full name
+  std::stringstream fullName;
+  fullName<<"st."<<m_stationID;
+  fullName<<"/lay."<<m_pixelLayerID;
+  m_layerFullName = fullName.str();
+  
   return StatusCode::SUCCESS;
 }
 
@@ -125,6 +136,9 @@ void AFPSiLayerMonitor::fillHistograms(const xAOD::AFPSiHit& hit)
   // fill histograms
   m_hitMap->Fill(hit.pixelColIDChip(), hit.pixelRowIDChip());
   m_timeOverThreshold->Fill(hit.timeOverThreshold());
+
+  // fill summary histograms
+  m_parentMonitor->summaryManager()->fillHits(layerFullName(), hit);
 }
 
 void AFPSiLayerMonitor::eventEnd()
@@ -132,6 +146,8 @@ void AFPSiLayerMonitor::eventEnd()
   // fill histograms
   m_hitMultiplicity->Fill(m_hitsInEvent);
   m_hitMultiplicityHotSpot->Fill(m_hitsInEventHotSpot);
+
+  m_parentMonitor->summaryManager()->fillEventEnd(layerFullName(), this);
 
   // reset variables
   m_hitsInEvent = 0;

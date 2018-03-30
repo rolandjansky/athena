@@ -12,22 +12,23 @@
 #include <TH1.h>
 #include <TProfile.h>
 
-//#include <xAODEventInfo/EventInfo.h>
-#include <xAODForward/AFPSiHit.h>
-#include <xAODForward/AFPStationID.h>
-#include <xAODForward/AFPSiHitContainer.h>
 
 #include "AFP_Monitoring/AFPHitsMonitorTool.h"
 #include "AFP_Monitoring/IAFPSiStationMonitor.h"
 #include "AFP_Monitoring/IAFPSiLayerMonitor.h"
+#include "AFP_Monitoring/AFPSiLayerSummaryManager.h"
 
+#include <xAODForward/AFPSiHit.h>
+#include <xAODForward/AFPStationID.h>
+#include <xAODForward/AFPSiHitContainer.h>
 
 
 AFPHitsMonitorTool::
 AFPHitsMonitorTool( const std::string & type, const std::string & name,
       const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
-    m_histsDirectoryName ("AFP/")
+    m_histsDirectoryName ("AFP/"),
+    m_summaryManager(new AFPSiLayerSummaryManager)
 {
   declareProperty("stationsMonitors", m_stationsMonitors, "Array of station monitors.");
 }
@@ -36,6 +37,7 @@ AFPHitsMonitorTool( const std::string & type, const std::string & name,
 AFPHitsMonitorTool::
 ~AFPHitsMonitorTool()
 {
+  delete m_summaryManager;
 }
 
 StatusCode AFPHitsMonitorTool::initialize()
@@ -47,8 +49,10 @@ StatusCode AFPHitsMonitorTool::initialize()
     for (ToolHandle<IAFPSiStationMonitor>& stationMon : m_stationsMonitors) {
       if (stationMon.retrieve().isFailure())
 	ATH_MSG_WARNING("Failed to retrieve AlgTool " << stationMon);
-      else
+      else {
 	ATH_MSG_WARNING("GACH DEBU retrieved " << stationMon);
+	stationMon->setAllLayersParent(this);
+      }
     }
   }
   else {
@@ -56,6 +60,27 @@ StatusCode AFPHitsMonitorTool::initialize()
     return StatusCode::FAILURE;
   }
 
+
+  ManagedMonitorToolBase::MonGroup managedBookingLumiBlock(this, histsDirectoryName(), lumiBlock, ManagedMonitorToolBase::ATTRIB_MANAGED);   // to re-booked every luminosity block
+  m_summaryManager->createSummaryHits(this, 
+  				     managedBookingLumiBlock, 
+  				     "h_timeOverThresholdMean", 
+  				     "Summary mean number of time over threshold per plane",
+				      &xAOD::AFPSiHit::timeOverThreshold);
+
+  m_summaryManager->createSummaryEventEnd(this, 
+					 managedBookingLumiBlock, 
+					 "h_hitsPerPlaneMean",
+					 "Summary mean number of hits per plane per event",
+					 &IAFPSiLayerMonitor::hitsInEvent);
+
+  m_summaryManager->createSummaryEventEnd(this, 
+					 managedBookingLumiBlock, 
+					 "h_hitsPerPlaneScaledMean",
+					 "Summary mean number of hits per plane per event scaled",
+					 &IAFPSiLayerMonitor::hitsInEventScaled);
+
+  
   return StatusCode::SUCCESS;
 }
 
@@ -70,6 +95,8 @@ StatusCode AFPHitsMonitorTool::bookHistograms()
 {
   for (ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
     station->bookHistograms(this);
+
+  m_summaryManager->book();
 
   return StatusCode::SUCCESS;
 }
@@ -92,9 +119,10 @@ StatusCode AFPHitsMonitorTool::fillHistograms()
       ATH_MSG_WARNING("Unrecognised station index: "<<hit->stationID());
   }
 
+
   for (ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
     station->eventEnd();
-      
+
   return StatusCode::SUCCESS;
 }
 
@@ -152,17 +180,17 @@ StatusCode AFPHitsMonitorTool::procHistograms( )
     for (ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
       station->endOfLumiBlock(this);
 
-    makeLayerSummaryHist ("h_hitMultiplicity",
-    			  "h_hitsPerPlaneSummary",
-    			  "Summary mean number of hits per plane per event");
+    // makeLayerSummaryHist ("h_hitMultiplicity",
+    // 			  "h_hitsPerPlaneSummary",
+    // 			  "Summary mean number of hits per plane per event");
 
-    makeLayerSummaryHist ("h_hitMultiplicityHotSpot",
-    			  "h_hitsPerPlaneHotSpotSummary",
-    			  "Summary mean number of hits per plane per event in hot spot");
+    // makeLayerSummaryHist ("h_hitMultiplicityHotSpot",
+    // 			  "h_hitsPerPlaneHotSpotSummary",
+    // 			  "Summary mean number of hits per plane per event in hot spot");
 
-    makeLayerSummaryHist ("h_timeOverThreshold",
-    			  "h_timeOverthresholdSummary",
-    			  "Summary mean number of time over threshold per plane");
+    // makeLayerSummaryHist ("h_timeOverThreshold",
+    // 			  "h_timeOverthresholdSummary",
+    // 			  "Summary mean number of time over threshold per plane");
 
   }
 

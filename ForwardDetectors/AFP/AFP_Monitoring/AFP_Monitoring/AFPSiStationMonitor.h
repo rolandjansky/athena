@@ -42,6 +42,8 @@ public:
   std::string makeName (const std::string name) const override;
   std::string makeTitle (const std::string title) const override;
 
+  void setAllLayersParent (AFPHitsMonitorTool* parent) override;
+
 protected:
   // internal variables
   int m_stationID;

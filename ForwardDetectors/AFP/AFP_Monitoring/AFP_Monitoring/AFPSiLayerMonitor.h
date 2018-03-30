@@ -15,7 +15,7 @@
 class LWHist2D;
 class TH1;
 
-class ManagedMonitorToolBase;
+class AFPHitsMonitorTool;
 
 class AFPSiLayerMonitor : virtual public IAFPSiLayerMonitor, public AthAlgTool
 {
@@ -28,15 +28,14 @@ public:
   StatusCode initialize() override;
   StatusCode finalize() override;
   
+  void setParentMonitor (AFPHitsMonitorTool* parent) override {m_parentMonitor = parent;}
+
   //  void bookHistogramsRecurrent(ManagedMonitorToolBase* toolToStoreHistograms);
   void bookHistograms(ManagedMonitorToolBase* toolToStoreHistograms, std::string histsDirName = "") override;
   void fillHistograms(const xAOD::AFPSiHit& hit) override;
   void eventEnd() override;		///< method that should be called when event processing is finished
 
   void endOfLumiBlock() override; ///< Process histograms at the end of lumiblock
-
-  /// number of hits counted so far in the event
-  unsigned int hitsInEvent() const override {return m_hitsInEvent;}
 
   int layerID () const override {return m_pixelLayerID;}
 
@@ -45,13 +44,21 @@ public:
 
   const std::string& histsDirName () const override {return m_histsDirName;}
 
+  const std::string& layerFullName() const override {return m_layerFullName;}
+
+  int hitsInEvent () const override {return m_hitsInEvent;}
+  int hitsInEventScaled () const override {return m_hitsInEvent - m_hitsScaleFactor;}
+
 protected:
   // internal variables
   int m_pixelLayerID;
   int m_stationID;
+  std::string m_layerFullName;
 
+  AFPHitsMonitorTool* m_parentMonitor;
   std::string m_histsDirName;
-  
+
+  double m_hitsScaleFactor;
   unsigned int m_hitsInEvent;
 
   // histograms

@@ -42,6 +42,8 @@ public:
 
   virtual std::string makeName (const std::string name) const = 0;
   virtual std::string makeTitle (const std::string title) const = 0;
+
+  virtual void setAllLayersParent (AFPHitsMonitorTool* parent) = 0;
 };
 
 #endif

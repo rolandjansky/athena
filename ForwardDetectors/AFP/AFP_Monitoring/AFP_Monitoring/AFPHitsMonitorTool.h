@@ -5,14 +5,14 @@
 #ifndef AFPHITSMONITORTOOL_H
 #define AFPHITSMONITORTOOL_H
 
-#include "AFPSiStationMonitor.h"
-
 #include <AthenaMonitoring/ManagedMonitorToolBase.h>
 
 #include <vector>
 #include <string>
 
 #include "AFP_Monitoring/IAFPSiStationMonitor.h"
+
+class AFPSiLayerSummaryManager;
 
 class AFPHitsMonitorTool : public ManagedMonitorToolBase
 {
@@ -33,6 +33,10 @@ public:
   ///@brief name of directory to store histograms
   std::string histsDirectoryName() {return m_histsDirectoryName;}
 
+  const ToolHandleArray<IAFPSiStationMonitor>* stationsMonitors () const {return &m_stationsMonitors;}
+
+  AFPSiLayerSummaryManager* summaryManager () const {return m_summaryManager;}
+  
 protected:
   const std::string m_histsDirectoryName; ///< name of directory for all histograms
 
@@ -43,6 +47,8 @@ protected:
   // AFPSiStationMonitor m_aFarStation;		///< station on A side that is further away from the interaction point
 
   ToolHandleArray<IAFPSiStationMonitor> m_stationsMonitors;
+
+  AFPSiLayerSummaryManager* m_summaryManager;
   
   void makeLayerSummaryHist (const std::string inputHistName, const std::string outputHistName, const std::string outputHistTitle);
 };

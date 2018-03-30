@@ -108,3 +108,9 @@ std::string AFPSiStationMonitor::makeTitle (const std::string title) const
 
   return histTitle.str();
 }
+
+void AFPSiStationMonitor::setAllLayersParent (AFPHitsMonitorTool* parent)
+{
+  for (ToolHandle<IAFPSiLayerMonitor> layer : m_layersMonitors)
+    layer->setParentMonitor(parent);
+}
