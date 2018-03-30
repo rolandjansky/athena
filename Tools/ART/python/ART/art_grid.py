@@ -12,6 +12,7 @@ import logging
 import multiprocessing
 import os
 import re
+import requests
 import shutil
 import sys
 import tarfile
@@ -26,7 +27,7 @@ from art_base import ArtBase
 from art_configuration import ArtConfiguration
 from art_header import ArtHeader
 from art_rucio import ArtRucio
-from art_misc import mkdir_p, make_executable, run_command
+from art_misc import mkdir_p, make_executable, run_command, run_command_parallel
 
 MODULE = "art.grid"
 
@@ -39,11 +40,9 @@ def copy_job(art_directory, indexed_package, dst):
     Names of arguments are important, see call to scheduler.
     """
     log = logging.getLogger(MODULE)
-    start_time = datetime.now()
     log.info("job started %s %s %s", art_directory, indexed_package, dst)
-    (exit_code, out, err) = run_command(' '.join((os.path.join(art_directory, './art.py'), "copy", "--dst=" + dst, indexed_package)))
+    (exit_code, out, err, command, start_time, end_time) = run_command(' '.join((os.path.join(art_directory, './art.py'), "copy", "--dst=" + dst, indexed_package)))
     log.info("job ended %s %s %s", art_directory, indexed_package, dst)
-    end_time = datetime.now()
 
     print "Exit Code:", exit_code
     print "Out: ", out
@@ -257,10 +256,18 @@ class ArtGrid(ArtBase):
         tar = self.__open_tar(user, package, test_name, tar=False)
         if tar is not None:
             log.info("Unpacking LOG: %s", test_dir)
+            logdir = None
             for member in tar.getmembers():
+                # does not work: tar.extractall()
                 tar.extract(member, path=test_dir)
-            # does not work: tar.extractall()
+                logdir = member.name.split('/', 2)[0]
+
             tar.close()
+
+            # rename top level log dir to logs
+            if logdir is not None:
+                os.chdir(test_dir)
+                os.rename(logdir, "tarball_logs")
         return 0
 
     def copy_results(self, user, package, test_name, test_dir):
@@ -289,22 +296,34 @@ class ArtGrid(ArtBase):
         log.info("Copying to DST: %d %s", index, xrdcp_target)
 
         if mkdir_cmd is not None:
-            (exit_code, out, err) = run_command(' '.join((mkdir_cmd, dst_target)))
+            (exit_code, out, err, command, start_time, end_time) = run_command(' '.join((mkdir_cmd, dst_target)))
             if exit_code != 0:
                 log.error("Mkdir Error: %d %s %s", exit_code, out, err)
                 return 1
 
         cmd = ' '.join(('xrdcp -N -r -p -v', test_dir, xrdcp_target))
-        log.info("using: %s", cmd)
-        (exit_code, out, err) = run_command(cmd)
-        if exit_code not in [0, 50, 51, 54]:
-            # 0 all is ok
-            # 50 File exists
-            # 51 File exists
-            # 54 is already copied
-            log.error("XRDCP to EOS Error: %d %s %s", exit_code, out, err)
-            return 1
-        return 0
+        max_trials = 6
+        wait_time = 4 * 60  # seconds
+        trial = 1
+        while True:
+            log.info("Trial %d, using: %s", trial, cmd)
+            (exit_code, out, err, command, start_time, end_time) = run_command(cmd)
+            if exit_code in [0, 50, 51, 54]:
+                # 0 all is ok
+                # 50 File exists
+                # 51 File exists
+                # 54 is already copied
+                return 0
+
+            # 3010 connection problem
+            if exit_code != 3010 or trial >= max_trials:
+                log.error("XRDCP to EOS Error: %d %s %s", exit_code, out, err)
+                return 1
+
+            log.error("Possibly recoverable EOS Error: %d %s %s", exit_code, out, err)
+            log.info("Waiting for %d seconds", wait_time)
+            time.sleep(wait_time)
+            trial += 1
 
     def task_package(self, root, package, job_type, sequence_tag, no_action, config_file):
         """Submit a single package."""
@@ -393,7 +412,7 @@ class ArtGrid(ArtBase):
                     package = all_results[jedi_id][0]
                     # skip packages without copy
                     if not configuration.get(self.nightly_release, self.project, self.platform, package, "copy"):
-                        log.info("Copy not configured - skipped")
+                        log.info("Copy not configured for %s - skipped", package)
                         del all_results[jedi_id]
                         continue
 
@@ -452,7 +471,7 @@ class ArtGrid(ArtBase):
             log.error('%s for %s status: %s', str(e.code), str(jedi_id), url)
         return None
 
-    def task_job(self, grid_options, sub_cmd, script_directory, sequence_tag, package, outfile, job_type='', number_of_tests=0, split=0, job_name='', inds='', n_files=0, in_file=False, no_action=False):
+    def task_job(self, grid_options, sub_cmd, script_directory, sequence_tag, package, outfile, job_type='', number_of_tests=0, split=0, job_name='', inds='', n_files=0, in_file=False, ncores=1, no_action=False):
         """
         Submit a single job.
 
@@ -472,7 +491,8 @@ class ArtGrid(ArtBase):
                             '--inds ' + inds if inds != '' else '',
                             '--n-files ' + str(n_files) if n_files > 0 else '',
                             '--split ' + str(split) if split > 0 else '',
-                            '--in' if in_file else ''))
+                            '--in' if in_file else '',
+                            '--ncore ' + str(ncores) if ncores > 1 else ''))
 
         cmd = ' '.join((cmd,
                         self.submit_directory,
@@ -504,7 +524,7 @@ class ArtGrid(ArtBase):
 
         jedi_id = -1
         # run the command, no_action is forwarded and used inside the script
-        (exit_code, out, err) = run_command(cmd, env=env)
+        (exit_code, out, err, command, start_time, end_time) = run_command(cmd, env=env)
         if exit_code != 0:
             log.error("art-task-grid failed %d", exit_code)
             print err
@@ -566,13 +586,14 @@ class ArtGrid(ArtBase):
             inds = header.get(ArtHeader.ART_INPUT)
             n_files = header.get(ArtHeader.ART_INPUT_NFILES)
             split = header.get(ArtHeader.ART_INPUT_SPLIT)
+            ncores = header.get(ArtHeader.ART_CORES)
 
             outfile_test = self.rucio.get_outfile_name(user, package, sequence_tag, str(index))
             self.exit_if_outfile_too_long(outfile_test)
 
             # Single
             log.info("Single")
-            jedi_id = self.task_job(grid_options, "single", script_directory, sequence_tag, package, outfile_test, split=split, job_name=job_name, inds=inds, n_files=n_files, in_file=True, no_action=no_action)
+            jedi_id = self.task_job(grid_options, "single", script_directory, sequence_tag, package, outfile_test, split=split, job_name=job_name, inds=inds, n_files=n_files, in_file=True, ncores=ncores, no_action=no_action)
 
             if jedi_id > 0:
                 result[jedi_id] = (package, job_name, outfile_test, index)
@@ -616,7 +637,12 @@ class ArtGrid(ArtBase):
     def job(self, test_directory, package, job_name, job_type, out, in_file):
         """Run a job."""
         log = logging.getLogger(MODULE)
+
+        # informing panda, ignoring errors for now
+        panda_id = os.getenv('PandaID', '0')
+
         log.info("art-job-name: %s", job_name)
+
         test_file = os.path.join(test_directory, job_name)
 
         # Tests are called with arguments: PACKAGE TEST_NAME SCRIPT_DIRECTORY TYPE [IN_FILE]
@@ -636,7 +662,14 @@ class ArtGrid(ArtBase):
         env['ArtJobName'] = job_name
         if in_file is not None:
             env['ArtInFile'] = in_file
-        (exit_code, output, error) = run_command(command, env=env)
+
+        header = ArtHeader(test_file)
+        ncores = header.get(ArtHeader.ART_CORES)
+        if ncores > 1:
+            nthreads = header.get(ArtHeader.ART_INPUT_NFILES)
+            (exit_code, output, error, command, start_time, end_time) = run_command_parallel(command, nthreads, ncores, env=env)
+        else:
+            (exit_code, output, error, command, start_time, end_time) = run_command(command, env=env)
         print output
         if (exit_code != 0):
             log.error("Test %s failed %d", job_name, exit_code)
@@ -650,6 +683,7 @@ class ArtGrid(ArtBase):
         result['exit_code'] = exit_code
         result['test_directory'] = test_directory
         result['result'] = ArtBase.get_art_results(output)
+        result['panda_id'] = panda_id
 
         # write out results
         with open(os.path.join(ArtRucio.ART_JOB), 'w') as jobfile:
@@ -690,7 +724,7 @@ class ArtGrid(ArtBase):
                         tar_file.add(out_name)
 
         # pick up art-header named outputs
-        for path_name in ArtHeader(test_file).get('art-output'):
+        for path_name in ArtHeader(test_file).get(ArtHeader.ART_OUTPUT):
             for out_name in glob.glob(path_name):
                 log.info('Tar file contains: %s', out_name)
                 tar_file.add(out_name)
@@ -890,3 +924,14 @@ class ArtGrid(ArtBase):
                 if within_days and target_exists:
                     return tag
         return None
+
+    def createpoolfile(self):
+        """Create 'empty' poolfile catalog."""
+        path = os.path.join('.', 'PoolFileCatalog.xml')
+        with open(path, 'w+') as pool_file:
+            pool_file.write('<!-- Edited By POOL -->\n')
+            pool_file.write('<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">\n')
+            pool_file.write('<POOLFILECATALOG>\n')
+            pool_file.write('</POOLFILECATALOG>\n')
+
+        return 0
