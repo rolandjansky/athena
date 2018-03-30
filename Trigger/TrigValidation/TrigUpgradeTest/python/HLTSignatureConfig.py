@@ -18,22 +18,18 @@ def InputMakerAlg(name):
 # - declare all the RecoAlg and the HypoAlg -> create the Sequence
 # - creates the InputMaker, without the inputs
   
+UseThisLinkName="initialRoI"
+#UseThisLinkName="feature"
 
 #### muon signatures
 #####################
 
-## class MuTestHypoTool(HLTTest__TestHypoTool):
-##     def __init__(self,name):
-##         HLTTest__TestHypoTool.__init__(self,name, OutputLevel=DEBUG, Property="pt")
-##         threshold_value = name.replace("HLT_mu","")
-##         value  =  int(threshold_value)*1000
-##         self.Threshold=value
 
 def  TestHypoTool(name, prop, threshold_value):
 #    threshold_value=''.join(filter(lambda x: x.isdigit(), name))
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
     value  =  int(threshold_value)*1000
-    h = HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=value, Property=prop)
+    h = HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=value, Property=prop, LinkName=UseThisLinkName)
     return h
 
 def MuTestHypoTool(name):
@@ -44,7 +40,7 @@ def muMSRecAlg(name, FileName="noreco.dat"):
     return HLTTest__TestRecoAlg(name=name, FileName=FileName, OutputLevel = DEBUG)
 
 def MuHypo(name):
-    return HLTTest__TestHypoAlg(name=name, OutputLevel = DEBUG)
+    return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName, OutputLevel = DEBUG)
 
 def MuStep1HypoTool():
    return "MuTestHypoTool"
@@ -103,7 +99,7 @@ def CaloClustering(name,  FileName="noreco.dat"):
     return HLTTest__TestRecoAlg(name=name, FileName=FileName, OutputLevel = DEBUG)
 
 def ElGamHypo(name):
-    return HLTTest__TestHypoAlg(name=name, OutputLevel = DEBUG)
+    return HLTTest__TestHypoAlg(name=name, LinkName=UseThisLinkName, OutputLevel = DEBUG)
 
 
 def ElStep1HypoTool():

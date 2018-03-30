@@ -42,15 +42,22 @@ StatusCode TestTrigL2ElectronHypoAlg::initialize() {
 StatusCode TestTrigL2ElectronHypoAlg::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
 
+  auto previousDecisionsHandle = SG::makeHandle( m_previousDecisionsKey, context );
+  if( not previousDecisionsHandle.isValid() ) {//implicit
+    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<   m_previousDecisionsKey.key()<<": is this expected?" );
+    return StatusCode::SUCCESS;      
+  }
+
+  ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
   
-  // prepare decisions container and link back to the clusters, and decision on clusters
+  
   auto decisions = std::make_unique<DecisionContainer>();
   auto aux = std::make_unique<DecisionAuxContainer>();
   decisions->setStore( aux.get() );
 
   // // extract mapping of cluster pointer to an index in the cluster decision collection
-  auto previousDecisionsHandle = SG::makeHandle( m_previousDecisionsKey, context );
-  
+
+  // prepare decisions container and link back to the clusters, and decision on clusters  
   std::map<const xAOD::TrigEMCluster*, size_t> clusterToIndexMap;
   size_t clusterCounter = 0;
   for ( auto previousDecision : *previousDecisionsHandle){
@@ -65,9 +72,7 @@ StatusCode TestTrigL2ElectronHypoAlg::execute_r( const EventContext& context ) c
 
   // prepare imput for tools
   std::vector<TrigL2ElectronHypoTool::ElectronInfo> hypoToolInput;
-  
-  // auto viewsHandle = SG::makeHandle( m_views, context );
-  // for ( auto view: *viewsHandle ) {
+ 
   for ( auto previousDecision: *previousDecisionsHandle ) {
       // get View
     auto viewEL = previousDecision->objectLink<std::vector<SG::View*>>( "view" );
@@ -122,7 +127,7 @@ StatusCode TestTrigL2ElectronHypoAlg::execute_r( const EventContext& context ) c
 
 
 
-bool TestTrigL2ElectronHypoAlg::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const{ // ){
+bool TestTrigL2ElectronHypoAlg::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const{
     //recursively find in the seeds
     if ( start->hasObjectLink( "feature" ) ) {
       clusterlink=start->objectLink<xAOD::TrigEMClusterContainer>( "feature" );
