@@ -677,15 +677,15 @@ class TopConfig final {
 
   void setBTaggingSFSysts( std::string WP, const std::set<std::string>& btagging_SFs, bool isTrackJet=false );
 
-  inline virtual std::set<std::string>  btagging_namedSysts(std::string WP) const { return bTag_named_systs.at(WP); }
-  inline virtual unsigned int btagging_num_B_eigenvars(std::string WP) const { return bTag_eigen_B.at(WP); }
-  inline virtual unsigned int btagging_num_C_eigenvars(std::string WP) const { return bTag_eigen_C.at(WP); }
-  inline virtual unsigned int btagging_num_Light_eigenvars(std::string WP) const { return bTag_eigen_light.at(WP); }
+  inline virtual std::set<std::string>  btagging_namedSysts(std::string WP) const { return m_bTag_named_systs.at(WP); }
+  inline virtual unsigned int btagging_num_B_eigenvars(std::string WP) const { return m_bTag_eigen_B.at(WP); }
+  inline virtual unsigned int btagging_num_C_eigenvars(std::string WP) const { return m_bTag_eigen_C.at(WP); }
+  inline virtual unsigned int btagging_num_Light_eigenvars(std::string WP) const { return m_bTag_eigen_light.at(WP); }
 
-  inline virtual std::set<std::string>  trkjet_btagging_namedSysts(std::string WP) const { return bTag_named_systs_trkJet.at(WP); }
-  inline virtual unsigned int trkjet_btagging_num_B_eigenvars(std::string WP) const { return bTag_eigen_B_trkJet.at(WP); }
-  inline virtual unsigned int trkjet_btagging_num_C_eigenvars(std::string WP) const { return bTag_eigen_C_trkJet.at(WP); }
-  inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const { return bTag_eigen_light_trkJet.at(WP); }
+  inline virtual std::set<std::string>  trkjet_btagging_namedSysts(std::string WP) const { return m_bTag_named_systs_trkJet.at(WP); }
+  inline virtual unsigned int trkjet_btagging_num_B_eigenvars(std::string WP) const { return m_bTag_eigen_B_trkJet.at(WP); }
+  inline virtual unsigned int trkjet_btagging_num_C_eigenvars(std::string WP) const { return m_bTag_eigen_C_trkJet.at(WP); }
+  inline virtual unsigned int trkjet_btagging_num_Light_eigenvars(std::string WP) const { return m_bTag_eigen_light_trkJet.at(WP); }
 
   // B-tagging WPs requested by user
   const std::vector<std::string> bTagWP() const { return m_chosen_btaggingWP;}
@@ -1170,20 +1170,20 @@ class TopConfig final {
   // b-tag SF helpers - one of each per WP
   // will be set in the BTagScaleFactorCalculator
   // These are the base names of the SF systematics (without __up/__down)
-  std::unordered_map<std::string,std::set<std::string>> bTag_base_names;
-  std::unordered_map<std::string,std::set<std::string>> bTag_base_names_trkJet;
+  std::unordered_map<std::string,std::set<std::string>> m_bTag_base_names;
+  std::unordered_map<std::string,std::set<std::string>> m_bTag_base_names_trkJet;
   // and those of them which are not eigenvectors
-  std::unordered_map<std::string,std::set<std::string>> bTag_named_systs;
-  std::unordered_map<std::string,std::set<std::string>> bTag_named_systs_trkJet;
+  std::unordered_map<std::string,std::set<std::string>> m_bTag_named_systs;
+  std::unordered_map<std::string,std::set<std::string>> m_bTag_named_systs_trkJet;
   // how many B eigen-variations do we have?
-  std::unordered_map<std::string,unsigned int> bTag_eigen_B;
-  std::unordered_map<std::string,unsigned int> bTag_eigen_B_trkJet;
+  std::unordered_map<std::string,unsigned int> m_bTag_eigen_B;
+  std::unordered_map<std::string,unsigned int> m_bTag_eigen_B_trkJet;
   // how many C eigen-variations do we have?
-  std::unordered_map<std::string,unsigned int> bTag_eigen_C;
-  std::unordered_map<std::string,unsigned int> bTag_eigen_C_trkJet;
+  std::unordered_map<std::string,unsigned int> m_bTag_eigen_C;
+  std::unordered_map<std::string,unsigned int> m_bTag_eigen_C_trkJet;
   // how many Light eigen-variations do we have?
-  std::unordered_map<std::string,unsigned int> bTag_eigen_light;
-  std::unordered_map<std::string,unsigned int> bTag_eigen_light_trkJet;
+  std::unordered_map<std::string,unsigned int> m_bTag_eigen_light;
+  std::unordered_map<std::string,unsigned int> m_bTag_eigen_light_trkJet;
 
   // LHAPDF options
   struct {
