@@ -416,7 +416,8 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     //std::vector<const xAOD::TrackParticle*> highptTracks; 
     std::vector<ElementLink<xAOD::TrackParticleContainer> > highptTracks; 
-
+    highptTracks.reserve(tracks.size());
+    
     // preserve all tracks with pt passing lowest requested
     float lowestPt = m_ptTrkMin.back();
     for(const auto& trk :  tracks ){
@@ -438,14 +439,14 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     xAOD::TrigBphysContainer * xAODTrigBphysColl = new xAOD::TrigBphysContainer;
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
     xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
-    xAODTrigBphysColl->reserve(m_nTrk);
+    xAODTrigBphysColl->reserve(highptTracks.size()); // hard to give here good estimate
     std::vector<double> masses(2,m_trkMass);    
     
     // record also tracks that are used in any collection
     xAOD::TrackParticleContainer* outputTrackColl = new xAOD::TrackParticleContainer();
     xAOD::TrackParticleAuxContainer outputTrackCollAuxCont;
     outputTrackColl->setStore( &outputTrackCollAuxCont );
-
+    outputTrackColl->reserve(highptTracks.size());
 
     
     //=====make all requested m_nTrk combinations =================
