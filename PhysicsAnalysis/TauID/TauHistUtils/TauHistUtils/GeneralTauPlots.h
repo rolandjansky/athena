@@ -18,13 +18,11 @@ class GeneralTauPlots: public PlotBase {
       virtual ~GeneralTauPlots();
       
       void fill(const xAOD::TauJet& tau);
-
+      
       Tau::ParamPlots m_oParamPlots;
       TH1* m_tauCharge;
       TH1* m_tauNCoreTracks;
       TH1* m_tauNWideTracks;
-
-      // BDT
       TH1* m_id_BDTJetScore;
       TH1* m_pt_jetBDTloose;
       TH1* m_pt_jetBDTmed;
@@ -32,18 +30,6 @@ class GeneralTauPlots: public PlotBase {
       TH1* m_pt_jetBDTlooseHighPt;
       TH1* m_pt_jetBDTmedHighPt;
       TH1* m_pt_jetBDTtightHighPt;
-
-      // RNN
-      TH1* m_RNNScore;
-      TH1* m_RNNScoreSigTrans;
-      TH1* m_ptRNNVeryLoose;
-      TH1* m_ptRNNLoose;
-      TH1* m_ptRNNMedium;
-      TH1* m_ptRNNTight;
-      TH1* m_ptRNNVeryLooseHighPt;
-      TH1* m_ptRNNLooseHighPt;
-      TH1* m_ptRNNMediumHighPt;
-      TH1* m_ptRNNTightHighPt;
 
    private:
       void initializePlots();
