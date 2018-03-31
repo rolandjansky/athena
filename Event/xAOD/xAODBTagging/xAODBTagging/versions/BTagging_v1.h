@@ -243,6 +243,7 @@ namespace xAOD {
     bool pb(const std::string& taggername, double &value) const;
     bool pc(const std::string& taggername, double &value) const;
     double calcLLR(double num, double den) const;
+    double calcDL1LLR(const std::string& taggername) const;
 
 
     /// @}
