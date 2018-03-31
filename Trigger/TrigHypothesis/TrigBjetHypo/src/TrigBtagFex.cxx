@@ -128,18 +128,18 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
 
   // declareProperty overview 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+    ATH_MSG_DEBUG( "declareProperty review:" );
     // msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endmsg;
     // msg() << MSG::DEBUG << " Instance = "            << m_instance << endmsg;
 
-    msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endmsg;
+    ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag );
     // msg() << MSG::DEBUG << " SetBeamSpotWidth = "    << m_setBeamSpotWidth << endmsg;
 
     // msg() << MSG::DEBUG << " UseParamFromData = "    << m_useParamFromData << endmsg;
 
     // msg() << MSG::DEBUG << " Using Offline Tools = " << m_setupOfflineTools << endmsg;
     // msg() << MSG::DEBUG << " Taggers = "             << m_taggers << endmsg;
-    msg() << MSG::DEBUG << " Offline Taggers = "     << m_TaggerBaseNames << endmsg;
+    ATH_MSG_DEBUG( " Offline Taggers = "     << m_TaggerBaseNames );
     // msg() << MSG::DEBUG << " UseErrIPParam = "       << m_useErrIPParam << endmsg;
     // msg() << MSG::DEBUG << " UseJetDirection = "     << m_useJetDirection << endmsg;
     // msg() << MSG::DEBUG << " RetrieveHLTJets = "     << m_retrieveHLTJets << endmsg;
@@ -207,7 +207,7 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
       } else
 	msg() << MSG::INFO << "Retrieved tool " << m_bTagTrackAssocTool << endmsg;
     } else if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "No track association tool to retrieve" << endmsg;
+      ATH_MSG_DEBUG( "No track association tool to retrieve" );
 
     // Retrieve the bTagSecVtxTool
     if(m_bTagSecVtxTool.retrieve().isFailure()) {
@@ -234,16 +234,16 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
 
 HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBtagFex" << endmsg;
+  if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "Executing TrigBtagFex" );
 
   // RETRIEVE INPUT CONTAINERS
 
   // Get EF jet 
   const xAOD::JetContainer* jets = nullptr;
   if(getFeature(inputTE, jets, m_jetKey) == HLT::OK && jets != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() << endmsg;
+    if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() );
   } else {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - No xAOD::JetContainer" << endmsg;
+    if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - No xAOD::JetContainer" );
     return HLT::MISSING_FEATURE;
   }
 
@@ -252,38 +252,38 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   const xAOD::Vertex* primaryVertex     = nullptr;
   bool usePVBackup=true;
   if (getFeature(outputTE, vertexes, m_priVtxKey) == HLT::OK && vertexes != nullptr) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() << endmsg;
+    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() );
     primaryVertex = getPrimaryVertex(vertexes);
     if (primaryVertex){
       usePVBackup=false;
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey << endmsg;
+      if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey );
     }
   }
 
   if(m_usePriVtxKeyBackup && usePVBackup) {
     vertexes = nullptr;
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" );
     if (getFeature(outputTE, vertexes, m_priVtxKeyBackup) == HLT::OK && vertexes != nullptr) {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() << endmsg;
+      if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() );
       primaryVertex = getPrimaryVertex(vertexes);	
       if (primaryVertex){
 	usePVBackup=false;
-	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup << endmsg;
+	if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup );
       }
     }
   }
   
   if(usePVBackup) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." << endmsg;
+    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." );
     return HLT::MISSING_FEATURE;
   }
 
   // Get tracks 
   const xAOD::TrackParticleContainer* tracks = nullptr;
   if(getFeature(outputTE, tracks, m_trackKey) == HLT::OK && tracks != nullptr) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() << endmsg;
+    if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::TrackParticleContainer: " << "nTracks = " << tracks->size() );
   } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::TrackParticleContainer" << endmsg;
+    if(msgLvl() <= MSG::ERROR) ATH_MSG_DEBUG( "INPUT - No xAOD::TrackParticleContainer" );
     return HLT::MISSING_FEATURE;
   }
 
@@ -335,7 +335,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
       jetIsAssociated = m_bTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList, tracks);
 
       if ( jetIsAssociated.isFailure() ) {
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "#BTAG# Failed to associate tracks to jet" << endmsg;
+	if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "#BTAG# Failed to associate tracks to jet" );
 	return HLT::MISSING_FEATURE;
       }
     }
@@ -469,15 +469,15 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
   // Dump results 
   if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
-          << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
-          << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
-          << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") 
-          << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant")
-  // Temporary use mv2c00 for hybrid tuning   
-	  << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c00_discriminant") << endmsg;
-  //	  << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant") << endmsg;
-
+    ATH_MSG_DEBUG( "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
+		   << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
+		   << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
+		   << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") 
+		   << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant")
+		   // Temporary use mv2c00 for hybrid tuning   
+		   << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c00_discriminant") );
+		   //	  << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant") << endmsg;
+		   
   // ATTACH FEATURES AND CLEAR TEMPORARY OBJECTS
 
   // Create element link from the BTagging to the Jet container
@@ -491,19 +491,19 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
   // Attach BTagContainer as feature 
   if(attachFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTaggingContainer" << endmsg;
+    if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "OUTPUT - Attached xAOD::BTaggingContainer" );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTaggingContainer" << endmsg;
     return HLT::NAV_ERROR;
   }
   if(attachFeature(outputTE, trigVertexContainer, "HLT_BjetSecondaryVertexFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::VertexContainer" << endmsg;
+    if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "OUTPUT - Attached xAOD::VertexContainer" );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::VertexContainer" << endmsg;
     return HLT::NAV_ERROR;
   }
   if(attachFeature(outputTE, trigBTagVertexContainer, "HLT_BjetVertexFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTagVertexContainer" << endmsg;
+    if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "OUTPUT - Attached xAOD::BTagVertexContainer" );
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTagVertexContainer" << endmsg;
     return HLT::NAV_ERROR;

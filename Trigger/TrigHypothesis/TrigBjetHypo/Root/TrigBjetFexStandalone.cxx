@@ -189,57 +189,56 @@ HLT::ErrorCode TrigBjetFexStandalone::hltInitialize() {
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endmsg; 
-    msg() << MSG::DEBUG << " Instance = "            << m_instance << endmsg;
- 
-    msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endmsg; 
-    msg() << MSG::DEBUG << " SetBeamSpotWidth = "    << m_setBeamSpotWidth << endmsg;
+    ATH_MSG_DEBUG( "declareProperty review:" );
+    ATH_MSG_DEBUG(  " AlgoId = "              << m_algo );
+    ATH_MSG_DEBUG(  " Instance = "            << m_instance );
+    
+    ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag );
+    ATH_MSG_DEBUG( " SetBeamSpotWidth = "    << m_setBeamSpotWidth );
+    
+    ATH_MSG_DEBUG( " UseParamFromData = "     << m_useParamFromData );
+    
+    ATH_MSG_DEBUG( " Taggers = "             << m_taggers );
+    ATH_MSG_DEBUG( " UseErrIPParam = "       << m_useErrIPParam );
+    ATH_MSG_DEBUG( " JetDirection = "        << m_jetDirection );
+    ATH_MSG_DEBUG( " L2PrmVtxAtEF = "        << m_l2PrmVtxAtEF );
+    ATH_MSG_DEBUG( " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel );
+  
+    ATH_MSG_DEBUG( " JetProb 0 MC = "      << m_par_0_MC );
+    ATH_MSG_DEBUG( " JetProb 1 MC = "      << m_par_1_MC );
+    ATH_MSG_DEBUG( " JetProb 0 DT = "      << m_par_0_DT );
+    ATH_MSG_DEBUG( " JetProb 1 DT = "      << m_par_1_DT );
+    
+    ATH_MSG_DEBUG( " SizeIP1D = "          << m_sizeIP1D );
+    ATH_MSG_DEBUG( " bIP1D = "             << m_bIP1D );
+    ATH_MSG_DEBUG( " uIP1D = "             << m_uIP1D );
+    ATH_MSG_DEBUG( " SizeIP2D = "          << m_sizeIP2D );
+    ATH_MSG_DEBUG( " bIP2D = "             << m_bIP2D );
+    ATH_MSG_DEBUG( " uIP2D = "             << m_uIP2D );
+    ATH_MSG_DEBUG( " SizeIP3D = "          << m_sizeIP3D );
+    ATH_MSG_DEBUG( " bIP3D = "             << m_bIP3D );
+    ATH_MSG_DEBUG( " uIP3D = "             << m_uIP3D );
 
-    msg() << MSG::DEBUG << " UseParamFromData = "     << m_useParamFromData << endmsg; 
-
-    msg() << MSG::DEBUG << " Taggers = "             << m_taggers << endmsg; 
-    msg() << MSG::DEBUG << " UseErrIPParam = "       << m_useErrIPParam << endmsg; 
-    msg() << MSG::DEBUG << " JetDirection = "        << m_jetDirection << endmsg; 
-    msg() << MSG::DEBUG << " L2PrmVtxAtEF = "        << m_l2PrmVtxAtEF << endmsg;
-    msg() << MSG::DEBUG << " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel << endmsg;
-
-    msg() << MSG::DEBUG << " JetProb 0 MC = "      << m_par_0_MC << endmsg; 
-    msg() << MSG::DEBUG << " JetProb 1 MC = "      << m_par_1_MC << endmsg; 
-    msg() << MSG::DEBUG << " JetProb 0 DT = "      << m_par_0_DT << endmsg; 
-    msg() << MSG::DEBUG << " JetProb 1 DT = "      << m_par_1_DT << endmsg; 
-
-    msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endmsg; 
-    msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endmsg; 
-    msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endmsg; 
-    msg() << MSG::DEBUG << " SizeIP2D = "          << m_sizeIP2D << endmsg;
-    msg() << MSG::DEBUG << " bIP2D = "             << m_bIP2D << endmsg; 
-    msg() << MSG::DEBUG << " uIP2D = "             << m_uIP2D << endmsg;  
-    msg() << MSG::DEBUG << " SizeIP3D = "          << m_sizeIP3D << endmsg; 
-    msg() << MSG::DEBUG << " bIP3D = "             << m_bIP3D << endmsg; 
-    msg() << MSG::DEBUG << " uIP3D = "             << m_uIP3D << endmsg; 
-
-    msg() << MSG::DEBUG << " TrkSel_Chi2 = "     << m_trkSelChi2 << endmsg; 
-    msg() << MSG::DEBUG << " TrkSel_BLayer = "   << m_trkSelBLayer << endmsg; 
-    msg() << MSG::DEBUG << " TrkSel_SiHits = "   << m_trkSelSiHits << endmsg; 
-    msg() << MSG::DEBUG << " TrkSel_D0 = "       << m_trkSelD0 << endmsg; 
-    msg() << MSG::DEBUG << " TrkSel_Z0 = "       << m_trkSelZ0 << endmsg; 
-    msg() << MSG::DEBUG << " TrkSel_Pt = "       << m_trkSelPt << endmsg; 
+    ATH_MSG_DEBUG( " TrkSel_Chi2 = "     << m_trkSelChi2 );
+    ATH_MSG_DEBUG( " TrkSel_BLayer = "   << m_trkSelBLayer );
+    ATH_MSG_DEBUG( " TrkSel_SiHits = "   << m_trkSelSiHits );
+    ATH_MSG_DEBUG( " TrkSel_D0 = "       << m_trkSelD0 );
+    ATH_MSG_DEBUG( " TrkSel_Z0 = "       << m_trkSelZ0 );
+    ATH_MSG_DEBUG( " TrkSel_Pt = "       << m_trkSelPt );
 
     if (m_instance == "EF") {
-  
-      msg() << MSG::DEBUG << " SizeMVtx = "       << m_sizeMVtx << endmsg; 
-      msg() << MSG::DEBUG << " bMVtx = "          << m_bMVtx << endmsg; 
-      msg() << MSG::DEBUG << " uMVtx = "          << m_uMVtx << endmsg;
-      msg() << MSG::DEBUG << " SizeEVtx = "       << m_sizeEVtx << endmsg; 
-      msg() << MSG::DEBUG << " bEVtx = "          << m_bEVtx << endmsg; 
-      msg() << MSG::DEBUG << " uEVtx = "          << m_uEVtx << endmsg;  
-      msg() << MSG::DEBUG << " SizeNVtx = "       << m_sizeNVtx << endmsg; 
-      msg() << MSG::DEBUG << " bNVtx = "          << m_bNVtx << endmsg; 
-      msg() << MSG::DEBUG << " uNVtx = "          << m_uNVtx << endmsg;
-      msg() << MSG::DEBUG << " SizeSV = "         << m_sizeSV << endmsg; 
-      msg() << MSG::DEBUG << " bSV = "            << m_bSV << endmsg; 
-      msg() << MSG::DEBUG << " uSV = "            << m_uSV << endmsg;  
+      ATH_MSG_DEBUG( " SizeMVtx = "       << m_sizeMVtx );
+      ATH_MSG_DEBUG( " bMVtx = "          << m_bMVtx );
+      ATH_MSG_DEBUG( " uMVtx = "          << m_uMVtx );
+      ATH_MSG_DEBUG( " SizeEVtx = "       << m_sizeEVtx );
+      ATH_MSG_DEBUG( " bEVtx = "          << m_bEVtx );
+      ATH_MSG_DEBUG( " uEVtx = "          << m_uEVtx );
+      ATH_MSG_DEBUG( " SizeNVtx = "       << m_sizeNVtx );
+      ATH_MSG_DEBUG( " bNVtx = "          << m_bNVtx );
+      ATH_MSG_DEBUG( " uNVtx = "          << m_uNVtx );
+      ATH_MSG_DEBUG( " SizeSV = "         << m_sizeSV );
+      ATH_MSG_DEBUG( " bSV = "            << m_bSV );
+      ATH_MSG_DEBUG( " uSV = "            << m_uSV );
     }
   }
 
@@ -247,7 +246,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltInitialize() {
   m_constTrigBjetTagger  = const_cast<const TrigBjetTagger*>(m_trigBjetTagger);
 
   if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Retrieving tuning likelihoods." << endmsg;
+    ATH_MSG_DEBUG( "Retrieving tuning likelihoods.");
 
   m_tuningLikelihoodIP1D = new TuningLikelihood(&m_sizeIP1D[0], &m_bIP1D[0], &m_uIP1D[0], m_sizeIP1D.size());
   m_trigBjetTagger->fillLikelihoodMap("IP1D", m_tuningLikelihoodIP1D);
@@ -526,7 +525,8 @@ HLT::ErrorCode TrigBjetFexStandalone::loadTrack(float pT, float eta, float phi, 
 
 HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBjetFex" << endmsg;
+  if (msgLvl() <= MSG::DEBUG)
+    ATH_MSG_DEBUG( "Executing TrigBjetFex");
 
   m_totSelTracks = 0;
   m_totTracks    = 0;
@@ -548,7 +548,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   m_trigBjetPrmVtxInfo->setBeamSpotStatus(m_beamSpotStatus);
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endmsg;
+      ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
  
   //* Apply beam spot correction for tilt *//
   float m_xPrmVtx=0, m_yPrmVtx=0, m_zPrmVtx=0;
@@ -565,7 +565,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   m_trigBjetPrmVtxInfo->setPrmVtx(m_xPrmVtx, m_yPrmVtx, m_zPrmVtx);
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endmsg;
+    ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
 
   m_trackJetFinderTool->clear();
   m_trackJetFinderTool->inputPrimaryVertexZ(m_trigBjetPrmVtxInfo->zPrmVtx());
@@ -590,8 +590,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 			       m_trigBjetPrmVtxInfo->xBeamSpot(),m_trigBjetPrmVtxInfo->yBeamSpot());
 	trigBjetTrackInfo.setIPCorr(d0Corr, z0Corr);
 	if (msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Track " << j+1 << " selected." << endmsg;
-	  msg() << MSG::DEBUG << "  " << trigBjetTrackInfo << endmsg;
+	  ATH_MSG_DEBUG( "Track " << j+1 << " selected." );
+	  ATH_MSG_DEBUG( "  " << trigBjetTrackInfo );
 	}
 	trigBjetTrackInfoVector.push_back(trigBjetTrackInfo);
 	m_trackJetFinderTool->addTrack(track, j);
@@ -618,8 +618,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 			       m_trigBjetPrmVtxInfo->xBeamSpot(),m_trigBjetPrmVtxInfo->yBeamSpot());
 	trigBjetTrackInfo.setIPCorr(d0Corr, z0Corr);
 	if (msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Track " << j+1 << " selected." << endmsg;
-	  msg() << MSG::DEBUG << "  " << trigBjetTrackInfo << endmsg;
+	  ATH_MSG_DEBUG( "Track " << j+1 << " selected." );
+	  ATH_MSG_DEBUG( "  " << trigBjetTrackInfo );
 	}
 	trigBjetTrackInfoVector.push_back(trigBjetTrackInfo);
 	m_trackJetFinderTool->addTrack(track, j);
@@ -635,8 +635,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   if (etaTrackJet != -99 && phiTrackJet != -99) {
     
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "eta RoI = " << m_trigBjetJetInfo->etaRoI() << " ; eta Jet at EF = " << etaTrackJet << endmsg;
-      msg() << MSG::DEBUG << "phi RoI = " << m_trigBjetJetInfo->phiRoI() << " ; phi Jet at EF = " << phiTrackJet << endmsg;
+      ATH_MSG_DEBUG( "eta RoI = " << m_trigBjetJetInfo->etaRoI() << " ; eta Jet at EF = " << etaTrackJet );
+      ATH_MSG_DEBUG( "phi RoI = " << m_trigBjetJetInfo->phiRoI() << " ; phi Jet at EF = " << phiTrackJet );
     }
     
     m_trigBjetJetInfo->setEtaPhiTrkJet(etaTrackJet, phiTrackJet);
@@ -646,10 +646,10 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
     m_trigBjetJetInfo->setEtaPhiTrkJet(m_trigBjetJetInfo->etaRoI(), m_trigBjetJetInfo->phiRoI());
     
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "eta Jet = eta RoI" << endmsg;
+      ATH_MSG_DEBUG( "eta Jet = eta RoI" );
   }
   
-  msg() << MSG::DEBUG << *m_trigBjetJetInfo << endmsg;
+  ATH_MSG_DEBUG( *m_trigBjetJetInfo );
 
   std::vector<std::string>::iterator pTagger    = m_taggers.begin();
   std::vector<std::string>::iterator lastTagger = m_taggers.end();
@@ -657,8 +657,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   if (m_useBeamSpotFlag && !m_trigBjetPrmVtxInfo->beamSpotStatus()) {
 
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Beam spot status flag set to " << m_trigBjetPrmVtxInfo->beamSpotStatus() << ". Discriminant weights are not computed." << endmsg;
-      msg() << MSG::DEBUG << "Beam spot flag set to " << m_useBeamSpotFlag << ". Discriminant weights are not computed." << endmsg;
+      ATH_MSG_DEBUG( "Beam spot status flag set to " << m_trigBjetPrmVtxInfo->beamSpotStatus() << ". Discriminant weights are not computed." );
+      ATH_MSG_DEBUG( "Beam spot flag set to " << m_useBeamSpotFlag << ". Discriminant weights are not computed." );
     }
 
     m_listCutApplied.push_back(0);
@@ -667,7 +667,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   } else if (m_trigBjetPrmVtxInfo->xBeamSpotWidth()>m_setBeamSpotWidth || m_trigBjetPrmVtxInfo->yBeamSpotWidth()>m_setBeamSpotWidth) {
 
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." << endmsg;
+      ATH_MSG_DEBUG( "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." );
 
     m_listCutApplied.push_back(1);
     m_trigBjetTagger->getWeights();
@@ -675,8 +675,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   } else {
     
     if (msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "Computing discriminant weights using taggers: " << m_taggers 
-	    << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" << endmsg;
+	ATH_MSG_DEBUG( "Computing discriminant weights using taggers: " << m_taggers 
+		       << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" );
     
     m_trigBjetTagger->getWeights(m_trigBjetTrackInfoVector, m_trigBjetPrmVtxInfo, m_trigBjetSecVtxInfo, m_trigBjetJetInfo);
     
@@ -684,11 +684,11 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   
   if (msgLvl() <= MSG::DEBUG) {
      
-      msg() << MSG::DEBUG << "REGTEST:  Tracks: " << m_totTracks << " reconstructed and " << m_totSelTracks <<" selected" << endmsg;
+    ATH_MSG_DEBUG( "REGTEST:  Tracks: " << m_totTracks << " reconstructed and " << m_totSelTracks <<" selected" );
       
       if (m_instance == "EF") {
-	msg() << MSG::DEBUG << "REGTEST:  "
-	      << " (x,y,z) = (" << m_trigBjetPrmVtxInfo->xPrmVtx() << "," << m_trigBjetPrmVtxInfo->yPrmVtx() << "," << m_trigBjetPrmVtxInfo->zPrmVtx() << ")" << endmsg;
+	  ATH_MSG_DEBUG( "REGTEST:  "
+			 << " (x,y,z) = (" << m_trigBjetPrmVtxInfo->xPrmVtx() << "," << m_trigBjetPrmVtxInfo->yPrmVtx() << "," << m_trigBjetPrmVtxInfo->zPrmVtx() << ")" );
         /*
 	if (pointerToEFSecVtxCollections)
 	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: " << pointerToEFSecVtxCollections->size() << " reconstructed" << endmsg;
@@ -696,8 +696,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: 0 reconstructed" << endmsg;
         */
       } else {
-	msg() << MSG::DEBUG << "REGTEST:  "
-	      << " z = " << m_trigBjetPrmVtxInfo->zPrmVtx() << endmsg;
+	ATH_MSG_DEBUG( "REGTEST:  "
+		       << " z = " << m_trigBjetPrmVtxInfo->zPrmVtx() );
         /*
 	if (pointerToL2SecVtxCollections)
 	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: " << pointerToL2SecVtxCollections->size() << " reconstructed" << endmsg;
@@ -706,11 +706,11 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
          */
       }
       
-      msg() << MSG::DEBUG << "REGTEST: List weights stored probability and likelihood objects:" << endmsg;
+      ATH_MSG_DEBUG( "REGTEST: List weights stored probability and likelihood objects:" );
 
       pTagger = m_taggers.begin();
       for ( ; pTagger != lastTagger; pTagger++)
-	msg() << MSG::DEBUG << "REGTEST:  X(" << (*pTagger) << ") = " << m_trigBjetTagger->taggersXMap((*pTagger))  << endmsg;
+	ATH_MSG_DEBUG( "REGTEST:  X(" << (*pTagger) << ") = " << m_trigBjetTagger->taggersXMap((*pTagger)) );
 
   }
 
