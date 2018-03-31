@@ -86,7 +86,7 @@ void AFPSiStationMonitor::eventEnd()
 }
 
 
-void AFPSiStationMonitor::endOfLumiBlock(AFPHitsMonitorTool* toolToStoreHistograms)
+void AFPSiStationMonitor::endOfLumiBlock(AFPHitsMonitorTool* /*toolToStoreHistograms*/)
 {
   // Calls endOfLumiBlock on each layer.
   for (ToolHandle<IAFPSiLayerMonitor> layer : m_layersMonitors)

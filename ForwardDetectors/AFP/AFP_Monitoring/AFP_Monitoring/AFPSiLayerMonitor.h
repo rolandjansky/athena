@@ -46,7 +46,7 @@ public:
 
   const std::string& layerFullName() const override {return m_layerFullName;}
 
-  double correctHitsForPileUp (double hits) const {return hits - (m_hitsScaleFactor * m_parentMonitor->pileUp());}
+  double correctHitsForPileUp (double hits) const;
 
   double hitsInEvent () const override {return m_hitsInEvent;}
   double hitsInEventScaled () const override {return correctHitsForPileUp(m_hitsInEvent);}

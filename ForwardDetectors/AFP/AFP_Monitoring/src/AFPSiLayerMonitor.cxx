@@ -33,10 +33,10 @@ AFPSiLayerMonitor::AFPSiLayerMonitor(const std::string& type,
 
   declareProperty("hitsScaleFactor", m_hitsScaleFactor = 3, "Scale factor for normalising hits in event to pile-up.");
   
-  declareProperty("hotSpotStartRow", m_hotSpotStartRow = 0, "First row of the hot spot.");
-  declareProperty("hotSpotEndRow", m_hotSpotEndRow = 50, "Last row of the hot spot.");
-  declareProperty("hotSpotStartCol", m_hotSpotStartCol = 0, "First column of the hot spot.");
-  declareProperty("hotSpotEndCol", m_hotSpotEndCol = 30, "Last column of the hot spot.");
+  declareProperty("hotSpotStartRow", m_hotSpotStartRow = 0, "First row of the hot-spot (included in the hot-spot).");
+  declareProperty("hotSpotEndRow", m_hotSpotEndRow = 50, "Last row of the hot-spot (included in the hot-spot).");
+  declareProperty("hotSpotStartCol", m_hotSpotStartCol = 0, "First column of the hot-spot (included in the hot-spot).");
+  declareProperty("hotSpotEndCol", m_hotSpotEndCol = 30, "Last column of the hot-spot (included in the hot-spot).");
 }
 
 AFPSiLayerMonitor::~AFPSiLayerMonitor()
@@ -137,8 +137,8 @@ void AFPSiLayerMonitor::fillHistograms(const xAOD::AFPSiHit& hit)
   // update variables
   m_hitsInEvent++;
 
-  if (hit.pixelColIDChip() > m_hotSpotStartCol && hit.pixelColIDChip() < m_hotSpotEndCol)
-    if (hit.pixelRowIDChip() > m_hotSpotStartRow && hit.pixelRowIDChip() < m_hotSpotEndRow)
+  if (hit.pixelColIDChip() >= m_hotSpotStartCol && hit.pixelColIDChip() <= m_hotSpotEndCol)
+    if (hit.pixelRowIDChip() >= m_hotSpotStartRow && hit.pixelRowIDChip() <= m_hotSpotEndRow)
       m_hitsInEventHotSpot++;
 
   // fill histograms
@@ -184,4 +184,9 @@ std::string AFPSiLayerMonitor::makeHistTitle (const std::string title) const
   
   return histTitle.str();
   
+}
+
+double AFPSiLayerMonitor::correctHitsForPileUp (double hits) const 
+{
+  return hits - (m_hitsScaleFactor * m_parentMonitor->pileUp());
 }

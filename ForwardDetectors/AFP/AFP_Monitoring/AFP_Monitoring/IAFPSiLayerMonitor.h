@@ -15,6 +15,7 @@ class LWHist2D;
 class TH1;
 
 class AFPHitsMonitorTool;
+class ManagedMonitorToolBase;
 
 static const InterfaceID IID_IAFPSiLayerMonitor ("IAFPSiLayerMonitor", 1, 0);
 

@@ -29,8 +29,14 @@ layersStation0 = list()
 for layerID in range(layersInStationN):
     toolName = "station0Layer"
     toolName += str(layerID)
-    layersStation0.append(AFPSiLayerMonitor(name = toolName, pixelLayerID = layerID, stationID = 0))
-    ToolSvc += layersStation0[layerID]
+    layerTool = AFPSiLayerMonitor(name = toolName, pixelLayerID = layerID, stationID = 0)
+    layerTool.hitsScaleFactor = 0.035 # factor used to correct hits number based on pile-up: hits = meas - factor*pile_up
+    layerTool.hotSpotStartRow = 0      # pixel row marking the beginning of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotEndRow = 35       # pixel row marking the end of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotStartCol = 28     # pixel column marking the beginnig of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotEndCol = 36       # pixel column marking the end of a hot-spot (included in the hot-spot)
+    ToolSvc += layerTool
+    layersStation0.append(layerTool)
 
 station_0 = AFPSiStationMonitor (name = "AFPStation0", stationID = 0, layersMonitors = layersStation0)
 ToolSvc += station_0
@@ -41,8 +47,14 @@ layersStation1 = list()
 for layerID in range(layersInStationN):
     toolName = "station1Layer"
     toolName += str(layerID)
-    layersStation1.append(AFPSiLayerMonitor(name = toolName, pixelLayerID = layerID, stationID = 1))
-    ToolSvc += layersStation1[layerID]
+    layerTool = AFPSiLayerMonitor(name = toolName, pixelLayerID = layerID, stationID = 1)
+    layerTool.hitsScaleFactor = 0.035 # factor used to correct hits number based on pile-up: hits = meas - factor*pile_up
+    layerTool.hotSpotStartRow = 0     # pixel row marking the beginning of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotEndRow = 35      # pixel row marking the end of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotStartCol = 28    # pixel column marking the beginnig of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotEndCol = 36      # pixel column marking the end of a hot-spot (included in the hot-spot)
+    ToolSvc += layerTool
+    layersStation1.append(layerTool)
 
 station_1 = AFPSiStationMonitor (name = "AFPStation1", stationID = 1, layersMonitors = layersStation1)
 ToolSvc += station_1
@@ -53,8 +65,14 @@ layersStation2 = list()
 for layerID in range(layersInStationN):
     toolName = "station2Layer"
     toolName += str(layerID)
-    layersStation2.append(AFPSiLayerMonitor(name = toolName, pixelLayerID = layerID, stationID = 2))
-    ToolSvc += layersStation2[layerID]
+    layerTool = AFPSiLayerMonitor(name = toolName, pixelLayerID = layerID, stationID = 2)
+    layerTool.hitsScaleFactor = 0.035 # factor used to correct hits number based on pile-up: hits = meas - factor*pile_up
+    layerTool.hotSpotStartRow = 0     # pixel row marking the beginning of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotEndRow = 35      # pixel row marking the end of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotStartCol = 44    # pixel column marking the beginnig of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotEndCol = 52      # pixel column marking the end of a hot-spot (included in the hot-spot)
+    ToolSvc += layerTool
+    layersStation2.append(layerTool)
 
 station_2 = AFPSiStationMonitor (name = "AFPStation2", stationID = 2, layersMonitors = layersStation2)
 ToolSvc += station_2
@@ -65,8 +83,14 @@ layersStation3 = list()
 for layerID in range(layersInStationN):
     toolName = "station3Layer"
     toolName += str(layerID)
-    layersStation3.append(AFPSiLayerMonitor(name = toolName, pixelLayerID = layerID, stationID = 3))
-    ToolSvc += layersStation3[layerID]
+    layerTool = AFPSiLayerMonitor(name = toolName, pixelLayerID = layerID, stationID = 3)
+    layerTool.hitsScaleFactor = 0.035 # factor used to correct hits number based on pile-up: hits = meas - factor*pile_up
+    layerTool.hotSpotStartRow = 0     # pixel row marking the beginning of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotEndRow = 35      # pixel row marking the end of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotStartCol = 44    # pixel column marking the beginnig of a hot-spot (included in the hot-spot)
+    layerTool.hotSpotEndCol = 52      # pixel column marking the end of a hot-spot (included in the hot-spot)
+    ToolSvc += layerTool
+    layersStation3.append(layerTool)
 
 station_3 = AFPSiStationMonitor (name = "AFPStation3", stationID = 3, layersMonitors = layersStation3)
 ToolSvc += station_3
@@ -77,13 +101,13 @@ ToolSvc += AFPSiHitsMonTool
 AFPMonManager.AthenaMonTools += [ AFPSiHitsMonTool ]
 
 
-# ===== Technical monitor =====
-from AFP_Monitoring.AFP_MonitoringConf import AFPTechnicalMonitorTool
-AFPTechnicalMonTool = AFPTechnicalMonitorTool (
-name           = "AFPTechnicalMonitoring",
-PreScale       = 0,
-EnableLumi = True
-)
+# # ===== Technical monitor =====
+# from AFP_Monitoring.AFP_MonitoringConf import AFPTechnicalMonitorTool
+# AFPTechnicalMonTool = AFPTechnicalMonitorTool (
+# name           = "AFPTechnicalMonitoring",
+# PreScale       = 0,
+# EnableLumi = True
+# )
 
-ToolSvc += AFPTechnicalMonTool
-AFPMonManager.AthenaMonTools += [ AFPTechnicalMonTool ]
+# ToolSvc += AFPTechnicalMonTool
+# AFPMonManager.AthenaMonTools += [ AFPTechnicalMonTool ]
