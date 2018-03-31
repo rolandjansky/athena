@@ -363,6 +363,41 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     sc = clusterShift.regHist(m_cluster_occupancy_time1 = new TProfile("cluster_occupancy_time_10min", ("Module hit occupancy as function of time over 10 minutes. 6 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99, 0., 1., "i"));
     sc = clusterShift.regHist(m_cluster_occupancy_time2 = new TProfile("cluster_occupancy_time_1hr", ("Module hit occupancy as function of time over 1 hour.  36 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99, 0., 1., "i"));
     sc = clusterShift.regHist(m_cluster_occupancy_time3 = new TProfile("cluster_occupancy_time_6hr", ("Module hit occupancy as function of time over 6 hours.  3.6 min/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99, 0., 1., "i"));
+    if (m_doOnTrack) {
+      if (m_doIBL) {
+	hname = makeHistname("Cluster_Occupancy_PP0_IBLA", false);
+	htitles = makeHisttitle("Average per FE cluster occupancy, IBL A-side", ";stave ;average # clusters per FE per event", false);
+	sc = clusterExpert.regHist(m_cluster_occupancy_PP0_IBLA = TProfile_LW::create(hname.c_str(), htitles.c_str(), 
+									  PixMon::kNumStavesIBL, 0.5, 0.5 + PixMon::kNumStavesIBL));
+	hname = makeHistname("Cluster_Occupancy_PP0_IBLC", false);
+	htitles = makeHisttitle("Average per FE cluster occupancy, IBL C-side", ";stave ;average # clusters per FE per event", false);
+	sc = clusterExpert.regHist(m_cluster_occupancy_PP0_IBLC = TProfile_LW::create(hname.c_str(), htitles.c_str(), 
+									  PixMon::kNumStavesIBL, 0.5, 0.5 + PixMon::kNumStavesIBL));
+      }
+      hname = makeHistname("Cluster_Occupancy_PP0_B0", false);
+      htitles = makeHisttitle("Average per module cluster occupancy, B0", ";stave ;average # clusters per module per event", false);
+      sc = clusterExpert.regHist(m_cluster_occupancy_PP0_B0 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								      PixMon::kNumStavesL0, 0.5, 0.5 + PixMon::kNumStavesL0));
+      hname = makeHistname("Cluster_Occupancy_PP0_B1", false);
+      htitles = makeHisttitle("Average per module cluster occupancy, B1", ";stave ;average # clusters per module per event", false);
+      sc = clusterExpert.regHist(m_cluster_occupancy_PP0_B1 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								      PixMon::kNumStavesL1, 0.5, 0.5 + PixMon::kNumStavesL1));
+      hname = makeHistname("Cluster_Occupancy_PP0_B2", false);
+      htitles = makeHisttitle("Average per module cluster occupancy, B2", ";stave ;average # clusters per module per event", false);
+      sc = clusterExpert.regHist(m_cluster_occupancy_PP0_B2 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								      PixMon::kNumStavesL2, 0.5, 0.5 + PixMon::kNumStavesL2));
+      hname = makeHistname("Cluster_Occupancy_PP0_ECA", false);
+      htitles = makeHisttitle("Average per module cluster occupancy, ECA", ";sector ;average # clusters per module per event", false);
+      sc = clusterExpert.regHist(m_cluster_occupancy_PP0_ECA = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								       PixMon::kNumPP0sEC, 0.5, 0.5 + PixMon::kNumPP0sEC));
+      hname = makeHistname("Cluster_Occupancy_PP0_ECC", false);
+      htitles = makeHisttitle("Average per module cluster occupancy, ECC", ";sector ;average # clusters per module per event", false);
+      sc = clusterExpert.regHist(m_cluster_occupancy_PP0_ECC = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								       PixMon::kNumPP0sEC, 0.5, 0.5 + PixMon::kNumPP0sEC));
+      formatPP0Histos(m_cluster_occupancy_PP0_ECA, m_cluster_occupancy_PP0_ECC,
+			m_cluster_occupancy_PP0_B0, m_cluster_occupancy_PP0_B1, m_cluster_occupancy_PP0_B2,
+			m_cluster_occupancy_PP0_IBLA, m_cluster_occupancy_PP0_IBLC);
+    }
   }
 
   if (m_doLowOccupancy || m_doHighOccupancy) {
@@ -672,7 +707,7 @@ StatusCode PixelMainMon::fillClustersMon(void) {
         }
       }
     }  // PixelClusterContainer loop
-  }    //end of event loop
+  }    // end of cluster collections loop
 
   if (m_doOnline) {
     fillSummaryHistos(m_cluster_occupancy.get(),
@@ -682,8 +717,25 @@ StatusCode PixelMainMon::fillClustersMon(void) {
                       m_cluster_occupancy_summary_mod[PixLayer::kB0],
                       m_cluster_occupancy_summary_mod[PixLayer::kB1],
                       m_cluster_occupancy_summary_mod[PixLayer::kB2]);
-    if (m_doRefresh) {
-      if (m_clustermap_mon && m_clustermap_tmp) m_clustermap_mon->fill2DMon(m_clustermap_tmp.get());
+    if (m_doOnTrack && m_doRefresh5min) {
+      if (m_cluster_occupancy_PP0_ECA) m_cluster_occupancy_PP0_ECA->Reset(); 
+      if (m_cluster_occupancy_PP0_ECC) m_cluster_occupancy_PP0_ECC->Reset();
+      if (m_cluster_occupancy_PP0_B0) m_cluster_occupancy_PP0_B0->Reset();
+      if (m_cluster_occupancy_PP0_B1) m_cluster_occupancy_PP0_B1->Reset();
+      if (m_cluster_occupancy_PP0_B2) m_cluster_occupancy_PP0_B2->Reset();
+      if (m_cluster_occupancy_PP0_IBLA) m_cluster_occupancy_PP0_IBLA->Reset();
+      if (m_cluster_occupancy_PP0_IBLC) m_cluster_occupancy_PP0_IBLC->Reset();
+    }
+    if (m_doRefresh) { //set to true for testing
+      if (m_clustermap_mon && m_clustermap_tmp) {
+	if (m_doOnTrack) {
+	  fillPP0Histos(m_clustermap_tmp.get(),
+			m_cluster_occupancy_PP0_ECA, m_cluster_occupancy_PP0_ECC,
+			m_cluster_occupancy_PP0_B0, m_cluster_occupancy_PP0_B1, m_cluster_occupancy_PP0_B2,
+			m_cluster_occupancy_PP0_IBLA, m_cluster_occupancy_PP0_IBLC);
+	}
+	m_clustermap_mon->fill2DMon(m_clustermap_tmp.get());
+      }
     }
   }
 

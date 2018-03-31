@@ -200,6 +200,39 @@ StatusCode PixelMainMon::bookHitsMon(void) {
         sc = rdoExpert.regHist(m_hit_ToT_tmp_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_tot4, min_tot4, max_tot4));
       }
     }
+    if (m_doIBL) {
+      hname = makeHistname("Occupancy_PP0_IBLA", false);
+      htitles = makeHisttitle("Average per FE occupancy, IBL A-side", ";stave ;average # hits per FE per event", false);
+      sc = rdoExpert.regHist(m_occupancy_PP0_IBLA = TProfile_LW::create(hname.c_str(), htitles.c_str(), 
+									PixMon::kNumStavesIBL, 0.5, 0.5 + PixMon::kNumStavesIBL));
+      hname = makeHistname("Occupancy_PP0_IBLC", false);
+      htitles = makeHisttitle("Average per FE occupancy, IBL C-side", ";stave ;average # hits per FE per event", false);
+      sc = rdoExpert.regHist(m_occupancy_PP0_IBLC = TProfile_LW::create(hname.c_str(), htitles.c_str(), 
+									PixMon::kNumStavesIBL, 0.5, 0.5 + PixMon::kNumStavesIBL));
+    }
+    hname = makeHistname("Occupancy_PP0_B0", false);
+    htitles = makeHisttitle("Average per module occupancy, B0", ";stave ;average # hits per module per event", false);
+    sc = rdoExpert.regHist(m_occupancy_PP0_B0 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								    PixMon::kNumStavesL0, 0.5, 0.5 + PixMon::kNumStavesL0));
+    hname = makeHistname("Occupancy_PP0_B1", false);
+    htitles = makeHisttitle("Average per module occupancy, B1", ";stave ;average # hits per module per event", false);
+    sc = rdoExpert.regHist(m_occupancy_PP0_B1 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								    PixMon::kNumStavesL1, 0.5, 0.5 + PixMon::kNumStavesL1));
+    hname = makeHistname("Occupancy_PP0_B2", false);
+    htitles = makeHisttitle("Average per module occupancy, B2", ";stave ;average # hits per module per event", false);
+    sc = rdoExpert.regHist(m_occupancy_PP0_B2 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								    PixMon::kNumStavesL2, 0.5, 0.5 + PixMon::kNumStavesL2));
+    hname = makeHistname("Occupancy_PP0_ECA", false);
+    htitles = makeHisttitle("Average per module occupancy, ECA", ";sector ;average # hits per module per event", false);
+    sc = rdoExpert.regHist(m_occupancy_PP0_ECA = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								     PixMon::kNumPP0sEC, 0.5, 0.5 + PixMon::kNumPP0sEC));
+    hname = makeHistname("Occupancy_PP0_ECC", false);
+    htitles = makeHisttitle("Average per module occupancy, ECC", ";sector ;average # hits per module per event", false);
+    sc = rdoExpert.regHist(m_occupancy_PP0_ECC = TProfile_LW::create(hname.c_str(), htitles.c_str(),
+								     PixMon::kNumPP0sEC, 0.5, 0.5 + PixMon::kNumPP0sEC));
+    formatPP0Histos(m_occupancy_PP0_ECA, m_occupancy_PP0_ECC,
+			m_occupancy_PP0_B0, m_occupancy_PP0_B1, m_occupancy_PP0_B2,
+			m_occupancy_PP0_IBLA, m_occupancy_PP0_IBLC);
   }
 
   if (m_doTiming) {
@@ -612,12 +645,25 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
     if (m_occupancy_time1 && m_occupancy_time2 && m_occupancy_time3) {
       fillTimeHisto(double(nhits / (1744.0 + 280 * m_doIBL)), m_occupancy_time1, m_occupancy_time2, m_occupancy_time3, 10., 60., 360.);
     }
-    if (m_doRefresh) {
+    if (m_doRefresh5min) {
+      if (m_occupancy_PP0_ECA) m_occupancy_PP0_ECA->Reset(); 
+      if (m_occupancy_PP0_ECC) m_occupancy_PP0_ECC->Reset();
+      if (m_occupancy_PP0_B0) m_occupancy_PP0_B0->Reset();
+      if (m_occupancy_PP0_B1) m_occupancy_PP0_B1->Reset();
+      if (m_occupancy_PP0_B2) m_occupancy_PP0_B2->Reset();
+      if (m_occupancy_PP0_IBLA) m_occupancy_PP0_IBLA->Reset();
+      if (m_occupancy_PP0_IBLC) m_occupancy_PP0_IBLC->Reset();
+    }
+    if (m_doRefresh) { //set to true for testing
       for (int i = 0; i < PixLayer::COUNT; i++) {
         if (m_hit_ToT_Mon_mod[i] && m_hit_ToT_tmp_mod[i]) th1FillMonitoring(m_hit_ToT_Mon_mod[i], m_hit_ToT_tmp_mod[i]);
       }
       if (m_hitmap_tmp && m_hitmap_mon) {
         if (m_occupancy_pix_evt) m_occupancy_pix_evt->fillFromMap(m_hitmap_tmp.get(), false);
+	fillPP0Histos(m_hitmap_tmp.get(),
+		      m_occupancy_PP0_ECA, m_occupancy_PP0_ECC,
+		      m_occupancy_PP0_B0, m_occupancy_PP0_B1, m_occupancy_PP0_B2,
+		      m_occupancy_PP0_IBLA, m_occupancy_PP0_IBLC);
         m_hitmap_mon->fill2DMon(m_hitmap_tmp.get());
       }
     }

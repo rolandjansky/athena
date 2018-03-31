@@ -120,6 +120,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   void th1FillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
   void fillTimeHisto(double, TProfile*, TProfile*, TProfile*, double, double, double);
   void fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
+  void fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C);
+  void formatPP0Histos(TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C);
   int parseDetailsString(std::string& detailsMod);
   bool isOnTrack(Identifier id, bool isCluster);
   bool isOnTrack(Identifier id, double& cosalpha);
@@ -318,6 +320,20 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile* m_occupancy_time2;
   TProfile* m_occupancy_time3;
   TH1F_LW* m_occupancy_summary_mod[PixLayer::COUNT];
+  TProfile_LW* m_occupancy_PP0_ECA;
+  TProfile_LW* m_occupancy_PP0_ECC;
+  TProfile_LW* m_occupancy_PP0_B0;
+  TProfile_LW* m_occupancy_PP0_B1;
+  TProfile_LW* m_occupancy_PP0_B2;
+  TProfile_LW* m_occupancy_PP0_IBLA;
+  TProfile_LW* m_occupancy_PP0_IBLC;
+  TProfile_LW* m_cluster_occupancy_PP0_ECA;
+  TProfile_LW* m_cluster_occupancy_PP0_ECC;
+  TProfile_LW* m_cluster_occupancy_PP0_B0;
+  TProfile_LW* m_cluster_occupancy_PP0_B1;
+  TProfile_LW* m_cluster_occupancy_PP0_B2;
+  TProfile_LW* m_cluster_occupancy_PP0_IBLA;
+  TProfile_LW* m_cluster_occupancy_PP0_IBLC;
   TH3F* m_nFEswithHits_mod[PixLayer::COUNT];
 
   // hit tot

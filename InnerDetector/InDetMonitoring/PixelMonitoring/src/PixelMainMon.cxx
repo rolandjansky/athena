@@ -170,6 +170,21 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_occupancy_time2 = 0;
   m_occupancy_time3 = 0;
   memset(m_occupancy_summary_mod, 0, sizeof(m_occupancy_summary_mod));
+  m_occupancy_PP0_ECA = 0;
+  m_occupancy_PP0_ECC = 0;
+  m_occupancy_PP0_B0 = 0;
+  m_occupancy_PP0_B1 = 0;
+  m_occupancy_PP0_B2 = 0;
+  m_occupancy_PP0_IBLA = 0;
+  m_occupancy_PP0_IBLC = 0;
+  m_cluster_occupancy_PP0_ECA = 0;
+  m_cluster_occupancy_PP0_ECC = 0;
+  m_cluster_occupancy_PP0_B0 = 0;
+  m_cluster_occupancy_PP0_B1 = 0;
+  m_cluster_occupancy_PP0_B2 = 0;
+  m_cluster_occupancy_PP0_IBLA = 0;
+  m_cluster_occupancy_PP0_IBLC = 0;
+  
   memset(m_nFEswithHits_mod, 0, sizeof(m_nFEswithHits_mod));
 
   // hit tot

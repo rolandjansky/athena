@@ -14,8 +14,12 @@
 #include "LWHists/TH1I_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TH2I_LW.h"
+#include "LWHists/TProfile_LW.h"
+#include "LWHists/TProfile2D_LW.h"
 #include "PixelMonitoring/PixelMainMon.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/PixelMon2DProfilesLW.h"
+#include "PixelMonitoring/Components.h"
 #include "TH1I.h"
 #include "TH2I.h"
 #include "TProfile2D.h"
@@ -262,6 +266,118 @@ void PixelMainMon::fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH
     for (int phiIndex = 1; phiIndex <= 48; phiIndex++) {
       A->Fill(occupancy->A->GetBinContent(etaIndex, phiIndex) / events);
       C->Fill(occupancy->C->GetBinContent(etaIndex, phiIndex) / events);
+    }
+  }
+}
+
+void PixelMainMon::formatPP0Histos(TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C) {
+  if (!(D_A && D_C && B0 && B1 && B2)) return;
+  if (IBL_A && IBL_C) {
+    for (unsigned int i = 0; i < PixMon::kNumStavesIBL; ++i) {
+      IBL_A->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesIBL.at(i).c_str());
+      IBL_A->GetXaxis()->SetLabelSize(0.03);
+      IBL_A->SetMinimum(0.);
+      IBL_C->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesIBL.at(i).c_str());
+      IBL_C->GetXaxis()->SetLabelSize(0.03);
+      IBL_C->SetMinimum(0.);
+    }
+  }
+  if (B0 && B1 && B2) {
+    for (unsigned int i = 0; i < PixMon::kNumStavesL0; ++i) {
+      B0->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesL0.at(i).c_str());
+      B0->GetXaxis()->SetLabelSize(0.03);
+      B0->SetMinimum(0.);
+    }
+    for (unsigned int i = 0; i < PixMon::kNumStavesL1; ++i) {
+      B1->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesL1.at(i).c_str());
+      B1->GetXaxis()->SetLabelSize(0.02);
+      B1->SetMinimum(0.);
+    }
+    for (unsigned int i = 0; i < PixMon::kNumStavesL2; ++i) {
+      B2->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesL2.at(i).c_str());
+      B2->GetXaxis()->SetLabelSize(0.02);
+      B2->SetMinimum(0.);
+    }
+  }
+  if (D_A && D_C) {
+    for (unsigned int i = 0; i < PixMon::kNumPP0sEC; ++i) {
+      D_A->GetXaxis()->SetBinLabel(i + 1, PixMon::PP0sEC.at(i).c_str());
+      D_A->GetXaxis()->SetLabelSize(0.02);
+      D_A->SetMinimum(0.);
+      D_C->GetXaxis()->SetBinLabel(i + 1, PixMon::PP0sEC.at(i).c_str());
+      D_C->GetXaxis()->SetLabelSize(0.02);
+      D_C->SetMinimum(0.);
+    }
+  }
+}
+
+void PixelMainMon::fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C) {
+  if (!(D_A && D_C && B0 && B1 && B2 && occupancy && m_status && m_event)) return;
+  unsigned int nbinx;
+  unsigned int nbiny;
+  // use FE occ for IBL, mod occ for the rest
+  // fill only if FE is active
+  if (IBL_A && IBL_C) {              
+    nbinx = occupancy->IBL->GetNbinsX();
+    nbiny = occupancy->IBL->GetNbinsY();
+    for (unsigned int x = 1; x <= nbinx; ++x) {
+      for (unsigned int y = 1; y <= nbiny; ++y) {
+        const auto content = occupancy->IBL->GetBinContent(x, y) / (1.0 * m_event);
+	if (m_status->IBL->GetBinContent(x, y)!=2) {
+	  if (x>0.5*nbinx) IBL_A->Fill(y, content);
+	  else IBL_C->Fill(y, content);
+	}
+      }
+    }
+  }
+  nbinx = occupancy->B0->GetNbinsX();
+  nbiny = occupancy->B0->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->B0->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->B0->GetBinContent(x, y)!=2) {
+	B0->Fill(y, content);
+      }
+    }
+  }
+  nbinx = occupancy->B1->GetNbinsX();
+  nbiny = occupancy->B1->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->B1->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->B1->GetBinContent(x, y)!=2) {
+	B1->Fill(y, content);
+      }
+    }
+  }
+  nbinx = occupancy->B2->GetNbinsX();
+  nbiny = occupancy->B2->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->B2->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->B2->GetBinContent(x, y)!=2) {
+	B2->Fill(y, content);
+      }
+    }
+  }
+  nbinx = occupancy->A->GetNbinsX();
+  nbiny = occupancy->A->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->A->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->A->GetBinContent(x, y)!=2) {
+	D_A->Fill( (x-1)*8 + (y-1)/6 + 1, content);
+      }
+    }
+  }
+  nbinx = occupancy->C->GetNbinsX();
+  nbiny = occupancy->C->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->C->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->C->GetBinContent(x, y)!=2) {
+	D_C->Fill( (x-1)*8 + (y-1)/6 + 1, content);
+      }
     }
   }
 }
