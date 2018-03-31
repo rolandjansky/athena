@@ -5,12 +5,13 @@
 #ifndef AFPHITSMONITORTOOL_H
 #define AFPHITSMONITORTOOL_H
 
-#include <AthenaMonitoring/ManagedMonitorToolBase.h>
+#include "AFP_Monitoring/IAFPSiStationMonitor.h"
+
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include <vector>
 #include <string>
-
-#include "AFP_Monitoring/IAFPSiStationMonitor.h"
 
 class AFPSiLayerSummaryManager;
 
@@ -37,18 +38,16 @@ public:
 
   AFPSiLayerSummaryManager* summaryManager () const {return m_summaryManager;}
   
+  double pileUp () const {return m_lumiBlockMuTool->averageInteractionsPerCrossing();}
+
 protected:
   const std::string m_histsDirectoryName; ///< name of directory for all histograms
-
-  
-  // AFPSiStationMonitor m_cNearStation;		///< station on C side that is closer to the interaction point
-  // AFPSiStationMonitor m_cFarStation;		///< station on C side that is further away from the interaction point
-  // AFPSiStationMonitor m_aNearStation;		///< station on A side that is closer to the interaction point
-  // AFPSiStationMonitor m_aFarStation;		///< station on A side that is further away from the interaction point
 
   ToolHandleArray<IAFPSiStationMonitor> m_stationsMonitors;
 
   AFPSiLayerSummaryManager* m_summaryManager;
+
+  ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
   
   void makeLayerSummaryHist (const std::string inputHistName, const std::string outputHistName, const std::string outputHistTitle);
 };

@@ -28,9 +28,11 @@ AFPHitsMonitorTool( const std::string & type, const std::string & name,
       const IInterface* parent )
   : ManagedMonitorToolBase( type, name, parent ),
     m_histsDirectoryName ("AFP/"),
-    m_summaryManager(new AFPSiLayerSummaryManager)
+    m_summaryManager(new AFPSiLayerSummaryManager),
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
   declareProperty("stationsMonitors", m_stationsMonitors, "Array of station monitors.");
+  declareProperty("luminosityTool", m_lumiBlockMuTool, "Luminosity tool used for reading pile-up value.");
 }
 
 
@@ -61,25 +63,29 @@ StatusCode AFPHitsMonitorTool::initialize()
   }
 
 
-  ManagedMonitorToolBase::MonGroup managedBookingLumiBlock(this, histsDirectoryName(), lumiBlock, ManagedMonitorToolBase::ATTRIB_MANAGED);   // to re-booked every luminosity block
-  m_summaryManager->createSummaryHits(this, 
-  				     managedBookingLumiBlock, 
-  				     "h_timeOverThresholdMean", 
-  				     "Summary mean number of time over threshold per plane",
-				      &xAOD::AFPSiHit::timeOverThreshold);
+  ManagedMonitorToolBase::MonGroup managedBookingLumiBlock(this, histsDirectoryName() + "shifter/", lumiBlock, ManagedMonitorToolBase::ATTRIB_MANAGED);   // to re-booked every luminosity block
+  AFPSiLayerSummaryProfileBase* timeOverThresholdMean = m_summaryManager->createSummaryHits(this, 
+											    managedBookingLumiBlock, 
+											    "h_timeOverThresholdMean", 
+											    "Mean hitstime over threshold per plane",
+											    &xAOD::AFPSiHit::timeOverThreshold);
+  timeOverThresholdMean->profile()->SetYTitle("mean time-over-threshold");
 
-  m_summaryManager->createSummaryEventEnd(this, 
-					 managedBookingLumiBlock, 
-					 "h_hitsPerPlaneMean",
-					 "Summary mean number of hits per plane per event",
-					 &IAFPSiLayerMonitor::hitsInEvent);
+  AFPSiLayerSummaryProfileBase* hitsPerPlaneScaledMean = 
+    m_summaryManager->createSummaryEventEnd(this, 
+					    managedBookingLumiBlock, 
+					    "h_hitsPerPlaneScaledMean",
+					    "Mean number of hits in an event per plane",
+					    &IAFPSiLayerMonitor::hitsInEventScaled);
+  hitsPerPlaneScaledMean->profile()->SetYTitle("Mean number of hits in an event.");
 
-  m_summaryManager->createSummaryEventEnd(this, 
-					 managedBookingLumiBlock, 
-					 "h_hitsPerPlaneScaledMean",
-					 "Summary mean number of hits per plane per event scaled",
-					 &IAFPSiLayerMonitor::hitsInEventScaled);
-
+  AFPSiLayerSummaryProfileBase* hitsPerPlaneScaledHotSpotMean = 
+    m_summaryManager->createSummaryEventEnd(this, 
+					    managedBookingLumiBlock, 
+					    "h_hitsPerPlaneScaledHotSpotMean",
+					    "Mean number of hits in a hotspot in an event per plane",
+					    &IAFPSiLayerMonitor::hitsInEventHotSpotScaled);
+  hitsPerPlaneScaledHotSpotMean->profile()->SetYTitle("Mean number of hits in hotspot in an event");
   
   return StatusCode::SUCCESS;
 }

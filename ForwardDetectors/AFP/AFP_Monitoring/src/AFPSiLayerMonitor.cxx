@@ -66,6 +66,7 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
   
   // ********** Per lumi block **********
   ManagedMonitorToolBase::MonGroup managed_booking_lumiBlock( toolToStoreHistograms, histsDirName.data(), toolToStoreHistograms->lumiBlock);   // to re-booked every luminosity block
+  ManagedMonitorToolBase::MonGroup managed_booking_run( toolToStoreHistograms, histsDirName.data(), toolToStoreHistograms->run);   // to re-booked every run
   
   // ----- hit map -----
   // create histogram name and title
@@ -75,14 +76,15 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
   constexpr int nRows = 80;
   constexpr int nColumns = 336;
 
-
   // create and register histogram
   m_hitMap  = TH2F_LW::create(hitMapName.data(),
 			      hitMapTitle.data(),
 			      nRows, 0.5, nRows + 0.5,
 			      nColumns, 0.5, nColumns + 0.5);
+  m_hitMap->SetXTitle("row ID");
+  m_hitMap->SetYTitle("column ID");
 
-  toolToStoreHistograms->regHist(m_hitMap, managed_booking_lumiBlock ).ignore();
+  toolToStoreHistograms->regHist(m_hitMap, managed_booking_run).ignore();
 
 
   // ----- hit multiplicity -----
@@ -94,6 +96,8 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
 			       hitMultiplicityTitle.data(),
 			       40, -0.5, 39.5);
   m_hitMultiplicity->StatOverflows(); // need to use overflows for calculation of mean
+  m_hitMultiplicity->SetXTitle("number hits in an event");
+  m_hitMultiplicity->SetYTitle("events");
 
   toolToStoreHistograms->regHist( m_hitMultiplicity, managed_booking_lumiBlock ).ignore();
 
@@ -106,6 +110,8 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
 				      hitMultiplicityTitleHotSpot.data(),
 				      40, -0.5, 39.5);
   m_hitMultiplicityHotSpot->StatOverflows(); // need to use overflows for calculation of mean
+  m_hitMultiplicityHotSpot->SetXTitle("number hits in hotspot in an event");
+  m_hitMultiplicityHotSpot->SetYTitle("events");
 
   toolToStoreHistograms->regHist( m_hitMultiplicityHotSpot, managed_booking_lumiBlock ).ignore();
 
@@ -119,6 +125,8 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
 				 timeOverThresholdTitle.data(),
 				 16, -0.5, 15.5);
   m_timeOverThreshold->StatOverflows();  // need to use overflows for calculation of mean
+  m_timeOverThreshold->SetXTitle("time-over-threshold");
+  m_timeOverThreshold->SetYTitle("number of hits");
 
   toolToStoreHistograms->regHist( m_timeOverThreshold, managed_booking_lumiBlock ).ignore();
 }

@@ -46,8 +46,13 @@ public:
 
   const std::string& layerFullName() const override {return m_layerFullName;}
 
-  int hitsInEvent () const override {return m_hitsInEvent;}
-  int hitsInEventScaled () const override {return m_hitsInEvent - m_hitsScaleFactor;}
+  double correctHitsForPileUp (double hits) const {return hits - (m_hitsScaleFactor * m_parentMonitor->pileUp());}
+
+  double hitsInEvent () const override {return m_hitsInEvent;}
+  double hitsInEventScaled () const override {return correctHitsForPileUp(m_hitsInEvent);}
+
+  double hitsInEventHotSpot () const override {return m_hitsInEventHotSpot;}
+  double hitsInEventHotSpotScaled () const override {return correctHitsForPileUp(m_hitsInEventHotSpot);}
 
 protected:
   // internal variables

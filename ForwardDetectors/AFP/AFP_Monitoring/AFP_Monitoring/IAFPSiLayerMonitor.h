@@ -49,8 +49,13 @@ public:
 
   virtual const std::string& layerFullName() const = 0;
 
-  virtual int hitsInEvent () const = 0;
-  virtual int hitsInEventScaled () const = 0;
+  virtual double correctHitsForPileUp (double hits) const = 0;
+
+  virtual double hitsInEvent () const = 0;
+  virtual double hitsInEventScaled () const = 0;
+
+  virtual double hitsInEventHotSpot () const = 0;
+  virtual double hitsInEventHotSpotScaled () const = 0;
 };
 
 #endif
