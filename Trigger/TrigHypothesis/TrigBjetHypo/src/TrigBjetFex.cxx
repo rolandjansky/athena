@@ -259,30 +259,30 @@ HLT::ErrorCode TrigBjetFex::hltInitialize() {
 	  ATH_MSG_DEBUG( " HistoPrmVtxAtEF = "     << m_histoPrmVtxAtEF );
 	  ATH_MSG_DEBUG(  " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel );
 
-          msg() << MSG::VERBOSE << " JetProb 0 MC = "      << m_par_0_MC << endmsg; 
-          msg() << MSG::VERBOSE << " JetProb 1 MC = "      << m_par_1_MC << endmsg; 
-          msg() << MSG::VERBOSE << " JetProb 0 DT = "      << m_par_0_DT << endmsg; 
-          msg() << MSG::VERBOSE << " JetProb 1 DT = "      << m_par_1_DT << endmsg; 
+	  ATH_MSG_VERBOSE( " JetProb 0 MC = "      << m_par_0_MC );
+	  ATH_MSG_VERBOSE( " JetProb 1 MC = "      << m_par_1_MC );
+	  ATH_MSG_VERBOSE( " JetProb 0 DT = "      << m_par_0_DT );
+	  ATH_MSG_VERBOSE( " JetProb 1 DT = "      << m_par_1_DT );
 
-          msg() << MSG::VERBOSE << " SizeIP1D_Grade1 = "  << m_sizeIP1D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " bIP1D_Grade1 = "     << m_bIP1D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP1D_Grade1 = "     << m_uIP1D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " SizeIP2D_Grade1 = "  << m_sizeIP2D_Grade1 << endmsg;
-          msg() << MSG::VERBOSE << " bIP2D_Grade1 = "     << m_bIP2D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP2D_Grade1 = "     << m_uIP2D_Grade1 << endmsg;  
-          msg() << MSG::VERBOSE << " SizeIP3D_Grade1 = "  << m_sizeIP3D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " bIP3D_Grade1 = "     << m_bIP3D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP3D_Grade1 = "     << m_uIP3D_Grade1 << endmsg; 
+	  ATH_MSG_VERBOSE( " SizeIP1D_Grade1 = "  << m_sizeIP1D_Grade1 );
+	  ATH_MSG_VERBOSE( " bIP1D_Grade1 = "     << m_bIP1D_Grade1    );
+	  ATH_MSG_VERBOSE( " uIP1D_Grade1 = "     << m_uIP1D_Grade1    );
+	  ATH_MSG_VERBOSE( " SizeIP2D_Grade1 = "  << m_sizeIP2D_Grade1 );
+	  ATH_MSG_VERBOSE( " bIP2D_Grade1 = "     << m_bIP2D_Grade1    );
+	  ATH_MSG_VERBOSE( " uIP2D_Grade1 = "     << m_uIP2D_Grade1    );
+	  ATH_MSG_VERBOSE( " SizeIP3D_Grade1 = "  << m_sizeIP3D_Grade1 );
+	  ATH_MSG_VERBOSE( " bIP3D_Grade1 = "     << m_bIP3D_Grade1    );
+	  ATH_MSG_VERBOSE( " uIP3D_Grade1 = "     << m_uIP3D_Grade1    );
 
-          msg() << MSG::VERBOSE << " SizeIP1D_Grade2 = "  << m_sizeIP1D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " bIP1D_Grade2 = "     << m_bIP1D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP1D_Grade2 = "     << m_uIP1D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " SizeIP2D_Grade2 = "  << m_sizeIP2D_Grade2 << endmsg;
-          msg() << MSG::VERBOSE << " bIP2D_Grade2 = "     << m_bIP2D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP2D_Grade2 = "     << m_uIP2D_Grade2 << endmsg;  
-          msg() << MSG::VERBOSE << " SizeIP3D_Grade2 = "  << m_sizeIP3D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " bIP3D_Grade2 = "     << m_bIP3D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP3D_Grade2 = "     << m_uIP3D_Grade2 << endmsg; 
+	  ATH_MSG_VERBOSE( " SizeIP1D_Grade2 = "  << m_sizeIP1D_Grade2 );
+	  ATH_MSG_VERBOSE( " bIP1D_Grade2 = "     << m_bIP1D_Grade2 );
+	  ATH_MSG_VERBOSE( " uIP1D_Grade2 = "     << m_uIP1D_Grade2 );
+	  ATH_MSG_VERBOSE( " SizeIP2D_Grade2 = "  << m_sizeIP2D_Grade2 );
+	  ATH_MSG_VERBOSE( " bIP2D_Grade2 = "     << m_bIP2D_Grade2 );
+	  ATH_MSG_VERBOSE( " uIP2D_Grade2 = "     << m_uIP2D_Grade2 );
+	  ATH_MSG_VERBOSE( " SizeIP3D_Grade2 = "  << m_sizeIP3D_Grade2 );
+	  ATH_MSG_VERBOSE( " bIP3D_Grade2 = "     << m_bIP3D_Grade2 );
+	  ATH_MSG_VERBOSE( " uIP3D_Grade2 = "     << m_uIP3D_Grade2 );
 
 	  ATH_MSG_DEBUG( " TrkSelGrade1_Chi2 = "            << m_trkSelGrade1_Chi2 );
 	  ATH_MSG_DEBUG( " TrkSelGrade1_Innermost = "       << m_trkSelGrade1_Innermost );
@@ -308,18 +308,18 @@ HLT::ErrorCode TrigBjetFex::hltInitialize() {
 	  ATH_MSG_DEBUG( " TrkSelGrade2_Phi = "             << m_trkSelGrade2_Phi );
 	  ATH_MSG_DEBUG( " TrkSelGrade2_R = "               << m_trkSelGrade2_R );
 
-          msg() << MSG::VERBOSE << " SizeMVtx = "       << m_sizeMVtx << endmsg; 
-          msg() << MSG::VERBOSE << " bMVtx = "          << m_bMVtx << endmsg; 
-          msg() << MSG::VERBOSE << " uMVtx = "          << m_uMVtx << endmsg;
-          msg() << MSG::VERBOSE << " SizeEVtx = "       << m_sizeEVtx << endmsg; 
-          msg() << MSG::VERBOSE << " bEVtx = "          << m_bEVtx << endmsg; 
-          msg() << MSG::VERBOSE << " uEVtx = "          << m_uEVtx << endmsg;  
-          msg() << MSG::VERBOSE << " SizeNVtx = "       << m_sizeNVtx << endmsg; 
-          msg() << MSG::VERBOSE << " bNVtx = "          << m_bNVtx << endmsg; 
-          msg() << MSG::VERBOSE << " uNVtx = "          << m_uNVtx << endmsg;
-          msg() << MSG::VERBOSE << " SizeSV = "         << m_sizeSV << endmsg; 
-          msg() << MSG::VERBOSE << " bSV = "            << m_bSV << endmsg; 
-          msg() << MSG::VERBOSE << " uSV = "            << m_uSV << endmsg;  
+	  ATH_MSG_VERBOSE( " SizeMVtx = "       << m_sizeMVtx );
+	  ATH_MSG_VERBOSE( " bMVtx = "          << m_bMVtx    );
+	  ATH_MSG_VERBOSE( " uMVtx = "          << m_uMVtx    );
+	  ATH_MSG_VERBOSE( " SizeEVtx = "       << m_sizeEVtx );
+	  ATH_MSG_VERBOSE( " bEVtx = "          << m_bEVtx    );
+	  ATH_MSG_VERBOSE( " uEVtx = "          << m_uEVtx    );
+	  ATH_MSG_VERBOSE( " SizeNVtx = "       << m_sizeNVtx );
+	  ATH_MSG_VERBOSE( " bNVtx = "          << m_bNVtx    );
+	  ATH_MSG_VERBOSE( " uNVtx = "          << m_uNVtx    );
+	  ATH_MSG_VERBOSE( " SizeSV = "         << m_sizeSV   );
+	  ATH_MSG_VERBOSE( " bSV = "            << m_bSV      );
+	  ATH_MSG_VERBOSE( " uSV = "            << m_uSV      );
         }
 
     m_trigBjetTagger = new TrigBjetTagger(this, msg(), msgLvl());
@@ -430,7 +430,7 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
     for ( ; pPrmVtxColl != lastPrmVtxColl; pPrmVtxColl++) { 
       
       if ((*pPrmVtxColl)->size() != 0)
-	      msg() << MSG::VERBOSE << "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() << endmsg;
+	ATH_MSG_VERBOSE( "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() );
     }
     pPrmVtxColl = vectorOfEFPrmVtxCollections.begin();
   }
@@ -493,7 +493,7 @@ HLT::ErrorCode TrigBjetFex::getSecVtxCollection(const Trk::VxSecVertexInfoContai
         const std::vector<xAOD::Vertex*> vectorOfVxCandidates = (*pSecVtxColl)->front()->vertices();
 
         if (vectorOfVxCandidates.size()!=0)
-          msg() << MSG::VERBOSE << "VxSecVertexInfoContainer with label " << (*vectorOfVxCandidates.begin())->vertexType() << endmsg;
+	  ATH_MSG_VERBOSE( "VxSecVertexInfoContainer with label " << (*vectorOfVxCandidates.begin())->vertexType() );
       }
     }
 
@@ -748,19 +748,19 @@ bool TrigBjetFex::trackSel(const xAOD::TrackParticle*& track, unsigned int i, in
   // END FIX 
 
   if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::VERBOSE << "TrackSel method (grade " << grade << ")" << endmsg;
-    msg() << MSG::VERBOSE << "  Track number "           << i+1  << " to be selected must be:" << endmsg;
-    msg() << MSG::VERBOSE << "    dEta "                 << dEta                          << " <= " << trkSelEta << endmsg;
-    msg() << MSG::VERBOSE << "    dPhi "                 << dPhi                          << " <= " << trkSelPhi << endmsg;
-    msg() << MSG::VERBOSE << "    dR "                   << dR                            << " <= " << trkSelR << endmsg;
-    msg() << MSG::VERBOSE << "    pt "                   << fabs(pT)                      << " >= " << trkSelPt << endmsg;
-    msg() << MSG::VERBOSE << "    d0 "                   << fabs(d0)                      << " <= " << trkSelD0 << endmsg;
-    msg() << MSG::VERBOSE << "    z0*sin(theta) "        << fabs(z0-zv)*TMath::Sin(theta) << " <= " << trkSelZ0 << endmsg;
-    msg() << MSG::VERBOSE << "    innermostLayer "       << (int)nInnermostHits           << " >= " << trkSelInnermost << endmsg;
-    msg() << MSG::VERBOSE << "    nextToInnermostLayer " << (int)nNextToInnermostHits     << " >= " << trkSelNextToInnermost << endmsg;
-    msg() << MSG::VERBOSE << "    pixelHit "             << (int)nPixHits                 << " >= " << trkSelPixHits << endmsg;
-    msg() << MSG::VERBOSE << "    siHit "                << (int)nSiHits                  << " >= " << trkSelSiHits << endmsg;
-    msg() << MSG::VERBOSE << "    prob(chi2) "           << TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) << " > " << trkSelChi2 << endmsg;
+    ATH_MSG_VERBOSE( "TrackSel method (grade " << grade << ")" );
+    ATH_MSG_VERBOSE( "  Track number "           << i+1  << " to be selected must be:" );
+    ATH_MSG_VERBOSE( "    dEta "                 << dEta                          << " <= " << trkSelEta );
+    ATH_MSG_VERBOSE( "    dPhi "                 << dPhi                          << " <= " << trkSelPhi );
+    ATH_MSG_VERBOSE( "    dR "                   << dR                            << " <= " << trkSelR );
+    ATH_MSG_VERBOSE( "    pt "                   << fabs(pT)                      << " >= " << trkSelPt );
+    ATH_MSG_VERBOSE( "    d0 "                   << fabs(d0)                      << " <= " << trkSelD0 );
+    ATH_MSG_VERBOSE( "    z0*sin(theta) "        << fabs(z0-zv)*TMath::Sin(theta) << " <= " << trkSelZ0 );
+    ATH_MSG_VERBOSE( "    innermostLayer "       << (int)nInnermostHits           << " >= " << trkSelInnermost );
+    ATH_MSG_VERBOSE( "    nextToInnermostLayer " << (int)nNextToInnermostHits     << " >= " << trkSelNextToInnermost );
+    ATH_MSG_VERBOSE( "    pixelHit "             << (int)nPixHits                 << " >= " << trkSelPixHits );
+    ATH_MSG_VERBOSE( "    siHit "                << (int)nSiHits                  << " >= " << trkSelSiHits );
+    ATH_MSG_VERBOSE( "    prob(chi2) "           << TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) << " > " << trkSelChi2 );
   }
   
   if (dEta > trkSelEta) {

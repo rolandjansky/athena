@@ -330,7 +330,7 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
 
       std::vector<xAOD::Jet*> jetsList;
       jetsList.push_back(&jet);
-      if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "#BTAG# Track association tool is not empty" << endmsg;
+      if(msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "#BTAG# Track association tool is not empty" );
       // We must pass the tracks explicitly to the track associator
       jetIsAssociated = m_bTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList, tracks);
 

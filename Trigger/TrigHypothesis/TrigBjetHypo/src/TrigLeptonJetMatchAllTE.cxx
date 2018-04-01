@@ -477,7 +477,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
     for ( ; pPrmVtxColl != lastPrmVtxColl; pPrmVtxColl++) { 
       
       if ((*pPrmVtxColl)->size() != 0)
-        msg() << MSG::VERBOSE << "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() << endmsg;
+	ATH_MSG_VERBOSE( "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() );
     }
     pPrmVtxColl = vectorOfEFPrmVtxCollections.begin();
   }
