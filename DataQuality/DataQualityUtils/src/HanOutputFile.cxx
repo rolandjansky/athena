@@ -35,6 +35,7 @@
 #include <TImage.h>
 #include <TBufferJSON.h>
 #include <TString.h>
+#include <TEfficiency.h>
 
 #define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
 #define BINWIDTH(h,n) h->GetXaxis()->GetBinWidth(n)
@@ -169,7 +170,7 @@ getAllAssessments( AssMap_t& dirmap, TDirectory* dir )
   while( (key = dynamic_cast<TKey*>( next() )) != 0 ) {
     TObject* obj = key->ReadObj();
     //TH1* h = dynamic_cast<TH1*>( obj );
-    if( dynamic_cast<TH1*>(obj) || dynamic_cast<TGraph*>(obj) ) {
+    if( dynamic_cast<TH1*>(obj) || dynamic_cast<TGraph*>(obj) || dynamic_cast<TEfficiency*>(obj) ) {
       const char * path(dir->GetPath() ); 
       std::string assName( obj->GetName() );
       AssMap_t::value_type AssmapVal(assName, path);
@@ -264,6 +265,12 @@ getNEntries( std::string location, std::string histname )
     Nentries = g->GetN();
     delete g;
   }
+  TEfficiency* e(0);
+  gDirectory->GetObject( histname.c_str(),e );
+  if ( e != 0 ) {
+    Nentries = e->GetCopyTotalHisto()->GetEntries();
+    delete e;
+  }
   
   return Nentries;
 }
@@ -276,6 +283,8 @@ getNEntries( const TObject* obj )
     return h->GetEntries();
   } else if (const TGraph* g = dynamic_cast<const TGraph*>(obj)) {
     return g->GetN();
+  } else if (const TEfficiency* e = dynamic_cast<const TEfficiency*>(obj)) {
+    return e->GetCopyTotalHisto()->GetEntries();
   } else {
     std::cerr << "HanOutputFile::getNEntries(): "
 	      << "provided object is not a histogram or graph\n";
@@ -991,6 +1000,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   TH1* h = dynamic_cast<TH1*>( hobj );
   TH2* h2 = dynamic_cast<TH2*>( h );
   TGraph* g = dynamic_cast<TGraph*>( hobj );
+  TEfficiency* e = dynamic_cast<TEfficiency*>( hobj );
 
   std::string name=nameHis;
   /*  name+=".png";
@@ -1486,6 +1496,28 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     delete myC;
     gStyle->Reset();
   }
+
+  /*************************************************************************************************************/
+  if( e != 0 ) {
+    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    myC->cd();
+    formatTEfficiency( myC, e );
+    e->Draw((std::string("AP") + drawopt).c_str());
+    displayExtra(myC,display);
+    TLatex t;
+    t.SetNDC();
+    t.SetTextSize(0.03);
+    t.DrawLatex(0.02,0.04,run_min_LB.c_str());
+    TLatex tt;
+    tt.SetNDC();
+    tt.SetTextSize(0.03);
+    tt.DrawLatex(0.02,0.01,pathName.c_str());
+    getImageBuffer(img, myC, &x, &y);
+    delete myC;
+    gStyle->Reset();
+  }
+
+
   std::string rv(x, y);
   std::pair<std::string,std::string>rvPair{rv,json};
 
@@ -2609,6 +2641,14 @@ formatTGraph( TCanvas* c, TGraph* g ) const
   c->SetTopMargin(0.12);
 
   g->SetMarkerStyle(20);
+}
+
+void HanOutputFile::formatTEfficiency( TCanvas* c, TEfficiency* e ) const {
+  if( c == 0 || e == 0 ) return;
+  c->SetLeftMargin(0.15);
+  c->SetRightMargin(0.13);
+  c->SetBottomMargin(0.15);
+  c->SetTopMargin(0.12);
 }
 
 // *********************************************************************
