@@ -7,6 +7,8 @@
 
 #include "TrigInterfaces/FexAlgo.h"
 
+#include "TrigInDetPattRecoTools/DoubletResLookup.h"
+
 class HLTTauTrackRoiUpdater : public HLT::FexAlgo 
 { 
     
@@ -28,6 +30,9 @@ class HLTTauTrackRoiUpdater : public HLT::FexAlgo
 
   bool m_updateEta;  //<! flag to determine whether Roi eta should be updated using the track direction (true by default)
   bool m_updatePhi;  //<! flag to determine whether Roi phi should be updated using the track direction (false by default)
+  bool m_paramByDoubRes; //<! flag to determine whether Roi size should be parametrised by expected track doublet resolutions
+
+  DoubletResLookup m_doubResLookup;
 
 };
 #endif

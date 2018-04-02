@@ -103,6 +103,7 @@ void TrigTrackSeedGenerator::createSeeds() {
 
   m_zMinus = m_settings.roiDescriptor->zedMinus() - m_zTol;
   m_zPlus  = m_settings.roiDescriptor->zedPlus() + m_zTol;
+  m_spPickWidth = std::fabs( m_zPlus - m_settings.roiDescriptor->zed() );
   
   for(INTERNAL_TRIPLET_BUFFER::iterator it=m_triplets.begin();it!=m_triplets.end();++it) {
     delete (*it).second;
@@ -190,7 +191,7 @@ void TrigTrackSeedGenerator::createSeeds() {
 	  int nI = m_nInner;
 	  int nO = m_nOuter;
 	      
-	  nSP += processSpacepointRange(layerJ, rm, zm, checkPSS, delta);
+	  nSP += processSpacepointRangeNew(layerI, layerJ, rm, zm, checkPSS, delta);
 
 	  if(m_nInner > nI) m_innerMarkers.push_back(m_nInner);
 	  if(m_nOuter > nO) m_outerMarkers.push_back(m_nOuter);
@@ -523,7 +524,12 @@ bool TrigTrackSeedGenerator::getSpacepointRange(int lJ, const std::vector<const 
   return true;
 }
 
+// Make old function signature avaiable by calling new function with a default value for lI
 int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, bool checkPSS, const SP_RANGE& delta) {
+  return processSpacepointRangeNew(999, lJ, rm, zm, checkPSS, delta);
+}
+
+int TrigTrackSeedGenerator::processSpacepointRangeNew(int lI, int lJ, float rm, float zm, bool checkPSS, const SP_RANGE& delta) {
 
   int nSP=0;
 
@@ -554,7 +560,18 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
     
     float z0  = zm - rm*tau;
     if (m_settings.m_doubletFilterRZ) {
-      if (!RoiUtil::contains( *(m_settings.roiDescriptor), z0, tau)) continue;
+      // parametrise z filter window by doublet resolutions
+      // this uses a width of 7 * resolution fits (i.e. 7 sigma resolution)
+      if (m_settings.m_doubletFilter_paramByRes) {
+	DoubletType dType  = (dr<0 ? DoubletType::inner : DoubletType::outer);
+	double width = 7 * m_doubletResLookup.getRes(lI, dType, std::asinh(tau)); // eta = arcsinh(dz/dr)
+	if (width > m_spPickWidth) width = m_spPickWidth; // limit doublet filter width to be only as large as spacepoint picking width
+	
+	if (!RoiUtil::contains_zrange( *(m_settings.roiDescriptor), z0, tau, m_settings.roiDescriptor->zed()-width, m_settings.roiDescriptor->zed()+width)) continue;
+      }
+      else {
+	if (!RoiUtil::contains( *(m_settings.roiDescriptor), z0, tau)) continue;
+      }
     }
     
     float t = isBarrel ? dz*dR_i : dZ/dr;

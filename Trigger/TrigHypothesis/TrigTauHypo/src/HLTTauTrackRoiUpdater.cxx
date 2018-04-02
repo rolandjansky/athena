@@ -28,6 +28,7 @@ HLTTauTrackRoiUpdater::HLTTauTrackRoiUpdater(const std::string & name, ISvcLocat
   declareProperty("nSiHoles",             m_nSiHoles = 2);
   declareProperty("UpdateEta",            m_updateEta = true);
   declareProperty("UpdatePhi",            m_updatePhi = false);
+  declareProperty("ParamByDoubletRes",    m_paramByDoubRes = false);
 }
 
 HLTTauTrackRoiUpdater::~HLTTauTrackRoiUpdater()
@@ -46,6 +47,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltInitialize()
   msg() << MSG::INFO << " REGTEST: nSiHoles            		        " 	<< m_nSiHoles << endmsg;
   msg() << MSG::INFO << " REGTEST: UpdateEta            		" 	<< m_updateEta << endmsg;
   msg() << MSG::INFO << " REGTEST: UpdatePhi            		" 	<< m_updatePhi << endmsg;
+  msg() << MSG::INFO << " REGTEST: ParamByDoubletRes    		" 	<< m_paramByDoubRes << endmsg;
   return HLT::OK;
 
 }
@@ -194,6 +196,22 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   double z0Min = leadTrkZ0 - m_z0HalfWidth;
   double z0Max = leadTrkZ0 + m_z0HalfWidth;
 
+  // parametrise z width by expected doublet resolutions
+  // this uses a width of 7 * resolution fits (i.e. 7 sigma resolution)
+  // as well, this uses a maximum width of z0HalfWidth
+  if ( leadTrack && m_paramByDoubRes ) {    
+    double width = 0;
+    if (fabs(leadTrkEta) < 2) {
+      width = 7 * m_doubResLookup.getRes(3, DoubletType::outer, leadTrkEta); // assume outer type doublets for outer most barrel pix layer are worst case resolution for central eta
+    }
+    else {
+      width = 7 * m_doubResLookup.getRes(9, DoubletType::outer, leadTrkEta); // assume outer type doublets for penultimate endcap pix layer are worst case resolution for forward eta
+    }
+  
+    if (width > m_z0HalfWidth) width = m_z0HalfWidth; // Setting maximum of width to be z0HalfWidth
+    z0Min = leadTrkZ0 - width;
+    z0Max = leadTrkZ0 + width;
+  }
 
   /// update eta if required (by default)
   double eta      = roiDescriptor->eta();
