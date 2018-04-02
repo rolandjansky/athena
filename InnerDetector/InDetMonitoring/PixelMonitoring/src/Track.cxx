@@ -235,7 +235,7 @@ StatusCode PixelMainMon::fillTrackMon(void) {
       }
       if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Measurement)) {
         if (m_tsos_hitmap) m_tsos_hitmap->fill(surfaceID, m_pixelid);
-        if (m_hiteff_incl_mod[pixlayerdisk] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayerdisk]->Fill(m_manager->lumiBlockNumber(), 1.0);
+        if (m_hiteff_incl_mod[pixlayer] && pass1hole5GeVptTightCut) m_hiteff_incl_mod[pixlayer]->Fill(m_manager->lumiBlockNumber(), 1.0);
       } else {
         continue;
         // working only with real hits (not outliers or holes) from now on
