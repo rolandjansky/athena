@@ -1003,11 +1003,11 @@ def setupMenu():
 
 
         #  gsc
-        ['j45_gsc55_boffperf_split', 'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j45_gsc55_boffperf_split', 'L1_J15', [], [PhysicsStream,'express'], ['RATE:SingleBJet', 'BW:BJet'], -1],
         #  ATR-17811
-        ['j35_gsc45_boffperf_split_L1J15', 'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j35_gsc45_boffperf_split_L1J15', 'L1_J15', [], [PhysicsStream,'express'], ['RATE:SingleBJet', 'BW:BJet'], -1],
      
-        ['j85_gsc110_boffperf_split', 'L1_J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1], 
+        ['j85_gsc110_boffperf_split', 'L1_J20', [], [PhysicsStream,'express'], ['RATE:SingleBJet', 'BW:BJet'], -1], 
         ['j175_gsc225_boffperf_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j225_gsc275_boffperf_split', 'L1_J75', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j225_gsc300_boffperf_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
