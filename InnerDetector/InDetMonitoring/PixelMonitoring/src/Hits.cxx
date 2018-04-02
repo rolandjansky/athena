@@ -265,7 +265,7 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     m_occupancy = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Occupancy", ("hit map" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
     sc = m_occupancy->regHist(rdoShift);
 
-    m_average_pixocc = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D, false));
+    m_average_pixocc = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("Occupancy_per_pixel", ("#hits / pixel" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, false));
     sc = m_average_pixocc->regHist(rdoShift);
 
     m_occupancy_pix_evt = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Occupancy_per_pixel_event", ("#hits / pixel / event" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
@@ -539,10 +539,7 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       if (m_occupancy) m_occupancy->fill(rdoID, m_pixelid);
       if (m_occupancy_10min && m_doLumiBlock) m_occupancy_10min->fill(rdoID, m_pixelid);
       if (m_hitmap_tmp) m_hitmap_tmp->fill(rdoID, m_pixelid);
-      if (m_average_pixocc && pixlayer!=99 && pixlayeribl2d3d!=99) {
-	if (pixlayer == PixLayer::kIBL) m_average_pixocc->fill(rdoID, m_pixelid, inv_nChannels_mod[pixlayer]);
-	else m_average_pixocc->fill(rdoID, m_pixelid, inv_nChannels_mod[pixlayeribl2d3d]);
-      }
+      if (m_average_pixocc && pixlayer!=99) m_average_pixocc->fill(rdoID, m_pixelid, inv_nChannels_mod[pixlayer]);
       
       // Fill Lvl1A
       if (m_Lvl1A) {
