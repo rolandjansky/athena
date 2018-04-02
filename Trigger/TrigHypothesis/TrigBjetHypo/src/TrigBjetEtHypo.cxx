@@ -136,6 +136,7 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     
     if (et >= m_etThreshold)
       pass = true;
+
     ATH_MSG_DEBUG( "REGTEST: Pass " << pass );
   }
   

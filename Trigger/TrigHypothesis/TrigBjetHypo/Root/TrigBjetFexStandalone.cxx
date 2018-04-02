@@ -312,63 +312,59 @@ bool TrigBjetFexStandalone::l2TrackSel(const TrigBjetTrackInfo &track, unsigned 
   m_taggerHelper->IPCorr(track.d0(),track.z0(), d0, z0, track.phi(), track.eta(), track.pT(), 
 			 m_trigBjetPrmVtxInfo->xBeamSpot(), m_trigBjetPrmVtxInfo->yBeamSpot());
 
-  if (msgLvl() <= MSG::VERBOSE) {
-    ATH_MSG_VERBOSE( "l2TrackSel method" );
-    ATH_MSG_VERBOSE( " Track number " << i+1 << " to be selected must be:" );
-    ATH_MSG_VERBOSE( "  Pt " << track.pT() << " >= " << m_trkSelPt );
-    ATH_MSG_VERBOSE( "  d0 " << fabs(d0) << " <= " << m_trkSelD0 );
-    ATH_MSG_VERBOSE( "  z0*sin(theta) " << fabs(z0-zv)*TMath::Sin(theta) << " <= " << m_trkSelZ0 );
-    ATH_MSG_VERBOSE( "  SiHit " << (int)track.siHits() << " >= " << m_trkSelSiHits );
-    ATH_MSG_VERBOSE( "  isBLayer " << track.Blayer() << " = 0" );
-    ATH_MSG_VERBOSE( "  Prob(chi2) " << TMath::Prob(track.chi2(),(int)track.siHits()*3-5) << " > " << m_trkSelChi2 );
-  }
+  ATH_MSG_VERBOSE( "l2TrackSel method" );
+  ATH_MSG_VERBOSE( " Track number " << i+1 << " to be selected must be:" );
+  ATH_MSG_VERBOSE( "  Pt " << track.pT() << " >= " << m_trkSelPt );
+  ATH_MSG_VERBOSE( "  d0 " << fabs(d0) << " <= " << m_trkSelD0 );
+  ATH_MSG_VERBOSE( "  z0*sin(theta) " << fabs(z0-zv)*TMath::Sin(theta) << " <= " << m_trkSelZ0 );
+  ATH_MSG_VERBOSE( "  SiHit " << (int)track.siHits() << " >= " << m_trkSelSiHits );
+  ATH_MSG_VERBOSE( "  isBLayer " << track.Blayer() << " = 0" );
+  ATH_MSG_VERBOSE( "  Prob(chi2) " << TMath::Prob(track.chi2(),(int)track.siHits()*3-5) << " > " << m_trkSelChi2 );
 
   if(m_useEtaPhiTrackSel) {
 
     if (fabs(track.eta() - m_trigBjetJetInfo->etaRoI()) > 0.2) {
-      if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (eta matching)" );
+      ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (eta matching)" );
       m_listCutApplied.push_back(2); return false;
     }
 
     if (fabs(m_taggerHelper->phiCorr(m_taggerHelper->phiCorr(track.phi()) - m_trigBjetJetInfo->phiRoI())) > 0.2) {
-      if (msgLvl() <= MSG::VERBOSE)
-	ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (phi matching)" );
+      ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (phi matching)" );
       m_listCutApplied.push_back(3); return false;
     }
   }
 
   if (fabs(track.pT()) < m_trkSelPt) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (pT cut)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (pT cut)" );
     m_listCutApplied.push_back(4); return false;
   }
 
   if (fabs(d0) > m_trkSelD0) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (d0 cut)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (d0 cut)" );
     m_listCutApplied.push_back(5); return false;
   }
 
   if (fabs(z0-zv)*TMath::Sin(theta) > m_trkSelZ0) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (z0 cut)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (z0 cut)" );
     m_listCutApplied.push_back(6); return false;
   }
 
   if (track.Blayer() == 0) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (missing b-layer hit)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (missing b-layer hit)" );
     m_listCutApplied.push_back(7); return false;
   }
 
   if ((int)track.siHits() < m_trkSelSiHits) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (too few silicon hits)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (too few silicon hits)" );
     m_listCutApplied.push_back(8); return false;
   }
 
   if (TMath::Prob(track.chi2(),(int)track.siHits()*3-5) <= m_trkSelChi2) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (chi2 cut)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (chi2 cut)" );
     m_listCutApplied.push_back(9); return false;
   }
 
-  if (msgLvl() <= MSG::VERBOSE)
-    ATH_MSG_VERBOSE( "  track " << i+1 << " selected" );
+  ATH_MSG_VERBOSE( "  track " << i+1 << " selected" );
 
   m_listCutApplied.push_back(10);
   return true;
@@ -394,69 +390,66 @@ bool TrigBjetFexStandalone::efTrackSel(const TrigBjetTrackInfo &track, unsigned 
   m_taggerHelper->IPCorr(track.d0(), track.z0(),
 			 d0,z0,track.phi(), track.eta(), pT, m_trigBjetPrmVtxInfo->xBeamSpot(), m_trigBjetPrmVtxInfo->yBeamSpot());
 
-  if (msgLvl() <= MSG::VERBOSE) {
-    ATH_MSG_VERBOSE( "efTrackSel method" );
-    ATH_MSG_VERBOSE( "  Track number " << i+1 << " to be selected must be:" );
-    ATH_MSG_VERBOSE( "    Pt " << fabs(pT) << " >= " << m_trkSelPt );
-    ATH_MSG_VERBOSE( "    d0 " << fabs(d0) << " <= " << m_trkSelD0 );
-    ATH_MSG_VERBOSE( "    z0*sin(theta) " << fabs(z0-zv)*TMath::Sin(theta) << " <= " << m_trkSelZ0 );
-    ATH_MSG_VERBOSE( "    bLayer " << track.Blayer() << " >= " << m_trkSelBLayer );
-    ATH_MSG_VERBOSE( "    pixelHit " << track.pixHits() << " >= " << m_trkSelPixHits );
-    ATH_MSG_VERBOSE( "    SiHit " << (track.pixHits() + track.sctHits()) << " >= " 
-		     << m_trkSelSiHits );
-    ATH_MSG_VERBOSE( "    Prob(chi2) " << TMath::Prob(track.chi2(), (int)numberOfSiHits*3-5) << " > " << m_trkSelChi2 );
-  }
+  ATH_MSG_VERBOSE( "efTrackSel method" );
+  ATH_MSG_VERBOSE( "  Track number " << i+1 << " to be selected must be:" );
+  ATH_MSG_VERBOSE( "    Pt " << fabs(pT) << " >= " << m_trkSelPt );
+  ATH_MSG_VERBOSE( "    d0 " << fabs(d0) << " <= " << m_trkSelD0 );
+  ATH_MSG_VERBOSE( "    z0*sin(theta) " << fabs(z0-zv)*TMath::Sin(theta) << " <= " << m_trkSelZ0 );
+  ATH_MSG_VERBOSE( "    bLayer " << track.Blayer() << " >= " << m_trkSelBLayer );
+  ATH_MSG_VERBOSE( "    pixelHit " << track.pixHits() << " >= " << m_trkSelPixHits );
+  ATH_MSG_VERBOSE( "    SiHit " << (track.pixHits() + track.sctHits()) << " >= " 
+		   << m_trkSelSiHits );
+  ATH_MSG_VERBOSE( "    Prob(chi2) " << TMath::Prob(track.chi2(), (int)numberOfSiHits*3-5) << " > " << m_trkSelChi2 );
 
   if(m_useEtaPhiTrackSel) {
 
     if (fabs(track.eta() - m_trigBjetJetInfo->etaRoI()) > 0.2) {
-      if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " is not selected (eta matching)" );
+      ATH_MSG_VERBOSE( "  track " << i+1 << " is not selected (eta matching)" );
       m_listCutApplied.push_back(2); return false;
     }
 
     if (fabs(m_taggerHelper->phiCorr(m_taggerHelper->phiCorr(track.phi()) - m_trigBjetJetInfo->phiRoI())) > 0.2) {
-      if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " is not selected (phi matching)" );
+      ATH_MSG_VERBOSE( "  track " << i+1 << " is not selected (phi matching)" );
       m_listCutApplied.push_back(3); return false;
     }
   }
 
   if (fabs(pT) < m_trkSelPt) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (pT cut)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (pT cut)" );
     m_listCutApplied.push_back(4); return false;
   }
 
   if (fabs(d0) > m_trkSelD0) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (d0 cut)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (d0 cut)" );
     m_listCutApplied.push_back(5); return false;
   }
 
   if (fabs(z0-zv)*TMath::Sin(theta) > m_trkSelZ0) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (z0 cut)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (z0 cut)" );
     m_listCutApplied.push_back(6); return false;
   }
 
   if (track.Blayer() < m_trkSelBLayer) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (missing b-layer hit)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (missing b-layer hit)" );
     m_listCutApplied.push_back(7); return false;
   }
 
   if (track.pixHits() < m_trkSelPixHits) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (too few pixel hits)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (too few pixel hits)" );
     m_listCutApplied.push_back(8); return false;
   }
 
   if (numberOfSiHits < m_trkSelSiHits) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (too few silicon hits)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (too few silicon hits)" );
     m_listCutApplied.push_back(9); return false;
   }
 
   if (TMath::Prob(track.chi2(), (int)numberOfSiHits*3-5) <= m_trkSelChi2) {
-    if (msgLvl() <= MSG::VERBOSE) ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (chi2 cut)" );
+    ATH_MSG_VERBOSE( "  track " << i+1 << " not selected (chi2 cut)" );
     m_listCutApplied.push_back(10); return false;
   }
   
-  if (msgLvl() <= MSG::VERBOSE)
-    ATH_MSG_VERBOSE( "    track " << i+1 << " is selected" );
+  ATH_MSG_VERBOSE( "    track " << i+1 << " is selected" );
 
   m_listCutApplied.push_back(11);
   return true;

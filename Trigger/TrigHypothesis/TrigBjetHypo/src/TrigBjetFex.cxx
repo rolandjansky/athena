@@ -738,21 +738,19 @@ bool TrigBjetFex::trackSel(const xAOD::TrackParticle*& track, unsigned int i, in
   //z0=track->measuredPerigee()->parameters()[Trk::z0]; // THIS LINE WAS DOING NOTHING! //+m_trigBjetPrmVtxInfo->zBeamSpot(); 
   // END FIX 
 
-  if (msgLvl() <= MSG::VERBOSE) {
-    ATH_MSG_VERBOSE( "TrackSel method (grade " << grade << ")" );
-    ATH_MSG_VERBOSE( "  Track number "           << i+1  << " to be selected must be:" );
-    ATH_MSG_VERBOSE( "    dEta "                 << dEta                          << " <= " << trkSelEta );
-    ATH_MSG_VERBOSE( "    dPhi "                 << dPhi                          << " <= " << trkSelPhi );
-    ATH_MSG_VERBOSE( "    dR "                   << dR                            << " <= " << trkSelR );
-    ATH_MSG_VERBOSE( "    pt "                   << fabs(pT)                      << " >= " << trkSelPt );
-    ATH_MSG_VERBOSE( "    d0 "                   << fabs(d0)                      << " <= " << trkSelD0 );
-    ATH_MSG_VERBOSE( "    z0*sin(theta) "        << fabs(z0-zv)*TMath::Sin(theta) << " <= " << trkSelZ0 );
-    ATH_MSG_VERBOSE( "    innermostLayer "       << (int)nInnermostHits           << " >= " << trkSelInnermost );
-    ATH_MSG_VERBOSE( "    nextToInnermostLayer " << (int)nNextToInnermostHits     << " >= " << trkSelNextToInnermost );
-    ATH_MSG_VERBOSE( "    pixelHit "             << (int)nPixHits                 << " >= " << trkSelPixHits );
-    ATH_MSG_VERBOSE( "    siHit "                << (int)nSiHits                  << " >= " << trkSelSiHits );
-    ATH_MSG_VERBOSE( "    prob(chi2) "           << TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) << " > " << trkSelChi2 );
-  }
+  ATH_MSG_VERBOSE( "TrackSel method (grade " << grade << ")" );
+  ATH_MSG_VERBOSE( "  Track number "           << i+1  << " to be selected must be:" );
+  ATH_MSG_VERBOSE( "    dEta "                 << dEta                          << " <= " << trkSelEta );
+  ATH_MSG_VERBOSE( "    dPhi "                 << dPhi                          << " <= " << trkSelPhi );
+  ATH_MSG_VERBOSE( "    dR "                   << dR                            << " <= " << trkSelR );
+  ATH_MSG_VERBOSE( "    pt "                   << fabs(pT)                      << " >= " << trkSelPt );
+  ATH_MSG_VERBOSE( "    d0 "                   << fabs(d0)                      << " <= " << trkSelD0 );
+  ATH_MSG_VERBOSE( "    z0*sin(theta) "        << fabs(z0-zv)*TMath::Sin(theta) << " <= " << trkSelZ0 );
+  ATH_MSG_VERBOSE( "    innermostLayer "       << (int)nInnermostHits           << " >= " << trkSelInnermost );
+  ATH_MSG_VERBOSE( "    nextToInnermostLayer " << (int)nNextToInnermostHits     << " >= " << trkSelNextToInnermost );
+  ATH_MSG_VERBOSE( "    pixelHit "             << (int)nPixHits                 << " >= " << trkSelPixHits );
+  ATH_MSG_VERBOSE( "    siHit "                << (int)nSiHits                  << " >= " << trkSelSiHits );
+  ATH_MSG_VERBOSE( "    prob(chi2) "           << TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) << " > " << trkSelChi2 );
   
   if (dEta > trkSelEta) {
     ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " is not selected (delta eta matching)" );
