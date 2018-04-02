@@ -4,10 +4,13 @@
 
 #include "ISF_FastCaloSimEvent/DoubleArray.h"
 #include "ISF_FastCaloSimEvent/IntArray.h"
+#include "ISF_FastCaloSimEvent/TFCSFunction.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionHistogram.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionRegressionTF.h"
+#include "ISF_FastCaloSimEvent/TFCS2DFunction.h"
+#include "ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h"
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
@@ -40,10 +43,13 @@
 #ifdef __CINT__
 #pragma link C++ class DoubleArray+;
 #pragma link C++ class IntArray+;
+#pragma link C++ class TFCSFunction+;
 #pragma link C++ class TFCS1DFunction+;
 #pragma link C++ class TFCS1DFunctionHistogram+;
 #pragma link C++ class TFCS1DFunctionRegression+;
 #pragma link C++ class TFCS1DFunctionRegressionTF+;
+#pragma link C++ class TFCS2DFunction+;
+#pragma link C++ class TFCS2DFunctionHistogram+;
 
 #pragma link C++ class TFCSParametrizationBase+;
 #pragma link C++ class TFCSParametrization+;

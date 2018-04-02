@@ -17,6 +17,7 @@ class TFCS1DFunctionRegressionTF:public TFCS1DFunctionRegression
     TFCS1DFunctionRegressionTF(float, float);
     ~TFCS1DFunctionRegressionTF() {};
 
+    using TFCS1DFunctionRegression::rnd_to_fct;
     virtual double rnd_to_fct(double rnd);
     double retransform(double value);
 
