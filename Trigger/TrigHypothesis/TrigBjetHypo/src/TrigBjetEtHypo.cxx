@@ -59,14 +59,12 @@ HLT::ErrorCode TrigBjetEtHypo::hltInitialize() {
   if (msgLvl() <= MSG::INFO) 
     msg() << MSG::INFO << "Initializing TrigBjetEtHypo" << endmsg;   
 
-  if (msgLvl() <= MSG::DEBUG) {
-    ATH_MSG_DEBUG( "declareProperty review:" );
-    ATH_MSG_DEBUG( " AcceptAll = "      << m_acceptAll );
-    ATH_MSG_DEBUG( " EtThreshold = "    << m_etThreshold );
-    ATH_MSG_DEBUG( " Instance = "       << m_instance );
-    ATH_MSG_DEBUG( " Version = "        << m_version );
-    ATH_MSG_DEBUG( " JetKey = "         << m_jetKey );
-  }
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG( " AcceptAll = "      << m_acceptAll );
+  ATH_MSG_DEBUG( " EtThreshold = "    << m_etThreshold );
+  ATH_MSG_DEBUG( " Instance = "       << m_instance );
+  ATH_MSG_DEBUG( " Version = "        << m_version );
+  ATH_MSG_DEBUG( " JetKey = "         << m_jetKey );
 
   return HLT::OK;
 }
@@ -77,8 +75,7 @@ HLT::ErrorCode TrigBjetEtHypo::hltInitialize() {
 
 HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
   
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( "Executing TrigBjetEtHypo in its version " << m_version );
+  ATH_MSG_DEBUG( "Executing TrigBjetEtHypo in its version " << m_version );
 
   const xAOD::JetContainer* jets(0);
   HLT::ErrorCode ec = getFeature(outputTE, jets, m_jetKey);
@@ -134,11 +131,6 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     pass = true;
   } else {
     
-    if (msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "REGTEST: EF jet with et = " << et );
-    if (msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "REGTEST: Requiring EF jets to satisfy Et > " << m_etThreshold );
-
     ATH_MSG_DEBUG( "REGTEST: EF jet with et = " << et );
     ATH_MSG_DEBUG( "REGTEST: Requiring EF jets to satisfy Et > " << m_etThreshold );
     
@@ -148,17 +140,14 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   }
   
   if (pass) {
-    if (msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "Selection cut satisfied, accepting the event" );
+    ATH_MSG_DEBUG( "Selection cut satisfied, accepting the event" );
   } 
   else {
-    if (msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "Selection cut not satisfied, rejecting the event" );
+    ATH_MSG_DEBUG( "Selection cut not satisfied, rejecting the event" );
   }
   
   //* Print trigger decision *//
-  if(msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
+  ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
 
 
   return HLT::OK;

@@ -237,96 +237,93 @@ HLT::ErrorCode TrigBjetFex::hltInitialize() {
       msg() << MSG::INFO << "Initializing TrigBjetFex, version " << PACKAGE_VERSION << endmsg;
 
     // declareProperty overview
-        if (msgLvl() <= MSG::DEBUG) {
-	  ATH_MSG_DEBUG( "declareProperty review:" );
+      ATH_MSG_DEBUG( "declareProperty review:" );
 
-	  ATH_MSG_DEBUG( "JetKey = "               << m_jetKey );
-	  ATH_MSG_DEBUG( "PriVtxKey = "            << m_priVtxKey );
-
-	  ATH_MSG_DEBUG( " AlgoId = "              << m_algo );
-	  ATH_MSG_DEBUG( " Instance = "            << m_instance );
- 
-	  ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag );
-	  ATH_MSG_DEBUG( " SetBeamSpotWidth = "    << m_setBeamSpotWidth );
-
-	  ATH_MSG_DEBUG( " UseParamFromData = "    << m_useParamFromData );
-
-	  ATH_MSG_DEBUG( " Taggers = "             << m_taggers );
-	  ATH_MSG_DEBUG( " UseErrIPParam = "       << m_useErrIPParam );
-	  ATH_MSG_DEBUG( " UseJetDirection = "     << m_useJetDirection );
-	  ATH_MSG_DEBUG( " RetrieveHLTJets = "     << m_retrieveHLTJets );
-	  ATH_MSG_DEBUG( " TagHLTJets = "          << m_tagHLTJets );
-	  ATH_MSG_DEBUG( " HistoPrmVtxAtEF = "     << m_histoPrmVtxAtEF );
-	  ATH_MSG_DEBUG(  " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel );
-
-	  ATH_MSG_VERBOSE( " JetProb 0 MC = "      << m_par_0_MC );
-	  ATH_MSG_VERBOSE( " JetProb 1 MC = "      << m_par_1_MC );
-	  ATH_MSG_VERBOSE( " JetProb 0 DT = "      << m_par_0_DT );
-	  ATH_MSG_VERBOSE( " JetProb 1 DT = "      << m_par_1_DT );
-
-	  ATH_MSG_VERBOSE( " SizeIP1D_Grade1 = "  << m_sizeIP1D_Grade1 );
-	  ATH_MSG_VERBOSE( " bIP1D_Grade1 = "     << m_bIP1D_Grade1    );
-	  ATH_MSG_VERBOSE( " uIP1D_Grade1 = "     << m_uIP1D_Grade1    );
-	  ATH_MSG_VERBOSE( " SizeIP2D_Grade1 = "  << m_sizeIP2D_Grade1 );
-	  ATH_MSG_VERBOSE( " bIP2D_Grade1 = "     << m_bIP2D_Grade1    );
-	  ATH_MSG_VERBOSE( " uIP2D_Grade1 = "     << m_uIP2D_Grade1    );
-	  ATH_MSG_VERBOSE( " SizeIP3D_Grade1 = "  << m_sizeIP3D_Grade1 );
-	  ATH_MSG_VERBOSE( " bIP3D_Grade1 = "     << m_bIP3D_Grade1    );
-	  ATH_MSG_VERBOSE( " uIP3D_Grade1 = "     << m_uIP3D_Grade1    );
-
-	  ATH_MSG_VERBOSE( " SizeIP1D_Grade2 = "  << m_sizeIP1D_Grade2 );
-	  ATH_MSG_VERBOSE( " bIP1D_Grade2 = "     << m_bIP1D_Grade2 );
-	  ATH_MSG_VERBOSE( " uIP1D_Grade2 = "     << m_uIP1D_Grade2 );
-	  ATH_MSG_VERBOSE( " SizeIP2D_Grade2 = "  << m_sizeIP2D_Grade2 );
-	  ATH_MSG_VERBOSE( " bIP2D_Grade2 = "     << m_bIP2D_Grade2 );
-	  ATH_MSG_VERBOSE( " uIP2D_Grade2 = "     << m_uIP2D_Grade2 );
-	  ATH_MSG_VERBOSE( " SizeIP3D_Grade2 = "  << m_sizeIP3D_Grade2 );
-	  ATH_MSG_VERBOSE( " bIP3D_Grade2 = "     << m_bIP3D_Grade2 );
-	  ATH_MSG_VERBOSE( " uIP3D_Grade2 = "     << m_uIP3D_Grade2 );
-
-	  ATH_MSG_DEBUG( " TrkSelGrade1_Chi2 = "            << m_trkSelGrade1_Chi2 );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_Innermost = "       << m_trkSelGrade1_Innermost );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_NextToInnermost = " << m_trkSelGrade1_NextToInnermost );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_PixHits = "         << m_trkSelGrade1_PixHits );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_SiHits = "          << m_trkSelGrade1_SiHits );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_D0 = "              << m_trkSelGrade1_D0 );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_Z0 = "              << m_trkSelGrade1_Z0 );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_Pt = "              << m_trkSelGrade1_Pt );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_Eta = "             << m_trkSelGrade1_Eta );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_Phi = "             << m_trkSelGrade1_Phi );
-	  ATH_MSG_DEBUG( " TrkSelGrade1_R = "               << m_trkSelGrade1_R );
-
-	  ATH_MSG_DEBUG( " TrkSelGrade2_Chi2 = "            << m_trkSelGrade2_Chi2 );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_Innermost = "       << m_trkSelGrade2_Innermost );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_NextToInnermost = " << m_trkSelGrade2_NextToInnermost );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_PixHits = "         << m_trkSelGrade2_PixHits );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_SiHits = "          << m_trkSelGrade2_SiHits );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_D0 = "              << m_trkSelGrade2_D0 );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_Z0 = "              << m_trkSelGrade2_Z0 );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_Pt = "              << m_trkSelGrade2_Pt );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_Eta = "             << m_trkSelGrade2_Eta );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_Phi = "             << m_trkSelGrade2_Phi );
-	  ATH_MSG_DEBUG( " TrkSelGrade2_R = "               << m_trkSelGrade2_R );
-
-	  ATH_MSG_VERBOSE( " SizeMVtx = "       << m_sizeMVtx );
-	  ATH_MSG_VERBOSE( " bMVtx = "          << m_bMVtx    );
-	  ATH_MSG_VERBOSE( " uMVtx = "          << m_uMVtx    );
-	  ATH_MSG_VERBOSE( " SizeEVtx = "       << m_sizeEVtx );
-	  ATH_MSG_VERBOSE( " bEVtx = "          << m_bEVtx    );
-	  ATH_MSG_VERBOSE( " uEVtx = "          << m_uEVtx    );
-	  ATH_MSG_VERBOSE( " SizeNVtx = "       << m_sizeNVtx );
-	  ATH_MSG_VERBOSE( " bNVtx = "          << m_bNVtx    );
-	  ATH_MSG_VERBOSE( " uNVtx = "          << m_uNVtx    );
-	  ATH_MSG_VERBOSE( " SizeSV = "         << m_sizeSV   );
-	  ATH_MSG_VERBOSE( " bSV = "            << m_bSV      );
-	  ATH_MSG_VERBOSE( " uSV = "            << m_uSV      );
-        }
+      ATH_MSG_DEBUG( "JetKey = "               << m_jetKey );
+      ATH_MSG_DEBUG( "PriVtxKey = "            << m_priVtxKey );
+      
+      ATH_MSG_DEBUG( " AlgoId = "              << m_algo );
+      ATH_MSG_DEBUG( " Instance = "            << m_instance );
+      
+      ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag );
+      ATH_MSG_DEBUG( " SetBeamSpotWidth = "    << m_setBeamSpotWidth );
+      
+      ATH_MSG_DEBUG( " UseParamFromData = "    << m_useParamFromData );
+      
+      ATH_MSG_DEBUG( " Taggers = "             << m_taggers );
+      ATH_MSG_DEBUG( " UseErrIPParam = "       << m_useErrIPParam );
+      ATH_MSG_DEBUG( " UseJetDirection = "     << m_useJetDirection );
+      ATH_MSG_DEBUG( " RetrieveHLTJets = "     << m_retrieveHLTJets );
+      ATH_MSG_DEBUG( " TagHLTJets = "          << m_tagHLTJets );
+      ATH_MSG_DEBUG( " HistoPrmVtxAtEF = "     << m_histoPrmVtxAtEF );
+      ATH_MSG_DEBUG(  " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel );
+      
+      ATH_MSG_VERBOSE( " JetProb 0 MC = "      << m_par_0_MC );
+      ATH_MSG_VERBOSE( " JetProb 1 MC = "      << m_par_1_MC );
+      ATH_MSG_VERBOSE( " JetProb 0 DT = "      << m_par_0_DT );
+      ATH_MSG_VERBOSE( " JetProb 1 DT = "      << m_par_1_DT );
+      
+      ATH_MSG_VERBOSE( " SizeIP1D_Grade1 = "  << m_sizeIP1D_Grade1 );
+      ATH_MSG_VERBOSE( " bIP1D_Grade1 = "     << m_bIP1D_Grade1    );
+      ATH_MSG_VERBOSE( " uIP1D_Grade1 = "     << m_uIP1D_Grade1    );
+      ATH_MSG_VERBOSE( " SizeIP2D_Grade1 = "  << m_sizeIP2D_Grade1 );
+      ATH_MSG_VERBOSE( " bIP2D_Grade1 = "     << m_bIP2D_Grade1    );
+      ATH_MSG_VERBOSE( " uIP2D_Grade1 = "     << m_uIP2D_Grade1    );
+      ATH_MSG_VERBOSE( " SizeIP3D_Grade1 = "  << m_sizeIP3D_Grade1 );
+      ATH_MSG_VERBOSE( " bIP3D_Grade1 = "     << m_bIP3D_Grade1    );
+      ATH_MSG_VERBOSE( " uIP3D_Grade1 = "     << m_uIP3D_Grade1    );
+      
+      ATH_MSG_VERBOSE( " SizeIP1D_Grade2 = "  << m_sizeIP1D_Grade2 );
+      ATH_MSG_VERBOSE( " bIP1D_Grade2 = "     << m_bIP1D_Grade2 );
+      ATH_MSG_VERBOSE( " uIP1D_Grade2 = "     << m_uIP1D_Grade2 );
+      ATH_MSG_VERBOSE( " SizeIP2D_Grade2 = "  << m_sizeIP2D_Grade2 );
+      ATH_MSG_VERBOSE( " bIP2D_Grade2 = "     << m_bIP2D_Grade2 );
+      ATH_MSG_VERBOSE( " uIP2D_Grade2 = "     << m_uIP2D_Grade2 );
+      ATH_MSG_VERBOSE( " SizeIP3D_Grade2 = "  << m_sizeIP3D_Grade2 );
+      ATH_MSG_VERBOSE( " bIP3D_Grade2 = "     << m_bIP3D_Grade2 );
+      ATH_MSG_VERBOSE( " uIP3D_Grade2 = "     << m_uIP3D_Grade2 );
+      
+      ATH_MSG_DEBUG( " TrkSelGrade1_Chi2 = "            << m_trkSelGrade1_Chi2 );
+      ATH_MSG_DEBUG( " TrkSelGrade1_Innermost = "       << m_trkSelGrade1_Innermost );
+      ATH_MSG_DEBUG( " TrkSelGrade1_NextToInnermost = " << m_trkSelGrade1_NextToInnermost );
+      ATH_MSG_DEBUG( " TrkSelGrade1_PixHits = "         << m_trkSelGrade1_PixHits );
+      ATH_MSG_DEBUG( " TrkSelGrade1_SiHits = "          << m_trkSelGrade1_SiHits );
+      ATH_MSG_DEBUG( " TrkSelGrade1_D0 = "              << m_trkSelGrade1_D0 );
+      ATH_MSG_DEBUG( " TrkSelGrade1_Z0 = "              << m_trkSelGrade1_Z0 );
+      ATH_MSG_DEBUG( " TrkSelGrade1_Pt = "              << m_trkSelGrade1_Pt );
+      ATH_MSG_DEBUG( " TrkSelGrade1_Eta = "             << m_trkSelGrade1_Eta );
+      ATH_MSG_DEBUG( " TrkSelGrade1_Phi = "             << m_trkSelGrade1_Phi );
+      ATH_MSG_DEBUG( " TrkSelGrade1_R = "               << m_trkSelGrade1_R );
+      
+      ATH_MSG_DEBUG( " TrkSelGrade2_Chi2 = "            << m_trkSelGrade2_Chi2 );
+      ATH_MSG_DEBUG( " TrkSelGrade2_Innermost = "       << m_trkSelGrade2_Innermost );
+      ATH_MSG_DEBUG( " TrkSelGrade2_NextToInnermost = " << m_trkSelGrade2_NextToInnermost );
+      ATH_MSG_DEBUG( " TrkSelGrade2_PixHits = "         << m_trkSelGrade2_PixHits );
+      ATH_MSG_DEBUG( " TrkSelGrade2_SiHits = "          << m_trkSelGrade2_SiHits );
+      ATH_MSG_DEBUG( " TrkSelGrade2_D0 = "              << m_trkSelGrade2_D0 );
+      ATH_MSG_DEBUG( " TrkSelGrade2_Z0 = "              << m_trkSelGrade2_Z0 );
+      ATH_MSG_DEBUG( " TrkSelGrade2_Pt = "              << m_trkSelGrade2_Pt );
+      ATH_MSG_DEBUG( " TrkSelGrade2_Eta = "             << m_trkSelGrade2_Eta );
+      ATH_MSG_DEBUG( " TrkSelGrade2_Phi = "             << m_trkSelGrade2_Phi );
+      ATH_MSG_DEBUG( " TrkSelGrade2_R = "               << m_trkSelGrade2_R );
+      
+      ATH_MSG_VERBOSE( " SizeMVtx = "       << m_sizeMVtx );
+      ATH_MSG_VERBOSE( " bMVtx = "          << m_bMVtx    );
+      ATH_MSG_VERBOSE( " uMVtx = "          << m_uMVtx    );
+      ATH_MSG_VERBOSE( " SizeEVtx = "       << m_sizeEVtx );
+      ATH_MSG_VERBOSE( " bEVtx = "          << m_bEVtx    );
+      ATH_MSG_VERBOSE( " uEVtx = "          << m_uEVtx    );
+      ATH_MSG_VERBOSE( " SizeNVtx = "       << m_sizeNVtx );
+      ATH_MSG_VERBOSE( " bNVtx = "          << m_bNVtx    );
+      ATH_MSG_VERBOSE( " uNVtx = "          << m_uNVtx    );
+      ATH_MSG_VERBOSE( " SizeSV = "         << m_sizeSV   );
+      ATH_MSG_VERBOSE( " bSV = "            << m_bSV      );
+      ATH_MSG_VERBOSE( " uSV = "            << m_uSV      );
 
     m_trigBjetTagger = new TrigBjetTagger(this, msg(), msgLvl());
     m_constTrigBjetTagger  = const_cast<const TrigBjetTagger*>(m_trigBjetTagger);
 
-    if (msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "Retrieving tuning likelihoods." );
+    ATH_MSG_DEBUG( "Retrieving tuning likelihoods." );
 
     m_tuningLikelihoodIP1D_Grade1 = new TuningLikelihood(&m_sizeIP1D_Grade1[0], &m_bIP1D_Grade1[0], &m_uIP1D_Grade1[0], m_sizeIP1D_Grade1.size());
     m_trigBjetTagger->fillLikelihoodMap("IP1D_Grade1", m_tuningLikelihoodIP1D_Grade1);
@@ -411,8 +408,7 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
 
   std::vector<const xAOD::VertexContainer*> vectorOfEFPrmVtxCollections;
 
-  if (msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( "Retrieving PV with key = " << priVtxKey );
+  ATH_MSG_DEBUG( "Retrieving PV with key = " << priVtxKey );
   
   HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFPrmVtxCollections, priVtxKey);
   if (status != HLT::OK) {
@@ -437,8 +433,7 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
   
   for ( ; pPrmVtxColl != lastPrmVtxColl; pPrmVtxColl++) { 
     
-    if (msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "Size of pPrmVtxColl = " << (*pPrmVtxColl)->size() );
+    ATH_MSG_DEBUG( "Size of pPrmVtxColl = " << (*pPrmVtxColl)->size() );
     
     if ((*pPrmVtxColl)->size() != 0) {
       
@@ -460,9 +455,7 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
     return HLT::ERROR;
   } 
   else {
-    if (msgLvl() <= MSG::DEBUG) {
-      ATH_MSG_DEBUG( "Found a primary vertex collection." );
-    }
+    ATH_MSG_DEBUG( "Found a primary vertex collection." );
     pointerToEFPrmVtxCollections = *pPrmVtxColl;
     return HLT::OK;
   }
@@ -619,15 +612,13 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
 
     if(pPrmVrt) {
          
-      if (msgLvl() <= MSG::DEBUG) {
-	ATH_MSG_DEBUG( "Primary vertex for decay length (" 
-		       << pPrmVrt->position().x() << "," 
-		       << pPrmVrt->position().y() << "," 
-		       << pPrmVrt->position().z() << ") and error (" 
-		       << pPrmVrt->covariancePosition()(0,0) << "," 
-		       << pPrmVrt->covariancePosition()(1,1) << "," 
-		       << pPrmVrt->covariancePosition()(2,2) << ")" );
-      }
+      ATH_MSG_DEBUG( "Primary vertex for decay length (" 
+		     << pPrmVrt->position().x() << "," 
+		     << pPrmVrt->position().y() << "," 
+		     << pPrmVrt->position().z() << ") and error (" 
+		     << pPrmVrt->covariancePosition()(0,0) << "," 
+		     << pPrmVrt->covariancePosition()(1,1) << "," 
+		     << pPrmVrt->covariancePosition()(2,2) << ")" );
 	
       // Needs some Eigen migration magic here
       //CLHEP::HepLorentzVector jetDirection;
@@ -764,61 +755,61 @@ bool TrigBjetFex::trackSel(const xAOD::TrackParticle*& track, unsigned int i, in
   }
   
   if (dEta > trkSelEta) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " is not selected (delta eta matching)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " is not selected (delta eta matching)" );
     m_listCutApplied.push_back(2); return false;
   }
 
   if (dPhi > trkSelPhi) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " is not selected (delta phi matching)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " is not selected (delta phi matching)" );
     m_listCutApplied.push_back(3); return false;
   }
 
   if (dR > trkSelR) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " is not selected (delta R matching)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " is not selected (delta R matching)" );
     m_listCutApplied.push_back(4); return false;
   }
 
   if (fabs(pT) < trkSelPt) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (pT cut)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (pT cut)" );
     m_listCutApplied.push_back(5); return false;
   }
 
   if (fabs(d0) > trkSelD0) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (d0 cut)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (d0 cut)" );
     m_listCutApplied.push_back(6); return false;
   }
 
   if (fabs(z0-zv)*TMath::Sin(theta) > trkSelZ0) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (z0 cut)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (z0 cut)" );
     m_listCutApplied.push_back(7); return false;
   }
 
   if (nInnermostHits < trkSelInnermost) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (missing innermost layer hit)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (missing innermost layer hit)" );
     m_listCutApplied.push_back(8); return false;
   }
 
   if (nNextToInnermostHits < trkSelNextToInnermost) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (missing next to innermost layer hit)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (missing next to innermost layer hit)" );
     m_listCutApplied.push_back(9); return false;
   }
 
   if (nPixHits < trkSelPixHits) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (too few pixel hits)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (too few pixel hits)" );
     m_listCutApplied.push_back(10); return false;
   }
 
   if (nSiHits < trkSelSiHits) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (too few silicon hits)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (too few silicon hits)" );
     m_listCutApplied.push_back(11); return false;
   }
 
   if (TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) <= trkSelChi2) {
-    if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (chi2 cut)" );
+    ATH_MSG_DEBUG( "  grade " << grade << " track " << i+1 << " not selected (chi2 cut)" );
     m_listCutApplied.push_back(12); return false;
   }
   
-  if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "    grade " << grade << " track " << i+1 << " is selected" );
+  ATH_MSG_DEBUG( "    grade " << grade << " track " << i+1 << " is selected" );
 
   m_listCutApplied.push_back(13);
   return true;
@@ -852,8 +843,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     }
   }
   else {
-    if (msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "No feature for this Trigger Element" );
+    ATH_MSG_DEBUG( "No feature for this Trigger Element" );
     
     return HLT::NAV_ERROR;
   }
@@ -938,20 +928,17 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     if (beamSpotStatus)
       beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
     
-    if(msgLvl() <= MSG::DEBUG)
-      
-      ATH_MSG_DEBUG( "Beam spot from service: x=" << beamSpot.x() << ", y=" << beamSpot.y() << ", z=" << beamSpot.z() 
-		     << ", tiltXZ=" << iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << iBeamCondSvc->beamTilt(1) 
-		     << ", sigmaX=" << iBeamCondSvc->beamSigma(0) << ", sigmaY=" << iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << iBeamCondSvc->beamSigma(2) 
-		     << ", status=" << beamSpotStatus );
-
+    ATH_MSG_DEBUG( "Beam spot from service: x=" << beamSpot.x() << ", y=" << beamSpot.y() << ", z=" << beamSpot.z() 
+		   << ", tiltXZ=" << iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << iBeamCondSvc->beamTilt(1) 
+		   << ", sigmaX=" << iBeamCondSvc->beamSigma(0) << ", sigmaY=" << iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << iBeamCondSvc->beamSigma(2) 
+		   << ", status=" << beamSpotStatus );
+    
     m_trigBjetPrmVtxInfo->setBeamSpot(beamSpot.x(), beamSpot.y(), beamSpot.z());
     m_trigBjetPrmVtxInfo->setBeamSpotTilt(iBeamCondSvc->beamTilt(0), iBeamCondSvc->beamTilt(1));
     m_trigBjetPrmVtxInfo->setBeamSpotWidth(iBeamCondSvc->beamSigma(0), iBeamCondSvc->beamSigma(1), iBeamCondSvc->beamSigma(2));
     m_trigBjetPrmVtxInfo->setBeamSpotStatus(beamSpotStatus);
 
-    if (msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
+    ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
 
   }
 
@@ -1077,15 +1064,12 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   m_trigBjetPrmVtxInfo->setBeamSpot(xBeamSpot, yBeamSpot, zBeamSpot);
   m_trigBjetPrmVtxInfo->setPrmVtx(xPrmVtx, yPrmVtx, zPrmVtx);
 
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
+  ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
 
   m_trackJetFinderTool->clear();
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( "Set input  z-vtx to trackjet tool " << m_trigBjetPrmVtxInfo->zPrmVtx() );
+  ATH_MSG_DEBUG( "Set input  z-vtx to trackjet tool " << m_trigBjetPrmVtxInfo->zPrmVtx() );
   m_trackJetFinderTool->inputPrimaryVertexZ(m_trigBjetPrmVtxInfo->zPrmVtx());
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( "Done set input  z-vtx to trackjet tool " << m_trigBjetPrmVtxInfo->zPrmVtx() );
+  ATH_MSG_DEBUG( "Done set input  z-vtx to trackjet tool " << m_trigBjetPrmVtxInfo->zPrmVtx() );
 
   m_totTracks = m_taggerHelper->getTrackNumber(pointerToEFTrackCollections);
   
@@ -1114,8 +1098,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
       d0Corr=track->d0(); 
       z0Corr=track->z0()+m_trigBjetPrmVtxInfo->zBeamSpot();
       trigBjetTrackInfo.setIPCorr(d0Corr, z0Corr);
-      if (msgLvl() <= MSG::DEBUG)
-	ATH_MSG_DEBUG( "  " << trigBjetTrackInfo );
+      ATH_MSG_DEBUG( "  " << trigBjetTrackInfo );
       trigBjetTrackInfoVector.push_back(trigBjetTrackInfo);
 
       //m_trackJetFinderTool->addTrack(track, j);
@@ -1136,12 +1119,10 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     
     m_trigBjetJetInfo->setEtaPhiTrkJet(m_trigBjetJetInfo->etaRoI(), m_trigBjetJetInfo->phiRoI());
     
-    if (msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "eta Jet = eta RoI" );
+    ATH_MSG_DEBUG( "eta Jet = eta RoI" );
   }
   
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( *m_trigBjetJetInfo );
+  ATH_MSG_DEBUG( *m_trigBjetJetInfo );
 
   // -----------------------------------
   // For monitoring
@@ -1168,17 +1149,15 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
 
   } else if (m_trigBjetPrmVtxInfo->xBeamSpotWidth()>m_setBeamSpotWidth || m_trigBjetPrmVtxInfo->yBeamSpotWidth()>m_setBeamSpotWidth) {
 
-    if(msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." );
+    ATH_MSG_DEBUG( "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." );
 
     m_listCutApplied.push_back(1);
     m_trigBjetTagger->getWeights();
 
   } else {
     
-    if (msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "Computing discriminant weights using taggers: " << m_taggers 
-		     << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" );
+    ATH_MSG_DEBUG( "Computing discriminant weights using taggers: " << m_taggers 
+		   << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" );
 
     //Look for a sec vertex?
     bool retrieveSV = false;
@@ -1194,11 +1173,9 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
       // Get secondary vertex information at EF from TrigBjetFex::getSecVtxInfo
       //if (getSecVtxInfo(pointerToEFSecVtxCollections, pointerToEFPrmVtxCollections, pointerToPrmVtxCollections) != HLT::OK)
       if (getSecVtxInfo(pointerToEFSecVtxCollections, pointerToEFPrmVtxCollections) != HLT::OK)
-        if (msgLvl() <= MSG::DEBUG)
-	  ATH_MSG_DEBUG( "No EF SV information retrieved from TrigBjetFex::getSecVtxInfo" );
+	ATH_MSG_DEBUG( "No EF SV information retrieved from TrigBjetFex::getSecVtxInfo" );
       
-      if (msgLvl() <= MSG::DEBUG)
-	ATH_MSG_DEBUG( *m_trigBjetSecVtxInfo );
+      ATH_MSG_DEBUG( *m_trigBjetSecVtxInfo );
       
     }
 
@@ -1264,8 +1241,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   HLT::ErrorCode stat = attachFeature(outputTE, m_trigEFBjetColl, "EFBjetFex");
   
   if (stat != HLT::OK) {
-    if ( msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "Failed to attach TrigEFBjetContainer to navigation" );
+    ATH_MSG_DEBUG( "Failed to attach TrigEFBjetContainer to navigation" );
     return stat;
   }
 
@@ -1336,8 +1312,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   stat = attachFeature(outputTE, m_trigBTaggingContainer, "HLTBjetFex");
   
   if (stat != HLT::OK) {
-    if ( msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "Failed to attach BTaggingContainer to navigation" );
+    ATH_MSG_DEBUG( "Failed to attach BTaggingContainer to navigation" );
     return stat;
   }
 

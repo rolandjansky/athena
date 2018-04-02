@@ -53,18 +53,16 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltInitialize() {
     msg() << MSG::INFO << "Initializing TrigJetSplitterAllTE, version " << PACKAGE_VERSION << endmsg;
 
   //* declareProperty overview *//
-  if (msgLvl() <= MSG::DEBUG) {
-    ATH_MSG_DEBUG( "declareProperty review:" );
-    ATH_MSG_DEBUG( " JetInputKey            = "  << m_jetInputKey           );
-    ATH_MSG_DEBUG( " JetOutputKey           = " << m_jetOutputKey           );
-    ATH_MSG_DEBUG( " PriVtxKey              = " << m_priVtxKey              );
-    ATH_MSG_DEBUG( " EtaHalfWidth           = " << m_etaHalfWidth           );
-    ATH_MSG_DEBUG( " PhiHalfWidth           = " << m_phiHalfWidth           );
-    ATH_MSG_DEBUG( " ZHalfWidth             = " << m_zHalfWidth             );
-    ATH_MSG_DEBUG( " MinJetEt               = " << m_minJetEt               );
-    ATH_MSG_DEBUG( " MaxJetEta              = " << m_maxJetEta              );
-    ATH_MSG_DEBUG( " DynamicEtaPhiHalfWidth = " << m_dynamicEtaPhiHalfWidth );
-  }
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG( " JetInputKey            = "  << m_jetInputKey           );
+  ATH_MSG_DEBUG( " JetOutputKey           = " << m_jetOutputKey           );
+  ATH_MSG_DEBUG( " PriVtxKey              = " << m_priVtxKey              );
+  ATH_MSG_DEBUG( " EtaHalfWidth           = " << m_etaHalfWidth           );
+  ATH_MSG_DEBUG( " PhiHalfWidth           = " << m_phiHalfWidth           );
+  ATH_MSG_DEBUG( " ZHalfWidth             = " << m_zHalfWidth             );
+  ATH_MSG_DEBUG( " MinJetEt               = " << m_minJetEt               );
+  ATH_MSG_DEBUG( " MaxJetEta              = " << m_maxJetEta              );
+  ATH_MSG_DEBUG( " DynamicEtaPhiHalfWidth = " << m_dynamicEtaPhiHalfWidth );
 
   return HLT::OK;
 }
@@ -81,13 +79,11 @@ TrigJetSplitterAllTE::~TrigJetSplitterAllTE(){}
 
 HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( "Running TrigJetSplitterAllTE::hltExecute" );
+  ATH_MSG_DEBUG( "Running TrigJetSplitterAllTE::hltExecute" );
 
   beforeExecMonitors().ignore();
 
-  if (msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( " inputTEs.size() " << inputTEs.size() );
+  ATH_MSG_DEBUG( " inputTEs.size() " << inputTEs.size() );
  
   if (inputTEs.size() == 0) {
     msg() << MSG::WARNING << "No input TEs" << endmsg;
@@ -111,8 +107,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 
   std::vector<HLT::TriggerElement*>& jetTE = inputTEs.at(0); // jet TE
 
-  if (msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( " jetTE.size() " << jetTE.size() );
+  ATH_MSG_DEBUG( " jetTE.size() " << jetTE.size() );
 
   if (jetTE.size() == 0) {
     msg() << MSG::WARNING << "Got an empty inputTE (jets)" << endmsg;
@@ -147,8 +142,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 
     std::vector<HLT::TriggerElement*>& vtxTE = inputTEs.at(1); // vertex TE
 
-    if (msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( " vtxTE.size() " << vtxTE.size() );
+    ATH_MSG_DEBUG( " vtxTE.size() " << vtxTE.size() );
 
     if (vtxTE.size() == 0) {
       msg() << MSG::WARNING << "Got an empty inputTE (vertex)" << endmsg;
@@ -164,47 +158,41 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     bool usePVBackup = true;
 
     if (getFeature(vtxTE.front(), vertexes, m_priVtxKey) == HLT::OK && vertexes != nullptr) {
-      if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() );
+      ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << m_priVtxKey << " has nVertexes = " << vertexes->size() );
       prmVtx = getPrimaryVertex(vertexes);
       if (prmVtx){
 	usePVBackup=false;
-	if (msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey );
+	ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKey );
       }
     }
 
 
     if(m_usePriVtxKeyBackup && usePVBackup) {
       vertexes = nullptr;
-      if (msgLvl() <= MSG::DEBUG) 
-	ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" );
+      ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKey << " - proceeding with backup option" );
       if (getFeature(vtxTE.front(), vertexes, m_priVtxKeyBackup) == HLT::OK && vertexes != nullptr) {
-	if (msgLvl() <= MSG::DEBUG) 
-	  ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() );
+	ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: " << m_priVtxKeyBackup << " has nVertexes = " << vertexes->size() );
 	prmVtx = getPrimaryVertex(vertexes);	
 	if (prmVtx){
 	  usePVBackup=false;
-	  if (msgLvl() <= MSG::DEBUG) 
-	    ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup );
+	  ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: valid vertex found in " << m_priVtxKeyBackup );
 	}
       }
     }
 
 
     if(usePVBackup) {
-      if (msgLvl() <= MSG::DEBUG) 
-	ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." );
+      ATH_MSG_DEBUG( "INPUT - xAOD::VertexContainer: NO valid vertex found in " << m_priVtxKeyBackup << " - aborting..." );
       return HLT::MISSING_FEATURE;
     }
 
     prmVtx_z = prmVtx->z();
-    if (msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "Primary vertex z-position = " << prmVtx_z );
+    ATH_MSG_DEBUG( "Primary vertex z-position = " << prmVtx_z );
   }
 
   // -----------------------
  
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( "Found " << jets->size() << " jets, creating corresponding RoIs" );
+  ATH_MSG_DEBUG( "Found " << jets->size() << " jets, creating corresponding RoIs" );
 
   HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
   
@@ -219,17 +207,14 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     float jetPhi = jet->phi();
 
     if (jetEt < m_minJetEt) {
-      if (msgLvl() <= MSG::DEBUG)
-	ATH_MSG_DEBUG( "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." );
+      ATH_MSG_DEBUG( "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." );
       continue;
     }
     if (fabs(jetEta) > m_maxJetEta) {
-      if (msgLvl() <= MSG::DEBUG)
-	ATH_MSG_DEBUG( "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." );
+      ATH_MSG_DEBUG( "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." );
       continue;
     }
-    if (msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi );
+    ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi );
 
     // Create an output TE seeded by an empty vector
     HLT::TriggerElement* outputTE = config()->getNavigation()->addNode( initialTE, output );
@@ -248,9 +233,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     // Experimental pT-dependent Eta/PhiHalfWidth options
     // ===================================================
     if (m_dynamicEtaPhiHalfWidth != "off") {
-      if (msgLvl() <= MSG::DEBUG) {
-	ATH_MSG_DEBUG( "Using pT-dependent Eta/PhiHalfWidth (\'" << m_dynamicEtaPhiHalfWidth << "\' working point)" );
-      }
+      ATH_MSG_DEBUG( "Using pT-dependent Eta/PhiHalfWidth (\'" << m_dynamicEtaPhiHalfWidth << "\' working point)" );
       double halfWidth = m_etaHalfWidth;
       if      (m_dynamicEtaPhiHalfWidth == "loose"     ) halfWidth = 0.22 + (3.4/jetEt);
       else if (m_dynamicEtaPhiHalfWidth == "medium"    ) halfWidth = 0.18 + (3.4/jetEt);
@@ -262,9 +245,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 	msg() << MSG::WARNING << m_dynamicEtaPhiHalfWidth << "is not a valid option for DynamicEtaPhiHalfWidth.  " 
 	      << "Reverting to default (Eta/PhiHalfWidth = " << m_etaHalfWidth << ")" << endmsg;
       }
-      if (msgLvl() <= MSG::DEBUG) {
-	ATH_MSG_DEBUG( "==> Eta/PhiHalfWidth = " << halfWidth );
-      }
+      ATH_MSG_DEBUG( "==> Eta/PhiHalfWidth = " << halfWidth );
       m_etaHalfWidth = halfWidth;
       m_phiHalfWidth = halfWidth;
 

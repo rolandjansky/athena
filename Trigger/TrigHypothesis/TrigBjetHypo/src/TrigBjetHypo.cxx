@@ -67,22 +67,20 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
   if (msgLvl() <= MSG::INFO) 
     msg() << MSG::INFO << "Initializing TrigBjetHypo" << endmsg;   
 
-  if (msgLvl() <= MSG::DEBUG) {
-    ATH_MSG_DEBUG( "declareProperty review:" );
-    ATH_MSG_DEBUG(" AcceptAll = "       << m_acceptAll );
-    ATH_MSG_DEBUG( " MethodTag = "       << m_methodTag );
-    ATH_MSG_DEBUG(" Instance = "        << m_instance );
-    ATH_MSG_DEBUG(" UseBeamSpotFlag = " << m_useBeamSpotFlag );
-    ATH_MSG_DEBUG(" JetKey = "          << m_jetKey );
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG(" AcceptAll = "       << m_acceptAll );
+  ATH_MSG_DEBUG( " MethodTag = "       << m_methodTag );
+  ATH_MSG_DEBUG(" Instance = "        << m_instance );
+  ATH_MSG_DEBUG(" UseBeamSpotFlag = " << m_useBeamSpotFlag );
+  ATH_MSG_DEBUG(" JetKey = "          << m_jetKey );
 
-    if (m_xcutMV2c20 != -20) ATH_MSG_DEBUG( " CutMV2c20 = "  << m_xcutMV2c20 );
-    if (m_xcutMV2c10 != -20) ATH_MSG_DEBUG( " CutMV2c10 = "  << m_xcutMV2c10 );
-    if (m_xcutMV2c10_hybrid != -20) ATH_MSG_DEBUG( " CutMV2c10_hybrid = "  << m_xcutMV2c10_hybrid );
-    if (m_xcutCOMB   != -20) ATH_MSG_DEBUG( " CutXCOMB  = "  << m_xcutCOMB );
-    if (m_xcutCHI2   != -20) ATH_MSG_DEBUG( " CutXCHI2  = "  << m_xcutCHI2 );
-    if (m_xcutIP3D   != -20) ATH_MSG_DEBUG( " CutXIP3D  = "  << m_xcutIP3D );
-    if (m_xcutIP2D   != -20) ATH_MSG_DEBUG( " CutXIP2D  = "  << m_xcutIP2D );
-  }
+  if (m_xcutMV2c20 != -20) ATH_MSG_DEBUG( " CutMV2c20 = "  << m_xcutMV2c20 );
+  if (m_xcutMV2c10 != -20) ATH_MSG_DEBUG( " CutMV2c10 = "  << m_xcutMV2c10 );
+  if (m_xcutMV2c10_hybrid != -20) ATH_MSG_DEBUG( " CutMV2c10_hybrid = "  << m_xcutMV2c10_hybrid );
+  if (m_xcutCOMB   != -20) ATH_MSG_DEBUG( " CutXCOMB  = "  << m_xcutCOMB );
+  if (m_xcutCHI2   != -20) ATH_MSG_DEBUG( " CutXCHI2  = "  << m_xcutCHI2 );
+  if (m_xcutIP3D   != -20) ATH_MSG_DEBUG( " CutXIP3D  = "  << m_xcutIP3D );
+  if (m_xcutIP2D   != -20) ATH_MSG_DEBUG( " CutXIP2D  = "  << m_xcutIP2D );
 
   return HLT::OK;
 }
@@ -93,16 +91,13 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
 
 HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
   
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( "Executing TrigBjetHypo" );
+  ATH_MSG_DEBUG( "Executing TrigBjetHypo" );
 
   // AcceptAll declare property setting 
   if (m_acceptAll) {
-    if (msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "REGTEST: AcceptAll property is set: taking all events and applying the selection only to save the TrigPassBits" );
+    ATH_MSG_DEBUG( "REGTEST: AcceptAll property is set: taking all events and applying the selection only to save the TrigPassBits" );
   } else 
-    if (msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "REGTEST: AcceptAll property not set: applying the selection and saving the TrigPassBits" );
+    ATH_MSG_DEBUG( "REGTEST: AcceptAll property not set: applying the selection and saving the TrigPassBits" );
   
   // initialise monitoring variables 
   m_cutCounter = -1;
@@ -141,12 +136,10 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   HLT::ErrorCode stat = getFeature(outputTE, roiDescriptor, m_jetKey);
   
   if (stat == HLT::OK) {
-    if (msgLvl() <= MSG::DEBUG) {
-      ATH_MSG_DEBUG( "Using outputTE: " << *roiDescriptor );
-      //<< "RoI id " << roiDescriptor->roiId()
-      //    << ", Phi = " <<  roiDescriptor->phi()
-      //	    << ", Eta = " << roiDescriptor->eta() << endmsg;
-    }
+    ATH_MSG_DEBUG( "Using outputTE: " << *roiDescriptor );
+    //<< "RoI id " << roiDescriptor->roiId()
+    //    << ", Phi = " <<  roiDescriptor->phi()
+    //	    << ", Eta = " << roiDescriptor->eta() << endmsg;
   } else {
     if (msgLvl() <= MSG::WARNING) 
       msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endmsg;
@@ -308,11 +301,9 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   
   // Print trigger decision 
   if (m_acceptAll) {
-    if(msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "REGTEST: Trigger decision is 1" );
+    ATH_MSG_DEBUG( "REGTEST: Trigger decision is 1" );
   } else {
-    if(msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
+    ATH_MSG_DEBUG( "REGTEST: Trigger decision is " << pass );
   }
 
   // Monitoring of method used to perform the cut 
@@ -336,8 +327,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
     ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( "TrigPassBits was saved" );
+  ATH_MSG_DEBUG( "TrigPassBits was saved" );
 
 
   return HLT::OK;

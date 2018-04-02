@@ -188,65 +188,62 @@ HLT::ErrorCode TrigBjetFexStandalone::hltInitialize() {
     msg() << MSG::INFO << "Initializing TrigBjetFex, version " << PACKAGE_VERSION << endmsg;
 
   //* declareProperty overview *//
-  if (msgLvl() <= MSG::DEBUG) {
-    ATH_MSG_DEBUG( "declareProperty review:" );
-    ATH_MSG_DEBUG(  " AlgoId = "              << m_algo );
-    ATH_MSG_DEBUG(  " Instance = "            << m_instance );
-    
-    ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag );
-    ATH_MSG_DEBUG( " SetBeamSpotWidth = "    << m_setBeamSpotWidth );
-    
-    ATH_MSG_DEBUG( " UseParamFromData = "     << m_useParamFromData );
-    
-    ATH_MSG_DEBUG( " Taggers = "             << m_taggers );
-    ATH_MSG_DEBUG( " UseErrIPParam = "       << m_useErrIPParam );
-    ATH_MSG_DEBUG( " JetDirection = "        << m_jetDirection );
-    ATH_MSG_DEBUG( " L2PrmVtxAtEF = "        << m_l2PrmVtxAtEF );
-    ATH_MSG_DEBUG( " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel );
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG(  " AlgoId = "              << m_algo );
+  ATH_MSG_DEBUG(  " Instance = "            << m_instance );
   
-    ATH_MSG_DEBUG( " JetProb 0 MC = "      << m_par_0_MC );
-    ATH_MSG_DEBUG( " JetProb 1 MC = "      << m_par_1_MC );
-    ATH_MSG_DEBUG( " JetProb 0 DT = "      << m_par_0_DT );
-    ATH_MSG_DEBUG( " JetProb 1 DT = "      << m_par_1_DT );
-    
-    ATH_MSG_DEBUG( " SizeIP1D = "          << m_sizeIP1D );
-    ATH_MSG_DEBUG( " bIP1D = "             << m_bIP1D );
-    ATH_MSG_DEBUG( " uIP1D = "             << m_uIP1D );
-    ATH_MSG_DEBUG( " SizeIP2D = "          << m_sizeIP2D );
-    ATH_MSG_DEBUG( " bIP2D = "             << m_bIP2D );
-    ATH_MSG_DEBUG( " uIP2D = "             << m_uIP2D );
-    ATH_MSG_DEBUG( " SizeIP3D = "          << m_sizeIP3D );
-    ATH_MSG_DEBUG( " bIP3D = "             << m_bIP3D );
-    ATH_MSG_DEBUG( " uIP3D = "             << m_uIP3D );
-
-    ATH_MSG_DEBUG( " TrkSel_Chi2 = "     << m_trkSelChi2 );
-    ATH_MSG_DEBUG( " TrkSel_BLayer = "   << m_trkSelBLayer );
-    ATH_MSG_DEBUG( " TrkSel_SiHits = "   << m_trkSelSiHits );
-    ATH_MSG_DEBUG( " TrkSel_D0 = "       << m_trkSelD0 );
-    ATH_MSG_DEBUG( " TrkSel_Z0 = "       << m_trkSelZ0 );
-    ATH_MSG_DEBUG( " TrkSel_Pt = "       << m_trkSelPt );
-
-    if (m_instance == "EF") {
-      ATH_MSG_DEBUG( " SizeMVtx = "       << m_sizeMVtx );
-      ATH_MSG_DEBUG( " bMVtx = "          << m_bMVtx );
-      ATH_MSG_DEBUG( " uMVtx = "          << m_uMVtx );
-      ATH_MSG_DEBUG( " SizeEVtx = "       << m_sizeEVtx );
-      ATH_MSG_DEBUG( " bEVtx = "          << m_bEVtx );
-      ATH_MSG_DEBUG( " uEVtx = "          << m_uEVtx );
-      ATH_MSG_DEBUG( " SizeNVtx = "       << m_sizeNVtx );
-      ATH_MSG_DEBUG( " bNVtx = "          << m_bNVtx );
-      ATH_MSG_DEBUG( " uNVtx = "          << m_uNVtx );
-      ATH_MSG_DEBUG( " SizeSV = "         << m_sizeSV );
-      ATH_MSG_DEBUG( " bSV = "            << m_bSV );
-      ATH_MSG_DEBUG( " uSV = "            << m_uSV );
-    }
+  ATH_MSG_DEBUG( " UseBeamSpotFlag = "     << m_useBeamSpotFlag );
+  ATH_MSG_DEBUG( " SetBeamSpotWidth = "    << m_setBeamSpotWidth );
+  
+  ATH_MSG_DEBUG( " UseParamFromData = "     << m_useParamFromData );
+  
+  ATH_MSG_DEBUG( " Taggers = "             << m_taggers );
+  ATH_MSG_DEBUG( " UseErrIPParam = "       << m_useErrIPParam );
+  ATH_MSG_DEBUG( " JetDirection = "        << m_jetDirection );
+  ATH_MSG_DEBUG( " L2PrmVtxAtEF = "        << m_l2PrmVtxAtEF );
+  ATH_MSG_DEBUG( " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel );
+  
+  ATH_MSG_DEBUG( " JetProb 0 MC = "      << m_par_0_MC );
+  ATH_MSG_DEBUG( " JetProb 1 MC = "      << m_par_1_MC );
+  ATH_MSG_DEBUG( " JetProb 0 DT = "      << m_par_0_DT );
+  ATH_MSG_DEBUG( " JetProb 1 DT = "      << m_par_1_DT );
+  
+  ATH_MSG_DEBUG( " SizeIP1D = "          << m_sizeIP1D );
+  ATH_MSG_DEBUG( " bIP1D = "             << m_bIP1D );
+  ATH_MSG_DEBUG( " uIP1D = "             << m_uIP1D );
+  ATH_MSG_DEBUG( " SizeIP2D = "          << m_sizeIP2D );
+  ATH_MSG_DEBUG( " bIP2D = "             << m_bIP2D );
+  ATH_MSG_DEBUG( " uIP2D = "             << m_uIP2D );
+  ATH_MSG_DEBUG( " SizeIP3D = "          << m_sizeIP3D );
+  ATH_MSG_DEBUG( " bIP3D = "             << m_bIP3D );
+  ATH_MSG_DEBUG( " uIP3D = "             << m_uIP3D );
+  
+  ATH_MSG_DEBUG( " TrkSel_Chi2 = "     << m_trkSelChi2 );
+  ATH_MSG_DEBUG( " TrkSel_BLayer = "   << m_trkSelBLayer );
+  ATH_MSG_DEBUG( " TrkSel_SiHits = "   << m_trkSelSiHits );
+  ATH_MSG_DEBUG( " TrkSel_D0 = "       << m_trkSelD0 );
+  ATH_MSG_DEBUG( " TrkSel_Z0 = "       << m_trkSelZ0 );
+  ATH_MSG_DEBUG( " TrkSel_Pt = "       << m_trkSelPt );
+  
+  if (m_instance == "EF") {
+    ATH_MSG_DEBUG( " SizeMVtx = "       << m_sizeMVtx );
+    ATH_MSG_DEBUG( " bMVtx = "          << m_bMVtx );
+    ATH_MSG_DEBUG( " uMVtx = "          << m_uMVtx );
+    ATH_MSG_DEBUG( " SizeEVtx = "       << m_sizeEVtx );
+    ATH_MSG_DEBUG( " bEVtx = "          << m_bEVtx );
+    ATH_MSG_DEBUG( " uEVtx = "          << m_uEVtx );
+    ATH_MSG_DEBUG( " SizeNVtx = "       << m_sizeNVtx );
+    ATH_MSG_DEBUG( " bNVtx = "          << m_bNVtx );
+    ATH_MSG_DEBUG( " uNVtx = "          << m_uNVtx );
+    ATH_MSG_DEBUG( " SizeSV = "         << m_sizeSV );
+    ATH_MSG_DEBUG( " bSV = "            << m_bSV );
+    ATH_MSG_DEBUG( " uSV = "            << m_uSV );
   }
 
   m_trigBjetTagger = new TrigBjetTagger(this, msg(), msgLvl(), m_negativeWeights);
   m_constTrigBjetTagger  = const_cast<const TrigBjetTagger*>(m_trigBjetTagger);
 
-  if (msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( "Retrieving tuning likelihoods.");
+  ATH_MSG_DEBUG( "Retrieving tuning likelihoods.");
 
   m_tuningLikelihoodIP1D = new TuningLikelihood(&m_sizeIP1D[0], &m_bIP1D[0], &m_uIP1D[0], m_sizeIP1D.size());
   m_trigBjetTagger->fillLikelihoodMap("IP1D", m_tuningLikelihoodIP1D);
@@ -525,8 +522,7 @@ HLT::ErrorCode TrigBjetFexStandalone::loadTrack(float pT, float eta, float phi, 
 
 HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( "Executing TrigBjetFex");
+  ATH_MSG_DEBUG( "Executing TrigBjetFex");
 
   m_totSelTracks = 0;
   m_totTracks    = 0;
@@ -547,8 +543,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 
   m_trigBjetPrmVtxInfo->setBeamSpotStatus(m_beamSpotStatus);
 
-  if (msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
+  ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
  
   //* Apply beam spot correction for tilt *//
   float m_xPrmVtx=0, m_yPrmVtx=0, m_zPrmVtx=0;
@@ -564,8 +559,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   m_trigBjetPrmVtxInfo->setBeamSpot(m_xBeamSpot, m_yBeamSpot, m_zBeamSpot);
   m_trigBjetPrmVtxInfo->setPrmVtx(m_xPrmVtx, m_yPrmVtx, m_zPrmVtx);
 
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
+  ATH_MSG_DEBUG( *m_trigBjetPrmVtxInfo );
 
   m_trackJetFinderTool->clear();
   m_trackJetFinderTool->inputPrimaryVertexZ(m_trigBjetPrmVtxInfo->zPrmVtx());
@@ -645,8 +639,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
     
     m_trigBjetJetInfo->setEtaPhiTrkJet(m_trigBjetJetInfo->etaRoI(), m_trigBjetJetInfo->phiRoI());
     
-    if (msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "eta Jet = eta RoI" );
+    ATH_MSG_DEBUG( "eta Jet = eta RoI" );
   }
   
   ATH_MSG_DEBUG( *m_trigBjetJetInfo );
@@ -666,17 +659,15 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 
   } else if (m_trigBjetPrmVtxInfo->xBeamSpotWidth()>m_setBeamSpotWidth || m_trigBjetPrmVtxInfo->yBeamSpotWidth()>m_setBeamSpotWidth) {
 
-    if(msgLvl() <= MSG::DEBUG)
-      ATH_MSG_DEBUG( "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." );
+    ATH_MSG_DEBUG( "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." );
 
     m_listCutApplied.push_back(1);
     m_trigBjetTagger->getWeights();
 
   } else {
     
-    if (msgLvl() <= MSG::DEBUG) 
-	ATH_MSG_DEBUG( "Computing discriminant weights using taggers: " << m_taggers 
-		       << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" );
+    ATH_MSG_DEBUG( "Computing discriminant weights using taggers: " << m_taggers 
+		   << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" );
     
     m_trigBjetTagger->getWeights(m_trigBjetTrackInfoVector, m_trigBjetPrmVtxInfo, m_trigBjetSecVtxInfo, m_trigBjetJetInfo);
     

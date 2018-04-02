@@ -66,10 +66,8 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
   //
   // declareProperty overview
   //
-  if (msgLvl() <= MSG::DEBUG) {
-    ATH_MSG_DEBUG( "declareProperty review:" );
-    ATH_MSG_DEBUG( " BTaggingKey = "   << m_btaggingKey );
-  }
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG( " BTaggingKey = "   << m_btaggingKey );
 
   //
   //  Configure the AND requrements
@@ -166,8 +164,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltInitialize() {
 //
 HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( "Executing TrigBjetHypoAllTE" );
+  ATH_MSG_DEBUG( "Executing TrigBjetHypoAllTE" );
 
   beforeExecMonitors().ignore();
 
@@ -217,8 +214,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     m_BSCode = 4;
   }
 
-  if (msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( "Number of input TEs is " <<  inputTE.size() );
+  ATH_MSG_DEBUG( "Number of input TEs is " <<  inputTE.size() );
 
 
   if (inputTE.size() < 1) {
@@ -240,8 +236,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   // Retrieve the BTagging container
   //
   std::vector<HLT::TriggerElement*>& btaggingTEs = inputTE.at(0); 
-  if (msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( " btaggingTE.size() " << btaggingTEs.size() );
+  ATH_MSG_DEBUG( " btaggingTE.size() " << btaggingTEs.size() );
 
   if (btaggingTEs.size() == 0) {
     msg() << MSG::WARNING << "Got an empty inputTE (btagging)" << endmsg;
@@ -306,12 +301,10 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
   }
   
   if (pass) {
-    if(msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "Accepting the event" );
+    ATH_MSG_DEBUG( "Accepting the event" );
     m_cutCode    = 1; 
   } else {
-    if(msgLvl() <= MSG::DEBUG) 
-      ATH_MSG_DEBUG( "Rejecting the event" );
+    ATH_MSG_DEBUG( "Rejecting the event" );
     m_cutCode    = 0; 
   }
   

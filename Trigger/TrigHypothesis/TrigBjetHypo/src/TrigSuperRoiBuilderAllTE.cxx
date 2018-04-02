@@ -58,19 +58,17 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltInitialize() {
     msg() << MSG::INFO << "Initializing TrigSuperRoiBuilderAllTE, version " << PACKAGE_VERSION << endmsg;
 
   //* declareProperty overview *//
-  if (msgLvl() <= MSG::DEBUG) {
-    ATH_MSG_DEBUG( "declareProperty review:" );
-    ATH_MSG_DEBUG( " JetInputKey     = " << m_jetInputKey     );
-    ATH_MSG_DEBUG( " JetOutputKey    = " << m_jetOutputKey    );
-    ATH_MSG_DEBUG( " EtaHalfWidth    = " << m_etaHalfWidth    );
-    ATH_MSG_DEBUG( " PhiHalfWidth    = " << m_phiHalfWidth    );
-    ATH_MSG_DEBUG( " MinJetEt        = " << m_minJetEt        );
-    ATH_MSG_DEBUG( " MaxJetEta       = " << m_maxJetEta       );
-    ATH_MSG_DEBUG( " NJetsMax        = " << m_nJetsMax        );
-    ATH_MSG_DEBUG( " DynamicMinJetEt = " << m_dynamicMinJetEt );
-    ATH_MSG_DEBUG( " DynamicNJetsMax = " << m_dynamicNJetsMax );
-    ATH_MSG_DEBUG( " DynamicEtFactor = " << m_dynamicEtFactor );
-  }
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG( " JetInputKey     = " << m_jetInputKey     );
+  ATH_MSG_DEBUG( " JetOutputKey    = " << m_jetOutputKey    );
+  ATH_MSG_DEBUG( " EtaHalfWidth    = " << m_etaHalfWidth    );
+  ATH_MSG_DEBUG( " PhiHalfWidth    = " << m_phiHalfWidth    );
+  ATH_MSG_DEBUG( " MinJetEt        = " << m_minJetEt        );
+  ATH_MSG_DEBUG( " MaxJetEta       = " << m_maxJetEta       );
+  ATH_MSG_DEBUG( " NJetsMax        = " << m_nJetsMax        );
+  ATH_MSG_DEBUG( " DynamicMinJetEt = " << m_dynamicMinJetEt );
+  ATH_MSG_DEBUG( " DynamicNJetsMax = " << m_dynamicNJetsMax );
+  ATH_MSG_DEBUG( " DynamicEtFactor = " << m_dynamicEtFactor );
 
   return HLT::OK;
 }
@@ -87,8 +85,7 @@ TrigSuperRoiBuilderAllTE::~TrigSuperRoiBuilderAllTE(){}
 
 HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) 
-    ATH_MSG_DEBUG( "Running TrigSuperRoiBuilderAllTE::hltExecute" );
+  ATH_MSG_DEBUG( "Running TrigSuperRoiBuilderAllTE::hltExecute" );
 
   beforeExecMonitors().ignore();
 
@@ -113,8 +110,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     return HLT::MISSING_FEATURE; 
   }
 
-  if(msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() );
+  ATH_MSG_DEBUG( " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() );
 
 
   // xAOD conversion const JetCollection* outJets(0);
@@ -132,8 +128,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     return HLT::MISSING_FEATURE;
   }
 
-  if (msgLvl() <= MSG::DEBUG)
-    ATH_MSG_DEBUG( "Found " << jets->size() << " jets, creating corresponding RoIs" );
+  ATH_MSG_DEBUG( "Found " << jets->size() << " jets, creating corresponding RoIs" );
 
   // Create a superROI to add all the jet ROIs to.
   TrigRoiDescriptor* superRoi = new TrigRoiDescriptor();
@@ -159,14 +154,12 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     float jetPhi = jet->phi();
 
     if (jetEt < m_minJetEt) {
-      if (msgLvl() <= MSG::DEBUG)
-	ATH_MSG_DEBUG( "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." );
+      ATH_MSG_DEBUG( "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." );
       continue;
     }
 
     if (fabs(jetEta) > m_maxJetEta) {
-      if (msgLvl() <= MSG::DEBUG)
-	ATH_MSG_DEBUG( "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." );
+      ATH_MSG_DEBUG( "Jet "<< i << " outside the |eta| < " << m_maxJetEta << " requirement; Eta = " << jetEta << "; skipping this jet." );
       continue;
     }
    
@@ -174,22 +167,19 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     if (m_dynamicMinJetEt && i > m_dynamicNJetsMax ) {
       float dynamicMinJetEt = m_minJetEt + ((i - m_dynamicNJetsMax) * m_dynamicEtFactor); 
       if (jetEt < dynamicMinJetEt) {
-	if (msgLvl() <= MSG::DEBUG)
-	  ATH_MSG_DEBUG( "Jet "<< i << " below the dynamic " << dynamicMinJetEt << " GeV ( = " 
-			 << m_minJetEt << " + (" << i << " - " << m_dynamicNJetsMax << ") * " << m_dynamicEtFactor << ")"
-			 << " threshold; Et " << jetEt << "; skipping this jet." );
+	ATH_MSG_DEBUG( "Jet "<< i << " below the dynamic " << dynamicMinJetEt << " GeV ( = " 
+		       << m_minJetEt << " + (" << i << " - " << m_dynamicNJetsMax << ") * " << m_dynamicEtFactor << ")"
+		       << " threshold; Et " << jetEt << "; skipping this jet." );
 	continue;
       }    
     }
 
     if (m_nJetsMax > 0 && i > m_nJetsMax) {
-      if (msgLvl() <= MSG::DEBUG)
-	ATH_MSG_DEBUG( "Maximum allowed jet multiplicity = "<< m_nJetsMax << "; skipping jet " << i << "." );
+      ATH_MSG_DEBUG( "Maximum allowed jet multiplicity = "<< m_nJetsMax << "; skipping jet " << i << "." );
       continue;
     }
 
-    if (msgLvl() <= MSG::DEBUG)
-	ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi );
+    ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi );
 
     // create RoI correspondinding to the jet
     double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
