@@ -15,7 +15,6 @@ Function particleGamma returns the value of gamma factor for Qball particle.
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/MuonSimData.h"
 
-#include "GaudiKernel/AlgFactory.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonSimEvent/MdtHitIdHelper.h"

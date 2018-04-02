@@ -7,7 +7,6 @@
 
 #include <fstream>
 #include <cstring>
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "PathResolver/PathResolver.h"
 #include "DBReplicaSvc.h"

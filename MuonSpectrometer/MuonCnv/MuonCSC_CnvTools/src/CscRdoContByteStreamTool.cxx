@@ -8,7 +8,6 @@
 #include "MuonRDO/CscRawDataContainer.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGate.h"
 #include "CLIDSvc/CLASS_DEF.h"
 

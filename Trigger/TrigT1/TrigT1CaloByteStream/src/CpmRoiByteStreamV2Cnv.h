@@ -35,14 +35,8 @@ class CpmRoiByteStreamV2Tool;
  */
 
 class CpmRoiByteStreamV2Cnv: public Converter {
-
-  friend class CnvFactory<CpmRoiByteStreamV2Cnv>;
-
-protected:
-
-  CpmRoiByteStreamV2Cnv(ISvcLocator* svcloc);
-
 public:
+  CpmRoiByteStreamV2Cnv(ISvcLocator* svcloc);
 
   ~CpmRoiByteStreamV2Cnv();
 

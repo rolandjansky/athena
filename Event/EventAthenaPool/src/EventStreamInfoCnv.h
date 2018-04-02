@@ -27,7 +27,9 @@ class EventStreamInfoCnv : public EventStreamInfoCnvBase {
 friend class CnvFactory<EventStreamInfoCnv>;
 
 protected:
+public:
    EventStreamInfoCnv(ISvcLocator* svcloc) : EventStreamInfoCnvBase(svcloc) {}
+protected:
 
    virtual EventStreamInfo_PERS* createPersistent(EventStreamInfo* transObj);
    virtual EventStreamInfo* createTransient();

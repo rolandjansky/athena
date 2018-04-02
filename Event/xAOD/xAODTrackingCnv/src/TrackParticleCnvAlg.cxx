@@ -424,9 +424,6 @@ namespace xAODMaker {
   {
     // create the xAOD::TrackParticle, the pointer is added to the container in the function
     xAOD::TrackParticle* xp = m_particleCreator->createParticle(tp,&xaod);
-    const ElementLink<VxContainer>& vx = tp.reconstructedVertexLink();
-    if (!vx.isDefault())
-      xp->setVertexLink (ElementLink<xAOD::VertexContainer> (vx.dataID(), vx.index()));
     return xp;
   } // createParticleAndTruth
 

@@ -7,7 +7,6 @@
 // Richard Hawkings, started 25/9/03
 
 #include <algorithm>
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "Identifier/Identifier.h"
 #include "CLHEP/Geometry/Transform3D.h"

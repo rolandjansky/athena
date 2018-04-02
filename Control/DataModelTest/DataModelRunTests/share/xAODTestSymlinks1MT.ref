@@ -49,8 +49,6 @@ ClassIDSvc                                         INFO  getRegistryEntries: rea
 xAODTestAlg                                     WARNING Implicit circular data dependency detected for id  ( 'SG::AuxElement' , 'StoreGateSvc+cinfo2' ) 
 ThreadPoolSvc                                      INFO no thread init tools attached
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                              INFO Waiting for AvalancheSchedulerSvc to activate
-AvalancheSchedulerSvc                              INFO Start checking the actionsQueue
 AvalancheSchedulerSvc                              INFO Found 10 algorithms
 AvalancheSchedulerSvc                              INFO Data Dependencies for Algorithms:
   BeginIncFiringAlg
@@ -94,9 +92,9 @@ AvalancheSchedulerSvc                              INFO Data Dependencies for Al
 AvalancheSchedulerSvc                              INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
    o  ( 'EventInfo' , 'StoreGateSvc+McEventInfo' )     required by Algorithm: 
        * xAODTestAlg
-       * xAODTestWriteSymlinks
        * xAODTestWriteCInfo
        * xAODTestWriteCVec
+       * xAODTestWriteSymlinks
 PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
 PrecedenceSvc                                      INFO PrecedenceSvc initialized successfully
 AvalancheSchedulerSvc                              INFO Concurrency level information:

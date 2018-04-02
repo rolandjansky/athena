@@ -4,7 +4,6 @@
 
 /** Adapted from code by A.Hamilton to check trigger EDM; R.Goncalo 21/11/07 */
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"

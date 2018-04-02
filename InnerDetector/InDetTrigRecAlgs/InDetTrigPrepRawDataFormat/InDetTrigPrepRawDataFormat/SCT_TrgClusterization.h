@@ -124,7 +124,6 @@ namespace InDet {
     double                  m_etaHalfWidth;          //!<  ROI half-width in eta.
     double                  m_phiHalfWidth;          //!<  ROI half-width in phi.
     std::string             m_sctRDOContainerName; 
-    ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrorSvc;
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
 
     //conditions

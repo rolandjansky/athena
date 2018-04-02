@@ -61,15 +61,18 @@ namespace xAOD {
            throw std::runtime_error("Given primary vertex does not fulfil the requirements i.e. does not exist, or is too far away from the beam axis.");
         }
         z0 -= vx->z();
+	z0 += tp->vz();
+	// following calculation is incorrect, since z0 is expressed relative to beam spot, not vertex
+	// the line added immediately above to does it correctly
         // assume that z0 and d0 are expressed wrt. the associated primary vertex;
-        if (tp->vertex()) {
-            if (!MuonTP_TrackingHelpers::checkPVReference(tp,tp->vertex())) {
-                throw std::runtime_error("Cannot compute z0 wrt. different vertex, because the track"
-                                         " parameters are expressed wrt. incompatible one i.e. the"
-                                         " associated vertex is too far away from the beam axis.");
-            }
-	    z0+=tp->vertex()->z();
-        }
+       	//if (tp->vertex()) {
+        //    if (!MuonTP_TrackingHelpers::checkPVReference(tp,tp->vertex())) {
+        //        throw std::runtime_error("Cannot compute z0 wrt. different vertex, because the track"
+        //                                 " parameters are expressed wrt. incompatible one i.e. the"
+        //                                 " associated vertex is too far away from the beam axis.");
+        //    }
+	//    z0+=tp->vertex()->z();
+        //}
     }
     // elements in definingParametersCovMatrixVec should be : sigma_z0^2, sigma_z0_z0, sigma_z0^2
     double sigma_z0 = tp->definingParametersCovMatrixVec().at(2);

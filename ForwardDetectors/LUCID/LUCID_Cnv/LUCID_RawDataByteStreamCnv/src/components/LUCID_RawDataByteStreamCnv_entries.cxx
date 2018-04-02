@@ -5,5 +5,5 @@ DECLARE_COMPONENT( LUCID_ByteStreamRawDataCnv )
 DECLARE_COMPONENT( LUCID_DigitRawDataCnv )
 
 #include "LUCID_RawDataByteStreamCnv/LUCID_DigitByteStreamCnv.h"
-DECLARE_CONVERTER_FACTORY( LUCID_DigitByteStreamCnv )
+DECLARE_CONVERTER( LUCID_DigitByteStreamCnv )
 

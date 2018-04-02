@@ -3,8 +3,7 @@
 */
 
 #include "GeneratorFilters/TtHtoVVDecayFilter.h"
-#include "GaudiKernel/AlgFactory.h"
-
+
 
 TtHtoVVDecayFilter::TtHtoVVDecayFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name, pSvcLocator)

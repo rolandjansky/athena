@@ -23,7 +23,9 @@ class xAODCompositeParticleAuxContainerCnv : public xAODCompositeParticleAuxCont
  protected:
 
   /** The constructor */
+public:
   xAODCompositeParticleAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
   /** Create persistent container */
   xAOD::CompositeParticleAuxContainer* createPersistent( xAOD::CompositeParticleAuxContainer* trans );

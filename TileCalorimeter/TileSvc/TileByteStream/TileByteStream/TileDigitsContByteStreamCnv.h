@@ -52,12 +52,9 @@ class TileDigitsContByteStreamCnv
   , public IIncidentListener
   , public ::AthMessaging
 {
-    friend class CnvFactory<TileDigitsContByteStreamCnv>;
-
-  protected:
-    TileDigitsContByteStreamCnv(ISvcLocator* svcloc);
   
   public:
+    TileDigitsContByteStreamCnv(ISvcLocator* svcloc);
   
     typedef TileDigitsContByteStreamTool  BYTESTREAMTOOL; 
   

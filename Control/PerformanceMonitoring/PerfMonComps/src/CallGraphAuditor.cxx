@@ -13,7 +13,6 @@
 // STL includes
 
 // FrameWork includes
-#include "GaudiKernel/AudFactory.h"
 #include "GaudiKernel/INamedInterface.h"
 
 // PerfMonKernel includes

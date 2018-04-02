@@ -13,7 +13,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
            
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
  
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -863,6 +862,13 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
     std::list<muctpi_rdo> muctpi_rdo_roi_list;
     muctpi_rdo_roi_list.clear();
     SG::ReadHandle<MuCTPI_RDO> muctpiRDO(m_muCTPI_RDO_key);
+    if (!muctpiRDO.isValid()) {
+      // FIXME: q222 was building a configuration in which this monitoring
+      //        tool is enabled without the MuCTPI_RDO being available.
+      //        Remove this once that is fixed.
+      ATH_MSG_WARNING ( "Cannot retrieve the MuCTPI" );
+      return StatusCode::SUCCESS;
+    }
         
     // Create some dummy LVL1 muon thresholds:
     std::vector< TrigConf::TriggerThreshold* > dummy_thresholds;

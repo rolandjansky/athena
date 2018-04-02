@@ -4,7 +4,6 @@
 
 #include "LArCafJobs/LArShapeDumper.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "LArRawEvent/LArDigit.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"

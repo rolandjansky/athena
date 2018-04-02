@@ -3,11 +3,10 @@ import logging
 msg = logging.getLogger('MetaReader')
 
 import re
-import ast
 import sys
 
-
 from PyCool import coral
+
 
 def read_metadata(filenames, file_type=None, mode='lite'):
     """
@@ -22,9 +21,16 @@ def read_metadata(filenames, file_type=None, mode='lite'):
     # Check if the input is a file or a list of files.
     if isinstance(filenames, basestring):
         filenames = [filenames]
+
+    # Check if fil_type is an allowed value
+    if file_type not in ('POOL', 'BS'):
+        raise NameError('Allowed values for \'file_type\' parameter are: \'POOL\' or \'BS\'')
+    else:
+        msg.info('Forced file_type: {0}'.format(file_type))
+
     # Check the value of mode parameter
-    if mode not in ['tiny', 'lite', 'full']:
-        raise NameError('Allowed values for mode are: tiny, lite or full')
+    if mode not in ('tiny', 'lite', 'full'):
+        raise NameError('Allowed values for \'mode\' parameter are: \'tiny\', \'lite\' or \'full\'')
     msg.info('Current mode used: {0}'.format(mode))
     # create the storage object for metadata.
     metaDict = {}
@@ -38,18 +44,10 @@ def read_metadata(filenames, file_type=None, mode='lite'):
 
                 if magic_file == 'root':
                     current_file_type = 'POOL'
-                    # check if ROOT module is not imported previously.
-                    if 'ROOT' not in sys.modules:
-                        global ROOT
-                        import ROOT
-
                 else:
                     current_file_type = 'BS'
-                    # check if 'eformat' module is not imported previously.
-                    if 'eformat' not in sys.modules:
-                        global eformat
-                        import eformat
-
+        else:
+            current_file_type = file_type
 
         metaDict[filename] = {
             'file_size': os.path.getsize(filename),
@@ -58,6 +56,7 @@ def read_metadata(filenames, file_type=None, mode='lite'):
         # ----------------------------------------------------------------------------------------------------------------#
         # retrieves metadata from POOL files.
         if current_file_type == 'POOL':
+            import ROOT
             from CLIDComps.clidGenerator import clidGenerator
             global clidgen
             clidgen = clidGenerator(db = None)
@@ -153,6 +152,8 @@ def read_metadata(filenames, file_type=None, mode='lite'):
         # ----------------------------------------------------------------------------------------------------------------#
         # retrieves metadata from bytestream (BS) files (RAW, DRAW)
         elif current_file_type == 'BS':
+            import eformat
+
             # store the file_type of the input filename
             metaDict[filename]['file_type'] = 'bs'
 
@@ -207,31 +208,56 @@ def read_metadata(filenames, file_type=None, mode='lite'):
                         k, v = md.split('=')
                         bs_metadata[k] = v
 
-                for key_name, fn_name in (
-                        ('Stream', 'stream'),
-                        ('Project', 'projectTag'),
-                        ('LumiBlock', 'lumiblockNumber'),
-                        ('run_number', 'runNumber'),
-                    ):
-                        if key_name in bs_metadata:
-                            # no need: already in bs metadata dict
-                            continue
-                        if hasattr(data_reader, fn_name):
-                            bs_metadata[key_name] = getattr(data_reader, fn_name)()
+
+                bs_metadata['runNumber'] = getattr(data_reader, 'runNumber')()
+                bs_metadata['lumiblockNumber'] = getattr(data_reader, 'lumiblockNumber')()
+                bs_metadata['projectTag'] = getattr(data_reader, 'projectTag')()
+                bs_metadata['stream'] = getattr(data_reader, 'stream')()
+                bs_metadata['beamType'] = getattr(data_reader, 'beamType')()
+                bs_metadata['beamEnergy'] = getattr(data_reader, 'beamEnergy')()
 
                 metaDict[filename]['evt_type'] = bs_metadata.get('evt_type', [])
                 metaDict[filename]['geometry'] = bs_metadata.get('geometry', None)
                 metaDict[filename]['conditions_tag'] = bs_metadata.get('conditions_tag', None)
-                metaDict[filename].update(bs_metadata)
+
+                # Promote up one level
+                metaDict[filename]['run_number'] = [bs_metadata.get('runNumber', None)]
+                metaDict[filename]['lumi_block'] = [bs_metadata.get('lumiblockNumber', None)]
+                metaDict[filename]['beam_type'] = [bs_metadata.get('beamType', None)]
+                metaDict[filename]['beam_energy'] = [bs_metadata.get('beamEnergy', None)]
 
                 if not data_reader.good():
                     # event-less file...
                     metaDict[filename]['run_number'].append(bs_metadata.get('run_number', 0))
                     metaDict[filename]['lumi_block'].append(bs_metadata.get('LumiBlock', 0))
 
-                if mode == 'lite':
-                    print('This is the lite version for BS files')
-                    pass
+                ievt = iter(bs)
+                evt = ievt.next()
+                evt.check()  # may raise a RuntimeError
+                stream_tags = [dict(stream_type = tag.type, stream_name = tag.name, obeys_lbk = bool(tag.obeys_lumiblock)) for tag in evt.stream_tag()]
+                metaDict[filename]['stream_tags'] = stream_tags
+                metaDict[filename]['evt_number'] = [evt.global_id()]
+                metaDict[filename]['run_type'] = [eformat.helper.run_type2string(evt.run_type())]
+
+
+                # fix for ATEAM-122
+                if len(bs_metadata.get('evt_type', '')) == 0:  # see: ATMETADATA-6
+                    evt_type = ['IS_DATA', 'IS_ATLAS']
+                    if bs_metadata.get('stream', '').startswith('physics_'):
+                        evt_type.append('IS_PHYSICS')
+                    elif bs_metadata.get('stream', '').startswith('calibration_'):
+                        evt_type.append('IS_CALIBRATION')
+                    elif bs_metadata.get('projectTag', '').endswith('_calib'):
+                        evt_type.append('IS_CALIBRATION')
+                    else:
+                        evt_type.append('Unknown')
+
+                    metaDict[filename]['evt_type'] = evt_type
+
+
+                if mode == 'full':
+                    metaDict[filename]['bs_metadata'] = bs_metadata
+
 
         # ----------------------------------------------------------------------------------------------------------------#
         # Thow an error if the user provide other file types
@@ -318,6 +344,8 @@ def __read_guid(filename):
     :param filename: the input file
     :return: the guid value
     """
+    import ROOT
+
     root_file = ROOT.TFile(filename)
     params = root_file.Get('##Params')
 

@@ -32,7 +32,6 @@
 #include <map>
 #include <algorithm>
 
-using namespace std ;
 
 class TStagerInfo;
 
@@ -49,7 +48,7 @@ class TStageManager : public TObject
   void releaseFile(const char* fname);
   void releaseAll();
   const char* getFile(const char* fname);
-  const string getTmpFilename(const char* filename);
+  const std::string getTmpFilename(const char* filename);
   TStageFileInfo::Status getStatusOf(const char* filename, bool update=true);
 
   void setBaseTmpdir(const char* baseTmpdir);
@@ -93,18 +92,18 @@ class TStageManager : public TObject
 
   void stageNext(bool forceStage=false);
   void updateStatus();
-  void trim(string& input);
-  void removePrefixOf(string& filename);
-  void removeFile(string filename);
-  void fixRootInPrefix(string& tmpname);
+  void trim(std::string& input);
+  void removePrefixOf(std::string& filename);
+  void removeFile(std::string filename);
+  void fixRootInPrefix(std::string& tmpname);
 
   void submitStageMonitor();
   bool _submittedStageMonitor;
 
   bool fileExists(const char* fileName);
 
-  list< string > _toBeStagedList;
-  map<string,TStageFileInfo> _stageMap;
+  std::list< std::string > _toBeStagedList;
+  std::map<std::string,TStageFileInfo> _stageMap;
 
   static TStagerInfo _stagerInfo;
 

@@ -31,7 +31,9 @@ class RecoTimingObjCnv: public T_AthenaPoolCustomCnv< RecoTimingObj, RecoTimingO
   
   /** Create the converter from the service locator
    */
+public:
   RecoTimingObjCnv(ISvcLocator* svcloc);
+protected:
 
   /** Build the persistent representation from the transient one.
    */

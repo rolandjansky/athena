@@ -220,104 +220,104 @@ typedef JepReadByteStreamV1V2Cnv<JEMEtSumsCollection>  JepReadESByteStreamV1V2Cn
 // ============================================================================
 // RUN2
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiByteStreamV2Cnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiReadCRByteStreamV2CnvT )
+DECLARE_CONVERTER( LVL1BS::JepRoiByteStreamV2Cnv )
+DECLARE_CONVERTER( LVL1BS::JepRoiReadCRByteStreamV2CnvT )
 
 // ============================================================================
 // RUN1
 // ============================================================================
 
-DECLARE_CONVERTER_FACTORY( LVL1BS::CpByteStreamV1Cnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CpmRoiByteStreamV1Cnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CpReadCHByteStreamV1CnvT )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CpReadCCByteStreamV1CnvT )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepByteStreamV1Cnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiByteStreamV1Cnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadCJByteStreamV1CnvT )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadCEByteStreamV1CnvT )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadJHByteStreamV1CnvT )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiReadJRByteStreamV1CnvT )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepRoiReadCRByteStreamV1CnvT )
+DECLARE_CONVERTER( LVL1BS::CpByteStreamV1Cnv )
+DECLARE_CONVERTER( LVL1BS::CpmRoiByteStreamV1Cnv )
+DECLARE_CONVERTER( LVL1BS::CpReadCHByteStreamV1CnvT )
+DECLARE_CONVERTER( LVL1BS::CpReadCCByteStreamV1CnvT )
+DECLARE_CONVERTER( LVL1BS::JepByteStreamV1Cnv )
+DECLARE_CONVERTER( LVL1BS::JepRoiByteStreamV1Cnv )
+DECLARE_CONVERTER( LVL1BS::JepReadCJByteStreamV1CnvT )
+DECLARE_CONVERTER( LVL1BS::JepReadCEByteStreamV1CnvT )
+DECLARE_CONVERTER( LVL1BS::JepReadJHByteStreamV1CnvT )
+DECLARE_CONVERTER( LVL1BS::JepRoiReadJRByteStreamV1CnvT )
+DECLARE_CONVERTER( LVL1BS::JepRoiReadCRByteStreamV1CnvT )
 
 // ============================================================================
 // RUN1 & RUN2
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::CpReadByteStreamV1V2Cnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadJEByteStreamV1V2CnvT )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JepReadESByteStreamV1V2CnvT )
-DECLARE_CONVERTER_FACTORY( LVL1BS::RodHeaderByteStreamCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::L1CaloErrorByteStreamCnv )
+DECLARE_CONVERTER( LVL1BS::CpReadByteStreamV1V2Cnv )
+DECLARE_CONVERTER( LVL1BS::JepReadJEByteStreamV1V2CnvT )
+DECLARE_CONVERTER( LVL1BS::JepReadESByteStreamV1V2CnvT )
+DECLARE_CONVERTER( LVL1BS::RodHeaderByteStreamCnv )
+DECLARE_CONVERTER( LVL1BS::L1CaloErrorByteStreamCnv )
 // ============================================================================
 // PPM
 // ============================================================================
 DECLARE_COMPONENT( LVL1BS::PpmByteStreamV1Tool )
 DECLARE_COMPONENT( LVL1BS::PpmByteStreamReadV1V2Tool )
 
-DECLARE_CONVERTER_FACTORY( LVL1BS::PpmByteStreamV1Cnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::PpmByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::PpmByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::PpmByteStreamV1Cnv )
+DECLARE_CONVERTER( LVL1BS::PpmByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::PpmByteStreamAuxCnv )
 // ============================================================================
 // CPM
 // ============================================================================
 DECLARE_COMPONENT( LVL1BS::CpByteStreamV2Tool )
 
-DECLARE_CONVERTER_FACTORY( LVL1BS::CpmTowerByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CpmTowerByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::CpmTowerByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::CpmTowerByteStreamAuxCnv )
 // ============================================================================
 // CMXCPTOB
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxCpTobByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxCpTobByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::CmxCpTobByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::CmxCpTobByteStreamAuxCnv )
 // ============================================================================
 // CMXCPHITS
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxCpHitsByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxCpHitsByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::CmxCpHitsByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::CmxCpHitsByteStreamAuxCnv )
 // ============================================================================
 // CMXJETTOB
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxJetTobByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxJetTobByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::CmxJetTobByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::CmxJetTobByteStreamAuxCnv )
 // ============================================================================
 // CMXJETHITS
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxJetHitsByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxJetHitsByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::CmxJetHitsByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::CmxJetHitsByteStreamAuxCnv )
 // ============================================================================
 // CMXETSUMS
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxEtSumsByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxEtSumsByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::CmxEtSumsByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::CmxEtSumsByteStreamAuxCnv )
 // ============================================================================
 // JEMETSUMS
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::JemEtSumsByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JemEtSumsByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::JemEtSumsByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::JemEtSumsByteStreamAuxCnv )
 // ============================================================================
 // CPMTOBROI
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::CpmTobRoiByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CpmTobRoiByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::CpmTobRoiByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::CpmTobRoiByteStreamAuxCnv )
 // ============================================================================
 // JEMTOBROI
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::JemTobRoiByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JemTobRoiByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::JemTobRoiByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::JemTobRoiByteStreamAuxCnv )
 // ============================================================================
 // JETELEMENT
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::JetElementByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::JetElementByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::JetElementByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::JetElementByteStreamAuxCnv )
 // ============================================================================
 // CMXROI
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxRoIByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::CmxRoIByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::CmxRoIByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::CmxRoIByteStreamAuxCnv )
 // ============================================================================
 // RODHEADER
 // ============================================================================
-DECLARE_CONVERTER_FACTORY( LVL1BS::RodHeaderByteStreamxAODCnv )
-DECLARE_CONVERTER_FACTORY( LVL1BS::RodHeaderByteStreamAuxCnv )
+DECLARE_CONVERTER( LVL1BS::RodHeaderByteStreamxAODCnv )
+DECLARE_CONVERTER( LVL1BS::RodHeaderByteStreamAuxCnv )
 // ============================================================================
 
 DECLARE_COMPONENT( LVL1BS::CpmRoiByteStreamV2Tool )

@@ -63,14 +63,8 @@
 #include "TrkEventTPCnv/TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack_p1.h"
 #include "TrkEventTPCnv/TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack_p1.h"
 
-//-----------------------------------------------------------------------------
-// TrkPrepRawData
-//-----------------------------------------------------------------------------
-// #include "TrkEventTPCnv/TrkPrepRawData/PrepRawData_p1.h"
-
 
 #include "AthenaPoolUtilities/TPCnvTokenList_p1.h"
-//#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3D_p1.h"
 
 namespace Trk
 {
@@ -111,9 +105,6 @@ namespace Trk
      std::vector< Trk::LocalDirection_p1 >              m_localDirections;
      std::vector< Trk::LocalPosition_p1 >               m_localPositions;
      std::vector< Trk::LocalParameters_p1 >             m_localParameters;
-
-     //std::vector< HepPoint3D_p1 >			m_points;     
-
    };
 }
 

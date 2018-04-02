@@ -23,9 +23,10 @@ typedef  InDetBSErrContainer_p1  InDetBSErrContainer_PERS;
 typedef  T_AthenaPoolCustomCnv<InDetBSErrContainer, InDetBSErrContainer_PERS >   InDetBSErrContainerCnvBase;
 
 class InDetBSErrContainerCnv : public InDetBSErrContainerCnvBase {
-friend class CnvFactory<InDetBSErrContainerCnv >;
-protected:
+public:
   InDetBSErrContainerCnv (ISvcLocator* svcloc) : InDetBSErrContainerCnvBase(svcloc) {}
+  
+protected:
   virtual InDetBSErrContainer_PERS*   createPersistent (InDetBSErrContainer* transCont);
   virtual InDetBSErrContainer*       createTransient ();
 

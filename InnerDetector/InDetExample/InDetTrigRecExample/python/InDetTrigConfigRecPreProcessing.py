@@ -161,7 +161,6 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       self.clusteringTool = InDetTrigSCT_ClusteringTool
       self.SCT_RDOContainerName=EF_SCTRDOKey
       self.conditionsSummarySvc="SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
-      self.bytestreamErrorSvc=InDetTrigBSErrorSvc
 
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]

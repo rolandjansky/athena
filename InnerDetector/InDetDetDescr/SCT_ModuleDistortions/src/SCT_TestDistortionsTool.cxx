@@ -5,7 +5,6 @@
 // Test SCT_DistortionsTool.cxx
 
 //Gaudi
-#include "GaudiKernel/AlgFactory.h"
 
 //Athena
 #include "InDetIdentifier/SCT_ID.h"

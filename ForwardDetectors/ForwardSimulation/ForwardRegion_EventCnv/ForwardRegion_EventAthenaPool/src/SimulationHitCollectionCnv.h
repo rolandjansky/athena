@@ -18,7 +18,9 @@ class SimulationHitCollectionCnv : public T_AthenaPoolCustomCnv <SimulationHitCo
 	friend class CnvFactory<SimulationHitCollectionCnv>;
 
 protected:
+public:
 	SimulationHitCollectionCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <SimulationHitCollection, SimulationHitCollection_PERS >(svcloc) {}
+protected:
 
 	SimulationHitCollection_PERS* createPersistent (SimulationHitCollection *transCont);
 	SimulationHitCollection* createTransient ();

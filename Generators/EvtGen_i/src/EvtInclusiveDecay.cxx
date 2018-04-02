@@ -35,7 +35,6 @@
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"

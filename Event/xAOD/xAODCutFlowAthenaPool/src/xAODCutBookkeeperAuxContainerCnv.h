@@ -17,14 +17,12 @@ typedef T_AthenaPoolCustomCnv<xAOD::CutBookkeeperAuxContainer,
 
 class xAODCutBookkeeperAuxContainerCnv : public xAODCutBookkeeperAuxContainerCnvBase {
 
-  /** Other example classes do this */
-  friend class CnvFactory < xAODCutBookkeeperAuxContainerCnv >;
 
- protected:
-
+public:
   /** The constructor */
   xAODCutBookkeeperAuxContainerCnv( ISvcLocator* svcLoc );
 
+ protected:
   /** Create persistent container */
   xAOD::CutBookkeeperAuxContainer* createPersistent( xAOD::CutBookkeeperAuxContainer* trans );
 

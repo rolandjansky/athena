@@ -30,13 +30,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigRNNOutputAuxContainer,
 class xAODTrigRNNOutputAuxContainerCnv :
    public xAODTrigRNNOutputAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODTrigRNNOutputAuxContainerCnv >;
+public:
+   /// Converter constructor
+   xAODTrigRNNOutputAuxContainerCnv( ISvcLocator* svcLoc );
 
 protected:
-   /// Converter constructor
-  xAODTrigRNNOutputAuxContainerCnv( ISvcLocator* svcLoc );
-
    /// Function preparing the container to be written out
    virtual xAOD::TrigRNNOutputAuxContainer*
    createPersistent( xAOD::TrigRNNOutputAuxContainer* trans );

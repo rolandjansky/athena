@@ -18,8 +18,6 @@
 
 #include "RecTPCnv/CaloEnergyCnv_p2.h"
 
-#include <iostream>
-
 class MuonCaloEnergyContainerCnv_tlp1:
     public AthenaPoolTopLevelTPConverter<MuonCaloEnergyContainerCnv_p1, MuonCaloEnergyContainer_tlp1>
 {

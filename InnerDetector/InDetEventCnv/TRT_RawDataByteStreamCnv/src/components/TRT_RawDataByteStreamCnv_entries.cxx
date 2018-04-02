@@ -1,5 +1,5 @@
 #include "../TRTRawContByteStreamCnv.h"
-DECLARE_CONVERTER_FACTORY( TRTRawContByteStreamCnv )
+DECLARE_CONVERTER( TRTRawContByteStreamCnv )
 
 #include "../TRTRawContByteStreamTool.h"
 DECLARE_COMPONENT( TRTRawContByteStreamTool )  

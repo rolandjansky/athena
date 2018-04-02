@@ -27,7 +27,9 @@ class TBLArDigitContainerCnv : public TBLArDigitContainerCnvBase
 {
   friend class CnvFactory<TBLArDigitContainerCnv>;
  protected:
+public:
   TBLArDigitContainerCnv(ISvcLocator*);
+protected:
   virtual TBLArDigitContainer* createTransient();
   virtual TBLArDigitContainerPERS* createPersistent(TBLArDigitContainer*);
  private:

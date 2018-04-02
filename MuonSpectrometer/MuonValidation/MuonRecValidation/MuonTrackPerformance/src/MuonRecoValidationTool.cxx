@@ -63,7 +63,8 @@ namespace Muon {
     declareProperty("Extrapolator",m_extrapolator );    
     declareProperty("MatchTool",m_matchingTool );    
     declareProperty("MuonHitTimingTool",m_hitTimingTool );    
-    declareProperty("IncidentSvc",m_incidentSvc );    
+    declareProperty("IncidentSvc",m_incidentSvc );
+    declareProperty("isMC",m_isMC=false);
   }
     
   MuonRecoValidationTool::~MuonRecoValidationTool() {
@@ -76,7 +77,12 @@ namespace Muon {
     ATH_CHECK(m_edmHelper.retrieve());
     ATH_CHECK(m_segmentHitSummaryTool.retrieve());
     ATH_CHECK(m_hitSummaryTool.retrieve());
-    ATH_CHECK(m_truthSummaryTool.retrieve());
+    if(m_isMC){
+      ATH_CHECK(m_truthSummaryTool.retrieve());
+    }
+    else{
+      m_truthSummaryTool.disable();
+    }
     ATH_CHECK(m_extrapolator.retrieve());
     ATH_CHECK(m_matchingTool.retrieve());
     ATH_CHECK(m_hitTimingTool.retrieve());
@@ -164,6 +170,8 @@ namespace Muon {
   
   int MuonRecoValidationTool::getBarcode( const std::set<Identifier>& ids ) const {
 
+    if(!m_isMC) return -1;
+
     // count how often a barcode occurs 
     std::map<int,int> counters;
     for( std::set<Identifier>::const_iterator it=ids.begin();it!=ids.end();++it ){
@@ -211,8 +219,11 @@ namespace Muon {
                               stauHit.propagationTime, stauHit.e, tof, 0., stauHit.shift, 1000 * m_candidateCounter);
       
       // barcode + pdg
-      int barcode = m_truthSummaryTool->getBarcode(id);
-      int pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+      int barcode=-1,pdg=0;
+      if(m_isMC){
+	barcode = m_truthSummaryTool->getBarcode(id);
+	pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+      }
       m_ntuple.timeBlock.truth.fill(pdg,barcode);
     }    
     ++m_candidateCounter;
@@ -232,8 +243,11 @@ namespace Muon {
     m_ntuple.timeBlock.fill(2,m_idHelper->gasGapId(id).get_identifier32().get_compact(),gpos.perp(),gpos.z(),time,errorTime);
 
     // barcode + pdg
-    int barcode = m_truthSummaryTool->getBarcode(id);
-    int pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+    int barcode=-1,pdg=0;
+    if(m_isMC){
+      barcode = m_truthSummaryTool->getBarcode(id);
+      pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+    }
     m_ntuple.timeBlock.truth.fill(pdg,barcode);
     
     return true;
@@ -261,7 +275,8 @@ namespace Muon {
       std::vector<const MuonClusterOnTrack*> clusters;
       extract(*seg,ids,clusters);
       int barcode = getBarcode(ids);
-      int pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+      int pdg=0;
+      if(m_isMC) pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
       m_ntuple.timeBlock.truth.fill(pdg,barcode);
       
       return true;
@@ -277,8 +292,11 @@ namespace Muon {
 
 
       // barcode + pdg
-      int barcode = m_truthSummaryTool->getBarcode(id);
-      int pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+      int barcode=-1,pdg=0;
+      if(m_isMC){
+	barcode = m_truthSummaryTool->getBarcode(id);
+	pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+      }
       m_ntuple.timeBlock.truth.fill(pdg,barcode);
       
       bool measphi = m_idHelper->measuresPhi(id);
@@ -352,7 +370,8 @@ namespace Muon {
 
     // barcode + pdg
     int barcode = getBarcode(ids);
-    int pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+    int pdg=0;
+    if(m_isMC) pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
     m_ntuple.segmentBlock.truth.fill(pdg,barcode);
 
     m_ntuple.segmentBlock.track.fill(getIndex(intersection));
@@ -425,8 +444,11 @@ namespace Muon {
         ids.insert((*hit)->prd->identify());
       }
     }
-    int barcode = getBarcode(ids);
-    int pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+    int barcode=-1,pdg=0;
+    if(m_isMC){
+      barcode = getBarcode(ids);
+      pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+    }
     m_ntuple.houghBlock.truth.fill(pdg,barcode);
 
     ATH_MSG_DEBUG(" Adding Hough maximum to ntuple ");
@@ -441,8 +463,11 @@ namespace Muon {
     m_ntuple.hitBlock.id.fill(m_idHelper->sector(id),m_idHelper->chamberIndex(id));
     m_ntuple.hitBlock.track.fill(getIndex(intersection));
     
-    int barcode = m_truthSummaryTool->getBarcode(id);
-    int pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+    int barcode=-1,pdg=0;
+    if(m_isMC){
+      barcode = m_truthSummaryTool->getBarcode(id);
+      pdg = barcode != -1 ? m_truthSummaryTool->getPdgId(barcode) : 0;
+    }
     m_ntuple.hitBlock.truth.fill(pdg,barcode);
 
     float sign = expos < 0 ? -1. : 1.;

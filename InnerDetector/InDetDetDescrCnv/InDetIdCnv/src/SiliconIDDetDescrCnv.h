@@ -35,7 +35,6 @@ class SiliconID;
  **/
 
 class SiliconIDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<SiliconIDDetDescrCnv>;
 
 public:
 
@@ -48,7 +47,6 @@ public:
     static long storageType();
     static const CLID& classID();
 
-protected:
     SiliconIDDetDescrCnv(ISvcLocator* svcloc);
 
 private:

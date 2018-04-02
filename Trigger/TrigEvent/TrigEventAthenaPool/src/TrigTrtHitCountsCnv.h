@@ -30,7 +30,9 @@ class TrigTrtHitCountsCnv : public TrigTrtHitCountsCnvBase {
   friend class CnvFactory<TrigTrtHitCountsCnv>;
   
  protected:
+public:
   TrigTrtHitCountsCnv(ISvcLocator* svcloc);
+protected:
   ~TrigTrtHitCountsCnv();
   
   TrigTrtHitCounts_PERS* createPersistent(TrigTrtHitCounts* transObj);

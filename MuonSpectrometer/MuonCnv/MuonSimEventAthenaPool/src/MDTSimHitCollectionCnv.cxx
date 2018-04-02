@@ -5,7 +5,6 @@
 #include "MDTSimHitCollectionCnv.h"
 
 // Gaudi
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
 

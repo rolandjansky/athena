@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IRegionSelector
                           DetectorDescription/Identifier
                           Event/ByteStreamData
+                          InnerDetector/InDetConditions/InDetByteStreamErrors
                           InnerDetector/InDetConditions/PixelConditionsServices
                           InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
@@ -30,7 +31,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           Event/ByteStreamCnvSvcBase
                           InnerDetector/InDetConditions/InDetBeamSpotService
-                          InnerDetector/InDetConditions/SCT_ConditionsData
                           InnerDetector/InDetEventCnv/SCT_RawDataByteStreamCnv
                           Tracking/TrkEvent/TrkSpacePoint
                           Trigger/TrigTools/TrigInDetToolInterfaces
@@ -44,7 +44,7 @@ atlas_add_component( TrigOnlineSpacePointTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector Identifier ByteStreamData ByteStreamData_test GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib SCT_ConditionsData TrkSpacePoint TrigTimeAlgsLib PixelCablingLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps IRegionSelector InDetByteStreamErrors ByteStreamData ByteStreamData_test GaudiKernel InDetByteStreamErrors InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetRawData InDetPrepRawData SiClusterizationToolLib TrkPrepRawData TrigInDetEvent TrigSteeringEvent AtlasDetDescr ByteStreamCnvSvcBaseLib SCT_ConditionsData TrkSpacePoint TrigTimeAlgsLib PixelCablingLib )
 
 # Install files from the package:
 atlas_install_headers( TrigOnlineSpacePointTool )

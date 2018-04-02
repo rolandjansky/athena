@@ -24,7 +24,7 @@ typedef T_AthenaPoolCustomCnv<CPMHitsCollection, CPMHitsCollection_PERS> CPMHits
 class CPMHitsCollectionCnv: public CPMHitsCollectionCnvBase {
 friend class CnvFactory<CPMHitsCollectionCnv>;
 
-protected:
+public:
 
   CPMHitsCollectionCnv (ISvcLocator* svcloc) :
     CPMHitsCollectionCnvBase(svcloc),
@@ -32,6 +32,8 @@ protected:
     m_log( m_msgSvc, "CPMHitsCollectionCnv" )
      {}
   
+protected:
+
   ~CPMHitsCollectionCnv() {}
   
   virtual CPMHitsCollection_PERS*   createPersistent (CPMHitsCollection* transCont);

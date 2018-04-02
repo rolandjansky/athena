@@ -34,7 +34,9 @@ class TrigRNNOutputCnv  : public T_AthenaPoolCustomCnv<TrigRNNOutput, TrigRNNOut
 
  protected:
   
+public:
   TrigRNNOutputCnv(ISvcLocator* svcloc);
+protected:
   ~TrigRNNOutputCnv();
 
   TrigRNNOutput_PERS*  createPersistent(TrigRNNOutput* transCont);

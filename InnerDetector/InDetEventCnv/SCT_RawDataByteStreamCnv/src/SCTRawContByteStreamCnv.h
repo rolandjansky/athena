@@ -32,15 +32,11 @@ extern long ByteStream_StorageType;
  * to do the actual converting. */
 
 class SCTRawContByteStreamCnv: public Converter {
-  friend class CnvFactory<SCTRawContByteStreamCnv>;
-  
   ~SCTRawContByteStreamCnv();
 
- protected:
-
+ public:
   SCTRawContByteStreamCnv(ISvcLocator* svcloc);
   
- public:
   typedef SCT_RDO_Container SCTRawContainer; 
 
   /** Storage type and class ID */

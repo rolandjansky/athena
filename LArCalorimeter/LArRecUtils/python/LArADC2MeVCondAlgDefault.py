@@ -1,5 +1,5 @@
 from AthenaCommon.Include import Include, IncludeError, include
-include("LArConditionsCommon/LArConditionsCommon_MT_jobOptions.py")
+include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 include("LArRecUtils/LArOnOffMappingAlg.py")
 from LArRecUtils.LArRecUtilsConf import LArADC2MeVCondAlg 
 from AthenaCommon.AlgSequence import AthSequencer

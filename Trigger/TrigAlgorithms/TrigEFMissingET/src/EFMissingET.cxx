@@ -588,8 +588,8 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
             if (msgLvl(MSG::DEBUG) ) {
                ATH_MSG_DEBUG( "size of track container " << m_tracks->size() );
                for (const auto& itrack : *m_tracks) 
-                 ATH_MSG_DEBUG( " Track pt, eta, phi, vertex, z0, vz: " << itrack->pt()<<", "<< itrack->eta()<<", "<< itrack->phi() << ", "
-                                << itrack->vertex() << ", " <<  fabs(itrack->z0()) << ", " << itrack->vz() );
+                 ATH_MSG_DEBUG( " Track pt, eta, phi, z0, vz: " << itrack->pt()<<", "<< itrack->eta()<<", "<< itrack->phi() << ", "
+                                <<  fabs(itrack->z0()) << ", " << itrack->vz() );
             }
          }
 

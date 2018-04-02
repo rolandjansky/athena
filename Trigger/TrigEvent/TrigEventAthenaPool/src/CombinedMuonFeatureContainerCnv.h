@@ -21,7 +21,9 @@ class CombinedMuonFeatureContainerCnv : public CombinedMuonFeatureContainerCnvBa
 
  protected:
 
+public:
   CombinedMuonFeatureContainerCnv( ISvcLocator *svcloc ): CombinedMuonFeatureContainerCnvBase(svcloc){}
+protected:
 
   virtual CombinedMuonFeatureContainer_PERS *createPersistent( CombinedMuonFeatureContainer *transObj);
   virtual CombinedMuonFeatureContainer      *createTransient();

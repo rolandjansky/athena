@@ -4,7 +4,6 @@
 
 #include "TrigL2MuonSA/TgcDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"

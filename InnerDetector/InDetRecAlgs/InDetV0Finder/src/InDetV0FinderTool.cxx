@@ -206,6 +206,9 @@ StatusCode InDetV0FinderTool::initialize()
   ATH_CHECK( m_vertexEstimator.retrieve() );
   msg(MSG::INFO) << "Retrieved tool " << m_vertexEstimator << endmsg;
 
+  // Initialize vertex container key
+  ATH_CHECK( m_vertexKey.initialize() );
+
   const HepPDT::ParticleData* pd_pi = m_particleDataTable->particle(PDG::pi_plus);
   const HepPDT::ParticleData* pd_p  = m_particleDataTable->particle(PDG::p_plus);
   const HepPDT::ParticleData* pd_e  = m_particleDataTable->particle(PDG::e_minus);
@@ -320,6 +323,12 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 
   if (posTracks.size() > 0 && negTracks.size() > 0)
   {
+  SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+  if (!vertices.isValid())
+  {
+    ATH_MSG_WARNING("Primary vertex container with key " << m_vertexKey.key() << " not found");
+    return StatusCode::SUCCESS;
+  }
 
   std::vector<const xAOD::TrackParticle*>::const_iterator tpIt1;
   std::vector<const xAOD::TrackParticle*>::const_iterator tpIt2;
@@ -332,6 +341,23 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
     if ( TP1->summaryValue( temp1 , xAOD::numberOfPixelHits) ) nclus1 += temp1;
     if ( TP1->summaryValue( temp1 , xAOD::numberOfSCTHits)   ) nclus1 += temp1; 
     double pt1 = TP1->pt();
+
+    const xAOD::Vertex* foundVertex1 { nullptr };
+    if (m_useorigin)
+    {
+      for (const auto& vx : *vertices)
+      {
+	for (const auto& tpLink : vx->trackParticleLinks())
+	{
+	  if (*tpLink == TP1)
+	  {
+	    foundVertex1 = vx;
+	    break;
+	  }
+	}
+	if (foundVertex1) break;
+      }
+    }
 
     unsigned int i2 = 0;
     for (tpIt2 = negTracks.begin(); tpIt2 != negTracks.end(); ++tpIt2)
@@ -350,6 +376,24 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
       if (!m_useTRTplusSi && (nclus1 == 0 || nclus2 == 0)) continue;
 
       double pt2 = TP2->pt();
+
+      const xAOD::Vertex* foundVertex2 { nullptr };
+      if (m_useorigin)
+      {
+	for (const auto& vx : *vertices)
+	{
+	  for (const auto& tpLink : vx->trackParticleLinks())
+	  {
+	    if (*tpLink == TP2)
+	    {
+	      foundVertex2 = vx;
+	      break;
+	    }
+	  }
+	  if (foundVertex2) break;
+	}
+      }
+
       bool trk_cut1 = false;
       bool trk_cut2 = false;
       if (nclus1 != 0) trk_cut1 = true;
@@ -374,7 +418,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 
       bool usepair = false;
       if (!m_useorigin) usepair = true;
-      if (m_useorigin && TP1->vertex() == 0 && TP2->vertex() == 0) usepair = true;
+      if (m_useorigin && foundVertex1 == nullptr && foundVertex2 == nullptr) usepair = true;
       if (!usepair) continue;      
 
 // find a starting point

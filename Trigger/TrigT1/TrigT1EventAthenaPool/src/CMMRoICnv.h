@@ -25,7 +25,7 @@ typedef T_AthenaPoolCustomCnv<LVL1::CMMRoI, CMMRoI_PERS> CMMRoICnvBase;
 class CMMRoICnv: public CMMRoICnvBase {
 friend class CnvFactory<CMMRoICnv>;
 
-protected:
+public:
 
   CMMRoICnv (ISvcLocator* svcloc) :
     CMMRoICnvBase(svcloc),
@@ -33,6 +33,8 @@ protected:
     m_log( m_msgSvc, "CMMRoICnv" )
      {}
   
+protected:
+
   ~CMMRoICnv() {}
   
   virtual CMMRoI_PERS*   createPersistent (LVL1::CMMRoI* transCont);

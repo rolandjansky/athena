@@ -32,7 +32,7 @@ namespace InDet {
 
    private:
       /// StoreGate key for the track container to investigate//--->delete in future
-      std::string Track_IP;
+      std::string m_Track_IP;
             
       /// Connection to the smearing tool
       ToolHandle< IInDetTrackSmearingTool > m_smearTool;

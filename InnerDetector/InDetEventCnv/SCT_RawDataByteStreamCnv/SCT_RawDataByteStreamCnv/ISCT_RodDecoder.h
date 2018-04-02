@@ -21,7 +21,7 @@
 //Cannot fwd declare RawEvent, due to typedef in the .h. Needed for OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
 #include "ByteStreamData/RawEvent.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
-#include "SCT_ConditionsData/SCT_ByteStreamFractionContainer.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 class IInterface;
 class InterfaceID;
