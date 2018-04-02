@@ -8,6 +8,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
 exot22Seq = CfgMgr.AthSequencer("EXOT22Sequence")
@@ -66,6 +67,16 @@ EXOT22PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(na
 ToolSvc += EXOT22PhotonTPThinningTool
 thinningTools.append(EXOT22PhotonTPThinningTool)
 
+# TrackParticles associated with taus
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
+EXOT22TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                    = "EXOT22TauTPThinningTool",
+                                                                        ThinningService         = EXOT22ThinningHelper.ThinningSvc(),
+                                                                        TauKey                  = "TauJets",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                        ConeSize                =  0) # change wrt. EXOT0 that uses 0.4
+ToolSvc += EXOT22TauTPThinningTool
+thinningTools.append(EXOT22TauTPThinningTool)
+
 # truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT22TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT22TruthTool",
@@ -75,7 +86,7 @@ EXOT22TruthTool = DerivationFramework__MenuTruthThinning(name                  =
                                                          WriteBHadrons         = False,
                                                          WriteGeant            = False,
                                                          GeantPhotonPtThresh   = -1.0,
-                                                         WriteTauHad           = False,
+                                                         WriteTauHad           = True,
                                                          PartonPtThresh        = -1.0,
                                                          WriteBSM              = True,
                                                          WriteBosons           = True,
@@ -93,6 +104,10 @@ EXOT22TruthTool = DerivationFramework__MenuTruthThinning(name                  =
 if DerivationFrameworkIsMonteCarlo:
   ToolSvc += EXOT22TruthTool
   thinningTools.append(EXOT22TruthTool)
+
+  # tau truth
+  from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+  scheduleTauTruthTools()
 
 truth_cond = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))" # lepton conditions
 
