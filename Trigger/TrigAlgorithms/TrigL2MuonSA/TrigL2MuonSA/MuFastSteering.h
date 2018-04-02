@@ -110,15 +110,55 @@ class MuFastSteering : public HLT::FexAlgo,
 		    const TrigL2MuonSA::MuonRoad&            muonRoad,
 		    const TrigL2MuonSA::MdtRegion&           mdtRegion,
 		    const TrigL2MuonSA::RpcHits&             rpcHits,
-		    const TrigL2MuonSA::TgcHits&             /*tgcHits*/,
+		    const TrigL2MuonSA::TgcHits&             tgcHits,
 		    const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
 		    const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
 		    const TrigL2MuonSA::MdtHits&             mdtHits,
 		    const TrigL2MuonSA::CscHits&             cscHits,
-		    std::vector<TrigL2MuonSA::TrackPattern>& m_trackPatterns,
+		    std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
                     DataVector<xAOD::L2StandAloneMuon>&      outputTracks,
 		    TrigRoiDescriptorCollection&  	     outoutID,
 		    TrigRoiDescriptorCollection&	     outputMS);
+
+  bool UpdateOutputObjects(const LVL1::RecMuonRoI*                        roi,
+                           const TrigRoiDescriptor*                       roids,
+                           const TrigL2MuonSA::MuonRoad&                  muonRoad,
+                           const TrigL2MuonSA::MdtRegion&                 mdtRegion,
+                           const TrigL2MuonSA::RpcHits&                   rpcHits,
+                           const TrigL2MuonSA::TgcHits&                   tgcHits,
+                           const TrigL2MuonSA::RpcFitResult&              rpcFitResult,
+                           const TrigL2MuonSA::TgcFitResult&              tgcFitResult,
+                           const TrigL2MuonSA::MdtHits&                   mdtHits,
+                           const TrigL2MuonSA::CscHits&                   cscHits,
+                           const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
+			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
+			   TrigRoiDescriptorCollection&  	          outputID,
+			   TrigRoiDescriptorCollection&   	          outputMS);
+ 
+  bool StoreMuonSA(const LVL1::RecMuonRoI*             roi,
+                   const TrigRoiDescriptor*            roids,
+               	   const TrigL2MuonSA::MuonRoad&       muonRoad,
+               	   const TrigL2MuonSA::MdtRegion&      mdtRegion,
+               	   const TrigL2MuonSA::RpcHits&        rpcHits,
+               	   const TrigL2MuonSA::TgcHits&        tgcHits,
+               	   const TrigL2MuonSA::RpcFitResult&   rpcFitResult,
+               	   const TrigL2MuonSA::TgcFitResult&   tgcFitResult,
+               	   const TrigL2MuonSA::MdtHits&        mdtHits,
+               	   const TrigL2MuonSA::CscHits&        cscHits,
+               	   const TrigL2MuonSA::TrackPattern&   pattern,
+                   DataVector<xAOD::L2StandAloneMuon>& outputTracks);
+
+  bool StoreMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
+		            const TrigL2MuonSA::TrackPattern&         pattern,
+                            const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+		            TrigRoiDescriptorCollection&	      outputMS);
+
+
+  bool StoreIDRoiDescriptor(const TrigRoiDescriptor*                  roids,
+		            const TrigL2MuonSA::TrackPattern&         pattern,
+                            const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+		            TrigRoiDescriptorCollection&	      outputID);
+
   /**
      Update monitoring variables
   */
@@ -243,6 +283,8 @@ class MuFastSteering : public HLT::FexAlgo,
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
+
+  bool m_use_updateOutput = false;
 };
 
 #endif // MUFASTSTEERING_H
