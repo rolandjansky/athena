@@ -14,7 +14,9 @@ namespace lwt {
   class LightweightGraph;
 }
 
-class InputMapBuilder;
+namespace BoostedJetTaggers {
+  class HbbInputBuilder;
+}
 
 class HbbTaggerDNN :   public asg::AsgTool ,
                        virtual public IJetSelector
@@ -25,17 +27,28 @@ public:
   ~HbbTaggerDNN();
   StatusCode initialize();
   StatusCode finalize();
+
+  // keep method is inherited from IJetSelector, it returns 0 if the
+  // jet doesn't pass. The threshold is set via the tagThreshold
+  // property.
   virtual int keep(const xAOD::Jet& jet) const;
+
+  // get the tagger output.
   double getScore(const xAOD::Jet& jet) const;
+
+  // this (and only this) method will add a decorator to the jet. The
+  // name is set with the decorationName property.
   void decorate(const xAOD::Jet& jet) const;
+
+  // check how many subjets there are
   size_t n_subjets(const xAOD::Jet& jet) const;
 
 protected:
    // the location where CVMFS files live
-  std::string m_configFile;
-  std::string m_variableMapFile;
+  std::string m_neuralNetworkFile;
+  std::string m_configurationFile;
   std::unique_ptr<lwt::LightweightGraph> m_lwnn;
-  std::unique_ptr<InputMapBuilder> m_input_builder;
+  std::unique_ptr<BoostedJetTaggers::HbbInputBuilder> m_input_builder;
 
   // threshold to cut on for keep()
   // default 1000000000 - but the user must set this to use the tool sensibly

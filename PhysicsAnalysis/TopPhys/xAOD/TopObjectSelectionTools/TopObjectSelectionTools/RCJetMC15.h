@@ -38,6 +38,19 @@ namespace top{
     class Event;
 }
 
+namespace fastjet{
+  class JetDefinition;
+  namespace contrib{
+    class Nsubjettiness;
+    class EnergyCorrelator;
+  }
+}
+
+namespace JetSubStructureUtils{
+  class KtSplittingScale;
+  class Qw;
+}
+
 class RCJetMC15 final : public asg::AsgTool{
 public:
     //Default - so root can load based on a name
@@ -84,7 +97,8 @@ private:
     float m_radius;
     float m_minradius;
     float m_massscale;
-
+    bool  m_useJSS;
+    
     std::string m_egamma;
     std::string m_jetsyst;
     std::string m_muonsyst;
@@ -93,7 +107,20 @@ private:
     std::string m_OutJetContainerBase;
     std::string m_InputJetContainer;
     std::string m_OutputJetContainer;
-    int m_loose_hashValue; 
+    int m_loose_hashValue;
+
+    //Substructure tool definitions
+    fastjet::JetDefinition* m_jet_def_rebuild; 	  
+    fastjet::contrib::Nsubjettiness* m_nSub1_beta1;
+    fastjet::contrib::Nsubjettiness* m_nSub2_beta1;
+    fastjet::contrib::Nsubjettiness* m_nSub3_beta1;
+    fastjet::contrib::EnergyCorrelator* m_ECF1;
+    fastjet::contrib::EnergyCorrelator* m_ECF2;
+    fastjet::contrib::EnergyCorrelator* m_ECF3;
+    JetSubStructureUtils::KtSplittingScale* m_split12;
+    JetSubStructureUtils::KtSplittingScale* m_split23;
+    JetSubStructureUtils::Qw* m_qw;
+    
     bool m_unique_syst;
 
     typedef std::map<std::size_t,std::string>::iterator m_iterator;
@@ -112,6 +139,7 @@ private:
     typedef std::unordered_map<std::size_t, JetReclusteringTool*>::iterator m_tool_iterator;
 
     ClassDef(RCJetMC15, 0);
+
 };
 
 #endif

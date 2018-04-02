@@ -69,17 +69,8 @@ if ( XAOD_ANALYSIS AND NOT ROOTCORE )
       util/BTaggingSelectionToolTester.cxx
       LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib POOLRootAccessLib GaudiKernel )
 elseif( XAOD_STANDALONE OR ROOTCORE )
-   atlas_add_executable( BTaggingSelectionToolTester
+      atlas_add_executable( BTaggingSelectionToolTester
       util/BTaggingSelectionToolTester.cxx
-      LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib xAODRootAccess )
-endif()
-if ( XAOD_ANALYSIS AND NOT ROOTCORE )
-   atlas_add_executable( BTaggingTruthTaggingTester
-      util/BTaggingTruthTaggingTester.cxx
-      LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib POOLRootAccessLib GaudiKernel )
-elseif( XAOD_STANDALONE OR ROOTCORE )
-   atlas_add_executable( BTaggingTruthTaggingTester
-      util/BTaggingTruthTaggingTester.cxx
       LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib xAODRootAccess )
 endif()
 

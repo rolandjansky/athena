@@ -354,6 +354,8 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
     ConfInstance.addTool('RNNIPTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel)
   if 'RNNIPNeg' in TaggerList:
     ConfInstance.addTool('RNNIPNegTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel)
+  if 'RNNIPFlip' in TaggerList:
+    ConfInstance.addTool('RNNIPFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel)
 
 #          if BTaggingFlags.IP3DFlip:
 #            addTool('IP3DFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)

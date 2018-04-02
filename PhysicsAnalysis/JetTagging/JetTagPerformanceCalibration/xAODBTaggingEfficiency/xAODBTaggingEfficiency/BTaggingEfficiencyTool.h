@@ -12,19 +12,22 @@
 #define CPBTAGGINGEFFICIENCYTOOL_H
 
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
+#include "PATInterfaces/ISystematicsTool.h"
 
 #include "xAODBTagging/BTagging.h"
 
-#include "AsgTools/AsgTool.h"
 #include <string>
 #include <set>
 #include <vector>
 #include <map>
 //#include <memory>
 
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/AnaToolHandle.h"
+
 #include "CalibrationDataInterface/CalibrationDataVariables.h"
 #include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"
-#include "PATInterfaces/ISystematicsTool.h"
 
 class BTaggingEfficiencyTool: public asg::AsgTool,
             public virtual IBTaggingEfficiencyTool
@@ -265,6 +268,9 @@ private:
 
   /// @name core configuration properties (set at initalization time and not modified afterwards)
   /// @{
+
+  /// we need access to a BTaggingSelectionTool, at least for DL1 weight computation
+  asg::AnaToolHandle<IBTaggingSelectionTool> m_selectionTool;
 
   /// name of the data/MC efficiency scale factor calibration file (may be changed by the @c PathResolver)
   std::string m_SFFile;

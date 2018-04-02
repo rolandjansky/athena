@@ -42,10 +42,6 @@ namespace Trig {
     std::map< std::string , double > m_weights;
   };
 
-  // *****
-
-  bool sortEmulationJetByPt( Trig::TrigBtagEmulationJet* , Trig::TrigBtagEmulationJet* );
-
 } //namespace
 
 #endif

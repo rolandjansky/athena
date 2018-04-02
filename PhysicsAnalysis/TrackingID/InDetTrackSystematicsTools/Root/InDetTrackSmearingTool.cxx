@@ -142,6 +142,9 @@ namespace InDet {
     if (isActiveD0Meas + isActiveD0MeasUp + isActiveD0MeasDown > 1) {
       // this should be checked against in applySystematicVariation
       throw std::runtime_error( "Multiple incompatible D0 systematics are activated." );
+    } else if (isActiveD0Meas + isActiveD0MeasUp + isActiveD0MeasDown == 0) {
+      // pass-through D0Meas, return sigma_D0 early
+      return std::sqrt(sigma_D0);
     }
 
     TH2* d0hist_lowpt = nullptr;
@@ -200,6 +203,9 @@ namespace InDet {
     if (isActiveZ0Meas + isActiveZ0MeasUp + isActiveZ0MeasDown > 1) {
       // this should be checked against in applySystematicVariation
       throw std::runtime_error( "Multiple incompatible Z0 systematics are activated." );
+    } else if (isActiveZ0Meas + isActiveZ0MeasUp + isActiveZ0MeasDown == 0) {
+      // pass-through Z0Meas, return sigma_Z0 early
+      return std::sqrt(sigma_Z0);
     }
 
     TH2* z0hist_lowpt = nullptr;

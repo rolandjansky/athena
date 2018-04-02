@@ -24,7 +24,7 @@ from AthenaCommon.GlobalFlags import globalflags
 streamName = derivationFlags.WriteDAOD_HIGG3D1Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG3D1Stream )
 HIGG3D1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-HIGG3D1Stream.AcceptAlgs(["HIGG3D1Kernel"])
+HIGG3D1Stream.AcceptAlgs(["HIGG3D1Kernel_skimming"])
 
 ## Prepare thinning service and add trigger chains for TrigNavigation thinning
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
@@ -159,6 +159,7 @@ HIGG3D1SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG3
 ToolSvc += HIGG3D1SkimmingTool
 
 higg3d1Seq = CfgMgr.AthSequencer("HIGG3d1Sequence")
+higg3d1PreSeq = CfgMgr.AthSequencer("HIGG3d1PreSelectionSequence")
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
@@ -204,11 +205,18 @@ higg3d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel",
+higg3d1PreSeq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_skimming",
                                                            SkimmingTools = [HIGG3D1SkimmingTool],
+                                                           )
+
+
+DerivationFrameworkJob += higg3d1PreSeq
+higg3d1PreSeq += higg3d1Seq
+
+higg3d1Seq += CfgMgr.DerivationFramework__DerivationKernel("HIGG3D1Kernel_thinning",
                                                            ThinningTools = thinningTools
                                                            )
-DerivationFrameworkJob += higg3d1Seq
+
 
 applyJetCalibration_xAODColl("AntiKt4EMTopo", higg3d1Seq)
 

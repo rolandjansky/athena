@@ -126,10 +126,6 @@ private:
   
   // Properties
   
-  /// The list of input file names
-  std::string m_corrFileNameConv;
-  std::string m_corrFileNameUnconv;
- 
   /// The prefix string for the result
   std::string m_resultPrefix;
 

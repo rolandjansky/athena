@@ -130,10 +130,6 @@ addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
 # Variable Radius (VR) Jets
 #===================================================================
 
-# We want to include ghost associated tracks in the pv0 tracks so that
-# we can use the looser ghost association criteria for b-tagging.
-trackPseudoJetGetters = jtm.gettersMap['pv0track'] + ["gtrackget"]
-
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # Note that the ghost association to the 'AntiKt10LCTopo' jets is
 # hardcoded within this function "for now".
@@ -141,7 +137,7 @@ addVRJets(FTAG5Seq,
           VRJetName="AntiKtVR30Rmax4Rmin02Track",
           VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet",
           VRJetAlg="AntiKt", VRJetRadius=0.4,
-          VRJetInputs=trackPseudoJetGetters,
+          VRJetInputs='pv0track',
           ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
           variableRMinRadius = 0.02, variableRMassScale = 30000,
           calibOpt = "none")

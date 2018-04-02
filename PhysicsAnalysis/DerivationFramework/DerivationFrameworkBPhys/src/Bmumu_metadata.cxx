@@ -35,9 +35,17 @@ namespace DerivationFramework {
     
     // blind search
     recordPropertyB("doBmumuBlinding", true);
-
+    recordPropertyB("doCutBlinded"   , true);
+    recordPropertyS("BlindingKey"    , "");
+    recordPropertyS("BlindedVars"    , "");
+    recordPropertyS("BlindingFlag"   , "");
+    
     // include trigger
     recordPropertyB("doTriggerInfo"  , true);
+
+    // trigger navigation thinning
+    recordPropertyB("doTrigNavThinning", true);
+    recordPropertyVS("TrigNavThinList" , {});
 
     // wide mumu mass range
     recordPropertyB("doUseWideMuMuMassRange", false);

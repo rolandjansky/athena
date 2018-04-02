@@ -95,7 +95,7 @@ type-specific and do a runtime type check.
   electrons based on the LooseLH ID of the electron and a dR cone.
 * TauLooseMuOverlapTool - Implements overlap removal between taus and loose
   muons. The criteria considers muons based on PT and isCombined as
-  recommended in the harmonization document.
+  recommended in the run-2 harmonization document (`ATL-PHYS-INT-2014-018 <https://cds.cern.ch/record/1743654>`_).
 * ObjLinkOverlapTool - A generic tool which flags overlaps by looking for
   ElementLinks to other particles. This tool can be used to find overlaps in
   two stages. For example, one might use the EleMuSharedTrkOverlapTool to
@@ -162,8 +162,9 @@ in Athena environments. There are three pieces:
   some EventLoop algorithm or a parent tool or something like that.
 
 * The working points calculate delta-R using _rapidity_ instead of
-  pseudo-rapidity, as recommended in the harmonization note. You can override
-  this with the UseRapdity property that all relevant tools support.
+  pseudo-rapidity, as recommended in the run-2 harmonization note (more details about the motivations for
+  using rapidity can be found in `arXiv:1802.05356 [hep-ph] <https://arxiv.org/abs/1802.05356>`_).
+  You can override this with the UseRapdity property that all relevant tools support.
 
 *Standard working point* - you only need to set the tool and
 decoration names:
