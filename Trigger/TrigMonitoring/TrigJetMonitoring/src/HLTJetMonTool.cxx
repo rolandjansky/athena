@@ -288,9 +288,9 @@ StatusCode HLTJetMonTool::init() {
   m_lumiBlock=-1;
 
   // Monitoring trigger names specified through the congfiguration file or menu database, for menu-aware monitoring
-  if(m_monitoring_l1jet.empty()) m_monitoring_l1jet.push_back("L1_J15");
-  if(m_monitoring_jet.empty())   m_monitoring_jet.push_back("j60");
-  if(m_primary_l1jet.empty())    m_primary_l1jet.push_back("L1_J15");
+  //if(m_monitoring_l1jet.empty()) m_monitoring_l1jet.push_back("L1_J15");
+  //if(m_monitoring_jet.empty())   m_monitoring_jet.push_back("j60");
+  //if(m_primary_l1jet.empty())    m_primary_l1jet.push_back("L1_J15");
   // if(m_primary_l1jet.empty())    m_monitoring_l1jet.push_back("j60");
 
  
@@ -304,7 +304,7 @@ StatusCode HLTJetMonTool::init() {
     m_basicL1Trig.insert(std::pair<std::string,std::string>(m_monitoring_l1jet[k].c_str(),m_monitoring_l1jet[k].c_str()));
   }
   // }
- 
+
   // Fill trigger for HLT basic plots. String pairs of the form ("MonGroup name","HLT Filter Name")
   k = 0;
   for( ; k < m_monitoring_jet.size(); ++k) {
