@@ -132,15 +132,15 @@ if globalflags.DataSource()=="geant4":
 # AUGMENTATION TOOLS
 #====================================================================
 augmentationTools = []
-#from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BJetRegressionVariables
-#EXOT8BJetRegressionVariables = DerivationFramework__BJetRegressionVariables(name = "EXOT8BJetRegressionVariables",
-#                                                                            ContainerName = "AntiKt4EMTopoJets",
-#                                                                            AssociatedTracks = "GhostTrack",
-#                                                                            MinTrackPtCuts = [0])
-#
-#ToolSvc += EXOT8BJetRegressionVariables
-#augmentationTools.append(EXOT8BJetRegressionVariables)
-#print EXOT8BJetRegressionVariables
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BJetRegressionVariables
+EXOT8BJetRegressionVariables = DerivationFramework__BJetRegressionVariables(name = "EXOT8BJetRegressionVariables",
+                                                                            ContainerName = "AntiKt4EMTopoJets",
+                                                                            AssociatedTracks = "GhostTrack",
+                                                                            MinTrackPtCuts = [0])
+
+ToolSvc += EXOT8BJetRegressionVariables
+augmentationTools.append(EXOT8BJetRegressionVariables)
+print EXOT8BJetRegressionVariables
    
 #========================================================================================================================================
 # Triggers (https://indico.cern.ch/event/403233/contribution/4/material/slides/0.pdf)
@@ -342,8 +342,9 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumMass",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumPt",
                                       "AntiKt4EMTopoJets.TrackSumPt",
-                                      "AntiKt4EMTopoJets.ScalSumPtTrkPt0",
-                                      "AntiKt4EMTopoJets.VecSumPtTrkPt0",
+#                                      "AntiKt4EMTopoJets.ScalSumPtTrkPt0",
+#                                      "AntiKt4EMTopoJets.VecSumPtTrkPt0",
+                                      "AntiKt4EMTopoJets.ScalSumPtTrkCleanPt0",
                                       "AntiKt4EMTopoJets.ScalSumPtTrkCleanPt0PV0",
                                       "AntiKt4EMTopoJets.VecSumPtTrkCleanPt0PV0",
                                       "BTagging_AntiKt4EMTopo.JetVertexCharge_discriminant",
