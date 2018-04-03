@@ -23,9 +23,12 @@ if 'doL1TopoSimMon' not in dir():
 log.info ('doL1TopoSimMon=%s' % doL1TopoSimMon)
 if doL1TopoSimMon:
     topSequenceAlgNames=[alg.getName() for alg in topSequence.getChildren()]
+    steerIndex=topSequenceAlgNames.index('TrigSteer_HLT')
+
     if 'L1TopoSimulation' not in topSequenceAlgNames:
         from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
-        topSequence += L1TopoSimulation()
+        topSequence.insert(steerIndex,L1TopoSimulation())
+        #topSequence += L1TopoSimulation()
         log.info( "adding L1TopoSimulation() to topSequence" )
 
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
