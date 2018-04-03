@@ -296,7 +296,7 @@ int PixelMainMon::parseDetailsString(std::string& detailsMod) {
   int modID[4] = {0, 0, 0, 0};
   char* pch;
   pch = new char[detailsMod.size() + 1];
-  strcpy(pch, detailsMod.c_str());
+  strncpy(pch, detailsMod.c_str(), detailsMod.size());
   const int nmod = 13;
   const char* mod[nmod] = {"M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0", "M1A", "M2A", "M3A", "M4A", "M5A", "M6A"};
   const int nstave0 = 22;
