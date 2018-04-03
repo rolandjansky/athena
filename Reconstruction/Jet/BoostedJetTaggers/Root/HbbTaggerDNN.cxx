@@ -167,6 +167,17 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
   // build the jet properties into a map
   HbbInputBuilder::VMap inputs = m_input_builder->get_map(jet);
   // if we have any NaN or infinite values, replace them with defaults
+
+  if (msgLvl(MSG::DEBUG)) {
+    ATH_MSG_DEBUG("Hbb inputs:");
+    for (auto& input_node: inputs) {
+      ATH_MSG_DEBUG(" input node: " << input_node.first);
+      for (auto& input: input_node.second) {
+        ATH_MSG_DEBUG("  " << input.first << ": " << input.second);
+      }
+    }
+  }
+
   HbbInputBuilder::VMap cleaned;
   for (const auto& cleaner: m_var_cleaners) {
     cleaned.emplace(
@@ -315,7 +326,7 @@ namespace BoostedJetTaggers {
       std::map<std::string, double> subjet_inputs;
       if (have_jet) {
         const xAOD::Jet* subjet = subjets.at(subjet_n);
-        subjet_inputs["pt"] = subjet ? subjet->pt() : NAN;
+        subjet_inputs["pt"] = subjet->pt();
         subjet_inputs["eta"] = subjet->eta();
         subjet_inputs["deta"] = subjet->eta() - jet.eta();
         subjet_inputs["dphi"] = subjet->p4().DeltaPhi(jet.p4());
