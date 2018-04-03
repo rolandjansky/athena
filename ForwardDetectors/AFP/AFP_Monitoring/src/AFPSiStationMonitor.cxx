@@ -21,15 +21,12 @@ AFPSiStationMonitor::AFPSiStationMonitor(const std::string& type,
 
 StatusCode AFPSiStationMonitor::initialize()
 {
-  ATH_MSG_WARNING("GACH DEBU m_layersMonitors.size = " << m_layersMonitors.size());
   if (m_layersMonitors.size() != 0) {
     // loop over tools
     for (ToolHandle<IAFPSiLayerMonitor>& layerMon : m_layersMonitors) {
       // retrieve tools
       if (layerMon.retrieve().isFailure())
 	ATH_MSG_WARNING("Failed to retrieve layerMon " << layerMon);
-      else
-	ATH_MSG_WARNING("GACH DEBU retrieved " << layerMon);
     }
   }
   else
@@ -65,8 +62,6 @@ void AFPSiStationMonitor::bookHistograms(AFPHitsMonitorTool* toolToStoreHistogra
   for (ToolHandle<IAFPSiLayerMonitor>& layerMonitor : m_layersMonitors)
     layerMonitor->bookHistograms(toolToStoreHistograms, histsDirName);
 }
-
-
 
 void AFPSiStationMonitor::fillHistograms(const xAOD::AFPSiHit& hit)
 {

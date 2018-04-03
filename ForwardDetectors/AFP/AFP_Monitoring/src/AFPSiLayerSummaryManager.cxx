@@ -31,7 +31,7 @@ void AFPSiLayerSummaryManager::fillEventEnd (const std::string& binName, const I
 }
 
 
-// create the most common templates
+// create the most common templates, which creation is prevented in the header file
 
 // createSummaryHits
 template AFPSiLayerSummaryProfileBase* AFPSiLayerSummaryManager::createSummaryHits<int> (AFPHitsMonitorTool* parentTool, const ManagedMonitorToolBase::MonGroup& monGrp, const std::string name, const std::string title, int (xAOD::AFPSiHit::*value)() const);

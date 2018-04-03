@@ -2,18 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <sstream>
+#include "AFP_Monitoring/AFPSiLayerMonitor.h"
+#include "AFP_Monitoring/AFPHitsMonitorTool.h"
+#include "AFP_Monitoring/AFPSiLayerSummaryManager.h"
+
+#include "xAODForward/AFPStationID.h"
 
 #include <AthenaMonitoring/ManagedMonitorToolBase.h>
 
 #include <LWHists/TH1F_LW.h>
 #include <LWHists/TH2F_LW.h>
 
-#include "xAODForward/AFPStationID.h"
-
-#include "AFP_Monitoring/AFPSiLayerMonitor.h"
-#include "AFP_Monitoring/AFPHitsMonitorTool.h"
-#include "AFP_Monitoring/AFPSiLayerSummaryManager.h"
+#include <sstream>
 
 AFPSiLayerMonitor::AFPSiLayerMonitor(const std::string& type,
 				     const std::string& name,
@@ -31,7 +31,7 @@ AFPSiLayerMonitor::AFPSiLayerMonitor(const std::string& type,
   declareProperty("pixelLayerID", m_pixelLayerID = -1, "ID number of pixel layer.");
   declareProperty("stationID", m_stationID = -1, "ID number of station in which is the monitored layer.");
 
-  declareProperty("hitsScaleFactor", m_hitsScaleFactor = 3, "Scale factor for normalising hits in event to pile-up.");
+  declareProperty("hitsScaleFactor", m_hitsScaleFactor = 0.04, "Scale factor for normalising hits in event to pile-up.");
   
   declareProperty("hotSpotStartRow", m_hotSpotStartRow = 0, "First row of the hot-spot (included in the hot-spot).");
   declareProperty("hotSpotEndRow", m_hotSpotEndRow = 50, "Last row of the hot-spot (included in the hot-spot).");
@@ -81,8 +81,8 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
 			      hitMapTitle.data(),
 			      nRows, 0.5, nRows + 0.5,
 			      nColumns, 0.5, nColumns + 0.5);
-  m_hitMap->SetXTitle("row ID");
-  m_hitMap->SetYTitle("column ID");
+  m_hitMap->SetXTitle("column ID");
+  m_hitMap->SetYTitle("row ID");
 
   toolToStoreHistograms->regHist(m_hitMap, managed_booking_run).ignore();
 
@@ -96,7 +96,7 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
 			       hitMultiplicityTitle.data(),
 			       40, -0.5, 39.5);
   m_hitMultiplicity->StatOverflows(); // need to use overflows for calculation of mean
-  m_hitMultiplicity->SetXTitle("number hits in an event");
+  m_hitMultiplicity->SetXTitle("number of hits in an event");
   m_hitMultiplicity->SetYTitle("events");
 
   toolToStoreHistograms->regHist( m_hitMultiplicity, managed_booking_lumiBlock ).ignore();
@@ -110,7 +110,7 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
 				      hitMultiplicityTitleHotSpot.data(),
 				      40, -0.5, 39.5);
   m_hitMultiplicityHotSpot->StatOverflows(); // need to use overflows for calculation of mean
-  m_hitMultiplicityHotSpot->SetXTitle("number hits in hotspot in an event");
+  m_hitMultiplicityHotSpot->SetXTitle("number of hits in hotspot in an event");
   m_hitMultiplicityHotSpot->SetYTitle("events");
 
   toolToStoreHistograms->regHist( m_hitMultiplicityHotSpot, managed_booking_lumiBlock ).ignore();

@@ -2,17 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <GaudiKernel/IJobOptionsSvc.h>
-#include <GaudiKernel/MsgStream.h>
-#include <GaudiKernel/StatusCode.h>
-
-#include <AthenaMonitoring/AthenaMonManager.h>
-
-#include <LWHists/TH1F_LW.h>
-#include <TH1.h>
-#include <TProfile.h>
-
-
 #include "AFP_Monitoring/AFPHitsMonitorTool.h"
 #include "AFP_Monitoring/IAFPSiStationMonitor.h"
 #include "AFP_Monitoring/IAFPSiLayerMonitor.h"
@@ -22,6 +11,14 @@
 #include <xAODForward/AFPStationID.h>
 #include <xAODForward/AFPSiHitContainer.h>
 
+#include <AthenaMonitoring/AthenaMonManager.h>
+#include <GaudiKernel/IJobOptionsSvc.h>
+#include <GaudiKernel/MsgStream.h>
+#include <GaudiKernel/StatusCode.h>
+
+#include <LWHists/TH1F_LW.h>
+#include <TH1.h>
+#include <TProfile.h>
 
 AFPHitsMonitorTool::
 AFPHitsMonitorTool( const std::string & type, const std::string & name,
@@ -44,17 +41,13 @@ AFPHitsMonitorTool::
 
 StatusCode AFPHitsMonitorTool::initialize()
 {
-  ATH_MSG_WARNING("GACH DEBU m_stationsMonitors.size = " << m_stationsMonitors.size());
-  
   if (m_stationsMonitors.size() != 0) {
     // loop over tools
     for (ToolHandle<IAFPSiStationMonitor>& stationMon : m_stationsMonitors) {
       if (stationMon.retrieve().isFailure())
 	ATH_MSG_WARNING("Failed to retrieve AlgTool " << stationMon);
-      else {
-	ATH_MSG_WARNING("GACH DEBU retrieved " << stationMon);
+      else
 	stationMon->setAllLayersParent(this);
-      }
     }
   }
   else {
@@ -66,7 +59,7 @@ StatusCode AFPHitsMonitorTool::initialize()
   ManagedMonitorToolBase::MonGroup managedBookingLumiBlock(this, histsDirectoryName() + "shifter/", lumiBlock, ManagedMonitorToolBase::ATTRIB_MANAGED);   // to re-booked every luminosity block
   AFPSiLayerSummaryProfileBase* timeOverThresholdMean = m_summaryManager->createSummaryHits(this, 
 											    managedBookingLumiBlock, 
-											    "h_timeOverThresholdMean", 
+											    "h_timeOverThresholdMeanp", 
 											    "Mean hitstime over threshold per plane",
 											    &xAOD::AFPSiHit::timeOverThreshold);
   timeOverThresholdMean->profile()->SetYTitle("mean time-over-threshold");
@@ -185,19 +178,6 @@ StatusCode AFPHitsMonitorTool::procHistograms( )
 
     for (ToolHandle<IAFPSiStationMonitor>& station : m_stationsMonitors)
       station->endOfLumiBlock(this);
-
-    // makeLayerSummaryHist ("h_hitMultiplicity",
-    // 			  "h_hitsPerPlaneSummary",
-    // 			  "Summary mean number of hits per plane per event");
-
-    // makeLayerSummaryHist ("h_hitMultiplicityHotSpot",
-    // 			  "h_hitsPerPlaneHotSpotSummary",
-    // 			  "Summary mean number of hits per plane per event in hot spot");
-
-    // makeLayerSummaryHist ("h_timeOverThreshold",
-    // 			  "h_timeOverthresholdSummary",
-    // 			  "Summary mean number of time over threshold per plane");
-
   }
 
 
