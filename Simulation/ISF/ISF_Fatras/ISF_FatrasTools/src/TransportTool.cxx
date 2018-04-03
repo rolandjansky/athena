@@ -361,7 +361,7 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
 									    timeLim.time-isp.timeStamp()) : 0;     // update expects time difference
   // free memory
   if ( hitVector ) {
-    for (auto& h : *hitVector) delete h.trackParams;
+    for (auto& h : *hitVector) delete h.trackParms;
     delete hitVector;
   }
   delete eParameters;
