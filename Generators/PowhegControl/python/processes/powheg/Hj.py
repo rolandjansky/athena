@@ -19,7 +19,7 @@ class Hj(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "HJ", **kwargs)
+        super(Hj, self).__init__(base_directory, "HJ", **kwargs)
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalNNLOReweighter(os.path.split(self.executable)[0], "nnlopsreweighter-newrwgt"))

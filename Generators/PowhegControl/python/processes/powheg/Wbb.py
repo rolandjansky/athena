@@ -22,7 +22,7 @@ class Wbb(PowhegV2):
         @param base_directory  path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generatess_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "Wbb_dec", **kwargs)
+        super(Wbb, self).__init__(base_directory, "Wbb_dec", **kwargs)
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")

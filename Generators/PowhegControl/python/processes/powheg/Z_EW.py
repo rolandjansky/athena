@@ -20,7 +20,7 @@ class Z_EW(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "Z_ew-BMNNPV", **kwargs)
+        super(Z_EW, self).__init__(base_directory, "Z_ew-BMNNPV", **kwargs)
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalPHOTOS(os.path.split(self.executable)[0], "main-PHOTOS-lhef"))

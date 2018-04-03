@@ -20,7 +20,7 @@ class DMGG(PowhegV2):
         @param base_directory  path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "DMGG", **kwargs)
+        super(DMGG, self).__init__(base_directory, "DMGG", **kwargs)
 
         ## List of allowed decay modes
         self.allowed_decay_modes = ["EFT", "full theory"]
