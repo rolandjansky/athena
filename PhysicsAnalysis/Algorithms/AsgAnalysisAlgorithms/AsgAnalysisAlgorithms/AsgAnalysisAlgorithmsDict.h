@@ -12,6 +12,7 @@
 #include <AsgAnalysisAlgorithms/AsgViewFromSelectionAlg.h>
 #include <AsgAnalysisAlgorithms/KinematicHistAlg.h>
 #include <AsgAnalysisAlgorithms/ObjectCutFlowHistAlg.h>
+#include <AsgAnalysisAlgorithms/PileupReweightingAlg.h>
 #include <AsgAnalysisAlgorithms/SysListLoaderAlg.h>
 
 #endif
