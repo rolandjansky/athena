@@ -92,7 +92,7 @@ TrigEgammaRec = Factory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",do
 )
 
 # Same but for TrigTopoEgammaBuilder
-TrigEgammaRec = Factory(TrigEgammaRecConf.TrigTopoEgammaBuilder, name="TrigTopoEgammaBuilder",doAdd=False,doPrint=True,
+TrigTopoEgammaBuilder = Factory(TrigEgammaRecConf.TrigTopoEgammaBuilder, name="TrigTopoEgammaBuilder",doAdd=False,doPrint=True,
     # Keys
     ElectronContainerName="egamma_SC_Electrons", 
     PhotonContainerName="egamma_SC_Photons",

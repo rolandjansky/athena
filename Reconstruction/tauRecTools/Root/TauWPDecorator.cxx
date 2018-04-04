@@ -49,6 +49,8 @@ TauWPDecorator::TauWPDecorator(const std::string& name) :
 
 /********************************************************************/
 TauWPDecorator::~TauWPDecorator() {
+  delete acc_score;
+  delete acc_newScore;
 }
 
 StatusCode TauWPDecorator::retrieveHistos(int nProng) {
@@ -92,8 +94,7 @@ StatusCode TauWPDecorator::retrieveHistos(int nProng) {
 StatusCode TauWPDecorator::storeLimits(int nProng) {
 
   // Use pointer for simpler access
-  std::vector<m_pair_t> *histArray;
-  histArray = (nProng == 1) ? &m_hists1P : &m_hists3P;
+  std::vector<m_pair_t> *histArray = (nProng == 1) ? &m_hists1P : &m_hists3P;
 
   // Default values
   m_xmin[nProng] = 1E9;
@@ -149,21 +150,18 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 { 
 
   // Accessors
-  //static SG::AuxElement::ConstAccessor<int> acc_nVertex("NUMVERTICES");
   static SG::AuxElement::ConstAccessor<float> acc_mu("MU");
   static SG::AuxElement::ConstAccessor<float> acc_pt("pt");
   static SG::AuxElement::ConstAccessor<int> acc_numTrack("NUMTRACK");
   static SG::AuxElement::ConstAccessor<float> acc_absEta("ABS_ETA_LEAD_TRACK");
 
   // histograms
-  std::vector<m_pair_t> *histArray;
-  histArray = (acc_numTrack(pTau) == 1) ? &m_hists1P : &m_hists3P;
+  std::vector<m_pair_t> *histArray = (acc_numTrack(pTau) == 1) ? &m_hists1P : &m_hists3P;
 
   // Retrieve tau properties
   int nProng = (acc_numTrack(pTau) == 1) ? 1 : 3;
   double score = (*acc_score)(pTau);
   double pt = acc_pt(pTau);
-  //  double mu = acc_mu(pTau);
 
   double y_var = 0.0;
   if(m_electronMode) {
@@ -171,7 +169,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
   } else {
      y_var = acc_mu(pTau);
   }
-
+  
   // ATH_MSG_VERBOSE("========================================");
   // ATH_MSG_VERBOSE("nProng " << nProng);
   // ATH_MSG_VERBOSE("pT before " << pt);
@@ -179,7 +177,6 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 
   //ATH_MSG_ERROR("xmin=" << m_xmin[nProng] << " xmax=" << m_xmax[nProng]);
   //ATH_MSG_ERROR("ymin=" << m_ymin[nProng] << " ymax=" << m_ymax[nProng]);
-  
 
   ATH_MSG_VERBOSE("pT before " << pt);
   ATH_MSG_VERBOSE("mu before " << y_var);
@@ -262,6 +259,7 @@ StatusCode TauWPDecorator::execute(xAOD::TauJet& pTau)
 	pTau.setIsTau((xAOD::TauJetParameters::IsTauFlag) m_cut_bits[Nwp], newscore > (1-m_cut_effs_3p[Nwp]));
       }
     }
+
     // Decorate other WPs
     for (u_int Nwp=0; Nwp < m_decoration_names.size(); Nwp++){
       if(acc_numTrack(pTau) == 1) {

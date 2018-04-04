@@ -15,7 +15,7 @@ BASEREFDIR=$BASEDIR/TrigInDetValidationReference
 
 if [ -e TrkNtuple-0000.root ]; then 
 
-    RELEASE=$(TIDAreader.exe -ro TrkNtuple-0000.root | grep release | awk '{print $2}' | head -1)
+    RELEASE=$(TIDAreader -ro TrkNtuple-0000.root | grep release | awk '{print $2}' | head -1)
 
     REFDIR=$BASEREFDIR/share
 
@@ -70,10 +70,10 @@ if [ -e TrkNtuple-0000.root ]; then
     if [ "x$EXPERT" == "x" ]; then 
         get_files -data TIDAhistos-vtx.dat
         echo -e "\nrunning comparitor " $(date) "\n"
-        TIDAcomparitor.exe $* $NOREF
+        TIDAcomparitor $* $NOREF
     else
         echo -e "\nrunning cpucost " $(date) "\n"
-        TIDAcpucost.exe $* $NOREF
+        TIDAcpucost $* $NOREF
     fi
 
     echo "finished postprocessing"

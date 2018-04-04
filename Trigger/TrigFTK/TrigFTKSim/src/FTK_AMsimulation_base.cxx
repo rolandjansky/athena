@@ -190,7 +190,7 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
     try {
        ssid= FTKSetup::getFTKSetup().getHWModeSS()==0 ?
           getSSMapUnused()->getSSGlobal(tmphit) :
-          getSSMapUnused()->getSSTower(tmphit,getBankID());
+          getSSMapUnused()->getSSTower(tmphit,getBankID(),true);
     } catch(FTKException &e) {
        error++;
     }

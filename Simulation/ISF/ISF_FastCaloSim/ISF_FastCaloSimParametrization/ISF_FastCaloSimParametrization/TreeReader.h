@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TreeReader_h
@@ -55,7 +55,7 @@ class TreeReader //: public TTreeFormulaManager
   
 };
 
-#if defined(__MAKECINT__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TreeReader+;
 #endif
 

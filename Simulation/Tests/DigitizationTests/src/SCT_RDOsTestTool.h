@@ -58,11 +58,11 @@ public:
   TH1 *m_EndCapC_OccupancyByDisk;
   TH2 *m_h_sct_endcapC_occ_layer[9];
   TH1 *m_SCT_OccupancyByModuleType;
-  std::map<int,int> NoBarrelModules;
-  std::map<int,int> NoInnerModules;
-  std::map<int,int> NoMiddleModules;
-  std::map<int,int> NoShortMiddleModules;
-  std::map<int,int> NoOuterModules;
+  std::map<int,int> m_NoBarrelModules;
+  std::map<int,int> m_NoInnerModules;
+  std::map<int,int> m_NoMiddleModules;
+  std::map<int,int> m_NoShortMiddleModules;
+  std::map<int,int> m_NoOuterModules;
   double m_NumberModulesVetoed[5];
 
 };

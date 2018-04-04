@@ -300,6 +300,7 @@ def dq_combined_trf(picklefile):
 
     # environment setting
     os.environ['DQPRODUCTION'] = '1' if productionMode == 'True' else '0'
+    os.environ['DQ_STREAM'] = stream
     print "Setting env variable DQPRODUCTION to %s\n" % os.environ['DQPRODUCTION']
     os.environ['COOLUPLOADS'] = '1' if allowCOOLUpload == 'True' and productionMode == 'True' else '0'
     print "Setting env variable COOLUPLOADS to %s\n" % os.environ['COOLUPLOADS']

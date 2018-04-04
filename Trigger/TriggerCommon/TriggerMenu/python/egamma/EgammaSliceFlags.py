@@ -61,6 +61,16 @@ class doRinger(JobProperty):
 
 _flags.append(doRinger) 
 
+
+class doRingerBelow15GeV(JobProperty):
+    '''apply ringer selection for Electron chains below 15GeV'''
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doRingerBelow15GeV) 
+
+
 class doSuperClusters(JobProperty):
     '''Use Superclusters to build Egamma trigger objects'''
     statusOn=True
@@ -73,7 +83,7 @@ class ringerVersion (JobProperty):
     """ Version ringer tunes """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='RingerSelectorTools/TrigL2_20170505_v6'
+    StoredValue='RingerSelectorTools/TrigL2_20180125_v8/'
 
 _flags.append(ringerVersion)
 
@@ -82,7 +92,7 @@ class pidVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20170217/'
+    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20180216/'
 
 _flags.append(pidVersion)
 

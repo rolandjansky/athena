@@ -49,6 +49,7 @@
 #include "CaloRec/CaloProtoCluster.h"
 
 using CLHEP::MeV;
+using CLHEP::ns;
 
 namespace {
 
@@ -84,6 +85,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_cellThresholdOnEtorAbsEt         (    0.*MeV),   
     m_neighborThresholdOnEtorAbsEt     (  100.*MeV), 
     m_seedThresholdOnEtorAbsEt         (  200.*MeV),
+    m_seedThresholdOnTAbs              (  12.5*ns),
     m_useNoiseTool                     (false),
     m_usePileUpNoise                   (false),
     m_noiseTool                        ("CaloNoiseTool"),
@@ -96,6 +98,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_neighborCutsInAbsE               (true),
     m_cellCutsInAbsE                   (true),
     m_clusterEtorAbsEtCut              (    0.*MeV),
+    m_seedCutsInT                      (false),
     m_twogaussiannoise                 (false),
     m_treatL1PredictedCellsAsGood      (true),
     m_minSampling                      (0),
@@ -130,6 +133,9 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
   declareProperty("CellThresholdOnEtorAbsEt",
 		  m_cellThresholdOnEtorAbsEt);
 
+  // Time thresholds (in abs. val.)
+  declareProperty("SeedThresholdOnTAbs",m_seedThresholdOnTAbs);
+
   // Seed and cluster cuts are in E or Abs E
   declareProperty("SeedCutsInAbsE",m_seedCutsInAbsE);
 
@@ -138,6 +144,9 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
 
   // Cell cuts are in E or Abs E
   declareProperty("CellCutsInAbsE",m_cellCutsInAbsE);
+
+  //do Seed cuts on Time              
+  declareProperty("SeedCutsInT",m_seedCutsInT);
 
   // Noise Sigma
   declareProperty("NoiseSigma",m_noiseSigma);
@@ -501,6 +510,8 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 	  float signedRatio = epsilon; // not 0 in order to keep bad cells 
 	  if ( finite(noiseSigma) && noiseSigma > 0 && !CaloBadCellHelper::isBad(pCell,m_treatL1PredictedCellsAsGood) ) 
 	    signedRatio = signedE/noiseSigma;
+
+	  //apply energy cuts
 	  bool passedCellCut = (m_cellCutsInAbsE?std::abs(signedRatio):signedRatio)
 	    > m_cellThresholdOnEorAbsEinSigma 
 	    && (m_usePileUpNoise || ((m_cellCutsInAbsE?std::abs(signedEt):signedEt)
@@ -510,7 +521,10 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 	  bool passedSeedCut = (m_seedCutsInAbsE?std::abs(signedRatio):signedRatio) > m_seedThresholdOnEorAbsEinSigma
 	    && ( m_usePileUpNoise || ((m_seedCutsInAbsE?std::abs(signedEt):signedEt) > m_seedThresholdOnEtorAbsEt ));
 
-	  if ( passedCellCut || passedNeighborCut || passedSeedCut ) {
+
+
+	  bool passedSeedAndTimeCut = (passedSeedCut && (!m_seedCutsInT || passCellTimeCut(pCell))); //time cut is applied here
+	  if ( passedCellCut || passedNeighborCut || passedSeedAndTimeCut ) {
 	    const CaloDetDescrElement* dde = pCell->caloDDE();
 	    IdentifierHash hashid = dde ? dde->calo_hash() : m_calo_id->calo_cell_hash(pCell->ID());
 	    CaloTopoTmpClusterCell *tmpClusterCell =
@@ -534,14 +548,14 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 	    }
 #endif
 	    HashCell hashCell(tmpClusterCell);
-	    if ( passedNeighborCut || passedSeedCut ) {
+	    if ( passedNeighborCut || passedSeedAndTimeCut ) {
 	      HashCluster *tmpCluster =
                 new (tmpclus_pool.allocate()) HashCluster (tmplist_pool);
 	      tmpClusterCell->setCaloTopoTmpHashCluster(tmpCluster);
 	      tmpCluster->add(hashCell);
 	      myHashClusters.push_back(tmpCluster);
 	      int caloSample = dde ? dde->getSampling() : m_calo_id->calo_sample(pCell->ID());
-	      if ( passedSeedCut
+	      if ( passedSeedAndTimeCut
 		   && caloSample >= m_minSampling 
 		   && caloSample <= m_maxSampling 
 		   && m_useSampling[caloSample-m_minSampling]) {
@@ -795,4 +809,33 @@ void CaloTopoClusterMaker::getClusterSize(){
   }
   ATH_MSG_DEBUG( "Cluster size = " << m_clusterSize);  
   return;
+}
+
+
+
+inline bool CaloTopoClusterMaker::passCellTimeCut(const CaloCell* pCell) const 
+{
+  // get the cell time to cut on (the same as in CaloEvent/CaloCluster.h)                             
+
+  // need sampling number already for time                                                        
+  CaloSampling::CaloSample sam = pCell->caloDDE()->getSampling();
+  // check for unknown sampling                                                                   
+  if ( sam != CaloSampling::Unknown )
+    {
+      unsigned pmask = 0;
+      if (sam != CaloSampling::PreSamplerB && sam != CaloSampling::PreSamplerE)
+	{
+	  if ( pCell->caloDDE()->is_tile() )
+	    pmask = 0x8080;
+	  else
+	    pmask = 0x2000; //0x2000 is used to tell that time and quality information are available for this channel  (from TWiki: https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/CaloEventDataModel#The_Raw_Data_Model)                                                                                         
+	    
+	  // Is time defined?                                                                         
+	  if(pCell->provenance() & pmask)
+	    {
+	      return std::abs(pCell->time())<m_seedThresholdOnTAbs;
+	    }
+	}
+    }
+  return true;
 }

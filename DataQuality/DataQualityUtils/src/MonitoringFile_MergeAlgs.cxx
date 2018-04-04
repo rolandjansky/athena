@@ -454,6 +454,16 @@ void MonitoringFile::merge_weightedEff( TH1& a, const TH1& b )
     return;
   }
 
+  if (entries_b == 0) { 
+    // nothing to merge with, return
+    return;
+  }
+  if (entries_a == 0) {
+    // replace my contents with b
+    a.Add(&b);
+    return;
+  }
+
   // do not attempt to automatically extend!
   a.SetCanExtend(TH1::kNoAxis);
 
@@ -467,6 +477,7 @@ void MonitoringFile::merge_weightedEff( TH1& a, const TH1& b )
       double binContent_b = b.GetBinContent(bin);
 
       //Error treatment added by Evan Wulf:
+      //Note that the errors are not used in the calculation!
       double binError_a = a.GetBinError(bin);
       double binError_b = b.GetBinError(bin);
 

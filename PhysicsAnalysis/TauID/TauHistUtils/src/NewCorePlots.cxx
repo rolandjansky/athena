@@ -53,7 +53,7 @@ void NewCorePlots::initializePlots(){
     m_ipZ0SinThetaSigLeadTrk           = Book1D("ipZ0SinThetaSigLeadTrk",m_sTauJetContainerName + "Tau ipZ0SinThetaSigLeadTrk ;ipZ0SinThetaSigLeadTrk ;# of Taus",10,  0,   40      );
     m_etOverPtLeadTrk                  = Book1D("etOverPtLeadTrk",m_sTauJetContainerName + "Tau etOverPtLeadTrk ;etOverPtLeadTrk ;# of Taus",   50,  0,   4.      );
     m_ipSigLeadTrk 		       = Book1D("ipSigLeadTrk",m_sTauJetContainerName + "Tau ipSigLeadTrk ;ipSigLeadTrk ;# of Taus", 30,  -15, 15   );
-    m_massTrkSys 		       = Book1D("massTrkSys",m_sTauJetContainerName + "Tau massTrkSys ;massTrkSys ;# of Taus",    20,  0,   2500    );	      
+    m_massTrkSys 		       = Book1D("massTrkSys",m_sTauJetContainerName + "Tau massTrkSys ;massTrkSys ;# of Taus", 50, -1.0, 10.0);
     m_trkWidth2 		       = Book1D("trkWidth2",m_sTauJetContainerName + "Tau trkWidth2 ;trkWidth2 ;# of Taus", 20,  0,   1.0     );		      
     m_trFlightPathSig 	               = Book1D("trFlightPathSig",m_sTauJetContainerName + "Tau trFlightPathSig ;trFlightPathSig ;# of Taus",   100,  -10,   20      );
     //    m_nPi0                             = Book1D("NPio",m_sTauJetContainerName + "Tau NPio ;NPi0 ;# of Taus",  10,  0,   15      );
@@ -102,8 +102,8 @@ void NewCorePlots::fill(const xAOD::TauJet& tau) {
   test=tau.detail(xAOD::TauJetParameters::ipSigLeadTrk, avariable);
   if(test)     m_ipSigLeadTrk->Fill(avariable,1.);
 
-  test=tau.detail(xAOD::TauJetParameters::massTrkSys, avariable);
-  if(test)     m_massTrkSys->Fill(avariable,1.);
+  test = tau.detail(xAOD::TauJetParameters::massTrkSys, avariable);
+  if ( test ) m_massTrkSys->Fill(avariable/1000.0,1.);
 
   test=tau.detail(xAOD::TauJetParameters::trkWidth2, avariable);
   if(test)     m_trkWidth2->Fill(avariable,1.);

@@ -168,6 +168,8 @@ class Processor:
       
       logging.info("Event processing finished successfully.")
       log_processed(skipped, processed)
+      from HLTTestApps import print_ros_hit_map
+      print_ros_hit_map(processed)
       logging.info('Current state is "%s"' % self.state)
       
   def _run_aux(self, skipped, processed, total):

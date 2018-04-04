@@ -199,7 +199,7 @@ TrigCaloClusterMaker_slw = Factory(TrigCaloClusterMaker,name='TrigCaloClusterMak
 
 # Here we configure tools needed for supercluster building. Copying from egamma/egammaTools/python/egammaToolsFactories.py
 def configureClusterCorrections(swTool):
-  "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
+  '''Add attributes ClusterCorrectionToolsXX to egammaSwTool object'''
   from CaloClusterCorrection.CaloSwCorrections import  make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1, \
       etaoff_b2,etaoff_e2,phioff_b2,phioff_e2,update,time,listBadChannel
   from CaloRec.CaloRecMakers import _process_tools
@@ -237,13 +237,13 @@ egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
                            postInit=[configureClusterCorrections])
 
 TrigEgammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
-        name = 'TrigegammaTopoClusterCopier' ,
+        name = 'TrigEgammaTopoClusterCopier' ,
         InputTopoCollection='TopoCaloClusterMaker_topo_FS',
         OutputTopoCollection='TrigEgammaTopoClusters',
         )
 
 TrigElectronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
-                                           name = 'electronSuperClusterBuilder',
+                                           name = 'TrigElectronSuperClusterBuilder',
                                            ClusterCorrectionTool=egammaSwTool,
                                            MVACalibTool=TrigEgammaMVACalibTool,
                                            EtThresholdCut=1000,

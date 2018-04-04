@@ -12,6 +12,8 @@ __author__  = 'Moritz Backes & Catrin Bernius & Joerg Stelzer'
 __version__=""
 __doc__="Obtaining Dictionaries from Chain Names"
 
+import re 
+
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 logDict = logging.getLogger('TriggerMenu.menu.DictFromChainName')
@@ -25,9 +27,13 @@ class DictFromChainName(object):
         # ---- Then complete the dict with other info    ----
         # ---- of formate: # chainName :                ----
         # ----  chainCounter (int), L1item (str), Stream (str), EBstep (str)] ----   
-        # ---- chainName = chainInfo[0]
+        # ---- chainName = chainInfo[0]    
         
         m_chainName = chainInfo[0]
+
+        # check if name is in principle ok - no forbidden characters
+        assert len(re.findall(r"[^A-Za-z0-9_.-]", m_chainName))==0, "Forbidden characters in chain name "+m_chainName
+
         m_L1item = chainInfo[1]
         m_L1items_chainParts = chainInfo[2]
         m_stream = chainInfo[3]

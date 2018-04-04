@@ -593,10 +593,10 @@ class doVertexFinding(InDetFlagsJobProperty):
     StoredValue  = True
 
 class primaryVertexSetup(InDetFlagsJobProperty):
-    """ string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' """
+    """ string to store the type of finder/fitter for pri vertexing, possible types: 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding' 'MedImgMultiFinding' 'GaussIterativeFinding' 'GaussAdaptiveMultiFinding' """
     statusOn     = True
     allowedTypes = ['str']
-    allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder', 'MedImgMultiFinding']
+    allowedValues= [ 'AdaptiveMultiFinding', 'IterativeFinding', 'AdaptiveFinding', 'DefaultFastFinding', 'DefaultFullFinding', 'DefaultKalmanFinding', 'DefaultAdaptiveFinding', 'DefaultVKalVrtFinding', 'DummyVxFinder', 'MedImgMultiFinding', 'GaussIterativeFinding', 'GaussAdaptiveMultiFinding' ]
     StoredValue  = 'IterativeFinding'
 
 class primaryVertexCutSetup(InDetFlagsJobProperty):
@@ -1183,7 +1183,13 @@ class doHIP300(InDetFlagsJobProperty):
 
 class doStoreTrackSeeds(InDetFlagsJobProperty): 
   """Turn on to save the Track Seeds in a xAOD track collecting for development studies""" 
-  statusOn     = True 
+  statusOn     = False 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class doStoreTrackCandidates(InDetFlagsJobProperty):
+  """Turn on to save the Track Candidates (SiSpSeededTracks) in a xAOD track collecting for development studies"""
+  statusOn     = False
   allowedTypes = ['bool']
   StoredValue  = False
 
@@ -2819,6 +2825,7 @@ _list_InDetJobProperties = [Enabled,
                             doDBM,
                             doParticleConversion,
                             doStoreTrackSeeds,
+                            doStoreTrackCandidates,
                             doHIP300,
                             checkDeadElementsOnTrack
                            ]

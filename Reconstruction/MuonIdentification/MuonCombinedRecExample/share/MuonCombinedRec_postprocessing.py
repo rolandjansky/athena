@@ -31,7 +31,6 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
         topSequence += TrackParticleTruthAlg(name = cols[i]+"TruthAlg",
                                              TrackTruthName=cols[i]+"Truth",
                                              TrackParticleName = colsTP[i] )
-    topSequence.CombinedMuonTracksTruthAlg.OutputLevel=VERBOSE
 
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonTruthAssociationAlg
     topSequence += MuonTruthAssociationAlg("MuonTruthAssociationAlg")

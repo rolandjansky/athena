@@ -1,5 +1,3 @@
-Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
-Warning in <TInterpreter::ReadRootmapFile>: class  UCharDbArray found in libStorageSvcDict.so  is already in libRootCnvDict.so 
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -51,10 +49,11 @@ PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'Conn
 PoolSvc              INFO Frontier compression level set to 5
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
-PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
+PoolSvc              INFO Re-initializing PoolSvc
 ToolSvc.ByteStr...   INFO Initializing ToolSvc.ByteStreamMetadataTool - package version ByteStreamCnvSvc-??-??-??
 ProxyProviderSvc     INFO Initializing ProxyProviderSvc - package version SGComps-??-??-??
 ReadBs              DEBUG input handles: 0
@@ -113,7 +112,8 @@ RegStream1          DEBUG Data Deps for RegStream1
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO Initializing EventSelector - package version ByteStreamCnvSvc-??-??-??
 EventSelector     WARNING InputCollections not properly set, checking EventStorageInputSvc properties
-EventSelector        INFO Retrieved StoreGateSvc name of  '':[  ]
+EventSelector        INFO Retrieved StoreGateSvc name of  '':StoreGateSvc
+EventSelector        INFO reinitialization...
 EventSelector        INFO Retrieved InputCollections from InputSvc
 ByteStreamInputSvc   INFO Initializing ByteStreamInputSvc - package version ByteStreamCnvSvc-??-??-??
 ByteStreamInputSvcWARNING ProcessBadEvent property has been moved to EventSelector, please use svgMgr.EventSelector.ProcessBadEvent instead
@@ -166,10 +166,6 @@ SimplePoolFromRaw.root Debug --> Access   DbContainer  CREATE    [ROOT_All] ##Pa
 SimplePoolFromRaw.root Debug --->Adding Assoc :????/##Params [200]  (2 , ffffffff)
 SimplePoolFromRaw.root Debug ---->ClassID:????
 ##Params Debug No objects passing selection criteria... Container has 0 Entries in total.
-RootDatabase.setOption Debug Request TREE_AUTO_FLUSH 
-RootDatabase.setOption Debug File name SimplePoolFromRaw.root
-RootDatabase.setOption Debug Demand to set AUTO_FLUSH for TTree: POOLContainer with value: 0
-AthenaPoolCnvSvc    DEBUG setAttribute TREE_AUTO_FLUSH to 0 for db: SimplePoolFromRaw.root and cont: TTree=POOLContainer
 AthenaPoolCnvSvc    DEBUG setAttribute CONTAINER_SPLITLEVEL to 99 for db: SimplePoolFromRaw.root and cont: TTree=POOLContainerForm(DataHeaderForm)
 Stream1             DEBUG addItemObjects(2101,"*") called
 Stream1             DEBUG            Key:*
@@ -198,7 +194,6 @@ StorageSvc Info Building shape according to reflection information using shape I
 StorageSvc Info DataHeader_p5 [????]
 SimplePoolFromRaw.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
 ???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
-POOLContainer(DataHeader) Debug Setting AUTO_FLUSH for TTree: POOLContainer to value: 0
 SimplePoolFromRaw.root Debug --->Adding Assoc :????/POOLContainer(DataHeader) [202]  (5 , ffffffff)
 SimplePoolFromRaw.root Debug ---->ClassID:????
 SimplePoolFromRaw.root Debug --->Adding Shape[2 , ????]:  [1 Column(s)] 
@@ -208,7 +203,8 @@ SimplePoolFromRaw.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POO
 ???? Debug Opened container POOLContainer(basic/DataHeader) of type ROOT_Tree
 SimplePoolFromRaw.root Debug --->Adding Assoc :????/POOLContainer(basic/DataHeader) [202]  (6 , ffffffff)
 SimplePoolFromRaw.root Debug ---->ClassID:????
-AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFromRaw.root and cont: POOLContainerForm(DataHeaderForm)
+AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFromRaw.root and cont: POOLContainer(DataHeader)
+AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolFromRaw.root and cont: POOLContainerForm(DataHeaderForm)
 WriteTag             INFO EventInfo event: 14350  run: 20720
 WriteTag             INFO registered all data
 RegStream1          DEBUG RegistrationStream execute

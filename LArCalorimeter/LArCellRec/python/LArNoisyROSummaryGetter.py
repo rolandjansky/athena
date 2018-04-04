@@ -56,6 +56,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
                                          BadFEBCut=larNoisyROFlags.BadFEBCut(),
                                          MNBLooseCut=larNoisyROFlags.MNBLooseCut(),
                                          MNBTightCut=larNoisyROFlags.MNBTightCut(),
+                                         MNBTight_PsVetoCut=larNoisyROFlags.MNBTight_PsVetoCut(),
                                          KnownBADFEBsTool=theBadFebTool,
                                          KnownMNBFEBsTool=theMNBFebTool
                                          )

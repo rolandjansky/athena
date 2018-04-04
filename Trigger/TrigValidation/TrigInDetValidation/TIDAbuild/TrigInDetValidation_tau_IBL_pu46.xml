@@ -7,7 +7,7 @@
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_tau_sample0.xml"
+#          include "samples/TrigInDetValidation_tau_sample3.xml"
            
 
 

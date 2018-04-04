@@ -78,6 +78,7 @@ class TrigMultiTrkFex: public HLT::AllTEAlgo  {
 
 
   std::string m_trackCollectionKey;
+  std::string m_outputTrackCollectionKey;
   std::string m_bphysCollectionKey;
   int m_nTrk ;
   int m_nTrkQ; // if negative - no cut

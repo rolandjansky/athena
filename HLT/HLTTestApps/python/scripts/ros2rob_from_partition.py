@@ -59,8 +59,7 @@ def get_robs(ros):
   """
   Get the list of ROBs that correspond to a ROS
   """
-  sd = eformat.helper.SubDetector.values[ros.Detector.LogicalId]
-  return [eformat.helper.SourceIdentifier(sd, rol.Id).code() 
+  return [eformat.helper.SourceIdentifier(rol.Id).code() 
           for robin in ros.Contains for rol in robin.Contains]
 
 def print_ros2rob(ros2rob, out):
@@ -89,4 +88,3 @@ if __name__ == '__main__':
   print >> stderr, "# Extracting ROS2ROB map"
   print >> out, "# ROS2ROB map extracted from %s:" % args.database_file
   print_ros2rob(get_ros2rob(get_roses(args.database_file, args.partition)), out)
-  

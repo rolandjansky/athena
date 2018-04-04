@@ -71,7 +71,7 @@ public:
   FTKRawHit(const FTKRawHit &);
   ~FTKRawHit();
 
-  // shallow assignment operator - does NOT copy MultiTruth pointer
+  // shallow assignment operator - did not used to copy MultiTruth pointer, but does now!
   FTKRawHit& operator=(const FTKRawHit&);
 
   void reset();
