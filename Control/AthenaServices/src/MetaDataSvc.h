@@ -18,7 +18,7 @@
 #include "GaudiKernel/IFileMgr.h"  // for FILEMGR_CALLBACK_ARGS
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaBaseComps/AthService.h"
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 
 #include "boost/bind.hpp"
 
@@ -115,7 +115,6 @@ private: // properties
    /// MetaDataContainer, POOL container name for MetaData.
    StringProperty                 m_metaDataCont;
    /// MetaDataTools, vector with the MetaData tools.
-   //ToolHandleArray<IAlgTool> m_metaDataTools;
    ToolHandleArray<IMetaDataTool> m_metaDataTools;
 };
 

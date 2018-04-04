@@ -22,7 +22,6 @@
 //#include <stdio.h>
 
 //#include <iostream>
-#include "GaudiKernel/ToolFactory.h"
 #include "TRT_FillCablingData_SR1_ECC.h"
 #include <fstream>
 

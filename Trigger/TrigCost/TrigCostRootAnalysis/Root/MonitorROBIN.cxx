@@ -30,7 +30,7 @@ namespace TrigCostRootAnalysis {
   /**
    * Monitor constructor. Sets name and calls base constructor.
    */
-  MonitorROBIN::MonitorROBIN(const TrigCostData* _costData) : MonitorBase(_costData, "ROBIN") {
+  MonitorROBIN::MonitorROBIN(const TrigCostData* costData) : MonitorBase(costData, "ROBIN") {
     m_dummyCounter = newCounter(Config::config().getStr(kDummyString), INT_MIN);
     allowSameIDCounters();
   }
@@ -38,42 +38,42 @@ namespace TrigCostRootAnalysis {
   /**
    * Process new event for this monitor.
    * For the ROS, all ROS data is looped over and recorded.
-   * @param _weight The event weight.
+   * @param weight The event weight.
    */
-  void MonitorROBIN::newEvent(Float_t _weight) {
+  void MonitorROBIN::newEvent(Float_t weight) {
     m_timer.start();
     if (Config::config().debug()) {
-      Int_t _N = 0;
-      for (UInt_t _rob = 0; _rob < m_costData->getNROBs(); ++_rob) {
-        _N += m_costData->getROBDataN(_rob);
+      Int_t N = 0;
+      for (UInt_t rob = 0; rob < m_costData->getNROBs(); ++rob) {
+        N += m_costData->getROBDataN(rob);
       }
-      Info("MonitorROBIN::newEvent", "*** Processing ROBIN ***  Size %i ***", _N);
+      Info("MonitorROBIN::newEvent", "*** Processing ROBIN ***  Size %i ***", N);
     }
 
     //Now loop over the counter collections;
-    for (CounterMapSetIt_t _cmsIt = m_collectionsToProcess.begin(); _cmsIt != m_collectionsToProcess.end(); ++_cmsIt) {
-      CounterMap_t* _counterMap = *_cmsIt;
+    for (CounterMapSetIt_t cmsIt = m_collectionsToProcess.begin(); cmsIt != m_collectionsToProcess.end(); ++cmsIt) {
+      CounterMap_t* counterMap = *cmsIt;
 
       startEvent();
 
       // All looping over individual RODs to do their event monitoring can go here
-      for (UInt_t _robReq = 0; _robReq < m_costData->getNROBs(); ++_robReq) {
-        //Info("TEMP", "*** ROBIN MON *** REQUEST %i / %i", _rob,  m_costData->getNROBs()  );
+      for (UInt_t robReq = 0; robReq < m_costData->getNROBs(); ++robReq) {
+        //Info("TEMP", "*** ROBIN MON *** REQUEST %i / %i", rob,  m_costData->getNROBs()  );
 
-        StringIntSetMap_t _ROBINMapping = getROBINMapping(_robReq);
-        for (StringIntSetMapIt_t _reqIt = _ROBINMapping.begin(); _reqIt != _ROBINMapping.end(); ++_reqIt) {
-          CounterBase* _counter = getCounter(_counterMap, (*_reqIt).first, 0 /*not used*/);
+        StringIntSetMap_t ROBINMapping = getROBINMapping(robReq);
+        for (StringIntSetMapIt_t reqIt = ROBINMapping.begin(); reqIt != ROBINMapping.end(); ++reqIt) {
+          CounterBase* counter = getCounter(counterMap, (*reqIt).first, 0 /*not used*/);
 
-          if (_counter->getCalls() == 0) {
-            _counter->decorate(kDecType, Config::config().getStr(kROBINString));
-            _counter->decorate(kDecMyROS, (*_reqIt).first);
+          if (counter->getCalls() == 0) {
+            counter->decorate(kDecType, Config::config().getStr(kROBINString));
+            counter->decorate(kDecMyROS, (*reqIt).first);
           }
 
-          _counter->processEventCounter(_robReq, UINT_MAX /*not used*/, _weight);
+          counter->processEventCounter(robReq, UINT_MAX /*not used*/, weight);
         }
       }
 
-      endEvent(_weight);
+      endEvent(weight);
     }
     m_timer.stop();
   }
@@ -83,8 +83,8 @@ namespace TrigCostRootAnalysis {
    * Note these are currently hard-coded. We may want to make them configurable
    * @return If this monitor should be active for a given mode.
    */
-  Bool_t MonitorROBIN::getIfActive(ConfKey_t _mode) {
-    switch (_mode) {
+  Bool_t MonitorROBIN::getIfActive(ConfKey_t mode) {
+    switch (mode) {
     case kDoAllSummary:       return kTRUE;
 
     case kDoKeySummary:       return kTRUE;
@@ -92,7 +92,7 @@ namespace TrigCostRootAnalysis {
     case kDoLumiBlockSummary: return kFALSE;
 
     default: Error("MonitorROBIN::getIfActive", "An invalid summary mode was provided (key %s)",
-                   Config::config().getName(_mode).c_str());
+                   Config::config().getName(mode).c_str());
     }
     return kFALSE;
   }
@@ -103,23 +103,23 @@ namespace TrigCostRootAnalysis {
   void MonitorROBIN::saveOutput() {
     m_filterOutput = kTRUE; // Apply any user-specified name filter to output
 
-    VariableOptionVector_t _toSave = m_dummyCounter->getAllHistograms();
-    sharedHistogramOutputRoutine(_toSave);
+    VariableOptionVector_t toSave = m_dummyCounter->getAllHistograms();
+    sharedHistogramOutputRoutine(toSave);
 
-    std::vector<TableColumnFormatter> _toSaveTable;
-    addCommonTableEntries(_toSaveTable);
-    sharedTableOutputRoutine(_toSaveTable);
+    std::vector<TableColumnFormatter> toSaveTable;
+    addCommonTableEntries(toSaveTable);
+    sharedTableOutputRoutine(toSaveTable);
   }
 
   /**
    * Construct new counter of correct derived type, pass back as base type.
    * This function must be implemented by all derived monitor types.
-   * @see MonitorBase::addCounter( const std::string &_name, Int_t _ID )
-   * @param _name Cost reference to name of counter.
-   * @param _ID Reference to ID number of counter.
+   * @see MonitorBase::addCounter( const std::string &_name, Int_t ID )
+   * @param name Cost reference to name of counter.
+   * @param ID Reference to ID number of counter.
    * @returns Base class pointer to new counter object of correct derived type.
    */
-  CounterBase* MonitorROBIN::newCounter(const std::string& _name, Int_t _ID) {
-    return new CounterROB(m_costData, _name, _ID, m_detailLevel, (MonitorBase*) this);
+  CounterBase* MonitorROBIN::newCounter(const std::string& name, Int_t ID) {
+    return new CounterROB(m_costData, name, ID, m_detailLevel, (MonitorBase*) this);
   }
 } // namespace TrigCostRootAnalysis

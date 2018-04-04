@@ -20,7 +20,9 @@ class TrigL2BjetContainerCnv : public TrigL2BjetContainerCnvBase {
  
   protected:
    
+public:
    TrigL2BjetContainerCnv( ISvcLocator *svcloc ) : TrigL2BjetContainerCnvBase(svcloc){}
+protected:
   
    virtual TrigL2BjetContainer_PERS *createPersistent( TrigL2BjetContainer *transObj);
    virtual TrigL2BjetContainer      *createTransient();

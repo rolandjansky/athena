@@ -18,21 +18,19 @@ SCT_SiliconTempCondAlg::SCT_SiliconTempCondAlg(const std::string& name, ISvcLoca
   , m_readKeyTemp0{"SCT_DCSTemp0CondData"}
   , m_writeKey{"SCT_SiliconTempCondData"}
   , m_condSvc{"CondSvc", name}
-  , m_sctDCSSvc{"InDetSCT_DCSConditionsSvc", name}
   , m_pHelper{nullptr}
 {
   declareProperty("UseState", m_useState, "Flag to use state conditions folder");
   declareProperty("ReadKeyState", m_readKeyState, "Key of input state conditions folder");
   declareProperty("ReadKeyTemp", m_readKeyTemp0, "Key of input (hybrid) temperature conditions folder");
   declareProperty("WriteKey", m_writeKey, "Key of output (sensor) temperature conditions folder");
-  declareProperty("DCSConditionsSvc", m_sctDCSSvc, "SCT_DCSConditionsSvc");
 }
 
 StatusCode SCT_SiliconTempCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  // SCT DCS service
-  ATH_CHECK(m_sctDCSSvc.retrieve());
+  // SCT DCS tool
+  ATH_CHECK(m_sctDCSTool.retrieve());
   // SCT ID helper
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
 
@@ -112,7 +110,7 @@ StatusCode SCT_SiliconTempCondAlg::execute() {
   std::unique_ptr<SCT_DCSFloatCondData> writeCdo{std::make_unique<SCT_DCSFloatCondData>()};
   const SCT_ID::size_type wafer_hash_max{m_pHelper->wafer_hash_max()};
   for (SCT_ID::size_type hash{0}; hash<wafer_hash_max; hash++) {
-    writeCdo->setValue(hash, m_sctDCSSvc->sensorTemperature(IdentifierHash(hash)));
+    writeCdo->setValue(hash, m_sctDCSTool->sensorTemperature(IdentifierHash(hash)));
   }
 
   // Record the output cond object

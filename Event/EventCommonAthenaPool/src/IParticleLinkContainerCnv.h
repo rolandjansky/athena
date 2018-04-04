@@ -43,7 +43,9 @@ class IParticleLinkContainerCnv : public T_AthenaPoolCustomCnv< IParticleLinkCon
 protected:
 
   /** The constructor */
+public:
   IParticleLinkContainerCnv( ISvcLocator* svcloc );
+protected:
 
   /** Member method to create the persistent version */
   virtual IParticleLinkContainer_PERS*   createPersistent ( IParticleLinkContainer* transCont );

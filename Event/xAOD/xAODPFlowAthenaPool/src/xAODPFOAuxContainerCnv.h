@@ -21,7 +21,9 @@ class xAODPFOAuxContainerCnv : public xAODPFOAuxContainerCnvBase {
  protected:
   
   /** The constructor */
+public:
   xAODPFOAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
   /** Create persistent container */
   xAOD::PFOAuxContainer* createPersistent( xAOD::PFOAuxContainer* trans );

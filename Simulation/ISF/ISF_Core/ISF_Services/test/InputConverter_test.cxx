@@ -15,7 +15,7 @@
 
 // Framework
 #include "GaudiKernel/PhysicalConstants.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ISvcManager.h"
@@ -64,7 +64,7 @@ class MockFilterTool : public AthAlgTool,
   MOCK_CONST_METHOD1(pass, bool(const HepMC::GenParticle&));
 };
 
-DECLARE_TOOL_FACTORY( MockFilterTool )
+DECLARE_COMPONENT( MockFilterTool )
 
 
 class InputConverter_test: public ::testing::Test {
@@ -355,7 +355,7 @@ TEST_F(InputConverter_test, passesFilters_one_nonpass_filter) {
   m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
-  ASSERT_EQ (genParticleFilters.size(), 1);
+  ASSERT_EQ (genParticleFilters.size(), 1U);
   MockFilterTool* filterTool = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[0]));
   ASSERT_TRUE( filterTool );
 
@@ -379,7 +379,7 @@ TEST_F(InputConverter_test, passesFilters_two_filters) {
   m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilterZ', 'ISFTesting::MockFilterTool/DummyFilterY']");
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
   ToolHandleArray<ISF::IGenParticleFilter>& genParticleFilters = getGenParticleFilters();
-  ASSERT_EQ (genParticleFilters.size(), 2);
+  ASSERT_EQ (genParticleFilters.size(), 2U);
   MockFilterTool* filterTool1 = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[0]));
   ASSERT_TRUE( filterTool1 );
   MockFilterTool* filterTool2 = dynamic_cast<MockFilterTool*>(&*(genParticleFilters[1]));

@@ -13,7 +13,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
            
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
  
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -25,18 +24,12 @@
 #include "MuonRDO/RpcCoinMatrix.h"
 #include "MuonRDO/RpcPad.h"
 #include "MuonRDO/RpcPadContainer.h"
-#include "MuonRDO/RpcSectorLogicContainer.h"
  
-#include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "MuonDigitContainer/RpcDigitContainer.h"
  
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
-
-#include "MuonTrigCoinData/RpcCoinDataContainer.h"
-
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
@@ -44,7 +37,6 @@
 
 
 #include "MuonIdHelpers/MuonStationIndex.h"
-#include "xAODEventInfo/EventInfo.h"
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
@@ -100,8 +92,6 @@ RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const 
   declareProperty("CosmicStation",       m_cosmicStation	= 0	);
   declareProperty("Side",                m_side			= 0	); 
   declareProperty("Clusters",            m_doClusters		= true	);			
-  declareProperty("ClusterContainer",    m_clusterContainerName = "rpcClusters"		);
-  declareProperty("RpcPrepDataContainer",m_key_rpc		= "RPC_Measurements"	);
   declareProperty("RPCTriggerContainer", m_key_trig		= "RPC_triggerHits"	);
   declareProperty("MinimunEntries",      m_MinEntries		= 10	);    // min entries required for summary plot 
   declareProperty("rpc_readout_window",  m_rpc_readout_window	= 0.2   ); // rpc readout window in 10^(-6) s for noise evaluation 
@@ -121,7 +111,6 @@ RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const 
   declareProperty("Muon_Trigger_Items",   m_muon_triggers);
   declareProperty("TriggerDecisionTool",  m_trigDecTool);
   
-  declareProperty("MuonCollection",		     m_muonsName	    = "Muons");
   declareProperty("MuonSegmentCollection",	     m_muonSegmentsName     = "MuonSegments");
   declareProperty("MuonTrackCollection",	     m_muonTracksName	    = "MuonSpectrometerTrackParticles");
   declareProperty("MuonExtrapolatedTrackCollection", m_muonExtrapTracksName = "ExtrapolatedMuonTrackParticles");
@@ -133,6 +122,8 @@ RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const 
   declareProperty("MuonDeltaRMatching"          , m_MuonDeltaRMatching         =   0.15 ); 
   declareProperty("requireMuonCombinedTight"    , m_requireMuonCombinedTight   = false  );
   declareProperty("StandAloneMatchedWithTrack"  , m_StandAloneMatchedWithTrack = true   );
+
+  declareProperty("isMC"                        , m_isMC                       = false  );
   
   declareProperty( "selectTriggerChainGroup"    , m_selectTriggerChainGroup    = false     );
   declareProperty( "deSelectTriggerChainGroup"  , m_deselectTriggerChainGroup  = false     );
@@ -175,19 +166,6 @@ StatusCode RPCStandaloneTracksMon::initialize(){
   ATH_MSG_DEBUG ( "RpcFile: "<< m_rpcfile );
   
   StatusCode sc;
-
-  // Store Gate store
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR ( " Cannot get StoreGateSvc " );
-    return sc ;
-  }
-  // retrieve the active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR ( " Cannot get ActiveStoreSvc " );
-    return sc ;
-  }
 
   // Initialize the IdHelper
   StoreGateSvc* detStore = 0;
@@ -270,8 +248,15 @@ StatusCode RPCStandaloneTracksMon::initialize(){
   m_hRPCPhiEtaCoinThr_eff.clear()	 ;
   m_hRPCPadThr_eff.clear()		 ;
   m_hRPCMuctpiThr_eff.clear()  	 ;
-  m_sectorLogicContainer = 0 ;
 	 
+  ATH_CHECK(m_key_rpc.initialize());
+  ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK(m_clusterContainerName.initialize());
+  ATH_CHECK(m_muCTPI_RDO_key.initialize());
+  ATH_CHECK(m_sectorLogicContainerKey.initialize(!m_isMC));
+  ATH_CHECK(m_rpc_coin_key.initialize());
+  ATH_CHECK(m_muonsName.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -336,39 +321,19 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 //       // retrieve containers
 //       const xAOD::MuonSegmentContainer*     MuonSegments = evtStore()->retrieve< const xAOD::MuonSegmentContainer >        (m_muonSegmentsName);       
 //       const xAOD::TrackParticleContainer*   tracksMS     = evtStore()->retrieve< const xAOD::TrackParticleContainer >        (m_muonTracksName);      
-         const xAOD::MuonContainer*	       Muons        = evtStore()->retrieve< const xAOD::MuonContainer >                      (m_muonsName);
-	 if (!Muons)   {
-	   ATH_MSG_WARNING ("Couldn't retrieve Muons container with key: " << m_muonsName);
-	   return StatusCode::SUCCESS;
-	 } 
-	 ATH_MSG_DEBUG ("Muon container with key: " << m_muonsName<<" found");
+         SG::ReadHandle<xAOD::MuonContainer> Muons(m_muonsName);
+	 ATH_MSG_DEBUG ("Muon container with key: " << m_muonsName.key()<<" found");
 //       const xAOD::VertexContainer*	       MSVertices   = evtStore()->retrieve< const xAOD::VertexContainer >           (m_msVertexCollection);
 //       const xAOD::TrackParticleContainer*   METracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >( m_muonExtrapTracksName );
 //       const xAOD::TrackParticleContainer*   IDTracks     = evtStore()->retrieve< const xAOD::TrackParticleContainer >     ( m_innerTracksName );
   
       
       
-      const Muon::RpcPrepDataContainer* rpc_container;
-      sc = (*m_activeStore)->retrieve(rpc_container, m_key_rpc);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR ( " Cannot retrieve RpcPrepDataContainer " << m_key_rpc );
-	return sc;
-      }
-      ATH_MSG_DEBUG ( "RpcPrepDataContainer " << m_key_rpc <<" found");
+      SG::ReadHandle<Muon::RpcPrepDataContainer> rpc_container(m_key_rpc);
+      ATH_MSG_DEBUG ( "RpcPrepDataContainer " << m_key_rpc.key() <<" found");
 
-      
+      SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
 
-      const DataHandle<xAOD::EventInfo> eventInfo;
-      sc = m_eventStore->retrieve( eventInfo );
-      if (sc.isFailure()) {
-	ATH_MSG_DEBUG ( "no event info" );
-	return StatusCode::SUCCESS;
-      }
-      else {
-	ATH_MSG_DEBUG ( "yes event info" );
-      }
-
-            
       //int RunNumber = eventInfo->runNumber();
       //long int EventNumber = eventInfo->eventNumber();
       long int BCID   =  eventInfo->       bcid()  ;
@@ -385,15 +350,6 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	    }  	 
       }
     
-    
-      // check if data or MC
-      int isMC=0;
-      if (eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION ) ){
-       isMC=1;
-       ATH_MSG_INFO( "SIMULATION");
-      }
-      //   return StatusCode::SUCCESS; // stop this algorithms execute() for this event, here only interested in MC
-        
       ATH_MSG_DEBUG ("****** rpc->size() : " << rpc_container->size());  
     
       Muon::RpcPrepDataContainer::const_iterator containerIt;
@@ -415,16 +371,9 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
       MonGroup rpc_triggerefficiency( this, m_generic_path_rpcmonitoring +"/TriggerEfficiency", run, ATTRIB_UNMANAGED  );
        
       // begin cluster monitoring
-      const Muon::RpcPrepDataContainer* rpc_clusterContainer = nullptr;
-      if(m_eventStore->contains<Muon::RpcPrepDataContainer>(m_clusterContainerName)){
-	sc = m_eventStore->retrieve(rpc_clusterContainer, m_clusterContainerName);
-	if (sc.isFailure()) {
-	  ATH_MSG_DEBUG ( " RPCStandaloneTracksMon :: Cannot retrieve the RPC cluster container " );
-	  return sc;
-	}
-      }  
+      SG::ReadHandle<Muon::RpcPrepDataContainer> rpc_clusterContainer(m_clusterContainerName);
         
-      if (m_doClusters && rpc_clusterContainer )
+      if (m_doClusters)
 	{  
 	  ATH_MSG_DEBUG ( "Start RPC Cluster Monitoring" );
     
@@ -834,7 +783,7 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 		    //Check for muon combined match
 	            bool foundmatch3DwithMuon = false;
 		    int nm=0;
-		    if (Muons){	
+		    if (Muons.cptr()){	
                       // CombinedMuons Tight
 	             for (const xAOD::Muon* muons: *Muons)
 	             {       
@@ -912,77 +861,71 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
     
     std::list<muctpi_rdo> muctpi_rdo_roi_list;
     muctpi_rdo_roi_list.clear();
-    const MuCTPI_RDO* muctpiRDO;
-    sc = (*m_activeStore)->retrieve(muctpiRDO,"MUCTPI_RDO");
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING ( "Cannot retrieve the MuCTPI" );     
+    SG::ReadHandle<MuCTPI_RDO> muctpiRDO(m_muCTPI_RDO_key);
+    if (!muctpiRDO.isValid()) {
+      // FIXME: q222 was building a configuration in which this monitoring
+      //        tool is enabled without the MuCTPI_RDO being available.
+      //        Remove this once that is fixed.
+      ATH_MSG_WARNING ( "Cannot retrieve the MuCTPI" );
       return StatusCode::SUCCESS;
     }
-    else {
         
-        
-        // Create some dummy LVL1 muon thresholds:
-        std::vector< TrigConf::TriggerThreshold* > dummy_thresholds;
-       
-
-        // Loop over the MuCTPI data words, and "reconstruct" them:
-        std::vector< uint32_t >::const_iterator dw_itr = muctpiRDO->dataWord().begin();
-        std::vector< uint32_t >::const_iterator dw_end = muctpiRDO->dataWord().end();
-        for( ; dw_itr != dw_end; ++dw_itr ) {
-            
-            muctpi_rdo  muctpi_rdo_roi;
-            // Use the same class that is used by the LVL2 steering to decode
-            // the muon RoIs:
-
-            uint32_t dataWord = (*dw_itr);
-            uint32_t RoIWord = ( ( dataWord & 0x18000000 ) |
-        			 ( ( dataWord & 0x3fe0000 ) >> 3 ) |
-        			 ( dataWord & 0x3fff ) );
-
-            LVL1::RecMuonRoI roi( RoIWord,
-        			  &( *m_rpcRoiSvc ), &( *m_tgcRoiSvc ),
-        			  &dummy_thresholds );
-            
-            muctpi_rdo_roi.eta= roi.eta() ;
-            muctpi_rdo_roi.phi= roi.phi() ;
-            muctpi_rdo_roi.source= roi.sysID() ;
-            muctpi_rdo_roi.hemisphere= roi.subsysID() ;
-            int muctpi_bcid = ( ( dataWord >> 14 ) & 0x7 );
-            // store difference from L1Acc
-            int dbc = muctpi_bcid;
-            if (!isMC) dbc = dbc - BCID%8;
-            if (dbc<=-4) {
-        	dbc=dbc+8;
-            }else if (dbc>4) {
-        	dbc=dbc-8;
-            }
-            muctpi_rdo_roi.bcid=dbc;	 
-            muctpi_rdo_roi.sectorID= roi.sectorID() ;
-            muctpi_rdo_roi.thrNumber= roi.getThresholdNumber() ;
-            muctpi_rdo_roi.RoINumber= roi.getRoINumber() ;
-            muctpi_rdo_roi.overlapFlags= roi.getOverlap() ;
-
-
-            muctpi_rdo_roi_list.push_back(muctpi_rdo_roi);
-            
-        }
-
-        ATH_MSG_DEBUG(" MUCTPI RoIs = " << muctpi_rdo_roi_list.size() );
+    // Create some dummy LVL1 muon thresholds:
+    std::vector< TrigConf::TriggerThreshold* > dummy_thresholds;
+    
+    
+    // Loop over the MuCTPI data words, and "reconstruct" them:
+    std::vector< uint32_t >::const_iterator dw_itr = muctpiRDO->dataWord().begin();
+    std::vector< uint32_t >::const_iterator dw_end = muctpiRDO->dataWord().end();
+    for( ; dw_itr != dw_end; ++dw_itr ) {
+      
+      muctpi_rdo  muctpi_rdo_roi;
+      // Use the same class that is used by the LVL2 steering to decode
+      // the muon RoIs:
+      
+      uint32_t dataWord = (*dw_itr);
+      uint32_t RoIWord = ( ( dataWord & 0x18000000 ) |
+			   ( ( dataWord & 0x3fe0000 ) >> 3 ) |
+			   ( dataWord & 0x3fff ) );
+      
+      LVL1::RecMuonRoI roi( RoIWord,
+			    &( *m_rpcRoiSvc ), &( *m_tgcRoiSvc ),
+			    &dummy_thresholds );
+      
+      muctpi_rdo_roi.eta= roi.eta() ;
+      muctpi_rdo_roi.phi= roi.phi() ;
+      muctpi_rdo_roi.source= roi.sysID() ;
+      muctpi_rdo_roi.hemisphere= roi.subsysID() ;
+      int muctpi_bcid = ( ( dataWord >> 14 ) & 0x7 );
+      // store difference from L1Acc
+      int dbc = muctpi_bcid;
+      if (!m_isMC) dbc = dbc - BCID%8;
+      if (dbc<=-4) {
+	dbc=dbc+8;
+      }else if (dbc>4) {
+	dbc=dbc-8;
+      }
+      muctpi_rdo_roi.bcid=dbc;	 
+      muctpi_rdo_roi.sectorID= roi.sectorID() ;
+      muctpi_rdo_roi.thrNumber= roi.getThresholdNumber() ;
+      muctpi_rdo_roi.RoINumber= roi.getRoINumber() ;
+      muctpi_rdo_roi.overlapFlags= roi.getOverlap() ;
+      
+      
+      muctpi_rdo_roi_list.push_back(muctpi_rdo_roi);
+      
     }
+    
+    ATH_MSG_DEBUG(" MUCTPI RoIs = " << muctpi_rdo_roi_list.size() );
      
     // Retrieve the Sector Logic container
-    sc = (*m_activeStore) -> retrieve(m_sectorLogicContainer);     
     
-    if (sc.isFailure()) {
-      if (isMC==1) ATH_MSG_DEBUG ( "Cannot retrieve the RpcSectorLogicContainer ... that's normal in MC: no container is produced in digitization" );
-      else 
-	{
-	  ATH_MSG_WARNING ( "Cannot retrieve the RpcSectorLogicContainer ... however, there's no reason to stop here" );     
-	  //return StatusCode::SUCCESS;
-	}
+    if (m_isMC) {
+      ATH_MSG_DEBUG ( "Cannot retrieve the RpcSectorLogicContainer ... that's normal in MC: no container is produced in digitization" );
     }
     else {
-     ATH_MSG_DEBUG("RpcSectorLogicContainer found with size " << m_sectorLogicContainer->size());
+      SG::ReadHandle<RpcSectorLogicContainer> sectorLogicContainer(m_sectorLogicContainerKey);
+      ATH_MSG_DEBUG("RpcSectorLogicContainer found with size " << sectorLogicContainer->size());
 
       ///////////////////////////////////////////
       // Loop over the Sector Logic containers //
@@ -994,9 +937,9 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
       phimaxpad.clear();
       thresholdpad.clear();
   
-      RpcSectorLogicContainer::const_iterator its = m_sectorLogicContainer -> begin();
+      RpcSectorLogicContainer::const_iterator its = sectorLogicContainer -> begin();
       
-      for ( ; its != m_sectorLogicContainer -> end() ; ++its ) 
+      for ( ; its != sectorLogicContainer -> end() ; ++its ) 
 	{
 	  	  int i_sectorid = (*its)->sectorId(); 
 	  // Loop over the trigger hits of each sector
@@ -1038,16 +981,9 @@ StatusCode RPCStandaloneTracksMon::fillHistograms()
 	
 	  /////////////// Trigger hits efficiency
 	  //Trigger hits    
-          const Muon::RpcCoinDataContainer* rpc_coin_container;
-          sc = (*m_activeStore)->retrieve(rpc_coin_container, "RPC_triggerHits" );
-          if (sc.isFailure()) {
-            ATH_MSG_WARNING ( "Cannot retrieve RPC trigger hits container");
-            return sc;
-          }
+          SG::ReadHandle<Muon::RpcCoinDataContainer> rpc_coin_container(m_rpc_coin_key);
 	  
- 
-	  
-	  if (Muons){	
+	  if (Muons.cptr()){	
           // CombinedMuons Tight
 	  for (const xAOD::Muon* muons: *Muons)
 	  {

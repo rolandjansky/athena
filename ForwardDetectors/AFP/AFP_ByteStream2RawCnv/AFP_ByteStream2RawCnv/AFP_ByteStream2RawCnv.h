@@ -16,7 +16,6 @@
 
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"

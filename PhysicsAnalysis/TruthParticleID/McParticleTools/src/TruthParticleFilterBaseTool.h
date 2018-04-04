@@ -103,13 +103,13 @@ class TruthParticleFilterBaseTool : virtual public ITruthParticleFilterTool,
 
   // Containers
   
-  /** Location of the input McEventCollection one wants to filter
+  /** ReadHandleKey for the input McEventCollection one wants to filter
    */
-  StringProperty m_mcEventsName;
+  SG::ReadHandleKey<McEventCollection> m_mcEventsReadHandleKey{this,"McEvents","TruthEvent","ReadHandleKey for input  McEventCollection one wants to filter"};
 
   /** Location of the output McEventCollection which has been filtered
    */
-  StringProperty m_mcEventsOutputName;
+  SG::WriteHandleKey<McEventCollection> m_mcEventsOutputWriteHandleKey{this,"McEventsOutput","GEN_AOD","WriteHandleKey for the output McEventCollection which has been filtered"};
 
 }; 
 

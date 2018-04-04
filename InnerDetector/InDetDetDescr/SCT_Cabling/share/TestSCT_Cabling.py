@@ -61,7 +61,7 @@ import AtlasGeoModel.GeoModelInit
 
 #--------------------------------------------------------------
 # Load ReadCalibData Alg and Service
-#--------------------------------------------------------------
+0#--------------------------------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
@@ -75,19 +75,19 @@ from IOVDbSvc.CondDB import conddb
 
 letsTest='ReadingFromCoraCool'
 if (letsTest=='ReadingFromCoraCool'):
-  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRod-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/ROD")
-  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationMur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/MUR")
-  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRodmur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/RODMUR")
-  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationGeog-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/Geog")
-  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/ROD<forceTimestamp>1409896800</forceTimestamp>")
-  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/RODMUR<forceTimestamp>1409896800</forceTimestamp>")
-  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/MUR<forceTimestamp>1409896800</forceTimestamp>")
-  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/Geog<forceTimestamp>1409896800</forceTimestamp>")
+  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRod-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/ROD", className="CondAttrListVec")
+  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationMur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/MUR", className="CondAttrListVec")
+  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationRodmur-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/RODMUR", className="CondAttrListVec")
+  conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_SCT;dbname=OFLP200</db><tag>SctDaqConfigurationGeog-PERFECT-Aug10-01</tag> /SCT/DAQ/Configuration/Geog", className="CondAttrListVec")
+  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/ROD<forceTimestamp>1409896800</forceTimestamp>", className="CondAttrListVec")
+  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/RODMUR<forceTimestamp>1409896800</forceTimestamp>", className="CondAttrListVec")
+  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/MUR<forceTimestamp>1409896800</forceTimestamp>", className="CondAttrListVec")
+  #conddb.addFolder("SCT","<db>COOLONL_SCT/CONDBR2</db> /SCT/DAQ/Configuration/Geog<forceTimestamp>1409896800</forceTimestamp>", className="CondAttrListVec")
   '''
-  conddb.addFolder("SCT","/SCT/DAQ/Configuration/ROD <tag>HEAD</tag>")
-  conddb.addFolder("SCT","/SCT/DAQ/Configuration/MUR <tag>HEAD</tag>")
-  conddb.addFolder("SCT","/SCT/DAQ/Configuration/RODMUR <tag>HEAD</tag>")
-  conddb.addFolder("SCT","/SCT/DAQ/Configuration/Geog <tag>HEAD</tag>")
+  conddb.addFolder("SCT","/SCT/DAQ/Configuration/ROD <tag>HEAD</tag>", className="CondAttrListVec")
+  conddb.addFolder("SCT","/SCT/DAQ/Configuration/MUR <tag>HEAD</tag>", className="CondAttrListVec")
+  conddb.addFolder("SCT","/SCT/DAQ/Configuration/RODMUR <tag>HEAD</tag>", className="CondAttrListVec")
+  conddb.addFolder("SCT","/SCT/DAQ/Configuration/Geog <tag>HEAD</tag>", className="CondAttrListVec")
   '''
 
   ServiceMgr.SCT_CablingSvc.DataSource='CORACOOL'
@@ -97,15 +97,31 @@ elif (letsTest=='ReadingFromMCFile'):
   ServiceMgr.SCT_CablingSvc.DataSource='SCT_MC_FullCabling_svc.dat'
 elif (letsTest=='ReadingFromCVP'):
   ServiceMgr.SCT_CablingSvc.DataSource='COOLVECTOR'
-  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-MC-06</tag>")
-  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-MC-06</tag>")
-  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-MC-06</tag>")
-  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-MC-06</tag>")
-  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-Run2-10July2015</tag>")
-  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-Run2-10July2015</tag>")
-  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-Run2-10July2015</tag>")
-  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-Run2-10July2015</tag>")
+  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-MC-06</tag>", className="CondAttrListVec")
+  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-MC-06</tag>", className="CondAttrListVec")
+  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-MC-06</tag>", className="CondAttrListVec")
+  conddb.addFolder("","<db>sqlite://none;schema=/tmp/sroe/final.db;dbname=OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-MC-06</tag>", className="CondAttrListVec")
+  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-Run2-10July2015</tag>", className="CondAttrListVec")
+  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-Run2-10July2015</tag>", className="CondAttrListVec")
+  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-Run2-10July2015</tag>", className="CondAttrListVec")
+  #conddb.addFolder("SCT","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-Run2-10July2015</tag>", className="CondAttrListVec")
 
+if (letsTest=='ReadingFromCoraCool') or (letsTest=='ReadingFromCVP'):
+  isRun2 = False # You need to set this flag correctly
+  condAlgName = "SCT_CablingCondAlgFromCoraCool"
+  from AthenaCommon.AlgSequence import AthSequencer
+  condSeq = AthSequencer("AthCondSeq")
+  if not hasattr(condSeq, condAlgName):
+    if isRun2:
+      preFix = "/SCT/DAQ/Config/"
+    else:
+      preFix = "/SCT/DAQ/Configuration/"
+    from SCT_Cabling.SCT_CablingConf import SCT_CablingCondAlgFromCoraCool
+    condSeq += SCT_CablingCondAlgFromCoraCool(name = condAlgName,
+                                              ReadKeyRod = preFix+"ROD",
+                                              ReadKeyRodMur = preFix+"RODMUR",
+                                              ReadKeyMur = preFix+"MUR",
+                                              ReadKeyGeo = preFix+"Geog")
 
 from SCT_Cabling.SCT_CablingConf import SCT_TestCablingAlg
 topSequence+= SCT_TestCablingAlg()

@@ -18,8 +18,7 @@
 #include "Identifier/IdentifierHash.h"
 
 SCT_SiliconConditionsTestAlg::SCT_SiliconConditionsTestAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ),
-  m_siliconSvc("SCT_SiliconConditionsSvc", name)
+  AthAlgorithm( name, pSvcLocator )
 {
   //nop
 }
@@ -28,7 +27,7 @@ SCT_SiliconConditionsTestAlg::SCT_SiliconConditionsTestAlg( const std::string& n
 StatusCode SCT_SiliconConditionsTestAlg::initialize()
 {  
   ATH_MSG_INFO("Calling initialize");
-  if (m_siliconSvc.retrieve().isFailure()) {
+  if (m_siliconTool.retrieve().isFailure()) {
     ATH_MSG_ERROR("Could not retrieve the summary service");
   }
   return StatusCode::SUCCESS;
@@ -40,9 +39,9 @@ StatusCode SCT_SiliconConditionsTestAlg::execute(){
   // so the INFO level messages have no impact on performance of these services when used by clients
   
   ATH_MSG_INFO("Calling execute");
-  ATH_MSG_INFO("Temperature  = " << m_siliconSvc->temperature(IdentifierHash(804)));
-  ATH_MSG_INFO("Depletion V  = " << m_siliconSvc->depletionVoltage(IdentifierHash(804)));
-  ATH_MSG_INFO("Bias Voltage = " << m_siliconSvc->biasVoltage(IdentifierHash(804)));  // was 216808130
+  ATH_MSG_INFO("Temperature  = " << m_siliconTool->temperature(IdentifierHash(804)));
+  ATH_MSG_INFO("Depletion V  = " << m_siliconTool->depletionVoltage(IdentifierHash(804)));
+  ATH_MSG_INFO("Bias Voltage = " << m_siliconTool->biasVoltage(IdentifierHash(804)));  // was 216808130
   return StatusCode::SUCCESS;
 }
 

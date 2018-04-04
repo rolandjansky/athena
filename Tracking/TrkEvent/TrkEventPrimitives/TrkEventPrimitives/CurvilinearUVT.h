@@ -33,7 +33,9 @@ namespace Trk {
      
       The picture shows the curvilinear frame for a straight line measurement
 
+      @internal
       @image html CurvilinearFrameStraw.png
+      @endinternal
 
       @author Andreas.Salzburger@cern.ch
      */

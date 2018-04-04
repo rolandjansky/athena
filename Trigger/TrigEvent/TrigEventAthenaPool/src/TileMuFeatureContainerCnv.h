@@ -19,7 +19,9 @@ class TileMuFeatureContainerCnv : public TileMuFeatureContainerCnvBase {
 
  protected:
 
+public:
   TileMuFeatureContainerCnv( ISvcLocator *svcloc ): TileMuFeatureContainerCnvBase(svcloc){}
+protected:
 
   virtual TileMuFeatureContainer_PERS *createPersistent( TileMuFeatureContainer *transObj);
   virtual TileMuFeatureContainer      *createTransient();

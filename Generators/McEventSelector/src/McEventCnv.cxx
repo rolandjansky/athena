@@ -4,7 +4,6 @@
 
 #include "McEventSelector/McEventCnv.h"
 
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "SGTools/StorableConversions.h"
 #include "McEventSelector/McAddress.h"

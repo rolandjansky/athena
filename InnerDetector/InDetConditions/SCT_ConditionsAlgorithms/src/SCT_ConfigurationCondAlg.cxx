@@ -33,7 +33,6 @@ SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvc
   , m_writeKey{"SCT_ConfigurationCondData"}
   , m_condSvc{"CondSvc", name}
   , m_cablingSvc{"SCT_CablingSvc", name}
-  , m_detStore{"DetectorStore", name}
   , m_pHelper{nullptr}
   , m_pManager{nullptr}
 {
@@ -51,9 +50,8 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
   // SCT cabling service
   ATH_CHECK(m_cablingSvc.retrieve());
 
-  ATH_CHECK(m_detStore.retrieve());
-  ATH_CHECK(m_detStore->retrieve(m_pHelper, "SCT_ID"));
-  ATH_CHECK(m_detStore->retrieve(m_pManager, "SCT"));
+  ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
+  ATH_CHECK(detStore()->retrieve(m_pManager, "SCT"));
 
   // Check conditions folder names
   if ((m_readKeyChannel.key()!=s_coolChannelFolderName) and (m_readKeyChannel.key()!=s_coolChannelFolderName2)) {

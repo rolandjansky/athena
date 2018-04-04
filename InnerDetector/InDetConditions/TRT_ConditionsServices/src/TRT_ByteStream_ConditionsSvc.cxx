@@ -9,7 +9,6 @@
  *  @author Paul Keener
  */
 
-#include "GaudiKernel/ToolFactory.h"
 #include "TRT_ByteStream_ConditionsSvc.h"
 
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"

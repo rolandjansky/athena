@@ -63,7 +63,6 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_larOFC(nullptr)
 {
 
-   declareInterface<IPileUpTool>(this);
    declareInterface<ILArPileUpTool>(this);
 
  // default properties
@@ -2134,9 +2133,10 @@ StatusCode LArPileUpTool::ConvertHits2Samples(const Identifier & cellId, CaloGai
 #endif
 
    // fix the shift +1 if HEC  and nSamples 4 and firstSample 0
-   // in case of overlay this should NOT  be done as the pulse shape read from the database is already shifted
+   // in case of data overlay this should NOT  be done as the pulse shape read from the database is already shifted
+   //   but this should still be done in case of MC overlay
    int ihecshift=0;
-   if(!m_RndmEvtOverlay && m_larem_id->is_lar_hec(cellId) && m_NSamples == 4 && m_firstSample == 0) ihecshift=1;
+   if((!m_RndmEvtOverlay || m_isMcOverlay) && m_larem_id->is_lar_hec(cellId) && m_NSamples == 4 && m_firstSample == 0) ihecshift=1;
 
 
    if (!m_usePhase) {

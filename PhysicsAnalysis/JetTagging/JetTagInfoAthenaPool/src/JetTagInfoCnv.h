@@ -28,7 +28,9 @@ class JetTagInfoCnv : public JetTagInfoCnvBase {
 
  protected:
 
+public:
   JetTagInfoCnv (ISvcLocator *svcloc);
+protected:
   StatusCode initialize(void);
   inline AthenaPoolTopLevelTPCnvBase *getTopLevelTPCnv(void)
     {

@@ -19,7 +19,7 @@ StatusCode TriggerSummaryAlg::initialize()
   ATH_MSG_INFO ("Initializing " << name() << "...");
   // processing of the chains mapping
 
-  CHECK( m_l1decisionKey.initialize() );
+  CHECK(  m_inputDecisionKey.initialize() );
 
   renounceArray( m_finalDecisionKeys );
   CHECK( m_finalDecisionKeys.initialize() );
@@ -34,21 +34,24 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
   // that is certain input
-  auto l1DecisionHandle = SG::makeHandle( m_l1decisionKey, context );
+  auto l1DecisionHandle = SG::makeHandle(  m_inputDecisionKey, context );
   auto inputHandles( m_finalDecisionKeys.makeHandles() );
   TrigCompositeUtils::DecisionIDContainer allPassingIDs;
   for ( auto input: inputHandles ) {
     if ( input.isValid() ) {
-      ATH_MSG_DEBUG( "Partial result " << input.key() << " present" );
       for ( auto decisionObject: *input )  {
 	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
       }
+      ATH_MSG_DEBUG( "Found "<<input->size()<<" Decisions for " << input.key() );
     } else {
-      ATH_MSG_DEBUG( "Missing input " << input.key() << " which may be perfectly correct" );
+      ATH_MSG_DEBUG( "Missing decisions for " << input.key() << " which may be perfectly correct" );
     }
 
   }
-  ATH_MSG_DEBUG( "In summary " << allPassingIDs.size() << " chains passed" );
+  ATH_MSG_DEBUG( "In summary " << allPassingIDs.size() << " chains passed:" );
+  for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
+    ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
+  }  
 
   // check for an evident error, this is HLT chain not mentioned at the L1
   // that is the only reason we pull the L1 here

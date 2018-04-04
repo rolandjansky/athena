@@ -98,25 +98,20 @@ def GetArraysFromTxt(FileName):
 
 def GetArraysFromTxtWithString(FileName, searchString):
     fInFile = open(FileName, 'r')
-    # print FileName
     fInputLines = fInFile.readlines()
     fInFile.close()
 
     Array = []
 
-    # print "searchstring = ",searchString
-
     for line in fInputLines:
-        newLine = line.replace("\n", "")
-        array = newLine.split("\t")
-        # print "Simple functions = ",array
-        if len(array) != 3 and len(array) != 1:
-            continue
-        if searchString not in array[0]:
-            continue
-        Array.append(array)
 
-        # print array
+        if searchString in line:
+            newLine = line.replace("\n", "")
+            array = newLine.split("\t")
+
+            if len(array) != 3 and len(array) != 1:
+                continue
+            Array.append(array)
 
     return Array
 
@@ -124,6 +119,11 @@ def GetArraysFromTxtWithString(FileName, searchString):
 def MakeFolder(FolderName):
     if not os.path.isdir(FolderName):
         os.system("mkdir "+FolderName)
+
+
+def DeleteFolder(FolderName):
+    if os.path.isdir(FolderName):
+        os.system("rm -rf "+FolderName)
 
 
 def GiveFilesWithSpecialStatus(Folder, Status):

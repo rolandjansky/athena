@@ -13,9 +13,10 @@ typedef TileDigitsContainer_p1  TileDigitsContainer_PERS;
 
 class TileDigitsContainerCnv  : public T_AthenaPoolCustomCnv<TileDigitsContainer, TileDigitsContainer_PERS > {
   friend class CnvFactory<TileDigitsContainerCnv>;
-protected:
+public:
   TileDigitsContainerCnv(ISvcLocator* svcloc) :
         T_AthenaPoolCustomCnv<TileDigitsContainer, TileDigitsContainer_PERS >( svcloc) {}
+protected:
   TileDigitsContainer_PERS*  createPersistent(TileDigitsContainer* transCont);
   TileDigitsContainer*       createTransient ();
 };

@@ -4,6 +4,11 @@
 
 #include "MMT_Finder.h"
 
+using std::vector;
+using std::map;
+using std::pair;
+using std::string;
+
 MMT_Finder::MMT_Finder(MMT_Parameters *par, int nUVRoads, int outputLevel){
 
   m_msg.get().setLevel(outputLevel);

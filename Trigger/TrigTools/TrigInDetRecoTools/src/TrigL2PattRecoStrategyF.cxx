@@ -20,7 +20,6 @@
 #include <cmath>
 #include <iostream>
 #include <list>
-//#include "GaudiKernel/ToolFactory.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"

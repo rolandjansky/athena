@@ -5,9 +5,6 @@
 // Framework include(s):
 #include "PathResolver/PathResolver.h"
 
-// EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
-
 // Local include(s):
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 #include <cmath>
@@ -272,11 +269,14 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       ATH_MSG_VERBOSE("Case "<<i<<" track Name "<<trackNames.at(i)<<" and iterations "<<m_SagittaIterations.at(i));
       for( unsigned int j=0; j< m_SagittaIterations.at(i) ;  j++){
         ATH_MSG_VERBOSE("Track "<<i<<" file "<< PathResolverFindCalibFile(Form("MuonMomentumCorrections/sagittaBiasDataAll/outqDeltamPlots_iter%d/",j) + trackNames.at(i) + "_data.root"));
-        
-        setSagittaHistogramsSingle(GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/sagittaBiasDataAll/outqDeltamPlots_iter%d/",j) + trackNames.at(i) + "_data.root"),"inclusive",m_GlobalZScales.at(i)),i);
+        std::unique_ptr<TProfile2D> hist(GetHist( PathResolverFindCalibFile(Form("MuonMomentumCorrections/sagittaBiasDataAll/outqDeltamPlots_iter%d/",j) + trackNames.at(i) + "_data.root"),"inclusive",m_GlobalZScales.at(i)));
+
+        setSagittaHistogramsSingle(hist.get() , i);
       }
     }
   }
+
+  ATH_CHECK(m_eventInfo.initialize());
   //::: Return gracefully:
   return StatusCode::SUCCESS;
 }
@@ -291,7 +291,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     h->GetZaxis()->SetRangeUser(-1,+1);
   }
   
-  TProfile2D* MuonCalibrationAndSmearingTool::GetHist(std::string fname, std::string hname,double GlobalScale){
+  TProfile2D* MuonCalibrationAndSmearingTool::GetHist(const std::string &fname, const std::string &hname, double GlobalScale){
     if( fname.size() == 0 || hname.size()==0 ) return NULL;
     
     ATH_MSG_INFO("Opening correction file : " <<fname);
@@ -302,16 +302,15 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
       return NULL;
     }
 
-    TH3F *h3=NULL;
-    h3=(TH3F*)fmc->Get(hname.c_str());
+    TH3 *h3= static_cast<TH3*>(fmc->Get(hname.c_str()));
     
     if( h3==NULL ){ 
       ATH_MSG_ERROR("NULL sagitta map");
       return NULL; 
-    } 
+    }
 
     h3->SetDirectory(0);
-    TProfile2D *hinclusive=(TProfile2D*)h3->Project3DProfile("yx");
+    TProfile2D *hinclusive= h3->Project3DProfile("yx");
     hinclusive->SetDirectory(0);
     hinclusive->GetXaxis()->SetTitle(h3->GetXaxis()->GetTitle());
     hinclusive->GetYaxis()->SetTitle(h3->GetYaxis()->GetTitle());
@@ -321,6 +320,7 @@ StatusCode MuonCalibrationAndSmearingTool::initialize() {
     
     delete h3;
     fmc->Close();
+    delete fmc;
     return hinclusive;
 }
 
@@ -769,13 +769,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
   }
 
   //::: Retrieve the event information:
-  const xAOD::EventInfo* evtInfo = 0;
-  ATH_MSG_VERBOSE( "Retrieving EventInfo from the EventStore..." );
-  if( evtStore()->retrieve( evtInfo, "EventInfo" ).isFailure() ) {
-    ATH_MSG_ERROR( "No EventInfo object could be retrieved" );
-    ATH_MSG_ERROR( "Random number generation not configured correctly, impossible to determine if dealing with data or MC" );
-    return CorrectionCode::Error;
-  }
+  SG::ReadHandle<xAOD::EventInfo> evtInfo(m_eventInfo);
   ATH_MSG_VERBOSE( "Checking Simulation flag: " << evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) );
 
   if( !evtInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
@@ -835,7 +829,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
 
   if( !m_useExternalSeed ) {
     //::: Get Event Number:
-    const unsigned long long eventNumber = evtInfo ? evtInfo->eventNumber() : 0;
+    const unsigned long long eventNumber = evtInfo->eventNumber();
     //::: Construct a seed for the random number generator:
     const UInt_t seed = 1 + std::abs( mu.phi() ) * 1E6 + std::abs( mu.eta() ) * 1E3 + eventNumber;
     m_random3.SetSeed( seed );

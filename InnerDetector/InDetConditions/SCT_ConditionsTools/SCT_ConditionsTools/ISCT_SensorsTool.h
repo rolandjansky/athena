@@ -35,10 +35,10 @@ class ISCT_SensorsTool: virtual public IAlgTool {
   DeclareInterfaceID(ISCT_SensorsTool, 1, 0);
 
   ///Fill vector with sensors info
-  virtual void getSensorsData(std::vector<std::string>& userVector)=0;
-  virtual const SCT_SensorCondData* getSensorsData(const unsigned int truncatedSerialNumber) const=0;
-  virtual std::string getManufacturer(unsigned int truncatedSerialNumber)=0;
-  virtual void printManufacturers()=0;
+  virtual void getSensorsData(std::vector<std::string>& userVector) const =0;
+  virtual const SCT_SensorCondData* getSensorsData(const unsigned int truncatedSerialNumber) const =0;
+  virtual std::string getManufacturer(unsigned int truncatedSerialNumber) const =0;
+  virtual void printManufacturers() const =0;
 };
 
 #endif // ISCT_SensorsTool_h

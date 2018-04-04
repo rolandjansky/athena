@@ -24,7 +24,7 @@ typedef T_AthenaPoolCustomCnv<CMXCPTobCollection, CMXCPTobCollection_PERS> CMXCP
 class CMXCPTobCollectionCnv: public CMXCPTobCollectionCnvBase {
 friend class CnvFactory<CMXCPTobCollectionCnv>;
 
-protected:
+public:
 
   CMXCPTobCollectionCnv (ISvcLocator* svcloc) :
     CMXCPTobCollectionCnvBase(svcloc),
@@ -32,6 +32,8 @@ protected:
     m_log( m_msgSvc, "CMXCPTobCollectionCnv" )
      {}
   
+protected:
+
   ~CMXCPTobCollectionCnv() {}
   
   virtual CMXCPTobCollection_PERS*   createPersistent (CMXCPTobCollection* transCont);

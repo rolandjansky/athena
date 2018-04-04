@@ -39,7 +39,6 @@ LUCID_PileUpTool::LUCID_PileUpTool(const std::string& type,
   m_npeThreshold     (15, 0.000001),
   m_fillRootTree     (false)
 {
-  declareInterface<IPileUpTool>(this);
 
   m_SimHitCollectionName = "LucidSimHitsVector";
   m_digitsContainerName  = "LucidDigitsCnt";

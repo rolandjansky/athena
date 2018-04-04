@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -69,8 +69,8 @@ protected:
     if (event->type()==QEvent::ChildAdded) {
       //Maybe the user added a widget, so update the event filters (todo: test that it works):
       foreach(QObject* c, watched->children()) {
-	installEventFilterRecursively(c,true);
-	installEventFilterRecursively(c);
+	      installEventFilterRecursively(c,true);
+	      installEventFilterRecursively(c);
       }
       return false;
     }
@@ -90,6 +90,10 @@ protected:
     //the QWidgets, since we need to watch for ChildAdded events.
     if (child==this)
       return;
+    if (!child){
+      std::cerr<<"installEventFilterRecursively: Child is NULL. Aborting."<<std::endl;
+      return;
+    }
     if (remove)
       child->removeEventFilter(this);
     else
@@ -101,7 +105,7 @@ protected:
 
 //____________________________________________________________________
 VP1DockWidget::Imp::Imp(VP1DockWidget* the_dw,IVP1ChannelWidget * cw,VP1TabManager * the_tabmanager)
-  : filteritem(new FilterItem(dw)), dw(the_dw), frame(0), vboxLayout(0),channelwidget(cw),
+  : filteritem(new FilterItem(the_dw)), dw(the_dw), frame(0), vboxLayout(0),channelwidget(cw),
     unselectedmargin(0),selected(false),tabmanager(the_tabmanager) {}
 
 //____________________________________________________________________

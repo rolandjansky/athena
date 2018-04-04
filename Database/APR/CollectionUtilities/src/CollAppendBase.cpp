@@ -16,6 +16,7 @@
 #include "CoralBase/Attribute.h"
 
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 #include "CollectionBase/boost_tokenizer_headers.h"
 
 #include <ctime>
@@ -49,6 +50,7 @@ CollAppendBase::CollAppendBase(std::string name) :
       m_argsVec( name, true, &m_log ),
       m_initialized( false )
 {
+   SystemTools::initGaudi();
    m_metainfo = new MetaInfo();
 
    // attempt to shut up Coverity, MN

@@ -78,9 +78,12 @@ public:
   }
 
   TestUpdater (TestUpdater&& other)
-    : m_p (static_cast<T*> (other.m_p))
+    : m_p (static_cast<T*> (other.m_p)),
+      m_inGrace (0)
   {
   }
+
+  TestUpdater& operator= (const TestUpdater&) = delete; // coverity
 
   ~TestUpdater()
   {

@@ -16,9 +16,9 @@
 
 //Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
-#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 
 ///Example class to show calling the SCT_SiliconConditionsSvc
 class SCT_SiliconConditionsTestAlg : public AthAlgorithm {
@@ -31,7 +31,7 @@ class SCT_SiliconConditionsTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ServiceHandle<ISiliconConditionsSvc> m_siliconSvc;
+  ToolHandle<ISiliconConditionsTool> m_siliconTool{this, "SCT_SiliconConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
 }; //end of class
 
 #endif // SCT_SiliconConditionsTestAlg_H

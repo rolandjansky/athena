@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -17,7 +17,7 @@
 
 #include "IOVRegistrationSvc.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 // Athena includes
 #include "StoreGate/StoreGate.h"
@@ -47,8 +47,6 @@
 #include "CoolKernel/Record.h"
 
 //<<<<<< METHOD DEFINITIONS
-
-DECLARE_SERVICE_FACTORY(IOVRegistrationSvc)
 
 //--------------------------------------------------------------------------
 

@@ -8,6 +8,11 @@
 #include "MMT_Fitter.h"
 
 
+using std::set;
+using std::vector;
+using std::pair;
+using std::string;
+
 
 MMT_Fitter::MMT_Fitter(MMT_Parameters *par, int nlg, double lgmin, double lgmax): /*m_par(par),*/ m_number_LG_regions(nlg), m_LG_min(lgmin), m_LG_max(lgmax), m_msg("MMT_Fitter")
 {

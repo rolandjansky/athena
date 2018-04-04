@@ -10,7 +10,7 @@
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/IAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // EDM include(s):
 #include "xAODEgamma/ElectronContainer.h"

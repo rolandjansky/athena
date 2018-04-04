@@ -53,11 +53,11 @@ class SCT_ReadCalibDataTool: public extends<AthAlgTool, ISCT_ReadCalibDataTool> 
   
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   ///Return whether this tool can report on the hierarchy level (e.g. module, chip...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) const override;
   ///Summarise the result from the tool as good/bad
-  virtual bool isGood(const Identifier& elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  virtual bool isGood(const Identifier& elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   ///same thing with id hash, introduced by shaun with dummy method for now
-  virtual bool isGood(const IdentifierHash& /*hashId*/) override { return true; }
+  virtual bool isGood(const IdentifierHash& /*hashId*/) const override { return true; }
   //@}
   
   // Methods to return calibration defect type and summary

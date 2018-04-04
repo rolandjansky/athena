@@ -67,16 +67,17 @@ IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 IOVDbSvc.OutputLevel = 3
 
 if useDB:
-    # Set up SCT_DCSConditionsSvc and required conditions folders and conditions algorithms
+    # Set up SCT_DCSConditionsSvc/Tool and required conditions folders and conditions algorithms
     from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
     sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
     sct_DCSConditionsSvcSetup.setup()
 
 # For SCT_SiliconConditionsSvc
-from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
-sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
-sct_SiliconConditionsSvcSetup.setUseDB(useDB)
-sct_SiliconConditionsSvcSetup.setup()
+from SCT_ConditionsTools.SCT_SiliconConditionsToolSetup import SCT_SiliconConditionsToolSetup
+sct_SiliconConditionsToolSetup = SCT_SiliconConditionsToolSetup()
+sct_SiliconConditionsToolSetup.setUseDB(useDB)
+sct_SiliconConditionsToolSetup.setDcsTool(sct_DCSConditionsSvcSetup.getTool())
+sct_SiliconConditionsToolSetup.setup()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconConditionsTestAlg
 job+= SCT_SiliconConditionsTestAlg()

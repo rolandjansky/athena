@@ -52,11 +52,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUTSvc::initialize()
     return StatusCode::FAILURE;
   }
   
-  sc = m_ptEndcapLUT.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_ptEndcapLUT);
-    return sc;
-  }
+  ATH_CHECK( m_ptEndcapLUT.retrieve() );
   ATH_MSG_DEBUG("Retrieved service " << m_ptEndcapLUT);
 
   // read LUT

@@ -313,7 +313,7 @@ public:
    *
    * A decoration is locked by changing from a decoration to an ordinary
    * variable.  If the container itself is locked, then modifications
-   * to be variable are not permitted after this call.
+   * to the variable are not permitted after this call.
    */
   virtual void lockDecoration (SG::auxid_t auxid) override;
 

@@ -77,7 +77,6 @@ namespace Trk
      std::vector< Trk::LocalParameters_p1 >             m_localParameters;
      std::vector< Trk::HepSymMatrix_p1 >                m_hepSymMatrices;
 
-     // std::vector< Trk::RIO_OnTrack_p2 >                 m_RIO_OnTrack;
      std::vector< Trk::PseudoMeasurementOnTrack_p1 >    m_pseudoMeasurementOnTrack;
      std::vector< Trk::CompetingRIOsOnTrack_p1 >        m_competingRotsOnTrack; 
      

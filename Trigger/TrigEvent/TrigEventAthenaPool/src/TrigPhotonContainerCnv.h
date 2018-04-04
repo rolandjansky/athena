@@ -21,7 +21,9 @@ class TrigPhotonContainerCnv : public TrigPhotonContainerCnvBase {
  
   protected:
    
+public:
   TrigPhotonContainerCnv( ISvcLocator *svcloc ) : TrigPhotonContainerCnvBase(svcloc){}
+protected:
    
    virtual TrigPhotonContainer_PERS *createPersistent( TrigPhotonContainer *transObj);
    virtual TrigPhotonContainer      *createTransient();

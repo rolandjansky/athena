@@ -19,7 +19,6 @@
 #include <cmath>
 //#include <iostream>
 //#include <list>
-//#include "GaudiKernel/ToolFactory.h"
 //#include "StoreGate/DataHandle.h"
 #include "AthenaKernel/Timeout.h"
 

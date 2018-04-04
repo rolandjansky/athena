@@ -35,7 +35,9 @@ class TrigOperationalInfoCnv : public T_AthenaPoolCustomCnv<TrigOperationalInfo,
 
  protected:
   
+public:
   TrigOperationalInfoCnv(ISvcLocator* svcloc);
+protected:
   ~TrigOperationalInfoCnv();
 
   TrigOperationalInfo_PERS*  createPersistent(TrigOperationalInfo* transObj);

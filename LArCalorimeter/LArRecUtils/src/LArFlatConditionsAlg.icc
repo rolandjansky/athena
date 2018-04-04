@@ -43,7 +43,7 @@ StatusCode LArFlatConditionsAlg<T>::execute() {
   
   if (writeHandle.isValid()) {
     writeHandle.updateStore(); //????
-    msg(MSG::WARNING) << "Found valid write handle" << endmsg;
+    ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }  
 

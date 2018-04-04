@@ -35,7 +35,7 @@ class ZdcID;
  **/
 
 class ZdcIDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<ZdcIDDetDescrCnv>;
+  //    friend class CnvFactory<ZdcIDDetDescrCnv>;
 
 public:
 
@@ -48,7 +48,7 @@ public:
     static long storageType();
     static const CLID& classID();
 
-protected:
+  // protected:
     ZdcIDDetDescrCnv(ISvcLocator* svcloc);
 
 private:

@@ -36,7 +36,6 @@ class TRT_ID;
  **/
 
 class TRT_IDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<TRT_IDDetDescrCnv>;
 
 public:
 
@@ -49,7 +48,6 @@ public:
     static long storageType();
     static const CLID& classID();
 
-protected:
     TRT_IDDetDescrCnv(ISvcLocator* svcloc);
 
 private:

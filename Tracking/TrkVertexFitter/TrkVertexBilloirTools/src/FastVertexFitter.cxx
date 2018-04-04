@@ -8,7 +8,6 @@
 #include "TrkVertexBilloirTools/FastVertexFitter.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "VxVertex/LinearizedTrack.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"

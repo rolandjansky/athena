@@ -56,5 +56,4 @@ class TrigMufastHypoAlg
 	this, "L1Decisions", "", "Name of the input decisions object produced by MuFastSteering"};
 };
 
-DECLARE_ALGORITHM_FACTORY( TrigMufastHypoAlg )
 #endif

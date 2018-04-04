@@ -1,5 +1,5 @@
 #include "../SCTRawContByteStreamCnv.h"
-DECLARE_CONVERTER_FACTORY( SCTRawContByteStreamCnv )
+DECLARE_CONVERTER( SCTRawContByteStreamCnv )
 
 #include "../SCTRawContByteStreamService.h"
 DECLARE_COMPONENT( SCTRawContByteStreamService )  

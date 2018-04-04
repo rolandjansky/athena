@@ -6,7 +6,6 @@
 
 // Framework include files
 #include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -825,9 +824,5 @@ StatusCode AthenaOutputStream::io_finalize() {
       return StatusCode::FAILURE;
    }
    incSvc->removeListener(this, "MetaDataStop");
-   if (!m_streamer->finalizeOutput().isSuccess()) {
-      ATH_MSG_FATAL("Cannot finalize Output file");
-      return StatusCode::FAILURE;
-   }
    return StatusCode::SUCCESS;
 }

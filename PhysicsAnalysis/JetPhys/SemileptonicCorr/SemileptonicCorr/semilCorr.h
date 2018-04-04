@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __SEMIL_CORR__
-#define __SEMIL_CORR__
+#ifndef SEMILEPTONICCORR_SEMILCORR_H
+#define SEMILEPTONICCORR_SEMILCORR_H
 
 #include "TH2F.h"
 #include "TFile.h"
@@ -11,7 +11,6 @@
 #include "TLorentzVector.h"
 #include <vector>
 
-using namespace std;
 
 class semilCorr{
 
@@ -28,21 +27,21 @@ public:
   };
   
 private:
-  vector<vector<TH1F*> > m_histos; 
-  vector<float> etas;
+  std::vector<std::vector<TH1F*> > m_histos; 
+  std::vector<float> m_etas;
 
-  TFile* f;
+  TFile* m_f;
 
-  bool Debug;
+  bool m_Debug;
 
-  float getResponse(float pt, float eta, vector<TH1F*> h);  
+  float getResponse(float pt, float eta, std::vector<TH1F*> h);  
   float getSemilCorrToIncl(TLorentzVector jet, TLorentzVector mu,
-			   vector<TH1F*> histos);
-  vector<int> getHistoIndeces(semilCorr::Systematics syst);
+			   std::vector<TH1F*> histos);
+  std::vector<int> getHistoIndeces(semilCorr::Systematics syst);
 
 
 public:
-  semilCorr(TString fIn, string suffix = "", bool DebugIn = false);
+  semilCorr(TString fIn, std::string suffix = "", bool DebugIn = false);
   ~semilCorr(); 
 
   float getSemilCorrToIncl(TLorentzVector jet, TLorentzVector mu);

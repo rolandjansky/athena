@@ -39,13 +39,8 @@ class L1CaloByteStreamReadTool;
 template<typename ContainerT, typename AuxContainerT>
 class L1CaloByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<L1CaloByteStreamAuxCnv<ContainerT, AuxContainerT> >;
-
-protected:
-
-  L1CaloByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  L1CaloByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~L1CaloByteStreamAuxCnv(){};
 

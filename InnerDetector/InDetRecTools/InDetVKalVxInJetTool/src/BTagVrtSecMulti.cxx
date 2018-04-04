@@ -6,7 +6,6 @@
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 //-------------------------------------------------
 // Other stuff
-#include  "GaudiKernel/ToolFactory.h"
 #include  "AnalysisUtils/AnalysisMisc.h"
 #include  "TrkParticleBase/TrackParticleBaseCollection.h"
 //#include  "TrkParticleCreator/TrackParticleCreatorTool.h"

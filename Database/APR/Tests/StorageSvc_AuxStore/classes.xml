@@ -1,4 +1,6 @@
 <lcgdict>
-  <class name="APRTest::AuxStore" id="A2222222-B111-C111-D111-E22134511121">
-  </class>
+  <class name="APRTest::AuxStore" id="A2222222-B111-C111-D111-E22134511111">  </class>
+  <class name="APRTest::AClassWithDict" >  </class>
+  <class name="std::vector<APRTest::AClassWithDict*>" id="A2222222-B111-C111-D111-E22134533333">  </class>
+
 </lcgdict>

@@ -80,19 +80,17 @@ namespace xAODMaker {
     ToolHandle< xAODMaker::ITrackCollectionCnvTool > m_TrackCollectionCnvTool;
     ToolHandle< xAODMaker::IRecTrackParticleContainerCnvTool > m_RecTrackParticleContainerCnvTool;
 
-    SG::ReadHandle<Rec::TrackParticleContainer> m_aod;
+    SG::ReadHandleKey<Rec::TrackParticleContainer> m_aod;
     
-    SG::ReadHandle<TrackCollection> m_tracks;
+    SG::ReadHandleKey<TrackCollection> m_tracks;
 
-    SG::WriteHandle<xAOD::TrackParticleContainer> m_xaodout;
-    SG::WriteHandle<xAOD::TrackParticleAuxContainer> m_xauxout;
+    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_xaodout;
 
-    SG::WriteHandle<xAOD::TrackParticleContainer> m_xaodTrackParticlesout;
-    SG::WriteHandle<xAOD::TrackParticleAuxContainer> m_xauxTrackParticlesout;
+    SG::WriteHandleKey<xAOD::TrackParticleContainer> m_xaodTrackParticlesout;
 
-    SG::ReadHandle<xAODTruthParticleLinkVector> m_truthParticleLinkVec;    
-    SG::ReadHandle<TrackParticleTruthCollection> m_aodTruth;
-    SG::ReadHandle<TrackTruthCollection>  m_trackTruth;    
+    SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthParticleLinkVec;    
+    SG::ReadHandleKey<TrackParticleTruthCollection> m_aodTruth;
+    SG::ReadHandleKey<TrackTruthCollection>  m_trackTruth;    
 
     /// toggle on converting AOD track particles to xAOD
     bool m_convertAODTrackParticles;
@@ -101,7 +99,7 @@ namespace xAODMaker {
     bool m_convertTracks;
       
     template <typename CONT, typename TRUTHCONT, typename CONVTOOL>
-    int convert(const CONT&, const TRUTHCONT&, CONVTOOL& tool, SG::WriteHandle<xAOD::TrackParticleContainer>&);
+    int convert(const CONT&, const TRUTHCONT&, CONVTOOL& tool, SG::WriteHandle<xAOD::TrackParticleContainer>&, const xAODTruthParticleLinkVector*);
       
     inline xAOD::TrackParticle* createParticle(xAOD::TrackParticleContainer& xaod, const Rec::TrackParticleContainer& container, const Rec::TrackParticle& tp) ;
     inline xAOD::TrackParticle* createParticle( xAOD::TrackParticleContainer& xaod, const TrackCollection& container, const Trk::Track& tp) ;

@@ -186,6 +186,9 @@ namespace InDet
 
     xAOD::Vertex* massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Amg::Vector3D vertex, Trk::TrkV0VertexFitter* concreteVertexFitter);
 
+    SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", 
+	                                                   "primary vertex container" };
+
   };
 
 }//end of namespace InDet

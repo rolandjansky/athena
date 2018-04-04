@@ -9,9 +9,8 @@ atlas_subdir( ByteStreamData )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Control/CLIDSvc
-   Control/DataModel
-   Control/SGTools )
+   Control/AthenaKernel
+   Control/AthContainers )
 
 # External dependencies:
 find_package( tdaq-common )
@@ -31,7 +30,7 @@ atlas_add_library( ByteStreamData
    src/ByteStreamMetadata.cxx
    PUBLIC_HEADERS ByteStreamData
    ${extra_inc}
-   LINK_LIBRARIES DataModel SGTools ${extra_lib} )
+   LINK_LIBRARIES AthContainers ${extra_lib} )
 
 atlas_add_library( ByteStreamData_test
    src/ROBData_t.cxx

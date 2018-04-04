@@ -9,7 +9,6 @@
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAddressCreator.h"

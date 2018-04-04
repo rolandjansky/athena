@@ -24,13 +24,11 @@ typedef T_AthenaPoolCustomCnv<xAOD::AFPSiHitsClusterAuxContainer, xAOD::AFPSiHit
 class xAODAFPSiHitsClusterAuxContainerCnv :
   public xAODAFPSiHitsClusterAuxContainerCnvBase {
  
-  // Declare the factory as our friend:
-  friend class CnvFactory< xAODAFPSiHitsClusterAuxContainerCnv >;
- 
-protected:
+public:
   /// Converter constructor
   xAODAFPSiHitsClusterAuxContainerCnv( ISvcLocator* svcLoc );
  
+protected:
   /// Function preparing the container to be written out
   virtual xAOD::AFPSiHitsClusterAuxContainer*
   createPersistent( xAOD::AFPSiHitsClusterAuxContainer* trans );

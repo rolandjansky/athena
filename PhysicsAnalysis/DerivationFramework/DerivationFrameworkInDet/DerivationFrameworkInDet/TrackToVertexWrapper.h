@@ -14,6 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "xAODTracking/VertexContainer.h"
 
 namespace Trk
 {
@@ -34,6 +35,7 @@ namespace DerivationFramework {
       ToolHandle< Trk::ITrackToVertexIPEstimator > m_tool;
       std::string m_sgName;
       std::string m_containerName;
+      SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey {this, "VertexContainer", "PrimaryVertices", "primary vertex container"};
   }; 
 }
 

@@ -2,28 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCaddReplica.cpp 509054 2012-07-05 13:33:16Z mnowak $
 /**FCaddReplica.cpp -- FileCatalog command line tool to add replica pfn 
   @author Zhen Xie
   @author Maria Girone
-  @date: 02/03/2005 Z.X.
-  set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-  separate logging stream to std::cerr, output stream to std::cout.
-  @date: 07/04/2005 Z.X.
-  adopt to split catalog interface
 */
+
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/FCLeaf.h"
-#include "FileCatalog/FCImpl.h"
-#include "FileCatalog/FCException.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/SystemTools.h"
 #include <memory>
+
 using namespace pool;
+
 void printUsage(){
   std::cout<<"usage: FCaddReplica -r replica [-p pfname -g guid -u contactstring -h]" <<std::endl;
 }
@@ -31,27 +23,10 @@ void printUsage(){
 static const char* opts[] = {"r","p","g","u","h",0};
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
+  SystemTools::initGaudi();
 
-  if(!::getenv( "POOL_OUTMSG_LEVEL" )){ //if not set, default to warning
-    //    // pool::POOLContext::setMessageVerbosityLevel(coral::Warning);
-  }else{
-    coral::MessageStream pms("get threshold");
-    //// pool::POOLContext::setMessageVerbosityLevel( pms.threshold() );
-  }
-
-  /*
-  if( mesgsvc ){
-    //all logging go to cerr
-    mesgsvc->setOutputStream( std::cerr, seal::Msg::Nil );
-    mesgsvc->setOutputStream( std::cerr, coral::Verbose );
-    mesgsvc->setOutputStream( std::cerr, coral::Debug );
-    mesgsvc->setOutputStream( std::cerr, coral::Info );
-    mesgsvc->setOutputStream( std::cerr, coral::Fatal );
-    mesgsvc->setOutputStream( std::cerr, coral::Error );
-    mesgsvc->setOutputStream( std::cerr, coral::Warning );
-  } 
-  */
   std::string  myuri;
   std::string  mypfn;
   std::string  myrpf;
@@ -62,7 +37,9 @@ int main(int argc, char** argv) {
     
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
-    }    
+    } else {
+      myuri=SystemTools::GetEnvStr("POOL_CATALOG");
+    } 
     if( commands.Exists("p") ){
       mypfn=commands.GetByName("p");
     }
@@ -93,25 +70,19 @@ int main(int argc, char** argv) {
   }
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
-    mycatalog->setWriteCatalog(myuri);
-    FCregister r;
-    mycatalog->setAction(r);
+    pool::URIParser p( myuri );
+    p.parse();
+    mycatalog->setWriteCatalog(p.contactstring());
     if( !mypfn.empty() ){
       mycatalog->connect();
       mycatalog->start();
-      r.addReplicaPFN(mypfn,myrpf);
+      mycatalog->addReplicaPFN(mypfn,myrpf);
       mycatalog->commit();  
       mycatalog->disconnect();
     }else if( !myguid.empty() ){
       mycatalog->connect();
       mycatalog->start();
-      FCLeaf* l=static_cast<FCLeaf*>(mycatalog->getWriteCatalog());
-      try{
-        l->getImpl()->addPFNtoGuid(myguid,myrpf,"");//dummy filetype!
-      }catch (const pool::FCnonexistentFileException& /* e */){
-        std::cerr<<"Error: cannot add replica to a non existent file "<<myguid<<std::endl;
-        exit(1);
-      }
+      mycatalog->addReplicaFID(myguid, myrpf);
       mycatalog->commit();  
       mycatalog->disconnect();
     }

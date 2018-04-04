@@ -94,5 +94,5 @@ class Global(DCSC_Subdetector_DefectsOnly):
     
     def run(self, lbtime, run_iovs):
         self.evaluate_inputs(lbtime)
-        return IOVSet(sum((truncate_to_atlas_runs(var.iovs)[0]
+        return IOVSet(sum((truncate_to_atlas_runs(var.iovs)[0] if len(var.iovs) > 0 else []
                           for var in self.variables), []))

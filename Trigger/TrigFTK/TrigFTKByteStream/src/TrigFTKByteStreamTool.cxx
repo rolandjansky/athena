@@ -3,7 +3,6 @@
 */
 
 #include "eformat/SourceIdentifier.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"

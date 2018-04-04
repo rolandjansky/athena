@@ -33,13 +33,13 @@ SCT_ConditionsParameterTool::finalize() {
 
 ///Is the required parameter available?
 bool
-SCT_ConditionsParameterTool::available(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::available(const SCT_CondParameterData::ParameterIndex iparam) const {
   return (iparam==SCT_CondParameterData::AVG_THRESHOLD);
 }
 
 ///Give the indicated value for a module identifier hash
 float
-SCT_ConditionsParameterTool::value(const IdentifierHash& idHash, const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::value(const IdentifierHash& idHash, const SCT_CondParameterData::ParameterIndex iparam) const {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->getValue(idHash, iparam);
@@ -47,13 +47,13 @@ SCT_ConditionsParameterTool::value(const IdentifierHash& idHash, const SCT_CondP
 
 ///Measure of how many valid values went to calculate it. Should be 1 but if, say, 3 chip values were valid out of 6, it could be less (0.5 in this case)
 float
-SCT_ConditionsParameterTool::validity(const IdentifierHash& /*idHash*/, const SCT_CondParameterData::ParameterIndex /*iparam*/) {
+SCT_ConditionsParameterTool::validity(const IdentifierHash& /*idHash*/, const SCT_CondParameterData::ParameterIndex /*iparam*/) const {
   return 1.0;
 }
 
 ///Is a given value within acceptable limits?
 bool 
-SCT_ConditionsParameterTool::isValid(const float parameterValue, const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::isValid(const float parameterValue, const SCT_CondParameterData::ParameterIndex iparam) const {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->isValid(parameterValue, iparam);
@@ -71,7 +71,7 @@ SCT_ConditionsParameterTool::invalid(const unsigned int iparam) const {
 
 ///Maximum value read in from the database
 float
-SCT_ConditionsParameterTool::max(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::max(const SCT_CondParameterData::ParameterIndex iparam) const {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->max(iparam);
@@ -79,7 +79,7 @@ SCT_ConditionsParameterTool::max(const SCT_CondParameterData::ParameterIndex ipa
 
 ///Minimum value read in from the database
 float
-SCT_ConditionsParameterTool::min(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::min(const SCT_CondParameterData::ParameterIndex iparam) const {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->min(iparam);
@@ -87,7 +87,7 @@ SCT_ConditionsParameterTool::min(const SCT_CondParameterData::ParameterIndex ipa
 
 ///Average value
 float
-SCT_ConditionsParameterTool::avg(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::avg(const SCT_CondParameterData::ParameterIndex iparam) const {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->avg(iparam);
@@ -95,7 +95,7 @@ SCT_ConditionsParameterTool::avg(const SCT_CondParameterData::ParameterIndex ipa
 
 ///Standard deviation
 float
-SCT_ConditionsParameterTool::sd(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::sd(const SCT_CondParameterData::ParameterIndex iparam) const {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->sd(iparam);
@@ -103,7 +103,7 @@ SCT_ConditionsParameterTool::sd(const SCT_CondParameterData::ParameterIndex ipar
 
 ///Number of values read in
 unsigned int
-SCT_ConditionsParameterTool::n(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::n(const SCT_CondParameterData::ParameterIndex iparam) const {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return 0;
   return data->n(iparam);
@@ -111,7 +111,7 @@ SCT_ConditionsParameterTool::n(const SCT_CondParameterData::ParameterIndex ipara
 
 ///Fill a user-provided vector with the values (hopefully won't be needed?)
 void
-SCT_ConditionsParameterTool::getValues(std::vector<float>& userVector, const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::getValues(std::vector<float>& userVector, const SCT_CondParameterData::ParameterIndex iparam) const {
   const SCT_CondParameterData* data{getCondData()};
   if (data!=nullptr) data->getValues(userVector, iparam);
   //no return value

@@ -693,57 +693,57 @@ Boxin3(std::vector<std::vector<std::vector<double> > >& value,
   
 }
 
-const int GarfieldGas::nMaxGases;
+const int GarfieldGas::s_nMaxGases;
 
 GarfieldGas::GarfieldGas() :
-  name(""),
-  temperature(293.15), pressure(760.), 
-  nComponents(1),
-  nExcListElements(0), nIonListElements(0),
-  nEfields(0), nBfields(0), nAngles(0),
-  map2d(false),
-  hasElectronVelocityE(false), hasElectronVelocityB(false), hasElectronVelocityExB(false),
-  hasElectronDiffLong(false), hasElectronDiffTrans(false),
-  extrLowVelocity(0), extrHighVelocity(0),
-  extrLowDiffusion(0), extrHighDiffusion(0),
-  extrLowTownsend(0), extrHighTownsend(0),
-  extrLowAttachment(0), extrHighAttachment(0),
-  extrLowMobility(0), extrHighMobility(0),
-  extrLowDissociation(0), extrHighDissociation(0),
-  intpVelocity(0),
-  intpDiffusion(0),
-  intpTownsend(0),
-  intpAttachment(0),
-  intpMobility(0),
-  intpDissociation(0),
-  pressureTable(0), temperatureTable(0)
+  m_name(""),
+  m_temperature(293.15), m_pressure(760.), 
+  m_nComponents(1),
+  m_nExcListElements(0), m_nIonListElements(0),
+  m_nEfields(0), m_nBfields(0), m_nAngles(0),
+  m_map2d(false),
+  m_hasElectronVelocityE(false), m_hasElectronVelocityB(false), m_hasElectronVelocityExB(false),
+  m_hasElectronDiffLong(false), m_hasElectronDiffTrans(false),
+  m_extrLowVelocity(0), m_extrHighVelocity(0),
+  m_extrLowDiffusion(0), m_extrHighDiffusion(0),
+  m_extrLowTownsend(0), m_extrHighTownsend(0),
+  m_extrLowAttachment(0), m_extrHighAttachment(0),
+  m_extrLowMobility(0), m_extrHighMobility(0),
+  m_extrLowDissociation(0), m_extrHighDissociation(0),
+  m_intpVelocity(0),
+  m_intpDiffusion(0),
+  m_intpTownsend(0),
+  m_intpAttachment(0),
+  m_intpMobility(0),
+  m_intpDissociation(0),
+  m_pressureTable(0), m_temperatureTable(0)
 {
-  for (int i = nMaxGases; i--;) {
-    fraction[i] = 0.;
-    gas[i] = "";
+  for (int i = s_nMaxGases; i--;) {
+    m_fraction[i] = 0.;
+    m_gas[i] = "";
   }
-  gas[0] = "Ar";
-  fraction[0] = 1.;
+  m_gas[0] = "Ar";
+  m_fraction[0] = 1.;
 
-  nEfields = 0;
-  nBfields = 1;
-  nAngles  = 1;
+  m_nEfields = 0;
+  m_nBfields = 1;
+  m_nAngles  = 1;
   
-  eFields.clear();
-  bFields.clear(); bFields.resize(1); bFields[0] = 0.;
-  bAngles.clear(); bAngles.resize(1); bAngles[0] = 0.;  
+  m_eFields.clear();
+  m_bFields.clear(); m_bFields.resize(1); m_bFields[0] = 0.;
+  m_bAngles.clear(); m_bAngles.resize(1); m_bAngles[0] = 0.;  
 
-  hasElectronVelocityE   = false; tabElectronVelocityE.clear();
-  hasElectronVelocityB   = false; tabElectronVelocityB.clear();
-  hasElectronVelocityExB = false; tabElectronVelocityExB.clear();
-  hasElectronDiffLong    = false; tabElectronDiffLong.clear();
-  hasElectronDiffTrans   = false; tabElectronDiffTrans.clear();
+  m_hasElectronVelocityE   = false; m_tabElectronVelocityE.clear();
+  m_hasElectronVelocityB   = false; m_tabElectronVelocityB.clear();
+  m_hasElectronVelocityExB = false; m_tabElectronVelocityExB.clear();
+  m_hasElectronDiffLong    = false; m_tabElectronDiffLong.clear();
+  m_hasElectronDiffTrans   = false; m_tabElectronDiffTrans.clear();
 
-  extrLowVelocity     = 0; extrHighVelocity     = 1;
-  extrLowDiffusion    = 0; extrHighDiffusion    = 1;
+  m_extrLowVelocity     = 0; m_extrHighVelocity     = 1;
+  m_extrLowDiffusion    = 0; m_extrHighDiffusion    = 1;
   
-  intpVelocity     = 2;
-  intpDiffusion    = 2;
+  m_intpVelocity     = 2;
+  m_intpDiffusion    = 2;
 
 }
 
@@ -755,7 +755,7 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
   Athena::MsgStreamMember msg("GarfieldGas::ElectronVelocity");
   vx = vy = vz = 0.;
   // Make sure there is at least a table of velocities along E.
-  if (!hasElectronVelocityE) return false;
+  if (!m_hasElectronVelocityE) return false;
 
   // Compute the magnitude of the electric field.
   const double e = sqrt(ex * ex + ey * ey + ez * ez);
@@ -778,7 +778,7 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
       ebang = acos(std::min(1., eb / (e * b)));
     }
   } else {
-    ebang = bAngles[0];
+    ebang = m_bAngles[0];
   }
   
   if (b < Small) {
@@ -786,18 +786,18 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
 
     // Calculate the velocity along E.
     double ve = 0.;
-    if (map2d) {
-      if (!Numerics::Boxin3(tabElectronVelocityE, 
-                            bAngles, bFields, eFields, 
-                            nAngles, nBfields, nEfields,
-                            ebang, b, e0, ve, intpVelocity)) {
+    if (m_map2d) {
+      if (!Numerics::Boxin3(m_tabElectronVelocityE, 
+                            m_bAngles, m_bFields, m_eFields, 
+                            m_nAngles, m_nBfields, m_nEfields,
+                            ebang, b, e0, ve, m_intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along E failed.\n";
         return false;
       }
     } else {
-      ve = Interpolate1D(e0, tabElectronVelocityE[0][0], eFields,
-                         intpVelocity, 
-                         extrLowVelocity, extrHighVelocity);
+      ve = Interpolate1D(e0, m_tabElectronVelocityE[0][0], m_eFields,
+                         m_intpVelocity, 
+                         m_extrLowVelocity, m_extrHighVelocity);
     }
     const double q = -1.;
     const double mu = q * ve / e;
@@ -805,7 +805,7 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
     vy = mu * ey;
     vz = mu * ez;
     
-  } else if (hasElectronVelocityB && hasElectronVelocityExB) {
+  } else if (m_hasElectronVelocityB && m_hasElectronVelocityExB) {
     // Magnetic field, velocities along ExB and Bt available
     
     // Compute unit vectors along E, E x B and Bt.
@@ -843,38 +843,38 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
     
     // Calculate the velocities in all directions.
     double ve = 0., vbt = 0., vexb = 0.;
-    if (map2d) {
-      if (!Numerics::Boxin3(tabElectronVelocityE, 
-                            bAngles, bFields, eFields, 
-                            nAngles, nBfields, nEfields,
-                            ebang, b, e0, ve, intpVelocity)) {
+    if (m_map2d) {
+      if (!Numerics::Boxin3(m_tabElectronVelocityE, 
+                            m_bAngles, m_bFields, m_eFields, 
+                            m_nAngles, m_nBfields, m_nEfields,
+                            ebang, b, e0, ve, m_intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along E failed.\n";
         return false;
       }
-      if (!Numerics::Boxin3(tabElectronVelocityExB, 
-                            bAngles, bFields, eFields, 
-                            nAngles, nBfields, nEfields,
-                            ebang, b, e0, vexb, intpVelocity)) {
+      if (!Numerics::Boxin3(m_tabElectronVelocityExB, 
+                            m_bAngles, m_bFields, m_eFields, 
+                            m_nAngles, m_nBfields, m_nEfields,
+                            ebang, b, e0, vexb, m_intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along ExB failed.\n";
         return false;
       }
-      if (!Numerics::Boxin3(tabElectronVelocityB, 
-                            bAngles, bFields, eFields, 
-                            nAngles, nBfields, nEfields,
-                            ebang, b, e0, vbt, intpVelocity)) {
+      if (!Numerics::Boxin3(m_tabElectronVelocityB, 
+                            m_bAngles, m_bFields, m_eFields, 
+                            m_nAngles, m_nBfields, m_nEfields,
+                            ebang, b, e0, vbt, m_intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along Bt failed.\n";
         return false;
       }
     } else {
-      ve = Interpolate1D(e0, tabElectronVelocityE[0][0], eFields,
-                         intpVelocity,
-                         extrLowVelocity, extrHighVelocity);
-      vbt = Interpolate1D(e0, tabElectronVelocityB[0][0], eFields,
-                          intpVelocity,
-                          extrLowVelocity, extrHighVelocity);
-      vexb = Interpolate1D(e0, tabElectronVelocityExB[0][0], eFields,
-                           intpVelocity,
-                           extrLowVelocity, extrHighVelocity);
+      ve = Interpolate1D(e0, m_tabElectronVelocityE[0][0], m_eFields,
+                         m_intpVelocity,
+                         m_extrLowVelocity, m_extrHighVelocity);
+      vbt = Interpolate1D(e0, m_tabElectronVelocityB[0][0], m_eFields,
+                          m_intpVelocity,
+                          m_extrLowVelocity, m_extrHighVelocity);
+      vexb = Interpolate1D(e0, m_tabElectronVelocityExB[0][0], m_eFields,
+                           m_intpVelocity,
+                           m_extrLowVelocity, m_extrHighVelocity);
     }
 
     // fix by Y.Kataoka
@@ -891,18 +891,18 @@ GarfieldGas::ElectronVelocity(const double ex, const double ey, const double ez,
     
     // Calculate the velocity along E.
     double ve = 0.;
-    if (map2d) {
-      if (!Numerics::Boxin3(tabElectronVelocityE, 
-                            bAngles, bFields, eFields, 
-                            nAngles, nBfields, nEfields,
-                            ebang, b, e0, ve, intpVelocity)) {
+    if (m_map2d) {
+      if (!Numerics::Boxin3(m_tabElectronVelocityE, 
+                            m_bAngles, m_bFields, m_eFields, 
+                            m_nAngles, m_nBfields, m_nEfields,
+                            ebang, b, e0, ve, m_intpVelocity)) {
 	msg << MSG::INFO << "Interpolation of velocity along E failed.\n";
         return false;
       }
     } else {
-      ve = Interpolate1D(e0, tabElectronVelocityE[0][0], eFields, 
-                         intpVelocity,
-                         extrLowVelocity, extrHighVelocity);
+      ve = Interpolate1D(e0, m_tabElectronVelocityE[0][0], m_eFields, 
+                         m_intpVelocity,
+                         m_extrLowVelocity, m_extrHighVelocity);
     }
 
     const double q = -1.;
@@ -1090,9 +1090,9 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
         } else if (strcmp(token, "Dimension") == 0) {
           token = strtok(NULL, " :,%\t");
           if (strcmp(token, "F") == 0) {
-            map2d = false;
+            m_map2d = false;
           } else {
-            map2d = true;
+            m_map2d = true;
           }
           token = strtok(NULL, " :,%\t");
           eFieldRes = atoi(token);
@@ -1105,7 +1105,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
           token = strtok(NULL, " :,%\t");
           angRes = atoi(token);
           // Check the number of angles.
-          if (map2d && angRes <= 0) {
+          if (m_map2d && angRes <= 0) {
 	    msg << MSG::INFO << "Number of E-B angles out of range.\n";
             gasfile.close();
             return false;
@@ -1114,42 +1114,42 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
           token = strtok(NULL, " :,%\t");
           bFieldRes = atoi(token);
           // Check the number of B points.
-          if (map2d && bFieldRes <= 0) {
+          if (m_map2d && bFieldRes <= 0) {
 	    msg << MSG::INFO << "Number of B fields out of range.\n";
             gasfile.close();
             return false;
           }
           
-          eFields.resize(eFieldRes);
-          nEfields = eFieldRes;
-          bFields.resize(bFieldRes);
-          nBfields = bFieldRes;
-          bAngles.resize(angRes);
-          nAngles = angRes;
+          m_eFields.resize(eFieldRes);
+          m_nEfields = eFieldRes;
+          m_bFields.resize(bFieldRes);
+          m_nBfields = bFieldRes;
+          m_bAngles.resize(angRes);
+          m_nAngles = angRes;
 
           // Fill in the excitation/ionisation structs
           // Excitation
           token = strtok(NULL, " :,%\t");
           int nexc = atoi(token);
-          if (nexc >= 0) nExcListElements = nexc;
+          if (nexc >= 0) m_nExcListElements = nexc;
 
           // Ionization
           token = strtok(NULL, " :,%\t");
           int nion = atoi(token);
-          if (nion >= 0) nIonListElements = nion;
+          if (nion >= 0) m_nIonListElements = nion;
 
         } else if (strcmp(token, "E") == 0) {
           token = strtok(NULL, " :,%");
           if (strcmp(token, "fields") == 0) {
             for (int i = 0; i < eFieldRes; i++) {
-              gasfile >> eFields[i];
+              gasfile >> m_eFields[i];
             }
           }
         }  else if (strcmp(token, "E-B") == 0) {
           token = strtok(NULL, " :,%");
           if (strcmp(token, "angles") == 0) {
             for (int i = 0; i < angRes; i++) {
-              gasfile >> bAngles[i];
+              gasfile >> m_bAngles[i];
             }
           }
         } else if (strcmp(token, "B") == 0) {
@@ -1159,7 +1159,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
             for (int i = 0; i < bFieldRes; i++) {
               // B fields are stored in hGauss (to be checked!).
               gasfile >> bstore;
-              bFields[i] = bstore / 100.;
+              m_bFields[i] = bstore / 100.;
             }
           }
         } else if (strcmp(token, "Mixture") == 0) {
@@ -1193,44 +1193,44 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   
 
   if (gasBits[0] == 'T') {
-    hasElectronVelocityE = true;
+    m_hasElectronVelocityE = true;
     InitParamArrays(eFieldRes, bFieldRes, angRes, 
-                    tabElectronVelocityE, 0.);
+                    m_tabElectronVelocityE, 0.);
   } else {
-    hasElectronVelocityE = false;
-    tabElectronVelocityE.clear();
+    m_hasElectronVelocityE = false;
+    m_tabElectronVelocityE.clear();
   }
   if (gasBits[2] == 'T') {
-    hasElectronDiffLong = true;
+    m_hasElectronDiffLong = true;
     InitParamArrays(eFieldRes, bFieldRes, angRes, 
-                    tabElectronDiffLong, 0.);
+                    m_tabElectronDiffLong, 0.);
   } else {
-    hasElectronDiffLong = false;
-    tabElectronDiffLong.clear();
+    m_hasElectronDiffLong = false;
+    m_tabElectronDiffLong.clear();
   }
   if (gasBits[7] == 'T') {
-    hasElectronDiffTrans = true;
+    m_hasElectronDiffTrans = true;
     InitParamArrays(eFieldRes, bFieldRes, angRes, 
-                    tabElectronDiffTrans, 0.);
+                    m_tabElectronDiffTrans, 0.);
   } else {
-    hasElectronDiffTrans = false;
-    tabElectronDiffTrans.clear();
+    m_hasElectronDiffTrans = false;
+    m_tabElectronDiffTrans.clear();
   }
   if (gasBits[8] == 'T') {
-    hasElectronVelocityB = true;
+    m_hasElectronVelocityB = true;
     InitParamArrays(eFieldRes, bFieldRes, angRes, 
-                    tabElectronVelocityB, 0.);
+                    m_tabElectronVelocityB, 0.);
   } else {
-    hasElectronVelocityB = false;
-    tabElectronVelocityB.clear();
+    m_hasElectronVelocityB = false;
+    m_tabElectronVelocityB.clear();
   }
   if (gasBits[9] == 'T') {
-    hasElectronVelocityExB = true;
+    m_hasElectronVelocityExB = true;
     InitParamArrays(eFieldRes, bFieldRes, angRes, 
-                    tabElectronVelocityExB, 0.);
+                    m_tabElectronVelocityExB, 0.);
   } else {
-    hasElectronVelocityExB = false;
-    tabElectronVelocityExB.clear();
+    m_hasElectronVelocityExB = false;
+    m_tabElectronVelocityExB.clear();
   }
   
 
@@ -1253,9 +1253,9 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
       ++gasCount;      
     }
   }
-  if (gasCount > nMaxGases) {
+  if (gasCount > s_nMaxGases) {
     msg << MSG::INFO << "Gas mixture has " << gasCount << " components.\n";
-    msg << MSG::INFO << "    Number of gases is limited to " << nMaxGases << ".\n";
+    msg << MSG::INFO << "    Number of gases is limited to " << s_nMaxGases << ".\n";
     gasMixOk = false;
   } else if (gasCount <= 0) {
     msg << MSG::INFO << "Gas mixture is not defined (zero components).\n";
@@ -1269,19 +1269,19 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   }
 
   if (gasMixOk) {
-    name = "";
-    nComponents = gasCount;
-    for (int i = 0; i < nComponents; ++i) {
-      if (i > 0) name += "/";
-      name += gasnames[i];
-      gas[i] = gasnames[i];
-      fraction[i] = percentages[i] / 100.;
+    m_name = "";
+    m_nComponents = gasCount;
+    for (int i = 0; i < m_nComponents; ++i) {
+      if (i > 0) m_name += "/";
+      m_name += gasnames[i];
+      m_gas[i] = gasnames[i];
+      m_fraction[i] = percentages[i] / 100.;
     }
-    msg << MSG::DEBUG << "Gas composition set to " << name;
-    if (nComponents > 1) {
-      msg << MSG::DEBUG << " (" << fraction[0] * 100;
-      for (int i = 1; i < nComponents; ++i) {
-	msg << MSG::DEBUG << "/" << fraction[i] * 100;
+    msg << MSG::DEBUG << "Gas composition set to " << m_name;
+    if (m_nComponents > 1) {
+      msg << MSG::DEBUG << " (" << m_fraction[0] * 100;
+      for (int i = 1; i < m_nComponents; ++i) {
+	msg << MSG::DEBUG << "/" << m_fraction[i] * 100;
       }
       msg << MSG::DEBUG << ")";
     }
@@ -1307,7 +1307,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
 
   (void)lor; (void)alpha; (void)alpha0; (void)eta; (void)mu; (void)diss; (void)diff; (void)rate; (void)waste;//to suppress unused warnings
 
-  if (map2d) {
+  if (m_map2d) {
     for (int i = 0; i < eFieldRes; i++) {
       for (int j = 0; j < angRes; j++) {
         for (int k = 0; k < bFieldRes; k++) {
@@ -1315,13 +1315,13 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
           gasfile >> ve >> vb >> vexb; 
           // Convert from cm / us to cm / ns
           ve *= 1.e-3; vb *= 1.e-3; vexb *= 1.e-3;
-          if (hasElectronVelocityE) tabElectronVelocityE[j][k][i] = ve;
-          if (hasElectronVelocityB) tabElectronVelocityB[j][k][i] = vb;
-          if (hasElectronVelocityExB) tabElectronVelocityExB[j][k][i] = vexb;
+          if (m_hasElectronVelocityE) m_tabElectronVelocityE[j][k][i] = ve;
+          if (m_hasElectronVelocityB) m_tabElectronVelocityB[j][k][i] = vb;
+          if (m_hasElectronVelocityExB) m_tabElectronVelocityExB[j][k][i] = vexb;
           // Longitudinal and transverse diffusion coefficient
           gasfile >> dl >> dt;
-          if (hasElectronDiffLong) tabElectronDiffLong[j][k][i] = dl;
-          if (hasElectronDiffTrans) tabElectronDiffTrans[j][k][i] = dt;
+          if (m_hasElectronDiffLong) m_tabElectronDiffLong[j][k][i] = dl;
+          if (m_hasElectronDiffTrans) m_tabElectronDiffTrans[j][k][i] = dt;
           // Townsend and attachment coefficient
           gasfile >> alpha >> alpha0 >> eta;
           // Ion mobility
@@ -1337,11 +1337,11 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
             gasfile >> diff;
           }
           // Excitation rates
-          for (int l = 0; l < nExcListElements; l++) {
+          for (int l = 0; l < m_nExcListElements; l++) {
             gasfile >> rate;
           }
           // Ionization rates
-          for (int l = 0; l < nIonListElements; l++) {
+          for (int l = 0; l < m_nIonListElements; l++) {
             gasfile >> rate;
           }
         }
@@ -1352,13 +1352,13 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
       // Drift velocity along E, Bt, ExB
       gasfile >> ve >> waste >> vb >> waste >> vexb >> waste;
       ve *= 1.e-3; vb *= 1.e-3; vexb *= 1.e-3;
-      if (hasElectronVelocityE)   tabElectronVelocityE[0][0][i] = ve;
-      if (hasElectronVelocityB)   tabElectronVelocityB[0][0][i] = vb;
-      if (hasElectronVelocityExB) tabElectronVelocityExB[0][0][i] = vexb;
+      if (m_hasElectronVelocityE)   m_tabElectronVelocityE[0][0][i] = ve;
+      if (m_hasElectronVelocityB)   m_tabElectronVelocityB[0][0][i] = vb;
+      if (m_hasElectronVelocityExB) m_tabElectronVelocityExB[0][0][i] = vexb;
       // Longitudinal and transferse diffusion coefficients
       gasfile >> dl >> waste >> dt >> waste;
-      if (hasElectronDiffLong)  tabElectronDiffLong[0][0][i] = dl;
-      if (hasElectronDiffTrans) tabElectronDiffTrans[0][0][i] = dt;
+      if (m_hasElectronDiffLong)  m_tabElectronDiffLong[0][0][i] = dl;
+      if (m_hasElectronDiffTrans) m_tabElectronDiffTrans[0][0][i] = dt;
       // Townsend and attachment coefficients
       gasfile >> alpha >> waste >> alpha0 >> eta >> waste;
       // Ion mobility
@@ -1373,11 +1373,11 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
         gasfile >> diff >> waste;
       }
       // Excitation rates
-      for (int j = 0; j < nExcListElements; j++) {
+      for (int j = 0; j < m_nExcListElements; j++) {
 	gasfile >> rate >> waste;
       }
       // Ionization rates
-      for (int j = 0; j < nIonListElements; j++) {
+      for (int j = 0; j < m_nIonListElements; j++) {
 	gasfile >> rate >> waste;
       }
     }
@@ -1455,12 +1455,12 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
 	token = strtok(NULL, " :,%=\t");
 	double pTorr = 760.;
 	if (token != NULL) pTorr = atof(token);
-	if (pTorr > 0.) pressure = pTorr;
+	if (pTorr > 0.) m_pressure = pTorr;
       } else if (strcmp(token, "TGAS") == 0) {
 	token = strtok(NULL, " :,%=\t");
 	double tKelvin = 293.15;
 	if (token != NULL) tKelvin = atof(token);
-	if (tKelvin > 0.) temperature = tKelvin;
+	if (tKelvin > 0.) m_temperature = tKelvin;
 	done = true;
 	break;
       } else {
@@ -1474,22 +1474,22 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
   gasfile.close();
   
   // Set the reference pressure and temperature.
-  pressureTable = pressure;
-  temperatureTable = temperature;
+  m_pressureTable = m_pressure;
+  m_temperatureTable = m_temperature;
   
   // Multiply the E/p values by the pressure.
   for (int i = eFieldRes; i--;) {
-    eFields[i] *= pressureTable;
+    m_eFields[i] *= m_pressureTable;
   }
   
   // Decode the extrapolation and interpolation tables.
-  extrHighVelocity = hExtrap[0];
-  extrLowVelocity  = lExtrap[0];
-  intpVelocity     = interpMeth[0];
+  m_extrHighVelocity = hExtrap[0];
+  m_extrLowVelocity  = lExtrap[0];
+  m_intpVelocity     = interpMeth[0];
   // Indices 1 and 2 correspond to velocities along Bt and ExB.
-  extrHighDiffusion = hExtrap[3];
-  extrLowDiffusion  = lExtrap[3];
-  intpDiffusion     = interpMeth[3];
+  m_extrHighDiffusion = hExtrap[3];
+  m_extrLowDiffusion  = lExtrap[3];
+  m_intpDiffusion     = interpMeth[3];
 
   return true;
 }
@@ -1699,90 +1699,90 @@ GarfieldGas::PrintGas() {
   Athena::MsgStreamMember msg("GarfieldGas::PrintGas");
 
   // Print a summary.
-  msg << MSG::INFO << "Gas composition: " << name;
-  if (nComponents > 1) {
-    msg << MSG::INFO << " (" << fraction[0] * 100;
-    for (int i = 1; i < nComponents; ++i) {
-      msg << MSG::INFO << "/" << fraction[i] * 100;
+  msg << MSG::INFO << "Gas composition: " << m_name;
+  if (m_nComponents > 1) {
+    msg << MSG::INFO << " (" << m_fraction[0] * 100;
+    for (int i = 1; i < m_nComponents; ++i) {
+      msg << MSG::INFO << "/" << m_fraction[i] * 100;
     }
     msg << MSG::INFO << ")";
   }
   msg << MSG::INFO << "\n";
-  msg << MSG::INFO << "    Pressure:    " << pressure << " Torr\n";
-  msg << MSG::INFO << "    Temperature: " << temperature << " K\n";
+  msg << MSG::INFO << "    Pressure:    " << m_pressure << " Torr\n";
+  msg << MSG::INFO << "    Temperature: " << m_temperature << " K\n";
   msg << MSG::INFO << "    Gas file:\n";
-  msg << MSG::INFO << "      Pressure:    " << pressureTable << " Torr\n";
-  msg << MSG::INFO << "      Temperature: " << temperatureTable << " K\n";
-  if (nEfields > 1) {
-    msg << MSG::INFO << "    Electric field range:  " << eFields[0] 
-              << " - " << eFields[nEfields - 1] 
-              << " V/cm in " << nEfields  - 1 << " steps.\n";
-  } else if (nEfields == 1) {
-    msg << MSG::INFO << "    Electric field:        " << eFields[0] << " V/cm\n";
+  msg << MSG::INFO << "      Pressure:    " << m_pressureTable << " Torr\n";
+  msg << MSG::INFO << "      Temperature: " << m_temperatureTable << " K\n";
+  if (m_nEfields > 1) {
+    msg << MSG::INFO << "    Electric field range:  " << m_eFields[0] 
+              << " - " << m_eFields[m_nEfields - 1] 
+              << " V/cm in " << m_nEfields  - 1 << " steps.\n";
+  } else if (m_nEfields == 1) {
+    msg << MSG::INFO << "    Electric field:        " << m_eFields[0] << " V/cm\n";
   } else {
     msg << MSG::INFO << "    Electric field range: not set\n";
   }
-  if (nBfields > 1) {
-    msg << MSG::INFO << "    Magnetic field range:  " << bFields[0]
-              << " - " << bFields[nBfields - 1] 
-              << " T in " << nBfields - 1 << " steps.\n";
-  } else if (nBfields == 1) {
-    msg << MSG::INFO << "    Magnetic field:        " << bFields[0] << "\n";
+  if (m_nBfields > 1) {
+    msg << MSG::INFO << "    Magnetic field range:  " << m_bFields[0]
+              << " - " << m_bFields[m_nBfields - 1] 
+              << " T in " << m_nBfields - 1 << " steps.\n";
+  } else if (m_nBfields == 1) {
+    msg << MSG::INFO << "    Magnetic field:        " << m_bFields[0] << "\n";
   } else {
     msg << MSG::INFO << "    Magnetic field range: not set\n";
   }
-  if (nAngles > 1) {
-    msg << MSG::INFO << "    Angular range:         " << bAngles[0]
-              << " - " << bAngles[nAngles - 1]
-              << " in " << nAngles - 1 << " steps.\n";
-  } else if (nAngles == 1) {
-    msg << MSG::INFO << "    Angle between E and B: " << bAngles[0] << "\n";
+  if (m_nAngles > 1) {
+    msg << MSG::INFO << "    Angular range:         " << m_bAngles[0]
+              << " - " << m_bAngles[m_nAngles - 1]
+              << " in " << m_nAngles - 1 << " steps.\n";
+  } else if (m_nAngles == 1) {
+    msg << MSG::INFO << "    Angle between E and B: " << m_bAngles[0] << "\n";
   } else {
     msg << MSG::INFO << "    Angular range: not set\n";
   }
 
   msg << MSG::INFO << "    Available electron transport data:\n";
-  if (hasElectronVelocityE) {
+  if (m_hasElectronVelocityE) {
     msg << MSG::INFO << "      Velocity along E\n";
   }
-  if (hasElectronVelocityB) {
+  if (m_hasElectronVelocityB) {
     msg << MSG::INFO << "      Velocity along Bt\n";
   }
-  if (hasElectronVelocityExB) {
+  if (m_hasElectronVelocityExB) {
     msg << MSG::INFO << "      Velocity along ExB\n";
   }
-  if (hasElectronVelocityE || hasElectronVelocityB || 
-      hasElectronVelocityExB) {
+  if (m_hasElectronVelocityE || m_hasElectronVelocityB || 
+      m_hasElectronVelocityExB) {
     msg << MSG::INFO << "        Low field extrapolation:  ";
-    if (extrLowVelocity == 0) msg << MSG::INFO << " constant\n";
-    else if (extrLowVelocity == 1) msg << MSG::INFO << " linear\n";
-    else if (extrLowVelocity == 2) msg << MSG::INFO << " exponential\n";
+    if (m_extrLowVelocity == 0) msg << MSG::INFO << " constant\n";
+    else if (m_extrLowVelocity == 1) msg << MSG::INFO << " linear\n";
+    else if (m_extrLowVelocity == 2) msg << MSG::INFO << " exponential\n";
     else msg << MSG::INFO << " unknown\n";
     msg << MSG::INFO << "        High field extrapolation: ";
-    if (extrHighVelocity == 0) msg << MSG::INFO << " constant\n";
-    else if (extrHighVelocity == 1) msg << MSG::INFO << " linear\n";
-    else if (extrHighVelocity == 2) msg << MSG::INFO << " exponential\n";
+    if (m_extrHighVelocity == 0) msg << MSG::INFO << " constant\n";
+    else if (m_extrHighVelocity == 1) msg << MSG::INFO << " linear\n";
+    else if (m_extrHighVelocity == 2) msg << MSG::INFO << " exponential\n";
     else msg << MSG::INFO << " unknown\n";
-    msg << MSG::INFO << "        Interpolation order: " << intpVelocity << "\n";
+    msg << MSG::INFO << "        Interpolation order: " << m_intpVelocity << "\n";
   }
-  if (hasElectronDiffLong) {
+  if (m_hasElectronDiffLong) {
     msg << MSG::INFO << "      Longitudinal diffusion coefficient\n";
   }
-  if (hasElectronDiffTrans) {
+  if (m_hasElectronDiffTrans) {
     msg << MSG::INFO << "      Transverse diffusion coefficient\n";
   } 
-  if (hasElectronDiffLong || hasElectronDiffTrans){
+  if (m_hasElectronDiffLong || m_hasElectronDiffTrans){
     msg << MSG::INFO << "        Low field extrapolation:  ";
-    if (extrLowDiffusion == 0) msg << MSG::INFO << " constant\n";
-    else if (extrLowDiffusion == 1) msg << MSG::INFO << " linear\n";
-    else if (extrLowDiffusion == 2) msg << MSG::INFO << " exponential\n";
+    if (m_extrLowDiffusion == 0) msg << MSG::INFO << " constant\n";
+    else if (m_extrLowDiffusion == 1) msg << MSG::INFO << " linear\n";
+    else if (m_extrLowDiffusion == 2) msg << MSG::INFO << " exponential\n";
     else msg << MSG::INFO << " unknown\n";
     msg << MSG::INFO << "        High field extrapolation: ";
-    if (extrHighDiffusion == 0) msg << MSG::INFO << " constant\n";
-    else if (extrHighDiffusion == 1) msg << MSG::INFO << " linear\n";
-    else if (extrHighDiffusion == 2) msg << MSG::INFO << " exponential\n";
+    if (m_extrHighDiffusion == 0) msg << MSG::INFO << " constant\n";
+    else if (m_extrHighDiffusion == 1) msg << MSG::INFO << " linear\n";
+    else if (m_extrHighDiffusion == 2) msg << MSG::INFO << " exponential\n";
     else msg << MSG::INFO << " unknown\n";
-    msg << MSG::INFO << "        Interpolation order: " << intpDiffusion << "\n";
+    msg << MSG::INFO << "        Interpolation order: " << m_intpDiffusion << "\n";
   }
 
 

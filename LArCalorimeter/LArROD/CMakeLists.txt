@@ -49,7 +49,7 @@ atlas_add_library( LArRODLib
 atlas_add_component( LArROD
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel LArCablingLib LArIdentifier LArRawConditions LArRawEvent LArRawUtilsLib LArRecConditions LArRecUtilsLib TBEvent CaloDetDescrLib CaloEvent CommissionEvent AthContainers AthenaPoolUtilities EventInfo LArCOOLConditions LArRODLib )
+                     LINK_LIBRARIES LArRODLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

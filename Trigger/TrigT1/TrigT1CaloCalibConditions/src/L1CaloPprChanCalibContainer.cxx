@@ -122,6 +122,7 @@ void L1CaloPprChanCalibContainer::makeTransient(const std::map<std::string, Cond
   auto it = condAttrListCollectionMap.rbegin();  
 
   auto attrListCollection = it->second;
+
   for(const auto& item : *attrListCollection) {
     auto chanNum = item.first;
     const auto& attrList = item.second;
@@ -163,6 +164,8 @@ void L1CaloPprChanCalibContainer::makeTransient(const std::map<std::string, Cond
 
     addPprChanCalib(L1CaloPprChanCalib(chanNum, errorCode, pedMean, pedValue, pedFirSum, extBcidThreshold, satBcidThreshLow, satBcidThreshHigh, satBcidLevel, bcidEnergyRangeLow, bcidEnergyRangeHigh, firStartBit, firCoeff1, firCoeff2, firCoeff3, firCoeff4, firCoeff5, lutCpStrategy, lutCpOffset, lutCpNoiseCut, lutCpSlope, lutCpPar1, lutCpPar2, lutCpPar3, lutCpPar4, lutCpScale, lutJepStrategy, lutJepOffset, lutJepNoiseCut, lutJepSlope, lutJepPar1, lutJepPar2, lutJepPar3, lutJepPar4, lutJepScale));
   }
+  
+//   }
 }
 
 const L1CaloPprChanCalib* L1CaloPprChanCalibContainer::pprChanCalib(unsigned int channelId) const

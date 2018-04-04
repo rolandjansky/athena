@@ -3,7 +3,6 @@
 */
 
 #include "TrigOnlineMonitor/TrigROBMonitor.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"

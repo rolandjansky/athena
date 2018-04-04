@@ -12,7 +12,7 @@
 #include "ArrayBM.h"
 
 ArrayBM::ArrayBM(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc)
+  : base_class(name,svc)
   , m_maxBunchCrossingPerOrbit(3564)
   , m_t0Offset(0)
   , m_intensityPatternProp()
@@ -60,7 +60,7 @@ StatusCode ArrayBM::initialize()
     m_signalPattern = new double[m_ipLength];
   }
   // Modification for empty bunches option
-  if (m_emptyBunches<0 || std::abs(m_emptyBunches)>m_ipLength){
+  if (m_emptyBunches<0 || std::abs(m_emptyBunches)>static_cast<int>(m_ipLength)){
     // Easy case: Just flip all the bunches
     for (size_t i=0;i<m_ipLength;++i){
       if (rProp[i]>0.) m_signalPattern[i]=0.;
@@ -155,17 +155,4 @@ float ArrayBM::normFactor(int iXing) const
                   << " index " << index
                   << ") is = " <<  m_largestElementInPattern*m_intensityPattern[ index ]);
   return m_largestElementInPattern*m_intensityPattern[ index ];
-}
-
-
-StatusCode ArrayBM::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IBeamIntensity::interfaceID().versionMatch(riid) )
-    {
-      *ppvInterface = (IBeamIntensity*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  // Interface is not directly available: try out the base class
-  return AthService::queryInterface(riid, ppvInterface);
 }

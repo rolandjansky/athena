@@ -11,7 +11,6 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
 #include "ByteStreamData/RawEvent.h" 

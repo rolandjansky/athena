@@ -13,8 +13,6 @@
 
 // Include files
 #include <iostream>
-#include "GaudiKernel/SvcFactory.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"

@@ -47,7 +47,7 @@ atlas_add_library( TileRecUtilsLib
 atlas_add_component( TileRecUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloConditions CaloIdentifier CaloUtilsLib AthenaBaseComps AthenaKernel Identifier GaudiKernel TileConditionsLib TileEvent TileSimEvent TileIdentifier CaloDetDescrLib CaloEvent AthAllocators StoreGateLib SGtests xAODEventInfo TileCalibBlobObjs TileDetDescr PathResolver TileRecUtilsLib )
+                     LINK_LIBRARIES TileRecUtilsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

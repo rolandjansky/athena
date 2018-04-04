@@ -32,7 +32,9 @@ class MuonSpShowerContainerCnv :
 protected:
 
   /** Create the converter from the service locator*/
+public:
     MuonSpShowerContainerCnv(ISvcLocator* svcloc);
+protected:
 
   /** Build the persistent representation from the transient one.*/
     virtual MuonSpShowerContainer_PERS*

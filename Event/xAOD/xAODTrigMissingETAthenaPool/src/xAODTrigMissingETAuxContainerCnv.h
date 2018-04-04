@@ -30,13 +30,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigMissingETAuxContainer,
 class xAODTrigMissingETAuxContainerCnv :
    public xAODTrigMissingETAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODTrigMissingETAuxContainerCnv >;
-
-protected:
+public:
    /// Converter constructor
    xAODTrigMissingETAuxContainerCnv( ISvcLocator* svcLoc );
 
+protected:
    /// Function preparing the container to be written out
    virtual xAOD::TrigMissingETAuxContainer*
    createPersistent( xAOD::TrigMissingETAuxContainer* trans );

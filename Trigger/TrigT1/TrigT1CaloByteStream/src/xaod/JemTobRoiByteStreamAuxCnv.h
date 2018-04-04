@@ -38,13 +38,8 @@ class JepRoiByteStreamV2Tool;
 
 class JemTobRoiByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<JemTobRoiByteStreamAuxCnv>;
-
-protected:
-
-  JemTobRoiByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  JemTobRoiByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~JemTobRoiByteStreamAuxCnv(){};
 

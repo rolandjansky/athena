@@ -5,7 +5,6 @@
 #include "RpcPrepDataContainerCnv.h"
 
 // Gaudi
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"

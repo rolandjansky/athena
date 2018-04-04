@@ -8,7 +8,6 @@
 
 // Include SCT_DCSConditionsTestAlg and Svc
 #include "SCT_DCSConditionsTestAlg.h"
-#include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 
 // Include Athena stuff
 #include "Identifier/Identifier.h"
@@ -19,8 +18,7 @@ using namespace std;
 
 SCT_DCSConditionsTestAlg::SCT_DCSConditionsTestAlg(const std::string& name, 
                                                    ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ),
-  m_DCSConditionsSvc("SCT_DCSConditionsSvc",name)//use SCT_DCSConditionsSvc if you are not running with InDetRecExample
+  AthAlgorithm( name, pSvcLocator )
 { //nop
 }
 
@@ -30,7 +28,7 @@ StatusCode SCT_DCSConditionsTestAlg::initialize(){
   ATH_MSG_INFO("in initialize()");
   //
   StatusCode sc(StatusCode::SUCCESS);
-  sc = m_DCSConditionsSvc.retrieve();
+  sc = m_DCSConditionsTool.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
     ATH_MSG_ERROR("Unable to get the DCS conditions service");
     return sc;
@@ -47,26 +45,18 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
   //
   StatusCode sc(StatusCode::SUCCESS);
   
-  bool DCSfilled(false);
   bool isgoodworks(false);
   float gethvworks=0.0;
   float gettempworks=0.0;
   //  bool side(false);
   //  bool strip(false);
-  ATH_MSG_INFO(m_DCSConditionsSvc);
+  ATH_MSG_INFO(m_DCSConditionsTool);
   
   try{
-    DCSfilled =(m_DCSConditionsSvc->filled());
-  }catch(...){
-    ATH_MSG_FATAL("Exception caught while trying to determine whether the data object was filled");
-    return StatusCode::FAILURE;
-  }
-  
-  try{
-    gettempworks =(m_DCSConditionsSvc->sensorTemperature(Identifier(141015041),InDetConditions::SCT_STRIP));
-    //isgoodworks =(m_DCSConditionsSvc->isGood(Identifier(208584704),InDetConditions::SCT_SIDE));
-    //module =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_MODULE));
-    //strip =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_STRIP));
+    gettempworks =(m_DCSConditionsTool->sensorTemperature(Identifier(141015041),InDetConditions::SCT_STRIP));
+    //isgoodworks =(m_DCSConditionsTool->isGood(Identifier(208584704),InDetConditions::SCT_SIDE));
+    //module =(m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_MODULE));
+    //strip =(m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_STRIP));
   }catch(...){
     ATH_MSG_FATAL("Exception caught while trying to the gettemp method");
     return StatusCode::FAILURE;
@@ -77,29 +67,28 @@ StatusCode SCT_DCSConditionsTestAlg::execute(){
  
 
   try{
-    gethvworks =(m_DCSConditionsSvc->modHV(Identifier(141015041),InDetConditions::SCT_STRIP));
-    //isgoodworks =(m_DCSConditionsSvc->isGood(Identifier(208584704),InDetConditions::SCT_SIDE));
-    //module =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_MODULE));
-    //strip =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_STRIP));
+    gethvworks =(m_DCSConditionsTool->modHV(Identifier(141015041),InDetConditions::SCT_STRIP));
+    //isgoodworks =(m_DCSConditionsTool->isGood(Identifier(208584704),InDetConditions::SCT_SIDE));
+    //module =(m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_MODULE));
+    //strip =(m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_STRIP));
   }catch(...){
     ATH_MSG_FATAL("Exception caught while trying to the modHV method");
     return StatusCode::FAILURE;
   }
 
   ATH_MSG_INFO("gethv(141015041,Strip) "<< (gethvworks?"successful":"failed"));
-  ATH_MSG_INFO("gethv(141015041,Strip) "<< (m_DCSConditionsSvc->modHV(Identifier(141015041),InDetConditions::SCT_STRIP)));
+  ATH_MSG_INFO("gethv(141015041,Strip) "<< (m_DCSConditionsTool->modHV(Identifier(141015041),InDetConditions::SCT_STRIP)));
 
   try{
-    isgoodworks =(m_DCSConditionsSvc->isGood(Identifier(141015041),InDetConditions::SCT_STRIP));
-    //isgoodworks =(m_DCSConditionsSvc->isGood(Identifier(208584704),InDetConditions::SCT_SIDE));
-    //module =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_MODULE));
-    //strip =(m_DCSConditionsSvc->canReportAbout(InDetConditions::SCT_STRIP));
+    isgoodworks =(m_DCSConditionsTool->isGood(Identifier(141015041),InDetConditions::SCT_STRIP));
+    //isgoodworks =(m_DCSConditionsTool->isGood(Identifier(208584704),InDetConditions::SCT_SIDE));
+    //module =(m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_MODULE));
+    //strip =(m_DCSConditionsTool->canReportAbout(InDetConditions::SCT_STRIP));
   }catch(...){
     ATH_MSG_FATAL("Exception caught while trying to the isGood method");
     return StatusCode::FAILURE;
   }
   
-  ATH_MSG_INFO("fillData "<< (DCSfilled?"successful":"failed"));
   ATH_MSG_INFO("isGood(141015041,Strip) "<< (isgoodworks?"successful":"failed"));
 
   return sc;

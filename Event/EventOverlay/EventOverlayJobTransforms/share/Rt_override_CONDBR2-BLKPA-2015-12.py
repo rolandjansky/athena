@@ -63,15 +63,12 @@ else:
 #conddb.blockFolder("/Indet/Beampos")
 #conddb.addFolderWithTag("INDET_OFL","/Indet/Beampos","IndetBeampos-RunDep-MC15-BestKnowledge-002",force=True,forceMC=True)
 
+conddb.addOverride("/GLOBAL/Onl/BTagCalib/RUN12","BTagCalibRUN12Onl-08-18")
+
 #to run overlay chain with trigger                      
 if (hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE") or (hasattr(recAlgs,'doTrigger') and recAlgs.doTrigger() and DetFlags.LVL1_on()):
     print "running with trigger  " 
-    conddb.blockFolder("/PIXEL/HLT/DCS/HV")
-    conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/HV","PixDCSHV-RUN2-UPD1-00",force=True,forceData=True)
-    conddb.blockFolder("/PIXEL/HLT/DCS/TEMPERATURE")
-    conddb.addFolderWithTag("PIXEL_ONL","/PIXEL/HLT/DCS/TEMPERATURE","PixDCSTemp-RUN2-UPD1-00",force=True,forceData=True)
     conddb.addOverride("/GLOBAL/Onl/TrigBTagCalib/RUN12","TrigBTagCalibRUN12Onl-08-10")
-    conddb.addOverride("/GLOBAL/Onl/BTagCalib/RUN12","BTagCalibRUN12Onl-08-15")
 else:
     print "running with no trigger  "
 

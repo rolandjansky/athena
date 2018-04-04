@@ -51,7 +51,7 @@ G4bool LArG4H62004CalibSD::ProcessHits(G4Step* a_step,G4TouchableHistory* /*ROhi
     }
   }
 
-  bool processed = SimpleHit( ident, energies );
+  bool processed = SimpleHit( ident, energies, m_calibrationHits );
   if(!processed) G4cout<<"LArG4H62004CalibSD name: "<<GetName()<<" failure !!"<<G4endl;
   return true;
 }
@@ -84,6 +84,6 @@ G4bool LArG4H62004CalibSD::SpecialHit(G4Step* a_step,
     }
   }
 
-  bool processed = SimpleHit( ident, a_energies );
+  bool processed = SimpleHit( ident, a_energies, m_calibrationHits );
   return processed;
 }

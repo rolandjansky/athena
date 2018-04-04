@@ -12,7 +12,6 @@
 //using namespace EventFormat::RawMemory ; 
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IRegistry.h"

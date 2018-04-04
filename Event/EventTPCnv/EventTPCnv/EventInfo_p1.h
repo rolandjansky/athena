@@ -20,6 +20,12 @@ public:
   EventInfo_p1();
   virtual ~EventInfo_p1();
 
+  EventInfo_p1 (const EventInfo_p1& other);
+  EventInfo_p1& operator= (const EventInfo_p1&);
+
+  EventInfo_p1 (EventInfo_p1&& other);
+  EventInfo_p1& operator= (EventInfo_p1&&);
+
   EventID_p1 			m_event_ID;
   EventType_p1 			m_event_type;
   TriggerInfo_p1 *		m_trigger_info;

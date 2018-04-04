@@ -39,7 +39,7 @@ atlas_add_library( TileGeoModelLib
 atlas_add_component( TileGeoModel
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} StoreGateLib SGtests GeoModelKernel GeoModelUtilities TileDetDescr CaloDetDescrLib CaloIdentifier SGTools GaudiKernel TileConditionsLib TileIdentifier TileGeoModelLib )
+                     LINK_LIBRARIES TileGeoModelLib )
 
 
 # Install files from the package:

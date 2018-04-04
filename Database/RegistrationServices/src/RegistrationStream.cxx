@@ -26,7 +26,6 @@
 #include "StoreGate/DataHandle.h"
 
 // Framework include files
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/ISvcLocator.h"

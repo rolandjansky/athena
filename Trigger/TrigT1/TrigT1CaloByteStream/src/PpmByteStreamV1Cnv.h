@@ -36,13 +36,8 @@ class PpmByteStreamV1Tool;
 
 class PpmByteStreamV1Cnv: public Converter {
 
-  friend class CnvFactory<PpmByteStreamV1Cnv>;
-
-protected:
-
-  PpmByteStreamV1Cnv(ISvcLocator* svcloc);
-
 public:
+  PpmByteStreamV1Cnv(ISvcLocator* svcloc);
 
   ~PpmByteStreamV1Cnv();
 

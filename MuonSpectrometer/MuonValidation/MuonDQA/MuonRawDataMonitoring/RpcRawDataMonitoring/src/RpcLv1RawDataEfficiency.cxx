@@ -12,7 +12,6 @@
 /////////////////////////////////////////////////////////////////////////
       
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "StoreGate/DataHandle.h"
  
@@ -25,9 +24,7 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
-#include "MuonTrigCoinData/RpcCoinDataContainer.h"
 
-#include "xAODEventInfo/EventInfo.h"
 #include <inttypes.h> 
 
 #include <sstream>
@@ -41,7 +38,9 @@ RpcLv1RawDataEfficiency::RpcLv1RawDataEfficiency( const std::string & type,
 						  const std::string & name, 
 						  const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent )
-{}
+{
+  declareProperty("isMC"                        , m_isMC                       = false  );
+}
 
 //================================================================================================================================
 RpcLv1RawDataEfficiency::~RpcLv1RawDataEfficiency()
@@ -55,9 +54,7 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
   ATH_MSG_INFO( "In initializing 'RpcLv1RawDataEfficiency'"  );
   ATH_MSG_INFO( "Package version = "<< PACKAGE_VERSION  );
   
-  m_activeStore  = 0 ;
   m_rpcIdHelper  = 0 ;
-  m_sectorLogicContainer  = 0 ;
   m_muonMgr  = 0 ;
   m_trigtype  = 0 ;
   m_event  = 0 ;
@@ -82,131 +79,19 @@ StatusCode RpcLv1RawDataEfficiency::initialize()
   m_rpclv1_sectorhits_C[5]  = 0 ;  	
   m_rpclv1_sectorhits_all[5]= 0 ;
   
-  // Retrieve the active store where all the information is being read from
-  ATH_CHECK(  serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
-
   ATH_CHECK(  detStore()->retrieve(m_rpcIdHelper,"RPCIDHELPER") );
   ATH_CHECK(  detStore()->retrieve(m_muonMgr) );
   ATH_MSG_DEBUG( "Found the MuonDetectorManager from detector store."  );
+
+  ATH_CHECK(m_rpcCoinKey.initialize());
+  ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK(m_sectorLogicContainerKey.initialize(!m_isMC));
 
   // Ignore the checking code
   ManagedMonitorToolBase::initialize().ignore();
   
   return StatusCode::SUCCESS;
 }
-
-
-//================================================================================================================================
-// Reads the offline muon container into vectors for use in filling histograms
-//================================================================================================================================
-StatusCode RpcLv1RawDataEfficiency::readOfflineMuonContainer( std::string key )
-{
-  ATH_MSG_VERBOSE( "Reading OfflineMuonContainer... "  );
-
-  // read the container the first time or again, so delete the old one
-  m_OfflineMuons.clear();
-  
-  const float ptcut = 1.0;
-  const float etamin = -1.0;
-  const float etamax = 1.0;
- 
-  const Analysis::MuonContainer* muonCont;
-  
-  // retrieve the offline muon container
-  StatusCode sc = (*m_activeStore)->retrieve(muonCont, key);
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING( "Container of muon particle with key " << key << " not found in ActiveStore"   );
-    return StatusCode::SUCCESS;
-  }
-
-  float pt,eta;
-
-  int pixHits;
-  int sctHits;
-  int trtHits;            
-  int pixHoles; 
-  int sctHoles; 
-  int trtOL;             
-  int trtOLfrac;
-  bool trt;
-  float matchChi2;
-
-  Analysis::MuonContainer::const_iterator it  = muonCont->begin();
-  Analysis::MuonContainer::const_iterator ite = muonCont->end();
-  for (;  it != ite; it++ ) {
-    pt  = (*it)->pt();
-    eta = (*it)->eta();
-    if( fabs(pt) < ptcut || 
-	fabs(eta) < etamin ||
-	fabs(eta) > etamax ) continue;
-    
-    pixHits  = (*it)->numberOfPixelHits();
-    sctHits  = (*it)->numberOfSCTHits();
-    trtHits  = (*it)->numberOfTRTHits();
-    pixHoles = (*it)->numberOfPixelHoles();
-    sctHoles = (*it)->numberOfSCTHoles();
-    trtOL    = (*it)->numberOfTRTOutliers();
-    
-    trtOLfrac = 0;
-    if( trtHits + trtOL > 0 ) trtOLfrac = trtOL/(trtHits + trtOL);
-    
-    trt=false;
-    if( fabs(eta) < 1.9 ) 
-      trt = ( (trtHits > 5) && (trtOLfrac < 0.9) );
-    else{
-      if( trtHits > 5 )
-	trt = ( trtOLfrac < 0.9 );
-      else
-	trt=true;
-    }
-
-    matchChi2 = (*it)->matchChi2();
-
-    //Muid MCP except phi hits
-    if( key == "MuidMuonCollection" &&
-	!( (*it)->combinedMuonTrackParticle() &&
-	   sctHits >= 6 &&
-	   pixHits >= 2 &&
-	   pixHoles+sctHoles <=1 &&
-           trt 
-	   ) ) continue;
-    
-    //Staco MCP
-    if( key == "StacoMuonCollection" &&
-	! ( (*it)->combinedMuonTrackParticle() &&
-            sctHits >= 6 &&
-	    pixHits >= 2 &&
-	    pixHoles+sctHoles <=1 &&
-	    trt &&
-	    matchChi2 < 50 ) ) continue;
-
-    OfflineMuon offmu;
-    offmu.SetPtEtaPhiQ( pt/CLHEP::GeV, eta, (*it)->phi(), (*it)->charge() );
-    m_OfflineMuons.push_back(offmu);
-  }
-  ATH_MSG_VERBOSE( "Number of offline muons before dR check : " << m_OfflineMuons.size()  );
-
-  // check if no track is too close to another track
-  bool bTooClose = false;
-  float trackdr;
-  const float trackdr_min = .8;
-
-  vector<OfflineMuon>::const_iterator it1 = m_OfflineMuons.begin();
-  vector<OfflineMuon>::const_iterator it2;
-  while( it1 != m_OfflineMuons.end() ) {
-    it2 = it1+1;
-    while( it2 != m_OfflineMuons.end() ) {
-      trackdr = (*it1).DeltaR( (*it2) );
-      if( trackdr < trackdr_min ) bTooClose = true;
-      ++it2;}
-    ++it1; }
-  if(bTooClose) m_OfflineMuons.clear();
-
-  ATH_MSG_VERBOSE( "Finished reading OfflineMuonContainer... "  );
-  return StatusCode::SUCCESS;
-}
-
-
 
 //================================================================================================================================
 // Reads RPC coincidence data from container into vectors for use in filling histograms
@@ -215,8 +100,7 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
 {
   ATH_MSG_DEBUG( "Reading RpcCoincidenceContainer... "  );
    
-  const Muon::RpcCoinDataContainer* rpc_coin_container;
-  ATH_CHECK(  (*m_activeStore)->retrieve(rpc_coin_container, "RPC_triggerHits" ) );
+  SG::ReadHandle<Muon::RpcCoinDataContainer> rpc_coin_container(m_rpcCoinKey);
   Muon::RpcCoinDataContainer::const_iterator  it_container;
   //Muon::RpcCoinDataCollection::const_iterator it_collection;
   Identifier prdcoll_id;
@@ -269,8 +153,7 @@ StatusCode RpcLv1RawDataEfficiency::readRpcCoinDataContainer()
 StatusCode RpcLv1RawDataEfficiency::StoreTriggerType() 
 {
   ATH_MSG_DEBUG( "Storing Trigger Type... "  );
-  const xAOD::EventInfo* eventInfo;
-  ATH_CHECK( evtStore() -> retrieve(eventInfo) );
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
   ATH_MSG_DEBUG( "RpcLv1RawDataEfficiency::retrieved eventInfo"  );
   
   // Protection against simulated cosmics when the trigger_info() of the event_info is not filled and returns a null pointer. 
@@ -333,16 +216,13 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
 
   // == Filling the Histograms                                                                                                                               
   //--------------------Sector Hits---------------------------------
-  // Retrieve the Sector Logic container
-  if ( (*m_activeStore) -> retrieve(m_sectorLogicContainer).isFailure() ) {
-    ATH_MSG_INFO( "Cannot retrieve the RpcSectorLogicContainer"  );
-    return StatusCode::FAILURE;
-  }
-  else {
-		      
-    RpcSectorLogicContainer::const_iterator it = m_sectorLogicContainer -> begin();
+  if(!m_isMC){
+    // Retrieve the Sector Logic container
+    SG::ReadHandle<RpcSectorLogicContainer> sectorLogicContainer(m_sectorLogicContainerKey);
 
-    for ( ; it != m_sectorLogicContainer -> end() ; ++it ) 
+    RpcSectorLogicContainer::const_iterator it = sectorLogicContainer -> begin();
+    
+    for ( ; it != sectorLogicContainer -> end() ; ++it ) 
       {
 	int i_sectorid = (*it)->sectorId();
 	// Loop over the trigger hits of each sector
@@ -365,7 +245,6 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
 	  }
       }
   }
-  
   return StatusCode::SUCCESS;
 }
 

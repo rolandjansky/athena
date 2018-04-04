@@ -41,7 +41,9 @@ class xAODBTaggingTrigAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODBTaggingTrigAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::BTaggingTrigAuxContainer*

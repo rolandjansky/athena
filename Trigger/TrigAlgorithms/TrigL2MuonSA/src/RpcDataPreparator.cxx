@@ -6,7 +6,6 @@
 
 #include "TrigL2MuonSA/RpcDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -74,12 +73,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
       return sc;
    }
    
-   // Locate the StoreGateSvc
-   sc =  m_storeGateSvc.retrieve();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
-      return sc;
-   }
+   ATH_CHECK( m_storeGateSvc.retrieve() ); 
 
    // Locate RegionSelector
    sc = service("RegSelSvc", m_regionSelector);
@@ -102,21 +96,11 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
    m_rpcIdHelper = m_muonMgr->rpcIdHelper();
 
-   sc = m_rpcPrepDataProvider.retrieve();
-   if (sc.isSuccess()) {
-     ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
-   } else {
-     ATH_MSG_FATAL("Could not get " << m_rpcPrepDataProvider);
-     return sc;
-   }
+   ATH_CHECK( m_rpcPrepDataProvider.retrieve() );
+   ATH_MSG_DEBUG("Retrieved " << m_rpcPrepDataProvider);
 
-   sc = m_idHelperTool.retrieve();
-   if (sc.isSuccess()) {
-     ATH_MSG_DEBUG("Retrieved " << m_idHelperTool);
-   } else {
-     ATH_MSG_FATAL("Could not get " << m_idHelperTool); 
-     return sc;
-   }
+   ATH_CHECK( m_idHelperTool.retrieve() );
+   ATH_MSG_DEBUG("Retrieved " << m_idHelperTool);
 
    // Retrieve ActiveStore
    sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);

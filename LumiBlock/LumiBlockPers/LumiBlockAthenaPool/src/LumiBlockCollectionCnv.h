@@ -23,7 +23,9 @@ class LumiBlockCollectionCnv : public LumiBlockCollectionCnvBase
 {
   friend class CnvFactory<LumiBlockCollectionCnv >;
  protected:
+public:
   LumiBlockCollectionCnv (ISvcLocator* svcloc) : LumiBlockCollectionCnvBase(svcloc) {}
+protected:
   virtual LumiBlockCollection_PERS*  createPersistent (LumiBlockCollection* transCont);
   virtual LumiBlockCollection*     createTransient ();
 

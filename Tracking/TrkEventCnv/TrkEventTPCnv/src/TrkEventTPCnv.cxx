@@ -113,7 +113,6 @@
 // TrkPrepRawData
 //-----------------------------------------------------------------------------
 #include "TrkEventTPCnv/TrkPrepRawData/PrepRawData_p1.h"
-#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3D_p1.h"
 
 //-----------------------------------------------------------------------------
 // VxVertex

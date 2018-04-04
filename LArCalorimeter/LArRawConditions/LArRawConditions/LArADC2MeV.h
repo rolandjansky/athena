@@ -8,23 +8,34 @@
 #define LARRAWCONDITIONS_LARADC2MEV
 
 #include "CaloIdentifier/CaloGain.h"
+#include "LArIdentifier/LArOnlineID_Base.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "Identifier/HWIdentifier.h"
 #include "Identifier/IdentifierHash.h"
 
 #include <vector>
 #include <array>
 
-class LArOnlineID_Base;
-
 class LArADC2MeV {
 
  public:
   LArADC2MeV() = delete;
-  LArADC2MeV(const LArOnlineID_Base* onlineID, const size_t nGains);
+  LArADC2MeV(const LArOnlineID_Base* onlineID, 
+	     const LArOnOffIdMapping* cabling,
+	     const size_t nGains);
+
   ~LArADC2MeV();
 
-  const std::vector<float>& ADC2MEV(const HWIdentifier& id, int gain) const;
-  //TODO: Add accessor with offline id (requires cable map which is itself a conditions)
+  const std::vector<float>& ADC2MEV(const HWIdentifier& id, int gain) const {
+    const IdentifierHash h=m_onlineID->channel_Hash(id);
+    return m_adc2MeV[gain][h];
+  }
+
+
+  const std::vector<float>& ADC2MeV(const Identifier& offid, int gain) const {
+    const Identifier hwid=m_cabling->createSignalChannelID(offid);
+    return ADC2MeV(hwid,gain);
+  }
 
   bool set(const IdentifierHash& hid, const int gain, std::vector<float>& adc2mev);
 
@@ -36,6 +47,7 @@ class LArADC2MeV {
   //In real life, the size of the inner vector (eg the degree of the ramp-polynom) is always 2
 
   const LArOnlineID_Base* m_onlineID;
+  const LArOnOffIdMapping* m_cabling;
   const size_t m_nGains;
 };
 

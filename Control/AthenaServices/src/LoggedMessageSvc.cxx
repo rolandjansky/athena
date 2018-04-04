@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: AthMessageSvc.cpp,v 1.27 2008/10/21 16:25:55 marcocle Exp $
 
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/Message.h"
 #include "GaudiKernel/xtoa.h"
 #include "LoggedMessageSvc.h"
@@ -17,10 +16,6 @@
 #include <utility>
 
 using namespace std;
-
-// Instantiation of a static factory class used by clients to create
-// instances of this service
-DECLARE_SERVICE_FACTORY(LoggedMessageSvc)
 
 static std::string levelNames[MSG::NUM_LEVELS];
 

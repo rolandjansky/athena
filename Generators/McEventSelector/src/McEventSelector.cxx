@@ -31,7 +31,6 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"

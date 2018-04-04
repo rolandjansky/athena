@@ -29,7 +29,9 @@ typedef T_AthenaPoolCoolMultChanCnv<LArRampComplete, LArRampTransType, LArRampPe
 class LArRampCompleteCnv : public LArRampCompleteCnvBase {
 friend class CnvFactory<LArRampCompleteCnv >;
 protected:
+public:
     LArRampCompleteCnv (ISvcLocator* svcloc) : LArRampCompleteCnvBase(svcloc) {}
+protected:
     virtual LArRampPersType*   createPersistent (LArRampTransType* transObj);
     virtual LArRampTransType*  createTransient ();
     LArRampTransType*          createTransient(LArConditionsSubset<LArRampP>* orig);

@@ -13,7 +13,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaPoolKernel/IMetaDataTool.h"
+#include "AthenaKernel/IMetaDataTool.h"
 
 #include <string>
 

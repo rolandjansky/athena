@@ -31,7 +31,6 @@ PURPOSE:  Verify dictionary completeness by attempting to load all
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/IAlgManager.h"
 #include "GaudiKernel/IAlgorithm.h"
 #include "GaudiKernel/SmartIF.h"

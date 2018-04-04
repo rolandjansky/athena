@@ -85,7 +85,7 @@ SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLoc
 
   m_regSvc(0),
   //m_streamer(0),
-  m_streamer(((m_version == 0) ? "AthenaOutputStreamTool" : "AthenaOutputStreamTool"), this),
+  m_streamer("AthenaOutputStreamTool", this),
   m_badIds(),
   
   m_defectRecorded(false),

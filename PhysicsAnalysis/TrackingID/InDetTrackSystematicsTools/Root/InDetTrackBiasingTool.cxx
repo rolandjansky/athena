@@ -191,7 +191,7 @@ namespace InDet {
     if ( ! sc.isSuccess() ) {
       if (m_runNumber <= 0 || !(m_isData||m_isSimulation)) {
 	ATH_MSG_ERROR( "Unable to retrieve from event store. Manually set data/simulation and/or run number." );
-	return CP::CorrectionCode::Error;
+	return StatusCode::FAILURE;
       }
     }
     bool isSim = ei->eventType( xAOD::EventInfo::IS_SIMULATION );

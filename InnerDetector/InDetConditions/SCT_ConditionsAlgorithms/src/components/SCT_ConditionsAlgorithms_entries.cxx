@@ -21,8 +21,8 @@
 #include "../SCT_ReadCalibDataCondAlg.h"
 #include "../SCT_ReadCalibDataTestAlg.h"
 #include "../SCT_ReadoutTestAlg.h"
+#include "../SCT_RODVetoCondAlg.h"
 #include "../SCT_RODVetoTestAlg.h"
-#include "../SCT_RODVetoTestWriteAlg.h"
 #include "../SCT_SensorsCondAlg.h"
 #include "../SCT_SensorsTestAlg.h"
 #include "../SCT_SiliconConditionsTestAlg.h"
@@ -55,8 +55,8 @@ DECLARE_COMPONENT( SCT_ReadCalibChipNoiseCondAlg )
 DECLARE_COMPONENT( SCT_ReadCalibDataCondAlg )
 DECLARE_COMPONENT( SCT_ReadCalibDataTestAlg )
 DECLARE_COMPONENT( SCT_ReadoutTestAlg )
+DECLARE_COMPONENT( SCT_RODVetoCondAlg )
 DECLARE_COMPONENT( SCT_RODVetoTestAlg )
-DECLARE_COMPONENT( SCT_RODVetoTestWriteAlg )
 DECLARE_COMPONENT( SCT_SensorsCondAlg )
 DECLARE_COMPONENT( SCT_SensorsTestAlg )
 DECLARE_COMPONENT( SCT_SiliconConditionsTestAlg )

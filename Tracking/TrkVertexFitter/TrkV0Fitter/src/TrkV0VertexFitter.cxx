@@ -7,7 +7,6 @@
  ***************************************************************************/
 #include "TrkV0Fitter/TrkV0VertexFitter.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkExInterfaces/IExtrapolator.h"

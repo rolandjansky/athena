@@ -4,9 +4,6 @@
 
 #include "CscSegmentUtilTool.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "xAODEventInfo/EventInfo.h"
-
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 
@@ -104,8 +101,7 @@ CscSegmentUtilTool::CscSegmentUtilTool
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_clusterTool("CscClusterUtilTool/CscClusterUtilTool"),
     m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
-    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", name),
-    m_storeGateSvc(0)
+    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", name)
 {
   declareInterface<ICscSegmentUtilTool>(this);
   declareProperty("max_chisquare_tight", m_max_chisquare_tight = 16.); // 16 for outlier removal...
@@ -200,12 +196,7 @@ StatusCode CscSegmentUtilTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-   if (sc.isFailure()) 
-   {
-     ATH_MSG_ERROR("Could not retrieve StoreGateSvc");
-     return sc;
-   }
+  ATH_CHECK(m_eventInfo.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -1863,12 +1854,7 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
     return pcol;
   }
 
-  const DataHandle<xAOD::EventInfo> eventInfo;
-  StatusCode sc = m_storeGateSvc->retrieve(eventInfo);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve event info from TDS.");
-    return 0;
-  }
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
 
   ICscSegmentFinder::SegmentVec* pnewsegs = new ICscSegmentFinder::SegmentVec;
   if(insegs->useStripsInSegment(1) && insegs->useStripsInSegment(0)){

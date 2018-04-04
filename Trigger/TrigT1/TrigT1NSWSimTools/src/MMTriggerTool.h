@@ -38,8 +38,8 @@ namespace NSWL1 {
   public:
 
     //load event stuff
-    vector<hitData_entry> event_hitDatas(int find_event, map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
-    vector<hitData_key> event_hitData_keys(int find_event, map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
+    std::vector<hitData_entry> event_hitDatas(int find_event, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
+    std::vector<hitData_key> event_hitData_keys(int find_event, std::map<hitData_key,hitData_entry>& Hits_Data_Set_Time) const;
     MMT_Parameters *m_par;
     MMT_Parameters *m_par_large;
     MMT_Parameters *m_par_small;

@@ -36,13 +36,12 @@ template <class TYPE> class CnvFactory;
 extern long ByteStream_StorageType;
 
 class RpcPadContByteStreamCnv: public Converter {
-  friend class CnvFactory<RpcPadContByteStreamCnv>;
 
  protected:
-  RpcPadContByteStreamCnv(ISvcLocator* svcloc);
   ~RpcPadContByteStreamCnv();
 
  public:
+  RpcPadContByteStreamCnv(ISvcLocator* svcloc);
 
   typedef Muon::IRPC_RDOtoByteStreamTool  BYTESTREAMTOOL ; 
 

@@ -25,7 +25,9 @@ class EventBookkeeperCnv : public EventBookkeeperCnvBase
 {
   friend class CnvFactory<EventBookkeeperCnv >;
  protected:
+public:
   EventBookkeeperCnv (ISvcLocator* svcloc) : EventBookkeeperCnvBase(svcloc) {}
+protected:
   virtual EventBookkeeper_PERS*  createPersistent (EventBookkeeper* transCont);
   virtual EventBookkeeper*     createTransient ();
 

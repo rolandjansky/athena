@@ -12,7 +12,7 @@
  **/
 
 #include "ByteStreamData/ByteStreamMetadata.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 /** @class ByteStreamMetadataContainer 
  *  @brief This class is the StoreGate data object for bytestream metadata. 
@@ -20,6 +20,6 @@
 class ByteStreamMetadataContainer : public DataVector<ByteStreamMetadata> {
 };
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ByteStreamMetadataContainer, 1076128893, 1)
 #endif

@@ -386,7 +386,24 @@ void test_removeProxy ATLAS_NOT_THREAD_SAFE ()
   assert (store.proxy (123, "dp1") == 0);
   assert (store.proxy (124, "dp1") == 0);
   assert (store.proxy (123, "dp1x") == 0);
+  dp1->release();
 
+  //==============================================
+
+  // Test recording with a secondary CLID first.
+  SG::DataProxy* dp2 = make_proxy (223, "dp2");
+  dp2->resetOnly (false);
+  dp2->addRef();
+  dp2->setTransientID (223);
+  dp2->setTransientID (224);
+  assert (store.addToStore (224, dp2).isSuccess());
+  assert (store.addToStore (223, dp2).isSuccess());
+  assert (dp2->refCount() == 3);
+  assert (store.removeProxy (dp2, false, false).isSuccess());
+  assert (dp2->refCount() == 1);
+  assert (store.proxy_exact (pool.stringToKey ("dp2", 223)) == 0);
+  assert (store.proxy_exact (pool.stringToKey ("dp2", 224)) == 0);
+  dp2->release();
 }
 
 

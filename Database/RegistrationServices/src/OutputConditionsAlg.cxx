@@ -11,7 +11,6 @@
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IOVTime.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "RegistrationServices/IIOVRegistrationSvc.h"
 #include "OutputConditionsAlg.h"
 

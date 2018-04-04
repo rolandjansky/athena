@@ -6,7 +6,6 @@
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
