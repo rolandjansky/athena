@@ -3,44 +3,65 @@
 */
 
 /**
- * @file ParameterErrDecoratorTool.cxx
+ * @file ParameterErrDecoratorAlg.cxx
  * @author shaun roe
  **/
-#include "ParameterErrDecoratorTool.h"
+#include "ParameterErrDecoratorAlg.h"
 #include "TrkEventPrimitives/JacobianThetaPToCotThetaPt.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 
+#include "safeDecorator.h"
 
-
-ParameterErrDecoratorTool::ParameterErrDecoratorTool(const std::string& type, const std::string& name,
-                                                     const IInterface* parent) :
-  AthAlgTool(type, name, parent) {
-  declareInterface<IInDetPhysValDecoratorTool>(this);
+ParameterErrDecoratorAlg::ParameterErrDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+AthReentrantAlgorithm(name, pSvcLocator) {
 }
 
-ParameterErrDecoratorTool::~ParameterErrDecoratorTool() {
+ParameterErrDecoratorAlg::~ParameterErrDecoratorAlg() {
 // nop
 }
 
 StatusCode
-ParameterErrDecoratorTool::initialize() {
-  if (AlgTool::initialize().isFailure()) {
-    return StatusCode::FAILURE;
-  }
+ParameterErrDecoratorAlg::initialize() {
+  ATH_CHECK( m_trkParticleName.initialize() );
 
-  //
+  std::vector<std::string> decor_names(kNDecorators);
+  decor_names[kDecorD0err]="d0err";
+  decor_names[kDecorZ0err]="z0err";
+  decor_names[kDecorPhierr]="phierr";
+  decor_names[kDecorThetaerr]="thetaerr";
+  decor_names[kDecorQopterr]="qopterr";
+
+  IDPVM::createDecoratorKeys(*this, m_trkParticleName, m_prefix, decor_names, m_decor);
+  assert( m_decor.size() == kNDecorators);
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode
-ParameterErrDecoratorTool::finalize() {
+ParameterErrDecoratorAlg::finalize() {
+  return StatusCode::SUCCESS;
+}
+
+StatusCode
+ParameterErrDecoratorAlg::execute_r(const EventContext &ctx) const {
+  SG::ReadHandle<xAOD::TrackParticleContainer> ptracks(m_trkParticleName);
+  if ((not ptracks.isValid())) {
+    return StatusCode::FAILURE;
+  }
+
+  std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> >
+    float_decor( IDPVM::createDecorators<xAOD::TrackParticleContainer,float>(m_decor, ctx) );
+
+  for (const xAOD::TrackParticle *trk_particle : *ptracks) {
+    if (not decorateTrack(*trk_particle, float_decor) ) return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
 bool
-ParameterErrDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, const std::string& prefix) {
+ParameterErrDecoratorAlg::decorateTrack(const xAOD::TrackParticle& particle,
+                                         std::vector< SG::WriteDecorHandle<xAOD::TrackParticleContainer,float> > &float_decor) const {
   ATH_MSG_VERBOSE("Decorate track with errors ");
   bool success(true);
   const AmgSymMatrix(5)  errorMat = particle.definingParametersCovMatrix();
@@ -49,17 +70,11 @@ ParameterErrDecoratorTool::decorateTrack(const xAOD::TrackParticle& particle, co
   Trk::JacobianThetaPToCotThetaPt TheJac(mtheta, mqp);
   AmgSymMatrix(5) covVert;
   covVert = errorMat.similarity(TheJac);
-  float trkd0err = Amg::error(covVert, 0);
-  float trkz0err = Amg::error(covVert, 1);
-  float trkphierr = Amg::error(covVert, 2);
-  float trkthetaerr = Amg::error(errorMat, Trk::theta);
-  float trkqopterr = Amg::error(covVert, 4) * 1000.;
-  //
-  particle.auxdecor<float>(prefix + "d0err") = trkd0err;
-  particle.auxdecor<float>(prefix + "z0err") = trkz0err;
-  particle.auxdecor<float>(prefix + "phierr") = trkphierr;
-  particle.auxdecor<float>(prefix + "thetaerr") = trkthetaerr;
-  particle.auxdecor<float>(prefix + "qopterr") = trkqopterr;
+  float_decor[kDecorD0err](particle)=Amg::error(covVert, 0);
+  float_decor[kDecorZ0err](particle)=Amg::error(covVert, 1);
+  float_decor[kDecorPhierr](particle)=Amg::error(covVert, 2);
+  float_decor[kDecorThetaerr](particle)=Amg::error(errorMat, Trk::theta);
+  float_decor[kDecorQopterr](particle)=Amg::error(covVert, 4) * 1000.;
   return success;
 }
 
