@@ -294,7 +294,7 @@ class SetupTrigConfigSvc:
             stats == ds  -> read the trigger configuration from the detector store = esd header
             """
             self.states = ["xml"]
-            self.allowedStates = _set(['xml','ds'])
+            self.allowedStates = set(['xml','ds'])
             self.initialised = False
 
             from AthenaCommon.Logging import logging
@@ -317,7 +317,7 @@ class SetupTrigConfigSvc:
             if not type(state) is list:
                 state = [state]
 
-            if not _set(state) <= self.allowedStates:
+            if not set(state) <= self.allowedStates:
                 raise SetupTrigConfigSvc, 'unknown state %s, cannot set it!' %state
             else:
                 self.states = state
