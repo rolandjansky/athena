@@ -3,7 +3,7 @@
 #
 
 
-def L1DecoderMod(flags):
+def L1DecoderCfg(flags):
     flags.dump()
     from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -13,10 +13,10 @@ def L1DecoderMod(flags):
 
     acc = ComponentAccumulator()
     decoderAlg = L1Decoder()
-    decoderAlg.ctpUnpacker = CTPUnpackingTool( ForceEnableAllChains = flags.get("L1Decoder.Flags.forceEnableAllChains"),
+    decoderAlg.ctpUnpacker = CTPUnpackingTool( ForceEnableAllChains = flags.get("Trigger.L1Decoder.forceEnableAllChains"),
                                                MonTool = CTPUnpackingMonitoring(512, 200) )
 
-    if flags.get("L1Decoder.Flags.doCalo") == True:
+    if flags.get("Trigger.L1Decoder.doCalo") == True:
         decoderAlg.roiUnpackers += [ EMRoIsUnpackingTool( Decisions = "EMRoIDecisions",
                                                           OutputTrigRoIs = "EMRoIs",
                                                           MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )) ]
@@ -24,7 +24,7 @@ def L1DecoderMod(flags):
         decoderAlg.roiUnpackers += [METRoIsUnpackingTool( Decisions = "METRoIDecisions",
                                                           OutputTrigRoI = "METRoI") ]
 
-    if flags.get("L1Decoder.Flags.doMuon") == True:
+    if flags.get("Trigger.L1Decoder.doMuon") == True:
         decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = "MURoIDecisions",
                                                           OutputTrigRoIs = "MURoIs",
                                                           MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
@@ -37,18 +37,19 @@ def L1DecoderMod(flags):
     acc.addEventAlgo(decoderAlg)
     
 
-    from TrigConfigSvc.TrigConfigSvcMod import TrigConfigSvcMod
-    acc.addConfig( TrigConfigSvcMod, flags )
+    from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
+    acc.addConfig( TrigConfigSvcCfg, flags )
 
     return acc
 
 if __name__ == "__main__":
-    from AthenaConfiguration.ConfigFlags import ConfigFlagContainer    
-    cfgFlags = ConfigFlagContainer()
-    cfgFlags.set("L1Decoder.Flags.doCalo",True)
-    cfgFlags.set("L1Decoder.Flags.doMuon",True)
-    cfgFlags.set("L1Decoder.Flags.forceEnableAllChains",True)
-    l1 = L1DecoderMod( cfgFlags )
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+    ConfigFlags.set("Trigger.L1Decoder.doCalo",True)
+    ConfigFlags.set("Trigger.L1Decoder.doMuon",True)
+    ConfigFlags.set("Trigger.L1Decoder.forceEnableAllChains",True)
+    ConfigFlags.lock()
+    l1 = L1DecoderCfg( ConfigFlags )
     f=open("L1DecoderConf.pkl","w")
     l1.store(f)
     f.close()

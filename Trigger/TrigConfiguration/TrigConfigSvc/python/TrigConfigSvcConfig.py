@@ -280,11 +280,7 @@ class TrigConfigSvc( TrigConf__TrigConfigSvc ):
 #
 # after InitialiseSvc() is called, the state is fixed
 # possible states are: ds, xml
-try:
-    _set = set
-except NameError:
-    from sets import Set
-    _set = Set
+
 
 class SetupTrigConfigSvc:
     """ A python singleton class for configuring the trigger configuration services"""
@@ -410,3 +406,31 @@ class SetupTrigConfigSvc:
     def __setattr__(self, attr, value):
         """ Delegate access to implementation """
         return setattr(self.__instance, attr, value)
+
+
+def TrigConfigSvcCfg( flags ):
+    from AthenaConfiguration.CfgLogMsg import cfgLogMsg
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    acc = ComponentAccumulator()
+
+    from TrigConfigSvc.TrigConfigSvcConf import TrigConf__LVL1ConfigSvc
+    from TrigConfigSvc.TrigConfigSvcConfig import findFileInXMLPATH
+
+    l1ConfigSvc = TrigConf__LVL1ConfigSvc( "LVL1ConfigSvc" )
+    l1XMLFile = findFileInXMLPATH(flags.get("Trigger.inputLVL1ConfigFile"))
+    cfgLogMsg.debug( "LVL1ConfigSvc input file:"+l1XMLFile  )
+
+    l1ConfigSvc.XMLMenuFile = l1XMLFile
+    l1ConfigSvc.ConfigSource = "XML"
+
+    acc.addService( l1ConfigSvc )
+    return acc
+
+if __name__ == "__main__":
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.lock()
+    acc = TrigConfigSvcCfg( ConfigFlags )
+    acc.store( file( "test.pkl", "w" ) )
+    print "All OK"
+    
+
