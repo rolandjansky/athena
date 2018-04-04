@@ -74,7 +74,7 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
     m_LArOnlineIDHelper(0),
     m_LArEM_IDHelper(0),
     m_badChannelMask("BadLArRawChannelMask"),
-    m_summary(0),
+    //m_summary(0),
     m_feedthroughID(0),
     m_slot(0),
     m_feedthrough(0),
@@ -140,6 +140,20 @@ LArNoiseCorrelationMon::finalize()
   DeleteHist(m_FcalA);
   DeleteHist(m_FcalC);
   */
+
+  if(m_IsOnline)
+    {
+      if(m_av)
+	{
+	  LWHist::safeDelete(m_av);
+	  m_av=0;
+	} 
+      if(m_TMP_sums)
+	{
+	  LWHist::safeDelete(m_TMP_sums);
+	  m_TMP_sums=0;
+	} 
+    }
   return StatusCode::SUCCESS;
  
 }
@@ -229,15 +243,15 @@ LArNoiseCorrelationMon::bookHistograms()
 
 
     MonGroup generalGroup( this, "/LAr/NoiseCorrel", run, ATTRIB_MANAGED );
-    const char *  hName = "test";
-    const char * hTitle = "LAr Noise Correlation test";
+    std::string  hName = "test";
+    std::string hTitle = "LAr Noise Correlation test";
     
-    int chan=128;
+    Nchan=128;
     double chan_low=-0.5,chan_up=127.5;
-    m_corr = TH2F_LW::create(hName, hTitle,chan,chan_low,chan_up,chan,chan_low,chan_up);
-    generalGroup.regHist(m_summary).ignore();
-    m_TMP_sums = TH2F_LW::create((hName+"_TMP_sum").c_str(),(hTitle+" TMP sum").c_str(),chan,chan_low,chan_up,chan,chan_low,chan_up);
-    m_av = TProfile_LW::create((hName+"_TMP_av").c_str(),(hTitle+" TMP av").c_str(),chan,chan_low,chan_up,"s");
+    m_corr = TH2F_LW::create(hName.c_str(), hTitle.c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
+    generalGroup.regHist(m_corr).ignore();
+    m_TMP_sums = TH2F_LW::create((hName+"_TMP_sum").c_str(),(hTitle+" TMP sum").c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
+    m_av = TProfile_LW::create((hName+"_TMP_av").c_str(),(hTitle+" TMP av").c_str(),Nchan,chan_low,chan_up,"s");
     
     /**Book Histograms of Barrel.*/
     /*    MonGroup GroupBarrelShift( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED );
@@ -386,7 +400,7 @@ LArNoiseCorrelationMon::fillHistograms()
 
   /** retrieve LArDigitContainer*/
   const LArDigitContainer* pLArDigitContainer;
-  sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
+  StatusCode sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
   if (sc.isFailure()) {
     ATH_MSG_WARNING( "Can\'t retrieve LArDigitContainer with key " 
 		      << m_LArDigitContainerKey );
@@ -517,7 +531,7 @@ LArNoiseCorrelationMon::fillHistograms()
       continue;
     
     /** Determine to which partition this channel belongs to*/
-    LArNoiseCorrelationMon::partition &ThisPartition=WhatPartition(id);
+    //    LArNoiseCorrelationMon::partition &ThisPartition=WhatPartition(id);
 
     /** Fill the gain*/
     //m_summaryGain->Fill(gain,ThisPartition.sumpos);
@@ -564,11 +578,11 @@ LArNoiseCorrelationMon::fillHistograms()
 
 
     /** check if this is the FEB we want DA AGGIUSTARE*/
-    if(!(m_LArOnlineIDHelper->isEMBchannel(id) && m_LArOnlineIDHelper->pos_neg(id)==1 && m_feedthrough==09 && m_slot==01))
+    if(!(m_LArOnlineIDHelper->isEMBchannel(id) && m_LArOnlineIDHelper->pos_neg(id)==1 && m_feedthrough==9 && m_slot==1))
       continue;
 
     /** HERE GOES THE SECOND LOOP */
-    bool av_set=false
+    bool av_set=false;
     for(itDig_2 = itDig; itDig_2!=itDig_e;++itDig_2)
       {
 	pLArDigit2 = *itDig_2;
@@ -576,13 +590,12 @@ LArNoiseCorrelationMon::fillHistograms()
 	if(m_LArOnlineIDHelper->feb_Id(id2)!=m_febID)
 	  continue;
 
-
-	if(!isGoodChannel(id2,pedestal2))
-	  continue;
-
 	/** get the pedestal */
 	CaloGain::CaloGain gain2 = pLArDigit2->gain();
 	float pedestal2 = m_larPedestal->pedestal(id2,gain2);
+
+	if(!isGoodChannel(id2,pedestal2))
+	  continue;
 
 	/** get the channel number */
 	m_ch2 = m_LArOnlineIDHelper->channel(id2);
@@ -625,12 +638,12 @@ LArNoiseCorrelationMon::fillHistograms()
       double sigma1,sigma2;
       double N;
       double cor;
-      for(int i=1;i<=chan;i++)
+      for(int i=1;i<=Nchan;i++)
 	{
 	  mean1=m_av->GetBinContent(i);
 	  sigma1=m_av->GetBinError(i);
 	  N=m_av->GetBinEntries(i);
-	  for(int j=i+1;j<=chan;j++)
+	  for(int j=i+1;j<=Nchan;j++)
 	    {
 	      if(m_av->GetBinEntries(j)!=N)
 		ATH_MSG_INFO( "HEY! different number of entries here!" );
@@ -659,8 +672,12 @@ LArNoiseCorrelationMon::fillHistograms()
 /*---------------------------------------------------------*/
 StatusCode LArNoiseCorrelationMon::procHistograms()
 {
+  if(endOfRunFlag()) 
+   {
+     myEndOfRun();
+   }
   /** Don't do anything*/
-  
+  /*
   if(endOfRunFlag() || endOfEventsBlockFlag() )
   {
     FillSumary(m_BarrelA);
@@ -672,7 +689,7 @@ StatusCode LArNoiseCorrelationMon::procHistograms()
     FillSumary(m_FcalA);
     FillSumary(m_FcalC);
     /** Properly Delete the LW hists*/
-    if(endOfRunFlag()){
+  /*if(endOfRunFlag()){
       EndOfRun(m_BarrelA);
       EndOfRun(m_BarrelC);
       EndOfRun(m_EmecA);
@@ -685,14 +702,14 @@ StatusCode LArNoiseCorrelationMon::procHistograms()
     
     return StatusCode::SUCCESS;
   }
-    
+    */
   return StatusCode::SUCCESS;
 }
 
 
 /*---------------------------------------------------------*/
 /** check if channel is ok for monitoring */
- bool isGoodChannel(HWIdentifier ID,float ped)
+ bool LArNoiseCorrelationMon::isGoodChannel(HWIdentifier ID,float ped)
  {
 
     /** Remove problematic channels*/
@@ -968,39 +985,40 @@ void LArNoiseCorrelationMon::OutHistTitle(partition& sub)
 }
 
 /*---------------------------------------------------------*/
-/** Say which partition is a channel*/
+/** Say which partition is a channel
 LArNoiseCorrelationMon::partition& LArNoiseCorrelationMon::WhatPartition(HWIdentifier id)
 {
   
-  /** return EM Barrel*/
-  if (m_LArOnlineIDHelper->isEmBarrelOnline(id)) 
+  /** return EM Barrel
+    if (m_LArOnlineIDHelper->isEmBarrelOnline(id)) 
   {
     if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_BarrelC;
     else return m_BarrelA;
   }
   
-  /** return EM Endcap*/
+  /** return EM Endcap
   else if (m_LArOnlineIDHelper-> isEMECchannel(id))
   {
     if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_EmecC;
     else return m_EmecA;
   }
   
-  /** return HEC*/
+  /** return HEC
   else if (m_LArOnlineIDHelper->isHECchannel(id)) 
   {
     if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_HecC;
     else return m_HecA;
   }
   
-  /**  return FCAL*/
+  /**  return FCAL
   else 
   {
     if((m_LArOnlineIDHelper->pos_neg(m_feedthroughID))==0) return m_FcalC;
     else return m_FcalA;
   }
   
-}
+  }*/
+
 /*---------------------------------------------------------*/
 /** Fill histograms if a channel is out of the given range*/
 void LArNoiseCorrelationMon::FillOutOfRange(partition& sub)
@@ -1071,11 +1089,11 @@ void LArNoiseCorrelationMon::FillNullHisto(partition& sub)
 void LArNoiseCorrelationMon::FillSumary(partition& sub)
 {
   //remove 0.9 because, bin are starting from 1 while sumpos starts at 0..........
-  
+  /*
   m_summary->SetBinContent(int(1),int(sub.sumpos+1),GetNumberCells(sub.m_POutDigit,m_TreshOut));
   m_summary->SetBinContent(2,sub.sumpos+1,GetNumberCells(sub.m_PSatDigit,m_TreshSat));
   m_summary->SetBinContent(3,sub.sumpos+1,GetNumberCells(sub.m_PNullDigit,m_TreshNull));
-  m_summary->SetBinContent(4,sub.sumpos+1,GetMeanVal(sub.m_EnTime));
+  m_summary->SetBinContent(4,sub.sumpos+1,GetMeanVal(sub.m_EnTime));*/
 }
 /*---------------------------------------------------------*/
 void LArNoiseCorrelationMon::ScalePartition(partition& sub)
@@ -1190,6 +1208,17 @@ int LArNoiseCorrelationMon::GetNumberCells(TProfile2D_LW* hist1,double treshold)
   
   return sum;
 }
+
+/*---------------------------------------------------------*/
+void LArNoiseCorrelationMon::myEndOfRun()
+{
+  if(m_IsOnline)
+    {
+      if(m_av) m_av->Reset(); 
+      if(m_TMP_sums) m_TMP_sums->Reset(); 
+    }
+}
+
 /*---------------------------------------------------------*/
 void LArNoiseCorrelationMon::EndOfRun(partition& sub)
 // This method was formerly named DeleteHists.

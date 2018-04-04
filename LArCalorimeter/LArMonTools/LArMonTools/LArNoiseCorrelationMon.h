@@ -4,7 +4,7 @@
 
 /**
  * TBD: update
- * @class LArDigitMon
+ * @class LArNoiseCorrelationMon
  * @author Louis Helary 
  *
  */
@@ -39,17 +39,17 @@ class TH1I_LW;//togliere?
 class TH2F_LW;
 class TH2I_LW;//togliere?
 
-class LArDigitMon: public ManagedMonitorToolBase
+class LArNoiseCorrelationMon: public ManagedMonitorToolBase
 {
   
   
 public:
-  LArDigitMon(const std::string& type, 
+  LArNoiseCorrelationMon(const std::string& type, 
 	      const std::string& name,
 	      const IInterface* parent);
   
   /** @brief Default destructor */
-  virtual ~LArDigitMon();
+  virtual ~LArNoiseCorrelationMon();
   
   
   
@@ -84,6 +84,7 @@ protected:
 private:
   
   /**my test histo*/
+  int Nchan; //for my test histo
   TH2F_LW* m_corr;
   TH2F_LW* m_TMP_sums;
   TProfile_LW* m_av;
@@ -175,32 +176,32 @@ private:
   int m_feedthrough;
   int m_febHash;
   int m_channel;
-  int m_febID;
+  HWIdentifier m_febID;
   int m_ch1,m_ch2;
   
   /**declaration variables used in joboptions*/
-  /*  int m_SampleRangeLow;
+  int m_SampleRangeLow;
   int m_SampleRangeUp;
   int m_ADCsatureCut;
   int m_SigmaCut;
   int m_ExpectedSampleMax;
   int m_SampleNumberFromDB;
-  int m_NumberBadFebs;*/
-  bool m_ignoreKnownBadChannels;/*
+  int m_NumberBadFebs;
+  bool m_ignoreKnownBadChannels;
   bool m_ComputeHistError;
-  bool m_PercComputed;*/
+  bool m_PercComputed;
   bool m_IsOnline; 
-  /* double m_TreshOut;
+  double m_TreshOut;
   double m_TreshNull;
   double m_TreshSat;
-  */
+  
   std::string m_LArDigitContainerKey;
   std::string m_larPedestalKey;
-  /*
+  
   //Added for Stream aware:
   std::vector<std::string> m_streams;
   std::vector<unsigned> m_streamsThisEvent;
-  */
+  
   /** Private members*/
   int m_Samplenbr;
   int m_eventsCounter;
@@ -223,10 +224,11 @@ private:
   void FillNullHisto(partition& sub);
   void ScalePartition(partition& sub);
   void EndOfRun(partition& sub);
+  void myEndOfRun();
   void DeleteHist(partition& sub);
   void ScaleHisto(LWHist2D * h,int& events);
   void ComputeError(LWHist2D* hist,int& events);
-  partition& WhatPartition(HWIdentifier id); 
+  //  partition& WhatPartition(HWIdentifier id); 
   int GetNumberCells(TProfile2D_LW* hist1,double treshold);
   double GetMeanVal(LWHist2D* hist1);
   
