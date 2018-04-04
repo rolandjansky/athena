@@ -360,7 +360,7 @@
    * filled by InDetPerfPlot_hitResidual
    * currently these plots will only get filled for ESD.
    Not filled in xAOD/DxAOD.
-   Reason:contents are created by InDetPhysHitDecoratorTool
+   Reason:contents are created by InDetPhysHitDecoratorAlg
    and require unlsimmed Trk::Track collection.
    ========================================================
   -->
@@ -559,7 +559,7 @@
    hit efficiency plots:
    * filled by InDetPerfPlot_hitEff
    * currently these plots will only get filled for ESD.
-   Reason:contents are created by InDetPhysHitDecoratorTool
+   Reason:contents are created by InDetPhysHitDecoratorAlg
    and require unlsimmed Trk::Track collection.
    ========================================================
   -->

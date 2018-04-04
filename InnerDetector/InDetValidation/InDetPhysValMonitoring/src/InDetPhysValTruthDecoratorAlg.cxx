@@ -3,15 +3,14 @@
 */
 
 /**
- * @file InDetPhysValTruthDecoratorTool.cxx
+ * @file InDetPhysValTruthDecoratorAlg.cxx
  * @author shaun roe
  **/
 
-#include "InDetPhysValTruthDecoratorTool.h"
+#include "InDetPhysValTruthDecoratorAlg.h"
 #include "safeDecorator.h"
 #include <limits>
 
-#include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
 // #include "GeneratorUtils/PIDUtils.h"
 #include "TDatabasePDG.h"
@@ -27,39 +26,80 @@
 
 
 
-InDetPhysValTruthDecoratorTool::InDetPhysValTruthDecoratorTool(const std::string& type, const std::string& name,
-                                                               const IInterface* parent) :
-  AthAlgTool(type, name, parent),
+InDetPhysValTruthDecoratorAlg::InDetPhysValTruthDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator),
   m_beamSpotSvc("BeamCondSvc", name) {
-  declareInterface<IInDetPhysValDecoratorTool>(this);
 }
 
-InDetPhysValTruthDecoratorTool::~InDetPhysValTruthDecoratorTool () {
+InDetPhysValTruthDecoratorAlg::~InDetPhysValTruthDecoratorAlg () {
   // nop
 }
 
 StatusCode
-InDetPhysValTruthDecoratorTool::initialize() {
-  StatusCode sc = AlgTool::initialize();
-
-  if (sc.isFailure()) {
-    return sc;
-  }
+InDetPhysValTruthDecoratorAlg::initialize() {
   ATH_CHECK(m_extrapolator.retrieve());
-
   ATH_CHECK(m_beamSpotSvc.retrieve());
-  return sc;
+  ATH_CHECK( m_truthSelectionTool.retrieve( EnableTool { not m_truthSelectionTool.name().empty() } ) );
+
+  ATH_CHECK( m_truthParticleName.initialize());
+
+  std::vector<std::string> decor_names(kNDecorators);
+  decor_names[kDecorD0]="d0";
+  decor_names[kDecorZ0]="z0";
+  decor_names[kDecorPhi]="phi";
+  decor_names[kDecorTheta]="theta";
+  decor_names[kDecorZ0st]="z0st";
+  decor_names[kDecorQOverP]="qOverP";
+  decor_names[kDecorProdR]="prodR";
+  decor_names[kDecorProdZ]="prodZ";
+
+  IDPVM::createDecoratorKeysAndAccessor(*this, m_truthParticleName,m_prefix.value(),decor_names, m_decor);
+  assert( m_decor.size() == kNDecorators);
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
-InDetPhysValTruthDecoratorTool::finalize() {
-  StatusCode sc(StatusCode::SUCCESS);
-
-  return sc;
+InDetPhysValTruthDecoratorAlg::finalize() {
+  return StatusCode::SUCCESS;
 }
 
+StatusCode
+InDetPhysValTruthDecoratorAlg::execute() {
+  const EventContext context{ Gaudi::Hive::currentContext() };
+  return execute_r(context);
+}
+
+// to migrate to AthReentrantAlgorithm later
+StatusCode
+InDetPhysValTruthDecoratorAlg::execute_r(const EventContext &ctx) const {
+  SG::ReadHandle<xAOD::TruthParticleContainer> ptruth(m_truthParticleName);
+  if ((not ptruth.isValid())) {
+    return StatusCode::FAILURE;
+  }
+
+  std::vector< std::pair<SG::WriteDecorHandle<xAOD::TruthParticleContainer, float>,const SG::AuxElement::ConstAccessor<float> &> >
+    float_decor( IDPVM::createDecoratorsWithAccessor(m_decor, ctx) );
+
+  if ( m_truthSelectionTool.get() ) {
+    for (const xAOD::TruthParticle *truth_particle : *ptruth) {
+      if (not m_truthSelectionTool->accept(truth_particle)) continue;
+      decorateTruth(*truth_particle, float_decor);
+    }
+  }
+  else {
+    for (const xAOD::TruthParticle *truth_particle : *ptruth) {
+      decorateTruth(*truth_particle, float_decor);
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+
 bool
-InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle& particle, const std::string& prefix) {
+InDetPhysValTruthDecoratorAlg::decorateTruth(const xAOD::TruthParticle& particle,
+                                              std::vector< std::pair<SG::WriteDecorHandle<xAOD::TruthParticleContainer,float>,
+                                                                     const SG::AuxElement::ConstAccessor<float> &> > &float_decor) const {
   ATH_MSG_VERBOSE("Decorate truth with d0 etc");
   if (particle.isNeutral()) {
     return false;
@@ -98,7 +138,7 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle& particl
 
   Trk::PerigeeSurface persf(m_beamSpotSvc->beamPos());
 
-  const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);
+  std::unique_ptr<const Trk::TrackParameters> tP ( m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false) );
   if (tP) {
     float d0_truth = tP->parameters()[Trk::d0];
     float theta_truth = tP->parameters()[Trk::theta];
@@ -106,16 +146,18 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle& particl
     float phi_truth = tP->parameters()[Trk::phi];
     float qOverP_truth = tP->parameters()[Trk::qOverP]; // P or Pt ??
     float z0st_truth = z0_truth * std::sin(theta_truth);
+
     // 'safeDecorator' used to prevent a crash in case of adding something which pre-exists.
     // behaviour chosen is to reject but issue a warning
-    safeDecorator(particle, prefix + "d0", d0_truth, IDPVM::REJECT_QUIETLY);
-    safeDecorator(particle, prefix + "z0", z0_truth, IDPVM::REJECT_QUIETLY);
-    safeDecorator(particle, prefix + "phi", phi_truth, IDPVM::REJECT_QUIETLY);
-    safeDecorator(particle, prefix + "theta", theta_truth, IDPVM::REJECT_QUIETLY);
-    safeDecorator(particle, prefix + "z0st", z0st_truth, IDPVM::REJECT_QUIETLY);
-    safeDecorator(particle, prefix + "qOverP", qOverP_truth, IDPVM::REJECT_QUIETLY);
-    safeDecorator(particle, prefix + "prodR", prodR_truth, IDPVM::REJECT_QUIETLY);
-    safeDecorator(particle, prefix + "prodZ", z_truth, IDPVM::REJECT_QUIETLY);
+    IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorD0],d0_truth);
+    IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorZ0],z0_truth);
+    IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorPhi],phi_truth);
+    IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorTheta],theta_truth);
+    IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorZ0st],z0st_truth);
+    IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorQOverP],qOverP_truth);
+    IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorProdR],prodR_truth);
+    IDPVM::decorateOrRejectQuietly(particle,float_decor[kDecorProdZ],z_truth);
+
     // particle.auxdecor<float>(prefix + "d0") = d0_truth;
     // particle.auxdecor<float>(prefix + "z0") = z0_truth;
     // particle.auxdecor<float>(prefix + "phi") = phi_truth;
@@ -124,8 +166,6 @@ InDetPhysValTruthDecoratorTool::decorateTruth(const xAOD::TruthParticle& particl
     // particle.auxdecor<float>(prefix + "qOverP") = qOverP_truth;
     // particle.auxdecor<float>(prefix + "prodR") = prodR_truth;
     // particle.auxdecor<float>(prefix + "prodZ") = z_truth;
-    delete tP;
-    tP = 0;
     return true;
   } else {
     ATH_MSG_DEBUG("The TrackParameters pointer for this TruthParticle is NULL");

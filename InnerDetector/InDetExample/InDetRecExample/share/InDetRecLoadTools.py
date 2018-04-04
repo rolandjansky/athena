@@ -910,22 +910,10 @@ if InDetFlags.loadSummaryTool():
          print InDetTRT_ElectronPidTool
 
 
-    InDetTRT_dEdxTool = None
-    if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
-        from TRT_ToT_Tools.TRT_ToT_ToolsConf import  TRT_ToT_dEdx
-        InDetTRT_dEdxTool = TRT_ToT_dEdx(name="InDetTRT_dEdxTool",
-                                         TRT_dEdx_whichToTEstimatorAlgo=2,  # default is 2
-                                         TRT_dEdx_useTrackPartWithGasType=3, # default is 3
-                                         TRT_dEdx_toolScenario=0, # default is 0
-                                         TRT_dEdx_applyMimicToXeCorrection=False, # default is False
-                                         TRT_dEdx_trackConfig_maxRtrack=1.9, # default is 1.9
-                                         TRT_dEdx_trackConfig_minRtrack=0.01, # default is 0.01
-                                         TRT_dEdx_useZeroRHitCut=True) # default is True
-        ToolSvc += InDetTRT_dEdxTool
-
-        if (InDetFlags.doPrintConfigurables()):
-           print InDetTRT_dEdxTool
-        
+    import InDetRecExample.TRTCommon
+    InDetTRT_dEdxTool = InDetRecExample.TRTCommon.getInDetTRT_dEdxTool()
+    if (InDetTRT_dEdxTool != None and InDetFlags.doPrintConfigurables()):
+        print InDetTRT_dEdxTool
 
 
     #

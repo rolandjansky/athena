@@ -7,7 +7,6 @@
 #include "DerivationFrameworkInDet/DiTauTrackParticleThinning.h"
 #include "DerivationFrameworkInDet/TrackParametersAtPV.h"
 #include "DerivationFrameworkInDet/TrackStateOnSurfaceDecorator.h"
-#include "DerivationFrameworkInDet/TrackParametersForTruthParticles.h"
 #include "DerivationFrameworkInDet/EventInfoBSErrDecorator.h"
 #include "DerivationFrameworkInDet/UnassociatedHitsDecorator.h"
 #include "DerivationFrameworkInDet/UnassociatedHitsGetterTool.h"
@@ -28,7 +27,6 @@ DECLARE_COMPONENT( DiTauTrackParticleThinning )
 DECLARE_COMPONENT( JetTrackParticleThinning )
 DECLARE_COMPONENT( TrackParametersAtPV )
 DECLARE_COMPONENT( TrackStateOnSurfaceDecorator )
-DECLARE_COMPONENT( TrackParametersForTruthParticles )
 DECLARE_COMPONENT( EventInfoBSErrDecorator )
 DECLARE_COMPONENT( UnassociatedHitsDecorator )
 DECLARE_COMPONENT( DerivationFramework::UnassociatedHitsGetterTool )

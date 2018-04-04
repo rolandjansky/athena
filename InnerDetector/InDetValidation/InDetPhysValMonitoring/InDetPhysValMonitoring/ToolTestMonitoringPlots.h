@@ -46,18 +46,6 @@ private:
 
 	///histograms
 	std::unique_ptr< InDetTestPlot > m_monPlots;
-	
-	template<class T>
-	const T* getContainer( const std::string & containerName);
 };
-
-template<class T>
-	const T* ToolTestMonitoringPlots::getContainer(const std::string & containerName){
-		const T * ptr = evtStore()->retrieve< const T >( containerName );
-    	if (!ptr) {
-        	ATH_MSG_ERROR("Container '"<<containerName<<"' could not be retrieved");
-    	}
-    	return ptr;
-	}
 
 #endif
