@@ -347,7 +347,8 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(inParticle3->barcode()))
       .WillOnce(::testing::Return(inParticle3->barcode()));
     EXPECT_CALL(ti, parentParticle())
-      .Times(1)
+      .Times(2)
+      .WillOnce(::testing::Return(inParticle3))
       .WillOnce(::testing::Return(inParticle3));
     EXPECT_CALL(ti, parentParticleAfterIncident(1010003))
       .Times(1)
@@ -578,7 +579,8 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(inParticle3->barcode()))
       .WillOnce(::testing::Return(inParticle3->barcode()));
     EXPECT_CALL(ti, parentParticle())
-      .Times(1)
+      .Times(2)
+      .WillOnce(::testing::Return(inParticle3))
       .WillOnce(::testing::Return(inParticle3));
     EXPECT_CALL(ti, parentParticleAfterIncident(1010003))
       .Times(1)
