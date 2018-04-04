@@ -563,21 +563,30 @@ void printinfo(float towers[MAXTOWER], TString quantity_name, TString board, flo
     endcapmax_err = sqrt(endcapmax/nloop);
 
   	barrelmean_err = roundTo(barrelmean_err,SIGDIGITS_ERR);
-	barrelmax_err = roundTo(barrelmax_err,SIGDIGITS_ERR);
-	endcapmean_err = roundTo(endcapmean_err,SIGDIGITS_ERR);
-	endcapmax_err = roundTo(endcapmax_err,SIGDIGITS_ERR);
+	  barrelmax_err = roundTo(barrelmax_err,SIGDIGITS_ERR);
+	  endcapmean_err = roundTo(endcapmean_err,SIGDIGITS_ERR);
+	  endcapmax_err = roundTo(endcapmax_err,SIGDIGITS_ERR);
 
-	myfile << quantity_name << "\t\t" << board << "\t\t";
+	  myfile << quantity_name << "\t\t" << board << "\t\t";
   	myfile << barrelmean << "±" << barrelmean_err << "\t\t";
   	myfile << barrelmax << "±" << barrelmax_err << "\t\t";
   	myfile << endcapmean << "±" << endcapmean_err << "\t\t";
   	myfile << endcapmax << "±" << endcapmax_err << "\t\t";
 
- 	myfileTeX << quantity_name << "&" << board << "&";
-  	myfileTeX << barrelmean << "$\\pm$" << barrelmean_err << "&";
-	myfileTeX << barrelmax << "$\\pm$" << barrelmax_err << "&";
-	myfileTeX << endcapmean << "$\\pm$" << endcapmean_err << "&";
-  	myfileTeX << endcapmax << "$\\pm$" << endcapmax_err << "&";
+    myfileTeX << quantity_name << "&" << board << "&";
+
+    if ((barrelmean > hw_limit) && (hw_limit != 0)) myfileTeX << "\\textbf{" << barrelmean << "$\\pm$" << barrelmean_err << "}" << "&";
+    else myfileTeX << barrelmean << "$\\pm$" << barrelmean_err << "&";
+
+    if ((barrelmax > hw_limit) && (hw_limit != 0)) myfileTeX << "\\textbf{" << barrelmax << "$\\pm$" << barrelmax_err << "}" << "&";
+    else myfileTeX << barrelmax << "$\\pm$" << barrelmax_err << "&";
+
+    if ((endcapmean > hw_limit) && (hw_limit != 0)) myfileTeX << "\\textbf{" << endcapmean << "$\\pm$" << endcapmean_err << "}" << "&";
+    else myfileTeX << endcapmean << "$\\pm$" << endcapmean_err << "&";
+
+    if ((endcapmax > hw_limit) && (hw_limit != 0)) myfileTeX << "\\textbf{" << endcapmax << "$\\pm$" << endcapmax_err << "}" << "&";
+    else myfileTeX << endcapmax << "$\\pm$" << endcapmax_err << "&";
+
   }
 
   else {
@@ -585,10 +594,21 @@ void printinfo(float towers[MAXTOWER], TString quantity_name, TString board, flo
     myfile << barrelmean << "\t\t" << barrelmax << "\t\t" << endcapmean << "\t\t" << endcapmax << "\t\t";
 
     myfileTeX << quantity_name << "&" << board << "&";
-    myfileTeX << barrelmean << "&" << barrelmax << "&" << endcapmean << "&" << endcapmax << "&";
+
+    if ((barrelmean > hw_limit) && (hw_limit != 0)) myfileTeX << "\\textbf{" << barrelmean << "}" << "&";
+    else myfileTeX << barrelmean << "&";
+
+    if ((barrelmax > hw_limit) && (hw_limit != 0)) myfileTeX << "\\textbf{" << barrelmax << "}" << "&";
+    else myfileTeX << barrelmax << "&";
+
+    if ((endcapmean > hw_limit) && (hw_limit != 0)) myfileTeX << "\\textbf{" << endcapmean << "}" << "&";
+    else myfileTeX << endcapmean << "&";
+
+    if ((endcapmax > hw_limit) && (hw_limit != 0)) myfileTeX << "\\textbf{" << endcapmax << "}" << "&";
+    else myfileTeX << endcapmax << "&";
   }
 
-  if (HW_limit == 0) {
+  if (hw_limit == 0) {
   	myfile << endl;
   	myfileTeX << " \\\\" << endl;
   }
