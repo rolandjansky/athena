@@ -133,6 +133,7 @@ if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
     TrkDetFlags.TRT_BuildStrawLayers=True
     fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
 
+from AthenaCommon.DetFlags import DetFlags
 try:
     from ISF_Config import FlagSetters
     FlagSetters.configureFlagsBase()
@@ -142,10 +143,8 @@ try:
         configureFlags()
 except:
     ## Select detectors
-    if 'DetFlags' not in dir():
-        ## If you configure one det flag, you're responsible for configuring them all!
-        from AthenaCommon.DetFlags import DetFlags
-        DetFlags.all_setOn()
+    ## If you configure one det flag, you're responsible for configuring them all!
+    DetFlags.all_setOn()
     DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
     DetFlags.Truth_setOn()
     DetFlags.Forward_setOff() # Forward dets are off by default
