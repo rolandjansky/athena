@@ -65,7 +65,7 @@ from AthenaCommon import CfgMgr
 
 doL2SA=True
 doL2CB=True
-doEFSA=False
+doEFSA=True
 
 
 # ===============================================================================================
@@ -107,11 +107,11 @@ if TriggerFlags.doMuon:
   muonCombinedRecFlags.doCaloTrkMuId = False
   muonCombinedRecFlags.printSummary = False
   from RecExConfig.RecFlags import rec
+  from AthenaCommon.AlgSequence import AthSequencer
+  from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
   if doL2SA:
-    from AthenaCommon.AlgSequence import AthSequencer
     l2MuViewNode = AthSequencer("l2MuViewNode", Sequential=False, ModeOR=False, StopOverride=False)
-    from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
     l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
     l2MuViewsMaker.ViewFallThrough = True
  
@@ -120,6 +120,18 @@ if TriggerFlags.doMuon:
     l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
     l2MuViewsMaker.Views = "MUViewRoIs"
     l2MuViewsMaker.ViewNodeName = l2MuViewNode.name()
+
+  if doEFSA:
+
+    efMuViewNode = AthSequencer("efMuViewNode", Sequential=False, ModeOR=False, StopOverride=False)
+    efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
+    efMuViewsMaker.ViewFallThrough = True
+ 
+    efMuViewsMaker.Decisions = "MURoIDecisions"
+    efMuViewsMaker.RoIsLink = "initialRoI" # -||-
+    efMuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
+    efMuViewsMaker.Views = "EFMUViewRoIs"
+    efMuViewsMaker.ViewNodeName = efMuViewNode.name()
 
   if doEFSA or doL2SA:
     ### ==================== Data prepartion needed for the EF and L2 SA #######################333
@@ -170,8 +182,8 @@ if TriggerFlags.doMuon:
                                                      cluster_builder = CscClusterBuilderTool)    
      
       if doEFSA: 
-        topSequence += CscRdoToCscPrepData  
-        topSequence += CscClusterBuilder 
+        efMuViewNode += CscRdoToCscPrepData  
+        efMuViewNode += CscClusterBuilder 
       if doL2SA:
         l2MuViewNode += CscRawDataProvider
    
@@ -208,7 +220,7 @@ if TriggerFlags.doMuon:
                                                     ProviderTool = MuonMdtRawDataProviderTool,
                                                     OutputLevel  = INFO)
       if doEFSA:
-        topSequence += MdtRdoToMdtPrepData
+        efMuViewNode += MdtRdoToMdtPrepData
       if doL2SA:
         l2MuViewNode += MdtRawDataProvider
 
@@ -244,7 +256,7 @@ if TriggerFlags.doMuon:
                                                     ProviderTool = MuonRpcRawDataProviderTool,
                                                     OutputLevel  = INFO)
       if doEFSA:
-        topSequence += RpcRdoToRpcPrepData
+        efMuViewNode += RpcRdoToRpcPrepData
       if doL2SA:
         l2MuViewNode += RpcRawDataProvider
 
@@ -282,7 +294,7 @@ if TriggerFlags.doMuon:
                                                     ProviderTool = MuonTgcRawDataProviderTool,
                                                     OutputLevel  = INFO)
       if doEFSA:
-        topSequence += TgcRdoToTgcPrepData
+        efMuViewNode += TgcRdoToTgcPrepData
       if doL2SA:
         l2MuViewNode += TgcRawDataProvider
 
@@ -301,7 +313,7 @@ if TriggerFlags.doMuon:
                                              TgcPrepDataContainer = "TGC_MeasurementsAllBCs")
     
       if doEFSA:
-        topSequence += MuonClusterAlg 
+        efMuViewNode += MuonClusterAlg 
 
 
   ### muon thresholds ###
@@ -506,6 +518,31 @@ if TriggerFlags.doMuon:
     themuoncreatoralg = CfgMgr.MuonCreatorAlg("MuonCreatorAlg")
     themuoncreatoralg.MuonCreatorTool=thecreatortool
     themuoncreatoralg.CreateSAmuons=True
+    themuoncreatoralg.ClusterContainerName=""
+
+    #Algorithms to views
+    efMuViewNode += theSegmentFinderAlg
+#    efMuViewNode += theNCBSegmentFinderAlg #The configuration still needs some sorting out for this so disabled for now.
+    efMuViewNode += TrackBuilder
+    efMuViewNode += xAODTrackParticleCnvAlg
+    efMuViewNode += theMuonCandidateAlg
+    efMuViewNode += themuoncreatoralg
+
+    #Setup MS-only hypo
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFMSonlyHypoConfig
+    trigMuonEFSAHypo = TrigMuonEFMSonlyHypoConfig("MuonEFSAHypoAlg")
+    trigMuonEFSAHypo.OutputLevel = DEBUG
+
+    trigMuonEFSAHypo.ViewRoIs = efMuViewsMaker.Views
+    trigMuonEFSAHypo.MuonDecisions = "Muons"
+    trigMuonEFSAHypo.RoIs = efMuViewsMaker.InViewRoIs
+    trigMuonEFSAHypo.Decisions = "EFMuonSADecisions"
+    trigMuonEFSAHypo.L1Decisions = efMuViewsMaker.Decisions
+
+    trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
+
+    muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.Decisions )
+    muonEFSAStep = seqAND("muonEFSAStep", [filterL1RoIsAlg, efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo, muonEFSADecisionsDumper])
 
 
 # ===============================================================================================
@@ -514,8 +551,8 @@ if TriggerFlags.doMuon:
 
   ### CF construction ###
 if TriggerFlags.doMuon==True:    
-  if doL2SA==True and doL2CB==False:
-    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+  from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+  if doL2SA==True and doL2CB==False and doEFSA==False:
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigMufastHypo.Decisions ]
@@ -532,16 +569,24 @@ if TriggerFlags.doMuon==True:
 
     topSequence += hltTop  
 
-  if doEFSA:
-    topSequence+=theSegmentFinderAlg
-    #topSequence += theNCBSegmentFinderAlg #The configuration still needs some sorting out for this so disabled for now.
-    topSequence +=TrackBuilder 
-    topSequence +=xAODTrackParticleCnvAlg
-    topSequence += theMuonCandidateAlg
-    topSequence +=themuoncreatoralg
+  if doEFSA==True and doL2SA==False and doL2CB==False:
+    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    summary.InputDecision = "HLTChains" 
+    summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
+    summary.OutputLevel = DEBUG 
+    step0 = parOR("step0", [ muonEFSAStep ] )
+    HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
+
+    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+    mon.InputDecision = "HLTChains" 
+    mon.FinalDecisions = [ trigMuonEFSAHypo.Decisions, "WhateverElse" ] 
+    mon.HLTSummary = "MonitoringSummary" 
+    mon.OutputLevel = DEBUG 
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+    topSequence += hltTop 
 
 if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
-  if doL2SA==True and doL2CB==True:
+  if doL2SA==True and doL2CB==True and doEFSA==False:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
     summary.InputDecision = "HLTChains" 
@@ -554,6 +599,27 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
     mon.InputDecision = "HLTChains" 
     mon.FinalDecisions = [ trigmuCombHypo.Decisions, "WhateverElse" ] 
+    mon.HLTSummary = "MonitoringSummary" 
+    mon.OutputLevel = DEBUG 
+    hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
+
+    topSequence += hltTop   
+
+if TriggerFlags.doMuon==True and TriggerFlags.doID==True:    
+  if doL2SA==True and doEFSA==True and doL2CB==True:
+    from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
+    summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
+    summary.InputDecision = "HLTChains" 
+    summary.FinalDecisions = [ trigMuonEFSAHypo.Decisions ]
+    summary.OutputLevel = DEBUG 
+    step0 = parOR("step0", [ muFastStep ] )
+    step1 = parOR("step1", [ muCombStep ] )
+    step2 = parOR("step2", [ muonEFSAStep ] )
+    HLTsteps = seqAND("HLTsteps", [ step0, step1, step2, summary ]  ) 
+
+    mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
+    mon.InputDecision = "HLTChains" 
+    mon.FinalDecisions = [ trigMuonEFSAHypo.Decisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
     hltTop = seqOR( "hltTop", [ HLTsteps, mon] )
