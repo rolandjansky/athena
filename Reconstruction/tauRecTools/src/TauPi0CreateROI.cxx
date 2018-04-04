@@ -149,7 +149,7 @@ StatusCode TauPi0CreateROI::eventFinalize() {
 
   // Declare write handle
   SG::WriteHandle<CaloCellContainer> tauCaloHandle( m_tauCaloOutputContainer );
-  ATH_MSG_INFO("  write: " << tauCaloHandle.key() << " = " << "..." );
+  ATH_MSG_DEBUG("  write: " << tauCaloHandle.key() << " = " << "..." );
 
   // Write completed cell container
   ATH_CHECK(tauCaloHandle.record(std::unique_ptr<CaloCellContainer>(m_pPi0CellContainer)));
