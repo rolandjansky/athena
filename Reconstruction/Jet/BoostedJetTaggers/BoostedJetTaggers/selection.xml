@@ -16,6 +16,5 @@
     <class name="xAOD::IParticle"/>
     <class name="DataVector<xAOD::IParticle>"/>
     <class name="ElementLink<DataVector<xAOD::IParticle> >"/>
-    <class name="lwt::NanReplacer"/>
   </exclusion>
 </lcgdict>
