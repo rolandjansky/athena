@@ -91,8 +91,8 @@ TrigMuonEFIsolation& TrigMuonEFIsolation::operator=(const TrigMuonEFIsolation& r
 
 /**
  * Set the link to the muon we calculated the isolation for.
- * @parameter infocont - container holding the EF muon Info object
- * @parameter itrk  - position of the EF info object within the container
+ * @param infocont - container holding the EF muon Info object
+ * @param itrk  - position of the EF info object within the container
  */
 void TrigMuonEFIsolation::setEFMuonInfoLink(const TrigMuonEFInfoContainer* infocont, const int pos) {
   m_muonEFLink.reset();
@@ -101,7 +101,7 @@ void TrigMuonEFIsolation::setEFMuonInfoLink(const TrigMuonEFInfoContainer* infoc
 
 /**
  * Set the link to the muon we calculated the isolation for.
- * @parameter itrk  - position of the EF muon info track object within the EF muon info object
+ * @param itrk  - position of the EF muon info track object within the EF muon info object
  */
 void TrigMuonEFIsolation::setEFMuonInfoTrackLink(const int itrk) {
   m_trkPos = itrk;
@@ -109,7 +109,7 @@ void TrigMuonEFIsolation::setEFMuonInfoTrackLink(const int itrk) {
 
 /**
  * Set the element link to the TrigMuonEFInfo object we are using.
- * @parameter link - the ElementLink object to the TrigMuonEFInfo object used.
+ * @param link - the ElementLink object to the TrigMuonEFInfo object used.
  */
 void TrigMuonEFIsolation::setEFMuonInfoElementLink(const ElementLink<TrigMuonEFInfoContainer> link) {
   
