@@ -22,4 +22,6 @@ o) Contents:
  -- Example 2: choice of triggers per data period, custom trigger pT thresholds
  -- Examples 3a-3e: usage of lepton selection tags
  -- Example 4: usage of the static helper method suggestElectronMapKeys()
+ -- Example 5a: photon triggers, simplest example (symmetric diphoton trigger)
+ -- Example 5b: photon triggers, more complex (asymmetric diphoton trigger)
 o) More details in the comments of each source file
