@@ -51,7 +51,8 @@ namespace BoostedJetTaggers {
     std::vector<std::pair<std::string, FloatAcc> > m_acc_btag_floats;
     std::vector<std::pair<std::string, DoubleAcc> > m_acc_btag_doubles;
     std::vector<std::pair<std::string, IntAcc> > m_acc_btag_ints;
-    std::vector<std::string> m_all_subjet_inputs;
+    std::vector<std::string> m_float_subjet_inputs;
+    std::vector<std::string> m_int_subjet_inputs;
     std::map<std::string, double> m_dummy_values;
   };
 }
@@ -253,7 +254,8 @@ namespace BoostedJetTaggers {
     for (auto& subjet_node_name: pt.get_child("subjet.node_names")) {
       valid_subjet_nodes.insert(subjet_node_name.second.data());
     }
-    std::set<std::string> subjet_inputs;
+    std::set<std::string> float_subjet_inputs;
+    std::set<std::string> int_subjet_inputs;
     for (const lwt::InputNodeConfig& node_config: network_config.inputs) {
       if (node_config.name == m_fat_jet_node_name) {
         for (const lwt::Input input: node_config.variables) {
@@ -266,18 +268,20 @@ namespace BoostedJetTaggers {
         }
       } else if (valid_subjet_nodes.count(node_config.name)) {
         for (const lwt::Input input: node_config.variables) {
-          subjet_inputs.insert(input.name);
           if (NON_STRING_ACCESSOR.count(input.name)) {
             continue;
             // todo: other jet variables
           }
           std::string type = get_var_type(type_regexes, input.name);
           if (type == "double") {
+            float_subjet_inputs.insert(input.name);
             m_acc_btag_doubles.emplace_back(input.name, input.name);
           } else if (type == "int") {
             m_acc_btag_ints.emplace_back(input.name, input.name);
+            int_subjet_inputs.insert(input.name);
           } else if (type == "float") {
             m_acc_btag_floats.emplace_back(input.name, input.name);
+            float_subjet_inputs.insert(input.name);
           } else {
             throw std::logic_error("don't know how to access " + input.name);
           }
@@ -288,9 +292,19 @@ namespace BoostedJetTaggers {
           "not sure how to find node " + node_config.name);
       }
     }
-    m_all_subjet_inputs.insert(
-      m_all_subjet_inputs.end(),
-      subjet_inputs.begin(), subjet_inputs.end());
+
+    // In cases where inputs aren't defined, we need to fill them with
+    // dummy values. Keep track of all the values that need defaults
+    // here.
+    m_float_subjet_inputs.insert(
+      m_float_subjet_inputs.end(),
+      float_subjet_inputs.begin(), float_subjet_inputs.end());
+    m_float_subjet_inputs.insert(
+      m_float_subjet_inputs.end(),
+      NON_STRING_ACCESSOR.begin(), NON_STRING_ACCESSOR.end());
+    m_int_subjet_inputs.insert(
+      m_int_subjet_inputs.end(),
+      int_subjet_inputs.begin(), int_subjet_inputs.end());
   }
 
   HbbInputBuilder::VMap HbbInputBuilder::get_map(
@@ -342,8 +356,11 @@ namespace BoostedJetTaggers {
           subjet_inputs[pair.first] = pair.second(*btag);
         }
       } else {
-        for (const std::string& input_name: m_all_subjet_inputs) {
+        for (const std::string& input_name: m_float_subjet_inputs) {
           subjet_inputs[input_name] = NAN;
+        }
+        for (const std::string& input_name: m_int_subjet_inputs) {
+          subjet_inputs[input_name] = -1;
         }
       }
       inputs[m_subjet_node_names.at(subjet_n)] = subjet_inputs;
