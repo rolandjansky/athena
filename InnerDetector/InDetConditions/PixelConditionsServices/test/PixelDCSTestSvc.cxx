@@ -12,14 +12,14 @@
 
 #include "PixelConditionsData/PixelDCSData.h"
 #include "PixelConditionsServices/IPixelDCSSvc.h"
-#include "PixelConditionsSummarySvc.h"
+#include "PixelConditionsSummaryTool.h"
 
 PixelDCSTestSvc::PixelDCSTestSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_pixid(nullptr),
   m_pixman(nullptr),
   m_pixelDCSSvc("PixelDCSSvc", name),
-  m_pixelSvc("PixelConditionsSummarySvc", name)
+  m_pixelSvc("PixelConditionsSummaryTool", this)
 {
 
   declareProperty("PixelDCSSvc",m_pixelDCSSvc);

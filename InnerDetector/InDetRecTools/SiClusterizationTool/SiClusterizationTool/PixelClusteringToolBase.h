@@ -15,9 +15,9 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "GaudiKernel/ToolHandle.h"
-//#include "GaudiKernel/MsgStream.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
-class IInDetConditionsSvc;
+class IInDetConditionsTool;
 template <class T> class ServiceHandle;
 
 namespace InDet {
@@ -66,7 +66,7 @@ protected:
      int m_errorStrategy;
      int m_acceptDiagonalClusters;
      int m_splitClusters;
-     ServiceHandle<IInDetConditionsSvc> m_summarySvc;
+     ToolHandle<IInDetConditionsTool> m_summaryTool;
      bool m_useModuleMap;
      bool m_usePixelMap;
      //     mutable MsgStream m_log;

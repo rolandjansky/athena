@@ -14,13 +14,12 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 #include "InDetTestBLayer/TrackStateOnBLayerInfo.h"
-
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include <vector>
 #include <string>
 
 namespace Trk {  class Track; class IExtrapolator;  class TrackParticleBase; class IResidualPullCalculator;}
 namespace Rec { class TrackParticle; }
-class IInDetConditionsSvc;
 class AtlasDetectorID;
 class Identifier;
 class PixelID;
@@ -115,7 +114,7 @@ namespace InDet {
     ToolHandle< Trk::IExtrapolator >  m_extrapolator;    
 
     /** Handles to IConditionsSummaryServices for Pixels */
-    ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc;
+    ToolHandle <IInDetConditionsTool> m_pixelCondSummaryTool;
 
     /** pointer to the residual pull calculator **/
     ToolHandle < Trk::IResidualPullCalculator > m_residualPullCalculator;

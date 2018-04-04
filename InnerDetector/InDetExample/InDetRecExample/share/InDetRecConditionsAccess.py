@@ -29,6 +29,10 @@ if DetFlags.haveRIO.pixel_on():
     from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
     InDetPixelConditionsSummarySvc = PixelConditionsSummarySvc()
   
+    #Tool version for athenaMT
+    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+    InDetPixelConditionsSummaryTool = PixelConditionsSummaryTool()
+
     # Load pixel calibration service
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixCalib'):
@@ -42,27 +46,41 @@ if DetFlags.haveRIO.pixel_on():
     # Load pixel special pixel map services
     if athenaCommonFlags.isOnline() :
        InDetPixelConditionsSummarySvc.UseSpecialPixelMap = False
+       InDetPixelConditionsSummaryTool.UseSpecialPixelMap = False
     else:
         InDetPixelConditionsSummarySvc.UseSpecialPixelMap = True
+        InDetPixelConditionsSummaryTool.UseSpecialPixelMap = True
         if not conddb.folderRequested('/PIXEL/PixMapShort'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapShort")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapShort", className='CondAttrListCollection')
         if not conddb.folderRequested('/PIXEL/PixMapLong'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapLong")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapLong", className='CondAttrListCollection')
         if not conddb.folderRequested('/PIXEL/NoiseMapShort'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapShort")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapShort", className='CondAttrListCollection')
         if not conddb.folderRequested('/PIXEL/NoiseMapLong'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapLong")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/NoiseMapLong", className='CondAttrListCollection')
         if not conddb.folderRequested('/PIXEL/PixMapOverlay'):
-            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapOverlay")
+            conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
         from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc
         InDetSpecialPixelMapSvc = SpecialPixelMapSvc(DBFolders           = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" , "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ] ,
                                                      SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong", "NoiseMapShort", "NoiseMapLong" ] ,
                                                      OverlayFolder       = "/PIXEL/PixMapOverlay",
-                                                     OverlayKey          = "PixMapOverlay")
+                                                     OverlayKey          = "PixMapOverlay", RegisterCallback = True)
         ServiceMgr += InDetSpecialPixelMapSvc
         if InDetFlags.doPrintConfigurables():
             print InDetSpecialPixelMapSvc
-    
+
+        InDetPixelConditionsSummarySvc.DisableCallback = False
+        #Alg is suppose to replace service, sync withh service for now
+        from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
+        InDetSpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="InDetSpecialPixelMapCondAlg",
+               DBFolders  = InDetSpecialPixelMapSvc.DBFolders,
+               SpecialPixelMapKeys = InDetSpecialPixelMapSvc.SpecialPixelMapKeys ,
+               OverlayFolder       = InDetSpecialPixelMapSvc.OverlayFolder,
+               OverlayKey          = InDetSpecialPixelMapSvc.OverlayKey)
+        condSeq += InDetSpecialPixelMapCondAlg
+        if InDetFlags.doPrintConfigurables():
+            print InDetSpecialPixelMapSvc
+
     # Load pixel DCS information
     from SiLorentzAngleSvc.PixelLorentzAngleSvcSetup import pixelLorentzAngleSvcSetup
     if InDetFlags.usePixelDCS():
@@ -119,6 +137,10 @@ if DetFlags.haveRIO.pixel_on():
         InDetPixelConditionsSummarySvc.UseDCS         = isData
         InDetPixelConditionsSummarySvc.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
         InDetPixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
+
+        InDetPixelConditionsSummaryTool.UseDCS        = isData
+        InDetPixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
+        InDetPixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
     else:
         pixelLorentzAngleSvcSetup.useDefault()
 
@@ -127,13 +149,15 @@ if DetFlags.haveRIO.pixel_on():
         # Due to a "feature" in the BS encoder for simulation,
         # the information of the BS error service
         # is not reliable on MC.
-        InDetPixelConditionsSummarySvc.UseByteStream = False 
+        InDetPixelConditionsSummarySvc.UseByteStream = False
+        InDetPixelConditionsSummaryTool.UseByteStream = False
     else :
         from PixelConditionsServices.PixelConditionsServicesConf import PixelByteStreamErrorsSvc
         InDetPixelByteStreamErrorsSvc = PixelByteStreamErrorsSvc()
         if ( globalflags.InputFormat != 'bytestream' ):
             InDetPixelByteStreamErrorsSvc.ReadingESD = True
         InDetPixelConditionsSummarySvc.UseByteStream = True
+        InDetPixelConditionsSummaryTool.UseByteStream = True
 
         ServiceMgr += InDetPixelByteStreamErrorsSvc
         if (InDetFlags.doPrintConfigurables()):
@@ -169,7 +193,9 @@ if DetFlags.haveRIO.pixel_on():
     ServiceMgr += InDetPixelConditionsSummarySvc
     if (InDetFlags.doPrintConfigurables()):
         print InDetPixelConditionsSummarySvc
-    
+    ToolSvc += InDetPixelConditionsSummaryTool
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetPixelConditionsSummaryTool
 #
 # --- Load SCT Conditions Services
 #
