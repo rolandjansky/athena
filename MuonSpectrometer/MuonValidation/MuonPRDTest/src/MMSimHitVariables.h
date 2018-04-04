@@ -22,7 +22,6 @@ class MMSimHitVariables : public ValAlgVariables
     m_MmIdHelper(0),
     m_NSWMM_nSimHits(0), 
     m_NSWMM_trackId(0),
-    m_NSWMM_truthEl(0),
     m_NSWMM_globalTime(0), 
     m_NSWMM_hitGlobalPositionX(0), 
     m_NSWMM_hitGlobalPositionY(0), 
@@ -93,7 +92,6 @@ class MMSimHitVariables : public ValAlgVariables
 
   int m_NSWMM_nSimHits;
   std::vector<int>    *m_NSWMM_trackId;
-  std::vector<int>    *m_NSWMM_truthEl;
   std::vector<double> *m_NSWMM_globalTime;
   std::vector<double> *m_NSWMM_hitGlobalPositionX;
   std::vector<double> *m_NSWMM_hitGlobalPositionY;
