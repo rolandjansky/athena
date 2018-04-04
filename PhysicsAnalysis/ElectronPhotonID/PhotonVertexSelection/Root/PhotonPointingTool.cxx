@@ -26,109 +26,109 @@
 namespace CP {
 
   //____________________________________________________________________________
-  SG::AuxElement::Decorator<float> PhotonPointingTool::zvertex("zvertex");
-  SG::AuxElement::Decorator<float> PhotonPointingTool::errz("errz");
-  SG::AuxElement::Decorator<float> PhotonPointingTool::HPV_zvertex("HPV_zvertex");
-  SG::AuxElement::Decorator<float> PhotonPointingTool::HPV_errz("HPV_errz");
+  const SG::AuxElement::Decorator<float> PhotonPointingTool::s_zvertex("zvertex");
+  const SG::AuxElement::Decorator<float> PhotonPointingTool::s_errz("errz");
+  const SG::AuxElement::Decorator<float> PhotonPointingTool::s_HPV_zvertex("HPV_zvertex");
+  const SG::AuxElement::Decorator<float> PhotonPointingTool::s_HPV_errz("HPV_errz");
 
-  //____________________________________________________________________________
-  PhotonPointingTool::PhotonPointingTool(const std::string &name)
+//____________________________________________________________________________
+PhotonPointingTool::PhotonPointingTool(const std::string &name)
   : asg::AsgTool(name)
-  , m_showerTool(nullptr)
-  , m_zCorrection(nullptr)
-  { 
-    declareProperty("isSimulation", m_isMC);
-    declareProperty("zOscillationFileMC", m_zOscFileMC ="PhotonVertexSelection/v1/pointing_correction_mc.root");
-    declareProperty("zOscillationFileData", m_zOscFileData ="PhotonVertexSelection/v1/pointing_correction_data.root");
+    , m_showerTool(nullptr)
+    , m_zCorrection(nullptr)
+{ 
+  declareProperty("isSimulation", m_isMC);
+  declareProperty("zOscillationFileMC", m_zOscFileMC ="PhotonVertexSelection/v1/pointing_correction_mc.root");
+  declareProperty("zOscillationFileData", m_zOscFileData ="PhotonVertexSelection/v1/pointing_correction_data.root");
+}
+
+//____________________________________________________________________________
+PhotonPointingTool::~PhotonPointingTool()
+{
+  SafeDelete(m_showerTool);
+  SafeDelete(m_zCorrection);
+}
+
+//____________________________________________________________________________
+StatusCode PhotonPointingTool::initialize()
+{
+  ATH_MSG_INFO("Initializing PhotonPointingTool...");
+
+  // Shower depth tool
+  m_showerTool = new CP::ShowerDepthTool();
+  if (!m_showerTool->initialize()) {
+    ATH_MSG_ERROR("Couldn't initialize ShowerDepthTool, failed to initialize.");
+    return StatusCode::FAILURE;
   }
-
-  //____________________________________________________________________________
-  PhotonPointingTool::~PhotonPointingTool()
-  {
-    SafeDelete(m_showerTool);
-    SafeDelete(m_zCorrection);
-  }
-
-  //____________________________________________________________________________
-  StatusCode PhotonPointingTool::initialize()
-  {
-    ATH_MSG_INFO("Initializing PhotonPointingTool...");
-
-    // Shower depth tool
-    m_showerTool = new CP::ShowerDepthTool();
-    if (!m_showerTool->initialize()) {
-      ATH_MSG_ERROR("Couldn't initialize ShowerDepthTool, failed to initialize.");
-      return StatusCode::FAILURE;
-    }
     
 
-    // Get the z-oscillation correction histogram
-    // FIXME: The files need to go to calib area
-    #if ( defined(XAOD_STANDALONE) )
-    {
-        // AnalysisRelease: determine if this is data or MC
-        // Cannot load the eventInfo before the first event in athena    
-      const xAOD::EventInfo *eventInfo = nullptr;
-      if (evtStore()->retrieve(eventInfo, "EventInfo").isFailure()) {
-        ATH_MSG_WARNING("Couldn't retrieve EventInfo from TEvent, failed to initialize.");
-        return StatusCode::FAILURE;
-      }    
-      m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
-    }
-    #endif
-    std::string filepath = PathResolverFindCalibFile(m_isMC ? m_zOscFileMC :
-                                                              m_zOscFileData);
-    TFile *file = TFile::Open(filepath.c_str(), "READ");
-
-    if (file == nullptr) {
-      ATH_MSG_WARNING("Couldn't find file for z-correction: " << filepath.c_str());
-      ATH_MSG_WARNING("Failed to initialize.");
+  // Get the z-oscillation correction histogram
+  // FIXME: The files need to go to calib area
+#if ( defined(XAOD_STANDALONE) )
+  {
+    // AnalysisRelease: determine if this is data or MC
+    // Cannot load the eventInfo before the first event in athena    
+    const xAOD::EventInfo *eventInfo = nullptr;
+    if (evtStore()->retrieve(eventInfo, "EventInfo").isFailure()) {
+      ATH_MSG_WARNING("Couldn't retrieve EventInfo from TEvent, failed to initialize.");
       return StatusCode::FAILURE;
-    }
+    }    
+    m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
+  }
+#endif
+  std::string filepath = PathResolverFindCalibFile(m_isMC ? m_zOscFileMC :
+                                                   m_zOscFileData);
+  TFile *file = TFile::Open(filepath.c_str(), "READ");
 
-    TH1F *temp = nullptr;
-    file->GetObject("dz_trk_pointing_vs_etas2", temp);
-
-    if (temp == nullptr) {
-      ATH_MSG_WARNING("Couldn't find 'dz_trk_pointing_vs_etas2' histogram in file: " << filepath.c_str());
-      ATH_MSG_WARNING("Failed to initialize.");
-      return StatusCode::FAILURE;
-    }
-
-    bool status = TH1::AddDirectoryStatus();
-    TH1::AddDirectory(false);
-    m_zCorrection = dynamic_cast<TH1F*>(temp->Clone("zCorrection"));
-    SafeDelete(file);
-    TH1::AddDirectory(status);
-    
-    return StatusCode::SUCCESS;
+  if (file == nullptr) {
+    ATH_MSG_WARNING("Couldn't find file for z-correction: " << filepath.c_str());
+    ATH_MSG_WARNING("Failed to initialize.");
+    return StatusCode::FAILURE;
   }
 
-  //____________________________________________________________________________
-  StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer &egammas) const
-  {
-    // Loop over photons and add calo pointing auxdata
-    std::pair<float, float> result;
-    for (auto egamma: egammas) {
-      // Get calo pointing variables
-      result = getCaloPointing(egamma);
+  TH1F *temp = nullptr;
+  file->GetObject("dz_trk_pointing_vs_etas2", temp);
 
-      // Set photon auxdata with new value
-      zvertex(*egamma) = result.first;
-      errz(*egamma)    = result.second;
+  if (temp == nullptr) {
+    ATH_MSG_WARNING("Couldn't find 'dz_trk_pointing_vs_etas2' histogram in file: " << filepath.c_str());
+    ATH_MSG_WARNING("Failed to initialize.");
+    return StatusCode::FAILURE;
+  }
 
-      // Get conv pointing variables
-      if (egamma->type() == xAOD::Type::Photon) {
-        const xAOD::Egamma *eg     = static_cast<const xAOD::Egamma*>(egamma);
-        const xAOD::Photon *photon = dynamic_cast<const xAOD::Photon*>(eg);
+  bool status = TH1::AddDirectoryStatus();
+  TH1::AddDirectory(false);
+  m_zCorrection = dynamic_cast<TH1F*>(temp->Clone("zCorrection"));
+  SafeDelete(file);
+  TH1::AddDirectory(status);
+    
+  return StatusCode::SUCCESS;
+}
 
-        if (photon && xAOD::EgammaHelpers::numberOfSiTracks(photon))
-          result = getConvPointing(photon);
-      }
+//____________________________________________________________________________
+StatusCode PhotonPointingTool::updatePointingAuxdata(const xAOD::EgammaContainer &egammas) const
+{
+  // Loop over photons and add calo pointing auxdata
+  std::pair<float, float> result;
+  for (auto egamma: egammas) {
+    // Get calo pointing variables
+    result = getCaloPointing(egamma);
 
-      // Set photon auxdata with new value
-      HPV_zvertex(*egamma) = result.first;
-      HPV_errz(*egamma)    = result.second;
+    // Set photon auxdata with new value
+    s_zvertex(*egamma) = result.first;
+    s_errz(*egamma)    = result.second;
+
+    // Get conv pointing variables
+    if (egamma->type() == xAOD::Type::Photon) {
+      const xAOD::Egamma *eg     = static_cast<const xAOD::Egamma*>(egamma);
+      const xAOD::Photon *photon = dynamic_cast<const xAOD::Photon*>(eg);
+
+      if (photon && xAOD::EgammaHelpers::numberOfSiTracks(photon))
+        result = getConvPointing(photon);
+    }
+
+    // Set photon auxdata with new value
+    s_HPV_zvertex(*egamma) = result.first;
+    s_HPV_errz(*egamma)    = result.second;
 
     }
 
@@ -181,15 +181,15 @@ namespace CP {
     // Calo cluster pointing calculation
     double r0_with_beamSpot = d_beamSpot*cos(phis2 - phi_beamSpot);
 
-    float zvertex = 0, errz = 0;
+    float s_zvertex = 0, s_errz = 0;
     if (true) { // FIXME Was only for non AuthorFwd egamma? Can only find AuthorFwdElectron now...
-      zvertex = (RZ1.second*(RZ2.first - r0_with_beamSpot) - RZ2.second*(RZ1.first-r0_with_beamSpot)) / (RZ2.first - RZ1.first);
-      zvertex = getCorrectedZ(zvertex, etas2);
+      s_zvertex = (RZ1.second*(RZ2.first - r0_with_beamSpot) - RZ2.second*(RZ1.first-r0_with_beamSpot)) / (RZ2.first - RZ1.first);
+      s_zvertex = getCorrectedZ(s_zvertex, etas2);
 
-      errz    = 0.5*(RZ2.first + RZ1.first)*(0.060/sqrt(cl_e*0.001)) / (sin(cl_theta)*sin(cl_theta));
+      s_errz    = 0.5*(RZ2.first + RZ1.first)*(0.060/sqrt(cl_e*0.001)) / (sin(cl_theta)*sin(cl_theta));
     }
 
-    return std::make_pair(zvertex, errz);
+    return std::make_pair(s_zvertex, s_errz);
   }
 
   //____________________________________________________________________________
@@ -241,26 +241,26 @@ namespace CP {
     double phi_Calo         = atan2(sin(phis2), cos(phis2));
     double r0_with_beamSpot = d_beamSpot*cos(phi_Calo - phi_beamSpot);
     
-    float zvertex = (RZ1.second*(conv_r - r0_with_beamSpot) - conv_z*(RZ1.first - r0_with_beamSpot)) / (conv_r - RZ1.first);
+    float s_zvertex = (RZ1.second*(conv_r - r0_with_beamSpot) - conv_z*(RZ1.first - r0_with_beamSpot)) / (conv_r - RZ1.first);
 
-    float dist_vtx_to_conv = hypot(conv_r - r0_with_beamSpot, conv_z - zvertex);
+    float dist_vtx_to_conv = hypot(conv_r - r0_with_beamSpot, conv_z - s_zvertex);
     float dist_conv_to_s1 = hypot(RZ1.first - conv_r, RZ1.second - conv_z);
 
     float error_etaS1 = 0.001; // FIXME is there a tool which provides a better value?
-    float errz = 0.0;
+    float s_errz = 0.0;
 
     if ((cluster->inBarrel() && !cluster->inEndcap()) ||
         (cluster->inBarrel() &&  cluster->inEndcap() && cluster->eSample(CaloSampling::EMB1) > cluster->eSample(CaloSampling::EME1))) {
       // Barrel case
       float error_Z_Calo_1st_Sampling_barrel = error_etaS1*RZ1.first*fabs(cosh(etas1));
-      errz = error_Z_Calo_1st_Sampling_barrel*dist_vtx_to_conv/dist_conv_to_s1;
+      s_errz = error_Z_Calo_1st_Sampling_barrel*dist_vtx_to_conv/dist_conv_to_s1;
     } else { 
       // Endcap case
       float error_R_Calo_1st_Sampling_endcap = error_etaS1*cosh(etas1)*RZ1.first*RZ1.first/fabs(RZ1.second);
-      errz = error_R_Calo_1st_Sampling_endcap*fabs(sinh(etas1))*dist_vtx_to_conv/dist_conv_to_s1;
+      s_errz = error_R_Calo_1st_Sampling_endcap*fabs(sinh(etas1))*dist_vtx_to_conv/dist_conv_to_s1;
     }
 
-    return std::make_pair(zvertex, errz);
+    return std::make_pair(s_zvertex, s_errz);
   }
 
   //____________________________________________________________________________
