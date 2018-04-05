@@ -120,6 +120,7 @@ StatusCode ACTSTrackingGeometry::initialize() {
   ATH_CHECK(service("GeoModelSvc", geoModel));
 
   ATH_CHECK(m_trackingGeometrySvc.retrieve());
+  ATH_CHECK(m_extrapolationTool.retrieve());
 
 
   ATH_CHECK(service("AtlasFieldSvc", m_fieldService));
@@ -136,191 +137,150 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
   writeTrackingGeometry(*trackingGeometry);
 
 
-  //using BField_t = ATLASMagneticFieldWrapper;
-  //auto bField = std::make_shared<ATLASMagneticFieldWrapper>(m_fieldService);
+  RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
+  reccWriterConfig.filePath       = "excells_charged.root";
+  reccWriterConfig.treeName       = "extrapolation_charged";
+  reccWriterConfig.writeBoundary  = true;
+  reccWriterConfig.writeMaterial  = true;
+  reccWriterConfig.writeSensitive = true;
+  reccWriterConfig.writePassive   = true;
+  auto rootEccWriter
+      = std::make_shared<RootExCellWriter<Acts::TrackParameters>>(
+          reccWriterConfig);
 
-  //Acts::Logging::Level extrapLogLevel = Acts::Logging::INFO;
-
-  //// (a) RungeKuttaPropagtator
-  //using RKEngine = Acts::RungeKuttaEngine<BField_t>;
-  //typename RKEngine::Config propConfig;
-  //propConfig.fieldService = bField;
-  //auto propEngine         = std::make_shared<RKEngine>(propConfig);
-  //propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", extrapLogLevel));
-  //// (b) MaterialEffectsEngine
-  //Acts::MaterialEffectsEngine::Config matConfig;
-  //auto                                materialEngine
-    //= std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
-  //materialEngine->setLogger(
-      //Acts::getDefaultLogger("MaterialEffectsEngine", extrapLogLevel));
-  //// (c) StaticNavigationEngine
-  //Acts::StaticNavigationEngine::Config navConfig;
-  //navConfig.propagationEngine     = propEngine;
-  //navConfig.materialEffectsEngine = materialEngine;
-  //navConfig.trackingGeometry      = trackingGeometry;
-  //auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
-  //navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", extrapLogLevel));
-  //// (d) the StaticEngine
-  //Acts::StaticEngine::Config statConfig;
-  //statConfig.propagationEngine     = propEngine;
-  //statConfig.navigationEngine      = navEngine;
-  //statConfig.materialEffectsEngine = materialEngine;
-  //auto statEngine = std::make_shared<Acts::StaticEngine>(statConfig);
-  //statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", extrapLogLevel));
-  //// (e) the material engine
-  //Acts::ExtrapolationEngine::Config exEngineConfig;
-  //exEngineConfig.trackingGeometry     = trackingGeometry;
-  //exEngineConfig.propagationEngine    = propEngine;
-  //exEngineConfig.navigationEngine     = navEngine;
-  //exEngineConfig.extrapolationEngines = {statEngine};
-  //auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
-  //exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", extrapLogLevel));
-
-
-  //RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
-  //reccWriterConfig.filePath       = "excells_charged.root";
-  //reccWriterConfig.treeName       = "extrapolation_charged";
-  //reccWriterConfig.writeBoundary  = true;
-  //reccWriterConfig.writeMaterial  = true;
-  //reccWriterConfig.writeSensitive = true;
-  //reccWriterConfig.writePassive   = true;
-  //auto rootEccWriter
-      //= std::make_shared<RootExCellWriter<Acts::TrackParameters>>(
-          //reccWriterConfig);
-
-  //auto ofs = std::make_shared<std::ofstream>();
-  //ofs->open("extrapolation_charged.obj");
-  //ObjExCellWriter<Acts::TrackParameters>::Config objeccWriterConfig;
-  //objeccWriterConfig.outputStream = ofs;
-  //auto objEccWriter
-      //= std::make_shared<ObjExCellWriter<Acts::TrackParameters>>(
-          //objeccWriterConfig);
+  auto ofs = std::make_shared<std::ofstream>();
+  ofs->open("extrapolation_charged.obj");
+  ObjExCellWriter<Acts::TrackParameters>::Config objeccWriterConfig;
+  objeccWriterConfig.outputStream = ofs;
+  auto objEccWriter
+      = std::make_shared<ObjExCellWriter<Acts::TrackParameters>>(
+          objeccWriterConfig);
 
 
 
-  ////std::mt19937 rng;
-  //ParticleGun::Config pgCfg;
-  //pgCfg.nParticles = 100000;
-  //pgCfg.pID = 11;
-  //pgCfg.mass = 0.51099891 * Acts::units::_MeV;
-  //pgCfg.charge = -1.;
-  ////pgCfg.etaRange = {-1.16, -1};
-  //pgCfg.etaRange = {-3, 3};
-  //auto rng = std::make_shared<std::mt19937>();
-  //pgCfg.rng = rng;
+  //std::mt19937 rng;
+  ParticleGun::Config pgCfg;
+  pgCfg.nParticles = 100000;
+  pgCfg.pID = 11;
+  pgCfg.mass = 0.51099891 * Acts::units::_MeV;
+  pgCfg.charge = -1.;
+  //pgCfg.etaRange = {-1.16, -1};
+  pgCfg.etaRange = {-3, 3};
+  auto rng = std::make_shared<std::mt19937>();
+  pgCfg.rng = rng;
 
-  //ParticleGun pg(pgCfg, Acts::getDefaultLogger("ParticleGun", Acts::Logging::VERBOSE));
+  ParticleGun pg(pgCfg, Acts::getDefaultLogger("ParticleGun", Acts::Logging::VERBOSE));
 
-  //std::vector<Acts::ProcessVertex> vertices = pg.generate();
+  std::vector<Acts::ProcessVertex> vertices = pg.generate();
 
 
-  //std::cout << "Processing particles:" << std::endl;
-  //std::atomic<size_t> nProcessed(0);
+  std::cout << "Processing particles:" << std::endl;
+  std::atomic<size_t> nProcessed(0);
   
   
-  //size_t nthreads = std::thread::hardware_concurrency();
-  //nthreads = std::max(size_t(1), nthreads);
-  //std::vector<std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>> results(nthreads);
+  size_t nthreads = std::thread::hardware_concurrency();
+  nthreads = std::max(size_t(1), nthreads);
+  std::vector<std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>> results(nthreads);
 
-  //std::cout << "using " << nthreads << " threads" << std::endl;
+  std::cout << "using " << nthreads << " threads" << std::endl;
 
-  ////for (const auto &pv : vertices) {
-  //for(size_t n=0;n<vertices.size();n++) {
+  //for (const auto &pv : vertices) {
+  for(size_t n=0;n<vertices.size();n++) {
     
 
-    //const Acts::ProcessVertex &pv = vertices.at(n);
+    const Acts::ProcessVertex &pv = vertices.at(n);
 
-    //const Acts::Vector3D &pos = pv.position();
-    //std::cout << "OUTGOING: at " << pos.x() << " " << pos.y() << " " << pos.z() << std::endl;
-    //Acts::PerigeeSurface surface(pv.position());
+    const Acts::Vector3D &pos = pv.position();
+    std::cout << "OUTGOING: at " << pos.x() << " " << pos.y() << " " << pos.z() << std::endl;
+    Acts::PerigeeSurface surface(pv.position());
 
 
-    //#pragma omp parallel num_threads(nthreads)
-    //{
+    #pragma omp parallel num_threads(nthreads)
+    {
 
-      //#pragma omp for
-      //for(size_t pi=0;pi<pv.outgoingParticles().size();++pi) {
-        //const auto &particle = pv.outgoingParticles().at(pi);
-      ////for(const auto &particle : pv.outgoingParticles()) {
-        //double pt = particle.momentum().perp();
-        //double pz = particle.momentum().z();
+      #pragma omp for
+      for(size_t pi=0;pi<pv.outgoingParticles().size();++pi) {
+        const auto &particle = pv.outgoingParticles().at(pi);
+      //for(const auto &particle : pv.outgoingParticles()) {
+        double pt = particle.momentum().perp();
+        double pz = particle.momentum().z();
 
-        ////std::cout << "pt = " << pt << " pz = " << pz << std::endl;
+        //std::cout << "pt = " << pt << " pz = " << pz << std::endl;
 
-        //// prepare this particle for extrapolation
-        //double d0    = 0.;
-        //double z0    = 0.;
-        //double phi   = particle.momentum().phi();
-        //double theta = particle.momentum().theta();
-        //// treat differently for neutral particles
-        //double qop = particle.charge() != 0
-            //? particle.charge() / particle.momentum().mag()
-            //: 1. / particle.momentum().mag();
-        //// parameters
-        //Acts::ActsVectorD<5> pars;
-        //pars << d0, z0, phi, theta, qop;
-        //std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+        // prepare this particle for extrapolation
+        double d0    = 0.;
+        double z0    = 0.;
+        double phi   = particle.momentum().phi();
+        double theta = particle.momentum().theta();
+        // treat differently for neutral particles
+        double qop = particle.charge() != 0
+            ? particle.charge() / particle.momentum().mag()
+            : 1. / particle.momentum().mag();
+        // parameters
+        Acts::ActsVectorD<5> pars;
+        pars << d0, z0, phi, theta, qop;
+        std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
 
-        //if (particle.charge()) {
-          //// charged extrapolation - with hit recording
-          //Acts::BoundParameters startParameters(
-              //std::move(cov), std::move(pars), surface);
-          //Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
-          //ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
-          //ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
-          ////executeTestT<Acts::TrackParameters>(startParameters, particle.barcode(), cCells);
-          //ecc.searchMode                       = 1;
-          //ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
-          //ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
-          //ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
-          //ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
-          ////eTestConfig.collectSensitive                 = true;
-          ////eTestConfig.collectPassive                   = true;
-          ////eTestConfig.collectBoundary                  = true;
-          ////eTestConfig.collectMaterial                  = true;
-          ////eTestConfig.sensitiveCurvilinear             = false;
-          ////eTestConfig.pathLimit                        = -1.;
+        if (particle.charge()) {
+          // charged extrapolation - with hit recording
+          Acts::BoundParameters startParameters(
+              std::move(cov), std::move(pars), surface);
+          Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
+          //executeTestT<Acts::TrackParameters>(startParameters, particle.barcode(), cCells);
+          ecc.searchMode                       = 1;
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
+          //eTestConfig.collectSensitive                 = true;
+          //eTestConfig.collectPassive                   = true;
+          //eTestConfig.collectBoundary                  = true;
+          //eTestConfig.collectMaterial                  = true;
+          //eTestConfig.sensitiveCurvilinear             = false;
+          //eTestConfig.pathLimit                        = -1.;
     
-          //Acts::ExtrapolationCode eCode = exEngine->extrapolate(ecc);
+          Acts::ExtrapolationCode eCode = m_extrapolationTool->extrapolate(ecc);
 
-          //int tid = omp_get_thread_num();
-          //// where do we push?
-          //results.at(tid).push_back(std::move(ecc));
+          int tid = omp_get_thread_num();
+          // where do we push?
+          results.at(tid).push_back(std::move(ecc));
           
-          ////cCells.push_back(std::move(ecc));
-          ////cCells.at(n) = std::move(ecc);
+          //cCells.push_back(std::move(ecc));
+          //cCells.at(n) = std::move(ecc);
    
 
-          //int nP = nProcessed;
-          //nProcessed++;
-          //if (nP % (pgCfg.nParticles / 20) == 0) {
-            //std::cout << "processed " << nP << " / " << pgCfg.nParticles << " : ";
-            //std::cout << std::fixed << std::setprecision(2);
-            //std::cout << ((nP / double(pgCfg.nParticles))*100) << "%" << std::endl;
-          //}
+          int nP = nProcessed;
+          nProcessed++;
+          if (nP % (pgCfg.nParticles / 20) == 0) {
+            std::cout << "processed " << nP << " / " << pgCfg.nParticles << " : ";
+            std::cout << std::fixed << std::setprecision(2);
+            std::cout << ((nP / double(pgCfg.nParticles))*100) << "%" << std::endl;
+          }
 
-        //}
-      //}
-    //} 
-  //}
+        }
+      }
+    } 
+  }
 
-  //std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
-  //cCells.reserve(pgCfg.nParticles);
-  //for(auto &res : results) {
-    ////std::copy(std::make_move_iterator(res.begin()), std::make_move_iterator(res.end()), std::back_inserter(cCells));
-    //for(auto &c : res) {
-      //cCells.push_back(std::move(c));
-    //}
-  //}
+  std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
+  cCells.reserve(pgCfg.nParticles);
+  for(auto &res : results) {
+    //std::copy(std::make_move_iterator(res.begin()), std::make_move_iterator(res.end()), std::back_inserter(cCells));
+    for(auto &c : res) {
+      cCells.push_back(std::move(c));
+    }
+  }
 
-  //// write extrap cells
-  //rootEccWriter->write(cCells);
-  //rootEccWriter->endRun();
+  // write extrap cells
+  rootEccWriter->write(cCells);
+  rootEccWriter->endRun();
 
-  //objEccWriter->write(cCells);
+  objEccWriter->write(cCells);
 
 
-  //ofs->close();
+  ofs->close();
 
 
   return StatusCode::SUCCESS;

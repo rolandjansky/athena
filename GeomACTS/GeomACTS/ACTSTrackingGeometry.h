@@ -53,7 +53,7 @@ private:
   ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
 
 
-  ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool;
+  ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "Acts__ExtrapolationTool"};
 };
 
 #endif // GeomACTS_ACTSTrackingGeometry_h
