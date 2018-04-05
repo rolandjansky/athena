@@ -9,14 +9,22 @@ atlas_subdir( MuonAnalysisAlgorithms )
 # The package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODMuon
+   PhysicsAnalysis/Algorithms/SelectionHelpers
+   PhysicsAnalysis/Algorithms/SystematicsHandles
+   PhysicsAnalysis/AnalysisCommon/IsolationSelection
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   Control/AthToolSupport/AsgTools )
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
+   PRIVATE
+   PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 atlas_add_library( MuonAnalysisAlgorithmsLib
    MuonAnalysisAlgorithms/*.h MuonAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS MuonAnalysisAlgorithms
-   LINK_LIBRARIES SelectionHelpersLib SystematicsHandlesLib
-   MuonAnalysisInterfacesLib IsolationSelectionLib
+   LINK_LIBRARIES xAODEventInfo xAODMuon SelectionHelpersLib
+   SystematicsHandlesLib MuonAnalysisInterfacesLib IsolationSelectionLib
+   AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
 atlas_add_dictionary( MuonAnalysisAlgorithmsDict
@@ -31,3 +39,14 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*_jobOptions.py )
+atlas_install_scripts( share/*_eljob.py )
+
+if( XAOD_STANDALONE )
+   atlas_add_test( testJob
+      SCRIPT MuonAnalysisAlgorithmsTest_eljob.py )
+else()
+   atlas_add_test( testJob
+      SCRIPT athena.py
+      MuonAnalysisAlgorithms/MuonAnalysisAlgorithmsTest_jobOptions.py )
+endif()

@@ -43,6 +43,14 @@ for alg in sequence :
     algSeq += config
     pass
 
+# Allow the histogram writer algorithm to work correctly:
+algSeq.MuonCutFlowDumperAlg.RootStreamName = "/MUONTEST"
+algSeq.MuonKinematicDumperAlg.RootStreamName = "/MUONTEST"
+ServiceMgr += CfgMgr.THistSvc()
+ServiceMgr.THistSvc.Output += [
+    "MUONTEST DATAFILE='MuonAnalysisAlgorithmsTest.hist.root' OPT='RECREATE'"
+    ]
+
 # create our algorithm with teh given name
 #alg = CfgMgr.MyxAODAnalysis()
 
