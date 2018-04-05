@@ -38,18 +38,8 @@
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 
-//offline 
-#include "xAODMuon/MuonContainer.h"
-
-#include "xAODTrigger/MuonRoIContainer.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
-#include "xAODTrigger/JetRoIContainer.h"
-#include "xAODTrigger/JetEtRoI.h"
-#include "xAODTrigger/EnergySumRoI.h"
-
 //for express menu
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
-#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
 
 using namespace std;
 
@@ -270,9 +260,8 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
 ///////////////////////////////////////////////////////////////////////////
 // Reads Tgc Coincidence Data from container into vectors for use in filling histograms
 StatusCode
-TgcLv1RawDataValAlg::readOfflineMuonContainer(std::string key,
-    vector<float>* mu_pt, vector<float>* mu_eta,
-    vector<float>* mu_phi,vector<float>* mu_q){
+TgcLv1RawDataValAlg::readOfflineMuonContainer(vector<float>* mu_pt, vector<float>* mu_eta,
+					      vector<float>* mu_phi,vector<float>* mu_q){
   mu_pt->clear();
   mu_eta->clear();
   mu_phi->clear();
@@ -282,13 +271,7 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::string key,
   const float etamin = 1.05;
   const float etamax = 2.4;
 
-  const xAOD::MuonContainer* muonCont;
-
-  StatusCode sc = (*m_activeStore)->retrieve(muonCont, key);
-  if(sc.isFailure()){
-    ATH_MSG_WARNING("Container of muon particle with key " << key << " not found in ActiveStore");
-    return StatusCode::SUCCESS;
-  }
+  SG::ReadHandle<xAOD::MuonContainer> muonCont(m_muonKey);
 
   xAOD::MuonContainer::const_iterator it  = muonCont->begin();
   xAOD::MuonContainer::const_iterator ite = muonCont->end();
@@ -348,8 +331,7 @@ TgcLv1RawDataValAlg::readOfflineMuonContainer(std::string key,
     //float matchChi2 = (*it)->matchChi2();
 
     //Muid MCP except phi hits
-    if( key == "Muons" &&
-	!( (*it)->combinedTrackParticleLink() &&
+    if(!( (*it)->combinedTrackParticleLink() &&
 	  sctHits >= 6 &&
 	  pixHits >= 2 &&
 	  pixHoles+sctHoles <=1 &&
@@ -431,12 +413,8 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
 
   ///////////////////////////////////////////////////
   //fill number of RPC or TGC RoI and position of RoI
-  const xAOD::MuonRoIContainer* muonRoIs; 
-  StatusCode sc = (*m_activeStore)->retrieve(muonRoIs, m_L1muonRoIName);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_WARNING( " Cannot get LVL1 muon ROI "  );
-    return sc ;
-  }
+  SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_L1muonRoIName);
+
   xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
   xAOD::MuonRoIContainer::const_iterator mu_ite= muonRoIs->end(); 
   for( ;
@@ -466,12 +444,8 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
 
   ///////////////////////////////////////////////////
   //fill number of L1Calo RoI
-  const xAOD::EmTauRoIContainer* emtauRoIs; 
-  sc = (*m_activeStore)->retrieve(emtauRoIs, m_L1emtauRoIName);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_WARNING( " Cannot get LVL1 emtau ROI "  );
-    return sc ;
-  }
+  SG::ReadHandle<xAOD::EmTauRoIContainer> emtauRoIs(m_L1emtauRoIName); 
+
   xAOD::EmTauRoIContainer::const_iterator em_it = emtauRoIs->begin(); 
   xAOD::EmTauRoIContainer::const_iterator em_ite= emtauRoIs->end(); 
   for( ;
@@ -484,12 +458,8 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
   }
 
 
-  const xAOD::JetRoIContainer* jetRoIs; 
-  sc = (*m_activeStore)->retrieve(jetRoIs, m_L1jetRoIName);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_WARNING( " Cannot get LVL1 jet ROI "  );
-    return sc ;
-  }
+  SG::ReadHandle<xAOD::JetRoIContainer> jetRoIs(m_L1jetRoIName);
+
   xAOD::JetRoIContainer::const_iterator j_it = jetRoIs->begin(); 
   xAOD::JetRoIContainer::const_iterator j_ite= jetRoIs->end(); 
   for( ;
@@ -512,12 +482,8 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
   //*  m_L1Caloetas.push_back(50.);//no position of RoI for JetEt trigger
   //*  m_L1Calophis.push_back(50.);//no position of RoI for JetEt trigger
 
-  const xAOD::EnergySumRoI* esumRoIs; 
-  sc = (*m_activeStore)->retrieve(esumRoIs);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_WARNING( " Cannot get LVL1 jetet ROI "  );
-    return sc ;
-  }
+  SG::ReadHandle<xAOD::EnergySumRoI> esumRoIs(m_L1esumRoIName); 
+
   m_L1TriggerType[3]++;
   m_L1Caloetas.push_back(100.);//no position of RoI for Esum trigger
   m_L1Calophis.push_back(100.);//no position of RoI for Esum trigger
@@ -531,15 +497,14 @@ TgcLv1RawDataValAlg::readL1TriggerType(){
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::readEventInfo(){
-  static int errcnt = 0;
+  //static int errcnt = 0;
   // Reset event index variables
   m_lumiblock = -1;
   m_event     = -1;
   m_BCID      = -1;
 
   // Get Event Info DataHandle
-  const DataHandle<xAOD::EventInfo> event_handle;
-  ATH_CHECK( (*m_activeStore)->retrieve(event_handle) );
+  SG::ReadHandle<xAOD::EventInfo> event_handle(m_eventInfo);
 
   // Get event index variables
   m_lumiblock = event_handle->lumiBlock() ;
@@ -547,65 +512,33 @@ TgcLv1RawDataValAlg::readEventInfo(){
   m_BCID      = event_handle->bcid() ;
 
   // **********************************************
-  // Get Stream Tags
-  const std::vector<xAOD::EventInfo::StreamTag> &stream = event_handle->streamTags();
 
-  // Search Stream Tags for express stream
-  m_found_express_stream = false;
-  for(auto stag : stream) {
-    if(stag.type()=="express" && stag.name()=="express") {
-      m_found_express_stream = true;
-      break;
-    }
-  }
-
-  if(m_found_express_stream){
+  m_found_nonmuon_express_chain = false;
+  if(m_useExpressStream){
     // Search Store for non-muon express chain
-    m_found_nonmuon_express_chain = false;
-    bool continuesearch=true;
-
-    // Check that store contains HLT express
-    const std::string key = "HLT_EXPRESS_OPI_HLT";
-    if( !(*m_activeStore)->contains<TrigOperationalInfoCollection>(key) ){
-      continuesearch=false;
-      if (errcnt < 1) {
-	ATH_MSG_INFO(" Missing TrigOperationalInfoCollection: key= " << key  );
-	errcnt++;
-      }
-    }
 
     // Get TrigOperationalInfoCollection from store
-    const TrigOperationalInfoCollection* opi=0;
-    if(continuesearch){
-      if( !(*m_activeStore)->retrieve<TrigOperationalInfoCollection>(opi,key).isSuccess() ){
-	continuesearch=false;
-	if (errcnt < 1) {
-	  ATH_MSG_INFO(" Failed to retrieve TrigOperationalInfoCollection: key= " << key  );
-	  errcnt++;
-	}
-      }
-    }
+    SG::ReadHandle<TrigOperationalInfoCollection> opi(m_trigOpInfo);
 
     // Search Collection's express chains for at least one non-muon express chain
-    if(continuesearch){
-      for(TrigOperationalInfoCollection::const_iterator it=opi->begin();it!=opi->end();++it){// trigopinfo
-	const TrigOperationalInfo *ptr = *it;
-	if(!ptr)continue;
-
-	m_expressChains = ptr->infos();
-	for(unsigned i=0;i<m_expressChains.first.size();++i){// express chains
-	  // Check that at least one express trigger chain is not muon related
-	  TString s = m_expressChains.first.at(i);
-	  if( !s.Contains("mu") ){
-	    m_found_nonmuon_express_chain = true;
-	    ATH_MSG_INFO( " non-muon express chain found " << s  );
-            continuesearch=false;
-	    break;
-	  }
-	}// express chains
-	if(!continuesearch) break;
-      }// trigopinfo
-    }
+    bool continuesearch=true;
+    for(TrigOperationalInfoCollection::const_iterator it=opi->begin();it!=opi->end();++it){// trigopinfo
+      const TrigOperationalInfo *ptr = *it;
+      if(!ptr)continue;
+      
+      m_expressChains = ptr->infos();
+      for(unsigned i=0;i<m_expressChains.first.size();++i){// express chains
+	// Check that at least one express trigger chain is not muon related
+	TString s = m_expressChains.first.at(i);
+	if( !s.Contains("mu") ){
+	  m_found_nonmuon_express_chain = true;
+	  ATH_MSG_INFO( " non-muon express chain found " << s  );
+	  continuesearch=false;
+	  break;
+	}
+      }// express chains
+      if(!continuesearch) break;
+    }// trigopinfo
 
   }// if found express stream
 
