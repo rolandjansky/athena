@@ -4,7 +4,7 @@
 #include <map>
 #include "GaudiKernel/Property.h"
 #include "TestTrigL2ElectronHypoAlg.h"
-#include "xAODTrigCalo/TrigEMClusterContainer.h"
+
 
 
 using TrigCompositeUtils::DecisionContainer;

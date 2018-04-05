@@ -15,6 +15,7 @@
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 
 
+
 /**
  * @class Implements Hypo selection on L2 electrons
  * @brief 
@@ -51,6 +52,5 @@ class TestTrigL2ElectronHypoAlg
   
 
 }; 
-DECLARE_ALGORITHM_FACTORY( TestTrigL2ElectronHypoAlg )
 
 #endif //> !TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOALG_H
