@@ -284,7 +284,6 @@ StatusCode CaloBaselineMon::fillHistograms() {
     Identifier id = cell->ID();
     float energy = cell->energy();
     double eta = cell->caloDDE()->eta_raw();
-    //std::cout << energy << " " << eta << " " << std::endl;
 
     int partThisAlgo = 0;
     if  (m_calo_id->is_em(id)) partThisAlgo = m_partMap[0];
