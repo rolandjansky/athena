@@ -62,7 +62,7 @@ class L1DecoderTest(L1Decoder) :
         from TriggerJobOpts.TriggerFlags import TriggerFlags
         from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
         from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
-
+        from L1Decoder.L1DecoderConf import RerunRoIsUnpackingTool
         # CTP unpacker
 
         ctpUnpacker = CTPUnpackingTool(OutputLevel = self.OutputLevel,
@@ -80,6 +80,10 @@ class L1DecoderTest(L1Decoder) :
             emUnpacker.ThresholdToChainMapping = MenuTest.EMThresholdToChainMapping
             emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
             self.roiUnpackers += [emUnpacker]
+            self.rerunRoiUnpackers += [ RerunRoIsUnpackingTool("EMRerunRoIsUnpackingTool", 
+                                                               SourceDecisions="EMRoIDecisions", 
+                                                               Decisions="RerunEMRoIDecisions",
+                                                               ThresholdToChainMapping=MenuTest.EMThresholdToChainMapping ) ]
 
             metUnpacker = METRoIsUnpackingTool(OutputLevel = self.OutputLevel,
                                                Decisions = "METRoIDecisions",
@@ -95,7 +99,10 @@ class L1DecoderTest(L1Decoder) :
             muUnpacker.ThresholdToChainMapping = MenuTest.MUThresholdToChainMapping
             muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
             self.roiUnpackers += [muUnpacker]
-
+            self.rerunRoiUnpackers += [  RerunRoIsUnpackingTool("MURerunRoIsUnpackingTool",
+                                                                SourceDecisions="MURoIDecisions", 
+                                                                Decisions="RerunMURoIDecisions",
+                                                                ThresholdToChainMapping=MenuTest.MUThresholdToChainMapping ) ]
         self.Chains = "HLTChainsResult"
 
 
