@@ -4,7 +4,7 @@
 
 #include "PixelMapTestAlg.h"
 #include "PixelConditionsServices/ISpecialPixelMapSvc.h"
-#include "PixelConditionsSummarySvc.h"
+#include "PixelConditionsSummaryTool.h"
 
 // Athena includes
 #include "AthenaKernel/IOVSvcDefs.h" 
@@ -37,7 +37,7 @@ static bool isITK(false);
 PixelMapTestAlg::PixelMapTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
   m_specialPixelMapSvc("SpecialPixelMapSvc", name),
-  m_pixelConditionsSummarySvc("PixelConditionsSummarySvc", name),
+  m_pixelConditionsSummarySvc("PixelConditionsSummaryTool", this),
   m_useSummarySvc(true),
   m_writeTextfile(false),
   m_dummy(false),

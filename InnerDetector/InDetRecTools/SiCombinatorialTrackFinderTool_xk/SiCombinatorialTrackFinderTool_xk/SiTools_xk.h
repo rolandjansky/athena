@@ -22,6 +22,7 @@
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 namespace InDet{
 
@@ -50,7 +51,7 @@ namespace InDet{
 
       Trk::IRIO_OnTrackCreator*           rioTool    () const {return m_riotool    ;}
       Trk::IPRD_AssociationTool*          assoTool   () const {return m_assoTool   ;}
-      IInDetConditionsSvc*                pixcond    () const {return m_pixcond    ;}
+      IInDetConditionsTool*               pixcond    () const {return m_pixcond    ;}
       IInDetConditionsSvc*                sctcond    () const {return m_sctcond    ;}
       const double&                       xi2max     () const {return m_xi2max     ;}
       const double&                       xi2maxBrem () const {return m_xi2maxBrem ;}
@@ -78,7 +79,7 @@ namespace InDet{
       void setTools
 	(const Trk::MagneticFieldProperties&);
  
-      void setTools(IInDetConditionsSvc*,IInDetConditionsSvc*); 
+      void setTools(IInDetConditionsTool*,IInDetConditionsSvc*); 
 
       void setXi2pTmin(const double&,const double&,const double&,const double&);
       void setHolesClusters(const int&,const int&,const int&);
@@ -99,7 +100,7 @@ namespace InDet{
       Trk::IPatternParametersPropagator* m_proptool;  // Propagator tool
       Trk::IPatternParametersUpdator* m_updatortool;  // Updator    tool
       Trk::IRIO_OnTrackCreator*       m_riotool    ;  // RIOonTrack creator
-      IInDetConditionsSvc*            m_pixcond    ;  // Condtionos for pixels 
+      IInDetConditionsTool*           m_pixcond    ;  // Condtionos for pixels 
       IInDetConditionsSvc*            m_sctcond    ;  // Conditions for sct
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
@@ -208,7 +209,7 @@ namespace InDet{
       m_fieldtool   = MF;
     }
 
-  inline void SiTools_xk::setTools (IInDetConditionsSvc* pix,IInDetConditionsSvc* sct)
+  inline void SiTools_xk::setTools (IInDetConditionsTool* pix,IInDetConditionsSvc* sct)
     {
       m_pixcond = pix;
       m_sctcond = sct;

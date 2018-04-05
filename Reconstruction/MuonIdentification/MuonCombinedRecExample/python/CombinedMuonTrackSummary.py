@@ -90,7 +90,7 @@ if DetFlags.haveRIO.pixel_on():
   from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
   ToolSvc += InDet__InDetTestBLayerTool( \
     name                       = "CombinedMuonTestBLayer",
-    PixelSummarySvc            = ServiceMgr.PixelConditionsSummarySvc,
+    PixelSummaryTool           = ToolSvc.PixelConditionsSummaryTool,
     Extrapolator               = atlasExtrapolator)
 
   # load PixelToTPID tool
@@ -100,7 +100,7 @@ if DetFlags.haveRIO.pixel_on():
     ReadFromCOOL               = True)
 
   # set properties into public tools
-  ToolSvc.CombinedMuonIDHoleSearch.PixelSummarySvc    = ServiceMgr.PixelConditionsSummarySvc  
+  ToolSvc.CombinedMuonIDHoleSearch.PixelSummaryTool    = ToolSvc.PixelConditionsSummaryTool
   ToolSvc.CombinedMuonIDSummaryHelper.PixelToTPIDTool = ToolSvc.CombinedMuonPixelToTPID
   ToolSvc.CombinedMuonIDSummaryHelper.TestBLayerTool  = ToolSvc.CombinedMuonTestBLayer
   ToolSvc.CombinedMuonTrackSummary.PixelToTPIDTool    = ToolSvc.CombinedMuonPixelToTPID

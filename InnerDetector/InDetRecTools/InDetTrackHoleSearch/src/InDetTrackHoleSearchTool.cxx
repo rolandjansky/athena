@@ -37,8 +37,8 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_atlasId(nullptr),
   m_extrapolator("Trk::Extrapolator"),
-  m_pixelCondSummarySvc("PixelConditionsSummarySvc",n),
   m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc",n),
+  m_pixelCondSummaryTool("PixelConditionsSummaryTool",this),
   m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
   m_geoModelSvc("GeoModelSvc", n),
   m_extendedListOfHoles(false),
@@ -50,7 +50,7 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
 {
   declareInterface<ITrackHoleSearchTool>(this);
   declareProperty("Extrapolator"         , m_extrapolator);
-  declareProperty("PixelSummarySvc"      , m_pixelCondSummarySvc);
+  declareProperty("PixelSummaryTool"      , m_pixelCondSummaryTool);
   declareProperty("SctSummarySvc"        , m_sctCondSummarySvc);
   declareProperty("PixelLayerTool"       , m_pixelLayerTool);
   declareProperty("GeoModelService"      , m_geoModelSvc);
@@ -92,11 +92,11 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
 
   if (m_usepix) {
     // Get PixelConditionsSummarySvc
-    if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
+    if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummaryTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummaryTool << endmsg;
     }
     // Get InDetPixelLayerTool from ToolService
     if ( m_pixelLayerTool.retrieve().isFailure() ) {
@@ -908,7 +908,7 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
   if (m_atlasId->is_pixel(id)){ 
     if (m_usepix) {
       ATH_MSG_VERBOSE ("Found element is a Pixel module without a hit, see if it might be dead");
-      isgood=m_pixelCondSummarySvc->isGood(idHash);
+      isgood=m_pixelCondSummaryTool->isGood(idHash);
       isgood=m_pixelLayerTool->expectHit(parameters);
       if (isgood) {
 	// this detElement is only cosidered as hole if the extrapolation of
