@@ -111,55 +111,6 @@ def createFastCaloSequence(rerun=False):
 egammaCaloStep = createFastCaloSequence( rerun=False )
 
 
-# fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo, trigL2CaloRingerFexMT])
-
-# filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-# filterL1RoIsAlg.Input = ["EMRoIDecisions"]
-# filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
-# filterL1RoIsAlg.Chains = testChains
-# filterL1RoIsAlg.OutputLevel = DEBUG
-
-
-# fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
-# fastCaloViewsMaker.ViewFallThrough = True
-# fastCaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTool
-# fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
-# fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
-# fastCaloViewsMaker.Views = "EMCaloViews"
-# #fastCaloViewsMaker.AlgorithmNameSequence = [theFastCaloAlgo.getName(), trigL2CaloRingerFexMT.getName()]
-# fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgs"
-# theFastCaloAlgo.RoIs = fastCaloViewsMaker.InViewRoIs
-
-# CaloViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastCaloViewDataVerifier")
-# CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fastCaloViewsMaker_InViewRoIs_out')]
-
-
-# from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlg
-# from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
-# theFastCaloHypo = TrigL2CaloHypoAlg("L2CaloHypo")
-# theFastCaloHypo.OutputLevel = DEBUG
-# theFastCaloHypo.L1Decisions = "EMRoIDecisions"
-# theFastCaloHypo.Views = fastCaloViewsMaker.Views
-# theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
-# theFastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
-# theFastCaloHypo.Decisions = "EgammaCaloDecisions"
-# theFastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
-# #[ TrigL2CaloHypoToolFromName("HLT_e5_etcut"),   TrigL2CaloHypoToolFromName("HLT_e7_etcut") , TrigL2CaloHypoToolFromName("HLT_2e3_etcut"), TrigL2CaloHypoToolFromName("HLT_e3e5_etcut") ]
-
-# for t in theFastCaloHypo.HypoTools:
-#   t.OutputLevel = DEBUG
-  
-# # topSequence += theFastCaloHypo
-
-# caloDecisionsDumper = DumpDecisions("caloDecisionsDumper", OutputLevel=DEBUG, Decisions = theFastCaloHypo.Decisions )  
-
-# fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewAlgs, theFastCaloHypo ])
-  
-# egammaCaloStep = stepSeq("egammaCaloStep", filterL1RoIsAlg, [ fastCaloSequence,  caloDecisionsDumper ])
-
-egammaCaloStep = createFastCaloSequence( rerun=False )
-
-
 from TrigUpgradeTest.InDetSetup import makeInDetAlgs
 
 (viewAlgs, eventAlgs) = makeInDetAlgs()
