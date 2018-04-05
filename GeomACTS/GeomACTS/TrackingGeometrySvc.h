@@ -44,6 +44,7 @@ const InDetDD::SiDetectorManager* p_SCTManager;
 const InDetDD::TRT_DetectorManager* p_TRTManager;
   
 std::shared_ptr<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>> m_elementStore;
+std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
 
 
 };

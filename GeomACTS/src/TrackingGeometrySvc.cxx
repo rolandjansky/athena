@@ -30,26 +30,9 @@ Acts::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLoca
 StatusCode
 Acts::TrackingGeometrySvc::initialize()
 {
-  
-  return StatusCode::SUCCESS;
-}
-
-std::shared_ptr<const Acts::TrackingGeometry>
-Acts::TrackingGeometrySvc::trackingGeometry() {
-
-  if ( !m_detStore->retrieve(p_pixelManager, "Pixel").isSuccess() ) {
-    ATH_MSG_FATAL("Unable to retrieve manager for Pixel");
-    return nullptr;
-  }
-  if ( !m_detStore->retrieve(p_SCTManager, "SCT").isSuccess() ) {
-    ATH_MSG_FATAL("Unable to retrieve manager for SCT");
-    return nullptr;
-  }
-  if ( !m_detStore->retrieve(p_TRTManager, "TRT").isSuccess() ) {
-    ATH_MSG_FATAL("Unable to retrieve manager for TRT");
-    return nullptr;
-  }
-
+  ATH_CHECK ( m_detStore->retrieve(p_pixelManager, "Pixel") );
+  ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
+  ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
 
   Acts::Logging::Level loggingLevel = Acts::Logging::VERBOSE;
   
@@ -70,23 +53,11 @@ Acts::TrackingGeometrySvc::trackingGeometry() {
     = std::make_shared<const Acts::CylinderVolumeHelper>(
         cvhConfig, Acts::getDefaultLogger("CylVolHelper", loggingLevel));
 
-
-  // PIXEL and SCT
-
-  //std::vector<std::string> siDetectors = {
-    //"Pixel",
-    //"SCT",
-  //};
-
-  //for(const auto& managerName : siDetectors) {
-    //const InDetDD::SiDetectorManager* manager;
-    //volumeBuilders.push_back(
-        //makeVolumeBuilder(manager, cylinderVolumeHelper, managerName == "Pixel"));
-  //}
-    
+  // PIXEL
   volumeBuilders.push_back(
         makeVolumeBuilder(p_pixelManager, cylinderVolumeHelper, true));
   
+  // SCT
   volumeBuilders.push_back(
         makeVolumeBuilder(p_SCTManager, cylinderVolumeHelper));
 
@@ -100,11 +71,14 @@ Acts::TrackingGeometrySvc::trackingGeometry() {
   auto trackingGeometryBuilder
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig);
   
+  m_trackingGeometry = trackingGeometryBuilder->trackingGeometry();
+  
+  return StatusCode::SUCCESS;
+}
 
-  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
-
-
-  return trackingGeometry;
+std::shared_ptr<const Acts::TrackingGeometry>
+Acts::TrackingGeometrySvc::trackingGeometry() {
+  return m_trackingGeometry;
 }
 
 std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
