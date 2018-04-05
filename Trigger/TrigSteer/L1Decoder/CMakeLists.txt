@@ -47,3 +47,5 @@ atlas_install_python_modules( python/*.py)
 # Install files from the package:
 atlas_install_headers( L1Decoder )
 atlas_install_joboptions( share/*.py )
+
+atlas_add_test( AccumulatorTest SCRIPT python -m L1Decoder.L1DecoderConfig ) 
