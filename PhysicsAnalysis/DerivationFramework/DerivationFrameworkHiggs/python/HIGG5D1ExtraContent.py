@@ -11,4 +11,4 @@ ExtraContent+=[
 ExtraContentTruth=HIGG5Common.getHIGG5CommonTruth()
 
 ExtraContainers=[]
-ExtraContainersTruth=[] #HIGG5Common.getHIGG5CommonTruthContainers() Truth3
+ExtraContainersTruth=HIGG5Common.getHIGG5CommonTruthContainers()

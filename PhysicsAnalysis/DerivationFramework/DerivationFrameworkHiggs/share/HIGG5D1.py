@@ -59,8 +59,8 @@ thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinnin
 if DerivationFrameworkIsMonteCarlo :
     thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D1', HIGG5D1ThinningHelper))
     #add Truth3 information
-    #from DerivationFrameworkMCTruth.MCTruthCommon import *
-    #addStandardTruthContents()
+    from DerivationFrameworkMCTruth.MCTruthCommon import *
+    addStandardTruthContents()
 
 #====================================================================
 # jet selection
@@ -288,6 +288,14 @@ HIGG5D1SlimmingHelper.AppendToDictionary = {
   "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt4EMPFlow" : "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt4EMPFlowAux" : "xAOD::BTaggingAuxContainer"   ,
+  "TruthBoson" : "xAOD::TruthParticleContainer" ,
+  "TruthBosonAux" : "xAOD::TruthParticleAuxContainer" ,
+  "TruthTop" : "xAOD::TruthParticleContainer" ,
+  "TruthTopAux" : "xAOD::TruthParticleAuxContainer" ,
+  "TruthBSM" : "xAOD::TruthParticleContainer" ,
+  "TruthBSMAux" : "xAOD::TruthParticleAuxContainer" ,
   }
 
 HIGG5D1SlimmingHelper.SmartCollections = [ "Electrons",
