@@ -7,6 +7,13 @@ import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
+### TriggerAPI ##
+from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
+#from TriggerMenu.api.TriggerAPI import TriggerAPI
+#from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+#from AthenaCommon.Help import Topic
+#from LongLivedParticleDPDMaker.EmergingFlags import Emerging_FilterFlags
+
 class DV_containerFlags(JobProperty):
     statusOn = True
     photonCollectionName='Photons'
