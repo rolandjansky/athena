@@ -33,9 +33,9 @@ TrackParticleTruthCollectionCnv::TrackParticleTruthCollectionCnv(ISvcLocator* sv
 //================================================================
 TrackParticleTruthCollectionPERS* TrackParticleTruthCollectionCnv::createPersistent(TrackParticleTruthCollection* trans) {
   MsgStream log(msgSvc(), "TrackParticleTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollection_p1"<<endmsg;
+  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollection_p2"<<endmsg;
   TrackParticleTruthCollectionPERS* pers=new TrackParticleTruthCollectionPERS();
-  m_converter_p1.transToPers(trans,pers,log); 
+  m_converter_p2.transToPers(trans,pers,log);
   return pers;
 }
 

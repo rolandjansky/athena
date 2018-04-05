@@ -1,22 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file InDetSimEventTPCnv/test/TrackParticleTruthCollectionCnv_p1_test.cxx
+ * @file InDetSimEventTPCnv/test/TrackParticleTruthCollectionCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Feb, 2016
- * @brief Tests for TrackParticleTruthCollectionCnv_p1.
+ * @brief Tests for TrackParticleTruthCollectionCnv_p2.
  */
 
 
 #undef NDEBUG
-#include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p1.h"
-#include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
+#include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p2.h"
+#include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p2.h"
 #include "ParticleTruth/TrackParticleTruthCollection.h"
 #include "SGTools/TestStore.h"
-#include "TestTools/leakcheck.h"
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
@@ -53,8 +52,8 @@ void compare (const TrackParticleTruthCollection& p1,
 void testit (const TrackParticleTruthCollection& trans1)
 {
   MsgStream log (0, "test");
-  TrackParticleTruthCollectionCnv_p1 cnv;
-  Rec::TrackParticleTruthCollection_p1 pers;
+  TrackParticleTruthCollectionCnv_p2 cnv;
+  Rec::TrackParticleTruthCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   TrackParticleTruthCollection trans2;
   cnv.persToTrans (&pers, &trans2, log);
@@ -66,13 +65,6 @@ void testit (const TrackParticleTruthCollection& trans1)
 void test1(std::vector<HepMC::GenParticle*> genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle *particle = genPartVector.at(0);
-  // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode());
-  assert(dummyHMPL.cptr()==particle);
-  // Get proxy created outside of leak checking.
-  DataLink<Rec::TrackParticleContainer> dldum ("tpc");
-  Athena_test::Leakcheck check;
 
   TrackParticleTruthCollection trans1 (DataLink<Rec::TrackParticleContainer>("tpc"));
   for (int i=0; i<10; i++) {

@@ -26,19 +26,19 @@
 DECLARE_TPCNV_FACTORY(TrackParticleTruthCollectionContainerCnv_tlp1,
                       DataVector<TrackParticleTruthCollection>,
                       TrackParticleTruthCollectionContainer_tlp1,
-                      Athena::TPCnvVers::Current)
+                      Athena::TPCnvVers::Old)
 
 DECLARE_TPCNV_FACTORY(TrackParticleTruthCollectionContainerCnv_tlp2,
                       DataVector<TrackParticleTruthCollection>,
                       TrackParticleTruthCollectionContainer_tlp2,
-                      Athena::TPCnvVers::Old)
+                      Athena::TPCnvVers::Current)
 
 DECLARE_TPCNV_FACTORY(TrackParticleTruthCollectionCnv_p1,
                       TrackParticleTruthCollection,
                       Rec::TrackParticleTruthCollection_p1,
-                      Athena::TPCnvVers::Current)
+                      Athena::TPCnvVers::Old)
 
 DECLARE_TPCNV_FACTORY(TrackParticleTruthCollectionCnv_p2,
                       TrackParticleTruthCollection,
                       Rec::TrackParticleTruthCollection_p2,
-                      Athena::TPCnvVers::Old)
+                      Athena::TPCnvVers::Current)

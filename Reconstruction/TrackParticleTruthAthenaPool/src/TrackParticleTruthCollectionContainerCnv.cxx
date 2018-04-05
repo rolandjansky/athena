@@ -28,9 +28,9 @@ TrackParticleTruthCollectionContainerCnv::~TrackParticleTruthCollectionContainer
 
 TrackParticleTruthCollectionContainerPERS* TrackParticleTruthCollectionContainerCnv::createPersistent(TrackParticleTruthCollectionContainer* trans) {
   MsgStream log(msgSvc(), "TrackParticleTruthCollectionContainerCnv");
-  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollectionContainer_tlp1"<<endmsg;
+  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollectionContainer_tlp2"<<endmsg;
 
-  TrackParticleTruthCollectionContainerPERS* p_cont =  m_converter_p1->createPersistent( trans, log );
+  TrackParticleTruthCollectionContainerPERS* p_cont =  m_converter_p2->createPersistent( trans, log );
   return p_cont;
 }
 
