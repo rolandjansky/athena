@@ -9,14 +9,22 @@ atlas_subdir( JetAnalysisAlgorithms )
 # The package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
+   Event/xAOD/xAODJet
+   PhysicsAnalysis/Algorithms/SelectionHelpers
+   PhysicsAnalysis/Algorithms/SystematicsHandles
    PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   Control/AthToolSupport/AsgTools )
+   Reconstruction/Jet/JetCalibTools
+   Reconstruction/Jet/JetCPInterfaces
+   Reconstruction/Jet/JetInterface
+   Reconstruction/Jet/JetJvtEfficiency
+   Reconstruction/Jet/JetResolution )
 
 atlas_add_library( JetAnalysisAlgorithmsLib
    JetAnalysisAlgorithms/*.h JetAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS JetAnalysisAlgorithms
-   LINK_LIBRARIES SelectionHelpersLib SystematicsHandlesLib JetCalibToolsLib JetInterface JetResolutionLib JetCPInterfaces JetJvtEfficiencyLib
-   PRIVATE_LINK_LIBRARIES RootCoreUtils )
+   LINK_LIBRARIES xAODJet SelectionHelpersLib SystematicsHandlesLib
+   AnaAlgorithmLib JetCalibToolsLib JetInterface JetResolutionLib
+   JetCPInterfaces JetJvtEfficiencyLib )
 
 atlas_add_dictionary( JetAnalysisAlgorithmsDict
    JetAnalysisAlgorithms/JetAnalysisAlgorithmsDict.h
@@ -30,3 +38,5 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*_jobOptions.py )
+atlas_install_scripts( share/*_eljob.py )
