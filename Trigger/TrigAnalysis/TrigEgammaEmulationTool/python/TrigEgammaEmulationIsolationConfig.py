@@ -43,6 +43,7 @@ def createIsoToolElectronSelector():
                                           RelPtConeCut = isolation_dict[wp] if trkiso else [-1,-1,-1,-1,-1,-1],
                                           EtConeCut = [-1,-1,-1,-1,-1,-1],
                                           PtConeCut = [-1,-1,-1,-1,-1,-1],
+                                          UseTrackIsolationTool=True,
                                           OutputLevel=OutputLevel,
                                           #TrackIsolationTool = TrigTrackIsolationTool
                                           TrackIsolationTool = TrackIsoTool

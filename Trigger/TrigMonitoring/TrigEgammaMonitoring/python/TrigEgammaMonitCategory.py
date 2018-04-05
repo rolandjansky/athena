@@ -58,10 +58,18 @@ monitoring_jpsitags = [
 monitoring_L1Calo = []
 
 # Startup and high-pt electrons to monitor from inclusive electrons
-commission_electron = []
+commission_electron = [
+        ]
 
 monitoring_electron = ['HLT_e60_lhmedium_nod0_L1EM24VHI',
-                       'HLT_e140_lhloose_nod0_L1EM24VHI'
+                       'HLT_e140_lhloose_nod0_L1EM24VHI',
+                       'HLT_e60_lhmedium_nod0_L1EM24VHI',
+                       'HLT_e140_lhloose_nod0_L1EM24VHI',
+                       'HLT_e5_lhtight_nod0',
+                       'HLT_e9_lhtight_nod0',
+                       'HLT_e9_lhvloose_nod0',
+                       'HLT_e12_lhloose_nod0',
+                       'HLT_e14_lhtight_nod0',
                        ]
 # monitoring_electron += commission_electron
 
@@ -76,10 +84,11 @@ commissionTP_electron = [
 
 monitoringTP_electron = ['HLT_e17_lhvloose_nod0_L1EM15VHI',
                          'HLT_e28_lhtight_nod0_ivarloose',                        
-                         'HLT_e24_lhvloose_nod0']
+                         'HLT_e24_lhvloose_nod0'
+                         ]
 monitoringTP_electron += commissionTP_electron
 
-monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
+monitoringTP_Jpsiee = []#["HLT_e5_lhtight_nod0"]
 
 monitoring_photon = ['HLT_g25_medium_L1EM20VH',
                      'HLT_g25_medium_sc_L1EM20VH',
@@ -110,8 +119,6 @@ validation_electron=[
 validation_electron.extend(monitoring_electron)
 
 validationTP_Jpsiee = [
-    'HLT_e9_lhtight_nod0',
-    'HLT_e14_lhtight_nod0',
     ]
 validationTP_Jpsiee.extend(monitoringTP_Jpsiee)
 
