@@ -39,6 +39,14 @@ conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
 # Use MagneticFieldSvc
 # include( "BFieldAth/BFieldAth_jobOptions.py" )
 
+# from AthenaCommon.CfgGetter import getService
+# getService('TrackingGeometrySvc')
+
+from AthenaCommon.AppMgr import ServiceMgr
+from GeomACTS.GeomACTSConfig import TrackingGeometrySvc
+ServiceMgr += TrackingGeometrySvc()
+# trkGeomSvc = CfgMgr.Acts__TrackingGeometrySvc("TrackingGeometrySvc")
+# ServiceMgr += trkGeomSvc
 
 import MagFieldServices.SetupField
 

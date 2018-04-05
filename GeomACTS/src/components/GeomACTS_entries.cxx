@@ -24,9 +24,13 @@
 
 #include "GeomACTS/ACTSTrackingGeometry.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
+#include "GeomACTS/TrackingGeometrySvc.h"
 
-DECLARE_ALGORITHM_FACTORY( ACTSTrackingGeometry )
+//DECLARE_ALGORITHM_FACTORY( ACTSTrackingGeometry )
 
-DECLARE_FACTORY_ENTRIES(GeomACTS) {
-    DECLARE_ALGORITHM( ACTSTrackingGeometry )
-}
+//DECLARE_FACTORY_ENTRIES(GeomACTS) {
+    //DECLARE_ALGORITHM( ACTSTrackingGeometry )
+//}
+
+DECLARE_COMPONENT( ACTSTrackingGeometry )
+DECLARE_COMPONENT( Acts::TrackingGeometrySvc )

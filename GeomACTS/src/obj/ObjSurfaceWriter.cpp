@@ -19,6 +19,7 @@
 
 #include "ACTS/Surfaces/PolyhedronRepresentation.hpp"
 #include "ACTS/Surfaces/CylinderSurface.hpp"
+#include "ACTS/Surfaces/StrawSurface.hpp"
 
 ObjSurfaceWriter::ObjSurfaceWriter(
     const ObjSurfaceWriter::Config& cfg)
@@ -70,6 +71,10 @@ ObjSurfaceWriter::write(const Acts::Surface& surface)
   
   const Acts::CylinderBounds* cylinderBounds
       = dynamic_cast<const Acts::CylinderBounds*>(&surfaceBounds);
+  
+  const Acts::StrawSurface* strawSurface
+      = dynamic_cast<const Acts::StrawSurface*>(&surface);
+
   // only continue if the cast worked
   if (m_cfg.outputSensitive) {
     if (planarBounds) {
@@ -104,15 +109,24 @@ ObjSurfaceWriter::write(const Acts::Surface& surface)
                                    vfaces);
       (*(m_cfg.outputStream)) << '\n';
     }
-    
-    if(cylinderBounds) {
-    
+    else if(cylinderBounds) {
+      
       auto cylinderSurface = dynamic_cast<const Acts::CylinderSurface*>(&surface);
 
       Acts::PolyhedronRepresentation ph = cylinderSurface->polyhedronRepresentation();
       (*(m_cfg.outputStream)) << ph.objString(m_vtnCounter.vcounter);
       m_vtnCounter.vcounter += ph.vertices.size();
 
+    }
+    else if(strawSurface) {
+
+      Acts::PolyhedronRepresentation ph = strawSurface->polyhedronRepresentation();
+      (*(m_cfg.outputStream)) << ph.objString(m_vtnCounter.vcounter);
+      m_vtnCounter.vcounter += ph.vertices.size();
+
+    }
+    else {
+      ACTS_ERROR("Unable to print this bounds type: " << surfaceBounds.type());
     }
   }
 

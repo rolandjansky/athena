@@ -27,10 +27,10 @@
 #include <Eigen/Dense>
 
 // @todo: re-check this
-#define ACTS_CORE_IDENTIFIER_PLUGIN "Identifier/Identifier.h"
+//#define ACTS_CORE_IDENTIFIER_PLUGIN "Identifier/Identifier.h"
 
+#include "GeomACTS/GeoModelDetectorElement.hpp"
 #include "ACTS/Detector/TrackingGeometry.hpp"
-//#include "ACTS/Plugins/GeoModelPlugins/GeoModelDetectorElement.hpp"
 #include "ACTS/Tools/LayerArrayCreator.hpp"
 #include "ACTS/Tools/LayerCreator.hpp"
 #include "ACTS/Tools/SurfaceArrayCreator.hpp"
@@ -74,6 +74,9 @@
 
 #include "GeomACTS/ATLASMagneticFieldWrapper.hpp"
 
+#include "GeomACTS/ITrackingGeometrySvc.h"
+#include "GeomACTS/TrackingGeometrySvc.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -101,21 +104,9 @@ ACTSTrackingGeometry::ACTSTrackingGeometry(const std::string& name,
     : AthAlgorithm(name, pSvcLocator),
       m_firstEvent(true),
       m_geoModelSvc("GeoModelSvc", name),
-      m_fieldServiceHandle("AtlasFieldSvc", name)
+      m_fieldServiceHandle("AtlasFieldSvc", name),
+      m_trackingGeometrySvc("TrackingGeometrySvc", name)
 {
-  // Get parameter values from jobOptions file
-  declareProperty("ModulesOnly", m_modulesOnly = true,
-                  "Print transforms of modules");
-  declareProperty("ExpandId", m_expandId = true, "Print fields of identifier");
-  declareProperty("NominalPosition", m_nominal = true,
-                  "Print out nominal geometry");
-  declareProperty("AlignedPosition", m_aligned = false,
-                  "Print out aligned geometry");
-  declareProperty("FullRotationMatrix", m_fullRotationMatrix = false,
-                  "If true prints the 9 elements of the rotation matrix");
-  declareProperty("OutputFile", m_outputFileName = "geometry.dat",
-                  "Output file name");
-  declareProperty("GeoModelSvc", m_geoModelSvc);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -124,18 +115,8 @@ StatusCode ACTSTrackingGeometry::initialize() {
   // Get GeoModelSvc
   const IGeoModelSvc* geoModel;
   ATH_CHECK(service("GeoModelSvc", geoModel));
-  m_fileout.open(m_outputFileName.c_str());
-  ATH_MSG_DEBUG("Opening output file " << m_outputFileName);
-  if (!m_fileout) {
-    ATH_MSG_ERROR("Could not open file " << m_outputFileName);
-    return StatusCode::FAILURE;
-  }
-  // Print version infomration
-  m_fileout << "# ATLAS tag: " << geoModel->atlasVersion() << std::endl;
-  m_fileout << "# InDet tag: " << geoModel->inDetVersionOverride() << std::endl;
-  m_fileout << "# Pixel tag: " << geoModel->pixelVersionOverride() << std::endl;
-  m_fileout << "# SCT   tag: " << geoModel->SCT_VersionOverride() << std::endl;
-  m_fileout << "# TRT   tag: " << geoModel->TRT_VersionOverride() << std::endl;
+
+  ATH_CHECK(m_trackingGeometrySvc.retrieve());
 
   // prepare element store
   m_elementStore = std::make_shared<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>>();
@@ -146,290 +127,199 @@ StatusCode ACTSTrackingGeometry::initialize() {
 }
 
 StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
-  //const InDetDD::SiDetectorManager* siDetManager;
-  //ATH_CHECK(detStore()->retrieve(siDetManager, managerName));
-      //if ( detStore()->retrieve(m_TRTGeoManager, "TRT").isFailure()) {
-
   Acts::Logging::Level loggingLevel = Acts::Logging::VERBOSE;
 
-  std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
-
-  auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
-      Acts::getDefaultLogger("LayArrayCreator", loggingLevel));
-
-  auto trackingVolumeArrayCreator
-      = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
-          Acts::getDefaultLogger("TrkVolArrayCreator", loggingLevel));
-
-  Acts::CylinderVolumeHelper::Config cvhConfig;
-  cvhConfig.layerArrayCreator          = layerArrayCreator;
-  cvhConfig.trackingVolumeArrayCreator = trackingVolumeArrayCreator;
-
-  auto cylinderVolumeHelper
-    = std::make_shared<const Acts::CylinderVolumeHelper>(
-        cvhConfig, Acts::getDefaultLogger("CylVolHelper", loggingLevel));
-
-
-  // PIXEL and SCT
-
-  std::vector<std::string> siDetectors = {
-    "Pixel",
-    "SCT",
-  };
-  for(const auto& managerName : siDetectors) {
-    const InDetDD::SiDetectorManager* manager;
-    ATH_CHECK(detStore()->retrieve(manager, managerName));
-    volumeBuilders.push_back(
-        makeVolumeBuilder(manager, cylinderVolumeHelper, managerName == "Pixel"));
-  }
-
-  // TRT
-  const InDetDD::TRT_DetectorManager* trtMng;
-  ATH_CHECK(detStore()->retrieve(trtMng, "TRT"));
-  volumeBuilders.push_back(makeVolumeBuilder(trtMng, cylinderVolumeHelper));
-
-
-  Acts::TrackingGeometryBuilder::Config tgbConfig;
-  tgbConfig.trackingVolumeHelper   = cylinderVolumeHelper;
-  tgbConfig.trackingVolumeBuilders = volumeBuilders;
-  auto trackingGeometryBuilder
-      = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig);
-  
-
-  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
-
-
+  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry 
+    = m_trackingGeometrySvc->trackingGeometry();
+      
   writeTrackingGeometry(*trackingGeometry);
 
-  //using BField_t = Acts::ConstantBField;
-  //std::shared_ptr<Acts::ConstantBField> bField
-    //= std::make_shared<Acts::ConstantBField>(
-        //0 * Acts::units::_T,
-        //0 * Acts::units::_T,
-        //5 * Acts::units::_T);
+
+  //using BField_t = ATLASMagneticFieldWrapper;
+  //auto bField = std::make_shared<ATLASMagneticFieldWrapper>(m_fieldService);
+
+  //Acts::Logging::Level extrapLogLevel = Acts::Logging::INFO;
+
+  //// (a) RungeKuttaPropagtator
+  //using RKEngine = Acts::RungeKuttaEngine<BField_t>;
+  //typename RKEngine::Config propConfig;
+  //propConfig.fieldService = bField;
+  //auto propEngine         = std::make_shared<RKEngine>(propConfig);
+  //propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", extrapLogLevel));
+  //// (b) MaterialEffectsEngine
+  //Acts::MaterialEffectsEngine::Config matConfig;
+  //auto                                materialEngine
+    //= std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
+  //materialEngine->setLogger(
+      //Acts::getDefaultLogger("MaterialEffectsEngine", extrapLogLevel));
+  //// (c) StaticNavigationEngine
+  //Acts::StaticNavigationEngine::Config navConfig;
+  //navConfig.propagationEngine     = propEngine;
+  //navConfig.materialEffectsEngine = materialEngine;
+  //navConfig.trackingGeometry      = trackingGeometry;
+  //auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
+  //navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", extrapLogLevel));
+  //// (d) the StaticEngine
+  //Acts::StaticEngine::Config statConfig;
+  //statConfig.propagationEngine     = propEngine;
+  //statConfig.navigationEngine      = navEngine;
+  //statConfig.materialEffectsEngine = materialEngine;
+  //auto statEngine = std::make_shared<Acts::StaticEngine>(statConfig);
+  //statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", extrapLogLevel));
+  //// (e) the material engine
+  //Acts::ExtrapolationEngine::Config exEngineConfig;
+  //exEngineConfig.trackingGeometry     = trackingGeometry;
+  //exEngineConfig.propagationEngine    = propEngine;
+  //exEngineConfig.navigationEngine     = navEngine;
+  //exEngineConfig.extrapolationEngines = {statEngine};
+  //auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
+  //exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", extrapLogLevel));
+
+
+  //RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
+  //reccWriterConfig.filePath       = "excells_charged.root";
+  //reccWriterConfig.treeName       = "extrapolation_charged";
+  //reccWriterConfig.writeBoundary  = true;
+  //reccWriterConfig.writeMaterial  = true;
+  //reccWriterConfig.writeSensitive = true;
+  //reccWriterConfig.writePassive   = true;
+  //auto rootEccWriter
+      //= std::make_shared<RootExCellWriter<Acts::TrackParameters>>(
+          //reccWriterConfig);
+
+  //auto ofs = std::make_shared<std::ofstream>();
+  //ofs->open("extrapolation_charged.obj");
+  //ObjExCellWriter<Acts::TrackParameters>::Config objeccWriterConfig;
+  //objeccWriterConfig.outputStream = ofs;
+  //auto objEccWriter
+      //= std::make_shared<ObjExCellWriter<Acts::TrackParameters>>(
+          //objeccWriterConfig);
+
+
+
+  ////std::mt19937 rng;
+  //ParticleGun::Config pgCfg;
+  //pgCfg.nParticles = 100000;
+  //pgCfg.pID = 11;
+  //pgCfg.mass = 0.51099891 * Acts::units::_MeV;
+  //pgCfg.charge = -1.;
+  ////pgCfg.etaRange = {-1.16, -1};
+  //pgCfg.etaRange = {-3, 3};
+  //auto rng = std::make_shared<std::mt19937>();
+  //pgCfg.rng = rng;
+
+  //ParticleGun pg(pgCfg, Acts::getDefaultLogger("ParticleGun", Acts::Logging::VERBOSE));
+
+  //std::vector<Acts::ProcessVertex> vertices = pg.generate();
+
+
+  //std::cout << "Processing particles:" << std::endl;
+  //std::atomic<size_t> nProcessed(0);
+  
+  
+  //size_t nthreads = std::thread::hardware_concurrency();
+  //nthreads = std::max(size_t(1), nthreads);
+  //std::vector<std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>> results(nthreads);
+
+  //std::cout << "using " << nthreads << " threads" << std::endl;
+
+  ////for (const auto &pv : vertices) {
+  //for(size_t n=0;n<vertices.size();n++) {
     
 
+    //const Acts::ProcessVertex &pv = vertices.at(n);
 
-  //MagField::IMagFieldSvc*                fieldService;
-  //ServiceHandle<MagField::IMagFieldSvc> fieldServiceHandle(
-      //"AtlasFieldSvc", "ACTSTrackingGeometry");
+    //const Acts::Vector3D &pos = pv.position();
+    //std::cout << "OUTGOING: at " << pos.x() << " " << pos.y() << " " << pos.z() << std::endl;
+    //Acts::PerigeeSurface surface(pv.position());
+
+
+    //#pragma omp parallel num_threads(nthreads)
+    //{
+
+      //#pragma omp for
+      //for(size_t pi=0;pi<pv.outgoingParticles().size();++pi) {
+        //const auto &particle = pv.outgoingParticles().at(pi);
+      ////for(const auto &particle : pv.outgoingParticles()) {
+        //double pt = particle.momentum().perp();
+        //double pz = particle.momentum().z();
+
+        ////std::cout << "pt = " << pt << " pz = " << pz << std::endl;
+
+        //// prepare this particle for extrapolation
+        //double d0    = 0.;
+        //double z0    = 0.;
+        //double phi   = particle.momentum().phi();
+        //double theta = particle.momentum().theta();
+        //// treat differently for neutral particles
+        //double qop = particle.charge() != 0
+            //? particle.charge() / particle.momentum().mag()
+            //: 1. / particle.momentum().mag();
+        //// parameters
+        //Acts::ActsVectorD<5> pars;
+        //pars << d0, z0, phi, theta, qop;
+        //std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+
+        //if (particle.charge()) {
+          //// charged extrapolation - with hit recording
+          //Acts::BoundParameters startParameters(
+              //std::move(cov), std::move(pars), surface);
+          //Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
+          //ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
+          //ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
+          ////executeTestT<Acts::TrackParameters>(startParameters, particle.barcode(), cCells);
+          //ecc.searchMode                       = 1;
+          //ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
+          //ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
+          //ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
+          //ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
+          ////eTestConfig.collectSensitive                 = true;
+          ////eTestConfig.collectPassive                   = true;
+          ////eTestConfig.collectBoundary                  = true;
+          ////eTestConfig.collectMaterial                  = true;
+          ////eTestConfig.sensitiveCurvilinear             = false;
+          ////eTestConfig.pathLimit                        = -1.;
     
-  //if( !fieldServiceHandle.retrieve() ){
-    //ATH_MSG_FATAL("Failed to retrieve " << fieldServiceHandle );
-    //return StatusCode::FAILURE;
-  //}    
-  //ATH_MSG_DEBUG("Retrieved " << fieldServiceHandle );
-  //fieldService = &*fieldServiceHandle;
+          //Acts::ExtrapolationCode eCode = exEngine->extrapolate(ecc);
 
-  
-  // ATLAS FIELD
-  //using BField_t = Acts::InterpolatedBFieldMap;
-  //Acts::concept::AnyFieldLookup<> mapper = bfield();
-  //Acts::InterpolatedBFieldMap::Config config;
-  //config.scale  = 1.;
-  //config.mapper = std::move(mapper);
-  //std::shared_ptr<Acts::InterpolatedBFieldMap> bField
-    //= std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config));
-  
-  
-  //Acts::Vector3D bLookupPos(0, 0, 0);
-  //Acts::Vector3D bfieldvec;
-  //m_fieldService->getField(&bLookupPos, &bfieldvec);
-
-  //ATLASMagneticFieldWrapper fieldWrapper(m_fieldService);
-  
-  //Acts::Vector3D bf = fieldWrapper.getField(bLookupPos);
-
-  //std::cout << "CHECK BFIELD" << std::endl;
-  //std::cout << "from ATLAS: " << bfieldvec << std::endl;
-  //std::cout << "wrapper: " << bf << std::endl;
-  //std::cout << "from Interp: " << bField->getField(bLookupPos) << std::endl;
-
-  using BField_t = ATLASMagneticFieldWrapper;
-  auto bField = std::make_shared<ATLASMagneticFieldWrapper>(m_fieldService);
-
-  Acts::Logging::Level extrapLogLevel = Acts::Logging::INFO;
-
-  // (a) RungeKuttaPropagtator
-  using RKEngine = Acts::RungeKuttaEngine<BField_t>;
-  typename RKEngine::Config propConfig;
-  propConfig.fieldService = bField;
-  auto propEngine         = std::make_shared<RKEngine>(propConfig);
-  propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", extrapLogLevel));
-  // (b) MaterialEffectsEngine
-  Acts::MaterialEffectsEngine::Config matConfig;
-  auto                                materialEngine
-    = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
-  materialEngine->setLogger(
-      Acts::getDefaultLogger("MaterialEffectsEngine", extrapLogLevel));
-  // (c) StaticNavigationEngine
-  Acts::StaticNavigationEngine::Config navConfig;
-  navConfig.propagationEngine     = propEngine;
-  navConfig.materialEffectsEngine = materialEngine;
-  navConfig.trackingGeometry      = trackingGeometry;
-  auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
-  navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", extrapLogLevel));
-  // (d) the StaticEngine
-  Acts::StaticEngine::Config statConfig;
-  statConfig.propagationEngine     = propEngine;
-  statConfig.navigationEngine      = navEngine;
-  statConfig.materialEffectsEngine = materialEngine;
-  auto statEngine = std::make_shared<Acts::StaticEngine>(statConfig);
-  statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", extrapLogLevel));
-  // (e) the material engine
-  Acts::ExtrapolationEngine::Config exEngineConfig;
-  exEngineConfig.trackingGeometry     = trackingGeometry;
-  exEngineConfig.propagationEngine    = propEngine;
-  exEngineConfig.navigationEngine     = navEngine;
-  exEngineConfig.extrapolationEngines = {statEngine};
-  auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
-  exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", extrapLogLevel));
-
-
-  RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
-  reccWriterConfig.filePath       = "excells_charged.root";
-  reccWriterConfig.treeName       = "extrapolation_charged";
-  reccWriterConfig.writeBoundary  = true;
-  reccWriterConfig.writeMaterial  = true;
-  reccWriterConfig.writeSensitive = true;
-  reccWriterConfig.writePassive   = true;
-  auto rootEccWriter
-      = std::make_shared<RootExCellWriter<Acts::TrackParameters>>(
-          reccWriterConfig);
-
-  auto ofs = std::make_shared<std::ofstream>();
-  ofs->open("extrapolation_charged.obj");
-  ObjExCellWriter<Acts::TrackParameters>::Config objeccWriterConfig;
-  objeccWriterConfig.outputStream = ofs;
-  auto objEccWriter
-      = std::make_shared<ObjExCellWriter<Acts::TrackParameters>>(
-          objeccWriterConfig);
-
-
-
-  //std::mt19937 rng;
-  ParticleGun::Config pgCfg;
-  pgCfg.nParticles = 120;
-  pgCfg.pID = 11;
-  pgCfg.mass = 0.51099891 * Acts::units::_MeV;
-  pgCfg.charge = -1.;
-  //pgCfg.etaRange = {-1.16, -1};
-  pgCfg.etaRange = {-3, 3};
-  auto rng = std::make_shared<std::mt19937>();
-  pgCfg.rng = rng;
-
-  ParticleGun pg(pgCfg, Acts::getDefaultLogger("ParticleGun", Acts::Logging::VERBOSE));
-
-  std::vector<Acts::ProcessVertex> vertices = pg.generate();
-
-
-  std::cout << "Processing particles:" << std::endl;
-  std::atomic<size_t> nProcessed(0);
-  
-  
-  size_t nthreads = std::thread::hardware_concurrency();
-  nthreads = 1; //std::max(size_t(1), nthreads);
-  std::vector<std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>> results(nthreads);
-
-  std::cout << "using " << nthreads << " threads" << std::endl;
-
-  //for (const auto &pv : vertices) {
-  for(size_t n=0;n<vertices.size();n++) {
-    
-
-    const Acts::ProcessVertex &pv = vertices.at(n);
-
-    const Acts::Vector3D &pos = pv.position();
-    std::cout << "OUTGOING: at " << pos.x() << " " << pos.y() << " " << pos.z() << std::endl;
-    Acts::PerigeeSurface surface(pv.position());
-
-
-    #pragma omp parallel num_threads(nthreads)
-    {
-
-      #pragma omp for
-      for(size_t pi=0;pi<pv.outgoingParticles().size();++pi) {
-        const auto &particle = pv.outgoingParticles().at(pi);
-      //for(const auto &particle : pv.outgoingParticles()) {
-        double pt = particle.momentum().perp();
-        double pz = particle.momentum().z();
-
-        //std::cout << "pt = " << pt << " pz = " << pz << std::endl;
-
-        // prepare this particle for extrapolation
-        double d0    = 0.;
-        double z0    = 0.;
-        double phi   = particle.momentum().phi();
-        double theta = particle.momentum().theta();
-        // treat differently for neutral particles
-        double qop = particle.charge() != 0
-            ? particle.charge() / particle.momentum().mag()
-            : 1. / particle.momentum().mag();
-        // parameters
-        Acts::ActsVectorD<5> pars;
-        pars << d0, z0, phi, theta, qop;
-        std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
-
-        if (particle.charge()) {
-          // charged extrapolation - with hit recording
-          Acts::BoundParameters startParameters(
-              std::move(cov), std::move(pars), surface);
-          Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
-          ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
-          ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
-          //executeTestT<Acts::TrackParameters>(startParameters, particle.barcode(), cCells);
-          ecc.searchMode                       = 1;
-          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
-          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
-          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
-          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
-          //eTestConfig.collectSensitive                 = true;
-          //eTestConfig.collectPassive                   = true;
-          //eTestConfig.collectBoundary                  = true;
-          //eTestConfig.collectMaterial                  = true;
-          //eTestConfig.sensitiveCurvilinear             = false;
-          //eTestConfig.pathLimit                        = -1.;
-    
-          Acts::ExtrapolationCode eCode = exEngine->extrapolate(ecc);
-
-          int tid = omp_get_thread_num();
-          // where do we push?
-          results.at(tid).push_back(std::move(ecc));
+          //int tid = omp_get_thread_num();
+          //// where do we push?
+          //results.at(tid).push_back(std::move(ecc));
           
-          //cCells.push_back(std::move(ecc));
-          //cCells.at(n) = std::move(ecc);
+          ////cCells.push_back(std::move(ecc));
+          ////cCells.at(n) = std::move(ecc);
    
 
-          int nP = nProcessed;
-          nProcessed++;
-          if (nP % (pgCfg.nParticles / 20) == 0) {
-            std::cout << "processed " << nP << " / " << pgCfg.nParticles << " : ";
-            std::cout << std::fixed << std::setprecision(2);
-            std::cout << ((nP / double(pgCfg.nParticles))*100) << "%" << std::endl;
-          }
+          //int nP = nProcessed;
+          //nProcessed++;
+          //if (nP % (pgCfg.nParticles / 20) == 0) {
+            //std::cout << "processed " << nP << " / " << pgCfg.nParticles << " : ";
+            //std::cout << std::fixed << std::setprecision(2);
+            //std::cout << ((nP / double(pgCfg.nParticles))*100) << "%" << std::endl;
+          //}
 
-        }
-      }
-    } 
-  }
+        //}
+      //}
+    //} 
+  //}
 
-  std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
-  cCells.reserve(pgCfg.nParticles);
-  for(auto &res : results) {
-    //std::copy(std::make_move_iterator(res.begin()), std::make_move_iterator(res.end()), std::back_inserter(cCells));
-    for(auto &c : res) {
-      cCells.push_back(std::move(c));
-    }
-  }
+  //std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
+  //cCells.reserve(pgCfg.nParticles);
+  //for(auto &res : results) {
+    ////std::copy(std::make_move_iterator(res.begin()), std::make_move_iterator(res.end()), std::back_inserter(cCells));
+    //for(auto &c : res) {
+      //cCells.push_back(std::move(c));
+    //}
+  //}
 
-  // write extrap cells
-  rootEccWriter->write(cCells);
-  rootEccWriter->endRun();
+  //// write extrap cells
+  //rootEccWriter->write(cCells);
+  //rootEccWriter->endRun();
 
-  objEccWriter->write(cCells);
+  //objEccWriter->write(cCells);
 
 
-  ofs->close();
+  //ofs->close();
 
 
   return StatusCode::SUCCESS;
@@ -503,141 +393,6 @@ Acts::InterpolatedBFieldMap::FieldMapper<3, 3> ACTSTrackingGeometry::bfield() co
 }
 
 
-std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
-ACTSTrackingGeometry::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline)
-{
-  std::string managerName = manager->getName();
-
-  Eigen::Vector3d ctrAvg(0, 0, 0);
-  size_t nElem = 0;
-
-  using GMLB = Acts::GeoModelLayerBuilder;
-
-  Acts::Logging::Level loggingLevel = Acts::Logging::VERBOSE;
-
-  // auto gmLayerBuilder = GMLB(cfg);
-  //GMLB gmLayerBuilder(cfg);
-  std::shared_ptr<const Acts::ILayerBuilder> gmLayerBuilder;
-  if (manager->getName() == "TRT") {
-    auto matcher = [](Acts::BinningValue /*bValue*/, const Acts::Surface* /*aS*/,
-                      const Acts::Surface* /*bS*/) -> bool {
-      return false;
-    };
-
-    Acts::SurfaceArrayCreator::Config sacCfg;
-    sacCfg.surfaceMatcher = matcher;
-    sacCfg.doPhiBinningOptimization = false;
-
-    auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
-        sacCfg,
-        Acts::getDefaultLogger("SurfaceArrayCreator", Acts::Logging::VERBOSE));
-    Acts::LayerCreator::Config lcCfg;
-    lcCfg.surfaceArrayCreator = surfaceArrayCreator;
-    auto layerCreator = std::make_shared<Acts::LayerCreator>(
-        lcCfg, Acts::getDefaultLogger("LayerCreator", Acts::Logging::VERBOSE));
-
-    Acts::GeoModelStrawLayerBuilder::Config cfg;
-    cfg.mng = static_cast<const InDetDD::TRT_DetectorManager*>(manager);
-    cfg.elementStore = m_elementStore;
-    cfg.layerCreator = layerCreator;
-    gmLayerBuilder = std::make_shared<const Acts::GeoModelStrawLayerBuilder>(cfg,
-      Acts::getDefaultLogger("GMSLayBldr", Acts::Logging::VERBOSE));
-
-
-
-    //gmLayerBuilder->centralLayers();
-    //gmLayerBuilder->negativeLayers();
-    //gmLayerBuilder->positiveLayers();
-  }
-  else {
-    auto matcher = [](Acts::BinningValue bValue, const Acts::Surface* aS,
-                      const Acts::Surface* bS) -> bool {
-
-      auto a = dynamic_cast<const Acts::GeoModelDetectorElement*>(
-          aS->associatedDetectorElement());
-      auto b = dynamic_cast<const Acts::GeoModelDetectorElement*>(
-          bS->associatedDetectorElement());
-
-
-      //auto id_a = a->identify();
-      //auto id_b = b->identify();
-    
-      Acts::IdentityHelper idA = a->identityHelper();
-      Acts::IdentityHelper idB = b->identityHelper();
-
-      // check if same bec
-      // can't be same if not
-      if(idA.bec() != idB.bec()) return false;
-
-      if (bValue == Acts::binPhi) {
-        //std::cout << idA.phi_module() << " <-> " << idB.phi_module() << std::endl;
-        return idA.phi_module() == idB.phi_module();
-      }
-
-      if (bValue == Acts::binZ) {
-        return (idA.eta_module() == idB.eta_module())
-               && (idA.layer_disk() == idB.layer_disk())
-               && (idA.bec() == idB.bec());
-      }
-
-      if (bValue == Acts::binR) {
-        return (idA.eta_module() == idB.eta_module()) 
-               && (idA.layer_disk() == idB.layer_disk())
-               && (idB.bec() == idA.bec());
-      }
-
-      return false;
-    };
-
-    Acts::SurfaceArrayCreator::Config sacCfg;
-    sacCfg.surfaceMatcher = matcher;
-
-    auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
-        sacCfg,
-        Acts::getDefaultLogger("SurfaceArrayCreator", Acts::Logging::VERBOSE));
-    Acts::LayerCreator::Config lcCfg;
-    lcCfg.surfaceArrayCreator = surfaceArrayCreator;
-    auto layerCreator = std::make_shared<Acts::LayerCreator>(
-        lcCfg, Acts::getDefaultLogger("LayerCreator", Acts::Logging::VERBOSE));
-
-
-
-    GMLB::Config cfg;
-    
-    if(managerName == "Pixel") {
-      cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::Pixel;
-    }
-    else {
-      cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::SCT;
-    }
-
-    cfg.mng = static_cast<const InDetDD::SiDetectorManager*>(manager);
-    // use class member element store
-    cfg.elementStore = m_elementStore;
-    cfg.layerCreator = layerCreator;
-    gmLayerBuilder = std::make_shared<const GMLB>(cfg,
-      Acts::getDefaultLogger("GMLayBldr", Acts::Logging::VERBOSE));
-  }
-
-
-
-  Acts::CylinderVolumeBuilder::Config cvbConfig;
-  cvbConfig.layerEnvelopeR = {0, 0};
-  cvbConfig.layerEnvelopeZ       = 2;
-  cvbConfig.trackingVolumeHelper = cvh;
-  cvbConfig.volumeSignature      = 0;
-  cvbConfig.volumeName           = managerName;
-  //cvbConfig.volumeMaterial       = volumeMaterial;
-  cvbConfig.layerBuilder         = gmLayerBuilder;
-  cvbConfig.buildToRadiusZero = toBeamline;
-
-  auto cylinderVolumeBuilder
-    = std::make_shared<const Acts::CylinderVolumeBuilder>(
-        cvbConfig,
-        Acts::getDefaultLogger("CylinderVolumeBuilder", loggingLevel));
-
-  return cylinderVolumeBuilder;
-}
 
 void 
 ACTSTrackingGeometry::writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeometry)
@@ -698,29 +453,7 @@ StatusCode ACTSTrackingGeometry::execute() {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode ACTSTrackingGeometry::finalize() {
-  m_fileout.close();
   return StatusCode::SUCCESS;
-}
-
-std::string ACTSTrackingGeometry::printTransform(
-    const Amg::Transform3D& trans) const {
-  Amg::Vector3D xyz = trans * origin;
-  std::ostringstream ostr;
-  ostr << xyz.x() << " " << xyz.y() << " " << xyz.z() << " ";
-  if (m_fullRotationMatrix) {
-    for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
-        ostr << trans(i, j) << " ";
-      }
-    }
-  } else {
-    double alpha = 0, beta = 0, gamma = 0;
-    extractAlphaBetaGamma(trans, alpha, beta, gamma);
-    ostr << alpha << " " << beta << " " << gamma;
-  }
-  // CLHEP::HepRotation rot = trans.getRotation();
-  // ostr << std::endl << rot;
-  return ostr.str();
 }
 
 void ACTSTrackingGeometry::extractAlphaBetaGamma(const Amg::Transform3D& trans,
