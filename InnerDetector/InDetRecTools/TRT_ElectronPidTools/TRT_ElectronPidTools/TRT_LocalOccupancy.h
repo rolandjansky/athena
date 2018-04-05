@@ -68,6 +68,8 @@ namespace InDet
    virtual float LocalOccupancy( const Trk::Track& track) const override;
    virtual float LocalOccupancy(const double eta, const double phi) const override;
 
+   /** Return a map of the occupancy in the barrel (-1,+1) and endcaps (-2,+2) */
+   virtual std::map<int, double> getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) const;
 
    /** Return the global occupancy of the event*/ 
    /** 7 Floats: TRT, Barrel A / C, endcapA/B A/C */ 
@@ -101,6 +103,7 @@ namespace InDet
 
       void  countHitsNearTrack (OccupancyData& data,
                                 int track_local[NLOCAL][NLOCALPHI]) const;
+
       //   void  countHitsNearTrack(std::vector<IdentifierHash>* hash_vec);
   //   void  countHitsNearTrack(IdentifierHash hash);
 
