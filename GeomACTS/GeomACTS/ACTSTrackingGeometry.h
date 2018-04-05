@@ -25,6 +25,7 @@ namespace Acts {
   class CylinderVolumeHelper;
   class GeoModelDetectorElement;
   class ITrackingGeometrySvc;
+  class IExtrapolationTool;
 }
 
 namespace InDetDD {
@@ -58,6 +59,9 @@ private:
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
   MagField::IMagFieldSvc* m_fieldService;
   ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
+
+
+  ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool;
 };
 
 #endif // GeomACTS_ACTSTrackingGeometry_h

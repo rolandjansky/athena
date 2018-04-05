@@ -74,7 +74,12 @@ athenaCommonFlags.EvtMax = 1
 from GeomACTS.GeomACTSConf import ACTSTrackingGeometry
 
 alg = ACTSTrackingGeometry()
-alg.OutputLevel = DEBUG
+
+exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
+alg.ExtrapolationTool = exTool
+
+
+# alg.OutputLevel = DEBUG
 job += alg
 
 from G4AtlasApps.SimFlags import simFlags

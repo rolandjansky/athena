@@ -77,6 +77,9 @@
 #include "GeomACTS/ITrackingGeometrySvc.h"
 #include "GeomACTS/TrackingGeometrySvc.h"
 
+#include "GeomACTS/IExtrapolationTool.h"
+#include "GeomACTS/ExtrapolationTool.h"
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -107,6 +110,7 @@ ACTSTrackingGeometry::ACTSTrackingGeometry(const std::string& name,
       m_fieldServiceHandle("AtlasFieldSvc", name),
       m_trackingGeometrySvc("TrackingGeometrySvc", name)
 {
+  declareProperty("ExtrapolationTool", m_extrapolationTool);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

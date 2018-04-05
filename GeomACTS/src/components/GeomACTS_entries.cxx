@@ -25,6 +25,7 @@
 #include "GeomACTS/ACTSTrackingGeometry.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GeomACTS/TrackingGeometrySvc.h"
+#include "GeomACTS/ExtrapolationTool.h"
 
 //DECLARE_ALGORITHM_FACTORY( ACTSTrackingGeometry )
 
@@ -34,3 +35,4 @@
 
 DECLARE_COMPONENT( ACTSTrackingGeometry )
 DECLARE_COMPONENT( Acts::TrackingGeometrySvc )
+DECLARE_COMPONENT( Acts::ExtrapolationTool )
