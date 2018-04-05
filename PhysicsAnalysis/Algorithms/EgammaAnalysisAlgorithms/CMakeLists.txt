@@ -22,8 +22,7 @@ atlas_add_library( EgammaAnalysisAlgorithmsLib
    PUBLIC_HEADERS EgammaAnalysisAlgorithms
    LINK_LIBRARIES xAODEgamma SelectionHelpersLib SystematicsHandlesLib
    IsolationSelectionLib AnaAlgorithmLib IsolationCorrectionsLib
-   EgammaAnalysisInterfacesLib
-   PRIVATE_LINK_LIBRARIES  )
+   EgammaAnalysisInterfacesLib )
 
 atlas_add_dictionary( EgammaAnalysisAlgorithmsDict
    EgammaAnalysisAlgorithms/EgammaAnalysisAlgorithmsDict.h
@@ -37,3 +36,5 @@ if( NOT XAOD_STANDALONE )
 endif()
 
 atlas_install_python_modules( python/*.py )
+atlas_install_joboptions( share/*_jobOptions.py )
+atlas_install_scripts( share/*_eljob.py )
