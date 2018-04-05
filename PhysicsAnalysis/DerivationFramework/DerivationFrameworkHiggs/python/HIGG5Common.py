@@ -18,13 +18,19 @@ def getHIGG5Common() :
             ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent.PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"),
         "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant",
         "BTagging_AntiKt4EMTopo.MV2cl100_discriminant",
+        "BTagging_AntiKt4EMPFlow.MV2cl100_discriminant",
         "CaloCalTopoClusters.CENTER_MAG.calE.calEta.calM.calPhi.calPt.e_sampl.etaCalo.eta_sampl.phiCalo.phi_sampl.rawE.rawEta.rawM.rawPhi",
         "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity"
         ]
 
+#Truth 3
+# def getHIGG5CommonTruthContainers() :
+#     return ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
+
 def getHIGG5CommonTruth() :
     return [
         "AntiKt4EMTopoJets.ConeTruthLabelID",
+        "AntiKt4EMPFlowJets.ConeTruthLabelID",
         "TruthEvents.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.weights.crossSection.crossSectionError.truthParticleLinks",
         "TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
          # "TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome.dressedPhoton.polarizationTheta.polarizationPhi",
@@ -132,6 +138,14 @@ def getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
 def getAntiKt4EMTopoTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault( 'name',tool_prefix + 'AntiKt4EMTopoJetTPThinningTool')
     kwargs.setdefault( 'JetKey','AntiKt4EMTopoJets')
+    kwargs.setdefault( 'SelectionString','(AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15*GeV)')
+    return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
+
+#PFlow
+def getAntiKt4EMPFlowTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :
+    kwargs.setdefault( 'name',tool_prefix + 'AntiKt4EMPFlowJetTPThinningTool')
+    kwargs.setdefault( 'JetKey','AntiKt4EMPFlowJets')
+    kwargs.setdefault( 'SelectionString','(AntiKt4EMPFlowJets.pt > 15*GeV)')
     return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
 
 def getAntiKt10LCTopoTrackParticleThinning(tool_prefix, thinning_helper, **kwargs) :

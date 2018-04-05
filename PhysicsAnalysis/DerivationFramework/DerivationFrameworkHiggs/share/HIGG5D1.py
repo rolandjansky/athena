@@ -1,6 +1,6 @@
 #********************************************************************
 # HIGG5D1.py (for 0-lepton)
-# reductionConf flag HIGG5D1 in Reco_tf.py   
+# reductionConf flag HIGG5D1 in Reco_tf.py
 #********************************************************************
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
@@ -12,7 +12,7 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 
-if DerivationFrameworkIsMonteCarlo: 
+if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
   scheduleTauTruthTools()
 
@@ -25,7 +25,7 @@ if DerivationFrameworkIsMonteCarlo :
 
 
 #====================================================================
-# SET UP STREAM   
+# SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_HIGG5D1Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_HIGG5D1Stream )
@@ -37,11 +37,11 @@ HIGG5D1Stream.AcceptAlgs(["HIGG5D1Kernel"])
 #====================================================================
 thinningTools=[]
 
-# Establish the thinning helper (which will set up the services behind the scenes) 
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper 
-HIGG5D1ThinningHelper = ThinningHelper("HIGG5D1ThinningHelper") 
+# Establish the thinning helper (which will set up the services behind the scenes)
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+HIGG5D1ThinningHelper = ThinningHelper("HIGG5D1ThinningHelper")
 #trigger navigation content
-HIGG5D1ThinningHelper.TriggerChains = 'HLT_xe.*|HLT_j.*|HLT_g.*' 
+HIGG5D1ThinningHelper.TriggerChains = 'HLT_xe.*|HLT_j.*|HLT_g.*'
 HIGG5D1ThinningHelper.AppendToStream(HIGG5D1Stream)
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
@@ -60,11 +60,15 @@ thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5Small
 # MC truth thinning (not for data)
 if DerivationFrameworkIsMonteCarlo :
     thinningTools.append(HIGG5Common.getTruthThinningTool('HIGG5D1', HIGG5D1ThinningHelper))
+    #add Truth3 information
+    #from DerivationFrameworkMCTruth.MCTruthCommon import *
+    #addStandardTruthContents()
 
 #====================================================================
-# jet selection 
+# jet selection
 #====================================================================
 jetSel = '(( count( (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15.*GeV) && (abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta) < 2.6) ) ) > 0)'
+jetSel += '|| (( count( (AntiKt4EMPFlowJets.pt > 15.*GeV) && (abs(AntiKt4EMPFlowJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt4EMTopoJets.pt > 100.0*GeV) && (abs(AntiKt4EMTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoJets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
@@ -161,7 +165,7 @@ if (beamEnergy > 6.0e+06 and rec.projectName.get_Value() in ['data17_13TeV','dat
 
 
 #====================================================================
-# SKIMMING TOOL 
+# SKIMMING TOOL
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 HIGG5D1JetSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "HIGG5D1JetSkimmingTool",
@@ -220,7 +224,7 @@ if not "HIGG5D1Jets" in OutputJets:
     addTCCTrimmedJets(higg5d1Seq, "HIGG5D1Jets")
 
 #====================================================================
-# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 #====================================================================
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
@@ -236,6 +240,10 @@ from BTagging.BTaggingFlags import BTaggingFlags
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = higg5d1Seq)
+# FlavorTagInit(JetCollections = ['AntiKt4PV0TrackJets'], Sequencer = higg5d1Seq)
+
 # Jet calibration should come after fat jets
 # applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d1Seq)
 # # applyJetCalibration_CustomColl(jetalg="AntiKt10LCTopoTrimmedPtFrac5SmallR20", sequence=higg5d1Seq)
@@ -246,7 +254,7 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 #====================================================================
 # Add non-prompt lepton tagging
 #====================================================================
-# import the JetTagNonPromptLepton config and add to the private sequence 
+# import the JetTagNonPromptLepton config and add to the private sequence
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 higg5d1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
@@ -290,11 +298,14 @@ HIGG5D1SlimmingHelper.SmartCollections = [ "Electrons",
                                            "Muons",
                                            "TauJets",
                                            "MET_Reference_AntiKt4EMTopo",
+                                           "MET_Reference_AntiKt4EMPFlow",
                                            "AntiKt4EMTopoJets",
+                                           "AntiKt4EMPFlowJets",
                                            "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                            "AntiKt4TruthJets",
 #                                            "AntiKtVR30Rmax4Rmin02Track",
                                            "BTagging_AntiKt4EMTopo",
+                                           "BTagging_AntiKt4EMPFlow",
                                            "BTagging_AntiKt2Track",
 #                                           "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
 #                                           "BTagging_AntiKtVR30Rmax4Rmin02Track",
