@@ -105,21 +105,6 @@ class MuFastSteering : public HLT::FexAlgo,
      Called at the end of the algorithm processing to set the steering
      navigation properly
   */
-  bool updateOutput(const LVL1::RecMuonRoI*                  roi,
-		    const TrigRoiDescriptor*                 roids,
-		    const TrigL2MuonSA::MuonRoad&            muonRoad,
-		    const TrigL2MuonSA::MdtRegion&           mdtRegion,
-		    const TrigL2MuonSA::RpcHits&             rpcHits,
-		    const TrigL2MuonSA::TgcHits&             tgcHits,
-		    const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
-		    const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
-		    const TrigL2MuonSA::MdtHits&             mdtHits,
-		    const TrigL2MuonSA::CscHits&             cscHits,
-		    std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
-                    DataVector<xAOD::L2StandAloneMuon>&      outputTracks,
-		    TrigRoiDescriptorCollection&  	     outoutID,
-		    TrigRoiDescriptorCollection&	     outputMS);
-
   bool UpdateOutputObjects(const LVL1::RecMuonRoI*                        roi,
                            const TrigRoiDescriptor*                       roids,
                            const TrigL2MuonSA::MuonRoad&                  muonRoad,
@@ -283,8 +268,6 @@ class MuFastSteering : public HLT::FexAlgo,
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
-
-  bool m_use_updateOutput = false;
 };
 
 #endif // MUFASTSTEERING_H
