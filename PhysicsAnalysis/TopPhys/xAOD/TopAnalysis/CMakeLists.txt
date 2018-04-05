@@ -89,7 +89,7 @@ atlas_add_executable( top-xaod
                                      xAODJet
                                      xAODMissingET
                                      xAODCutFlow
-				     xAODMetaData
+    				     xAODMetaData
                                      AsgTools
                                      AthContainers
                                      PATInterfaces
