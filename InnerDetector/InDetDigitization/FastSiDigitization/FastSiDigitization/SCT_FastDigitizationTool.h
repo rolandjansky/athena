@@ -102,8 +102,8 @@ public:
   virtual StatusCode initialize();
   StatusCode prepareEvent( unsigned int );
   StatusCode processBunchXing( int bunchXing,
-                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                               PileUpEventInfo::SubEvent::const_iterator eSubEvents );
+                               SubEventIterator bSubEvents,
+                               SubEventIterator eSubEvents );
   StatusCode mergeEvent();
   StatusCode processAllSubEvents();
   StatusCode createAndStoreRIOs();

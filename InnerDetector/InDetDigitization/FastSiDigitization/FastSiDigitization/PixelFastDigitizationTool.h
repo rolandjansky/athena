@@ -86,8 +86,8 @@ public:
   StatusCode initialize();
   StatusCode prepareEvent(unsigned int);
   StatusCode processBunchXing( int bunchXing,
-                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                               PileUpEventInfo::SubEvent::const_iterator eSubEvents );
+                               SubEventIterator bSubEvents,
+                               SubEventIterator eSubEvents );
   StatusCode processAllSubEvents();
   StatusCode mergeEvent();
   StatusCode digitize();
