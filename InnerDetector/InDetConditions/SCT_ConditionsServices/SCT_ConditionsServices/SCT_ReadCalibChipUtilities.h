@@ -14,7 +14,7 @@
 #include "boost/tokenizer.hpp"
 #include "boost/lexical_cast.hpp"
 
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 namespace SCT_ReadCalibChipUtilities {
   template <typename C> 
