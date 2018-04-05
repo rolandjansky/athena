@@ -13,30 +13,15 @@ namespace HLTTest {
   
   TestInputMaker::TestInputMaker( const std::string& name, 
 			    ISvcLocator* pSvcLocator )    
-    : AthAlgorithm( name, pSvcLocator ) {}
+    : InputMakerBase( name, pSvcLocator ) {}
    
 
   TestInputMaker::~TestInputMaker() {}
 
   StatusCode TestInputMaker::initialize() {
     ATH_MSG_INFO ("Initializing " << name() << "...");
-    CHECK( m_inputs.initialize() );
-    renounceArray(m_inputs);
-
-    ATH_MSG_DEBUG("Will consume implicit input data:" );
-    for (auto& input: m_inputs){  
-      ATH_MSG_DEBUG(" "<<input.key());
-    }
-
-    CHECK( m_decisionsKey.initialize() );
-    //   renounceArray(m_decisionsKey);
-    ATH_MSG_DEBUG(" and produce decisions: ");
-    for (auto& output: m_decisionsKey){  
-      ATH_MSG_DEBUG(" "<<output.key());
-    }
-
     // specific:
-    ATH_MSG_DEBUG(" with reco collections: " << m_recoOutput);
+    ATH_MSG_DEBUG("Will produce output reco collections: " << m_recoOutput);
     CHECK( m_recoOutput.initialize() );
     return StatusCode::SUCCESS;
   }
@@ -47,11 +32,10 @@ namespace HLTTest {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TestInputMaker::execute() {
+  StatusCode TestInputMaker::execute_r( const EventContext& context ) const {  
     ATH_MSG_DEBUG( "Executing " << name() << "..." );
-
  
-    auto outputHandles = m_decisionsKey.makeHandles();
+    auto outputHandles = decisionOutputs().makeHandles(context);
 
     // output collection, as a view container so it can be given const features
     auto reco_output = std::make_unique<xAOD::TrigCompositeContainer>();
@@ -59,19 +43,19 @@ namespace HLTTest {
     reco_output->setStore( aux.get() );
 
     size_t validInput=0;
-    for ( auto inputKey: m_inputs ) {
-      auto inputHandle = SG::makeHandle( inputKey );
+    for ( auto inputKey: decisionInputs() ) {
+      auto inputHandle = SG::makeHandle( inputKey, context );
       ATH_MSG_DEBUG(" "<<inputKey.key()<<(inputHandle.isValid()? "valid": "not valid" ) );
       if (inputHandle.isValid()) validInput++;
     }
-    ATH_MSG_DEBUG( "number of implicit ReadHandles is " << m_inputs.size() <<", "<< validInput<<" are valid" );
+    ATH_MSG_DEBUG( "number of implicit ReadHandles is " << decisionInputs().size() <<", "<< validInput<<" are valid" );
     
     // Loop over all input containers, which are of course TrigComposites, and request their features    
     std::vector<const FeatureOBJ*> featureFromDecision;
     size_t count_reco=0;
     size_t outputIndex = 0;
-    for ( auto inputKey: m_inputs ) {
-      auto inputHandle = SG::makeHandle( inputKey );
+    for ( auto inputKey: decisionInputs() ) {
+      auto inputHandle = SG::makeHandle( inputKey, context );
       if( not inputHandle.isValid() ) {
 	ATH_MSG_DEBUG( "Got no decisions from input "<< inputKey.key());
 	outputIndex++;
@@ -142,7 +126,7 @@ namespace HLTTest {
         // Later will output RoID collection directly via tool.        
       } // loop over decisions
         
-      ATH_MSG_DEBUG( "Recording output key " <<  m_decisionsKey[ outputIndex ].key() <<" of size "<<Outdecisions->size()  <<" at index "<< outputIndex);
+      ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<Outdecisions->size()  <<" at index "<< outputIndex);
       CHECK( outputHandles[outputIndex].record( std::move( Outdecisions ), std::move( dec_aux ) ) );
       outputIndex++;	       
     } // loop over input keys
@@ -150,7 +134,7 @@ namespace HLTTest {
     
       // Finally, record output
     ATH_MSG_DEBUG("Produced "<<reco_output->size() <<" reco objects");
-    auto reco_outputHandle = SG::makeHandle(m_recoOutput);
+    auto reco_outputHandle = SG::makeHandle(m_recoOutput, context);
     CHECK( reco_outputHandle.record(std::move(reco_output), std::move(aux)) );
 
 
