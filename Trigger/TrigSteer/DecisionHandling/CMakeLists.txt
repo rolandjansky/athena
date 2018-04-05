@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           #Trigger/TrigSteer/L1Decoder
 			  AtlasTest/TestTools
 			  Control/StoreGate
+			  Trigger/TrigSteer/TrigOutputHandling
 			  )
 
 find_package( ROOT )
