@@ -8,7 +8,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 using namespace SCT_ConditionsServices;
 

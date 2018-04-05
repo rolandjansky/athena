@@ -8,7 +8,7 @@
 
 // Include SCT_ConditionsParameterTestAlg and Tool
 #include "SCT_ConditionsParameterTestAlg.h"
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 #include "SCT_ConditionsData/SCT_CondParameterData.h"
 
 // Local include
