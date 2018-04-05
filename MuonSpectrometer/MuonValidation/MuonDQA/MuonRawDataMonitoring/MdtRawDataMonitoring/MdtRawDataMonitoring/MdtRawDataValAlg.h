@@ -29,6 +29,11 @@
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "xAODTrigger/MuonRoIContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 //standard library includes
 #include <fstream> 
 #include <cstdlib>
@@ -111,7 +116,6 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   MDTMonGroupStruct* m_mg;
   MDTNoisyTubes* m_masked_tubes;
-  ActiveStoreSvc* m_activeStore;
 
   const MdtIdHelper* m_mdtIdHelper;  
   ToolHandle<Muon::MuonIdHelperTool>  m_idHelper;
@@ -177,8 +181,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   //
 
 
-  const Trk::SegmentCollection* m_segms;
-  std::string m_segm_type;
+  SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","MuonSegments","muon segments"};
   /*   StatusCode analyseSegments_effCalc(); */
 
   std::string returnString(int i){
@@ -215,8 +218,11 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   std::string m_chamberName;
   std::string m_StationSize;
-  std::string m_key_mdt;
-  std::string m_key_rpc;
+  SG::ReadHandleKey<Muon::MdtPrepDataContainer> m_key_mdt{this,"MdtPrepDataContainer","MDT_DriftCircles","MDT PRDs"};
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};
+  SG::ReadHandleKey<xAOD::MuonRoIContainer> m_l1RoiKey{this,"L1RoiKey","LVL1MuonRoIs","L1 muon ROIs"};
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{this,"MuonKey","Muons","muons"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
   int m_StationEta;
   int m_StationPhi;
 

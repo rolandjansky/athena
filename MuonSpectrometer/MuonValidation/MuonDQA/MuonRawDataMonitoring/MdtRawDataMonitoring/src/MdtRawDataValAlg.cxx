@@ -24,7 +24,6 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonStation.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonDQAHistMap.h"
@@ -41,9 +40,7 @@
 //#include "xAODMuon/MuonContainer.h"
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
-#include "xAODTrigger/MuonRoIContainer.h"
 // #include "GaudiKernel/Property.h"
-#include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
@@ -133,11 +130,9 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
 //  declareProperty("MaxTDCCutForBackground",  m_TDCCut_Bkgrd=50.);
 //  declareProperty("RPCTrigKey",              m_RPCKey=144);
 //  declareProperty("TGCTrigKey",              m_TGCKey=136);
-  declareProperty("MdtPrepDataContainer",    m_key_mdt="MDT_DriftCircles");
   declareProperty("Eff_nHits",               m_nb_hits=5.);
   declareProperty("Eff_roadWidth",           m_road_width=2.);
   declareProperty("Eff_chi2Cut",             m_chi2_cut=10.);
-  declareProperty("Eff_segm_type",           m_segm_type="MuonSegments");
   declareProperty("AtlasFilterTool",         m_DQFilterTools);
   declareProperty("Title",                   m_title);
   //Global Histogram controls
@@ -172,7 +167,6 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
   declareProperty("do_mdttubenoise",         m_do_mdttubenoise = false); 
   declareProperty("do_mdttdctube",           m_do_mdttdctube = false);   
   declareProperty("nHits_NoiseThreshold",    m_HighOccThreshold = 10000.);
-  declareProperty("RpcPrepDataContainer",    m_key_rpc="RPC_Measurements");
 }
 
 MdtRawDataValAlg::~MdtRawDataValAlg()
@@ -193,7 +187,6 @@ StatusCode MdtRawDataValAlg::initialize()
 {
 
   //initialize to stop coverity bugs
-   m_activeStore = 0;
    m_mdtIdHelper=0;
    p_MuonDetectorManager=0;
    //mdtevents_RPCtrig = 0;
@@ -204,7 +197,6 @@ StatusCode MdtRawDataValAlg::initialize()
    m_time = 0;
    m_firstEvent = 0;
    m_firstTime = 0;
-   m_segms = 0;
    m_trigtype = 0;
    m_numberOfEvents = 0;
   for(unsigned int i=0;i<4;i++){
@@ -254,13 +246,6 @@ StatusCode MdtRawDataValAlg::initialize()
 
   //If online monitoring turn off chamber by chamber hists
   if(m_isOnline) m_doChamberHists = false;
-
-  // retrieve the active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR(" Cannot get ActiveStoreSvc " );
-    return sc ;
-  }
 
   std::string managerName="Muon";
   sc = detStore()->retrieve(p_MuonDetectorManager);
@@ -339,6 +324,13 @@ StatusCode MdtRawDataValAlg::initialize()
   mdtchamberId();
 
   //m_booked = false;
+
+  ATH_CHECK(m_l1RoiKey.initialize());
+  ATH_CHECK(m_muonKey.initialize());
+  ATH_CHECK(m_segm_type.initialize());
+  ATH_CHECK(m_key_mdt.initialize());
+  ATH_CHECK(m_key_rpc.initialize());
+  ATH_CHECK(m_eventInfo.initialize());
 
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
 
@@ -465,37 +457,23 @@ StatusCode MdtRawDataValAlg::fillHistograms()
   // Retrieve the LVL1 Muon RoIs:
   //
   StoreTriggerType(L1_UNKNOWN);  
-  StringProperty lvl1_roi_key("LVL1MuonRoIs");
 
-  const xAOD::MuonRoIContainer* muonRoIs; //const LVL1_ROI* lvl1_roi;
+  SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiKey);
 
-  sc = evtStore()->retrieve( muonRoIs, lvl1_roi_key);// lvl1_roi_key );
-  if( sc.isFailure() ) {
-    ATH_MSG_INFO( "Failed to access LVL1MuonRoIs in StoreGate with key: " << lvl1_roi_key );
-    //     return StatusCode::FAILURE;
-  } 
-  else {
-    ATH_MSG_VERBOSE( "Retrieved LVL1MuonRoIs object from StoreGate with key: " << lvl1_roi_key ); 
-    xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
-    xAOD::MuonRoIContainer::const_iterator mu_it_end= muonRoIs->end();
+  ATH_MSG_VERBOSE( "Retrieved LVL1MuonRoIs object with key: " << m_l1RoiKey.key() ); 
+  xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
+  xAOD::MuonRoIContainer::const_iterator mu_it_end= muonRoIs->end();
 
-    for( ; mu_it != mu_it_end; mu_it++){
-      //ATH_MSG_ERROR( "(*mu_it)->getSource(): " << (*mu_it)->getSource() << ", is Muon_ROI::Endcap: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Endcap)) << ", is Muon_ROI::Barrel: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Barrel)) );
-      if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Barrel) StoreTriggerType(L1_BARREL);
-      if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Endcap ) StoreTriggerType(L1_ENDCAP);
-    }
+  for( ; mu_it != mu_it_end; mu_it++){
+    //ATH_MSG_ERROR( "(*mu_it)->getSource(): " << (*mu_it)->getSource() << ", is Muon_ROI::Endcap: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Endcap)) << ", is Muon_ROI::Barrel: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Barrel)) );
+    if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Barrel) StoreTriggerType(L1_BARREL);
+    if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Endcap ) StoreTriggerType(L1_ENDCAP);
   }
   //   ATH_MSG_ERROR( "Stored m_trigtype: " << GetTriggerType() << " " << (GetTriggerType()==L1_UNKNOWN) << " " << (GetTriggerType()==L1_BARREL) << " " << (GetTriggerType()==L1_ENDCAP) );
 
   //declare MDT stuff 
-  const Muon::MdtPrepDataContainer* mdt_container(0);
+  SG::ReadHandle<Muon::MdtPrepDataContainer> mdt_container(m_key_mdt);
 
-  sc = (*m_activeStore)->retrieve(mdt_container, m_key_mdt);
-  if (sc.isFailure() || 0 == mdt_container ) 
-  {
-    ATH_MSG_ERROR(" Cannot retrieve MdtPrepDataContainer " << m_key_mdt );
-    return sc;
-  }
   ATH_MSG_DEBUG("****** mdtContainer->size() : " << mdt_container->size());  
 
   int nColl = 0;        // Number of MDT chambers with hits
@@ -504,13 +482,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
   int nPrdcut = 0;      // Total number of MDT prd digits with a cut on ADC>50.
 
   //declare RPC stuff
-  const Muon::RpcPrepDataContainer* rpc_container;
-  sc = (*m_activeStore)->retrieve(rpc_container, m_key_rpc);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR ( " Cannot retrieve RpcPrepDataContainer " << m_key_rpc );
-    return sc;
-  }
-
+  SG::ReadHandle<Muon::RpcPrepDataContainer> rpc_container(m_key_rpc);
 
   ATH_MSG_DEBUG ("****** rpc->size() : " << rpc_container->size());
 
@@ -543,11 +515,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
   if (m_doMdtESD==true) { 
     if(m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online) {
 
-      const xAOD::MuonContainer* muons = evtStore()->retrieve< const xAOD::MuonContainer >("Muons");
-      if (!muons) {
-	ATH_MSG_ERROR ("Couldn't retrieve Muons container with key: Muons");
-	return StatusCode::FAILURE;
-      } 
+      SG::ReadHandle<xAOD::MuonContainer> muons(m_muonKey);
       
       for(const auto mu : *muons){
 	if(! (mu->muonType() == xAOD::Muon::Combined)) continue;
@@ -739,16 +707,9 @@ StatusCode MdtRawDataValAlg::fillHistograms()
     }  //m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD   
   } //m_doMdtESD==true
 
-  sc = evtStore()->retrieve(m_segms, m_segm_type);
-  if(sc.isSuccess()) {
-    ATH_MSG_DEBUG("Retrieved " << m_segm_type );
-  }
-  else {
-    ATH_MSG_DEBUG("Couldn't retrieve " << m_segm_type );
-    return sc;
-  }
+  SG::ReadHandle<Trk::SegmentCollection> segms(m_segm_type);
 
-  if(isATLASReady()) sc=handleEvent_effCalc( m_segms); //, mdt_container );    
+  if(isATLASReady()) sc=handleEvent_effCalc( segms.cptr()); //, mdt_container );    
   if(sc.isFailure()) {
     ATH_MSG_ERROR("Couldn't handleEvent_effCalc " );
     return sc;
