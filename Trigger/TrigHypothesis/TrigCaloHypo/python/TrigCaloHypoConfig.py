@@ -5,9 +5,9 @@ from AthenaCommon.SystemOfUnits import GeV
 from TrigCaloHypo.TrigCaloHypoConf import TrigEFCaloHypoNoise
 from LArCellRec.LArCellRecConf import LArNoisyROTool
 
-#Kind of hack to get the MT-version of the LArCalbing
-from AthenaCommon.Include import Include, IncludeError, include
-include("LArRecUtils/LArOnOffMappingAlg.py")
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+
 
 class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
     __slots__ = []

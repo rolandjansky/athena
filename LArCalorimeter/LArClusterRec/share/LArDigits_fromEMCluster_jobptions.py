@@ -1,4 +1,5 @@
-include("LArRecUtils/LArOnOffMappingAlg.py")
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
