@@ -678,7 +678,7 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
          }
          if (status.isRecoverable()) {
             ATH_MSG_INFO("skipping event " << m_evtCount);
-	    m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
+	    //m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
          } else if (status.isFailure()) {
             ATH_MSG_WARNING("Failed to postNext() HelperTool.");
          } else {
@@ -692,7 +692,7 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
             m_skipEventSequence.erase(m_skipEventSequence.begin());
          }
          ATH_MSG_INFO("skipping event " << m_evtCount);
-         m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
+         //m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
       }
    }
    return(StatusCode::SUCCESS);
