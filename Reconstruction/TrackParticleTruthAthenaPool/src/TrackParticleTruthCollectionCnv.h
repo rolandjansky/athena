@@ -13,9 +13,9 @@
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p1.h"
 #include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p0.h"
 
-namespace Trk { class TrackParticleTruthCollection_p1; }
+namespace Trk { class TrackParticleTruthCollection_p2; }
 
-typedef Rec::TrackParticleTruthCollection_p1 TrackParticleTruthCollectionPERS;
+typedef Rec::TrackParticleTruthCollection_p2 TrackParticleTruthCollectionPERS;
 
 typedef T_AthenaPoolCustomCnv<TrackParticleTruthCollection, TrackParticleTruthCollectionPERS> TrackParticleTruthCollectionCnvBase;
 

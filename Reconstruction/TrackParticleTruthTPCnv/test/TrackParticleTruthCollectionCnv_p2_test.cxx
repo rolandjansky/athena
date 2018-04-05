@@ -1,19 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
 /**
- * @file InDetSimEventTPCnv/test/TrackParticleTruthCollectionCnv_p1_test.cxx
+ * @file InDetSimEventTPCnv/test/TrackParticleTruthCollectionCnv_p2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Feb, 2016
- * @brief Tests for TrackParticleTruthCollectionCnv_p1.
+ * @brief Tests for TrackParticleTruthCollectionCnv_p2.
  */
 
 
 #undef NDEBUG
-#include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p1.h"
-#include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p1.h"
+#include "TrackParticleTruthTPCnv/TrackParticleTruthCollectionCnv_p2.h"
+#include "TrackParticleTruthTPCnv/TrackParticleTruthCollection_p2.h"
 #include "ParticleTruth/TrackParticleTruthCollection.h"
 #include "SGTools/TestStore.h"
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
@@ -53,8 +53,8 @@ void compare (const TrackParticleTruthCollection& p1,
 void testit (const TrackParticleTruthCollection& trans1)
 {
   MsgStream log (0, "test");
-  TrackParticleTruthCollectionCnv_p1 cnv;
-  Rec::TrackParticleTruthCollection_p1 pers;
+  TrackParticleTruthCollectionCnv_p2 cnv;
+  Rec::TrackParticleTruthCollection_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   TrackParticleTruthCollection trans2;
   cnv.persToTrans (&pers, &trans2, log);
