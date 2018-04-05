@@ -16,6 +16,7 @@
 #include "ACTS/Surfaces/Surface.hpp"
 #include "ACTS/Utilities/Logger.hpp"
 
+namespace Acts {
 
 /// @class ObjSurfaceWriter
 ///
@@ -95,5 +96,5 @@ private:
   }
 };
 
-
+}
 #endif  // ACTFW_OBJ_PLUGINS_SURFACEWRITER_H

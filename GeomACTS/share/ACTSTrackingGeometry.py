@@ -55,9 +55,19 @@ athenaCommonFlags.EvtMax = 1
 from GeomACTS.GeomACTSConf import ACTSTrackingGeometry
 
 alg = ACTSTrackingGeometry()
+alg.nParticles = 1000
 
 exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
 alg.ExtrapolationTool = exTool
+
+objWriterTool = CfgMgr.Acts__ObjWriterTool("ObjWriterTool")
+objWriterTool.OutputDirectory = "./"
+objWriterTool.SubDetectors = [
+    # "Pixel", 
+    # "SCT",
+    "TRT",
+]
+alg.ObjWriterTool = objWriterTool
 
 
 # alg.OutputLevel = DEBUG

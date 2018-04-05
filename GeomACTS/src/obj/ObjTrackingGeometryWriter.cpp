@@ -11,20 +11,20 @@
 #include "ACTS/Detector/TrackingVolume.hpp"
 #include "ACTS/Surfaces/Surface.hpp"
 
-ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
+Acts::ObjTrackingGeometryWriter::ObjTrackingGeometryWriter(
     const ObjTrackingGeometryWriter::Config& cfg)
   : m_cfg(cfg)
 {
 }
 
 std::string
-ObjTrackingGeometryWriter::name() const
+Acts::ObjTrackingGeometryWriter::name() const
 {
   return m_cfg.name;
 }
 
 void
-ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
+Acts::ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingGeometry object called.");
   // get the world volume
@@ -35,7 +35,7 @@ ObjTrackingGeometryWriter::write(const Acts::TrackingGeometry& tGeometry)
 
 /// process this volume
 void
-ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
+Acts::ObjTrackingGeometryWriter::write(const Acts::TrackingVolume& tVolume)
 {
   ACTS_DEBUG(">>Obj: Writer for TrackingVolume object called.");
   // get the confined layers and process them

@@ -20,7 +20,6 @@
 
 namespace Acts {
 class TrackingVolume;
-}
 
 /// @class ObjTrackingGeometryWriter
 ///
@@ -84,4 +83,5 @@ private:
   }
 };
 
+}
 #endif  // ACTFW_OBJ_PLUGINS_TRACKINGGEOMETRYWRITER_H

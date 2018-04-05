@@ -64,8 +64,6 @@
 
 #include "GeomACTS/GeoModelLayerBuilder.hpp"
 #include "GeomACTS/GeoModelStrawLayerBuilder.hpp"
-#include "GeomACTS/obj/ObjSurfaceWriter.hpp"
-#include "GeomACTS/obj/ObjTrackingGeometryWriter.hpp"
 #include "GeomACTS/IdentityHelper.hpp"
 
 #include "GeomACTS/Extrapolation/ParticleGun.hpp"
@@ -110,6 +108,7 @@ ACTSTrackingGeometry::ACTSTrackingGeometry(const std::string& name,
       m_fieldServiceHandle("AtlasFieldSvc", name),
       m_trackingGeometrySvc("TrackingGeometrySvc", name)
 {
+  declareProperty("nParticles", m_nParticles = 100);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -121,6 +120,7 @@ StatusCode ACTSTrackingGeometry::initialize() {
 
   ATH_CHECK(m_trackingGeometrySvc.retrieve());
   ATH_CHECK(m_extrapolationTool.retrieve());
+  ATH_CHECK(m_objWriterTool.retrieve());
 
 
   ATH_CHECK(service("AtlasFieldSvc", m_fieldService));
@@ -129,12 +129,13 @@ StatusCode ACTSTrackingGeometry::initialize() {
 }
 
 StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
-  Acts::Logging::Level loggingLevel = Acts::Logging::VERBOSE;
+  //Acts::Logging::Level loggingLevel = Acts::Logging::VERBOSE;
 
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry 
     = m_trackingGeometrySvc->trackingGeometry();
       
-  writeTrackingGeometry(*trackingGeometry);
+  //writeTrackingGeometry(*trackingGeometry);
+  m_objWriterTool->write(*trackingGeometry);
 
 
   RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
@@ -160,7 +161,7 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
 
   //std::mt19937 rng;
   ParticleGun::Config pgCfg;
-  pgCfg.nParticles = 100000;
+  pgCfg.nParticles = m_nParticles;
   pgCfg.pID = 11;
   pgCfg.mass = 0.51099891 * Acts::units::_MeV;
   pgCfg.charge = -1.;
@@ -202,8 +203,8 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
       for(size_t pi=0;pi<pv.outgoingParticles().size();++pi) {
         const auto &particle = pv.outgoingParticles().at(pi);
       //for(const auto &particle : pv.outgoingParticles()) {
-        double pt = particle.momentum().perp();
-        double pz = particle.momentum().z();
+        //double pt = particle.momentum().perp();
+        //double pz = particle.momentum().z();
 
         //std::cout << "pt = " << pt << " pz = " << pz << std::endl;
 
@@ -241,7 +242,7 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
           //eTestConfig.sensitiveCurvilinear             = false;
           //eTestConfig.pathLimit                        = -1.;
     
-          Acts::ExtrapolationCode eCode = m_extrapolationTool->extrapolate(ecc);
+          /*Acts::ExtrapolationCode eCode = */m_extrapolationTool->extrapolate(ecc);
 
           int tid = omp_get_thread_num();
           // where do we push?
@@ -287,52 +288,6 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
 }
 
 
-void 
-ACTSTrackingGeometry::writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeometry)
-{
-  std::vector<std::string> subDetectors
-      = {"Pixel", "SCT", "TRT"};
-
-  std::vector<std::shared_ptr<ObjSurfaceWriter>> subWriters;
-  std::vector<std::shared_ptr<std::ofstream>>           subStreams;
-
-  for (const auto& sdet : subDetectors) {
-    auto        sdStream = std::shared_ptr<std::ofstream>(new std::ofstream);
-    std::string sdOutputName = sdet + std::string(".obj");
-    sdStream->open(sdOutputName);
-    // object surface writers
-    ObjSurfaceWriter::Config sdObjWriterConfig(sdet,
-        Acts::Logging::INFO);
-    sdObjWriterConfig.filePrefix         = "";
-    sdObjWriterConfig.outputPhiSegments  = 10;
-    sdObjWriterConfig.outputPrecision    = 6;
-    sdObjWriterConfig.outputScalor       = 1.;
-    sdObjWriterConfig.outputThickness    = 1.;
-    sdObjWriterConfig.outputSensitive    = true;
-    sdObjWriterConfig.outputLayerSurface = false;
-    sdObjWriterConfig.outputStream       = sdStream;
-    auto sdObjWriter
-      = std::make_shared<ObjSurfaceWriter>(sdObjWriterConfig);
-    // push back
-    subWriters.push_back(sdObjWriter);
-    subStreams.push_back(sdStream);
-  }
-
-  // configure the tracking geometry writer
-  ObjTrackingGeometryWriter::Config tgObjWriterConfig(
-      "ObjTrackingGeometryWriter", Acts::Logging::INFO);
-  tgObjWriterConfig.surfaceWriters       = subWriters;
-  tgObjWriterConfig.filePrefix           = "";
-  tgObjWriterConfig.sensitiveGroupPrefix = "";
-  tgObjWriterConfig.layerPrefix          = "";
-  // the tracking geometry writers
-  auto tgObjWriter
-    = std::make_shared<ObjTrackingGeometryWriter>(tgObjWriterConfig);
-
-  // write the tracking geometry object
-  tgObjWriter->write(trackingGeometry);
-
-}
 
 StatusCode ACTSTrackingGeometry::execute() {
   if (m_firstEvent) {

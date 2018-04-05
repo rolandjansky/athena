@@ -21,7 +21,7 @@
 #include "ACTS/Surfaces/CylinderSurface.hpp"
 #include "ACTS/Surfaces/StrawSurface.hpp"
 
-ObjSurfaceWriter::ObjSurfaceWriter(
+Acts::ObjSurfaceWriter::ObjSurfaceWriter(
     const ObjSurfaceWriter::Config& cfg)
   : m_cfg(cfg)
 {
@@ -39,12 +39,12 @@ ObjSurfaceWriter::ObjSurfaceWriter(
 }
 
 std::string
-ObjSurfaceWriter::name() const
+Acts::ObjSurfaceWriter::name() const
 {
   return m_cfg.name;
 }
 void
-ObjSurfaceWriter::write(const std::string& sinfo)
+Acts::ObjSurfaceWriter::write(const std::string& sinfo)
 {
   // lock the mutex for writing
   std::lock_guard<std::mutex> lock(m_write_mutex);
@@ -53,7 +53,7 @@ ObjSurfaceWriter::write(const std::string& sinfo)
 }
 
 void
-ObjSurfaceWriter::write(const Acts::Surface& surface)
+Acts::ObjSurfaceWriter::write(const Acts::Surface& surface)
 {
   std::lock_guard<std::mutex> lock(m_write_mutex);
 
