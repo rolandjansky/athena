@@ -389,6 +389,7 @@ if TriggerFlags.doMuon:
         viewAlg.roiCollectionName = l2muCombViewsMaker.InViewRoIs
       if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
         TrackParticlesName = viewAlg.TrackParticlesName
+        viewAlg.TrackName = theFTF.TracksName
 
     ### please read out TrigmuCombMTConfig file ###
     ### and set up to run muCombMT algorithm    ###
