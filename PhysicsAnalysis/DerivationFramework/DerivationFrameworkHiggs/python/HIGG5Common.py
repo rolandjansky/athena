@@ -177,6 +177,7 @@ def getTauTrackParticleThinning(tool_prefix, thinning_helper) :
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
     thinning_tool = DerivationFramework__TauTrackParticleThinning(name                   = tool_prefix + "TauTPThinningTool",
                                                                   ThinningService        = thinning_helper.ThinningSvc(),
+                                                                  SelectionString        = "TauJets.pt > 18*GeV",
                                                                   TauKey                 = "TauJets",
                                                                   ConeSize               = 0.6,
                                                                   InDetTrackParticlesKey = "InDetTrackParticles")

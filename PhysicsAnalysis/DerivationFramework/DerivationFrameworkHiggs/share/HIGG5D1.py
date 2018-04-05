@@ -45,17 +45,15 @@ HIGG5D1ThinningHelper.TriggerChains = 'HLT_xe.*|HLT_j.*|HLT_g.*'
 HIGG5D1ThinningHelper.AppendToStream(HIGG5D1Stream)
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
-thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D1',HIGG5D1ThinningHelper) )
+# thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D1',HIGG5D1ThinningHelper) )
-thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'HIGG5D1',HIGG5D1ThinningHelper) )
 
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
-thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
 
 # MC truth thinning (not for data)
 if DerivationFrameworkIsMonteCarlo :
@@ -72,7 +70,6 @@ jetSel += '|| (( count( (AntiKt4EMPFlowJets.pt > 15.*GeV) && (abs(AntiKt4EMPFlow
 jetSel += '|| (( count( (AntiKt4EMTopoJets.pt > 100.0*GeV) && (abs(AntiKt4EMTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoJets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
-jetSel += '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
 
 #====================================================================
 # Trigger selection
