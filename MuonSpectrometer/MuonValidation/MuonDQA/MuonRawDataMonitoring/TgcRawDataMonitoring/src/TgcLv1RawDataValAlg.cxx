@@ -179,7 +179,7 @@ TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::str
 // TgcLv1RawDataValAlg Destructor
 ///////////////////////////////////////////////////////////////////////////
 TgcLv1RawDataValAlg::~TgcLv1RawDataValAlg(){
-  ATH_MSG_INFO( " deleting TgcLv1RawDataValAlg "  );
+  ATH_MSG_DEBUG( " deleting TgcLv1RawDataValAlg "  );
 }
 
 
@@ -304,7 +304,7 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
     ATH_CHECK( bookHistogramsSummary() );
   }// newRun
 
-  ATH_MSG_INFO( "TGCLV1 RawData Monitoring : histo booked "  );
+  ATH_MSG_DEBUG( "TGCLV1 RawData Monitoring : histo booked "  );
 
   return StatusCode::SUCCESS;
 }// EOF
@@ -315,7 +315,7 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
 ///////////////////////////////////////////////////////////////////////////
 StatusCode
 TgcLv1RawDataValAlg::fillHistograms(){
-  ATH_MSG_INFO( "TgcLv1RawDataValAlg::TGCLV1 RawData Monitoring Histograms being filled"  );
+  ATH_MSG_DEBUG( "TgcLv1RawDataValAlg::TGCLV1 RawData Monitoring Histograms being filled"  );
   
   ///////////////////////////////////////////////////////////////////////////
   // Get Event Data
@@ -324,73 +324,70 @@ TgcLv1RawDataValAlg::fillHistograms(){
   if( readEventInfo().isFailure() ){
     ATH_MSG_WARNING( "no event info container"  );
   }
-  ATH_MSG_INFO("Read EventInfo");
+  ATH_MSG_DEBUG("Read EventInfo");
   // Read L1 Trigger Data
   ATH_CHECK(  readL1TriggerType() );
-  ATH_MSG_INFO("readL1TriggerType");
+  ATH_MSG_DEBUG("readL1TriggerType");
   
   // Get Data from TGC Containers
   clearVectorsArrays();
-  ATH_MSG_INFO("cleared vectors and arrays");
+  ATH_MSG_DEBUG("cleared vectors and arrays");
 
   /////////////////////////////////////
   // Get TGC Coin Containers
   // Previous
   SG::ReadHandle<Muon::TgcCoinDataContainer> tgc_previous_coin_container(m_coinCollectionLocationPrevious);
   if(tgc_previous_coin_container.isValid() && tgc_previous_coin_container.isPresent()){
-    ATH_MSG_INFO( "****** tgc previous coin container size() : " << tgc_previous_coin_container->size()  );
+    ATH_MSG_DEBUG( "****** tgc previous coin container size() : " << tgc_previous_coin_container->size()  );
     // fill vectors and arrays from TgcCoinData
     readTgcCoinDataContainer(tgc_previous_coin_container.cptr(), PREV);
   }
-  else ATH_MSG_INFO("no previous container");
 
   // Current
   SG::ReadHandle<Muon::TgcCoinDataContainer> tgc_current_coin_container(m_coinCollectionLocation);
   if(tgc_current_coin_container.isValid() && tgc_current_coin_container.isPresent()){
-    ATH_MSG_INFO( "****** tgc current coin container size() : " << tgc_current_coin_container->size()  );
+    ATH_MSG_DEBUG( "****** tgc current coin container size() : " << tgc_current_coin_container->size()  );
     // fill vectors and arrays from TgcCoinData
     readTgcCoinDataContainer( tgc_current_coin_container.cptr(), CURR);
   }
-  else ATH_MSG_INFO("no current container");
 
   // Next
   SG::ReadHandle<Muon::TgcCoinDataContainer> tgc_next_coin_container(m_coinCollectionLocationNext);
   if(tgc_next_coin_container.isValid() && tgc_next_coin_container.isPresent()){
-    ATH_MSG_INFO( "****** tgc next coin container size() : " << tgc_next_coin_container->size()  );
+    ATH_MSG_DEBUG( "****** tgc next coin container size() : " << tgc_next_coin_container->size()  );
     // fill vectors and arrays from TgcCoinData
     readTgcCoinDataContainer(    tgc_next_coin_container.cptr(), NEXT);
     readTgcCoinDataContainer(    tgc_next_coin_container.cptr(), TOTA);
   }
-  else ATH_MSG_INFO("no next container");
 
   ///////////////////////////////////////////////////////////////////////////
   // ReadContainer
   /////////////////////////////////////
   // Read Offline Muon Containers
   ATH_CHECK( readOfflineMuonContainer( &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q) );
-  ATH_MSG_INFO("read offline muon container");
+  ATH_MSG_DEBUG("read offline muon container");
 
   ///////////////////////////////////////////////////////////////////////////
   // Fill Histograms
   
   // NumberOfTrigger
   fillNumberOfTrigger();
-  ATH_MSG_INFO("filled # of triggers");
+  ATH_MSG_DEBUG("filled # of triggers");
   
   // TriggerTiming
   int ptcut=1;
   fillTriggerTiming(ptcut);
-  ATH_MSG_INFO("filled trigger timing");
+  ATH_MSG_DEBUG("filled trigger timing");
   
   int ms;
   ms=0; //Muid
   fillTriggerTimingAssociatedWithTrack( ms, &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q );
-  ATH_MSG_INFO("Associated with track");
+  ATH_MSG_DEBUG("Associated with track");
   
   // Efficiency
   ms=0; //Muid
   fillEfficiency( ms, &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q );
-  ATH_MSG_INFO("filled efficiency");
+  ATH_MSG_DEBUG("filled efficiency");
   
   
   // Coincidence Window
@@ -398,7 +395,7 @@ TgcLv1RawDataValAlg::fillHistograms(){
   if( m_environment != AthenaMonManager::online ){
     fillCoincidenceWindow( ms, &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q );
   }
-  ATH_MSG_INFO("filled coincidence window");
+  ATH_MSG_DEBUG("filled coincidence window");
   
   /*
     int numberOfSL=m_nSL[0]+m_nSL[1]+m_nSL[2];
