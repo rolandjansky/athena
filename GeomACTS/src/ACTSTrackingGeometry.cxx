@@ -110,7 +110,6 @@ ACTSTrackingGeometry::ACTSTrackingGeometry(const std::string& name,
       m_fieldServiceHandle("AtlasFieldSvc", name),
       m_trackingGeometrySvc("TrackingGeometrySvc", name)
 {
-  declareProperty("ExtrapolationTool", m_extrapolationTool);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -122,8 +121,6 @@ StatusCode ACTSTrackingGeometry::initialize() {
 
   ATH_CHECK(m_trackingGeometrySvc.retrieve());
 
-  // prepare element store
-  m_elementStore = std::make_shared<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>>();
 
   ATH_CHECK(service("AtlasFieldSvc", m_fieldService));
 
@@ -329,74 +326,6 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
   return StatusCode::SUCCESS;
 }
 
-Acts::InterpolatedBFieldMap::FieldMapper<3, 3> ACTSTrackingGeometry::bfield() const
-{
-  std::function<size_t(std::array<size_t, 3> binsXYZ,
-                       std::array<size_t, 3> nBinsXYZ)> localToGlobalBin = 
-      [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
-      return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
-          + binsXYZ.at(1) * nBinsXYZ.at(2)
-           + binsXYZ.at(2));
-      };
-
-  std::string fieldMapFile = "../acts-data/MagneticField/ATLAS/ATLASBField_xyz.root";
-  std::string treeName = "bField";
-  double      lengthUnit = Acts::units::_mm;
-  double      BFieldUnit = Acts::units::_T;
-  bool        firstOctant = false;
-
-
-
-
-  /// [1] Read in field map file
-  // Grid position points in x, y and z
-  std::vector<double> xPos;
-  std::vector<double> yPos;
-  std::vector<double> zPos;
-  // components of magnetic field on grid points
-  std::vector<Acts::Vector3D> bField;
-  // [1] Read in file and fill values
-  TFile* inputFile = TFile::Open(fieldMapFile.c_str());
-  TTree* tree      = (TTree*)inputFile->Get(treeName.c_str());
-  Int_t  entries   = tree->GetEntries();
-
-  double x, y, z;
-  double Bx, By, Bz;
-
-  tree->SetBranchAddress("x", &x);
-  tree->SetBranchAddress("y", &y);
-  tree->SetBranchAddress("z", &z);
-
-  tree->SetBranchAddress("Bx", &Bx);
-  tree->SetBranchAddress("By", &By);
-  tree->SetBranchAddress("Bz", &Bz);
-
-  // reserve size
-  xPos.reserve(entries);
-  yPos.reserve(entries);
-  zPos.reserve(entries);
-  bField.reserve(entries);
-
-  for (int i = 0; i < entries; i++) {
-    tree->GetEvent(i);
-    xPos.push_back(x);
-    yPos.push_back(y);
-    zPos.push_back(z);
-    bField.push_back(Acts::Vector3D(Bx, By, Bz));
-  }
-  inputFile->Close();
-
-  return Acts::fieldMapperXYZ(localToGlobalBin,
-                              xPos,
-                              yPos,
-                              zPos,
-                              bField,
-                              lengthUnit,
-                              BFieldUnit,
-                              firstOctant);
-}
-
-
 
 void 
 ACTSTrackingGeometry::writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeometry)
@@ -460,23 +389,3 @@ StatusCode ACTSTrackingGeometry::finalize() {
   return StatusCode::SUCCESS;
 }
 
-void ACTSTrackingGeometry::extractAlphaBetaGamma(const Amg::Transform3D& trans,
-                                            double& alpha, double& beta,
-                                            double& gamma) const {
-  double siny = trans(0, 2);
-  beta = asin(siny);
-  // Check if cosy = 0. This requires special treatment.
-  // can check either element (1,2),(2,2) both equal zero
-  // or (0,1) and (0,0)
-  if ((trans(1, 2) == 0) && (trans(2, 2) == 0)) {
-    // alpha and gamma are degenerate. We arbitrarily choose
-    // gamma = 0.
-    gamma = 0;
-    alpha = atan2(trans(1, 1), trans(2, 1));
-  } else {
-    alpha = atan2(-trans(1, 2), trans(2, 2));
-    gamma = atan2(-trans(0, 1), trans(0, 0));
-    if (alpha == 0) alpha = 0;  // convert -0 to 0
-    if (gamma == 0) gamma = 0;  // convert -0 to 0
-  }
-}

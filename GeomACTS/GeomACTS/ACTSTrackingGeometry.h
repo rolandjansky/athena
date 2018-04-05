@@ -44,15 +44,7 @@ public:
 
   void writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeometry);
 
-  void extractAlphaBetaGamma(const Amg::Transform3D & trans, double& alpha, double& beta, double &gamma) const;
-
-  std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
-  makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline = false);
-
-  Acts::InterpolatedBFieldMap::FieldMapper<3, 3> bfield() const;
-
 private:
-  std::shared_ptr<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>> m_elementStore;
   bool m_firstEvent;
   
   ServiceHandle<IGeoModelSvc> m_geoModelSvc;
