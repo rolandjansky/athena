@@ -78,7 +78,7 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
   declareProperty("DoDspTestDump",m_doDspTestDump = false);
   declareProperty("DoCellsDump",m_doCellsDump = false);
   declareProperty("ADC2MeVTool",m_adc2mevtool);
-  declareProperty("LArPedestalKey",m_larpedestalkey = "Pedestal");
+  declareProperty("LArPedestalKey",m_larpedestalkey = "LArPedestal");
   declareProperty("DoCheckSum",m_doCheckSum = true);
   declareProperty("DoRodStatus",m_doRodStatus = true);
   declareProperty("PrintEnergyErrors",m_printEnergyErrors = true);
