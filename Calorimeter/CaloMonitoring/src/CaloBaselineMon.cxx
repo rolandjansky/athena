@@ -283,15 +283,18 @@ StatusCode CaloBaselineMon::fillHistograms() {
     const CaloCell* cell = *it; 
     Identifier id = cell->ID();
     float energy = cell->energy();
-    double eta = cell->eta();
+    double eta = cell->caloDDE()->eta_raw();
+    //std::cout << energy << " " << eta << " " << std::endl;
 
     int partThisAlgo = 0;
     if  (m_calo_id->is_em(id)) partThisAlgo = m_partMap[0];
     if  (m_calo_id->is_hec(id)) partThisAlgo = m_partMap[1]; 
     if  (m_calo_id->is_fcal(id)) partThisAlgo = m_partMap[2]; 
 
+   
     if ((eta<m_etaMin[partThisAlgo]) or (eta>m_etaMax[partThisAlgo])) continue;
-    int etaBin = (int) (eta*m_inv_etaBinWidth[partThisAlgo]);
+    int etaBin = std::floor((eta-m_etaMin[partThisAlgo])*m_inv_etaBinWidth[partThisAlgo]);
+
     m_sum_partition_eta[partThisAlgo][etaBin] += energy;
   } // cell iter loop
 
