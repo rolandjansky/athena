@@ -39,6 +39,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/DataVector.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //Calorimeter tower includes
 #include "LArRawEvent/LArTTL1Container.h"
@@ -131,14 +134,6 @@ private:
 
   // locations within the TES to store collections of Trigger Towers
   std::string m_outputLocation;
-
-  //  location of input TriggerTowers (for reprocessing)
-  std::string m_inputTTLocation;
-
-  // location of LAr TTL1 data
-  std::string m_EmTTL1ContainerName;
-  std::string m_HadTTL1ContainerName;
-  std::string m_TileTTL1ContainerName;
 
   // require all calorimeters, or allow running with some missing?
   bool m_requireAllCalos;
@@ -265,6 +260,22 @@ private:
   
   // non-linear LUT 
   int non_linear_lut(int lutin, unsigned short offset, unsigned short slope, unsigned short noiseCut, unsigned short scale, short par1, short par2, short par3, short par4);  
+
+  // --------------------------------------------------------------------------
+  // Read and Write Handlers
+  // --------------------------------------------------------------------------
+  SG::ReadHandleKey<EventInfo> m_evtKey;
+  SG::ReadHandleKey<xAOD::EventInfo> m_xaodevtKey;
+  //  location of input TriggerTowers (for reprocessing)
+  SG::ReadHandleKey<xAOD::TriggerTowerContainer> m_inputTTLocation;
+  // locations within the TES to store collections of Trigger Towers
+  //SG::WriteHandleKey<xAOD::TriggerTowerContainer> m_outputLocation;
+  //SG::WriteHandleKey<xAOD::TriggerTowerAuxContainer> m_outputAuxLocation;
+
+  // location of LAr TTL1 data
+  SG::ReadHandleKey<LArTTL1Container> m_EmTTL1ContainerName;
+  SG::ReadHandleKey<LArTTL1Container> m_HadTTL1ContainerName;
+  SG::ReadHandleKey<TileTTL1Container> m_TileTTL1ContainerName;
 };
 
 } // namespace LVL1

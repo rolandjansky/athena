@@ -39,6 +39,9 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 
+// AthenaMT
+#include "StoreGate/ReadHandle.h"
+
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/Randomize.h"
 #include "CLHEP/Random/RandomEngine.h"
@@ -95,6 +98,8 @@ namespace LVL1 {
       m_isDataReprocessing(false),
       m_doOverlay(false), m_isReco(false)
   {
+    declareProperty("EventInfoKey", m_evtKey=std::string{"EventInfo"});
+    declareProperty("xAODEventInfoKey", m_xaodevtKey=std::string{"EventInfo"});
     declareProperty("RndmSvc", m_rndGenSvc, "Random number service");
     declareProperty("DigiEngine", m_digiEngine = "TrigT1CaloSim_Digitization");
 
@@ -186,6 +191,18 @@ namespace LVL1 {
     // reserve enough storage for the amps
     m_xaodTowersAmps.assign(7168, std::vector<double>());
 
+    ATH_CHECK(m_evtKey.initialize());
+    ATH_CHECK(m_xaodevtKey.initialize());
+
+    ATH_CHECK(m_inputTTLocation.initialize());
+    //ATH_CHECK(m_outputLocation.initialize());
+    //m_outputAuxLocation = m_outputAuxLocation.key() + "Aux.";
+    //ATH_CHECK(m_outputAuxLocation.initialize());
+
+    ATH_CHECK(m_EmTTL1ContainerName.initialize());
+    ATH_CHECK(m_HadTTL1ContainerName.initialize());
+    ATH_CHECK(m_TileTTL1ContainerName.initialize());
+
     return StatusCode::SUCCESS;
   }
 
@@ -270,8 +287,8 @@ namespace LVL1 {
       const EventType *eventType = ei->eventInfo().event_type();
       
       if (eventType == nullptr){
-        const EventInfo* eventInfo = nullptr;
-        if (evtStore()->retrieve(eventInfo).isSuccess() ) {
+        SG::ReadHandle<EventInfo> eventInfo(m_evtKey);
+        if (eventInfo.isValid()) {
           eventType = eventInfo->event_type();
         }
       }
@@ -332,8 +349,8 @@ namespace LVL1 {
     }
     
     // Pedestal Correction: Get the BCID number
-    const xAOD::EventInfo* evt = nullptr;
-    CHECK(evtStore()->retrieve(evt));
+    SG::ReadHandle<xAOD::EventInfo> evt(m_xaodevtKey);
+    CHECK(evt.isValid());
     int eventBCID = evt->bcid();    
     
     CHECK(preProcess(eventBCID)); // FIR, BCID etc
@@ -850,7 +867,7 @@ namespace LVL1 {
     }
 
     // Overlay protection
-    if (m_inputTTLocation == "NoneForOverlay") return StatusCode::SUCCESS;
+    if (m_inputTTLocation.key() == "NoneForOverlay") return StatusCode::SUCCESS;
 
     tower->setLut_cp(std::move(etResultVectorCp));
     tower->setLut_jep(std::move(etResultVectorJep));
@@ -888,6 +905,7 @@ namespace LVL1 {
   {
     ATH_MSG_DEBUG("Storing TTs in DataVector");
     if(m_outputLocation.empty()) return StatusCode::SUCCESS;
+    //if(m_outputLocation.key().empty()) return StatusCode::SUCCESS;
 
     if(m_ZeroSuppress) {
       // remove trigger towers whose energy is 0
@@ -900,6 +918,10 @@ namespace LVL1 {
 
     CHECK(evtStore()->record(m_xaodTowers.release(), m_outputLocation));
     CHECK(evtStore()->record(m_xaodTowersAux.release(), m_outputLocation+"Aux."));
+    //SG::WriteHandle<xAOD::TriggerTowerContainer> output(m_outputLocation);
+    //SG::WriteHandle<xAOD::TriggerTowerAuxContainer> outputAux(m_outputAuxLocation);
+    //CHECK(output.record(std::move(m_xaodTowers)));
+    //CHECK(outputAux.record(std::move(m_xaodTowersAux)));
 
     return StatusCode::SUCCESS;
   } // end of LVL1::Run2TriggerTowerMaker::store(){
@@ -909,9 +931,9 @@ namespace LVL1 {
       xAOD::TriggerTowers for reprocessing */
   StatusCode Run2TriggerTowerMaker::getTriggerTowers()
   {
-    const xAOD::TriggerTowerContainer* inputTTs = nullptr;
-    ATH_MSG_INFO("Retrieve input TriggerTowers " << m_inputTTLocation);
-    CHECK(evtStore()->retrieve(inputTTs, m_inputTTLocation));
+    ATH_MSG_INFO("Retrieve input TriggerTowers " << m_inputTTLocation.key());
+    SG::ReadHandle<xAOD::TriggerTowerContainer> inputTTs(m_inputTTLocation);
+    CHECK(inputTTs.isValid());
     ATH_MSG_INFO("Found " << inputTTs->size() << " input TriggerTowers");
 
     for(const auto& tower : *inputTTs) {
@@ -937,32 +959,26 @@ namespace LVL1 {
   StatusCode Run2TriggerTowerMaker::getCaloTowers()
   {
     // Find LAr towers in TES
-    StatusCode sc1;
-    const DataHandle<LArTTL1Container> EMTowers;
-    if(!evtStore()->contains<LArTTL1Container>(m_EmTTL1ContainerName)) {
+    StatusCode sc1 = StatusCode::SUCCESS;
+    SG::ReadHandle<LArTTL1Container> EMTowers(m_EmTTL1ContainerName);
+    if(!EMTowers.isValid()){
       ATH_MSG_WARNING("EM LArTTL1Container not found");
       sc1 = StatusCode::FAILURE;
-    } else {
-      sc1 = evtStore()->retrieve(EMTowers, m_EmTTL1ContainerName);
     }
 
-    StatusCode sc2;
-    const DataHandle<LArTTL1Container> HECTowers;
-    if(!evtStore()->contains<LArTTL1Container>(m_HadTTL1ContainerName)) {
+    StatusCode sc2 = StatusCode::SUCCESS;
+    SG::ReadHandle<LArTTL1Container> HECTowers(m_HadTTL1ContainerName);
+    if(!HECTowers.isValid()){
       ATH_MSG_WARNING("Had LArTTL1Container not found");
       sc2 = StatusCode::FAILURE;
-    } else {
-      sc2 = evtStore()->retrieve(HECTowers, m_HadTTL1ContainerName);
     }
 
     // Find Tile towers in TES
-    StatusCode sc3;
-    const DataHandle<TileTTL1Container> TileTowers;
-    if(!evtStore()->contains<TileTTL1Container>(m_TileTTL1ContainerName)) {
-      ATH_MSG_WARNING("Tile TTL1Container not found");
+    StatusCode sc3 = StatusCode::SUCCESS;
+    SG::ReadHandle<TileTTL1Container> TileTowers(m_TileTTL1ContainerName);
+    if(!TileTowers.isValid()){
+      ATH_MSG_WARNING("Tile LArTTL1Container not found");
       sc3 = StatusCode::FAILURE;
-    } else {
-      sc3 = evtStore()->retrieve(TileTowers, m_TileTTL1ContainerName);
     }
 
     if(m_requireAllCalos && ((sc1==StatusCode::FAILURE) ||
@@ -978,13 +994,13 @@ namespace LVL1 {
 
     // lets now try to create some trigger towers
     if(sc1 == StatusCode::SUCCESS) {
-      processLArTowers(EMTowers);
+      processLArTowers(EMTowers.cptr());
     }
     if(sc2 == StatusCode::SUCCESS) {
-      processLArTowers(HECTowers);
+      processLArTowers(HECTowers.cptr());
     }
     if(sc3 == StatusCode::SUCCESS) {
-      processTileTowers(TileTowers);
+      processTileTowers(TileTowers.cptr());
     }
 
     /// If < 7168 towers in input data will be unallocated pointers in vector.
