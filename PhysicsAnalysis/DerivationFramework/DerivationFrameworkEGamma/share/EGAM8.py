@@ -41,17 +41,15 @@ EGAM8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 
 #====================================================================
 # Z->ee selection based on single e trigger, for reco (central) and ID SF(central+fwd)
-# 1 tight e, central, pT>25 GeV
+# 1 medium e, central, pT>25 GeV
 # 1 forward e, pT>20 GeV
 # OS+SS, mee>50 GeV
 #====================================================================
 
-# switch to likelihood selectors only as soon as they're commissioned (and used in trigger)
 if RecomputeElectronSelectors :
-#    use medium for early data upon electron group request
-    requirement_tag = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
+    requirement_tag = '(Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
 else :
-    requirement_tag = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && Electrons.pt > 24.5*GeV'
+    requirement_tag = '(Electrons.LHMedium) && Electrons.pt > 24.5*GeV'
 requirement_probe = 'ForwardElectrons.pt > 19.5*GeV'
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 EGAM8_ZEEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM8_ZEEMassTool",

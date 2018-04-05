@@ -225,10 +225,26 @@ else:
 ToolSvc += PhotonPassIsEMTight
 print PhotonPassIsEMTight
 
+# decorate photons with the photon cleaning flags
+# on MC, fudge the shower shapes before computing the flags
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGPhotonCleaningWrapper
+if isFullSim:
+    PhotonPassCleaning = DerivationFramework__EGPhotonCleaningWrapper( name = "PhotonPassCleaning",
+                                                                       EGammaFudgeMCTool = DF_ElectronPhotonShowerShapeFudgeTool,
+                                                                       StoreGateEntryName = "DFCommonPhotonsCleaning",
+                                                                       ContainerName = "Photons")
+else:
+    PhotonPassCleaning = DerivationFramework__EGPhotonCleaningWrapper( name = "PhotonPassCleaning",
+                                                                       EGammaFudgeMCTool = None,
+                                                                       StoreGateEntryName = "DFCommonPhotonsCleaning",
+                                                                       ContainerName = "Photons")
+ToolSvc += PhotonPassCleaning
+print PhotonPassCleaning
+
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
-                       PhotonPassIsEMLoose, PhotonPassIsEMTight]
+                       PhotonPassIsEMLoose, PhotonPassIsEMTight, PhotonPassCleaning]
 
 
 #==================================================
