@@ -16,6 +16,8 @@ class GeoMaterial;
 struct sTGCReadoutParameters {
     double sPadWidth;
     double lPadWidth;
+    double sStripWidth;
+    double lStripWidth;
     std::vector<double> padH;
     std::vector<int> nPadPhi;
     double anglePadPhi;
@@ -55,6 +57,8 @@ public:
 		y(v[2]);
 		z(v[3]);
 		m_yCutout=v[4];
+		m_stripPitch=v[5];
+		m_wirePitch=v[6];
 	}
 	
 	double sWidth() const {return small_x();}
@@ -65,6 +69,12 @@ public:
 	void yCutout(double y) {m_yCutout=y;}
 	double yCutout() const {return m_yCutout;}
 	
+	void stripPitch(double y) {m_stripPitch=y;}
+	double stripPitch() const {return m_stripPitch;}
+
+	void wirePitch(double y) {m_wirePitch=y;}
+	double wirePitch() const {return m_wirePitch;}
+
 	void xFrame(double y) {m_xFrame=y;}
 	double xFrame() const {return m_xFrame;}
 	
@@ -85,7 +95,9 @@ public:
 protected:
 
 	double m_yCutout;
-	
+	double m_stripPitch;
+	double m_wirePitch;
+
 	double m_xFrame;
 	double m_ysFrame;
 	double m_ylFrame;
