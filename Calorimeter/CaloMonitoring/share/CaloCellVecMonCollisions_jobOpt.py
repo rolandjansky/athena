@@ -5,11 +5,9 @@
 # LArCellVecMon_jobOpt.py   Francesco Spano  07/15/07
 # LArCellVecMon_jobOpt.py   R. Kehoe         07/03/06
 
-from CaloMonitoring.CaloMonitoringConf import CaloCellVecMon
-from CaloRec.CaloTopoClusterFlags import jobproperties
+from CaloMonitoring.CaloMonitoringConf import LArCellMonTool
 
-if not 'rec' in dir():
-   from RecExConfig.RecFlags import rec
+from RecExConfig.RecFlags import rec
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 from AthenaCommon.GlobalFlags  import globalflags
@@ -19,14 +17,14 @@ include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool=CaloNoiseToolDefault()
-ToolSvc+=theCaloNoiseTool
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 theLArChanMasker=LArBadChannelMasker("LArChanMasker")
 theLArChanMasker.DoMasking=True
 theLArChanMasker.ProblemsToMask=[
-     "deadReadout","deadPhys","short",
+     "deadReadout","deadPhys","almostDead","short",
      "sporadicBurstNoise",
+     "unstableNoiseLG","unstableNoiseMG","unstableNoiseHG",
      "highNoiseHG","highNoiseMG","highNoiseLG"
 ]
 ToolSvc+=theLArChanMasker
@@ -35,119 +33,63 @@ from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
 theLArBadChannelTool=LArBadChanTool()
 ToolSvc+=theLArBadChannelTool
 
-if (DQMonFlags.monManEnvironment == 'online'):
-  tmp_isOnline=TRUE
-else:
-  tmp_isOnline=FALSE
-
-if (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'):
-  tmp_useBadLBTool=FALSE
-else:
-  tmp_useBadLBTool=TRUE
-
-if DQMonFlags.monManEnvironment() == 'online':
-  tmp_useReadyFilterTool=FALSE
-else:
-  tmp_useReadyFilterTool=TRUE
-
-if (rec.triggerStream()=='CosmicCalo'):
-  tmp_useLArCollisionTime = TRUE
-else:
-  tmp_useLArCollisionTime = FALSE
-
-if DQMonFlags.monManEnvironment() == 'online':
-   tmp_useLArNoisyAlg = FALSE
-else:
-   tmp_useLArNoisyAlg = TRUE
-
-tmp_useElectronicNoiseOnly = FALSE
-tmp_useTwoGaus = TRUE
-
-if DQMonFlags.monManEnvironment() == 'online':
-   tmp_useBeamBackgroundRemoval = FALSE
-else:
-   tmp_useBeamBackgroundRemoval = TRUE
-
-if not (rec.triggerStream()=='CosmicCalo'):
-  tmp_useBeamBackgroundRemoval = FALSE 
-  print "not CosmicCalo stream" 
-
-print "tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval
 
 
-tmp_useTrigger = TRUE 
-if 'DQMonFlags' in dir():
-   if not DQMonFlags.useTrigger:
-      tmp_useTrigger = FALSE
-
-tmp_sporadicSwitch = FALSE
-if (rec.triggerStream()=='CosmicCalo') and not (DQMonFlags.monManEnvironment() == 'online'):
-   tmp_sporadicSwitch = TRUE
-
-tmp_oc2D = FALSE # All 2D plot occupancy are activate only for express and cosmiccalo
+# All 2D plot occupancy are activate only for express and cosmiccalo
 if (rec.triggerStream()=='CosmicCalo' or rec.triggerStream()=='express') or (DQMonFlags.monManEnvironment() == 'online'):
-   tmp_oc2D = TRUE
+   do2DOcc = True
+else:
+   do2DOcc = False
 
+LArCellMon = LArCellMonTool(
 
-CaloCellMon = CaloCellVecMon(
-    name = "CaloCellMon",
+    #DoSaveTempHists=True,
+    #OutputLevel=DEBUG,
+
+    name = "LArCellMon",
     CaloCellContainer = "AllCalo",
 
-    TimeGran = "run",
-    ProcessNEvents = 100,  #determines eventsblock time granularity, defined in ManagedMonitorToolBase.
-
-    isOnline=tmp_isOnline,
-    useBadLBTool=tmp_useBadLBTool,
     BadLBTool = GetLArBadLBFilterTool(),
 
-    useReadyFilterTool = tmp_useReadyFilterTool,
     ReadyFilterTool = monAtlasReadyFilterTool,
 
-   useLArCollisionFilterTool = tmp_useLArCollisionTime,
-
-    useLArNoisyAlg = tmp_useLArNoisyAlg,
-    useElectronicNoiseOnly = tmp_useElectronicNoiseOnly,
-    useTwoGaus = tmp_useTwoGaus,
+    useElectronicNoiseOnly = False,
+    #useTwoGaus = True, Tile-only
 
     CaloNoiseTool=theCaloNoiseTool,
-    useBeamBackgroundRemoval = tmp_useBeamBackgroundRemoval,
 
-    useTrigger          = tmp_useTrigger,
+    useTrigger          =  DQMonFlags.useTrigger(),
     rndmTriggerNames    = "L1_RD0, L1_RD0_FILLED, L1_RD0_EMPTY, L1_RD1, L1_RD1_NOISE, L1_RD1_HIST, L1_RD1_BGRP4, L1_RD1_BGRP5",
     caloTriggerNames    = "L1_EM[0-9]+, L1_HA[0-9]+, L1_J[0-9]+.*, L1_JB[0-9]+, L1_JF[0-9]+, L1_TE[0-9]+, L1_JE[0-9]+, L1_XE[0-9]+, L1_2EM[0-9]+, L1_2FJ[0-9]+, L1_2J[0-9]+,L1_3J[0-9]+.*,L1_4J[0-9]+.*,L1_5J[0-9]+,L1_6J[0-9]+,L1_FJ[0-9]+.*",
     minBiasTriggerNames = "L1_RD0_FILLED, L1_MBTS_1, L1_MBTS_2, L1_MBTS_1_1",
     metTriggerNames     = "EF_xe[0-9]+.*",
     miscTriggerNames    = "",
-
     LArBadChannelMask=theLArChanMasker,
     LArBadChannelTool=theLArBadChannelTool,
-    MaskBadChannels    = FALSE,
-    MaskNoCondChannels = FALSE,
-    doInverseMasking   = FALSE,
-    doMaskingOnline    = FALSE,
-    problemsToMaskOffline =["deadReadout","deadPhys","almostDead","short","sporadicBurstNoise","unstableNoiseLG",
-                            "unstableNoiseMG","unstableNoiseHG","highNoiseHG","highNoiseMG","highNoiseLG"],
+    MaskBadChannels    = False,
+    MaskNoCondChannels = False,
+    #doInverseMasking   = False,
+ #   doMaskingOnline    = False,
+    #problemsToMaskOffline =["deadReadout","deadPhys","almostDead","short","sporadicBurstNoise","unstableNoiseLG",
+    #                        "unstableNoiseMG","unstableNoiseHG","highNoiseHG","highNoiseMG","highNoiseLG"],
 
     # Database Record Plots (filled in first event)
-    doDatabaseNoiseVsEtaPhi     = TRUE,
-    doKnownBadChannelsVsEtaPhi  = TRUE,
-    doDBNoiseNormalized1DEnergy = FALSE,
-    doUnnormalized1DEnergy      = TRUE,
-    useLogarithmicEnergyBinning = TRUE,
+    doDatabaseNoiseVsEtaPhi     = True,
+    doKnownBadChannelsVsEtaPhi  = True,
+    doUnnormalized1DEnergy      = True,
+    useLogarithmicEnergyBinning = True,
 
     # Use WeightedEff rather than Weighted Average Merging, where appropriate:
     #  (if merging / errors are all correct, this should have no effect, hence this is a good validation tool)
-    useWeightedEffMerging = TRUE,
+    useWeightedEffMerging = True,
 
-    Sporadic_switch = tmp_sporadicSwitch,
     Threshold_EM_S0S1= 5000,
     Threshold_HECFCALEMS2S3= 15000,
-    EventNumber_thres = 10,
     NsporadicPlotLimit = 300,
     Sporadic_protection = 4000,
 
-    DoEtaLumi = FALSE,
-    DoPhiLumi = FALSE, 
+    #DoEtaLumi = False,
+    #DoPhiLumi = False, 
     
 # EtaPhi Cell Plots:
     
@@ -163,35 +105,33 @@ CaloCellMon = CaloCellVecMon(
 
 # Global Settings:
 
-    ThresholdType          = ["default", "noEth", "noEth_rndm", "medEth", "5Sigma", "hiEth", "hiEth_noVeto", "met"  ],
-    ThresholdDirection     = ["over"   , "none" , "none"      , "both"  , "both"  , "over" , "over"        , "over" ],
-    TriggersToInclude      = ["all"    , "all"  , "all"       , "all"   , "all"   , "all"  , "all"         , "met"  ],
-    TriggersToExclude      = ["none"   , "none" , "none"      ],
+    ThresholdType          = [ "noEth", "noEth_rndm", "medEth", "5Sigma", "hiEth", "hiEth_noVeto", "met"  ],
+    ThresholdDirection     = [ "none" , "none"      , "both"  , "both"  , "over" , "over"        , "over" ],
+    TriggersToInclude      = [ "all"  , "all"       , "all"   , "all"   , "all"  , "all"         , "met"  ],
+    TriggersToExclude      = [ "none" , "none"      , "none"  , "none"  , "none" , "none"        , "none" ],
 
-    DoPercentageOccupancy  = [ FALSE   , FALSE  , FALSE       , TRUE    , FALSE   , FALSE  , FALSE         , FALSE  ],
-    DoEtaPhiOccupancy      = [ FALSE   , FALSE  , FALSE       , FALSE   , tmp_oc2D,tmp_oc2D, tmp_oc2D      , FALSE  ],
-    DoEtaOccupancy         = [ FALSE   , FALSE  , FALSE       , TRUE    ],
-    DoPhiOccupancy         = [ FALSE   , FALSE  , FALSE       , TRUE    ],
+    DoPercentageOccupancy  = [ False  , False       , True    , False   , False  , False         , False  ],
+    DoEtaPhiOccupancy      = [ False  , False       , False   , do2DOcc,do2DOcc, do2DOcc      , False  ],
+    DoEtaOccupancy         = [ False  , False       , False   , False   , False  , False         , False  ],
+    DoPhiOccupancy         = [ False  , False       , True    , False   , False  , False         , False  ],
 
-    DoEtaPhiAverageEnergy  = [ FALSE   , FALSE  , tmp_oc2D    , FALSE   , tmp_oc2D],
-    DoEtaPhiTotalEnergy    = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   ],
-    DoEtaPhiEnergyRMS      = [ FALSE   , FALSE  , FALSE       ],
-    DoEtaPhiRMSvsDBnoise   = [ FALSE   , FALSE  , FALSE       ],
+    DoEtaPhiAverageEnergy  = [ False  , do2DOcc    , False   , do2DOcc  , False   , False        , False  ],
+    DoEtaPhiTotalEnergy    = [ False  , False       , False   , False   , False   , False        , False  ],
+    #DoEtaPhiEnergyRMS      = , False  , False       , False   , False   , False   , False        , False  ],
+    #DoEtaPhiRMSvsDBnoise   = , False  , False       , False   , False   , False   , False        , False  ], 
 
-    DoEtaPhiAverageQuality = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   ],
-    DoEtaPhiFractionOverQth= [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , tmp_oc2D , tmp_oc2D        ],
-    QualityFactorThreshold = [ 4000.   ],
+    DoEtaPhiAverageQuality = [ False  , False       , False   , False   , False   , False        , False  ],
+    DoEtaPhiFractionOverQth= [ False  , False       , False   , False   , do2DOcc , do2DOcc      , False  ],
+    QualityFactorThreshold = [ 4000. ]*7,
 
-    DoEtaPhiAverageTime    = [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
-    DoEtaPhiFractionPastTth= [ FALSE   , FALSE  , FALSE       , FALSE   , TRUE    ],
-    TimeThreshold          = [ 4.      ],
+    DoEtaPhiAverageTime    = [ False  , False       , False   , True    , False   , False        , False  ],
+    DoEtaPhiFractionPastTth= [ False  , False       , False   , True    , False   , False        , False  ],
+    TimeThreshold          = [ 4.      ]*7,
 
-    MaskEmptyBins          = [ FALSE   , FALSE  , FALSE       , FALSE   , FALSE   , FALSE  , FALSE         , FALSE  ], #bins w/o calocell = -1  
-    DoBeamBackgroundRemoval= [ TRUE    , TRUE   , TRUE        , TRUE    , TRUE    , TRUE   , FALSE         , TRUE   ],
+    DoBeamBackgroundRemoval= [ True   , True        , True    , True    , True   , False         , True   ],
 
     # Defaults: (Can be over ridden by layer specific values) ; plots will be made for all layers with DefaultThreshold != -9999999
-    DefaultThresholdTitles= ["default" ,
-                             "no Threshold",
+    ThresholdTitleTemplates= ["no Threshold",
                              "no Threshold",
                              "|E_{cell}| > %0.f#sigma_{noise}^{database}",
                              "E_{cell} beyond %0.f#sigma_{noise}^{database}",
@@ -199,9 +139,8 @@ CaloCellMon = CaloCellVecMon(
                              "E_{cell} > %0.f MeV",
                              "E_{cell} > %0.f MeV, MET trigger"],
 
-    DefaultThresholdNames = ["default" ,"noEth","noEth"], ## if none specified, use threshold type for name
-    DefaultThresholds     = [-9999999.,-4000000.,-4000000.    , 3.      , 5.      , 500.   , 500.          , 1000.  ],
-    DefaultUseNoiseTool   = [ FALSE    , FALSE  , FALSE       , TRUE    , TRUE    , FALSE  , FALSE         , FALSE  ],
+    DefaultThresholds     = [-4000000.,-4000000.    , 3.      , 5.      , 500.   , 500.          , 1000.  ],
+    ThresholdinSigNoise   = [ False   , False       , True    , True    , False  , False         , False  ],
 
     ThresholdColumnType   = ["hiEth", "hiEth_noVeto"],
 
@@ -226,5 +165,49 @@ CaloCellMon = CaloCellVecMon(
     FCAL3_Thresh          = [ 6000. , 6000.         ],
 )
 
-ToolSvc+=CaloCellMon
-CaloMon.AthenaMonTools += [CaloCellMon]
+#Tile monitoring:
+from CaloMonitoring.CaloMonitoringConf import TileCalCellMonTool
+TileCalCellMon=TileCalCellMonTool("TileCalCellMon",
+                             CaloNoiseTool=theCaloNoiseTool
+                            )
+
+
+if DQMonFlags.monManEnvironment == 'online':
+   LArCellMon.isOnline=True
+   LArCellMon.useLArNoisyAlg=False
+   LArCellMon.ProcessNEvents = 100
+else:
+   #Offline processing:
+   LArCellMon.useLArNoisyAlg=True
+
+   if (rec.triggerStream()=='CosmicCalo'):
+      LArCellMon.Sporadic_switch=True
+      LArCellMon.useBeamBackgroundRemoval = True
+      LArCellMon.useLArCollisionFilterTool = True
+      TileCalCellMon.useBeamBackgroundRemoval = True
+      TileCalCellMon.useLArCollisionFilterTool = True
+   else:
+      LArCellMon.Sporadic_switch=False
+      LArCellMon.useBeamBackgroundRemoval = False
+      LArCellMon.useLArCollisionFilterTool = False
+      TileCalCellMon.useBeamBackgroundRemoval = False
+      TileCalCellMon.useLArCollisionFilterTool = False
+
+   if globalflags.DataSource() == 'data': #not MC
+      LArCellMon.useBadLBTool=True
+      LArCellMon.useReadyFilterTool = True
+      TileCalCellMon.useBadLBTool=True
+      TileCalCellMon.useReadyFilterTool = True
+   else:
+      LArCellMon.useBadLBTool=False
+      LArCellMon.useReadyFilterTool = False
+      TileCalCellMon.useBadLBTool=False
+      TileCalCellMon.useReadyFilterTool = False
+      
+
+
+ToolSvc+=LArCellMon
+ToolSvc+=TileCalCellMon
+CaloMon.AthenaMonTools += [LArCellMon,TileCalCellMon]
+
+

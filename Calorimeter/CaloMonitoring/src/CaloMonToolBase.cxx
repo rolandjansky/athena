@@ -42,7 +42,6 @@ StatusCode CaloMonToolBase::initialize() {
      m_useReadyFilterTool = false;
      return sc;
    }
-   ATH_MSG_INFO("AtlasReadyFilterTool retrieved");
   }
 
   // retrieve BadLBFilter tool 
