@@ -108,6 +108,7 @@ class HLTTauMonTool : public IHLTMonTool {
   StatusCode trackCurves(const std::string & trigItem);
   StatusCode efficiencyRatioPlots (const std::string & trigItem);
   StatusCode L1TopoLeptons(const std::string & trigItem, const std::string & typeOfChain);
+  StatusCode FailTrackFilterMonitor(const std::string & trigItem);
 
   //Methods for HLT and L1 Matching
   bool HLTTauMatching(const std::string & trigItem, const TLorentzVector & TLV, float DR);
@@ -163,6 +164,8 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doTopoValidation;
   bool m_doL1JetPlots;
   bool m_doEFTProfiles;
+  bool m_doFailTrackFilterBitMonitoring;
+  bool m_doRNNInOutMonitoring;
   bool m_domuCut40; 
   bool m_doEfficiencyRatioPlots;
   bool m_doL1TopoLeptonsMonitoringWarnings;
@@ -210,7 +213,11 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<std::string> m_LST_HLTsel0Prong_FTKNoPrec_chains;
   std::vector<std::string> m_LST_HLTsel_tracktwo_chains;
   std::vector<std::string> m_Ratio;
+  std::vector<std::string> m_trigMVA_chains;
+  std::vector<std::string> m_trigRNN_chains;
+  std::vector<std::string> m_trigBDTRNN_chains;
   std::string m_lowest_singletau;
+  std::string m_lowest_singletauMVA;
   //std::string m_lowest_ditau;
   //std::string m_lowest_etau;
   //std::string m_lowest_mutau;
