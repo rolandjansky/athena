@@ -162,6 +162,9 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 		}
 	}
 
+        PixelEventNumber = 0;
+        PixelClusNum = 0;
+        LVL1TriggerType = 0;
 	PixClusLocX = 0;
 	PixClusLocY = 0;
 	PixClusLocXcentroid = 0;
@@ -194,7 +197,8 @@ PixelRIOs::PixelRIOs(std::string starting_tag,
 	PixClusChargeList = 0;
 	PixClusToTList = 0;
 	PixClusLVLAList = 0;
-	PixHitXstartpos = 0;
+	PixelHitsNum = 0;
+        PixHitXstartpos = 0;
 	PixHitYstartpos = 0;
 	PixHitZstartpos = 0;
 	PixHitXendpos = 0;
