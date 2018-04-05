@@ -52,7 +52,6 @@ bool AthenaConverterTLPExtension::registerExtendingCnv( AthenaConverterTLPExtens
    }
    cloned_converter->wasClonedFrom( extending_converter );
    m_extendingConverters[ extendingTPLCnvID ] = cloned_converter;
-   cloned_converter->getTopLevelTPCnv()->addTPConvertersTo( this->getTopLevelTPCnv() );
    return true;
 }
 
@@ -82,7 +81,8 @@ void AthenaConverterTLPExtension::usingTPCnvForReading( TopLevelTPCnvBase &baseT
             if( !cloned_converter ) {
                // basically panicking, this is not a runtime exception but an incomplete converter implementation
                ostringstream error;
-               error << " TPCNVINFO: ERROR!  This extending TP converter does not define clone() method. "  << " Converter: " << cnvI->second->name();
+               error << " TPCNVINFO: ERROR!  This extending TP converter does not define clone() method. "
+                     << " Converter: " << cnvI->second->name();
                cerr << error.str() << endl;
                throw runtime_error( error.str() );
             }
@@ -95,33 +95,6 @@ void AthenaConverterTLPExtension::usingTPCnvForReading( TopLevelTPCnvBase &baseT
       }
    }
 }
-
-
-
-void AthenaConverterTLPExtension::writeExtendingObjects( void *baseObj, const std::string& key )
-{
-   TPCnvTokenList_p1 	*token_list =  getTopLevelTPCnv()->getTokenListVarFrom( baseObj );
-   if( !token_list )
-      throw std::runtime_error("Adding token to TP persistent object failed - getTokenListVar() returned NULL");
-   
-   for( const auto& cnv : m_extendingConverters ) {
-      const Token *tok =  cnv.second->writeObject( key );
-      if( tok !=0 ) {
-         token_list->addToken( cnv.second->getTPCnvID(), tok->toString() );
-         delete tok;
-      }
-   }
-   /*
-     for( extCnvMap_t::const_iterator cnv = m_extendingConverters.begin();
-	cnv != m_extendingConverters.end(); cnv++ )
-   {
-      std::string token = cnv->second->writeObject( key );
-      if( token.size() )
-	 token_list->addToken(  cnv->second->getTPCnvID(), token );
-   }
-   */
-}
-
 
 void AthenaConverterTLPExtension::readExtendingObjects( void *baseObj )
 {

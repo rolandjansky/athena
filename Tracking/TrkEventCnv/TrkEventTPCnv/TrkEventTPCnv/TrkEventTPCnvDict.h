@@ -5,8 +5,6 @@
 #ifndef TRKEVENTTPCNV_TRKEVENTTPCNVDICT_H
 #define TRKEVENTTPCNV_TRKEVENTTPCNVDICT_H
 
-
-#include "TrkEventTPCnv/TrackCollection_tlp5.h"
 #include "TrkEventTPCnv/VxContainer_tlp2.h"
 #include "TrkEventTPCnv/MVFVxContainer_tlp1.h"
 #include "TrkEventTPCnv/V0Container_tlp2.h"
@@ -16,7 +14,7 @@
 // TrkTrack
 //-----------------------------------------------------------------------------
 #include "TrkEventTPCnv/TrkTrack/TrackCollection_p1.h"
-#include "TrkEventTPCnv/TrkTrack/TrackStateOnSurface_p1.h"
+#include "TrkEventTPCnv/TrkTrack/TrackStateOnSurface_p3.h"
 #include "TrkEventTPCnv/TrkTrack/Track_p4.h"
 #include "TrkEventTPCnv/TrkTrack/TrackInfo_p1.h"
 
