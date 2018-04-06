@@ -669,7 +669,7 @@ StatusCode HLTTauMonTool::proc()
                   cloneHistogram("hEFRNNInput_Scalar_mEflowApprox_log_3P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputScalar3p");
                   cloneHistogram("hEFRNNInput_Scalar_ptDetectorAxis_log_3P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputScalar3p");
                   cloneHistogram("hEFRNNInput_Scalar_massTrkSys_log_3P","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputScalar3p");
-                  // track RNN inputs
+/*                  // track RNN inputs
                   cloneHistogram("hEFRNNInput_Track_pt_log","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
                   cloneHistogram("hEFRNNInput_Track_pt_jetseed_log","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
                   //cloneHistogram("hEFRNNInput_Track_eta","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputTrack");
@@ -692,7 +692,7 @@ StatusCode HLTTauMonTool::proc()
                   cloneHistogram("hEFRNNInput_Cluster_dPhi","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputCluster");
                   cloneHistogram("hEFRNNInput_Cluster_SECOND_R_log10","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputCluster");
                   cloneHistogram("hEFRNNInput_Cluster_SECOND_LAMBDA_log10","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputCluster");
-                  cloneHistogram("hEFRNNInput_Cluster_CENTER_LAMBDA_log10","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputCluster");
+                  cloneHistogram("hEFRNNInput_Cluster_CENTER_LAMBDA_log10","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/InputCluster"); */
                   // RNN outputs
                   cloneHistogram("hEFRNNJetScore","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");
                   cloneHistogram("hEFRNNJetScoreSigTrans","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/EFTau/RNN/Output");

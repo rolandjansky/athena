@@ -67,6 +67,7 @@ def TrigTauMonitoringTool():
 			'tau25_verylooseRNN_tracktwo',
 			'tau25_looseRNN_tracktwo',
 			'tau25_mediumRNN_tracktwo',
+			'tau25_tightRNN_tracktwo',
 			'tau25_verylooseRNN_tracktwoMVA',
 			'tau25_looseRNN_tracktwoMVA',
 			'tau25_mediumRNN_tracktwoMVA',
@@ -74,16 +75,14 @@ def TrigTauMonitoringTool():
 	]
 
 	BDTRNN_chains = [
-			'tau25_perf_tracktwo',
-			'tau25_idperf_tracktwo',
-			'tau25_medium1_tracktwo',
-			'tau25_idperf_tracktwoEF',
-			'tau25_perf_tracktwoEF',
-			'tau25_idperf_tracktwoEFmvaTES',
-			'tau25_perf_tracktwoEFmvaTES',
 			'tau25_idperf_tracktwoMVA',
 			'tau25_perf_tracktwoMVA',
 	]
+# later on, these will also be monitoring both BDT and RNN
+#			'tau25_idperf_tracktwoEF',
+#			'tau25_perf_tracktwoEF',
+#			'tau25_idperf_tracktwoEFmvaTES',
+#			'tau25_perf_tracktwoEFmvaTES',
 
 	tau_topo_support_chains = [
 
@@ -149,7 +148,7 @@ def TrigTauMonitoringTool():
 				primary_tau		= full_tau, #[]
 				prescaled_tau		= [], #tau_track_test, #[],
 				LowestSingleTau		= hltmonList.monitoring_singleTau, #"tau25_medium1_tracktwo",
-				LowestSingleTauMVA		= "tau25_mediumRNN_tracktwoMVA",
+				LowestSingleTauMVA		= "tau25_medium1_tracktwoEF",
 				Highpt_tau		= highpt_tau,
 				Ztt_tau		 	= ztt_tau,
 				EffOffTauPtCut	 	= 25000.,  #MeV
