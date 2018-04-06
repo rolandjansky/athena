@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           Control/StoreGate
                           Trigger/TrigEvent/TrigSteeringEvent
+                          Control/AthenaExamples/AthExHive
                           GaudiKernel
                           PRIVATE
                           Control/CxxUtils

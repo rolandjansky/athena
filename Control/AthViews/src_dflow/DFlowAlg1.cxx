@@ -20,6 +20,7 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "CxxUtils/make_unique.h"
+#include "AthExHive/HiveDataObj.h"
 
 namespace AthViews {
 
@@ -106,6 +107,11 @@ StatusCode DFlowAlg1::execute()
     ATH_MSG_INFO("ptr: " << outputData.cptr());
     ATH_MSG_INFO("val: " << *outputData);
   }
+
+  // Test update handles
+  SG::WriteHandle< HiveDataObj > testUpdate( "testUpdate" );
+  ATH_CHECK( testUpdate.recordNonConst( std::make_unique< HiveDataObj >( 123 ) ) );
+  ATH_MSG_INFO( "Update handle initial: " << testUpdate->val() );
 
   return StatusCode::SUCCESS;
 }

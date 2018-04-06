@@ -20,6 +20,7 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "AthenaKernel/ExtendedEventContext.h"
+#include "AthExHive/HiveDataObj.h"
 
 namespace AthViews {
 
@@ -167,6 +168,10 @@ StatusCode DFlowAlg3::execute()
   //Dummy object to fix the data flow
   SG::WriteHandle< int > outputHandle( m_w_dflowDummy, ctx );
   outputHandle.record( CxxUtils::make_unique<int>(1) );
+
+  // Test update handles
+  SG::ReadHandle< HiveDataObj > testUpdate( "testUpdate" );
+  ATH_MSG_INFO( "Update handle final: " << testUpdate->val() );
 
   return StatusCode::SUCCESS;
 }
