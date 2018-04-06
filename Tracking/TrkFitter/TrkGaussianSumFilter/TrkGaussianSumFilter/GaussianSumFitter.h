@@ -12,6 +12,7 @@ decription           : Class for fitting according to the Gaussian Sum Filter
                        formalisation.
 ********************************************************************************** */
 
+#include "TrkGaussianSumFilter/IGsfOutlierLogic.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkFitterUtils/FitterTypes.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -37,7 +38,6 @@ class IMultiStateExtrapolator;
 
 class TrackFitInputPreparator; 
 class IForwardGsfFitter;
-class IGsfOutlierLogic;
 class IGsfSmoother;
 class Track;
 class IBremsstrahlungFinder;
@@ -132,7 +132,8 @@ class GaussianSumFitter : virtual public ITrackFitter, public AthAlgTool {
 
   ToolHandle<IForwardGsfFitter> m_forwardGsfFitter;
   ToolHandle<IGsfSmoother> m_gsfSmoother;
-  ToolHandle<IGsfOutlierLogic> m_outlierLogic;
+  PublicToolHandle<IGsfOutlierLogic> m_outlierLogic
+     {this,"GsfOutlierLogic","Trk::GsfOutlierLogic/GsfOutlierLogic",""};
 
   bool                                      m_reintegrateOutliers;
 

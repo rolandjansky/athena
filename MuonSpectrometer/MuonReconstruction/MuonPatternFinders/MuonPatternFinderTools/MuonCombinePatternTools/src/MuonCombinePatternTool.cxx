@@ -4,7 +4,6 @@
 
 #include "MuonCombinePatternTools/MuonCombinePatternTool.h"
 
-#include "GaudiKernel/ToolFactory.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "CxxUtils/sincos.h"
@@ -86,6 +85,8 @@ StatusCode MuonCombinePatternTool::initialize()
   if (m_use_cosmics == true) {
     m_bestphimatch = true;
   }
+
+  ATH_CHECK( m_idHelper.retrieve() );
   
   ATH_MSG_DEBUG(" UseCosmics: " << m_use_cosmics << " Split Patterns: " << m_splitpatterns << " NoDiscarding: " << m_nodiscarding << " BestPhiMatch: " << m_bestphimatch );
 

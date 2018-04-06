@@ -16,6 +16,9 @@ decription           : Extrapolation of MultiComponentState class based on
 #ifndef TrkGsfExtrapolator_H
 #define TrkGsfExtrapolator_H
 
+#include "TrkExInterfaces/IEnergyLossUpdator.h"
+#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
+#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -43,10 +46,7 @@ class TrackingGeometry;
 class TrackStateOnSurface;
 class MaterialProperties;
 class IMultiComponentStateMerger;
-class IMultiComponentStateCombiner;
 class IMaterialMixtureConvolution;
-class IMultipleScatteringUpdator;
-class IEnergyLossUpdator;
 
 
 /** @struct StateAtBoundarySurface
@@ -286,10 +286,13 @@ class GsfExtrapolator : public AthAlgTool, virtual public IMultiStateExtrapolato
   
   ToolHandle<IMultiComponentStateMerger>        m_merger;                           //!< Multi-component state reduction
 
-  ToolHandle<IMultiComponentStateCombiner>      m_stateCombiner;                    //!< Multi-component State combiner
+  PublicToolHandle<IMultiComponentStateCombiner>      m_stateCombiner
+     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner",""};                    //!< Multi-component State combiner
   
-  ToolHandle< IMultipleScatteringUpdator >      m_msupdators;                 //!<  Array of MultipleScattering Updators
-  ToolHandle< IEnergyLossUpdator >              m_elossupdators;                      //!<  Array of EnergyLoss Updators
+  PublicToolHandle< IMultipleScatteringUpdator >      m_msupdators
+     {this,"MultipleScatteringUpdator","Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator",""};                 //!<  Array of MultipleScattering Updators
+  PublicToolHandle< IEnergyLossUpdator >              m_elossupdators
+     {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};                      //!<  Array of EnergyLoss Updators
 
   bool                               m_surfaceBasedMaterialEffects;      //!< Switch to turn on/off surface based material effects
 

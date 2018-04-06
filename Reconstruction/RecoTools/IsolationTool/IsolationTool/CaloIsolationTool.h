@@ -7,6 +7,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #ifndef XAOD_ANALYSIS
 // #include "GaudiKernel/ToolHandle.h"
@@ -250,72 +251,113 @@ namespace xAOD {
       void decorateTrackCaloPosition(const IParticle& particle, float eta, float phi) const;
 
 #ifndef XAOD_ANALYSIS
-      ToolHandle<Rec::IParticleCaloCellAssociationTool>        m_assoTool;
-      ToolHandle<Trk::IParticleCaloExtensionTool>              m_caloExtTool;
+      ToolHandle<Rec::IParticleCaloCellAssociationTool> m_assoTool {this, 
+	  "ParticleCaloCellAssociationTool", 
+	  "Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"};
+
+      ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtTool {this,
+	  "ParticleCaloExtensionTool",
+	  "Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"};
       Trk::TrackParametersIdHelper  m_parsIdHelper;
 
       // clusters in cone tool
-      ToolHandle<ICaloClustersInConeTool> m_clustersInConeTool; 
+      ToolHandle<ICaloClustersInConeTool> m_clustersInConeTool {this,
+	  "ClustersInConeTool",
+	  "xAOD::CaloClustersInConeTool/CaloClustersInConeTool"}; 
       
       // pflow objects in cone tool
-      ToolHandle<IPFlowObjectsInConeTool> m_pflowObjectsInConeTool; 
+      ToolHandle<IPFlowObjectsInConeTool> m_pflowObjectsInConeTool {this,
+	  "PFlowObjectsInConeTool", ""}; 
       
       /** @brief  Property: calo cluster filling tool */
-      ToolHandle<CaloClusterProcessor> m_caloFillRectangularTool;
+      ToolHandle<CaloClusterProcessor> m_caloFillRectangularTool {this,
+	  "CaloFillRectangularClusterTool", "",
+	  "Handle of the CaloFillRectangularClusterTool"};
 
       /** Property: Use cached caloExtension if avaliable. */
-      bool m_useCaloExtensionCaching;
+      Gaudi::Property<bool> m_useCaloExtensionCaching {this, 
+	  "UseCaloExtensionCaching", true, 
+	  "Use cached caloExtension if avaliable."};
 #endif // XAOD_ANALYSIS
 
       /** @brief Tool for pt-corrected isolation calculation (new)*/
-      ToolHandle<CP::IIsolationCorrectionTool> m_IsoLeakCorrectionTool;
+      ToolHandle<CP::IIsolationCorrectionTool> m_IsoLeakCorrectionTool {this,
+	  "IsoLeakCorrectionTool", "",
+	  "Handle on the leakage correction tool"};
 
       /** @brief vector of calo-id to treat*/
-      std::vector<int> m_EMCaloNums;
+      Gaudi::Property<std::vector<int> > m_EMCaloNums {this,
+	  "EMCaloNums", {}, "list of EM calo to treat"};
 
-        /** @brief vector of calo-id to treat*/
-      std::vector<int> m_HadCaloNums;
+      /** @brief vector of calo-id to treat*/
+      Gaudi::Property<std::vector<int> > m_HadCaloNums {this,
+	  "HadCaloNums", {}, "list of Had calo to treat"};
 
       /** Topo Calo cluster location in event store */
       std::string m_CaloCalTopoCluster; 
       
       /** Property: Use TopoClusters at the EM scale. */
-      bool m_useEMScale;
+      Gaudi::Property<bool> m_useEMScale {this,
+	  "UseEMScale", true,
+	  "Use TopoClusters at the EM scale."};
 
       /** Property: do the ED corrections to topoisolation */
-      bool m_doEnergyDensityCorrection;
+      Gaudi::Property<bool> m_doEnergyDensityCorrection {this,
+	  "doEnergyDensityCorrection", true, 
+	  "Correct isolation variables based on energy density estimations"};
 
       /** Property: save only requested corrections (trigger usage mainly) */
-      bool m_saveOnlyRequestedCorrections;
+      Gaudi::Property<bool> m_saveOnlyRequestedCorrections {this,
+	  "saveOnlyRequestedCorrections", false, 
+	  "save only requested corrections (trigger usage mainly)"};
 
       /** Property: exclude tile scintillator*/
-      bool m_ExcludeTG3;
+      Gaudi::Property<bool> m_ExcludeTG3 {this,
+	  "ExcludeTG3", true, "Exclude the TileGap3 cells"};
 
       /** Property: Name of the central topocluster energy-density container. */ 
-      std::string m_tpEDCentral;
+      SG::ReadHandleKey<EventShape> m_tpEDCentral {this,
+	  "TopoClusterEDCentralContainer", "TopoClusterIsoCentralEventShape", 
+	  "Name of TopoCluster ED Central"};
 
       /** Property: Name of the forward topocluster energy-density container. */ 
-      std::string m_tpEDForward;
+      SG::ReadHandleKey<EventShape> m_tpEDForward {this,
+	  "TopoClusterEDForwardContainer", "TopoClusterIsoForwardEventShape", 
+	  "Name of TopoCluster ED Forward"};
 
       //JB
       /** Property: Name of the forward topocluster energy-density container. */ 
-      std::string m_tpEDveryForward;
+      SG::ReadHandleKey<EventShape> m_tpEDveryForward {this,
+	  "TopoClusterEDveryForwardContainer", "TopoClusterIsoVeryForwardEventShape", 
+	  "Name of TopoCluster ED very Forward"};
 
       /** Property: Name of the central neutral energy flow energy-density container. */ 
-      std::string m_efEDCentral;
+      SG::ReadHandleKey<EventShape> m_efEDCentral {this,
+	  "EFlowEDCentralContainer", "NeutralParticleFlowIsoCentralEventShape", 
+	  "Name of energy flow ED Central"};
 
       /** Property: Name of the forward neutral energy flow energy-density container. */ 
-      std::string m_efEDForward;
+      SG::ReadHandleKey<EventShape> m_efEDForward {this,
+	  "EFlowEDForwardContainer", "NeutralParticleFlowIsoForwardEventShape", 
+	  "Name of energy flow ED Forward"};
 
       /** Property: The size of the coneCore core energy calculation. */
-      double m_coneCoreSizeEg;
-      double m_coneCoreSizeMu;
+      Gaudi::Property<double> m_coneCoreSizeEg {this,
+	  "coneCoreSizeEg", 0.1,  
+	  "size of the coneCore core energy correction for egamma objects"};
+
+      Gaudi::Property<double> m_coneCoreSizeMu {this,
+	  "coneCoreSizeMu", 0.05, 
+	  "size of the coneCore core energy correction for muons"};
 
       /** map to the orignal particle */
       std::map<const IParticle*, const IParticle*> m_derefMap;
 
       /** Property: Turn on/off the calo extension decoration. */
-      bool m_addCaloDeco;
+      // JM: set to false since I am not sure it's thread-safe
+      Gaudi::Property<bool> m_addCaloDeco {this,
+	  "addCaloExtensionDecoration", false, "Add the calo decorations"}; 
+      
 
 #ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
       bool particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& clusts ) const;

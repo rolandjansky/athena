@@ -154,8 +154,6 @@ private:
   /// The event store
   StoreGateSvc_t m_eventStore;
 
-  DataHandle<xAOD::CutBookkeeperContainer> m_completeBook;
-
   /// The name of the completed, i.e., fully processed, CutBookkeeperContainer
   std::string m_completeCollName;
 
@@ -170,9 +168,6 @@ private:
 
   /// The name of the currently used input file stream
   std::string m_inputStream;
-
-  /// A flag to say if the input file is currently open or not
-  //bool m_fileCurrentlyOpened;
 
   /// Declare a simple typedef for the internal map
   typedef MAP_NS::unordered_map<CutIdentifier, xAOD::CutBookkeeper*> CutIDMap_t;

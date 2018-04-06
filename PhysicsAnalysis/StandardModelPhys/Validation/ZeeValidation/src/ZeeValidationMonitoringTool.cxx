@@ -45,9 +45,9 @@ namespace ZeeValidation {
     m_TrueFwdElectronsPlots(0, "Zee/TrueFwdElectrons/", "True FWD Electrons"),
     m_ZeePlots(0, "Zee/Zee/", "Zee"),
     m_FWDZeePlots(0, "Zee/FWDZee/", "FWD Zee"),
-    drmin_elreco_truth(0), matchedE(false),
-    matched_electron(NULL),
-    drmin_phreco_truth(0), matchedP(false)
+    m_drmin_elreco_truth(0), m_matchedE(false),
+    m_matched_electron(NULL),
+    m_drmin_phreco_truth(0), m_matchedP(false)
   {
     declareProperty( "IsData", m_isData = false);
     declareProperty( "EventInfoContainerName", m_eventInfoName = "EventInfo");
@@ -249,7 +249,7 @@ namespace ZeeValidation {
 	    MatchElec(truth_part, electrons); // Matching to reconstructed electrons
 	    MatchPhot(truth_part, photons); // Matching to reconstructed photons
 	    
-	    if( matchedE && drmin_elreco_truth < m_dRminRecoTrue) { //if matched to reconstructed electron
+	    if( m_matchedE && m_drmin_elreco_truth < m_dRminRecoTrue) { //if matched to reconstructed electron
 	      m_TrueElectronsPlots.fill(truth_part, 1); //fill "associated" plots: if matched to electron or photon
 	      m_TrueElectronsPlots.fill(truth_part, 2); //fill "matched" plots: if matched to electron
 	      
@@ -260,13 +260,13 @@ namespace ZeeValidation {
 		}
 	      
 	      bool loose = false, medium = false, tight = false, lhloose = false, lhmedium = false, lhtight = false, oq = false;
-	      matched_electron -> passSelection(loose, "Loose"); 
-	      matched_electron -> passSelection(medium, "Medium");
-	      matched_electron -> passSelection(tight, "Tight");
-	      matched_electron -> passSelection(lhloose, "LHLoose"); 
-	      matched_electron -> passSelection(lhmedium, "LHMedium");
-	      matched_electron -> passSelection(lhtight, "LHTight");
-	      if ( matched_electron -> isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON) ) oq = true;
+	      m_matched_electron -> passSelection(loose, "Loose"); 
+	      m_matched_electron -> passSelection(medium, "Medium");
+	      m_matched_electron -> passSelection(tight, "Tight");
+	      m_matched_electron -> passSelection(lhloose, "LHLoose"); 
+	      m_matched_electron -> passSelection(lhmedium, "LHMedium");
+	      m_matched_electron -> passSelection(lhtight, "LHTight");
+	      if ( m_matched_electron -> isGoodOQ (xAOD::EgammaParameters::BADCLUSELECTRON) ) oq = true;
 	      
 	      if (oq) //fill if passed OQ cuts
 		m_TrueElectronsPlots.fill(truth_part, 3);
@@ -301,14 +301,14 @@ namespace ZeeValidation {
 	      }
 	      
 	      //fill plots for electron energy response
-	      m_TrueElectronsPlots.fillResponse( truth_part, matched_electron);
-	      const xAOD::CaloCluster* cluster = matched_electron -> caloCluster();
+	      m_TrueElectronsPlots.fillResponse( truth_part, m_matched_electron);
+	      const xAOD::CaloCluster* cluster = m_matched_electron -> caloCluster();
 	      if (cluster)
 		m_TrueElectronsPlots.fillResponseCluster( truth_part, cluster );
 	    }
 
-	    if (!(matchedE && drmin_elreco_truth < m_dRminRecoTrue) && drmin_phreco_truth < m_dRminRecoTrue){  //if matched to reconstructed photon
-	      m_TrueElectronsPlots.h_dr_photon -> Fill( drmin_phreco_truth );
+	    if (!(m_matchedE && m_drmin_elreco_truth < m_dRminRecoTrue) && m_drmin_phreco_truth < m_dRminRecoTrue){  //if matched to reconstructed photon
+	      m_TrueElectronsPlots.h_dr_photon -> Fill( m_drmin_phreco_truth );
 	      
 	      m_TrueElectronsPlots.fill(truth_part, 1); //fill "associated" plots: if matched to electron or photon
 	      if (inAcceptance)
@@ -332,12 +332,12 @@ namespace ZeeValidation {
 	  m_TrueFwdElectronsPlots.fill(truth_part, 0);
 	  
 	  MatchElec(truth_part, fwd_electrons);
-	  if (matchedE && drmin_elreco_truth < m_dRminRecoTrue){ //if matched to reconstructed electron
+	  if (m_matchedE && m_drmin_elreco_truth < m_dRminRecoTrue){ //if matched to reconstructed electron
 	    m_TrueFwdElectronsPlots.fill(truth_part, 1);
 	    
 	    bool loose = false, tight = false;
-	    matched_electron -> passSelection(loose, "Loose"); 
-	    matched_electron -> passSelection(tight, "Tight");
+	    m_matched_electron -> passSelection(loose, "Loose"); 
+	    m_matched_electron -> passSelection(tight, "Tight");
 	    
 	    if (loose) //fill if passed Loose++ cuts
 	      m_TrueFwdElectronsPlots.fill(truth_part, 2);
@@ -345,7 +345,7 @@ namespace ZeeValidation {
 	      m_TrueFwdElectronsPlots.fill(truth_part, 3);
 	    
 	    //fill plots for electron energy response
-	    m_TrueFwdElectronsPlots.fillResponse( truth_part, matched_electron);
+	    m_TrueFwdElectronsPlots.fillResponse( truth_part, m_matched_electron);
 	    
 	  }
 	}
@@ -712,17 +712,17 @@ namespace ZeeValidation {
   ///////////////Tool for matching between truth particles and reconstructed electrons/////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   void ZeeValidationMonitoringTool::MatchElec(const xAOD::TruthParticle* truth_electron, const xAOD::ElectronContainer* electrons){
-    drmin_elreco_truth = 9999.;
-    matched_electron = nullptr;
-    matchedE = false;
+    m_drmin_elreco_truth = 9999.;
+    m_matched_electron = nullptr;
+    m_matchedE = false;
 
     for (auto electron : *electrons){
       double dr_reco_truth = truth_electron -> p4().DeltaR(electron -> p4());
 
-      if (dr_reco_truth < drmin_elreco_truth){ 
-	drmin_elreco_truth = dr_reco_truth;
-	matched_electron = electron;
-	matchedE = true;
+      if (dr_reco_truth < m_drmin_elreco_truth){ 
+	m_drmin_elreco_truth = dr_reco_truth;
+	m_matched_electron = electron;
+	m_matchedE = true;
       }
     }
 
@@ -732,15 +732,15 @@ namespace ZeeValidation {
   ///////////////Tool for matching between truth particles and reconstructed photons///////////////////
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   void ZeeValidationMonitoringTool::MatchPhot(const xAOD::TruthParticle* truth_electron, const xAOD::PhotonContainer* photons){
-    drmin_phreco_truth = 9999.;
-    matchedP = false;
+    m_drmin_phreco_truth = 9999.;
+    m_matchedP = false;
 
     for (auto photon : *photons){
       double dr_reco_truth = truth_electron -> p4().DeltaR(photon -> p4());
 
-      if (dr_reco_truth < drmin_phreco_truth){ 
-	drmin_phreco_truth = dr_reco_truth;
-	matchedP = true;
+      if (dr_reco_truth < m_drmin_phreco_truth){ 
+	m_drmin_phreco_truth = dr_reco_truth;
+	m_matchedP = true;
       }
     }
    

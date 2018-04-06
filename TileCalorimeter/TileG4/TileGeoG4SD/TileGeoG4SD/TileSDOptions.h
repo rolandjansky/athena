@@ -20,7 +20,7 @@ struct TileSDOptions {
     : timeCut(350.5),
       tileTB(false),
       plateToCell(true),
-      Ushape(-1),
+      uShape(-1),
       doBirk(true),
       doTileRow(false),
       doTOFCorrection(true),
@@ -53,7 +53,7 @@ struct TileSDOptions {
   bool plateToCell; /// Not used anywhere?!
 
   /** Flag to enable simulation of light attenuation in tiles */
-  int Ushape; /// used in TileGeoG4SDCalc only
+  int uShape; /// used in TileGeoG4SDCalc only
 
   /** Flag to enable Birk's law */
   bool doBirk; /// used in TileGeoG4SDCalc only

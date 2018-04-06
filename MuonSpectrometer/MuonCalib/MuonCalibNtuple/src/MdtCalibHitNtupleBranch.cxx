@@ -14,69 +14,69 @@
 namespace MuonCalib {
 
   MdtCalibHitNtupleBranch::MdtCalibHitNtupleBranch(std::string branchName) : 
-    m_branchName(branchName), branchesInit(false), index(0) 
+    m_branchName(branchName), m_branchesInit(false), m_index(0) 
   {}
 
   bool MdtCalibHitNtupleBranch::fillBranch(const MdtCalibHitBase &hit, const int segmentIndex) {
     // check if branches where initialized
-    if( !branchesInit ) {
+    if( !m_branchesInit ) {
       //std::cout << "MdtCalibHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
 	//		<<  std::endl;
       return false;    
     }
 
     // check if index is out of range 
-    if( index >= m_blockSize || index < 0 ){
+    if( m_index >= m_blockSize || m_index < 0 ){
 //       //std::cout << "MdtCalibHitNtupleBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
 // 		<<  index << std::endl;
       return false;
     }
 
 //    //std::cout << "************************************************************************************" << std::endl;
-//    //std::cout << "index = " << index << " with segment " << segmentIndex << std::endl;
+//    //std::cout << "index = " << m_index << " with segment " << segmentIndex << std::endl;
 //    hit.dump(//std::cout) ;
 //    //std::cout << "************************************************************************************" << std::endl;
 
     // copy values 
-    segIndex[index]          = segmentIndex;
-    id[index]                = (hit.identify()).getIdInt();
-    tdc[index]               = hit.tdcCount();
-    adc[index]               = hit.adcCount();
-    t[index]                 = hit.driftTime();
-    r[index]                 = hit.driftRadius();  
-    dr[index]                = hit.sigmaDriftRadius(); 
-    rTrk[index]              = hit.signedDistanceToTrack();
-    drTrk[index]             = hit.sigmaDistanceToTrack();
-    resi[index]              = hit.radialResidual();
-    distRO[index]            = hit.distanceToReadout();
-    slewTime[index]          = hit.slewingTime();
-    lorTime[index]           = hit.bFieldTime();
-    propTime[index]          = hit.propagationTime();
-    tof[index]               = hit.timeOfFlight();
-    bFieldPerp[index]        = hit.bFieldPerp();
-    bFieldPara[index]        = hit.bFieldPara();
-    temperature[index]       = hit.temperature();
-    projSag[index]           = hit.projSag();
-    posX[index]              = hit.localPosition().x();
-    posY[index]              = hit.localPosition().y();
-    posZ[index]              = hit.localPosition().z();
-    gPosX[index]             = hit.globalPosition().x();
-    gPosY[index]             = hit.globalPosition().y();
-    gPosZ[index]             = hit.globalPosition().z();
-    closesApproachX [index]  = hit.localPointOfClosestApproach().x();
-    closesApproachY [index]  = hit.localPointOfClosestApproach().y();
-    closesApproachZ [index]  = hit.localPointOfClosestApproach().z();
-    gClosesApproachX [index] = hit.globalPointOfClosestApproach().x();
-    gClosesApproachY [index] = hit.globalPointOfClosestApproach().y();
-    gClosesApproachZ [index] = hit.globalPointOfClosestApproach().z();
-    tube_t0[index]           = hit.tubeT0();
-    tube_adccal[index]       = hit.tubeAdcCal();
-    temperature_time[index]  = hit.TemperatureTime();
-    wire_sag_time[index]     = hit.WiresagTime();
-    xtwin[index]             = hit.xtwin();
-    segment_t0_applied[index]= hit.segmentT0Applied();
+    m_segIndex[m_index]          = segmentIndex;
+    m_id[m_index]                = (hit.identify()).getIdInt();
+    m_tdc[m_index]               = hit.tdcCount();
+    m_adc[m_index]               = hit.adcCount();
+    m_t[m_index]                 = hit.driftTime();
+    m_r[m_index]                 = hit.driftRadius();  
+    m_dr[m_index]                = hit.sigmaDriftRadius(); 
+    m_rTrk[m_index]              = hit.signedDistanceToTrack();
+    m_drTrk[m_index]             = hit.sigmaDistanceToTrack();
+    m_resi[m_index]              = hit.radialResidual();
+    m_distRO[m_index]            = hit.distanceToReadout();
+    m_slewTime[m_index]          = hit.slewingTime();
+    m_lorTime[m_index]           = hit.bFieldTime();
+    m_propTime[m_index]          = hit.propagationTime();
+    m_tof[m_index]               = hit.timeOfFlight();
+    m_bFieldPerp[m_index]        = hit.bFieldPerp();
+    m_bFieldPara[m_index]        = hit.bFieldPara();
+    m_temperature[m_index]       = hit.temperature();
+    m_projSag[m_index]           = hit.projSag();
+    m_posX[m_index]              = hit.localPosition().x();
+    m_posY[m_index]              = hit.localPosition().y();
+    m_posZ[m_index]              = hit.localPosition().z();
+    m_gPosX[m_index]             = hit.globalPosition().x();
+    m_gPosY[m_index]             = hit.globalPosition().y();
+    m_gPosZ[m_index]             = hit.globalPosition().z();
+    m_closesApproachX [m_index]  = hit.localPointOfClosestApproach().x();
+    m_closesApproachY [m_index]  = hit.localPointOfClosestApproach().y();
+    m_closesApproachZ [m_index]  = hit.localPointOfClosestApproach().z();
+    m_gClosesApproachX [m_index] = hit.globalPointOfClosestApproach().x();
+    m_gClosesApproachY [m_index] = hit.globalPointOfClosestApproach().y();
+    m_gClosesApproachZ [m_index] = hit.globalPointOfClosestApproach().z();
+    m_tube_t0[m_index]           = hit.tubeT0();
+    m_tube_adccal[m_index]       = hit.tubeAdcCal();
+    m_temperature_time[m_index]  = hit.TemperatureTime();
+    m_wire_sag_time[m_index]     = hit.WiresagTime();
+    m_xtwin[m_index]             = hit.xtwin();
+    m_segment_t0_applied[m_index]= hit.segmentT0Applied();
     // increment hit index
-    ++index;
+    ++m_index;
   
     return true;
   }  //end MdtCalibHitNtupleBranch::fillBranch
@@ -95,51 +95,51 @@ namespace MuonCalib {
     std::string index_name ="nMdt";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "segIndex",         &segIndex,          array_size + "/I" );
-    branchCreator.createBranch( tree, "id",               &id,                array_size + "/I" );
-    branchCreator.createBranch( tree, "tdc",              &tdc,               array_size + "/I" );
-    branchCreator.createBranch( tree, "adc",              &adc,               array_size + "/I" );
-    branchCreator.createBranch( tree, "t",                &t,                 array_size + "/F" );
-    branchCreator.createBranch( tree, "r",                &r,                 array_size + "/F" );
-    branchCreator.createBranch( tree, "dr",               &dr,                array_size + "/F" );
-    branchCreator.createBranch( tree, "rTrk",             &rTrk,              array_size + "/F" );
-    branchCreator.createBranch( tree, "drTrk",            &drTrk,             array_size + "/F" );
-    branchCreator.createBranch( tree, "resi",             &resi,              array_size + "/F" );
-    branchCreator.createBranch( tree, "distRO",           &distRO,            array_size + "/F" );
-    branchCreator.createBranch( tree, "slewTime",         &slewTime,          array_size + "/F" );
-    branchCreator.createBranch( tree, "lorTime",          &lorTime,           array_size + "/F" );
-    branchCreator.createBranch( tree, "propTime",         &propTime,          array_size + "/F" );
-    branchCreator.createBranch( tree, "tof",              &tof,               array_size + "/F" );
-    branchCreator.createBranch( tree, "bFieldPerp",       &bFieldPerp,        array_size + "/F" );
-    branchCreator.createBranch( tree, "bFieldPara",       &bFieldPara,        array_size + "/F" );
-    branchCreator.createBranch( tree, "temperature",      &temperature,       array_size + "/F" );
-    branchCreator.createBranch( tree, "projSag",          &projSag,           array_size + "/F" );
-    branchCreator.createBranch( tree, "posX",             &posX,              array_size + "/F" );
-    branchCreator.createBranch( tree, "posY",             &posY,              array_size + "/F" );
-    branchCreator.createBranch( tree, "posZ",             &posZ,              array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",            &gPosX,             array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",            &gPosY,             array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",            &gPosZ,             array_size + "/F" );
-    branchCreator.createBranch( tree, "closesApproachX",  &closesApproachX,   array_size + "/F" );
-    branchCreator.createBranch( tree, "closesApproachY",  &closesApproachY,   array_size + "/F" );
-    branchCreator.createBranch( tree, "closesApproachZ",  &closesApproachZ,   array_size + "/F" );
-    branchCreator.createBranch( tree, "gClosesApproachX", &gClosesApproachX,  array_size + "/F" );
-    branchCreator.createBranch( tree, "gClosesApproachY", &gClosesApproachY,  array_size + "/F" );
-    branchCreator.createBranch( tree, "gClosesApproachZ", &gClosesApproachZ,  array_size + "/F" );
-    branchCreator.createBranch( tree, "temperature_time", &temperature_time,  array_size + "/F" );
-    branchCreator.createBranch( tree, "wire_sag_time",    &wire_sag_time,     array_size + "/F" );
-    branchCreator.createBranch( tree, "tube_t0",          &tube_t0,           array_size + "/F" );
-    branchCreator.createBranch( tree, "tube_adccal",      &tube_adccal,       array_size + "/F" );
-    branchCreator.createBranch( tree, "xtwin",            &xtwin,             array_size + "/F" );
-    branchCreator.createBranch( tree, "segmentT0Applied", &segment_t0_applied,array_size + "/O" );
+    branchCreator.createBranch( tree, "segIndex",         &m_segIndex,          array_size + "/I" );
+    branchCreator.createBranch( tree, "id",               &m_id,                array_size + "/I" );
+    branchCreator.createBranch( tree, "tdc",              &m_tdc,               array_size + "/I" );
+    branchCreator.createBranch( tree, "adc",              &m_adc,               array_size + "/I" );
+    branchCreator.createBranch( tree, "t",                &m_t,                 array_size + "/F" );
+    branchCreator.createBranch( tree, "r",                &m_r,                 array_size + "/F" );
+    branchCreator.createBranch( tree, "dr",               &m_dr,                array_size + "/F" );
+    branchCreator.createBranch( tree, "rTrk",             &m_rTrk,              array_size + "/F" );
+    branchCreator.createBranch( tree, "drTrk",            &m_drTrk,             array_size + "/F" );
+    branchCreator.createBranch( tree, "resi",             &m_resi,              array_size + "/F" );
+    branchCreator.createBranch( tree, "distRO",           &m_distRO,            array_size + "/F" );
+    branchCreator.createBranch( tree, "slewTime",         &m_slewTime,          array_size + "/F" );
+    branchCreator.createBranch( tree, "lorTime",          &m_lorTime,           array_size + "/F" );
+    branchCreator.createBranch( tree, "propTime",         &m_propTime,          array_size + "/F" );
+    branchCreator.createBranch( tree, "tof",              &m_tof,               array_size + "/F" );
+    branchCreator.createBranch( tree, "bFieldPerp",       &m_bFieldPerp,        array_size + "/F" );
+    branchCreator.createBranch( tree, "bFieldPara",       &m_bFieldPara,        array_size + "/F" );
+    branchCreator.createBranch( tree, "temperature",      &m_temperature,       array_size + "/F" );
+    branchCreator.createBranch( tree, "projSag",          &m_projSag,           array_size + "/F" );
+    branchCreator.createBranch( tree, "posX",             &m_posX,              array_size + "/F" );
+    branchCreator.createBranch( tree, "posY",             &m_posY,              array_size + "/F" );
+    branchCreator.createBranch( tree, "posZ",             &m_posZ,              array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",            &m_gPosX,             array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",            &m_gPosY,             array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",            &m_gPosZ,             array_size + "/F" );
+    branchCreator.createBranch( tree, "closesApproachX",  &m_closesApproachX,   array_size + "/F" );
+    branchCreator.createBranch( tree, "closesApproachY",  &m_closesApproachY,   array_size + "/F" );
+    branchCreator.createBranch( tree, "closesApproachZ",  &m_closesApproachZ,   array_size + "/F" );
+    branchCreator.createBranch( tree, "gClosesApproachX", &m_gClosesApproachX,  array_size + "/F" );
+    branchCreator.createBranch( tree, "gClosesApproachY", &m_gClosesApproachY,  array_size + "/F" );
+    branchCreator.createBranch( tree, "gClosesApproachZ", &m_gClosesApproachZ,  array_size + "/F" );
+    branchCreator.createBranch( tree, "temperature_time", &m_temperature_time,  array_size + "/F" );
+    branchCreator.createBranch( tree, "wire_sag_time",    &m_wire_sag_time,     array_size + "/F" );
+    branchCreator.createBranch( tree, "tube_t0",          &m_tube_t0,           array_size + "/F" );
+    branchCreator.createBranch( tree, "tube_adccal",      &m_tube_adccal,       array_size + "/F" );
+    branchCreator.createBranch( tree, "xtwin",            &m_xtwin,             array_size + "/F" );
+    branchCreator.createBranch( tree, "segmentT0Applied", &m_segment_t0_applied,array_size + "/O" );
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();

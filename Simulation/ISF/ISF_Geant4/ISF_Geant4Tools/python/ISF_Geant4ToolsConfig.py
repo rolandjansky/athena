@@ -10,9 +10,6 @@ def getMCTruthUserActionTool(name='ISFMCTruthUserActionTool', **kwargs):
     from ISF_Geant4Tools.ISF_Geant4ToolsConf import G4UA__iGeant4__MCTruthUserActionTool
     return G4UA__iGeant4__MCTruthUserActionTool(name, **kwargs)
 
-def addMCTruthUserActionTool(name="ISFMCTruthUserActionTool",system=False):
-    from G4AtlasServices import G4AtlasServicesConfig
-    G4AtlasServicesConfig.addAction(name,['General'],system)
 
 ## -----------------------------------------------------------------------------
 ### Base Version
@@ -69,12 +66,6 @@ def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserAction
     kwargs.setdefault('PassBackEkinThreshold'              , 0.05*MeV                   )
     kwargs.setdefault('KillBoundaryParticlesBelowThreshold', True                       )
     return getPassBackG4TrackProcessorUserActionTool(name, **kwargs)
-
-# all track processors need the same roles
-
-def addTrackProcessorTool(name,system=False):
-    from G4AtlasServices import G4AtlasServicesConfig
-    G4AtlasServicesConfig.addAction(name,['General'],system)
 
 ## -----------------------------------------------------------------------------
 ### Base Version

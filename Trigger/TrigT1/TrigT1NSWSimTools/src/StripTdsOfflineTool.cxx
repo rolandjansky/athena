@@ -481,7 +481,7 @@ namespace NSWL1 {
 
 
 	  bool read_strip=false;
-	  bool _tmp=false;
+	  bool tmp=false;
 	  for( auto p : padTriggers){
 	    //	    if(p->sectorId()!=stationPhi)
 	    //  {
@@ -493,9 +493,9 @@ namespace NSWL1 {
 	      ATH_MSG_DEBUG(" ReadStrip Trigger Candidate in different side " << p->sideId() << "  " <<strip->sideId() );
 	      continue;
 	    }
-	    _tmp=readStrip(p->bandId(),strip,p->m_pad_strip_info); //this readStrip is the function
-	    if( _tmp and read_strip) ATH_MSG_DEBUG("Multiple pad trigger candidate in a single wedge for strip "<<read_strip );
-	    read_strip=read_strip || _tmp;
+	    tmp=readStrip(p->bandId(),strip,p->m_pad_strip_info); //this readStrip is the function
+	    if( tmp and read_strip) ATH_MSG_DEBUG("Multiple pad trigger candidate in a single wedge for strip "<<read_strip );
+	    read_strip=read_strip || tmp;
 	  }
 
 	  if (read_strip && strip->bandId() ==-1){

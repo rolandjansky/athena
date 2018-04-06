@@ -127,7 +127,7 @@ StatusCode  MuonTagTool::initialize() {
     }
     if (m_etconeisocutvalues.size() > 2) {
       ATH_MSG_FATAL ("More than to Etcone values are not permitted");
-      return StatusCode::FAILURE;
+      return StatusCode::FAILURE; 
     }
     if (m_ptconeisorelcutvalues.size() > 2) {
       ATH_MSG_FATAL ("More than to PtconeRel values are not permitted");
@@ -138,7 +138,15 @@ StatusCode  MuonTagTool::initialize() {
       return StatusCode::FAILURE;
     }
   }
-
+  else {
+    m_loose_trackonly_isolation.disable();
+    m_loose_isolation.disable();
+    m_tight_isolation.disable();
+    m_gradient_loose_isolation.disable();
+    m_gradient_isolation.disable();
+    m_fixedcut_tight_trackonly_isolation.disable();
+    m_fixedcut_loose_isolation.disable();
+  }
   return StatusCode::SUCCESS;
 }
 

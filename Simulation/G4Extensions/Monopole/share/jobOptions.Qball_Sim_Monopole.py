@@ -55,9 +55,9 @@ simFlags.EquationOfMotion = "MonopoleEquationOfMotion"
 ## #simFlags.G4Commands += ['/tracking/verbose 1']
 
 simFlags.G4Stepper = 'ClassicalRK4'
-simFlags.OptionalUserActionList.addAction('G4UA::HIPKillerTool', ['Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::HIPKillerTool')
 
-#simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
+#simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool')
 
 ## Populate alg sequence
 from AthenaCommon.AlgSequence import AlgSequence

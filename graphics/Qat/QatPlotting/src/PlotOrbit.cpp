@@ -35,17 +35,17 @@
 PlotOrbit::PlotOrbit(const Genfun::AbsFunction & functionX,
 		     const Genfun::AbsFunction & functionY,
 		     double t0, double t1):
-  Plotable(),c(new Clockwork())
+  Plotable(),m_c(new Clockwork())
 {
-  c->functionX=functionX.clone();
-  c->functionY=functionY.clone();
-  c->t0=t0;
-  c->t1=t1;
+  m_c->functionX=functionX.clone();
+  m_c->functionY=functionY.clone();
+  m_c->t0=t0;
+  m_c->t1=t1;
 }
 
 // Copy constructor:
 PlotOrbit::PlotOrbit(const PlotOrbit & source):
-  Plotable(),c(new Clockwork(*(source.c)))
+  Plotable(),m_c(new Clockwork(*(source.m_c)))
 {
   
 
@@ -55,7 +55,7 @@ PlotOrbit::PlotOrbit(const PlotOrbit & source):
 PlotOrbit & PlotOrbit::operator=(const PlotOrbit & source){
   if (&source!=this) {
     Plotable::operator=(source);
-    c.reset(new Clockwork(*(source.c)));
+    m_c.reset(new Clockwork(*(source.m_c)));
   }
   return *this;
 } 
@@ -64,21 +64,21 @@ PlotOrbit & PlotOrbit::operator=(const PlotOrbit & source){
 #include <iostream>
 // Destructor
 PlotOrbit::~PlotOrbit(){
-  //delete c;
+  //delete m_c;
 }
 
 
 
 const QRectF  PlotOrbit::rectHint() const {
   static const int NSTEPS=500;// Synch to value in describeYourself();
-  double interval = (c->t1-c->t0);
+  double interval = (m_c->t1-m_c->t0);
   double d=interval/NSTEPS;
   double minX=1E100,maxX=-minX, minY=minX, maxY=maxX;
 
   for (int i=0;i<NSTEPS;i++) {
-    double t = c->t0 + i*d;
-    double x= (*c->functionX)(t);
-    double y= (*c->functionY)(t);
+    double t = m_c->t0 + i*d;
+    double x= (*m_c->functionX)(t);
+    double y= (*m_c->functionY)(t);
     minX=std::min(minX,x);
     maxX=std::max(maxX,x);
     minY=std::min(minY,y);
@@ -89,12 +89,12 @@ const QRectF  PlotOrbit::rectHint() const {
   minY-=iY/10.0;
   maxX+=iX/10.0;
   maxY+=iY/10.0;
-  c->rect.setLeft(minX);
-  c->rect.setRight(maxX);
-  c->rect.setTop(minY);
-  c->rect.setBottom(maxY);
+  m_c->rect.setLeft(minX);
+  m_c->rect.setRight(maxX);
+  m_c->rect.setTop(minY);
+  m_c->rect.setBottom(maxY);
 
-  return c->rect;
+  return m_c->rect;
 }
 
 
@@ -108,8 +108,8 @@ void PlotOrbit::describeYourselfTo(AbsPlotter *plotter) const {
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
   {  
-    unsigned int dimX = c->functionX->dimensionality();
-    unsigned int dimY = c->functionY->dimensionality();
+    unsigned int dimX = m_c->functionX->dimensionality();
+    unsigned int dimY = m_c->functionY->dimensionality();
     if (dimX!=1|| dimY!=1) throw std::runtime_error("PlotOrbit:  requires two functions of exactly 1 argument");
   }
   double minX=plotter->rect()->left(), maxX=plotter->rect()->right(); 
@@ -117,7 +117,7 @@ void PlotOrbit::describeYourselfTo(AbsPlotter *plotter) const {
  
 
   int NPOINTS = 500; // Synch to value in rectHint();
-  double interval = (c->t1-c->t0);
+  double interval = (m_c->t1-m_c->t0);
   double d=interval/NPOINTS;
 
   const LinToLog *toLogX= plotter->isLogX() ? new LinToLog (plotter->rect()->left(),plotter->rect()->right()) : NULL;
@@ -131,12 +131,12 @@ void PlotOrbit::describeYourselfTo(AbsPlotter *plotter) const {
     bool                empty=true;
     for (int i=0; i<NPOINTS+1;i++) {
       bool                closePath=false;
-      double t = c->t0 + d*i;
-      double x = (*c->functionX)(t);
-      double y = (*c->functionY)(t);
+      double t = m_c->t0 + d*i;
+      double x = (*m_c->functionX)(t);
+      double y = (*m_c->functionY)(t);
       {  
 	
-	//double y = (*c->function) (x);
+	//double y = (*m_c->function) (x);
 	QPointF point(x,y);
 	if (y < maxY && y > minY && x < maxX && x > minX) { // IN RANGE
 	  if (!path) path = new QPainterPath();
@@ -208,15 +208,15 @@ void PlotOrbit::describeYourselfTo(AbsPlotter *plotter) const {
 
 
 const PlotOrbit::Properties PlotOrbit::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotOrbit::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties=new Properties(properties);
+  delete m_c->myProperties;
+  m_c->myProperties=new Properties(properties);
 }
 
 void PlotOrbit::resetProperties() {
-  delete c->myProperties;
-  c->myProperties=nullptr;
+  delete m_c->myProperties;
+  m_c->myProperties=nullptr;
 }

@@ -1,5 +1,5 @@
-#ifndef _LabelEditorDialog_h_
-#define _LabelEditorDialog_h_
+#ifndef QATPLOTWIDGETS_LABELEDITORDIALOG_H
+#define QATPLOTWIDGETS_LABELEDITORDIALOG_H
 #include "QatPlotWidgets/characterwidget.h"
 #include <QScrollArea>
 #include <QDialog>
@@ -36,7 +36,7 @@ class LabelEditorDialog: public QDialog
  private:
 
      class Clockwork;
-     Clockwork *c;
+     Clockwork *m_c;
 
 
  };

@@ -21,6 +21,13 @@
 #include <cassert>
 #include <memory>
 
+#ifndef XAOD_STANDALONE
+#include "AthLinks/ElementLink.h"
+#include "SGTools/TestStore.h"
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF (std::vector<int*>, 28374627, 0)
+#endif
+
 
 template <class T>
 T makeT1(int x, T*) { return T(x); }
@@ -108,7 +115,7 @@ void test_vector1()
   assert (ptr2[0] == makeT<T>());
   assert (ptr2[1] == makeT<T>(11));
 
-  SG::IAuxTypeVector* v3 = v->clone();
+  std::unique_ptr<SG::IAuxTypeVector> v3 = v->clone();
   assert (v3->size() == v->size());
   T* ptr3 = reinterpret_cast<T*> (v3->toPtr());
   for (size_t i = 0; i < v->size(); i++)
@@ -128,7 +135,6 @@ void test_vector1()
 
   delete v;
   delete v2;
-  delete v3;
 }
 
 
@@ -347,7 +353,7 @@ void test3()
   assert (iptr[0] == 1);
   assert (iptr[1] == 2);
 
-  SG::IAuxTypeVector* v2 = v1.toPacked();
+  std::unique_ptr<SG::IAuxTypeVector> v2 = v1.toPacked();
   assert (v2 != 0);
   assert (ptr == v2->toPtr());
   assert (v2->size() == 2);
@@ -370,10 +376,56 @@ void test3()
 }
 
 
+// testing copyForOutput.
+void test4()
+{
+  std::cout << "test4\n";
+
+#ifndef XAOD_STANDALONE
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
+
+  typedef ElementLink<std::vector<int*> > EL;
+  EL elv[10];
+  elv[1] = EL (123, 10);
+
+  SG::AuxTypeVector<EL> ve1 (10, 20);
+  SG::AuxTypeVector<std::vector<EL> > ve2 (10, 20);
+
+  ve1.copyForOutput (elv, 2, elv, 1);
+  assert (elv[2].key() == 123);
+  assert (elv[2].index() == 10);
+
+  std::vector<EL> velv[10];
+  velv[1].push_back (EL (123, 5));
+  velv[1].push_back (EL (123, 6));
+  ve2.copyForOutput (velv, 2, velv, 1);
+  assert (velv[2][0].key() == 123);
+  assert (velv[2][0].index() == 5);
+  assert (velv[2][1].key() == 123);
+  assert (velv[2][1].index() == 6);
+
+  store->remap (123, 456, 10, 20);
+
+  ve1.copyForOutput (elv, 5, elv, 1);
+  assert (elv[5].key() == 456);
+  assert (elv[5].index() == 20);
+
+  store->remap (123, 456, 6, 12);
+  ve2.copyForOutput (velv, 5, velv, 1);
+  assert (velv[5][0].key() == 123);
+  assert (velv[5][0].index() == 5);
+  assert (velv[5][1].key() == 456);
+  assert (velv[5][1].index() == 12);
+#endif
+}
+
+
 int main()
 {
+  std::cout << "AuxTypeVector_test\n";
   test1();
   test2();
   test3();
+  test4();
   return 0;
 }

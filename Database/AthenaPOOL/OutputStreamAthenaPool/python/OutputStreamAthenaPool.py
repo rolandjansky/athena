@@ -9,12 +9,11 @@
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaServices.AthenaServicesConf import AthenaOutputStream
-from OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
 
 def createOutputStream( streamName, fileName = "", asAlg = False, noTag = True ):
    # define athena output stream
-   writingTool = AthenaPoolOutputStreamTool( streamName + "Tool" )
-   writingTool.DataHeaderSatellites = [ "basic/:EventInfo#*" ]
+   writingTool = AthenaOutputStreamTool( streamName + "Tool" )
    outputStream = AthenaOutputStream(
       streamName,
       WritingTool = writingTool,

@@ -58,8 +58,8 @@
 //                                                              //
 //--------------------------------------------------------------//
 
-#ifndef _Tuple_h_
-#define _Tuple_h_
+#ifndef QATDATAANALYSIS_TUPLE_H
+#define QATDATAANALYSIS_TUPLE_H
 #include "QatDataAnalysis/RCSBase.h"
 #include "CLHEP/GenericFunctions/AbsFunction.hh"
 #include "QatDataAnalysis/AttributeListConstLink.h"
@@ -81,13 +81,13 @@ class Tuple:public RCSBase {
   Tuple(AttributeListConstLink, const ValueList &);
 
   // Access to the attributeList (where header info lives).:
-  AttributeListConstLink attributeList() const {return _attributeList;}
+  AttributeListConstLink attributeList() const {return m_attributeList;}
 
   // Print method:
   std::ostream & print (std::ostream & o= std::cout) const;
 
   // Check status of last operation:
-  operator bool () const { return _status;}
+  operator bool () const { return m_status;}
 
   // Read in an integer:
   inline const Tuple & read   (int    & i, unsigned int pos) const;
@@ -127,14 +127,14 @@ class Tuple:public RCSBase {
   Tuple & operator=(const Tuple & tuple);
 
 
-  AttributeListConstLink     _attributeList;
-  mutable ValueList         _valList;
+  AttributeListConstLink     m_attributeList;
+  mutable ValueList         m_valList;
   //Maybe:
   //IOAddress                 *_io;
 
-  mutable bool              _status;
-  mutable Genfun::Argument *_doubleRep;
-  mutable bool              _doubleRepStale;
+  mutable bool              m_status;
+  mutable Genfun::Argument *m_doubleRep;
+  mutable bool              m_doubleRepStale;
 
 };
 

@@ -8,8 +8,6 @@
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
 
 using namespace std;
@@ -28,7 +26,7 @@ namespace CP
 
   StatusCode TightTrackVertexAssociationTool::initialize()
   {
-    //    dz_cut=2;
+    ATH_CHECK( m_vertexKey.initialize() );
     return StatusCode::SUCCESS;
   }
 
@@ -236,8 +234,8 @@ namespace CP
     {
       if(vx.vertexType()!=xAOD::VxType::NoVtx )
       {
-
-        if(trk.vertex()==&vx) // check whether the track is used for the given vertex fit.
+	bool usedInFit = trackParticleUsedInVertexFit( trk, vx );
+        if( usedInFit ) // check whether the track is used for the given vertex fit.
         {
           ATH_MSG_DEBUG("This track is used to fit the vertex");
 
@@ -249,7 +247,8 @@ namespace CP
           return UsedInFit;
         }
 
-        if(trk.vertex()==0) // track is not used for any vertex fit
+	bool usedInAnyFit = trackParticleUsedInVertexFit( trk );
+        if( !usedInAnyFit ) // track is not used for any vertex fit
         {
           // tracks not used in fitting process
           float trk_z0=trk.z0();
@@ -337,6 +336,29 @@ namespace CP
 
   }
 
+  bool TightTrackVertexAssociationTool::trackParticleUsedInVertexFit(const xAOD::TrackParticle& trk,
+							       const xAOD::Vertex& vx) const
+  {
+    for (const auto& tpLink : vx.trackParticleLinks())
+      if (*tpLink == &trk) return true;
+
+    return false;
+  }
+
+  bool TightTrackVertexAssociationTool::trackParticleUsedInVertexFit(const xAOD::TrackParticle& trk) const
+  {
+    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+    if (!vertices.isValid())
+    {
+      ATH_MSG_WARNING("No VertexContainer with key = " << m_vertexKey.key());
+      return false;
+    }
+
+    for (const auto& vx : *vertices)
+      if (trackParticleUsedInVertexFit(trk, *vx)) return true;
+
+    return false;
+  }
 
 
 }

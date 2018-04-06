@@ -61,7 +61,7 @@ private:
   VolumeHandleSharedData & operator= (const VolumeHandleSharedData & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   //For inlines:
   VP1GeoTreeView * m_volumebrowser;

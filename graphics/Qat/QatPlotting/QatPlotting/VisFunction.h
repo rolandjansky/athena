@@ -24,8 +24,8 @@
 // *-----------------------------------------------------------------*/
 // * A base class for functions to be visualized in the presenter    */
 // * ----------------------------------------------------------------*/
-#ifndef VisFunction_h_
-#define VisFunction_h_
+#ifndef QATPLOTTING_VISFUNCTION_H
+#define QATPLOTTING_VISFUNCTION_H
 class Plotable;
 #include <QtCore/QRectF>
 #include <map>
@@ -82,7 +82,7 @@ public:
 
   // Internals:
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 #endif

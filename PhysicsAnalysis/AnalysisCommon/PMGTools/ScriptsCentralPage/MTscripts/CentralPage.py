@@ -11,12 +11,10 @@ import Queue
 import threading
 
 import SimpleFunctions
-import StatusFiles
 import StatusFilesMT
 import DefineTags
-import GetAmiInfo
-import MakeInputTables
 import MakeInputTablesMT
+import MetaDataMT
 
 import logging
 log = logging.getLogger("myCentralPageLogger")
@@ -26,7 +24,7 @@ class CentralPageMaker(object):
     # This class handles the core work behind the central page: reading from
     # AMI, dumping the information in StatusFiles and writing the twikis
 
-    def __init__(self, mcProd, dsidSet, mainFolder):
+    def __init__(self, mcProd, dsidSet, mainFolder, skipMeta, skipStatus, skipTwiki):
         # Init of CentralPageMaker. The data members are mainly the target
         # folders and dataset lists. Can be streamlined in the future.
 
@@ -37,13 +35,24 @@ class CentralPageMaker(object):
 
         self.mainFolder = mainFolder
         SimpleFunctions.MakeFolder(self.mainFolder)
-        self.twikiFolder = mainFolder+"/AllSampleInfo/twikiPages/"
+
+        self.skipMeta = skipMeta
+        self.skipStatus = skipStatus
+        self.skipTwiki = skipTwiki
+
+        # The various folder paths should be streamlined
+        self.twikiFolder = mainFolder+"/AllSampleInfo_"+self.mcProd+"/twikiPages/"
         SimpleFunctions.MakeFolder(self.twikiFolder)
 
         self.inputLists = glob.glob(mainFolder+"/InputInformation/ExtraInfo_*")
 
-        summaryFolder = mainFolder+"/AllSampleInfo/SummaryInfo/"
+        summaryFolder = mainFolder+"/AllSampleInfo_"+self.mcProd+"/SummaryInfo/"
         SimpleFunctions.MakeFolder(summaryFolder)
+
+        self.allSampleInfoFolder = self.mainFolder+"/AllSampleInfo_"+self.mcProd+"/"
+
+        self.metaFolder = self.mainFolder+"/AllSampleInfo_"+self.mcProd+"/Metadata/"
+        SimpleFunctions.MakeFolder(self.metaFolder)
 
         self.listEVNTfile = summaryFolder+"ListEVNT_"+mcProd+"."+dsidSet+".txt"
         self.listAODfile = summaryFolder+"ListAOD_"+mcProd+"."+dsidSet+".txt"
@@ -61,38 +70,48 @@ class CentralPageMaker(object):
 
         self.folderList = []
 
+        self.query_fields = "dataset_number,ldn,crossSection,genFiltEff,kFactor,crossSectionRef,events,processGroup,physics_comment,ecm_energy,generator_tune,production_step,prodsys_status,generator_name,type,events,ami_status,beam,pdf,atlas_release,modified,project,ami_tags,physics_short"
+
         self.client = pyAMI.client.Client('atlas')
         pyAMI.atlas.api.init()
 
     def run(self):
 
-        log.info('==> Retrieving AMI container info ... ')
+        if not os.path.exists(self.reducedListfile):
+            log.info('==> Retrieving AMI container info ... ')
+            self.getAmiArrays()
 
-        self.getAmiArrays()
+            log.info('==> Retrieving DSID list ... ')
+            self.fullDSIDList = self.GetDSIDs(self.arrayEVNT)
+            log.debug('Total number of DSIDs: %d', len(self.fullDSIDList))
 
-        log.info('==> Retrieving DSID list ... ')
+            log.info('==> Computing reduced DSID list ... ')
+            self.computeReducedList()
+        else:
+            self.reducedList = SimpleFunctions.GetArraysFromTxt(self.reducedListfile)
 
-        self.fullDSIDList = self.GetDSIDs(self.arrayAOD)
-        log.debug('Total number of DSIDs: %d', len(self.fullDSIDList))
+        log.info('Number of datasets to process: %d', len(self.reducedList))
 
-        log.info('==> Computing reduced DSID list ... ')
+        if not self.skipMeta:
+            log.info('==> Storing Metadata ... ')
+            self.storeMetadataMT()
+        else:
+            log.info('==> Skipping Metadata ... ')
 
-        self.computeReducedList()
-        fullDSIDInfo = self.GetFullList(self.inputLists, self.fullDSIDList)
-        self.fullDSIDInfoEVNT = self.MatchEVNT(fullDSIDInfo, self.reducedList)
-        log.info('Number of DSIDs to process: %d', len(self.fullDSIDInfoEVNT))
+        if not self.skipStatus:
+            log.info('==> Generating Status files ... ')
+            self.generateStatusFilesMT()
+        else:
+            log.info('==> Skipping Status file creation ... ')
 
-        log.info('==> Generating Status files ... ')
-
-        self.generateStatusFilesMT()
-
-        log.info('==> Generating Twiki files ... ')
-
-        self.folderList = glob.glob(self.mainFolder+"/AllSampleInfo/DSID_"+self.dsidSet+"*/")
-        self.generateTwikiFilesMT()
+        if not self.skipTwiki:
+            log.info('==> Generating Twiki files ... ')
+            self.folderList = glob.glob(self.mainFolder+"/AllSampleInfo_"+self.mcProd+"/DSID_"+self.dsidSet[:3]+"*/")
+            self.generateTwikiFilesMT()
+        else:
+            log.info('==> Skipping twiki generation ... ')
 
         log.info('==> Merging Twiki files ... ')
-
         self.mergeTwikiFiles()
 
         return
@@ -129,33 +148,65 @@ class CentralPageMaker(object):
 
     def computeReducedList(self):
 
-        if not os.path.exists(self.reducedListfile):
+        for DSID in self.fullDSIDList:
 
-            for DSID in self.fullDSIDList:
+            newFolder = self.mainFolder+"/AllSampleInfo_"+self.mcProd+"/DSID_"+str(DSID[0:3])+"XXX/"
+            subFolder = newFolder+str(DSID)
 
-                newFolder = self.mainFolder+"/AllSampleInfo/DSID_"+str(DSID[0:3])+"XXX/"
-                subFolder = newFolder+str(DSID)
+            SimpleFunctions.MakeFolder(newFolder)
+            SimpleFunctions.MakeFolder(subFolder)
 
-                SimpleFunctions.MakeFolder(newFolder)
-                SimpleFunctions.MakeFolder(subFolder)
+            # now make list with all relevant derivations
+            derivFileName = subFolder+"/List_Derivations.txt"
+            listDeriv = SimpleFunctions.GetAllFilesWithStrings(self.arrayDAOD, [DSID])
+            # print ListDeriv
+            SimpleFunctions.WriteListToTxt(listDeriv, derivFileName)
 
-                # now make list with all relevant derivations
-                derivFileName = subFolder+"/List_Derivations.txt"
-                listDeriv = SimpleFunctions.GetAllFilesWithStrings(self.arrayDAOD, [DSID])
-                # print ListDeriv
-                SimpleFunctions.WriteListToTxt(listDeriv, derivFileName)
+            # now get all EVNT files and the latest etag
+            listEVNT = SimpleFunctions.GetAllFilesWithStrings(self.arrayEVNT, [DSID])
 
-                # now get all EVNT files and the latest etag
-                listEVNT = SimpleFunctions.GetAllFilesWithStrings(self.arrayEVNT, [DSID])
+            for entry in listEVNT:
+                dataset = entry
+                self.reducedList.append(dataset)
 
-                for entry in listEVNT:
-                    dataset = entry
-                    self.reducedList.append(dataset)
+        SimpleFunctions.WriteListToTxt(self.reducedList, self.reducedListfile)
 
-            SimpleFunctions.WriteListToTxt(self.reducedList, self.reducedListfile)
+        return
 
-        else:
-            self.reducedList = SimpleFunctions.GetArraysFromTxt(self.reducedListfile)
+    def storeMetadataMT(self):
+
+        workQueue = Queue.Queue(0)  # 0 equals infinity
+
+        # Create new threads
+        num_worker_threads = 10
+        for i in range(num_worker_threads):
+            thread = MetaDataMT.StoreMetaData(i, workQueue)
+            thread.daemon = True
+            thread.start()
+
+        n = 100  # size of metadata chunks
+
+        # Fill the queue
+        for i in range(0, len(self.reducedList), n):
+            inputArray = []
+            reducedArray = self.reducedList[i:i+n]
+
+            for j in range(0, len(reducedArray)):
+                inputArray.append(reducedArray[j])
+
+            inputList = ','.join(inputArray)
+            outFile_meta = self.metaFolder+"Metadata_chunk_"+str(i)+"_"+str(i+n)+".txt"
+
+            entry = []
+            entry.append(inputList)
+            entry.append(outFile_meta)
+            entry.append(self.query_fields)
+
+            workQueue.put(entry)
+
+        # Wait for all threads to complete
+        workQueue.join()
+        log.debug('Exiting MT Metadata retrieval')
 
         return
 
@@ -168,22 +219,35 @@ class CentralPageMaker(object):
         # Create new threads
         num_worker_threads = 100
         for i in range(num_worker_threads):
-            thread = StatusFilesMT.myStatusFileMT(i, workQueue, keywordArray, self.twikiFolder, self.mainFolder)
+            thread = StatusFilesMT.myStatusFileMT(i, workQueue, keywordArray, self.twikiFolder, self.allSampleInfoFolder)
             thread.daemon = True
             thread.start()
 
         # Fill the queue
-        for entry in self.fullDSIDInfoEVNT:
+        listMetaDataFiles = glob.glob(self.metaFolder+"Metadata_chunk_*.txt")
 
-            if len(entry) == 1:
-                if entry[0] != '\n':
-                    log.error('ERROR: entry has length '+str(len(entry)))
-                    log.error('Entry: ', entry)
+        allMetaInfo = []
+        key_names = self.query_fields.split(',')
+
+        log.debug('Key Names: %s', str(key_names))
+
+        for metaDataFile in listMetaDataFiles:
+            fInFile = open(metaDataFile, 'r')
+            fInputLines = fInFile.readlines()
+            fInFile.close()
+
+            for entry in fInputLines:
+                line = entry.replace("\n", "")
+
+                if line.startswith("data"):
                     continue
-                else:
+                if line.startswith("#") and not line.startswith("#UNKNOWN"):
+                    continue
+                if line == "":
                     continue
 
-            workQueue.put(entry)
+                dictionary = dict(zip(key_names, line.split(";;;")))
+                workQueue.put(dictionary)
 
         # Wait for all threads to complete
         workQueue.join()
@@ -198,11 +262,13 @@ class CentralPageMaker(object):
         # Create new threads
         num_worker_threads = 10
         for i in range(num_worker_threads):
-            thread = MakeInputTablesMT.InputTablesMT(i, twikiQueue, self.twikiFolder, self.listEVNTfile, self.listAODfile, self.listDAODfile)
+            thread = MakeInputTablesMT.InputTablesMT(i, twikiQueue, self.twikiFolder, self.listEVNTfile, self.listAODfile, self.listDAODfile, self.mcProd)
             thread.daemon = True
             thread.start()
 
         # Fill the queue
+        log.debug('Filling MT Twiki queue with %d entries', len(self.folderList))
+
         for helpFolder in self.folderList:
             subFolderList = glob.glob(helpFolder+"/*")
             for subFolder in subFolderList:
@@ -252,63 +318,9 @@ class CentralPageMaker(object):
         prefix = self.mcProd+"."
         for array in Array:
             sample = array[0]
-            DSID = sample[len(prefix)+0:len(prefix)+6]
+            DSID = sample.split(".")[1]
 
-            inList = False
-            for entry in DSIDList:
-                if str(entry) == str(DSID):
-                    inList = True
-            if not inList:
+            if DSID not in DSIDList:
                 DSIDList.append(DSID)
 
         return DSIDList
-
-    def GetFullList(self, inputLists, fDSIDList):
-
-        fullDSIDList = []
-        for List in inputLists:
-            fInFile = open(List, 'r')
-            fInputLines = fInFile.readlines()
-            fInFile.close()
-            for line in fInputLines:
-                array = line.split(",")
-                fullDSIDList.append(array)
-
-        for entry in fDSIDList:
-            entry = entry.replace("\n", "")
-            inList = False
-            for entry2 in fullDSIDList:
-                if str(entry) == str(entry2[0]):
-                    inList = True
-            if not inList:
-                HelpList = [entry, "", "", "", "", "", "", "", ""]
-                fullDSIDList.append(HelpList)
-
-        return fullDSIDList
-
-    def MatchEVNT(self, fullDSIDInfo, reducedList):
-        newArray = []
-
-        for dsidInfo in fullDSIDInfo:
-            helpArray = dsidInfo
-
-            if not len(helpArray) == 9 and not len(helpArray) == 1:
-                log.error('Wrong helpArray length (%d)!!!!', len(helpArray))
-
-            # loop over all EVNT files
-            for entry in reducedList:
-
-                newHelpArray = []
-
-                if helpArray[0] in entry:
-
-                    if len(helpArray) < 9:
-                        continue
-
-                    for i in range(0, 9):
-                        newHelpArray.append(helpArray[i])
-
-                    newHelpArray.append(entry)
-                    newArray.append(newHelpArray)
-
-        return newArray

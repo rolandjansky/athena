@@ -14,14 +14,11 @@ decription           : Implementation code for GsfExtrapolator class
 #include "TrkGaussianSumFilter/GsfExtrapolator.h"
 
 #include "TrkGaussianSumFilter/IMaterialMixtureConvolution.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkExInterfaces/INavigator.h"
 
-#include "TrkExInterfaces/IMultipleScatteringUpdator.h"
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
 
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -51,9 +48,6 @@ Trk::GsfExtrapolator::GsfExtrapolator(const std::string& type, const std::string
   m_navigator("Trk::Navigator/Navigator"),
   m_materialUpdator("Trk::GsfMaterialMixtureConvolution/GsfMaterialMixtureConvolution"),
   m_merger("Trk::CloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger"),
-  m_stateCombiner("Trk::MultiComponentStateCombiner/GsfExtrapolatorCombiner"),
-  m_msupdators("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"),
-  m_elossupdators("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator"),
   m_surfaceBasedMaterialEffects(false),
   m_recall(false),
   m_recallSurface(0),

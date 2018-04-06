@@ -12,8 +12,9 @@
 #include "StoreGate/StoreGateSvc.h"
 
 #include "InDetIdentifier/PixelID.h"
-#include "PixelGeoModel/IBLParameterSvc.h"
 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 
 #include <iostream>
 
@@ -25,19 +26,17 @@ PixelByteStreamErrorsSvc::PixelByteStreamErrorsSvc( const std::string& name,
   m_pixel_id(0),
   m_storeGate("StoreGateSvc",name),
   m_detStore("DetectorStore",name),
-  m_IBLParameterSvc("IBLParameterSvc",name),
   m_module_errors(0),
   m_moduleROD_errors(0),
   m_event_read(0),
   m_FE_errors(0),
   m_module_isread(0),
-  m_ibl_is_present(true),
-  m_dbm_is_present(true),
   m_ServiceRecords(),
   m_max_hashes(0),
   m_readESD(false)
 { 
-  declareProperty("ReadingESD",m_readESD,"Get summary of BS errors from StoreGate, if available"); 
+  declareProperty("ReadingESD",     m_readESD,"Get summary of BS errors from StoreGate, if available"); 
+  declareProperty("BSErrContainer", m_BSErrContainerKey=std::string("PixelByteStreamErrs"));
   resetCounts();
 }
 
@@ -54,6 +53,8 @@ StatusCode PixelByteStreamErrorsSvc::initialize() {
   // Pixel ID
   CHECK(m_detStore->retrieve(m_pixel_id,"PixelID"));
 
+  ATH_CHECK(m_BSErrContainerKey.initialize());
+
   m_max_hashes = m_pixel_id->wafer_hash_max();
 
   m_module_errors = (unsigned int*) calloc(m_max_hashes, sizeof(unsigned int));
@@ -69,12 +70,6 @@ StatusCode PixelByteStreamErrorsSvc::initialize() {
   if (service("IncidentSvc",incsvc).isSuccess()) {
     incsvc->addListener( this, "BeginEvent", priority);
   }
-
-  // Get IBLParameterSvc
-  CHECK(m_IBLParameterSvc.retrieve());
-  // Check if IBL is present or not
-  m_ibl_is_present = m_IBLParameterSvc->containsIBL();
-  m_dbm_is_present = m_IBLParameterSvc->containsDBM();
 
   resetCounts();
   resetPixelCounts();
@@ -154,18 +149,20 @@ StatusCode PixelByteStreamErrorsSvc::finalize() {
 
 void PixelByteStreamErrorsSvc::handle(const Incident&) {
   reset();
-  if ( m_readESD && m_storeGate->contains<InDetBSErrContainer>("PixelByteStreamErrs") ) {
+
+  if (m_readESD && m_storeGate->contains<InDetBSErrContainer>(m_BSErrContainerKey.key())) {
     if (readData().isFailure()) {
       ATH_MSG_ERROR("PixelByteStreamErrs container is registered in SG, but cannot be retrieved");
     }
-  } else if ( !m_readESD ) {
+  } 
+  else if (!m_readESD) {
     recordData();
   }
   return;
 }
 
 StatusCode PixelByteStreamErrorsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if ( IID_IPixelByteStreamErrorsSvc == riid ) {
+  if (IPixelByteStreamErrorsSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface =  dynamic_cast<IPixelByteStreamErrorsSvc*>(this);
   } else {
     return AthService::queryInterface(riid, ppvInterface);
@@ -194,7 +191,7 @@ PixelByteStreamErrorsSvc::isGood(const Identifier & elementId, InDetConditions::
 bool PixelByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
   Identifier dehashedId = m_pixel_id->wafer_id(elementIdHash);
 
-  if (m_ibl_is_present || m_dbm_is_present) {
+  if (m_pixel_id->wafer_hash_max()==2048) {   // RUN-2 setup
     // If module is IBL of DBM, return isActive
     if ((m_pixel_id->barrel_ec(dehashedId) == 0 && m_pixel_id->layer_disk(dehashedId) == 0)
         || m_pixel_id->is_dbm(dehashedId)) {
@@ -295,13 +292,13 @@ void PixelByteStreamErrorsSvc::reset(){
 
 // retrieve the data from Storegate: for one event, one entry per module with errors
 StatusCode PixelByteStreamErrorsSvc::readData() {
-  StatusCode sc(StatusCode::SUCCESS);  
-  const InDetBSErrContainer* errCont = nullptr;
-  sc = m_storeGate->retrieve(errCont,"PixelByteStreamErrs");
-  if (sc.isFailure() ){
+
+  SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContainerKey);
+  if (!errCont.isValid()) {
     ATH_MSG_ERROR("Failed to retrieve BS error container from SG");
-    return sc;
+    return StatusCode::FAILURE;
   }
+
   for (const auto* elt : *errCont) {
     IdentifierHash myHash=elt->first;
     if ( myHash<m_max_hashes )
@@ -318,11 +315,13 @@ StatusCode PixelByteStreamErrorsSvc::readData() {
   for (unsigned int i=0; i<m_max_hashes; i++) {
     if ( m_module_isread[i] ) m_event_read[i]++;
   }
-  return sc;
+
+  return StatusCode::SUCCESS;
 }
 
 // record the data to Storegate: for one event, one entry per module with errors
 StatusCode PixelByteStreamErrorsSvc::recordData() {
+
   InDetBSErrContainer* cont = new InDetBSErrContainer();
   StatusCode sc = m_storeGate->overwrite(cont,"PixelByteStreamErrs");
   if (sc.isFailure() ){

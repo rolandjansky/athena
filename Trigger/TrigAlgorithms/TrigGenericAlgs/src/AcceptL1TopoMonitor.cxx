@@ -23,7 +23,6 @@
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
-#include "GaudiKernel/ThreadGaudi.h"
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 //#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
@@ -302,7 +301,7 @@ bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHist
 bool AcceptL1TopoMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge)
 {
     // booking path
-    std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+    std::string path = std::string("/EXPERT/")+name()+"/";
     ATH_MSG_VERBOSE( "Booking monitoring histogram "<<hName );
     hist = new TH1F(hName.c_str(), hTitle.c_str(), bins, lowEdge, highEdge);
     if (hist) {

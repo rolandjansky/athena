@@ -19,6 +19,7 @@ TrackTruthSimilaritySelector::TrackTruthSimilaritySelector(const std::string &na
 StatusCode TrackTruthSimilaritySelector::initialize()
 {
   ATH_MSG_INFO ("TrackTruthSimilaritySelector::initialize(), output " << m_out.name());
+  ATH_CHECK( m_matchTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 

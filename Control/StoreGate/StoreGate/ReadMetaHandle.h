@@ -7,6 +7,7 @@
 
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/MetaCont.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 
 #include "StoreGate/VarHandleBase.h"
 #include "StoreGate/ReadHandle.h"
@@ -42,7 +43,7 @@ namespace SG {
     // retrieve <T> for current SID in data header
     const_pointer_type retrieve();
     // retrieve <T> for specified SID
-    const_pointer_type retrieve( const MetaContBase::SourceID& t);
+    const_pointer_type retrieve( const SG::SourceID& t);
 
     const_pointer_type  operator->()  { return  retrieve(); }
     const_pointer_type  operator*()   { return  retrieve(); }   
@@ -55,7 +56,7 @@ namespace SG {
     bool initMetaHandle();
         
     // current SID
-    MetaContBase::SourceID m_sid;
+    SG::SourceID m_sid;
     // pinter to container
     MetaCont<T>*  m_cont {nullptr};
     // pointer to object in container for current SID
@@ -79,12 +80,12 @@ namespace SG {
   ReadMetaHandle<T>::ReadMetaHandle(const SG::ReadMetaHandleKey<T>& key,
                                     const EventContext& ctx):
     SG::VarHandleBase( key, &ctx ),
-    m_sid( "" ),
+    m_sid( ctx.getExtension<Atlas::ExtendedEventContext>()->proxy()->sourceID() ),
     m_cont( key.getContainer() ),
     m_hkey(key)
   {
+    MsgStream msg(Athena::getMessageSvc(), "ReadMetaHandle");
     if (! m_hkey.isInit()) {
-      MsgStream msg(Athena::getMessageSvc(), "ReadMetaHandle");
       msg << MSG::ERROR 
           << "ReadMetaHandleKey " << key.objKey() << " was not initialized"
           << endmsg;
@@ -149,7 +150,7 @@ namespace SG {
 
   template <typename T>
   const T*
-  ReadMetaHandle<T>::retrieve(const MetaContBase::SourceID& sid) 
+  ReadMetaHandle<T>::retrieve(const SG::SourceID& sid) 
   {
     if (sid == m_sid) {
       return retrieve();

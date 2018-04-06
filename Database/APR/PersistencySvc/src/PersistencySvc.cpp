@@ -9,11 +9,12 @@
 #include "UserSession.h"
 #include "UserDatabase.h"
 #include "DatabaseHandler.h"
-#include "PersistentDataModel/Token.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/DatabaseSpecification.h"
 #include "PersistencySvc/ITransaction.h"
+#include "FileCatalog/IFileCatalog.h"
 
+#include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/Placement.h"
 
 pool::PersistencySvc::PersistencySvc::PersistencySvc( pool::IFileCatalog& fileCatalog ):
@@ -25,6 +26,7 @@ pool::PersistencySvc::PersistencySvc::~PersistencySvc()
   delete m_session; m_session = 0;
 }
 
+/*
 void
 pool::PersistencySvc::PersistencySvc::setFileCatalog( pool::IFileCatalog& catalog )
 {
@@ -36,6 +38,7 @@ pool::PersistencySvc::PersistencySvc::fileCatalog()
 {
   return m_session->fileCatalog();
 }
+*/
 
 void*
 pool::PersistencySvc::PersistencySvc::readObject( const Token& token, void* object )
@@ -72,63 +75,14 @@ pool::PersistencySvc::PersistencySvc::registerForWrite( const Placement& place,
                    m_session->registry(),
                    place.fileName(),
                    pool::DatabaseSpecification::PFN );
-  pool::IDatabase::OpenMode openMode = db.openMode();
-  switch ( openMode ) {
-  case pool::IDatabase::CLOSED:
+  if ( db.openMode() == pool::IDatabase::CLOSED ) {
     db.setTechnology( place.technology() );
     db.connectForWrite();
-    break;
-  case pool::IDatabase::READ:
-    db.revertMode( pool::IDatabase::UPDATE );
-    break;
-  default:
-    break;
-  };
+  }
   return db.databaseHandler().writeObject( place.containerName(),
                                            place.technology(),
                                            object,
                                            type );
-}
-
-bool
-pool::PersistencySvc::PersistencySvc::destroyObject( const Token& token )
-{
-  if ( ! m_session->transaction().isActive() ||
-       m_session->transaction().type() != pool::ITransaction::UPDATE ) return false;
-  UserDatabase db( m_session->technologyDispatcher(),
-                   m_session->defaultConnectionPolicy(),
-                   m_session->fileCatalog(),
-                   m_session->transaction(),
-                   m_session->registry(),
-                   token.dbID().toString(),
-                   pool::DatabaseSpecification::FID );
-  pool::DatabaseConnectionPolicy policy; // Keep the default behaviour.
-  pool::IDatabase::OpenMode openMode = db.openMode();
-  switch ( openMode ) {
-  case pool::IDatabase::CLOSED:
-    db.setTechnology( token.technology() );
-    db.connectForWrite( policy );
-    break;
-  case pool::IDatabase::READ:
-    db.revertMode( pool::IDatabase::UPDATE );
-    break;
-  default:
-    break;
-  };
-  return db.databaseHandler().destroyObject( token );
-}
-
-std::string
-pool::PersistencySvc::PersistencySvc::getContName( const Token& token )
-{
-    UserDatabase db( m_session->technologyDispatcher(),
-                     m_session->defaultConnectionPolicy(),
-                     m_session->fileCatalog(),
-                     m_session->transaction(),
-                     m_session->registry(),
-                     token.dbID().toString(),
-                     pool::DatabaseSpecification::FID );
-    return db.databaseHandler().getContName( token );
 }
 
 pool::ISession&

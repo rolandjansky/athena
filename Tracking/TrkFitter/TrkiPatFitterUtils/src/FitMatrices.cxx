@@ -23,29 +23,23 @@
 //  (c) ATLAS tracking software
 //////////////////////////////////////////////////////////////////////////////
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include <iomanip>
 #include <iostream>
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "TrkAlgebraUtils/AlSpaMat.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkiPatFitterUtils/FitMatrices.h"
 #include "TrkiPatFitterUtils/FitMatrix.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 #include "TrkiPatFitterUtils/FitParameters.h"
 
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-
 namespace Trk{
     
-FitMatrices::FitMatrices(bool constrainedAlignmentEffects, bool eigenMatrixTreatment)
+FitMatrices::FitMatrices(bool constrainedAlignmentEffects)
     :	m_columnsDM			(0),
 	m_constrainedAlignmentEffects	(constrainedAlignmentEffects),
 	m_covariance			(0),
 	m_derivativeMatrix		(0),
-	m_eigen				(eigenMatrixTreatment),
 	m_finalCovariance		(0),
 	m_largePhiWeight		(10000.),	// arbitrary - equiv to 10um
 	m_matrixFromCLHEP		(false),
@@ -73,8 +67,6 @@ FitMatrices::~FitMatrices(void)
     delete m_weight;
     delete m_weightedDifference;
 }
-
-//<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 void
 FitMatrices::checkPointers (MsgStream& log) const
@@ -154,36 +146,19 @@ FitMatrices::fullCovariance (void)
     // avoid singularity through ill-defined momentum   ???? again
     avoidMomentumSingularity();
 	
-    if (m_eigen)
+    // neater - but gives small rounding-like diffs wrt matrix copy version
+    // keep matrix copy for release 21 to avoid rounding changes at Tier0
+    // covariance = (*m_weight).inverse();
+
+    // matrix copy version (legacy of ***REMOVED*** which needed copy between matrix packages)
+    Amg::MatrixX weight(m_columnsDM,m_columnsDM);
+    weight.selfadjointView<0x2>();
+    weight	= (*m_weight).inverse();
+    for (int row = 0; row != m_columnsDM; ++row)
     {
-	// neater - but gives small rounding-like diffs wrt matrix copy version
-	// keep matrix copy for release 21 to avoid rounding changes at Tier0
-	// covariance = (*m_weight).inverse();
-
-	// matrix copy version (legacy of ***REMOVED*** which needed copy between matrix packages)
-	Amg::MatrixX weight(m_columnsDM,m_columnsDM);
-	weight.selfadjointView<0x2>();
-	weight	= (*m_weight).inverse();
-	for (int row = 0; row != m_columnsDM; ++row)
-	{
-	    for (int col = 0; col != m_columnsDM; ++col)	covariance(row,col) = weight(col,row);
-	}
+	for (int col = 0; col != m_columnsDM; ++col)	covariance(row,col) = weight(col,row);
     }
-    else
-    {   
-	// copy to AlSymMat for inversion
-	AlSymMat weight(m_columnsDM);
-	for (int i = 0; i != m_columnsDM; ++i)
-	{
-	    for (int j = 0; j <= i; ++j)		weight[i][j] = (*m_weight)(i,j);
-	}
-	failure = weight.invert();
-	for (int i = 0; i != m_columnsDM; ++i)
-	{
-	    for (int j = 0; j != m_columnsDM; ++j)	covariance(j,i) = weight[i][j];
-	}
-    } 
-
+	
     // trap singular matrix
     if (failure)
     {
@@ -249,7 +224,7 @@ FitMatrices::printDerivativeMatrix (void)
     int firstCol	= 0;
     int lastCol		= 0;
     if (! m_measurements)		return;
-    std::list<FitMeasurement*>::iterator m = m_measurements->begin();
+    std::vector<FitMeasurement*>::iterator m = m_measurements->begin();
     std::vector<FitMeasurement*> alignmentfm;
     FitMeasurement* fm	= *m;
     bool singleRow	= true;
@@ -398,8 +373,8 @@ FitMatrices::releaseMemory (void)
 }
     
 int
-FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
-			    FitParameters*		parameters)
+FitMatrices::setDimensions (std::vector<FitMeasurement*>&	measurements,
+			    FitParameters*		        parameters)
 {
     // keep pointer for debug purposes
     m_measurements		= &measurements;
@@ -426,7 +401,7 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
  
     // keep first row with measurements up to each number of parameters
     m_firstRowForParameter	= std::vector<int>(numberParameters,-1);
-    std::list<FitMeasurement*>::iterator m = measurements.begin();
+    std::vector<FitMeasurement*>::iterator m = measurements.begin();
     if ((**m).isVertex())
     {
 	haveVertex			= true;
@@ -723,15 +698,20 @@ FitMatrices::solveEquations(void)
     // avoid some possible singularities in matrix inversion
     avoidMomentumSingularity();
   
-    // use eigen or ***REMOVED*** methods
-    if (m_eigen)
-    {
-    	return solveEquationsEigen();
-    }
-    else
-    {
-       return solveEquations***REMOVED***();
-    }
+    // solve is faster than inverse: wait for explicit request for covariance before inversion
+    *m_weightedDifference = weight.colPivHouseholderQr().solve(weightedDifference);
+    
+    // bool failure = (weight*(*m_weightedDifference) -  weightedDifference).isZero(1e-4);
+    // if (failure)
+    // {
+    //     std::cout << " Eigen failed " << std::endl;
+    // 	return false;
+    // }
+    // else
+    // {
+	m_parameters->update(*m_weightedDifference);
+	return true;
+    // }
 }
 
 void
@@ -747,7 +727,6 @@ FitMatrices::usePerigee (const FitMeasurement& measurement)
 }
 
 
-//<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 
 void
 FitMatrices::addPerigeeMeasurement (void)
@@ -787,60 +766,6 @@ FitMatrices::avoidMomentumSingularity(void)
 	    weight(4,i)	=  0.;
 	}
 	weight(4,4)	+= 1./Gaudi::Units::TeV;
-    }
-}
-
-bool
-FitMatrices::solveEquationsEigen(void)
-{
-    // solve is faster than inverse: wait for explicit request for covariance before inversion
-    Amg::MatrixX& weight		= *m_weight;
-    Amg::VectorX& weightedDifference	= *m_weightedDifference;
-    *m_weightedDifference = weight.colPivHouseholderQr().solve(weightedDifference);
-    
-    // bool failure = (weight*(*m_weightedDifference) -  weightedDifference).isZero(1e-4);
-    // if (failure)
-    // {
-    //     std::cout << " Eigen failed " << std::endl;
-    // 	return false;
-    // }
-    // else
-    // {
-	m_parameters->update(*m_weightedDifference);
-	return true;
-    // }
-}
-
-bool
-FitMatrices::solveEquations***REMOVED***(void)
-{
-    // using alignment matrix package
-    // with copy from eigen weightMatrix
-    Amg::MatrixX& weight		= *m_weight;
-    Amg::VectorX& weightedDifference	= *m_weightedDifference;
-    AlSpaMat weight***REMOVED***(m_columnsDM);
-    AlVec weightedDifference***REMOVED***(m_columnsDM);
-    for (int row = 0; row < m_columnsDM; ++row)
-    {
-	for (int col = 0; col < m_columnsDM; ++col)
-	{
-	    weight***REMOVED***[row][col] = weight(row,col);
-	}
-	weightedDifference***REMOVED***[row] = weightedDifference(row);
-    }
-
-    // solve is faster than inverse: wait for explicit request for covariance before inversion
-    int failure		= weight***REMOVED***.***REMOVED***Solve(weightedDifference***REMOVED***);
-    
-    // trap singular matrix
-    if (failure)
-    {
-	return false;
-    }
-    else
-    {
-	m_parameters->update(weightedDifference***REMOVED***);
-	return true;
     }
 }
 

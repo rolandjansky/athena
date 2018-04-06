@@ -239,8 +239,8 @@ ToolSvc += TRTCalFitTool
 print      TRTCalFitTool
 
 
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-TRTCondStream=AthenaPoolOutputStreamTool(name="CondStream1",OutputFile="trtcalibout.pool.root")
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+TRTCondStream=AthenaOutputStreamTool(name="CondStream1",OutputFile="trtcalibout.pool.root")
 
 ToolSvc += TRTCondStream
 print TRTCondStream

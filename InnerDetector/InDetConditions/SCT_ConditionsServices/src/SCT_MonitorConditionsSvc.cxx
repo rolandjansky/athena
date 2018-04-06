@@ -14,20 +14,14 @@
 
 #include "SCT_MonitorConditionsSvc.h"
 
-#include "SCT_SlhcIdConverter.h"
-
-#include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "StoreGate/ReadCondHandle.h"
-
-#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <iterator>
 #include <istream>
 
 using std::string;
-using SCT_ConditionsServices::castId;
 
 namespace {
   bool doesNotHaveNumbers(const std::string& numberString) {
@@ -38,7 +32,6 @@ namespace {
 /////////////////////////////////////////////////////////////////////////////
 
 string SCT_MonitorConditionsSvc::s_separator{string("-")};
-string SCT_MonitorConditionsSvc::s_defectFolderName{string("/SCT/Derived/Monitoring")};
 
 SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc(const std::string& name,ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
@@ -46,9 +39,7 @@ SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc(const std::string& name,ISvcL
   m_nhits_noisychip{64},
   m_nhits_noisywafer{384},
   m_nhits_noisymodule{768},
-  m_filled{false},
   m_pHelper{nullptr},
-  m_currentDefectList{""},
   m_mutex{},
   m_cache{},
   m_condData{},
@@ -58,11 +49,6 @@ SCT_MonitorConditionsSvc::SCT_MonitorConditionsSvc(const std::string& name,ISvcL
   declareProperty("Nnoisywafer",   m_nhits_noisywafer);
   declareProperty("Nnoisycmodule", m_nhits_noisymodule);
 }
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
-SCT_MonitorConditionsSvc::~SCT_MonitorConditionsSvc()
-{}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -159,7 +145,7 @@ SCT_MonitorConditionsSvc::fillData() {
 bool
 SCT_MonitorConditionsSvc::filled() const {
   //code
-  return m_filled;
+  return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -220,16 +206,16 @@ SCT_MonitorConditionsSvc::badStripsAsString(const Identifier& moduleId) {
 
 std::string
 SCT_MonitorConditionsSvc::getList(const Identifier& imodule) const {
-  m_currentDefectList = "";
+  string currentDefectList = "";
   int channelNumber{static_cast<int>(imodule.get_identifier32().get_compact())};
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MonitorConditionsCondData* condData{getCondData(ctx)};
   if (condData) {
-    condData->find(channelNumber, m_currentDefectList);
+    condData->find(channelNumber, currentDefectList);
   } else {
     ATH_MSG_ERROR("In getList - no data");
   }
-  return m_currentDefectList;
+  return currentDefectList;
 
 }
 

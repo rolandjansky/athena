@@ -76,27 +76,27 @@ class PlotPoint::Clockwork {
 
 
 //copy c'tor
-PlotPoint::PlotPoint (const PlotPoint & other):Plotable(),c(new Clockwork(*(other.c))){
+PlotPoint::PlotPoint (const PlotPoint & other):Plotable(),m_c(new Clockwork(*(other.m_c))){
   
 }
 
 PlotPoint & PlotPoint::operator=(const PlotPoint & other) {
   if (&other!=this) {
    Plotable::operator=(other);
-   c.reset(new Clockwork(*(other.c)));
+   m_c.reset(new Clockwork(*(other.m_c)));
   }
   return *this;
 }
 
 // Constructor
 PlotPoint::PlotPoint(double x, double y)
-  :Plotable(),c(new Clockwork())
+  :Plotable(),m_c(new Clockwork())
 
 {
-  c->x=x;
-  c->y=y;
+  m_c->x=x;
+  m_c->y=y;
   
-  c->nRectangle=QRectF(c->x-1E-10, c->y-1E-10, 2E-10, 2E-10);
+  m_c->nRectangle=QRectF(m_c->x-1E-10, m_c->y-1E-10, 2E-10, 2E-10);
 
 }
 
@@ -104,13 +104,13 @@ PlotPoint::PlotPoint(double x, double y)
 
 // Destructor
 PlotPoint::~PlotPoint(){
-  //delete c;
+  //delete m_c;
 }
 
 
 // Get the "natural maximum R"
 const QRectF  PlotPoint::rectHint() const {
-  return c->nRectangle;
+  return m_c->nRectangle;
 }
 
 
@@ -121,8 +121,8 @@ void PlotPoint::describeYourselfTo(AbsPlotter *plotter) const{
   LinToLog *toLogX= plotter->isLogX() ? new LinToLog (plotter->rect()->left(),plotter->rect()->right()) : NULL;
   LinToLog *toLogY= plotter->isLogY() ? new LinToLog (plotter->rect()->top(),plotter->rect()->bottom()) : NULL;
 
-  double x=c->x;
-  double y=c->y;
+  double x=m_c->x;
+  double y=m_c->y;
 
   QPen pen =properties().pen;
   QBrush brush=properties().brush;
@@ -180,16 +180,16 @@ void PlotPoint::describeYourselfTo(AbsPlotter *plotter) const{
 }
 
 const PlotPoint::Properties  PlotPoint::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotPoint::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties=new Properties(properties);
+  delete m_c->myProperties;
+  m_c->myProperties=new Properties(properties);
 }
 
 void PlotPoint::resetProperties() {
-  delete c->myProperties;
-  c->myProperties=nullptr;
+  delete m_c->myProperties;
+  m_c->myProperties=nullptr;
 }
 

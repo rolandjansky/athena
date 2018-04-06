@@ -59,14 +59,8 @@ InDetVKalPriVxFinderTool::InDetVKalPriVxFinderTool(const std::string& type,
  
     m_NPVertexMax(100),
 
-    m_fitSvc("Trk::TrkVKalVrtFitter",this),
+    m_iBeamCondSvc("BeamCondSvc",name)
 
-    m_sumSvc("Trk::TrackSummaryTool/AtlasTrackSummaryTool"),
-
-    m_iBeamCondSvc("BeamCondSvc",name),
-    
-    m_trkSelector("DefaultTrackSelection")
-    
     {
         declareInterface<IVertexFinder>(this);
         declareProperty("BeamPositionX",  m_BeamPositionX);

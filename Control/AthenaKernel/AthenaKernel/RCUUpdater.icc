@@ -6,7 +6,7 @@
  * @file AthenaKernel/RCUUpdater.icc
  * @author scott snyder <snyder@bnl.gov>
  * @date Nov, 2017
- * @brief xxx
+ * @brief Implementation of Updater for RCUSvc.
  */
 
 
@@ -23,7 +23,7 @@ namespace Athena {
 template <class T>
 template <typename... Args>
 RCUUpdater<T>::RCUUpdater (IRCUSvc& rcusvc, Args&&... args)
-  : m_obj (rcusvc.newrcu<T> (std::forward<Args>(args)...))
+  : m_obj (rcusvc, std::forward<Args>(args)...)
 {
 }
 
@@ -39,7 +39,7 @@ RCUUpdater<T>::RCUUpdater (IRCUSvc& rcusvc, Args&&... args)
 template <class T>
 void RCUUpdater<T>::update (std::unique_ptr<T> p, const Context_t& ctx)
 {
-  m_obj->updater(ctx).update (std::move (p));
+  m_obj.updater(ctx).update (std::move (p));
 }
 
 
@@ -50,7 +50,7 @@ template <class T>
 inline
 const T& RCUUpdater<T>::get() const
 {
-  return *m_obj->reader();
+  return *m_obj.reader();
 }
 
 
@@ -60,7 +60,7 @@ const T& RCUUpdater<T>::get() const
 template <class T>
 void RCUUpdater<T>::quiescent (const Context_t& ctx)
 {
-  m_obj->quiescent (ctx);
+  m_obj.quiescent (ctx);
 }
 
 

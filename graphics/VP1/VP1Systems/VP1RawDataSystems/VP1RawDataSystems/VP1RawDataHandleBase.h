@@ -65,7 +65,7 @@ protected:
 
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
   //Here for inlining:
   VP1RawDataCollBase * m_coll;
   bool m_visible;

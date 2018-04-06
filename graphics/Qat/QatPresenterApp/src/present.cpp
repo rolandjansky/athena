@@ -7,16 +7,16 @@
 #include <cstdlib>
 int main(int argc, char ** argv) {
 
-  char * _cmtpath=getenv("CMTPATH");
-  char * _cmtconfig=getenv("CMTCONFIG");
+  char * cmtpath_env=getenv("CMTPATH");
+  char * cmtconfig_env=getenv("CMTCONFIG");
 
-  std::string cmtpath   = _cmtpath   ? _cmtpath:  "";
-  std::string cmtconfig = _cmtconfig ? _cmtconfig:"";
+  std::string cmtpath   = cmtpath_env   ? cmtpath_env:  "";
+  std::string cmtconfig = cmtconfig_env ? cmtconfig_env:"";
   
 
   QApplication app(argc,argv);
 
-  if (_cmtpath && _cmtconfig) {
+  if (cmtpath_env && cmtconfig_env) {
     int begin=0;
     while (1) {
       int end=cmtpath.find(":",begin);

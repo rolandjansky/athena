@@ -1,5 +1,5 @@
-#ifndef _PlotDirDialog_h_
-#define _PlotDirDialog_h_
+#ifndef QATPLOTWIDGETS_PLOTDIRDIALOG_H
+#define QATPLOTWIDGETS_PLOTDIRDIALOG_H
 class PlotHist1D;
 class PlotHist2D;
 #include <QtGui/QDialog>
@@ -42,7 +42,7 @@ class PlotDirDialog: public QDialog {
  private:
 
   class Clockwork;
-  Clockwork *c; 
+  Clockwork *m_c;
 
 }; 
 

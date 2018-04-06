@@ -25,6 +25,9 @@ extern "C" {
 // Local include(s):
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
+
 namespace xAOD {
 
    /// Class describing combined muon reconstructed in the LVL2 trigger
@@ -61,7 +64,13 @@ namespace xAOD {
       typedef TLorentzVector FourMom_t;
 
       /// The full 4-momentum of the particle
-      virtual const FourMom_t& p4() const;
+      virtual FourMom_t      p4() const;
+
+      /// Base 4 Momentum type for trig muons
+      typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
+
+      ///  The full 4-momentum of the particle : internal trig muon type.
+      GenVecFourMom_t genvecP4() const; 
 
       /// The type of the object as a simple enumeration
       virtual Type::ObjectType type() const;
@@ -123,12 +132,6 @@ namespace xAOD {
       const xAOD::L2StandAloneMuon* muSATrack() const;
 
       /// @}
-
-   private:
-      /// Cached 4-momentum of the muon
-      mutable FourMom_t m_p4;
-      /// Cached state of the internal 4-momentum object
-      mutable bool m_p4Cached;
 
    }; // class L2CombinedMuon_v1
 

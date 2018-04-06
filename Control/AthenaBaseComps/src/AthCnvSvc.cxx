@@ -13,8 +13,6 @@
 
 // Framework includes
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/SvcFactory.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/IConverter.h"
@@ -345,7 +343,7 @@ AthCnvSvc::addConverter(const CLID& clid)
     }
     pConverter->release();
   }
-  return NO_CONVERTER;
+  return Status::NO_CONVERTER;
 }
 
 /// Add converter object to conversion service.
@@ -359,7 +357,7 @@ AthCnvSvc::addConverter(IConverter* pConverter)
     pConverter->addRef();
     return StatusCode::SUCCESS;
   }
-  return NO_CONVERTER;
+  return Status::NO_CONVERTER;
 }
 
 /// Remove converter object from conversion service (if present).
@@ -374,7 +372,7 @@ AthCnvSvc::removeConverter(const CLID& clid)
     m_workers.erase (worker);
     return StatusCode::SUCCESS;
   }
-  return NO_CONVERTER;
+  return Status::NO_CONVERTER;
 }
 
 /// Retrieve converter from list
@@ -505,7 +503,7 @@ AthCnvSvc::configureConverter (long /*typ*/, const CLID& /*clid*/,
     cnv->setDataProvider(m_dataSvc).ignore();
     return StatusCode::SUCCESS;
   }
-  return NO_CONVERTER;
+  return Status::NO_CONVERTER;
 
 }
 
@@ -517,7 +515,7 @@ AthCnvSvc::initializeConverter (long /*typ*/, const CLID& /*clid*/,
   if (cnv) {
     return cnv->initialize();
   }
-  return NO_CONVERTER;
+  return Status::NO_CONVERTER;
 }
 
 /// Activate the new converter after initialization
@@ -528,7 +526,7 @@ AthCnvSvc::activateConverter (long /*typ*/, const CLID& /*clid*/,
   if (cnv) {
     return StatusCode::SUCCESS;
   }
-  return NO_CONVERTER;
+  return Status::NO_CONVERTER;
 }
 
 /// Load converter or dictionary needed by the converter
@@ -604,10 +602,10 @@ AthCnvSvc::makeCall (int typ,
         msg(MSG::INFO) << System::typeinfoName(typeid(*pObject));
       }
       msg(MSG::INFO) << "  CLID= " << obj_class << endmsg;
-      return NO_CONVERTER;
+      return Status::NO_CONVERTER;
     }
-    return INVALID_OBJECT;
+    return Status::INVALID_OBJECT;
   }
-  return INVALID_ADDRESS;
+  return Status::INVALID_ADDRESS;
 }
 

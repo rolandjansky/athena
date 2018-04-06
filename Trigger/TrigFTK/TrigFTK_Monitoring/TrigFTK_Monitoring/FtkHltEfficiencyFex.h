@@ -112,7 +112,7 @@ namespace TrigFTK {
         //
         nTimers /// Leave this entry at the end
       };
-      int eventCounter;
+      int m_eventCounter;
   };
 
 } // end namespace

@@ -3,7 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, ConfigurationError
 import os
 
-def IOVDbSvcCfg(inputFlags):
+def IOVDbSvcCfg(configFlags):
 
     result=ComponentAccumulator()
 
@@ -26,11 +26,11 @@ def IOVDbSvcCfg(inputFlags):
     #m_h_metaDataTool("IOVDbMetaDataTool"),
     #m_h_tagInfoMgr("TagInfoMgr", name),
 
-    isMC=inputFlags.get("AthenaConfiguration.GlobalFlags.isMC")
+    isMC=configFlags.get("global.isMC")
 
     # Set up IOVDbSvc
     iovDbSvc=IOVDbSvc()
-    dbname=inputFlags.get("IOVDbSvc.IOVDbConfigFlags.DatabaseInstance")
+    dbname=configFlags.get("IOVDb.DatabaseInstance")
 
     localfile="sqlite://;schema=mycool.db;dbname="
     iovDbSvc.dbConnection=localfile+dbname
@@ -41,7 +41,7 @@ def IOVDbSvcCfg(inputFlags):
         iovDbSvc.CacheAlign=3
 
 
-    iovDbSvc.GlobalTag=inputFlags.get("IOVDbSvc.IOVDbConfigFlags.GlobalTag")
+    iovDbSvc.GlobalTag=configFlags.get("IOVDb.GlobalTag")
 
     result.addService(iovDbSvc)
 
@@ -74,18 +74,16 @@ def IOVDbSvcCfg(inputFlags):
 
 #Convenience method to add folders:
 
-def addFolders(inputFlags,folderstrings,detDb=None):
-
-    #result=IOVDbSvcCfg(inputFlags)
+def addFolders(configFlags,folderstrings,detDb=None):
     result=ComponentAccumulator()
-    result.executeModule(IOVDbSvcCfg,inputFlags)
+    result.addConfig(IOVDbSvcCfg,configFlags)
 
     
     
     iovDbSvc=result.getService("IOVDbSvc")
     
     if detDb is not None:
-        dbname=inputFlags.get("IOVDbSvc.IOVDbConfigFlags.DatabaseInstance")
+        dbname=configFlags.get("IOVDb.DatabaseInstance")
         if not detDb in _dblist.keys():
             raise ConfigurationError("Error, db shorthand %s not known")
         dbstr="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
@@ -161,3 +159,6 @@ _dblist={
     'CALO_OFL':'COOLOFL_CALO',
     'FWD_OFL':'COOLOFL_FWD'
     }
+
+
+

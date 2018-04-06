@@ -37,7 +37,9 @@ class TrigPassFlagsCnv : public TrigPassFlagsCnvBase {
   friend class CnvFactory<TrigPassFlagsCnv>;
 
  protected:
+public:
   TrigPassFlagsCnv(ISvcLocator *svcloc);
+protected:
   ~TrigPassFlagsCnv();
 
   virtual TrigPassFlags_PERS  *createPersistent(TrigPassFlags *transObj);

@@ -99,13 +99,13 @@ namespace ZeeValidation {
 
     // Matching True-Reco
     void MatchElec(const xAOD::TruthParticle* truth_electron, const xAOD::ElectronContainer* electrons);
-    double drmin_elreco_truth;
-    bool matchedE;
-    const xAOD::Electron* matched_electron;
+    double m_drmin_elreco_truth;
+    bool m_matchedE;
+    const xAOD::Electron* m_matched_electron;
 
     void MatchPhot(const xAOD::TruthParticle* truth_electron, const xAOD::PhotonContainer* photons);
-    double drmin_phreco_truth;
-    bool matchedP;
+    double m_drmin_phreco_truth;
+    bool m_matchedP;
     
     StatusCode book(PlotBase& plots);
   }; 

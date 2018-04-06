@@ -1056,7 +1056,7 @@ if doTBNoiseWrite:
 #--------------------------------------------------------------
 if doWriteESD:
     import AthenaPoolCnvSvc.WriteAthenaPool
-    topSequence += CfgMgr.AthenaOutputStream("OutStream", WritingTool="AthenaPoolOutputStreamTool")
+    topSequence += CfgMgr.AthenaOutputStream("OutStream", WritingTool="AthenaOutputStreamTool")
     Stream1 = topSequence.OutStream
     Stream1.OutputFile    = ESDOutputFileName
     svcMgr.AthenaSealSvc.CheckDictionary = True

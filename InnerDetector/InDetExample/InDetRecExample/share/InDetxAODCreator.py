@@ -83,7 +83,7 @@ def getInDetxAODParticleCreatorTool() :
 def isValid(name) :
     return name != None and name != ""
 
-def createTrackParticles(track_in, track_truth_in,track_particle_out, topSequence) :
+def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, topSequence) :
     if isValid(track_in) and isValid(track_particle_out) :
         from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
         xAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(track_particle_out)
@@ -95,8 +95,9 @@ def createTrackParticles(track_in, track_truth_in,track_particle_out, topSequenc
         xAODTrackParticleCnvAlg.AODTruthContainerName = ""
         xAODTrackParticleCnvAlg.ConvertTrackParticles = False
         xAODTrackParticleCnvAlg.ConvertTracks = True
-        xAODTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth() and is_mc and isValid(track_truth_in)
-        xAODTrackParticleCnvAlg.TrackTruthContainerName = passCollectionName(track_truth_in,(is_mc and InDetFlags.doTruth()))
+        xAODTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in)
+        xAODTrackParticleCnvAlg.xAODTruthLinkVector =  passCollectionName( 'xAODTruthLinks', InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in) )
+        xAODTrackParticleCnvAlg.TrackTruthContainerName = passCollectionName(track_particle_truth_in,(is_mc and InDetFlags.doTruth()))
         xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True
         topSequence += xAODTrackParticleCnvAlg
 
@@ -113,6 +114,7 @@ def convertTrackParticles(aod_track_particles_in, track_particle_truth_in,track_
         xAODTrackParticleCnvAlg.ConvertTrackParticles = True
         xAODTrackParticleCnvAlg.ConvertTracks = False
         xAODTrackParticleCnvAlg.AddTruthLink = InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in)
+        xAODTrackParticleCnvAlg.xAODTruthLinkVector =  passCollectionName( 'xAODTruthLinks', InDetFlags.doTruth() and is_mc and isValid(track_particle_truth_in) )
         xAODTrackParticleCnvAlg.TrackTruthContainerName = ""
         xAODTrackParticleCnvAlg.PrintIDSummaryInfo = True
         topSequence += xAODTrackParticleCnvAlg 

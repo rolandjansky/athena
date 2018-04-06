@@ -79,7 +79,8 @@ namespace InDet {
 				   float& xPrmVtx,float& yPrmVtx,float& zPrmVtx, int& status); 
     
     /** @brief TrigTrackJetFinder tool. */
-    ToolHandle<ITrigTrackJetFinderTool> m_trackJetFinderTool;
+    PublicToolHandle<ITrigTrackJetFinderTool> m_trackJetFinderTool
+       {this,"TrigTrackJetFinderTool","TrigTrackJetFinderTool",""};
 
     std::string m_priVtxKey;
     std::string m_secVtxKey;

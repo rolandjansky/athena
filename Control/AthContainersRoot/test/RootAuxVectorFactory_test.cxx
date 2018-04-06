@@ -13,6 +13,9 @@
 
 #undef NDEBUG
 #include "AthContainersRoot/RootAuxVectorFactory.h"
+#include "AthContainersRoot/test/Foo.h"
+#include "AthLinks/ElementLink.h"
+#include "SGTools/TestStore.h"
 #include "CxxUtils/StrFormat.h"
 #include "TClass.h"
 #include <iostream>
@@ -74,7 +77,7 @@ void test1()
   assert (ptr[7] == 9);
   assert (ptr[8] == 10);
 
-  SG::IAuxTypeVector* vec2 = vec->clone();
+  std::unique_ptr<SG::IAuxTypeVector> vec2 = vec->clone();
   int* ptr2 = reinterpret_cast<int*> (vec2->toPtr());
   assert (ptr != ptr2);
   assert (ptr2[0] == 1);
@@ -238,7 +241,7 @@ void test3()
   assert (fac.getEltSize() == sizeof(int));
   assert (fac.tiVec() == &typeid(std::vector<int>));
   assert (fac.isDynamic());
-  SG::IAuxTypeVector* vec = fac.create (10, 10);
+  std::unique_ptr<SG::IAuxTypeVector> vec = fac.create (10, 10);
   assert (vec->size() == 10);
 
   int* ptr = reinterpret_cast<int*> (vec->toPtr());
@@ -254,8 +257,6 @@ void test3()
   fac.swap (ptr, 0, ptr, 5);
   assert (ptr[0] == 2);
   assert (ptr[5] == 1);
-
-  delete vec;
 }
 
 
@@ -268,7 +269,7 @@ void test4()
   assert (fac.getEltSize() == sizeof(std::string));
   assert (fac.tiVec() == &typeid(std::vector<std::string>));
   assert (fac.isDynamic());
-  SG::IAuxTypeVector* vec = fac.create (10, 10);
+  std::unique_ptr<SG::IAuxTypeVector> vec = fac.create (10, 10);
   assert (vec->size() == 10);
 
   std::string* ptr = reinterpret_cast<std::string*> (vec->toPtr());
@@ -284,8 +285,6 @@ void test4()
   fac.swap (ptr, 0, ptr, 5);
   assert (ptr[0] == "2");
   assert (ptr[5] == "1");
-
-  delete vec;
 }
 
 
@@ -300,33 +299,95 @@ void test5()
   vec1->push_back(3);
   vec1->push_back(2);
   vec1->push_back(1);
-  SG::IAuxTypeVector* v1 = fac.createFromData (vec1, false, true);
+  std::unique_ptr<SG::IAuxTypeVector> v1 = fac.createFromData (vec1, false, true);
   assert (v1->size() == 3);
   int* ptr1 = reinterpret_cast<int*> (v1->toPtr());
   assert (ptr1[0] == 3);
   assert (ptr1[1] == 2);
   assert (ptr1[2] == 1);
-  delete v1;
 
   std::vector<int>* vec2 = new std::vector<int>;
   vec2->push_back(4);
   vec2->push_back(5);
-  SG::IAuxTypeVector* v2 = fac.createFromData (vec2, false, false);
+  std::unique_ptr<SG::IAuxTypeVector> v2 = fac.createFromData (vec2, false, false);
   assert (v2->size() == 2);
   int* ptr2 = reinterpret_cast<int*> (v2->toPtr());
   assert (ptr2[0] == 4);
   assert (ptr2[1] == 5);
-  delete v2;
   delete vec2;
+}
+
+
+// Testing copyForOutput.
+void test6()
+{
+  std::cout << "test6\n";
+
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
+
+  TClass* cl1 = TClass::GetClass ("std::vector<ElementLink<std::vector<AthContainersRootTest::Foo*> > >");
+  SG::RootAuxVectorFactory fac1 (cl1);
+
+  typedef ElementLink<std::vector<AthContainersRootTest::Foo*> > EL;
+  EL elv[10];
+  elv[1] = EL (123, 10);
+
+  fac1.copyForOutput (elv, 2, elv, 1);
+  assert (elv[2].key() == 123);
+  assert (elv[2].index() == 10);
+
+  TClass* cl2 = TClass::GetClass ("std::vector<std::vector<ElementLink<std::vector<AthContainersRootTest::Foo*> > > >");
+  SG::RootAuxVectorFactory fac2 (cl2);
+
+  std::vector<EL> velv[10];
+  velv[1].push_back (EL (123, 5));
+  velv[1].push_back (EL (123, 6));
+  fac2.copyForOutput (velv, 2, velv, 1);
+  assert (velv[2][0].key() == 123);
+  assert (velv[2][0].index() == 5);
+  assert (velv[2][1].key() == 123);
+  assert (velv[2][1].index() == 6);
+
+  store->remap (123, 456, 10, 20);
+  fac1.copyForOutput (elv, 5, elv, 1);
+  assert (elv[5].key() == 456);
+  assert (elv[5].index() == 20);
+
+  store->remap (123, 456, 6, 12);
+  fac2.copyForOutput (velv, 5, velv, 1);
+  assert (velv[5][0].key() == 123);
+  assert (velv[5][0].index() == 5);
+  assert (velv[5][1].key() == 456);
+  assert (velv[5][1].index() == 12);
+
+  TClass* cl3 = TClass::GetClass ("std::vector<ElementLink<std::vector<AthContainersRootTest::Foo> > >");
+  SG::RootAuxVectorFactory fac3 (cl3);
+
+  typedef ElementLink<std::vector<AthContainersRootTest::Foo> > EL2;
+  EL2 elv2[10];
+  elv2[1] = EL2 (123, 10);
+
+  fac3.copyForOutput (elv2, 2, elv2, 1);
+
+  TClass* cl4 = TClass::GetClass ("std::vector<std::vector<ElementLink<std::vector<AthContainersRootTest::Foo> > > >");
+  SG::RootAuxVectorFactory fac4 (cl4);
+
+  std::vector<EL2> velv2[10];
+  velv2[1].push_back (EL2 (123, 5));
+  velv2[1].push_back (EL2 (123, 6));
+
+  fac4.copyForOutput (velv2, 2, velv2, 1);
 }
 
 
 int main()
 {
+  std::cout << "RootAuxVectorFactory_test\n";
   test1();
   test2();
   test3();
   test4();
   test5();
+  test6();
   return 0;
 }

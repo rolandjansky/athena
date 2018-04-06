@@ -110,4 +110,8 @@ inline EventStreamInfo& EventStreamInfo::operator=(const EventStreamInfo& rhs) {
 
 #include "SGTools/CLASS_DEF.h"
 CLASS_DEF(EventStreamInfo, 167728019, 1)
+#include "AthenaKernel/MetaCont.h"
+CLASS_DEF(MetaCont<EventStreamInfo>, 167729019, 1)
+#include "SGTools/BaseInfo.h"
+SG_BASE(MetaCont<EventStreamInfo>, MetaContBase);
 #endif

@@ -14,6 +14,7 @@ decription           : Class definition for the forward GSF fitter
 #ifndef TrkForwardGsfFitter_H
 #define TrkForwardGsfFitter_H
 
+#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
@@ -28,7 +29,6 @@ decription           : Class definition for the forward GSF fitter
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class IMultiComponentStateCombiner;
 class IMultiStateExtrapolator;
 class IRIO_OnTrackCreator;
 class Surface;
@@ -83,7 +83,8 @@ class ForwardGsfFitter : public AthAlgTool, virtual public IForwardGsfFitter {
   ToolHandle<IMultiStateExtrapolator>       m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
   ToolHandle<IRIO_OnTrackCreator>           m_rioOnTrackCreator;
-  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner;
+  PublicToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
+     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/ForwardsFitterCombiner",""};
   double                                    m_cutChiSquaredPerNumberDOF;
 
   bool                                      m_overideMaterialEffectsSwitch;

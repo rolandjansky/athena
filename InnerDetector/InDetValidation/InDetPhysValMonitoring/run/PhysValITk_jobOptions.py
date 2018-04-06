@@ -126,10 +126,10 @@ ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
 # this fills some extra histograms when not running over DAOD
 # when running over DAOD, decorators should be off to prevent crashes
-if not runDAOD : 
-  from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
-  decorators = InDetPhysValDecoratorAlg()
-  topSequence += decorators
+if not runDAOD :
+   import InDetPhysValMonitoring.InDetPhysValDecoration
+   for decorator in InDetPhysValMonitoring.InDetPhysValDecoration.getDecorators() :
+      topSequence += decorator
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 monMan = AthenaMonManager( "PhysValMonManager" )

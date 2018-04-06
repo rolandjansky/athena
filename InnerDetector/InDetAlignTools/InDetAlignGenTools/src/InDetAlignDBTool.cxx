@@ -1283,7 +1283,7 @@ StatusCode InDetAlignDBTool::outputObjs() const {
   // get the AthenaOutputStream tool
   IAthenaOutputStreamTool* optool;
 
-  if (StatusCode::SUCCESS!=p_toolsvc->retrieveTool("AthenaPoolOutputStreamTool",m_par_condstream,optool)) {
+  if (StatusCode::SUCCESS!=p_toolsvc->retrieveTool("AthenaOutputStreamTool",m_par_condstream,optool)) {
     ATH_MSG_ERROR("Cannot get AthenaPoolOutputStream tool" );
     return StatusCode::FAILURE;
   }

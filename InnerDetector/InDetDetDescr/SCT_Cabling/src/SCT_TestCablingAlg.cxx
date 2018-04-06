@@ -28,7 +28,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 //Package
-#include "SCT_Cabling/SCT_TestCablingAlg.h"
+#include "SCT_TestCablingAlg.h"
 #include "SCT_CablingUtilities.h"
 #include "SCT_CablingXmlTags.h"
 
@@ -57,7 +57,7 @@ SCT_TestCablingAlg::initialize(){
 
 std::string
 SCT_TestCablingAlg::coordString(const Identifier & offlineId){
-	using std::to_string;
+  using std::to_string;
   const std::string sep(", ");
   std::string result=std::string("[") + to_string(m_idHelper->barrel_ec(offlineId)) + sep;
   result+=to_string(m_idHelper->layer_disk(offlineId)) + sep;
@@ -112,7 +112,7 @@ SCT_TestCablingAlg::execute(){
   std::sort(rods.begin(),rods.end());
   std::map<unsigned int, unsigned int> rodHashMap;
   for (unsigned int i(0);i!=rods.size();++i){
-  	rodHashMap[rods[i]]=i;
+    rodHashMap[rods[i]]=i;
   }
   //open a file for writing
   const std::string fullFileName=testAreaPath + "/" + makeCablingFileName();
@@ -122,7 +122,7 @@ SCT_TestCablingAlg::execute(){
   opFile<<OpenRootTag<<endl;
   opFile<<OpenRodMappingTag<<endl;
   for (auto r:rods){
-  	opFile<<formatRodOutput(r)<<endl;
+    opFile<<formatRodOutput(r)<<endl;
   }
   opFile<<CloseRodMappingTag<<endl;
   opFile<<OpenModuleMappingTag<<endl;

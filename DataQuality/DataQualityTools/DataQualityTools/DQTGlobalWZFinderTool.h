@@ -43,7 +43,7 @@ class DQTGlobalWZFinderTool: public DataQualityFatherMonTool
 
   ~DQTGlobalWZFinderTool();
 
-  //StatusCode initialize();
+  StatusCode initialize();
     
   virtual StatusCode bookHistograms();
   virtual StatusCode bookHistogramsRecurrent();

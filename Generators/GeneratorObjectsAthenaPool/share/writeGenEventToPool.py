@@ -46,7 +46,7 @@ theApp.EvtMax = 5
 import AthenaPoolCnvSvc.WriteAthenaPool
 job += CfgMgr.AthenaOutputStream(
     "OutStream",
-    WritingTool = "AthenaPoolOutputStreamTool"
+    WritingTool = "AthenaOutputStreamTool"
     )
 job.OutStream.ItemList += [
     "EventInfo#*",

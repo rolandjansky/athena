@@ -78,7 +78,7 @@ namespace MagField {
 
 
       // debug
-      int referenceCount;
+      int m_referenceCount;
 
       std::string                     m_refFile;     //!< reference field file name
       std::string                     m_refTreeName; //!< TTree object in reference file

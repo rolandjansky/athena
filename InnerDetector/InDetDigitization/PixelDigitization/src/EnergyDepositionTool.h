@@ -86,7 +86,8 @@ private:
   bool   m_doDeltaRay;                                 // implement Bichsel Model into delta-ray, which does not have truth particle link. 
   bool   m_doPU;                                       // Whether we apply Bichsel model on non-HS particles
 
-  ToolHandle<IModuleDistortionsTool> m_pixDistoTool;
+  PublicToolHandle<IModuleDistortionsTool> m_pixDistoTool
+     {this,"PixelDistortionsTool","PixelDistortionsTool",""};
 
 protected:
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;

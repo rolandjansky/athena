@@ -31,53 +31,53 @@
 namespace Trk
 {
 
-  double TrkFilteringNode1D::m_calculateChi2()
+  double TrkFilteringNode1D::calculateChi2()
   {
     return (m_resid*m_resid*m_D);
   }
 
-  void TrkFilteringNode1D::m_runKalmanFilter(TrkTrackState* pTS)
+  void TrkFilteringNode1D::runKalmanFilter(TrkTrackState* pTS)
   {
     int i,j,idx=0;
     double updState[5],updCov[15];
 
     for(i=0;i<5;i++) m_K[i]=m_D*m_B[i];
     for(i=0;i<5;i++) updState[i]=m_K[i]*m_resid;
-    pTS->m_updateTrackState(updState);
+    pTS->updateTrackState(updState);
     for(i=0;i<5;i++) for(j=i;j<5;j++)
       {
 	updCov[idx]=-m_K[i]*m_B[j];idx++;
       }
-    pTS->m_updateTrackCovariance(updCov);
+    pTS->updateTrackCovariance(updCov);
   }
 
-  int TrkFilteringNode1D::m_getKalmanGain(double K[5][2])
+  int TrkFilteringNode1D::getKalmanGain(double K[5][2])
   {
     int i;
     for(i=0;i<5;i++) K[i][0]=m_K[i];
     return 1;
   }
 
-  int TrkFilteringNode1D::m_getResiduals(double r[2])
+  int TrkFilteringNode1D::getResiduals(double r[2])
   {
     r[0]=m_resid;
     return 1;
   }
   
-  int TrkFilteringNode1D::m_getInverseResidualVariance(double V[2][2])
+  int TrkFilteringNode1D::getInverseResidualVariance(double V[2][2])
   {
     V[0][0]=m_D;
     return 1;
   }
 
-  int TrkFilteringNode1D::m_getMeasurementMatrix(double H[2][5])
+  int TrkFilteringNode1D::getMeasurementMatrix(double H[2][5])
   {
     int i;
     for(i=0;i<5;i++) H[0][i]=m_H[i];
     return 1;
   }
 
-  double TrkFilteringNode2D::m_calculateChi2()
+  double TrkFilteringNode2D::calculateChi2()
   {
     double dchi2;
 
@@ -86,7 +86,7 @@ namespace Trk
     return dchi2;
   }
 
-  void TrkFilteringNode2D::m_runKalmanFilter(TrkTrackState* pTS)
+  void TrkFilteringNode2D::runKalmanFilter(TrkTrackState* pTS)
   {
     int i,j,idx=0;
     double updState[5],updCov[15];
@@ -96,35 +96,35 @@ namespace Trk
 	m_K[i][j]=m_B[i][0]*m_D[0][j]+m_B[i][1]*m_D[1][j];
     for(i=0;i<5;i++) 
       updState[i]=m_K[i][0]*m_resid[0]+m_K[i][1]*m_resid[1]; 
-    pTS->m_updateTrackState(updState);
+    pTS->updateTrackState(updState);
     for(i=0;i<5;i++) for(j=i;j<5;j++)
       {
 	updCov[idx]=-m_K[i][0]*m_B[j][0]-m_K[i][1]*m_B[j][1];idx++;
       }
-    pTS->m_updateTrackCovariance(updCov);
+    pTS->updateTrackCovariance(updCov);
   }
 
-  int TrkFilteringNode2D::m_getKalmanGain(double K[5][2])
+  int TrkFilteringNode2D::getKalmanGain(double K[5][2])
   {
     int i,j;
     for(i=0;i<5;i++) for(j=0;j<2;j++) K[i][j]=m_K[i][j];
     return 2;
   }
 
-  int TrkFilteringNode2D::m_getResiduals(double r[2])
+  int TrkFilteringNode2D::getResiduals(double r[2])
   {
     r[0]=m_resid[0];r[1]=m_resid[1];
     return 2;
   }
   
-  int TrkFilteringNode2D::m_getInverseResidualVariance(double V[2][2])
+  int TrkFilteringNode2D::getInverseResidualVariance(double V[2][2])
   {
     int i,j;
     for(i=0;i<2;i++) for(j=0;j<2;j++) V[i][j]=m_D[i][j];
     return 2;
   }
 
-  int TrkFilteringNode2D::m_getMeasurementMatrix(double H[2][5])
+  int TrkFilteringNode2D::getMeasurementMatrix(double H[2][5])
   {
     int i,j;
     for(j=0;j<2;j++) for(i=0;i<5;i++) H[j][i]=m_H[j][i];
@@ -145,35 +145,35 @@ namespace Trk
     m_m=pos;m_V=cov;m_pPRD=NULL;m_nodeType=2;m_ndof=1;
   }
 
-  void TrkClusterNode::m_serialize(char fileName[])
+  void TrkClusterNode::serialize(char fileName[])
   {
     FILE* pFile;
     pFile=fopen(fileName,"a");
     fclose(pFile);
   }
 
-  void TrkClusterNode::m_validateMeasurement(TrkTrackState* pTS)
+  void TrkClusterNode::validateMeasurement(TrkTrackState* pTS)
   {
-    m_dChi2=m_getChi2Distance(pTS);
+    m_dChi2=getChi2Distance(pTS);
     m_nodeState=(m_dChi2<m_chi2Cut)?1:0;
   }
 
-  double TrkClusterNode::m_getChi2Distance(TrkTrackState* pTS)
+  double TrkClusterNode::getChi2Distance(TrkTrackState* pTS)
   {
-    for(int i=0;i<5;i++) m_B[i]=pTS->m_getTrackCovariance(0,i);
+    for(int i=0;i<5;i++) m_B[i]=pTS->getTrackCovariance(0,i);
     m_H[0]=1.0;m_H[1]=0.0;m_H[2]=0.0;m_H[3]=0.0;m_H[4]=0.0;
-    m_D=1.0/(pTS->m_getTrackCovariance(0,0)+m_V);
-    m_resid=m_m-pTS->m_getTrackState(0);
-    return m_calculateChi2();
+    m_D=1.0/(pTS->getTrackCovariance(0,0)+m_V);
+    m_resid=m_m-pTS->getTrackState(0);
+    return calculateChi2();
   }
 
-  void TrkClusterNode::m_updateTrackState(TrkTrackState* pTS)
+  void TrkClusterNode::updateTrackState(TrkTrackState* pTS)
   {
-    if(m_isValidated()) m_runKalmanFilter(pTS);
+    if(isValidated()) runKalmanFilter(pTS);
 	m_pTrackState=pTS;
   }
 
-  void TrkClusterNode::m_updateWithRIO(const RIO_OnTrack* pRIO)
+  void TrkClusterNode::updateWithRIO(const RIO_OnTrack* pRIO)
   {
     /*
     printf("RIO update, SCT cluster: old m=%f new m=%f old V=%f new V=%f\n",
@@ -229,46 +229,46 @@ namespace Trk
     m_nodeType=2;m_ndof=1;
   }
 
-  void TrkEndCapClusterNode::m_serialize(char fileName[])
+  void TrkEndCapClusterNode::serialize(char fileName[])
   {
     FILE* pFile;
     pFile=fopen(fileName,"a");
     fclose(pFile);
   }
 
-  void TrkEndCapClusterNode::m_validateMeasurement(TrkTrackState* pTS)
+  void TrkEndCapClusterNode::validateMeasurement(TrkTrackState* pTS)
   {
-    m_dChi2=m_getChi2Distance(pTS);
+    m_dChi2=getChi2Distance(pTS);
     m_nodeState=(m_dChi2<m_chi2Cut)?1:0;
   }
 
-  double TrkEndCapClusterNode::m_getChi2Distance(TrkTrackState* pTS)
+  double TrkEndCapClusterNode::getChi2Distance(TrkTrackState* pTS)
   {
     double corr;
-    corr=1.0/(pTS->m_getTrackState(1)+m_Rc);
+    corr=1.0/(pTS->getTrackState(1)+m_Rc);
     m_H[0]=m_Rc*corr;
-    m_H[1]=-pTS->m_getTrackState(0)*m_Rc*corr*corr;
+    m_H[1]=-pTS->getTrackState(0)*m_Rc*corr*corr;
     m_H[2]=0.0;m_H[3]=0.0;m_H[4]=0.0;
 	
-    m_B[0]=m_H[0]*pTS->m_getTrackCovariance(0,0)+m_H[1]*pTS->m_getTrackCovariance(0,1);
-    m_B[1]=m_H[0]*pTS->m_getTrackCovariance(0,1)+m_H[1]*pTS->m_getTrackCovariance(1,1);
-    m_B[2]=m_H[0]*pTS->m_getTrackCovariance(0,2)+m_H[1]*pTS->m_getTrackCovariance(1,2);
-    m_B[3]=m_H[0]*pTS->m_getTrackCovariance(0,3)+m_H[1]*pTS->m_getTrackCovariance(1,3);
-    m_B[4]=m_H[0]*pTS->m_getTrackCovariance(0,4)+m_H[1]*pTS->m_getTrackCovariance(1,4);
-    //corr=1.0+pTS->m_getTrackState(1)/m_Rc;
+    m_B[0]=m_H[0]*pTS->getTrackCovariance(0,0)+m_H[1]*pTS->getTrackCovariance(0,1);
+    m_B[1]=m_H[0]*pTS->getTrackCovariance(0,1)+m_H[1]*pTS->getTrackCovariance(1,1);
+    m_B[2]=m_H[0]*pTS->getTrackCovariance(0,2)+m_H[1]*pTS->getTrackCovariance(1,2);
+    m_B[3]=m_H[0]*pTS->getTrackCovariance(0,3)+m_H[1]*pTS->getTrackCovariance(1,3);
+    m_B[4]=m_H[0]*pTS->getTrackCovariance(0,4)+m_H[1]*pTS->getTrackCovariance(1,4);
+    //corr=1.0+pTS->getTrackState(1)/m_Rc;
     //m_D=1.0/(m_B[0]*m_H[0]+m_B[1]*m_H[1]+m_V*corr*corr);
     m_D=1.0/(m_B[0]*m_H[0]+m_B[1]*m_H[1]+m_V);
-    m_resid=m_m-pTS->m_getTrackState(0)*m_Rc/(pTS->m_getTrackState(1)+m_Rc);
-    return m_calculateChi2();
+    m_resid=m_m-pTS->getTrackState(0)*m_Rc/(pTS->getTrackState(1)+m_Rc);
+    return calculateChi2();
   }
 
-  void TrkEndCapClusterNode::m_updateTrackState(TrkTrackState* pTS)
+  void TrkEndCapClusterNode::updateTrackState(TrkTrackState* pTS)
   {
-    if(m_isValidated()) m_runKalmanFilter(pTS);
+    if(isValidated()) runKalmanFilter(pTS);
     m_pTrackState=pTS;
   }
 
-  void TrkEndCapClusterNode::m_updateWithRIO(const RIO_OnTrack* pRIO)
+  void TrkEndCapClusterNode::updateWithRIO(const RIO_OnTrack* pRIO)
   {
     /*
     printf("RIO update, EC cluster: old m=%f new m=%f old V=%f ",
@@ -303,28 +303,28 @@ namespace Trk
     m_pPRD=NULL;m_nodeType=1;m_ndof=2;
   }
 
-  void TrkPixelNode::m_serialize(char fileName[])
+  void TrkPixelNode::serialize(char fileName[])
   {
     FILE* pFile;
     pFile=fopen(fileName,"a");
     fclose(pFile);
   }
 
-  void TrkPixelNode::m_report()
+  void TrkPixelNode::report()
   {
     /*
     printf("PIXEL NODE x=%f y=%f\n",m_m[0],m_m[1]);
     */
-    m_pSurface->m_report();
+    m_pSurface->report();
   }
 
-  void TrkPixelNode::m_validateMeasurement(TrkTrackState* pTS)
+  void TrkPixelNode::validateMeasurement(TrkTrackState* pTS)
   {
-    m_dChi2=m_getChi2Distance(pTS);
+    m_dChi2=getChi2Distance(pTS);
     m_nodeState=(m_dChi2<m_chi2Cut)?1:0;
   }
 
-  double TrkPixelNode::m_getChi2Distance(TrkTrackState* pTS)
+  double TrkPixelNode::getChi2Distance(TrkTrackState* pTS)
   {
     double det;
 
@@ -332,34 +332,34 @@ namespace Trk
     m_H[0][1]=0.0;m_H[0][2]=0.0;m_H[0][3]=0.0;m_H[0][4]=0.0;
     m_H[1][0]=0.0;m_H[1][2]=0.0;m_H[1][3]=0.0;m_H[1][4]=0.0;
 
-    m_B[0][0]=pTS->m_getTrackCovariance(0,0);m_B[0][1]=pTS->m_getTrackCovariance(0,1);
-    m_B[1][0]=pTS->m_getTrackCovariance(0,1);m_B[1][1]=pTS->m_getTrackCovariance(1,1);
-    m_B[2][0]=pTS->m_getTrackCovariance(0,2);m_B[2][1]=pTS->m_getTrackCovariance(1,2);
-    m_B[3][0]=pTS->m_getTrackCovariance(0,3);m_B[3][1]=pTS->m_getTrackCovariance(1,3);
-    m_B[4][0]=pTS->m_getTrackCovariance(0,4);m_B[4][1]=pTS->m_getTrackCovariance(1,4);
+    m_B[0][0]=pTS->getTrackCovariance(0,0);m_B[0][1]=pTS->getTrackCovariance(0,1);
+    m_B[1][0]=pTS->getTrackCovariance(0,1);m_B[1][1]=pTS->getTrackCovariance(1,1);
+    m_B[2][0]=pTS->getTrackCovariance(0,2);m_B[2][1]=pTS->getTrackCovariance(1,2);
+    m_B[3][0]=pTS->getTrackCovariance(0,3);m_B[3][1]=pTS->getTrackCovariance(1,3);
+    m_B[4][0]=pTS->getTrackCovariance(0,4);m_B[4][1]=pTS->getTrackCovariance(1,4);
 
-    m_resid[0]=m_m[0]-pTS->m_getTrackState(0);
-    m_resid[1]=m_m[1]-pTS->m_getTrackState(1);
+    m_resid[0]=m_m[0]-pTS->getTrackState(0);
+    m_resid[1]=m_m[1]-pTS->getTrackState(1);
 
     double W[2][2];
 	
-    W[0][0]=pTS->m_getTrackCovariance(0,0)+m_V[0][0];
-    W[1][0]=W[0][1]=pTS->m_getTrackCovariance(0,1)+m_V[0][1];
-    W[1][1]=pTS->m_getTrackCovariance(1,1)+m_V[1][1];
+    W[0][0]=pTS->getTrackCovariance(0,0)+m_V[0][0];
+    W[1][0]=W[0][1]=pTS->getTrackCovariance(0,1)+m_V[0][1];
+    W[1][1]=pTS->getTrackCovariance(1,1)+m_V[1][1];
     det=W[0][0]*W[1][1]-W[0][1]*W[0][1];det=1.0/det;
     m_D[0][0]=W[1][1]*det;m_D[0][1]=-W[0][1]*det;
     m_D[1][0]=m_D[0][1];m_D[1][1]=W[0][0]*det;
 
-    return m_calculateChi2();
+    return calculateChi2();
   }
 
-  void TrkPixelNode::m_updateTrackState(TrkTrackState* pTS)
+  void TrkPixelNode::updateTrackState(TrkTrackState* pTS)
   {	
-    if(m_isValidated()) m_runKalmanFilter(pTS);
+    if(isValidated()) runKalmanFilter(pTS);
     m_pTrackState=pTS;
   }
 
-  void TrkPixelNode::m_updateWithRIO(const RIO_OnTrack* pRIO)
+  void TrkPixelNode::updateWithRIO(const RIO_OnTrack* pRIO)
   {
     int i,j;
     /*
@@ -390,63 +390,63 @@ namespace Trk
     m_pPRD=pPRD;m_nodeType=3;m_ndof=1;
   }
 
-  void TrkTrtNode::m_serialize(char fileName[])
+  void TrkTrtNode::serialize(char fileName[])
   {
     FILE* pFile;
     pFile=fopen(fileName,"a");
     fclose(pFile);
   }
 
-  void TrkTrtNode::m_validateMeasurement(TrkTrackState* pTS)
+  void TrkTrtNode::validateMeasurement(TrkTrackState* pTS)
   {
-    if((pTS->m_getTrackState(1)>m_minBound)&&(pTS->m_getTrackState(1)<m_maxBound))
+    if((pTS->getTrackState(1)>m_minBound)&&(pTS->getTrackState(1)<m_maxBound))
       {
-	m_dChi2=m_getChi2Distance(pTS);
+	m_dChi2=getChi2Distance(pTS);
 	m_nodeState=(m_dChi2<m_chi2Cut)?1:0;
       }
     else m_nodeState=0;
   }
 
-  double TrkTrtNode::m_getChi2Distance(TrkTrackState* pTS)
+  double TrkTrtNode::getChi2Distance(TrkTrackState* pTS)
   {
     int i;
     double tx,lV[3],V[3],corr;
     //double lP[3],P[3];
 
-    if(!m_freezeLR) m_lrSign=(pTS->m_getTrackState(0)<0.0)?-1:1;	    
-    V[0]=sin(pTS->m_getTrackState(3))*cos(pTS->m_getTrackState(2));
-    V[1]=sin(pTS->m_getTrackState(3))*sin(pTS->m_getTrackState(2));
-    V[2]=cos(pTS->m_getTrackState(3));
-    //lP[0]=pTS->m_getTrackState(0);
-    //lP[1]=pTS->m_getTrackState(1);
+    if(!m_freezeLR) m_lrSign=(pTS->getTrackState(0)<0.0)?-1:1;	    
+    V[0]=sin(pTS->getTrackState(3))*cos(pTS->getTrackState(2));
+    V[1]=sin(pTS->getTrackState(3))*sin(pTS->getTrackState(2));
+    V[2]=cos(pTS->getTrackState(3));
+    //lP[0]=pTS->getTrackState(0);
+    //lP[1]=pTS->getTrackState(1);
     //lP[2]=0.0;
-    //pTS->m_getSurface()->m_transformPointToGlobal(lP,P);
-    pTS->m_getSurface()->m_rotateVectorToLocal(V,lV);
+    //pTS->getSurface()->transformPointToGlobal(lP,P);
+    pTS->getSurface()->rotateVectorToLocal(V,lV);
     tx=lV[0]/lV[2];
     corr=1.0/sqrt(1.0+tx*tx);
-    for(i=0;i<5;i++) m_B[i]=corr*pTS->m_getTrackCovariance(0,i);
+    for(i=0;i<5;i++) m_B[i]=corr*pTS->getTrackCovariance(0,i);
     m_H[0]=corr;m_H[1]=0.0;m_H[2]=0.0;m_H[3]=0.0;m_H[4]=0.0;
-    m_D=1.0/(corr*corr*pTS->m_getTrackCovariance(0,0)+m_V);
-    m_resid=m_lrSign*m_m-corr*pTS->m_getTrackState(0);
-    return m_calculateChi2();
+    m_D=1.0/(corr*corr*pTS->getTrackCovariance(0,0)+m_V);
+    m_resid=m_lrSign*m_m-corr*pTS->getTrackState(0);
+    return calculateChi2();
   }
 
-  void TrkTrtNode::m_updateTrackState(TrkTrackState* pTS)
+  void TrkTrtNode::updateTrackState(TrkTrackState* pTS)
   {	
-    if(m_isValidated()) m_runKalmanFilter(pTS);
+    if(isValidated()) runKalmanFilter(pTS);
     m_pTrackState=pTS;
   }
 
-  void TrkTrtNode::m_updateInternal()
+  void TrkTrtNode::updateInternal()
   {
-    if(m_isValidated()&&(m_pTrackState!=NULL))
+    if(isValidated()&&(m_pTrackState!=NULL))
       {
 	m_freezeLR=true;
-	m_lrSign=(m_pTrackState->m_getTrackState(0)<0.0)?-1:1;
+	m_lrSign=(m_pTrackState->getTrackState(0)<0.0)?-1:1;
       }
   }
 
-  void TrkTrtNode::m_updateWithRIO(const RIO_OnTrack*)
+  void TrkTrtNode::updateWithRIO(const RIO_OnTrack*)
   {
 
   }

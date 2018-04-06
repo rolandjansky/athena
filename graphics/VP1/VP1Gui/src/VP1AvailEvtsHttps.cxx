@@ -122,13 +122,13 @@ VP1AvailEvtsHttps::VP1AvailEvtsHttps(QString fileinfoUrl,
 				     int maxLocalFilesToKeep,
 				     QObject * parent)
   : VP1AvailEvents(timeCutForNew,tmpcopydir,maxLocalFilesToKeep,parent)
-  , d(new Imp(this,fileinfoUrl,updateInterval))
+  , m_d(new Imp(this,fileinfoUrl,updateInterval))
 {
 }
 
 VP1AvailEvtsHttps::~VP1AvailEvtsHttps()
 {
-  delete d;
+  delete m_d;
 }
 
 void VP1AvailEvtsHttps::init()
@@ -138,33 +138,33 @@ void VP1AvailEvtsHttps::init()
  
 void VP1AvailEvtsHttps::start(QNetworkAccessManager* netmanager)
 {
-  d->m_netmanager = netmanager;
-  d->startTimer();
+  m_d->m_netmanager = netmanager;
+  m_d->startTimer();
 }
 
 QString VP1AvailEvtsHttps::fileinfoLocation()
 {
-  return d->m_fileInfoUrl;
+  return m_d->m_fileInfoUrl;
 }
 
 void VP1AvailEvtsHttps::generateHttpsRequest()
 {
-  QUrl fileInfoUrl(d->m_fileInfoUrl);
+  QUrl fileInfoUrl(m_d->m_fileInfoUrl);
   QNetworkRequest netrequest(fileInfoUrl);
-  if(d->m_stage==0) {
+  if(m_d->m_stage==0) {
     /** ---- For logging
-    std::cout << "VP1AvailEvtsHttps getHead stage -- " << d->m_stage << " --" << std::endl;
+    std::cout << "VP1AvailEvtsHttps getHead stage -- " << m_d->m_stage << " --" << std::endl;
     **/
-    d->m_netreply = d->m_netmanager->head(netrequest);
-  } else if(d->m_stage==1) {
+    m_d->m_netreply = m_d->m_netmanager->head(netrequest);
+  } else if(m_d->m_stage==1) {
     /** ---- For logging
-    std::cout << "VP1AvailEvtsHttps get stage -- " << d->m_stage << " --" << std::endl;
+    std::cout << "VP1AvailEvtsHttps get stage -- " << m_d->m_stage << " --" << std::endl;
     **/
-    d->m_netreply = d->m_netmanager->get(netrequest);
+    m_d->m_netreply = m_d->m_netmanager->get(netrequest);
   } else {
     // stage 2
     /** ---- For logging
-    std::cout << "VP1AvailEvtsHttps get stage -- " << d->m_stage << " --" << std::endl;
+    std::cout << "VP1AvailEvtsHttps get stage -- " << m_d->m_stage << " --" << std::endl;
     **/
 
     QString activeRetrievalDir = tmpActiveRetrievalDir();
@@ -172,11 +172,11 @@ void VP1AvailEvtsHttps::generateHttpsRequest()
     VP1EvtsOnServerInfo newEvtsOnServerInfo(target);
 
     if (!newEvtsOnServerInfo.isValid()) {
-      message("Problems decoding info in file downloaded from " + d->m_fileInfoUrl);
+      message("Problems decoding info in file downloaded from " + m_d->m_fileInfoUrl);
       QFile::remove(target);
       invalidateDirCache(tmpActiveRetrievalDir());
-      d->m_stage = 0;
-      d->startTimer(d->m_updateInterval);
+      m_d->m_stage = 0;
+      m_d->startTimer(m_d->m_updateInterval);
       return;
     }
 
@@ -203,48 +203,48 @@ void VP1AvailEvtsHttps::generateHttpsRequest()
 	if (evt < evtToGet) {
 	  ++nNewer;
 	  if (nNewer>=3) {
-	    d->m_stage = 0;
-	    d->startTimer(d->m_updateInterval);
+	    m_d->m_stage = 0;
+	    m_d->startTimer(m_d->m_updateInterval);
 	    return;
 	  }
 	}
       }
 
-      QUrl url(d->m_baseUrl + evtToGet.fileName());
-      d->m_expectedMD5Sum = evtToGet.md5Sum();
+      QUrl url(m_d->m_baseUrl + evtToGet.fileName());
+      m_d->m_expectedMD5Sum = evtToGet.md5Sum();
       /** ---- For logging
       std::cout << "         Event : " << url.toString().toStdString() << std::endl; 
       **/
       QNetworkRequest netrequestEvt(url);
-      d->m_evtToGet = evtToGet.fileName();
-      d->m_netreply = d->m_netmanager->get(netrequestEvt);
+      m_d->m_evtToGet = evtToGet.fileName();
+      m_d->m_netreply = m_d->m_netmanager->get(netrequestEvt);
     } else {
-      d->m_stage = 0;
-      d->startTimer(d->m_updateInterval);
+      m_d->m_stage = 0;
+      m_d->startTimer(m_d->m_updateInterval);
       return;
     }
   }
-  d->connectNetworkSignalsToSlots();
+  m_d->connectNetworkSignalsToSlots();
 }
 
 void VP1AvailEvtsHttps::finished()
 {
 	VP1Msg::messageDebug("VP1AvailEvtsHttps::finished()");
   int sc=-9999;
-  QVariant val = d->m_netreply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
+  QVariant val = m_d->m_netreply->attribute(QNetworkRequest::HttpStatusCodeAttribute);
   if(val.type()==QVariant::Int) 
     sc = val.value<int>();
   else if(val.type()==QVariant::Invalid)
-    message("No status code obtained while processing " + d->m_netreply->url().toString());
+    message("No status code obtained while processing " + m_d->m_netreply->url().toString());
   else if(!val.canConvert<int>())
-    message("Cannot convert status code to int while processing " + d->m_netreply->url().toString());
+    message("Cannot convert status code to int while processing " + m_d->m_netreply->url().toString());
   else 
     sc = val.value<int>();
 
 	VP1Msg::messageDebug("sc: " + QString::number(sc));
 
   QString lastModified;
-  QVariant lastModHeader = d->m_netreply->header(QNetworkRequest::LastModifiedHeader);
+  QVariant lastModHeader = m_d->m_netreply->header(QNetworkRequest::LastModifiedHeader);
   if(lastModHeader.type()!=QVariant::Invalid && 
      lastModHeader.canConvert<QDateTime>()) {
     QDateTime lastModTime = lastModHeader.value<QDateTime>();
@@ -252,23 +252,23 @@ void VP1AvailEvtsHttps::finished()
   }
 
   /** ---- For logging
-  std::cout << "VP1AvailEvtsHttps stage -- " << d->m_stage
-	    << " -- finished with error=" << (int)d->m_netreply->error() 
+  std::cout << "VP1AvailEvtsHttps stage -- " << m_d->m_stage
+	    << " -- finished with error=" << (int)m_d->m_netreply->error() 
 	    << ", sc=" << sc 
 	    << ", LM=" << lastModified.toStdString() << std::endl;
   **/
 
-  if(d->m_netreply->error()==QNetworkReply::NoError) {
-    if(d->m_stage==0) {
-      if(!lastModified.isEmpty() && lastModified!=d->m_urlLastMod) {
+  if(m_d->m_netreply->error()==QNetworkReply::NoError) {
+    if(m_d->m_stage==0) {
+      if(!lastModified.isEmpty() && lastModified!=m_d->m_urlLastMod) {
 	// The file info has been modified, go to the stage 1
-	d->m_urlLastMod = lastModified;
-	d->m_stage = 1; 
+	m_d->m_urlLastMod = lastModified;
+	m_d->m_stage = 1; 
       } else {
 	// Reuse the already downloaded file info
-	d->m_stage = 2;
+	m_d->m_stage = 2;
       }
-    }else if(d->m_stage==1) {
+    }else if(m_d->m_stage==1) {
       // Write out fileinfo to local file for parsing
       QString activeRetrievalDir = tmpActiveRetrievalDir();
       QString target = activeRetrievalDir +"downloadedfileinfo.txt";
@@ -280,8 +280,8 @@ void VP1AvailEvtsHttps::finished()
       // Delete already existing fileinfo 
       if(QFileInfo(target).exists() && !QFile(target).remove()) {
 	message("ERROR: Could not remove the old fileinfo " + target);
-	d->m_stage = 0;
-	d->startTimer(d->m_updateInterval);
+	m_d->m_stage = 0;
+	m_d->startTimer(m_d->m_updateInterval);
 	return;
       }
 
@@ -289,29 +289,29 @@ void VP1AvailEvtsHttps::finished()
       QFile localfileinfo(target);
       if(!localfileinfo.open(QIODevice::WriteOnly)) {
 	message("ERROR: Unable to open " + target + " for writing");
-	d->m_stage = 0;
-	d->startTimer(d->m_updateInterval);
+	m_d->m_stage = 0;
+	m_d->startTimer(m_d->m_updateInterval);
 	return;
       }
 
       // Wrute received fileinfo to local file
-      QByteArray ba = d->m_netreply->readAll();
+      QByteArray ba = m_d->m_netreply->readAll();
       localfileinfo.write(ba);
       localfileinfo.close();
-      d->m_stage = 2;
-    }else if(d->m_stage==2) {
+      m_d->m_stage = 2;
+    }else if(m_d->m_stage==2) {
       // Open target file for writing
-      QString target = tmpActiveRetrievalDir() + d->m_evtToGet;
+      QString target = tmpActiveRetrievalDir() + m_d->m_evtToGet;
       QFile targetFile(target);
       if(!targetFile.open(QIODevice::WriteOnly)) {
 	message("ERROR: Unable to open " + target + " for writing");
-	d->m_stage = 0;
-	d->startTimer(d->m_updateInterval);
+	m_d->m_stage = 0;
+	m_d->startTimer(m_d->m_updateInterval);
 	return;
       }
 
       // Write to file
-      QByteArray ba = d->m_netreply->readAll();
+      QByteArray ba = m_d->m_netreply->readAll();
       targetFile.write(ba);
       targetFile.close();
       /** ---- For logging
@@ -319,16 +319,16 @@ void VP1AvailEvtsHttps::finished()
       **/
 
       // Checksum test
-      bool match = VP1MD5Sum::sumMatches(target,d->m_expectedMD5Sum);
+      bool match = VP1MD5Sum::sumMatches(target,m_d->m_expectedMD5Sum);
       if(!match) {
 	message("Checksum did not match");
 	QFile::remove(target);
-	d->m_stage = 0;
-	d->startTimer(d->m_updateInterval);
+	m_d->m_stage = 0;
+	m_d->startTimer(m_d->m_updateInterval);
 	return;
       }
 
-      QString finalTarget = tmpLocalFileDir()+d->m_evtToGet;
+      QString finalTarget = tmpLocalFileDir()+m_d->m_evtToGet;
       if(!QFile::rename(target,finalTarget)) {
 	message("ERROR: Could not move " + target + " to " + finalTarget);
 	QFile::remove(target);
@@ -337,23 +337,23 @@ void VP1AvailEvtsHttps::finished()
 	cleanupAndCheckForEventListChanges();
       }
       
-      d->m_stage = 0;
+      m_d->m_stage = 0;
     }
   }
   else
-    d->m_stage = 0;
+    m_d->m_stage = 0;
 
-  d->m_netreply->blockSignals(true);
-  d->m_netreply->deleteLater();
-  d->m_netreply = 0;
+  m_d->m_netreply->blockSignals(true);
+  m_d->m_netreply->deleteLater();
+  m_d->m_netreply = 0;
 
-  int interval = d->m_stage>0 ? 0 : d->m_updateInterval;
-  d->startTimer(interval);
+  int interval = m_d->m_stage>0 ? 0 : m_d->m_updateInterval;
+  m_d->startTimer(interval);
 }
 
 void VP1AvailEvtsHttps::error(QNetworkReply::NetworkError err)
 {
-  message("Error processing " + d->m_netreply->url().toString() 
+  message("Error processing " + m_d->m_netreply->url().toString() 
 	  + "\n   ===> Error code: " + QString::number((int)err)
 	  + "\n        Error decoding here: http://doc.trolltech.com/4.4/qnetworkreply.html#NetworkError-enum");
 }
@@ -366,32 +366,32 @@ void VP1AvailEvtsHttps::sslErrors(const QList<QSslError>&)
     std::cout << "   SSL * " << (int)errlist.at(ii).error()
 	      << ", " << errlist.at(ii).errorString().toStdString() << std::endl;
   **/
-  d->m_netreply->ignoreSslErrors();
+  m_d->m_netreply->ignoreSslErrors();
 }
 
 void VP1AvailEvtsHttps::dataReadProgress(qint64 received, qint64)
 {
-  if(d->m_stage>0) {
-    if(received>d->m_bytesReceived) {
-      d->m_lastChangeTime = QDateTime::currentDateTime().toTime_t();
-      d->m_bytesReceived = received;
+  if(m_d->m_stage>0) {
+    if(received>m_d->m_bytesReceived) {
+      m_d->m_lastChangeTime = QDateTime::currentDateTime().toTime_t();
+      m_d->m_bytesReceived = received;
     }
   } else {
-    d->m_lastChangeTime = QDateTime::currentDateTime().toTime_t();
+    m_d->m_lastChangeTime = QDateTime::currentDateTime().toTime_t();
   }
 }
 
 void VP1AvailEvtsHttps::checkForStall()
 {
   unsigned currentTime = QDateTime::currentDateTime().toTime_t();
-  if (currentTime>d->m_lastChangeTime+10) {
+  if (currentTime>m_d->m_lastChangeTime+10) {
     // Abort current download and go to stage 0
-    if(d->m_netreply) {
-      d->m_netreply->blockSignals(true);
-      delete d->m_netreply;
-      d->m_netreply=0;
-      d->m_stage = 0;
-      d->startTimer(d->m_updateInterval);
+    if(m_d->m_netreply) {
+      m_d->m_netreply->blockSignals(true);
+      delete m_d->m_netreply;
+      m_d->m_netreply=0;
+      m_d->m_stage = 0;
+      m_d->startTimer(m_d->m_updateInterval);
     }
   }
 }

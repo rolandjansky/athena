@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _TABLE_H_
-#define _TABLE_H_
+#ifndef QATDATAANALYSIS_TABLE_H
+#define QATDATAANALYSIS_TABLE_H
 #include "CLHEP/GenericFunctions/Variable.hh"
 #include "QatDataAnalysis/TupleStore.h"
 #include <vector>
@@ -100,7 +100,7 @@ class Table {
 
   // Keep these details out of the interface:
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 

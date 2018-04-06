@@ -5,6 +5,10 @@ from AthenaCommon.SystemOfUnits import GeV
 from TrigCaloHypo.TrigCaloHypoConf import TrigEFCaloHypoNoise
 from LArCellRec.LArCellRecConf import LArNoisyROTool
 
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+
+
 class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
     __slots__ = []
     def __init__(self, name = "EFCaloHypoNoiseConfig",ef_thr=20*GeV,etaMin=0,etaMax=10):

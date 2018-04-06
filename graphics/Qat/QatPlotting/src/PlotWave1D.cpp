@@ -78,7 +78,7 @@ void PlotWave1D::describeYourselfTo(AbsPlotter *plotter) const {
 
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
-  unsigned int dim = c->function->dimensionality();
+  unsigned int dim = m_c->function->dimensionality();
   if (dim!=2) throw std::runtime_error("PlotWave1D:  requires a function of exactly 2 arguments");
   
   double minX=plotter->rect()->left(), maxX=plotter->rect()->right(); 
@@ -102,9 +102,9 @@ void PlotWave1D::describeYourselfTo(AbsPlotter *plotter) const {
       double x = minX + i*delta;
       arg[0] = x;
       double y=0;
-      if ((!c->domainRestriction || (*c->domainRestriction)(x))  && finite((y=(*c->function)(arg)))) {  // Check that X is in function domain 
+      if ((!m_c->domainRestriction || (*m_c->domainRestriction)(x))  && finite((y=(*m_c->function)(arg)))) {  // Check that X is in function domain 
 	
-	//double y = (*c->function) (x);
+	//double y = (*m_c->function) (x);
 	QPointF point(x,y);
 	if (y < maxY && y > minY) { // IN RANGE
 	  if (!path) path = new QPainterPath();
@@ -188,9 +188,9 @@ void PlotWave1D::describeYourselfTo(AbsPlotter *plotter) const {
       double x = minX + i*delta;
       arg[0]=x;
       double y=0;
-      if ((!c->domainRestriction || (*c->domainRestriction)(x))  && finite((y=(*c->function)(arg)))) {  // Check that X is in function domain 
+      if ((!m_c->domainRestriction || (*m_c->domainRestriction)(x))  && finite((y=(*m_c->function)(arg)))) {  // Check that X is in function domain 
 	
-	//double y = (*c->function) (x);
+	//double y = (*m_c->function) (x);
 	QPointF point(x,y);
 
 	if (!path) path = new QPainterPath();

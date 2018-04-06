@@ -23,7 +23,8 @@ KnownCosmicsProjects=frozenset(["data08_calocomm","data08_muoncomm","data08_cos"
                                 "data14_calib","data14_calocomm","data14_cos","data14_idcomm","data14_larcomm","data14_muoncomm","data14_tilecomm",
                                 "data15_calib","data15_calocomm","data15_cos","data15_idcomm","data15_larcomm","data15_muoncomm","data15_tilecomm",
                                 "data16_calib","data16_calocomm","data16_cos","data16_idcomm","data16_larcomm","data16_muoncomm","data16_tilecomm",
-                                "data17_calib","data17_calocomm","data17_cos","data17_idcomm","data17_larcomm","data17_muoncomm","data17_tilecomm"
+                                "data17_calib","data17_calocomm","data17_cos","data17_idcomm","data17_larcomm","data17_muoncomm","data17_tilecomm",
+                                "data18_calib","data18_calocomm","data18_cos","data18_idcomm","data18_larcomm","data18_muoncomm","data18_tilecomm"
                                 ])
 
 # Abandon the single-beam reconstruction all together, 26 February 2011 
@@ -39,10 +40,11 @@ KnownCollisionsProjects=frozenset(["data08","data08_coll900","data09","data09_co
                                    "data13_8TeV","data13_comm","data13_2p76TeV","data13_1beam",
                                    "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV","data15_5TeV",
                                    "data16_comm","data16_13TeV","data16_900GeV","data16_1beam",
-                                   "data17_comm","data17_13TeV","data17_900GeV","data17_1beam","data17_5TeV"
+                                   "data17_comm","data17_13TeV","data17_900GeV","data17_1beam","data17_5TeV",
+                                   "data18_comm","data18_13TeV","data18_900GeV","data18_1beam","data18_1p8TeV"
                                    ])
 
-KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi","data17_hi"])
+KnownHeavyIonProjects=frozenset(["data10_hi","data11_hi","data15_hi","data16_hi","data17_hi","data18_hi"])
 
 KnownHeavyIonProtonProjects=frozenset(["data12_hip","data13_hip","data16_hip","data16_hip5TeV","data16_hip8TeV"])
 
@@ -442,20 +444,29 @@ def ConfigureBeamEnergy():
                     beamEnergy = float( (str(projectName).split('_')[1]).replace('GeV','',1))/2 * 1000.
                 elif 'TeV' in projectName:
                     if 'hip5TeV' in projectName:
+                        # Approximate 'beam energy' here as sqrt(sNN)/2.
                         beamEnergy = 1577000.
                     elif 'hip8TeV' in projectName:
+                        # Approximate 'beam energy' here as sqrt(sNN)/2.
                         beamEnergy = 2510000.
                     else:
                         beamEnergy = float( (str(projectName).split('_')[1]).replace('TeV','',1).replace('p','.'))/2 * 1000000.
                         if '5TeV' in projectName:
+                            # these are actually sqrt(s) = 5.02 TeV
                             beamEnergy=2510000.
                 elif projectName.endswith("_hi") or projectName.endswith("_hip"):
-                    #beamEnergy=1380000. # 1.38 TeV (=3.5 TeV * (Z=82/A=208))
-                    # Pb (p) beam energy in p-Pb collisions in 2011 will be 1.38 (3.5) TeV. sqrt(s_NN)=4.4 TeV  
-                    #beamEnergy=1577000. # 1.577 TeV (=4 TeV * (Z=82/A=208))
-                    # Pb (p) Beam energy in p-Pb collisions in 2012 will be 1.577 (4) TeV.
-                    #beamEnergy=2510000. # 2.51 TeV (=6.37 TeV * (Z=82/A=208)) - lowered to 6.37 to match s_NN = 5.02 for earlier Pb-p runs.
-                    beamEnergy=2721000. # 2.72 TeV for Xe-Xe (=6.5 TeV * (Z=54/A=129))
+                    if projectName in ('data10_hi', 'data11_hi'):
+                        beamEnergy=1380000. # 1.38 TeV (=3.5 TeV * (Z=82/A=208))
+                    elif projectName == 'data12_hi':
+                        beamEnergy=1577000. # 1.577 TeV (=4 TeV * (Z=82/A=208))
+                    elif projectName in ('data12_hip', 'data13_hip'):
+                        # Pb (p) Beam energy in p-Pb collisions in 2012/3 was 1.577 (4) TeV.
+                        # Approximate 'beam energy' here as sqrt(sNN)/2.
+                        beamEnergy=2510000.
+                    elif projectName in ('data15_hi', 'data18_hi'):
+                        beamEnergy=2510000. # 2.51 TeV (=6.37 TeV * (Z=82/A=208)) - lowered to 6.37 to match s_NN = 5.02 in Pb-p runs.
+                    elif projectName == 'data17_hi':
+                        beamEnergy=2721000. # 2.72 TeV for Xe-Xe (=6.5 TeV * (Z=54/A=129))
                 else:
                     logAutoConfiguration.warning("Could not auto-configure beam energy based on project name: %s" , projectName)
                     return

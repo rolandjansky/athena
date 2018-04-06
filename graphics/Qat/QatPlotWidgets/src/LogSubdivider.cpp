@@ -31,7 +31,7 @@ inline double ciel(double x) {
   else return x+1.0;
 }
 LogSubdivider::LogSubdivider():
-  _min(0.0),_max(1.0)
+  m_min(0.0),m_max(1.0)
 {
 }
 
@@ -45,18 +45,18 @@ void LogSubdivider::setRange(double min, double max){
 
   // This protection insures 
   if (min==max) return;
-  _min=std::min(min,max);
-  _max=std::max(min,max);
+  m_min=std::min(min,max);
+  m_max=std::max(min,max);
 
-  if (_max<0) {
-    _max=1;
-    _min=0.1;
+  if (m_max<0) {
+    m_max=1;
+    m_min=0.1;
   }
-  if (_min<0) {
-    _min=_max/10.0;
+  if (m_min<0) {
+    m_min=m_max/10.0;
   }
   
-  _recompute();
+  recompute();
 
 
 
@@ -65,36 +65,36 @@ void LogSubdivider::setRange(double min, double max){
 
 // Set the range:
 void LogSubdivider::setMin(double min){
-  setRange(min,_max);
+  setRange(min,m_max);
 }
 
 // Set the range:
 void LogSubdivider::setMax(double max){
-  setRange(_min,max);
+  setRange(m_min,max);
 }
 
 
 // Get the number of subdivisions:
 int LogSubdivider::getNumSubdivisions() const{
-  return _subdivision.size();
+  return m_subdivision.size();
 }
 
 // Get the location of each subdivision:
 const RangeDivision & LogSubdivider::getSubdivision(int i) const{
-  return _subdivision[i];
+  return m_subdivision[i];
 }
 
-void LogSubdivider::_recompute() {
+void LogSubdivider::recompute() {
   // Clean out old subdivisions:
-  _subdivision.erase(_subdivision.begin(),_subdivision.end());
-  double nDecades = log10(_max/_min);
+  m_subdivision.erase(m_subdivision.begin(),m_subdivision.end());
+  double nDecades = log10(m_max/m_min);
 
 
 
   
-  double exponentMin = floor(log10(_min));
+  double exponentMin = floor(log10(m_min));
   double multMin = pow(10,exponentMin);
-  unsigned int NMin = (unsigned int) (_min/multMin+1);
+  unsigned int NMin = (unsigned int) (m_min/multMin+1);
   if (NMin==10) {
     NMin=1;
     multMin*=10;
@@ -123,7 +123,7 @@ void LogSubdivider::_recompute() {
   while (1) {
 
     if (std::find(valueSet,valueSet+valueSetSize,NMin)!=valueSet+valueSetSize) {
-      _subdivision.push_back(NMin*multMin);
+      m_subdivision.push_back(NMin*multMin);
     }
 
     NMin++;
@@ -131,7 +131,7 @@ void LogSubdivider::_recompute() {
       NMin=1;
       multMin*=pow(10,nJump);
     }
-    if (NMin*multMin > _max) break;
+    if (NMin*multMin > m_max) break;
   }
 
 }
@@ -139,7 +139,7 @@ void LogSubdivider::_recompute() {
 // Get the validity of each subdivision:
 bool LogSubdivider::isValid(int i) const {
   const RangeDivision & rd=getSubdivision(i);
-  return (rd.x()>=_min && rd.x()<=_max);
+  return (rd.x()>=m_min && rd.x()<=m_max);
 }
 
 //if (fabs(xValue)/xMultiplier < 1.0E-6) xValue=0;

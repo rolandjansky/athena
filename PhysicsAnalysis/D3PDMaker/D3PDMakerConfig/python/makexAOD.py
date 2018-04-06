@@ -312,11 +312,3 @@ def makexAOD (seq, xaod_type, xaod_key, key=None, **kw):
     return
 
         
-def setVxLinks (seq, tpkey, vxkey):
-    from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetVxLinksToTrackParticles
-    alg = InDet__InDetVxLinksToTrackParticles(tpkey + 'LinkSetter',
-                                              TracksName    = tpkey,
-                                              VerticesName  = vxkey)
-    seq += alg
-    return
-    

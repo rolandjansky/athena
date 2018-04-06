@@ -6,6 +6,7 @@
 #define GLOBALCHI2FITTER_H
 //#define GXFDEBUGCODE
 
+#include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
@@ -36,7 +37,6 @@ namespace Trk{
   class TransportJacobian;
   class IRIO_OnTrackCreator;
   class IUpdator;
-  class IMaterialEffectsOnTrackProvider;
   class IEnergyLossUpdator;
   class IMultipleScatteringUpdator;
   class IMaterialEffectsUpdator;
@@ -193,7 +193,6 @@ private:
 
   ToolHandle< IMaterialEffectsOnTrackProvider > m_calotool;
   ToolHandle< IMaterialEffectsOnTrackProvider > m_calotoolparam;
-  ToolHandle< IMaterialEffectsOnTrackProvider > m_cmeotp;
 
   ServiceHandle< MagField::IMagFieldSvc > m_fieldService;
  

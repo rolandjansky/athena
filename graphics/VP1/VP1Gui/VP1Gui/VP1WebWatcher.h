@@ -65,7 +65,7 @@ protected:
   void timerEvent(QTimerEvent*);
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

@@ -31,6 +31,7 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetRawData/SCT_RDO_Container.h"
+#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 //tool/service handle template parameters
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "IRegionSelector/IRegSelSvc.h"
@@ -41,7 +42,6 @@ class SCT_ChannelStatusAlg;
 class SiDetectorManager;
 class ISvcLocator;
 class StatusCode;
-class ISCT_FlaggedConditionSvc;
 
 class IInDetConditionsSvc;
 namespace InDetDD{
@@ -94,10 +94,10 @@ private:
   
   SG::WriteHandleKey<SCT_ClusterContainer> m_clusterContainerKey;
   SG::WriteHandleKey<SiClusterContainer> m_clusterContainerLinkKey;
+  SG::WriteHandleKey<SCT_FlaggedCondData> m_flaggedCondDataKey;
   const InDetDD::SiDetectorManager*        m_manager;
   unsigned int                             m_maxRDOs;
   ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
-  ServiceHandle<ISCT_FlaggedConditionSvc>   m_flaggedConditionSvc;
   bool                                     m_checkBadModules;
   std::set<IdentifierHash>                 m_flaggedModules;
   unsigned int                             m_maxTotalOccupancyPercent;

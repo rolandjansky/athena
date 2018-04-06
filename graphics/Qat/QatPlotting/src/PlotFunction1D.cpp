@@ -34,25 +34,25 @@
 // Constructor
 PlotFunction1D::PlotFunction1D(const Genfun::AbsFunction & function,
 			       const QRectF & naturalRectangle):
-  Plotable(),c(new Clockwork())
+  Plotable(),m_c(new Clockwork())
 {
-  c->function=function.clone();
-  c->rect=naturalRectangle;
+  m_c->function=function.clone();
+  m_c->rect=naturalRectangle;
 }
 
 PlotFunction1D::PlotFunction1D(const Genfun::AbsFunction & function,
 			       const Cut<double> & domainRestriction,
 			       const QRectF & naturalRectangle):
-  Plotable(),c(new Clockwork()) 
+  Plotable(),m_c(new Clockwork()) 
 {
-  c->function=function.clone();
-  c->rect=naturalRectangle;
-  c->domainRestriction=domainRestriction.clone();
+  m_c->function=function.clone();
+  m_c->rect=naturalRectangle;
+  m_c->domainRestriction=domainRestriction.clone();
 }
 
 // Copy constructor:
 PlotFunction1D::PlotFunction1D(const PlotFunction1D & source):
-  Plotable(),c(new Clockwork(*(source.c)))
+  Plotable(),m_c(new Clockwork(*(source.m_c)))
 {
  
 }
@@ -61,7 +61,7 @@ PlotFunction1D::PlotFunction1D(const PlotFunction1D & source):
 PlotFunction1D & PlotFunction1D::operator=(const PlotFunction1D & source){
   if (&source!=this) {
     Plotable::operator=(source);
- 		c.reset(new Clockwork(*(source.c)));
+ 		m_c.reset(new Clockwork(*(source.m_c)));
   }
   return *this;
 } 
@@ -70,13 +70,13 @@ PlotFunction1D & PlotFunction1D::operator=(const PlotFunction1D & source){
 #include <iostream>
 // Destructor
 PlotFunction1D::~PlotFunction1D(){
-  //delete c;
+  //delete m_c;
 }
 
 
 
 const QRectF  PlotFunction1D::rectHint() const {
-  return c->rect;
+  return m_c->rect;
 }
 
 
@@ -90,7 +90,7 @@ void PlotFunction1D::describeYourselfTo(AbsPlotter *plotter) const {
 
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
-  unsigned int dim = c->function->dimensionality();
+  unsigned int dim = m_c->function->dimensionality();
   if (dim!=1) throw std::runtime_error("PlotFunction1D:  requires a function of exactly 1 argument");
   
   double minX=plotter->rect()->left(), maxX=plotter->rect()->right(); 
@@ -113,9 +113,9 @@ void PlotFunction1D::describeYourselfTo(AbsPlotter *plotter) const {
       bool                closePath=false;
       double x = minX + i*delta;
       double y=0;
-      if ((!c->domainRestriction || (*c->domainRestriction)(x))  && finite((y=(*c->function)(x)))) {  // Check that X is in function domain 
+      if ((!m_c->domainRestriction || (*m_c->domainRestriction)(x))  && finite((y=(*m_c->function)(x)))) {  // Check that X is in function domain 
 	
-	//double y = (*c->function) (x);
+	//double y = (*m_c->function) (x);
 	QPointF point(x,y);
 	if (y < maxY && y > minY) { // IN RANGE
 	  if (!path) path = new QPainterPath();
@@ -198,9 +198,9 @@ void PlotFunction1D::describeYourselfTo(AbsPlotter *plotter) const {
       bool                closePath=false;
       double x = minX + i*delta;
       double y=0;
-      if ((!c->domainRestriction || (*c->domainRestriction)(x))  && finite((y=(*c->function)(x)))) {  // Check that X is in function domain 
+      if ((!m_c->domainRestriction || (*m_c->domainRestriction)(x))  && finite((y=(*m_c->function)(x)))) {  // Check that X is in function domain 
 	
-	//double y = (*c->function) (x);
+	//double y = (*m_c->function) (x);
 	QPointF point(x,y);
 
 	if (!path) path = new QPainterPath();
@@ -250,15 +250,15 @@ void PlotFunction1D::describeYourselfTo(AbsPlotter *plotter) const {
 
 
 const PlotFunction1D::Properties  PlotFunction1D::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotFunction1D::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties=new Properties(properties);
+  delete m_c->myProperties;
+  m_c->myProperties=new Properties(properties);
 }
 
 void PlotFunction1D::resetProperties() {
-  delete c->myProperties;
-  c->myProperties=nullptr;
+  delete m_c->myProperties;
+  m_c->myProperties=nullptr;
 }

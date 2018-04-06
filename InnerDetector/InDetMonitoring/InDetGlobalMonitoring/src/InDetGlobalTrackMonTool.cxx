@@ -81,9 +81,7 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_c_detector_labels{ "IBL", "PIX", "SCT", "TRT" },
       m_IBLParameterSvc("IBLParameterSvc",name),
       m_holes_search_tool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
-      m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool"),
       m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
-      m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"),
       m_iUpdator("Trk::KalmanUpdator"),
       m_sct_holes(nullptr),
       m_trt_holes(nullptr),
@@ -211,6 +209,7 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
   ATH_CHECK( m_CombinedTracksName.initialize() );
   ATH_CHECK( m_ForwardTracksName.initialize() );
   ATH_CHECK( m_JetsName.initialize() );
+  ATH_CHECK( m_vertexKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -910,6 +909,7 @@ void InDetGlobalTrackMonTool::FillForwardTracks( const Trk::Track *track, const 
 
 void InDetGlobalTrackMonTool::FillTIDE()
 {
+    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
     SG::ReadHandle<xAOD::JetContainer> jets(m_JetsName);
     if ( jets.isValid() ) {
 	for ( auto jetItr = jets->begin(); jetItr != jets->end(); ++jetItr )
@@ -935,9 +935,27 @@ void InDetGlobalTrackMonTool::FillTIDE()
 		if ( trackPart->summaryValue(pix, xAOD::numberOfPixelHits) && pix )
 		{
 		    const Trk::Perigee perigee = trackPart->perigeeParameters();
-		    if ( trackPart->vertex() )
+		    const xAOD::Vertex* foundVertex { nullptr };
+		    if ( vertices.isValid() )
 		    {
-			std::unique_ptr<const Trk::ImpactParametersAndSigma>myIPandSigma( m_trackToVertexIPEstimator->estimate(trackPart, trackPart->vertex()) );
+		      for ( const auto& vx : *vertices )
+		      {
+			for ( const auto& tpLink : vx->trackParticleLinks() )
+			{
+			  if ( *tpLink == trackPart )
+			  {
+			    foundVertex = vx;
+			    break;
+			  }
+			}
+			if (foundVertex) break;
+		      }
+		    }
+		    if ( foundVertex )
+		    {
+			std::unique_ptr<const Trk::ImpactParametersAndSigma>myIPandSigma( 
+						   m_trackToVertexIPEstimator->estimate(trackPart, 
+											foundVertex ));
 			if ( myIPandSigma )
 			{
 			    m_trk_jetassoc_d0_reso_dr->Fill( trackPart->p4().DeltaR( (*jetItr)->p4() ), fabs( myIPandSigma->IPd0 / sqrt( myIPandSigma->sigmad0*myIPandSigma->sigmad0 + myIPandSigma->PVsigmad0*myIPandSigma->PVsigmad0 ) ) );

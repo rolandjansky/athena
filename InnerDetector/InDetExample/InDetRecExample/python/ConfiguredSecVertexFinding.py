@@ -147,7 +147,6 @@ class ConfiguredSecVertexFinding:
                                                               VertexFitterTool           = InDetSecVxFitterTool,
                                                               TrackSelectorTool          = InDetSecVxTrackSelector,
                                                               TrackPairsSelector         = InDetSecVxTrackPairsSelector,
-                                                              ConversionFinderHelperTool = InDetSecVxHelper,
                                                               VertexPointEstimator       = InDetSecVtxPointEstimator,
                                                               PostSelector               = InDetSecVtxPostSelector,
                                                               SingleTrackConversionTool  = InDetSingleTrackSecVtx,

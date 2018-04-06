@@ -46,7 +46,6 @@
 
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
 #include "TrackSelectionTool.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 
 // *********************************************************************
@@ -58,8 +57,7 @@ IDAlignMonPVBiases::IDAlignMonPVBiases( const std::string & type, const std::str
   m_events(0),
   m_histosBooked(0),
   m_tracksName("ExtendedTracks"),
-  m_triggerChainName("NoTriggerSelection"),
-  m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator")
+  m_triggerChainName("NoTriggerSelection")
   //m_TreeFolder("/PVbiases/PVbiases"),
   //m_Tree(0),
   //m_TreeName("PVbiases")
@@ -171,6 +169,8 @@ StatusCode IDAlignMonPVBiases::initialize()
   } else {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSelection << endmsg;
   }
+
+  ATH_CHECK( m_vertexKey.initialize() );
 /*
   //create tree and branches
   if(m_Tree == 0) {
@@ -513,6 +513,16 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
 	return StatusCode::FAILURE;
   }
 
+  /**
+   * Retrieve Vertices
+   */
+
+  SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+  if (!vertices.isValid()) {
+    ATH_MSG_WARNING( "Failed to retrieve vertex container with key " << m_vertexKey.key() );
+    return StatusCode::FAILURE;
+  }
+
   xAOD::TrackParticleContainer::const_iterator track_itr = tracks->begin();
   xAOD::TrackParticleContainer::const_iterator track_itrE = tracks->end();
 	
@@ -520,16 +530,28 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
   ** Trackparticle Loop
   *******************************************************************/
   for (; track_itr!=track_itrE; ++track_itr) {
-           
+    const xAOD::Vertex* foundVertex = nullptr;
+    for (const auto& vx : *vertices)
+    {
+      for (const auto& tpLink : vx->trackParticleLinks())
+      {
+	if (*tpLink == *track_itr)
+	{
+	  foundVertex = vx;
+	  break;
+	}
+	if (foundVertex) break;
+      }
+    }       
        	// require having vertex
-	if(!(*track_itr)->vertex()) continue;
+	if(!foundVertex) continue;
         // require associated with primary vertex
-   	if((*track_itr)->vertex()->vertexType() != 1) continue;
+   	if(foundVertex->vertexType() != 1) continue;
 	// require at least 10 tracks associated
-        if((*track_itr)->vertex()->nTrackParticles() < 10) continue;
+        if(foundVertex->nTrackParticles() < 10) continue;
 
         const Trk::ImpactParametersAndSigma* myIPandSigma(NULL);
-        myIPandSigma = m_trackToVertexIPEstimator->estimate(*track_itr, (*track_itr)->vertex(),true);
+        myIPandSigma = m_trackToVertexIPEstimator->estimate(*track_itr, foundVertex, true);
 
         // require d0_pv to be smaller than 4
         if(myIPandSigma->IPd0 > 4.0) continue;
@@ -547,9 +569,9 @@ StatusCode IDAlignMonPVBiases::fillHistograms()
  	m_pt = (*track_itr)->pt();
         m_eta = (*track_itr)->eta();
         m_phi = (*track_itr)->phi();
-        m_vertex_x = (*track_itr)->vertex()->x();
-        m_vertex_y = (*track_itr)->vertex()->y();
-        m_vertex_z = (*track_itr)->vertex()->z();
+        m_vertex_x = foundVertex->x();
+        m_vertex_y = foundVertex->y();
+        m_vertex_z = foundVertex->z();
   
 	//m_Tree->Fill();
 

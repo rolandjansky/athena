@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr, CfgGetter
 #from G4AtlasApps.SimFlags import simFlags
@@ -6,9 +6,10 @@ from AthenaCommon import CfgMgr, CfgGetter
 
 def getATLAS_RegionCreatorList():
     regionCreatorList = []
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    isUpgrade = geoFlags.Run()=="RUN3" or geoFlags.Run()=="RUN4" or (geoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
-    isRUN2 = geoFlags.Run()=="RUN2" or (geoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    isUpgrade = commonGeoFlags.Run()=="RUN3" or commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
+    isRUN2 = commonGeoFlags.Run()=="RUN2" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
 
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.DetFlags import DetFlags
@@ -272,6 +273,3 @@ def getG4GeometryNotifierSvc(name="G4GeometryNotifierSvc", **kwargs):
     kwargs.setdefault("ActivateLVNotifier", True)
     kwargs.setdefault("ActivatePVNotifier", False)
     return CfgMgr.G4GeometryNotifierSvc(name, **kwargs)
-
-#back-compatibility hack
-from G4AtlasServices.G4AtlasUserActionConfig import addAction

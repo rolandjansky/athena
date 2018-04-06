@@ -22,7 +22,7 @@ TileGeoG4SDTool::TileGeoG4SDTool(const std::string& type, const std::string& nam
   declareProperty( "TimeCut" , m_options.timeCut );
   declareProperty( "TileTB" , m_options.tileTB );
   declareProperty( "PlateToCell" , m_options.plateToCell );
-  declareProperty( "Ushape" , m_options.Ushape );
+  declareProperty( "Ushape" , m_options.uShape );
   declareProperty( "DoBirk" , m_options.doBirk );
   declareProperty( "DoTileRow" , m_options.doTileRow );
   declareProperty( "DoTOFCorrection" , m_options.doTOFCorrection );

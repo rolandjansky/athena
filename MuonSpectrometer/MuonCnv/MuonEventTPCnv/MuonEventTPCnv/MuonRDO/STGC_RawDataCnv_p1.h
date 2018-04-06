@@ -5,11 +5,6 @@
 #ifndef STGC_RAWDATACNV_P1_H
 #define STGC_RAWDATACNV_P1_H
 
-//-----------------------------------------------------------------------------
-//
-// file:   sTgcPrepDataCnv_p1.h
-//
-//-----------------------------------------------------------------------------
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 #include "MuonRDO/STGC_RawData.h"

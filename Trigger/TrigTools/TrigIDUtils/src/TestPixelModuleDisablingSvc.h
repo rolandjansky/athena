@@ -58,10 +58,10 @@ class TestPixelModuleDisablingSvc:  public AthService,
 
   ServiceHandle< StoreGateSvc > m_detStore;
   const PixelID* m_pixelID;
-  unsigned int print;
-  bool print_disabled;
+  unsigned int m_print;
+  bool m_print_disabled;
   void print_disabled_modules();
-  std::set<Identifier> disabled_modules;
+  std::set<Identifier> m_disabled_modules;
   std::vector <unsigned int>  m_moduleList;
 
 

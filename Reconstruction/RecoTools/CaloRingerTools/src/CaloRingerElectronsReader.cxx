@@ -124,7 +124,7 @@ StatusCode CaloRingerElectronsReader::execute()
 
       // Execute selector for each electron
       StatusCode lsc = selector->execute(el);
-      sc = lsc && sc;
+      sc &= lsc;
 
       if ( lsc.isFailure() ){
         ATH_MSG_WARNING("Error while executing selector: " << 

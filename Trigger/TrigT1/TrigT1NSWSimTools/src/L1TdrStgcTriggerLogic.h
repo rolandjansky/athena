@@ -105,7 +105,7 @@ public:
     bool m_writePickle; /// after computing the triggers, write the canditates to 'pickle' files (for event display)
     std::string m_picklePrefix; /// path where the pickle files will be written
 protected:
- 	TRandom rand;
+ 	TRandom m_rand;
     nsw::vstcand_t m_secTrigCand;
 };
 } // end namespace nsw

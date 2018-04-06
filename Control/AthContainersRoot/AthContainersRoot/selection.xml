@@ -8,4 +8,13 @@
 <class name="std::vector<AthContainersRootTest::Baz>"/>
 <class name="SG::AuxTypeVectorFactory<AthContainersRootTest::Foo>"/>
 
+<class name="ElementLink<std::vector<AthContainersRootTest::Foo*> >"/>
+<class name="std::vector<ElementLink<std::vector<AthContainersRootTest::Foo*> > >"/>
+<class name="std::vector<std::vector<ElementLink<std::vector<AthContainersRootTest::Foo*> > > >"/>
+
+
+<class name="ElementLink<std::vector<AthContainersRootTest::Foo> >"/>
+<class name="std::vector<ElementLink<std::vector<AthContainersRootTest::Foo> > >"/>
+<class name="std::vector<std::vector<ElementLink<std::vector<AthContainersRootTest::Foo> > > >"/>
+
 </lcgdict>

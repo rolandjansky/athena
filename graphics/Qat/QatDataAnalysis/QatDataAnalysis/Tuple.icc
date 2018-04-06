@@ -24,80 +24,80 @@
 //#include "QatDataAnalysis/TupleLink.h"
 
 inline Tuple::Tuple(AttributeListConstLink attributeList):
-  _attributeList(attributeList),_status(true),_doubleRep(NULL),
-  _doubleRepStale(true){
+  m_attributeList(attributeList),m_status(true),m_doubleRep(NULL),
+  m_doubleRepStale(true){
 }
 
 inline Tuple::Tuple(AttributeListConstLink attributeList, const ValueList & valList):
-  _attributeList(attributeList),
-  _valList(valList),
-  _status(true),
-  _doubleRep(NULL),
-  _doubleRepStale(true){
+  m_attributeList(attributeList),
+  m_valList(valList),
+  m_status(true),
+  m_doubleRep(NULL),
+  m_doubleRepStale(true){
 }
 
 
 inline Tuple::~Tuple() {
-  delete _doubleRep;
+  delete m_doubleRep;
 
 }
 
 inline ValueList & Tuple::valueList() {
   // If a nonconst version is ever accessed, we must assume that
   // the data values are going to change!!
-  _doubleRepStale=true;
-  return _valList;
+  m_doubleRepStale=true;
+  return m_valList;
 }
 
 inline const ValueList & Tuple::valueList() const {
-  return _valList;
+  return m_valList;
 }
 
 inline const Tuple & Tuple::read (int & i, unsigned int pos) const {
-  const std::string &typeName = (*_attributeList)[pos].typeName();
+  const std::string &typeName = (*m_attributeList)[pos].typeName();
   if (typeName=="i") {
-    i = * (int *) _valList[pos].asCharStar();
-    _status=true;
+    i = * (int *) m_valList[pos].asCharStar();
+    m_status=true;
   }
   else {
-    _status=false;
+    m_status=false;
   }
   return *this;
 }
 
 
 inline const Tuple & Tuple::read (double & d, unsigned int pos) const {
-  const std::string &typeName = (*_attributeList)[pos].typeName();
+  const std::string &typeName = (*m_attributeList)[pos].typeName();
   if (typeName=="d") {
-    d = * (double *) _valList[pos].asCharStar();
-    _status=true;
+    d = * (double *) m_valList[pos].asCharStar();
+    m_status=true;
   }
   else {
-    _status=false;
+    m_status=false;
   }
   return *this;
 }
 
 inline const Tuple & Tuple::read (float & d, unsigned int pos) const {
-  const std::string &typeName = (*_attributeList)[pos].typeName();
+  const std::string &typeName = (*m_attributeList)[pos].typeName();
   if (typeName=="f") {
-    d = * (float *) _valList[pos].asCharStar();
-    _status=true;
+    d = * (float *) m_valList[pos].asCharStar();
+    m_status=true;
   }
   else {
-    _status=false;
+    m_status=false;
   }
   return *this;
 }
 
 inline const Tuple & Tuple::read (unsigned int & i, unsigned int pos) const {
-  const std::string &typeName = (*_attributeList)[pos].typeName();
+  const std::string &typeName = (*m_attributeList)[pos].typeName();
   if (typeName=="j"|| typeName=="m") {
-    i = * (unsigned int *) _valList[pos].asCharStar();
-    _status=true;
+    i = * (unsigned int *) m_valList[pos].asCharStar();
+    m_status=true;
   }
   else {
-    _status=false;
+    m_status=false;
   }
   return *this;
 }
@@ -118,25 +118,25 @@ inline const Tuple & Tuple::read (unsigned int & i, unsigned int pos) const {
 
 
 inline void Tuple::fastread (int & i, unsigned int pos) const {
-  i = * (int *) _valList[pos].asCharStar();
+  i = * (int *) m_valList[pos].asCharStar();
 }
 
 
 inline void Tuple::fastread (double & d, unsigned int pos) const {
-  d = * (double *) _valList[pos].asCharStar();
+  d = * (double *) m_valList[pos].asCharStar();
 }
 
 inline void Tuple::fastread (float & d, unsigned int pos) const {
-  d = * (float *) _valList[pos].asCharStar();
+  d = * (float *) m_valList[pos].asCharStar();
 }
 
 inline void Tuple::fastread (unsigned int & i, unsigned int pos) const {
-  i = * (unsigned int *) _valList[pos].asCharStar();
+  i = * (unsigned int *) m_valList[pos].asCharStar();
 }
 
 
 inline void Tuple::uncache() const {
-  delete _doubleRep;
-  _doubleRep=NULL;
-  _doubleRepStale=true;	
+  delete m_doubleRep;
+  m_doubleRep=NULL;
+  m_doubleRepStale=true;	
 }

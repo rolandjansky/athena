@@ -25,8 +25,8 @@
 // Plottable Profile                                                                //
 //                                                                                  //
 //----------------------------------------------------------------------------------//
-#ifndef _PLOTPROFILE_H_
-#define _PLOTPROFILE_H_
+#ifndef QATPLOTTING_PLOTPROFILE_H
+#define QATPLOTTING_PLOTPROFILE_H
 #include "QatPlotting/Plotable.h"
 #include "PlotProfileProperties.h"
 #include <QtCore/QRectF>
@@ -75,7 +75,7 @@ private:
   PlotProfile & operator=(const PlotProfile &); 
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 
 };

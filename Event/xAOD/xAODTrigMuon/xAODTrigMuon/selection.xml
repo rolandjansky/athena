@@ -4,17 +4,7 @@
   <!-- dictionaries: -->
 
   <!-- L2StandAloneMuon_v1 -->
-  <class name="xAOD::L2StandAloneMuon_v1" >
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::L2StandAloneMuon_v1" version="[1-]"
-        targetClass="xAOD::L2StandAloneMuon_v1" source=""
-        target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
+  <class name="xAOD::L2StandAloneMuon_v1" />
 
   <class name="xAOD::L2StandAloneMuonContainer_v1"
          id="645BDBC3-44EE-486B-8783-96F93FA2550B" />
@@ -29,17 +19,7 @@
   <class name="std::vector<std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v1> > >" />
 
   <!-- L2StandAloneMuon_v2 -->
-  <class name="xAOD::L2StandAloneMuon_v2" >
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::L2StandAloneMuon_v2" version="[1-]"
-        targetClass="xAOD::L2StandAloneMuon_v2" source=""
-        target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
+  <class name="xAOD::L2StandAloneMuon_v2" />
 
   <class name="xAOD::L2StandAloneMuonContainer_v2"
          id="6B02C486-CB3B-4762-89CA-60B210FC5AAF" />
@@ -54,17 +34,7 @@
   <class name="std::vector<std::vector<ElementLink<xAOD::L2StandAloneMuonContainer_v2> > >" />
 
   <!-- L2IsoMuon -->
-  <class name="xAOD::L2IsoMuon_v1" >
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::L2IsoMuon_v1" version="[1-]"
-        targetClass="xAOD::L2IsoMuon_v1" source=""
-        target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
+  <class name="xAOD::L2IsoMuon_v1" />
 
   <class name="xAOD::L2IsoMuonContainer_v1"
          id="D3AD2358-29B9-48D1-B181-89D4DA39B5CC" />
@@ -79,17 +49,7 @@
   <class name="std::vector<std::vector<ElementLink<xAOD::L2IsoMuonContainer_v1> > >" />
 
   <!-- L2CombinedMuon -->
-  <class name="xAOD::L2CombinedMuon_v1" >
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::L2CombinedMuon_v1" version="[1-]"
-        targetClass="xAOD::L2CombinedMuon_v1" source=""
-        target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
+  <class name="xAOD::L2CombinedMuon_v1" />
 
   <class name="xAOD::L2CombinedMuonContainer_v1"
          id="91ECD1FA-3B9F-4F80-BBD1-698DCC7C9477" />

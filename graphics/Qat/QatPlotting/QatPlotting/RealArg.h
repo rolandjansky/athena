@@ -34,8 +34,8 @@
 //                                                           //
 // ----------------------------------------------------------//
 
-#ifndef _REALARG_HH_
-#define _REALARG_HH_
+#ifndef QATPLOTTING_REALARG_H
+#define QATPLOTTING_REALARG_H
 #include "CLHEP/GenericFunctions/CutBase.hh"
 namespace RealArg {
   
@@ -45,7 +45,7 @@ namespace RealArg {
     virtual bool operator() (const double & x) const;
     virtual Eq *clone() const;
   private:
-    double _value;  // value;
+    double m_value;  // value;
   };
   
   class Gt:         public Cut<double> {
@@ -54,7 +54,7 @@ namespace RealArg {
     virtual bool operator() (const double & x) const;
     virtual Gt *clone() const;
   private:
-    double _value;  // value;
+    double m_value;  // value;
   };
   
   class Lt:         public Cut<double> {
@@ -63,7 +63,7 @@ namespace RealArg {
     virtual bool operator() (const double & x) const;
     virtual Lt *clone() const;
   private:
-    double _value;  // value;
+    double m_value;  // value;
   };
   
 }

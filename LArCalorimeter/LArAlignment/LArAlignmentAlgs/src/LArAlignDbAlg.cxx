@@ -29,7 +29,7 @@ LArAlignDbAlg::LArAlignDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
     m_outpTag("LARAlign-TEST"),
     m_evt(0),
     m_regSvc("IOVRegistrationSvc",name),
-    m_streamer("AthenaPoolOutputStreamTool")
+    m_streamer("AthenaOutputStreamTool")
 {
     declareProperty("WriteCondObjs",     m_writeCondObjs);
     declareProperty("RegisterIOV",       m_regIOV);

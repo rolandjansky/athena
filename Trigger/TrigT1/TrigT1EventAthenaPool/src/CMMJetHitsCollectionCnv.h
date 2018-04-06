@@ -24,14 +24,15 @@ typedef T_AthenaPoolCustomCnv<CMMJetHitsCollection, CMMJetHitsCollection_PERS> C
 class CMMJetHitsCollectionCnv: public CMMJetHitsCollectionCnvBase {
 friend class CnvFactory<CMMJetHitsCollectionCnv>;
 
-protected:
-
+public:
   CMMJetHitsCollectionCnv (ISvcLocator* svcloc) :
     CMMJetHitsCollectionCnvBase(svcloc),
     m_msgSvc( msgSvc() ),
     m_log( m_msgSvc, "CMMJetHitsCollectionCnv" )
      {}
   
+protected:
+
   ~CMMJetHitsCollectionCnv() {}
   
   virtual CMMJetHitsCollection_PERS*   createPersistent (CMMJetHitsCollection* transCont);

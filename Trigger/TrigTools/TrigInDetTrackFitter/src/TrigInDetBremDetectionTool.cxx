@@ -95,10 +95,10 @@ bool TrigInDetBremDetectionTool::addNewPoint(Trk::TrkTrackState* pTS,
 
   m_totalPath+=fabs(delta);
 
-  dim=pN->m_getKalmanGain(K);
-  dim=pN->m_getMeasurementMatrix(H);
-  dim=pN->m_getInverseResidualVariance(S);
-  dim=pN->m_getResiduals(res);
+  dim=pN->getKalmanGain(K);
+  dim=pN->getMeasurementMatrix(H);
+  dim=pN->getInverseResidualVariance(S);
+  dim=pN->getResiduals(res);
 
 #ifdef IDE_DEBUG
 
@@ -196,9 +196,9 @@ bool TrigInDetBremDetectionTool::addNewPoint(Trk::TrkTrackState* pTS,
 
   m_surfArray[m_lsmSize-1]=pS;
 
-  lP[0]=pTS->m_getTrackState(0);lP[1]=pTS->m_getTrackState(1);
+  lP[0]=pTS->getTrackState(0);lP[1]=pTS->getTrackState(1);
   lP[2]=0.0;
-  pS->m_transformPointToGlobal(lP,gP);
+  pS->transformPointToGlobal(lP,gP);
   m_jX[m_lsmSize-1]=gP[0];m_jY[m_lsmSize-1]=gP[1];m_jZ[m_lsmSize-1]=gP[2]; 
 #ifdef IDE_DEBUG 
   m_log << MSG::INFO << " Added new jump at "<<gP[0]<<" "<<gP[1]<<" "<<gP[2]<<endmsg;
@@ -279,7 +279,7 @@ bool TrigInDetBremDetectionTool::solve(int Sign)
 	{
 	  LSMSolution* pST=solveLSM();
 #ifdef IDE_DEBUG
-	  pST->m_report();
+	  pST->report();
 #endif
 	  isFeasible=checkFeasibility(pST);
 	  if(!isFeasible)
@@ -741,7 +741,7 @@ void TrigInDetBremDetectionTool::modifySurfaces(int flag)
 		{
 		  if(!m_pLS->isOnConstraint(i))
 		    {
-		      m_surfArray[i]->m_setBreakPoint((*m_pLS)[i]);
+		      m_surfArray[i]->setBreakPoint((*m_pLS)[i]);
 		      if(m_outputLevel<=MSG::DEBUG)
 			{
 			  m_log<<MSG::DEBUG<<i<<"  Breakpoint is set, u="<<(*m_pLS)[i]<<
@@ -762,7 +762,7 @@ void TrigInDetBremDetectionTool::modifySurfaces(int flag)
     {
       for(i=0;i<m_size;i++) 
 	{
-	  m_surfArray[i]->m_unsetBreakPoint();                                                                               
+	  m_surfArray[i]->unsetBreakPoint();                                                                               
 	}
     }
   delete m_pLS;m_pLS=NULL;

@@ -11,12 +11,11 @@
 
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
-#include "CxxUtils/make_unique.h"
  
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include <sstream>
 

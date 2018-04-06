@@ -741,17 +741,22 @@ xAODEventSelector::createRootBranchAddresses(StoreID::type storeID,
     return StatusCode::FAILURE;
   }
 
+  TTree* inputTree = dynamic_cast<TTree*>(m_tfile->Get(m_tupleName.value().c_str()));
+  
+  if(inputTree!=0) {
 
-  ATH_MSG_DEBUG("Reading xAOD::EventFormat");
 
-  //  m_tevent->dump();
+    ATH_MSG_DEBUG("Reading xAOD::EventFormat");
 
-  const void* value_ptr = m_tevent; //passed as 'parameter' to the address object
+    //  m_tevent->dump();
 
-  std::set<std::string> missingAux;
+    const void* value_ptr = m_tevent; //passed as 'parameter' to the address object
 
-  for( auto itr = m_tevent->inputEventFormat()->begin(); itr!=m_tevent->inputEventFormat()->end();++itr) {
-    //ATH_MSG_DEBUG("EFE:" << itr->first << " branchName = " << itr->second.branchName() << " className=" << itr->second.className());
+    std::set<std::string> missingAux;
+
+    for( auto itr = m_tevent->inputEventFormat()->begin(); itr!=m_tevent->inputEventFormat()->end();++itr) {
+      if(inputTree->GetBranch(itr->second.branchName().c_str())==0) continue; //skip branches that are not available in the input collection
+      ATH_MSG_VERBOSE("EFE:" << itr->first << " branchName = " << itr->second.branchName() << " className=" << itr->second.className());
       CLID id = 0;
       if( m_clidsvc->getIDOfTypeInfoName(itr->second.className(), id).isFailure() &&
 	  m_clidsvc->getIDOfTypeName(itr->second.className(), id).isFailure()) {
@@ -820,13 +825,17 @@ xAODEventSelector::createRootBranchAddresses(StoreID::type storeID,
         m_rootAddresses.insert(std::make_pair(taddr, true));
       }
       // }
-  }
+    }
 
-  if(missingAux.size()) {
-    std::string allAux; for(auto& s : missingAux) allAux += s + ", ";
-    ATH_MSG_WARNING("The following AuxStore types are not directly accessible (missing CLID, possibly from schema evolution): " << allAux);
+
+    if(missingAux.size()) {
+      std::string allAux; for(auto& s : missingAux) allAux += s + ", ";
+      ATH_MSG_WARNING("The following AuxStore types are not directly accessible (missing CLID, possibly from schema evolution): " << allAux);
+    }
+  } //end if block of requiring input tree to exist
+  else {
+    ATH_MSG_DEBUG("No input collection " << m_tupleName.value() << " found in input file " << m_tfile->GetTitle() );
   }
-  
 
   m_needReload = false;
   // remember that we need to fire a BeginInputFile incident.

@@ -23,7 +23,9 @@ typedef  T_AthenaPoolCustomCnv<TBEventInfo, TBEventInfo_PERS >   TBEventInfoCnvB
 class TBEventInfoCnv : public TBEventInfoCnvBase {
 friend class CnvFactory<TBEventInfoCnv >;
 protected:
+public:
   TBEventInfoCnv (ISvcLocator* svcloc) : TBEventInfoCnvBase(svcloc) {}
+protected:
   virtual TBEventInfo_PERS*   createPersistent (TBEventInfo* transCont);
   virtual TBEventInfo*        createTransient ();
 

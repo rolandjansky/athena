@@ -25,7 +25,6 @@
 #include "VxVertex/VxTrackAtVertex.h"
 
 //++ new one
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
@@ -53,7 +52,6 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
   , m_trkSelector("")
   , m_BSTrackSelector("")
-  , m_ITrackToVertexIPEstimator("Trk::TrackToVertexIPEstimator")   // MD: new tool
   , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
   , m_beamCondSvc("BeamCondSvc",name)
   , m_PVContainerName("PrimaryVertices")

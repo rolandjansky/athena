@@ -123,7 +123,6 @@ namespace NSWL1 {
     // 2d-vector for eta/phi station coordinates
     // map from BandID to a set of strips
     
-    std::vector< std::vector < std::map<BandId_t, std::set<int> > > > *bandID_cache ;
     std::vector< std::vector<StripData* >* > m_clusters;
 
   };  // end of StripClusterTool class

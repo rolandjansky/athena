@@ -33,8 +33,6 @@ InDet::TRT_TrackSegmentsMaker_BarrelCosmics::TRT_TrackSegmentsMaker_BarrelCosmic
     m_TRTManagerName("TRT"),
 //    m_trtmanager(0),
     m_trtid(0),
-    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_useAssoTool(false),
     //Endcap Trigger Hack
     m_segmentDriftCirclesCount(0)
 {
@@ -55,9 +53,6 @@ InDet::TRT_TrackSegmentsMaker_BarrelCosmics::TRT_TrackSegmentsMaker_BarrelCosmic
   declareProperty("TrtManagerLocation", m_TRTManagerName);
   declareProperty("MergeSegments", m_mergeSegments);
 //  declareProperty("SearchRoadWidth", m_searchRoadWidth);
-
-  declareProperty("AssosiationTool"      ,m_assoTool   );
-  declareProperty("UseAssosiationTool",m_useAssoTool);
 
   declareProperty( "UseAthenaFieldService",     m_useAthenaFieldService);
 

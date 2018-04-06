@@ -55,7 +55,6 @@ PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 PoolSvc              INFO Re-initializing PoolSvc
-StreamBSFileOut...   INFO AthenaOutputStreamTool initialize
 ByteStreamEvent...   INFO Initializing ByteStreamEventStorageOutputSvc - package version ByteStreamCnvSvc-00-00-00
 ByteStreamEvent...   INFO eformat version to use: "current"
 ByteStreamEvent...   INFO event storage (BS) version to use: "current"
@@ -130,7 +129,6 @@ ByteStreamEvent...   INFO number of events written: 20
 DecisionSvc          INFO Finalized successfully.
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
-StreamBSFileOut...   INFO AthenaOutputStreamTool finalize
 ToolSvc.TrigTSe...   INFO ToolSvc.TrigTSerializer no problems encountered
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

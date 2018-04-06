@@ -224,13 +224,13 @@ namespace NSWL1 {
       m_fitThe = new std::vector<double>();
       m_fitPhi = new std::vector<double>();
       m_fitDth = new std::vector<double>();
-      tru_etarange = new std::vector<double>();
-      tru_ptrange = new std::vector<double>();
-      fit_etarange = new std::vector<double>();
-      fit_ptrange = new std::vector<double>();
-      res_the = new std::vector<double>();
-      res_phi =  new std::vector<double>();
-      res_dth = new std::vector<double>();
+      m_tru_etarange = new std::vector<double>();
+      m_tru_ptrange = new std::vector<double>();
+      m_fit_etarange = new std::vector<double>();
+      m_fit_ptrange = new std::vector<double>();
+      m_res_the = new std::vector<double>();
+      m_res_phi =  new std::vector<double>();
+      m_res_dth = new std::vector<double>();
 
       m_NSWMM_dig_stationName = new std::vector<std::string>();
       m_NSWMM_dig_stationEta  = new std::vector<int>();
@@ -336,13 +336,13 @@ namespace NSWL1 {
         m_tree->Branch(TString::Format("%s_fitThe",n).Data(),&m_fitThe);
         m_tree->Branch(TString::Format("%s_fitPhi",n).Data(),&m_fitPhi);
         m_tree->Branch(TString::Format("%s_fitDth",n).Data(),&m_fitDth);
-        m_tree->Branch(TString::Format("%s_tru_etarange",n).Data(),&tru_etarange);
-        m_tree->Branch(TString::Format("%s_tru_ptrange",n).Data(),&tru_ptrange);
-        m_tree->Branch(TString::Format("%s_fit_etarange",n).Data(),&fit_etarange);
-        m_tree->Branch(TString::Format("%s_fit_ptrange",n).Data(),&fit_ptrange);
-        m_tree->Branch(TString::Format("%s_res_the",n).Data(),&res_the);
-        m_tree->Branch(TString::Format("%s_res_phi",n).Data(),&res_phi);
-        m_tree->Branch(TString::Format("%s_res_dth",n).Data(),&res_dth);
+        m_tree->Branch(TString::Format("%s_tru_etarange",n).Data(),&m_tru_etarange);
+        m_tree->Branch(TString::Format("%s_tru_ptrange",n).Data(),&m_tru_ptrange);
+        m_tree->Branch(TString::Format("%s_fit_etarange",n).Data(),&m_fit_etarange);
+        m_tree->Branch(TString::Format("%s_fit_ptrange",n).Data(),&m_fit_ptrange);
+        m_tree->Branch(TString::Format("%s_res_the",n).Data(),&m_res_the);
+        m_tree->Branch(TString::Format("%s_res_phi",n).Data(),&m_res_phi);
+        m_tree->Branch(TString::Format("%s_res_dth",n).Data(),&m_res_dth);
 
         /*
         m_tree->Branch(TString::Format("%s_nMMStripHits",n).Data(),&m_nMMStripHits,TString::Format("%s_nMMStripHits/i",n).Data());
@@ -488,13 +488,13 @@ namespace NSWL1 {
       m_fitThe->clear();
       m_fitPhi->clear();
       m_fitDth->clear();
-      tru_etarange->clear();
-      tru_ptrange->clear();
-      fit_etarange->clear();
-      fit_ptrange->clear();
-      res_the->clear();
-      res_phi->clear();
-      res_dth->clear();
+      m_tru_etarange->clear();
+      m_tru_ptrange->clear();
+      m_fit_etarange->clear();
+      m_fit_ptrange->clear();
+      m_res_the->clear();
+      m_res_phi->clear();
+      m_res_dth->clear();
       /*
       m_MMhitPDGId->clear();
       m_MMhitDepositEnergy->clear();

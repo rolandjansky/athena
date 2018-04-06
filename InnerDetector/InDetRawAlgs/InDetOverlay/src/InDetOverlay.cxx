@@ -8,13 +8,18 @@
 #include "InDetOverlay/InDetOverlay.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "CxxUtils/make_unique.h"
  
-
 #include "GeneratorObjects/McEventCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
@@ -24,12 +29,12 @@
 //#include "InDetRawData/Pixel1RawData.h"
 
 #include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/TRT_ID.h"
 
-//#include "InDetReadoutGeometry/SiDetectorElement.h"
-//#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
+#include <bitset>
 
 //================================================================
 namespace Overlay {
@@ -115,32 +120,6 @@ namespace Overlay {
 	copy_coll->push_back (newData );
       }
   }
-  //================================================================
-  namespace {   // helper functions for SCT merging
-    typedef SCT3_RawData  SCT_RDO_TYPE;
-
-    typedef std::multimap<int, const SCT_RDO_TYPE*> StripMap;
-
-    void fillStripMap(StripMap *sm, const InDetRawDataCollection<SCT_RDORawData> &rdo_coll, const std::string& collectionName, InDetOverlay *parent) {
-      for (const SCT_RDORawData* elt : rdo_coll) {
-        const SCT_RDO_TYPE *rdo = dynamic_cast<const SCT_RDO_TYPE*>(elt);
-        if(!rdo) {
-          std::ostringstream os;
-          os<<"mergeCollection<SCT_RDORawData>(): wrong datum format for the '"<<collectionName<<"' collection. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay.   For the supplied datum  typeid(datum).name() = "<<typeid(*elt).name();
-          throw std::runtime_error(os.str());
-        }
-
-        int stripBegin = parent->get_sct_id()->strip(rdo->identify());
-        int stripEnd = stripBegin + rdo->getGroupSize();
-        for(int strip = stripBegin; strip < stripEnd; ++strip) {
-          sm->insert(std::make_pair(strip, rdo));
-        }
-      }
-    }
-  } // namespace - helper functions for SCT merging
-
-
-  //================
 
   template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *mc_coll,
                                       InDetRawDataCollection<SCT_RDORawData> *data_coll,
@@ -204,71 +183,89 @@ namespace Overlay {
     data.setIdentifier(idColl);
     data_coll->swap(data);
 
-    // Expand encoded RDOs into individual hit strips.
-    // Each strip number is linked to the original RDO.
-    StripMap sm;
-    fillStripMap(&sm, mc, "MC", parent);
-    fillStripMap(&sm, data, "data", parent);
-
-    // collect all the hits
-    StripMap::const_iterator p=sm.begin();
-    while(p!= sm.end()) {
-
-      // We have a strip.  compute the group, collect all contributing RDOs.
-      const int firstStrip = p->first;
-
-      // Get all strips for the current RDO
-      std::set<const SCT_RDO_TYPE*> origRDOs;
-      origRDOs.insert(p->second);
-      int currentStrip = firstStrip;
-      while(++p != sm.end()) {
-
-        // The following condition forces the "condensed" mode, with
-        // one RDO representing a group of adjacent hit strips.  It
-        // looks like SCT_RodDecoder switches between "expanded" and
-        // "condensed" modes based on the input byte stream; but here
-        // we don't have information to do this.  So follow the
-        // digitization code and hardcode the "condensed" mode.
-        // NB: change currentStrip+2 to currentStrip+1 if want to
-        // switch to the expanded mode.
-        if(p->first < currentStrip + 2) {
-          origRDOs.insert(p->second);
-          currentStrip = p->first;
+    // Strip hit timing information for Next, Current, Previous and Any BCs
+    // Prepare one more strip to create the last one. The additional strip has no hits.
+    std::bitset<InDetOverlay::NumberOfStrips+1> stripInfo[InDetOverlay::NumberOfBitSets];
+    // Process MC and data in the wafer
+    for (unsigned source=InDetOverlay::MCSource; source<InDetOverlay::NumberOfSources; source++) {
+      InDetRawDataCollection<SCT_RDORawData>::const_iterator rdo;
+      InDetRawDataCollection<SCT_RDORawData>::const_iterator rdoEnd;
+      if (source==InDetOverlay::MCSource) { // MC
+        rdo = mc.begin();
+        rdoEnd = mc.end();
+      } else if (source==InDetOverlay::DataSource) { // Data
+        rdo = data.begin();
+        rdoEnd = data.end();
+      } else {
+        parent->msg(MSG::WARNING) << "Invalid source " << source << " in mergeCollectionsNew for SCT" << endmsg;
+        continue;
+      }
+      // Loop over all RDOs in the wafer
+      for (; rdo!=rdoEnd; rdo++) {
+        const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*rdo);
+        if (!rdo3) {
+          std::ostringstream os;
+          os<<"mergeCollectionNew<SCT_RDORawData>(): wrong datum format. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay."
+            <<"For the supplied datum  typeid(datum).name() = "<<typeid(**rdo).name();
+          throw std::runtime_error(os.str());
         }
-        else {
-          break;
+        int strip = parent->get_sct_id()->strip(rdo3->identify());
+        int stripEnd = strip + rdo3->getGroupSize();
+        int timeBin = rdo3->getTimeBin();
+        for (; strip<stripEnd and strip<InDetOverlay::NumberOfStrips; strip++) {
+          // Fill timing information for each strips, loop over 3 BCs
+          for (unsigned int bc=InDetOverlay::NextBC; bc<InDetOverlay::NumberOfBCs; bc++) {
+            if (timeBin & (1 << bc)) stripInfo[bc].set(strip);
+          }
         }
       }
-
-      // We've got info on all strips for the current RDO here.
-      // Create one.
-      const int groupSize = 1 + currentStrip - firstStrip;
-
+    }
+    // Get OR for AnyBC, loop over 3 BCs
+    for (unsigned int bc=InDetOverlay::NextBC; bc<InDetOverlay::NumberOfBCs; bc++) {
+      stripInfo[InDetOverlay::AnyBC] |= stripInfo[bc];
+    }
+    // Check if we need to use Expanded mode by checking if there is at least one hit in Next BC or Previous BC
+    bool anyNextBCHits = stripInfo[InDetOverlay::NextBC].any();
+    bool anyPreivousBCHits = stripInfo[InDetOverlay::PreviousBC].any();
+    bool isExpandedMode = (anyNextBCHits or anyPreivousBCHits);
+    // No error information is recorded because this information is not filled in data and no errors are assumed in MC.
+    const int ERRORS = 0;
+    const std::vector<int> errvec{};
+    if (isExpandedMode) {
+      // Expanded mode (record strip one by one)
+      const int groupSize = 1;
       int tbin = 0;
-      int ERRORS = 0;
-      std::vector<int> errvec;
-
-      for(std::set<const SCT_RDO_TYPE*>::const_iterator origRdoIter = origRDOs.begin(); origRdoIter!=origRDOs.end(); ++origRdoIter) {
-        tbin |= (*origRdoIter)->getTimeBin();
-
-        if((*origRdoIter)->FirstHitError()) {
-          ERRORS |= 0x10;
+      for (unsigned int strip=0; strip<InDetOverlay::NumberOfStrips; strip++) {
+        if (stripInfo[InDetOverlay::AnyBC][strip]) {
+          tbin = 0;
+          for (unsigned int bc=InDetOverlay::NextBC; bc<InDetOverlay::NumberOfBCs; bc++) {
+            if (stripInfo[bc][strip]) {
+              tbin |= (1 << bc);
+            }
+          }
+          unsigned int SCT_Word = (groupSize | (strip << 11) | (tbin <<22) | (ERRORS << 25));
+          Identifier rdoId = parent->get_sct_id()->strip_id(idColl, strip) ;
+          out_coll->push_back(new SCT3_RawData(rdoId, SCT_Word, &errvec));
         }
-        if((*origRdoIter)->SecondHitError()) {
-          ERRORS |= 0x20;
-        }
-
-        std::vector<int> origRdoErrorVec((*origRdoIter)->getErrorCondensedHit());
-        errvec.insert(errvec.end(), origRdoErrorVec.begin(), origRdoErrorVec.end());
       }
-
-      unsigned int SCT_Word = (groupSize | (firstStrip << 11) | (tbin <<22) | (ERRORS << 25)) ;
-      Identifier rdoId = parent->get_sct_id()->strip_id(idColl, firstStrip) ;
-      SCT3_RawData *mergedRDO = new SCT3_RawData(rdoId, SCT_Word, &errvec);
-
-      out_coll->push_back(mergedRDO);
-
-    } // "collect all strips" loop over sm
+    } else {
+      // We can record consecutive hits into one RDO if all hits have timeBin of 010.
+      unsigned int groupSize = 0;
+      const int tbin = (1 << InDetOverlay::CurrentBC);
+      for (unsigned int strip=0; strip<InDetOverlay::NumberOfStrips+1; strip++) { // Loop over one more strip to create the last one if any
+        if (stripInfo[InDetOverlay::AnyBC][strip]) {
+          groupSize++;
+        } else {
+          if (groupSize>0) {
+            unsigned int firstStrip = strip - groupSize;
+            unsigned int SCT_Word = (groupSize | (firstStrip << 11) | (tbin <<22) | (ERRORS << 25));
+            Identifier rdoId = parent->get_sct_id()->strip_id(idColl, firstStrip) ;
+            out_coll->push_back(new SCT3_RawData(rdoId, SCT_Word, &errvec));
+            groupSize = 0;
+          }
+        }
+      }
+    }
 
   } // mergeCollectionsNew()
 
@@ -278,7 +275,12 @@ namespace Overlay {
 InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   IDC_OverlayBase(name, pSvcLocator),
   m_detStore("StoreGateSvc/DetectorStore", name),
-  m_sct_id(0)
+  m_sct_id(nullptr),
+  m_trt_id(nullptr),
+  m_rndmSvc("AtRndmGenSvc",name),
+  m_rndmEngineName("InDetOverlay"),
+  m_rndmEngine(nullptr),
+  m_TRT_LocalOccupancyTool("TRT_LocalOccupancy")
 {
 
   //change via postExec indetovl.do_XXX=True
@@ -300,6 +302,14 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("mainInputPixelKey", m_mainInputPixelKey);
   declareProperty("overlayInputPixelKey", m_overlayInputPixelKey);
   declareProperty("mainOutputPixelKey", m_mainOutputPixelKey);    
+  
+  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.1);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.9);
+
+  declareProperty("RndmSvc",    m_rndmSvc,       "Random Number Service");
+  declareProperty("RndmEngine", m_rndmEngineName,"Random engine name");
+  declareProperty("TRT_LocalOccupancyTool", m_TRT_LocalOccupancyTool);
+  
 }
 
 //================================================================
@@ -323,6 +333,27 @@ StatusCode InDetOverlay::overlayInitialize()
   ATH_CHECK( m_overlayInputPixelKey.initialize() );
   ATH_CHECK( m_mainOutputPixelKey.initialize() );
 
+  if(m_do_TRT){
+  
+    if(!m_detStore->retrieve(m_trt_id,"TRT_ID").isSuccess() || !m_sct_id ) {
+      ATH_MSG_FATAL("Cannot retrieve TRT ID helper");
+      return StatusCode::FAILURE;
+    }
+  
+    // Initialize random number generator
+    CHECK(m_rndmSvc.retrieve());
+    m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
+    if (!m_rndmEngine) {
+      ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
+      return StatusCode::FAILURE;
+    }
+    else {
+      ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
+    }
+
+    CHECK( m_TRT_LocalOccupancyTool.retrieve() );
+
+  } 
   return StatusCode::SUCCESS;
 }
 
@@ -354,17 +385,21 @@ StatusCode InDetOverlay::overlayExecute() {
     }
     ATH_MSG_INFO("TRT MC     = "<<shortPrint(mcContainer.cptr()));
    
-   SG::WriteHandle<TRT_RDO_Container> outputContainer(m_mainOutputTRTKey);
-   outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(dataContainer->size());
+    SG::WriteHandle<TRT_RDO_Container> outputContainer(m_mainOutputTRTKey);
+    outputContainer = CxxUtils::make_unique<TRT_RDO_Container>(dataContainer->size());
 
-   if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
-     if (m_do_TRT_background ) overlayContainerNew(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr());
-     else if(!m_do_TRT_background){
-       TRT_RDO_Container* nobkg = nullptr;
-       overlayContainerNew(nobkg , mcContainer.cptr() , outputContainer.ptr());
-     }
-     ATH_MSG_INFO("TRT Result = "<<shortPrint(outputContainer.cptr()));
-   }
+    if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
+      if (m_do_TRT_background ){ 
+        // Calculate occupancy here
+        std::map<int, double> occupancy = m_TRT_LocalOccupancyTool->getDetectorOccupancy( dataContainer.cptr() );
+        //Merge containers
+        overlayTRTContainers(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr(), occupancy);
+      } else if(!m_do_TRT_background){
+        TRT_RDO_Container* nobkg = nullptr;
+        overlayContainerNew( nobkg , mcContainer.cptr() , outputContainer.ptr());
+      }
+      ATH_MSG_INFO("TRT Result = "<<shortPrint(outputContainer.cptr()));
+    }
   }
   
   //----------------------------------------------------------------
@@ -463,6 +498,174 @@ for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++cont
   ATH_MSG_DEBUG("InDetOverlay::execute() end");
   return StatusCode::SUCCESS;
 }
+
+void InDetOverlay::overlayTRTContainers(const TRT_RDO_Container *pileupContainer,
+                                        const TRT_RDO_Container *signalContainer,
+                                        TRT_RDO_Container *outputContainer,
+                                        std::map<int,double>&  occupancyMap) 
+{
+
+   //There are some use cases where this is empty
+   if(pileupContainer != nullptr){
+   /** Add data from the data container to the output one */
+     TRT_RDO_Container::const_iterator p_data = pileupContainer->begin();
+     TRT_RDO_Container::const_iterator p_data_end = pileupContainer->end();
+
+     for(; p_data != p_data_end; ++p_data) {
+       IdentifierHash hashId = p_data.hashId();
+       auto coll_data = std::make_unique<TRT_RDO_Collection>(hashId); 
+       Overlay::copyCollection( *p_data, coll_data.get());
+
+       if ( outputContainer->addCollection(coll_data.release(), p_data.hashId() ).isFailure() ) {
+         ATH_MSG_WARNING( "add data Collection failed for output "<< p_data.hashId   () ); // 
+       } 
+     }
+   }
+
+   /** Add data from the ovl container to the output one */
+   TRT_RDO_Container::const_iterator p_ovl = signalContainer->begin(); 
+   TRT_RDO_Container::const_iterator p_ovl_end = signalContainer->end();
+
+   for(; p_ovl != p_ovl_end; ++p_ovl) {
+ 
+      IdentifierHash coll_id = p_ovl.hashId();
+      auto coll_ovl = std::make_unique<TRT_RDO_Collection>(coll_id);    
+      Overlay::copyCollection( *p_ovl, coll_ovl.get() ) ;
+
+      /** The newly created stuff will go to the output EventStore SG */
+      auto coll_out = std::make_unique<TRT_RDO_Collection>(coll_id);
+      coll_out->setIdentifier((*p_ovl)->identify());
+
+      /** Look for the same ID in the main StoreGate EventStore */ 
+      auto q = outputContainer->indexFind( coll_id );
+      if( q != outputContainer->end() ) {
+      /**Need to merge the collections
+         Retrieve q */
+         std::unique_ptr <TRT_RDO_Collection> coll_data ((TRT_RDO_Collection *) *q );
+         int det =  m_trt_id->barrel_ec( (*p_ovl)->identify() );
+         mergeTRTCollections(coll_data.get(),coll_ovl.get(),coll_out.get(), occupancyMap[det] );
+         
+         outputContainer->removeCollection(p_ovl.hashId());
+         if (outputContainer->addCollection(coll_out.release(), p_ovl.hashId()).isFailure() ) {
+            ATH_MSG_WARNING( "overlay addCollection failed "  ); 
+         }
+      }
+      else {
+       /** Copy the complete collection from ovl to output, 
+           hopefully preserving the "most derived" type of its raw data */ 
+       if ( outputContainer->addCollection(coll_ovl.release(), coll_id).isFailure() ) {
+          ATH_MSG_WARNING(  "add mc Collection failed " ); 
+      }
+    }   
+  }                               
+}
+
+
+
+//================================================================
+void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll, 
+                                       TRT_RDO_Collection *data_coll, 
+                                       TRT_RDO_Collection *out_coll, 
+                                       double occupancy) 
+{
+   
+  if(mc_coll->identify() != data_coll->identify()) {
+    std::ostringstream os;
+    os<<"mergeCollectionsNew<generic>(): collection Id mismatch";
+    ATH_MSG_FATAL(os.str());
+    throw std::runtime_error(os.str());
+  }
+
+  const Identifier idColl = mc_coll->identify();
+
+  // ----------------------------------------------------------------
+  // debug
+  static bool first_time = true;
+  if(first_time) {
+    first_time = false;
+    ATH_MSG_INFO( "mergeTRTCollections():  code is called ");
+  }
+
+  // ----------------------------------------------------------------
+
+  TRT_RDO_Collection data(data_coll->identifyHash());
+  data.setIdentifier(idColl);
+  data_coll->swap(data);
+
+  TRT_RDO_Collection mc(mc_coll->identifyHash());
+  mc.setIdentifier(idColl);
+  mc_coll->swap(mc);
+
+  //################################################################
+  // Merge by copying ptrs from data and mc to mc_coll
+
+  unsigned int idata = 0;
+  unsigned int imc   = 0;
+ 
+  while( (idata < data.size()) || (imc < mc.size())) {
+
+    // The RDO that goes to the output at the end of this step.
+    TRT_RDORawData *p_rdo(0);
+  
+    if(imc == mc.size()) {
+      // just copy the remaining data inputs
+      data.swapElement(idata++, 0, p_rdo);
+    }
+    else if(idata == data.size()) {
+      //just copy the remaining MC digits
+      mc.swapElement(imc++, 0, p_rdo);
+    }
+    else {
+      // Need to decide which one goes first.  
+      // See comments in TRTDigitization.cxx about the assumption that id1<id2 <=> hash1<hash2
+      if( mc[imc]->identify() < data[idata]->identify() ) {
+        mc.swapElement(imc++, 0, p_rdo);
+      }
+      else if(data[idata]->identify() < mc[imc]->identify()) {
+        data.swapElement(idata++, 0, p_rdo);
+      }
+      else {
+        // The hits are on the same channel.
+        TRT_RDORawData *p2(0);
+        data.swapElement(idata++, 0, p2);
+        mc.swapElement(imc++, 0, p_rdo);
+
+        TRT_LoLumRawData *pr1 = dynamic_cast<TRT_LoLumRawData*>(p_rdo);
+        const TRT_LoLumRawData *pr2 = dynamic_cast<const TRT_LoLumRawData*>(p2);
+
+        if(pr1 && pr2) {
+          // the actual merging
+          pr1->merge(*pr2);
+        
+          //If the hit is not already a high level hit 
+          if( !(pr1->getWord() & 0x04020100) ) {
+            unsigned int newword = 0;
+            //Get random number 
+            int det =  m_trt_id->barrel_ec( pr1->identify() );
+            float HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;  
+            if( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) 
+              newword += 1 << (26-9);
+            //
+            TRT_LoLumRawData newrdo( pr1->identify(), newword); 
+            pr1->merge(newrdo);
+          }  
+        } else {
+          ATH_MSG_WARNING("TRT RDO is the wrong format");
+        }
+      
+        Overlay::mergeChannelData(*p_rdo, *p2, this);
+        delete p2;
+      }
+    }
+
+    out_coll->push_back(p_rdo);
+  } // <= while
+}
+
+
+
+
+
 
 //================================================================
 //EOF

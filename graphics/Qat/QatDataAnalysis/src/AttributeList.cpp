@@ -23,7 +23,7 @@
 #include "QatDataAnalysis/AttributeList.h"
 #include <algorithm>
 #include <stdexcept>
-AttributeList::AttributeList():_locked(false) {
+AttributeList::AttributeList():m_locked(false) {
 }
 
 AttributeList::~AttributeList() {
@@ -32,11 +32,11 @@ AttributeList::~AttributeList() {
 // Add an attribute:
 void AttributeList::add (const std::string & name, const std::type_info & type) {
   
-  if (_locked)  throw std::runtime_error ("Error: adding attribute to a locked attribute list");
+  if (m_locked)  throw std::runtime_error ("Error: adding attribute to a locked attribute list");
   
   Attribute a(name,type);
-  if (std::find(_attrList.begin(),_attrList.end(),a)==_attrList.end()) {
-    _attrList.push_back(a);
+  if (std::find(m_attrList.begin(),m_attrList.end(),a)==m_attrList.end()) {
+    m_attrList.push_back(a);
   }
   else {
     throw std::runtime_error ("Error: duplicate attribute name");
@@ -46,11 +46,11 @@ void AttributeList::add (const std::string & name, const std::type_info & type) 
 // Lock the list against additional adding of attributes.  Also, now fill some cache 
 // relating to data sizes and positions:
 void AttributeList::lock() {
-  if (!_locked) {
-    std::sort(_attrList.begin(),_attrList.end());
-    for (size_t a=0;a<_attrList.size();a++) {
-      _attrList[a].attrId()=a;
+  if (!m_locked) {
+    std::sort(m_attrList.begin(),m_attrList.end());
+    for (size_t a=0;a<m_attrList.size();a++) {
+      m_attrList[a].attrId()=a;
     }
-    _locked=true;
+    m_locked=true;
   }
 }

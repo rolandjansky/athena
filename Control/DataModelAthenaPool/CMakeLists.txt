@@ -38,7 +38,7 @@ atlas_add_library( DataModelAthenaPoolLib
 atlas_add_component( DataModelAthenaPool
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AthLinks AthenaBaseComps AthenaKernel Navigation RootUtils RootUtilsPyROOT GaudiKernel TestTools SGTools AthenaPoolCnvSvcLib AthenaPoolUtilities RootConversions DataModelAthenaPoolLib )
+                     LINK_LIBRARIES DataModelAthenaPoolLib )
 
 atlas_add_dictionary( DataModelAthenaPoolDictDict
                       DataModelAthenaPool/DataModelAthenaPoolDict.h

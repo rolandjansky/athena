@@ -437,9 +437,19 @@ class forceTileRODMap(_modifier):
         if not hasattr(svcMgr.ToolSvc,"TileROD_Decoder"):
            from TileByteStream.TileByteStreamConf import TileROD_Decoder
            svcMgr.ToolSvc+=TileROD_Decoder()
+        # Get run number from input file if running in athena
+        global _run_number
+        if _run_number==None:
+            import PyUtils.AthFile as athFile
+            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+            af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
+            _run_number = af.run_number[0]
         if _run_number<318000:  # use old readout scheme (default is new one)
             log.info('Reverting to pre-2017 Tile ROD map')
             svcMgr.ToolSvc.TileROD_Decoder.fullTileMode=0
+        if _run_number>=343000:  # use 2018 version of cabling after 31-Jan-2018
+            log.info('Setting RUN2a (2018) cabling in TileCal')
+            svcMgr.TileCablingSvc.CablingType=5
 
 
 
@@ -756,8 +766,8 @@ class rerunLVL1(_modifier):
         #writes this to the usual MuCTPICTP storegate location
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
         topSequence += L1Muctpi_on_RDO()
-        topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
-        topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "/Run/L1MuCTPItoRoIBLocation"
+        topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
+        topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
 
         topSequence.L1Muctpi_on_RDO.OverlapStrategyName = "NULL"    
 
@@ -800,7 +810,7 @@ class rerunLVL1(_modifier):
         topSequence += RoIBuilder("RoIBuilder")
         # For backwards compatibility with 16.1.X (see Savannah #85927)
         if "RoIOutputLocation_Rerun" in topSequence.CTPSimulation.properties():
-            topSequence.RoIBuilder.CTPSLinkLocation = '/Event/CTPSLinkLocation_Rerun'
+            topSequence.RoIBuilder.CTPSLinkLocation = 'CTPSLinkLocation_Rerun'
 
         # Get run number from input file if running in athena
         global _run_number
@@ -857,8 +867,8 @@ class rerunDMLVL1(_modifier):
          #writes this to the usual MuCTPICTP storegate location
          from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
          topSequence += L1Muctpi_on_RDO()
-         topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "/Run/L1MuCTPItoCTPLocation"
-         topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "/Run/L1MuCTPItoRoIBLocation"
+         topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
+         topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
 
          topSequence.L1Muctpi_on_RDO.OverlapStrategyName = "NULL"    
 

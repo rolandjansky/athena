@@ -29,7 +29,6 @@
 #include "TrigNavigation/TriggerElement.h"
 
 #include "AthenaKernel/Timeout.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/GaudiException.h"
 #include "eformat/Issue.h"
 

@@ -14,6 +14,9 @@
 
 #include "AthContainersRoot/RootAuxVectorFactory.h"
 #include "AthContainers/tools/error.h"
+#include "AthContainers/normalizedTypeinfoName.h"
+#include "AthLinks/ElementLinkBase.h"
+#include "CxxUtils/ClassName.h"
 #include "TClass.h"
 #include "TVirtualCollectionProxy.h"
 #include "TROOT.h"
@@ -138,9 +141,9 @@ RootAuxVector::~RootAuxVector()
 /**
  * @brief Make a copy of this vector.
  */
-SG::IAuxTypeVector* RootAuxVector::clone() const
+std::unique_ptr<SG::IAuxTypeVector> RootAuxVector::clone() const
 {
-  return new RootAuxVector (*this);
+  return std::make_unique<RootAuxVector> (*this);
 }
 
 
@@ -317,7 +320,8 @@ const std::type_info* RootAuxVector::objType() const
 RootAuxVectorFactory::RootAuxVectorFactory (TClass* objClass)
   : m_objClass (objClass),
     m_vecClass (objClass),
-    m_offset (0)
+    m_offset (0),
+    m_isEL (NONE)
 {
   TVirtualCollectionProxy* proxy = m_vecClass->GetCollectionProxy();
 
@@ -352,8 +356,38 @@ RootAuxVectorFactory::RootAuxVectorFactory (TClass* objClass)
   }
 
   TClass* eltClass = proxy->GetValueClass();
-  if (eltClass)
+  if (eltClass) {
     m_type.init (eltClass);
+
+    const std::type_info* ti = eltClass->GetTypeInfo();
+    if (ti) {
+
+      static const CxxUtils::ClassName pat1 ("ElementLink<$T>");
+      static const CxxUtils::ClassName pat2 ("std::vector<ElementLink<$T> >");
+
+      CxxUtils::ClassName clname (SG::normalizedTypeinfoName (*ti));
+      CxxUtils::ClassName::match_t matches;
+      if (clname.match (pat1, matches)) {
+        m_isEL = ELEMENT_LINK;
+        if (eltClass->GetBaseClass ("ElementLinkBase") == nullptr) {
+          m_isEL = ELEMENT_LINK_NONPOINTER;
+        }
+      }
+      else if (clname.match (pat2, matches)) {
+        m_isEL = ELEMENT_LINK_VECTOR;
+
+        TVirtualCollectionProxy* proxy2 = eltClass->GetCollectionProxy();
+        if (proxy2) {
+          TClass* innerEltClass = proxy2->GetValueClass();
+          if (innerEltClass) {
+            if (innerEltClass->GetBaseClass ("ElementLinkBase") == nullptr) {
+              m_isEL = ELEMENT_LINK_NONPOINTER;
+            }
+          }
+        }
+      }
+    }
+  }
   else
     m_type.init (proxy->GetType());
 }
@@ -372,10 +406,10 @@ RootAuxVectorFactory::~RootAuxVectorFactory()
  * @param size Initial size of the new vector.
  * @param capacity Initial capacity of the new vector.
  */
-SG::IAuxTypeVector*
+std::unique_ptr<SG::IAuxTypeVector>
 RootAuxVectorFactory::create (size_t size, size_t capacity) const
 {
-  return new RootAuxVector (this, size, capacity);
+  return std::make_unique<RootAuxVector> (this, size, capacity);
 }
 
 
@@ -393,14 +427,13 @@ RootAuxVectorFactory::create (size_t size, size_t capacity) const
  * must be false.
  *
  * Returns a newly-allocated object.
- * FIXME: Should return a unique_ptr.
  */
-SG::IAuxTypeVector*
+std::unique_ptr<SG::IAuxTypeVector>
 RootAuxVectorFactory::createFromData (void* data,
                                       bool isPacked,
                                       bool ownFlag) const
 {
-  return new RootAuxVector (this, data, isPacked, ownFlag);
+  return std::make_unique<RootAuxVector> (this, data, isPacked, ownFlag);
 }
 
 
@@ -417,6 +450,40 @@ void RootAuxVectorFactory::copy (void* dst,        size_t dst_index,
                                  const void* src,  size_t src_index) const
 {
   m_type.assign (dst, dst_index, src, src_index);
+}
+
+
+/**
+ * @brief Copy an element between vectors, possibly applying thinning.
+ * @param dst Pointer to the start of the destination vector's data.
+ * @param dst_index Index of destination element in the vector.
+ * @param src Pointer to the start of the source vector's data.
+ * @param src_index Index of source element in the vector.
+ *
+ * @c dst and @ src can be either the same or different.
+ */
+void RootAuxVectorFactory::copyForOutput (void* dst,        size_t dst_index,
+                                          const void* src,  size_t src_index) const
+{
+  m_type.assign (dst, dst_index, src, src_index);
+
+  if (m_isEL == ELEMENT_LINK) {
+    char* dstc = reinterpret_cast<char*>(dst) + m_type.getSize() * dst_index;
+    reinterpret_cast<ElementLinkBase*>(dstc)->thin();
+  }
+  else if (m_isEL == ELEMENT_LINK_VECTOR) {
+    char* dstc = reinterpret_cast<char*>(dst) + m_type.getSize() * dst_index;
+    std::vector<ElementLinkBase>& v = 
+      *reinterpret_cast<std::vector<ElementLinkBase>* > (dstc);
+    for (ElementLinkBase& el : v) {
+      el.thin();
+    }
+  }
+  else if (m_isEL == ELEMENT_LINK_NONPOINTER) {
+    ATHCONTAINERS_ERROR("RootAuxVectorFactory::copyForOutput",
+                        std::string("Cannot apply thinning for ElementLink with non-pointer element: ") +
+                        m_vecClass->GetName());
+  }
 }
 
 

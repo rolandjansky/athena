@@ -15,6 +15,11 @@ atlas_depends_on_subdirs( PUBLIC
                           graphics/VP1/VP1Gui
                           graphics/VP1/VP1UtilsBase )
 
+# "Externals" dependencies - They are needed at runtime, only
+find_package( libxkbcommon ) 
+find_package( glib ) 
+find_package( libffi )
+
 # Component(s) in the package:
 atlas_add_component( VP1Algs
                      src/*.cxx

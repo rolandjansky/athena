@@ -39,9 +39,6 @@
 #include "CollectionBase/CollectionRowBuffer.h"
 
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCLeaf.h"
-#include "FileCatalog/FCImpl.h"
-#include "FileCatalog/IFCAction.h"
 
 void eventLoop(DataReader*, EventStorage::DataWriter*, unsigned&, const std::vector<uint32_t>*, uint32_t, bool, bool, bool, const std::vector<long long int>* = 0);
 
@@ -230,9 +227,7 @@ int main (int argc, char *argv[]) {
             if (guidPfn.count(guid) == 0) {   // first instance of this guid
               std::string pfn;
               std::string type;
-              pool::FCregister action;
-              ctlg->setAction(action);
-              action.lookupBestPFN(guid.toString(), pool::FileCatalog::READ, pool::FileCatalog::SEQUENTIAL, pfn, type);
+              ctlg->getFirstPFN(guid.toString(), pfn, type);
               // fill map of guid to pfn
               guidPfn.insert(std::pair<Guid, std::string>(guid, pfn));
               // add pfn to list

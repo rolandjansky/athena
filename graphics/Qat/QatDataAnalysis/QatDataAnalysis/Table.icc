@@ -45,15 +45,15 @@ public:
 };
 
 inline std::string & Table::name() {
-  return c->name;
+  return m_c->name;
 }
 
 inline const std::string & Table::name() const {
-  return c->name;
+  return m_c->name;
 }
 
 inline size_t Table::numTuples() const {
-  return c->store->size();
+  return m_c->store->size();
 }
 
 template <typename T> inline void Table::read (size_t index, const std::string & aname, T & t) const {
@@ -71,45 +71,45 @@ template <typename T> inline void Table::add (const std::string & name, const T 
   
   if (numTuples()==0) {
     Value v(&t, sizeof(t));
-    AttributeListLink a = AttributeListLink(c->tuple->attributeList());
+    AttributeListLink a = AttributeListLink(m_c->tuple->attributeList());
     a->add(name,typeid(t));
-    c->tuple->valueList().add(v);
+    m_c->tuple->valueList().add(v);
   }
   else {
-    std::vector<std::string>::const_iterator a = std::lower_bound(c->nameList.begin(),
-								  c->nameList.end(),
+    std::vector<std::string>::const_iterator a = std::lower_bound(m_c->nameList.begin(),
+								  m_c->nameList.end(),
 								  name);
-    int n = a-c->nameList.begin();
-    c->tuple->valueList()[n].setValue(t);
+    int n = a-m_c->nameList.begin();
+    m_c->tuple->valueList()[n].setValue(t);
   }
   
 }
 
 
 template <typename T> inline void Table::add (const Attribute & a, const T & t) {
-  if (c->store->size()==0) {
+  if (m_c->store->size()==0) {
     throw std::runtime_error ("Table::add: you are using an attribute for an undefined table");
   }
   else {
     size_t n = a.attrId();
-    c->tuple->valueList()[n].setValue(t);
+    m_c->tuple->valueList()[n].setValue(t);
   }
 }
 
 inline const Attribute & Table::attribute (unsigned int i) const {
-  if (c->store->size()==0) throw std::runtime_error ("Table::attribute.  Attribute list not formed");
-  if (i<c->tuple->attributeList()->size()) 
-    return (*c->tuple->attributeList())[i];
+  if (m_c->store->size()==0) throw std::runtime_error ("Table::attribute.  Attribute list not formed");
+  if (i<m_c->tuple->attributeList()->size()) 
+    return (*m_c->tuple->attributeList())[i];
   else 
     throw std::range_error ("Table::attribute range error");
 }
 
 
 inline const Attribute & Table::attribute (const std::string & name) const {
-  if (c->store->size()==0) throw std::runtime_error ("Table::attribute.  Attribute list not formed");
+  if (m_c->store->size()==0) throw std::runtime_error ("Table::attribute.  Attribute list not formed");
   AttributeList::ConstIterator a = 
-    std::find_if(c->tuple->attributeList()->begin(), c->tuple->attributeList()->end(),Attribute::NameEquals(name));
-  if (a!=c->tuple->attributeList()->end()) 
+    std::find_if(m_c->tuple->attributeList()->begin(), m_c->tuple->attributeList()->end(),Attribute::NameEquals(name));
+  if (a!=m_c->tuple->attributeList()->end()) 
     return *a;
   else 
     throw std::range_error ("Table::attribute range error");

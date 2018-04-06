@@ -216,7 +216,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
         int currentSector(-1);
         bool singleSector(true);
         std::vector<ChamberList*> sectorList;
-        ChamberList* firstSector,* secondSector;
+        ChamberList* firstSector = nullptr,* secondSector = nullptr;
         for (ChamberList::const_iterator itCh = fChamberList.begin(); itCh != fChamberList.end(); itCh++){
           Chamber* pChamber = *itCh;
           const RIOList& rios = pChamber->RIOs();

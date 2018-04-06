@@ -96,36 +96,10 @@ StatusCode MdtValidationAlg::initialize() {
   //greet user
   MsgStream log(msgSvc(), name());
   log<< MSG::INFO << "Thank you for using MdtValidationAlg!" <<endmsg;
-  StatusCode sc;
 
-  //get geometry
-  //retrieve detector store
-  StoreGateSvc* m_detStore;
-  sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    log << MSG::DEBUG << "Retrieved DetectorStore" << endmsg;
-  } else {
-    log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
-  //retrieve mdt id helper
-  sc = m_detStore->retrieve(m_MdtIdHelper, "MDTIDHELPER" );
-  if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endmsg;
-    return sc;
-  }
-  //retrieve detector manager
-  sc = m_detStore->retrieve( m_detMgr );
-  if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endmsg;
-    return sc;
-  }
-  //get region selection service
-  sc= serviceLocator()->service("RegionSelectionSvc", p_reg_sel_svc);
-  if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
-    return sc;
-  }
+  ATH_CHECK ( detStore()->retrieve(m_MdtIdHelper, "MDTIDHELPER" ) );
+  ATH_CHECK ( detStore()->retrieve( m_detMgr ) );
+  ATH_CHECK( serviceLocator()->service("RegionSelectionSvc", p_reg_sel_svc) );
   m_region_ids=p_reg_sel_svc->GetStationsInRegions();
   log<< MSG::INFO << " MdtValidationAlg::initialize() - number of selected regions: "<<m_region_ids.size()<<endmsg;
 		
@@ -133,7 +107,7 @@ StatusCode MdtValidationAlg::initialize() {
   
   m_debug=0;
 //db connection
-  sc=ConnectDb();
+  StatusCode sc=ConnectDb();
   m_head_ops = new CalibHeadOperations(*m_db);
   if(!sc.isSuccess()) return sc;
 //get head id if not given
@@ -155,7 +129,7 @@ StatusCode MdtValidationAlg::initialize() {
   m_rt_op=new CalibRtDbOperations(*m_data_connection);
 
   log<< MSG::INFO <<"Validating for header="<<m_headid<<"/"<<m_sitename<<endmsg;
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MdtValidationAlg::execute() {

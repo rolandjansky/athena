@@ -72,14 +72,14 @@ inline MsgStream& ISFParticle::dump( MsgStream& out ) const
     { out << "ISFP pdg=" << m_pdgCode << " p=" << m_momentum.mag()
           << " xyz=(" << m_position.x() << "," <<  m_position.y() << "," <<  m_position.z() << ")"
           << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
-          << " barcode=" << m_barcode << " mass=" << m_mass << " order=" << m_order;
+          << " barcode=" << m_barcode << " mass=" << m_mass << " BCID=" << m_bcid << " order=" << m_order;
       return out;}
 
 inline std::ostream& ISFParticle::dump( std::ostream& out ) const
     { out << "ISFP pdg=" << m_pdgCode << " p=" << m_momentum.mag()
           << " xyz=(" << m_position.x() << "," <<  m_position.y() << "," <<  m_position.z() << ")"
           << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
-          << " barcode=" << m_barcode << " mass=" << m_mass << " order=" << m_order;
+          << " barcode=" << m_barcode << " mass=" << m_mass << " BCID=" << m_bcid << " order=" << m_order;
       return out;}
 
 } // end ISF namespace

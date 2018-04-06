@@ -33,20 +33,20 @@ namespace Trk {
       static const InterfaceID& interfaceID( ) ;
       
       /** Update Calorimeter TSOS from input ID and MS tracks*/
-      virtual void updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack) = 0;
+      virtual void updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const = 0;
       
       /** Update Calorimeter TSOS from input MS tracks*/
-      virtual void updateCaloTSOS(Trk::Track& msTrack, const Trk::TrackParameters* startParamaters=0) = 0;
+      virtual void updateCaloTSOS(Trk::Track& msTrack, const Trk::TrackParameters* startParamaters=0) const = 0;
       
       /** Get Calorimeter MEOT*/
-      virtual void getCaloMEOT(const Trk::Track& idTrack, const Trk::Track& msTrack, std::vector<MaterialEffectsOnTrack>& calomeots) = 0;
+      virtual void getCaloMEOT(const Trk::Track& idTrack, const Trk::Track& msTrack, std::vector<MaterialEffectsOnTrack>& calomeots) const = 0;
 
       /** Retrieve Calorimeter TSOS from TG and apply corrections*/
       virtual std::vector<const Trk::TrackStateOnSurface*>*
 	getCaloTSOS (const Trk::TrackParameters& parm, const Trk::Track& muonTrack, const Trk::TrackParameters* parms=0) const = 0;
                   
       /** Retrieve a clone of the parametrised energy loss*/
-      virtual CaloEnergy* getParamCaloELoss(Trk::Track* track) = 0;      
+      virtual CaloEnergy* getParamCaloELoss(Trk::Track* track) const = 0;      
   };  
 
 }

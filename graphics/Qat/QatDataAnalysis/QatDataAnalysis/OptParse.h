@@ -1,5 +1,5 @@
-#ifndef _OPTPARSE_H_
-#define _OPTPARSE_H_
+#ifndef QATDATAANALYSIS_OPTPARSE_H
+#define QATDATAANALYSIS_OPTPARSE_H
 class HistogramManager;
 #include <string>
 #include <vector>
@@ -23,7 +23,7 @@ struct HIOZeroToOne {
   HIOZeroToOne & operator =( const HIOZeroToOne &);
   HIOZeroToOne(const HIOZeroToOne &);
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 
@@ -46,7 +46,7 @@ struct HIOOneToOne {
   HIOOneToOne & operator =( const HIOOneToOne &);
   HIOOneToOne(const HIOOneToOne &);
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 
@@ -68,7 +68,7 @@ struct HIOOneToZero {
   HIOOneToZero & operator =( const HIOOneToZero &);
   HIOOneToZero(const HIOOneToZero &);
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 
@@ -92,7 +92,7 @@ struct HIONToOne {
   HIONToOne(const HIONToOne &);
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 // 
@@ -113,7 +113,7 @@ struct HIONToZero {
   HIONToZero & operator =( const HIONToZero &);
   HIONToZero(const HIONToZero &);
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 
@@ -143,7 +143,7 @@ class NumericInput {
   NumericInput(const NumericInput &);
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 

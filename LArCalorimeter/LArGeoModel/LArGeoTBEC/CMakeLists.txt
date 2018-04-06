@@ -38,5 +38,5 @@ atlas_add_library( LArGeoTBECLib
 atlas_add_component( LArGeoTBEC
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} GeoModelKernel GeoModelUtilities LArReadoutGeometry StoreGateLib SGtests GeoSpecialShapes GaudiKernel LArG4RunControl LArGeoCode LArGeoEndcap LArGeoRAL LArGeoTBECLib )
+                     LINK_LIBRARIES LArGeoTBECLib )
 

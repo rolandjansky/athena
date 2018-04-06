@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _PLOTTEXT_H_
-#define _PLOTTEXT_H_
+#ifndef QATPLOTTING_PLOTTEXT_H
+#define QATPLOTTING_PLOTTEXT_H
 #include "QatPlotting/Plotable.h"
 #include <QtCore/QRectF>
 #include <QtCore/QString>
@@ -57,7 +57,7 @@ public:
 private:
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 #endif

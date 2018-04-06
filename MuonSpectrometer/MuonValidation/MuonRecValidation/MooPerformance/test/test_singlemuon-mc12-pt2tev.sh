@@ -7,6 +7,8 @@
 # art-input-nfiles: 10
 # art-output: trk*.txt
 
-fileList="['${ArtInFile//,/', '}¡¯]"
+set -e
+fileList="['${ArtInFile//,/', '}']"
+echo "List of files = ", $fileList
 
-athena.py -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags; athenaCommonFlags.EvtMax=20000; athenaCommonFlags.FilesInput = $fileList' -b MooPerformance/MooPerformance_topOptions.py
+athena.py -c "from AthenaCommon.AthenaCommonFlags import athenaCommonFlags; athenaCommonFlags.EvtMax=20000; athenaCommonFlags.FilesInput = $fileList" -b MooPerformance/MooPerformance_topOptions.py

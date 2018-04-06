@@ -25,8 +25,8 @@
 // Plottable adaptor for Residual1D's                                                   //
 //                                                                                  //
 //----------------------------------------------------------------------------------//
-#ifndef _PLOTRESIDUAL1D_H_
-#define _PLOTRESIDUAL1D_H_
+#ifndef QATPLOTTING_PLOTRESIDUAL1D_H
+#define QATPLOTTING_PLOTRESIDUAL1D_H
 #include "QatPlotting/Plotable.h"
 #include "PlotResidual1DProperties.h"
 #include "CLHEP/GenericFunctions/AbsFunction.hh"
@@ -82,7 +82,7 @@ public:
 private:
 
   class Clockwork;
-  std::unique_ptr<Clockwork> c;
+  std::unique_ptr<Clockwork> m_c;
   
 };
 #endif

@@ -25,8 +25,8 @@
 // Plottable adaptor for Function1D's                                        //
 //                                                                           //
 //---------------------------------------------------------------------------//
-#ifndef _PLOTERRORELLIPSE_H_
-#define _PLOTERRORELLIPSE_H_
+#ifndef QATPLOTTING_PLOTERRORELLIPSE_H
+#define QATPLOTTING_PLOTERRORELLIPSE_H
 #include "QatPlotting/Plotable.h"
 #include "QatPlotting/PlotErrorEllipseProperties.h"
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -82,7 +82,7 @@ private:
   PlotErrorEllipse & operator=(const PlotErrorEllipse &); 
   
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 #endif

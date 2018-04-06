@@ -81,8 +81,6 @@ include( "DPDUtils/ThinningSvcWrapper_jobOptions.py" )
 #--------------------------------------------------------------
 ###############################################################
 
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 StreamDPD = MSMgr.NewStream("StreamDPD","SkimmedThin.AOD.pool.root")
 

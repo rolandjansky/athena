@@ -14,15 +14,14 @@ rec.doInDet=False
 rec.doMuon=False
 rec.doCalo=False
 
-# If Calo/tracking is off, this needs to be off too.
-from IsolationAlgs.IsoGetter import isoGetter
-isoGetter (disable=True)
-
-
 include ("RecExCond/RecExCommon_flags.py")
 rec.AutoConfiguration = ['FieldAndGeo']
 import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
+# If Calo/tracking is off, this needs to be off too.
+from IsolationAlgs.IsoGetter import isoGetter
+isoGetter (disable=True)
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")

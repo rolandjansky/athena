@@ -6,7 +6,6 @@
     @author Per Johansson, 17/05/08, based on SCT_ReadCalibDataTool.
 */
 
-// Include SCT_ReadCalibDataSvc.h
 #include "SCT_ReadCalibDataSvc.h"
 
 // Include Athena stuff
@@ -14,10 +13,6 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-
-// Include Gaudi stuff
-#include "GaudiKernel/StatusCode.h"
 
 //----------------------------------------------------------------------
 SCT_ReadCalibDataSvc::SCT_ReadCalibDataSvc(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -41,16 +36,11 @@ SCT_ReadCalibDataSvc::SCT_ReadCalibDataSvc(const std::string& name, ISvcLocator*
   }
 
 //----------------------------------------------------------------------
-SCT_ReadCalibDataSvc::~SCT_ReadCalibDataSvc() {
-}
-
-//----------------------------------------------------------------------
 StatusCode SCT_ReadCalibDataSvc::initialize() {
-  StatusCode sc;
   // Print where you are
   ATH_MSG_DEBUG("in initialize()");
   // Get SCT detector manager
-  sc = m_detStoreSvc->retrieve(m_SCTdetMgr, "SCT");
+  StatusCode sc{m_detStoreSvc->retrieve(m_SCTdetMgr, "SCT")};
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Failed to get SCT detector manager");
     return StatusCode::FAILURE;

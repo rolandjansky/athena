@@ -37,7 +37,7 @@ atlas_add_library( AthenaMonitoringLib
 atlas_add_component( AthenaMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel LumiBlockCompsLib AthenaKernel SGAudCore AthenaPoolUtilities EventInfo LWHists AthenaMonitoringLib )
+                     LINK_LIBRARIES AthenaMonitoringLib )
 
 
 foreach ( name GenericMonParsing_test GenericMonFilling_test )

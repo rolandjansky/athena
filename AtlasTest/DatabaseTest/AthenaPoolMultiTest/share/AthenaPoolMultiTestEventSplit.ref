@@ -15,50 +15,33 @@ Splitter456          INFO in initialize()
 Splitter7            INFO in initialize()
 Splitter48           INFO in initialize()
 Triggered            INFO in initialize()
-DefaultCollMeta     DEBUG Property update for OutputLevel : new value = 2
-DefaultCollMeta     DEBUG In initialize 
-DefaultCollMeta     DEBUG Found metadata store, MetaDataStore
-DefaultCollMeta     DEBUG Filled a metadata container of size 3
-DefaultCollMeta     DEBUG Stored CollectionMetadataContainer in  'StoreName':StoreGateSvc/MetaDataStore
-DefaultCollMeta     DEBUG Size: 3
-DefaultCollMeta     DEBUG Contents: 
-DefaultCollMeta     DEBUG     Project AthenaPoolMultiTest
-DefaultCollMeta     DEBUG     Stream EventSplit
-DefaultCollMeta     DEBUG input handles: 0
-DefaultCollMeta     DEBUG output handles: 0
-DefaultCollMeta     DEBUG Data Deps for DefaultCollMeta
 DecisionSvc          INFO Inserting stream: Stream2 with no Algs
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version OutputStreamAthenaPool-00-00-00
-Stream2.Stream2...   INFO streamProperty ProcessingTag = Stream2
+Stream2.Stream2...   INFO Initializing Stream2.Stream2Tool - package version AthenaServices-00-00-00
 Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo'])
 Stream2              INFO Data output: AthenaPoolMultiTest_Split2.root
 Stream2              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
-Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
-Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
 Stream1              INFO Data output: AthenaPoolMultiTest_Split1.root
 Stream1              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Stream3 with no Algs
-Stream3.Stream3...   INFO Initializing Stream3.Stream3Tool - package version OutputStreamAthenaPool-00-00-00
-Stream3.Stream3...   INFO streamProperty ProcessingTag = Stream3
+Stream3.Stream3...   INFO Initializing Stream3.Stream3Tool - package version AthenaServices-00-00-00
 Stream3.Stream3...   INFO Initializing Stream3.Stream3_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream3              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream3_MakeEventStreamInfo'])
 Stream3              INFO Data output: AthenaPoolMultiTest_Split2.root
 Stream3              INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Others with no Algs
-Others.OthersTool    INFO Initializing Others.OthersTool - package version OutputStreamAthenaPool-00-00-00
-Others.OthersTool    INFO streamProperty ProcessingTag = Others
+Others.OthersTool    INFO Initializing Others.OthersTool - package version AthenaServices-00-00-00
 Others.Others_M...   INFO Initializing Others.Others_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Others               INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Others_MakeEventStreamInfo'])
 Others               INFO Data output: AthenaPoolMultiTest_Missed.root
 Others               INFO I/O reinitialization...
 DecisionSvc          INFO Inserting stream: Bad with no Algs
-Bad.BadTool          INFO Initializing Bad.BadTool - package version OutputStreamAthenaPool-00-00-00
-Bad.BadTool          INFO streamProperty ProcessingTag = Bad
+Bad.BadTool          INFO Initializing Bad.BadTool - package version AthenaServices-00-00-00
 Bad.Bad_MakeEve...   INFO Initializing Bad.Bad_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Bad                  INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Bad_MakeEventStreamInfo'])
 Bad                  INFO Data output: AthenaPoolMultiTest_Missed.root
@@ -89,7 +72,6 @@ Splitter48           INFO EventInfo event: 0 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 0 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
 CollBit1.Regist...   INFO No Primary Key defined
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
@@ -112,7 +94,6 @@ Splitter48           INFO EventInfo event: 1 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 1 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
 Coll23.Registra...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
@@ -133,7 +114,6 @@ Splitter48           INFO EventInfo event: 2 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 2 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
 Coll348.Registr...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
@@ -154,7 +134,6 @@ Splitter48           INFO EventInfo event: 3 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 3 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
 CollBar.Registr...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
@@ -175,7 +154,6 @@ Splitter48           INFO EventInfo event: 4 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 4 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
 Coll456.Registr...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
@@ -196,7 +174,6 @@ Splitter48           INFO EventInfo event: 5 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 5 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 6 run: 0
 Splitter1           DEBUG Trigmask = 65
@@ -215,7 +192,6 @@ Splitter48           INFO EventInfo event: 6 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 6 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
 Coll1and7.Regis...   INFO No Primary Key defined
 Splitter1           DEBUG in execute()
@@ -236,7 +212,6 @@ Splitter48           INFO EventInfo event: 7 run: 0
 Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 7 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 8 run: 0
 Splitter1           DEBUG Trigmask = 260
@@ -255,7 +230,6 @@ Splitter48           INFO EventInfo event: 8 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 8 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 9 run: 0
 Splitter1           DEBUG Trigmask = 513
@@ -274,7 +248,6 @@ Splitter48           INFO EventInfo event: 9 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 9 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 10 run: 0
 Splitter1           DEBUG Trigmask = 1026
@@ -293,7 +266,6 @@ Splitter48           INFO EventInfo event: 10 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 10 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 11 run: 0
 Splitter1           DEBUG Trigmask = 2052
@@ -312,7 +284,6 @@ Splitter48           INFO EventInfo event: 11 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 11 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 12 run: 0
 Splitter1           DEBUG Trigmask = 4097
@@ -331,7 +302,6 @@ Splitter48           INFO EventInfo event: 12 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 12 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 13 run: 0
 Splitter1           DEBUG Trigmask = 8194
@@ -350,7 +320,6 @@ Splitter48           INFO EventInfo event: 13 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 13 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 14 run: 0
 Splitter1           DEBUG Trigmask = 16388
@@ -369,7 +338,6 @@ Splitter48           INFO EventInfo event: 14 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 14 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 15 run: 0
 Splitter1           DEBUG Trigmask = 32769
@@ -388,7 +356,6 @@ Splitter48           INFO EventInfo event: 15 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 15 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 16 run: 0
 Splitter1           DEBUG Trigmask = 3
@@ -407,7 +374,6 @@ Splitter48           INFO EventInfo event: 16 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 16 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 17 run: 0
 Splitter1           DEBUG Trigmask = 6
@@ -426,7 +392,6 @@ Splitter48           INFO EventInfo event: 17 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 17 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 18 run: 0
 Splitter1           DEBUG Trigmask = 5
@@ -445,7 +410,6 @@ Splitter48           INFO EventInfo event: 18 run: 0
 Splitter48           INFO L1 failed
 Triggered            INFO EventInfo event: 18 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 19 run: 0
 Splitter1           DEBUG Trigmask = 10
@@ -464,7 +428,6 @@ Splitter48           INFO EventInfo event: 19 run: 0
 Splitter48           INFO L1 passed
 Triggered            INFO EventInfo event: 19 run: 0
 Triggered            INFO L1 passed
-DefaultCollMeta     DEBUG In execute 
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 Stream2              INFO Records written: 8
 Stream1              INFO Records written: 8
@@ -487,7 +450,6 @@ Splitter456          INFO in finalize()
 Splitter7            INFO in finalize()
 Splitter48           INFO in finalize()
 Triggered            INFO in finalize()
-DefaultCollMeta     DEBUG In finalize 
 ItemListSvc         DEBUG STREAM Bad has (1) items
 ItemListSvc         DEBUG    - EventStreamInfo_Bad
 ItemListSvc         DEBUG STREAM Others has (4) items

@@ -1,53 +1,52 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_FlaggedConditionSvc.h"
 
-//Gaudi 
-#include "GaudiKernel/StatusCode.h"
-
 // Athena
 #include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 // Constructor
-SCT_FlaggedConditionSvc::SCT_FlaggedConditionSvc( const std::string& name, ISvcLocator* pSvcLocator ): 
+SCT_FlaggedConditionSvc::SCT_FlaggedConditionSvc(const std::string& name, ISvcLocator* pSvcLocator):
   AthService(name, pSvcLocator),
-  m_filled(false),
-  m_badIds{},
-  m_detStore("DetectorStore", name),
+  m_badIds{"SCT_FlaggedCondData"},
+  // SCT_FlaggedCondData created by SCT_Clusterization
+  // SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization for InDetTrigInDetSCT_FlaggedConditionSvc
+  m_detStore{"DetectorStore", name},
   m_sctID{nullptr}
-{/* Do nothing */}
+{
+  declareProperty("SCT_FlaggedCondData", m_badIds, "SCT flagged conditions data");
+}
 
 // Initialize
-StatusCode SCT_FlaggedConditionSvc::initialize(){
-  msg(MSG::INFO) << "SCT_FlaggedConditionSvc::initialize()" << endmsg;
+StatusCode SCT_FlaggedConditionSvc::initialize() {
+  ATH_MSG_INFO("SCT_FlaggedConditionSvc::initialize()");
 
   // Retrieve detector store
-  if (m_detStore.retrieve().isFailure()) 
-    return msg(MSG:: FATAL) << "Detector service  not found !" << endmsg, StatusCode::FAILURE;
-
-  // Retrieve incident service and add 'BeginEvent' listener
-  IIncidentSvc* incsvc;
-  if (service("IncidentSvc", incsvc).isSuccess()) {
-    int priority(100);
-    incsvc->addListener( this, "BeginEvent", priority);
+  if (m_detStore.retrieve().isFailure()) {
+    ATH_MSG_FATAL("Detector service  not found !");
+    return StatusCode::FAILURE;
   }
 
   // Retrieve SCT helper
-  if (m_detStore->retrieve(m_sctID,"SCT_ID").isFailure()) 
-    return  msg(MSG:: ERROR) << "SCT helper failed to retrieve" << endmsg, StatusCode::FAILURE;
+  if (m_detStore->retrieve(m_sctID, "SCT_ID").isFailure()) {
+    ATH_MSG_ERROR("SCT helper failed to retrieve");
+    return StatusCode::FAILURE;
+  }
+
+  ATH_CHECK(m_badIds.initialize());
 
   return StatusCode::SUCCESS;
 }
 
 // Finalize
-StatusCode SCT_FlaggedConditionSvc::finalize(){
-  StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "SCT_FlaggedConditionSvc::finalize()" << endmsg;
-  return sc;
+StatusCode SCT_FlaggedConditionSvc::finalize() {
+  ATH_MSG_INFO("SCT_FlaggedConditionSvc::finalize()");
+  return StatusCode::SUCCESS;
 }
 
 // QueryInterface
@@ -67,12 +66,7 @@ StatusCode SCT_FlaggedConditionSvc::queryInterface(const InterfaceID& riid, void
 
 // Clear list of bad IDs (called at begin event)
 void SCT_FlaggedConditionSvc::resetBadIds() {
-  m_badIds.clear();
-}
-
-// Handle BeginEvent incident and call reset function
-void SCT_FlaggedConditionSvc::handle(const Incident&) {
-  this->resetBadIds();
+  ATH_MSG_ERROR("SCT_FlaggedConditionSvc::resetBadIds should not be used.");
 }
 
 // Detector elements that this service can report about
@@ -89,26 +83,40 @@ bool SCT_FlaggedConditionSvc::isGood(const Identifier& elementId, InDetCondition
 
 // Is this element good (by IdentifierHash)?
 bool SCT_FlaggedConditionSvc::isGood(const IdentifierHash& hashId){
-  return (m_badIds.find(hashId) == m_badIds.end());
+  const SCT_FlaggedCondData* badIds{getCondData()};
+  if (badIds==nullptr) {
+    ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (isGood)");
+    return false;
+  }
+
+  return (badIds->find(hashId) == badIds->end());
 }
 
 // Flag a wafer as bad (by IdentifierHash) with a reason
-bool SCT_FlaggedConditionSvc::flagAsBad(const IdentifierHash& hashId, const std::string& source) {
-  return m_badIds.insert(make_pair(hashId, source)).second;
+bool SCT_FlaggedConditionSvc::flagAsBad(const IdentifierHash& /*hashId*/, const std::string& /*source*/) {
+  ATH_MSG_ERROR("SCT_FlaggedConditionSvc::flagAsBad should not be used.");
+  return false;
 }
 
 // Flag a wafer as bad (by Identifier) with a reason
-bool SCT_FlaggedConditionSvc::flagAsBad(const Identifier& Id, const std::string& source) {
-  const IdentifierHash hashId = m_sctID->wafer_hash(Id);
-  return flagAsBad(hashId, source);
+bool SCT_FlaggedConditionSvc::flagAsBad(const Identifier& /*Id*/, const std::string& /*source*/) {
+  ATH_MSG_ERROR("SCT_FlaggedConditionSvc::flagAsBad should not be used.");
+  return false;
 }
 
 // Retrieve the reason why the wafer is flagged as bad (by IdentifierHash)
 // If wafer is not found return a null string
 const std::string& SCT_FlaggedConditionSvc::details(const IdentifierHash& hashId) const {
-  std::map<IdentifierHash, std::string>::const_iterator itr(m_badIds.find(hashId)); 
   static const std::string nullString;
-  return ((itr != m_badIds.end()) ? (*itr).second : nullString);
+
+  const SCT_FlaggedCondData* badIds{getCondData()};
+  if (badIds==nullptr) {
+    ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (details)");
+    return nullString;
+  }
+
+  std::map<IdentifierHash, std::string>::const_iterator itr(badIds->find(hashId));
+  return ((itr != badIds->end()) ? (*itr).second : nullString);
 }
 
 // Retrieve the reason why the wafer is flagged as bad (by Identifier)
@@ -116,4 +124,27 @@ const std::string& SCT_FlaggedConditionSvc::details(const IdentifierHash& hashId
 const std::string& SCT_FlaggedConditionSvc::details(const Identifier& Id) const {
   const IdentifierHash hashId = m_sctID->wafer_hash(Id);
   return details(hashId);
+}
+
+int SCT_FlaggedConditionSvc::numBadIds() const {
+  const SCT_FlaggedCondData* badIds{getCondData()};
+  if (badIds==nullptr) {
+    ATH_MSG_ERROR("SCT_FlaggedCondData cannot be retrieved. (numBadIds)");
+    return -1;
+  }
+
+  return badIds->size();
+}
+
+const SCT_FlaggedCondData* SCT_FlaggedConditionSvc::getBadIds() const {
+  return getCondData();
+}
+
+const SCT_FlaggedCondData* SCT_FlaggedConditionSvc::getCondData() const {
+  SG::ReadHandle<SCT_FlaggedCondData> condData{m_badIds};
+  if (not condData.isValid()) {
+    ATH_MSG_ERROR("Failed to get " << m_badIds.key());
+    return nullptr;
+  }
+  return condData.cptr();
 }

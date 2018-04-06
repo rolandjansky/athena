@@ -1,14 +1,14 @@
 #include "QatDataAnalysis/TupleStore.h"
 #include <stdexcept>
-TupleStore::TupleStore(): _lock(false) {
+TupleStore::TupleStore(): m_lock(false) {
 }
 TupleStore::~TupleStore() {
 }
 void TupleStore::lock() const {
-  _lock=true;
+  m_lock=true;
 }
 bool TupleStore::isLocked() const {
-  return _lock;
+  return m_lock;
 }
 
 SimpleStore::SimpleStore(){
@@ -19,7 +19,7 @@ SimpleStore::~SimpleStore() {
 
 
 TupleConstLink SimpleStore::operator [](size_t i) const {
-  return _tVector[i];
+  return m_tVector[i];
 }
 
 void SimpleStore::push_back(TupleConstLink t) {
@@ -28,12 +28,12 @@ void SimpleStore::push_back(TupleConstLink t) {
     throw std::runtime_error("Attempt to write to a locked tuple store!");
   }
   else {
-    _tVector.push_back(t);
+    m_tVector.push_back(t);
   }
 }
 
 size_t SimpleStore::size() const {
-  return _tVector.size();
+  return m_tVector.size();
 }
 
 
@@ -46,12 +46,12 @@ CompoundStore::~CompoundStore() {
 
 TupleConstLink CompoundStore::operator [](size_t i) const {
   unsigned int V=0;
-  for (unsigned int v=0;v<_sVector.size();v++) {
-    if ((i-V)<(*_sVector[v]).size()) {
-      return (*_sVector[v])[i-V];
+  for (unsigned int v=0;v<m_sVector.size();v++) {
+    if ((i-V)<(*m_sVector[v]).size()) {
+      return (*m_sVector[v])[i-V];
     }
     else {
-      V+=(*_sVector[v]).size();
+      V+=(*m_sVector[v]).size();
     }
   }
   return TupleConstLink();
@@ -63,12 +63,12 @@ void CompoundStore::push_back(TupleConstLink t) {
     throw std::runtime_error("Attempt to write to a locked tuple store!");
   }
   else {
-    SimpleStore *s = _sVector.empty() ? 0 : dynamic_cast<SimpleStore *> (_sVector.back().operator ->()) ;
+    SimpleStore *s = m_sVector.empty() ? 0 : dynamic_cast<SimpleStore *> (m_sVector.back().operator ->()) ;
     if (!s) {
-      if (!_sVector.empty()) (*_sVector.back()).lock();
+      if (!m_sVector.empty()) (*m_sVector.back()).lock();
       s = new SimpleStore();
       TupleStoreLink sLink(s);
-      _sVector.push_back(sLink);      
+      m_sVector.push_back(sLink);      
     }
     s->push_back(t);
   }
@@ -85,17 +85,17 @@ void CompoundStore::push_back(TupleStoreLink t) {
     t->lock();
     
     // Lock also the last tupleStore, if it exists.
-    if (!_sVector.empty()) (*_sVector.back()).lock();
+    if (!m_sVector.empty()) (*m_sVector.back()).lock();
     
-     _sVector.push_back(t);
+     m_sVector.push_back(t);
   }
 }
 
 size_t CompoundStore::size() const {
   unsigned int total(0);
 
-  for (unsigned int i=0;i<_sVector.size();i++) {
-    total+=(*_sVector[i]).size();
+  for (unsigned int i=0;i<m_sVector.size();i++) {
+    total+=(*m_sVector[i]).size();
   }
   return total;
 }

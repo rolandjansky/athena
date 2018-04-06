@@ -3,7 +3,6 @@
 */
 
 #include "AnalysisTriggerTools/MuonTriggerAnalysisTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGate.h"

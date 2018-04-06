@@ -58,7 +58,7 @@ signals:
 		       const QString& data );
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 private slots:
   void downloadThreadFinished();
   void downloadThreadTerminated();

@@ -78,7 +78,7 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
   declareProperty("DoDspTestDump",m_doDspTestDump = false);
   declareProperty("DoCellsDump",m_doCellsDump = false);
   declareProperty("ADC2MeVTool",m_adc2mevtool);
-  declareProperty("LArPedestalKey",m_larpedestalkey = "Pedestal");
+  declareProperty("LArPedestalKey",m_larpedestalkey = "LArPedestal");
   declareProperty("DoCheckSum",m_doCheckSum = true);
   declareProperty("DoRodStatus",m_doRodStatus = true);
   declareProperty("PrintEnergyErrors",m_printEnergyErrors = true);
@@ -369,7 +369,7 @@ LArRODMonTool::bookHistograms()
       hg.m_hOut_E_FT_vs_SLOT = new TH2F(hName.c_str(), hTitle.c_str(),15,0.5,15.5,32,-0.5,31.5);
       hg.m_hOut_E_FT_vs_SLOT->GetXaxis()->SetTitle("Slot");
       hg.m_hOut_E_FT_vs_SLOT->GetYaxis()->SetTitle("Feedthrough");
-      sc = sc && strHelper.definePartitionSummProp(hg.m_hOut_E_FT_vs_SLOT);   
+      sc &= strHelper.definePartitionSummProp(hg.m_hOut_E_FT_vs_SLOT);
       CHECK(hg.m_monGroup->regHist(hg.m_hOut_E_FT_vs_SLOT));
 
       if(m_IsOnline) { // book shadow histograms for subtracting
@@ -386,7 +386,7 @@ LArRODMonTool::bookHistograms()
       hg.m_hOut_T_FT_vs_SLOT = new TH2F(hName.c_str(), hTitle.c_str(),15,0.5,15.5,32,-0.5,31.5);
       hg.m_hOut_T_FT_vs_SLOT->GetXaxis()->SetTitle("Slot");
       hg.m_hOut_T_FT_vs_SLOT->GetYaxis()->SetTitle("FT");
-      sc = sc && strHelper.definePartitionSummProp(hg.m_hOut_T_FT_vs_SLOT);   
+      sc &= strHelper.definePartitionSummProp(hg.m_hOut_T_FT_vs_SLOT);
       CHECK(hg.m_monGroup->regHist(hg.m_hOut_T_FT_vs_SLOT)); 
 
       if(m_IsOnline) { // book shadow histograms for subtracting
@@ -403,7 +403,7 @@ LArRODMonTool::bookHistograms()
       hg.m_hOut_Q_FT_vs_SLOT = new TH2F(hName.c_str(), hTitle.c_str(),15,0.5,15.5,32,-0.5,31.5);
       hg.m_hOut_Q_FT_vs_SLOT->GetXaxis()->SetTitle("Slot");
       hg.m_hOut_Q_FT_vs_SLOT->GetYaxis()->SetTitle("FT");
-      sc = sc && strHelper.definePartitionSummProp(hg.m_hOut_Q_FT_vs_SLOT);
+      sc &= strHelper.definePartitionSummProp(hg.m_hOut_Q_FT_vs_SLOT);
       CHECK(hg.m_monGroup->regHist(hg.m_hOut_Q_FT_vs_SLOT)); 
 
       if(m_IsOnline) { // book shadow histograms for subtracting

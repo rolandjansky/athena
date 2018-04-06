@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ThreadGaudi.h"
 #include "TrigHLTBaseTreeTool.h"
 #include <TTree.h>
 #include "TrigInterfaces/Algo.h"
@@ -31,7 +30,7 @@ StatusCode TrigHLTBaseTreeTool::bookHists() {
   // find out for whom we are running (i.e. Algo)    
   const HLT::Algo *parentAlg = dynamic_cast<const HLT::Algo*>(parent());
   if ( parentAlg ) {
-	m_parentName = getGaudiThreadGenericName(parentAlg->name());
+	m_parentName = parentAlg->name();
 	m_algo = const_cast<HLT::Algo*>(parentAlg);
   } else {
 	ATH_MSG_WARNING("Not a HLT::Algo class");

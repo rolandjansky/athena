@@ -131,48 +131,48 @@ TrigVertexFitInputTrack::~TrigVertexFitInputTrack()
 
 }
 
-void TrigVertexFitInputTrack::m_setMass(double m)
+void TrigVertexFitInputTrack::setMass(double m)
 {
   m_mass=m;
 }
 
-void TrigVertexFitInputTrack::m_mask()
+void TrigVertexFitInputTrack::mask()
 {
   m_active=false;
 }
 
-void TrigVertexFitInputTrack::m_activate()
+void TrigVertexFitInputTrack::activate()
 {
   m_active=true;
 }
 
-bool TrigVertexFitInputTrack::m_isActive()
+bool TrigVertexFitInputTrack::isActive()
 {
   return m_active;
 }
 
-int TrigVertexFitInputTrack::m_getTrackType()
+int TrigVertexFitInputTrack::getTrackType()
 {
   return m_nTrackType;
 }
 
 
-const TrigInDetTrack* TrigVertexFitInputTrack::m_getTrigTrack()
+const TrigInDetTrack* TrigVertexFitInputTrack::getTrigTrack()
 {
   return m_pTrigTrack;
 }
 
-const Trk::Track* TrigVertexFitInputTrack::m_getTrkTrack()
+const Trk::Track* TrigVertexFitInputTrack::getTrkTrack()
 {
 	return m_pTrkTrack;
 }
 
-void TrigVertexFitInputTrack::m_setIndex(int i)
+void TrigVertexFitInputTrack::setIndex(int i)
 {
   m_index=i;
 }
  
-int TrigVertexFitInputTrack::m_getIndex() const
+int TrigVertexFitInputTrack::getIndex() const
 {
   return m_index;
 }
@@ -187,15 +187,15 @@ double TrigVertexFitInputTrack::PerigeeCovariance(int i, int j) const
   return m_PerigeeCovariance[i][j];
 }
 
-void TrigVertexFitInputTrack::m_initializeVertex(class TrigL2Vertex* pV)
+void TrigVertexFitInputTrack::initializeVertex(class TrigL2Vertex* pV)
 {
   int i,j;
   i=3+m_index*3;
   for(j=0;j<3;j++) 
-    pV->m_getParametersVector()[i+j]=m_q[j];  
+    pV->getParametersVector()[i+j]=m_q[j];  
 }
 
-double TrigVertexFitInputTrack::m_getChi2Distance(class TrigL2Vertex* pV)
+double TrigVertexFitInputTrack::getChi2Distance(class TrigL2Vertex* pV)
 {
   const double C=0.02997;
   const double B=20.84;
@@ -213,13 +213,13 @@ double TrigVertexFitInputTrack::m_getChi2Distance(class TrigL2Vertex* pV)
     for(j=0;j<3;j++)
       pV->m_Gk[i+k][j+k]=m_Vqq[i][j];	
 
-  m_initializeVertex(pV);
-  xv=pV->m_getParametersVector()[0];
-  yv=pV->m_getParametersVector()[1];
-  zv=pV->m_getParametersVector()[2];
-  phi0=pV->m_getParametersVector()[3+shift];
-  theta0=pV->m_getParametersVector()[4+shift];
-  P0=pV->m_getParametersVector()[5+shift];
+  initializeVertex(pV);
+  xv=pV->getParametersVector()[0];
+  yv=pV->getParametersVector()[1];
+  zv=pV->getParametersVector()[2];
+  phi0=pV->getParametersVector()[3+shift];
+  theta0=pV->getParametersVector()[4+shift];
+  P0=pV->getParametersVector()[5+shift];
 
   cosPhi0=cos(phi0);sinPhi0=sin(phi0);
   sinPsi=-alpha*(xv*cosPhi0+yv*sinPhi0)/P0;
@@ -302,7 +302,7 @@ double TrigVertexFitInputTrack::m_getChi2Distance(class TrigL2Vertex* pV)
 }
 
 
-void TrigVertexFitInputTrack::m_updateVertex(class TrigL2Vertex* pV)
+void TrigVertexFitInputTrack::updateVertex(class TrigL2Vertex* pV)
 {
   int i,j,k,nSize=6+3*m_index;
 
@@ -318,7 +318,7 @@ void TrigVertexFitInputTrack::m_updateVertex(class TrigL2Vertex* pV)
     }
   for(i=0;i<nSize;i++)
     {
-      pV->m_getParametersVector()[i]+=K[0][i]*m_resid[0]+K[1][i]*m_resid[1];
+      pV->getParametersVector()[i]+=K[0][i]*m_resid[0]+K[1][i]*m_resid[1];
       for(j=i;j<nSize;j++)
 	{
 	  pV->m_Gk[i][j]-=K[0][i]*m_D[0][j]+K[1][i]*m_D[1][j];
@@ -327,7 +327,7 @@ void TrigVertexFitInputTrack::m_updateVertex(class TrigL2Vertex* pV)
     }
 }
 
-MsgStream& TrigVertexFitInputTrack::m_report( MsgStream& out ) const
+MsgStream& TrigVertexFitInputTrack::report( MsgStream& out ) const
 {
   int i;
 
@@ -367,7 +367,7 @@ TrigVertexFitConstraint::~TrigVertexFitConstraint()
   m_trackList.clear();
 }
 
-double TrigVertexFitConstraint::m_calculateInvariantMass(TrigL2Vertex* pV)
+double TrigVertexFitConstraint::calculateInvariantMass(TrigL2Vertex* pV)
 {
   const double C=0.029997;
   const double B=20.84;
@@ -376,15 +376,15 @@ double TrigVertexFitConstraint::m_calculateInvariantMass(TrigL2Vertex* pV)
   double P[3];double E=0.0;
   int i;
   
-  double* Rk = pV->m_getParametersVector();
+  double* Rk = pV->getParametersVector();
 
   int offset=0;
   for(i=0;i<3;i++) P[i]=0.0;
 
   for(std::list<const TrigVertexFitInputTrack*>::iterator it=m_trackList.begin();it!=m_trackList.end();++it)
     {
-      offset=3+3*(*it)->m_getIndex();
-      double mass=(*it)->m_getMass()/1000.0;
+      offset=3+3*(*it)->getIndex();
+      double mass=(*it)->getMass()/1000.0;
       double pT=fabs(Rk[offset+2]);
       double p=pT/sin(Rk[offset+1]);
 
@@ -401,7 +401,7 @@ double TrigVertexFitConstraint::m_calculateInvariantMass(TrigL2Vertex* pV)
 }
 
 
-double TrigVertexFitConstraint::m_getChi2Distance(TrigL2Vertex* pV)
+double TrigVertexFitConstraint::getChi2Distance(TrigL2Vertex* pV)
 {
   const double C=0.029997;
   const double B=20.84;
@@ -411,17 +411,17 @@ double TrigVertexFitConstraint::m_getChi2Distance(TrigL2Vertex* pV)
   double E=0.0;
   int i,j;
   bool linFailed=false;
-  double* Rk = pV->m_getParametersVector();
+  double* Rk = pV->getParametersVector();
 
   int offset=0;
   for(i=0;i<3;i++) P[i]=0.0;
 
-  int nSize=3+3*pV->m_getTracks()->size();
+  int nSize=3+3*pV->getTracks()->size();
 
   for(std::list<const TrigVertexFitInputTrack*>::iterator it=m_trackList.begin();it!=m_trackList.end();++it)
     {
-      offset=3+3*(*it)->m_getIndex();
-      double mass=(*it)->m_getMass()/1000.0;
+      offset=3+3*(*it)->getIndex();
+      double mass=(*it)->getMass()/1000.0;
       double pT=fabs(Rk[offset+2]);
       double p=pT/sin(Rk[offset+1]);
 
@@ -439,9 +439,9 @@ double TrigVertexFitConstraint::m_getChi2Distance(TrigL2Vertex* pV)
 
   for(std::list<const TrigVertexFitInputTrack*>::iterator it=m_trackList.begin();it!=m_trackList.end();++it)
     {
-      offset=3+3*(*it)->m_getIndex();
+      offset=3+3*(*it)->getIndex();
 
-      double mass=(*it)->m_getMass()/1000.0;
+      double mass=(*it)->getMass()/1000.0;
       double Ck=(Rk[offset+2]<0.0)?-1.0:1.0;
       double sinT=sin(Rk[offset+1]);
       double cosT=cos(Rk[offset+1]);
@@ -485,7 +485,7 @@ double TrigVertexFitConstraint::m_getChi2Distance(TrigL2Vertex* pV)
       Delta=0.00001*oldPar;
       newPar=oldPar+Delta;
       Rk[i]=newPar;
-      newMass=m_calculateInvariantMass(pV);
+      newMass=calculateInvariantMass(pV);
       der=(newMass-invMass)/Delta;
       m_D[1][i]=der;
       Rk[i]=oldPar;
@@ -510,10 +510,10 @@ double TrigVertexFitConstraint::m_getChi2Distance(TrigL2Vertex* pV)
   return ((m_resid[0]*m_resid[0])*m_V[0][0]);
 }
  
-void TrigVertexFitConstraint::m_updateVertex(TrigL2Vertex* pV)
+void TrigVertexFitConstraint::updateVertex(TrigL2Vertex* pV)
 {
   double K[MAX_SIZE_VERT_COVM];
-  int i,j,nSize=3+3*pV->m_getTracks()->size();
+  int i,j,nSize=3+3*pV->getTracks()->size();
   double gain;
 
   for(i=0;i<nSize;i++)
@@ -525,7 +525,7 @@ void TrigVertexFitConstraint::m_updateVertex(TrigL2Vertex* pV)
     }
   for(i=0;i<nSize;i++)
     {
-      pV->m_getParametersVector()[i]+=K[i]*m_resid[0];
+      pV->getParametersVector()[i]+=K[i]*m_resid[0];
       for(j=i;j<nSize;j++)
 	{
 	  pV->m_Gk[i][j]-=K[i]*m_D[1][j];
@@ -534,13 +534,13 @@ void TrigVertexFitConstraint::m_updateVertex(TrigL2Vertex* pV)
     }
 }
 
-MsgStream& TrigVertexFitConstraint::m_report( MsgStream& out) const
+MsgStream& TrigVertexFitConstraint::report( MsgStream& out) const
 {
   out<<"Mass constraint with "<<m_trackList.size()<<" : mass="<<m_value<<endmsg;
   return out;
 }
 
-double TrigVertexFitConstraint::m_getValue()
+double TrigVertexFitConstraint::getValue()
 {
   return m_value;
 }
@@ -577,13 +577,13 @@ TrigL2Vertex::~TrigL2Vertex()
   if(m_P!=NULL) delete m_P;
 }
 
-int TrigL2Vertex::m_getNumberOfTracks()
+int TrigL2Vertex::getNumberOfTracks()
 {
   m_nTracks=m_pvTracks->size();
   return m_nTracks;
 }
 
-bool TrigL2Vertex::m_prepareForFit()
+bool TrigL2Vertex::prepareForFit()
 {
   m_nTracks=m_pvTracks->size();
   m_nDOF=-3;
@@ -592,29 +592,29 @@ bool TrigL2Vertex::m_prepareForFit()
   return true;
 }
 
-void TrigL2Vertex::m_reset()
+void TrigL2Vertex::reset()
 {
   memset(&m_Gk[0][0],0,sizeof(m_Gk));
   m_nDOF=-3;
   m_chiSquared=0.0;
 }
 
-bool TrigL2Vertex::m_isVertexFitted()
+bool TrigL2Vertex::isVertexFitted()
 {
   return (m_nStatus>0);
 }
 
-bool TrigL2Vertex::m_isMassEstimated()
+bool TrigL2Vertex::isMassEstimated()
 {
   return (m_nStatus>1);
 }
 
-const TrigInDetTrackFitPar* TrigL2Vertex::m_getMotherTrack()
+const TrigInDetTrackFitPar* TrigL2Vertex::getMotherTrack()
 {
   return m_P;
 }
 
-void TrigL2Vertex::m_setMotherTrack(TrigInDetTrackFitPar* P)
+void TrigL2Vertex::setMotherTrack(TrigInDetTrackFitPar* P)
 {
   m_P=P;
 }
@@ -629,69 +629,69 @@ int TrigL2Vertex::ndof()
   return m_nDOF;
 }
 
-void TrigL2Vertex::m_addChi2(double chi2)
+void TrigL2Vertex::addChi2(double chi2)
 {
   m_chiSquared+=chi2;
 }
 
-void TrigL2Vertex::m_addNdof(int n)
+void TrigL2Vertex::addNdof(int n)
 {
   m_nDOF+=n;
 }
 
 double TrigL2Vertex::mass()
 {
-  if(m_isMassEstimated()) return m_mass;
-  else return 0.0;
-}
+  if(isMassEstimated()) return m_mass;
+  else return 0.0;}
+
   
 double TrigL2Vertex::massVariance()
 {
-  if(m_isMassEstimated()) return m_massVar;
+  if(isMassEstimated()) return m_massVar;
   else return 0.0;
 }
 
-double* TrigL2Vertex::m_getParametersVector()
+double* TrigL2Vertex::getParametersVector()
 {
   return &m_Rk[0];
 }
 
-std::list<TrigVertexFitInputTrack*>* TrigL2Vertex::m_getTracks()
+std::list<TrigVertexFitInputTrack*>* TrigL2Vertex::getTracks()
 {
   return m_pvTracks;
 }
 
-std::list<TrigVertexFitConstraint*>* TrigL2Vertex::m_getConstraints()
+std::list<TrigVertexFitConstraint*>* TrigL2Vertex::getConstraints()
 {
   return m_pvConstraints;
 }
 
-void TrigL2Vertex::m_setStatus(int s)
+void TrigL2Vertex::setStatus(int s)
 {
   m_nStatus=s;
 }
 
-void TrigL2Vertex::m_setMass(double m)
+void TrigL2Vertex::setMass(double m)
 {
   m_mass=m;
 }
  
-void TrigL2Vertex::m_setMassVariance(double v)
+void TrigL2Vertex::setMassVariance(double v)
 {
   m_massVar=v;
 }
 
-int TrigL2Vertex::m_getStatus()
+int TrigL2Vertex::getStatus()
 {
   return m_nStatus;
 }
 
-bool TrigL2Vertex::m_isReadyForFit()
+bool TrigL2Vertex::isReadyForFit()
 {
   return m_ready;
 }
 
-MsgStream& TrigL2Vertex::m_report( MsgStream& msg) const
+MsgStream& TrigL2Vertex::report( MsgStream& msg) const
 {
   int i,j,nSize=3+3*m_pvTracks->size();
 
@@ -704,14 +704,14 @@ MsgStream& TrigL2Vertex::m_report( MsgStream& msg) const
   return msg;
 }
 
-const TrigVertexFitInputTrack* TrigL2Vertex::m_contains(const TrigInDetTrack* pT)
+const TrigVertexFitInputTrack* TrigL2Vertex::contains(const TrigInDetTrack* pT)
 {
   TrigVertexFitInputTrack* pI=NULL;
   for(std::list<TrigVertexFitInputTrack*>::iterator it=m_pvTracks->begin();
       it!=m_pvTracks->end();++it)
     {
-      if((*it)->m_getTrackType()!=1) continue;
-      if(pT==(*it)->m_getTrigTrack())
+      if((*it)->getTrackType()!=1) continue;
+      if(pT==(*it)->getTrigTrack())
 	{
 	  pI=(*it);break;
 	}
@@ -720,14 +720,14 @@ const TrigVertexFitInputTrack* TrigL2Vertex::m_contains(const TrigInDetTrack* pT
 }
 
 
-const TrigVertexFitInputTrack* TrigL2Vertex::m_contains(const Trk::Track* pT)
+const TrigVertexFitInputTrack* TrigL2Vertex::contains(const Trk::Track* pT)
 {
   TrigVertexFitInputTrack* pI=NULL;
   for(std::list<TrigVertexFitInputTrack*>::iterator it=m_pvTracks->begin();
       it!=m_pvTracks->end();++it)
     {
-      if((*it)->m_getTrackType()!=2) continue;
-      if(pT==(*it)->m_getTrkTrack())
+      if((*it)->getTrackType()!=2) continue;
+      if(pT==(*it)->getTrkTrack())
 	{
 	  pI=(*it);break;
 	}

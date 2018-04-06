@@ -7,6 +7,10 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/ReadHandleKey.h"
+
+//EDM include(s)
+#include "xAODEventInfo/EventInfo.h"
 
 // ROOT include(s)
 #include "TRandom3.h"
@@ -136,7 +140,7 @@ protected:
   virtual  double  sagitta(TProfile2D* corrM, TLorentzVector &lv);
   
   virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
-  virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
+  virtual TProfile2D* GetHist(const std::string &fname="", const std::string &hname="inclusive",double GlobalScale=MZPDG);
 
   //private:
   //::: fake assignment operator missing actual implementation
@@ -193,7 +197,7 @@ protected:
 
   int m_scaleRegion;
 
- 
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"}; 
   
   boost::unordered_map< SystematicSet, ParameterSet > m_Parameters;
   ParameterSet *m_currentParameters;

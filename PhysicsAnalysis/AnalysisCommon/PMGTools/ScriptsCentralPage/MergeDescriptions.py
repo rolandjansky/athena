@@ -1,14 +1,14 @@
 #! /usr/bin/python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-import os,sys
+import os
+import sys
 import operator
 import glob
 import re
 
 
-
-#class Sample(object):
+# class Sample(object):
 class Sample():
     Title = ""
     DSID = ""
@@ -20,9 +20,11 @@ class Sample():
         self.DSID = DSID
         self.lines = lines
 
+
 def make_sample():
     sample = Student(Title, DSID, lines)
     return sample
+
 
 def HTMLify(Title):
     s = list(Title)
@@ -39,11 +41,9 @@ def HTMLify(Title):
 
     return htmlified
 
-twikiFolder   = "/afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/"
+twikiFolder = "/afs/cern.ch/user/a/atltopmc/www/TopMC12twiki/TestCentralMC15ProductionPage/"
 
 TwikiList = glob.glob(twikiFolder+"/MainTwiki_Exotics*")
-#TwikiList = glob.glob(twikiFolder+"/test.*")
-
 
 for TwikiFile in TwikiList:
     print "Processing %s" % TwikiFile

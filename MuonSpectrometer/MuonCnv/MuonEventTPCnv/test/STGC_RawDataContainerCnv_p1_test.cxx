@@ -38,7 +38,6 @@ void compare (const Muon::STGC_RawDataContainer& p1,
   STGC_RawDataContainer::const_iterator it2 = p2.begin();
   STGC_RawDataContainer::const_iterator it2e = p2.end();
   unsigned int count=0;
-  std::cout<<"it1: "<<*it1<<" it1e "<<*it1e<<" it2 "<<*it2<<" "<<*it2e<<std::endl;
   while (it1 != it1e && it2 != it2e) {
     std::cout <<"Collection #"<<++count<<std::endl;
     assert (it1.hashId() == it2.hashId());
@@ -51,7 +50,6 @@ void compare (const Muon::STGC_RawDataContainer& p1,
     ++it1;
     ++it2;
   }
-  std::cout <<"it1 " <<*it1 << " it2 "<<*it2<<std::endl;
   assert (it1 == it1e && it2 == it2e);
 }
 

@@ -75,7 +75,8 @@ private:
   /* @} */
 
   ///Too handle for truth-track extrapolation
-  ToolHandle<Trk::IExtrapolator> m_extrapolator;
+  PublicToolHandle<Trk::IExtrapolator> m_extrapolator
+     {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};
 };
 
 

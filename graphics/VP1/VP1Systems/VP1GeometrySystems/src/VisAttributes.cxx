@@ -26,19 +26,19 @@ public:
 //____________________________________________________________________
 void VisAttributes::init()
 {
-  d->initialState = d->currentState();
+  m_d->initialState = m_d->currentState();
 }
 
 //____________________________________________________________________
 QByteArray VisAttributes::getState(bool onlyChangedMaterials)
 {
   //Figure out states to store
-  QMap<QString,QByteArray> storedstates, statesnow = d->currentState();
+  QMap<QString,QByteArray> storedstates, statesnow = m_d->currentState();
   if (onlyChangedMaterials) {
     QMap<QString,QByteArray>::const_iterator it, itE(statesnow.constEnd());
-    QMap<QString,QByteArray>::const_iterator itOrig, itOrigE(d->initialState.constEnd());
+    QMap<QString,QByteArray>::const_iterator itOrig, itOrigE(m_d->initialState.constEnd());
     for (it = statesnow.constBegin(); it!=itE; ++it) {
-      itOrig = d->initialState.constFind(it.key());
+      itOrig = m_d->initialState.constFind(it.key());
       if (itOrig==itOrigE||it.value()!=itOrig.value())
 	storedstates.insert(it.key(),it.value());
     }
@@ -73,12 +73,12 @@ void VisAttributes::applyState(QByteArray ba)
   state >> storedstates;
   buffer.close();
 
-  std::map< std::string, SoMaterial *>::iterator itMat,itMatE(d->_map.end());
+  std::map< std::string, SoMaterial *>::iterator itMat,itMatE(m_d->_map.end());
 
   //Apply states from map:
   QMap<QString,QByteArray>::const_iterator it, itE(storedstates.constEnd());
   for (it = storedstates.constBegin(); it!=itE; ++it) {
-    itMat = d->_map.find(it.key().toStdString());
+    itMat = m_d->_map.find(it.key().toStdString());
     if (itMat!=itMatE) {
       QByteArray b(it.value());
       VP1QtInventorUtils::deserialiseSoMaterial(b,itMat->second);
@@ -98,22 +98,22 @@ QMap<QString,QByteArray> VisAttributes::Imp::currentState() const
 }
 
 //____________________________________________________________________
-VisAttributes::VisAttributes() : d(new Imp) {
+VisAttributes::VisAttributes() : m_d(new Imp) {
 }
 
 //____________________________________________________________________
 VisAttributes::~VisAttributes() {
 
-  std::map<std::string, SoMaterial *>::iterator m,e=d->_map.end();
-  for (m=d->_map.begin();m!=e;m++)
+  std::map<std::string, SoMaterial *>::iterator m,e=m_d->_map.end();
+  for (m=m_d->_map.begin();m!=e;m++)
     (*m).second->unref();
 
-  delete d;
+  delete m_d;
 }
 
 SoMaterial *VisAttributes::get (const std::string & name) const {
-  std::map <std::string, SoMaterial *>::const_iterator m = d->_map.find(name);
-  if (m!=d->_map.end()) {
+  std::map <std::string, SoMaterial *>::const_iterator m = m_d->_map.find(name);
+  if (m!=m_d->_map.end()) {
     return (*m).second;
   } else {
     return NULL;
@@ -121,12 +121,12 @@ SoMaterial *VisAttributes::get (const std::string & name) const {
 }
 
 void VisAttributes::add(const std::string & name, SoMaterial *material) {
-  if (d->_map.find(name)!=d->_map.end()) {
+  if (m_d->_map.find(name)!=m_d->_map.end()) {
     std::cout<<"VisAttributes::add ERROR: Material " <<name<<" already added!"<<std::endl;
     return;
   }
   material->ref();
-  d->_map[name]=material;
+  m_d->_map[name]=material;
   if (material->transparency.getNum()!=1)
     std::cout<<"VisAttributes::add Warning: Found #transparency values different from 1 in material "<<name<<std::endl;
   if (material->transparency[0]!=0.0)
@@ -135,8 +135,8 @@ void VisAttributes::add(const std::string & name, SoMaterial *material) {
 
 void VisAttributes::overrideTransparencies(float transpfact)
 {
-  std::map< std::string, SoMaterial *>::iterator it, itE = d->_map.end();
-  for (it=d->_map.begin();it!=itE;++it)
+  std::map< std::string, SoMaterial *>::iterator it, itE = m_d->_map.end();
+  for (it=m_d->_map.begin();it!=itE;++it)
     it->second->transparency.set1Value( 0, transpfact );
 }
 

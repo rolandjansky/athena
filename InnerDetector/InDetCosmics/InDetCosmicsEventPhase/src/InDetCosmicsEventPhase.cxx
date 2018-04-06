@@ -51,9 +51,11 @@ namespace InDet
 	return sc;
       }
   
-
-   ATH_CHECK( m_readKey_tracks.initialize() );
-   ATH_CHECK( m_writeKey_TRTPhase.initialize() ); 
+    ATH_CHECK( m_eventPhaseTool.retrieve() );
+    m_trackSumTool.disable(); // never used?
+    
+    ATH_CHECK( m_readKey_tracks.initialize() );
+    ATH_CHECK( m_writeKey_TRTPhase.initialize() ); 
 
     return StatusCode::SUCCESS;
   }

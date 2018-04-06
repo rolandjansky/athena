@@ -41,7 +41,7 @@ public slots:
 
 protected:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

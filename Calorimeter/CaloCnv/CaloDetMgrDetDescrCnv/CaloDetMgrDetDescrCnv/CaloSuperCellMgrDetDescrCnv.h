@@ -45,8 +45,6 @@ class ICaloSuperCellAlignTool;
 class CaloSuperCellMgrDetDescrCnv
   : public DetDescrConverter
 {
-  friend class CnvFactory<CaloSuperCellMgrDetDescrCnv>;
-
 public:
   /// Standard Gaudi initialize method.
   virtual StatusCode initialize();
@@ -78,8 +76,6 @@ public:
    */
   static const CLID& classID();
 
-
-protected:
   /**
    * @brief Constructor.
    * @param clid The CLID if the class we're constructing.

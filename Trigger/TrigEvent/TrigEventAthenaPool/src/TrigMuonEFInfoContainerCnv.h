@@ -37,7 +37,9 @@ class TrigMuonEFInfoContainerCnv : public TrigMuonEFInfoContainerCnvBase{
   
  protected:
   
+public:
   TrigMuonEFInfoContainerCnv( ISvcLocator *svcloc );
+protected:
   ~TrigMuonEFInfoContainerCnv();
   
   virtual TrigMuonEFInfoContainer_PERS *createPersistent( TrigMuonEFInfoContainer *transObj);

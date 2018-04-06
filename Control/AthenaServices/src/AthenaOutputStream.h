@@ -16,8 +16,6 @@
 
 // Required for inheritance
 #include "GaudiKernel/IDataSelector.h"
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -68,8 +66,7 @@ protected:
    StringProperty           m_writingTool;
    /// Name of the output file
    std::string              m_outputName;
-   /// tag of processing stage:
-   StringProperty           m_processTag;
+   std::string              m_outputAttributes;
    
    typedef ServiceHandle<IClassIDSvc> IClassIDSvc_t;
    IClassIDSvc_t m_pCLIDSvc;
@@ -101,11 +98,6 @@ protected:
    int                      m_events;
    /// set to true to force read of data objects in item list
    bool m_forceRead;
-   /// set to true to allow data objects being copied persistent to persistent (without SG retrieve).
-   bool m_persToPers;
-   std::vector<unsigned int> m_exemptPersToPers;
-   /// set to true to allow defaults being provided for non-existent data objects.
-   bool m_provideDef;
    /// set to false to omit adding the current DataHeader into the DataHeader history
    /// this will cause the input file to be neglected for back navigation (replace mode).
    bool m_extendProvenanceRecord;

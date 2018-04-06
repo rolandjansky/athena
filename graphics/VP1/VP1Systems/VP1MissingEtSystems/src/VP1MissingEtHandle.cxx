@@ -85,48 +85,48 @@ public:
 
 //____________________________________________________________________
 VP1MissingEtHandle::VP1MissingEtHandle(IVP1System*sys,const QString& key)
- :VP1StdCollection(sys,"VP1MissingEtHandle_"+key), d(new Imp)
+ :VP1StdCollection(sys,"VP1MissingEtHandle_"+key), m_d(new Imp)
 {
-  d->key = key;
-  d->met = 0;
+  m_d->key = key;
+  m_d->met = 0;
 
-  if (d->key.startsWith("MET_"))
-    d->type = Imp::NORMAL;
-  else if (d->key.startsWith("ObjMET_"))
-    d->type = Imp::OBJECTBASED;
+  if (m_d->key.startsWith("MET_"))
+    m_d->type = Imp::NORMAL;
+  else if (m_d->key.startsWith("ObjMET_"))
+    m_d->type = Imp::OBJECTBASED;
   else
-    d->type = Imp::OTHER;
+    m_d->type = Imp::OTHER;
 
   //ggvaberi
-  base  = 0;
-  arrow = 0;
-  dash  = 0;
+  m_base  = 0;
+  m_arrow = 0;
+  m_dash  = 0;
 
-  length = 0.0;
-  phi = 0.0;
+  m_length = 0.0;
+  m_phi = 0.0;
   //-------------------
 }
 
 //____________________________________________________________________
 VP1MissingEtHandle::~VP1MissingEtHandle()
 {
-  delete d;
+  delete m_d;
 
-  if(arrow){
-   arrow->removeAllChildren();
-   arrow->unref();
+  if(m_arrow){
+   m_arrow->removeAllChildren();
+   m_arrow->unref();
   }
 
-  if(dash){
-   dash->removeAllChildren();
-   dash->unref();
+  if(m_dash){
+   m_dash->removeAllChildren();
+   m_dash->unref();
   }
 }
 
 //____________________________________________________________________
 QString VP1MissingEtHandle::key() const
 {
-  return d->key;
+  return m_d->key;
 }
 
 //____________________________________________________________________
@@ -135,28 +135,28 @@ QByteArray VP1MissingEtHandle::providePersistifiableID() const
   VP1Serialise serialise(0);
   serialise.disableUnsavedChecks();
   serialise.save(collTypeID());
-  serialise.save(key());//Since we truncate stuff in provideText(), we want to base the id on the full key.
+  serialise.save(key());//Since we truncate stuff in provideText(), we want to m_base the id on the full key.
   return serialise.result();
 }
 
 //____________________________________________________________________
 QString VP1MissingEtHandle::provideText() const
 {
-  if (d->key.startsWith("MET_"))
-    return d->key.right(d->key.count()-4);
-  else if (d->key.startsWith("ObjMET_"))
-    return d->key.right(d->key.count()-7);
-  return d->key;
+  if (m_d->key.startsWith("MET_"))
+    return m_d->key.right(m_d->key.count()-4);
+  else if (m_d->key.startsWith("ObjMET_"))
+    return m_d->key.right(m_d->key.count()-7);
+  return m_d->key;
 }
 
 //____________________________________________________________________
 QString VP1MissingEtHandle::provideSection() const
 {
-  if (d->type==Imp::NORMAL)
+  if (m_d->type==Imp::NORMAL)
     return "Standard";
-  else if (d->type==Imp::OBJECTBASED)
+  else if (m_d->type==Imp::OBJECTBASED)
     return "Object-Based";
-  else if (d->type==Imp::OTHER)
+  else if (m_d->type==Imp::OTHER)
     return  "Other";
   else
     return  "Unknown";
@@ -165,11 +165,11 @@ QString VP1MissingEtHandle::provideSection() const
 //____________________________________________________________________
 QString VP1MissingEtHandle::provideSectionToolTip() const
 {
-  if (d->type==Imp::NORMAL)
+  if (m_d->type==Imp::NORMAL)
     return "Missing Et objects found by standard algorithms";
-  else if (d->type==Imp::OBJECTBASED)
+  else if (m_d->type==Imp::OBJECTBASED)
     return "Missing Et found by Object-Based algorithms";
-  else if (d->type==Imp::OTHER)
+  else if (m_d->type==Imp::OTHER)
     return "Missing ET objects not recognised as belonging to any other section";
   else
     return "Unknown";
@@ -178,7 +178,7 @@ QString VP1MissingEtHandle::provideSectionToolTip() const
 //____________________________________________________________________
 QColor VP1MissingEtHandle::baseCol() const
 {
-  if (d->type==Imp::OBJECTBASED)
+  if (m_d->type==Imp::OBJECTBASED)
     return QColor::fromRgbF(0, 2./3., 0.5);
   else
     return QColor::fromRgbF(1, 2./3., 0.5);
@@ -221,19 +221,19 @@ QStringList VP1MissingEtHandle::baseInfo(const MissingET* met) const
 QStringList VP1MissingEtHandle::clicked(SoPath*pickedPath) const
 {
   truncateToCollSep(pickedPath);
-  return baseInfo(d->met);
+  return baseInfo(m_d->met);
 }
 
 //____________________________________________________________________
 void VP1MissingEtHandle::addArrowToCollSep(const MissingET* met)
 {
-  //3D code for the arrow here is due to Moustapha Thioye:
+  //3D code for the m_arrow here is due to Moustapha Thioye:
   //Updated by GGvaberi
 
   double length = met->et() * (200.0*CLHEP::cm/(100.0*CLHEP::GeV));//Fixme: Make scale factor (and thickness) adjustable.
 
-  this->length = length;
-  this->phi = met->phi();
+  this->m_length = length;
+  this->m_phi = met->phi();
 
   SoRotationXYZ *finalRotation = new SoRotationXYZ();
   finalRotation->axis=SoRotationXYZ::Z;
@@ -241,119 +241,119 @@ void VP1MissingEtHandle::addArrowToCollSep(const MissingET* met)
 
   //Translation
   SoTranslation *translation1= new SoTranslation();
-  translation1->translation.setValue(0,0.5*0.75*length*scale,0);
+  translation1->translation.setValue(0,0.5*0.75*m_length*scale,0);
 
   //Cylinder
   SoCylinder  *cyl  = new SoCylinder();
-  cyl->height=0.75*length*scale;
+  cyl->height=0.75*m_length*scale;
   cyl->radius=2.0*thickness;
 
   //Translation
   SoTranslation *translation2= new SoTranslation();
-  translation2->translation.setValue(0,0.5*length*scale,0);
+  translation2->translation.setValue(0,0.5*m_length*scale,0);
 
   //Cone
   SoCone  *cone = new SoCone();
-  cone->height=0.25*length*scale;
+  cone->height=0.25*m_length*scale;
   cone->bottomRadius= 4.0*thickness;
 
   //Arrow
-  arrow = new SoGroup;
-  arrow->addChild(finalRotation);
-  arrow->addChild(translation1);
-  arrow->addChild(cyl);
-  arrow->addChild(translation2);
-  arrow->addChild(cone);
-  arrow->ref();
+  m_arrow = new SoGroup;
+  m_arrow->addChild(finalRotation);
+  m_arrow->addChild(translation1);
+  m_arrow->addChild(cyl);
+  m_arrow->addChild(translation2);
+  m_arrow->addChild(cone);
+  m_arrow->ref();
 
   //Dash line
-  dash  = new SoGroup;
+  m_dash  = new SoGroup;
   SoRotationXYZ *r = new SoRotationXYZ();
   r->axis=SoRotationXYZ::Z;
   r->angle=-M_PI/2+ met->phi();
-  dash->addChild(r);
+  m_dash->addChild(r);
 
   SoTranslation *t= new SoTranslation();
   t->translation.setValue(0, 0, 0);
-  dash->addChild(t);
+  m_dash->addChild(t);
 
   //Define line width
   SoDrawStyle *drawStyle = new SoDrawStyle;
   drawStyle->style.setValue(SoDrawStyle::LINES);
   drawStyle->lineWidth.setValue(2.0 * thickness);
   drawStyle->linePattern.setValue(0xFF00);
-  dash->addChild(drawStyle);
+  m_dash->addChild(drawStyle);
 
   //Define line connection
   SoCoordinate3 *coords = new SoCoordinate3;
   SbVec3f* vert = new SbVec3f[2];
   vert[0] = SbVec3f(0.0, 0.0, 0.0);
-  vert[1] = SbVec3f(0.0, length * scale, 0.0);
+  vert[1] = SbVec3f(0.0, m_length * scale, 0.0);
   coords->point.setValues(0, 2, vert);
   delete [] vert;
-  dash->addChild(coords);
+  m_dash->addChild(coords);
 
   SoLineSet *lineSet = new SoLineSet ;
   lineSet->numVertices.set1Value(0, 2) ;
-  dash->addChild(lineSet);
-  dash->ref();
+  m_dash->addChild(lineSet);
+  m_dash->ref();
 
-  base  = new SoGroup;
+  m_base  = new SoGroup;
   if(shape)
-   base->addChild(arrow);
+   m_base->addChild(m_arrow);
   else
-   base->addChild(dash);
+   m_base->addChild(m_dash);
 
-  collSep()->addChild(base);
+  collSep()->addChild(m_base);
   //--------
 }
 
 //____________________________________________________________________
 bool VP1MissingEtHandle::load()
 {
-  if (!VP1SGAccessHelper(systemBase()).retrieve(d->met,d->key))
+  if (!VP1SGAccessHelper(systemBase()).retrieve(m_d->met,m_d->key))
     return false;
 
-  addArrowToCollSep(d->met);
+  addArrowToCollSep(m_d->met);
   return true;
 }
 
 //ggvaberi
 void VP1MissingEtHandle::refresh(){
- if(!base)
+ if(!m_base)
 	 return;
 
  //Arrow
- SoTranslation *translation1= (SoTranslation*)arrow->getChild(1);
- translation1->translation.setValue(0,0.5*0.75*length*scale,0);
+ SoTranslation *translation1= (SoTranslation*)m_arrow->getChild(1);
+ translation1->translation.setValue(0,0.5*0.75*m_length*scale,0);
 
- SoCylinder  *cyl  = (SoCylinder*)arrow->getChild(2);
- cyl->height=0.75*length*scale;
+ SoCylinder  *cyl  = (SoCylinder*)m_arrow->getChild(2);
+ cyl->height=0.75*m_length*scale;
  cyl->radius=2.0*thickness;
 
- SoTranslation *translation2= (SoTranslation*)arrow->getChild(3);
- translation2->translation.setValue(0,0.5*length*scale,0);
+ SoTranslation *translation2= (SoTranslation*)m_arrow->getChild(3);
+ translation2->translation.setValue(0,0.5*m_length*scale,0);
 
- SoCone  *cone = (SoCone*)arrow->getChild(4);
- cone->height=0.25*length*scale;
+ SoCone  *cone = (SoCone*)m_arrow->getChild(4);
+ cone->height=0.25*m_length*scale;
  cone->bottomRadius= 4.0*thickness;
 
  //Dash
- SoDrawStyle *drawStyle = (SoDrawStyle*)dash->getChild(2);
+ SoDrawStyle *drawStyle = (SoDrawStyle*)m_dash->getChild(2);
  drawStyle->lineWidth.setValue(2.0 * thickness);
 
- SoCoordinate3 *coords = (SoCoordinate3*)dash->getChild(3);
+ SoCoordinate3 *coords = (SoCoordinate3*)m_dash->getChild(3);
  SbVec3f* vert = new SbVec3f[2];
  vert[0] = SbVec3f(0.0, 0.0, 0.0);
- vert[1] = SbVec3f(0.0, length * scale, 0.0);
+ vert[1] = SbVec3f(0.0, m_length * scale, 0.0);
  coords->point.setValues(0, 2, vert);
  delete [] vert;
 
- base->removeAllChildren();
+ m_base->removeAllChildren();
  if(shape)
-  base->addChild(arrow);
+  m_base->addChild(m_arrow);
  else
-  base->addChild(dash);
+  m_base->addChild(m_dash);
 }
 
 void VP1MissingEtHandle::useThickness(double thickness){

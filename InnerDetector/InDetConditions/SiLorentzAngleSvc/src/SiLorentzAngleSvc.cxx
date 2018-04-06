@@ -23,7 +23,7 @@
 SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
   m_pixelDefaults(false),
-  m_sctDefaults(true),
+  m_sctDefaults(false),
   m_siConditionsSvc("PixelSiliconConditionsSvc", name),
   m_magFieldSvc("AtlasFieldSvc", name),
   m_detStore("StoreGateSvc/DetectorStore", name),
@@ -77,6 +77,11 @@ StatusCode SiLorentzAngleSvc::initialize() {
     return StatusCode::FAILURE;
   }
   m_isPixel = (m_detectorName == "Pixel");
+
+  if (not m_isPixel) {
+    ATH_MSG_FATAL("DO NOT USE SiLorentzAngleSvc FOR SCT ANYMORE! USE SiLorentzAngleCHSvc FOR SCT!");
+    return StatusCode::FAILURE;
+  }
  
   // Get conditions summary service.
   if (!m_siConditionsSvc.empty()) {

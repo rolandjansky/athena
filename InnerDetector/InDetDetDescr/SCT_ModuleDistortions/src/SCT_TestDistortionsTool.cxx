@@ -5,7 +5,6 @@
 // Test SCT_DistortionsTool.cxx
 
 //Gaudi
-#include "GaudiKernel/AlgFactory.h"
 
 //Athena
 #include "InDetIdentifier/SCT_ID.h"
@@ -13,7 +12,6 @@
 
 //Package
 #include "SCT_TestDistortionsTool.h"
-#include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "PathResolver/PathResolver.h"
 
@@ -32,8 +30,7 @@
 
 
 SCT_TestDistortionsTool::SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator),
-  m_SCTDistoTool("SCT_DistortionsTool", this)
+  AthAlgorithm(name, pSvcLocator)
 {
   //nop
 }

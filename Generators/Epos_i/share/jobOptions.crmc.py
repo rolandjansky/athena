@@ -86,7 +86,7 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 
 stream1 = AthenaPoolOutputStream( "StreamEVGEN" )
-stream1.WritingTool = "AthenaPoolOutputStreamTool"
+stream1.WritingTool = "AthenaOutputStreamTool"
 stream1.OutputFile = "epos_events.pool.root"
 stream1.ForceRead = TRUE;
 stream1.TakeItemsFromInput = True

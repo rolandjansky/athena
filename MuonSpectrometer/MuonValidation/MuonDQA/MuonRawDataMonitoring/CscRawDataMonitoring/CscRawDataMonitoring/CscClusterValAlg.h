@@ -12,6 +12,7 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
+#include "StoreGate/ReadHandleKey.h"
 
 class TH1;
 class TH1F;
@@ -55,7 +56,7 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     void initHistograms();
     
     // helper to fill histograms
-    void FillCSCClusters( const Muon::CscPrepDataContainer& , const Muon::CscStripPrepDataContainer& );
+    void FillCSCClusters( const Muon::CscPrepDataContainer* cols , const Muon::CscStripPrepDataContainer* strips );
 
     // register histograms
     void bookClusterHistograms();
@@ -64,7 +65,9 @@ class CscClusterValAlg : public ManagedMonitorToolBase {
     bool evtSelTriggersPassed();
 
     // Properties.
-    std::string m_cscClusterKey, m_cscPRDKey, m_cscClusterPath, m_cscGenPath;
+    SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscClusterKey{this,"CSCClusterKey","CSC_Clusters","CSC clusters"};
+    SG::ReadHandleKey<Muon::CscStripPrepDataContainer> m_cscPRDKey{this,"CSCPrepRawDataKey","CSC_Measurements","CSC PRDs"};
+    std::string m_cscClusterPath, m_cscGenPath;
     unsigned int m_qmaxADCCut;
 
     // Id helper

@@ -37,14 +37,14 @@ TopPhysValMonitoring::TopPhysValMonitoring( const std::string& type,
   m_photons(nullptr),
   m_muons(nullptr),
   m_taus(nullptr),
-  h_jetPt(nullptr),
-  h_elecPt(nullptr),
-  h_photonPt(nullptr),
-  h_muonPt(nullptr),
-  h_tauPt(nullptr),
-  h_tauEta(nullptr),
-  h_metEt(nullptr),
-  h_NJets(nullptr) {
+  m_h_jetPt(nullptr),
+  m_h_elecPt(nullptr),
+  m_h_photonPt(nullptr),
+  m_h_muonPt(nullptr),
+  m_h_tauPt(nullptr),
+  m_h_tauEta(nullptr),
+  m_h_metEt(nullptr),
+  m_h_NJets(nullptr) {
     
   declareProperty( "JetContainerName",      m_c_jetName    = "AntiKt4LCTopoJets" );
   declareProperty( "ElectronContainerName", m_c_elecName   = "ElectronCollection" );
@@ -96,24 +96,24 @@ StatusCode TopPhysValMonitoring::bookHistograms() {
     // all histograms go into a subdirectory of [m_c_histBaseDirectory]
     
     std::string dir_jet(m_c_histBaseDirectory + "Jet/" + m_c_jetName + "/FourVec/");
-    ATH_CHECK(regHist(h_jetPt = new TH1D("Pt",(m_c_jetName + "Jet p_{T}; p_{T}; # Jets").c_str(),100,0,200.), dir_jet, all));
-    ATH_CHECK(regHist(h_NJets = new TH1D("N",(m_c_jetName + "Number of Jets; Number; # Jets").c_str(),100,0,200.), dir_jet, all));
+    ATH_CHECK(regHist(m_h_jetPt = new TH1D("Pt",(m_c_jetName + "Jet p_{T}; p_{T}; # Jets").c_str(),100,0,200.), dir_jet, all));
+    ATH_CHECK(regHist(m_h_NJets = new TH1D("N",(m_c_jetName + "Number of Jets; Number; # Jets").c_str(),100,0,200.), dir_jet, all));
 
     std::string dir_elec(m_c_histBaseDirectory + "Electron/" + m_c_elecName + "/FourVec/");
-    ATH_CHECK(regHist(h_elecPt = new TH1D("Pt",(m_c_elecName + "Elec p_{T}; p_{T}; # Elecs").c_str(),100,0,200.), dir_elec, all));
+    ATH_CHECK(regHist(m_h_elecPt = new TH1D("Pt",(m_c_elecName + "Elec p_{T}; p_{T}; # Elecs").c_str(),100,0,200.), dir_elec, all));
 
     std::string dir_phot(m_c_histBaseDirectory + "Photon/" + m_c_photonName + "/FourVec/");
-    ATH_CHECK(regHist(h_photonPt = new TH1D("Pt",(m_c_photonName + "Photon p_{T}; p_{T}; # Photons").c_str(),100,0,200.), dir_phot, all));
+    ATH_CHECK(regHist(m_h_photonPt = new TH1D("Pt",(m_c_photonName + "Photon p_{T}; p_{T}; # Photons").c_str(),100,0,200.), dir_phot, all));
 
     std::string dir_muon(m_c_histBaseDirectory + "Muon/" + m_c_muonName + "/FourVec/");
-    ATH_CHECK(regHist(h_muonPt = new TH1D("Pt",(m_c_muonName + "Muon p_{T}; p_{T}; # Muons").c_str(),100,0,200.), dir_muon, all));
+    ATH_CHECK(regHist(m_h_muonPt = new TH1D("Pt",(m_c_muonName + "Muon p_{T}; p_{T}; # Muons").c_str(),100,0,200.), dir_muon, all));
 
     std::string dir_tau(m_c_histBaseDirectory + "Tau/" + m_c_tauName + "/FourVec/");
-    ATH_CHECK(regHist(h_tauPt = new TH1D("Pt",(m_c_tauName + "Tau p_{T}; p_{T}; # Taus").c_str(),100,0,200.), dir_tau, all));
-    ATH_CHECK(regHist(h_tauEta = new TH1D("Eta",(m_c_tauName + "Tau #eta; #eta; # Taus").c_str(),100,-5.,5.), dir_tau, all));
+    ATH_CHECK(regHist(m_h_tauPt = new TH1D("Pt",(m_c_tauName + "Tau p_{T}; p_{T}; # Taus").c_str(),100,0,200.), dir_tau, all));
+    ATH_CHECK(regHist(m_h_tauEta = new TH1D("Eta",(m_c_tauName + "Tau #eta; #eta; # Taus").c_str(),100,-5.,5.), dir_tau, all));
     
     std::string dir_MET(m_c_histBaseDirectory + "MET/" + m_c_metContainerName + "/");
-    ATH_CHECK(regHist(h_metEt = new TH1D("MET", (m_c_metContainerName + " (" + m_c_metName + ") E_{T}^{miss}; E_{T}^{miss} [GeV]; events / 4 GeV").c_str(),100, 0, 400.), dir_MET, all));
+    ATH_CHECK(regHist(m_h_metEt = new TH1D("MET", (m_c_metContainerName + " (" + m_c_metName + ") E_{T}^{miss}; E_{T}^{miss} [GeV]; events / 4 GeV").c_str(),100, 0, 400.), dir_MET, all));
 
   }
 
@@ -203,7 +203,7 @@ StatusCode TopPhysValMonitoring::fillBasicHistograms() {
   // jets
   int i(0);
   for (auto jet : *m_jets) {
-    if (m_detailLevel >= 10) h_jetPt->Fill(jet->pt()/1000., 1.);
+    if (m_detailLevel >= 10) m_h_jetPt->Fill(jet->pt()/1000., 1.);
 
     ATH_MSG_VERBOSE( "  4-momentum: px = " << jet->px()
                      << ", py = " << jet->py()
@@ -211,13 +211,13 @@ StatusCode TopPhysValMonitoring::fillBasicHistograms() {
                      << ", e = " << jet->e() );
     ++i;
   }
-	h_NJets->Fill((double)i);
+	m_h_NJets->Fill((double)i);
 
 
   // electrons
   i = 0;
   for (auto elec : *m_elecs) {
-    if (m_detailLevel >= 10) h_elecPt->Fill(elec->pt()/1000., 1.);
+    if (m_detailLevel >= 10) m_h_elecPt->Fill(elec->pt()/1000., 1.);
 
     ATH_MSG_VERBOSE( "Investigating elec #" << i );
     ATH_MSG_VERBOSE( "  4-momentum: px = " << elec->p4().Px()
@@ -231,7 +231,7 @@ StatusCode TopPhysValMonitoring::fillBasicHistograms() {
   // photons
   i = 0;
   for (auto photon : *m_photons) {
-    if (m_detailLevel >= 10) h_photonPt->Fill(photon->pt()/1000., 1.);
+    if (m_detailLevel >= 10) m_h_photonPt->Fill(photon->pt()/1000., 1.);
 
     ATH_MSG_VERBOSE( "Investigating photon #" << i );
     ATH_MSG_VERBOSE( "  4-momentum: px = " << photon->p4().Px()
@@ -244,7 +244,7 @@ StatusCode TopPhysValMonitoring::fillBasicHistograms() {
   // muons
   i = 0;
   for (auto muon : *m_muons) {
-    if (m_detailLevel >= 10) h_muonPt->Fill(muon->p4().Perp()/1000., 1.);
+    if (m_detailLevel >= 10) m_h_muonPt->Fill(muon->p4().Perp()/1000., 1.);
 
     ATH_MSG_VERBOSE( "Investigating muon #" << i );
     ATH_MSG_VERBOSE( "  4-momentum: px = " << muon->p4().Px()
@@ -258,8 +258,8 @@ StatusCode TopPhysValMonitoring::fillBasicHistograms() {
   i = 0;
   for (auto tau : *m_taus) {
     if (m_detailLevel >= 10) {
-      h_tauPt->Fill(tau->pt()/1000., 1.);
-      h_tauEta->Fill(tau->eta(), 1.);
+      m_h_tauPt->Fill(tau->pt()/1000., 1.);
+      m_h_tauEta->Fill(tau->eta(), 1.);
     }
 
     ATH_MSG_VERBOSE( "Investigating tau #" << i );
@@ -285,7 +285,7 @@ StatusCode TopPhysValMonitoring::fillBasicHistograms() {
 
     ATH_MSG_VERBOSE( "  Missing Et = " << met->met());
     if (m_detailLevel >= 10) 
-      h_metEt->Fill(met->met()/1000., 1.);
+      m_h_metEt->Fill(met->met()/1000., 1.);
     
   }
 

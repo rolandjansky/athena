@@ -30,7 +30,7 @@ inline double ciel(double x) {
   else return x+1.0;
 }
 LinearSubdivider::LinearSubdivider():
-  _min(0.0),_max(1.0)
+  m_min(0.0),m_max(1.0)
 {
 }
 
@@ -44,9 +44,9 @@ void LinearSubdivider::setRange(double min, double max){
 
   // This protection insures 
   if (min==max) return;
-  _min=min;
-  _max=max;
-  _recompute();
+  m_min=min;
+  m_max=max;
+  recompute();
 
 
 
@@ -55,34 +55,34 @@ void LinearSubdivider::setRange(double min, double max){
 
 // Set the range:
 void LinearSubdivider::setMin(double min){
-  setRange(min,_max);
+  setRange(min,m_max);
 }
 
 // Set the range:
 void LinearSubdivider::setMax(double max){
-  setRange(_min,max);
+  setRange(m_min,max);
 }
 
 
 // Get the number of subdivisions:
 int LinearSubdivider::getNumSubdivisions() const{
-  return _subdivision.size();
+  return m_subdivision.size();
 }
 
 // Get the location of each subdivision:
 const RangeDivision & LinearSubdivider::getSubdivision(int i) const{
-  return _subdivision[i];
+  return m_subdivision[i];
 }
 
 
-void LinearSubdivider::_recompute() {
+void LinearSubdivider::recompute() {
   // Clean out old subdivisions:
-  _subdivision.erase(_subdivision.begin(),_subdivision.end());
+  m_subdivision.erase(m_subdivision.begin(),m_subdivision.end());
 
 
-  double exponent = floor(log10(_max-_min));
+  double exponent = floor(log10(m_max-m_min));
   double multiplier = pow(10,exponent);
-  int Ntyp = int (10*_max/multiplier-10*_min/multiplier+0.5); 
+  int Ntyp = int (10*m_max/multiplier-10*m_min/multiplier+0.5); 
   // number from 10 to 100
   int intervals=1;
   if (Ntyp==12) {
@@ -117,14 +117,14 @@ void LinearSubdivider::_recompute() {
   }
   multiplier *= (Ntyp/10.0/intervals);
 
-  int nTicks=int(((_max-_min)/multiplier) + 1.05);
+  int nTicks=int(((m_max-m_min)/multiplier) + 1.05);
   
   if (nTicks<50) {
     for (int i=0;i<nTicks;i++) {
-      double sub = _min+i*multiplier;
+      double sub = m_min+i*multiplier;
       //if (fabs(xValue)/xMultiplier < 1.0E-6) xValue=0;
-      if (sub>=_min && sub<=_max)   {
-	_subdivision.push_back(sub);
+      if (sub>=m_min && sub<=m_max)   {
+	m_subdivision.push_back(sub);
 	
       }
       
@@ -133,10 +133,10 @@ void LinearSubdivider::_recompute() {
   else {
   
     {
-      _subdivision.push_back(_min);
+      m_subdivision.push_back(m_min);
     }
     {
-      _subdivision.push_back(_max);
+      m_subdivision.push_back(m_max);
     }
   }
 }
@@ -144,6 +144,6 @@ void LinearSubdivider::_recompute() {
 // Get the validity of each subdivision:
 bool LinearSubdivider::isValid(int i) const {
   const RangeDivision & rd=getSubdivision(i);
-  return (rd.x()>=_min && rd.x()<=_max);
+  return (rd.x()>=m_min && rd.x()<=m_max);
 }
 

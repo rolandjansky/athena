@@ -13,36 +13,36 @@
 
 namespace MuonCalib {
 
-  MdtTruthHitNtupleBranch::MdtTruthHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
+  MdtTruthHitNtupleBranch::MdtTruthHitNtupleBranch(std::string branchName) : m_branchName(branchName), m_branchesInit(false), m_index(0)
   {}
 
   bool MdtTruthHitNtupleBranch::fillBranch(const MuonCalibMdtTruthHit &hit) {
-    // check if branches where initialized
-    if( !branchesInit ){
-      //      std::cout << "MdtTruthHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
+    // check if branches were initialized
+    if( !m_branchesInit ){
+      //      std::cout << "MdtTruthHitNtupleBranch::fillBranch  ERROR <branches were not initialized>"
       //	<<  std::endl;
       return false;    
     }
 
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 ){
-//       std::cout << "MdtTruthHitNtupleBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-// 		<<  index << std::endl;
+    if( m_index >= m_blockSize || m_index < 0 ){
+//       std::cout << "MdtTruthHitNtupleBranch::fillBranch  ERROR <index out of range; hit not added to ntuple> "
+// 		<<  m_index << std::endl;
       return false;
     }
 
     // copy values 
-    id[index] = hit.identify().getIdInt();
-    barCode[index] = hit.barCode();
-    driftRadius[index] = hit.driftRadius();
-    positionAlongTube[index] = hit.positionAlongTube();
-    gpositionX[index] = hit.gpositionX();
-    gpositionY[index] = hit.gpositionY();
-    gpositionZ[index] = hit.gpositionZ();
-    time[index] = hit.time();
+    m_id[m_index] = hit.identify().getIdInt();
+    m_barCode[m_index] = hit.barCode();
+    m_driftRadius[m_index] = hit.driftRadius();
+    m_positionAlongTube[m_index] = hit.positionAlongTube();
+    m_gpositionX[m_index] = hit.gpositionX();
+    m_gpositionY[m_index] = hit.gpositionY();
+    m_gpositionZ[m_index] = hit.gpositionZ();
+    m_time[m_index] = hit.time();
 
     // increment hit index
-    ++index;
+    ++m_index;
   
     return true;
   }  //end MdtTruthHitNtupleBranch::fillBranch
@@ -61,22 +61,22 @@ namespace MuonCalib {
     std::string index_name ="nMdtTruthHit";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "id",          &id,                array_size + "/I" );
-    branchCreator.createBranch( tree, "barCode",     &barCode,           array_size + "/I" );
-    branchCreator.createBranch( tree, "driftRadius", &driftRadius,       array_size + "/D" );
-    branchCreator.createBranch( tree, "posAlongTube",&positionAlongTube, array_size + "/D" );
-    branchCreator.createBranch( tree, "gPosX",       &gpositionX,        array_size + "/D" );
-    branchCreator.createBranch( tree, "gPosY",       &gpositionY,        array_size + "/D" );
-    branchCreator.createBranch( tree, "gPosZ",       &gpositionZ,        array_size + "/D" );
-    branchCreator.createBranch( tree, "time",        &time,              array_size + "/D" );
+    branchCreator.createBranch( tree, "id",          &m_id,                array_size + "/I" );
+    branchCreator.createBranch( tree, "barCode",     &m_barCode,           array_size + "/I" );
+    branchCreator.createBranch( tree, "driftRadius", &m_driftRadius,       array_size + "/D" );
+    branchCreator.createBranch( tree, "posAlongTube",&m_positionAlongTube, array_size + "/D" );
+    branchCreator.createBranch( tree, "gPosX",       &m_gpositionX,        array_size + "/D" );
+    branchCreator.createBranch( tree, "gPosY",       &m_gpositionY,        array_size + "/D" );
+    branchCreator.createBranch( tree, "gPosZ",       &m_gpositionZ,        array_size + "/D" );
+    branchCreator.createBranch( tree, "time",        &m_time,              array_size + "/D" );
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();

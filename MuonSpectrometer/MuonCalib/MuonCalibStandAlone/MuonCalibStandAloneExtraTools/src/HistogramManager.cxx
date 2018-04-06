@@ -19,6 +19,254 @@
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include <array>
+
+namespace {
+  template<int n>
+  inline void
+  setArray(const std::array<int,n> & a,  TH1F * href){
+      for (const auto & i:a){
+          href->SetBinContent(i,0);
+      }
+  }
+  const std::vector<int> bir4={1,2,3, 31,32,33, 61,62,63, 91,92,93};
+  const std::vector<int> bir2={28,29,30, 58,59,60, 88,89,90, 118,119,120};
+  const std::vector<int> bir1={1,2,3,4,5,6,  31,32,33,34,35,36,  61,62,63,64,65,66,  91,92,93,94,95,96};
+  const std::vector<int> bir5={22,23,24,  46,47,48,  70,71,72,  94,95,96};
+  const std::vector<int> bir3={34,35,36,  70,71,72,  106,107,108,  142,143,144,  178,179,180,  214,215,216,  250,251,252,  286,287,288};
+
+  const std::vector<int> bms4or6={41,42,43,44,45,46,47,  89,90,91,92,93,94,95,96,  137,138,139,140,141,142,143,144};
+  const std::map<const std::string, const std::vector<int> & > string2Vec ={
+    {"BIR2A11", bir2},
+    {"BIR1A11", bir1},
+    {"BIR2A15", bir2},
+    {"BIR1A15", bir1},
+    {"BIR4A11", bir4},
+    //{"BIR3A11", bir3},
+    {"BIR4A15", bir4},
+    //{"BIR3A15", bir3},
+    {"BMS4A02", bms4or6},
+    {"BMS4A04", bms4or6},
+    {"BMS4A06", bms4or6},
+    {"BMS4A08", bms4or6},
+    {"BMS4A10", bms4or6},
+    {"BMS4A16", bms4or6},
+    {"BIR5A11", bir5},
+    {"BIR5A15", bir5},
+    {"BMS6A02", bms4or6},
+    {"BMS6A04", bms4or6},
+    {"BMS6A06", bms4or6},
+    {"BMS6A08", bms4or6},
+    {"BMS6A10", bms4or6},
+    {"BMS6A16", bms4or6},
+    {"BIR2C11", bir2},
+    {"BIR1C11", bir1},
+    {"BIR2C15", bir2},
+    {"BIR1C15", bir1},
+    {"BIR4C11", bir4},
+    //{"BIR3C11", bir3},
+    {"BIR4C15", bir4},
+    //{"BIR3C15, bir3},
+    {"BMS4C02", bms4or6},
+    {"BMS4C04", bms4or6},
+    {"BMS4C06", bms4or6},
+    {"BMS4C08", bms4or6},
+    {"BMS4C10", bms4or6},
+    {"BMS4C16", bms4or6},
+    {"BIR5C11", bir5},
+    {"BIR5C15", bir5},
+    {"BMS6C02", bms4or6},
+    {"BMS6C04", bms4or6},
+    {"BMS6C06", bms4or6},
+    {"BMS6C08", bms4or6},
+    {"BMS6C10", bms4or6},
+    {"BMS6C16", bms4or6}
+  };
+  const
+  std::map<std::string,std::vector<std::pair<int, int> > > disconnected={
+    {"BIL1C09",{ {219,41} } },
+    {"BIL2A05",{ {144,-41} } },
+    {"BIL2C01",{ {207,21} } },
+    {"BIL3C09",{ {151,21} } },
+    {"BIL4A07",{ {185,21} } },
+    {"BIL5A01",{ {151,21} } },
+    {"BIL5A13",{ {222,41} } },
+    {"BIL5C03",{ {223,41} } },
+    {"BIL5C09",{ {25,-11}, {73,-31}, {88,-31} } },
+    {"BIL6A01",{ {37,-21} } },
+    {"BIR4A11",{ {34,-21} } },
+    {"BIR4C11",{ {79,-31}, {80,-31}, {81,-31} } },
+    {"BIS1A14",{ {152,11} } },
+    {"BIS1C08",{ {190,21} } },
+    {"BIS1C12",{ {61,-21}, {108,-31}, {136,-41} } },
+    {"BIS2C02",{ {77,-31} } },
+    {"BIS2C04",{ {30,-11}, {240,41} } },
+    {"BIS2C08",{ {1,-11}, {10,-11}, {127,11}, {202,31} } },
+    {"BIS2C10",{ {94,-41}, {96,-41} } },
+    {"BIS3A02",{ {188,31}, {195,31} } },
+    {"BIS3A12",{ {184,31}, {185,31}, {214,41}, {215,41} } },
+    {"BIS3C06",{ {140,11} } },
+    {"BIS3C10",{ {90,-31} } },
+    {"BIS3C16",{ {90,-31} } },
+    {"BIS4C06",{ {3,-11} } },
+    {"BIS4C08",{ {4,-11}, {214,41} } },
+    {"BIS5A10",{ {181,31} } },
+    {"BIS6A14",{ {60,-21}, {68,-31}, {76,-31} } },
+    {"BIS7A08",{ {157,21} } },
+    {"BMF1A12",{ {273,11} } },
+    {"BMF1A14",{ {217,11}, {218,11}, {219,11} } },
+    {"BMF1C14",{ {10,-11}, {55,-11}, {142,-21}, {231,11} } },
+    {"BMF2A12",{ {184,-31} } },
+    {"BMF2A14",{ {339,31} } },
+    {"BMF2C12",{ {208,11}, {217,11}, {223,11}, {241,11} } },
+    {"BMF2C14",{ {30,-11}, {60,-11}, {92,-21}, {97,-21}, {103,-21}, {245,11} } },
+    {"BMF3C12",{ {38,-11} } },
+    {"BML1A01",{ {250,21} } },
+    {"BML1A09",{ {14,-11} } },
+    {"BML1C03",{ {52,-21} } },
+    {"BML2A01",{ {100,-21}, {236,21}, {295,31}, {304,31} } },
+    {"BML2A07",{ {237,21}, {240,21} } },
+    {"BML2A09",{ {57,-21} } },
+    {"BML2C03",{ {68,-21} } },
+    {"BML2C05",{ {42,-11}, {164,-31} } },
+    {"BML2C07",{ {134,-31}, {221,11}, {234,21} } },
+    {"BML2C15",{ {138,-31}, {162,-31} } },
+    {"BML3A13",{ {302,31} } },
+    {"BML3A15",{ {225,21} } },
+    {"BML3C01",{ {322,31} } },
+    {"BML3C15",{ {62,-21} } },
+    {"BML4A01",{ {5,-11} } },
+    {"BML4A03",{ {36,-11} } },
+    {"BML4A11",{ {90,-31} } },
+    {"BML4C05",{ {107,-31} } },
+    {"BML4C09",{ {99,-31} } },
+    {"BML4C15",{ {107,-31} } },
+    {"BML5A11",{ {207,31} } },
+    {"BML6A07",{ {162,11} } },
+    {"BML6A09",{ {132,-31} } },
+    {"BML6C07",{ {182,11} } },
+    {"BML6C13",{ {200,21} } },
+    {"BMS1A02",{ {1,-11}, {56,-11} } },
+    {"BMS1A06",{ {248,21} } },
+    {"BMS1C10",{ {244,21} } },
+    {"BMS1C16",{ {264,21} } },
+    {"BMS2A08",{ {63,-21} } },
+    {"BMS2A10",{ {25,-11} } },
+    {"BMS2A16",{ {49,-21}, {133,-31} } },
+    {"BMS2C02",{ {240,21} } },
+    {"BMS3A02",{ {86,-21} } },
+    {"BMS3A04",{ {150,11}, {261,31} } },
+    {"BMS3A06",{ {117,-31}, {175,11} } },
+    {"BMS3A16",{ {1,-11} } },
+    {"BMS3C08",{ {249,31} } },
+    {"BMS3C10",{ {3,-11} } },
+    {"BMS4A08",{ {199,21} } },
+    {"BMS4A16",{ {127,-31} } },
+    {"BMS4C02",{ {28,-11} } },
+    {"BMS4C04",{ {184,11} } },
+    {"BMS5C02",{ {22,-11} } },
+    {"BMS5C04",{ {44,-21} } },
+    {"BMS6A06",{ {56,-21} } },
+    {"BMS6A10",{ {115,-31} } },
+    {"BMS6C02",{ {102,-31} } },
+    {"BOF1A12",{ {146,-31}, {225,11}, {249,11} } },
+    {"BOF1A14",{ {188,-31}, {278,11} } },
+    {"BOF3A12",{ {147,-31}, {345,31}, {370,31} } },
+    {"BOF5A14",{ {1,-11} } },
+    {"BOF5C14",{ {163,11}, {189,11} } },
+    {"BOF7C12",{ {104,-31} } },
+    {"BOG2C12",{ {148,11}, {197,21} } },
+    {"BOL1A01",{ {32,-11}, {189,-31} } },
+    {"BOL1A13",{ {1,-11}, {49,-11} } },
+    {"BOL1C09",{ {52,-11} } },
+    {"BOL2A01",{ {81,-21} } },
+    {"BOL2A05",{ {389,31} } },
+    {"BOL2A07",{ {72,-11} } },
+    {"BOL3A13",{ {31,-11}, {41,-11} } },
+    {"BOL3C15",{ {235,21} } },
+    {"BOL4C01",{ {241,11}, {242,11}, {380,31}, {381,31} } },
+    {"BOL5A01",{ {204,-31} } },
+    {"BOL6A03",{ {19,-11} } },
+    {"BOL6A11",{ {147,-31}, {148,-31}, {149,-31}, {150,-31} } },
+    {"BOL6A13",{ {281,31} } },
+    {"BOS1A02",{ {323,21} } },
+    {"BOS1A08",{ {99,-31} } },
+    {"BOS1C06",{ {44,-11} } },
+    {"BOS1C16",{ {72,-11} } },
+    {"BOS2C02",{ {145,-31}, {180,-31} } },
+    {"BOS2C08",{ {54,-11}, {154,-31}, {209,-31} } },
+    {"BOS2C10",{ {392,31} } },
+    {"BOS2C16",{ {360,21} } },
+    {"BOS3A08",{ {117,-21} } },
+    {"BOS3A16",{ {369,31} } },
+    {"BOS3C02",{ {217,11} } },
+    {"BOS3C06",{ {305,21} } },
+    {"BOS3C08",{ {227,11} } },
+    {"BOS3C16",{ {55,-11} } },
+    {"BOS4A04",{ {310,21} } },
+    {"BOS4A06",{ {204,-31} } },
+    {"BOS4A08",{ {432,31} } },
+    {"BOS4A10",{ {2,-11} } },
+    {"BOS4A16",{ {20,-11} } },
+    {"BOS4C16",{ {145,-31} } },
+    {"BOS5A04",{ {21,-11}, {28,-11} } },
+    {"BOS5A08",{ {50,-11}, {122,-21}, {243,11} } },
+    {"BOS5A16",{ {147,-31} } },
+    {"BOS5C10",{ {417,31} } },
+    {"BOS6A02",{ {21,-11} } },
+    {"BOS6A10",{ {337,31}, {362,31} } },
+    {"BOS6A16",{ {384,31} } },
+    {"EIL1A01",{ {267,41} } },
+    {"EIL4A13",{ {247,11}, {393,41} } },
+    {"EIL4C13",{ {432,41} } },
+    {"EIL5A01",{ {191,11} } },
+    {"EIL5C01",{ {169,11} } },
+    {"EIS1A14",{ {51,-21} } },
+    {"EIS1C04",{ {322,41}, {323,41} } },
+    {"EML1C03",{ {113,-31} } },
+    {"EML1C09",{ {319,31} } },
+    {"EML1C11",{ {36,-11} } },
+    {"EML2A13",{ {76,-21} } },
+    {"EML2A15",{ {330,31} } },
+    {"EML2C07",{ {185,-31}, {190,-31}, {191,-31}, {192,-31} } },
+    {"EML2C15",{ {161,-31} } },
+    {"EML3C05",{ {235,11} } },
+    {"EML3C07",{ {291,21} } },
+    {"EML3C09",{ {60,-11} } },
+    {"EML4A03",{ {199,11}, {321,31} } },
+    {"EML4A05",{ {8,-11} } },
+    {"EML4A07",{ {326,31}, {327,31} } },
+    {"EML4A09",{ {100,-21}, {102,-21}, {103,-21}, {255,11}, {256,11}, {257,21}, {320,21} } },
+    {"EML4A11",{ {30,-11}, {69,-21}, {91,-21}, {140,-31}, {198,11}, {259,21}, {260,21}, {261,21} } },
+    {"EML4A13",{ {162,-31}, {228,11}, {271,21}, {359,31} } },
+    {"EML4C03",{ {296,21}, {335,31} } },
+    {"EML4C05",{ {158,-31} } },
+    {"EMS2A08",{ {219,11} } },
+    {"EMS2C14",{ {64,-11}, {90,-21} } },
+    {"EMS3A02",{ {187,-31} } },
+    {"EMS3A12",{ {1,-11} } },
+    {"EMS3C04",{ {252,11} } },
+    {"EMS3C12",{ {142,-31} } },
+    {"EMS3C16",{ {54,-11}, {357,31} } },
+    {"EMS4A12",{ {119,-21} } },
+    {"EMS5A02",{ {336,31} } },
+    {"EMS5A06",{ {109,-21}, {191,-31} } },
+    {"EMS5A08",{ {112,-21} } },
+    {"EMS5A12",{ {236,11} } },
+    {"EOL3A01",{ {74,-21}, {159,11}, {216,21} } },
+    {"EOL3A15",{ {167,11}, {168,11} } },
+    {"EOL4C01",{ {177,11}, {178,11} } },
+    {"EOL5A05",{ {42,-11}, {67,-21} } },
+    {"EOL5C07",{ {152,11} } },
+    {"EOL6A03",{ {4,-11} } },
+    {"EOL6A11",{ {38,-11} } },
+    {"EOS4A12",{ {191,11}, {233,21} } },
+    {"EOS5A02",{ {11,-11} } },
+    {"EOS5C14",{ {176,11} } },
+    {"EOS6C04",{ {203,21} } }
+  };
+
+}
 
 using namespace std;
 using namespace MuonCalib;
@@ -1649,1217 +1897,21 @@ void HistogramManager::buildChamberHistos(MDTName chamb) {
 
 
 void HistogramManager::setChamberCutOut(string chamber, TH1F * href ) {
-
-  // CHAMBERS WITH CUT-OUT 
-
-  if (chamber=="BIR2A11" ) href->SetBinContent(28,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(29,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(30,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(58,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(59,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(60,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(88,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(89,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(90,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(118,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(119,0);
-  if (chamber=="BIR2A11" ) href->SetBinContent(120,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(1,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(2,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(3,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(4,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(5,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(6,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(31,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(32,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(33,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(34,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(35,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(36,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(61,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(62,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(63,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(64,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(65,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(66,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(91,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(92,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(93,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(94,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(95,0);
-  if (chamber=="BIR1A11" ) href->SetBinContent(96,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(28,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(29,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(30,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(58,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(59,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(60,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(88,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(89,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(90,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(118,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(119,0);
-  if (chamber=="BIR2A15" ) href->SetBinContent(120,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(1,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(2,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(3,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(4,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(5,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(6,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(31,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(32,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(33,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(34,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(35,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(36,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(61,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(62,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(63,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(64,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(65,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(66,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(91,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(92,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(93,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(94,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(95,0);
-  if (chamber=="BIR1A15" ) href->SetBinContent(96,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(1,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(2,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(3,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(31,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(32,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(33,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(61,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(62,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(63,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(91,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(92,0);
-  if (chamber=="BIR4A11" ) href->SetBinContent(93,0);
-/*
-  if (chamber=="BIR3A11" ) href->SetBinContent(34,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(35,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(36,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(70,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(71,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(72,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(106,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(107,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(108,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(142,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(143,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(144,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(178,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(179,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(180,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(214,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(215,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(216,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(250,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(251,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(252,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(286,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(287,0);
-  if (chamber=="BIR3A11" ) href->SetBinContent(288,0);
-*/
-  if (chamber=="BIR4A15" ) href->SetBinContent(1,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(2,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(3,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(31,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(32,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(33,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(61,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(62,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(63,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(91,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(92,0);
-  if (chamber=="BIR4A15" ) href->SetBinContent(93,0);
-/*
-  if (chamber=="BIR3A15" ) href->SetBinContent(34,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(35,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(36,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(70,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(71,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(72,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(106,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(107,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(108,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(142,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(143,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(144,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(178,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(179,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(180,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(214,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(215,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(216,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(250,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(251,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(252,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(286,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(287,0);
-  if (chamber=="BIR3A15" ) href->SetBinContent(288,0);
-*/
-  if (chamber=="BMS4A02" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4A02" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4A04" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4A06" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4A08" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4A10" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4A16" ) href->SetBinContent(144,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(22,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(23,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(24,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(46,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(47,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(48,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(70,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(71,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(72,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(94,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(95,0);
-  if (chamber=="BIR5A11" ) href->SetBinContent(96,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(22,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(23,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(24,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(46,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(47,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(48,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(70,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(71,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(72,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(94,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(95,0);
-  if (chamber=="BIR5A15" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6A02" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6A04" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6A06" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6A08" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6A10" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6A16" ) href->SetBinContent(144,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(28,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(29,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(30,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(58,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(59,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(60,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(88,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(89,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(90,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(118,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(119,0);
-  if (chamber=="BIR2C11" ) href->SetBinContent(120,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(1,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(2,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(3,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(4,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(5,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(6,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(31,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(32,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(33,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(34,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(35,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(36,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(61,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(62,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(63,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(64,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(65,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(66,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(91,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(92,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(93,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(94,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(95,0);
-  if (chamber=="BIR1C11" ) href->SetBinContent(96,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(28,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(29,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(30,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(58,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(59,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(60,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(88,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(89,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(90,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(118,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(119,0);
-  if (chamber=="BIR2C15" ) href->SetBinContent(120,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(1,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(2,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(3,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(4,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(5,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(6,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(31,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(32,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(33,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(34,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(35,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(36,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(61,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(62,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(63,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(64,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(65,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(66,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(91,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(92,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(93,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(94,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(95,0);
-  if (chamber=="BIR1C15" ) href->SetBinContent(96,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(1,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(2,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(3,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(31,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(32,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(33,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(61,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(62,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(63,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(91,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(92,0);
-  if (chamber=="BIR4C11" ) href->SetBinContent(93,0);
-/*
-  if (chamber=="BIR3C11" ) href->SetBinContent(34,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(35,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(36,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(70,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(71,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(72,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(106,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(107,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(108,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(142,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(143,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(144,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(178,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(179,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(180,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(214,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(215,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(216,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(250,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(251,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(252,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(286,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(287,0);
-  if (chamber=="BIR3C11" ) href->SetBinContent(288,0);
-*/
-  if (chamber=="BIR4C15" ) href->SetBinContent(1,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(2,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(3,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(31,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(32,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(33,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(61,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(62,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(63,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(91,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(92,0);
-  if (chamber=="BIR4C15" ) href->SetBinContent(93,0);
-/*
-  if (chamber=="BIR3C15" ) href->SetBinContent(34,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(35,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(36,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(70,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(71,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(72,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(106,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(107,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(108,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(142,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(143,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(144,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(178,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(179,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(180,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(214,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(215,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(216,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(250,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(251,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(252,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(286,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(287,0);
-  if (chamber=="BIR3C15" ) href->SetBinContent(288,0);
-*/
-  if (chamber=="BMS4C02" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4C02" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4C04" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4C06" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4C08" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4C10" ) href->SetBinContent(144,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(41,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(42,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(43,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(44,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(45,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(46,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(47,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(48,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(89,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(90,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(91,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(92,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(93,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(94,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(95,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(96,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(137,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(138,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(139,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(140,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(141,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(142,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(143,0);
-  if (chamber=="BMS4C16" ) href->SetBinContent(144,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(22,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(23,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(24,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(46,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(47,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(48,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(70,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(71,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(72,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(94,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(95,0);
-  if (chamber=="BIR5C11" ) href->SetBinContent(96,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(22,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(23,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(24,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(46,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(47,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(48,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(70,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(71,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(72,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(94,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(95,0);
-  if (chamber=="BIR5C15" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6C02" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6C04" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6C06" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6C08" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6C10" ) href->SetBinContent(144,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(41,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(42,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(43,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(44,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(45,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(46,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(47,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(48,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(89,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(90,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(91,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(92,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(93,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(94,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(95,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(96,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(137,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(138,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(139,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(140,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(141,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(142,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(143,0);
-  if (chamber=="BMS6C16" ) href->SetBinContent(144,0);
+ //find the 'setBinContent' vector corresponding to the chamber name
+  auto pvecPair = string2Vec.find(chamber);
+  if (pvecPair != string2Vec.end()){
+    for(const auto & i:pvecPair->second)
+      href->SetBinContent(i,0);
+  } //if not found, do nothing.
 }
 
 void HistogramManager::setChamberDisconnectedTubes(string chamber, TH1F * href ) {
-
-  //  CHAMBERS WITH DISCONNECTED TUBES 
-
-  if (chamber=="BOL2A01" ) href->SetBinContent(81,-21);
-  if (chamber=="BOL1A01" ) href->SetBinContent(32,-11);
-  if (chamber=="BOL1A01" ) href->SetBinContent(189,-31);
-  if (chamber=="BML2A01" ) href->SetBinContent(100,-21);
-  if (chamber=="BML2A01" ) href->SetBinContent(236,21);
-  if (chamber=="BML2A01" ) href->SetBinContent(295,31);
-  if (chamber=="BML2A01" ) href->SetBinContent(304,31);
-  if (chamber=="BML1A01" ) href->SetBinContent(250,21);
-  if (chamber=="BOL2A05" ) href->SetBinContent(389,31);
-  if (chamber=="BIL2A05" ) href->SetBinContent(144,-41);
-  if (chamber=="BOL2A07" ) href->SetBinContent(72,-11);
-  if (chamber=="BML2A07" ) href->SetBinContent(237,21);
-  if (chamber=="BML2A07" ) href->SetBinContent(240,21);
-  if (chamber=="BML2A09" ) href->SetBinContent(57,-21);
-  if (chamber=="BML1A09" ) href->SetBinContent(14,-11);
-  if (chamber=="BOL1A13" ) href->SetBinContent(1,-11);
-  if (chamber=="BOL1A13" ) href->SetBinContent(49,-11);
-  if (chamber=="BOS1A02" ) href->SetBinContent(323,21);
-  if (chamber=="BMS1A02" ) href->SetBinContent(1,-11);
-  if (chamber=="BMS1A02" ) href->SetBinContent(56,-11);
-  if (chamber=="BMS1A06" ) href->SetBinContent(248,21);
-  if (chamber=="BOS1A08" ) href->SetBinContent(99,-31);
-  if (chamber=="BMS2A08" ) href->SetBinContent(63,-21);
-  if (chamber=="BMS2A10" ) href->SetBinContent(25,-11);
-  if (chamber=="BOF1A12" ) href->SetBinContent(146,-31);
-  if (chamber=="BOF1A12" ) href->SetBinContent(225,11);
-  if (chamber=="BOF1A12" ) href->SetBinContent(249,11);
-  if (chamber=="BMF1A12" ) href->SetBinContent(273,11);
-  if (chamber=="BOF1A14" ) href->SetBinContent(188,-31);
-  if (chamber=="BOF1A14" ) href->SetBinContent(278,11);
-  if (chamber=="BMF1A14" ) href->SetBinContent(217,11);
-  if (chamber=="BMF1A14" ) href->SetBinContent(218,11);
-  if (chamber=="BMF1A14" ) href->SetBinContent(219,11);
-  if (chamber=="BIS1A14" ) href->SetBinContent(152,11);
-  if (chamber=="BMS2A16" ) href->SetBinContent(49,-21);
-  if (chamber=="BMS2A16" ) href->SetBinContent(133,-31);
-  if (chamber=="BML4A01" ) href->SetBinContent(5,-11);
-  if (chamber=="BML4A03" ) href->SetBinContent(36,-11);
-  if (chamber=="BIL4A07" ) href->SetBinContent(185,21);
-  if (chamber=="BML4A11" ) href->SetBinContent(90,-31);
-  if (chamber=="BIR4A11" ) href->SetBinContent(34,-21);
-  if (chamber=="BOL3A13" ) href->SetBinContent(31,-11);
-  if (chamber=="BOL3A13" ) href->SetBinContent(41,-11);
-  if (chamber=="BML3A13" ) href->SetBinContent(302,31);
-  if (chamber=="BML3A15" ) href->SetBinContent(225,21);
-  if (chamber=="BMS3A02" ) href->SetBinContent(86,-21);
-  if (chamber=="BIS3A02" ) href->SetBinContent(188,31);
-  if (chamber=="BIS3A02" ) href->SetBinContent(195,31);
-  if (chamber=="BOS4A04" ) href->SetBinContent(310,21);
-  if (chamber=="BMS3A04" ) href->SetBinContent(150,11);
-  if (chamber=="BMS3A04" ) href->SetBinContent(261,31);
-  if (chamber=="BOS4A06" ) href->SetBinContent(204,-31);
-  if (chamber=="BMS3A06" ) href->SetBinContent(117,-31);
-  if (chamber=="BMS3A06" ) href->SetBinContent(175,11);
-  if (chamber=="BOS4A08" ) href->SetBinContent(432,31);
-  if (chamber=="BOS3A08" ) href->SetBinContent(117,-21);
-  if (chamber=="BMS4A08" ) href->SetBinContent(199,21);
-  if (chamber=="BOS4A10" ) href->SetBinContent(2,-11);
-  if (chamber=="BOF3A12" ) href->SetBinContent(147,-31);
-  if (chamber=="BOF3A12" ) href->SetBinContent(345,31);
-  if (chamber=="BOF3A12" ) href->SetBinContent(370,31);
-  if (chamber=="BMF2A12" ) href->SetBinContent(184,-31);
-  if (chamber=="BIS3A12" ) href->SetBinContent(184,31);
-  if (chamber=="BIS3A12" ) href->SetBinContent(185,31);
-  if (chamber=="BIS3A12" ) href->SetBinContent(214,41);
-  if (chamber=="BIS3A12" ) href->SetBinContent(215,41);
-  if (chamber=="BOF5A14" ) href->SetBinContent(1,-11);
-  if (chamber=="BMF2A14" ) href->SetBinContent(339,31);
-  if (chamber=="BOS4A16" ) href->SetBinContent(20,-11);
-  if (chamber=="BOS3A16" ) href->SetBinContent(369,31);
-  if (chamber=="BMS4A16" ) href->SetBinContent(127,-31);
-  if (chamber=="BMS3A16" ) href->SetBinContent(1,-11);
-  if (chamber=="BOL5A01" ) href->SetBinContent(204,-31);
-  if (chamber=="BIL6A01" ) href->SetBinContent(37,-21);
-  if (chamber=="BIL5A01" ) href->SetBinContent(151,21);
-  if (chamber=="BOL6A03" ) href->SetBinContent(19,-11);
-  if (chamber=="BML6A07" ) href->SetBinContent(162,11);
-  if (chamber=="BML6A09" ) href->SetBinContent(132,-31);
-  if (chamber=="BOL6A11" ) href->SetBinContent(147,-31);
-  if (chamber=="BOL6A11" ) href->SetBinContent(148,-31);
-  if (chamber=="BOL6A11" ) href->SetBinContent(149,-31);
-  if (chamber=="BOL6A11" ) href->SetBinContent(150,-31);
-  if (chamber=="BML5A11" ) href->SetBinContent(207,31);
-  if (chamber=="BOL6A13" ) href->SetBinContent(281,31);
-  if (chamber=="BIL5A13" ) href->SetBinContent(222,41);
-  if (chamber=="BOS6A02" ) href->SetBinContent(21,-11);
-  if (chamber=="BOS5A04" ) href->SetBinContent(21,-11);
-  if (chamber=="BOS5A04" ) href->SetBinContent(28,-11);
-  if (chamber=="BMS6A06" ) href->SetBinContent(56,-21);
-  if (chamber=="BOS5A08" ) href->SetBinContent(50,-11);
-  if (chamber=="BOS5A08" ) href->SetBinContent(122,-21);
-  if (chamber=="BOS5A08" ) href->SetBinContent(243,11);
-  if (chamber=="BOS6A10" ) href->SetBinContent(337,31);
-  if (chamber=="BOS6A10" ) href->SetBinContent(362,31);
-  if (chamber=="BMS6A10" ) href->SetBinContent(115,-31);
-  if (chamber=="BIS5A10" ) href->SetBinContent(181,31);
-  if (chamber=="BIS6A14" ) href->SetBinContent(60,-21);
-  if (chamber=="BIS6A14" ) href->SetBinContent(68,-31);
-  if (chamber=="BIS6A14" ) href->SetBinContent(76,-31);
-  if (chamber=="BOS6A16" ) href->SetBinContent(384,31);
-  if (chamber=="BOS5A16" ) href->SetBinContent(147,-31);
-  if (chamber=="BIL2C01" ) href->SetBinContent(207,21);
-  if (chamber=="BML2C03" ) href->SetBinContent(68,-21);
-  if (chamber=="BML1C03" ) href->SetBinContent(52,-21);
-  if (chamber=="BML2C05" ) href->SetBinContent(42,-11);
-  if (chamber=="BML2C05" ) href->SetBinContent(164,-31);
-  if (chamber=="BML2C07" ) href->SetBinContent(134,-31);
-  if (chamber=="BML2C07" ) href->SetBinContent(221,11);
-  if (chamber=="BML2C07" ) href->SetBinContent(234,21);
-  if (chamber=="BOL1C09" ) href->SetBinContent(52,-11);
-  if (chamber=="BIL1C09" ) href->SetBinContent(219,41);
-  if (chamber=="BML2C15" ) href->SetBinContent(138,-31);
-  if (chamber=="BML2C15" ) href->SetBinContent(162,-31);
-  if (chamber=="BOS2C02" ) href->SetBinContent(145,-31);
-  if (chamber=="BOS2C02" ) href->SetBinContent(180,-31);
-  if (chamber=="BMS2C02" ) href->SetBinContent(240,21);
-  if (chamber=="BIS2C02" ) href->SetBinContent(77,-31);
-  if (chamber=="BIS2C04" ) href->SetBinContent(30,-11);
-  if (chamber=="BIS2C04" ) href->SetBinContent(240,41);
-  if (chamber=="BOS1C06" ) href->SetBinContent(44,-11);
-  if (chamber=="BOS2C08" ) href->SetBinContent(54,-11);
-  if (chamber=="BOS2C08" ) href->SetBinContent(154,-31);
-  if (chamber=="BOS2C08" ) href->SetBinContent(209,-31);
-  if (chamber=="BIS2C08" ) href->SetBinContent(1,-11);
-  if (chamber=="BIS2C08" ) href->SetBinContent(10,-11);
-  if (chamber=="BIS2C08" ) href->SetBinContent(127,11);
-  if (chamber=="BIS2C08" ) href->SetBinContent(202,31);
-  if (chamber=="BIS1C08" ) href->SetBinContent(190,21);
-  if (chamber=="BOS2C10" ) href->SetBinContent(392,31);
-  if (chamber=="BMS1C10" ) href->SetBinContent(244,21);
-  if (chamber=="BIS2C10" ) href->SetBinContent(94,-41);
-  if (chamber=="BIS2C10" ) href->SetBinContent(96,-41);
-  if (chamber=="BOG2C12" ) href->SetBinContent(148,11);
-  if (chamber=="BOG2C12" ) href->SetBinContent(197,21);
-  if (chamber=="BIS1C12" ) href->SetBinContent(61,-21);
-  if (chamber=="BIS1C12" ) href->SetBinContent(108,-31);
-  if (chamber=="BIS1C12" ) href->SetBinContent(136,-41);
-  if (chamber=="BMF1C14" ) href->SetBinContent(10,-11);
-  if (chamber=="BMF1C14" ) href->SetBinContent(55,-11);
-  if (chamber=="BMF1C14" ) href->SetBinContent(142,-21);
-  if (chamber=="BMF1C14" ) href->SetBinContent(231,11);
-  if (chamber=="BOS2C16" ) href->SetBinContent(360,21);
-  if (chamber=="BOS1C16" ) href->SetBinContent(72,-11);
-  if (chamber=="BMS1C16" ) href->SetBinContent(264,21);
-  if (chamber=="BOL4C01" ) href->SetBinContent(241,11);
-  if (chamber=="BOL4C01" ) href->SetBinContent(242,11);
-  if (chamber=="BOL4C01" ) href->SetBinContent(380,31);
-  if (chamber=="BOL4C01" ) href->SetBinContent(381,31);
-  if (chamber=="BML3C01" ) href->SetBinContent(322,31);
-  if (chamber=="BML4C05" ) href->SetBinContent(107,-31);
-  if (chamber=="BML4C09" ) href->SetBinContent(99,-31);
-  if (chamber=="BIL3C09" ) href->SetBinContent(151,21);
-  if (chamber=="BIR4C11" ) href->SetBinContent(79,-31);
-  if (chamber=="BIR4C11" ) href->SetBinContent(80,-31);
-  if (chamber=="BIR4C11" ) href->SetBinContent(81,-31);
-  if (chamber=="BOL3C15" ) href->SetBinContent(235,21);
-  if (chamber=="BML4C15" ) href->SetBinContent(107,-31);
-  if (chamber=="BML3C15" ) href->SetBinContent(62,-21);
-  if (chamber=="BOS3C02" ) href->SetBinContent(217,11);
-  if (chamber=="BMS4C02" ) href->SetBinContent(28,-11);
-  if (chamber=="BMS4C04" ) href->SetBinContent(184,11);
-  if (chamber=="BOS3C06" ) href->SetBinContent(305,21);
-  if (chamber=="BIS4C06" ) href->SetBinContent(3,-11);
-  if (chamber=="BIS3C06" ) href->SetBinContent(140,11);
-  if (chamber=="BOS3C08" ) href->SetBinContent(227,11);
-  if (chamber=="BMS3C08" ) href->SetBinContent(249,31);
-  if (chamber=="BIS4C08" ) href->SetBinContent(4,-11);
-  if (chamber=="BIS4C08" ) href->SetBinContent(214,41);
-  if (chamber=="BMS3C10" ) href->SetBinContent(3,-11);
-  if (chamber=="BIS3C10" ) href->SetBinContent(90,-31);
-  if (chamber=="BMF2C12" ) href->SetBinContent(208,11);
-  if (chamber=="BMF2C12" ) href->SetBinContent(217,11);
-  if (chamber=="BMF2C12" ) href->SetBinContent(223,11);
-  if (chamber=="BMF2C12" ) href->SetBinContent(241,11);
-  if (chamber=="BOF5C14" ) href->SetBinContent(163,11);
-  if (chamber=="BOF5C14" ) href->SetBinContent(189,11);
-  if (chamber=="BMF2C14" ) href->SetBinContent(30,-11);
-  if (chamber=="BMF2C14" ) href->SetBinContent(60,-11);
-  if (chamber=="BMF2C14" ) href->SetBinContent(92,-21);
-  if (chamber=="BMF2C14" ) href->SetBinContent(97,-21);
-  if (chamber=="BMF2C14" ) href->SetBinContent(103,-21);
-  if (chamber=="BMF2C14" ) href->SetBinContent(245,11);
-  if (chamber=="BOS4C16" ) href->SetBinContent(145,-31);
-  if (chamber=="BOS3C16" ) href->SetBinContent(55,-11);
-  if (chamber=="BIS3C16" ) href->SetBinContent(90,-31);
-  if (chamber=="BIL5C03" ) href->SetBinContent(223,41);
-  if (chamber=="BML6C07" ) href->SetBinContent(182,11);
-  if (chamber=="BIL5C09" ) href->SetBinContent(25,-11);
-  if (chamber=="BIL5C09" ) href->SetBinContent(73,-31);
-  if (chamber=="BIL5C09" ) href->SetBinContent(88,-31);
-  //if (chamber=="BML5C13" ) href->SetBinContent(200,21);  CONTROLLARE!!!
-  if (chamber=="BML6C13" ) href->SetBinContent(200,21);
-  if (chamber=="BMS6C02" ) href->SetBinContent(102,-31);
-  if (chamber=="BMS5C02" ) href->SetBinContent(22,-11);
-  if (chamber=="BMS5C04" ) href->SetBinContent(44,-21);
-  if (chamber=="BOS5C10" ) href->SetBinContent(417,31);
-  if (chamber=="BOF7C12" ) href->SetBinContent(104,-31);
-  if (chamber=="BMF3C12" ) href->SetBinContent(38,-11);
-  //if (chamber=="EIL4A01" ) href->SetBinContent(191,11); CONTROLLARE!!!
-  if (chamber=="EIL5A01" ) href->SetBinContent(191,11);
-  if (chamber=="EML4A03" ) href->SetBinContent(199,11);
-  if (chamber=="EML4A03" ) href->SetBinContent(321,31);
-  if (chamber=="EML4A05" ) href->SetBinContent(8,-11);
-  if (chamber=="EML4A07" ) href->SetBinContent(326,31);
-  if (chamber=="EML4A07" ) href->SetBinContent(327,31);
-  if (chamber=="EML4A09" ) href->SetBinContent(100,-21);
-  if (chamber=="EML4A09" ) href->SetBinContent(102,-21);
-  if (chamber=="EML4A09" ) href->SetBinContent(103,-21);
-  if (chamber=="EML4A09" ) href->SetBinContent(255,11);
-  if (chamber=="EML4A09" ) href->SetBinContent(256,11);
-  if (chamber=="EML4A09" ) href->SetBinContent(257,21);
-  if (chamber=="EML4A09" ) href->SetBinContent(320,21);
-  if (chamber=="EML4A11" ) href->SetBinContent(30,-11);
-  if (chamber=="EML4A11" ) href->SetBinContent(69,-21);
-  if (chamber=="EML4A11" ) href->SetBinContent(91,-21);
-  if (chamber=="EML4A11" ) href->SetBinContent(140,-31);
-  if (chamber=="EML4A11" ) href->SetBinContent(198,11);
-  if (chamber=="EML4A11" ) href->SetBinContent(259,21);
-  if (chamber=="EML4A11" ) href->SetBinContent(260,21);
-  if (chamber=="EML4A11" ) href->SetBinContent(261,21);
-  if (chamber=="EML4A13" ) href->SetBinContent(162,-31);
-  if (chamber=="EML4A13" ) href->SetBinContent(228,11);
-  if (chamber=="EML4A13" ) href->SetBinContent(271,21);
-  if (chamber=="EML4A13" ) href->SetBinContent(359,31);
-  if (chamber=="EIL4A13" ) href->SetBinContent(247,11);
-  if (chamber=="EIL4A13" ) href->SetBinContent(393,41);
-  if (chamber=="EMS5A02" ) href->SetBinContent(336,31);
-  if (chamber=="EMS5A06" ) href->SetBinContent(109,-21);
-  if (chamber=="EMS5A06" ) href->SetBinContent(191,-31);
-  if (chamber=="EMS5A08" ) href->SetBinContent(112,-21);
-  if (chamber=="BIS7A08" ) href->SetBinContent(157,21);
-  if (chamber=="EMS5A12" ) href->SetBinContent(236,11);
-  if (chamber=="EMS4A12" ) href->SetBinContent(119,-21);
-  if (chamber=="EOL6A03" ) href->SetBinContent(4,-11);
-  if (chamber=="EOL5A05" ) href->SetBinContent(42,-11);
-  if (chamber=="EOL5A05" ) href->SetBinContent(67,-21);
-  if (chamber=="EOL6A11" ) href->SetBinContent(38,-11);
-  if (chamber=="EOS5A02" ) href->SetBinContent(11,-11);
-  if (chamber=="EMS3A02" ) href->SetBinContent(187,-31);
-  if (chamber=="EOS4A12" ) href->SetBinContent(191,11);
-  if (chamber=="EOS4A12" ) href->SetBinContent(233,21);
-  if (chamber=="EMS3A12" ) href->SetBinContent(1,-11);
-  if (chamber=="EIS1A14" ) href->SetBinContent(51,-21);
-  if (chamber=="EOL3A01" ) href->SetBinContent(74,-21);
-  if (chamber=="EOL3A01" ) href->SetBinContent(159,11);
-  if (chamber=="EOL3A01" ) href->SetBinContent(216,21);
-  if (chamber=="EML2A13" ) href->SetBinContent(76,-21);
-  if (chamber=="EOL3A15" ) href->SetBinContent(167,11);
-  if (chamber=="EOL3A15" ) href->SetBinContent(168,11);
-  if (chamber=="EML2A15" ) href->SetBinContent(330,31);
-  if (chamber=="EMS2A08" ) href->SetBinContent(219,11);
-  if (chamber=="EIL1A01" ) href->SetBinContent(267,41);
-  //if (chamber=="EIL4C01" ) href->SetBinContent(169,11); CONTROLLARE!!!
-  if (chamber=="EIL5C01" ) href->SetBinContent(169,11);
-  if (chamber=="EML4C03" ) href->SetBinContent(296,21);
-  if (chamber=="EML4C03" ) href->SetBinContent(335,31);
-  if (chamber=="EML4C05" ) href->SetBinContent(158,-31);
-  if (chamber=="EIL4C13" ) href->SetBinContent(432,41);
-  if (chamber=="EOL4C01" ) href->SetBinContent(177,11);
-  if (chamber=="EOL4C01" ) href->SetBinContent(178,11);
-  if (chamber=="EML3C05" ) href->SetBinContent(235,11);
-  if (chamber=="EOL5C07" ) href->SetBinContent(152,11);
-  if (chamber=="EML3C07" ) href->SetBinContent(291,21);
-  if (chamber=="EML3C09" ) href->SetBinContent(60,-11);
-  if (chamber=="EOS6C04" ) href->SetBinContent(203,21);
-  if (chamber=="EMS3C04" ) href->SetBinContent(252,11);
-  if (chamber=="EIS1C04" ) href->SetBinContent(322,41);
-  if (chamber=="EIS1C04" ) href->SetBinContent(323,41);
-  if (chamber=="EMS3C12" ) href->SetBinContent(142,-31);
-  if (chamber=="EOS5C14" ) href->SetBinContent(176,11);
-  if (chamber=="EMS3C16" ) href->SetBinContent(54,-11);
-  if (chamber=="EMS3C16" ) href->SetBinContent(357,31);
-  if (chamber=="EML1C03" ) href->SetBinContent(113,-31);
-  if (chamber=="EML2C07" ) href->SetBinContent(185,-31);
-  if (chamber=="EML2C07" ) href->SetBinContent(190,-31);
-  if (chamber=="EML2C07" ) href->SetBinContent(191,-31);
-  if (chamber=="EML2C07" ) href->SetBinContent(192,-31);
-  if (chamber=="EML1C09" ) href->SetBinContent(319,31);
-  if (chamber=="EML1C11" ) href->SetBinContent(36,-11);
-  if (chamber=="EML2C15" ) href->SetBinContent(161,-31);
-  if (chamber=="EMS2C14" ) href->SetBinContent(64,-11);
-  if (chamber=="EMS2C14" ) href->SetBinContent(90,-21);
+  auto pdisconnectedVectorOfPairs = disconnected.find(chamber);
+  if (pdisconnectedVectorOfPairs != disconnected.end()){
+    for(const auto & thisPair:pdisconnectedVectorOfPairs->second){
+      href->SetBinContent(thisPair.first,thisPair.second);
+    }
+  }
 
 }
 

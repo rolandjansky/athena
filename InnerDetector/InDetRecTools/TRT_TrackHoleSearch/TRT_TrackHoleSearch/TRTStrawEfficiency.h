@@ -68,8 +68,10 @@ class TRTStrawEfficiency : public AthAlgorithm
 	//----------------------------------
 	TTree* m_tree;
 	const TRT_ID* m_TRT_ID;
-	ToolHandle<Trk::IUpdator> m_updator;
-	ToolHandle<Trig::ITrigDecisionTool> m_trigDec;
+	PublicToolHandle<Trk::IUpdator> m_updator
+	   {this,"KalmanUpdator","Trk::KalmanUpdator/TrkKalmanUpdator",""};
+	PublicToolHandle<Trig::ITrigDecisionTool> m_trigDec
+	   {this,"ITrigDecisionTool","Trig::ITrigDecisionTool/TrigDecisionTool",""};
 
 	// Data handles
 	SG::ReadHandleKey<TrackCollection> m_tracksKey{this, "track_collection", "CombinedInDetTracks", "Tracks container key"};

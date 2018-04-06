@@ -76,14 +76,14 @@
 //_________________________________________________________________________________
 VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWidget * parent)
 : QMainWindow(parent),
-  runnumber(-1),
-  eventnumber(-1),
-  betweenevents(true),
-  mustquit(false),
-  dummyemptycontroller(new QWidget(0)),
-  scheduler(sched),
-  availEvents(ae),
-  settingsfile(QDir::homePath()+QDir::separator()+".atlasvp1"),
+  m_runnumber(-1),
+  m_eventnumber(-1),
+  m_betweenevents(true),
+  m_mustquit(false),
+  m_dummyemptycontroller(new QWidget(0)),
+  m_scheduler(sched),
+  m_availEvents(ae),
+  m_settingsfile(QDir::homePath()+QDir::separator()+".atlasvp1"),
   m_userRequestedExit(false),
   m_streamMenuUpdater(0),
   m_mutex(new QMutex()),
@@ -92,7 +92,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 //  #else
 //    m_view(new QWebView(0)),
 //  #endif
-  edEditor(0)
+  m_edEditor(0)
 {
 	setupUi(this); // this sets up the GUI
 
@@ -103,27 +103,27 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 		groupBox_cruise->setVisible(false);
 	}
 
-	if (availEvents) {
-		connect(availEvents,SIGNAL(message(const QString&)),this,SLOT(helperAddToMessageBox(const QString&)));
-		connect(availEvents,SIGNAL(freshEventsChanged()),this,SLOT(updateEventControls()));
+	if (m_availEvents) {
+		connect(m_availEvents,SIGNAL(message(const QString&)),this,SLOT(helperAddToMessageBox(const QString&)));
+		connect(m_availEvents,SIGNAL(freshEventsChanged()),this,SLOT(updateEventControls()));
 	}
 
 	// File menu
-	if(!availEvents) {
+	if(!m_availEvents) {
 		QMenu* menu_file = new QMenu(menubar);
 		menu_file->setObjectName("menu_file");
 		menu_file->setTitle("&File");
 		menubar->addAction(menu_file->menuAction());
-		action_addEventFile = menu_file->addAction("&Add event file ...");
+		m_action_addEventFile = menu_file->addAction("&Add event file ...");
 
-		connect(action_addEventFile,SIGNAL(triggered(bool)),this,SLOT(addEventFile()));
+		connect(m_action_addEventFile,SIGNAL(triggered(bool)),this,SLOT(addEventFile()));
 	}
 
 
 	////////////////////////////////////////////////////
 	//Do we need a menu for multiple input directories?
 
-	VP1AvailEvtsLocalDir* availLocal = dynamic_cast<VP1AvailEvtsLocalDir*>(availEvents);
+	VP1AvailEvtsLocalDir* availLocal = dynamic_cast<VP1AvailEvtsLocalDir*>(m_availEvents);
 
 	QStringList inputdirs;
 	if (availLocal)
@@ -134,7 +134,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 		QString currentdir = availLocal->currentSourceDir();
 		if (currentdir.endsWith("/"))
 			currentdir.chop(1);
-		currentStream = QDir(currentdir).dirName();
+		m_currentStream = QDir(currentdir).dirName();
 		QMenu * menu_inputdir = new QMenu(menubar);
 		menu_inputdir->setObjectName("menu_inputdir");
 		menu_inputdir->setTitle("&Stream");
@@ -157,7 +157,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 				action_inputdir_current = action_inputdir;
 			menu_inputdir->addAction(action_inputdir);
 			inputdir_actiongroup->addAction(action_inputdir);
-			inputdiractions << action_inputdir;
+			m_inputdiractions << action_inputdir;
 			connect(action_inputdir,SIGNAL(triggered(bool)),this,SLOT(inputDirectoryActionTriggered()));
 		}
 		if (action_inputdir_current) {
@@ -167,13 +167,13 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 		}
 
 		// Populate inputdirstatuses
-		foreach(QAction* action, inputdiractions)
-		inputdirstatuses[action] = VP1DirStatusData(action->data().toString(),
+		foreach(QAction* action, m_inputdiractions)
+		m_inputdirstatuses[action] = VP1DirStatusData(action->data().toString(),
 				QString(),
 				true,
 				false);
 
-		m_streamMenuUpdater = new VP1StreamMenuUpdater(inputdirstatuses,m_mutex);
+		m_streamMenuUpdater = new VP1StreamMenuUpdater(m_inputdirstatuses,m_mutex);
 		m_streamMenuUpdater->start();
 
 		//Fixme: start timer which every minute checks the status of these directories
@@ -184,9 +184,9 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 
 	//.......
 
-	channelmanager = new VP1ChannelManager(scheduler,this);
-	tabmanager = new VP1TabManager(this,tabWidget_central,channelmanager);
-	stackedWidget_customcontrols->addWidget(dummyemptycontroller);
+	m_channelmanager = new VP1ChannelManager(m_scheduler,this);
+	m_tabmanager = new VP1TabManager(this,tabWidget_central,m_channelmanager);
+	stackedWidget_customcontrols->addWidget(m_dummyemptycontroller);
 
 	//Final touches to instructions page:
 
@@ -214,7 +214,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 		m_defaultfont_pixelsize = -1;
 
 	//Tabs:
-	connect(tabmanager,SIGNAL(tabListChanged(QStringList)),this,SLOT(tabListChanged(QStringList)));
+	connect(m_tabmanager,SIGNAL(tabListChanged(QStringList)),this,SLOT(tabListChanged(QStringList)));
 	connect(tabWidget_central,SIGNAL(currentChanged(int)),this,SLOT(updateCentralStackWidget()));
 	updateCentralStackWidget();
 
@@ -225,11 +225,11 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 
 	connect(pushButton_3D,SIGNAL(clicked()),this,SLOT(launch3DstereoEditor()));
 
-	connect(pushButton_channelfullscreen,SIGNAL(clicked()),tabmanager,SLOT(showCurrentChannelFullScreen()));
+	connect(pushButton_channelfullscreen,SIGNAL(clicked()),m_tabmanager,SLOT(showCurrentChannelFullScreen()));
 	connect(pushButton_channelinformation,SIGNAL(clicked()),this,SLOT(request_channelInformation()));
 	connect(pushButton_printchannel,SIGNAL(clicked()),this,SLOT(request_printChannel()));
 	connect(pushButton_savesnapshotchannel,SIGNAL(clicked()),this,SLOT(request_saveChannelSnapshot()));
-	connect(tabmanager,SIGNAL(selectedChannelChanged(IVP1ChannelWidget*)),this,SLOT(selectedChannelChanged(IVP1ChannelWidget*)));
+	connect(m_tabmanager,SIGNAL(selectedChannelChanged(IVP1ChannelWidget*)),this,SLOT(selectedChannelChanged(IVP1ChannelWidget*)));
 
 	//Menu:
 	//Quick start:
@@ -242,26 +242,26 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 	connect(action_exit_VP1,SIGNAL(triggered(bool)),this,SLOT(close()));
 
 	//Configuration
-	menu_loadConfFile = menuConfiguration->addMenu ( "&Load tab configuration from file" );
-	menu_loadConfFile->setStatusTip("Select .vp1 config file to load");
-	connect(menu_loadConfFile,SIGNAL(aboutToShow()),this,SLOT(showMenu_loadConfFile()));
+	m_menu_loadConfFile = menuConfiguration->addMenu ( "&Load tab configuration from file" );
+	m_menu_loadConfFile->setStatusTip("Select .vp1 config file to load");
+	connect(m_menu_loadConfFile,SIGNAL(aboutToShow()),this,SLOT(showMenu_loadConfFile()));
 	menuConfiguration->addSeparator();
 	//plugins:
-	menu_loadPlugin = menuConfiguration->addMenu ( "&Load plugin" );
-	menu_loadPlugin->setStatusTip("Select plugin to load");
-	//   action_infoAboutLoadedPlugins = menuPlugins->addAction ( "&Info about loaded plugins" );
-	//   action_infoAboutLoadedPlugins->setStatusTip("Get information about the presently loaded plugins");
-	//   action_infoAboutLoadedPlugins->setEnabled(false);
-	connect(menu_loadPlugin,SIGNAL(aboutToShow()),this,SLOT(showMenu_loadPlugin()));
+	m_menu_loadPlugin = menuConfiguration->addMenu ( "&Load plugin" );
+	m_menu_loadPlugin->setStatusTip("Select plugin to load");
+	//   m_action_infoAboutLoadedPlugins = menuPlugins->addAction ( "&Info about loaded plugins" );
+	//   m_action_infoAboutLoadedPlugins->setStatusTip("Get information about the presently loaded plugins");
+	//   m_action_infoAboutLoadedPlugins->setEnabled(false);
+	connect(m_menu_loadPlugin,SIGNAL(aboutToShow()),this,SLOT(showMenu_loadPlugin()));
 	//Style
-	menu_changeStyle = menu_Style->addMenu ( "&Style" );
+	m_menu_changeStyle = menu_Style->addMenu ( "&Style" );
 	QActionGroup * styleGroup = new QActionGroup(this);
 	QAction * laststyleact(0);
 	bool foundplastique=false;
-	QSettings s(settingsfile,QSettings::IniFormat);
+	QSettings s(m_settingsfile,QSettings::IniFormat);
 	QString defaultstyle=s.value("style/defaultstyle", "Plastique").toString();
 	foreach (QString style, QStyleFactory::keys() ) {
-		QAction * act = menu_changeStyle->addAction(style);
+		QAction * act = m_menu_changeStyle->addAction(style);
 		act->setStatusTip("Change application style to "+style);
 		connect(act,SIGNAL(triggered(bool)),this,SLOT(changeStyleActionTriggered()));
 		act->setCheckable(true);
@@ -284,7 +284,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 	else
 		savedgoal = s.value("font/pointsize_relativepercent", 0).toInt();
 
-	menu_changeFontSize = menu_Style->addMenu ( "&Font size" );
+	m_menu_changeFontSize = menu_Style->addMenu ( "&Font size" );
 	QList<int> fontoptions;
 	if (m_defaultfont_pointsize<0.0)
 		fontoptions <<15<<10<<+5<<+3<<+2<<+1<<0<<-1<<-2<<-3<<-5<<-10<<-20<<-30;
@@ -298,7 +298,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 		if (m_defaultfont_pixelsize>0&&m_defaultfont_pixelsize+fontopt<=0)
 			continue;
 		QString text = (fontopt==0?"normal": (fontopt>0?"+":"")+QString::number(fontopt)+(m_defaultfont_pointsize < 0.0? " pixels" : "%"));
-		QAction * act = menu_changeFontSize->addAction(text);
+		QAction * act = m_menu_changeFontSize->addAction(text);
 		act->setStatusTip("Change overall font size of application to "+text);
 		act->setData(fontopt);
 		act->setCheckable(true);
@@ -317,26 +317,26 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 	}
 
 	//
-	actionSave_current_tabs = menuConfiguration->addAction ( "&Save current tab configuration to file" );
-	actionSave_current_tabs->setStatusTip("Save current tab/channel layout to .vp1 config file");
+	m_actionSave_current_tabs = menuConfiguration->addAction ( "&Save current tab configuration to file" );
+	m_actionSave_current_tabs->setStatusTip("Save current tab/channel layout to .vp1 config file");
 	menuConfiguration->addSeparator();
-	actionAdd_empty_tab = menuConfiguration->addAction ( "&Add empty tab" );
-	actionAdd_empty_tab->setStatusTip("Add empty tab to the current tab list");
-	connect(actionAdd_empty_tab,SIGNAL(triggered(bool)),this,SLOT(request_addEmptyTab()));
-	connect(actionSave_current_tabs,SIGNAL(triggered(bool)),this,SLOT(request_saveasConfig()));
+	m_actionAdd_empty_tab = menuConfiguration->addAction ( "&Add empty tab" );
+	m_actionAdd_empty_tab->setStatusTip("Add empty tab to the current tab list");
+	connect(m_actionAdd_empty_tab,SIGNAL(triggered(bool)),this,SLOT(request_addEmptyTab()));
+	connect(m_actionSave_current_tabs,SIGNAL(triggered(bool)),this,SLOT(request_saveasConfig()));
 
 	//Event navigation:
 	connect(pushButton_nextevent,SIGNAL(clicked()),this,SLOT(goToNextEvent()));
 
 	//Listen for external requests:
-	connect(&tcpserver,SIGNAL(receivedExternalRequest(VP1ExternalRequest)),this,SLOT(receivedExternalRequest(VP1ExternalRequest)));
+	connect(&m_tcpserver,SIGNAL(receivedExternalRequest(VP1ExternalRequest)),this,SLOT(receivedExternalRequest(VP1ExternalRequest)));
 	listenOnTcp();
 	//  updateTcpIcon();
-	connect(&tcpserver,SIGNAL(listenStateChanged(bool)),this,SLOT(updateTcpIcon()));
+	connect(&m_tcpserver,SIGNAL(listenStateChanged(bool)),this,SLOT(updateTcpIcon()));
 	updateTcpIcon();
-	currentincomingdialog=0;
-	blockallmessages=false;
-	plugindialog=0;
+	m_currentincomingdialog=0;
+	m_blockallmessages=false;
+	m_plugindialog=0;
 
 	//Cruise:
 	connect(pushButton_cruise,SIGNAL(clicked()),this,SLOT(request_cruisemodechange()));
@@ -349,20 +349,20 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
   menu_help->setObjectName("menu_help");
   menu_help->setTitle("&Help");
   menubar->addAction(menu_help->menuAction());
-  action_openVP1Site = menu_help->addAction("VP1 &Web Site");
-  action_openUsersGuide = menu_help->addAction("VP1 &User's Guide");
-  action_openUsersSupport = menu_help->addAction("VP1 User's &Support (in the system browser)");
+  m_action_openVP1Site = menu_help->addAction("VP1 &Web Site");
+  m_action_openUsersGuide = menu_help->addAction("VP1 &User's Guide");
+  m_action_openUsersSupport = menu_help->addAction("VP1 User's &Support (in the system browser)");
   menu_help->addSeparator();
-  action_openAbout = menu_help->addAction("&About VP1");
+  m_action_openAbout = menu_help->addAction("&About VP1");
 
 	QTimer::singleShot(0, this, SLOT(postInitUpdates()));
-	currentsaveimagepath = VP1Settings::defaultFileSelectDirectory();
-	currentloadpluginpath = VP1Settings::defaultFileSelectDirectory();
+	m_currentsaveimagepath = VP1Settings::defaultFileSelectDirectory();
+	m_currentloadpluginpath = VP1Settings::defaultFileSelectDirectory();
 
-	connect(action_openUsersGuide,SIGNAL(triggered(bool)),this,SLOT(help_openUserGuide()));
-  connect(action_openVP1Site,SIGNAL(triggered(bool)),this,SLOT(help_openVP1WebSite()));
-  connect(action_openUsersSupport,SIGNAL(triggered(bool)),this,SLOT(help_openUserSupport()));
-  connect(action_openAbout,SIGNAL(triggered(bool)),this,SLOT(help_openAbout()));
+	connect(m_action_openUsersGuide,SIGNAL(triggered(bool)),this,SLOT(help_openUserGuide()));
+  connect(m_action_openVP1Site,SIGNAL(triggered(bool)),this,SLOT(help_openVP1WebSite()));
+  connect(m_action_openUsersSupport,SIGNAL(triggered(bool)),this,SLOT(help_openUserSupport()));
+  connect(m_action_openAbout,SIGNAL(triggered(bool)),this,SLOT(help_openAbout()));
 
   // FIXME: enabling menubar again. It's part of a quickfix, described here: https://its.cern.ch/jira/browse/ATLASVPONE-120
   menubar->setEnabled(false);
@@ -372,7 +372,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 void VP1MainWindow::launch3DstereoEditor()
 {
 	VP1Msg::messageDebug("VP1MainWindow::launch3DstereoEditor()");
-	tabmanager->launchStereoEditorCurrentTab();
+	m_tabmanager->launchStereoEditorCurrentTab();
 
 }
 
@@ -505,8 +505,8 @@ void VP1MainWindow::postInitUpdates(){
 	widget_controlsContainer->setMaximumWidth(50+prefwidths);
 	//   int h1(textBrowser_intro1->viewport()->sizeHint().height());
 	//   textBrowser_intro1->setMaximumHeight(h1+2);
-	if (availEvents)
-		availEvents->init();
+	if (m_availEvents)
+		m_availEvents->init();
 	updateEventControls();
 }
 
@@ -517,26 +517,26 @@ void VP1MainWindow::setupStatusBar()  {
 	progressbar->reset();
 	progressbar->setOrientation(Qt::Horizontal);
 	statusBar()->addPermanentWidget(progressbar);
-	statusbarlabel = new QLabel();
+	m_statusbarlabel = new QLabel();
 	//Turn off ugly box around items in statusbar:
 	statusBar()->setStyleSheet("QStatusBar::item { border-width: 0 }");
-	statusBar()->addPermanentWidget(statusbarlabel);
+	statusBar()->addPermanentWidget(m_statusbarlabel);
 	progressbar->hide();
 }
 
 //_________________________________________________________________________________
 VP1MainWindow::~VP1MainWindow()
 {
-	if (edEditor) {
+	if (m_edEditor) {
 		VP1Msg::messageDebug("deleting the editor");
-		delete edEditor;
+		delete m_edEditor;
 	}
 	VP1Msg::messageDebug("deleting the tab manager");
-	delete tabmanager;
+	delete m_tabmanager;
 	VP1Msg::messageDebug("deleting the channel manager");
-	delete channelmanager;
+	delete m_channelmanager;
 	VP1Msg::messageDebug("deleting the events");
-	delete availEvents;
+	delete m_availEvents;
 
 	if(m_streamMenuUpdater) {
 		VP1Msg::messageDebug("deleting the streamupdater");
@@ -554,17 +554,17 @@ VP1MainWindow::~VP1MainWindow()
 
 //_________________________________________________________________________________
 bool VP1MainWindow::mustQuit() const {
-	return mustquit;
+	return m_mustquit;
 }
 
 
 //_________________________________________________________________________________
 void VP1MainWindow::updateTcpIcon()
 {
-	bool l = tcpserver.isListening();
-	statusbarlabel->setPixmap(QIcon(l?":/vp1/icons/icons/network_64x64.png":":/vp1/icons/icons/network_disconnect_64x64.png")
+	bool l = m_tcpserver.isListening();
+	m_statusbarlabel->setPixmap(QIcon(l?":/vp1/icons/icons/network_64x64.png":":/vp1/icons/icons/network_disconnect_64x64.png")
 			.pixmap(progressbar->height(),progressbar->height(),QIcon::Normal,QIcon::On));
-	statusbarlabel->setToolTip(l?"Listening on port "+QString::number(tcpserver.port())+" for incoming messsages"
+	m_statusbarlabel->setToolTip(l?"Listening on port "+QString::number(m_tcpserver.port())+" for incoming messsages"
 			:"VP1 is presently NOT listening for incoming messages");
 
 }
@@ -574,7 +574,7 @@ void VP1MainWindow::loadPluginFile(QString filename)
 {
 	VP1Msg::messageDebug("loadPluginFile()");
 
-	QString err = channelmanager->loadPluginFile(filename);
+	QString err = m_channelmanager->loadPluginFile(filename);
 	if (!err.isEmpty()) {
 		QMessageBox::critical(0, "Error - could not load plugin file: "+filename,
 				"Could not load plugin file: "
@@ -588,20 +588,20 @@ void VP1MainWindow::loadPluginFile(QString filename)
 void VP1MainWindow::request_addEmptyTab() {
 	bool ok;
 	QString newtabname = QInputDialog::getText( 0, "New Tab Name","New tab name:",
-			QLineEdit::Normal, tabmanager->suggestNewTabName("My Tab"), &ok );
+			QLineEdit::Normal, m_tabmanager->suggestNewTabName("My Tab"), &ok );
 	if (!ok||newtabname.isEmpty())
 		return;
-	tabmanager->addNewTab(newtabname);
+	m_tabmanager->addNewTab(newtabname);
 }
 
 //_________________________________________________________________________________
 void VP1MainWindow::tabListChanged(QStringList l) {
 	updateCentralStackWidget();
 	if (l.count()) {
-		actionSave_current_tabs->setEnabled(true);
+		m_actionSave_current_tabs->setEnabled(true);
 		groupBox_cruise->setEnabled(true);
 	} else {
-		actionSave_current_tabs->setEnabled(false);
+		m_actionSave_current_tabs->setEnabled(false);
 		groupBox_cruise->setEnabled(false);
 	}
 	if (l.count()>1) {
@@ -619,7 +619,7 @@ void VP1MainWindow::tabListChanged(QStringList l) {
 void VP1MainWindow::addChannelIconsToComboBox(QComboBox* cb, const bool& isbasenames) {
 	int n= cb->count();
 	for (int i = 0; i<n; ++i) {
-		QString icontext = channelmanager->getIconLocation(cb->itemText(i), isbasenames);
+		QString icontext = m_channelmanager->getIconLocation(cb->itemText(i), isbasenames);
 		if (!icontext.isEmpty())
 			cb->setItemIcon ( i, QIcon(icontext) );
 	}
@@ -634,9 +634,9 @@ void VP1MainWindow::selectedChannelChanged(IVP1ChannelWidget* cw)
 	if (cw) {
 		groupBox_channelcontrols->setTitle("Controls: "+cw->unique_name());
 		groupBox_channelcontrols->setEnabled(true);
-		QWidget* controller = channelmanager->getController(cw);
+		QWidget* controller = m_channelmanager->getController(cw);
 		if (!controller) {
-			stackedWidget_customcontrols->setCurrentWidget(dummyemptycontroller);
+			stackedWidget_customcontrols->setCurrentWidget(m_dummyemptycontroller);
 		} else {
 			if (stackedWidget_customcontrols->indexOf(controller)==-1)
 				stackedWidget_customcontrols->addWidget(controller);
@@ -645,7 +645,7 @@ void VP1MainWindow::selectedChannelChanged(IVP1ChannelWidget* cw)
 	} else {
 		groupBox_channelcontrols->setTitle("Controls: no channel selected");
 		groupBox_channelcontrols->setEnabled(false);
-		stackedWidget_customcontrols->setCurrentWidget(dummyemptycontroller);
+		stackedWidget_customcontrols->setCurrentWidget(m_dummyemptycontroller);
 	}
 
 	// FIXME: enabling menubar again. It's part of a quickfix, described here: https://its.cern.ch/jira/browse/ATLASVPONE-120
@@ -659,7 +659,7 @@ void VP1MainWindow::selectedChannelChanged(IVP1ChannelWidget* cw)
 void VP1MainWindow::request_saveasConfig() {
 
 	QString filename = QFileDialog::getSaveFileName(this, "Select configuration file to save",
-			(currentconfigfile.isEmpty()?VP1Settings::defaultFileSelectDirectory():currentconfigfile),
+			(m_currentconfigfile.isEmpty()?VP1Settings::defaultFileSelectDirectory():m_currentconfigfile),
 			"VP1 Configuration files (*.vp1)",0,QFileDialog::DontResolveSymlinks);
 	if(filename.isEmpty())
 		return;
@@ -667,30 +667,30 @@ void VP1MainWindow::request_saveasConfig() {
 	if (!filename.endsWith(".vp1"))
 		filename += ".vp1";
 
-	tabmanager->saveConfigurationToFile(filename,false/*Since the filedialog already asks*/);
-	currentconfigfile=filename;
+	m_tabmanager->saveConfigurationToFile(filename,false/*Since the filedialog already asks*/);
+	m_currentconfigfile=filename;
 }
 
 //_________________________________________________________________________________
 void VP1MainWindow::request_saveConfig()
 {
-	if (currentconfigfile.isEmpty()) {
+	if (m_currentconfigfile.isEmpty()) {
 		request_saveasConfig();
 		return;
 	}
-	tabmanager->saveConfigurationToFile(currentconfigfile,false);
+	m_tabmanager->saveConfigurationToFile(m_currentconfigfile,false);
 }
 
 //_________________________________________________________________________________
 void VP1MainWindow::request_loadConfig()
 {
 	QString filename = QFileDialog::getOpenFileName(this, "Select configuration file to load",
-			(currentconfigfile.isEmpty()?VP1Settings::defaultFileSelectDirectory():currentconfigfile),
+			(m_currentconfigfile.isEmpty()?VP1Settings::defaultFileSelectDirectory():m_currentconfigfile),
 			"VP1 configuration files (*.vp1)",0,QFileDialog::DontResolveSymlinks);
 	if(filename.isEmpty())
 		return;
-	tabmanager->loadConfigurationFromFile(filename,availablePluginFiles());
-	currentconfigfile=filename;
+	m_tabmanager->loadConfigurationFromFile(filename,availablePluginFiles());
+	m_currentconfigfile=filename;
 }
 
 //_________________________________________________________________________________
@@ -703,11 +703,11 @@ void VP1MainWindow::request_loadPlugin()
 #endif
 
 	QString filename = QFileDialog::getOpenFileName(this, "Select plugin file to load",
-			currentloadpluginpath,
+			m_currentloadpluginpath,
 			"VP1 plugin files (*."+sharedlibsuffix+")",0,QFileDialog::DontResolveSymlinks);
 	if(filename.isEmpty())
 		return;
-	currentloadpluginpath = QFileInfo(filename).dir().absolutePath();
+	m_currentloadpluginpath = QFileInfo(filename).dir().absolutePath();
 	loadPluginFile(filename);
 }
 
@@ -784,30 +784,30 @@ QMap<QString,QString> VP1MainWindow::availablePluginFiles() const
 
 //_________________________________________________________________________________
 void VP1MainWindow::pluginDialogClosed() {
-	if (!plugindialog)
+	if (!m_plugindialog)
 		return;
 
-	int res = plugindialog->result();
-	QString filename = plugindialog->unloadfile();
-	disconnect(plugindialog,SIGNAL(finished(int)),this,SLOT(pluginDialogClosed()));
-	plugindialog->deleteLater();
-	plugindialog = 0;
+	int res = m_plugindialog->result();
+	QString filename = m_plugindialog->unloadfile();
+	disconnect(m_plugindialog,SIGNAL(finished(int)),this,SLOT(pluginDialogClosed()));
+	m_plugindialog->deleteLater();
+	m_plugindialog = 0;
 
 	if (res!=QDialog::Accepted||filename.isEmpty())
 		return;
 
 	//How many channels would be affected by such unloading?
-	QStringList bns = channelmanager->channelsInPluginFile(filename);
+	QStringList bns = m_channelmanager->channelsInPluginFile(filename);
 	int naffected(0);
 	foreach (QString bn, bns)
-	naffected += channelmanager->nActive(bn);
+	naffected += m_channelmanager->nActive(bn);
 
 	foreach (QString bn, bns) {
-		while(channelmanager->basename2UniqueNames(bn).count()>0)
-			tabmanager->removeChannel(channelmanager->basename2UniqueNames(bn).value(0));
+		while(m_channelmanager->basename2UniqueNames(bn).count()>0)
+			m_tabmanager->removeChannel(m_channelmanager->basename2UniqueNames(bn).value(0));
 	}
 
-	currentunloadpluginfiles << filename;
+	m_currentunloadpluginfiles << filename;
 	QTimer::singleShot(0, this, SLOT(unloadPlugin_continue()));
 
 }
@@ -815,32 +815,32 @@ void VP1MainWindow::pluginDialogClosed() {
 //_________________________________________________________________________________
 void VP1MainWindow::unloadPlugin_continue()
 {
-	foreach (QString filename, currentunloadpluginfiles) {
-		bool success = channelmanager->unloadPluginFile(filename);
+	foreach (QString filename, m_currentunloadpluginfiles) {
+		bool success = m_channelmanager->unloadPluginFile(filename);
 		if (!success)
 			QMessageBox::critical(0, "Error - problems unloading plugin file: "+filename,
 					"Problems encountered while attempting to unload plugin file: "+filename,QMessageBox::Ok,QMessageBox::Ok);
 	}
-	currentunloadpluginfiles.clear();
+	m_currentunloadpluginfiles.clear();
 }
 
 //_________________________________________________________________________________
 bool VP1MainWindow::okToProceedToNextEvent() const
 {
-	return ! (betweenevents || (availEvents&&availEvents->freshEvents().isEmpty()));
+	return ! (m_betweenevents || (m_availEvents&&m_availEvents->freshEvents().isEmpty()));
 }
 
 
 //_________________________________________________________________________________
 void VP1MainWindow::nextEvent() {
-	betweenevents=true;
-	if (availEvents) {
-		QList<VP1EventFile>  evts = availEvents->freshEvents();
+	m_betweenevents=true;
+	if (m_availEvents) {
+		QList<VP1EventFile>  evts = m_availEvents->freshEvents();
 		if (evts.empty()) {
 			addToMessageBox("ERROR: Going to next event, but one is not available!");
-			scheduler->setNextRequestedEventFile("");
+			m_scheduler->setNextRequestedEventFile("");
 		} else {
-			scheduler->setNextRequestedEventFile(evts.front().fileName());
+			m_scheduler->setNextRequestedEventFile(evts.front().fileName());
 		}
 	}
 	updateEventControls();
@@ -873,10 +873,10 @@ void VP1MainWindow::closeEvent(QCloseEvent * event)
 	hide();
 
 	VP1Msg::messageDebug("calling tabmanager->setSelectedDockWidget(0)...");
-	tabmanager->setSelectedDockWidget(0);
+	m_tabmanager->setSelectedDockWidget(0);
 	VP1Msg::messageDebug("tabmanager->setSelectedDockWidget(0) called.");
 
-	mustquit=true; // this will inform VP1Alg that we want to quit VP1 (then we'll quit the Athena algorithm)
+	m_mustquit=true; // this will inform VP1Alg that we want to quit VP1 (then we'll quit the Athena algorithm)
 	VP1Msg::messageDebug("calling qApp->quit()...");
 	qApp->quit();
 }
@@ -884,30 +884,30 @@ void VP1MainWindow::closeEvent(QCloseEvent * event)
 //_________________________________________________________________________________
 void VP1MainWindow::setRunEvtNumber(const int& r, const unsigned long long& e, const unsigned& triggerType, const unsigned& time, const bool& printmessage ) {
 
-	scheduler->setNextRequestedEventFile("");
-	const bool sameasold(runnumber==r&&eventnumber==e);
+	m_scheduler->setNextRequestedEventFile("");
+	const bool sameasold(m_runnumber==r&&m_eventnumber==e);
 
-	runnumber=r;
-	eventnumber=e;
-	timestamp=time;
+	m_runnumber=r;
+	m_eventnumber=e;
+	m_timestamp=time;
 
-	betweenevents = false;
-	if (availEvents)
-		availEvents->setCurrentEvent(r,e);
+	m_betweenevents = false;
+	if (m_availEvents)
+		m_availEvents->setCurrentEvent(r,e);
 
-	foreach(IVP1ChannelWidget* channel,tabmanager->allChannels()) {
+	foreach(IVP1ChannelWidget* channel,m_tabmanager->allChannels()) {
 		channel->setRunEvtNumber(r,e);
 		channel->setEvtTimestamp(time);
 	}
 
 	if(printmessage) {
-		qulonglong evNumber = eventnumber;
-		QString evtstr = "run# "+QString::number(runnumber)+", event# "+QString::number(evNumber)+(sameasold?" (reused)":"");
+		qulonglong evNumber = m_eventnumber;
+		QString evtstr = "run# "+QString::number(m_runnumber)+", event# "+QString::number(evNumber)+(sameasold?" (reused)":"");
 		QString trighex = triggerType > 0 ? "0x"+QString::number(triggerType, 16).toUpper().rightJustified(sizeof(triggerType),'0') : "";
 		QString expandedevtstr = evtstr
 				+ QString(trighex.isEmpty()?QString(""):", triggerType: "+trighex)
 				+ QString(time>0 ? ", time: "+QDateTime::fromTime_t(time).toString(Qt::ISODate).replace('T',' ') : "")
-				+ QString(currentStream.isEmpty()?"":", "+currentStream);
+				+ QString(m_currentStream.isEmpty()?"":", "+m_currentStream);
 		setWindowTitle("Virtual Point 1 ["+expandedevtstr+"]");
 		groupBox_event->setTitle("Event ["+evtstr+"]");
 
@@ -970,22 +970,22 @@ void VP1MainWindow::helperAddToMessageBox( const QString& m )
 
 //_________________________________________________________________________________
 void VP1MainWindow::request_channelInformation() {
-	if(!tabmanager->selectedChannelWidget())
+	if(!m_tabmanager->selectedChannelWidget())
 		return;
 
-	QString out = "Information about channel: "+tabmanager->selectedChannelWidget()->name() + "\n\n";
-	out += "Contact: "+tabmanager->selectedChannelWidget()->contact_info()+"\n";
-	out += "Information: "+tabmanager->selectedChannelWidget()->information()+"\n";
+	QString out = "Information about channel: "+m_tabmanager->selectedChannelWidget()->name() + "\n\n";
+	out += "Contact: "+m_tabmanager->selectedChannelWidget()->contact_info()+"\n";
+	out += "Information: "+m_tabmanager->selectedChannelWidget()->information()+"\n";
 	out += "Systems:\n\n";
-	std::set<IVP1System *>::iterator itsys, itsysE = tabmanager->selectedChannelWidget()->systems().end();
-	for (itsys = tabmanager->selectedChannelWidget()->systems().begin();itsys!=itsysE;++itsys) {
+	std::set<IVP1System *>::iterator itsys, itsysE = m_tabmanager->selectedChannelWidget()->systems().end();
+	for (itsys = m_tabmanager->selectedChannelWidget()->systems().begin();itsys!=itsysE;++itsys) {
 		out += "  ==> System "+(*itsys)->name()+"\n";
 		out += "      Contact: "+(*itsys)->contact_info()+"\n";
 		out += "      Information: "+(*itsys)->information()+"\n";
 		out += "\n";
 	}
 
-	QMessageBox::information(0, "Information about channel: "+tabmanager->selectedChannelWidget()->name(),Qt::convertFromPlainText(out),QMessageBox::Ok,QMessageBox::Ok);
+	QMessageBox::information(0, "Information about channel: "+m_tabmanager->selectedChannelWidget()->name(),Qt::convertFromPlainText(out),QMessageBox::Ok,QMessageBox::Ok);
 }
 
 //_________________________________________________________________________________
@@ -999,19 +999,19 @@ void VP1MainWindow::makeAllChannelsEventDisplay()
 
 	getAllChannelsIntoSnapshots(list, listNames);
 
-	listRunEventNumberTimestamp << runnumber;
-	listRunEventNumberTimestamp << eventnumber;
-	listRunEventNumberTimestamp << timestamp;
+	listRunEventNumberTimestamp << m_runnumber;
+	listRunEventNumberTimestamp << m_eventnumber;
+	listRunEventNumberTimestamp << m_timestamp;
 
 	// create a new editor window
-	edEditor = new VP1EventDisplayEditor(this, listRunEventNumberTimestamp);
+	m_edEditor = new VP1EventDisplayEditor(this, listRunEventNumberTimestamp);
 
-	edEditor->addPixmapList(list, listNames);
+	m_edEditor->addPixmapList(list, listNames);
 
 	// pass the lists of all tabs and their names to the editor
-	edEditor->setTabsList( listNames);
+	m_edEditor->setTabsList( listNames);
 
-	edEditor->show();
+	m_edEditor->show();
 
 }
 
@@ -1023,8 +1023,8 @@ void VP1MainWindow::getAllChannelsIntoSnapshots(QList<QPixmap>& list, QStringLis
 {
 	VP1Msg::messageDebug("VP1MainWindow::getAllChannelsIntoSnapshots()");
 
-//	int nTabs = tabmanager->nTabs();
-	QList<IVP1ChannelWidget*> allTabs = tabmanager->allChannels();
+//	int nTabs = m_tabmanager->nTabs();
+	QList<IVP1ChannelWidget*> allTabs = m_tabmanager->allChannels();
 
 	if (allTabs.isEmpty()) {
 		VP1Msg::message("WARNING - No tabs to save.");
@@ -1041,7 +1041,7 @@ void VP1MainWindow::getAllChannelsIntoSnapshots(QList<QPixmap>& list, QStringLis
 
 		// get channel name (e.g. Geometry, 3DCocktail)
 //		QString channelname = widg->unique_name().toLower();
-		QString channelname = tabmanager->channelToTab(widg);
+		QString channelname = m_tabmanager->channelToTab(widg);
 		channelname.replace(' ','_');
 		VP1Msg::messageDebug("tab: " + channelname);
 
@@ -1094,7 +1094,7 @@ QPixmap VP1MainWindow::getSingleChannelCustomSnapshot(IVP1ChannelWidget* tab, in
 //_________________________________________________________________________________
 QPixmap VP1MainWindow::getSingleChannelCustomSnapshot(QString tabName, int width)
 {
-	QList<IVP1ChannelWidget*> allTabs = tabmanager->allChannels();
+	QList<IVP1ChannelWidget*> allTabs = m_tabmanager->allChannels();
 
 	if (allTabs.isEmpty()) {
 		VP1Msg::message("WARNING - No tabs to get snapshots from.");
@@ -1104,7 +1104,7 @@ QPixmap VP1MainWindow::getSingleChannelCustomSnapshot(QString tabName, int width
 	foreach(IVP1ChannelWidget* widg, allTabs) {
 
 		// get channel name (e.g. Geometry, 3DCocktail)
-		QString channelname = tabmanager->channelToTab(widg);
+		QString channelname = m_tabmanager->channelToTab(widg);
 		channelname.replace(' ','_');
 
 		if (channelname == tabName) {
@@ -1125,11 +1125,11 @@ void VP1MainWindow::saveAllCurrentChannels()
 {
 	VP1Msg::messageDebug("VP1MainWindow::saveAllCurrentChannels()");
 
-	int nTabs = tabmanager->nTabs();
+	int nTabs = m_tabmanager->nTabs();
 
 	VP1Msg::messageDebug("# of tabs: " + QString::number(nTabs));
 
-	QList<IVP1ChannelWidget*> allTabs = tabmanager->allChannels();
+	QList<IVP1ChannelWidget*> allTabs = m_tabmanager->allChannels();
 
 	if (allTabs.isEmpty()) {
 		VP1Msg::message("WARNING - No tabs to save.");
@@ -1138,12 +1138,12 @@ void VP1MainWindow::saveAllCurrentChannels()
 
 
 //	QString guess;
-//	QString chnlname = tabmanager->selectedChannelWidget()->name().toLower();
+//	QString chnlname = m_tabmanager->selectedChannelWidget()->name().toLower();
 //	chnlname.replace(' ','_');
 
-	QString base=currentsaveimagepath+QDir::separator()+"vp1"
-			+ "_run"+QString::number(runnumber)+"_evt"+QString::number(eventnumber)
-			+ QString(timestamp>0 ? "_"+QDateTime::fromTime_t(timestamp).toString(Qt::ISODate).replace(':','-') : "");
+	QString base=m_currentsaveimagepath+QDir::separator()+"vp1"
+			+ "_run"+QString::number(m_runnumber)+"_evt"+QString::number(m_eventnumber)
+			+ QString(m_timestamp>0 ? "_"+QDateTime::fromTime_t(m_timestamp).toString(Qt::ISODate).replace(':','-') : "");
 
 
 	// check for existing files
@@ -1161,7 +1161,7 @@ void VP1MainWindow::saveAllCurrentChannels()
 		return;
 	}
 
-	currentsaveimagepath = QFileInfo(filename).dir().absolutePath ();
+	m_currentsaveimagepath = QFileInfo(filename).dir().absolutePath ();
 
 
 	QStringList tab_save_files;
@@ -1214,7 +1214,7 @@ void VP1MainWindow::saveAllCurrentChannels()
 //	QString program = "convert";
 //	QStringList arguments;
 //	arguments = tab_save_files;
-//	arguments << " " + currentsaveimagepath + QDir::separator() + "out.psd";
+//	arguments << " " + m_currentsaveimagepath + QDir::separator() + "out.psd";
 //	VP1Msg::messageDebug("running: " + program + " " + arguments.join(" "));
 //
 //	// start the process
@@ -1240,17 +1240,17 @@ QString VP1MainWindow::request_saveChannelSnapshot(QString xLabel)
 
 	VP1Msg::messageDebug("VP1MainWindow::request_saveChannelSnapshot()");
 
-	if(!tabmanager->selectedChannelWidget()) {
+	if(!m_tabmanager->selectedChannelWidget()) {
 		return QString();
 	}
 
 	QString guess;
-	QString chnlname = tabmanager->selectedChannelWidget()->name().toLower();
+	QString chnlname = m_tabmanager->selectedChannelWidget()->name().toLower();
 	chnlname.replace(' ','_');
 
-	QString base=currentsaveimagepath+QDir::separator()+"vp1_"+chnlname
-			+"_run"+QString::number(runnumber)+"_evt"+QString::number(eventnumber)
-			+ QString(timestamp>0 ? "_"+QDateTime::fromTime_t(timestamp).toString(Qt::ISODate).replace(':','-') : "");
+	QString base=m_currentsaveimagepath+QDir::separator()+"vp1_"+chnlname
+			+"_run"+QString::number(m_runnumber)+"_evt"+QString::number(m_eventnumber)
+			+ QString(m_timestamp>0 ? "_"+QDateTime::fromTime_t(m_timestamp).toString(Qt::ISODate).replace(':','-') : "");
 
 
 	// check for existing files
@@ -1274,13 +1274,13 @@ QString VP1MainWindow::request_saveChannelSnapshot(QString xLabel)
 	if(filename.isEmpty())
 		return QString();
 
-	currentsaveimagepath = QFileInfo(filename).dir().absolutePath ();
+	m_currentsaveimagepath = QFileInfo(filename).dir().absolutePath ();
 
 	if (!(filename.endsWith(".png",Qt::CaseInsensitive)||filename.endsWith(".bmp",Qt::CaseInsensitive)))
 		filename += ".png";
 
 	VP1Msg::messageVerbose("calling snapshot");
-	QPixmap pm = tabmanager->selectedChannelWidget()->getSnapshot();
+	QPixmap pm = m_tabmanager->selectedChannelWidget()->getSnapshot();
 
 	if (pm.isNull())
 		return QString();
@@ -1292,14 +1292,14 @@ QString VP1MainWindow::request_saveChannelSnapshot(QString xLabel)
 
 //_________________________________________________________________________________
 void VP1MainWindow::request_printChannel() {
-	if(!tabmanager->selectedChannelWidget())
+	if(!m_tabmanager->selectedChannelWidget())
 		return;
 
 	//The following will paint the widget onto a paper and bring up the print dialog:
 	QPrinter printer;
 	QPrintDialog dialog(&printer, this);
 	if (dialog.exec() == QDialog::Accepted) {
-		QPixmap pm = tabmanager->selectedChannelWidget()->getSnapshot();
+		QPixmap pm = m_tabmanager->selectedChannelWidget()->getSnapshot();
 		if (pm.isNull())
 			return;
 		QPainter painter;
@@ -1312,14 +1312,14 @@ void VP1MainWindow::request_printChannel() {
 
 //_________________________________________________________________________________
 void VP1MainWindow::loadConfigurationFromFile(QString file) {
-	tabmanager->loadConfigurationFromFile(file,availablePluginFiles());
+	m_tabmanager->loadConfigurationFromFile(file,availablePluginFiles());
 }
 
 //_________________________________________________________________________________
 void VP1MainWindow::listenOnTcp()
 {
 	QString err;
-	if (!tcpserver.listen(err)) {
+	if (!m_tcpserver.listen(err)) {
 		qDebug(err.toStdString().c_str());
 	}
 }
@@ -1328,8 +1328,8 @@ void VP1MainWindow::listenOnTcp()
 //_________________________________________________________________________________
 void VP1MainWindow::finishedIncomingDialog()
 {
-	currentincomingdialog=0;
-	if (!requestqueue.empty())
+	m_currentincomingdialog=0;
+	if (!m_requestqueue.empty())
 		QTimer::singleShot(0, this, SLOT(processEnqueuedRequests()));
 }
 
@@ -1337,33 +1337,33 @@ void VP1MainWindow::finishedIncomingDialog()
 //_________________________________________________________________________________
 void VP1MainWindow::processEnqueuedRequests()
 {
-	if (!requestqueue.empty())
-		receivedExternalRequest(requestqueue.dequeue());
+	if (!m_requestqueue.empty())
+		receivedExternalRequest(m_requestqueue.dequeue());
 }
 
 //_________________________________________________________________________________
 void VP1MainWindow::receivedExternalRequest(VP1ExternalRequest request)
 {
-	if (blockallmessages)
+	if (m_blockallmessages)
 		return;
-	if (messages_blockedsenders.contains(request.sender()))
+	if (m_messages_blockedsenders.contains(request.sender()))
 		return;
-	if (messages_blockedexactmessages.contains(request))
+	if (m_messages_blockedexactmessages.contains(request))
 		return;
-	if (currentincomingdialog) {
+	if (m_currentincomingdialog) {
 		//Fixme: store TIME of incoming request (to show the user).
-		if (requestqueue.count()<999) {
-			requestqueue.enqueue(request);
-			currentincomingdialog->updatependinginfo();
+		if (m_requestqueue.count()<999) {
+			m_requestqueue.enqueue(request);
+			m_currentincomingdialog->updatependinginfo();
 		}
 		return;
 	}
-	VP1IncomingMessageDialog * md = new VP1IncomingMessageDialog(request,&requestqueue,&blockallmessages,
-			&messages_blockedsenders,&messages_blockedexactmessages,
-			tabmanager,channelmanager,this);
-	currentincomingdialog=md;
+	VP1IncomingMessageDialog * md = new VP1IncomingMessageDialog(request,&m_requestqueue,&m_blockallmessages,
+			&m_messages_blockedsenders,&m_messages_blockedexactmessages,
+			m_tabmanager,m_channelmanager,this);
+	m_currentincomingdialog=md;
 	connect(md,SIGNAL(finished(int)),this,SLOT(finishedIncomingDialog()));
-	tabmanager->dropOutOfFullScreen();
+	m_tabmanager->dropOutOfFullScreen();
 	md->show();
 }
 
@@ -1372,17 +1372,17 @@ void VP1MainWindow::request_cruisemodechange()
 {
 	if (pushButton_cruise->isChecked()) {
 		if (radioButton_cruise_event->isChecked()) {
-			scheduler->setCruiseMode(VP1ExecutionScheduler::EVENT);
+			m_scheduler->setCruiseMode(VP1ExecutionScheduler::EVENT);
 			groupBox_cruise->setTitle("Cruise Mode [event]");
 		} else if (radioButton_cruise_tab->isChecked()) {
-			scheduler->setCruiseMode(VP1ExecutionScheduler::TAB);
+			m_scheduler->setCruiseMode(VP1ExecutionScheduler::TAB);
 			groupBox_cruise->setTitle("Cruise Mode [tab]");
 		} else if (radioButton_cruise_both->isChecked()) {
-			scheduler->setCruiseMode(VP1ExecutionScheduler::BOTH);
+			m_scheduler->setCruiseMode(VP1ExecutionScheduler::BOTH);
 			groupBox_cruise->setTitle("Cruise Mode [event && tab]");
 		} else { assert(0); }
 	} else {
-		scheduler->setCruiseMode(VP1ExecutionScheduler::NONE);
+		m_scheduler->setCruiseMode(VP1ExecutionScheduler::NONE);
 		groupBox_cruise->setTitle("Cruise Mode [off]");
 	}
 }
@@ -1390,21 +1390,21 @@ void VP1MainWindow::request_cruisemodechange()
 //_________________________________________________________________________________
 void VP1MainWindow::showMenu_loadPlugin()
 {
-	menu_loadPlugin->clear();
+	m_menu_loadPlugin->clear();
 
 	QMap<QString,QString> plugins2fullpath = availablePluginFiles();
 
 	if (plugins2fullpath.empty()) {
-		menu_loadPlugin->addAction("No plugins found")->setEnabled(false);
+		m_menu_loadPlugin->addAction("No plugins found")->setEnabled(false);
 		return;
 	}
 
 	QStringList pluglist(plugins2fullpath.keys());
 	pluglist.sort();
 
-	QStringList currentpluginfiles = channelmanager->currentPluginFiles();
+	QStringList currentpluginfiles = m_channelmanager->currentPluginFiles();
 	foreach(QString plug,pluglist) {
-		QAction * act = menu_loadPlugin->addAction(plug);
+		QAction * act = m_menu_loadPlugin->addAction(plug);
 		assert(plugins2fullpath.contains(plug));
 		QString fullpath = plugins2fullpath[plug];
 		if (currentpluginfiles.contains(fullpath)) {
@@ -1416,8 +1416,8 @@ void VP1MainWindow::showMenu_loadPlugin()
 		}
 	}
 
-	menu_loadPlugin->addSeparator();
-	QAction * act_browse = menu_loadPlugin->addAction("&Browse...");
+	m_menu_loadPlugin->addSeparator();
+	QAction * act_browse = m_menu_loadPlugin->addAction("&Browse...");
 	act_browse->setStatusTip("Browse filesystem for VP1 plugin files");
 	connect(act_browse,SIGNAL(triggered(bool)),this,SLOT(request_loadPlugin()));
 
@@ -1437,12 +1437,12 @@ void VP1MainWindow::showMenu_loadPluginItemSelected()
 //_________________________________________________________________________________
 void VP1MainWindow::showMenu_loadConfFile()
 {
-	menu_loadConfFile->clear();
+	m_menu_loadConfFile->clear();
 
 	QMap<QString,QString> conffile2fullpath =  availableFiles( ".vp1", "DATAPATH", "", "VP1CONFIGFILEPATH", true );
 
 	if (conffile2fullpath.empty()) {
-		menu_loadConfFile->addAction("No .vp1 config files found")->setEnabled(false);
+		m_menu_loadConfFile->addAction("No .vp1 config files found")->setEnabled(false);
 		return;
 	}
 
@@ -1450,7 +1450,7 @@ void VP1MainWindow::showMenu_loadConfFile()
 	filelist.sort();
 
 	foreach(QString file,filelist) {
-		QAction * act = menu_loadConfFile->addAction(file);
+		QAction * act = m_menu_loadConfFile->addAction(file);
 		assert(conffile2fullpath.contains(file));
 		QString fullpath = conffile2fullpath[file];
 		act->setData(fullpath);
@@ -1458,8 +1458,8 @@ void VP1MainWindow::showMenu_loadConfFile()
 		connect(act,SIGNAL(triggered(bool)),this,SLOT(showMenu_loadConfFileItemSelected()));
 	}
 
-	menu_loadConfFile->addSeparator();
-	QAction * act_browse = menu_loadConfFile->addAction("&Browse...");
+	m_menu_loadConfFile->addSeparator();
+	QAction * act_browse = m_menu_loadConfFile->addAction("&Browse...");
 	act_browse->setStatusTip("Browse filesystem for .vp1 config file");
 	connect(act_browse,SIGNAL(triggered(bool)),this,SLOT(request_loadConfig()));
 
@@ -1487,7 +1487,7 @@ void VP1MainWindow::changeStyleActionTriggered()
 	if (!QStyleFactory::keys().contains(act->text()))
 		return;
 	QApplication::setStyle(QStyleFactory::create(act->text()));
-	QSettings s(settingsfile,QSettings::IniFormat);
+	QSettings s(m_settingsfile,QSettings::IniFormat);
 	s.setValue("style/defaultstyle",act->text());
 
 }
@@ -1511,7 +1511,7 @@ void VP1MainWindow::changeFontSizeActionTriggered()
 void VP1MainWindow::changeFontSize(int goal)
 {
 	QFont newfont = m_defaultfont;
-	QSettings s(settingsfile,QSettings::IniFormat);
+	QSettings s(m_settingsfile,QSettings::IniFormat);
 	if (m_defaultfont_pointsize<0.0) {
 		//pixels
 		assert(m_defaultfont_pixelsize+goal>0);
@@ -1602,9 +1602,9 @@ void VP1MainWindow::quickSetupTriggered()
 
 
 	//Load plugin
-	if (!channelmanager->currentPluginFiles().contains(plugfile_fullpath)) {
-		QString err = channelmanager->loadPluginFile(plugfile_fullpath);
-		if (!err.isEmpty()||!channelmanager->currentPluginFiles().contains(plugfile_fullpath)) {
+	if (!m_channelmanager->currentPluginFiles().contains(plugfile_fullpath)) {
+		QString err = m_channelmanager->loadPluginFile(plugfile_fullpath);
+		if (!err.isEmpty()||!m_channelmanager->currentPluginFiles().contains(plugfile_fullpath)) {
 			QMessageBox::critical(0, "Error - could not load plugin file: "+plugfile_fullpath,//Fixme: Error message here is hardcoded to be the same as in loadPluginFile method!!
 					"Could not load plugin file: "
 					+plugfile_fullpath+"\n\nReason: "+err,QMessageBox::Ok,QMessageBox::Ok);
@@ -1614,7 +1614,7 @@ void VP1MainWindow::quickSetupTriggered()
 
 
 	//Check that plugin contains necessary channel:
-	if (!channelmanager->channelsInPluginFile(plugfile_fullpath).contains(channelname)) {
+	if (!m_channelmanager->channelsInPluginFile(plugfile_fullpath).contains(channelname)) {
 		QMessageBox::critical(0, "Error - did not find necessary channel: "+channelname,
 				"Could not find channel: "+channelname+" in loaded plugin "+plugfile_fullpath,
 				QMessageBox::Ok,QMessageBox::Ok);
@@ -1626,9 +1626,9 @@ void VP1MainWindow::quickSetupTriggered()
 
 
 	//Add tab:
-	QString newtabname = tabmanager->suggestNewTabName(tabname);
-	tabmanager->addNewTab(newtabname);
-	if (!tabmanager->hasTab(newtabname)) {
+	QString newtabname = m_tabmanager->suggestNewTabName(tabname);
+	m_tabmanager->addNewTab(newtabname);
+	if (!m_tabmanager->hasTab(newtabname)) {
 		QMessageBox::critical(0, "Error - could not create tab: "+newtabname,
 				"Could not create tab: "+newtabname,
 				QMessageBox::Ok,QMessageBox::Ok);
@@ -1639,7 +1639,7 @@ void VP1MainWindow::quickSetupTriggered()
 
 	//Finally, add channel:
 
-	if (!tabmanager->addChannelToTab( channelname, newtabname )) {
+	if (!m_tabmanager->addChannelToTab( channelname, newtabname )) {
 		QMessageBox::critical(0, "Error - problems launching channel: "+channelname,
 				"Problems launching channel: "+channelname,
 				QMessageBox::Ok,QMessageBox::Ok);
@@ -1648,7 +1648,7 @@ void VP1MainWindow::quickSetupTriggered()
 	}
 
 
-	tabmanager->showTab(newtabname);
+	m_tabmanager->showTab(newtabname);
 
 
 	setUpdatesEnabled(save);
@@ -1671,8 +1671,8 @@ void VP1MainWindow::updateInputDirectoriesStatus()
 	QFont fb;
 	fb.setBold(true);
 
-	foreach (QAction * act,inputdiractions) {
-		VP1DirStatusData& dirstatus = inputdirstatuses[act];
+	foreach (QAction * act,m_inputdiractions) {
+		VP1DirStatusData& dirstatus = m_inputdirstatuses[act];
 		QString inputdir(act->data().toString());
 		QString dirname = QDir(inputdir).dirName();
 		act->setEnabled(dirstatus.enabled);
@@ -1689,7 +1689,7 @@ void VP1MainWindow::inputDirectoryActionTriggered()
 	QAction * act = dynamic_cast<QAction*>(sender());
 	if (!act)
 		return;
-	VP1AvailEvtsLocalDir* availLocal = dynamic_cast<VP1AvailEvtsLocalDir*>(availEvents);
+	VP1AvailEvtsLocalDir* availLocal = dynamic_cast<VP1AvailEvtsLocalDir*>(m_availEvents);
 	if (!availLocal)
 		return;
 	QString inputdir(act->data().toString());
@@ -1699,7 +1699,7 @@ void VP1MainWindow::inputDirectoryActionTriggered()
 		std::cout<<VP1Msg::prefix_msg()<<": "
 				<<"VP1Message: inputdirectory changed to "
 				<<availLocal->currentSourceDir().toStdString()<<std::endl;
-		currentStream = QDir(availLocal->currentSourceDir()).dirName();
+		m_currentStream = QDir(availLocal->currentSourceDir()).dirName();
 	}
 
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SiPropertiesSvc/SiPropertiesCHSvc.h"
+#include "SiPropertiesCHSvc.h"
 
 #include "Identifier/IdentifierHash.h"
 

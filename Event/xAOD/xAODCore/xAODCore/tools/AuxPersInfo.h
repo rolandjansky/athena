@@ -37,8 +37,8 @@ namespace xAOD {
       /// Constructor
       AuxPersInfo( info_type info ) : m_info( info ) {}
 
-      virtual SG::IAuxTypeVector* clone() const {
-        return new AuxPersInfo<T>(*this);
+      virtual std::unique_ptr<SG::IAuxTypeVector> clone() const {
+        return std::make_unique<AuxPersInfo<T> >(*this);
       }
 
       virtual void* toPtr() {

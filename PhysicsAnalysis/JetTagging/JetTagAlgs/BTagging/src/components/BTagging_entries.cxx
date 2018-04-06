@@ -7,6 +7,7 @@
 #include "BTagging/BTagJetPtScaling.h"
 //#include "BTagging/BTagRemoving.h"
 #include "BTagging/JetBTaggerTool.h"
+#include "BTagging/JetBTaggerAlg.h"
 #include "BTagging/StandAloneJetBTaggerAlg.h"
 
 using namespace Analysis ;
@@ -21,6 +22,7 @@ DECLARE_COMPONENT( BTagJetPtScaling )
 //DECLARE_COMPONENT( BTagRemoving )
 DECLARE_COMPONENT( BTagTool )
 DECLARE_COMPONENT( JetBTaggerTool )
+DECLARE_COMPONENT( JetBTaggerAlg )
 
 /** factory entries need to have the name of the package */
 

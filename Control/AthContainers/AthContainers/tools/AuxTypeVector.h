@@ -120,7 +120,7 @@ public:
   /**
    * @brief Make a copy of this vector.
    */
-  virtual IAuxTypeVector* clone() const override;
+  virtual std::unique_ptr<IAuxTypeVector> clone() const override;
 
 
   /**
@@ -234,7 +234,7 @@ public:
    *
    * Returns null on failure.
    */
-  virtual IAuxTypeVector* toPacked() override;
+  virtual std::unique_ptr<IAuxTypeVector> toPacked() override;
 
 
   /**
@@ -248,6 +248,19 @@ public:
    */
   static void copy (void* dst,        size_t dst_index,
                     const void* src,  size_t src_index);
+
+
+  /**
+   * @brief Copy an element between vectors (static method), possibly with thinning.
+   * @param dst Pointer to the start of the destination vector's data.
+   * @param dst_index Index of destination element in the vector.
+   * @param src Pointer to the start of the source vector's data.
+   * @param src_index Index of source element in the vector.
+   *
+   * @c dst and @ src can be either the same or different.
+   */
+  static void copyForOutput (void* dst,        size_t dst_index,
+                             const void* src,  size_t src_index);
 
 
   /**
@@ -362,7 +375,7 @@ public:
   /**
    * @brief Make a copy of this vector.
    */
-  virtual IAuxTypeVector* clone() const override;
+  virtual std::unique_ptr<IAuxTypeVector> clone() const override;
 
   
 private:

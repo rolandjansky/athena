@@ -150,7 +150,6 @@ private: // data
    mutable PoolCollectionConverter* m_poolCollectionConverter;
    mutable pool::ICollectionCursor* m_headerIterator;
    mutable Guid m_guid;
-   mutable long long int m_satelliteOid1;
 
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
    ServiceHandle<IIncidentSvc> m_incidentSvc;

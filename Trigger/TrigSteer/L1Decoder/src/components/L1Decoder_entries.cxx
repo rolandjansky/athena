@@ -7,6 +7,7 @@
 #include "../CTPUnpackingTool.h"
 #include "../CTPUnpackingEmulationTool.h"
 #include "../EMRoIsUnpackingTool.h"
+#include "../METRoIsUnpackingTool.h"
 #include "../JRoIsUnpackingTool.h"
 #include "../TAURoIsUnpackingTool.h"
 #include "../RoIsUnpackingToolBase.h"
@@ -24,6 +25,7 @@ DECLARE_COMPONENT( CTPUnpackingToolBase )
 DECLARE_COMPONENT( CTPUnpackingTool )
 DECLARE_COMPONENT( CTPUnpackingEmulationTool )
 DECLARE_COMPONENT( EMRoIsUnpackingTool )
+DECLARE_COMPONENT( METRoIsUnpackingTool )
 DECLARE_COMPONENT( RoIsUnpackingToolBase )
 DECLARE_COMPONENT( RoIsUnpackingEmulationTool )
 DECLARE_COMPONENT( MURoIsUnpackingTool )

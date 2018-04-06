@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ protected:
   void resizeEvent ( QResizeEvent * event );
 protected:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

@@ -57,14 +57,14 @@ public:
 
 //____________________________________________________________________
 IParticleHandleBase::IParticleHandleBase(IParticleCollHandleBase*ch)
-  : AODHandleBase(ch), d(new Imp(this))
+  : AODHandleBase(ch), m_d(new Imp(this))
 {
 }
 
 //____________________________________________________________________
 IParticleHandleBase::~IParticleHandleBase()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________

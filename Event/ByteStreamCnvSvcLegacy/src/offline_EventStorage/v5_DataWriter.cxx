@@ -465,7 +465,12 @@ DWError DataWriter::closeFile()
   // rename the file
   ERS_DEBUG(3,"Rename file " << nameFile(UNFINISHED) << endl
 	    << "to " << nameFile(FINISHED));
-  ::rename(nameFile(UNFINISHED).c_str(), nameFile(FINISHED).c_str());
+  if (::rename(nameFile(UNFINISHED).c_str(), nameFile(FINISHED).c_str()) == -1) {
+    
+    EventStorage::WritingIssue ci(ERS_HERE, "Rename failed.");
+    ers::error(ci);
+    return EventStorage::DWNOOK;
+  }
 
   // check if the file is there
   if(fileExists(nameFile(FINISHED)) && m_cFileOpen) 
@@ -774,7 +779,11 @@ void DataWriter::setGuid(const std::string& Guid){
 uint64_t DataWriter::getFileSize(const std::string& fileNameCore)  const
 {
   struct stat64 tmp;
-  ::stat64(fileNameCore.c_str(), &tmp);
+  if (::stat64(fileNameCore.c_str(), &tmp) == -1) {
+    EventStorage::WritingIssue ci(ERS_HERE, "stat64 failed.");
+    ers::error(ci);
+    return 0;
+  }
   
   return tmp.st_size;
 }

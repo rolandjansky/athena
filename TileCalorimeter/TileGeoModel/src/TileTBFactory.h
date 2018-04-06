@@ -28,7 +28,7 @@ public:
   
   /** Constructor */
   TileTBFactory(StoreGateSvc *pDetStore, TileDetDescrManager *manager,
-                bool addPlates, int Ushape, MsgStream *log);
+                bool addPlates, int uShape, int glue, MsgStream *log);
   
   /** Destructor */
   ~TileTBFactory();
@@ -54,7 +54,12 @@ private:
   bool                       m_addPlatesToCellVolume;
 
   /** U-shape version used */
-  int                        m_Ushape;
+  int                        m_uShape;
+
+  /** 0: glue layer is removed and replaced by iron,
+      1: simulation with glue,
+      2: glue is replaced by iron + width of iron is modified in order to get the same sampling fraction      */
+  int                        m_glue;
 
   /** Flag for using test beam geometry */
   bool                       m_testbeamGeometry;

@@ -272,11 +272,11 @@ StatusCode RawInfoSummaryForTagWriter::execute()
     float totCellEneEMB(0.),totCellEneEMEC(0.),totCellEneHEC(0.),totCellEneFCAL(0.),totCellEneTile(0.);
     //
     const CaloCellContainer* cell_container;
-    std::string m_cellsContName = "AllCalo";
+    std::string cellsContName = "AllCalo";
 
     //Retrieve Cell collection from SG
-    if ( m_storeGate->contains<CaloCellContainer>(m_cellsContName)){
-      sc = m_storeGate->retrieve(cell_container, m_cellsContName);
+    if ( m_storeGate->contains<CaloCellContainer>(cellsContName)){
+      sc = m_storeGate->retrieve(cell_container, cellsContName);
     
       CaloCellContainer::const_iterator iCell = cell_container->begin();
       CaloCellContainer::const_iterator lastCell  = cell_container->end();
@@ -311,10 +311,10 @@ StatusCode RawInfoSummaryForTagWriter::execute()
     // clusters crashes if Tile=False so protect with a JO switch
     if(m_doClusterSums){
       const xAOD::CaloClusterContainer* cluster_container;
-      std::string m_clustersContName="CaloTopoCluster";
+      std::string clustersContName="CaloTopoCluster";
       //Retrieve Cluster collection from SG
-      if ( m_storeGate->contains<xAOD::CaloClusterContainer>(m_clustersContName)){
-        sc = m_storeGate->retrieve(cluster_container, m_clustersContName);
+      if ( m_storeGate->contains<xAOD::CaloClusterContainer>(clustersContName)){
+        sc = m_storeGate->retrieve(cluster_container, clustersContName);
         xAOD::CaloClusterContainer::const_iterator iCluster = cluster_container->begin();
         xAOD::CaloClusterContainer::const_iterator lastCluster  = cluster_container->end();
         for( ; iCluster != lastCluster; ++iCluster) {
@@ -420,17 +420,17 @@ StatusCode RawInfoSummaryForTagWriter::execute()
 
    unsigned int bcmHit=0;
 
-   const BCM_RDO_Container *m_bcmRDO=0;
-   if (StatusCode::SUCCESS!=m_storeGate->retrieve(m_bcmRDO,"BCM_RDOs")) {
+   const BCM_RDO_Container *bcmRDO=0;
+   if (StatusCode::SUCCESS!=m_storeGate->retrieve(bcmRDO,"BCM_RDOs")) {
      ATH_MSG_WARNING ("Cannot find BCM RDO! ");
    }   else {
-     int num_collect = m_bcmRDO->size();
+     int num_collect = bcmRDO->size();
      if ( num_collect != 16 ){
        ATH_MSG_WARNING (" Number of collections: " << num_collect);
      }
    
-     BCM_RDO_Container::const_iterator chan_itr = m_bcmRDO->begin();
-     BCM_RDO_Container::const_iterator chan_itr_end = m_bcmRDO->end();
+     BCM_RDO_Container::const_iterator chan_itr = bcmRDO->begin();
+     BCM_RDO_Container::const_iterator chan_itr_end = bcmRDO->end();
      
      
      for (; chan_itr != chan_itr_end; chan_itr++) {
@@ -462,14 +462,14 @@ StatusCode RawInfoSummaryForTagWriter::execute()
      else 
      {
        uint32_t ibit, bit_pos = 0;
-       float m_charge = 0;
+       float charge = 0;
        // Discriminate the signals
        TileCellContainer::const_iterator itr = tileCellCnt->begin();
        TileCellContainer::const_iterator itr_end = tileCellCnt->end();
        for(; itr != itr_end; ++itr) {
-	 m_charge = (*itr)->energy();
-	 ATH_MSG_DEBUG( "Energy =" << m_charge << "pC");
-	 if(m_charge > m_mbts_threshold) {
+	 charge = (*itr)->energy();
+	 ATH_MSG_DEBUG( "Energy =" << charge << "pC");
+	 if(charge > m_mbts_threshold) {
 	   Identifier id=(*itr)->ID();
 	   // cache type, module and channel
 	   // MBTS Id type is  "side"  +/- 1
@@ -510,9 +510,9 @@ StatusCode RawInfoSummaryForTagWriter::execute()
      sc = m_storeGate->retrieve(mbtsTime,"MBTSCollisionTime");
      float timeDiff=-999.;
      float timeSum=-999.;
-     int m_MBTS_SideCut(2);
+     int MBTS_SideCut(2);
      if (!sc.isFailure()) {
-       if (mbtsTime->ncellA()>m_MBTS_SideCut && mbtsTime->ncellC()>m_MBTS_SideCut){
+       if (mbtsTime->ncellA()>MBTS_SideCut && mbtsTime->ncellC()>MBTS_SideCut){
     	   timeDiff=mbtsTime->time();
        	   timeSum =mbtsTime->timeA() + mbtsTime->timeC();}
      }

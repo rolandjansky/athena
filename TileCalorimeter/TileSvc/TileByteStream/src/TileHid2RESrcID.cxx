@@ -16,7 +16,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "eformat/SourceIdentifier.h" 
@@ -263,7 +262,39 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
 
                 int fragtype = upperhalf & 0xFF;
 
-                if (fragtype >= 0x40 && fragtype < 0x50) break;
+                if (fragtype >= 0x40 && fragtype < 0x50) { // TMDB fragments
+
+                  int ros = subdet_id&0xF;
+                  if (ros>0 && ros<=4) {
+                    uint32_t vers = fragid;
+                    int nmod = (ros>2)?8:4; // we have 8 modules per fragment in ext.barrel, 4 modules in barrel
+                    fragid = (ros<<8) | (source_id&0xF)*nmod;
+
+                    FRAGRODMAP::const_iterator it = m_TileMuRcvFrag2ROD.find(fragid);
+                    if(it == m_TileMuRcvFrag2ROD.end()){
+                      log << MSG::INFO << "New TMDB frag 0x" << MSG::hex << fragid
+                          << " type 0x" << fragtype << " vers 0x"<< vers
+                          << " in ROB 0x" << ROBid << MSG::dec << endmsg;
+                    } else {
+                      if ( (*it).second != ROBid ) {
+                        log << MSG::INFO << "TMDB frag 0x" << MSG::hex << fragid
+                            << " type 0x" << fragtype << " vers 0x"<< vers
+                            << " remapping from ROB 0x" << (*it).second
+                            << " to 0x" << ROBid << MSG::dec << endmsg;
+                      } else {
+                        log << MSG::DEBUG << "TMDB frag 0x" << MSG::hex << fragid
+                            << " type 0x" << fragtype << " vers 0x"<< vers
+                            << " found in ROB 0x" << (*it).second
+                            << " as expected" << MSG::dec << endmsg;
+                      }
+                    }
+                    for (int nf=0; nf<nmod; ++nf) {
+                      m_TileMuRcvFrag2ROD[fragid] = ROBid;
+                      ++fragid;
+                    }
+                  }
+                  break;
+                }
 
                 FRAGRODMAP::const_iterator it = m_frag2ROD.find(fragid); 
                 if(it == m_frag2ROD.end()){
@@ -343,9 +374,8 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     // only frag5 in the data - make sure that TileROD_Decoder is configured properly
     StatusCode sc;
     ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    ThreadGaudi* threadGaudi = ThreadGaudi::instance();
     IToolSvc* toolSvc;
-    sc = svcLoc->service( "ToolSvc"+threadGaudi->getThreadID(),toolSvc);
+    sc = svcLoc->service( "ToolSvc",toolSvc);
     if(sc.isFailure()){
       log << MSG::WARNING << "TileHid2RESrcID: Can not retrieve ToolSvc" << endmsg;
       return;
@@ -400,9 +430,8 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
   if (nDataFrag[0] == 0 && (do_merge || nDataFrag[2]+nDataFrag[3]+nDataFrag[4] > 0) && nDataFrag[5] == 0 ) {
     StatusCode sc;
     ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    ThreadGaudi* threadGaudi = ThreadGaudi::instance();
     IToolSvc* toolSvc;
-    sc = svcLoc->service( "ToolSvc"+threadGaudi->getThreadID(),toolSvc);
+    sc = svcLoc->service( "ToolSvc",toolSvc);
     if(sc.isFailure()){
       log << MSG::WARNING << "TileHid2RESrcID: Can not retrieve ToolSvc" << endmsg;
       return;

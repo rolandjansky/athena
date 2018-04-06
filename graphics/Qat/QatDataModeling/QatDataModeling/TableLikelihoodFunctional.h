@@ -26,8 +26,8 @@
 // given some data                                             //
 //                                                             //
 //-------------------------------------------------------------//
-#ifndef _TableLikelihoodFunctional_h_
-#define _TableLikelihoodFunctional_h_
+#ifndef QATDATAMODELING_TABLELIKELIHOODFUNCTIONAL_H
+#define QATDATAMODELING_TABLELIKELIHOODFUNCTIONAL_H
 #include "CLHEP/GenericFunctions/AbsFunctional.hh"
 #include "CLHEP/GenericFunctions/ArgumentList.hh"
 class Table;
@@ -46,7 +46,8 @@ class TableLikelihoodFunctional:public Genfun::AbsFunctional {
   
  private:
   
-  const Table &_table;
+
+  const Table &m_table;
   
 };
 

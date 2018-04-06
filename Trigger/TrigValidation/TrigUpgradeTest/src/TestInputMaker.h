@@ -6,10 +6,9 @@
 
 
 #include <string>
+#include "DecisionHandling/InputMakerBase.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-//#include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/ConstDataVector.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -25,29 +24,27 @@ namespace HLTTest {
   using namespace TrigCompositeUtils;
   
   class TestInputMaker
-    : public ::AthAlgorithm
+    : public ::InputMakerBase
   { 
   public: 
     TestInputMaker( const std::string& name, ISvcLocator* pSvcLocator );
-
     virtual ~TestInputMaker(); 
-
-    //TestInputMaker &operator=(const TestInputMaker &alg); 
-
-    StatusCode  initialize() override;
-    StatusCode  execute() override;
-    StatusCode  finalize() override;
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  execute_r(const EventContext&) const override;
+    virtual StatusCode  finalize() override;
 
   private: 
     TestInputMaker();
-    //SG::WriteHandleKey<ConstDataVector<xAOD::TrigCompositeContainer> > m_recoOutput;
-    //    SG::WriteHandleKey<ConstDataVector<TrigRoiDescriptorCollection> > m_recoOutput;
-    //SG::WriteHandleKey<ConstDataVector<TestCluster> > m_recoOutput;
+ 
+    typedef TrigRoiDescriptor FeatureOBJ;
+    typedef TrigRoiDescriptorCollection FeatureContainer;
 
-    SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs;
-    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput;
-    StringProperty m_linkName; 
-    StringProperty m_outputType; 
+
+    SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput { this, "Output", "undefined", "name of the output collection for input to next reco alg in sequence" };
+    
+    StringProperty m_linkName   {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
+    StringProperty m_outputType {this, "OutputType","outputType", "reserved for future use"};
+
   }; 
 
 } //> end namespace HLTTest

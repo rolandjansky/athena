@@ -30,34 +30,34 @@ namespace Trigger {
     : AthAlgorithm(name, pSvcLocator), 
       m_tgcCoinSvc(0), 
       m_thistSvc(0), 
-      nEvent(0), 
-      nSL(0), m_hnSL(0), 
-      nSLWithTrackletWire(0),             m_hnSLWithTrackletWire(0), 
-      nSLWithTrackletStrip(0),            m_hnSLWithTrackletStrip(0), 
-      nSLWithPT2456(0),                   m_hnSLWithPT2456(0), 
-      nSLWithPT2456WithHiPtWire(0),       m_hnSLWithPT2456WithHiPtWire(0), 
-      nSLWithPT2456WithHiPtStrip(0),      m_hnSLWithPT2456WithHiPtStrip(0), 
-      nHiPtWire(0),                       m_hnHiPtWire(0), 
-      nHiPtWireWithTrackletWire(0),       m_hnHiPtWireWithTrackletWire(0), 
-      nHiPtWireWithTGC1WireHit(0),        m_hnHiPtWireWithTGC1WireHit(0), 
-      nHiPtStrip(0),                      m_hnHiPtStrip(0), 
-      nHiPtStripWithTrackletStrip(0),     m_hnHiPtStripWithTrackletStrip(0), 
-      nHiPtStripWithTGC1StripHit(0),      m_hnHiPtStripWithTGC1StripHit(0), 
-      nTrackletWire(0),                   m_hnTrackletWire(0), 
-      nTrackletWireWithTGC23WireHit(0),   m_hnTrackletWireWithTGC23WireHit(0), 
-      nTrackletStrip(0),                  m_hnTrackletStrip(0), 
-      nTrackletStripWithTGC23StripHit(0), m_hnTrackletStripWithTGC23StripHit(0),
+      m_nEvent(0), 
+      m_nSL(0), m_hnSL(0), 
+      m_nSLWithTrackletWire(0),             m_hnSLWithTrackletWire(0), 
+      m_nSLWithTrackletStrip(0),            m_hnSLWithTrackletStrip(0), 
+      m_nSLWithPT2456(0),                   m_hnSLWithPT2456(0), 
+      m_nSLWithPT2456WithHiPtWire(0),       m_hnSLWithPT2456WithHiPtWire(0), 
+      m_nSLWithPT2456WithHiPtStrip(0),      m_hnSLWithPT2456WithHiPtStrip(0), 
+      m_nHiPtWire(0),                       m_hnHiPtWire(0), 
+      m_nHiPtWireWithTrackletWire(0),       m_hnHiPtWireWithTrackletWire(0), 
+      m_nHiPtWireWithTGC1WireHit(0),        m_hnHiPtWireWithTGC1WireHit(0), 
+      m_nHiPtStrip(0),                      m_hnHiPtStrip(0), 
+      m_nHiPtStripWithTrackletStrip(0),     m_hnHiPtStripWithTrackletStrip(0), 
+      m_nHiPtStripWithTGC1StripHit(0),      m_hnHiPtStripWithTGC1StripHit(0), 
+      m_nTrackletWire(0),                   m_hnTrackletWire(0), 
+      m_nTrackletWireWithTGC23WireHit(0),   m_hnTrackletWireWithTGC23WireHit(0), 
+      m_nTrackletStrip(0),                  m_hnTrackletStrip(0), 
+      m_nTrackletStripWithTGC23StripHit(0), m_hnTrackletStripWithTGC23StripHit(0),
       m_hMuonPt(0)
   {
     // Flags for examples
     // true means running the example 
-    declareProperty("showFraction", showFraction=true);
-    declareProperty("runEvent", runEvent=true);
-    declareProperty("runEventHistos", runEventHistos=true);
-    declareProperty("runTgcPrepData", runTgcPrepData=false);
-    declareProperty("runTgcCoinData", runTgcCoinData=false);
-    declareProperty("runMuon", runMuon=false);
-    declareProperty("runTrack", runTrack=false);
+    declareProperty("showFraction", m_showFraction=true);
+    declareProperty("runEvent", m_runEvent=true);
+    declareProperty("runEventHistos", m_runEventHistos=true);
+    declareProperty("runTgcPrepData", m_runTgcPrepData=false);
+    declareProperty("runTgcCoinData", m_runTgcCoinData=false);
+    declareProperty("runMuon", m_runMuon=false);
+    declareProperty("runTrack", m_runTrack=false);
 
     for(unsigned int iType=0; iType<TgcCoinHierarchy::NTYPES; iType++) {
       m_h_nTGC23Hit[iType] = 0;
@@ -75,7 +75,7 @@ namespace Trigger {
       return sc;
     }
 
-    if(runEventHistos || showFraction || runMuon) {
+    if(m_runEventHistos || m_showFraction || m_runMuon) {
       // Retrieve THistSvc
       sc = service("THistSvc", m_thistSvc);
       if(!sc.isSuccess() || !m_thistSvc) {
@@ -84,24 +84,24 @@ namespace Trigger {
       }
     }
       
-    if(showFraction) {
-      nEvent = 0;
-      nSL = 0;
-      nSLWithTrackletWire = 0;
-      nSLWithTrackletStrip = 0;
-      nSLWithPT2456 = 0;
-      nSLWithPT2456WithHiPtWire = 0;
-      nSLWithPT2456WithHiPtStrip = 0;
-      nHiPtWire = 0;
-      nHiPtWireWithTrackletWire = 0;
-      nHiPtWireWithTGC1WireHit = 0;
-      nHiPtStrip = 0;
-      nHiPtStripWithTrackletStrip = 0;
-      nTrackletWire = 0;
-      nTrackletWireWithTGC23WireHit = 0;
-      nHiPtStripWithTGC1StripHit = 0;
-      nTrackletStrip = 0;
-      nTrackletStripWithTGC23StripHit = 0;
+    if(m_showFraction) {
+      m_nEvent = 0;
+      m_nSL = 0;
+      m_nSLWithTrackletWire = 0;
+      m_nSLWithTrackletStrip = 0;
+      m_nSLWithPT2456 = 0;
+      m_nSLWithPT2456WithHiPtWire = 0;
+      m_nSLWithPT2456WithHiPtStrip = 0;
+      m_nHiPtWire = 0;
+      m_nHiPtWireWithTrackletWire = 0;
+      m_nHiPtWireWithTGC1WireHit = 0;
+      m_nHiPtStrip = 0;
+      m_nHiPtStripWithTrackletStrip = 0;
+      m_nTrackletWire = 0;
+      m_nTrackletWireWithTGC23WireHit = 0;
+      m_nHiPtStripWithTGC1StripHit = 0;
+      m_nTrackletStrip = 0;
+      m_nTrackletStripWithTGC23StripHit = 0;
 
       m_hnSL = new TH1F("hnSL", "hnSL", NTRIGGERSECTORS, 0.5, NTRIGGERSECTORS+0.5);
       if(m_thistSvc->regHist("/TgcCoinHierarchyTestAlg/hnSL", 
@@ -215,7 +215,7 @@ namespace Trigger {
       }
     }
 
-    if(runEventHistos) {
+    if(m_runEventHistos) {
       m_h_nTGC23Hit[TgcCoinHierarchy::WIRE] = new TH2I("h_nTGC23Hit_Wire", "h_nTGC23Hit_Wire", 8, -0.5, 7.5, 8, -0.5, 7.5);
       if(!m_h_nTGC23Hit[TgcCoinHierarchy::WIRE]) {
 	ATH_MSG_FATAL("h_nTGC23Hit_Wire could not be created.");
@@ -261,7 +261,7 @@ namespace Trigger {
       }
     }
 
-    if(runMuon) {
+    if(m_runMuon) {
       m_hMuonPt = new TH2I("hMuonPt", "hMuonPt", 200, 0., 100., 8, -1.5, 6.5);
       sc = m_thistSvc->regHist("/TgcCoinHierarchyTestAlg/hMuonPt", m_hMuonPt);
       if(sc.isFailure()) {
@@ -277,7 +277,7 @@ namespace Trigger {
     ATH_MSG_DEBUG("execute()");
 
     // Get all the TgcCoinHierarchy's in this event
-    if(runEvent) {
+    if(m_runEvent) {
       std::vector<const TgcCoinHierarchy*> hierarchies;
       // Get all the TgcCoinHierarchy's in this event
       StatusCode sc = m_tgcCoinSvc->getHierarchy(&hierarchies);
@@ -297,7 +297,7 @@ namespace Trigger {
     }
 
     // Count the numbers of events, SLs, HiPts and Tracklets. 
-    if(showFraction) {
+    if(m_showFraction) {
       std::vector<const TgcCoinHierarchy*> hierarchies;
       // Get all the TgcCoinHierarchy's in this event
       StatusCode sc = m_tgcCoinSvc->getHierarchy(&hierarchies);
@@ -305,7 +305,7 @@ namespace Trigger {
 	ATH_MSG_FATAL("getHierarchy failed in execute().");
 	return StatusCode::FAILURE;
       }
-      nEvent++;
+      m_nEvent++;
       for(unsigned int jh=0; jh<hierarchies.size(); jh++) {
 	const TgcCoinData* highestCoin = hierarchies.at(jh)->getCoincidence(hierarchies.at(jh)->highestCoincidence());
         int isAside = highestCoin->isAside();
@@ -316,51 +316,51 @@ namespace Trigger {
         if(!isAside) myTriggerSectorId += (NENDCAPTRIGGERSECTORS+NFORWARDTRIGGERSECTORS);
 
 	if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_SL)) { // SL 
-	  nSL++;
+	  m_nSL++;
 	  m_hnSL->Fill(myTriggerSectorId);
 	  if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_TRACKLET, false)) { // Tracklet Wire
-	    nSLWithTrackletWire++; 
+	    m_nSLWithTrackletWire++; 
 	    m_hnSLWithTrackletWire->Fill(myTriggerSectorId);
 	  }
 
 	  if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_TRACKLET, true)) { // Tracklet Strip 
-	    nSLWithTrackletStrip++;
+	    m_nSLWithTrackletStrip++;
 	    m_hnSLWithTrackletStrip->Fill(myTriggerSectorId);
 	  }
 
 	  int pt = hierarchies.at(jh)->getCoincidence(TgcCoinData::TYPE_SL)->pt();
 	  if(pt==2 || pt==4 || pt==5 || pt==6) { // SL with PT=2, 4, 5 or 6 
-	    nSLWithPT2456++;
+	    m_nSLWithPT2456++;
 	    m_hnSLWithPT2456->Fill(myTriggerSectorId);
 	    if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_HIPT, false)) { // HiPt Wire
-	      nSLWithPT2456WithHiPtWire++;
+	      m_nSLWithPT2456WithHiPtWire++;
 	      m_hnSLWithPT2456WithHiPtWire->Fill(myTriggerSectorId);
 	    }
 	    if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_HIPT, true)) { // HiPt Strip
-	      nSLWithPT2456WithHiPtStrip++;
+	      m_nSLWithPT2456WithHiPtStrip++;
 	      m_hnSLWithPT2456WithHiPtStrip->Fill(myTriggerSectorId);
 	    }
 	  }
 	}
 
 	if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_HIPT, false)) { // HiPt Wire
-	  nHiPtWire++;
+	  m_nHiPtWire++;
 	  m_hnHiPtWire->Fill(myTriggerSectorId);
 	  if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_TRACKLET, false)) { // Tracklet Wire
-            nHiPtWireWithTrackletWire++;
+            m_nHiPtWireWithTrackletWire++;
 	    m_hnHiPtWireWithTrackletWire->Fill(myTriggerSectorId);
 	  }
 	  if(hierarchies.at(jh)->numHits(false, TgcCoinHierarchy::TGC1)>=2) { // TGC1 Hit Wire 
-	    nHiPtWireWithTGC1WireHit++; 
+	    m_nHiPtWireWithTGC1WireHit++; 
 	    m_hnHiPtWireWithTGC1WireHit->Fill(myTriggerSectorId);
 	  } 
 	}
 
 	if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_HIPT, true)) { // HiPt Strip
-	  nHiPtStrip++;
+	  m_nHiPtStrip++;
 	  m_hnHiPtStrip->Fill(myTriggerSectorId);
 	  if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_TRACKLET, true)) { // Tracklet Strip
-            nHiPtStripWithTrackletStrip++;
+            m_nHiPtStripWithTrackletStrip++;
 	    m_hnHiPtStripWithTrackletStrip->Fill(myTriggerSectorId);
 	  } 
 
@@ -393,29 +393,29 @@ namespace Trigger {
 	    }
 	  }
 	  if(foundTGC1HitStrip) {
-	    nHiPtStripWithTGC1StripHit++; 
+	    m_nHiPtStripWithTGC1StripHit++; 
 	    m_hnHiPtStripWithTGC1StripHit->Fill(myTriggerSectorId);
 	  }
 	}
 
 	if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_TRACKLET, false)) { // Tracklet Wire
-	  nTrackletWire++;
+	  m_nTrackletWire++;
 	  m_hnTrackletWire->Fill(myTriggerSectorId);
 	  unsigned int nWireTGC2Hit = hierarchies.at(jh)->numHits(false, TgcCoinHierarchy::TGC2); 
 	  unsigned int nWireTGC3Hit = hierarchies.at(jh)->numHits(false, TgcCoinHierarchy::TGC3);
 	  if(nWireTGC2Hit>=1 && nWireTGC3Hit>=1 && nWireTGC2Hit+nWireTGC3Hit>=3) {
-	    nTrackletWireWithTGC23WireHit++;
+	    m_nTrackletWireWithTGC23WireHit++;
 	    m_hnTrackletWireWithTGC23WireHit->Fill(myTriggerSectorId);
 	  }
 	}
 
 	if(hierarchies.at(jh)->hasCoincidence(TgcCoinData::TYPE_TRACKLET, true)) { // Tracklet Strip
-	  nTrackletStrip++;
+	  m_nTrackletStrip++;
 	  m_hnTrackletStrip->Fill(myTriggerSectorId);
 	  unsigned int nStripTGC2Hit = hierarchies.at(jh)->numHits(true, TgcCoinHierarchy::TGC2); 
 	  unsigned int nStripTGC3Hit = hierarchies.at(jh)->numHits(true, TgcCoinHierarchy::TGC3);
 	  if(nStripTGC2Hit>=1 && nStripTGC3Hit>=1 && nStripTGC2Hit+nStripTGC3Hit>=3) {
-	    nTrackletStripWithTGC23StripHit++;
+	    m_nTrackletStripWithTGC23StripHit++;
 	    m_hnTrackletStripWithTGC23StripHit->Fill(myTriggerSectorId);
 	  }
 	}
@@ -424,7 +424,7 @@ namespace Trigger {
     }
 
     // Get all the TgcCoinHierarchy's in this event and check the number of TGC2 and TGC3 hits
-    if(runEventHistos) {
+    if(m_runEventHistos) {
       std::vector<const TgcCoinHierarchy*> hierarchies;
       // Get all the TgcCoinHierarchy's in this event
       StatusCode sc = m_tgcCoinSvc->getHierarchy(&hierarchies);
@@ -455,7 +455,7 @@ namespace Trigger {
     }
 
     // Loop over TGC_Measurements container (TGC current hits)
-    if(runTgcPrepData) {
+    if(m_runTgcPrepData) {
       const TgcPrepDataContainer* hitColl = 0;
       StatusCode sc = evtStore()->retrieve(hitColl, "TGC_Measurements");
       if(sc.isFailure() || !hitColl) {
@@ -493,7 +493,7 @@ namespace Trigger {
     }
 
     // Loop over TrigT1CoinDataCollection container (TGC current coincidences)
-    if(runTgcCoinData) {
+    if(m_runTgcCoinData) {
       const TgcCoinDataContainer* coinColl = 0;
       StatusCode sc = evtStore()->retrieve(coinColl, "TrigT1CoinDataCollection");
       if(sc.isFailure() || !coinColl) {
@@ -533,7 +533,7 @@ namespace Trigger {
 
     // Loop over StacoMuonCollection container (combined muon tracks) 
     // Muon -> trackParticle -> track 
-    if(runMuon) {
+    if(m_runMuon) {
       const Analysis::MuonContainer* muonTES = 0;
       StatusCode sc = evtStore()->retrieve(muonTES, "MuidMuonCollection");
       if(sc.isFailure() || !muonTES) {
@@ -576,7 +576,7 @@ namespace Trigger {
     }
 
     // Loop over MooreTracks container
-    if(runTrack) {
+    if(m_runTrack) {
       const TrackCollection *trackCollection = 0;
       StatusCode sc = evtStore()->retrieve(trackCollection, "MooreTracks");
       if(sc.isFailure()) {
@@ -608,60 +608,60 @@ namespace Trigger {
   StatusCode TgcCoinHierarchyTestAlg::finalize() {   
     ATH_MSG_INFO("finalize()");
 
-    if(showFraction) {
+    if(m_showFraction) {
       ATH_MSG_INFO("************************************************************************");
-      ATH_MSG_INFO(nEvent << " events have been processed.");
-      if(nSL>0) {
-	ATH_MSG_INFO("SL->Tracklet Wire                     : " << std::setw(7) << nSLWithTrackletWire << 
-		     " / " << std::setw(7) << nSL << " = " << 
+      ATH_MSG_INFO(m_nEvent << " events have been processed.");
+      if(m_nSL>0) {
+	ATH_MSG_INFO("SL->Tracklet Wire                     : " << std::setw(7) << m_nSLWithTrackletWire << 
+		     " / " << std::setw(7) << m_nSL << " = " << 
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) << 
-		     100.*static_cast<double>(nSLWithTrackletWire)/static_cast<double>(nSL) << "%");
-	ATH_MSG_INFO("SL->Tracklet Strip                    : " << std::setw(7) << nSLWithTrackletStrip << 
-		     " / " << std::setw(7) << nSL << " = " << 
+		     100.*static_cast<double>(m_nSLWithTrackletWire)/static_cast<double>(m_nSL) << "%");
+	ATH_MSG_INFO("SL->Tracklet Strip                    : " << std::setw(7) << m_nSLWithTrackletStrip << 
+		     " / " << std::setw(7) << m_nSL << " = " << 
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) << 
-		     100.*static_cast<double>(nSLWithTrackletStrip)/static_cast<double>(nSL) << "%");
+		     100.*static_cast<double>(m_nSLWithTrackletStrip)/static_cast<double>(m_nSL) << "%");
       }
-      if(nSLWithPT2456) {
-	ATH_MSG_INFO("SL (PT=2, 4, 5 or 6)->HiPt Wire       : " << std::setw(7) << nSLWithPT2456WithHiPtWire << 
-		     " / " << std::setw(7) << nSLWithPT2456 << " = " << 
+      if(m_nSLWithPT2456) {
+	ATH_MSG_INFO("SL (PT=2, 4, 5 or 6)->HiPt Wire       : " << std::setw(7) << m_nSLWithPT2456WithHiPtWire << 
+		     " / " << std::setw(7) << m_nSLWithPT2456 << " = " << 
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) << 
-		     100.*static_cast<double>(nSLWithPT2456WithHiPtWire)/static_cast<double>(nSLWithPT2456) << "%");
-	ATH_MSG_INFO("SL (PT=2, 4, 5 or 6)->HiPt Strip      : " << std::setw(7) << nSLWithPT2456WithHiPtStrip << 
-		     " / " << std::setw(7) << nSLWithPT2456 << " = " << 
+		     100.*static_cast<double>(m_nSLWithPT2456WithHiPtWire)/static_cast<double>(m_nSLWithPT2456) << "%");
+	ATH_MSG_INFO("SL (PT=2, 4, 5 or 6)->HiPt Strip      : " << std::setw(7) << m_nSLWithPT2456WithHiPtStrip << 
+		     " / " << std::setw(7) << m_nSLWithPT2456 << " = " << 
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) << 
-		     100.*static_cast<double>(nSLWithPT2456WithHiPtStrip)/static_cast<double>(nSLWithPT2456) << "%");
+		     100.*static_cast<double>(m_nSLWithPT2456WithHiPtStrip)/static_cast<double>(m_nSLWithPT2456) << "%");
       }
-      if(nHiPtWire) {
-	ATH_MSG_INFO("HiPt Wire->Tracklet Wire              : " << std::setw(7) << nHiPtWireWithTrackletWire << 
-		     " / " << std::setw(7) << nHiPtWire << " = " << 
+      if(m_nHiPtWire) {
+	ATH_MSG_INFO("HiPt Wire->Tracklet Wire              : " << std::setw(7) << m_nHiPtWireWithTrackletWire << 
+		     " / " << std::setw(7) << m_nHiPtWire << " = " << 
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) << 
-		     100.*static_cast<double>(nHiPtWireWithTrackletWire)/static_cast<double>(nHiPtWire) << "%");
-	ATH_MSG_INFO("HiPt Wire->TGC1 Wire Hits             : " << std::setw(7) << nHiPtWireWithTGC1WireHit <<  
-		     " / " << std::setw(7) << nHiPtWire << " = " <<  
+		     100.*static_cast<double>(m_nHiPtWireWithTrackletWire)/static_cast<double>(m_nHiPtWire) << "%");
+	ATH_MSG_INFO("HiPt Wire->TGC1 Wire Hits             : " << std::setw(7) << m_nHiPtWireWithTGC1WireHit <<  
+		     " / " << std::setw(7) << m_nHiPtWire << " = " <<  
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) <<  
-		     100.*static_cast<double>(nHiPtWireWithTGC1WireHit)/static_cast<double>(nHiPtWire) << "%"); 
+		     100.*static_cast<double>(m_nHiPtWireWithTGC1WireHit)/static_cast<double>(m_nHiPtWire) << "%"); 
       }
-      if(nHiPtStrip) {
-	ATH_MSG_INFO("HiPt Strip->Tracklet Strip            : " << std::setw(7) << nHiPtStripWithTrackletStrip << 
-		     " / " << std::setw(7) << nHiPtStrip << " = " << 
+      if(m_nHiPtStrip) {
+	ATH_MSG_INFO("HiPt Strip->Tracklet Strip            : " << std::setw(7) << m_nHiPtStripWithTrackletStrip << 
+		     " / " << std::setw(7) << m_nHiPtStrip << " = " << 
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) <<
-		     100.*static_cast<double>(nHiPtStripWithTrackletStrip)/static_cast<double>(nHiPtStrip) << "%");
-	ATH_MSG_INFO("HiPt Strip->TGC1 Strip Hit            : " << std::setw(7) << nHiPtStripWithTGC1StripHit <<  
-		     " / " << std::setw(7) << nHiPtStrip << " = " <<  
+		     100.*static_cast<double>(m_nHiPtStripWithTrackletStrip)/static_cast<double>(m_nHiPtStrip) << "%");
+	ATH_MSG_INFO("HiPt Strip->TGC1 Strip Hit            : " << std::setw(7) << m_nHiPtStripWithTGC1StripHit <<  
+		     " / " << std::setw(7) << m_nHiPtStrip << " = " <<  
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) << 
-		     100.*static_cast<double>(nHiPtStripWithTGC1StripHit)/static_cast<double>(nHiPtStrip) << "%");
+		     100.*static_cast<double>(m_nHiPtStripWithTGC1StripHit)/static_cast<double>(m_nHiPtStrip) << "%");
       }
-      if(nTrackletWire) {
-	ATH_MSG_INFO("Tracklet Wire->TGC2 and 3 Wire Hits   : " << std::setw(7) << nTrackletWireWithTGC23WireHit << 
-		     " / " << std::setw(7) << nTrackletWire << " = " << 
+      if(m_nTrackletWire) {
+	ATH_MSG_INFO("Tracklet Wire->TGC2 and 3 Wire Hits   : " << std::setw(7) << m_nTrackletWireWithTGC23WireHit << 
+		     " / " << std::setw(7) << m_nTrackletWire << " = " << 
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) << 
-		     100.*static_cast<double>(nTrackletWireWithTGC23WireHit)/static_cast<double>(nTrackletWire) << "%");
+		     100.*static_cast<double>(m_nTrackletWireWithTGC23WireHit)/static_cast<double>(m_nTrackletWire) << "%");
       }
-      if(nTrackletStrip) {
-	ATH_MSG_INFO("Tracklet Strip->TGC2 and 3 Strip Hits : " << std::setw(7) << nTrackletStripWithTGC23StripHit << 
-		     " / " << std::setw(7) << nTrackletStrip << " = " << 
+      if(m_nTrackletStrip) {
+	ATH_MSG_INFO("Tracklet Strip->TGC2 and 3 Strip Hits : " << std::setw(7) << m_nTrackletStripWithTGC23StripHit << 
+		     " / " << std::setw(7) << m_nTrackletStrip << " = " << 
 		     std::setw(8) << std::showpoint << std::fixed << std::setprecision(4) << 
-		     100.*static_cast<double>(nTrackletStripWithTGC23StripHit)/static_cast<double>(nTrackletStrip) << "%");
+		     100.*static_cast<double>(m_nTrackletStripWithTGC23StripHit)/static_cast<double>(m_nTrackletStrip) << "%");
       }
       ATH_MSG_INFO("************************************************************************");
     }

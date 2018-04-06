@@ -18,6 +18,9 @@ extern "C" {
 #include "xAODBase/IParticle.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
+
 namespace xAOD {
 
    /// Class describing a photon reconstructed in the HLT
@@ -55,7 +58,13 @@ namespace xAOD {
       virtual double           rapidity() const;
 
       /// The full 4-momentum of the particle
-      virtual const FourMom_t& p4() const;
+      virtual FourMom_t        p4() const;
+
+      /// Base 4 Momentum type for egamma
+      typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
+
+      ///  The full 4-momentum of the particle : internal egamma type.
+      GenVecFourMom_t genvecP4() const; 
 
       /// The type of the object as a simple enumeration
       virtual Type::ObjectType type() const { return Type::TrigPhoton; }
@@ -169,12 +178,6 @@ namespace xAOD {
       void init( uint32_t roi,
                  float dphi, float deta, 
                  const EMClusterLink_t& clLink );
-
-   private:
-      /// Cached 4-momentum object.
-      mutable FourMom_t m_p4;
-      /// Cache state of the internal 4-momentum (reset from the streamer)
-      mutable bool m_p4Cached;
 
    }; // class TrigPhoton_v1
 

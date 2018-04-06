@@ -15,7 +15,7 @@
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "Identifier/IdentifierHash.h"
-#include "IdDict/IdDictDefs.h"  
+#include "IdDict/IdDictDefs.h"
 #include <set>
 #include <algorithm>
 #include <iostream>
@@ -71,110 +71,110 @@ TRT_ID::barrel_ec_id_checks( int barrel_ec ) const
     if (!m_full_module_range.match(id)) {  // module range check is sufficient
 	MsgStream log(m_msgSvc, "TRT_ID");
 	if(m_msgSvc) {
-	    log << MSG::ERROR << " TRT_ID::barrel_ec_id result is NOT ok. ID, range " 
-		<< (std::string)id << " " 
+	    log << MSG::ERROR << " TRT_ID::barrel_ec_id result is NOT ok. ID, range "
+		<< (std::string)id << " "
 		<< (std::string)m_full_module_range << endmsg;
 	}
 	else {
-	    std::cout << " ERROR TRT_ID::barrel_ec_id result is NOT ok. ID, range " 
-		      << (std::string)id << " " 
+	    std::cout << " ERROR TRT_ID::barrel_ec_id result is NOT ok. ID, range "
+		      << (std::string)id << " "
 		      << (std::string)m_full_module_range << std::endl;
 	}
     }
 }
 
 void
-TRT_ID::module_id_checks ( int barrel_ec, 
-			   int layer_or_wheel, 
-			   int phi_module ) const
+TRT_ID::module_id_checks ( int barrel_ec,
+                           int phi_module,
+                           int layer_or_wheel) const
 {
     // Check that id is within allowed range
 
     // Fill expanded id
     ExpandedIdentifier id;
     id << indet_field_value() << trt_field_value()
-       << barrel_ec << layer_or_wheel << phi_module;
+       << barrel_ec << phi_module << layer_or_wheel;
 
     if (!m_full_module_range.match(id)) {  // module range check is sufficient
 	MsgStream log(m_msgSvc, "TRT_ID");
 	if(m_msgSvc) {
-	    log << MSG::ERROR << " TRT_ID::module_id result is NOT ok. ID, range " 
-		<< (std::string)id << " " 
+	    log << MSG::ERROR << " TRT_ID::module_id result is NOT ok. ID, range "
+		<< (std::string)id << " "
 		<< (std::string)m_full_module_range << endmsg;
 	}
 	else {
-	
-	    std::cout << " ERROR TRT_ID::module_id result is NOT ok. ID, range " 
-		      << (std::string)id << " " 
+
+	    std::cout << " ERROR TRT_ID::module_id result is NOT ok. ID, range "
+		      << (std::string)id << " "
 		      << (std::string)m_full_module_range << std::endl;
 	}
     }
 }
 
 void
-TRT_ID::straw_id_checks ( int barrel_ec, 
-			  int layer_or_wheel, 
-			  int phi_module,
-			  int straw_layer, 
-			  int straw ) const
+TRT_ID::straw_id_checks ( int barrel_ec,
+                          int phi_module,
+                          int layer_or_wheel,
+                          int straw_layer,
+                          int straw ) const
 {
     // Check that id is within allowed range
 
     // Build identifier
     ExpandedIdentifier id;
     id << indet_field_value() << trt_field_value()
-       << barrel_ec << layer_or_wheel << phi_module << straw_layer << straw;
+       << barrel_ec << phi_module << layer_or_wheel << straw_layer << straw;
 
     if (!m_full_straw_range.match(id)) {
 	MsgStream log(m_msgSvc, "TRT_ID");
 	if(m_msgSvc) {
-	    log << MSG::ERROR << " TRT_ID::straw_id result is NOT ok. ID, range " 
-		<< (std::string)id << " " 
+	    log << MSG::ERROR << " TRT_ID::straw_id result is NOT ok. ID, range "
+		<< (std::string)id << " "
 		<< (std::string)m_full_straw_range << endmsg;
 	}
 	else {
-	    log << MSG::ERROR << " TRT_ID::straw_id result is NOT ok. ID, range " 
-		<< (std::string)id << " " 
+	    log << MSG::ERROR << " TRT_ID::straw_id result is NOT ok. ID, range "
+		<< (std::string)id << " "
 		<< (std::string)m_full_straw_range << std::endl;
 	}
     }
 }
 
 void
-TRT_ID::layer_id_checks ( int barrel_ec, 
-			  int layer_or_wheel, 
-			  int phi_module,
-			  int straw_layer ) const
+TRT_ID::layer_id_checks ( int barrel_ec,
+                          int phi_module,
+                          int layer_or_wheel,
+                          int straw_layer ) const
 {
     // Check that id is within allowed range
 
     // Build identifier
     ExpandedIdentifier id;
     id << indet_field_value() << trt_field_value()
-       << barrel_ec << layer_or_wheel << phi_module << straw_layer;
+       << barrel_ec << phi_module << layer_or_wheel << straw_layer;
 
     if (!m_full_straw_layer_range.match(id)) {
-      
+
 	MsgStream log(m_msgSvc, "TRT_ID");
 	if(m_msgSvc) {
-	    log << MSG::ERROR << " TRT_ID::layer_id result is NOT ok. ID, range " 
-		<< (std::string)id << " " 
+	    log << MSG::ERROR << " TRT_ID::layer_id result is NOT ok. ID, range "
+		<< (std::string)id << " "
 		<< (std::string)m_full_straw_layer_range << endmsg;
 	}
 	else {
-	    std::cout << " ERROR TRT_ID::layer_id result is NOT ok. ID, range " 
-		<< (std::string)id << " " 
+	    std::cout << " ERROR TRT_ID::layer_id result is NOT ok. ID, range "
+		<< (std::string)id << " "
 		<< (std::string)m_full_straw_layer_range << std::endl;
 	}
     }
 }
 
 
-// Range       
-// TRT_ID::range ( const std::string& barrel_ec,  
-// 		const std::string& layer_or_wheel,      
-// 		const std::string& phi_module, 
-// 		const std::string& straw_layer, 
+// Range
+// TRT_ID::range ( const std::string& barrel_ec,
+// 		const std::string& layer_or_wheel,
+// 		const std::string& phi_module,
+// 		const std::string& straw_layer,
 // 		const std::string& straw ) const
 // {
 //     assert( !barrel_ec.empty() );
@@ -194,11 +194,11 @@ TRT_ID::layer_id_checks ( int barrel_ec,
 //     range += '/';
 //     range += layer_or_wheel;
 //     range += '/';
-//     range += phi_module; 
+//     range += phi_module;
 //     range += '/';
-//     range += straw_layer; 
+//     range += straw_layer;
 //     range += '/';
-//     range += straw;      
+//     range += straw;
 //     result.build(range.c_str());
 //     return result;
 // }
@@ -214,7 +214,7 @@ TRT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     else {
 	std::cout << "INFO Initialize from dictionary cout " << m_msgSvc <<  std::endl;
     }
-		    
+
 
     // Check whether this helper should be reinitialized
     if (!reinitialize(dict_mgr)) {
@@ -240,16 +240,16 @@ TRT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         m_is_valid = false;
         return (1);
     }
-    
 
-    // Register version of InnerDetector dictionary 
+
+    // Register version of InnerDetector dictionary
     if (register_dict_tag(dict_mgr, "InnerDetector")) {
         m_is_valid = false;
         return(1);
     }
-    
 
-    m_dict = dict_mgr.find_dictionary ("InnerDetector"); 
+
+    m_dict = dict_mgr.find_dictionary ("InnerDetector");
     if(!m_dict) {
 	if(m_msgSvc) {
 	    log << MSG::ERROR << " TRT_ID::initialize_from_dict - cannot access InnerDetector dictionary "
@@ -268,7 +268,7 @@ TRT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
         m_is_valid = false;
         return (1);
     }
-    
+
 
     //
     // Set barrel field for testing is_barrel
@@ -278,67 +278,67 @@ TRT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     // negative barrel
     if (m_dict->get_label_value("barrel_endcap", "negative_barrel", barrel_value)) {
 	if(m_msgSvc) {
-	    log << MSG::ERROR << "Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary " 
+	    log << MSG::ERROR << "Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary "
 		<< m_dict->m_name
 		<< endmsg;
 	}
 	else {
-	
-	    std::cout << " ERROR Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary " 
+
+	    std::cout << " ERROR Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary "
 		      << m_dict->m_name
 		      << std::endl;
 	}
-        m_is_valid = false;    
+        m_is_valid = false;
 	return (1);
     }
     m_barrel_field.add_value(barrel_value);
     // negative barrel
     if (m_dict->get_label_value("barrel_endcap", "positive_barrel", barrel_value)) {
 	if(m_msgSvc) {
-	    log << MSG::ERROR << "Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary " 
+	    log << MSG::ERROR << "Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary "
 		<< m_dict->m_name
 		<< endmsg;
 	}
 	else {
-	
-	    std::cout << " ERROR Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary " 
+
+	    std::cout << " ERROR Could not get value for label 'barrel' of field 'barrel_endcap' in dictionary "
 		      << m_dict->m_name
 		      << std::endl;
-	}    
+	}
         m_is_valid = false;
 	return (1);
     }
     m_barrel_field.add_value(barrel_value);
     if(m_msgSvc) {
-	log << MSG::DEBUG << " TRT_ID::initialize_from_dict " 
-	    << "Set barrel field values: "  
+	log << MSG::DEBUG << " TRT_ID::initialize_from_dict "
+	    << "Set barrel field values: "
 	    << (std::string)m_barrel_field
 	    << endmsg;
     }
     else {
-	std::cout << " DEBUG  TRT_ID::initialize_from_dict " 
-		  << "Set barrel field values: "  
+	std::cout << " DEBUG  TRT_ID::initialize_from_dict "
+		  << "Set barrel field values: "
 		  << (std::string)m_barrel_field
 		  << std::endl;
     }
-    
+
     //
     // Build multirange for the valid set of identifiers
     //
 
 
     // Find value for the field InnerDetector
-    const IdDictDictionary* atlasDict = dict_mgr.find_dictionary ("ATLAS"); 
+    const IdDictDictionary* atlasDict = dict_mgr.find_dictionary ("ATLAS");
 
     int inDetField   = -1;
     if (atlasDict->get_label_value("subdet", "InnerDetector", inDetField)) {
 	if(m_msgSvc) {
-	    log << MSG::ERROR << "Could not get value for label 'InnerDetector' of field 'subdet' in dictionary " 
+	    log << MSG::ERROR << "Could not get value for label 'InnerDetector' of field 'subdet' in dictionary "
 		<< atlasDict->m_name
 		<< endmsg;
 	}
 	else {
-	    std::cout << " ERROR Could not get value for label 'InnerDetector' of field 'subdet' in dictionary " 
+	    std::cout << " ERROR Could not get value for label 'InnerDetector' of field 'subdet' in dictionary "
 		      << atlasDict->m_name
 		      << std::endl;
 	}
@@ -350,33 +350,33 @@ TRT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     int trtField   = -1;
     if (m_dict->get_label_value("part", "TRT", trtField)) {
 	if(m_msgSvc) {
-	    log << MSG::ERROR << "Could not get value for label 'TRT' of field 'part' in dictionary " 
+	    log << MSG::ERROR << "Could not get value for label 'TRT' of field 'part' in dictionary "
 		<< m_dict->m_name
 		<< endmsg;
 	}
 	else {
-	    std::cout << " ERROR Could not get value for label 'TRT' of field 'part' in dictionary " 
+	    std::cout << " ERROR Could not get value for label 'TRT' of field 'part' in dictionary "
 		      << m_dict->m_name
 		      << std::endl;
-        }    
+        }
         m_is_valid = false;
 	return (1);
     }
     if(m_msgSvc) {
-	log << MSG::DEBUG << " TRT_ID::initialize_from_dict " 
-	    << "Found field values: InDet/TRT "  
+	log << MSG::DEBUG << " TRT_ID::initialize_from_dict "
+	    << "Found field values: InDet/TRT "
 	    << inDetField << "/"
 	    << trtField
 	    << endmsg;
     }
     else {
-	std::cout << " DEBUG  TRT_ID::initialize_from_dict " 
-		  << "Found field values: InDet/TRT "  
+	std::cout << " DEBUG  TRT_ID::initialize_from_dict "
+		  << "Found field values: InDet/TRT "
 		  << inDetField << "/"
 		  << trtField
 		  << std::endl;
     }
-    
+
     // Set up id for region and range prefix
     ExpandedIdentifier region_id;
     region_id.add(inDetField);
@@ -387,9 +387,9 @@ TRT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     m_full_straw_range       = m_dict->build_multirange(region_id, prefix);
 
     init_hashes();
-    
+
     if(m_msgSvc) {
-	log << MSG::DEBUG << " TRT_ID::initialize_from_dict " 
+	log << MSG::DEBUG << " TRT_ID::initialize_from_dict "
 	    << endmsg;
 	log << MSG::DEBUG << "Module range -> " << (std::string)m_full_module_range
 	    << endmsg;
@@ -399,7 +399,7 @@ TRT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	    << endmsg;
     }
     else {
-	std::cout << " DEBUG  TRT_ID::initialize_from_dict " 
+	std::cout << " DEBUG  TRT_ID::initialize_from_dict "
 		  << std::endl;
 	std::cout << " DEBUG Module range -> " << (std::string)m_full_module_range
 		  << std::endl;
@@ -412,7 +412,7 @@ TRT_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     return 0;
 }
 
-void	
+void
 TRT_ID::init_hashes(void)
 {
 
@@ -432,7 +432,7 @@ TRT_ID::init_hashes(void)
 	std::cout << " DEBUG Module range -> " << (std::string)m_full_module_range
 		  << std::endl;
     }
-    
+
 
 
     m_module_hash_max = m_full_module_range.cardinality();
@@ -453,17 +453,17 @@ TRT_ID::init_hashes(void)
 		    log << MSG::ERROR << " TRT_ID::init_hashes "
 			<< " Error: duplicated id for module id. nid " << nids
 			<< " compact id " << show_to_string(id)
-			<< " id " << (std::string)(*first) 
+			<< " id " << (std::string)(*first)
 			<< endmsg;
 		}
 		else {
 		    std::cout << " ERROR  TRT_ID::init_hashes "
 			      << " Error: duplicated id for module id. nid " << nids
 			      << " compact id " << show_to_string(id)
-			      << " id " << (std::string)(*first) 
+			      << " id " << (std::string)(*first)
 			      << std::endl;
 		}
-    
+
 	    }
 	    nids++;
 	}
@@ -472,25 +472,25 @@ TRT_ID::init_hashes(void)
 	if(m_msgSvc) {
 	    log << MSG::ERROR << " TRT_ID::init_hashes "
 		<< " Error: set size NOT EQUAL to hash max. size " << ids.size()
-		<< " hash max " << m_module_hash_max 
+		<< " hash max " << m_module_hash_max
 		<< endmsg;
 	}
 	else {
 	    std::cout << " ERROR TRT_ID::init_hashes "
 		      << " Error: set size NOT EQUAL to hash max. size " << ids.size()
-		      << " hash max " << m_module_hash_max 
+		      << " hash max " << m_module_hash_max
 		      << std::endl;
 	}
     }
     else {
 	if(m_msgSvc) {
 	    log << MSG::DEBUG << " TRT_ID::init_hashes "
-		<< " module hash max " << m_module_hash_max 
+		<< " module hash max " << m_module_hash_max
 		<< endmsg;
 	}
 	else {
 	    std::cout << " DEBUG TRT_ID::init_hashes "
-		      << " module hash max " << m_module_hash_max 
+		      << " module hash max " << m_module_hash_max
 		      << std::endl;
 	}
     }
@@ -519,50 +519,50 @@ TRT_ID::init_hashes(void)
 				     exp_id[m_LAYER_OR_WHEEL_INDEX],
 				     exp_id[m_STRAW_LAYER_INDEX]);
 	    if(!(ids.insert(id)).second) {
-		if (m_msgSvc) {  
+		if (m_msgSvc) {
 		    log << MSG::ERROR << " TRT_ID::init_hashes "
 			<< " Error: duplicated id for straw layer id. nid " << nids
-			<< " compact id " << show_to_string(id) 
-			<< " id " << (std::string)(*first) 
+			<< " compact id " << show_to_string(id)
+			<< " id " << (std::string)(*first)
 			<< endmsg;
 		    std::cout << " ERROR TRT_ID::init_hashes "
 			      << " Error: duplicated id for straw layer id. nid " << nids
-			      << " compact id " << show_to_string(id) 
-			      << " id " << (std::string)(*first) 
+			      << " compact id " << show_to_string(id)
+			      << " id " << (std::string)(*first)
 			      << std::endl;
 		}
 		nids++;
 	    }
 	}
     }
-    
+
     if(ids.size() != m_straw_layer_hash_max) {
-	if (m_msgSvc) {  
+	if (m_msgSvc) {
 	    log << MSG::ERROR << " TRT_ID::init_hashes "
 		<< " Error: set size NOT EQUAL to hash max. size " << ids.size()
-		<< " hash max " << m_straw_layer_hash_max 
+		<< " hash max " << m_straw_layer_hash_max
 		<< endmsg;
 	}
 	else {
 	    std::cout << " ERROR TRT_ID::init_hashes "
 		      << " Error: set size NOT EQUAL to hash max. size " << ids.size()
-		      << " hash max " << m_straw_layer_hash_max 
+		      << " hash max " << m_straw_layer_hash_max
 		      << std::endl;
 	}
     }
     else {
 	if(m_msgSvc) {
 	    log << MSG::DEBUG << " TRT_ID::init_hashes "
-		<< " straw layer hash max " << m_straw_layer_hash_max 
+		<< " straw layer hash max " << m_straw_layer_hash_max
 		<< endmsg;
 	}
 	else {
 	    std::cout << " DEBUG TRT_ID::init_hashes "
-		      << " straw layer hash max " << m_straw_layer_hash_max 
+		      << " straw layer hash max " << m_straw_layer_hash_max
 		      << std::endl;
 	}
     }
-    
+
     nids = 0;
     first = ids.begin();
     last  = ids.end();
@@ -573,24 +573,24 @@ TRT_ID::init_hashes(void)
 
 
     // Init vector for binary lookup
-    init_straw_hash_vector(); 
+    init_straw_hash_vector();
 
 
     // Setup for hash calculation for straw ids
 
 
     // We use a HashCalc object to save the information needed to
-    // calculate the hash from the decoded values of a straw id. 
-    // 
+    // calculate the hash from the decoded values of a straw id.
+    //
     // The number of HashCalc objects needed are 2x the number of
     // ranges - one for each pos/neg. There are then two additional
     // lookup tables, one for each of barrel and endcap, to access the
     // index into the HashCalc table. Here we set up the HashCalc
     // table and the additional tables for accessing the index.
 
-    // Set up vector as lookup table for hash calculation. 
+    // Set up vector as lookup table for hash calculation.
     unsigned int hcIndex = 0;
-    unsigned int nRanges = m_full_straw_range.size(); 
+    unsigned int nRanges = m_full_straw_range.size();
     m_hash_calcs.resize(2*nRanges); // allow for pos/neg
 
 //     std::vector<bool> startHashFound(4,false);
@@ -599,7 +599,7 @@ TRT_ID::init_hashes(void)
 
     for (unsigned int i = 0; i < m_full_straw_range.size(); ++i) {
 	const Range* range = &m_full_straw_range[i];
-	ExpandedIdentifier exp_id = range->minimum (); 
+	ExpandedIdentifier exp_id = range->minimum ();
 	Identifier min = straw_id(exp_id[m_BARREL_EC_INDEX],
 				  exp_id[m_PHI_MODULE_INDEX],
 				  exp_id[m_LAYER_OR_WHEEL_INDEX],
@@ -619,7 +619,7 @@ TRT_ID::init_hashes(void)
 // 	    m_beStartHash[(unsigned int)beIndex] = min_neg;
 // 	    startHashFound[(unsigned int)beIndex] = true;
 // 	}
-	
+
 
 
 	// Calculate the offset in phi
@@ -630,15 +630,15 @@ TRT_ID::init_hashes(void)
 				       exp_id[m_STRAW_INDEX]);
 	IdentifierHash deltaPhi = straw_hash_bin(next_phi) - min_neg;
 
-// 	std::cout << " 	deltaPhi, straw_hash_bin(next_phi), min_neg, " 
-// 		  << deltaPhi << " " <<  straw_hash_bin(next_phi) << " " 
+// 	std::cout << " 	deltaPhi, straw_hash_bin(next_phi), min_neg, "
+// 		  << deltaPhi << " " <<  straw_hash_bin(next_phi) << " "
 // 		  <<  min_neg << " " << std::endl;
 
 	// barrel or endcap
 	bool isBarrel  = m_barrel_field.match(exp_id[m_BARREL_EC_INDEX]);
 
 // 	std::cout << " isBarrel: " <<  isBarrel << " " <<  exp_id[m_BARREL_EC_INDEX] << std::endl;
-	
+
 	// both pos and neg available?
 	bool two_sides = ((*range)[m_BARREL_EC_INDEX].get_indices() == 2);
 
@@ -650,10 +650,10 @@ TRT_ID::init_hashes(void)
 	unsigned int start;
 	unsigned int end;
 
-// 	std::cout << " lay_min, nlayers, str_lay_min. nstr_layers, " 
-// 		  << lay_min << " " <<  nlayers << " " 
+// 	std::cout << " lay_min, nlayers, str_lay_min. nstr_layers, "
+// 		  << lay_min << " " <<  nlayers << " "
 // 		  <<  str_lay_min << " " << nstr_layers << " " << std::endl;
-	
+
 	if (isBarrel) {
 	    // use layer and straw layer to distinguish which HashCalc
 	    start = lay_min*32 + str_lay_min;
@@ -664,7 +664,7 @@ TRT_ID::init_hashes(void)
 	    }
 
 // 	    std::cout << "isBarrel: start, end " << start << " " << end << std::endl;
-	    
+
 
 	}
 	else {
@@ -703,7 +703,7 @@ TRT_ID::init_hashes(void)
 	m_hash_calcs[hcIndex]    = hc;
 // 	m_hash_calc_map[min_neg] = hc;
 	hcIndex++;
-	
+
 	// Now repeat if there are both pos/neg
 
 	if (two_sides) {
@@ -718,7 +718,7 @@ TRT_ID::init_hashes(void)
 		}
 
 // 		std::cout << "isBarrel: start, end " << start << " " << end << std::endl;
-	    
+
 
 	    }
 	    else {
@@ -764,11 +764,11 @@ TRT_ID::init_hashes(void)
 // 	    std::cout << "flip sign hc.m_hash " << hc.m_hash << std::endl;
 
 	}
-	
+
     }
 
     // clear vector
-    reset_straw_hash_vector(); 
+    reset_straw_hash_vector();
 
 }
 
@@ -784,14 +784,14 @@ TRT_ID::init_straw_hash_vector(void)
 {
     // We init straw hashes separately to be able to reset the vector
     // afterwards
-    
+
     MsgStream log(m_msgSvc, "TRT_ID");
     // straw hash - we do not keep a vec for the straws - too large
     m_straw_hash_max = m_full_straw_range.cardinality();
     m_straw_vec.resize(m_straw_hash_max);
     unsigned int nids = 0;
     std::set<Identifier> ids;
-    
+
     for (unsigned int i = 0; i < m_full_straw_range.size(); ++i) {
 	const Range& range = m_full_straw_range[i];
 	Range::const_identifier_factory first = range.factory_begin();
@@ -804,18 +804,18 @@ TRT_ID::init_straw_hash_vector(void)
 				     exp_id[m_STRAW_LAYER_INDEX],
 				     exp_id[m_STRAW_INDEX]);
 	    if(!(ids.insert(id)).second) {
-		if (m_msgSvc) {  
+		if (m_msgSvc) {
 		    log << MSG::ERROR << " TRT_ID::init_hashes "
 			<< " Error: duplicated id for straw id. nid " << nids
-			<< " compact id " << show_to_string(id)  
-			<< " id " << (std::string)(*first) 
+			<< " compact id " << show_to_string(id)
+			<< " id " << (std::string)(*first)
 			<< endmsg;
 		}
 		else {
 		    std::cout << " ERROR TRT_ID::init_hashes "
 			      << " Error: duplicated id for straw id. nid " << nids
-			      << " compact id " << show_to_string(id) 
-			      << " id " << (std::string)(*first) 
+			      << " compact id " << show_to_string(id)
+			      << " id " << (std::string)(*first)
 			      << std::endl;
 		}
 	    }
@@ -823,28 +823,28 @@ TRT_ID::init_straw_hash_vector(void)
 	}
     }
     if(ids.size() != m_straw_hash_max) {
-	if (m_msgSvc) {  
+	if (m_msgSvc) {
 	    log << MSG::ERROR << " TRT_ID::init_hashes "
 		<< " Error: set size NOT EQUAL to hash max. size " << ids.size()
-		<< " hash max " << m_straw_hash_max 
+		<< " hash max " << m_straw_hash_max
 		<< endmsg;
 	}
 	else {
 	    std::cout << " ERROR TRT_ID::init_hashes "
 		      << " Error: set size NOT EQUAL to hash max. size " << ids.size()
-		      << " hash max " << m_straw_hash_max 
+		      << " hash max " << m_straw_hash_max
 		      << std::endl;
 	}
     }
     else {
 	if(m_msgSvc) {
 	    log << MSG::DEBUG << " TRT_ID::init_hashes "
-		<< " straw hash max " << m_straw_hash_max 
+		<< " straw hash max " << m_straw_hash_max
 		<< endmsg;
 	}
 	else {
 	    std::cout << " DEBUG TRT_ID::init_hashes "
-		      << " straw hash max " << m_straw_hash_max 
+		      << " straw hash max " << m_straw_hash_max
 		      << std::endl;
 	}
     }
@@ -859,13 +859,13 @@ TRT_ID::init_straw_hash_vector(void)
 
 }
 
-int	
+int
 TRT_ID::initLevelsFromDict()
 {
 
     MsgStream log(m_msgSvc, "TRT_ID");
     if(!m_dict) {
-	if (m_msgSvc) {  
+	if (m_msgSvc) {
 	    log << MSG::ERROR << " TRT_ID::initLevelsFromDict - dictionary NOT initialized "
 		<< endmsg;
 	}
@@ -874,9 +874,9 @@ TRT_ID::initLevelsFromDict()
 		      << std::endl;
 	}
 	return (1);
-      
+
     }
-    
+
     // Find out which identifier field corresponds to each level. Use
     // names to find each field/leve.
 
@@ -892,20 +892,20 @@ TRT_ID::initLevelsFromDict()
     ExpandedIdentifier id;
     id << indet_field_value() << trt_field_value();
     if (m_dict->find_region(id, m_trt_region_index)) {
-	if (m_msgSvc) {  
-	    log << MSG::WARNING << "TRT_ID::initLevelsFromDict - unable to initialize TRT_ID helper "  
+	if (m_msgSvc) {
+	    log << MSG::WARNING << "TRT_ID::initLevelsFromDict - unable to initialize TRT_ID helper "
 		<< endmsg;
-	    log << MSG::WARNING << "TRT_ID::initLevelsFromDict - we assume that the TRT does NOT exist for this layout "  
+	    log << MSG::WARNING << "TRT_ID::initLevelsFromDict - we assume that the TRT does NOT exist for this layout "
 		<< endmsg;
 	}
 	else {
-	    std::cout << " WARNING TRT_ID::initLevelsFromDict - unable to initialize TRT_ID helper " 
+	    std::cout << " WARNING TRT_ID::initLevelsFromDict - unable to initialize TRT_ID helper "
 		      << std::endl;
-	    std::cout << " WARNING TRT_ID::initLevelsFromDict - we assume that the TRT does NOT exist for this layout " 
+	    std::cout << " WARNING TRT_ID::initLevelsFromDict - we assume that the TRT does NOT exist for this layout "
 		      << std::endl;
 	}
 	return (1);
-      
+
     }
 
     // Find a TRT region
@@ -914,47 +914,47 @@ TRT_ID::initLevelsFromDict()
 	m_INDET_INDEX = field->m_index;
     }
     else {
-	if (m_msgSvc) {  
-	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'subdet' field " 	
+	if (m_msgSvc) {
+	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'subdet' field "
 		<< endmsg;
 	}
 	else {
-	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'subdet' field " 	
+	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'subdet' field "
 		      << std::endl;
 	}
 	return (1);
-      
+
     }
     field = m_dict->find_field("part");
     if (field) {
 	m_TRT_INDEX = field->m_index;
     }
     else {
-	if (m_msgSvc) {  
-	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'part' field " 	
+	if (m_msgSvc) {
+	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'part' field "
 		<< endmsg;
 	}
 	else {
-	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'part' field " 	
+	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'part' field "
 		      << std::endl;
 	}
 	return (1);
-      
+
     }
     field = m_dict->find_field("barrel_endcap");
     if (field) {
 	m_BARREL_EC_INDEX = field->m_index;
     }
     else {
-	if (m_msgSvc) {  
-	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'barrel_endcap' field " 	
+	if (m_msgSvc) {
+	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'barrel_endcap' field "
 		<< endmsg;
 	}
 	else {
-	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'barrel_endcap' field " 	
+	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'barrel_endcap' field "
 		      << std::endl;
 	}
-      
+
 	return (1);
     }
     field = m_dict->find_field("phi_sector");
@@ -962,15 +962,15 @@ TRT_ID::initLevelsFromDict()
 	m_PHI_MODULE_INDEX = field->m_index;
     }
     else {
-	if (m_msgSvc) {  
-	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'phi_sector' field " 	
+	if (m_msgSvc) {
+	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'phi_sector' field "
 		<< endmsg;
 	}
 	else {
-	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'phi_sector' field " 	
+	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'phi_sector' field "
 		      << std::endl;
 	}
-      
+
 	return (1);
     }
     field = m_dict->find_field("layer_or_wheel");
@@ -978,15 +978,15 @@ TRT_ID::initLevelsFromDict()
 	m_LAYER_OR_WHEEL_INDEX = field->m_index;
     }
     else {
-	if (m_msgSvc) {  
-	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'layer' field " 	
+	if (m_msgSvc) {
+	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'layer' field "
 		<< endmsg;
 	}
 	else {
-	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'layer' field " 	
+	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'layer' field "
 		      << std::endl;
 	}
-      
+
 	return (1);
     }
     field = m_dict->find_field("straw_layer");
@@ -994,15 +994,15 @@ TRT_ID::initLevelsFromDict()
 	m_STRAW_LAYER_INDEX = field->m_index;
     }
     else {
-	if (m_msgSvc) {  
-	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'straw_layer' field " 	
+	if (m_msgSvc) {
+	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'straw_layer' field "
 		<< endmsg;
 	}
 	else {
-	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'straw_layer' field " 	
+	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'straw_layer' field "
 		      << std::endl;
 	}
-      
+
 	return (1);
     }
     field = m_dict->find_field("straw");
@@ -1010,53 +1010,53 @@ TRT_ID::initLevelsFromDict()
 	m_STRAW_INDEX = field->m_index;
     }
     else {
-	if (m_msgSvc) {  
-	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'straw' field " 	
+	if (m_msgSvc) {
+	    log << MSG::ERROR << "TRT_ID::initLevelsFromDict - unable to find 'straw' field "
 		<< endmsg;
 	}
 	else {
-	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'straw' field " 	
+	    std::cout << " ERROR TRT_ID::initLevelsFromDict - unable to find 'straw' field "
 		      << std::endl;
 	}
-      
+
 	return (1);
     }
-    
+
     // Set the field implementations: for bec, lay/disk, eta/phi mod
 
     const IdDictRegion& region = *m_dict->m_regions[m_trt_region_index];
 
-    m_indet_impl      = region.m_implementation[m_INDET_INDEX]; 
-    m_trt_impl        = region.m_implementation[m_TRT_INDEX]; 
-    m_bec_impl        = region.m_implementation[m_BARREL_EC_INDEX]; 
-    m_phi_mod_impl    = region.m_implementation[m_PHI_MODULE_INDEX]; 
-    m_lay_wheel_impl  = region.m_implementation[m_LAYER_OR_WHEEL_INDEX]; 
-    m_str_lay_impl    = region.m_implementation[m_STRAW_LAYER_INDEX]; 
-    m_straw_impl      = region.m_implementation[m_STRAW_INDEX]; 
+    m_indet_impl      = region.m_implementation[m_INDET_INDEX];
+    m_trt_impl        = region.m_implementation[m_TRT_INDEX];
+    m_bec_impl        = region.m_implementation[m_BARREL_EC_INDEX];
+    m_phi_mod_impl    = region.m_implementation[m_PHI_MODULE_INDEX];
+    m_lay_wheel_impl  = region.m_implementation[m_LAYER_OR_WHEEL_INDEX];
+    m_str_lay_impl    = region.m_implementation[m_STRAW_LAYER_INDEX];
+    m_straw_impl      = region.m_implementation[m_STRAW_INDEX];
 
-    if (m_msgSvc) {  
+    if (m_msgSvc) {
 	log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
 	log << MSG::DEBUG << "indet     "  << m_indet_impl.show_to_string() << endmsg;
-	log << MSG::DEBUG << "trt       "  << m_trt_impl.show_to_string() << endmsg; 
-	log << MSG::DEBUG << "bec       "  << m_bec_impl.show_to_string() << endmsg; 
-	log << MSG::DEBUG << "phi_mod   "  << m_phi_mod_impl.show_to_string() << endmsg; 
-	log << MSG::DEBUG << "lay_wheel "  << m_lay_wheel_impl.show_to_string() << endmsg; 
-	log << MSG::DEBUG << "str_lay   "  << m_str_lay_impl.show_to_string() << endmsg; 
-	log << MSG::DEBUG << "straw     "  << m_straw_impl.show_to_string() << endmsg; 
+	log << MSG::DEBUG << "trt       "  << m_trt_impl.show_to_string() << endmsg;
+	log << MSG::DEBUG << "bec       "  << m_bec_impl.show_to_string() << endmsg;
+	log << MSG::DEBUG << "phi_mod   "  << m_phi_mod_impl.show_to_string() << endmsg;
+	log << MSG::DEBUG << "lay_wheel "  << m_lay_wheel_impl.show_to_string() << endmsg;
+	log << MSG::DEBUG << "str_lay   "  << m_str_lay_impl.show_to_string() << endmsg;
+	log << MSG::DEBUG << "straw     "  << m_straw_impl.show_to_string() << endmsg;
 
     }
     else {
 	std::cout << " DEBUG decode index and bit fields for each level: " << std::endl;
 	std::cout << " DEBUG indet     "  << m_indet_impl.show_to_string() << std::endl;
-	std::cout << " DEBUG trt       "  << m_trt_impl.show_to_string() << std::endl; 
-	std::cout << " DEBUG bec       "  << m_bec_impl.show_to_string() << std::endl; 
-	std::cout << " DEBUG phi_mod   "  << m_phi_mod_impl.show_to_string() << std::endl; 
-	std::cout << " DEBUG lay_wheel "  << m_lay_wheel_impl.show_to_string() << std::endl; 
-	std::cout << " DEBUG str_lay   "  << m_str_lay_impl.show_to_string() << std::endl; 
-	std::cout << " DEBUG straw     "  << m_straw_impl.show_to_string() << std::endl; 
+	std::cout << " DEBUG trt       "  << m_trt_impl.show_to_string() << std::endl;
+	std::cout << " DEBUG bec       "  << m_bec_impl.show_to_string() << std::endl;
+	std::cout << " DEBUG phi_mod   "  << m_phi_mod_impl.show_to_string() << std::endl;
+	std::cout << " DEBUG lay_wheel "  << m_lay_wheel_impl.show_to_string() << std::endl;
+	std::cout << " DEBUG str_lay   "  << m_str_lay_impl.show_to_string() << std::endl;
+	std::cout << " DEBUG straw     "  << m_straw_impl.show_to_string() << std::endl;
     }
-		    
-  
+
+
 
 //     std::cout << "TRT_ID::initLevelsFromDict - found levels " << std::endl;
 //     std::cout << "subdet         " 	<< m_INDET_INDEX	<< std::endl;
@@ -1075,8 +1075,8 @@ TRT_ID::initLevelsFromDict()
 }
 
 
-int 		
-TRT_ID::get_straw_layer_hash_calc (const ExpandedIdentifier& id, 
+int
+TRT_ID::get_straw_layer_hash_calc (const ExpandedIdentifier& id,
 				   IdentifierHash& hash_id) const
 {
     hash_id =  m_full_straw_layer_range.cardinalityUpTo(id);
@@ -1085,7 +1085,7 @@ TRT_ID::get_straw_layer_hash_calc (const ExpandedIdentifier& id,
 
 
 // From hash get Identifier
-int 	
+int
 TRT_ID::get_id 		(const IdentifierHash& hash_id,
 			 Identifier& id,
 			 const IdContext* context) const
@@ -1095,8 +1095,8 @@ TRT_ID::get_id 		(const IdentifierHash& hash_id,
 
     size_t begin = (context) ? context->begin_index(): 0;
     // cannot get hash if end is 0:
-    size_t end   = (context) ? context->end_index()  : 0; 
-    if (0 == begin) { 
+    size_t end   = (context) ? context->end_index()  : 0;
+    if (0 == begin) {
 	// No hashes yet for ids with prefixes
 	if (m_LAYER_OR_WHEEL_INDEX == end) {
 	    if (hash_id < (unsigned int)(m_module_vec.end() - m_module_vec.begin())) {
@@ -1118,7 +1118,7 @@ TRT_ID::get_id 		(const IdentifierHash& hash_id,
     return (result);
 }
 
-void 	
+void
 TRT_ID::get_expanded_id	(const Identifier& id,
 			 ExpandedIdentifier& exp_id,
 			 const IdContext* context) const
@@ -1138,8 +1138,8 @@ TRT_ID::get_expanded_id	(const Identifier& id,
 }
 
 
-int 	
-TRT_ID::get_hash 	(const Identifier& id, 
+int
+TRT_ID::get_hash 	(const Identifier& id,
 			 IdentifierHash& hash_id,
 			 const IdContext* context) const
 {
@@ -1151,7 +1151,7 @@ TRT_ID::get_hash 	(const Identifier& id,
     int result = 1;
     hash_id = 0;
     size_t begin = (context) ? context->begin_index(): 0;
-    size_t end   = (context) ? context->end_index()  : 0; 
+    size_t end   = (context) ? context->end_index()  : 0;
 
     if (0 == begin) {
 	// No hashes yet for ids with prefixes
@@ -1174,7 +1174,7 @@ TRT_ID::get_hash 	(const Identifier& id,
     return (result);
 }
 
-int 	
+int
 TRT_ID::straw_layer_max	(const Identifier& id) const
 {
     // get max from dictionary
@@ -1195,7 +1195,7 @@ TRT_ID::straw_layer_max	(const Identifier& id) const
     return (result);
 }
 
-int 	
+int
 TRT_ID::straw_max	(const Identifier& id) const
 {
     // get max from dictionary
@@ -1215,17 +1215,17 @@ TRT_ID::straw_max	(const Identifier& id) const
 }
 
 
-void	
-TRT_ID::test_trt_ids	(void) 
+void
+TRT_ID::test_trt_ids	(void)
 {
     MsgStream log(m_msgSvc, "TRT_ID");
     int nids = 0;
     int nidsFailed = 0;
-    
-    init_straw_hash_vector(); 
+
+    init_straw_hash_vector();
 
     std::cout << " vec size " << m_straw_vec.size() << " " << m_straw_hash_max << std::endl;
-    
+
 
     // Check straw hashes
     //bool debug = false;
@@ -1235,38 +1235,38 @@ TRT_ID::test_trt_ids	(void)
 	IdentifierHash h2 = straw_hash(id);
 	//IdentifierHash h2 = straw_hash(id, debug);
 	if (h1 != h2) {
-	    std::cout << "test_trt_ids - bad match: id, bin hash, hash: " 
+	    std::cout << "test_trt_ids - bad match: id, bin hash, hash: "
 		      << nids << " "
 		      << show_to_string(id) << " "
-		      << h1 << " " 
+		      << h1 << " "
 		      << h2 << std::endl;
 	    nidsFailed++;
 	    //debug = true;
 	}
 	Identifier id1 = straw_id(h1);
 	if (id != id1) {
-	    std::cout << "test_trt_ids - bad match: id, bin hash, hash: " 
+	    std::cout << "test_trt_ids - bad match: id, bin hash, hash: "
 		      << nids << " "
 		      << show_to_string(id) << " "
 		      << show_to_string(id1) << " "
-		      << h1 << " " 
+		      << h1 << " "
 		      << h2 << std::endl;
 	    nidsFailed++;
 	}
  	if (i%10000 == 5) {
-	    std::cout << "test_trt_ids: id, bin hash, hash: " 
+	    std::cout << "test_trt_ids: id, bin hash, hash: "
 		      << nids << " "
 		      << show_to_string(id) << " "
-		      << h1 << " " 
+		      << h1 << " "
 		      << h2 << std::endl;
  	}
     }
 
-    std::cout << "Checked hash calculation for " << nids << " hashes and found " 
+    std::cout << "Checked hash calculation for " << nids << " hashes and found "
 	      << nidsFailed << " failures to match between binary lookup and calculation "
 	      << std::endl;
-    
-    reset_straw_hash_vector(); 
+
+    reset_straw_hash_vector();
 
 //     const_expanded_id_iterator	first1 = straw_begin();
 //     const_expanded_id_iterator	last1  = straw_end();
@@ -1280,15 +1280,15 @@ TRT_ID::test_trt_ids	(void)
 // 	IdentifierHash h1 = straw_hash_bin(id);
 // 	IdentifierHash h2 = straw_hash(id);
 // //	if (h1 != h2) {
-// 	std::cout << "test_trt_ids: id, bin hash, hash: " 
+// 	std::cout << "test_trt_ids: id, bin hash, hash: "
 // 		  << nids << " "
 // 		  << show_to_string(id) << " "
-// 		  << h1 << " " 
+// 		  << h1 << " "
 // 		  << h2 << std::endl;
 // //	}
 //     }
 
-    
+
     nids = 0;
     IdContext context = module_context();
     const_id_iterator first = m_module_vec.begin();
@@ -1301,55 +1301,55 @@ TRT_ID::test_trt_ids	(void)
 				      exp_id[m_PHI_MODULE_INDEX],
 				      exp_id[m_LAYER_OR_WHEEL_INDEX]);
 	if (id != new_id) {
-	    if (m_msgSvc) {  
-		log << MSG::ERROR << "TRT_ID::test_trt_ids: module new and old compacts not equal. New/old/expanded ids " 
+	    if (m_msgSvc) {
+		log << MSG::ERROR << "TRT_ID::test_trt_ids: module new and old compacts not equal. New/old/expanded ids "
 		    << nids << " "
-		    << show_to_string(new_id) << " " << show_to_string(id) << " " 
+		    << show_to_string(new_id) << " " << show_to_string(id) << " "
 		    << (std::string)exp_id << endmsg;
 	    }
 	    else {
-		std::cout << " ERROR TRT_ID::test_trt_ids: module new and old compacts not equal. New/old/expanded ids " 
+		std::cout << " ERROR TRT_ID::test_trt_ids: module new and old compacts not equal. New/old/expanded ids "
 			  << nids << " "
-			  << show_to_string(new_id) << " " << show_to_string(id) << " " 
+			  << show_to_string(new_id) << " " << show_to_string(id) << " "
 			  << (std::string)exp_id << std::endl;
 	    }
-	    
+
 	}
 
 	IdentifierHash hashId;
 	if(get_hash(id, hashId, &context)) {
-	    if (m_msgSvc) {  
-		log << MSG::ERROR << "Unable to set trt hash id for det elem " 
+	    if (m_msgSvc) {
+		log << MSG::ERROR << "Unable to set trt hash id for det elem "
 		    << show_to_string(id) << " " << nids
 		    << endmsg;
 	    }
 	    else {
-		std::cout << " ERROR Unable to set trt hash id for det elem " 
+		std::cout << " ERROR Unable to set trt hash id for det elem "
 			  << show_to_string(id) << " " << nids
 			  << std::endl;
 	    }
-	    
+
 	}
 	new_id = module_id(hashId);
-	
+
 	if (id != new_id) {
-	    if (m_msgSvc) {  
-		log << MSG::ERROR << "TRT_ID::test_trt_ids: module new and old compacts not equal. New/old/hash ids " 
+	    if (m_msgSvc) {
+		log << MSG::ERROR << "TRT_ID::test_trt_ids: module new and old compacts not equal. New/old/hash ids "
 		    << nids << " "
-		    << show_to_string(new_id) << " " 
+		    << show_to_string(new_id) << " "
 		    << show_to_string(id) << " " << MSG::hex
 		    << hashId << MSG::dec
 		    << endmsg;
 	    }
 	    else {
-		std::cout << " ERROR TRT_ID::test_trt_ids: module new and old compacts not equal. New/old/hash ids " 
+		std::cout << " ERROR TRT_ID::test_trt_ids: module new and old compacts not equal. New/old/hash ids "
 			  << nids << " "
-			  << show_to_string(new_id) << " " 
+			  << show_to_string(new_id) << " "
 			  << show_to_string(id) << " " << std::hex
 			  << hashId << std::dec
 			  << std::endl;
 	    }
-	    
+
 	}
     }
 
@@ -1366,17 +1366,17 @@ TRT_ID::test_trt_ids	(void)
 				     exp_id[m_LAYER_OR_WHEEL_INDEX],
 				     exp_id[m_STRAW_LAYER_INDEX]);
 	if (id != new_id) {
-	    if (m_msgSvc) {  
-		log << MSG::ERROR << "TRT_ID::test_trt_ids: straw layer new and old compacts not equal. New/old/expanded ids " 
-		    << show_to_string(new_id) << " " << show_to_string(id) << " " 
+	    if (m_msgSvc) {
+		log << MSG::ERROR << "TRT_ID::test_trt_ids: straw layer new and old compacts not equal. New/old/expanded ids "
+		    << show_to_string(new_id) << " " << show_to_string(id) << " "
 		    << (std::string)exp_id << endmsg;
 	    }
 	    else {
-		std::cout << " ERROR TRT_ID::test_trt_ids: straw layer new and old compacts not equal. New/old/expanded ids " 
-			  << show_to_string(new_id) << " " << show_to_string(id) << " " 
+		std::cout << " ERROR TRT_ID::test_trt_ids: straw layer new and old compacts not equal. New/old/expanded ids "
+			  << show_to_string(new_id) << " " << show_to_string(id) << " "
 			  << (std::string)exp_id << std::endl;
 	    }
-	  
+
 	}
 
 	IdContext strcontext = straw_context();
@@ -1392,33 +1392,33 @@ TRT_ID::test_trt_ids	(void)
 			      exp_id[m_STRAW_LAYER_INDEX],
 			      exp_id[m_STRAW_INDEX]);
 	    if (id != new_id) {
-		if (m_msgSvc) {  
-		    log << MSG::ERROR << "TRT_ID::test_trt_ids: straw new and old compacts not equal. New/old/expanded ids " 
-			<< show_to_string(new_id) << " " << show_to_string(id) << " " 
+		if (m_msgSvc) {
+		    log << MSG::ERROR << "TRT_ID::test_trt_ids: straw new and old compacts not equal. New/old/expanded ids "
+			<< show_to_string(new_id) << " " << show_to_string(id) << " "
 			<< (std::string)exp_id <<  endmsg;
 		}
 		else {
-		    std::cout << " ERROR TRT_ID::test_trt_ids: straw new and old compacts not equal. New/old/expanded ids " 
-			      << show_to_string(new_id) << " " << show_to_string(id) << " " 
+		    std::cout << " ERROR TRT_ID::test_trt_ids: straw new and old compacts not equal. New/old/expanded ids "
+			      << show_to_string(new_id) << " " << show_to_string(id) << " "
 			      << (std::string)exp_id <<  std::endl;
 		}
 	    }
 	}
     }
-    
-    if (m_msgSvc) {  
-	log << MSG::INFO << "TRT_ID::test_trt_ids: Successful tested " 
-	    << nids << " ids. " 
+
+    if (m_msgSvc) {
+	log << MSG::INFO << "TRT_ID::test_trt_ids: Successful tested "
+	    << nids << " ids. "
 	    << endmsg;
     }
     else {
-	std::cout << " INFO TRT_ID::test_trt_ids: Successful tested " 
-		  << nids << " ids. " 
+	std::cout << " INFO TRT_ID::test_trt_ids: Successful tested "
+		  << nids << " ids. "
 		  << std::endl;
     }
-    
+
 }
-    
+
 
 
 

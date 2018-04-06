@@ -56,8 +56,6 @@ class ConfiguredTRTSegmentFinding:
        InDetTRT_TrackSegmentsMakerPhase = InDet__TRT_TrackSegmentsMaker_BarrelCosmics(name = 'InDetTRTSegmentsMakerPhase'+extension,
                                                                                       TrtManagerLocation      = InDetKeys.TRT_Manager(),
                                                                                       TRT_ClustersContainer   = InDetKeys.TRT_DriftCirclesUncalibrated(),
-                                                                                      AssosiationTool         = InDetPrdAssociationTool,
-                                                                                      UseAssosiationTool      = usePrdAssociationTool,
                                                                                       IsMagneticFieldOn       = InDetFlags.solenoidOn())
        ToolSvc += InDetTRT_TrackSegmentsMakerPhase
        #InDetTRT_TrackSegmentsMakerPhase.OutputLevel = VERBOSE 
@@ -69,8 +67,6 @@ class ConfiguredTRTSegmentFinding:
        InDetTRT_TrackSegmentsMaker = InDet__TRT_TrackSegmentsMaker_BarrelCosmics(name = 'InDetTRTSegmentsMaker'+extension,
                                                                                  TrtManagerLocation      = InDetKeys.TRT_Manager(),
                                                                                  TRT_ClustersContainer   = InDetKeys.TRT_DriftCircles(),
-                                                                                 AssosiationTool         = InDetPrdAssociationTool,
-                                                                                 UseAssosiationTool      = usePrdAssociationTool,
                                                                                  IsMagneticFieldOn       = InDetFlags.solenoidOn()) 
 
        ToolSvc += InDetTRT_TrackSegmentsMaker

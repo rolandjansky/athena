@@ -35,14 +35,8 @@ class CpByteStreamV1Tool;
 
 template <typename Container>
 class CpReadByteStreamV1Cnv: public Converter {
-
-  friend class CnvFactory<CpReadByteStreamV1Cnv<Container> >;
-
-protected:
-
-  CpReadByteStreamV1Cnv(ISvcLocator* svcloc);
-
 public:
+  CpReadByteStreamV1Cnv(ISvcLocator* svcloc);
 
   ~CpReadByteStreamV1Cnv();
 

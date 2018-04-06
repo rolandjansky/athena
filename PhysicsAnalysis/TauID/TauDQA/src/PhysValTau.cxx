@@ -127,7 +127,7 @@ StatusCode PhysValTau::fillHistograms()
     // getHaderonicTruth finds true taus (ID == 15) with correct status and no leptonic decay.
     const xAOD::TruthParticleContainer* trueTauContainer = 0;
     if (m_isMC){
-	trueTauContainer = truthHandler.getHadronicTruth(truth);
+	trueTauContainer = m_truthHandler.getHadronicTruth(truth);
 	ATH_MSG_DEBUG( "Number of true had taus: " << trueTauContainer->size() );      
     }
     
@@ -259,8 +259,8 @@ bool PhysValTau::matchTrueAndRecoTau(const xAOD::TauJetContainer *&taus, const x
     int nNeutral = 0;
     //    RecoTypes::DecayMode trueDecayMode = getDecayMode(trueTau, decayParticles, nCharged, nNeutral);
     
-    nCharged = truthHandler.nProngTruthTau(trueTau,false);
-    nNeutral = truthHandler.numNeutPion(trueTau);
+    nCharged = m_truthHandler.nProngTruthTau(trueTau,false);
+    nNeutral = m_truthHandler.numNeutPion(trueTau);
     RecoTypes::DecayMode trueDecayMode = RecoTypes::GetDecayMode(nCharged, nNeutral);
     ATH_MSG_DEBUG( "True decay mode is " << nCharged << "p" << nNeutral << "n" ); 
     
@@ -269,7 +269,7 @@ bool PhysValTau::matchTrueAndRecoTau(const xAOD::TauJetContainer *&taus, const x
         return false;
     }
     
-    TLorentzVector visSum = truthHandler.getTauVisibleSumTruth(trueTau);                    // Get visible TLV for true had tau		
+    TLorentzVector visSum = m_truthHandler.getTauVisibleSumTruth(trueTau);                    // Get visible TLV for true had tau		
     if ((visSum.Et()/GeV < m_visETcut) || (fabs(visSum.Eta()) > m_visEtacut)) return false;    // Detector limitations
     
     xAOD::TauJetContainer::const_iterator tau_itr = taus->begin();

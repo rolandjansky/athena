@@ -11,7 +11,6 @@
 #include "AnalysisTools/AANTEventSelector.h"
 #include "AnalysisTools/AANTEventContext.h"
 
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"

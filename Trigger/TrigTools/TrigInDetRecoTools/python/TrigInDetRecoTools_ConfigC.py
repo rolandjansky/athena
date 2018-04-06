@@ -51,18 +51,18 @@ class FactoryForStrategyC() :
              print ZvertexMaker_C
 
              # SCT and Pixel detector elements road builder
-             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummarySvc, InDetTrigSCTConditionsSummarySvc
+             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummaryTool, InDetTrigSCTConditionsSummarySvc
              from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
              InDetTrigSiDetElementsRoadMaker_C = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_C')
              InDetTrigSiDetElementsRoadMaker_C.RoadWidth = self.settings[('RoadWidth',instName)]
              ToolSvc += InDetTrigSiDetElementsRoadMaker_C
 
              if DetFlags.haveRIO.pixel_on():
-                 from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
+                 from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
                  from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-                 InDetTrigPixelConditionsSummarySvc = PixelConditionsSummarySvc(PixelConditionsSetup.instanceName('PixelConditionsSummarySvc'))
+                 InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
              else:
-                 InDetTrigPixelConditionsSummarySvc = None
+                 InDetTrigPixelConditionsSummaryTool = None
              if DetFlags.haveRIO.SCT_on():
                  from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
                  from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
@@ -82,7 +82,7 @@ class FactoryForStrategyC() :
                                                                   useSCT           = DetFlags.haveRIO.SCT_on(),
                                                                   PixelClusterContainer = 'PixelClusterCache',
                                                                   SCT_ClusterContainer = 'SCT_ClusterCache',
-                                                                  PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
+                                                                  PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                   SctSummarySvc = InDetTrigSCTConditionsSummarySvc)
              ToolSvc += TrackFinder_C
              from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk

@@ -46,7 +46,7 @@ StatusCode HiveAlgC::execute() {
   ATH_MSG_INFO("  read: " << rdh1.key() << " = " << rdh1->val() );
   
   SG::WriteHandle<HiveDataObj> wrh1( m_wrh1 );
-  wrh1 = std::make_unique< HiveDataObj >( HiveDataObj(30000) );
+  wrh1 = std::make_unique< HiveDataObj >( HiveDataObj(30000 + rdh1->val() ) );
 
   SG::WriteHandle<HiveDataObj> wrh2( m_wrh2 );
   wrh2 = std::make_unique< HiveDataObj >( HiveDataObj(30001) );

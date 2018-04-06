@@ -77,41 +77,41 @@ public:
 
 //____________________________________________________________________
 VP1AvailEvents::VP1AvailEvents(int timeCutForNew, QString td, int maxLocalFilesToKeep, QObject * parent)
-  : QObject(parent), d(new Imp)
+  : QObject(parent), m_d(new Imp)
 {
-  d->theclass = this;
-  d->timeCutForNew = timeCutForNew;
-  d->tmpDir = QString(td + (td.endsWith("/")?"":"/")).replace("//","/");
-  d->maxLocalFilesToKeep = maxLocalFilesToKeep;
+  m_d->theclass = this;
+  m_d->timeCutForNew = timeCutForNew;
+  m_d->tmpDir = QString(td + (td.endsWith("/")?"":"/")).replace("//","/");
+  m_d->maxLocalFilesToKeep = maxLocalFilesToKeep;
 }
 
 //____________________________________________________________________
 VP1AvailEvents::~VP1AvailEvents()
 {
   //Fixme: These two remove commands only has an effect when dir is empty!!
-  if (!d->tmpActiveRetrievalDir.isEmpty()&&d->tmpActiveRetrievalDir!="bad")
-    QFile::remove(d->tmpActiveRetrievalDir);
-  if (!d->tmpLocalFileDir.isEmpty()&&d->tmpLocalFileDir!="bad")
-    QFile::remove(d->tmpLocalFileDir);
-  delete d;
+  if (!m_d->tmpActiveRetrievalDir.isEmpty()&&m_d->tmpActiveRetrievalDir!="bad")
+    QFile::remove(m_d->tmpActiveRetrievalDir);
+  if (!m_d->tmpLocalFileDir.isEmpty()&&m_d->tmpLocalFileDir!="bad")
+    QFile::remove(m_d->tmpLocalFileDir);
+  delete m_d;
 }
 
 //____________________________________________________________________
 int VP1AvailEvents::timeCutForNew() const
 {
-  return d->timeCutForNew;
+  return m_d->timeCutForNew;
 }
 
 //____________________________________________________________________
 int VP1AvailEvents::maxLocalFilesToKeep() const
 {
-  return d->maxLocalFilesToKeep;
+  return m_d->maxLocalFilesToKeep;
 }
 
 //____________________________________________________________________
 QString VP1AvailEvents::tmpDir() const
 {
-  return d->tmpDir;
+  return m_d->tmpDir;
 }
 
 //____________________________________________________________________
@@ -120,14 +120,14 @@ QList<VP1EventFile> VP1AvailEvents::freshEvents(VP1EventFile newestEvt, const QL
   QList<VP1EventFile> l;
   if (!newestEvt.isValid())
     return l;
-  std::set<Imp::EventID>::const_iterator histIt, histItE(d->historySorted.end());
-  if (d->timeCutForNew==0) {
-    if (d->historySorted.find(Imp::evtToID(newestEvt))==histItE)
+  std::set<Imp::EventID>::const_iterator histIt, histItE(m_d->historySorted.end());
+  if (m_d->timeCutForNew==0) {
+    if (m_d->historySorted.find(Imp::evtToID(newestEvt))==histItE)
       l << newestEvt;
     return l;
   }
   foreach(VP1EventFile evt, inputEventList)
-    if (d->historySorted.find(Imp::evtToID(evt))==histItE && isConsideredFresh(evt,newestEvt))
+    if (m_d->historySorted.find(Imp::evtToID(evt))==histItE && isConsideredFresh(evt,newestEvt))
       l << evt;
   return l;
 }
@@ -151,15 +151,15 @@ VP1EventFile VP1AvailEvents::newestEvent() const
 //____________________________________________________________________
 void VP1AvailEvents::setCurrentEvent(int run,int event)
 {
-  d->historyOrdered << Imp::EventID(run,event);
-  d->historySorted.insert(Imp::EventID(run,event));
+  m_d->historyOrdered << Imp::EventID(run,event);
+  m_d->historySorted.insert(Imp::EventID(run,event));
 }
 
 //____________________________________________________________________
 void VP1AvailEvents::actualCleanup()
 {
   //First we cleanup:
-  d->cleanupTmpLocalFiles();
+  m_d->cleanupTmpLocalFiles();
 
   //Then we schedule a check for event list changes:
   QTimer::singleShot(10, this, SLOT(actualCheckForEventListChanges()));
@@ -170,12 +170,12 @@ void VP1AvailEvents::actualCheckForEventListChanges()
 {
   QList<VP1EventFile> allLocal = allLocalEvents();
   QList<VP1EventFile> fresh = freshEvents();
-  if (d->lastAllLocal != allLocal) {
-    d->lastAllLocal = allLocal;
+  if (m_d->lastAllLocal != allLocal) {
+    m_d->lastAllLocal = allLocal;
     allLocalEventsChanged();
   }
-  if (d->lastFresh != fresh) {
-    d->lastFresh = fresh;
+  if (m_d->lastFresh != fresh) {
+    m_d->lastFresh = fresh;
     freshEventsChanged();
   }
 }
@@ -194,16 +194,16 @@ void VP1AvailEvents::cleanupAndCheckForEventListChanges()
 //____________________________________________________________________
 bool VP1AvailEvents::inHistory(int run, int event) const
 {
-  return d->historySorted.find(Imp::EventID(run,event))!=d->historySorted.end();
+  return m_d->historySorted.find(Imp::EventID(run,event))!=m_d->historySorted.end();
 }
 
 
 //____________________________________________________________________
 void VP1AvailEvents::invalidateDirCache(const QString& dir)
 {
-  std::map<QString,std::pair<QDateTime,QList<VP1EventFile> > >::iterator it = d->dircache.find(dir);
-  if (it!=d->dircache.end())
-    d->dircache.erase(it);
+  std::map<QString,std::pair<QDateTime,QList<VP1EventFile> > >::iterator it = m_d->dircache.find(dir);
+  if (it!=m_d->dircache.end())
+    m_d->dircache.erase(it);
 }
 
 //____________________________________________________________________
@@ -218,8 +218,8 @@ QList<VP1EventFile> VP1AvailEvents::allEventFilesInDir(const QString& dir) const
 
   QDateTime modtime = fi_dir.lastModified();
   if (abs(modtime.time().msecsTo(QTime::currentTime()))>50) {
-    std::map<QString,std::pair<QDateTime,QList<VP1EventFile> > >::iterator it = d->dircache.find(dir);
-    if (it!=d->dircache.end()&&it->second.first==modtime)
+    std::map<QString,std::pair<QDateTime,QList<VP1EventFile> > >::iterator it = m_d->dircache.find(dir);
+    if (it!=m_d->dircache.end()&&it->second.first==modtime)
       return it->second.second;
   }
 
@@ -241,7 +241,7 @@ QList<VP1EventFile> VP1AvailEvents::allEventFilesInDir(const QString& dir) const
 
   qSort(l);
 
-  d->dircache[dir]=std::make_pair(modtime,l);
+  m_d->dircache[dir]=std::make_pair(modtime,l);
   return l;
 }
 
@@ -284,13 +284,13 @@ QString VP1AvailEvents::Imp::attemptGenerationOfTmpSubdir(const QString& preferr
 //____________________________________________________________________
 QString VP1AvailEvents::tmpActiveRetrievalDir()
 {
-  return d->attemptGenerationOfTmpSubdir("activeretrievals",d->tmpActiveRetrievalDir);
+  return m_d->attemptGenerationOfTmpSubdir("activeretrievals",m_d->tmpActiveRetrievalDir);
 }
 
 //____________________________________________________________________
 QString VP1AvailEvents::tmpLocalFileDir() const
 {
-  return d->attemptGenerationOfTmpSubdir("eventfiles",d->tmpLocalFileDir);
+  return m_d->attemptGenerationOfTmpSubdir("eventfiles",m_d->tmpLocalFileDir);
 }
 
 //____________________________________________________________________
@@ -345,13 +345,13 @@ bool VP1AvailEvents::isConsideredFresh ( const VP1EventFile& evt, const VP1Event
 {
   //Notice: Logic here must be similar to logic in VP1EvtsOnServerInfo::events
 
-  if (d->timeCutForNew==0) {
+  if (m_d->timeCutForNew==0) {
     //Special case where only the newest event is fresh
     return evt.rawTime()==newestEvt.rawTime() &&  evt.runNumber()==newestEvt.runNumber();
   }
   if (requireNewestRunNumber()&&evt.runNumber()!=newestEvt.runNumber())
     return false;
-  const unsigned oldest_time = (d->timeCutForNew<0||unsigned(d->timeCutForNew)>newestEvt.rawTime()) ? 0 : newestEvt.rawTime() - d->timeCutForNew;
+  const unsigned oldest_time = (m_d->timeCutForNew<0||unsigned(m_d->timeCutForNew)>newestEvt.rawTime()) ? 0 : newestEvt.rawTime() - m_d->timeCutForNew;
   return evt.rawTime() >= oldest_time;
 }
 

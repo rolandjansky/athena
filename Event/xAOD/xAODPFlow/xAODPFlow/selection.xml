@@ -2,25 +2,7 @@
 <lcgdict>
 
   <!-- PFO_v1 dictionaries: -->
-  <class name="xAOD::PFO_v1" >
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-    <field name="m_p4EM" transient="true" />
-    <field name="m_p4EMCached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::PFO_v1" version="[1-]"
-        targetClass="xAOD::PFO_v1" source="" target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
-  <read sourceClass="xAOD::PFO_v1" version="[1-]"
-        targetClass="xAOD::PFO_v1" source="" target="m_p4EMCached" >
-    <![CDATA[
-       m_p4EMCached = false;
-    ]]>
-  </read>
-
+  <class name="xAOD::PFO_v1" />
 
   <class name="xAOD::PFOContainer_v1"
          id="476378BF-054D-499E-9CC9-000F501B30F2" />
@@ -29,17 +11,8 @@
          id="F691F845-4A3D-466A-9187-FED7837D9372" />
   
   <!-- TrackCaloCluster_v1 dictionaries: -->
-  <class name="xAOD::TrackCaloCluster_v1">
-         <field name="m_p4" transient="true"/>
-  </class>
+  <class name="xAOD::TrackCaloCluster_v1" />
   
-  <read sourceClass="xAOD::TrackCaloCluster_v1" version="[1-]"
-        targetClass="xAOD::TrackCaloCluster_v1" source="" target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
-   
   <class name="xAOD::TrackCaloClusterAuxContainer_v1"
          id="E3492C37-2469-4346-BCBA-7A18CACD46AC"/>
   <class name="xAOD::TrackCaloClusterContainer_v1"

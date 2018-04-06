@@ -20,7 +20,6 @@ namespace xAOD {
     :	AthAlgTool(type, name, parent)
   {
     declareInterface<IPFlowObjectsInConeTool>(this);
-    declareProperty("PFlowKey",       m_pfokey    = "CHSNeutralParticleFlowObjects", "StoreGate key for PFOs");
   }
 
   PFlowObjectsInConeTool::~PFlowObjectsInConeTool()
@@ -29,17 +28,12 @@ namespace xAOD {
   //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
   StatusCode PFlowObjectsInConeTool::initialize() {
+    ATH_CHECK(m_pfokey.initialize());
     return StatusCode::SUCCESS;
   }
 
   StatusCode PFlowObjectsInConeTool::finalize() {
     return StatusCode::SUCCESS;
-  }
-
-  const PFOContainer* PFlowObjectsInConeTool::retrievePFOContainer() const {
-    const PFOContainer* pfos(nullptr);
-    if(evtStore()->retrieve(pfos, m_pfokey).isFailure()) {return nullptr;}
-    return pfos;
   }
 
   const PFlowObjectsInConeTool::LookUpTable*
@@ -50,8 +44,12 @@ namespace xAOD {
     if (rh.isValid())
       return &*rh;
 
-    const PFOContainer* pfos = retrievePFOContainer();
-    if( !pfos ) return nullptr;
+    
+    SG::ReadHandle<PFOContainer> pfos(m_pfokey);
+    if( !pfos.isValid() ) {
+      ATH_MSG_WARNING("Unable to open pflow container with key " << m_pfokey.key());
+      return nullptr;
+    }
     auto lut = std::make_unique<LookUpTable>();
     lut->init(*pfos);
     SG::WriteHandle<LookUpTable> wh (tableName);

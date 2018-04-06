@@ -1,0 +1,1 @@
+InputConverter.BarcodeSvc = "Barcode::GenericBarcodeSvc/GenericBarcodeSvc";

@@ -46,12 +46,8 @@ class TileBeamElemContByteStreamCnv
   : public Converter
   , public ::AthMessaging
 {
-    friend class CnvFactory<TileBeamElemContByteStreamCnv>;
-
-  protected:
-    TileBeamElemContByteStreamCnv(ISvcLocator* svcloc);
-
   public:
+    TileBeamElemContByteStreamCnv(ISvcLocator* svcloc);
 
     virtual StatusCode initialize();
     virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj); 

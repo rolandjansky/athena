@@ -13,7 +13,6 @@
 #include "GaudiKernel/ITHistSvc.h" 
 // Trk
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
@@ -27,7 +26,6 @@
 Trk::GeantFollowerMSHelper::GeantFollowerMSHelper(const std::string& t, const std::string& n, const IInterface* p)
  : base_class(t,n,p)
  , m_extrapolator("")
- , m_elossupdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator")
  , m_extrapolateDirectly(false)
  , m_extrapolateIncrementally(false)
  , m_speedup(false)

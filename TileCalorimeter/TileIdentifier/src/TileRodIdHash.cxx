@@ -6,7 +6,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include <iostream>
 
 // This class converts a TileReadoutModuleID into an integer, 

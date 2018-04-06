@@ -21,6 +21,7 @@
 //Cannot fwd declare RawEvent, due to typedef in the .h. Needed for OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment
 #include "ByteStreamData/RawEvent.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 class IInterface;
 class InterfaceID;
@@ -43,6 +44,7 @@ class ISCT_RodDecoder : virtual public IAlgTool {
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment&,
                                     ISCT_RDO_Container&,
                                     InDetBSErrContainer* errs,
+                                    SCT_ByteStreamFractionContainer* bsFracCont,
                                     std::vector<IdentifierHash>* vec=0) = 0;
 };
 

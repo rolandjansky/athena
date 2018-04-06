@@ -124,15 +124,17 @@ Trig::TrigDecisionTool::initialize() {
      CHECK( m_configTool.retrieve()); //use configTool if no configSvc available
    } else {
 
-   StatusCode sc = m_configSvc.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_FATAL("Unable to get pointer to TrigConfigSvc");
-     return sc;
-   }
-   // call update if there is anything in config svc
-   if ( m_configSvc->chainList() || m_configSvc->ctpConfig() ) {
-      configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
-   }
+     m_configTool.disable();
+
+     StatusCode sc = m_configSvc.retrieve();
+     if ( sc.isFailure() ) {
+       ATH_MSG_FATAL("Unable to get pointer to TrigConfigSvc");
+       return sc;
+     }
+     // call update if there is anything in config svc
+     if ( m_configSvc->chainList() || m_configSvc->ctpConfig() ) {
+       configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
+     }
    }
 
 

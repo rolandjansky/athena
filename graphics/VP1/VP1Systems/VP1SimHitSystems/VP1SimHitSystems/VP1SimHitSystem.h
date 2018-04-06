@@ -25,7 +25,7 @@ class VP1SimHitSystem: public IVP13DSystemSimple
 
  private:
   class Clockwork;
-  Clockwork* _clockwork;
+  Clockwork* m_clockwork;
 
   void buildHitTree(const QString& detector);
 

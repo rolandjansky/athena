@@ -26,8 +26,7 @@ namespace {
 AthTruthSelectionTool::AthTruthSelectionTool(const std::string& type, const std::string& name,
                                              const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_counters{},
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator") 
+  m_counters{}
 {
   // declare interface from base class
   declareInterface<IAthSelectionTool>(this);
@@ -71,13 +70,16 @@ AthTruthSelectionTool::initialize() {
     }, std::string("eta")),
     Accept_t([this](const P_t& p) -> bool {
       return(p.pt() > m_minPt);
-    }, std::string("min_pt")),
-    Accept_t([this](const P_t& p) -> bool {
-      return((not (p.hasProdVtx()))or(p.prodVtx()->perp() < m_maxProdVertRadius));
-    }, "decay_before_" + std::to_string(m_maxProdVertRadius))
+    }, std::string("min_pt"))
   };
   //
   m_cutFlow = CutFlow<P_t>(filters);
+  if (m_maxProdVertRadius>0) {
+    m_cutFlow.add(Accept_t([this](const P_t& p) -> bool {
+                       return((not (p.hasProdVtx()))or(p.prodVtx()->perp() < m_maxProdVertRadius));
+                  },
+                  "decay_before_" + std::to_string(m_maxProdVertRadius)));
+  }
   if (m_maxPt > 0) {
     m_cutFlow.add(Accept_t([this](const P_t& p) {
       return(p.pt() < m_maxPt);

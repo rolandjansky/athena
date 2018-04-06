@@ -57,7 +57,7 @@ private:
   HitsSoNodeManager * m_nodeManager;
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

@@ -93,8 +93,8 @@ ServiceMgr += TRT_AlignDbSvc()
 
 # Needed for database-, Pool- and AlignableTransforms-Handling
 include ( "DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-InDetCondStream = AthenaPoolOutputStreamTool( name="CondStream1",OutputFile=outFilename )
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+InDetCondStream = AthenaOutputStreamTool( name="CondStream1",OutputFile=outFilename )
 ToolSvc += InDetCondStream
 print InDetCondStream
 

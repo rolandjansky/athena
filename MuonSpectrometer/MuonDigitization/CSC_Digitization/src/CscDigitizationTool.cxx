@@ -642,39 +642,39 @@ StatusCode CscDigitizationTool::processBunchXing(int bunchXing,
                                                  SubEventIterator eSubEvents)
 {
   ATH_MSG_DEBUG("CscDigitizationTool::processBunchXing() " << bunchXing);
-  SubEventIterator iEvt = bSubEvents;
-  while (iEvt != eSubEvents)
-    {
-      StoreGateSvc& seStore = *(iEvt->ptr()->evtStore());
-      ATH_MSG_VERBOSE( "SubEvt StoreGate " << seStore.name() << " :"
-                       << " bunch crossing : " << bunchXing
-                       << " time offset : " << iEvt->time()
-                       << " event number : " << iEvt->ptr()->eventNumber()
-                       << " run number : " << iEvt->ptr()->runNumber());
-      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
 
-      const CSCSimHitCollection* seHitColl(nullptr);
-      if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess())
-        { // CSC_HITS
-          ATH_MSG_ERROR ("SubEvent CSCSimHitCollection not found in StoreGate " << seStore.name());
-          return StatusCode::FAILURE;
-        }
-      ATH_MSG_VERBOSE ("CSCSimHitCollection found with " << seHitColl->size() << " hits");
-      //Copy Hit Collection
-      CSCSimHitCollection* cscHitColl = new CSCSimHitCollection(m_inputObjectName);
-      CSCSimHitCollection::const_iterator i = seHitColl->begin();
-      CSCSimHitCollection::const_iterator e = seHitColl->end();
-      // Read hits from this collection
-      for (; i!=e; ++i)
-        {
-          cscHitColl->Emplace(*i);
-        }
-      m_thpcCSC->insert(thisEventIndex, cscHitColl);
-      //store these for deletion at the end of mergeEvent
-      m_cscHitCollList.push_back(cscHitColl);
-      //John's Hacks END
-      ++iEvt;
-    }//  while (iEvt != eSubEvents) {
+  typedef PileUpMergeSvc::TimedList<CSCSimHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
+
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+					  bSubEvents, eSubEvents).isSuccess()) &&
+        hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " CSCSimHitCollection with key " <<
+		    m_inputObjectName << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  // Iterating over the list of collections
+  for( ; iColl != endColl; iColl++){
+
+    CSCSimHitCollection *hitCollPtr = new CSCSimHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+
+    ATH_MSG_DEBUG("CSCSimHitCollection found with " << hitCollPtr->size() <<
+		  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+		    << " index: " << timeIndex.index()
+		    << " type: " << timeIndex.type());
+
+    m_thpcCSC->insert(timeIndex, hitCollPtr);
+    m_cscHitCollList.push_back(hitCollPtr);
+
+  }
 
   return StatusCode::SUCCESS;
 }

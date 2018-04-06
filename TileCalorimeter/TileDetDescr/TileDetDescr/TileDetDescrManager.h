@@ -62,7 +62,7 @@ class TileDetDescrManager : public GeoVDetectorManager
 
   // --------------- TYPEDEFS
 
-  TileDetDescrManager(TileDddbManager_ptr dbManager, MsgStream *log);
+  TileDetDescrManager(TileDddbManager_ptr dbManager);
   ~TileDetDescrManager();
 
   // Access to raw geometry:
@@ -175,7 +175,7 @@ class TileDetDescrManager : public GeoVDetectorManager
   void print() const;
   
   // Create elements  
-  void create_elements(MsgStream *log);
+  void create_elements();
 
   //  Insertion
   void add(TileDetDescrRegion* region);
@@ -230,8 +230,10 @@ class TileDetDescrManager : public GeoVDetectorManager
 
   bool                  m_verbose;
 
+  MsgStream * m_log;
+
   //  z-shift operator-function definitions:
-  inline double ShiftEta(double eta, double Rcen, double zshift) { 
+  inline double shiftEta(double eta, double Rcen, double zshift) {
     return eta + zshift * tanh(eta) * tan(2 * atan(exp(-eta))) / Rcen;
   }
 };

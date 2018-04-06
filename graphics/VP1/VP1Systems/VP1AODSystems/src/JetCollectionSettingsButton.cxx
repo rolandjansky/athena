@@ -179,8 +179,8 @@ void JetCollectionSettingsButton::Imp::initEditWindow()
 void JetCollectionSettingsButton::setMaterialText(const QString& t)
 {
 	VP1Msg::messageVerbose("JetCollectionSettingsButton::setMaterialText()");
-	if (d->editwindow)
-		d->editwindow->setWindowTitle(t);
+	if (m_d->editwindow)
+		m_d->editwindow->setWindowTitle(t);
 	setToolTip(t);
 }
 
@@ -188,7 +188,7 @@ void JetCollectionSettingsButton::setMaterialText(const QString& t)
 //____________________________________________________________________
 double JetCollectionSettingsButton::lengthOf100GeV()
 {
-	double val = d->ui_disp.doubleSpinBox_lengthOf100GeV->value();
+	double val = m_d->ui_disp.doubleSpinBox_lengthOf100GeV->value();
 	VP1Msg::messageVerbose("JetCollectionSettingsButton::lengthOf100GeV() - value: " + QString::number(val));
 	return val;
 }
@@ -196,7 +196,7 @@ double JetCollectionSettingsButton::lengthOf100GeV()
 //____________________________________________________________________
 double JetCollectionSettingsButton::maxR()
 {
-	double val = d->ui_disp.checkBox_maxR->isChecked() ? (d->ui_disp.doubleSpinBox_maxR->value() ) : -1; //d->ui_disp.doubleSpinBox_maxR->value();
+	double val = m_d->ui_disp.checkBox_maxR->isChecked() ? (m_d->ui_disp.doubleSpinBox_maxR->value() ) : -1; //m_d->ui_disp.doubleSpinBox_maxR->value();
 	VP1Msg::messageVerbose("JetCollectionSettingsButton::maxR() - value: " + QString::number(val));
 	return val;
 }
@@ -204,43 +204,43 @@ double JetCollectionSettingsButton::maxR()
 
 //____________________________________________________________________
 double JetCollectionSettingsButton::bTaggingCut() const {
-  return d->ui_disp.bTaggingSpinBox->value();
+  return m_d->ui_disp.bTaggingSpinBox->value();
 }
 //____________________________________________________________________
 QString JetCollectionSettingsButton::bTaggingTagger() const {
-  return d->ui_disp.bTaggingComboBox->currentText();
+  return m_d->ui_disp.bTaggingComboBox->currentText();
 }
 //____________________________________________________________________
 QString JetCollectionSettingsButton::bTaggingSkin() const {
-  return d->ui_disp.skinsComboBox->currentText();
+  return m_d->ui_disp.skinsComboBox->currentText();
 }
 //____________________________________________________________________
 SoMaterial* JetCollectionSettingsButton::bTaggingMaterial() const {
-  return getMaterial(d->ui_disp.matButton_btaggedJets);
+  return getMaterial(m_d->ui_disp.matButton_btaggedJets);
 }
 //____________________________________________________________________
 bool JetCollectionSettingsButton::bTaggingEnabled() const {
-  return d->ui_disp.bTaggingCheckBox->isChecked();
+  return m_d->ui_disp.bTaggingCheckBox->isChecked();
 }
 //____________________________________________________________________
 bool JetCollectionSettingsButton::bTaggingRenderingSkin() const {
-  return d->ui_disp.radioButton_skins->isChecked();
+  return m_d->ui_disp.radioButton_skins->isChecked();
 }
 //____________________________________________________________________
 bool JetCollectionSettingsButton::bTaggingRenderingMaterial() const {
-  return d->ui_disp.radioButton_material->isChecked();
+  return m_d->ui_disp.radioButton_material->isChecked();
 }
 
 //____________________________________________________________________
 bool JetCollectionSettingsButton::is_bTaggingSkinEnabled() const
 {
-	return d->ui_disp.radioButton_skins->isChecked();
+	return m_d->ui_disp.radioButton_skins->isChecked();
 }
 
 //____________________________________________________________________
 bool JetCollectionSettingsButton::is_bTaggingMaterialEnabled() const
 {
-	return d->ui_disp.radioButton_material->isChecked();
+	return m_d->ui_disp.radioButton_material->isChecked();
 }
 
 
@@ -248,15 +248,15 @@ bool JetCollectionSettingsButton::is_bTaggingMaterialEnabled() const
 
 
 //____________________________________________________________________
-JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _dim, QString name)
-: VP1CollectionSettingsButtonBase(parent,0), d(new Imp)
-//: VP1CollectionSettingsButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
+JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int dim, QString name)
+: VP1CollectionSettingsButtonBase(parent,0), m_d(new Imp)
+//: VP1CollectionSettingsButtonBase(parent,0,"VP1MaterialButton"), m_d(new Imp)
 {
-	d->dim = _dim;
-	d->name = name;
+	m_d->dim = dim;
+	m_d->name = name;
 
-	d->theclass = this;
-	d->initEditWindow();
+	m_d->theclass = this;
+	m_d->initEditWindow();
 
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -266,83 +266,83 @@ JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _d
 
 
 //	//Draw Styles / Complexity:
-//	VP1QtInventorUtils::setLimitsLineWidthSlider(d->editwindow_ui.horizontalSlider_trackWidth);
-//	VP1QtInventorUtils::setValueLineWidthSlider(d->editwindow_ui.horizontalSlider_trackWidth,1.0);
+//	VP1QtInventorUtils::setLimitsLineWidthSlider(m_d->editwindow_ui.horizontalSlider_trackWidth);
+//	VP1QtInventorUtils::setValueLineWidthSlider(m_d->editwindow_ui.horizontalSlider_trackWidth,1.0);
 
-//	d->trackDrawStyle = new SoDrawStyle;
-//	d->trackDrawStyle->setName("JetDrawStyle");
-//	d->trackDrawStyle->pointSize=5.0;
-//	d->trackDrawStyle->ref();
+//	m_d->trackDrawStyle = new SoDrawStyle;
+//	m_d->trackDrawStyle->setName("JetDrawStyle");
+//	m_d->trackDrawStyle->pointSize=5.0;
+//	m_d->trackDrawStyle->ref();
 //	updateTrackDrawStyle();
-//	connect(d->editwindow_ui.horizontalSlider_trackWidth,SIGNAL(valueChanged(int)),this,SLOT(updateTrackDrawStyle()));
+//	connect(m_d->editwindow_ui.horizontalSlider_trackWidth,SIGNAL(valueChanged(int)),this,SLOT(updateTrackDrawStyle()));
 
-//	d->trackLightModel = new SoLightModel;
-//	d->trackLightModel->setName("JetLightModel");
-//	d->trackLightModel->ref();
+//	m_d->trackLightModel = new SoLightModel;
+//	m_d->trackLightModel->setName("JetLightModel");
+//	m_d->trackLightModel->ref();
 //	updateTrackLightModel(false);
-//	connect(d->editwindow_ui.checkBox_tracksUseBaseLightModel,SIGNAL(toggled(bool)),this,SLOT(updateTrackLightModel(bool)));
+//	connect(m_d->editwindow_ui.checkBox_tracksUseBaseLightModel,SIGNAL(toggled(bool)),this,SLOT(updateTrackLightModel(bool)));
 //
-//	d->last_trackTubeRadius=trackTubeRadius();
-//	connect(d->editwindow_ui.checkBox_trackTubes,SIGNAL(toggled(bool)),this,SLOT(updateTrackTubeRadius()));
-//	connect(d->editwindow_ui.doubleSpinBox_trackTubesRadiusMM,SIGNAL(valueChanged(double)),this,SLOT(updateTrackTubeRadius()));
+//	m_d->last_trackTubeRadius=trackTubeRadius();
+//	connect(m_d->editwindow_ui.checkBox_trackTubes,SIGNAL(toggled(bool)),this,SLOT(updateTrackTubeRadius()));
+//	connect(m_d->editwindow_ui.doubleSpinBox_trackTubesRadiusMM,SIGNAL(valueChanged(double)),this,SLOT(updateTrackTubeRadius()));
 //
-//	connect(d->editwindow_ui.checkBox_hideactualpaths,SIGNAL(toggled(bool)),this,SLOT(updateHideActualTrackPath(bool)));
+//	connect(m_d->editwindow_ui.checkBox_hideactualpaths,SIGNAL(toggled(bool)),this,SLOT(updateHideActualTrackPath(bool)));
 
 //	// -> parameters
-//	connect(d->editwindow_ui.checkBox_showparameters,SIGNAL(toggled(bool)),this,SLOT(possibleChange_showParameters()));
-//	connect(d->editwindow_ui.checkBox_parameters_colourByType,SIGNAL(toggled(bool)),this,SLOT(possibleChange_parameterColours()));
+//	connect(m_d->editwindow_ui.checkBox_showparameters,SIGNAL(toggled(bool)),this,SLOT(possibleChange_showParameters()));
+//	connect(m_d->editwindow_ui.checkBox_parameters_colourByType,SIGNAL(toggled(bool)),this,SLOT(possibleChange_parameterColours()));
 
 
 	// -> scale
-	connect(d->ui_disp.doubleSpinBox_lengthOf100GeV,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_scale()));
+	connect(m_d->ui_disp.doubleSpinBox_lengthOf100GeV,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_scale()));
 
 	// -> cutAllowedP/Pt
-	connect(d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->editwindow_ui.checkBox_cut_maxpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->editwindow_ui.doubleSpinBox_cut_minpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->editwindow_ui.doubleSpinBox_cut_maxpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->editwindow_ui.comboBox_momtype,SIGNAL(currentIndexChanged(int)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->editwindow_ui.checkBox_cut_maxpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->editwindow_ui.doubleSpinBox_cut_minpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->editwindow_ui.doubleSpinBox_cut_maxpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->editwindow_ui.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->editwindow_ui.comboBox_momtype,SIGNAL(currentIndexChanged(int)),this,SLOT(possibleChange_cutAllowedPt()));
 
 	// -> cutAllowedEta
-	connect(d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)),this,SLOT(possibleChange_cutAllowedEta()));
+	connect(m_d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)),this,SLOT(possibleChange_cutAllowedEta()));
 
 	// -> cutAllowedPhi
-	connect(d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(possibleChange_cutAllowedPhi()));
+	connect(m_d->editwindow_ui.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(possibleChange_cutAllowedPhi()));
 
 	// random colors
-	connect(d->ui_disp.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(enableRandomColours(bool)));
-	connect(d->ui_disp.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(possibleChange_randomJetColours()));
-	connect(d->ui_disp.pushButton_colourbyrandom_rerandomise,SIGNAL(clicked()),this,SLOT(emitRerandomise()));
+	connect(m_d->ui_disp.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(enableRandomColours(bool)));
+	connect(m_d->ui_disp.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(possibleChange_randomJetColours()));
+	connect(m_d->ui_disp.pushButton_colourbyrandom_rerandomise,SIGNAL(clicked()),this,SLOT(emitRerandomise()));
 	this->enableRandomColours(false);
 
 	// maxR
-	connect(d->ui_disp.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(enableMaxR(bool)));
-	connect(d->ui_disp.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(possibleChange_maxR()));
-	connect(d->ui_disp.doubleSpinBox_maxR, SIGNAL(valueChanged(double)), this, SLOT(possibleChange_maxR()));
+	connect(m_d->ui_disp.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(enableMaxR(bool)));
+	connect(m_d->ui_disp.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(possibleChange_maxR()));
+	connect(m_d->ui_disp.doubleSpinBox_maxR, SIGNAL(valueChanged(double)), this, SLOT(possibleChange_maxR()));
 	this->enableMaxR(false);
 
 
 	// BTagging
-	connect(d->ui_disp.bTaggingCheckBox, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingEnabled(bool)) );
+	connect(m_d->ui_disp.bTaggingCheckBox, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingEnabled(bool)) );
 
-	connect(d->ui_disp.bTaggingComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(possibleChange_bTaggingTagger()) );
+	connect(m_d->ui_disp.bTaggingComboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(possibleChange_bTaggingTagger()) );
 
-	connect(d->ui_disp.bTaggingSpinBox, SIGNAL(valueChanged(double)), this, SLOT(possibleChange_bTaggingCut()) );
+	connect(m_d->ui_disp.bTaggingSpinBox, SIGNAL(valueChanged(double)), this, SLOT(possibleChange_bTaggingCut()) );
 
-	connect(d->ui_disp.radioButton_material, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingRenderingMaterial(bool)) );
+	connect(m_d->ui_disp.radioButton_material, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingRenderingMaterial(bool)) );
 
 	// not needed...
-	//connect(d->ui_disp.matButton_btaggedJets, SIGNAL(lastAppliedChanged()), this, SLOT(possibleChange_bTaggingMaterial()) );
+	//connect(m_d->ui_disp.matButton_btaggedJets, SIGNAL(lastAppliedChanged()), this, SLOT(possibleChange_bTaggingMaterial()) );
 
-	connect(d->ui_disp.radioButton_skins, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingRenderingSkin(bool)) );
+	connect(m_d->ui_disp.radioButton_skins, SIGNAL(toggled(bool)), this, SLOT(possibleChange_bTaggingRenderingSkin(bool)) );
 
 
 	// Material button
 	connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
-	connect(d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
-	connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(updateButton()));
-	connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SIGNAL(lastAppliedChanged()));
+	connect(m_d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
+	connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(updateButton()));
+	connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SIGNAL(lastAppliedChanged()));
 	setAcceptDrops(true);
 
 	QTimer::singleShot(0, this, SLOT(updateButton()));
@@ -356,13 +356,13 @@ JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _d
 
 
 	// create default material for b-jets
-	d->materialFallback = d->createMaterial(116,255,228, 0.2, 0.3); // light greenish-blue (R,G,B, brightness, transparency)
-	d->materialFallback->ref();
+	m_d->materialFallback = m_d->createMaterial(116,255,228, 0.2, 0.3); // light greenish-blue (R,G,B, brightness, transparency)
+	m_d->materialFallback->ref();
 
 
 
 	// init material for b-tagged jet
-	d->ui_disp.matButton_btaggedJets->setMaterial(d->materialFallback);
+	m_d->ui_disp.matButton_btaggedJets->setMaterial(m_d->materialFallback);
 
 //	updateButton();
 
@@ -370,109 +370,109 @@ JetCollectionSettingsButton::JetCollectionSettingsButton(QWidget * parent,int _d
 }
 
 // QWidget& JetCollectionSettingsButton::editWindow() {
-//   if (!d->editwindow)
+//   if (!m_d->editwindow)
 //     initEditWindow();
-//   return *(d->editwindow);
+//   return *(m_d->editwindow);
 // } 
 JetCollectionSettingsButton::~JetCollectionSettingsButton()
 {
-	delete d->editwindow;
-//	d->trackDrawStyle->unref();
-//	d->trackLightModel->unref();
-	delete d;
+	delete m_d->editwindow;
+//	m_d->trackDrawStyle->unref();
+//	m_d->trackLightModel->unref();
+	delete m_d;
 }
 
 void JetCollectionSettingsButton::updateButton()
 {
 	if (objectName().isEmpty())
 		setObjectName("JetCollectionSettingsButton");
-	messageVerbose("jet - setColButtonProperties: color=" + str(d->matButton->lastAppliedDiffuseColour()));
-	VP1ColorSelectButton::setColButtonProperties(this,d->matButton->lastAppliedDiffuseColour(),d->dim);
+	messageVerbose("jet - setColButtonProperties: color=" + str(m_d->matButton->lastAppliedDiffuseColour()));
+	VP1ColorSelectButton::setColButtonProperties(this,m_d->matButton->lastAppliedDiffuseColour(),m_d->dim);
 }
 
-void JetCollectionSettingsButton::setDimension(int _dim)
+void JetCollectionSettingsButton::setDimension(int dim)
 {
-	if (d->dim == _dim)
+	if (m_d->dim == dim)
 		return;
-	d->dim = _dim;
+	m_d->dim = dim;
 	updateButton();
 }
 
 void JetCollectionSettingsButton::showEditMaterialDialog()
 {
-	if (!d->editwindow)
-		d->initEditWindow();
+	if (!m_d->editwindow)
+		m_d->initEditWindow();
 
-	if (d->editwindow->isHidden())
-		d->editwindow->show();
+	if (m_d->editwindow->isHidden())
+		m_d->editwindow->show();
 	else
-		d->editwindow->hide();
+		m_d->editwindow->hide();
 }
 
 bool JetCollectionSettingsButton::setMaterial(SoMaterial*mat)
 {  
 	// std::cout<<"JetCollectionSettingsButton::setMaterial with mat="<<mat<<std::endl;
-	if (!d->matButton) d->initEditWindow();
-	d->matButton->setMaterial(mat);
+	if (!m_d->matButton) m_d->initEditWindow();
+	m_d->matButton->setMaterial(mat);
 	return true;
 }
 
 VP1MaterialButton* JetCollectionSettingsButton::getMaterialButton() const
 {
-	return d->matButton;
+	return m_d->matButton;
 }
 
 void JetCollectionSettingsButton::copyValuesFromMaterial(SoMaterial*mat)
 {
-	if (!d->matButton) d->initEditWindow();
-	d->matButton->setMaterial(mat);
+	if (!m_d->matButton) m_d->initEditWindow();
+	m_d->matButton->setMaterial(mat);
 }
 double JetCollectionSettingsButton::lastAppliedTransparency() const
 {
-	if (!d->matButton) d->initEditWindow();
-	return d->matButton->lastAppliedTransparency();
+	if (!m_d->matButton) m_d->initEditWindow();
+	return m_d->matButton->lastAppliedTransparency();
 }
 double JetCollectionSettingsButton::lastAppliedShininess() const
 {
-	if (!d->matButton) d->initEditWindow();
-	return d->matButton->lastAppliedShininess();
+	if (!m_d->matButton) m_d->initEditWindow();
+	return m_d->matButton->lastAppliedShininess();
 }
 double JetCollectionSettingsButton::lastAppliedBrightness() const
 {
-	if (!d->matButton) d->initEditWindow();
-	return d->matButton->lastAppliedBrightness();
+	if (!m_d->matButton) m_d->initEditWindow();
+	return m_d->matButton->lastAppliedBrightness();
 }
 
 //double JetCollectionSettingsButton::trackTubeRadius() const
 //{
-//	return d->editwindow_ui.checkBox_trackTubes->isChecked() ?
-//			d->editwindow_ui.doubleSpinBox_trackTubesRadiusMM->value() : 0.0;
+//	return m_d->editwindow_ui.checkBox_trackTubes->isChecked() ?
+//			m_d->editwindow_ui.doubleSpinBox_trackTubesRadiusMM->value() : 0.0;
 //}
 //
 //void JetCollectionSettingsButton::updateTrackTubeRadius()
 //{
-//	if (d->last_trackTubeRadius==trackTubeRadius()) return;
-//	d->last_trackTubeRadius=trackTubeRadius();
-//	messageVerbose("TrackTubeRadius changed to "+str(d->last_trackTubeRadius));
-//	emit trackTubeRadiusChanged(d->last_trackTubeRadius);
+//	if (m_d->last_trackTubeRadius==trackTubeRadius()) return;
+//	m_d->last_trackTubeRadius=trackTubeRadius();
+//	messageVerbose("TrackTubeRadius changed to "+str(m_d->last_trackTubeRadius));
+//	emit trackTubeRadiusChanged(m_d->last_trackTubeRadius);
 //	return;
 //}
 //
 //void JetCollectionSettingsButton::updateTrackDrawStyle()
 //{
-//	double val = VP1QtInventorUtils::getValueLineWidthSlider(d->editwindow_ui.horizontalSlider_trackWidth);
-//	if (d->trackDrawStyle->lineWidth.getValue()!=val)
-//		d->trackDrawStyle->lineWidth = val;
+//	double val = VP1QtInventorUtils::getValueLineWidthSlider(m_d->editwindow_ui.horizontalSlider_trackWidth);
+//	if (m_d->trackDrawStyle->lineWidth.getValue()!=val)
+//		m_d->trackDrawStyle->lineWidth = val;
 //}
 //
 //void JetCollectionSettingsButton::updateTrackLightModel(bool base)
 //{
-//	if (d->trackLightModel->model.getValue()!=(base?SoLightModel::BASE_COLOR:SoLightModel::PHONG)) {
+//	if (m_d->trackLightModel->model.getValue()!=(base?SoLightModel::BASE_COLOR:SoLightModel::PHONG)) {
 //		messageVerbose("TrackLightModel changed (base = "+str(base));
 //		if (base)
-//			d->trackLightModel->model.setValue(SoLightModel::BASE_COLOR);
+//			m_d->trackLightModel->model.setValue(SoLightModel::BASE_COLOR);
 //		else
-//			d->trackLightModel->model.setValue(SoLightModel::PHONG);
+//			m_d->trackLightModel->model.setValue(SoLightModel::PHONG);
 //	}
 //}
 //
@@ -484,26 +484,26 @@ double JetCollectionSettingsButton::lastAppliedBrightness() const
 //
 //SoDrawStyle * JetCollectionSettingsButton::trackDrawStyle() const
 //{
-//	return d->trackDrawStyle;
+//	return m_d->trackDrawStyle;
 //}
 //
 //SoLightModel * JetCollectionSettingsButton::trackLightModel() const
 //{
-//	return d->trackLightModel;
+//	return m_d->trackLightModel;
 //}
 //
 //SoMaterial* JetCollectionSettingsButton::defaultParameterMaterial() const {
-//	return d->defaultParametersMatButton->handledMaterials().at(0);// Only have one material per button.
+//	return m_d->defaultParametersMatButton->handledMaterials().at(0);// Only have one material per button.
 //}
 //SoMaterial* JetCollectionSettingsButton::parameterMaterial( xAOD::ParameterPosition position) const{
-//	return (d->parameterTypeMatButtons.at(static_cast<unsigned int>(position)))->handledMaterials().at(0);// Only have one material per button.
+//	return (m_d->parameterTypeMatButtons.at(static_cast<unsigned int>(position)))->handledMaterials().at(0);// Only have one material per button.
 //}
 
 // void setDefaultParameterMaterial(SoMaterial* mat) {    
-//     // d->defaultParametersMatButton->setObjectName("matButton_default");
-//     // d->defaultParametersMatButton->setToolTip(matButtonToolTip());
-//     d->defaultParametersMatButton->setMaterial(mat);
-//     // connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(possibleChangeMatTranspOrBrightness()));
+//     // m_d->defaultParametersMatButton->setObjectName("matButton_default");
+//     // m_d->defaultParametersMatButton->setToolTip(matButtonToolTip());
+//     m_d->defaultParametersMatButton->setMaterial(mat);
+//     // connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(possibleChangeMatTranspOrBrightness()));
 // }
 // 
 // void JetCollectionSettingsButton::setParameterMaterial(SoMaterial*, xAOD::ParameterPosition){
@@ -512,40 +512,40 @@ double JetCollectionSettingsButton::lastAppliedBrightness() const
 
 //bool  JetCollectionSettingsButton::hideActualTrackPath() const
 //{
-//	if (!d->editwindow)
-//		d->initEditWindow();
-//	return d->editwindow_ui.checkBox_hideactualpaths->isChecked();
+//	if (!m_d->editwindow)
+//		m_d->initEditWindow();
+//	return m_d->editwindow_ui.checkBox_hideactualpaths->isChecked();
 //}
 //
 //bool JetCollectionSettingsButton::showParameters() const
 //{
-//	if (!d->editwindow)
-//		d->initEditWindow();
-//	messageVerbose("JetCollectionSettingsButton::showParameters returning  "+str(d->editwindow_ui.checkBox_showparameters->isChecked()));
-//	return d->editwindow_ui.checkBox_showparameters->isChecked();
+//	if (!m_d->editwindow)
+//		m_d->initEditWindow();
+//	messageVerbose("JetCollectionSettingsButton::showParameters returning  "+str(m_d->editwindow_ui.checkBox_showparameters->isChecked()));
+//	return m_d->editwindow_ui.checkBox_showparameters->isChecked();
 //}
 //
 //bool JetCollectionSettingsButton::colourParametersByType() const
 //{
-//	if (!d->editwindow)
-//		d->initEditWindow();
-//	messageVerbose("JetCollectionSettingsButton::colourParametersByType returning  "+str(d->editwindow_ui.checkBox_parameters_colourByType->isChecked()));
-//	return d->editwindow_ui.checkBox_parameters_colourByType->isChecked();
+//	if (!m_d->editwindow)
+//		m_d->initEditWindow();
+//	messageVerbose("JetCollectionSettingsButton::colourParametersByType returning  "+str(m_d->editwindow_ui.checkBox_parameters_colourByType->isChecked()));
+//	return m_d->editwindow_ui.checkBox_parameters_colourByType->isChecked();
 //}
 //
 //
 //bool  JetCollectionSettingsButton::cutOnlyVertexAssocTracks() const
 //{
-//	if (!d->editwindow)
-//		d->initEditWindow();
-//	return d->editwindow_ui.checkBox_vertexAssociated->isChecked();
+//	if (!m_d->editwindow)
+//		m_d->initEditWindow();
+//	return m_d->editwindow_ui.checkBox_vertexAssociated->isChecked();
 //}
 
 //____________________________________________________________________
 void JetCollectionSettingsButton::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
-		d->dragStartPosition = event->pos();
+		m_d->dragStartPosition = event->pos();
 	QPushButton::mousePressEvent(event);
 }
 
@@ -561,7 +561,7 @@ void JetCollectionSettingsButton::mouseMoveEvent(QMouseEvent *event)
 {
 	if (!(event->buttons() & Qt::LeftButton))
 		return;
-	if ((event->pos() - d->dragStartPosition).manhattanLength()
+	if ((event->pos() - m_d->dragStartPosition).manhattanLength()
 			< QApplication::startDragDistance())
 		return;
 
@@ -583,22 +583,22 @@ void JetCollectionSettingsButton::mouseMoveEvent(QMouseEvent *event)
 	// ////////////////////////////////////////////////////////
 	//
 	// QString s = "SoMaterial * mat = new SoMaterial;\n";
-	// QString str_ambient = d->toSbColTxt(d->lastapplied_ambient);
+	// QString str_ambient = m_d->toSbColTxt(m_d->lastapplied_ambient);
 	// if (str_ambient!="SbColor(0.2,0.2,0.2)")
 	//   s += "mat->ambientColor.setValue("+str_ambient+");\n";
-	// QString str_diffuse = d->toSbColTxt(d->lastapplied_diffuse);
+	// QString str_diffuse = m_d->toSbColTxt(m_d->lastapplied_diffuse);
 	// if (str_diffuse!="SbColor(0.8,0.8,0.8)")
 	//   s += "mat->diffuseColor.setValue("+str_diffuse+");\n";
-	// QString str_specular = d->toSbColTxt(d->lastapplied_specular);
+	// QString str_specular = m_d->toSbColTxt(m_d->lastapplied_specular);
 	// if (str_specular!="SbColor(0,0,0)")
 	//   s += "mat->specularColor.setValue("+str_specular+");\n";
-	// QString str_emissive = d->toSbColTxt(d->lastapplied_emissive);
+	// QString str_emissive = m_d->toSbColTxt(m_d->lastapplied_emissive);
 	// if (str_emissive!="SbColor(0,0,0)")
 	//   s += "mat->emissiveColor.setValue("+str_emissive+");\n";
-	// QString str_shininess = d->printFloat(d->lastapplied_shininess/100.0);
+	// QString str_shininess = m_d->printFloat(m_d->lastapplied_shininess/100.0);
 	// if (str_shininess!="0.2")
 	//   s +=     "mat->shininess.setValue("+str_shininess+");\n";
-	// QString str_transparency = d->printFloat(d->lastapplied_transparency/100.0);
+	// QString str_transparency = m_d->printFloat(m_d->lastapplied_transparency/100.0);
 	// if (str_transparency!="0")
 	//   s +=     "mat->transparency.setValue("+str_transparency+");\n";
 	// mimeData->setText(s);
@@ -622,44 +622,44 @@ QByteArray JetCollectionSettingsButton::saveState() const{
 	messageDebug("JetCollectionSettingsButton::saveState()");
 
 	// messageVerbose("getState");
-	// if (d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
+	// if (m_d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
 	VP1Serialise serialise(1/*version*/);
 
 
-	serialise.save(d->matButton);
+	serialise.save(m_d->matButton);
 	//serialise.disableUnsavedChecks(); // TODO: what this does??
 
 	// COMMON SETTINGS
-	serialise.save(d->editwindow_ui.checkBox_tracksUseBaseLightModel);
-	serialise.save(d->editwindow_ui.checkBox_cut_minpt);
-	serialise.save(d->editwindow_ui.doubleSpinBox_cut_minpt_gev);
-	serialise.save(d->editwindow_ui.checkBox_cut_maxpt);
-	serialise.save(d->editwindow_ui.doubleSpinBox_cut_maxpt_gev);
-	serialise.save(d->editwindow_ui.comboBox_momtype);
+	serialise.save(m_d->editwindow_ui.checkBox_tracksUseBaseLightModel);
+	serialise.save(m_d->editwindow_ui.checkBox_cut_minpt);
+	serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_minpt_gev);
+	serialise.save(m_d->editwindow_ui.checkBox_cut_maxpt);
+	serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_maxpt_gev);
+	serialise.save(m_d->editwindow_ui.comboBox_momtype);
 
 	// ETA-PHI CUTS (from VP1Base/VP1EtaPhiCutWidget.cxx)
-	serialise.save(d->editwindow_ui.etaPhiCutWidget);
+	serialise.save(m_d->editwindow_ui.etaPhiCutWidget);
 
 	// JET SETTINGS
-	serialise.save(d->ui_disp.checkBox_randomColours);
-	serialise.save(d->ui_disp.doubleSpinBox_lengthOf100GeV);
-	serialise.save(d->ui_disp.checkBox_maxR);
-	serialise.save(d->ui_disp.doubleSpinBox_maxR);
+	serialise.save(m_d->ui_disp.checkBox_randomColours);
+	serialise.save(m_d->ui_disp.doubleSpinBox_lengthOf100GeV);
+	serialise.save(m_d->ui_disp.checkBox_maxR);
+	serialise.save(m_d->ui_disp.doubleSpinBox_maxR);
 
-	serialise.save(d->ui_disp.groupBox_IDprojection);
-	serialise.save(d->ui_disp.checkBox_radialScale);
-	serialise.save(d->ui_disp.doubleSpinBox_radialScale);
+	serialise.save(m_d->ui_disp.groupBox_IDprojection);
+	serialise.save(m_d->ui_disp.checkBox_radialScale);
+	serialise.save(m_d->ui_disp.doubleSpinBox_radialScale);
 
-	serialise.save(d->ui_disp.bTaggingCheckBox);
-	serialise.save(d->ui_disp.bTaggingComboBox);
-	serialise.save(d->ui_disp.bTaggingSpinBox);
-	serialise.save(d->ui_disp.radioButton_material, d->ui_disp.radioButton_skins);
-	serialise.save(d->ui_disp.matButton_btaggedJets);
-	serialise.save(d->ui_disp.skinsComboBox);
+	serialise.save(m_d->ui_disp.bTaggingCheckBox);
+	serialise.save(m_d->ui_disp.bTaggingComboBox);
+	serialise.save(m_d->ui_disp.bTaggingSpinBox);
+	serialise.save(m_d->ui_disp.radioButton_material, m_d->ui_disp.radioButton_skins);
+	serialise.save(m_d->ui_disp.matButton_btaggedJets);
+	serialise.save(m_d->ui_disp.skinsComboBox);
 
 	// Parameters
-//	serialise.save(d->editwindow_ui.checkBox_showparameters);
-//	serialise.save(d->editwindow_ui.checkBox_parameters_colourByType);
+//	serialise.save(m_d->editwindow_ui.checkBox_showparameters);
+//	serialise.save(m_d->editwindow_ui.checkBox_parameters_colourByType);
 
 	serialise.widgetHandled(this);
 	serialise.warnUnsaved(this);
@@ -675,53 +675,53 @@ void JetCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 		messageDebug("restoreFromState() - ignoring...");
 		return;//Ignore silently
 	}
-	state.restore(d->matButton);
+	state.restore(m_d->matButton);
 
 
 	// COMMON SETTINGS
-	state.restore(d->editwindow_ui.checkBox_tracksUseBaseLightModel);
-	state.restore(d->editwindow_ui.checkBox_cut_minpt);
-	state.restore(d->editwindow_ui.doubleSpinBox_cut_minpt_gev);
-	state.restore(d->editwindow_ui.checkBox_cut_maxpt);
-	state.restore(d->editwindow_ui.doubleSpinBox_cut_maxpt_gev);
-	state.restore(d->editwindow_ui.comboBox_momtype);
+	state.restore(m_d->editwindow_ui.checkBox_tracksUseBaseLightModel);
+	state.restore(m_d->editwindow_ui.checkBox_cut_minpt);
+	state.restore(m_d->editwindow_ui.doubleSpinBox_cut_minpt_gev);
+	state.restore(m_d->editwindow_ui.checkBox_cut_maxpt);
+	state.restore(m_d->editwindow_ui.doubleSpinBox_cut_maxpt_gev);
+	state.restore(m_d->editwindow_ui.comboBox_momtype);
 
 	// ETA-PHI CUTS (from VP1Base/VP1EtaPhiCutWidget.cxx)
-	state.restore(d->editwindow_ui.etaPhiCutWidget);
+	state.restore(m_d->editwindow_ui.etaPhiCutWidget);
 
 	// JET SETTINGS
-	state.restore(d->ui_disp.checkBox_randomColours);
-	state.restore(d->ui_disp.doubleSpinBox_lengthOf100GeV);
-	state.restore(d->ui_disp.checkBox_maxR);
-	state.restore(d->ui_disp.doubleSpinBox_maxR);
+	state.restore(m_d->ui_disp.checkBox_randomColours);
+	state.restore(m_d->ui_disp.doubleSpinBox_lengthOf100GeV);
+	state.restore(m_d->ui_disp.checkBox_maxR);
+	state.restore(m_d->ui_disp.doubleSpinBox_maxR);
 
-	state.restore(d->ui_disp.groupBox_IDprojection);
-	state.restore(d->ui_disp.checkBox_radialScale);
-	state.restore(d->ui_disp.doubleSpinBox_radialScale);
+	state.restore(m_d->ui_disp.groupBox_IDprojection);
+	state.restore(m_d->ui_disp.checkBox_radialScale);
+	state.restore(m_d->ui_disp.doubleSpinBox_radialScale);
 
-	state.restore(d->ui_disp.bTaggingCheckBox);
-	state.restore(d->ui_disp.bTaggingComboBox);
-	state.restore(d->ui_disp.bTaggingSpinBox);
-	state.restore(d->ui_disp.radioButton_material, d->ui_disp.radioButton_skins);
-	state.restore(d->ui_disp.matButton_btaggedJets);
-	state.restore(d->ui_disp.skinsComboBox);
+	state.restore(m_d->ui_disp.bTaggingCheckBox);
+	state.restore(m_d->ui_disp.bTaggingComboBox);
+	state.restore(m_d->ui_disp.bTaggingSpinBox);
+	state.restore(m_d->ui_disp.radioButton_material, m_d->ui_disp.radioButton_skins);
+	state.restore(m_d->ui_disp.matButton_btaggedJets);
+	state.restore(m_d->ui_disp.skinsComboBox);
 
 
 	//	// Parameters
-//	state.restore(d->editwindow_ui.checkBox_showparameters);
-//	state.restore(d->editwindow_ui.checkBox_parameters_colourByType);
+//	state.restore(m_d->editwindow_ui.checkBox_showparameters);
+//	state.restore(m_d->editwindow_ui.checkBox_parameters_colourByType);
 
 	state.widgetHandled(this);
 	state.warnUnrestored(this);
 
 //	updateTrackTubeRadius();
-//	updateTrackLightModel(d->editwindow_ui.checkBox_tracksUseBaseLightModel);
+//	updateTrackLightModel(m_d->editwindow_ui.checkBox_tracksUseBaseLightModel);
 
 	updateButton();
 
 	// after restoring the state, check if b-tagging checkbox is enabled,
-	messageDebug("updating b-tagging status for collection " + d->name + "...");
-	if (d->ui_disp.bTaggingCheckBox->isChecked()) {
+	messageDebug("updating b-tagging status for collection " + m_d->name + "...");
+	if (m_d->ui_disp.bTaggingCheckBox->isChecked()) {
 		possibleChange_bTaggingEnabled(true); // init the b-tagging toolbox as active
 
 	}
@@ -735,9 +735,9 @@ void JetCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 //____________________________________________________________________
 VP1Interval JetCollectionSettingsButton::cutAllowedPt() const
 {
-	if (!d->editwindow)
-		d->initEditWindow();
-	if (!d->editwindow_ui.checkBox_cut_minpt)
+	if (!m_d->editwindow)
+		m_d->initEditWindow();
+	if (!m_d->editwindow_ui.checkBox_cut_minpt)
 		return VP1Interval();
 
 	// will set range to negative if we have momcut=P
@@ -745,19 +745,19 @@ VP1Interval JetCollectionSettingsButton::cutAllowedPt() const
 	// if minCut set, and Pt selected, then min=-minCut
 	// if minCut set, and P selected, then min=-maxCut
 	// etc
-	bool isPCut = d->editwindow_ui.comboBox_momtype->currentText()=="P";
+	bool isPCut = m_d->editwindow_ui.comboBox_momtype->currentText()=="P";
 
-	const double minFromInterface=d->editwindow_ui.doubleSpinBox_cut_minpt_gev->value()*1000;
-	const double maxFromInterface=d->editwindow_ui.doubleSpinBox_cut_maxpt_gev->value()*1000;
+	const double minFromInterface=m_d->editwindow_ui.doubleSpinBox_cut_minpt_gev->value()*1000;
+	const double maxFromInterface=m_d->editwindow_ui.doubleSpinBox_cut_maxpt_gev->value()*1000;
 
 	double min=0.0,max=0.0;
 	if (!isPCut) {
 		//Pt cut
-		min = (d->editwindow_ui.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
-		max = (d->editwindow_ui.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
+		min = (m_d->editwindow_ui.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
+		max = (m_d->editwindow_ui.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
 	} else {
-		min = (d->editwindow_ui.checkBox_cut_maxpt->isChecked() ? -maxFromInterface : -std::numeric_limits<double>::infinity());
-		max = (d->editwindow_ui.checkBox_cut_minpt->isChecked() ? -minFromInterface : std::numeric_limits<double>::infinity());
+		min = (m_d->editwindow_ui.checkBox_cut_maxpt->isChecked() ? -maxFromInterface : -std::numeric_limits<double>::infinity());
+		max = (m_d->editwindow_ui.checkBox_cut_minpt->isChecked() ? -minFromInterface : std::numeric_limits<double>::infinity());
 	}
 
 	//message("cutAllowedPt: min,max="+QString::number(min)+","+QString::number(max));
@@ -771,17 +771,17 @@ VP1Interval JetCollectionSettingsButton::cutAllowedPt() const
 //____________________________________________________________________
 VP1Interval JetCollectionSettingsButton::cutAllowedEta() const
 {
-	if (!d->editwindow)
-		d->initEditWindow();
-	return d->editwindow_ui.etaPhiCutWidget->allowedEta();
+	if (!m_d->editwindow)
+		m_d->initEditWindow();
+	return m_d->editwindow_ui.etaPhiCutWidget->allowedEta();
 }
 
 //____________________________________________________________________
 QList<VP1Interval> JetCollectionSettingsButton::cutAllowedPhi() const
 {
-	if (!d->editwindow)
-		d->initEditWindow();
-	return d->editwindow_ui.etaPhiCutWidget->allowedPhi();
+	if (!m_d->editwindow)
+		m_d->initEditWindow();
+	return m_d->editwindow_ui.etaPhiCutWidget->allowedPhi();
 }
 
 
@@ -790,37 +790,37 @@ void JetCollectionSettingsButton::possibleChange_cutAllowedPt()
 {
 	messageVerbose("possibleChange_cutAllowedPt() ");
 
-	if (d->last_cutAllowedPt==cutAllowedPt()) return;
+	if (m_d->last_cutAllowedPt==cutAllowedPt()) return;
 	messageVerbose("cutAllowedPt() changed");
-	d->last_cutAllowedPt= cutAllowedPt();
-	emit cutAllowedPtChanged(d->last_cutAllowedPt);
+	m_d->last_cutAllowedPt= cutAllowedPt();
+	emit cutAllowedPtChanged(m_d->last_cutAllowedPt);
 }
 
 void JetCollectionSettingsButton::possibleChange_cutAllowedEta()
 {
-	if (d->last_cutAllowedEta==cutAllowedEta()) return;
+	if (m_d->last_cutAllowedEta==cutAllowedEta()) return;
 	messageVerbose("cutAllowedEta() changed");
-	d->last_cutAllowedEta=cutAllowedEta();
-	emit cutAllowedEtaChanged(d->last_cutAllowedEta);
+	m_d->last_cutAllowedEta=cutAllowedEta();
+	emit cutAllowedEtaChanged(m_d->last_cutAllowedEta);
 }
 
 void JetCollectionSettingsButton::possibleChange_cutAllowedPhi()
 {
-	if (d->last_cutAllowedPhi==cutAllowedPhi()) return;
+	if (m_d->last_cutAllowedPhi==cutAllowedPhi()) return;
 	messageVerbose("cutAllowedPhi() changed");
-	d->last_cutAllowedPhi=cutAllowedPhi();
-	emit cutAllowedPhiChanged(d->last_cutAllowedPhi);
+	m_d->last_cutAllowedPhi=cutAllowedPhi();
+	emit cutAllowedPhiChanged(m_d->last_cutAllowedPhi);
 }
 
 void JetCollectionSettingsButton::possibleChange_scale()
 {
 	messageVerbose("possibleChange_scale() ");
 
-	if (d->last_scale == lengthOf100GeV()) return;
+	if (m_d->last_scale == lengthOf100GeV()) return;
 
 	messageVerbose("lengthOf100GeV changed");
-	d->last_scale = lengthOf100GeV();
-	emit scaleChanged(d->last_scale);
+	m_d->last_scale = lengthOf100GeV();
+	emit scaleChanged(m_d->last_scale);
 }
 
 
@@ -828,23 +828,23 @@ void JetCollectionSettingsButton::possibleChange_randomJetColours()
 {
 	messageVerbose("possibleChange_randomJetColours() ");
 
-	if (d->last_randomJetColours == randomJetColours() ) return;
+	if (m_d->last_randomJetColours == randomJetColours() ) return;
 	messageVerbose("checkBox_randomColours changed");
-	d->last_randomJetColours = randomJetColours();
-	emit randomJetColoursChanged(d->last_randomJetColours);
+	m_d->last_randomJetColours = randomJetColours();
+	emit randomJetColoursChanged(m_d->last_randomJetColours);
 }
 
 
 //____________________________________________________________________
 void JetCollectionSettingsButton::enableRandomColours(bool bb)
 {
-	d->ui_disp.pushButton_colourbyrandom_rerandomise->setEnabled(bb);
+	m_d->ui_disp.pushButton_colourbyrandom_rerandomise->setEnabled(bb);
 }
 
 //____________________________________________________________________
 bool JetCollectionSettingsButton::randomJetColours() const
 {
-  return d->ui_disp.checkBox_randomColours->isChecked();
+  return m_d->ui_disp.checkBox_randomColours->isChecked();
 }
 
 
@@ -865,7 +865,7 @@ void JetCollectionSettingsButton::emitRerandomise()
 //____________________________________________________________________
 void JetCollectionSettingsButton::enableMaxR(bool bb)
 {
-	d->ui_disp.doubleSpinBox_maxR->setEnabled(bb);
+	m_d->ui_disp.doubleSpinBox_maxR->setEnabled(bb);
 }
 
 //____________________________________________________________________
@@ -873,15 +873,15 @@ void JetCollectionSettingsButton::possibleChange_maxR()
 {
 	messageVerbose("possibleChange_maxR() ");
 
-	if ( !  d->ui_disp.checkBox_maxR->isChecked() ) {
+	if ( !  m_d->ui_disp.checkBox_maxR->isChecked() ) {
 		messageVerbose("maxR unchecked --> setting maxR=0.0 and returning");
 		emit maxRChanged(0.0); // setting marR=0.0 disables the maxR option in handleJet
 		return;
 	}
 
 	messageVerbose("setting maxR");
-	d->last_maxR = maxR();
-	emit maxRChanged(d->last_maxR);
+	m_d->last_maxR = maxR();
+	emit maxRChanged(m_d->last_maxR);
 }
 
 //____________________________________________________________________
@@ -889,12 +889,12 @@ void JetCollectionSettingsButton::possibleChange_bTaggingEnabled(bool bb)
 {
 	messageVerbose("possibleChange_bTaggingEnabled() - "+str(bb));
 
-	d->ui_disp.bTaggingAlgLabel->setEnabled(bb);
-	d->ui_disp.bTagginWeightCutLabel->setEnabled(bb);
-	d->ui_disp.bTaggingComboBox->setEnabled(bb);
-	d->ui_disp.bTaggingSpinBox->setEnabled(bb);
-	d->ui_disp.groupBox_btagging_render->setEnabled(bb);
-	d->ui_disp.matButton_btaggedJets->setEnabled(bb);
+	m_d->ui_disp.bTaggingAlgLabel->setEnabled(bb);
+	m_d->ui_disp.bTagginWeightCutLabel->setEnabled(bb);
+	m_d->ui_disp.bTaggingComboBox->setEnabled(bb);
+	m_d->ui_disp.bTaggingSpinBox->setEnabled(bb);
+	m_d->ui_disp.groupBox_btagging_render->setEnabled(bb);
+	m_d->ui_disp.matButton_btaggedJets->setEnabled(bb);
 	emit bTaggingEnabledChanged(bb);
 }
 
@@ -909,10 +909,10 @@ void JetCollectionSettingsButton::possibleChange_bTaggingCut()
 {
 	messageVerbose("possibleChange_bTaggingCut() - " + QString::number(bTaggingCut()) );
 
-	if (d->last_bTaggingCut == bTaggingCut() ) return;
+	if (m_d->last_bTaggingCut == bTaggingCut() ) return;
 
 	messageVerbose("bTaggingSpinBox changed");
-	d->last_bTaggingCut = bTaggingCut();
+	m_d->last_bTaggingCut = bTaggingCut();
 
 	emit bTaggingCutChanged( bTaggingCut() );
 }
@@ -935,13 +935,13 @@ void JetCollectionSettingsButton::possibleChange_bTaggingRenderingMaterial(bool 
 //{
 //	messageVerbose("possibleChange_bTaggingMaterial()");
 //
-//	if (d->last_bTaggingMaterial == bTaggingMaterial() ) {
+//	if (m_d->last_bTaggingMaterial == bTaggingMaterial() ) {
 //		messageVerbose("material not changed. Returning...");
 //		return;
 //	}
 //
 //	messageVerbose("matButton_btaggedJets changed");
-//	d->last_bTaggingMaterial = bTaggingMaterial();
+//	m_d->last_bTaggingMaterial = bTaggingMaterial();
 //
 //	emit bTaggingMaterialChanged();
 //}

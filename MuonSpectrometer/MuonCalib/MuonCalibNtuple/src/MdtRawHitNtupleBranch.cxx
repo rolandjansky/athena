@@ -14,43 +14,43 @@
 
 namespace MuonCalib {
 
-  MdtRawHitNtupleBranch::MdtRawHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
+  MdtRawHitNtupleBranch::MdtRawHitNtupleBranch(std::string branchName) : m_branchName(branchName), m_branchesInit(false), m_index(0)
   {}
 
   bool MdtRawHitNtupleBranch::fillBranch( const MuonCalibRawMdtHit &hit ) {
     //std::cout << "Got into the fillBranch routine of MdtRawHitNtupleBranch" << std::endl;
-    // check if branches where initialized
-    if( !branchesInit ){
-      //      std::cout << "MdtRawHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
+    // check if branches were initialized
+    if( !m_branchesInit ){
+      //      std::cout << "MdtRawHitNtupleBranch::fillBranch  ERROR <branches were not initialized>"
       //	<<  std::endl;
       return false;    
     } 
 
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 ){
-//       std::cout << "MdtRawHitNtupleBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-// 		<<  index << std::endl;
+    if( m_index >= m_blockSize || m_index < 0 ){
+//       std::cout << "MdtRawHitNtupleBranch::fillBranch  ERROR <index out of range; hit not added to ntuple> "
+// 		<<  m_index << std::endl;
       return false;
     }  
     
     // copy values 
-//    occupancy[index]  = hit.occupancy() ;
-    id[index]         = hit.identify().getIdInt();
-    tdc[index]        = hit.tdcCount();
-    adc[index]        = hit.adcCount();
-//    t[index]          = hit.driftTime();
-//    r[index]          = hit.driftRadius();
-//    dr[index]         = hit.driftRadiusError();
-//    posX[index]       = hit.localPosition().x() ;
-//    posY[index]       = hit.localPosition().y() ;
-//    posZ[index]       = hit.localPosition().z() ;
-    gPosX[index]      = hit.globalPosition().x();
-    gPosY[index]      = hit.globalPosition().y();
-    gPosZ[index]      = hit.globalPosition().z();
+//    m_occupancy[m_index]  = hit.occupancy() ;
+    m_id[m_index]         = hit.identify().getIdInt();
+    m_tdc[m_index]        = hit.tdcCount();
+    m_adc[m_index]        = hit.adcCount();
+//    m_t[m_index]          = hit.driftTime();
+//    m_r[m_index]          = hit.driftRadius();
+//    m_dr[m_index]         = hit.driftRadiusError();
+//    m_posX[m_index]       = hit.localPosition().x() ;
+//    m_posY[m_index]       = hit.localPosition().y() ;
+//    m_posZ[m_index]       = hit.localPosition().z() ;
+    m_gPosX[m_index]      = hit.globalPosition().x();
+    m_gPosY[m_index]      = hit.globalPosition().y();
+    m_gPosZ[m_index]      = hit.globalPosition().z();
 
-    //std::cout << "Filled the rawMdtBranch with index " << index << std::endl;
+    //std::cout << "Filled the rawMdtBranch with m_index " << m_index << std::endl;
     // increment hit index
-    ++index;
+    ++m_index;
    
     return true;
   }  //end MdtRawHitNtupleBranch::fillBranch
@@ -69,27 +69,27 @@ namespace MuonCalib {
     std::string index_name ="nRMdt";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-//    branchCreator.createBranch( tree, "occupancy", &occupancy, array_size + "/I" );
-    branchCreator.createBranch( tree, "id",        &id,        array_size + "/I" );
-    branchCreator.createBranch( tree, "tdc",       &tdc,       array_size + "/I" );
-    branchCreator.createBranch( tree, "adc",       &adc,       array_size + "/I" );
-//    branchCreator.createBranch( tree, "t",         &t,         array_size + "/F" );
-//    branchCreator.createBranch( tree, "r",         &r,         array_size + "/F" );
-//    branchCreator.createBranch( tree, "dr",        &dr,        array_size + "/F" );
-//    branchCreator.createBranch( tree, "posX",      &posX,      array_size + "/F" );
-//    branchCreator.createBranch( tree, "posY",      &posY,      array_size + "/F" );
-//    branchCreator.createBranch( tree, "posZ",      &posZ,      array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",     &gPosX,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",     &gPosY,     array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",     &gPosZ,     array_size + "/F" );
+//    branchCreator.createBranch( tree, "occupancy", &m_occupancy, array_size + "/I" );
+    branchCreator.createBranch( tree, "id",        &m_id,        array_size + "/I" );
+    branchCreator.createBranch( tree, "tdc",       &m_tdc,       array_size + "/I" );
+    branchCreator.createBranch( tree, "adc",       &m_adc,       array_size + "/I" );
+//    branchCreator.createBranch( tree, "t",         &m_t,         array_size + "/F" );
+//    branchCreator.createBranch( tree, "r",         &m_r,         array_size + "/F" );
+//    branchCreator.createBranch( tree, "dr",        &m_dr,        array_size + "/F" );
+//    branchCreator.createBranch( tree, "posX",      &m_posX,      array_size + "/F" );
+//    branchCreator.createBranch( tree, "posY",      &m_posY,      array_size + "/F" );
+//    branchCreator.createBranch( tree, "posZ",      &m_posZ,      array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",     &m_gPosX,     array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",     &m_gPosY,     array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",     &m_gPosZ,     array_size + "/F" );
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();

@@ -135,7 +135,7 @@ VP1BPhysSystem::VP1BPhysSystem()
   m_neutralSwitches{},
   m_refittedSwitches{},
   m_br{},    
-	c(new Clockwork)
+	m_c(new Clockwork)
 {
 	messageDebug("in BPhysSystem");
 
@@ -158,30 +158,30 @@ QWidget * VP1BPhysSystem::buildController()
 	messageDebug("in buildController");
   
 	QWidget * controller = new QWidget(0);
-	c->ui.setupUi(controller);
+	m_c->ui.setupUi(controller);
 
   //connect slots
-	connect(c->ui.bLoad,SIGNAL(released()),this,SLOT(loadFile()));
+	connect(m_c->ui.bLoad,SIGNAL(released()),this,SLOT(loadFile()));
   
-	connect(c->ui.chDisplayVertices,SIGNAL(stateChanged(int)),this,SLOT(displayVerticesChanged(int)));
-	connect(c->ui.rbSphere,SIGNAL(toggled(bool)),this,SLOT(sphereToggled(bool)));
-	connect(c->ui.rbCross,SIGNAL(toggled(bool)),this,SLOT(crossToggled(bool)));
-	connect(c->ui.rbEllipsoid,SIGNAL(toggled(bool)),this,SLOT(ellipsoidToggled(bool)));
+	connect(m_c->ui.chDisplayVertices,SIGNAL(stateChanged(int)),this,SLOT(displayVerticesChanged(int)));
+	connect(m_c->ui.rbSphere,SIGNAL(toggled(bool)),this,SLOT(sphereToggled(bool)));
+	connect(m_c->ui.rbCross,SIGNAL(toggled(bool)),this,SLOT(crossToggled(bool)));
+	connect(m_c->ui.rbEllipsoid,SIGNAL(toggled(bool)),this,SLOT(ellipsoidToggled(bool)));
 
-	connect(c->ui.chDisplayAllTracks ,SIGNAL(stateChanged(int)),this,SLOT(displayAllTracksChanged(int)));
-	connect(c->ui.chDisplayOrigSignal,SIGNAL(stateChanged(int)),this,SLOT(displayOrigSignalChanged(int)));
-	connect(c->ui.chDisplayRefTracks ,SIGNAL(stateChanged(int)),this,SLOT(displayRefTracksChanged(int)));
-	connect(c->ui.chDisplayNeutral   ,SIGNAL(stateChanged(int)),this,SLOT(displayNeutralChanged(int)));
+	connect(m_c->ui.chDisplayAllTracks ,SIGNAL(stateChanged(int)),this,SLOT(displayAllTracksChanged(int)));
+	connect(m_c->ui.chDisplayOrigSignal,SIGNAL(stateChanged(int)),this,SLOT(displayOrigSignalChanged(int)));
+	connect(m_c->ui.chDisplayRefTracks ,SIGNAL(stateChanged(int)),this,SLOT(displayRefTracksChanged(int)));
+	connect(m_c->ui.chDisplayNeutral   ,SIGNAL(stateChanged(int)),this,SLOT(displayNeutralChanged(int)));
 
-	if(c->ui.rbSphere->isChecked()) m_vertexStyle = 0;
-	if(c->ui.rbCross->isChecked()) m_vertexStyle = 1;
-	if(c->ui.rbEllipsoid->isChecked()) m_vertexStyle = 2;
-	m_showVertices = c->ui.chDisplayVertices->isChecked();
+	if(m_c->ui.rbSphere->isChecked()) m_vertexStyle = 0;
+	if(m_c->ui.rbCross->isChecked()) m_vertexStyle = 1;
+	if(m_c->ui.rbEllipsoid->isChecked()) m_vertexStyle = 2;
+	m_showVertices = m_c->ui.chDisplayVertices->isChecked();
 
-	m_showAll      = c->ui.chDisplayAllTracks->isChecked();
-	m_showSignal   = c->ui.chDisplayOrigSignal->isChecked();
-	m_showRefitted  = c->ui.chDisplayRefTracks->isChecked();
-	m_showNeutral = c->ui.chDisplayNeutral->isChecked();
+	m_showAll      = m_c->ui.chDisplayAllTracks->isChecked();
+	m_showSignal   = m_c->ui.chDisplayOrigSignal->isChecked();
+	m_showRefitted  = m_c->ui.chDisplayRefTracks->isChecked();
+	m_showNeutral = m_c->ui.chDisplayNeutral->isChecked();
 
   
 	messageDebug("leaving buildController");
@@ -252,10 +252,10 @@ void VP1BPhysSystem::actualBuild() {
 	}
   
 	if(e==-1) {
-		c->ui.lStatus->setText("No event to display");
+		m_c->ui.lStatus->setText("No event to display");
 		message("Event is not in the VP1BPhys Display File. Skipping.");
 	}else{
-		c->ui.lStatus->setText("");
+		m_c->ui.lStatus->setText("");
   
 		m_br->GetEntry(e);
 		for(; m_br->runNum == runNum && m_br->evtNum == evtNum && e<m_tree->GetEntries(); m_br->GetEntry(++e)) {
@@ -785,7 +785,7 @@ void VP1BPhysSystem::loadFile() {
 	QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open File"),tr("."),tr("ROOT files (*.root)"));
 	if(fileName.isEmpty()) return;
 
-	c->ui.leFileName->setText(fileName);
+	m_c->ui.leFileName->setText(fileName);
 	m_fileName = fileName;
 	
 	
@@ -810,13 +810,13 @@ void VP1BPhysSystem::loadFile() {
 			m_tree->BuildIndex("runNum","evtNum");
 			m_br = new Br();
 			m_br->init(m_tree);
-			c->ui.lStatus->setText("");
+			m_c->ui.lStatus->setText("");
 		}else{
-			c->ui.lStatus->setText("File doesn't contain vp1bphys tree");
+			m_c->ui.lStatus->setText("File doesn't contain vp1bphys tree");
 			message("File doesn't contain vp1bphys tree");
 		}
 	}else{
-		c->ui.lStatus->setText("File doesn't exist");
+		m_c->ui.lStatus->setText("File doesn't exist");
 		message("File doesn't exist");
 		m_tree = NULL;
 	}

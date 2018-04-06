@@ -11,6 +11,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "IsolationTool/CaloIsolationTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
+#include "StoreGate/ReadHandle.h"
 
 #ifndef XAOD_ANALYSIS
 #include "CaloEvent/CaloCell.h"
@@ -54,48 +55,13 @@ size_t cluster_size (const xAOD::CaloCluster* cl) { return cl->size(); }
 namespace xAOD {
  
   CaloIsolationTool::CaloIsolationTool (const std::string& name):
-        asg::AsgTool(name),
-#ifndef XAOD_ANALYSIS
-        m_assoTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", this),
-        m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
-	m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool", this),
-        m_pflowObjectsInConeTool("", this),
-        m_caloFillRectangularTool("", this),
-#endif // XAOD_ANALYSIS
-        m_IsoLeakCorrectionTool("", this)
+        asg::AsgTool(name)
   {
 #ifndef XAOD_ANALYSIS
     declareInterface<ICaloCellIsolationTool>(this);
     declareInterface<ICaloTopoClusterIsolationTool>(this);
     declareInterface<INeutralEFlowIsolationTool>(this);
-    declareProperty("ParticleCaloCellAssociationTool", m_assoTool);
-    declareProperty("ParticleCaloExtensionTool",       m_caloExtTool);      
-    declareProperty("ClustersInConeTool",             m_clustersInConeTool);
-    declareProperty("PFlowObjectsInConeTool",         m_pflowObjectsInConeTool);
-    declareProperty("CaloFillRectangularClusterTool", m_caloFillRectangularTool, "Handle of the CaloFillRectangularClusterTool");
-    declareProperty("UseCaloExtensionCaching", m_useCaloExtensionCaching = true, "Use cached caloExtension if avaliable.");
 #endif // XAOD_ANALYSIS
-
-    declareProperty("IsoLeakCorrectionTool",          m_IsoLeakCorrectionTool,         "Handle on the leakage correction tool");
-    // Topo Isolation parameters
-    declareProperty("UseEMScale",                     m_useEMScale = true, "Use TopoClusters at the EM scale.");
-    // Handle of the calorimetric isolation tool
-    declareProperty("doEnergyDensityCorrection",      m_doEnergyDensityCorrection    = true, "Correct isolation variables based on energy density estimations");
-    declareProperty("saveOnlyRequestedCorrections",   m_saveOnlyRequestedCorrections = false, "save only requested corrections (trigger usage mainly)");
-    // list of calo to treat
-    declareProperty("EMCaloNums",  m_EMCaloNums,  "list of EM calo to treat");
-    declareProperty("HadCaloNums", m_HadCaloNums, "list of Had calo to treat");
-    declareProperty("TopoClusterEDCentralContainer", m_tpEDCentral = "TopoClusterIsoCentralEventShape", "Name of TopoCluster ED Central");
-    declareProperty("TopoClusterEDForwardContainer", m_tpEDForward = "TopoClusterIsoForwardEventShape", "Name of TopoCluster ED Forward");
-    declareProperty("TopoClusterEDveryForwardContainer", m_tpEDveryForward = "TopoClusterIsoVeryForwardEventShape", "Name of TopoCluster ED very Forward");
-    declareProperty("EFlowEDCentralContainer", m_efEDCentral = "NeutralParticleFlowIsoCentralEventShape", "Name of energy flow ED Central");
-    declareProperty("EFlowEDForwardContainer", m_efEDForward = "NeutralParticleFlowIsoForwardEventShape", "Name of energy flow ED Forward");
-    declareProperty("coneCoreSizeEg",          m_coneCoreSizeEg = 0.1,  "size of the coneCore core energy correction for egamma objects");
-    declareProperty("coneCoreSizeMu",          m_coneCoreSizeMu = 0.05, "size of the coneCore core energy correction for muons");
-
-    // Choose whether TileGap3 cells are excluded 
-    declareProperty("ExcludeTG3", m_ExcludeTG3 = true, "Exclude the TileGap3 cells");
-    declareProperty("addCaloExtensionDecoration", m_addCaloDeco = true, "Add the calo decorations");
   }
 
   CaloIsolationTool::~CaloIsolationTool() { }
@@ -145,6 +111,13 @@ namespace xAOD {
     if (!m_IsoLeakCorrectionTool.empty())
       ATH_CHECK(m_IsoLeakCorrectionTool.retrieve());
     
+    // initialize the read handles (for now do all of them in all cases)
+    ATH_CHECK(m_tpEDCentral.initialize());
+    ATH_CHECK(m_tpEDForward.initialize());
+    ATH_CHECK(m_tpEDveryForward.initialize());
+    ATH_CHECK(m_efEDCentral.initialize());
+    ATH_CHECK(m_efEDForward.initialize());
+
     // Exit function
     return StatusCode::SUCCESS;
   }
@@ -1296,23 +1269,25 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
                                        const CaloCluster* fwdClus) const
 
   {
-    // assume two densities for the time being
-    const EventShape* edShape;
-    
-    std::string esName = (fabs(eta) < 1.5) ? m_tpEDCentral : m_tpEDForward;
-    if(type == "PFlow") esName = (fabs(eta) < 1.5) ? m_efEDCentral : m_efEDForward;
-    else if (fwdClus != nullptr)
-      esName = m_tpEDveryForward;
+    // assume two densities for the time being    
+    const SG::ReadHandleKey<EventShape>* esKey = (fabs(eta) < 1.5) ? &m_tpEDCentral : &m_tpEDForward;
+    if (type == "PFlow") {
+      esKey = (fabs(eta) < 1.5) ? &m_efEDCentral : &m_efEDForward;
+    } else if (fwdClus != nullptr) {
+      esKey = &m_tpEDveryForward;
+    }
 
-    if (evtStore()->retrieve(edShape,esName).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve density container " << esName << " for isolation correction. No ED correction");
+    SG::ReadHandle<EventShape> edShape(*esKey);
+    // check is only used for serial running; remove when MT scheduler used
+    if(!edShape.isValid()) {
+      ATH_MSG_FATAL("Failed to retrieve "<< esKey->key());
       return false;
-    }	
+    }
 
     double rho = 0;
     bool gotDensity = edShape->getDensity(EventShape::Density,rho);
     if (!gotDensity) {
-      ATH_MSG_WARNING("Cannot retrieve density " << esName << " for isolation correction. No ED correction");
+      ATH_MSG_WARNING("Cannot retrieve density " << esKey->key() << " for isolation correction. No ED correction");
       return false;
     }
 

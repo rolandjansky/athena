@@ -1,0 +1,29 @@
+0 0
+1 0
+2 0
+0 1
+1 1
+2 1
+
+elements in unique combinations
+ 0 3 |  0 | .... result is: > 0 3 <
+ 1 |  1 | .... result is: > <
+ |  0 | .... result is: > <
+ |  1 | .... result is: > <
+ 0 3 |  1 | .... result is: > 0 1 3 <
+ 0 3 |  0 3 | .... result is: > 0 3 <
+ 1 |  1 |  1 | .... result is: > <
+ 1 |  1 |  2 | .... result is: > <
+ 0 |  1 |  2 | .... result is: > 0 1 2 <
+ 2 |  0 2 3 |  3 | .... result is: > 0 2 3 <
+ 2 |  2 3 |  3 | .... result is: > <
+ 3 |  1 2 |  3 | .... result is: > <
+elements in unique combinations with filtering
+ 0 1 |  1 2 3 | .... result is: > 1 2 3 <
+unique combinations
+ 0 3 |  0 | .... result is: >  3 0 |  <
+ 0 |  0 | .... result is: >  <
+ 0 3 |  1 3 | .... result is: >  0 1 |  0 3 |  3 1 |  <
+ 0 |  1 |  2 | .... result is: >  0 1 2 |  <
+ 2 |  0 2 3 |  3 | .... result is: >  2 0 3 |  <
+ 2 |  0 2 3 |  1 3 | .... result is: >  2 0 1 |  2 0 3 |  2 3 1 |  <

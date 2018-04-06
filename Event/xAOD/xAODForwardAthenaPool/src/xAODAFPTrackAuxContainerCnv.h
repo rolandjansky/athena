@@ -14,13 +14,11 @@ typedef T_AthenaPoolCustomCnv<xAOD::AFPTrackAuxContainer, xAOD::AFPTrackAuxConta
 class xAODAFPTrackAuxContainerCnv :
   public xAODAFPTrackAuxContainerCnvBase {
  
-  // Declare the factory as our friend:
-  friend class CnvFactory< xAODAFPTrackAuxContainerCnv >;
- 
-protected:
+public:
   /// Converter constructor
   xAODAFPTrackAuxContainerCnv( ISvcLocator* svcLoc );
  
+protected:
   /// Function preparing the container to be written out
   virtual xAOD::AFPTrackAuxContainer*
   createPersistent( xAOD::AFPTrackAuxContainer* trans );

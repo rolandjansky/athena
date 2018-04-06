@@ -19,9 +19,9 @@
 #include <vector>
 #include <cmath>
 
-MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n, 
-                                           std::vector<REAL> &w, 
-                                           std::vector<REAL> &b,
+MultiLayerPerceptron::MultiLayerPerceptron(const std::vector<unsigned int> &n, 
+                                           const std::vector<REAL> &w, 
+                                           const std::vector<REAL> &b,
                                            REAL th, 
                                            REAL etmin, 
                                            REAL etmax, 

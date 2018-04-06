@@ -78,5 +78,4 @@ class TrigmuCombHypoTool: public ::AthAlgTool {
     std::vector<float>::size_type m_bins;
 };
 
-DECLARE_TOOL_FACTORY( TrigmuCombHypoTool )
 #endif

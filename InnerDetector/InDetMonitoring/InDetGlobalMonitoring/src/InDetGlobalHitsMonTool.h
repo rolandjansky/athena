@@ -90,7 +90,8 @@ private:
    
     /// Updator
     const Trk::IUpdator  *m_updator;  // updator for unbiased states
-    ToolHandle<Trk::IUpdator>             m_iUpdator;
+    PublicToolHandle<Trk::IUpdator>             m_iUpdator
+       {this,"KalmanUpdator","Trk::KalmanUpdator",""};
 
     int m_nTracks;
 

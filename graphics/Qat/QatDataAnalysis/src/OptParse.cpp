@@ -38,15 +38,15 @@ public:
   const IODriver *driver;
 };
 
-HIOZeroToOne::HIOZeroToOne(const std::string & driver):output(NULL), verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
-  if (!c->driver) throw std::runtime_error("Warning, could not open a driver. Possible installation problem");
+HIOZeroToOne::HIOZeroToOne(const std::string & driver):output(NULL), verbose(false), m_c(new Clockwork) {
+  m_c->driver = m_c->loader.ioDriver(getDriver(driver));
+  if (!m_c->driver) throw std::runtime_error("Warning, could not open a driver. Possible installation problem");
 }
 
 HIOZeroToOne::~HIOZeroToOne() {
-  if (output) c->driver->write(output);
-  if (output) c->driver->close(output);
-  delete c;
+  if (output) m_c->driver->write(output);
+  if (output) m_c->driver->close(output);
+  delete m_c;
 }
 
 void HIOZeroToOne::optParse(int & argc, char ** & argv) {
@@ -58,7 +58,7 @@ void HIOZeroToOne::optParse(int & argc, char ** & argv) {
 	  throw std::runtime_error("HIOZeroToOne two output files specified" );
 	}
 	else {
-	  output    = c->driver->newManager (argv[i]);
+	  output    = m_c->driver->newManager (argv[i]);
 	  std::copy (argv+i+1, argv+argc, argv+i-1);
 	  argc -=2;
 	  i    -=2;
@@ -86,16 +86,16 @@ public:
   const IODriver *driver;
 };
 
-HIOOneToOne::HIOOneToOne(const std::string & driver):input(NULL),output(NULL), verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
-  if (!c->driver) throw std::runtime_error("Warning, could not open a driver. Possible installation problem");
+HIOOneToOne::HIOOneToOne(const std::string & driver):input(NULL),output(NULL), verbose(false), m_c(new Clockwork) {
+  m_c->driver = m_c->loader.ioDriver(getDriver(driver));
+  if (!m_c->driver) throw std::runtime_error("Warning, could not open a driver. Possible installation problem");
 }
 
 HIOOneToOne::~HIOOneToOne() {
-  if (output) c->driver->write(output);
-  if (output) c->driver->close(output);
-  if (input) c->driver->close(input);
-  delete c;
+  if (output) m_c->driver->write(output);
+  if (output) m_c->driver->close(output);
+  if (input) m_c->driver->close(input);
+  delete m_c;
 }
 
 void HIOOneToOne::optParse(int & argc, char ** & argv) {
@@ -107,7 +107,7 @@ void HIOOneToOne::optParse(int & argc, char ** & argv) {
 	  throw std::runtime_error("HIOOneToOne two output files specified" );
 	}
 	else {
-	  output    = c->driver->newManager (argv[i]);
+	  output    = m_c->driver->newManager (argv[i]);
 	  std::copy (argv+i+1, argv+argc, argv+i-1);
 	  argc -=2;
 	  i    -=2;
@@ -124,7 +124,7 @@ void HIOOneToOne::optParse(int & argc, char ** & argv) {
 	  throw std::runtime_error("HIOOneToOne two input files specified" );
 	}
 	else {
-	  input    = c->driver->openManager (argv[i]);
+	  input    = m_c->driver->openManager (argv[i]);
 	  std::copy (argv+i+1, argv+argc, argv+i-1);
 	  argc -=2;
 	  i    -=2;
@@ -152,14 +152,14 @@ public:
   const IODriver *driver;
 };
 
-HIOOneToZero::HIOOneToZero(const std::string & driver):input(NULL), verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
-  if (!c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
+HIOOneToZero::HIOOneToZero(const std::string & driver):input(NULL), verbose(false), m_c(new Clockwork) {
+  m_c->driver = m_c->loader.ioDriver(getDriver(driver));
+  if (!m_c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
 }
 
 HIOOneToZero::~HIOOneToZero() {
-  if (input) c->driver->close(input);
-  delete c;
+  if (input) m_c->driver->close(input);
+  delete m_c;
 }
 
 void HIOOneToZero::optParse(int & argc, char ** & argv) {
@@ -171,7 +171,7 @@ void HIOOneToZero::optParse(int & argc, char ** & argv) {
 	  throw std::runtime_error("HIOOneToZero two input files specified" );
 	}
 	else {
-	  input    = c->driver->openManager (argv[i]);
+	  input    = m_c->driver->openManager (argv[i]);
 	  std::copy (argv+i+1, argv+argc, argv+i-1);
 	  argc -=2;
 	  i    -=2;
@@ -199,16 +199,16 @@ public:
   const IODriver *driver;
 };
 
-HIONToOne::HIONToOne(const std::string & driver):output(NULL), verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
-  if (!c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
+HIONToOne::HIONToOne(const std::string & driver):output(NULL), verbose(false), m_c(new Clockwork) {
+  m_c->driver = m_c->loader.ioDriver(getDriver(driver));
+  if (!m_c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
 }
 
 HIONToOne::~HIONToOne() {
-  if (output) c->driver->write(output);
-  if (output) c->driver->close(output);
-  for (unsigned int i=0;i<input.size();i++) c->driver->close(input[i]);
-  delete c;
+  if (output) m_c->driver->write(output);
+  if (output) m_c->driver->close(output);
+  for (unsigned int i=0;i<input.size();i++) m_c->driver->close(input[i]);
+  delete m_c;
 }
 
 void HIONToOne::optParse(int & argc, char ** & argv) {
@@ -220,7 +220,7 @@ void HIONToOne::optParse(int & argc, char ** & argv) {
 	  throw std::runtime_error("HIONToOne two output files specified" );
 	}
 	else {
-	  output    = c->driver->newManager (argv[i]);
+	  output    = m_c->driver->newManager (argv[i]);
 	  std::copy (argv+i+1, argv+argc, argv+i-1);
 	  argc -=2;
 	  i    -=2;
@@ -238,7 +238,7 @@ void HIONToOne::optParse(int & argc, char ** & argv) {
     }
     else {
       if (std::string(argv[i]).find('=')==std::string(argv[i]).npos) {
-	const HistogramManager *manager=c->driver->openManager(argv[i]);
+	const HistogramManager *manager=m_c->driver->openManager(argv[i]);
 	if (manager) input.push_back(manager);
 	std::copy(argv+i+1, argv+argc, argv+i);
 	argc -= 1;
@@ -256,14 +256,14 @@ public:
   const IODriver *driver;
 };
 
-HIONToZero::HIONToZero(const std::string & driver):verbose(false), c(new Clockwork) {
-  c->driver = c->loader.ioDriver(getDriver(driver));
-  if (!c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
+HIONToZero::HIONToZero(const std::string & driver):verbose(false), m_c(new Clockwork) {
+  m_c->driver = m_c->loader.ioDriver(getDriver(driver));
+  if (!m_c->driver) throw std::runtime_error("Warning, could not open a root driver. Possible installation problem");
 }
 
 HIONToZero::~HIONToZero() {
-  for (unsigned int i=0;i<input.size();i++) c->driver->close(input[i]);
-  delete c;
+  for (unsigned int i=0;i<input.size();i++) m_c->driver->close(input[i]);
+  delete m_c;
 }
 
 void HIONToZero::optParse(int & argc, char ** & argv) {
@@ -276,7 +276,7 @@ void HIONToZero::optParse(int & argc, char ** & argv) {
     }
     else {
       if (std::string(argv[i]).find('=')==std::string(argv[i]).npos) {
-	const HistogramManager *manager=c->driver->openManager(argv[i]);
+	const HistogramManager *manager=m_c->driver->openManager(argv[i]);
 	if (manager) input.push_back(manager);
 	std::copy(argv+i+1, argv+argc, argv+i);
 	argc -= 1;
@@ -331,19 +331,19 @@ bool NumericInput::Clockwork::modParameter (const std::string & modifier) {
 }
 
 
-NumericInput::NumericInput() :c(new Clockwork()) {
+NumericInput::NumericInput() :m_c(new Clockwork()) {
 }
 
 NumericInput::~NumericInput() {
-  delete c;
+  delete m_c;
 }
 
 
 std::string NumericInput::usage() const {
   std::ostringstream stream;
   stream << "Parameter usage" << std::endl;
-  for (unsigned int i = 0; i< c->inputData.size();i++) {
-    stream << c->inputData[i].name << " " << c->inputData[i].doc << '\t' << c->inputData[i].value << std::endl;
+  for (unsigned int i = 0; i< m_c->inputData.size();i++) {
+    stream << m_c->inputData[i].name << " " << m_c->inputData[i].doc << '\t' << m_c->inputData[i].value << std::endl;
   }  
   return stream.str();
 
@@ -352,7 +352,7 @@ void NumericInput::optParse(int & argc, char ** & argv) {
   for (int i=1; i<argc;i++) {
     std::string thisArg(argv[i]);
     if (thisArg.find("=")!=thisArg.npos) {
-      if (!c->modParameter(thisArg)) {
+      if (!m_c->modParameter(thisArg)) {
 	      throw std::runtime_error("Cannot modify parameter "+ thisArg);
       } else {
 	      std::copy(argv+i+1, argv+argc, argv+i);
@@ -369,14 +369,14 @@ void NumericInput::declare(const std::string & name, const std::string & doc, do
   data.name=name;
   data.doc =doc;
   data.value=val;
-  c->inputData.push_back(data);
+  m_c->inputData.push_back(data);
 }
 
 double NumericInput::getByName  (const std::string & name) const {
-  for (unsigned int i=0;i<c->inputData.size();i++) {
-    std::string trimmedVar= (c->inputData[i].name.substr(0,c->inputData[i].name.find(' ')));
+  for (unsigned int i=0;i<m_c->inputData.size();i++) {
+    std::string trimmedVar= (m_c->inputData[i].name.substr(0,m_c->inputData[i].name.find(' ')));
     if (trimmedVar==name) {
-      return c->inputData[i].value;
+      return m_c->inputData[i].value;
     }
   }
   //something wrong if you reached here

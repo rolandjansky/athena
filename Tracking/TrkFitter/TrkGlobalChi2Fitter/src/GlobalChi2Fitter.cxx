@@ -62,7 +62,6 @@
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkExInterfaces/IMaterialEffectsUpdator.h"
 
-#include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -104,7 +103,6 @@ namespace Trk {
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_calotool("Rec::MuidMaterialEffectsOnTrackProvider/MuidMaterialEffectsOnTrackProvider"),
     m_calotoolparam(""),
-    m_cmeotp("Trk::CaloMaterialEffectsOnTrackProvider/CaloMaterialEffectsOnTrackProvider"),
     m_fieldService("AtlasFieldSvc", n),
     m_trackingGeometrySvc("", n),
     // m_trackingVolumesSvc    ("TrackingVolumesSvc/TrackingVolumesSvc",n),

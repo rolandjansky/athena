@@ -10,6 +10,7 @@
 // AUTHORS: Ambrosius  Vermeulen, Pierfrancesco Butti
 // **********************************************************************
 
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include <vector>
 
 #include "GaudiKernel/StatusCode.h"
@@ -29,7 +30,6 @@
 #include <map>
 
 namespace Trk  { 
-  class ITrackToVertexIPEstimator;
   class VxCandidate;
   class Track;
   class VxTrackAtVertex;
@@ -148,7 +148,8 @@ private:
   std::string m_tracksName;
   std::string m_triggerChainName;
   std::string m_VxPrimContainerName;
-  ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator;
+  PublicToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator
+     {this,"TrackToVertexIPEstimator","Trk::TrackToVertexIPEstimator",""};
   //std::string m_TreeFolder;
   //TTree* m_Tree;
   //std::string m_TreeName;
@@ -170,6 +171,8 @@ private:
   double m_vertex_z;
 	
   ToolHandle< InDetAlignMon::TrackSelectionTool > m_trackSelection; 
+
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices", "primary vertex container" };
 };
 
 #endif

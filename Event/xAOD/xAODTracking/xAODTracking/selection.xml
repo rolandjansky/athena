@@ -31,18 +31,9 @@
   
   <!-- TrackParticle_v1 dictionaries: -->
   <class name="xAOD::TrackParticle_v1">
-         <field name="m_p4" transient="true"/>
-         <field name="m_p4Cached" transient="true"/>
          <field name="m_perigeeCached" transient="true"/>
   </class>
 
-  <read sourceClass="xAOD::TrackParticle_v1" version="[1-]"
-        targetClass="xAOD::TrackParticle_v1"
-        source="" target="m_p4Cached">
-    <![CDATA[
-      m_p4Cached = false;
-     ]]>
-  </read>
   <read sourceClass="xAOD::TrackParticle_v1" version="[1-]"
         targetClass="xAOD::TrackParticle_v1"
         source="" target="m_perigeeCached">
@@ -62,6 +53,17 @@
   <class name="xAOD::TrackParticleAuxContainer_v3"
          id="F41DF744-242D-11E6-B472-02163E010CEC"/>
 
+  <class name="xAOD::TrackParticleAuxContainer_v4"
+	 id="403ceb6e-2a3d-11e8-b048-080027f5cbda"/>
+
+  <read sourceClass="xAOD::TrackParticleAuxContainer_v4" version="[1-]"
+        targetClass="xAOD::TrackParticleAuxContainer_v4"
+        source="" target="" >
+    <![CDATA[
+      newObj->toTransient();
+     ]]>
+  </read>
+
   <read sourceClass="xAOD::TrackParticleAuxContainer_v3" version="[1-]"
         targetClass="xAOD::TrackParticleAuxContainer_v3"
         source="" target="" >
@@ -80,18 +82,9 @@
 
   <!-- NeutralParticle_v1 dictionaries: -->
   <class name="xAOD::NeutralParticle_v1">
-         <field name="m_p4" transient="true"/>
-         <field name="m_p4Cached" transient="true"/>
          <field name="m_perigeeCached" transient="true"/>
   </class>
   
-  <read sourceClass="xAOD::NeutralParticle_v1" version="[1-]"
-        targetClass="xAOD::NeutralParticle_v1"
-        source="" target="m_p4Cached">
-    <![CDATA[
-      m_p4Cached = false;
-     ]]>
-  </read>
   <read sourceClass="xAOD::NeutralParticle_v1" version="[1-]"
         targetClass="xAOD::NeutralParticle_v1"
         source="" target="m_perigeeCached">

@@ -69,7 +69,7 @@ private:
   VP1Gui & operator= (const VP1Gui & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

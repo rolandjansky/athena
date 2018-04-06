@@ -114,6 +114,7 @@ MetaInputLoader::execute()
   if (m_first) {
     DataObjIDColl::iterator itr;
     for (itr = m_load.begin(); itr != m_load.end(); ) {
+      ATH_MSG_DEBUG("Creating record for " << itr->fullKey());
       std::string key = itr->key();
       bool found = m_metaStore->contains<MetaContBase>( key );
       // If the MetaCont<> is not found for an aux store object, then

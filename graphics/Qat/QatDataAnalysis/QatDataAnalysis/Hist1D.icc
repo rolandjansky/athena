@@ -42,75 +42,75 @@ public:
 
 };  
 
-inline std::string & Hist1D::name()  { return c->name;}
+inline std::string & Hist1D::name()  { return m_c->name;}
 
-inline const std::string & Hist1D::name() const { return c->name;}
+inline const std::string & Hist1D::name() const { return m_c->name;}
 
-inline size_t Hist1D::nBins() const { return c->nBins;}
+inline size_t Hist1D::nBins() const { return m_c->nBins;}
 
-inline double Hist1D::min() const {return c->min;}
+inline double Hist1D::min() const {return m_c->min;}
 
-inline double Hist1D::max() const {return c->max;}
+inline double Hist1D::max() const {return m_c->max;}
 
-inline double Hist1D::binWidth () const {return c->binWidth;}
+inline double Hist1D::binWidth () const {return m_c->binWidth;}
 
-inline double Hist1D::binUpperEdge(unsigned int i) const {return c->min + (i+1)*c->binWidth;}
+inline double Hist1D::binUpperEdge(unsigned int i) const {return m_c->min + (i+1)*m_c->binWidth;}
 
-inline double Hist1D::binLowerEdge(unsigned int i) const {return c->min + i*c->binWidth;}
+inline double Hist1D::binLowerEdge(unsigned int i) const {return m_c->min + i*m_c->binWidth;}
 
-inline double Hist1D::binCenter(unsigned int i) const { return c->min + (i+0.5)*c->binWidth;}
+inline double Hist1D::binCenter(unsigned int i) const { return m_c->min + (i+0.5)*m_c->binWidth;}
 
-inline double Hist1D::bin(unsigned int i) const {return c->contents[i];}
+inline double Hist1D::bin(unsigned int i) const {return m_c->contents[i];}
 
-inline double Hist1D::binError(unsigned int i) const {return sqrt(c->errors[i]);}
+inline double Hist1D::binError(unsigned int i) const {return sqrt(m_c->errors[i]);}
 
-inline size_t Hist1D::overflow() const {return c->overflow;}
+inline size_t Hist1D::overflow() const {return m_c->overflow;}
 
-inline size_t Hist1D::underflow() const {return c->underflow;}
+inline size_t Hist1D::underflow() const {return m_c->underflow;}
 
 inline double Hist1D::variance() const { 
-  if (c->sumWeight==0) {
+  if (m_c->sumWeight==0) {
     return 0;
   }
   else {
-    return  c->xxW/c->sumWeight-(c->xW*c->xW/c->sumWeight/c->sumWeight);
+    return  m_c->xxW/m_c->sumWeight-(m_c->xW*m_c->xW/m_c->sumWeight/m_c->sumWeight);
   }
 }
 
 inline double Hist1D::mean() const { 
-  if (c->sumWeight==0) {
+  if (m_c->sumWeight==0) {
     return 0;
   }
   else {
-    return  c->xW/c->sumWeight;
+    return  m_c->xW/m_c->sumWeight;
   }
 
 }
 
-inline double Hist1D::sum() const { return c->sumWeight;}
+inline double Hist1D::sum() const { return m_c->sumWeight;}
 
 inline double Hist1D::minContents () const { 
-  if (c->minContents==0) {
-    if (c->entries!=0) {
-      std::vector<double>::const_iterator min = std::min_element(c->contents.begin(),c->contents.end());
-      if (min!=c->contents.end()) {
-	c->minContents=*min;
+  if (m_c->minContents==0) {
+    if (m_c->entries!=0) {
+      std::vector<double>::const_iterator min = std::min_element(m_c->contents.begin(),m_c->contents.end());
+      if (min!=m_c->contents.end()) {
+	m_c->minContents=*min;
       }
     }
   }
-  return c->minContents;
+  return m_c->minContents;
 }
 
 inline double Hist1D::maxContents() const {
-  if (c->maxContents==0) {
-    if (c->entries!=0) {
-      std::vector<double>::const_iterator max = std::max_element(c->contents.begin(),c->contents.end());
-      if (max!=c->contents.end()) {
-	c->maxContents=*max;
+  if (m_c->maxContents==0) {
+    if (m_c->entries!=0) {
+      std::vector<double>::const_iterator max = std::max_element(m_c->contents.begin(),m_c->contents.end());
+      if (max!=m_c->contents.end()) {
+	m_c->maxContents=*max;
       }
     }
   }
-  return c->maxContents;
+  return m_c->maxContents;
 }
 
-inline size_t Hist1D::entries() const {return c->entries;}
+inline size_t Hist1D::entries() const {return m_c->entries;}

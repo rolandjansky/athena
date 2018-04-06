@@ -101,7 +101,7 @@ public:
   /**
    * @brief Make a copy of this vector.
    */
-  virtual SG::IAuxTypeVector* clone() const override;
+  virtual std::unique_ptr<SG::IAuxTypeVector> clone() const override;
 
 
   /**
@@ -283,9 +283,9 @@ public:
    * @param capacity Initial capacity of the new vector.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  virtual SG::IAuxTypeVector* create (size_t size, size_t capacity) const
+  virtual
+  std::unique_ptr<SG::IAuxTypeVector> create (size_t size, size_t capacity) const
     override;
 
 
@@ -303,11 +303,10 @@ public:
    * must be false.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  virtual SG::IAuxTypeVector* createFromData (void* data,
-                                              bool isPacked,
-                                              bool ownFlag) const
+  virtual std::unique_ptr<SG::IAuxTypeVector> createFromData (void* data,
+                                                              bool isPacked,
+                                                              bool ownFlag) const
     override;
 
 
@@ -322,6 +321,19 @@ public:
    */
   virtual void copy (void* dst,        size_t dst_index,
                      const void* src,  size_t src_index) const override;
+
+
+  /**
+   * @brief Copy an element between vectors, possibly applying thinning.
+   * @param dst Pointer to the start of the destination vector's data.
+   * @param dst_index Index of destination element in the vector.
+   * @param src Pointer to the start of the source vector's data.
+   * @param src_index Index of source element in the vector.
+   *
+   * @c dst and @ src can be either the same or different.
+   */
+  virtual void copyForOutput (void* dst,        size_t dst_index,
+                              const void* src,  size_t src_index) const override;
 
 
   /**
@@ -377,6 +389,9 @@ private:
 
   /// Wrapper for the ROOT type of the element.
   RootUtils::Type m_type;
+
+  /// Flag to tell whether we need to do thinning.
+  enum { NONE, ELEMENT_LINK, ELEMENT_LINK_VECTOR, ELEMENT_LINK_NONPOINTER} m_isEL;
 };
 
 

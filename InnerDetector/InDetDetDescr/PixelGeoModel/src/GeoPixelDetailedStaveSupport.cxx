@@ -1279,7 +1279,7 @@ GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( do
     convexStaveEnvelopShape->addVertex(xMid-2.*delta*m_thicknessN_svc, yMid);
 
     xMid = xVertices[0]-m_width_svc*xDir;
-    yMid = yVertices[0]-m_width_svc*.5*yDir+1.;
+    yMid = yVertices[0]-m_width_svc*.25*yDir+1.;
     convexStaveEnvelopShape->addVertex(xMid-2.*delta*m_thicknessN_svc, yMid);
     convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc*.5, yMid);
     convexStaveEnvelopShape->addVertex(xMid-delta*m_thicknessN_svc*.5, yVertices[0]);

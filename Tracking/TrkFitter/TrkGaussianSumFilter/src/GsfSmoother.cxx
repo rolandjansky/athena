@@ -15,7 +15,6 @@ decription           : Implementation code for the class GsfSmoother
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
@@ -34,8 +33,7 @@ Trk::GsfSmoother::GsfSmoother(const std::string& type, const std::string& name, 
   AthAlgTool(type, name, parent),
   m_outputlevel(0),
   m_combineWithFitter(false),
-  m_merger("Trk::CloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger"),
-  m_combiner("Trk::MultiComponentStateCombiner/GsfSmootherCombiner")
+  m_merger("Trk::CloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger")
 {
   declareInterface<IGsfSmoother>(this);
   declareProperty("ComponentMerger",    m_merger);

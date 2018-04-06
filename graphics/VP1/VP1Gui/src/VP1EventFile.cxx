@@ -36,7 +36,7 @@ public:
 
 //____________________________________________________________________
 VP1EventFile::VP1EventFile()
- : d(new Imp)
+ : m_d(new Imp)
 {
 }
 
@@ -80,44 +80,44 @@ VP1EventFile::Imp * VP1EventFile::Imp::initFromFilename(const QString& filename,
 
 //____________________________________________________________________
 VP1EventFile::VP1EventFile(const QString& filename, const QString& md5sum)
-  : d(Imp::initFromFilename(filename,md5sum))
+  : m_d(Imp::initFromFilename(filename,md5sum))
 {
 }
 
 //____________________________________________________________________
 VP1EventFile::VP1EventFile(const QString& filename,const QString& md5sum,
 		int runnumber, unsigned long long eventnumber,unsigned time,bool isvalid)
-  : d(new Imp(filename,md5sum,runnumber,eventnumber,time,isvalid))
+  : m_d(new Imp(filename,md5sum,runnumber,eventnumber,time,isvalid))
 {
 }
 
 //____________________________________________________________________
 VP1EventFile::~VP1EventFile()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 bool VP1EventFile::operator<( const VP1EventFile & other ) const
 {
   //newer (larger time, run and evt numbers) means "smaller".
-  if (d->rawTime!=other.d->rawTime) return d->rawTime>other.d->rawTime;
-  if (d->runNumber!=other.d->runNumber) return d->runNumber>other.d->runNumber;
-  if (d->eventNumber!=other.d->eventNumber) return d->eventNumber>other.d->eventNumber;
-  if (d->fileName!=other.d->fileName) return d->fileName<other.d->fileName;
-  if (d->valid!=other.d->valid) return d->valid;
-  return d->md5Sum<other.d->md5Sum;
+  if (m_d->rawTime!=other.m_d->rawTime) return m_d->rawTime>other.m_d->rawTime;
+  if (m_d->runNumber!=other.m_d->runNumber) return m_d->runNumber>other.m_d->runNumber;
+  if (m_d->eventNumber!=other.m_d->eventNumber) return m_d->eventNumber>other.m_d->eventNumber;
+  if (m_d->fileName!=other.m_d->fileName) return m_d->fileName<other.m_d->fileName;
+  if (m_d->valid!=other.m_d->valid) return m_d->valid;
+  return m_d->md5Sum<other.m_d->md5Sum;
 }
 
 //____________________________________________________________________
 bool VP1EventFile::operator==(const VP1EventFile & other ) const
 {
-  return d->rawTime==other.d->rawTime
-    && d->eventNumber==other.d->eventNumber
-    && d->md5Sum==other.d->md5Sum
-    && d->fileName==other.d->fileName
-    && d->runNumber==other.d->runNumber
-    && d->valid==other.d->valid;
+  return m_d->rawTime==other.m_d->rawTime
+    && m_d->eventNumber==other.m_d->eventNumber
+    && m_d->md5Sum==other.m_d->md5Sum
+    && m_d->fileName==other.m_d->fileName
+    && m_d->runNumber==other.m_d->runNumber
+    && m_d->valid==other.m_d->valid;
 }
 
 //____________________________________________________________________
@@ -128,7 +128,7 @@ bool VP1EventFile::operator!=(const VP1EventFile & other ) const
 
 //____________________________________________________________________
 VP1EventFile::VP1EventFile( const VP1EventFile & other )
- : d(new Imp)
+ : m_d(new Imp)
 {
   *this = other;
 }
@@ -136,55 +136,55 @@ VP1EventFile::VP1EventFile( const VP1EventFile & other )
 //____________________________________________________________________
 VP1EventFile & VP1EventFile::operator= ( const VP1EventFile & other )
 {
-  d->fileName = other.d->fileName;
-  d->md5Sum = other.d->md5Sum;
-  d->runNumber = other.d->runNumber;
-  d->eventNumber = other.d->eventNumber;
-  d->rawTime = other.d->rawTime;
-  d->valid = other.d->valid;
+  m_d->fileName = other.m_d->fileName;
+  m_d->md5Sum = other.m_d->md5Sum;
+  m_d->runNumber = other.m_d->runNumber;
+  m_d->eventNumber = other.m_d->eventNumber;
+  m_d->rawTime = other.m_d->rawTime;
+  m_d->valid = other.m_d->valid;
   return *this;
 }
 
 //____________________________________________________________________
 bool VP1EventFile::isValid() const
 {
-  return d->valid;
+  return m_d->valid;
 }
 
 //____________________________________________________________________
 QString VP1EventFile::fileName() const
 {
-  return d->fileName;
+  return m_d->fileName;
 }
 
 //____________________________________________________________________
 QString VP1EventFile::md5Sum() const
 {
-  return d->md5Sum;
+  return m_d->md5Sum;
 }
 
 //____________________________________________________________________
 int VP1EventFile::runNumber() const
 {
-  return d->runNumber;
+  return m_d->runNumber;
 }
 
 //____________________________________________________________________
 unsigned long long VP1EventFile::eventNumber() const
 {
-  return d->eventNumber;
+  return m_d->eventNumber;
 }
 
 //____________________________________________________________________
 unsigned VP1EventFile::rawTime() const
 {
-  return d->rawTime;
+  return m_d->rawTime;
 }
 
 //____________________________________________________________________
 QDateTime VP1EventFile::time() const
 {
-  return QDateTime::fromTime_t(d->rawTime);
+  return QDateTime::fromTime_t(m_d->rawTime);
 }
 
 //____________________________________________________________________

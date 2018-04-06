@@ -73,12 +73,14 @@ data['photons'] = ['eta:1,phi:1,pt:130000;',
 from TrigUpgradeTest.TestUtils import writeEmulationFiles
 writeEmulationFiles(data)
 
-#include("TrigUpgradeTest/L1CF.py")
-include("TrigUpgradeTest/HLTCF.py")
+
+from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 
 ########################## L1 #################################################
 # this is the same as in "TrigUpgradeTest/L1CF.py"
+#include("TrigUpgradeTest/HLTCF.py")
 L1UnpackingSeq = parOR("L1UnpackingSeq")
+
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
 l1Decoder = L1Decoder( OutputLevel=DEBUG, RoIBResult="" )
 l1Decoder.prescaler.EventInfo=""
@@ -155,13 +157,15 @@ CombChains =[
 
 
 group_of_chains = MuChains + ElChains + CombChains
+#+ CombChains
 #+ ElChains + CombChains
 
 
 
 # main HLT top sequence
-from AthenaCommon.AlgSequence import AlgSequence, AthSequencer
+from AthenaCommon.AlgSequence import AlgSequence, AthSequencer, dumpSequence
 topSequence = AlgSequence()
+dumpSequence(topSequence)
    
 TopHLTRootSeq = seqAND("TopHLTRootSeq") # Root
 topSequence += TopHLTRootSeq
@@ -170,16 +174,18 @@ topSequence += TopHLTRootSeq
 TopHLTRootSeq += L1UnpackingSeq
 
 # add the HLT steps Node
-HLTAllStepsSeq = seqAND("HLTAllStepsSeq")
+HLTAllStepsSeq = seqAND("EmuTest_HLTAllStepsSequence")
 TopHLTRootSeq += HLTAllStepsSeq
+
+# make CF tree
 
 decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains, NSTEPS=nsteps)
 
 
-#from AthenaCommon.AlgSequence import dumpMasterSequence
-#dumpMasterSequence()
+
+
+
+from AthenaCommon.AlgSequence import dumpMasterSequence
+dumpMasterSequence()
 
 theApp.EvtMax = 3
-
-
-

@@ -35,7 +35,7 @@ class VP1HVLegoSystem: public IVP13DSystemSimple
 
  private:
   class Clockwork;
-  Clockwork* _clockwork;
+  Clockwork* m_clockwork;
 
 
 };

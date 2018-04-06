@@ -39,24 +39,24 @@ public:
 
 
 Hist1DMaker::Hist1DMaker (Genfun::GENFUNCTION f, size_t nbinsx, double min, double max,
-			  const Genfun::AbsFunction *weight) : c(new Clockwork()) {
-  c->f         = f.clone();
-  c->nBins     = nbinsx;
-  c->min       = min;
-  c->max       = max;
-  c->w         = weight ? weight->clone() : NULL;
+			  const Genfun::AbsFunction *weight) : m_c(new Clockwork()) {
+  m_c->f         = f.clone();
+  m_c->nBins     = nbinsx;
+  m_c->min       = min;
+  m_c->max       = max;
+  m_c->w         = weight ? weight->clone() : NULL;
 }
 
 Hist1DMaker::~Hist1DMaker() {
-  delete c->f;
-  delete c->w;
-  delete c;
+  delete m_c->f;
+  delete m_c->w;
+  delete m_c;
 }
 
 
 Hist1D Hist1DMaker::operator * (const Table & table) const {
 
-  Hist1D h(table.name(),c->nBins, c->min, c->max);
+  Hist1D h(table.name(),m_c->nBins, m_c->min, m_c->max);
 
   
   for  (size_t t=0; ; t++) {
@@ -66,12 +66,12 @@ Hist1D Hist1DMaker::operator * (const Table & table) const {
 
     const Genfun::Argument & a  = tuple->asDoublePrec();
     
-    if (c->w) {
-      Genfun::GENFUNCTION W=*c->w;
-      h.accumulate((*(c->f))(a), W(a));
+    if (m_c->w) {
+      Genfun::GENFUNCTION W=*m_c->w;
+      h.accumulate((*(m_c->f))(a), W(a));
     }
     else {
-      h.accumulate((*(c->f))(a));
+      h.accumulate((*(m_c->f))(a));
     }    
   }
   return h;

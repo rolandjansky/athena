@@ -17,13 +17,10 @@
 #include "Identifier/Identifier.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "PixelRecoDbTestWriteRead.h" 
-#include "PixelConditionsTools/IPixelRecoDbTool.h"
 #include "GaudiKernel/IToolSvc.h"
 
 PixelRecoDbTestWriteRead::PixelRecoDbTestWriteRead(const std::string& name, ISvcLocator* pSvcLocator)
     :AthAlgorithm   (name, pSvcLocator),
-     // m_calibdbtool(0),
-     m_calibdbtool("PixelRecoDbTool"),
      m_setup(false),
      m_par_read(false),
      m_par_write(false),

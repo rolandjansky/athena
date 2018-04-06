@@ -21,8 +21,6 @@ namespace TPCnv {
 }
 
 namespace Muon{
-    
-  /** */
   class STGC_RawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<Muon::STGC_RawDataContainer, Muon::STGC_RawDataContainer_p1>
   {
     public:

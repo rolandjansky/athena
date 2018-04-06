@@ -30,8 +30,15 @@ const double RingerFex::ENERGY_THRESHOLD = 0.001;
 const double RingerFex::PI_THRESHOLD = 1.0;
 //!=================================================================================
 RingerFex::RingerFex(const std::string& type, const std::string& name, const IInterface* parent) 
-  : IAlgToolCalo(type, name, parent)
+  : IAlgToolCalo(type, name, parent),
+    m_generateClusterTimer(0),
+    m_saveRoITimer(0),
+    m_RingerFexExecuteTimer(0),
+    m_getRingsTimer(0),
+    m_RingerRegSelTimer(0)
+
 {
+  
   declareProperty("EtaBins",              m_etaBins                             );
   declareProperty("GlobalCenter",         m_global_center = false               );
   declareProperty("EtaSearchWindowSize",  m_etaSearchWindowSize = 0.1           );
@@ -91,11 +98,10 @@ StatusCode RingerFex::initialize() {
 
   m_parent = dynamic_cast<T2CaloEgamma *>(const_cast<IInterface*>(this->parent()));
   if (!m_parent) {
-    ATH_MSG_ERROR( "Failed to get T2CaloEgamma parent algorithm instance." );
-    return StatusCode::FAILURE;
+    ATH_MSG_INFO( "Failed to get T2CaloEgamma parent algorithm instance, rings will be sored in store gate directly." );
   }
-  if (m_timersvc){
-    if(m_histLabel!="") m_histLabel="_"+m_histLabel; ///insert underscore
+  if (m_timersvc and m_parent ){
+    if(m_histLabel != "") m_histLabel="_"+m_histLabel; ///insert underscore
     m_getRingsTimer = m_parent->addTimer("Time_RingerFexGetRings"+m_histLabel);
     m_RingerFexExecuteTimer = m_parent->addTimer("Time_RingerFexExecute"+m_histLabel);
     m_RingerRegSelTimer = m_parent->addTimer("Time_RingerFexRegSel"+m_histLabel);
@@ -115,6 +121,11 @@ StatusCode RingerFex::initialize() {
   m_maxCellsAccumulated = std::accumulate(m_maxCells.begin()+4, m_maxCells.end(), 0);
   m_cell.reserve(m_maxCellsAccumulated);
   m_maxRingsAccumulated = std::accumulate(m_nRings.begin(), m_nRings.end(), 0);
+
+  if ( not m_ringsKey.key().empty() )    
+    CHECK( m_ringsKey.initialize() );
+  else 
+    renounce( m_ringsKey );
 
   return StatusCode::SUCCESS;
 }
@@ -193,8 +204,8 @@ StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDes
   
   ATH_MSG_DEBUG( "Event with eta =  " << eta );
   
-  if (m_timersvc) m_RingerFexExecuteTimer->start();
-  if (m_timersvc) m_getRingsTimer->start();
+  if (m_RingerRegSelTimer) m_RingerFexExecuteTimer->start();
+  if (m_getRingsTimer) m_getRingsTimer->start();
 
   ///find eta bin  
   for(unsigned i=0; i<m_etaBins.size();i+=2){
@@ -218,22 +229,28 @@ StatusCode RingerFex::execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDes
   }
 
   // RingSets to xAOD::TrigRingerRings
-  xAOD::TrigRingerRings *rings = getRings();
+  std::unique_ptr<xAOD::TrigRingerRings> rings(getRings());
 
-  if (!rings) {
+  if (!rings.get()) {
     ATH_MSG_ERROR( "Error generating the rings!" );
     return StatusCode::FAILURE;
   }
 
-  if (m_timersvc) m_getRingsTimer->stop();
+  if (m_getRingsTimer) m_getRingsTimer->stop();
 
   // parse between RingerFex and T2CaloEgamma (m_parent)
   //rings->setRoIword( rtrigEmCluster.RoIword() );
   if (m_parent) {
-    m_parent->setRingsFeature(rings,m_key,m_feature);
+    m_parent->setRingsFeature(rings.release(),m_key,m_feature);
+  } else {
+    if ( not m_ringsKey.key().empty() ) {
+      ATH_MSG_DEBUG("Recording rings in store with a key: " << m_ringsKey.key() );
+      auto handle = SG::makeHandle( m_ringsKey );
+      CHECK( handle.record( std::move(rings) )  );    
+    }
   }
 
-  if (m_timersvc) m_RingerFexExecuteTimer->stop();
+  if (m_RingerFexExecuteTimer) m_RingerFexExecuteTimer->stop();
   return StatusCode::SUCCESS;
 }
 //!=================================================================================
@@ -254,7 +271,7 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
   // Are we, possibly at the wrap-around region for phi?
   bool wrap = check_wrap_around(phi, false);
   bool reverse_wrap = check_wrap_around(phi, true);
-  if (m_timersvc)
+  if (m_RingerRegSelTimer)
   {
     m_RingerRegSelTimer->start();
     m_RingerRegSelTimer->pause();
@@ -277,13 +294,13 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
       const std::vector<CaloSampling::CaloSample>& dets = rset.at(rs).detectors();
       if(dets.empty())  continue;
 
-      if (m_timersvc) m_RingerRegSelTimer->resume();
+      if (m_RingerRegSelTimer) m_RingerRegSelTimer->resume();
       m_data->RegionSelector(sampling,etamin,etamax,phimin,phimax, static_cast<DETID> (det));
       if ( m_data->LoadCollections(m_iBegin, m_iEnd).isFailure() ) {
         ATH_MSG_ERROR( "Failure while trying to retrieve cell information for the "<< det <<" calorimeter." );
         return StatusCode::FAILURE;
       }
-      if (m_timersvc) m_RingerRegSelTimer->pause();
+      if (m_RingerRegSelTimer) m_RingerRegSelTimer->pause();
       std::vector<const CaloCell*> &vecTemp = m_cell_for_br[rs];
       
       if(rs < 4){
@@ -366,7 +383,7 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
 
 
   // Getting TileCal cells and populating RingSets
-  if (m_timersvc) m_RingerRegSelTimer->resume();
+  if (m_RingerRegSelTimer) m_RingerRegSelTimer->resume();
   m_data->RegionSelector(0,etamin,etamax,phimin,phimax,TILE);
   //m_cell.clear();
   for (unsigned int iR=0;iR<m_data->TileContSize();++iR) {
@@ -379,7 +396,7 @@ StatusCode RingerFex::getCells(double etamin, double etamax, double phimin, doub
       m_cell.push_back((CaloCell *) itt_tmp);
     } // end of loop over cells
   } // end of loop over containers
-  if (m_timersvc) m_RingerRegSelTimer->stop();
+  if (m_RingerRegSelTimer) m_RingerRegSelTimer->stop();
   
   rs = 4;
   CaloSampling::CaloSample cs_temp;

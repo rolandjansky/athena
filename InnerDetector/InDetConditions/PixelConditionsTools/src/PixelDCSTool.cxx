@@ -15,7 +15,6 @@
 #include "SGTools/TransientAddress.h" 
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
 #include "AthenaPoolUtilities/AthenaAttributeList.h" 
-#include "AthenaKernel/IAthenaOutputStreamTool.h"
 
 
 #include "Identifier/Identifier.h"
@@ -41,7 +40,7 @@ PixelDCSTool::PixelDCSTool(const std::string& type, const std::string& name, con
   // m_IOVRegistrationSvc(0),
   m_IOVRegistrationSvc("IOVRegistrationSvc",name),
   //m_streamer(0),
-  // m_streamer("AthenaPoolOutputStreamTool/CondStreamPixelDCSTest"),
+  // m_streamer("AthenaOutputStreamTool/CondStreamPixelDCSTest"),
   m_streamer("AthenaOutputStreamTool/CondStreamPixelDCSTest"),
   m_pixman(0),
   m_pixid(0),
@@ -153,10 +152,10 @@ StatusCode PixelDCSTool::initialize()
   //sc = m_toolsvc->retrieveTool("AthenaOutputStreamTool","CondStreamPixelDCSTest", m_streamer);
   sc = m_streamer.retrieve();
   if(sc.isFailure()){ 
-    if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve AthenaPoolOutputStreamTool" << endmsg;
+    if (msgLvl(MSG::FATAL))msg(MSG::FATAL) << "Unable to retrieve AthenaOutputStreamTool" << endmsg;
     return StatusCode::FAILURE; 
   }
-  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "AthenaPoolOutputStreamTool retrieved" << endmsg;
+  if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "AthenaOutputStreamTool retrieved" << endmsg;
 
 
 

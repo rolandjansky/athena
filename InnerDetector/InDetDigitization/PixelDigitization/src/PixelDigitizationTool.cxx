@@ -379,19 +379,32 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing, SubEventIterat
   if (m_HardScatterSplittingMode==1 &&  m_HardScatterSplittingSkipper) { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode==1 && !m_HardScatterSplittingSkipper) { m_HardScatterSplittingSkipper=true; }
 
-  SubEventIterator iEvt = bSubEvents;
-  for (; iEvt!=eSubEvents; iEvt++) {
-    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-    ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :" << " bunch crossing : " << bunchXing << " time offset : " << iEvt->time() << " event number : " << iEvt->ptr()->eventNumber() << " run number : " << iEvt->ptr()->runNumber());
 
-    const SiHitCollection* seHitColl(0);
+  typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
 
-    CHECK(seStore.retrieve(seHitColl,m_inputObjectName));
-    ATH_MSG_DEBUG("SiHitCollection found with " << seHitColl->size() << " hits");
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+					  bSubEvents, eSubEvents).isSuccess()) &&
+      hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " SiHitCollections with key " <<
+		    m_inputObjectName << " found");
+  }
 
-    PileUpTimeEventIndex timeIndex(iEvt->time(),iEvt->index());
-    SiHitCollection *hitCollPtr = new SiHitCollection(*seHitColl);
-    m_timedHits->insert(timeIndex,hitCollPtr);
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  for( ; iColl != endColl; iColl++){
+    SiHitCollection *hitCollPtr = new SiHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+    ATH_MSG_DEBUG("SiHitCollection found with " << hitCollPtr->size() <<
+		  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+		    << " index: " << timeIndex.index()
+		    << " type: " << timeIndex.type());
+    m_timedHits->insert(timeIndex, hitCollPtr);
     m_hitCollPtrs.push_back(hitCollPtr);
   }
 

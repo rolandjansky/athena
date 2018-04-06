@@ -966,12 +966,12 @@ namespace xAOD {
       // Create the smart object holding this vector:
       if( isRegisteredType( auxid ) ) {
          m_vecs[ auxid ] =
-            SG::AuxTypeRegistry::instance().makeVector( auxid, (size_t)0, (size_t)0 );
+            SG::AuxTypeRegistry::instance().makeVector( auxid, (size_t)0, (size_t)0 ).release();
          if( ! containerBranch ) {
             m_vecs[ auxid ]->resize( 1 );
          }
          if (clDummy && strncmp (clDummy->GetName(), "SG::PackedContainer<", 20) == 0) {
-           SG::IAuxTypeVector* packed = m_vecs[ auxid ]->toPacked();
+           SG::IAuxTypeVector* packed = m_vecs[ auxid ]->toPacked().release();
            std::swap (m_vecs[ auxid ], packed);
            delete packed;
          }
@@ -1122,7 +1122,7 @@ namespace xAOD {
          SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
 
          // Create the new object:
-         m_vecs[ auxid ] = reg.makeVector( auxid, m_size, m_size );
+         m_vecs[ auxid ] = reg.makeVector( auxid, m_size, m_size ).release();
          void* ptr = m_vecs[ auxid ]->toPtr();
          if( ! ptr ) {
             ::Error( "xAOD::TAuxStore::setupOutputData",
@@ -1182,7 +1182,7 @@ namespace xAOD {
       // Check if the variable exists already in memory:
       if( ! m_vecs[ auxid ] ) {
          m_vecs[ auxid ] =
-            SG::AuxTypeRegistry::instance().makeVector( auxid, (size_t)0, (size_t)0 );
+            SG::AuxTypeRegistry::instance().makeVector( auxid, (size_t)0, (size_t)0 ).release();
          if( m_structMode == kObjectStore ) {
             m_vecs[ auxid ]->resize( 1 );
          }

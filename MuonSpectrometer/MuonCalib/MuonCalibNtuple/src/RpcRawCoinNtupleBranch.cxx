@@ -14,36 +14,36 @@
 
 namespace MuonCalib {
 
-  RpcRawCoinNtupleBranch::RpcRawCoinNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
+  RpcRawCoinNtupleBranch::RpcRawCoinNtupleBranch(std::string branchName) : m_branchName(branchName), m_branchesInit(false), m_index(0)
   {}
 
   bool RpcRawCoinNtupleBranch::fillBranch(const MuonCalibRawRpcCoin &hit ) {
-    // check if branches where initialized
-    if( !branchesInit )
+    // check if branches were initialized
+    if( !m_branchesInit )
       return false;    
     
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 )
+    if( m_index >= m_blockSize || m_index < 0 )
       return false;
 
     // copy values 
-    occupancy[index]  = hit.occupancy();
-    id[index]         = hit.identify().getIdInt();
-    t[index]          = hit.t() ;
-    width[index]      = hit.width() ;
-    length[index]     = hit.length() ;
-    gPosX[index]      = hit.globalPosition().x();
-    gPosY[index]      = hit.globalPosition().y();
-    gPosZ[index]      = hit.globalPosition().z();
-    ijk[index]            = hit.ijk();
-    threshold[index]      = hit.threshold();
-    overlap[index]        = hit.overlap();
-    parentCmId[index]     = hit.parentCmId();
-    parentPadId[index]    = hit.parentPadId();
-    parentSectorId[index] = hit.parentSectorId();
-    lowPtCm[index]        = hit.lowPtCm();
+    m_occupancy[m_index]  = hit.occupancy();
+    m_id[m_index]         = hit.identify().getIdInt();
+    m_t[m_index]          = hit.t() ;
+    m_width[m_index]      = hit.width() ;
+    m_length[m_index]     = hit.length() ;
+    m_gPosX[m_index]      = hit.globalPosition().x();
+    m_gPosY[m_index]      = hit.globalPosition().y();
+    m_gPosZ[m_index]      = hit.globalPosition().z();
+    m_ijk[m_index]            = hit.ijk();
+    m_threshold[m_index]      = hit.threshold();
+    m_overlap[m_index]        = hit.overlap();
+    m_parentCmId[m_index]     = hit.parentCmId();
+    m_parentPadId[m_index]    = hit.parentPadId();
+    m_parentSectorId[m_index] = hit.parentSectorId();
+    m_lowPtCm[m_index]        = hit.lowPtCm();
 
-    ++index;
+    ++m_index;
    
     return true;
   }  //end RpcRawCoinNtupleBranch::fillBranch
@@ -59,29 +59,29 @@ namespace MuonCalib {
     std::string index_name ="nRpcCoin";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "occupancy",      &occupancy,      array_size + "/I" );
-    branchCreator.createBranch( tree, "id",             &id,             array_size + "/I" );
-    branchCreator.createBranch( tree, "t",              &t,              array_size + "/F" );
-    branchCreator.createBranch( tree, "width",          &width,          array_size + "/F" );
-    branchCreator.createBranch( tree, "length",         &length,         array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosX",          &gPosX,          array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosY",          &gPosY,          array_size + "/F" );
-    branchCreator.createBranch( tree, "gPosZ",          &gPosZ,          array_size + "/F" );
-    branchCreator.createBranch( tree, "ijk",            &ijk,            array_size + "/I" );
-    branchCreator.createBranch( tree, "threshold",      &threshold,      array_size + "/I" );
-    branchCreator.createBranch( tree, "overlap",        &overlap,        array_size + "/I" );
-    branchCreator.createBranch( tree, "parentCmId",     &parentCmId,     array_size + "/I" );
-    branchCreator.createBranch( tree, "parentPadId",    &parentPadId,    array_size + "/I" );
-    branchCreator.createBranch( tree, "parentSectorId", &parentSectorId, array_size + "/I" );
-    branchCreator.createBranch( tree, "lowPtCm",        &lowPtCm,        array_size + "/I" );
+    branchCreator.createBranch( tree, "occupancy",      &m_occupancy,      array_size + "/I" );
+    branchCreator.createBranch( tree, "id",             &m_id,             array_size + "/I" );
+    branchCreator.createBranch( tree, "t",              &m_t,              array_size + "/F" );
+    branchCreator.createBranch( tree, "width",          &m_width,          array_size + "/F" );
+    branchCreator.createBranch( tree, "length",         &m_length,         array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosX",          &m_gPosX,          array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosY",          &m_gPosY,          array_size + "/F" );
+    branchCreator.createBranch( tree, "gPosZ",          &m_gPosZ,          array_size + "/F" );
+    branchCreator.createBranch( tree, "ijk",            &m_ijk,            array_size + "/I" );
+    branchCreator.createBranch( tree, "threshold",      &m_threshold,      array_size + "/I" );
+    branchCreator.createBranch( tree, "overlap",        &m_overlap,        array_size + "/I" );
+    branchCreator.createBranch( tree, "parentCmId",     &m_parentCmId,     array_size + "/I" );
+    branchCreator.createBranch( tree, "parentPadId",    &m_parentPadId,    array_size + "/I" );
+    branchCreator.createBranch( tree, "parentSectorId", &m_parentSectorId, array_size + "/I" );
+    branchCreator.createBranch( tree, "lowPtCm",        &m_lowPtCm,        array_size + "/I" );
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();

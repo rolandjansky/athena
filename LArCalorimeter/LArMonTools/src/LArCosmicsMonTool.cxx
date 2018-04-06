@@ -132,6 +132,7 @@ LArCosmicsMonTool::initialize()
     return sc;
   }
   
+  ATH_CHECK( m_badChannelMask.retrieve() );
   
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();

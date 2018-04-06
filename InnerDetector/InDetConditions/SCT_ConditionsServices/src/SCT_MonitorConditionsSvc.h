@@ -6,7 +6,6 @@
 #define SCT_MONITORCONDITIONSSVC_SCT_MONITORCONDITIONSSVC_H
 
 //STL
-#include <string>
 #include <map>
 #include <set>
 #include <list>
@@ -14,20 +13,13 @@
 
 // Gaudi includes
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
-#include "Identifier/Identifier.h"
 #include "StoreGate/StoreGateSvc.h"
-
-// local includes
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_MonitorConditionsSvc.h"
-
 #include "SCT_ConditionsData/SCT_MonitorConditionsCondData.h"
 
 // Read Handle Key
@@ -35,8 +27,6 @@
 #include "StoreGate/ReadCondHandleKey.h"
 
 //forward declarations
-class ISvcLocator;
-class IdentifierHash;
 class SCT_ID;
 
 /**
@@ -49,44 +39,44 @@ public:
   // Constructor
   SCT_MonitorConditionsSvc(const std::string& name, ISvcLocator* svc);
   // Destructor
-  virtual ~SCT_MonitorConditionsSvc();
+  virtual ~SCT_MonitorConditionsSvc() = default;
 
   // overloading functions
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
 
   ///Can the service report about the given component? (chip, module...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h);
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
 
   ///Is the detector element good?
-  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
 
   ///is it good?, using wafer hash
-  virtual bool isGood(const IdentifierHash& hashId);
+  virtual bool isGood(const IdentifierHash& hashId) override;
 
   ///Manually get the data in the structure before proceding
-  virtual StatusCode fillData();
+  virtual StatusCode fillData() override;
 
   ///Are the data available?
-  virtual bool filled() const;
+  virtual bool filled() const override;
 
   //I'm going to fill this from job options, so the callback version of fillData is not needed.
-  virtual StatusCode fillData(int& /*i*/, std::list<std::string>& /*l*/) { //comment out unused parameters to prevent compiler warning
+  virtual StatusCode fillData(int& /*i*/, std::list<std::string>& /*l*/) override { //comment out unused parameters to prevent compiler warning
     return StatusCode::FAILURE;
   }
 
   ///Can the data be filled during the initialize phase?
-  virtual bool canFillDuringInitialize() { return true; }
+  virtual bool canFillDuringInitialize() override { return true; }
 
   /// List of bad strip Identifiers
-  virtual void badStrips(std::set<Identifier>& strips);
+  virtual void badStrips(std::set<Identifier>& strips) override;
   
   /// List of bad strip Identifiers for a given module
-  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips);
+  virtual void badStrips(const Identifier& moduleId, std::set<Identifier>& strips) override;
 
   /// String of bad strip numbers for a given module
-  virtual std::string badStripsAsString(const Identifier& moduleId);
+  virtual std::string badStripsAsString(const Identifier& moduleId) override;
 
 private:
   // ------------------------------------------------------------------------------------
@@ -124,16 +114,12 @@ private:
   unsigned int computeIstrip4moncond(const Identifier& elementId) const;
 
   static std::string s_separator;
-  static std::string s_defectFolderName;
 
-  mutable std::map<const int, const std::string>  m_defectListMap;
   ServiceHandle<StoreGateSvc>  m_detStore;
   IntegerProperty              m_nhits_noisychip;
   IntegerProperty              m_nhits_noisywafer;
   IntegerProperty              m_nhits_noisymodule;
-  bool                         m_filled;
   const SCT_ID*                m_pHelper;
-  mutable std::string          m_currentDefectList;
 
   // Mutex to protect the contents.
   mutable std::mutex m_mutex;

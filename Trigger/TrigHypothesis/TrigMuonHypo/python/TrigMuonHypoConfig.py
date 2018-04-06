@@ -292,6 +292,8 @@ muFastThresholds = {
     '30GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 17.83, 18.32, 20.46, 23.73] ],
     '36GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 23.94, 12.25, 19.80, 23.17] ],
     '40GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
+    '60GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
+    '80GeV_v15a'             : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 29.54] ],
     '40GeV_uptoEC2_v15a'     : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 21.20, 25.38, 1000.] ],
     '40GeV_barrelOnly_v15a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
     '50GeV_barrelOnly_v15a'  : [ [0,1.05,1.5,2.0,9.9], [ 21.13, 1000., 1000., 1000.] ],
@@ -376,6 +378,8 @@ muFastThresholdsForECWeakBRegion = {
     '30GeV_v15a'            : [ 14.41, 17.43 ],
     '36GeV_v15a'            : [ 10.78, 10.66],
     '40GeV_v15a'            : [ 15.07, 18.02 ],
+    '60GeV_v15a'            : [ 15.07, 18.02 ],
+    '80GeV_v15a'            : [ 15.07, 18.02 ],
     '40GeV_uptoEC2_v15a'    : [ 15.07, 18.02 ],
     '40GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     '50GeV_barrelOnly_v15a' : [ 1000., 1000. ],
@@ -1803,7 +1807,7 @@ class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
         try:
             TriggerFlags.enableMonitoring = ["Validation"]
             if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigMufastHypoMonitoring() 
+                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring() 
         except AttributeError:
             tool.MonTool = ""
             print name, ' Monitoring Tool failed'

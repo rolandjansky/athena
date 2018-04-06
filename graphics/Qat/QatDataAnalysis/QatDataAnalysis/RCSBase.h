@@ -57,7 +57,7 @@ class RCSBase
 
       const RCSBase & operator=(const RCSBase &right);
 
-      mutable unsigned short int _count;
+      mutable unsigned short int m_count;
 
 
 

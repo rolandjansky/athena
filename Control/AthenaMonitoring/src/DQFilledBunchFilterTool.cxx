@@ -25,9 +25,11 @@ StatusCode DQFilledBunchFilterTool::initialize()
 {
   ATH_MSG_VERBOSE("ATLAS Ready initialize");
   // don't register callback if we always return true anyway
-  if (m_alwaysReturnTrue) return StatusCode::SUCCESS;
-
-  CHECK( m_bunchtool.retrieve() );
+  if (!m_alwaysReturnTrue) {
+    CHECK( m_bunchtool.retrieve() );
+  } else {
+    m_bunchtool.disable();
+  }
   return StatusCode::SUCCESS;
 }
 

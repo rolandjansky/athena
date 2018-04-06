@@ -14,7 +14,6 @@ decription           : Implementation code for CloseComponentsMultiStateMerger
 
 #include "TrkGaussianSumFilter/CloseComponentsMultiStateMerger.h"
 #include "TrkGaussianSumFilter/IComponentSeparationDistance.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
 #include "TrkParameters/TrackParameters.h"
@@ -26,7 +25,6 @@ Trk::CloseComponentsMultiStateMerger::CloseComponentsMultiStateMerger(
   m_maximumNumberOfComponents(5),
   m_distance("Trk::KullbackLeiblerComponentDistance/KullbackLeiblerComponentDistance"),
   m_stateCombiner("Trk::MultiComponentStateCombiner/CloseComponentsCombiner"),
-  m_stateAssembler("Trk::MultiComponentStateAssembler/CloseComponentsStateAssembler"),
   m_chronoSvc( "ChronoStatSvc", name )
 {
   

@@ -56,7 +56,7 @@ class ValueList {
 
  private:
 
-  std::vector<Value> _valueList;
+  std::vector<Value> m_valueList;
 
 };
 

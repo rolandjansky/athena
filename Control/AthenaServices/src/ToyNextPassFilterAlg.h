@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TOYNEXTPASSFILTERTOOL_H 
-#define TOYNEXTPASSFILTERTOOL_H 1
+#ifndef TOYNEXTPASSFILTERALG_H 
+#define TOYNEXTPASSFILTERALG_H 1
 /** @file ToyNextPassFilterAlg.h
  *  @brief an Algorithm providing a toy implementation of INextPassFilter
  *
@@ -49,4 +49,4 @@ private:
   unsigned int m_passesDone; ///< no of passes already done
   unsigned int m_nPasses; ///< property: no of pass to allow
 };
-#endif // TOYNEXTPASSFILTERTOOL_H
+#endif // TOYNEXTPASSFILTERALG_H

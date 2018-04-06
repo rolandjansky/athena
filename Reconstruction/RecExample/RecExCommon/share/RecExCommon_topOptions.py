@@ -944,14 +944,6 @@ if rec.doWriteRDO():
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     StreamRDO_Augmented=MSMgr.NewPoolStream("StreamRDO",athenaCommonFlags.PoolRDOOutput(),asAlg=True)
 
-    #topSequence+=AthenaOutputStream("StreamRDO",
-                                 #>=12.3.0 StreamAOD.EvtConversionSvc = "AthenaPoolCnvSvc"
-    #                             WritingTool = "AthenaPoolOutputStreamTool",
-                                 #force read of input data to write in output data
-    #                             ForceRead = True,
-                                 # Define the output file name
-    #                             OutputFile    = athenaCommonFlags.PoolRDOOutput())
-
     if rec.doFileMetaData():
         StreamRDO_Augmented.AddMetaDataItem(recoMetadataItemList())
 

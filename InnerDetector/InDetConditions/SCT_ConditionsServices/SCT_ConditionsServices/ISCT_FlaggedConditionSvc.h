@@ -21,6 +21,7 @@
 // Local 
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
+#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
 // Forward declarations
 class Identifier;
@@ -54,7 +55,7 @@ class ISCT_FlaggedConditionSvc: virtual public ISCT_ConditionsSvc {
   virtual int numBadIds() const =0;
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
-  virtual const std::map<IdentifierHash, std::string>* getBadIds() const =0;
+  virtual const SCT_FlaggedCondData* getBadIds() const =0;
 
   /**Reset between events*/
   virtual void resetBadIds()=0;

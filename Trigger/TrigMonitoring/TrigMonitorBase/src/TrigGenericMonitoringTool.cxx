@@ -18,7 +18,6 @@
 #include <boost/lexical_cast.hpp>
 
 #include "GaudiKernel/INamedInterface.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "TrigInterfaces/Algo.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "TrigGenericMonitoringTool.h"

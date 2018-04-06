@@ -32,17 +32,12 @@
 #include <vector>
 #include <string>
 
-
-
 class StoreGateSvc;
 namespace InDetDD{ 
   class PixelDetectorManager; 
 }
 
-
-class PixelDCSSvc: public AthService,
-		    virtual public IPixelDCSSvc
-{
+class PixelDCSSvc: public AthService, virtual public IPixelDCSSvc {
 
  public:
   PixelDCSSvc(const std::string& type, ISvcLocator* sl);
@@ -84,7 +79,6 @@ class PixelDCSSvc: public AthService,
   std::string m_par_HVKey;  
   std::string m_par_FSMStatusKey; 
   std::string m_par_FSMStateKey; 
-  std::string m_par_pixelDCSDataSGKey;
 
   std::string m_par_temperatureField;
   std::string m_par_HVField;
@@ -95,118 +89,86 @@ class PixelDCSSvc: public AthService,
   bool m_par_useHV;
   bool m_par_useFSMStatus;
   bool m_par_useFSMState;
-
   bool m_par_registerCallback;
-
 };
 
-inline const InterfaceID& PixelDCSSvc::interfaceID(){
+inline const InterfaceID& PixelDCSSvc::interfaceID() {
   static const InterfaceID IID_PixelDCSSvc("PixelDCSSvc", 1, 0);
   return IID_PixelDCSSvc;
 }
 
 
-inline double PixelDCSSvc::getTemperature(const Identifier& module_id) const{
-
-  if(!m_pixid->is_pixel(module_id)){
-    msg(MSG::ERROR) << " getTemperature: wrong identifier returning -9999" << endmsg;
+inline double PixelDCSSvc::getTemperature(const Identifier& module_id) const {
+  if (!m_pixid->is_pixel(module_id)) {
+    ATH_MSG_ERROR(" getTemperature: wrong identifier returning -9999");
     return -9999;
   }
   IdentifierHash id_hash = m_pixid->wafer_hash(module_id);
   return (*m_pixelDCSData)[(unsigned int)id_hash]->getTemperature();
-
 }
 
 inline double PixelDCSSvc::getHV(const Identifier& module_id) const{
-
-  if(!m_pixid->is_pixel(module_id)){
-    msg(MSG::ERROR) << "getHV : wrong identifier returning -9999" << endmsg;
+  if (!m_pixid->is_pixel(module_id)) {
+    ATH_MSG_ERROR("getHV : wrong identifier returning -9999");
     return -9999;
   }
   IdentifierHash id_hash = m_pixid->wafer_hash(module_id);
   return (*m_pixelDCSData)[(unsigned int)id_hash]->getHV();
-
 }
 
-inline std::string PixelDCSSvc::getFSMStatus(const Identifier& module_id) const{
-
-  if(!m_pixid->is_pixel(module_id)){
-    msg(MSG::ERROR) << "getFSMStatus : wrong identifier returning NO_DATA" << endmsg;
+inline std::string PixelDCSSvc::getFSMStatus(const Identifier& module_id) const {
+  if (!m_pixid->is_pixel(module_id)) {
+    ATH_MSG_ERROR("getFSMStatus : wrong identifier returning NO_DATA");
     return "NO_DATA";
   }
   IdentifierHash id_hash = m_pixid->wafer_hash(module_id);
   return (*m_pixelDCSData)[(unsigned int)id_hash]->getFSMStatus();
-
 }
 
-inline std::string PixelDCSSvc::getFSMState(const Identifier& module_id) const{
-
-  if(!m_pixid->is_pixel(module_id)){
-    msg(MSG::ERROR) << "getFSMState : wrong identifier returning NO_DATA" << endmsg;
+inline std::string PixelDCSSvc::getFSMState(const Identifier& module_id) const {
+  if (!m_pixid->is_pixel(module_id)) {
+    ATH_MSG_ERROR("getFSMState : wrong identifier returning NO_DATA");
     return "NO_DATA";
   }
   IdentifierHash id_hash = m_pixid->wafer_hash(module_id);
   return (*m_pixelDCSData)[(unsigned int)id_hash]->getFSMState();
-
 }
 
 //// method with IdentifierHash
-
-inline double PixelDCSSvc::getTemperature(const IdentifierHash& id_hash) const{
-
+inline double PixelDCSSvc::getTemperature(const IdentifierHash& id_hash) const {
   unsigned int id = (unsigned int)id_hash;
-
-  if( m_pixelDCSData->size() <= id ){
-    if (msgLvl(MSG::ERROR)) msg() << " getTemperature: IdentifierHash "<< id << " not valid returning -9999" << endmsg;
+  if (m_pixelDCSData->size()<=id) {
+    ATH_MSG_ERROR(" getTemperature: IdentifierHash "<< id << " not valid returning -9999");
     return -9999;
   }
-
   return (*m_pixelDCSData)[id]->getTemperature();
-
 }
 
-inline double PixelDCSSvc::getHV(const IdentifierHash& id_hash) const{
-
+inline double PixelDCSSvc::getHV(const IdentifierHash& id_hash) const {
   unsigned int id = (unsigned int)id_hash;
-
-  if( m_pixelDCSData->size() <= id ){
-    if (msgLvl(MSG::ERROR)) msg() <<" getHV: IdentifierHash "<< id << " not valid returning -9999" << endmsg;
+  if (m_pixelDCSData->size()<=id) {
+    ATH_MSG_ERROR(" getHV: IdentifierHash "<< id << " not valid returning -9999");
     return -9999;
   }
-
   return (*m_pixelDCSData)[id]->getHV();
-
 }
 
-inline std::string PixelDCSSvc::getFSMStatus(const IdentifierHash& id_hash) const{
-
-   unsigned int id = (unsigned int)id_hash;
-
-  if( m_pixelDCSData->size() <= id ){
-    msg(MSG::ERROR) << " getFSMStatus: IdentifierHash "<< id << " not valid returning NO_DATA" << endmsg;
+inline std::string PixelDCSSvc::getFSMStatus(const IdentifierHash& id_hash) const {
+  unsigned int id = (unsigned int)id_hash;
+  if (m_pixelDCSData->size()<=id) {
+    ATH_MSG_ERROR(" getFSMStatus: IdentifierHash "<< id << " not valid returning NO_DATA");
     return "NO_DATA";
   }
   return (*m_pixelDCSData)[id]->getFSMStatus();
-
 }
 
-inline std::string PixelDCSSvc::getFSMState(const IdentifierHash& id_hash) const{
-
-
+inline std::string PixelDCSSvc::getFSMState(const IdentifierHash& id_hash) const {
   unsigned int id = (unsigned int)id_hash;
-   
-  if( m_pixelDCSData->size() <= id ){
-     msg(MSG::ERROR) << " getFSMState: IdentifierHash "<< id << " not valid returning NO_DATA" << endmsg;
-     return "NO_DATA";
+  if (m_pixelDCSData->size()<=id) {
+    ATH_MSG_ERROR(" getFSMState: IdentifierHash "<< id << " not valid returning NO_DATA");
+    return "NO_DATA";
   }
   return (*m_pixelDCSData)[id]->getFSMState();
-
 }
-
-
-
 #endif // PIXEL_DCS_SVC_H
-
-
-
 

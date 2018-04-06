@@ -38,19 +38,19 @@ namespace MuonCalib {
     RpcTruthHitNtupleBranch(std::string branchName = "rpcTruth_"); //!< default constructor 
     bool  fillBranch(const MuonCalibRpcTruthHit &hit);             //!< fill content of hit into branch 
     bool  createBranch(TTree *tree);                               //!< create branch structure in tree 
-    inline void reset() { index = 0; }                             //!< set hit_index to zero 
-    inline const int& getBranchEntries() const { return index; }   //!< returns the number of hits currently in the branch 
+    inline void reset() { m_index = 0; }                             //!< set hit_index to zero 
+    inline const int& getBranchEntries() const { return m_index; }   //!< returns the number of hits currently in the branch 
     inline int blockSize() const { return m_blockSize; }           //!< returns maximum number of entries stored to ntuple
   
   private:
     std::string m_branchName;          //!< name of branch in tree, per default prepended to variable names 
-    bool branchesInit;                 //!< flag to check whether branches were initialized 
-    int index;                         //!< counter keeping track on the number of MuonCalibRpcTruthHit s stored in the event
+    bool m_branchesInit;                 //!< flag to check whether branches were initialized 
+    int m_index;                         //!< counter keeping track on the number of MuonCalibRpcTruthHit s stored in the event
     static const int m_blockSize = 3000; //!< quantities stored in the tree 
 
-    int id[m_blockSize];
-    int barCode[m_blockSize];
-    double time[m_blockSize];
+    int m_id[m_blockSize];
+    int m_barCode[m_blockSize];
+    double m_time[m_blockSize];
 
   };
 

@@ -13,8 +13,8 @@ m_sParticleType(sParticleType)
 {}	
   
 void KinematicsPlots::initializePlots(){
-  lead = nullptr;
-  npart = 0;
+  m_lead = nullptr;
+  m_npart = 0;
 
    n  = Book1D("n", "Number of "+ m_sParticleType +"; n ;Events", 50, 0., 50);
 
@@ -33,31 +33,31 @@ void KinematicsPlots::fill(const xAOD::IParticle* part){
   eta->Fill(part->eta());
   phi->Fill(part->phi());
 
-  if (lead == nullptr) lead = part;
+  if (m_lead == nullptr) m_lead = part;
 
-  if (part->pt() > lead->pt()) {
-     lead = part;
+  if (part->pt() > m_lead->pt()) {
+     m_lead = part;
    }
 
-  ++npart;  
+  ++m_npart;  
 }
 
 void KinematicsPlots::fill(){
-  n->Fill(npart);
+  n->Fill(m_npart);
 
-  if (lead != nullptr) {
-    lead_et->Fill(lead->pt()/GeV);
-    lead_eta->Fill(lead->eta());
-    lead_phi->Fill(lead->phi());
+  if (m_lead != nullptr) {
+    lead_et->Fill(m_lead->pt()/GeV);
+    lead_eta->Fill(m_lead->eta());
+    lead_phi->Fill(m_lead->phi());
   }
 
-  lead = nullptr;
+  m_lead = nullptr;
 
 }
 
 void KinematicsPlots::initializeEvent() {
-  lead = nullptr;
-  npart = 0;
+  m_lead = nullptr;
+  m_npart = 0;
 
 }
 

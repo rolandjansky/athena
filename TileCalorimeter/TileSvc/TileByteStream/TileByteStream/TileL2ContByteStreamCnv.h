@@ -47,12 +47,8 @@ class TileL2ContByteStreamCnv
   , public IIncidentListener
   , public ::AthMessaging
 {
-    friend class CnvFactory<TileL2ContByteStreamCnv>;
-
-  protected:
-    TileL2ContByteStreamCnv(ISvcLocator* svcloc);
-
   public:
+    TileL2ContByteStreamCnv(ISvcLocator* svcloc);
 
     typedef TileL2ContByteStreamTool  BYTESTREAMTOOL ; 
 

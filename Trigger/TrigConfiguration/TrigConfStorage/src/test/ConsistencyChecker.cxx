@@ -157,15 +157,15 @@ public:
    enum ETriggerLevel { LVL1 = 0, HLT = 1, NONE = 2 };
 
    JobConfig() :
-      fCoolConnection(""),
-      fTriggerDBConnection(""),
-      fTriggerRunNumber(-1),
-      fTriggerConfigKey(),
-      fTriggerLvl1MenuXML(""),
-      fTriggerHltMenuXML(""),
-      fSilenceSeverity(false),
-      fHelp(false),
-      fVerbose(0)
+      m_coolConnection(""),
+      m_triggerDBConnection(""),
+      m_triggerRunNumber(-1),
+      m_triggerConfigKey(),
+      m_triggerLvl1MenuXML(""),
+      m_triggerHltMenuXML(""),
+      m_silenceSeverity(false),
+      m_help(false),
+      m_verbose(0)
    {}
 
    ~JobConfig(){}
@@ -183,38 +183,38 @@ public:
       return UseHLTXML()?HltMenuXML():UseTriggerDB()?TriggerDbConnection():CoolConnection()+", run "+boost::lexical_cast<std::string,int>(RunNumber());
    }
 
-   void SetHelp(bool x=true) { fHelp = x; }
-   bool Help() const { return fHelp; }
+   void SetHelp(bool x=true) { m_help = x; }
+   bool Help() const { return m_help; }
 
-   void SetCoolConnection(const std::string & x) { fCoolConnection = x; }
-   std::string CoolConnection() const { return fCoolConnection; }
+   void SetCoolConnection(const std::string & x) { m_coolConnection = x; }
+   std::string CoolConnection() const { return m_coolConnection; }
 
-   void SetTriggerDbConnection(const std::string & x) { fTriggerDBConnection = x; }
-   std::string TriggerDbConnection() const { return fTriggerDBConnection; }
+   void SetTriggerDbConnection(const std::string & x) { m_triggerDBConnection = x; }
+   std::string TriggerDbConnection() const { return m_triggerDBConnection; }
 
-   void SetTriggerRunNumber(int x) { fTriggerRunNumber = x; }
-   int RunNumber() const { return fTriggerRunNumber; }
+   void SetTriggerRunNumber(int x) { m_triggerRunNumber = x; }
+   int RunNumber() const { return m_triggerRunNumber; }
 
-   void AddTriggerConfigKey(int x) { fTriggerConfigKey.push_back(x); }
-   const std::vector<int>& ConfigKey() const { return fTriggerConfigKey; }
+   void AddTriggerConfigKey(int x) { m_triggerConfigKey.push_back(x); }
+   const std::vector<int>& ConfigKey() const { return m_triggerConfigKey; }
 
-   void SetHltMenuXML(const std::string & x) { fTriggerHltMenuXML = x; }
-   const std::string & HltMenuXML() const { return fTriggerHltMenuXML; }
+   void SetHltMenuXML(const std::string & x) { m_triggerHltMenuXML = x; }
+   const std::string & HltMenuXML() const { return m_triggerHltMenuXML; }
 
-   void SetLvl1MenuXML(const std::string & x) { fTriggerLvl1MenuXML = x; }
-   const std::string & Lvl1MenuXML() const { return fTriggerLvl1MenuXML; }
+   void SetLvl1MenuXML(const std::string & x) { m_triggerLvl1MenuXML = x; }
+   const std::string & Lvl1MenuXML() const { return m_triggerLvl1MenuXML; }
 
-   void DisableTest(const std::string& test) { fDisabledTests.insert(test); }
-   std::set<std::string>& DisabledTests() { return fDisabledTests; }
+   void DisableTest(const std::string& test) { m_disabledTests.insert(test); }
+   std::set<std::string>& DisabledTests() { return m_disabledTests; }
 
-   void SetSilenceSeverity(bool silence=true) { fSilenceSeverity = silence; }
-   bool SilenceSeverity() { return true; } //fSilenceSeverity; }
+   void SetSilenceSeverity(bool silence=true) { m_silenceSeverity = silence; }
+   bool SilenceSeverity() { return true; } //m_silenceSeverity; }
 
-   void SetVerbose(unsigned int v = 1) { fVerbose=v; }
-   unsigned int Verbose() { return fVerbose; }
+   void SetVerbose(unsigned int v = 1) { m_verbose=v; }
+   unsigned int Verbose() { return m_verbose; }
 
-  void SetExceptionsFileName(const std::string& name) { fExceptionsFileName = name; }
-  const std::string& ExceptionsFileName() const { return fExceptionsFileName; }
+  void SetExceptionsFileName(const std::string& name) { m_exceptionsFileName = name; }
+  const std::string& ExceptionsFileName() const { return m_exceptionsFileName; }
 
 
    void CheckForCompleteSetup();
@@ -222,17 +222,17 @@ public:
    void PrintCompleteSetup(std::ostream & log);
 
 private:
-   std::string           fCoolConnection;
-   std::string           fTriggerDBConnection;  
-   int                   fTriggerRunNumber; 
-   std::vector<int>      fTriggerConfigKey; 
-   std::string           fTriggerLvl1MenuXML;
-   std::string           fTriggerHltMenuXML;
-   std::set<std::string> fDisabledTests;
-   bool                  fSilenceSeverity;
-   bool                  fHelp;
-   unsigned int          fVerbose;
-   std::string           fExceptionsFileName;
+   std::string           m_coolConnection;
+   std::string           m_triggerDBConnection;  
+   int                   m_triggerRunNumber; 
+   std::vector<int>      m_triggerConfigKey; 
+   std::string           m_triggerLvl1MenuXML;
+   std::string           m_triggerHltMenuXML;
+   std::set<std::string> m_disabledTests;
+   bool                  m_silenceSeverity;
+   bool                  m_help;
+   unsigned int          m_verbose;
+   std::string           m_exceptionsFileName;
    
 } gConfig;
 

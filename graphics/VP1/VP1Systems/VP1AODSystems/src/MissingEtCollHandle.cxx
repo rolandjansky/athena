@@ -85,11 +85,11 @@ public:
 
 //____________________________________________________________________
 MissingEtCollHandle::MissingEtCollHandle(AODSysCommonData * cd, const QString& name, xAOD::Type::ObjectType type)
-  : AODCollHandleBase(cd,name,type), d(new Imp), m_cut_phi_allowall{}, m_cut_phi_allwillfail{}
+  : AODCollHandleBase(cd,name,type), m_d(new Imp), m_cut_phi_allowall{}, m_cut_phi_allwillfail{}
 {
-  d->theclass = this;
-  d->updateGUICounter = 0;
-  d->collSettingsButton=0;
+  m_d->theclass = this;
+  m_d->updateGUICounter = 0;
+  m_d->collSettingsButton=0;
 
 
   //The object names should not contain all sorts of funky chars (mat button style sheets wont work for instance):
@@ -104,26 +104,26 @@ MissingEtCollHandle::MissingEtCollHandle(AODSysCommonData * cd, const QString& n
   safetext.replace('>','_');
   safetext.replace('&','_');
 
-  //  d->defaultParametersMaterial = new SoMaterial;
-  //  d->defaultParametersMaterial->setName(("MissingEtCollHandle"+safetext).toStdString().c_str());
-  //  d->defaultParametersMaterial->ref();
-  // d->matButton->setDefaultParameterMaterial(d->defaultParametersMaterial); FIXME
+  //  m_d->defaultParametersMaterial = new SoMaterial;
+  //  m_d->defaultParametersMaterial->setName(("MissingEtCollHandle"+safetext).toStdString().c_str());
+  //  m_d->defaultParametersMaterial->ref();
+  // m_d->matButton->setDefaultParameterMaterial(m_d->defaultParametersMaterial); FIXME
 }
 
 //____________________________________________________________________
 MissingEtCollHandle::~MissingEtCollHandle()
 {
-  //	d->defaultParametersMaterial->unref();
+  //	m_d->defaultParametersMaterial->unref();
 
   // clean the QList<handle>
-  foreach(AODHandleBase* handle, d->handles) {
+  foreach(AODHandleBase* handle, m_d->handles) {
     delete handle;
   }
 
   // TODO: implemet this del
-  //	if (d->bTaggingSwitch) d->bTaggingSwitch->unref();
+  //	if (m_d->bTaggingSwitch) m_d->bTaggingSwitch->unref();
 
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -131,13 +131,13 @@ void MissingEtCollHandle::init(VP1MaterialButtonBase*)
 {
   // std::cout<<"MissingEtCollHandle::init 1"<<std::endl;
 
-  //	d->matButton = new MissingEtCollectionSettingsButton; // TODO: update for jet
-  //	d->matButton->setMaterialText(name());
-  d->collSettingsButton = new MissingEtCollectionSettingsButton;
-  d->collSettingsButton->setMaterialText(name());
+  //	m_d->matButton = new MissingEtCollectionSettingsButton; // TODO: update for jet
+  //	m_d->matButton->setMaterialText(name());
+  m_d->collSettingsButton = new MissingEtCollectionSettingsButton;
+  m_d->collSettingsButton->setMaterialText(name());
 
-  // std::cout<<"Calling VP1StdCollection::init with d->matButton (MissingEtCollectionSettingsButton)="<<d->matButton<<std::endl;
-  VP1StdCollection::init(d->collSettingsButton);//this call is required. Passing in d->collSettingsButton means we have the more complex button.
+  // std::cout<<"Calling VP1StdCollection::init with m_d->matButton (MissingEtCollectionSettingsButton)="<<m_d->matButton<<std::endl;
+  VP1StdCollection::init(m_d->collSettingsButton);//this call is required. Passing in m_d->collSettingsButton means we have the more complex button.
   setupSettingsFromController(common()->controller());
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
 
@@ -146,14 +146,14 @@ void MissingEtCollHandle::init(VP1MaterialButtonBase*)
   // std::cout<<"sep: "<<collSep()<<std::endl;
   // std::cout<<"mat: "<<material()<<std::endl;
 
-  //	collSwitch()->addChild(d->collSettingsButton->trackLightModel()); // TODO: update for jets
-  //	collSwitch()->addChild(d->collSettingsButton->trackDrawStyle()); // TODO: update for jets
+  //	collSwitch()->addChild(m_d->collSettingsButton->trackLightModel()); // TODO: update for jets
+  //	collSwitch()->addChild(m_d->collSettingsButton->trackDrawStyle()); // TODO: update for jets
 }
 
 //____________________________________________________________________
 void MissingEtCollHandle::hintNumberOfHandlesInEvent(unsigned n)
 {
-  d->handles.reserve(n);
+  m_d->handles.reserve(n);
 }
 
 //____________________________________________________________________
@@ -164,30 +164,30 @@ void MissingEtCollHandle::addHandle(AODHandleBase* ah)
     message("ERROR - wrong handle type passed to MissingEtCollHandle::addHandle!");
     return;
   }
-  d->handles.push_back(handle); // for the vector<handle>
-  d->handlesList << handle; // for the QList<handle>
+  m_d->handles.push_back(handle); // for the vector<handle>
+  m_d->handlesList << handle; // for the QList<handle>
 }
 
 //____________________________________________________________________
 void MissingEtCollHandle::handleIterationBegin()
 {
-  d->itHandles = d->handles.begin();
-  d->itHandlesEnd = d->handles.end();
+  m_d->itHandles = m_d->handles.begin();
+  m_d->itHandlesEnd = m_d->handles.end();
 }
 
 //____________________________________________________________________
 AODHandleBase* MissingEtCollHandle::getNextHandle() {
-  if (d->itHandles==d->itHandlesEnd)
+  if (m_d->itHandles==m_d->itHandlesEnd)
     return 0;
   else
-    return *(d->itHandles++);
+    return *(m_d->itHandles++);
 }
 
 //____________________________________________________________________
 QList<AODHandleBase*> MissingEtCollHandle::getHandlesList() const
 {
   messageVerbose("AODCollHandleBase::getHandlesList()");
-  return d->handlesList;
+  return m_d->handlesList;
 }
 
 
@@ -195,36 +195,36 @@ QList<AODHandleBase*> MissingEtCollHandle::getHandlesList() const
 void MissingEtCollHandle::setupSettingsFromControllerSpecific(AODSystemController*) {
 
   //cuts  
-  //	connect(d->collSettingsButton,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
-  //	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
+  //	connect(m_d->collSettingsButton,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
+  //	setCutAllowedPt(m_d->collSettingsButton->cutAllowedPt());
   //
-  //	connect(d->collSettingsButton,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
-  //	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
+  //	connect(m_d->collSettingsButton,SIGNAL(cutAllowedEtaChanged(const VP1Interval&)),this,SLOT(setCutAllowedEta(const VP1Interval&)));
+  //	setCutAllowedEta(m_d->collSettingsButton->cutAllowedEta());
   //
-  //	connect(d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
-  //	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+  //	connect(m_d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
+  //	setCutAllowedPhi(m_d->collSettingsButton->cutAllowedPhi());
 
   //	// Parameters
-  //	connect(d->collSettingsButton,SIGNAL(showParametersChanged(bool)),        this,SLOT(showParametersChanged(bool)));
-  //	connect(d->collSettingsButton,SIGNAL(colourParametersByTypeChanged(bool)),this,SLOT(showParametersChanged(bool)));
+  //	connect(m_d->collSettingsButton,SIGNAL(showParametersChanged(bool)),        this,SLOT(showParametersChanged(bool)));
+  //	connect(m_d->collSettingsButton,SIGNAL(colourParametersByTypeChanged(bool)),this,SLOT(showParametersChanged(bool)));
   // Just reusing the same slot, since it doesn't
 
   // scale
-  //connect(d->collSettingsButton,SIGNAL(scaleChanged(const double&)),this,SLOT(setScale(const double&)));
+  //connect(m_d->collSettingsButton,SIGNAL(scaleChanged(const double&)),this,SLOT(setScale(const double&)));
   //setScale( this->scale() );
 
   // MET length and thickness
-  connect(d->collSettingsButton,SIGNAL(metSizeChanged(int)),this,SLOT(setMetSize(int)));
-  setMetSize(d->collSettingsButton->metLength());
+  connect(m_d->collSettingsButton,SIGNAL(metSizeChanged(int)),this,SLOT(setMetSize(int)));
+  setMetSize(m_d->collSettingsButton->metLength());
 
   // Phi cut
-  connect(d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
-  setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(setCutAllowedPhi(const QList<VP1Interval>&)));
+  setCutAllowedPhi(m_d->collSettingsButton->cutAllowedPhi());
 
   // random jet colors
-  //	connect(d->collSettingsButton,SIGNAL(rerandomise()),this,SLOT(rerandomise()));
-  //	connect(d->collSettingsButton,SIGNAL(randomJetColoursChanged(const bool&)),this,SLOT(setRandomJetColours(const bool&)));
-  //	setRandomJetColours(d->collSettingsButton->randomJetColours());
+  //	connect(m_d->collSettingsButton,SIGNAL(rerandomise()),this,SLOT(rerandomise()));
+  //	connect(m_d->collSettingsButton,SIGNAL(randomJetColoursChanged(const bool&)),this,SLOT(setRandomJetColours(const bool&)));
+  //	setRandomJetColours(m_d->collSettingsButton->randomJetColours());
 }
 
 
@@ -233,22 +233,22 @@ void MissingEtCollHandle::resetCachedValuesCuts()
 	// TODO: it is not used so far! Check Other collections and update accordingly
 
 	// kinetic cuts
-	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+	setCutAllowedPhi(m_d->collSettingsButton->cutAllowedPhi());
 	// other settings
-	setMetSize(d->collSettingsButton->metLength());
+	setMetSize(m_d->collSettingsButton->metLength());
 
 }
 
 //SoMaterial* MissingEtCollHandle::defaultParameterMaterial() const {
-//	return d->defaultParametersMaterial;
+//	return m_d->defaultParametersMaterial;
 //}
 
 
 const MissingEtCollectionSettingsButton& MissingEtCollHandle::collSettingsButton() const {
-  if (!d->collSettingsButton){
+  if (!m_d->collSettingsButton){
     messageVerbose("MET - No collSettingsButton set! Can't call init(), so crash is imminent...");
   }
-  return *d->collSettingsButton;
+  return *m_d->collSettingsButton;
 }
 
 
@@ -259,30 +259,30 @@ const MissingEtCollectionSettingsButton& MissingEtCollHandle::collSettingsButton
 //
 //  messageVerbose("MissingEtCollHandle::setScale() - scale: " + QString::number(sca));
 //
-//  if (d->handlesList.isEmpty()) {
+//  if (m_d->handlesList.isEmpty()) {
 //    messageVerbose("no jet handles defined! returning.");
 //    return;
 //  }
 //
-//  if (d->scale == sca)
+//  if (m_d->scale == sca)
 //    return;
 //
-//  d->scale = std::max(1*Gaudi::Units::mm/(100*Gaudi::Units::GeV),
+//  m_d->scale = std::max(1*Gaudi::Units::mm/(100*Gaudi::Units::GeV),
 //  std::min(99*Gaudi::Units::m/(1*Gaudi::Units::MeV),
-//  //						d->collSettingsButton->lengthOf100GeV() * Gaudi::Units::m/(100.0*Gaudi::Units::GeV)));
+//  //						m_d->collSettingsButton->lengthOf100GeV() * Gaudi::Units::m/(100.0*Gaudi::Units::GeV)));
 //  sca * Gaudi::Units::m/(100.0*Gaudi::Units::GeV)));
 //
 //  if (!isLoaded())
 //    return;
 //
-//  messageVerbose("Scale change: to "+str(d->scale/(Gaudi::Units::m/(100.0 * Gaudi::Units::GeV)))+" m/100GeV. Updating "+str(d->handlesList.count())+" jets");
-//  std::cout << "Scale change: d->scale/(Gaudi::Units::m/(100.0*Gaudi::Units::GeV)))" <<  "m/100GeV. Updating " << d->handlesList.count() << " jets" << std::endl;
+//  messageVerbose("Scale change: to "+str(m_d->scale/(Gaudi::Units::m/(100.0 * Gaudi::Units::GeV)))+" m/100GeV. Updating "+str(m_d->handlesList.count())+" jets");
+//  std::cout << "Scale change: m_d->scale/(Gaudi::Units::m/(100.0*Gaudi::Units::GeV)))" <<  "m/100GeV. Updating " << m_d->handlesList.count() << " jets" << std::endl;
 //  largeChangesBegin();
 //
-//  foreach(AODHandleBase* partHandle, d->handles) {
+//  foreach(AODHandleBase* partHandle, m_d->handles) {
 //    MissingEtHandle* met = dynamic_cast<MissingEtHandle*>(partHandle);
 //    if (met->has3DObjects()) {
-//      met->setScale(d->scale);
+//      met->setScale(m_d->scale);
 //      met->updateHeight();
 //    }
 //  }
@@ -301,7 +301,7 @@ void MissingEtCollHandle::setMetSize(int size)
 ////____________________________________________________________________
 //double MissingEtCollHandle::scale() const
 //{
-//  return d->scale;
+//  return m_d->scale;
 //}
 
 
@@ -309,7 +309,7 @@ void MissingEtCollHandle::setMetSize(int size)
 //bool MissingEtCollHandle::isRandomColors() const
 //{
 //	VP1Msg::messageDebug("MissingEtCollHandle::isRandomColors()");
-//	return d->randomColours;
+//	return m_d->randomColours;
 //}
 //
 //
@@ -318,18 +318,18 @@ void MissingEtCollHandle::setMetSize(int size)
 //{
 //	messageVerbose("MissingEtCollHandle::setRandomJetColours() - b: "+QString::number(b));
 //
-//	if (d->randomColours == b)
+//	if (m_d->randomColours == b)
 //		return;
 //
-//	d->randomColours = b;
-//	std::cout << "isRandom: " << d->randomColours << std::endl;
+//	m_d->randomColours = b;
+//	std::cout << "isRandom: " << m_d->randomColours << std::endl;
 //
 //	if (!isLoaded())
 //		return;
 //
 //	largeChangesBegin();
 //	int ijet = 0;
-//	foreach(AODHandleBase* partHandle, d->handles) {
+//	foreach(AODHandleBase* partHandle, m_d->handles) {
 //		++ijet;
 //		messageVerbose("considering jet: "+QString::number(ijet));
 //		MissingEtCollHandle* jet = dynamic_cast<MissingEtCollHandle*>(partHandle);
@@ -360,7 +360,7 @@ void MissingEtCollHandle::setMetSize(int size)
 //	}
 //
 //	largeChangesBegin();
-//	foreach(AODHandleBase* partHandle, d->handles) {
+//	foreach(AODHandleBase* partHandle, m_d->handles) {
 //		MissingEtCollHandle* jet = dynamic_cast<MissingEtCollHandle*>(partHandle);
 //		if (jet->has3DObjects())
 //			jet->rerandomiseMaterial();
@@ -403,7 +403,7 @@ bool MissingEtCollHandle::load()
   // hintNumberOfTracksInEvent(coll->size());
   xAOD::MissingETContainer::const_iterator it, itEnd = coll->end();
   for ( it = coll->begin() ; it != itEnd; ++it) {
-    d->possiblyUpdateGUI();
+    m_d->possiblyUpdateGUI();
     if (!*it) {
       messageDebug("WARNING: Ignoring null MET pointer.");
       continue;
@@ -529,7 +529,7 @@ QByteArray MissingEtCollHandle::persistifiableState() const
 {
   messageDebug("MissingEtCollHandle::persistifiableState() - start...");
 
-  // if (!d->matButton) {
+  // if (!m_d->matButton) {
   //   message("ERROR: persistifiableState() called before init()");
   //   return QByteArray();
   // }
@@ -544,14 +544,14 @@ QByteArray MissingEtCollHandle::persistifiableState() const
   serialise.save(visible());
 
   // SAVE THE MATERIAL BUTTON
-  //Q_ASSERT(d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
-  //serialise.save(d->matButton->saveState());
+  //Q_ASSERT(m_d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
+  //serialise.save(m_d->matButton->saveState());
 
   // SAVE THE EXTRA-STATES
   serialise.save(extraWidgetsState());//version 1+
 
   // SAVE MATERIAL SETTINGS / CUTS
-  serialise.save(d->collSettingsButton->saveState());
+  serialise.save(m_d->collSettingsButton->saveState());
 
   messageDebug("MissingEtCollHandle::persistifiableState() - end.");
   return serialise.result();
@@ -574,7 +574,7 @@ void MissingEtCollHandle::setState(const QByteArray&state)
   bool vis = des.restoreBool();
 
   //	QByteArray matState = des.restoreByteArray();
-  // d->matButton->restoreFromState(matState);
+  // m_d->matButton->restoreFromState(matState);
   QByteArray extraWidgetState = des.version()>=1 ? des.restoreByteArray() : QByteArray();
   setVisible(vis);
 
@@ -583,7 +583,7 @@ void MissingEtCollHandle::setState(const QByteArray&state)
 
   // MATERIAL SETTINGS / CUTS
   messageDebug("restoring material collection button...");
-  des.restore(d->collSettingsButton);
+  des.restore(m_d->collSettingsButton);
 
   messageDebug("reset all caches storing values for cuts...");
   resetCachedValuesCuts();

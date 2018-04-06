@@ -40,7 +40,7 @@ atlas_add_library( CaloDetDescrLib
 atlas_add_component( CaloDetDescr
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel AthContainers GeoPrimitives Identifier GaudiKernel LArReadoutGeometry CaloConditions CaloGeoHelpers StoreGateLib SGtests CaloDetDescrLib )
+                     LINK_LIBRARIES CaloDetDescrLib )
 
 atlas_add_dictionary( CaloDetDescrDict
                       CaloDetDescr/CaloDetDescrDict.h

@@ -8,7 +8,6 @@
 #include <math.h>
 #include "TestLArHardwareID/reinitTTMap_Algo.h"
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
@@ -85,7 +84,7 @@ StatusCode reinitTTMap_Algo::initialize(){
   // get the output stream tool for writing
   IToolSvc* toolSvc = nullptr;
   ATH_CHECK( service("ToolSvc", toolSvc) );
-  ATH_CHECK( toolSvc->retrieveTool("AthenaPoolOutputStreamTool", m_streamName, m_streamer) );
+  ATH_CHECK( toolSvc->retrieveTool("AthenaOutputStreamTool", m_streamName, m_streamer) );
   
   return StatusCode::SUCCESS;
 }

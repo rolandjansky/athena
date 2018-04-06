@@ -3,6 +3,7 @@
 ################################################################################
 
 find_package( TBB )
+find_package( GTest )
 
 # Declare the package name:
 atlas_subdir( AthViews )
@@ -31,13 +32,13 @@ atlas_add_component( AthViewsAlgs
                    src/*.cxx
                    src/components/*.cxx
                    INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils AthViews TrigSteeringEvent )
+                   LINK_LIBRARIES AthViews )
 
 atlas_add_component( AthViewsDFlow
                      src_dflow/*.cxx
                      src_dflow/components/*.cxx
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel SGTools StoreGateLib GaudiKernel CxxUtils AthViews )
+                     LINK_LIBRARIES AthViews )
 
 
 atlas_add_test( ViewLinking_test 
@@ -45,6 +46,12 @@ atlas_add_test( ViewLinking_test
 		SOURCES test/ViewLinking_test.cxx 
 		LINK_LIBRARIES ${TBB_LIBRARIES}
 		AthViews TestTools )
+
+atlas_add_test( ViewCollectionMerge_test 
+    INCLUDE_DIRS ${TBB_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+    SOURCES test/ViewCollectionMerge_test.cxx 
+    LINK_LIBRARIES ${TBB_LIBRARIES} ${GTEST_LIBRARIES} AthViews TestTools
+    ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test")
 
 atlas_add_test( SimpleViews SCRIPT test/test_simple_view_example.sh
                 PROPERTIES PASS_REGULAR_EXPRESSION "INFO view_test running with store view9" )

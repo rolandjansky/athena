@@ -33,7 +33,7 @@ atlas_add_library( LArToolsLib
 atlas_add_component( LArTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel Identifier GaudiKernel LArCablingLib CaloIdentifier AthenaPoolUtilities LArRecConditions LArToolsLib )
+                     LINK_LIBRARIES LArToolsLib )
 
 atlas_add_dictionary( LArToolsDict
                       LArTools/LArToolsDict.h

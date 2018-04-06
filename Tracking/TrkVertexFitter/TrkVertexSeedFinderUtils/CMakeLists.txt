@@ -45,3 +45,5 @@ atlas_add_component( TrkVertexSeedFinderUtils
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${FFTW_LIBRARIES} EventPrimitives
    xAODTruth InDetTrackSelectionToolLib MagFieldInterfaces TrkEventPrimitives
    TrkLinks TrkTrack TrkVertexFitterInterfaces TrkVertexSeedFinderUtilsLib )
+
+atlas_install_joboptions( share/*.py )

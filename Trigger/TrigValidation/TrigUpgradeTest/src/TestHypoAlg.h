@@ -6,7 +6,7 @@
 
 
 #include <string>
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "DecisionHandling/HypoBase.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -20,27 +20,26 @@ namespace HLTTest {
 
   using namespace TrigCompositeUtils;
   
-  class TestHypoAlg : public ::AthReentrantAlgorithm 
+  class TestHypoAlg : public ::HypoBase 
   
   { 
   public: 
     TestHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
-
     virtual ~TestHypoAlg(); 
 
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute_r( const EventContext& context ) const override;
+    virtual StatusCode finalize() override;
 
-    StatusCode  initialize() override;
-    virtual StatusCode  execute_r( const EventContext& context ) const override;
-    StatusCode  finalize() override;
-
-  private: 
+  private:
+    typedef TrigRoiDescriptor FeatureOBJ;
+    typedef TrigRoiDescriptorCollection FeatureContainer;
+    // the DecisionContainer read/write handle keys are in the base class, called previousDecisions and Output
     TestHypoAlg();
     ToolHandleArray<ITestHypoTool> m_tools                       { this, "HypoTools", {}, "Hypo tools" };
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput  { this, "Input", "Input", "Key for reco input"};
-    SG::ReadHandleKey <DecisionContainer> m_previousDecisions    { this, "previousDecisions", "previousDecisions", "Key for decisions per RoI" };
-    SG::WriteHandleKey<DecisionContainer> m_output               { this, "Output", "Output", "Key for decision output"};
-
-  
+    StringProperty m_linkName {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
+   
   }; 
 
 } //> end namespace HLTTest

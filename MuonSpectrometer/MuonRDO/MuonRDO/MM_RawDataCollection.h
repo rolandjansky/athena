@@ -10,8 +10,11 @@
 #include "SGTools/CLASS_DEF.h"
 #include "Identifier/IdentifierHash.h"
 
-class MM_RawDataCollection : public DataVector<MM_RawData>
+namespace Muon {
+class MM_RawDataCollection : public DataVector<Muon::MM_RawData>
 {
+  friend class MM_RawDataContainerCnv_p1;
+  
 public:
   MM_RawDataCollection(IdentifierHash hash) : m_idHash(hash) {}
 
@@ -23,5 +26,6 @@ private:
   IdentifierHash m_idHash;
   
 };
+}
 
 #endif

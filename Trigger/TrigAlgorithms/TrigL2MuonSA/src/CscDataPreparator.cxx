@@ -4,7 +4,6 @@
 
 #include "TrigL2MuonSA/CscDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
@@ -62,7 +61,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 {
 
 
-  ATH_MSG_DEBUG("Initializing CscDataPreparator - package version " << PACKAGE_VERSION);
+   ATH_MSG_DEBUG("Initializing CscDataPreparator - package version " << PACKAGE_VERSION);
    
    StatusCode sc;
    sc = AthAlgTool::initialize();
@@ -71,12 +70,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
       return sc;
    }
    
-   // Locate the StoreGateSvc
-   sc =  m_storeGateSvc.retrieve();
-   if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
-      return sc;
-   }
+   ATH_CHECK( m_storeGateSvc.retrieve() );
 
    // Retrieve ActiveStore
    sc = serviceLocator()->service("ActiveStoreSvc", p_ActiveStore);
@@ -85,23 +79,11 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
      return sc;
    }
 
-   // prepdataprovider
-   sc = m_cscPrepDataProvider.retrieve();
-   if (sc.isSuccess()) {
-     ATH_MSG_INFO("Retrieved " << m_cscPrepDataProvider);
-   } else {
-     ATH_MSG_FATAL("Could not get " << m_cscPrepDataProvider);
-     return sc;
-   }
+   ATH_CHECK( m_cscPrepDataProvider.retrieve() );
+   ATH_MSG_INFO("Retrieved " << m_cscPrepDataProvider);
 
-   // clusterization tool
-   sc = m_cscClusterProvider.retrieve();
-   if (sc.isSuccess()) {
-     ATH_MSG_INFO("Retrieved " << m_cscClusterProvider);
-   } else {
-     ATH_MSG_FATAL("Could not get " << m_cscClusterProvider);
-     return sc;
-   }
+   ATH_CHECK( m_cscClusterProvider.retrieve() );
+   ATH_MSG_INFO("Retrieved " << m_cscClusterProvider);
 
    // Detector Store
    StoreGateSvc* detStore;

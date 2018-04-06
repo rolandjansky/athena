@@ -34,6 +34,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
+#include "SiPropertiesSvc/ISiPropertiesTool.h"
+
+#include "SCT_ConditionsTools/ISCT_RadDamageSummaryTool.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include <iostream>
@@ -56,10 +60,6 @@ namespace InDetDD{
 namespace CLHEP {
   class HepRandomEngine;
 }
-
-class ISiliconConditionsSvc;
-class ISiPropertiesSvc;
-class ISCT_RadDamageSummarySvc;
 
 template <class HIT> class TimedHitPtr;
 
@@ -158,10 +158,9 @@ private:
 
   //ToolHandles
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
-  //ServiceHandles
-  ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
-  ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
-  ServiceHandle<ISCT_RadDamageSummarySvc> m_radDamageSvc;
+  ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
+  ToolHandle<ISCT_RadDamageSummaryTool> m_radDamageTool{this, "RadDamageSummaryTool", "SCT_RadDamageSummaryTool", "Tool to retrieve SCT radiation damages"};
+  ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
 
   const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine

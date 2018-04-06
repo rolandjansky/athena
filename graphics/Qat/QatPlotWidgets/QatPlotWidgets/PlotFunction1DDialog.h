@@ -1,5 +1,5 @@
-#ifndef _PlotFunction1DDialog_h_
-#define _PlotFunction1DDialog_h_
+#ifndef QATPLOTWIDGETS_PLOTFUNCTION1DDIALOG_H
+#define QATPLOTWIDGETS_PLOTFUNCTION1DDIALOG_H
 #include "CLHEP/GenericFunctions/Parameter.hh"
 class PlotFunction1D;
 #include <QtGui/QDialog>
@@ -36,7 +36,7 @@ class PlotFunction1DDialog: public QDialog {
  private:
 
   class Clockwork;
-  Clockwork *c; 
+  Clockwork *m_c;
 
 }; 
 

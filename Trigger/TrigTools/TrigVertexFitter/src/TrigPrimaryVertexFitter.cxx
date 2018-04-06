@@ -112,9 +112,9 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, dou
 
   TrigL2Vertex* pV = new TrigL2Vertex();
 
-  pV->m_getParametersVector()[0]=0.0;
-  pV->m_getParametersVector()[1]=0.0;
-  pV->m_getParametersVector()[2]=z0;
+  pV->getParametersVector()[0]=0.0;
+  pV->getParametersVector()[1]=0.0;
+  pV->getParametersVector()[2]=z0;
   bool fitFailed=false;
   chi2=0.0;ndof=-3;
   for(int nIter=0;nIter<m_numIter;nIter++)
@@ -131,7 +131,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, dou
 	  if(!(*it)->isActive()) 
 	    (*it)->activate();
 
-	  double dchi2=(*it)->m_getChi2Distance(pV);
+	  double dchi2=(*it)->getChi2Distance(pV);
           ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
 	  if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	    {
@@ -141,7 +141,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, dou
 	  if(dchi2<m_chi2cut)
 	    {
 	      chi2+=dchi2;ndof+=2;
-	      (*it)->m_updateVertex(pV);
+	      (*it)->updateVertex(pV);
 	    }
 	  else
 	    {
@@ -156,8 +156,8 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, dou
   if(!fitFailed && (ndof>0))
     {
       ATH_MSG_DEBUG("Primary vertex fit OK, chi2 = "<<chi2<<" NDOF = "<<ndof );
-      ATH_MSG_DEBUG("x= "<<pV->m_getParametersVector()[0]<<
-                    " y= "<<pV->m_getParametersVector()[1]<<" z= "<<pV->m_getParametersVector()[2] );
+      ATH_MSG_DEBUG("x= "<<pV->getParametersVector()[0]<<
+                    " y= "<<pV->getParametersVector()[1]<<" z= "<<pV->getParametersVector()[2] );
       double cv[6];
       cv[0]=pV->m_Gk[0][0];cv[1]=pV->m_Gk[0][1];cv[2]=pV->m_Gk[1][1];
       cv[3]=pV->m_Gk[0][2];cv[4]=pV->m_Gk[1][2];cv[5]=pV->m_Gk[2][2];		
@@ -170,9 +170,9 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, dou
 	      pTL->push_back((*it)->getTrigTrack());
 	  }
       }
-      pVertex = new TrigVertex(pV->m_getParametersVector()[0],
-			       pV->m_getParametersVector()[1],
-			       pV->m_getParametersVector()[2],cv,chi2,ndof,pTL);
+      pVertex = new TrigVertex(pV->getParametersVector()[0],
+			       pV->getParametersVector()[1],
+			       pV->getParametersVector()[2],cv,chi2,ndof,pTL);
     }
   delete pV;
   for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
@@ -209,9 +209,9 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, TrackCollect
 
   TrigL2Vertex* pV = new TrigL2Vertex();
 
-  pV->m_getParametersVector()[0]=0.0;
-  pV->m_getParametersVector()[1]=0.0;
-  pV->m_getParametersVector()[2]=z0;
+  pV->getParametersVector()[0]=0.0;
+  pV->getParametersVector()[1]=0.0;
+  pV->getParametersVector()[2]=z0;
   bool fitFailed=false;
   chi2=0.0;ndof=-3;
   for(int nIter=0;nIter<m_numIter;nIter++)
@@ -228,7 +228,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, TrackCollect
       if(!(*it)->isActive()) 
         (*it)->activate();
 
-      double dchi2=(*it)->m_getChi2Distance(pV);
+      double dchi2=(*it)->getChi2Distance(pV);
       ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
       if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
       {
@@ -238,7 +238,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, TrackCollect
       if(dchi2<m_chi2cut)
       {
         chi2+=dchi2;ndof+=2;
-        (*it)->m_updateVertex(pV);
+        (*it)->updateVertex(pV);
       }
       else
       {
@@ -253,8 +253,8 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, TrackCollect
   if(!fitFailed && (ndof>0))
   {
     ATH_MSG_DEBUG("Primary vertex fit OK, chi2 = "<<chi2<<" NDOF = "<<ndof );
-    ATH_MSG_DEBUG("x= "<<pV->m_getParametersVector()[0]<<
-        " y= "<<pV->m_getParametersVector()[1]<<" z= "<<pV->m_getParametersVector()[2] );
+    ATH_MSG_DEBUG("x= "<<pV->getParametersVector()[0]<<
+        " y= "<<pV->getParametersVector()[1]<<" z= "<<pV->getParametersVector()[2] );
     double cv[6];
     cv[0]=pV->m_Gk[0][0];cv[1]=pV->m_Gk[0][1];cv[2]=pV->m_Gk[1][1];
     cv[3]=pV->m_Gk[0][2];cv[4]=pV->m_Gk[1][2];cv[5]=pV->m_Gk[2][2];		
@@ -267,9 +267,9 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, TrackCollect
           output_tc.push_back(new Trk::Track(*(*it)->getTrkTrack()));
       }
     }
-    pVertex = new TrigVertex(pV->m_getParametersVector()[0],
-        pV->m_getParametersVector()[1],
-        pV->m_getParametersVector()[2],cv,chi2,ndof, nullptr);
+    pVertex = new TrigVertex(pV->getParametersVector()[0],
+        pV->getParametersVector()[1],
+        pV->getParametersVector()[2],cv,chi2,ndof, nullptr);
   }
   delete pV;
   for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
@@ -326,9 +326,9 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
 
   // 1. preliminary fit
 
-  pV->m_getParametersVector()[0]=0.0;
-  pV->m_getParametersVector()[1]=0.0;
-  pV->m_getParametersVector()[2]=z0;
+  pV->getParametersVector()[0]=0.0;
+  pV->getParametersVector()[1]=0.0;
+  pV->getParametersVector()[2]=z0;
 
   memset(&pV->m_Gk[0][0],0,sizeof(pV->m_Gk));
   pV->m_Gk[0][0]=m_xyVariance*m_xyVariance;
@@ -338,13 +338,13 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
   bool fitFailed=false;
   for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
     {
-      double dchi2=(*it)->m_getChi2Distance(pV);
+      double dchi2=(*it)->getChi2Distance(pV);
       if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	{
 	  fitFailed=true;
 	  break;
 	}
-      if(dchi2<m_chi2cut_loose) (*it)->m_updateVertex(pV);
+      if(dchi2<m_chi2cut_loose) (*it)->updateVertex(pV);
     }
   if(fitFailed) 
     {
@@ -360,7 +360,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
 
   for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
     {
-      double dchi2=(*it)->m_getChi2Distance(pV);
+      double dchi2=(*it)->getChi2Distance(pV);
       ATH_MSG_DEBUG("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
     }  
 
@@ -370,9 +370,9 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
 
   // 4. Final track fit
 
-  pV->m_getParametersVector()[0]=0.0;
-  pV->m_getParametersVector()[1]=0.0;
-  pV->m_getParametersVector()[2]=z0;
+  pV->getParametersVector()[0]=0.0;
+  pV->getParametersVector()[1]=0.0;
+  pV->getParametersVector()[2]=z0;
   fitFailed=false;
   chi2=0.0;ndof=-3;
   for(int nIter=0;nIter<m_numIter;nIter++)
@@ -386,7 +386,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
 
       for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
 	{
-	  double dchi2=(*it)->m_getChi2Distance(pV);
+	  double dchi2=(*it)->getChi2Distance(pV);
 	  Chi2V[(*it)->getIndex()-1]=dchi2;
           ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
 	  if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
@@ -397,7 +397,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
 	  if(dchi2<m_chi2cut)
 	    {
 	      chi2+=dchi2;ndof+=2;
-	      (*it)->m_updateVertex(pV);
+	      (*it)->updateVertex(pV);
 	    }
 	  else
 	    {
@@ -414,14 +414,14 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrigInDetTrackCollection* tc, std
   if(!fitFailed && (ndof>0))
     {
       ATH_MSG_DEBUG("Primary vertex fit OK, chi2 = "<<chi2<<" NDOF = "<<ndof );
-      ATH_MSG_DEBUG("x= "<<pV->m_getParametersVector()[0]<<
-                    " y= "<<pV->m_getParametersVector()[1]<<" z= "<<pV->m_getParametersVector()[2] );
+      ATH_MSG_DEBUG("x= "<<pV->getParametersVector()[0]<<
+                    " y= "<<pV->getParametersVector()[1]<<" z= "<<pV->getParametersVector()[2] );
       double cv[6];
       cv[0]=pV->m_Gk[0][0];cv[1]=pV->m_Gk[0][1];cv[2]=pV->m_Gk[1][1];
       cv[3]=pV->m_Gk[0][2];cv[4]=pV->m_Gk[1][2];cv[5]=pV->m_Gk[2][2];		
-      pVertex = new TrigVertex(pV->m_getParametersVector()[0],
-			       pV->m_getParametersVector()[1],
-			       pV->m_getParametersVector()[2],cv,chi2,ndof,NULL);
+      pVertex = new TrigVertex(pV->getParametersVector()[0],
+			       pV->getParametersVector()[1],
+			       pV->getParametersVector()[2],cv,chi2,ndof,NULL);
     }
   delete pV;
 
@@ -459,9 +459,9 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
 
   // 1. preliminary fit
 
-  pV->m_getParametersVector()[0]=0.0;
-  pV->m_getParametersVector()[1]=0.0;
-  pV->m_getParametersVector()[2]=z0;
+  pV->getParametersVector()[0]=0.0;
+  pV->getParametersVector()[1]=0.0;
+  pV->getParametersVector()[2]=z0;
 
   memset(&pV->m_Gk[0][0],0,sizeof(pV->m_Gk));
   pV->m_Gk[0][0]=m_xyVariance*m_xyVariance;
@@ -471,13 +471,13 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
   bool fitFailed=false;
   for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
     {
-      double dchi2=(*it)->m_getChi2Distance(pV);
+      double dchi2=(*it)->getChi2Distance(pV);
       if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
 	{
 	  fitFailed=true;
 	  break;
 	}
-      if(dchi2<m_chi2cut_loose) (*it)->m_updateVertex(pV);
+      if(dchi2<m_chi2cut_loose) (*it)->updateVertex(pV);
     }
   if(fitFailed) 
     {
@@ -493,7 +493,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
 
   for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
     {
-      double dchi2=(*it)->m_getChi2Distance(pV);
+      double dchi2=(*it)->getChi2Distance(pV);
       ATH_MSG_DEBUG("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
     }  
 
@@ -503,9 +503,9 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
 
   // 4. Final track fit
 
-  pV->m_getParametersVector()[0]=0.0;
-  pV->m_getParametersVector()[1]=0.0;
-  pV->m_getParametersVector()[2]=z0;
+  pV->getParametersVector()[0]=0.0;
+  pV->getParametersVector()[1]=0.0;
+  pV->getParametersVector()[2]=z0;
   fitFailed=false;
   chi2=0.0;ndof=-3;
   for(int nIter=0;nIter<m_numIter;nIter++)
@@ -519,7 +519,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
 
       for(std::vector<TrigPrimaryVertexTrack*>::iterator it=tracks.begin();it!=tracks.end();++it)
 	{
-	  double dchi2=(*it)->m_getChi2Distance(pV);
+	  double dchi2=(*it)->getChi2Distance(pV);
 	  Chi2V[(*it)->getIndex()-1]=dchi2;
           ATH_MSG_VERBOSE("Track "<<(*it)->getIndex()<<" dchi2="<<dchi2 );
 	  if(std::isnan(dchi2)||(dchi2<0.0)||(dchi2>m_maxChi2Increase))
@@ -530,7 +530,7 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
 	  if(dchi2<m_chi2cut)
 	    {
 	      chi2+=dchi2;ndof+=2;
-	      (*it)->m_updateVertex(pV);
+	      (*it)->updateVertex(pV);
 	    }
 	  else
 	    {
@@ -547,14 +547,14 @@ TrigVertex* TrigPrimaryVertexFitter::fit(const TrackCollection* tc, std::vector<
   if(!fitFailed && (ndof>0))
     {
       ATH_MSG_DEBUG("Primary vertex fit OK, chi2 = "<<chi2<<" NDOF = "<<ndof );
-      ATH_MSG_DEBUG("x= "<<pV->m_getParametersVector()[0]<<
-                    " y= "<<pV->m_getParametersVector()[1]<<" z= "<<pV->m_getParametersVector()[2] );
+      ATH_MSG_DEBUG("x= "<<pV->getParametersVector()[0]<<
+                    " y= "<<pV->getParametersVector()[1]<<" z= "<<pV->getParametersVector()[2] );
       double cv[6];
       cv[0]=pV->m_Gk[0][0];cv[1]=pV->m_Gk[0][1];cv[2]=pV->m_Gk[1][1];
       cv[3]=pV->m_Gk[0][2];cv[4]=pV->m_Gk[1][2];cv[5]=pV->m_Gk[2][2];		
-      pVertex = new TrigVertex(pV->m_getParametersVector()[0],
-			       pV->m_getParametersVector()[1],
-			       pV->m_getParametersVector()[2],cv,chi2,ndof,NULL);
+      pVertex = new TrigVertex(pV->getParametersVector()[0],
+			       pV->getParametersVector()[1],
+			       pV->getParametersVector()[2],cv,chi2,ndof,NULL);
     }
   delete pV;
 

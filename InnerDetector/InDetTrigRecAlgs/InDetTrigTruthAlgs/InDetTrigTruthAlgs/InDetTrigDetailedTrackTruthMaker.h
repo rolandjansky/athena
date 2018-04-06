@@ -23,6 +23,7 @@
 #ifndef INDETTRIGDETAILEDTRACKTRUTHMAKER_H
 #define INDETTRIGDETAILEDTRACKTRUTHMAKER_H
 
+#include "TrkToolInterfaces/IDetailedTrackTruthBuilder.h"
 #include <string>
 #include <vector>
 #include "GaudiKernel/ToolHandle.h"
@@ -50,7 +51,8 @@ public:
 private:
 
   // Truth tool
-  ToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool;
+  PublicToolHandle<Trk::IDetailedTrackTruthBuilder> m_truthTool
+     {this,"DetailedTrackTruthBuilder","Trk::DetailedTrackTruthBuilder",""};
 
   // Subdetector weights
   std::vector<double> m_subDetWeights;

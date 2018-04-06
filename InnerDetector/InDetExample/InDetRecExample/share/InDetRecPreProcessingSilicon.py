@@ -184,7 +184,7 @@ if InDetFlags.doPRDFormation():
       from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
       InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
                                                           globalPosAlg      = InDetClusterMakerTool,
-                                                          conditionsService = InDetSCT_ConditionsSummarySvc)
+                                                          conditionsService = InDetSCT_ConditionsSummarySvcWithoutFlagged)
       if InDetFlags.selectSCTIntimeHits():
          if InDetFlags.InDet25nsec(): 
             InDetSCT_ClusteringTool.timeBins = "01X" 
@@ -206,8 +206,7 @@ if InDetFlags.doPRDFormation():
                                                           DetectorManagerName     = InDetKeys.SCT_Manager(), 
                                                           DataObjectName          = InDetKeys.SCT_RDOs(),
                                                           ClustersName            = InDetKeys.SCT_Clusters(),
-                                                          conditionsService       = InDetSCT_ConditionsSummarySvc,
-                                                          FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
+                                                          conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged)
       if InDetFlags.cutSCTOccupancy():
         InDetSCT_Clusterization.maxRDOs = 384 #77
       else:
@@ -223,8 +222,7 @@ if InDetFlags.doPRDFormation():
                                                               DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                               DataObjectName          = InDetKeys.SCT_PU_RDOs(),
                                                               ClustersName            = InDetKeys.SCT_PU_Clusters(),
-                                                              conditionsService       = InDetSCT_ConditionsSummarySvc,
-                                                              FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
+                                                              conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged)
         if InDetFlags.cutSCTOccupancy():
           InDetSCT_ClusterizationPU.maxRDOs = 384 #77
         else:

@@ -10,6 +10,7 @@
 // AUTHORS: Beate Heinemann, Tobias Golling
 // **********************************************************************
 
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include <vector>
 
 #include "GaudiKernel/StatusCode.h"
@@ -40,7 +41,6 @@ class IBeamCondSvc;
 class EventInfo;
 
 namespace Trk  { 
-  class ITrackToVertexIPEstimator;
   //class VxCandidate;
   class Track;
   class VxTrackAtVertex;
@@ -436,7 +436,8 @@ protected:
   ToolHandle<IInDetAlignHitQualSelTool>  m_hitQualityTool;
    ServiceHandle<IBeamCondSvc> m_beamCondSvc;
   
-  ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator;
+  PublicToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator
+     {this,"TrackToVertexIPEstimator","Trk::TrackToVertexIPEstimator",""};
   
   std::string m_Pixel_Manager;
   std::string m_SCT_Manager;

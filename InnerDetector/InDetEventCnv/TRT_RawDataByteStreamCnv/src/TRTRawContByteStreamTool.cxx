@@ -7,7 +7,6 @@
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 #include "ByteStreamCnvSvcBase/SrcIdMap.h" 
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 
 

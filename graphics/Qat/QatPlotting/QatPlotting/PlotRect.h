@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _PLOTRECT_H_
-#define _PLOTRECT_H_
+#ifndef QATPLOTTING_PLOTRECT_H
+#define QATPLOTTING_PLOTRECT_H
 #include "QatPlotting/Plotable.h"
 #include "QatPlotting/PlotRectProperties.h"
 #include <QtCore/QRectF>
@@ -64,7 +64,7 @@ public:
 private:
 
   class Clockwork;
-  std::unique_ptr<Clockwork> c;
+  std::unique_ptr<Clockwork> m_c;
 
 };
 #endif

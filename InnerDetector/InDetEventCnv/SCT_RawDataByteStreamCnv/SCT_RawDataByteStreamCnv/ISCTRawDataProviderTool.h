@@ -10,6 +10,7 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/InDetTimeCollection.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 #include <set>
 #include <string>
@@ -32,7 +33,8 @@ class ISCTRawDataProviderTool : virtual public IAlgTool
   //! this is the main decoding method
   virtual StatusCode convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>&,
                               ISCT_RDO_Container&,
-                              InDetBSErrContainer* errs) = 0;
+                              InDetBSErrContainer* errs,
+                              SCT_ByteStreamFractionContainer* bsFracCont) = 0;
 
   //Replace the incident calls with private calls, more MT friendly
   virtual void BeginNewEvent() = 0;

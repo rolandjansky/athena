@@ -166,11 +166,6 @@ class METMonTool : public ManagedMonitorToolBase
     ToolHandle<IJetSelector> m_selTool{ this, "JetSelectorTool", "", ""}; /// used only if m_selType == FromTool
 
     ITHistSvc * m_thistSvc;   
-  private:
-
-    float m_Pi;
-
-
 };
 
 

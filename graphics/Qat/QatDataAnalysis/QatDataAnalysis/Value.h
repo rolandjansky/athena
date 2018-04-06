@@ -31,23 +31,23 @@ class Value {
  public:
 
   Value(const void * value,  size_t sizeInBytes):
-    _rep(std::vector<char>(sizeInBytes)){
-      std::copy ((char *) value, (char *) value + sizeInBytes, _rep.begin());
+    m_rep(std::vector<char>(sizeInBytes)){
+      std::copy ((char *) value, (char *) value + sizeInBytes, m_rep.begin());
     }
 
-  const char * asCharStar() const { return & _rep[0];}
+  const char * asCharStar() const { return & m_rep[0];}
   
   void clear() {
-    std::fill(_rep.begin(),_rep.end(),0);
+    std::fill(m_rep.begin(),m_rep.end(),0);
   }
   
   template <typename T> void setValue (const T & t) {
-    * ((T *) & _rep[0]) = t;
+    * ((T *) & m_rep[0]) = t;
   }
 
  private:
 
-  std::vector<char> _rep;
+  std::vector<char> m_rep;
 };
 
 

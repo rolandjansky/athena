@@ -5,11 +5,10 @@
 #include "SCTSiPropertiesCondAlg.h"
 
 #include <cmath>
+#include <memory>
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-
-#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
@@ -22,7 +21,6 @@ SCTSiPropertiesCondAlg::SCTSiPropertiesCondAlg(const std::string& name, ISvcLoca
   , m_readKeyHV{"SCT_SiliconBiasVoltCondData"}
   , m_writeKey{"SCTSiliconPropertiesVector"}
   , m_condSvc{"CondSvc", name}
-  , m_siCondSvc{"SCT_SiliconConditionsSvc", name}
   , m_pHelper{nullptr}
   , m_detManager{nullptr}
 {
@@ -34,14 +32,11 @@ SCTSiPropertiesCondAlg::SCTSiPropertiesCondAlg(const std::string& name, ISvcLoca
   declareProperty("WriteKey", m_writeKey, "Key of output silicon properties conditions folder");
 }
 
-SCTSiPropertiesCondAlg::~SCTSiPropertiesCondAlg() {
-}
-
 StatusCode SCTSiPropertiesCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 
-  // SCT silicon conditions service
-  ATH_CHECK(m_siCondSvc.retrieve());
+  // SCT silicon conditions tool
+  ATH_CHECK(m_siCondTool.retrieve());
 
   // SCT ID helper
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
@@ -116,13 +111,13 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
   }
   
   // Construct the output Cond Object and fill it in
-  InDet::SiliconPropertiesVector* writeCdo{new InDet::SiliconPropertiesVector()};
+  std::unique_ptr<InDet::SiliconPropertiesVector> writeCdo{std::make_unique<InDet::SiliconPropertiesVector>()};
   const SCT_ID::size_type wafer_hash_max{m_pHelper->wafer_hash_max()};
   writeCdo->resize(wafer_hash_max);
   for (SCT_ID::size_type hash{0}; hash<wafer_hash_max; hash++) {
     const IdentifierHash elementHash{static_cast<IdentifierHash::value_type>(hash)};
 
-    double temperatureC{m_siCondSvc->temperature(elementHash)};
+    double temperatureC{m_siCondTool->temperature(elementHash)};
 
     if (not ((temperatureC>m_temperatureMin) and (temperatureC<m_temperatureMax))) {
       ATH_MSG_DEBUG("Invalid temperature: "  
@@ -133,8 +128,8 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
     }
 
     double temperature{temperatureC + 273.15};
-    double deplVoltage{m_siCondSvc->depletionVoltage(elementHash) * CLHEP::volt};
-    double biasVoltage{m_siCondSvc->biasVoltage(elementHash) * CLHEP::volt};
+    double deplVoltage{m_siCondTool->depletionVoltage(elementHash) * CLHEP::volt};
+    double biasVoltage{m_siCondTool->biasVoltage(elementHash) * CLHEP::volt};
 
     const InDetDD::SiDetectorElement* element{m_detManager->getDetectorElement(elementHash)};
     double depletionDepth{element->thickness()};
@@ -150,11 +145,10 @@ StatusCode SCTSiPropertiesCondAlg::execute() {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
-    delete writeCdo;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");

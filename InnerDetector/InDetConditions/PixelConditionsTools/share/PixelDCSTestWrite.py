@@ -74,11 +74,8 @@ from PoolSvc.PoolSvcConf import PoolSvc
 ServiceMgr += PoolSvc( DbOpen = "update" )
 
 
-#from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-#CondStreamPixelDCSTest = AthenaPoolOutputStreamTool("CondStreamPixelDCSTest",OutputFile = "SimplePoolFile.root",OutputLevel = DEBUG)
-
 from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
-CondStreamPixelDCSTest = AthenaOutputStreamTool("CondStreamPixelDCSTest",OutputFile = "SimplePoolFile.root",OutputLevel = MyOutPut)
+CondStreamPixelDCSTest = AthenaOutputStreamTool("CondStreamPixelDCSTest",OutputFile = "SimplePoolFile.root",OutputLevel = DEBUG)
 
 ToolSvc += CondStreamPixelDCSTest
 

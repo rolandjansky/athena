@@ -35,14 +35,14 @@ public:
 
 //____________________________________________________________________
 VP1RawDataColl_PixelRDO::VP1RawDataColl_PixelRDO(VP1RawDataCommonData*common,const QString& key)
-  : VP1RawDataCollBase(common,key), d(new Imp)
+  : VP1RawDataCollBase(common,key), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 VP1RawDataColl_PixelRDO::~VP1RawDataColl_PixelRDO()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________

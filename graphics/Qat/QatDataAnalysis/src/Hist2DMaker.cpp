@@ -46,23 +46,23 @@ public:
 Hist2DMaker::Hist2DMaker (Genfun::GENFUNCTION fX, size_t nBinsX, double minX, double maxX,
 			  Genfun::GENFUNCTION fY, size_t nBinsY, double minY, double maxY,
 			  const Genfun::AbsFunction *weight) : 
-  c(new Clockwork()) {
-  c->fX         = fX.clone();
-  c->nBinsX     = nBinsX;
-  c->minX       = minX;
-  c->maxX       = maxX;
-  c->fY         = fY.clone();
-  c->nBinsY     = nBinsY;
-  c->minY       = minY;
-  c->maxY       = maxY;
-  c->w         = weight ? weight->clone() : NULL;
+  m_c(new Clockwork()) {
+  m_c->fX         = fX.clone();
+  m_c->nBinsX     = nBinsX;
+  m_c->minX       = minX;
+  m_c->maxX       = maxX;
+  m_c->fY         = fY.clone();
+  m_c->nBinsY     = nBinsY;
+  m_c->minY       = minY;
+  m_c->maxY       = maxY;
+  m_c->w         = weight ? weight->clone() : NULL;
 }
 
 Hist2DMaker::~Hist2DMaker() {
-  delete c->fX;
-  delete c->fY;
-  delete c->w;
-  delete c;
+  delete m_c->fX;
+  delete m_c->fY;
+  delete m_c->w;
+  delete m_c;
 }
 
 
@@ -70,8 +70,8 @@ Hist2D Hist2DMaker::operator * (const Table & table) const {
 
 
   Hist2D h(table.name(),
-	   c->nBinsX, c->minX, c->maxX,
-	   c->nBinsY, c->minY, c->maxY);
+	   m_c->nBinsX, m_c->minX, m_c->maxX,
+	   m_c->nBinsY, m_c->minY, m_c->maxY);
 
 
 
@@ -83,12 +83,12 @@ Hist2D Hist2DMaker::operator * (const Table & table) const {
     if (!tuple) break;
     
     const Genfun::Argument & a  = tuple->asDoublePrec();
-    if (c->w) {
-      Genfun::GENFUNCTION W = *c->w;
-      h.accumulate((*(c->fX))(a), (*(c->fY))(a), W(a));
+    if (m_c->w) {
+      Genfun::GENFUNCTION W = *m_c->w;
+      h.accumulate((*(m_c->fX))(a), (*(m_c->fY))(a), W(a));
     }
     else {
-      h.accumulate((*(c->fX))(a), (*(c->fY))(a));
+      h.accumulate((*(m_c->fX))(a), (*(m_c->fY))(a));
     }
   }
   return h;

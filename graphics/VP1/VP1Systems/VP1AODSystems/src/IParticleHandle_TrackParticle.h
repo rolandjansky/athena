@@ -74,7 +74,7 @@ public:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   void ensureInitSubSysHitInfo() const;
 
 };

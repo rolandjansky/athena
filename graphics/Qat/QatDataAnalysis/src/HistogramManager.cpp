@@ -23,105 +23,105 @@
 #include "QatDataAnalysis/HistogramManager.h"
 #include <algorithm>
 
-HistogramManager::HistogramManager(const std::string & name): _name(name) {
+HistogramManager::HistogramManager(const std::string & name): m_name(name) {
 }
 
 
 const std::string & HistogramManager::name() const { 
-  return _name;
+  return m_name;
 }
 
 
 std::string & HistogramManager::name() { 
-  return _name;
+  return m_name;
 }
 
 
 HistogramManager::H1Iterator HistogramManager::beginH1() {
-  return _histograms.begin();
+  return m_histograms.begin();
 }
 
 HistogramManager::H1Iterator HistogramManager::endH1() {
-  return _histograms.end();
+  return m_histograms.end();
 }
 
 HistogramManager::H1ConstIterator HistogramManager::beginH1() const{
-  return _histograms.begin();
+  return m_histograms.begin();
 }
 
 HistogramManager::H1ConstIterator HistogramManager::endH1() const {
-  return _histograms.end();
+  return m_histograms.end();
 }
 
 HistogramManager::H2Iterator HistogramManager::beginH2() {
-  return _scatterPlots.begin();
+  return m_scatterPlots.begin();
 }
 
 HistogramManager::H2Iterator HistogramManager::endH2() {
-  return _scatterPlots.end();
+  return m_scatterPlots.end();
 }
 
 HistogramManager::H2ConstIterator HistogramManager::beginH2() const{
-  return _scatterPlots.begin();
+  return m_scatterPlots.begin();
 }
 
 HistogramManager::H2ConstIterator HistogramManager::endH2() const {
-  return _scatterPlots.end();
+  return m_scatterPlots.end();
 }
 
 HistogramManager::DIterator HistogramManager::beginDir() {
-  return _managers.begin();
+  return m_managers.begin();
 }
 
 HistogramManager::DIterator HistogramManager::endDir() {
-  return _managers.end();
+  return m_managers.end();
 }
 
 HistogramManager::DConstIterator HistogramManager::beginDir() const{
-  return _managers.begin();
+  return m_managers.begin();
 }
 
 HistogramManager::DConstIterator HistogramManager::endDir() const {
-  return _managers.end();
+  return m_managers.end();
 }
 
 HistogramManager::TIterator HistogramManager::beginTable() {
-  return _tables.begin();
+  return m_tables.begin();
 }
 
 HistogramManager::TIterator HistogramManager::endTable() {
-  return _tables.end();
+  return m_tables.end();
 }
 
 HistogramManager::TConstIterator HistogramManager::beginTable() const{
-  return _tables.begin();
+  return m_tables.begin();
 }
 
 HistogramManager::TConstIterator HistogramManager::endTable() const {
-  return _tables.end();
+  return m_tables.end();
 }
 
 const Hist1D           *HistogramManager::findHist1D(const std::string & name) const{
-  H1ConstIterator i = std::find_if(_histograms.begin(),_histograms.end(), NameEq(name));
-  if (i!=_histograms.end()) return *i;
+  H1ConstIterator i = std::find_if(m_histograms.begin(),m_histograms.end(), NameEq(name));
+  if (i!=m_histograms.end()) return *i;
   else return NULL;
 }
 
 const Hist2D           *HistogramManager::findHist2D(const std::string & name) const{
-  H2ConstIterator i = std::find_if(_scatterPlots.begin(),_scatterPlots.end(), NameEq(name));
-  if (i!=_scatterPlots.end()) return *i;
+  H2ConstIterator i = std::find_if(m_scatterPlots.begin(),m_scatterPlots.end(), NameEq(name));
+  if (i!=m_scatterPlots.end()) return *i;
   else return NULL;
 }
 
 const HistogramManager           *HistogramManager::findDir(const std::string & name) const {
-  DConstIterator i = std::find_if(_managers.begin(),_managers.end(), NameEq(name));
-  if (i!=_managers.end()) return *i;
+  DConstIterator i = std::find_if(m_managers.begin(),m_managers.end(), NameEq(name));
+  if (i!=m_managers.end()) return *i;
   else return NULL;
 }
 
 const Table           *HistogramManager::findTable(const std::string & name) const {
-  TConstIterator i = std::find_if(_tables.begin(),_tables.end(), NameEq(name));
-  if (i!=_tables.end()) return *i;
+  TConstIterator i = std::find_if(m_tables.begin(),m_tables.end(), NameEq(name));
+  if (i!=m_tables.end()) return *i;
   else return NULL;
 }
 
@@ -131,16 +131,16 @@ const Table           *HistogramManager::findTable(const std::string & name) con
 Hist1D *HistogramManager::newHist1D(const std::string & name, unsigned int nBins, double min, double max) {
   purge(name);
   Hist1D * newHist = new Hist1D(name,nBins,min, max);
-  _histograms.push_back(newHist);
-  _histograms.sort(SortByName());
+  m_histograms.push_back(newHist);
+  m_histograms.sort(SortByName());
   return newHist;
 }
 
 Hist1D *HistogramManager::newHist1D(const Hist1D & source) {
   purge(source.name());
   Hist1D * newHist = new Hist1D(source);
-  _histograms.push_back(newHist);
-  _histograms.sort(SortByName());
+  m_histograms.push_back(newHist);
+  m_histograms.sort(SortByName());
   return newHist;
 }
 
@@ -149,8 +149,8 @@ Table *HistogramManager::newTable(const Table & source) {
 
   purge(source.name());
   Table * newTable = new Table(source);
-  _tables.push_back(newTable);
-  _tables.sort(SortByName());
+  m_tables.push_back(newTable);
+  m_tables.sort(SortByName());
   return newTable;
 }
 
@@ -159,16 +159,16 @@ Hist2D *HistogramManager::newHist2D(const std::string & name, unsigned int nBins
 
   purge(name);
   Hist2D *newHist = new Hist2D(name,nBinsX,minX, maxX, nBinsY, minY, maxY);
-  _scatterPlots.push_back(newHist);
-  _scatterPlots.sort(SortByName());
+  m_scatterPlots.push_back(newHist);
+  m_scatterPlots.sort(SortByName());
   return newHist;
 }
 
 Hist2D *HistogramManager::newHist2D(const Hist2D & source) {
   purge(source.name());
   Hist2D * newHist = new Hist2D(source);
-  _scatterPlots.push_back(newHist);
-  _scatterPlots.sort(SortByName());
+  m_scatterPlots.push_back(newHist);
+  m_scatterPlots.sort(SortByName());
   return newHist;
 }
 
@@ -178,8 +178,8 @@ Hist2D *HistogramManager::newHist2D(const Hist2D & source) {
 Table           *HistogramManager::newTable(const std::string & name, TupleStoreLink store) {
   purge (name);
   Table *t = store ? new Table(name,store): new Table(name);
-  _tables.push_back(t);
-  _tables.sort(SortByName());
+  m_tables.push_back(t);
+  m_tables.sort(SortByName());
   return t;
 }
 
@@ -187,49 +187,49 @@ Table           *HistogramManager::newTable(const std::string & name, TupleStore
 HistogramManager *HistogramManager::newDir(const std::string & name) {
   purge (name);
   HistogramManager *t = new HistogramManager(name);
-  _managers.push_back(t);
-  _managers.sort(SortByName());
+  m_managers.push_back(t);
+  m_managers.sort(SortByName());
   return t;
 }
 
 
 void HistogramManager::nameOrder() {
   // Sort tables: Other objects already ordered.
-  _tables.sort(SortByName());
+  m_tables.sort(SortByName());
 }
 
 void HistogramManager::purge(const std::string & name) {
 
-  H1Iterator doomedHistogram = std::find_if(_histograms.begin(),_histograms.end(), NameEq(name));
-  if (doomedHistogram!=_histograms.end()) {
+  H1Iterator doomedHistogram = std::find_if(m_histograms.begin(),m_histograms.end(), NameEq(name));
+  if (doomedHistogram!=m_histograms.end()) {
     delete *doomedHistogram;
-    _histograms.erase(doomedHistogram);
+    m_histograms.erase(doomedHistogram);
   }
   
-  H2Iterator doomedScatterPlot = std::find_if(_scatterPlots.begin(),_scatterPlots.end(), NameEq(name));
-  if (doomedScatterPlot!=_scatterPlots.end()) {
+  H2Iterator doomedScatterPlot = std::find_if(m_scatterPlots.begin(),m_scatterPlots.end(), NameEq(name));
+  if (doomedScatterPlot!=m_scatterPlots.end()) {
     delete *doomedScatterPlot;
-    _scatterPlots.erase(doomedScatterPlot);
+    m_scatterPlots.erase(doomedScatterPlot);
   }
   
-  TIterator doomedTable = std::find_if(_tables.begin(),_tables.end(), NameEq(name));
-  if (doomedTable!=_tables.end()) {
+  TIterator doomedTable = std::find_if(m_tables.begin(),m_tables.end(), NameEq(name));
+  if (doomedTable!=m_tables.end()) {
     delete *doomedTable;
-    _tables.erase(doomedTable);
+    m_tables.erase(doomedTable);
   }
   
-  DIterator doomedDir = std::find_if(_managers.begin(),_managers.end(), NameEq(name));
-  if (doomedDir!=_managers.end()) {
+  DIterator doomedDir = std::find_if(m_managers.begin(),m_managers.end(), NameEq(name));
+  if (doomedDir!=m_managers.end()) {
     delete *doomedDir;
-    _managers.erase(doomedDir);
+    m_managers.erase(doomedDir);
   }
 }
 
 
 
 HistogramManager::~HistogramManager() {
-  for (H1Iterator i=_histograms.begin();   i!=_histograms.end();  i++)   delete *i;
-  for (DIterator  i=_managers.begin();     i!=_managers.end();    i++)   delete *i;
-  for (H2Iterator i=_scatterPlots.begin(); i!=_scatterPlots.end();i++)   delete *i;
-  for (TIterator  i=_tables.begin();       i!=_tables.end();      i++)   delete *i;
+  for (H1Iterator i=m_histograms.begin();   i!=m_histograms.end();  i++)   delete *i;
+  for (DIterator  i=m_managers.begin();     i!=m_managers.end();    i++)   delete *i;
+  for (H2Iterator i=m_scatterPlots.begin(); i!=m_scatterPlots.end();i++)   delete *i;
+  for (TIterator  i=m_tables.begin();       i!=m_tables.end();      i++)   delete *i;
 }

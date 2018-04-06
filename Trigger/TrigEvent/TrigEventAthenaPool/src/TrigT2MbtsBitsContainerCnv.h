@@ -20,7 +20,9 @@ class TrigT2MbtsBitsContainerCnv : public TrigT2MbtsBitsContainerCnvBase {
  
   protected:
    
+public:
   TrigT2MbtsBitsContainerCnv( ISvcLocator *svcloc ) : TrigT2MbtsBitsContainerCnvBase(svcloc){}
+protected:
    
    virtual TrigT2MbtsBitsContainer_PERS *createPersistent( TrigT2MbtsBitsContainer *transObj);
    virtual TrigT2MbtsBitsContainer      *createTransient();

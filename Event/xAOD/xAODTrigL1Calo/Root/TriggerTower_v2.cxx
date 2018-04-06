@@ -13,16 +13,12 @@
 namespace xAOD{  
 
   TriggerTower_v2::TriggerTower_v2() :
-    IParticle(), 
-    m_p4(), 
-    m_p4Cached( false )
+    IParticle()
   {        
   }
   
   TriggerTower_v2::TriggerTower_v2(const TriggerTower_v2& other) :
-    IParticle( other ),
-    m_p4( other.m_p4 ),
-    m_p4Cached( other.m_p4Cached )
+    IParticle( other )
   {   
   }
   
@@ -33,8 +29,6 @@ namespace xAOD{
         makePrivateStore();
       }
       IParticle::operator=( other );
-      m_p4 = other.m_p4;
-      m_p4Cached = other.m_p4Cached;
     }
     return *this;
   }
@@ -253,25 +247,25 @@ namespace xAOD{
 
   double TriggerTower_v2::e() const
   {
-    return p4().E();
+    return genvecP4().E();
   }
 
   double TriggerTower_v2::rapidity() const
   {
-    return p4().Rapidity();
+    return genvecP4().Rapidity();
   }
 
-  const TriggerTower_v2::FourMom_t& TriggerTower_v2::p4() const
+  TriggerTower_v2::FourMom_t TriggerTower_v2::p4() const
   {
-    if( ! m_p4Cached ) {
-      
-      double PT = (jepET() > 0) ? 1000. * static_cast< double >( jepET() ) : 0.01;
-      
-      m_p4.SetPtEtaPhiM( PT , eta() , phi() , m() );
-      m_p4Cached = true;      
-    }
-    return m_p4;       
+     FourMom_t p4;
+     p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
+     return p4;	
   }
+
+  /// this provides a GenVector (pt, eta, phi, m)
+  TriggerTower_v2::GenVecFourMom_t TriggerTower_v2::genvecP4() const {
+    return GenVecFourMom_t(pt(), eta(), phi(), m());
+  } 
 
   Type::ObjectType TriggerTower_v2::type() const
   {

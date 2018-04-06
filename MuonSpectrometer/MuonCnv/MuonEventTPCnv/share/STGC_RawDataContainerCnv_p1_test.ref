@@ -1,18 +1,18 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/MuonEventTPCnv_test.txt
-JobOptionsSvc        INFO # =======> /home/sss/nobackup/atlas/build/../tests/../share/MuonEventTPCnv_test.txt
+JobOptionsSvc        INFO # =======> /home/emoyse/master/athena/MuonSpectrometer/MuonCnv/MuonEventTPCnv/share/../share/MuonEventTPCnv_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.DLLs += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore"]
 JobOptionsSvc        INFO Job options successfully read in from ../share/MuonEventTPCnv_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Sat Dec 16 17:51:42 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on pcumass4 on Tue Feb 20 15:49:09 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, CLIDComps
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 4155 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3835 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 HistogramPersis...WARNING Histograms saving not required.
@@ -158,7 +158,7 @@ sTgcIdHelper         INFO The element hash max is 96
 sTgcIdHelper         INFO The detector element hash max is 192
 sTgcIdHelper         INFO Initializing sTGC hash indices for finding neighbors ... 
 MuGM:sTgcReadou...   INFO sTGCname: sTG1-dummy
-MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x63b6a0
+MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x643140
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
@@ -173,7 +173,7 @@ MuGM:sTgcReadou...   INFO initDesign stationname STS layer 0,pad phi angular wid
  Willing to add sTGC RE with IdFields: iStName, iStEta, iStPhi, imL = 1 2 2 1
  ... using internal indices  [0][5][3][0]
 MuGM:sTgcReadou...   INFO sTGCname: sTG1-dummy
-MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x63b6a0
+MuGM:sTgcReadou...   INFO Found sTGC detector: sTG1-dummy 0x643140
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
 MuGM:sTgcReadou...   INFO length: 0 ysFrame: 0 ylFrame: 0
@@ -203,17 +203,9 @@ MuGM:MMReadoutE...   INFO initDesign:MMS layer 0, strip pitch 0, nstrips -214748
  ... using internal indices  [0][4][5][0]
  AtlasDetectorID::initialize_from_dictionary - OK 
 test1
-trancoll 10 perscoll 10
-trancoll 10 perscoll 10
  Before has size: 2, after has size: 2
-it1: 0x2a10e00 it1e 0 it2 0x2a43220 0
 Collection #1
 Collection #2
-it1 0x2a85c30 it2 0x2ab0500
-trancoll 10 perscoll 10
-trancoll 10 perscoll 10
  Before has size: 2, after has size: 2
-it1: 0x2a10e00 it1e 0 it2 0x2a44d50 0
 Collection #1
 Collection #2
-it1 0x2a85c30 it2 0x29fc6c0

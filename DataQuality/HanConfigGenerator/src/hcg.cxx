@@ -53,9 +53,9 @@ std::vector<std::string> mapped;
 
 /// sadly, includes a return at the end 
 std::string date() { 
-  time_t _t;
-  time(&_t);
-  std::string a = ctime(&_t);
+  time_t t;
+  time(&t);
+  std::string a = ctime(&t);
   std::string b = "";
   for ( unsigned i=0 ; i<a.size()-1 ; i++ ) b+=a[i];
   return b;
@@ -173,17 +173,17 @@ std::string chop(std::string& s1, const std::string& s2)
 
 std::vector<std::string> split( const std::string& s, const std::string& t=":"  ) {
     
-    std::string _s = s;
-    size_t pos = _s.find(t);
+    std::string s2 = s;
+    size_t pos = s2.find(t);
     
     std::vector<std::string> tags;
     
     while ( pos!=std::string::npos ) { 
-      tags.push_back( chop(_s,t) );
-      pos = _s.find(t);
+      tags.push_back( chop(s2,t) );
+      pos = s2.find(t);
     }
     
-    tags.push_back(_s);
+    tags.push_back(s2);
     
     return tags;
 }
@@ -439,7 +439,7 @@ class reference {
 public:
 
   reference( const std::string& n, const std::string& f ) : 
-    mname(n), mfile(f) { 
+    m_name(n), m_file(f) { 
     
     /// oh dear, find the run number from the specified file 
 
@@ -470,7 +470,7 @@ public:
 
 	if ( contains( dir, "run_" ) ) {
 	  dir.erase( 0, std::string( "run_").size() ); 
-	  mrun = std::atoi( dir.c_str() );
+	  m_run = std::atoi( dir.c_str() );
 	  
 	  break;
 	}
@@ -482,20 +482,20 @@ public:
   } 
 
 
-  reference( const reference& r ) : mname(r.mname), mfile(r.mfile), mrun(r.mrun) { } 
+  reference( const reference& r ) : m_name(r.m_name), m_file(r.m_file), m_run(r.m_run) { } 
 
   
-  std::string name() const { return mname; }
-  std::string file() const { return mfile; }
+  std::string name() const { return m_name; }
+  std::string file() const { return m_file; }
 
-  int run() const { return mrun; }
+  int run() const { return m_run; }
 
 private:
 
-  std::string mname;
-  std::string mfile;
+  std::string m_name;
+  std::string m_file;
 
-  int         mrun;
+  int         m_run;
 
 };
 
@@ -627,7 +627,7 @@ class ass {
 
 public: 
   
-  ass( node& n, bool ah=true ) : mallhists(ah) { 
+  ass( node& n, bool ah=true ) : m_allhists(ah) { 
     (*outp) << "\n\n";
     (*outp) << "#######################\n";
     (*outp) << "# Histogram Assessments\n";
@@ -680,7 +680,7 @@ public:
       for ( unsigned i=0 ; i<n.size() ; i++ ) { 
 	if       ( n[i]->type()!=node::HISTOGRAM ) makeass( *n[i], newspacer, path, rawpath, found ) ;
 	else if  ( n[i]->type()==node::HISTOGRAM ) { 
-	  if ( !mallhists ) { 
+	  if ( !m_allhists ) { 
 	    if ( first_hists ) {
 	      (*outp) << space << "\t"   << "hist .* {\n";
 	      (*outp) << space << "\t\t" << "regex       \t= 1\n";
@@ -719,7 +719,7 @@ public:
   
 private:
 
-  bool mallhists;
+  bool m_allhists;
 
 };
 

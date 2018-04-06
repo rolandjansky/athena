@@ -42,7 +42,7 @@ TRT_AlignDbSvc::TRT_AlignDbSvc( const std::string& name, ISvcLocator* pSvcLocato
     m_alignroot("/TRT/Align"),
     m_alignString("AL"),
     m_par_alitextfile(""),
-    m_streamer("AthenaPoolOutputStreamTool/CondStream1"),
+    m_streamer("AthenaOutputStreamTool/CondStream1"),
     m_alignDBprefix("/TRT/Align/"),
     m_dynamicDB(false),
     m_forceUserDBConfig(false)

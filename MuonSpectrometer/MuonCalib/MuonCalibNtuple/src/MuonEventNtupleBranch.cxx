@@ -20,52 +20,52 @@
 namespace MuonCalib {
 
   MuonEventNtupleBranch::MuonEventNtupleBranch(std::string branchName) : m_branchName(branchName),  
-    branchesInit(false), index(0), eventNumber(0), runNumber(0), timeStamp(0), lumiBlock(0), bcId(0), 
-    dMbtsTime(0), dLarTime(0),  n_on_TAV_bits(0), n_on_TAP_bits(0)
+    m_branchesInit(false), m_index(0), m_eventNumber(0), m_runNumber(0), m_timeStamp(0), m_lumiBlock(0), m_bcId(0), 
+    m_dMbtsTime(0), m_dLarTime(0),  m_n_on_TAV_bits(0), m_n_on_TAP_bits(0)
   {}
 
   bool MuonEventNtupleBranch::fillBranch(const MuonCalibEventInfo &eventInfo, const MuonCalibTriggerTimeInfo &trigTimeInfo ) {
     // check if branches where initialized
-    if( !branchesInit ){
+    if( !m_branchesInit ){
       //std::cout << "MuonEventNtupleBranch::fillBranch  ERROR <branches where not initialized>"
       //	<<  std::endl;
       return false;    
     }
     
     // copy values 
-    runNumber = eventInfo.runNumber() ;
-    eventNumber = eventInfo.eventNumber() ; 
-    timeStamp = eventInfo.timeStamp();
-    lumiBlock = eventInfo.lumiBlock();
-    bcId = eventInfo.bcId();
+    m_runNumber = eventInfo.runNumber() ;
+    m_eventNumber = eventInfo.eventNumber() ; 
+    m_timeStamp = eventInfo.timeStamp();
+    m_lumiBlock = eventInfo.lumiBlock();
+    m_bcId = eventInfo.bcId();
     
-    dMbtsTime = trigTimeInfo.dMbtsTime();
-    dLarTime  = trigTimeInfo.dLarTime();
+    m_dMbtsTime = trigTimeInfo.dMbtsTime();
+    m_dLarTime  = trigTimeInfo.dLarTime();
 	
     std::string event_tag = eventInfo.tag();
     unsigned int stringSize = event_tag.size();
     if(stringSize > 63) stringSize = 63;
     for(unsigned int i=0; i<stringSize; i++){
-      eventTag[i] = event_tag[i]; 
+      m_eventTag[i] = event_tag[i]; 
     }
-    eventTag[stringSize] = 0;
-    n_on_TAV_bits=0;
-    n_on_TAP_bits=0;
+    m_eventTag[stringSize] = 0;
+    m_n_on_TAV_bits=0;
+    m_n_on_TAP_bits=0;
     for(unsigned int i=0; i<eventInfo.triggerBits().size(); i++) {
       if(i<eventInfo.triggerBits().size()/2) {
-	if(eventInfo.triggerBits()[i] == true && n_on_TAV_bits<200) {
-	  on_TAV_bits[n_on_TAV_bits]=i;
-	  n_on_TAV_bits++;
+	if(eventInfo.triggerBits()[i] == true && m_n_on_TAV_bits<200) {
+	  m_on_TAV_bits[m_n_on_TAV_bits]=i;
+	  m_n_on_TAV_bits++;
 	}
       } else {
-	if(eventInfo.triggerBits()[i] == true && n_on_TAP_bits<200) {
-	  on_TAP_bits[n_on_TAP_bits]=i - eventInfo.triggerBits().size()/2;
-	  n_on_TAP_bits++;
+	if(eventInfo.triggerBits()[i] == true && m_n_on_TAP_bits<200) {
+	  m_on_TAP_bits[m_n_on_TAP_bits]=i - eventInfo.triggerBits().size()/2;
+	  m_n_on_TAP_bits++;
 	}
       }
     }
     
-    ++index;
+    ++m_index;
     return true;
   }  //end MuonEventNtupleBranch::fillBranch
 
@@ -83,22 +83,22 @@ namespace MuonCalib {
     std::string index_name = "nEvent";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // create the branches 
-    branchCreator.createBranch( tree, "eventNumber",   &eventNumber,   "/I" );
-    branchCreator.createBranch( tree, "runNumber",     &runNumber,     "/I" );  
-    branchCreator.createBranch( tree, "timeStamp",     &timeStamp,     "/I" );
-    branchCreator.createBranch( tree, "lumiBlock",     &lumiBlock,     "/I" );
-    branchCreator.createBranch( tree, "bcId",          &bcId,          "/I" );
-    branchCreator.createBranch( tree, "mbtsTimeDiff",  &dMbtsTime,     "/f" );
-    branchCreator.createBranch( tree, "larTimeDiff",   &dLarTime,      "/f" );
-    branchCreator.createBranch( tree, "eventTag",      &eventTag,      "[64]/b" ); 
-    branchCreator.createBranch( tree, "n_on_TAV_bits", &n_on_TAV_bits, "/I" ); 
-    branchCreator.createBranch( tree, "on_TAV_bits",   &on_TAV_bits,   (std::string("[") + m_branchName + "n_on_TAV_bits]/I").c_str());
-    branchCreator.createBranch( tree, "n_on_TAP_bits", &n_on_TAP_bits, "/I" ); 
-    branchCreator.createBranch( tree, "on_TAP_bits",   &on_TAP_bits,   (std::string("[") + m_branchName + "n_on_TAP_bits]/I").c_str());
-    branchesInit = true;
+    branchCreator.createBranch( tree, "eventNumber",   &m_eventNumber,   "/I" );
+    branchCreator.createBranch( tree, "runNumber",     &m_runNumber,     "/I" );  
+    branchCreator.createBranch( tree, "timeStamp",     &m_timeStamp,     "/I" );
+    branchCreator.createBranch( tree, "lumiBlock",     &m_lumiBlock,     "/I" );
+    branchCreator.createBranch( tree, "bcId",          &m_bcId,          "/I" );
+    branchCreator.createBranch( tree, "mbtsTimeDiff",  &m_dMbtsTime,     "/f" );
+    branchCreator.createBranch( tree, "larTimeDiff",   &m_dLarTime,      "/f" );
+    branchCreator.createBranch( tree, "eventTag",      &m_eventTag,      "[64]/b" ); 
+    branchCreator.createBranch( tree, "n_on_TAV_bits", &m_n_on_TAV_bits, "/I" ); 
+    branchCreator.createBranch( tree, "on_TAV_bits",   &m_on_TAV_bits,   (std::string("[") + m_branchName + "n_on_TAV_bits]/I").c_str());
+    branchCreator.createBranch( tree, "n_on_TAP_bits", &m_n_on_TAP_bits, "/I" ); 
+    branchCreator.createBranch( tree, "on_TAP_bits",   &m_on_TAP_bits,   (std::string("[") + m_branchName + "n_on_TAP_bits!]/I").c_str());
+    m_branchesInit = true;
 
     // reset branch
     reset();

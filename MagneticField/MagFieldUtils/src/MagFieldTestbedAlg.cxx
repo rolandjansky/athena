@@ -157,7 +157,7 @@ StatusCode MagField::MagFieldTestbedAlg::initialize() {
 		}
 	}
 
-	referenceCount = 0;
+	m_referenceCount = 0;
 
 	// success
 	ATH_MSG_INFO("end of initialize()");
@@ -562,7 +562,7 @@ bool MagField::MagFieldTestbedAlg::checkWithReference() {
 				ATH_MSG_INFO(
 						"coordinates: " << m_xyzt[0] << ", " << m_xyzt[1]
 								<< ", " << m_xyzt[2]);
-				referenceCount++;
+				m_referenceCount++;
 
 			}
 		}
@@ -600,7 +600,7 @@ bool MagField::MagFieldTestbedAlg::checkWithReference() {
 	// close the reference file
 	refF->Close();
 
-	ATH_MSG_INFO("number of values unequal: " << referenceCount);
+	ATH_MSG_INFO("number of values unequal: " << m_referenceCount);
 	ATH_MSG_INFO("number of readings from reference file: " << nentries);
 
 	ATH_MSG_INFO(

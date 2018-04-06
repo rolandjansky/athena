@@ -105,26 +105,26 @@ public:
 };
 
 //___________________________________________________________________________________
-VP1ChannelManager::VP1ChannelManager(VP1ExecutionScheduler*sched,VP1MainWindow*mw) : d(new Imp)
+VP1ChannelManager::VP1ChannelManager(VP1ExecutionScheduler*sched,VP1MainWindow*mw) : m_d(new Imp)
 {
-	d->channelmanager=this;
-	d->scheduler=sched;
-	d->mainwindow=mw;
+	m_d->channelmanager=this;
+	m_d->scheduler=sched;
+	m_d->mainwindow=mw;
 }
 
 //___________________________________________________________________________________
 VP1ChannelManager::~VP1ChannelManager()
 {
-	while(!d->uniquename_2_channel.empty())
-		deleteChannel(d->uniquename_2_channel.begin()->first);
+	while(!m_d->uniquename_2_channel.empty())
+		deleteChannel(m_d->uniquename_2_channel.begin()->first);
 
-	std::map<QString,QPluginLoader*>::const_iterator it, itE = d->pluginfile_2_pluginloader.end();
-	for(it=d->pluginfile_2_pluginloader.begin();it!=itE;++it)
+	std::map<QString,QPluginLoader*>::const_iterator it, itE = m_d->pluginfile_2_pluginloader.end();
+	for(it=m_d->pluginfile_2_pluginloader.begin();it!=itE;++it)
 		delete it->second;
 
-	foreach (QObject* o,d->additionalOwnedObjects)
+	foreach (QObject* o,m_d->additionalOwnedObjects)
 	delete o;
-	delete d;
+	delete m_d;
 }
 
 //___________________________________________________________________________________
@@ -132,17 +132,17 @@ VP1ChannelManager::~VP1ChannelManager()
 bool VP1ChannelManager::deleteChannel(QString channeluniquename) {
 
 	//Find info:
-	assert(d->uniquename_2_channel.find(channeluniquename)!=d->uniquename_2_channel.end());
-	IVP1ChannelWidget * cw = d->uniquename_2_channel[channeluniquename];
+	assert(m_d->uniquename_2_channel.find(channeluniquename)!=m_d->uniquename_2_channel.end());
+	IVP1ChannelWidget * cw = m_d->uniquename_2_channel[channeluniquename];
 	QString bn = cw->name();
-	assert(d->basename_2_channels.find(bn)!=d->basename_2_channels.end());
+	assert(m_d->basename_2_channels.find(bn)!=m_d->basename_2_channels.end());
 
 	//Remove channelwidget from maps, and delete it.
-	assert(d->basename_2_channels[bn].find(cw)!=d->basename_2_channels[bn].end());
-	d->basename_2_channels[bn].erase(d->basename_2_channels[bn].find(cw));
-	d->uniquename_2_channel.erase(d->uniquename_2_channel.find(channeluniquename));
+	assert(m_d->basename_2_channels[bn].find(cw)!=m_d->basename_2_channels[bn].end());
+	m_d->basename_2_channels[bn].erase(m_d->basename_2_channels[bn].find(cw));
+	m_d->uniquename_2_channel.erase(m_d->uniquename_2_channel.find(channeluniquename));
 
-	d->scheduler->uncreateAndDelete(cw);//The actual uncreate()+delete might be postponed if a system is
+	m_d->scheduler->uncreateAndDelete(cw);//The actual uncreate()+delete might be postponed if a system is
 	//presently refreshing. But for all bookkeeping purposes it already
 	//happened!
 
@@ -151,31 +151,31 @@ bool VP1ChannelManager::deleteChannel(QString channeluniquename) {
 	//Remove controller from maps - and ensure the widget gets deleted
 	//in any case (it is a scrollarea, not the controller known by the
 	//actual channelwidget):
-	assert(d->channel_2_controller.find(cw)!=d->channel_2_controller.end());
-	d->channel_2_controller[cw]->deleteLater();
-	d->channel_2_controller.erase(d->channel_2_controller.find(cw));
-	assert(d->channel_2_controller.find(cw)==d->channel_2_controller.end());
+	assert(m_d->channel_2_controller.find(cw)!=m_d->channel_2_controller.end());
+	m_d->channel_2_controller[cw]->deleteLater();
+	m_d->channel_2_controller.erase(m_d->channel_2_controller.find(cw));
+	assert(m_d->channel_2_controller.find(cw)==m_d->channel_2_controller.end());
 
 	//Finally, assign new cloneids to any remaining channels of the same basename:
 	//First wipe old info in uniquename_2_channel.
-	std::set<IVP1ChannelWidget*>::iterator it = d->basename_2_channels[bn].begin();
-	std::set<IVP1ChannelWidget*>::iterator itE = d->basename_2_channels[bn].end();
+	std::set<IVP1ChannelWidget*>::iterator it = m_d->basename_2_channels[bn].begin();
+	std::set<IVP1ChannelWidget*>::iterator itE = m_d->basename_2_channels[bn].end();
 	for (;it!=itE;++it) {
-		assert(d->uniquename_2_channel.find((*it)->unique_name())!=d->uniquename_2_channel.end());
-		d->uniquename_2_channel.erase(d->uniquename_2_channel.find((*it)->unique_name()));
+		assert(m_d->uniquename_2_channel.find((*it)->unique_name())!=m_d->uniquename_2_channel.end());
+		m_d->uniquename_2_channel.erase(m_d->uniquename_2_channel.find((*it)->unique_name()));
 	}
 
-	it = d->basename_2_channels[bn].begin();
+	it = m_d->basename_2_channels[bn].begin();
 	unsigned id(0);
 	for (;it!=itE;++it) {
 		(*it)->setCloneID(id++);
 		(*it)->unique_name();
-		assert(d->uniquename_2_channel.find((*it)->unique_name())==d->uniquename_2_channel.end());
-		d->uniquename_2_channel[(*it)->unique_name()]=(*it);
+		assert(m_d->uniquename_2_channel.find((*it)->unique_name())==m_d->uniquename_2_channel.end());
+		m_d->uniquename_2_channel[(*it)->unique_name()]=(*it);
 	}
 
 	uniquename_channelListChanged(uniquenames());
-	d->emit_basename_availableUnusedChannelListChanged();
+	m_d->emit_basename_availableUnusedChannelListChanged();
 	return true;
 }
 
@@ -185,16 +185,16 @@ bool VP1ChannelManager::unloadPluginFile(QString filename) {
 
 	VP1Msg::messageVerbose("VP1ChannelManager::unloadPluginFile()");
 
-	if (d->pluginfile_2_pluginloader.find(filename)==d->pluginfile_2_pluginloader.end())
+	if (m_d->pluginfile_2_pluginloader.find(filename)==m_d->pluginfile_2_pluginloader.end())
 		return false;
 
-	assert(d->pluginfile_2_basenamesAndFactory.find(filename)!=d->pluginfile_2_basenamesAndFactory.end());
-	assert(d->pluginfile_2_pluginloader.find(filename)!=d->pluginfile_2_pluginloader.end());
+	assert(m_d->pluginfile_2_basenamesAndFactory.find(filename)!=m_d->pluginfile_2_basenamesAndFactory.end());
+	assert(m_d->pluginfile_2_pluginloader.find(filename)!=m_d->pluginfile_2_pluginloader.end());
 
 	//Find basenames provided by this plugin, as well as factory and pluginloader:
 	QStringList bns = channelsInPluginFile(filename);
-	IVP1ChannelWidgetFactory * fact = d->pluginfile_2_basenamesAndFactory.find(filename)->second.second;
-	QPluginLoader* loader = d->pluginfile_2_pluginloader[filename];
+	IVP1ChannelWidgetFactory * fact = m_d->pluginfile_2_basenamesAndFactory.find(filename)->second.second;
+	QPluginLoader* loader = m_d->pluginfile_2_pluginloader[filename];
 
 	//Abort if any active channels are affected by this plugin:
 	foreach (QString bn, bns)
@@ -209,17 +209,17 @@ bool VP1ChannelManager::unloadPluginFile(QString filename) {
 	delete loader;
 
 	//Update maps:
-	d->pluginfile_2_basenamesAndFactory.erase(d->pluginfile_2_basenamesAndFactory.find(filename));
-	d->pluginfile_2_pluginloader.erase(d->pluginfile_2_pluginloader.find(filename));
+	m_d->pluginfile_2_basenamesAndFactory.erase(m_d->pluginfile_2_basenamesAndFactory.find(filename));
+	m_d->pluginfile_2_pluginloader.erase(m_d->pluginfile_2_pluginloader.find(filename));
 	foreach (QString bn, bns) {
-		d->basename_2_channels.erase(d->basename_2_channels.find(bn));
-		d->basename_2_pluginfile.erase(d->basename_2_pluginfile.find(bn));
+		m_d->basename_2_channels.erase(m_d->basename_2_channels.find(bn));
+		m_d->basename_2_pluginfile.erase(m_d->basename_2_pluginfile.find(bn));
 	}
 
 	//Emit signals regarding changes:
 	uniquename_channelListChanged(uniquenames());
-	d->emit_basename_availableChannelListChanged();
-	d->emit_basename_availableUnusedChannelListChanged();
+	m_d->emit_basename_availableChannelListChanged();
+	m_d->emit_basename_availableUnusedChannelListChanged();
 
 	//Return:
 	return success;
@@ -233,7 +233,7 @@ QString VP1ChannelManager::loadPluginFile(QString filename)
 
 	QString bn = QFileInfo(filename).fileName();
 
-	if (d->pluginfile_2_basenamesAndFactory.find(filename)!=d->pluginfile_2_basenamesAndFactory.end()) {
+	if (m_d->pluginfile_2_basenamesAndFactory.find(filename)!=m_d->pluginfile_2_basenamesAndFactory.end()) {
 		return "Error: Plugin already loaded.";
 	} else {
 
@@ -253,7 +253,7 @@ QString VP1ChannelManager::loadPluginFile(QString filename)
 		QString pluginAbsPath = fi.absoluteFilePath();
 
 		QPluginLoader * loader = new QPluginLoader(pluginAbsPath);//Fixme: Ensure all loaders gets unloaded on shutdown (and thus deleted)
-		d->pluginfile_2_pluginloader[filename]=loader;
+		m_d->pluginfile_2_pluginloader[filename]=loader;
 
 		bool loadOk = loader->load();
 
@@ -308,7 +308,7 @@ QString VP1ChannelManager::loadPluginFile(QString filename)
 
 
 		IVP1ChannelWidgetFactory * fact = qobject_cast<IVP1ChannelWidgetFactory *>(plugin);
-		d->additionalOwnedObjects << plugin;
+		m_d->additionalOwnedObjects << plugin;
 
 
 		if (!fact)
@@ -322,33 +322,33 @@ QString VP1ChannelManager::loadPluginFile(QString filename)
 			return "Found channel factory in plugin file, but no advertised channels!";
 
 
-		d->pluginfile_2_basenamesAndFactory[filename] = std::pair<QStringList,IVP1ChannelWidgetFactory *>(providedbasenames,fact);
+		m_d->pluginfile_2_basenamesAndFactory[filename] = std::pair<QStringList,IVP1ChannelWidgetFactory *>(providedbasenames,fact);
 
 
 		foreach (QString bn,providedbasenames) {
-			if (d->basename_2_pluginfile.find(bn)!=d->basename_2_pluginfile.end())
+			if (m_d->basename_2_pluginfile.find(bn)!=m_d->basename_2_pluginfile.end())
 				return "Channels navp1 '"+bn+"' are already provided by plugin file "
-						+d->basename_2_pluginfile[bn]+" (ignoring other plugins in file '"+filename+"')";
+						+m_d->basename_2_pluginfile[bn]+" (ignoring other plugins in file '"+filename+"')";
 		}
 
 
 		foreach (QString bn,providedbasenames) {
-			d->basename_2_pluginfile[bn] = filename;
-			d->basename_2_channels[bn] = std::set<IVP1ChannelWidget*>();
+			m_d->basename_2_pluginfile[bn] = filename;
+			m_d->basename_2_channels[bn] = std::set<IVP1ChannelWidget*>();
 		}
 
 
-		d->emit_basename_availableChannelListChanged();
-		d->emit_basename_availableUnusedChannelListChanged();
+		m_d->emit_basename_availableChannelListChanged();
+		m_d->emit_basename_availableUnusedChannelListChanged();
 
 
 		//Fixme: check 20 chars.
 	}
 
 
-	d->mainwindow->addToMessageBox( "Successfully loaded "+bn, "color:#008b00" );
+	m_d->mainwindow->addToMessageBox( "Successfully loaded "+bn, "color:#008b00" );
 	QString out = "providing channels: "+channelsInPluginFile(filename).join(", ");
-	d->mainwindow->addToMessageBox( out, "color:#008b00" );
+	m_d->mainwindow->addToMessageBox( out, "color:#008b00" );
 
 
 	return "";
@@ -356,9 +356,9 @@ QString VP1ChannelManager::loadPluginFile(QString filename)
 
 //___________________________________________________________________________________
 QStringList VP1ChannelManager::channelsInPluginFile(QString filename) const {
-	if (d->pluginfile_2_basenamesAndFactory.find(filename)==d->pluginfile_2_basenamesAndFactory.end())
+	if (m_d->pluginfile_2_basenamesAndFactory.find(filename)==m_d->pluginfile_2_basenamesAndFactory.end())
 		return QStringList();
-	return d->pluginfile_2_basenamesAndFactory[filename].first;
+	return m_d->pluginfile_2_basenamesAndFactory[filename].first;
 }
 
 //___________________________________________________________________________________
@@ -401,20 +401,20 @@ IVP1ChannelWidget * VP1ChannelManager::Imp::constructChannel( QString channelbas
 
 //___________________________________________________________________________________
 IVP1ChannelWidget * VP1ChannelManager::getChannel( QString channelbasename, QString& err ) {
-	IVP1ChannelWidget * cw = d->constructChannel( channelbasename, err );
+	IVP1ChannelWidget * cw = m_d->constructChannel( channelbasename, err );
 	if (!cw)
 		return 0;
 	cw->setUpdatesEnabled(false);
 	cw->setCloneID(nActive(channelbasename));
-	assert(d->uniquename_2_channel.find(cw->unique_name())==d->uniquename_2_channel.end());
-	d->uniquename_2_channel[cw->unique_name()]=cw;
-	d->basename_2_channels[channelbasename].insert(cw);
+	assert(m_d->uniquename_2_channel.find(cw->unique_name())==m_d->uniquename_2_channel.end());
+	m_d->uniquename_2_channel[cw->unique_name()]=cw;
+	m_d->basename_2_channels[channelbasename].insert(cw);
 
 	assert(cw->state()==IVP1ChannelWidget::CONSTRUCTED);
-	d->scheduler->bringFromConstructedToReady(cw);//Fixme: should return bool
+	m_d->scheduler->bringFromConstructedToReady(cw);//Fixme: should return bool
 	assert(cw->state()==IVP1ChannelWidget::READY);
 
-	assert(d->channel_2_controller.find(cw)==d->channel_2_controller.end());
+	assert(m_d->channel_2_controller.find(cw)==m_d->channel_2_controller.end());
 	QWidget * controller = cw->controllerWidget();
 	QScrollArea * scrollarea = new QScrollArea;
 	//  controller->setParent(scrollarea);
@@ -426,10 +426,10 @@ IVP1ChannelWidget * VP1ChannelManager::getChannel( QString channelbasename, QStr
 
 	//scrollArea->setBackgroundRole(QPalette::Dark);
 	scrollarea->setWidget(controller);
-	d->channel_2_controller[cw] = scrollarea;
+	m_d->channel_2_controller[cw] = scrollarea;
 
 	uniquename_channelListChanged(uniquenames());
-	d->emit_basename_availableUnusedChannelListChanged();
+	m_d->emit_basename_availableUnusedChannelListChanged();
 	newChannelCreated(cw);
 	cw->setUpdatesEnabled(true);
 
@@ -438,41 +438,41 @@ IVP1ChannelWidget * VP1ChannelManager::getChannel( QString channelbasename, QStr
 
 //___________________________________________________________________________________
 QWidget* VP1ChannelManager::getController(IVP1ChannelWidget*cw) {
-	assert(d->channel_2_controller.find(cw)!=d->channel_2_controller.end());
-	return d->channel_2_controller[cw];
+	assert(m_d->channel_2_controller.find(cw)!=m_d->channel_2_controller.end());
+	return m_d->channel_2_controller[cw];
 }
 
 //___________________________________________________________________________________
 unsigned VP1ChannelManager::nActive( QString channelbasename ) const {
-	if (d->basename_2_channels.find(channelbasename)==d->basename_2_channels.end())
+	if (m_d->basename_2_channels.find(channelbasename)==m_d->basename_2_channels.end())
 		return 0;
-	return d->basename_2_channels[channelbasename].size();
+	return m_d->basename_2_channels[channelbasename].size();
 }
 
 //fixme: Always check uniqueness (and <20chars) of basenames!
 
 //___________________________________________________________________________________
 IVP1ChannelWidget* VP1ChannelManager::uniqueName2Channel(QString uniquename) const {
-	if (d->uniquename_2_channel.find(uniquename)==d->uniquename_2_channel.end())
+	if (m_d->uniquename_2_channel.find(uniquename)==m_d->uniquename_2_channel.end())
 		return 0;
-	return d->uniquename_2_channel[uniquename];
+	return m_d->uniquename_2_channel[uniquename];
 }
 
 //___________________________________________________________________________________
 bool VP1ChannelManager::uniqueNameExists(QString uniquename) const {
-	return (d->uniquename_2_channel.find(uniquename)!=d->uniquename_2_channel.end());
+	return (m_d->uniquename_2_channel.find(uniquename)!=m_d->uniquename_2_channel.end());
 }
 
 //___________________________________________________________________________________
 bool VP1ChannelManager::baseNameExists(QString basename) const {
-	return (d->basename_2_pluginfile.find(basename)!=d->basename_2_pluginfile.end());
+	return (m_d->basename_2_pluginfile.find(basename)!=m_d->basename_2_pluginfile.end());
 }
 
 //___________________________________________________________________________________
 QStringList VP1ChannelManager::uniquenames() const {
 	QStringList l;
-	std::map<QString,IVP1ChannelWidget*>::iterator it = d->uniquename_2_channel.begin();
-	std::map<QString,IVP1ChannelWidget*>::iterator itE = d->uniquename_2_channel.end();
+	std::map<QString,IVP1ChannelWidget*>::iterator it = m_d->uniquename_2_channel.begin();
+	std::map<QString,IVP1ChannelWidget*>::iterator itE = m_d->uniquename_2_channel.end();
 
 	for (;it!=itE;++it)
 		l << it->first;
@@ -497,8 +497,8 @@ void VP1ChannelManager::Imp::emit_basename_availableChannelListChanged() {
 //___________________________________________________________________________________
 QStringList VP1ChannelManager::availableChannelList() {
 	QStringList l;
-	std::map<QString,QString>::const_iterator it = d->basename_2_pluginfile.begin();
-	std::map<QString,QString>::const_iterator itE = d->basename_2_pluginfile.end();
+	std::map<QString,QString>::const_iterator it = m_d->basename_2_pluginfile.begin();
+	std::map<QString,QString>::const_iterator itE = m_d->basename_2_pluginfile.end();
 	for (;it!=itE;++it) {
 		l << it->first;
 	}
@@ -522,10 +522,10 @@ void VP1ChannelManager::Imp::emit_basename_availableUnusedChannelListChanged() {
 //___________________________________________________________________________________
 QStringList VP1ChannelManager::serializePluginInfo() const {
 	std::map<QString,std::pair<QStringList,IVP1ChannelWidgetFactory *> >::const_iterator
-	it, itE = d->pluginfile_2_basenamesAndFactory.end();
+	it, itE = m_d->pluginfile_2_basenamesAndFactory.end();
 
 	QStringList l;
-	for( it = d->pluginfile_2_basenamesAndFactory.begin(); it!=itE; ++it ) {
+	for( it = m_d->pluginfile_2_basenamesAndFactory.begin(); it!=itE; ++it ) {
 		l<<QFileInfo(it->first).fileName();
 	}
 	return l;
@@ -533,8 +533,8 @@ QStringList VP1ChannelManager::serializePluginInfo() const {
 
 //___________________________________________________________________________________
 QStringList VP1ChannelManager::currentPluginFiles() const {
-	std::map<QString,QPluginLoader*>::const_iterator it = d->pluginfile_2_pluginloader.begin();
-	std::map<QString,QPluginLoader*>::const_iterator itE = d->pluginfile_2_pluginloader.end();
+	std::map<QString,QPluginLoader*>::const_iterator it = m_d->pluginfile_2_pluginloader.begin();
+	std::map<QString,QPluginLoader*>::const_iterator itE = m_d->pluginfile_2_pluginloader.end();
 	QStringList l;
 	for(;it!=itE;++it) {
 		l<<it->first;
@@ -545,11 +545,11 @@ QStringList VP1ChannelManager::currentPluginFiles() const {
 //___________________________________________________________________________________
 QStringList VP1ChannelManager::basename2UniqueNames(QString basename) const {
 
-	if (d->basename_2_channels.find(basename)==d->basename_2_channels.end())
+	if (m_d->basename_2_channels.find(basename)==m_d->basename_2_channels.end())
 		return QStringList();
 
-	std::set<IVP1ChannelWidget*>::const_iterator it = d->basename_2_channels[basename].begin();
-	std::set<IVP1ChannelWidget*>::const_iterator itE = d->basename_2_channels[basename].end();
+	std::set<IVP1ChannelWidget*>::const_iterator it = m_d->basename_2_channels[basename].begin();
+	std::set<IVP1ChannelWidget*>::const_iterator itE = m_d->basename_2_channels[basename].end();
 
 	QStringList l;
 	for (;it!=itE;++it) {
@@ -560,9 +560,9 @@ QStringList VP1ChannelManager::basename2UniqueNames(QString basename) const {
 
 //___________________________________________________________________________________
 bool VP1ChannelManager::channelWithBasenameIsLoaded(QString basename) const {
-	if (d->basename_2_channels.find(basename)==d->basename_2_channels.end())
+	if (m_d->basename_2_channels.find(basename)==m_d->basename_2_channels.end())
 		return false;
-	return !d->basename_2_channels[basename].empty();
+	return !m_d->basename_2_channels[basename].empty();
 }
 
 
@@ -591,25 +591,25 @@ QString VP1ChannelManager::getIconLocation(const QString& channelname, const boo
 		IVP1ChannelWidget* cw = uniqueName2Channel(channelname);
 		if (!cw)
 			return "";
-		return d->channelTypeToIconLocation(cw->type());
+		return m_d->channelTypeToIconLocation(cw->type());
 	}
 
-	if (d->basename2iconlocation.contains(channelname))
-		return d->basename2iconlocation[channelname];
+	if (m_d->basename2iconlocation.contains(channelname))
+		return m_d->basename2iconlocation[channelname];
 
 	//We have to briefly construct a channel in order to get its type.
 	//The following create and destruct maneouver is to get a proper
 	//cache of the icontext associated with the channel:
 	QString err;
-	IVP1ChannelWidget * cw = d->constructChannel( channelname, err, false /*don't init()*/ );
+	IVP1ChannelWidget * cw = m_d->constructChannel( channelname, err, false /*don't init()*/ );
 	if (!cw)
 		return "";
 	cw->deleteControllers();
 	delete cw;
-	assert(d->channel_2_controller.find(cw)==d->channel_2_controller.end());
+	assert(m_d->channel_2_controller.find(cw)==m_d->channel_2_controller.end());
 
 	//Try again;
-	if (d->basename2iconlocation.contains(channelname))
-		return d->basename2iconlocation[channelname];
+	if (m_d->basename2iconlocation.contains(channelname))
+		return m_d->basename2iconlocation[channelname];
 	return "";
 }

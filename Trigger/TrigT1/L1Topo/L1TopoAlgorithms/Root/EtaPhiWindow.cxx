@@ -53,8 +53,8 @@ TCS::EtaPhiWindow::initialize()
 
     TRG_MSG_INFO("MaxTob : "<<p_MaxTob);
     TRG_MSG_INFO("MinET    : "<<p_MinET);
-    TRG_MSG_INFO("EtaMin   : "<<p_EtaMin);
-    TRG_MSG_INFO("EtaMax   : "<<p_EtaMax);
+    TRG_MSG_INFO("EtaMin   : "<<(int)p_EtaMin);
+    TRG_MSG_INFO("EtaMax   : "<<(int)p_EtaMax);
     TRG_MSG_INFO("PhiMin   : "<<p_PhiMin);
     TRG_MSG_INFO("PhiMax   : "<<p_PhiMax);
     TRG_MSG_INFO("number of output bits : "<<numberOutputBits());
@@ -78,8 +78,8 @@ TCS::EtaPhiWindow::processBitCorrect(const std::vector<TCS::TOBArray const *> &i
             const std::ptrdiff_t iTob = distance( input[0]->begin(), tob1);
             if(nLeading!=0 and iTob>=nLeading) continue;
                 if( parType_t((*tob1)->Et()) <= p_MinET ) continue;
-                if( parType_t((*tob1)->eta()) <  p_EtaMin ) continue;
-                if( parType_t((*tob1)->eta()) >= p_EtaMax ) continue;
+                if( (int)parType_t((*tob1)->eta()) <  (int)p_EtaMin ) continue;
+                if( (int)parType_t((*tob1)->eta()) >= (int)p_EtaMax ) continue;
                 if( parType_t(abs((*tob1)->phi())) <  p_PhiMin ) continue;
                 if( parType_t(abs((*tob1)->phi())) >= p_PhiMax ) continue;
                 accept = true;
@@ -112,8 +112,8 @@ TCS::EtaPhiWindow::process(const std::vector<TCS::TOBArray const *> &input,
             const std::ptrdiff_t iTob = distance( input[0]->begin(), tob1);
             if(nLeading!=0 and iTob>=nLeading) continue;
             if( parType_t((*tob1)->Et()) <= p_MinET ) continue;
-            if( parType_t((*tob1)->eta()) <  p_EtaMin ) continue;
-            if( parType_t((*tob1)->eta()) >= p_EtaMax ) continue;
+            if( (int)parType_t((*tob1)->eta()) <  (int)p_EtaMin ) continue;
+            if( (int)parType_t((*tob1)->eta()) >= (int)p_EtaMax ) continue;
             if( parType_t(abs((*tob1)->phi())) <  p_PhiMin ) continue;
             if( parType_t(abs((*tob1)->phi())) >= p_PhiMax ) continue;
             accept = true;

@@ -1,5 +1,5 @@
-#ifndef _PlotView_h_
-#define _PlotView_h_
+#ifndef QATPLOTWIDGETS_PLOTVIEW_H
+#define QATPLOTWIDGETS_PLOTVIEW_H
 
 #include <QtGui/QGraphicsView>
 #include "QatPlotting/AbsPlotter.h"
@@ -124,7 +124,7 @@ class PlotView: public QGraphicsView, public AbsPlotter {
 
   // Clockwork:
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
   // Illegal operations:
   PlotView & operator = (const PlotView &);

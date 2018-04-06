@@ -4,7 +4,7 @@
 #include "../FTKByteStreamDecoderEncoderAux.h"
 #include "../FTKDump.h"
 
-DECLARE_CONVERTER_FACTORY( FTK::TrigFTKByteStreamCnv )
+DECLARE_CONVERTER( FTK::TrigFTKByteStreamCnv )
 DECLARE_COMPONENT( FTK::TrigFTKByteStreamTool )
 DECLARE_COMPONENT( FTK::FTKByteStreamDecoderEncoderTool )
 DECLARE_COMPONENT( FTK::FTKByteStreamDecoderEncoderAuxTool )

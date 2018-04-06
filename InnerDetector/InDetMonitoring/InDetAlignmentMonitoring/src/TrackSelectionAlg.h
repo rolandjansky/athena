@@ -10,6 +10,7 @@
 // AUTHORS: Ben Cooper
 // **********************************************************************
 
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -17,7 +18,6 @@
 
 namespace Trk{
   class Track;
-  class ITrackSummaryTool;
 }
 
 class TrackSelectionAlg : public AthAlgorithm
@@ -36,7 +36,8 @@ class TrackSelectionAlg : public AthAlgorithm
     
   bool makeTrackCuts(const Trk::Track*, float);
 
-  ToolHandle< Trk::ITrackSummaryTool > m_trackSumTool; //!<  Pointer to Trk::ITrackSummaryTool
+  PublicToolHandle< Trk::ITrackSummaryTool > m_trackSumTool
+     {this,"TrackSummaryTool","Trk::TrackSummaryTool/InDetTrackSummaryTool",""}; //!<  Pointer to Trk::ITrackSummaryTool
 
   float m_trackMinPt;
   float m_trackMinEta;

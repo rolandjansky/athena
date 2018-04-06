@@ -279,4 +279,12 @@ void initTestStore ATLAS_NOT_THREAD_SAFE ()
 }
 
 
+std::unique_ptr<TestStore> getTestStore()
+{
+  auto store = std::make_unique<TestStore>();
+  SG::CurrentEventStore::setStore (store.get());
+  return store;
+}
+
+
 } // namespace SGTest

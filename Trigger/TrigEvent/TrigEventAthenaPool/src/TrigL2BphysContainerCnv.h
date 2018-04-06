@@ -46,7 +46,9 @@ class TrigL2BphysContainerCnv : public TrigL2BphysContainerCnvBase
  
   protected:
    
+public:
   TrigL2BphysContainerCnv( ISvcLocator *svcloc );
+protected:
 
   ~TrigL2BphysContainerCnv();
  

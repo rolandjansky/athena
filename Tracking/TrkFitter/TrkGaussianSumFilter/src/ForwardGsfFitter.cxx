@@ -16,7 +16,6 @@ decription           : Implementation code for ForwardGsfFitter class
 #include "TrkMultiComponentStateOnSurface/MultiComponentStateOnSurface.h"
 
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
@@ -31,7 +30,6 @@ decription           : Implementation code for ForwardGsfFitter class
 Trk::ForwardGsfFitter::ForwardGsfFitter(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
-  m_stateCombiner("Trk::MultiComponentStateCombiner/ForwardsFitterCombiner"),
   m_cutChiSquaredPerNumberDOF(50.),
   m_overideMaterialEffectsSwitch(false),
   m_overideMaterialEffects(4),

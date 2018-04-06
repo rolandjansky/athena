@@ -427,7 +427,7 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const nsw::SectorTriggerCa
     // ASM-2016-10-04 currently we compute one bandId for the inner-most single-wedge candidate
     // Shall we return a bandId per pad layer??
     pt.m_pad_strip_info.clear();
-    std::vector<float> m_pad_info; 
+    std::vector<float> pad_info; 
     const nsw::SingleWedgePadTrigger& swt = t.wedgeTrigs()[0];
     pt.m_bandid = swt.halfPadCoordinates().ieta; 
     pt.m_eta_id = swt.halfPadCoordinates().ieta;
@@ -437,16 +437,16 @@ NSWL1::PadTrigger PadTriggerLogicOfflineTool::convert(const nsw::SectorTriggerCa
             if(p.m_padData) {
                 pt.m_pads.push_back(p.m_padData);
                 // Hack for pad<=>strip until we fix 
-                m_pad_info.clear();
-                m_pad_info.push_back(p.m_padData->multipletId());
-                m_pad_info.push_back(p.m_padData->gasGapId());
-                m_pad_info.push_back(p.m_loLocalY);
-                m_pad_info.push_back(p.m_hiLocalY);
-                pt.m_pad_strip_info.push_back(m_pad_info);
-                //cout << "PadStrip Info " << m_pad_info[0] << " " 
-                //                         << m_pad_info[1] << " "
-                //                         << m_pad_info[2] << " "
-                //                         << m_pad_info[3] << endl;
+                pad_info.clear();
+                pad_info.push_back(p.m_padData->multipletId());
+                pad_info.push_back(p.m_padData->gasGapId());
+                pad_info.push_back(p.m_loLocalY);
+                pad_info.push_back(p.m_hiLocalY);
+                pt.m_pad_strip_info.push_back(pad_info);
+                //cout << "PadStrip Info " << pad_info[0] << " " 
+                //                         << pad_info[1] << " "
+                //                         << pad_info[2] << " "
+                //                         << pad_info[3] << endl;
             }
             else
                 cerr<<"PadTriggerLogicOfflineTool::convert: do not push back null pointers"<<endl;

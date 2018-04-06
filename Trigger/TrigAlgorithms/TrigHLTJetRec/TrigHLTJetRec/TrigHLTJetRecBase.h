@@ -51,15 +51,16 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
                                        jet::PseudoJetVector& pjv);
 
   std::string getClusterCalib() const {return m_clusterCalib;}
+  std::string getSecondaryLabel() const {return m_secondarylabel;}
+  bool secondaryLabelisEmpty() const { return m_secondarylabel == ""; }
 
   // functions and variables for secondary(associated) pseudojets
   virtual HLT::ErrorCode checkforSecondaryPseudoJets(
-                                      const HLT::TriggerElement* inputTE,
-                                      jet::LabelIndex* indexMap,
-                                      jet::PseudoJetVector& pjv_secondary);
+                                      const HLT::TriggerElement*,
+                                      jet::LabelIndex*,
+                                      jet::PseudoJetVector&);
 
   ToolHandle<ITriggerPseudoJetGetter>  m_secondarypseudoJetGetter; // a secondary pseudojet getter (for e.g. ghost association)
-  std::string  m_secondarylabel; // to label secondary pseudojets
   //
 
   virtual const xAOD::JetContainer* build() const = 0; 
@@ -67,6 +68,7 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
 
  private:
   std::string m_clusterCalib;
+  std::string  m_secondarylabel; // to label secondary pseudojets
 
  HLT::ErrorCode getInputContainer(const HLT::TriggerElement*,
                                   const InputContainer*&);

@@ -122,29 +122,29 @@ public:
 VP1AODSystem::VP1AODSystem(QString name)
   : IVP13DSystemSimple(name,
 "System showing all (x)AOD objects.",
-"Edward.Moyse@cern.ch, Riccardo.maria.bianchi@cern.ch"), d(new Imp)
+"Edward.Moyse@cern.ch, Riccardo.maria.bianchi@cern.ch"), m_d(new Imp)
 {
-  d->theclass = this;
-  d->selObjects = 0;
-  d->common = 0;
-  d->totmomsep = 0;
-  d->totmomline = 0;
-  d->totmomgev = Amg::Vector3D(0,0,0);
+  m_d->theclass = this;
+  m_d->selObjects = 0;
+  m_d->common = 0;
+  m_d->totmomsep = 0;
+  m_d->totmomline = 0;
+  m_d->totmomgev = Amg::Vector3D(0,0,0);
 }
 
 //____________________________________________________________________
 VP1AODSystem::~VP1AODSystem()
 {
-  if(d) {
-    if(d->common) {
-      if(d->common->controller()) {
-        if (d->common->controller()->objBrowser()) {
-          d->common->controller()->objBrowser()->close();
+  if(m_d) {
+    if(m_d->common) {
+      if(m_d->common->controller()) {
+        if (m_d->common->controller()->objBrowser()) {
+          m_d->common->controller()->objBrowser()->close();
         }
       }
     }
   }
-  delete d; d=0;
+  delete m_d; m_d=0;
 }
 
 //____________________________________________________________________
@@ -165,24 +165,24 @@ void VP1AODSystem::systemcreate(StoreGateSvc* /*detstore*/)
 
   VP1ToolAccessHelper toolaccess(this);
   Trk::IExtrapolationEngine * extrapolator = toolaccess.getToolPointer<Trk::IExtrapolationEngine>("Trk::ExtrapolationEngine/AtlasExtrapolation",false/*silent*/,true/*create if not exists*/);
-  d->common->setExtrapolator(extrapolator);
+  m_d->common->setExtrapolator(extrapolator);
 
-  // d->common->controller()->initTools();
+  // m_d->common->controller()->initTools();
 }
 
 //____________________________________________________________________
 void VP1AODSystem::systemuncreate()
 {
   messageVerbose("systemuncreate");
-  if (d->totmomsep) {
-    d->totmomsep->unref();
-    d->totmomsep=0;
+  if (m_d->totmomsep) {
+    m_d->totmomsep->unref();
+    m_d->totmomsep=0;
   }
-  if (d->totmomline) {
-    d->totmomline->unref();
-    d->totmomline = 0;
+  if (m_d->totmomline) {
+    m_d->totmomline->unref();
+    m_d->totmomline = 0;
   }
-  delete d->common; d->common = 0;
+  delete m_d->common; m_d->common = 0;
 }
 
 //____________________________________________________________________
@@ -190,8 +190,8 @@ QWidget * VP1AODSystem::buildController()
 {
   messageVerbose("buildController start");
   AODSystemController * controller = new AODSystemController(this);
-  d->common = new AODSysCommonData(this,controller);//Fixme: Do this on-demand in buildeventscenegraph!!
-  controller->setCommonData(d->common);
+  m_d->common = new AODSysCommonData(this,controller);//Fixme: Do this on-demand in buildeventscenegraph!!
+  controller->setCommonData(m_d->common);
 
   // connect(controller,SIGNAL(selectionModeChanged(TrackCommonFlags::SELECTIONMODE)),this,SLOT(updateSelectionMode()));
   // updateSelectionMode();
@@ -213,52 +213,52 @@ void VP1AODSystem::buildEventSceneGraph(StoreGateSvc* /*sg*/, SoSeparator *root)
   // SoComplexity * complexity = new SoComplexity;
   // complexity->value.setValue(0.9f);//Fixme: Hardcoded here and elsewhere (fixme: Recheck all complexity values!)
   // root->addChild(complexity);
-  // root->addChild(d->common->controller()->ascObjDrawStyle());
-  // root->addChild(d->common->controller()->ascObjComplexity());//this will be inherited to the tracks
+  // root->addChild(m_d->common->controller()->ascObjDrawStyle());
+  // root->addChild(m_d->common->controller()->ascObjComplexity());//this will be inherited to the tracks
   //                                                             // (but giving no effect)
 
-  d->selObjects = new SoCooperativeSelection;
-  d->selObjects->activePolicy = SoCooperativeSelection::ACTIVE;
-  d->selObjects->ref();
-  registerSelectionNode(d->selObjects);
+  m_d->selObjects = new SoCooperativeSelection;
+  m_d->selObjects->activePolicy = SoCooperativeSelection::ACTIVE;
+  m_d->selObjects->ref();
+  registerSelectionNode(m_d->selObjects);
 
   // reset last selected trk
-  d->common->setLastSelectedHandle(0);
+  m_d->common->setLastSelectedHandle(0);
   updateSelectionMode();
 
-  // if (!d->common->m_textSep) {
+  // if (!m_d->common->m_textSep) {
   //   // FIXME!
   //   //    std::cout<<"Making new Text sep"<<std::endl;
-  //   d->common->m_textSep = new SoSeparator;
-  //   d->common->m_textSep->setName("TextSep");
-  //   d->common->m_textSep->ref();
+  //   m_d->common->m_textSep = new SoSeparator;
+  //   m_d->common->m_textSep->setName("TextSep");
+  //   m_d->common->m_textSep->ref();
   // }
-  // root->addChild(d->common->m_textSep);
+  // root->addChild(m_d->common->m_textSep);
 
   // Fixme - what if font is missing?
   // SoFont *myFont = new SoFont;
   // myFont->name.setValue("Arial");
   // myFont->size.setValue(13.0);
-  // d->common->m_textSep->addChild(myFont);
+  // m_d->common->m_textSep->addChild(myFont);
 
   messageVerbose("createCollections start");
 
   //Create collection list based on contents of event store, populate gui and apply states:
-  d->common->controller()->collWidget()->setCollections(d->createCollections());
+  m_d->common->controller()->collWidget()->setCollections(m_d->createCollections());
 
   //Add collections to event scenegraph:
-  foreach (VP1StdCollection* col,d->common->controller()->collWidget()->collections<VP1StdCollection>()){
+  foreach (VP1StdCollection* col,m_d->common->controller()->collWidget()->collections<VP1StdCollection>()){
     // std::cout<<"Add collswitch="<<col->collSwitch()<< " to EventSceneGraph"<<std::endl;
-    d->selObjects->addChild(col->collSwitch());
+    m_d->selObjects->addChild(col->collSwitch());
   }
 
-  root->addChild(d->selObjects);
-  if (!d->totmomsep) {
-    d->totmomsep = new SoSeparator;
-    d->totmomsep->ref();
+  root->addChild(m_d->selObjects);
+  if (!m_d->totmomsep) {
+    m_d->totmomsep = new SoSeparator;
+    m_d->totmomsep->ref();
   }
-  // d->totmomsep->addChild(d->common->controller()->trackDrawStyle());
-  root->addChild(d->totmomsep);
+  // m_d->totmomsep->addChild(m_d->common->controller()->trackDrawStyle());
+  root->addChild(m_d->totmomsep);
 
   messageVerbose("buildEventSceneGraph end");
 }
@@ -269,23 +269,23 @@ void VP1AODSystem::systemerase()
 {
   messageVerbose("systemErase begin");
 
-  d->common->controller()->collWidget()->clear();
-  if (d->common->controller()->objBrowser()) d->common->controller()->objBrowser()->clear();
+  m_d->common->controller()->collWidget()->clear();
+  if (m_d->common->controller()->objBrowser()) m_d->common->controller()->objBrowser()->clear();
 
-  // d->common->clearEventData();
-  if (d->selObjects) {
-    unregisterSelectionNode(d->selObjects);
-    d->selObjects->unref();
-    d->selObjects=0;
+  // m_d->common->clearEventData();
+  if (m_d->selObjects) {
+    unregisterSelectionNode(m_d->selObjects);
+    m_d->selObjects->unref();
+    m_d->selObjects=0;
   }
 
-  if (d->totmomsep)
-    d->totmomsep->removeAllChildren();
+  if (m_d->totmomsep)
+    m_d->totmomsep->removeAllChildren();
 
-  // if (d->common->m_textSep) // FIXME!
-  //   d->common->m_textSep->removeAllChildren();
+  // if (m_d->common->m_textSep) // FIXME!
+  //   m_d->common->m_textSep->removeAllChildren();
 
-  d->totmomgev = Amg::Vector3D(0,0,0);
+  m_d->totmomgev = Amg::Vector3D(0,0,0);
 
   // if (verbose()) {
   //   if (AODHandleBase::numberOfInstances()!=0)
@@ -315,10 +315,10 @@ QByteArray VP1AODSystem::saveState()
   // Actual state info:
   messageDebug("saving the controller...");
   ensureBuildController();
-  serialise.save(d->common->controller()->saveSettings());
+  serialise.save(m_d->common->controller()->saveSettings());
 
   messageDebug("saving the collectionWidget...");
-  serialise.save((VP1CollectionWidget*)d->common->controller()->collWidget());
+  serialise.save((VP1CollectionWidget*)m_d->common->controller()->collWidget());
 
 
 
@@ -347,9 +347,9 @@ void VP1AODSystem::restoreFromState(QByteArray ba)
 
   IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
 
-  d->common->controller()->restoreSettings(state.restoreByteArray());
+  m_d->common->controller()->restoreSettings(state.restoreByteArray());
 
-  state.restore((VP1CollectionWidget*)d->common->controller()->collWidget());
+  state.restore((VP1CollectionWidget*)m_d->common->controller()->collWidget());
 
   state.disableUnrestoredChecks();//We do the testing in the controller
 }
@@ -391,28 +391,28 @@ void VP1AODSystem::visibleObjectsChanged()
 void VP1AODSystem::updateSelectionMode()
 {
   messageVerbose("updateSelectionMode start");
-  // if (!d->selObjects||!d->ascObjSelManager) {
+  // if (!m_d->selObjects||!m_d->ascObjSelManager) {
   //   messageVerbose("updateSelectionMode Warning: Ignoring due to null pointers.");
   //   return;
   // }
   deselectAll();
-  // d->ascObjSelManager->deselectAll();
-  // d->selMode = d->common->controller()->selectionMode();//NB: Don't abort if unchanged (we call this method to init)
+  // m_d->ascObjSelManager->deselectAll();
+  // m_d->selMode = m_d->common->controller()->selectionMode();//NB: Don't abort if unchanged (we call this method to init)
 
-  // if (d->selMode==TrackCommonFlags::TRACKFIT) {
+  // if (m_d->selMode==TrackCommonFlags::TRACKFIT) {
   //   messageVerbose("updateSelectionMode => TRACKFIT");
-  //   d->selObjects->policy = SoCooperativeSelection::SINGLE;
-  //   d->ascObjSelManager->setMode(AscObjSelectionManager::SHIFT);
-  // } else if (d->selMode==TrackCommonFlags::MULTITRACK) {
+  //   m_d->selObjects->policy = SoCooperativeSelection::SINGLE;
+  //   m_d->ascObjSelManager->setMode(AscObjSelectionManager::SHIFT);
+  // } else if (m_d->selMode==TrackCommonFlags::MULTITRACK) {
   //   messageVerbose("updateSelectionMode => MULTITRACK");
-  //   d->selObjects->policy = SoCooperativeSelection::TOGGLE;
-  //   d->ascObjSelManager->setMode(AscObjSelectionManager::SINGLE);
+  //   m_d->selObjects->policy = SoCooperativeSelection::TOGGLE;
+  //   m_d->ascObjSelManager->setMode(AscObjSelectionManager::SINGLE);
   // } else {
-  //   if (d->selMode!=TrackCommonFlags::SINGLEOBJECT)
+  //   if (m_d->selMode!=TrackCommonFlags::SINGLEOBJECT)
   //     message("updateSelectionMode ERROR: Unexpected selection mode flag");
   //   messageVerbose("updateSelectionMode => SINGLEOBJECT");
-  d->selObjects->policy = SoCooperativeSelection::SINGLE;
-  //   d->ascObjSelManager->setMode(AscObjSelectionManager::SINGLE);
+  m_d->selObjects->policy = SoCooperativeSelection::SINGLE;
+  //   m_d->ascObjSelManager->setMode(AscObjSelectionManager::SINGLE);
   // }
   messageVerbose("updateSelectionMode end");
 }
@@ -421,8 +421,8 @@ void VP1AODSystem::updateSelectionMode()
 void VP1AODSystem::userPickedNode(SoNode* pickedNode, SoPath* /*pickedPath*/)
 {
   messageVerbose("userPickedNode");
-  if (pickedNode==d->totmomline) {
-    message("Total momentum of selected tracks [GeV]: p = "+str(d->totmomgev)+", m = "+str(d->totmass/1000));
+  if (pickedNode==m_d->totmomline) {
+    message("Total momentum of selected tracks [GeV]: p = "+str(m_d->totmomgev)+", m = "+str(m_d->totmass/1000));
     return;
   }
 
@@ -434,13 +434,13 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
 {
   messageVerbose("userSelectedSingleNode");
 
-  if (sel!=d->selObjects) {
+  if (sel!=m_d->selObjects) {
     message("userSelectedSingleNode - ERROR, sel=!d->selObjects");
     return;
   }
 
-  AODHandleBase* handle = d->common->getHandleFromNode(pickedPath);
-  if (!handle) handle = d->common->getHandleFromNode(node);
+  AODHandleBase* handle = m_d->common->getHandleFromNode(pickedPath);
+  if (!handle) handle = m_d->common->getHandleFromNode(node);
   if (!handle) {
     message("ERROR: Unknown handle from path or node.");
   }
@@ -448,26 +448,26 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
   if (handle) message(handle->clicked());
 
   // AODHandleBase* pickedHandle(0);
-  // if (!d->ascObjSelManager->handleUserSelectedSingleNode(sel,node,pickedPath,pickedHandle)) {
-  //   if (sel==d->selObjects) {
+  // if (!m_d->ascObjSelManager->handleUserSelectedSingleNode(sel,node,pickedPath,pickedHandle)) {
+  //   if (sel==m_d->selObjects) {
   // //Hack to get selections working when representing tracks with tubes:
   //     if (node->getTypeId().isDerivedFrom(SoCylinder::getClassTypeId())) {
   //       pickedPath->pop();
   //       node=pickedPath->getTail();
   //     }
-  //     AODHandleBase * handle = d->common->getHandleFromNode(node);
+  //     AODHandleBase * handle = m_d->common->getHandleFromNode(node);
   //     if (!handle) {
   //       message("ERROR: Unknown track.");
   //       return;
   //     }
   //     TrackHandle_TrkTrack * handle_trktrack = dynamic_cast<TrackHandle_TrkTrack *>(handle);
-  //     if (handle_trktrack&&d->selMode==TrackCommonFlags::TRACKFIT) {
+  //     if (handle_trktrack&&m_d->selMode==TrackCommonFlags::TRACKFIT) {
   //       messageVerbose("userSelectedSingleNode - find measurements for track fit");
   //
   //       QList<AODHandleBase*> trackmeas = handle_trktrack->getVisibleMeasurements();
   //
   //       if (trackmeas.size()==0) message("In refit mode, but no visible measurements found so can't do anything. Perhaps they're not enabled in 'Details'?");
-  //       QList<AODHandleBase*> currentsel = d->ascObjSelManager->currentSelection();
+  //       QList<AODHandleBase*> currentsel = m_d->ascObjSelManager->currentSelection();
   // //If at least one of the track measurements is unselected, we
   // //select them all. Otherwise we deselect them.
   //       bool oneunselected(false);
@@ -480,7 +480,7 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
   //       QList<const Trk::PrepRawData*> prdSet;
   //       if (oneunselected) {
   //         messageVerbose("userSelectedSingleNode - selecting " +QString::number(trackmeas.size()) + " measurements.");
-  //         d->ascObjSelManager->ensureSelected(trackmeas);
+  //         m_d->ascObjSelManager->ensureSelected(trackmeas);
   //
   //         // Add PRDs. Need to be careful as they might not exist.
   //         foreach(AODHandleBase* meas,trackmeas) {
@@ -489,18 +489,18 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
   //         }
   //       } else {
   //         messageVerbose("userSelectedSingleNode - deselecting " +QString::number(trackmeas.size()) + " measurements.");
-  //         d->ascObjSelManager->ensureDeselected(trackmeas);
+  //         m_d->ascObjSelManager->ensureDeselected(trackmeas);
   //       }
   //       setSelectedPRDs(prdSet); // FIXME - maybe I should append/remove from existing list?
   //
-  //       d->selObjects->deselectAll();
+  //       m_d->selObjects->deselectAll();
   //     } else {
-  //       if (d->common->controller()->printInfoOnSingleSelection()){
+  //       if (m_d->common->controller()->printInfoOnSingleSelection()){
   //         message(handle->clicked());
   //         messageVerbose("Emitting newTrackSelected ");
-  //         d->common->setLastSelectedHandle(handle);
+  //         m_d->common->setLastSelectedHandle(handle);
   //         emit newTrackSelected(*handle);
-  //         d->common->controller()->setNumberOfSelectedPRDsAndTracks(d->selectedPRDs.count(),1); // FIXME - we can do this more cleanly?
+  //         m_d->common->controller()->setNumberOfSelectedPRDsAndTracks(m_d->selectedPRDs.count(),1); // FIXME - we can do this more cleanly?
   //       }
   //     }
   //   } else {
@@ -508,7 +508,7 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
   //     return;
   //   }
   // }
-  // if (d->common->controller()->orientAndZoomOnSingleSelection()) {
+  // if (m_d->common->controller()->orientAndZoomOnSingleSelection()) {
   //   if (!pickedHandle||!pickedHandle->initiatesOwnZooms()) {
   //     std::set<SoCamera*> cameras = getCameraList();
   //     std::set<SoCamera*>::iterator it,itE = cameras.end();
@@ -522,9 +522,9 @@ void VP1AODSystem::userSelectedSingleNode( SoCooperativeSelection* sel, SoNode* 
 void VP1AODSystem::userClickedOnBgd()
 {
   messageVerbose("userClickedOnBgd");
-  // if (d->ascObjSelManager)
-  //   d->ascObjSelManager->userClickedOnBgd();
-  // d->common->setLastSelectedHandle(0);
+  // if (m_d->ascObjSelManager)
+  //   m_d->ascObjSelManager->userClickedOnBgd();
+  // m_d->common->setLastSelectedHandle(0);
 }
 
 //____________________________________________________________________
@@ -576,7 +576,7 @@ unsigned VP1AODSystem::Imp::calcTotalMomentumOfSelectedHandles(Amg::Vector3D& /*
 }
 
 SoCooperativeSelection * VP1AODSystem::selObjects() const{
-  return d->selObjects;
+  return m_d->selObjects;
 }
 
 
@@ -584,42 +584,42 @@ SoCooperativeSelection * VP1AODSystem::selObjects() const{
 void VP1AODSystem::updateShownTotMomentum()
 {
   // messageVerbose("updateShownTotMomentum");
-  // if (!d->common->controller()->showTotMomentumOnMultiTrackSelection()) {
+  // if (!m_d->common->controller()->showTotMomentumOnMultiTrackSelection()) {
   //   //ensure detach:
   //   messageVerbose("  => detach");
-  //   if (d->totmomsep&&d->totmomline&&d->totmomsep->findChild(d->totmomline)>-1)
-  //     d->totmomsep->removeChild(d->totmomline);
+  //   if (m_d->totmomsep&&m_d->totmomline&&m_d->totmomsep->findChild(m_d->totmomline)>-1)
+  //     m_d->totmomsep->removeChild(m_d->totmomline);
   //   return;
   // }
   // Amg::Vector3D totmom;
   // Amg::Vector3D totpos;
   // double totmass;
-  // unsigned nused = d->calcTotalMomentumOfSelectedHandles(totmom,totpos,totmass);
+  // unsigned nused = m_d->calcTotalMomentumOfSelectedHandles(totmom,totpos,totmass);
   // if (nused==0) {
   //   //ensure detach:
   //   messageVerbose("  => detach");
-  //   if (d->totmomsep&&d->totmomline&&d->totmomsep->findChild(d->totmomline)>-1)
-  //     d->totmomsep->removeChild(d->totmomline);
+  //   if (m_d->totmomsep&&m_d->totmomline&&m_d->totmomsep->findChild(m_d->totmomline)>-1)
+  //     m_d->totmomsep->removeChild(m_d->totmomline);
   // } else {
   //   //ensure correct lineset:
   //   Amg::Vector3D p2 = totpos+totmom.unit()*1*CLHEP::m;
-  //   if (!d->totmomline) {
-  //     d->totmomline = new SoLineSet;
-  //     d->totmomline->ref();
+  //   if (!m_d->totmomline) {
+  //     m_d->totmomline = new SoLineSet;
+  //     m_d->totmomline->ref();
   //     SoVertexProperty * vertices = new SoVertexProperty;
-  //     d->totmomline->vertexProperty = vertices;
-  //     d->totmomline->numVertices.set1Value(0,2);
+  //     m_d->totmomline->vertexProperty = vertices;
+  //     m_d->totmomline->numVertices.set1Value(0,2);
   //
   //   }
-  //   SoVertexProperty * vertices = static_cast<SoVertexProperty*>(d->totmomline->vertexProperty.getValue());
+  //   SoVertexProperty * vertices = static_cast<SoVertexProperty*>(m_d->totmomline->vertexProperty.getValue());
   //   vertices->vertex.set1Value(0,totpos.x(),totpos.y(),totpos.z());
   //   vertices->vertex.set1Value(1,p2.x(),p2.y(),p2.z());
-  //   d->totmomgev = totmom / CLHEP::GeV;
-  //   d->totmass = totmass;
+  //   m_d->totmomgev = totmom / CLHEP::GeV;
+  //   m_d->totmass = totmass;
   //   //ensure attach:
   //   messageVerbose("  => attach");
-  //   if (d->totmomsep&&d->totmomline&&d->totmomsep->findChild(d->totmomline)<0)
-  //     d->totmomsep->addChild(d->totmomline);
+  //   if (m_d->totmomsep&&m_d->totmomline&&m_d->totmomsep->findChild(m_d->totmomline)<0)
+  //     m_d->totmomsep->addChild(m_d->totmomline);
   //   return;
   // }
 }
@@ -628,16 +628,16 @@ void VP1AODSystem::updateShownTotMomentum()
 void VP1AODSystem::userChangedSelection(SoCooperativeSelection* sel, QSet<SoNode*> /*nodes*/, QSet<SoPath*>/*paths*/)
 {
   messageVerbose("userChangedSelection begin");
-  if (sel!=d->selObjects)
+  if (sel!=m_d->selObjects)
     return;
   messageVerbose("userChangedSelection => selObjects!!");
   //
   //
-  // if (d->common->controller()->printTotMomentumOnMultiTrackSelection()) {
+  // if (m_d->common->controller()->printTotMomentumOnMultiTrackSelection()) {
   //   Amg::Vector3D totmom;
   //   Amg::Vector3D totpos;
   //   double totmass;
-  //   if (d->calcTotalMomentumOfSelectedHandles(totmom,totpos,totmass)>0) {
+  //   if (m_d->calcTotalMomentumOfSelectedHandles(totmom,totpos,totmass)>0) {
   //     Amg::Vector3D totmomgev = totmom;
   //     totmomgev /= CLHEP::GeV;
   //     message("Total momentum [GeV] : "+str(totmomgev));//Fixme: Eta/phi/etc...
@@ -653,7 +653,7 @@ void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::TrackParticle
   messageVerbose("updateAssociatedObjects TrackParticle");
   std::cout<<"EJWM Got "<<trackparticles.size() << " from " <<typeid(sender()).name()<<std::endl;
 
-  IParticleCollHandle_TrackParticle* newcoll = new  IParticleCollHandle_TrackParticle( d->common, "TrackParticlesFromMuons", xAOD::Type::Muon, false );
+  IParticleCollHandle_TrackParticle* newcoll = new  IParticleCollHandle_TrackParticle( m_d->common, "TrackParticlesFromMuons", xAOD::Type::Muon, false );
 
   std::cout<<"EJWM Adding handles "<<std::endl;
   for (auto tp : trackparticles){
@@ -664,8 +664,8 @@ void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::TrackParticle
 
   newcoll->init();
   // TrackCollHandle_RefittedTracks * newtrackcoll =
-  // new TrackCollHandle_RefittedTracks(d->common,
-  //            d->common->controller()->nameOfNewlyFittedCollections(),
+  // new TrackCollHandle_RefittedTracks(m_d->common,
+  //            m_d->common->controller()->nameOfNewlyFittedCollections(),
   //            fittedtracks);
 
   QList<IParticleCollHandle_TrackParticle*> newcolls;
@@ -673,11 +673,11 @@ void VP1AODSystem::updateAssociatedObjects(const QList<const xAOD::TrackParticle
 
   std::cout<<"EJWM addCollections "<<std::endl;
 
-  d->common->controller()->collWidget()->addCollections(newcolls);
+  m_d->common->controller()->collWidget()->addCollections(newcolls);
   std::cout<<"EJWM addChild "<<std::endl;
 
   foreach (IParticleCollHandle_TrackParticle* col,newcolls) {
-    d->selObjects->addChild(col->collSwitch());
+    m_d->selObjects->addChild(col->collSwitch());
     col->setVisible(true);
   }
   messageVerbose("updateAssociatedObjects TrackParticle end");
@@ -714,7 +714,7 @@ void VP1AODSystem::dumpToJSON()
     
     xAOD::Type::ObjectType lastType = xAOD::Type::EventInfo; // Set to this value because nothing that follows should use it i.e. can distinguish first loop.
     
-    for (auto col : d->common->controller()->collWidget()->visibleStdCollections() ){
+    for (auto col : m_d->common->controller()->collWidget()->visibleStdCollections() ){
       AODCollHandleBase* ahandle = dynamic_cast<AODCollHandleBase*>(col);
       if (!ahandle){
         message("WAAAAH! Not an AODCollHandleBase! Should never happen!");

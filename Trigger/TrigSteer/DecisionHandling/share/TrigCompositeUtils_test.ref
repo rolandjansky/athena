@@ -1,0 +1,7 @@
+1 from d1
+2 from d1
+1 from d1 and d2
+2 from d1 and d2
+3 from d1 and d2
+ either 3 or 7 contained in d1 NO
+ either 3 or 7 contained in d2 YES

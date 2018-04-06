@@ -30,7 +30,9 @@ class MuonCaloEnergiesCnv : public MuonCaloEnergiesCnvBase
   friend class CnvFactory<MuonCaloEnergiesCnv>;
 
 protected:
+public:
   MuonCaloEnergiesCnv( ISvcLocator *svcloc );
+protected:
 
   virtual StatusCode initialize();
 

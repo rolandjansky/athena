@@ -41,46 +41,46 @@ namespace MuonCalib {
     bool  fillBranch(const MuonCalibSegment &seg );               //!< fill content of seg into branch 
     //    bool  fillBranch(const MuonCalibSegment &seg, const int patIndex ); //!< fill content of seg into branch 
     bool  createBranch(TTree *tree);                                    //!< create branch structure in tree 
-    inline void reset() { index = 0; }                                  //!< set seg_index to zero 
-    inline const int& getBranchEntries() const { return index; }        //!< returns the number of segs currently in the branch 
+    inline void reset() { m_index = 0; }                                  //!< set seg_index to zero 
+    inline const int& getBranchEntries() const { return m_index; }        //!< returns the number of segs currently in the branch 
     inline int blockSize() const { return m_blockSize; }                //!< returns maximum number of entries stored to ntuple  
 
   private:
     std::string m_branchName;            //!< name of branch in tree, per default prepended to variable names 
-    bool branchesInit;                   //!< flag to check whether branches were initialized 
+    bool m_branchesInit;                   //!< flag to check whether branches were initialized 
     bool m_first;                        //!< flag to make sure that overflow message is only printed once
 
     static const int m_blockSize = 400;  //!< quantities stored in the tree 
-    int   index;                         //!< counter keeping track on the number of MuonCalibSegment s stored in the event
+    int   m_index;                         //!< counter keeping track on the number of MuonCalibSegment s stored in the event
 
-    //    int   patIndex[m_blockSize];   //no longer meaningful after Athena 17
-    int   quality[m_blockSize];
-    int   author[m_blockSize];
-    float chi2[m_blockSize];
-    float fittedT0[m_blockSize];
-    float gPosX[m_blockSize];
-    float gPosY[m_blockSize];
-    float gPosZ[m_blockSize];
-    float gDirX[m_blockSize];
-    float gDirY[m_blockSize]; 
-    float gDirZ[m_blockSize];
-    float posX[m_blockSize];
-    float posY[m_blockSize];
-    float posZ[m_blockSize];
-    float dirX[m_blockSize];
-    float dirY[m_blockSize]; 
-    float dirZ[m_blockSize];
-    int   nHits[m_blockSize];
-    int   nMdtHits[m_blockSize];
-    int   nRpcHits[m_blockSize];
-    int   nCscHits[m_blockSize];
-    int   nTgcHits[m_blockSize];
-    double transPhi[m_blockSize];
-    double transTheta[m_blockSize];
-    double transPsi[m_blockSize];
-    double transX[m_blockSize];
-    double transY[m_blockSize];
-    double transZ[m_blockSize];
+    //    int   m_patIndex[m_blockSize];   //no longer meaningful after Athena 17
+    int   m_quality[m_blockSize];
+    int   m_author[m_blockSize];
+    float m_chi2[m_blockSize];
+    float m_fittedT0[m_blockSize];
+    float m_gPosX[m_blockSize];
+    float m_gPosY[m_blockSize];
+    float m_gPosZ[m_blockSize];
+    float m_gDirX[m_blockSize];
+    float m_gDirY[m_blockSize]; 
+    float m_gDirZ[m_blockSize];
+    float m_posX[m_blockSize];
+    float m_posY[m_blockSize];
+    float m_posZ[m_blockSize];
+    float m_dirX[m_blockSize];
+    float m_dirY[m_blockSize]; 
+    float m_dirZ[m_blockSize];
+    int   m_nHits[m_blockSize];
+    int   m_nMdtHits[m_blockSize];
+    int   m_nRpcHits[m_blockSize];
+    int   m_nCscHits[m_blockSize];
+    int   m_nTgcHits[m_blockSize];
+    double m_transPhi[m_blockSize];
+    double m_transTheta[m_blockSize];
+    double m_transPsi[m_blockSize];
+    double m_transX[m_blockSize];
+    double m_transY[m_blockSize];
+    double m_transZ[m_blockSize];
   };
 
 }  //namespace MuonCalib

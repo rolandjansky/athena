@@ -29,7 +29,7 @@ LArFebErrorSummaryMaker::LArFebErrorSummaryMaker(const std::string& name, ISvcLo
   AthAlgorithm(name, pSvcLocator),m_nwarns(0),m_missingFebsWarns(0),
   m_isHec(false), m_isFcal(false), m_isEmb(false), m_isEmec(false),
   m_isEmPS(false), m_isAside(false), m_isCside(false),
-  m_checkAllFeb(true), m_partition(""),m_onlineHelper(0),m_badChannelTool("")
+  m_onlineHelper(0),m_badChannelTool("")
 {
   declareProperty("BadChannelTool",m_badChannelTool,"Bad channel tool to get info on Feb errors to ignore from database");
 

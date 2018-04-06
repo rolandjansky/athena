@@ -30,10 +30,10 @@ TrigFTKUncertiantyTool::TrigFTKUncertiantyTool(const std::string& t,
 					       const std::string& n,
 					       const IInterface*  p ): 
   AthAlgTool(t,n,p),
-  fNoIBL(false)
+  m_NoIBL(false)
 {
   declareInterface< ITrigFTKUncertiantyTool >( this );
-  declareProperty( "NoIBL",  fNoIBL);
+  declareProperty( "NoIBL",  m_NoIBL);
 }
 
 StatusCode TrigFTKUncertiantyTool::initialize() {
@@ -44,7 +44,7 @@ StatusCode TrigFTKUncertiantyTool::initialize() {
   //
   //   Load Constants
   //
-  if(fNoIBL)
+  if(m_NoIBL)
     LoadConstants_NoIBL();
   else
     LoadConstants();
@@ -113,12 +113,12 @@ double TrigFTKUncertiantyTool::getParamCovMtx(const FTKTrack *trk, int id0, int 
   //
   // square root model
   //
-  if(allConsts[hasBL].mode(lookUpParam,trkEta) == TrigFTKUncertiantyTool::sqroot){
-    sigmaTP = sqrt(allConsts[hasBL].par0(lookUpParam,trkEta)+allConsts[hasBL].par1(lookUpParam,trkEta)*trkIpt*trkIpt);
+  if(m_allConsts[hasBL].mode(lookUpParam,trkEta) == TrigFTKUncertiantyTool::sqroot){
+    sigmaTP = sqrt(m_allConsts[hasBL].par0(lookUpParam,trkEta)+m_allConsts[hasBL].par1(lookUpParam,trkEta)*trkIpt*trkIpt);
     if(outputLevel <= MSG::DEBUG){
       athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: sigmaTP ("   
-		<< sigmaTP <<") = sqrt("<<allConsts[hasBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)" <<  endmsg; 
+		<< sigmaTP <<") = sqrt("<<m_allConsts[hasBL].par0(lookUpParam,trkEta) 
+		<< "+" << m_allConsts[hasBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)" <<  endmsg; 
       athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: (sqrt)cov "   << sigmaTP*sigmaTP << endmsg; 
     }
     
@@ -126,11 +126,11 @@ double TrigFTKUncertiantyTool::getParamCovMtx(const FTKTrack *trk, int id0, int 
   // linear model
   //
   }else{
-    sigmaTP = allConsts[hasBL].par0(lookUpParam,trkEta) + allConsts[hasBL].par1(lookUpParam,trkEta)*fabs(trkIpt);
+    sigmaTP = m_allConsts[hasBL].par0(lookUpParam,trkEta) + m_allConsts[hasBL].par1(lookUpParam,trkEta)*fabs(trkIpt);
     if(outputLevel <= MSG::DEBUG){
       athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: sigmaTP ("   
-		<< sigmaTP <<") = "<<allConsts[hasBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt) <<  endmsg; 
+		<< sigmaTP <<") = "<<m_allConsts[hasBL].par0(lookUpParam,trkEta) 
+		<< "+" << m_allConsts[hasBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt) <<  endmsg; 
       athenaLog << MSG::DEBUG << "TrigFTKUncertiantyTool:: (linear)cov "   << sigmaTP*sigmaTP << endmsg; 
     }
   }
@@ -150,7 +150,7 @@ double TrigFTKUncertiantyTool::getParamCovMtx(const FTKTrack *trk, int id0, int 
   // Convert 1/2pt  to qoverp
   //
   if(id0 == FTKTrackParam::qOp){
-    double sigmaEta     = allConsts[hasBL].par0(FTKTrackParam::eta,trkEta)+allConsts[hasBL].par1(FTKTrackParam::eta,trkEta)*fabs(trkIpt);
+    double sigmaEta     = m_allConsts[hasBL].par0(FTKTrackParam::eta,trkEta)+m_allConsts[hasBL].par1(FTKTrackParam::eta,trkEta)*fabs(trkIpt);
     double sigmaQoverP  = getSigmaQoverP(trkIpt, sigmaTP, trkEta, sigmaEta );
     sigmaTP             = sigmaQoverP;
   }
@@ -239,12 +239,12 @@ void TrigFTKUncertiantyTool::LoadConstants()
   //
   // has BLayer constants
   //
-  TPConsts&  nomConsts =  allConsts[1];
+  TPConsts&  nomConsts =  m_allConsts[1];
 
   //
   // no BLayer constants
   //
-  TPConsts&  nBLConsts =  allConsts[0];
+  TPConsts&  nBLConsts =  m_allConsts[0];
   
   //
   //  d0
@@ -332,12 +332,12 @@ void TrigFTKUncertiantyTool::LoadConstants_NoIBL()
   //
   // has BLayer constants
   //
-  TPConsts&  nomConsts =  allConsts[1];
+  TPConsts&  nomConsts =  m_allConsts[1];
 
   //
   // has noBLayer constants
   //
-  TPConsts&  nBLConsts =  allConsts[0];
+  TPConsts&  nBLConsts =  m_allConsts[0];
   
   //
   //  d0

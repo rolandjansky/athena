@@ -124,13 +124,14 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  virtual std::vector<unsigned int> nMissingPixelClusters();
  virtual std::vector<unsigned int> nFailedSCTClusters();
  virtual std::vector<unsigned int> nFailedPixelClusters();
+
+ virtual Trk::Track* getCachedTrack(const unsigned int track, const bool do_refit);
  
 
  private:
 
  void getFTK_RawTracksFromSG();
  Trk::Track* ConvertTrack(const unsigned int track);
- Trk::Track* getCachedTrack(const unsigned int track, const bool do_refit);
  StatusCode initTrackCache(bool do_refit);
  StatusCode initTrackParticleCache(bool do_refit);
  StatusCode fillTrackCache(bool do_refit);

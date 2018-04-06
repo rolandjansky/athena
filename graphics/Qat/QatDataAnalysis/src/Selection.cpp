@@ -28,20 +28,20 @@ public:
   
   // Constructor:
   SelectionStore(TupleStoreConstLink StoreA, const Cut<Tuple> & Cut):
-    opA(StoreA),cut(Cut.clone()),ssize(-1),lastAccess(-1),lastAddress(-1) {
+    m_opA(StoreA),m_cut(Cut.clone()),m_ssize(-1),m_lastAccess(-1),m_lastAddress(-1) {
   }
 
   // For input:
   virtual TupleConstLink operator [](size_t i) const {
     
-    unsigned int  asize   = (*opA).size();
-    unsigned int  address = (int(i)>lastAccess) ? lastAddress+1: 0;
+    unsigned int  asize   = (*m_opA).size();
+    unsigned int  address = (int(i)>m_lastAccess) ? m_lastAddress+1: 0;
     
     while (address<asize) {
-      TupleConstLink t = ((*opA)[address]);
-      if ((*cut)(*t)) {
-	lastAddress=address;
-	lastAccess=i;
+      TupleConstLink t = ((*m_opA)[address]);
+      if ((*m_cut)(*t)) {
+	m_lastAddress=address;
+	m_lastAccess=i;
 	return t;
       }
       address++;
@@ -52,27 +52,27 @@ public:
   // Get the size:
   virtual size_t size() const {
     
-    if (ssize<0) {
-      ssize=0;
-      for (unsigned int i=0;i<opA->size();i++) {
-	if ((*cut)(*(*opA)[i])) ssize++;
+    if (m_ssize<0) {
+      m_ssize=0;
+      for (unsigned int i=0;i<m_opA->size();i++) {
+	if ((*m_cut)(*(*m_opA)[i])) m_ssize++;
       }
     }
-    return ssize;
+    return m_ssize;
   }
 
 private:
 
   // Destructor:
   virtual ~SelectionStore() {
-    delete cut;
+    delete m_cut;
   }
 
-  TupleStoreConstLink           opA;
-  Cut<Tuple>                    *cut;
-  mutable int                   ssize;
-  mutable            int        lastAccess;
-  mutable            int        lastAddress;
+  TupleStoreConstLink           m_opA;
+  Cut<Tuple>                    *m_cut;
+  mutable int                   m_ssize;
+  mutable            int        m_lastAccess;
+  mutable            int        m_lastAddress;
 
  // Silence compiler warnings about solitude
   friend class ImaginaryFriend;
@@ -82,30 +82,30 @@ private:
 
 
 Selection::Selection (const Cut<Tuple> & cut):
-_cut(cut.clone())
+m_cut(cut.clone())
 {
 }
 
 Selection::~Selection () {
-  delete _cut;
+  delete m_cut;
 }
 
 Selection::Selection(const Selection & selection):
-  _cut(selection._cut->clone()) 
+  m_cut(selection.m_cut->clone()) 
 {
 }
 
 Table Selection::operator * (const Table & table) const
 {
-  TupleStoreLink newStore = new SelectionStore(table.store(),*_cut);
+  TupleStoreLink newStore = new SelectionStore(table.store(),*m_cut);
   Table t(table.name(), newStore);
   return t;
 }
 
 Selection & Selection::operator = (const Selection & selection) {
   if (&selection != this) {
-    delete _cut;
-    _cut=selection._cut->clone();
+    delete m_cut;
+    m_cut=selection.m_cut->clone();
   }
   return *this;
 }

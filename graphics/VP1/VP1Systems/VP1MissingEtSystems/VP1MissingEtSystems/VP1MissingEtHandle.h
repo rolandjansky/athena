@@ -59,11 +59,11 @@ protected:
 
 private:
   class Imp;
-  Imp*  d;
+  Imp*  m_d;
 
   //updated: added for pivot
-  SoGroup         *base, *arrow, *dash;
-  double           length, phi;
+  SoGroup         *m_base, *m_arrow, *m_dash;
+  double           m_length, m_phi;
 
 public:
   static double thickness;

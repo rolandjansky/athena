@@ -20,9 +20,9 @@ class TrigPrimaryVertexTrack : public TrigVertexFittingNode
   const TrigInDetTrack* getTrigTrack();//!< getter for L2 tracks 
   const Trk::Track* getTrkTrack();//!< getter for EF (offline) tracks
 
-  virtual double m_getChi2Distance(TrigL2Vertex*);//!< implementation of abstract method from the base class
-  virtual void m_updateVertex(TrigL2Vertex*);//!< implementation of abstract method from the base class
-  virtual MsgStream& m_report( MsgStream& ) const;
+  virtual double getChi2Distance(TrigL2Vertex*);//!< implementation of abstract method from the base class
+  virtual void updateVertex(TrigL2Vertex*);//!< implementation of abstract method from the base class
+  virtual MsgStream& report( MsgStream& ) const;
   void setIndex(int);//!< to be used by TrigVertexingTool
   int getIndex() const;//!< to be used by TrigVertexingTool
   int getTrackType();//!< 0: L2 track, 1: EF(offline) track

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCS1DFunction_h
-#define TFCS1DFunction_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCS1DFunction_h
+#define ISF_FASTCALOSIMEVENT_TFCS1DFunction_h
 
 // STL includes
 #include <string>
@@ -16,17 +16,17 @@ class TFCS1DFunction:public TObject
   public:
     TFCS1DFunction() {};
     ~TFCS1DFunction() {};
-    
+
    virtual double rnd_to_fct(double rnd);
    static double get_maxdev(TH1* , TH1* );
 
   private:
- 
+
   ClassDef(TFCS1DFunction,1)  //TFCS1DFunction
- 
+
 };
 
-#if defined(__MAKECINT__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCS1DFunction+;
 #endif
 

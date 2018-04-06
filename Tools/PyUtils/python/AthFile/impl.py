@@ -795,20 +795,14 @@ class AthFileServer(object):
     
     def _load_json_cache(self, fname):
         """load file informations from a JSON file"""
-        try:
-            import simplejson as json
-        except ImportError:
-            import json
+        import json
         with _my_open(fname) as fd:
             cache = json.load(fd)
         return dict((k,AthFile.from_infos(v)) for k,v in cache)
         
     def _save_json_cache(self, fname):
         """save file informations using JSON"""
-        try:
-            import simplejson as json
-        except ImportError:
-            import json
+        import json
         cache = self._cache
         with _my_open(fname, 'w') as fd:
             json.dump([(k, cache[k].fileinfos) for k in cache],

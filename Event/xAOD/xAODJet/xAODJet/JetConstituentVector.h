@@ -78,7 +78,7 @@ namespace xAOD {
     double           rapidity() const { return Rapidity();}
     
     /// Definition of the 4-momentum type
-    typedef TLorentzVector FourMom_t;
+    typedef IParticle::FourMom_t FourMom_t;
     
     /// The full 4-momentum of the particle
     // 

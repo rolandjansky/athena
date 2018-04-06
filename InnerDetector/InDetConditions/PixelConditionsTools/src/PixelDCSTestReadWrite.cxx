@@ -10,7 +10,6 @@
 #include "AthenaKernel/IOVSvcDefs.h" 
 
 // Gaudi includes
-#include "GaudiKernel/AlgFactory.h"
 //#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/GaudiException.h"
@@ -19,7 +18,6 @@
 
 PixelDCSTestReadWrite::PixelDCSTestReadWrite(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_pixelDCSTool("PixelDCSTool"),
   m_write(false)
 {
 

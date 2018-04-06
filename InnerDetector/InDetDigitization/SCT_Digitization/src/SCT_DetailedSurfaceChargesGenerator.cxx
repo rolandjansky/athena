@@ -29,8 +29,6 @@
 // Athena
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "InDetSimEvent/SiHit.h"        // for SiHit, SiHit::::xDep, etc
-#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
-#include "SiPropertiesSvc/ISiPropertiesSvc.h"
 
 using InDetDD::SiDetectorElement;
 using InDetDD::SCT_ModuleSideDesign;
@@ -74,8 +72,6 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
   m_ExValue150{{0.}},
   m_EyValue150{{0.}},
   m_stripCharge{{{{0.}}}},
-  m_siConditionsSvc("SCT_SiliconConditionsSvc",name),
-  m_siPropertiesSvc("SCT_SiPropertiesSvc",name),
   m_element(0),
   m_rndmEngine(0),
   m_rndmEngineName("SCT_Digitization")
@@ -95,8 +91,6 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
     declareProperty("SensorTemperature",m_sensorTemperature=273.15);
     declareProperty("TransportTimeStep",m_transportTimeStep=0.25);
     declareProperty("TransportTimeMax",m_transportTimeMax=25.0);
-    declareProperty("SiConditionsSvc", m_siConditionsSvc);
-    declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
     //  declareProperty("rndmEngineName",m_rndmEngineName="SCT_Digitization");
     declareProperty("doDistortions",   m_doDistortions, "Simulation of module distortions");
     declareProperty("doHistoTrap", m_doHistoTrap, "Allow filling of histos for charge trapping effect"); 
@@ -133,17 +127,17 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
   }
   ATH_MSG_DEBUG ( "SCT_DetailedSurfaceChargesGenerator::initialize()");
 
-  //Get ISiPropertiesSvc
-  sc = m_siPropertiesSvc.retrieve();
+  //Get ISiPropertiesTool
+  sc = m_siPropertiesTool.retrieve();
   if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Could not retrieve silicon properties svc: " << m_siPropertiesSvc.name() );
+    ATH_MSG_FATAL ( "Could not retrieve silicon properties tool: " << m_siPropertiesTool.name() );
     return sc ;
   }
   
-  //Get ISiliconConditionsSvc
-  sc = m_siConditionsSvc.retrieve();
+  //Get ISiliconConditionsTool
+  sc = m_siConditionsTool.retrieve();
   if (sc.isFailure()) {
-    ATH_MSG_FATAL ( "Could not retrieve silicon conditions service: " << m_siConditionsSvc.name() );
+    ATH_MSG_FATAL ( "Could not retrieve silicon conditions service: " << m_siConditionsTool.name() );
     return sc ;
   }
   
@@ -227,6 +221,14 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
   ATH_MSG_INFO ("\tn.charg " <<m_numberOfCharges);
   ATH_MSG_INFO ("\tdigi steps "<<m_smallStepLength<<" mm");
 #endif
+
+
+ if (m_doDistortions) {
+   ATH_CHECK(m_distortionsTool.retrieve());
+ } else {
+   m_distortionsTool.disable();
+ }
+
   return sc ;
 }
 
@@ -255,8 +257,8 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit) const {
     return -2.0 ;
   }
 
-  float vdepl=m_siConditionsSvc->depletionVoltage(m_hashId) * CLHEP::volt;
-  float vbias=m_siConditionsSvc->biasVoltage(m_hashId) * CLHEP::volt;
+  float vdepl=m_siConditionsTool->depletionVoltage(m_hashId) * CLHEP::volt;
+  float vbias=m_siConditionsTool->biasVoltage(m_hashId) * CLHEP::volt;
   float denominator = vdepl+vbias-(2.0*zhit*vdepl/sensorThickness);
   if (denominator<=0.0) {
     if(vbias>=vdepl) { //Should not happen
@@ -272,7 +274,7 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit) const {
   }
 
   float driftTime = log((vdepl+vbias)/denominator) ;
-  driftTime = driftTime*sensorThickness*sensorThickness/(2.0*m_siPropertiesSvc->getSiProperties(m_hashId).holeDriftMobility()*vdepl) ;
+  driftTime = driftTime*sensorThickness*sensorThickness/(2.0*m_siPropertiesTool->getSiProperties(m_hashId).holeDriftMobility()*vdepl) ;
   return driftTime ;
 }
 
@@ -283,7 +285,7 @@ float SCT_DetailedSurfaceChargesGenerator::DiffusionSigma(float zhit) const {
 
   float t = this->DriftTime(zhit); // in ns
   if(t>0.0) {
-    float diffusionSigma = sqrt(2*m_siPropertiesSvc->getSiProperties(m_hashId).holeDiffusionConstant()*t); // in mm    
+    float diffusionSigma = sqrt(2*m_siPropertiesTool->getSiProperties(m_hashId).holeDiffusionConstant()*t); // in mm    
     return diffusionSigma;  
   }
   else return 0.0 ;
@@ -419,7 +421,7 @@ void SCT_DetailedSurfaceChargesGenerator::processSiHit(const SiHit& phit, const 
   int numberOfSteps = int(LargeStep/m_smallStepLength) + 1 ;
   float steps= static_cast<float>(m_numberOfCharges*numberOfSteps);
   float e1=phit.energyLoss()/steps;
-  float q1=e1*m_siPropertiesSvc->getSiProperties(hashId).electronHolePairsPerEnergy();
+  float q1=e1*m_siPropertiesTool->getSiProperties(hashId).electronHolePairsPerEnergy();
 
   //in the following, to test the code, we will use the original coordinate system of the SCTtest3SurfaceChargesGenerator x is eta y is phi z is depth 
   float xhit = xEta ;

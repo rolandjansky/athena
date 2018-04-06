@@ -45,8 +45,8 @@ namespace ISF {
     /** Virtual destructor */
     virtual ~IInputConverter(){}
 
-    /// Creates the InterfaceID and interfaceID() method
-    DeclareInterfaceID(IInputConverter, 1, 0);
+    /** Tell Gaudi which InterfaceID we have */
+    DeclareInterfaceID( ISF::IInputConverter, 1, 0 );
 
     /** Convert selected particles from the given McEventCollection into ISFParticles
         and push them into the given ISFParticleContainer */
@@ -65,6 +65,6 @@ namespace ISF {
 
   };
 
-} // end of namespace
+} // end of ISF namespace
 
 #endif // ISF_INTERFACES_IINPUTCONVERTER_H

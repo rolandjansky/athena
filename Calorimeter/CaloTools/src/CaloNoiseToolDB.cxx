@@ -16,6 +16,8 @@
 #include "CLHEP/Random/RandGauss.h"
 
 #include "TMath.h"
+#include <boost/math/special_functions/erf.hpp>
+
 
 using CLHEP::RandGauss;
 
@@ -114,6 +116,9 @@ CaloNoiseToolDB::initialize()
     ATH_MSG_INFO( "Retrieved " << m_larHVCellCorrTool << " for on-the-fly noise rescaling"  );
     ATH_CHECK( detStore()->regFcn(&ILArCellHVCorrTool::LoadCalibration, &(*m_larHVCellCorrTool),&CaloNoiseToolDB::clearCache, this) );
     ATH_MSG_INFO( "Regestered callback on ILArCellHVCorrTool::LoadCalibration"  );
+  }
+  else {
+    m_larHVCellCorrTool.disable();
   }
 
   ATH_MSG_INFO( "CaloNoiseToolDB geoInit() end"  );
@@ -747,8 +752,13 @@ CaloNoiseToolDB::calcSig(double e, double sigma1, double ratio, double sigma2) {
   //  return z;
  
   // if instead you want to return the sigma-equivalent C.L.
-  // (with sign!) use the following line
-  return sqrt2*TMath::ErfInverse(z);
+  // (with sign!) use the following lines
+  
+  //erf_inv throws an exception for z >= 1.0: TMath::ErfInverse() returns 0, so keep this behaviour
+  if (std::abs(z) < 1.0) { 
+    return sqrt2*boost::math::erf_inv(z);
+  }
+  return 0.0;
 
 }
 

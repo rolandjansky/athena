@@ -1,53 +1,15 @@
 <?xml version="1.0"?>
 <atn>
-   <TEST name="AthenaCommon_AthAppMgr" type="script">
+   <TEST name="AthenaCommonTest" type="makecheck">
       <package>Control/AthenaCommon</package>
-      <options>AthAppMgrUnitTests.py</options>
+      <timelimit>10</timelimit>
       <author> Sebastien Binet </author>
       <mailto> pcalafiura@lbl.gov, binet@cern.ch, wlav@lbl.gov </mailto>
       <expectations>
-         <successMessage>OK</successMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-   <TEST name="AthenaCommon_Configurable" type="script">
-      <package>Control/AthenaCommon</package>
-      <options>ConfigurableUnitTests.py</options>
-      <author> Wim Lavrijsen </author>
-      <mailto> pcalafiura@lbl.gov, binet@cern.ch, wlav@lbl.gov </mailto>
-      <expectations>
-         <successMessage>OK</successMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-   <TEST name="AthenaCommon_JobOptions" type="script">
-      <package>Control/AthenaCommon</package>
-      <options>JobOptionsUnitTests.py</options>
-      <project_exclude>AthAnalysis</project_exclude>
-      <author> Wim Lavrijsen </author>
-      <mailto> pcalafiura@lbl.gov, binet@cern.ch, wlav@lbl.gov </mailto>
-      <expectations>
-         <successMessage>OK</successMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-   <TEST name="AthenaCommon_JobProperties" type="script">
-      <package>Control/AthenaCommon</package>
-      <options>JobPropertiesUnitTests.py</options>
-      <author> Paolo Calafiura </author>
-      <mailto> pcalafiura@lbl.gov, binet@cern.ch, wlav@lbl.gov </mailto>
-      <expectations>
-         <successMessage>OK</successMessage>
-         <returnValue>0</returnValue>
-      </expectations>
-   </TEST>
-   <TEST name="AthenaCommon_KeyStore" type="script">
-      <package>Control/AthenaCommon</package>
-      <options>KeyStoreUnitTests.py</options>
-      <author> Sebastien Binet </author>
-      <mailto> pcalafiura@lbl.gov, binet@cern.ch, wlav@lbl.gov </mailto>
-      <expectations>
-         <successMessage>OK</successMessage>
+         <errorMessage>Athena exited abnormally</errorMessage>
+         <errorMessage>differ</errorMessage>
+         <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
+         <successMessage>check ok</successMessage>
          <returnValue>0</returnValue>
       </expectations>
    </TEST>

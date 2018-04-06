@@ -28,7 +28,9 @@ class MuonMeasurementsCnv : public MuonMeasurementsCnvBase
   friend class CnvFactory<MuonMeasurementsCnv>;
 
 protected:
+public:
   MuonMeasurementsCnv( ISvcLocator *svcloc );
+protected:
 
   virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() { return &m_TPConverter_p2; }
 

@@ -132,11 +132,11 @@ void TrigInDetCombinedTrackFitter::fit(TrigInDetTrackCollection* recoTracks )
       double Gk[5][5];
       memset(&Gk[0][0],0,sizeof(Gk));
       Gk[0][0]=100.0;Gk[1][1]=1000.0;Gk[2][2]=0.01;Gk[3][3]=0.01;Gk[4][4]=1e-6;
-      pTS->m_setTrackCovariance(Gk);
+      pTS->setTrackCovariance(Gk);
       if(m_doMultScatt)  
-	pTS->m_setScatteringMode(1);
+	pTS->setScatteringMode(1);
       if(m_doBremm)
-	pTS->m_setScatteringMode(2);
+	pTS->setScatteringMode(2);
 
 			ATH_MSG_DEBUG("Initial params: locT="<<Rk[0]<<" locL="<<Rk[1]<<" phi="<<Rk[2]
 		  <<" theta="<<Rk[3]<<" Q="<<Rk[4]<<" pT="<<sin(Rk[3])/Rk[4]);
@@ -160,50 +160,50 @@ void TrigInDetCombinedTrackFitter::fit(TrigInDetTrackCollection* recoTracks )
 	  
 	  for(;pnIt!=pnEnd;++pnIt)
 	    {
-				ATH_MSG_DEBUG("dChi2="<<(*pnIt)->m_getChi2());
-	      if((*pnIt)->m_isValidated())
+				ATH_MSG_DEBUG("dChi2="<<(*pnIt)->getChi2());
+	      if((*pnIt)->isValidated())
 		{
-		  chi2tot+=(*pnIt)->m_getChi2();
-		  ndoftot+=(*pnIt)->m_getNdof();
+		  chi2tot+=(*pnIt)->getChi2();
+		  ndoftot+=(*pnIt)->getNdof();
 		}
 	    }
-	  double Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
-	  Phi0 = pTS->m_getTrackState(2);
+	  double Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
+	  Phi0 = pTS->getTrackState(2);
 	  if(Phi0>M_PI) Phi0-=2*M_PI;
 	  if(Phi0<-M_PI) Phi0+=2*M_PI;
-	  Eta = -log(sin(0.5*pTS->m_getTrackState(3))/cos(0.5*pTS->m_getTrackState(3)));
-	  Z0 = pTS->m_getTrackState(1);
-	  D0 = pTS->m_getTrackState(0);
+	  Eta = -log(sin(0.5*pTS->getTrackState(3))/cos(0.5*pTS->getTrackState(3)));
+	  Z0 = pTS->getTrackState(1);
+	  D0 = pTS->getTrackState(0);
 
-	  errD0 = sqrt(pTS->m_getTrackCovariance(0,0));
-	  errZ0 = sqrt(pTS->m_getTrackCovariance(1,1));
-	  errPhi0 = sqrt(pTS->m_getTrackCovariance(2,2));
-	  errEta = sqrt(pTS->m_getTrackCovariance(3,3))/fabs(sin(pTS->m_getTrackState(3)));
-	  b=cos(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
-	  c=-Pt/pTS->m_getTrackState(4);
-	  a=-1.0/sin(pTS->m_getTrackState(3));
-	  errPt = sqrt(b*b*(pTS->m_getTrackCovariance(3,3))+c*c*(pTS->m_getTrackCovariance(4,4))+
-		       2.0*b*c*(pTS->m_getTrackCovariance(3,4)));
+	  errD0 = sqrt(pTS->getTrackCovariance(0,0));
+	  errZ0 = sqrt(pTS->getTrackCovariance(1,1));
+	  errPhi0 = sqrt(pTS->getTrackCovariance(2,2));
+	  errEta = sqrt(pTS->getTrackCovariance(3,3))/fabs(sin(pTS->getTrackState(3)));
+	  b=cos(pTS->getTrackState(3))/pTS->getTrackState(4);
+	  c=-Pt/pTS->getTrackState(4);
+	  a=-1.0/sin(pTS->getTrackState(3));
+	  errPt = sqrt(b*b*(pTS->getTrackCovariance(3,3))+c*c*(pTS->getTrackCovariance(4,4))+
+		       2.0*b*c*(pTS->getTrackCovariance(3,4)));
 	  
 	  pCov=new std::vector<double>;
       
-	  CV[0][0]=pTS->m_getTrackCovariance(0,0);
-	  CV[0][1]=pTS->m_getTrackCovariance(0,2);
-	  CV[0][2]=pTS->m_getTrackCovariance(0,1);
-	  CV[0][3]=a*(pTS->m_getTrackCovariance(0,3));
-	  CV[0][4]=b*(pTS->m_getTrackCovariance(0,3))+c*(pTS->m_getTrackCovariance(0,4));
-	  CV[1][1]=pTS->m_getTrackCovariance(2,2);
+	  CV[0][0]=pTS->getTrackCovariance(0,0);
+	  CV[0][1]=pTS->getTrackCovariance(0,2);
+	  CV[0][2]=pTS->getTrackCovariance(0,1);
+	  CV[0][3]=a*(pTS->getTrackCovariance(0,3));
+	  CV[0][4]=b*(pTS->getTrackCovariance(0,3))+c*(pTS->getTrackCovariance(0,4));
+	  CV[1][1]=pTS->getTrackCovariance(2,2);
 	  
-	  CV[1][2]=pTS->m_getTrackCovariance(1,2);
-	  CV[1][3]=a*(pTS->m_getTrackCovariance(2,3));
-	  CV[1][4]=b*(pTS->m_getTrackCovariance(2,3))+c*(pTS->m_getTrackCovariance(2,4));
-	  CV[2][2]=pTS->m_getTrackCovariance(1,1);
-	  CV[2][3]=a*(pTS->m_getTrackCovariance(1,3));
-	  CV[2][4]=b*(pTS->m_getTrackCovariance(1,3))+c*(pTS->m_getTrackCovariance(1,4));
-	  CV[3][3]=a*a*(pTS->m_getTrackCovariance(3,3));
-	  CV[3][4]=a*(b*(pTS->m_getTrackCovariance(3,3))+c*(pTS->m_getTrackCovariance(3,4)));
-	  CV[4][4]=b*b*(pTS->m_getTrackCovariance(3,3))+2.0*b*c*(pTS->m_getTrackCovariance(3,4))+
-	    c*c*(pTS->m_getTrackCovariance(4,4));
+	  CV[1][2]=pTS->getTrackCovariance(1,2);
+	  CV[1][3]=a*(pTS->getTrackCovariance(2,3));
+	  CV[1][4]=b*(pTS->getTrackCovariance(2,3))+c*(pTS->getTrackCovariance(2,4));
+	  CV[2][2]=pTS->getTrackCovariance(1,1);
+	  CV[2][3]=a*(pTS->getTrackCovariance(1,3));
+	  CV[2][4]=b*(pTS->getTrackCovariance(1,3))+c*(pTS->getTrackCovariance(1,4));
+	  CV[3][3]=a*a*(pTS->getTrackCovariance(3,3));
+	  CV[3][4]=a*(b*(pTS->getTrackCovariance(3,3))+c*(pTS->getTrackCovariance(3,4)));
+	  CV[4][4]=b*b*(pTS->getTrackCovariance(3,3))+2.0*b*c*(pTS->getTrackCovariance(3,4))+
+	    c*c*(pTS->getTrackCovariance(4,4));
 
 	  for(int i=0;i<5;i++)
 	    for(int j=i;j<5;j++) pCov->push_back(CV[i][j]);
@@ -240,7 +240,7 @@ void TrigInDetCombinedTrackFitter::fit(TrigInDetTrackCollection* recoTracks )
       pnIt=vpTrkNodes.begin();pnEnd=vpTrkNodes.end();
       for(;pnIt!=pnEnd;++pnIt) 
 	{
-	  delete((*pnIt)->m_getSurface());
+	  delete((*pnIt)->getSurface());
 	  delete (*pnIt);
 	}
       vpTrkNodes.clear();

@@ -27,7 +27,7 @@ using namespace TrigFTK;
   , m_efficiencyAnalysis(new HltTrackComparison())
   , m_purityAnalysis(new HltTrackComparison())
   , m_timer( nTimers, 0 )
-  , eventCounter(0)
+  , m_eventCounter(0)
 {
   // declare properties
   declareProperty("FTK_DataProvider", m_FTKDataProviderSvc);
@@ -159,7 +159,7 @@ HLT::ErrorCode FtkHltEfficiencyFex::hltInitialize()
 //-----------------------------------------------------------------
 HLT::ErrorCode FtkHltEfficiencyFex::hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement*)
 {
-  ATH_MSG_INFO("FtkHltEfficiencyFex::hltExecute event " << eventCounter++);
+  ATH_MSG_INFO("FtkHltEfficiencyFex::hltExecute event " << m_eventCounter++);
   if(m_timer[AlgoTime]) m_timer[AlgoTime]->start(); // avoid crash when timing service not available
 
 

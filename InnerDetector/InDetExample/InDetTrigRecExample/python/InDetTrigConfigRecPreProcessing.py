@@ -61,10 +61,10 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       
       # MergedPixelTool (public)
       from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummarySvc
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummaryTool
       InDetTrigMergedPixelsTool = InDet__MergedPixelsTool( name = "InDetTrigMergedPixelsTool",
                                                            globalPosAlg  = InDetTrigClusterMakerTool,
-                                                           PixelConditionsSummarySvc = InDetTrigPixelConditionsSummarySvc,
+                                                           PixelConditionsSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                            #UseSpecialPixelMap = False  #simpler setup for EFID
                                                            UseSpecialPixelMap = True,
                                                            MinimalSplitSize = 0,
@@ -147,7 +147,7 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       InDetTrigSCT_ClusteringTool = \
           InDet__SCT_ClusteringTool(name          = "InDetTrigSCT_ClusteringTool",
                                     globalPosAlg  = InDetTrigClusterMakerTool,
-                                    conditionsService = "SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvc")
+                                    conditionsService = "SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
                                     )
       if InDetTrigFlags.doSCTIntimeHits():
          if InDetTrigFlags.InDet25nsec():
@@ -160,9 +160,7 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       self.RawDataProvider   = InDetTrigSCTRawDataProvider
       self.clusteringTool = InDetTrigSCT_ClusteringTool
       self.SCT_RDOContainerName=EF_SCTRDOKey
-      self.conditionsSummarySvc="SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvc")
-      self.bytestreamErrorSvc=InDetTrigBSErrorSvc
-      self.flaggedConditionsSvc="SCT_FlaggedConditionSvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_FlaggedConditionSvc")
+      self.conditionsSummarySvc="SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
 
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]

@@ -3,7 +3,6 @@
 */
 
 #include "eformat/SourceIdentifier.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -90,7 +89,10 @@ StatusCode FTK::TrigFTKByteStreamTool::convert( const FTK_RawTrackContainer* con
   std::vector<uint32_t>& payload = *theROD ;
   
   //  CHECK(FTKByteStreamDecoderEncoder::encode(container, payload, msg()));
-  m_decoder->encode(container, payload);
+  StatusCode stat = m_decoder->encode(container, payload);
+  if (stat.isFailure()){
+    ATH_MSG_WARNING("problem in encoding the rob fragment");
+  }
 
   m_fea.fill(re, msg());
 

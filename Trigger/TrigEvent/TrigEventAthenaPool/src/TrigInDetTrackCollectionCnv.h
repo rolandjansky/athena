@@ -36,7 +36,9 @@ class TrigInDetTrackCollectionCnv : public TrigInDetTrackCollectionCnvBase{
 
  protected:
 
+public:
   TrigInDetTrackCollectionCnv(ISvcLocator* svcloc);
+protected:
   ~TrigInDetTrackCollectionCnv();
 
   virtual TrigInDetTrackCollection_PERS*  createPersistent(TrigInDetTrackCollection* transObj);

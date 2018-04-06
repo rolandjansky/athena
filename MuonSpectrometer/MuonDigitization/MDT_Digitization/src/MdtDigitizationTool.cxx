@@ -220,6 +220,14 @@ StatusCode MdtDigitizationTool::initialize() {
     }
   }  
 
+  if (!m_mergeSvc) {
+    const bool CREATEIF(true);
+    if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
+	0 == m_mergeSvc) {
+      ATH_MSG_ERROR ("Could not find PileUpMergeSvc" );
+      return StatusCode::FAILURE;
+    }
+  }
 
   // check the input object name
   if (m_inputObjectName=="") {
@@ -350,37 +358,39 @@ StatusCode MdtDigitizationTool::processBunchXing(int bunchXing,
                                                  SubEventIterator eSubEvents)
 {
   ATH_MSG_DEBUG( "MdtDigitizationTool::processBunchXing() " << bunchXing);
-  SubEventIterator iEvt = bSubEvents;
-  for (; iEvt!=eSubEvents; ++iEvt)
-    {
-        StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-        PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-        ATH_MSG_VERBOSE( "SubEvt StoreGate " << seStore.name() << " :"
-                         << " bunch crossing : " << bunchXing
-                         << " time offset : " << iEvt->time()
-                         << " event number : " << iEvt->ptr()->eventNumber()
-                         << " run number : " << iEvt->ptr()->runNumber());
-        const MDTSimHitCollection* seHitColl(nullptr);
-        if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess())
-          {
-            ATH_MSG_ERROR ( "SubEvent MDTSimHitCollection not found in StoreGate " << seStore.name() );
-            return StatusCode::FAILURE;
-          }
-        ATH_MSG_VERBOSE ( "MDTSimHitCollection found with " << seHitColl->size() << " hits" );
-        //Copy hit Collection
-        MDTSimHitCollection* MDTHitColl = new MDTSimHitCollection("MDT_Hits");
-        MDTSimHitCollection::const_iterator i = seHitColl->begin();
-        MDTSimHitCollection::const_iterator e = seHitColl->end();
 
-        // Read hits from this collection
-        for (; i!=e; ++i)
-          {
-            MDTHitColl->Emplace(*i);
-          }
-        m_thpcMDT->insert(thisEventIndex, MDTHitColl);
-        //store these for deletion at the end of mergeEvent
-        m_MDTHitCollList.push_back(MDTHitColl);
-    }
+  typedef PileUpMergeSvc::TimedList<MDTSimHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
+
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+					  bSubEvents, eSubEvents).isSuccess()) &&
+        hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " MDTSimHitCollection with key " <<
+		    m_inputObjectName << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  // Iterating over the list of collections
+  for( ; iColl != endColl; iColl++){
+
+    MDTSimHitCollection *hitCollPtr = new MDTSimHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+
+    ATH_MSG_DEBUG("MDTSimHitCollection found with " << hitCollPtr->size() <<
+		  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+		    << " index: " << timeIndex.index()
+		    << " type: " << timeIndex.type());
+
+    m_thpcMDT->insert(timeIndex, hitCollPtr);
+    m_MDTHitCollList.push_back(hitCollPtr);
+
+  }
 
   return StatusCode::SUCCESS;
 }

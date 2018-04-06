@@ -71,15 +71,15 @@ public:
 
 //____________________________________________________________________
 IParticleHandle_CaloCluster::IParticleHandle_CaloCluster(IParticleCollHandleBase* ch, const xAOD::CaloCluster *cluster)
-: IParticleHandleBase(ch), d(new Imp)
+: IParticleHandleBase(ch), m_d(new Imp)
 { 
 	//	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::IParticleHandle_CaloCluster() - constructor");
 
 	// set the Imp members
-	d->theclass = this;
-	d->m_cluster = cluster;
-	d->sep = 0;
-	d->m_genericBox = 0;
+	m_d->theclass = this;
+	m_d->m_cluster = cluster;
+	m_d->sep = 0;
+	m_d->m_genericBox = 0;
 }
 
 
@@ -89,9 +89,9 @@ IParticleHandle_CaloCluster::IParticleHandle_CaloCluster(IParticleCollHandleBase
 IParticleHandle_CaloCluster::~IParticleHandle_CaloCluster()
 {
 	//	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::~IParticleHandle_CaloCluster() - destructor");
-	if (d->m_genericBox) d->m_genericBox->unref();
-	if (d->sep) d->sep->unref();
-	delete d;
+	if (m_d->m_genericBox) m_d->m_genericBox->unref();
+	if (m_d->sep) m_d->sep->unref();
+	delete m_d;
 }
 
 
@@ -99,7 +99,7 @@ IParticleHandle_CaloCluster::~IParticleHandle_CaloCluster()
 //____________________________________________________________________
 SoGenericBox* IParticleHandle_CaloCluster::genericBox() const
 {
-	return d->genericBox();
+	return m_d->genericBox();
 }
 
 
@@ -115,19 +115,19 @@ bool IParticleHandle_CaloCluster::isConsiderTransverseEnergies() const
 
 // Setter
 ////____________________________________________________________________
-//void IParticleHandle_CaloCluster::setScale( const double& sc) { d->scale = sc; }
+//void IParticleHandle_CaloCluster::setScale( const double& sc) { m_d->scale = sc; }
 
 //____________________________________________________________________
-//void IParticleHandle_CaloCluster::setMaxR(const double& maxR) { d->maxR = maxR * Gaudi::Units::m; }
+//void IParticleHandle_CaloCluster::setMaxR(const double& maxR) { m_d->maxR = maxR * Gaudi::Units::m; }
 
 //____________________________________________________________________
-//void IParticleHandle_CaloCluster::rerandomiseMaterial() {d->rerandomiseMaterial(); }
+//void IParticleHandle_CaloCluster::rerandomiseMaterial() {m_d->rerandomiseMaterial(); }
 
 //____________________________________________________________________
 bool IParticleHandle_CaloCluster::has3DObjects()
 {
 	//	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::has3DObjects()");
-	return 0 != d->sep;
+	return 0 != m_d->sep;
 }
 
 
@@ -135,17 +135,17 @@ bool IParticleHandle_CaloCluster::has3DObjects()
 void IParticleHandle_CaloCluster::clear3DObjects(){
 	//	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::clear3DObjects()");
 
-	//	if (d->m_randomMat) {
-	//		d->m_randomMat->unref();
-	//		d->m_randomMat = 0;
+	//	if (m_d->m_randomMat) {
+	//		m_d->m_randomMat->unref();
+	//		m_d->m_randomMat = 0;
 	//	}
-	if (d->m_genericBox) {
-		d->m_genericBox->unref();
-		d->m_genericBox = 0;
+	if (m_d->m_genericBox) {
+		m_d->m_genericBox->unref();
+		m_d->m_genericBox = 0;
 	}
-	if (d->sep) {
-		d->sep->unref();
-		d->sep = 0;
+	if (m_d->sep) {
+		m_d->sep->unref();
+		m_d->sep = 0;
 	}
 
 }
@@ -160,41 +160,41 @@ SoNode* IParticleHandle_CaloCluster::nodes(){
 
 	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::nodes()");
 
-	if (d->sep) {
-		VP1Msg::messageVerbose("d->sep already defined (" + VP1Msg::str(d->sep) + "). Returning d->sep.");
-		return d->sep; // FIXME - do we need to check if anything need to be redrawn?
+	if (m_d->sep) {
+		VP1Msg::messageVerbose("d->sep already defined (" + VP1Msg::str(m_d->sep) + "). Returning d->sep.");
+		return m_d->sep; // FIXME - do we need to check if anything need to be redrawn?
 	}
-	if (!d->sep) {
+	if (!m_d->sep) {
 		VP1Msg::messageVerbose("d->sep not defined. Creating shapes and a new d->sep.");
-		d->sep = new SoSeparator();
-		d->sep->ref();
+		m_d->sep = new SoSeparator();
+		m_d->sep->ref();
 	}
 
 	const IParticleCollHandle_CaloCluster* coll_handle = dynamic_cast<const IParticleCollHandle_CaloCluster*>(collHandle());
-  if (not coll_handle) return d->sep;
+  if (not coll_handle) return m_d->sep;
 	VP1Msg::messageVerbose("creating the shapes");
 
 	/*
-	 * Build the 3D objects for the physics object, and update d->sep.
+	 * Build the 3D objects for the physics object, and update m_d->sep.
 	 */
-	//	d->createShapeFromJetParameters(collHandle, d->coneR(), d->eta(), d->phi(), d->energyForLengthAndCuts(), origin);
-	//	d->createShapeFromParameters(coll_handle, origin);
-	d->createShapeFromParameters(coll_handle);
+	//	m_d->createShapeFromJetParameters(collHandle, m_d->coneR(), m_d->eta(), m_d->phi(), m_d->energyForLengthAndCuts(), origin);
+	//	m_d->createShapeFromParameters(coll_handle, origin);
+	m_d->createShapeFromParameters(coll_handle);
 
 
-	return d->sep;
+	return m_d->sep;
 }
 
 
 ////____________________________________________________________________
 //void IParticleHandle_CaloCluster::updateHeight() {
-//	d->updateConeHeightParameters();
+//	m_d->updateConeHeightParameters();
 //}
 
 void IParticleHandle_CaloCluster::updateShape(IParticleCollHandle_CaloCluster* coll)
 {
 	VP1Msg::messageDebug("IParticleHandle_CaloCluster::updateShape()");
-	d->updateShapePars(coll);
+	m_d->updateShapePars(coll);
 }
 
 
@@ -235,7 +235,7 @@ void IParticleHandle_CaloCluster::Imp::createShapeFromParameters(const IParticle
 
 	//	m_attached = true;
 	updateShapePars(coll_handle);
-	//	d->sephelper->addNode(m_genericBox);
+	//	m_d->sephelper->addNode(m_genericBox);
 
 
 	//std::cout << "Using material: " << coll_handle->material() << std::endl; // ^^ FIXME - should rearrange so we don't need to reset material
@@ -400,17 +400,17 @@ QStringList IParticleHandle_CaloCluster::clicked() const
 	// they go in the "Information" column in the Browser window
 	// see: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODCaloEvent/xAODCaloEvent/versions/CaloCluster_v1.h
 	//
-	l +="    - pt: " + QString::number(d->m_cluster->pt() / Gaudi::Units::GeV) +" [GeV]";
-	l +="    - et: " + QString::number(d->et() / Gaudi::Units::GeV) +" [GeV]";
-	l +="    - eta: " + QString::number(d->eta());
-	l +="    - phi: " + QString::number(d->phi());
-	l +="    - m: " + QString::number(d->m_cluster->m() / Gaudi::Units::GeV) +" [GeV] (invariant mass of the particle)";
-	l +="    - e: " + QString::number(d->m_cluster->e() / Gaudi::Units::GeV) +" [GeV] (total energy of the particle)";
-	l +="    - rapidity: " + QString::number(d->m_cluster->rapidity());
-	l +="    - type: " + QString::number(d->m_cluster->type());
-	l +="    - ClusterSize: " + QString::number(d->m_cluster->clusterSize());
-	l +="    - inBarrel: " + QString::number(d->m_cluster->inBarrel());
-	l +="    - inEndcap: " + QString::number(d->m_cluster->inEndcap());
+	l +="    - pt: " + QString::number(m_d->m_cluster->pt() / Gaudi::Units::GeV) +" [GeV]";
+	l +="    - et: " + QString::number(m_d->et() / Gaudi::Units::GeV) +" [GeV]";
+	l +="    - eta: " + QString::number(m_d->eta());
+	l +="    - phi: " + QString::number(m_d->phi());
+	l +="    - m: " + QString::number(m_d->m_cluster->m() / Gaudi::Units::GeV) +" [GeV] (invariant mass of the particle)";
+	l +="    - e: " + QString::number(m_d->m_cluster->e() / Gaudi::Units::GeV) +" [GeV] (total energy of the particle)";
+	l +="    - rapidity: " + QString::number(m_d->m_cluster->rapidity());
+	l +="    - type: " + QString::number(m_d->m_cluster->type());
+	l +="    - ClusterSize: " + QString::number(m_d->m_cluster->clusterSize());
+	l +="    - inBarrel: " + QString::number(m_d->m_cluster->inBarrel());
+	l +="    - inEndcap: " + QString::number(m_d->m_cluster->inEndcap());
 
 	return l;
 }
@@ -419,7 +419,7 @@ QStringList IParticleHandle_CaloCluster::clicked() const
 //____________________________________________________________________
 Amg::Vector3D IParticleHandle_CaloCluster::momentum() const
 {
-  const Trk::Perigee& p = d->trackparticle->perigeeParameters();
+  const Trk::Perigee& p = m_d->trackparticle->perigeeParameters();
   return p.momentum();
 }
  */
@@ -427,14 +427,14 @@ Amg::Vector3D IParticleHandle_CaloCluster::momentum() const
 //____________________________________________________________________
 const xAOD::IParticle& IParticleHandle_CaloCluster::iParticle() const
 {
-	return *(d->m_cluster);
+	return *(m_d->m_cluster);
 }
 
 
 //____________________________________________________________________
 double IParticleHandle_CaloCluster::charge() const
 {
-	//return d->trackparticle->charge(); // TODO: check in Jet interface if a "charge" quantity is defined
+	//return m_d->trackparticle->charge(); // TODO: check in Jet interface if a "charge" quantity is defined
 	return 0; // FIXME: dummy value now
 }
 
@@ -449,7 +449,7 @@ double IParticleHandle_CaloCluster::charge() const
 unsigned IParticleHandle_CaloCluster::summaryValue(xAOD::SummaryType type) const
 { 
 	uint8_t num = 0;
-	if (d->trackparticle->summaryValue(num,type)){
+	if (m_d->trackparticle->summaryValue(num,type)){
 		return num;
 	}
 	// else...
@@ -470,16 +470,16 @@ QString IParticleHandle_CaloCluster::shortInfo() const
 	// info and parameters,
 	// they go in the "Information" column in the Browser window
 	dParameters +="pt: ";
-	dParameters += QString::number(d->m_cluster->pt() / Gaudi::Units::GeV);
+	dParameters += QString::number(m_d->m_cluster->pt() / Gaudi::Units::GeV);
 
 	dParameters +=", et: ";
-	dParameters += QString::number(d->m_cluster->et() / Gaudi::Units::GeV);
+	dParameters += QString::number(m_d->m_cluster->et() / Gaudi::Units::GeV);
 
 	dParameters +=", eta: ";
-	dParameters += QString::number(d->m_cluster->eta());
+	dParameters += QString::number(m_d->m_cluster->eta());
 
 	dParameters +=", phi: ";
-	dParameters += QString::number(d->m_cluster->phi());
+	dParameters += QString::number(m_d->m_cluster->phi());
 
 	dParameters+="";
 
@@ -515,30 +515,30 @@ void IParticleHandle_CaloCluster::fillObjectBrowser( QList<QTreeWidgetItem *>& l
 //____________________________________________________________________
 double IParticleHandle_CaloCluster::phi() const {
 	/*VP1Msg::messageVerbose("phi: " + QString::number(m_cluster->phi()) );*/
-	return d->phi();
+	return m_d->phi();
 }
 
 
 //____________________________________________________________________
 double IParticleHandle_CaloCluster::eta() const {
 	/*VP1Msg::messageVerbose("eta: " + QString::number(m_cluster->eta()) );*/
-	return d->eta();
+	return m_d->eta();
 }
 
 
 //____________________________________________________________________
-double IParticleHandle_CaloCluster::e() const { return d->e(); }
+double IParticleHandle_CaloCluster::e() const { return m_d->e(); }
 
 
 //____________________________________________________________________
 double IParticleHandle_CaloCluster::energyForCuts() const {
 	VP1Msg::messageDebug("IParticleHandle_CaloCluster::energyForCuts()");
-	return d->energyForLengthAndCuts();
+	return m_d->energyForLengthAndCuts();
 }
 
 
 //____________________________________________________________________
-double IParticleHandle_CaloCluster::et() const { return d->et(); }
+double IParticleHandle_CaloCluster::et() const { return m_d->et(); }
 
 
 ////_____
@@ -551,20 +551,20 @@ void IParticleHandle_CaloCluster::updateMaterial()
 	VP1Msg::messageVerbose("IParticleHandle_CaloCluster::Imp::updateMaterial()");
 
 	// check if we have 3D objects; if not, return
-	if ( d->sep == 0 )
+	if ( m_d->sep == 0 )
 		return;
 
-	//	if (!isRandomColors && !d->m_randomMat)
+	//	if (!isRandomColors && !m_d->m_randomMat)
 	//		return;//m_randomMat can never have been attached
 	//
-	//	if (isRandomColors && !d->m_randomMat) {
-	//		d->m_randomMat = new SoMaterial;
-	//		d->m_randomMat->ref();
+	//	if (isRandomColors && !m_d->m_randomMat) {
+	//		m_d->m_randomMat = new SoMaterial;
+	//		m_d->m_randomMat->ref();
 	//		rerandomiseMaterial();
 	//	}
 
 
-	//	int i = d->sep->findChild(d->m_randomMat);
+	//	int i = m_d->sep->findChild(m_d->m_randomMat);
 
 	//	if ( (i>=0) == isRandomColors ) {
 	//		VP1Msg::messageVerbose("(i>=0)==isRandomColors. Returning.");
@@ -572,15 +572,15 @@ void IParticleHandle_CaloCluster::updateMaterial()
 	//	}
 
 	//	if (!isRandomColors )
-	//		d->sep->removeChild(d->m_randomMat);
+	//		m_d->sep->removeChild(m_d->m_randomMat);
 	//	else
-	//		d->sep->insertChild(d->m_randomMat, d->sep->getNumChildren()-1);
+	//		m_d->sep->insertChild(m_d->m_randomMat, m_d->sep->getNumChildren()-1);
 }
 
 
 void IParticleHandle_CaloCluster::dumpToJSON( std::ofstream& str) const {
-  str << "\"phi\":" <<d->phi() <<", ";
-  str << "\"eta\":" <<d->eta() <<", ";
-  str << "\"energy\":" <<d->e();
+  str << "\"phi\":" <<m_d->phi() <<", ";
+  str << "\"eta\":" <<m_d->eta() <<", ";
+  str << "\"energy\":" <<m_d->e();
 }
 

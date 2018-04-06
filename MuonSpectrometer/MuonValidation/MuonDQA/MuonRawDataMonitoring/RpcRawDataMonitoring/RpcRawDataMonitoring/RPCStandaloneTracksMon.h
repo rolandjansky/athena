@@ -31,7 +31,7 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
-
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODMuon/MuonContainer.h"
@@ -41,8 +41,12 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-
+#include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigDecisionTool/TrigDecisionTool.h" 
+#include "MuonRDO/RpcSectorLogicContainer.h"
+#include "MuonTrigCoinData/RpcCoinDataContainer.h"
+
+#include "StoreGate/ReadHandleKey.h"
 
 #include <TError.h>
 #include <TH1F.h>
@@ -89,7 +93,6 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   
   ActiveStoreSvc* m_activeStore;
 
-  std::string m_muonsName;
   std::string m_muonSegmentsName;
   std::string m_muonTracksName;
   std::string m_msVertexCollection;
@@ -149,16 +152,18 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   
   const IRPCcablingSvc* m_cabling;
   
-  
-  const RpcSectorLogicContainer* m_sectorLogicContainer; 
-  
   //Declare Properties  
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_key_rpc{this,"RpcPrepDataContainer","RPC_Measurements","RPC PRDs"};
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
+  SG::ReadHandleKey<Muon::RpcPrepDataContainer> m_clusterContainerName{this,"ClusterContainer","rpcClusters","RPC clusters"};
+  SG::ReadHandleKey<MuCTPI_RDO> m_muCTPI_RDO_key{this,"muCTPI_RDO_key","MUCTPI_RDO","muCTPI RDO"};
+  SG::ReadHandleKey<RpcSectorLogicContainer> m_sectorLogicContainerKey{this,"RPCSec","RPC_SECTORLOGIC","RPC sector logic"};
+  SG::ReadHandleKey<Muon::RpcCoinDataContainer> m_rpc_coin_key{this,"RPCCoinKey","RPC_triggerHits","RPC coin container"};
+  SG::ReadHandleKey<xAOD::MuonContainer> m_muonsName{this,"MuonCollection","Muons","muons"};
   std::string m_chamberName		;
   std::string m_StationSize		;
-  std::string m_key_rpc			;
   std::string m_key_trig		;
   bool m_doClusters			;
-  std::string m_clusterContainerName	;
   bool m_checkCabling			;
   bool m_rpcfile			;   
   bool m_rpcchamberhist			; 
@@ -193,6 +198,8 @@ class RPCStandaloneTracksMon: public ManagedMonitorToolBase {
   double m_MuonDeltaRMatching           ;       
   bool   m_requireMuonCombinedTight     ;
   bool   m_StandAloneMatchedWithTrack   ;
+
+  bool   m_isMC                         ;
   
   int m_nClus;                      // number of clusters
 

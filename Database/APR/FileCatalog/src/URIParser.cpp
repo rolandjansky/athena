@@ -2,11 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef POOL_URIPARSER_H
+#include "POOLCore/Exception.h"
+#include "POOLCore/DbPrint.h"
 #include "FileCatalog/URIParser.h"
-#endif
 #include <iostream>
-#include <cstdlib>
 
 namespace pool{
   
@@ -34,10 +33,9 @@ namespace pool{
       std::string mystr;
       char* me= getenv("POOL_CATALOG");
       if (!me){
-        mystr = "xmlcatalog_file:PoolFileCatalog.xml";
-        std::cerr << "WARNING: $POOL_CATALOG is not defined\nusing default `" 
-                  << mystr << "'" 
-                  <<std::endl;
+         mystr = "xmlcatalog_file:PoolFileCatalog.xml";
+         DbPrint log("APR.URIParser");
+         log << DbPrintLvl::Info << "$POOL_CATALOG is not defined - using default `" << mystr << "'" <<endmsg;
       }else{
         mystr=me;
       }
@@ -49,10 +47,11 @@ namespace pool{
     size_t prefixpos=m_contactstr.find_first_of('_');
     size_t startpos=0;
     
-    if(prefixpos == m_contactstr.npos || prefixpos>tmppos){
+    if(prefixpos == m_contactstr.npos || prefixpos>tmppos) {
       m_url=m_contactstr;
       if(tmppos != m_contactstr.npos && m_contactstr.substr(0,5)!="file:"){
-        throw FCillegalContactStringException("URIParser::parse","only file: protocol is allowed for contactstring with no prefix.");
+         throw Exception("only file: protocol is allowed for PFC contactstring with no prefix.",
+                         "URIParser::parse", "APR");
       }
     }else{
       //have prefix
@@ -65,18 +64,18 @@ namespace pool{
     }//end prefix lookup
   }
   
-  const std::string URIParser::contactstring() const{
+  const std::string& URIParser::contactstring() const{
     return m_contactstr;
   }
   
-  const std::string URIParser::prefix() const{
+  const std::string& URIParser::prefix() const{
     return m_prefix;
   }
   
-  const std::string URIParser::url() const{
+  const std::string& URIParser::url() const{
     return m_url;
   }
-  URIParser::~URIParser(){
-  }
+   
+  URIParser::~URIParser() { }
   
 }//ns pool 

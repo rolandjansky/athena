@@ -28,26 +28,26 @@ inline ValueList::~ValueList() {}
 
 // Add an attribute:
 inline void ValueList::add (const Value & value) {
-  _valueList.push_back(value);
+  m_valueList.push_back(value);
 }
 
 // ConstIterator over attributes:
-inline ValueList::ConstIterator ValueList::begin() const {return _valueList.begin();}
-inline ValueList::ConstIterator ValueList::end()   const {return _valueList.end();}
+inline ValueList::ConstIterator ValueList::begin() const {return m_valueList.begin();}
+inline ValueList::ConstIterator ValueList::end()   const {return m_valueList.end();}
 
 
-inline size_t ValueList::size() const { return _valueList.size();}
+inline size_t ValueList::size() const { return m_valueList.size();}
 
 inline Value & ValueList::operator[] (size_t i) {
-  return _valueList[i];
+  return m_valueList[i];
 }
 
 inline const Value & ValueList::operator[] (size_t i) const {
-  return _valueList[i];
+  return m_valueList[i];
 }
 
 inline void ValueList::clear() {
-  for (unsigned int i=0;i<_valueList.size(); i++) {
-    _valueList[i].clear();
+  for (unsigned int i=0;i<m_valueList.size(); i++) {
+    m_valueList[i].clear();
   }
 }

@@ -70,7 +70,7 @@ private slots:
 private:
   VP1RawDataCommonData * m_common;
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 

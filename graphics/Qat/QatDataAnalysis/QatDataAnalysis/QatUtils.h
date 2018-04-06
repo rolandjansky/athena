@@ -1,5 +1,5 @@
-#ifndef _QatUtils_h_
-#define _QatUtils_h_
+#ifndef QATDATAANALYSIS_QATUTILS_H
+#define QATDATAANALYSIS_QATUTILS_H
 
 class HistogramManager;
 

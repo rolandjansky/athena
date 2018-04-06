@@ -128,7 +128,7 @@ ToolSvc = Service( "ToolSvc" )
 Stream1 = AthenaOutputStream( "Stream1" )
 
 # Tool for output stream:
-Stream1.WritingTool = "AthenaPoolOutputStreamTool"
+Stream1.WritingTool = "AthenaOutputStreamTool"
 
 # Set processing stage name for <>_ref
 try:
@@ -157,24 +157,6 @@ topSequence+=Stream1
 # Event tag collection registration
 #--------------------------------------------------------------
 # Registration stream:
-
-from RegistrationServices.RegistrationServicesConf import InputCollectionMetadataCopy
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamDefMeta
-
-# Add tool for copying input collection metadata
-copyTool = InputCollectionMetadataCopy("copyTool")
-copyTool.OutputLevel = DEBUG
-ToolSvc += copyTool
-svcMgr.MetaDataSvc.MetaDataTools += [copyTool]
-
-# Add algorithm to add default collection metadata
-DefaultCollMeta = RegistrationStreamDefMeta("DefaultCollMeta")
-DefaultCollMeta.Project = "TagCollectionTest"
-try: 
-  DefaultCollMeta.Stream = OutColl
-except:
-  DefaultCollMeta.Stream = "TEST"
-topSequence+=DefaultCollMeta
 
 from RegistrationServices.RegistrationServicesConf import RegistrationStream
 

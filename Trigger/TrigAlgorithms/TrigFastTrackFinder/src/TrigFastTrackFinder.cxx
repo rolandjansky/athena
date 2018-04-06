@@ -283,7 +283,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     m_CombTrackingTimer         = addTimer("CmbTrack","CmbTrack_nTr");
     m_TrackFitterTimer          = addTimer("TrackFitter","TrackFitter_nTracks");
   }
-
+  
   if(m_ftkMode) {
     StatusCode sc= m_ftkDataProviderSvc.retrieve();
     if(sc.isFailure()) {
@@ -292,13 +292,15 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     } else {
       ATH_MSG_INFO("Configured to retrieve FTK tracks from " << m_ftkDataProviderSvcName);
     }
+    m_numberingTool.disable();
+    m_spacePointTool.disable();
+    m_TrigL2SpacePointTruthTool.disable();
+    m_trackMaker.disable();   
+    m_trigInDetTrackFitter.disable();
+    m_trigZFinder.disable();
+
   } else {
 
-    StatusCode sc= m_trackSummaryTool.retrieve();
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR("unable to locate track summary tool");
-      return HLT::BAD_JOB_SETUP;
-    }
     
     ATH_MSG_DEBUG(" TrigFastTrackFinder : MinHits set to " << m_minHits);
     
@@ -310,7 +312,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
       }
     }
     
-    sc=m_numberingTool.retrieve(); 
+    StatusCode sc=m_numberingTool.retrieve(); 
     if(sc.isFailure()) { 
       ATH_MSG_ERROR("Could not retrieve "<<m_numberingTool); 
       return HLT::BAD_JOB_SETUP;
@@ -354,13 +356,22 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
         ATH_MSG_INFO("Configured to retrieve FTK tracks from " << m_ftkDataProviderSvcName);
       }
     }
+  }
 
+  StatusCode sc= m_trackSummaryTool.retrieve();
+  if(sc.isFailure()) {
+    ATH_MSG_ERROR("unable to locate track summary tool");
+    return HLT::BAD_JOB_SETUP;
+  }
 
+  if (m_doResMonitoring) {
     sc = m_trigL2ResidualCalculator.retrieve();
     if ( sc.isFailure() ) {
       msg() << MSG::FATAL <<"Unable to locate Residual calculator tool " << m_trigL2ResidualCalculator << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
+  } else {
+    m_trigL2ResidualCalculator.disable();
   }
 
   //Get ID helper

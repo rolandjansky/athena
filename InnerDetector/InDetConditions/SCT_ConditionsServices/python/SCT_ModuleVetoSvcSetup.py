@@ -10,7 +10,7 @@ class SCT_ModuleVetoSvcSetup:
         self.dbInstance = "SCT_OFL"
         self.algName = "SCT_ModuleVetoCondAlg"
         self.alg = None
-        self.svcName = "SCT_ModuleVetoSvc"
+        self.svcName = "InDetSCT_ModuleVetoSvc"
         self.svc = None
         self.useDB = True
 
@@ -55,7 +55,7 @@ class SCT_ModuleVetoSvcSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ModuleVetoCondAlg
             condSeq += SCT_ModuleVetoCondAlg(name = self.algName,
                                               ReadKey = self.folder)
         self.alg = getattr(condSeq, self.algName)
@@ -73,6 +73,9 @@ class SCT_ModuleVetoSvcSetup:
     def getSvcName(self):
         return self.svcName
 
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def getUseDB(self):
         return self.useDB
 
@@ -84,5 +87,3 @@ class SCT_ModuleVetoSvcSetup:
             self.setFolders()
             self.setAlgs()
         self.setSvc()
-
-sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()

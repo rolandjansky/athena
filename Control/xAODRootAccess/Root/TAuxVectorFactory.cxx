@@ -54,13 +54,13 @@ namespace xAOD {
       }
    }
 
-   SG::IAuxTypeVector*
+   std::unique_ptr<SG::IAuxTypeVector>
    TAuxVectorFactory::create( size_t size, size_t capacity ) const {
 
-      return new TAuxVector( this, m_class, size, capacity );
+      return std::make_unique<TAuxVector>( this, m_class, size, capacity );
    }
 
-   SG::IAuxTypeVector*
+   std::unique_ptr<SG::IAuxTypeVector>
    TAuxVectorFactory::createFromData( void* /*data*/, bool /*isPacked*/, bool ) const {
 
       std::abort();
@@ -90,6 +90,14 @@ namespace xAOD {
       }
 
       return;
+   }
+
+   void TAuxVectorFactory::copyForOutput( void* dst,        size_t dst_index,
+                                          const void* src,  size_t src_index ) const {
+     copy (dst, dst_index, src, src_index);
+
+     ::Warning( "xAOD::TAuxVectorFactory::TAuxVectorFactory",
+                XAOD_MESSAGE( "copyForOutput called; should only be used with pool converters." ) );
    }
 
    void TAuxVectorFactory::swap( void* a, size_t aindex,

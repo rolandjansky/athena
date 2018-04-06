@@ -53,12 +53,12 @@ public:
 
 // Constructor
 PlotShadeBox::PlotShadeBox():
-  Plotable(),c(new Clockwork())
+  Plotable(),m_c(new Clockwork())
 {
-  c->nRectangle.setLeft  (+1.0E100);
-  c->nRectangle.setRight (-1.0E100);
-  c->nRectangle.setTop   (+1.0E100);
-  c->nRectangle.setBottom(-1.0E100);
+  m_c->nRectangle.setLeft  (+1.0E100);
+  m_c->nRectangle.setRight (-1.0E100);
+  m_c->nRectangle.setTop   (+1.0E100);
+  m_c->nRectangle.setBottom(-1.0E100);
   
 }
 
@@ -66,41 +66,41 @@ PlotShadeBox::PlotShadeBox():
 
 // Destructor
 PlotShadeBox::~PlotShadeBox(){
-  delete c;
+  delete m_c;
 }
 
 
 
 const QRectF  PlotShadeBox::rectHint() const {
-  return c->nRectangle;
+  return m_c->nRectangle;
 }
 
 
 
   // Add Points:
 void PlotShadeBox::addPoint(const QPointF & point, double errorPlus, double errorMinus) {
-  c->points.push_back(point);
-  c->sizePlus.push_back(errorPlus);
-  c->sizeMnus.push_back(errorMinus);
+  m_c->points.push_back(point);
+  m_c->sizePlus.push_back(errorPlus);
+  m_c->sizeMnus.push_back(errorMinus);
 
   
-  c->nRectangle.setLeft(std::min(c->nRectangle.left(),point.x()));
-  c->nRectangle.setRight(std::max(c->nRectangle.right(),point.x()));
-  c->nRectangle.setBottom(std::min(c->nRectangle.bottom(),point.y()+errorPlus));
-  c->nRectangle.setTop(std::max(c->nRectangle.top(),point.y()-errorMinus));
+  m_c->nRectangle.setLeft(std::min(m_c->nRectangle.left(),point.x()));
+  m_c->nRectangle.setRight(std::max(m_c->nRectangle.right(),point.x()));
+  m_c->nRectangle.setBottom(std::min(m_c->nRectangle.bottom(),point.y()+errorPlus));
+  m_c->nRectangle.setTop(std::max(m_c->nRectangle.top(),point.y()-errorMinus));
 }
 
 void PlotShadeBox::addPoint( const QPointF & point, double size) {
   
-  c->points.push_back(point);
-  c->sizePlus.push_back(size);
-  c->sizeMnus.push_back(size);
+  m_c->points.push_back(point);
+  m_c->sizePlus.push_back(size);
+  m_c->sizeMnus.push_back(size);
 
   
-  c->nRectangle.setLeft(std::min(c->nRectangle.left(),point.x()));
-  c->nRectangle.setRight(std::max(c->nRectangle.right(),point.x()));
-  c->nRectangle.setBottom(std::min(c->nRectangle.bottom(),point.y()+size));
-  c->nRectangle.setTop(std::max(c->nRectangle.top(),point.y()-size));
+  m_c->nRectangle.setLeft(std::min(m_c->nRectangle.left(),point.x()));
+  m_c->nRectangle.setRight(std::max(m_c->nRectangle.right(),point.x()));
+  m_c->nRectangle.setBottom(std::min(m_c->nRectangle.bottom(),point.y()+size));
+  m_c->nRectangle.setTop(std::max(m_c->nRectangle.top(),point.y()-size));
 }
 
 
@@ -125,11 +125,11 @@ void PlotShadeBox::describeYourselfTo(AbsPlotter * plotter) const {
 
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
-  for (unsigned int i=0;i<c->points.size();i++) {
-    double  xdxp = c->points[i].x() + halfLength;
-    double  xdxm = c->points[i].x() - halfLength;
-    double  ydyp = c->points[i].y() + c->sizePlus[i];
-    double  ydym = c->points[i].y() - c->sizeMnus[i];
+  for (unsigned int i=0;i<m_c->points.size();i++) {
+    double  xdxp = m_c->points[i].x() + halfLength;
+    double  xdxm = m_c->points[i].x() - halfLength;
+    double  ydyp = m_c->points[i].y() + m_c->sizePlus[i];
+    double  ydym = m_c->points[i].y() - m_c->sizeMnus[i];
     
     xdxp = xAxisIsLogScale ? (*toLogX) (xdxp): xdxp;
     xdxm = xAxisIsLogScale ? (*toLogX) (xdxm): xdxm;
@@ -163,19 +163,19 @@ void PlotShadeBox::describeYourselfTo(AbsPlotter * plotter) const {
 }
 
 const PlotShadeBox::Properties  PlotShadeBox::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotShadeBox::setProperties(const Properties &  properties) { 
-  if (!c->myProperties) {
-    c->myProperties = new Properties(properties);
+  if (!m_c->myProperties) {
+    m_c->myProperties = new Properties(properties);
   }
   else {
-    *c->myProperties=properties;
+    *m_c->myProperties=properties;
   }
 }
 
 void PlotShadeBox::resetProperties() {
-  delete c->myProperties;
+  delete m_c->myProperties;
 }
 

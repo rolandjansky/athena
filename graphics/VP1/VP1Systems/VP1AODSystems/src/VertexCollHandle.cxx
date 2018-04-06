@@ -82,7 +82,7 @@ public:
 //____________________________________________________________________
 VertexCollHandle::VertexCollHandle( AODSysCommonData * cd, const QString& name, xAOD::Type::ObjectType type)
   : AODCollHandleBase(cd, name, type),  
-    d(new Imp), // Need to add back ObjectType once simple way to create string is added to xAODBase
+    m_d(new Imp), // Need to add back ObjectType once simple way to create string is added to xAODBase
     m_nshownhandles(0),
     m_cut_allowedY(VP1Interval(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())),
     m_cut_allowedR(VP1Interval(-std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity())),
@@ -91,7 +91,7 @@ VertexCollHandle::VertexCollHandle( AODSysCommonData * cd, const QString& name, 
     m_cut_z_allowall(true),
     m_cut_rz_allwillfail(false)
 {
-  d->theclass = this;
+  m_d->theclass = this;
 
   //The object names should not contain all sorts of funky chars (mat button style sheets wont work for instance):
   QString safetext(text());
@@ -112,15 +112,15 @@ VertexCollHandle::~VertexCollHandle()
   messageVerbose("destructor start");
 
   // clean the vector<handle>
-  cleanupPtrContainer(d->handles);
+  cleanupPtrContainer(m_d->handles);
 
   // clean the QList<handle>
-  foreach(AODHandleBase* handle, d->handlesList) {
+  foreach(AODHandleBase* handle, m_d->handlesList) {
     delete handle;
   }
 
   // delete the Imp instance
-  delete d;
+  delete m_d;
 
   messageVerbose("destructor end");
 }
@@ -135,30 +135,30 @@ QStringList VertexCollHandle::availableCollections( IVP1System*sys )
 //____________________________________________________________________
 void VertexCollHandle::init(VP1MaterialButtonBase*)
 {
-  d->collSettingsButton = new VertexCollectionSettingsButton;
-  d->collSettingsButton->setMaterialText(name());
-  VP1StdCollection::init(d->collSettingsButton);//this call is required. Passing in d->collSettingsButton means we have the more complex button. 
+  m_d->collSettingsButton = new VertexCollectionSettingsButton;
+  m_d->collSettingsButton->setMaterialText(name());
+  VP1StdCollection::init(m_d->collSettingsButton);//this call is required. Passing in m_d->collSettingsButton means we have the more complex button. 
   setupSettingsFromController(common()->controller());
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
   
-  collSwitch()->addChild(d->collSettingsButton->vertexLightModel());
-  collSwitch()->addChild(d->collSettingsButton->vertexDrawStyle());
+  collSwitch()->addChild(m_d->collSettingsButton->vertexLightModel());
+  collSwitch()->addChild(m_d->collSettingsButton->vertexDrawStyle());
 }
 
 void VertexCollHandle::setupSettingsFromControllerSpecific(AODSystemController*) {
   //cuts
   // R
-  connect(d->collSettingsButton,SIGNAL(cutAllowedRChanged(const VP1Interval&)),this,SLOT(setCutAllowedR(const VP1Interval&)));
-  setCutAllowedR(d->collSettingsButton->cutAllowedR());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedRChanged(const VP1Interval&)),this,SLOT(setCutAllowedR(const VP1Interval&)));
+  setCutAllowedR(m_d->collSettingsButton->cutAllowedR());
   // Y
-  connect(d->collSettingsButton,SIGNAL(cutAllowedYChanged(const VP1Interval&)),this,SLOT(setCutAllowedY(const VP1Interval&)));
-  setCutAllowedY(d->collSettingsButton->cutAllowedY());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedYChanged(const VP1Interval&)),this,SLOT(setCutAllowedY(const VP1Interval&)));
+  setCutAllowedY(m_d->collSettingsButton->cutAllowedY());
   // Z
-  connect(d->collSettingsButton,SIGNAL(cutAllowedZChanged(const VP1Interval&)),this,SLOT(setCutAllowedZ(const VP1Interval&)));
-  setCutAllowedZ(d->collSettingsButton->cutAllowedZ());
+  connect(m_d->collSettingsButton,SIGNAL(cutAllowedZChanged(const VP1Interval&)),this,SLOT(setCutAllowedZ(const VP1Interval&)));
+  setCutAllowedZ(m_d->collSettingsButton->cutAllowedZ());
   // size
-  connect(d->collSettingsButton,SIGNAL(vertexSizeChanged(int)),this,SLOT(setVertexSize(int)));
-  setVertexSize(d->collSettingsButton->vertexSize());
+  connect(m_d->collSettingsButton,SIGNAL(vertexSizeChanged(int)),this,SLOT(setVertexSize(int)));
+  setVertexSize(m_d->collSettingsButton->vertexSize());
 }
 
 void VertexCollHandle::resetCachedValuesCuts()
@@ -166,19 +166,19 @@ void VertexCollHandle::resetCachedValuesCuts()
 	// TODO: it is not used so far! Check Other collections and update accordingly
 
 	// kinetic cuts
-	setCutAllowedR(d->collSettingsButton->cutAllowedR());
-	setCutAllowedY(d->collSettingsButton->cutAllowedY());
-	setCutAllowedZ(d->collSettingsButton->cutAllowedZ());
+	setCutAllowedR(m_d->collSettingsButton->cutAllowedR());
+	setCutAllowedY(m_d->collSettingsButton->cutAllowedY());
+	setCutAllowedZ(m_d->collSettingsButton->cutAllowedZ());
 	// other settings
-	setVertexSize(d->collSettingsButton->vertexSize());
+	setVertexSize(m_d->collSettingsButton->vertexSize());
 }
 
 
 const VertexCollectionSettingsButton& VertexCollHandle::collSettingsButton() const {
-  if (!d->collSettingsButton){
+  if (!m_d->collSettingsButton){
     messageVerbose("No collSettingsButton set! Can't call init(), so crash is imminent...");
   }
-  return *d->collSettingsButton;
+  return *m_d->collSettingsButton;
 }
 
 //____________________________________________________________________
@@ -209,7 +209,7 @@ bool VertexCollHandle::load()
   //Make appropriate vertex handles:
   xAOD::VertexContainer::const_iterator it, itEnd = coll->end();
   for ( it = coll->begin() ; it != itEnd; ++it) {
-    // d->possiblyUpdateGUI(); FIXME
+    // m_d->possiblyUpdateGUI(); FIXME
     systemBase()->updateGUI();
     if (!*it) {
       messageDebug("WARNING: Ignoring null Vertex pointer.");
@@ -226,7 +226,7 @@ bool VertexCollHandle::load()
 QList<AODHandleBase*> VertexCollHandle::getHandlesList() const
 {
   messageVerbose("VertexCollHandle::getHandlesList()");
-  return d->handlesList;
+  return m_d->handlesList;
 }
 
 //____________________________________________________________________
@@ -291,7 +291,7 @@ bool VertexCollHandle::cut(AODHandleBase* ah)
 //____________________________________________________________________
 void VertexCollHandle::hintNumberOfHandlesInEvent(unsigned n)
 {
-  d->handles.reserve(n);
+  m_d->handles.reserve(n);
 }
 
 //____________________________________________________________________
@@ -302,23 +302,23 @@ void VertexCollHandle::addHandle(AODHandleBase* ah)
     message("ERROR - wrong handle type passed to VertexCollHandle::addHandle!");
     return;
   }
-  d->handles.push_back(handle); // for the vector<handle>
-  d->handlesList << handle; // for the QList<handle>
+  m_d->handles.push_back(handle); // for the vector<handle>
+  m_d->handlesList << handle; // for the QList<handle>
 }
 
 //____________________________________________________________________
 void VertexCollHandle::handleIterationBegin()
 {
-  d->itHandles = d->handles.begin();
-  d->itHandlesEnd = d->handles.end();
+  m_d->itHandles = m_d->handles.begin();
+  m_d->itHandlesEnd = m_d->handles.end();
 }
 
 //____________________________________________________________________
 AODHandleBase* VertexCollHandle::getNextHandle() {
-  if (d->itHandles==d->itHandlesEnd)
+  if (m_d->itHandles==m_d->itHandlesEnd)
     return 0;
   else
-    return *(d->itHandles++);
+    return *(m_d->itHandles++);
 }
 
 //____________________________________________________________________
@@ -418,7 +418,7 @@ void VertexCollHandle::setState(const QByteArray&state)
   bool vis = des.restoreBool();
 
   QByteArray matState = des.restoreByteArray();
-  // d->matButton->restoreFromState(matState);
+  // m_d->matButton->restoreFromState(matState);
   QByteArray extraWidgetState = des.version()>=1 ? des.restoreByteArray() : QByteArray();
   setVisible(vis);
 
@@ -431,7 +431,7 @@ QByteArray VertexCollHandle::persistifiableState() const
 {
   messageDebug("VertexCollHandle::persistifiableState() - start...");
 
-  // if (!d->matButton) {
+  // if (!m_d->matButton) {
   //   message("ERROR: persistifiableState() called before init()");
   //   return QByteArray();
   // }
@@ -442,8 +442,8 @@ QByteArray VertexCollHandle::persistifiableState() const
   serialise.save(visible());
 
   // SAVE THE MATERIAL BUTTON
-  // Q_ASSERT(d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
-  // serialise.save(d->matButton->saveState());
+  // Q_ASSERT(m_d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
+  // serialise.save(m_d->matButton->saveState());
 
   // SAVE THE EXTRA-STATES
   serialise.save(extraWidgetsState());//version 1+

@@ -2908,7 +2908,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 						 sqrt((loc_err * loc_err * loc_err * loc_err) -
 						      (locR_err * locR_err * locR_err * locR_err)));
 					const double thist0 = m_TRTCalDbSvc->getT0(surfaceID);
-					const double trkdrifttime = rtr->drifttime(fabs(locR));
+					const double trkdrifttime = (!rtr) ? 0 : rtr->drifttime(fabs(locR));
 					const double timeresidual = RawDriftCircle->rawDriftTime() - thist0 - trkdrifttime;
 
 					if (ibe == 0) {
@@ -3914,15 +3914,12 @@ StatusCode TRT_Monitoring_Tool::fillTRTHighThreshold(const TrackCollection& trac
 		int trt_hits = summary->get(Trk::numberOfTRTHits);
 		int sct_hits = summary->get(Trk::numberOfSCTHits);
 		int pixel_hits = summary->get(Trk::numberOfPixelHits);
-		bool passCuts = true;
 
 		if (fabs(track_eta) > 2.5) continue;
 		if (fabs(track_p) < 5000.) continue;
 		if (pixel_hits < 1.) continue;
 		if (sct_hits < 6.) continue;
 		if (trt_hits < 6.) continue;
-
-		if (!passCuts) continue;
 
 		//Now we have hit informations
 		const DataVector<const Trk::TrackStateOnSurface> *track_states = (*p_trk)->trackStateOnSurfaces();

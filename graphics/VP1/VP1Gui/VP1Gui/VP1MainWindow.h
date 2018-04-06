@@ -59,14 +59,14 @@ struct VP1DirStatusData
     , bold(false)
   {};
 
-  VP1DirStatusData(QString _inputDir
-		   , QString _dirStatus
-		   , bool _enabled
-		   , bool _bold)
-    : inputDir(_inputDir)
-    , dirStatus(_dirStatus)
-    , enabled(_enabled)
-    , bold(_bold)
+  VP1DirStatusData(QString the_inputDir
+		   , QString the_dirStatus
+		   , bool the_enabled
+		   , bool the_bold)
+    : inputDir(the_inputDir)
+    , dirStatus(the_dirStatus)
+    , enabled(the_enabled)
+    , bold(the_bold)
   {};
 
   QString inputDir;
@@ -134,47 +134,47 @@ public:
   void setRunEvtNumber(const int& runnumber, const unsigned long long& eventnumber, const unsigned& triggerType = 0, const unsigned& time = 0, const bool& printmessage = true );
   bool mustQuit() const;
 
-  VP1ChannelManager * channelManager() const { return channelmanager; }
-  VP1TabManager * tabManager() const { return tabmanager; }
+  VP1ChannelManager * channelManager() const { return m_channelmanager; }
+  VP1TabManager * tabManager() const { return m_tabmanager; }
 
   bool userRequestedExit() { return m_userRequestedExit; }
 
-  int getRunNumber() { return runnumber; }
-  unsigned long long getEventNumber() { return eventnumber; }
-  int getEventTimestamp() { return timestamp; }
+  int getRunNumber() { return m_runnumber; }
+  unsigned long long getEventNumber() { return m_eventnumber; }
+  int getEventTimestamp() { return m_timestamp; }
 
 protected:
-  VP1ChannelManager * channelmanager;
-  VP1TabManager * tabmanager;
-  QString currentconfigfile;
-  int runnumber;
-  unsigned long long eventnumber;
-  unsigned timestamp;
-  bool betweenevents;
+  VP1ChannelManager * m_channelmanager;
+  VP1TabManager * m_tabmanager;
+  QString m_currentconfigfile;
+  int m_runnumber;
+  unsigned long long m_eventnumber;
+  unsigned m_timestamp;
+  bool m_betweenevents;
 
   void closeEvent(QCloseEvent *event);
-  bool mustquit;
+  bool m_mustquit;
 
-  QWidget* dummyemptycontroller;
-  VP1ExecutionScheduler*scheduler;
-  VP1AvailEvents * availEvents;
+  QWidget* m_dummyemptycontroller;
+  VP1ExecutionScheduler*m_scheduler;
+  VP1AvailEvents * m_availEvents;
 
-  VP1TcpServer tcpserver;
+  VP1TcpServer m_tcpserver;
   void listenOnTcp();
 
-  VP1IncomingMessageDialog* currentincomingdialog;
-  QQueue<VP1ExternalRequest> requestqueue;
-  bool blockallmessages;
-  QList<QString> messages_blockedsenders;
-  QList<VP1ExternalRequest> messages_blockedexactmessages;
+  VP1IncomingMessageDialog* m_currentincomingdialog;
+  QQueue<VP1ExternalRequest> m_requestqueue;
+  bool m_blockallmessages;
+  QList<QString> m_messages_blockedsenders;
+  QList<VP1ExternalRequest> m_messages_blockedexactmessages;
 
   void addChannelIconsToComboBox(QComboBox* cb, const bool& isbasenames);
 
-  QStringList currentunloadpluginfiles;
-  VP1PluginDialog*plugindialog;
+  QStringList m_currentunloadpluginfiles;
+  VP1PluginDialog*m_plugindialog;
 
   void setupStatusBar();
-  QLabel*statusbarlabel;
+  QLabel*m_statusbarlabel;
 
   QMap<QString,QString> availablePluginFiles() const;
   QMap<QString,QString> availableFiles(const QString& extension,
@@ -213,30 +213,30 @@ protected slots:
 
 
 protected:
-  QAction * action_infoAboutLoadedPlugins;
-  QMenu * menu_loadPlugin;
-  QMenu * menu_loadConfFile;
-  QMenu * menu_changeStyle;
-  QMenu * menu_changeFontSize;
-  QAction * actionAdd_empty_tab;
-  QAction * actionSave_current_tabs;
-  QAction* action_addEventFile;
-  QAction* action_openUsersGuide;
-  QAction* action_openUsersSupport;
-  QAction* action_openVP1Site;
-  QAction* action_openAbout;
+  QAction * m_action_infoAboutLoadedPlugins;
+  QMenu * m_menu_loadPlugin;
+  QMenu * m_menu_loadConfFile;
+  QMenu * m_menu_changeStyle;
+  QMenu * m_menu_changeFontSize;
+  QAction * m_actionAdd_empty_tab;
+  QAction * m_actionSave_current_tabs;
+  QAction* m_action_addEventFile;
+  QAction* m_action_openUsersGuide;
+  QAction* m_action_openUsersSupport;
+  QAction* m_action_openVP1Site;
+  QAction* m_action_openAbout;
 
-  QList<QAction*> inputdiractions;
-  VP1DirStatuses inputdirstatuses;
-  QString currentsaveimagepath;
-  QString currentloadpluginpath;
-  QString currentStream;
+  QList<QAction*> m_inputdiractions;
+  VP1DirStatuses m_inputdirstatuses;
+  QString m_currentsaveimagepath;
+  QString m_currentloadpluginpath;
+  QString m_currentStream;
 
   //Fontsize:
   QFont m_defaultfont;
   double m_defaultfont_pointsize;
   int m_defaultfont_pixelsize;
-  const QString settingsfile;
+  const QString m_settingsfile;
 
   bool m_userRequestedExit;
 
@@ -253,7 +253,7 @@ protected:
 //  #endif
 
   // Event display editor
-  VP1EventDisplayEditor* edEditor;
+  VP1EventDisplayEditor* m_edEditor;
 };
 
 

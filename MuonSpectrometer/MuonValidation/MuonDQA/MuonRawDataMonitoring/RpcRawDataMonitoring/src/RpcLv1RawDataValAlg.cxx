@@ -12,9 +12,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
       
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
  
-#include "xAODEventInfo/EventInfo.h"
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
 #include "MuonDQAUtils/MuonChambersRange.h"
 #include "MuonDQAUtils/MuonCosmicSetup.h"
@@ -74,19 +72,6 @@ StatusCode RpcLv1RawDataValAlg::initialize()
   ATH_MSG_INFO ( "RpcLv1ReduceNbins	" << m_rpclv1reducenbins	);
   StatusCode sc;
  
-  // Store Gate store
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR ( " Cannot get StoreGateSvc " );
-    return sc ;
-  }
-  // retrieve the active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR ( " Cannot get ActiveStoreSvc " );
-    return sc ;
-  }
-
   // Initialize the IdHelper
   StoreGateSvc* detStore = 0;
   sc = service("DetectorStore", detStore);
@@ -137,23 +122,20 @@ StatusCode RpcLv1RawDataValAlg::initialize()
   hardware_name_list.push_back("XXX");
   
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
+
+  ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK(m_rpcRdoKey.initialize());
  
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode RpcLv1RawDataValAlg::StoreTriggerType() {
-  const xAOD::EventInfo* eventInfo = nullptr;
-  StatusCode sc = StatusCode::SUCCESS;
-  sc = m_eventStore->retrieve(eventInfo);
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR ( "Could not find eventInfo " );
-    return sc;
-  }else {ATH_MSG_DEBUG ( "RpcLv1RawDataValAlg::retrieved eventInfo" );} 
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
   
   m_trigtype = eventInfo->level1TriggerType();
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -191,12 +173,7 @@ StatusCode RpcLv1RawDataValAlg::fillHistograms()
   
     // Prepare the retrieval of the RpcPadContainer
 
-    const RpcPadContainer* rpcRDO = nullptr;
-    sc= (*m_activeStore)->retrieve(rpcRDO,"RPCPAD");
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR ( "Could not find RPC Pads" );     
-      return sc;
-    }
+    SG::ReadHandle<RpcPadContainer> rpcRDO(m_rpcRdoKey);
 
     // begin loop to get trigger time
     for (RpcPadContainer::const_iterator rdoColli = rpcRDO->begin(); rdoColli!=rpcRDO->end(); ++rdoColli)

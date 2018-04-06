@@ -59,25 +59,25 @@ class MM_IonizationCluster {
 
 
   // Members supplied by user
-  std::vector<MM_Electron*> Electrons;
-  float HitX;
-  TVector2 IonizationStart;
+  std::vector<MM_Electron*> m_Electrons;
+  float m_HitX;
+  TVector2 m_IonizationStart;
 
-  static MM_NelectronProb NelectronProb;
+  static MM_NelectronProb s_NelectronProb;
 
  public:
 
 
   MM_IonizationCluster ();
-  MM_IonizationCluster (float _HitX, float _IonizationX, float _IonizationY);
-  MM_IonizationCluster (const MM_IonizationCluster& _MM_IonizationCluster);
+  MM_IonizationCluster (float HitX, float IonizationX, float IonizationY);
+  MM_IonizationCluster (const MM_IonizationCluster& other);
   void createElectrons(TRandom3* rndm);    
   void diffuseElectrons(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm);
   void propagateElectrons(float driftVelx, float driftVely, float driftVel);
   void avalancheElectrons(float gain, TRandom3* rndm);
   std::vector<MM_Electron*> getElectrons() const;
-  float getHitX() const { return HitX; }
-  TVector2 getIonizationStart() const { return IonizationStart; }
+  float getHitX() const { return m_HitX; }
+  TVector2 getIonizationStart() const { return m_IonizationStart; }
 };
 
 #endif

@@ -18,7 +18,7 @@ namespace InDet {
    InDetTrackSmearingToolTester::InDetTrackSmearingToolTester( const std::string& name, ISvcLocator* svcLoc )
       : AthHistogramAlgorithm( name, svcLoc ),
         m_smearTool( "InDet::InDetTrackSystematicsTools/InDetTrackSmearingTool", this ){
-          declareProperty( "TrackIP", Track_IP = "InDetTrackParticles" );
+          declareProperty( "TrackIP", m_Track_IP = "InDetTrackParticles" );
 	  declareProperty( "SystematicEffects", m_systematicsNames );
           declareProperty( "InDetTrackSmearingTool", m_smearTool );
 
@@ -61,7 +61,7 @@ namespace InDet {
 
       // Create a shallow container copy and then apply the smearingtool to impact parameters:      
       const xAOD::TrackParticleContainer *IDParticles = nullptr;
-      ATH_CHECK( evtStore()->retrieve( IDParticles , Track_IP ) );
+      ATH_CHECK( evtStore()->retrieve( IDParticles , m_Track_IP ) );
       std::pair< xAOD::TrackParticleContainer*, xAOD::ShallowAuxContainer* > IDParticles_shallowCopy = xAOD::shallowCopyContainer( *IDParticles );
       xAOD::TrackParticleContainer::iterator itr = (IDParticles_shallowCopy.first)->begin();
       xAOD::TrackParticleContainer::iterator end = (IDParticles_shallowCopy.first)->end();

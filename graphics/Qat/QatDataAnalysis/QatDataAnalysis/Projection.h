@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _Projection_h_
-#define _Projection_h_
+#ifndef QATDATAANALYSIS_PROJECTION_H
+#define QATDATAANALYSIS_PROJECTION_H
 #include "QatDataAnalysis/Tuple.h"
 #include "QatDataAnalysis/Table.h"
 #include "CLHEP/GenericFunctions/CutBase.hh"
@@ -54,7 +54,7 @@ class Projection {
 
  private:
   
-  std::set<std::string> _nameList;
+  std::set<std::string> m_nameList;
   
 };
 

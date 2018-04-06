@@ -162,18 +162,18 @@ double VP1CaloClusterCollection::crackEta()
 
 //____________________________________________________________________
 VP1CaloClusterCollection::VP1CaloClusterCollection(const QString& key, IVP1System * sys,CaloClusterSysController*controller)
- : VP1StdCollection(sys,"VP1CaloClusterCollection_"+key), d(new Imp)
+ : VP1StdCollection(sys,"VP1CaloClusterCollection_"+key), m_d(new Imp)
 {
   SoGenericBox::initClass();
 
-  d->theclass = this;
-  d->controller = controller;
-  d->key = key;
-  d->sephelper = 0;
+  m_d->theclass = this;
+  m_d->controller = controller;
+  m_d->key = key;
+  m_d->sephelper = 0;
   //We start out with no clusters visible:
-  d->last_highestEnergy = 0;
-  d->showOutlines = false;
-  d->considerTransverseEnergies = true;
+  m_d->last_highestEnergy = 0;
+  m_d->showOutlines = false;
+  m_d->considerTransverseEnergies = true;
 
   connect(this,SIGNAL(highestVisibleClusterEnergyChanged()),controller,SLOT(possibleChange_scale()));
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(recheckHighestVisibleClusterEnergy()));
@@ -197,14 +197,14 @@ VP1CaloClusterCollection::VP1CaloClusterCollection(const QString& key, IVP1Syste
 //____________________________________________________________________
 VP1CaloClusterCollection::~VP1CaloClusterCollection()
 {
-  if (d->sephelper) {
-    SoSeparator * sep = d->sephelper->topSeparator();
-    delete d->sephelper;
+  if (m_d->sephelper) {
+    SoSeparator * sep = m_d->sephelper->topSeparator();
+    delete m_d->sephelper;
     sep->unref();
   }
-  foreach(Imp::ClusterHandle*cluster,d->clusters)
+  foreach(Imp::ClusterHandle*cluster,m_d->clusters)
     delete cluster;
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -216,7 +216,7 @@ QString VP1CaloClusterCollection::provideSection() const
 //____________________________________________________________________
 QString VP1CaloClusterCollection::provideText() const
 {
-  return d->key;
+  return m_d->key;
 }
 
 //____________________________________________________________________
@@ -243,17 +243,17 @@ double VP1CaloClusterCollection::Imp::calculateHighestVisibleClusterEnergy() con
 void VP1CaloClusterCollection::recheckHighestVisibleClusterEnergy()
 {
   //When visibility or cut changes:
-  double newhighest = d->calculateHighestVisibleClusterEnergy();
-  if (d->last_highestEnergy == newhighest)
+  double newhighest = m_d->calculateHighestVisibleClusterEnergy();
+  if (m_d->last_highestEnergy == newhighest)
     return;
-  d->last_highestEnergy = newhighest;
+  m_d->last_highestEnergy = newhighest;
   emit highestVisibleClusterEnergyChanged();
 }
 
 //____________________________________________________________________
 double VP1CaloClusterCollection::highestVisibleClusterEnergy() const
 {
-  return d->last_highestEnergy;
+  return m_d->last_highestEnergy;
 }
 
 //____________________________________________________________________
@@ -261,13 +261,13 @@ bool VP1CaloClusterCollection::load()
 {
   //Get collection:
   const CaloClusterContainer *theClusterCollection(0);
-  if (!VP1SGAccessHelper(systemBase()).retrieve(theClusterCollection,d->key))
+  if (!VP1SGAccessHelper(systemBase()).retrieve(theClusterCollection,m_d->key))
     return false;
 
   SoSeparator * sep = new SoSeparator;
   sep->setName("ClusterSepHelperTopSep");
   sep->ref();
-  d->sephelper = new VP1ExtraSepLayerHelper(sep);
+  m_d->sephelper = new VP1ExtraSepLayerHelper(sep);
   largeChangesBegin();
   int i(0);
   CaloClusterContainer::const_iterator it(theClusterCollection->begin()),itE(theClusterCollection->end());
@@ -275,8 +275,8 @@ bool VP1CaloClusterCollection::load()
     if (i++%40==0)
       systemBase()->updateGUI();
     Imp::ClusterHandle * clusterHandle = new Imp::ClusterHandle(*it);
-    d->clusters << clusterHandle;
-    d->recheckCut(clusterHandle);
+    m_d->clusters << clusterHandle;
+    m_d->recheckCut(clusterHandle);
   }
   largeChangesEnd();
   collSep()->addChild(sep);
@@ -291,7 +291,7 @@ QStringList VP1CaloClusterCollection::infoOnClicked(SoPath* pickedPath)
   const CaloCluster*cluster(0);
   Imp::ClusterHandle*clusterHandle(0);
   if (pickedNode->getTypeId()==SoGenericBox::getClassTypeId()) {
-    foreach(Imp::ClusterHandle*c,d->clusters) {
+    foreach(Imp::ClusterHandle*c,m_d->clusters) {
       if (c->genericBox()==pickedNode) {
 	cluster = c->cluster();
 	clusterHandle = c;
@@ -301,20 +301,20 @@ QStringList VP1CaloClusterCollection::infoOnClicked(SoPath* pickedPath)
   }
 
   if (!cluster||!clusterHandle)
-    return QStringList() << "Error: Collection "+d->key+" does not have cluster information for picked node";
+    return QStringList() << "Error: Collection "+m_d->key+" does not have cluster information for picked node";
 
   QStringList l;
-  if (d->controller->printInfoOnClick()) {
+  if (m_d->controller->printInfoOnClick()) {
     l << "  Eta: "+str(cluster->eta());
     l << "  Phi: "+str(cluster->phi());
     l << "  Energy [GeV]: "+str(clusterHandle->energy()/CLHEP::GeV);
     l << "  Transverse Energy [GeV]: "+str(clusterHandle->transverseEnergy()/CLHEP::GeV);
-    if (d->controller->printVerboseInfoOnClick()) {
+    if (m_d->controller->printVerboseInfoOnClick()) {
       l << "(no verbose information available)";
       //   l << "  Lambda_center [CLHEP::cm]: "+str(cluster->getMoment(CaloClusterMoment::CENTER_LAMBDA).getValue()/CLHEP::cm);
     }
   }
-  if (d->controller->zoomOnClick()) {
+  if (m_d->controller->zoomOnClick()) {
     std::set<SoCamera*> cameras = static_cast<IVP13DSystem*>(systemBase())->getCameraList();
     std::set<SoCamera*>::iterator it,itE = cameras.end();
     for (it=cameras.begin();it!=itE;++it)
@@ -327,27 +327,27 @@ QStringList VP1CaloClusterCollection::infoOnClicked(SoPath* pickedPath)
 void VP1CaloClusterCollection::largeChangesBegin()
 {
   VP1StdCollection::largeChangesBegin();
-  d->sephelper->largeChangesBegin();
+  m_d->sephelper->largeChangesBegin();
 }
 //____________________________________________________________________
 void VP1CaloClusterCollection::largeChangesEnd()
 {
   VP1StdCollection::largeChangesEnd();
-  d->sephelper->largeChangesEnd();
+  m_d->sephelper->largeChangesEnd();
 }
 
 //____________________________________________________________________
 void VP1CaloClusterCollection::setAllowedEnergies(const VP1Interval& i)
 {
-  if (d->allowedEnergies==i)
+  if (m_d->allowedEnergies==i)
     return;
-  d->allowedEnergies=i;
+  m_d->allowedEnergies=i;
   if (!isLoaded())
     return;
   static_cast<IVP13DSystemSimple *>(systemBase())->deselectAll();
   largeChangesBegin();
-  foreach(Imp::ClusterHandle*cluster,d->clusters)
-    d->recheckCut(cluster);
+  foreach(Imp::ClusterHandle*cluster,m_d->clusters)
+    m_d->recheckCut(cluster);
   largeChangesEnd();
   //Fixme relaxed/tightened stuff
 
@@ -357,15 +357,15 @@ void VP1CaloClusterCollection::setAllowedEnergies(const VP1Interval& i)
 //____________________________________________________________________
 void VP1CaloClusterCollection::setAllowedEta(const VP1Interval& i)
 {
-  if (d->allowedEta==i)
+  if (m_d->allowedEta==i)
     return;
-  d->allowedEta=i;
+  m_d->allowedEta=i;
   if (!isLoaded())
     return;
   static_cast<IVP13DSystemSimple *>(systemBase())->deselectAll();
   largeChangesBegin();
-  foreach(Imp::ClusterHandle*cluster,d->clusters)
-    d->recheckCut(cluster);
+  foreach(Imp::ClusterHandle*cluster,m_d->clusters)
+    m_d->recheckCut(cluster);
   largeChangesEnd();
   //Fixme relaxed/tightened stuff
 
@@ -375,15 +375,15 @@ void VP1CaloClusterCollection::setAllowedEta(const VP1Interval& i)
 //____________________________________________________________________
 void VP1CaloClusterCollection::setAllowedPhi(const QList<VP1Interval>& i)
 {
-  if (d->allowedPhi==i)
+  if (m_d->allowedPhi==i)
     return;
-  d->allowedPhi=i;
+  m_d->allowedPhi=i;
   if (!isLoaded())
     return;
   static_cast<IVP13DSystemSimple *>(systemBase())->deselectAll();
   largeChangesBegin();
-  foreach(Imp::ClusterHandle*cluster,d->clusters)
-    d->recheckCut(cluster);
+  foreach(Imp::ClusterHandle*cluster,m_d->clusters)
+    m_d->recheckCut(cluster);
   largeChangesEnd();
   //Fixme relaxed/tightened stuff
 
@@ -394,15 +394,15 @@ void VP1CaloClusterCollection::setAllowedPhi(const QList<VP1Interval>& i)
 //____________________________________________________________________
 void VP1CaloClusterCollection::setScale(const QPair<bool,double>& s)
 {
-  if (d->scale==s)
+  if (m_d->scale==s)
     return;
-  d->scale=s;
+  m_d->scale=s;
   if (!isLoaded())
     return;
   largeChangesBegin();
-  foreach(Imp::ClusterHandle*cluster,d->clusters)
+  foreach(Imp::ClusterHandle*cluster,m_d->clusters)
     if (cluster->attached())
-      cluster->updateShapePars(d);
+      cluster->updateShapePars(m_d);
   largeChangesEnd();
 
   //   if (verbose())
@@ -414,13 +414,13 @@ void VP1CaloClusterCollection::setScale(const QPair<bool,double>& s)
 //____________________________________________________________________
 void VP1CaloClusterCollection::setShowVolumeOutLines(bool b)
 {
-  if (d->showOutlines==b)
+  if (m_d->showOutlines==b)
     return;
-  d->showOutlines=b;
+  m_d->showOutlines=b;
   if (!isLoaded())
     return;
   largeChangesBegin();
-  foreach(Imp::ClusterHandle*cluster,d->clusters)
+  foreach(Imp::ClusterHandle*cluster,m_d->clusters)
     if (cluster->genericBox())
       cluster->genericBox()->drawEdgeLines = b;
   largeChangesEnd();
@@ -429,17 +429,17 @@ void VP1CaloClusterCollection::setShowVolumeOutLines(bool b)
 //____________________________________________________________________
 void VP1CaloClusterCollection::setConsiderTransverseEnergies(bool b)
 {
-  if (d->considerTransverseEnergies==b)
+  if (m_d->considerTransverseEnergies==b)
     return;
-  d->considerTransverseEnergies=b;
+  m_d->considerTransverseEnergies=b;
   if (!isLoaded())
     return;
   largeChangesBegin();
-  foreach(Imp::ClusterHandle*cluster,d->clusters) {
+  foreach(Imp::ClusterHandle*cluster,m_d->clusters) {
     bool attachPrev(cluster->attached());
-    d->recheckCut(cluster);
+    m_d->recheckCut(cluster);
     if (attachPrev&&cluster->attached())
-      cluster->updateShapePars(d);
+      cluster->updateShapePars(m_d);
   }
   largeChangesEnd();
   recheckHighestVisibleClusterEnergy();

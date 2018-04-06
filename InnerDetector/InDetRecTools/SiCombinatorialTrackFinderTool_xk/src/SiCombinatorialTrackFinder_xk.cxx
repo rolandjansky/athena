@@ -38,7 +38,7 @@
 InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p)                                           ,
-    m_pixelCondSummarySvc("PixelConditionsSummarySvc",n        ),
+    m_pixelCondSummaryTool("PixelConditionsSummaryTool",this        ),
     m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc" ,n        ),
     m_fieldServiceHandle("AtlasFieldSvc",n)                     ,
     m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  ),
@@ -74,7 +74,7 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("AssosiationTool"      ,m_assoTool           );
   declareProperty("usePixel"             ,m_usePIX             );
   declareProperty("useSCT"               ,m_useSCT             );
-  declareProperty("PixelSummarySvc"      ,m_pixelCondSummarySvc);
+  declareProperty("PixelSummaryTool"     ,m_pixelCondSummaryTool);
   declareProperty("SctSummarySvc"        ,m_sctCondSummarySvc  );
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
   declareProperty("MagFieldSvc"         , m_fieldServiceHandle );
@@ -130,15 +130,15 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
 
   // Get PixelConditionsSummarySvc
   //
-  IInDetConditionsSvc* pixcond = 0; 
+  IInDetConditionsTool* pixcond = 0; 
   if(m_usePIX ) {  
-    if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
+    if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummaryTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummaryTool << endmsg;
     }
-    pixcond = &(*m_pixelCondSummarySvc); 
+    pixcond = &(*m_pixelCondSummaryTool); 
   }
 
   // Get SctConditionsSummarySvc

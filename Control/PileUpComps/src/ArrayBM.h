@@ -26,7 +26,7 @@ namespace CLHEP
   class RandGeneral;
 }
 
-class ArrayBM : virtual public IBeamIntensity, public AthService
+class ArrayBM : public extends<AthService, IBeamIntensity>
 {
 public:
   /// \name Constructor and Destructor
@@ -37,7 +37,6 @@ public:
   /// \name AthService methods
   //@{
   virtual StatusCode initialize() override final;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   //@}
   /// \name IBeamIntensity methods
   //@{
@@ -67,5 +66,13 @@ private:
   /// m_intensityPattern from having max value 1.0 to having mean
   /// value 1.0.
   float m_largestElementInPattern;
+  /// Empty bunch option.  Default (0) means no special treatment of
+  /// empty bunches, signal goes in filled bunches.  Negative number
+  /// means put signal in any empty bunch.  Positive number means put
+  /// signal in one of the first N bunches after a filled bunch.
+  int m_emptyBunches;
+  /// Additional array for keeping the locations we want signal in
+  /// By default, will match the intensity pattern
+  double* m_signalPattern;
 };
 #endif

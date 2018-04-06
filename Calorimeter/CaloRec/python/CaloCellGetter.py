@@ -43,34 +43,15 @@ class CaloCellGetter (Configured)  :
         # handle tile
 
         if doStandardCellReconstruction:
-            # handle LAr
-            import traceback
-            try:
-                from LArROD.LArRODFlags import larRODFlags
-                from AthenaCommon.GlobalFlags import globalflags
-                if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
-                    from AthenaCommon.KeyStore import CfgItemList
-                    CfgItemList("KeyStore_inputFile").removeItem("LArRawChannelContainer#LArRawChannels")
-                if (not larRODFlags.readDigits()) and globalflags.InputFormat() == 'bytestream':
-                    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                    try:
-                        if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
-                            svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
-                    except:
-                        mlog.warning("Cannot remove LArRawChannelContainer/LArRawChannels from bytestream list")
-                from LArROD.LArRawChannelGetter import LArRawChannelGetter
-                theLArRawChannelGetter = LArRawChannelGetter()
-            except:
-                mlog.error("could not get handle to LArRawChannel Quit")
-                print traceback.format_exc()
-                return False
-
-            if not theLArRawChannelGetter.usable():
-                if not self.ignoreConfigError():
-                    mlog.error("LArRawChannelGetter unusable. Quit.")
-                    return False
-                else:
-                    mlog.error("LArRawChannelGetter unusable. Continue nevertheless")
+            from LArROD.LArRODFlags import larRODFlags
+            from AthenaCommon.GlobalFlags import globalflags
+            if larRODFlags.readDigits() and globalflags.DataSource() == 'data':
+                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+                if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
+                    svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArRawChannelContainer/LArRawChannels"]
+                from LArROD.LArRawChannelBuilderDefault import LArRawChannelBuilderDefault
+                LArRawChannelBuilderDefault()
+          
         
         # writing of thinned digits
         if jobproperties.CaloCellFlags.doLArThinnedDigits.statusOn and jobproperties.CaloCellFlags.doLArThinnedDigits():
@@ -106,6 +87,9 @@ class CaloCellGetter (Configured)  :
             from RecExConfig.RecFlags import rec
 
             if rec.doLArg():
+                from LArCabling.LArCablingAccess import LArOnOffIdMapping
+                LArOnOffIdMapping()
+
                 try:
                     from LArCellRec.LArCellRecConf import LArCellBuilderFromLArRawChannelTool
                     theLArCellBuilder = LArCellBuilderFromLArRawChannelTool()
@@ -115,17 +99,10 @@ class CaloCellGetter (Configured)  :
                     return False
 
                 if jobproperties.CaloCellFlags.doLArCreateMissingCells():
-                    # bad channel tools
-                    try:
-                        from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
-                        theLArBadChannelTool = LArBadChanTool()
-                    except:
-                        mlog.error("could not access bad channel tool Quit")
-                        print traceback.format_exc()
-                        return False
-                    ToolSvc += theLArBadChannelTool
                     theLArCellBuilder.addDeadOTX = True
-                    theLArCellBuilder.badChannelTool = theLArBadChannelTool
+                    from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
+                    LArBadFebAccess()
+                    #theLArCellBuilder.MissingFebKey = 
 
                 # add the tool to list of tool ( should use ToolHandle eventually) 
                 theCaloCellMaker += theLArCellBuilder

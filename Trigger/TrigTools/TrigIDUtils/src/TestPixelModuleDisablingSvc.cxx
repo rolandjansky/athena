@@ -13,12 +13,12 @@
 TestPixelModuleDisablingSvc::TestPixelModuleDisablingSvc(const std::string& name, ISvcLocator* sl):
   AthService(name, sl),
   m_detStore("DetectorStore", name),
-  print(0),
-  print_disabled(true)
+  m_print(0),
+  m_print_disabled(true)
 {
-  disabled_modules.clear();
+  m_disabled_modules.clear();
 
-  declareProperty("PrintDisabledModules", print_disabled = true);
+  declareProperty("PrintDisabledModules", m_print_disabled = true);
   declareProperty("ModuleHashes", m_moduleList);
 }
 
@@ -79,7 +79,7 @@ StatusCode TestPixelModuleDisablingSvc::initialize(){
 void TestPixelModuleDisablingSvc::initModules(){
   for (auto it=m_moduleList.begin(); it!=m_moduleList.end(); ++it){
     Identifier moduleId = m_pixelID->wafer_id(*it);
-    disabled_modules.insert(moduleId);
+    m_disabled_modules.insert(moduleId);
     ATH_MSG_INFO("inserting " << moduleId.getString() << endmsg);
   }
 }
@@ -94,7 +94,7 @@ void TestPixelModuleDisablingSvc::handle(const Incident& inc) {
 StatusCode TestPixelModuleDisablingSvc::finalize(){
 
   ATH_MSG_INFO("Finalizing TestPixelModuleDisablingSvc");
-  if(print_disabled)
+  if(m_print_disabled)
     print_disabled_modules();
   return StatusCode::SUCCESS;
 }
@@ -108,7 +108,7 @@ bool TestPixelModuleDisablingSvc::tdaq_module_enabled(const Identifier& moduleId
 
   ATH_MSG_DEBUG("Identifier: " << moduleId);
 
-  if(disabled_modules.find(moduleId) != disabled_modules.end()){
+  if(m_disabled_modules.find(moduleId) != m_disabled_modules.end()){
     ATH_MSG_DEBUG("disabled: " << moduleId);
     return false;
   }
@@ -131,8 +131,8 @@ bool TestPixelModuleDisablingSvc::tdaq_module_enabled(const IdentifierHash & ele
 void TestPixelModuleDisablingSvc::print_disabled_modules(){
 
   for(std::set<Identifier>::const_iterator i
-        = disabled_modules.begin();
-      i != disabled_modules.end(); ++i)
+        = m_disabled_modules.begin();
+      i != m_disabled_modules.end(); ++i)
     ATH_MSG_INFO(" | " << (*i).getString());
 
 

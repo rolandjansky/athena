@@ -173,6 +173,12 @@ PP="$PP"'|INFO TopAlg list empty.'
 # Ignore annoying error from root 6.10.06
 PP="$PP"'|no interpreter information for class TSelectorCint'
 
+# Ignore warning stemming from apparent bug in ReadRootmapFile; gives messages
+# like
+#  Warning in <TInterpreter::ReadRootmapFile>: enum  xAOD::Type::ObjectType found in libxAODBaseDict.so  libEventKernelDict.so  libxAODBaseDict.so  libEventKernelDict.so  is already in libxAODBaseDict.so  libEventKernelDict.so 
+PP="$PP"'|Warning in <TInterpreter::ReadRootmapFile>: enum'
+
+
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"
 fi

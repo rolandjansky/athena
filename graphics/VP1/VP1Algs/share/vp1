@@ -27,7 +27,7 @@ NC='\033[0m' # No Color
 # then use:
 # - printf "I ${RED}love${NC} Stack Overflow\n"
 # - echo -e "I ${RED}love${NC} Stack Overflow"
-i
+
 
 
 echo

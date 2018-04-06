@@ -380,15 +380,15 @@ int main ATLAS_NOT_THREAD_SAFE ()
 {
   errorcheck::ReportMessage::hideErrorLocus(true);
   Athena::getMessageSvcQuiet = true;
-  SGTest::initTestStore();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
   initInputRename();
 
-  test1 (store);
-  test2 (store);
-  test3 (store);
-  test4 (store);
-  test5 (store);
-  test6 (store);
-  test7 (store);
+  test1 (*store);
+  test2 (*store);
+  test3 (*store);
+  test4 (*store);
+  test5 (*store);
+  test6 (*store);
+  test7 (*store);
   return 0;
 }

@@ -16,30 +16,18 @@ namespace xAOD {
     :	AthAlgTool(type, name, parent)
   {
     declareInterface<ITrackParticlesInConeTool>(this);
-    declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
   }
 
   TrackParticlesInConeTool::~TrackParticlesInConeTool()
   {}
 
   StatusCode TrackParticlesInConeTool::initialize() {
+    ATH_CHECK(m_indetTrackParticleLocation.initialize());
     return StatusCode::SUCCESS;
   }
 
   StatusCode TrackParticlesInConeTool::finalize() {
     return StatusCode::SUCCESS;
-  }
-
-  const TrackParticleContainer* TrackParticlesInConeTool::retrieveTrackParticleContainer() const {
-    // retrieve MuonSpectrometer tracks
-    const TrackParticleContainer* indetTrackParticles = 0;
-    if(evtStore()->contains<TrackParticleContainer>(m_indetTrackParticleLocation)) {
-      if(evtStore()->retrieve(indetTrackParticles,m_indetTrackParticleLocation).isFailure()) {
-        ATH_MSG_FATAL( "Unable to retrieve " << m_indetTrackParticleLocation );
-        return 0;
-      }
-    }
-    return indetTrackParticles;
   }
 
   const TrackParticlesInConeTool::LookUpTable*
@@ -50,8 +38,12 @@ namespace xAOD {
     if (rh.isValid())
       return &*rh;
 
-    const TrackParticleContainer* indetTrackParticles = retrieveTrackParticleContainer();
-    if( !indetTrackParticles ) return nullptr;
+    SG::ReadHandle<TrackParticleContainer> indetTrackParticles(m_indetTrackParticleLocation);
+    if( !indetTrackParticles.isValid() ) {
+      ATH_MSG_ERROR("Could not open the TrackParticle container with key " 
+		    << m_indetTrackParticleLocation.key());
+      return nullptr;
+    }
     auto lut = std::make_unique<LookUpTable>();
     lut->init(*indetTrackParticles);
     SG::WriteHandle<LookUpTable> wh (tableName);

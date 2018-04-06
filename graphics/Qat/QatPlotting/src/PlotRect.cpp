@@ -64,36 +64,36 @@ class PlotRect::Clockwork {
 
 
 
-PlotRect::PlotRect (const PlotRect & other):Plotable(),c(new Clockwork(*(other.c))){
+PlotRect::PlotRect (const PlotRect & other):Plotable(),m_c(new Clockwork(*(other.m_c))){
   
 }
 
 PlotRect & PlotRect::operator=(const PlotRect & other) {
   if (&other!=this) {
     Plotable::operator=(other);
-    c.reset(new Clockwork(*(other.c)));
+    m_c.reset(new Clockwork(*(other.m_c)));
   }
   return *this;
 }
 
 // Constructor
 PlotRect::PlotRect(const QRectF & rectangle)
-  :Plotable(),c(new Clockwork())
+  :Plotable(),m_c(new Clockwork())
 {
-  c->rectangle=rectangle;
+  m_c->rectangle=rectangle;
 }
 
 
 
 // Destructor
 PlotRect::~PlotRect(){
-  //delete c;
+  //delete m_c;
 }
 
 
 // Get the "natural maximum R"
 const QRectF  PlotRect::rectHint() const {
-  return c->rectangle;
+  return m_c->rectangle;
 }
 
 
@@ -104,10 +104,10 @@ void PlotRect::describeYourselfTo(AbsPlotter *plotter) const{
   LinToLog *toLogX= plotter->isLogX() ? new LinToLog (plotter->rect()->left(),plotter->rect()->right()) : NULL;
   LinToLog *toLogY= plotter->isLogY() ? new LinToLog (plotter->rect()->top(),plotter->rect()->bottom()) : NULL;
 
-  double x0=c->rectangle.left();
-  double x1=c->rectangle.right();
-  double y0=c->rectangle.bottom();
-  double y1=c->rectangle.top();
+  double x0=m_c->rectangle.left();
+  double x1=m_c->rectangle.right();
+  double y0=m_c->rectangle.bottom();
+  double y1=m_c->rectangle.top();
 
   QPen pen =properties().pen;
   QBrush brush=properties().brush;
@@ -138,16 +138,16 @@ void PlotRect::describeYourselfTo(AbsPlotter *plotter) const{
 }
 
 const PlotRect::Properties  PlotRect::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotRect::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties = new Properties(properties);
+  delete m_c->myProperties;
+  m_c->myProperties = new Properties(properties);
 }
 
 void PlotRect::resetProperties() {
-  delete c->myProperties;
-  c->myProperties=nullptr;
+  delete m_c->myProperties;
+  m_c->myProperties=nullptr;
 }
 

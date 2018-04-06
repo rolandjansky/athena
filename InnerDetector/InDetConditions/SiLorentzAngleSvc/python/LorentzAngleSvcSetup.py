@@ -65,10 +65,11 @@ class LorentzAngleSvcSetup:
         if ( DetFlags.detdescr.SCT_on() ):
             # Init SCTLorentzAngleSvc
 
-            from SCTLorentzAngleSvcSetup import sctLorentzAngleSvcSetup
+            from SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
+            sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup()
             self.sct   = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
-            self.sctSiliconConditionsSvc  = sctLorentzAngleSvcSetup.SCT_SiliconConditionsSvc
-            self.SCT_SiliconConditionsSvc = sctLorentzAngleSvcSetup.SCT_SiliconConditionsSvc
+            self.sctSiliconConditionsTool  = sctLorentzAngleSvcSetup.SCT_SiliconConditionsTool
+            self.SCT_SiliconConditionsTool = sctLorentzAngleSvcSetup.SCT_SiliconConditionsTool
 
     # Force the Lorentz angle sercive to use SiliconConditions service (which are assumed to use the DB)
     # Default is to decide based on GeoModel.
@@ -87,7 +88,7 @@ class LorentzAngleSvcSetup:
 
     def sctForceUseDB(self) :
         "Force usage of conditions DB for SCT"
-        self.SCT_SiliconConditionsSvc.CheckGeoModel = False
+        self.SCT_SiliconConditionsTool.CheckGeoModel = False
 
 
     # Force to use the defaults from GeoModel. In case it is not possible to use DCS
@@ -107,7 +108,7 @@ class LorentzAngleSvcSetup:
 
     def sctForceUseGeoModel(self) :
         "Force usage of GeoModel defaults for SCT"
-        self.SCT_SiliconConditionsSvc.ForceUseGeoModel = True
+        self.SCT_SiliconConditionsTool.ForceUseGeoModel = True
 
 
 # configuration instance
@@ -117,4 +118,6 @@ from AthenaCommon.DetFlags      import DetFlags
 if ( DetFlags.detdescr.pixel_on() ):
    from PixelLorentzAngleSvcSetup import PixelLorentzAngleSvc
 if ( DetFlags.detdescr.SCT_on() ):
-   from SCTLorentzAngleSvcSetup import SCTLorentzAngleSvc
+   from SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
+   sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup()
+   SCTLorentzAngleSvc = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc

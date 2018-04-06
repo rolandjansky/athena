@@ -186,8 +186,8 @@ void CaloClusterCollectionSettingsButton::Imp::initEditWindow()
 void CaloClusterCollectionSettingsButton::setMaterialText(const QString& t)
 {
 	VP1Msg::messageVerbose("CaloClusterCollectionSettingsButton::setMaterialText()");
-	if (d->editwindow)
-		d->editwindow->setWindowTitle(t);
+	if (m_d->editwindow)
+		m_d->editwindow->setWindowTitle(t);
 	setToolTip(t);
 }
 
@@ -195,7 +195,7 @@ void CaloClusterCollectionSettingsButton::setMaterialText(const QString& t)
 //____________________________________________________________________
 double CaloClusterCollectionSettingsButton::lengthOf10GeV()
 {
-	double val = d->ui_customsettings.doubleSpinBox_lengthOf10GeV->value();
+	double val = m_d->ui_customsettings.doubleSpinBox_lengthOf10GeV->value();
 	VP1Msg::messageVerbose("CaloClusterCollectionSettingsButton::lengthOf10GeV() - value: " + QString::number(val));
 	return val;
 }
@@ -203,7 +203,7 @@ double CaloClusterCollectionSettingsButton::lengthOf10GeV()
 ////____________________________________________________________________
 //double CaloClusterCollectionSettingsButton::maxR()
 //{
-//	double val = d->ui_customsettings.checkBox_maxR->isChecked() ? (d->ui_customsettings.doubleSpinBox_maxR->value() ) : -1; //d->ui_customsettings.doubleSpinBox_maxR->value();
+//	double val = m_d->ui_customsettings.checkBox_maxR->isChecked() ? (m_d->ui_customsettings.doubleSpinBox_maxR->value() ) : -1; //m_d->ui_customsettings.doubleSpinBox_maxR->value();
 //	VP1Msg::messageVerbose("CaloClusterCollectionSettingsButton::maxR() - value: " + QString::number(val));
 //	return val;
 //}
@@ -215,21 +215,21 @@ double CaloClusterCollectionSettingsButton::lengthOf10GeV()
 
 
 //____________________________________________________________________
-CaloClusterCollectionSettingsButton::CaloClusterCollectionSettingsButton(QWidget * parent,int _dim)
-: VP1CollectionSettingsButtonBase(parent,0), d(new Imp)
-//: VP1CollectionSettingsButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
+CaloClusterCollectionSettingsButton::CaloClusterCollectionSettingsButton(QWidget * parent,int dim)
+: VP1CollectionSettingsButtonBase(parent,0), m_d(new Imp)
+//: VP1CollectionSettingsButtonBase(parent,0,"VP1MaterialButton"), m_d(new Imp)
 {
-	d->dim = _dim;
+	m_d->dim = dim;
 
-	d->theclass = this;
-	d->initEditWindow();
+	m_d->theclass = this;
+	m_d->initEditWindow();
 
-	d->m_transverseEnergy = true;
-	d->m_forceRebuild = false;
+	m_d->m_transverseEnergy = true;
+	m_d->m_forceRebuild = false;
 
 //	// default material for b-jets
-//	d->materialFallback = d->createMaterial(116,255,228);
-//	d->materialFallback->ref();
+//	m_d->materialFallback = m_d->createMaterial(116,255,228);
+//	m_d->materialFallback->ref();
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//  Setup connections which monitor changes in the controller so that we may emit signals as appropriate:  //
@@ -238,46 +238,46 @@ CaloClusterCollectionSettingsButton::CaloClusterCollectionSettingsButton(QWidget
 	// COMMON SETTINGS
 
 	// -> cutAllowedP/Pt
-	connect(d->ui_commonsettings.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->ui_commonsettings.checkBox_cut_maxpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->ui_commonsettings.doubleSpinBox_cut_minpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->ui_commonsettings.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
-	connect(d->ui_commonsettings.comboBox_momtype,SIGNAL(currentIndexChanged(int)),this,SLOT(setTransverseEnergy()));
+	connect(m_d->ui_commonsettings.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->ui_commonsettings.checkBox_cut_maxpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->ui_commonsettings.doubleSpinBox_cut_minpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->ui_commonsettings.checkBox_cut_minpt,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedPt()));
+	connect(m_d->ui_commonsettings.comboBox_momtype,SIGNAL(currentIndexChanged(int)),this,SLOT(setTransverseEnergy()));
 
 	// -> cutAllowedEta
-	connect(d->ui_commonsettings.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)),this,SLOT(possibleChange_cutAllowedEta()));
+	connect(m_d->ui_commonsettings.etaPhiCutWidget,SIGNAL(allowedEtaChanged(const VP1Interval&)),this,SLOT(possibleChange_cutAllowedEta()));
 
 	// -> cutAllowedPhi
-	connect(d->ui_commonsettings.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(possibleChange_cutAllowedPhi()));
+	connect(m_d->ui_commonsettings.etaPhiCutWidget,SIGNAL(allowedPhiChanged(const QList<VP1Interval>&)),this,SLOT(possibleChange_cutAllowedPhi()));
 
 
 	// CUSTOM SETTINGS
 
 //	//Draw Styles / Complexity:
-//	VP1QtInventorUtils::setLimitsLineWidthSlider(d->ui_commonsettings.horizontalSlider_trackWidth);
-//	VP1QtInventorUtils::setValueLineWidthSlider(d->ui_commonsettings.horizontalSlider_trackWidth,1.0);
+//	VP1QtInventorUtils::setLimitsLineWidthSlider(m_d->ui_commonsettings.horizontalSlider_trackWidth);
+//	VP1QtInventorUtils::setValueLineWidthSlider(m_d->ui_commonsettings.horizontalSlider_trackWidth,1.0);
 
 	// -> scale
-	connect(d->ui_customsettings.doubleSpinBox_lengthOf10GeV,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_scale()));
-	connect(d->ui_customsettings.checkBox_logscale,SIGNAL(toggled(bool)),this,SLOT(possibleChange_scale()));
-	connect(d->ui_customsettings.radioButton_relativeScale,SIGNAL(toggled(bool)),this,SLOT(possibleChange_scale()));
-	connect(d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_scale()));
+	connect(m_d->ui_customsettings.doubleSpinBox_lengthOf10GeV,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_scale()));
+	connect(m_d->ui_customsettings.checkBox_logscale,SIGNAL(toggled(bool)),this,SLOT(possibleChange_scale()));
+	connect(m_d->ui_customsettings.radioButton_relativeScale,SIGNAL(toggled(bool)),this,SLOT(possibleChange_scale()));
+	connect(m_d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_scale()));
 
 
 
 
 
 //	// random colors
-//	connect(d->ui_customsettings.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(enableRandomColours(bool)));
-//	connect(d->ui_customsettings.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(possibleChange_randomJetColours()));
-//	connect(d->ui_customsettings.pushButton_colourbyrandom_rerandomise,SIGNAL(clicked()),this,SLOT(emitRerandomise()));
+//	connect(m_d->ui_customsettings.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(enableRandomColours(bool)));
+//	connect(m_d->ui_customsettings.checkBox_randomColours, SIGNAL(toggled(bool)), this, SLOT(possibleChange_randomJetColours()));
+//	connect(m_d->ui_customsettings.pushButton_colourbyrandom_rerandomise,SIGNAL(clicked()),this,SLOT(emitRerandomise()));
 //	this->enableRandomColours(false);
 
 //	// maxR
-//	connect(d->ui_customsettings.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(enableMaxR(bool)));
-//	connect(d->ui_customsettings.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(possibleChange_maxR()));
-//	connect(d->ui_customsettings.doubleSpinBox_maxR, SIGNAL(valueChanged(double)), this, SLOT(possibleChange_maxR()));
+//	connect(m_d->ui_customsettings.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(enableMaxR(bool)));
+//	connect(m_d->ui_customsettings.checkBox_maxR, SIGNAL(toggled(bool)), this, SLOT(possibleChange_maxR()));
+//	connect(m_d->ui_customsettings.doubleSpinBox_maxR, SIGNAL(valueChanged(double)), this, SLOT(possibleChange_maxR()));
 //	this->enableMaxR(false);
 
 
@@ -285,14 +285,14 @@ CaloClusterCollectionSettingsButton::CaloClusterCollectionSettingsButton(QWidget
 
 	// Material button
 	connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
-	connect(d->ui_commonsettings.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
-	connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(updateButton()));
-	connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SIGNAL(lastAppliedChanged()));
+	connect(m_d->ui_commonsettings.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
+	connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(updateButton()));
+	connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SIGNAL(lastAppliedChanged()));
 	setAcceptDrops(true);
 
 
 //	// init material for b-tagged jet
-//	d->ui_customsettings.matButton_btaggedJets->setMaterial(d->materialFallback);
+//	m_d->ui_customsettings.matButton_btaggedJets->setMaterial(m_d->materialFallback);
 
 
 	QTimer::singleShot(0, this, SLOT(updateButton()));
@@ -300,72 +300,72 @@ CaloClusterCollectionSettingsButton::CaloClusterCollectionSettingsButton(QWidget
 }
 
 // QWidget& CaloClusterCollectionSettingsButton::editWindow() {
-//   if (!d->editwindow)
+//   if (!m_d->editwindow)
 //     initEditWindow();
-//   return *(d->editwindow);
+//   return *(m_d->editwindow);
 // } 
 CaloClusterCollectionSettingsButton::~CaloClusterCollectionSettingsButton()
 {
-	delete d->editwindow;
-//	d->trackDrawStyle->unref();
-//	d->trackLightModel->unref();
-	delete d;
+	delete m_d->editwindow;
+//	m_d->trackDrawStyle->unref();
+//	m_d->trackLightModel->unref();
+	delete m_d;
 }
 
 void CaloClusterCollectionSettingsButton::updateButton()
 {
 	if (objectName().isEmpty())
 		setObjectName("CaloClusterCollectionSettingsButton");
-	messageVerbose("setColButtonProperties: color=" + str(d->matButton->lastAppliedDiffuseColour()));
-	VP1ColorSelectButton::setColButtonProperties(this,d->matButton->lastAppliedDiffuseColour(),d->dim);
+	messageVerbose("setColButtonProperties: color=" + str(m_d->matButton->lastAppliedDiffuseColour()));
+	VP1ColorSelectButton::setColButtonProperties(this,m_d->matButton->lastAppliedDiffuseColour(),m_d->dim);
 }
 
-void CaloClusterCollectionSettingsButton::setDimension(int _dim)
+void CaloClusterCollectionSettingsButton::setDimension(int dim)
 {
-	if (d->dim == _dim)
+	if (m_d->dim == dim)
 		return;
-	d->dim = _dim;
+	m_d->dim = dim;
 	updateButton();
 }
 
 void CaloClusterCollectionSettingsButton::showEditMaterialDialog()
 {
-	if (!d->editwindow)
-		d->initEditWindow();
+	if (!m_d->editwindow)
+		m_d->initEditWindow();
 
-	if (d->editwindow->isHidden())
-		d->editwindow->show();
+	if (m_d->editwindow->isHidden())
+		m_d->editwindow->show();
 	else
-		d->editwindow->hide();
+		m_d->editwindow->hide();
 }
 
 bool CaloClusterCollectionSettingsButton::setMaterial(SoMaterial*mat)
 {  
 	// std::cout<<"CaloClusterCollectionSettingsButton::setMaterial with mat="<<mat<<std::endl;
-	if (!d->matButton) d->initEditWindow();
-	d->matButton->setMaterial(mat);
+	if (!m_d->matButton) m_d->initEditWindow();
+	m_d->matButton->setMaterial(mat);
 	return true;
 }
 
 void CaloClusterCollectionSettingsButton::copyValuesFromMaterial(SoMaterial*mat)
 {
-	if (!d->matButton) d->initEditWindow();
-	d->matButton->setMaterial(mat);
+	if (!m_d->matButton) m_d->initEditWindow();
+	m_d->matButton->setMaterial(mat);
 }
 double CaloClusterCollectionSettingsButton::lastAppliedTransparency() const
 {
-	if (!d->matButton) d->initEditWindow();
-	return d->matButton->lastAppliedTransparency();
+	if (!m_d->matButton) m_d->initEditWindow();
+	return m_d->matButton->lastAppliedTransparency();
 }
 double CaloClusterCollectionSettingsButton::lastAppliedShininess() const
 {
-	if (!d->matButton) d->initEditWindow();
-	return d->matButton->lastAppliedShininess();
+	if (!m_d->matButton) m_d->initEditWindow();
+	return m_d->matButton->lastAppliedShininess();
 }
 double CaloClusterCollectionSettingsButton::lastAppliedBrightness() const
 {
-	if (!d->matButton) d->initEditWindow();
-	return d->matButton->lastAppliedBrightness();
+	if (!m_d->matButton) m_d->initEditWindow();
+	return m_d->matButton->lastAppliedBrightness();
 }
 
 
@@ -374,7 +374,7 @@ double CaloClusterCollectionSettingsButton::lastAppliedBrightness() const
 void CaloClusterCollectionSettingsButton::mousePressEvent(QMouseEvent *event)
 {
 	if (event->button() == Qt::LeftButton)
-		d->dragStartPosition = event->pos();
+		m_d->dragStartPosition = event->pos();
 	QPushButton::mousePressEvent(event);
 }
 
@@ -390,7 +390,7 @@ void CaloClusterCollectionSettingsButton::mouseMoveEvent(QMouseEvent *event)
 {
 	if (!(event->buttons() & Qt::LeftButton))
 		return;
-	if ((event->pos() - d->dragStartPosition).manhattanLength()
+	if ((event->pos() - m_d->dragStartPosition).manhattanLength()
 			< QApplication::startDragDistance())
 		return;
 
@@ -412,22 +412,22 @@ void CaloClusterCollectionSettingsButton::mouseMoveEvent(QMouseEvent *event)
 	// ////////////////////////////////////////////////////////
 	//
 	// QString s = "SoMaterial * mat = new SoMaterial;\n";
-	// QString str_ambient = d->toSbColTxt(d->lastapplied_ambient);
+	// QString str_ambient = m_d->toSbColTxt(m_d->lastapplied_ambient);
 	// if (str_ambient!="SbColor(0.2,0.2,0.2)")
 	//   s += "mat->ambientColor.setValue("+str_ambient+");\n";
-	// QString str_diffuse = d->toSbColTxt(d->lastapplied_diffuse);
+	// QString str_diffuse = m_d->toSbColTxt(m_d->lastapplied_diffuse);
 	// if (str_diffuse!="SbColor(0.8,0.8,0.8)")
 	//   s += "mat->diffuseColor.setValue("+str_diffuse+");\n";
-	// QString str_specular = d->toSbColTxt(d->lastapplied_specular);
+	// QString str_specular = m_d->toSbColTxt(m_d->lastapplied_specular);
 	// if (str_specular!="SbColor(0,0,0)")
 	//   s += "mat->specularColor.setValue("+str_specular+");\n";
-	// QString str_emissive = d->toSbColTxt(d->lastapplied_emissive);
+	// QString str_emissive = m_d->toSbColTxt(m_d->lastapplied_emissive);
 	// if (str_emissive!="SbColor(0,0,0)")
 	//   s += "mat->emissiveColor.setValue("+str_emissive+");\n";
-	// QString str_shininess = d->printFloat(d->lastapplied_shininess/100.0);
+	// QString str_shininess = m_d->printFloat(m_d->lastapplied_shininess/100.0);
 	// if (str_shininess!="0.2")
 	//   s +=     "mat->shininess.setValue("+str_shininess+");\n";
-	// QString str_transparency = d->printFloat(d->lastapplied_transparency/100.0);
+	// QString str_transparency = m_d->printFloat(m_d->lastapplied_transparency/100.0);
 	// if (str_transparency!="0")
 	//   s +=     "mat->transparency.setValue("+str_transparency+");\n";
 	// mimeData->setText(s);
@@ -451,45 +451,45 @@ QByteArray CaloClusterCollectionSettingsButton::saveState() const{
 	messageDebug("CaloClusterCollectionSettingsButton::saveState()");
 
 	// messageVerbose("getState");
-	// if (d->ui_commonsettings.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
+	// if (m_d->ui_commonsettings.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
 	VP1Serialise serialise(1/*version*/);
 
 
-	serialise.save(d->matButton);
+	serialise.save(m_d->matButton);
 	//serialise.disableUnsavedChecks(); // TODO: what this does??
 
 	// COMMON SETTINGS
-	serialise.save(d->ui_commonsettings.checkBox_tracksUseBaseLightModel);
-	serialise.save(d->ui_commonsettings.checkBox_cut_minpt);
-	serialise.save(d->ui_commonsettings.doubleSpinBox_cut_minpt_gev);
-	serialise.save(d->ui_commonsettings.checkBox_cut_maxpt);
-	serialise.save(d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev);
-	serialise.save(d->ui_commonsettings.comboBox_momtype);
+	serialise.save(m_d->ui_commonsettings.checkBox_tracksUseBaseLightModel);
+	serialise.save(m_d->ui_commonsettings.checkBox_cut_minpt);
+	serialise.save(m_d->ui_commonsettings.doubleSpinBox_cut_minpt_gev);
+	serialise.save(m_d->ui_commonsettings.checkBox_cut_maxpt);
+	serialise.save(m_d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev);
+	serialise.save(m_d->ui_commonsettings.comboBox_momtype);
 
 	// ETA-PHI CUTS (from VP1Base/VP1EtaPhiCutWidget.cxx)
-	serialise.save(d->ui_commonsettings.etaPhiCutWidget);
+	serialise.save(m_d->ui_commonsettings.etaPhiCutWidget);
 
 	// CALO CLUSTER SETTINGS
-	serialise.save(d->ui_customsettings.radioButton_absoluteScale, d->ui_customsettings.radioButton_relativeScale);
-	serialise.save(d->ui_customsettings.doubleSpinBox_lengthOf10GeV);
-	serialise.save(d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic);
-	serialise.save(d->ui_customsettings.checkBox_logscale);
-	serialise.save(d->ui_customsettings.checkBox_showVolumeOutLines);
+	serialise.save(m_d->ui_customsettings.radioButton_absoluteScale, m_d->ui_customsettings.radioButton_relativeScale);
+	serialise.save(m_d->ui_customsettings.doubleSpinBox_lengthOf10GeV);
+	serialise.save(m_d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic);
+	serialise.save(m_d->ui_customsettings.checkBox_logscale);
+	serialise.save(m_d->ui_customsettings.checkBox_showVolumeOutLines);
 
 
 
-//	serialise.save(d->ui_customsettings.doubleSpinBox_radialScale);
+//	serialise.save(m_d->ui_customsettings.doubleSpinBox_radialScale);
 
-//	serialise.save(d->ui_customsettings.bTaggingCheckBox);
-//	serialise.save(d->ui_customsettings.bTaggingComboBox);
-//	serialise.save(d->ui_customsettings.bTaggingSpinBox);
-//	serialise.save(d->ui_customsettings.radioButton_material, d->ui_customsettings.radioButton_skins);
-//	serialise.save(d->ui_customsettings.matButton_btaggedJets);
-//	serialise.save(d->ui_customsettings.skinsComboBox);
+//	serialise.save(m_d->ui_customsettings.bTaggingCheckBox);
+//	serialise.save(m_d->ui_customsettings.bTaggingComboBox);
+//	serialise.save(m_d->ui_customsettings.bTaggingSpinBox);
+//	serialise.save(m_d->ui_customsettings.radioButton_material, m_d->ui_customsettings.radioButton_skins);
+//	serialise.save(m_d->ui_customsettings.matButton_btaggedJets);
+//	serialise.save(m_d->ui_customsettings.skinsComboBox);
 
 	// Parameters
-//	serialise.save(d->ui_commonsettings.checkBox_showparameters);
-//	serialise.save(d->ui_commonsettings.checkBox_parameters_colourByType);
+//	serialise.save(m_d->ui_commonsettings.checkBox_showparameters);
+//	serialise.save(m_d->ui_commonsettings.checkBox_parameters_colourByType);
 
 	serialise.widgetHandled(this);
 	serialise.warnUnsaved(this);
@@ -505,53 +505,53 @@ void CaloClusterCollectionSettingsButton::restoreFromState( const QByteArray& ba
 		messageDebug("restoreFromState() - ignoring...");
 		return;//Ignore silently
 	}
-	state.restore(d->matButton);
+	state.restore(m_d->matButton);
 
 
 	// COMMON SETTINGS
-	state.restore(d->ui_commonsettings.checkBox_tracksUseBaseLightModel);
-	state.restore(d->ui_commonsettings.checkBox_cut_minpt);
-	state.restore(d->ui_commonsettings.doubleSpinBox_cut_minpt_gev);
-	state.restore(d->ui_commonsettings.checkBox_cut_maxpt);
-	state.restore(d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev);
-	state.restore(d->ui_commonsettings.comboBox_momtype);
+	state.restore(m_d->ui_commonsettings.checkBox_tracksUseBaseLightModel);
+	state.restore(m_d->ui_commonsettings.checkBox_cut_minpt);
+	state.restore(m_d->ui_commonsettings.doubleSpinBox_cut_minpt_gev);
+	state.restore(m_d->ui_commonsettings.checkBox_cut_maxpt);
+	state.restore(m_d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev);
+	state.restore(m_d->ui_commonsettings.comboBox_momtype);
 
 	// ETA-PHI CUTS (from VP1Base/VP1EtaPhiCutWidget.cxx)
-	state.restore(d->ui_commonsettings.etaPhiCutWidget);
+	state.restore(m_d->ui_commonsettings.etaPhiCutWidget);
 
 	// CALO CLUSTER SETTINGS
-	state.restore(d->ui_customsettings.radioButton_absoluteScale, d->ui_customsettings.radioButton_relativeScale);
-	state.restore(d->ui_customsettings.doubleSpinBox_lengthOf10GeV);
-	state.restore(d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic);
-	state.restore(d->ui_customsettings.checkBox_logscale);
-	state.restore(d->ui_customsettings.checkBox_showVolumeOutLines);
+	state.restore(m_d->ui_customsettings.radioButton_absoluteScale, m_d->ui_customsettings.radioButton_relativeScale);
+	state.restore(m_d->ui_customsettings.doubleSpinBox_lengthOf10GeV);
+	state.restore(m_d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic);
+	state.restore(m_d->ui_customsettings.checkBox_logscale);
+	state.restore(m_d->ui_customsettings.checkBox_showVolumeOutLines);
 
 
 
-//	state.restore(d->ui_customsettings.doubleSpinBox_radialScale);
+//	state.restore(m_d->ui_customsettings.doubleSpinBox_radialScale);
 
-//	state.restore(d->ui_customsettings.bTaggingCheckBox);
-//	state.restore(d->ui_customsettings.bTaggingComboBox);
-//	state.restore(d->ui_customsettings.bTaggingSpinBox);
-//	state.restore(d->ui_customsettings.radioButton_material, d->ui_customsettings.radioButton_skins);
-//	state.restore(d->ui_customsettings.matButton_btaggedJets);
-//	state.restore(d->ui_customsettings.skinsComboBox);
+//	state.restore(m_d->ui_customsettings.bTaggingCheckBox);
+//	state.restore(m_d->ui_customsettings.bTaggingComboBox);
+//	state.restore(m_d->ui_customsettings.bTaggingSpinBox);
+//	state.restore(m_d->ui_customsettings.radioButton_material, m_d->ui_customsettings.radioButton_skins);
+//	state.restore(m_d->ui_customsettings.matButton_btaggedJets);
+//	state.restore(m_d->ui_customsettings.skinsComboBox);
 
 
 	//	// Parameters
-//	state.restore(d->ui_commonsettings.checkBox_showparameters);
-//	state.restore(d->ui_commonsettings.checkBox_parameters_colourByType);
+//	state.restore(m_d->ui_commonsettings.checkBox_showparameters);
+//	state.restore(m_d->ui_commonsettings.checkBox_parameters_colourByType);
 
 	state.widgetHandled(this);
 	state.warnUnrestored(this);
 
 //	updateTrackTubeRadius();
-//	updateTrackLightModel(d->ui_commonsettings.checkBox_tracksUseBaseLightModel);
+//	updateTrackLightModel(m_d->ui_commonsettings.checkBox_tracksUseBaseLightModel);
 
 	updateButton();
 
 //	// after restoring the state, check if b-tagging checkbox is enabled,
-//	if (d->ui_customsettings.bTaggingCheckBox->isChecked())
+//	if (m_d->ui_customsettings.bTaggingCheckBox->isChecked())
 //		possibleChange_bTaggingEnabled(true); // init the b-tagging toolbox as active
 //	else
 //		possibleChange_bTaggingEnabled(false); // init the b-tagging toolbox as not-active
@@ -564,22 +564,22 @@ void CaloClusterCollectionSettingsButton::restoreFromState( const QByteArray& ba
 //____________________________________________________________________
 bool CaloClusterCollectionSettingsButton::isTransverseEnergy() const
 {
-	return d->m_transverseEnergy;
+	return m_d->m_transverseEnergy;
 }
 
 //____________________________________________________________________
 void CaloClusterCollectionSettingsButton::setTransverseEnergy()
 {
-	if(d->ui_commonsettings.comboBox_momtype->currentText()=="Et")
-		d->m_transverseEnergy = true;
+	if(m_d->ui_commonsettings.comboBox_momtype->currentText()=="Et")
+		m_d->m_transverseEnergy = true;
 	else
-		d->m_transverseEnergy = false;
+		m_d->m_transverseEnergy = false;
 
 
-	messageDebug("setTransverseEnergy: "+QString::number(d->m_transverseEnergy));
+	messageDebug("setTransverseEnergy: "+QString::number(m_d->m_transverseEnergy));
 
 //	// when we change Et<-->E we force the rebuild of all objects in the scene
-//	d->m_forceRebuild = true;
+//	m_d->m_forceRebuild = true;
 	// then, we rebuild all objects
 	emit energyTypeChanged();
 }
@@ -587,10 +587,10 @@ void CaloClusterCollectionSettingsButton::setTransverseEnergy()
 //____________________________________________________________________
 VP1Interval CaloClusterCollectionSettingsButton::cutAllowedPt() const
 {
-	if (!d->editwindow)
-		d->initEditWindow();
+	if (!m_d->editwindow)
+		m_d->initEditWindow();
 
-	if (!d->ui_commonsettings.checkBox_cut_minpt)
+	if (!m_d->ui_commonsettings.checkBox_cut_minpt)
 		return VP1Interval();
 
 	// will set range to negative if we have momcut=P
@@ -600,8 +600,8 @@ VP1Interval CaloClusterCollectionSettingsButton::cutAllowedPt() const
 	// etc
 	//bool EtCut = isTransverseEnergy();
 
-	const double minFromInterface=d->ui_commonsettings.doubleSpinBox_cut_minpt_gev->value()*1000; // from GeV to MeV
-	const double maxFromInterface=d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev->value()*1000;
+	const double minFromInterface=m_d->ui_commonsettings.doubleSpinBox_cut_minpt_gev->value()*1000; // from GeV to MeV
+	const double maxFromInterface=m_d->ui_commonsettings.doubleSpinBox_cut_maxpt_gev->value()*1000;
 
 	double min=0.0,max=0.0;
 
@@ -611,16 +611,16 @@ VP1Interval CaloClusterCollectionSettingsButton::cutAllowedPt() const
 	/*
 	if (EtCut) {
 		//Et cut
-		min = (d->ui_commonsettings.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
-		max = (d->ui_commonsettings.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
+		min = (m_d->ui_commonsettings.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
+		max = (m_d->ui_commonsettings.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
 	} else {
 		//E cut
-		min = (d->ui_commonsettings.checkBox_cut_maxpt->isChecked() ? -maxFromInterface : -std::numeric_limits<double>::infinity());
-		max = (d->ui_commonsettings.checkBox_cut_minpt->isChecked() ? -minFromInterface : std::numeric_limits<double>::infinity());
+		min = (m_d->ui_commonsettings.checkBox_cut_maxpt->isChecked() ? -maxFromInterface : -std::numeric_limits<double>::infinity());
+		max = (m_d->ui_commonsettings.checkBox_cut_minpt->isChecked() ? -minFromInterface : std::numeric_limits<double>::infinity());
 	}*/
 
-	min = (d->ui_commonsettings.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
-	max = (d->ui_commonsettings.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
+	min = (m_d->ui_commonsettings.checkBox_cut_minpt->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
+	max = (m_d->ui_commonsettings.checkBox_cut_maxpt->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
 
 	message("cutAllowedPt: min,max="+QString::number(min)+","+QString::number(max));
 
@@ -633,17 +633,17 @@ VP1Interval CaloClusterCollectionSettingsButton::cutAllowedPt() const
 //____________________________________________________________________
 VP1Interval CaloClusterCollectionSettingsButton::cutAllowedEta() const
 {
-	if (!d->editwindow)
-		d->initEditWindow();
-	return d->ui_commonsettings.etaPhiCutWidget->allowedEta();
+	if (!m_d->editwindow)
+		m_d->initEditWindow();
+	return m_d->ui_commonsettings.etaPhiCutWidget->allowedEta();
 }
 
 //____________________________________________________________________
 QList<VP1Interval> CaloClusterCollectionSettingsButton::cutAllowedPhi() const
 {
-	if (!d->editwindow)
-		d->initEditWindow();
-	return d->ui_commonsettings.etaPhiCutWidget->allowedPhi();
+	if (!m_d->editwindow)
+		m_d->initEditWindow();
+	return m_d->ui_commonsettings.etaPhiCutWidget->allowedPhi();
 }
 
 
@@ -653,30 +653,30 @@ void CaloClusterCollectionSettingsButton::possibleChange_cutAllowedPt()
 {
 	messageVerbose("possibleChange_cutAllowedPt() ");
 
-	if ( d->last_cutAllowedPt==cutAllowedPt()) return;
-//	if ( !d->m_forceRebuild && d->last_cutAllowedPt==cutAllowedPt()) return;
+	if ( m_d->last_cutAllowedPt==cutAllowedPt()) return;
+//	if ( !m_d->m_forceRebuild && m_d->last_cutAllowedPt==cutAllowedPt()) return;
 
 	messageVerbose("cutAllowedPt() changed");
-	d->last_cutAllowedPt= cutAllowedPt();
-	emit cutAllowedPtChanged(d->last_cutAllowedPt);
+	m_d->last_cutAllowedPt= cutAllowedPt();
+	emit cutAllowedPtChanged(m_d->last_cutAllowedPt);
 }
 
 //____________________________________________________________________
 void CaloClusterCollectionSettingsButton::possibleChange_cutAllowedEta()
 {
-	if (d->last_cutAllowedEta==cutAllowedEta()) return;
+	if (m_d->last_cutAllowedEta==cutAllowedEta()) return;
 	messageVerbose("cutAllowedEta() changed");
-	d->last_cutAllowedEta=cutAllowedEta();
-	emit cutAllowedEtaChanged(d->last_cutAllowedEta);
+	m_d->last_cutAllowedEta=cutAllowedEta();
+	emit cutAllowedEtaChanged(m_d->last_cutAllowedEta);
 }
 
 //____________________________________________________________________
 void CaloClusterCollectionSettingsButton::possibleChange_cutAllowedPhi()
 {
-	if (d->last_cutAllowedPhi==cutAllowedPhi()) return;
+	if (m_d->last_cutAllowedPhi==cutAllowedPhi()) return;
 	messageVerbose("cutAllowedPhi() changed");
-	d->last_cutAllowedPhi=cutAllowedPhi();
-	emit cutAllowedPhiChanged(d->last_cutAllowedPhi);
+	m_d->last_cutAllowedPhi=cutAllowedPhi();
+	emit cutAllowedPhiChanged(m_d->last_cutAllowedPhi);
 }
 
 //____________________________________________________________________
@@ -684,22 +684,22 @@ void CaloClusterCollectionSettingsButton::possibleChange_scale()
 {
 	messageDebug("CaloClusterCollectionSettingsButton::possibleChange_scale() ");
 
-//	if (d->last_scale == lengthOf10GeV()) return;
-	if (d->last_scale == scale()) return;
+//	if (m_d->last_scale == lengthOf10GeV()) return;
+	if (m_d->last_scale == scale()) return;
 
 //	messageVerbose("lengthOf10GeV changed");
-//	d->last_scale = lengthOf10GeV();
+//	m_d->last_scale = lengthOf10GeV();
 
 	messageDebug("cluster size settings changed");
-	d->last_scale = scale();
+	m_d->last_scale = scale();
 
-	emit scaleChanged(d->last_scale); // it will trigger an update in the collHandle
+	emit scaleChanged(m_d->last_scale); // it will trigger an update in the collHandle
 }
 
 //____________________________________________________________________
 void CaloClusterCollectionSettingsButton::setCollHandle(IParticleCollHandle_CaloCluster* collHandle)
 {
-	d->coll = collHandle;
+	m_d->coll = collHandle;
 }
 
 //____________________________________________________________________
@@ -723,41 +723,41 @@ void CaloClusterCollectionSettingsButton::possibleChange_useTransverseEnergies()
 //____________________________________________________________________
 QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
 {
-  const bool relative = d->ui_customsettings.radioButton_relativeScale->isChecked();
-  const bool logscale = d->ui_customsettings.checkBox_logscale->isChecked();
+  const bool relative = m_d->ui_customsettings.radioButton_relativeScale->isChecked();
+  const bool logscale = m_d->ui_customsettings.checkBox_logscale->isChecked();
 
   double highestvisibleenergy=0*Gaudi::Units::eV;
 
-////  foreach(VP1StdCollection* stdcol, d->collWidget->visibleStdCollections()) {
+////  foreach(VP1StdCollection* stdcol, m_d->collWidget->visibleStdCollections()) {
 ////    VP1CaloClusterCollection* col = dynamic_cast<VP1CaloClusterCollection*>(stdcol);
 
   std::cout << "coll: ";
-  std::cout << d->coll << std::endl;
+  std::cout << m_d->coll << std::endl;
   std::cout << "highestvisibleenergy: ";
   std::cout << highestvisibleenergy << std::endl;
   std::cout << "coll->name: ";
-  QString colname = d->coll->name();
+  QString colname = m_d->coll->name();
   VP1Msg::messageDebug(colname);
 //  std::cout << "coll->highestVisibleClusterEnergy(): ";
-//  std::cout << d->coll->highestVisibleClusterEnergy() << std::endl;
+//  std::cout << m_d->coll->highestVisibleClusterEnergy() << std::endl;
 
-  //IParticleCollHandle_CaloCluster* col = dynamic_cast<IParticleCollHandle_CaloCluster*>(d->coll);
-  if (dynamic_cast<IParticleCollHandle_CaloCluster*>(d->coll)) {
+  //IParticleCollHandle_CaloCluster* col = dynamic_cast<IParticleCollHandle_CaloCluster*>(m_d->coll);
+  if (dynamic_cast<IParticleCollHandle_CaloCluster*>(m_d->coll)) {
 	  std::cout << "col OK! " << std::endl;
-    if ( d->coll && highestvisibleenergy < d->coll->highestVisibleClusterEnergy() )
-      highestvisibleenergy = d->coll->highestVisibleClusterEnergy();
+    if ( m_d->coll && highestvisibleenergy < m_d->coll->highestVisibleClusterEnergy() )
+      highestvisibleenergy = m_d->coll->highestVisibleClusterEnergy();
   }
 
   ////  }
 
 
-  if (d->gui_mostEnergetic!=highestvisibleenergy) {
-    d->gui_mostEnergetic=highestvisibleenergy;
-    d->ui_customsettings.label_current_most_energetic->setText("Current value: "+QString::number(d->gui_mostEnergetic/Gaudi::Units::GeV,'f',2)+" GeV");
+  if (m_d->gui_mostEnergetic!=highestvisibleenergy) {
+    m_d->gui_mostEnergetic=highestvisibleenergy;
+    m_d->ui_customsettings.label_current_most_energetic->setText("Current value: "+QString::number(m_d->gui_mostEnergetic/Gaudi::Units::GeV,'f',2)+" GeV");
   }
 
-  const double length = (relative ? d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic->value()*Gaudi::Units::m
-			 : d->ui_customsettings.doubleSpinBox_lengthOf10GeV->value()*Gaudi::Units::m );
+  const double length = (relative ? m_d->ui_customsettings.doubleSpinBox_lengthOfMostEnergetic->value()*Gaudi::Units::m
+			 : m_d->ui_customsettings.doubleSpinBox_lengthOf10GeV->value()*Gaudi::Units::m );
   const double energy = relative ? highestvisibleenergy : 10*Gaudi::Units::GeV;
   const double minscale = 1*Gaudi::Units::mm/(1*Gaudi::Units::GeV);
   const double maxscale = 1*Gaudi::Units::m/(1*Gaudi::Units::MeV);
@@ -777,13 +777,13 @@ QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
 ////____________________________________________________________________
 //void CaloClusterCollectionSettingsButton::enableRandomColours(bool bb)
 //{
-//	d->ui_customsettings.pushButton_colourbyrandom_rerandomise->setEnabled(bb);
+//	m_d->ui_customsettings.pushButton_colourbyrandom_rerandomise->setEnabled(bb);
 //}
 //
 ////____________________________________________________________________
 //bool CaloClusterCollectionSettingsButton::randomJetColours() const
 //{
-//  return d->ui_customsettings.checkBox_randomColours->isChecked();
+//  return m_d->ui_customsettings.checkBox_randomColours->isChecked();
 //}
 //
 //
@@ -804,7 +804,7 @@ QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
 ////____________________________________________________________________
 //void CaloClusterCollectionSettingsButton::enableMaxR(bool bb)
 //{
-//	d->ui_customsettings.doubleSpinBox_maxR->setEnabled(bb);
+//	m_d->ui_customsettings.doubleSpinBox_maxR->setEnabled(bb);
 //}
 
 ////____________________________________________________________________
@@ -812,15 +812,15 @@ QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
 //{
 //	messageVerbose("possibleChange_maxR() ");
 //
-//	if ( !  d->ui_customsettings.checkBox_maxR->isChecked() ) {
+//	if ( !  m_d->ui_customsettings.checkBox_maxR->isChecked() ) {
 //		messageVerbose("maxR unchecked --> setting maxR=0.0 and returning");
 //		emit maxRChanged(0.0); // setting marR=0.0 disables the maxR option in handleJet
 //		return;
 //	}
 //
 //	messageVerbose("setting maxR");
-//	d->last_maxR = maxR();
-//	emit maxRChanged(d->last_maxR);
+//	m_d->last_maxR = maxR();
+//	emit maxRChanged(m_d->last_maxR);
 //}
 
 ////____________________________________________________________________
@@ -828,12 +828,12 @@ QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
 //{
 //	messageVerbose("possibleChange_bTaggingEnabled()");
 //
-//	d->ui_customsettings.bTaggingAlgLabel->setEnabled(bb);
-//	d->ui_customsettings.bTagginWeightCutLabel->setEnabled(bb);
-//	d->ui_customsettings.bTaggingComboBox->setEnabled(bb);
-//	d->ui_customsettings.bTaggingSpinBox->setEnabled(bb);
-//	d->ui_customsettings.groupBox_btagging_render->setEnabled(bb);
-//	d->ui_customsettings.matButton_btaggedJets->setEnabled(bb);
+//	m_d->ui_customsettings.bTaggingAlgLabel->setEnabled(bb);
+//	m_d->ui_customsettings.bTagginWeightCutLabel->setEnabled(bb);
+//	m_d->ui_customsettings.bTaggingComboBox->setEnabled(bb);
+//	m_d->ui_customsettings.bTaggingSpinBox->setEnabled(bb);
+//	m_d->ui_customsettings.groupBox_btagging_render->setEnabled(bb);
+//	m_d->ui_customsettings.matButton_btaggedJets->setEnabled(bb);
 //
 //	emit bTaggingEnabledChanged(bb);
 //}
@@ -849,10 +849,10 @@ QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
 //{
 //	messageVerbose("possibleChange_bTaggingCut() - " + QString::number(bTaggingCut()) );
 //
-//	if (d->last_bTaggingCut == bTaggingCut() ) return;
+//	if (m_d->last_bTaggingCut == bTaggingCut() ) return;
 //
 //	messageVerbose("bTaggingSpinBox changed");
-//	d->last_bTaggingCut = bTaggingCut();
+//	m_d->last_bTaggingCut = bTaggingCut();
 //
 //	emit bTaggingCutChanged( bTaggingCut() );
 //}
@@ -875,13 +875,13 @@ QPair<bool,double> CaloClusterCollectionSettingsButton::scale() const
 //{
 //	messageVerbose("possibleChange_bTaggingMaterial()");
 //
-//	if (d->last_bTaggingMaterial == bTaggingMaterial() ) {
+//	if (m_d->last_bTaggingMaterial == bTaggingMaterial() ) {
 //		messageVerbose("material not changed. Returning...");
 //		return;
 //	}
 //
 //	messageVerbose("matButton_btaggedJets changed");
-//	d->last_bTaggingMaterial = bTaggingMaterial();
+//	m_d->last_bTaggingMaterial = bTaggingMaterial();
 //
 //	emit bTaggingMaterialChanged();
 //}

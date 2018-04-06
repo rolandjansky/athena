@@ -48,17 +48,20 @@ using namespace GeoXF;
 TileGeoSectionBuilder::TileGeoSectionBuilder(DataHandle<StoredMaterialManager> & matManager,
 					     TileDddbManager * pDbManager,
                                              int ushape,
+                                             int glue,
                                              MsgStream * log)
   : m_theMaterialManager(matManager)
   , m_dbManager(pDbManager)
   , m_log(log)
-  , m_Ushape(ushape)
+  , m_uShape(ushape)
+  , m_glue(glue)
   , m_barrelPeriodThickness(0.)
   , m_barrelGlue(0.)
   , m_extendedPeriodThickness(0.)
   , m_verbose(log->level()<=MSG::VERBOSE)
   , m_matLArServices(0)
   , m_matIronHalfDens(0)
+  , m_additionalIronLayer(0.027)
 {
 }
 
@@ -1472,7 +1475,8 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
 				       double                   tile_rmax,
 				       double                   tilb_rmax,
 				       double                   /* delta_phi */,
-                                       int                      ModuleNcp,
+				       bool                     testbeam,
+				       int                      ModuleNcp,
 				       double                   corrected_dz)
 {
   bool boolNeg = false;
@@ -1664,6 +1668,9 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
     mother->add(new GeoIdentifierTag(ModuleNcp));
     mother->add(pvFingerElement);
   }
+
+  if (testbeam) return; // no cables between fingers at the testbeam
+
   // Cables space
 
   int Isector =0, LRflag =0;
@@ -1862,9 +1869,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
   const GeoMaterial* matAir = m_theMaterialManager->getMaterial("std::Air");
   const GeoMaterial* matScin = m_theMaterialManager->getMaterial("tile::Scintillator");
 
-  //Glue layer
-  if (dzglue>0.0 && period_type<4) {
+  const bool removeGlue = (m_glue == 0 || m_glue == 2);
 
+  //Glue layer
+  if (dzglue>0.0 && period_type<4 && !removeGlue) {
     const GeoMaterial* matGlue = m_theMaterialManager->getMaterial("tile::Glue");
 
     double dzglue2 = dzglue/2*CLHEP::cm;
@@ -1934,10 +1942,11 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiThickness = m_dbManager->SCNTdt();
         scintiWrapInZ = m_dbManager->SCNTdtw();
         scintiWrapInR = m_dbManager->SCNTdrw();
-        scintiDeltaInPhi = (m_Ushape > 0) ? 0.0 : m_dbManager->SCNTdphi();
+        scintiDeltaInPhi = (m_uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
                            (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm: m_dbManager->TILBdzspac()*CLHEP::cm;
+        if (m_glue == 2) thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         // create wrapper
         heightWrapper = (scintiHeight + 2*scintiWrapInR)*CLHEP::cm;
@@ -2028,10 +2037,11 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiThickness = m_dbManager->SCNTdt();
         scintiWrapInZ = m_dbManager->SCNTdtw();
         scintiWrapInR = m_dbManager->SCNTdrw();
-        scintiDeltaInPhi = (m_Ushape > 0) ? 0.0 : m_dbManager->SCNTdphi();
+        scintiDeltaInPhi = (m_uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
                            (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm: m_dbManager->TILBdzspac()*CLHEP::cm;
+        if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         // create wrapper
         heightWrapper = (scintiHeight + 2*scintiWrapInR)*CLHEP::cm;
@@ -2133,10 +2143,11 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 	scintiThickness = m_dbManager->SCNTdt();
         scintiWrapInZ = m_dbManager->SCNTdtw();
         scintiWrapInR = m_dbManager->SCNTdrw();
-        scintiDeltaInPhi = (m_Ushape > 0) ? 0. : m_dbManager->SCNTdphi();
+        scintiDeltaInPhi = (m_uShape > 0) ? 0. : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
                            (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm: m_dbManager->TILBdzspac()*CLHEP::cm;
+        if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
         // create wrapper
         heightWrapper = (scintiHeight + 2*scintiWrapInR)*CLHEP::cm;
@@ -2210,10 +2221,11 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiThickness = m_dbManager->SCNTdt();
         scintiWrapInZ = m_dbManager->SCNTdtw();
         scintiWrapInR = m_dbManager->SCNTdrw();
-        scintiDeltaInPhi = (m_Ushape > 0) ? 0.0 : m_dbManager->SCNTdphi();
+        scintiDeltaInPhi = (m_uShape > 0) ? 0.0 : m_dbManager->SCNTdphi();
 
         thicknessWrapper = (m_dbManager->TILBdzspac() <= (scintiThickness + 2*scintiWrapInZ)) ?
                            (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm: m_dbManager->TILBdzspac()*CLHEP::cm;
+        if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
 
 	if(scintiZPos<0)
 	{
@@ -2297,11 +2309,13 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         scintiThickness = m_dbManager->SCNTdt();
         scintiWrapInZ = m_dbManager->SCNTdtw();
         scintiWrapInR = m_dbManager->SCNTdrw();
-        scintiDeltaInPhi = m_dbManager->SCNTdphi(); // don't need to check m_Ushape for single scintillator
+        scintiDeltaInPhi = m_dbManager->SCNTdphi(); // don't need to check m_uShape for single scintillator
 
         // create wrapper
         heightWrapper = (scintiHeight + 2*scintiWrapInR)*CLHEP::cm;
-	thicknessWrapper = (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm;
+        thicknessWrapper = (scintiThickness + 2*scintiWrapInZ)*CLHEP::cm;
+        if (m_glue == 2)   thicknessWrapper = std::max(thicknessWrapper - m_additionalIronLayer, scintiThickness);
+
         double thicknessEnvelope = (m_dbManager->TILBdzmodul()*CLHEP::cm - thicknessWrapper); // along phi thickness is twice bigger than along Z 
         dy1Wrapper = dy1Period - thicknessEnvelope + ((scintiRC - scintiHeight/2. - scintiWrapInR)*tanphi)*CLHEP::cm;
         dy2Wrapper = dy1Period - thicknessEnvelope + ((scintiRC + scintiHeight/2. + scintiWrapInR)*tanphi)*CLHEP::cm;

@@ -15,19 +15,17 @@
 #include "PileUpTools/IPileUpXingFolder.h"
 
 /** @class PileUpXingFolder
-  * @brief specify time interval we want to study pileup for a set of data objs
-  * @details Typically this will be the sensitive time of a detector read-out 
-    system. Implemented as SG::Folder with an attached bunch crossing interval 
-  **/
-class PileUpXingFolder : virtual public IPileUpXingFolder,
-                         virtual public AthAlgTool {
+ * @brief specify time interval we want to study pileup for a set of data objs
+ * @details Typically this will be the sensitive time of a detector read-out
+ system. Implemented as SG::Folder with an attached bunch crossing interval
+**/
+class PileUpXingFolder : public extends<AthAlgTool, IPileUpXingFolder> {
 public:
   /// \name structors and AlgTool implementation
   //@{
   PileUpXingFolder(const std::string& name, 
 		   const std::string& type,
 		   const IInterface* parent);
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
   virtual StatusCode initialize();
   //@}
   

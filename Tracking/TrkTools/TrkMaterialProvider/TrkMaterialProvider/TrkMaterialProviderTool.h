@@ -10,6 +10,8 @@
 #define TrkMaterialProviderTool_H
 
 #define protected public
+#include "TrkExInterfaces/IEnergyLossUpdator.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkTrack/Track.h"
 
 // Gaudi
@@ -33,8 +35,6 @@ namespace MagField {
 }
 
 namespace Trk {
-  class IExtrapolator; 
-  class IEnergyLossUpdator;
   class Surface;
 }
 
@@ -69,20 +69,20 @@ namespace Trk{
     StatusCode finalize();
 
     /** Update Calorimeter TSOS from input ID and MS tracks*/
-    void updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack);
+    void updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const;
 
     /** Update Calorimeter TSOS from input MS/CB track*/
-    void updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParamaters=0);
+    void updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParamaters=0) const;
 
     /** Get Calorimeter MEOT*/
-    void getCaloMEOT(const Trk::Track& idTrack, const Trk::Track& msTrack, std::vector<MaterialEffectsOnTrack>& calomeots);
+    void getCaloMEOT(const Trk::Track& idTrack, const Trk::Track& msTrack, std::vector<MaterialEffectsOnTrack>& calomeots) const;
 
     /** Retrieve Calorimeter TSOS from TG and apply corrections*/
     std::vector<const Trk::TrackStateOnSurface*>*
       getCaloTSOS (const Trk::TrackParameters&	parm, const Trk::Track &muonTrack, const Trk::TrackParameters* parms=0) const;
     
     /** Retrieve a clone of the parametrised energy loss*/
-    CaloEnergy* getParamCaloELoss(Trk::Track* track);
+    CaloEnergy* getParamCaloELoss(Trk::Track* track) const;
   
   private:      
 
@@ -115,12 +115,12 @@ namespace Trk{
     void updateVector(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
 		      DataVector<const Trk::TrackStateOnSurface>::iterator lastID, 
 		      DataVector<const Trk::TrackStateOnSurface>::iterator firstMS, 
-		      DataVector<const Trk::TrackStateOnSurface>* caloTSOS);
+		      DataVector<const Trk::TrackStateOnSurface>* caloTSOS) const;
 
     /** update the TSOS vector for the Muon Spectrometer applying X0 and Eloss scaling*/
     void updateVectorMS(DataVector<const Trk::TrackStateOnSurface>* inputTSOS,
                                                   DataVector<const Trk::TrackStateOnSurface>::iterator firstMS,
-                                                  double X0ScaleMS, double ElossScaleMS);
+                                                  double X0ScaleMS, double ElossScaleMS) const;
 
     //* Helper to indentify detector volume**/
     unsigned int getVolumeByGeo(const Trk::TrackStateOnSurface* m) const;
@@ -175,8 +175,10 @@ namespace Trk{
 				  double& fsrCaloEnergy) const;
     
     
-    ToolHandle<Trk::IExtrapolator>                m_muonExtrapolator;
-    ToolHandle<Trk::IEnergyLossUpdator>           m_elossupdator;
+    PublicToolHandle<Trk::IExtrapolator>                m_muonExtrapolator
+       {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};
+    PublicToolHandle<Trk::IEnergyLossUpdator>           m_elossupdator
+       {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};
     ServiceHandle<Trk::ITrackingVolumesSvc>       m_trackingVolumesSvc;
     ServiceHandle<Trk::ITrackingGeometrySvc>      m_trackingGeometrySvc;
     ToolHandle< Trk::IMultipleScatteringUpdator > m_scattool;

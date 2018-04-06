@@ -22,11 +22,12 @@ class StatusCode;
  **/
 template <class T>
 class T_AthenaPoolCnvBase : public AthenaPoolConverter {
-
-protected:
+public:
    /// Constructor
    T_AthenaPoolCnvBase(ISvcLocator* svcloc,
                        const char* name = nullptr);
+
+protected:
 
    /// Gaudi Service Interface method implementations:
    virtual StatusCode initialize();

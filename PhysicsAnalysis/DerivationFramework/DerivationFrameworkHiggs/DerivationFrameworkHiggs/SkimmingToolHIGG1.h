@@ -132,52 +132,52 @@ namespace DerivationFramework {
       ///////////////
       ///// COUNTERS
 
-      mutable unsigned int n_tot;
-      mutable unsigned int n_passGRL;
-      mutable unsigned int n_passLArError;
-      mutable unsigned int n_passTrigger;
-      mutable unsigned int n_passPreselect;
-      mutable unsigned int n_passSingleElectronPreselect;
-      mutable unsigned int n_passDoubleElectronPreselect;
-      mutable unsigned int n_passSingleMuonPreselect;
-      mutable unsigned int n_passKinematic;
-      mutable unsigned int n_passQuality;
-      mutable unsigned int n_passIsolation;
-      mutable unsigned int n_passInvariantMass;
-      mutable unsigned int n_pass;
+      mutable unsigned int m_n_tot;
+      mutable unsigned int m_n_passGRL;
+      mutable unsigned int m_n_passLArError;
+      mutable unsigned int m_n_passTrigger;
+      mutable unsigned int m_n_passPreselect;
+      mutable unsigned int m_n_passSingleElectronPreselect;
+      mutable unsigned int m_n_passDoubleElectronPreselect;
+      mutable unsigned int m_n_passSingleMuonPreselect;
+      mutable unsigned int m_n_passKinematic;
+      mutable unsigned int m_n_passQuality;
+      mutable unsigned int m_n_passIsolation;
+      mutable unsigned int m_n_passInvariantMass;
+      mutable unsigned int m_n_pass;
 
 
       /////////////////////////////
       ///// EVENT LEVEL QUANTITIES
 
-      mutable std::vector<const xAOD::Photon*> e_leadingPhotons;
+      mutable std::vector<const xAOD::Photon*> m_e_leadingPhotons;
 
-      mutable TLorentzVector leadPhotonLV;
-      mutable TLorentzVector sublPhotonLV;
+      mutable TLorentzVector m_leadPhotonLV;
+      mutable TLorentzVector m_sublPhotonLV;
 
-      mutable bool e_tot;
-      mutable bool e_passGRL;
-      mutable bool e_passLArError;
-      mutable bool e_passTrigger;
-      mutable bool e_passPreselect;
-      mutable bool e_passSingleElectronPreselect;
-      mutable bool e_passDoubleElectronPreselect;
-      mutable bool e_passSingleMuonPreselect;
-      mutable bool e_passKinematic;
-      mutable bool e_passQuality;
-      mutable bool e_passIsolation;
-      mutable bool e_passInvariantMass;
-      mutable bool e_pass;
+      mutable bool m_e_tot;
+      mutable bool m_e_passGRL;
+      mutable bool m_e_passLArError;
+      mutable bool m_e_passTrigger;
+      mutable bool m_e_passPreselect;
+      mutable bool m_e_passSingleElectronPreselect;
+      mutable bool m_e_passDoubleElectronPreselect;
+      mutable bool m_e_passSingleMuonPreselect;
+      mutable bool m_e_passKinematic;
+      mutable bool m_e_passQuality;
+      mutable bool m_e_passIsolation;
+      mutable bool m_e_passInvariantMass;
+      mutable bool m_e_pass;
 
-      mutable int    ph_pos_lead, ph_pos_subl;
-      mutable double ph_pt_lead, ph_eta_lead, ph_phi_lead, ph_e_lead;
-      mutable double ph_pt_subl, ph_eta_subl, ph_phi_subl, ph_e_subl;
+      mutable int    m_ph_pos_lead, m_ph_pos_subl;
+      mutable double m_ph_pt_lead, m_ph_eta_lead, m_ph_phi_lead, m_ph_e_lead;
+      mutable double m_ph_pt_subl, m_ph_eta_subl, m_ph_phi_subl, m_ph_e_subl;
 
-      mutable int    ph_tight_lead, ph_tight_subl;
-      mutable int    ph_iso_lead, ph_iso_subl;
+      mutable int    m_ph_tight_lead, m_ph_tight_subl;
+      mutable int    m_ph_iso_lead, m_ph_iso_subl;
 
-      mutable double e_invariantMass;
-      mutable double e_diphotonZ;
+      mutable double m_e_invariantMass;
+      mutable double m_e_diphotonZ;
 
       /////////////////////////////
       ///// FUNCTIONS

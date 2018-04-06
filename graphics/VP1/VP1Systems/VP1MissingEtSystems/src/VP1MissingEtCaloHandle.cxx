@@ -57,14 +57,14 @@ public:
 
 //____________________________________________________________________
 VP1MissingEtCaloHandle::VP1MissingEtCaloHandle(IVP1System*sys,const QString& key)
-  : VP1MissingEtHandle(sys,key), d(new Imp)
+  : VP1MissingEtHandle(sys,key), m_d(new Imp)
 {
 }
 
 //____________________________________________________________________
 VP1MissingEtCaloHandle::~VP1MissingEtCaloHandle()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -72,7 +72,7 @@ QStringList VP1MissingEtCaloHandle::clicked(SoPath*pickedPath) const
 {
   //Fixme: add MissingEtCalo specific info.
   truncateToCollSep(pickedPath);
-  return baseInfo(d->metCalo);
+  return baseInfo(m_d->metCalo);
 }
 
 
@@ -85,9 +85,9 @@ QColor VP1MissingEtCaloHandle::baseCol() const
 //____________________________________________________________________
 bool VP1MissingEtCaloHandle::load()
 {
-  if (!VP1SGAccessHelper(systemBase()).retrieve(d->metCalo,key()))
+  if (!VP1SGAccessHelper(systemBase()).retrieve(m_d->metCalo,key()))
     return false;
 
-  addArrowToCollSep(d->metCalo);
+  addArrowToCollSep(m_d->metCalo);
   return true;
 }

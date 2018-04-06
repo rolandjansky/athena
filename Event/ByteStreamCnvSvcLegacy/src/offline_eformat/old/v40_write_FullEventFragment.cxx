@@ -125,25 +125,27 @@ offline_eformat::v40_write::FullEventFragment&
   offline_eformat::v40_write::FullEventFragment::operator=
 (const offline_eformat::v40_write::FullEventFragment& other)
 {
-  initialize();
-  copy_header(other);
-  //copy extra payload attached
-  if (other.m_node[10].size_word) {
-    m_node[9].next = &m_node[10];
-    set(m_node[10], other.m_node[10].base, other.m_node[10].size_word, 0);
-  }
-  //copy the ROBFragments attached
-  for (const v40_write::ROBFragment*
-      it = other.m_child; it; it = it->next())
-    append(const_cast<v40_write::ROBFragment*>(it));
-  //get the unchecked ROB fragments attached
-  if (m_n_unchecked) {
-    m_n_unchecked = other.m_n_unchecked;
-    for (uint32_t i=0; i < m_n_unchecked; ++i) {
-      set(m_unchecked[i], other.m_unchecked[i].base,
-          other.m_unchecked[i].size_word, &m_unchecked[i+1]);
+  if (this != &other) {
+    initialize();
+    copy_header(other);
+    //copy extra payload attached
+    if (other.m_node[10].size_word) {
+      m_node[9].next = &m_node[10];
+      set(m_node[10], other.m_node[10].base, other.m_node[10].size_word, 0);
     }
-    m_unchecked[m_n_unchecked-1].next = 0;
+    //copy the ROBFragments attached
+    for (const v40_write::ROBFragment*
+           it = other.m_child; it; it = it->next())
+      append(const_cast<v40_write::ROBFragment*>(it));
+    //get the unchecked ROB fragments attached
+    if (m_n_unchecked) {
+      m_n_unchecked = other.m_n_unchecked;
+      for (uint32_t i=0; i < m_n_unchecked; ++i) {
+        set(m_unchecked[i], other.m_unchecked[i].base,
+            other.m_unchecked[i].size_word, &m_unchecked[i+1]);
+      }
+      m_unchecked[m_n_unchecked-1].next = 0;
+    }
   }
   return *this;
 }

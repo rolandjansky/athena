@@ -269,7 +269,7 @@ const xAOD::JetContainer* JetMetTagTool::calibrateAndRecordShallowCopyJetCollect
   }
 
   static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
-  static SG::AuxElement::Decorator< float > decJvt("JvtUpdate");
+  static SG::AuxElement::Decorator< float > decJvt("Jvt");
 
   for ( xAOD::Jet *shallowCopyJet : * jetContainerShallowCopy ) {
 
@@ -434,9 +434,9 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
 	pid |= 1 << 4;
 
       /** get JVT */
-      bool hasjvt = selectedJet->isAvailable<float>("JvtUpdate");
+      bool hasjvt = selectedJet->isAvailable<float>("Jvt");
       if (hasjvt) {
-	float jvt = selectedJet->auxdata<float>("JvtUpdate");
+      float jvt = selectedJet->auxdata<float>("Jvt");
 
 	if (fabs(jvt) > 0.2){
 	  pid |= 1 << 6;

@@ -19,7 +19,6 @@
 #include "AthLinks/tools/SetIndexingPolicy.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "CxxUtils/checker_macros.h"
 #include <map>
 #include <iostream>
 #include <cstdlib>
@@ -507,14 +506,14 @@ void test4 (SGTest::TestStore& store)
 }
 
 
-int main ATLAS_NOT_THREAD_SAFE ()
+int main()
 {
   Athena::getMessageSvcQuiet = true;
-  initTestStore();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
 
-  test1 (store);
-  test2 (store);
-  test3 (store);
-  test4 (store);
+  test1 (*store);
+  test2 (*store);
+  test3 (*store);
+  test4 (*store);
   return 0;
 }

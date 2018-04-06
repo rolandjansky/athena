@@ -11,11 +11,11 @@
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SiPropertiesSvc/SiliconPropertiesVector.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 
 #include "GaudiKernel/ICondSvc.h"
 
 class SCT_ID;
-class ISiliconConditionsSvc;
 namespace InDetDD {
   class SiDetectorManager;
 }
@@ -24,10 +24,10 @@ class SCTSiPropertiesCondAlg : public AthAlgorithm
 {  
  public:
   SCTSiPropertiesCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~SCTSiPropertiesCondAlg();
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual ~SCTSiPropertiesCondAlg() = default;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
   double m_temperatureMin;
@@ -37,7 +37,7 @@ class SCTSiPropertiesCondAlg : public AthAlgorithm
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyHV;
   SG::WriteCondHandleKey<InDet::SiliconPropertiesVector> m_writeKey;
   ServiceHandle<ICondSvc> m_condSvc;
-  ServiceHandle<ISiliconConditionsSvc> m_siCondSvc;
+  ToolHandle<ISiliconConditionsTool> m_siCondTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "SiConditionsTool to be used"};
   const SCT_ID* m_pHelper; //!< ID helper for SCT
   const InDetDD::SiDetectorManager* m_detManager;
 };

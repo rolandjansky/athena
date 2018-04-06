@@ -5,6 +5,7 @@
 #ifndef TRKALIGNGENTOOLS_MSCONSTRAINTTRACKSPROVIDER_H
 #define TRKALIGNGENTOOLS_MSCONSTRAINTTRACKSPROVIDER_H
 
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "muonEvent/Muon.h"
@@ -20,7 +21,6 @@ class TTree;
 
 
 namespace Muon{
-  class IMuonHitSummaryTool;
 }
 
 
@@ -49,7 +49,8 @@ namespace Trk {
     StatusCode fillNtuple();
 
     ToolHandle<IGlobalTrackFitter>        m_trackFitter;     //!< normal track fitter 
-    ToolHandle<Muon::IMuonHitSummaryTool> m_muonHitSummaryTool;
+    PublicToolHandle<Muon::IMuonHitSummaryTool> m_muonHitSummaryTool
+       {this,"MuonHitSummaryTool","Muon::MuonHitSummaryTool/MuonHitSummaryTool",""};
  
     std::string 	  m_inputMuonCollection;       //!< Name of input combined muons collection
     std::string		  m_inputTracksCollection;     //!< Name of input tracks collection

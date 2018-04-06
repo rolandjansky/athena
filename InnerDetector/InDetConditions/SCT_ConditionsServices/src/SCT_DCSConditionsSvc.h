@@ -23,7 +23,6 @@
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
@@ -43,7 +42,7 @@ class SCT_DCSConditionsSvc: virtual public ISCT_DCSConditionsSvc, virtual public
   
 public:
   SCT_DCSConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~SCT_DCSConditionsSvc() { /*do nothing*/ }
+  virtual ~SCT_DCSConditionsSvc() = default;
   virtual StatusCode initialize();
   virtual StatusCode finalize();
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
@@ -82,14 +81,6 @@ public:
 private:
   //Declare Storegate container
   ServiceHandle<StoreGateSvc> m_detStore;
-  // list folders to be read as CondAttrListCollection*
-  StringArrayProperty m_par_atrcollist;
-  bool m_dataFilled;
-  //  int m_status;
-  //DataHandle for callback
-  const DataHandle<CondAttrListCollection> m_DCSData_HV;
-  const DataHandle<CondAttrListCollection> m_DCSData_MT;
-  const DataHandle<CondAttrListCollection> m_DCSData_CS;
   //Key for DataHandle
   BooleanProperty m_readAllDBFolders;
   BooleanProperty m_returnHVTemp;
@@ -111,9 +102,6 @@ private:
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0;
   const SCT_ID* m_pHelper;
-  Identifier m_moduleId;
-  Identifier m_waferId;
-  std::string m_folderPrefix;
   static const Identifier s_invalidId;
   static const float s_defaultHV;
   static const float s_defaultTemperature;

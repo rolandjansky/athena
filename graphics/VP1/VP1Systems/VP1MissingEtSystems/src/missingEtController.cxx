@@ -11,6 +11,8 @@
 //                                                            //
 ////////////////////////////////////////////////////////////////
 
+#define VP1IMPVARNAME m_d
+
 #include "VP1MissingEtSystems/missingEtController.h"
 #include "VP1MissingEtSystems/VP1MissingEtCollWidget.h"
 #include "VP1MissingEtSystems/VP1MissingEtHandle.h"
@@ -32,23 +34,23 @@ public:
 
 //____________________________________________________________________
 missingEtController::missingEtController(IVP1System* sys)
-:VP1Controller(sys, "missingEtController"), d(new Imp)
+:VP1Controller(sys, "missingEtController"), m_d(new Imp)
 {
-  d->ui.setupUi(this);
-  d->collWidget = new VP1MissingEtCollWidget;
-  setupCollWidgetInScrollArea(d->ui.collWidgetScrollArea, d->collWidget);
+  m_d->ui.setupUi(this);
+  m_d->collWidget = new VP1MissingEtCollWidget;
+  setupCollWidgetInScrollArea(m_d->ui.collWidgetScrollArea, m_d->collWidget);
 
-  initDialog(d->uiPivot, d->ui.pushButton_display);
+  initDialog(m_d->uiPivot, m_d->ui.pushButton_display);
 
   addUpdateSlot(SLOT(changeThickness()));
-  connectToLastUpdateSlot(d->uiPivot.horizontalSlider_thickness);
+  connectToLastUpdateSlot(m_d->uiPivot.horizontalSlider_thickness);
 
   addUpdateSlot(SLOT(changeScale()));
-  connectToLastUpdateSlot(d->uiPivot.horizontalSlider_scale);
+  connectToLastUpdateSlot(m_d->uiPivot.horizontalSlider_scale);
 
   addUpdateSlot(SLOT(possibleChange_changeShape()));
-  connectToLastUpdateSlot(d->ui.radioButton_arrow_shape);
-  connectToLastUpdateSlot(d->ui.radioButton_dashline_shape);
+  connectToLastUpdateSlot(m_d->ui.radioButton_arrow_shape);
+  connectToLastUpdateSlot(m_d->ui.radioButton_dashline_shape);
 
   connect(this, SIGNAL(changeShapeChanged(bool)), this, SLOT(setArrow(bool)));
 
@@ -61,7 +63,7 @@ missingEtController::missingEtController(IVP1System* sys)
 //____________________________________________________________________
 missingEtController::~missingEtController()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -73,9 +75,9 @@ int missingEtController::currentSettingsVersion() const
 //____________________________________________________________________
 void missingEtController::actualSaveSettings(VP1Serialise& s) const
 {
- s.save(d->uiPivot.horizontalSlider_thickness);
- s.save(d->uiPivot.horizontalSlider_scale);
- s.save(d->ui.radioButton_arrow_shape,d->ui.radioButton_dashline_shape);//Version 1+
+ s.save(m_d->uiPivot.horizontalSlider_thickness);
+ s.save(m_d->uiPivot.horizontalSlider_scale);
+ s.save(m_d->ui.radioButton_arrow_shape,m_d->ui.radioButton_dashline_shape);//Version 1+
 }
 
 //____________________________________________________________________
@@ -88,21 +90,21 @@ void missingEtController::actualRestoreSettings(VP1Deserialise& s)
  if (s.version() == 0)
   s.ignoreInt();
 
- s.restore(d->uiPivot.horizontalSlider_thickness);
- s.restore(d->uiPivot.horizontalSlider_scale);
+ s.restore(m_d->uiPivot.horizontalSlider_thickness);
+ s.restore(m_d->uiPivot.horizontalSlider_scale);
 
  if(s.version() >= 1)
-  s.restore(d->ui.radioButton_arrow_shape, d->ui.radioButton_dashline_shape);
+  s.restore(m_d->ui.radioButton_arrow_shape, m_d->ui.radioButton_dashline_shape);
 }
 
 //____________________________________________________________________
 VP1CollectionWidget* missingEtController::collWidget() const
 {
-  return d->collWidget;
+  return m_d->collWidget;
 }
 
 void missingEtController::refreshPivots(){
- foreach (VP1MissingEtHandle* handle,d->collWidget->collections<VP1MissingEtHandle>()){
+ foreach (VP1MissingEtHandle* handle,m_d->collWidget->collections<VP1MissingEtHandle>()){
   if(handle)
    handle->refresh();
  }
@@ -127,16 +129,16 @@ void missingEtController::setDashline(bool /*s*/){
 }
 
 bool missingEtController::changeShape() const{
- return d->ui.radioButton_arrow_shape->isChecked();
+ return m_d->ui.radioButton_arrow_shape->isChecked();
 }
 
 void missingEtController::changeThickness(){
- VP1MissingEtHandle::useThickness(d->uiPivot.horizontalSlider_thickness->value());
+ VP1MissingEtHandle::useThickness(m_d->uiPivot.horizontalSlider_thickness->value());
  refreshPivots();
 }
 
 void missingEtController::changeScale(){
- VP1MissingEtHandle::useScale(d->uiPivot.horizontalSlider_scale->value());
+ VP1MissingEtHandle::useScale(m_d->uiPivot.horizontalSlider_scale->value());
  refreshPivots();
 }
 

@@ -73,53 +73,53 @@ VP1RawDataSystem::VP1RawDataSystem()
   : IVP13DSystemSimple("RawHits",
 		       "System showing Raw Data (RDO's, BCM hits, ...)",
 		       "Thomas.Kittelmann@cern.ch"),
-    d(new Imp(this))
+    m_d(new Imp(this))
 {
 }
 
 //____________________________________________________________________
 VP1RawDataSystem::~VP1RawDataSystem()
  {
-  delete d;
+  delete m_d;
 }
 
 //_____________________________________________________________________________________
 void VP1RawDataSystem::systemerase()
 {
   //Save present states and then clear all event data and related gui elements.
-  if (d->controller)
-    d->controller->collWidget()->clear();
+  if (m_d->controller)
+    m_d->controller->collWidget()->clear();
 
-  if (d->common)
-    d->common->clearEventData();
+  if (m_d->common)
+    m_d->common->clearEventData();
 }
 
 //_____________________________________________________________________________________
 void VP1RawDataSystem::systemuncreate()
 {
-  delete d->common;
-  d->common = 0;
+  delete m_d->common;
+  m_d->common = 0;
 }
 
 //_____________________________________________________________________________________
 void VP1RawDataSystem::buildEventSceneGraph(StoreGateSvc*, SoSeparator *root)
 {
-  root->addChild(d->controller->drawOptions());
+  root->addChild(m_d->controller->drawOptions());
 
   //Create collection list based on contents of event store, populate
   //gui and apply states:
-  d->controller->collWidget()->setCollections(d->createCollections());
+  m_d->controller->collWidget()->setCollections(m_d->createCollections());
 
   //Add collections to event scenegraph:
-  foreach (VP1StdCollection* col,d->controller->collWidget()->collections<VP1StdCollection>())
+  foreach (VP1StdCollection* col,m_d->controller->collWidget()->collections<VP1StdCollection>())
     root->addChild(col->collSwitch());
 }
 
 //_____________________________________________________________________________________
 QWidget * VP1RawDataSystem::buildController()
 {
-  d->controller = new VP1RawDataSysController(this);
-  return d->controller;
+  m_d->controller = new VP1RawDataSysController(this);
+  return m_d->controller;
 }
 
 //_____________________________________________________________________________________
@@ -127,7 +127,7 @@ void VP1RawDataSystem::userPickedNode(SoNode*, SoPath * pickedPath) {
   messageVerbose("userPickedNode");
 
   //Look for separator whose first child is known transform (also pop a few times).
-  d->ensureInitCommonData();
+  m_d->ensureInitCommonData();
   VP1RawDataHandleBase* handle(0);
   int i(1);
   for (; i < pickedPath->getLength(); ++i) {
@@ -135,7 +135,7 @@ void VP1RawDataSystem::userPickedNode(SoNode*, SoPath * pickedPath) {
       SoSeparator * sep = static_cast<SoSeparator*>(pickedPath->getNodeFromTail(i));
       if (sep->getNumChildren()>0&&sep->getChild(0)->getTypeId()==SoTransform::getClassTypeId()) {
 	SoTransform * transform = static_cast<SoTransform*>(sep->getChild(0));
-	handle = d->common->getHandle(transform);
+	handle = m_d->common->getHandle(transform);
 	if (handle)
 	  break;
       }
@@ -149,10 +149,10 @@ void VP1RawDataSystem::userPickedNode(SoNode*, SoPath * pickedPath) {
     return;
   }
 
-  if (d->controller->printInfoOnClick()) {
-    message(handle->clicked(d->controller->printVerboseInfoOnClick()));
+  if (m_d->controller->printInfoOnClick()) {
+    message(handle->clicked(m_d->controller->printVerboseInfoOnClick()));
   }
-  if (d->controller->zoomOnClick()) {
+  if (m_d->controller->zoomOnClick()) {
     std::set<SoCamera*> cameras(getCameraList());
     std::set<SoCamera*>::iterator it,itE = cameras.end();
     for (it=cameras.begin();it!=itE;++it)
@@ -169,8 +169,8 @@ QByteArray VP1RawDataSystem::saveState()
 
   serialise.save(IVP13DSystemSimple::saveState());
 
-  serialise.save(d->controller->collWidget());
-  serialise.save(d->controller->saveSettings());
+  serialise.save(m_d->controller->collWidget());
+  serialise.save(m_d->controller->saveSettings());
 
   serialise.disableUnsavedChecks();//We do the testing in the controller
 
@@ -188,8 +188,8 @@ void VP1RawDataSystem::restoreFromState(QByteArray ba)
   ensureBuildController();
   IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
 
-  state.restore(d->controller->collWidget());
-  d->controller->restoreSettings(state.restoreByteArray());
+  state.restore(m_d->controller->collWidget());
+  m_d->controller->restoreSettings(state.restoreByteArray());
 
   state.disableUnrestoredChecks();//We do the testing in the controller
 }

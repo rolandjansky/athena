@@ -19,7 +19,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 
-// #include "GaudiKernel/DeclareFactoryEntries.h"
+// //#include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include <algorithm>
 #include <cassert>
@@ -34,7 +34,7 @@
 class TileCablingSvc {
  public:
   static void init_idhelpers(std::string idDictFile = "IdDictTileCalorimeter.xml", 
-                             TileCablingService::TileCablingType cablingType = TileCablingService::RUN2Cabling) {
+                             TileCablingService::TileCablingType cablingType = TileCablingService::RUN2aCabling) {
 
      TileHWID* tileHWID = new TileHWID();
      TileID* tileID = new TileID();

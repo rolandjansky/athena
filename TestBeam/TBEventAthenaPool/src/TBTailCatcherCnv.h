@@ -23,7 +23,9 @@ typedef  T_AthenaPoolCustomCnv<TBTailCatcher, TBTailCatcher_PERS >   TBTailCatch
 class TBTailCatcherCnv : public TBTailCatcherCnvBase {
 friend class CnvFactory<TBTailCatcherCnv >;
 protected:
+public:
   TBTailCatcherCnv (ISvcLocator* svcloc) : TBTailCatcherCnvBase(svcloc) {}
+protected:
   virtual TBTailCatcher_PERS*   createPersistent (TBTailCatcher* transCont);
   virtual TBTailCatcher*        createTransient ();
 

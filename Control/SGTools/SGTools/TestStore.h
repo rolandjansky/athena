@@ -153,8 +153,13 @@ public:
 };
 
 
+// Initialize the global, static test store.
 extern TestStore store;
 void initTestStore ATLAS_NOT_THREAD_SAFE ();
+
+
+// Create a new test store and install it.
+std::unique_ptr<TestStore> getTestStore();
 
 
 } // namespace SGTest

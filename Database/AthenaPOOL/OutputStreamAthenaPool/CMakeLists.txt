@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/PersistentDataModel
                           Event/EventInfo
@@ -21,7 +20,6 @@ atlas_depends_on_subdirs( PRIVATE
 
 # Component(s) in the package:
 atlas_add_component( OutputStreamAthenaPool
-                     src/AthenaPoolOutputStreamTool.cxx
                      src/MakeEventStreamInfo.cxx
                      src/CopyEventStreamInfo.cxx
                      src/MakeInputDataHeader.cxx

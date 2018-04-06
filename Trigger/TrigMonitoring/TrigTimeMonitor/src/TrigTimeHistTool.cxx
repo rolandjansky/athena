@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ThreadGaudi.h"
 
 #include "TrigTimeAlgs/ITrigTimerSvc.h"
 #include "TrigTimeAlgs/TrigTimer.h"
@@ -69,7 +68,7 @@ StatusCode TrigTimeHistTool::bookHists()
   // find out for whom we are running (i.e. Algo)    
   const Algorithm *parentAlg = dynamic_cast<const Algorithm*>(parent());
   if ( parentAlg ) 
-    m_parentName = getGaudiThreadGenericName(parentAlg->name());
+    m_parentName = parentAlg->name();
   
 
   std::string path = (m_path == "") ? m_parentName : m_path;

@@ -31,16 +31,16 @@ HistChi2Functional::HistChi2Functional(const Hist1D * histogram,
 				       double minValue,
 				       double maxValue,
 				       bool integrate):
-  _histogram(histogram),
-  _minValue(minValue),
-  _maxValue(maxValue),
-  _integrate(integrate),
-  _nBins(_histogram->nBins()),
-  _min(_histogram->min()),
-  _max(_histogram->max()),
-  _width(_histogram->binWidth())
+  m_histogram(histogram),
+  m_minValue(minValue),
+  m_maxValue(maxValue),
+  m_integrate(integrate),
+  m_nBins(m_histogram->nBins()),
+  m_min(m_histogram->min()),
+  m_max(m_histogram->max()),
+  m_width(m_histogram->binWidth())
 {
-  _delta=(_max-_min)/_nBins;
+  m_delta=(m_max-m_min)/m_nBins;
 }
 
 HistChi2Functional::~HistChi2Functional() {
@@ -48,35 +48,35 @@ HistChi2Functional::~HistChi2Functional() {
 
 HistChi2Functional::HistChi2Functional (const HistChi2Functional & right):
   Genfun::AbsFunctional(),
-  _histogram(right._histogram),
-  _minValue(right._minValue),
-  _maxValue(right._maxValue),
-  _integrate(right._integrate),
-  _nBins(right._nBins),
-  _min(right._min),
-  _max(right._max),
-  _delta(right._delta),
-  _width(right._width)
+  m_histogram(right.m_histogram),
+  m_minValue(right.m_minValue),
+  m_maxValue(right.m_maxValue),
+  m_integrate(right.m_integrate),
+  m_nBins(right.m_nBins),
+  m_min(right.m_min),
+  m_max(right.m_max),
+  m_delta(right.m_delta),
+  m_width(right.m_width)
 {
 }
 
 
 double HistChi2Functional::operator[] (const Genfun::AbsFunction & function) const{
   double c2=0;
-  for (int i = 0; i<_nBins;i++) {
-    double a = _min +i*_delta;
-    double b = a+_delta;
-    double y = _histogram->bin(i);
-    double e = _histogram->binError(i);
+  for (int i = 0; i<m_nBins;i++) {
+    double a = m_min +i*m_delta;
+    double b = a+m_delta;
+    double y = m_histogram->bin(i);
+    double e = m_histogram->binError(i);
     if (e!=0) {
-      if (b>_minValue && a < _maxValue) {
+      if (b>m_minValue && a < m_maxValue) {
 	double y0;
-	if (_integrate) {
+	if (m_integrate) {
 	  Genfun::DefiniteIntegral integral(a,b);
 	  y0=integral[function];
 	}
 	else {
-	  y0 = function ((a+b)/2.0) * _width;
+	  y0 = function ((a+b)/2.0) * m_width;
 	  if (!finite(y0)) {
 	    std::ostringstream message;
 	    message << "HistChi2Functional, Function is infinite at " << (a+b)/2.0 << std::endl;

@@ -41,7 +41,7 @@ atlas_add_library( TileGeoG4SDLib
 atlas_add_component( TileGeoG4SD
                      src/components/*.cxx
                      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier StoreGateLib SGtests TileDetDescr TileSimEvent CaloDetDescrLib CxxUtils GeoModelUtilities GaudiKernel G4AtlasToolsLib TileGeoModelLib PathResolver TileGeoG4SDLib )
+                     LINK_LIBRARIES TileGeoG4SDLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

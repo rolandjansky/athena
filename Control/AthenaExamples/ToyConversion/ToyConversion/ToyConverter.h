@@ -44,8 +44,8 @@ public:
   virtual long int repSvcType() const;
   static long int storageType();
 
-protected:
-  friend class CnvFactory< ToyConverter<DATA> >;
+// protected:
+//   friend class CnvFactory< ToyConverter<DATA> >;
   ToyConverter(ISvcLocator* svcloc) : 
     Converter(storageType(), classID(), svcloc) {}
 };

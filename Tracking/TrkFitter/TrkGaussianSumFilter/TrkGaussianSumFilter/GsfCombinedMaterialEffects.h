@@ -55,13 +55,15 @@ class GsfCombinedMaterialEffects : public MultiStateMaterialEffects, virtual pub
   
   ToolHandle<IMaterialEffectsUpdator> m_multipleScatterEffects;
 
-  ToolHandle<IMultiStateMaterialEffects> m_multiStateMultipleScatteringEffects;
+  PublicToolHandle<IMultiStateMaterialEffects> m_multiStateMultipleScatteringEffects
+     {this,"MultipleScatteringEffectsAdapter","Trk::MultiStateMaterialEffectsAdapter/MultipleScatteringEffectsAdapter",""};
 
   ToolHandle<IMaterialEffectsUpdator> m_energyLossEffects;
 
   ToolHandle<IMultiStateMaterialEffects> m_betheHeitlerEffects;
 
-  ToolHandle<IMultiStateMaterialEffects> m_multiStateEnergyLossEffects;
+  PublicToolHandle<IMultiStateMaterialEffects> m_multiStateEnergyLossEffects
+     {this,"EnergyLossEffectsAdapter","Trk::MultiStateMaterialEffectsAdapter/EnergyLossEffectsAdapter",""};
 
   const MultiStateMaterialEffectsAdapter* m_multiStateMultipleScatteringAdapter;
   const MultiStateMaterialEffectsAdapter* m_multiStateEnergyLossAdapter;

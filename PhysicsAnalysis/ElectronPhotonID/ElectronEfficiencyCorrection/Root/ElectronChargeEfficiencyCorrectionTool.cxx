@@ -115,8 +115,8 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
   // SFCentral_RunNumber<minRN>-<maxRN>_Nvtx<minNvtx>-<maxNvtx>
 
   //     Then can create a key that will dynamically give us access to a map:
-  //    std::map<std::string key, std::vector<TH2D *>> m_SF_SS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
-  //     std::map<std::string key, std::vector<TH2D *>> m_SF_OS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
+  //    std::map<std::string key, std::vector<TH2 *>> m_SF_SS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
+  //     std::map<std::string key, std::vector<TH2 *>> m_SF_OS;     // keys (e.g. RunNumber223333_319200_Nvtx0_10_Phi1.5_1.6) mapping to vector of SF histograms --> vector m_SF: 0=nominal, 1=stat, 2,3,4...n=syst
   // TFile*         data/ChMisIDSF_TightLL_FixedCutTight.root
   //  KEY: TH2F     SFCentral_RunNumber296939_311481_SS;1   SFCentral_RunNumber296939_311481_SS
   //  KEY: TH2F     SFCentral_RunNumber296939_311481_OS;1   SFCentral_RunNumber296939_311481_OS
@@ -166,14 +166,14 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
           m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
-        m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
+        m_SF_OS[histid].push_back( (TH2*)rootFile->Get( names.at(j).c_str() ));
       }
       else {
         std::string histid = ( names.at(j) );
         histid.erase(0,10);
         histid.erase(histid.size()-3,3);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using histid (do we this in ? SS): " << histid);
-        m_SF_SS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
+        m_SF_SS[histid].push_back( (TH2*)rootFile->Get( names.at(j).c_str() ));
       }
     }///// if ( name.find(Form("SFCentral_") ) != std::string::npos)
 
@@ -204,7 +204,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 	  //          m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
-        m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
+        m_SF_OS[histid].push_back( (TH2*)rootFile->Get( names.at(j).c_str() ));
       }
       else {
         std::string histid = ( names.at(j) );
@@ -212,7 +212,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
         histid.erase(0,5);
         histid.erase(histid.size()-3,3);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using histid (do we this in ? SS): " << histid);
-        m_SF_SS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
+        m_SF_SS[histid].push_back( (TH2*)rootFile->Get( names.at(j).c_str() ));
       }
 
     }///// if ( name.find(Form("SYST") ) != std::string::npos)
@@ -249,7 +249,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 	  //      m_RunNumbers.push_back( static_cast<unsigned int>(atoi(runhigh.c_str())) );
         }
         ATH_MSG_VERBOSE("Using histid (OS hid): " << histid);
-        m_SF_OS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
+        m_SF_OS[histid].push_back( (TH2*)rootFile->Get( names.at(j).c_str() ));
       }
       else {
         std::string histid = ( names.at(j) );
@@ -257,7 +257,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
         histid.erase(histid.size()-3,3);// remove _SS, _OS
         histid.erase(0,histid.find("_")+1);// remove _SS, _OS
         ATH_MSG_VERBOSE("Using histid (sys ? SS): " << histid);
-        m_SF_SS[histid].push_back( (TH2D*)rootFile->Get( names.at(j).c_str() ));
+        m_SF_SS[histid].push_back( (TH2*)rootFile->Get( names.at(j).c_str() ));
       }
 
     }///end // if ( name.find(Form("SYST") ) != std::string::npos)
@@ -282,7 +282,7 @@ StatusCode CP::ElectronChargeEfficiencyCorrectionTool::initialize()
 
   /// here: need to use iterator over map!!!
   ATH_MSG_DEBUG("Having m_SF_OS.size() = " << m_SF_OS.size());
-  std::map<std::string,std::vector<TH2D*> >::iterator it = m_SF_OS.begin();
+  std::map<std::string,std::vector<TH2*> >::iterator it = m_SF_OS.begin();
 
   // Get the kinematic limits
   m_eta_lowlimit   = (*it).second.at(0)->GetYaxis()->GetXmin();
@@ -424,8 +424,8 @@ CP::ElectronChargeEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD:
   }
 
   // Determine WHICH histograms to use here
-  const std::vector<TH2D*>& SShistograms = m_SF_SS.at(cutRunNumber.c_str());
-  const std::vector<TH2D*>& OShistograms = m_SF_OS.at(cutRunNumber.c_str());
+  const std::vector<TH2*>& SShistograms = m_SF_SS.at(cutRunNumber.c_str());
+  const std::vector<TH2*>& OShistograms = m_SF_OS.at(cutRunNumber.c_str());
 
 
   // here check OS or SS
@@ -655,9 +655,9 @@ CP::CorrectionCode CP::ElectronChargeEfficiencyCorrectionTool::isGoodEle( const 
 
 
 // Get the correction rate given pt (E), eta, histogram
-float CP::ElectronChargeEfficiencyCorrectionTool::getChargeFlipRate( double eta, double pt, TH2D *hrates, double& flipRate) const
+float CP::ElectronChargeEfficiencyCorrectionTool::getChargeFlipRate( double eta, double pt, TH2 *hrates, double& flipRate) const
 {
-  ATH_MSG_VERBOSE(" -> in: getChargeFlipRate(" << pt <<", " << eta << " TH2D, double&)");
+  ATH_MSG_VERBOSE(" -> in: getChargeFlipRate(" << pt <<", " << eta << " TH2, double&)");
 
   if ( eta < m_eta_lowlimit || eta > m_eta_uplimit ) {
 

@@ -42,7 +42,9 @@ class xAODCaloClusterAuxContainerCnv : public xAODCaloClusterAuxContainerCnvBase
 
 protected:
    /// Converter constructor
+public:
    xAODCaloClusterAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::CaloClusterAuxContainer*

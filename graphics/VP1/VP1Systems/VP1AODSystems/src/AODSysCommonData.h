@@ -68,7 +68,7 @@ public:
   
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   VP1AODSystem * m_3dsystem;
   AODSystemController * m_controller;

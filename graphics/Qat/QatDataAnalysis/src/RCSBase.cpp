@@ -23,7 +23,7 @@
 #include "QatDataAnalysis/RCSBase.h"
 
 RCSBase::RCSBase()
-      : _count(0)
+      : m_count(0)
 {
 }
 
@@ -36,27 +36,27 @@ RCSBase::~RCSBase()
 
 void RCSBase::ref() const
 {
-  _count++;
+  m_count++;
 }
 
 void RCSBase::unref() const
 {
-  if (!_count)
+  if (!m_count)
     {
 
     }
   else
     {
-      _count--;
-      if (_count==1) uncache();
-      if (!_count) delete this;
+      m_count--;
+      if (m_count==1) uncache();
+      if (!m_count) delete this;
     }
   
 }
 
 unsigned int RCSBase::refCount() const
 {
-  return _count;
+  return m_count;
 }
 
 void RCSBase::uncache() const {

@@ -167,7 +167,7 @@ private:
   Br* m_br;
 
 	class Clockwork;
-	Clockwork* c;
+	Clockwork* m_c;
 
 private slots:
 

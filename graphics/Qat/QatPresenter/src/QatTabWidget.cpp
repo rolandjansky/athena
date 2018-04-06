@@ -157,7 +157,7 @@ void QatTabWidget::Private::updateTab( int index )
 
 QatTabWidget::QatTabWidget( QWidget *parent, Qt::WFlags flags )
   : QTabWidget( parent ),
-    d( new Private( this ) )
+    m_d( new Private( this ) )
 {
   setWindowFlags( flags );
   setTabBar( new QatTabBar( this ) );
@@ -179,7 +179,7 @@ QatTabWidget::QatTabWidget( QWidget *parent, Qt::WFlags flags )
 
 QatTabWidget::~QatTabWidget()
 {
-  delete d;
+  delete m_d;
 }
 
 /*void QatTabWidget::insertTab( QWidget *child, const QString &label, int index )
@@ -195,14 +195,14 @@ void QatTabWidget::insertTab( QWidget *child, const QIcon& iconset, const QStrin
 void QatTabWidget::insertTab( QWidget *child, QTab *tab, int index )
 {
   QTabWidget::insertTab( child, tab, index);
-  if ( d->m_automaticResizeTabs ) {
+  if ( m_d->m_automaticResizeTabs ) {
     if ( index < 0 || index >= count() ) {
-      d->m_tabNames.append( tab->text() );
-      d->resizeTabs( d->m_tabNames.count()-1 );
+      m_d->m_tabNames.append( tab->text() );
+      m_d->resizeTabs( m_d->m_tabNames.count()-1 );
     }
     else {
-      d->m_tabNames.insert( d->m_tabNames.at( index ), tab->text() );
-      d->resizeTabs( index );
+      m_d->m_tabNames.insert( m_d->m_tabNames.at( index ), tab->text() );
+      m_d->resizeTabs( index );
     }
   }
 }*/
@@ -268,9 +268,9 @@ int QatTabWidget::tabBarWidthForMaxChars( int /*maxLength*/ )
   QFontMetrics fm = tabBar()->fontMetrics();
   int x = 0;
   for ( int i = 0; i < count(); ++i ) {
-    QString newTitle = d->m_tabNames[ i ];
+    QString newTitle = m_d->m_tabNames[ i ];
   //TK-fixme. Just use elide here?
-    //TK-fixme    newTitle = KStringHandler::rsqueeze( newTitle, maxLength ).leftJustified( d->m_minLength, ' ' );
+    //TK-fixme    newTitle = KStringHandler::rsqueeze( newTitle, maxLength ).leftJustified( m_d->m_minLength, ' ' );
 
     int lw = fm.width( newTitle );
     int iw = 0;
@@ -287,9 +287,9 @@ int QatTabWidget::tabBarWidthForMaxChars( int /*maxLength*/ )
 
 QString QatTabWidget::tabText( int index ) const
 {
-  if ( d->m_automaticResizeTabs ) {
+  if ( m_d->m_automaticResizeTabs ) {
     if ( index >= 0 && index < count() )
-      return d->m_tabNames[ index ];
+      return m_d->m_tabNames[ index ];
     else
       return QString();
   }
@@ -300,10 +300,10 @@ QString QatTabWidget::tabText( int index ) const
 void QatTabWidget::setTabText( int index, const QString &text )
 {
   QTabWidget::setTabText( index, text );
-  if ( d->m_automaticResizeTabs ) {
+  if ( m_d->m_automaticResizeTabs ) {
     if ( index != -1 ) {
-      d->m_tabNames[ index ] = text;
-      d->resizeTabs( index );
+      m_d->m_tabNames[ index ] = text;
+      m_d->resizeTabs( index );
     }
   }
 }
@@ -317,7 +317,7 @@ void QatTabWidget::dragEnterEvent( QDragEnterEvent *event )
 
 void QatTabWidget::dragMoveEvent( QDragMoveEvent *event )
 {
-  if ( d->isEmptyTabbarSpace( event->pos() ) ) {
+  if ( m_d->isEmptyTabbarSpace( event->pos() ) ) {
     bool accept = false;
     // The receivers of the testCanDecode() signal has to adjust
     // 'accept' accordingly.
@@ -333,7 +333,7 @@ void QatTabWidget::dragMoveEvent( QDragMoveEvent *event )
 
 void QatTabWidget::dropEvent( QDropEvent *event )
 {
-  if ( d->isEmptyTabbarSpace( event->pos() ) ) {
+  if ( m_d->isEmptyTabbarSpace( event->pos() ) ) {
     emit ( receivedDropEvent( event ) );
     return;
   }
@@ -347,7 +347,7 @@ void QatTabWidget::wheelEvent( QWheelEvent *event )
   if ( event->orientation() == Qt::Horizontal )
     return;
 
-  if ( d->isEmptyTabbarSpace( event->pos() ) )
+  if ( m_d->isEmptyTabbarSpace( event->pos() ) )
     wheelDelta( event->delta() );
   else
     event->ignore();
@@ -375,7 +375,7 @@ void QatTabWidget::mouseDoubleClickEvent( QMouseEvent *event )
   if ( event->button() != Qt::LeftButton )
     return;
 
-  if ( d->isEmptyTabbarSpace( event->pos() ) ) {
+  if ( m_d->isEmptyTabbarSpace( event->pos() ) ) {
     emit( mouseDoubleClick() );
     return;
   }
@@ -386,12 +386,12 @@ void QatTabWidget::mouseDoubleClickEvent( QMouseEvent *event )
 void QatTabWidget::mousePressEvent( QMouseEvent *event )
 {
   if ( event->button() == Qt::RightButton ) {
-    if ( d->isEmptyTabbarSpace( event->pos() ) ) {
+    if ( m_d->isEmptyTabbarSpace( event->pos() ) ) {
       emit( contextMenu( mapToGlobal( event->pos() ) ) );
       return;
     }
   } else if ( event->button() == Qt::MidButton ) {
-    if ( d->isEmptyTabbarSpace( event->pos() ) ) {
+    if ( m_d->isEmptyTabbarSpace( event->pos() ) ) {
       emit( mouseMiddleClick() );
       return;
     }
@@ -440,11 +440,11 @@ void QatTabWidget::moveTab( int from, int to )
 
   // Work-around kmdi brain damage which calls showPage() in insertTab()
   insertTab( to, w, tablabel );
-  if ( d->m_automaticResizeTabs ) {
+  if ( m_d->m_automaticResizeTabs ) {
     if ( to < 0 || to >= count() )
-      d->m_tabNames.append( QString() );
+      m_d->m_tabNames.append( QString() );
     else
-      d->m_tabNames.insert( to, QString() );
+      m_d->m_tabNames.insert( to, QString() );
   }
 
   setTabIcon( to, tabiconset );
@@ -462,37 +462,37 @@ void QatTabWidget::moveTab( int from, int to )
 void QatTabWidget::removePage( QWidget *widget )
 {
   QTabWidget::removeTab( indexOf( widget ) );
-  if ( d->m_automaticResizeTabs )
-    d->resizeTabs();
+  if ( m_d->m_automaticResizeTabs )
+    m_d->resizeTabs();
 }
 
 void QatTabWidget::removeTab( int index )
 {
   QTabWidget::removeTab( index );
-  if ( d->m_automaticResizeTabs )
-    d->resizeTabs();
+  if ( m_d->m_automaticResizeTabs )
+    m_d->resizeTabs();
 }
 
 void QatTabWidget::setAutomaticResizeTabs( bool enabled )
 {
-  if ( d->m_automaticResizeTabs == enabled )
+  if ( m_d->m_automaticResizeTabs == enabled )
     return;
 
-  d->m_automaticResizeTabs = enabled;
+  m_d->m_automaticResizeTabs = enabled;
   if ( enabled ) {
-    d->m_tabNames.clear();
+    m_d->m_tabNames.clear();
     for ( int i = 0; i < count(); ++i )
-      d->m_tabNames.append( tabBar()->tabText( i ) );
+      m_d->m_tabNames.append( tabBar()->tabText( i ) );
   } else
     for ( int i = 0; i < count(); ++i )
-      tabBar()->setTabText( i, d->m_tabNames[ i ] );
+      tabBar()->setTabText( i, m_d->m_tabNames[ i ] );
 
-  d->resizeTabs();
+  m_d->resizeTabs();
 }
 
 bool QatTabWidget::automaticResizeTabs() const
 {
-  return d->m_automaticResizeTabs;
+  return m_d->m_automaticResizeTabs;
 }
 
 void QatTabWidget::closeRequest( int index )
@@ -503,15 +503,15 @@ void QatTabWidget::closeRequest( int index )
 void QatTabWidget::resizeEvent( QResizeEvent *event )
 {
   QTabWidget::resizeEvent( event );
-  d->resizeTabs();
+  m_d->resizeTabs();
 }
 
 void QatTabWidget::tabInserted( int idx )
 {
-   d->m_tabNames.insert( idx, tabBar()->tabText( idx ) );
+   m_d->m_tabNames.insert( idx, tabBar()->tabText( idx ) );
 }
 
 void QatTabWidget::tabRemoved( int idx )
 {
-   d->m_tabNames.removeAt( idx );
+   m_d->m_tabNames.removeAt( idx );
 }

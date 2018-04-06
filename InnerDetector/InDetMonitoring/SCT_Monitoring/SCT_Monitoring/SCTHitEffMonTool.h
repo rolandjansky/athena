@@ -34,7 +34,6 @@
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 //SCT
-#include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 #include "TString.h"
 
@@ -174,7 +173,6 @@ private:
   ToolHandle < Trk::IRIO_OnTrackCreator > m_rotcreator; 
   ToolHandle < Trk::ITrackHoleSearchTool >  m_holeSearchTool;  
 
-  ServiceHandle < ISCT_FlaggedConditionSvc > m_flaggedConditionSvc;
   ServiceHandle < ISCT_ConfigurationConditionsSvc > m_configConditions;
 
 

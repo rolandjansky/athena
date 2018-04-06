@@ -1,5 +1,5 @@
-#ifndef _PVControl_h_
-#define _PVControl_h_
+#ifndef QATPLOTWIDGETS_PVCONTROL_H
+#define QATPLOTWIDGETS_PVCONTROL_H
 #include "QatPlotWidgets/PlotView.h"
 #include <QtGui/QDialog>
 
@@ -50,7 +50,7 @@ signals:
   Ui::PVControl & ui();
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
   friend class PlotView;  
 

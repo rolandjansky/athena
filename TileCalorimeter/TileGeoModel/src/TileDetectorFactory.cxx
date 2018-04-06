@@ -44,24 +44,17 @@ TileDetectorFactory::TileDetectorFactory(StoreGateSvc *pDetStore,
                                          TileDetDescrManager *manager,
                                          bool addPlates, 
                                          int ushape,
+                                         int glue,
                                          MsgStream *log)
   : m_detectorStore(pDetStore)
   , m_detectorManager(manager)
   , m_log(log)
   , m_addPlatesToCellVolume(addPlates)
-  , m_Ushape(ushape)
+  , m_uShape(ushape)
+  , m_glue(glue)
   , m_testbeamGeometry(false)
   , m_verbose(log->level()<=MSG::VERBOSE)
 {
-  // addPlatesToCellVolume should be the same as PlateToCell 
-  // flag in TileSimInfoLoader if we want to have self-consistent
-  // cell volumes for calibration hits, but it's not
-  // possible to read this parameter from TileSimInfoLoader 
-  // because TileSimInfoLoader is in another project (AtlasSimulation)
-
-  // Ushape value should ne the same as in TileSimInfoLoader 
-  // but it's not possible to read this parameter from TileSimInfoLoader 
-  // because TileSimInfoLoader is in another project (AtlasSimulation)
 }
   
 // Destructor:
@@ -95,7 +88,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 
   // -------- -------- SECTION BUILDER  -------- ----------
   TileDddbManager* dbManager = m_detectorManager->getDbManager();
-  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_Ushape,m_log);
+  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_log);
 
   // --------------- TILE  -------  TILE  --------- TILE ---------- TILE ------------
   // Envelope creation. 
@@ -917,7 +910,9 @@ void TileDetectorFactory::create(GeoPhysVol *world)
     sectionBuilder->fillFinger(pvFingerModuleMother, 1,
 			       dbManager->TILErmax(),
 			       dbManager->TILBrmax(),
-			       deltaPhi, ModuleNcp,
+			       deltaPhi,
+			       m_testbeamGeometry,
+			       ModuleNcp,
 			       thicknessWedgeMother*(1./CLHEP::cm));
     
     // --- Position N modules inside mother (positive/negative) -----
@@ -989,7 +984,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 			       2,
 			       dbManager->TILErmax(),
 			       dbManager->TILBrmax(),
-			       deltaPhi);
+			       deltaPhi,
+			       m_testbeamGeometry);
 
     // --- Position N modules inside mother (positive/negative) -----
     TRANSFUNCTION xfEFingerModuleMotherPos = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*CLHEP::cm)*HepGeom::RotateX3D(180*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);

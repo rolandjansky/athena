@@ -16,6 +16,13 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 
+using std::map;
+using std::vector;
+using std::string;
+using std::cerr;
+using std::endl;
+
+
 // using namespace std;
 
 MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par){
@@ -625,7 +632,7 @@ MMLoadVariables::~MMLoadVariables() {
 
   void MMLoadVariables::hit_rot_stereo_fwd(TVector3& hit)const{
     double degree=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
-    if(striphack) hit.SetY(hit.Y()*cos(degree));
+    if(m_striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
       hit.SetX(xnew);hit.SetY(ynew);
@@ -634,7 +641,7 @@ MMLoadVariables::~MMLoadVariables() {
 
   void MMLoadVariables::hit_rot_stereo_bck(TVector3& hit)const{
     double degree=-TMath::DegToRad()*(m_par->stereo_degree.getFixed());
-    if(striphack) hit.SetY(hit.Y()*cos(degree));
+    if(m_striphack) hit.SetY(hit.Y()*cos(degree));
     else{
       double xnew=hit.X()*cos(degree)+hit.Y()*sin(degree),ynew=-hit.X()*sin(degree)+hit.Y()*cos(degree);
       hit.SetX(xnew);hit.SetY(ynew);
@@ -654,11 +661,11 @@ MMLoadVariables::~MMLoadVariables() {
   //   if(debug) cout<<"SUBSTR CALL MMT_L--2\n";
     string xuv=setup.substr(plane,1);
     if(xuv=="u"){//||xuv=="v"){
-      if(striphack)return ceil(Y*cos(degree)/strip_width);
+      if(m_striphack)return ceil(Y*cos(degree)/strip_width);
       y_hit = X*sin(degree)+Y*cos(degree);
     }
     else if(xuv=="v"){
-      if(striphack)return ceil(Y*cos(degree)/strip_width);
+      if(m_striphack)return ceil(Y*cos(degree)/strip_width);
       y_hit = -X*sin(degree)+Y*cos(degree);
       // cout<<"-X*sin("<<degree<<")+Y*cos(degree) is"<<-X*sin(degree)+Y*cos(degree)<<endl;
     }

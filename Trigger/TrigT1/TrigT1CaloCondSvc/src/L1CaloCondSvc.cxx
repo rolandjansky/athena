@@ -70,7 +70,8 @@ StatusCode L1CaloCondSvc::finalize()
 StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 
 
-	ATH_MSG_VERBOSE("updateConditions()");
+// 	ATH_MSG_INFO("ACH updateConditions()");
+        ATH_MSG_VERBOSE("updateConditions()");
 
 	// set to store the list of objects to be updated.
 	std::set<IL1CaloPersistenceCapable*> vToBeUpdated;
@@ -79,7 +80,8 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 	std::list<std::string>::const_iterator itr;
 	for(itr=keys.begin(); itr!=keys.end(); ++itr) {
 		std::string key = *itr;
-		ATH_MSG_VERBOSE("key = " << key);
+// 		ATH_MSG_INFO("ACH key = " << key);
+                ATH_MSG_VERBOSE("key = " << key);
 
 		// find the current key in the map
 		std::map<std::string, std::vector<IL1CaloPersistenceCapable*> >::const_iterator it_map = m_mConditions.find(key);
@@ -104,10 +106,11 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 		// get the keys/folders required by current object
 		std::vector<std::string> vCoolInputKeys = pobj->coolInputKeys();
                 
-                std::vector<std::string> otherkeys = m_map_conditions2key[pobj];
-                vCoolInputKeys.insert(vCoolInputKeys.end(),otherkeys.begin(),otherkeys.end());
+    std::vector<std::string> otherkeys = m_map_conditions2key[pobj];
+    vCoolInputKeys.insert(vCoolInputKeys.end(),otherkeys.begin(),otherkeys.end());
                 
 		std::string conditionType = pobj->conditionType();
+//                 ATH_MSG_INFO("ACH conditionType = "<<conditionType);
 
 		if(conditionType=="CondAttrListCollection") {
 
@@ -118,13 +121,18 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 			std::vector<std::string>::const_iterator it_coolInputKeys = vCoolInputKeys.begin();
 			for(;it_coolInputKeys!=vCoolInputKeys.end();++it_coolInputKeys) {
 				std::string key = *it_coolInputKeys;
+// 				ATH_MSG_INFO("ACH update key = " << key);
                                 std::map<std::string, const DataHandle<CondAttrListCollection>* >::iterator it = m_mDataHandleAttrListColl.find(key);
                                 if (it != m_mDataHandleAttrListColl.end()) {
 				   const DataHandle<CondAttrListCollection>& dh = *m_mDataHandleAttrListColl[key];
 				   const CondAttrListCollection* attrListCollection = &(*dh);
-				   if (attrListCollection) condAttrListCollectionMap[key] = (CondAttrListCollection*)attrListCollection;
+				   if (attrListCollection) {
+// 					ATH_MSG_INFO("ACH attrListCollection = "<<attrListCollection);
+					condAttrListCollectionMap[key] = (CondAttrListCollection*)attrListCollection;
+					}
                                 }
 			}
+// 			ATH_MSG_INFO("ACH condAttrListCollectionMap size is "<<condAttrListCollectionMap.size());
 			pobj->makeTransient(condAttrListCollectionMap);
 
 		} else if(conditionType=="AthenaAttributeList"){

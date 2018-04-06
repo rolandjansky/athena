@@ -35,7 +35,7 @@ StatusCode RoRSeqFilter::initialize()
   CHECK( m_outputKeys.initialize() );
 
   renounceArray(m_inputKeys);
-  renounceArray(m_outputKeys);
+  // is this needed? renounceArray(m_outputKeys);
 
   ATH_MSG_DEBUG("Will consume implicit ReadDH:" );
   for (auto& input: m_inputKeys){  
@@ -70,13 +70,13 @@ StatusCode RoRSeqFilter::execute() {
   auto inputHandles  = m_inputKeys.makeHandles();
   auto outputHandles = m_outputKeys.makeHandles();
   
-  bool validInputs=0;
+  bool validInputs=false;
   for ( auto inputHandle: inputHandles ) {
     if( inputHandle.isValid() ) {// this is because input is implicit
-      validInputs++;
+      validInputs = true;
     }
   }
-  if (validInputs==0) {
+  if (!validInputs) {
     setFilterPassed(false);
     ATH_MSG_DEBUG ( "No valid inputs found, filter failed. Return...." );
     return StatusCode::SUCCESS;
@@ -86,7 +86,8 @@ StatusCode RoRSeqFilter::execute() {
 
   ATH_MSG_DEBUG( "Running on "<< inputHandles.size() <<" input keys");
   
-  size_t passCounter = 0;    
+  size_t passCounter = 0;
+  size_t outputIndex = 0;
   if ( m_mergeInputs ) {
     auto output = std::make_unique< ConstDataVector< TrigCompositeUtils::DecisionContainer > > ();
     output->clear( SG::VIEW_ELEMENTS );
@@ -98,11 +99,13 @@ StatusCode RoRSeqFilter::execute() {
 
     ATH_MSG_DEBUG( "Recording " <<  m_outputKeys[ 0 ].key() ); 
     CHECK( outputHandles[0].record( std::move( output ) ) );
+    outputIndex++;
 
   } else {
-    size_t outputIndex = 0;
+
     for ( auto inputKey: m_inputKeys ) {
       auto inputHandle = SG::makeHandle( inputKey );
+
       if( not inputHandle.isValid() ) continue;//implicit
       
       ATH_MSG_DEBUG( "Checking inputHandle "<< inputKey.key() <<" with " << inputHandle->size() <<" elements");
@@ -111,15 +114,18 @@ StatusCode RoRSeqFilter::execute() {
       
       passCounter += copyPassing( *inputHandle, *output );
 
-      ATH_MSG_DEBUG( "Recording output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
-  
-      CHECK( outputHandles[outputIndex].record( std::move( output ) ) );
-
-      outputIndex++;
+      if (output->size() >0){ // data handle reduction       
+	ATH_MSG_DEBUG( "Recording output key " <<  m_outputKeys[ outputIndex ].key() <<" of size "<<output->size()  <<" at index "<< outputIndex);
+	CHECK( outputHandles[outputIndex].record( std::move( output ) ) );
+	outputIndex++;
+      }
     }
   }
 
-  ATH_MSG_DEBUG( "Filter " << ( passCounter != 0 ? "passed" : "rejected") );
+  ATH_MSG_DEBUG( "Filter " << ( passCounter != 0 ? "passed" : "rejected") <<" creating "<< outputIndex<<" outDecisions DH");
+  for (auto output: outputHandles){
+    ATH_MSG_DEBUG(output.key());
+  }
   setFilterPassed( passCounter != 0 );  
   return StatusCode::SUCCESS;
 }

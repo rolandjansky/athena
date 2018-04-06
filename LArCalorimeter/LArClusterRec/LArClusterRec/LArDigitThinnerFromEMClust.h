@@ -13,18 +13,27 @@
 #define LARCLUSTERREC_LArDigitThinnerFromEMClust_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 
-#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
+
+#include <bitset>
 
 #include <vector>
 #include <string>
 
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "AthContainers/ConstDataVector.h"
 class HWIdentifier;
 class Identifier;
 
-class LArDigitThinnerFromEMClust : public AthAlgorithm
+class LArDigitContainer;
+class LArOnOffIdMapping;
+
+class LArDigitThinnerFromEMClust : public AthReentrantAlgorithm
 {
  public:
   
@@ -33,25 +42,24 @@ class LArDigitThinnerFromEMClust : public AthAlgorithm
 
   ~LArDigitThinnerFromEMClust();
   
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode execute_r(const EventContext& ctx) const override;
+  StatusCode finalize() override;
  
   private:
     
-    StatusCode getCells();
-
-    ToolHandle<LArCablingService> m_larCablingSvc; 
     const LArOnlineID* m_onlineID;
 
-    std::string m_inputContainerName, m_outputContainerName;
-    std::string m_clusterContainerName;
+    SG::ReadHandleKey<LArDigitContainer> m_inputContainerKey;
+    SG::WriteHandleKey<ConstDataVector<LArDigitContainer> > m_outputContainerKey;
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_clusterContainerKey;
 
-    std::vector<bool> m_listCells;
-    size_t m_nchannels;
+    SG::ReadCondHandleKey<LArOnOffIdMapping> m_larCablingKey;
 
-    unsigned int m_nevent;
-    unsigned int m_ncells;
+    //size_t m_nchannels;
+
+    //unsigned int m_nevent;
+    //unsigned int m_ncells;
 
 };
 

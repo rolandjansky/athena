@@ -20,7 +20,7 @@ public:
    **/
   virtual StatusCode prescaleChains( const EventContext& ctx,  
 				     const HLT::IDVec& initialyActive,
-				     HLT::IDVec& remainActive ) = 0;
+				     HLT::IDVec& remainActive ) const = 0;
   
   
 

@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           PRIVATE
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthContainers
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
@@ -49,7 +49,7 @@ atlas_add_component( SCT_Monitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetReadoutGeometry InDetPrepRawData MagFieldInterfaces ITrackToVertex TrkTrack TrkToolInterfaces CommissionEvent AthenaKernel DataModel Identifier EventInfo InDetIdentifier InDetRawData InDetRIO_OnTrack LWHists PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint TrkTrackSummary )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaMonitoringLib GaudiKernel InDetReadoutGeometry InDetPrepRawData MagFieldInterfaces ITrackToVertex TrkTrack TrkToolInterfaces CommissionEvent AthenaKernel AthContainers Identifier EventInfo InDetIdentifier InDetRawData InDetRIO_OnTrack LWHists PathResolver TrkSurfaces TrkEventUtils TrkMeasurementBase TrkParameters TrkRIO_OnTrack TrkSpacePoint TrkTrackSummary )
 
 # Install files from the package:
 atlas_install_headers( SCT_Monitoring )

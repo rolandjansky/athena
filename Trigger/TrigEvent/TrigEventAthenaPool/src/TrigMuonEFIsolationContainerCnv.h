@@ -30,7 +30,9 @@ class TrigMuonEFIsolationContainerCnv : public TrigMuonEFIsolationContainerCnvBa
 
  protected:
 
+public:
   TrigMuonEFIsolationContainerCnv(ISvcLocator* svcloc);
+protected:
 
   TrigMuonEFIsolationContainer_PERS* createPersistent(TrigMuonEFIsolationContainer* transCont);
 

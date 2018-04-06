@@ -34,6 +34,7 @@
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p1.h"                 
 #include "TrkEventTPCnv/TrkSurfaces/CylinderBoundsCnv_p1.h"          
 #include "TrkEventTPCnv/TrkSurfaces/DiamondBoundsCnv_p1.h"           
+#include "TrkEventTPCnv/TrkSurfaces/RotatedDiamondBoundsCnv_p1.h"           
 #include "TrkEventTPCnv/TrkSurfaces/DiscBoundsCnv_p1.h"              
 #include "TrkEventTPCnv/TrkSurfaces/RectangleBoundsCnv_p1.h"         
 #include "TrkEventTPCnv/TrkSurfaces/TrapezoidBoundsCnv_p1.h"         
@@ -51,9 +52,6 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalPositionCnv_p1.h"           
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"         
 
-#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3DCnv_p1.h"      
-
-#include <iostream>
 
 class TrackCollectionCnv_tlp2
  : public AthenaPoolTopLevelTPConverter< TrackCollectionCnv_p2, Trk::TrackCollection_tlp2 >
@@ -101,6 +99,7 @@ protected:
   SurfaceCnv_p1                     m_surfacesCnv;
   CylinderBoundsCnv_p1              m_cylinderBoundsCnv;
   DiamondBoundsCnv_p1               m_diamondBoundsCnv;
+  RotatedDiamondBoundsCnv_p1        m_rotatedDiamondBoundsCnv;
   DiscBoundsCnv_p1                  m_discBoundsCnv;
   RectangleBoundsCnv_p1             m_rectangleBoundsCnv;
   TrapezoidBoundsCnv_p1             m_trapesoidBoundsCnv;
@@ -116,8 +115,6 @@ protected:
   LocalDirectionCnv_p1              m_localDirectionsCnv;
   LocalPositionCnv_p1               m_localPositionsCnv;
   LocalParametersCnv_p1             m_localParametersCnv;            
-
-  HepPoint3DCnv_p1                  m_pointsCnv;            	
 };
 
 #endif 

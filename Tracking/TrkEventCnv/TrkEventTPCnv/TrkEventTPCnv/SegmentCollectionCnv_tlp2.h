@@ -18,6 +18,7 @@
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p1.h"                 
 #include "TrkEventTPCnv/TrkSurfaces/CylinderBoundsCnv_p1.h"          
 #include "TrkEventTPCnv/TrkSurfaces/DiamondBoundsCnv_p1.h"           
+#include "TrkEventTPCnv/TrkSurfaces/RotatedDiamondBoundsCnv_p1.h"           
 #include "TrkEventTPCnv/TrkSurfaces/DiscBoundsCnv_p1.h"              
 #include "TrkEventTPCnv/TrkSurfaces/RectangleBoundsCnv_p1.h"         
 #include "TrkEventTPCnv/TrkSurfaces/TrapezoidBoundsCnv_p1.h"     
@@ -28,15 +29,12 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/ErrorMatrixCnv_p1.h"            
 #include "TrkEventTPCnv/TrkEventPrimitives/CovarianceMatrixCnv_p1.h"            
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"         
-#include "TrkEventTPCnv/TrkEventPrimitives/HepPoint3DCnv_p1.h"         
 
-// #include "TrkEventTPCnv/TrkRIO_OnTrack/RIO_OnTrackCnv_p2.h"             
 #include "TrkEventTPCnv/TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrackCnv_p1.h"       
 #include "TrkEventTPCnv/TrkCompetingRIOsOnTrack/CompetingRIOsOnTrackCnv_p1.h"
 
 #include "TrkEventTPCnv/TrkDetElementSurface/DetElementSurfaceCnv_p1.h"
 
-#include <iostream>
 
 class SegmentCollectionCnv_tlp2
  : public AthenaPoolTopLevelTPConverter< SegmentCollectionCnv_p1, Trk::SegmentCollection_tlp2 >
@@ -67,6 +65,7 @@ protected:
   
   CylinderBoundsCnv_p1          m_cylinderBoundsCnv;
   DiamondBoundsCnv_p1           m_diamondBoundsCnv;
+  RotatedDiamondBoundsCnv_p1    m_rotatedDiamondBoundsCnv;
   DiscBoundsCnv_p1              m_discBoundsCnv;
   RectangleBoundsCnv_p1         m_rectangleBoundsCnv;
   TrapezoidBoundsCnv_p1         m_trapesoidBoundsCnv;
@@ -78,8 +77,6 @@ protected:
   ErrorMatrixCnv_p1             m_errorMatricesCnv;
   LocalParametersCnv_p1         m_localParametersCnv;            
 
-  //trial and error for the datavector ...
-  // RIO_OnTrackCnv_p2             m_RIOsCnv;
   PseudoMeasurementOnTrackCnv_p1 m_pseudoMeasurementOnTrackCnv;
   CompetingRIOsOnTrackCnv_p1    m_crotCnv;
   

@@ -144,28 +144,28 @@ public:
 PlotBand1D::PlotBand1D(const Genfun::AbsFunction & function1,
 		       const Genfun::AbsFunction & function2,
 			       const QRectF & naturalRectangle):
-  Plotable(),c(new Clockwork())
+  Plotable(),m_c(new Clockwork())
 {
-  c->function1=function1.clone();
-  c->function2=function2.clone();
-  c->rect=naturalRectangle;
+  m_c->function1=function1.clone();
+  m_c->function2=function2.clone();
+  m_c->rect=naturalRectangle;
 }
 
 PlotBand1D::PlotBand1D(const Genfun::AbsFunction & function1,
 		       const Genfun::AbsFunction & function2,
 			       const Cut<double> & domainRestriction,
 			       const QRectF & naturalRectangle):
-  Plotable(),c(new Clockwork()) 
+  Plotable(),m_c(new Clockwork()) 
 {
-  c->function1=function1.clone();
-  c->function2=function2.clone();
-  c->rect=naturalRectangle;
-  c->domainRestriction=domainRestriction.clone();
+  m_c->function1=function1.clone();
+  m_c->function2=function2.clone();
+  m_c->rect=naturalRectangle;
+  m_c->domainRestriction=domainRestriction.clone();
 }
 
 // Copy constructor:
 PlotBand1D::PlotBand1D(const PlotBand1D & source):
-  Plotable(),c(new Clockwork(*(source.c)))
+  Plotable(),m_c(new Clockwork(*(source.m_c)))
 {
 
 }
@@ -173,7 +173,7 @@ PlotBand1D::PlotBand1D(const PlotBand1D & source):
 // Assignment operator:
 PlotBand1D & PlotBand1D::operator=(const PlotBand1D & source){
   if (&source!=this) {
- 		c.reset(new Clockwork(*(source.c)));
+ 		m_c.reset(new Clockwork(*(source.m_c)));
   }
   return *this;
 } 
@@ -183,13 +183,13 @@ PlotBand1D & PlotBand1D::operator=(const PlotBand1D & source){
 // Destructor
 PlotBand1D::~PlotBand1D(){
   //not necessary if using unique_ptr
-  //delete c;
+  //delete m_c;
 }
 
 
 
 const QRectF  PlotBand1D::rectHint() const {
-  return c->rect;
+  return m_c->rect;
 }
 
 
@@ -200,11 +200,11 @@ void PlotBand1D::describeYourselfTo(AbsPlotter *plotter) const {
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
   {
-    unsigned int dim = c->function1->dimensionality();
+    unsigned int dim = m_c->function1->dimensionality();
     if (dim!=1) throw std::runtime_error("PlotBand1D:  requires a function of exactly 1 argument");
   }  
   {
-    unsigned int dim = c->function2->dimensionality();
+    unsigned int dim = m_c->function2->dimensionality();
     if (dim!=1) throw std::runtime_error("PlotBand1D:  requires a function of exactly 1 argument");
   }  
 
@@ -221,7 +221,7 @@ void PlotBand1D::describeYourselfTo(AbsPlotter *plotter) const {
   if (brush.style()==Qt::NoBrush) {
     for (int b=0;b<2;b++) {
       
-      const Genfun::AbsFunction * function = b==0 ? c->function1: c->function2;
+      const Genfun::AbsFunction * function = b==0 ? m_c->function1: m_c->function2;
 
       // Just a line:
       
@@ -231,7 +231,7 @@ void PlotBand1D::describeYourselfTo(AbsPlotter *plotter) const {
       for (int i=0; i<NPOINTS+1;i++) {
 	bool                closePath=false;
 	double x = minX + i*delta;
-	if (!c->domainRestriction || (*c->domainRestriction)(x)) {  // Check that X is in function domain 
+	if (!m_c->domainRestriction || (*m_c->domainRestriction)(x)) {  // Check that X is in function domain 
 	  
 	  double y = (*function) (x);
 	  QPointF point(x,y);
@@ -296,9 +296,9 @@ void PlotBand1D::describeYourselfTo(AbsPlotter *plotter) const {
       for (int i=0; i<NPOINTS+1;i++) {
 	bool                closePath=false;
 	double x = b ? minX + i*delta : maxX-i*delta;
-	if (!c->domainRestriction || (*c->domainRestriction)(x)) {  // Check that X is in function domain 
+	if (!m_c->domainRestriction || (*m_c->domainRestriction)(x)) {  // Check that X is in function domain 
 	  
-	  double y = b? (*c->function1) (x) : (*c->function2) (x) ;
+	  double y = b? (*m_c->function1) (x) : (*m_c->function2) (x) ;
 	  QPointF point(x,y);
 	  
 	  if (!path) path = new QPainterPath();
@@ -349,15 +349,15 @@ void PlotBand1D::describeYourselfTo(AbsPlotter *plotter) const {
 
 
 const PlotBand1D::Properties PlotBand1D::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotBand1D::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties=new Properties(properties);
+  delete m_c->myProperties;
+  m_c->myProperties=new Properties(properties);
 }
 
 void PlotBand1D::resetProperties() {
-  delete c->myProperties;
-  c->myProperties=nullptr;
+  delete m_c->myProperties;
+  m_c->myProperties=nullptr;
 }

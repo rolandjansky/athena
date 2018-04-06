@@ -95,8 +95,8 @@ if L1CaloPedestalsMaker_Store2COOL:
 	theApp.OutStream = []
 
 	from AthenaCommon.AppMgr import ToolSvc
-	from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-	ToolSvc += AthenaPoolOutputStreamTool("COOLStream", OutputFile = "cool.pool.root")
+	from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+	ToolSvc += AthenaOutputStreamTool("COOLStream", OutputFile = "cool.pool.root")
 
 
 #--------------------------------------------------------------

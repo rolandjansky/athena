@@ -32,12 +32,14 @@ class AODFix_base(object):
         """
         return []
 
-    def __init__(self, prevVersion = "", isMC = False, force = False):
+    def __init__(self, prevVersion = "", isMC = False, force = False, isHI = False, isHIP = False):
         """ The default constructor. It implements the default behavior of setting
         up the latest AODFix to run. Only needs to be overriden if doing something
         more complicated.
         """
         self.isMC = isMC
+        self.isHI = isHI
+        self.isHIP = isHIP
         self.prevAODFix = prevVersion if not force else 'none' # if forcing, ignore old AODFix
         self.newAODFix = "-".join(self.latestAODFixVersion())
         logAODFix.debug( "latestAODFixVersion() = " +  self.newAODFix)
@@ -47,7 +49,7 @@ class AODFix_base(object):
             # the AODFix is empty: do nothing
             self.doAODFix = False
         elif not force:
-            if prevVersion == self.latestAODFixVersion():
+            if prevVersion == self.newAODFix:
                 self.doAODFix = False
             else:
                 self.doAODFix = True
@@ -71,7 +73,15 @@ class AODFix_base(object):
             elif rec.readAOD():
                 suffix="_AOD"
 
-            str = "AODFix_" + self.newAODFix + suffix
+            # remove any metadata we don't want to write out (in order to rerun again)
+            metadataList = self.newAODFix.split("-")
+            excludeFromMetadata = self.excludeFromMetadata()
+
+            for excl in excludeFromMetadata:
+                if excl in metadataList:
+                    metadataList.remove(excl)
+
+            str = "AODFix_" + "-".join(metadataList) + suffix
 
             logAODFix.info("executing addMetaData, will add as AODFixVersion %s" % str)
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr

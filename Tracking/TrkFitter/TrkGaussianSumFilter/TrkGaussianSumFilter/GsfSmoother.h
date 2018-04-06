@@ -14,6 +14,7 @@ decription           : Class definition for the GSF smoother
 #ifndef TrkGsfSmoother_H
 #define TrkGsfSmoother_H
 
+#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
 
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
@@ -28,7 +29,6 @@ decription           : Class definition for the GSF smoother
 namespace Trk {
 
 class IMultiStateMeasurementUpdator;
-class IMultiComponentStateCombiner;
 class IMultiStateExtrapolator;
 class CaloCluster_OnTrack;
 
@@ -74,7 +74,8 @@ class GsfSmoother : public AthAlgTool, virtual public IGsfSmoother {
   ToolHandle<IMultiStateExtrapolator>       m_extrapolator;
   ToolHandle<IMultiStateMeasurementUpdator> m_updator;
   ToolHandle<IMultiComponentStateMerger>    m_merger;
-  ToolHandle<IMultiComponentStateCombiner>  m_combiner;
+  PublicToolHandle<IMultiComponentStateCombiner>  m_combiner
+     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/GsfSmootherCombiner",""};
 
 
 };

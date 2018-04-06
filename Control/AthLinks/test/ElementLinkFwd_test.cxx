@@ -7,7 +7,6 @@
 #include "ELFCont.h"
 #include "SGTools/CurrentEventStore.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cassert>
 
@@ -46,11 +45,11 @@ void test1 (SGTest::TestStore& store)
 }
 
 
-int main ATLAS_NOT_THREAD_SAFE ()
+int main()
 {
   Athena::getMessageSvcQuiet = true;
-  initTestStore();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
 
-  test1 (store);
+  test1 (*store);
   return 0;
 }

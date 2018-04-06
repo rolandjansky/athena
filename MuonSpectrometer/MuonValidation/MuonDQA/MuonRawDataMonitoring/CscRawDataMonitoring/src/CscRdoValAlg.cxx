@@ -20,7 +20,6 @@
 
 #include "MuonRDO/CscRawData.h"
 #include "MuonRDO/CscRawDataCollection.h"
-#include "MuonRDO/CscRawDataContainer.h"
 
 // ROOT include(s)
 #include "TClass.h"
@@ -70,7 +69,6 @@ CscRdoValAlg::CscRdoValAlg(const std::string & type, const std::string & name,
                                 m_cscrdo_oviewEC(0)
 {
 
-  declareProperty("CSCRawDataKey", m_cscRdoKey = "CSCRDO");
   declareProperty("CSCRawDataPath", m_cscRDOPath = "Muon/MuonRawDataMonitoring/CSC/RDO");
   declareProperty("CSCRawDataDecoder",m_cscRdoDecoderTool);
   declareProperty("NoiseCutADC", m_cscNoiseCut = 50);
@@ -115,6 +113,8 @@ StatusCode CscRdoValAlg::initialize() {
 
 
   ATH_CHECK(m_cscRdoDecoderTool.retrieve());
+
+  ATH_CHECK(m_cscRdoKey.initialize());
 
   ManagedMonitorToolBase::initialize().ignore();  // Ignore the checking code;
   return StatusCode::SUCCESS;
@@ -496,18 +496,13 @@ StatusCode CscRdoValAlg::fillHistograms() {
   StatusCode sc = StatusCode::SUCCESS;
   ATH_MSG_DEBUG ( "CscRdoValAlg :: in fillHistograms()"  );
 
-  const DataHandle<CscRawDataContainer> CscRDO(0);
-
-  if(!evtStore()->contains<CscRawDataContainer>(m_cscRdoKey) || m_cscRdoKey == "") {
-    ATH_MSG_WARNING (  "RDO container of type Muon::CscRawDataContainer and key \"" << m_cscRdoKey << "\" NOT found in StoreGate" );
+  if(m_cscRdoKey.key()==""){  //it seems that protection is needed for this case
+    ATH_MSG_WARNING("CSC RDO key is blank, returning");
     return sc;
-  } else {
-    sc = evtStore()->retrieve(CscRDO, m_cscRdoKey);
-    if( sc.isFailure() ) {
-      ATH_MSG_WARNING ( "Could not retrieve RDO container of type Muon::CscRawDataContainer and key \"" << m_cscRdoKey << "\"" );
-      return sc;
-    }
   }
+
+  SG::ReadHandle<CscRawDataContainer> CscRDO(m_cscRdoKey);
+
   // ==============================================================================
   // Field           Range               Notes
   // ==============================================================================
@@ -521,13 +516,6 @@ StatusCode CscRdoValAlg::fillHistograms() {
   // Strip           [1,n]               increases with R   for MeasuresPhi=0
   //                                     increases with Phi for MeasuresPhi=1
   // ==============================================================================
-
-  // If we still don't have CSCRDO after retrieval (happens!) return
-  // without statuscode without further processing after issuing warning message 
-  if( !CscRDO ) {
-    ATH_MSG_WARNING (  "RDO container of type Muon::CscRawDataContainer and key \"" << m_cscRdoKey << "\" is NULL after retrieval from StoreGate" );
-    return sc;
-  }
 
   ATH_MSG_DEBUG ( " Size of RDO Container  : " << CscRDO->size()  );
 

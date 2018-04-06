@@ -23,7 +23,6 @@
 #include "AthenaKernel/BaseInfo.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/expect_exception.h"
-#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cassert>
 
@@ -202,13 +201,13 @@ void test4 (SGTest::TestStore& store)
 }
 
 
-int main ATLAS_NOT_THREAD_SAFE ()
+int main()
 {
-  SGTest::initTestStore();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
   test1();
   test2();
   test3();
-  test4 (SGTest::store);
+  test4 (*store);
   return 0;
 }
 

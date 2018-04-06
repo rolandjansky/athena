@@ -153,20 +153,20 @@ void TrigInDetTrackFitter::correctScale(Trk::TrkTrackState* pTS) {
   double Gf[5][5];
   int i,j;
 
-  for(i=0;i<4;i++) Rf[i] = pTS->m_getTrackState(i);
-  Rf[4] = 0.001*pTS->m_getTrackState(4);
+  for(i=0;i<4;i++) Rf[i] = pTS->getTrackState(i);
+  Rf[4] = 0.001*pTS->getTrackState(4);
 
   for(i=0;i<4;i++)
-    for(j=0;j<4;j++) Gf[i][j] = pTS->m_getTrackCovariance(i,j);
+    for(j=0;j<4;j++) Gf[i][j] = pTS->getTrackCovariance(i,j);
 
-  Gf[0][4] = Gf[4][0] = pTS->m_getTrackCovariance(0,4)/1000.0;
-  Gf[1][4] = Gf[4][1] = pTS->m_getTrackCovariance(1,4)/1000.0;
-  Gf[2][4] = Gf[4][2] = pTS->m_getTrackCovariance(2,4)/1000.0;
-  Gf[3][4] = Gf[4][3] = pTS->m_getTrackCovariance(3,4)/1000.0;
-  Gf[4][4] = pTS->m_getTrackCovariance(4,4)/1000000.0;
+  Gf[0][4] = Gf[4][0] = pTS->getTrackCovariance(0,4)/1000.0;
+  Gf[1][4] = Gf[4][1] = pTS->getTrackCovariance(1,4)/1000.0;
+  Gf[2][4] = Gf[4][2] = pTS->getTrackCovariance(2,4)/1000.0;
+  Gf[3][4] = Gf[4][3] = pTS->getTrackCovariance(3,4)/1000.0;
+  Gf[4][4] = pTS->getTrackCovariance(4,4)/1000000.0;
 
-  pTS->m_setTrackState(Rf);
-  pTS->m_setTrackCovariance(Gf);
+  pTS->setTrackState(Rf);
+  pTS->setTrackCovariance(Gf);
 }
 
 Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS, 
@@ -184,7 +184,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
   if(pSB!=NULL)
     {   
       double diff=0.0;
-      for(i=0;i<4;i++) diff+=fabs(pSE->m_getPar(i)-pSB->m_getPar(i));
+      for(i=0;i<4;i++) diff+=fabs(pSE->getPar(i)-pSB->getPar(i));
       if(diff<1e-5) {
 	samePlane=true;	
 	(m_fitStats[m_algorithmId]).m_fitErrors[0]++;
@@ -202,18 +202,18 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 
     //m_numericalJacobian(pTS,pSB,pSE,J);
     double sint,cost,sinf,cosf;
-    sint=sin(pTS->m_getTrackState(3));cosf=cos(pTS->m_getTrackState(2));
-    sinf=sin(pTS->m_getTrackState(2));cost=cos(pTS->m_getTrackState(3));
-    gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*pTS->m_getTrackState(4);
+    sint=sin(pTS->getTrackState(3));cosf=cos(pTS->getTrackState(2));
+    sinf=sin(pTS->getTrackState(2));cost=cos(pTS->getTrackState(3));
+    gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*pTS->getTrackState(4);
 
     memset(&J0[0][0],0,sizeof(J0));
 
     if(pSB!=NULL)
       {    
 	double L[3][3];
-	lP[0]=pTS->m_getTrackState(0);lP[1]=pTS->m_getTrackState(1);lP[2]=0.0;
-	pSB->m_transformPointToGlobal(lP,gP);
-	for(i=0;i<3;i++) for(j=0;j<3;j++) L[i][j]=pSB->m_getInvRotMatrix(i,j);
+	lP[0]=pTS->getTrackState(0);lP[1]=pTS->getTrackState(1);lP[2]=0.0;
+	pSB->transformPointToGlobal(lP,gP);
+	for(i=0;i<3;i++) for(j=0;j<3;j++) L[i][j]=pSB->getInvRotMatrix(i,j);
 	
 	J0[0][0]=L[0][0];J0[0][1]=L[0][1];
 	J0[1][0]=L[1][0];J0[1][1]=L[1][1];
@@ -225,18 +225,18 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
       }
     else
       {
-	gP[0]=-pTS->m_getTrackState(0)*sinf;
-	gP[1]= pTS->m_getTrackState(0)*cosf;
-	gP[2]= pTS->m_getTrackState(1);
-	J0[0][0]=-sinf;J0[0][2]=-pTS->m_getTrackState(0)*cosf;
-	J0[1][0]= cosf;J0[1][2]=-pTS->m_getTrackState(0)*sinf;
+	gP[0]=-pTS->getTrackState(0)*sinf;
+	gP[1]= pTS->getTrackState(0)*cosf;
+	gP[2]= pTS->getTrackState(1);
+	J0[0][0]=-sinf;J0[0][2]=-pTS->getTrackState(0)*cosf;
+	J0[1][0]= cosf;J0[1][2]=-pTS->getTrackState(0)*sinf;
 	J0[2][1]=1.0;
 	J0[3][2]=-sinf*sint;J0[3][3]=cosf*cost;
 	J0[4][2]= cosf*sint;J0[4][3]=sinf*cost;
 	J0[5][3]=-sint;
 	J0[6][4]=1.0;
       }
-    for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
+    for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
   
     getMagneticField(gP,gB);
@@ -351,7 +351,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 	for(i=0;i<3;i++) gB[i]+=dBds[i]*ds;
 	nStep--;
       }
-    pSE->m_transformPointToLocal(gP,lP);
+    pSE->transformPointToLocal(gP,lP);
     Rf[0]=lP[0];Rf[1]=lP[1];
     Rf[2]=atan2(V[1],V[0]);
 
@@ -361,11 +361,11 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
       }
 
     Rf[3]=acos(V[2]);
-    Rf[4]=pTS->m_getTrackState(4);
+    Rf[4]=pTS->getTrackState(4);
     
     gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;
 
-    for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
+    for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gP[i]=gPi[i];
 
     for(i=0;i<3;i++)
@@ -413,11 +413,11 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
 
     V[0]=gV[0]+Av*DVx;V[1]=gV[1]+Av*DVy;V[2]=gV[2]+Av*DVz;
     
-    pSE->m_transformPointToLocal(P,lP);
+    pSE->transformPointToLocal(P,lP);
   
     memset(&Jm[0][0],0,sizeof(Jm));
     
-    for(i=0;i<3;i++) for(j=0;j<3;j++) M[i][j]=pSE->m_getRotMatrix(i,j);
+    for(i=0;i<3;i++) for(j=0;j<3;j++) M[i][j]=pSE->getRotMatrix(i,j);
     
     double coeff[3], dadVx,dadVy,dadVz,dadQ,dsdx,dsdy,dsdz,dsdVx,dsdVy,dsdVz,dsdQ;
     coeff[0]=-c*c/(b*b*b);
@@ -535,18 +535,18 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
       }
   }
   else {
-    Rf[0]=pTS->m_getTrackState(0);
-    Rf[1]=pTS->m_getTrackState(1);	
-    Rf[2]=pTS->m_getTrackState(2);
-    Rf[3]=pTS->m_getTrackState(3);
-    Rf[4]=pTS->m_getTrackState(4);
+    Rf[0]=pTS->getTrackState(0);
+    Rf[1]=pTS->getTrackState(1);	
+    Rf[2]=pTS->getTrackState(2);
+    Rf[3]=pTS->getTrackState(3);
+    Rf[4]=pTS->getTrackState(4);
     memset(&J[0][0],0,sizeof(J));
     for(i=0;i<5;i++) J[i][i]=1.0;
   }
 
   for(i=0;i<5;i++) for(j=0;j<5;j++)
     {
-      AG[i][j]=0.0;for(m=0;m<5;m++) AG[i][j]+=J[i][m]*pTS->m_getTrackCovariance(m,j);
+      AG[i][j]=0.0;for(m=0;m<5;m++) AG[i][j]+=J[i][m]*pTS->getTrackCovariance(m,j);
     }
   for(i=0;i<5;i++) for(j=i;j<5;j++)
     {
@@ -563,23 +563,23 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
   for(i=0;i<4;i++) Rtmp[i] = Rf[i];
   Rtmp[4] = 0.001*Rf[4];//GeV->MeV
 
-  pTE->m_setTrackState(Rtmp);
-  pTE->m_setTrackCovariance(Gf);
-  pTE->m_attachToSurface(pSE);
+  pTE->setTrackState(Rtmp);
+  pTE->setTrackCovariance(Gf);
+  pTE->attachToSurface(pSE);
 
-  //  pTE->m_applyMaterialEffects();
+  //  pTE->applyMaterialEffects();
   if(m_doMultScatt)
-    pTE->m_applyMultipleScattering();
+    pTE->applyMultipleScattering();
 
-  pTE->m_setTrackState(Rf);//restore
+  pTE->setTrackState(Rf);//restore
 
   if(m_doBremm) 
-    pTE->m_applyEnergyLoss(1);
+    pTE->applyEnergyLoss(1);
 
   AmgSymMatrix(5) Gi;
   for(i=0;i<5;i++) for(j=i;j<5;j++)
     {
-      Gi.fillSymmetric(i, j, pTE->m_getTrackCovariance(i,j));
+      Gi.fillSymmetric(i, j, pTE->getTrackCovariance(i,j));
     }
   Gi = Gi.inverse();
   //m_matrixInversion5x5(Gi);
@@ -589,8 +589,8 @@ Trk::TrkTrackState* TrigInDetTrackFitter::extrapolate(Trk::TrkTrackState* pTS,
       A[i][j]=0.0;
       for(m=0;m<5;m++) A[i][j]+=AG[m][i]*Gi(m,j);
     }
-  pTE->m_setPreviousState(pTS);
-  pTE->m_setSmootherGain(A);
+  pTE->setPreviousState(pTS);
+  pTE->setSmootherGain(A);
 
   return pTE;
 }
@@ -763,11 +763,11 @@ void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {
 			   {0,         0, 0.01, 0,    0},
 			   {0,         0, 0,    0.01, 0},
 			   {0,         0, 0,    0,    0.1}};
-	pTS->m_setTrackCovariance(Gk);
+	pTS->setTrackCovariance(Gk);
 	if(m_doMultScatt)  
-		pTS->m_setScatteringMode(1);
+		pTS->setScatteringMode(1);
 	if(m_doBremm)
-		pTS->m_setScatteringMode(2);
+		pTS->setScatteringMode(2);
 	vpTrackStates.push_back(pTS);
 
 	ATH_MSG_VERBOSE("Initial chi2: "<<recoTrack.chi2()<<" track authorId: "<<recoTrack.algorithmId());
@@ -786,25 +786,25 @@ void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {
 	Trk::TrkPlanarSurface* pSE=nullptr;
 	for(;pnIt!=pnEnd;++pnIt)
 	{
-		pSE=(*pnIt)->m_getSurface();
+		pSE=(*pnIt)->getSurface();
 		Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
 
 		pSB=pSE;
 		if(pNS!=nullptr)
 		{
-			// pNS->m_report();
+			// pNS->report();
 			vpTrackStates.push_back(pNS);
 
-			(*pnIt)->m_validateMeasurement(pNS);
-			ATH_MSG_VERBOSE("dChi2="<<(*pnIt)->m_getChi2());
-			if((*pnIt)->m_isValidated())
+			(*pnIt)->validateMeasurement(pNS);
+			ATH_MSG_VERBOSE("dChi2="<<(*pnIt)->getChi2());
+			if((*pnIt)->isValidated())
 			{
-				chi2tot+=(*pnIt)->m_getChi2();
-				ndoftot+=(*pnIt)->m_getNdof();
+				chi2tot+=(*pnIt)->getChi2();
+				ndoftot+=(*pnIt)->getNdof();
 			}
-			(*pnIt)->m_updateTrackState(pNS);
+			(*pnIt)->updateTrackState(pNS);
 			pTS=pNS;
-			Pt=1000.0*sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+			Pt=1000.0*sin(pTS->getTrackState(3))/pTS->getTrackState(4);
 			if(fabs(Pt)<200.0)
 			{
 				ATH_MSG_VERBOSE("Estimated Pt is too low "<<Pt<<" - skipping fit");
@@ -827,7 +827,7 @@ void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {
 
 		for(;ptsIt!=ptsEnd;++ptsIt)
 		{
-			(*ptsIt)->m_runSmoother();
+			(*ptsIt)->runSmoother();
 		}
 		if(m_timers) 
 		{
@@ -840,18 +840,18 @@ void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {
 
 		correctScale(pTS);
 
-		Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
-		double Phi0 = pTS->m_getTrackState(2);
+		Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
+		double Phi0 = pTS->getTrackState(2);
 		if(Phi0>M_PI) Phi0-=2*M_PI;
 		if(Phi0<-M_PI) Phi0+=2*M_PI;
-		double Eta = -log(sin(0.5*pTS->m_getTrackState(3))/cos(0.5*pTS->m_getTrackState(3)));
-		double Z0 = pTS->m_getTrackState(1);
-		double D0 = pTS->m_getTrackState(0);
+		double Eta = -log(sin(0.5*pTS->getTrackState(3))/cos(0.5*pTS->getTrackState(3)));
+		double Z0 = pTS->getTrackState(1);
+		double D0 = pTS->getTrackState(0);
 
     bool bad_cov = false;
     for (int i = 0; i < 5; i++) {
       //Check for negative entries along the main diagonal
-      double cov_val = pTS->m_getTrackCovariance(i,i);
+      double cov_val = pTS->getTrackCovariance(i,i);
       if (cov_val < 0) { 
         bad_cov = true;
       }
@@ -862,35 +862,35 @@ void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {
 			recoTrack.chi2(1e8);
 		}
     else {
-      double errD0 = sqrt(pTS->m_getTrackCovariance(0,0));
-      double errZ0 = sqrt(pTS->m_getTrackCovariance(1,1));
-      double errPhi0 = sqrt(pTS->m_getTrackCovariance(2,2));
-      double errEta = sqrt(pTS->m_getTrackCovariance(3,3))/fabs(sin(pTS->m_getTrackState(3)));
-      double b=cos(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
-      double c=-Pt/pTS->m_getTrackState(4);
-      double a=-1.0/sin(pTS->m_getTrackState(3));
-      double errPt = sqrt(b*b*(pTS->m_getTrackCovariance(3,3))+c*c*(pTS->m_getTrackCovariance(4,4))+
-          2.0*b*c*(pTS->m_getTrackCovariance(3,4)));
+      double errD0 = sqrt(pTS->getTrackCovariance(0,0));
+      double errZ0 = sqrt(pTS->getTrackCovariance(1,1));
+      double errPhi0 = sqrt(pTS->getTrackCovariance(2,2));
+      double errEta = sqrt(pTS->getTrackCovariance(3,3))/fabs(sin(pTS->getTrackState(3)));
+      double b=cos(pTS->getTrackState(3))/pTS->getTrackState(4);
+      double c=-Pt/pTS->getTrackState(4);
+      double a=-1.0/sin(pTS->getTrackState(3));
+      double errPt = sqrt(b*b*(pTS->getTrackCovariance(3,3))+c*c*(pTS->getTrackCovariance(4,4))+
+          2.0*b*c*(pTS->getTrackCovariance(3,4)));
 
       std::vector<double>* pCov=new std::vector<double>;
       double CV[5][5];
-      CV[0][0]=pTS->m_getTrackCovariance(0,0);
-      CV[0][1]=pTS->m_getTrackCovariance(0,2);
-      CV[0][2]=pTS->m_getTrackCovariance(0,1);
-      CV[0][3]=a*(pTS->m_getTrackCovariance(0,3));
-      CV[0][4]=b*(pTS->m_getTrackCovariance(0,3))+c*(pTS->m_getTrackCovariance(0,4));
-      CV[1][1]=pTS->m_getTrackCovariance(2,2);
+      CV[0][0]=pTS->getTrackCovariance(0,0);
+      CV[0][1]=pTS->getTrackCovariance(0,2);
+      CV[0][2]=pTS->getTrackCovariance(0,1);
+      CV[0][3]=a*(pTS->getTrackCovariance(0,3));
+      CV[0][4]=b*(pTS->getTrackCovariance(0,3))+c*(pTS->getTrackCovariance(0,4));
+      CV[1][1]=pTS->getTrackCovariance(2,2);
 
-      CV[1][2]=pTS->m_getTrackCovariance(1,2);
-      CV[1][3]=a*(pTS->m_getTrackCovariance(2,3));
-      CV[1][4]=b*(pTS->m_getTrackCovariance(2,3))+c*(pTS->m_getTrackCovariance(2,4));
-      CV[2][2]=pTS->m_getTrackCovariance(1,1);
-      CV[2][3]=a*(pTS->m_getTrackCovariance(1,3));
-      CV[2][4]=b*(pTS->m_getTrackCovariance(1,3))+c*(pTS->m_getTrackCovariance(1,4));
-      CV[3][3]=a*a*(pTS->m_getTrackCovariance(3,3));
-      CV[3][4]=a*(b*(pTS->m_getTrackCovariance(3,3))+c*(pTS->m_getTrackCovariance(3,4)));
-      CV[4][4]=b*b*(pTS->m_getTrackCovariance(3,3))+2.0*b*c*(pTS->m_getTrackCovariance(3,4))+
-        c*c*(pTS->m_getTrackCovariance(4,4));
+      CV[1][2]=pTS->getTrackCovariance(1,2);
+      CV[1][3]=a*(pTS->getTrackCovariance(2,3));
+      CV[1][4]=b*(pTS->getTrackCovariance(2,3))+c*(pTS->getTrackCovariance(2,4));
+      CV[2][2]=pTS->getTrackCovariance(1,1);
+      CV[2][3]=a*(pTS->getTrackCovariance(1,3));
+      CV[2][4]=b*(pTS->getTrackCovariance(1,3))+c*(pTS->getTrackCovariance(1,4));
+      CV[3][3]=a*a*(pTS->getTrackCovariance(3,3));
+      CV[3][4]=a*(b*(pTS->getTrackCovariance(3,3))+c*(pTS->getTrackCovariance(3,4)));
+      CV[4][4]=b*b*(pTS->getTrackCovariance(3,3))+2.0*b*c*(pTS->getTrackCovariance(3,4))+
+        c*c*(pTS->getTrackCovariance(4,4));
 
       for(int i=0;i<5;i++) {
         for(int j=i;j<5;j++) {
@@ -924,7 +924,7 @@ void TrigInDetTrackFitter::fitTrack(TrigInDetTrack& recoTrack ) {
 	pnIt=vpTrkNodes.begin();pnEnd=vpTrkNodes.end();
 	for(;pnIt!=pnEnd;++pnIt) 
 	{
-		delete((*pnIt)->m_getSurface());
+		delete((*pnIt)->getSurface());
 		delete (*pnIt);
 	}
 	vpTrkNodes.clear();
@@ -991,11 +991,11 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 			   {0,         0, 0.01, 0,    0},
 			   {0,         0, 0,    0.01, 0},
 			   {0,         0, 0,    0,   0.1}};
-	pTS->m_setTrackCovariance(Gk);
+	pTS->setTrackCovariance(Gk);
 	if(m_doMultScatt)  
-		pTS->m_setScatteringMode(1);
+		pTS->setScatteringMode(1);
 	if(m_doBremm)
-		pTS->m_setScatteringMode(2);
+		pTS->setScatteringMode(2);
 	vpTrackStates.push_back(pTS);
 
 	//ATH_MSG_DEBUG("Initial chi2: "<<recoTrack.chi2()<<" track authorId: "<<recoTrack.algorithmId());
@@ -1010,23 +1010,23 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 	Trk::TrkPlanarSurface* pSB=nullptr;
 	Trk::TrkPlanarSurface* pSE=nullptr;
 	for(auto pnIt = vpTrkNodes.begin(); pnIt!=vpTrkNodes.end(); ++pnIt) {
-		pSE=(*pnIt)->m_getSurface();
+		pSE=(*pnIt)->getSurface();
 		Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
 
 		pSB=pSE;
 		if(pNS!=nullptr) {
 			vpTrackStates.push_back(pNS);
 
-			(*pnIt)->m_validateMeasurement(pNS);
-			ATH_MSG_VERBOSE("dChi2="<<(*pnIt)->m_getChi2());
-			if((*pnIt)->m_isValidated())
+			(*pnIt)->validateMeasurement(pNS);
+			ATH_MSG_VERBOSE("dChi2="<<(*pnIt)->getChi2());
+			if((*pnIt)->isValidated())
 			{
-				chi2tot+=(*pnIt)->m_getChi2();
-				ndoftot+=(*pnIt)->m_getNdof();
+				chi2tot+=(*pnIt)->getChi2();
+				ndoftot+=(*pnIt)->getNdof();
 			}
-			(*pnIt)->m_updateTrackState(pNS);
+			(*pnIt)->updateTrackState(pNS);
 			pTS=pNS;
-			double est_Pt = 1000.0*sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+			double est_Pt = 1000.0*sin(pTS->getTrackState(3))/pTS->getTrackState(4);
 			if(fabs(est_Pt)<200.0)
 			{
 				ATH_MSG_VERBOSE("Estimated Pt is too low "<<est_Pt<<" - skipping fit");
@@ -1047,7 +1047,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 		if(m_timers) m_timer[2]->resume();
 		for(auto ptsIt = vpTrackStates.rbegin();ptsIt!=vpTrackStates.rend();++ptsIt)
 		{
-			(*ptsIt)->m_runSmoother();
+			(*ptsIt)->runSmoother();
 		}
 		if(m_timers) 
 		{
@@ -1060,26 +1060,26 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 
 		correctScale(pTS);
 		
-    double qOverP = pTS->m_getTrackState(4);
-		double pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
-		double phi0 = pTS->m_getTrackState(2);
+    double qOverP = pTS->getTrackState(4);
+		double pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
+		double phi0 = pTS->getTrackState(2);
 		if(phi0>M_PI) phi0-=2*M_PI;
 		if(phi0<-M_PI) phi0+=2*M_PI;
-    double theta = pTS->m_getTrackState(3);
-		double z0 = pTS->m_getTrackState(1);
-		double d0 = pTS->m_getTrackState(0);
+    double theta = pTS->getTrackState(3);
+		double z0 = pTS->getTrackState(1);
+		double d0 = pTS->getTrackState(0);
     bool bad_cov = false;
     auto cov = std::unique_ptr<AmgSymMatrix(5)>(new AmgSymMatrix(5));
     for(int i=0;i<5;i++) {
-      double cov_diag = pTS->m_getTrackCovariance(i,i);
+      double cov_diag = pTS->getTrackCovariance(i,i);
       if (cov_diag < 0) {
         bad_cov = true;//Diagonal elements must be positive
         break;
         ATH_MSG_DEBUG("REGTEST: cov(" << i << "," << i << ") =" << cov_diag << " < 0, reject track");
       }
-      (*cov)(i, i) = pTS->m_getTrackCovariance(i,i);
+      (*cov)(i, i) = pTS->getTrackCovariance(i,i);
       for(int j=i+1;j<5;j++) {
-        cov->fillSymmetric(i, j, pTS->m_getTrackCovariance(i,j));
+        cov->fillSymmetric(i, j, pTS->getTrackCovariance(i,j));
       }
     }
 
@@ -1100,7 +1100,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
         pParVec->reserve(vpTrkNodes.size()+1);
         pParVec->push_back(new Trk::TrackStateOnSurface(0, perigee,0,0, typePattern));
         for(auto pnIt = vpTrkNodes.begin(); pnIt!=vpTrkNodes.end(); ++pnIt) {
-          if((*pnIt)->m_isValidated()) {
+          if((*pnIt)->isValidated()) {
             Trk::TrackStateOnSurface* pTSS=createTrackStateOnSurface(*pnIt);
             if(pTSS!=nullptr) {
               pParVec->push_back(pTSS);
@@ -1142,7 +1142,7 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 	}
 
 	for(auto pnIt = vpTrkNodes.begin(); pnIt!=vpTrkNodes.end(); ++pnIt) {
-		delete((*pnIt)->m_getSurface());
+		delete((*pnIt)->getSurface());
 		delete (*pnIt);
 	}
 	vpTrkNodes.clear();
@@ -1161,20 +1161,20 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::TrkBaseNode* pN) const
 {
   Trk::TrackStateOnSurface* pTSS=nullptr;
-  char type=pN->m_getNodeType();
+  char type=pN->getNodeType();
   const Trk::TrackParameters* pTP=nullptr;
 
   if(type==0) return pTSS;
 
 
-  Trk::TrkTrackState* pTS=pN->m_getTrackState();
+  Trk::TrkTrackState* pTS=pN->getTrackState();
   auto pM = std::unique_ptr<AmgSymMatrix(5)>(new AmgSymMatrix(5));
   for(int i=0;i<5;i++) {
     for(int j=i;j<5;j++) {
-      (*pM)(i,j)=pTS->m_getTrackCovariance(i,j);
+      (*pM)(i,j)=pTS->getTrackCovariance(i,j);
     }
   }
-  const Trk::PrepRawData* pPRD=pN->m_getPrepRawData();
+  const Trk::PrepRawData* pPRD=pN->getPrepRawData();
 
   if((type==1)||(type==2))
   {
@@ -1182,11 +1182,11 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
     const Trk::PlaneSurface* pPS = dynamic_cast<const Trk::PlaneSurface*>(&rS);
     if(pPS==nullptr) return pTSS;
 
-    pTP=new Trk::AtaPlane(pTS->m_getTrackState(0),
-        pTS->m_getTrackState(1),
-        pTS->m_getTrackState(2),
-        pTS->m_getTrackState(3),
-        pTS->m_getTrackState(4),*pPS,
+    pTP=new Trk::AtaPlane(pTS->getTrackState(0),
+        pTS->getTrackState(1),
+        pTS->getTrackState(2),
+        pTS->getTrackState(3),
+        pTS->getTrackState(4),*pPS,
         pM.release());
   }
   else if(type==3)
@@ -1195,16 +1195,16 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
     const Trk::StraightLineSurface* pLS=dynamic_cast<const Trk::StraightLineSurface*>(&rS);
     if(pLS==nullptr) return pTSS;
 
-    if((pTS->m_getTrackState(2)<-M_PI) ||(pTS->m_getTrackState(2)>M_PI)) {
+    if((pTS->getTrackState(2)<-M_PI) ||(pTS->getTrackState(2)>M_PI)) {
       ATH_MSG_WARNING("Phi out of range when correcting Trk::TrackStateOnSurface");
     }
 
 
-    pTP=new Trk::AtaStraightLine(pTS->m_getTrackState(0),
-        pTS->m_getTrackState(1),
-        pTS->m_getTrackState(2),
-        pTS->m_getTrackState(3),
-        pTS->m_getTrackState(4),
+    pTP=new Trk::AtaStraightLine(pTS->getTrackState(0),
+        pTS->getTrackState(1),
+        pTS->getTrackState(2),
+        pTS->getTrackState(3),
+        pTS->getTrackState(4),
         *pLS,
         pM.release());
   }
@@ -1217,7 +1217,7 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
   std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
   typePattern.set(Trk::TrackStateOnSurface::Measurement);
   typePattern.set(Trk::TrackStateOnSurface::Scatterer);
-  Trk::FitQualityOnSurface* pFQ=new Trk::FitQualityOnSurface(pN->m_getChi2(),pN->m_getNdof());
+  Trk::FitQualityOnSurface* pFQ=new Trk::FitQualityOnSurface(pN->getChi2(),pN->getNdof());
   //pTSS = new Trk::TrackStateOnSurface(pRIO, pTP, pFQ, 0, typePattern);
   delete pTP;
   pTSS = new Trk::TrackStateOnSurface(pRIO, 0, pFQ, 0, typePattern);

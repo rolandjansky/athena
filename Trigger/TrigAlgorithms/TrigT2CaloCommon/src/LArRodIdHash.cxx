@@ -7,7 +7,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include <iostream>
 
 #include "eformat/SourceIdentifier.h"
@@ -34,9 +33,8 @@ void LArRodIdHash::initialize( int offset )  {
   m_offset = offset; 
 
   ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  ThreadGaudi* threadGaudi = ThreadGaudi::instance();
   IToolSvc* toolSvc;
-  StatusCode sc = svcLoc->service( "ToolSvc"+threadGaudi->getThreadID(),toolSvc);
+  StatusCode sc = svcLoc->service( "ToolSvc",toolSvc);
 
   //StatusCode sc = svcLoc->service( "ToolSvc",toolSvc );
   if(sc.isFailure())

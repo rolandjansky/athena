@@ -12,30 +12,29 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRecEvent
 
                           PRIVATE
-                     	   Calorimeter/CaloEvent
-                           Calorimeter/CaloGeoHelpers
-                           Calorimeter/CaloIdentifier
-                           Calorimeter/CaloInterface
-                           Control/StoreGate
-                           DetectorDescription/IRegionSelector
-                           DetectorDescription/Identifier
-                           Event/ByteStreamCnvSvcBase
-                           Event/EventInfo
-                           Event/xAOD/xAODTrigCalo
-                           ForwardDetectors/ZDC/ZdcCnv/ZdcByteStream
-                           ForwardDetectors/ZDC/ZdcEvent
-                           ForwardDetectors/ZDC/ZdcRec
-                           GaudiKernel
-                           LArCalorimeter/LArCnv/LArByteStream
-                           LArCalorimeter/LArRawUtils
-                           LArCalorimeter/LArCabling
-                           TileCalorimeter/TileEvent
-                           TileCalorimeter/TileSvc/TileByteStream
-                           Trigger/TrigEvent/TrigSteeringEvent
-                           Trigger/TrigSteer/TrigInterfaces
-                           Trigger/TrigTools/TrigTimeAlgs
-			   Trigger/TrigAlgorithms/TrigT2CaloCommon
-			   #
+                          Calorimeter/CaloEvent
+                          Calorimeter/CaloGeoHelpers
+                          Calorimeter/CaloIdentifier
+                          Calorimeter/CaloInterface
+                          Control/StoreGate
+                          DetectorDescription/IRegionSelector
+                          DetectorDescription/Identifier
+                          Event/ByteStreamCnvSvcBase
+                          Event/EventInfo
+                          Event/xAOD/xAODTrigCalo
+                          ForwardDetectors/ZDC/ZdcCnv/ZdcByteStream
+                          ForwardDetectors/ZDC/ZdcEvent
+                          ForwardDetectors/ZDC/ZdcRec
+                          GaudiKernel
+                          LArCalorimeter/LArCnv/LArByteStream
+                          LArCalorimeter/LArRawUtils
+                          LArCalorimeter/LArCabling
+                          TileCalorimeter/TileEvent
+                          TileCalorimeter/TileSvc/TileByteStream
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          Trigger/TrigSteer/TrigInterfaces
+                          Trigger/TrigTools/TrigTimeAlgs
+                          Trigger/TrigAlgorithms/TrigT2CaloCommon
                           Calorimeter/CaloDetDescr
                           Calorimeter/CaloUtils
                           Database/AthenaPOOL/AthenaPoolUtilities
@@ -45,8 +44,8 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArRecConditions
                           LArCalorimeter/LArRecUtils
                           Trigger/TrigT1/TrigT1Interfaces
-			  AtlasTest/TestTools
-			  Control/AthenaMonitoring )
+			              AtlasTest/TestTools
+			              Control/AthenaMonitoring )
 
 # External dependencies:
 find_package( tdaq-common )
@@ -62,7 +61,7 @@ atlas_add_library( TrigCaloDataAccessSvcLib
 atlas_add_component( TrigCaloDataAccessSvc
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests IRegionSelector Identifier ByteStreamCnvSvcBaseLib EventInfo xAODTrigCalo ZdcByteStreamLib ZdcEvent ZdcRecLib GaudiKernel LArByteStreamLib LArRawUtilsLib LArRecEvent LArCablingLib TileEvent TileByteStreamLib TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloUtilsLib AthenaPoolUtilities ByteStreamData ByteStreamData_test LArIdentifier LArRecConditions LArRecUtilsLib TrigT1Interfaces TrigT2CaloCommonLib  TrigCaloDataAccessSvcLib )
+                     LINK_LIBRARIES TrigCaloDataAccessSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

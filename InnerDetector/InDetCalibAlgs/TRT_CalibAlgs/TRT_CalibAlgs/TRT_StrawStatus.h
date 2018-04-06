@@ -119,7 +119,8 @@ namespace InDet
       ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
       ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawStatusSummarySvc;
       ToolHandle<Trk::ITrackHoleSearchTool>  m_trt_hole_finder;
-      ToolHandle<Trk::IUpdator> m_updator;
+      PublicToolHandle<Trk::IUpdator> m_updator
+         {this,"KalmanUpdator","Trk::KalmanUpdator/TrkKalmanUpdator",""};
       double m_locR_cut;
 
       SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this,"EventInfoKey","EventInfo","RHK to retrieve xAOD::EventInfo"};
