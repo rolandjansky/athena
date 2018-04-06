@@ -17,7 +17,7 @@
 // Definition of the number of elements
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
-typedef boost::array<float, SCT_ConditionsServices::CHIPS_PER_MODULE> SCT_ModuleCalibParameter;
+typedef boost::array<float, SCT_ConditionsData::CHIPS_PER_MODULE> SCT_ModuleCalibParameter;
 
 // Class definition
 #include "AthenaKernel/CLASS_DEF.h"

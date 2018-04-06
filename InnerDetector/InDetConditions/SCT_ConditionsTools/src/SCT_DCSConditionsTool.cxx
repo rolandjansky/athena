@@ -6,12 +6,12 @@
 // A. R-Veronneau 26/02/08
 
 #include "SCT_DCSConditionsTool.h"
-#include "SCT_ConditionsServices/SCT_SlhcIdConverter.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "GaudiKernel/ThreadLocalContext.h"
 
-using SCT_ConditionsServices::castId;
+#include "SCT_IdConverter.h"
+using SCT_ConditionsTools::castId;
 
 const Identifier SCT_DCSConditionsTool::s_invalidId;
 const float SCT_DCSConditionsTool::s_defaultHV{-30.}; 

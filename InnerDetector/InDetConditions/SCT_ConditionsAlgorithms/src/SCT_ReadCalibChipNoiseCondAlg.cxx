@@ -12,9 +12,9 @@
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
-#include "SCT_ConditionsServices/SCT_ReadCalibChipUtilities.h"
+#include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
 
-using namespace SCT_ConditionsServices;
+using namespace SCT_ConditionsData;
 using namespace SCT_ReadCalibChipUtilities;
 
 SCT_ReadCalibChipNoiseCondAlg::SCT_ReadCalibChipNoiseCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
