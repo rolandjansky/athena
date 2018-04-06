@@ -59,29 +59,34 @@ namespace DerivationFramework {
     // Write mask for each element and record to SG for subsequent selection
     for (xAOD::PhotonContainer::const_iterator phItr = photons->begin(); phItr!=photons->end(); ++phItr) {
       
-      const xAOD::Photon* phCopy = *phItr;
+      bool passSelection = false;
+      bool passSelectionDelayed = false;
 
       bool applyFF = (!m_fudgeMCTool.empty());
-      if (applyFF) {
+
+      if (!applyFF) {
+	passSelection = PhotonHelpers::passOQquality(*phItr);
+	passSelectionDelayed = PhotonHelpers::passOQqualityDelayed(*phItr);
+      }
+      else {
 	// apply the shower shape corrections
 	CP::CorrectionCode correctionCode = CP::CorrectionCode::Ok;
-	const xAOD::Photon* eg = static_cast<const xAOD::Photon*>(*phItr);
 	xAOD::Photon* ph = 0;
-	correctionCode = m_fudgeMCTool->correctedCopy(*eg, ph);
-	phCopy = ph;
-	if (correctionCode==CP::CorrectionCode::Ok)
-	    ;
-	else if (correctionCode==CP::CorrectionCode::Error)
+	correctionCode = m_fudgeMCTool->correctedCopy(**phItr, ph);
+	if (correctionCode==CP::CorrectionCode::Ok) {
+	  passSelection = PhotonHelpers::passOQquality(ph);
+	  passSelectionDelayed = PhotonHelpers::passOQqualityDelayed(ph);
+	}
+	else if (correctionCode==CP::CorrectionCode::Error) {
 	    Error("addBranches()","Error applying fudge factors to current photon");
-	else if (correctionCode==CP::CorrectionCode::OutOfValidityRange)
+	}
+	else if (correctionCode==CP::CorrectionCode::OutOfValidityRange) {
 	    Warning("addBranches()","Current photon has no valid fudge factors due to out-of-range");
-	else
+	}
+	else {
 	    Warning("addBranches()",Form("Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode));
+	}
       }
-
-      // compute the output of the cleaning tool
-      bool passSelection = PhotonHelpers::passOQquality(phCopy);
-      bool passSelectionDelayed = PhotonHelpers::passOQqualityDelayed(phCopy);
 
       // decorate the original object
       if (passSelection)
@@ -93,9 +98,6 @@ namespace DerivationFramework {
 	decoratorPassDelayed(**phItr) = 1;
       else 
 	decoratorPassDelayed(**phItr) = 0;
-
-      // delete the particle copy
-      if (applyFF) delete phCopy;
     }
     
     return StatusCode::SUCCESS;
