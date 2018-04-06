@@ -45,7 +45,7 @@ DFlowAlg2::DFlowAlg2( const std::string& name,
 
   declareProperty( "IntsFlow", m_ints, "Data flow of integers" );
 
-  declareProperty( "TestUpdate", m_testUpdate, "Test an update handle" );
+  declareProperty( "TestUpdate", m_testUpdate, "Test update handle" );
 }
 
 // Destructor

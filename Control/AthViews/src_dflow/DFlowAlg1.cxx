@@ -20,7 +20,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "CxxUtils/make_unique.h"
-#include "AthExHive/HiveDataObj.h"
 
 namespace AthViews {
 
@@ -34,7 +33,8 @@ DFlowAlg1::DFlowAlg1( const std::string& name,
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
   m_r_int( "view_start" ),
-  m_w_int( "dflow_int" )
+  m_w_int( "dflow_int" ),
+  m_testUpdate( "testUpdate" )
 {
   //
   // Property declaration
@@ -43,7 +43,9 @@ DFlowAlg1::DFlowAlg1( const std::string& name,
 
   declareProperty( "IntFlow", m_w_int, "Data flow of int" );
 
-  declareProperty( "ViewStart", m_r_int, "Seed data of view" ); //implicit DH or whatever
+  declareProperty( "ViewStart", m_r_int, "Seed data of view" );
+
+  declareProperty( "TestUpdate", m_testUpdate, "Test update handle" );
 }
 
 // Destructor
@@ -59,6 +61,7 @@ StatusCode DFlowAlg1::initialize()
 
   CHECK( m_r_int.initialize() );
   CHECK( m_w_int.initialize() );
+  CHECK( m_testUpdate.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -109,7 +112,7 @@ StatusCode DFlowAlg1::execute()
   }
 
   // Test update handles
-  SG::WriteHandle< HiveDataObj > testUpdate( "testUpdate" );
+  SG::WriteHandle< HiveDataObj > testUpdate( m_testUpdate, ctx );
   ATH_CHECK( testUpdate.recordNonConst( std::make_unique< HiveDataObj >( 123 ) ) );
   ATH_MSG_INFO( "Update handle initial: " << testUpdate->val() );
 
