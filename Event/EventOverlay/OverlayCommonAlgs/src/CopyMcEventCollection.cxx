@@ -35,6 +35,7 @@ CopyMcEventCollection::CopyMcEventCollection(const std::string &name, ISvcLocato
   declareProperty("DataStore2", m_storeGateData2, "help");
   declareProperty("CheckEventNumbers", m_checkeventnumbers=true);
   declareProperty( "CnvTool", m_cnvTool );
+  declareProperty("RemoveBkgHardScatterTruth", m_removeBkgHardScatterTruth=true);
 }
 
 //================================================================
@@ -213,45 +214,53 @@ StatusCode CopyMcEventCollection::overlayExecute() {
   //
   // Copy the McEventCollection
   //
-
-  std::vector<const McEventCollection*> listOfMcEventCollection;
+  McEventCollection *newMcEvtColl = new McEventCollection;
 
   /** the signal is MC - so there muct be McEventCollection there */
-  const McEventCollection * sigEvtColl = 0;
-  if ( m_storeGateMC->retrieve(sigEvtColl, "TruthEvent").isFailure() ) {
-     log << MSG::WARNING 
-         << "Could not retrieve HepMC collection with key " 
-         << "TruthEvent" << endmsg;
-   }
-   if ( sigEvtColl ) listOfMcEventCollection.push_back( sigEvtColl );
- 
-  if (!m_realdata){
-  /** retrieve McEventCollection from the background
-      if the background is real data, there there is no McEventCollection there */
-  const McEventCollection * bacEvtColl = 0;
-  if ( m_storeGateData->retrieve(bacEvtColl, "TruthEvent").isFailure() ) {
-     log << MSG::WARNING
-         << "Could not retrieve HepMC collection with key "
-         << "TruthEvent" << endmsg;
-   }
-   if ( bacEvtColl ) listOfMcEventCollection.push_back( bacEvtColl );
-  }//!m_realdata
+  const McEventCollection *sigEvtColl = 0;
+  if (m_storeGateMC->retrieve(sigEvtColl, "TruthEvent").isFailure()) {
+    ATH_MSG_WARNING("Could not retrieve signal HepMC collection with key " << "TruthEvent");
+  } else {
+    for (McEventCollection::const_iterator iEvt = sigEvtColl->begin(); iEvt != sigEvtColl->end(); ++iEvt) {
+      newMcEvtColl->push_back(new HepMC::GenEvent(**iEvt));
+    }
+  }
 
-   McEventCollection * newMcEvtColl = new McEventCollection;
-   for ( unsigned int i=0; i<listOfMcEventCollection.size(); ++i) { 
-      if ( !listOfMcEventCollection[i] ) continue;
-      for ( McEventCollection::const_iterator iEvt = listOfMcEventCollection[i]->begin();
-          iEvt != listOfMcEventCollection[i]->end();
-          ++iEvt ) {
-          newMcEvtColl->push_back( new HepMC::GenEvent(**iEvt) );
-      } //> end loop over HepMC::GenEvent
-   } 
+  if (!m_realdata) {
+    /** retrieve McEventCollection from the background
+        if the background is real data, there there is no McEventCollection there
+     */
+    const McEventCollection *bgEvtColl = 0;
+    if (m_storeGateData->retrieve(bgEvtColl, "TruthEvent").isFailure()) {
+      ATH_MSG_WARNING("Could not retrieve background HepMC collection with key " << "TruthEvent");
+    } else {
+      McEventCollection::const_iterator iEvt = bgEvtColl->begin();
+      if (m_removeBkgHardScatterTruth) {
+        ++iEvt;
+      }
+      for ( ; iEvt != bgEvtColl->end(); ++iEvt) {
+        newMcEvtColl->push_back(new HepMC::GenEvent(**iEvt));
+      }
+    }
+  } //! m_realdata
 
-   if ( m_storeGateOutput->record(newMcEvtColl, "TruthEvent").isFailure() ) {
-     log << MSG::ERROR << "Could not add new HepMC collection with key " << "TruthEvent" << endmsg;
-     return StatusCode::FAILURE;
-   }
-   
+  if ( m_storeGateOutput->record(newMcEvtColl, "TruthEvent").isFailure() ) {
+    ATH_MSG_ERROR("Could not add new HepMC collection with key " << "TruthEvent");
+    return StatusCode::FAILURE;
+  }
+
+  /** dump McEventCollection in debug mode to confirm everything is as expected */
+  if (msgLvl(MSG::DEBUG)) {
+    if (! newMcEvtColl->empty()) {
+      ATH_MSG_DEBUG("McEventCollection contents:");
+      for (McEventCollection::const_iterator iEvt = newMcEvtColl->begin(); iEvt != newMcEvtColl->end(); ++iEvt) {
+        const int signal_process_id((*iEvt)->signal_process_id()),
+                  event_number((*iEvt)->event_number());
+        ATH_MSG_DEBUG("  GenEvent #" << event_number << ", signal_process_id=" << signal_process_id);
+      }
+    }
+  }
+
   copyAllObjectsOfType<TrackRecordCollection>(&*m_storeGateOutput, &*m_storeGateMC);
   copyAllObjectsOfType<CaloCalibrationHitContainer>(&*m_storeGateOutput, &*m_storeGateMC);
   if (!m_realdata) {copyAllObjectsOfType<HijingEventParams>(&*m_storeGateOutput, &*m_storeGateData);}

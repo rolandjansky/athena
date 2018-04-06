@@ -52,7 +52,7 @@ if [ -e newDS.txt ]; then
    echo "new datasets to be added:"
    cat .newDS.txt
    /usr/bin/cern-get-sso-cookie --url https://its.cern.ch/jira/ -o cookiefile.txt  284  11:30 /usr/bin/cern-get-sso-cookie --url https://its.cern.ch/jira/ -o cookiefile.txt
-   # ../utils/submit.py -f newDS.txt
+   ../utils/submit.py -f newDS.txt
    rm newDS.txt .newDS.txt
 else
    echo "no datasets to be added"

@@ -1,7 +1,7 @@
 /* -*- C++ -*- */
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PILEUPTOOLS_IPILEUPTOOL_H
@@ -44,9 +44,7 @@ public:
   ///reset the filter
   virtual void resetFilter() =0;
 
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID( "IPileUpTool", 1, 0 );
-    return IID;
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IPileUpTool, 1, 0 );
 };
-#endif
+#endif // PILEUPTOOLS_IPILEUPTOOL_H

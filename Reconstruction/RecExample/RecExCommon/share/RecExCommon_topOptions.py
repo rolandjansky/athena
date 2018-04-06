@@ -130,7 +130,7 @@ from AODFix.AODFix import *
 AODFix_Init()
 AODFix_preInclude()
 
-from RecoFix.RecoFix import *
+from RecoFix.RecoFix import RecoFix_Init, RecoFix_addMetaData
 RecoFix_Init()
 
 

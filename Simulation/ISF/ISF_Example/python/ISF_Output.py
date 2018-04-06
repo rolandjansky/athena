@@ -116,7 +116,7 @@ class ISF_HITSStream:
     from G4AtlasApps.SimFlags import simFlags
     from ISF_Config.ISF_jobProperties import ISF_Flags
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.PoolHitsOutput.statusOn or (hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn):
+    if athenaCommonFlags.PoolHitsOutput.statusOn or (hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn) or (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn):
         ## Write hits in POOL
         isfoplog.info("ISF_HITSStream starting")
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """Base class for grid and (local) build submits."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
@@ -103,10 +103,6 @@ class ArtBase(object):
             log.info("%s %s", key, config.get(nightly_release, project, platform, package, key))
         return 0
 
-    def download(self, input_file):
-        """Download input_file from RUCIO."""
-        return self.get_input(input_file)
-
     #
     # Default implementations
     #
@@ -160,9 +156,9 @@ class ArtBase(object):
         """
         Return a list of all test files matching 'test_*.sh' of given 'job_type', 'index_type' and nightly/project/platform.
 
-        'index_type' can be 'all', 'batch' or 'single'.
+        'job_type' can be 'grid' or 'build', given by the test
 
-        If "given" is None, all files are returned.
+        'index_type' can be 'all', 'batch' or 'single'.
 
         Only the filenames are returned.
         """
@@ -242,20 +238,6 @@ class ArtBase(object):
             if fnmatch.fnmatch(nightly_release, nightly_release_pattern) and fnmatch.fnmatch(project, project_pattern) and fnmatch.fnmatch(platform, platform_pattern):
                 return True
         return False
-
-    def get_input(self, input_name):
-        """Download input file from rucio. Retuns path of inputfile."""
-        work_dir = '.'
-
-        # run in correct environment
-        env = os.environ.copy()
-        env['PATH'] = '.:' + env['PATH']
-
-        (code, out, err) = run_command(os.path.join(self.art_directory, "art-get-input.sh") + " " + input_name, dir=work_dir, env=env)
-        if code == 0 and out != '':
-            return os.path.join(work_dir, input_name.replace(':', '/', 1))
-
-        return None
 
     #
     # Private Methods

@@ -35,9 +35,12 @@ TauJetRNNEvaluator::~TauJetRNNEvaluator() {}
 StatusCode TauJetRNNEvaluator::initialize() {
     ATH_MSG_INFO("Initializing TauJetRNNEvaluator");
 
+    std::string weightfile_1p("");
+    std::string weightfile_3p("");
+
     // Use PathResolver to search for the weight files
     if (!m_weightfile_1p.empty()) {
-        auto weightfile_1p = find_file(m_weightfile_1p);
+        weightfile_1p = find_file(m_weightfile_1p);
         if (weightfile_1p.empty()) {
             ATH_MSG_ERROR("Could not find network weights: "
                           << m_weightfile_1p);
@@ -45,11 +48,11 @@ StatusCode TauJetRNNEvaluator::initialize() {
         } else {
             ATH_MSG_INFO("Using network config [1-prong]: " << weightfile_1p);
         }
-        m_weightfile_1p = weightfile_1p;
+        //m_weightfile_1p = weightfile_1p;
     }
 
     if (!m_weightfile_3p.empty()) {
-        auto weightfile_3p = find_file(m_weightfile_3p);
+        weightfile_3p = find_file(m_weightfile_3p);
         if (weightfile_3p.empty()) {
             ATH_MSG_ERROR("Could not find network weights: "
                           << m_weightfile_3p);
@@ -57,7 +60,7 @@ StatusCode TauJetRNNEvaluator::initialize() {
         } else {
             ATH_MSG_INFO("Using network config [3-prong]: " << weightfile_3p);
         }
-        m_weightfile_3p = weightfile_3p;
+        //m_weightfile_3p = weightfile_3p;
     }
 
     // Set the layer and node names in the weight file
@@ -69,13 +72,13 @@ StatusCode TauJetRNNEvaluator::initialize() {
     config.output_node = m_output_node;
 
     // Load the weights and create the network
-    m_net_1p = std::make_unique<TauJetRNN>(m_weightfile_1p, config);
+    m_net_1p = std::make_unique<TauJetRNN>(weightfile_1p, config);
     if (!m_net_1p) {
         ATH_MSG_WARNING("No network configured for 1-prong taus. "
                         "Decorating defaults...");
     }
 
-    m_net_3p = std::make_unique<TauJetRNN>(m_weightfile_3p, config);
+    m_net_3p = std::make_unique<TauJetRNN>(weightfile_3p, config);
     if (!m_net_3p) {
         ATH_MSG_WARNING("No network configured for multi-prong taus. "
                         "Decorating defaults...");

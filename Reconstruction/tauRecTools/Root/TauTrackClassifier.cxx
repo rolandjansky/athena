@@ -369,8 +369,8 @@ StatusCode TrackMVABDT::classifyTriggerTrack(xAOD::TauTrack& xTrack, const xAOD:
 StatusCode TrackMVABDT::addWeightsFile()
 {
 
-  m_sInputWeightsPath = find_file(m_sInputWeightsPath);
-  ATH_MSG_DEBUG("InputWeightsPath: " << m_sInputWeightsPath);
+  std::string sInputWeightsPath = find_file(m_sInputWeightsPath);
+  ATH_MSG_DEBUG("InputWeightsPath: " << sInputWeightsPath);
   
 
 
@@ -392,7 +392,7 @@ StatusCode TrackMVABDT::addWeightsFile()
   //   }
   // }
 
-  m_rReader = tauRecTools::configureMVABDT( m_mAvailableVars, m_sInputWeightsPath.c_str() );
+  m_rReader = tauRecTools::configureMVABDT( m_mAvailableVars, sInputWeightsPath.c_str() );
   if(m_rReader==0) {
     ATH_MSG_FATAL("Couldn't configure MVA");
     return StatusCode::FAILURE;

@@ -83,7 +83,7 @@ class ringerVersion (JobProperty):
     """ Version ringer tunes """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='RingerSelectorTools/TrigL2_20170505_v6'
+    StoredValue='RingerSelectorTools/TrigL2_20180125_v8/'
 
 _flags.append(ringerVersion)
 
@@ -92,7 +92,7 @@ class pidVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20170217/'
+    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20180216/'
 
 _flags.append(pidVersion)
 

@@ -230,7 +230,8 @@ public:
   Filter_Combined( TrackFilter* f1, TrackFilter* f2) : 
     mf1(f1), mf2(f2), m_roi(0), 
     m_debugPrintout(false), 
-    mcontain(true)
+    m_containPhi(true),
+    m_contain(false)
   { } 
 
   void setRoi( TIDARoiDescriptor* r ) { m_roi = r; } 
@@ -239,7 +240,12 @@ public:
   /// set / unset the flag to determine whether tracks 
   /// should be fully contained in the RoI or not 
 
-  void containtracks( bool b=true ) { mcontain=b; }
+  void containtracks( bool b=true ) { m_contain=b; }
+
+  /// set / unset to allow the strict phi containment to be
+  /// used even if the full rigorous containement is not 
+
+  void containtracksPhi( bool b=true ) { m_containPhi=b; }
 
 
   bool contains( const TIDA::Track* t, const TIDARoiDescriptor* r ) const { 
@@ -269,7 +275,7 @@ public:
       ///     within an Roi but failthis condition
       bool contained_eta = ( t->eta()<r->etaPlus() && t->eta()>r->etaMinus() );
       
-      if ( mcontain ) { 
+      if ( m_contain || m_containPhi ) { 
 
 	///  includes calculation of approximate z position of the 
 	///  track at radius r and test if track within that z position at radius r 
@@ -287,9 +293,11 @@ public:
  
 	double cross0 = zexit*r->rMinusZed() - rexit*r->zedMinusR();
 	double cross1 = zexit*r->rPlusZed()  - rexit*r->zedPlusR(); 
-
-	if ( cross0>0 && cross1<0 ) contained_eta=true;
-	else                        contained_eta=false;
+	
+	if ( m_contain ) {  
+	  if ( cross0>0 && cross1<0 ) contained_eta=true;
+	  else                        contained_eta=false;
+	}
 
 	/// now check phi taking account of the track transverse curvature
 
@@ -380,7 +388,8 @@ private:
 
   bool  m_debugPrintout;
 
-  bool   mcontain;
+  bool   m_containPhi;
+  bool   m_contain;
 
 };
 

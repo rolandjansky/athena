@@ -46,23 +46,14 @@ StatusCode TauIDVarCalculator::eventInitialize()
 	}
       }
     }
-
-    const xAOD::EventInfo* m_xEventInfo = 0;
-    ATH_CHECK( evtStore()->retrieve(m_xEventInfo,"EventInfo") );
-    m_mu = m_xEventInfo->averageInteractionsPerCrossing();
   }
-  else {
 
-    double mu_tmp = 0.;
-    if( tauEventData()->hasObject("AvgInteractions") && tauEventData()->getObject("AvgInteractions", mu_tmp).isSuccess() ) {
-      m_mu = mu_tmp;      
-    }
-    else {
-      m_mu = 0.;
-      ATH_MSG_WARNING("AvgInteractions could not be retrieved, will use mu=0.");      
-    }    
-  }
-  
+  // accessing mu via EventInfo can also be done for trigger (LumiBlock/LumiBlockComps/src/LumiBlockMuWriter.cxx)
+  // that avoids the use of tauEventData in TrigTauDiscriBuilder.cxx which would be needed just for retrieving mu
+  const xAOD::EventInfo* m_xEventInfo = 0;
+  ATH_CHECK( evtStore()->retrieve(m_xEventInfo,"EventInfo") );
+  m_mu = m_xEventInfo->averageInteractionsPerCrossing();
+
   return StatusCode::SUCCESS;
 }
 
