@@ -35,8 +35,7 @@ atlas_add_library( TrigHLTMonitoringLib
 
 atlas_add_component( TrigHLTMonitoring
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaMonitoringLib StoreGateLib SGtests xAODLuminosity GaudiKernel LumiBlockCoolQuery TrigDecisionToolLib TrigConfigSvcLib TrigSteeringEvent AthenaKernel EventInfo xAODTrigger TrigHLTMonitoringLib )
+                     LINK_LIBRARIES TrigHLTMonitoringLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
