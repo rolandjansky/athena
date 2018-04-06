@@ -8,9 +8,9 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
-using namespace SCT_ConditionsServices;
+using namespace SCT_ConditionsData;
 
 // Constructor
 SCT_MajorityConditionsTool::SCT_MajorityConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :

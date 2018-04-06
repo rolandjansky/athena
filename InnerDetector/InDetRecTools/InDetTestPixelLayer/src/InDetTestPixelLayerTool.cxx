@@ -37,7 +37,7 @@ namespace InDet {
 					   const std::string& n, const IInterface* p):
     AthAlgTool(name, n,p),
     m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
-    m_pixelCondSummarySvc("PixelConditionsSummarySvc",n),
+    m_pixelCondSummaryTool("PixelConditionsSummaryTool",this),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_idHelper(nullptr),
     m_pixelId(nullptr),
@@ -48,7 +48,7 @@ namespace InDet {
   {
     declareInterface<IInDetTestPixelLayerTool>(this);
     declareProperty("Extrapolator"   , m_extrapolator);
-    declareProperty("PixelSummarySvc", m_pixelCondSummarySvc);
+    declareProperty("PixelSummaryTool", m_pixelCondSummaryTool);
     declareProperty("ResidualPullCalculator",m_residualPullCalculator);
     declareProperty("CheckActiveAreas", m_checkActiveAreas = false);
     declareProperty("CheckDeadRegions", m_checkDeadRegions = false);
@@ -94,16 +94,16 @@ namespace InDet {
     }
     
     // Get PixelConditionsSummarySvc
-    if( m_pixelCondSummarySvc.empty() ){
-      msg(MSG::INFO) << "PixelConditionsSummarySvc not configured " << endmsg; //n
+    if( m_pixelCondSummaryTool.empty() ){
+      msg(MSG::INFO) << "PixelConditionsSummaryTool not configured " << endmsg; //n
       m_configured=false;
     }
     else{
-      if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg; //n
+      if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
+	msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummaryTool << endmsg; //n
 	return StatusCode::FAILURE;
       } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endmsg; //n
+	msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummaryTool << endmsg; //n
       }
     }
 
@@ -375,7 +375,7 @@ namespace InDet {
       // need to check that this is the "correct" pixel layer....
       if(!IsInCorrectLayer(id,pixvec,pixel_layer)) continue;
 
-      if( m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE) ){
+      if( m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE) ){
 
 	if( m_checkActiveAreas ){
 
@@ -437,7 +437,7 @@ namespace InDet {
 
     Identifier id = trackpar->associatedSurface().associatedDetectorElement()->identify();
         
-    if( m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE) ){
+    if( m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE) ){
 
       if(m_checkDeadRegions){
 
@@ -517,7 +517,7 @@ namespace InDet {
 
       if(!IsInCorrectLayer(id,pixvec,pixel_layer)) continue;
 
-      if( m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE) ){
+      if( m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE) ){
 
 	  if( isActive(*it) ){
 
@@ -694,7 +694,7 @@ namespace InDet {
       pixelLayerInfo.errLocalX(error_locx);
       pixelLayerInfo.errLocalY(error_locy);
 
-      bool isgood =  m_pixelCondSummarySvc->isGood(id,InDetConditions::PIXEL_MODULE);
+      bool isgood =  m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE);
     
       double phitol = 2.5;
       double etatol = 5.;
@@ -794,7 +794,7 @@ namespace InDet {
     Identifier moduleid = trkParam->associatedSurface().associatedDetectorElement()->identify();
     IdentifierHash id_hash = m_pixelId->wafer_hash(moduleid);
 
-    if( !m_pixelCondSummarySvc->isGood(id_hash) )return 0.;
+    if( !m_pixelCondSummaryTool->isGood(id_hash) )return 0.;
 
 
     const Amg::Vector2D& locPos = trkParam->localPosition();
@@ -876,7 +876,7 @@ namespace InDet {
       const InDetConditions::Hierarchy context = InDetConditions::PIXEL_CHIP;
       Identifier centreId = sielem->identifierOfPosition(LocPos);
       if(centreId.is_valid()){
-	if( !m_pixelCondSummarySvc->isGood(centreId, context) ) return 0.;
+	if( !m_pixelCondSummaryTool->isGood(centreId, context) ) return 0.;
       }
       
       else ATH_MSG_WARNING (  "Invalid Identifier, skipping check of FE..."  );
@@ -892,7 +892,7 @@ namespace InDet {
       return 0.;
     }
 
-    double frac = m_pixelCondSummarySvc->goodFraction(id_hash,startId,endId);
+    double frac = m_pixelCondSummaryTool->goodFraction(id_hash,startId,endId);
     
     return frac;
   }

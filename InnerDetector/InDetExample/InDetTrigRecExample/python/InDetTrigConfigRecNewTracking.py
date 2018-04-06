@@ -31,7 +31,7 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
     
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, \
         InDetTrigPatternPropagator, InDetTrigPatternUpdator, \
-        InDetTrigRotCreator, InDetTrigPixelConditionsSummarySvc, InDetTrigSCTConditionsSummarySvc
+        InDetTrigRotCreator, InDetTrigSCTConditionsSummarySvc
     from AthenaCommon.AppMgr import ToolSvc
     
     # configure tools used

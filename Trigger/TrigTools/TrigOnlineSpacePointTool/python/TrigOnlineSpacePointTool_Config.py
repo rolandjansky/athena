@@ -28,17 +28,17 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
                                                                )
 
         ToolSvc += InDetL2TrigClusterMakerTool
-
+        from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
         InDetL2TrigMergedPixelsTool = InDet__MergedPixelsTool( name = "InDetL2TrigMergedPixelsTool",
                                                                globalPosAlg  = InDetL2TrigClusterMakerTool,
                                                                UseSpecialPixelMap = False,
-                                                               PixelConditionsSummarySvc = PixelConditionsSetup.instanceName('PixelConditionsSummarySvc'),
+                                                               PixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
                                                              )
 
         from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
         InDetL2TrigSCT_ClusteringTool = InDet__SCT_ClusteringTool(name = "InDetL2TrigSCT_ClusteringTool",
                                                                   globalPosAlg  = InDetL2TrigClusterMakerTool,
-                                                                  conditionsService = SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvc"),
+                                                                  conditionsService = SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvc")
                                                                 )
 
         if InDetTrigFlags.doSCTIntimeHits():

@@ -22,13 +22,11 @@ This is a base class for HLT Hypos to reduce boilerplate and enforce the common 
   /// destructor
   virtual ~HypoBase(); 
   /// initialise this base class and renounce input decision key handles
-  StatusCode initialize() override;
+  virtual StatusCode sysInitialize() override;
   /// execute to be implemented in derived clas
   virtual StatusCode execute_r(const EventContext&) const = 0;
-  //StatusCode execute(){};
   virtual StatusCode finalize() = 0;
-  /// special method for initialisation of derived classes, to be implemented by them, called from base class initialize
-  virtual StatusCode subInitialize()= 0;  
+  virtual StatusCode initialize()= 0;  
  protected:
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& decisionInput() const;

@@ -6,11 +6,11 @@
 // A. R-Veronneau 26/02/08
 
 #include "SCT_DCSConditionsSvc.h"
-#include "SCT_ConditionsServices/SCT_SlhcIdConverter.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "GaudiKernel/ThreadLocalContext.h"
 
+#include "SCT_SlhcIdConverter.h"
 using SCT_ConditionsServices::castId;
 
 const Identifier SCT_DCSConditionsSvc::s_invalidId;

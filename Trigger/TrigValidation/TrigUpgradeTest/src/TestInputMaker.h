@@ -6,10 +6,9 @@
 
 
 #include <string>
+#include "DecisionHandling/InputMakerBase.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
-//#include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/ConstDataVector.h"
 #include "StoreGate/ReadHandleKeyArray.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
@@ -25,18 +24,14 @@ namespace HLTTest {
   using namespace TrigCompositeUtils;
   
   class TestInputMaker
-    : public ::AthAlgorithm
+    : public ::InputMakerBase
   { 
   public: 
     TestInputMaker( const std::string& name, ISvcLocator* pSvcLocator );
-
     virtual ~TestInputMaker(); 
-
-    //TestInputMaker &operator=(const TestInputMaker &alg); 
-
-    StatusCode  initialize() override;
-    StatusCode  execute() override;
-    StatusCode  finalize() override;
+    virtual StatusCode  initialize() override;
+    virtual StatusCode  execute_r(const EventContext&) const override;
+    virtual StatusCode  finalize() override;
 
   private: 
     TestInputMaker();
@@ -47,9 +42,6 @@ namespace HLTTest {
 
     SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_recoOutput { this, "Output", "undefined", "name of the output collection for input to next reco alg in sequence" };
     
-    SG::ReadHandleKeyArray <TrigCompositeUtils::DecisionContainer> m_inputs       { this, "InputDecisions",  {}, "Input Decisions (implicit)" };
-    SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_decisionsKey { this, "OutputDecisions", {}, "Ouput Decisions" };
-
     StringProperty m_linkName   {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
     StringProperty m_outputType {this, "OutputType","outputType", "reserved for future use"};
 

@@ -332,7 +332,6 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
    }
    // Check that the DataHeader is still valid
    DataObject* dataHeaderObj = m_store->accessData(ClassID_traits<DataHeader>::ID(), m_dataHeaderKey);
-   StatusCode status(StatusCode::SUCCESS);
    std::set<DataObject*> written;
    for (std::vector<DataObject*>::const_iterator doIter = dataObjects.begin(), doLast = dataObjects.end();
 	   doIter != doLast; doIter++) {
@@ -362,7 +361,7 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
             }
          } else {
             ATH_MSG_ERROR("Could not create Rep for DataObject (clid/key):" << (*doIter)->clID() << " " << (*doIter)->name());
-            status = StatusCode::FAILURE;
+            return(StatusCode::FAILURE);
          }
       }
    }
@@ -380,38 +379,37 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
                delete addr; addr = 0;
             }
          } else {
-            ATH_MSG_WARNING("Could cast DataHeader");
-            status = StatusCode::FAILURE;
+            ATH_MSG_ERROR("Could cast DataHeader");
+            return(StatusCode::FAILURE);
          }
       } else {
          ATH_MSG_ERROR("Could not create Rep for DataHeader");
-         status = StatusCode::FAILURE;
+         return(StatusCode::FAILURE);
       }
    }
    if (!fillObjectRefs(dataObjects).isSuccess()) {
-      status = StatusCode::FAILURE;
+      return(StatusCode::FAILURE);
    }
    if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
       // End of DataObjects, fill refs for DataHeader
       DataObjectVec dataHeaderObjVec;
       dataHeaderObjVec.push_back(dataHeaderObj);
       if (!fillObjectRefs(dataHeaderObjVec).isSuccess()) {
-         status = StatusCode::FAILURE;
+         return(StatusCode::FAILURE);
       }
    }
-   return(status);
+   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 StatusCode AthenaOutputStreamTool::fillObjectRefs(const DataObjectVec& dataObjects) { //Copy
-   StatusCode status = StatusCode::SUCCESS;
    for (std::vector<DataObject*>::const_iterator doIter = dataObjects.begin(), doLast = dataObjects.end();
 	   doIter != doLast; doIter++) {
       // call fillRepRefs of persistency service
       if (!(m_conversionSvc->fillRepRefs((*doIter)->registry()->address(), *doIter)).isSuccess()) {
-         status = StatusCode::FAILURE;
+         return(StatusCode::FAILURE);
       }
    }
-   return(status);
+   return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
 StatusCode AthenaOutputStreamTool::getInputItemList(SG::IFolder* p2BWrittenFromTool) {

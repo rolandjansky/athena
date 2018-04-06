@@ -2,10 +2,9 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_ConditionsTools/SCT_Chip.h"
+#include "SCT_ConditionsData/SCT_Chip.h"
 
 #include <sstream>
-#include <iostream>
 
 // Default constructor: chip has id 0, config = 0 and all strips good.
 SCT_Chip::SCT_Chip():
