@@ -93,7 +93,7 @@ def GetUpdatedIsoTrackCones(name=""):
 
 def GetExtraIsoVariablesForDxAOD(name=""):
     iso_lep_vars = []
-    iso_vars = ["ptcone20_TightTTVA_pt500.ptcone20_TightTTVA_pt1000.ptcone30_TightTTVA_pt500.ptcone30_TightTTVA_pt1000.ptcone40_TightTTVA_pt500.ptcone40_TightTTVA_pt1000.ptvarcone20_TightTTVA_pt500.ptvarcone20_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone40_TightTTVA_pt500.ptvarcone40_TightTTVA_pt1000"]
+    iso_vars = "ptcone20_TightTTVA_pt500.ptcone20_TightTTVA_pt1000.ptcone30_TightTTVA_pt500.ptcone30_TightTTVA_pt1000.ptcone40_TightTTVA_pt500.ptcone40_TightTTVA_pt1000.ptvarcone20_TightTTVA_pt500.ptvarcone20_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone40_TightTTVA_pt500.ptvarcone40_TightTTVA_pt1000"
     if name == "" or name == "Electrons":
         iso_lep_vars += ["Electrons.%s" %iso_vars]
     if name == "" or name == "Muons":
