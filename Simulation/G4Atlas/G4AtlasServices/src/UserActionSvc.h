@@ -20,11 +20,6 @@
 #include "G4AtlasStackingAction.h"
 #include "G4AtlasTrackingAction.h"
 #include "G4AtlasSteppingAction.h"
-#include "G4AtlasInterfaces/IG4RunActionTool.h"
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasInterfaces/IG4StackingActionTool.h"
-#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasInterfaces/IUserActionTool.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasTools/ThreadActionHolder.h"
@@ -56,18 +51,7 @@ namespace G4UA
       /// @name Handles to ATLAS action tools
       /// @{
 
-      /// Run action tools
-      ToolHandleArray<IG4RunActionTool> m_runActionTools;
-      /// Event action tools
-      ToolHandleArray<IG4EventActionTool> m_eventActionTools;
-      /// Stacking action tools
-      ToolHandleArray<IG4StackingActionTool> m_stackingActionTools;
-      /// Tracking action tools
-      ToolHandleArray<IG4TrackingActionTool> m_trackingActionTools;
-      /// Stepping action tools
-      ToolHandleArray<IG4SteppingActionTool> m_steppingActionTools;
-
-      /// New user action tools!!
+      /// User action tools
       ToolHandleArray<IUserActionTool> m_userActionTools;
 
       /// @}

@@ -9,7 +9,6 @@
 #include <string>
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
