@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ### Trigger lists for SUSY2.py.
-from DerivationFrameworkSUSY.SUSYCommonTriggerList import SingleLepton_2017,SingleLepton_2016,SingleLepton_2015
-from DerivationFrameworkSUSY.SUSYCommonTriggerList import DiLepton_2017,DiLepton_2016,DiLepton_2015
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import SingleLepton_2018,SingleLepton_2017,SingleLepton_2016,SingleLepton_2015
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import DiLepton_2018,DiLepton_2017,DiLepton_2016,DiLepton_2015
 
 singleelectron_trigger = [
   "HLT_e60_lhmedium",
@@ -115,6 +115,6 @@ trielemuon_trigger = [
 ]
 
 
-singleLeptonTriggers = SingleLepton_2017+SingleLepton_2016+SingleLepton_2015
-diLeptonTriggers = DiLepton_2017+DiLepton_2016+DiLepton_2015
+singleLeptonTriggers = SingleLepton_2018+SingleLepton_2017+SingleLepton_2016+SingleLepton_2015
+diLeptonTriggers = DiLepton_2018+DiLepton_2017+DiLepton_2016+DiLepton_2015
 triggersNavThin = singleelectron_trigger+dielectron_trigger+trielectron_trigger+singlemuon_trigger+dimuon_trigger+trimuon_trigger+elemuon_trigger+trielemuon_trigger+singleLeptonTriggers+diLeptonTriggers
