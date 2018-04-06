@@ -16,13 +16,13 @@
 // Local include(s):
 #include "xAODParticleEvent/versions/CompositeParticle_v1.h"
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
 
 namespace xAOD {
 
   CompositeParticle_v1::CompositeParticle_v1()
-    : //IParticle(),
-      m_p4(),
-      m_p4Cached( false ) {
+    : IParticle() {
   }
 
 
@@ -40,7 +40,7 @@ namespace xAOD {
 
 
   double CompositeParticle_v1::pt() const {
-    return std::sqrt( std::pow( px(), 2 ) + std::pow( py(), 2 ) );
+    return std::hypot( px(), py() );
   }
 
   double CompositeParticle_v1::eta() const {
@@ -59,28 +59,42 @@ namespace xAOD {
     return p4().Rapidity();
   }
 
-  const CompositeParticle_v1::FourMom_t& CompositeParticle_v1::p4() const {
-    // Check if we need to reset the cached object:
-    if( ! m_p4Cached ) {
-      if ( accPx.isAvailable(*this) && accPy.isAvailable(*this)
-           && accPz.isAvailable(*this) && accE.isAvailable(*this) ) {
-        // We have everything stored with this CompositeParticle. Just use it.
-        const double px = static_cast<double>(accPx(*this));
-        const double py = static_cast<double>(accPy(*this));
-        const double pz = static_cast<double>(accPz(*this));
-        const double e  = static_cast<double>(accE(*this));
-        m_p4.SetPxPyPzE( px, py, pz, e );
-      }
-      else {
-        // Not everything is stored, we need to re-calculate the p4 based on the constituents.
-        // Create an empty vector such that the subsequent call will use all constituents.
-        const std::vector<int> partIndices;
-        m_p4 = this->p4( partIndices );
-      }
-      m_p4Cached = true;
+  CompositeParticle_v1::FourMom_t CompositeParticle_v1::p4() const {
+    if ( accPx.isAvailable(*this) && accPy.isAvailable(*this)
+	 && accPz.isAvailable(*this) && accE.isAvailable(*this) ) {
+      // We have everything stored with this CompositeParticle. Just use it.
+      const double px = static_cast<double>(accPx(*this));
+      const double py = static_cast<double>(accPy(*this));
+      const double pz = static_cast<double>(accPz(*this));
+      const double e  = static_cast<double>(accE(*this));
+      return FourMom_t( px, py, pz, e );
     }
-    // Return the cached object:
-    return m_p4;
+    else {
+      // Not everything is stored, we need to re-calculate the p4 based on the constituents.
+      // Create an empty vector such that the subsequent call will use all constituents.
+      const std::vector<int> partIndices;
+      return p4( partIndices );
+    }
+  }
+
+  // note, if calculating from constituent particles, can be slower than p4()
+  CompositeParticle_v1::GenVecFourMom_t CompositeParticle_v1::genvecP4() const {
+    if ( accPx.isAvailable(*this) && accPy.isAvailable(*this)
+	 && accPz.isAvailable(*this) && accE.isAvailable(*this) ) {
+      // We have everything stored with this CompositeParticle. Just use it.
+      const double px = static_cast<double>(accPx(*this));
+      const double py = static_cast<double>(accPy(*this));
+      const double pz = static_cast<double>(accPz(*this));
+      const double e  = static_cast<double>(accE(*this));
+      return GenVecFourMom_t( px, py, pz, e );
+    }
+    else {
+      // Not everything is stored, we need to re-calculate the p4 based on the constituents.
+      // Create an empty vector such that the subsequent call will use all constituents.
+      const std::vector<int> partIndices;
+      FourMom_t fourmom = p4(partIndices);
+      return GenVecFourMom_t(fourmom.Px(), fourmom.Py(), fourmom.Pz(), fourmom.E());
+    }
   }
 
   Type::ObjectType CompositeParticle_v1::type() const {
@@ -118,8 +132,6 @@ namespace xAOD {
     accPy( *this ) = static_cast<float>(vec.Py());
     accPz( *this ) = static_cast<float>(vec.Pz());
     accE( *this )  = static_cast<float>(vec.E());
-    //Need to recalculate m_p4 if requested after update
-    m_p4Cached=false;
   }
 
 
@@ -135,8 +147,6 @@ namespace xAOD {
     acc3( *this ) = (float)pz;
     static Accessor< float > acc4( "e" );
     acc4( *this ) = (float)e;
-    //Need to recalculate m_p4 if requested after update
-    m_p4Cached=false;
   }
 
 
@@ -221,11 +231,11 @@ namespace xAOD {
   //     information from constituents.
   //
 
-  const CompositeParticle_v1::FourMom_t&
+  CompositeParticle_v1::FourMom_t
   CompositeParticle_v1::p4( const std::vector<int>& partIndices ) const {
     // We want a static here such that this TLorentzVector is only once in
     // memory. We anyhow have to reset it every time this function is called.
-    static CompositeParticle_v1::FourMom_t fourMom;
+    CompositeParticle_v1::FourMom_t fourMom;
     fourMom.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
     // If the given vector of indices is an empty vector, run over all particles
     if ( partIndices.empty() ) {
@@ -243,7 +253,7 @@ namespace xAOD {
       if (met) {
         double px = met->mpx();
         double py = met->mpy();
-        fourMom += CompositeParticle_v1::FourMom_t( px, py, 0.0, std::sqrt(px*px+py*py) );
+        fourMom += CompositeParticle_v1::FourMom_t( px, py, 0.0, std::hypot(px, py) );
       }
     }
     else {
@@ -252,7 +262,7 @@ namespace xAOD {
           const xAOD::MissingET* met = this->missingET();
           double px = met->mpx();
           double py = met->mpy();
-          fourMom += CompositeParticle_v1::FourMom_t( px, py, 0.0, std::sqrt(px*px+py*py) );
+          fourMom += CompositeParticle_v1::FourMom_t( px, py, 0.0, std::hypot(px, py) );
         }
         else if ( i < 0 ) {
           throw std::runtime_error("Got a negative index which is not -1");

@@ -28,13 +28,14 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Eigen )
+find_package( ROOT COMPONENTS Core GenVector )
 
 # Component(s) in the package:
 atlas_add_library( xAODTracking
    xAODTracking/*.h xAODTracking/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODTracking
    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthContainers AthLinks GeoPrimitives
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthLinks GeoPrimitives
    EventPrimitives xAODBase xAODCore ${extra_libs} )
 
 atlas_add_dictionary( xAODTrackingDict

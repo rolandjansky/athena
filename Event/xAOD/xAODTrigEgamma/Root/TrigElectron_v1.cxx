@@ -21,7 +21,7 @@ namespace xAOD {
    /// or give it a private auxiliary store before setting properties on it.
    ///
    TrigElectron_v1::TrigElectron_v1()
-      : IParticle(), m_p4(), m_p4Cached( false ) {
+      : IParticle() {
 
    }
 
@@ -40,7 +40,7 @@ namespace xAOD {
    ///
    double TrigElectron_v1::e() const {
 
-      return p4().E();
+      return genvecP4().E();
    }
 
    /// This function gets the rapidity of the electron using the internal
@@ -51,28 +51,24 @@ namespace xAOD {
    ///
    double TrigElectron_v1::rapidity() const {
 
-      return p4().Rapidity();
+      return genvecP4().Rapidity();
    }
 
-   /// This is one of the trickier functions. It provides the 4-momentum of
-   /// the object as a TLorentzVector. It does this by caching such an object
-   /// internally, and returning a reference to this cached object.
+   /// This function provides the 4-momentum of
+   /// the object as a TLorentzVector. 
    ///
    /// @returns The full 4-momentum of the electron
    ///
-   const TrigElectron_v1::FourMom_t& TrigElectron_v1::p4() const {
-
-      // Check if the 4-momentum is cached already:
-      if( ! m_p4Cached ) {
-         // Set the internal object:
-         m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m() );
-         // The 4-momentum is now cached:
-         m_p4Cached = true;
-      }
-
-      // Return the cached object:
-      return m_p4;
+   TrigElectron_v1::FourMom_t TrigElectron_v1::p4() const {
+     FourMom_t p4;
+     p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
+     return p4;	
    }
+
+   /// this provides a GenVector (pt, eta, phi, m)
+   TrigElectron_v1::GenVecFourMom_t TrigElectron_v1::genvecP4() const {
+     return GenVecFourMom_t(pt(), eta(), phi(), m());
+   } 
 
    //
    /////////////////////////////////////////////////////////////////////////////
