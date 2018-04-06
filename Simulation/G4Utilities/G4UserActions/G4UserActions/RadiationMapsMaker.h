@@ -107,6 +107,7 @@ namespace G4UA
       TGraph * m_tgnSiA = 0;
       TGraph * m_tgnSiB = 0;
       TGraph * m_tgpiSi = 0;
+      TGraph * m_tgeSi  = 0;
       
     }; // class RadiationMapsMaker
   
