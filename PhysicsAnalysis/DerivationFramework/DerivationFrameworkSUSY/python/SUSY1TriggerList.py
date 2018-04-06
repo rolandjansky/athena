@@ -9,7 +9,7 @@
 ################################################################ 
 
 
-from SUSYCommonTriggerList import *
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import *
 
 SUSY1LeptonTriggers = SingleLepton_2015+SingleLepton_2016+SingleLepton_2017+SingleLepton_2018+DiLepton_2015+DiLepton_2016+DiLepton_2017+DiLepton_2018
 SUSY1PhotonTriggers = SinglePhoton_2015+SinglePhoton_2016+SinglePhoton_2017+SinglePhoton_2018
