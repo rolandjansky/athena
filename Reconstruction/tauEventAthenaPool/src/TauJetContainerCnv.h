@@ -29,7 +29,9 @@ class TauJetContainerCnv: public T_AthenaPoolCustomCnv<
 {
     friend class CnvFactory<TauJetContainerCnv>;
     protected:
+public:
         TauJetContainerCnv( ISvcLocator* svcloc );
+protected:
         virtual TauJetContainer_PERS *createPersistent( Analysis :: TauJetContainer *transCont );
         virtual Analysis :: TauJetContainer *createTransient();
 };

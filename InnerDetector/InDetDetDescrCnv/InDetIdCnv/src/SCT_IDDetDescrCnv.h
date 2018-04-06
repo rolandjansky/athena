@@ -36,7 +36,6 @@ class SCT_ID;
  **/
 
 class SCT_IDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<SCT_IDDetDescrCnv>;
 
 public:
     virtual long int   repSvcType() const;
@@ -48,7 +47,6 @@ public:
     static long storageType();
     static const CLID& classID();
 
-protected:
     SCT_IDDetDescrCnv(ISvcLocator* svcloc);
 
 private:

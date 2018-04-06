@@ -11,7 +11,6 @@
 #include "ALFA_EventTPCnv/ALFA_RawDataContainer_charge_p1.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/CnvFactory.h"
 
 
 typedef ALFA_RawDataContainer_charge_p1 ALFA_RawDataContainer_charge_PERS;

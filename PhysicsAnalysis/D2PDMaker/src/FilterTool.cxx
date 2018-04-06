@@ -30,7 +30,6 @@
 #include <iostream>
 
 // DataModel
-#include "GaudiKernel/ToolFactory.h"
 #include "AthLinks/ElementLink.h"
 #include "AthenaKernel/CLASS_DEF.h"
 

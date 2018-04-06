@@ -203,13 +203,17 @@ summaryStep0.OutputLevel = DEBUG
 step0 = parOR("step0", [ egammaCaloStep, summaryStep0 ] )
 step1 = parOR("step1", [ egammaIDStep ] )
 
+steps = seqAND("HLTSteps", [ step0, step1 ]  )
 
 summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
 summary.InputDecision = "HLTChains"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
+from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
+edmCreator = HLTEDMCreator()
+edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult" ]
+summary.OutputTools = [ edmCreator ]
 summary.OutputLevel = DEBUG
 
-steps = seqAND("HLTSteps", [ step0, step1, summary ]  )
 
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
 mon = TrigSignatureMoniMT()
@@ -218,8 +222,27 @@ from TrigUpgradeTest.TestUtils import MenuTest
 mon.ChainsList = [ x.split(":")[1] for x in  MenuTest.CTPToChainMapping ]
 mon.OutputLevel = DEBUG
 
-hltTop = seqOR( "hltTop", [ steps, mon] )
+import AthenaPoolCnvSvc.WriteAthenaPool
+from OutputStreamAthenaPool.OutputStreamAthenaPool import  createOutputStream
+StreamESD=createOutputStream("StreamESD","myESD.pool.root",True)
+StreamESD.OutputLevel=VERBOSE
+topSequence.remove( StreamESD )
+
+def addTC(name):   
+   StreamESD.ItemList += [ "xAOD::TrigCompositeContainer#"+name, "xAOD::TrigCompositeAuxContainer#"+name+"Aux." ]
+
+for tc in edmCreator.TrigCompositeContainer:
+   addTC( tc )
+
+addTC("HLTSummary")
+
+print "ESD file content " 
+print StreamESD.ItemList
+
+
+hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
 topSequence += hltTop
+
 
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)

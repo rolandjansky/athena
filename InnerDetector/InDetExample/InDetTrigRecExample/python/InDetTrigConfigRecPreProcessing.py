@@ -61,10 +61,10 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       
       # MergedPixelTool (public)
       from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummarySvc
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummaryTool
       InDetTrigMergedPixelsTool = InDet__MergedPixelsTool( name = "InDetTrigMergedPixelsTool",
                                                            globalPosAlg  = InDetTrigClusterMakerTool,
-                                                           PixelConditionsSummarySvc = InDetTrigPixelConditionsSummarySvc,
+                                                           PixelConditionsSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                            #UseSpecialPixelMap = False  #simpler setup for EFID
                                                            UseSpecialPixelMap = True,
                                                            MinimalSplitSize = 0,

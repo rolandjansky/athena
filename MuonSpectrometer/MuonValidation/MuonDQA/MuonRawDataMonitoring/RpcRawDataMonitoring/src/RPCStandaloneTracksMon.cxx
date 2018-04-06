@@ -13,7 +13,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
            
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
  
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"

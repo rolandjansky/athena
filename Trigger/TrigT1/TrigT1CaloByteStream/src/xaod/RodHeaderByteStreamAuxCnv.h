@@ -38,13 +38,8 @@ class RodHeaderByteStreamTool;
 
 class RodHeaderByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<RodHeaderByteStreamAuxCnv>;
-
-protected:
-
-  RodHeaderByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  RodHeaderByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~RodHeaderByteStreamAuxCnv(){};
 

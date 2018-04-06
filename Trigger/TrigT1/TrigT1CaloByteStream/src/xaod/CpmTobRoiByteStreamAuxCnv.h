@@ -38,13 +38,8 @@ class CpmRoiByteStreamV2Tool;
 
 class CpmTobRoiByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<CpmTobRoiByteStreamAuxCnv>;
-
-protected:
-
-  CpmTobRoiByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  CpmTobRoiByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~CpmTobRoiByteStreamAuxCnv(){};
 

@@ -3,7 +3,6 @@
 */
 
 #include "LArRecUtils/LArADC2MeVTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"

@@ -16,9 +16,6 @@
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 #include "DetDescrCnvSvc/DetDescrCnvSvc.h"
 #include "GaudiKernel/MsgStream.h"
-//  #include "GaudiKernel/CnvFactory.h"
-//  #include "GaudiKernel/ContainedObject.h"
-//  #include "GaudiKernel/DataObject.h"
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>

@@ -13,7 +13,6 @@
 #include "EventStorage/pickDataReader.h"
 #include "EventStorage/EventStorageRecords.h"
 
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/GenericAddress.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"

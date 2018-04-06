@@ -106,6 +106,7 @@ StatusCode CscThresholdClusterBuilderTool::initialize(){
                  << m_kFactor << "*stripNoise ) where stripNoise is from " << m_noiseOptionStr );
 
   ATH_CHECK( m_digit_key.initialize() );
+  ATH_CHECK(m_pclusters.initialize());
   if ( m_noiseOptionStr != "rms"
        && m_noiseOptionStr != "sigma"
        && m_noiseOptionStr != "f001" ) {
@@ -178,53 +179,54 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
 
   // clear output vector of selected data collections containing data
   decodedIds.clear();
+  SG::WriteHandle<Muon::CscPrepDataContainer> wh_pclusters(m_pclusters);
+  CscPrepDataContainer *object  = new CscPrepDataContainer(m_phelper->module_hash_max());  
 
-  if (!m_pclusters.isPresent()) {
-    /// clean up the PrepRawData container
-    auto object  = std::make_unique<CscPrepDataContainer>(m_phelper->module_hash_max());  
+   if (!wh_pclusters.isPresent()) {
+     /// record the container in storeGate
+     if ( wh_pclusters.record(std::unique_ptr<Muon::CscPrepDataContainer>(object)).isFailure() ) {
+       ATH_MSG_ERROR ( "Could not record container of CSC Cluster PrepData at "
+		       << m_pclusters.key() );
+       return StatusCode::RECOVERABLE;
+     }
+     m_fullEventDone=false;
+     if (givenIDs.size() == 0) m_fullEventDone=true;
     
-    /// record the container in storeGate
-    if ( m_pclusters.record(std::move(object)).isFailure() ) {
-      ATH_MSG_ERROR ( "Could not record container of CSC Cluster PrepData at "
-                      << m_pclusters.key() );
-      return StatusCode::RECOVERABLE;
-    }
-    m_fullEventDone=false;
-    if (givenIDs.size() == 0) m_fullEventDone=true;
-    
-  } else {
-    ATH_MSG_DEBUG ( "CSC Cluster PrepData Container is already in StoreGate " );
-    if (m_fullEventDone) {
-      ATH_MSG_DEBUG ( "Whole event has already been processed; nothing to do");
-      return StatusCode::SUCCESS;
-    }
-    if (givenIDs.size() == 0) m_fullEventDone = true;
-  }
+   } else {
+     ATH_MSG_DEBUG ( "CSC Cluster PrepData Container is already in StoreGate " );
+     if (m_fullEventDone) {
+       ATH_MSG_DEBUG ( "Whole event has already been processed; nothing to do");
+       return StatusCode::SUCCESS;
+     }
+     if (givenIDs.size() == 0) m_fullEventDone = true;
+   }
   
   if (givenIDs.size()!=0) {
     for (unsigned int i=0; i<givenIDs.size(); ++i) {
-      if ( getClusters(givenIDs[i],decodedIds).isFailure() ) {
+      if ( getClusters(givenIDs[i],decodedIds, object).isFailure() ) {
         ATH_MSG_ERROR ( "Unable to decode CSC RDO " << i << "th into CSC PrepRawData" );
         return StatusCode::RECOVERABLE;
       }
     }  
   } else {
     // Clusterization is done for every area
-    if ( getClusters(decodedIds).isFailure()) {
+    if ( getClusters(decodedIds, object).isFailure()) {
       ATH_MSG_ERROR ( "Unable to decode CSC RDO into CSC PrepRawData" );
       return StatusCode::RECOVERABLE;
     }
   }
+
+  
   return StatusCode::SUCCESS;
 }
 
 
 //******************************************************************************
 
-StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIds) {
+StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashId, std::vector<IdentifierHash>& decodedIds, Muon::CscPrepDataContainer *pclusters) {
 
   // identifiers of collections already decoded and stored in the container will be skipped
-  if (m_pclusters->indexFind(givenHashId) != m_pclusters->end()) {
+  if (pclusters->indexFind(givenHashId) != pclusters->end()) {
     decodedIds.push_back(givenHashId);
     ATH_MSG_DEBUG ( "A collection already exists in the container for offline id hash. "
                     << (int) givenHashId );
@@ -305,7 +307,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashI
     }
   }
   if (newCollection){
-    if ( m_pclusters->addCollection(newCollection, hash).isFailure() ) {
+    if ( pclusters->addCollection(newCollection, hash).isFailure() ) {
       ATH_MSG_ERROR ( "Couldn't add CscPrepdataCollection to container!" );
       return StatusCode::RECOVERABLE;
     }
@@ -318,7 +320,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(IdentifierHash givenHashI
 
 //******************************************************************************
 
-StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decodedIds) {
+StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHash>& decodedIds, Muon::CscPrepDataContainer *pclusters) {
       
   // Retrieve the CSC digits for this event.
   SG::ReadHandle<CscStripPrepDataContainer> pdigcon(m_digit_key);
@@ -337,7 +339,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
        icol!=con.end(); ++icol) {
     const CscStripPrepDataCollection& col = **icol;
     //check if the collection is already used    
-    if (m_pclusters->indexFind(col.identifyHash()) != m_pclusters->end()) {
+    if (pclusters->indexFind(col.identifyHash()) != pclusters->end()) {
       //store the identifier hash and continue
       decodedIds.push_back(col.identifyHash());
       continue;      
@@ -391,7 +393,7 @@ StatusCode CscThresholdClusterBuilderTool::getClusters(std::vector<IdentifierHas
       }
     }
     if (newCollection){
-      if ( m_pclusters->addCollection(newCollection, hash).isFailure() ) {
+      if ( pclusters->addCollection(newCollection, hash).isFailure() ) {
         ATH_MSG_ERROR ( "Couldn't add CscPrepdataCollection to container!" );
         return StatusCode::FAILURE;
       }

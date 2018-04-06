@@ -15,7 +15,6 @@
 
 // Framework
 #include "GaudiKernel/PhysicalConstants.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ISvcManager.h"
@@ -65,7 +64,7 @@ namespace ISFTesting {
     MOCK_CONST_METHOD1(pass, bool(ISF::ITruthIncident&));
   };
 
-  DECLARE_TOOL_FACTORY( MockTruthStrategy )
+  DECLARE_COMPONENT( MockTruthStrategy )
 
   class DummyTruthIncident : public ISF::ITruthIncident {
   public:
@@ -348,7 +347,8 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(inParticle3->barcode()))
       .WillOnce(::testing::Return(inParticle3->barcode()));
     EXPECT_CALL(ti, parentParticle())
-      .Times(1)
+      .Times(2)
+      .WillOnce(::testing::Return(inParticle3))
       .WillOnce(::testing::Return(inParticle3));
     EXPECT_CALL(ti, parentParticleAfterIncident(1010003))
       .Times(1)
@@ -579,7 +579,8 @@ namespace ISFTesting {
       .WillOnce(::testing::Return(inParticle3->barcode()))
       .WillOnce(::testing::Return(inParticle3->barcode()));
     EXPECT_CALL(ti, parentParticle())
-      .Times(1)
+      .Times(2)
+      .WillOnce(::testing::Return(inParticle3))
       .WillOnce(::testing::Return(inParticle3));
     EXPECT_CALL(ti, parentParticleAfterIncident(1010003))
       .Times(1)

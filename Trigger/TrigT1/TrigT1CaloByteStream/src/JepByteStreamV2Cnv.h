@@ -34,14 +34,8 @@ class JepByteStreamV2Tool;
  */
 
 class JepByteStreamV2Cnv: public Converter {
-
-  friend class CnvFactory<JepByteStreamV2Cnv>;
-
-protected:
-
-  JepByteStreamV2Cnv(ISvcLocator* svcloc);
-
 public:
+  JepByteStreamV2Cnv(ISvcLocator* svcloc);
 
   ~JepByteStreamV2Cnv();
 

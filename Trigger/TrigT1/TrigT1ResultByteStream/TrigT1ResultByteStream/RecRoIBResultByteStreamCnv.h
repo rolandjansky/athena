@@ -9,7 +9,6 @@
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Converter.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // Local include(s):
@@ -35,13 +34,10 @@ extern long ByteStream_StorageType;
 template< class ROBF >
 class RecRoIBResultByteStreamCnv : public Converter {
 
-  friend class CnvFactory< RecRoIBResultByteStreamCnv< ROBF > >;
-
-protected:
+public:
   /// Standard constructor
   RecRoIBResultByteStreamCnv( ISvcLocator* svcloc );
 
-public:
   /// Function connecting to all the needed services/tools
   virtual StatusCode initialize();
   /// Function creating the RecRoIBResult object from the RoIB ROB fragments

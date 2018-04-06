@@ -216,6 +216,7 @@ StatusCode SpecialPixelMapSvc::initialize()
   //Register callback to update the DetectorSpecialPixelMap in the detector store
   //whenever the CondAttrListCollection is updated from the Database
   if(m_registerCallback){
+    ATH_MSG_WARNING("This is deprecated! Retire this service once migration is completed");
     for(std::vector<std::string>::const_iterator key = m_condAttrListCollectionKeys.begin();
 	key !=  m_condAttrListCollectionKeys.end(); key++){
       ATH_MSG_DEBUG( "IOVCALLBACK for key " << *key );

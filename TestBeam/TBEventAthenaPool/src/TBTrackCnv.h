@@ -23,7 +23,9 @@ typedef  T_AthenaPoolCustomCnv<TBTrack, TBTrack_PERS >   TBTrackCnvBase;
 class TBTrackCnv : public TBTrackCnvBase {
 friend class CnvFactory<TBTrackCnv >;
 protected:
+public:
   TBTrackCnv (ISvcLocator* svcloc) : TBTrackCnvBase(svcloc) {}
+protected:
   virtual TBTrack_PERS*   createPersistent (TBTrack* transCont);
   virtual TBTrack*        createTransient ();
 

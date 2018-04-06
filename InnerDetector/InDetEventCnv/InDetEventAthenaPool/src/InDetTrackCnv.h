@@ -27,7 +27,9 @@ class InDetTrackCnv : public InDetTrackCnvBase
 friend class CnvFactory<InDetTrackCnv>;
 
 protected:
+public:
   InDetTrackCnv( ISvcLocator *svcloc );
+protected:
 
   virtual StatusCode initialize();
 

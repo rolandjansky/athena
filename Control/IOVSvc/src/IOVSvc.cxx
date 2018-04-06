@@ -16,7 +16,6 @@
 
 #include "IOVSvc/IOVSvc.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "GaudiKernel/IToolSvc.h"

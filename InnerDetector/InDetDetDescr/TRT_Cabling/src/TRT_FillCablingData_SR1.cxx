@@ -21,7 +21,6 @@
 
 #include <fstream>
 
-#include "GaudiKernel/ToolFactory.h"
 
 
 #include "eformat/SourceIdentifier.h"  // change to new eformat v3

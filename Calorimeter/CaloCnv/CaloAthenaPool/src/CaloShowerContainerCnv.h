@@ -25,7 +25,9 @@ class CaloShowerContainerCnv : public CaloShowerContainerCnvBase
 {
   friend class CnvFactory<CaloShowerContainerCnv>;
  protected:
+public:
   CaloShowerContainerCnv(ISvcLocator*);
+protected:
   virtual CaloShowerContainer* createTransient();
   virtual CaloShowerContainerPERS* createPersistent(CaloShowerContainer*);
  private:

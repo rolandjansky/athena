@@ -38,13 +38,8 @@ class CpByteStreamV2Tool;
 
 class CpmTowerByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<CpmTowerByteStreamAuxCnv>;
-
-protected:
-
-  CpmTowerByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  CpmTowerByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~CpmTowerByteStreamAuxCnv(){};
 

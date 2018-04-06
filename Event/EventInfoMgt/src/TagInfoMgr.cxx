@@ -38,7 +38,6 @@
 #include "CxxUtils/make_unique.h"
 
 // Gaudi includes
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/GenericAddress.h"

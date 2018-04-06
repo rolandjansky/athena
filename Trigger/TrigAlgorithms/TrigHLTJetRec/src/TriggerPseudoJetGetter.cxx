@@ -11,10 +11,7 @@
 //
 // ********************************************************************
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "TrigHLTJetRec/TriggerPseudoJetGetter.h"
-// #include "GaudiKernel/ToolFactory.h"
-// #include "GaudiKernel/IToolFactory.h"
 
 TriggerPseudoJetGetter::TriggerPseudoJetGetter(const std::string& name)
   :AsgTool(name),  m_primed(false), m_label(""), m_pseudoJetVector(nullptr){

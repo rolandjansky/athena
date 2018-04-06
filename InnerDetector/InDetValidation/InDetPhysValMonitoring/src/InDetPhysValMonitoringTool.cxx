@@ -8,11 +8,13 @@
  **/
 
 #include "InDetPhysValMonitoring/InDetPhysValMonitoringTool.h"
-#include "InDetPhysHitDecoratorTool.h"
+#include "InDetPhysHitDecoratorAlg.h"
 #include "InDetRttPlots.h"
 #include "InDetPerfPlot_nTracks.h"
 #include "AthTruthSelectionTool.h"
 #include "CachedGetAssocTruth.h"
+
+#include "safeDecorator.h"
 // #include "TrackTruthLookup.h"
 //
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
@@ -20,17 +22,13 @@
 #include "xAODTracking/TrackStateValidationContainer.h"
 #include "xAODTracking/TrackStateValidation.h"
 #include "xAODTracking/TrackStateValidationContainer.h"
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
-#include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthPileupEvent.h"
-#include "xAODTruth/TruthPileupEventContainer.h"
 #include "xAODTruth/TruthPileupEventAuxContainer.h"
 
 #include "TrkTrack/TrackCollection.h"
-#include "xAODJet/JetContainer.h"
 #include "PATCore/TAccept.h"
 //
 #include <algorithm>
@@ -160,15 +158,6 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_truthCutCounters{},
   m_fillTIDEPlots(false),
   m_fillExtraTIDEPlots(false) {
-  declareProperty("TrackParticleContainerName", m_trkParticleName = "InDetTrackParticles"); // Aug 8th: switch
-                                                                                            // "InDetTrackParticles"
-                                                                                            // with
-                                                                                            // "TrackCollection_tlp5_CombinedInDetTracks"
-                                                                                            // (v1)...no tracks appeared
-  declareProperty("TruthParticleContainerName", m_truthParticleName = "TruthParticles");
-  declareProperty("VertexContainerName", m_vertexContainerName = "PrimaryVertices");
-  declareProperty("TruthVertexContainerName", m_truthVertexContainerName = "TruthVertices");
-  declareProperty("EventInfoContainerName", m_eventInfoContainerName = "EventInfo");
   declareProperty("useTrackSelection", m_useTrackSelection);
   declareProperty("useTrkSelectPV", m_TrkSelectPV);
   declareProperty("onlyInsideOutTracks", m_onlyInsideOutTracks);
@@ -176,7 +165,6 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("TruthSelectionTool", m_truthSelectionTool);
   declareProperty("FillTrackInJetPlots", m_fillTIDEPlots);
   declareProperty("FillExtraTrackInJetPlots", m_fillExtraTIDEPlots);
-  declareProperty("jetContainerName", m_jetContainerName = "AntiKt4TruthJets");
   declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
   declareProperty("DirName", m_dirName = "IDPerformanceMon/");
   declareProperty("SubFolder", m_folder);
@@ -193,18 +181,36 @@ InDetPhysValMonitoringTool::initialize() {
   // Get the track selector tool only if m_useTrackSelection is true;
   // first check for consistency i.e. that there is a trackSelectionTool if you ask
   // for trackSelection
-  if (m_useTrackSelection) {
-    ATH_CHECK(m_trackSelectionTool.retrieve());
-    if (not m_trackSelectionTool) {
-      ATH_MSG_ERROR(
-        "\033[1;31mYou have chosen to use track selection, but no track selection tool was configured\033[0m\n");
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK(m_trackSelectionTool.retrieve(EnableTool {m_useTrackSelection} ));
+  ATH_CHECK(m_truthSelectionTool.retrieve(EnableTool {not m_truthParticleName.key().empty()} ));
+  if (m_truthSelectionTool.get() ) {
+    m_truthCutCounters = m_truthSelectionTool->counters();
   }
-  ATH_CHECK(m_truthSelectionTool.retrieve());
-  m_truthCutCounters = m_truthSelectionTool->counters();
   m_monPlots = std::move(std::unique_ptr<InDetRttPlots> (new InDetRttPlots(0, m_dirName + m_folder)));
   m_monPlots->SetFillExtraTIDEPlots(m_fillExtraTIDEPlots);
+
+  ATH_CHECK( m_trkParticleName.initialize() );
+  ATH_CHECK( m_truthParticleName.initialize(m_pileupSwitch == "All" and not m_truthParticleName.key().empty() ) );
+  ATH_CHECK( m_vertexContainerName.initialize() );
+  ATH_CHECK( m_truthVertexContainerName.initialize( not m_truthVertexContainerName.key().empty() ) );
+  ATH_CHECK( m_eventInfoContainerName.initialize() );
+
+  ATH_CHECK( m_truthEventKey.initialize( m_pileupSwitch == "HardScatter" and not m_truthEventKey.key().empty()) );
+  ATH_CHECK( m_truthPileUpeEventKey.initialize( m_pileupSwitch == "PileUp" and not m_truthPileUpeEventKey.key().empty() ) );
+  ATH_CHECK( m_jetContainerName.initialize( not m_jetContainerName.key().empty()) );
+
+  std::vector<std::string> required_float_track_decorations {"d0","hitResiduals_residualLocX","d0err"};
+  std::vector<std::string> required_int_track_decorations {};
+  std::vector<std::string> required_float_truth_decorations {"d0"};
+  std::vector<std::string> required_int_truth_decorations {};
+
+  std::string empty_prefix;
+  IDPVM::addReadDecoratorHandleKeys(*this, m_trkParticleName, empty_prefix, required_float_track_decorations, m_floatTrkDecor);
+  IDPVM::addReadDecoratorHandleKeys(*this, m_trkParticleName, empty_prefix, required_int_truth_decorations,   m_intTrkDecor);
+  if (!m_truthParticleName.key().empty()) {
+    IDPVM::addReadDecoratorHandleKeys(*this, m_truthParticleName, empty_prefix, required_float_truth_decorations, m_floatTruthDecor);
+    IDPVM::addReadDecoratorHandleKeys(*this, m_truthParticleName, empty_prefix, required_int_truth_decorations,   m_intTruthDecor);
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -215,8 +221,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
   const char* debugBacktracking = std::getenv("BACKTRACKDEBUG");
 
   // retrieve trackParticle container
-  const auto ptracks = getContainer<xAOD::TrackParticleContainer>(m_trkParticleName);
-  if (not ptracks) {
+  SG::ReadHandle<xAOD::TrackParticleContainer> ptracks(m_trkParticleName);
+  if (not ptracks.isValid()) {
     return StatusCode::FAILURE;
   }
   if(debugBacktracking){
@@ -231,20 +237,17 @@ InDetPhysValMonitoringTool::fillHistograms() {
   //
   bool incFake = false;
   int nMuEvents = 0;
-  const xAOD::TruthPileupEventContainer* truthPileupEventContainer = 0;
+  SG::ReadHandle<xAOD::TruthPileupEventContainer> truthPileupEventContainer;
   if (incFake) {
     ATH_MSG_VERBOSE("getting TruthPileupEvents container");
-    const char* truthPUEventCollName =
-      evtStore()->contains<xAOD::TruthPileupEventContainer>("TruthPileupEvents") ? "TruthPileupEvents" :
-      "TruthPileupEvent";
-    evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
-    nMuEvents = (int) truthPileupEventContainer->size();
+    truthPileupEventContainer=SG::ReadHandle<xAOD::TruthPileupEventContainer> (m_truthPileUpeEventKey);
+    nMuEvents = truthPileupEventContainer.isValid() ?  static_cast<int>( truthPileupEventContainer->size() ) : 0;
   }
   ATH_MSG_DEBUG("Filling vertex plots");
-  const xAOD::VertexContainer* pvertex = getContainer<xAOD::VertexContainer>(m_vertexContainerName);
+  SG::ReadHandle<xAOD::VertexContainer>  pvertex(m_vertexContainerName);
   const xAOD::Vertex* pvtx = nullptr;
 
-  if (pvertex and not pvertex->empty()) {
+  if (pvertex.isValid() and not pvertex->empty()) {
     ATH_MSG_DEBUG("Number of vertices retrieved for this event " << pvertex->size());
     const auto& stdVertexContainer = pvertex->stdcont();
     // find last non-dummy vertex; note *usually* there is only one (or maybe zero)
@@ -255,27 +258,33 @@ InDetPhysValMonitoringTool::fillHistograms() {
     ATH_MSG_WARNING("Skipping vertexing plots.");
   }
   ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
-  const xAOD::EventInfo* pei = getContainer<xAOD::EventInfo>(m_eventInfoContainerName);
-  if (pei and pvertex) {
+  SG::ReadHandle<xAOD::EventInfo> pei;
+  if (not m_eventInfoContainerName.key().empty()) {
+    pei=SG::ReadHandle<xAOD::EventInfo>(m_eventInfoContainerName);
+  }
+  if (pei.isValid() and pvertex.isValid()) {
     m_monPlots->fill(*pvertex, *pei);
   } else {
     ATH_MSG_WARNING("Skipping vertexing plots using EventInfo.");
   }
 
   // get truth vertex container name - m_truthVertexContainerName
-  const xAOD::TruthVertexContainer* truthVrt = getContainer<xAOD::TruthVertexContainer>(m_truthVertexContainerName);
+  SG::ReadHandle<xAOD::TruthVertexContainer> truthVrt;
   const xAOD::TruthVertex* truthVertex = 0;
-  if (truthVrt) {
-    if (!m_TrkSelectPV) {
-      ATH_MSG_VERBOSE("size of TruthVertex container = " << truthVrt->size());
+  if (not m_truthVertexContainerName.key().empty()) {
+    truthVrt = SG::ReadHandle<xAOD::TruthVertexContainer>( m_truthVertexContainerName );
+    if (truthVrt.isValid()) {
+      if (!m_TrkSelectPV) {
+        ATH_MSG_VERBOSE("size of TruthVertex container = " << truthVrt->size());
+      }
+      const auto& stdVertexContainer = truthVrt->stdcont();
+      auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), acceptTruthVertex);
+      truthVertex = (findVtx == stdVertexContainer.rend()) ? nullptr : *findVtx;
+    } else {
+      ATH_MSG_WARNING("Cannot open " << m_truthVertexContainerName.key() << " truth vertex container");
     }
-    const auto& stdVertexContainer = truthVrt->stdcont();
-    auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), acceptTruthVertex);
-    truthVertex = (findVtx == stdVertexContainer.rend()) ? nullptr : *findVtx;
-  } else {
-    ATH_MSG_WARNING("Cannot open " << m_truthVertexContainerName << " truth vertex container");
+    if (not truthVertex) ATH_MSG_INFO ("Truth vertex did not pass cuts");
   }
-  if (not truthVertex) ATH_MSG_INFO ("Truth vertex did not pass cuts");
   unsigned int num_truth_selected(0), nSelectedTracks(0), num_truthmatch_match(0);
   // the truth matching probability must not be <= 0., otherwise the tool will seg fault in case of missing truth (e.g.
   // data):
@@ -297,7 +306,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   std::vector<int> incTrkNum = {
     0, 0, 0
   };
-  m_truthSelectionTool->clearCounters();
+  if (m_truthSelectionTool.get()) { m_truthSelectionTool->clearCounters(); }
 
   // dummy variables
   int base(0), hasTruth(0), hashighprob(0), passtruthsel(0);
@@ -368,6 +377,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       if (prob > minProbEffLow) {
         hashighprob += 1;
       }
+      // if there is associated truth also a truth selection tool was retrieved.
       if (m_truthSelectionTool->accept(associatedTruth)) {
         passtruthsel += 1;
       }
@@ -379,12 +389,14 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
     m_monPlots->fillLinkedandUnlinked(*thisTrack, Prim_w, Sec_w, Unlinked_w);
   }
-  ATH_MSG_DEBUG(m_truthSelectionTool->str());
-  const auto& tmp = m_truthSelectionTool->counters(); // get array of counters for the cuts
+  if (m_truthSelectionTool.get()) {
+     ATH_MSG_DEBUG(m_truthSelectionTool->str());
+     const auto& tmp = m_truthSelectionTool->counters(); // get array of counters for the cuts
 
-  unsigned idx(0);
-  for (auto& i:m_truthCutCounters) {
-    i += tmp[idx++]; // i=sum of all the individual counters on each cut.
+     unsigned idx(0);
+     for (auto& i:m_truthCutCounters) {
+        i += tmp[idx++]; // i=sum of all the individual counters on each cut.
+     }
   }
   int nTruths(0), nInsideOut(0), nOutsideIn(0);
   std::vector<int> incTrkDenom = {
@@ -430,6 +442,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
       }
     }
 
+    // if the vector of truth particles is not empty also a truthSelectionTool was retrieved
     const bool accept = m_truthSelectionTool->accept(thisTruth);
     if (accept) {
       ++m_truthCounter;     // total number of truth tracks which pass cuts
@@ -614,7 +627,9 @@ InDetPhysValMonitoringTool::fillHistograms() {
   }
 
   if (num_truthmatch_match == 0) {
-    ATH_MSG_INFO("NO TRACKS had associated truth.");
+    if (not m_truthParticleName.key().empty()) {
+      ATH_MSG_INFO("NO TRACKS had associated truth.");
+    }
   } else {
     ATH_MSG_DEBUG(num_truthmatch_match << " tracks out of " << ptracks->size() << " had associated truth.");
   }
@@ -624,8 +639,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
   m_monPlots->fillCounter(truthParticlesVec.size(), InDetPerfPlot_nTracks::TRUTH);
   m_monPlots->fillCounter(num_truthmatch_match, InDetPerfPlot_nTracks::TRUTH_MATCHED);
   // Tracking In Dense Environment
-  if (m_fillTIDEPlots && !m_jetContainerName.empty()) {
-    return doJetPlots(ptracks, getAsTruth, pvtx);
+  if (m_fillTIDEPlots && !m_jetContainerName.key().empty()) {
+    return doJetPlots(ptracks.cptr(), getAsTruth, pvtx, truthParticlesVec);
   }     // if TIDE
   // ATH_MSG_INFO(getTruth.report());
   return StatusCode::SUCCESS;
@@ -685,8 +700,10 @@ InDetPhysValMonitoringTool::procHistograms() {
   ATH_MSG_INFO("");
   ATH_MSG_INFO("Cutflow for truth tracks:");
   unsigned int idx(0);
-  for (const auto& cutName:m_truthSelectionTool->names()) {
-    ATH_MSG_INFO("number after " << cutName << ": " << m_truthCutCounters[idx++]);
+  if (m_truthSelectionTool.get()) {
+     for (const auto& cutName:m_truthSelectionTool->names()) {
+        ATH_MSG_INFO("number after " << cutName << ": " << m_truthCutCounters[idx++]);
+     }
   }
   if (endOfRunFlag()) {
     m_monPlots->finalize();
@@ -699,24 +716,21 @@ const std::vector<const xAOD::TruthParticle*>
 InDetPhysValMonitoringTool::getTruthParticles() {
   // truthParticles.clear();
   std::vector<const xAOD::TruthParticle*> tempVec {};
-  if (m_truthParticleName.empty()) {
+  if (m_truthParticleName.key().empty()) {
     return tempVec;
   }
   if (m_pileupSwitch == "All") {
-    const xAOD::TruthParticleContainer* truthParticleContainer =
-      (!m_truthParticleName.empty() ? getContainer<xAOD::TruthParticleContainer>(m_truthParticleName) : nullptr);
-    if (not truthParticleContainer) {
+    SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainer( m_truthParticleName);
+    if (not truthParticleContainer.isValid()) {
       return tempVec;
     }
     tempVec.insert(tempVec.begin(), truthParticleContainer->begin(), truthParticleContainer->end());
   } else {
     if (m_pileupSwitch == "HardScatter") {
       // get truthevent container to separate out pileup and hardscatter truth particles
-      const xAOD::TruthEventContainer* truthEventContainer = nullptr;
-      const std::string truthEventCollName =
-        evtStore()->contains<xAOD::TruthEventContainer>("TruthEvents") ? "TruthEvents" : "TruthEvent";
-      evtStore()->retrieve(truthEventContainer, truthEventCollName);
-      const xAOD::TruthEvent* event = (truthEventContainer) ? truthEventContainer->at(0) : nullptr;
+      if (not m_truthEventKey.key().empty()) {
+      SG::ReadHandle<xAOD::TruthEventContainer> truthEventContainer( m_truthEventKey);
+      const xAOD::TruthEvent* event = (truthEventContainer.isValid()) ? truthEventContainer->at(0) : nullptr;
       if (not event) {
         return tempVec;
       }
@@ -725,15 +739,13 @@ InDetPhysValMonitoringTool::getTruthParticles() {
       for (const auto& link : links) {
         tempVec.push_back(*link);
       }
+      }
     } else if (m_pileupSwitch == "PileUp") {
+      if (not m_truthPileUpeEventKey.key().empty()) {
       ATH_MSG_VERBOSE("getting TruthPileupEvents container");
       // get truth particles from all pileup events
-      const xAOD::TruthPileupEventContainer* truthPileupEventContainer = nullptr;
-      const std::string truthPUEventCollName =
-        evtStore()->contains<xAOD::TruthPileupEventContainer>("TruthPileupEvents") ? "TruthPileupEvents" :
-        "TruthPileupEvent";
-      evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
-      if (truthPileupEventContainer) {
+      SG::ReadHandle<xAOD::TruthPileupEventContainer> truthPileupEventContainer(m_truthPileUpeEventKey);
+      if (truthPileupEventContainer.isValid()) {
         const unsigned int nPileup = truthPileupEventContainer->size();
         tempVec.reserve(nPileup * 200); // quick initial guess, will still save some time
         for (unsigned int i(0); i != nPileup; ++i) {
@@ -748,6 +760,7 @@ InDetPhysValMonitoringTool::getTruthParticles() {
         }
       } else {
         ATH_MSG_ERROR("no entries in TruthPileupEvents container!");
+      }
       }
     } else {
       ATH_MSG_ERROR("bad value for PileUpSwitch");
@@ -793,12 +806,12 @@ InDetPhysValMonitoringTool::fillCutFlow(Root::TAccept& accept, std::vector<std::
 StatusCode
 InDetPhysValMonitoringTool::doJetPlots(const xAOD::TrackParticleContainer* ptracks,
                                        IDPVM::CachedGetAssocTruth& getAsTruth,
-                                       const xAOD::Vertex* primaryVtx) {
-  const xAOD::JetContainer* jets = getContainer<xAOD::JetContainer>(m_jetContainerName);
-  const xAOD::TruthParticleContainer* truthParticles = getContainer<xAOD::TruthParticleContainer>("TruthParticles");
+                                       const xAOD::Vertex* primaryVtx, 
+                                       const std::vector<const xAOD::TruthParticle*> &truthParticles) {
+  SG::ReadHandle<xAOD::JetContainer> jets(m_jetContainerName);
   const float minProbEffHigh = 0.5;
 
-  if (!jets || !truthParticles) {
+  if (not jets.isValid() or not truthParticles.empty()) {
     ATH_MSG_WARNING(
       "Cannot open " << m_jetContainerName <<
         " jet container or TruthParticles truth particle container. Skipping jet plots.");
@@ -847,7 +860,7 @@ InDetPhysValMonitoringTool::doJetPlots(const xAOD::TrackParticleContainer* ptrac
       } // end of track loop
         // fill in things like sum jet pT in dR bins - need all tracks in the jet first
       m_monPlots->fillJetPlotCounter(*thisJet);
-      for (const auto& thisTruth: *truthParticles) {
+      for (const auto& thisTruth: truthParticles) {
         // for primary tracks we want an efficiency as a function of track jet dR
         if ((m_truthSelectionTool->accept(thisTruth) and(thisJet->p4().DeltaR(thisTruth->p4()) < m_maxTrkJetDR))) {
           m_monPlots->fillJetTrkTruth(*thisTruth, *thisJet);

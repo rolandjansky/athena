@@ -23,9 +23,10 @@ typedef  TRT_BSIdErrContainer_p1  TRT_BSIdErrContainer_PERS;
 typedef  T_AthenaPoolCustomCnv<TRT_BSIdErrContainer, TRT_BSIdErrContainer_PERS >   TRT_BSIdErrContainerCnvBase;
 
 class TRT_BSIdErrContainerCnv : public TRT_BSIdErrContainerCnvBase {
-friend class CnvFactory<TRT_BSIdErrContainerCnv >;
-protected:
+public:
   TRT_BSIdErrContainerCnv (ISvcLocator* svcloc) : TRT_BSIdErrContainerCnvBase(svcloc) {}
+  
+protected:
   virtual TRT_BSIdErrContainer_PERS*   createPersistent (TRT_BSIdErrContainer* transCont);
   virtual TRT_BSIdErrContainer*       createTransient ();
 

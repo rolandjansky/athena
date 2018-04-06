@@ -32,7 +32,6 @@
  **/
 
 class AtlasIDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<AtlasIDDetDescrCnv>;
 
 public:
     virtual long int   repSvcType() const;
@@ -44,7 +43,6 @@ public:
     static long int    storageType();
     static const CLID& classID();
 
-protected:
     AtlasIDDetDescrCnv(ISvcLocator* svcloc);
 };
 

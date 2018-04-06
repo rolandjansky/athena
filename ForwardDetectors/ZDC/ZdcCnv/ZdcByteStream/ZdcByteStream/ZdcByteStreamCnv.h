@@ -50,12 +50,9 @@ extern long ByteStream_StorageType;
  */
 class ZdcByteStreamCnv: public Converter
 {
-	friend class CnvFactory<ZdcByteStreamCnv> ;
-
-protected:
+public:
 	ZdcByteStreamCnv(ISvcLocator* svcloc);
 
-public:
 	virtual ~ZdcByteStreamCnv();
 
 	virtual StatusCode initialize();

@@ -24,9 +24,18 @@
 #include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
+#include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
+typedef  InDetRawDataCollection<TRT_RDORawData> TRT_RDO_Collection;
+
 
 class StoreGateSvc;
 class SCT_ID;
+class TRT_ID;
+class IAtRndmGenSvc;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class InDetOverlay : public IDC_OverlayBase {
 public:
@@ -45,11 +54,25 @@ public:
   enum SCT_numbers {NextBC=0, CurrentBC=1, PreviousBC=2, AnyBC=3, NumberOfBCs=3, NumberOfBitSets=4,
                     NumberOfStrips=768,
                     MCSource=0, DataSource=1, NumberOfSources=2};
+private:
+
+ 
+  void overlayTRTContainers(const TRT_RDO_Container *pileupContainer,
+                            const TRT_RDO_Container *signalContainer,
+                            TRT_RDO_Container *outputContainer,
+                            std::map<int,double>&  occupancyMap);
+
+
+  void mergeTRTCollections(TRT_RDO_Collection *mc_coll, 
+                           TRT_RDO_Collection *data_coll, 
+                           TRT_RDO_Collection *out_coll, 
+                           double occupancy);
 
 private:
 
   ServiceHandle<StoreGateSvc> m_detStore;
   const SCT_ID *m_sct_id;
+  const TRT_ID *m_trt_id;
 
   // ----------------------------------------------------------------
   //! jO controllable properties.
@@ -69,6 +92,15 @@ private:
   SG::ReadHandleKey<PixelRDO_Container> m_mainInputPixelKey;
   SG::ReadHandleKey<PixelRDO_Container> m_overlayInputPixelKey;
   SG::WriteHandleKey<PixelRDO_Container> m_mainOutputPixelKey;
+  
+  // Following tools, services and configurables are there only for the correct of HT hits
+  ServiceHandle <IAtRndmGenSvc> m_rndmSvc;
+  std::string                   m_rndmEngineName;
+  CLHEP::HepRandomEngine *      m_rndmEngine;
+  
+  double                                      m_HTOccupancyCorrectionB;
+  double                                      m_HTOccupancyCorrectionEC;
+  ToolHandle< InDet::ITRT_LocalOccupancy >    m_TRT_LocalOccupancyTool; 
 };
 
 #endif/*INDETOVERLAY_H*/

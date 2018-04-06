@@ -26,8 +26,6 @@ template <class TYPE> class CnvFactory;
  *
  **/
 class AthenaAttributeListCnv : public Converter {
-   friend class CnvFactory<AthenaAttributeListCnv>;
-
 public:
    /// Destructor
    virtual ~AthenaAttributeListCnv();
@@ -53,7 +51,6 @@ public:
    /// @return class ID.
    static const CLID& classID();
 
-protected:
    /// Constructor
    AthenaAttributeListCnv(ISvcLocator* svcloc);
 };

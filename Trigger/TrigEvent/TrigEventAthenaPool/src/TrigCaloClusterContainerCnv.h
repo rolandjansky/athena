@@ -23,7 +23,9 @@ class TrigCaloClusterContainerCnv : public TrigCaloClusterContainerCnvBase
  
   protected:
    
+public:
   TrigCaloClusterContainerCnv( ISvcLocator *svcloc ): TrigCaloClusterContainerCnvBase(svcloc){}
+protected:
  
    
    virtual TrigCaloClusterContainer_PERS *createPersistent( TrigCaloClusterContainer *transObj);

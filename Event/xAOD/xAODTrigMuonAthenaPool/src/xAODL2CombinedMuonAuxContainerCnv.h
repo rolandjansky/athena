@@ -23,13 +23,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::L2CombinedMuonAuxContainer,
 class xAODL2CombinedMuonAuxContainerCnv :
    public xAODL2CombinedMuonAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODL2CombinedMuonAuxContainerCnv >;
-
-protected:
+public:
    /// Converter constructor
    xAODL2CombinedMuonAuxContainerCnv( ISvcLocator* svcLoc );
 
+protected:
    /// Function preparing the container to be written out
    virtual xAOD::L2CombinedMuonAuxContainer*
    createPersistent( xAOD::L2CombinedMuonAuxContainer* trans );

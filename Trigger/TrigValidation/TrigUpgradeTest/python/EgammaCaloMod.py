@@ -1,5 +1,6 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaCommon.CFElements import parOR, seqOR, seqAND
+from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import *
 
 def EgammaCaloMod( flags ):
     from AthenaCommon.Constants import DEBUG
@@ -56,8 +57,7 @@ def EgammaCaloMod( flags ):
     accessTool.ApplyOffsetCorrection=False
     acc.addAlgTool( accessTool )
 
-    # the tools should becone private at soem point
-    from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import *
+    # the tools should becone private at some point
     ringer = RingerFexConfig("RingsMaker")
     ringer.RingsKey="CaloRings"
     tools = [ EgammaSamp2FexNoTimerConfig("FaAlgoSamp2FexConfig"),

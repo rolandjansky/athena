@@ -32,7 +32,6 @@
  **/
 
 class TileHWIDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<TileHWIDDetDescrCnv>;
 
 public:
     virtual StatusCode initialize();
@@ -44,7 +43,6 @@ public:
     static long storageType();
     static const CLID& classID();
 
-protected:
     TileHWIDDetDescrCnv(ISvcLocator* svcloc);
 };
 

@@ -3,7 +3,6 @@
 */
 
 #include "LArCalibTest/LArCablingChecker.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "LArRawEvent/LArDigit.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "LArRawConditions/LArCalibParams.h"

@@ -20,7 +20,6 @@
 // Gaudi includes
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
-#include "GaudiKernel/ToolFactory.h"
 
 // Athena includes
 #include "StoreGate/StoreGate.h"

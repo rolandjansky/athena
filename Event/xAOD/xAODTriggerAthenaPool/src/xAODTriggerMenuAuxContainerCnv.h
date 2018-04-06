@@ -41,7 +41,9 @@ class xAODTriggerMenuAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODTriggerMenuAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::TriggerMenuAuxContainer*

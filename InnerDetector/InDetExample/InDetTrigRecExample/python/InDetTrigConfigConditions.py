@@ -42,7 +42,10 @@ class PixelConditionsServicesSetup:
   def createSvc(self):
     from AthenaCommon.AppMgr import ToolSvc,ServiceMgr,theApp
     from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
 
+    #Retire service later
     from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc as pixSummarySvc
     PixelConditionsSummarySvc = \
         pixSummarySvc(name=self.instanceName('PixelConditionsSummarySvc'),
@@ -60,6 +63,26 @@ class PixelConditionsServicesSetup:
     ServiceMgr += PixelConditionsSummarySvc
 
     if self._print: print PixelConditionsSummarySvc
+
+    from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool as pixSummaryTool
+    PixelConditionsSummaryTool = \
+        pixSummaryTool(name=self.instanceName('PixelConditionsSummaryTool'),
+                      UseDCS = self.useDCS,
+                      UseByteStream=self.useBS,
+                      #UseSpecialPixelMap= not self.onlineMode,
+                      UseSpecialPixelMap=True,
+                      UseTDAQ=self.useTDAQ
+                      )
+    #active states used by dcs (if on)
+    if self.useDCS and not self.onlineMode:
+      PixelConditionsSummaryTool.IsActiveStates = [ 'READY', 'ON' ]
+      PixelConditionsSummaryTool.IsActiveStatus = [ 'OK', 'WARNING' ]
+
+    ToolSvc += PixelConditionsSummaryTool
+
+    if self._print: print PixelConditionsSummaryTool
+    
+
 
     # #create another instance of the PixelConditionsSummarySvc w/o BS
     # #   service to be used with RegionSelector
@@ -110,21 +133,21 @@ class PixelConditionsServicesSetup:
 
     ### configure the special pixel map service
     if not (conddb.folderRequested("/PIXEL/PixMapShort") or conddb.folderRequested("/PIXEL/Onl/PixMapShort")):
-      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapShort","/PIXEL/PixMapShort") 
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapShort","/PIXEL/PixMapShort", className='CondAttrListCollection') 
     if not (conddb.folderRequested("/PIXEL/PixMapLong") or conddb.folderRequested("/PIXEL/Onl/PixMapLong")):
-      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapLong","/PIXEL/PixMapLong")
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapLong","/PIXEL/PixMapLong", className='CondAttrListCollection')
     if not (conddb.folderRequested("/PIXEL/NoiseMapShort") or conddb.folderRequested("/PIXEL/Onl/NoiseMapShort")):      
-      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/NoiseMapShort","/PIXEL/NoiseMapShort")
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/NoiseMapShort","/PIXEL/NoiseMapShort", className='CondAttrListCollection')
     if not (conddb.folderRequested("/PIXEL/NoiseMapLong") or conddb.folderRequested("/PIXEL/Onl/NoiseMapLong")):      
-      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/NoiseMapLong","/PIXEL/NoiseMapLong")
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/NoiseMapLong","/PIXEL/NoiseMapLong", className='CondAttrListCollection')
     if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay")
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
     from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc
 
     SpecialPixelMapSvc = SpecialPixelMapSvc(name='SpecialPixelMapSvc')
     ServiceMgr += SpecialPixelMapSvc
-  
+    SpecialPixelMapSvc.RegisterCallback = False;
     SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" ]
     SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong" ]
   
@@ -133,9 +156,18 @@ class PixelConditionsServicesSetup:
   
     SpecialPixelMapSvc.OverlayKey = "PixMapOverlay"
     SpecialPixelMapSvc.OverlayFolder = "/PIXEL/PixMapOverlay"
-
-  
     ServiceMgr += SpecialPixelMapSvc
+
+    #Alg is suppose to replace service, sync withh service for now
+#   SpecialPixelMapCondAlg conflicts with InDetPixelConditionsSummarySvc
+#    from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
+#    SpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="SpecialPixelMapCondAlg",
+#            DBFolders  = SpecialPixelMapSvc.DBFolders,
+#            SpecialPixelMapKeys = SpecialPixelMapSvc.SpecialPixelMapKeys ,
+#            OverlayFolder       = SpecialPixelMapSvc.OverlayFolder,
+#            OverlayKey          = SpecialPixelMapSvc.OverlayKey)
+#    condSeq += SpecialPixelMapCondAlg
+
     #theApp.CreateSvc += [ 'SpecialPixelMapSvc/%s' % self.instanceName('SpecialPixelMapSvc') ]
 
     

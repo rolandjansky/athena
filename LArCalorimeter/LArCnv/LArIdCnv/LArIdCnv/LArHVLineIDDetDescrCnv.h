@@ -34,7 +34,6 @@
  **/
 
 class LArHVLineIDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<LArHVLineIDDetDescrCnv>;
 
 public:
     virtual long int   repSvcType() const;
@@ -46,7 +45,6 @@ public:
     static long  storageType();
     static const CLID& classID();
 
-protected:
     LArHVLineIDDetDescrCnv(ISvcLocator* svcloc);
 };
 

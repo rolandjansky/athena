@@ -26,7 +26,9 @@ class EventShapeStoreCnv : public EventShapeStoreCnvBase
   
  protected:
 
+public:
   EventShapeStoreCnv (ISvcLocator* svcloc) : EventShapeStoreCnvBase(svcloc) {};
+protected:
   virtual EventShapeStore_PERS*   createPersistent (EventShapeStore* transObj);
   virtual EventShapeStore*        createTransient ();
   

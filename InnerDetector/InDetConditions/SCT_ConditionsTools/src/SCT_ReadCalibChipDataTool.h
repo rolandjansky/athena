@@ -22,7 +22,7 @@
 
 // Include Athena stuff 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 #include "SCT_ConditionsData/SCT_GainCalibData.h"
 #include "SCT_ConditionsData/SCT_NoiseCalibData.h"
 

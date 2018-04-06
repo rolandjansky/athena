@@ -27,15 +27,11 @@ extern long ByteStream_StorageType;
 // the converter for writing BS from TRT Raw Data
 
 class TRTRawContByteStreamCnv: public Converter {
-  friend class CnvFactory<TRTRawContByteStreamCnv>;
-  
   ~TRTRawContByteStreamCnv( );
-
- protected:
-
-  TRTRawContByteStreamCnv(ISvcLocator* svcloc);
   
  public:
+  TRTRawContByteStreamCnv(ISvcLocator* svcloc);
+
   typedef TRT_RDO_Container       TRTRawContainer; 
 
   //! Storage type and class ID

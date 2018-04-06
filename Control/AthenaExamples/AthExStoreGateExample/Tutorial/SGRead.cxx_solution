@@ -4,7 +4,6 @@
 #include "LinkObj.h"
 #include "Tutorial_ClassDEF.h"
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
 
 #include "StoreGate/DataLink.h"

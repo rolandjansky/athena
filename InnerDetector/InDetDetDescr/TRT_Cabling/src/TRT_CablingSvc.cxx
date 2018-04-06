@@ -7,7 +7,6 @@
 //
 
 //#include <iostream>
-#include "GaudiKernel/ToolFactory.h"
 #include "TRT_CablingSvc.h"
 //#include <fstream>
 

@@ -25,7 +25,9 @@ class ALFA_ODHitCollectionCnv : public T_AthenaPoolCustomCnv <ALFA_ODHitCollecti
  
  protected: 
   
+public:
   ALFA_ODHitCollectionCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <ALFA_ODHitCollection, ALFA_ODHitCollection_PERS >(svcloc) {} 
+protected:
 
   ALFA_ODHitCollection_PERS*  createPersistent (ALFA_ODHitCollection *transCont);
   ALFA_ODHitCollection*       createTransient ();

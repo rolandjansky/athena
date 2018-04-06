@@ -12,7 +12,6 @@
 // 2007- : Algorithm fully rewritten and optimized by B.Trocme
 // ********************************************************************
 
-//#include "GaudiKernel/AlgFactory.h"
 //#include "GaudiKernel/SmartDataPtr.h"
 //#include "GaudiKernel/IToolSvc.h"
 

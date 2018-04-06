@@ -41,7 +41,9 @@ typedef T_AthenaPoolCustomCnv<IsoMuonFeature, IsoMuonFeature_PERS>
  friend class CnvFactory<IsoMuonFeatureCnv>;
  
  protected:
+public:
  IsoMuonFeatureCnv( ISvcLocator *svcloc );
+protected:
  ~IsoMuonFeatureCnv();
     
    virtual IsoMuonFeature_PERS* createPersistent( IsoMuonFeature *transObj);

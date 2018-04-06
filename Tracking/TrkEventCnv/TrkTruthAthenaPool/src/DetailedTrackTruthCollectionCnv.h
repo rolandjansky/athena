@@ -23,7 +23,9 @@ class DetailedTrackTruthCollectionCnv : public DetailedTrackTruthCollectionCnvBa
 {
   friend class CnvFactory<DetailedTrackTruthCollectionCnv>;
 protected:
+public:
    DetailedTrackTruthCollectionCnv(ISvcLocator* svcloc);
+protected:
   virtual DetailedTrackTruthCollection* createTransient();
   virtual DetailedTrackTruthCollectionPERS* createPersistent(DetailedTrackTruthCollection*);
 private:

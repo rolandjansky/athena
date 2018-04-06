@@ -3,7 +3,6 @@
 */
 
 
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ThreadGaudi.h"
 

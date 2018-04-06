@@ -17,7 +17,9 @@ typedef LArHitContainer_p2  LArHitContainer_PERS;
 class LArHitContainerCnv  : public T_AthenaPoolCustomCnv<LArHitContainer, LArHitContainer_PERS > {
   friend class CnvFactory<LArHitContainerCnv>;
 protected:
+public:
   LArHitContainerCnv(ISvcLocator* svcloc) :  T_AthenaPoolCustomCnv<LArHitContainer, LArHitContainer_PERS >( svcloc) {}
+protected:
   LArHitContainer_PERS*  createPersistent(LArHitContainer* transCont);
   LArHitContainer*       createTransient ();
 };

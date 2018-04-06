@@ -46,7 +46,9 @@ class xAODJetRoIAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODJetRoIAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::JetRoIAuxContainer*

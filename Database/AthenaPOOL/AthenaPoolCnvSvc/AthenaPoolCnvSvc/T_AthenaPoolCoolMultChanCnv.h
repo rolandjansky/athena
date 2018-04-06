@@ -33,12 +33,12 @@ template <class TYPE> class CnvFactory;
  **/
 template <class COLL_T, class ELEM_T, class ELEM_P = ELEM_T>
 class T_AthenaPoolCoolMultChanCnv : public T_AthenaPoolCustCnv<COLL_T, ELEM_T> {
-   friend class CnvFactory<T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T> >;
 
-protected:
+public:
     /// Constructor
     T_AthenaPoolCoolMultChanCnv(ISvcLocator* svcloc);
 
+protected:
     /// Create a transient object from a POOL persistent representation.
     /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.
     /// @param pObj [OUT] pointer to the transient object.

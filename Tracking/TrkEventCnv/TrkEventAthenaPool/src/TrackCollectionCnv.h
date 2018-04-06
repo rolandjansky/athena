@@ -49,8 +49,10 @@ class TrackCollectionCnv
 {
 friend class CnvFactory<TrackCollectionCnv>;
 
-protected:
+public:
   TrackCollectionCnv( ISvcLocator *svcloc );
+
+protected:
   ~TrackCollectionCnv();
   virtual StatusCode initialize();
 

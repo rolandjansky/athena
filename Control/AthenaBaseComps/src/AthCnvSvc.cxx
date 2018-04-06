@@ -13,8 +13,6 @@
 
 // Framework includes
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/SvcFactory.h"
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/IConverter.h"

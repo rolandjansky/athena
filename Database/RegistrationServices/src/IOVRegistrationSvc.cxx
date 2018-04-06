@@ -17,7 +17,7 @@
 
 #include "IOVRegistrationSvc.h"
 
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 // Athena includes
 #include "StoreGate/StoreGate.h"

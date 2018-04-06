@@ -5,7 +5,6 @@
 #include "AGDD2GeoSvc/AGDD2GeoSvc.h"
 #include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/SvcFactory.h"
 
 #include "AGDDControl/IAGDDToolBase.h"
 #include "AGDDControl/AGDDTokenizer.h"

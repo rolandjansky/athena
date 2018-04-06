@@ -12,7 +12,7 @@ namespace HLTTest {
 
   TestHypoAlg::~TestHypoAlg() {}
   
-  StatusCode TestHypoAlg::subInitialize() {
+  StatusCode TestHypoAlg::initialize() {
     ATH_MSG_INFO ("Initializing " << name() << "...");
     ATH_MSG_DEBUG("Link name is "<<m_linkName.value());
     CHECK( m_recoInput.initialize() );

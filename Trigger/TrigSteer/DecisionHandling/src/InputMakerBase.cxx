@@ -4,6 +4,11 @@
 
 #include "DecisionHandling/InputMakerBase.h"
 
+InputMakerBase::InputMakerBase( const std::string& name, ISvcLocator* pSvcLocator )
+  : ::AthReentrantAlgorithm( name, pSvcLocator ) {}
+
+InputMakerBase::~InputMakerBase() {}
+
 const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMakerBase::decisionInputs() const{
   return m_inputs;
 }
@@ -12,9 +17,10 @@ const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& InputMaker
   return m_outputs;
 }
 
-StatusCode InputMakerBase::initialize() {
+StatusCode InputMakerBase::sysInitialize() {
+  CHECK( AthReentrantAlgorithm::sysInitialize() ); // initialise base class
   CHECK( m_inputs.initialize() );
-  renounceArray(m_inputs); // make inputs implicit, not required by scheduler
+  renounceArray(m_inputs); // make inputs implicit, i.e. not required by scheduler
   ATH_MSG_DEBUG("Will consume implicit decisions:" );
   for (auto& input: m_inputs){  
     ATH_MSG_DEBUG( " "<<input.key() );
@@ -24,7 +30,5 @@ StatusCode InputMakerBase::initialize() {
   for (auto& output: m_outputs){  
     ATH_MSG_DEBUG( " "<<output.key() );
   }
-  // initialise sub class
-  CHECK ( subInitialize() );
   return StatusCode::SUCCESS;
 }

@@ -12,7 +12,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
-// #include "GaudiKernel/AlgFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TrigDecisionTool/TrigDecisionTool.h"

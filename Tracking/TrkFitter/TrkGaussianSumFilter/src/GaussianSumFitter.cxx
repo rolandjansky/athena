@@ -38,7 +38,6 @@ decription           : Implementation code for Gaussian Sum Fitter class
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 
 #include "GaudiKernel/Chrono.h"
-#include "GaudiKernel/ToolFactory.h"
 
 #include <vector>
 

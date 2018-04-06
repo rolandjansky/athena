@@ -3,9 +3,7 @@
 from RecExConfig.Configured import Configured
 from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 
-#Kind of hack to get the MT-version of the LArCabling
-from AthenaCommon.Include import Include, IncludeError, include
-include("LArRecUtils/LArOnOffMappingAlg.py")
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
 
 class LArNoisyROSummaryGetter ( Configured )  :
     _outputType = "LArNoisyROSummary"
@@ -32,7 +30,9 @@ class LArNoisyROSummaryGetter ( Configured )  :
                 return False
             else:
                 mlog.error("CaloCellGetter unusable. Continue nevertheless")
-           
+         
+        LArOnOffIdMapping() # Set up cabling cond algo
+  
         # now configure the algorithm
         # cannot have same name
         try:        

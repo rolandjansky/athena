@@ -3,7 +3,6 @@
 */
 
 #include "TrigMuonRoITool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Result/MuCTPI_RDO.h"

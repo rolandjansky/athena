@@ -38,13 +38,8 @@ class JepByteStreamV2Tool;
 
 class JemEtSumsByteStreamAuxCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<JemEtSumsByteStreamAuxCnv>;
-
-protected:
-
-  JemEtSumsByteStreamAuxCnv(ISvcLocator* svcloc);
-
 public:
+  JemEtSumsByteStreamAuxCnv(ISvcLocator* svcloc);
 
   virtual ~JemEtSumsByteStreamAuxCnv(){};
 
