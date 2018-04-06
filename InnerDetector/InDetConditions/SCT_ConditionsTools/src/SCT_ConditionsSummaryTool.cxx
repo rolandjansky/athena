@@ -41,24 +41,6 @@ SCT_ConditionsSummaryTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-// From s.binet
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-StatusCode 
-SCT_ConditionsSummaryTool::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (IInDetConditionsTool::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<IInDetConditionsTool*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthAlgTool::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
 bool
 SCT_ConditionsSummaryTool::isActive(const Identifier& elementId, const InDetConditions::Hierarchy h) const {
   return isGood(elementId, h);

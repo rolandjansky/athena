@@ -34,10 +34,8 @@ public:
   virtual ~SCT_ConditionsSummaryTool() = default;
   //@name Gaudi STool Implementation
   //@{
-  static const InterfaceID& interfaceID();
   virtual StatusCode initialize() override;          //!< Tool init
   virtual StatusCode finalize() override;            //!< Tool finalize
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
   //@}
   
   //@name reimplemented from IInDetConditionsSvc
@@ -57,7 +55,4 @@ private:
   bool m_noReports;
 };
 
-inline const InterfaceID& SCT_ConditionsSummaryTool::interfaceID() {
-  return IInDetConditionsTool::interfaceID();
-}
 #endif // SCT_ConditionsSummaryTool_h
