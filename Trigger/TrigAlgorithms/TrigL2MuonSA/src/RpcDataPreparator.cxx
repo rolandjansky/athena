@@ -6,7 +6,6 @@
 
 #include "TrigL2MuonSA/RpcDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"

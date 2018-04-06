@@ -39,13 +39,8 @@ class CpByteStreamV2Tool;
 
 class CpReadByteStreamV1V2Cnv: public Converter {
 
-  friend class CnvFactory<CpReadByteStreamV1V2Cnv>;
-
-protected:
-
-  CpReadByteStreamV1V2Cnv(ISvcLocator* svcloc);
-
 public:
+  CpReadByteStreamV1V2Cnv(ISvcLocator* svcloc);
 
   ~CpReadByteStreamV1V2Cnv();
 

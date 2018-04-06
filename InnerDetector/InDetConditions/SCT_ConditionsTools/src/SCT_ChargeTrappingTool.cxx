@@ -143,17 +143,17 @@ bool SCT_ChargeTrappingTool::getdoCTrap(const IdentifierHash &  elementHash, con
 }
 
 
-double SCT_ChargeTrappingTool::getElectricField(const IdentifierHash &  elementHash, const double & /*pos*/)
+double SCT_ChargeTrappingTool::getElectricField(const IdentifierHash &  elementHash, const double & /*pos*/) const
 {
   return m_electricField[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingElectrons(const IdentifierHash &  elementHash, const double & /*pos*/)
+double SCT_ChargeTrappingTool::getTrappingElectrons(const IdentifierHash &  elementHash, const double & /*pos*/) const
 {
   return m_trappingElectrons[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingHoles(const IdentifierHash &  elementHash, const double & /*pos*/)
+double SCT_ChargeTrappingTool::getTrappingHoles(const IdentifierHash &  elementHash, const double & /*pos*/) const
 {
   return m_trappingHoles[elementHash];
 } 
@@ -168,27 +168,27 @@ double SCT_ChargeTrappingTool::getMeanFreePathHoles(const IdentifierHash &  elem
   return m_meanFreePathHoles[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingProbability(const IdentifierHash &  elementHash, const double & /*pos*/)
+double SCT_ChargeTrappingTool::getTrappingProbability(const IdentifierHash &  elementHash, const double & /*pos*/) const
 {
   return m_trappingProbability[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingTime(const IdentifierHash &  elementHash, const double & /*pos*/)
+double SCT_ChargeTrappingTool::getTrappingTime(const IdentifierHash &  elementHash, const double & /*pos*/) const
 {
   return m_trappingTime[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTimeToElectrode(const IdentifierHash &  elementHash, const double & /*pos*/)
+double SCT_ChargeTrappingTool::getTimeToElectrode(const IdentifierHash &  elementHash, const double & /*pos*/) const
 {
   return m_electrodeTime[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingPositionZ(const IdentifierHash &  elementHash, const double & /*pos*/)
+double SCT_ChargeTrappingTool::getTrappingPositionZ(const IdentifierHash &  elementHash, const double & /*pos*/) const
 {
   return m_trappingPosition[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getHoleDriftMobility(const IdentifierHash &  elementHash, const double & /*pos*/)
+double SCT_ChargeTrappingTool::getHoleDriftMobility(const IdentifierHash &  elementHash, const double & /*pos*/) const
 {
   return m_holeDriftMobility[elementHash];
 }

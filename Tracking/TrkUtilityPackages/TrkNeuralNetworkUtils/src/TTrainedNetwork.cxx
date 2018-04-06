@@ -23,7 +23,7 @@ TTrainedNetwork::TTrainedNetwork()
   mLinearOutput=false;
   mNormalizeOutput=false;
   maxExpValue=log(std::numeric_limits<double>::max());
-  
+  m_bufferSizeMax=0;
 }
 
 TTrainedNetwork::TTrainedNetwork(Int_t nInput, 
@@ -49,7 +49,17 @@ TTrainedNetwork::TTrainedNetwork(Int_t nInput,
   mLinearOutput = linearOutput;
   mNormalizeOutput = normalizeOutput;
   maxExpValue = log(std::numeric_limits<double>::max());
-  
+
+  int nlayer_max(mnOutput);
+  for (unsigned i = 0; i < mnHiddenLayerSize.size(); ++i) {
+     nlayer_max = std::max(nlayer_max, mnHiddenLayerSize[i]);
+  }
+  std::vector<TVectorD*>::const_iterator hidden_layer_threshold_vector_end = mThresholdVectors.end();
+  hidden_layer_threshold_vector_end--;
+  for (std::vector<TVectorD*>::const_iterator tr_itr= mThresholdVectors.begin(); tr_itr != hidden_layer_threshold_vector_end; tr_itr++){
+     nlayer_max = std::max(nlayer_max, (*tr_itr)->GetNrows());
+  }
+  m_bufferSizeMax=nlayer_max;
 }
 
 void TTrainedNetwork::setOffsets(const std::vector<double>& offsets) 

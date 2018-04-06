@@ -8,6 +8,7 @@
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/TRT_BSErrContainer.h"
 #include "InDetByteStreamErrors/TRT_BSIdErrContainer.h"
+#include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
 namespace {
   // Need this to create the dict entries

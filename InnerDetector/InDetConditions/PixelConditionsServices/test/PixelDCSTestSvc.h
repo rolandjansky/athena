@@ -20,9 +20,10 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class IPixelDCSSvc;
-class PixelConditionsSummarySvc;
+class PixelConditionsSummaryTool;
 class PixelID;
 namespace InDetDD{ 
   class PixelDetectorManager; 
@@ -47,7 +48,7 @@ class PixelDCSTestSvc: public AthAlgorithm{
 
 
   ServiceHandle< IPixelDCSSvc > m_pixelDCSSvc;
-  ServiceHandle< PixelConditionsSummarySvc > m_pixelSvc;
+  ToolHandle< PixelConditionsSummaryTool > m_pixelSvc;
 
 };
 

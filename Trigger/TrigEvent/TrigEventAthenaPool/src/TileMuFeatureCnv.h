@@ -35,7 +35,9 @@ class TileMuFeatureCnv : public TileMuFeatureCnvBase {
   friend class CnvFactory<TileMuFeatureCnv>;
 
  protected:
+public:
   TileMuFeatureCnv(ISvcLocator *svcloc);
+protected:
   ~TileMuFeatureCnv();
 
   virtual TileMuFeature_PERS  *createPersistent(TileMuFeature *transObj);

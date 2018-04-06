@@ -4,7 +4,6 @@
 
 #include "TrigL2MuonSA/MdtDataPreparator.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "MuonRDO/MdtCsmContainer.h"

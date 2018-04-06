@@ -15,7 +15,7 @@
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
 eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink) :
-  m_clusterId(-1), m_cluster(*clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false), m_type(0), m_matchCluster(nullptr) {
+  m_clusterId(-1), m_cluster(*clusElementLink),m_originalClusElementLink(clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false), m_type(0), m_matchCluster(nullptr) {
   m_matchCluster = std::make_unique<eflowMatchCluster>(this);
 }
 
@@ -23,6 +23,7 @@ eflowRecCluster::eflowRecCluster(const eflowRecCluster& originalEflowRecCluster)
   m_clusterId = originalEflowRecCluster.m_clusterId;
   m_cluster = originalEflowRecCluster.m_cluster;
   m_clusElementLink = originalEflowRecCluster.m_clusElementLink;
+  m_originalClusElementLink = originalEflowRecCluster.m_originalClusElementLink;
   m_isTouchable = originalEflowRecCluster.m_isTouchable;
   m_type = originalEflowRecCluster.m_type;
   m_matchCluster = std::make_unique<eflowMatchCluster>(this);
@@ -34,6 +35,7 @@ eflowRecCluster& eflowRecCluster::operator=(const eflowRecCluster& originalEflow
   else{
     m_cluster = originalEflowRecCluster.m_cluster;
     m_clusElementLink = originalEflowRecCluster.m_clusElementLink;
+    m_originalClusElementLink = originalEflowRecCluster.m_originalClusElementLink;
     m_isTouchable = originalEflowRecCluster.m_isTouchable;
     m_matchCluster = std::make_unique<eflowMatchCluster>(this);
     return *this;

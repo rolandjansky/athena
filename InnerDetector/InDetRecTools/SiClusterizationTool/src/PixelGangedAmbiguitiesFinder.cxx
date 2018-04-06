@@ -19,7 +19,6 @@
 
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include <vector>
 #include <algorithm>

@@ -61,10 +61,10 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       
       # MergedPixelTool (public)
       from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummarySvc
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummaryTool
       InDetTrigMergedPixelsTool = InDet__MergedPixelsTool( name = "InDetTrigMergedPixelsTool",
                                                            globalPosAlg  = InDetTrigClusterMakerTool,
-                                                           PixelConditionsSummarySvc = InDetTrigPixelConditionsSummarySvc,
+                                                           PixelConditionsSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                            #UseSpecialPixelMap = False  #simpler setup for EFID
                                                            UseSpecialPixelMap = True,
                                                            MinimalSplitSize = 0,
@@ -161,7 +161,6 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       self.clusteringTool = InDetTrigSCT_ClusteringTool
       self.SCT_RDOContainerName=EF_SCTRDOKey
       self.conditionsSummarySvc="SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
-      self.bytestreamErrorSvc=InDetTrigBSErrorSvc
 
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]

@@ -12,7 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "StoreGate/StoreGate.h"
 
 #include "MuonRDO/RpcFiredChannel.h"

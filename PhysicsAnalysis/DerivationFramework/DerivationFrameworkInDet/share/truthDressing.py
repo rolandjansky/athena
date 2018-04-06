@@ -154,18 +154,28 @@ svcMgr.DecisionSvc.CalcStats = True
 # Add the track dressing alg
 streamName = "TESTSTREAM_"
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
-TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
-                                                                    DecorationPrefix = streamName)
-ToolSvc +=TruthDecor
+from InDetPhysValMonitoring.InDetPhysValJobProperties import isMC
+if isMC() :
+  meta_data=''
+  import InDetPhysValMonitoring.InDetPhysValDecoration
+  if len(streamName) == 0 :
+     # add track parameter decorations to truth particles but only if the decorations have not been applied already
+     meta_data = InDetPhysValMonitoring.InDetPhysValDecoration.getMetaData()
+     from AthenaCommon.Logging import logging
 
-augmentationTools = [TruthDecor]
+  logger = logging.getLogger( "DerivationFramework" )
+  if len(meta_data) == 0 :
+    kwargs_in = {'Prefix' : streamName } if len(streamName)>0 else {}
+    truth_track_param_decor_alg = InDetPhysValMonitoring.InDetPhysValDecoration.getInDetPhysValTruthDecoratorAlg(**kwargs_in)
+    if  InDetPhysValMonitoring.InDetPhysValDecoration.findAlg([truth_track_param_decor_alg.getName()]) == None :
+      DerivationFrameworkJob += truth_track_param_decor_alg
+    else :
+      logger.info('Decorator %s already present not adding again.' % (truth_track_param_decor_alg.getName() ))
+  else :
+    logger.info('IDPVM decorations applied to input file. That should compris truth particle decorations. Not adding them again .')
 
 
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFTSOS_KERN",
-                                                                        AugmentationTools = augmentationTools,
-                                                                        OutputLevel =INFO)
+
 
 topSequence += DerivationFrameworkJob
 

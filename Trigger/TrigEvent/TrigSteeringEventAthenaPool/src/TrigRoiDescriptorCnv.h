@@ -36,7 +36,9 @@ class TrigRoiDescriptorCnv : public T_AthenaPoolCustomCnv<TrigRoiDescriptor, Tri
 
  protected:
   
+public:
   TrigRoiDescriptorCnv(ISvcLocator* svcloc);
+protected:
   ~TrigRoiDescriptorCnv();
 
   TrigRoiDescriptor_PERS*  createPersistent(TrigRoiDescriptor* transObj);

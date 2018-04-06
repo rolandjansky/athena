@@ -8,7 +8,6 @@
 // algorithm to decode RDO into digits
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"

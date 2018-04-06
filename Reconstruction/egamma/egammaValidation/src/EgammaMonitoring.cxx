@@ -19,7 +19,7 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include <AsgTools/AnaToolHandle.h>
-#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 
 #include <vector>
 #include <cmath>

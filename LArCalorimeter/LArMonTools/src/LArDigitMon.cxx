@@ -86,7 +86,7 @@ LArDigitMon::LArDigitMon(const std::string& type,
   /**bool use to mask the bad channels*/
   declareProperty("IgnoreBadChannels", m_ignoreKnownBadChannels=false);
   declareProperty("LArBadChannelMask",m_badChannelMask);
-  declareProperty("LArPedestalKey", m_larPedestalKey="Pedestal");
+  declareProperty("LArPedestalKey", m_larPedestalKey="LArPedestal");
   declareProperty("LArDigitContainerKey", m_LArDigitContainerKey = "FREE");
   /**default cut to select events*/
   declareProperty("SigmaCut",               m_SigmaCut=5);
@@ -315,7 +315,7 @@ LArDigitMon::fillHistograms()
   m_eventsCounter++;
   
   // retrieve LArNoisyROSummary and skip the event if number of FEB is greater than the one declare in JO.
-  LArNoisyROSummary* noisyRO;
+  const LArNoisyROSummary* noisyRO;
   StatusCode sc = evtStore()->retrieve(noisyRO,"LArNoisyROSummary");
   if (sc.isFailure()) 
   {

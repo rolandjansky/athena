@@ -140,7 +140,7 @@ protected:
   virtual  double  sagitta(TProfile2D* corrM, TLorentzVector &lv);
   
   virtual void ConvertToSagittaBias(TH2F *h,float mean=1);
-  virtual TProfile2D* GetHist(std::string fname="", std::string hname="inclusive",double GlobalScale=MZPDG);
+  virtual TProfile2D* GetHist(const std::string &fname="", const std::string &hname="inclusive",double GlobalScale=MZPDG);
 
   //private:
   //::: fake assignment operator missing actual implementation

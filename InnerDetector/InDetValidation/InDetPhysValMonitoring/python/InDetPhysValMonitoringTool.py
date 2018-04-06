@@ -62,6 +62,8 @@ class InDetPhysValMonitoringTool(object) :
           from InDetPhysValMonitoring.InDetPhysValJobProperties import isMC,InDetPhysValFlags
           if isMC() :
               self.TruthParticleContainerName = "TruthParticles"
+              from InDetPhysValMonitoring.InDetPhysValDecoration import getInDetRttTruthSelectionTool
+              self.TruthSelectionTool = getInDetRttTruthSelectionTool()
               if InDetPhysValFlags.doValidateTracksInJets() :
                  self.jetContainerName ='AntiKt4TruthJets'
                  self.FillTrackInJetPlots = True
@@ -75,9 +77,12 @@ class InDetPhysValMonitoringTool(object) :
           else :
               # disable truth monitoring for data
               self.TruthParticleContainerName = ''
+              self.TruthVertexContainerName = ''
+              self.TruthEventName = ''
+              self.TruthPileupEventKey = ''
               # the jet container is actually meant to be a truth jet container
               self.jetContainerName =''
-
+              self.FillTrackInJetPlots = False
 
           # hack to remove example phyval monitor
           from RecExConfig.AutoConfiguration import IsInInputFile

@@ -4,7 +4,6 @@
 
 #include "TBRec/CBNTAA_TBTDCRaw.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
 

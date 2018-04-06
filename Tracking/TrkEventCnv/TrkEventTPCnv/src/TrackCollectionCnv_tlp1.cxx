@@ -106,7 +106,5 @@ void TrackCollectionCnv_tlp1::setPStorage( Trk::TrackCollection_tlp1 *storage )
      m_localPositionsCnv.           setPStorage( &storage->m_localPositions );        
      m_localParametersCnv.          setPStorage( &storage->m_localParameters );       
      m_crotCnv.                     setPStorage( &storage->m_competingRotsOnTrack );  
-
-     //m_pointsCnv.     setPStorage( &storage->m_points );
 }   
  

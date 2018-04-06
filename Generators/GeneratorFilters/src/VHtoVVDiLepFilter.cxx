@@ -3,7 +3,6 @@
 */
 
 #include "GeneratorFilters/VHtoVVDiLepFilter.h"
-#include "GaudiKernel/AlgFactory.h"
 
 
 VHtoVVDiLepFilter::VHtoVVDiLepFilter(const std::string& name, ISvcLocator* pSvcLocator)

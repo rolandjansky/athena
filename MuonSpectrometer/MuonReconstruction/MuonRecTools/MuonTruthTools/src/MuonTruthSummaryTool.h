@@ -11,7 +11,9 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "StoreGate/ReadHandleKeyArray.h"
 #include <string>
 #include <set>
 #include <map>
@@ -69,7 +71,7 @@ namespace Muon {
 
     /** add measurements */
     void add( const std::vector<const Trk::MeasurementBase*>& measurements, int level );
-    void getTruth(std::string name ) const;
+    void getTruth() const;
     std::string printSummary( const std::set<Identifier>& truth, const std::set<Identifier>& found );
 
     ToolHandle<MuonIdHelperTool>                m_idHelper;
@@ -77,13 +79,9 @@ namespace Muon {
     ToolHandle<MuonEDMPrinterTool>              m_printer;
     ServiceHandle< IIncidentSvc >               m_incidentSvc;
     mutable bool m_wasInit;
+    bool m_useNSW;
 
-    std::string m_CSC_TruthName;
-    std::string m_RPC_TruthName;
-    std::string m_TGC_TruthName;
-    std::string m_MDT_TruthName;
-    std::string m_MM_TruthName;
-    std::string m_STGC_TruthName;
+    SG::ReadHandleKeyArray<PRD_MultiTruthCollection> m_TruthNames{this,"TruthNames",{"RPC_TruthMap","TGC_TruthMap","MDT_TruthMap"},"truth names"};
 
     mutable std::map<int,int>                           m_pdgIdLookupFromBarcode;
     mutable std::map<Identifier,int>                    m_truthHits; // map containing truth hits associated with muons, stores barcode as second element

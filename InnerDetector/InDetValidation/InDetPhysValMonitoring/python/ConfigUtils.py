@@ -64,7 +64,7 @@ def _args( kwargs, **extra_kwargs) :
     import copy
     _kwargs = copy.copy(kwargs)
     for kw in extra_kwargs :
-        _kwargs[kw] = extra_kwargs[kw]
+        _kwargs.setdefault(kw,extra_kwargs[kw])
     return _kwargs;
 
 
@@ -87,3 +87,31 @@ def serviceFactory( svc_class ):
         svc = svc_class()
         ServiceMgr += svc 
     return svc
+
+def create(cfg_class, kwargs_in, **kwargs_default) :
+    kwargs=_args(kwargs_in, **kwargs_default)
+    name = kwargs.pop('name',cfg_class.__class__.__name__)
+    return cfg_class(name = name,**kwargs)
+
+def createPublicTool(cfg_class, kwargs_in, **kwargs_default) :
+    kwargs=_args(kwargs_in, **kwargs_default)
+    name = kwargs.pop('name',cfg_class.__class__.__name__)
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,name) :
+        return  getattr(ToolSvc,name)
+    a_tool = cfg_class(name = name,**kwargs)
+    ToolSvc += a_tool
+    return a_tool
+
+
+def createExtendNameIfNotDefault(cfg_class, check_prop, def_val, kwargs_in, **kwargs_default) :
+    kwargs=_args(kwargs_in, **kwargs_default)
+    def_name = cfg_class.getType() if hasattr(cfg_class,'getType') else cfg_class.__class__.__name__
+    the_name = kwargs.pop('name',def_name)
+    if check_prop in kwargs and kwargs[check_prop] != def_val :
+        if the_name == def_name :
+           the_name += '_'
+           the_name += kwargs[check_prop]
+    elif check_prop not in kwargs :
+        kwargs.setdefault(check_prop,def_val)
+    return cfg_class(name = the_name,**kwargs)

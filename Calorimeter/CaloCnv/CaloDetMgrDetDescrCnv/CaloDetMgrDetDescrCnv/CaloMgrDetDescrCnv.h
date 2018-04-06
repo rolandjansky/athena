@@ -8,7 +8,6 @@
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 
 class CaloMgrDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<CaloMgrDetDescrCnv>;
 
 public:
     virtual long int   repSvcType() const;
@@ -20,7 +19,6 @@ public:
     static long storageType();
     static const CLID& classID();
 
-protected:
     CaloMgrDetDescrCnv(ISvcLocator* svcloc);
 
 private:

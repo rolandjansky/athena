@@ -181,13 +181,13 @@ namespace MuonGM {
       int wireNumber;
       if (pos.x() > -0.5*maxYSize && pos.x() < firstPos) // Before first wire
         wireNumber = 1;
-      else wireNumber = (pos.x() - firstPos)/inputPitch + 2;
+      else wireNumber = (pos.x() - firstPos)/inputPitch + 1;
       //find wire group associated to wire number
       int grNumber;
       if (wireNumber <= firstPitch) grNumber = 1; // firstPitch in this case is number of wires in 1st group
-      else grNumber = (wireNumber - firstPitch)/groupWidth +2; // 20 wires per group
+      else grNumber = (wireNumber - 1 - firstPitch)/groupWidth +2; // 20 wires per group,
       // If hit is in inactive wire region of QL1/QS1, return 63.
-      if (wireCutout != 0 && pos.y() < 0.5*xSize - wireCutout) return 63;
+      if (wireCutout >800 && pos.y() < 0.5*xSize - wireCutout) return 63;
       if (grNumber<1) return -1;
       if (grNumber>nGroups) return -1;
       return grNumber;

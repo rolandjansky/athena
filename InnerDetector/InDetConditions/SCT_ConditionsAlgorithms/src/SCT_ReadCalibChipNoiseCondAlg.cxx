@@ -11,7 +11,7 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 #include "SCT_ConditionsServices/SCT_ReadCalibChipUtilities.h"
 
 using namespace SCT_ConditionsServices;

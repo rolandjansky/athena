@@ -14,7 +14,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
 // Include boost stuff
 #include "boost/lexical_cast.hpp"

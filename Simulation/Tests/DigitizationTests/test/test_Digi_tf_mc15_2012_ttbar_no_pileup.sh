@@ -1,6 +1,10 @@
 #!/bin/sh
 #
 # art-description: Run digitization of an MC15 ttbar sample with 2012 geometry and conditions, without pile-up
+# art-include: 21.0/Athena
+# art-include: 21.3/Athena
+# art-include: 21.9/Athena
+# art-include: master/Athena
 # art-type: grid
 # art-output: mc15_2012_ttbar_no_pileup.RDO.pool.root
 

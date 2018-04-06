@@ -13,7 +13,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "G4TrackStatus.hh"
 #include "G4ParticleDefinition.hh"

@@ -7,6 +7,7 @@ from AthenaCommon.Configurable import Configurable,ConfigurableService,Configura
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers
 from AthenaCommon.AlgSequence import AlgSequence
 
+from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
 import ast
 from collections import defaultdict
@@ -265,7 +266,7 @@ class ComponentAccumulator(object):
         self._theAppProps[key]=value
         pass
 
-    def __merge(self,other):        
+    def __merge(self,other):
         """ Merging in the other accumulator """
         if not isinstance(other,ComponentAccumulator):
             raise TypeError("Attempt merge wrong type %s. Only instances of ComponentAccumulator can be added" % type(other).__name__)
@@ -319,20 +320,23 @@ class ComponentAccumulator(object):
         for (k,v) in other._theAppProps.iteritems():
             self.setAppProperty(k,v)  #Will warn about overrides
 
-    def __iadd__(self,other):
-        self.__merge(other)
-        return self
-
     
-    def addConfig(self,fct,configFlags, *args,**kwargs):
+    def addConfig(self,fct,configFlags,*args,**kwargs):
         """ The heart and soul of configuration system. You need to read the whole documentation. 
 
         This method eliminates possibility that a downstream configuration alters the upstream one. 
         It is done by a two-fold measures:
-        - the flags are cloned so downstream access only the copy of the flags
         - the sub-accumulators can not access the upstream accumulators and thus alter any configuration.
           The combination process is defined in the __merge method of this class. Less flexibility == robustness.
         """
+
+        #Safety check: Verify that the ConfigFlags are indeed locked:
+        if not isinstance(configFlags,AthConfigFlags):
+            raise ConfigurationError("Expected an instance of AthConfigFlags as parameter")
+
+        if not configFlags.locked():
+            raise ConfigurationError("You are trying to create a job using unlocked configFlags!")
+
         
         currentSeq = seq = CurrentSequence.get()
         if kwargs.has_key('sequence'):            
@@ -343,9 +347,8 @@ class ComponentAccumulator(object):
                 del kwargs['sequence']
             CurrentSequence.set( seq )
 
-        cfconst=deepcopy(configFlags)
         self._msg.info("Excuting configuration function %s" % fct.__name__)
-        retval=fct(cfconst,*args,**kwargs)
+        retval=fct(configFlags,*args,**kwargs)
         CurrentSequence.set( currentSeq )
 
         self.__merge(retval)
@@ -359,10 +362,6 @@ class ComponentAccumulator(object):
         return
 
 
-    def executeModule(self,fct,configFlags, *args,**kwargs):        
-        self._msg.info("Please start using addConfig instead of executeModule")
-        return self.addConfig(fct, configFlags, *args, **kwargs )
- 
     def appendConfigurable(self,confElem):
         name=confElem.getJobOptName() #FIXME: Don't overwrite duplicates! 
         #Hack for public Alg tools, drop multiple mentions of ToolSvc 
@@ -427,9 +426,14 @@ class ComponentAccumulator(object):
 
 
 
+        #Hack for now:   
+        self._jocfg["ApplicationMgr"]["CreateSvc"]=['ToolSvc/ToolSvc', 'AthDictLoaderSvc/AthDictLoaderSvc', 'AthenaSealSvc/AthenaSealSvc', 'CoreDumpSvc/CoreDumpSvc']
+
         svcList=ast.literal_eval(self._jocfg["ApplicationMgr"]["ExtSvc"])
         for svc in self._services:
             svcname=svc.getJobOptName()
+            if (svcname=="GeoModelSvc"): self._jocfg["ApplicationMgr"]["CreateSvc"]+=['GeoModelSvc',]
+
             svcList.append(svc.getFullName())
             #for k, v in svc.getValuedProperties().items():
             #    self._jocat[svcname][k]=str(v)
@@ -438,8 +442,7 @@ class ComponentAccumulator(object):
 
         self._jocfg["ApplicationMgr"]["EvtMax"]=nEvents
 
-        #Hack for now:   
-        self._jocfg["ApplicationMgr"]["CreateSvc"]=['ToolSvc/ToolSvc', 'AthDictLoaderSvc/AthDictLoaderSvc', 'AthenaSealSvc/AthenaSealSvc', 'CoreDumpSvc/CoreDumpSvc','GeoModelSvc']
+       
 
         for (k,v) in self._theAppProps.iteritems():
             self._jocfg["ApplicationMgr"][k]=v
@@ -454,9 +457,11 @@ class ComponentAccumulator(object):
 if __name__ == "__main__":
     # trivial case without any nested sequences
     from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
-    from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
     from AthenaCommon.CFElements import *
     cfgLogMsg.setLevel("debug")
+
+    dummyCfgFlags=AthConfigFlags()
+    dummyCfgFlags.lock()
 
     class Algo(ConfigurablePyAlgorithm):
         def __init__(self, name):
@@ -471,14 +476,13 @@ if __name__ == "__main__":
 
     def AlgsConf2(flags):
         acc = ComponentAccumulator()
-        acc.executeModule( AlgsConf1, flags )
+        acc.addConfig( AlgsConf1, flags )
         acc.addEventAlgo( Algo("Algo3") )
         return acc
 
     acc = ComponentAccumulator()
-    flags=ConfigFlagContainer()
     
-    acc.executeModule( AlgsConf2, flags )
+    acc.addConfig( AlgsConf2,dummyCfgFlags )
     # checks
     assert findAlgorithm(AlgSequence("AthAlgSeq"), "Algo1", 1), "Algorithm not added to a top sequence"
     assert findAlgorithm(AlgSequence("AthAlgSeq"), "Algo2", 1), "Algorithm not added to a top sequence"
@@ -492,7 +496,7 @@ if __name__ == "__main__":
 
     def AlgsConf4(flags):
         acc = ComponentAccumulator()
-        acc.executeModule( AlgsConf3, flags )
+        acc.addConfig( AlgsConf3,flags )
         NestedAlgo2 = Algo("NestedAlgo2")
         NestedAlgo2.OutputLevel=7
         acc.addEventAlgo( NestedAlgo2 )
@@ -508,7 +512,7 @@ if __name__ == "__main__":
     assert findSubSequence(AlgSequence("AthAlgSeq"), "sub2Sequence1"), "Adding sub-sequence failed"
     assert findSubSequence( findSubSequence(AlgSequence("AthAlgSeq"), "subSequence1"), "sub2Sequence1" ), "Adding sub-sequence doen in a wrong place"
 
-    acc.executeModule( AlgsConf4, flags, sequence="subSequence1" )    
+    acc.addConfig( AlgsConf4, dummyCfgFlags, sequence="subSequence1" )    
     assert findAlgorithm(AlgSequence("AthAlgSeq"), "NestedAlgo1" ), "Algorithm added to nested seqeunce"
     assert findAlgorithm(AlgSequence("AthAlgSeq"), "NestedAlgo1", 1 ) == None, "Algorithm mistakenly in top sequence"
     assert findAlgorithm( findSubSequence(AlgSequence("AthAlgSeq"), "subSequence1"), "NestedAlgo1", 1 ), "Algorithm not in right sequence"

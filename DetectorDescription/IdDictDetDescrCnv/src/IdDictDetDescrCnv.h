@@ -40,7 +40,6 @@ class IdDictManager;
  */
 
 class IdDictDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<IdDictDetDescrCnv>;
 
 public:
     virtual long int   repSvcType() const;
@@ -52,7 +51,6 @@ public:
     static long int     storageType();
     static const CLID&  classID();
 
-protected:
     IdDictDetDescrCnv(ISvcLocator* svcloc);
 
 private:

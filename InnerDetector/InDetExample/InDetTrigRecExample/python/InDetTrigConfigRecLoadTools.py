@@ -578,11 +578,11 @@ if InDetTrigFlags.loadFitter():
 
 
 if DetFlags.haveRIO.pixel_on():
-  from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
+  from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
   from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-  InDetTrigPixelConditionsSummarySvc = PixelConditionsSummarySvc(PixelConditionsSetup.instanceName('PixelConditionsSummarySvc'))
+  InDetTrigPixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
 else:
-  InDetTrigPixelConditionsSummarySvc = None
+  InDetTrigPixelConditionsSummaryTool = None
 
 if DetFlags.haveRIO.SCT_on():
   from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
@@ -611,11 +611,11 @@ if InDetTrigFlags.loadSummaryTool():
 
   # Load Pixel Layer tool
   from InDetTestPixelLayer.InDetTestPixelLayerConf import InDet__InDetTestPixelLayerTool
-  InDetTrigTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name            = "InDetTrigTestPixelLayerTool",
-                                                               PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
-                                                               Extrapolator    = InDetTrigExtrapolator,
-                                                               CheckActiveAreas= True,
-                                                               CheckDeadRegions= True)
+  InDetTrigTestPixelLayerTool = InDet__InDetTestPixelLayerTool(name             = "InDetTrigTestPixelLayerTool",
+                                                               PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
+                                                               Extrapolator     = InDetTrigExtrapolator,
+                                                               CheckActiveAreas = True,
+                                                               CheckDeadRegions = True)
   ToolSvc += InDetTrigTestPixelLayerTool
   if (InDetTrigFlags.doPrintConfigurables()):
     print  InDetTrigTestPixelLayerTool
@@ -630,7 +630,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                             Extrapolator = InDetTrigExtrapolator,
                                                             usePixel      = DetFlags.haveRIO.pixel_on(),
                                                             useSCT        = DetFlags.haveRIO.SCT_on(),
-                                                            PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
+                                                            PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                             SctSummarySvc = InDetTrigSCTConditionsSummarySvc,
                                                             PixelLayerTool=InDetTrigTestPixelLayerTool,
                                                             )
@@ -644,7 +644,7 @@ if InDetTrigFlags.loadSummaryTool():
   # Load BLayer tool
   from InDetTestBLayer.InDetTestBLayerConf import InDet__InDetTestBLayerTool
   InDetTrigTestBLayerTool = InDet__InDetTestBLayerTool(name            = "InDetTrigTestBLayerTool",
-                                                       PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
+                                                       PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                        Extrapolator    = InDetTrigExtrapolator,
                                                        CheckActiveAreas= True)
   ToolSvc += InDetTrigTestBLayerTool
@@ -878,7 +878,7 @@ if InDetTrigFlags.doNewTracking():
                                                                  useSCT           = DetFlags.haveRIO.SCT_on(),   
                                                                  PixelClusterContainer = 'PixelTrigClusters',
                                                                  SCT_ClusterContainer = 'SCT_TrigClusters',
-                                                                 PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
+                                                                 PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
                                                                  SctSummarySvc = InDetTrigSCTConditionsSummarySvc
                                                                  )															
   ToolSvc += InDetTrigSiComTrackFinder

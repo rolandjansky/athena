@@ -2449,7 +2449,6 @@ def setupMenu():
 
         ['2e5_lhmedium_nod0_j50_xe80_mht_L13EM3_J40_XE50_DPHI-J20s2XE50',  'L1_3EM3_J40_XE50_DPHI-J20s2XE50', ['L1_EM3','',''], [PhysicsStream], ['RATE:MuonJetMET', 'BW:Muon', 'BW:Jet'], -1, ['serial',-1,["2e5_lhmedium_nod0","j50","xe80_mht"] ]],
 
-        ['e5_lhmedium_nod0',  'L1_EM3', ['L1_EM3','',''], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
        
         ['2mu4_j85_xe50_pufit',  'L1_2MU4_J40_XE20', [], [PhysicsStream], ['RATE:MuonJetMET', 'BW:Muon', 'BW:Jet'], -1, ['serial',-1,["2mu4","j85","xe50_pufit"] ]], 
 

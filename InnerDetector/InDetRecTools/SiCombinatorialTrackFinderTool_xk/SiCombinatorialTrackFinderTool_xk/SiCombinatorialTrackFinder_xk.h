@@ -111,7 +111,7 @@ namespace InDet{
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      ServiceHandle<IInDetConditionsSvc>    m_pixelCondSummarySvc;
+      ToolHandle<IInDetConditionsTool>        m_pixelCondSummaryTool;
       ServiceHandle<IInDetConditionsSvc>    m_sctCondSummarySvc  ;
       ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
       ToolHandle<Trk::IPatternParametersPropagator> m_proptool   ;

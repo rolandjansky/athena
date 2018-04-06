@@ -5,7 +5,6 @@
 #include "TrigL2MuonSA/MuFastStationFitter.h"
 #include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
 
-#include "GaudiKernel/ToolFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"

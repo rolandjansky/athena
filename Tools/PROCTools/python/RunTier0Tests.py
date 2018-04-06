@@ -250,8 +250,14 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
     clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
 
     if RunPatchedOnly: #overwrite
-        #clean_dir = '/afs/cern.ch/work/g/gencomm/public/referenceFiles/'+q
-        clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/'+q
+        # Use EOS if mounted, otherwise CVMFS
+        clean_dir = '/eos/atlas/atlascerngroupdisk/data-art/grid-input/Tier0ChainTests/'+q
+        if(glob.glob(clean_dir)):
+            logging.info("EOS is mounted, going to read the reference files from there instead of CVMFS")
+            clean_dir = 'root://eosatlas.cern.ch/'+clean_dir # In case outside CERN
+        else:
+            logging.info("EOS is not mounted, going to read the reference files from CVMFS")
+            clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/'+q
 
     comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -741,7 +747,7 @@ def main():
                 if not RunFrozenTier0PolicyTest(q,"RDO",10,CleanRunHeadDir,UniqName):
                     All_Tests_Passed = False
             
-            if not RunTest(q,qTestsToRun,"CPU Time"       ,"evtloop_time"    ,"sec/event"   ,4,0.4,CleanRunHeadDir,UniqName):
+            if not RunTest(q,qTestsToRun,"CPU Time"       ,"evtloop_time"    ,"msec/event"  ,4,0.4,CleanRunHeadDir,UniqName):
                 All_Tests_Passed = False
 
             if not RunTest(q,qTestsToRun,"Physical Memory","VmRSS"           ,"kBytes"      ,4,0.2,CleanRunHeadDir,UniqName):

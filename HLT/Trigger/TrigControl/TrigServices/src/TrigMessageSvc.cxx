@@ -8,7 +8,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/SvcFactory.h"
 #include "GaudiKernel/Message.h"
 #include "GaudiKernel/xtoa.h"
 #include "GaudiKernel/IJobOptionsSvc.h"

@@ -91,6 +91,12 @@ namespace ISF {
         will enter the HepMC truth event) */
     HepMC::GenParticle*       childParticle(unsigned short index,
                                             Barcode::ParticleBarcode bc) const override final;
+    /** Update the properties of a child particle from a pre-defined
+        interaction based on the properties of the ith child of the
+        current TruthIncident (only used in quasi-stable particle
+        simulation) - TODO only a dummy implementation currently */
+    virtual HepMC::GenParticle*       updateChildParticle(unsigned short index,
+                                                          HepMC::GenParticle *existingChild) const override final;
     /** Set the the barcode of all child particles to the given bc */
     void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) override final;
   private:

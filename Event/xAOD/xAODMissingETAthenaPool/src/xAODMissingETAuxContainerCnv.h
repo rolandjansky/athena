@@ -42,7 +42,9 @@ class xAODMissingETAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODMissingETAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::MissingETAuxContainer*

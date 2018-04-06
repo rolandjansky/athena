@@ -49,7 +49,7 @@ class AODFix_base(object):
             # the AODFix is empty: do nothing
             self.doAODFix = False
         elif not force:
-            if prevVersion == self.latestAODFixVersion():
+            if prevVersion == self.newAODFix:
                 self.doAODFix = False
             else:
                 self.doAODFix = True
@@ -73,7 +73,15 @@ class AODFix_base(object):
             elif rec.readAOD():
                 suffix="_AOD"
 
-            str = "AODFix_" + self.newAODFix + suffix
+            # remove any metadata we don't want to write out (in order to rerun again)
+            metadataList = self.newAODFix.split("-")
+            excludeFromMetadata = self.excludeFromMetadata()
+
+            for excl in excludeFromMetadata:
+                if excl in metadataList:
+                    metadataList.remove(excl)
+
+            str = "AODFix_" + "-".join(metadataList) + suffix
 
             logAODFix.info("executing addMetaData, will add as AODFixVersion %s" % str)
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr

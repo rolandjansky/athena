@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/AtlasDetDescr
                           Generators/GeneratorObjects
+                          Generators/TruthUtils
                           InnerDetector/InDetSimEvent
                           MuonSpectrometer/MuonSimEvent
                           Simulation/Barcode/BarcodeEvent
@@ -47,7 +48,7 @@ atlas_add_component( ISF_Services
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} ${HEPMC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} GaudiKernel CaloIdentifier CaloSimEvent AthenaBaseComps StoreGateLib SGtests AtlasDetDescr GeneratorObjects InDetSimEvent MuonSimEvent G4AtlasInterfaces MCTruth SimHelpers ISF_Event ISF_Interfaces TileSimEvent PmbCxxUtils )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${GEANT4_LIBRARIES} ${HEPMC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} GaudiKernel CaloIdentifier CaloSimEvent AthenaBaseComps StoreGateLib SGtests AtlasDetDescr GeneratorObjects InDetSimEvent MuonSimEvent G4AtlasInterfaces MCTruth SimHelpers ISF_Event ISF_Interfaces TileSimEvent PmbCxxUtils TruthUtils )
 
 # Tests in the package:
 atlas_add_test( InputConverter_test
@@ -71,6 +72,41 @@ atlas_add_test( InputConverter_test
                 ${GMOCK_LIBRARIES}
                 ENVIRONMENT
                 "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
+                )
+
+atlas_add_test( TruthSvc_test
+                SOURCES
+                  test/TruthSvc_test.cxx src/TruthSvc.cxx
+                INCLUDE_DIRS
+                  ${GTEST_INCLUDE_DIRS}
+                  ${GMOCK_INCLUDE_DIRS}
+                  ${ROOT_INCLUDE_DIRS}
+                  ${GEANT4_INCLUDE_DIRS}
+                  ${HEPMC_INCLUDE_DIRS}
+                  ${CLHEP_INCLUDE_DIRS}
+                  ${HEPPDT_INCLUDE_DIRS}
+                LINK_LIBRARIES
+                  ${GTEST_LIBRARIES}
+                  ${GMOCK_LIBRARIES}
+                  ${ROOT_LIBRARIES}
+                  ${GEANT4_LIBRARIES}
+                  ${HEPMC_LIBRARIES}
+                  ${CLHEP_LIBRARIES}
+                  ${HEPPDT_LIBRARIES}
+                  GaudiKernel
+                  CaloIdentifier
+                  CaloSimEvent
+                  AthenaBaseComps
+                  StoreGateLib
+                  InDetSimEvent
+                  MuonSimEvent
+                  ISF_Event
+                  ISF_Interfaces
+                  PmbCxxUtils
+                  MCTruth
+                  TruthUtils
+                ENVIRONMENT
+                  "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
                 )
 
 # Install files from the package:

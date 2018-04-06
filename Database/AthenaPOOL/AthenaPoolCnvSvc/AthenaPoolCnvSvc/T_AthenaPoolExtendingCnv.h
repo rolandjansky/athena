@@ -28,11 +28,12 @@ friend class CnvFactory<T_AthenaPoolExtendingCnv<TRANS, PERS> >;
 public:
    typedef T_AthenaPoolCustomCnv<TRANS, PERS>   BaseType;
 
-protected:
-   // -------------------------------------------------------------
+public:
+  // -------------------------------------------------------------
    /// Constructor
   T_AthenaPoolExtendingCnv(ISvcLocator* svcloc);
 
+protected:
   // Methods to be implemented in the derived converter class
   // ##########################################################
   

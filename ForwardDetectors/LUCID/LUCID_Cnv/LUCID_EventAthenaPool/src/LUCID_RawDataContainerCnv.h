@@ -20,7 +20,9 @@ class LUCID_RawDataContainerCnv: public LUCID_RawDataContainerCnvBase {
   
  protected:
   
+public:
   LUCID_RawDataContainerCnv(ISvcLocator* svcloc): LUCID_RawDataContainerCnvBase(svcloc) {}
+protected:
     
     virtual LUCID_RawDataContainer_PERS* createPersistent(LUCID_RawDataContainer* transCont);
     virtual LUCID_RawDataContainer*      createTransient ();

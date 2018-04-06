@@ -33,13 +33,8 @@ namespace LVL1BS {
 
 class JemEtSumsByteStreamxAODCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<JemEtSumsByteStreamxAODCnv>;
-
-protected:
-
-  JemEtSumsByteStreamxAODCnv(ISvcLocator* svcloc);
-
 public:
+  JemEtSumsByteStreamxAODCnv(ISvcLocator* svcloc);
 
   virtual ~JemEtSumsByteStreamxAODCnv(){};
 

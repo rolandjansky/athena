@@ -25,7 +25,9 @@ class MuonFeatureDetailsCnv : public MuonFeatureDetailsCnvBase {
   friend class CnvFactory<MuonFeatureDetailsCnv>;
 
  protected:
+public:
   MuonFeatureDetailsCnv(ISvcLocator *svcloc);
+protected:
   ~MuonFeatureDetailsCnv();
 
   virtual MuonFeatureDetails_PERS  *createPersistent(MuonFeatureDetails *transObj);

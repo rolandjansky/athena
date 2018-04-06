@@ -3,7 +3,6 @@
 */
 
 // $Id: ToyNextPassFilterTool.cxx,v 1.4 2008-09-23 22:00:47 binet Exp $
-#include "GaudiKernel/ToolFactory.h"
 #include "ToyNextPassFilterTool.h"
 
 ToyNextPassFilterTool::ToyNextPassFilterTool( const std::string& type,

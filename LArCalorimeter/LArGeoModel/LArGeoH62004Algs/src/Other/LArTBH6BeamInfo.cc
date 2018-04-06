@@ -14,7 +14,6 @@
 
 // Gaudi Includes
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 
 static const AlgFactory<LArTBH6BeamInfo>  s_factory;

@@ -93,7 +93,7 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>& v32rod, uint32_t robid,
                              vRDOs_t& rdoVec) {
   
   /** retrieve errors from SCT_ByteStreamErrorsSvc */
-  
+
   const std::set<IdentifierHash>* timeOutErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::TimeOutError)};
   const std::set<IdentifierHash>* l1idErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)};
   const std::set<IdentifierHash>* bcidErrors{m_bsErrs->getErrorSet(SCT_ByteStreamErrors::BCIDError)};

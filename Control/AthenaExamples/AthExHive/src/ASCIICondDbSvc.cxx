@@ -4,7 +4,6 @@
 
 #include "ASCIICondDbSvc.h"
 #include "AthenaKernel/CondCont.h"
-#include "GaudiKernel/SvcFactory.h"
 
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>

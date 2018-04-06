@@ -34,7 +34,6 @@
  **/
 
 class LArOnline_SuperCellIDDetDescrCnv: public DetDescrConverter {
-    friend class CnvFactory<LArOnline_SuperCellIDDetDescrCnv>;
 
 public:
     virtual long int   repSvcType() const;
@@ -46,7 +45,6 @@ public:
     static long  storageType();
     static const CLID& classID();
 
-protected:
     LArOnline_SuperCellIDDetDescrCnv(ISvcLocator* svcloc);
 };
 

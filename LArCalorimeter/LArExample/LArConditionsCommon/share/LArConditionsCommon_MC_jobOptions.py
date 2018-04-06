@@ -46,8 +46,8 @@ larCondDBFolders = ["/LAR/ElecCalibMC/Ramp",
 if larCondFlags.useMCShape():
     larCondDBFolders += ["/LAR/ElecCalibMC/Shape"]
 
-larCondDBFolders += ["/LAR/BadChannels/BadChannels"]
-larCondDBFolders += ["/LAR/BadChannels/MissingFEBs"]
+larCondDBFolders += [("CondAttrListCollection","/LAR/BadChannels/BadChannels")]
+larCondDBFolders += [("AthenaAttributeList","/LAR/BadChannels/MissingFEBs")]
 
 ## these may be conditional. 
 if larCondFlags.hasMphys() :

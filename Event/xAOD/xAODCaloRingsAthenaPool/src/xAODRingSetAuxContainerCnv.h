@@ -35,7 +35,9 @@ class xAODRingSetAuxContainerCnv : public xAODRingSetAuxContainerCnvBase {
 
 protected:
    /// Converter constructor
+public:
    xAODRingSetAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::RingSetAuxContainer*

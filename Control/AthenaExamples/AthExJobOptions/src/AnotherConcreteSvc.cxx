@@ -13,7 +13,6 @@
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/SvcFactory.h"
 
 // AthExJobOptions includes
 #include "AthExJobOptions/AnotherConcreteSvc.h"

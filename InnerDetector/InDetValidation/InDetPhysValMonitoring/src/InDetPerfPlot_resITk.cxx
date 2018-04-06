@@ -802,12 +802,16 @@ InDetPerfPlot_resITk::finalizePlots() {
   }
 
   // Get total fraction of miss ID and Momentum tails
-  m_resITk_chargeID_vs_pt->Scale(1 / m_resITk_chargeID->GetEntries());
-  m_resITk_chargeID_vs_eta->Scale(1 / m_resITk_chargeID->GetEntries());
+  if (m_resITk_chargeID->GetEntries()>0) {
+     m_resITk_chargeID_vs_pt->Scale(1 / m_resITk_chargeID->GetEntries());
+     m_resITk_chargeID_vs_eta->Scale(1 / m_resITk_chargeID->GetEntries());
+  }
 
-  m_resITk_momTail_vs_pt->Scale(1 / m_resITk_momTail->GetEntries());
-  m_resITk_momTail_vs_phi->Scale(1 / m_resITk_momTail->GetEntries());
-  m_resITk_momTail_vs_eta->Scale(1 / m_resITk_momTail->GetEntries());
+  if (m_resITk_momTail->GetEntries()>0) {
+     m_resITk_momTail_vs_pt->Scale(1 / m_resITk_momTail->GetEntries());
+     m_resITk_momTail_vs_phi->Scale(1 / m_resITk_momTail->GetEntries());
+     m_resITk_momTail_vs_eta->Scale(1 / m_resITk_momTail->GetEntries());
+  }
 
   for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
     TH1D* tmp = (TH1D*) m_significance_d0->ProjectionY("tmp_py", m_significance_d0->GetXaxis()->FindBin(

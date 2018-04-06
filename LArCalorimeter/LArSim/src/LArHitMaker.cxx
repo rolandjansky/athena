@@ -5,7 +5,6 @@
 #include "LArSim/LArHitMaker.h"
 #include "LArSim/LArHitProducer.h"
 
-#include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 

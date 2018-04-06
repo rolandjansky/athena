@@ -7,7 +7,6 @@
 //date February 2008
 
 // Gaudi includes
-#include "GaudiKernel/ToolFactory.h"
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"

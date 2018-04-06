@@ -5,9 +5,6 @@ import os
 HAMMERCLOUD_FILE = "mc15_13TeV.423202.Pythia8B_A14_CTEQ6L1_Jpsie3e13.merge.AOD.e3869_s2608_s2183_r6630_r6264"
 PROJECTS = ["AthAnalysis", "AthDerivation", "AthSimulation", "Athena", "AnalysisBase"]
 
-#PWD = os.environ['PWD']
-#DIRNAME = "test"
-
 TFILE_OPEN_TURLs = [
   {"ROOT":
     ("root://lcg-lrz-rootd.grid.lrz.de:1094/pnfs/lrz-muenchen.de/data/atlas/dq2/atlasdatadisk/rucio/mc15_13TeV/ed/68/AOD.05536542._000001.pool.root.1", # LRZ-LMU
@@ -44,53 +41,8 @@ TFILE_OPEN_TURLs = [
   },
 ]
 
-#def writeTFileOpen(athena_project):
-  #name = os.path.join("test", "test_DirectIO" + athena_project + "ART_TFileOpen.py")
-  #print "\tGenerating ...",name
-  #outfile = open(name,'w')
-
-  ## generate frame of test scripts
-  #outstring = """#!/usr/bin/env python\n
-## art-description: DirectIO{project}ART TFile::Open
-## art-type: grid
-## art-include: {branch}/{project}\n
-#import ROOT
-#import os\n""".format(project=athena_project, branch='21.0' if athena_project == 'Athena' else '21.3' if athena_project == 'AthSimulation' else '21.2')
-  ## loop over turl list
-  #for i in xrange(len(TFILE_OPEN_TURLs)):
-    ## get values of dictionaries
-    #for key, value in TFILE_OPEN_TURLs[i].items():
-      ## add turl to filenames string
-      #filenames = ""
-      #for j in xrange(len(value)):
-        #filenames += value[j]
-        #if j < len(value)-1: filenames += " | "
-      #outstring += """
-#f = ROOT.TFile.Open(\"{turl}\")
-#n = f.GetName()
-#if f: print(\"art-result: 0 DirectIO{project}ART_TFileOpen_protocol_{protocol}\")
-#else: print(\"art-result: 1 DirectIO{project}ART_TFileOpen_protocol_{protocol}\")
-#del f
-#os.system(\"pool_insertFileToCatalog {{}}\".format(n))\n""".format(turl=filenames, project=athena_project, protocol=key)
-      #filenames = ""
-  
-  ## back to main test scripts
-  #outfile.write(outstring)
-  #outfile.close()
-  #os.system("chmod +x " + name)
-
-#def parse_options():
-  #import argparse
-  #parser = argparse.ArgumentParser()
-  
-  #parser.add_argument("athena_project", help="Specify the Athena release flavour (Default=AthAnalysis)", type=str, nargs="*" )
-  #parser.add_argument("-o", "--tfile-open", help="Generate ART scripts for TFile::Open tests", action="store_true", dest="open_tests")
-  
-  #options = parser.parse_args()
-  #return options
-
 def writeTFileOpen():
-  name = os.path.join("test", "test_DirectIOART_TFileOpen.py")
+  name = os.path.join("test", "test_directioart_tfileopen.py")
   print "\tGenerating ...",name
   outfile = open(name,'w')
 
@@ -111,14 +63,22 @@ import os\n"""
         if j < len(value)-1: filenames += " | "
       outstring += """
 f = ROOT.TFile.Open(\"{turl}\")
-n = f.GetName()
 if f: print(\"art-result: 0 DirectIOART_TFileOpen_protocol_{protocol}\")
 else: print(\"art-result: 1 DirectIOART_TFileOpen_protocol_{protocol}\")
-del f
-os.system(\"pool_insertFileToCatalog {{}}\".format(n))\n""".format(turl=filenames, protocol=key)
+del f\n""".format(turl=filenames, protocol=key)
       filenames = ""
   
   # back to main test scripts
+  outstring += """
+outstr = \"\"\"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM \"InMemory\">
+<POOLFILECATALOG>
+
+</POOLFILECATALOG>\"\"\"
+with open(\"PoolFileCatalog.xml\", \"w\") as outfile:
+  outfile.write(outstr)"""
+  
   outfile.write(outstring)
   outfile.close()
   os.system("chmod +x " + name)
@@ -145,10 +105,7 @@ def main():
     if not opts.athena_project[i] in PROJECTS:
       print "\tAthena project \"",opts.athena_project[i],"\" not intended for DirectIOART!"
       continue
-    
-    #if opts.open_tests:
-      #writeTFileOpen(opts.athena_project[i])
-    
+  
   if opts.open_tests:
     writeTFileOpen()
     

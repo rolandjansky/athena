@@ -9,6 +9,7 @@
 #include "../DeadSDTool.h"
 
 #include "../CalibrationDefaultCalculator.h"
+#include "../CalibrationHitMerger.h"
 
 DECLARE_COMPONENT( LArG4::EMBSDTool )
 DECLARE_COMPONENT( LArG4::EMECSDTool )
@@ -20,4 +21,4 @@ DECLARE_COMPONENT( LArG4::InactiveSDTool )
 DECLARE_COMPONENT( LArG4::DeadSDTool )
 
 DECLARE_COMPONENT( LArG4::CalibrationDefaultCalculator )
-
+DECLARE_COMPONENT( LArG4::CalibrationHitMerger )

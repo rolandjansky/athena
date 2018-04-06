@@ -35,6 +35,12 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrackParticleAuxContainer,
 class xAODTrackParticleAuxContainerCnv :
    public xAODTrackParticleAuxContainerCnvBase {
 
+public:
+   /// Converter constructor
+   xAODTrackParticleAuxContainerCnv( ISvcLocator* svcLoc );
+
+private:
+
    // Declare the factory as our friend:
    friend class CnvFactory< xAODTrackParticleAuxContainerCnv >;
 
@@ -42,9 +48,6 @@ class xAODTrackParticleAuxContainerCnv :
    StatusCode initialize() override;
 
 protected:
-   /// Converter constructor
-   xAODTrackParticleAuxContainerCnv( ISvcLocator* svcLoc );
-
    /// Function preparing the container to be written out
    virtual xAOD::TrackParticleAuxContainer*
    createPersistent( xAOD::TrackParticleAuxContainer* trans ) override;

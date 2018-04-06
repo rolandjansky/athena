@@ -47,7 +47,8 @@ atlas_depends_on_subdirs(
    Control/AthenaKernel
    Control/CxxUtils
    Tracking/TrkDetDescr/TrkDetDescrUtils
-   Tracking/TrkEvent/TrkTrackLink )
+   Tracking/TrkEvent/TrkTrackLink
+   )
 
 # External dependencies:
 find_package( CLHEP )
@@ -111,7 +112,7 @@ atlas_add_dictionary( TrkEventTPCnvDict
    LINK_LIBRARIES TrkEventTPCnv )
 
 atlas_add_dictionary( OLD_TrkEventTPCnvDict
-   TrkEventTPCnv/TrkEventTPCnvDict.h TrkEventTPCnv/OLD_selection.xml
+   TrkEventTPCnv/TrkEventTPCnvOLDDict.h TrkEventTPCnv/OLD_selection.xml
    LINK_LIBRARIES TrkEventTPCnv )
 
 # Add all the test(s) of the package:

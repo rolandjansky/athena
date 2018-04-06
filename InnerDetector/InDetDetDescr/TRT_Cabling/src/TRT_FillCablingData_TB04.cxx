@@ -20,7 +20,6 @@
 
 
 //#include <iostream>
-#include "GaudiKernel/ToolFactory.h"
 #include "TRT_FillCablingData_TB04.h"
 #include <fstream>
 

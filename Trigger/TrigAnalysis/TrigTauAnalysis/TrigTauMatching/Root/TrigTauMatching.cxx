@@ -74,7 +74,7 @@ bool Trig::TrigTauMatchingTool::matchL1(const xAOD::TauJet *p,
   {
     if (c)
     {
-      for (auto &it: *c)
+      for (const xAOD::EmTauRoI* it : *c)
       {
         if (it->roiType() == xAOD::EmTauRoI::TauRoIWord)
         {

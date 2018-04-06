@@ -18,7 +18,6 @@
 #include <iostream>
 #include <string.h>
 
-#include "GaudiKernel/ToolFactory.h"
 
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/PlaneSurface.h"
