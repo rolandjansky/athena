@@ -14,9 +14,9 @@
 #include "SCT_ConditionsData/SCT_ModuleCalibParameter.h"
 #include "SCT_ConditionsData/SCT_ModuleGainCalibData.h"
 #include "SCT_ConditionsData/SCT_ModuleNoiseCalibData.h"
-#include "SCT_ConditionsServices/SCT_ReadCalibChipUtilities.h"
+#include "SCT_ConditionsTools/SCT_ReadCalibChipUtilities.h"
 
-using namespace SCT_ConditionsServices;
+using namespace SCT_ConditionsData;
 using namespace SCT_ReadCalibChipUtilities;
 
 //----------------------------------------------------------------------

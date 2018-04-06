@@ -40,16 +40,16 @@ namespace SCT_ReadCalibChipUtilities {
     return noNan;
   }
 
-  const boost::array<std::string, SCT_ConditionsServices::N_NPTGAIN> nPtGainDbParameterNames{
+  const boost::array<std::string, SCT_ConditionsData::N_NPTGAIN> nPtGainDbParameterNames{
     {"gainByChip", "gainRMSByChip", "offsetByChip", "offsetRMSByChip", "noiseByChip", "noiseRMSByChip"}
 };
-  const boost::array<std::string, SCT_ConditionsServices::N_NPTGAIN> nPtGainParameterNames{
+  const boost::array<std::string, SCT_ConditionsData::N_NPTGAIN> nPtGainParameterNames{
     {"GainByChip", "GainRMSByChip", "OffsetByChip", "OffsetRMSByChip", "NoiseByChip", "NoiseRMSByChip"}
 };
-  const boost::array<std::string, SCT_ConditionsServices::N_NOISEOCC> noiseOccDbParameterNames{
+  const boost::array<std::string, SCT_ConditionsData::N_NOISEOCC> noiseOccDbParameterNames{
   {"occupancyByChip", "occupancyRMSByChip", "offsetByChip", "noiseByChip"}
 };
-  const boost::array<std::string, SCT_ConditionsServices::N_NOISEOCC> noiseOccParameterNames{
+  const boost::array<std::string, SCT_ConditionsData::N_NOISEOCC> noiseOccParameterNames{
   {"OccupancyByChip", "OccupancyRMSByChip", "OffsetByChip", "NoiseByChip"}
 };
 

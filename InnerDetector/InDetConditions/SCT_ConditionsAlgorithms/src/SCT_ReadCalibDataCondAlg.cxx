@@ -20,7 +20,7 @@
 #include "boost/lexical_cast.hpp"
 #include "boost/tokenizer.hpp"
 
-using namespace SCT_ConditionsServices;
+using namespace SCT_ConditionsData;
 
 // Utility functions
 namespace {

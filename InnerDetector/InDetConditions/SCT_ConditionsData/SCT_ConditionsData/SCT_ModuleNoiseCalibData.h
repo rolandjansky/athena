@@ -16,7 +16,7 @@
 // Definition of the number of elements
 #include "SCT_ConditionsData/SCT_ConditionsParameters.h"
 
-typedef boost::array<SCT_ModuleCalibParameter, SCT_ConditionsServices::N_NOISEOCC> SCT_ModuleNoiseCalibData;
+typedef boost::array<SCT_ModuleCalibParameter, SCT_ConditionsData::N_NOISEOCC> SCT_ModuleNoiseCalibData;
 
 // Class definition
 #include "AthenaKernel/CLASS_DEF.h"
