@@ -281,5 +281,5 @@ MultiBJet_2015 = [
     'HLT_2j35_bmv2c2070_2j35_L13J25.0ETA23',
     'HLT_2j45_bmv2c2077_2j45_L13J25.0ETA23',
     'HLT_2j35_bmv2c2070_split_2j35_L13J25.0ETA23',
-    #'HLT_2j35_btight_2j35_L13J25.0ETA23',
+    'HLT_2j35_btight_2j35_L13J25.0ETA23',
 ]
