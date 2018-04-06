@@ -14,6 +14,7 @@ from DerivationFrameworkSUSY.SUSYCommonTriggerList import *
 SUSY1LeptonTriggers = SingleLepton_2015+SingleLepton_2016+SingleLepton_2017+SingleLepton_2018+DiLepton_2015+DiLepton_2016+DiLepton_2017+DiLepton_2018
 SUSY1PhotonTriggers = SinglePhoton_2015+SinglePhoton_2016+SinglePhoton_2017+SinglePhoton_2018
 SUSY1XETriggers = MET_2015+MET_2016+MET_2017+MET_2018
+SUSY1BJetTriggers = MultiBJet_2015+MultiBJet_2016+MultiBJet_2017+MultiBJet_2018
 
 #all triggers
 SUSY1AllTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers + SUSY1XETriggers+JetTrigger_2016
