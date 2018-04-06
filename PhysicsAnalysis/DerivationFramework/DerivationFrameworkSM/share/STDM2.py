@@ -10,6 +10,7 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from AthenaCommon.GlobalFlags import globalflags
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
@@ -191,6 +192,15 @@ augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="STDM2ThinningSvc", outStreams=[evtStream] )
 
+
+#====================================================================
+# Jet reconstruction/retagging
+#====================================================================
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM2Sequence)
+
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -202,6 +212,8 @@ STDM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -221,9 +233,12 @@ STDM2SlimmingHelper.AllVariables = ExtraContainersJets + ["CaloCalTopoClusters"]
 from  DerivationFrameworkFlavourTag.BTaggingContent import *
 
 STDM2SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM2SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMPFlowJets")
 STDM2SlimmingHelper.AppendToDictionary.update({
         "BTagging_AntiKt4EMTopo":    "xAOD::BTaggingContainer",
-        "BTagging_AntiKt4EMTopoAux": "xAOD::BTaggingAuxContainer"})
+        "BTagging_AntiKt4EMTopoAux": "xAOD::BTaggingAuxContainer",
+        "BTagging_AntiKt4EMPFlow":   "xAOD::BTaggingContainer",
+        "BTagging_AntiKt4EMPFlowAux":"xAOD::BTaggingAuxContainer"})
 
 if DerivationFrameworkIsMonteCarlo:
     STDM2SlimmingHelper.ExtraVariables += ExtraElectronsTruth+ExtraPhotonsTruth#+ExtraVariablesTruthEventShape
