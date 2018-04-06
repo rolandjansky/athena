@@ -22,6 +22,8 @@
 #   TOPQExtraVariables_BTagging_AntiKt4EMTopo
 #   TOPQExtraVariables_CombinedMuonTrackParticles
 #   TOPQExtraVariables_ExtrapolatedMuonTrackParticles
+#   TOPQExtraVariables_InDetTrackParticles
+#   TOPQExtraVariables_PrimaryVertices
 #   TOPQExtraVariables_InDetForwardTrackParticles
 #   TOPQExtraVariables_MET_Track
 #
@@ -814,6 +816,23 @@ TOPQExtraVariables_MuonSpectrometerTrackParticles = ["MuonSpectrometerTrackParti
                                                      + "trackProperties."
                                                      + "vx."
                                                      + "vy"]
+
+# default list for InDetTrackParticles : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/InDetTrackParticlesCPContent.py
+TOPQExtraVariables_InDetTrackParticles = ["InDetTrackParticles."
+                                          + "vx."
+                                          + "vy."
+                                          + "vz."
+                                          + "truthMatchProbability."
+                                          + "TRTdEdx."
+                                          + "pixeldEdx."
+                                          + "particleHypothesis."
+                                          + "radiusOfFirstHit"]
+
+
+# default list for PrimaryVertices : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/PrimaryVerticesCPContent.py
+TOPQExtraVariables_PrimaryVertices = ["PrimaryVertices"
+                                      + "x."
+                                      + "y"]
 
 # default list for InDetForwardTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
 TOPQExtraVariables_InDetForwardTrackParticles = ["InDetForwardTrackParticles."
