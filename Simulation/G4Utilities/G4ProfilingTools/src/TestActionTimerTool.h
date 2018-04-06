@@ -27,6 +27,8 @@ namespace G4UA
     /// Standard constructor
     TestActionTimerTool(const std::string& type, const std::string& name,const IInterface* parent);
 
+    /// Initialize the tool
+    virtual StatusCode initialize() override;
     /// Finalize the tool
     virtual StatusCode finalize() override;
 
