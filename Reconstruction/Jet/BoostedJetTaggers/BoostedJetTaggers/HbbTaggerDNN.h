@@ -12,6 +12,7 @@
 
 namespace lwt {
   class LightweightGraph;
+  class NanReplacer;
 }
 
 namespace BoostedJetTaggers {
@@ -47,6 +48,12 @@ protected:
    // the location where CVMFS files live
   std::string m_neuralNetworkFile;
   std::string m_configurationFile;
+
+  // variable cleaner, replace Nan and Inf with default values
+  typedef std::unique_ptr<lwt::NanReplacer> Cleaner;
+  std::vector<std::pair<std::string, Cleaner > > m_var_cleaners;
+
+  // neural network and feeder class
   std::unique_ptr<lwt::LightweightGraph> m_lwnn;
   std::unique_ptr<BoostedJetTaggers::HbbInputBuilder> m_input_builder;
 

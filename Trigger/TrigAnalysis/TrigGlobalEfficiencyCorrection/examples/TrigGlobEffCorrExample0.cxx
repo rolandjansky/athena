@@ -90,8 +90,7 @@ int main(int argc, char* argv[])
     ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> electronSFTools; 
     /// RAII on-the-fly creation of electron CP tools:
     vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> factory;
-    const char* mapPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/"
-            "ElectronEfficiencyCorrection/2015_2016/"
+    const char* mapPath = "ElectronEfficiencyCorrection/2015_2016/"
             "rel20.7/Moriond_February2017_v3/map1.txt";
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {
@@ -225,8 +224,8 @@ int main(int argc, char* argv[])
 
         /// Finally retrieve the global trigger scale factor
         double sf = 1.;
-        auto cc = myTool->getEfficiencyScaleFactor(runNumber,
-                myTriggeringElectrons, myTriggeringMuons, sf);
+        auto cc = myTool->getEfficiencyScaleFactor(myTriggeringElectrons,
+            myTriggeringMuons, sf);
         if(cc==CP::CorrectionCode::Ok)
         {
             nSuitableEvents += 1;

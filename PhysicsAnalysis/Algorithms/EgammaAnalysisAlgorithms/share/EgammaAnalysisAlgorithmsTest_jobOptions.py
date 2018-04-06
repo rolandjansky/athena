@@ -20,19 +20,18 @@ setCfgMgr (CfgMgr)
 dataType = "data"
 #dataType = "mc"
 #dataType = "afii"
+electronContainer = "Electrons"
 
-config = CfgMgr.CP__SysListLoaderAlg('SysLoaderAlg' )
-config.sigmaRecommended = 1
-algSeq += config
 
-from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
 
-sequence = makeMuonAnalysisSequence (dataType=dataType)
+from AsgAnalysisAlgorithms.PileupAnalysisSequence import makePileupAnalysisSequence
+
+sequence = makePileupAnalysisSequence (dataType=dataType)
 
 
 from AsgAnalysisAlgorithms.SequencePostConfiguration import sequencePostConfiguration
 
-sequencePostConfiguration (sequence, "Muons")
+sequencePostConfiguration (sequence, "EventInfo")
 
 for alg in sequence :
     config = alg["alg"]
@@ -43,12 +42,23 @@ for alg in sequence :
     algSeq += config
     pass
 
-# create our algorithm with teh given name
-#alg = CfgMgr.MyxAODAnalysis()
 
-# later on we'll add some configuration options for our algorithm that go here
+from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import makeElectronAnalysisSequence
 
-#algSeq += alg
+sequence = makeElectronAnalysisSequence (electronContainer=electronContainer,dataType=dataType)
+
+
+sequencePostConfiguration (sequence, electronContainer)
+
+for alg in sequence :
+    config = alg["alg"]
+
+    # set everything to debug output
+    config.OutputLevel = 1
+
+    algSeq += config
+    pass
+
 
 # optional include for reducing printout from athena
 include("AthAnalysisBaseComps/SuppressLogging.py")
