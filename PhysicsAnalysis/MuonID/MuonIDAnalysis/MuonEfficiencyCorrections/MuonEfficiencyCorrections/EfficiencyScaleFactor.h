@@ -95,17 +95,17 @@ namespace CP {
 
             /// scale factors...
             CorrectionCode ScaleFactor(const xAOD::Muon& mu, float & SF) const;
-            CorrectionCode ScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & SF);
+            CorrectionCode ScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & SF) const;
 
             /// ... and absolute efficiencies
             CorrectionCode DataEfficiency(const xAOD::Muon& mu, float & Eff) const;
-            CorrectionCode DataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff);
+            CorrectionCode DataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff)const;
 
             CorrectionCode MCEfficiency(const xAOD::Muon& mu, float & Eff) const;
-            CorrectionCode MCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff);
+            CorrectionCode MCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff)const;
 
             /// debug method
-            void DebugPrint();
+            void DebugPrint() const;
 
             virtual ~EfficiencyScaleFactor();
 
@@ -128,7 +128,7 @@ namespace CP {
             /// read the content of the correct bin in one of my histos. MCefficiencies actually do  not need a pt-dependet systematic
             CorrectionCode GetContentFromHist(HistHandler_Ptr Hist, IKinematicSystHandler_Ptr PtDepHist, const xAOD::Muon& mu, float & SF, bool PtDepHistNeeded) const;
             /// read a vector of replica contents in the correct bin in one of my histos
-            CorrectionCode GetContentReplicasFromHist(EfficiencyScaleFactor::SFvec &replicas, const xAOD::Muon& mu, std::vector<float> & SF);
+            CorrectionCode GetContentReplicasFromHist(EfficiencyScaleFactor::SFvec &replicas, const xAOD::Muon& mu, std::vector<float> & SF)const;
 
             // adds weight*staterr to each bin (used for systematics)
             void AddStatErrors(float weight);

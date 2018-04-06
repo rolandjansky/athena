@@ -305,22 +305,23 @@ namespace CP {
         }
         return CorrectionCode::Ok;
     }
-    CorrectionCode EfficiencyScaleFactor::ScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & SF) {
+    CorrectionCode EfficiencyScaleFactor::ScaleFactorReplicas(const xAOD::Muon& mu, std::vector<float> & SF) const {
         return GetContentReplicasFromHist(m_sf_replicas, mu, SF);
     }
-    CorrectionCode EfficiencyScaleFactor::DataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff) {
+    CorrectionCode EfficiencyScaleFactor::DataEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff) const {
         return GetContentReplicasFromHist(m_eff_replicas, mu, eff);
     }
-    CorrectionCode EfficiencyScaleFactor::MCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff) {
+    CorrectionCode EfficiencyScaleFactor::MCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff) const {
         return GetContentReplicasFromHist(m_mc_eff_replicas, mu, eff);
     }
-    CorrectionCode EfficiencyScaleFactor::GetContentReplicasFromHist(EfficiencyScaleFactor::SFvec &replicas, const xAOD::Muon& mu, std::vector<float> & SF) {
+    CorrectionCode EfficiencyScaleFactor::GetContentReplicasFromHist(EfficiencyScaleFactor::SFvec &replicas, const xAOD::Muon& mu, std::vector<float> & SF) const {
         if (replicas.size() != SF.size()) GenerateReplicas(SF.size(), 1000. * mu.phi() + mu.eta());
         if (replicas.empty()) return CorrectionCode::OutOfValidityRange;
         if (m_Type == CP::MuonEfficiencyType::TTVA && fabs(mu.eta()) > 2.5 && fabs(mu.eta()) <= 2.7 && mu.muonType() == xAOD::Muon::MuonType::MuonStandAlone) {
-            static bool Warned = false;
-            if (!Warned) Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
-            Warned = true;
+            if (m_warnsPrinted < m_warningLimit){
+                Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
+                ++m_warnsPrinted;
+            }
             for (auto& r : SF)
                 r = m_default_eff_ttva;
             return CorrectionCode::Ok;
@@ -383,14 +384,15 @@ namespace CP {
     }
     void EfficiencyScaleFactor::ApplySysVariation() {
         if (m_sysType == MuonEfficiencySystType::Nominal) return;
-        else if (m_sysType == MuonEfficiencySystType::Sys1Down) AddSysErrors(-1.);
-        else if (m_sysType == MuonEfficiencySystType::Sys1Up) AddSysErrors(1.);
-        else if (m_sysType == MuonEfficiencySystType::Stat1Down) AddStatErrors(-1.);
-        else if (m_sysType == MuonEfficiencySystType::Stat1Up) AddStatErrors(1.);
-        else if (m_sysType == MuonEfficiencySystType::LowPtSys1Down) AddSysErrors(-1.);
-        else if (m_sysType == MuonEfficiencySystType::LowPtSys1Up) AddSysErrors(1.);
-        else if (m_sysType == MuonEfficiencySystType::LowPtStat1Down) AddStatErrors(-1.);
-        else if (m_sysType == MuonEfficiencySystType::LowPtStat1Up) AddStatErrors(1.);
+        //For reconstruction effiecency scale-factors disentangle the low-pt from the high pt systematics
+        else if ((m_Type != CP::MuonEfficiencyType::Reco || !m_is_lowpt) && m_sysType == MuonEfficiencySystType::Sys1Down) AddSysErrors(-1.);
+        else if ((m_Type != CP::MuonEfficiencyType::Reco || !m_is_lowpt) && m_sysType == MuonEfficiencySystType::Sys1Up) AddSysErrors(1.);
+        else if ((m_Type != CP::MuonEfficiencyType::Reco || !m_is_lowpt) && m_sysType == MuonEfficiencySystType::Stat1Down) AddStatErrors(-1.);
+        else if ((m_Type != CP::MuonEfficiencyType::Reco || !m_is_lowpt) && m_sysType == MuonEfficiencySystType::Stat1Up) AddStatErrors(1.);
+        else if (m_is_lowpt && m_sysType == MuonEfficiencySystType::LowPtSys1Down) AddSysErrors(-1.);
+        else if (m_is_lowpt && m_sysType == MuonEfficiencySystType::LowPtSys1Up) AddSysErrors(1.);
+        else if (m_is_lowpt && m_sysType == MuonEfficiencySystType::LowPtStat1Down) AddStatErrors(-1.);
+        else if (m_is_lowpt && m_sysType == MuonEfficiencySystType::LowPtStat1Up) AddStatErrors(1.);
     }
     void EfficiencyScaleFactor::AddStatErrors(float weight) {
         AddStatErrors_histo(m_sf, weight);
@@ -438,7 +440,7 @@ namespace CP {
         }
     }
 
-    void EfficiencyScaleFactor::DebugPrint(void) {
+    void EfficiencyScaleFactor::DebugPrint() const {
         m_sf->GetHist()->Print();
         m_sf_sys->GetHist()->Print();
 
