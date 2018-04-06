@@ -86,7 +86,7 @@ public:
   virtual double           rapidity() const ATH_FINAL { return m_p4.Rapidity(); }
 
   /// The full 4-momentum of the particle
-  virtual const FourMom_t& p4() const ATH_FINAL { return m_p4; }
+  virtual FourMom_t p4() const ATH_FINAL { return m_p4; }
 
   /// @}
 

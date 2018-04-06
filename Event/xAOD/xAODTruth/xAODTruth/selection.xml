@@ -2,29 +2,11 @@
 <lcgdict>
 
   <!-- The TruthParticle_v1 class(es): -->
-  <class name="xAOD::TruthParticle_v1" >
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::TruthParticle_v1" version="[1-]"
-        targetClass="xAOD::TruthParticle_v1" source="" target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
+  <class name="xAOD::TruthParticle_v1" />
   <class name="xAOD::TruthParticle_v1::Polarization" />
 
   <!-- The TruthVertex_v1 class: -->
-  <class name="xAOD::TruthVertex_v1" >
-    <field name="m_v4" transient="true" />
-    <field name="m_v4Cached" transient="true" />
-  </class>
-  <read sourceClass="xAOD::TruthVertex_v1" version="[1-]"
-        targetClass="xAOD::TruthVertex_v1" source="" target="m_v4Cached" >
-    <![CDATA[
-       m_v4Cached = false;
-    ]]>
-  </read>
+  <class name="xAOD::TruthVertex_v1" />
 
   <!-- The TruthEvent_v1 class(es): -->
   <class name="xAOD::TruthEventBase_v1" />

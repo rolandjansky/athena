@@ -26,6 +26,7 @@
 
 //ROOT includes
 #include "TVector3.h"
+#include "Math/Vector4D.h"
 
 namespace xAOD {
 
@@ -58,12 +59,18 @@ namespace xAOD {
     virtual double           rapidity() const;
     
     /// The full 4-momentum of the particle
-    virtual const FourMom_t& p4() const;
+    virtual FourMom_t        p4() const;
     
     /// The type of the object as a simple enumeration
     virtual Type::ObjectType type() const;
     
     /// @}
+
+    /// Base 4 Momentum type (GenVector version)
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
+
+    ///  The full 4-momentum of the particle : GenVector version.
+    GenVecFourMom_t genvecP4() const; 
 
     /// set the 4-vec
     void setP4(const FourMom_t& vec);
@@ -72,7 +79,9 @@ namespace xAOD {
     void setP4(float pt, float eta, float phi, float m=0.0);
 
     /** get EM scale 4-vector */
-    const FourMom_t& p4EM() const;
+    FourMom_t p4EM() const;
+    /** get EM scale 4-vector */
+    GenVecFourMom_t genvecP4EM() const;
     /** set EM scale 4-vector */
     void setP4EM(const FourMom_t& p4EM);
     /** set EM scale 4-vector */
@@ -181,14 +190,6 @@ namespace xAOD {
     /** Performs a check as to whether a variable should be compressed */
     bool isJetETMissFloatForCompression(xAOD::PFODetails::PFOAttributes AttributeType) const;
 
-    /// Cached 4-momentum object
-    mutable FourMom_t m_p4;
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_p4Cached;
-    /** Cached 4-momentum at EM scale - mutable so it can be set in non-const getter function */
-    mutable FourMom_t m_p4EM;
-    /** bool to track whether we have cached EM 4-vector - mutable so it can be set in non-const getter function */
-    mutable bool m_p4EMCached;
     /** this defines the factor to compress floats by */
     int m_floatCompressionFactor;
 

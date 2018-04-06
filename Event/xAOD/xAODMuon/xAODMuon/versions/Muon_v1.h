@@ -27,6 +27,8 @@
 #include <bitset>
 #include <stdint.h>
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
 
 namespace xAOD {
   /// Class describing a Muon.
@@ -70,8 +72,14 @@ namespace xAOD {
     typedef IParticle::FourMom_t FourMom_t;
 
     /// The full 4-momentum of the particle.
-    virtual const FourMom_t& p4() const;
+    virtual FourMom_t p4() const;
         
+    /// Base 4 Momentum type for Muon
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > GenVecFourMom_t;
+
+    ///  The full 4-momentum of the particle : GenVector
+    GenVecFourMom_t genvecP4() const; 
+
     /// The type of the object as a simple enumeration
     virtual Type::ObjectType type() const;
     /// @}
@@ -402,19 +410,6 @@ namespace xAOD {
     const ElementLink< MuonSegmentContainer >& muonSegmentLink( size_t i ) const;
         
     /// @}
-  private:
-    /// Cached 4-momentum object.
-    mutable FourMom_t m_p4;
-    /// Cache state of the internal 4-momentum (reset from the streamer).
-    ///
-    /// The name has the "1" as a post-fix because of an issue with the
-    /// ROOT read rule that I can't understand. In standalone mode ROOT
-    /// confuses the read rule of this class with something else as it
-    /// seems, and starts complaining about duplicate read rules for this
-    /// variable. But with this modified name the problem disappears.
-    /// Will have to debug later on with the ROOT developers...
-    ///
-    mutable bool m_p4Cached1;
   }; // class xAOD::Muon
 
 } // namespace xAOD
