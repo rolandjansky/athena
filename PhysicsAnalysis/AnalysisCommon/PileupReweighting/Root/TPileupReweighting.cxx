@@ -1152,6 +1152,18 @@ Int_t CP::TPileupReweighting::Initialize() {
                 }
             }
          }
+         
+         //ensure hist is normalized correctly, if was read in from the 'actual mu' config files (where the normalization can be slightly wrong)
+         if(run.second.nominalFromHists) {
+          //get the total lumi for the run ...
+          double totLumi(0);
+          for(auto lb : run.second.lumiByLbn) {
+            totLumi += lb.second.first; 
+          }
+          hist->Scale( totLumi / hist->Integral() );
+          
+         }
+         
          //create the period's 'data' hist if necessary 
          if( hist->GetDimension()==1 ) {
               if(!period.second->primaryHists[-1] )  {
@@ -1401,7 +1413,7 @@ UInt_t CP::TPileupReweighting::GetRandomLumiBlockNumber(UInt_t runNumber) {
       lumisum += lbn.second.first;
       if(lumisum >= lumi) return lbn.first;
    }
-   Error("GetRandomLumiBlockNumber","overran integrated luminosity for RunNumber=%d",runNumber);
+   Error("GetRandomLumiBlockNumber","overran integrated luminosity for RunNumber=%d (%f vs %f)",runNumber,lumi,lumisum);
    throw std::runtime_error("Throwing 46: overran integrated luminosity for runNumber");
    return 0;
 }
