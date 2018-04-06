@@ -106,6 +106,8 @@ class PixLayerIBL2D3DDBM {
 class PixelMainMon : public ManagedMonitorToolBase {
  public:
   PixelMainMon(const std::string& type, const std::string& name, const IInterface* parent);
+  PixelMainMon (const PixelMainMon&) = delete;
+  PixelMainMon& operator = (const PixelMainMon&) = delete;
   virtual ~PixelMainMon();
   virtual StatusCode initialize();      //!< Runs once at the start of the code.  Sets up services etc.
   virtual StatusCode bookHistograms();  //!< Runs at the start of every event.  Books some histograms if one of the function parameters is true
@@ -120,6 +122,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   void th1FillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
   void fillTimeHisto(double, TProfile*, TProfile*, TProfile*, double, double, double);
   void fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
+  void fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C);
+  void formatPP0Histos(TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C);
   int parseDetailsString(std::string& detailsMod);
   bool isOnTrack(Identifier id, bool isCluster);
   bool isOnTrack(Identifier id, double& cosalpha);
@@ -128,6 +132,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::string makeHistname(std::string set, bool ontrk);
   std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
   bool getFEID(int pixlayer, int phiid, int etaid, int& oufephi, int& outfeeta);
+  void divide_TH1F_LW(TH1F_LW* num, TH1F_LW* den); //!< returns num = num/den w/ error propagation
 
   StatusCode bookClustersMon(void);
   StatusCode bookClustersLumiBlockMon(void);
@@ -180,8 +185,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   int m_lumiBlockNum;
   unsigned int m_firstBookTime;
   unsigned int m_currentTime;
-  unsigned int m_LBstartTime;
-  unsigned int m_LBendTime;
   unsigned int m_currentBCID;
   int m_runNum;
   int m_ntracksPerEvent;
@@ -206,7 +209,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::string m_Pixel_SpacePointsName;
   std::string m_Pixel_SiClustersName;
   std::string m_TracksName;
-  std::string m_error_summary;
 
   std::string m_histTitleExt;
 
@@ -265,10 +267,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   bool m_doIBL;
 
   bool m_isNewRun;
-  bool m_isNewLumiBlock;
   bool m_newLowStatInterval;
-
-  double m_occupancy_cut;
 
   int m_ClusPerEventArray_disksA[48][3];
   int m_ClusPerEventArray_disksC[48][3];
@@ -306,6 +305,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_avgocc_per_lumi;
   TProfile_LW* m_avgocc_ratioIBLB0_per_lumi;
   TProfile_LW* m_avgocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+  TH1F* m_avgocc_ratio_lastXlb_mod[PixLayer::COUNT];
   TProfile_LW* m_avgocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_avgocc_active_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH2F_LW* m_maxocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
@@ -319,6 +319,20 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile* m_occupancy_time2;
   TProfile* m_occupancy_time3;
   TH1F_LW* m_occupancy_summary_mod[PixLayer::COUNT];
+  TProfile_LW* m_occupancy_PP0_ECA;
+  TProfile_LW* m_occupancy_PP0_ECC;
+  TProfile_LW* m_occupancy_PP0_B0;
+  TProfile_LW* m_occupancy_PP0_B1;
+  TProfile_LW* m_occupancy_PP0_B2;
+  TProfile_LW* m_occupancy_PP0_IBLA;
+  TProfile_LW* m_occupancy_PP0_IBLC;
+  TProfile_LW* m_cluster_occupancy_PP0_ECA;
+  TProfile_LW* m_cluster_occupancy_PP0_ECC;
+  TProfile_LW* m_cluster_occupancy_PP0_B0;
+  TProfile_LW* m_cluster_occupancy_PP0_B1;
+  TProfile_LW* m_cluster_occupancy_PP0_B2;
+  TProfile_LW* m_cluster_occupancy_PP0_IBLA;
+  TProfile_LW* m_cluster_occupancy_PP0_IBLC;
   TH3F* m_nFEswithHits_mod[PixLayer::COUNT];
 
   // hit tot
@@ -380,7 +394,12 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DProfilesLW> m_misshits_ratio_mon;
 
   // hit efficiency
-  TProfile_LW* m_hiteff_incl_mod[PixLayerDisk::COUNT];
+  TProfile_LW* m_hiteff_incl_mod[PixLayer::COUNT];
+  TProfile* m_hiteff_lastXlb_mod[PixLayer::COUNT];
+  
+  // npixhits/track/lumi
+  TH2F_LW* m_npixhits_per_track_lumi;
+  TH2F* m_npixhits_per_track_lastXlb;
 
   // lorentz angle
   TProfile2D_LW* m_LorentzAngle_IBL;
@@ -585,13 +604,14 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile2D_LW* m_hist_LB_staveID_thermalFigureMerit;
 
   std::vector<std::string> m_atrcollist;
-  std::map<std::string, std::vector<std::string> > m_elementsMap;
   int m_currentLumiBlockNumber;
 
   class dcsDataHolder {
    public:
     dcsDataHolder() : m_values(new std::map<int, std::map<int, float>*>),
                       m_maps(new std::map<std::string, int>){};
+    dcsDataHolder (const dcsDataHolder&) = delete;
+    dcsDataHolder& operator = (const dcsDataHolder&) = delete;
     ~dcsDataHolder() {
       for (auto lbmap : *m_values) {
         delete lbmap.second;
@@ -624,6 +644,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
                             m_fsm_state(new std::map<int, std::map<int, float>*>),
                             m_fsm_status(new std::map<int, std::map<int, float>*>),
                             m_moduleMap(new std::map<std::string, int>){};
+    moduleDcsDataHolder (const moduleDcsDataHolder&) = delete;
+    moduleDcsDataHolder& operator = (const moduleDcsDataHolder&) = delete;
     ~moduleDcsDataHolder() {
       for (auto lbmap : *m_tempModule) {
         delete lbmap.second;
