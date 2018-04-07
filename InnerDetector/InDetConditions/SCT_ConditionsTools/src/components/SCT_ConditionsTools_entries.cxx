@@ -1,3 +1,4 @@
+#include "../SCT_ByteStreamErrorsTool.h"
 #include "../SCT_ChargeTrappingTool.h"
 #include "../SCT_ConditionsParameterTool.h"
 #include "../SCT_ConfigurationConditionsTool.h"
@@ -18,6 +19,7 @@
 #include "../SCT_StripVetoTool.h"
 #include "../SCT_TdaqEnabledTool.h"
 
+DECLARE_COMPONENT( SCT_ByteStreamErrorsTool )
 DECLARE_COMPONENT( SCT_ChargeTrappingTool )
 DECLARE_COMPONENT( SCT_ConditionsParameterTool )
 DECLARE_COMPONENT( SCT_ConfigurationConditionsTool )
