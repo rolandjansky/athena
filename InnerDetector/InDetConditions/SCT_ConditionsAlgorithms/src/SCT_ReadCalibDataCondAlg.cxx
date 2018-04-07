@@ -163,12 +163,9 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
   if (not m_recoOnly) {
     for (unsigned int i{GAIN}; i<NFEATURES; i++) {
       if (writeHandleData[i].isValid()) {
-        // in theory this should never be called in MT
-        writeHandleData[i].updateStore();
         ATH_MSG_DEBUG("CondHandle " << writeHandleData[i].fullKey() << " is already valid."
                       << ". In theory this should not be called, but may happen"
-                      << " if multiple concurrent events are being processed out of order."
-                      << " Forcing update of Store contents");
+                      << " if multiple concurrent events are being processed out of order.");
       } else {
         validWriteCondHandle = false;
       }
@@ -176,12 +173,9 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
   }
   SG::WriteCondHandle<SCT_AllGoodStripInfo> writeHandleInfo{m_writeKeyInfo};
   if (writeHandleInfo.isValid()) {
-    // in theory this should never be called in MT                                                                                                                                               
-    writeHandleInfo.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandleInfo.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
+                  << " if multiple concurrent events are being processed out of order.");
   } else {
     validWriteCondHandle = false;
   }

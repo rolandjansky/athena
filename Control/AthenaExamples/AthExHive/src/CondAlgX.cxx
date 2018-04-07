@@ -86,12 +86,9 @@ StatusCode CondAlgX::execute() {
 
   // do we have a valid m_wch for current time?
   if ( wch.isValid(now) ) {
-    // in theory this should never be called
-    wch.updateStore();
     ATH_MSG_DEBUG("CondHandle is already valid for " << now
 		  << ". In theory this should not be called, but may happen"
-		  << " if multiple concurrent events are being processed out of order."
-		  << " Forcing update of Store contents");
+		  << " if multiple concurrent events are being processed out of order.");
 
   } else {
 
