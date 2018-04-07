@@ -70,7 +70,7 @@ void	TopLevelTPCnvBase::addTPConvertersTo( TopLevelTPCnvBase *cnv )
       // add the convterter for reading
       cnv->addExtTPConverterForReading( itr->second );
    }
-   // prevent attempts to add the same converters again
+   // prevent adding of the same converter again
    cnv->rememberConverter( this );
 }
 

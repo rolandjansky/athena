@@ -233,6 +233,8 @@ PP="$PP"'|Cannot convert TrigRNNOutput'
 # New warnings from GeoModelSvc.
 PP="$PP"'|GeoModelSvc.*WARNING  Getting .* with default tag'
 
+# Verbosity removed from TrackCollection in 22.0.1
+PP="$PP"'|TrackCollectionCnv::initialize'
 
 
 test=$1

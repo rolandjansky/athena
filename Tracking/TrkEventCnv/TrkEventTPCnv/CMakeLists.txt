@@ -56,7 +56,6 @@ find_package( CLHEP )
 # Definitions used to build TrkEventTPCnv:
 set( _definitions
    -DUseFloatsIn_TrackParameters
-   -DUseFloatsIn_HepPoint3D
    -DUseFloatsIn_HepSymMatrix
    -DUseFloatsIn_LocalDirection
    -DUseFloatsIn_LocalParameters
