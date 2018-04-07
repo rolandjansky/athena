@@ -10,6 +10,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteHandle.h"
+
 #include "InDetRawData/InDetTimeCollection.h"
 
 #include <set>
@@ -50,8 +53,11 @@ private:
   // bookkeeping if we have decoded a ROB already
   std::set<uint32_t> m_robIdSet;
 
-  InDetTimeCollection* m_LVL1Collection;
-  InDetTimeCollection* m_BCIDCollection;
+  SG::WriteHandleKey<InDetTimeCollection> m_LVL1CollectionKey;
+  SG::WriteHandle<InDetTimeCollection>    m_LVL1Collection;
+  SG::WriteHandleKey<InDetTimeCollection> m_BCIDCollectionKey;
+  SG::WriteHandle<InDetTimeCollection>    m_BCIDCollection;
+
   int m_DecodeErrCount;
   uint32_t m_LastLvl1ID;
 };
