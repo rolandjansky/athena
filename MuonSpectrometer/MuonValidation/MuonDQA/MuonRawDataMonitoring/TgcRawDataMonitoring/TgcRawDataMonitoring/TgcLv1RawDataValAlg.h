@@ -41,6 +41,20 @@
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "MuonTrigCoinData/TgcCoinDataCollection.h"
 
+#include "xAODMuon/MuonContainer.h"
+
+#include "xAODTrigger/MuonRoIContainer.h"
+#include "xAODTrigger/EmTauRoIContainer.h"
+#include "xAODTrigger/JetRoIContainer.h"
+#include "xAODTrigger/JetEtRoI.h"
+#include "xAODTrigger/EnergySumRoI.h"
+
+#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
+
+#include "StoreGate/ReadHandleKey.h"
+
+#include "xAODEventInfo/EventInfo.h"
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TGraphAsymmErrors.h"
@@ -68,7 +82,6 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     // Stores
     //StoreGateSvc*   m_eventStore;
     StoreGateSvc*   m_detStore;
-    ActiveStoreSvc* m_activeStore;
 
     // Muon Detector Manager
     const MuonGM::MuonDetectorManager* m_muonMgr;
@@ -86,15 +99,18 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     std::pair<std::vector<std::string>, std::vector<float> > m_expressChains;
 
     // Keys and Locations for retrieving collections
-    std::string m_hitContainerLocation;
-    std::string m_hitContainerLocationPrevious;
-    std::string m_hitContainerLocationNext;
-    std::string m_coinCollectionLocation;
-    std::string m_coinCollectionLocationPrevious;
-    std::string m_coinCollectionLocationNext;
-    std::string m_L1muonRoIName;
-    std::string m_L1emtauRoIName;
-    std::string m_L1jetRoIName;
+    SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_coinCollectionLocation{this,"OutputCoinCollection","TrigT1CoinDataCollection","current TGC T1 coincidences"};
+    SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_coinCollectionLocationPrevious{this,"OutputCoinCollectionPrevious","TrigT1CoinDataCollectionPreviousBC","previous TGC T1 coincidences"};
+    SG::ReadHandleKey<Muon::TgcCoinDataContainer> m_coinCollectionLocationNext{this,"OutputCoinCollectionNext","TrigT1CoinDataCollectionNextBC","next TGC T1 coincidences"};
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonKey{this,"Muons","Muons","Muons"};
+    SG::ReadHandleKey<xAOD::MuonRoIContainer> m_L1muonRoIName{this,"L1muonRoIName","LVL1MuonRoIs","L1 muon ROIs"};
+    SG::ReadHandleKey<xAOD::EmTauRoIContainer> m_L1emtauRoIName{this,"L1emtauRoIName","LVL1EmTauRoIs","L1 EMTau ROIs"};
+    SG::ReadHandleKey<xAOD::JetRoIContainer> m_L1jetRoIName{this,"L1jetRoIName","LVL1JetRoIs","L1 Jet ROIs"};
+    SG::ReadHandleKey<xAOD::EnergySumRoI> m_L1esumRoIName{this,"L1esumRoIName","LVL1EnergySumRoI","L1 Energy Sum ROI"};
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","EventInfo"};
+    SG::ReadHandleKey<TrigOperationalInfoCollection> m_trigOpInfo{this,"TrigOpInfo","HLT_EXPRESS_OPI_HLT","express stream operational info"};
+
+    bool m_useExpressStream;
 
     // Number of Muon Algorithms to use
     int m_nMuonAlgorithms;
@@ -166,9 +182,8 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
 
     void       clearVectorsArrays();
     void       readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* tgc_coin_container, int pcn);
-    StatusCode readOfflineMuonContainer(std::string key,
-	std::vector<float>* mu_pt, std::vector<float>* mu_eta,
-	std::vector<float>* mu_phi,std::vector<float>* mu_q);
+    StatusCode readOfflineMuonContainer(std::vector<float>* mu_pt, std::vector<float>* mu_eta,
+					std::vector<float>* mu_phi,std::vector<float>* mu_q);
     StatusCode readL1TriggerType();
     StatusCode readEventInfo();
 

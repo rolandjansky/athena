@@ -25,8 +25,7 @@ topSequence += tgcRawMonMan
 print tgcRawMonMan
 ############## TgcLv1RawDataValAlg ##########
 from TgcRawDataMonitoring.TgcRawDataMonitoringConf import TgcLv1RawDataValAlg
-tgcLv1RawDataValAlg = TgcLv1RawDataValAlg(name='tgcLv1RawDataValAlg',
-                                          TgcPrepDataContainer="TGC_Measurements")
+tgcLv1RawDataValAlg = TgcLv1RawDataValAlg(name='tgcLv1RawDataValAlg')
 
 if DQMonFlags.useTrigger():
     ToolSvc += tgcLv1RawDataValAlg

@@ -62,17 +62,7 @@ using namespace std;
 TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::string &name, const IInterface* parent)
   :ManagedMonitorToolBase(type, name, parent)
 {
-  // Declare the properties
-  declareProperty("TgcPrepDataContainer",         m_hitContainerLocation="TGC_Measurements");
-  declareProperty("TgcPrepDataPreviousContainer", m_hitContainerLocationPrevious="TGC_MeasurementsPriorBC");
-  declareProperty("TgcPrepDataNextContainer",     m_hitContainerLocationNext="TGC_MeasurementsNextBC");
-  declareProperty("OutputCoinCollection",         m_coinCollectionLocation = "TrigT1CoinDataCollection" );
-  declareProperty("OutputCoinCollectionPrevious", m_coinCollectionLocationPrevious = "TrigT1CoinDataCollectionPriorBC" );
-  declareProperty("OutputCoinCollectionNext",     m_coinCollectionLocationNext = "TrigT1CoinDataCollectionNextBC" );
-  declareProperty("L1muonRoIName",                m_L1muonRoIName = "LVL1MuonRoIs" );
-  declareProperty("L1emtauRoIName",               m_L1emtauRoIName = "LVL1EmTauRoIs" );
-  declareProperty("L1jetRoIName",                 m_L1jetRoIName = "LVL1JetRoIs" );
-
+  declareProperty("UseExpressStream",m_useExpressStream=false);
   // initialize the histos
   for(int ac=0;ac<2;ac++){
 	  m_tgclv1lpttiming[ac] = 0;
@@ -188,7 +178,7 @@ TgcLv1RawDataValAlg::TgcLv1RawDataValAlg(const std::string &type, const std::str
 // TgcLv1RawDataValAlg Destructor
 ///////////////////////////////////////////////////////////////////////////
 TgcLv1RawDataValAlg::~TgcLv1RawDataValAlg(){
-  ATH_MSG_INFO( " deleting TgcLv1RawDataValAlg "  );
+  ATH_MSG_DEBUG( " deleting TgcLv1RawDataValAlg "  );
 }
 
 
@@ -198,18 +188,6 @@ TgcLv1RawDataValAlg::~TgcLv1RawDataValAlg(){
 StatusCode
 TgcLv1RawDataValAlg::initialize(){
   ATH_MSG_INFO( "in TgcLv1RawDataValAlg initialize"  );
-
-  /*
-  // Store Gate store
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
-  if (sc != StatusCode::SUCCESS ) {
-  m_log << MSG::ERROR << " Cannot get StoreGateSvc " << endmsg;
-  return sc ;
-  }
-  */
-  
-  // Retrieve the Active Store
-  ATH_CHECK( serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
 
   // Retrieve the MuonDetectorManager  
   ATH_CHECK( detStore()->retrieve(m_muonMgr) );
@@ -250,6 +228,17 @@ TgcLv1RawDataValAlg::initialize(){
   if(m_environment==AthenaMonManager::online) m_nMuonAlgorithms=1;
   
   ManagedMonitorToolBase::initialize().ignore();// Ignore the checking code
+
+  ATH_CHECK(m_coinCollectionLocation.initialize());
+  ATH_CHECK(m_coinCollectionLocationPrevious.initialize());
+  ATH_CHECK(m_coinCollectionLocationNext.initialize());
+  ATH_CHECK(m_muonKey.initialize());
+  ATH_CHECK(m_L1muonRoIName.initialize());
+  ATH_CHECK(m_L1emtauRoIName.initialize());
+  ATH_CHECK(m_L1jetRoIName.initialize());
+  ATH_CHECK(m_L1esumRoIName.initialize());
+  ATH_CHECK(m_eventInfo.initialize());
+  ATH_CHECK(m_trigOpInfo.initialize(m_useExpressStream));
   
   return StatusCode::SUCCESS;
 }
@@ -314,7 +303,7 @@ TgcLv1RawDataValAlg::bookHistogramsRecurrent(){
     ATH_CHECK( bookHistogramsSummary() );
   }// newRun
 
-  ATH_MSG_INFO( "TGCLV1 RawData Monitoring : histo booked "  );
+  ATH_MSG_DEBUG( "TGCLV1 RawData Monitoring : histo booked "  );
 
   return StatusCode::SUCCESS;
 }// EOF
@@ -334,61 +323,70 @@ TgcLv1RawDataValAlg::fillHistograms(){
   if( readEventInfo().isFailure() ){
     ATH_MSG_WARNING( "no event info container"  );
   }
+  ATH_MSG_DEBUG("Read EventInfo");
   // Read L1 Trigger Data
   ATH_CHECK(  readL1TriggerType() );
+  ATH_MSG_DEBUG("readL1TriggerType");
   
+  // Get Data from TGC Containers
+  clearVectorsArrays();
+  ATH_MSG_DEBUG("cleared vectors and arrays");
+
   /////////////////////////////////////
   // Get TGC Coin Containers
-  const Muon::TgcCoinDataContainer* tgc_previous_coin_container(0);
-  const Muon::TgcCoinDataContainer* tgc_current_coin_container(0);
-  const Muon::TgcCoinDataContainer* tgc_next_coin_container(0);
-  
   // Previous
-  ATH_CHECK(  (*m_activeStore)->retrieve(tgc_previous_coin_container, m_coinCollectionLocationPrevious) );
-  ATH_MSG_DEBUG( "****** tgc previous coin container size() : " << tgc_previous_coin_container->size()  );
-  
+  SG::ReadHandle<Muon::TgcCoinDataContainer> tgc_previous_coin_container(m_coinCollectionLocationPrevious);
+  if(tgc_previous_coin_container.isValid() && tgc_previous_coin_container.isPresent()){
+    ATH_MSG_DEBUG( "****** tgc previous coin container size() : " << tgc_previous_coin_container->size()  );
+    // fill vectors and arrays from TgcCoinData
+    readTgcCoinDataContainer(tgc_previous_coin_container.cptr(), PREV);
+  }
+
   // Current
-  ATH_CHECK(  (*m_activeStore)->retrieve(tgc_current_coin_container, m_coinCollectionLocation) );
-  ATH_MSG_DEBUG( "****** tgc current coin container size() : " << tgc_current_coin_container->size()  );
-  
+  SG::ReadHandle<Muon::TgcCoinDataContainer> tgc_current_coin_container(m_coinCollectionLocation);
+  if(tgc_current_coin_container.isValid() && tgc_current_coin_container.isPresent()){
+    ATH_MSG_DEBUG( "****** tgc current coin container size() : " << tgc_current_coin_container->size()  );
+    // fill vectors and arrays from TgcCoinData
+    readTgcCoinDataContainer( tgc_current_coin_container.cptr(), CURR);
+  }
+
   // Next
-  ATH_CHECK(  (*m_activeStore)->retrieve(tgc_next_coin_container, m_coinCollectionLocationNext) );
-  ATH_MSG_DEBUG( "****** tgc next coin container size() : " << tgc_next_coin_container->size()  );
-  
-  
+  SG::ReadHandle<Muon::TgcCoinDataContainer> tgc_next_coin_container(m_coinCollectionLocationNext);
+  if(tgc_next_coin_container.isValid() && tgc_next_coin_container.isPresent()){
+    ATH_MSG_DEBUG( "****** tgc next coin container size() : " << tgc_next_coin_container->size()  );
+    // fill vectors and arrays from TgcCoinData
+    readTgcCoinDataContainer(    tgc_next_coin_container.cptr(), NEXT);
+    readTgcCoinDataContainer(    tgc_next_coin_container.cptr(), TOTA);
+  }
+
   ///////////////////////////////////////////////////////////////////////////
   // ReadContainer
   /////////////////////////////////////
   // Read Offline Muon Containers
-  ATH_CHECK( readOfflineMuonContainer( "Muons",  &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q) );
+  ATH_CHECK( readOfflineMuonContainer( &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q) );
+  ATH_MSG_DEBUG("read offline muon container");
 
-  /////////////////////////////////////
-  // Get Data from TGC Containers
-  clearVectorsArrays();
-  // fill vectors and arrays from TgcCoinData
-  readTgcCoinDataContainer(tgc_previous_coin_container, PREV);
-  readTgcCoinDataContainer( tgc_current_coin_container, CURR);
-  readTgcCoinDataContainer(    tgc_next_coin_container, NEXT);
-  readTgcCoinDataContainer(    tgc_next_coin_container, TOTA);
-  
-  
   ///////////////////////////////////////////////////////////////////////////
   // Fill Histograms
   
   // NumberOfTrigger
   fillNumberOfTrigger();
+  ATH_MSG_DEBUG("filled # of triggers");
   
   // TriggerTiming
   int ptcut=1;
   fillTriggerTiming(ptcut);
+  ATH_MSG_DEBUG("filled trigger timing");
   
   int ms;
   ms=0; //Muid
   fillTriggerTimingAssociatedWithTrack( ms, &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q );
+  ATH_MSG_DEBUG("Associated with track");
   
   // Efficiency
   ms=0; //Muid
   fillEfficiency( ms, &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q );
+  ATH_MSG_DEBUG("filled efficiency");
   
   
   // Coincidence Window
@@ -396,6 +394,7 @@ TgcLv1RawDataValAlg::fillHistograms(){
   if( m_environment != AthenaMonManager::online ){
     fillCoincidenceWindow( ms, &m_muid_pt,  &m_muid_eta,  &m_muid_phi,  &m_muid_q );
   }
+  ATH_MSG_DEBUG("filled coincidence window");
   
   /*
     int numberOfSL=m_nSL[0]+m_nSL[1]+m_nSL[2];
