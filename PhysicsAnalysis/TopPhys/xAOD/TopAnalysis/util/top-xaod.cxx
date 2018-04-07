@@ -369,6 +369,7 @@ int main(int argc, char** argv) {
     ULong64_t totalEvents = 0;
     ULong64_t totalEventsInFiles = 0;
     sumWeights->Branch("dsid", &dsid);
+    sumWeights->Branch("isAFII", &isAFII);
     sumWeights->Branch("totalEventsWeighted", &totalEventsWeighted);
     if (topConfig->doMCGeneratorWeights()) {// the main problem is that we don't have the list of names a priori
       sumWeights->Branch("totalEventsWeighted_mc_generator_weights", &totalEventsWeighted_LHE3);
