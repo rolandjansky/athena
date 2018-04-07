@@ -18,8 +18,8 @@ from DerivationFrameworkEGamma.egammaDFFlags import jobproperties
 jobproperties.egammaDFFlags.print_JobProperties("full")
 
 # this could also go in egammaDFFlags
-RecomputeElectronSelectors = True
-#RecomputeElectronSelectors = False
+RecomputeEGammaSelectors = True
+#RecomputeEGammaSelectors = False
 
 DoCellReweighting = jobproperties.egammaDFFlags.doEGammaCellReweighting
 #override if needed (do at your own risk..)
@@ -54,10 +54,10 @@ EGAM3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 
 # if skim size too large either require tight electrons (at least one) or raise electron pT threshold (at least one)
 #requirement = 'DFCommonElectronsLHMedium && (DFCommonElectrons_pt > 9.5*GeV)'
-if RecomputeElectronSelectors :
-    requirement = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 9.5*GeV)'
+if RecomputeEGammaSelectors :
+    requirement = '(Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 9.5*GeV)'
 else :
-    requirement = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium) && (Electrons.pt > 9.5*GeV)'
+    requirement = '(Electrons.LHMedium) && (Electrons.pt > 9.5*GeV)'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGInvariantMassTool
 EGAM3_EEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMassTool",
@@ -82,11 +82,10 @@ print EGAM3_EEMassTool
 # gamma: tight, ET>10 GeV
 #====================================================================
 # asymmetric electron cuts/single e trigger, low pT cut for subleading e (for e calibration studies at low pT)
-#requirement1 = 'DFCommonElectronsLHTight && (DFCommonElectrons_pt > 24.5*GeV)'
-if RecomputeElectronSelectors :
-    requirement1 = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
+if RecomputeEGammaSelectors :
+    requirement1 = '(Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
 else :
-    requirement1 = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
+    requirement1 = '(Electrons.LHTight) && (Electrons.pt > 24.5*GeV)'
 requirement2 = '(Electrons.pt > 6.5*GeV)'
 
 EGAM3_EEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMassTool2",
@@ -105,10 +104,10 @@ EGAM3_EEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM3_EEMa
 ToolSvc += EGAM3_EEMassTool2
 print EGAM3_EEMassTool2
 
-if RecomputeElectronSelectors :
-    requirement1 = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
+if RecomputeEGammaSelectors :
+    requirement1 = '(Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
 else :
-    requirement1 = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 24.5*GeV)'
+    requirement1 = '(Electrons.LHTight) && (Electrons.pt > 24.5*GeV)'
 requirement2 = '(ForwardElectrons.pt > 6.5*GeV)'
 #requirement2 = '(ForwardElectrons.pt > 9.5*GeV)'
 
@@ -133,7 +132,7 @@ print EGAM3_EEMassTool3
 # SKIMMING TOOL
 #====================================================================
 
-if RecomputeElectronSelectors :
+if RecomputeEGammaSelectors :
     photon_quality = 'Photons.DFCommonPhotonsIsEMTight'
 else :
     photon_quality = 'Photons.Tight'
@@ -408,6 +407,13 @@ else:
 
 for tool in EGAM3_ClusterEnergyPerLayerDecorators:
     EGAM3SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+
+# Add detailed shower shape variables
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+EGAM3SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+EGAM3SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 # This line must come after we have finished configuring EGAM3SlimmingHelper
 EGAM3SlimmingHelper.AppendContentToStream(EGAM3Stream)
