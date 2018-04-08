@@ -109,8 +109,6 @@ void TrigTrackSeedGenerator::createSeeds() {
   m_spPickWidth = std::fabs( m_zPlus - m_settings.roiDescriptor->zed() );
 
   if (m_settings.m_correctToBeamline) {
-    //std::cout << "CK TEST: m_settings.m_vertex.x() = " << m_settings.m_vertex.x() << std::endl;
-    //std::cout << "CK TEST: m_settings.m_vertex.y() = " << m_settings.m_vertex.y() << std::endl << std::endl;
     m_zCentre = m_zCentre + ((std::cos(m_phi)*m_settings.m_vertex.x() + std::sin(m_phi)*m_settings.m_vertex.y())/std::tan(m_theta));
   }
   
