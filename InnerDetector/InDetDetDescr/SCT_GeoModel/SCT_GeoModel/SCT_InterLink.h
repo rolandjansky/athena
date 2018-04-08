@@ -8,8 +8,14 @@
 #include "SCT_GeoModel/SCT_ComponentFactory.h"
 
 #include <string>
+#include <vector>
 
 class GeoMaterial;
+class GeoTube;
+class GeoLogVol;
+class GeoPhysVol;
+class GeoTubs;
+class GeoTransform;
 
 class SCT_InterLink : public SCT_SharedComponentFactory
 {
@@ -23,7 +29,6 @@ public:
   double outerRadius() const {return m_outerRadius;} 
   double length() const {return m_length;} 
 
- 
 private:
   void getParameters();
   virtual GeoVPhysVol * build();
@@ -52,6 +57,19 @@ private:
   double m_phiPosBearing;
   int m_nRepeatBearing;
 
+  const GeoTube* m_interLinkShape;
+  const GeoLogVol* m_interLinkLog;
+  GeoPhysVol* m_interLink;
+  const GeoTubs* m_interLinkSegShape;
+  const GeoLogVol* m_interLinkSegLog;
+  GeoPhysVol* m_interLinkSeg;
+  const GeoTubs* m_bearingShape;
+  const GeoLogVol* m_bearingLog;
+  GeoPhysVol* m_bearing;
+  const GeoTubs* m_FSIFlangeShape;
+  const GeoLogVol* m_FSIFlangeLog;
+  GeoPhysVol* m_FSIFlange;
+  std::vector<GeoTransform*> m_geoTransforms;
 };
 
 #endif // SCT_GEOMODEL_SCT_INTERLINK_H
