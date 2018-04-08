@@ -17,9 +17,22 @@
 #include "ParticleTruth/TrackParticleTruthCollection.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/leakcheck.h"
+#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
 #include <cassert>
 #include <iostream>
 
+
+void compare (const HepMcParticleLink& p1,
+              const HepMcParticleLink& p2)
+{
+  assert ( p1.isValid() == p2.isValid() );
+  assert ( p1.barcode() == p2.barcode() );
+  assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.cptr() == p2.cptr() );
+  assert ( p1 == p2 );
+}
 
 void compare (const TrackParticleTruthCollection& p1,
               const TrackParticleTruthCollection& p2)
@@ -30,6 +43,7 @@ void compare (const TrackParticleTruthCollection& p1,
   TrackParticleTruthCollection::const_iterator i2 = p2.begin();
   for (; i1 != p1.end(); ++i1, ++i2) {
     assert (i1->first.link() == i2->first.link());
+    compare (i1->second.particleLink(), i2->second.particleLink());
     assert (i1->second.particleLink() == i2->second.particleLink());
     assert (i1->second.probability() == i2->second.probability());
   }
@@ -49,27 +63,39 @@ void testit (const TrackParticleTruthCollection& trans1)
 }
 
 
-void test1()
+void test1(std::vector<HepMC::GenParticle*> genPartVector)
 {
   std::cout << "test1\n";
+  const HepMC::GenParticle *particle = genPartVector.at(0);
+  // Create HepMcParticleLink outside of leak check.
+  HepMcParticleLink dummyHMPL(particle->barcode());
+  assert(dummyHMPL.cptr()==particle);
   // Get proxy created outside of leak checking.
   DataLink<Rec::TrackParticleContainer> dldum ("tpc");
   Athena_test::Leakcheck check;
 
   TrackParticleTruthCollection trans1 (DataLink<Rec::TrackParticleContainer>("tpc"));
   for (int i=0; i<10; i++) {
+    const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
+    HepMcParticleLink trkLink(pGenParticle->barcode());
     Rec::TrackParticleTruthKey key (ElementLink<Rec::TrackParticleContainer> ("tpc", i));
-    TrackParticleTruth val (i+100, (float)i/10);
+    TrackParticleTruth val (trkLink, (float)i/10);
     trans1[key] = val;
   }
-    
+
   testit (trans1);
 }
 
 
 int main()
 {
-  SGTest::initTestStore();
-  test1();
+  ISvcLocator* pSvcLoc = nullptr;
+  std::vector<HepMC::GenParticle*> genPartVector;
+  if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
+  test1(genPartVector);
   return 0;
 }
