@@ -2099,7 +2099,7 @@ def setupMenu():
         ['e26_lhmedium_5j30_0eta240_L1EM20VH_3J20',    	'L1_EM20VH_3J20',    ['L1_EM20VH_3J20',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e26_lhmedium","5j30_0eta240"] ]],
         ['e24_lhmedium_5j30_0eta240_L1EM20VH_3J20',    	'L1_EM20VH_3J20',    ['L1_EM20VH_3J20',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1, ['serial',-1,["e24_lhmedium","5j30_0eta240"] ]],
 
-        ['mu20_mu8noL1_e9_lhvloose_nod0_L1EM7_MU11',    'L1_EM7_MU11',  ['L1_MU11','','L1_EM7'],   [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['serial',-1,['mu20','mu8noL1','e9_lhvloose_nod0'] ]],
+        ['e9_lhvloose_nod0_mu20_mu8noL1_L1EM7_MU11',    'L1_EM7_MU11',  ['L1_EM7','L1_MU11',''],   [PhysicsStream], ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['serial',-1,['mu20','mu8noL1','e9_lhvloose_nod0'] ]],
 
 
 
