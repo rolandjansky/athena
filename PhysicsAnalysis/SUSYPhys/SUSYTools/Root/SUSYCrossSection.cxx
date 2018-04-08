@@ -17,10 +17,18 @@
 // Text file i/o
 #include <fstream>
 
-SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool usePathResolver, bool isExtended) {
-  
+SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool usePathResolver, bool isExtended)
+  : m_pmgxs("")
+{
   setExtended(isExtended);
   
+  // configuring the PMG tool... 
+  m_pmgxs.setTypeAndName("PMGTools::PMGCrossSectionTool/PMGCrossSectionTool");
+  m_pmgxs.retrieve().ignore(); // Ignore the status code
+  std::vector<std::string> inFiles={};
+  inFiles.push_back( PathResolverFindCalibDirectory("dev/PMGTools/PMGxsecDB_mc16.txt") );
+  m_pmgxs->readInfosFromFiles( inFiles );
+
   if (usePathResolver) {
     std::string fullPath = PathResolverFindCalibDirectory(txtfilenameOrDir);
     
@@ -132,14 +140,19 @@ void SUSY::CrossSectionDB::extend(const std::string& txtfilename){
 
 SUSY::CrossSectionDB::Process SUSY::CrossSectionDB::process(int id, int proc) const
 {
-  const Key k(id, proc);
-  xsDB_t::const_iterator pos = m_cache.find(k);
-  if (pos != m_cache.end()) {
-    return pos->second;
+  // for background x-sections, use the PMG tool
+  if(proc==0) {
+    return Process( id, m_pmgxs->getSampleName(id), m_pmgxs->getAMIXsection(id), m_pmgxs->getKfactor(id), m_pmgxs->getFilterEff(id), -1, -1, -1 );  
   } else {
-    pos = m_xsectDB.find(k);
-    if (pos != m_xsectDB.end()) {
+    const Key k(id, proc);
+    xsDB_t::const_iterator pos = m_cache.find(k);
+    if (pos != m_cache.end()) {
       return pos->second;
+    } else {
+      pos = m_xsectDB.find(k);
+      if (pos != m_xsectDB.end()) {
+	return pos->second;
+      }
     }
   }
   return Process();

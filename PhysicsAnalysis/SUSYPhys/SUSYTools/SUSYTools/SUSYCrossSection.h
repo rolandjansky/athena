@@ -10,6 +10,15 @@
 #include <string>
 #include <map>
 
+// For PMG centralized tool's wrapper tool handles 
+#include "AsgTools/AnaToolHandle.h"
+// Lots of function inlining! 
+#include "PMGAnalysisInterfaces/IPMGCrossSectionTool.h"
+
+namespace PMGTools {
+  class IPMGCrossSectionTool;
+}
+
 namespace SUSY
 {
 
@@ -109,6 +118,8 @@ public:
   iterator end() const {return m_xsectDB.end(); }
 
 private:
+  //PMG tool
+  asg::AnaToolHandle<PMGTools::IPMGCrossSectionTool> m_pmgxs;
 
   xsDB_t::iterator my_find( const int proc );
   xsDB_t m_xsectDB;
