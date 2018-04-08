@@ -363,9 +363,7 @@ int main(int argc, char** argv) {
     std::vector<std::string> names_LHE3;
     bool recalc_LHE3 = false;
     int dsid = 0;
-    int isAFII = -1;
-    if(useAodMetaData) isAFII=topConfig->aodMetaData().isAFII();
-    else isAFII=topConfig->isAFII();
+    int isAFII = topConfig->isAFII();
     ULong64_t totalEvents = 0;
     ULong64_t totalEventsInFiles = 0;
     sumWeights->Branch("dsid", &dsid);
