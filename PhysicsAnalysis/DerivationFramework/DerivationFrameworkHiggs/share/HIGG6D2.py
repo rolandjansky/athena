@@ -39,11 +39,13 @@ if is_MC:
 #====================================================================
 augmentationTools = []
 from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauSelectionWrapper
-HIGG6D2TauWrapper = DerivationFramework__TauSelectionWrapper(name = "HIGG6D2TauSelectionWrapper",
-															#IsTauFlag			= IsTauFlag.JetBDTSigLoose,
-															IsTauFlag			= 19,
-															CollectionName		= "TauJets",
-															StoreGateEntryName	= "HIGG6D2JetBDTSigLoose")
+HIGG6D2TauWrapper = DerivationFramework__TauSelectionWrapper(
+  name="HIGG6D2TauSelectionWrapper",
+  #IsTauFlag=IsTauFlag.JetBDTSigLoose,
+  IsTauFlag=19,
+  CollectionName="TauJets",
+  StoreGateEntryName="HIGG6D2JetBDTSigLoose")
+
 ToolSvc += HIGG6D2TauWrapper
 augmentationTools.append(HIGG6D2TauWrapper)
 #=======================================
@@ -210,10 +212,12 @@ ToolSvc += HIGG6D2ElectronTPThinningTool
 #====================================================================
 # Tracks themselves
 #====================================================================
-HIGG6D2TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "HIGG6D2TPThinningTool",
-                                                                   ThinningService         = "HIGG6D2ThinningSvc",
-                                                                   SelectionString         = "abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
-                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
+HIGG6D2TPThinningTool = DerivationFramework__TrackParticleThinning(
+  name= "HIGG6D2TPThinningTool",
+  ThinningService="HIGG6D2ThinningSvc",
+  SelectionString="abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0",
+  InDetTrackParticlesKey ="InDetTrackParticles"
+)
 
 thinningTools.append(HIGG6D2TPThinningTool)
 ToolSvc += HIGG6D2TPThinningTool
@@ -252,13 +256,13 @@ if is_MC:
 #====================================================================
 # Clusters for Tau TES
 #====================================================================
-                                                                                                                                                                                                                                   
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-HIGG6D2CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name                  = "HIGG6D2PClusterThinning",
-                            ThinningService       = "HIGG6D2ThinningSvc",
-                            SGKey                 = "TauJets",
-                            TopoClCollectionSGKey = "CaloCalTopoClusters",
-                            )
+HIGG6D2CaloClusterThinning  = DerivationFramework__CaloClusterThinning(
+  name="HIGG6D2PClusterThinning",
+  ThinningService="HIGG6D2ThinningSvc",
+  SGKey="TauJets",
+  TopoClCollectionSGKey="CaloCalTopoClusters",
+)
 ToolSvc += HIGG6D2CaloClusterThinning
 thinningTools.append(HIGG6D2CaloClusterThinning)
 
@@ -297,43 +301,87 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 HIGG6D2SlimmingHelper = SlimmingHelper("HIGG6D2SlimmingHelper")
 
 ## Smart Slimming
-HIGG6D2SlimmingHelper.SmartCollections = ["Electrons",
-                                      "Muons",
-                                      "TauJets",
-                                      "MET_Reference_AntiKt4LCTopo",
-                                      "MET_Reference_AntiKt4EMTopo",
-                                      "AntiKt4LCTopoJets",
-                                      "AntiKt4EMTopoJets",
-                                      "TauMVATESJets",
-                                      "BTagging_AntiKt4LCTopo",
-                                      "BTagging_AntiKt4EMTopo",
-                                      "InDetTrackParticles",
-                                      "PrimaryVertices" ]
+HIGG6D2SlimmingHelper.SmartCollections = [
+  "Electrons",
+  "Muons",
+  "TauJets",
+  "MET_Reference_AntiKt4LCTopo",
+  "MET_Reference_AntiKt4EMTopo",
+  "AntiKt4LCTopoJets",
+  "AntiKt4EMTopoJets",
+  "TauMVATESJets",
+  "BTagging_AntiKt4LCTopo",
+  "BTagging_AntiKt4EMTopo",
+  "InDetTrackParticles",
+  "PrimaryVertices",
+  "AntiKt4TruthJets",
+]
 
 
 ## Add extra variables
 HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta"]
 HIGG6D2SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopo.MV2cl100_discriminant"]
-HIGG6D2SlimmingHelper.ExtraVariables += ["TauJets.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis.BDTEleScore.pantau_CellBasedInput_isPanTauCandidate.pantau_CellBasedInput_DecayMode.ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased.pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n.pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn.pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn","TauNeutralParticleFlowObjects.pt.eta.phi.m.rapidity.bdtPi0Score"]
-HIGG6D2SlimmingHelper.ExtraVariables += ["Electrons.DFCommonElectronsLHLoose.DFCommonElectronsLHMedium.DFCommonElectronsLHTight.DFCommonElectronsML.author.OQ.charge.LHLoose.LHMedium.LHTight.LHValue"]
-HIGG6D2SlimmingHelper.ExtraVariables += ["Muons.DFCommonGoodMuons","CombinedMuonTrackParticles.d0.z0.vz","InDetTrackParticles.numberOfTRTHits.numberOfTRTOutliers"]
+HIGG6D2SlimmingHelper.ExtraVariables += [
+  "TauJets.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis."\
+  "mDetectorAxis.BDTEleScore.pantau_CellBasedInput_isPanTauCandidate.pantau_CellBasedInput_DecayMode"\
+  ".ptPanTauCellBased.etaPanTauCellBased.phiPanTauCellBased.mPanTauCellBased."\
+  "pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n.pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn.pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn",
+  "TauNeutralParticleFlowObjects.pt.eta.phi.m.rapidity.bdtPi0Score"]
+
+HIGG6D2SlimmingHelper.ExtraVariables += [
+  "Electrons.DFCommonElectronsLHLoose.DFCommonElectronsLHMedium."\
+  "DFCommonElectronsLHTight.DFCommonElectronsML.author.OQ.charge.LHLoose.LHMedium.LHTight.LHValue"
+]
+HIGG6D2SlimmingHelper.ExtraVariables += [
+  "Muons.DFCommonGoodMuons",
+  "CombinedMuonTrackParticles.d0.z0.vz",
+  "InDetTrackParticles.numberOfTRTHits.numberOfTRTOutliers"
+]
 HIGG6D2SlimmingHelper.ExtraVariables += ["PrimaryVertices.x.y.z.vertexType"]
-HIGG6D2SlimmingHelper.AllVariables = ["CaloCalTopoClusters","TauChargedParticleFlowObjects"]
+
+HIGG6D2SlimmingHelper.AllVariables = [
+  "CaloCalTopoClusters",
+  "TauChargedParticleFlowObjects"
+]
 
 if is_MC:
-  HIGG6D2SlimmingHelper.StaticContent = ["xAOD::TruthParticleContainer#TruthMuons","xAOD::TruthParticleAuxContainer#TruthMuonsAux.","xAOD::TruthParticleContainer#TruthElectrons","xAOD::TruthParticleAuxContainer#TruthElectronsAux.","xAOD::TruthParticleContainer#TruthPhotons","xAOD::TruthParticleAuxContainer#TruthPhotonsAux.","xAOD::TruthParticleContainer#TruthNeutrinos","xAOD::TruthParticleAuxContainer#TruthNeutrinosAux.","xAOD::TruthParticleContainer#TruthTaus","xAOD::TruthParticleAuxContainer#TruthTausAux."]  
-  HIGG6D2SlimmingHelper.AllVariables = ["TruthParticles","TruthEvents","MET_Truth","METMap_Truth","TruthVertices","AntiKt4TruthJets","CaloCalTopoClusters","TauChargedParticleFlowObjects"]
+  HIGG6D2SlimmingHelper.StaticContent = [
+    "xAOD::TruthParticleContainer#TruthMuons",
+    "xAOD::TruthParticleAuxContainer#TruthMuonsAux.",
+    "xAOD::TruthParticleContainer#TruthElectrons",
+    "xAOD::TruthParticleAuxContainer#TruthElectronsAux.",
+    "xAOD::TruthParticleContainer#TruthPhotons",
+    "xAOD::TruthParticleAuxContainer#TruthPhotonsAux.",
+    "xAOD::TruthParticleContainer#TruthNeutrinos",
+    "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux.",
+    "xAOD::TruthParticleContainer#TruthTaus",
+    "xAOD::TruthParticleAuxContainer#TruthTausAux."
+  ]  
+  HIGG6D2SlimmingHelper.AllVariables = [
+    "TruthParticles",
+    "TruthEvents",
+    "MET_Truth",
+    "METMap_Truth",
+    "MET_Track",
+    "TruthVertices",
+    "CaloCalTopoClusters",
+    "TauChargedParticleFlowObjects",
+    #"AntiKt4TruthJets"
+  ]
   HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4LCTopoJets.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]
   HIGG6D2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T"]
   HIGG6D2SlimmingHelper.ExtraVariables += ["Electrons.truthOrigin.truthType.truthParticleLink","MuonTruthParticles.truthOrigin.truthType"]
   HIGG6D2SlimmingHelper.ExtraVariables += ["TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
 
 # Add MET_RefFinalFix
-addMETOutputs(HIGG6D2SlimmingHelper,["AntiKt4LCTopo","AntiKt4EMTopo","Track"])
+## FIX ME: this one adds AllVariables to the above collections which is not allowed !! 
+# addMETOutputs(HIGG6D2SlimmingHelper,["AntiKt4LCTopo","AntiKt4EMTopo","Track"])
+
 HIGG6D2SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG6D2SlimmingHelper.IncludeEGammaTriggerContent = True
 HIGG6D2SlimmingHelper.IncludeEtMissTriggerContent = True
 HIGG6D2SlimmingHelper.IncludeTauTriggerContent = True
 HIGG6D2SlimmingHelper.IncludeJetTriggerContent = True
-                                        
+
+
 HIGG6D2SlimmingHelper.AppendContentToStream(HIGG6D2Stream)
