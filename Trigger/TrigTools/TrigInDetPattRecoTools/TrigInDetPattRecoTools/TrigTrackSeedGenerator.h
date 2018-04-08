@@ -485,7 +485,7 @@ private:
 
   INTERNAL_TRIPLET_BUFFER m_triplets;
 
-  float m_zMinus, m_zPlus, m_zCentre, m_zCentre_beamline, m_theta, m_phi, m_minCoord, m_maxCoord, m_spPickWidth;
+  float m_zMinus, m_zPlus, m_zCentre, m_theta, m_phi, m_minCoord, m_maxCoord, m_spPickWidth;
 
   //bool m_isBarrel;
 
