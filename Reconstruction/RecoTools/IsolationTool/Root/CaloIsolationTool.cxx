@@ -671,44 +671,59 @@ namespace xAOD {
 
     float coreV = 0;
     bool gotIso = eg->isolationCaloCorrection(coreV,Iso::etcone, Iso::core57cells, Iso::coreEnergy);
-    if (gotIso) 
+    if (gotIso){ 
       ATH_MSG_DEBUG("core57cells available = " << coreV);
-    else
+    }
+    else{
       ATH_MSG_DEBUG("core57cells not available");
-    if ( !m_caloFillRectangularTool.empty() && ((gotIso && fabs(coreV) < 1e-3) || !gotIso) ) { 
+    }
+
+    /**
+     * If we have a caloFillRectangular cluster tool 
+     * (we are in an full Athena like environment)
+     * and we did not have an IsolationCaloCorrection
+     * or when we had one was really small 
+     * execute the following
+*/
 #ifndef XAOD_ANALYSIS
+    if ( !m_caloFillRectangularTool.empty() && ((gotIso && fabs(coreV) < 1e-3) || !gotIso) ) { 
       const CaloCluster *cleg = eg->caloCluster();
       // now correct the isolation energy for the core cluster energy
       float eraw57=0., eta=0.;
-
       if(cleg && cleg->getCellLinks()){
-	double seedEta = cleg->eta0(), seedPhi = cleg->phi0();
-	CaloCluster* egcCloneFor57 = CaloClusterStoreHelper::makeCluster(cleg->getCellLinks()->getCellContainer(),
-									 seedEta,seedPhi,
-									 cleg->clusterSize());
+          double seedEta = cleg->eta0(), seedPhi = cleg->phi0();
+          CaloCluster* egcCloneFor57 = CaloClusterStoreHelper::makeCluster(cleg->getCellLinks()->getCellContainer(),
+                  seedEta,seedPhi,
+                  cleg->clusterSize());
 	
-	if (!m_caloFillRectangularTool->execute (egcCloneFor57).isSuccess())
-	  {
-	    return false;
-	  }
-	if(egcCloneFor57->size()==0){
-	  ATH_MSG_WARNING("Size of Created Cluster is 0 aka no cells");
-	  return false;
-	}
+          if (!m_caloFillRectangularTool->execute (egcCloneFor57).isSuccess()){
+              return false;
+          }
+          if(egcCloneFor57->size()==0){
+              ATH_MSG_WARNING("Size of Created Cluster is 0 aka no cells");
+              return false;
+          }
 
-	eraw57 = egcCloneFor57->e();
-	eta    = cleg->eta(); //FillRectangularCluster doesn't recalculated the overall cluster eta (only per-sampling)
-	coreV  = eraw57/cosh(eta);
-	ATH_MSG_DEBUG("Number of cells in 5x7 " << egcCloneFor57->size() 
-		      << " seed eta,phi " << cleg->eta0() << " " << cleg->phi0()
-		      << " eraw = " << eraw57 << " etraw = " << coreV
-		      );
-	delete egcCloneFor57;
+          eraw57 = egcCloneFor57->e();
+          eta    = cleg->eta(); //FillRectangularCluster doesn't recalculated the overall cluster eta (only per-sampling)
+          coreV  = eraw57/cosh(eta);
+          ATH_MSG_DEBUG("Number of cells in 5x7 " << egcCloneFor57->size() 
+                  << " seed eta,phi " << cleg->eta0() << " " << cleg->phi0()
+                  << " eraw = " << eraw57 << " etraw = " << coreV
+                  );
+          delete egcCloneFor57;
       }
-#else
-      return false;
-#endif // XAOD_ANALYSIS
     }
+    /**
+     * in non full Athena environments 
+     * if it is not already there nothing much
+     * one can do
+     */
+#else 
+    if ((gotIso && fabs(coreV) < 1e-3) || !gotIso) {
+        return false;
+    }
+#endif // XAOD_ANALYSIS
 
     std::map<Iso::IsolationCorrectionParameter,float> corecorr;
     corecorr[Iso::coreEnergy] = coreV;
