@@ -160,6 +160,17 @@ L1CALO2Stream.AddItem("xAOD::L1TopoRawDataContainer#L1TopoRawData")
 L1CALO2Stream.AddItem("xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.")
 
 
+###Egamma CP additions###
+
+L1CALO2Stream.AddItem("xAOD::TrackParticleContainer#GSFTrackParticles")
+L1CALO2Stream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."+trackParticleAuxExclusions)
+L1CALO2Stream.AddItem("xAOD::VertexContainer#GSFConversionVertices")
+L1CALO2Stream.AddItem("xAOD::VertexAuxContainer#GSFConversionVerticesAux.-vxTrackAtVertex")
+L1CALO2Stream.AddItem("xAOD::CaloClusterContainer#egammaTopoSeededClusters")
+L1CALO2Stream.AddItem("xAOD::CaloClusterAuxContainer#egammaTopoSeededClustersAux.")
+
+###############
+
 
 
 
