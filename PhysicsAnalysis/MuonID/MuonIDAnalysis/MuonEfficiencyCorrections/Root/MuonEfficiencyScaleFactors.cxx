@@ -489,13 +489,13 @@ namespace CP {
         }
         if ((*m_Sys1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Sys1Down;
         else if ((*m_Sys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Sys1Up;
-        else if (m_LowPtSys1Up && (*m_LowPtSys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Down;
-        else if (m_LowPtSys1Down && (*m_LowPtSys1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Up;
+        else if (m_LowPtSys1Up && (*m_LowPtSys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Up;
+        else if (m_LowPtSys1Down && (*m_LowPtSys1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Down;
         else if (!m_seperateSystBins) {
             if ((*m_Stat1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Stat1Down;
             else if ((*m_Stat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Stat1Up;
-            else if (m_LowPtStat1Up && (*m_LowPtStat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Down;
-            else if (m_LowPtStat1Down && (*m_LowPtStat1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Up;
+            else if (m_LowPtStat1Up && (*m_LowPtStat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Up;
+            else if (m_LowPtStat1Down && (*m_LowPtStat1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Down;
         } else if (!mySysConf.name().empty()) {
             for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
