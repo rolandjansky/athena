@@ -44,7 +44,7 @@ class IAtRndmGenSvc;
  * Adapted to C++ by T.Kittelmann/Mogens Dam.
  */
 
-class TRT_PAI_Process : public AthAlgTool,  virtual public ITRT_PAITool {
+class TRT_PAI_Process final : public extends<AthAlgTool, ITRT_PAITool> {
 
  public:
 
