@@ -275,30 +275,6 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     sc = m_errhist_expert_maps[j]->regHist(rodExpert);
   }
 
-  hname = makeHistname("ServiceRecord_Unweighted_IBL", false);
-  htitles = makeHisttitle("ServiceRecord Unweighted, IBL", ";SR;Count", false);
-  sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_unweighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 32, -0.5, 31.5));
-
-  hname = makeHistname("ServiceRecord_Weighted_IBL", false);
-  htitles = makeHisttitle("ServiceRecord Weighted, IBL", ";SR;Count", false);
-  sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_weighted = TH1F_LW::create(hname.c_str(), htitles.c_str(), 32, -0.5, 31.5));
-
-  hname = makeHistname("ServiceRecord_Count_IBL", false);
-  htitles = makeHisttitle("ServiceRecord Count, IBL", ";SR;Count", false);
-  sc = rodExpert.regHist(m_errhist_expert_servrec_ibl_count = TH1F_LW::create(hname.c_str(), htitles.c_str(), 100, -0.5, 99.5));
-
-  if (m_errhist_expert_servrec_ibl_unweighted) {
-    for (int i = 0; i < kNumErrorBits; i++) {
-      m_errhist_expert_servrec_ibl_unweighted->GetXaxis()->SetBinLabel(i + 1, errorBitsIBL[i]);
-    }
-  }
-
-  if (m_errhist_expert_servrec_ibl_weighted) {
-    for (int i = 0; i < kNumErrorBits; i++) {
-      m_errhist_expert_servrec_ibl_weighted->GetXaxis()->SetBinLabel(i + 1, errorBitsIBL[i]);
-    }
-  }
-
   for (int i = 0; i < PixLayer::COUNT; i++) {
     hname = makeHistname(("nFEswithTruncErr_" + m_modLabel_PixLayerIBL2D3D[i]), false);
     htitles = makeHisttitle(("Number of FEs with FE EoC Trunc error, " + m_modLabel_PixLayerIBL2D3D[i]), ";lumi block;eta index of module;# FEs with errors in a module in an event;# event #times # modules", false);
@@ -475,12 +451,6 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
             num_errors_per_state[kLayer][getErrorState(bit, is_fei4)]++;
           }
           if (m_errhist_expert_maps[getErrorState(bit, is_fei4)]) m_errhist_expert_maps[getErrorState(bit, is_fei4)]->fill(WaferID, m_pixelid);
-        }
-
-        if (kLayer == PixLayerDBM::kIBL) {
-          if (m_errhist_expert_servrec_ibl_unweighted) m_errhist_expert_servrec_ibl_unweighted->Fill(bit);
-          if (m_errhist_expert_servrec_ibl_weighted) m_errhist_expert_servrec_ibl_weighted->Fill(bit, m_ErrorSvc->getServiceRecordCount(bit));
-          if (m_errhist_expert_servrec_ibl_count) m_errhist_expert_servrec_ibl_count->Fill(m_ErrorSvc->getServiceRecordCount(bit));
         }
       }  // end bit shifting
     }    // end for loop over bits
