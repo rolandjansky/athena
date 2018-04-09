@@ -141,7 +141,7 @@ public:
 
   // ----  other methods
  
-  /// @Return ID of the converter
+  /// @return ID of the converter
   virtual unsigned short	getConverterID() = 0;
   
 protected:

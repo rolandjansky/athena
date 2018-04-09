@@ -201,7 +201,7 @@ void AthReentrantAlgorithm::renounceArray( SG::VarHandleKeyArray& vh ) {
 }
 
 /**
- * @briefS Return this algorithm's input handles.
+ * @brief Return this algorithm's input handles.
  *
  * We override this to include handle instances from key arrays
  * if they have not yet been declared.
