@@ -893,7 +893,7 @@ inline
 void ConcurrentBitset::Impl::assign (const Impl& other)
 {
   // Copy, then clear the remainder.
-  // We don't care about the relative ordering, so to this with relaxed
+  // We don't care about the relative ordering, so do this with relaxed
   // memory ordering, and add a barrier at the end.
   bit_t ncopy = std::min (m_nblocks, other.m_nblocks);
   for (bit_t i=0; i < ncopy; i++) {
