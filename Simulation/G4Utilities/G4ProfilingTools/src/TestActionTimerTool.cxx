@@ -18,6 +18,12 @@ namespace G4UA
   {
   }
 
+  StatusCode TestActionTimerTool::initialize()
+  {
+    ATH_CHECK(m_histSvc.retrieve());
+    return StatusCode::SUCCESS;
+  }
+
   std::unique_ptr<TestActionTimer>
   TestActionTimerTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {

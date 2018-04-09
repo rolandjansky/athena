@@ -24,8 +24,9 @@ typedef  T_AthenaPoolCustomCnv<SCT_ByteStreamFractionContainer, SCT_ByteStreamFr
 
 class SCT_ByteStreamFractionContainerCnv : public SCT_ByteStreamFractionContainerCnvBase {
 friend class CnvFactory<SCT_ByteStreamFractionContainerCnv>;
-protected:
+public:
   SCT_ByteStreamFractionContainerCnv (ISvcLocator* svcloc) : SCT_ByteStreamFractionContainerCnvBase(svcloc) {}
+protected:
   virtual SCT_ByteStreamFractionContainer_PERS*createPersistent(SCT_ByteStreamFractionContainer* transCont);
   virtual SCT_ByteStreamFractionContainer* createTransient();
 

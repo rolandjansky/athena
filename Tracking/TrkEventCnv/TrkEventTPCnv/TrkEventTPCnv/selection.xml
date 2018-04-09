@@ -3,13 +3,12 @@
 	<!-- please clean up everything that is not really needed. 
 	current size = 3.371 Mb -->
 	
-    <class name="Trk::TrackCollection_tlp5" id="436E4996-9D6E-11E3-AD2A-6C3BE51AB9F1" />
 
-    <!-- Vertex top level collection -->
+   <!-- Vertex top level collection -->
     <class name="Trk::VxContainer_tlp2"  id="B5254571-6B6D-47F7-A52C-CBE857CF1812" />
-    <!-- Multi Vertex top level collection -->
+   <!-- Multi Vertex top level collection -->
     <class name="Trk::MVFVxContainer_tlp1" id="D7BAA7AD-1A46-4DA3-9CA7-350A1A3F0656" /> 
-    <!-- TrkV0Vertex top level collection -->
+   <!-- TrkV0Vertex top level collection -->
     <class name="Trk::V0Container_tlp2" id="9BC2B917-940A-4121-8E8B-8C99E178D8C1" />
     <!-- Segment top level collection -->
     <class name="Trk::SegmentCollection_tlp3" id="1AA73E8A-AF6D-11E3-A8C8-6C3BE51AB9F1" />

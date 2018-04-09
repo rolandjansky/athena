@@ -24,7 +24,7 @@
 #include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 
-#include "SCT_ConditionsTools/SCT_Chip.h"
+#include "SCT_ConditionsData/SCT_Chip.h"
 
 // Forward declarations
 class SCT_ID;

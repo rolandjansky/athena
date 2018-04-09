@@ -25,7 +25,9 @@ class TrigSpacePointCountsCollectionCnv : public TrigSpacePointCountsCollectionC
   
  protected:
   
+public:
   TrigSpacePointCountsCollectionCnv( ISvcLocator *svcloc ) : TrigSpacePointCountsCollectionCnvBase(svcloc) {}
+protected:
   
   virtual TrigSpacePointCountsCollection_PERS *createPersistent( TrigSpacePointCountsCollection *transObj);
   virtual TrigSpacePointCountsCollection      *createTransient();

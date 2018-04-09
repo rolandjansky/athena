@@ -197,7 +197,7 @@ int main (int argc, char *argv[])
 	  std::cout << "Run:         " << runNo << std::endl;   
 	  std::cout << "Event ID:    " << eventNo << std::endl;
 	  std::cout << "LumiBlock:   " << fe.lumi_block() << std::endl;
-	  std::cout << "Timestamp:   " << ctime(&sec);// << std::endl;
+	  std::cout << "Timestamp:   " << asctime(gmtime(&sec));// << std::endl;
 	}
       } 
       catch (eformat::Issue& ex) {

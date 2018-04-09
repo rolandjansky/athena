@@ -132,11 +132,11 @@ fi
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
     branch=$(basename $(cd ${BUILDDIR}/.. ; pwd)) #FIXME: should be taken from env.
-    timestamp_tmp=` basename ${BUILDDIR}/.@@__* 2>/dev/null | sed 's,^\.,,' `
-    if test "X$timestamp_tmp" = "X" ; then
+    timestamp_tmp=` basename ${BUILDDIR}/../.@@__* 2>/dev/null | sed 's,^\.,,' `
+    test "X$timestamp_tmp" != "X" || {
         timestamp_tmp=@@__`date "+%Y-%m-%dT%H%M"`__@@ #to be used until the final stamp from ReleaseData is available
-        touch ${BUILDDIR}/.${timestamp_tmp}
-    fi
+        touch ${BUILDDIR}/../.${timestamp_tmp}
+    }
     (set +e
      ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" Athena ${BUILDDIR}/build/Athena/cmake_config.log 
     )

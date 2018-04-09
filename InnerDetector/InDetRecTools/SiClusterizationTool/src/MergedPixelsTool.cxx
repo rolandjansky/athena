@@ -35,7 +35,7 @@
 #include "InDetRecToolInterfaces/IPixelClusterSplitter.h"
 #include "InDetIdentifier/PixelID.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
@@ -210,7 +210,7 @@ namespace InDet {
     int clusterNumber = 0;
     
     // If module is bad, do not create a cluster collection
-    if (m_useModuleMap &&  !(m_summarySvc->isGood(idHash))) 
+    if (m_useModuleMap &&  !(m_summaryTool->isGood(idHash))) 
       return 0;
     
     
@@ -244,7 +244,7 @@ namespace InDet {
       {
 	Identifier rdoID= (*nextRDO)->identify();
 	// if a pixel is not skip it in clusterization
-	if ( m_usePixelMap && !(m_summarySvc->isGood(idHash,rdoID)) ) continue;
+	if ( m_usePixelMap && !(m_summaryTool->isGood(idHash,rdoID)) ) continue;
 	int tot = (*nextRDO)->getToT();
  	int layerIndex = pixelID.layer_disk(rdoID);
  	if (layerIndex>=4)     { layerIndex=6; }                 // ITk 5th layer

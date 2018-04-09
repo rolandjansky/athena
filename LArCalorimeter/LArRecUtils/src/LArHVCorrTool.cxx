@@ -3,7 +3,6 @@
 */
 
 #include "LArRecUtils/LArHVCorrTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"

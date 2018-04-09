@@ -46,7 +46,9 @@ class V0ContainerCnv : public V0ContainerCnvBase
 
  protected:
   
+public:
   V0ContainerCnv( ISvcLocator *svcloc );
+protected:
   ~V0ContainerCnv();
   virtual StatusCode initialize();
   

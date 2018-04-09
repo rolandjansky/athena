@@ -15,7 +15,7 @@
 
 // Framework
 #include "GaudiKernel/PhysicalConstants.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ISvcManager.h"

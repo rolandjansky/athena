@@ -14,6 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include <vector>
 #include <map>
@@ -112,7 +113,9 @@ namespace InDet
       ToolHandle< Trk::IExtrapolator >  m_extrapolator;
 
       /** Handles to IConditionsSummaryServices for Pixels and SCT*/
-      ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc, m_sctCondSummarySvc;
+      ServiceHandle <IInDetConditionsSvc> m_sctCondSummarySvc;
+      ToolHandle <IInDetConditionsTool> m_pixelCondSummaryTool;
+      
       ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
 
       /** Handle for IGeoModelSvc to retrieve geo model information */

@@ -24,7 +24,9 @@ class ALFA_HitCollectionCnv : public T_AthenaPoolCustomCnv <ALFA_HitCollection, 
  
  protected: 
   
+public:
   ALFA_HitCollectionCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <ALFA_HitCollection, ALFA_HitCollection_PERS >(svcloc) {} 
+protected:
 
   ALFA_HitCollection_PERS*  createPersistent (ALFA_HitCollection *transCont);
   ALFA_HitCollection*       createTransient ();

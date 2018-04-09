@@ -495,7 +495,8 @@ void PixelNtupleTracks::Init(TTree *tree)
    //TrackMomentumZ = 0;
    //TrackLocal1 = 0;
    //TrackLocal2 = 0;
-   
+
+   fChain = nullptr;   
    b_Reconstructed_theta = nullptr;
    b_Reconstructed_Q_over_p = nullptr;
    b_number_Pixel_measurements = nullptr;

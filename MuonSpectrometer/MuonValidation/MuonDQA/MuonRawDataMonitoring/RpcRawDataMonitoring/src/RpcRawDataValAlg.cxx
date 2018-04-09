@@ -15,7 +15,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
          
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include "EventPrimitives/EventPrimitives.h"

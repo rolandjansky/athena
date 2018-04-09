@@ -4,8 +4,11 @@
 
 #ifndef G4USERACTIONS_G4UA__HIPKILLERTOOL_H
 #define G4USERACTIONS_G4UA__HIPKILLERTOOL_H
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
+
+// Infrastructure includes
 #include "G4AtlasTools/UserActionToolBase.h"
+
+// Local includes
 #include "G4UserActions/HIPKiller.h"
 
 namespace G4UA

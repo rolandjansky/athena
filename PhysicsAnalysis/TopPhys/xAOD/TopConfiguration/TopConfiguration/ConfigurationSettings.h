@@ -91,7 +91,7 @@ private:
     static ConfigurationSettings* m_instance;
 
     ///Hold the configuration data
-    std::map<std::string, StringData> strings_;
+    std::map<std::string, StringData> m_strings;
 
     ///Data used when configuring the selections
     std::vector<SelectionConfigurationData> m_selections;

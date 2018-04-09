@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/ToolFactory.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"

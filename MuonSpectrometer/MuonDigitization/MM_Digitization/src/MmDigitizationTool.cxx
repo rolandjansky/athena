@@ -36,7 +36,6 @@
 
 //Gaudi - Core
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "PathResolver/PathResolver.h"
 #include "AIDA/IHistogram1D.h"

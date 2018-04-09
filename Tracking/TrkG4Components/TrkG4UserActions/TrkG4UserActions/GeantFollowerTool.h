@@ -5,10 +5,10 @@
 #ifndef TRKG4USERACTIONS_G4UA__GEANTFOLLOWERTOOL_H
 #define TRKG4USERACTIONS_G4UA__GEANTFOLLOWERTOOL_H
 
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasInterfaces/IG4RunActionTool.h"
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
+// Infrastructure includes
 #include "G4AtlasTools/UserActionToolBase.h"
+
+// Local includes
 #include "TrkG4UserActions/GeantFollower.h"
 
 namespace G4UA{

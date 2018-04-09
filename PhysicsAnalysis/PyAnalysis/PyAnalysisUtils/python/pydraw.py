@@ -329,6 +329,7 @@ import copy
 import exceptions
 import ROOT
 import cppyy
+import types
 from StringIO import StringIO
 from PyAnalysisUtils.draw_obj import draw_obj, get_canvas
 
@@ -1163,7 +1164,7 @@ def draw (arg):
         options = string.join (c.histspec[1:])
     else:
         (hist, options) = _get_hist (ndim, c.histspec,
-                                     _sanitize_hname(c.expr_orig), htitle)
+                                     _sanitize_hname(c.tuple+'.'+c.expr_orig), htitle)
 
     # Remember it.
     last_hist = hist
@@ -1196,7 +1197,10 @@ def _scan_print (i, *args):
     
     s = '%6d' % i
     for a in args:
-        s += ' %8g' % a
+        if type(a) == types.IntType or type(a) == types.LongType:
+            s += ' %8d' % a
+        else:
+            s += ' %8g' % a
     print s
     return
 

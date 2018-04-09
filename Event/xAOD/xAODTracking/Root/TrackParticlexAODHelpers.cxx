@@ -54,21 +54,12 @@ namespace xAOD {
 
   double TrackingHelpers::z0significance(const xAOD::TrackParticle *tp, const xAOD::Vertex *vx) {
     checkTPAndDefiningParamCov(tp);
-    double z0 = tp->z0();
+    double z0 = tp->z0() + tp->vz();
     if (vx) {
         if (!checkPVReference(tp,vx)) {
            throw std::runtime_error("Given primary vertex does not fulfil the requirements i.e. does not exist, or is too far away from the beam axis.");
         }
         z0 -= vx->z();
-        // assume that z0 and d0 are expressed wrt. the associated primary vertex;
-        if (tp->vertex()) {
-            if (!TrackingHelpers::checkPVReference(tp,tp->vertex())) {
-                throw std::runtime_error("Cannot compute z0 wrt. different vertex, because the track"
-                                         " parameters are expressed wrt. incompatible one i.e. the"
-                                         " associated vertex is too far away from the beam axis.");
-            }
-	    z0+=tp->vertex()->z();
-        }
     }
     // elements in definingParametersCovMatrixVec should be : sigma_z0^2, sigma_z0_z0, sigma_z0^2
     double sigma_z0 = tp->definingParametersCovMatrixVec().at(2);

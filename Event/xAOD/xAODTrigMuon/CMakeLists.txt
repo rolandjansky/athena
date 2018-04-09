@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthLinks )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Physics Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Physics Core Tree MathCore Hist RIO pthread GenVector )
 
 # Component(s) in the package:
 atlas_add_library( xAODTrigMuon

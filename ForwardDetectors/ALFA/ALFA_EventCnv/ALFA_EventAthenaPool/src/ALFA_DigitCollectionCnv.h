@@ -24,7 +24,9 @@ class ALFA_DigitCollectionCnv : public T_AthenaPoolCustomCnv <ALFA_DigitCollecti
  
  protected: 
   
+public:
   ALFA_DigitCollectionCnv(ISvcLocator* svcloc) : T_AthenaPoolCustomCnv <ALFA_DigitCollection, ALFA_DigitCollection_PERS >(svcloc) {} 
+protected:
 
   ALFA_DigitCollection_PERS*  createPersistent (ALFA_DigitCollection *transCont);
   ALFA_DigitCollection*       createTransient ();

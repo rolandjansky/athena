@@ -13,7 +13,6 @@
 
 
 #include "TRT_DriftFunctionTool/TRT_DriftFunctionTool.h"
-#include "GaudiKernel/ToolFactory.h"
 
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"

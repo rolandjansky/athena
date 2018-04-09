@@ -30,7 +30,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/DeclareFactoryEntries.h"
+// //#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ConversionSvc.h"
 #include <iostream>
@@ -305,7 +305,7 @@ DECLARE_COMPONENT( TestEvtSelector )
 DECLARE_COMPONENT( TestEvtSelector2 )
 DECLARE_COMPONENT( TestConversionSvc )
 DECLARE_COMPONENT( TestAlgorithm )
-DECLARE_CONVERTER_FACTORY( TestConverter )
+DECLARE_CONVERTER( TestConverter )
 class swallowsemicolon;
 
 void testit (IService* mgr)

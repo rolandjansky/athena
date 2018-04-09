@@ -6,7 +6,6 @@
 #include "CaloIdentifier/TileTBID.h"
 #include "CaloDetDescr/MbtsDetDescrManager.h"
 
-#include "GaudiKernel/CnvFactory.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"

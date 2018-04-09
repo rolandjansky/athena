@@ -2,7 +2,7 @@
 #include "AtlasIDDetDescrCnv.h"
 #include "IdDictCnvTest.h"
 
-DECLARE_CONVERTER_FACTORY( AtlasIDDetDescrCnv )
-DECLARE_CONVERTER_FACTORY( IdDictDetDescrCnv )
+DECLARE_CONVERTER( AtlasIDDetDescrCnv )
+DECLARE_CONVERTER( IdDictDetDescrCnv )
 DECLARE_COMPONENT( IdDictCnvTest )
 

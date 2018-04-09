@@ -39,7 +39,7 @@ class TopLevelTPConverter
 {
 public:
   typedef typename MAIN_CNV::Trans_t	TRANS;
-
+  typedef TL_PERS                       PERS;
 
   // ----  Methods to be implement in the derived converter:
 

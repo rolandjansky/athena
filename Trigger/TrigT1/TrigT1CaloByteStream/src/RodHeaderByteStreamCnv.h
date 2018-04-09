@@ -34,13 +34,8 @@ class RodHeaderByteStreamTool;
 
 class RodHeaderByteStreamCnv: public Converter {
 
-  friend class CnvFactory<RodHeaderByteStreamCnv>;
-
-protected:
-
-  RodHeaderByteStreamCnv(ISvcLocator* svcloc);
-
 public:
+  RodHeaderByteStreamCnv(ISvcLocator* svcloc);
 
   ~RodHeaderByteStreamCnv();
 

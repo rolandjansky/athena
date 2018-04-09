@@ -38,9 +38,9 @@ ServiceMgr+=HistogramDefinitionSvc()
 ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/LargeD0PlotDefinitions.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
-from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
-decorators = InDetPhysValDecoratorAlg()
-topSequence += decorators
+import InDetPhysValMonitoring.InDetPhysValDecoration
+for decorator in InDetPhysValMonitoring.InDetPhysValDecoration.getDecorators() :
+  topSequence += decorator
 
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -54,12 +54,10 @@ monMan.LumiBlock           = 1
 monMan.FileKey = "output"
 topSequence += monMan
 
-from InDetPhysValMonitoring.InDetPhysValMonitoringConf import TrackTruthSelectionTool
-truthSelection = TrackTruthSelectionTool()
-#truthSelection.requireDecayBeforePixel = False
-truthSelection.minPt = 1000.
-truthSelection.maxBarcode = -1
-ToolSvc += truthSelection
+from InDetPhysValMonitoring.InDetPhysValDecoration import getInDetRttTruthSelectionTool
+truthSelection = getInDetTruthSelectionTool(name = 'InDetLargeD0TruthSelectionTool',
+                                            minPt = 1000.,
+                                            maxBarcode = -1)
 
 # @asogaard
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import TrackSelectionTool

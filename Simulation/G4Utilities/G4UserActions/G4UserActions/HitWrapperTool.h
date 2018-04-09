@@ -5,8 +5,10 @@
 #ifndef G4USERACTIONS_G4UA__HITWRAPPERTOOL_H
 #define G4USERACTIONS_G4UA__HITWRAPPERTOOL_H
 
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
+// Infrastructure includes
 #include  "G4AtlasTools/UserActionToolBase.h"
+
+// Local includes
 #include "G4UserActions/HitWrapper.h"
 
 namespace G4UA

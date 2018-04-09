@@ -33,13 +33,8 @@ class L1CaloErrorByteStreamTool;
 
 class L1CaloErrorByteStreamCnv: public Converter {
 
-  friend class CnvFactory<L1CaloErrorByteStreamCnv>;
-
-protected:
-
-  L1CaloErrorByteStreamCnv(ISvcLocator* svcloc);
-
 public:
+  L1CaloErrorByteStreamCnv(ISvcLocator* svcloc);
 
   ~L1CaloErrorByteStreamCnv();
 

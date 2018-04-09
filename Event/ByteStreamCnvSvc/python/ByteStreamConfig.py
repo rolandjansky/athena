@@ -9,7 +9,7 @@ def TrigBSReadCfg( inputFlags ):
     """
     Creates accumulator for BS reading
     """
-    filenames = inputFlags.get("AthenaConfiguration.GlobalFlags.InputFiles")
+    filenames = inputFlags.get("global.InputFiles")
     
     acc = ComponentAccumulator()
     
@@ -103,7 +103,7 @@ def TrigBSReadCfg( inputFlags ):
 
 
     
-    if inputFlags.get( "AthenaConfiguration.GlobalFlags.isMC" ) == False:        
+    if inputFlags.get( "global.isMC" ) == False:        
         bsCnvSvc.GetDetectorMask=True
         # still need to figure out how conditions are setup in new system
         #from IOVDbSvc.CondDB import conddb
@@ -115,7 +115,7 @@ def TrigBSReadCfg( inputFlags ):
 if __name__ == "__main__":
     from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
     flags = ConfigFlagContainer()
-    flags.set("AthenaConfiguration.GlobalFlags.InputFiles", ["dummy.data"]) 
+    flags.set("global.InputFiles", ["dummy.data"]) 
 
     acc = TrigBSReadCfg( flags )
     acc.store( file( "test.pkl", "w" ) )

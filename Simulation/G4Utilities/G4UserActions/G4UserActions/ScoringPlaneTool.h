@@ -5,10 +5,10 @@
 #ifndef G4USERACTIONS_G4UA__SCORINGPLANETOOL_H
 #define G4USERACTIONS_G4UA__SCORINGPLANETOOL_H
 
-#include "G4AtlasInterfaces/IG4RunActionTool.h"
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
+// Infrastructure includes
 #include "G4AtlasTools/UserActionToolBase.h"
+
+// Local includes
 #include "G4UserActions/ScoringPlane.h"
 
 

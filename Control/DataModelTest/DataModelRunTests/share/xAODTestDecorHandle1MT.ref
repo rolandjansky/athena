@@ -34,8 +34,6 @@ ClassIDSvc                                         INFO  getRegistryEntries: rea
 ClassIDSvc                                         INFO  getRegistryEntries: read 65 CLIDRegistry entries for module ALL
 ThreadPoolSvc                                      INFO no thread init tools attached
 AvalancheSchedulerSvc                              INFO Activating scheduler in a separate thread
-AvalancheSchedulerSvc                              INFO Waiting for AvalancheSchedulerSvc to activate
-AvalancheSchedulerSvc                              INFO Start checking the actionsQueue
 AvalancheSchedulerSvc                              INFO Found 10 algorithms
 AvalancheSchedulerSvc                              INFO Data Dependencies for Algorithms:
   BeginIncFiringAlg
@@ -80,9 +78,9 @@ AvalancheSchedulerSvc                              INFO Data Dependencies for Al
       none
 AvalancheSchedulerSvc                              INFO Will attribute the following unmet INPUT dependencies to "SGInputLoader/SGInputLoader" Algorithm
    o  ( 'EventInfo' , 'StoreGateSvc+McEventInfo' )     required by Algorithm: 
+       * xAODTestDecor
        * xAODTestWrite
        * xAODTestWriteCInfo
-       * xAODTestDecor
        * xAODTestWriteCVec
 PrecedenceSvc                                      INFO Assembling CF and DF task precedence rules
 PrecedenceSvc                                      INFO PrecedenceSvc initialized successfully

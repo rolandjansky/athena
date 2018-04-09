@@ -61,3 +61,5 @@ atlas_install_xmls( data/*.dtd )
 # Aliases:
 atlas_add_alias( checkTrigger "checkTrigger.py" )
 
+atlas_add_test( AccumulatorTest SCRIPT python -m TrigConfigSvc.TrigConfigSvcConfig ) 
+

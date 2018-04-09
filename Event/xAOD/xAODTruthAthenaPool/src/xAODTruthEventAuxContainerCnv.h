@@ -36,13 +36,11 @@ typedef T_AthenaPoolCustomCnv< xAOD::TruthEventAuxContainer,
 class xAODTruthEventAuxContainerCnv :
    public xAODTruthEventAuxContainerCnvBase {
 
-   // Declare the factory as our friend:
-   friend class CnvFactory< xAODTruthEventAuxContainerCnv >;
-
-protected:
+public:
    /// Converter constructor
    xAODTruthEventAuxContainerCnv( ISvcLocator* svcLoc );
 
+protected:
    /// Function preparing the container to be written out
    virtual xAOD::TruthEventAuxContainer*
    createPersistent( xAOD::TruthEventAuxContainer* trans );

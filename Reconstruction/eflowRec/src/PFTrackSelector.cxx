@@ -16,6 +16,7 @@ StatusCode PFTrackSelector::initialize(){
   ATH_CHECK(m_tracksReadHandleKey.initialize());
   ATH_CHECK(m_electronsReadHandleKey.initialize());
   ATH_CHECK(m_muonsReadHandleKey.initialize());
+  ATH_CHECK(m_vertexKey.initialize());
 
   ATH_CHECK(m_eflowRecTracksWriteHandleKey.initialize());
   
@@ -72,7 +73,27 @@ StatusCode PFTrackSelector::execute(){
 StatusCode PFTrackSelector::finalize(){return StatusCode::SUCCESS;}
 
 bool PFTrackSelector::selectTrack(const xAOD::TrackParticle& track) {
-  if (track.pt()*0.001 < m_upperTrackPtCut) return m_trackSelectorTool->accept(track, track.vertex());
+  if (track.pt()*0.001 < m_upperTrackPtCut) 
+  {
+    const xAOD::Vertex* foundVertex { nullptr };
+    SG::ReadHandle<xAOD::VertexContainer> vertices { m_vertexKey };
+    if (vertices.isValid())
+    {
+      for ( const auto& vx : *vertices )
+      {
+	for ( const auto& tpLink : vx->trackParticleLinks() )
+	{
+	  if ( *tpLink == &track )
+	  {
+	    foundVertex = vx;
+	    break;
+	  }
+	}
+	if (foundVertex) break;
+      }
+    }
+    return m_trackSelectorTool->accept(track, foundVertex);
+  }
   else return false;
 }
 

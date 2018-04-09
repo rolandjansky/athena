@@ -18,7 +18,6 @@
 #include <iostream>
 #include <algorithm>
 
-#include "GaudiKernel/ToolFactory.h"
 //#include "RegionSelector/RegSelSvc.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"

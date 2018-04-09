@@ -86,7 +86,8 @@ condSeq += theCLI
 import StoreGate.StoreGateConf as StoreGateConf
 svcMgr += StoreGateConf.StoreGateSvc("ConditionStore")
 
-include("LArRecUtils/LArOnOffMappingAlg.py")
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
 
 from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
 LArBadChannelAccess(dbString="/LAR/BadChannelsOfl/BadChannels"+dbStr+tagStr)

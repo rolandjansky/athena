@@ -12,16 +12,16 @@
 
 namespace xAOD {
 
-  TrackCaloCluster_v1::TrackCaloCluster_v1() : IParticle(), m_p4(), m_p4Cached( false ) {}
+  TrackCaloCluster_v1::TrackCaloCluster_v1() : IParticle() {}
   
   TrackCaloCluster_v1::~TrackCaloCluster_v1() {}
   
   double TrackCaloCluster_v1::e() const {
-    return p4().E();
+    return genvecP4().E();
   }
  
   double TrackCaloCluster_v1::rapidity() const {
-    return p4().Rapidity();
+    return genvecP4().Rapidity();
   }
    
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(TrackCaloCluster_v1, float, double, pt)
@@ -30,14 +30,14 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(TrackCaloCluster_v1, float, double, m)
   AUXSTORE_PRIMITIVE_GETTER(TrackCaloCluster_v1,    int, taste)
   
-  const TrackCaloCluster_v1::FourMom_t& TrackCaloCluster_v1::p4() const {
-    // Check if we need to reset the cached object:     
-    if( ! m_p4Cached ) {
-      m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m() );       
-      m_p4Cached = true;     
-    }   
-    // Return the cached object:     
-    return m_p4;
+  TrackCaloCluster_v1::FourMom_t TrackCaloCluster_v1::p4() const {
+    FourMom_t p4;
+    p4.SetPtEtaPhiM( pt(), eta(), phi(), m() );       
+    return p4;
+  }
+
+  TrackCaloCluster_v1::GenVecFourMom_t TrackCaloCluster_v1::genvecP4() const {
+    return GenVecFourMom_t( pt(), eta(), phi(),m()); 
   }
 
   Type::ObjectType TrackCaloCluster_v1::type() const { 
@@ -78,9 +78,7 @@ namespace xAOD {
     acc3( *this ) = phi;     
     static const  Accessor< float > acc4( "m" );     
     acc4( *this ) = m;     
-    
-    m_p4Cached = false;        
-    
+        
     static Accessor< int > acc( "taste" );     
     acc( *this ) = (int)taste;
     

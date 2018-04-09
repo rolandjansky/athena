@@ -19,7 +19,9 @@ class LArHitContainer;
 class LArHitFloatContainerCnv  : public T_AthenaPoolCustomCnv<LArHitFloatContainer, LArHitContainer_PERS > {
   friend class CnvFactory<LArHitFloatContainerCnv>;
 protected:
+public:
   LArHitFloatContainerCnv(ISvcLocator* svcloc) :  T_AthenaPoolCustomCnv<LArHitFloatContainer, LArHitContainer_PERS >( svcloc) {}
+protected:
   LArHitContainer_PERS*  createPersistent(LArHitFloatContainer* transCont);
   LArHitFloatContainer*  createTransient ();
   LArHitFloatContainer* copyLArHitToFloat(const LArHitContainer* double_cont);

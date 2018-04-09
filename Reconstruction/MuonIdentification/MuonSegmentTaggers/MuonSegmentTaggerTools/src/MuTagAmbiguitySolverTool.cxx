@@ -5,7 +5,6 @@
 #include "MuTagAmbiguitySolverTool.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "GaudiKernel/SmartDataPtr.h"

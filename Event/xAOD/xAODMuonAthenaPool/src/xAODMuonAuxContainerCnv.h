@@ -39,7 +39,9 @@ class xAODMuonAuxContainerCnv :
 
 protected:
    /// Converter constructor
+public:
    xAODMuonAuxContainerCnv( ISvcLocator* svcLoc );
+protected:
 
    /// Function preparing the container to be written out
    virtual xAOD::MuonAuxContainer*

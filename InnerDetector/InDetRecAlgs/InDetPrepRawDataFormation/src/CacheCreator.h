@@ -27,6 +27,10 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
 
+
+#include "AthenaPoolUtilities/CondAttrListCollection.h" 
+#include "PixelConditionsData/SpecialPixelMap.h"
+
 class TRT_ID;
 class PixelID;
 class SCT_ID;
@@ -66,7 +70,7 @@ namespace InDet{
         SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey9{ this, "SCT_DCSFloatCondData_SiHV", "SCT_SiliconBiasVoltCondData", "" };
         SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKey10{ this, "SCT_DCSFloatCondData_SiTemp", "SCT_SiliconTempCondData", "" };
         SG::ReadCondHandleKey<SiLorentzAngleCondData> m_condKey11{ this, "SiLorentzAngleCondData", "SCTSiLorentzAngleCondData", "" };
-
+        SG::ReadCondHandleKey<DetectorSpecialPixelMap> m_condKey12{ this, "SpecialPixelMap", "SpecialPixelMap", "" };
         template<typename T>
         StatusCode CreateContainer(const SG::WriteHandleKey<T>& , long unsigned int , const EventContext& ) const;
     };

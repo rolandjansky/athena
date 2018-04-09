@@ -13,7 +13,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "Identifier/IdentifierHash.h"

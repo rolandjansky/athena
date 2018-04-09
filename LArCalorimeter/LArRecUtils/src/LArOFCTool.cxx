@@ -3,7 +3,6 @@
 */
 
 #include "LArRecUtils/LArOFCTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"

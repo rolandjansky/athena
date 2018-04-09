@@ -22,7 +22,9 @@ class MuonCaloEnergyContainerCnv: public T_AthenaPoolCustomCnv<  MuonCaloEnergyC
 
  protected:
 
+public:
   MuonCaloEnergyContainerCnv(ISvcLocator* svcloc);
+protected:
 
   virtual MuonCaloEnergyContainer_PERS* createPersistent( MuonCaloEnergyContainer* transCont );
 

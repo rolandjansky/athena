@@ -20,7 +20,7 @@ namespace HypoJet{
     virtual double e() const = 0;
     virtual double et() const = 0;
     virtual double rapidity() const = 0;
-    virtual const TLorentzVector & p4() const = 0;
+    virtual TLorentzVector p4() const = 0;
     virtual unsigned int position() const = 0;
 
     virtual bool getAttribute(const std::string &name, float&) const =0;

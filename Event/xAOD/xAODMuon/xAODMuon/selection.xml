@@ -14,20 +14,10 @@
 	 id="8251F481-EA4C-4852-AE72-BED87E6FD2FB"/>
 
   <!-- Muon_v1 dictionaries: -->
-  <class name="xAOD::Muon_v1">
-    <field name="m_p4" transient="true"/>
-    <field name="m_p4Cached1" transient="true"/>
-  </class>
+  <class name="xAOD::Muon_v1" />
   <class name="xAOD::MuonContainer_v1"
          id="F84AE51A-F309-4844-B286-8E94C655B724"/>
 
-  <read sourceClass="xAOD::Muon_v1" version="[1-]"
-        targetClass="xAOD::Muon_v1" source="" target="m_p4Cached1" >
-    <![CDATA[
-      m_p4Cached1 = false;
-    ]]>
-  </read>
-  
   <class name="xAOD::MuonAuxContainer_v1"
          id="EC9B677A-B3BA-4C75-87D3-373FC478291E"/>
 

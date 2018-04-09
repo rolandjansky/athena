@@ -31,7 +31,9 @@ class TrigHisto1DCnv : public TrigHisto1DCnvBase {
   friend class CnvFactory<TrigHisto1DCnv>;
   
  protected:
+public:
   TrigHisto1DCnv(ISvcLocator* svcloc);
+protected:
   ~TrigHisto1DCnv();
   
   TrigHisto1D_PERS* createPersistent(TrigHisto1D* transObj);

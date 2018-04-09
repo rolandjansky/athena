@@ -81,16 +81,6 @@ StatusCode T_AthenaPoolCustomCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj
          return(StatusCode::FAILURE);
       }
    }
-   AthenaConverterTLPExtension *extCnv = dynamic_cast<AthenaConverterTLPExtension*>(this);
-   if (extCnv != nullptr) {
-      try {
-         extCnv->writeExtendingObjects(persObj, key);
-      } catch (std::exception &e) {
-         ATH_MSG_ERROR("Failed to convert object to persistent type: " << e.what());
-         extCnv->deletePersistentObjects();
-         return(StatusCode::FAILURE);
-      }
-   }
    m_persObjList.push_back(persObj);
    const Token* token = nullptr; 
    StatusCode status = this->objectToPool(persObj, token, key); 

@@ -41,13 +41,8 @@ namespace LVL1BS {
 
 class PpmByteStreamxAODCnv: public Converter, public ::AthMessaging {
 
-  friend class CnvFactory<PpmByteStreamxAODCnv>;
-
-protected:
-
-  PpmByteStreamxAODCnv(ISvcLocator* svcloc);
-
 public:
+  PpmByteStreamxAODCnv(ISvcLocator* svcloc);
 
   virtual ~PpmByteStreamxAODCnv(){};
 

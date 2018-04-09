@@ -17,7 +17,6 @@
 #include <cmath>
 #include <iostream>
 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 

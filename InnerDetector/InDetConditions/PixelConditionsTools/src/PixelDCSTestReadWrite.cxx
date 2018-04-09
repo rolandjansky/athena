@@ -10,7 +10,6 @@
 #include "AthenaKernel/IOVSvcDefs.h" 
 
 // Gaudi includes
-#include "GaudiKernel/AlgFactory.h"
 //#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/GaudiException.h"

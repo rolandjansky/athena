@@ -29,7 +29,9 @@ class LArPhysWaveContainerCnv : public LArPhysWaveContainerCnvBase {
 friend class CnvFactory<LArPhysWaveContainerCnv>;
 
 protected:
+public:
     LArPhysWaveContainerCnv (ISvcLocator* svcloc) : LArPhysWaveContainerCnvBase(svcloc) {}
+protected:
     LArPhysWavePersType*   createPersistent (LArPhysWaveTransType* transObj);
     LArPhysWaveTransType*  createTransient ();
     LArPhysWaveTransType*  createTransient(LArPhysWaveTransType* orig); //used to read non t/p split version
