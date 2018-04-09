@@ -10,6 +10,9 @@
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.GlobalFlags import globalflags
 
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+
 # Just the pixel and SCT
 DetFlags.ID_setOn()
 DetFlags.detdescr.pixel_setOn()
@@ -57,7 +60,7 @@ from GeomACTS.GeomACTSConf import ACTSTrackingGeometry
 
 alg = ACTSTrackingGeometry()
 alg.nParticles = 1
-alg.Cardinality = 24
+alg.Cardinality = nThreads
 
 exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
 alg.ExtrapolationTool = exTool
