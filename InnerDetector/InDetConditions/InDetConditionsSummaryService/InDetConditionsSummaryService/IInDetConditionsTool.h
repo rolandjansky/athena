@@ -23,10 +23,9 @@ class IdentifierHash;
 **/
 class IInDetConditionsTool: virtual public IInterface, virtual public IAlgTool{
 public:
-  virtual ~IInDetConditionsTool(){
-    //nop, needed for derived classes
-  }
-  static const InterfaceID & interfaceID(); //!< reimplemented from IInterface
+  virtual ~IInDetConditionsTool() = default;
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IInDetConditionsTool, 1, 0);
  
   //@name isActive methods reveal whether the element should return data
   //@{
@@ -49,8 +48,4 @@ public:
    
 };
 
-inline const InterfaceID & IInDetConditionsTool::interfaceID(){
-  static const InterfaceID IID_IInDetConditionsTool("IInDetConditionsTool",1,0);
-  return IID_IInDetConditionsTool;
-}
 #endif
