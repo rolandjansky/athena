@@ -33,6 +33,7 @@ using namespace std;
 static const char* path_separator = ",:";
 bool PathResolver::m_setLevel=false; 
 
+PathResolver::PathResolver() { }
 
 asg::AsgMessaging& PathResolver::asgMsg() {
    if(!m_setLevel) setOutputLevel(MSG::INFO);
@@ -72,7 +73,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
       result = bf::system_complete(file).string();
       return true;
     }
-  } catch (bf::filesystem_error /*err*/) {
+  } catch (bf::filesystem_error& /*err*/) {
   }
 
   // assume that "." is always part of the search path, so check locally first
@@ -84,7 +85,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
       result = bf::system_complete(file).string();
       return true;
     }
-  } catch (bf::filesystem_error /*err*/) {
+  } catch (bf::filesystem_error& /*err*/) {
   }
 
    std::string locationToDownloadTo = "."; //will replace with first search location 
@@ -144,7 +145,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
         result = bf::system_complete(fp).string();
         return true;
       }
-    } catch (bf::filesystem_error /*err*/) {
+    } catch (const bf::filesystem_error& /*err*/) {
     }
 
 
@@ -167,7 +168,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
             return true;
           }
         }
-      } catch (bf::filesystem_error /*err*/) {
+      } catch (const bf::filesystem_error& /*err*/) {
       }
     }
 
@@ -287,7 +288,7 @@ PathResolver::check_search_path (const std::string& search_path)
         return (UnknownDirectory);
       }
     }
-  } catch(bf::filesystem_error /*err*/) {
+  } catch(const bf::filesystem_error& /*err*/) {
     return (UnknownDirectory);
   }
 
@@ -309,7 +310,14 @@ std::string PathResolverFindDataFile (const std::string& logical_file_name)
 std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 {
   msg(MSG::DEBUG) << "Trying to locate " << logical_file_name << endmsg;
-  if(logical_file_name.find("dev/")==0) msg(MSG::ERROR) << "Locating dev file " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
+  if(logical_file_name.find("dev/")==0) {
+#ifdef XAOD_ANALYSIS
+    msg(MSG::WARNING)
+#else
+    msg(MSG::ERROR) 
+#endif
+      << "Locating dev file " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
+  }
   //expand filename before finding .. 
   TString tmpString(logical_file_name);
   gSystem->ExpandPathName(tmpString);
@@ -324,7 +332,14 @@ std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 std::string PathResolver::find_calib_directory (const std::string& logical_file_name)
 {
   msg(MSG::DEBUG) <<"Trying to locate " << logical_file_name << endmsg;
-  if(logical_file_name.find("dev/")==0) msg(MSG::ERROR) << "Locating dev directory " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
+  if(logical_file_name.find("dev/")==0) {
+#ifdef XAOD_ANALYSIS
+    msg(MSG::WARNING)
+#else
+    msg(MSG::ERROR) 
+#endif
+     << "Locating dev directory " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
+  }
   //expand filename before finding 
   TString tmpString(logical_file_name);
   gSystem->ExpandPathName(tmpString);

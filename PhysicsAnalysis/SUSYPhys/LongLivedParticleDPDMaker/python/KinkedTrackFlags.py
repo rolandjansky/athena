@@ -21,6 +21,10 @@ import AthenaCommon.SystemOfUnits as Units
 
 primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 
+## TriggerAPI ##
+from LongLivedParticleDPDMaker.RPVLLTriggers import RPVLLTriggers
+apitriggers = RPVLLTriggers()
+
 class KinkedTrack_containerFlags(JobProperty):
     statusOn = True
     jetCollectionName = "AntiKt4EMTopoJets"
@@ -163,6 +167,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
         'HLT_xe120_tc_lcw_wEFMu',
         'HLT_xe130_mht_L1XE50'        
         ]
+    triggerNames += apitriggers.getKinkedTrackJetMetTriggers() ## TriggerAPI
     cutsEtMin = [80.0*Units.GeV, 40.0*Units.GeV]
     cutsEtMinForStublet = [90.0*Units.GeV, 40.0*Units.GeV]
     cutsEtMinForMultiJets = [60.0*Units.GeV, 60.0*Units.GeV]
@@ -223,6 +228,7 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
         'HLT_e28_lhtight_nod0_iloose',
         'HLT_e28_lhtight_nod0_ivarloose',
         ]
+    triggerNames += apitriggers.getKinkedTrackZeeTriggers() ## TriggerAPI
     doTriggerMatch = False
     electronPtMin = 40*Units.GeV
     electronEtaMax = 2.5
@@ -255,6 +261,7 @@ class KinkedTrack_ZmumuFilterFlags(JobProperty):
         'HLT_mu26_imedium',
         'HLT_mu26_ivarmedium',
         ]
+    triggerNames += apitriggers.getKinkedTrackZmumuTriggers() ## TriggerAPI
     doTriggerMatch = False
     muonPtMin = 40*Units.GeV
     muonEtaMax = 2.5

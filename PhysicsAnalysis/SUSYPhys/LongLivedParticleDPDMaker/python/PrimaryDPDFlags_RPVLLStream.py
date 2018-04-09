@@ -72,7 +72,7 @@ primRPVLLDESDM.add_JobProperty(doKinkedTrack)
 class doEmerging(JobProperty):
     statusOn=True
     allowedTypes = ["bool"]
-    StoredValue=True # FIXME: Set True to turn this on
+    StoredValue=True
     pass
 primRPVLLDESDM.add_JobProperty(doEmerging)
     
@@ -100,7 +100,7 @@ primRPVLLDESDM.add_JobProperty(doQuirks)
 class doHips(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False
+    StoredValue = True ## FOR TESTING RPVLL-TRIGGERS -- SET TO FALSE AFTER
     pass
 primRPVLLDESDM.add_JobProperty(doHips)
 
