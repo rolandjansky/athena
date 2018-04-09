@@ -14,6 +14,8 @@
 // OutputHandling includes
 #include "TrigOutputHandling/IHLTOutputTool.h"
 
+#include "AthViews/View.h"
+
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -58,12 +60,17 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
 
   HLTEDMCreator();
 
+  SG::ReadHandleKey< std::vector< SG::View* > > m_viewsKey{ this, "Views", "", "If specified read objects from views" };
+  Gaudi::Property< std::string > m_inViewKey{ this, "InViewKey", "", "Key used for obects in views" };
+
 #define DEF_KEY(__TYPE) \
-  SG::WriteHandleKeyArray<__TYPE> m_##__TYPE{ this, #__TYPE, {}, "Required collections of "#__TYPE}
+  SG::WriteHandleKeyArray<__TYPE> m_##__TYPE{ this, #__TYPE, {}, "Required collections of "#__TYPE}/*; \
+												     SG::ReadHandleKey<__TYPE> m_##__TYPE##InViews{ this, #__TYPE"InViews", "", "Name in views of "#__TYPE}*/
 
 #define DEF_XAOD_KEY(__TYPE) \
-  SG::WriteHandleKeyArray<xAOD::__TYPE> m_##__TYPE{ this, #__TYPE, {}, "Required collections of xAOD::"#__TYPE}
-
+  SG::WriteHandleKeyArray<xAOD::__TYPE> m_##__TYPE{ this, #__TYPE, {}, "Required collections of xAOD::"#__TYPE}/*;\
+  SG::ReadHandleKey<xAOD::__TYPE> m_##__TYPE##InViews{ this, #__TYPE"InViews", "", "Name in views of xAOD::"#__TYPE}
+													       */
   DEF_KEY( TrigRoiDescriptorCollection );
 
   DEF_XAOD_KEY( TrigCompositeContainer );
@@ -82,7 +89,13 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
    * and inits them
    **/
   template<typename T>
-  StatusCode initAndCheckHandles( SG::WriteHandleKeyArray<T>& handles );
+  StatusCode initAndCheckOutputHandles( SG::WriteHandleKeyArray<T>& handles );
+
+  /**
+   * Initialises and renounces handles for use in views merging
+   **/
+  template<typename T>
+  StatusCode initAndCheckInViewHandles( SG::ReadHandleKey<T>& handle );
 
 
   /**
@@ -91,8 +104,8 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
    * as first argument.
    * Customisation of xAOD and non-xAOD happens through the generator argument.
    **/
-  template<typename T, typename G>
-  StatusCode createIfMissing( const SG::WriteHandleKeyArray<T>& handles, G generator ) const;
+  template<typename T, typename Generator, typename ViewsMerger >
+    StatusCode createIfMissing( const SG::WriteHandleKeyArray<T>& handles, Generator generator, ViewsMerger merger ) const;
 
 }; 
 

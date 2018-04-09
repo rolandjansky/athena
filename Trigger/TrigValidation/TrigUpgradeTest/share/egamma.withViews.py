@@ -210,7 +210,18 @@ summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 edmCreator = HLTEDMCreator()
 edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult" ]
-summary.OutputTools = [ edmCreator ]
+
+
+mergeElectronsFromViews = HLTEDMCreator("MergeElectronsFormViews")
+mergeElectronsFromViews.Views = l2ElectronViewsMaker.Views
+#mergeElectronsFromViews.TrigElectronContainerInViews = theElectronFex.ElectronsName
+mergeElectronsFromViews.InViewKey = theElectronFex.ElectronsName
+mergeElectronsFromViews.TrigElectronContainer = ["HLT_electrons"]
+
+
+summary.OutputTools = [ edmCreator, mergeElectronsFromViews ]
+
+
 summary.OutputLevel = DEBUG
 
 
