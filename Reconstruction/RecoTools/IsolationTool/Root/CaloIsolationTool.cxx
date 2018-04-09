@@ -675,7 +675,7 @@ namespace xAOD {
       ATH_MSG_DEBUG("core57cells available = " << coreV);
     else
       ATH_MSG_DEBUG("core57cells not available");
-    if ((gotIso && fabs(coreV) < 1e-3) || !gotIso) { 
+    if ( !m_caloFillRectangularTool.empty() && ((gotIso && fabs(coreV) < 1e-3) || !gotIso) ) { 
 #ifndef XAOD_ANALYSIS
       const CaloCluster *cleg = eg->caloCluster();
       // now correct the isolation energy for the core cluster energy
