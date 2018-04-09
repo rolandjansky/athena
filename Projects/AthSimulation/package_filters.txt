@@ -101,6 +101,7 @@
 + Database/PersistentDataModel
 + Database/PersistentDataModelAthenaPool
 + Database/PersistentDataModelTPCnv
++ Database/RDBAccessSvc
 + Database/RegistrationServices
 + Database/TPTools
 + DetectorDescription/AGDD/AGDD2GeoSvc
