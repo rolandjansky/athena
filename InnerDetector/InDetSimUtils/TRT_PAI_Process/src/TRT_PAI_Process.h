@@ -12,7 +12,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_PAI_Process/TRT_PAI_gasMixture.h"
+#include "TRT_PAI_gasMixture.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 

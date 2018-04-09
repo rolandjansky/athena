@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TRT_PAI_Process/TRT_PAI_Process.h"
-#include "TRT_PAI_Process/TRT_PAI_gasdata.h"
-#include "TRT_PAI_Process/TRT_PAI_element.h"
-#include "TRT_PAI_Process/TRT_PAI_gasComponent.h"
-#include "TRT_PAI_Process/TRT_PAI_gasMixture.h"
-#include "TRT_PAI_Process/TRT_PAI_effectiveGas.h"
-#include "TRT_PAI_Process/TRT_PAI_physicsConstants.h"
-#include "TRT_PAI_Process/TRT_PAI_utils.h"
+#include "TRT_PAI_Process.h"
+#include "TRT_PAI_gasdata.h"
+#include "TRT_PAI_element.h"
+#include "TRT_PAI_gasComponent.h"
+#include "TRT_PAI_gasMixture.h"
+#include "TRT_PAI_effectiveGas.h"
+#include "TRT_PAI_physicsConstants.h"
+#include "TRT_PAI_utils.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
