@@ -5,6 +5,7 @@
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h"
 #include <algorithm>
 #include <iostream>
+#include "TMath.h"
 #include "TCanvas.h"
 #include "TH2F.h"
 #include "TRandom.h"
@@ -64,6 +65,7 @@ void TFCS2DFunctionHistogram::rnd_to_fct(float& valuex,float& valuey,float rnd0,
   }
   auto it = std::upper_bound(m_HistoContents.begin(),m_HistoContents.end(),rnd0);
   int ibin=std::distance(m_HistoContents.begin(),it);
+  if(ibin>=(int)m_HistoContents.size()) ibin=m_HistoContents.size()-1;
   Int_t nbinsx=m_HistoBorders.size()-1;
   Int_t biny = ibin/nbinsx;
   Int_t binx = ibin - nbinsx*biny;
@@ -71,8 +73,12 @@ void TFCS2DFunctionHistogram::rnd_to_fct(float& valuex,float& valuey,float rnd0,
   float basecont=0;
   if(ibin>0) basecont=m_HistoContents[ibin-1];
   
-  valuex = m_HistoBorders[binx] + (m_HistoBorders[binx+1]-m_HistoBorders[binx]) *
-                             (rnd0-basecont) / (m_HistoContents[ibin]-basecont);
+  float dcont=m_HistoContents[ibin]-basecont;
+  if(dcont>0) {
+    valuex = m_HistoBorders[binx] + (m_HistoBorders[binx+1]-m_HistoBorders[binx]) * (rnd0-basecont) / dcont;
+  } else {                             
+    valuex = m_HistoBorders[binx] + (m_HistoBorders[binx+1]-m_HistoBorders[binx]) / 2;
+  }
   valuey = m_HistoBordersy[biny] + (m_HistoBordersy[biny+1]-m_HistoBordersy[biny]) * rnd1;
 }
 
@@ -88,7 +94,8 @@ void TFCS2DFunctionHistogram::unit_test(TH2* hist)
     hist->Sumw2();
     for(int ix=1;ix<=nbinsx;++ix) {
       for(int iy=1;iy<=nbinsy;++iy) {
-        hist->SetBinContent(ix,iy,gRandom->Rndm()*(nbinsx+ix)*(nbinsy*nbinsy/2+iy*iy));
+        hist->SetBinContent(ix,iy,(0.5+gRandom->Rndm())*(nbinsx+ix)*(nbinsy*nbinsy/2+iy*iy));
+        if(gRandom->Rndm()<0.1) hist->SetBinContent(ix,iy,0);
         hist->SetBinError(ix,iy,0);
       }
     }
@@ -110,7 +117,7 @@ void TFCS2DFunctionHistogram::unit_test(TH2* hist)
 //                                          16,hist->GetYaxis()->GetXmin(),hist->GetYaxis()->GetXmax());
   TH2F* hist_val=(TH2F*)hist->Clone("hist_val");
   hist_val->Reset();
-  int nrnd=10000000;
+  int nrnd=100000000;
   float weight=hist->Integral()/nrnd;
   hist_val->Sumw2();
   for(int i=0;i<nrnd;++i) {
