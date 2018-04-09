@@ -40,6 +40,7 @@ conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
 from AthenaCommon.AppMgr import ServiceMgr
 from GeomACTS.GeomACTSConfig import TrackingGeometrySvc
 ServiceMgr += TrackingGeometrySvc()
+ServiceMgr += CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
 
 import MagFieldServices.SetupField
 
@@ -55,7 +56,8 @@ athenaCommonFlags.EvtMax = 1
 from GeomACTS.GeomACTSConf import ACTSTrackingGeometry
 
 alg = ACTSTrackingGeometry()
-alg.nParticles = 1000
+alg.nParticles = 1
+alg.Cardinality = 24
 
 exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
 alg.ExtrapolationTool = exTool
@@ -70,7 +72,7 @@ objWriterTool.SubDetectors = [
 alg.ObjWriterTool = objWriterTool
 
 
-# alg.OutputLevel = DEBUG
+# alg.OutputLevel = VERBOSE
 job += alg
 
 
@@ -81,6 +83,6 @@ job += alg
 # athena -l DEBUG
 
 # Number of events to be processed (default is 10)
-theApp.EvtMax = 1
+theApp.EvtMax = 123400
 
 ###############################################################

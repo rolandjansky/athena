@@ -18,6 +18,10 @@
 
 using range = std::array<double, 2>;
 
+namespace CLHEP{
+  class HepRandomEngine;
+}
+
 
 /// @class ParticleGun
 ///
@@ -52,7 +56,6 @@ public:
     pdg_type pID = 0.;
     // randomize the charge (indicates PID flip)
     bool randomCharge = false;
-    std::shared_ptr<std::mt19937> rng;
     // FW random number service
     //std::shared_ptr<FW::RandomNumbersSvc> randomNumbers = nullptr;
     //std::shared_ptr<FW::BarcodeSvc>       barcodes      = nullptr;
@@ -65,12 +68,14 @@ public:
 
   
   std::vector<Acts::ProcessVertex>
-  generate() const;
+  generate(CLHEP::HepRandomEngine*) const;
 
 private:
   Config m_cfg;
   
   std::unique_ptr<const Acts::Logger> m_logger;
+
+  double random(CLHEP::HepRandomEngine* rnd, double min, double max) const;
 
   const Acts::Logger&
   logger() const

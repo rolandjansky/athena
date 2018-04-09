@@ -1,22 +1,18 @@
-// This file is part of the ACTS project.
-//
-// Copyright (C) 2016 ACTS project team
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
-#include <iostream>
-#include <fstream>
-
-#include "InDetReadoutGeometry/TRT_Numerology.h"
-
+// PACKAGE
 #include "GeomACTS/GeoModelStrawLayerBuilder.hpp"
 
+// ATHENA
+#include "InDetReadoutGeometry/TRT_Numerology.h"
+
+// ACTS
 #include "ACTS/Tools/ILayerBuilder.hpp"
 #include "ACTS/Surfaces/CylinderSurface.hpp"
 #include "ACTS/Surfaces/StrawSurface.hpp"
 #include "ACTS/Surfaces/DiscSurface.hpp"
+
+// STL
+#include <iostream>
+#include <fstream>
 
 const Acts::LayerVector
 Acts::GeoModelStrawLayerBuilder::negativeLayers() const

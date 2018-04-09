@@ -1,11 +1,3 @@
-// This file is part of the ACTS project.
-//
-// Copyright (C) 2017 ACTS project team
-//
-// This Source Code Form is subject to the terms of the Mozilla Public
-// License, v. 2.0. If a copy of the MPL was not distributed with this
-// file, You can obtain one at http://mozilla.org/MPL/2.0/.
-
 #ifndef ACTFW_PLUGINS_ROOTEXCELLWRITER_H
 #define ACTFW_PLUGINS_ROOTEXCELLWRITER_H
 
@@ -74,7 +66,7 @@ class TFile;
     /// @param [in] ecells are the celss to be written out
     void
     write(
-        const std::vector<Acts::ExtrapolationCell<T>>& ecells);
+        const Acts::ExtrapolationCell<T>& ecell);
 
   protected:
 

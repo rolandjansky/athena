@@ -1,9 +1,9 @@
-
 #include "GeomACTS/TrackingGeometrySvc.h"
-#include "GeomACTS/GeoModelLayerBuilder.hpp"
-#include "GeomACTS/GeoModelStrawLayerBuilder.hpp"
-#include "GeomACTS/GeoModelDetectorElement.hpp"
-#include "GeomACTS/IdentityHelper.hpp"
+
+// Athena
+#include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "StoreGate/StoreGateSvc.h"
 
 // ACTS
 #include "ACTS/Detector/TrackingGeometry.hpp"
@@ -15,10 +15,11 @@
 #include "ACTS/Tools/TrackingGeometryBuilder.hpp"
 #include "ACTS/Tools/CylinderVolumeBuilder.hpp"
 
-// Athena
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "StoreGate/StoreGateSvc.h"
+// PACKAGE
+#include "GeomACTS/GeoModelLayerBuilder.hpp"
+#include "GeomACTS/GeoModelStrawLayerBuilder.hpp"
+#include "GeomACTS/GeoModelDetectorElement.hpp"
+#include "GeomACTS/IdentityHelper.hpp"
 
 Acts::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLocator* svc)
    : base_class(name,svc),
@@ -87,7 +88,6 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
   std::string managerName = manager->getName();
 
   Eigen::Vector3d ctrAvg(0, 0, 0);
-  size_t nElem = 0;
 
   using GMLB = Acts::GeoModelLayerBuilder;
 

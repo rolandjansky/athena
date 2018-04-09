@@ -13,6 +13,8 @@
 #include "GeomACTS/Extrapolation/ParticleGun.hpp"
 #include "ACTS/Utilities/Units.hpp"
 
+#include "CLHEP/Random/RandomEngine.h"
+
 ParticleGun::ParticleGun(const ParticleGun::Config& cfg,
     std::unique_ptr<const Acts::Logger> _logger)
   : m_cfg(cfg), m_logger(std::move(_logger))
@@ -29,7 +31,7 @@ ParticleGun::ParticleGun(const ParticleGun::Config& cfg,
 }
 
 std::vector<Acts::ProcessVertex>
-ParticleGun::generate() const
+ParticleGun::generate(CLHEP::HepRandomEngine* rnd) const
 {
 
   ACTS_DEBUG("::generate() called");
@@ -37,31 +39,27 @@ ParticleGun::generate() const
   std::vector<Acts::ProcessVertex> vertices;
   std::uniform_real_distribution<> dis(1.0, 2.0);
 
-  std::uniform_real_distribution<> d0Dist(m_cfg.d0Range.at(0), m_cfg.d0Range.at(1));
-  std::uniform_real_distribution<> z0Dist(m_cfg.z0Range.at(0), m_cfg.z0Range.at(1));
-  std::uniform_real_distribution<> phiDist(m_cfg.phiRange.at(0), m_cfg.phiRange.at(1));
-  std::uniform_real_distribution<> etaDist(m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
-  std::uniform_real_distribution<> ptDist(m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
-  std::uniform_real_distribution<> chargeDist(0., 1.);
-
   // the particles
   std::vector<Acts::ParticleProperties> particles;
   for (size_t ip = 0; ip < m_cfg.nParticles; ip++) {
     // generate random parameters
-    double d0  = d0Dist(*m_cfg.rng);
-    double z0  = z0Dist(*m_cfg.rng);
-    double phi = phiDist(*m_cfg.rng);
-    double eta = etaDist(*m_cfg.rng);
-    double pt  = ptDist(*m_cfg.rng);
+    double d0 = random(rnd, m_cfg.d0Range.at(0), m_cfg.d0Range.at(1));
+    double z0 = random(rnd, m_cfg.z0Range.at(0), m_cfg.z0Range.at(1));
+    double phi = random(rnd, m_cfg.phiRange.at(0), m_cfg.phiRange.at(1));
+    double eta = random(rnd, m_cfg.etaRange.at(0), m_cfg.etaRange.at(1));
+    double pt = random(rnd, m_cfg.ptRange.at(0), m_cfg.ptRange.at(1));
+
     barcode_type bc = 42 * ip;
-    //auto   bc  = m_cfg.barcodes->generate(ip);
-    // create vertex from random parameters
+    
     Acts::Vector3D vertex(d0 * std::sin(phi), d0 * -std::cos(phi), z0);
+
     // create momentum from random parameters
     Acts::Vector3D momentum(
         pt * std::cos(phi), pt * std::sin(phi), pt * std::sinh(eta));
+
     // flip charge and PID if asked for
-    int flip = (!m_cfg.randomCharge || chargeDist(*m_cfg.rng) < 0.5) ? 1 : -1;
+    int flip = (!m_cfg.randomCharge || rnd->flat() < 0.5) ? 1 : -1;
+
     // the particle should be ready now
     particles.emplace_back(
         momentum, m_cfg.mass, flip * m_cfg.charge, flip * m_cfg.pID, bc);
@@ -75,3 +73,7 @@ ParticleGun::generate() const
   return vertices;
 }
 
+double 
+ParticleGun::random(CLHEP::HepRandomEngine* rnd, double min, double max) const {
+  return rnd->flat() * std::abs(max - min) + min;
+}
