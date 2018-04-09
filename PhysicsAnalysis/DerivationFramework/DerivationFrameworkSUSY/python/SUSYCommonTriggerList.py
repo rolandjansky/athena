@@ -77,28 +77,27 @@ SinglePhoton_2018 = [
 
 
 DiLepton_2018 = [
+    'HLT_e28_lhmedium_nod0_mu8noL1',
+    'HLT_e17_lhloose_nod0_mu14',
+    'HLT_e28_lhmedium_nod0_L1EM24VHIM_mu8noL1',
+    'HLT_e7_lhmedium_nod0_mu24',
+    
     'HLT_2e17_lhvloose_nod0_L12EM15VHI',
     'HLT_2e19_lhvloose_nod0',
     'HLT_2e24_lhvloose_nod0',
-    'HLT_e24_lhloose_nod0_2e12_lhloose_nod0_L1EM20VH_3EM10VH',
-    'HLT_e24_lhvloose_nod0_2e12_lhvloose_nod0_L1EM20VH_3EM10VH',
+    
     'HLT_e28_lhtight_nod0_L1EM24VHIM_e15_etcut_L1EM7_Zee',
     'HLT_e28_lhtight_nod0_e15_etcut_L1EM7_Zee',
+    
     'HLT_2mu14',
     'HLT_2mu15_L12MU10',
-    'HLT_3mu6',
-    'HLT_3mu6_msonly',
-    'HLT_3mu8_msonly',
-    'HLT_mu20_2mu4noL1',
-    'HLT_mu22_2mu4noL1',
-    'HLT_mu22_mu8noL1_mu6noL1',
-    'HLT_mu24_2mu4noL1',
+    
+    'HLT_mu24_mu12noL1',
     'HLT_mu24_mu10noL1',
     'HLT_mu24_mu8noL1',
     'HLT_mu26_mu10noL1',
     'HLT_mu26_mu8noL1',
     'HLT_mu28_mu8noL1',
-    'HLT_mu6_dRl1_mu20_msonly_iloosems_mu6noL1_dRl1_msonly',
 ]
 
 # 2017 menu (covering 1.5e34 to 2.0e34 menus)
