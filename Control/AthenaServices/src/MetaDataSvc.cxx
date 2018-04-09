@@ -421,6 +421,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
             m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
             m_incSvc->removeListener(cfSvc.get(), IncidentType::EndRun);
+            m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
             m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
             m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
             cfSvc.release().ignore();
