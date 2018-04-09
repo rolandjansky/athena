@@ -1,6 +1,8 @@
 # Classes to configure the CF graph, via Nodes
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 import sys
+import re
+
 
 
 allAlgs={}
@@ -20,20 +22,22 @@ def remember(name, instance):
 
 
 class AlgNode():
-    def __init__(self, Alg, inputProp='', outputProp=''):
+    def __init__(self, Alg, inputProp='', outputProp='', ViewNodeName=''):
         self.name = ("%s_%s_%s")%( Alg.name(), inputProp, outputProp)
         self.algname = Alg.name()
         self.outputProp=outputProp
         self.inputProp=inputProp
+        self.viewNodeName=ViewNodeName
+        #if exist: remember (Alg.name(), Alg)
         self.configureAlg(Alg)
                 
     def configureAlg(self, Alg):
-        alg_name = Alg.getName()
+        alg_name = Alg.name()
         if AlgExisting(alg_name):
             print "AlgNode::%s: found already Alg %s"%(self.name,alg_name)
             self.Alg = useExisting(alg_name)
         else:
-            print "AlgNode::%s: new Alg %s"%(self.name,alg_name)
+            print "AlgNode::%s: new Alg %s added in list"%(self.name,alg_name)
             self.Alg=Alg
             remember(alg_name, self.Alg)
             
@@ -53,9 +57,9 @@ class AlgNode():
         try:
             if type(cval) == type(list()):                
                 cval.append(name)
-                setattr(self.Alg, prop, cval)
+                return setattr(self.Alg, prop, cval)
             else:
-                setattr(self.Alg, prop, name)
+                return setattr(self.Alg, prop, name)
         except:
             pass
 
@@ -63,7 +67,7 @@ class AlgNode():
         cval = self.Alg.getProperties()[prop]
         try:
             cval.append(name)
-            setattr(self.Alg, prop, cval)
+            return setattr(self.Alg, prop, cval)
         except:
             pass
  
@@ -76,15 +80,20 @@ class AlgNode():
 
 
     def setOutput(self, name):
-        print "setOutput %s on %s of %s"%(name, self.outputProp, self.name)
-        return self.setPar(self.outputProp,name)
+        if self.outputProp is not '':
+            print "setOutput %s on %s of %s"%(name, self.outputProp, self.name)
+            return self.setPar(self.outputProp,name)
 
     def getOutput(self):
-        return self.getPar(self.outputProp)
-
+        if self.outputProp is not '':
+            return self.getPar(self.outputProp)
+        return self.outputProp
+    
     def getOutputList(self):
         outputs = []
         cval = self.getOutput()
+        if cval == '':
+            return outputs
         if type(cval) == type(list()):  
             outputs.extend(cval)
         else:
@@ -92,17 +101,23 @@ class AlgNode():
         return outputs
     
     def setInput(self, name):
-        return self.setPar(self.inputProp,name)
+        if self.inputProp is not '':
+            return self.setPar(self.inputProp,name)
 
     def addInput(self, name):
-        return self.setParArray(self.inputProp,name)
+        if self.inputProp is not '':
+            return self.setParArray(self.inputProp,name)
     
     def getInput(self):
-        return self.getPar(self.inputProp)
-
+        if self.inputProp is not '':
+            return self.getPar(self.inputProp)
+        return self.inputProp
+    
     def getInputList(self):
         inputs = []
         cval = self.getInput()
+        if cval =='':
+            return inputs
         if type(cval) == type(list()):  
             inputs.extend(cval)
         else:
@@ -110,7 +125,7 @@ class AlgNode():
         return inputs
 
     def __str__(self):
-        return "Alg::%s  [%s] -> [%s]"%(self.name,' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
+        return "Alg::%s.%s  [%s] -> [%s]"%(self.name,self.viewNodeName, ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
 
 
  
@@ -119,18 +134,35 @@ class HypoAlgNode(AlgNode):
         AlgNode.__init__(self, Alg, inputProp, outputProp)
         self.tools = []
         self.previous=[]
-       
 
-    def addHypoTool(self, hypotool):
-        if "Comb" in self.name: ###TMP combo, only one threshold
+
+    ## def addHypoTool(self, hypotool):
+    ##     if "Comb" in self.name: ###TMP combo, only one threshold
+    ##         import re
+    ##         thresholds = map(int, re.findall(r'\d+', hypotool.name()))
+    ##         self.setPar('Threshold1', thresholds[0])
+    ##         self.setPar('Threshold2', thresholds[1])
+    ##         status=self.setPar('DecisionLabel', hypotool.name())
+    ##     else:
+    ##         self.tools.append(hypotool.name())            
+    ##         status= self.setParArray('HypoTools',hypotool)        
+    ##     return status
+
+    def addHypoTool(self, hypoToolName, hypoToolClassName):
+        from TrigUpgradeTest.MenuHypoTools import *
+        if hypoToolClassName is "ComboTestHypoTool":
+#        if "Comb" in self.name: ###TMP combo, only one threshold
             import re
-            thresholds = map(int, re.findall(r'\d+', hypotool.getName()))
+            thresholds = map(int, re.findall(r'\d+', hypoToolName))
             self.setPar('Threshold1', thresholds[0])
             self.setPar('Threshold2', thresholds[1])
-            status=self.setPar('DecisionLabel', hypotool.getName())
+            status=self.setPar('DecisionLabel', hypoToolName)
         else:
-            self.tools.append(hypotool.getName())
-            status= self.setParArray('HypoTools',hypotool)        
+            ## HypoTools are private, so need to be created when added to the Alg
+            self.tools.append(hypoToolName)            
+            tools = self.Alg.HypoTools
+            self.Alg.HypoTools = tools+[eval(hypoToolClassName)(hypoToolName)]
+            status = 0
         return status
 
     def addPreviousDecision(self,prev):
@@ -249,6 +281,7 @@ def create_step_filter_node(name, seq_list, dump=False):
     for seq in seq_list:
         filterAlg=seq.filter.Alg                    
         print "Add  %s to filter node %s"%(filterAlg.name(),name)
+        print "DUMPFILTER ",filterAlg
         stepCF += filterAlg
     
     if dump: dumpSequence (stepCF, indent=0)        
@@ -300,21 +333,92 @@ def create_CFSequence(CFseq):
         for node in nodes:
             algos.append(node.Alg)
 
-        if isinstance(seq, ViewNodeSequence):
-            viewAlgSeq = seqAND(seq.viewNodeName, algos)
-            seq.hypo.Alg.RunInView=True
-            viewSeq    = seqAND(seq.viewNodeName+"Seq", [seq.maker.Alg, viewAlgSeq, seq.hypo.Alg] )            
-            for other in seq.otherNodes:
-                viewSeq+= other.Alg
+
+        if seq.viewNodeName is not '':
+            viewSeq= seqAND(seq.viewNodeName+"Seq", [seq.maker.Alg])
             subs.append(viewSeq)
+            view_sequences = []   
+            for node in nodes:
+                if node.viewNodeName is not '':
+                    seq_found = False
+                    view_found= True
+                    for vseq in view_sequences:
+                        if vseq.name() == node.viewNodeName:
+                            vseq+= node.Alg
+                            seq_found=True
+                    if seq_found is False:
+                        print "New Sequence done: %s with Alg::%s"%(node.viewNodeName, node.Alg.name())
+        #                        vseq= seqAND(node.viewNodeName, [node.Alg])
+                        vseq= parOR(node.viewNodeName, [node.Alg])
+                        viewSeq += vseq
+    #                    viewSeq= seqAND(seq.viewNodeName+"Seq", [seq.maker.Alg, vseq, seq.hypo.Alg] )
+    #                    subs.append(viewSeq)
+                        view_sequences.append(vseq)
+                else:
+                    viewSeq += node.Alg
+
+            viewSeq += seq.hypo.Alg
+            if len(view_sequences) > 1:
+                print "WARNING: more than 1 View seuqence found!"
         else:
             subs.append(seq.maker.Alg)
             subs.extend(algos)
             subs.append(seq.hypo.Alg)
+                    
+        for other in seq.otherNodes:
+         subs.append(other.Alg)
+
+      ##   view_sequences = []            
+##         # group algs on view seuqneces
+##         view_found=False
+##         for node in nodes:
+##             print "CAC Adding node: ",node           
+##             if node.viewNodeName is not '':
+##                 seq_found = False
+##                 view_found= True
+##                 for vseq in view_sequences:
+##                     if vseq.name() == node.viewNodeName:
+##                         vseq+= node.Alg
+##                         seq_found=True
+##                 if seq_found is False:
+##                     print "New Sequence done: %s with Alg::%s"%(node.viewNodeName, node.Alg.name())
+##         #                        vseq= seqAND(node.viewNodeName, [node.Alg])
+##                     vseq= parOR(node.viewNodeName, [node.Alg])
+##                     viewSeq += vseq
+## #                    viewSeq= seqAND(seq.viewNodeName+"Seq", [seq.maker.Alg, vseq, seq.hypo.Alg] )
+## #                    subs.append(viewSeq)
+##                     view_sequences.append(vseq)
+##             else:
+##                 if seq_has_view:
+##                     viewSeq += node.Alg
+##                 else:
+##                     subs.append(node.Alg)
+
+
+            
+        ## if len(view_sequences) > 1:
+        ##     print "WARNING: more than 1 View seuqence found!"
+
+        ## if  seq_has_view:
+        ##     viewSeq+ = seq.hypo.Alg
+
+           # vseq = view_sequences[0]                
+            #for vseq in view_sequences:
+            #viewSeq= seqAND(seq.viewNodeName+"Seq", [seq.maker.Alg, subs, vseq, seq.hypo.Alg] )
+            #subs = []
+#            subs.append(viewSeq)
+##         else:
+##             subs.append(seq.maker.Alg)
+## #                subs.extend(algos)
+##             subs.append(seq.hypo.Alg)
+
+        print "The full list of seq %s"%(seq.name)
+        print subs
 
 
 
-    subs=list(set(subs))
+
+    #subs=list(set(subs))
     stepReco = parOR(CFseq.name+"_reco", subs)
     stepAnd = seqAND(CFseq.name, [ filterAlg, stepReco ])
     return stepAnd
@@ -336,13 +440,14 @@ def find_stepCF_algs(step_list):
 
 
 def addChainToHypoTool(hypotool, chain):
-    prop="Chains"
-    cval = hypotool.getProperties()[prop]
-    try:
-        cval.append(chain)
-        setattr(hypotool, prop, cval)
-    except:
-        pass
+    prop="Chain"
+    setattr(hypotool, prop, chain)
+    ## cval = hypotool.getProperties()[prop]
+    ## try:
+    ##     cval.append(chain)
+    ##     setattr(hypotool, prop, cval)
+    ## except:
+    ##     pass
 
 
 def addChainToHypoAlg(hypoAlg, chain):
@@ -357,10 +462,19 @@ def addChainToHypoAlg(hypoAlg, chain):
 
 
 #######################################
-def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
-    print "ACC decisionTree_From_Chains on %s"%(HLTAllStepsSeq.name())
+def decisionTree_From_Chains(HLTAllStepsSeq, chains):
+    #from TrigUpgradeTest.MenuHypoTools import *
+    print "Run decisionTree_From_Chains on %s"%(HLTAllStepsSeq.name())
     HLTNodeName= HLTAllStepsSeq.name()
     testRoR=False
+    # find nsteps
+    NSTEPS=0
+    for chain in chains:
+        steps =len(chain.steps)
+        if NSTEPS < steps:
+            NSTEPS = steps
+    print "Run on %d steps"%NSTEPS
+    
     from TrigUpgradeTest.MenuComponents import CFSequence
     #loop over chains to configure
     count_steps=0
@@ -371,33 +485,55 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
         CFseq_list = []
         step_decisions = []
         for chain in chains:
+            print len(chain.steps), count_steps
+            if len(chain.steps) <= count_steps:
+                continue
+            chain_step=chain.steps[count_steps]
             chain_step_name= "%s:%s"%(stepCF_name, chain.name)
             print "\n*******Filling step %s for chain  %s"%(stepCF_name, chain.name)
       
-            chain_step=chain.steps[count_steps]
-            sequenceHypoTools=chain_step.sequenceHypoTools
+            sequenceHypoTools=chain_step.sequences
+#            sequenceHypoTools=chain_step.sequenceHypoTools
             countseq=0
             otherSubSequence = []
             for st in sequenceHypoTools:
-                sequence=st.sequence
-                hypotool=st.hypotool
-                addChainToHypoTool(hypotool, chain.name)
+                sequence=st
+                hypotool=chain.hypoToolName
+                #sequence=st.sequence
+                #hypotool=st.hypotool
+#                addChainToHypoTool(hypotool, chain.name)
+#                print "Going through sequence %s with threshold %s"%(sequence.name, hypotool.getName())
                 cfseq_name= sequence.name
+                print "Going through sequence %s with threshold %s"%(sequence.name, hypotool)
 
-                print "Going through sequence %s with threshold %s"%(sequence.name, hypotool.getName())
                 seeds= [nodeSeq.seed for nodeSeq in sequence.nodeSeqList]
-                print "Found these seeds: %s"%(seeds)
+                print "Found these seeds form the sequence: %s"%(seeds)
                 #define sequence input
-                if count_steps == 0: # seeding
+                if count_steps == 0: # seeding                   
                     filter_input= seeds
                     #[nodeSeq.seed for nodeSeq in sequence.nodeSeqList]
                     print "Seeds from this chain: %s"%(filter_input)
                     previous_sequence="".join(chain.group_seed)
                     previous_seeds=seeds
+                    
+                    #add check that the sequence seed is foreseen in the chain?
+                    
+                    # some manipulation for having the same strings as in the menu
+                    ## filter_input = []
+                    ## for seed in seeds:
+                    ##     if seed == "L1EM":
+                    ##         filter_input.append("EMRoIDecisions")
+                    ##     elif seed == "L1MU":
+                    ##         filter_input.append("MURoIDecisions")
+                    ##     else:
+                    ##        filter_input.append(seed)
+                    ## print "Seeds to the filter: %s"%(filter_input)
+                    ## previous_seeds=seeds
                 else:
                     # from previous step, map the seuqence in the same order?
-                    previous_sequence=chain.steps[count_steps-1].sequences[countseq].name #menu sequence
-                    filter_input=chain.steps[count_steps-1].sequences[countseq].outputs
+                    prev=chain.steps[count_steps-1].sequences[countseq]
+                    previous_sequence = prev.name #menu sequence
+                    filter_input      = prev.outputs
                     print "Connect to previous sequence through these filter inputs:"
                     print filter_input
                     previous_seeds = chain.steps[count_steps-1].sequences[countseq].seeds
@@ -408,10 +544,13 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
                     
                 # add hypotools
                 for nodeSeq in sequence.nodeSeqList:
-                    hypoAlg= nodeSeq.hypo                
-                    print "Adding %s to %s"%(hypotool.getName(),hypoAlg.algname)
-                    hypoAlg.addHypoTool(hypotool)
+                    hypoAlg= nodeSeq.hypo
+                    hypoToolClassName= nodeSeq.hypoToolClassName
+                    print "Adding HypoTool::%s with name %s to %s"%(hypoToolClassName,chain.hypoToolName, hypoAlg.algname)
+                    hypoAlg.addHypoTool(chain.hypoToolName, hypoToolClassName)
+                    #hypoAlg.addHypoTool(hypotoolTool)
                     addChainToHypoAlg(hypoAlg, chain.name) # only for TMP Combo
+##                    addChainToHypoTool(hypotoolTool, chain.name)                
                     
 
 
@@ -428,6 +567,7 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
                     sfilter=findFilter[0]
                     print "Adding chain %s to %s"%(chain.name,sfilter.algname)
                     sfilter.setChains(chain.name)
+                    print sfilter.getChains()
                     continue
                 else:
                     ## if (testRoR):
@@ -443,7 +583,7 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
                     for o in filter_out: sfilter.setOutput(o)            
 
                     sfilter.setChains(chain.name)
-                    print "Filter Done: %s"%(sfilter)
+                    print "Filter Done: %s"%(sfilter.name)
                     
                 #loop over NodeSequences of this sequence to add inputs to InputMaker and send decisions to HypoAlg
                 for nodeSeq in sequence.nodeSeqList:
@@ -456,7 +596,6 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
                     print "Adding %d inputs to sequence::%s from Filter::%s (from seed %s)"%(len(input_maker_input), nodeSeq.name, sfilter.algname, seed)
                     for i in input_maker_input: print i
                     if len(input_maker_input) == 0:
-#                        print "ERROR, no inputs to sequence are set!"
                         sys.exit("ERROR, no inputs to sequence are set!") 
 #                        return                    
                     for i in input_maker_input: nodeSeq.addInput(i)
@@ -473,7 +612,7 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
                     for out in input_maker_output:
                           nodeSeq.addOutputDecision(out) 
                           nodeSeq.hypo.setPreviousDecision(out)
-                    print nodeSeq.hypo.Alg
+#                    print nodeSeq.hypo.Alg
 
                     #sequence_outDecisions= "SequenceDecision_%s"%nodeSeq.name
                     #nodeSeq.addDecision(sequence_outDecisions) #FPP
@@ -488,7 +627,7 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
 
                 
                                     
-                CF_seq = CFSequence( cfseq_name, FilterAlg=sfilter, MenuSequence=sequence)    
+                CF_seq = CFSequence( cfseq_name, FilterAlg=sfilter, MenuSequence=sequence)
                 #for seq in otherSubsequence: CF_seq.addSubSequence(seq)
                 print CF_seq
                 CFseq_list.append(CF_seq)
@@ -497,7 +636,7 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
             #end of sequence/threshold
                 
         #end of loop over chains for this step, now implement CF:
-        print "\n******** Create CF Tree %s with AthSequencers",stepCF_name
+        print "\n******** Create CF Tree %s with AthSequencers"%(stepCF_name)
         
         #first make the filter step
         stepFilter = create_step_filter_node(stepCF_name, CFseq_list, dump=False)
@@ -507,6 +646,7 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains, NSTEPS=1):
         # then the reco step
         stepCF = create_step_reco_node("%s_%s"%(HLTNodeName,stepCF_name), CFseq_list, dump=False)
         HLTAllStepsSeq += stepCF
+
 
         # then the monitor summary
         summary=makeSummary("TriggerSummary"+ stepCF_name, step_decisions)

@@ -34,7 +34,9 @@ class TestEventViewCreatorAlgorithm : public AthAlgorithm
     SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputDecisionsKey { this, "InputDecisions", {}, "The vector name of input decision container (implicit)" } ;
 
     // Ouput decisions
-    SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_outputDecisionsKey{ this, "OutputDecisions", "Unspecified", "The name of output decision container" };
+    //SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_outputDecisionsKey{ this, "OutputDecisions", "Unspecified", "The name of output decision container" };
+    //    SG::WriteHandleKeyArray< ConstDataVector<TrigCompositeUtils::DecisionContainer> > m_outputDecisionsKey{ this, "OutputDecisions", {}, "Output Decisions" };
+    SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputDecisionsKey { this, "OutputDecisions", {}, "Ouput Decisions" };
 
     //Output views for merging
     SG::WriteHandleKey< std::vector< SG::View* > > m_viewsKey{ this, "Views", "Unspecified", "The key of views collection produced" };

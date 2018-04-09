@@ -14,6 +14,7 @@ namespace HLTTest {
   
   StatusCode TestHypoAlg::initialize() {
     ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_MSG_DEBUG("Link name is "<<m_linkName.value());
     CHECK( m_recoInput.initialize() );
     CHECK( m_tools.retrieve() );  
     return StatusCode::SUCCESS;
@@ -43,20 +44,20 @@ namespace HLTTest {
     auto aux = std::make_unique<DecisionAuxContainer>();
     decisions->setStore( aux.get() );
 
-    
+    // find features:
     std::vector<const FeatureOBJ*> featureFromDecision;
-    for ( auto previousDecision: *previousDecisionsHandle ) {     
-      auto featurelink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
-      CHECK( featurelink.isValid() );
-      const FeatureOBJ* feature = *featurelink;
+    for ( auto previousDecision: *previousDecisionsHandle ) {
+      ElementLink<FeatureContainer> featureLink;
+      recursivelyFindFeature(previousDecision, featureLink);
+      //auto featureLink = (previousDecision)->objectLink<FeatureContainer>( m_linkName.value() );
+      CHECK( featureLink.isValid() );
+      const FeatureOBJ* feature = *featureLink;
       featureFromDecision.push_back( feature);
-    }
-   
-    
+    }       
     ATH_MSG_DEBUG("Found "<<featureFromDecision.size()<<" features "<<m_linkName.value() <<" mapped from previous decisions");
     
-    size_t counter = 0;
     //map reco object and decision: find in reco obejct the initial RoI and map it to the correct decision
+    size_t reco_counter = 0;
     for (auto recoobj: *recoInput){
       auto roiEL = recoobj->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
       CHECK( roiEL.isValid() );
@@ -70,24 +71,25 @@ namespace HLTTest {
       ATH_MSG_DEBUG(" Found link from the reco object to feature "<<m_linkName.value() );
       const FeatureOBJ* feature = *featurelink;
       // find the same roi in the previous decisions
-      bool foundRoIInDecision=false;
+      bool foundFeatureInDecision=false;
        size_t pos=distance(featureFromDecision.begin(), find(featureFromDecision.begin(), featureFromDecision.end(), feature));
        if (pos < featureFromDecision.size()){
-	 foundRoIInDecision=true;	 
+	 foundFeatureInDecision=true;	 
        }
        
-       if (foundRoIInDecision){
+       if (foundFeatureInDecision){
 	 ATH_MSG_DEBUG(" Found link from the reco object to the previous decision at position "<<pos);
 	 auto d = newDecisionIn(decisions.get());
-	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), counter) );// feature used by the Tool
-	 d->setObjectLink( "initialRoI", featurelink );// this is used by the InputMaker
-	 d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(decisionInput().key(), pos) );// link to previous decision object
+	 d->setObjectLink( "feature", ElementLink<xAOD::TrigCompositeContainer>(m_recoInput.key(), reco_counter) );// feature used by the Tool
+	 d->setObjectLink( m_linkName.value(), featurelink );
+	 d->setObjectLink( "initialRoI", roiEL );
+	 linkToPrevious( d, decisionInput().key(), pos );
        }
        else{
-	 ATH_MSG_ERROR( " Can not find reference to previous decision from feature " + m_linkName.value() + " from reco object " << counter );
+	 ATH_MSG_ERROR( " Can not find reference to previous decision from feature " + m_linkName.value() + " from reco object " << reco_counter );
 	 return StatusCode::FAILURE;
        }
-       counter++;
+       reco_counter++;
     }
     
  
@@ -119,4 +121,21 @@ namespace HLTTest {
     return StatusCode::SUCCESS;
   }
 
+
+bool TestHypoAlg::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<FeatureContainer>& featurelink) const{
+    //recursively find in the seeds
+    if ( start->hasObjectLink( m_linkName.value() ) ) {
+      featurelink=start->objectLink<FeatureContainer>( m_linkName.value() );
+      return true;
+    }
+    if  (TrigCompositeUtils::hasLinkToPrevious(start) ){
+      auto thelinkToPrevious =TrigCompositeUtils::linkToPrevious( start);      
+      return recursivelyFindFeature( *thelinkToPrevious, featurelink);
+    }
+    return false;
+  }
+
+
+
+  
 } //> end namespace HLTTest

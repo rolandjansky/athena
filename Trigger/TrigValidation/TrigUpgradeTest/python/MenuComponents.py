@@ -1,20 +1,25 @@
 ##########################################################
 
-
 class NodeSequence():
-    def __init__(self, name, Algs, Hypo, Seed, Maker):
+    def __init__(self, name, Algs, Hypo, Seed, Maker, HypoToolClassName, OtherNodes=[]):
         self.name = name
         self.algs = Algs
         self.hypo = Hypo
         self.seed = Seed
         self.maker = Maker
-        self.output = Hypo.getOutput()
+        self.hypoToolClassName = HypoToolClassName
+        self.otherNodes=OtherNodes
+        self.hypo.addDefaultOutput() # reset name
+        self.output = "%s_%s"%(Seed, Hypo.getOutput())
+        self.hypo.setOutput(self.output)
         self.reuse = 0
+        self.hasView()
         self.connect()
  
     def connect(self):
         self.maker.setInput("")
-        alg_input = self.maker.getOutput() 
+        alg_input = self.maker.getOutput()
+        #if self.viewNodeName =='':
         for Alg in self.algs:
             Alg.setInput(alg_input) 
             alg_input = Alg.getOutput()
@@ -29,6 +34,17 @@ class NodeSequence():
             #    self.addOutputDecision(sequence_outDecisions) #
 #        self.hypo.setPreviousDecision(sequence_outDecisions) # works for one        
         print "connect NodeSequence %s"%self.name
+
+        
+    def hasView(self):
+        self.viewNodeName=''
+        hasView=False
+        for Alg in self.algs:
+            if Alg.viewNodeName !='':
+                hasView=True
+                self.viewNodeName = Alg.viewNodeName
+                break;
+        return hasView
 
     def addNode(self,node):
         self.algs.append(node)
@@ -46,7 +62,7 @@ class NodeSequence():
         self.maker.setPar("OutputDecisions", theinput)
         
     def __str__(self):
-        return "NodeSequence::%s with \n Seed::%s \n %s \n Hypo::%s"%(self.name, self.seed, ',\n '.join(map(str, self.algs)), self.hypo)
+        return "NodeSequence::%s with \n Seed::%s \n Maker::%s \n %s \n Hypo::%s"%(self.name, self.seed, self.maker, ',\n '.join(map(str, self.algs)), self.hypo)
 
     
 class ViewNodeSequence(NodeSequence):
@@ -106,16 +122,26 @@ class ChainStep:
         self.sequenceHypoTools = SequenceHypoTools
         self.sequences = [sh.sequence for sh in SequenceHypoTools ] 
 
+class ChainStep2:
+     def __init__(self, name,  Sequences=[]):
+        self.name = name        
+        self.sequences = Sequences 
 
 class Chain:
      def __init__(self, name, Seed, ChainSteps=[]):
          self.name = name
          self.seed=Seed
          self.steps=ChainSteps
+         self.hypoToolName=name
+         #self.hypoToolName=name.replace("HLT_","")
          
          seeds = Seed.strip().split("_")
          seeds.pop(0) #remove first L1
                       #         print "Chians seed: "%seeds
          self.group_seed  = ["L1"+filter(lambda x: x.isalpha(), stri) for stri in seeds]
+
+
+
+
 
 

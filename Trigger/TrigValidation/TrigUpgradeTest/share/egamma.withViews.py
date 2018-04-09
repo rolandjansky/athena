@@ -124,6 +124,7 @@ viewAlgs.append(theFTF)
 # Required to satisfy data dependencies
 ViewVerify = CfgMgr.AthViews__ViewDataVerifier("electronViewDataVerifier")
 ViewVerify.DataObjects = [('xAOD::TrigEMClusterContainer','StoreGateSvc+L2CaloClusters')]
+ViewVerify.OutputLevel = DEBUG
 viewAlgs.append(ViewVerify)
 
 TrackParticlesName = ""
@@ -243,4 +244,8 @@ hltTop = seqOR( "hltTop", [ steps, mon, summary, StreamESD ] )
 topSequence += hltTop
 
 
+from AthenaCommon.AlgSequence import dumpSequence
+dumpSequence(topSequence)
 
+#print theElectronFex
+#print ViewVerify

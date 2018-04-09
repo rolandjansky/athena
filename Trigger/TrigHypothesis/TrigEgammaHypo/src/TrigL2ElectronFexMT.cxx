@@ -100,14 +100,20 @@ StatusCode TrigL2ElectronFexMT::execute() {
  using namespace Monitored;   
  using namespace xAOD;   
 
+ ATH_MSG_DEBUG( "Executing " <<name());
   auto ctx = getContext();
 
   auto trigElecColl =   SG::makeHandle (m_outputElectronsKey, ctx);  
   ATH_CHECK( trigElecColl.record (std::make_unique<xAOD::TrigElectronContainer>(),
                            std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
 
-  auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
+  ATH_MSG_DEBUG( "Made WriteHandle " << m_outputElectronsKey );
+  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
+ 
 
+  auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
+  ATH_MSG_DEBUG( "Made handle " << m_roiCollectionKey  );
+  
   //JTB For the moment assume 1 RoI (as in TrigL2ElectronFex) - could change to SuperRoI later
 
   //TrigRoiDescriptorCollection::const_iterator roiDescriptor = roiCollection->begin();
@@ -127,6 +133,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
   float calo_eta(999), calo_phi(999), calo_et(-1);
 
   auto clusContainer = SG::makeHandle (m_TrigEMClusterContainerKey, ctx);
+  ATH_MSG_DEBUG( "Made handle " << m_TrigEMClusterContainerKey  );
   
   
   //JTB Should only be 1 cluster in each RoI 
@@ -147,6 +154,7 @@ StatusCode TrigL2ElectronFexMT::execute() {
 
 
   SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrackParticleContainerKey, ctx);
+  ATH_MSG_DEBUG( "Made handle " << m_TrackParticleContainerKey  );
 
 
   if (tracks->size() == 0){
