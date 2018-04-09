@@ -43,18 +43,44 @@
   <x title="# Total DeadSensors" n="20" lo="0." hi="20"/>
   <y title="Entries"/>
 </h>
-<h id="nSCTHits_vs_eta" type="TProfile" title="# SCT hits vs Eta">
+<h id="nSCTHits_vs_eta" type="TH2F" title="# SCT hits vs Eta">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="# SCT Hits" lo="0" hi="20"/>
+  <y title="# SCT Hits" n="30" lo="0" hi="30"/>
 </h>
-<h id="nPixHits_vs_eta" type="TProfile" title="# Pix hits vs Eta">
+<h id="nPixHits_vs_eta" type="TH2F" title="# Pix hits vs Eta">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="# Pix Hits" lo="0" hi="20"/>
+  <y title="# Pix Hits" n="30" lo="0" hi="30"/>
 </h>
-<h id="nTotHits_vs_eta" type="TProfile" title="# total hits vs Eta">
+<h id="nTotHits_vs_eta" type="TH2F" title="# total hits vs Eta">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="# total Hits" lo="0" hi="20"/>
+  <y title="# total Hits" n="30" lo="0" hi="30"/>
 </h>
+<h id="nSCTHoles_vs_eta" type="TH2F" title="# SCT holes vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# SCT Holes" n="30" lo="0" hi="30"/>
+</h>
+<h id="nPixHoles_vs_eta" type="TH2F" title="# Pix holes vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# Pix Holes" n="30" lo="0" hi="30"/>
+</h>
+<h id="nTotHoles_vs_eta" type="TH2F" title="# total holes vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# total Holes" n="30" lo="0" hi="30"/>
+</h>
+<h id="nSCTOutliers_vs_eta" type="TH2F" title="# SCT outliers vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# SCT Outliers" n="30" lo="0" hi="30"/>
+</h>
+<h id="nPixOutliers_vs_eta" type="TH2F" title="# Pix outliers vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# Pix Outliers" n="30" lo="0" hi="30"/>
+</h>
+<h id="nTotOutliers_vs_eta" type="TH2F" title="# total outliers vs Eta">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# total Outliers" n="30" lo="0" hi="30"/>
+</h>
+
+
 <h id="nSCTDeadSensors_vs_eta" type="TProfile" title="# SCT deadsensors vs Eta">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# SCT deadsensors" lo="0" hi="20"/>
@@ -103,6 +129,12 @@
   <x title="truth match probability" n="40" lo="0." hi="1.1"/>
   <y title="Entries"/>
 </h>
+<!--
+   =======================================================
+   pre-selected truth spectrum
+   =======================================================
+-->
+<!--
 <h id="truthEtaSpectrum" type="TH1F" title="truth eta spectrum">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="Entries"/>
@@ -114,7 +146,13 @@
 <h id="truthPhiSpectrum" type="TH1F" title="truth phi spectrum">
   <x title="#phi" n="60" lo="-3" hi="3"/>
   <y title="Entries"/>
-</h>
+  </h>
+-->
+<!--
+   =======================================================
+   end of pre-selected truth spectrum
+   =======================================================
+-->
 <h id="recod0TVRSpectrum" type="TH1F" title="reco d0-TruthVtxR spectrum">
   <x title="d0-TrVtR" n="200" lo="-5." hi="5."/>
   <y title="Entries"/>
@@ -552,7 +590,7 @@
 <!--
    =======================================================
    end of hit residuals & cluster width plots
-   ========================================================
+   =======================================================
   -->
 <!--
    =======================================================
@@ -1014,39 +1052,39 @@
 </h>
 <!-- -->
 <!-- GOOD eff plots -->
-<h id="trackeff_vs_eta" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_eta" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h> 
-<h id="trackeff_vs_pt" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_pt" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="Pt (GeV)" n="25" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_phi" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_phi" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="#phi" n="25" lo="-&PI;" hi="&PI;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_d0" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_d0" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="d0" n="100" lo="-25" hi="25"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_z0" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_z0" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="z0" n="100" lo="-250" hi="250"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_R" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_R" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="R" n="100" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_Z" type="TProfile" title="Fraction of reco-matched truth track">
+<h id="trackeff_vs_Z" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="Z" n="100" lo="-350" hi="350"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_prodR" type="TProfile" title="Track Efficiency vs Production Vertex Radius">
+<h id="trackeff_vs_prodR" type="TEfficiency" title="Track Efficiency vs Production Vertex Radius">
   <x title="prod_R" n="100" lo="0" hi="1500"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackeff_vs_prodZ" type="TProfile" title="Track Efficiency vs Production Vertex Z">
+<h id="trackeff_vs_prodZ" type="TEfficiency" title="Track Efficiency vs Production Vertex Z">
   <x title="prod_Z" n="100" lo="0" hi="2000"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
@@ -1137,351 +1175,36 @@
   <x title="Log(p_{T})" n="10" lo="-0.5" hi="2" />
   <y title="Bad Match Rate" lo="0.0" hi="2.0" />
 </h>
-<!-- Dummy Plots -->
-<h id="primary_photon_eta_vs_conversion_radius" type="TH2" title="Primary Photon #eta vs Conversion Radius">
-  <x title="Conversion Radius [mm]" n="100" lo="0" hi="1500"/>
-  <y title="#eta" n="20" lo="-2.5" hi="2.5"/>
-</h>
-<h id="primary_photon_pt_vs_decay_radius" type="TH2" title="Primary Photon log(p_{T}) vs Decay Radius">
-  <x title="Decay Radius [mm]" n="100" lo="0" hi="1500"/>
-  <y title="log(p_{T}) (GeV)" n="100" lo="-0.5" hi="3.0"/>
-</h>
-<h id="primary_photon_pt" type="TH1F" title="Primary Photon p_{T}">
-  <x title="p_{T} (GeV)" n="100" lo="0" hi="500"/>
-  <y title="Entries"/>
-</h>
-<h id="brem_photon_eta_vs_radius_of_conversion" type="TH2" title="Brem Photon #eta vs Radius of Conversion">
-  <x title="Radius of Conversion [mm]" n="100" lo="0" hi="1500"/>
-  <y title="#eta" n="20" lo="-2.5" hi="2.5"/>
-</h>
-<h id="brem_photon_pt_vs_radius_of_origin_of_conversion" type="TH2" title="Brem Photon log(p_{T}) vs Radius of Origin of Conversion">
-  <x title="Radius of Origin of Conversion [mm]" n="100" lo="0" hi="1500"/>
-  <y title="log(p_{T}) (GeV)" n="100" lo="-0.5" hi="3.0"/>
-</h>
-<h id="lepton_disappearance_radius" type="TH1F" title="Radius at which electrons and positrons from the primary disappear">
-  <x title="Radius of Disappearance [mm]" n="100" lo="0" hi="1500"/>
-  <y title="Entries"/>
-</h>
-<h id="nOut_of_lepdeath" type="TH1F" title="Number of Particles emerging from electron/positron endpoint">
-  <x title="Number of Particles" n="6" lo="0" hi="5"/>
-  <y title="Entries"/>
-</h>
-<h id="brem_spectrum" type="TH2" title="log of the Energy of Brem Photons vs Radius of Emission">
-  <x title="Radius of Emission [mm]" n="100" lo="0" hi="1500"/>
-  <y title="log (Energy (GeV))" n="100" lo="-3" hi="3"/>
-</h>
-<h id="energy_remaining" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius">
-  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
-  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
-</h>
-<h id="energy_remaining_vs_eta" type="TH2" title="Fraction of electron/positron energy left at ECal vs Initial #eta">
-  <x title="#eta" n="20" lo="-2.5" hi="2.5"/>
-  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
-</h>
-<h id="energy_remaining_vs_prodR_TRT_barrel" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (0 &lt; |#eta| &lt; 0.625)">
-  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
-  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
-</h>
-<h id="energy_remaining_vs_prodR_type_A_endcap" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (1.070 &lt; |#eta| &lt; 1.304)">
-  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
-  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
-</h>
-<h id="energy_remaining_vs_prodR_type_A_and_B" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (1.304 &lt; |#eta| &lt; 1.752)">
-  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
-  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
-</h>
-<h id="energy_remaining_vs_prodR_type_B_endcap" type="TH2" title="Fraction of electron/positron energy left at ECal vs production radius (1.752 &lt; |#eta| &lt; 2.0)">
-  <x title="Radius of Initial Conversion [mm]" n="100" lo="0" hi="1500"/>
-  <y title="Fraction of Energy Remaining" n="100" lo="0" hi="1.25"/>
-</h>
-<h id="truthMatchProbability_vs_delta_R" type="TH2" title="Truth Matching Probability of electron/positron vs #DeltaR">
-  <x title="#DeltaR" n="50" lo="0" hi="1.0"/>
-  <y title="Truth Matching Probability" n="100" lo="0" hi="1.0"/>
-</h>
-<h id="minimum_delta_R" type="TH1" title="Minimum #DeltaR for primary conversions within 100 mm of the origin">
-  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
-  <y title="Entries"/>
-</h>
-<h id="minimum_delta_R_2" type="TH1" title="Minimum #DeltaR for primary conversions between 100 and 200 mm from the origin">
-  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
-  <y title="Entries"/>
-</h>
-<h id="minimum_delta_R_3" type="TH1" title="Minimum #DeltaR for primary conversions between 200 and 300 mm from the origin">
-  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
-  <y title="Entries"/>
-</h>
-<h id="minimum_delta_R_not_found" type="TH1" title="Minimum #DeltaR for primary conversions within 100 mm of the origin with no good match">
-  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
-  <y title="Entries"/>
-</h>
-<h id="minimum_delta_R_2_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 100 and 200 mm from the origin with no good match">
-  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
-  <y title="Entries"/>
-</h>
-<h id="minimum_delta_R_3_not_found" type="TH1" title="Minimum #DeltaR for primary conversions between 200 and 300 mm from the origin with no good match">
-  <x title="#DeltaR" n="50" lo="0" hi="0.50"/>
-  <y title="Entries"/>
-</h>
-<h id="delta_inverse_pt" type="TH1" title="Difference between inverse pt for track and truth particles">
-  <x title="(1/p_{T})^{track} - (1/p_{T})^{truth}" n="100" lo="0" hi="2"/>
-  <y title="Entries"/>
-</h>
 
-
-
-<!-- -->
-<!-- Track Parameter Resolution Plots -->
-<!-- Track Parameter TH2s vs eta -->
-<h id="res_d0_vs_eta" type="TH2" title="d_{0}: deviation vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="d_{0}^{rec} - d_{0}^{tru}" n="2000" lo="-1.0" hi="1.0"/>
+<!-- Track Author Plots -->
+<h id="SiSPSeededFinder_eff_vs_radius" type="TProfile" title="Efficiency vs Radius of origin of e+e- found by SiSPSeededFinder">
+  <x title="Production Radius [mm]" n="100" lo="0" hi="1000"/>
+  <y title="Efficiency" n="100" lo="0" hi="1.25"/>
 </h>
-<h id="res_z0_vs_eta" type="TH2" title="z_{0}: deviation vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="z_{0}^{rec} - z_{0}^{tru}" n="200" lo="-1.5" hi="1.5"/>
+<h id="TRTSeeded_eff_vs_radius" type="TProfile" title="Efficiency vs Radius of origin of e+e- found by TRTSeededTrackFinder">
+  <x title="Production Radius [mm]" n="100" lo="0" hi="1000"/>
+  <y title="Efficiency" n="100" lo="0" hi="1.25"/>
 </h>
-<h id="res_phi_vs_eta" type="TH2" title="#phi: deviation vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#phi^{rec} - #phi^{tru}" n="3000" lo="-0.03" hi="0.03"/>
+<h id="TRTStandalone_eff_vs_radius" type="TProfile" title="Efficiency vs Radius of origin of e+e- found by TRTStandalone">
+  <x title="Production Radius [mm]" n="100" lo="0" hi="1000"/>
+  <y title="Efficiency" n="100" lo="0" hi="1.25"/>
 </h>
-<h id="res_theta_vs_eta" type="TH2" title="#theta: deviation vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#theta^{rec} - #theta^{tru}" n="2000" lo="-0.1" hi="0.1"/>
+<h id="combo_eff_vs_radius" type="TProfile" title="Efficiency vs Radius of origin of e+e- found by SiSPSeededFinder, TRTSeededFinder, or TRTStandalone">
+  <x title="Production Radius [mm]" n="100" lo="0" hi="1000"/>
+  <y title="Efficiency" n="100" lo="0" hi="1.25"/>
 </h>
-<h id="res_z0*sin(theta)_vs_eta" type="TH2" title="z0*sin(#theta): deviation vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" n="200" lo="-1.5" hi="1.5"/>
+<h id="exclotherAlgo_eff_vs_radius" type="TProfile" title="Efficiency vs Radius of origin of e+e- found exclusively by anything other than SiSPSeededFinder, TRTSeededTrackFinder, and TRTStandalone">
+  <x title="Production Radius [mm]" n="100" lo="0" hi="1000"/>
+  <y title="Efficiency" n="100" lo="0" hi="1.25"/>
 </h>
-<h id="res_qopt_vs_eta" type="TH2" title="q/pt: deviation vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(q/pt)^{rec} - (q/pt)^{tru}" n="200" lo="-0.4" hi="0.4"/>
+<h id="otherAlgo_eff_vs_radius" type="TProfile" title="Efficiency vs Radius of origin of e+e- found by anything other than SiSPSeededFinder, TRTSeededTrackFinder, and TRTStandalone">
+  <x title="Production Radius [mm]" n="100" lo="0" hi="1000"/>
+  <y title="Efficiency" n="100" lo="0" hi="1.25"/>
 </h>
-<!-- Track Parameter Means vs eta -->
-<h id="resmean_d0_vs_eta" type="TH1F" title="d_{0} Track Measurement Bias vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="d_{0}^{rec} - d_{0}^{tru}"/>
-</h> 
-<h id="resmean_z0_vs_eta" type="TH1F" title="z_{0} Track Measurement Bias vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="z_{0}^{rec} - z_{0}^{tru}"/>
+<h id="track_author_use" type="TH1" title="Usage of the Track Author Algorithms">
+  <x title="Track Author Bit" n="52" lo="0" hi="51"/>
+  <y title="Number of Occurrences"/>
 </h>
-<h id="resmean_phi_vs_eta" type="TH1F" title="#phi Track Measurement Bias vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#phi^{rec} - #phi^{tru}"/>
-</h>
-<h id="resmean_theta_vs_eta" type="TH1F" title="#theta Track Measurement Bias vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#theta^{rec} - #theta^{tru}"/>
-</h>
-<h id="resmean_z0*sin(theta)_vs_eta" type="TH1F" title="z_{0}*sin(#theta) Track Measurement Bias vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}"/>
-</h>
-<h id="resmean_qopt_vs_eta" type="TH1F" title="q/pt Track Measurement Bias vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(q/pt)^{rec} - (q/pt)^{tru}"/>
-</h>
-<!-- Track Parameter Resolutions vs eta -->
-<h id="reswidth_d0_vs_eta" type="TH1F" title="d_{0} Track Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(d_{0}^{rec} - d_{0}^{tru})"/>
-</h>
-<h id="reswidth_z0_vs_eta" type="TH1F" title="z_{0} Track Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(z_{0}^{rec} - z_{0}^{tru})"/>
-</h>
-<h id="reswidth_phi_vs_eta" type="TH1F" title="#phi Track Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(#phi^{rec} - #phi^{tru})"/>
-</h>
-<h id="reswidth_theta_vs_eta" type="TH1F" title="#theta Track Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(#theta^{rec} - #theta^{tru})"/>
-</h>
-<h id="reswidth_z0*sin(theta)_vs_eta" type="TH1F" title="z_{0}*sin(#theta) Track Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})"/>
-</h>
-<h id="reswidth_qopt_vs_eta" type="TH1F" title="q/pt Track Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma((q/pt)^{rec} - (q/pt)^{tru})"/>
-</h>
-<!-- Track Parameter TH2s vs Log(Pt) -->
-<h id="res_d0_vs_pt" type="TH2" title="d_{0}: deviation vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="d_{0}^{rec} - d_{0}^{tru}" n="2000" lo="-1.0" hi="1.0"/>
-</h>
-<h id="res_z0_vs_pt" type="TH2" title="z_{0}: deviation vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="z_{0}^{rec} - z_{0}^{tru}" n="200" lo="-1.5" hi="1.5"/>
-</h>
-<h id="res_phi_vs_pt" type="TH2" title="#phi: deviation vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#phi^{rec} - #phi^{tru}" n="3000" lo="-0.03" hi="0.03"/>
-</h>
-<h id="res_theta_vs_pt" type="TH2" title="#theta: deviation vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#theta^{rec} - #theta^{tru}" n="2000" lo="-0.1" hi="0.1"/>
-</h>
-<h id="res_z0*sin(theta)_vs_pt" type="TH2" title="z_{0}*sin(#theta): deviation vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}" n="200" lo="-1.5" hi="1.5"/>
-</h>
-<h id="res_qopt_vs_pt" type="TH2" title="q/pt: deviation vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="(q/pt)^{rec} - (q/pt)^{tru}" n="200" lo="-0.4" hi="0.4"/>
-</h>
-<!-- Track Parameter Means vs log(Pt) -->
-<h id="resmean_d0_vs_pt" type="TH1F" title="d_{0} Track Measurement Bias vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="d_{0}^{rec} - d_{0}^{tru}"/>
-</h>
-<h id="resmean_z0_vs_pt" type="TH1F" title="z_{0} Track Measurement Bias vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="z_{0}^{rec} - z_{0}^{tru}"/>
-</h>
-<h id="resmean_phi_vs_pt" type="TH1F" title="#phi Track Measurement Bias vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#phi^{rec} - #phi^{tru}"/>
-</h>
-<h id="resmean_theta_vs_pt" type="TH1F" title="#theta Track Measurement Bias vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#theta^{rec} - #theta^{tru}"/>
-</h>
-<h id="resmean_z0*sin(theta)_vs_pt" type="TH1F" title="z_{0}*sin(#theta) Track Measurement Bias vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}"/>
-</h>
-<h id="resmean_qopt_vs_pt" type="TH1F" title="q/pt Track Measurement Bias vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="(q/pt)^{rec} - (q/pt)^{tru}"/>
-</h>
-<!-- Track Parameter Resolutions vs log(Pt) -->
-<h id="reswidth_d0_vs_pt" type="TH1F" title="d_{0} Track Resolution vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#sigma(d_{0}^{rec} - d_{0}^{tru})"/>
-</h>
-<h id="reswidth_z0_vs_pt" type="TH1F" title="z_{0} Track Resolution vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#sigma(z_{0}^{rec} - z_{0}^{tru})"/>
-</h>
-<h id="reswidth_phi_vs_pt" type="TH1F" title="#phi Track Resolution vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#sigma(#phi^{rec} - #phi^{tru})"/>
-</h>
-<h id="reswidth_theta_vs_pt" type="TH1F" title="#theta Track Resolution vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#sigma(#theta^{rec} - #theta^{tru})"/>
-</h>
-<h id="reswidth_z0*sin(theta)_vs_pt" type="TH1F" title="z_{0}*sin(#theta) Track Resolution vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#sigma(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})"/>
-</h>
-<h id="reswidth_qopt_vs_pt" type="TH1F" title="q/pt Track Resolution vs log(Pt)">
-  <x title="log(Pt) (GeV)" n="10" lo="-0.5" hi="2.0"/>
-  <y title="#sigma((q/pt)^{rec} - (q/pt)^{tru})"/>
-</h>
-<!-- Basic Track Pulls -->
-<h id="pull_d0" type="TH1F" title="Pull of d_{0}">
-  <x title="pull" n="200" lo="-5.0" hi="5.0"/>
-  <y title="counts"/>
-</h>
-<h id="pull_z0" type="TH1F" title="Pull of z_{0}">
-  <x title="pull" n="200" lo="-5.0" hi="5.0"/>
-  <y title="counts"/>
-</h>
-<h id="pull_phi" type="TH1F" title="Pull of #phi">
-  <x title="pull" n="200" lo="-5.0" hi="5.0"/>
-  <y title="counts"/>
-</h>
-<h id="pull_theta" type="TH1F" title="Pull of #theta">
-  <x title="pull" n="200" lo="-5.0" hi="5.0"/>
-  <y title="counts"/>
-</h>
-<h id="pull_z0_sin_theta" type="TH1F" title="Pull of z0*sin(#theta)">
-  <x title="pull" n="200" lo="-5.0" hi="5.0"/>
-  <y title="counts"/>
-</h>
-<h id="pull_qopt" type="TH1F" title="Pull of qopt">
-  <x title="pull" n="200" lo="-5.0" hi="5.0"/>
-  <y title="counts"/>
-</h>
-<!-- Track Pull TH2s vs eta -->
-<h id="pull_d0_vs_eta" type="TH2" title="d_{0}: Pull vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(d_{0}^{rec} - d_{0}^{tru})/#sigma_d_0" n="200" lo="-5.0" hi="5.0"/>
-</h>
-<h id="pull_z0_vs_eta" type="TH2" title="z0: Pull vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(z_{0}^{rec} - z_{0}^{tru})/#sigma_z_0" n="200" lo="-5.0" hi="5.0"/>
-</h>
-<h id="pull_phi_vs_eta" type="TH2" title="#phi: Pull vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(#phi^{rec} - #phi^{tru})/#sigma_#phi" n="200" lo="-5.0" hi="5.0"/>
-</h>
-<h id="pull_theta_vs_eta" type="TH2" title="#theta: Pull vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(#theta^{rec} - #theta^{tru})/#sigma_#theta" n="200" lo="-5.0" hi="5.0"/>
-</h>
-<h id="pull_z0*sin(theta)_vs_eta" type="TH2" title="z0*sin(theta): Pull vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})/#sigma_z_{0}*sin(#theta)" n="200" lo="-5.0" hi="5.0"/>
-</h>
-<h id="pull_qopt_vs_eta" type="TH2" title="q/pt: Pull vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="((q/pt)^{rec} - (q/pt)^{tru})/#sigma_(q/pt)" n="200" lo="-5.0" hi="5.0"/>
-</h>
-<!-- Track Pull Means vs eta -->
-<h id="pullmean_d0_vs_eta" type="TH1F" title="d_{0} Track Pull Mean vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="d_{0}^{rec} - d_{0}^{tru}"/>
-</h>
-<h id="pullmean_z0_vs_eta" type="TH1F" title="z_{0} Track Pull Mean vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="z_{0}^{rec} - z_{0}^{tru}"/>
-</h>
-<h id="pullmean_phi_vs_eta" type="TH1F" title="#phi Track Pull Mean vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#phi^{rec} - #phi^{tru}"/>
-</h>
-<h id="pullmean_theta_vs_eta" type="TH1F" title="#theta Track Pull Mean vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#theta^{rec} - #theta^{tru}"/>
-</h>
-<h id="pullmean_z0*sin(theta)_vs_eta" type="TH1F" title="z_{0}*sin(#theta) Track Pull Mean vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru}"/>
-</h>
-<h id="pullmean_qopt_vs_eta" type="TH1F" title="q/pt Track Pull Mean vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="(q/pt)^{rec} - (q/pt)^{tru}"/>
-</h>
-<!-- Track Pull Resolutions vs eta -->
-<h id="pullwidth_d0_vs_eta" type="TH1F" title="d_{0} Track Pull Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(d_{0}^{rec} - d_{0}^{tru})"/>
-</h>
-<h id="pullwidth_z0_vs_eta" type="TH1F" title="z_{0} Track Pull Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(z_{0}^{rec} - z_{0}^{tru})"/>
-</h>
-<h id="pullwidth_phi_vs_eta" type="TH1F" title="#phi Track Pull Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(#phi^{rec} - #phi^{tru})"/>
-</h>
-<h id="pullwidth_theta_vs_eta" type="TH1F" title="#theta Track Pull Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(#theta^{rec} - #theta^{tru})"/>
-</h>
-<h id="pullwidth_z0*sin(theta)_vs_eta" type="TH1F" title="z_{0}*sin(#theta) Track Pull Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})"/>
-</h>
-<h id="pullwidth_qopt_vs_eta" type="TH1F" title="q/pt Track Pull Resolution vs #eta">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="#sigma((q/pt)^{rec} - (q/pt)^{tru})"/>
-</h>
-
 
 <!-- TrackInJets -->
 <h id="recInJetpT" type="TH1F" title="p_{T} of selected rec tracks in jets(in GeV)">
@@ -1593,35 +1316,6 @@
   <y title="truth match probability" n="40" lo="0" hi="1.1"/>
 </h>
 <!-- -->
-<!-- stuff pilfered from old backtracking script -->
-<h id="eff_vs_eta_of_daughters" type="TProfile" title="Efficiency vs #eta of daughter particles">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_theta_of_daughters" type="TProfile" title="Efficiency vs #theta of daughter particles">
-  <x title="#theta" n="28" lo="0.0" hi="&PI;"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_theta_tan_of_daughters" type="TProfile" title="Efficiency vs tan(#theta) of daughter particles">
-  <x title="tan(#theta)" n="32" lo="-8" hi="8"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_theta_cotan_of_daughters" type="TProfile" title="Efficiency vs cotan(#theta) of daughter particles">
-  <x title="cotan(#theta)" n="32" lo="-8" hi="8"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_phi_of_daughters" type="TProfile" title="Efficiency vs #phi of daughter particles">
-  <x title="#phi" n="16" lo="-&PI;" hi="&PI;"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_phi_sin_of_daughters" type="TProfile" title="Efficiency vs sin(#phi) of daughter particles">
-  <x title="sin(#phi)" n="14" lo="-1.2" hi="1.2"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="eff_vs_phi_cos_of_daughters" type="TProfile" title="Efficiency vs cos(#phi) of daughter particles">
-  <x title="cos(#phi)" n="14" lo="-1.2" hi="1.2"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
 <!--
    =======================================================
    duplicate plots:

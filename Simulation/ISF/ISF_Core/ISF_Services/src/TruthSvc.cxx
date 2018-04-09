@@ -47,9 +47,7 @@ ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
   m_passWholeVertex(true),
   m_forceEndVtxRegionsVec(),
   m_forceEndVtx(),
-  m_quasiStableParticlesIncluded(false),
-  m_secondaryParticleBcOffset(Barcode::fUndefinedBarcode),
-  m_myLowestVertexBC(Barcode::fUndefinedBarcode)
+  m_quasiStableParticlesIncluded(false)
 {
   // the barcode service (used to compute Vertex Barco des)
   declareProperty("BarcodeSvc",                        m_barcodeSvc              );
@@ -129,24 +127,24 @@ StatusCode ISF::TruthSvc::finalize()
 /** Initialize the TruthSvc and the truthSvc */
 StatusCode ISF::TruthSvc::initializeTruthCollection()
 {
-  m_myLowestVertexBC          = m_barcodeSvc->secondaryVertexBcOffset();
-  m_secondaryParticleBcOffset = m_barcodeSvc->secondaryParticleBcOffset();
-
   return StatusCode::SUCCESS;
 }
 
 /** Delete child vertex */
-void ISF::TruthSvc::deleteChildVertex(HepMC::GenVertex *vtx) {
-
-  for (HepMC::GenVertex::particles_out_const_iterator iter = vtx->particles_out_const_begin();
-       iter != vtx->particles_out_const_end(); ++iter) {
-    if( (*iter) && (*iter)->end_vertex() ) {
-      verticesToDelete.push_back( (*iter)->end_vertex() );
+void ISF::TruthSvc::deleteChildVertex(HepMC::GenVertex* vertex) const {
+  std::vector<HepMC::GenVertex*> verticesToDelete;
+  verticesToDelete.resize(0);
+  verticesToDelete.push_back(vertex);
+  for ( unsigned short i = 0; i<verticesToDelete.size(); ++i ) {
+    HepMC::GenVertex* vtx = verticesToDelete.at(i);
+    for (HepMC::GenVertex::particles_out_const_iterator iter = vtx->particles_out_const_begin();
+         iter != vtx->particles_out_const_end(); ++iter) {
+      if( (*iter) && (*iter)->end_vertex() ) {
+        verticesToDelete.push_back( (*iter)->end_vertex() );
+      }
     }
+    vtx->parent_event()->remove_vertex(vtx);
   }
-
-  vtx->parent_event()->remove_vertex(vtx);
-   
   return;
 }
 
@@ -157,7 +155,7 @@ StatusCode ISF::TruthSvc::releaseEvent() {
 
 
 /** Register a truth incident */
-void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
+void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) const {
 
   // pass whole vertex or individual child particles
   ti.setPassWholeVertices(m_passWholeVertex);
@@ -233,7 +231,7 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
 }
 
 /** Record the given truth incident to the MC Truth */
-void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
+void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) const {
 #ifdef  DEBUG_TRUTHSVC
   ATH_MSG_INFO("Starting recordIncidentToMCTruth(...)");
 #endif
@@ -395,7 +393,7 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
 
 /** Record the given truth incident to the MC Truth */
 HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti,
-                                                                   bool replaceExistingGenVertex) {
+                                                                   bool replaceExistingGenVertex) const {
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
@@ -450,11 +448,7 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
       ATH_MSG_VERBOSE("createGVfromTI Replacement QS GenVertex: " << *(vtx.get()) );
       mcEvent->add_vertex( vtx.release() );
       // Delete oldVertex and children here
-      verticesToDelete.resize(0);
-      verticesToDelete.push_back(oldVertex);
-      for ( unsigned short i = 0; i<verticesToDelete.size(); ++i ) {
-        this->deleteChildVertex(verticesToDelete.at(i));
-      }
+      this->deleteChildVertex(oldVertex);
     }
     else {
 #ifdef DEBUG_TRUTHSVC
@@ -486,7 +480,7 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
 }
 
 /** Set shared barcode for child particles particles */
-void ISF::TruthSvc::setSharedChildParticleBarcode( ISF::ITruthIncident& ti) {
+void ISF::TruthSvc::setSharedChildParticleBarcode( ISF::ITruthIncident& ti) const {
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
 

@@ -25,7 +25,7 @@ class chi0chi1(PowhegV2):
         @param base_directory  path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, os.path.join("weakinos", "neuIchaJ"), powheg_executable="pwhg_main_nixj", **kwargs)
+        super(chi0chi1, self).__init__(base_directory, os.path.join("weakinos", "neuIchaJ"), powheg_executable="pwhg_main_nixj", **kwargs)
         if not os.path.isfile("input_mSUGRA.slha"):
             shutil.copy(os.path.join(os.path.split(self.executable)[0], "testrun", "input_mSUGRA.slha"), ".")
             logger.info("Locating default mSUGRA input distributed with POWHEG...")

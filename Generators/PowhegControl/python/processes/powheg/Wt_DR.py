@@ -21,7 +21,7 @@ class Wt_DR(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "ST_wtch_DR", **kwargs)
+        super(Wt_DR, self).__init__(base_directory, "ST_wtch_DR", **kwargs)
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")

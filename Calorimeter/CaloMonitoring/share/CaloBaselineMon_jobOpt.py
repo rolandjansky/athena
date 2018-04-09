@@ -29,7 +29,7 @@ if not (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_V
 
 if rec.triggerStream()=='CosmicCalo':
   tmp_CaloBaselineMon["useLArCollisionFilter"] = TRUE
-  tmp_CaloBaselineMon["pedestalMon_BCIDmin"] = 20
+  tmp_CaloBaselineMon["pedestalMon_BCIDmin"] = 40
 
 if rec.triggerStream()=='ZeroBias':
   tmp_CaloBaselineMon["bcidtoolMon_BCIDmax"] = 144

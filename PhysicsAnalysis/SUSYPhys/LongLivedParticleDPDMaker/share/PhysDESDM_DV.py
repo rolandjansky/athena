@@ -149,35 +149,46 @@ ToolSvc+=DVCombinedTracklessJetFilterToolForPhoton
 
 
 
-# Muon d0
-#from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvMuonD0Tool
-#DVMuonD0 = DerivationFramework__RpvMuonD0Tool( name = "DVMuonD0",
-#                                               CollectionName = muonContainer,
-#                                               SGPrefix = "DV"+muonContainer,
-#                                               )
-#ToolSvc += DVMuonD0
-#
-## Kernel for the augmentation tools
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-#topSequence += DerivationFramework__DerivationKernel(
-#    "RPVLL_DVAugmentationKernel",
-#    AugmentationTools = [DVMuonD0],
-#    )
 
-DVMuonTriggerFilter = skimtool( name = "DVMuonTriggerFilter",
-                                expression = DVTriggerSelectionString(primRPVLLDESDM.DV_MuonFilterFlags)
+# Barrel only MS only trigger 
+DVMuonBarrelTriggerFilter = skimtool( name = "DVMuonBarrelTriggerFilter",
+                                expression = DVTriggerSelectionString(primRPVLLDESDM.DV_MuonBarrelFilterFlags)
                                 )
-ToolSvc+=DVMuonTriggerFilter
-muonFilterExpression = "count("+muonContainer+".pt > "+str(primRPVLLDESDM.DV_MuonFilterFlags.cutEtMin)+")>0"
+ToolSvc+=DVMuonBarrelTriggerFilter
 
-DVMuonFilterTool = skimtool( name = "DVMuonFilterTool",
-                             expression = muonFilterExpression)
-ToolSvc+=DVMuonFilterTool
+DVMuonBarrelFilterTool = skimtool( name = "DVMuonBarrelFilterTool",
+                             expression = DVSelectionString(primRPVLLDESDM.DV_MuonBarrelFilterFlags, muonContainer)
+				)
+ToolSvc+=DVMuonBarrelFilterTool
 
-DV_MuonFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MuonFinalFilter",
-                                                                FilterList=[DVMuonFilterTool,DVMuonTriggerFilter],
-#                                                                OutputLevel=DEBUG
+DV_MuonBarrelFilter = DerivationFramework__FilterCombinationAND( name = "DV_MuonBarrelFilter",
+                                                                FilterList=[DVMuonBarrelFilterTool,DVMuonBarrelTriggerFilter],
+                                                                #OutputLevel=DEBUG
                                                                 )
+ToolSvc+=DV_MuonBarrelFilter
+# Full MS only trigger
+DVMuonFullMSTriggerFilter = skimtool( name = "DVMuonFullMSTriggerFilter",
+                                expression = DVTriggerSelectionString(primRPVLLDESDM.DV_MuonFullMSFilterFlags)
+                                )
+ToolSvc+=DVMuonFullMSTriggerFilter
+
+DVMuonFullMSFilterTool = skimtool( name = "DVMuonFullMSFilterTool",
+                             expression = DVSelectionString(primRPVLLDESDM.DV_MuonFullMSFilterFlags, muonContainer)
+ 				)
+ToolSvc+=DVMuonFullMSFilterTool
+
+DV_MuonFullMSFilter = DerivationFramework__FilterCombinationAND( name = "DV_MuonFullMSFilter",
+                                                                FilterList=[DVMuonFullMSFilterTool,DVMuonFullMSTriggerFilter],
+                                                                #OutputLevel=DEBUG
+                                                                )
+ToolSvc+=DV_MuonFullMSFilter
+
+# Or of barrel only and full MS
+DV_MuonFinalFilter = DerivationFramework__FilterCombinationOR( name = "DV_MuonFinalFilter",
+								FilterList=[DV_MuonBarrelFilter,DV_MuonFullMSFilter],
+								#OutputLevel=DEBUG
+								)
 ToolSvc+=DV_MuonFinalFilter
 topSequence += kernel("RPVLL_DVMuonFilterKernel",
                       SkimmingTools = [DV_MuonFinalFilter])

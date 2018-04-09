@@ -25,7 +25,7 @@ class chi0chi0(PowhegV2):
         @param base_directory  path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, os.path.join("weakinos", "neuIneuJ"), powheg_executable="pwhg_main_ninj", **kwargs)
+        super(chi0chi0, self).__init__(base_directory, os.path.join("weakinos", "neuIneuJ"), powheg_executable="pwhg_main_ninj", **kwargs)
 
         # Load SLHA input
         if len(glob.glob("*.slha")) > 0:
