@@ -91,7 +91,7 @@ addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
+FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
 
 #====================================================================
 # Add sequence (with all kernels needed) to DerivationFrameworkJob 
