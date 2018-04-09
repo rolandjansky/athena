@@ -86,6 +86,7 @@ namespace DerivationFramework {
 	else {
 	    Warning("addBranches()",Form("Unknown correction code %d from ElectronPhotonShowerShapeFudgeTool",(int) correctionCode));
 	}
+	delete ph;
       }
 
       // decorate the original object
