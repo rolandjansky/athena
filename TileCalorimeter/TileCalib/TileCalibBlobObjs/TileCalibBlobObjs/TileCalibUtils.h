@@ -85,21 +85,21 @@ class TileCalibUtils{
   static std::string getDrawerString(unsigned int ros, unsigned int drawer);
 
   /** @brief Returns the default drawer for a given input drawer. 
-      @params drawerIdx The input drawer index*/
+      @param drawerIdx The input drawer index*/
   static unsigned int getDefaultDrawerIdx(unsigned int drawerIdx);
 
   /** @brief Returns the default drawer for a given input drawer. 
-      @params ros    The input ros
-      @params drawer The input drawer */
+      @param ros    The input ros
+      @param drawer The input drawer */
   static unsigned int getDefaultDrawerIdx(unsigned int ros, unsigned int drawer);
 
   /** @brief Returns the first drawer Idx in a partition of a given input drawer. 
-      @params drawerIdx The input drawer index*/
+      @param drawerIdx The input drawer index*/
   static unsigned int getFirstDrawerInPartitionIdx(unsigned int drawerIdx);
   
   /** @brief Returns the input in fixed point precision.
-      @params val   The input value
-      @params nBits Number of bits used for encoding */
+      @param val   The input value
+      @param nBits Number of bits used for encoding */
   static float fixedPointPrecision(float val, unsigned int nBits=16);
 
   /** @brief Python compatibility function */

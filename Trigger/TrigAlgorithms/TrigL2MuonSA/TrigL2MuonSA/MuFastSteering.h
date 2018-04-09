@@ -105,20 +105,45 @@ class MuFastSteering : public HLT::FexAlgo,
      Called at the end of the algorithm processing to set the steering
      navigation properly
   */
-  bool updateOutput(const LVL1::RecMuonRoI*                  roi,
-		    const TrigRoiDescriptor*                 roids,
-		    const TrigL2MuonSA::MuonRoad&            muonRoad,
-		    const TrigL2MuonSA::MdtRegion&           mdtRegion,
-		    const TrigL2MuonSA::RpcHits&             rpcHits,
-		    const TrigL2MuonSA::TgcHits&             /*tgcHits*/,
-		    const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
-		    const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
-		    const TrigL2MuonSA::MdtHits&             mdtHits,
-		    const TrigL2MuonSA::CscHits&             cscHits,
-		    std::vector<TrigL2MuonSA::TrackPattern>& m_trackPatterns,
-                    DataVector<xAOD::L2StandAloneMuon>&      outputTracks,
-		    TrigRoiDescriptorCollection&  	     outoutID,
-		    TrigRoiDescriptorCollection&	     outputMS);
+  bool updateOutputObjects(const LVL1::RecMuonRoI*                        roi,
+                           const TrigRoiDescriptor*                       roids,
+                           const TrigL2MuonSA::MuonRoad&                  muonRoad,
+                           const TrigL2MuonSA::MdtRegion&                 mdtRegion,
+                           const TrigL2MuonSA::RpcHits&                   rpcHits,
+                           const TrigL2MuonSA::TgcHits&                   tgcHits,
+                           const TrigL2MuonSA::RpcFitResult&              rpcFitResult,
+                           const TrigL2MuonSA::TgcFitResult&              tgcFitResult,
+                           const TrigL2MuonSA::MdtHits&                   mdtHits,
+                           const TrigL2MuonSA::CscHits&                   cscHits,
+                           const std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns,
+			   DataVector<xAOD::L2StandAloneMuon>&	          outputTracks,
+			   TrigRoiDescriptorCollection&  	          outputID,
+			   TrigRoiDescriptorCollection&   	          outputMS);
+ 
+  bool storeMuonSA(const LVL1::RecMuonRoI*             roi,
+                   const TrigRoiDescriptor*            roids,
+               	   const TrigL2MuonSA::MuonRoad&       muonRoad,
+               	   const TrigL2MuonSA::MdtRegion&      mdtRegion,
+               	   const TrigL2MuonSA::RpcHits&        rpcHits,
+               	   const TrigL2MuonSA::TgcHits&        tgcHits,
+               	   const TrigL2MuonSA::RpcFitResult&   rpcFitResult,
+               	   const TrigL2MuonSA::TgcFitResult&   tgcFitResult,
+               	   const TrigL2MuonSA::MdtHits&        mdtHits,
+               	   const TrigL2MuonSA::CscHits&        cscHits,
+               	   const TrigL2MuonSA::TrackPattern&   pattern,
+                   DataVector<xAOD::L2StandAloneMuon>& outputTracks);
+
+  bool storeMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
+		            const TrigL2MuonSA::TrackPattern&         pattern,
+                            const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+		            TrigRoiDescriptorCollection&	      outputMS);
+
+
+  bool storeIDRoiDescriptor(const TrigRoiDescriptor*                  roids,
+		            const TrigL2MuonSA::TrackPattern&         pattern,
+                            const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
+		            TrigRoiDescriptorCollection&	      outputID);
+
   /**
      Update monitoring variables
   */

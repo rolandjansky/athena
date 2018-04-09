@@ -154,7 +154,7 @@ private:
   /// Size, in bits, of @c Block_t.
   static const size_t BLOCKSIZE = sizeof(Block_t) * CHAR_BIT;
 
-  /// Mask to select out the bit offset within one @Block_t.
+  /// Mask to select out the bit offset within one @c Block_t.
   static const size_t MASK = BLOCKSIZE-1;
 
 

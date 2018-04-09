@@ -39,10 +39,16 @@ namespace HLTTest {
   
   private: 
 
-    float m_threshold;
-    std::string m_property;
-    Gaudi::Property<std::vector<std::string> > m_chainsProperty{ this, "Chains", {}, "Chains of whihc this Hypo is concerned" };
-    std::set<HLT::Identifier> m_chains;
+
+    Gaudi::Property<float>  m_threshold{ this, "Threshold", 0, "Threshold to apply" };
+    StringProperty m_property{ this, "Property", "Et", "Propery to use to test hypothesis (Et, pt)" };
+
+   
+    // float m_threshold;
+    //std::string m_property;
+    StringProperty m_linkName {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
+    
+
     
   }; 
 

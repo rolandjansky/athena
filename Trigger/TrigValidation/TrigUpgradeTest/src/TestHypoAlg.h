@@ -34,12 +34,17 @@ namespace HLTTest {
   private:
     typedef TrigRoiDescriptor FeatureOBJ;
     typedef TrigRoiDescriptorCollection FeatureContainer;
+    /* typedef xAOD::TrigComposite FeatureOBJ; */
+    /* typedef xAOD::TrigCompositeContainer FeatureContainer; */
+
+
     // the DecisionContainer read/write handle keys are in the base class, called previousDecisions and Output
     TestHypoAlg();
     ToolHandleArray<ITestHypoTool> m_tools                       { this, "HypoTools", {}, "Hypo tools" };
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_recoInput  { this, "Input", "Input", "Key for reco input"};
     StringProperty m_linkName {this, "LinkName", "initialRoI",  "name of the link to the features in the decision, e.g. 'feature', 'initialRoI'"};
-   
+
+     bool  recursivelyFindFeature( const TrigCompositeUtils::Decision* d, ElementLink<FeatureContainer>& featurelink) const;
   }; 
 
 } //> end namespace HLTTest

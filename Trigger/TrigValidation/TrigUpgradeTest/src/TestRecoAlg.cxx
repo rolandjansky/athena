@@ -18,12 +18,7 @@ namespace HLTTest {
 			    ISvcLocator* pSvcLocator ) : 
     ::AthAlgorithm( name, pSvcLocator )
   {}
-    // m_output(name),
-    // m_input("") {
-    // declareProperty( "FileName", m_fileName, "Input file with fake objects" );
-    // declareProperty( "Output", m_output, "Output collection name" );
-    // declareProperty( "Input", m_input, "Input collection name" );
-  //  }
+  
 
   TestRecoAlg::~TestRecoAlg() {}
 

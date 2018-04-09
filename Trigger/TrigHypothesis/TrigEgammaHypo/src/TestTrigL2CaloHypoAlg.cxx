@@ -4,6 +4,9 @@
 
 #include "GaudiKernel/Property.h"
 #include "TestTrigL2CaloHypoAlg.h"
+#include "DecisionHandling/HLTIdentifier.h"
+#include "DecisionHandling/TrigCompositeUtils.h"
+
 
 using namespace TrigCompositeUtils;
 
@@ -93,7 +96,8 @@ StatusCode TestTrigL2CaloHypoAlg::execute_r( const EventContext& context ) const
     }
      d->setObjectLink( "roi", roiEL );
      d->setObjectLink( "view", viewEL );
-     d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisionsKey.key(), counter) );// link to previous decision object
+     TrigCompositeUtils::linkToPrevious( d, m_previousDecisionsKey.key(), counter );
+     //     d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisionsKey.key(), counter) );// link to previous decision object
      
      ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision "<<counter <<" for view "<<view->name()  );
      counter++;
@@ -107,10 +111,19 @@ StatusCode TestTrigL2CaloHypoAlg::execute_r( const EventContext& context ) const
     CHECK( tool->decide( toolInput ) );
   }
  
-  {
+  {// make output handle and debug
     auto handle =  SG::makeHandle( m_decisionsKey, context );
     CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
     ATH_MSG_DEBUG ( "Exit with "<<handle->size() <<" decision objects");
+    TrigCompositeUtils::DecisionIDContainer allPassingIDs;
+    if ( handle.isValid() ) {
+      for ( auto decisionObject: *handle )  {
+	TrigCompositeUtils::decisionIDs( decisionObject, allPassingIDs );
+      }
+      for ( TrigCompositeUtils::DecisionID id : allPassingIDs ) {
+	ATH_MSG_DEBUG( " +++ " << HLT::Identifier( id ) );
+      }
+    }
   }
 
   return StatusCode::SUCCESS;
