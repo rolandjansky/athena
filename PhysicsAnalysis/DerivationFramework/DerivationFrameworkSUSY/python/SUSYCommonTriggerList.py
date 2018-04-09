@@ -78,8 +78,8 @@ SinglePhoton_2018 = [
 
 DiLepton_2018 = [
     'HLT_e28_lhmedium_nod0_mu8noL1',
-    'HLT_e17_lhloose_nod0_mu14',
     'HLT_e28_lhmedium_nod0_L1EM24VHIM_mu8noL1',
+    'HLT_e17_lhloose_nod0_mu14',
     'HLT_e7_lhmedium_nod0_mu24',
     
     'HLT_2e17_lhvloose_nod0_L12EM15VHI',
