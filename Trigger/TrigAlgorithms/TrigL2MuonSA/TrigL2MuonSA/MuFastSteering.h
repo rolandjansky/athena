@@ -105,7 +105,7 @@ class MuFastSteering : public HLT::FexAlgo,
      Called at the end of the algorithm processing to set the steering
      navigation properly
   */
-  bool UpdateOutputObjects(const LVL1::RecMuonRoI*                        roi,
+  bool updateOutputObjects(const LVL1::RecMuonRoI*                        roi,
                            const TrigRoiDescriptor*                       roids,
                            const TrigL2MuonSA::MuonRoad&                  muonRoad,
                            const TrigL2MuonSA::MdtRegion&                 mdtRegion,
@@ -120,7 +120,7 @@ class MuFastSteering : public HLT::FexAlgo,
 			   TrigRoiDescriptorCollection&  	          outputID,
 			   TrigRoiDescriptorCollection&   	          outputMS);
  
-  bool StoreMuonSA(const LVL1::RecMuonRoI*             roi,
+  bool storeMuonSA(const LVL1::RecMuonRoI*             roi,
                    const TrigRoiDescriptor*            roids,
                	   const TrigL2MuonSA::MuonRoad&       muonRoad,
                	   const TrigL2MuonSA::MdtRegion&      mdtRegion,
@@ -133,13 +133,13 @@ class MuFastSteering : public HLT::FexAlgo,
                	   const TrigL2MuonSA::TrackPattern&   pattern,
                    DataVector<xAOD::L2StandAloneMuon>& outputTracks);
 
-  bool StoreMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
+  bool storeMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
 		            const TrigL2MuonSA::TrackPattern&         pattern,
                             const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
 		            TrigRoiDescriptorCollection&	      outputMS);
 
 
-  bool StoreIDRoiDescriptor(const TrigRoiDescriptor*                  roids,
+  bool storeIDRoiDescriptor(const TrigRoiDescriptor*                  roids,
 		            const TrigL2MuonSA::TrackPattern&         pattern,
                             const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
 		            TrigRoiDescriptorCollection&	      outputID);

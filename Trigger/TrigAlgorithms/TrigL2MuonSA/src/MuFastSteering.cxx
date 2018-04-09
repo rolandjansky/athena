@@ -640,7 +640,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
 	TrigL2MuonSA::TrackPattern trackPattern;
 	trackPatterns.push_back(trackPattern);
         // Update output trigger element
-        UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
         	            m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
@@ -652,7 +652,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
 	TrigL2MuonSA::TrackPattern trackPattern;
 	trackPatterns.push_back(trackPattern);
         // Update output trigger element
-        UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
         	            m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::FAILURE;
@@ -666,7 +666,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Pattern finder failed");
         // Update output trigger element
-        UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
         	            m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
@@ -681,7 +681,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Super point fitter failed");
         // Update output trigger element
-        UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
         	            m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
@@ -697,7 +697,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Track fitter failed");
         // Update output trigger element
-        UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
         	            m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
@@ -724,7 +724,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
  	TrigL2MuonSA::TrackPattern trackPattern;
 	trackPatterns.push_back(trackPattern);
         // Update output trigger element
-        UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
         	            m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
@@ -741,7 +741,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Pattern finder failed");
         // Update output trigger element
-        UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
         	            m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
@@ -766,7 +766,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Super point fitter failed");
         // Update output trigger element
-        UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
         	            m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
@@ -784,7 +784,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Track fitter failed");
         // Update output trigger element
-        UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+        updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
         	            m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                             trackPatterns, outputTracks, outputID, outputMS);
         return StatusCode::SUCCESS;
@@ -813,7 +813,7 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
     if (sc != StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Track extrapolator failed");
       // Update output trigger element
-      UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+      updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
       	                  m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                           trackPatterns, outputTracks, outputID, outputMS);
       return StatusCode::SUCCESS;
@@ -825,14 +825,14 @@ StatusCode MuFastSteering::findMuonSignature(const DataVector<const TrigRoiDescr
     if (sc != StatusCode::SUCCESS) {
       ATH_MSG_WARNING("Failed to update monitoring variables");
       // Update output trigger element
-      UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+      updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
        	                  m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                           trackPatterns, outputTracks, outputID, outputMS);
       return StatusCode::SUCCESS;
     }
 
     // Update output trigger element
-    UpdateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+    updateOutputObjects(*p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
     	                m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, 
                         trackPatterns, outputTracks, outputID, outputMS);
     // call the calibration streamer 
@@ -913,7 +913,7 @@ void MuFastSteering::clearEvent()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-bool MuFastSteering::UpdateOutputObjects(const LVL1::RecMuonRoI*                        roi,
+bool MuFastSteering::updateOutputObjects(const LVL1::RecMuonRoI*                        roi,
                                          const TrigRoiDescriptor*                       roids,
                                          const TrigL2MuonSA::MuonRoad&                  muonRoad,
                                          const TrigL2MuonSA::MdtRegion&                 mdtRegion,
@@ -934,11 +934,11 @@ bool MuFastSteering::UpdateOutputObjects(const LVL1::RecMuonRoI*                
     const TrigL2MuonSA::TrackPattern& pattern = trackPatterns[0]; 
 
     // Update output trigger element
-    StoreMuonSA(roi, roids, muonRoad, mdtRegion, rpcHits, tgcHits,
+    storeMuonSA(roi, roids, muonRoad, mdtRegion, rpcHits, tgcHits,
     	        rpcFitResult, tgcFitResult, mdtHits, cscHits, 
                 pattern, outputTracks);
-    StoreMSRoiDescriptor(roids, pattern, outputTracks, outputMS);
-    StoreIDRoiDescriptor(roids, pattern, outputTracks, outputID);
+    storeMSRoiDescriptor(roids, pattern, outputTracks, outputMS);
+    storeIDRoiDescriptor(roids, pattern, outputTracks, outputID);
 
   } else {
     ATH_MSG_DEBUG("Not update output objects because trackPatterns has no object");
@@ -948,7 +948,7 @@ bool MuFastSteering::UpdateOutputObjects(const LVL1::RecMuonRoI*                
 }
 
 
-bool MuFastSteering::StoreMuonSA(const LVL1::RecMuonRoI*             roi,
+bool MuFastSteering::storeMuonSA(const LVL1::RecMuonRoI*             roi,
                                  const TrigRoiDescriptor*            roids,
              	                 const TrigL2MuonSA::MuonRoad&       muonRoad,
              	                 const TrigL2MuonSA::MdtRegion&      mdtRegion,
@@ -1324,7 +1324,7 @@ bool MuFastSteering::StoreMuonSA(const LVL1::RecMuonRoI*             roi,
 
 
 
-bool MuFastSteering::StoreMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
+bool MuFastSteering::storeMSRoiDescriptor(const TrigRoiDescriptor*                  roids,
              	                          const TrigL2MuonSA::TrackPattern&         pattern,
                                           const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
 		                          TrigRoiDescriptorCollection&	 	    outputMS)
@@ -1361,7 +1361,7 @@ bool MuFastSteering::StoreMSRoiDescriptor(const TrigRoiDescriptor*              
 }
 
 
-bool MuFastSteering::StoreIDRoiDescriptor(const TrigRoiDescriptor*                  roids,
+bool MuFastSteering::storeIDRoiDescriptor(const TrigRoiDescriptor*                  roids,
 		                          const TrigL2MuonSA::TrackPattern&         pattern,
                                           const DataVector<xAOD::L2StandAloneMuon>& outputTracks,
 		                          TrigRoiDescriptorCollection&	 	    outputID)
