@@ -101,9 +101,16 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
 
 void TrigTrackSeedGenerator::createSeeds() {
 
-  m_zMinus = m_settings.roiDescriptor->zedMinus() - m_zTol;
-  m_zPlus  = m_settings.roiDescriptor->zedPlus() + m_zTol;
+  m_zMinus  = m_settings.roiDescriptor->zedMinus() - m_zTol;
+  m_zPlus   = m_settings.roiDescriptor->zedPlus() + m_zTol;
+  m_zCentre = m_settings.roiDescriptor->zed();
+  m_theta   = 2*(std::atan(std::exp(-m_settings.roiDescriptor->eta())));
+  m_phi     = m_settings.roiDescriptor->phi();
   m_spPickWidth = std::fabs( m_zPlus - m_settings.roiDescriptor->zed() );
+
+  if (m_settings.m_correctToBeamline) {
+    m_zCentre = m_zCentre + ((std::cos(m_phi)*m_settings.m_vertex.x() + std::sin(m_phi)*m_settings.m_vertex.y())/std::tan(m_theta));
+  }
   
   for(INTERNAL_TRIPLET_BUFFER::iterator it=m_triplets.begin();it!=m_triplets.end();++it) {
     delete (*it).second;
@@ -559,6 +566,7 @@ int TrigTrackSeedGenerator::processSpacepointRangeNew(int lI, int lJ, float rm, 
     
     
     float z0  = zm - rm*tau;
+    
     if (m_settings.m_doubletFilterRZ) {
       // parametrise z filter window by doublet resolutions
       // this uses a width of 7 * resolution fits (i.e. 7 sigma resolution)
@@ -566,8 +574,8 @@ int TrigTrackSeedGenerator::processSpacepointRangeNew(int lI, int lJ, float rm, 
 	DoubletType dType  = (dr<0 ? DoubletType::inner : DoubletType::outer);
 	double width = 7 * m_doubletResLookup.getRes(lI, dType, std::asinh(tau)); // eta = arcsinh(dz/dr)
 	if (width > m_spPickWidth) width = m_spPickWidth; // limit doublet filter width to be only as large as spacepoint picking width
-	
-	if (!RoiUtil::contains_zrange( *(m_settings.roiDescriptor), z0, tau, m_settings.roiDescriptor->zed()-width, m_settings.roiDescriptor->zed()+width)) continue;
+
+	if (!RoiUtil::contains_zrange( *(m_settings.roiDescriptor), z0, tau, m_zCentre-width, m_zCentre+width)) continue;
       }
       else {
 	if (!RoiUtil::contains( *(m_settings.roiDescriptor), z0, tau)) continue;

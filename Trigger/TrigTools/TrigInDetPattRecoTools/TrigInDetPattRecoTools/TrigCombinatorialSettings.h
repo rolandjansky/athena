@@ -28,6 +28,7 @@ public:
     m_tripletDoPSS      = false; // Allow Pixel SCT SCT seeds?
     m_doubletFilterRZ   = true;
     m_doubletFilter_paramByRes = false; // parametrisation of doublet filter by doublet resolutions
+    m_correctToBeamline = true;
     m_tripletDtCut      = 3.0;//in sigmas of mult.scattering for m_tripletPtMin track at eta=0
     m_magFieldZ = 2.0;//switch to configured value
     m_nMaxPhiSlice = 53;
@@ -51,6 +52,7 @@ public:
   bool  m_tripletDoPSS;
   bool  m_doubletFilterRZ;
   bool  m_doubletFilter_paramByRes;
+  bool  m_correctToBeamline;
   float m_tripletDtCut;
   int m_nMaxPhiSlice;
   unsigned int m_maxTripletBufferLength;
@@ -60,6 +62,8 @@ public:
   const IRoiDescriptor* roiDescriptor;
   std::vector<TRIG_INDET_SI_LAYER> m_layerGeometry;
   std::vector<float> m_vZv;
+
+  Amg::Vector3D m_vertex;
 } TRIG_COMBINATORIAL_SETTINGS;
 
 
