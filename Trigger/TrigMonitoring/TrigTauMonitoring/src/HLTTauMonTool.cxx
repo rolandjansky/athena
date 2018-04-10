@@ -133,9 +133,7 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
   declareProperty("doL1JetPlots", 		m_doL1JetPlots=false);
   declareProperty("doEFTProfiles", 		m_doEFTProfiles=false);
   // this feature should not be used on data until the broken tau track link issue is fixed
-  declareProperty("doFailTrackFilterBitMonitoring",    m_doFailTrackFilterBitMonitoring=true);
-  // this is used nowhere
-  declareProperty("doRNNInOutMonitoring", 	       m_doRNNInOutMonitoring=true);
+  declareProperty("doFailTrackFilterBitMonitoring",    m_doFailTrackFilterBitMonitoring=false);
   declareProperty("domuCut40", 		m_domuCut40=false);    
   declareProperty("doL1TopoLeptonsMonitoringWarnings",	m_doL1TopoLeptonsMonitoringWarnings=false);
   declareProperty("topo_ditau_chains",    m_topo_chains_ditau);
@@ -482,6 +480,7 @@ StatusCode HLTTauMonTool::fill() {
 	if(pt_Tau<m_effOffTauPtCut) continue;
 	int ntrack_TAU = (*offlinetau)->nTracks();
 	if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
+	// THIS WILL HAVE TO BE ADAPTED FOR RNN ID
 	bool good_tau = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
 	if(m_selection_BDT && !good_tau) continue;		
 	if(!Selection(*offlinetau)) continue;
