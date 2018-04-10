@@ -355,28 +355,24 @@ SUSY7SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVerti
 SUSY7SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
 				      "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
 				      "Photons.author.Loose.Tight",
-				      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_FixedCutBEff_30.DFCommonJets_FixedCutBEff_30.DFCommonJets_FixedCutBEff_50.DFCommonJets_FixedCutBEff_60.DFCommonJets_FixedCutBEff_70.DFCommonJets_FixedCutBEff_77.DFCommonJets_FixedCutBEff_80.DFCommonJets_FixedCutBEff_85.DFCommonJets_FixedCutBEff_90.DFCommonJets_FlatBEff_30.DFCommonJets_FlatBEff_40.DFCommonJets_FlatBEff_50.DFCommonJets_FlatBEff_60.DFCommonJets_FlatBEff_70.DFCommonJets_FlatBEff_77.DFCommonJets_FlatBEff_85'",
+              "AntiKt4EMTopoJets.DFCommonJets_Calib_pt",
 				      "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
 				      "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 				      "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
 				      "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
 				      "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
 				      "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
-                                      "AntiKt4PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
+              "AntiKt4PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
 #BM: no longer supported in R21                                "BTagging_AntiKt4Track.MV2c20_discriminant.MV2c10_discriminant",
 #P. Pani removed 20/06/16                                      "AntiKt3PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
 #P. Pani removed 20/06/16                                      "BTagging_AntiKt3Track.MV2c20_discriminant","BTagging_AntiKt3Track.MV2c10_discriminant",
-                                      "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
-                                      "BTagging_AntiKt2Track.MV2c20_discriminant.MV2c10_discriminant",
+              "AntiKt2PV0TrackJets.eta.m.phi.pt.btagging.btaggingLink",
+              "BTagging_AntiKt2Track.MV2c20_discriminant.MV2c10_discriminant",
 				      "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection",
 				      "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
 				      "MuonClusterCollection.eta_sampl.phi_sampl",
-				      "AntiKt4EMPFlowJets.EMFrac.HECFrac.LArQuality.HECQuality.FracSamplingMax.NegativeE.AverageLArQF.FracSamplingMaxIndex.SumPtTrkPt500",
-                                      "AntiKt4EMPFlowJets.pt.eta.btagging.btaggingLink.TruthLabelID.constituentLinks.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostMuonSegment.GhostTrack.GhostTruthAssociationLink.HighestJVFVtx.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.HighestJVFLooseVtx.ConeTruthLabelID.GhostAntiKt2TrackJet.PartonTruthLabelID.Jvt.HadronConeExclTruthLabelID.JvtJvfcorr.JvtRpt.SumPtTrkPt500.SumPtTrkPt1000.TrackWidthPt1000.TrackWidthPt500",
-				      "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.MVb_discriminant.MSV_vertices.SV0_badTracksIP.SV0_vertices.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.MV2m_pu.MV2m_pc.MV2m_pb",
-				      #"AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.n_constituents.n_subjets.tau_1.tau_2.tau_3.ecf_1.ecf_2.ecf_3"
-                                      # this jet collection is not scheduled
-                                  ]
+              "AntiKt4EMPFlowJets.btagging.btaggingLink.TruthLabelID.constituentLinks.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostMuonSegment.GhostTruthAssociationLink.HighestJVFVtx.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.HighestJVFLooseVtx.GhostAntiKt2TrackJet.JvtJvfcorr.SumPtTrkPt1000.TrackWidthPt500.NegativeE",
+				      "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c00_discriminant.MV2c10_discriminant.MV2c20_discriminant.MVb_discriminant.MSV_vertices.SV0_badTracksIP.SV0_vertices.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP.MV2c100_discriminant.MV2m_pu.MV2m_pc.MV2m_pb"]
 
 SUSY7SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY7SlimmingHelper.IncludeEGammaTriggerContent = True
