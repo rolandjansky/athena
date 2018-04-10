@@ -90,15 +90,6 @@ StatusCode  viewsMerge( std::vector< SG::View* > const& views, const SG::ReadHan
 template<typename T, typename G, typename M>
 StatusCode HLTEDMCreator::createIfMissing( const  ConstHandlesGroup<T>& handles, G createAndRecord, M merger) const {
 
-
-//template<typename T, typename Generator>
-//StatusCode HLTEDMCreator::createIfMissing( const ConstHandlesGroup<T>& handles, 
-//					   Generator generator, 
-//					   std::function<StatusCode(const std::vector<SG::View*>&, 
-//								    const SG::ReadHandleKey<T >&, 
-//								    const EventContext&, T&)> merger ) {
-
-
   for ( auto writeHandleKey : handles.out ) {
     SG::ReadHandle<T> readHandle( writeHandleKey.key() );
     if ( readHandle.isValid() ) {
@@ -139,18 +130,18 @@ StatusCode HLTEDMCreator::createOutput() const {
 #undef CREATE
 
 #define CREATE_XAOD(__TYPE, __STORE_TYPE) \
-  CHECK( createIfMissing<xAOD::__TYPE>( ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, HLTEDMCreator::viewsMerge<xAOD::__TYPE> )  )
+  CHECK( createIfMissing<xAOD::__TYPE>( ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, viewsMerge<xAOD::__TYPE> )  )
 
 
 #define CREATE_XAOD_NO_MERGE(__TYPE, __STORE_TYPE)			\
-  CHECK( createIfMissing<xAOD::__TYPE>( ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, HLTEDMCreator::noMerge<xAOD::__TYPE> )  )
+  CHECK( createIfMissing<xAOD::__TYPE>( ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, noMerge<xAOD::__TYPE> )  )
   
-  // CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
-  // CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
-  // CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer );
-  // CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer );
-  // CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer );
-  // CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer );
+  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
+  CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
+  CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer );
+  CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer );
+  CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer );
+  CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer );
 
 #undef CREATE_XAOD
 #undef CREATE_XAOD_NO_MERGE
