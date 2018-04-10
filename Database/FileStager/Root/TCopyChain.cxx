@@ -11,15 +11,15 @@
 
 ClassImp(TCopyChain)
 
-bool TCopyChain::_originalTChain=true;
+bool TCopyChain::s_originalTChain=true;
 
 TCopyChain::TCopyChain()
   : TChain ()
-  , _releasedLastFile(false)
-  , _bigNumber(1234567890) // big number like GetEntriesFast()
-  , _curFile(0)
-  , _prevFileName("")
-  , _isNewFile(true)
+  , m_releasedLastFile(false)
+  , m_bigNumber(1234567890) // big number like GetEntriesFast()
+  , m_curFile(0)
+  , m_prevFileName("")
+  , m_isNewFile(true)
 {
 }
 
@@ -27,11 +27,11 @@ TCopyChain::TCopyChain()
 TCopyChain::TCopyChain (const char* name,
                                     const char* title /*= ""*/)
   : TChain (name, title)
-  , _releasedLastFile(false)
-  , _bigNumber(1234567890) // big number like GetEntriesFast()
-  , _curFile(0)
-  , _prevFileName("")
-  , _isNewFile(true)
+  , m_releasedLastFile(false)
+  , m_bigNumber(1234567890) // big number like GetEntriesFast()
+  , m_curFile(0)
+  , m_prevFileName("")
+  , m_isNewFile(true)
 {
 }
 
@@ -45,7 +45,7 @@ TCopyChain::~TCopyChain()
 Long64_t TCopyChain::GetReadEntry() const
 {
   Long64_t entry = TChain::GetReadEntry();
-  if (_originalTChain) { return entry; }
+  if (s_originalTChain) { return entry; }
 
   // FIXME: Check --- i think i saw that the behavior of
   // TChain::GetReadEntry changed in 5.16.
@@ -56,41 +56,41 @@ Long64_t TCopyChain::GetReadEntry() const
 
 Long64_t TCopyChain::GetEntries() const
 {
-   if (_originalTChain) return TChain::GetEntries();
-   else return _bigNumber; 
+   if (s_originalTChain) return TChain::GetEntries();
+   else return m_bigNumber; 
 }
 
 
 Long64_t TCopyChain::GetEntries(const char* sel)
 {
-   if (_originalTChain) return TChain::GetEntries(sel);
-   else return _bigNumber; 
+   if (s_originalTChain) return TChain::GetEntries(sel);
+   else return m_bigNumber; 
 }
 
 
 Long64_t TCopyChain::LoadTree(Long64_t entry)
 {
-  if (!_originalTChain && _curFile!=0) { 
-    _prevFileName = _curFile->GetName();
+  if (!s_originalTChain && m_curFile!=0) { 
+    m_prevFileName = m_curFile->GetName();
   }
 
   Long64_t readEntry = this->TChain::LoadTree(entry);
-  if (_originalTChain) return readEntry;
+  if (s_originalTChain) return readEntry;
 
   // check if file has changed
-  _curFile=TChain::GetCurrentFile(); 
+  m_curFile=TChain::GetCurrentFile(); 
 
-  if (_curFile!=0) {
-    if (_prevFileName!=_curFile->GetName()) {
-      _isNewFile=true;
+  if (m_curFile!=0) {
+    if (m_prevFileName!=m_curFile->GetName()) {
+      m_isNewFile=true;
       std::cout << "TCopyChain::LoadTree() : Opened new file <" 
-  	        << _curFile->GetName() 
+  	        << m_curFile->GetName() 
 	        << ">" 
 	        << std::endl;
     } 
-    else{ _isNewFile=false; }
+    else{ m_isNewFile=false; }
   }
-  else{ _isNewFile=true; }
+  else{ m_isNewFile=true; }
 
   return readEntry;
 }
@@ -98,16 +98,16 @@ Long64_t TCopyChain::LoadTree(Long64_t entry)
 
 TString TCopyChain::GetCurrentLocalFileName()
 {
-  if(_curFile!=0){
+  if(m_curFile!=0){
     TStageManager& manager(TStageManager::instance());
-    return TString(manager.getTmpFilename(_curFile->GetName()));
+    return TString(manager.getTmpFilename(m_curFile->GetName()));
   }
   return TString(0);
 }
 
 Int_t TCopyChain::Add(const char* name, Long64_t nentries) 
 {
-  if (_originalTChain) return TChain::Add(name, nentries); 
+  if (s_originalTChain) return TChain::Add(name, nentries); 
 
   TStageManager& manager(TStageManager::instance());
   manager.addToList(name);

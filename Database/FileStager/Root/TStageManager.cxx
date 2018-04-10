@@ -19,22 +19,22 @@ using std::map;
 ClassImp(TStageManager)
 
 
-TStagerInfo TStageManager::_stagerInfo;
+TStagerInfo TStageManager::s_stagerInfo;
 
 
 TStageManager::TStageManager() 
- : _submittedStageMonitor(false)
- , _verbose(false)
- , _verbwait(false)
- , _tryInfRestage(false)
- , _firstFileANDAlreadyStaged(false)
- , _keepLogfiles(false)
- , _pidInLognames(true)
- , _keepStagedfiles(false)
- , _checkForPreviousStage(false)
+ : m_submittedStageMonitor(false)
+ , m_verbose(false)
+ , m_verbwait(false)
+ , m_tryInfRestage(false)
+ , m_firstFileANDAlreadyStaged(false)
+ , m_keepLogfiles(false)
+ , m_pidInLognames(true)
+ , m_keepStagedfiles(false)
+ , m_checkForPreviousStage(false)
 {
-  _stageMap.clear();
-  _toBeStagedList.clear();
+  m_stageMap.clear();
+  m_toBeStagedList.clear();
 }
 
 
@@ -43,12 +43,12 @@ TStageManager::~TStageManager()
   print();
 
   // terminating session, so cleanup
-  //_keepStagedfiles = false;
+  //m_keepStagedfiles = false;
   releaseAll();
 
   // remove temporary stage directory
-  if (_stagerInfo.tmpdir.compare(_stagerInfo.baseTmpdir)!=0)
-    rmdir(_stagerInfo.tmpdir.c_str());
+  if (s_stagerInfo.tmpdir.compare(s_stagerInfo.baseTmpdir)!=0)
+    rmdir(s_stagerInfo.tmpdir.c_str());
 
   // TCopyFile destructor can no longer call stagemanager after this has been destroyed.
   TCopyFile::SetOriginalTFile();
@@ -70,33 +70,33 @@ TStageManager::addToList(const char* filename)
   string input(filename);
   trim(input);
 
-  if (_verbose) { cout << "TStageManager::addToList() : <" << input << ">" << endl; }
+  if (m_verbose) { cout << "TStageManager::addToList() : <" << input << ">" << endl; }
 
-  if (_firstFileANDAlreadyStaged) {
-    _stageMap[input] = TStageFileInfo();
-    _stageMap[input].status = TStageFileInfo::STAGED;
+  if (m_firstFileANDAlreadyStaged) {
+    m_stageMap[input] = TStageFileInfo();
+    m_stageMap[input].status = TStageFileInfo::STAGED;
     string inFile(input);
     removePrefixOf(inFile);
-    _stageMap[input].inFile = inFile;
-    _stageMap[input].outFile = getTmpFilename(input.c_str());
-    _stageMap[input].stout = _stageMap[input].outFile + "_stage.out";
-    _stageMap[input].sterr = _stageMap[input].outFile + "_stage.err";
-    if (!_stagerInfo.logfileDir.empty()) {
-      _stageMap[input].stout = _stagerInfo.logfileDir + "/" + basename((char*)_stageMap[input].stout.c_str());
-      _stageMap[input].sterr = _stagerInfo.logfileDir + "/" + basename((char*)_stageMap[input].sterr.c_str());
+    m_stageMap[input].inFile = inFile;
+    m_stageMap[input].outFile = getTmpFilename(input.c_str());
+    m_stageMap[input].stout = m_stageMap[input].outFile + "_stage.out";
+    m_stageMap[input].sterr = m_stageMap[input].outFile + "_stage.err";
+    if (!s_stagerInfo.logfileDir.empty()) {
+      m_stageMap[input].stout = s_stagerInfo.logfileDir + "/" + basename((char*)m_stageMap[input].stout.c_str());
+      m_stageMap[input].sterr = s_stagerInfo.logfileDir + "/" + basename((char*)m_stageMap[input].sterr.c_str());
     }
-    _firstFileANDAlreadyStaged = false; // next file
+    m_firstFileANDAlreadyStaged = false; // next file
   }
 
-  list<string>::iterator itrF = find(_toBeStagedList.begin(),_toBeStagedList.end(),input);
-  if (_stageMap.find(input)==_stageMap.end()) {
-    if (itrF==_toBeStagedList.end())  _toBeStagedList.push_back(input);
-  } else if ( _stageMap.find(input)->second.status != TStageFileInfo::STAGED && 
-              _stageMap.find(input)->second.status != TStageFileInfo::STAGING ) {
+  list<string>::iterator itrF = find(m_toBeStagedList.begin(),m_toBeStagedList.end(),input);
+  if (m_stageMap.find(input)==m_stageMap.end()) {
+    if (itrF==m_toBeStagedList.end())  m_toBeStagedList.push_back(input);
+  } else if ( m_stageMap.find(input)->second.status != TStageFileInfo::STAGED && 
+              m_stageMap.find(input)->second.status != TStageFileInfo::STAGING ) {
     // not interested. cleanup
     releaseFile(input.c_str()) ;
-    _stageMap.erase(_stageMap.find(input));
-    if (itrF==_toBeStagedList.end())  _toBeStagedList.push_back(input);
+    m_stageMap.erase(m_stageMap.find(input));
+    if (itrF==m_toBeStagedList.end())  m_toBeStagedList.push_back(input);
   }
 
   stageNext();
@@ -114,72 +114,72 @@ TStageManager::releaseFile(const char* fname)
   // first update status
   updateStatus();
 
-  list<string>::iterator itrF = find(_toBeStagedList.begin(),_toBeStagedList.end(),filename);
-  if(itrF!=_toBeStagedList.end()) {
-    _toBeStagedList.erase(itrF);
+  list<string>::iterator itrF = find(m_toBeStagedList.begin(),m_toBeStagedList.end(),filename);
+  if(itrF!=m_toBeStagedList.end()) {
+    m_toBeStagedList.erase(itrF);
     return;
   }
 
-  if(_stageMap.find(filename)==_stageMap.end()) return;
+  if(m_stageMap.find(filename)==m_stageMap.end()) return;
 
-  if (_stageMap[filename].status==TStageFileInfo::RELEASED ||
-      _stageMap[filename].status==TStageFileInfo::KILLEDSTAGING ||
-      _stageMap[filename].status==TStageFileInfo::ERRORRELEASED ||
-      _stageMap[filename].status==TStageFileInfo::KILLERROR) { 
+  if (m_stageMap[filename].status==TStageFileInfo::RELEASED ||
+      m_stageMap[filename].status==TStageFileInfo::KILLEDSTAGING ||
+      m_stageMap[filename].status==TStageFileInfo::ERRORRELEASED ||
+      m_stageMap[filename].status==TStageFileInfo::KILLERROR) { 
     return;
   }
 
-  if (_verbose) cout << "TStageManager::releaseFile() : " << filename << endl;
+  if (m_verbose) cout << "TStageManager::releaseFile() : " << filename << endl;
     
-  if (_stageMap[filename].status==TStageFileInfo::STAGING) {
+  if (m_stageMap[filename].status==TStageFileInfo::STAGING) {
     // kill process first
-    int  killReturn = kill(_stageMap[filename].pid, SIGKILL);  
+    int  killReturn = kill(m_stageMap[filename].pid, SIGKILL);  
 
     if( killReturn == ESRCH) {     
       // pid does not exist
-      if (_verbose) cout << "Group does not exist!" << endl;
+      if (m_verbose) cout << "Group does not exist!" << endl;
       // assume file is done staging
       // fill statistics first
-      stat64(_stageMap[filename].outFile.c_str(),&(_stageMap[filename].statFile));
-      _stageMap[filename].status=TStageFileInfo::STAGED;
+      stat64(m_stageMap[filename].outFile.c_str(),&(m_stageMap[filename].statFile));
+      m_stageMap[filename].status=TStageFileInfo::STAGED;
     } else if( killReturn == EPERM) { 
       // No permission to send kill signal
       // This should never happen
-      if (_verbose) cout << "No permission to send kill signal!" << endl;
-      _stageMap[filename].status=TStageFileInfo::KILLERROR;
+      if (m_verbose) cout << "No permission to send kill signal!" << endl;
+      m_stageMap[filename].status=TStageFileInfo::KILLERROR;
     } else {
-      if (_verbose) cout << "Kill signal sent. All Ok!" << endl;
-      _stageMap[filename].status=TStageFileInfo::KILLEDSTAGING;
+      if (m_verbose) cout << "Kill signal sent. All Ok!" << endl;
+      m_stageMap[filename].status=TStageFileInfo::KILLEDSTAGING;
     }
   }
 
-  if (_stageMap[filename].status==TStageFileInfo::ERRORSTAGING) {
-    _stageMap[filename].status=TStageFileInfo::ERRORRELEASED;
+  if (m_stageMap[filename].status==TStageFileInfo::ERRORSTAGING) {
+    m_stageMap[filename].status=TStageFileInfo::ERRORRELEASED;
   }
 
-  if (_stageMap[filename].status==TStageFileInfo::STAGED) {
-    if (!_keepStagedfiles) {
-      removeFile(_stageMap[filename].outFile);
-      _stageMap[filename].status=TStageFileInfo::RELEASED;
+  if (m_stageMap[filename].status==TStageFileInfo::STAGED) {
+    if (!m_keepStagedfiles) {
+      removeFile(m_stageMap[filename].outFile);
+      m_stageMap[filename].status=TStageFileInfo::RELEASED;
     }
   }
 
-  if (!_keepLogfiles) {
-    removeFile(_stageMap[filename].stout);
-    removeFile(_stageMap[filename].sterr);
+  if (!m_keepLogfiles) {
+    removeFile(m_stageMap[filename].stout);
+    removeFile(m_stageMap[filename].sterr);
   }
 }
 
 
 void TStageManager::releaseAll()
 {
-  _toBeStagedList.clear();
+  m_toBeStagedList.clear();
 
-  map<string,TStageFileInfo>::iterator itr = _stageMap.begin();
-  for (; itr!=_stageMap.end(); itr=_stageMap.begin()) {
+  map<string,TStageFileInfo>::iterator itr = m_stageMap.begin();
+  for (; itr!=m_stageMap.end(); itr=m_stageMap.begin()) {
     string first = (itr->first);
     releaseFile(first.c_str());
-    _stageMap.erase(itr);
+    m_stageMap.erase(itr);
   }
 }
 
@@ -196,42 +196,42 @@ TStageManager::getFile(const char* fname)
   trim(name);
   removePrefixOf(name);
 
-  if (_verbose) cout << "TStageManager::getFile() : " << filename << endl;
+  if (m_verbose) cout << "TStageManager::getFile() : " << filename << endl;
 
   // first update status
   updateStatus();
 
   // file not found -> better start staging immediately.
-  list<string>::iterator itrF = find(_toBeStagedList.begin(),_toBeStagedList.end(),filename);
-  if (_stageMap.find(filename)==_stageMap.end() && 
-      (itrF==_toBeStagedList.end()) ) {
-    if (_verbose) cout << "TStageManager::getFile() : " << filename << " unknown. Start immediate staging." << endl;
-    _toBeStagedList.push_front(filename);
+  list<string>::iterator itrF = find(m_toBeStagedList.begin(),m_toBeStagedList.end(),filename);
+  if (m_stageMap.find(filename)==m_stageMap.end() && 
+      (itrF==m_toBeStagedList.end()) ) {
+    if (m_verbose) cout << "TStageManager::getFile() : " << filename << " unknown. Start immediate staging." << endl;
+    m_toBeStagedList.push_front(filename);
   }
 
   // prioritize file needs to be staged
-  itrF = find(_toBeStagedList.begin(),_toBeStagedList.end(),filename);
-  if (itrF!=_toBeStagedList.end() && _stageMap.find(filename)==_stageMap.end()) {
+  itrF = find(m_toBeStagedList.begin(),m_toBeStagedList.end(),filename);
+  if (itrF!=m_toBeStagedList.end() && m_stageMap.find(filename)==m_stageMap.end()) {
     // move file to front
-    _toBeStagedList.erase(itrF);
-    _toBeStagedList.push_front(filename);
+    m_toBeStagedList.erase(itrF);
+    m_toBeStagedList.push_front(filename);
 
-    if (_verbose) cout << "TStageManager::getFile() : " << filename << ". Forced staging." << endl;
+    if (m_verbose) cout << "TStageManager::getFile() : " << filename << ". Forced staging." << endl;
     stageNext(true); // forced stage right away
   }
 
-  if (_stageMap.find(filename)!=_stageMap.end()) {
-    if (_verbose) cout << "TStageManager::getFile() : Checking staging status of " << filename << endl;
+  if (m_stageMap.find(filename)!=m_stageMap.end()) {
+    if (m_verbose) cout << "TStageManager::getFile() : Checking staging status of " << filename << endl;
 
     // file still staging
-    if (_stageMap[filename].status==TStageFileInfo::STAGING) {
+    if (m_stageMap[filename].status==TStageFileInfo::STAGING) {
 
       // check status    
-      pid_t pID = _stageMap[filename].pid;
+      pid_t pID = m_stageMap[filename].pid;
       int childExitStatus;
       
       // wait till staging is done
-      if (_verbose || _verbwait) { cout << "TStageManager::getFile()   : Waiting till <"
+      if (m_verbose || m_verbwait) { cout << "TStageManager::getFile()   : Waiting till <"
 		   	                << filename
 			                << "> is staged."
 			                << endl; }
@@ -239,55 +239,55 @@ TStageManager::getFile(const char* fname)
       waitpid( pID, &childExitStatus, 0);
       
       if( !WIFEXITED(childExitStatus) ) {
-	if (_verbose) { cout << "waitpid() exited with status= " 
+	if (m_verbose) { cout << "waitpid() exited with status= " 
 	                     << WEXITSTATUS(childExitStatus)
 	                     << endl; }
-	//_stageMap[filename].status = TStageFileInfo::ERRORSTAGING;
+	//m_stageMap[filename].status = TStageFileInfo::ERRORSTAGING;
       } else if( WIFSIGNALED(childExitStatus) ) {
-	if (_verbose) { cout << "waitpid() exited with signal: " 
+	if (m_verbose) { cout << "waitpid() exited with signal: " 
 	                     << WTERMSIG(childExitStatus)
 	                     << endl; }
-	//_stageMap[filename].status = TStageFileInfo::ERRORSTAGING;
+	//m_stageMap[filename].status = TStageFileInfo::ERRORSTAGING;
       } else {
 	// child exited okay
-	if (_verbose) { cout << "waitpid() okay." << endl; }
-	//_stageMap[filename].status = TStageFileInfo::STAGED;
+	if (m_verbose) { cout << "waitpid() okay." << endl; }
+	//m_stageMap[filename].status = TStageFileInfo::STAGED;
       }
     }
 
     // check if file _really_ exists. Sometimes staging returns empty files.
-    bool fexists = fileExists(_stageMap[filename].outFile.c_str());
-    if (fexists) _stageMap[filename].status = TStageFileInfo::STAGED;
+    bool fexists = fileExists(m_stageMap[filename].outFile.c_str());
+    if (fexists) m_stageMap[filename].status = TStageFileInfo::STAGED;
     else {
-      if (_verbose) cout << "TStageManager::getFile() : ERROR : staging of file <" << filename << "> failed. Note: This could be an empty file or time-out." << endl;
+      if (m_verbose) cout << "TStageManager::getFile() : ERROR : staging of file <" << filename << "> failed. Note: This could be an empty file or time-out." << endl;
     }
 
     // file is staged
-    if (_stageMap[filename].status == TStageFileInfo::STAGED) {
-      if (_verbose) cout << "TStageManager::getFile() : <" << filename << "> finished staging" << endl;
+    if (m_stageMap[filename].status == TStageFileInfo::STAGED) {
+      if (m_verbose) cout << "TStageManager::getFile() : <" << filename << "> finished staging" << endl;
 
-      stat64(_stageMap[filename].outFile.c_str(),&(_stageMap[filename].statFile));
+      stat64(m_stageMap[filename].outFile.c_str(),&(m_stageMap[filename].statFile));
       // start next stage
       stageNext();
-      return _stageMap[filename].outFile.c_str();
+      return m_stageMap[filename].outFile.c_str();
 
     // file has already been run over ... 
-    } else if (_stageMap[filename].status == TStageFileInfo::RELEASED) {
-      if (_verbose) cout << "TStageManager::getFile() : WARNING : <" << filename << "> already run over!" << endl;
+    } else if (m_stageMap[filename].status == TStageFileInfo::RELEASED) {
+      if (m_verbose) cout << "TStageManager::getFile() : WARNING : <" << filename << "> already run over!" << endl;
       /// Cleanup and let's try again.
-      if (_verbose) cout << "TStageManager::getFile() : restaging <" << filename << "> immediately." << endl;
+      if (m_verbose) cout << "TStageManager::getFile() : restaging <" << filename << "> immediately." << endl;
       releaseFile(fname);
-      _stageMap.erase(_stageMap.find(filename));
+      m_stageMap.erase(m_stageMap.find(filename));
       return getFile(fname);
 
     // that's funny ... staged but no file!    
     } else { 
 
-      if (_tryInfRestage) { // false by default -- restaging done by wrapper script
+      if (m_tryInfRestage) { // false by default -- restaging done by wrapper script
 	//Something went wrong. Cleanup and let's try again.
-	if (_verbose) cout << "TStageManager::getFile() : ERROR : restaging <" << filename << "> immediately." << endl;
+	if (m_verbose) cout << "TStageManager::getFile() : ERROR : restaging <" << filename << "> immediately." << endl;
 	releaseFile(fname);
-	_stageMap.erase(_stageMap.find(filename));
+	m_stageMap.erase(m_stageMap.find(filename));
 	return getFile(fname);
       }
 
@@ -296,7 +296,7 @@ TStageManager::getFile(const char* fname)
   }
 
   // This should not be reached
-  if (_verbose) cout << "TStageManager::getFile() : ERROR <" << filename << "> not recognized." << endl;
+  if (m_verbose) cout << "TStageManager::getFile() : ERROR <" << filename << "> not recognized." << endl;
 
   stageNext();
 
@@ -307,15 +307,15 @@ TStageManager::getFile(const char* fname)
 const string
 TStageManager::getTmpFilename(const char* filename)
 {
-  if (_stageMap.find(filename)!=_stageMap.end())
-    if (!_stageMap[filename].outFile.empty()) 
-      return _stageMap[filename].outFile.c_str();
+  if (m_stageMap.find(filename)!=m_stageMap.end())
+    if (!m_stageMap[filename].outFile.empty()) 
+      return m_stageMap[filename].outFile.c_str();
   
   string infile(filename); trim(infile);
   string tmpfile(filename); trim(tmpfile);
   //removePrefixOf(infile);
   string::size_type pos = tmpfile.find_last_of("/");
-  tmpfile = _stagerInfo.tmpdir + "/tcf_" + /*string(Form("tcf%d_",getpid())) +*/ tmpfile.substr(pos+1,tmpfile.size()-pos-1);
+  tmpfile = s_stagerInfo.tmpdir + "/tcf_" + /*string(Form("tcf%d_",getpid())) +*/ tmpfile.substr(pos+1,tmpfile.size()-pos-1);
 
   // double check!!
   string::size_type posi = infile.find_last_of("/");
@@ -323,7 +323,7 @@ TStageManager::getTmpFilename(const char* filename)
   posi = tmpfile.find(first);
   tmpfile.erase( posi + first.size() );
 
-  if (_verbose) cout << "TStageManager::getTmpFilename() : <" << tmpfile << "> <" 
+  if (m_verbose) cout << "TStageManager::getTmpFilename() : <" << tmpfile << "> <" 
                      << tmpfile.c_str() << ">"
                      << endl;
 
@@ -336,13 +336,13 @@ TStageManager::getStatusOf(const char* filename, bool update)
 {
   if (update) updateStatus();
 
-  list<string>::iterator itrF = find(_toBeStagedList.begin(),_toBeStagedList.end(),filename);
-  if(itrF!=_toBeStagedList.end()) {
+  list<string>::iterator itrF = find(m_toBeStagedList.begin(),m_toBeStagedList.end(),filename);
+  if(itrF!=m_toBeStagedList.end()) {
     return TStageFileInfo::TOBESTAGED;
   }
 
-  if(_stageMap.find(filename)!=_stageMap.end()) 
-    return _stageMap[filename].status;
+  if(m_stageMap.find(filename)!=m_stageMap.end()) 
+    return m_stageMap[filename].status;
 
   return TStageFileInfo::UNKNOWN;
 }
@@ -362,20 +362,20 @@ TStageManager::print()
   int nproblem = getNproblem();
   int ntotal = getNtotal();
 
-  list<string>::iterator itrb = _toBeStagedList.begin();
-  for (; itrb!=_toBeStagedList.end(); ++itrb) {
+  list<string>::iterator itrb = m_toBeStagedList.begin();
+  for (; itrb!=m_toBeStagedList.end(); ++itrb) {
     filename = *itrb;
     status = getStatusOf(filename.c_str(),false);
-    if (_verbose) cout << "Status <" << filename << "> : " << status << endl;
+    if (m_verbose) cout << "Status <" << filename << "> : " << status << endl;
   }
   
-  map<string,TStageFileInfo>::iterator itr = _stageMap.begin();
-  for (; itr!=_stageMap.end(); ++itr) {
+  map<string,TStageFileInfo>::iterator itr = m_stageMap.begin();
+  for (; itr!=m_stageMap.end(); ++itr) {
     filename = (itr->first);
     status = getStatusOf(filename.c_str(),false);
-    if (_verbose) cout << "Status <" << filename << "> : " << status << endl;
+    if (m_verbose) cout << "Status <" << filename << "> : " << status << endl;
     if (status == TStageFileInfo::RELEASED || status == TStageFileInfo::STAGED) {
-      if (_verbose) { cout << (itr->second).statFile.st_atime << " " 
+      if (m_verbose) { cout << (itr->second).statFile.st_atime << " " 
                            << (itr->second).statFile.st_mtime << " " 
                            << (itr->second).statFile.st_ctime << " " 
                            << (itr->second).statFile.st_size  << " " 
@@ -401,8 +401,8 @@ void TStageManager::printProblemFiles()
   TStageFileInfo::Status status;
   string filename;
 
-  map<string,TStageFileInfo>::iterator itr = _stageMap.begin();
-  for (; itr!=_stageMap.end(); ++itr) {
+  map<string,TStageFileInfo>::iterator itr = m_stageMap.begin();
+  for (; itr!=m_stageMap.end(); ++itr) {
     filename = (itr->first);
     status = getStatusOf(filename.c_str(),false);
 
@@ -415,8 +415,8 @@ void TStageManager::printProblemFiles()
 
 int TStageManager::getNtobestaged()
 {
-  int nentries( static_cast<int>(_toBeStagedList.size()) );
-  if (_verbose) { cout << "TStageManager::getNtobestaged() = " << nentries << endl; }
+  int nentries( static_cast<int>(m_toBeStagedList.size()) );
+  if (m_verbose) { cout << "TStageManager::getNtobestaged() = " << nentries << endl; }
   return nentries;
 }
 
@@ -424,11 +424,11 @@ int TStageManager::getNtobestaged()
 int TStageManager::getNstaging()
 {
   int nentries(0);
-  map<string,TStageFileInfo>::iterator itr = _stageMap.begin();
-  for (; itr!=_stageMap.end(); ++itr) {
+  map<string,TStageFileInfo>::iterator itr = m_stageMap.begin();
+  for (; itr!=m_stageMap.end(); ++itr) {
     if ((itr->second).status == TStageFileInfo::STAGING) nentries++;
   }
-  if (_verbose) { cout << "TStageManager::getNstaging() = " << nentries << endl; }
+  if (m_verbose) { cout << "TStageManager::getNstaging() = " << nentries << endl; }
   return nentries;
 }
 
@@ -438,13 +438,13 @@ int TStageManager::getNstaged()
   int nentries(0);
   TStageFileInfo::Status status;
 
-  map<string,TStageFileInfo>::iterator itr = _stageMap.begin();
-  for (; itr!=_stageMap.end(); ++itr) {
+  map<string,TStageFileInfo>::iterator itr = m_stageMap.begin();
+  for (; itr!=m_stageMap.end(); ++itr) {
     status = (itr->second).status;
     if ( status == TStageFileInfo::RELEASED || status == TStageFileInfo::STAGED ) nentries++;
   }
 
-  if (_verbose) { cout << "TStageManager::getNstaged() = " << nentries << endl; }
+  if (m_verbose) { cout << "TStageManager::getNstaged() = " << nentries << endl; }
   return nentries;
 }
 
@@ -455,8 +455,8 @@ int TStageManager::getSizeStaged()
   string filename;
   Long64_t sumsize(0);
 
-  map<string,TStageFileInfo>::iterator itr = _stageMap.begin();
-  for (; itr!=_stageMap.end(); ++itr) {
+  map<string,TStageFileInfo>::iterator itr = m_stageMap.begin();
+  for (; itr!=m_stageMap.end(); ++itr) {
     filename = (itr->first);
     status = getStatusOf(filename.c_str(),false);
     if (status == TStageFileInfo::RELEASED || status == TStageFileInfo::STAGED) {
@@ -470,7 +470,7 @@ int TStageManager::getSizeStaged()
 
 int TStageManager::getNtotal()
 {
-  return ( this->getNtobestaged() + static_cast<int>( _stageMap.size() ) ) ;
+  return ( this->getNtobestaged() + static_cast<int>( m_stageMap.size() ) ) ;
 }
 
 
@@ -482,40 +482,40 @@ int TStageManager::getNproblem()
 void 
 TStageManager::stageNext(bool forceStage) 
 {
-  if (_verbose) { cout << "TStageManager::stageNext()" << endl; }
+  if (m_verbose) { cout << "TStageManager::stageNext()" << endl; }
 
   // update status
   updateStatus();
 
   // copy command given?
-  assert(!_stagerInfo.cpcommand.empty());
+  assert(!s_stagerInfo.cpcommand.empty());
 
-  if (!_submittedStageMonitor) {
+  if (!m_submittedStageMonitor) {
     submitStageMonitor();
-    _submittedStageMonitor=true;
+    m_submittedStageMonitor=true;
   }
 
-  if (( (getNstaging()<_stagerInfo.pipeLength) || forceStage) && (!_toBeStagedList.empty()) ) {
+  if (( (getNstaging()<s_stagerInfo.pipeLength) || forceStage) && (!m_toBeStagedList.empty()) ) {
 
-    string cf = *(_toBeStagedList.begin());
-    _toBeStagedList.erase(_toBeStagedList.begin());
+    string cf = *(m_toBeStagedList.begin());
+    m_toBeStagedList.erase(m_toBeStagedList.begin());
 
-    _stageMap[cf] = TStageFileInfo();
-    _stageMap[cf].status = TStageFileInfo::STAGING;
+    m_stageMap[cf] = TStageFileInfo();
+    m_stageMap[cf].status = TStageFileInfo::STAGING;
     string inFile(cf); trim(inFile);
     removePrefixOf(inFile);
-    _stageMap[cf].inFile = inFile;
-    _stageMap[cf].outFile = getTmpFilename(cf.c_str());
+    m_stageMap[cf].inFile = inFile;
+    m_stageMap[cf].outFile = getTmpFilename(cf.c_str());
 
     bool needToStageFile(true);
 
     // check if file already happens to exist from previous stage. If so, no need to stage.
-    if (_checkForPreviousStage) {
-      if (_verbose) cout << "TStageManager::stageNext() : checking for previous stage of <" << cf << ">." << endl;
-      if ( fileExists(_stageMap[cf].outFile.c_str()) ) {
-        if (_verbose) cout << "TStageManager::stageNext() : found previous stage of <" << cf << ">. Skip staging." << endl;
-        _stageMap[cf].status = TStageFileInfo::STAGED;
-        stat64(_stageMap[cf].outFile.c_str(),&(_stageMap[cf].statFile));
+    if (m_checkForPreviousStage) {
+      if (m_verbose) cout << "TStageManager::stageNext() : checking for previous stage of <" << cf << ">." << endl;
+      if ( fileExists(m_stageMap[cf].outFile.c_str()) ) {
+        if (m_verbose) cout << "TStageManager::stageNext() : found previous stage of <" << cf << ">. Skip staging." << endl;
+        m_stageMap[cf].status = TStageFileInfo::STAGED;
+        stat64(m_stageMap[cf].outFile.c_str(),&(m_stageMap[cf].statFile));
         needToStageFile = false ;
       }
     }
@@ -524,35 +524,35 @@ TStageManager::stageNext(bool forceStage)
     if (needToStageFile) {
       // useful output
       if (forceStage) 
-        if (_verbose) cout << "TStageManager::stageNext() : forcing stage of <" << cf << ">." << endl;
-      if (_verbose || _verbwait) { cout << "TStageManager::stageNext() : Now staging  <" << cf << ">." << endl; }
-      if (_verbose) { cout << "TStageManager::stageNext() : outFile = <" << _stageMap[cf].outFile << ">." << endl; }
-      if (_verbose) cout << "about to fork" << endl ;
+        if (m_verbose) cout << "TStageManager::stageNext() : forcing stage of <" << cf << ">." << endl;
+      if (m_verbose || m_verbwait) { cout << "TStageManager::stageNext() : Now staging  <" << cf << ">." << endl; }
+      if (m_verbose) { cout << "TStageManager::stageNext() : outFile = <" << m_stageMap[cf].outFile << ">." << endl; }
+      if (m_verbose) cout << "about to fork" << endl ;
 
       // do fork
-      if( (_stageMap[cf].pid=fork()) == 0 ) {
+      if( (m_stageMap[cf].pid=fork()) == 0 ) {
         // Code only executed by child process
 
-        if (_verbose) cout << "this is child process " << getpid() << " " 
-	  		   << _stageMap[cf].pid
+        if (m_verbose) cout << "this is child process " << getpid() << " " 
+	  		   << m_stageMap[cf].pid
 			   << endl ;
 
-        if (_verbose) { cout << "child process : outFile = <" << _stageMap[cf].outFile << ">." << endl; }
-        if (_verbose) { cout << "child process : tmpFile = <" << getTmpFilename(cf.c_str()) << ">." << endl; }
+        if (m_verbose) { cout << "child process : outFile = <" << m_stageMap[cf].outFile << ">." << endl; }
+        if (m_verbose) { cout << "child process : tmpFile = <" << getTmpFilename(cf.c_str()) << ">." << endl; }
 
-        _stageMap[cf].stout = _stageMap[cf].outFile + ( _pidInLognames ? Form("_stage%d.out",getpid()) : "_stage.out" );
-        _stageMap[cf].sterr = _stageMap[cf].outFile + ( _pidInLognames ? Form("_stage%d.err",getpid()) : "_stage.err" );
+        m_stageMap[cf].stout = m_stageMap[cf].outFile + ( m_pidInLognames ? Form("_stage%d.out",getpid()) : "_stage.out" );
+        m_stageMap[cf].sterr = m_stageMap[cf].outFile + ( m_pidInLognames ? Form("_stage%d.err",getpid()) : "_stage.err" );
 
-        if (!_stagerInfo.logfileDir.empty()) {
-          _stageMap[cf].stout = _stagerInfo.logfileDir + "/" + basename((char*)_stageMap[cf].stout.c_str());
-          _stageMap[cf].sterr = _stagerInfo.logfileDir + "/" + basename((char*)_stageMap[cf].sterr.c_str());
+        if (!s_stagerInfo.logfileDir.empty()) {
+          m_stageMap[cf].stout = s_stagerInfo.logfileDir + "/" + basename((char*)m_stageMap[cf].stout.c_str());
+          m_stageMap[cf].sterr = s_stagerInfo.logfileDir + "/" + basename((char*)m_stageMap[cf].sterr.c_str());
         }
 
-        if (!_verbose) freopen(_stageMap[cf].stout.c_str(),"w",stdout);
-        if (!_verbose) freopen(_stageMap[cf].sterr.c_str(),"w",stderr);
+        if (!m_verbose) freopen(m_stageMap[cf].stout.c_str(),"w",stdout);
+        if (!m_verbose) freopen(m_stageMap[cf].sterr.c_str(),"w",stderr);
 
-        int nargs = 4 + int(_stagerInfo.cparg.size());
-        const int argsc = 14; //(nargs); //= 4 + int(_stagerInfo.cparg.size());
+        int nargs = 4 + int(s_stagerInfo.cparg.size());
+        const int argsc = 14; //(nargs); //= 4 + int(s_stagerInfo.cparg.size());
         pchar args[argsc]; // = {"-r", "-t", "-l", (char *) 0 };
 
         for (int i=0; i<nargs-1; ++i) { 
@@ -560,46 +560,46 @@ TStageManager::stageNext(bool forceStage)
           //for (int j=0; j<1024; ++j) { args[i][j] = (char)0; }
         }
 
-        strcpy(args[0],_stagerInfo.cpcommand.c_str());
-        for (int i=1; i<=int(_stagerInfo.cparg.size()); ++i) 
-	  strcpy(args[i],(_stagerInfo.cparg[i-1]).c_str());
+        strcpy(args[0],s_stagerInfo.cpcommand.c_str());
+        for (int i=1; i<=int(s_stagerInfo.cparg.size()); ++i) 
+	  strcpy(args[i],(s_stagerInfo.cparg[i-1]).c_str());
 
-        strcpy(args[nargs-3],_stageMap[cf].inFile.c_str());
+        strcpy(args[nargs-3],m_stageMap[cf].inFile.c_str());
     
-        string outTmpfile = _stagerInfo.outfilePrefix + _stageMap[cf].outFile;
+        string outTmpfile = s_stagerInfo.outfilePrefix + m_stageMap[cf].outFile;
         strcpy(args[nargs-2],outTmpfile.c_str());
         strcpy(args[nargs-2],outTmpfile.c_str());
 
-        if (_verbose) cout << "child processs <" << outTmpfile.c_str() << "> <" << args[nargs-2] << ">" << endl;
+        if (m_verbose) cout << "child processs <" << outTmpfile.c_str() << "> <" << args[nargs-2] << ">" << endl;
 
         args[nargs-1] = (char *) 0;
       
-        if (_verbose)  {
+        if (m_verbose)  {
           cout << "child processs is executing execv " 
-	       << _stagerInfo.cpcommand.c_str() 
+	       << s_stagerInfo.cpcommand.c_str() 
 	       << " with args " ;
           for (int i=0; i<nargs-1; ++i) { if (args[i]) { cout << args[i] << " "; } }
           cout << endl ;
         }
 
-        execvp(_stagerInfo.cpcommand.c_str(), args);      
+        execvp(s_stagerInfo.cpcommand.c_str(), args);      
 
-        //_stageMap[cf].status = TStageFileInfo::STAGING;
+        //m_stageMap[cf].status = TStageFileInfo::STAGING;
 
         for (int i=0; i<nargs-1; ++i) { if (args[i]) delete[] args[i]; }
       } else {
         // Code only executed by parent process
-        if (_verbose) { 
+        if (m_verbose) { 
           cout << "this is parent process, pid of child = " 
-	       << _stageMap[cf].pid 
+	       << m_stageMap[cf].pid 
 	       << endl ; 
         }
-        _stageMap[cf].stout = _stageMap[cf].outFile + Form("_stage%d.out",_stageMap[cf].pid);
-        _stageMap[cf].sterr = _stageMap[cf].outFile + Form("_stage%d.err",_stageMap[cf].pid);
+        m_stageMap[cf].stout = m_stageMap[cf].outFile + Form("_stage%d.out",m_stageMap[cf].pid);
+        m_stageMap[cf].sterr = m_stageMap[cf].outFile + Form("_stage%d.err",m_stageMap[cf].pid);
 
-        if (!_stagerInfo.logfileDir.empty()) {
-          _stageMap[cf].stout = _stagerInfo.logfileDir + "/" + basename((char*)_stageMap[cf].stout.c_str());
-          _stageMap[cf].sterr = _stagerInfo.logfileDir + "/" + basename((char*)_stageMap[cf].sterr.c_str());
+        if (!s_stagerInfo.logfileDir.empty()) {
+          m_stageMap[cf].stout = s_stagerInfo.logfileDir + "/" + basename((char*)m_stageMap[cf].stout.c_str());
+          m_stageMap[cf].sterr = s_stagerInfo.logfileDir + "/" + basename((char*)m_stageMap[cf].sterr.c_str());
         }
       } // end of fork
     } // need to stage file
@@ -613,10 +613,10 @@ TStageManager::stageNext(bool forceStage)
 void
 TStageManager::updateStatus()
 {
-  if (_verbose) { cout << "TStageManager::updateStatus()" << endl; }
+  if (m_verbose) { cout << "TStageManager::updateStatus()" << endl; }
 
-  map<string,TStageFileInfo>::iterator itr = _stageMap.begin();
-  for (; itr!=_stageMap.end(); ++itr) {
+  map<string,TStageFileInfo>::iterator itr = m_stageMap.begin();
+  for (; itr!=m_stageMap.end(); ++itr) {
     if ((itr->second).status == TStageFileInfo::STAGING) {
 
       pid_t pID = (itr->second).pid;
@@ -627,13 +627,13 @@ TStageManager::updateStatus()
       if( WIFEXITED(childExitStatus) ) {
 	// done staging
 	//(itr->second).status = TStageFileInfo::STAGED;
-        if (_verbose) { cout << "waitpid() still staging. Returned with: Status= " 
+        if (m_verbose) { cout << "waitpid() still staging. Returned with: Status= " 
 	                     << WEXITSTATUS(childExitStatus)
                              << " and Exit= " 
                              << WIFEXITED(childExitStatus)
 	                     << endl; }
       } else if( WIFSIGNALED(childExitStatus) ) {
-	if (_verbose) { cout << "waitpid() still staging. Returned with: Signal= " 
+	if (m_verbose) { cout << "waitpid() still staging. Returned with: Signal= " 
 	                     << WTERMSIG(childExitStatus)
                              << " and Exit= " 
                              << WIFSIGNALED(childExitStatus)
@@ -649,13 +649,13 @@ TStageManager::updateStatus()
 void 
 TStageManager::submitStageMonitor()
 {
-  if (_verbose) { cout << "TStageManager::submitStageMonitor()" << endl; }
-  if (_stagerInfo.stagemonitorcmd.empty()) return; 
+  if (m_verbose) { cout << "TStageManager::submitStageMonitor()" << endl; }
+  if (s_stagerInfo.stagemonitorcmd.empty()) return; 
 
-  std::string whichstr = Form("which %s 2>/dev/null 1>/dev/null",_stagerInfo.stagemonitorcmd.c_str());
+  std::string whichstr = Form("which %s 2>/dev/null 1>/dev/null",s_stagerInfo.stagemonitorcmd.c_str());
   int whichint = system( whichstr.c_str() ); // check for stagemonitor
   if (whichint!=0) {
-    cout << "TStageManager::submitStageMonitor() : ERROR : <" << _stagerInfo.stagemonitorcmd 
+    cout << "TStageManager::submitStageMonitor() : ERROR : <" << s_stagerInfo.stagemonitorcmd 
          << "> not found in $PATH. Exit." 
          << endl;
     exit(1);
@@ -668,7 +668,7 @@ TStageManager::submitStageMonitor()
   if( (cpid=fork()) == 0 ) {
     // Code only executed by child process
     
-    if (_verbose) cout << "this is child process " << getpid() << endl ;
+    if (m_verbose) cout << "this is child process " << getpid() << endl ;
     
     pid_t pgid = setsid(); //setpgid(getpid(), getpid());
     if( pgid < 0) {
@@ -680,30 +680,30 @@ TStageManager::submitStageMonitor()
     pchar args[nargs];    
     for (int i=0; i<nargs-1; ++i) { args[i] = new char[1024]; }
     
-    strcpy(args[0],_stagerInfo.stagemonitorcmd.c_str());
+    strcpy(args[0],s_stagerInfo.stagemonitorcmd.c_str());
     sprintf(args[1],"%d",ppid);
-    strcpy(args[2],_stagerInfo.tmpdir.c_str());
-    strcpy(args[3],_stagerInfo.baseTmpdir.c_str());
-    if (_keepLogfiles) strcpy(args[4],"1");
+    strcpy(args[2],s_stagerInfo.tmpdir.c_str());
+    strcpy(args[3],s_stagerInfo.baseTmpdir.c_str());
+    if (m_keepLogfiles) strcpy(args[4],"1");
     else strcpy(args[4],"0");
-    if (_keepStagedfiles) strcpy(args[5],"1");
+    if (m_keepStagedfiles) strcpy(args[5],"1");
     else strcpy(args[5],"0");
     args[6]=(char *) 0;
 
-    if (_verbose)  {
+    if (m_verbose)  {
       cout << "child processs is executing execv " 
-	   << _stagerInfo.stagemonitorcmd
+	   << s_stagerInfo.stagemonitorcmd
 	   << " with args " ;
       for (int i=0; i<nargs-1; ++i) { if (args[i]) { cout << args[i] << " "; } }
       cout << endl ;
     }
     
-    execvp(_stagerInfo.stagemonitorcmd.c_str(), args);
+    execvp(s_stagerInfo.stagemonitorcmd.c_str(), args);
     for (int i=0; i<nargs-1; ++i) { if (args[i]) delete[] args[i]; }
 
   } else {
     // Code only executed by parent process
-    if (_verbose)
+    if (m_verbose)
       cout << "this is parent process, pid of child = " << cpid << endl ; 
   }
 
@@ -726,12 +726,12 @@ TStageManager::trim(string& input)
 void
 TStageManager::removePrefixOf(string& filename)
 {
-  string::size_type ipsize(_stagerInfo.infilePrefix.size());
-  string::size_type opsize(_stagerInfo.outfilePrefix.size());
+  string::size_type ipsize(s_stagerInfo.infilePrefix.size());
+  string::size_type opsize(s_stagerInfo.outfilePrefix.size());
 
-  if (strncmp(filename.c_str(),_stagerInfo.infilePrefix.c_str(),ipsize)==0)
+  if (strncmp(filename.c_str(),s_stagerInfo.infilePrefix.c_str(),ipsize)==0)
     filename = filename.substr(ipsize,filename.size()-ipsize);
-  else if (strncmp(filename.c_str(),_stagerInfo.outfilePrefix.c_str(),opsize)==0)
+  else if (strncmp(filename.c_str(),s_stagerInfo.outfilePrefix.c_str(),opsize)==0)
     filename = filename.substr(opsize,filename.size()-opsize);  
 }
 
@@ -741,10 +741,10 @@ TStageManager::removeFile(string filename)
 {
   if (filename.empty()) return;
 
-  if (_verbose) cout << "TStageManager::removeFile() : " << filename << endl;
+  if (m_verbose) cout << "TStageManager::removeFile() : " << filename << endl;
 
   if (remove(filename.c_str())==-1) {
-    if (_verbose)
+    if (m_verbose)
       cerr << "TStageManager::removeFile() Could not remove file: <" 
 	   << filename
 	   << ">."
@@ -760,46 +760,46 @@ void TStageManager::setBaseTmpdir(const char* baseTmpdir) {
   while( (position=basedir.find_last_of("/")) == basedir.size() ) 
     basedir.replace(position,1,""); // remove any last slashes
 
-  _stagerInfo.baseTmpdir = basedir;
-  _stagerInfo.setTmpdir();
+  s_stagerInfo.baseTmpdir = basedir;
+  s_stagerInfo.setTmpdir();
 }
 
 
 void TStageManager::setCpCommand(const char* cpcommand) {
-  _stagerInfo.cpcommand = cpcommand;
-  _stagerInfo.cparg.clear();
+  s_stagerInfo.cpcommand = cpcommand;
+  s_stagerInfo.cparg.clear();
 }
 
 
 void TStageManager::addCpArg(const char* cpargm) {
-  _stagerInfo.cparg.push_back(cpargm);
+  s_stagerInfo.cparg.push_back(cpargm);
 }
 
 void TStageManager::setPipeLength(const int& pipeLength) {
-  _stagerInfo.pipeLength = pipeLength;
+  s_stagerInfo.pipeLength = pipeLength;
 }
 
 void TStageManager::setInfilePrefix(const char* infilePrefix) {
-  _stagerInfo.infilePrefix = infilePrefix;
+  s_stagerInfo.infilePrefix = infilePrefix;
 }
 
 void TStageManager::setOutfilePrefix(const char* outfilePrefix) {
-  _stagerInfo.outfilePrefix = outfilePrefix;
+  s_stagerInfo.outfilePrefix = outfilePrefix;
 }
 
 void TStageManager::setLogfileDir(const char* logfileDir) {
-  _stagerInfo.logfileDir = logfileDir;
+  s_stagerInfo.logfileDir = logfileDir;
 }
 
 void TStageManager::addPrefixFix(const char* in, const char* out) {
-  if (_stagerInfo.inPrefixMap.find(in)==_stagerInfo.inPrefixMap.end())
-    _stagerInfo.inPrefixMap[in] = out;
+  if (s_stagerInfo.inPrefixMap.find(in)==s_stagerInfo.inPrefixMap.end())
+    s_stagerInfo.inPrefixMap[in] = out;
 }
 
 void TStageManager::fixRootInPrefix(string& tmpname)
 {
-  map<string,string>::iterator itr = _stagerInfo.inPrefixMap.begin();
-  for (; itr!=_stagerInfo.inPrefixMap.end(); ++itr) {
+  map<string,string>::iterator itr = s_stagerInfo.inPrefixMap.begin();
+  for (; itr!=s_stagerInfo.inPrefixMap.end(); ++itr) {
     if(tmpname.find(itr->first)!=tmpname.npos) {
       tmpname.replace(tmpname.find(itr->first),(itr->first).size(),itr->second);
       break;
