@@ -45,8 +45,7 @@ StatusCode LArSymConditionsAlg<MC_t,SYM_t>::execute() {
   SG::WriteCondHandle<SYM_t> writeHandle{m_writeKey};
   
   if (writeHandle.isValid()) {
-    writeHandle.updateStore(); //????
-    msg(MSG::WARNING) << "Found valid write handle" << endmsg;
+    ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }  
 
@@ -54,7 +53,7 @@ StatusCode LArSymConditionsAlg<MC_t,SYM_t>::execute() {
   const MC_t* mcClass{*readHandle};
 
   if (mcClass==nullptr) {
-    msg(MSG::ERROR) << "Failed to retrieve input object with key " << m_readKey.key() << endmsg;
+    ATH_MSG_ERROR("Failed to retrieve input object with key " << m_readKey.key());
     return StatusCode::FAILURE;
   }
 
@@ -62,7 +61,7 @@ StatusCode LArSymConditionsAlg<MC_t,SYM_t>::execute() {
   const LArMCSym* mcSym={*mcSymHdl};
 
   if (mcSym==nullptr) {
-    msg(MSG::ERROR) << "Failed to retrieve LArMCSym object with key " << m_mcSymKey.key() << endmsg;
+    ATH_MSG_ERROR("Failed to retrieve LArMCSym object with key " << m_mcSymKey.key());
     return StatusCode::FAILURE;
   }
 
