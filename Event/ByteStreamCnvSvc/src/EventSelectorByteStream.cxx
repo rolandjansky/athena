@@ -521,7 +521,6 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          }
          if (status.isRecoverable()) {
             ATH_MSG_INFO("skipping event " << m_NumEvents);
-	    m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
          } else if (status.isFailure()) {
             ATH_MSG_WARNING("Failed to postNext() HelperTool.");
          } else {
@@ -557,7 +556,6 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
             m_skipEventSequence.erase(m_skipEventSequence.begin());
          }
          ATH_MSG_DEBUG("Skipping event " << m_NumEvents - 1);
-	 m_incidentSvc->fireIncident(Incident(name(), "SkipEvent"));
       }
    } // for loop
    return(StatusCode::SUCCESS);

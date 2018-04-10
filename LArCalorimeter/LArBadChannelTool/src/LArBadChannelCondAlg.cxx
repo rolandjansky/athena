@@ -43,9 +43,8 @@ StatusCode LArBadChannelCondAlg::execute() {
     
   SG::WriteCondHandle<LArBadChannelCont> writeHandle{m_BCOutputKey};
   
-   if (writeHandle.isValid()) {
-    writeHandle.updateStore();
-    msg(MSG::WARNING) << "Found valid write handle" << endmsg;
+  if (writeHandle.isValid()) {
+    msg(MSG::DEBUG) << "Found valid write handle" << endmsg;
     return StatusCode::SUCCESS;
   }  
 

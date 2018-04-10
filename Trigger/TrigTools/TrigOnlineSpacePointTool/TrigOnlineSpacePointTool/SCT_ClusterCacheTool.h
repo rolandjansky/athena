@@ -51,7 +51,7 @@ private:
 
   ISCT_CablingSvc* m_cablingSvc;
 
-  const InDetDD::SCT_DetectorManager * p_indet_mgr;
+  const InDetDD::SCT_DetectorManager * m_indet_mgr;
   const SCT_ID* m_sct_id;
   std::string m_containerName;
   IdContext m_cntx_sct;

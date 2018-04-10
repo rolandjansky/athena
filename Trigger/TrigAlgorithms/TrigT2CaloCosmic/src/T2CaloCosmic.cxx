@@ -169,7 +169,7 @@ HLT::ErrorCode T2CaloCosmic::hltExecute(const HLT::TriggerElement* inputTE,
   phimin=m_phimin[counter];
   phimax=m_phimax[counter];
   //    if ((*it)->execute(*ptrigEmCluster,etamin,etamax,phimin,phimax).isFailure() ) {
-  if ((*it)->execute(*ptrigEmCluster,*roiDescriptor).isFailure() ) {
+  if ((*it)->execute(*ptrigEmCluster,*roiDescriptor, caloDDENull, nullptr).isFailure() ) {
     ATH_MSG_WARNING("T2Calo AlgToolCosmic returned Failure");
     return HLT::TOOL_FAILURE;
   }

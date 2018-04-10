@@ -20,6 +20,11 @@ ls -lR
 athena.py  -c "from AthenaCommon.AthenaCommonFlags import athenaCommonFlags; athenaCommonFlags.FilesInput=$fileList; EventMax=20000;" $joboptions
 echo  "art-result: $? reco"
 
-bash /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/dcube/bin/art-dcube "Pi1" "InDetStandardPlots-SinglePi1000.root"
+dcubeName="Pi1"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/dcube/config/Pi1_DCubeConfig.xml"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/ReferenceHistograms/InDetStandardPlots-SinglePi1000.root"
+
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName InDetStandardPlots.root $dcubeXml $dcubeRef
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube "Pi1" "InDetStandardPlots-SinglePi1000.root"
 echo  "art-result: $? plot"
 

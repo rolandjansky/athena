@@ -1,13 +1,13 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TrigCaloDataAccessSvc_TestCaloDataAccess_h
-#define TrigCaloDataAccessSvc_TestCaloDataAccess_h
+#ifndef TrigT2CaloCommon_TestCaloDataAccess_h
+#define TrigT2CaloCommon_TestCaloDataAccess_h
 
 #include <string>
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "TrigCaloDataAccessSvc/ITrigCaloDataAccessSvc.h"
+#include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 
 
 /**

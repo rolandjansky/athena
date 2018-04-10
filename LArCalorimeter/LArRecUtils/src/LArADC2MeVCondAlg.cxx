@@ -104,7 +104,6 @@ StatusCode LArADC2MeVCondAlg::execute() {
   SG::WriteCondHandle<LArADC2MeV> writeHandle{m_ADC2MeVKey};
   
   if (writeHandle.isValid()) {
-    writeHandle.updateStore(); //????
     ATH_MSG_DEBUG("Found valid write handle");
     return StatusCode::SUCCESS;
   }  

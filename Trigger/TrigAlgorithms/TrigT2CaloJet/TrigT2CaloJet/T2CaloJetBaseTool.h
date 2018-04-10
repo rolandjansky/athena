@@ -45,7 +45,9 @@ class T2CaloJetBaseTool : public IAlgToolCalo
 
   //  virtual StatusCode execute(TrigT2Jet* jet,double etamin, double etamax, double phimin, double phimax);
 
-  virtual StatusCode execute(TrigT2Jet* jet, const IRoiDescriptor& roi );
+  virtual StatusCode execute(TrigT2Jet* jet, const IRoiDescriptor& roi,
+				const CaloDetDescrElement*& /*caloDDE*/,
+                                const EventContext* /*context*/ );
 
   virtual TrigTimer* getTimer(const std::string& /*name*/){ return 0;};
 

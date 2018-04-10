@@ -17,6 +17,8 @@
 
 #include "TrigCaloRec/TrigCaloTopoTowerAlgorithm.h"
 #include "TrigCaloRec/TrigCaloCell2ClusterMapper.h"
+#include "../HLTCaloCellMaker.h"
+#include "../HLTCaloCellSumMaker.h"
 
 DECLARE_COMPONENT( TrigCaloCellMaker )
 DECLARE_COMPONENT( TrigFullCaloCellMaker )
@@ -35,4 +37,6 @@ DECLARE_COMPONENT( RoITileCellContMaker )
 DECLARE_COMPONENT( RoIFCalEmCellContMaker )
 DECLARE_COMPONENT( RoIFCalHadCellContMaker )
 DECLARE_COMPONENT( FullCaloCellContMaker )
+DECLARE_COMPONENT( HLTCaloCellMaker )
+DECLARE_COMPONENT( HLTCaloCellSumMaker )
 

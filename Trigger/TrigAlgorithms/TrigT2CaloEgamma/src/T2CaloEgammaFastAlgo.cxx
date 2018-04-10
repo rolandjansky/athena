@@ -198,18 +198,13 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 ////  if ( m_timersvc ) m_timer[1]->start();
   uint32_t error = 0;
   for (; it < m_emAlgTools.end(); it++)  {
-    (*it)->setCaloDetDescrElement(caloDDE);
-  (*m_log) << MSG::INFO  << "setCaloDetDescrElement(caloDDE) : DONE  "<< endmsg;
-    if ((*it)->execute(*ptrigEmCluster, newroi ).isFailure() ) {
+    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, nullptr ).isFailure() ) {
       (*m_log) << MSG::WARNING << "T2Calo AlgToolEgamma returned Failure" << endmsg;
       return StatusCode::FAILURE;
     }
 //    uint32_t in_error = (*it)->report_error();
 //    if ( 0x0FFFFFFF & in_error ) m_conversionError++;
 //    if ( 0xF0000000 & in_error ) m_algorithmError++;
-//    if ( (*it)->getCaloDetDescrElement() != 0 ){
-//    	caloDDE = (*it)->getCaloDetDescrElement();
-//    }
 //    error|=in_error;
   }
 //  // support to new monitoring

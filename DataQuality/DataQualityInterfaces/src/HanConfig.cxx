@@ -51,8 +51,8 @@
 
 ClassImp(dqi::HanConfig)
 
-static TBox box;
-static TLine line;
+static TBox _box;
+static TLine _line;
 
 namespace dqi {
 
@@ -85,7 +85,8 @@ void
 HanConfig::
 AssembleAndSave( std::string infileName, std::string outfileName )
 {
-  TFile* outfile = TFile::Open( outfileName.c_str(), "RECREATE" );
+  std::unique_ptr< TFile > outfile( TFile::Open( outfileName.c_str(),
+                                                 "RECREATE" ) );
   DirMap_t directories;
   
   // Collect reference histograms and copy to config file
@@ -93,7 +94,7 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   refconfig.AddKeyword("reference");
   refconfig.ReadFile(infileName);
   TMap refsourcedata;
-  RefVisitor refvisitor( outfile, directories, &refsourcedata );
+  RefVisitor refvisitor( outfile.get(), directories, &refsourcedata );
   refconfig.SendVisitor( refvisitor );
   
   // Collect threshold definitions
@@ -123,23 +124,23 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   MiniConfig compalgconfig;
   compalgconfig.AddKeyword("compositealgorithm");
   compalgconfig.ReadFile(infileName);
-  CompAlgVisitor compalgvisitor(outfile, compalgconfig);
+  CompAlgVisitor compalgvisitor(outfile.get(), compalgconfig);
   compalgconfig.SendVisitor(compalgvisitor);
   
   MiniConfig metadataconfig;
   metadataconfig.AddKeyword("metadata");
   metadataconfig.ReadFile(infileName);
-  MetadataVisitor metadatavisitor(outfile, metadataconfig);
+  MetadataVisitor metadatavisitor(outfile.get(), metadataconfig);
   metadataconfig.SendVisitor(metadatavisitor);
 
   // Assemble into a hierarchical configuration
   outfile->cd();
-  HanConfigGroup* root = new HanConfigGroup();
-  
-  RegionVisitor regvisitor( root, algconfig, thrconfig, refconfig, directories );
+  std::unique_ptr< HanConfigGroup > root( new HanConfigGroup() );
+
+  RegionVisitor regvisitor( root.get(), algconfig, thrconfig, refconfig, directories );
   regconfig.SendVisitor( regvisitor );
   
-  AssessmentVisitor histvisitor( root, algconfig, thrconfig, refconfig, outfile, 
+  AssessmentVisitor histvisitor( root.get(), algconfig, thrconfig, refconfig, outfile.get(), 
 				 directories, &refsourcedata );  
   histconfig.SendVisitor( histvisitor );
   
@@ -148,7 +149,6 @@ AssembleAndSave( std::string infileName, std::string outfileName )
   root->Write();
   outfile->Write();
   outfile->Close();
-  delete root;
 }
 
 void
@@ -257,7 +257,6 @@ GetReference( std::string& groupName, std::string& name )
   return 0;
 }
 
-
 std::string 
 SplitReference(std::string refPath, std::string refName )
 {
@@ -340,9 +339,7 @@ Visit( const MiniConfigTreeNode* node ) const
   TObject* obj;
   std::string name = node->GetAttribute("name");
   std::string fileName = node->GetAttribute("file");
-  if(node->GetAttribute("location")!=""){
-    fileName = SplitReference(node->GetAttribute("location"), fileName);
-  }
+  fileName = SplitReference(node->GetAttribute("location"), fileName);
   std::string refInfo = node->GetAttribute("info");
   if( fileName != "" && name != "" && name != "same_name" ) {
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
@@ -509,9 +506,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    algRefName = assessorName;
 	    absAlgRefName += algRefName;
 	    std::string algRefFile( m_refConfig.GetStringAttribute(thisRefID,"file") );
-	    if(m_refConfig.GetStringAttribute(thisRefID,"location")!=""){
-              algRefFile = SplitReference( m_refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
-            }
+	    algRefFile = SplitReference( m_refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
+
 	    if( algRefFile != "" ) {
 	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
 	      if ( ! infile.get() ) {
@@ -865,6 +861,7 @@ Visit( const MiniConfigTreeNode* node ) const
       std::string objPath("");
       std::string absObjPath("");
       
+      refFile = SplitReference( m_refConfig.GetStringAttribute(refID,"location"), refFile);
       //std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
       std::shared_ptr<TFile> infile( GetROOTFile(refFile) );
       TDirectory* basedir(0);

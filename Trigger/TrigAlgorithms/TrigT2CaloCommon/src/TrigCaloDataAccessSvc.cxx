@@ -97,7 +97,7 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
   StatusCode sc = prepareLArCollections( context, roi, sampling, detID );
 
-  if ( !sc ) return sc;
+  if ( !sc.isFailure() ) return sc;
   
   { 
     // this has to be guarded because getTT called on the LArCollection bu other threads updates internal map

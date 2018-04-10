@@ -218,7 +218,7 @@ void SCT_GCBuilder::formSpacePoints (const InDet::SCT_ClusterCollection& phi_clu
   const double inv_sina = 1. / sina;
   if (m_sctID->is_barrel(phi_waferId)) {
     layerId += m_OffsetBarrelSCT;    
-    alpha=asin(sina);
+    //    alpha=asin(sina); // Coverity CID 105824 (#1 of 1): Unused value (UNUSED_VALUE)
     errLocL=pitchPhi/(sqrt(6.)*fabs(sina));
     dr=0.5*WAFER_WIDTH/sqrt(3.0);
     dz=errLocL;

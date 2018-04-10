@@ -43,8 +43,7 @@ StatusCode LArBadFebCondAlg::execute() {
     
   SG::WriteCondHandle<LArBadFebCont> writeHandle{m_BCOutputKey};
   
-   if (writeHandle.isValid()) {
-    writeHandle.updateStore(); //????
+  if (writeHandle.isValid()) {
     msg(MSG::DEBUG) << "Found valid write handle" << endmsg;
     return StatusCode::SUCCESS;
   }  

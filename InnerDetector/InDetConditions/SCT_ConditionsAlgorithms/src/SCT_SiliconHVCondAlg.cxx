@@ -58,12 +58,9 @@ StatusCode SCT_SiliconHVCondAlg::execute() {
   SG::WriteCondHandle<SCT_DCSFloatCondData> writeHandle{m_writeKey};
   // Do we have a valid Write Cond Handle for current time?
   if (writeHandle.isValid()) {
-    // in theory this should never be called in MT
-    writeHandle.updateStore();
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << " In theory this should not be called, but may happen"
-                  << " if multiple concurrent events are being processed out of order."
-                  << " Forcing update of Store contents");
+                  << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS; 
   }
 

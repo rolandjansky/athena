@@ -20,6 +20,10 @@ ls -lR
 athena.py  -c "from AthenaCommon.AthenaCommonFlags import athenaCommonFlags; athenaCommonFlags.FilesInput=$fileList; EventMax=500;" $joboptions
 echo  "art-result: $? reco"
 
-bash /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/dcube/bin/art-dcube "ZMuMuPileup" "InDetStandardPlots-ZMuMuPileup.root"
+dcubeName="ZMuMuPileup"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/dcube/config/ZMuMuPileup_DCubeConfig.xml"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPerformanceRTT/ReferenceHistograms/InDetStandardPlots-ZMuMuPileup.root"
+
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName InDetStandardPlots.root $dcubeXml $dcubeRef
 echo  "art-result: $? plot"
 

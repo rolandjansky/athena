@@ -38,7 +38,9 @@ class EgammaHadEnFex: public IAlgToolCalo {
     *   @param[in] eta/phi-min/max = RoI definition.
     */
     StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
-		       const IRoiDescriptor& roi );
+		       const IRoiDescriptor& roi,
+		       const CaloDetDescrElement*& caloDDE = caloDDENull,
+                       const EventContext* context = nullptr );
 
     //    StatusCode execute(TrigEMCluster &rtrigEmCluster,double etamin,
     //			double etamax, double phimin, double phimax);

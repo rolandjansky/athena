@@ -33,8 +33,15 @@ SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type,
 					    const std::string& name, 
 					    const IInterface* parent )
   : AthAlgTool(type, name, parent), 
+    m_clusterContainer(nullptr),
+    m_cablingSvc(nullptr),
+    m_indet_mgr(nullptr),
+    m_sct_id(nullptr),
+    m_decoder(nullptr),
     m_offlineDecoder("SCT_RodDecoder",this), 
-    m_clusteringTool("InDet::SCT_ClusteringTool/InDetTrigSCT_ClusteringTool") 
+    m_clusteringTool("InDet::SCT_ClusteringTool/InDetTrigSCT_ClusteringTool"),
+    m_rdoContainer(nullptr),
+    m_timers(false)
 {
   declareInterface< ISCT_ClusterCacheTool>( this );
   declareProperty( "ClusterContainerName", m_containerName = "SCT_ClusterCache");
@@ -46,6 +53,7 @@ SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type,
   declareProperty( "UseOfflineClustering", m_useOfflineClustering = true);
   declareProperty( "SCT_ClusteringTool", m_clusteringTool,"InDet::SCT_ClusteringTool/InDetTrigSCT_ClusteringTool");
   declareProperty( "DoBS_Conversion", m_doBS = true);
+  for (unsigned int i=0; i<SCT_CL_CACHE_NTIMERS; i++) m_timer[i] = nullptr;
 }
 
 StatusCode SCT_ClusterCacheTool::initialize()  {
@@ -53,7 +61,7 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
   ATH_MSG_INFO(name() << " in initialize");
   StatusCode sc = AthAlgTool::initialize(); 
 
-  sc=detStore()->retrieve(p_indet_mgr, "SCT");
+  sc=detStore()->retrieve(m_indet_mgr, "SCT");
   if (sc.isFailure()) {
     ATH_MSG_ERROR( name() << "failed to get SCT Manager");
     return sc;
@@ -71,7 +79,7 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
   m_cntx_sct = m_sct_id->wafer_context();
 
   m_clusterization.setSctID(m_sct_id);
-  m_clusterization.initializeGeometry(p_indet_mgr);
+  m_clusterization.initializeGeometry(m_indet_mgr);
 
   IToolSvc* toolSvc;
   sc=service("ToolSvc",toolSvc);
@@ -414,7 +422,7 @@ StatusCode SCT_ClusterCacheTool::convertBStoClusters(std::vector<const ROBF*>& r
 		{
 		  const InDetRawDataCollection<SCT_RDORawData>* pRdoColl = (*collIt);
 		  const InDet::SCT_ClusterCollection* pColl = m_clusteringTool->clusterize(*pRdoColl,
-											   *p_indet_mgr,
+											   *m_indet_mgr,
 											   *m_sct_id);
 		  if(pColl!=NULL) 
 		    {

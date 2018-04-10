@@ -44,7 +44,9 @@ class EgammaAllFex: public IAlgToolCalo {
     *   @param[in] eta/phi-min/max = RoI definition.
     */
     StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster,
-		       const IRoiDescriptor& roi );
+		       const IRoiDescriptor& roi,
+		       const CaloDetDescrElement*& /*caloDDE*/,
+                       const EventContext* /*context*/ );
 
     /// OBSOLETE, DO NOT USE!!
     /** @brief execute feature extraction for the EM Calorimeter
@@ -57,7 +59,7 @@ class EgammaAllFex: public IAlgToolCalo {
 		       double phimin, double phimax) { 
       TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax,
                              HLT::phimean(phimin,phimax), phimin, phimax);
-      return execute( rtrigEmCluster, roi );
+      return execute( rtrigEmCluster, roi, caloDDENull, nullptr );
     }
 
 

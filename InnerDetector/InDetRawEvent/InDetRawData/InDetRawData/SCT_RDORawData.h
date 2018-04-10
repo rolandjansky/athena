@@ -34,7 +34,7 @@ public:
   SCT_RDORawData(const Identifier rdoId, const unsigned int word);
 
   // Destructor:
-  virtual ~SCT_RDORawData();
+  virtual ~SCT_RDORawData() = default;
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods 
@@ -46,7 +46,6 @@ public:
   ///////////////////////////////////////////////////////////////////
   // Static methods:
   ///////////////////////////////////////////////////////////////////
-
 
   // Create a new SCT_RawData and return a pointer to it:
   //  static SCT_RawData *newObject(const Identifier rdoId, const unsigned int word);

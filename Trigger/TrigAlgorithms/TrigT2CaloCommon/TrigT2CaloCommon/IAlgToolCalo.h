@@ -44,6 +44,7 @@
 #include "TrigT2CaloCommon/T2GeometryTool.h"
 #include "TrigT2CaloCommon/T2Calibration.h"
 #include "TrigT2CaloCommon/TrigDataAccess.h"
+#include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
 
@@ -52,8 +53,11 @@
 //class TrigEMCluster;
 class TrigTauCluster;
 class T2CaloConfig;
+class EventContext;
 
 static const InterfaceID IID_IAlgToolCalo("IAlgToolCalo",1,0);
+
+static const CaloDetDescrElement* caloDDENull(nullptr);
 
 /** Base Class for Tools used for Egamma and Tau Feature
 	Extraction Algorithms */
@@ -66,14 +70,17 @@ class IAlgToolCalo: public virtual IAlgTool,
 		 m_timersvc("TrigTimerSvc","IAlgToolCalo"),
 		 m_geometryTool("T2GeometryTool/T2GeometryTool", this ),
 		 m_data("TrigDataAccess/TrigDataAccess"),
-                 m_caloDDE(0), m_cellkeepthr(1e5) {
+		 m_dataSvc("TrigCaloDataAccessSvc/TrigCaloDataAccessSvc",name),
+                 m_caloDDE(0), m_cellkeepthr(1e5), m_context(nullptr) {
 	 declareInterface<IAlgToolCalo>(this);
          declareProperty("SaveCellsInContainer",m_saveCells=false,"Enables saving of the RoI Calorimeter Cells in StoreGate");
          declareProperty("TrigTimerSvc",m_timersvc,"Trigger Timer Service for benchmarking algorithms");
          declareProperty("T2GeometryTool",m_geometryTool,
 		"Tool to check that a cells are contained in a given cluster - for different cluster sizes");
-         declareProperty("TrigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
+         declareProperty("trigDataAccess",m_data,"Data Access for LVL2 Calo Algorithms");
+         declareProperty("trigDataAccessMT",m_dataSvc,"Data Access for LVL2 Calo Algorithms in MT");
          declareProperty("ThresholdKeepCells",m_cellkeepthr,"Threshold to keep cells into container");
+	 if ( caloDDENull != nullptr ) return;
     }
     /** Destructor */
     virtual ~IAlgToolCalo() { }
@@ -94,7 +101,10 @@ class IAlgToolCalo: public virtual IAlgTool,
     */
 
     virtual StatusCode execute(xAOD::TrigEMCluster& /*ptrigEMCluster*/,
-			       const IRoiDescriptor& /*roi*/ ) {return StatusCode::SUCCESS;}
+			       const IRoiDescriptor& /*roi*/,
+			       const CaloDetDescrElement*& /*caloDDE*/,
+                               const EventContext* /*context*/
+			        ) {return StatusCode::SUCCESS;}
 
     /// obsolete 
     virtual StatusCode execute(xAOD::TrigEMCluster& /*ptrigEMCluster*/
@@ -107,7 +117,9 @@ class IAlgToolCalo: public virtual IAlgTool,
     * @param[in] eta/phi-min/max : limits of RoI.
     */
     virtual HLT::ErrorCode execute(TrigTauCluster& /*ptrigTauCluster*/,
-				   const IRoiDescriptor& /*roi*/ ) {return HLT::OK;} 
+				   const IRoiDescriptor& /*roi*/,
+				   const CaloDetDescrElement*& /*caloDDE*/,
+                                   const EventContext* /*context*/ ) {return HLT::OK;} 
 
     /// obsolete
     virtual HLT::ErrorCode execute(TrigTauCluster& /*ptrigTauCluster*/
@@ -130,17 +142,10 @@ class IAlgToolCalo: public virtual IAlgTool,
       EMS3E0=12
     };
 
-    /** Method to get the caloDDE for some important cell in cluster */
-    const CaloDetDescrElement* getCaloDetDescrElement() const { return m_caloDDE; }
-
     /** Sets the pointer of the cell container */
     void setCellContainerPointer(CaloCellContainer** p )
 	{ m_CaloCellContPoint = p; }
 
-    /** Method to set the caloDDE for some important cell in cluster */
-    void setCaloDetDescrElement(const CaloDetDescrElement *caloDDE) {
-      m_caloDDE = caloDDE;    
-    }
   protected:
 
     /** methods to manage error bit inside the tools: general and tau-specific */
@@ -199,6 +204,9 @@ class IAlgToolCalo: public virtual IAlgTool,
 	/** Object  that provides data access in a Region of
 	Interest. See TrigDataAccess for more details. */
 	ToolHandle<ITrigDataAccess> m_data;
+	/** Object  that provides data access in a Region of
+	Interest. See TrigCaloDataAccessSvc for more details. */
+	ServiceHandle<ITrigCaloDataAccessSvc> m_dataSvc;
 	/** Calorimeter Id Manager for calorimeter part
 	determination (Barrel versus EndCap) */
 	const DataHandle<CaloIdManager>        m_larMgr;
@@ -216,6 +224,8 @@ class IAlgToolCalo: public virtual IAlgTool,
         const CaloDetDescrElement* m_caloDDE;      
         /** Threshold to keep cells  in RoI */
 	float m_cellkeepthr;
+        /** Pointer of the context */
+        const EventContext* m_context;
   private:
 };
 
