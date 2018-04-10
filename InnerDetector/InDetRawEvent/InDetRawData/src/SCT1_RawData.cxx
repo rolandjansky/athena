@@ -26,11 +26,6 @@ SCT1_RawData::SCT1_RawData(const Identifier rdoId,
   SCT_RDORawData( rdoId, word) //call base-class constructor
 {}
 
-// Destructor:
-//should I be destructing something here?
-SCT1_RawData::~SCT1_RawData()
-{}
-
 
 //SCT1_RawData *SCT1_RawData::newObject(const Identifier rdoId, const unsigned int word)
 //{

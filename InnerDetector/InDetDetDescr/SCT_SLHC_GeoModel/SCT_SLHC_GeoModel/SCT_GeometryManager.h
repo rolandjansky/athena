@@ -49,6 +49,9 @@ public:
   const SCT_DataBase                  * sctdb() const;
   SCT_MaterialManager                 * materialManager() const;
 
+  SCT_GeometryManager& operator=(const SCT_GeometryManager& right);
+  SCT_GeometryManager(const SCT_GeometryManager& right);
+
 private:
 
   SCT_Options m_options;

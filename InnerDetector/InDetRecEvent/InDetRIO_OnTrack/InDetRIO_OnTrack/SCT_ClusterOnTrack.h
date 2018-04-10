@@ -103,7 +103,7 @@ namespace InDet{
       SCT_ClusterOnTrack &operator=(const SCT_ClusterOnTrack &);
 
       /** Destructor */
-      virtual ~SCT_ClusterOnTrack();
+      virtual ~SCT_ClusterOnTrack() = default;
      
       /** returns global position (gathered through Surface constraint)
       - fullfills Trk::MeasurementBase interface

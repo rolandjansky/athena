@@ -20,9 +20,3 @@ SCT_RDORawData::SCT_RDORawData(const Identifier rdoId,
 			   const unsigned int word) :
   InDetRawData(rdoId, word) //call base class constructor
 {}
-
-// Destructor:
-//should I be destructing something here?
-SCT_RDORawData::~SCT_RDORawData()
-{}
-

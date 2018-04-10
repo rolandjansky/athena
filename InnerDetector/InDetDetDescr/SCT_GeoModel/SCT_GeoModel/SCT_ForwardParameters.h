@@ -174,6 +174,8 @@ public:
   double fwdOptoHarnessThickness(int itype) const;
   std::string fwdOptoHarnessMaterial(int itype) const;
 
+  SCT_ForwardParameters& operator= (const SCT_ForwardParameters& right);
+  SCT_ForwardParameters(const SCT_ForwardParameters& right);
 
 private:
 

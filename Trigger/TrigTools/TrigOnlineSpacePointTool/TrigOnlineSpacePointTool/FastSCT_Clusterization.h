@@ -15,7 +15,22 @@
 class FastSCT_Clusterization{
 public:
 
-  FastSCT_Clusterization () {}
+  FastSCT_Clusterization ():
+    m_firstWord{true},
+    m_clusterId{0},
+    m_man{nullptr},
+    m_detEl{nullptr},
+    m_currentClusterColl{nullptr},
+    m_current_width{0},
+    m_first_strip{0},
+    m_last_strip{0},
+    m_strips_ascending{false},
+    m_sctID{nullptr},
+    m_barrel_pitch{0.},
+    m_current_pitch{0.},
+    m_localXcorrection{0.},
+    m_deltaXlorentz{0.}
+  {}
 
   void setSctID(const SCT_ID* sctID){ m_sctID = sctID; }  
 

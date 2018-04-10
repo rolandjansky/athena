@@ -36,7 +36,7 @@ public:
 	       std::vector<int>&& errorHit);
 
   // Destructor:
-  virtual ~SCT3_RawData();
+  virtual ~SCT3_RawData() = default;
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods 
