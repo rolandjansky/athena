@@ -24,10 +24,8 @@ class ILArCalibCalculatorSvc: virtual public IService {
 public:
 
   ILArCalibCalculatorSvc(){};
-  static const InterfaceID& interfaceID() { 
-     static const InterfaceID  IID_ILArCalibCalculatorSvc("ILArCalibCalculatorSvc",1,0);
-     return IID_ILArCalibCalculatorSvc; 
-  }
+
+  DeclareInterfaceID(ILArCalibCalculatorSvc,1,0);
 
   virtual ~ILArCalibCalculatorSvc() {};
 
