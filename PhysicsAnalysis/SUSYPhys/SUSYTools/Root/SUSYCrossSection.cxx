@@ -26,7 +26,7 @@ SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool u
   m_pmgxs.setTypeAndName("PMGTools::PMGCrossSectionTool/PMGCrossSectionTool");
   m_pmgxs.retrieve().ignore(); // Ignore the status code
   std::vector<std::string> inFiles={};
-  inFiles.push_back( PathResolverFindCalibDirectory("dev/PMGTools/PMGxsecDB_mc16.txt") );
+  inFiles.push_back( PathResolverFindCalibFile("dev/PMGTools/PMGxsecDB_mc16.txt") );
   m_pmgxs->readInfosFromFiles( inFiles );
 
   if (usePathResolver) {
