@@ -105,6 +105,7 @@ class Config:
     memory          = '2000' #in MB
     maxNFilesPerJob = ''
     otherOptions    = ''
+    skipShowerCheck = False
     nameShortener   = basicInDSNameShortener # default shortener function
     customTDPFile   = None
     reuseTarBall    = False
@@ -129,6 +130,7 @@ class Config:
         print ' -MergeType:     ', self.mergeType, 'out of (None, Default, xAOD)'
         print ' -memory:        ', self.memory, 'in MB'
         print ' -maxNFilesPerJob', self.maxNFilesPerJob        
+        print ' -skipShowerCheck', self.skipShowerCheck        
         print ' -OtherOptions:  ', self.otherOptions 
         print ' -nameShortener: ', self.nameShortener
         print ' -reuseTarBall:  ', self.reuseTarBall
@@ -185,7 +187,8 @@ def submit(config, allSamples):
   checkForPrun()
   checkMergeType(config)
   config.details()
-  checkForShowerAlgorithm(allSamples, config.settingsFile)
+  if not config.skipShowerCheck:
+      checkForShowerAlgorithm(allSamples, config.settingsFile)
   if config.checkPRW:
       checkPRWFile(allSamples, config.settingsFile)
 

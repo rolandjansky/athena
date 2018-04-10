@@ -62,8 +62,6 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp,
                                              std::vector<const xAOD::TruthParticle*>& promptLeptons,
                                              std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const {
 
-  bool makenoise = tp->pdgId()==1000039;
-
   // Check if this thing is a candidate to be in a truth jet
   //  First block is largely copied from isGenStable, which works on HepMC only
   if (tp->barcode()>=m_barcodeOffset) return false; // Particle is from G4
