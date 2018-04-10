@@ -3,6 +3,7 @@
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 
 #include "GeomACTS/IExCellWriterSvc.h"
 #include "GeomACTS/Extrapolation/RootExCellWriter.hpp"
@@ -28,8 +29,7 @@ public:
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
     
-  ExCellWriterSvc( const std::string& name, ISvcLocator* svc )
-   : base_class(name, svc) {}
+  ExCellWriterSvc( const std::string& name, ISvcLocator* svc );
 
   void
   store(std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>& ecells) override;
@@ -44,6 +44,14 @@ private:
   std::atomic<bool> m_doEnd;
 
   void doWrite();
+
+  // jobOptions properties
+  Gaudi::Property<std::string> m_filePath{this, "FilePath", "excells_charged.root", "Output root file for charged particle"};
+  Gaudi::Property<std::string> m_treeName{this, "TreeName", "extrapolation_charged", ""};
+  Gaudi::Property<bool> m_writeBoundary{this, "WriteBoundary", true, ""};
+  Gaudi::Property<bool> m_writeMaterial{this, "WriteMaterial", true, ""};
+  Gaudi::Property<bool> m_writeSensitive{this, "WriteSensitive", true, ""};
+  Gaudi::Property<bool> m_writePassive{this, "WritePassive", true, ""};
 
 
 };

@@ -1,21 +1,25 @@
 #include "GeomACTS/ExCellWriterSvc.h"
+#include "GaudiKernel/IInterface.h"
 
 #include <vector>
 #include <deque>
 #include <mutex>
 #include <thread>
 
+Acts::ExCellWriterSvc::ExCellWriterSvc( const std::string& name, ISvcLocator* svc )
+: base_class(name, svc) {
+}
 
 StatusCode
 Acts::ExCellWriterSvc::initialize()
 {
   RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
-  reccWriterConfig.filePath       = "excells_charged.root";
-  reccWriterConfig.treeName       = "extrapolation_charged";
-  reccWriterConfig.writeBoundary  = true;
-  reccWriterConfig.writeMaterial  = true;
-  reccWriterConfig.writeSensitive = true;
-  reccWriterConfig.writePassive   = true;
+  reccWriterConfig.filePath       = m_filePath;
+  reccWriterConfig.treeName       = m_treeName;
+  reccWriterConfig.writeBoundary  = m_writeBoundary;
+  reccWriterConfig.writeMaterial  = m_writeMaterial;
+  reccWriterConfig.writeSensitive = m_writeSensitive;
+  reccWriterConfig.writePassive   = m_writePassive;
   m_rootEccWriter
       = std::make_shared<RootExCellWriter<Acts::TrackParameters>>(
           reccWriterConfig);
@@ -33,6 +37,7 @@ Acts::ExCellWriterSvc::finalize()
   ATH_MSG_INFO("Waiting for writer thread to finish.");
   m_doEnd = true;
   m_writeThread.join();
+  ATH_MSG_INFO("Writer thread has terminated.");
 
   return StatusCode::SUCCESS;
 }

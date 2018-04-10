@@ -7,6 +7,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaKernel/IAthRNGSvc.h"
+#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 
 // ACTS
 #include "ACTS/EventData/TrackParameters.hpp"
@@ -60,9 +61,6 @@ public:
 private:
   bool m_firstEvent;
   
-  // alg properties
-  int m_nParticles;
-  bool m_writeTrackingGeometry;
 
   ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
   ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
@@ -77,6 +75,18 @@ private:
 
   std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>> m_exCells;
   std::shared_ptr<RootExCellWriter<Acts::TrackParameters>> m_rootEccWriter;
+
+  
+  Gaudi::Property<int> m_searchMode{this, "SearchMode", 1, ""};
+  Gaudi::Property<bool> m_collectSensitive{this, "CollectSensitive", true, ""};
+  Gaudi::Property<bool> m_collectPassive{this, "CollectPassive", true, ""};
+  Gaudi::Property<bool> m_collectBoundary{this, "CollectBoundary", true, ""};
+  Gaudi::Property<bool> m_collectMaterial{this, "CollectMaterial", true, ""};
+  Gaudi::Property<bool> m_stopAtBoundary{this, "StopAtBoundary", true, ""};
+  Gaudi::Property<bool> m_FATRAS{this, "FATRAS", true, ""};
+  Gaudi::Property<size_t> m_nParticles{this, "nParticles", 1, ""};
+  Gaudi::Property<bool> m_writeTrackingGeometry{this, "WriteTrackingGeometry", false, ""};
+
 };
 
 #endif // GeomACTS_ACTSTrackingGeometry_h

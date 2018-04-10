@@ -42,10 +42,14 @@ conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
 
 from AthenaCommon.AppMgr import ServiceMgr
 from GeomACTS.GeomACTSConfig import TrackingGeometrySvc
+
 trkGeomSvc = TrackingGeometrySvc()
 trkGeomSvc.OutputLevel = INFO
 ServiceMgr += trkGeomSvc
-ServiceMgr += CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
+
+exCellWriterSvc = CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
+exCellWriterSvc.FilePath = "excells_charged.root"
+ServiceMgr += exCellWriterSvc
 
 import MagFieldServices.SetupField
 
@@ -61,6 +65,14 @@ athenaCommonFlags.EvtMax = 1
 from GeomACTS.GeomACTSConf import ACTSTrackingGeometry
 
 alg = ACTSTrackingGeometry()
+alg.OutputLevel = INFO
+alg.SearchMode = 1
+alg.CollectSensitive = True
+alg.CollectPassive = True
+alg.CollectBoundary = True
+alg.CollectMaterial = True
+alg.StopAtBoundary = True
+alg.FATRAS = True
 alg.nParticles = 1
 alg.Cardinality = 0
 

@@ -128,14 +128,38 @@ StatusCode ACTSTrackingGeometry::execute_r(const EventContext& ctx) const
         Acts::BoundParameters startParameters(
             std::move(cov), std::move(pars), surface);
         Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
-        //executeTestT<Acts::TrackParameters>(startParameters, particle.barcode(), cCells);
-        ecc.searchMode                       = 1;
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
+
+        ecc.searchMode = m_searchMode;
+
+        if (m_stopAtBoundary) {
+          ATH_MSG_VERBOSE("StopAtBoundary set");
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
+        }
+
+        if (m_FATRAS) {
+          ATH_MSG_VERBOSE("FATRAS set");
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
+        }
+
+        if (m_collectSensitive) {
+          ATH_MSG_VERBOSE("CollectSensitive set");
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
+        }
+
+        if (m_collectPassive) {
+          ATH_MSG_VERBOSE("CollectPassive set");
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
+        }
+
+        if (m_collectBoundary) {
+          ATH_MSG_VERBOSE("CollectBoundary set");
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
+        }
+
+        if (m_collectMaterial) {
+          ATH_MSG_VERBOSE("CollectMaterial set");
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
+        }
 
         m_extrapolationTool->extrapolate(ecc);
 
