@@ -8,6 +8,7 @@
 #include "AthenaKernel/RNGWrapper.h"
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Surfaces/PerigeeSurface.hpp"
+#include "GaudiKernel/EventContext.h"
 
 // PACKAGE
 #include "GeomACTS/Extrapolation/ParticleGun.hpp"
@@ -26,7 +27,7 @@ const Amg::Vector3D origin(0., 0., 0.);
 
 ACTSTrackingGeometry::ACTSTrackingGeometry(const std::string& name,
                                  ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator),
+    : AthReentrantAlgorithm(name, pSvcLocator),
       m_firstEvent(true),
       m_trackingGeometrySvc("TrackingGeometrySvc", name),
       m_exCellWriterSvc("ExCellWriterSvc", name),
@@ -88,12 +89,11 @@ StatusCode ACTSTrackingGeometry::initialize() {
 
 
 
-StatusCode ACTSTrackingGeometry::execute() {
-
-
+StatusCode ACTSTrackingGeometry::execute_r(const EventContext& ctx) const 
+{
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
-  rngWrapper->setSeed( name(), Gaudi::Hive::currentContext() );
+  rngWrapper->setSeed( name(), ctx );
 
   std::vector<Acts::ProcessVertex> vertices = m_particleGun->generate(*rngWrapper);
 

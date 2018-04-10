@@ -60,7 +60,7 @@ from GeomACTS.GeomACTSConf import ACTSTrackingGeometry
 
 alg = ACTSTrackingGeometry()
 alg.nParticles = 1
-alg.Cardinality = nThreads
+alg.Cardinality = 0
 
 exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
 alg.ExtrapolationTool = exTool

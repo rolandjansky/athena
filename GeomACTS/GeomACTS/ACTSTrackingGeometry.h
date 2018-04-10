@@ -3,6 +3,7 @@
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaKernel/IAthRNGSvc.h"
@@ -19,8 +20,6 @@
 #include <fstream>
 #include <memory>
 #include <vector>
-
-class IGeoModelSvc;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -41,19 +40,21 @@ class RootExCellWriter;
 
 class ParticleGun;
 
+class EventContext;
+
 namespace InDetDD {
   class InDetDetectorManager;
 }
 
 
-class ACTSTrackingGeometry : public AthAlgorithm {
+class ACTSTrackingGeometry : public AthReentrantAlgorithm {
 public:
   ACTSTrackingGeometry (const std::string& name, ISvcLocator* pSvcLocator);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  StatusCode initialize() override;
+  StatusCode execute_r(const EventContext& ctx) const override;
+  StatusCode finalize() override;
   
-  bool isClonable() const override { return true; }
+  //bool isClonable() const override { return true; }
   //unsigned int cardinality() const override { return m_cardinality; }
 
 private:
