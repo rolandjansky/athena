@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ILArCalculatorSvc.h 
+// ILArCalculatorSvc.h
 // Prepared in 2016 based on LArVCalculator from Bill Seligman
 
 #ifndef __ILARCALCULATORSVC_H__

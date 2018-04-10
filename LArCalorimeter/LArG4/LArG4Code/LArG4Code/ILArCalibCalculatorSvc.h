@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ILArCalibCalculatorSvc.h 
+// ILArCalibCalculatorSvc.h
 // Prepared in 2016 based on VCalibrationCalculator from Bill Seligman
 
 #ifndef __ILARCALIBCALCULATORSVC_H__
@@ -37,7 +37,7 @@ public:
                             const LArG4::eCalculatorProcessing process = LArG4::kEnergyAndID) const = 0;
 
 
-  
+
 };
 
 #endif
