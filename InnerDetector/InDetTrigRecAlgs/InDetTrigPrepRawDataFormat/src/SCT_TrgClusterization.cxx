@@ -59,6 +59,7 @@ namespace InDet{
     m_flaggedCondDataName("SCT_FlaggedCondData_TRIG"),
     m_idHelper(0),
     m_clusterContainer(nullptr),
+    m_manager(nullptr),
     m_regionSelector("RegSelSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth(0.1),

@@ -36,7 +36,7 @@ public:
   SCT1_RawData(const Identifier rdoId, const unsigned int word);
 
   // Destructor:
-  virtual ~SCT1_RawData();
+  virtual ~SCT1_RawData() = default;
 
   ///////////////////////////////////////////////////////////////////
   // Virtual methods 

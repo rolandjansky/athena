@@ -173,13 +173,18 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) {
         offlineId = idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side);
         offlineIdHash = idHelper->wafer_hash(offlineId);
       } catch (const std::ios_base::failure&) {
-        ATH_MSG_FATAL("An error occurred while reading the cabling file "<<m_source
+        ATH_MSG_ERROR("An error occurred while reading the cabling file "<<m_source
                       <<", it may be badly formatted in the following line: \n"<<inString);
-        //shall we continue or fail? continue... to see whether there are more errors
         continue;
       } 
       // Let's Get the Online Id From the link and the ROD
-      link = SCT_Cabling::stringToInt(Link);
+      try {
+        link = SCT_Cabling::stringToInt(Link);
+      } catch (const std::ios_base::failure&) {
+        ATH_MSG_ERROR("An error occurred while reading the cabling file "<<m_source
+                      <<", Link ("<<Link<<") cannot be converted to an integer");
+        continue;
+      }
       if (link==disabledFibre) {
         ATH_MSG_DEBUG(sn<<": Disabled fibre encountered in text file. Will attempt to place identifier using the other fibre.");
         offlineId = idHelper->wafer_id(barrelOrEndcap,layer,phi,eta,side);
