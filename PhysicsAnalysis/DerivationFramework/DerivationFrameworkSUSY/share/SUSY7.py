@@ -3,6 +3,8 @@
 # reductionConf flag SUSY7 in Reco_tf.py   
 #********************************************************************
 
+from AthenaCommon import Logging
+susy7log = Logging.logging.getLogger('SUSY7')
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
@@ -57,7 +59,7 @@ if DerivationFrameworkIsMonteCarlo:
   SUSY7TopHFFilterAugmentation.FilterTool = SUSY7tthffiltertool
   ToolSvc += SUSY7TopHFFilterAugmentation
   AugmentationTools.append(SUSY7TopHFFilterAugmentation)
-  print "SUSY7TopHFFilterAugmentationTool: ", SUSY7TopHFFilterAugmentation
+  susy7log.info("SUSY7TopHFFilterAugmentationTool: {!s}".format(SUSY7TopHFFilterAugmentation))
 
 
 #====================================================================
