@@ -62,9 +62,9 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()
 athenaCommonFlags.EvtMax = 1
 
-from GeomACTS.GeomACTSConf import ACTSTrackingGeometry
+from GeomACTS.GeomACTSConf import ActsExtrapolation
 
-alg = ACTSTrackingGeometry()
+alg = ActsExtrapolation()
 alg.OutputLevel = INFO
 alg.SearchMode = 1
 alg.CollectSensitive = True
@@ -94,7 +94,7 @@ alg.ObjWriterTool = objWriterTool
 job += alg
 
 
-# job.ACTSTrackingGeometry.OutputLevel = INFO
+# job.ActsExtrapolation.OutputLevel = INFO
 
 
 # To set global output level use 

@@ -1,7 +1,7 @@
 // @todo: re-check this
 #define ACTS_CORE_IDENTIFIER_PLUGIN "Identifier/Identifier.h"
 
-#include "GeomACTS/ACTSTrackingGeometry.h"
+#include "GeomACTS/ActsExtrapolation.h"
 
 // ATHENA
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -26,7 +26,7 @@ const Amg::Vector3D origin(0., 0., 0.);
 }
 
 
-ACTSTrackingGeometry::ACTSTrackingGeometry(const std::string& name,
+ActsExtrapolation::ActsExtrapolation(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthReentrantAlgorithm(name, pSvcLocator),
       m_firstEvent(true),
@@ -41,7 +41,7 @@ ACTSTrackingGeometry::ACTSTrackingGeometry(const std::string& name,
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode ACTSTrackingGeometry::initialize() {
+StatusCode ActsExtrapolation::initialize() {
 
   ATH_MSG_INFO("ACTS Demo Algorithm is initializing");
 
@@ -90,7 +90,7 @@ StatusCode ACTSTrackingGeometry::initialize() {
 
 
 
-StatusCode ACTSTrackingGeometry::execute_r(const EventContext& ctx) const 
+StatusCode ActsExtrapolation::execute_r(const EventContext& ctx) const 
 {
 
   ATHRNG::RNGWrapper* rngWrapper = m_rndmGenSvc->getEngine(this);
@@ -175,7 +175,7 @@ StatusCode ACTSTrackingGeometry::execute_r(const EventContext& ctx) const
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode ACTSTrackingGeometry::finalize() {
+StatusCode ActsExtrapolation::finalize() {
   //ofs->close();
   return StatusCode::SUCCESS;
 }

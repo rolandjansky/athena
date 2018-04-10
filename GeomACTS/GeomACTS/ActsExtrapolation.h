@@ -1,5 +1,5 @@
-#ifndef GeomACTS_ACTSTrackingGeometry_h
-#define GeomACTS_ACTSTrackingGeometry_h
+#ifndef GeomACTS_ActsExtrapolation_h
+#define GeomACTS_ActsExtrapolation_h
 
 // ATHENA
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -48,9 +48,9 @@ namespace InDetDD {
 }
 
 
-class ACTSTrackingGeometry : public AthReentrantAlgorithm {
+class ActsExtrapolation : public AthReentrantAlgorithm {
 public:
-  ACTSTrackingGeometry (const std::string& name, ISvcLocator* pSvcLocator);
+  ActsExtrapolation (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize() override;
   StatusCode execute_r(const EventContext& ctx) const override;
   StatusCode finalize() override;
@@ -89,4 +89,4 @@ private:
 
 };
 
-#endif // GeomACTS_ACTSTrackingGeometry_h
+#endif // GeomACTS_ActsExtrapolation_h
