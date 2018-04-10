@@ -194,8 +194,6 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "AntiKt4EMPFlowJets.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.SumPtTrkPt1000",
                                        "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum"]
 
-addJetOutputs(FTAG2SlimmingHelper,["FTAG2"],[],[])
-
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG2SlimmingHelper.AppendToDictionary = {      
