@@ -33,7 +33,7 @@ class HLTByteStreamCreator
 	     const IInterface* parent );
 
   virtual ~HLTByteStreamCreator(); 
-  virtual StatusCode createOutput() const override;
+  virtual StatusCode createOutput(const EventContext& context) const override;
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  finalize() override;

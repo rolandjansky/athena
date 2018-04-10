@@ -52,7 +52,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
 	     const IInterface* parent );
 
   virtual ~HLTEDMCreator(){}
-  virtual StatusCode createOutput() const override;
+  virtual StatusCode createOutput(const EventContext& context) const override;
   virtual StatusCode initialize() override;
 
 
@@ -128,7 +128,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   
 
   template<typename T, typename G, typename M >
-  StatusCode createIfMissing( const ConstHandlesGroup<T>& handles, G generator, M merger ) const;
+    StatusCode createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, G generator, M merger ) const;
 
 
 }; 

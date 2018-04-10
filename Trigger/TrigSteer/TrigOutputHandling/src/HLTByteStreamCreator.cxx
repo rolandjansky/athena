@@ -30,7 +30,7 @@ StatusCode HLTByteStreamCreator::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLTByteStreamCreator::createOutput() const {
+StatusCode HLTByteStreamCreator::createOutput(const EventContext& ) const {
 
   return StatusCode::SUCCESS;
 }
