@@ -7,7 +7,7 @@
 
 #include "AthenaKernel/MsgStreamMember.h"
 
-#include "TRT_PAI_Process/TRT_PAI_gasComponent.h"
+#include "TRT_PAI_gasComponent.h"
 
 #include <string>
 #include <vector>

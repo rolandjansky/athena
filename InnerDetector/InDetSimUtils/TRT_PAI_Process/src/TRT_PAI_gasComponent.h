@@ -5,7 +5,7 @@
 #ifndef TRT_PAI_gasComponent_h
 #define TRT_PAI_gasComponent_h
 
-#include "TRT_PAI_Process/TRT_PAI_element.h"
+#include "TRT_PAI_element.h"
 
 #include <string>
 #include <vector>
