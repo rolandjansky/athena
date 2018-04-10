@@ -17,6 +17,7 @@
 #include "GeomACTS/ITrackingGeometrySvc.h"
 #include "GeomACTS/TrackingGeometrySvc.h"
 #include "GeomACTS/ATLASMagneticFieldWrapper.hpp"
+#include "GeomACTS/Logger.h"
 
 #include <iostream>
 
@@ -33,7 +34,7 @@ StatusCode
 Acts::ExtrapolationTool::initialize()
 {
 
-  ATH_MSG_VERBOSE("Initializing ACTS extrapolation");
+  ATH_MSG_INFO("Initializing ACTS extrapolation");
 
   // we need the field service
   ATH_CHECK( m_fieldServiceHandle.retrieve() );
@@ -44,34 +45,32 @@ Acts::ExtrapolationTool::initialize()
   using BField_t = ATLASMagneticFieldWrapper;
   auto bField = std::make_shared<ATLASMagneticFieldWrapper>(m_fieldServiceHandle.get());
 
-  Acts::Logging::Level extrapLogLevel = Acts::Logging::INFO;
-
   // (a) RungeKuttaPropagtator
   using RKEngine = Acts::RungeKuttaEngine<BField_t>;
   typename RKEngine::Config propConfig;
   propConfig.fieldService = bField;
   auto propEngine         = std::make_shared<RKEngine>(propConfig);
-  propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", extrapLogLevel));
+  propEngine->setLogger(ACTS_ATH_LOGGER("RungeKuttaEngine"));
   // (b) MaterialEffectsEngine
   Acts::MaterialEffectsEngine::Config matConfig;
   auto                                materialEngine
     = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
   materialEngine->setLogger(
-      Acts::getDefaultLogger("MaterialEffectsEngine", extrapLogLevel));
+      ACTS_ATH_LOGGER("MaterialEffectsEngine"));
   // (c) StaticNavigationEngine
   Acts::StaticNavigationEngine::Config navConfig;
   navConfig.propagationEngine     = propEngine;
   navConfig.materialEffectsEngine = materialEngine;
   navConfig.trackingGeometry      = trackingGeometry;
   auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
-  navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", extrapLogLevel));
+  navEngine->setLogger(ACTS_ATH_LOGGER("NavigationEngine"));
   // (d) the StaticEngine
   Acts::StaticEngine::Config statConfig;
   statConfig.propagationEngine     = propEngine;
   statConfig.navigationEngine      = navEngine;
   statConfig.materialEffectsEngine = materialEngine;
   auto statEngine = std::make_shared<Acts::StaticEngine>(statConfig);
-  statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", extrapLogLevel));
+  statEngine->setLogger(ACTS_ATH_LOGGER("StaticEngine"));
   // (e) the material engine
   Acts::ExtrapolationEngine::Config exEngineConfig;
   exEngineConfig.trackingGeometry     = trackingGeometry;
@@ -80,9 +79,9 @@ Acts::ExtrapolationTool::initialize()
   exEngineConfig.extrapolationEngines = {statEngine};
 
   m_exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
-  m_exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", extrapLogLevel));
+  m_exEngine->setLogger(ACTS_ATH_LOGGER("ExtrapolationEngine"));
 
-  ATH_MSG_VERBOSE("ACTS extrapolation successfully initialized");
+  ATH_MSG_INFO("ACTS extrapolation successfully initialized");
   return StatusCode::SUCCESS;
 }
 

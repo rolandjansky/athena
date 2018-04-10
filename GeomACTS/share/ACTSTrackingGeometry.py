@@ -42,7 +42,9 @@ conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
 
 from AthenaCommon.AppMgr import ServiceMgr
 from GeomACTS.GeomACTSConfig import TrackingGeometrySvc
-ServiceMgr += TrackingGeometrySvc()
+trkGeomSvc = TrackingGeometrySvc()
+trkGeomSvc.OutputLevel = INFO
+ServiceMgr += trkGeomSvc
 ServiceMgr += CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
 
 import MagFieldServices.SetupField
@@ -63,6 +65,7 @@ alg.nParticles = 1
 alg.Cardinality = 0
 
 exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
+exTool.OutputLevel = INFO
 alg.ExtrapolationTool = exTool
 
 objWriterTool = CfgMgr.Acts__ObjWriterTool("ObjWriterTool")

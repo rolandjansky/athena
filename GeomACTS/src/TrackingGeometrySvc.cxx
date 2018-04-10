@@ -20,6 +20,7 @@
 #include "GeomACTS/GeoModelStrawLayerBuilder.hpp"
 #include "GeomACTS/GeoModelDetectorElement.hpp"
 #include "GeomACTS/IdentityHelper.hpp"
+#include "GeomACTS/Logger.h"
 
 Acts::TrackingGeometrySvc::TrackingGeometrySvc(const std::string& name, ISvcLocator* svc)
    : base_class(name,svc),
@@ -35,16 +36,15 @@ Acts::TrackingGeometrySvc::initialize()
   ATH_CHECK ( m_detStore->retrieve(p_SCTManager, "SCT") );
   ATH_CHECK ( m_detStore->retrieve(p_TRTManager, "TRT") );
 
-  Acts::Logging::Level loggingLevel = Acts::Logging::VERBOSE;
   
   std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
 
   auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
-      Acts::getDefaultLogger("LayArrayCreator", loggingLevel));
+      ACTS_ATH_LOGGER("LayArrayCreator"));
 
   auto trackingVolumeArrayCreator
       = std::make_shared<const Acts::TrackingVolumeArrayCreator>(
-          Acts::getDefaultLogger("TrkVolArrayCreator", loggingLevel));
+          ACTS_ATH_LOGGER("TrkVolArrayCreator"));
 
   Acts::CylinderVolumeHelper::Config cvhConfig;
   cvhConfig.layerArrayCreator          = layerArrayCreator;
@@ -52,7 +52,7 @@ Acts::TrackingGeometrySvc::initialize()
 
   auto cylinderVolumeHelper
     = std::make_shared<const Acts::CylinderVolumeHelper>(
-        cvhConfig, Acts::getDefaultLogger("CylVolHelper", loggingLevel));
+        cvhConfig, ACTS_ATH_LOGGER("CylVolHelper"));
 
   // PIXEL
   volumeBuilders.push_back(
@@ -70,7 +70,8 @@ Acts::TrackingGeometrySvc::initialize()
   tgbConfig.trackingVolumeHelper   = cylinderVolumeHelper;
   tgbConfig.trackingVolumeBuilders = volumeBuilders;
   auto trackingGeometryBuilder
-      = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig);
+      = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig,
+          ACTS_ATH_LOGGER("TrkGeomBldr"));
   
   m_trackingGeometry = trackingGeometryBuilder->trackingGeometry();
   
@@ -91,7 +92,6 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
 
   using GMLB = Acts::GeoModelLayerBuilder;
 
-  Acts::Logging::Level loggingLevel = Acts::Logging::VERBOSE;
 
   // auto gmLayerBuilder = GMLB(cfg);
   //GMLB gmLayerBuilder(cfg);
@@ -108,18 +108,18 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
 
     auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
         sacCfg,
-        Acts::getDefaultLogger("SurfaceArrayCreator", Acts::Logging::VERBOSE));
+        ACTS_ATH_LOGGER("SurfaceArrayCreator"));
     Acts::LayerCreator::Config lcCfg;
     lcCfg.surfaceArrayCreator = surfaceArrayCreator;
     auto layerCreator = std::make_shared<Acts::LayerCreator>(
-        lcCfg, Acts::getDefaultLogger("LayerCreator", Acts::Logging::VERBOSE));
+        lcCfg, ACTS_ATH_LOGGER("LayerCreator"));
 
     Acts::GeoModelStrawLayerBuilder::Config cfg;
     cfg.mng = static_cast<const InDetDD::TRT_DetectorManager*>(manager);
     cfg.elementStore = m_elementStore;
     cfg.layerCreator = layerCreator;
     gmLayerBuilder = std::make_shared<const Acts::GeoModelStrawLayerBuilder>(cfg,
-      Acts::getDefaultLogger("GMSLayBldr", Acts::Logging::VERBOSE));
+      ACTS_ATH_LOGGER("GMSLayBldr"));
 
     //gmLayerBuilder->centralLayers();
     //gmLayerBuilder->negativeLayers();
@@ -170,11 +170,11 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
 
     auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
         sacCfg,
-        Acts::getDefaultLogger("SurfaceArrayCreator", Acts::Logging::VERBOSE));
+        ACTS_ATH_LOGGER("SurfaceArrayCreator"));
     Acts::LayerCreator::Config lcCfg;
     lcCfg.surfaceArrayCreator = surfaceArrayCreator;
     auto layerCreator = std::make_shared<Acts::LayerCreator>(
-        lcCfg, Acts::getDefaultLogger("LayerCreator", Acts::Logging::VERBOSE));
+        lcCfg, ACTS_ATH_LOGGER("LayerCreator"));
 
 
 
@@ -192,7 +192,7 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
     cfg.elementStore = m_elementStore;
     cfg.layerCreator = layerCreator;
     gmLayerBuilder = std::make_shared<const GMLB>(cfg,
-      Acts::getDefaultLogger("GMLayBldr", Acts::Logging::VERBOSE));
+      ACTS_ATH_LOGGER("GMLayBldr"));
   }
 
 
@@ -210,7 +210,7 @@ Acts::TrackingGeometrySvc::makeVolumeBuilder(const InDetDD::InDetDetectorManager
   auto cylinderVolumeBuilder
     = std::make_shared<const Acts::CylinderVolumeBuilder>(
         cvbConfig,
-        Acts::getDefaultLogger("CylinderVolumeBuilder", loggingLevel));
+        ACTS_ATH_LOGGER("CylinderVolumeBuilder"));
 
   return cylinderVolumeBuilder;
 }

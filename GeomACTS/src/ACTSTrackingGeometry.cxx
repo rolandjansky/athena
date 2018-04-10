@@ -15,6 +15,7 @@
 #include "GeomACTS/ITrackingGeometrySvc.h"
 #include "GeomACTS/IExtrapolationTool.h"
 #include "GeomACTS/IExCellWriterSvc.h"
+#include "GeomACTS/Logger.h"
 //#include "GeomACTS/Extrapolation/ObjExCellWriter.hpp"
 
 // STL
@@ -69,7 +70,7 @@ StatusCode ACTSTrackingGeometry::initialize() {
   pgCfg.etaRange = {-3, 3};
 
   m_particleGun = std::make_unique<ParticleGun>(
-      pgCfg, Acts::getDefaultLogger("ParticleGun", Acts::Logging::VERBOSE));
+      pgCfg, ACTS_ATH_LOGGER("ParticleGun"));
 
 
 
