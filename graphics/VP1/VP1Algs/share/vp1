@@ -4,10 +4,14 @@
 #
 # Author: Thomas.Kittelmann@cern.ch
 # First useful version: July 2007
+#
 # Modified: Manuel.Proissl@cern.ch, March 2012
 #           Riccardo.Maria.Bianchi@cern.ch, multiple times
 #           Edward.Moyse@cern.ch, multiple times
 #
+# Current Maintainers: 
+#           - Riccardo.Maria.Bianchi@cern.ch
+#           - Edward.Moyse@cern.ch
 #
 # Questions: Riccardo.Maria.Bianchi@cern.ch
 #
@@ -23,6 +27,9 @@ GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
 LIGHTBLUE='\033[1;34m'
 RED='\033[0;31m'
+WHITE='\033[0;97m'
+UNDERLINED='\033[4m'
+BOLD='\033[1m'
 NC='\033[0m' # No Color
 # then use:
 # - printf "I ${RED}love${NC} Stack Overflow\n"
@@ -46,7 +53,7 @@ echo
 # https://its.cern.ch/jira/browse/ATLASVPONE-228 #
 #                                                #
 ##################################################
-echo -e "${YELLOW}*** VP1 NOTE ***${NC} setting LD_PRELOAD=/usr/lib64/libGL.so.1 env var, to correctly load OpenGL before all other TLS libs. That is caused by a bug in Red Hat 6. For details, see: https://its.cern.ch/jira/browse/ATLASVPONE-228"
+echo -e "${LIGHTBLUE}*** VP1 NOTE ***${NC} setting LD_PRELOAD=/usr/lib64/libGL.so.1 env var, to correctly load OpenGL before all other TLS libs. That is caused by a bug in Red Hat 6. For details, see: https://its.cern.ch/jira/browse/ATLASVPONE-228"
 export LD_PRELOAD=/usr/lib64/libGL.so.1
 ##################################################
 
@@ -57,13 +64,13 @@ export LD_PRELOAD=/usr/lib64/libGL.so.1
 # https://its.cern.ch/jira/browse/ATLASVPONE-380 #
 #                                                #
 ##################################################
-echo "uname: " "$(expr substr $(uname -s) 1 5)"
-echo "hostname: " "$(hostname)"
 if [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
     # We are on a GNU/Linux platform machine
-    if [[ $(hostname) == lxplus* ]]; then 
+    if [[ $(hostname) == lxplus* ]]; then
         # We are on a LXPLUS machine
-        echo -e "${YELLOW}*** VP1 NOTE ***${NC} you are running VP1 remotely on a LXPLUS machine. Hence, we set the 'QT_XKB_CONFIG_ROOT environment variable to fix the problem LXPLUS machine have with the new Qt5 framework, which prevent a proper detection of keyboard events. For details, see: https://its.cern.ch/jira/browse/ATLASVPONE-380."
+        echo "uname: " "$(expr substr $(uname -s) 1 5)"
+        echo "hostname: " "$(hostname)"
+        echo -e "${LIGHTBLUE}*** VP1 NOTE ***${NC} you are running VP1 remotely on a LXPLUS machine. Hence, we set the 'QT_XKB_CONFIG_ROOT environment variable to fix the problem LXPLUS machine have with the new Qt5 framework, which prevent a proper detection of keyboard events. For details, see: https://its.cern.ch/jira/browse/ATLASVPONE-380."
         export QT_XKB_CONFIG_ROOT=/usr/share/X11/xkb
     fi # closes "lxplus"
 fi # closes "Linux"
@@ -78,6 +85,30 @@ if [ $? != 0 ]; then
     echo "Error: athena.py not found in path. Please setup atlas release before running"
     exit 1
 fi
+
+
+#######################################
+##         Warning Messages          ##
+#######################################
+MUSTQUIT=0
+if [ -z ${Athena_VERSION+x} ]; then
+    echo "ERROR! The variable 'Athena_VERSION' is unset! Apparently Athena is not properly set. Quitting..."
+    MUSTQUIT=1
+else
+    if [[ ${Athena_VERSION} =~ ^21\. ]]; then
+        echo; echo -e " ${RED}${BOLD}   *** WARNING! Release 21 detected! *** ${NC}"; echo
+        echo -e "   Apparently, you are using the Release 21 of the Athena environment. Unfortunately, VP1 does not work in rel. 21. ${UNDERLINED}Please use a release >= 22, or the 'master' release${NC}. By using them, you can still access and visualize data produced with rel. 21, if you need that."
+        echo; echo -e "   ${RED}${BOLD}--->${NC} Please refer to the instructions published at: ${NC}${BOLD}${UNDERLINED} http://atlas-vp1.web.cern.ch/atlas-vp1/home/documentation/running-the-latest-vp1-version/${NC} ${RED}${BOLD}<---${NC}"; echo; echo
+        MUSTQUIT=1
+    fi
+fi
+
+if [ $MUSTQUIT -eq 1 ]; then
+    exit 1;
+fi
+
+
+
 
 #######################################
 ##       Init config variables       ##
