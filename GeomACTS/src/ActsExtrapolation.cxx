@@ -9,6 +9,7 @@
 #include "ACTS/Utilities/Logger.hpp"
 #include "ACTS/Surfaces/PerigeeSurface.hpp"
 #include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ISvcLocator.h"
 
 // PACKAGE
 #include "GeomACTS/Extrapolation/ParticleGun.hpp"
@@ -34,9 +35,6 @@ ActsExtrapolation::ActsExtrapolation(const std::string& name,
       m_exCellWriterSvc("ExCellWriterSvc", name),
       m_rndmGenSvc("AthRNGSvc", name)
 {
-  declareProperty("nParticles", m_nParticles = 100);
-  declareProperty("WriteTrackingGeometry", m_writeTrackingGeometry = false);
-  declareProperty("AtRndmGenSvc", m_rndmGenSvc);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -45,23 +43,14 @@ StatusCode ActsExtrapolation::initialize() {
 
   ATH_MSG_INFO("ACTS Demo Algorithm is initializing");
 
-  ATH_CHECK(m_trackingGeometrySvc.retrieve());
-  ATH_CHECK(m_exCellWriterSvc.retrieve());
+  ATH_CHECK( m_trackingGeometrySvc.retrieve() );
+  ATH_CHECK( m_exCellWriterSvc.retrieve() );
   ATH_CHECK( m_rndmGenSvc.retrieve() );
   
-  ATH_CHECK(m_extrapolationTool.retrieve());
-  ATH_CHECK(m_objWriterTool.retrieve());
+  ATH_CHECK( m_extrapolationTool.retrieve() );
 
   m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
 
-  if(m_writeTrackingGeometry) {
-    ATH_MSG_VERBOSE("Writing tracking geometry to obj");
-    m_objWriterTool->write(*m_trackingGeometry);
-  }
-  else {
-    ATH_MSG_VERBOSE("SKIP writing tracking geometry to obj");
-  }
-  
   ParticleGun::Config pgCfg;
   pgCfg.nParticles = m_nParticles;
   pgCfg.pID = 11;

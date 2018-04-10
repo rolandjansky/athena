@@ -8,6 +8,7 @@
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
+#include "GaudiKernel/ISvcLocator.h"
 
 // ACTS
 #include "ACTS/EventData/TrackParameters.hpp"
@@ -18,7 +19,6 @@
 #include "GeomACTS/IExCellWriterSvc.h"
 
 // STL
-#include <fstream>
 #include <memory>
 #include <vector>
 
@@ -26,9 +26,6 @@
 
 namespace Acts {
   class TrackingGeometry;
-  class ITrackingVolumeBuilder;
-  class CylinderVolumeHelper;
-  class GeoModelDetectorElement;
   class ITrackingGeometrySvc;
   class IExtrapolationTool;
   
@@ -43,9 +40,6 @@ class ParticleGun;
 
 class EventContext;
 
-namespace InDetDD {
-  class InDetDetectorManager;
-}
 
 
 class ActsExtrapolation : public AthReentrantAlgorithm {
@@ -69,7 +63,6 @@ private:
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
 
   ToolHandle<Acts::IExtrapolationTool> m_extrapolationTool{this, "ExtrapolationTool", "Acts__ExtrapolationTool"};
-  ToolHandle<Acts::ObjWriterTool> m_objWriterTool{this, "ObjWriterTool", "Acts__ObjWriterTool"};
 
   std::unique_ptr<ParticleGun> m_particleGun;
 
@@ -85,7 +78,6 @@ private:
   Gaudi::Property<bool> m_stopAtBoundary{this, "StopAtBoundary", true, ""};
   Gaudi::Property<bool> m_FATRAS{this, "FATRAS", true, ""};
   Gaudi::Property<size_t> m_nParticles{this, "nParticles", 1, ""};
-  Gaudi::Property<bool> m_writeTrackingGeometry{this, "WriteTrackingGeometry", false, ""};
 
 };
 

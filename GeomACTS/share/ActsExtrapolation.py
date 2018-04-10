@@ -80,15 +80,6 @@ exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
 exTool.OutputLevel = INFO
 alg.ExtrapolationTool = exTool
 
-objWriterTool = CfgMgr.Acts__ObjWriterTool("ObjWriterTool")
-objWriterTool.OutputDirectory = "./"
-objWriterTool.SubDetectors = [
-    # "Pixel", 
-    # "SCT",
-    "TRT",
-]
-alg.ObjWriterTool = objWriterTool
-
 
 # alg.OutputLevel = VERBOSE
 job += alg

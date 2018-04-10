@@ -6,6 +6,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/Property.h"  /*no forward decl: typedef*/
 
 
 namespace Acts {
@@ -32,8 +33,8 @@ public:
 
 private:
   
-  std::string m_outputDirectory;
-  std::vector<std::string> m_subDetectors;
+  Gaudi::Property<std::string> m_outputDirectory{this, "OutputDirectory", ".", ""};
+  Gaudi::Property<std::vector<std::string>> m_subDetectors{this, "SubDetectors", {}, ""};
 
   std::shared_ptr<ObjTrackingGeometryWriter> m_tgObjWriter;
 

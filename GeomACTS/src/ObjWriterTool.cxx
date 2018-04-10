@@ -19,8 +19,8 @@ Acts::ObjWriterTool::ObjWriterTool(const std::string& type, const std::string& n
     const IInterface* parent) 
   : AthAlgTool(type, name, parent)
 {
-  declareProperty("OutputDirectory", m_outputDirectory = "");
-  declareProperty("SubDetectors", m_subDetectors = {});
+  //declareProperty("OutputDirectory", m_outputDirectory = "");
+  //declareProperty("SubDetectors", m_subDetectors = {});
 }
   
 StatusCode 
