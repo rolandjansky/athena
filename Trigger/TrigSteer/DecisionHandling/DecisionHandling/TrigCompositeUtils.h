@@ -99,7 +99,12 @@ namespace TrigCompositeUtils {
    **/
   ElementLink<DecisionContainer> linkToPrevious(const Decision*);
 
-
+  /**
+   * @brief copy all links from src to dest TC objects
+   * @warning if there are links already in the dest TC, the operation is not performed and false returned
+   * @ret true if success
+   **/
+  bool copyLinks(const Decision* src, Decision* dest);
 
 
 

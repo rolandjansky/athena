@@ -64,6 +64,20 @@ int main() {
   VALUE( ( int )storedDecisions.back() ) EXPECTED ( 99 );
 
 
+  
+  ElementLink<DecisionContainer> el("CollKey", 1);
+  d3->setObjectLink( "self", el );
+  
+  ElementLink<DecisionContainer > resEl = d3->objectLink<DecisionContainer>("self");
+  VALUE( resEl.index() ) EXPECTED ( el.index() );
+  VALUE( resEl.key() ) EXPECTED ( el.key() );
+  
+  auto d4 = newDecisionIn( dc.get() );
+  copyLinks(d3, d4);
+  ElementLink<DecisionContainer > resElCopied = d4->objectLink<DecisionContainer>("self");
+  VALUE( resElCopied.index() ) EXPECTED ( el.index() );
+  VALUE( resElCopied.key() ) EXPECTED ( el.key() );
+
 
   return 0;
   

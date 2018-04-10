@@ -13,8 +13,9 @@
 #include "../RoIsUnpackingToolBase.h"
 #include "../RoIsUnpackingEmulationTool.h"
 #include "../MURoIsUnpackingTool.h"
-
+#include "../RerunRoIsUnpackingTool.h"
 #include "../PrescalingEmulationTool.h"
+
 
 DECLARE_COMPONENT( L1CaloDecoder )
 DECLARE_COMPONENT( FakeRoI )
@@ -32,4 +33,4 @@ DECLARE_COMPONENT( MURoIsUnpackingTool )
 DECLARE_COMPONENT( JRoIsUnpackingTool )
 DECLARE_COMPONENT( TAURoIsUnpackingTool )
 DECLARE_COMPONENT( PrescalingEmulationTool )
-
+DECLARE_COMPONENT( RerunRoIsUnpackingTool )

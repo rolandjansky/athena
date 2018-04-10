@@ -55,59 +55,60 @@ trigL2CaloRingerFexMT.OutputLevel = DEBUG
 
 
 
-from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
-
+from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
-fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo, trigL2CaloRingerFexMT])
 
-filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-filterL1RoIsAlg.Input = ["EMRoIDecisions"]
-filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
-filterL1RoIsAlg.Chains = testChains
-filterL1RoIsAlg.OutputLevel = DEBUG
+def createFastCaloSequence(rerun=False):
+   __prefix = "Rerurn_" if rerun else ""
+   __l1RoIDecisions = "RerunEMRoIDecisions" if rerun else "EMRoIDecisions"
+   __forViewDecsions = "RerunEMRoIDecisions"  if rerun else "Filtered"+__l1RoIDecisions 
 
+   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
+   #clusterMaker=T2CaloEgamma_FastAlgo(__prefix+"FastClusterMaker" )
+   clusterMaker=T2CaloEgamma_FastAlgo( "FastClusterMaker" )
+   clusterMaker.OutputLevel=VERBOSE
+   clusterMaker.ClustersName="L2CaloClusters"
+   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
-fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
-fastCaloViewsMaker.ViewFallThrough = True
-fastCaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTool
-fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
-fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
-fastCaloViewsMaker.Views = "EMCaloViews"
-#fastCaloViewsMaker.AlgorithmNameSequence = [theFastCaloAlgo.getName(), trigL2CaloRingerFexMT.getName()]
-fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgs"
-theFastCaloAlgo.RoIs = fastCaloViewsMaker.InViewRoIs
+   fastCaloInViewAlgs = seqAND( __prefix+"fastCaloInViewAlgs", [ clusterMaker ])
 
-CaloViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastCaloViewDataVerifier")
-CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fastCaloViewsMaker_InViewRoIs_out')]
+   filterL1RoIsAlg = RoRSeqFilter( __prefix+"filterL1RoIsAlg")
+   filterL1RoIsAlg.Input = [__l1RoIDecisions]
+   filterL1RoIsAlg.Output = ["Filtered"+__l1RoIDecisions]
+   filterL1RoIsAlg.Chains = testChains
+   filterL1RoIsAlg.OutputLevel = DEBUG
 
+   fastCaloViewsMaker = EventViewCreatorAlgorithm( __prefix+"fastCaloViewsMaker", OutputLevel=DEBUG)
+   fastCaloViewsMaker.ViewFallThrough = True
+   fastCaloViewsMaker.Decisions =  __forViewDecsions
+   fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
+   fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
+   fastCaloViewsMaker.Views = __prefix+"EMCaloViews"
+   fastCaloViewsMaker.ViewNodeName = __prefix+"fastCaloInViewAlgs"
+   clusterMaker.RoIs = fastCaloViewsMaker.InViewRoIs
 
+   from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlg
+   from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
+   fastCaloHypo = TrigL2CaloHypoAlg( __prefix+"L2CaloHypo" )
+   fastCaloHypo.OutputLevel = DEBUG
+   fastCaloHypo.L1Decisions = __l1RoIDecisions
+   fastCaloHypo.Views = fastCaloViewsMaker.Views
+   fastCaloHypo.CaloClusters = clusterMaker.ClustersName
+   fastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
+   fastCaloHypo.Decisions = __prefix+"EgammaCaloDecisions"
+   fastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
 
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlg
-from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
-theFastCaloHypo = TrigL2CaloHypoAlg("L2CaloHypo")
-theFastCaloHypo.OutputLevel = DEBUG
-theFastCaloHypo.L1Decisions = "EMRoIDecisions"
-theFastCaloHypo.Views = fastCaloViewsMaker.Views
-theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
-theFastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
-theFastCaloHypo.Decisions = "EgammaCaloDecisions"
-theFastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
-#[ TrigL2CaloHypoToolFromName("HLT_e5_etcut"),   TrigL2CaloHypoToolFromName("HLT_e7_etcut") , TrigL2CaloHypoToolFromName("HLT_2e3_etcut"), TrigL2CaloHypoToolFromName("HLT_e3e5_etcut") ]
+   for t in fastCaloHypo.HypoTools:
+      t.OutputLevel = DEBUG
 
-for t in theFastCaloHypo.HypoTools:
-  t.OutputLevel = DEBUG
-  
-# topSequence += theFastCaloHypo
+   fastCaloSequence = seqAND( __prefix+"fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewAlgs, fastCaloHypo ])
+   if rerun: 
+      return parOR(__prefix+"egammaCaloStep", [ fastCaloSequence ] )
+   return stepSeq(__prefix+"egammaCaloStep", filterL1RoIsAlg, [ fastCaloSequence ])
 
-caloDecisionsDumper = DumpDecisions("caloDecisionsDumper", OutputLevel=DEBUG, Decisions = theFastCaloHypo.Decisions )  
-
-fastCaloSequence = seqAND("fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewAlgs, theFastCaloHypo ])
-  
-egammaCaloStep = stepSeq("egammaCaloStep", filterL1RoIsAlg, [ fastCaloSequence,  caloDecisionsDumper ])
-
+egammaCaloStep = createFastCaloSequence( rerun=False )
 
 
 from TrigUpgradeTest.InDetSetup import makeInDetAlgs
@@ -143,8 +144,10 @@ theElectronFex.OutputLevel=VERBOSE
 
 
 filterCaloRoIsAlg = RoRSeqFilter("filterCaloRoIsAlg")
-filterCaloRoIsAlg.Input = [theFastCaloHypo.Decisions]
-filterCaloRoIsAlg.Output = ["Filtered"+theFastCaloHypo.Decisions]
+caloHypoDecisions = findAlgorithm(egammaCaloStep, "L2CaloHypo").Decisions
+print "kkkk ", caloHypoDecisions
+filterCaloRoIsAlg.Input = [caloHypoDecisions]
+filterCaloRoIsAlg.Output = ["Filtered" + caloHypoDecisions]
 filterCaloRoIsAlg.Chains = testChains
 filterCaloRoIsAlg.OutputLevel = DEBUG
 
@@ -175,7 +178,7 @@ from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
 theElectronHypo = TrigL2ElectronHypoAlg()
 theElectronHypo.Views = l2ElectronViewsMaker.Views
 theElectronHypo.Electrons = theElectronFex.ElectronsName
-theElectronHypo.ClusterDecisions = theFastCaloHypo.Decisions 
+theElectronHypo.ClusterDecisions = caloHypoDecisions #theFastCaloHypo.Decisions 
 theElectronHypo.ElectronDecisions = "ElectronL2Decisions"
 theElectronHypo.OutputLevel = VERBOSE
 theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName( c ) for c in testChains ]
@@ -196,14 +199,17 @@ from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
 summaryStep0 = TriggerSummaryAlg( "TriggerSummaryStep1" )
 summaryStep0.InputDecision = "HLTChains"
 summaryStep0.HLTSummary = "MonitoringSummaryStep1"
-summaryStep0.FinalDecisions = [ theFastCaloHypo.Decisions ]
+summaryStep0.FinalDecisions = [ caloHypoDecisions ]
 summaryStep0.OutputLevel = DEBUG
 
 
 step0 = parOR("step0", [ egammaCaloStep, summaryStep0 ] )
 step1 = parOR("step1", [ egammaIDStep ] )
 
-steps = seqAND("HLTSteps", [ step0, step1 ]  )
+
+egammaCaloStepRR = createFastCaloSequence( rerun=True )
+
+step0r = parOR("step0r", [ egammaCaloStepRR ])
 
 summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
 summary.InputDecision = "HLTChains"
@@ -214,6 +220,7 @@ edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decision
 summary.OutputTools = [ edmCreator ]
 summary.OutputLevel = DEBUG
 
+steps = seqAND("HLTSteps", [ step0, step1, step0r, summary ]  )
 
 from TrigSteerMonitor.TrigSteerMonitorConf import TrigSignatureMoniMT
 mon = TrigSignatureMoniMT()
