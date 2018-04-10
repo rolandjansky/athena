@@ -154,7 +154,6 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   subtractor.set_common_bge_for_rho_and_rhom(m_common_bge_for_rho_and_rhom); 
   // for massless input particles it does not make any difference (rho_m is always zero)
 
-
   ATH_MSG_DEBUG("Subtracting event density from constituents");
   std::vector<PseudoJet> corrected_event=subtractor.subtract_event(inputs_to_correct,m_maxEta);
 
