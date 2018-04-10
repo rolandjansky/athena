@@ -1,149 +1,99 @@
-#include "xAODBTaggingEfficiency/BTaggingTruthTaggingTool.h"
+#include "AsgTools/AsgTool.h"
+#include "AsgTools/MessageCheck.h"
+#include "AsgTools/MsgStream.h"
+#include <AsgTools/AnaToolHandle.h>
+#include "FTagAnalysisInterfaces/IBTaggingTruthTaggingTool.h"
+
 #include <string>
 #include <iomanip>
 #include <vector>
 
-
-
 int main() {
 
-
-  xAOD::TStore store;
-
-// Define the TruthTaggingTool
-  BTaggingTruthTaggingTool * tool = new BTaggingTruthTaggingTool("BTagTest");
-
+  asg::AnaToolHandle<IBTaggingTruthTaggingTool> tool("BTaggingTruthTaggingTool/BtagTT_Tool");
 
   StatusCode::enableFailure();
-  CP::SystematicCode::enableFailure();
-  CP::CorrectionCode::enableFailure();
+
+   //choose working point and CDI file
+   StatusCode code = tool.setProperty("TaggerName", "MV2c10");
+   StatusCode code2 = tool.setProperty("OperatingPoint", "FixedCutBEff_77");
+   StatusCode code3 = tool.setProperty("JetAuthor", "AntiKt4EMTopoJets");
+   StatusCode code4 = tool.setProperty("ScaleFactorFileName", "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root");
 
 
-//set tool properties
-  StatusCode  code = tool->setProperty("TaggerName",          "MV2c10");
-  if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingTruthTaggingTool TaggerName property" << std::endl;
+   //truth tagging settings
+   StatusCode code5 = tool.setProperty("IgnoreScaleFactors", false); //use the data/MC and MC/MC scale factors when computing event weights
+   StatusCode code6 = tool.setProperty("UseSystematics", true); // store event weights for all systematic variations in the results object
+   StatusCode code7 = tool.setProperty("MaxNtagged", 3);
+   StatusCode code8 = tool.setProperty("UsePermutations", true);
+   StatusCode code9 = tool.setProperty("UseQuantile", true);
 
-  code = tool->setProperty("OperatingPoint", "FixedCutBEff_77");
-  if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingTruthTaggingTool OperatingPoint property" << std::endl;
+   StatusCode code10 = tool.initialize();
 
-  code = tool->setProperty("JetAuthor", "AntiKt4EMTopoJets");
-  if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingTruthTaggingTool JetAuthor property" << std::endl;
+  if (code != StatusCode::SUCCESS || code2 != StatusCode::SUCCESS || code3 != StatusCode::SUCCESS || code4 != StatusCode::SUCCESS || code5 != StatusCode::SUCCESS ||
+    code6 != StatusCode::SUCCESS || code7 != StatusCode::SUCCESS || code8 != StatusCode::SUCCESS ||  code9 != StatusCode::SUCCESS || code10 != StatusCode::SUCCESS ) {
+    std::cout << "Initialization of tool " << tool->name() << " failed! " << std::endl;
+    return -1;
+  }
+  else {
+    std::cout << "Initialization of tool " << tool->name() << " finished." << std::endl;
+  }
 
-  code = tool->setProperty("ScaleFactorFileName", "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-May31_v1.root");
-  if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingTruthTaggingTool ScaleFactorFileName property" << std::endl;
-
-  code = tool->setProperty("IgnoreScaleFactors", false);
-  if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingTruthTaggingTool IgnoreScaleFactors property" << std::endl;
-
-  code = tool->setProperty("UsePermutations", true);
-  if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingTruthTaggingTool UsePermutations property" << std::endl;
-
-  code = tool->setProperty("UseQuantile", true);
-  if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingTruthTaggingTool UseQuantile property" << std::endl;
-
-  code = tool->setProperty("SystematicsStrategy", "Envelope");
-  if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingTruthTaggingTool SystematicsStrategy property" << std::endl;
-
-
-
-//Call the initalize() function
-  code = tool->initialize();
-  if (code != StatusCode::SUCCESS) std::cout << "error" << std::endl;
-
-//For the nominal case (no systamtic variations included, declare vectors to contain the truth-tagging weights (one for inclusive and one for exclusive):)
-  std::vector<double> trf_weight_ex;// Exclusive
-  std::vector<double> trf_weight_in;// Inclusive
-
-//To know which of the jets in the event are b-tagged, declare two vector<vector> that will contain the chosen permutation for the inclusive and exclusive case.
-  std::vector<std::vector<bool> > trf_chosen_perm_ex;
-  std::vector<std::vector<bool> > trf_chosen_perm_in;;
-
-//For systematic variations, the weight are stored in a map between a std::string and a std::vector.
-  std::map<std::string,std::vector<double> > map_trf_weight_ex;
-  std::map<std::string,std::vector<double> > map_trf_weight_in;
-
-
-//Set the seed of the random generator (relevant only when using selected permutation and/or choosen quantiles)
-  std::cout << "SetSeed" << std::endl;
-  code = tool->setSeed(100);
-  if (code != StatusCode::SUCCESS) std::cout << "error" << std::endl;
-
-//Set the jets to be used in the tool. In this case it\s ntuples, but it can cal also be set from xAOD::Jets
+  //Set the jets to be used in the tool.
   std::vector<double> pt = {44000., 66000., 77000.};
   std::vector<double> eta = {2.2, 1.6, 1.7};
   std::vector<int> flav = {0,4,5};
   std::vector<double> tagw = {0.3, 0.55, 0.99};
-  std::cout << "SetJets" << std::endl;
-  code = tool->setJets(&pt,&eta,&flav,&tagw);
-  if (code != StatusCode::SUCCESS) std::cout << "error" << std::endl;
 
+  Analysis::TruthTagResults results;
 
-//call the getTruthTagWei function to compute and retrieve the truth-tag weights
-  std::cout << "getWei" << std::endl;
-  code = tool->getTruthTagWei(2, map_trf_weight_ex, map_trf_weight_in);
-  if (code != StatusCode::SUCCESS) std::cout << "error" << std::endl;
-  std::cout << "Keys in maps" << std::endl;
-  for(auto wei: map_trf_weight_ex) std::cout << wei.first << std::endl;
-  std::cout << "Keys as in affectingSystematics " << std::endl;
-  for(auto sys: tool->affectingSystematics()) std::cout << sys << std::endl;
-  std::cout << std::endl;
+  if(StatusCode::SUCCESS!=tool->CalculateResults( pt,eta,flav,tagw, results) ){
+    std::cout << "failed to compute truth tagging results! " << std::endl;
+    return -1;
+  };
 
-
-  std::cout << "get DT jets" << std::endl;
-  std::vector<bool> jet_DT;
-  code = tool->getDirectTaggedJets(jet_DT);
-  if (code != StatusCode::SUCCESS) std::cout << "error" << std::endl;
-  double SF=  tool->getEvtSF(0);
-  std::cout << "//______________________________________" << std::endl;
-  std::cout << "SF DT " << SF << std::endl;
-  for(auto is:jet_DT) std::cout << is << "  ";
-  std::cout << std::endl;
-  std::cout << "//______________________________________" << std::endl;
-
-
-
-
-  std::cout << "Permutations" << std::endl;
-  code = tool->getTagPermutation(2, trf_chosen_perm_ex, trf_chosen_perm_in);
-  if (code != StatusCode::SUCCESS) std::cout << "error" << std::endl;
-  std::cout << "Size " << trf_chosen_perm_ex.size() << std::endl;
-
-
-  std::cout << "Inclusive case" << std::endl;
-  for(auto perm: trf_chosen_perm_in){
-    for(auto is: perm)
-      std::cout << is << " " ;
-    std::cout << std::endl;
+  //direct tagged results:
+  std::cout << "Direct tagged results:  "<< std::endl;
+  for(unsigned int i=0; i< results.is_tagged.size();i++)
+  {
+    std::cout << "jet "<< i << " is direct tagged: " << results.is_tagged.at(i) << std::endl;
   }
-  std::cout << "Exclusive case" << std::endl;
-  for(auto perm: trf_chosen_perm_ex){
-    for(auto is: perm)
-      std::cout << is << " " ;
-    std::cout << std::endl;
+  //print the results for each of the systematic variations
+
+  for(unsigned int systindex=0; systindex< results.syst_names.size(); systindex++){
+      std::string syst_name = results.syst_names.at(systindex);
+
+      std::cout << "direct tag Event SF ( "<< syst_name  <<" ) = " <<results.getEvtDirectTagSF(syst_name) << std::endl;
+
   }
 
 
+  //truth tagging results:
+  for(int ntags=1; ntags<=3;ntags++){
 
-  //To retrieve the tag-bin choice, you need to declare two vector<vector>
-  std::cout << std::endl;
-  std::cout << "Tagged bins" << std::endl;
-  std::vector<std::vector<int> > trf_bin_ex, trf_bin_in;
-  code = tool->getQuantiles(trf_bin_ex, trf_bin_in);
-  if (code != StatusCode::SUCCESS) std::cout << "error" << std::endl;
+    std::cout << " for " << ntags << " tagged jets: " << std::endl;
+    std::cout << " --------------------------------- " << std::endl;
+    //print chosen premutation, tagweight bin assinment and event weight
 
+    std::vector<bool> exclusive_permuation = results.getEventPermutation(ntags,true);
+    std::vector<int> exclusive_tagweightBin = results.getEventQuantiles(ntags,true);
 
-  std::cout << "Size " << trf_bin_ex.size() << std::endl;
-  for(auto bins: trf_bin_ex){
-    std::cout << "  Size " << bins.size() << std::endl;
-    for(auto tb: bins){
-      std::cout << "    ";
-      std::cout << tb << " " ;
-    }
-    std::cout << std::endl;
+    std::vector<bool> inclusive_permuation = results.getEventPermutation(ntags,false);
+    std::vector<int> inclusive_tagweightBin = results.getEventQuantiles(ntags,false);
+
+    std::cout << "        exclusive    ||      inclusive" << std::endl;
+    std::cout << "      tagged | bin   ||    tagged | bin" << std::endl;
+    for(unsigned int i=0; i< exclusive_permuation.size();i++)
+      {
+        std::cout << "jet "<< i << "       " << exclusive_permuation.at(i) << " " << exclusive_tagweightBin.at(i)
+         << "      ||          " <<  inclusive_permuation.at(i) << " " << inclusive_tagweightBin.at(i) << std::endl;
+      }
+
+    std::cout << " Nominal event weight exclusive: " << results.getEventWeight(ntags,true,"Nominal") << std::endl;
+    std::cout << " Nominal event weight inclusive: " << results.getEventWeight(ntags,false,"Nominal") << std::endl;
+    std::cout << " ---------------------------------\n\n " << std::endl;
+
   }
 
-  bool retval = true;
-  delete tool;
-
-  return retval;
+  return 0;
 }

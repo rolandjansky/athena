@@ -28,48 +28,95 @@
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
-#include <AsgTools/AnaToolHandle.h>
+#include "AsgTools/AnaToolHandle.h"
 
 // calibration data variable
 #include "CalibrationDataInterface/CalibrationDataVariables.h"
+#include "xAODBTaggingEfficiency/TruthTagResults.h"
 
 // xAOD jet
 #include "xAODJet/JetContainer.h"
 
 class BTaggingTruthTaggingTool: public asg::AsgTool,
-				public virtual IBTaggingTruthTaggingTool {
-  typedef double (xAOD::BTagging::* tagWeight_member_t)() const;
+        public virtual IBTaggingTruthTaggingTool {
+  //typedef double (xAOD::BTagging::* tagWeight_member_t)() const;
 
   /// Create a proper constructor for Athena
-  ASG_TOOL_CLASS( BTaggingTruthTaggingTool , IBTaggingTruthTaggingTool)
+  ASG_TOOL_CLASS2( BTaggingTruthTaggingTool , IBTaggingTruthTaggingTool, ISystematicsTool )
+
+    private:
+      struct jetVariable{
+      Analysis::CalibrationDataVariables vars;
+      int flav;
+    };
+
+    // all the results about a single event are stored in this object
+    struct TRFinfo {
+
+      std::vector<jetVariable> jets;
+      unsigned int njets;
+
+      TRandom3 rand;
+
+      std::vector<std::vector<bool> > perm_ex; // for each tag mult, vector of bool: is the i-th jet tagged or not?
+      std::vector<std::vector<bool> > perm_in;
+      std::vector<std::vector<double> > trfwsys_ex; // map between syst and vecot with truth-tag weights (pos = # of b-tags)
+      std::vector<std::vector<double> > trfwsys_in;
+      std::vector<std::vector<int> > tbins_ex; //for each tag mult, vector of int: quantile of each jet
+      std::vector<std::vector<int> > tbins_in;
+
+      std::vector<double> effMC; // map between syst and vector of eff*SF for each jet
+      std::vector<double> eff; // map between syst and vector of eff*SF for each jet
+
+      std::map<std::string,std::vector<double>> eff_allOP; // same but map for each OP
+      std::map<std::string,std::vector<double>> effMC_allOP; // same but map for each OP
+      std::vector<double> permprob_ex; // probablity of chosen perm with nominal SF
+      std::vector<double> permprob_in;
+      std::vector<double> binsprob_ex; // probability of chosen quantile with nominal SF
+      std::vector<double> binsprob_in;
+
+      std::map<int,std::vector<std::vector<std::vector<bool> > > > perms;
+      std::vector<std::vector<double> > permsWeight;
+      std::vector<std::vector<double> > permsSumWeight;
+
+    };
 
   public:
   /// Create a constructor for standalone usage
   BTaggingTruthTaggingTool( const std::string& name );
 
+  private:
+  StatusCode CalculateResults(TRFinfo &trfinf, Analysis::TruthTagResults& results,int rand_seed = -1);
+
+  public:
+  StatusCode CalculateResults( std::vector<double>& pt, std::vector<double>& eta, std::vector<int>& flav, std::vector<double>& tagw, Analysis::TruthTagResults& results,int rand_seed = -1);
+  StatusCode CalculateResults( const xAOD::JetContainer& jets, Analysis::TruthTagResults& results,int rand_seed = -1);
+  StatusCode setEffMapIndex(const std::string& flavour, unsigned int index);
+
 
   virtual  ~BTaggingTruthTaggingTool();
 
-  // initialization of the tool
   StatusCode initialize();
 
-  // set the seed of the raddom generator, needed only if choosing permutation or quantile
-  StatusCode setSeed(unsigned int seed) ;
+  CP::SystematicSet affectingSystematics() const;
+  CP::SystematicCode applySystematicVariation( const CP::SystematicSet & systConfig);
+  CP::SystematicSet recommendedSystematics() const;
+  bool isAffectedBySystematic( const CP::SystematicVariation & systematic ) const;
+
+
+  private:
 
   // set the jets in the event (pass same jets that satisfy kinematic criteria for b-tagging in pT and eta)
-  StatusCode setJets(std::vector<double>* pt, std::vector<double>* eta, std::vector<int>* flav, std::vector<double>* tagw) ;
-  StatusCode setJets(const xAOD::JetContainer*& jets) ;
-  StatusCode setJets(std::vector<int>* flav, std::vector<Analysis::CalibrationDataVariables>* vars) ;
+  StatusCode setJets(TRFinfo &trfinf,std::vector<double>& pt, std::vector<double>& eta, std::vector<int>& flav, std::vector<double>& tagw);
+  StatusCode setJets(TRFinfo &trfinf,const xAOD::JetContainer& jets);
+  StatusCode setJets(TRFinfo &trfinf,std::vector<int>& flav, std::vector<Analysis::CalibrationDataVariables>* vars);
 
   // get truth tagging weights
   // for one single systematic (including "Nominal")
-  StatusCode getTruthTagWei(unsigned int limit, std::vector<double> &trf_weight_ex, std::vector<double> &trf_weight_in, int sys=0);
-  // for all of the systematics
-  StatusCode getTruthTagWei(unsigned int limit, std::vector<std::vector<double> > &trf_weight_ex, std::vector<std::vector<double> > &trf_weight_in);
-  StatusCode getTruthTagWei(unsigned int limit, std::map<std::string,std::vector<double> > &trf_weight_ex, std::map<std::string,std::vector<double> > &trf_weight_in);
+  StatusCode GetTruthTagWeights(TRFinfo &trfinf, std::vector<double> &trf_weight_ex, std::vector<double> &trf_weight_in, int sys=0);
 
   // tag permutation: trf_chosen_perm_ex.at(ntag).at(i) tells if the i-th jet is tagged in a selection requiring == ntag tags
-  StatusCode getTagPermutation(unsigned int nbtag, std::vector<std::vector<bool> > &trf_chosen_perm_ex, std::vector<std::vector<bool> > &trf_chosen_perm_in);
+  StatusCode getTagPermutation(TRFinfo &trfinf, std::vector<std::vector<bool> > &trf_chosen_perm_ex, std::vector<std::vector<bool> > &trf_chosen_perm_in);
 
   // chosen quantile: trf_bin_ex.at(ntag).at(i) tells the quantile in which the i-th jet falls in a selection requiring == ntag tags
   // returns 5 if between 60% and 0%
@@ -79,31 +126,22 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   // returns 1 if between 100% and 85%
   // returns 0 if smaller than -1e4-> should never happen --> not currently implemented
   // return -1 if bigger than 1e4 or not in b-tagging acceptance --> not currently implemented
-  StatusCode getQuantiles(std::vector<std::vector<int> > &trf_bin_ex, std::vector<std::vector<int> > &trf_bin_in);
+  StatusCode getQuantiles(TRFinfo &trfinf,std::vector<std::vector<int> > &trf_bin_ex, std::vector<std::vector<int> > &trf_bin_in);
 
   // functions to make comparison with direct-tagging easier
-  double getEvtSF(int syst=0) ;
-  StatusCode getDirectTaggedJets(std::vector<bool> &is_tagged);
-
-  std::vector<std::string> affectingSystematics(){return m_sys_name;};
-
-  StatusCode setEffMapIndex(const std::string& flavour, unsigned int index);
-
-private:
+  double getEvtSF(TRFinfo &trfinf,int syst=0);
+  StatusCode getDirectTaggedJets(TRFinfo &trfinf,std::vector<bool> &is_tagged);
 
   std::vector<std::string> m_availableOP_fixCut= {"FixedCutBEff_85", "FixedCutBEff_77","FixedCutBEff_70","FixedCutBEff_60"};
   std::vector<std::string> m_availableOP_fixEff= {"FlatBEff_85", "FlatBEff_77", "FlatBEff_70", "FlatBEff_60"};
   std::vector<std::string> m_availableOP_HybEff= {"HybBEff_85", "HybBEff_77", "HybBEff_70", "HybBEff_60"};
   std::vector<std::string> m_availableOP;
 
-  /// Helper function that decides whether a jet belongs to the correct jet selection for b-tagging
-  //   bool checkRange( double /* jet pt */, double /* jet eta */ ) ;
-
   bool m_initialised;
 
-  StatusCode getTRFweight(unsigned int nbtag, bool isInclusive, int sys);
-  StatusCode getAllEffMC();
-  StatusCode getAllEffSF(int =0);
+  StatusCode getTRFweight(TRFinfo &trfinf,unsigned int nbtag, bool isInclusive, int sys);
+  StatusCode getAllEffMC(TRFinfo &trfinf);
+  StatusCode getAllEffSF(TRFinfo &trfinf,int =0);
   std::vector<CP::SystematicSet> m_eff_syst;
   std::vector<std::string> m_sys_name;
 
@@ -111,8 +149,8 @@ private:
   int jetFlavourLabel (const xAOD::Jet& jet);
 
   int GAFinalHadronFlavourLabel(const xAOD::Jet& jet);
-  int ConeFinalPartonFlavourLabel (const xAOD::Jet& jet) ;
-  int ExclusiveConeHadronFlavourLabel (const xAOD::Jet& jet) ;
+  int ConeFinalPartonFlavourLabel (const xAOD::Jet& jet);
+  int ExclusiveConeHadronFlavourLabel (const xAOD::Jet& jet);
 
   //*********************************//
   // Prop. of BTaggingEfficiencyTool //
@@ -176,77 +214,34 @@ private:
   bool m_ignoreSF;
   bool m_usePerm;
   bool m_useQuntile;
+  bool m_useSys;
+  int m_nbtag;
 
   unsigned int m_OperatingPoint_index;
 
-  // xAODBTaggingEfficiency classes
-  // BTaggingEfficiencyTool* m_effTool;
-  //std::map<std::string,BTaggingEfficiencyTool*> m_effTool_allOP; // tagbin
-  // BTaggingSelectionTool* m_selTool;
-
   std::map<std::string, asg::AnaToolHandle<IBTaggingEfficiencyTool> > m_effTool_allOP;
 
-  asg::AnaToolHandle<IBTaggingEfficiencyTool> m_effTool; //!
+  asg::AnaToolHandle<IBTaggingEfficiencyTool> m_effTool;
   asg::AnaToolHandle<IBTaggingSelectionTool> m_selTool; //!
 
-  //  other members
-  unsigned int m_njets;
-  TRandom3 m_rand;
-
-  // functions
   StatusCode check_syst_range(unsigned int sys);
 
   std::vector<std::vector<bool> > generatePermutations(int njets, int tags, int start=0);
-  // Permutations: njets, ntags, permutations
-  std::map<int,std::vector<std::vector<std::vector<bool> > > > m_perms; // int: N jets, i tagged. All the possible permutations of N jets with i tags. m_perms[njets].at(i) --> vector of vector of bools with the position of the i tgged jets
-  std::vector<std::vector<double> > m_permsWeight; // First vector = N b-tags required, second vector = vector of permutation -> 1 trf weight per permutation
-  std::vector<std::vector<double> > m_permsSumWeight; // First vector = N b-tags required, second vector = vector of permutation -> 1 trf sum weight per permutation
-  double trfWeight(const std::vector<bool> &tags);
 
-  StatusCode chooseAllTagPermutation(unsigned int nbtag);
-  StatusCode chooseTagPermutation(unsigned int nbtag, bool isIncl);
-  double getPermutationRW(bool isIncl, unsigned int nbtag, int sys);
+  double trfWeight(TRFinfo &trfinf,const std::vector<bool> &tags);
 
-  StatusCode chooseAllTagBins();
-  StatusCode chooseTagBins_cum(std::vector<bool> &tagconf, bool isIncl, unsigned int nbtag);
-  double getTagBinsConfProb(std::vector<int> &tagws);
-  double getTagBinsRW(bool isIncl, unsigned int nbtag);
+  StatusCode chooseAllTagPermutation(TRFinfo &trfinf,unsigned int nbtag);
+  StatusCode chooseTagPermutation(TRFinfo &trfinf,unsigned int nbtag, bool isIncl);
+  double getPermutationRW(TRFinfo &trfinf,bool isIncl,unsigned int nbtag, int sys);
 
-  // all the TRF info
-  struct TRFres {
-    // resutls
-    std::vector<std::vector<bool> > perm_ex; // for each tag mult, vector of bool: is the i-th jet tagged or not?
-    std::vector<std::vector<bool> > perm_in;
-    std::vector<std::vector<double> > trfwsys_ex; // map between syst and vecot with truth-tag weights (pos = # of b-tags)
-    std::vector<std::vector<double> > trfwsys_in;
-    std::vector<std::vector<int> > tbins_ex; //for each tag mult, vector of int: quantile of each jet
-    std::vector<std::vector<int> > tbins_in;
-    // changed
-    std::vector<double> effMC; // map between syst and vector of eff*SF for each jet
-    std::vector<double> eff; // map between syst and vector of eff*SF for each jet
-    // changed
-    std::map<std::string,std::vector<double>> eff_allOP; // same but map for each OP
-    std::map<std::string,std::vector<double>> effMC_allOP; // same but map for each OP
-    std::vector<double> permprob_ex; // probablity of chosen perm with nominal SF
-    std::vector<double> permprob_in;
-    std::vector<double> binsprob_ex; // probability of chosen quantile with nominal SF
-    std::vector<double> binsprob_in;
-  };
+  StatusCode chooseAllTagBins(TRFinfo &trfinf);
+  StatusCode chooseTagBins_cum(TRFinfo &trfinf,std::vector<bool> &tagconf, bool isIncl, unsigned int nbtag);
+  double getTagBinsConfProb(TRFinfo &trfinf,std::vector<int> &tagws);
+  double getTagBinsRW(TRFinfo &trfinf,bool isIncl, unsigned int nbtag);
 
-  TRFres m_trfRes;
+  bool fillVariables(const xAOD::Jet& jet, Analysis::CalibrationDataVariables& x);
+  bool fillVariables(const double jetPt, const double jetEta, const double jetTagWeight, Analysis::CalibrationDataVariables& x);
 
-  struct jetVariable{
-    Analysis::CalibrationDataVariables vars;
-    int flav;
-    void print(){
-      std::cout << "pt " << vars.jetPt << "  eta " << vars.jetEta << "  tag-wei " << vars.jetTagWeight << "  flav " << flav << std::endl;
-      return;
-    }
-  };
-  std::vector<jetVariable> * m_jets;
-
-  bool fillVariables(const xAOD::Jet& jet, Analysis::CalibrationDataVariables& x) ;
-  bool fillVariables(const double jetPt, const double jetEta, const double jetTagWeight, Analysis::CalibrationDataVariables& x) ;
 
 };
 
