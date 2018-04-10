@@ -25,9 +25,6 @@ use AthenaKernel		            AthenaKernel-*		Control
 use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
 use InDetPrepRawData       	InDetPrepRawData-*          	InnerDetector/InDetRecEvent
 use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
-use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TrkTrack                    TrkTrack-*                      Tracking/TrkEvent
 
 

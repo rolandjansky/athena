@@ -12,8 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/StoreGate
-                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry )
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry )
 
 # External dependencies:
 find_package( CLHEP )
@@ -23,7 +22,7 @@ atlas_add_component( TRT_PAI_Process
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests InDetReadoutGeometry TRT_ReadoutGeometry )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests TRT_ReadoutGeometry )
 
 # Install files from the package:
 atlas_install_headers( TRT_PAI_Process )

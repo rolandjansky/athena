@@ -873,7 +873,7 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
   double phiOffset = 0.;
 
   double radialShift = 0.;
-  //TO: check if testdesign is a StripStereoAnnulusDesign, and provide a virtual method in base design
+  //TO: check if testdesign is a StripStereoAnnulusDesign
   if (testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
       radialShift = testDesign->localModuleCentreRadius(); // additional radial shift for sensors centred on beamline
 

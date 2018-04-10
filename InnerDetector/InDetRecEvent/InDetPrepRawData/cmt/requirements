@@ -10,7 +10,6 @@ use AthLinks              AthLinks-*             Control
 use TrkPrepRawData        TrkPrepRawData-*       Tracking/TrkEvent
 use Identifier            Identifier-*           DetectorDescription
 use InDetReadoutGeometry  InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TrkEventPrimitives    TrkEventPrimitives-*   Tracking/TrkEvent
 use GeoPrimitives         GeoPrimitives-*        DetectorDescription
 use EventPrimitives       EventPrimitives-*              Event

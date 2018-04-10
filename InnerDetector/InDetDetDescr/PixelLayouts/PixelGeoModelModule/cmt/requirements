@@ -10,7 +10,6 @@ use PathResolver   PathResolver-*    Tools
 use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
 use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use PixelGeoComponent 	 PixelGeoComponent-*  InnerDetector/InDetDetDescr/PixelLayouts
 use PixelGeoModel   PixelGeoModel-*   InnerDetector/InDetDetDescr
 

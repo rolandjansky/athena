@@ -274,7 +274,7 @@ private:
     // Private data:
     ///////////////////////////////////////////////////////////////////
 private:
-    int m_designType;
+    int m_designType; // !< Identify the type of inherited class of SiDetectorDesign
     Axis m_etaAxis; // !< local axis corresponding to eta direction
     Axis m_phiAxis; // !< local axis corresponding to phi direction
     Axis m_depthAxis; // !< local axis corresponding to depth direction

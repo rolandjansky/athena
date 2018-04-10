@@ -28,8 +28,6 @@ use InDetRecToolInterfaces        InDetRecToolInterfaces-*        InnerDetector/
 use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions      
 use InDetPrepRawData              InDetPrepRawData-*              InnerDetector/InDetRecEvent
 use InDetReadoutGeometry          InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
     
 library SiCombinatorialTrackFinderTool_xk *.cxx components/*.cxx 
 apply_pattern component_library

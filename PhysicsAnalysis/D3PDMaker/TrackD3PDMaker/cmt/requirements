@@ -54,7 +54,6 @@ use ITrackToVertex             	ITrackToVertex-*        	Reconstruction/RecoTool
 use InDetTestBLayer        	InDetTestBLayer-*     		InnerDetector/InDetRecTools
 use InDetIdentifier             InDetIdentifier-*       	InnerDetector/InDetDetDescr
 use InDetReadoutGeometry        InDetReadoutGeometry-*  	InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use D3PDMakerUtils             	D3PDMakerUtils-*        	PhysicsAnalysis/D3PDMaker
 use MCTruthClassifier           MCTruthClassifier-*             PhysicsAnalysis
 use  MuonIdHelpers              MuonIdHelpers-*                 MuonSpectrometer

@@ -45,10 +45,9 @@ atlas_depends_on_subdirs(
    DetectorDescription/IdDictParser
    Event/EventPrimitives
    InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-   InnerDetector/InDetDetDescr/InDetReadoutGeometry
    MuonSpectrometer/MuonDetDescr/MuonAGDDDescription
    MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
    MuonSpectrometer/MuonIdHelpers
@@ -127,7 +126,7 @@ foreach( name CscMcDataCnv_p1_test CscSimDataCnv_p1_test
       SOURCES test/${name}.cxx
       LINK_LIBRARIES GaudiKernel TrkSurfaces TrkEventTPCnv TestTools
       CxxUtils StoreGateLib TPTools AGDDKernel AtlasDetDescr GeoModelKernel
-      IdDict IdDictDetDescr IdDictParser InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry
+      IdDict IdDictDetDescr IdDictParser InDetIdentifier TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry
       MuonAGDDDescription MuonReadoutGeometry MuonIdHelpersLib
       TrkEventPrimitives TrkPseudoMeasurementOnTrack MuonEventTPCnv
       EXTRA_PATTERNS "MultiRange built successfully|element hash max"

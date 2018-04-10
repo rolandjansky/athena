@@ -52,7 +52,6 @@ use  AtlasCLHEP               AtlasCLHEP-*            External
 use  InDetSimEvent            InDetSimEvent-*         InnerDetector
 use SiDigitization          SiDigitization-*          InnerDetector/InDetDigitization
 use InDetReadoutGeometry    InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetRawData            InDetRawData-*            InnerDetector/InDetRawEvent
 use AthenaKernel            AthenaKernel-*            Control
 use CommissionEvent         CommissionEvent-*         Commission

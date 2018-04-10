@@ -31,7 +31,6 @@ use PixelConditionsTools          PixelConditionsTools-*          InnerDetector/
 use PixelGeoModel                 PixelGeoModel-*                 InnerDetector/InDetDetDescr
 use PixelCabling                  PixelCabling-*                  InnerDetector/InDetDetDescr
 use InDetReadoutGeometry          InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use CoralDB                       CoralDB-*                       Database
 use RDBAccessSvc                  RDBAccessSvc-*                  Database/AthenaPOOL
 use GeoModelUtilities             GeoModelUtilities-*             DetectorDescription/GeoModel

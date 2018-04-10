@@ -19,8 +19,6 @@ use TrkGeometry            TrkGeometry-*            Tracking/TrkDetDescr
 use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
 use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
 use InDetReadoutGeometry   InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 
 library SiDetElementsRoadTool_xk *.cxx components/*.cxx 
 apply_pattern component_library

@@ -75,9 +75,6 @@ use AGDDKernel           AGDDKernel-*           DetectorDescription/AGDD
 use TPTools              TPTools-*              Database
 use TrkPseudoMeasurementOnTrack  TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetIdentifier      InDetIdentifier-*      InnerDetector/InDetDetDescr
 use MuonAGDDDescription  MuonAGDDDescription-*  MuonSpectrometer/MuonDetDescr
 

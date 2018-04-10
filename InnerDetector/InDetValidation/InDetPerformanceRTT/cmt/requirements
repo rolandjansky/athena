@@ -11,9 +11,6 @@ use EventInfo 			EventInfo-* 		Event
 use GaudiInterface    		GaudiInterface-* 	External
 use InDetIdentifier 		InDetIdentifier-* 	InnerDetector/InDetDetDescr
 use InDetReadoutGeometry 	InDetReadoutGeometry-* 	InnerDetector/InDetDetDescr
-use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TrkTrack 			TrkTrack-* 		Tracking/TrkEvent
 use GeneratorObjects 		GeneratorObjects-* 	Generators
 use AtlasDetDescr 		AtlasDetDescr-* 	DetectorDescription

@@ -51,9 +51,6 @@ use IdDict                     IdDict-*                   DetectorDescription
 use InDetBeamSpotService       InDetBeamSpotService-*     InnerDetector/InDetConditions
 use InDetRawData               InDetRawData-*             InnerDetector/InDetRawEvent
 use InDetReadoutGeometry       InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
-use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetSimData               InDetSimData-*             InnerDetector/InDetRawEvent
 use IdDictDetDescr             IdDictDetDescr-*           DetectorDescription
 use Identifier                 Identifier-*               DetectorDescription

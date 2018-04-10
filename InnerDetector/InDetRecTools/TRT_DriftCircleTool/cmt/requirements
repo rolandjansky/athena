@@ -14,7 +14,6 @@ use TRT_ConditionsServices TRT_ConditionsServices-* InnerDetector/InDetCondition
 private 
 use TRT_DriftFunctionTool TRT_DriftFunctionTool-* InnerDetector/InDetRecTools
 use InDetReadoutGeometry InDetReadoutGeometry-*   InnerDetector/InDetDetDescr
-use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetIdentifier      InDetIdentifier-*        InnerDetector/InDetDetDescr
 use InDetConditionsSummaryService  InDetConditionsSummaryService-*    InnerDetector/InDetConditions
 use CommissionEvent      CommissionEvent-*        Commission

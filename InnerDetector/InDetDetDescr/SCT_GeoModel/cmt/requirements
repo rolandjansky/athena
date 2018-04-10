@@ -11,7 +11,6 @@ use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
 use GeoModelUtilities    GeoModelUtilities-*    DetectorDescription/GeoModel
 use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use RDBAccessSvc         RDBAccessSvc-*         Database/AthenaPOOL
 
 private

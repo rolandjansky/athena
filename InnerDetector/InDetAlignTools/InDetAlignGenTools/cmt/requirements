@@ -35,8 +35,6 @@ use DetDescrConditions        DetDescrConditions-*         DetectorDescription/D
 #use InDetRecToolInterfaces    InDetRecToolInterfaces-*     InnerDetector/InDetRecTools
 use InDetIdentifier           InDetIdentifier-*            InnerDetector/InDetDetDescr
 use InDetReadoutGeometry      InDetReadoutGeometry-*       InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TrackRecord               TrackRecord-*                Simulation/G4Sim
 use TrkTruthData              TrkTruthData-*               Tracking/TrkEvent
 #use VxVertex                  VxVertex-*                   Tracking/TrkEvent

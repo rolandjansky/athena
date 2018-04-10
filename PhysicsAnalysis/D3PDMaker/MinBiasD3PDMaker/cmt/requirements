@@ -23,5 +23,4 @@ use TrkToolInterfaces      TrkToolInterfaces-*         Tracking/TrkTools
 use TrkTrack               TrkTrack-*                  Tracking/TrkEvent
 use InDetPrepRawData       InDetPrepRawData-*          InnerDetector/InDetRecEvent
 use InDetReadoutGeometry   InDetReadoutGeometry-*      InnerDetector/InDetDetDescr
-use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use D3PDMakerUtils         D3PDMakerUtils-*            PhysicsAnalysis/D3PDMaker

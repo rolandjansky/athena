@@ -25,7 +25,6 @@ use GeoModelKernel       GeoModelKernel-*       DetectorDescription/GeoModel
 use Identifier           Identifier-*           DetectorDescription
 use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use RDBAccessSvc         RDBAccessSvc-*         Database/AthenaPOOL
 use AthenaBaseComps	 AthenaBaseComps-*      Control
 

@@ -13,7 +13,6 @@ use PixelConditionsServices PixelConditionsServices-*   InnerDetector/InDetCondi
 use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
 use PixelCabling         PixelCabling-*                 InnerDetector/InDetDetDescr
 use InDetReadoutGeometry InDetReadoutGeometry-* 	InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetIdentifier  	 InDetIdentifier-* 		InnerDetector/InDetDetDescr
 use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-* 	Event 
 use AthenaBaseComps	AthenaBaseComps-*		Control

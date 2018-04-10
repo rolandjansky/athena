@@ -17,7 +17,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/InDetCompetingRIOsOnTrackTool
                           MagneticField/MagFieldInterfaces
                           Tracking/TrkEvent/TrkMeasurementBase
@@ -29,7 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_TrackExtensionTool_DAF
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkGeometry TrkParameters StoreGateLib SGtests InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry MagFieldInterfaces TrkMeasurementBase TrkTrack TrkExInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetPrepRawData InDetRecToolInterfaces TrkGeometry TrkParameters StoreGateLib SGtests InDetIdentifier TRT_ReadoutGeometry MagFieldInterfaces TrkMeasurementBase TrkTrack TrkExInterfaces TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TRT_TrackExtensionTool_DAF )

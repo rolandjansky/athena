@@ -12,7 +12,6 @@ use AthenaBaseComps      AthenaBaseComps-*         Control
 use DataModel            DataModel-*               Control
 use Identifier           Identifier-*              DetectorDescription
 use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use SiSpacePointTool     SiSpacePointTool-*        InnerDetector/InDetRecTools
 use InDetPrepRawData     InDetPrepRawData-*        InnerDetector/InDetRecEvent
 use TrkSpacePoint        TrkSpacePoint-*           Tracking/TrkEvent

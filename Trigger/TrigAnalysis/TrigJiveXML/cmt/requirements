@@ -8,8 +8,6 @@ private
 
 use InDetIdentifier       InDetIdentifier-*       InnerDetector/InDetDetDescr
 use InDetReadoutGeometry  InDetReadoutGeometry-*  InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetPrepRawData      InDetPrepRawData-*      InnerDetector/InDetRecEvent	
 use AnalysisTriggerEvent  AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
 use TrigInDetEvent        TrigInDetEvent-*        Trigger/TrigEvent

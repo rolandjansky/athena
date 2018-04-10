@@ -22,7 +22,6 @@ use Identifier               Identifier-*               DetectorDescription
 use DetDescrConditions       DetDescrConditions-*       DetectorDescription/DetDescrCond
 use InDetIdentifier          InDetIdentifier-*          InnerDetector/InDetDetDescr
 use InDetReadoutGeometry     InDetReadoutGeometry-*     InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use PixelConditionsServices  PixelConditionsServices-*  InnerDetector/InDetConditions
 use PixelConditionsData      PixelConditionsData-*      InnerDetector/InDetConditions
 use InDetRawData             InDetRawData-*             InnerDetector/InDetRawEvent

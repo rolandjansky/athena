@@ -12,7 +12,6 @@ use GaudiInterface	 GaudiInterface-*	External
 
 use GeoModelUtilities    GeoModelUtilities-*    DetectorDescription/GeoModel
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-use TRT_ReadoutGeometry       TRT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetGeoModelUtils   InDetGeoModelUtils-*   InnerDetector/InDetDetDescr
 use RDBAccessSvc         RDBAccessSvc-*         Database/AthenaPOOL
 use TRT_ConditionsServices        TRT_ConditionsServices-*        InnerDetector/InDetConditions

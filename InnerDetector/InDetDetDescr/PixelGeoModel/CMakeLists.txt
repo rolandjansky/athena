@@ -18,7 +18,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetDetDescr/PixelLayouts/PixelInterfaces
    GaudiKernel
    InnerDetector/InDetDetDescr/InDetGeoModelUtils
-                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    PRIVATE
    Control/SGTools

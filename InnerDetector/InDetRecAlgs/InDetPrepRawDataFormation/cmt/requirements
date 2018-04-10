@@ -19,7 +19,6 @@ use CxxUtils           CxxUtils-*               Control
 use AtlasDetDescr           AtlasDetDescr-*           DetectorDescription 
 use InDetIdentifier         InDetIdentifier-*         InnerDetector/InDetDetDescr
 use InDetReadoutGeometry    InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use TRT_DriftCircleTool     TRT_DriftCircleTool-*     InnerDetector/InDetRecTools
 use SCT_ConditionsServices  SCT_ConditionsServices-*  InnerDetector/InDetConditions
 use InDetConditionsSummaryService  InDetConditionsSummaryService-* InnerDetector/InDetConditions 

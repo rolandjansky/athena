@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           Trigger/TrigEvent/TrigInDetEvent
@@ -35,7 +34,7 @@ atlas_add_component( TrigJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps TrkPrepRawData TrigDecisionToolLib JiveXMLLib EventInfo xAODTrigL1Calo xAODTrigger GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData AnalysisTriggerEvent TrigInDetEvent TrigSteeringEvent TrigT1CaloEventLib TrigT1Interfaces )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps TrkPrepRawData TrigDecisionToolLib JiveXMLLib EventInfo xAODTrigL1Calo xAODTrigger GaudiKernel InDetIdentifier SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData AnalysisTriggerEvent TrigInDetEvent TrigSteeringEvent TrigT1CaloEventLib TrigT1Interfaces )
 
 # Install files from the package:
 atlas_install_headers( TrigJiveXML )

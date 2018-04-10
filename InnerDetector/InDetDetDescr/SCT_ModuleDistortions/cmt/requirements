@@ -5,7 +5,6 @@ author Anna Mayne <a.mayne@cern.ch>
 use GaudiInterface	   GaudiInterface-*	  External
 use AthenaKernel           AthenaKernel-*         Control
 use InDetReadoutGeometry   InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use Identifier		   Identifier-*		  DetectorDescription
 use TrkParameters          TrkParameters-*        Tracking/TrkEvent
 use AtlasPolicy            AtlasPolicy-*

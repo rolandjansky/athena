@@ -23,7 +23,6 @@ use InDetIdentifier      InDetIdentifier-*              InnerDetector/InDetDetDe
 use SCT_Cabling          SCT_Cabling-*                  InnerDetector/InDetDetDescr
 use StoreGate            StoreGate-*                    Control
 use InDetReadoutGeometry InDetReadoutGeometry-*         InnerDetector/InDetDetDescr
-use SCT_ReadoutGeometry       SCT_ReadoutGeometry-*     InnerDetector/InDetDetDescr
 use SCT_ConditionsServices SCT_ConditionsServices-*     InnerDetector/InDetConditions
 use InDetByteStreamErrors InDetByteStreamErrors-*       InnerDetector/InDetConditions
 end_private

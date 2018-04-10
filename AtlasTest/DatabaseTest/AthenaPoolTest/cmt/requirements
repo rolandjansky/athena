@@ -26,7 +26,6 @@ use GeoPrimitives      GeoPrimitives-*    DetectorDescription
 
 #InDet RIO_OnTrack test
 use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
-use PixelReadoutGeometry       PixelReadoutGeometry-*     InnerDetector/InDetDetDescr
 use InDetPrepRawData    InDetPrepRawData-*   InnerDetector/InDetRecEvent
 use InDetRIO_OnTrack    InDetRIO_OnTrack-*   InnerDetector/InDetRecEvent
 use InDetCompetingRIOsOnTrack InDetCompetingRIOsOnTrack-* InnerDetector/InDetRecEvent
