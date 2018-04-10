@@ -5,15 +5,15 @@
 /**
  *
  *  NAME:     HLTCaloCellMaker.h
- *   PACKAGE:  Trigger/TrigDataAccess/TrigCaloDataAccessSvc
+ *   PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloCommon
  *
  *    AUTHOR:   Denis Oliveira Damazio
  *
  *     PURPOSE:  New Algorithm to produce CaloCellContainer
  *      **/
 
-#ifndef TRIGCALODATAACCESSSVC_HLTCALOCELLMAKER_H
-#define TRIGCALODATAACCESSSVC_HLTCALOCELLMAKER_H
+#ifndef TRIGT2CALOCOMMON_HLTCALOCELLMAKER_H
+#define TRIGT2CALOCOMMON_HLTCALOCELLMAKER_H
 
 #include <string>
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -42,9 +42,9 @@ class HLTCaloCellMaker: public AthReentrantAlgorithm {
 
 	SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
 	SG::WriteHandleKey<ConstDataVector<CaloCellContainerVector> > m_cellContainerVKey;
-	SG::ReadHandle<TrigRoiDescriptorCollection> m_roiCollection;
-	//SG::WriteHandle<ConstDataVector<CaloCellContainerVector> > m_cellContainerV;
+	SG::WriteHandleKey<ConstDataVector<CaloCellContainer> > m_cellContainerKey;
 	ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc;
+	bool m_roiMode;
 };
 
 #endif

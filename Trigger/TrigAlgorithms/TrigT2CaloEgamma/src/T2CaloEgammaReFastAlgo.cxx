@@ -3,7 +3,7 @@
 */
 
 /*
- NAME:     T2CaloEgammaFastAlgo.cxx
+ NAME:     T2CaloEgammaReFastAlgo.cxx
  PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
 
  AUTHOR:   Denis Oliveira Damazio
@@ -20,7 +20,7 @@
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
 
-#include "TrigT2CaloEgamma/T2CaloEgammaFastAlgo.h"
+#include "TrigT2CaloEgamma/T2CaloEgammaReFastAlgo.h"
 #include "TrigT2CaloCommon/IAlgToolCalo.h"
 #include "TrigT2CaloCalibration/IEgammaCalibration.h"
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
@@ -29,8 +29,8 @@
 
 class ISvcLocator;
 
-T2CaloEgammaFastAlgo::T2CaloEgammaFastAlgo(const std::string & name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator), 
+T2CaloEgammaReFastAlgo::T2CaloEgammaReFastAlgo(const std::string & name, ISvcLocator* pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator), 
     m_log(0), 
     m_calibsBarrel(this), 
     m_calibsEndcap(this),
@@ -53,13 +53,13 @@ T2CaloEgammaFastAlgo::T2CaloEgammaFastAlgo(const std::string & name, ISvcLocator
     declareProperty("ClustersName", m_clusterContainerKey = std::string("CaloClusters"), "Calo cluster container");
 }
 
-T2CaloEgammaFastAlgo::~T2CaloEgammaFastAlgo()
+T2CaloEgammaReFastAlgo::~T2CaloEgammaReFastAlgo()
 {
   delete m_log;
 }
 
 
-StatusCode T2CaloEgammaFastAlgo::initialize()
+StatusCode T2CaloEgammaReFastAlgo::initialize()
 {
   if (!m_log) m_log = new MsgStream(msgSvc(), name());
 
@@ -73,30 +73,32 @@ StatusCode T2CaloEgammaFastAlgo::initialize()
 }
 
 
-StatusCode T2CaloEgammaFastAlgo::execute()
+StatusCode T2CaloEgammaReFastAlgo::execute_r(const EventContext& context) const
 {
   // Time total T2CaloEgamma execution time.
 //  if ( m_timersvc ) m_timer[0]->start();
+/*
   m_conversionError=0;
   m_algorithmError=0;
   m_monitoredCluster=0;
+*/
 
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) 
   (*m_log) << MSG::INFO << "in execute()" << endmsg;
 #endif
 
-  m_trigEmClusterCollection = SG::WriteHandle<xAOD::TrigEMClusterContainer>( m_clusterContainerKey, getContext() );
-  ATH_CHECK( m_trigEmClusterCollection.record( CxxUtils::make_unique<xAOD::TrigEMClusterContainer>(), CxxUtils::make_unique<xAOD::TrigEMClusterAuxContainer>() ) );
-  ATH_MSG_DEBUG( "Made WriteHandle " << m_clusterContainerKey );
-  ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
- 
+  SG::WriteHandle<xAOD::TrigEMClusterContainer> trigEmClusterCollection = SG::WriteHandle<xAOD::TrigEMClusterContainer>( m_clusterContainerKey, context );
+  ATH_CHECK( trigEmClusterCollection.record( CxxUtils::make_unique<xAOD::TrigEMClusterContainer>(), CxxUtils::make_unique<xAOD::TrigEMClusterAuxContainer>() ) );
+
   auto roisHandle = SG::makeHandle( m_roiCollectionKey );
-  ATH_MSG_DEBUG( "Made handle " << m_roiCollectionKey  );
   const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
   //  ATH_CHECK(m_roiCollectionKey.isValid());
+  if ( !roiCollection ) {
+	(*m_log) << MSG::INFO << "no RoI" << endmsg;
+  	return StatusCode::SUCCESS;
+  }
 
-  ATH_MSG_DEBUG( "Made pointer " << m_roiCollectionKey << " with "<< roiCollection->size() <<" elements"  );
 
   const TrigRoiDescriptor* roiDescriptor = 0;
   //TrigRoiDescriptor* roiDescriptor = 0;
@@ -152,7 +154,7 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 
 
   xAOD::TrigEMCluster* ptrigEmCluster = new xAOD::TrigEMCluster();
-  m_trigEmClusterCollection->push_back( ptrigEmCluster );
+  trigEmClusterCollection->push_back( ptrigEmCluster );
   ptrigEmCluster->setEnergy(0.0);
   ptrigEmCluster->setEt(0.0);
   ptrigEmCluster->setRawEnergy(0.0);
@@ -170,7 +172,7 @@ StatusCode T2CaloEgammaFastAlgo::execute()
   ptrigEmCluster->setNCells(0);
   ptrigEmCluster->setRawEta(-999);
   ptrigEmCluster->setRawPhi(-999);
-  m_monitoredCluster = ptrigEmCluster;
+  //m_monitoredCluster = ptrigEmCluster;
   (*m_log) << MSG::INFO  << " Values of Cluster defined default: "<< endmsg;
   // It is a good idea to clear the energies
   for(int i=0;i<CaloSampling::CaloSample::MINIFCAL0;i++){
@@ -193,12 +195,13 @@ StatusCode T2CaloEgammaFastAlgo::execute()
   // zeros the container per RoI
   //m_Container = 0;
   (*m_log) << MSG::INFO  << " m_emAlgTools.begin():  "<< endmsg;
+
   
-  ToolHandleArray<IAlgToolCalo>::iterator it = m_emAlgTools.begin();
+  ToolHandleArray<IAlgToolCalo>::const_iterator it = m_emAlgTools.begin();
 ////  if ( m_timersvc ) m_timer[1]->start();
   uint32_t error = 0;
   for (; it < m_emAlgTools.end(); it++)  {
-    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, nullptr ).isFailure() ) {
+    if ((*it)->execute(*ptrigEmCluster, newroi, caloDDE, &context ).isFailure() ) {
       (*m_log) << MSG::WARNING << "T2Calo AlgToolEgamma returned Failure" << endmsg;
       return StatusCode::FAILURE;
     }
@@ -208,6 +211,7 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 //    error|=in_error;
   }
 //  // support to new monitoring
+/*
   m_rCore=0;
   m_eRatio=0;
   m_stripRatio=0;
@@ -219,6 +223,7 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 	m_eRatio  =  ptrigEmCluster->emaxs1()-ptrigEmCluster->e2tsts1();
 	m_eRatio /=  ptrigEmCluster->emaxs1()+ptrigEmCluster->e2tsts1();
   }
+*/
   (*m_log) << MSG::INFO  << " set m_eRatio : DONE  "<< endmsg; 
   // Cluster quality is a collection of possible errors
   // No error quality=0
@@ -236,12 +241,12 @@ StatusCode T2CaloEgammaFastAlgo::execute()
   (*m_log) << MSG::INFO  << " ptrigEmCluster->setxxx : DONE  "<< endmsg;
   if ( caloDDE != 0 ){
     if ( caloDDE->is_lar_em_barrel() ){
-      for( ToolHandleArray<IEgammaCalibration>::iterator
+      for( ToolHandleArray<IEgammaCalibration>::const_iterator
   		  ical=m_calibsBarrel.begin();
   		  ical != m_calibsBarrel.end(); ++ical )
   	  (*ical)->makeCorrection(ptrigEmCluster,caloDDE);
     }else{
-    for( ToolHandleArray<IEgammaCalibration>::iterator
+    for( ToolHandleArray<IEgammaCalibration>::const_iterator
   		ical=m_calibsEndcap.begin();
   		ical != m_calibsEndcap.end(); ++ical )
   	(*ical)->makeCorrection(ptrigEmCluster,caloDDE);
@@ -318,7 +323,7 @@ StatusCode T2CaloEgammaFastAlgo::execute()
 }
 
 
-StatusCode T2CaloEgammaFastAlgo::finalize(){
+StatusCode T2CaloEgammaReFastAlgo::finalize(){
 
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) 

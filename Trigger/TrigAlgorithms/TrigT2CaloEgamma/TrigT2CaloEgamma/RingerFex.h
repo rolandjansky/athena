@@ -116,7 +116,9 @@ public:
   StatusCode initialize();
   StatusCode finalize();
   //StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, double etamin, double etamax, double phimin, double phimax);
-  StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi);
+  StatusCode execute(xAOD::TrigEMCluster &rtrigEmCluster, const IRoiDescriptor& roi,
+				const CaloDetDescrElement*& /*caloDDE*/,
+                                const EventContext* /*context*/);
 
 private: // Representation
   

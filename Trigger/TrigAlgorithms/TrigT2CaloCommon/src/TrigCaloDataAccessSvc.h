@@ -2,8 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigCaloDataAccessSvc_TrigCaloDataAccessSvc_h
-#define TrigCaloDataAccessSvc_TrigCaloDataAccessSvc_h
+#ifndef TrigT2CaloCommon_TrigCaloDataAccessSvc_h
+#define TrigT2CaloCommon_TrigCaloDataAccessSvc_h
 
 #include <mutex>
 #include "AthenaBaseComps/AthService.h"
@@ -18,7 +18,7 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/IRegSelSvc.h"
-#include "TrigCaloDataAccessSvc/ITrigCaloDataAccessSvc.h"
+#include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
 
