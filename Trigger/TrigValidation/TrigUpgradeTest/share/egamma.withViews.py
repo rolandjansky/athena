@@ -213,10 +213,11 @@ edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decision
 
 
 mergeElectronsFromViews = HLTEDMCreator("MergeElectronsFormViews")
-mergeElectronsFromViews.Views = l2ElectronViewsMaker.Views
-#mergeElectronsFromViews.TrigElectronContainerInViews = theElectronFex.ElectronsName
-mergeElectronsFromViews.InViewKey = theElectronFex.ElectronsName
+
+mergeElectronsFromViews.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
+mergeElectronsFromViews.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
 mergeElectronsFromViews.TrigElectronContainer = ["HLT_electrons"]
+
 
 
 summary.OutputTools = [ edmCreator, mergeElectronsFromViews ]

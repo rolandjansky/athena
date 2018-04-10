@@ -19,36 +19,42 @@ HLTEDMCreator::HLTEDMCreator( const std::string& type,
 
 
 template<typename T>
-StatusCode HLTEDMCreator::initAndCheckOutputHandles( SG::WriteHandleKeyArray<T>& handles ) {
-  for ( auto handle: handles ) {
-    if ( handle.key().find("HLT_") != 0 ) {
-      ATH_MSG_WARNING( "The collection of type DataVector<" << typeid(typename T::value_type).name() << ">"
-		       << " has key " << handle.key() << " that is not starting with the HLT_" );      
-    }
-  } 
-  return handles.initialize();
-}
-
-template<typename T>
-StatusCode HLTEDMCreator::initAndCheckInViewHandles( SG::ReadHandleKey<T>& handle ) {
-  CHECK( handle.initialize( not handle.key().empty() ) );
-  renounce( handle );
+StatusCode HLTEDMCreator::initHandles( const HandlesGroup<T>&  handles ) {
+  CHECK( handles.in.initialize() );
+  renounceArray( handles.in );
+  CHECK( handles.out.initialize() );
+  CHECK( handles.views.initialize() );
+  renounceArray( handles.views );
+  // the case w/o reading from views, both views handles and collection in views shoudl be empty
+  if ( handles.views.size() == 0 ) {
+    CHECK( handles.in.size() == 0 );
+  } else {
+    // the case with views, we want to store from many views into a single output container
+    CHECK( handles.in.size() == handles.views.size() );
+    CHECK( handles.out.size() == 1 );
+  }
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode HLTEDMCreator::initialize()
 {  
+#define INIT(__TYPE) \
+  CHECK( initHandles( HandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
 
-  CHECK( m_viewsKey.initialize( not m_viewsKey.key().empty() ) );
-  renounce( m_viewsKey ); // they may be missing due to early rejection
-  CHECK( initAndCheckOutputHandles( m_TrigRoiDescriptorCollection ) );      
-  CHECK( initAndCheckOutputHandles( m_TrigCompositeContainer ) );
-  CHECK( initAndCheckOutputHandles( m_TrigEMClusterContainer ) );
-  CHECK( initAndCheckOutputHandles( m_TrigCaloClusterContainer ) );
-  CHECK( initAndCheckOutputHandles( m_TrigElectronContainer ) );
-  //  CHECK( initAndCheckInViewHandles( m_TrigElectronContainerInViews ) );
-  CHECK( initAndCheckOutputHandles( m_TrigPhotonContainer ) );
-  CHECK( initAndCheckOutputHandles( m_TrackParticleContainer ) );
+#define INIT_XAOD(__TYPE) \
+  CHECK( initHandles( HandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ) ) );
+
+  INIT( TrigRoiDescriptorCollection );
+  INIT_XAOD( TrigCompositeContainer );
+  INIT_XAOD( TrigEMClusterContainer );
+  INIT_XAOD( TrigCaloClusterContainer );
+  INIT_XAOD( TrigElectronContainer ); 
+  INIT_XAOD( TrigPhotonContainer );
+  INIT_XAOD( TrackParticleContainer );
+
+#undef INIT
+#undef INIT_XAOD
   
   return StatusCode::SUCCESS;
 }
@@ -66,40 +72,34 @@ StatusCode xAODGenerator( SG::WriteHandle<T>& h ) {
   coll->setStore( store.get() );      
   return h.record( std::move( coll ), std::move( store ) );
 } 
-/*
-template<typename T>
-struct NoMerge {
-  StatusCode merge(std::vector< SG::View* > const&, EventContext const&, T  &) {
-  return StatusCode::FAILURE; //  if we are called it means views merging is requested but Type T does not support it (i.e. missing copy c'tor)
-  }
-};
 
 template<typename T>
-struct ViewsMerge {
-  const SG::ReadHandleKey<T>& m_inViewKey;
-  ViewsMerge( const SG::ReadHandleKey<T>& r ): m_inViewKey(r) {}
-  StatusCode  merge( std::vector< SG::View* > const& views,  EventContext const& context, T & output ) {
-    return ViewHelper::MergeViewCollection< typename T::value_type >( views, m_inViewKey, context, output );  
-  }
-};
-*/
-template<typename T>
-StatusCode  NoMerge( std::vector< SG::View* > const&, const SG::ReadHandleKey<T>&,
-		     EventContext const&, T &  ) {
-  return StatusCode::FAILURE; //  if we are called it means views merging is requested but Type T does not support it (i.e. missing copy c'tor)
+StatusCode  noMerge( std::vector< SG::View* > const&, const SG::ReadHandleKey<T>&,
+				    EventContext const&, T &  ) {
+  //  if we are called it means views merging is requested but Type T does not support it (i.e. missing copy c'tor)
+  return StatusCode::FAILURE;
 }
 
 template<typename T>
-StatusCode  ViewsMerge( std::vector< SG::View* > const& views, const SG::ReadHandleKey<T>& inViewKey,
-		     EventContext const& context, T & output ) {
+StatusCode  viewsMerge( std::vector< SG::View* > const& views, const SG::ReadHandleKey<T>& inViewKey,
+				       EventContext const& context, T & output ) {
   return ViewHelper::MergeViewCollection( views, inViewKey, context, output );  
 }
 
 
-template<typename T, typename Generator, typename ViewsMerger>
-StatusCode HLTEDMCreator::createIfMissing( const SG::WriteHandleKeyArray<T>& handles, Generator createAndRecord, ViewsMerger viewsMerger ) const {
+template<typename T, typename G, typename M>
+StatusCode HLTEDMCreator::createIfMissing( const  ConstHandlesGroup<T>& handles, G createAndRecord, M merger) const {
 
-  for ( auto writeHandleKey : handles ) {
+
+//template<typename T, typename Generator>
+//StatusCode HLTEDMCreator::createIfMissing( const ConstHandlesGroup<T>& handles, 
+//					   Generator generator, 
+//					   std::function<StatusCode(const std::vector<SG::View*>&, 
+//								    const SG::ReadHandleKey<T >&, 
+//								    const EventContext&, T&)> merger ) {
+
+
+  for ( auto writeHandleKey : handles.out ) {
     SG::ReadHandle<T> readHandle( writeHandleKey.key() );
     if ( readHandle.isValid() ) {
       ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " already present" );
@@ -109,48 +109,48 @@ StatusCode HLTEDMCreator::createIfMissing( const SG::WriteHandleKeyArray<T>& han
 
       ATH_MSG_DEBUG( "The " << writeHandleKey.key() << " was absent, created empty one" );
 
-      if ( not m_viewsKey.key().empty() ) {
-	auto viewsHandle = SG::makeHandle( m_viewsKey );
-	if ( viewsHandle.isValid() ) {
-	  //CHECK( viewsMerger.merge( *viewsHandle, Gaudi::Hive::currentContext(), *writeHandle ) );
-	  
-	  SG::ReadHandleKey<T> inViewKey( m_inViewKey );
-	  //renounce( inViewKey );
-
-	  CHECK( viewsMerger( *viewsHandle, inViewKey, Gaudi::Hive::currentContext(), *writeHandle ) );
+      if ( handles.views.size() != 0 ) {
+	ATH_MSG_DEBUG("Will be merging from " << handles.views.size() << " view containers into that output");
+	auto viewCollKeyIter = handles.views.begin();
+	auto inViewCollKeyIter = handles.in.begin();
+	for ( ; viewCollKeyIter != handles.views.end(); ++viewCollKeyIter, ++inViewCollKeyIter ) {
+	  // get the views handle
+	  ATH_MSG_DEBUG("Will be merging from " << viewCollKeyIter->key() << " view container using key " << inViewCollKeyIter->key() );
+	  auto viewsHandle = SG::makeHandle( *viewCollKeyIter );
+	  if ( viewsHandle.isValid() ) {	    
+	    CHECK( merger( *viewsHandle, *inViewCollKeyIter , Gaudi::Hive::currentContext(), *writeHandle ) );
+	  }
 	}
       }
     }
   }
-
   return StatusCode::SUCCESS;
 }
 
 
+
 StatusCode HLTEDMCreator::createOutput() const {
 
-
 #define CREATE(__TYPE) \
-  CHECK( createIfMissing<__TYPE>( m_##__TYPE, plainGenerator<__TYPE>, ViewsMerge<__TYPE> ) );							
-  //  CHECK( createIfMissing<__TYPE>( m_##__TYPE, plainGenerator<__TYPE>, ViewsMerge<__TYPE>( m_##__TYPE##InViews ) ) );
+  CHECK( createIfMissing<__TYPE>( ConstHandlesGroup<__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), plainGenerator<__TYPE>, viewsMerge<__TYPE> ) )							
 
   CREATE( TrigRoiDescriptorCollection );
 
 #undef CREATE
 
 #define CREATE_XAOD(__TYPE, __STORE_TYPE) \
-  CHECK( createIfMissing<xAOD::__TYPE>( m_##__TYPE, xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, ViewsMerge<xAOD::__TYPE> )  );
-  //  CHECK( createIfMissing<xAOD::__TYPE>( m_##__TYPE, xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, ViewsMerge<xAOD::__TYPE>( m_##__TYPE##InViews ) )  );
+  CHECK( createIfMissing<xAOD::__TYPE>( ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, HLTEDMCreator::viewsMerge<xAOD::__TYPE> )  )
 
-#define CREATE_XAOD_NO_MERGE(__TYPE, __STORE_TYPE) \
-  CHECK( createIfMissing<xAOD::__TYPE>( m_##__TYPE, xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, NoMerge<xAOD::__TYPE> )  );
+
+#define CREATE_XAOD_NO_MERGE(__TYPE, __STORE_TYPE)			\
+  CHECK( createIfMissing<xAOD::__TYPE>( ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE>, HLTEDMCreator::noMerge<xAOD::__TYPE> )  )
   
-  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
-  CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
-  CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer );
-  CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer );
-  CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer );
-  CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer );
+  // CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
+  // CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
+  // CREATE_XAOD( TrigPhotonContainer, TrigPhotonAuxContainer );
+  // CREATE_XAOD( TrigEMClusterContainer, TrigEMClusterAuxContainer );
+  // CREATE_XAOD( TrigCaloClusterContainer, TrigCaloClusterAuxContainer );
+  // CREATE_XAOD( TrackParticleContainer, TrackParticleAuxContainer );
 
 #undef CREATE_XAOD
 #undef CREATE_XAOD_NO_MERGE

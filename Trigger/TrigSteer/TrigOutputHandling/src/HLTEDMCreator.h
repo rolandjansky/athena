@@ -6,7 +6,7 @@
 
 // STL includes
 #include <string>
-
+#include <functional>
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -60,17 +60,24 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
 
   HLTEDMCreator();
 
-  SG::ReadHandleKey< std::vector< SG::View* > > m_viewsKey{ this, "Views", "", "If specified read objects from views" };
-  Gaudi::Property< std::string > m_inViewKey{ this, "InViewKey", "", "Key used for obects in views" };
+  //  SG::ReadHandleKey< std::vector< SG::View* > > m_viewsKey{ this, "Views", "", "If specified read objects from views" };
+  //  Gaudi::Property< std::string > m_inViewKey{ this, "InViewKey", "", "Key used for obects in views" };
 
-#define DEF_KEY(__TYPE) \
-  SG::WriteHandleKeyArray<__TYPE> m_##__TYPE{ this, #__TYPE, {}, "Required collections of "#__TYPE}/*; \
-												     SG::ReadHandleKey<__TYPE> m_##__TYPE##InViews{ this, #__TYPE"InViews", "", "Name in views of "#__TYPE}*/
+#define DEF_VIEWS(__TYPE) \
+  SG::ReadHandleKeyArray< std::vector< SG::View* > > m_##__TYPE##Views{ this, #__TYPE"Views", {}, "Name  views from where the "#__TYPE" will be read"}
+
+
+
+#define DEF_KEY(__TYPE)	\
+  SG::WriteHandleKeyArray<__TYPE> m_##__TYPE{ this, #__TYPE, {}, "Required collections of "#__TYPE}; \
+  DEF_VIEWS(__TYPE); \
+  SG::ReadHandleKeyArray<__TYPE> m_##__TYPE##InViews{ this, #__TYPE"InViews", {}, "Names of "#__TYPE" in respective views"}
 
 #define DEF_XAOD_KEY(__TYPE) \
-  SG::WriteHandleKeyArray<xAOD::__TYPE> m_##__TYPE{ this, #__TYPE, {}, "Required collections of xAOD::"#__TYPE}/*;\
-  SG::ReadHandleKey<xAOD::__TYPE> m_##__TYPE##InViews{ this, #__TYPE"InViews", "", "Name in views of xAOD::"#__TYPE}
-													       */
+  SG::WriteHandleKeyArray<xAOD::__TYPE> m_##__TYPE{ this, #__TYPE, {}, "Required collections of xAOD::"#__TYPE};\
+  DEF_VIEWS(__TYPE); \
+  SG::ReadHandleKeyArray<xAOD::__TYPE> m_##__TYPE##InViews{ this, #__TYPE"InViews", {}, "Names of xAOD::"#__TYPE" in respective views"}
+
   DEF_KEY( TrigRoiDescriptorCollection );
 
   DEF_XAOD_KEY( TrigCompositeContainer );
@@ -80,32 +87,49 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( TrigPhotonContainer );
   DEF_XAOD_KEY( TrackParticleContainer );
 
-
+#undef DEF_VIEWS
 #undef DEF_KEY
 #undef DEF_XAOD_KEY
 
-  /**
-   * Warns if collections do nto adhere to naming convention i.e. key starting from HLT_
-   * and inits them
-   **/
   template<typename T>
-  StatusCode initAndCheckOutputHandles( SG::WriteHandleKeyArray<T>& handles );
+  struct HandlesGroup {
+    HandlesGroup(SG::WriteHandleKeyArray<T>& _out,
+		 SG::ReadHandleKeyArray<T>& _in,
+		 SG::ReadHandleKeyArray< std::vector< SG::View* > >& _views)
+      : out(_out), in(_in), views(_views) {}
 
+    SG::WriteHandleKeyArray<T>& out;
+    SG::ReadHandleKeyArray<T>& in;
+    SG::ReadHandleKeyArray< std::vector< SG::View* > >& views;
+  };
   /**
-   * Initialises and renounces handles for use in views merging
+   * Init related handles
+   * Fails when they are setup incosistently: the only allowed setup is:
+   * views and in empty - then out can be of any lenth - this is mode to fill missing containers
+   * views and in not empty, have to be the same size - out has to be 1 - this mode is for merging from several views into one output
+   * if merging from several views into several separate outptu containers is required another instance of that tool can be setup
    **/
+
   template<typename T>
-  StatusCode initAndCheckInViewHandles( SG::ReadHandleKey<T>& handle );
+  StatusCode initHandles( const HandlesGroup<T>&  handles );
 
+  template<typename T>
+  struct ConstHandlesGroup {
+    ConstHandlesGroup(const SG::WriteHandleKeyArray<T>& _out,
+		      const SG::ReadHandleKeyArray<T>& _in,
+		      const SG::ReadHandleKeyArray< std::vector< SG::View* > >& _views)
+      : out(_out), in(_in), views(_views) {}
 
-  /**
-   * @brief Checks if input handles of the same names as these in @arg handles are present, if not create output
-   * Second argument is functional capable of collection creation & calling apropropriate record on the handle passed 
-   * as first argument.
-   * Customisation of xAOD and non-xAOD happens through the generator argument.
-   **/
-  template<typename T, typename Generator, typename ViewsMerger >
-    StatusCode createIfMissing( const SG::WriteHandleKeyArray<T>& handles, Generator generator, ViewsMerger merger ) const;
+    const SG::WriteHandleKeyArray<T>& out;
+    const SG::ReadHandleKeyArray<T>& in;
+    const SG::ReadHandleKeyArray< std::vector< SG::View* > >& views;
+  };
+
+  
+
+  template<typename T, typename G, typename M >
+  StatusCode createIfMissing( const ConstHandlesGroup<T>& handles, G generator, M merger ) const;
+
 
 }; 
 
