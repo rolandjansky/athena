@@ -47,7 +47,7 @@ atlas_add_library( VrtSecInclusiveLib
 atlas_add_component( VrtSecInclusive
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS} ${BLAS_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps StoreGateLib SGtests xAODTracking xAODTruth xAODMuon xAODEgamma GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVKalVrtFitterLib TrkVertexFitterInterfaces xAODEventInfo TrkTrackSummary VxVertex VrtSecInclusiveLib AtlasDetDescr InDetIdentifier )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests xAODTracking xAODTruth xAODMuon xAODEgamma GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVKalVrtFitterLib TrkVertexFitterInterfaces xAODEventInfo TrkTrackSummary VxVertex VrtSecInclusiveLib AtlasDetDescr InDetIdentifier )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

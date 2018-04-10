@@ -1,8 +1,14 @@
 #include "VrtSecInclusive/VrtSecInclusive.h"
+#include "VrtSecInclusive/TrackRandomizer.h"
+#include "VrtSecInclusive/TrackSlimmer.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( VKalVrtAthena, VrtSecInclusive )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( VKalVrtAthena, TrackRandomizer )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( VKalVrtAthena, TrackSlimmer )
 DECLARE_FACTORY_ENTRIES(VrtSecInclusive) {
     DECLARE_NAMESPACE_ALGORITHM( VKalVrtAthena, VrtSecInclusive )
+    DECLARE_NAMESPACE_ALGORITHM( VKalVrtAthena, TrackRandomizer )
+    DECLARE_NAMESPACE_ALGORITHM( VKalVrtAthena, TrackSlimmer )
 }
 //Notes:
 //
