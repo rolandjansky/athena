@@ -69,7 +69,7 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
                                                     TaggerList = BTaggingFlags.StandardTaggers
                                                     )
         jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt2trk]
-    addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
+    addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=5000, mods="akt2track",
                     algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4PV0TrackJets(sequence, outputlist):
