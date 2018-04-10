@@ -91,7 +91,7 @@ addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
+FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
 
 #====================================================================
 # Add sequence (with all kernels needed) to DerivationFrameworkJob 
@@ -135,8 +135,14 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     ]
 
 FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
-                                       "PrimaryVertices.x.y.numberDoF.covariance",
-                                       "InDetTrackParticles.vx.vy.vz.truthMatchProbability",
+                                       "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
+                                       "InDetTrackParticles.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits",
+                                       "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSharedHits.numberOfContribPixelLayers.hitPattern.radiusOfFirstHit",
+                                       "PrimaryVertices.x.y.z.neutralWeights.numberDoF.sumPt2.chiSquared.covariance.trackWeights",
+                                       "CombinedMuonTrackParticles.vx.vy.vz",
+                                       "ExtrapolatedMuonTrackParticles.vx.vy.vz",
+                                       "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
+                                       "MuonSpectrometerTrackParticles.vx.vy.vz",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex"]
 
