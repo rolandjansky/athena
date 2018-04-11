@@ -111,7 +111,7 @@ namespace met {
       // Property declaration
       //
       declareProperty("SoftTermParam",        m_softTermParam = met::Random );
-      declareProperty("SoftTermReso",         m_softTermReso  = 10.0        );
+      declareProperty("SoftTermReso",         m_softTermReso  = 8.9         );
       declareProperty("TreatPUJets",          m_treatPUJets   = true        );
       declareProperty("DoPhiReso",            m_doPhiReso     = false       );
       declareProperty("ApplyBias",            m_applyBias     = false       );
