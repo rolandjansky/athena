@@ -21,8 +21,9 @@ if DerivationFrameworkIsMonteCarlo:
 # this recopying the latest JETM6
 
 from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
+electronTriggers = single_el_Trig()
+muonTriggers = single_mu_Trig()
+jetTriggers = single_jetTrig()
 
 # For first data
 jetSelection = '(count( AntiKt10LCTopoJets.pt > 100.*GeV ) >=1)'

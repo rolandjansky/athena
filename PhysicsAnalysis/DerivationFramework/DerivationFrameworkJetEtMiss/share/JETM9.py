@@ -12,7 +12,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 # SKIMMING TOOL 
 #====================================================================
 from DerivationFrameworkJetEtMiss.TriggerLists import *
-triggers = jetTriggers
+triggers = single_jetTrig()
 
 # NOTE: need to be able to OR isSimulated as an OR with the trigger
 orstr =' || '

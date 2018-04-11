@@ -6,7 +6,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
-import DerivationFrameworkJetEtMiss.TriggerLists as TriggerLists
+from DerivationFrameworkJetEtMiss.TriggerLists import *
 from DerivationFrameworkEGamma.EGammaCommon import*
 from DerivationFrameworkMuons.MuonsCommon import*
 from DerivationFrameworkJetEtMiss.METTriggerDerivationContent import METTriggerDerivationContentManager
@@ -17,13 +17,17 @@ from DerivationFrameworkJetEtMiss.METTriggerDerivationContent import METTriggerD
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 # cutExpression = "(count(Electrons.DFCommonElectronsLHLoose && Electrons.DFCommonElectrons_pt > (20 * GeV) && abs(Electrons.DFCommonElectrons_eta) < 2.47) + count(Muons.DFCommonMuonsPreselection && Muons.pt > (20*GeV) && abs(Muon.eta) < 2.47) ) >= 1"
+singleElTriggers = single_el_Trig()
+multiElTriggers = multi_el_Trig()
+singleMuTriggers = single_mu_Trig()
+multiMuTriggers = multi_mu_Trig()
 cutExpression = "(count(Electrons.DFCommonElectronsLHLoose && Electrons.pt > (24 * GeV) && abs(Electrons.eta) < 2.47) + count(Muons.DFCommonMuonsPreselection && Muons.pt > (24*GeV) && abs(Muons.eta) < 2.47) ) >= 1"
 JETM11StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
     name       = "JETM11StringSkimmingTool",
     expression = cutExpression)
 JETM11TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(
     name          = "JETM11TriggerSkimmingTool",
-    TriggerListOR = TriggerLists.singleElTriggers + TriggerLists.singleMuTriggers + TriggerLists.multiElTriggers + TriggerLists.multiMuTriggers)
+    TriggerListOR = singleElTriggers + singleMuTriggers + multiElTriggers + multiMuTriggers)
 ToolSvc += JETM11StringSkimmingTool
 ToolSvc += JETM11TriggerSkimmingTool
 

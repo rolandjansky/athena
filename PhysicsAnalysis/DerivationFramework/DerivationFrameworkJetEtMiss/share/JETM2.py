@@ -21,8 +21,8 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 
 from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
+electronTriggers = single_el_Trig()
+muonTriggers = single_mu_Trig()
 
 orstr  = ' || '
 andstr = ' && '
