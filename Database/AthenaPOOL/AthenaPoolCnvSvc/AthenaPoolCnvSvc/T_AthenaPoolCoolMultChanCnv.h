@@ -49,6 +49,11 @@ protected:
     /// @param pAddr [OUT] IOpaqueAddress of POOL persistent representation.
     virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
 
+    /// Create a POOL persistent representation for a transient object.
+    /// @param pAddr [IN] IOpaqueAddress of POOL persistent representation.
+    /// @param pObj [IN] pointer to the transient object.
+    virtual StatusCode fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj);
+
     /// Write out objects stored in "obj" into POOL and save the tokens
     /// in a CondAttrListCollection, as well write out "obj" i.e. CondMultChanCollImpl
     /// @param obj          [IN]  pointer to the collection of objects.

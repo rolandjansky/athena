@@ -225,6 +225,14 @@ StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::createRep(DataOb
 
 //__________________________________________________________________________
 template <class COLL_T, class ELEM_T, class ELEM_P>
+StatusCode T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::fillRepRefs(IOpaqueAddress* /*pAddr*/, DataObject* /*pObj*/)
+{
+    ATH_MSG_DEBUG("End fillRepRefs");
+    return(StatusCode::SUCCESS);
+}
+
+//__________________________________________________________________________
+template <class COLL_T, class ELEM_T, class ELEM_P>
 StatusCode
 T_AthenaPoolCoolMultChanCnv<COLL_T, ELEM_T, ELEM_P>::attrListCollToObject(CondAttrListCollection* attrListColl,
 								  COLL_T*& obj)
