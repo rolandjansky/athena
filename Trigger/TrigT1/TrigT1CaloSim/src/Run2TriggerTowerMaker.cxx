@@ -91,6 +91,7 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
   declareProperty("TileTTL1ContainerName",m_TileTTL1ContainerName= "TileTTL1Cnt");
   declareProperty("RequireAllCalos",m_requireAllCalos=true,"Should EM,Had and Tile all be available?");
 
+  declareProperty("IsReprocessing", m_isDataReprocessing = false, "Option to protect against grabbing eventInfo if reprocessing");
   declareProperty("TriggerTowerLocation", m_outputLocation= TrigT1CaloDefs::xAODTriggerTowerLocation);
   declareProperty("CellType", m_cellType = TTL1);
 
