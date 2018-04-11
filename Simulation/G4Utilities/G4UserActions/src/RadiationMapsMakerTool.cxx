@@ -252,6 +252,11 @@ namespace G4UA{
 	  double z0=h_3d_tid->GetXaxis()->GetBinLowEdge(i+1);
 	  double z1=h_3d_tid->GetXaxis()->GetBinUpEdge(i+1); 
 	  double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0)*(phi1-phi0)/360.; 
+	  // assume that phi-range corresponds to full 360 degrees in case 
+	  // lower phi boundary is 0 - i.e. all phi-segments mapped to first
+	  if ( m_config.phiMinZoom == 0 ) {
+	    vol *= 360./m_config.phiMaxZoom;
+	  }
 	  double val;
 	  // TID
 	  val =maps.m_3d_tid[vBin];

@@ -10,14 +10,43 @@
 #include "G4Positron.hh"
 #include "G4PionPlus.hh"
 #include "G4PionMinus.hh"
-#include "G4MuonPlus.hh"
+#include "G4PionZero.hh"
+#include "G4KaonPlus.hh"
+#include "G4KaonMinus.hh"
+#include "G4KaonZeroShort.hh"
+#include "G4KaonZeroLong.hh"
+#include "G4KaonZero.hh"
+#include "G4AntiKaonZero.hh"
 #include "G4MuonMinus.hh"
+#include "G4MuonPlus.hh"
 #include "G4Neutron.hh"
+#include "G4AntiNeutron.hh"
 #include "G4Proton.hh"
+#include "G4AntiProton.hh"
+#include "G4Lambda.hh"
+#include "G4AntiLambda.hh"
+#include "G4SigmaPlus.hh"
+#include "G4AntiSigmaPlus.hh"
+#include "G4SigmaMinus.hh"
+#include "G4AntiSigmaMinus.hh"
+#include "G4SigmaZero.hh"
+#include "G4AntiSigmaZero.hh"
+#include "G4AntiXiMinus.hh"
+#include "G4XiZero.hh"
+#include "G4AntiXiZero.hh"
+#include "G4XiMinus.hh"
+#include "G4AntiXiMinus.hh"
+#include "G4OmegaMinus.hh"
+#include "G4AntiOmegaMinus.hh"
 #include "G4Gamma.hh"
+#include "G4Alpha.hh"
+#include "G4Deuteron.hh"
+#include "G4Triton.hh"
+#include "G4He3.hh"
 #include "TGraph.h"
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
+#include "G4VSensitiveDetector.hh"
 #include "PathResolver/PathResolver.h"
 
 namespace G4UA{
@@ -109,6 +138,7 @@ namespace G4UA{
     std::string fnSiA = PathResolver::find_file("neutrons_Si_Gunnar_Griffin.dat"  ,"DATAPATH");//E_kin < 20 MeV
     std::string fnSiB = PathResolver::find_file("neutrons_Si_Gunnar_Konobeyev.dat","DATAPATH");//E_kin > 20 MeV
     std::string fpiSi = PathResolver::find_file("pions_Si_Gunnar_Huhtinen.dat"    ,"DATAPATH");//E_kin > 15 MeV
+    std::string feSi  = PathResolver::find_file("electrons_Si_Summers.dat"    ,"DATAPATH");    //E_kin > 0.1 MeV 
 
     if ( !m_tgpSiA ) 
       m_tgpSiA = new TGraph(fpSiA.c_str()); //E_kin < 15 MeV
@@ -120,10 +150,12 @@ namespace G4UA{
       m_tgnSiB = new TGraph(fnSiB.c_str()); //E_kin > 20 MeV
     if ( !m_tgpiSi ) 
       m_tgpiSi = new TGraph(fpiSi.c_str()); //E_kin > 15 MeV
+    if ( !m_tgeSi ) 
+      m_tgeSi = new TGraph(feSi.c_str());   //E_kin > 0.1 MeV
   }
   
   void RadiationMapsMaker::UserSteppingAction(const G4Step* aStep){
-    int pdgid = 8;
+    int pdgid = 10;
     if (aStep->GetTrack()->GetDefinition()==G4Gamma::Definition()){
       pdgid=0;
     } else if (aStep->GetTrack()->GetDefinition()==G4Proton::Definition()){
@@ -147,12 +179,49 @@ namespace G4UA{
       } else {
 	pdgid=7;
       }
-    } else if (!aStep->GetTrack()->GetDefinition()->GetPDGCharge()) return; // Not one of those and not a primary?
-    
+    } else if (aStep->GetTrack()->GetDefinition()==G4KaonPlus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4KaonMinus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4KaonZeroShort::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4KaonZeroLong::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4KaonZero::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4AntiKaonZero::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4PionZero::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4KaonPlus::Definition()){
+      pdgid=8; // particles not charged pions treated as charged pions for NIEL 
 
+    } else if (aStep->GetTrack()->GetDefinition()==G4AntiProton::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4AntiNeutron::Definition() || // note n-bar is treated as proton like in FLUKA ... o.k. for > 10 MeV ...
+	       aStep->GetTrack()->GetDefinition()==G4Lambda::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4AntiLambda::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4SigmaPlus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4AntiSigmaPlus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4SigmaMinus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4AntiSigmaMinus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4SigmaZero::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4AntiSigmaZero::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4XiMinus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4AntiXiMinus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4XiZero::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4AntiXiZero::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4OmegaMinus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4AntiOmegaMinus::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4Alpha::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4Deuteron::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4Triton::Definition() ||
+	       aStep->GetTrack()->GetDefinition()==G4He3::Definition()){
+      pdgid=9; // particles not protons treated as protons for NIEL 
+
+    } else if (!aStep->GetTrack()->GetDefinition()->GetPDGCharge()) return; // Not one of those and not a primary?
+
+    if ( pdgid == 10 && aStep->GetTrack()->GetKineticEnergy() > 10 ) {
+      // check Z for heavy ions with more than 10 MeV to also treat those for NIEL
+      if ( aStep->GetTrack()->GetDefinition()->GetAtomicNumber() > 1 ) {
+	pdgid = 9;
+      }
+    }
     // process NIEL, h20 and Edep particles only
 
-    if ( pdgid == 1 || pdgid == 2 || pdgid == 6 || pdgid == 7 || /* NIEL & h20*/
+    if ( pdgid == 1 || pdgid == 2 || pdgid == 4 || pdgid == 5 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9 || /* NIEL & h20*/
 	 aStep->GetTotalEnergyDeposit() > 0 ) {
       
     
@@ -177,7 +246,7 @@ namespace G4UA{
       
       double weight = 0; // weight for NIEL
       double eKin = aStep->GetTrack()->GetKineticEnergy();
-      if ( pdgid == 1 ) {
+      if ( pdgid == 1 || pdgid == 9 ) {
 	if ( eKin < 15 ) {
 	  if ( eKin > 10 ) {
 	    weight = m_tgpSiA->Eval(eKin);
@@ -187,7 +256,7 @@ namespace G4UA{
 	  weight = m_tgpSiB->Eval(eKin);
 	}
       }
-      else if ( pdgid == 2 ) {
+      else if ( pdgid == 2 || pdgid == 8 ) {
 	if ( eKin > 15 ) {
 	  weight = m_tgpiSi->Eval(eKin);
 	}
@@ -200,12 +269,19 @@ namespace G4UA{
 	  weight = m_tgnSiB->Eval(eKin);
 	}
       }
+      else if ( pdgid == 4 || pdgid == 5 ) {
+	if ( eKin > 0.1 ) {
+	  weight = m_tgeSi->Eval(eKin);
+	}
+      }
+
       
       double dE_TOT = aStep->GetTotalEnergyDeposit()/nStep;
       double dE_NIEL = aStep->GetNonIonizingEnergyDeposit()/nStep;
       double dE_ION = dE_TOT-dE_NIEL;
       
       if ( weight > 0 || eKin > 20 || dE_TOT > 0 ) {
+
 	for(unsigned int i=0;i<nStep;i++) {
 	  double absz = fabs(z0+dz*(i+0.5));
 	  double rr = sqrt(pow(x0+dx*(i+0.5),2)+
@@ -245,10 +321,23 @@ namespace G4UA{
 	    if ( m_config.rMinZoom < rr && 
 		 m_config.rMaxZoom > rr ) {
 	      int ir = (rr-m_config.rMinZoom)/(m_config.rMaxZoom-m_config.rMinZoom)*m_config.nBinsr3d;
-	      if ( m_config.phiMinZoom < pphi && 
-		   m_config.phiMaxZoom > pphi ) {
-	      int iphi = (pphi-m_config.phiMinZoom)/(m_config.phiMaxZoom-m_config.phiMinZoom)*m_config.nBinsphi3d;
-	      vBin3d = m_config.nBinsr3d*m_config.nBinsphi3d*iz+m_config.nBinsphi3d*ir+iphi;
+	      if ( m_config.phiMinZoom == 0) {
+		// assume that all phi should be mapped to the selected phi range
+		double phi_mapped = pphi;
+		// first use phi range from 0 - 360 degrees
+		if (phi_mapped < 0) {
+		  phi_mapped = 360 + phi_mapped;
+		}
+		// then map to selected phi-range
+		int iphi = phi_mapped/m_config.phiMaxZoom;
+		phi_mapped -= iphi*m_config.phiMaxZoom;
+		iphi = phi_mapped/m_config.phiMaxZoom*m_config.nBinsphi3d;
+		vBin3d = m_config.nBinsr3d*m_config.nBinsphi3d*iz+m_config.nBinsphi3d*ir+iphi;
+	      }
+	      else if ( m_config.phiMinZoom < pphi && 
+			m_config.phiMaxZoom > pphi ) {
+		int iphi = (pphi-m_config.phiMinZoom)/(m_config.phiMaxZoom-m_config.phiMinZoom)*m_config.nBinsphi3d;
+		vBin3d = m_config.nBinsr3d*m_config.nBinsphi3d*iz+m_config.nBinsphi3d*ir+iphi;
 	      }
 	    }
 	  }
@@ -266,7 +355,7 @@ namespace G4UA{
 	    m_maps.m_3d_eion[vBin3d] += dE_ION;
 	  }
 	    
-	  if ( pdgid == 1 || pdgid == 2 || pdgid == 6 || pdgid == 7 ) {
+	  if ( pdgid == 1 || pdgid == 2 || pdgid == 4 || pdgid == 5 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9 ) {
 	    
 	    if ( weight > 0 ) {
 	      if ( vBinZoom >=0 ) {
@@ -279,7 +368,7 @@ namespace G4UA{
 		m_maps.m_3d_niel [vBin3d] += weight*dl;
 	      }
 	    }
-	    if ( eKin > 20 ) {
+	    if ( eKin > 20 && (pdgid == 1 || pdgid == 2 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9) ) {
 	      if ( vBinZoom >=0 ) {
 		m_maps.m_rz_h20 [vBinZoom] += dl;
 	      }
