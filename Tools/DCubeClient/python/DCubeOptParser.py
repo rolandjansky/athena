@@ -163,6 +163,11 @@ class DCubeOptParser( object ):
                                help="batch mode for PyROOT [always on]")
 
     
+        self.__par.add_option( "--useVarNameForPlotName",
+                               action="store_true",
+                               dest="useVarNameForPlotName",
+                               help="Name output plots after the variable they contain [default: use a generated UUID as name]")
+
         self.__par.set_defaults( pwarn=0.95,
                                  pfail=0.75, 
                                  config="dcube_config.xml",
@@ -178,6 +183,7 @@ class DCubeOptParser( object ):
                                  jobId="*",
                                  generate=False,
                                  makeplots=False,
+                                 useVarNameForPlotName=False,
                                  root2null=False)
 
 
