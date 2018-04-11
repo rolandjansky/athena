@@ -135,8 +135,6 @@ FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtV
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10TruthSecVtx.-vxTrackAtVertex"]
 
-addJetOutputs(FTAG3SlimmingHelper,["FTAG3"],[],[])
-
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
 FTAG3SlimmingHelper.AppendToDictionary = {
