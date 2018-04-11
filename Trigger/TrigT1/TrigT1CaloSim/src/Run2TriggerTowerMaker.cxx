@@ -765,10 +765,15 @@ StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *towe
     TriggerTowers. */
 StatusCode LVL1::Run2TriggerTowerMaker::preProcess()
 {
-  // Pedestal Correction: Get the BCID number
-  const xAOD::EventInfo* evt = nullptr;
-  CHECK(evtStore()->retrieve(evt));
-  auto eventBCID = evt->bcid();
+    if ( !m_isDataReprocessing ) {
+        // Pedestal Correction: Get the BCID number
+        const xAOD::EventInfo* evt = nullptr;
+        CHECK(evtStore()->retrieve(evt));
+        auto eventBCID = evt->bcid();
+    } else {
+        auto eventBCID = -1;
+        ATH_MSG_WARNING ("Preforming TT reprocessing, skipping BCID query and setting eventBCID to -1");
+    }
 
   // Loop over all existing towers and simulate preprocessor functions
   for(auto tower : *m_xaodTowers) {
