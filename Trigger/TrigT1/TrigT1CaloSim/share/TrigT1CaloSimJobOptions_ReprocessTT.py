@@ -119,6 +119,7 @@ del _my_run_number
 job += LVL1__Run2TriggerTowerMaker( 'Run2TriggerTowerMaker',
                                             CellType=2,)
 job.Run2TriggerTowerMaker.ZeroSuppress = False # store all trigger towers 
+job.Run2TriggerTowerMaker.IsReprocessing = True # tell run2triggertowermaker that this is a reprocessing job 
 job += LVL1__Run2CPMTowerMaker( 'CPMTowerMaker',)
 job += LVL1__Run2JetElementMaker( 'JetElementMaker',)
 job += LVL1__CPMSim( 'CPMSim',)

@@ -765,13 +765,14 @@ StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *towe
     TriggerTowers. */
 StatusCode LVL1::Run2TriggerTowerMaker::preProcess()
 {
+    float eventBCID = -1;
     if ( !m_isDataReprocessing ) {
         // Pedestal Correction: Get the BCID number
         const xAOD::EventInfo* evt = nullptr;
         CHECK(evtStore()->retrieve(evt));
-        auto eventBCID = evt->bcid();
+        eventBCID = evt->bcid();
     } else {
-        auto eventBCID = -1;
+        eventBCID = -1;
         ATH_MSG_WARNING ("Preforming TT reprocessing, skipping BCID query and setting eventBCID to -1");
     }
 
