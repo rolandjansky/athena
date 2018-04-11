@@ -304,8 +304,10 @@ StatusCode LVL1::Run2TriggerTowerMaker::store()
                         m_xaodTowers->end());
   }
 
-  CHECK(evtStore()->record(m_xaodTowers.release(), m_outputLocation));
-  CHECK(evtStore()->record(m_xaodTowersAux.release(), m_outputLocation+"Aux."));
+  if ( !m_isDataReprocessing) {
+      CHECK(evtStore()->record(m_xaodTowers.release(), m_outputLocation));
+      CHECK(evtStore()->record(m_xaodTowersAux.release(), m_outputLocation+"Aux."));
+  }
 
   return StatusCode::SUCCESS;
 } // end of LVL1::Run2TriggerTowerMaker::store(){
