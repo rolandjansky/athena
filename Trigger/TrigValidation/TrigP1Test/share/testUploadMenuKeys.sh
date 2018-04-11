@@ -79,8 +79,9 @@ hlt__setup1=ef_Default_setup.xml
 
 # get dtd file for L1 menu
 get_files -xmls LVL1config.dtd
-
-
+l1_schema=`find . -name LVL1config.dtd`
+cp $l1_schema PS_tight/.
+cp $l1_schema PS_tightperf/.
 
 p1_rel="P1HLT"
 if [ $NICOS_ATLAS_RELEASE ]
