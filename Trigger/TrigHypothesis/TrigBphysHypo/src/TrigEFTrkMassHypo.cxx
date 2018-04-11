@@ -63,11 +63,7 @@ TrigEFTrkMassHypo::~TrigEFTrkMassHypo()
 HLT::ErrorCode TrigEFTrkMassHypo::hltInitialize()
 {
 
-  if(msgLvl() <= MSG::DEBUG) {
-
-    msg() << MSG::DEBUG << "AcceptAll            = "
-        << (m_acceptAll==true ? "True" : "False") << endmsg;
-  }
+  ATH_MSG_DEBUG("AcceptAll            = "<< (m_acceptAll==true ? "True" : "False"));
 
   m_lastEvent = -1;
   m_lastEventPassed = -1;
@@ -81,10 +77,10 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltInitialize()
 
 HLT::ErrorCode TrigEFTrkMassHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFTrkMassHypo -------------|" << endmsg;
-  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
-  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
+  ATH_MSG_INFO("in finalize()" );
+  ATH_MSG_INFO("|----------------------- SUMMARY FROM TrigEFTrkMassHypo -------------|" );
+  ATH_MSG_INFO("Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI );
+  ATH_MSG_INFO("Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs );
 
   return HLT::OK;
 }
@@ -104,19 +100,18 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
     const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endmsg;
+        ATH_MSG_DEBUG("Failed to get xAOD::EventInfo " );
         // now try the old event ifo
         if ( store()->retrieve(pEventInfo).isFailure() ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
+            ATH_MSG_DEBUG("Failed to get EventInfo " );
             //m_mon_Errors.push_back( ERROR_No_EventInfo );
         } else {
             IdRun   = pEventInfo->event_ID()->run_number();
             IdEvent = pEventInfo->event_ID()->event_number();
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << endmsg;
+            ATH_MSG_DEBUG(" Run " << IdRun << " Event " << IdEvent );
         }// found old event info
     }else { // found the xAOD event info
-        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << evtInfo->runNumber()
-            << " Event " << evtInfo->eventNumber() << endmsg;
+        ATH_MSG_DEBUG(" Run " << evtInfo->runNumber() << " Event " << evtInfo->eventNumber() );
         IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event ifo
@@ -133,15 +128,8 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
     pass = true;
     //return HLT::OK;
   }
-  if(msgLvl() <= MSG::DEBUG) {
-    if (m_acceptAll) {
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"
-          << endmsg;
-    } else {
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-          << endmsg;
-    }
-  }
+  ATH_MSG_DEBUG("AcceptAll is set to : " << (m_acceptAll ? "True, taking all events " : "False, applying selection" ));
+
   // for now pass all events - JK changed to false 9/2/10
   pass=false;
 //  create vector for TrigEFBphys particles
@@ -151,28 +139,20 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
   HLT::ErrorCode status = getFeature(outputTE, xAODTrigBphysColl, "EFTrackMass");
 
   if ( status != HLT::OK ) {
-    if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get xAODTrigBphysColl collection" << endmsg;
-    }
-
+    ATH_MSG_WARNING("Failed to get xAODTrigBphysColl collection" );
     return HLT::OK;
   }
 
-  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Retrieved Bphys collection  xAODTrigBphysColl = " << xAODTrigBphysColl << endmsg;
+  ATH_MSG_DEBUG(" Retrieved Bphys collection  xAODTrigBphysColl = " << xAODTrigBphysColl );
   // if no Bphys particles were found, just leave TrigBphysColl. empty and leave
   if ( xAODTrigBphysColl == 0 ) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endmsg;
-
+    ATH_MSG_DEBUG("No Bphys particles to analyse, leaving!" );
     m_mon_NBphys=0;
     return HLT::OK;
   }
 
   m_mon_NBphys=xAODTrigBphysColl->size();
-  if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Got TrigBphys collection with " << xAODTrigBphysColl->size()
-        << " TrigBphys particles " << endmsg;
-  }
+  ATH_MSG_DEBUG("Got TrigBphys collection with " << xAODTrigBphysColl->size() << " TrigBphys particles " );
 
   m_mon_cutCounter = 0;
 
@@ -199,7 +179,7 @@ HLT::ErrorCode TrigEFTrkMassHypo::hltExecute(const HLT::TriggerElement* outputTE
 
   // store result
   //if ( attachBits(outputTE, bits) != HLT::OK ) {
-  //  msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endmsg;
+  //  msg() << MSG::ERROR << "Problem attaching TrigPassBits! " );
   //}
   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
       ATH_MSG_ERROR("Could not store TrigPassBits! ");
