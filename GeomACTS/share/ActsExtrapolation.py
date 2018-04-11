@@ -53,6 +53,7 @@ ServiceMgr += exCellWriterSvc
 
 import MagFieldServices.SetupField
 
+import AthenaCommon.AtlasUnixGeneratorJob
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
