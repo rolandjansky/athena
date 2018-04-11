@@ -46,7 +46,6 @@ class Identifier;
 class IdentifierHash;
 class StoreGateSvc;
 class PixelFillCablingData;
-class IBLParameterSvc;
 
 /**
  * The PixelCablingSvc class keeps track of the cabling map for pixels,
@@ -83,6 +82,11 @@ class IBLParameterSvc;
  *   Laura Franconi
  *
  */
+
+namespace InDetDD {
+  class SiDetectorManager;
+}  
+
 class PixelCablingSvc: virtual public IPixelCablingSvc, public AthService {
 
 public:
@@ -158,6 +162,7 @@ public:
   ///@{
   int getHitDiscCnfg(const uint32_t robId, const int link);
   int getHitDiscCnfg(Identifier* pixelId);
+  int getIBLOverflowToT(Identifier* pixelId);
   ///@}
   ///
   /** @name Functions to check the type of subdetector for a
@@ -174,6 +179,7 @@ public:
    * @return Enumerator moduletype, see IPixelCablingSvc.h
    */
   moduletype getModuleType(const Identifier& id);
+  pixeltype  getPixelType(const Identifier& id);
 
   ///@}
 
@@ -195,11 +201,10 @@ public:
 private:
   ToolHandle<PixelFillCablingData> m_cablingTool;
   ServiceHandle< StoreGateSvc > m_detStore;
-  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
+  const InDetDD::SiDetectorManager *m_detManager;
   const PixelID* m_idHelper;
   std::unique_ptr<PixelCablingData> m_cabling;
 
-  unsigned int m_callback_calls;
   IdContext m_context;
 
   /** @name The setProperty configurables */
@@ -216,29 +221,6 @@ private:
   std::string m_connTag;
   bool m_dump_map_to_file;
   ///@}
-
-  /** @name Geometry-dependent properties */
-  ///@{
-  bool m_useIBLParameterSvc;
-  bool m_IBLpresent;
-  bool m_isHybrid;
-  bool m_DBMpresent;
-
-  std::vector<int> m_layer_columnsPerFE;
-  std::vector<int> m_layer_rowsPerFE;
-  std::vector< std::vector<int> > m_layer_FEsPerHalfModule;
-
-  std::vector<int> m_disk_columnsPerFE;
-  std::vector<int> m_disk_rowsPerFE;
-  std::vector<int> m_disk_FEsPerHalfModule;
-  
-  int m_dbm_columnsPerFE;
-  int m_dbm_rowsPerFE;
-  int m_dbm_FEsPerHalfModule;
-
-  unsigned int m_eta_module_offset;
-  ///@}
-  
 };
 
 #endif   // PIXELCABLINGSVC_H
