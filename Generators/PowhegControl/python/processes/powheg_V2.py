@@ -21,6 +21,14 @@ class PowhegV2(PowhegBase):
         super(PowhegV2, self).__init__(base_directory, "POWHEG-BOX-V2", executable_name, **kwargs)
 
     @property
+    def default_PDFs(self):
+        """! Default PDFs for this process."""
+        return range(260000, 260101) # NNPDF30_nlo_as_0118 central with eigensets
+               + [267000, 264000]    # NNPDF30_nlo_as_0121 and NNPDF30_nlo_as_0115
+               + [13100, 25100]      # CT14nlo and MMHT2014nlo68cl
+               + range(90400, 90433) # PDF4LHC15_nlo_30_pdfas with eigensets
+
+    @property
     def files_for_cleanup(self):
         """! Wildcarded list of files created by this process that can be deleted."""
         return [
@@ -54,6 +62,11 @@ class PowhegV2(PowhegBase):
             "pwgxgrid.dat",
         ]
 
+    @property
+    def powheg_version(self):
+        """! Version of PowhegBox process."""
+        return "V2"
+
     def stage_is_completed(self, stage):
         """! Set whether the specified POWHEG-BOX generation stage is complete."""
         if stage == 1:
@@ -70,8 +83,3 @@ class PowhegV2(PowhegBase):
             if not glob.glob(required_file):
                 return False
         return True
-
-    @property
-    def powheg_version(self):
-        """! Version of PowhegBox process."""
-        return "V2"

@@ -83,6 +83,11 @@ class PowhegBase(Configurable):
         """! Version of PowhegBox process."""
         raise AttributeError("Powheg version is not known!")
 
+    @property
+    def default_PDFs(self):
+        """! Default PDFs for this process."""
+        raise AttributeError("Default PDFs are not known for this process!")
+
     def prepare_to_parallelise(self, n_cores):
         """! Scale calculation parameters by n_cores."""
         __nEvents_unscaled = self.parameters_by_keyword("numevts")[0].value
