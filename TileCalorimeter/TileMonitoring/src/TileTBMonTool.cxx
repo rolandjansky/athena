@@ -51,6 +51,7 @@ TileTBMonTool::TileTBMonTool(const std::string & type, const std::string & name,
   declareInterface<IMonitorToolBase>(this);
   declareProperty("CellContainer", m_cellContainer = "AllCalo"); //SG Cell Container
   declareProperty("Masked", m_masked); // Masked channels in the following format: "LBA01 1,2,3,4,5"
+  declareProperty("MaxTotalEnergy", m_maxTotalEnergy = 150.0); // Maximum energy on the histogram
 
   m_path = "/Tile/TestBeam"; //ROOT File relative directory
 }
@@ -149,6 +150,7 @@ StatusCode TileTBMonTool::fillHistograms() {
   if (cell_container->empty()) return StatusCode::SUCCESS;
 
   double total_energy(0.0);
+  bool onlyLBC04(true);
 
   for (const CaloCell* cell : *cell_container) {
     //    Identifier id = cell->ID();
@@ -178,9 +180,11 @@ StatusCode TileTBMonTool::fillHistograms() {
     int drawer1 = m_tileHWID->drawer(ch_id1);
     int chan1 = m_tileHWID->channel(ch_id1);
     int drawerIdx1 = TileCalibUtils::getDrawerIdx(ros1, drawer1);
+
+    if (onlyLBC04 && chan1 > 0 && drawerIdx1 != 87) onlyLBC04 = false;
     
     if (hash2 == TileHWID::NOT_VALID_HASH) {
-      if (!((m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U)) {
+      if (!(m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U) {
 	energy = cell->energy(); 
       }
     } else { 
@@ -194,11 +198,11 @@ StatusCode TileTBMonTool::fillHistograms() {
       int drawerIdx2 = TileCalibUtils::getDrawerIdx(ros2, drawer2);
 
       if ((m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U) {
-	if (!((m_maskedChannels[drawerIdx2][chan2] >> gain2) & 1U)) {
+	if (!(m_maskedChannels[drawerIdx2][chan2] >> gain2) & 1U) {
 	  energy = tile_cell->ene2() * 2; 
 	}
       } else if ((m_maskedChannels[drawerIdx2][chan2] >> gain2) & 1U) {
-	if (!((m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U)) {
+	if (!(m_maskedChannels[drawerIdx1][chan1] >> gain1) & 1U) {
 	  energy =tile_cell->ene1() * 2; 
 	}
       } else {
@@ -206,13 +210,15 @@ StatusCode TileTBMonTool::fillHistograms() {
       }
     }
     
+
     total_energy += energy * 0.001; // keep energy in pC
     
     fillHitMap(side, section, module, tower, sample, energy);
 
   }
-  
-  m_tileTotalEventEnergy->Fill(total_energy);
+
+  if (!onlyLBC04)
+    m_tileTotalEventEnergy->Fill(total_energy);
 
   return StatusCode::SUCCESS;
 }
@@ -303,7 +309,7 @@ void TileTBMonTool::initFirstEvent() {
   std::string runNumber = getRunNumStr();
 
   m_tileTotalEventEnergy = book1F("", "TileTBTotalEventEnergy", "Run " + runNumber + ": Total TileCal Event Energy"
-                                  ,500, -2., 150., run, ATTRIB_MANAGED, "", "mergeRebinned");
+                                  ,500, -2., m_maxTotalEnergy, run, ATTRIB_MANAGED, "", "mergeRebinned");
 
   m_tileTotalEventEnergy->GetXaxis()->SetTitle("Event Energy [pC]");
 

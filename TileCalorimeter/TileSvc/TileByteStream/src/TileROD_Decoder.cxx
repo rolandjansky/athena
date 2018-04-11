@@ -1190,6 +1190,15 @@ void TileROD_Decoder::unpack_frag6(uint32_t /*version*/, const uint32_t* p, pDig
       ATH_MSG_VERBOSE("FRAG6: " << (std::string) *(pDigits.back()));
     }
   }
+
+  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &l1id[0], &l1id[4]);
+  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &bcid[0], &bcid[4]);
+  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &moduleID[0], &moduleID[4]);
+  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &runType[0], &runType[4]);
+  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &runNumber[0], &runNumber[4]);
+  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &chargeInjected[0], &chargeInjected[4]);
+  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &timeInjected[0], &timeInjected[4]);
+  m_digitsMetaData[1]->insert(m_digitsMetaData[1]->end(), &capacitor[0], &capacitor[4]);
   
 }
 
@@ -2665,7 +2674,7 @@ void TileROD_Decoder::unpack_brod(uint32_t /* version */, const uint32_t* p,
         //uint32_t edge =  flag & 0x01;
         uint32_t chan = (flag >> 1) & 0x0F;
         uint32_t bad = (flag >> 5) & 0x01;
-        if (prev != chan && !bad) {
+        if (/* prev != chan && */ !bad) {
           if (prev != 0xFF) {
             HWIdentifier adcID = m_tileHWID->adc_id(drawerID, prev, 0);
             rc = new TileBeamElem(adcID, adc);

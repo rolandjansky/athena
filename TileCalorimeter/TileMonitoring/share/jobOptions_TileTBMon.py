@@ -4,6 +4,7 @@
 # """This topOptions is intended to test the monitoring code"""
 #=================================================================
 
+
 from os import system, popen
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'jobOptions_TileTBMon.py' )
@@ -12,7 +13,10 @@ log = logging.getLogger( 'jobOptions_TileTBMon.py' )
 MonitorOutput = 'Tile'
 TileDCS = False
 
-
+if not 'MaxEnergy' in dir():
+    MaxEnergy = 60.0
+if not 'MaxTotalEnergy' in dir():
+    MaxTotalEnergy = 100.0
 
 if not 'TestOnline' in dir():
     TestOnline = False
@@ -22,11 +26,17 @@ if TestOnline:
     storeHisto = True;
 
 if not 'TileFELIX' in dir():
-    TileFELIX = False
+     if 'PublishName' in dir():
+         TileFELIX = True
+     else:
+         TileFELIX = False
 
 
 if not 'UseDemoCabling' in dir():
     UseDemoCabling = 2016
+
+if TileFELIX:
+    UseDemoCabling = 2017
 
 if not 'InputDirectory' in dir():
     InputDirectory = "/data1/daq"    
@@ -152,7 +162,7 @@ if athenaCommonFlags.isOnline() or doOnline or doStateless:
 # ByteSream Input 
 #-----------------
 
-if not athenaCommonFlags.isOnline() or TestOnline or TileFELIX:
+if not athenaCommonFlags.isOnline() or TestOnline:
 
     include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
     include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
@@ -230,25 +240,25 @@ if TileUseCOOL:
 # setting option to build frag->ROB mapping at the begin of run
 ByteStreamCnvSvc = Service( "ByteStreamCnvSvc" )
 
-if TileFELIX:
-    ByteStreamCnvSvc.ROD2ROBmap = [ "-1" ] 
-else:
-    ByteStreamCnvSvc.ROD2ROBmap = [
-        # frag-to-ROB mapping, bypassing ROD ID which is not unique
-        "0xff",  "0x500000",
-        "0x13",  "0x500000",
-        "0x1",   "0x500000",
-        "0x2",   "0x500000",
-        "0x3",   "0x500000",
-        "0x200", "0x0",
-        "0x201", "0x0",
-        "0x402", "0x0",
-        ]
+ByteStreamCnvSvc.ROD2ROBmap = [
+    # frag-to-ROB mapping, bypassing ROD ID which is not unique
+    "0xff",  "0x500000",
+    "0x13",  "0x500000",
+    "0x1",   "0x500000",
+    "0x2",   "0x500000",
+    "0x3",   "0x500000",
+    "0x200", "0x0",
+    "0x201", "0x0",
+    "0x402", "0x0",
+    ]
 
-    if RunNumber >= 600000 and RunNumber < 611300:
-        ByteStreamCnvSvc.ROD2ROBmap += ["0x101", "0x1"]
-    elif RunNumber >= 611300:
-        ByteStreamCnvSvc.ROD2ROBmap += ["0x100", "0x1"]
+if RunNumber >= 600000 and RunNumber < 611300:
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x101", "0x1"]
+elif RunNumber >= 611300:
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x100", "0x1"]
+if TileFELIX:
+    ByteStreamCnvSvc.ROD2ROBmap += ["0x203", "0x500006"]
+
 
 topSequence += CfgMgr.xAODMaker__EventInfoCnvAlg()
 
@@ -318,29 +328,31 @@ if doMonitoring:
                                       , CellsContainerID  = '' # used to check if the current event is collision
                                       , MBTSCellContainerID = '' # used to check if the current event is collision
                                       # Masked format: 'module gain channel,channel' (channels are separated by comma)
-                                      , Masked = ['LBC02 0 46', 'LBC02 1 46', 'LBC04 0 46', 'LBC04 1 46']
-                                      , CellContainer       = CellContainerMonitored)
+                                      , Masked = ['LBC02 0 46', 'LBC02 1 46', 
+                                                  'LBC04 0 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47',
+                                                  'LBC04 1 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47']
+                                      , CellContainer       = CellContainerMonitored
+                                      , MaxTotalEnergy      = MaxTotalEnergy)
 
 
     topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBMonTool ]
     print toolSvc.TileTBMonTool
     
-    if not TileFELIX:
-        toolSvc += CfgMgr.TileTBBeamMonTool ( name                  = 'TileTBBeamMonTool'
-                                              , histoPathBase       = '/Tile/TestBeam/BeamElements'
-                                              # , doOnline            = athenaCommonFlags.isOnline()
-                                              , CellsContainerID  = '' # used to check if the current event is collision
-                                              , MBTSCellContainerID = '' # used to check if the current event is collision
-                                              , CutEnergyMin = 40
-                                              , CutEnergyMax = 70 
-                                              , CellContainer       = CellContainerMonitored
-                                              );
+    toolSvc += CfgMgr.TileTBBeamMonTool ( name                  = 'TileTBBeamMonTool'
+                                          , histoPathBase       = '/Tile/TestBeam/BeamElements'
+                                          # , doOnline            = athenaCommonFlags.isOnline()
+                                          , CellsContainerID  = '' # used to check if the current event is collision
+                                          , MBTSCellContainerID = '' # used to check if the current event is collision
+                                          , CutEnergyMin = 40
+                                          , CutEnergyMax = 70 
+                                          , CellContainer       = CellContainerMonitored
+                                          );
 
 
 
-        topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBBeamMonTool ]
+    topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBBeamMonTool ]
     
-        print toolSvc.TileTBBeamMonTool
+    print toolSvc.TileTBBeamMonTool
 
 
     if TileBiGainRun:
@@ -351,7 +363,9 @@ if doMonitoring:
                                               , MBTSCellContainerID = '' # used to check if the current event is collision
                                               , cellsContainerName       = 'AllCaloHG'
                                               , FillTimeHistograms = True
-                                              , energyThresholdForTime = 1.0)
+                                              , energyThresholdForTime = 1.0
+                                              , MaxEnergy = MaxEnergy
+                                              , MaxTotalEnergy = MaxTotalEnergy)
         
         topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBCellMonToolHG ]
         print toolSvc.TileTBCellMonToolHG
@@ -364,7 +378,9 @@ if doMonitoring:
                                               , MBTSCellContainerID = '' # used to check if the current event is collision
                                               , cellsContainerName       = 'AllCaloLG'
                                               , FillTimeHistograms = True
-                                              , energyThresholdForTime = 1.0)
+                                              , energyThresholdForTime = 1.0
+                                              , MaxEnergy = MaxEnergy
+                                              , MaxTotalEnergy = MaxTotalEnergy)
         
         topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBCellMonToolLG ]
         print toolSvc.TileTBCellMonToolLG
@@ -377,7 +393,9 @@ if doMonitoring:
                                               , MBTSCellContainerID = '' # used to check if the current event is collision
                                               , cellsContainerName       = 'AllCalo'
                                               , FillTimeHistograms = True
-                                              , energyThresholdForTime = 1.0)
+                                              , energyThresholdForTime = 1.0
+                                              , MaxEnergy = MaxEnergy
+                                              , MaxTotalEnergy = MaxTotalEnergy)
 
         topSequence.TileTBMonManager.AthenaMonTools += [ toolSvc.TileTBCellMonTool ]
         print toolSvc.TileTBCellMonTool
