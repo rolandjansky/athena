@@ -23,7 +23,6 @@
 
 #include "Identifier/Identifier.h"
 
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
 
 #include "MuonDQAUtils/MuonChamberNameConverter.h"
@@ -75,8 +74,6 @@ MdtVsRpcRawDataValAlg::MdtVsRpcRawDataValAlg( const std::string & type, const st
   declareProperty("Side",                       m_side=0); 
   declareProperty("Clusters",                   m_doClusters = false);  
   declareProperty("ClusterContainer",           m_clusterContainerName = "rpcClusters");
-  declareProperty("RpcPrepDataContainer",       m_key_rpc="RPC_Measurements");
-  declareProperty("MdtPrepDataContainer",       m_key_mdt="MDT_DriftCircles");
   m_padsId        = 0 ;
 
 }
@@ -97,19 +94,6 @@ StatusCode MdtVsRpcRawDataValAlg::initialize(){
   ATH_MSG_INFO ( "in initializing MdtVsRpcRawDataValAlg" );
 
   StatusCode sc;
-
-  // Store Gate store
-  sc = serviceLocator()->service("StoreGateSvc", m_eventStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR ( " Cannot get StoreGateSvc " );
-    return sc ;
-  }
-  // retrieve the active store
-  sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
-  if (sc != StatusCode::SUCCESS ) {
-    ATH_MSG_ERROR ( " Cannot get ActiveStoreSvc " );
-    return sc ;
-  }
 
   // Initialize the IdHelper
   StoreGateSvc* detStore = 0;
@@ -164,6 +148,9 @@ StatusCode MdtVsRpcRawDataValAlg::initialize(){
   }
  
   ManagedMonitorToolBase::initialize().ignore();  //  Ignore the checking code;
+
+  ATH_CHECK(m_key_mdt.initialize());
+  ATH_CHECK(m_key_rpc.initialize());
   
   return StatusCode::SUCCESS;
 }
@@ -197,26 +184,13 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
     Identifier ch_idmdt;
     Identifier dig_idmdt;
   
-    const Muon::MdtPrepDataContainer* mdt_container(0);
-    sc = (*m_activeStore)->retrieve(mdt_container, m_key_mdt);
-    if (sc.isFailure() || 0 == mdt_container) 
-      {
-	ATH_MSG_ERROR ( " Cannot retrieve MdtPrepDataContainer " << m_key_mdt );
-	return sc;
-      }
-  
-    ATH_MSG_DEBUG ("****** mdtContainer->size() : " << mdt_container->size());  
+    SG::ReadHandle<Muon::MdtPrepDataContainer> mdt_container(m_key_mdt);
+    ATH_MSG_DEBUG ("****** mdt->size() : " << mdt_container->size());  
 
     Muon::MdtPrepDataContainer::const_iterator mdt_containerIt;
     //mdt stuff end
   
-    const Muon::RpcPrepDataContainer* rpc_container;
-    sc = (*m_activeStore)->retrieve(rpc_container, m_key_rpc);
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR ( " Cannot retrieve RpcPrepDataContainer " << m_key_rpc );
-      return sc;
-    }
-
+    SG::ReadHandle<Muon::RpcPrepDataContainer> rpc_container(m_key_rpc);
     
     ATH_MSG_DEBUG ("****** rpc->size() : " << rpc_container->size());  
   

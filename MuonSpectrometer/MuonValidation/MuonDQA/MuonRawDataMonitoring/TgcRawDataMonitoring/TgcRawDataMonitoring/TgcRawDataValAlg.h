@@ -21,7 +21,6 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/NTuple.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -73,8 +72,6 @@ public:
   virtual StatusCode procHistograms();
 
 private:
-  // Stores
-  StoreGateSvc*   m_detStore;
   
   // Muon Detector Manager
   const MuonGM::MuonDetectorManager* m_muonMgr;
