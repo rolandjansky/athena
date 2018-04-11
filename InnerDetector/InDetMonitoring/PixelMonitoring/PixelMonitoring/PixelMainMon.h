@@ -241,7 +241,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   bool m_doDCS;
 
   bool m_doHoleSearch;
-  bool m_doESD;
   bool m_do2DMaps;
   bool m_doModules;
   bool m_doOffline;
@@ -450,8 +449,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH1F_LW* m_cluster_LVL1A;
   TH1F_LW* m_cluster_LVL1A1d_mod[PixLayer::COUNT];
   TProfile_LW* m_clusterSize_eta;
-  TH2F_LW* m_clusToT_vs_eta_mod[PixLayer::COUNT];
-  TH2F_LW* m_ToT_vs_clussize_mod[PixLayer::COUNT];
   TProfile_LW* m_clussize_vs_eta_mod[PixLayer::COUNT];
 
   std::unique_ptr<PixelMon2DMapsLW> m_clustermap_mon;

@@ -188,16 +188,6 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     hname = makeHistname(("Cluster_groupsize_vs_eta_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
     htitles = makeHisttitle(("Number of pixels per cluster vs eta, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_eta + atext_npix), false);
     sc = clusterExpert.regHist(m_clussize_vs_eta_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_eta, min_eta, max_eta));
-
-    if (m_doESD && !m_doOnline) {
-      hname = makeHistname(("ClusterToT_vs_eta_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-      htitles = makeHisttitle(("Cluster ToT vs eta, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_eta + atext_tot), false);
-      sc = clusterExpert.regHist(m_clusToT_vs_eta_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_eta, min_eta, max_eta, nbins_tot, min_tot, max_tot));
-
-      hname = makeHistname(("ClusterToT_vs_groupsize_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-      htitles = makeHisttitle(("Cluster ToT vs groupsize, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_tot + atext_npix), false);
-      sc = clusterExpert.regHist(m_ToT_vs_clussize_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_tot, min_tot, max_tot, nbins_npix, min_npix, max_npix));
-    }
   }
 
   for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
@@ -672,8 +662,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
       if (m_clusToT_map) m_clusToT_map->fill(clusID, m_pixelid, cluster.totalToT());
       if (m_cluster_size_mod) m_cluster_size_mod->fill(cluster.rdoList().size(), clusID, m_pixelid);
 
-      if (m_clusToT_vs_eta_mod[pixlayer]) m_clusToT_vs_eta_mod[pixlayer]->Fill(m_pixelid->eta_module(clusID), cluster.totalToT());
-      if (m_ToT_vs_clussize_mod[pixlayer]) m_ToT_vs_clussize_mod[pixlayer]->Fill(cluster.totalToT(), cluster.rdoList().size());
       if (m_clussize_vs_eta_mod[pixlayer]) m_clussize_vs_eta_mod[pixlayer]->Fill(1.0 * m_pixelid->eta_module(clusID), cluster.rdoList().size());
 
       nclusters++;

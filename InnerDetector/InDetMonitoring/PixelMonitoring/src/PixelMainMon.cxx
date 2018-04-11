@@ -109,7 +109,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   declareProperty("doHeavyIonMon", m_doHeavyIonMon = false);
 
   declareProperty("doIBL", m_doIBL = false);
-  declareProperty("doESD", m_doESD = false);
   declareProperty("DetailsMod1", m_DetailsMod1 = "");
   declareProperty("DetailsMod2", m_DetailsMod2 = "");
   declareProperty("DetailsMod3", m_DetailsMod3 = "");
@@ -621,7 +620,6 @@ StatusCode PixelMainMon::bookHistograms() {
   }
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "[PixelMonitoring] flags in bookHisto" << endmsg;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doESD       " << m_doESD << endmsg;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doRDO       " << m_doRDO << endmsg;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doRODError  " << m_doRODError << endmsg;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doSpacePoint" << m_doSpacePoint << endmsg;
