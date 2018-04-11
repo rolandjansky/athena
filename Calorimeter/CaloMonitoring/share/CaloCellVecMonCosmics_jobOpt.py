@@ -33,7 +33,6 @@ ToolSvc+=theLArBadChannelTool
 
 
 LArCellMon = LArCellMonTool(
-    OutputLevel=DEBUG,
     name = "LArCellMonCosmics",
     CaloCellContainer = "AllCalo",
 
@@ -60,8 +59,8 @@ LArCellMon = LArCellMonTool(
     MaskBadChannels    = False,
     MaskNoCondChannels = False,
 
-    useReadyFilterTool = False
-    useBeamBackgroundRemoval = False
+    useReadyFilterTool = False,
+    useBeamBackgroundRemoval = False,
 
     #doInverseMasking   = False,
  #   doMaskingOnline    = False,

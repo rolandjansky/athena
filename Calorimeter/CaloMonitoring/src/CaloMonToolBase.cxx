@@ -160,7 +160,6 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
       ATH_MSG_WARNING("Unable to retrieve BeamBackgroundData");
     }
     else {
-         ATH_MSG_INFO("BeamBackgroundData is retrieved");
       if( beamBackgroundData->GetNumSegment() > 0 ) {
         m_passBeamBackgroundRemoval = false;
 	ifPass = 0;
