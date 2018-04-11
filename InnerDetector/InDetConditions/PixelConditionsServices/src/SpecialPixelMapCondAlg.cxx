@@ -156,12 +156,28 @@ StatusCode SpecialPixelMapCondAlg::execute_r (const EventContext& ctx) const
     ATH_MSG_DEBUG("Entering SpecialPixelMapCondAlg");
     const std::array<const SG::ReadCondHandleKey<CondAttrListCollection>*, s_max> condarray{ &m_ConAttrList1, &m_ConAttrList2, &m_ConAttrList3, &m_ConAttrList4 };
     const std::array<const SG::WriteCondHandleKey<DetectorSpecialPixelMap>*, s_max> outarray{ &m_pixmap1, &m_pixmap2, &m_pixmap3, &m_pixmap4 };
+    std::array<bool, s_max> newobject; newobject.fill(true);
     const size_t N = m_condAttrListCollectionKeys.size();//should never be higher than s_max, check in initialize
     std::array<DetectorSpecialPixelMap*, s_max> ptrcache;
     std::array<EventIDRange, s_max> rangearray;
     std::vector<EventIDRange> spmrange;
     ptrcache.fill(nullptr);
     DetectorSpecialPixelMap* &spm = ptrcache[0];
+
+    for (size_t i=0; i<N; i++) {
+        if(condarray[i]->key().empty()) continue;
+        SG::WriteCondHandle<DetectorSpecialPixelMap> outhandle(*outarray[i], ctx);
+        if (outhandle.isValid()) {
+          ATH_MSG_DEBUG((*outarray[i]).key() << " already valid");
+          newobject[i] = false;       
+        }
+    }
+    if(std::accumulate(newobject.begin(), newobject.begin() + N, 0) == 0){
+      ATH_MSG_DEBUG("No new objects needed");
+      return StatusCode::SUCCESS;
+    }
+
+
     for (size_t i=0; i<N; i++) {
         if(condarray[i]->key().empty()) continue;
         ATH_MSG_DEBUG("Attempting to retrieve " << condarray[i]->key() );
@@ -171,16 +187,26 @@ StatusCode SpecialPixelMapCondAlg::execute_r (const EventContext& ctx) const
            return StatusCode::FAILURE;
        }
        ATH_CHECK(createFromDetectorStore(attrListColl.retrieve(), true, ptrcache[i]));
+       newobject[i] = true;
     }
-    if(N>0) spmrange.push_back(rangearray[0]);
-    if(m_mergePixelMaps) {
+
+
+    if(N>0) spmrange.push_back(rangearray.at(0));
+    if(m_mergePixelMaps && newobject[0]) {
         for(size_t i=1; i<N; i++) {
             if(ptrcache[i]==nullptr) continue;
-            spm->merge(ptrcache[i]);
+            if(newobject[i] ==false){
+              SG::ReadCondHandleKey<DetectorSpecialPixelMap> key(outarray[i]->key());
+              SG::ReadCondHandle<DetectorSpecialPixelMap> inhandle(key, ctx);
+              *spm += *inhandle.retrieve();
+            }else{
+              spm->merge(ptrcache[i]);
+            }
             spmrange.push_back(rangearray[i]);
         }
     }
-    if( !m_overlayFolder.key().empty() ) {
+    if( !m_overlayFolder.key().empty() &&  !SG::WriteCondHandle<DetectorSpecialPixelMap>(m_overlayKey, ctx).isValid() ) {
+
         DetectorSpecialPixelMap* overlay =nullptr;
         DetectorSpecialPixelMap* maskoverlay=nullptr;
         SG::ReadCondHandle<CondAttrListCollection> overlayfolder(m_overlayFolder);
@@ -197,6 +223,7 @@ StatusCode SpecialPixelMapCondAlg::execute_r (const EventContext& ctx) const
             
             ATH_CHECK(createMaskingOverlay(maskoverlay));
             SG::WriteCondHandle<DetectorSpecialPixelMap> writeh(m_maskingOverlayKey, ctx);
+            ATH_MSG_DEBUG("Record condition handle " << m_maskingOverlayKey.key() << " " << r);
             ATH_CHECK(writeh.record(r, maskoverlay));
             ATH_CHECK(registerCondAttrListCollection(maskoverlay, spm, ctx, r));
             overlay->merge(maskoverlay);
@@ -262,27 +289,28 @@ StatusCode SpecialPixelMapCondAlg::execute_r (const EventContext& ctx) const
         if(overlayRanges.size() == 2) rangeIntersection = EventIDRange::intersect(overlayRanges[0], overlayRanges[1]);
         else if (overlayRanges.size() == 1)rangeIntersection = overlayRanges[0];
         else ATH_MSG_ERROR("Logic error line " << __LINE__);
-        for(auto &x : overlayRanges) spmrange.push_back(x);
+        spmrange.insert(spmrange.end(), overlayRanges.begin(), overlayRanges.end());
         if(overlay){
-           SG::WriteCondHandle<DetectorSpecialPixelMap> whandleoverlay (m_overlayKey, ctx);
-           ATH_CHECK(whandleoverlay.record(rangeIntersection, overlay ));
+           SG::WriteCondHandle<DetectorSpecialPixelMap> handleoverlay(m_overlayKey, ctx);
+           ATH_MSG_DEBUG("Record condition handle " << m_overlayKey.key() << " " << rangeIntersection);
+           ATH_CHECK(handleoverlay.record(rangeIntersection, overlay ));
         }
     }
 
     for(size_t i=1; i<N; i++) {//Write i>0
-       if(outarray[i]->key().empty()) continue;
+       if(newobject[i] ==false) continue;
        SG::WriteCondHandle<DetectorSpecialPixelMap> spmhandle(*outarray[i], ctx);
-       ATH_MSG_DEBUG("Record condition handle " << outarray[i]->key());
+       ATH_MSG_DEBUG("Record condition handle " << outarray[i]->key() << " " << rangearray[i]);
        ATH_CHECK(spmhandle.record(rangearray[i], ptrcache[i]));
     }
     //write i=0
-    EventIDRange spmIntersect = spmrange[0];
-    for(size_t i = 1; i<spmrange.size(); i++) spmIntersect = EventIDRange::intersect(spmIntersect, spmrange[i]);
-//    EventIDRange spmIntersect = EventIDRange::intersect(std::begin(spmrange), std::end(spmrange));
-    SG::WriteCondHandle<DetectorSpecialPixelMap> spmhandle(*outarray[0], ctx);
-    ATH_MSG_DEBUG("Record condition handle " << outarray[0]->key());
-    ATH_CHECK(spmhandle.record(spmIntersect, spm));    
-
+    if(newobject[0]){
+       SG::WriteCondHandle<DetectorSpecialPixelMap> spmhandle(*outarray[0], ctx);
+       EventIDRange spmIntersect = spmrange[0];
+       for(size_t i = 1; i<spmrange.size(); i++) spmIntersect = EventIDRange::intersect(spmIntersect, spmrange[i]);
+       ATH_MSG_DEBUG("Record condition handle " << outarray[0]->key() << " " << spmIntersect);
+       ATH_CHECK(spmhandle.record(spmIntersect, spm));
+    }
 
     return StatusCode::SUCCESS;
 }
@@ -607,10 +635,12 @@ StatusCode SpecialPixelMapCondAlg::registerCondAttrListCollection(const Detector
 
     {
         SG::WriteCondHandle<CondAttrListCollection> output(m_outputFolder, ctx);
+        ATH_MSG_DEBUG("Record condition handle " << m_outputFolder.key() << " " << r);
         ATH_CHECK(output.record(r, attrListColl));
     }
     if( m_useDualFolderStructure ) {
         SG::WriteCondHandle<CondAttrListCollection> outputlong(m_outputLongFolder, ctx);
+        ATH_MSG_DEBUG("Record condition handle " << m_outputLongFolder.key() << " " << r);
         ATH_CHECK(outputlong.record(r, attrListCollLong));
     }
 
