@@ -12,7 +12,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "TRT_PAI_Process/ITRT_PAITool.h"
-#include "TRT_PAI_Process/TRT_PAI_gasMixture.h"
+#include "TRT_PAI_gasMixture.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 
@@ -44,7 +44,7 @@ class IAtRndmGenSvc;
  * Adapted to C++ by T.Kittelmann/Mogens Dam.
  */
 
-class TRT_PAI_Process : public AthAlgTool,  virtual public ITRT_PAITool {
+class TRT_PAI_Process final : public extends<AthAlgTool, ITRT_PAITool> {
 
  public:
 

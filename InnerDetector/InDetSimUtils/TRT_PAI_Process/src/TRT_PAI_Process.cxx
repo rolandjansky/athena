@@ -2,14 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TRT_PAI_Process/TRT_PAI_Process.h"
-#include "TRT_PAI_Process/TRT_PAI_gasdata.h"
-#include "TRT_PAI_Process/TRT_PAI_element.h"
-#include "TRT_PAI_Process/TRT_PAI_gasComponent.h"
-#include "TRT_PAI_Process/TRT_PAI_gasMixture.h"
-#include "TRT_PAI_Process/TRT_PAI_effectiveGas.h"
-#include "TRT_PAI_Process/TRT_PAI_physicsConstants.h"
-#include "TRT_PAI_Process/TRT_PAI_utils.h"
+#include "TRT_PAI_Process.h"
+#include "TRT_PAI_gasdata.h"
+#include "TRT_PAI_element.h"
+#include "TRT_PAI_gasComponent.h"
+#include "TRT_PAI_gasMixture.h"
+#include "TRT_PAI_effectiveGas.h"
+#include "TRT_PAI_physicsConstants.h"
+#include "TRT_PAI_utils.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -34,7 +34,7 @@
 TRT_PAI_Process::TRT_PAI_Process( const std::string& type,
                                   const std::string& name,
                                   const IInterface* parent )
-  : AthAlgTool( type, name, parent )
+  : base_class( type, name, parent )
   , m_nTabulatedGammaValues( 56 )
   , m_gamExpMin( -2. )
   , m_gamExpMax(  5. )
@@ -44,9 +44,6 @@ TRT_PAI_Process::TRT_PAI_Process( const std::string& type,
   , m_pHRengine(nullptr)
   , m_pAtRndmGenSvc ("AtRndmGenSvc", name)
 {
-  // declare special interface
-  declareInterface<ITRT_PAITool>(this);
-
   //Properties:
   declareProperty( "GasType", m_gasType, "Gas Type" );
   declareProperty( "RndServ", m_pAtRndmGenSvc, "Random Number Service for TRT_PAI_Process" );
