@@ -58,6 +58,8 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_ExtrapolatedMuonTrackParticles
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MuonSpectrometerTrackParticles
   # additional variables for inner detector
+  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_InDetTrackParticles
+  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_PrimaryVertices
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_InDetForwardTrackParticles
   # additional variables for tau
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_Taus
