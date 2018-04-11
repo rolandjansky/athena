@@ -32,18 +32,12 @@ find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
 # Component(s) in the package:
-atlas_add_library( TrigBphysMonitoringLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigBphysMonitoring
-                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES xAODTracking TrigDecisionToolLib TrigHLTMonitoringLib AthenaMonitoringLib TrkVertexAnalysisUtilsLib
-                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps CxxUtils xAODEventInfo xAODMuon xAODTrigBphys xAODTrigMuon GaudiKernel TrkParameters TrkParametersBase VxVertex TrigMuonEvent TrigParticle )
-
 atlas_add_component( TrigBphysMonitoring
-                     src/components/*.cxx
+                     src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} xAODTracking TrigDecisionToolLib TrigHLTMonitoringLib AthenaBaseComps AthenaMonitoringLib CxxUtils xAODEventInfo xAODMuon xAODTrigBphys xAODTrigMuon GaudiKernel TrkParameters TrkParametersBase VxVertex TrkVertexAnalysisUtilsLib TrigMuonEvent TrigParticle TrigBphysMonitoringLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} xAODTracking TrigDecisionToolLib 
+                     TrigHLTMonitoringLib AthenaMonitoringLib TrkVertexAnalysisUtilsLib AthenaBaseComps CxxUtils xAODEventInfo 
+                     xAODMuon xAODTrigBphys xAODTrigMuon GaudiKernel TrkParameters TrkParametersBase VxVertex TrigMuonEvent TrigParticle )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

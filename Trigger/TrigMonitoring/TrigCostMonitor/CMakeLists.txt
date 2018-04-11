@@ -43,10 +43,6 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minui
 find_package( tdaq-common )
 find_package( tdaq-common COMPONENTS CTPfragment )
 
-# tag NEEDS_CORAL_BASE was not recognized in automatic conversion in cmt2cmake
-
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
-
 # Component(s) in the package:
 atlas_add_library( TrigCostMonitorLib
                    src/*.cxx
@@ -58,14 +54,12 @@ atlas_add_library( TrigCostMonitorLib
 
 atlas_add_component( TrigCostMonitor
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests CoolLumiUtilitiesLib xAODEventInfo GaudiKernel TrigDecisionToolLib TrigConfJobOptData TrigMonitoringEvent TrigSteeringLib TrigTimeAlgsLib AthenaKernel TruthHelper GeneratorObjects PathResolver TrigConfHLTData TrigConfL1Data TrigConfStorage TrigDataAccessMonitoringLib TrigSerializeResultLib TrigNavigationLib TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1Result TrigCostMonitorLib )
+                     LINK_LIBRARIES TrigCostMonitorLib )
 
 atlas_add_dictionary( TrigCostMonitorDict
                       TrigCostMonitor/TrigCostMonitorDict.h
                       TrigCostMonitor/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests CoolLumiUtilitiesLib xAODEventInfo GaudiKernel TrigDecisionToolLib TrigConfJobOptData TrigMonitoringEvent TrigSteeringLib TrigTimeAlgsLib AthenaKernel TruthHelper GeneratorObjects PathResolver TrigConfHLTData TrigConfL1Data TrigConfStorage TrigDataAccessMonitoringLib TrigSerializeResultLib TrigNavigationLib TrigSteeringEvent TrigInterfacesLib TrigT1Interfaces TrigT1Result TrigCostMonitorLib )
+                      LINK_LIBRARIES TrigCostMonitorLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/TrigCost*.py )
