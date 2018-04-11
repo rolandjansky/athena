@@ -254,15 +254,15 @@ thinningTools.append(HIGG8D1TauTPThinningTool)
 
 # Electrons - calo cluster thinning
 #from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__CaloClusterThinning
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-HIGG8D1ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "HIGG8D1ElectronCCThinningTool",
-                                                                          ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
-                                                                          SGKey                   = "Electrons",
-                                                                          CaloClCollectionSGKey   = "egammaClusters",
-                                                                          SelectionString         = "Electrons.pt >= 5*GeV",
-                                                                          ConeSize                = 0.4)
-ToolSvc += HIGG8D1ElectronCCThinningTool
-thinningTools.append(HIGG8D1ElectronCCThinningTool)
+#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+#HIGG8D1ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "HIGG8D1ElectronCCThinningTool",
+#                                                                          ThinningService         = HIGG8D1ThinningHelper.ThinningSvc(),
+#                                                                          SGKey                   = "Electrons",
+#                                                                          CaloClCollectionSGKey   = "egammaClusters",
+#                                                                          SelectionString         = "Electrons.pt >= 5*GeV",
+#                                                                          ConeSize                = 0.4)
+#ToolSvc += HIGG8D1ElectronCCThinningTool
+#thinningTools.append(HIGG8D1ElectronCCThinningTool)
 
 #====================================================================
 # Truth Thinning
@@ -334,14 +334,14 @@ if globalflags.DataSource()=='geant4':
 # Clusters for Tau TES
 #====================================================================
                                                                                                                                                                                                                                    
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-HIGG8D1CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name                  = "HIGG8D1CaloClusterThinning",
-                            ThinningService       = HIGG8D1ThinningHelper.ThinningSvc(),
-                            SGKey                 = "TauJets",
-                            TopoClCollectionSGKey = "CaloCalTopoClusters",
-                            )
-ToolSvc += HIGG8D1CaloClusterThinning
-thinningTools.append(HIGG8D1CaloClusterThinning)
+#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+#HIGG8D1CaloClusterThinning  = DerivationFramework__CaloClusterThinning(name                  = "HIGG8D1CaloClusterThinning",
+#                            ThinningService       = HIGG8D1ThinningHelper.ThinningSvc(),
+#                            SGKey                 = "TauJets",
+#                            TopoClCollectionSGKey = "CaloCalTopoClusters",
+#                            )
+#ToolSvc += HIGG8D1CaloClusterThinning
+#thinningTools.append(HIGG8D1CaloClusterThinning)
 
 
 
@@ -507,10 +507,11 @@ ExtraContentTaus=[
 
 HIGG8D1SlimmingHelper.ExtraVariables += ExtraContentTaus
 
-HIGG8D1SlimmingHelper.AllVariables = ["egammaClusters","CaloCalTopoClusters"]
+#HIGG8D1SlimmingHelper.AllVariables = ["egammaClusters","CaloCalTopoClusters"]
 
 if globalflags.DataSource()=='geant4':
-    HIGG8D1SlimmingHelper.AllVariables += ["TruthParticles", "TruthEvents","TruthVertices","AntiKt4TruthJets"]
+    HIGG8D1SlimmingHelper.AllVariables += ["TruthParticles", "TruthEvents","TruthVertices"]
+    HIGG8D1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets"] 
     HIGG8D1SlimmingHelper.ExtraVariables += ["Electrons.truthOrigin.truthType.truthParticleLink.bkgTruthType.bkgTruthOrigin.bkgTruthParticleLink.bkgMotherPdgId.deltaPhi1",
                                              "MuonTruthParticles.truthOrigin.truthType.truthParticleLink",
                                              "InDetTrackParticles.truthOrigin.truthType.truthParticleLink",
