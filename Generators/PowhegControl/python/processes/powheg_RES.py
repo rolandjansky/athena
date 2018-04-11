@@ -25,10 +25,11 @@ class PowhegRES(PowhegBase):
     @property
     def default_PDFs(self):
         """! Default PDFs for this process."""
-        return range(260000, 260101) # NNPDF30_nlo_as_0118 central with eigensets
-               + [267000, 264000]    # NNPDF30_nlo_as_0121 and NNPDF30_nlo_as_0115
-               + [13100, 25100]      # CT14nlo and MMHT2014nlo68cl
-               + range(90400, 90433) # PDF4LHC15_nlo_30_pdfas with eigensets
+        __PDF_list = range(260000, 260101) # NNPDF30_nlo_as_0118 central with eigensets
+        __PDF_list += [267000, 264000]     # NNPDF30_nlo_as_0121 and NNPDF30_nlo_as_0115
+        __PDF_list += [13100, 25100]       # CT14nlo and MMHT2014nlo68cl
+        __PDF_list += range(90400, 90433)  # PDF4LHC15_nlo_30_pdfas with eigensets
+        return __PDF_list
 
     @property
     def files_for_cleanup(self):
