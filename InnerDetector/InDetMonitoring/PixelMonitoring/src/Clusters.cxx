@@ -351,9 +351,6 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     sc = m_cluster_ToT_mod->regHist(this, (path + "/Modules_ClusToT").c_str(), run);
   }
   if (m_doOnline) {
-    sc = clusterShift.regHist(m_cluster_occupancy_time1 = new TProfile("cluster_occupancy_time_10min", ("Module hit occupancy as function of time over 10 minutes. 6 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99, 0., 1., "i"));
-    sc = clusterShift.regHist(m_cluster_occupancy_time2 = new TProfile("cluster_occupancy_time_1hr", ("Module hit occupancy as function of time over 1 hour.  36 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99, 0., 1., "i"));
-    sc = clusterShift.regHist(m_cluster_occupancy_time3 = new TProfile("cluster_occupancy_time_6hr", ("Module hit occupancy as function of time over 6 hours.  3.6 min/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99, 0., 1., "i"));
     if (m_doOnTrack) {
       if (m_doIBL) {
 	hname = makeHistname("Cluster_Occupancy_PP0_IBLA", false);
@@ -749,10 +746,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
 
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_num_clusters_mod[i]) m_num_clusters_mod[i]->Fill(nclusters_mod[i]);
-    }
-
-    if (m_cluster_occupancy_time1 && m_cluster_occupancy_time2 && m_cluster_occupancy_time3) {
-      fillTimeHisto(double(nclusters / (1744.0 + 280 * m_doIBL)), m_cluster_occupancy_time1, m_cluster_occupancy_time2, m_cluster_occupancy_time3, 10., 60., 360.);
     }
     if (m_doLumiBlock && m_num_clusters_LB) m_num_clusters_LB->Fill(nclusters);
 

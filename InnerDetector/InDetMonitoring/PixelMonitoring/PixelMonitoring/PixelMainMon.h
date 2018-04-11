@@ -120,7 +120,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   int getPixLayerIDDBM(int ec, int ld, bool ibl);
   int getPixLayerDiskID(int ec, int ld, bool ibl);
   void th1FillMonitoring(TH1F_LW* mon, TH1F_LW* tmp);
-  void fillTimeHisto(double, TProfile*, TProfile*, TProfile*, double, double, double);
   void fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
   void fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C);
   void formatPP0Histos(TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C);
@@ -314,9 +313,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DMapsLW> m_average_pixocc;
   std::unique_ptr<PixelMon2DProfilesLW> m_occupancy_pix_evt;
   std::unique_ptr<PixelMon2DMapsLW> m_occupancy_10min;
-  TProfile* m_occupancy_time1;
-  TProfile* m_occupancy_time2;
-  TProfile* m_occupancy_time3;
   TH1F_LW* m_occupancy_summary_mod[PixLayer::COUNT];
   TProfile_LW* m_occupancy_PP0_ECA;
   TProfile_LW* m_occupancy_PP0_ECC;
@@ -455,9 +451,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DMapsLW> m_clustermap_tmp;
   std::unique_ptr<PixelMon2DMapsLW> m_cluster_occupancy;
   TH2F_LW* m_cluster_occupancy_FE_B0_mon;
-  TProfile* m_cluster_occupancy_time1;
-  TProfile* m_cluster_occupancy_time2;
-  TProfile* m_cluster_occupancy_time3;
 
   std::unique_ptr<PixelMon2DMapsLW> m_clusocc_sizenot1;
   std::unique_ptr<PixelMonModulesProf> m_cluseff_mod;
@@ -496,9 +489,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile2D_LW* m_errhist_per_bit_LB[PixLayerIBL2D3D::COUNT];
   TProfile2D_LW* m_errhist_per_type_LB[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_errhist_syncerr_LB_pix;
-  TProfile* m_error_time1;
-  TProfile* m_error_time2;
-  TProfile* m_error_time3;
   std::unique_ptr<PixelMonModules1D> m_errors;
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_femcc_errwords_map;
 

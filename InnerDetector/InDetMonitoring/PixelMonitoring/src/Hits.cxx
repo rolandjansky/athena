@@ -176,10 +176,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   }
 
   if (m_doOnline) {
-    sc = rdoShift.regHist(m_occupancy_time1 = new TProfile("occupancy_time_10min", ("Module hit occupancy as function of time over 10 minutes. 6 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99, 0., 1., "i"));
-    sc = rdoShift.regHist(m_occupancy_time2 = new TProfile("occupancy_time_1hr", ("Module hit occupancy as function of time over 1 hour.  36 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99, 0., 1., "i"));
-    sc = rdoShift.regHist(m_occupancy_time3 = new TProfile("occupancy_time_6hr", ("Module hit occupancy as function of time over 6 hours.  3.6 min/bin" + m_histTitleExt + ";time;module occupancy").c_str(), 99, 0., 1., "i"));
-
     m_hitmap_mon = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("HitMap_Mon", ("Hit map for monitoring" + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
     sc = m_hitmap_mon->regHist(rdoShift);
 
@@ -639,9 +635,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
                       m_occupancy_summary_mod[PixLayer::kB0],
                       m_occupancy_summary_mod[PixLayer::kB1],
                       m_occupancy_summary_mod[PixLayer::kB2]);
-    if (m_occupancy_time1 && m_occupancy_time2 && m_occupancy_time3) {
-      fillTimeHisto(double(nhits / (1744.0 + 280 * m_doIBL)), m_occupancy_time1, m_occupancy_time2, m_occupancy_time3, 10., 60., 360.);
-    }
     if (m_doRefresh5min) {
       if (m_occupancy_PP0_ECA) m_occupancy_PP0_ECA->Reset(); 
       if (m_occupancy_PP0_ECC) m_occupancy_PP0_ECC->Reset();
