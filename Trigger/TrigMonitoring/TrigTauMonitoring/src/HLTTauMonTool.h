@@ -165,7 +165,6 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_doL1JetPlots;
   bool m_doEFTProfiles;
   bool m_doFailTrackFilterBitMonitoring;
-  bool m_doRNNInOutMonitoring;
   bool m_domuCut40; 
   bool m_doEfficiencyRatioPlots;
   bool m_doL1TopoLeptonsMonitoringWarnings;
