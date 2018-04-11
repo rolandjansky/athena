@@ -266,10 +266,6 @@ from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
 theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"],
                                        outputCellKey="DFMUONCellContainer")
 
-import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-  DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
-
 from DerivationFrameworkMuons import  JPsiVertexFitSetup
 MUON1AugmentTools += JPsiVertexFitSetup.AddJPsiVertexingAlgs('MUON1',False)
 for t in MUON1AugmentTools: print t
