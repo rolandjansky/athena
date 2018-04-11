@@ -328,7 +328,7 @@ def defineMenu():
         'ZEE-EM20shi2',
         'FTK-EM20s1',
         'FTK-J100s1',
-        'FTK-MU20s1',
+        'FTK-MU10s1',
 
         '2INVM9-2MU6ab',
         '7INVM15-2MU4ab', 
