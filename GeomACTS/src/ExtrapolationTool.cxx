@@ -1,8 +1,7 @@
 #include "GaudiKernel/IInterface.h"
+#include "GeoPrimitives/GeoPrimitives.h" // Get athena matrix plugin before ACTS'
 
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp" // for excell and ecode
-//#include "ACTS/EventData/NeutralParameters.hpp"
-//#include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp" // for the parameters
 #include "ACTS/Extrapolation/ExtrapolationEngine.hpp"
 #include "ACTS/Extrapolation/RungeKuttaEngine.hpp"

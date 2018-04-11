@@ -5,6 +5,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
