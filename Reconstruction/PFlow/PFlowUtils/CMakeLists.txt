@@ -1,4 +1,3 @@
-# $Id: CMakeLists.txt 782349 2016-11-04 11:47:49Z krasznaa $
 ################################################################################
 # Package: PFlowUtils
 ################################################################################
@@ -21,18 +20,31 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODJet
   ${extra_deps} )
 
+find_package( ROOT COMPONENTS Core RIO Hist Tree PyROOT )
+
 # Component(s) in the package:
 atlas_add_library( PFlowUtilsLib
-   PFlowUtils/*.h Root/*.cxx
+   PFlowUtils/*.h Root/*.h Root/*.cxx ${PFlowUtilsDictSource}
    PUBLIC_HEADERS PFlowUtils
-   LINK_LIBRARIES AsgTools xAODPFlow )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODPFlow )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PFlowUtils
-      src/*.h src/*.cxx src/components/*.cxx
+      PFlowUtils/*.h Root/*.cxx src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES AthenaBaseComps xAODJet xAODPFlow GaudiKernel
       PFlowUtilsLib )
 endif()
 
+atlas_add_dictionary( PFlowUtilsDict
+   PFlowUtils/PFlowUtilsDict.h PFlowUtils/selection.xml
+   LINK_LIBRARIES PFlowUtilsLib )
+
 # Install files from the package:
+atlas_install_headers( PFlowUtils )
 atlas_install_python_modules( python/*.py )
+
+# Test(s) in the package:
+atlas_add_test( toolhandle_test
+   SOURCES test/toolhandle_test.cxx
+   LINK_LIBRARIES AsgTools PFlowUtilsLib )

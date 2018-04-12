@@ -23,14 +23,6 @@ namespace Trk {
 }
 
 /*-------------------------------------------------------------------------
- *  Interface definition
- *-------------------------------------------------------------------------*/
-namespace iFatras
-{
-  static const InterfaceID IID_IHadronicInteractionProcessor("IHadronicInteractionProcessor", 1, 0);
-}
-
-/*-------------------------------------------------------------------------
  *  class IHadronicInteractionProcessor
  *-------------------------------------------------------------------------*/
 namespace iFatras
@@ -49,8 +41,8 @@ namespace iFatras
     
     /** Virtual destructor */    virtual ~IHadronicInteractionProcessor(){}
     
-    /** AlgTool interface methods */
-    static const InterfaceID& interfaceID() { return IID_IHadronicInteractionProcessor; }
+    /// Creates the InterfaceID and interfaceID() method
+    DeclareInterfaceID(IHadronicInteractionProcessor, 1, 0);
     
     /** interface for processing of the nuclear interactions */
     virtual bool hadronicInteraction(const Amg::Vector3D& position, const Amg::Vector3D& momentum, 

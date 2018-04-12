@@ -47,6 +47,8 @@
 
 #include "TopJetSubstructure/TopJetSubstructure.h"
 
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
+
 // Forward declaration(s):
 namespace top{
   class TopConfig;
@@ -69,9 +71,9 @@ namespace top{
       
       StatusCode initialize(); 
       
-      StatusCode executeJets();
-      StatusCode executeLargeRJets();
-      StatusCode executeTrackJets();
+      StatusCode executeJets(bool);
+      StatusCode executeLargeRJets(bool);
+      StatusCode executeTrackJets(bool);
       
       StatusCode printoutJets();
       StatusCode printoutLargeRJets();
@@ -88,7 +90,7 @@ namespace top{
       virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<ICPJetUncertaintiesTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , const std::string& modName , bool isLargeR = false); 
       virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<IJERSmearingTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map );      
       
-      StatusCode execute( const bool isLargeR );
+      StatusCode execute( const bool isLargeR, bool executeNominal );
       
       StatusCode calibrate( const bool isLargeR );
       virtual StatusCode applySystematic( ToolHandle<ICPJetUncertaintiesTool>& tool, const std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , bool isLargeR = false);
@@ -142,7 +144,7 @@ namespace top{
       std::string m_truthJetCollForHS;
 
       std::unique_ptr<top::TopJetSubstructure> m_jetSubstructure;
-      
+
       systMap m_systMap_AllNP;
       systMap m_systMap_AllNP_FrozenJMS;
       systMap m_systMap_ReducedNPScenario1;
@@ -157,6 +159,12 @@ namespace top{
 
       StatusCode decorateBJets(xAOD::Jet& jet);
       StatusCode decorateHSJets();
+
+      // DL1 decoration                                                                          
+      std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool>> m_btagSelToolsDL1Decor;
+      bool m_DL1Possible;
+      StatusCode decorateDL1();
+
   };
 } // namespace
 #endif

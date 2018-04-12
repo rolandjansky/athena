@@ -14,7 +14,8 @@ DerivationFrameworkJob = CfgMgr.AthSequencer("TauPFOCalHitSequencer")
 # SETUP TAU TRUTH MATCHING TOOLS 
 #===============================
 # Note: seems that we can now use TauTruthCommon directly
-from DerivationFrameworkTau.TauTruthCommon import *
+from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+scheduleTauTruthTools()
 
 #=======================
 # SETUP CALHIT DECORATOR 

@@ -32,6 +32,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 namespace sh = RCU::Shell;
 
 //
@@ -44,6 +48,13 @@ using namespace asg::msgUserCode;
 TEST (GridToolsTest, MANUAL_faxListFiles)
 {
   const auto files = faxListFilesGlob
+    ("user.ivukotic:user.ilijav.HCtest.1", "*.root*");
+  ASSERT_EQ (5u, files.size());
+}
+
+TEST (GridToolsTest, MANUAL_rucioDirectAccessGlob)
+{
+  const auto files = rucioDirectAccessGlob
     ("user.ivukotic:user.ilijav.HCtest.1", "*.root*");
   ASSERT_EQ (5u, files.size());
 }

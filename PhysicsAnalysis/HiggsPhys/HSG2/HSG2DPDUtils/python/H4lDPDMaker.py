@@ -9,17 +9,17 @@ import AthenaCommon.SystemOfUnits as Units
 from AthenaPython.PyAthena import StatusCode
 from AthenaPython.PyAthena import EventInfo
 from copy import copy
-import PyCintex
+import cppyy
 import ROOT
 import math
 # Get enum for tracking enum
-PyCintex.loadDict("libTrkTrackSummaryDict")
-PyCintex.loadDict('libTrkEventPrimitivesDict')
-PyCintex.loadDictionary('egammaEnumsDict')
+cppyy.loadDict("libTrkTrackSummaryDict")
+cppyy.loadDict('libTrkEventPrimitivesDict')
+cppyy.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 from ROOT import egammaParameters
 from ROOT import TLorentzVector
-PyCintex.loadDict('libegammaAnalysisUtilsDict')
+cppyy.loadDict('libegammaAnalysisUtilsDict')
 
 import os
 import os.path

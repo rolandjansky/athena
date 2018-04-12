@@ -40,7 +40,7 @@ Lvl1ConsistencyChecker::Lvl1ConsistencyChecker(const std::string& name, const st
                                                const IInterface* parent) 
   : AthAlgTool(name, type, parent)
 {
-  declareProperty("printErrorMessages", m_printErrorMessages=true, "print detailed error reports");
+  declareProperty("printWarnings", m_printWarnings=true, "print detailed error reports");
   declareProperty("returnFailure", m_returnFailure=false, "in case of inconsitency return FAILURE");
   declareProperty("maxTOBs", m_returnFailure=false, "in case of inconsitency return FAILURE");
   declareProperty("thresholdsToCheck", m_thresholdsToCheck, "trigger threshold types to check");
@@ -116,6 +116,7 @@ Lvl1ConsistencyChecker::check(const std::vector<const LVL1CTP::Lvl1Item*>& items
                               const std::vector<std::string>& ignoreThresholds)
 {
   std::vector<ThresholdId> errors;
+  HLT::SteeringInternalReason::Code failure = HLT::SteeringInternalReason::UNKNOWN;
 
   for ( const LVL1CTP::Lvl1Item* item : items ){
     if ( ! item->isPassedAfterVeto() ) // we do not need to check items which did not pass
@@ -141,21 +142,25 @@ Lvl1ConsistencyChecker::check(const std::vector<const LVL1CTP::Lvl1Item*>& items
           m_histAll->Fill(thr.second.name.c_str(), 1.0);
           // Fill all except ignored thresholds (e.g. overflows)
           if ( !contains(ignoreThresholds, thr.second.type) ) {
+            if (thr.second.type=="CALO")       failure = HLT::SteeringInternalReason::MISSING_CALO_ROI;
+            else if (thr.second.type=="MUON")  failure = HLT::SteeringInternalReason::MISSING_MUON_ROI;
+            else                               failure = HLT::SteeringInternalReason::MISSING_OTHER_ROI;
             m_hist->Fill(thr.second.name.c_str(), 1.0);
           }
         }
-        if (m_printErrorMessages ) {          // report problem for all items
+        if (m_printWarnings) {          // report problem for all items
           ATH_MSG_WARNING("Item " << cIt->second.name << " required: " 
                           << unsigned(thr.second.multiplicity) << " of: " << thr.second.name << " while got: " << found);
         }        
       }
     }
   }
-
-  if ( !errors.empty() && m_returnFailure) {
-    return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::MISSING_FEATURE, 
-                          HLT::SteeringInternalReason::NO_LVL1_ITEMS );
+  
+  if ( failure != HLT::SteeringInternalReason::UNKNOWN ) {
+    return HLT::ErrorCode(m_returnFailure ? HLT::Action::ABORT_EVENT : HLT::Action::CONTINUE, 
+                          HLT::Reason::MISSING_FEATURE, failure );
   }
+
   return HLT::OK;
 }
 

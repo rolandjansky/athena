@@ -30,9 +30,13 @@ class ConfiguredInDetPreProcessingTRT:
          if useTimeInfo:
             prefix     = "InDetTRT_"
             collection = InDetKeys.TRT_DriftCircles()
+            if InDetFlags.doSplitReco() :
+               collectionPU = InDetKeys.TRT_PU_DriftCircles()
          else:
             prefix     = "InDetTRT_noTime_"
             collection = InDetKeys.TRT_DriftCirclesUncalibrated()
+            if InDetFlags.doSplitReco() :
+               collectionPU = InDetKeys.TRT_PU_DriftCirclesUncalibrated()
          #
          # --- TRT_DriftFunctionTool
          #
@@ -134,6 +138,15 @@ class ConfiguredInDetPreProcessingTRT:
          topSequence += InDetTRT_RIO_Maker
          if (InDetFlags.doPrintConfigurables()):
             print InDetTRT_RIO_Maker
+         if InDetFlags.doSplitReco() :
+            InDetTRT_RIO_MakerPU = InDet__TRT_RIO_Maker(name                   = prefix+"RIO_MakerPU",
+                                                        TRT_DriftCircleTool    = InDetTRT_DriftCircleTool,
+                                                        TrtDescrManageLocation = InDetKeys.TRT_Manager(),
+                                                        TRTRDOLocation         = InDetKeys.TRT_PU_RDOs(),
+                                                        TRTRIOLocation         = collectionPU)
+            topSequence += InDetTRT_RIO_MakerPU
+            if (InDetFlags.doPrintConfigurables()):
+               print InDetTRT_RIO_MakerPU
 
          #
          #    Include alg to save the local occupancy inside xAOD::EventInfo
@@ -177,3 +190,17 @@ class ConfiguredInDetPreProcessingTRT:
             if (InDetFlags.doPrintConfigurables()):
                print InDetPRD_MultiTruthMakerTRT
 
+            if InDetFlags.doSplitReco() :
+               InDetPRD_MultiTruthMakerTRTPU = InDet__PRD_MultiTruthMaker (name                        = prefix+"PRD_MultiTruthMakerPU",
+                                                                           PixelClusterContainerName   = "",
+                                                                           SCTClusterContainerName     = "",
+                                                                           TRTDriftCircleContainerName = InDetKeys.TRT_PU_DriftCircles(),
+                                                                           SimDataMapNamePixel         = "",
+                                                                           SimDataMapNameSCT           = "",
+                                                                           SimDataMapNameTRT           = InDetKeys.TRT_PU_SDOs(),
+                                                                           TruthNamePixel              = "",
+                                                                           TruthNameSCT                = "",
+                                                                           TruthNameTRT                = InDetKeys.TRT_PU_DriftCirclesTruth())
+               topSequence += InDetPRD_MultiTruthMakerTRTPU
+               if (InDetFlags.doPrintConfigurables()):
+                  print InDetPRD_MultiTruthMakerTRTPU

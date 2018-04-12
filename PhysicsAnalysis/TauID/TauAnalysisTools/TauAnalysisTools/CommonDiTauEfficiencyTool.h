@@ -31,8 +31,9 @@
 namespace TauAnalysisTools
 {
 
-double DiTauPt(const xAOD::DiTauJet& xDiTau);
-double DiTauEta(const xAOD::DiTauJet& xDiTau);
+double TruthLeadPt(const xAOD::DiTauJet& xDiTau);
+double TruthSubleadPt(const xAOD::DiTauJet& xDiTau);
+double TruthDeltaR(const xAOD::DiTauJet& xDiTau);
 
 class CommonDiTauEfficiencyTool
   : public CommonEfficiencyTool
@@ -47,23 +48,27 @@ public:
 
   ~CommonDiTauEfficiencyTool();
 
+  virtual StatusCode initialize() override;
+
   // next two lines are needed to achieve overloading of those methods 
   using CommonEfficiencyTool::getEfficiencyScaleFactor;
   using CommonEfficiencyTool::applyEfficiencyScaleFactor;
-  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau, double& dEfficiencyScaleFactor);
-  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau);
+  virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau, double& dEfficiencyScaleFactor) override;
+  virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::DiTauJet& xDiTau) override;
 
   double (*m_fX)(const xAOD::DiTauJet& xDiTau);
   double (*m_fY)(const xAOD::DiTauJet& xDiTau);
+  double (*m_fZ)(const xAOD::DiTauJet& xDiTau);
 
-  void ReadInputs(TFile* fFile);
+  void ReadInputs(std::unique_ptr<TFile> &fFile);
 
   using CommonEfficiencyTool::getValue;
-  virtual CP::CorrectionCode getValue(const std::string& sHistName,
-                                      const xAOD::DiTauJet& xDiTau,
-                                      double& dEfficiencyScaleFactor) const;
+  CP::CorrectionCode getValue(const std::string& sHistName,
+                              const xAOD::DiTauJet& xDiTau,
+                              double& dEfficiencyScaleFactor) const;
 
   e_TruthMatchedParticleType checkTruthMatch(const xAOD::DiTauJet& xDiTau) const;
+  void generateSystematicSets();
 
   bool m_bSFIsAvailable;
   bool m_bSFIsAvailableChecked;

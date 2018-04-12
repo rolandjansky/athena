@@ -37,6 +37,7 @@ namespace CP {
                 m_corr_passIso(),
                 m_TrackAcc(),
                 m_CaloAcc(),
+                m_acc_used_for_corr(SelectionAccessor(new CharAccessor("considerInCorrection"))),
                 m_acc_passDefault(SelectionAccessor(new CharAccessor("defaultIso"))),
                 m_acc_passCorrected(SelectionAccessor(new CharAccessor("correctedIsol"))) {
 
@@ -98,14 +99,15 @@ namespace CP {
         m_corr_passIso.clear();
 
         for (const auto object : *Particles) {
+            if (!m_acc_used_for_corr->isAvailable(*object) || !m_acc_used_for_corr->operator()(*object)) continue;
             m_pt.push_back(object->pt());
             m_eta.push_back(object->eta());
             m_phi.push_back(object->phi());
             m_e.push_back(object->e());
             m_Q.push_back(Charge(object));
             if (!FillIsolationBranches(object, m_TrackAcc, m_orig_TrackIsol, m_corr_TrackIsol).isSuccess()) {
-                Error("IsoCorrectionTestHelper()", "Failed to fill track isolation");
-                return StatusCode::FAILURE;
+               Error("IsoCorrectionTestHelper()", "Failed to fill track isolation");
+               return StatusCode::FAILURE;
             }
             if (!FillIsolationBranches(object, m_CaloAcc, m_orig_CaloIsol, m_corr_CaloIsol).isSuccess()) {
                 Error("IsoCorrectionTestHelper()", "Failed to fill calorimeter isolation");

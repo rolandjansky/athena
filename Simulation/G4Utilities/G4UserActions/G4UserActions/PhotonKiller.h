@@ -5,21 +5,21 @@
 #ifndef G4UserActions_PhotonKiller_H
 #define G4UserActions_PhotonKiller_H
 
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
+// Geant4 includes
+#include "G4UserSteppingAction.hh"
+#include "G4UserTrackingAction.hh"
 
 namespace G4UA
 {
 
   /// @brief NEEDS DOCUMENTATION
-  class PhotonKiller : public ISteppingAction, public IPreTrackingAction
+  class PhotonKiller : public G4UserSteppingAction, public G4UserTrackingAction
   {
     public:
       PhotonKiller();
-      virtual void processStep(const G4Step*) override;
-      virtual void preTracking(const G4Track*) override;
+      virtual void UserSteppingAction(const G4Step*) override final;
+      virtual void PreUserTrackingAction(const G4Track*) override final;
     private:
-      G4Track* m_lastTrack;
       int m_count;
       float m_energy;
   }; // class PhotonKiller

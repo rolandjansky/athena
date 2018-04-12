@@ -297,7 +297,7 @@ namespace ST {
           ATH_MSG_ERROR( "Failed to apply JES correction" );
           break;
         case CP::CorrectionCode::OutOfValidityRange:
-          ATH_MSG_WARNING( "JES correction OutOfValidity range (|eta|<2.0)."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
+          ATH_MSG_WARNING( "JES correction OutOfValidity range."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
           break;
         default:
           break;

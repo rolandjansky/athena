@@ -1,7 +1,7 @@
          <athena trendId='electronIBLTrend' userJobId='TrigInDetValidation_el_single_e_7-80_IBL_pu40_robust'>
-            <doc>Single part electron test 7-80 GeV, pu40, IBL, run2 chains, disabled pixel layer</doc>
-            <displayName>ElectronSlice single particle e 7-80 GeV, pu40, IBL run2 chains, disabled pixel layer</displayName>
-	    <commandLineFlags>EventMax=6000;runMergedChain=True;disablePixelLayer=True</commandLineFlags>
+            <doc>Single part electron test 7-80 GeV, pu40, IBL, disabled pixel layer</doc>
+            <displayName>ElectronSlice single particle e 7-80 GeV, pu40, IBL, disabled pixel layer</displayName>
+	    <commandLineFlags>EventMax=6000;disablePixelLayer=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

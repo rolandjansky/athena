@@ -17,6 +17,8 @@
 # - only valid with combined mass calibration
 ####################################################################################
 
+DecorationName: XbbTagTwoTag
+
 NumBTags                2
 BTagCut                 0.3706
 JetMassMin              0.0

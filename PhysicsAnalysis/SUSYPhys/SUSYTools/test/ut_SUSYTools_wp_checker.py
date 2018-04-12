@@ -27,7 +27,7 @@ class ConfigWP(object):
 
 def writeConfig(myConfig):
 
-    ConfigTemp = string.Template(""" 
+    ConfigTemp = string.Template("""
 ##################################################
 # SUSYTools configuration file
 ##################################################
@@ -38,8 +38,9 @@ EleBaseline.CrackVeto: false
 #
 Ele.Et: 25000.
 Ele.Eta: 2.47
-Ele.CrackVeto: false 
+Ele.CrackVeto: false
 Ele.Iso: ${ELE_ISO}
+Ele.IsoHighPt: FixedCutHighPtCaloOnly # tight iso required for electrons pt > 400 GeV
 Ele.Id: ${ELE_ID}
 Ele.d0sig: 5.
 Ele.z0: 0.5
@@ -79,7 +80,6 @@ Tau.IDRedecorate: False
 Jet.Pt: 20000.
 Jet.Eta: 2.8
 Jet.InputType: 1 # EMTopo
-Jet.JESNPSet: 1
 Jet.JVT_WP: Medium
 #
 FwdJet.doJVT: false
@@ -88,8 +88,8 @@ FwdJet.JvtPtMax: 50e3
 FwdJet.JvtUseTightOP: false
 #
 Jet.LargeRcollection: AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-Jet.LargeRuncConfig: None 
-# 80% efficiency working points 
+Jet.LargeRuncConfig: None
+# 80% efficiency working points
 Jet.WtaggerConfig: SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
 Jet.ZtaggerConfig: SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat
 # JMS Calibration (None, Extrap, Frozen)
@@ -102,7 +102,7 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root
+Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true
@@ -117,8 +117,8 @@ OR.DoMuonJetGhostAssociation: true
 OR.DoTau: false
 OR.DoPhoton: false
 OR.Bjet: true
-OR.ElBjet: true
-OR.MuBjet: true
+OR.ElBjet: false
+OR.MuBjet: false
 OR.TauBjet: false
 OR.MuJetApplyRelPt: false
 OR.MuJetPtRatio: -999.
@@ -127,7 +127,6 @@ OR.RemoveCaloMuons: true
 OR.MuJetInnerDR: -999.
 OR.BtagWP: FixedCutBEff_85
 #
-#add fatjets to OR
 OR.DoFatJets: false
 OR.EleFatJetDR: 1.
 OR.JetFatJetDR: 1.
@@ -143,16 +142,22 @@ MET.MuonTerm: Muons
 MET.OutputTerm: Final
 MET.JetSelection: Tight
 MET.RemoveOverlappingCaloTaggedMuons: 1
-MET.DoMuonJetOR: 1
+MET.DoRemoveMuonJets: 1
+MET.UseGhostMuons: false
+MET.DoMuonEloss: false
 MET.DoTrkSyst: 1
 MET.DoCaloSyst: 0
+#
+METSys.ConfigPrefix: METUtilities/data17_13TeV/prerec_Jan16
+#
+#METSig.SoftTermParam: met::Random
+METSig.TreatPUJets: true
+METSig.DoPhiReso: true
 #
 PRW.MuUncertainty: 0.2
 #
 # Trigger SFs configuration
-Ele.TriggerSFStringSingle: SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
-Ele.TriggerSFStringDi: DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0
-Ele.TriggerSFStringMixedLepton: DI_E_2015_e17_lhloose_2016_e17_lhloose
+Ele.TriggerSFStringSingle: SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
 #
 StrictConfigCheck: false
 """)
@@ -183,21 +188,21 @@ class TestSUSYTools(unittest.TestCase):
     theTest = 'SUSYToolsTester %s maxEvents=10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 
     #guess the MC campaign for the prw file if needed
-    theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc15c_latest.root'
+    theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/merged_prw_mc16a_latest.root'
 
     #Working points
-    EL_ID_WP  = ['MediumLLH_Rel20p7','TightLLH_Rel20p7'] ## 'LooseAndBLayerLLH', ## MT : where do we get this from ??
-    EL_ISO_WP = ['Gradient','GradientLoose','FixedCutTightTrackOnly'] 
-    MU_ID_WP  = ['1'] 
+    EL_ID_WP  = [ 'LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']
+    EL_ISO_WP = ['Gradient','GradientLoose','FixedCutTightTrackOnly']
+    MU_ID_WP  = ['1']
     MU_ISO_WP = ['GradientLoose']
     PH_ID_WP  = ['Loose','Tight']
     PH_ISO_WP = ['FixedCutTight','FixedCutLoose']
     BTAG_WP   = ['FixedCutBEff_77'] #,'FixedCutBEff_85']
     #...
-    
+
     #default settings
-    defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH_Rel20p7',
-                     'el_id'      : 'TightLLH_Rel20p7',
+    defaults_dict = {'el_id_base' : 'LooseAndBLayerLLH',
+                     'el_id'      : 'TightLLH',
                      'el_iso'     : 'GradientLoose',
                      'mu_id_base' : '1',
                      'mu_id'      : '1',
@@ -222,17 +227,17 @@ class TestSUSYTools(unittest.TestCase):
     #Default Initialization
 #    def test_initialization_data(self):
 #        st = ROOT.ST.SUSYObjDef_xAOD('ST_data')
-#        st.setDataSource(0)        
+#        st.setDataSource(0)
 #        self.assertTrue(st.initialize().isSuccess())
-#         
+#
 #    def test_initialization_mc_full(self):
 #        st = ROOT.ST.SUSYObjDef_xAOD('ST_full')
-#        st.setDataSource(1)        
+#        st.setDataSource(1)
 #       self.assertTrue(st.initialize().isSuccess())
-#        
+#
 #    def test_initialization_mc_fast(self):
 #        st = ROOT.ST.SUSYObjDef_xAOD('ST_fast')
-#        st.setDataSource(2)        
+#        st.setDataSource(2)
 #        self.assertTrue(st.initialize().isSuccess())
 
 
@@ -250,7 +255,7 @@ class TestSUSYTools(unittest.TestCase):
             OFile.write( writeConfig(self.myConf) )
             OFile.close()
 
-            ## run the test 
+            ## run the test
             print '   Testing ',wp
             print self.myConf
             output = subprocess.Popen(self.theTest, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=os.environ.copy())
@@ -274,7 +279,7 @@ class TestSUSYTools(unittest.TestCase):
 
     #Test Electron WPs
     def test_EL_WPs(self):
-        self.run_WPs('el_id_base', ['LooseAndBLayerLLH_Rel20p7']) #self.EL_ID_WP)
+        self.run_WPs('el_id_base', self.EL_ID_WP)
         self.run_WPs('el_id', self.EL_ID_WP)
         self.run_WPs('el_iso', self.EL_ISO_WP)
 
@@ -319,4 +324,4 @@ if __name__ == '__main__':
     #unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestSUSYTools)
     result = unittest.TextTestRunner(verbosity=0).run(suite).wasSuccessful()
-    sys.exit( not result ) #convert True -> 0 
+    sys.exit( not result ) #convert True -> 0

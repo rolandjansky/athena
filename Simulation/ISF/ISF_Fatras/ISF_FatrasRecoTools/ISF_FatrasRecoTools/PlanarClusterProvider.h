@@ -36,7 +36,7 @@ namespace iFatras {
    @author Noemi.Calace -at- cern.ch
    */
      
-  class PlanarClusterProvider : public AthAlgTool, virtual public Trk::IPRD_Provider {
+  class PlanarClusterProvider : public extends<AthAlgTool, Trk::IPRD_Provider> {
     
   public:     
     //** Constructor with parameters */

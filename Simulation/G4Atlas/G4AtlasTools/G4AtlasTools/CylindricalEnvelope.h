@@ -2,23 +2,23 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CylindricalEnvelope_H
-#define CylindricalEnvelope_H
+#ifndef G4ATLASTOOLS_CylindricalEnvelope_H
+#define G4ATLASTOOLS_CylindricalEnvelope_H
 
 // Base classes
 #include "G4AtlasTools/DetectorGeometryBase.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 
-// Members
-
 // STL library
 #include <string>
 #include <vector>
 
+/// @class CylindricalEnvelope
+/// @todo TODO needs documentation
 class CylindricalEnvelope final : public DetectorGeometryBase
 {
  public:
-  // Basic constructor and destructor
+  /// Basic constructor and destructor
   CylindricalEnvelope(const std::string& type, const std::string& name, const IInterface *parent);
 
   ~CylindricalEnvelope() {}
@@ -34,8 +34,6 @@ class CylindricalEnvelope final : public DetectorGeometryBase
   double m_dZ;
   double m_startphi;
   double m_deltaphi;
-
-
 
 };
 

@@ -1,0 +1,13 @@
+#
+# Packages to build as part of the AthDataQuality project.
+#
++ DataQuality/DQDefects
++ DataQuality/DQUtils
++ DataQuality/dqm_algorithms
++ DataQuality/DataQualityInterfaces
++ DataQuality/DataQualityUtils
++ DataQuality/DataQualityConfigurations
++ DataQuality/DCSCalculator2
++ DataQuality/ZLumiScripts
++ Database/CoraCool
+- .*

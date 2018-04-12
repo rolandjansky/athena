@@ -1,6 +1,7 @@
 #!/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 import ROOT
 import math
 from functools import partial
@@ -97,6 +98,7 @@ def main(filename, **args):
     logging.debug("initializing tool")
     tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
     tool.setProperty("ESModel", args["esmodel"]).ignore()
+    tool.setProperty("decorrelationModel", args["decorrelation"]).ignore()
     if args["no_smearing"]:
         tool.setProperty("int")("doSmearing", 0).ignore()
     if args['debug']:
@@ -106,6 +108,11 @@ def main(filename, **args):
 
     tool.initialize()
 
+    if args['variation'] is not None:
+        logging.info("applying systematic variation %s", args['variation'])
+        sys_set = ROOT.CP.SystematicSet()
+        sys_set.insert(ROOT.CP.SystematicVariation(args['variation'], args['variation_sigma']))
+        tool.applySystematicVariation(sys_set)
 
     logging.debug("creating output tree")
     fout = ROOT.TFile("output.root", "recreate")
@@ -154,6 +161,7 @@ def main(filename, **args):
         if math.isnan(calibrated_energy) or math.isnan(calibrated_energy) or calibrated_energy < 1:
             print "==>", particle.author(), particle.eta(), particle.phi(), xAOD_energy, calibrated_energy
 
+
     logging.info("%d events written", tree_out.GetEntries())
 
     tree_out.Write()
@@ -177,6 +185,9 @@ if __name__ == '__main__':
     parser.add_argument('--no-layer-correction', action='store_true', default=False)
     parser.add_argument('--no-smearing', action='store_true')
     parser.add_argument('--esmodel', default="es2015c_summer")
+    parser.add_argument('--decorrelation', default='1NP_v1')
+    parser.add_argument('--variation', type=str, help='variation to apply (optional)')
+    parser.add_argument('--variation-sigma', type=int, default=1, help='number of sigma for the variation (+1 or -1)')
     parser.add_argument('--use-afii', type=int)
 
     args = parser.parse_args()

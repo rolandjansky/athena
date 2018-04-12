@@ -21,7 +21,6 @@ LArG4H62004DeadSDTool::LArG4H62004DeadSDTool(const std::string& type, const std:
 {
   declareProperty("doEscapedEnergy",m_do_eep=false);
   declareProperty("Calculator", m_calculator);
-  declareInterface<ISensitiveDetector>(this);
 }
 
 StatusCode LArG4H62004DeadSDTool::initializeCalculators()

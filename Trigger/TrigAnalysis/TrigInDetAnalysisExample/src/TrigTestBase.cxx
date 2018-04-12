@@ -466,7 +466,7 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
   bool endOfRun       = endOfRunFlag();
 #endif
 
-  msg(MSG::INFO) << " ----- enter proc() ----- " << endmsg;
+  msg(MSG::VERBOSE) << " ----- enter proc() ----- " << endmsg;
   if ( m_initialisePerRun && endOfRun ) {
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
     m_fileopen = false;

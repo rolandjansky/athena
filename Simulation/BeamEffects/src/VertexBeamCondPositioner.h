@@ -37,8 +37,7 @@ namespace Simulation {
 
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
      */
-  class VertexBeamCondPositioner : public AthAlgTool,
-                                 virtual public ILorentzVectorGenerator {
+  class VertexBeamCondPositioner : public extends<AthAlgTool, ILorentzVectorGenerator> {
 
     public:
       /** Constructor with parameters */

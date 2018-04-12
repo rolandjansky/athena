@@ -39,7 +39,7 @@ namespace CP {
                 m_sf_replica_decoration_name(),
                 m_eff_replica_decoration_name(),
                 m_mc_eff_replica_decoration_name(),
-                m_calibration_version("170916_Rel21PreRec"),
+                m_calibration_version("180312_TriggerUpdate"),
                 m_lowpt_threshold(15.e3),
                 m_effDec(),
                 m_MCeffDec(),
@@ -489,13 +489,13 @@ namespace CP {
         }
         if ((*m_Sys1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Sys1Down;
         else if ((*m_Sys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Sys1Up;
-        else if (m_LowPtSys1Up && (*m_LowPtSys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Down;
-        else if (m_LowPtSys1Down && (*m_LowPtSys1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Up;
+        else if (m_LowPtSys1Up && (*m_LowPtSys1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Up;
+        else if (m_LowPtSys1Down && (*m_LowPtSys1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtSys1Down;
         else if (!m_seperateSystBins) {
             if ((*m_Stat1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Stat1Down;
             else if ((*m_Stat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::Stat1Up;
-            else if (m_LowPtStat1Up && (*m_LowPtStat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Down;
-            else if (m_LowPtStat1Down && (*m_LowPtStat1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Up;
+            else if (m_LowPtStat1Up && (*m_LowPtStat1Up) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Up;
+            else if (m_LowPtStat1Down && (*m_LowPtStat1Down) == mySysConf) currentEfficiencySystType = MuonEfficiencySystType::LowPtStat1Down;
         } else if (!mySysConf.name().empty()) {
             for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 if ((*t).isToyVariation()) {
@@ -506,7 +506,7 @@ namespace CP {
             }
             ATH_MSG_DEBUG("need to access currentBinNumber=" << currentBinNumber);
         }
-        boost::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr>::iterator SFiter = m_sf_sets.find(currentEfficiencySystType);
+        std::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr>::iterator SFiter = m_sf_sets.find(currentEfficiencySystType);
         if (SFiter != m_sf_sets.end()) {
             m_current_sf = SFiter->second;
             if (m_seperateSystBins && currentBinNumber != 0) {
@@ -522,8 +522,8 @@ namespace CP {
             for (std::set<SystematicVariation>::iterator t = mySysConf.begin(); t != mySysConf.end(); ++t) {
                 ATH_MSG_DEBUG("\t" << (*t).name());
             }
-            return SystematicCode::Unsupported;
         }
+        return SystematicCode::Unsupported;
     }
     MuonEfficiencyScaleFactors::MuonEfficiencyScaleFactors(const MuonEfficiencyScaleFactors& toCopy) :
                 MuonEfficiencyScaleFactors(toCopy.name() + "_copy") {

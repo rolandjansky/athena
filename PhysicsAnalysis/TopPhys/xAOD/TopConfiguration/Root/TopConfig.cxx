@@ -7,6 +7,7 @@
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
@@ -215,6 +216,7 @@ namespace top{
 
     // HL LHC studies
     m_HLLHC(false),
+    m_HLLHCFakes(false),
 
     // Selections
     m_allSelectionNames(nullptr),
@@ -240,7 +242,9 @@ namespace top{
     m_outputEvents("SetMe"),
     m_saveOnlySelectedEvents(true),
     m_outputFileSetAutoFlushZero(false),
-
+    m_outputFileNEventAutoFlush(1000), // 1000 events
+    m_outputFileBasketSizePrimitive(4096), // 4kB 
+    m_outputFileBasketSizeVector(40960),   // 40kB
     // Number of events to run on (only for testing)
     m_numberOfEventsToRun(0),
 
@@ -448,6 +452,9 @@ namespace top{
     this->setGrlDir( settings->value("GRLDir") );
     this->setGrlFile( settings->value("GRLFile") );
 
+    // Set TDP file name
+    this->setTDPPath( settings->value("TDPPath") );
+
     //we need storegate keys so people can pick different collections / met / jets etc.
     this->sgKeyPhotons( settings->value("PhotonCollectionName") );
     this->sgKeyElectrons( settings->value("ElectronCollectionName") );
@@ -599,8 +606,19 @@ namespace top{
     this->outputEvents( settings->value("OutputEvents") );
     // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
     m_outputFileSetAutoFlushZero = false;
-    if (settings->value( "OutputFileSetAutoFlushZero" ) == "True")
-        m_outputFileSetAutoFlushZero = true;
+    if (settings->value( "OutputFileSetAutoFlushZero" ) != "False"){
+      std::cout << "OutputFileSetAutoFlushZero is deprecated in favour of more custom memory options" << std::endl;
+    }
+    // Configurable TTree options (ANALYSISTO-463)
+    if (settings->value( "OutputFileNEventAutoFlush" ) != ""){
+      m_outputFileNEventAutoFlush = std::stoi( settings->value( "OutputFileNEventAutoFlush" ) );
+    }
+    if (settings->value( "OutputFileBasketSizePrimitive" ) != ""){
+      m_outputFileBasketSizePrimitive = std::stoi( settings->value( "OutputFileBasketSizePrimitive" ) );
+    }
+    if (settings->value( "OutputFileBasketSizeVector" ) != ""){
+      m_outputFileBasketSizeVector = std::stoi( settings->value( "OutputFileBasketSizeVector" ) );
+    }
 
     // The systematics want much much more configuration options.....
     this->systematics( settings->value("Systematics") );
@@ -689,7 +707,11 @@ namespace top{
     this->RCJetRadius(std::stof(settings->value("RCJetRadius")) );
     if (settings->value("UseRCJets") == "True" || settings->value("UseRCJets") == "true")
       this->m_useRCJets = true;
-
+    if (settings->value("UseRCJetSubstructure") == "True" || settings->value("UseRCJetSubstructure") == "true")
+      this->m_useRCJetSubstructure = true;
+    else
+      this->m_useRCJetSubstructure = false;
+   
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")) );
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")) );
     this->VarRCJetTrimcut(std::stof(settings->value("VarRCJetTrim")) );
@@ -763,6 +785,7 @@ namespace top{
 
     // Upgrade studies
     if(settings->value("HLLHC")=="True") this->HLLHC( true );
+    if(settings->value("HLLHCFakes")=="True") this->HLLHCFakes( true );
 
     // LHAPDF Reweighting configuration
     std::istringstream lha_pdf_ss(settings->value( "LHAPDFSets" ));
@@ -863,6 +886,18 @@ namespace top{
     std::copy( std::istream_iterator<std::string>(pileup_lumi_ss),
 	       std::istream_iterator<std::string>(),
 	       std::back_inserter(m_pileup_reweighting.lumi_calc_files) );
+
+    std::istringstream pileup_config_FS_ss(settings->value( "PRWConfigFiles_FS" ));
+    std::copy( std::istream_iterator<std::string>(pileup_config_FS_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.config_files_FS) );
+
+    std::istringstream pileup_config_AF_ss(settings->value( "PRWConfigFiles_AF" ));
+    std::copy( std::istream_iterator<std::string>(pileup_config_AF_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.config_files_AF) );
+
+    m_pileup_reweighting.unrepresented_data_tol = std::stof(settings->value("PRWUnrepresentedDataTolerance"));
 
     m_pileup_reweighting.mu_dependent = (settings->value("PRWMuDependent") == "True");
 
@@ -976,6 +1011,12 @@ namespace top{
         grl.erase(remove_if(grl.begin(), grl.end(), isspace), grl.end());
         m_grlFile.push_back(grl);
       }
+    }
+  }
+
+  void TopConfig::setTDPPath( const std::string& s){
+    if (!m_configFixed) {
+      m_topDataPreparationPath = s;
     }
   }
 
@@ -1214,7 +1255,7 @@ namespace top{
     else if (raw_WP=="85%") return "FixedCutBEff_85";
     else return raw_WP;
   }
-  
+
   void TopConfig::setBTagWP_available( std::string btagging_WP ) {
     m_available_btaggingWP.push_back(btagging_WP);
   }
@@ -2541,6 +2582,39 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
     }
     return;
   }
+
+  void TopConfig::setAmiTag(std::string const & amiTag) {
+    assert(!m_configFixed);
+    if (m_amiTagSet == 0) {
+      m_amiTag = amiTag;
+      m_amiTagSet = 1;
+    }
+    else if (m_amiTagSet > 0 && m_amiTag != amiTag) {
+      m_amiTag.clear();
+      m_amiTagSet = -1;
+    }
+  }
+
+  std::string const & TopConfig::getAmiTag() const {
+    assert(m_configFixed);
+    return m_amiTag;
+  }
+
+  // Function to return the year of data taking based on either run number (data) or random run number (MC)
+  const std::string TopConfig::getYear(unsigned int runnumber){    
+
+    // 2015 : 266904 - 284484
+    if(runnumber >= 266904 && runnumber <= 284484) return "2015"; 
+
+    // 2016 : 296939 - 311481
+    if(runnumber >= 296939 && runnumber <= 311481) return "2016";
+
+    // 2017 : 324320 - 999999
+    if(runnumber >= 324320) return "2017";
+    
+    return "ERROR";
+  }
+
 
 }
 

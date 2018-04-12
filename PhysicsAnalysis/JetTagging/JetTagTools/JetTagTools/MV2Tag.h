@@ -93,6 +93,7 @@ namespace Analysis {
     std::map<std::string, TMVA::Reader*> m_tmvaReaders;
     std::map<std::string, TMVA::MethodBase*> m_tmvaMethod;
     std::map<std::string, MVAUtils::BDT*> m_egammaBDTs;
+    std::vector<float* > *m_inputPointers;
     std::list<std::string> m_undefinedReaders; // keep track of undefined readers to prevent too many warnings.
 
 

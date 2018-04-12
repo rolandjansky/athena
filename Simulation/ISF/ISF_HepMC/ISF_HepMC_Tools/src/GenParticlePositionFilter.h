@@ -31,8 +31,7 @@ namespace ISF {
   
       @author Andreas.Salzburger -at- cern.ch
      */
-  class GenParticlePositionFilter : public AthAlgTool,
-                                    virtual public IGenParticleFilter { 
+  class GenParticlePositionFilter : public extends<AthAlgTool, IGenParticleFilter> { 
       
     public: 
       //** Constructor with parameters */

@@ -35,6 +35,7 @@
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/SelectionConfigurationData.h"
 
+#include "TopAnalysis/AnalysisTrackingHelper.h"
 #include "TopAnalysis/EventSelectionManager.h"
 #include "TopAnalysis/Tools.h"
 #include "TopCPTools/TopToolStore.h"
@@ -49,7 +50,9 @@
 #include "TopObjectSelectionTools/EventCleaningSelection.h"
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
+#include "TopPartons/CalcTtbarLightPartonHistory.h"
 #include "TopPartons/CalcTbbarPartonHistory.h"
+#include "TopPartons/CalcWtbPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
@@ -109,6 +112,16 @@ int main(int argc, char** argv) {
 
     const std::string libraryNames = settings->value("LibraryNames");
     top::loadLibraries(libraryNames);
+
+    // Analysis tracking
+    std::unique_ptr<top::AnalysisTrackingHelper> tracker;
+    {
+        bool useTracking = true;
+        settings->retrieve("WriteTrackingData", useTracking);
+        if (useTracking) {
+            tracker.reset(new top::AnalysisTrackingHelper());
+        }
+    }
 
     // I/O Performance stats?
     // Summary gives a summary
@@ -174,7 +187,7 @@ int main(int argc, char** argv) {
 
         std::unique_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
 	
-	if(! top::readMetaData(testFile.get(), topConfig)){
+	if(! top::readMetaData(testFile.get(), topConfig) ){
 	  std::cerr << "Unable to access metadata object in this file : " << usethisfile << std::endl;
 	  std::cerr << "Please report this message" << std::endl;
 	}
@@ -205,8 +218,8 @@ int main(int argc, char** argv) {
 
             // now need to get and set the parton shower generator from TopDataPrep
             SampleXsection tdp;	   
-	    // Package/filename - XS file we want to use                                                           
-	    std::string tdp_filename = "TopDataPreparation/XSection-MC15-13TeV.data";
+	    // Package/filename - XS file we want to use (can now be configured via cutfile)                                                    
+	    const std::string tdp_filename = settings->value("TDPPath");
 	    // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
 	    std::string fullpath = PathResolverFindCalibFile(tdp_filename);
 	    if (!tdp.readFromFile(fullpath.c_str())) {
@@ -280,6 +293,7 @@ int main(int argc, char** argv) {
 
     // OK let's printout the TopConfig
     std::cout << *topConfig << "\n";
+    if (tracker) tracker->setTopConfig(topConfig);
 
     //Top parton history for MC events
     // This is quite ugly and simple, it will be harmonized with in the future
@@ -289,9 +303,17 @@ int main(int argc, char** argv) {
       topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTtbarPartonHistory( "top::CalcTtbarPartonHistory" ) );
       top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarPartonHistory");
     }
+    else if(settings->value("TopPartonHistory") == "ttbarlight"){
+      topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTtbarLightPartonHistory( "top::CalcTtbarLightPartonHistory" ) );
+      top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarLightPartonHistory");
+    }
     else if(settings->value("TopPartonHistory") == "tb"){
       topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTbbarPartonHistory( "top::CalcTbbarPartonHistory" ) );
       top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTbbarPartonHistory");
+    }
+    else if(settings->value("TopPartonHistory") == "Wtb"){
+      topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcWtbPartonHistory( "top::CalcWtbPartonHistory" ) );
+      top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcWtbPartonHistory");
     }
 
     //LHAPDF SF calculation
@@ -341,9 +363,11 @@ int main(int argc, char** argv) {
     std::vector<std::string> names_LHE3;
     bool recalc_LHE3 = false;
     int dsid = 0;
+    int isAFII = topConfig->isAFII();
     ULong64_t totalEvents = 0;
     ULong64_t totalEventsInFiles = 0;
     sumWeights->Branch("dsid", &dsid);
+    sumWeights->Branch("isAFII", &isAFII);
     sumWeights->Branch("totalEventsWeighted", &totalEventsWeighted);
     if (topConfig->doMCGeneratorWeights()) {// the main problem is that we don't have the list of names a priori
       sumWeights->Branch("totalEventsWeighted_mc_generator_weights", &totalEventsWeighted_LHE3);
@@ -502,7 +526,8 @@ int main(int argc, char** argv) {
 	  firstEvent = topConfig->numberOfEventsToSkip()-skippedEventsSoFar;
 	  skippedEventsSoFar += entries < firstEvent ? entries : firstEvent;
 	}
-        for (unsigned int entry = firstEvent; entry < entries; ++entry, ++totalYieldSoFar) {
+        unsigned int entry;
+        for (entry = firstEvent; entry < entries; ++entry, ++totalYieldSoFar) {
 
    	    if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun() ) break;
 
@@ -671,14 +696,26 @@ int main(int argc, char** argv) {
             if (!passAnyTriggerVeto)
                 continue;
 
+	    ///-- Nominal objects -- ///
             ///-- Calibrate objects and make all required systematic copies --///
-            top::check( systObjMaker->execute() , "Failed to execute systObjMaker" );
+            top::check( systObjMaker->execute(true) , "Failed to execute systObjMaker" );
 
             ///-- Object selection (e.g. good electrons, muons, jets etc.). Event selection cuts comes later --///
-            top::check( objectSelection->execute() , "Failed to execute objectSelection" );
+            top::check( objectSelection->execute(true) , "Failed to execute objectSelection" );
 
             ///-- Recalculate MissingET based on object selection --///
-            top::check( systObjMaker->recalculateMET() , "Failed to recalculateMET with systObjMaker" );
+            top::check( systObjMaker->recalculateMET(true) , "Failed to recalculateMET with systObjMaker" );
+
+	    ///-- Systematic objects -- ///
+	    ///-- Calibrate objects and make all required systematic copies --///                                  
+	    top::check( systObjMaker->execute(false) , "Failed to execute systObjMaker" );
+
+	    ///-- Object selection (e.g. good electrons, muons, jets etc.). Event selection cuts comes later --/// 
+	    top::check( objectSelection->execute(false) , "Failed to execute objectSelection" );
+
+	    ///-- Recalculate MissingET based on object selection --///                                            
+	    top::check( systObjMaker->recalculateMET(false) , "Failed to recalculateMET with systObjMaker" );
+
 
             ///-- Scale Factor calculation --///
             if (topConfig->isMC())
@@ -734,6 +771,7 @@ int main(int argc, char** argv) {
             eventSaver->saveEventToxAOD();
 
         } //loop over events in current file
+        if (tracker) tracker->addInputFile(inputFile->GetName(), entry-firstEvent);
 
         // do it at the end, so we can get the DS id from the first event
         // notice this is different from the normal sum of weights: all entries matter, not only the highest per file
@@ -831,6 +869,8 @@ int main(int argc, char** argv) {
     outputFile->cd();
     eventSelectionManager.finalise();
     eventSaver->finalize();
+    outputFile->cd();
+    if (tracker) tracker->writeTree("AnalysisTracking");
     outputFile->Close();
     bool outputFileGood = !outputFile->TestBit(TFile::kWriteError);
     if (outputFileGood) {

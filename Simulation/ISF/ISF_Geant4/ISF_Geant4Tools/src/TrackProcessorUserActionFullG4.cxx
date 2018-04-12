@@ -24,7 +24,6 @@
 
 #include "MCTruth/TrackHelper.h"
 
-#include "SimHelpers/StepHelper.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Geant4 includes
@@ -218,11 +217,11 @@ namespace G4UA{
       return layer;
     }
 
-    void TrackProcessorUserActionFullG4::preTracking(const G4Track* aTrack){
+    void TrackProcessorUserActionFullG4::PreUserTrackingAction(const G4Track* aTrack){
       // reset geoId, call upstream method
       m_nextGeoID = m_config.truthVolLevel>1?AtlasDetDescr::fAtlasCavern:AtlasDetDescr::fUndefinedAtlasRegion;
       m_currentTrack = aTrack;
-      TrackProcessorUserActionBase::preTracking(aTrack);
+      TrackProcessorUserActionBase::PreUserTrackingAction(aTrack);
       return;
     }
 

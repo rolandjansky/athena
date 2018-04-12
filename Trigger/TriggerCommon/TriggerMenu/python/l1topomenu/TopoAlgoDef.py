@@ -3,14 +3,14 @@
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TriggerMenu.L1Topo.py')
 
-from TriggerMenu.l1topo.TopoAlgos import SortingAlgo, DecisionAlgo
+#from TriggerMenu.l1topo.TopoAlgos import SortingAlgo, DecisionAlgo
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 # algorithm python base classes generated from C++ code
 import L1TopoAlgorithms.L1TopoAlgConfig as AlgConf
 import L1TopoHardware.L1TopoHardware as HW
 
-import re
+#import re
 
 
 class TopoAlgoDef:
@@ -21,16 +21,12 @@ class TopoAlgoDef:
 
         _etamax = 49
         _minet = 0
-        usev6 = False
         usev7 = False
-        doPhysics = False
 
-        if '_v6' in TriggerFlags.triggerMenuSetup() or '_v7' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
-            usev6 = True
         if '_v7' in TriggerFlags.triggerMenuSetup():
             usev7 = True
-        if 'Physics' in TriggerFlags.triggerMenuSetup() or 'HI' in TriggerFlags.triggerMenuSetup():
-            doPhysics = True
+        if '_PhaseII' in TriggerFlags.triggerMenuSetup():
+            usev7 = True
         
         _emscale_for_decision = 2 # global scale for EM, TAU        
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
@@ -144,16 +140,21 @@ class TopoAlgoDef:
 
 
         # ab J lists:
-        for jet_type in ['J', 'CJ']:
+        for jet_type in ['J', 'CJ', 'FJ']:
             jetabseta = _etamax
             _minet = 25
+            _mineta=0
             if jet_type=='J':
                 jetabseta = 31
                 _minet = 20
             elif jet_type=='CJ':
                 jetabseta = 26 
                 _minet = 15
-            
+            elif jet_type=='FJ':
+                _mineta = 31
+                _minet = 15
+
+
             alg = AlgConf.JetSelect( name = jet_type+'ab', inputs = 'JetTobArray', outputs = jet_type+'ab', algoId = currentAlgoId ); currentAlgoId += 1
 
             alg.addgeneric('InputWidth', HW.InputWidthJET)
@@ -161,7 +162,7 @@ class TopoAlgoDef:
             alg.addgeneric('OutputWidth', HW.OutputWidthSelectJET)
             alg.addgeneric('JetSize', HW.DefaultJetSize.value)
             alg.addvariable('MinET', _minet)  
-            alg.addvariable('MinEta', 0)
+            alg.addvariable('MinEta', _mineta)
             alg.addvariable('MaxEta', jetabseta)
             alg.addgeneric('DoEtaCut', 1)
             tm.registerAlgo(alg) 
@@ -178,14 +179,18 @@ class TopoAlgoDef:
         tm.registerAlgo(alg) 
         
         # Sorted J lists:
-        for jet_type in ['AJ']:
+        for jet_type in ['AJ', 'FJ']:
             jetabseta = _etamax
             _minet = 25
+            _mineta = 0
             if jet_type=='J':
                 jetabseta = 31
                 _minet = 20
             elif jet_type=='CJ':
                 jetabseta = 26 
+                _minet = 15
+            elif jet_type=='FJ':
+                _mineta = 31
                 _minet = 15
                 
             alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s', algoId = currentAlgoId ); currentAlgoId += 1
@@ -194,7 +199,7 @@ class TopoAlgoDef:
             alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
             alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
             alg.addgeneric('JetSize', HW.DefaultJetSize.value) 
-            alg.addvariable('MinEta', 0)
+            alg.addvariable('MinEta', _mineta)
             alg.addvariable('MaxEta', jetabseta)
             alg.addgeneric('DoEtaCut', 0)
             tm.registerAlgo(alg) 
@@ -231,7 +236,7 @@ class TopoAlgoDef:
         alg.addgeneric('OutputWidth', HW.OutputWidthMET)
         tm.registerAlgo(alg)
         
-        alg = AlgConf.MuonSelect( name = 'MUab', inputs = 'MuonTobArray', outputs = 'MUab', algoId = currentAlgoId ); currentAlgoId += 1                                      
+        alg = AlgConf.MuonSelect( name = 'MUab', inputs = 'MuonTobArray', outputs = 'MUab', algoId = currentAlgoId ); currentAlgoId += 1
 
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectMU )
@@ -240,6 +245,18 @@ class TopoAlgoDef:
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 25)
         tm.registerAlgo(alg)            
+
+
+        alg = AlgConf.MuonSelect( name = 'MUs', inputs = 'MuonTobArray', outputs = 'MUs', algoId = currentAlgoId ); currentAlgoId += 1
+
+        alg.addgeneric('InputWidth', HW.InputWidthMU)
+        alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortMU )
+        alg.addgeneric('OutputWidth', HW.OutputWidthSortMU)
+#        alg.addvariable('MinET', 4)
+        alg.addvariable('MinEta', 0)
+        alg.addvariable('MaxEta', 25)
+        tm.registerAlgo(alg)
+
 
         alg = AlgConf.MuonSelect( name = 'CMUab', inputs = 'MuonTobArray', outputs = 'CMUab', algoId = currentAlgoId ); currentAlgoId += 1                                     
 
@@ -268,13 +285,14 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM ) 
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
-        alg.addvariable('MinET', 8)
+        alg.addvariable('MinET', 5)
         alg.addvariable('IsoMask', 0)                
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
-        #alg.addgeneric('DoIsoCut', 1)
+        alg.addgeneric('DoIsoCut', 0)
         tm.registerAlgo(alg) 
         
+
         # All lists:
 
         alg = AlgConf.ClusterNoSort( name = 'TAUall', inputs = 'ClusterTobArray', outputs = 'TAUall', algoId = currentAlgoId) ; currentAlgoId += 1                                         
@@ -293,9 +311,6 @@ class TopoAlgoDef:
         # Decision algorithms
         currentAlgoId = 0
         
-
-
-
         # VBF items    
         for x in [
             {"algoname": 'INVM_AJ_HighMass', "Threlist": [ 900, 800, 700, 500 ], "maxInvm": 9999, "otype" : "AJ", "ocut1" : 30, "olist" : "s", "nleading1" : 6, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 20, "nleading2" : 6},
@@ -304,27 +319,27 @@ class TopoAlgoDef:
             
             for k in x:
                 exec("%s = x[k]" % k)
-
-            inputList = otype + olist
+		
+            inputList = otype + olist # noqa: F821
             toponames=[]
 
-            for minInvm in Threlist:
-                toponame = "%iINVM%i-%s%s%s%s-%s%s%s%s"  % (minInvm, maxInvm,
-                                                            otype, str(ocut1) , olist, str(nleading1) if olist=="s" else "",
-                                                            otype, str(ocut2) , olist, str(nleading2) if olist=="s" else "")   
+            for minInvm in Threlist:  # noqa: F821
+                toponame = "%iINVM%i-%s%s%s%s-%s%s%s%s"  % (minInvm, maxInvm,                                                    # noqa: F821
+                                                            otype, str(ocut1) , olist, str(nleading1) if olist=="s" else "",     # noqa: F821
+                                                            otype, str(ocut2) , olist, str(nleading2) if olist=="s" else "")     # noqa: F821 
                 toponames.append(toponame)
-                
-            alg = AlgConf.InvariantMassInclusive1( name = algoname, inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1
 
-            alg.addgeneric('InputWidth', inputwidth1)
-            alg.addgeneric('MaxTob', nleading1)
+            alg = AlgConf.InvariantMassInclusive1( name = algoname, inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1  # noqa: F821
+
+            alg.addgeneric('InputWidth', inputwidth1)      # noqa: F821
+            alg.addgeneric('MaxTob', nleading1)            # noqa: F821
             alg.addgeneric('NumResultBits', len(toponames))
 
-            for bitid, minInvm in enumerate(Threlist): 
-                alg.addvariable('MinET1', ocut1, bitid)
-                alg.addvariable('MinET2', ocut2, bitid)
-                alg.addvariable('MinMSqr', minInvm * minInvm, bitid)
-                alg.addvariable('MaxMSqr', maxInvm * maxInvm, bitid)
+            for bitid, minInvm in enumerate(Threlist):     # noqa: F821
+                alg.addvariable('MinET1', ocut1, bitid)    # noqa: F821
+                alg.addvariable('MinET2', ocut2, bitid)    # noqa: F821
+                alg.addvariable('MinMSqr', minInvm * minInvm, bitid)  # noqa: F821
+                alg.addvariable('MaxMSqr', maxInvm * maxInvm, bitid)  # noqa: F821
 
             tm.registerAlgo(alg)
 
@@ -349,21 +364,21 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist)
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
-            toponame = "%iINVM%i-%s%s%s"  % (minInvm, maxInvm, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
+            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist)   # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)                                   # noqa: F821
+            toponame = "%iINVM%i-%s%s%s"  % (minInvm, maxInvm, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)  # noqa: F821
 
             log.info("Define %s" % toponame)
 
 
-            inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]
-            algoname = AlgConf.InvariantMassInclusive1 if (mult>1 or otype1==otype2) else AlgConf.InvariantMassInclusive2
+            inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]                             # noqa: F821
+            algoname = AlgConf.InvariantMassInclusive1 if (mult>1 or otype1==otype2) else AlgConf.InvariantMassInclusive2                # noqa: F821
             alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
 
-            if (mult>1 or otype1==otype2):
+            if (mult>1 or otype1==otype2):  # noqa: F821
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU) 
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-                alg.addgeneric('RequireOneBarrel', onebarrel)
+                alg.addgeneric('RequireOneBarrel', onebarrel) # noqa: F821
             else:
                 alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
                 alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU) 
@@ -371,10 +386,10 @@ class TopoAlgoDef:
                 alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
 
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut1)
-            alg.addvariable('MinET2', ocut2 if ocut2>0 else ocut1)
-            alg.addvariable('MinMSqr', minInvm * minInvm)
-            alg.addvariable('MaxMSqr', maxInvm * maxInvm)
+            alg.addvariable('MinET1', ocut1)                           # noqa: F821
+            alg.addvariable('MinET2', ocut2 if ocut2>0 else ocut1)     # noqa: F821
+            alg.addvariable('MinMSqr', minInvm * minInvm)              # noqa: F821
+            alg.addvariable('MaxMSqr', maxInvm * maxInvm)              # noqa: F821
             tm.registerAlgo(alg)
 
 
@@ -396,20 +411,20 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist)
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
-            toponame = "%iDR%i-%s%s%s"  % (minDr, maxDr, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
+            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist)    # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)                                    # noqa: F821
+            toponame = "%iDR%i-%s%s%s"  % (minDr, maxDr, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)  # noqa: F821
 
             log.info("Define %s" % toponame)
 
-            inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]
-            algoname = AlgConf.DeltaRSqrIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaRSqrIncl2
+            inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]    # noqa: F821
+            algoname = AlgConf.DeltaRSqrIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaRSqrIncl2         # noqa: F821
             alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
-
-            if (mult>1 or otype1==otype2):
+ 
+            if (mult>1 or otype1==otype2):  # noqa: F821
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-                alg.addgeneric('RequireOneBarrel', onebarrel)
+                alg.addgeneric('RequireOneBarrel', onebarrel)  # noqa: F821
             else:
                 alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
                 alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU) 
@@ -418,10 +433,10 @@ class TopoAlgoDef:
 
 
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut1)
-            alg.addvariable('MinET2', ocut2)
-            alg.addvariable('DeltaRMin', minDr*minDr)
-            alg.addvariable('DeltaRMax', maxDr*maxDr)
+            alg.addvariable('MinET1', ocut1)            # noqa: F821
+            alg.addvariable('MinET2', ocut2)            # noqa: F821
+            alg.addvariable('DeltaRMin', minDr*minDr)   # noqa: F821
+            alg.addvariable('DeltaRMax', maxDr*maxDr)   # noqa: F821
             tm.registerAlgo(alg)
         
 
@@ -436,38 +451,38 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist1)
-            obj2 = "-%s%s%s" % (otype2, str(ocut2) if ocut2>0 else "", olist2)
-            toponame = "%sDETA%s-%sDPHI%s-%s%s"  % (minDeta, maxDeta, minDphi, maxDphi, obj1, "" if mult>1 else obj2)
+            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist1)  # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2) if ocut2>0 else "", olist2)  # noqa: F821
+            toponame = "%sDETA%s-%sDPHI%s-%s%s"  % (minDeta, maxDeta, minDphi, maxDphi, obj1, "" if mult>1 else obj2)  # noqa: F821
             
             log.info("Define %s" % toponame)
             
-            inputList = [otype1 + olist1] if (mult>1 or otype1==otype2) else [otype1 + olist1, otype2 + olist2]
-            algoname = AlgConf.DeltaEtaPhiIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaEtaPhiIncl2            
+            inputList = [otype1 + olist1] if (mult>1 or otype1==otype2) else [otype1 + olist1, otype2 + olist2]    # noqa: F821
+            algoname = AlgConf.DeltaEtaPhiIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaEtaPhiIncl2        # noqa: F821     
             alg = algoname( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
             alg.addgeneric('NumResultBits', 1)                        
 
             
-            if (mult>1 or otype1==otype2):
-                alg.addgeneric('InputWidth', nleading1)
-                alg.addgeneric('MaxTob', nleading1)
-                alg.addvariable('MinET1', ocut1)
-                alg.addvariable('MinET2', ocut2)
-                alg.addvariable('MinDeltaEta', minDeta)
-                alg.addvariable('MaxDeltaEta', maxDeta)
-                alg.addvariable('MinDeltaPhi', minDphi)
-                alg.addvariable('MaxDeltaPhi', maxDphi)
+            if (mult>1 or otype1==otype2):  # noqa: F821
+                alg.addgeneric('InputWidth', nleading1)  # noqa: F821
+                alg.addgeneric('MaxTob', nleading1)      # noqa: F821
+                alg.addvariable('MinET1', ocut1)         # noqa: F821
+                alg.addvariable('MinET2', ocut2)         # noqa: F821
+                alg.addvariable('MinDeltaEta', minDeta)  # noqa: F821
+                alg.addvariable('MaxDeltaEta', maxDeta)  # noqa: F821
+                alg.addvariable('MinDeltaPhi', minDphi)  # noqa: F821
+                alg.addvariable('MaxDeltaPhi', maxDphi)  # noqa: F821
             else:
-                alg.addgeneric('InputWidth1', nleading1)
-                alg.addgeneric('InputWidth2', nleading2)
-                alg.addgeneric('MaxTob1', nleading1)
-                alg.addgeneric('MaxTob2', nleading2)
-                alg.addvariable('DeltaEtaMin', minDeta)
-                alg.addvariable('DeltaEtaMax', maxDeta)
-                alg.addvariable('DeltaPhiMin', minDphi)
-                alg.addvariable('DeltaPhiMax', maxDphi)
-                alg.addvariable('MinET1', ocut1)
-                alg.addvariable('MinET2', ocut2)
+                alg.addgeneric('InputWidth1', nleading1) # noqa: F821
+                alg.addgeneric('InputWidth2', nleading2) # noqa: F821
+                alg.addgeneric('MaxTob1', nleading1)     # noqa: F821
+                alg.addgeneric('MaxTob2', nleading2)     # noqa: F821
+                alg.addvariable('DeltaEtaMin', minDeta)  # noqa: F821
+                alg.addvariable('DeltaEtaMax', maxDeta)  # noqa: F821
+                alg.addvariable('DeltaPhiMin', minDphi)  # noqa: F821
+                alg.addvariable('DeltaPhiMax', maxDphi)  # noqa: F821
+                alg.addvariable('MinET1', ocut1)         # noqa: F821
+                alg.addvariable('MinET2', ocut2)         # noqa: F821
             
             tm.registerAlgo(alg)
 
@@ -485,37 +500,38 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "%s%s%s" % (otype1, str(ocut1), olist1)
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2)
-            toponame = "%iDR%i-%s%s"  % (minDr, maxDr, obj1, obj2)
+            obj1 = "%s%s%s" % (otype1, str(ocut1), olist1)         # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2)        # noqa: F821
+            toponame = "%iDR%i-%s%s"  % (minDr, maxDr, obj1, obj2) # noqa: F821
 
             log.info("Define %s" % toponame)
             
-            inputList = [otype1 + olist1] if otype1==otype2 else [otype1 + olist1, otype2 + olist2]
-            algoname = AlgConf.DeltaRSqrIncl1 if otype1==otype2 else AlgConf.DeltaRSqrIncl2
+            inputList = [otype1 + olist1] if otype1==otype2 else [otype1 + olist1, otype2 + olist2]  # noqa: F821
+            algoname = AlgConf.DeltaRSqrIncl1 if otype1==otype2 else AlgConf.DeltaRSqrIncl2          # noqa: F821
             alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
 
                             
-            if otype1==otype2:
-                alg.addgeneric('InputWidth', inputwidth1)
-                alg.addgeneric('MaxTob', nleading1)
+            if otype1==otype2: # noqa: F821
+                alg.addgeneric('InputWidth', inputwidth1)   # noqa: F821
+                alg.addgeneric('MaxTob', nleading1)         # noqa: F821
             else:
-                alg.addgeneric('InputWidth1', inputwidth1)
-                alg.addgeneric('InputWidth2', inputwidth2) 
-                alg.addgeneric('MaxTob1', nleading1)
-                alg.addgeneric('MaxTob2', nleading2)
+                alg.addgeneric('InputWidth1', inputwidth1)  # noqa: F821
+                alg.addgeneric('InputWidth2', inputwidth2)  # noqa: F821
+                alg.addgeneric('MaxTob1', nleading1)        # noqa: F821
+                alg.addgeneric('MaxTob2', nleading2)        # noqa: F821
+
             alg.addgeneric('NumResultBits', 1)
 
-            if otype1==otype2:
-                alg.addvariable('MinET1', ocut1)
-                alg.addvariable('MinET2', ocut2)
-                alg.addvariable('DeltaRMin', minDr*minDr)
-                alg.addvariable('DeltaRMax', maxDr*maxDr)
+            if otype1==otype2:  # noqa: F821
+                alg.addvariable('MinET1', ocut1) # noqa: F821
+                alg.addvariable('MinET2', ocut2) # noqa: F821
+                alg.addvariable('DeltaRMin', minDr*minDr) # noqa: F821
+                alg.addvariable('DeltaRMax', maxDr*maxDr) # noqa: F821
             else:
-                alg.addvariable('MinET1', ocut1, 0)
-                alg.addvariable('MinET2', ocut2, 0)
-                alg.addvariable('DeltaRMin', minDr*minDr, 0)
-                alg.addvariable('DeltaRMax', maxDr*maxDr, 0)
+                alg.addvariable('MinET1', ocut1, 0) # noqa: F821
+                alg.addvariable('MinET2', ocut2, 0) # noqa: F821
+                alg.addvariable('DeltaRMin', minDr*minDr, 0) # noqa: F821
+                alg.addvariable('DeltaRMax', maxDr*maxDr, 0) # noqa: F821
                 
             tm.registerAlgo(alg)        
 
@@ -533,23 +549,23 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
                 
-            toponame = "HT%d-%s%s%s%s.ETA%s" % (minHT, otype, str(ocut), olist, str(nleading) if olist=="s" else "", str(oeta))
+            toponame = "HT%d-%s%s%s%s.ETA%s" % (minHT, otype, str(ocut), olist, str(nleading) if olist=="s" else "", str(oeta)) # noqa: F821
             
             log.info("Define %s" % toponame)
             
-            inputList = otype + olist
+            inputList = otype + olist # noqa: F821
 
             alg = AlgConf.JetHT( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId ); currentAlgoId += 1
 
 
-            alg.addgeneric('InputWidth', inputwidth)
-            alg.addgeneric('MaxTob', nleading)        
-            alg.addgeneric('NumRegisters', 2 if olist=="all" else 0)
-            alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET', ocut)                        
+            alg.addgeneric('InputWidth', inputwidth)   # noqa: F821
+            alg.addgeneric('MaxTob', nleading)         # noqa: F821
+            alg.addgeneric('NumRegisters', 2 if olist=="all" else 0) # noqa: F821
+            alg.addgeneric('NumResultBits', 1) # noqa: F821
+            alg.addvariable('MinET', ocut)     # noqa: F821                    
             alg.addvariable('MinEta', 0)
-            alg.addvariable('MaxEta', oeta)            
-            alg.addvariable('MinHt', minHT) 
+            alg.addvariable('MaxEta', oeta)    # noqa: F821
+            alg.addvariable('MinHt', minHT)    # noqa: F821
             tm.registerAlgo(alg)  
 
         # INVM_EM for Jpsi    
@@ -560,29 +576,29 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            inputList = otype + olist
+            inputList = otype + olist  # noqa: F821
             toponames=[]
 
-            for ocut in ocutlist:
-                toponame = "%iINVM%i-%s%s%s%s-EMs6"   % (minInvm, maxInvm, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
+            for ocut in ocutlist:      # noqa: F821
+                toponame = "%iINVM%i-%s%s%s%s-EMs6"   % (minInvm, maxInvm, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")          # noqa: F821
                 toponames.append(toponame)
 
-            alg = AlgConf.InvariantMassInclusive2( name = algoname, inputs = [inputList, 'EMs'], outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1    
+            alg = AlgConf.InvariantMassInclusive2( name = algoname, inputs = [inputList, 'EMs'], outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
 
 
-            alg.addgeneric('InputWidth1', inputwidth)
+            alg.addgeneric('InputWidth1', inputwidth) # noqa: F821
             #alg.addgeneric('InputWidth2', HW.InputWidthEM)
             alg.addgeneric('InputWidth2', HW.OutputWidthSortEM)
-            alg.addgeneric('MaxTob1', nleading)
+            alg.addgeneric('MaxTob1', nleading)       # noqa: F821
             #alg.addgeneric('MaxTob2', HW.InputWidthEM)
             alg.addgeneric('MaxTob2', HW.OutputWidthSortEM)
             alg.addgeneric('NumResultBits', len(toponames))
 
-            for bitid, ocut in enumerate(ocutlist):
+            for bitid, ocut in enumerate(ocutlist): # noqa: F821
                 alg.addvariable('MinET1', ocut, bitid)
                 alg.addvariable('MinET2', 0, bitid)
-                alg.addvariable('MinMSqr', (minInvm * _emscale_for_decision)*(minInvm * _emscale_for_decision), bitid)                
-                alg.addvariable('MaxMSqr', (maxInvm * _emscale_for_decision)*(maxInvm * _emscale_for_decision), bitid)
+                alg.addvariable('MinMSqr', (minInvm * _emscale_for_decision)*(minInvm * _emscale_for_decision), bitid)        # noqa: F821         
+                alg.addvariable('MaxMSqr', (maxInvm * _emscale_for_decision)*(maxInvm * _emscale_for_decision), bitid)        # noqa: F821
                 
             tm.registerAlgo(alg)
 
@@ -603,22 +619,22 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
                 
-            toponame = "%02dMINDPHI-%s%s%s%s-XE0"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
+            toponame = "%02dMINDPHI-%s%s%s%s-XE0"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")  # noqa: F821
             log.info("Define %s" % toponame)
 
-            inputList = otype + olist
+            inputList = otype + olist  # noqa: F821
 
             alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
 
 
-            alg.addgeneric('InputWidth1', inputwidth)
+            alg.addgeneric('InputWidth1', inputwidth)  # noqa: F821
             alg.addgeneric('InputWidth2', 1) 
-            alg.addgeneric('MaxTob1', nleading)
+            alg.addgeneric('MaxTob1', nleading)        # noqa: F821
             alg.addgeneric('MaxTob2', 1)
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut)
+            alg.addvariable('MinET1', ocut)            # noqa: F821
             alg.addvariable('MinET2', 0)
-            alg.addvariable('DeltaPhiMin', minDPhi, 0)
+            alg.addvariable('DeltaPhiMin', minDPhi, 0) # noqa: F821
             tm.registerAlgo(alg)
 
         # W T&P MT
@@ -632,50 +648,56 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            toponame = "%iMT-%s%s%s%s-XE0"  % (minMT, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
+            toponame = "%iMT-%s%s%s%s-XE0"  % (minMT, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "") # noqa: F821
             log.info("Define %s" % toponame)
 
-            inputList = otype + olist
+            inputList = otype + olist  # noqa: F821
             
             alg = AlgConf.TransverseMassInclusive1( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
 
 
 
             alg.addgeneric('InputWidth', HW.OutputWidthSortEM)
-            alg.addgeneric('MaxTob', str(nleading))
+            alg.addgeneric('MaxTob', str(nleading))  # noqa: F821
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', str(ocut))
+            alg.addvariable('MinET1', str(ocut))     # noqa: F821
             alg.addvariable('MinET2', 0)
-            alg.addvariable('MinMTSqr', minMT*minMT)                        
+            alg.addvariable('MinMTSqr', minMT*minMT) # noqa: F821                  
             tm.registerAlgo(alg)
 
             
-        # VBF deta     
-        for x in [
-            #{"minDeta": 0,  "maxDeta": 10, "otype" : "J",  "ocut1" : 0,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 0, "nleading2": 2},
-            ]:
+        # VBF deta    
 
+        if usev7:
+            algoList = [
+           {"minDeta": 63,  "maxDeta": 127, "otype" : "FJ",  "ocut1" : 20,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 20, "nleading2": 2},
+           {"minDeta": 0,  "maxDeta": 20, "otype" : "J",  "ocut1" : 50,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 0, "nleading2": 2},
+            ]
+        else:
+            algoList = []
+
+        for x in algoList:                 
             for k in x:
                 exec("%s = x[k]" % k)
 
-            toponame = "%iDETA%i-%s%s%s%s-%s%s%s%s"  % (minDeta, maxDeta,
-                                                        otype, str(ocut1) if ocut1 > 0 else "", olist, str(nleading1) if olist=="s" else "",
-                                                        otype, str(ocut2) if ocut2 > 0 else "", olist, str(nleading2) if olist=="s" else "")
+            toponame = "%iDETA%i-%s%s%s%s-%s%s%s%s"  % (minDeta, maxDeta,  # noqa: F821
+                                                        otype, str(ocut1) if ocut1 > 0 else "", olist, str(nleading1) if olist=="s" else "", # noqa: F821
+                                                        otype, str(ocut2) if ocut2 > 0 else "", olist, str(nleading2) if olist=="s" else "") # noqa: F821
             
             log.info("Define %s" % toponame)
-            inputList = otype + olist
+            inputList = otype + olist # noqa: F821
             
             alg = AlgConf.DeltaEtaIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
 
 
 
-            alg.addgeneric('InputWidth', inputwidth1)
-            alg.addgeneric('MaxTob', nleading2)
+            alg.addgeneric('InputWidth', inputwidth1)  # noqa: F821
+            alg.addgeneric('MaxTob', nleading2)        # noqa: F821
             alg.addgeneric('NumResultBits', 1)                        
-            alg.addvariable('MinET1', str(ocut1), 0)            
-            alg.addvariable('MinET2', str(ocut2), 0)
-            alg.addvariable('MinDeltaEta', minDeta, 0)
-            alg.addvariable('MaxDeltaEta', maxDeta, 0)
+            alg.addvariable('MinET1', str(ocut1), 0)   # noqa: F821
+            alg.addvariable('MinET2', str(ocut2), 0)   # noqa: F821
+            alg.addvariable('MinDeltaEta', minDeta, 0) # noqa: F821
+            alg.addvariable('MaxDeltaEta', maxDeta, 0) # noqa: F821
             tm.registerAlgo(alg)
             
         # ZH Trigger
@@ -693,21 +715,21 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
                 
-            toponame = "%iMINDPHI-%s%s%s%s-XE%i"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "",ocut2)
+            toponame = "%iMINDPHI-%s%s%s%s-XE%i"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "",ocut2) # noqa: F821
             log.info("Define %s" % toponame)
             
-            inputList = otype + olist
+            inputList = otype + olist # noqa: F821
 
             alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
 
-            alg.addgeneric('InputWidth1', inputwidth)
+            alg.addgeneric('InputWidth1', inputwidth) # noqa: F821
             alg.addgeneric('InputWidth2', 1)  
-            alg.addgeneric('MaxTob1', nleading)
+            alg.addgeneric('MaxTob1', nleading)       # noqa: F821
             alg.addgeneric('MaxTob2', 1)
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut)
-            alg.addvariable('MinET2', ocut2)
-            alg.addvariable('DeltaPhiMin', minDPhi, 0)
+            alg.addvariable('MinET1', ocut)           # noqa: F821
+            alg.addvariable('MinET2', ocut2)          # noqa: F821
+            alg.addvariable('DeltaPhiMin', minDPhi, 0)# noqa: F821
             tm.registerAlgo(alg)
 
             
@@ -717,16 +739,16 @@ class TopoAlgoDef:
             {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 30, "olist2" : "ab"},
             {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 6,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 20, "olist2" : "ab"},
             {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 6,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 25, "olist2" : "ab"},
-            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 20, "olist2" : "ab"} 
+            {"minDr": 0, "maxDr": 4, "otype1" : "MU" ,"ocut1": 4,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 20, "olist2" : "ab"},
             ]:
 
             for k in x:
                 exec("%s = x[k]" % k)
 
-            toponame = "%iDR%02d-%s%s%s-%s%s%s"  % (minDr, maxDr, otype1, str(ocut1), olist1, otype2, str(ocut2), olist2)
+            toponame = "%iDR%02d-%s%s%s-%s%s%s"  % (minDr, maxDr, otype1, str(ocut1), olist1, otype2, str(ocut2), olist2) # noqa: F821
             log.info("Define %s" % toponame)
-            
-            inputList = [otype1 + olist1, otype2 + olist2]
+
+            inputList = [otype1 + olist1, otype2 + olist2] # noqa: F821
 
             alg = AlgConf.DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
 
@@ -735,10 +757,10 @@ class TopoAlgoDef:
             alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
             alg.addgeneric('MaxTob2', HW.OutputWidthSelectJET)
             alg.addgeneric('NumResultBits', 1)                        
-            alg.addvariable('MinET1', ocut1, 0)
-            alg.addvariable('MinET2', ocut2, 0)
-            alg.addvariable('DeltaRMin', minDr*minDr, 0)
-            alg.addvariable('DeltaRMax', maxDr*maxDr, 0)
+            alg.addvariable('MinET1', ocut1, 0) # noqa: F821
+            alg.addvariable('MinET2', ocut2, 0) # noqa: F821
+            alg.addvariable('DeltaRMin', minDr*minDr, 0) # noqa: F821
+            alg.addvariable('DeltaRMax', maxDr*maxDr, 0) # noqa: F821
             tm.registerAlgo(alg)
             
         # dimu INVM items
@@ -767,20 +789,20 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist)
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
-            toponame = "%iINVM%i-%s%s%s"  % (minInvm, maxInvm, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
+            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist) # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)                                 # noqa: F821
+            toponame = "%iINVM%i-%s%s%s"  % (minInvm, maxInvm, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2) # noqa: F821
 
             log.info("Define %s" % toponame)
 
 
-            inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]
-            algoname = AlgConf.InvariantMassInclusive1 if (mult>1 or otype1==otype2) else AlgConf.InvariantMassInclusive2
+            inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]              # noqa: F821
+            algoname = AlgConf.InvariantMassInclusive1 if (mult>1 or otype1==otype2) else AlgConf.InvariantMassInclusive2 # noqa: F821
             alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
-            if (mult>1 or otype1==otype2):
+            if (mult>1 or otype1==otype2): # noqa: F821
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU) 
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-                alg.addgeneric('RequireOneBarrel', onebarrel)
+                alg.addgeneric('RequireOneBarrel', onebarrel)  # noqa: F821
             else:
                 alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
                 alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU) 
@@ -788,10 +810,10 @@ class TopoAlgoDef:
                 alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
 
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut1)
-            alg.addvariable('MinET2', ocut2 if ocut2>0 else ocut1)
-            alg.addvariable('MinMSqr', minInvm * minInvm)
-            alg.addvariable('MaxMSqr', maxInvm * maxInvm)
+            alg.addvariable('MinET1', ocut1)                       # noqa: F821
+            alg.addvariable('MinET2', ocut2 if ocut2>0 else ocut1) # noqa: F821
+            alg.addvariable('MinMSqr', minInvm * minInvm)          # noqa: F821
+            alg.addvariable('MaxMSqr', maxInvm * maxInvm)          # noqa: F821
             tm.registerAlgo(alg)
 
         # dimu DR items
@@ -809,19 +831,19 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist)
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)
-            toponame = "%iDR%i-%s%s%s"  % (minDr, maxDr, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2)
+            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist) # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist)                                 # noqa: F821
+            toponame = "%iDR%i-%s%s%s"  % (minDr, maxDr, "ONEBARREL-" if onebarrel==1 else "", obj1, "" if mult>1 else obj2) # noqa: F821
 
             log.info("Define %s" % toponame)
 
-            inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist]
-            algoname = AlgConf.DeltaRSqrIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaRSqrIncl2
+            inputList = [otype1 + olist] if (mult>1 or otype1==otype2) else [otype1 + olist, otype2 + olist] # noqa: F821
+            algoname = AlgConf.DeltaRSqrIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaRSqrIncl2      # noqa: F821
             alg = algoname( name = toponame,  inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
-            if (mult>1 or otype1==otype2):
+            if (mult>1 or otype1==otype2): # noqa: F821
                 alg.addgeneric('InputWidth', HW.OutputWidthSelectMU)
                 alg.addgeneric('MaxTob', HW.OutputWidthSelectMU)
-                alg.addgeneric('RequireOneBarrel', onebarrel)
+                alg.addgeneric('RequireOneBarrel', onebarrel) # noqa: F821
             else:
                 alg.addgeneric('InputWidth1', HW.OutputWidthSelectMU)
                 alg.addgeneric('InputWidth2', HW.OutputWidthSelectMU) 
@@ -830,10 +852,10 @@ class TopoAlgoDef:
 
 
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut1)
-            alg.addvariable('MinET2', ocut2)
-            alg.addvariable('DeltaRMin', minDr*minDr)
-            alg.addvariable('DeltaRMax', maxDr*maxDr)
+            alg.addvariable('MinET1', ocut1) # noqa: F821
+            alg.addvariable('MinET2', ocut2) # noqa: F821
+            alg.addvariable('DeltaRMin', minDr*minDr) # noqa: F821
+            alg.addvariable('DeltaRMax', maxDr*maxDr) # noqa: F821
             tm.registerAlgo(alg)
 
 
@@ -853,38 +875,38 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist1)
-            obj2 = "-%s%s%s" % (otype2, str(ocut2) if ocut2>0 else "", olist2)
-            toponame = "%sDETA%s-%sDPHI%s-%s%s"  % (minDeta, maxDeta, minDphi, maxDphi, obj1, "" if mult>1 else obj2)
+            obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist1) # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2) if ocut2>0 else "", olist2) # noqa: F821
+            toponame = "%sDETA%s-%sDPHI%s-%s%s"  % (minDeta, maxDeta, minDphi, maxDphi, obj1, "" if mult>1 else obj2) # noqa: F821
             
             log.info("Define %s" % toponame)
             
-            inputList = [otype1 + olist1] if (mult>1 or otype1==otype2) else [otype1 + olist1, otype2 + olist2]
-            algoname = AlgConf.DeltaEtaPhiIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaEtaPhiIncl2
+            inputList = [otype1 + olist1] if (mult>1 or otype1==otype2) else [otype1 + olist1, otype2 + olist2] # noqa: F821
+            algoname = AlgConf.DeltaEtaPhiIncl1 if (mult>1 or otype1==otype2) else AlgConf.DeltaEtaPhiIncl2 # noqa: F821
             
             alg = algoname( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
             alg.addgeneric('NumResultBits', 1)                        
             
-            if (mult>1 or otype1==otype2):
-                alg.addgeneric('InputWidth', nleading1)
-                alg.addgeneric('MaxTob', nleading1)
-                alg.addvariable('MinET1', ocut1, 0)
-                alg.addvariable('MinET2', ocut2, 0)
-                alg.addvariable('MinDeltaEta', minDeta, 0)
-                alg.addvariable('MaxDeltaEta', maxDeta, 0)
-                alg.addvariable('MinDeltaPhi', minDphi, 0)
-                alg.addvariable('MaxDeltaPhi', maxDphi, 0)
+            if (mult>1 or otype1==otype2):                 # noqa: F821
+                alg.addgeneric('InputWidth', nleading1)    # noqa: F821
+                alg.addgeneric('MaxTob', nleading1)        # noqa: F821
+                alg.addvariable('MinET1', ocut1, 0)        # noqa: F821
+                alg.addvariable('MinET2', ocut2, 0)        # noqa: F821
+                alg.addvariable('MinDeltaEta', minDeta, 0) # noqa: F821
+                alg.addvariable('MaxDeltaEta', maxDeta, 0) # noqa: F821
+                alg.addvariable('MinDeltaPhi', minDphi, 0) # noqa: F821
+                alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
             else:
-                alg.addgeneric('InputWidth1', nleading1)
-                alg.addgeneric('InputWidth2', nleading2)
-                alg.addgeneric('MaxTob1', nleading1)
-                alg.addgeneric('MaxTob2', nleading2)
-                alg.addvariable('MinET1', ocut1, 0)
-                alg.addvariable('MinET2', ocut2, 0)
-                alg.addvariable('DeltaEtaMin', minDeta, 0)
-                alg.addvariable('DeltaEtaMax', maxDeta, 0)
-                alg.addvariable('DeltaPhiMin', minDphi, 0)
-                alg.addvariable('DeltaPhiMax', maxDphi, 0)
+                alg.addgeneric('InputWidth1', nleading1)   # noqa: F821
+                alg.addgeneric('InputWidth2', nleading2)   # noqa: F821
+                alg.addgeneric('MaxTob1', nleading1)       # noqa: F821
+                alg.addgeneric('MaxTob2', nleading2)       # noqa: F821
+                alg.addvariable('MinET1', ocut1, 0)        # noqa: F821
+                alg.addvariable('MinET2', ocut2, 0)        # noqa: F821
+                alg.addvariable('DeltaEtaMin', minDeta, 0) # noqa: F821
+                alg.addvariable('DeltaEtaMax', maxDeta, 0) # noqa: F821
+                alg.addvariable('DeltaPhiMin', minDphi, 0) # noqa: F821
+                alg.addvariable('DeltaPhiMax', maxDphi, 0) # noqa: F821
 
             
             tm.registerAlgo(alg)
@@ -903,22 +925,22 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            toponame = "%sDETA%s-%s%s%s-%s%s%s"  % (minDeta, maxDeta, otype1, str(ocut1), olist1, otype2, str(ocut2) if ocut2>0 else "", olist2)
+            toponame = "%sDETA%s-%s%s%s-%s%s%s"  % (minDeta, maxDeta, otype1, str(ocut1), olist1, otype2, str(ocut2) if ocut2>0 else "", olist2) # noqa: F821
  
             log.info("Define %s" % toponame)
 
-            inputList = [otype1 + olist1, otype2 + olist2]
+            inputList = [otype1 + olist1, otype2 + olist2] # noqa: F821
             alg = AlgConf.DeltaEtaIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
             alg.addgeneric('NumResultBits', 1)
 
-            alg.addgeneric('InputWidth1', nleading1)
-            alg.addgeneric('InputWidth2', nleading2)
-            alg.addgeneric('MaxTob1', nleading1)
-            alg.addgeneric('MaxTob2', nleading2)
-            alg.addvariable('MinET1', ocut1, 0)
-            alg.addvariable('MinET2', ocut2, 0)
-            alg.addvariable('MinDeltaEta', minDeta, 0)
-            alg.addvariable('MaxDeltaEta', maxDeta, 0)
+            alg.addgeneric('InputWidth1', nleading1)   # noqa: F821
+            alg.addgeneric('InputWidth2', nleading2)   # noqa: F821
+            alg.addgeneric('MaxTob1', nleading1)       # noqa: F821
+            alg.addgeneric('MaxTob2', nleading2)       # noqa: F821
+            alg.addvariable('MinET1', ocut1, 0)        # noqa: F821
+            alg.addvariable('MinET2', ocut2, 0)        # noqa: F821
+            alg.addvariable('MinDeltaEta', minDeta, 0) # noqa: F821
+            alg.addvariable('MaxDeltaEta', maxDeta, 0) # noqa: F821
 
             tm.registerAlgo(alg)
 
@@ -935,22 +957,22 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
             
-            toponame = "%sDPHI%s-%s%s%s-%s%s%s"  % (minDphi, maxDphi, otype1, str(ocut1), olist1, otype2, str(ocut2) if ocut2>0 else "", olist2)
+            toponame = "%sDPHI%s-%s%s%s-%s%s%s"  % (minDphi, maxDphi, otype1, str(ocut1), olist1, otype2, str(ocut2) if ocut2>0 else "", olist2) # noqa: F821
  
             log.info("Define %s" % toponame)
 
-            inputList = [otype1 + olist1, otype2 + olist2]
+            inputList = [otype1 + olist1, otype2 + olist2] # noqa: F821
             alg = AlgConf.DeltaPhiIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
             alg.addgeneric('NumResultBits', 1)
             
-            alg.addgeneric('InputWidth1', nleading1)
-            alg.addgeneric('InputWidth2', nleading2)
-            alg.addgeneric('MaxTob1', nleading1)
-            alg.addgeneric('MaxTob2', nleading2)
-            alg.addvariable('MinET1', ocut1, 0)
-            alg.addvariable('MinET2', ocut2, 0)
-            alg.addvariable('MinDeltaPhi', minDphi, 0)
-            alg.addvariable('MaxDeltaPhi', maxDphi, 0)
+            alg.addgeneric('InputWidth1', nleading1)   # noqa: F821
+            alg.addgeneric('InputWidth2', nleading2)   # noqa: F821
+            alg.addgeneric('MaxTob1', nleading1)       # noqa: F821
+            alg.addgeneric('MaxTob2', nleading2)       # noqa: F821
+            alg.addvariable('MinET1', ocut1, 0)        # noqa: F821
+            alg.addvariable('MinET2', ocut2, 0)        # noqa: F821
+            alg.addvariable('MinDeltaPhi', minDphi, 0) # noqa: F821
+            alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
 
             tm.registerAlgo(alg)
 
@@ -1017,7 +1039,7 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
                 
-            toponame = "%02d%s-XE0-HT0-AJj%sall.ETA49"  % (minRatio, Ratio, str(ocut))
+            toponame = "%02d%s-XE0-HT0-AJj%sall.ETA49"  % (minRatio, Ratio, str(ocut)) # noqa: F821
             log.info("Define %s" % toponame)
             
             alg = AlgConf.Ratio( name = toponame, inputs = ['XE', 'AJjall'], outputs = [ toponame ], algoId = currentAlgoId ) 
@@ -1027,13 +1049,13 @@ class TopoAlgoDef:
             alg.addgeneric('MaxTob1', 1)
             alg.addgeneric('MaxTob2', HW.InputWidthJET)
             alg.addgeneric('NumResultBits', 1)
-            alg.addgeneric('isXE2', 1 if Ratio=="RATIO2" else 0)
-            alg.addvariable('MinET2', str(ocut))
+            alg.addgeneric('isXE2', 1 if Ratio=="RATIO2" else 0)   # noqa: F821
+            alg.addvariable('MinET2', str(ocut)) # noqa: F821
             alg.addvariable('EtaMin', 0)
             alg.addvariable('EtaMax', 49)
             alg.addvariable('MinET1', 0)                        
             alg.addvariable('HT', 0)
-            alg.addvariable('Ratio', str(minRatio))
+            alg.addvariable('Ratio', str(minRatio)) # noqa: F821
             tm.registerAlgo(alg)
 
             
@@ -1052,11 +1074,11 @@ class TopoAlgoDef:
 
 
         # NOT MATCH dedicated to Exotic
-        toponame = 'NOT-0MATCH-TAU30si2-EMall'
+        toponame = 'NOT-0MATCH-TAU30si1-EMall'
         alg = AlgConf.NotMatch( name = toponame, inputs = [ 'TAUsi', 'EMall'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth1', HW.OutputWidthSortTAU)
         alg.addgeneric('InputWidth2', HW.InputWidthEM)
-        alg.addgeneric('MaxTob1', 2)
+        alg.addgeneric('MaxTob1', 1)
         alg.addgeneric('MaxTob2', HW.InputWidthEM)
         alg.addgeneric('NumResultBits', 1)
         alg.addvariable('MinET1', 30)
@@ -1076,16 +1098,16 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
                 
-            toponame = "MULT-%s%s%s" % (otype1, str(ocut1), olist1)
+            toponame = "MULT-%s%s%s" % (otype1, str(ocut1), olist1) # noqa: F821
             toponames = [toponame+"[0]", toponame+"[1]"]
             log.info("Define %s" % toponames)
             
-            inputList = [otype1 + olist1] 
+            inputList = [otype1 + olist1]  # noqa: F821
             alg = AlgConf.Multiplicity( name = toponame,  inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1
             
-            alg.addgeneric('InputWidth', inputwidth1)
+            alg.addgeneric('InputWidth', inputwidth1) # noqa: F821
             alg.addgeneric('NumResultBits', 2)
-            alg.addvariable('MinET', ocut1-1) # for MU threshold -1 
+            alg.addvariable('MinET', ocut1-1) # for MU threshold -1   # noqa: F821
             tm.registerAlgo(alg)        
             
         
@@ -1100,24 +1122,24 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "%s%s%s"  % (otype1, str(ocut1), olist1)
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2)
-            toponame = "%sDISAMB-%s%s"  % ( disamb if disamb>0 else "", obj1, obj2)
+            obj1 = "%s%s%s"  % (otype1, str(ocut1), olist1) # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2) # noqa: F821
+            toponame = "%sDISAMB-%s%s"  % ( disamb if disamb>0 else "", obj1, obj2) # noqa: F821
             
             log.info("Define %s" % toponame)
             
-            inputList = [otype1 + olist1, otype2 + olist2]
+            inputList = [otype1 + olist1, otype2 + olist2] # noqa: F821
             alg = AlgConf.DisambiguationIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
-            alg.addgeneric('InputWidth1', nleading1 if olist1.find("ab")>=0 else -1000)
-            alg.addgeneric('InputWidth2', nleading2 if olist2.find("ab")>=0 else -1000) 
-            alg.addgeneric('MaxTob1', nleading1)
-            alg.addgeneric('MaxTob2', nleading2)
+            alg.addgeneric('InputWidth1', nleading1 if olist1.find("ab")>=0 else -1000) # noqa: F821
+            alg.addgeneric('InputWidth2', nleading2 if olist2.find("ab")>=0 else -1000)  # noqa: F821
+            alg.addgeneric('MaxTob1', nleading1) # noqa: F821
+            alg.addgeneric('MaxTob2', nleading2) # noqa: F821
             alg.addgeneric('NumResultBits', 1)
-            alg.addgeneric('ClusterOnly', 1 if (otype1=="EM" and otype2=="TAU") or (otype1=="TAU" and otype2=="EM") else 0 )
+            alg.addgeneric('ClusterOnly', 1 if (otype1=="EM" and otype2=="TAU") or (otype1=="TAU" and otype2=="EM") else 0 ) # noqa: F821
             alg.addgeneric('ApplyDR', 0)
-            alg.addvariable('MinET1', ocut1)
-            alg.addvariable('MinET2', ocut2)
-            alg.addvariable('DisambDRSqrMin', disamb*disamb)
+            alg.addvariable('MinET1', ocut1) # noqa: F821
+            alg.addvariable('MinET2', ocut2) # noqa: F821
+            alg.addvariable('DisambDRSqrMin', disamb*disamb) # noqa: F821
             tm.registerAlgo(alg)
         
         # DISAMB 3 lists
@@ -1129,27 +1151,27 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "%s%s%s"  % (otype1, str(ocut1), olist1.replace('shi','his') + (str(nleading1) if olist1.find('s')>=0 else ""))
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2.replace('shi','his') + (str(nleading2) if olist2.find('s')>=0 else ""))
-            obj3 = "-%s%s%s" % (otype3, str(ocut3), olist3)
-            toponame = "%sDISAMB-%s%s%s"  % ( disamb if disamb>0 else "", obj1, obj2, obj3)
+            obj1 = "%s%s%s"  % (otype1, str(ocut1), olist1.replace('shi','his') + (str(nleading1) if olist1.find('s')>=0 else "")) # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2.replace('shi','his') + (str(nleading2) if olist2.find('s')>=0 else "")) # noqa: F821
+            obj3 = "-%s%s%s" % (otype3, str(ocut3), olist3) # noqa: F821
+            toponame = "%sDISAMB-%s%s%s"  % ( disamb if disamb>0 else "", obj1, obj2, obj3) # noqa: F821
             
             log.info("Define %s" % toponame)
             
-            inputList = [otype1 + olist1, otype2 + olist2, otype3 + olist3]
+            inputList = [otype1 + olist1, otype2 + olist2, otype3 + olist3] # noqa: F821
             alg = AlgConf.DisambiguationIncl3( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
-            alg.addgeneric('InputWidth1', inputwidth1)
-            alg.addgeneric('InputWidth2', inputwidth2)
-            alg.addgeneric('InputWidth3', inputwidth3)
-            alg.addgeneric('MaxTob1', nleading1)
-            alg.addgeneric('MaxTob2', nleading2)
-            alg.addgeneric('MaxTob3', nleading3)
+            alg.addgeneric('InputWidth1', inputwidth1) # noqa: F821
+            alg.addgeneric('InputWidth2', inputwidth2) # noqa: F821
+            alg.addgeneric('InputWidth3', inputwidth3) # noqa: F821
+            alg.addgeneric('MaxTob1', nleading1) # noqa: F821
+            alg.addgeneric('MaxTob2', nleading2) # noqa: F821
+            alg.addgeneric('MaxTob3', nleading3) # noqa: F821
             alg.addgeneric('NumResultBits', 1)
             alg.addgeneric('ApplyDR', 0)
-            alg.addvariable('MinET1', ocut1, 0)
-            alg.addvariable('MinET2', ocut2, 0)
-            alg.addvariable('MinET3', ocut3, 0)
-            alg.addvariable('DisambDRSqr', disamb*disamb, 0) # DisambDR
+            alg.addvariable('MinET1', ocut1, 0) # noqa: F821
+            alg.addvariable('MinET2', ocut2, 0) # noqa: F821
+            alg.addvariable('MinET3', ocut3, 0) # noqa: F821
+            alg.addvariable('DisambDRSqr', disamb*disamb, 0) # DisambDR # noqa: F821
             tm.registerAlgo(alg)         
 
         # DISAMB 3 lists with DR cut to 2nd and 3rd lists
@@ -1165,58 +1187,56 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "-%s%s%s"  % (otype1, str(ocut1), olist1.replace('shi','his') + (str(nleading1) if olist1.find('s')>=0 else ""))
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2.replace('shi','his') + (str(nleading2) if olist2.find('s')>=0 else ""))
-            obj3 = "%s%s%s" % (otype3, str(ocut3), olist3)
-            toponame = "%sDISAMB-%s-%dDR%d%s%s"  % ( str(disamb) if disamb>0 else "", obj3, drcutmin, drcutmax, obj1, obj2)
+            obj1 = "-%s%s%s"  % (otype1, str(ocut1), olist1.replace('shi','his') + (str(nleading1) if olist1.find('s')>=0 else ""))  # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2.replace('shi','his') + (str(nleading2) if olist2.find('s')>=0 else "")) # noqa: F821
+            obj3 = "%s%s%s" % (otype3, str(ocut3), olist3) # noqa: F821
+            toponame = "%sDISAMB-%s-%dDR%d%s%s"  % ( str(disamb) if disamb>0 else "", obj3, drcutmin, drcutmax, obj1, obj2)  # noqa: F821
 
             log.info("Define %s" % toponame)
             
-            inputList = [otype1 + olist1, otype2 + olist2, otype3 + olist3]
+            inputList = [otype1 + olist1, otype2 + olist2, otype3 + olist3]  # noqa: F821
             alg = AlgConf.DisambiguationDRIncl3( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
-            alg.addgeneric('InputWidth1', inputwidth1)
-            alg.addgeneric('InputWidth2', inputwidth2)
-            alg.addgeneric('InputWidth3', inputwidth3)
-            alg.addgeneric('MaxTob1', nleading1)
-            alg.addgeneric('MaxTob2', nleading2)
-            alg.addgeneric('MaxTob3', nleading3)
+            alg.addgeneric('InputWidth1', inputwidth1) # noqa: F821
+            alg.addgeneric('InputWidth2', inputwidth2) # noqa: F821
+            alg.addgeneric('InputWidth3', inputwidth3) # noqa: F821
+            alg.addgeneric('MaxTob1', nleading1) # noqa: F821
+            alg.addgeneric('MaxTob2', nleading2) # noqa: F821
+            alg.addgeneric('MaxTob3', nleading3) # noqa: F821
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut1, 0)
-            alg.addvariable('MinET2', ocut2, 0)
-            alg.addvariable('MinET3', ocut3, 0)
-            alg.addvariable('DisambDRSqrMin', drcutmin*drcutmin, 0)
-            alg.addvariable('DisambDRSqrMax', drcutmax*drcutmax, 0)
-            alg.addvariable('DisambDRSqr', disamb*disamb, 0)
+            alg.addvariable('MinET1', ocut1, 0) # noqa: F821
+            alg.addvariable('MinET2', ocut2, 0) # noqa: F821
+            alg.addvariable('MinET3', ocut3, 0) # noqa: F821
+            alg.addvariable('DisambDRSqrMin', drcutmin*drcutmin, 0) # noqa: F821
+            alg.addvariable('DisambDRSqrMax', drcutmax*drcutmax, 0) # noqa: F821
+            alg.addvariable('DisambDRSqr', disamb*disamb, 0) # noqa: F821
             tm.registerAlgo(alg)            
 
 
         # LAR  0<eta<1.4 and 9/16pi<phi<11/16pi for FE crate IO6 
-        for x in [     
-            {"minEta": 0, "maxEta": 15, "minPhi": 16, "maxPhi": 23, "otype" : "EM", "ocut" : 20, "inputwidth": HW.OutputWidthSortEM},
-            {"minEta": 0, "maxEta": 14, "minPhi": 16, "maxPhi": 23, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET}, 
+        for x in [
+            {"minEta": 1, "maxEta": 15, "minPhi": 17, "maxPhi": 23, "otype" : "EM", "ocut" : 20,  "olist" : "shi", "inputwidth": HW.OutputWidthSortEM},
+            {"minEta": 1, "maxEta": 14, "minPhi": 17, "maxPhi": 23, "otype" : "J", "ocut" : 100,  "olist" : "s", "inputwidth": HW.OutputWidthSortJET}, 
             ]:
 
             for k in x:
                 exec("%s = x[k]" % k)
 
-            toponame = "LAR-%s%ss1"  % ( otype, str(ocut) if not otype=="EM" else "50" )
-            
+            toponame = "LAR-%s%s%s1"  % ( otype, str(ocut), olist )  # noqa: F821
+
             log.info("Define %s" % toponame)
             
-            inputList = otype + 's'
-            
-            alg = AlgConf.LAr( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
-            alg.addgeneric('InputWidth', inputwidth) 
-            alg.addgeneric('MaxTob', 1)
+            inputList = otype + olist  # noqa: F821
+
+            alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', inputwidth)  # noqa: F821
+#            alg.addgeneric('MaxTob', 1)
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET', str(ocut))
-            alg.addvariable('EtaMin', minEta)
-            alg.addvariable('EtaMax', maxEta)
-            alg.addvariable('PhiMin', minPhi)
-            alg.addvariable('PhiMax', maxPhi)
+            alg.addvariable('MinET', str(ocut)) # noqa: F821
+            alg.addvariable('EtaMin', minEta) # noqa: F821
+            alg.addvariable('EtaMax', maxEta) # noqa: F821
+            alg.addvariable('PhiMin', minPhi) # noqa: F821
+            alg.addvariable('PhiMax', maxPhi) # noqa: F821
             tm.registerAlgo(alg)
-
-
 
 
         xemap = {"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}
@@ -1232,14 +1252,14 @@ class TopoAlgoDef:
             inputList = ['XENoSort', 'AJall']
             toponames=[]
 
-            for minxe in Threlist:
+            for minxe in Threlist:  # noqa: F821
                 toponames.append("KF-XE%s-AJall"  % (minxe))
             
             alg = AlgConf.KalmanMETCorrection( name = "KF-XE-AJall", inputs = inputList, outputs = toponames, algoId = currentAlgoId ); currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.InputWidthJET)
             alg.addgeneric('NumResultBits', len(toponames))
             alg.addvariable('MinET', 0)
-            for bitid,minxe in enumerate(Threlist):
+            for bitid,minxe in enumerate(Threlist):  # noqa: F821
                 alg.addvariable('KFXE', str(minxe), bitid)
             
             tm.registerAlgo(alg)
@@ -1256,22 +1276,22 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
                 
-            toponame = "%02dMINDPHI-%s%s%s%s-XE0"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
+            toponame = "%02dMINDPHI-%s%s%s%s-XE0"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")  # noqa: F821
             log.info("Define %s" % toponame)
 
-            inputList = otype + olist
+            inputList = otype + olist  # noqa: F821
 
             alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
 
 
-            alg.addgeneric('InputWidth1', inputwidth)
+            alg.addgeneric('InputWidth1', inputwidth) # noqa: F821
             alg.addgeneric('InputWidth2', 1) 
-            alg.addgeneric('MaxTob1', nleading)
+            alg.addgeneric('MaxTob1', nleading) # noqa: F821
             alg.addgeneric('MaxTob2', 1)
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut)
+            alg.addvariable('MinET1', ocut) # noqa: F821
             alg.addvariable('MinET2', 0)
-            alg.addvariable('DeltaPhiMin', minDPhi, 0)
+            alg.addvariable('DeltaPhiMin', minDPhi, 0)  # noqa: F821
             tm.registerAlgo(alg)
 
             
@@ -1284,21 +1304,21 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            toponame = "%iMT-%s%s%s%s-XE0"  % (minMT, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
+            toponame = "%iMT-%s%s%s%s-XE0"  % (minMT, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")  # noqa: F821
             log.info("Define %s" % toponame)
 
-            inputList = otype + olist
+            inputList = otype + olist  # noqa: F821
             
             alg = AlgConf.TransverseMassInclusive1( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
 
 
 
             alg.addgeneric('InputWidth', HW.OutputWidthSortEM)
-            alg.addgeneric('MaxTob', str(nleading))
+            alg.addgeneric('MaxTob', str(nleading)) # noqa: F821
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', str(ocut))
+            alg.addvariable('MinET1', str(ocut)) # noqa: F821
             alg.addvariable('MinET2', 0)
-            alg.addvariable('MinMTSqr', minMT*minMT)                        
+            alg.addvariable('MinMTSqr', minMT*minMT) # noqa: F821
             tm.registerAlgo(alg)
             
         # DISAMB 2 lists with DR cut between objects in two lists
@@ -1310,23 +1330,23 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            obj1 = "-%s%s%s"  % (otype1, str(ocut1), olist1.replace('shi','his') + (str(nleading1) if olist1.find('s')>=0 else ""))
-            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2.replace('shi','his') + (str(nleading2) if olist2.find('s')>=0 else ""))
-            toponame = "%sDISAMB-%dDR%d%s%s"  % ( str(disamb) if disamb>0 else "", drcutmin, drcutmax, obj1, obj2)
+            obj1 = "-%s%s%s"  % (otype1, str(ocut1), olist1.replace('shi','his') + (str(nleading1) if olist1.find('s')>=0 else "")) # noqa: F821
+            obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2.replace('shi','his') + (str(nleading2) if olist2.find('s')>=0 else "")) # noqa: F821
+            toponame = "%sDISAMB-%dDR%d%s%s"  % ( str(disamb) if disamb>0 else "", drcutmin, drcutmax, obj1, obj2) # noqa: F821
 
             log.info("Define %s" % toponame)
 
-            inputList = [otype1 + olist1, otype2 + olist2]
+            inputList = [otype1 + olist1, otype2 + olist2] # noqa: F821
             alg = AlgConf.DisambiguationDRIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
-            alg.addgeneric('InputWidth1', inputwidth1)
-            alg.addgeneric('InputWidth2', inputwidth2)
-            alg.addgeneric('MaxTob1', nleading1)
-            alg.addgeneric('MaxTob2', nleading2)
+            alg.addgeneric('InputWidth1', inputwidth1) # noqa: F821
+            alg.addgeneric('InputWidth2', inputwidth2) # noqa: F821
+            alg.addgeneric('MaxTob1', nleading1) # noqa: F821
+            alg.addgeneric('MaxTob2', nleading2) # noqa: F821
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut1, 0)
-            alg.addvariable('MinET2', ocut2, 0)
-            alg.addvariable('DisambDRSqrMin', drcutmin*drcutmin, 0)
-            alg.addvariable('DisambDRSqrMax', drcutmax*drcutmax, 0)
+            alg.addvariable('MinET1', ocut1, 0) # noqa: F821
+            alg.addvariable('MinET2', ocut2, 0) # noqa: F821
+            alg.addvariable('DisambDRSqrMin', drcutmin*drcutmin, 0) # noqa: F821
+            alg.addvariable('DisambDRSqrMax', drcutmax*drcutmax, 0) # noqa: F821
             tm.registerAlgo(alg)   
 
         # ZH Trigger
@@ -1339,21 +1359,21 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
                 
-            toponame = "%iMINDPHI-%s%s%s%s-XE50"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
+            toponame = "%iMINDPHI-%s%s%s%s-XE50"  % (minDPhi, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "") # noqa: F821
             log.info("Define %s" % toponame)
             
-            inputList = otype + olist
+            inputList = otype + olist # noqa: F821
 
             alg = AlgConf.MinDeltaPhiIncl2( name = toponame, inputs = [inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
 
-            alg.addgeneric('InputWidth1', inputwidth)
+            alg.addgeneric('InputWidth1', inputwidth) # noqa: F821
             alg.addgeneric('InputWidth2', 1)  
-            alg.addgeneric('MaxTob1', nleading)
+            alg.addgeneric('MaxTob1', nleading) # noqa: F821
             alg.addgeneric('MaxTob2', 1)
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET1', ocut)
+            alg.addvariable('MinET1', ocut) # noqa: F821
             alg.addvariable('MinET2', 50)
-            alg.addvariable('DeltaPhiMin', minDPhi, 0)
+            alg.addvariable('DeltaPhiMin', minDPhi, 0)  # noqa: F821
             tm.registerAlgo(alg)
                 
         # LATE MUON
@@ -1365,17 +1385,17 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            toponame = "%s%ss1"  % ( otype, str(ocut) )
+            toponame = "%s%ss1"  % ( otype, str(ocut) ) # noqa: F821
 
             log.info("Define %s" % toponame)
 
             inputList = 'LMUs'
 
             alg = AlgConf.EtCut( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
-            alg.addgeneric('InputWidth', inputwidth) 
+            alg.addgeneric('InputWidth', inputwidth)  # noqa: F821
             alg.addgeneric('MaxTob', 1)
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinET', str(ocut))
+            alg.addvariable('MinET', str(ocut)) # noqa: F821
             tm.registerAlgo(alg)
             
 
@@ -1388,18 +1408,18 @@ class TopoAlgoDef:
             for k in x:
                 exec("%s = x[k]" % k)
 
-            toponame = "SC%d-%s%s%s%s.ETA%s" % (minHT, otype, str(ocut), olist, str(nleading) if olist=="s" else "", str(oeta))
+            toponame = "SC%d-%s%s%s%s.ETA%s" % (minHT, otype, str(ocut), olist, str(nleading) if olist=="s" else "", str(oeta)) # noqa: F821
 
             log.info("Define %s" % toponame)
 
-            inputList = otype + olist
+            inputList = otype + olist # noqa: F821
 
             alg = AlgConf.SimpleCone( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId ); currentAlgoId += 1
 
 
-            alg.addgeneric('InputWidth', inputwidth)
-            alg.addvariable('MinET', ocut)                        
-            alg.addvariable('MinSumET', minHT)
+            alg.addgeneric('InputWidth', inputwidth) # noqa: F821
+            alg.addvariable('MinET', ocut)           # noqa: F821       
+            alg.addvariable('MinSumET', minHT)       # noqa: F821
             alg.addvariable('MaxRSqr', 10*10)                        
             tm.registerAlgo(alg)  
 
@@ -1412,25 +1432,25 @@ class TopoAlgoDef:
                 for k in x:
                     exec("%s = x[k]" % k)
 
-                obj1 = "%s%s%s"  % (otype1, str(ocut1), olist1.replace('shi','his') + (str(nleading1) if olist1.find('s')>=0 else ""))
-                obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2)
-                toponame = "%sDISAMB-%iINVM%s-%s%s"  % ( disamb if disamb>0 else "", minInvm, str(maxInvm) if maxInvm<9999 else "", obj1, obj2)          
+                obj1 = "%s%s%s"  % (otype1, str(ocut1), olist1.replace('shi','his') + (str(nleading1) if olist1.find('s')>=0 else "")) # noqa: F821
+                obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2) # noqa: F821
+                toponame = "%sDISAMB-%iINVM%s-%s%s"  % ( disamb if disamb>0 else "", minInvm, str(maxInvm) if maxInvm<9999 else "", obj1, obj2)       # noqa: F821    
 
                 log.info("Define %s" % toponame)
-                inputList = [otype1 + olist1, otype2 + olist2]               
+                inputList = [otype1 + olist1, otype2 + olist2]      # noqa: F821         
                 #alg = AlgConf.DisambiguationInvariantMass2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
                 alg = AlgConf.DisambiguationInvmIncl2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
 
-                alg.addgeneric('InputWidth1', inputwidth1)
-                alg.addgeneric('InputWidth2', inputwidth2)
-                alg.addgeneric('MaxTob1', nleading1)
-                alg.addgeneric('MaxTob2', nleading2)
+                alg.addgeneric('InputWidth1', inputwidth1) # noqa: F821
+                alg.addgeneric('InputWidth2', inputwidth2) # noqa: F821
+                alg.addgeneric('MaxTob1', nleading1) # noqa: F821
+                alg.addgeneric('MaxTob2', nleading2) # noqa: F821
                 alg.addgeneric('NumResultBits', 1)
             
-                alg.addvariable('MinET1', ocut1)
-                alg.addvariable('MinET2', ocut2)
-                alg.addvariable('MinMSqr', minInvm * minInvm)
-                alg.addvariable('MaxMSqr', maxInvm * maxInvm)
+                alg.addvariable('MinET1', ocut1) # noqa: F821
+                alg.addvariable('MinET2', ocut2) # noqa: F821
+                alg.addvariable('MinMSqr', minInvm * minInvm) # noqa: F821
+                alg.addvariable('MaxMSqr', maxInvm * maxInvm) # noqa: F821
                 
                 tm.registerAlgo(alg)
 
@@ -1442,31 +1462,212 @@ class TopoAlgoDef:
                 for k in x:
                     exec("%s = x[k]" % k)
 
-                obj1 = "%s%s%s.%sETA%i"  % (otype1, str(ocut1), olist1 + (str(nleading1) if olist1.find('s')>=0 else ""),str(minEta1) if minEta1>0 else "", maxEta1)
-                obj2 = "-%s%s%s.%sETA%i"  % (otype2, str(ocut2), olist2 + (str(nleading2) if olist2.find('s')>=0 else ""),str(minEta2) if minEta2>0 else "", maxEta2)
+                obj1 = "%s%s%s.%sETA%i"  % (otype1, str(ocut1), olist1 + (str(nleading1) if olist1.find('s')>=0 else ""),str(minEta1) if minEta1>0 else "", maxEta1) # noqa: F821
+                obj2 = "-%s%s%s.%sETA%i"  % (otype2, str(ocut2), olist2 + (str(nleading2) if olist2.find('s')>=0 else ""),str(minEta2) if minEta2>0 else "", maxEta2) # noqa: F821
             
-                inputList = [otype1 + olist1, otype2 + olist2]
+                inputList = [otype1 + olist1, otype2 + olist2] # noqa: F821
                         
-                toponame = "%iINVM%i-%s%s"   % (minInvm, maxInvm, obj1, obj2)
+                toponame = "%iINVM%i-%s%s"   % (minInvm, maxInvm, obj1, obj2) # noqa: F821
                 alg = AlgConf.InvariantMassInclusive2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1    
 
 
-                alg.addgeneric('InputWidth1', inputwidth1)
-                alg.addgeneric('InputWidth2', inputwidth2)
-                alg.addgeneric('MaxTob1', nleading1)
-                alg.addgeneric('MaxTob2', nleading2)
+                alg.addgeneric('InputWidth1', inputwidth1) # noqa: F821
+                alg.addgeneric('InputWidth2', inputwidth2) # noqa: F821
+                alg.addgeneric('MaxTob1', nleading1) # noqa: F821
+                alg.addgeneric('MaxTob2', nleading2) # noqa: F821
                 alg.addgeneric('NumResultBits', 1)
-                if (applyEtaCut>0):
-                    alg.addgeneric('ApplyEtaCut', applyEtaCut)
+                if (applyEtaCut>0): # noqa: F821
+                    alg.addgeneric('ApplyEtaCut', applyEtaCut) # noqa: F821
 
-                alg.addvariable('MinET1', ocut1)
-                alg.addvariable('MinET2', ocut2)
-                alg.addvariable('MinMSqr', minInvm * minInvm )
-                alg.addvariable('MaxMSqr', maxInvm * maxInvm )
-                if (applyEtaCut>0):
-                    alg.addvariable('MinEta1', minEta1)
-                    alg.addvariable('MaxEta1', maxEta1)
-                    alg.addvariable('MinEta2', minEta2)
-                    alg.addvariable('MaxEta2', maxEta2)
+                alg.addvariable('MinET1', ocut1) # noqa: F821
+                alg.addvariable('MinET2', ocut2) # noqa: F821
+                alg.addvariable('MinMSqr', minInvm * minInvm ) # noqa: F821
+                alg.addvariable('MaxMSqr', maxInvm * maxInvm ) # noqa: F821
+                if (applyEtaCut>0): # noqa: F821
+                    alg.addvariable('MinEta1', minEta1) # noqa: F821
+                    alg.addvariable('MaxEta1', maxEta1) # noqa: F821
+                    alg.addvariable('MinEta2', minEta2) # noqa: F821
+                    alg.addvariable('MaxEta2', maxEta2) # noqa: F821
 
                 tm.registerAlgo(alg)
+
+
+        # FTK 
+        for x in [
+            {"minEta": -16, "maxEta": 01, "minPhi": 15, "maxPhi": 21, "otype" : "EM", "ocut" : 20, "inputwidth": HW.OutputWidthSortEM},
+            {"minEta": -16, "maxEta": 01, "minPhi": 15, "maxPhi": 21, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET},
+            {"minEta": -16, "maxEta": 01, "minPhi": 15, "maxPhi": 21, "otype" : "MU", "ocut" : 20, "inputwidth": HW.OutputWidthSortMU},
+            ]:
+
+            for k in x:
+                exec("%s = x[k]" % k)
+
+            toponame = "FTK-%s%ss1"  % ( otype, str(ocut) if not otype=="EM" else "20" )  # noqa: F821
+
+            log.info("Define %s" % toponame)
+            
+            inputList = otype + 's'  # noqa: F821
+
+            alg = AlgConf.EtaPhiWindow( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+            alg.addgeneric('InputWidth', inputwidth)  # noqa: F821
+#            alg.addgeneric('MaxTob', 1)
+            alg.addgeneric('NumResultBits', 1)
+            alg.addvariable('MinET', str(ocut)) # noqa: F821
+            alg.addvariable('EtaMin', minEta) # noqa: F821
+            alg.addvariable('EtaMax', maxEta) # noqa: F821
+            alg.addvariable('PhiMin', minPhi) # noqa: F821
+            alg.addvariable('PhiMax', maxPhi) # noqa: F821
+            tm.registerAlgo(alg)
+
+ 
+      # LAR  ZEE
+        for x in [
+            {"otype" : "EM", "ocut1" : 20,  "ocut2" : 20, "olist" : "shi", "nleading1" : 2, "minInvm" : 60, "maxInvm" : 100, "inputwidth": HW.OutputWidthSortEM},
+            ]:
+
+            for k in x:
+                exec("%s = x[k]" % k)
+
+            toponame = 'ZEE-EM20shi2'
+
+            log.info("Define %s" % toponame)
+
+            inputList = otype + olist  # noqa: F821
+
+
+            alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1  # noqa: F821
+
+            alg.addgeneric('InputWidth', inputwidth)      # noqa: F821
+            alg.addgeneric('MaxTob', nleading1)            # noqa: F821
+            alg.addgeneric('NumResultBits', 1)
+            
+            alg.addvariable('MinET1', ocut1)                           # noqa: F821
+            alg.addvariable('MinET2', ocut2)     # noqa: F821
+            alg.addvariable('MinMSqr', (minInvm * _emscale_for_decision)*(minInvm * _emscale_for_decision))        # noqa: F821
+            alg.addvariable('MaxMSqr', (maxInvm * _emscale_for_decision)*(maxInvm * _emscale_for_decision))        # noqa: F821
+        
+            tm.registerAlgo(alg)
+
+
+        #  0INVM9-EM7ab-EMab 
+        for x in [
+            {"minInvm" : 0, "maxInvm": 9, "otype" : "EM", "ocut1" : 7, "olist" : "ab", "inputwidth": HW.OutputWidthSelectEM, "ocut2" : 0},
+            ]:
+            
+            for k in x:
+                exec("%s = x[k]" % k)
+		
+            inputList = otype + olist # noqa: F821
+            toponame = "%iINVM%i-%s%s%s-%s%s"  % (minInvm, maxInvm,                                                    # noqa: F821
+                                                  otype, str(ocut1) , olist,     # noqa: F821
+                                                  otype, olist)     # noqa: F821 
+
+            alg = AlgConf.InvariantMassInclusive1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1  # noqa: F821
+            alg.addgeneric('InputWidth', inputwidth)      # noqa: F821
+            alg.addgeneric('MaxTob', HW.OutputWidthSelectEM)            # noqa: F821
+            alg.addgeneric('NumResultBits', 1)
+
+            alg.addvariable('MinET1', ocut1)    # noqa: F821
+            alg.addvariable('MinET2', ocut2)    # noqa: F821
+            alg.addvariable('MinMSqr', (minInvm * _emscale_for_decision)*(minInvm * _emscale_for_decision))        # noqa: F821
+            alg.addvariable('MaxMSqr', (maxInvm * _emscale_for_decision)*(maxInvm * _emscale_for_decision))        # noqa: F821
+
+            tm.registerAlgo(alg)
+
+
+
+        # added for b-phys
+        for x in [  
+            {"minDr": 0, "maxDr": 4, "otype1" : "EM" ,"ocut1": 7,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 15, "olist2" : "ab"} 
+            ]:
+
+            for k in x:
+                exec("%s = x[k]" % k)
+
+            toponame = "%iDR%02d-%s%s%s-%s%s%s"  % (minDr, maxDr, otype1, str(ocut1), olist1, otype2, str(ocut2), olist2) # noqa: F821
+            log.info("Define %s" % toponame)
+
+            inputList = [otype1 + olist1, otype2 + olist2] # noqa: F821
+
+            alg = AlgConf.DeltaRSqrIncl2( name = toponame, inputs = inputList, outputs = [ toponame ], algoId = currentAlgoId); currentAlgoId += 1
+
+            alg.addgeneric('InputWidth1', HW.OutputWidthSelectEM)
+            alg.addgeneric('InputWidth2', HW.OutputWidthSelectJET)
+            alg.addgeneric('MaxTob1', HW.OutputWidthSelectEM)
+            alg.addgeneric('MaxTob2', HW.OutputWidthSelectJET)
+            alg.addgeneric('NumResultBits', 1)                        
+            alg.addvariable('MinET1', ocut1, 0) # noqa: F821
+            alg.addvariable('MinET2', ocut2, 0) # noqa: F821
+            alg.addvariable('DeltaRMin', minDr*minDr, 0) # noqa: F821
+            alg.addvariable('DeltaRMax', maxDr*maxDr, 0) # noqa: F821
+            tm.registerAlgo(alg)
+
+
+        # VBF items INVM_NFF
+        for x in [
+            {"algoname": 'INVM_NFF', "Threlist": [ 800, 600, 400, 200 ], "maxInvm": 9999, "otype1" : "J", "ocut1" : 30, "olist1" : "s", "nleading1" : 6, "inputwidth": HW.OutputWidthSortJET,  "otype2" : "AJ", "ocut2" : 15, "olist2" : "s", "nleading2" : 6 },
+            ]:
+            
+            for k in x:
+                exec("%s = x[k]" % k)
+		
+            inputList = [otype1 + olist1, otype2 + olist1]      # noqa: F821       
+            toponames=[]
+
+
+            for minInvm in Threlist:  # noqa: F821
+                toponame = "%iINVM%i-%s%s%s%s-%s%s%s%s"  % (minInvm, maxInvm,                                                    # noqa: F821
+                                                            otype1, str(ocut1) , olist1, str(nleading1) if olist1=="s" else "",     # noqa: F821
+                                                            otype2, str(ocut2) , olist2, str(nleading2) if olist2=="s" else "")     # noqa: F821 
+                toponames.append(toponame)
+
+                
+            alg = AlgConf.InvariantMassInclusive2( name = algoname, inputs = inputList, outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1     # noqa: F821
+
+
+            alg.addgeneric('InputWidth1', inputwidth) # noqa: F821
+            alg.addgeneric('InputWidth2', inputwidth) # noqa: F821
+            alg.addgeneric('MaxTob1', nleading1)       # noqa: F821
+            alg.addgeneric('MaxTob2', nleading2)# noqa: F821
+            alg.addgeneric('NumResultBits', len(toponames))
+
+            for bitid, minInvm in enumerate(Threlist): # noqa: F821
+                alg.addvariable('MinET1', ocut1, bitid)# noqa: F821
+                alg.addvariable('MinET2', ocut2, bitid)# noqa: F821
+                alg.addvariable('MinMSqr', minInvm*minInvm , bitid)        # noqa: F821         
+                alg.addvariable('MaxMSqr', maxInvm *maxInvm , bitid)        # noqa: F821
+                
+            tm.registerAlgo(alg)
+
+
+        # Axion 2EM DPHI  
+
+        if usev7:
+            algoList = [
+                {"minDphi": 27,  "maxDphi": 31, "otype" : "EM",  "ocut1" : 0,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortEM, "ocut2" : 0, "nleading2": 6},
+            ]
+        else:
+            algoList = []
+
+        for x in algoList:                 
+            for k in x:
+                exec("%s = x[k]" % k)
+
+            toponame = "%iDPHI%i-%s%s%s%s-%s%s%s%s"  % (minDphi, maxDphi,  # noqa: F821
+                                                        otype, str(ocut1) if ocut1 > 0 else "", olist, str(nleading1) if olist=="s" else "", # noqa: F821
+                                                        otype, str(ocut2) if ocut2 > 0 else "", olist, str(nleading2) if olist=="s" else "") # noqa: F821
+            
+            log.info("Define %s" % toponame)
+            inputList = otype + olist # noqa: F821
+            
+            alg = AlgConf.DeltaPhiIncl1( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId ); currentAlgoId += 1
+
+            alg.addgeneric('InputWidth', inputwidth1) # noqa: F821
+            alg.addgeneric('MaxTob', nleading2)       # noqa: F821 
+            alg.addgeneric('NumResultBits', 1)                        
+            alg.addvariable('MinET1', ocut1 if ocut1 > 0 else 3, 0) # noqa: F821   
+            alg.addvariable('MinET2', ocut2 if ocut2 > 0 else 3, 0) # noqa: F821  
+            alg.addvariable('MinDeltaPhi', minDphi, 0) # noqa: F821
+            alg.addvariable('MaxDeltaPhi', maxDphi, 0) # noqa: F821
+            tm.registerAlgo(alg)
+            

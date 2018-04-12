@@ -28,35 +28,35 @@ LArDigits2Ntuple::~LArDigits2Ntuple()
 
 StatusCode LArDigits2Ntuple::initialize()
 {
-   msg(MSG::INFO) << "in initialize" << endreq; 
+   ATH_MSG_INFO( "in initialize" ); 
 
    StatusCode sc=LArCond2NtupleBase::initialize();
    if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::ERROR) << "Base init failed" << endreq;
+     ATH_MSG_ERROR( "Base init failed" );
      return StatusCode::FAILURE;
    }
 
   sc=m_nt->addItem("IEvent",m_IEvent);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'IEvent' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'IEvent' failed" );
       return sc;
     }
 
   sc=m_nt->addItem("Gain",m_gain,-1,3);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Gain' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Gain' failed" );
       return sc;
     }
 
   sc=m_nt->addItem("Nsamples",m_ntNsamples,0,32);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'Nsamples' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'Nsamples' failed" );
       return sc;
     }
 
   sc=m_nt->addItem("samples",m_Nsamples,m_samples);
   if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "addItem 'samples' failed" << endreq;
+      ATH_MSG_ERROR( "addItem 'samples' failed" );
       return sc;
     }
   
@@ -74,13 +74,13 @@ StatusCode LArDigits2Ntuple::execute()
 
   StatusCode sc;
   
-  msg(MSG::DEBUG) << "in execute" << endreq; 
+  ATH_MSG_DEBUG( "in execute" ); 
 
   m_event++;
   unsigned long thisevent;
   const EventInfo* eventInfo;
   if (evtStore()->retrieve(eventInfo,"ByteStreamEventInfo").isFailure()) {
-      msg(MSG::WARNING) << " Cannot access to event info " << endreq;
+      ATH_MSG_WARNING( " Cannot access to event info " );
       thisevent=m_event;
   } else {
       thisevent = eventInfo->event_ID()->event_number();
@@ -89,10 +89,10 @@ StatusCode LArDigits2Ntuple::execute()
   const LArDigitContainer* DigitContainer = NULL;
   sc=evtStore()->retrieve(DigitContainer,m_contKey);  
   if (sc!=StatusCode::SUCCESS) {
-     msg(MSG::WARNING) << "Unable to retrieve LArDigitContainer with key " << m_contKey << " from DetectorStore. " << endreq;
+     ATH_MSG_WARNING( "Unable to retrieve LArDigitContainer with key " << m_contKey << " from DetectorStore. " );
     } 
   else
-     msg(MSG::DEBUG) << "Got LArDigitContainer with key " << m_contKey << endreq;
+     ATH_MSG_DEBUG( "Got LArDigitContainer with key " << m_contKey );
   
  
  if (DigitContainer) { 
@@ -101,10 +101,10 @@ StatusCode LArDigits2Ntuple::execute()
    LArDigitContainer::const_iterator it_e=DigitContainer->end();
 
     if(it == it_e) {
-      msg(MSG::DEBUG) << "LArDigitContainer with key=" << m_contKey << " is empty " << endreq;
+      ATH_MSG_DEBUG( "LArDigitContainer with key=" << m_contKey << " is empty " );
       return StatusCode::SUCCESS;
     }else{
-      msg(MSG::DEBUG) << "LArDigitContainer with key=" << m_contKey << " has " <<DigitContainer->size() << " entries" <<endreq;
+      ATH_MSG_DEBUG( "LArDigitContainer with key=" << m_contKey << " has " <<DigitContainer->size() << " entries" );
     }
 
    unsigned cellCounter=0;
@@ -120,7 +120,7 @@ StatusCode LArDigits2Ntuple::execute()
 
      if(trueMaxSample>m_Nsamples){
        if(!m_ipass){
-	 msg(MSG::WARNING) << "The number of samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " << endreq;
+	 ATH_MSG_WARNING( "The number of samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " );
 	 m_ipass=1;
        }
        trueMaxSample = m_Nsamples;
@@ -139,12 +139,12 @@ StatusCode LArDigits2Ntuple::execute()
 
      sc=ntupleSvc()->writeRecord(m_nt);
      if (sc!=StatusCode::SUCCESS) {
-       msg(MSG::ERROR) << "writeRecord failed" << endreq;
+       ATH_MSG_ERROR( "writeRecord failed" );
        return sc;
      }
      cellCounter++;
    }// over cells 
  } 
- msg(MSG::DEBUG) << "LArDigits2Ntuple has finished." << endreq;
+ ATH_MSG_DEBUG( "LArDigits2Ntuple has finished." );
  return StatusCode::SUCCESS;
 }// end finalize-method.

@@ -67,6 +67,13 @@ ExtraContentTaus                 = [   "TauJets.pt.eta.phi.m.charge.jetLink.isTa
                                        + "etHotShotWinOverPtLeadTrk."
                                        + "hadLeakFracFixed."
                                        + "leadTrackProbHT."
+                                       + "ClustersMeanCenterLambda."
+                                       + "ClustersMeanFirstEngDens."
+                                       + "ClustersMeanSecondLambda."
+                                       + "ClustersMeanPresamplerFrac."
+                                       + "ClustersMeanEMProbability."
+                                       + "PFOEngRelDiff."
+                                       + "GhostMuonSegmentCount."
                                        + "ptPanTauCellBased."
                                        + "ptPanTauCellBasedProto."
                                        + "etaPanTauCellBased."
@@ -133,6 +140,7 @@ ExtraContainersElectrons         = []  #    ["ForwardElectrons"] -- removed for 
 ExtraContainersJets              = ["CaloCalTopoClusters"]
 
 ExtraContainersTrigger           = ["LVL1EmTauRoIs",
+                                    "LVL1JetRoIs",
                                     "HLT_TrigRoiDescriptorCollection_forID",
                                     "HLT_TrigRoiDescriptorCollection_forID1",
                                     "HLT_TrigRoiDescriptorCollection_forID2",

@@ -27,7 +27,6 @@ TrigFTK_VxPrimaryAllTE::TrigFTK_VxPrimaryAllTE(const std::string &n, ISvcLocator
     m_DataProviderSvc("TrigFTK_DataProviderSvc",n),
     m_useRawTracks(false),
     m_useRefittedTracks(false),
-    m_getVertexContainer(false),
     m_trackType(ftk::ConvertedTrack),
     m_vertexContainerName("FTK_PrimVertex"),
     m_vxContainerName("FTK_PrimVx"),
@@ -36,7 +35,6 @@ TrigFTK_VxPrimaryAllTE::TrigFTK_VxPrimaryAllTE(const std::string &n, ISvcLocator
 {
   declareProperty("useRawTracks", m_useRawTracks);
   declareProperty("useRefittedTracks", m_useRefittedTracks);
-  declareProperty("getVertexContainer", m_getVertexContainer);
   declareProperty("useFastVertexTool", m_useFastVertexTool);
   declareProperty("FTK_DataProvider", m_DataProviderSvc);
   

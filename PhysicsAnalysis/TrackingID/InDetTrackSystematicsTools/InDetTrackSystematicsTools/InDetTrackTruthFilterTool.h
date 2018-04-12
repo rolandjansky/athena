@@ -11,6 +11,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicSet.h"
+#include "PathResolver/PathResolver.h"
 #include "InDetTrackSystematicsTools/InDetTrackSystematicsTool.h"
 
 #include "xAODTracking/TrackParticle.h"
@@ -71,8 +72,8 @@ namespace InDet {
     
     float m_fPrim = 1.;
     float m_fSec = 1.;
-    float m_fFakeLoose = 0.29; // +- 0.009
-    float m_fFakeTight = 1.61; // +- 0.14 // this value is nonsense (no tracks will pass), as the method breaks down for large one-sided uncertainties
+    float m_fFakeLoose = 0.10;
+    float m_fFakeTight = 1.00; // this method breaks down for uncertainties > 1.00 (as was present in previous iterations)
     float m_fPU = 1.;
     float m_fFrag = 1.;
     float m_fFromC = 1.;
@@ -96,6 +97,9 @@ namespace InDet {
     TH2* m_trkEffHistTightIBL = nullptr;
     TH2* m_trkEffHistTightPP0 = nullptr;
     TH2* m_trkEffHistTightPhysModel = nullptr;
+
+    // allow the user to configure which calibration files to use if desired
+    std::string m_calibFileNomEff;
 
     ToolHandle< IInDetTrackTruthOriginTool > m_trackOriginTool;
     

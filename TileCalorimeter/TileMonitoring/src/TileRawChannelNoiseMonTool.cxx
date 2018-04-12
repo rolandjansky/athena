@@ -65,6 +65,7 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   , m_map_rms{}
   , m_gain(1)
   , m_nEventsProcessed(0)
+  , m_minimumEventsNumberToFit(100)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -84,6 +85,7 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("Gain", m_gainName = "HG"); // gain to be processed
   declareProperty("TriggerTypes", m_triggerTypes);
+  declareProperty("MinimumEventsNumberToFit", m_minimumEventsNumberToFit);
 
   m_path = "/Tile/RawChannelNoise";
 }
@@ -276,7 +278,7 @@ void TileRawChannelNoiseMonTool::doFit() {
           // fit the single cell energy distributions
           ATH_MSG_VERBOSE("in  doFit() : ros = " << ros << ", drawer = " << drawer << ", channel = " << channel);
           
-          if (m_tileChannelEne[ros][drawer].at(channel)->GetEntries() > 0) {
+          if (m_tileChannelEne[ros][drawer].at(channel)->GetEntries() > m_minimumEventsNumberToFit) {
             
             fitDoubleGauss(m_tileChannelEne[ros][drawer].at(channel), fitresults, &fitfunction);
             
@@ -338,7 +340,7 @@ void TileRawChannelNoiseMonTool::doFit() {
 
           ATH_MSG_VERBOSE("in  doFit() : ros =  " << ros << ", drawer = " << drawer << ", channel = " << channel);
           
-          if (m_tileChannelEne[ros][drawer].at(channel)->GetEntries() > 0) {
+          if (m_tileChannelEne[ros][drawer].at(channel)->GetEntries() > m_minimumEventsNumberToFit) {
 
             fitGauss(m_tileChannelEne[ros][drawer].at(channel), fitresults, &fitfunction);
 
@@ -521,6 +523,16 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
     int ros = m_tileHWID->ros(adc_id);
     int drawer = m_tileHWID->drawer(adc_id);
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+
+    unsigned int nBadOrDisconnectedChannels(0);
+    for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+      if (isDisconnected(ros, drawer, channel)) {
+        ++nBadOrDisconnectedChannels;
+      }
+    }
+
+    unsigned int nRequiredChannels(TileCalibUtils::MAX_CHAN - nBadOrDisconnectedChannels);
+    if (rawChannelCollection->size() < nRequiredChannels) continue;
 
     /////// loop over raw channels in the container ///////
     for (const TileRawChannel* rawChannel : *rawChannelCollection) {

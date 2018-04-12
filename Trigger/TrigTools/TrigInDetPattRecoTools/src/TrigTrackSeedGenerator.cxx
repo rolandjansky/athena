@@ -16,10 +16,6 @@
 
 TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& tcs) 
   : m_settings(tcs), 
-    m_maxSoaSize(1000),
-    m_maxOuterRadius(550.0), 
-    //  m_minRadius(10.0),
-    // m_maxRadius(600.0), 
     m_minDeltaRadius(10.0), 
     m_zTol(3.0), 
     m_pStore(NULL)

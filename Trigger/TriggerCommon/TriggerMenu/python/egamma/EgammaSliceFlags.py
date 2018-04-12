@@ -57,7 +57,7 @@ class doRinger(JobProperty):
     '''apply ringer selection for Electron chains'''
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 _flags.append(doRinger) 
 
@@ -65,7 +65,7 @@ class ringerVersion (JobProperty):
     """ Version ringer tunes """
     statusOn=True
     allowedTypes=['str']
-    StoreValues='RingerSelectorTools/TrigL2_20170505_v6'
+    StoredValue='RingerSelectorTools/TrigL2_20170505_v6'
 
 _flags.append(ringerVersion)
 

@@ -91,11 +91,11 @@ G4double LArWheelSolid::DistanceToOut(const G4ThreeVector &inputP,
 		inputP, inputV, calcNorm, validNorm, sn
 	);
 	q = p + v * dto_bs;
-	if(q.y() < Ymin){
+	if(q.y() < m_Ymin){
 		LWSDBG(5, std::cout << "dto exit point too low " << MSG_VECTOR(q) << std::endl);
-		const G4double dy = (Ymin - p.y()) / v.y();
+		const G4double dy = (m_Ymin - p.y()) / v.y();
 		q.setX(p.x() + v.x() * dy);
-		q.setY(Ymin);
+		q.setY(m_Ymin);
 		q.setZ(p.z() + v.z() * dy);
 	}
 #else
@@ -169,7 +169,7 @@ G4double LArWheelSolid::DistanceToOut(const G4ThreeVector &inputP,
 	if(calcNorm && distance < dto_bs) *validNorm = false;
 #else
 	if(calcNorm){
-		LWSDBG(5, std::cout << "dto exit1 " << exit << std::endl);
+		LWSDBG(5, std::cout << "dto calc norm " << exit << std::endl);
 		switch(exit){
 			case ExitAtBack:
 				sn->set(0., 0., 1.);
@@ -195,18 +195,13 @@ G4double LArWheelSolid::DistanceToOut(const G4ThreeVector &inputP,
 
 #ifdef DEBUG_LARWHEELSOLID
 	if(Verbose > 2){
-		if(Verbose > 3){
-			std::cout << MSG_VECTOR(inputP)
-			          << " " << MSG_VECTOR(inputV) << std::endl;
-		}
 		std::cout << "DTO: " << distance << " ";
-		if (validNorm) {
+		if (*validNorm) {
 		  std::cout << *validNorm << " " << MSG_VECTOR((*sn));
 		} else {
 		  std::cout << "Norm is not valid";
 		}
 		std::cout << std::endl;
-
 		if(Verbose > 3){
 			G4ThreeVector p2 = inputP + inputV * distance;
 			EInside i = Inside(p2);

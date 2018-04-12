@@ -29,6 +29,12 @@ dimuon_chi2_max = 50.
 dimuon_mass_min = 100.
 dimuon_mass_max = 150e3
 
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__MuonExtrapolationTool
+BPHY6_Extrap_Tool = DerivationFramework__MuonExtrapolationTool(
+  name = "BPHY6_ExtrapolationTool",
+  OutputLevel = INFO )
+ToolSvc += BPHY6_Extrap_Tool
+ 
 
 
 #--------------------------------------------------------------------
@@ -245,7 +251,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   "BPHY6Kernel",
    AugmentationTools = [BPHY6_Reco_mumu,
                         BPHY6_Select_Jpsi2mumu, BPHY6_Select_Psi2mumu, BPHY6_Select_Upsi2mumu,BPHY6_Select_Bmumu2mumu,
-                        BPHY6_Select_Zmumu2mumu,BPHY6_Select_Onia2mumu, ],
+                        BPHY6_Select_Zmumu2mumu,BPHY6_Select_Onia2mumu, BPHY6_Extrap_Tool],
    SkimmingTools     =  [SkimmingORTool],
    #   ThinningTools     = [BPHY6Thin_vtxTrk, BPHY6MuonTPThinningTool]
    ThinningTools     = BPHY6ThinningTools

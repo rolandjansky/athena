@@ -403,7 +403,11 @@ namespace LVL1MUCTPI {
     m_theMuctpi->processData( &mergedInput );      
     // Save the output of the simulation
     CHECK( saveOutput() );
-      
+
+    uint32_t can;
+    std::vector< uint32_t > dataWord;
+    CHECK( updateMuCTPI_RDO(can, dataWord) );
+
     // check the other 4 possible BC offset values in case the input objects tells us there are
     // out of time candidates
 
@@ -418,9 +422,12 @@ namespace LVL1MUCTPI {
 	  m_theMuctpi->processData( &mergedInput, (*it));      
 	  // Save the output of the simulation
 	  CHECK( saveOutput( (*it) ) );	    
+	  uint32_t tmp_can; // this isn't used for anything!
+	  CHECK( updateMuCTPI_RDO(tmp_can, dataWord) );
 	}
       }
     }    
+    CHECK( saveOutput_MuCTPI_RDO(can, dataWord) );
 
     return StatusCode::SUCCESS;
   }
@@ -463,6 +470,11 @@ namespace LVL1MUCTPI {
     // Save the output of the simulation
     CHECK( saveOutput() );
 
+    uint32_t can;
+    std::vector< uint32_t > dataWord;
+    CHECK( updateMuCTPI_RDO(can, dataWord) );
+    CHECK( saveOutput_MuCTPI_RDO(can, dataWord) );
+
     return StatusCode::SUCCESS;
   }
 
@@ -492,6 +504,11 @@ namespace LVL1MUCTPI {
 
     // Save the output of the simulation
     CHECK( saveOutput() );
+
+    uint32_t can;
+    std::vector< uint32_t > dataWord;
+    CHECK( updateMuCTPI_RDO(can, dataWord) );
+    CHECK( saveOutput_MuCTPI_RDO(can, dataWord) );
 
     return StatusCode::SUCCESS;
   }
@@ -565,6 +582,58 @@ namespace LVL1MUCTPI {
   }
 
   /**
+   *In order to handle multiple BCID per event, the RDO object needs to be saved only after
+   *all BCID offsets have been processed. This function will update the data word that will
+   *go to the RDO, but won't save the RDO to storegate yet.
+   */
+  StatusCode L1Muctpi::updateMuCTPI_RDO(uint32_t& can, std::vector< uint32_t >& dataWord)
+  {
+    const std::list< unsigned int >& daqData = m_theMuctpi->getDAQData();
+    
+    const int HEADER_SIZE = 9;
+    const int STATUSandTAILER_SIZE = 2 + 3;
+    
+    // size check
+    // payload should contain at least 1 data (Candidate Multiplicity)
+    int payloadSize = daqData.size() - HEADER_SIZE - STATUSandTAILER_SIZE;
+    if( payloadSize < 1 ) {
+      REPORT_ERROR( StatusCode::FAILURE )
+	<< "MIROD didn't provide correct DAQ data";
+      return StatusCode::FAILURE;
+    }
+    
+    // skip header part
+    std::list< unsigned int >::const_iterator itDAQ = daqData.begin();
+    for( int iHead = 0; iHead < HEADER_SIZE; ++iHead ) {
+      ++itDAQ;
+    }
+    
+    // candidate multiplicity
+    can = *itDAQ;
+    ++itDAQ;
+    
+    // data word
+    //std::vector< uint32_t > dataWord;
+    for( int iData = 1; iData < payloadSize; ++iData, ++itDAQ ) {
+      dataWord.push_back( *itDAQ );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  /**
+   *Here we save the actual RDO, after all BCID offsets have been processed
+   */
+  StatusCode L1Muctpi::saveOutput_MuCTPI_RDO(uint32_t& can, std::vector< uint32_t >& dataWord)
+  {
+    MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
+    CHECK( evtStore()->record( muCTPI_RDO, m_rdoOutputLocId ) );
+    ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate with key: "
+		   << m_rdoOutputLocId );
+    return StatusCode::SUCCESS;
+  }
+
+  /**
    * This function is used by all the different execute functions to save the output
    * of the MuCTPI simulation into various objects in StoreGate.
    */
@@ -579,41 +648,43 @@ namespace LVL1MUCTPI {
                      << m_ctpOutputLocId );
 
       // create MuCTPI RDO
-      const std::list< unsigned int >& daqData = m_theMuctpi->getDAQData();
+      // const std::list< unsigned int >& daqData = m_theMuctpi->getDAQData();
 
-      const int HEADER_SIZE = 9;
-      const int STATUSandTAILER_SIZE = 2 + 3;
+      // const int HEADER_SIZE = 9;
+      // const int STATUSandTAILER_SIZE = 2 + 3;
 
-      // size check
-      // payload should contain at least 1 data (Candidate Multiplicity)
-      int payloadSize = daqData.size() - HEADER_SIZE - STATUSandTAILER_SIZE;
-      if( payloadSize < 1 ) {
-	REPORT_ERROR( StatusCode::FAILURE )
-	  << "MIROD didn't provide correct DAQ data";
-	return StatusCode::FAILURE;
-      }
+      // // size check
+      // // payload should contain at least 1 data (Candidate Multiplicity)
+      // int payloadSize = daqData.size() - HEADER_SIZE - STATUSandTAILER_SIZE;
+      // if( payloadSize < 1 ) {
+      // 	REPORT_ERROR( StatusCode::FAILURE )
+      // 	  << "MIROD didn't provide correct DAQ data";
+      // 	return StatusCode::FAILURE;
+      // }
 
-      // skip header part
-      std::list< unsigned int >::const_iterator itDAQ = daqData.begin();
-      for( int iHead = 0; iHead < HEADER_SIZE; ++iHead ) {
-	++itDAQ;
-      }
+      // // skip header part
+      // std::list< unsigned int >::const_iterator itDAQ = daqData.begin();
+      // for( int iHead = 0; iHead < HEADER_SIZE; ++iHead ) {
+      // 	++itDAQ;
+      // }
 
-      // candidate multiplicity
-      const uint32_t can = *itDAQ;
-      ++itDAQ;
+      // // candidate multiplicity
+      // const uint32_t can = *itDAQ;
+      // ++itDAQ;
 
-      // data word
-      std::vector< uint32_t > dataWord;
-      for( int iData = 1; iData < payloadSize; ++iData, ++itDAQ ) {
-	dataWord.push_back( *itDAQ );
-      }
+      // // data word
+      // std::vector< uint32_t > dataWord;
+      // for( int iData = 1; iData < payloadSize; ++iData, ++itDAQ ) {
+      // 	dataWord.push_back( *itDAQ );
+      // }
 
       // create MuCTPI RDO
-      MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
-      CHECK( evtStore()->record( muCTPI_RDO, m_rdoOutputLocId ) );
-      ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate with key: "
-                     << m_rdoOutputLocId );
+      // MuCTPI_RDO * muCTPI_RDO = new MuCTPI_RDO( can, dataWord );
+      // std::string rdoOutputLocId = m_rdoOutputLocId;
+      // if (bcidOffset) rdoOutputLocId = m_rdoOutputLocId+std::to_string(bcidOffset);
+      // CHECK( evtStore()->record( muCTPI_RDO, rdoOutputLocId ) );
+      // ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate with key: "
+      //                << rdoOutputLocId );
 
       // store RoIB result in interface object and put to StoreGate
       std::list< unsigned int > resultForRoIB = m_theMuctpi->getRoIBData();

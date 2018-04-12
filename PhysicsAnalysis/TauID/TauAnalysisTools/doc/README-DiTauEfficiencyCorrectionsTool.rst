@@ -119,7 +119,16 @@ Jet ID scale factors are provided for a couple of working points:
    * - value
      - description
 
+   * - ``JETIDNONE``
+     - only reconstruction uncertainties are applied
+
+   * - ``JETIDBDTVERYLOOSE``
+     - corresponding to a cut on jet BDT score > 0.60
+
    * - ``JETIDBDTLOOSE``
+     - corresponding to a cut on jet BDT score > 0.65
+     
+   * - ``JETIDBDTMEDIUM``
      - corresponding to a cut on jet BDT score > 0.72
 
    * - ``JETIDBDTTIGHT``

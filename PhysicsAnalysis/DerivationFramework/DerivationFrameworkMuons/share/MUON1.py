@@ -7,6 +7,8 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
 
@@ -81,7 +83,7 @@ print MUON1AugmentTool1a
 
 ### Jpsi for tag-probe
 andTriggers1b = ['HLT_mu20_iloose_L1MU15', 'HLT_mu24', 'HLT_mu26', 'HLT_mu24_imedium', 'HLT_mu26_imedium']
-orTriggers1b = ['HLT_mu4','HLT_mu6','HLT_mu14','HLT_mu6_idperf','HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose ','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose','HLT_mu20_2mu0noL1_JpsimumuFS','HLT_mu18_2mu0noL1_JpsimumuFS','HLT_mu20_2mu4_JpsimumuL2','HLT_mu18_2mu4_JpsimumuL2','HLT_mu4_mu4_idperf_bJpsimumu_noid']
+orTriggers1b = ['HLT_mu4','HLT_mu6','HLT_mu14','HLT_mu6_idperf','HLT_mu4_bJpsi_Trkloose','HLT_mu6_bJpsi_Trkloose ','HLT_mu10_bJpsi_Trkloose','HLT_mu18_bJpsi_Trkloose','HLT_mu20_2mu0noL1_JpsimumuFS','HLT_mu18_2mu0noL1_JpsimumuFS','HLT_mu20_2mu4_JpsimumuL2','HLT_mu18_2mu4_JpsimumuL2','HLT_mu4_mu4_idperf_bJpsimumu_noid','HLT_mu4_bJpsi_TrkPEB','HLT_mu6_bJpsi_TrkPEB','HLT_mu10_bJpsi_TrkPEB','HLT_mu14_bJpsi_TrkPEB','HLT_mu20_bJpsi_TrkPEB']
 
 brPrefix1b = 'MUON1b'
 MUON1AugmentTool1b = DerivationFramework__dimuonTaggingTool(name = "MUON1AugmentTool1b",
@@ -263,16 +265,6 @@ MUON1ThinningTools.append(MUON1ThinningTool2f)
 from DerivationFrameworkCalo.CaloCellDFGetter import CaloCellDFGetter
 theCaloCellDFGetter = CaloCellDFGetter(inputClusterKeys=["MuonClusterCollection"],
                                        outputCellKey="DFMUONCellContainer")
-#====================================================================
-# JetTagNonPromptLepton decorations
-#====================================================================
-if not hasattr(DerivationFrameworkJob,"MUONSequence"):
-    MUONSeq = CfgMgr.AthSequencer("MUONSequence")
-
-    #if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
-        #import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-        #MUONSeq += Config.GetDecoratePromptLeptonAlgs()
-    DerivationFrameworkJob += MUONSeq
 
 from DerivationFrameworkMuons import  JPsiVertexFitSetup
 MUON1AugmentTools += JPsiVertexFitSetup.AddJPsiVertexingAlgs('MUON1',False)
@@ -293,11 +285,20 @@ MUON1ThinningTools.append(MUON1Thin_vtxTrk)
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON1Kernel",
+MUON1Seq = CfgMgr.AthSequencer("MUON1Sequence")
+DerivationFrameworkJob += MUON1Seq
+MUON1Seq += CfgMgr.DerivationFramework__DerivationKernel("MUON1Kernel",
                                                                        AugmentationTools = MUON1AugmentTools,
                                                                        SkimmingTools = [MUON1SkimmingTool1],
                                                                        ThinningTools = MUON1ThinningTools
                                                                        )
+#====================================================================
+# JetTagNonPromptLepton decorations
+#====================================================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+if not hasattr(MUON1Seq,"Muons_decoratePromptLepton"):
+    JetTagConfig.ConfigureAntiKt4PV0TrackJets(MUON1Seq,"MUON1")
+    MUON1Seq += JetTagConfig.GetDecoratePromptLeptonAlgs()
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -310,4 +311,5 @@ if hasattr(ToolSvc,"MUON1MuonTP_Reco_mumu"):
 
 conf.Items['MUON1']+=["CaloCellContainer#DFMUONCellContainer"]
 conf.Items['MUON1']+=["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
+conf.extraVariables['MUON1'] += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 conf.Config(MUON1Stream, 'MUON1')

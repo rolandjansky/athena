@@ -237,6 +237,12 @@ namespace CP {
       //*std::map<Int_t,std::map<Int_t, TH1*> > & GetInputHistograms() { return m_inputHistograms;}
 
 
+      std::vector<int> GetPeriodNumbers() const {
+        std::vector<int> out;
+        for(auto& p : m_periods) { out.push_back(p.first); }
+        return out;
+      }
+
       //-----------------------------------------------------
       //Methods to inspect the input and weighting histograms
       //-----------------------------------------------------
@@ -268,11 +274,11 @@ namespace CP {
       }
 
       /** Method for weighting data to account for prescales and mu bias. Use by giving the tool multiple lumicalc files, one for each trigger */
-      Double_t GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x);
+      Double_t GetDataWeight(Int_t runNumber, const TString& trigger, Double_t x, bool run_dependent=false);
       Double_t GetDataWeight(Int_t runNumber, const TString& trigger);//version without mu dependence
 
     /** Method for prescaling MC to account for prescales in data */
-      Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x);
+      Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger, Double_t x, bool run_dependent=false);
       Double_t GetPrescaleWeight(Int_t runNumber, const TString& trigger);//version without mu dependence
 
 
@@ -293,6 +299,8 @@ namespace CP {
       void ResetTriggerBits() { m_triggerPassBits.clear(); }
 
       double GetRunAverageMu(int run) { return m_runs[run].inputHists["None"]->GetMean(); }
+
+      
 
   protected:
       virtual bool runLbnOK(Int_t /*runNbr*/, Int_t /*lbn*/) { return true; } //override in the ASG tool
@@ -315,7 +323,7 @@ namespace CP {
       void AddDistributionTree(TTree *tree, TFile *file);
       //*Int_t FactorizeDistribution(TH1* hist, const TString weightName, Int_t channelNumber, Int_t periodNumber,bool includeInMCRun,bool includeInGlobal);
 
-      void CalculatePrescaledLuminosityHistograms(const TString& trigger);
+      void CalculatePrescaledLuminosityHistograms(const TString& trigger, int run_dependent=0);
 
       //********** Private members*************************
       TPileupReweighting* m_parentTool; //points to self if not a 'systematic varion' tool instance
@@ -381,6 +389,7 @@ public:
          
          // unnormalized ... i.e. integral should be equal to the lumi!
          // ... indexed by PeriodID,tbits
+         // ... if doing run-dependent weights, PeriodID is replaced by -runNumber (negative number!)
          std::map<int, std::map<long, std::unique_ptr< TH1 > > > triggerHists;
 
       };
@@ -389,7 +398,7 @@ protected:
       std::map<TString, std::unique_ptr<CompositeTrigger> > m_triggerObjs; //map from trigger string to composite trigger object
 
       std::unique_ptr<CompositeTrigger> makeTrigger(const TString& s);
-      void calculateHistograms(CompositeTrigger* trigger);
+      void calculateHistograms(CompositeTrigger* trigger, int run_dependent);
 
 public:
       inline void PrintPeriods() { for(auto p : m_periods) {std::cout << p.first << " -> "; p.second->print("");} }
@@ -430,7 +439,9 @@ public:
          Double_t lumi; //total data in run
          std::map<UInt_t, std::pair<Double_t,Double_t> > lumiByLbn; //key=lbn, value = <lumi,mu>
          std::unique_ptr< TH1 > muDist; //mu distribution for this run
+         bool nominalFromHists = false; //flag if nominal 'None' hist came from histogram files (rather than lumicalc files)
       };
+      std::map<UInt_t, Run>& GetRunMap() { return m_runs; }
 protected:
       /// List physically holding (owning) period objects
       std::list< Period > m_periodList;

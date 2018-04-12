@@ -31,9 +31,9 @@
 
 
          <athena trendId='all_pu40' userJobId='TrigInDetValidation_all_ttbar_pu40'>
-            <doc>All slices, ttbar events, pu40, run2 chains</doc>
-            <displayName>All slices, ttbar, pu40, run2 chains</displayName>
-	    <commandLineFlags>EventMax=1000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <doc>All slices, ttbar events, pu40,</doc>
+            <displayName>All slices, ttbar, pu40,</displayName>
+	    <commandLineFlags>EventMax=1000;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -352,9 +352,9 @@
 
 
          <athena trendId='all_pu80' userJobId='TrigInDetValidation_all_ttbar_pu80'>
-            <doc>All slices, ttbar events, pu80, run2 chains</doc>
-            <displayName>All slices, ttbar, pu80, run2 chains</displayName>
-	    <commandLineFlags>EventMax=1000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <doc>All slices, ttbar events, pu80</doc>
+            <displayName>All slices, ttbar, pu80</displayName>
+	    <commandLineFlags>EventMax=1000;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -674,9 +674,9 @@
 
 
          <athena trendId='all_pu40' userJobId='TrigInDetValidation_beamspot_ttbar_pu40'>
-            <doc>BeamSpot slice, ttbar events, pu40, run2 chains</doc>
-            <displayName>BeamSpot slice, ttbar, pu40, run2 chains</displayName>
-	    <commandLineFlags>EventMax=1000;runMergedChain=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <doc>BeamSpot slice, ttbar events, pu40</doc>
+            <displayName>BeamSpot slice, ttbar, pu40</displayName>
+	    <commandLineFlags>EventMax=1000;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -856,9 +856,9 @@
 
 
          <athena trendId='all_pu40' userJobId='TrigInDetValidation_beamspot_ttbar_pu40_zfinder'>
-            <doc>BeamSpot slice, ttbar events, pu40, run2 chains</doc>
-            <displayName>BeamSpot slice, ttbar, pu40, run2 chains</displayName>
-	    <commandLineFlags>EventMax=1000;runMergedChain=True;fastZFinder=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <doc>BeamSpot slice, ttbar events, pu40</doc>
+            <displayName>BeamSpot slice, ttbar, pu40</displayName>
+	    <commandLineFlags>EventMax=1000;fastZFinder=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -1038,9 +1038,9 @@
 
 
          <athena trendId='all_pu80' userJobId='TrigInDetValidation_beamspot_ttbar_pu80_zfinder'>
-            <doc>BeamSpot slice, ttbar events, pu80, run2 chains</doc>
-            <displayName>BeamSpot slice, ttbar, pu80, run2 chains</displayName>
-	    <commandLineFlags>EventMax=1000;runMergedChain=True;fastZFinder=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <doc>BeamSpot slice, ttbar events, pu80</doc>
+            <displayName>BeamSpot slice, ttbar, pu80</displayName>
+	    <commandLineFlags>EventMax=1000;fastZFinder=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -1221,9 +1221,9 @@
 
 
 	 <athena trendId='electron_merging_lowpt' userJobId='TrigInDetValidation_el_Jpsiee_pu40'>
-           <doc>Jpsie3e3, pu0, run2 chains</doc>
-           <displayName>ElectronSlice-Jpsie3e3, pu40, run2 chains</displayName>
-           <commandLineFlags>EventMax=10000;runMergedChain=True</commandLineFlags>
+           <doc>Jpsie3e3, pu0</doc>
+           <displayName>ElectronSlice-Jpsie3e3, pu40</displayName>
+           <commandLineFlags>EventMax=10000</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
@@ -1431,7 +1431,7 @@
          <athena trendId='electronIBLTrend' userJobId='TrigInDetValidation_el_single_e_7-80_larged0'>
             <doc>Single part electron test 7-80 GeV, larged0</doc>
             <displayName>ElectronSlice single particle e 7-80 GeV, larged0</displayName>
-	    <commandLineFlags>EventMax=15000;runMergedChain=True</commandLineFlags>
+	    <commandLineFlags>EventMax=15000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -1670,7 +1670,7 @@
          <athena trendId='electronIBLTrend' userJobId='TrigInDetValidation_el_single_e_7-80_larged0_PU'>
             <doc>Single part electron test 7-80 GeV, larged0</doc>
             <displayName>ElectronSlice single particle e 7-80 GeV, larged0</displayName>
-	    <commandLineFlags>EventMax=15000;runMergedChain=True</commandLineFlags>
+	    <commandLineFlags>EventMax=15000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -1909,9 +1909,9 @@
 
 
          <athena trendId='electronIBLTrend' userJobId='TrigInDetValidation_el_single_e_7-80_IBL'>
-            <doc>Single part electron test 7-80 GeV pu 0, IBL, run2 chains</doc>
-            <displayName>ElectronSlice single partile e 7-80 GeV, pu 0, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=15000;runMergedChain=True</commandLineFlags>
+            <doc>Single part electron test 7-80 GeV pu 0, IBL</doc>
+            <displayName>ElectronSlice single partile e 7-80 GeV, pu 0, IBL</displayName>
+	    <commandLineFlags>EventMax=15000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -2148,9 +2148,9 @@
 
 
          <athena trendId='electronIBLTrend' userJobId='TrigInDetValidation_el_single_e_7-80_IBL_pu40'>
-            <doc>Single part electron test 7-80 GeV, pu40, IBL, run2 chains</doc>
-            <displayName>ElectronSlice single particle e 7-80 GeV, pu40, IBL run2 chains</displayName>
-	    <commandLineFlags>EventMax=15000;runMergedChain=True</commandLineFlags>
+            <doc>Single part electron test 7-80 GeV, pu40, IBL</doc>
+            <displayName>ElectronSlice single particle e 7-80 GeV, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=15000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -2388,9 +2388,9 @@
 
 
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_IBL_pu40'>
-           <doc>Zee, pu40, IBL, run2 chains</doc>
-           <displayName>Zee pu40, IBL, run2 chains</displayName>
-           <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
+           <doc>Zee, pu40, IBL</doc>
+           <displayName>Zee pu40, IBL</displayName>
+           <commandLineFlags>EventMax=5000</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
@@ -2629,9 +2629,9 @@
 
 
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_IBL_pu40_offline'>
-           <doc>Zee, pu40, IBL, run2 chains</doc>
-           <displayName>Zee pu40, IBL, run2 chains</displayName>
-           <commandLineFlags>EventMax=2500;runMergedChain=True;doIDNewTracking=True;PdgId=11</commandLineFlags>
+           <doc>Zee, pu40, IBL</doc>
+           <displayName>Zee pu40, IBL</displayName>
+           <commandLineFlags>EventMax=2500;doIDNewTracking=True;PdgId=11</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
@@ -2869,9 +2869,9 @@
 
 
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_IBL_pu40_offline_rzMatcher'>
-           <doc>Zee, pu40, IBL, run2 chains</doc>
-           <displayName>Zee pu40, IBL, run2 chains</displayName>
-           <commandLineFlags>EventMax=2500;runMergedChain=True;doIDNewTracking=True;PdgId=11</commandLineFlags>
+           <doc>Zee, pu40, IBL</doc>
+           <displayName>Zee pu40, IBL</displayName>
+           <commandLineFlags>EventMax=2500;doIDNewTracking=True;PdgId=11</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
@@ -3109,9 +3109,9 @@
 
 
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_Zee_IBL_pu40_rzMatcher'>
-           <doc>Zee, pu40, IBL, run2 chains</doc>
-           <displayName>Zee pu40, IBL, run2 chains</displayName>
-           <commandLineFlags>EventMax=5000;runMergedChain=True;PdgId=11</commandLineFlags>
+           <doc>Zee, pu40, IBL</doc>
+           <displayName>Zee pu40, IBL</displayName>
+           <commandLineFlags>EventMax=5000;PdgId=11</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
@@ -3350,9 +3350,9 @@
 
 
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu40'>
-           <doc>ttbar, pu40, run2 chains</doc>
-           <displayName>ttbar pu40, run2 chains</displayName>
-           <commandLineFlags>EventMax=8000;runMergedChain=True</commandLineFlags>
+           <doc>ttbar, pu40</doc>
+           <displayName>ttbar pu40</displayName>
+           <commandLineFlags>EventMax=8000</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
@@ -3583,9 +3583,9 @@
 
 
 	 <athena trendId='Zeeelectron_merging' userJobId='TrigInDetValidation_el_ttbar_pu80'>
-           <doc>ttbar, pu80, run2 chains</doc>
-           <displayName>ttbar pu80, run2 chains</displayName>
-           <commandLineFlags>EventMax=4000;runMergedChain=True</commandLineFlags>
+           <doc>ttbar, pu80</doc>
+           <displayName>ttbar pu80</displayName>
+           <commandLineFlags>EventMax=4000</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_ElectronSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
@@ -4009,9 +4009,9 @@
 
 
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40'>
-            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
-            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;doBperf=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <doc>Bjetslice, ttbar, pu40, IBL</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=900;doBperf=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -4235,9 +4235,9 @@
 
 
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_offline'>
-            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains, vs offline</doc>
-            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains, vs offline</displayName>
-	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <doc>Bjetslice, ttbar, pu40, IBL, vs offline</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL, vs offline</displayName>
+	    <commandLineFlags>EventMax=900;doIDNewTracking=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -4453,9 +4453,9 @@
 
 
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu80'>
-            <doc>Bjetslice, ttbar, pu80, IBL, run2 chains</doc>
-            <displayName>BjetSlice, ttbar, pu80, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <doc>Bjetslice, ttbar, pu80, IBL</doc>
+            <displayName>BjetSlice, ttbar, pu80, IBL</displayName>
+	    <commandLineFlags>EventMax=900;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -4655,9 +4655,9 @@
 
 
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_2016config'>
-            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
-            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;runMergedChain=True;minVtxTrackpT=1000;bjetEtaHalfWidth=0.2;bjetPhiHalfWidth=0.2;splitZHalfWidth=20;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <doc>Bjetslice, ttbar, pu40, IBL</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=900;minVtxTrackpT=1000;bjetEtaHalfWidth=0.2;bjetPhiHalfWidth=0.2;splitZHalfWidth=20;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -4856,9 +4856,9 @@
 
 
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_offline_2016config'>
-            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains</doc>
-            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;minVtxTrackpT=1000;bjetEtaHalfWidth=0.2;bjetPhiHalfWidth=0.2;splitZHalfWidth=20;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <doc>Bjetslice, ttbar, pu40, IBL</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=900;doIDNewTracking=True;minVtxTrackpT=1000;bjetEtaHalfWidth=0.2;bjetPhiHalfWidth=0.2;splitZHalfWidth=20;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -5060,9 +5060,9 @@
 
 
 	 <athena trendId='tau_merging' userJobId='TrigInDetValidation_tau_IBL_pu46' >
-           <doc>TauSlice, H->tautau IBL sample, pu46, run2 chains</doc>
-           <displayName>TauSlice, H->tautau IBL sample, pu46, run2 chains</displayName>
-           <commandLineFlags>EventMax=4000;runMergedChain=True</commandLineFlags>
+           <doc>TauSlice, H->tautau IBL sample, pu46</doc>
+           <displayName>TauSlice, H->tautau IBL sample, pu46</displayName>
+           <commandLineFlags>EventMax=4000</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
@@ -5264,9 +5264,9 @@
 
 
 	 <athena trendId='tau_merging' userJobId='TrigInDetValidation_tau_IBL_pu46_offline' >
-           <doc>TauSlice, H->tautau IBL sample, pu46, run2 chains</doc>
-           <displayName>TauSlice, H->tautau IBL sample, pu46, run2 chains</displayName>
-           <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=15</commandLineFlags>
+           <doc>TauSlice, H->tautau IBL sample, pu46</doc>
+           <displayName>TauSlice, H->tautau IBL sample, pu46</displayName>
+           <commandLineFlags>EventMax=2000;doIDNewTracking=True;PdgId=15</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>
@@ -5470,9 +5470,9 @@
 
 
   <athena trendId='muonTrend' userJobId='TrigInDetValidation_mu_single_mu_larged0'>
-            <doc>Single muon 100 GeV, run2 chains </doc>
-            <displayName>MuonSlice-single muon larged0, pu0, run2 chains</displayName>
-            <commandLineFlags>EventMax=15000;runMergedChain=True</commandLineFlags>
+            <doc>Single muon 100 GeV </doc>
+            <displayName>MuonSlice-single muon larged0, pu0</displayName>
+            <commandLineFlags>EventMax=15000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -5675,9 +5675,9 @@
 
 
   <athena trendId='muonTrend' userJobId='TrigInDetValidation_mu_single_mu_larged0_PU'>
-            <doc>Single muon 100 GeV, run2 chains </doc>
-            <displayName>MuonSlice-single muon larged0, pu, run2 chains</displayName>
-            <commandLineFlags>EventMax=15000;runMergedChain=True</commandLineFlags>
+            <doc>Single muon 100 GeV </doc>
+            <displayName>MuonSlice-single muon larged0, pu</displayName>
+            <commandLineFlags>EventMax=15000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -5882,9 +5882,9 @@
 
 
          <athena trendId='muonPileupMergingTrend' userJobId='TrigInDetValidation_mu_Zmumu_IBL_pu40'>
-            <doc>Z->mumu pu40, IBL, run2 chains</doc>
-            <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=2500;runMergedChain=True</commandLineFlags>
+            <doc>Z->mumu pu40, IBL</doc>
+            <displayName>MuonSlice, Z->mumu, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=2500</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -6090,9 +6090,9 @@
 
 
          <athena trendId='muonPileupMergingTrend' userJobId='TrigInDetValidation_mu_Zmumu_IBL_pu40_offline'>
-            <doc>Z->mumu pu40, IBL, run2 chains</doc>
-            <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=13</commandLineFlags>
+            <doc>Z->mumu pu40, IBL</doc>
+            <displayName>MuonSlice, Z->mumu, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=2000;doIDNewTracking=True;PdgId=13</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -6298,9 +6298,9 @@
 
 
          <athena trendId='muonPileupMergingTrend' userJobId='TrigInDetValidation_mu_Zmumu_IBL_pu40_offline_rzMatcher'>
-            <doc>Z->mumu pu40, IBL, run2 chains</doc>
-            <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=2000;runMergedChain=True;doIDNewTracking=True;PdgId=13</commandLineFlags>
+            <doc>Z->mumu pu40, IBL</doc>
+            <displayName>MuonSlice, Z->mumu, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=2000;doIDNewTracking=True;PdgId=13</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -6507,9 +6507,9 @@
 
 
          <athena trendId='muonPileupMergingTrend' userJobId='TrigInDetValidation_mu_Zmumu_IBL_pu40_rzMatcher'>
-            <doc>Z->mumu pu40, IBL, run2 chains</doc>
-            <displayName>MuonSlice, Z->mumu, pu40, IBL, run2 chains</displayName>
-	    <commandLineFlags>EventMax=2500;runMergedChain=True;PdgId=13</commandLineFlags>
+            <doc>Z->mumu pu40, IBL</doc>
+            <displayName>MuonSlice, Z->mumu, pu40, IBL</displayName>
+	    <commandLineFlags>EventMax=2500;PdgId=13</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -6717,9 +6717,9 @@
 
 
          <athena trendId='muonBphysMergingTrend' userJobId='TrigInDetValidation_mu_bphys_IBL'>
-            <doc>Muon slice B->Jpsi->mumu IBL sample, run2 chains</doc>
-            <displayName>MuonSlice, B->Jpsi->mumu IBL , run2 chains</displayName>
-	    <commandLineFlags>EventMax=5000;runMergedChain=True</commandLineFlags>
+            <doc>Muon slice B->Jpsi->mumu IBL sample</doc>
+            <displayName>MuonSlice, B->Jpsi->mumu IBL </displayName>
+	    <commandLineFlags>EventMax=5000</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -7341,7 +7341,7 @@
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_mu_ttbar'>
             <doc>Muon slice FTK ttbar sample</doc>
             <displayName>MuonSlice FTK ttbar sample</displayName>
-	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
+	    <commandLineFlags>EventMax=5000;doFTK=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -7577,7 +7577,7 @@
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_tau_tautau'>
             <doc>Tau slice FTK tautau sample</doc>
             <displayName>TauSlice FTK tautau sample</displayName>
-	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
+	    <commandLineFlags>EventMax=5000;doFTK=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -7780,7 +7780,7 @@
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_bjet_ttbar'>
             <doc>Bjetslice, ttbar, FTK chains</doc>
             <displayName>BjetSlice, ttbar, FYK chains</displayName>
-	    <commandLineFlags>EventMax=500;runMergedChain=True;doFTK=True</commandLineFlags>
+	    <commandLineFlags>EventMax=500;doFTK=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -7985,9 +7985,9 @@
 
 
          <athena trendId='all_pu46' userJobId='TrigInDetValidation_FTK_beamspot_ttbar'>
-            <doc>BeamSpot slice, ttbar events, FTK, pu46, run2 chains</doc>
-            <displayName>BeamSpot slice, ttbar, FTK, pu46, run2 chains</displayName>
-	    <commandLineFlags>EventMax=1000;runMergedChain=True;doFTK=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <doc>BeamSpot slice, ttbar events, FTK, pu46</doc>
+            <displayName>BeamSpot slice, ttbar, FTK, pu46</displayName>
+	    <commandLineFlags>EventMax=1000;doFTK=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -8179,7 +8179,7 @@
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_mu_ttbar_offline'>
             <doc>Muon slice FTK ttbar sample</doc>
             <displayName>MuonSlice FTK ttbar sample</displayName>
-	    <commandLineFlags>EventMax=5000;doIDNewTracking=True;runMergedChain=True;doFTK=True</commandLineFlags>
+	    <commandLineFlags>EventMax=5000;doIDNewTracking=True;doFTK=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_MuonSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
@@ -8415,7 +8415,7 @@
          <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_bjet_ttbar_offline'>
             <doc>Bjetslice, ttbar, FTK chains</doc>
             <displayName>BjetSlice, ttbar, FTK chains</displayName>
-	    <commandLineFlags>EventMax=500;doIDNewTracking=True;runMergedChain=True;doFTK=True</commandLineFlags>
+	    <commandLineFlags>EventMax=500;doIDNewTracking=True;doFTK=True</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Event/xAOD/xAODEgamma
 			  Event/xAOD/xAODMuon
 			  Event/xAOD/xAODJet
+			  Event/xAOD/xAODTau
 			  Tools/PathResolver )
 
 # External dependencies:
@@ -27,7 +28,7 @@ atlas_add_component( JetTagNonPromptLepton
 	   	     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  
 	   	     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel GeoPrimitives
 		     PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODEgamma 
-		     xAODMuon xAODJet PathResolver )
+		     xAODMuon xAODJet xAODTau PathResolver )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

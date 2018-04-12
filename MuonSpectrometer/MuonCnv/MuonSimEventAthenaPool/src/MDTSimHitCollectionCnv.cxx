@@ -36,12 +36,17 @@ MDTSimHitCollection* MDTSimHitCollectionCnv::createTransient() {
     MsgStream log(msgSvc(), "MDTSimHitCollectionCnv" );
     static pool::Guid   p0_guid("D76D06CC-C15F-43E6-BBC3-480DE5DA065D"); // before t/p split
     static pool::Guid   p1_guid("EA781971-65C5-4B30-9D22-EEFB764BA0B3"); 
-    static pool::Guid   p2_guid("92880B97-75BB-4C5D-8183-577338059FCC"); 
+    static pool::Guid   p2_guid("92880B97-75BB-4C5D-8183-577338059FCC");
+    static pool::Guid   p3_guid("0E9EEEE2-304F-44B8-B1DF-E75297183A02");
     ATH_MSG_DEBUG("createTransient(): main converter");
     MDTSimHitCollection* p_collection(0);
-    if( compareClassGuid(p2_guid) ) {
+    if( compareClassGuid(p3_guid) ) {
+      ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
+      std::auto_ptr< Muon::MDTSimHitCollection_p3 >   col_vect( this->poolReadObject< Muon::MDTSimHitCollection_p3 >() );
+      p_collection = m_TPConverter_p3.createTransient( col_vect.get(), log );
+    } else if( compareClassGuid(p2_guid) ) {
       ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
-      std::auto_ptr< MDTSimHitCollection_PERS >   col_vect( this->poolReadObject< MDTSimHitCollection_PERS >() );
+      std::auto_ptr< Muon::MDTSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::MDTSimHitCollection_p2 >() );
       p_collection = m_TPConverter_p2.createTransient( col_vect.get(), log );
     } else if( compareClassGuid(p1_guid) ) {
         ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");

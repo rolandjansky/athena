@@ -13,7 +13,9 @@
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 
-const std::size_t maxTokenLength = 512;
+#include <sstream>
+
+const std::size_t maxTokenLength = 1024;
 
 struct ShareEventHeader {
    enum ProcessStatus { CLEARED, FILLED, LOCKED, UNLOCKED, PARTIAL, SHARED, UNKNOWN };
@@ -31,7 +33,7 @@ struct ShareEventHeader {
 AthenaSharedMemoryTool::AthenaSharedMemoryTool(const std::string& type,
 	const std::string& name,
 	const IInterface* parent) : AthAlgTool(type, name, parent),
-		m_maxSize(32 * 1024 * 1024),
+		m_maxSize(64 * 1024 * 1024),
 		m_maxDataClients(256),
 		m_num(-1),
 		m_dataClients(),
@@ -63,6 +65,9 @@ StatusCode AthenaSharedMemoryTool::initialize() {
       ATH_MSG_FATAL("Cannot get IncidentSvc");
       return(StatusCode::FAILURE);
    }
+   std::ostringstream pidstr;
+   pidstr << getpid();
+   m_sharedMemory.setValue(m_sharedMemory.value() + std::string("_") + pidstr.str());
    boost::interprocess::shared_memory_object::remove(m_sharedMemory.value().c_str());
    ATH_MSG_DEBUG("creating shared memory object with name \"" << m_sharedMemory.value() << "\"");
    boost::interprocess::shared_memory_object shm(boost::interprocess::create_only,

@@ -306,10 +306,66 @@ ToolSvc += DV_multiJet_offlineJetFilter
 
 
 
-DV_MultiJetFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MultiJetFinalFilter",
+DV_MultiJetFinalTracklessFilter = DerivationFramework__FilterCombinationAND( name = "DV_MultiJetFinalTracklessFilter",
                                                                     FilterList=[DV_multiJet_offlineJetFilter,DVCombinedTracklessJetFilterToolForMultijet,DVMultiJetTriggerFilter],
 ##                                                                    OutputLevel=DEBUG
                                                                         )
+ToolSvc+= DV_MultiJetFinalTracklessFilter
+
+
+DV_MultiJet2JHighPtFilter = skimtool( name = "DV_MultiJet2JHighPtFilter",
+                             expression = DVSelectionString(primRPVLLDESDM.DV_2JetFilterFlags_HighpTCut, jetContainer),
+                             )
+ToolSvc += DV_MultiJet2JHighPtFilter
+
+DV_MultiJet3JHighPtFilter = skimtool( name = "DV_MultiJet3JHighPtFilter",
+                             expression = DVSelectionString(primRPVLLDESDM.DV_3JetFilterFlags_HighpTCut, jetContainer),
+                             )
+ToolSvc += DV_MultiJet3JHighPtFilter
+
+
+DV_Multi3_2JetHighPtFilter = DerivationFramework__FilterCombinationAND( name = "DV_Multi3_2JetHighPtFilter",
+                                                               FilterList=[DV_MultiJet2JHighPtFilter,DV_MultiJet3JHighPtFilter],
+##                                                                    OutputLevel=DEBUG
+                                                               )
+ToolSvc+=DV_Multi3_2JetHighPtFilter
+
+
+DV_MultiJet4JHighPtFilter = skimtool( name = "DV_MultiJet4JHighPtFilter",
+                             expression = DVSelectionString(primRPVLLDESDM.DV_4JetFilterFlags_HighpTCut, jetContainer),
+                             )
+ToolSvc += DV_MultiJet4JHighPtFilter
+
+
+DV_MultiJet5JHighPtFilter = skimtool( name = "DV_MultiJet5JHighPtFilter",
+                             expression = DVSelectionString(primRPVLLDESDM.DV_5JetFilterFlags_HighpTCut, jetContainer),
+                             )
+ToolSvc += DV_MultiJet5JHighPtFilter
+
+
+DV_MultiJet6JHighPtFilter = skimtool( name = "DV_MultiJet6JHighPtFilter",
+                             expression = DVSelectionString(primRPVLLDESDM.DV_6JetFilterFlags_HighpTCut, jetContainer),
+                             )
+ToolSvc += DV_MultiJet6JHighPtFilter
+
+
+DV_MultiJet7JHighPtFilter = skimtool( name = "DV_MultiJet7JHighPtFilter",
+                             expression = DVSelectionString(primRPVLLDESDM.DV_7JetFilterFlags_HighpTCut, jetContainer),
+                             )
+ToolSvc += DV_MultiJet7JHighPtFilter
+
+
+DV_MultiJetHighPtFilter = DerivationFramework__FilterCombinationOR( name = "DV_MultiJetHighPtFilter",
+                                                               FilterList=[DV_Multi3_2JetHighPtFilter,DV_MultiJet4JHighPtFilter,DV_MultiJet5JHighPtFilter,DV_MultiJet6JHighPtFilter,DV_MultiJet7JHighPtFilter],
+##                                                                    OutputLevel=DEBUG
+                                                               )
+ToolSvc+=DV_MultiJetHighPtFilter
+
+
+DV_MultiJetFinalFilter = DerivationFramework__FilterCombinationOR( name = "DV_MultiJetFinalFilter",
+                                                               FilterList=[DV_MultiJetFinalTracklessFilter,DV_MultiJetHighPtFilter],
+##                                                                    OutputLevel=DEBUG
+                                                               )
 ToolSvc+= DV_MultiJetFinalFilter
 
 topSequence += kernel( "RPVLL_DV_MultiJetFilterKernel",
@@ -376,3 +432,4 @@ RPVLLfilterNames.extend(["RPVLL_DV_METFilterKernel"])
 #                       SkimmingTools = [DV_MeffFinalFilter],
 #                       )
 #RPVLLfilterNames.extend(["RPVLL_DV_MeffFilterKernel"])
+

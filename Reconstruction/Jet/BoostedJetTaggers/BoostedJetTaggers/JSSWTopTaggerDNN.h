@@ -1,5 +1,4 @@
 // for editors : this file is -*- C++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -10,8 +9,8 @@
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "AsgTools/AsgTool.h"
 
-#include "BoostedJetTaggers/lwtnn/LightweightNeuralNetwork.h"
-#include "BoostedJetTaggers/lwtnn/parse_json.h"
+#include "lwtnn/LightweightNeuralNetwork.hh"
+#include "lwtnn/parse_json.hh"
 
 #include <TSystem.h>
 #include <TFile.h>
@@ -66,6 +65,9 @@ class JSSWTopTaggerDNN :  public JSSTaggerBase {
     std::string m_kerasConfigFilePath;
     std::string m_kerasConfigOutputName;
 
+    // bool to check whether variables are corrupt
+    mutable bool m_undefInput;
+
     // parameters to store specific cut values
     std::string m_strMassCutLow;
     std::string m_strMassCutHigh;
@@ -78,5 +80,11 @@ class JSSWTopTaggerDNN :  public JSSTaggerBase {
 
     // string for decorating jets with DNN output
     std::string m_decorationName;
+
+    // decorators
+    SG::AuxElement::Decorator<float> m_dec_mcutL;
+    SG::AuxElement::Decorator<float> m_dec_mcutH;
+    SG::AuxElement::Decorator<float> m_dec_scoreCut;
+    SG::AuxElement::Decorator<float> m_dec_scoreValue;
 };
 #endif

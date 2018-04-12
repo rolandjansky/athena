@@ -30,6 +30,20 @@ using namespace CP;
 #define ASSERT_FAILURE(x)			\
   ASSERT_EQ (asg::CheckHelper<decltype(x)>::failureCode(), x)
 
+TEST (SystematicSetTest, state_clear)
+{
+  SystematicVariation sys("TEST_VARIATION", 1);
+  SystematicSet set;
+  set.insert( SystematicVariation("TEST_VARIATION", 1) );
+  const std::string sysName = sys.name();
+  const std::string setName = set.name();
+  // First assert that the sys name matches the single-sys-set name
+  ASSERT_EQ( sysName, setName );
+  // Assert that the state is properly cleared
+  set.clear();
+  ASSERT_EQ( set.name(), std::string() );
+}
+
 TEST (SystematicSetTest, getToyVariation_empty)
 {
   SystematicSet set;

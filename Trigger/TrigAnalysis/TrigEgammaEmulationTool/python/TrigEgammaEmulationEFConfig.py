@@ -17,11 +17,7 @@ ElectronPidTools()
 PhotonPidTools()
 #***********************************************************************
 
-OutputLevel=0
 
-# Track isolation -- remember to add TrackIsolation as a property of the class
-#from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool,xAOD__TrackIsolationTool
-#TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
 #TrkIsoCfg = CfgMgr.xAOD__TrackIsolationTool('TrigEgammaTrackIsolationTool')
 #TrkIsoCfg.TrackSelectionTool.maxZ0SinTheta = 3.
 #TrkIsoCfg.TrackSelectionTool.minPt = 1000.
@@ -43,6 +39,9 @@ EgammaEFCaloDefaultEmulator = ToolFactory( Trig__TrigEgammaEFCaloSelectorTool,
                                                                       ToolSvc.AsgElectronLHVLooseCaloSelector])
 
 # EF Electron
+from TrigEgammaEmulationTool.TrigEgammaEmulationIsolationConfig import createIsoToolElectronSelector
+IsolationSelectors =  createIsoToolElectronSelector()
+
 from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaEFElectronSelectorTool
 EgammaEFElectronDefaultEmulator = ToolFactory( Trig__TrigEgammaEFElectronSelectorTool,
                                                name                   = "TrigEgammaEFElectronDefaultEmulator",
@@ -56,13 +55,7 @@ EgammaEFElectronDefaultEmulator = ToolFactory( Trig__TrigEgammaEFElectronSelecto
                                                                           ToolSvc.AsgElectronLHLooseSelector,
                                                                           ToolSvc.AsgElectronLHVLooseSelector,
                                                                           ],
-                                               EtConeSizes            = 3,
-                                               RelEtConeCut           = [-1.0, -1.0, -1.0],
-                                               EtConeCut              = [-1.0, -1.0, -1.0],
-                                               PtConeSizes            = 6,
-                                               RelPtConeCut_var       = [-1.0, -1.0, -1,0.100,-1.0,-1.0], #ivarloose
-                                               RelPtConeCut           = [0.100, -1.0, -1.0,-1.0,-1.0,-1.0], #iloose
-                                               PtConeCut              = [-1.0, -1.0, -1.0,-1,-1.0,-1.0],
+                                               IsolationSelector          = IsolationSelectors,
                                                )
 
 # The following can be left as an example, please remove the remaining ones.

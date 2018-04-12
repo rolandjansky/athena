@@ -6,6 +6,19 @@ import DerivationTags
 import Data_rel21
 import MC16_TOPQ1
 
+## fancy function to shorten the physics part of the name of a sample
+#def MyFancyShortener(superLongInDSName):
+    #splitted = superLongInDSName.split('.')
+    #runNumber = splitted[1]
+    #physicsName = splitted[2]
+    #if splitted[0] == "user" or splitted[0] == "group": #this is in case we run on private derivations, either produced with user or group role
+        #runNumber = splitted[2]
+        #physicsName = splitted[3]
+    #tags = splitted[-1].replace('/','')
+    #physicsName = physicsName.split('_')[0]
+    #outDSName = runNumber + '.' + physicsName + '.someFunnyTags'
+    #return outDSName
+
 config = TopExamples.grid.Config()
 config.code          = 'top-xaod'
 config.settingsFile  = 'validation-cuts.txt'
@@ -16,9 +29,10 @@ config.excludedSites = ''
 config.noSubmit      = False
 config.mergeType     = 'Default' #'None', 'Default' or 'xAOD'
 config.destSE        = '' #This is the default (anywhere), or try e.g. 'UKI-SOUTHGRID-BHAM-HEP_LOCALGROUPDISK'
-config.CMake         = True
+#config.groupProduction = True # for group production only; if True, gridUsername must be e.g. 'phys-top'
 # by default the requested memory is set to 2GB, if you need to increase this, please disable the line below!!!
 # config.memory = '4000' 
+#config.nameShortener = MyFancyShortener # to use your own physics part shortening function - uncomment here and in the function definition above
 
 ###############################################################################
 

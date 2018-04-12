@@ -24,17 +24,18 @@
 
 
 G4AtlasMTRunManager::G4AtlasMTRunManager()
-  : G4MTRunManager(),
-    m_msg("G4AtlasMTRunManager"),
-    m_detGeoSvc("DetectorGeometrySvc", "G4AtlasMTRunManager"),
-    m_physListTool("PhysicsListToolBase"),
-    m_fastSimTool("FastSimulationMasterTool")
+  : G4MTRunManager()
+  , m_msg("G4AtlasMTRunManager")
+  , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasMTRunManager")
+  , m_physListTool("PhysicsListToolBase")
+  , m_fastSimTool("FastSimulationMasterTool")
 {}
 
 
-G4AtlasMTRunManager* G4AtlasMTRunManager::GetG4AtlasMTRunManager() {
-  static G4AtlasMTRunManager* thisManager = 0;
-  if (!thisManager) thisManager = new G4AtlasMTRunManager;
+G4AtlasMTRunManager* G4AtlasMTRunManager::GetG4AtlasMTRunManager()
+{
+  static G4AtlasMTRunManager* thisManager = nullptr;
+  if (!thisManager) { thisManager = new G4AtlasMTRunManager; }
   return thisManager;
 }
 
@@ -62,13 +63,16 @@ void G4AtlasMTRunManager::InitializeGeometry()
   ATH_MSG_INFO("InitializeGeometry");
 
   // Set smartlessness
-  G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
-  for (unsigned int i = 0 ; i < lvs->size(); ++i){
-    if ( (*lvs)[i]->GetName() == "Muon::MuonSys" ){
-      (*lvs)[i]->SetSmartless( 0.1 );
+  G4LogicalVolumeStore *logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
+  const G4String muonSys("Muon::MuonSys");
+  const G4String embSTAC("LArMgr::LAr::EMB::STAC");
+  for (auto* ilv : *logicalVolumeStore ) {
+    if ( ilv->GetName() == muonSys ) {
+      ilv->SetSmartless( 0.1 );
       ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
-    } else if ( (*lvs)[i]->GetName() == "LArMgr::LAr::EMB::STAC") {
-      (*lvs)[i]->SetSmartless( 0.5 );
+    }
+    else if ( ilv->GetName() == embSTAC ) {
+      ilv->SetSmartless( 0.5 );
       ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
     }
   }
@@ -87,24 +91,26 @@ void G4AtlasMTRunManager::InitializeGeometry()
   SetUserInitialization( m_detGeoSvc->GetDetectorConstruction() );
   if (userDetector) {
     G4RunManager::InitializeGeometry();
-  } else {
+  }
+  else {
     // Shouldn't we abort here?
     ATH_MSG_WARNING("User Detector not set!!! Geometry NOT initialized!!!");
   }
 
   // Setup the sensitive detectors on master.
   /*ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
-  if (svcLocator->service("SensitiveDetectorSvc", m_senDetSvc).isFailure()){
+    if (svcLocator->service("SensitiveDetectorSvc", m_senDetSvc).isFailure()){
     ATH_MSG_ERROR ( "Could not retrieve the SD service" );
     throw "CouldNotRetrieveSDService";
-  }*/
+    }*/
 }
 
-void G4AtlasMTRunManager::InitializePhysics() {
+void G4AtlasMTRunManager::InitializePhysics()
+{
   ATH_MSG_INFO("InitializePhysics");
   kernel->InitializePhysics();
 
-  // TODO: find out if we need the special Bertini handling here
+  /// todo: find out if we need the special Bertini handling here
   G4CascadeInterface::Initialize();
   physicsInitialized = true;
 
@@ -121,11 +127,11 @@ void G4AtlasMTRunManager::InitializePhysics() {
 
   // Setup the fast simulations
   const std::string methodName = "G4AtlasMTRunManager::InitializePhysics";
-  if(m_fastSimTool.retrieve().isFailure()){
+  if(m_fastSimTool.retrieve().isFailure()) {
     throw GaudiException("Could not retrieve FastSims master tool",
                          methodName, StatusCode::FAILURE);
   }
-  if(m_fastSimTool->initializeFastSims().isFailure()){
+  if(m_fastSimTool->initializeFastSims().isFailure()) {
     throw GaudiException("Failed to initialize FastSims for master thread",
                          methodName, StatusCode::FAILURE);
   }
@@ -142,10 +148,10 @@ void G4AtlasMTRunManager::RunTermination()
   CleanUpPreviousEvents();
   previousEvents->clear();
 
-  if(userRunAction) userRunAction->EndOfRunAction(currentRun);
+  if(userRunAction) { userRunAction->EndOfRunAction(currentRun); }
 
   delete currentRun;
-  currentRun = 0;
+  currentRun = nullptr;
   runIDCounter++;
 
   ATH_MSG_INFO( "Changing the state..." );
@@ -160,14 +166,14 @@ void G4AtlasMTRunManager::RunTermination()
   kernel->RunTermination();
   ATH_MSG_INFO( "All done..." );
 
-  userRunAction=0;
-  userEventAction=0;
-  userSteppingAction=0;
-  userStackingAction=0;
-  userTrackingAction=0;
-  // physicsList=0;
-  userDetector=0;
-  userPrimaryGeneratorAction=0;
+  userRunAction = nullptr;
+  userEventAction = nullptr;
+  userSteppingAction = nullptr;
+  userStackingAction = nullptr;
+  userTrackingAction = nullptr;
+  // physicsList = nullptr;
+  userDetector = nullptr;
+  userPrimaryGeneratorAction = nullptr;
 }
 
 #endif // G4MULTITHREADED

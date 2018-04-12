@@ -24,71 +24,46 @@ class LayerPlotter:
         return inputs
 
     def plot(self):
-        self.plot_tune(self.egammaLayerRecalibTool('2012'), '2012.png')
-        self.plot_tune(self.egammaLayerRecalibTool('2011'), '2011.png')
-        self.plot_tune(self.egammaLayerRecalibTool('2010'), '2010.png')
-        self.plot_tune(self.egammaLayerRecalibTool('2012_with_layer2'), '2012_with_layer2.png')
-        self.plot_tune(self.egammaLayerRecalibTool('2011_with_layer2'), '2011_with_layer2.png')
-        self.plot_tune(self.egammaLayerRecalibTool('2010_with_layer2'), '2010_with_layer2.png')
-        self.plot_tune(self.egammaLayerRecalibTool('2012_alt'), '2012_alt.png')
-        self.plot_tune(self.egammaLayerRecalibTool('2011_alt'), '2011_alt.png')
-        self.plot_tune(self.egammaLayerRecalibTool('2012_alt_with_layer2'), '2012_alt_with_layer2.png')
-        self.plot_tune(self.egammaLayerRecalibTool('2011_alt_with_layer2'), '2011_alt_with_layer2.png')
-
-        self.plot_tune(self.egammaLayerRecalibTool('layer1_2012_v5'), 'layer1_2012_v5.png')
-        self.plot_tune(self.egammaLayerRecalibTool('ps_2012_v3'), 'ps_2012_v3.png')
-        self.plot_tune(self.egammaLayerRecalibTool('ps_HV1'), 'ps_HV1.png')
-        self.plot_tune(self.egammaLayerRecalibTool('layer2_2012_v5'), 'layer2_2012_v5.png')
-        self.plot_tune(self.egammaLayerRecalibTool('layer2_2011_v5'), 'layer2_2011_v5.png')
-        self.plot_tune(self.egammaLayerRecalibTool('layer2_2010_v5'), 'layer2_2010_v5.png')
+        tunes = (
+            # high-level tunes used in the calibration tool (usually composition of low-level tunes)
+            '2011_alt_with_layer2', '2012_alt_with_layer2', 'es2017_20.7_improved', 'es2017_20.7_final',
+            # low-level tunes used in the calibration tool
+            'layer2_alt_2011_v5', "ps_2011",                # used in 2011_alt_with_layer2
+            "ps_HV1", "layer2_alt_2012_v5", "ps_2012",      # used in 2012_alt_with_layer2
+            "pileup_20.7", "run2_alt_with_layer2_modif",    # used in es2017_20.7_final
+            "2012_alt_with_layer2_modif",                   # used in es2017_20.7_improved
+            "ps_EMECHV1", "layer2_alt_run2_v1", "ps_2016",  # used by run2_alt_with_layer2_modif
+            )
+        for tune in tunes:
+            self.plot_tune(self.egammaLayerRecalibTool(tune), '%s.png' % tune)
 
     def plot2d(self):
-        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), "ps_HV1_2d_period0.png", run_number = 204931)
-        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), "ps_HV1_2d_period1.png", run_number = 204932)
-        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), "ps_HV1_2d_period2.png", run_number = 205112)
-        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), "ps_HV1_2d_period3.png", run_number = 211670)
-        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), "ps_HV1_2d_period4.png", run_number = 212619)
-        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), "ps_HV1_2d_period5.png", run_number = 212809)
+        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), 'ps_HV1_2d_period0.png', run_number = 204931)
+        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), 'ps_HV1_2d_period1.png', run_number = 204932)
+        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), 'ps_HV1_2d_period2.png', run_number = 205112)
+        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), 'ps_HV1_2d_period3.png', run_number = 211670)
+        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), 'ps_HV1_2d_period4.png', run_number = 212619)
+        self.plot_tune2d(self.egammaLayerRecalibTool('ps_HV1'), 'ps_HV1_2d_period5.png', run_number = 212809)
 
-        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), "2012_2d_period0.png", run_number = 204931)
-        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), "2012_2d_period1.png", run_number = 204932)
-        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), "2012_2d_period2.png", run_number = 205112)
-        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), "2012_2d_period3.png", run_number = 211670)
-        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), "2012_2d_period4.png", run_number = 212619)
-        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), "2012_2d_period5.png", run_number = 212809)
+        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), '2012_2d_period0.png', run_number = 204931)
+        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), '2012_2d_period1.png', run_number = 204932)
+        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), '2012_2d_period2.png', run_number = 205112)
+        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), '2012_2d_period3.png', run_number = 211670)
+        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), '2012_2d_period4.png', run_number = 212619)
+        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), '2012_2d_period5.png', run_number = 212809)
 
-        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), "2012_2d.png")
-        self.plot_tune2d(self.egammaLayerRecalibTool('layer1_1'), "layer1_1_2d.png")
-        self.plot_tune2d(self.egammaLayerRecalibTool('layer1_2'), "layer1_2_2d.png")
+        self.plot_tune2d(self.egammaLayerRecalibTool('2012'), '2012_2d.png')
+        self.plot_tune2d(self.egammaLayerRecalibTool('layer1_1'), 'layer1_1_2d.png')
+        self.plot_tune2d(self.egammaLayerRecalibTool('layer1_2'), 'layer1_2_2d.png')
+
+        self.plot_tune2d(self.egammaLayerRecalibTool('2012_alt_with_layer2'), '2012_alt_with_layer2_2d.png')
+        self.plot_tune2d(self.egammaLayerRecalibTool('es2017_20.7_improved'), 'es2017_20.7_improved_2d.png')
 
     def plot_compare(self):
-        self.plot_tune((self.egammaLayerRecalibTool('2012'),
-                        self.egammaLayerRecalibTool('2012_up'),
-                        self.egammaLayerRecalibTool('2012_down')),
-                       "2012_all_up_down.png",
-                       ("central", "up", "down"))
-
-        self.plot_tune((self.egammaLayerRecalibTool('2012'),
-                        self.egammaLayerRecalibTool('2012_layer1_up'),
-                        self.egammaLayerRecalibTool('2012_layer1_down')),
-                       "2012_layer1_up_down.png",
-                       ("central", "up", "down"))
-
-        self.plot_tune((self.egammaLayerRecalibTool('2012'),
-                        self.egammaLayerRecalibTool('2012_ps_up'),
-                        self.egammaLayerRecalibTool('2012_ps_down')),
-                       "2012_ps_up_down.png",
-                       ("central", "up", "down"))
-
-        self.plot_tune((self.egammaLayerRecalibTool('2012_errup'),
-                        self.egammaLayerRecalibTool('2012_errdown')),
-                       "2012_all_errup_down.png",
-                       ("errorup", "errordown"))
-
-        self.plot_tune((self.egammaLayerRecalibTool('layer2_2012_v5_errup'),
-                        self.egammaLayerRecalibTool('layer2_2012_v5_errdown')),
-                       "2012_layer2_errup_down.png",
-                       ("errorup", "errordown"))
+        self.plot_tune((self.egammaLayerRecalibTool('es2017_20.7_final'),
+                        self.egammaLayerRecalibTool('es2017_20.7_improved')),
+                        'es2017_20.7_final__vs__es2017_20.7_improved.png',
+                        ('es2017_20.7_final', 'es2017_20.7_improved'))
 
     def plot_tune(self, tools, canvas_name, names=None):
         canvas = ROOT.TCanvas(canvas_name, canvas_name)
@@ -97,7 +72,7 @@ class LayerPlotter:
 
         legend = None
         if names:
-            legend = ROOT.TLegend(0.2, 0.5, 0.4, 0.8)
+            legend = ROOT.TLegend(0.2, 0.6, 0.8, 0.8)
 
         if type(tools) is not tuple:
             tools = (tools, )
@@ -129,19 +104,20 @@ class LayerPlotter:
             grs = (h0, h1, h2, h3)
             for ig, g in enumerate(grs):
                 canvas.cd(ig + 1)
-                g.SetTitle(name)
+                g.SetTitle('layer %d' % ig)
                 g.SetLineColor(itool + 1)
                 g.SetMarkerColor(itool + 1)
                 g.GetXaxis().SetTitle("#eta")
-                g.GetYaxis().SetTitle("(E_{%d})-corrected / E_{%d}-non-corrected" % (ig, ig))
+                g.GetYaxis().SetTitle("(E_{%d})-corrected / (E_{%d})-non-corrected" % (ig, ig))
                 g.SetFillStyle(0)
                 g.GetYaxis().SetTitleOffset(1.5)
                 g.Draw("APL" if not itool else "PLsame")
+                g.GetYaxis().SetRangeUser(0.92, 1.08)
                 if ig == 3 and legend:
-                    legend.AddEntry(g)
+                    legend.AddEntry(g, name)
                 canvas.mem.append(g)
         if legend:
-            canvas.cd(3)
+            canvas.cd(4)
             legend.Draw()
         canvas.SaveAs(canvas_name)
         self.output_file.cd()

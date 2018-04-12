@@ -67,11 +67,6 @@ class SingleJetMetFilter( PyAthena.AthFilterAlgorithm ):
         self.nEventPassJet      = 0
         self.nEventPassMet      = 0
 
-
-        ## Import needed modules
-        import ROOT
-        import PyCintex
-
         ## Get the StoreGate service
         self.storeGateSvc = PyAthena.py_svc('StoreGateSvc')
         if not self.storeGateSvc :

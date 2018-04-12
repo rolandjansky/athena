@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigBtagValidationTest_H
@@ -11,16 +11,20 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigBtagEmulationTool/ITrigBtagEmulationTool.h"
 
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
+
 #include <string>
 #include <map>
+#include <tuple>
 
 class IExecuteTool;
 
 namespace Trig{
+
     class TrigBtagValidationTest : public AthAlgorithm { 
 
         public: 
-
             /// Constructor with parameters: 
             TrigBtagValidationTest(const std::string& name, ISvcLocator* pSvcLocator);
 
@@ -32,35 +36,33 @@ namespace Trig{
             StatusCode  execute();
             StatusCode  finalize();
 
-        private: 
-
-            /// Default constructor: 
+        private:
+	    /// Default constructor: 
 	    TrigBtagValidationTest();
-            StatusCode Method1();
-            StatusCode Method2();
-            void writeEmulationSummary();
-            float ratio(float,float);
+
+	    template<typename T> 
+	      bool getFromCombo(std::vector<const T*>&,const Trig::Combination&,std::string key="");
+
 
         private:
             ToolHandle<Trig::TrigDecisionTool> m_trigdec;
             ToolHandle<ITrigBtagEmulationTool> m_emulationTool;
 
             std::vector<std::string>   m_triggerList;
-            StoreGateSvc              *m_storeGate;
+	    StoreGateSvc              *m_storeGate;
 
-            //counters
-            std::map<std::string, int> m_counter;
-            std::map<std::string, int> m_counter_emu;
-            std::map<std::string, int> m_counter2;
-            std::map<std::string, int> m_counter_emu2;
+	    bool m_retrieveRetaggedJets;
+	    std::string m_chain;
+
+	    long int m_eventCount;
+	    long int m_min_eventCount;
+	    long int m_max_eventCount;
 
         private:
 	    std::vector< std::string > m_toBeEmulatedTriggers;
-	    std::map< std::string, long int> m_counterEmulation;
-	    std::map< std::string, long int> m_counterTDT;
-	    std::map< std::string, long int> m_counterMismatches_tot;
-	    std::map< std::string, long int> m_counterMismatches_TDT1EMUL0;
-	    std::map< std::string, long int> m_counterMismatches_TDT0EMUL1;
+
+	    enum { EMUL, TDT, mismatchesTOT , mismatchesTDT1EMUL0, mismatchesTDT0EMUL1 };
+	    std::map< std::string,std::tuple<long int,long int,long int,long int,long int> > m_counters;
     }; 
 }
 #endif

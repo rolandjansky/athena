@@ -136,14 +136,14 @@ StatusCode DerivationFramework::EGammaReweight::addBranches() const
       nel++;
     }
     if(a) {  //Photon Container Exist
-      ATH_MSG_INFO ("Storing new container " << name_gamma.c_str() << "...");
+      ATH_MSG_DEBUG ("Storing new container " << name_gamma.c_str() << "...");
       CHECK(evtStore()->record(gammacont, name_gamma.c_str()));
       CHECK(evtStore()->record(gammacontaux, (name_gamma+"Aux.").c_str()));
       delete elcont;
       delete elcontaux;
     }
     else if(b) { //Electron Container Exist
-      ATH_MSG_INFO ("Storing new container " << name_electron.c_str() << "...");
+      ATH_MSG_DEBUG ("Storing new container " << name_electron.c_str() << "...");
       CHECK(evtStore()->record(elcont, name_electron.c_str()));
       CHECK(evtStore()->record(elcontaux, (name_electron+"Aux.").c_str()));
       delete gammacont;

@@ -30,7 +30,6 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   m_detStore("StoreGateSvc/DetectorStore", name),
   m_geoModelSvc("GeoModelSvc", name),
   m_isPixel(true),
-  m_magFieldInit(false),
   m_detManager(0)
  
 {

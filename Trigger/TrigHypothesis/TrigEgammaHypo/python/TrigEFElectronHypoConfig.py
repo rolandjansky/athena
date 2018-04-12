@@ -43,8 +43,6 @@ class TrigEFElectronHypoBase (TrigEFElectronHypo):
         
         #Load Tool Service
         from AthenaCommon.AppMgr import ToolSvc
-        from LumiBlockComps.LuminosityToolDefault import LuminosityToolOnline
-        ToolSvc += LuminosityToolOnline()
 #-----------------------------------------------------------------------
 # --- Following classes to be used with TriggerMenu
 # --- Rely on TM to configure 
@@ -100,6 +98,10 @@ class TrigEFElectronHypo_e_ID (TrigEFElectronHypoBase):
         if( 'lh' in IDinfo):
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronToolName[IDinfo]
             self.UseAthenaElectronLHIDSelectorTool = True
+        elif( 'bloose' in IDinfo  ):
+            from TrigEgammaHypo.TrigEgammaPidTools import BLooseISEMBits
+            self.IsEMrequiredBits =  BLooseISEMBits[IDinfo]
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
         else:
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
             self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
@@ -121,6 +123,10 @@ class TrigEFElectronHypo_e_ID_HI (TrigEFElectronHypoBase):
         if( 'lh' in IDinfo):
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronToolName[IDinfo]
             self.UseAthenaElectronLHIDSelectorTool = True
+        elif( 'bloose' in IDinfo):
+            from TrigEgammaHypo.TrigEgammaPidTools import BLooseISEMBits
+            self.IsEMrequiredBits =  BLooseISEMBits[IDinfo]
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
         else:
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
             self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]

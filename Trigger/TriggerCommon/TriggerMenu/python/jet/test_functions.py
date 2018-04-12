@@ -8,8 +8,6 @@ import importlib
 
 from generateJetChainDefs import  generateChainDefs
 from exc2string import exc2string2 
-from AthenaCommon.Include import include
-from AthenaCommon.OldStyleConfig import  Service
 
 def _generate(d, silent):
 
@@ -37,16 +35,16 @@ def run_triggerMenuXML_dicts(silent,
              ' to write to disk' % (len(dicts))
     print m
 
-    devnull = open(os.devnull, 'w')
-    old_out = sys.stdout
-    old_err = sys.stderr
+    #devnull = open(os.devnull, 'w')
+    #old_out = sys.stdout
+    #old_err = sys.stderr
     
     result = []
     ndicts = 0
-    toSkip = (
-        'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
-        'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
-        )
+    #toSkip = (
+    #    'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
+    #    'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
+    #    )
     for d in dicts:
         # if d['chainName'] in toSkip or '_PS_' in d['chainName']:
         #    print d['chainName']

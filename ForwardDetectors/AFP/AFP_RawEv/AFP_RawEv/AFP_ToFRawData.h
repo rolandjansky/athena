@@ -32,6 +32,10 @@ public:
   uint32_t time() const {return m_time;}
   void setTime(const uint32_t time) {m_time = time;}
 
+  /// @copydoc AFP_ToFRawData::m_pulseLength
+  uint32_t pulseLength() const {return m_pulseLength;}
+  void setPulseLength(const uint32_t pulseLength) {m_pulseLength = pulseLength;}
+
 private:
   /// @brief Value of 9-11 most significant bits
   ///
@@ -61,5 +65,12 @@ private:
   /// In the following record: `xxxx xxxx xxxx xxxx xxxx xxtt tttt tttt`
   /// it means bits marked with `t`. Contains information about time.
   uint32_t m_time;
+
+  /// @brief Value of 11-16 least significant bits
+  ///
+  /// In the following record: `xxxx xxxx xxxx xxxx LLLL LLxx xxxx xxxx`
+  /// it means bits marked with `L`. Contains information how long
+  /// signal from the bar was above threshold.
+  uint32_t m_pulseLength;
 };
 #endif

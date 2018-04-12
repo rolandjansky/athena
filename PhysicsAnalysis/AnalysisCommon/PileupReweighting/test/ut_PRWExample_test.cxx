@@ -7,7 +7,7 @@
 
 void generateTestFiles() {
    //create a 'dummy' lumicalc file, with only a few runs, with a few lumiblocks 
-   TFile l("dummy.None.lumicalc.root","RECREATE");
+   TFile l("example.dummy.None.lumicalc.root","RECREATE");
    TTree *t = new TTree("LumiMetaData","LumiMetaData");
    UInt_t runNbr=0;Float_t ps1=1;Float_t ps2=1; Float_t ps3=1;UInt_t lbn=0;Float_t intLumi=0;Float_t mu=0;
    t->Branch("RunNbr",&runNbr);t->Branch("L1Presc",&ps1);t->Branch("L2Presc",&ps2);t->Branch("L3Presc",&ps3);t->Branch("LBStart",&lbn);t->Branch("IntLumi",&intLumi);t->Branch("AvergeInteractionPerXing",&mu);
@@ -33,7 +33,7 @@ void generateTestFiles() {
    g.Fill(101,2002,1,2.5);
    g.Fill(101,2002,1,3.5);
 
-   g.WriteToFile("dummy1.prw.root");
+   g.WriteToFile("example.dummy1.prw.root");
 
 }
 
@@ -64,8 +64,8 @@ int main() {
 
    //for the example we have to generate a test file
    asg::AnaToolHandle<CP::IPileupReweightingTool> prwTool("CP::PileupReweightingTool/prw");
-   ANA_CHECK( prwTool.setProperty( "ConfigFiles", std::vector<std::string>({"dummy1.prw.root"}) ) );
-   ANA_CHECK( prwTool.setProperty( "LumiCalcFiles",  std::vector<std::string>({"dummy.None.lumicalc.root"}) ) );
+   ANA_CHECK( prwTool.setProperty( "ConfigFiles", std::vector<std::string>({"example.dummy1.prw.root"}) ) );
+   ANA_CHECK( prwTool.setProperty( "LumiCalcFiles",  std::vector<std::string>({"example.dummy.None.lumicalc.root"}) ) );
    ANA_CHECK( prwTool.setProperty( "UseMultiPeriods",true) ); //channel 2000 has periods 100 and 101
    ANA_CHECK( prwTool.initialize() );
 

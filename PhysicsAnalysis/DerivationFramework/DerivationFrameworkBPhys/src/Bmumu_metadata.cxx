@@ -35,9 +35,17 @@ namespace DerivationFramework {
     
     // blind search
     recordPropertyB("doBmumuBlinding", true);
-
+    recordPropertyB("doCutBlinded"   , true);
+    recordPropertyS("BlindingKey"    , "");
+    recordPropertyS("BlindedVars"    , "");
+    recordPropertyS("BlindingFlag"   , "");
+    
     // include trigger
     recordPropertyB("doTriggerInfo"  , true);
+
+    // trigger navigation thinning
+    recordPropertyB("doTrigNavThinning", true);
+    recordPropertyVS("TrigNavThinList" , {});
 
     // wide mumu mass range
     recordPropertyB("doUseWideMuMuMassRange", false);
@@ -96,6 +104,8 @@ namespace DerivationFramework {
     recordPropertyD("GlobalJpsiMassLowerCut"  , 2000.);
     recordPropertyD("GlobalBlindUpperCut"     , 5166.);
     recordPropertyD("GlobalBlindLowerCut"     , 5526.);
+    recordPropertyD("GlobalTrksMassUpperCut"  , 7500.);
+    recordPropertyD("GlobalTrksMassLowerCut"  , 3000.);
     
     // Global chi2 cut for vertexing
     recordPropertyD("GlobalChi2CutBase", 15.0);

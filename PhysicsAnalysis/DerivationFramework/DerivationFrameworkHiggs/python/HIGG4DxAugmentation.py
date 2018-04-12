@@ -76,7 +76,8 @@ def setup(HIGG4DxName, ToolSvc):
 
     if DFisMC:
         # Tau truth matching - using the tau tools
-        from DerivationFrameworkTau.TauTruthCommon import *
+        from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+        scheduleTauTruthTools()
 
     #Tau Overlapping Electron LLH Decorator
     from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauOverlappingElectronLLHDecorator
@@ -128,9 +129,3 @@ def addVRJetsAndBTagging(HIGG4DxName, sequence):
     # alias for VR
     BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
     
-    from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-    # must re-tag AntiKt4LCTopoJets and AntiKt4PV0TrackJets to make JetFitterNN work with corresponding VR jets (nikola: why?)
-    # also, re-tag R=0.2 track jets
-    #New in rel 21: AntiKt2PV0TrackJets should now be tagged automatically. Must not be re-tagged
-    
-    FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = sequence )

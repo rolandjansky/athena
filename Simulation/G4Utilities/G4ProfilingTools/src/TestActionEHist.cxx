@@ -46,7 +46,7 @@ namespace G4UA{
   }
   
   
-  void TestActionEHist::preTracking(const G4Track* aTrack){
+  void TestActionEHist::PreUserTrackingAction(const G4Track* aTrack){
     if (aTrack) {
       
       // Set Particle label and empty trajectory
@@ -61,21 +61,21 @@ namespace G4UA{
     return;
   }
   
-  void TestActionEHist::postTracking(const G4Track* aTrack){
+  void TestActionEHist::PostUserTrackingAction(const G4Track* aTrack){
     if (aTrack) {
       m_trajectory.clear();
     }
     return;
   }
   
-  void TestActionEHist::beginOfRun(const G4Run*){
+  void TestActionEHist::BeginOfRunAction(const G4Run*){
     // initialize histogramming file (DON'T USE GAUDI) & directories
     m_world = new TFile(m_config.name.c_str(), "RECREATE");
     G4cout<<m_config.name<<" initialized, in directory "<<gDirectory->GetPath()<<G4endl;
     
   }
   
-  void TestActionEHist::endOfRun(const G4Run*){
+  void TestActionEHist::EndOfRunAction(const G4Run*){
 
     m_world->Write();
     m_world->Close();
@@ -85,7 +85,7 @@ namespace G4UA{
     return;
   }
   
-  void TestActionEHist::processStep(const G4Step* aStep){
+  void TestActionEHist::UserSteppingAction(const G4Step* aStep){
     
     if (aStep) {
       

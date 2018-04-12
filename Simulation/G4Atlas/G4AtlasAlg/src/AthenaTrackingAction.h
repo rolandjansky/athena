@@ -5,17 +5,9 @@
 #ifndef G4AtlasAlg_AthenaTrackingAction_H
 #define G4AtlasAlg_AthenaTrackingAction_H
 
-/// @class AthenaTrackingAction
-/// @brief User action for pre/post tracking truth handling.
-///
-/// This is the current implementation based on the (V1) user action design
-/// as part of the simulation infrastructure migrations. The multi-threaded
-/// (V2) design is still in the works.
-///
-
 #include "AthenaKernel/MsgStreamMember.h"
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "G4AtlasInterfaces/IPostTrackingAction.h"
+
+#include "G4UserTrackingAction.hh"
 
 namespace G4UA
 {
@@ -23,10 +15,7 @@ namespace G4UA
   /// @class AthenaTrackingAction
   /// @brief User action for pre/post tracking truth handling.
   ///
-  /// This is the new/upcoming implementation for multi-threaded simulation.
-  ///
-  class AthenaTrackingAction : public IPreTrackingAction,
-                               public IPostTrackingAction
+  class AthenaTrackingAction : public G4UserTrackingAction
   {
 
     public:
@@ -39,12 +28,12 @@ namespace G4UA
       /// If the track meets certain conditions, we save it in the
       /// EventInformation and possibly construct a new AtlasTrajectory
       /// which will be used for writing out truth particles later.
-      virtual void preTracking(const G4Track*) override;
+      virtual void PreUserTrackingAction(const G4Track*) override final;
 
       /// @brief Called after tracking a particle.
       ///
       /// Here we reset the AtlasTrajectory if it was created.
-      virtual void postTracking(const G4Track*) override;
+      virtual void PostUserTrackingAction(const G4Track*) override final;
 
     private:
 
@@ -52,8 +41,10 @@ namespace G4UA
       MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
       bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
       mutable Athena::MsgStreamMember m_msg;
+
       /// The saving level for secondaries.
       int m_secondarySavingLevel;
+
   }; // class AthenaTrackingAction
 
 } // namespace G4UA

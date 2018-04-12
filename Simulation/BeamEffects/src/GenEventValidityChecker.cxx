@@ -18,11 +18,9 @@
 Simulation::GenEventValidityChecker::GenEventValidityChecker( const std::string& t,
                                                        const std::string& n,
                                                        const IInterface* p )
-  : AthAlgTool(t,n,p),
+  : base_class(t,n,p),
     m_checkTime(true)
 {
-    declareInterface<Simulation::IGenEventManipulator>(this);
-
     declareProperty( "CheckTime",
                      m_checkTime=true,
                      "Check the value in time dimension");

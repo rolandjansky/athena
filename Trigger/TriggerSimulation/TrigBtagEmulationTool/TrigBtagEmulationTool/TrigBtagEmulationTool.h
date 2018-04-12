@@ -1,14 +1,16 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
 */
 
 #ifndef TrigBtagEmulationTool_H
 #define TrigBtagEmulationTool_H
 
+#include "AsgTools/MessageCheck.h"
+
 #include "TrigBtagEmulationTool/ITrigBtagEmulationTool.h"
-#include "TrigBtagEmulationTool/feature.h"
-#include "TrigBtagEmulationTool/baseTrigBtagEmulationChainJetIngredient.h"
-#include "TrigBtagEmulationTool/jetManager.h"
+#include "TrigBtagEmulationTool/TrigBtagEmulationChain.h"
+#include "TrigBtagEmulationTool/TriggerFeature.h"
+#include "TrigBtagEmulationTool/JetManager.h"
 
 // EDM
 #include "xAODEventInfo/EventInfo.h"
@@ -39,106 +41,27 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <bitset>
 #include <vector>
 #include <map>
+#include <tuple>
 
 #include "AsgTools/AsgTool.h"
 
-#ifndef XAOD_STANDALONE
+
 // Offline tools
+#ifdef XAOD_STANDALONE
+#include "TrigConfxAOD/xAODConfigTool.h"
+
+#elif defined( XAOD_ANALYSIS )
+#include "StoreGate/StoreGateSvc.h"
+
+#else
+#include "StoreGate/StoreGateSvc.h"
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagTool.h"
-
-#include "StoreGate/StoreGateSvc.h"
-#else
-#include "TrigConfxAOD/xAODConfigTool.h"
 #endif
 
 
 namespace Trig {
-  
-  class TrigBtagEmulationChain {
-    
-  public:
-
-    /// Constructor with signature name 
-    TrigBtagEmulationChain(const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec);    
-
-    /// Trigger decision ingredient definition
-    void addDecisionIngredient(std::string decision);
-    
-    /// L1 Jet ingredient definition
-    void addL1JetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm,bool isCF = false) ;
-
-    /// L1 Jet ingredient definition
-    void addL1JJJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, unsigned int topEt,float min_invm,bool isCF = false);
-
-    /// HLT Jet ingredient definition
-    void addHLTJetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta, unsigned int min_mult, float min_ht, float min_gsc, float min_invm);
-
-    /// HLT Bjet ingredient definition
-    void addHLTBjetIngredient(std::string triggerName,float min_pt, float min_eta, float max_eta,std::string tagger, float min_weight, unsigned int min_mult, float min_ht, float min_gsc, float anti_weight, float min_invm);
-
-    /// Jet Evaluation
-    void evaluate();
-
-    /// Chain evaluation
-    bool isPassed();
-
-    // Dump
-    void Print();
-
-    // Utilities
-    bool hasFeature(std::string feature);
-
-    /// Event cleanup
-    void clear();
-  
-    /// Name
-    std::string name();
-
-    /// Configuration accessors
-    bool isSplit();
-    bool isIP3DSV1();
-    bool isCOMB();
-    bool isMV2c20();
-    std::string tagger();
-    
-    bool addJet(std::string item,std::vector< struct TrigBtagEmulationJet >& jets);
-
-  private:
-
-    // Chain name
-    std::string m_name;
-
-    // Chain selections
-    std::vector<std::string> m_ingredientsDecision;
-    std::vector<TrigBtagEmulationChainJetIngredient_L1*>  m_ingredientsL1Jet;
-    std::vector<TrigBtagEmulationChainJetIngredient_HLT*> m_ingredientsHLTJet;
-
-    // Trigger decision
-    ToolHandle<Trig::TrigDecisionTool>& m_trigDec;
-
-
-    // Chain age
-    bool m_old;
-
-    // Jet cuts
-    unsigned int m_jetMultCut;
-    double m_jetPtCut;
-
-    // Bjet cuts
-    unsigned int m_bjetMultCut;
-    double m_bjetPtCut;
-    std::string m_bjetConfig;
-    std::string m_bjetTagger;
-    double m_bjetTaggerCut;
-
-    // Chain multiplicity result
-    unsigned int m_jetCount;
-    unsigned int m_bjetCount;
-
-  };
-
 
   class TrigBtagEmulationTool : public asg::AsgTool, virtual public Trig::ITrigBtagEmulationTool {
     ASG_TOOL_CLASS(TrigBtagEmulationTool, Trig::ITrigBtagEmulationTool)
@@ -147,77 +70,65 @@ namespace Trig {
     
     //****************************************************************************** 
     TrigBtagEmulationTool(const std::string& name);
-    ~TrigBtagEmulationTool() {};
+    ~TrigBtagEmulationTool();
     
     StatusCode initialize();
     StatusCode execute();
     StatusCode finalize();
     
-    void addEmulatedChain(const std::vector<std::string>&);
+    StatusCode addEmulatedChain(const std::vector<std::string>&);
     std::vector<std::string> addEmulatedChain(const std::string);
     bool isPassed(const std::string&);
+    const xAOD::JetContainer* retaggedJets(const std::string&) const;
 
   private:
 
     void clear();
     StatusCode initTriggerChainsMenu();
+    StatusCode initTriggerChainsMenu(const int);
 
-    StatusCode getInputContainerSG(std::vector<const xAOD::Jet*>& jetContainers,
-                                   std::string& inputItem, std::string& jetName);
+    StatusCode retrieve( std::unique_ptr< Trig::JetManager >&,bool );
 
     // *** Attributes ** //
   private:
-    std::map< std::string,std::string > m_2015Menu;
-    std::map< std::string,std::string > m_2016Menu;
-    std::map< std::string,std::string > m_2017Menu;
+    enum TriggerMenu { YEAR_2015=0, YEAR_2016=1, YEAR_2017=2 };
+    std::tuple< 
+      std::map< const std::string,const std::string >, 
+      std::map< const std::string,const std::string >, 
+      std::map< const std::string,const std::string > > m_triggerMenus;
 
     // SERVICES
     ToolHandle<Trig::TrigDecisionTool> m_trigDec;
 
-#ifndef XAOD_STANDALONE
+#ifdef XAOD_STANDALONE
+    std::string m_TrigDecToolName;  
+    std::string m_xAODConfToolName; 
+
+#elif defined( XAOD_ANALYSIS )
     ServiceHandle<StoreGateSvc> m_storeGate;
-    ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc; 
-    ServiceHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
 
+#else
+    ServiceHandle<StoreGateSvc> m_storeGate;
 
-    // OFFLINE TOOLS
     ToolHandle< Analysis::IBTagTool > m_bTagTool;
     ToolHandle< Analysis::IBTagTrackAssociation > m_bTagTrackAssocTool;
     ToolHandle< Analysis::IBTagSecVertexing > m_bTagSecVtxTool;
-#else
-    //    TrigConf::xAODConfigTool *m_trigConfigTool; 
-
-    ToolHandle< TrigConf::ITrigConfigSvc > m_configSvc;
-    ToolHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
-#endif  
-
-#ifdef XAOD_STANDALONE
-    std::string m_TrigDecToolName; //!
-    std::string m_xAODConfToolName; //!
 #endif
-
 
     // INPUT PROPERTIES
     bool m_useTriggerNavigation;
     bool m_tagOfflineWeights;
     bool m_tagOnlineWeights;
-    std::string m_input_chain;
-    std::string m_input_chainSplit;
-    std::string m_input_chainGSC;
-    std::string m_input_pvKey;
-    std::string m_input_jetKey;
-    std::string m_input_tpKey;
-    std::string m_input_pvKeySplit;
-    std::string m_input_jetKeySplit;
-    std::string m_input_tpKeySplit;
-    std::string m_input_btagName;
-    std::string m_input_jetName;
-    std::string m_input_jetNameSplit;
-    std::string m_input_JetName_GSC;
 
-    std::string m_input_pvKey_GSC;
-    std::string m_input_jetKey_GSC;
-    std::string m_input_tpKey_GSC;
+    enum jetCollections { EF=0, SPLIT=1, GSC=2 };
+
+    std::tuple< std::string,std::string,std::string > m_inputChains;
+    std::tuple< std::string,std::string,std::string > m_jetKeys;
+    std::tuple< std::string,std::string,std::string > m_pvKeys;
+    std::tuple< std::string,std::string,std::string > m_tpKeys;
+    std::tuple< std::string,std::string,std::string > m_jetContainers;
+
+    std::string m_input_btagName;
 
     std::string m_trigger_menu;
     std::string m_autoconfiguredMenu;
@@ -226,11 +137,15 @@ namespace Trig {
     long long int m_previousEvent;
 
     // jet Managers
-    Trig::jetManager *m_manager_ef;
-    Trig::jetManager *m_manager_split;
-    Trig::jetManager *m_manager_gsc;
-    Trig::jetManager *m_manager_ef_gsc;
-    Trig::jetManager *m_manager_split_gsc;
+    std::unique_ptr< Trig::JetManager > m_manager_lvl1_8x8;
+    std::unique_ptr< Trig::JetManager > m_manager_lvl1_4x4;
+
+    std::unique_ptr< Trig::JetManager > m_manager_HT;
+
+    std::unique_ptr< Trig::JetManager > m_manager_ef;
+    std::unique_ptr< Trig::JetManager > m_manager_split;
+    std::unique_ptr< Trig::JetManager > m_manager_gsc;
+    std::unique_ptr< Trig::JetManager > m_manager_split_gsc;
 
     // OUTPUT PROPERTIES
     std::vector< std::vector< std::string > > m_emulatedChainDefinitions;
@@ -253,6 +168,6 @@ namespace Trig {
 
   };
 
-}//namespace
+} //namespace
 
 #endif

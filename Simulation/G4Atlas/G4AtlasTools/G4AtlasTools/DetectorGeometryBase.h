@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASINTERFACES_DETECTORGEOMETRYBASE_H
-#define G4ATLASINTERFACES_DETECTORGEOMETRYBASE_H
+#ifndef G4ATLASTOOLS_DETECTORGEOMETRYBASE_H
+#define G4ATLASTOOLS_DETECTORGEOMETRYBASE_H
 
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -22,7 +22,7 @@
 #include <vector>
 
 /// @todo NEEDS DOCUMENTATION
-class DetectorGeometryBase : virtual public IDetectorGeometryTool, public AthAlgTool
+class DetectorGeometryBase : public extends<AthAlgTool, IDetectorGeometryTool>
 {
 public:
   // Basic constructor and destructor
@@ -59,9 +59,6 @@ public:
   Envelope& GetEnvelope() override final;
 
   G4VPhysicalVolume* GetWorldVolume() override final;
-
-  /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
 protected:
   ToolHandleArray<IDetectorGeometryTool> m_subDetTools;

@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthDecayCollectionMaker.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthDecayCollectionMaker.cxx
 // Removes all truth particles/vertices which do not pass a user-defined cut
 // Based on TruthCollectionMaker (but simpler)
 
@@ -33,6 +32,7 @@ DerivationFramework::TruthDecayCollectionMaker::TruthDecayCollectionMaker(const 
     declareProperty("PDGIDsToKeep", m_pdgIdsToKeep={}, "PDG IDs of particles to build the collection from");
     declareProperty("KeepBHadrons", m_keepBHadrons=false, "Keep b-hadrons (easier than by PDG ID)");
     declareProperty("KeepCHadrons", m_keepCHadrons=false, "Keep c-hadrons (easier than by PDG ID)");
+    declareProperty("KeepBSM", m_keepBSM=false, "Keep BSM particles (easier than by PDG ID)");
     declareProperty("Generations", m_generations=-1, "Number of generations after the particle in question to keep (-1 for all)");
 }
 
@@ -55,8 +55,8 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::initialize()
         return StatusCode::FAILURE;
     } else {ATH_MSG_INFO("New truth particle collection key: " << m_collectionName );}
 
-    if (m_pdgIdsToKeep.size()==0 && !m_keepBHadrons && !m_keepCHadrons) {
-        ATH_MSG_FATAL("No PDG IDs provided, not keeping b- or c-hadrons -- what do you want?");
+    if (m_pdgIdsToKeep.size()==0 && !m_keepBHadrons && !m_keepCHadrons && !m_keepBSM) {
+        ATH_MSG_FATAL("No PDG IDs provided, not keeping b- or c-hadrons or BSM particles -- what do you want?");
         return StatusCode::FAILURE;
     }
 
@@ -101,7 +101,8 @@ StatusCode DerivationFramework::TruthDecayCollectionMaker::addBranches() const
             } // Found a particle of interest!
         } // Loop over the PDG IDs we want to keep
         if ((m_keepBHadrons && part->isBottomHadron()) ||
-            (m_keepCHadrons && part->isCharmHadron())){
+            (m_keepCHadrons && part->isCharmHadron()) ||
+            (m_keepBSM && part->isBSM()) ){
             addTruthParticle( *part, newParticleCollection, newVertexCollection, seen_particles , m_generations );
         }
     } // Loop over the initial truth particle collection

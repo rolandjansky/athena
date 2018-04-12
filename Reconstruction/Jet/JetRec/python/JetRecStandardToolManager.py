@@ -108,8 +108,6 @@ def filterout(skiptoolnames, tools):
 
 # Pseudojet getters
 empfgetters =  [jtm.empflowget]
-emcpfgetters = [jtm.emcpflowget]
-lcpfgetters =  [jtm.lcpflowget]
 
 trackgetters = [jtm.trackget]
 # Add track ghosts
@@ -123,16 +121,12 @@ if jetFlags.useTracks():
   emgetters += [jtm.gtrackget]
   lcgetters += [jtm.gtrackget]
   empfgetters += [jtm.gtrackget]
-  emcpfgetters += [jtm.gtrackget]
-  lcpfgetters += [jtm.gtrackget]
   tccgetters += [jtm.gtrackget]
 
 if jetFlags.useMuonSegments():
   emgetters += [jtm.gmusegget]
   lcgetters += [jtm.gmusegget]
   empfgetters  += [jtm.gmusegget]
-  emcpfgetters += [jtm.gmusegget]
-  lcpfgetters += [jtm.gmusegget]
   tccgetters += [jtm.gmusegget]
 # Add jet ghosts.
 if 1:
@@ -149,8 +143,6 @@ if jetFlags.useTruth():
   emgetters += [jtm.gtruthget]
   lcgetters += [jtm.gtruthget]
   empfgetters += [jtm.gtruthget]
-  emcpfgetters += [jtm.gtruthget]
-  lcpfgetters += [jtm.gtruthget]
   tccgetters += [jtm.gtruthget]
   # Add truth cone matching and truth flavor ghosts.
   flavorgetters = []
@@ -162,8 +154,6 @@ if jetFlags.useTruth():
   truthwzgetters += flavorgetters
   trackgetters   += flavorgetters
   empfgetters    += flavorgetters
-  emcpfgetters   += flavorgetters
-  lcpfgetters    += flavorgetters
   tccgetters     += flavorgetters
 # Add track jet ghosts.
 if jetFlags.useTracks():
@@ -174,8 +164,6 @@ if jetFlags.useTracks():
   emgetters     += trackjetgetters
   lcgetters     += trackjetgetters
   empfgetters   += trackjetgetters
-  emcpfgetters  += trackjetgetters
-  lcpfgetters   += trackjetgetters
   tccgetters    += trackjetgetters
 
 
@@ -183,10 +171,7 @@ if jetFlags.useTracks():
 jtm.gettersMap["emtopo"]    = list(emgetters)
 jtm.gettersMap["lctopo"]    = list(lcgetters)
 jtm.gettersMap["empflow"]   = list(empfgetters)
-jtm.gettersMap["emcpflow"]  = list(emcpfgetters)
-jtm.gettersMap["lcpflow"]   = list(lcpfgetters)
 jtm.gettersMap["track"]     = list(trackgetters)
-jtm.gettersMap["ztrack"]    = list(trackgetters)
 jtm.gettersMap["pv0track"]  = list(trackgetters)
 jtm.gettersMap["tcc"]       = list(tccgetters)
 if jetFlags.useTruth():
@@ -362,7 +347,6 @@ jtm.modifiersMap["track_ungroomed"]       =      list(track_ungroomed_modifiers)
 # Also index modifier type names by input type name.
 # These are used when the modifier list is omitted.
 jtm.modifiersMap["track"]                 = list(track_ungroomed_modifiers)
-jtm.modifiersMap["ztrack"]                = list(track_ungroomed_modifiers)
 jtm.modifiersMap["pv0track"]              = list(track_ungroomed_modifiers)
 if jetFlags.useTruth():
   jtm.modifiersMap["truth"]               = list(truth_ungroomed_modifiers)

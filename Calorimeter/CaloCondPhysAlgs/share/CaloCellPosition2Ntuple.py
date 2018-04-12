@@ -6,9 +6,18 @@
 
 # configuration for MC, get noise from CaloNoiseTool
 
-RunNumber = 99999
-Geometry = 'ATLAS-GEO-01-00-00'
-GlobalTag = 'OFLCOND-CSC-01-00-00'
+if 'RunNumber' not in dir():
+   RunNumber = 999999
+if 'Geometry' not in dir():
+   Geometry = 'ATLAS-R2-2015-03-01-00'
+if 'GlobalTag' not in dir():
+   GlobalTag = 'OFLCOND-RUN12-SDR-35'
+if 'InputDB' not in dir():
+   InputDB="sqlite://;schema=LArCellPosition.db;dbname=OFLP200"
+if 'Folder' not in dir():
+   Folder="/LAR/LArCellPositionShift"
+if 'FolderTag' not in dir():
+   FolderTag="LArCellPositionShift-test"
 
 from PerfMonComps.PerfMonFlags import jobproperties
 jobproperties.PerfMonFlags.doMonitoring = True
@@ -56,13 +65,13 @@ include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
 include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
 include("TileConditions/TileConditions_jobOptions.py" )
-include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
+#include("LArConditionsCommon/LArConditionsCommon_MC_jobOptions.py")
 
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
 from IOVDbSvc.CondDB import conddb
-conddb.addFolder("","<dbConnection>sqlite://;schema=LArCellPosition.db;dbname=OFLP200</dbConnection>/LAR/LArCellPositionShift");
-conddb.addOverride("/LAR/LArCellPositionShift","LArCellPositionShift-test")
+conddb.blockFolder("/LAR/LArCellPositionShift")
+conddb.addFolder("","<dbConnection>"+InputDB+"</dbConnection>"+Folder+"<tag>"+FolderTag+"</tag>",True)
 
 #--------------------------------------------------------------
 # Private Application Configuration options

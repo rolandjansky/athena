@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/IdDictDetDescr
                           Simulation/G4Atlas/G4AtlasInterfaces
-                          Simulation/G4Sim/SimHelpers
                           Simulation/G4Utilities/GeoMaterial2G4
                           Simulation/Tools/AtlasCLHEP_RandomGenerators
                           Tools/PathResolver )
@@ -31,7 +30,7 @@ atlas_add_component( TRT_TR_Process
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests IdDictDetDescr G4AtlasInterfaces SimHelpers GeoMaterial2G4 AtlasCLHEP_RandomGenerators PathResolver )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel StoreGateLib SGtests IdDictDetDescr G4AtlasInterfaces GeoMaterial2G4 AtlasCLHEP_RandomGenerators PathResolver )
 
 # Install files from the package:
 atlas_install_headers( TRT_TR_Process )

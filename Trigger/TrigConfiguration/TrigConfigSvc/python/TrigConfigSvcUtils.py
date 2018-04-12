@@ -811,31 +811,68 @@ def getExpressStreamPrescales(connection,psk):
     return name, [(r[1],r[3]) for r in res if r[0]=='express']
 
 
-def getHLTPrescalesRun2(connection,psk):
+def getHLTPrescalesRun2(connection,psk,smk):
     """returns set name, prescale and passthrough 
     values for a given HLT prescale key 
     @connection - connection string, e.g. TRIGGERDB
     @psk - HLT prescale key
+    @smk - Supermaster key
     @return (ps name, [('L2/EF',chainId,prescale,pass-through),...])
     """
 
-    res = queryHLTPrescaleTableRun2(connection,psk)
+    res = queryHLTPrescaleTableRun2(connection,psk,smk)
+
+    if res == 0:
+        return res
 
     return [(r) for r in res if r[3]!='express']
 
-def getExpressStreamPrescalesRun2(connection,psk):
+def getExpressStreamPrescalesRun2(connection,psk,smk):
     """returns the express stream prescales for a given HLT prescale key
     @connection - connection string, e.g. TRIGGERDB
     @psk - HLT prescale key
+    @smk - Supermaster key
     @return (ps name, [chainId,prescale),...])
     """
 
-    res = queryHLTPrescaleTableRun2(connection,psk)
+    res = queryHLTPrescaleTableRun2(connection,psk, smk)
 
+    if res == 0:
+        return res
+    
     return [(r) for r in res if r[3]=='express']
 
 
-def queryHLTPrescaleTableRun2(connection,psk):
+
+def getReRunPrescalesRun2(connection,psk,smk):
+    """returns the express stream prescales for a given HLT prescale key
+    @connection - connection string, e.g. TRIGGERDB
+    @psk - HLT prescale key
+    @smk - Supermaster key
+    @return (ps name, [chainId,prescale),...])
+    """
+
+    res = queryHLTPrescaleTableRun2(connection,psk, smk)
+
+    if res == 0:
+        return res
+
+    return [(r) for r in res if r[2]=='ReRun']
+
+
+
+def queryHLTPrescaleTableRun2(connection,psk,smk):
+
+    prescales = getHLTPrescalesFromSMK(connection, smk)
+
+    valid = False
+    for entry in prescales:
+        if psk in entry:
+            valid = True
+
+    if not valid:
+        print "WARNING: Selected HLT Prescale Key not associated with Supermaster key"
+        return 0
 
     cursor,schemaname = getTriggerDBCursor(connection)
 
@@ -844,9 +881,18 @@ def queryHLTPrescaleTableRun2(connection,psk):
     tables = {}
     tables['PS'] = 'HLT_PRESCALE' 
     tables['HTC'] = 'HLT_TRIGGER_CHAIN'
+    tables['TM2TC'] = 'HLT_TM_TO_TC'
+    tables['HTM']  = 'HLT_TRIGGER_MENU'
+    tables['HMT']    = 'HLT_MASTER_TABLE'
+    tables['SM']    = 'SUPER_MASTER_TABLE'
 
     condition = [ "PS.HPR_PRESCALE_SET_ID = :psk",
-                  "HTC.HTC_CHAIN_COUNTER = PS.HPR_CHAIN_COUNTER"
+                  "HTC.HTC_CHAIN_COUNTER = PS.HPR_CHAIN_COUNTER",
+                  "TM2TC.HTM2TC_TRIGGER_CHAIN_ID = HTC.HTC_ID",
+                  "TM2TC.HTM2TC_TRIGGER_MENU_ID = HTM.HTM_ID",
+                  "HTM.HTM_ID = HMT.HMT_TRIGGER_MENU_ID",
+                  "HMT.HMT_ID = SM.SMT_HLT_MASTER_TABLE_ID",
+                  "SM.SMT_ID = %s" % smk 
                   ]
 
     bindvars = { "psk": psk }

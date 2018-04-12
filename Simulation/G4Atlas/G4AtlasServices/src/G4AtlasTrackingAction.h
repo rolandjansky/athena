@@ -11,11 +11,6 @@
 // Geant4 includes
 #include "G4UserTrackingAction.hh"
 
-// Local includes
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "G4AtlasInterfaces/IPostTrackingAction.h"
-
-
 namespace G4UA
 {
 
@@ -24,6 +19,8 @@ namespace G4UA
   ///
   /// Maintains a list of custom tracking actions and when invoked by
   /// Geant4 will forard the call to each of them in turn.
+  ///
+  /// @todo TODO lifetime management of wrapper actions.
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
@@ -46,18 +43,12 @@ namespace G4UA
       void PostUserTrackingAction(const G4Track* trk) override final;
 
       /// @brief Add one action to the list
-      void addPreTrackAction(IPreTrackingAction* action);
-
-      /// @brief Add one action to the list
-      void addPostTrackAction(IPostTrackingAction* action);
+      void addTrackAction(G4UserTrackingAction* action);
 
     private:
 
-      /// List of ATLAS pre-tracking actions
-      std::vector<IPreTrackingAction*> m_preTrackActions;
-
-      /// List of ATLAS post-tracking actions
-      std::vector<IPostTrackingAction*> m_postTrackActions;
+      /// List of ATLAS actions
+      std::vector<G4UserTrackingAction*> m_trackActions;
 
   }; // class G4AtlasTrackingAction
 

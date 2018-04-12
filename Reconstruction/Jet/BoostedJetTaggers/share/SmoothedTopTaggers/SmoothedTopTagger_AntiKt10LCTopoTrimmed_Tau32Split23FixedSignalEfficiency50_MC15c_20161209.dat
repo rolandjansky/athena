@@ -20,6 +20,8 @@
 # - only valid with the combined mass (if using mass)
 ####################################################################################
 
+DecorationName: SmoothTop50Tau32Split23
+
 Var1: Tau32
 Var2: Split23
 

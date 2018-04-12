@@ -112,7 +112,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     std::string MuonSFBranches::name() const {
-        return m_release + (m_release.empty() ? "" : "-") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
+        return m_release + (m_release.empty() ? "" : "_") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
     }
     bool MuonSFBranches::init() {
         for (auto set : CP::make_systematics_vector(m_handle->recommendedSystematics())) {
@@ -152,7 +152,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     std::string MuonReplicaBranches::name() const {
-        return m_release + (m_release.empty() ? "" : "-") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
+        return m_release + (m_release.empty() ? "" : "_") + getProperty<std::string>(m_handle.operator->(), "WorkingPoint");
     }
     bool MuonReplicaBranches::init() {
         for (auto set : CP::make_systematics_vector(m_handle->recommendedSystematics())) {
@@ -209,6 +209,7 @@ namespace TestMuonSF {
                 m_tree(),
                 m_tree_raw_ptr(new TTree("MuonEfficiencyTest", "MuonEfficiencyTest")),
                 m_Branches() {
+        if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
         m_Branches.push_back(EffiBranch_Ptr(new MuonInfoBranches(tree())));
         if (HasOwnerShip) m_tree = std::shared_ptr < TTree > (m_tree_raw_ptr);
     }
@@ -217,12 +218,14 @@ namespace TestMuonSF {
                 m_tree(tree),
                 m_tree_raw_ptr(tree.get()),
                 m_Branches() {
+        if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
     }
     MuonSFTestHelper::MuonSFTestHelper(TTree* tree, const std::string& release_name) :
                 m_name(release_name),
                 m_tree(),
                 m_tree_raw_ptr(tree),
                 m_Branches() {
+        if (release_name.find("/") != std::string::npos) m_name = "c" + release_name.substr(release_name.rfind("/") + 1, m_name.size()); // branches cannot start with number
     }
     MuonSFTestHelper::~MuonSFTestHelper() {
     }

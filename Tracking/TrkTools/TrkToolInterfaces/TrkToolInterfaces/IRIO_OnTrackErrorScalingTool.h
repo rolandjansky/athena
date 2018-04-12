@@ -40,8 +40,6 @@ namespace Trk {
     virtual ~IRIO_OnTrackErrorScalingTool() {}
     static const InterfaceID& interfaceID() //!< AlgTool standard interface
     { return IID_IRIO_OnTrackErrorScalingTool; }
-    virtual StatusCode initialize()=0; //!< AlgTool standard initialisation
-    virtual StatusCode finalize()=0;
     /* The AtlasDetectorID helper does not have an is_endcap method.
        therefore follow a different approach than this one:
       virtual const void

@@ -4,13 +4,16 @@
 
 // System include(s):
 #include <exception>
-#include <iostream>
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/IOpaqueAddress.h"
 
+// EDM include(s):
+#include "xAODForward/versions/AFPTrackContainer_v1.h"
+
 // Local include(s):
 #include "xAODAFPTrackContainerCnv.h"
+#include "xAODAFPTrackContainerCnv_v1.h"
 
 
 namespace {
@@ -23,8 +26,6 @@ namespace {
    
     // Give it to the container:
     cont->setStore( link );
-    
-    return;
   }
     
 } // private namespace
@@ -53,7 +54,6 @@ StatusCode xAODAFPTrackContainerCnv::createObj( IOpaqueAddress* pAddr,
  
 xAOD::AFPTrackContainer* xAODAFPTrackContainerCnv::createPersistent( xAOD::AFPTrackContainer* trans )
 {
- 
   // Create a view copy of the container:
   xAOD::AFPTrackContainer* result =
     new xAOD::AFPTrackContainer( trans->begin(), trans->end(),
@@ -74,25 +74,39 @@ xAOD::AFPTrackContainer* xAODAFPTrackContainerCnv::createTransient()
 {
   // The known ID(s) for this container:
   static pool::Guid v1_guid( "EF887FA6-D17C-4D30-A2E6-3F46CA2EB44B" );
+  static pool::Guid v2_guid( "2BCE47B1-7C55-48D0-AFA7-01563154AD02" );
  
   // Check if we're reading the most up to date type:
-  if( compareClassGuid( v1_guid ) ) {
+  if( compareClassGuid( v2_guid ) ) {
     xAOD::AFPTrackContainer* c =
       poolReadObject< xAOD::AFPTrackContainer >();
     setStoreLink( c, m_key );
     return c;
-  }
+  } else if( compareClassGuid( v1_guid ) ) {
+
+      // The v1 converter:
+      static xAODAFPTrackContainerCnv_v1 converter;
+
+      // Read in the v1 version:
+      std::unique_ptr< xAOD::AFPTrackContainer_v1 >
+         old( poolReadObject< xAOD::AFPTrackContainer_v1 >() );
+
+      // Return the converted object:
+      xAOD::AFPTrackContainer* c =
+         converter.createTransient( old.get(), msg() );
+      setStoreLink( c, m_key );
+      return c;
+   }
+ 
  
   // If we didn't recognise the ID, let's complain:
   throw std::runtime_error( "Unsupported version of "
 			    "xAOD::AFPTrackContainer found" );
-  return 0;
+  return nullptr;
 }
  
 void xAODAFPTrackContainerCnv::toPersistent( xAOD::AFPTrack* track ) const {
  
   // Tell the object to prepare all its smart pointers for persistification:
   track->toPersistent();
- 
-  return;
 }

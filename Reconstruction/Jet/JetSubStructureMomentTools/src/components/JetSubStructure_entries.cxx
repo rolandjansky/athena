@@ -11,6 +11,8 @@
 #include "JetSubStructureMomentTools/CenterOfMassShapesTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureMomentTools/JetChargeTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
@@ -20,6 +22,8 @@
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
 #include "JetSubStructureMomentTools/Validator.h"
 #include "JetSubStructureMomentTools/QwTool.h"
+#include "JetSubStructureMomentTools/VariableRPseudoJetCalTool.h"
+#include "JetSubStructureMomentTools/HEPTopTaggerMomentsTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 
@@ -34,6 +38,8 @@ DECLARE_TOOL_FACTORY(PlanarFlowTool)
 DECLARE_TOOL_FACTORY(CenterOfMassShapesTool)
 DECLARE_TOOL_FACTORY(EnergyCorrelatorTool)
 DECLARE_TOOL_FACTORY(EnergyCorrelatorRatiosTool)
+DECLARE_TOOL_FACTORY(EnergyCorrelatorGeneralizedTool)
+DECLARE_TOOL_FACTORY(EnergyCorrelatorGeneralizedRatiosTool)
 DECLARE_TOOL_FACTORY(JetPullTool)
 DECLARE_TOOL_FACTORY(JetChargeTool)
 DECLARE_TOOL_FACTORY(VolatilityTool)
@@ -43,6 +49,8 @@ DECLARE_TOOL_FACTORY(SubjetFinderTool)
 DECLARE_TOOL_FACTORY(SubjetRecorderTool)
 DECLARE_TOOL_FACTORY(Validator)
 DECLARE_TOOL_FACTORY(QwTool)
+DECLARE_TOOL_FACTORY(VariableRPseudoJetCalTool)
+DECLARE_TOOL_FACTORY(HEPTopTaggerMomentsTool)
 
 DECLARE_FACTORY_ENTRIES(JetSubStructureMomentTools) {
   DECLARE_TOOL(KtDeltaRTool)
@@ -56,6 +64,8 @@ DECLARE_FACTORY_ENTRIES(JetSubStructureMomentTools) {
   DECLARE_TOOL(CenterOfMassShapesTool)
   DECLARE_TOOL(EnergyCorrelatorTool)
   DECLARE_TOOL(EnergyCorrelatorRatiosTool)
+  DECLARE_TOOL(EnergyCorrelatorGeneralizedTool)
+  DECLARE_TOOL(EnergyCorrelatorGeneralizedRatiosTool)
   DECLARE_TOOL(JetPullTool)
   DECLARE_TOOL(JetChargeTool)
   DECLARE_TOOL(VolatilityTool)
@@ -65,5 +75,7 @@ DECLARE_FACTORY_ENTRIES(JetSubStructureMomentTools) {
   DECLARE_TOOL(SubjetRecorderTool)
   DECLARE_TOOL(Validator)
   DECLARE_TOOL(QwTool)
+  DECLARE_TOOL(VariableRPseudoJetCalTool)
+  DECLARE_TOOL(HEPTopTaggerMomentsTool)
 }
 

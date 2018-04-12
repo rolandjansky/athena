@@ -40,8 +40,8 @@ TauVertexVariables::TauVertexVariables(const std::string &name ) :
   declareProperty("VertexFitter", m_fitTool);
   declareProperty("SeedFinder", m_SeedFinder);
   declareProperty("XAODConverter",m_xaodConverter);
-  declareProperty("useOldSeedFinderAPI",m_useOldSeedFinderAPI);
-  declareProperty("runOnAOD", m_AODmode);//AODS are input file 
+  declareProperty("useOldSeedFinderAPI",m_useOldSeedFinderAPI=false);
+  declareProperty("runOnAOD", m_AODmode=false);//AODS are input file 
 }
 
 //-----------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        ConfiguredJetCleaningTools
@@ -41,7 +41,7 @@ from JetSelectorTools.JetCleaningCutDefs import *
 #
 #    return tool
 
-def EventCleaningTool(name='EventCleaningTool'):
+def recEventCleaningTool(name='EventCleaningTool'):
     """
     Arguments:
       name                  - set the name of the master tool.

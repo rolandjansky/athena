@@ -41,9 +41,9 @@ SUSY4ThinningHelper.AppendToStream( SUSY4Stream )
 # THINNING TOOLS 
 #====================================================================
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 # TrackParticles directly
 #SUSY4TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY4TPThinningTool",
 #                                                                 ThinningService         = SUSY4ThinningHelper.ThinningSvc(),
@@ -132,7 +132,10 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING TOOL 
 #====================================================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY4)
+
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY4)
+
 muonsRequirements = '(Muons.pt >= 15.*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 15.*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHLoose))'
 #jetRequirements = '(AntiKt4EMTopoJets.JetConstitScaleMomentum_pt - AntiKt4EMTopoJets.ActiveArea4vec_pt * Kt4EMTopoEventShape.Density >= 22.*GeV && (abs(AntiKt4EMTopoJets.JetConstitScaleMomentum_eta)<2.2))'
@@ -141,12 +144,15 @@ jetRequirements = '(AntiKt4EMTopoJets.DFCommonJets_Calib_pt >= 40.*GeV && abs(An
 # expression = '(((count('+electronsRequirements+') + count('+muonsRequirements+') >= 1) && (count('+jetRequirements+') >=3)) || ((count('+electronsRequirements+') + count('+muonsRequirements+') >= 2) && (count('+jetRequirements+') >=2)) || (HLT_5j.*) || (HLT_6j.*) || (HLT_7j.*) )'
 expression = '(((count('+electronsRequirements+') + count('+muonsRequirements+') >= 1) && (count('+jetRequirements+') >=3)) || ((count('+electronsRequirements+') + count('+muonsRequirements+') >= 2) && (count('+jetRequirements+') >=2)) )'
 
+triggers = ["HLT_5j.*", "HLT_6j.*", "HLT_7j.*", "HLT_g45_loose_5j45_0eta240", "HLT_g45_loose_6j45_0eta240"]
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool, DerivationFramework__TriggerSkimmingTool, DerivationFramework__FilterCombinationOR
 SUSY4ObjectSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY4ObjectSkimmingTool",
                                                                 expression = expression)
 ToolSvc += SUSY4ObjectSkimmingTool
+# Multijet and Multijet + photon triggers
 SUSY4TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY4TrigSkimmingTool",
-                                                                  TriggerListOR = ["HLT_5j.*", "HLT_6j.*", "HLT_7j.*"])
+                                                                  TriggerListOR = triggers)
 ToolSvc += SUSY4TrigSkimmingTool
 SUSY4SkimmingTool = DerivationFramework__FilterCombinationOR( name = "SUSY4SkimmingTool",
                                                               FilterList = [SUSY4ObjectSkimmingTool, SUSY4TrigSkimmingTool])
@@ -173,9 +179,9 @@ TrackIsoTool500.TrackSelectionTool.CutLevel= "Loose"
 ToolSvc += TrackIsoTool500
 
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
-import ROOT, PyCintex
-PyCintex.loadDictionary('xAODCoreRflxDict')
-PyCintex.loadDictionary('xAODPrimitivesDict')
+import ROOT, cppyy
+cppyy.loadDictionary('xAODCoreRflxDict')
+cppyy.loadDictionary('xAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 Pt1000IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt1000IsoTrackDecorator",
                                                                 TrackIsolationTool = TrackIsoTool,

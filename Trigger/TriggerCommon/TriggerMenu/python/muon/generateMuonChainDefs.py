@@ -7,9 +7,12 @@ __author__  = 'M.Woudstra, Y.Nakahama, K.Nagano'
 __doc__="Definition of muon chains as used v4- menu" 
 
 from AthenaCommon.Logging import logging
-logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger( 'TriggerMenu.muon.generateMuonChainDefs.py' )
+log.info("Importing %s",__name__)
 
 from TriggerMenu.muon.MuonDef import L2EFChain_mu as L2EFChain_mu
+import traceback
+
 try:
     from TriggerMenu.muon.MuonDefIdTest import L2EFChain_mu as L2EFChain_mu_IdTest
 except:
@@ -17,7 +20,7 @@ except:
     log.info(traceback.print_exc())
 
 
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.menu.MenuUtils import splitChainDict,mergeChainDefs
 
 ###########################################################################
 ###########################################################################
@@ -49,6 +52,10 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
     if (len(listOfChainDicts) > 1): asymDiMuonChain = True
     else: asymDiMuonChain = False
 
+    asymMultiMuonChain = False
+    if(len(listOfChainDicts) > 1 and "noL1" not in chainDict["chainName"] and sum(map(int, [subChainDict["chainParts"]["multiplicity"] for subChainDict in listOfChainDicts])) > 1):
+        asymMultiMuonChain = True
+
     modifyNscanInputTE = False
     modifyCalotagInputTE = False
 
@@ -62,7 +69,7 @@ def generateChainDefs(chainDict, thisIsBphysChain=False):
             else:
                 AllMuons=[]
 
-            Muon = L2EFChain_mu(subChainDict, asymDiMuonChain, AllMuons, thisIsBphysChain)
+            Muon = L2EFChain_mu(subChainDict, asymDiMuonChain, asymMultiMuonChain, AllMuons, thisIsBphysChain)
 
         listOfChainDefs += [Muon.generateHLTChainDef()]
         
@@ -117,7 +124,7 @@ def _modifyTEinChainDef(theChainDef,chainDict):
 
 def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
-    maxL2SignatureIndex = -1
+    #maxL2SignatureIndex = -1
     # for signatureIndex,signature in enumerate(theChainDef.signatureList):
     #     if signature['listOfTriggerElements'][0][0:2] == "L2":
     #         maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
@@ -159,10 +166,6 @@ def _AsymmChainConfig(theChainDef,chainDict):
     
     inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements'] 
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
-
-    L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']   
 
     idmultiArr = []
     listOfChainDicts = splitChainDict(chainDict)

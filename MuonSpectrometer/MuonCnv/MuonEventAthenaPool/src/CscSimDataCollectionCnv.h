@@ -8,6 +8,7 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollectionCnv_p1.h"
+#include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollectionCnv_p2.h"
 
 // the latest persistent representation type of DataCollection:
 typedef  Muon::CscSimDataCollection_p1  CscSimDataCollection_PERS;
@@ -30,6 +31,7 @@ public:
 
 private:
     CscSimDataCollectionCnv_p1    m_TPConverter_p1;
+    CscSimDataCollectionCnv_p2    m_TPConverter_p2;
 };
 
 #endif

@@ -119,11 +119,13 @@ NTupleSvc.Output = [ "FILE1 DATAFILE='Ntuple.root' OPT='NEW'" ]
 # - ex1: change the verbosity 
 #simFlags.G4Commands += ['/tracking/verbose 3']
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 #==============================================================
 # Job configuration
 #==============================================================
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 #--- LArH6 setup description  ----------------------------------
 # Adding TB specific output

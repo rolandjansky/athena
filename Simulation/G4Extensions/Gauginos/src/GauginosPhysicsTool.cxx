@@ -29,11 +29,8 @@
 //=============================================================================
 GauginosPhysicsTool::GauginosPhysicsTool( const std::string& type,
                                           const std::string& nam,const IInterface* parent )
-  : AthAlgTool ( type, nam , parent )
+  : base_class ( type, nam , parent )
 {
-  ATH_MSG_DEBUG("GauginosPhysicsTool "<<type<<" "<<nam);
-  declareInterface< IPhysicsOptionTool >( this ) ;
-
   declareProperty("GravitinoMass",GravitinoMass=0.108E-04*CLHEP::GeV,"Gravitino Mass");
   declareProperty("GravitinoWidth",GravitinoWidth=0.*CLHEP::GeV,"Gravitino Width");
   declareProperty("GravitinoCharge",GravitinoCharge=0,"Gravitino charge");

@@ -10,7 +10,7 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 // System include(s):
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 // Local include(s):
 #include "PATInterfaces/ISystematicsTool.h"
@@ -152,7 +152,7 @@ namespace CP {
       SystematicSet* m_appliedSystematics;
 
       /// map of cached systematics filtering
-      boost::unordered_map<SystematicSet, SystematicSet> m_systFilterMap;
+      std::unordered_map<SystematicSet, SystematicSet> m_systFilterMap;
 
    }; // class SystematicsTool
 

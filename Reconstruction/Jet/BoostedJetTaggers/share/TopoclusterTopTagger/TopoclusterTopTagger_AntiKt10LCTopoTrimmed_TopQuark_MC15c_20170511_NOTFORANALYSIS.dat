@@ -15,7 +15,7 @@
 
 TaggerType: TopQuark
 
-DecorationName: TopoclusterTopTaggerScoreTopQuark
+DecorationName: TopoclusterTopTaggerTopQuark
 
 CalibArea: BoostedJetTaggers/TopoclusterTopTagger/Boost2017/
 #CalibArea: Local

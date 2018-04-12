@@ -24,6 +24,8 @@ class TFile;
 
 namespace InDet {
 
+  class IInDetTrackTruthOriginTool;
+
   /// @class JetTrackFilterTool
   /// This tool randomly discards tracks in the core of a jet
   /// @author Felix Clark (michael.ryan.clark@cern.ch)
@@ -74,6 +76,15 @@ namespace InDet {
     
     TH1* m_effForJetPt = nullptr; //!
     TH2* m_trkNomEff = nullptr; //!
+
+    // allow the user to configure which calibration files to use if desired
+    std::string m_calibFileNomEff;
+    std::string m_calibFileJetEff;
+
+    double m_fakeUncertTIDE = 0.25;
+
+    ToolHandle< IInDetTrackTruthOriginTool > m_trackOriginTool;
+
 
 }; // class JetTrackFilterTool
 

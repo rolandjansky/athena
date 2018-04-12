@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ISFG4GEOHELPER_H
-#define ISFG4GEOHELPER_H
+#ifndef ISF_GEANT4EVENT_ISFG4GEOHELPER_H
+#define ISF_GEANT4EVENT_ISFG4GEOHELPER_H
 
 
-#include "AtlasDetDescr/AtlasRegion.h" 
+#include "AtlasDetDescr/AtlasRegion.h"
 #include "G4Step.hh"
 #include "ISF_Interfaces/IGeoIDSvc.h"
 

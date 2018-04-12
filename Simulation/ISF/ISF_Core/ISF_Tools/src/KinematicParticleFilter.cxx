@@ -14,12 +14,10 @@
 
 /** Constructor **/
 ISF::KinematicParticleFilter::KinematicParticleFilter(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   KinematicParticleCuts(),
   m_maxEtaSym(3.0f)
 {
-  declareInterface<ISF::IParticleFilter>(this);
-
   declareProperty( "MaxEtaSymmetric",
                    m_maxEtaSym=3.0,
                    "Particle momentum pseudorapidity cut");

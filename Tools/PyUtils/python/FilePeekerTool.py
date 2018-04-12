@@ -161,41 +161,45 @@ class FilePeekerTool():
         # more event-less files handling - APR-from-BS-event-less files
         # see bug#98568
         if len (peeked_data['run_number']) == 0 and meta.FindBranch('ByteStreamMetadata'):
-            bsmd = cppyy.gbl.ByteStreamMetadataPTCnv_p1()
-#            peeked_data['nentries'] = [bsmd.getNumEvents(meta.ByteStreamMetadata[0])]
-            peeked_data['lumi_block'] = [bsmd.getLumiBlock(meta.ByteStreamMetadata[0])]
-            peeked_data['run_number'] = [bsmd.getRunNumber(meta.ByteStreamMetadata[0])]
-#            peeked_data['stream_names'] = [bsmd.getStream(meta.ByteStreamMetadata[0])]
-            peeked_data['beam_type'] = [bsmd.getBeamType(meta.ByteStreamMetadata[0])]
-            peeked_data['beam_energy'] = [bsmd.getBeamEnergy(meta.ByteStreamMetadata[0])]
             bs_metadata = {}
-            for md in bsmd.getFreeMetaDataStrings(meta.ByteStreamMetadata[0]):
-                if md.startswith('Event type:'):
-                    k = 'evt_type'
-                    v = []
-                    if 'is sim' in md:   v.append('IS_SIMULATION')
-                    else:                v.append('IS_DATA')
-                    if 'is atlas' in md: v.append('IS_ATLAS')
-                    else:                v.append('IS_TESTBEAM')
-                    if 'is physics' in md: v.append('IS_PHYSICS')
-                    else:                  v.append('IS_CALIBRATION')
-                    bs_metadata[k] = tuple(v)
-                elif md.startswith('GeoAtlas:'):
-                    k = 'geometry'
-                    v = md.split('GeoAtlas:')[1].strip()
-                    bs_metadata[k] = v
-                elif md.startswith('IOVDbGlobalTag:'):
-                    k = 'conditions_tag'
-                    v = md.split('IOVDbGlobalTag:')[1].strip()
-                    bs_metadata[k] = v
-                elif '=' in md:
-                    k,v = md.split('=')
-                    bs_metadata[k] = v
-                    pass
+            try:
+                bsmd = cppyy.gbl.ByteStreamMetadataPTCnv_p1()
+            #            peeked_data['nentries'] = [bsmd.getNumEvents(meta.ByteStreamMetadata[0])]
+                peeked_data['lumi_block'] = [bsmd.getLumiBlock(meta.ByteStreamMetadata[0])]
+                peeked_data['run_number'] = [bsmd.getRunNumber(meta.ByteStreamMetadata[0])]
+            #            peeked_data['stream_names'] = [bsmd.getStream(meta.ByteStreamMetadata[0])]
+                peeked_data['beam_type'] = [bsmd.getBeamType(meta.ByteStreamMetadata[0])]
+                peeked_data['beam_energy'] = [bsmd.getBeamEnergy(meta.ByteStreamMetadata[0])]
+                for md in bsmd.getFreeMetaDataStrings(meta.ByteStreamMetadata[0]):
+                    if md.startswith('Event type:'):
+                        k = 'evt_type'
+                        v = []
+                        if 'is sim' in md:   v.append('IS_SIMULATION')
+                        else:                v.append('IS_DATA')
+                        if 'is atlas' in md: v.append('IS_ATLAS')
+                        else:                v.append('IS_TESTBEAM')
+                        if 'is physics' in md: v.append('IS_PHYSICS')
+                        else:                  v.append('IS_CALIBRATION')
+                        bs_metadata[k] = tuple(v)
+                    elif md.startswith('GeoAtlas:'):
+                        k = 'geometry'
+                        v = md.split('GeoAtlas:')[1].strip()
+                        bs_metadata[k] = v
+                    elif md.startswith('IOVDbGlobalTag:'):
+                        k = 'conditions_tag'
+                        v = md.split('IOVDbGlobalTag:')[1].strip()
+                        bs_metadata[k] = v
+                    elif '=' in md:
+                        k,v = md.split('=')
+                        bs_metadata[k] = v
+                        pass
 
-            # ATMETADATA-6: without FreeMetaDataStrings this must be BS file from SFO
-            bs_metadata['Stream'] = bsmd.getStream(meta.ByteStreamMetadata[0])
-            bs_metadata['Project'] = bsmd.getProject(meta.ByteStreamMetadata[0])
+                # ATMETADATA-6: without FreeMetaDataStrings this must be BS file from SFO
+                bs_metadata['Stream'] = bsmd.getStream(meta.ByteStreamMetadata[0])
+                bs_metadata['Project'] = bsmd.getProject(meta.ByteStreamMetadata[0])
+            except AttributeError:
+                print >> stdout, 'Error extracting bytestream metadata from data file, will return only minimal metadata'
+
             if len(bs_metadata.get('evt_type','')) == 0 :
                 evt_type = ['IS_DATA', 'IS_ATLAS']
             if   bs_metadata.get('Stream', '').startswith('physics_'):
@@ -213,6 +217,7 @@ class FilePeekerTool():
             peeked_data['conditions_tag'] = bs_metadata.get('conditions_tag', None)
             peeked_data['bs_metadata'] = bs_metadata
             pass
+
 
         cnv = cppyy.gbl.IOVMetaDataContainerPTCnv_p1()
 

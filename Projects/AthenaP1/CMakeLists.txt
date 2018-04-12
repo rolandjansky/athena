@@ -1,3 +1,4 @@
+
 # The minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
@@ -29,6 +30,19 @@ find_package( AtlasCMake QUIET )
 find_package( AthenaExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
+# Load all the files from the externals/ subdirectory:
+file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
+foreach( _external ${_externals} )
+   include( ${_external} )
+   get_filename_component( _extName ${_external} NAME_WE )
+   string( TOUPPER ${_extName} _extNameUpper )
+   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_ROOT}" )
+   unset( _extName )
+   unset( _extNameUpper )
+endforeach()
+unset( _external )
+unset( _externals )
+
 # Disable the usage of the --no-undefined linker flag:
 atlas_disable_no_undefined()
 
@@ -40,6 +54,10 @@ atlas_project( AthenaP1 ${ATHENAP1_PROJECT_VERSION}
    USE AthenaExternals 0.0.1
    PROJECT_ROOT ${CMAKE_SOURCE_DIR}/../../
    FORTRAN )
+
+# Install the external configurations:
+install( DIRECTORY ${CMAKE_SOURCE_DIR}/externals
+   DESTINATION ${CMAKE_INSTALL_CMAKEDIR} USE_SOURCE_PERMISSIONS )
 
 # Generate the environment setup for the externals, to be used during the build:
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )

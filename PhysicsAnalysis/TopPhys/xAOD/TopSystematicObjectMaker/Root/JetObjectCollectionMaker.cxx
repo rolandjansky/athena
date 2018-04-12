@@ -238,33 +238,55 @@ StatusCode JetObjectCollectionMaker::initialize() {
   m_config->systematicsLargeRJets( specifiedSystematicsLargeR() );
   m_config->systematicsTrackJets( m_specifiedSystematicsTrackJets );
 
+  ///-- DL1 Decoration --///
+  m_btagSelToolsDL1Decor["DL1"]    = "BTaggingSelectionTool_forEventSaver_DL1_"+m_config->sgKeyJets();
+  m_btagSelToolsDL1Decor["DL1mu"]  = "BTaggingSelectionTool_forEventSaver_DL1mu_"+m_config->sgKeyJets();
+  m_btagSelToolsDL1Decor["DL1rnn"] = "BTaggingSelectionTool_forEventSaver_DL1rnn_"+m_config->sgKeyJets();
+  top::check(m_btagSelToolsDL1Decor["DL1"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+  top::check(m_btagSelToolsDL1Decor["DL1mu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+  top::check(m_btagSelToolsDL1Decor["DL1rnn"].retrieve(), "Failed to retrieve eventsaver btagging selector");
+  // Store a lightweight flag to limit error messages if the DL1 weights are not present                                                                                           
+  m_DL1Possible = true;
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetObjectCollectionMaker::executeJets() {
+StatusCode JetObjectCollectionMaker::executeJets(bool executeNominal) {
   bool isLargeR(false);
-  return execute( isLargeR );
+  return execute( isLargeR, executeNominal );
 }
 
-StatusCode JetObjectCollectionMaker::executeLargeRJets() {
+StatusCode JetObjectCollectionMaker::executeLargeRJets(bool executeNominal) {
   bool isLargeR(true);
-  return execute( isLargeR );
+  return execute( isLargeR, executeNominal );
 }
 
-StatusCode JetObjectCollectionMaker::execute( const bool isLargeR ) {
-  // decorating the HS jets with truth info on which are HS jets
-  if (!isLargeR & m_config->isMC()) {
-    top::check( decorateHSJets() , "Failed to decorate jets with truth info of which are HS - this is needed for JVT scale-factors!");
-  }
+StatusCode JetObjectCollectionMaker::execute( const bool isLargeR, bool executeNominal ) {
+    
+  ///-- Run nominal first, if executing nominal
+  if(executeNominal){
+    // decorating the HS jets with truth info on which are HS jets
+    if (!isLargeR & m_config->isMC()) {
+      top::check( decorateHSJets() , "Failed to decorate jets with truth info of which are HS - this is needed for JVT scale-factors!");
+    }
   
-  ///-- First calibrate the nominal jets, everything else comes from this, so let's only do it once not 3000 times --///
-  top::check( calibrate( isLargeR ) , "Failed to calibrate jets");
+    // Decorate the DL1 variable
+    top::check( decorateDL1() , "Failed to decorate jets with DL1 b-tagging discriminant");
 
+    ///-- First calibrate the nominal jets, everything else comes from this, so let's only do it once not 3000 times --///
+    top::check( calibrate( isLargeR ) , "Failed to calibrate jets");
+    
+    ///-- Return after calibrating the nominal --///
+    return StatusCode::SUCCESS;
+  }
+    
+  ///-- Systematics from here --///
+    
   // No uncertainties yet for pflow
   // - return SUCCESS after calibration
   if (m_config->useParticleFlowJets())
     return StatusCode::SUCCESS;
-
+    
   ///-- JES, JER regular atk4 for now --///
   if (!isLargeR) {
     ///-- JES --///
@@ -539,8 +561,11 @@ StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<IJERSmearingTool
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetObjectCollectionMaker::executeTrackJets() {
+StatusCode JetObjectCollectionMaker::executeTrackJets(bool executeNominal) {
   ///-- No calibrations or systematics yet --///
+  ///-- Only run this on the nominal execution --///
+  if(!executeNominal) return StatusCode::SUCCESS;
+    
   ///-- Just make a shallow copy to keep these in line with everything else --///
 
   const xAOD::JetContainer* xaod(nullptr);
@@ -711,6 +736,43 @@ StatusCode JetObjectCollectionMaker::decorateHSJets() {
       if (tjet->p4().DeltaR(jet->p4())<0.3 && tjet->pt()>10e3) ishs = true;
     }
     isHS(*jet)=ishs;
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode JetObjectCollectionMaker::decorateDL1() {
+  // initialise decorators
+  static const SG::AuxElement::Decorator<float> DL1("AnalysisTop_DL1");
+  static const SG::AuxElement::Decorator<float> DL1mu("AnalysisTop_DL1mu");
+  static const SG::AuxElement::Decorator<float> DL1rnn("AnalysisTop_DL1rnn");
+
+  // Default value
+  double DL1_weight, DL1mu_weight, DL1rnn_weight = -999;
+
+  // retrieve small-R jets collection
+  const xAOD::JetContainer* jets(nullptr);
+  top::check( evtStore()->retrieve( jets , m_config->sgKeyJets() ) , "Failed to retrieve small-R jet collection"+m_config->sgKeyJets() );
+
+  for(const auto& jet : *jets) {
+    // Suppress warnings if the DL1 weights do not exist and avoid repeated failed computation
+    if(m_DL1Possible){
+      if(! m_btagSelToolsDL1Decor["DL1"]->getTaggerWeight(*jet, DL1_weight) ){
+	DL1_weight = -999;
+	m_DL1Possible = false;
+      }
+      if(! m_btagSelToolsDL1Decor["DL1mu"]->getTaggerWeight(*jet, DL1mu_weight) ){
+	DL1mu_weight = -999;
+	m_DL1Possible = false;
+      }
+      if(! m_btagSelToolsDL1Decor["DL1rnn"]->getTaggerWeight(*jet, DL1rnn_weight) ){
+	DL1rnn_weight = -999;
+	m_DL1Possible = false;
+      }
+    }
+    DL1(*jet)    = DL1_weight;
+    DL1mu(*jet)  = DL1mu_weight;    
+    DL1rnn(*jet) = DL1rnn_weight;
   }
 
   return StatusCode::SUCCESS;

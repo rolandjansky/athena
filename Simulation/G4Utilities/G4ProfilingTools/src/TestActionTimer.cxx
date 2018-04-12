@@ -100,7 +100,7 @@ namespace G4UA{
     
   }
 
-  void TestActionTimer::beginOfEvent(const G4Event*){
+  void TestActionTimer::BeginOfEventAction(const G4Event*){
 
     
     m_report.nev++;
@@ -117,7 +117,7 @@ namespace G4UA{
     return;
   }
   
-  void TestActionTimer::endOfEvent(const G4Event*){
+  void TestActionTimer::EndOfEventAction(const G4Event*){
  
     m_report.runTime += TimerSum(m_runTimer);
     m_eventTime = TimerSum(m_eventTimer);
@@ -129,7 +129,7 @@ namespace G4UA{
     
   }
   
-  void TestActionTimer::beginOfRun(const G4Run*){
+  void TestActionTimer::BeginOfRunAction(const G4Run*){
 
     
     m_report.runTime=0.;
@@ -138,14 +138,14 @@ namespace G4UA{
     return;
   }
   
-  void TestActionTimer::endOfRun(const G4Run*){
-    std::cerr<<"TestActionTimer::endOfRun "<< m_report.runTime <<std::endl;    
+  void TestActionTimer::EndOfRunAction(const G4Run*){
+    std::cerr<<"TestActionTimer::EndOfRunAction "<< m_report.runTime <<std::endl;
     m_report.runTime += TimerSum(m_runTimer);
     VPanic();
     PPanic();
   }
   
-  void TestActionTimer::processStep(const G4Step* aStep){
+  void TestActionTimer::UserSteppingAction(const G4Step* aStep){
     
     // HERE IS WHERE WE BEGIN OUR CLOCKING
     

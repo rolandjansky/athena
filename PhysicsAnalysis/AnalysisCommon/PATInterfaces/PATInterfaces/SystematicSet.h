@@ -84,7 +84,7 @@ namespace CP
     void swap(SystematicSet& otherSet);
 
     /// description: clear the set
-    void clear() { return m_sysVariations.clear(); }
+    void clear();
 
   public:
     // Specialized search and filtering methods
@@ -172,11 +172,6 @@ namespace CP
     /// unordered containers
     mutable std::size_t m_hash;
     mutable bool m_hashIsCached;
-
-    /// description: flags this set as already cached using
-    /// its current full set of systematics. Is set to false
-    /// when the set is modified.
-    //bool m_isCached;
 
   };
 

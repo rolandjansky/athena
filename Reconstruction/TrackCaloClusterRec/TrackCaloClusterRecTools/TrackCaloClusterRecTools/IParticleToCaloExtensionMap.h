@@ -14,16 +14,16 @@ class IParticleToCaloExtensionMap {
   IParticleToCaloExtensionMap();
   ~IParticleToCaloExtensionMap();
   
-  void addEntry(const xAOD::IParticle& particle, const Trk::TrackParameters& extension);
-  const Trk::TrackParameters*  readCaloEntry(const xAOD::IParticle* particle) const;
+  void addEntry(const xAOD::IParticle& particle, const Trk::CurvilinearParameters& extension);
+  const Trk::CurvilinearParameters*  readCaloEntry(const xAOD::IParticle* particle) const;
   unsigned int size() const;
 
  private :
-  std::map<const xAOD::IParticle*, const Trk::TrackParameters* > m_caloExtensionMap;
+  std::map<const xAOD::IParticle*, const Trk::CurvilinearParameters > m_caloExtensionMap;
 
 };
 
 #include "SGTools/CLASS_DEF.h"
-CLASS_DEF( IParticleToCaloExtensionMap , 221362399 , 1 )
+CLASS_DEF( IParticleToCaloExtensionMap , 221362399 , 2 )
 
 #endif // TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECTOOLS_IPARTICLETOCALEXTENSIONMAP_H

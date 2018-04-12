@@ -144,6 +144,12 @@ namespace egEnergyCorr {
       // ... Layer scale variations : data driven, uncorrelated vs eta
       PSUp, PSDown, S12Up, S12Down,
 
+      //PS correlated contribution
+      PSb12Up, PSb12Down,
+
+      // topo cluster threshold
+      topoClusterThresUp,topoClusterThresDown,
+
       // extra E12 for es2017 run2
       S12ExtraLastEtaBinRun2Up, S12ExtraLastEtaBinRun2Down,
 
@@ -161,6 +167,9 @@ namespace egEnergyCorr {
 
       // PP0
       MatPP0Up, MatPP0Down,
+
+      // AF2 systematics
+      af2Up, af2Down,
 
       // The following apply to photons only
 
@@ -211,13 +220,19 @@ namespace egEnergyCorr {
     es2017,                 // Moriond 2017
     es2017_summer,          // Summer 2017
     es2017_summer_improved, // Recommendations for Higgs mass paper
+    es2017_summer_final,    // Final 20.7 recommendations
+
+    es2015_5TeV,            // For 2015 low mu 5 TeV runs
+
     es2017_R21_PRE,         // Pre-recommendations for release 21
+
+    es2017_R21_v0,          // Release 21 model with layer calibration corrections from run 2, no global scale correction
     
     UNDEFINED
 
   };
 
-  // Geometry dostortions
+  // Geometry distortions
 
   enum Geometry {
     ConfigA=0,     // 5% ID material scaling
@@ -430,7 +445,7 @@ namespace AtlasRoot {
     void getResolution_systematics(int particle_type, double energy, double eta, double etaCalo, int syst_mask, double& resolution, double& resolution_error,double& resolution_error_up, double & resolution_error_down, int resol_type=0) const;
 
     // approximate pileup noise contribution to the resolution
-    double pileUpTerm(double eta, int particle_type) const;
+    double pileUpTerm(double energy, double eta, int particle_type) const;
 
   private:
 
@@ -447,11 +462,13 @@ namespace AtlasRoot {
 
     TH1D*         m_aPSNom;
     TH1D*         m_daPSCor;
+    TH1D*         m_daPSb12;
     TH1D*         m_aS12Nom;
     TH1D*         m_daS12Cor;
 
     TH1D*         m_zeeNom;
     TH1D*         m_zeeNom_data2015;
+    TH1D*         m_zeeNom_data2016;
 
     TH1D*         m_zeeSyst;
     TH1D*         m_zeePhys;

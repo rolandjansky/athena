@@ -57,9 +57,12 @@ nb=64
 # prestore some common configurations that can be called through the option FTKSetupTag
 FTKTagOptions = {}
 
-FTKTagOptions['SectorsAsPatterns12L32b3DHWMode2'] = \
-     {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
+FTKTagOptions['SaP_Reb64_12L'] = \
+     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
       'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SaP_Reb64_8L'] = \
+     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
+      'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions["TDRv0"] = \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_11L.pmap', \
          'loadHWConf_path': 'raw_11L.hw'}
@@ -90,24 +93,6 @@ FTKTagOptions['SectorsAsPatterns32Tower12L3D'] = \
 FTKTagOptions['SectorsAsPatterns32Tower8L3D'] = \
     {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
      'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatterns3D'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatterns12L3D'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl3D.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatterns3Dv2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatterns12L3Dv2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl3D.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatterns8L64b3DHWMode2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-FTKTagOptions['SectorsAsPatterns12L64b3DHWMode2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions["HWMode2Test32Tower"] = \
    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
@@ -126,42 +111,6 @@ FTKTagOptions["64Tower2017.v1"] = \
 FTKTagOptions["64Tower2017.v2"] = \
    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
          'loadHWConf_path': 'raw_8LcIbl123.hw'}
-FTKTagOptions['SectorsAsPatterns'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns12L'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns12L64b'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns12L64bHWMode2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns12L32b'] = \
-    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns12L32bHWMode2'] = \
-    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns8L64b'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns8L64bHWMode2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns8L32b'] = \
-    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns8L32bHWMode2'] = \
-    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatternsHWMode2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
-     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
-FTKTagOptions['SectorsAsPatterns12LHWMode2'] = \
-    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
-     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
 
 FTKTagOptions['FitITk'] = {
     'MergeRoads' : True ,

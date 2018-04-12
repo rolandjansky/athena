@@ -360,9 +360,6 @@ if hasattr(runArgs,"outputRDOFile") or hasattr(runArgs,"tmpRDO"):
 else:
     fast_chain_log.info("no output file (outputRDOFile or tmpRDO) specified - switching off output StreamRDO")
 
-# force writing of RDO file
-fast_chain_log.info('Forcing writeRDOPool all on')
-DetFlags.writeRDOPool.all_setOn()
 
 #--------------------------------------------------------------
 # Go for it

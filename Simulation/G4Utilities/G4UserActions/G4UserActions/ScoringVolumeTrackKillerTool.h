@@ -4,8 +4,8 @@
 
 #ifndef G4USERACTIONS_G4UA__SCORINGVOLUMETRACKKILLERTOOL_H
 #define G4USERACTIONS_G4UA__SCORINGVOLUMETRACKKILLERTOOL_H
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "G4UserActions/ScoringVolumeTrackKiller.h"
 
@@ -15,8 +15,8 @@ namespace G4UA
   /// @brief Tool which manages the ScoringVolumeTrackKiller user action.
   ///
   class ScoringVolumeTrackKillerTool : public ActionToolBase<ScoringVolumeTrackKiller>,
-                                       public IEndEventActionTool,
-                                       public ISteppingActionTool
+                                       public IG4EventActionTool,
+                                       public IG4SteppingActionTool
   {
 
     public:
@@ -25,14 +25,10 @@ namespace G4UA
       ScoringVolumeTrackKillerTool(const std::string& type, const std::string& name,
                                    const IInterface* parent);
 
-      virtual IEndEventAction* getEndEventAction() override final
-      { return static_cast<IEndEventAction*>( getAction() ); }
-      virtual ISteppingAction* getSteppingAction() override final
-      { return static_cast<ISteppingAction*>( getAction() ); }
-
-      /// Gaudi boiler plate
-      virtual StatusCode
-      queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
+      virtual G4UserSteppingAction* getSteppingAction() override final
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
     protected:
 

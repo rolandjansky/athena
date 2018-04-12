@@ -3,8 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// TruthQGDecorationTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+// TruthQGDecorationTool.cxx
 // Create a single decoration for flavor tagging of truth jets
 
 #include "DerivationFrameworkMCTruth/TruthQGDecorationTool.h"

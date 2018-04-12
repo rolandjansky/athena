@@ -65,23 +65,11 @@ namespace top{
     ATH_MSG_INFO(" top::EgammaObjectCollectionMaker initialize" );
     
     top::check( m_calibrationTool.retrieve() , "Failed to retrieve egamma calibration tool" );
-    
-    // Release 21 scrutiny effort currently requires that no egamma calibrations are applied
-    // We will use the tools with R20.7 settings, but not store the calibrated objects
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AtlasRelease21Scrutiny#Temporary_Recommendations_for_Co
-    if(m_config->getReleaseSeries() == 25){
-      ATH_MSG_INFO( "Configuring EgammaObjectCollectionMaker for Release 21 scrutiny" );
-      ATH_MSG_INFO( "... We should not currently apply any calibrations ..." );
-      ATH_MSG_INFO( "... The tools will be setup, but the calibrated objects will not be saved ..." );
-      calibrateElectrons = false;
-      calibratePhotons   = false;
-    }
-    else{
-      calibrateElectrons = true;
-      calibratePhotons   = true;
-    }
-
-
+   
+    // These flags were for early R21 when we were asked not to calibrate egamma objects
+    calibrateElectrons = true;
+    calibratePhotons   = true;
+   
     if (m_config->usePhotons()) {
       top::check(m_isolationTool_FixedCutTight.retrieve(),
                  "Failed to retrieve Isolation Tool" );
@@ -138,7 +126,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }
   
-  StatusCode EgammaObjectCollectionMaker::executePhotons()
+  StatusCode EgammaObjectCollectionMaker::executePhotons(bool executeNominal)
   {
     ///-- Get base photons from xAOD --///
     const xAOD::PhotonContainer* xaod(nullptr);
@@ -146,7 +134,11 @@ namespace top{
 
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematicsPhotons ){
-      
+        
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///
+      if(executeNominal && !m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+      if(!executeNominal && m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+
       ///-- Tell tool which systematic to use --///
       top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" ); 
       
@@ -214,7 +206,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }   
     
-  StatusCode EgammaObjectCollectionMaker::executeElectrons()
+  StatusCode EgammaObjectCollectionMaker::executeElectrons(bool executeNominal)
   {
 
     const xAOD::EventInfo* eventInfo(nullptr);
@@ -230,6 +222,10 @@ namespace top{
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematicsElectrons ){
       
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///                                 
+      if(executeNominal && !m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+      if(!executeNominal && m_config->isSystNominal( m_config->systematicName(systematic.hash()) )) continue;
+
       ///-- Tell tool which systematic to use -///
       top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
       

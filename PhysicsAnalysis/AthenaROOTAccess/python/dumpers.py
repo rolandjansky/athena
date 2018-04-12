@@ -9,17 +9,9 @@
 # @brief Test for AthenaROOTAccess.
 #
 
-import cppyy
-
-try:
-   # try to touch ROOT5-only attribute
-   cppyy.Cintex.Debug
-   _root5 = True
-except AttributeError:
-   # ROOT 6
-   from PyUtils.Helpers import ROOT6Setup
-   ROOT6Setup()
-   _root5 = False
+from PyUtils.Helpers import ROOT6Setup
+ROOT6Setup()
+_root5 = False
 
 
 onlytypes = []

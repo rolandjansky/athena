@@ -19,6 +19,7 @@ JetOriginCorrectionTool::JetOriginCorrectionTool(const std::string& myname)
   declareProperty("EventInfoName", m_eInfoName="EventInfo");
 
   declareProperty("OnlyAssignPV", m_onlyAssignPV=false);
+  declareProperty("ForceEMScale", m_doForceEMScale=false);
 }
 
 //**********************************************************************
@@ -70,7 +71,9 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
     ATH_MSG_DEBUG("                     jet pT: "<< jet->pt());
 
     if(!m_onlyAssignPV) {
-      xAOD::JetFourMom_t fv = jet::clusterOriginCorrection(*jet,*vx);
+      xAOD::CaloCluster::State state = xAOD::CaloCluster::UNKNOWN;
+      if(m_doForceEMScale) state = xAOD::CaloCluster::UNCALIBRATED;
+      xAOD::JetFourMom_t fv = jet::clusterOriginCorrection(*jet,*vx,state);
       ATH_MSG_DEBUG("  " <<  m_correctionName << " pT: " << fv.pt());
       jet->setAttribute<xAOD::JetFourMom_t>(m_correctionName, fv);
     }

@@ -20,6 +20,7 @@
 
 namespace CP {
     static CharDecorator dec_PassQuality("isCloseByObject");
+    static CharDecorator dec_Consider("considerInCorrection");
     static CharDecorator dec_PassIsol("defaultIso");
 
     TestIsolationCloseByCorrAthenaAlg::TestIsolationCloseByCorrAthenaAlg(const std::string& name, ISvcLocator* svcLoc) :
@@ -28,11 +29,18 @@ namespace CP {
                 m_isoCloseByCorrTool(""),
                 m_isoSelectorTool(""),
                 m_tree(nullptr),
+                m_eventNumber(0),
                 m_ele_helper(),
                 m_muo_helper(),
-                m_pho_helper() {
+                m_pho_helper(),
+                m_consider_ele(true),
+                m_consider_muo(true),
+                m_consider_pho(true) {
         declareProperty("IsoCloseByCorrTool", m_isoCloseByCorrTool);
         declareProperty("IsoSelectorTool", m_isoSelectorTool);
+        declareProperty("considerElectrons", m_consider_ele);
+        declareProperty("considerMuons", m_consider_muo);
+        declareProperty("considerPhotons", m_consider_pho);
     }
 
     StatusCode TestIsolationCloseByCorrAthenaAlg::initialize() {
@@ -40,7 +48,7 @@ namespace CP {
         ATH_CHECK(m_isoCloseByCorrTool.retrieve());
 
         m_tree = new TTree("IsoCorrTest", "Test tree for the isolaiton correction tool");
-
+        m_tree->Branch("eventNumber" , &m_eventNumber);
         m_ele_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Electrons", m_isoSelectorTool->getElectronWPs()));
         m_muo_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Muons", m_isoSelectorTool->getMuonWPs()));
         m_pho_helper = std::unique_ptr < IsoCorrectionTestHelper > (new IsoCorrectionTestHelper(m_tree, "Photons", m_isoSelectorTool->getPhotonWPs()));
@@ -57,21 +65,23 @@ namespace CP {
         const xAOD::EventInfo* info = nullptr;
         ATH_CHECK(evtStore()->retrieve(info,"EventInfo"));
         ATH_MSG_DEBUG("Start to run over event "<<info->eventNumber()<<".");
+        m_eventNumber = info->eventNumber();
         //Create the links to the shallow copy objects
         ATH_CHECK(CreateContainerLinks("Electrons", Electrons));
         for (const auto ielec : *Electrons) {
             //Store if the electron passes the isolation
             dec_PassIsol(*ielec) = m_isoSelectorTool->accept(*ielec);
             //Quality criteria only baseline kinematic selection
-            dec_PassQuality(*ielec) = ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
+            dec_PassQuality(*ielec) = m_consider_ele && ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
+            dec_Consider(*ielec) = ielec->pt() > 10.e3 && fabs(ielec->eta()) < 2.47;
         }
-
         ATH_CHECK(CreateContainerLinks("Photons", Photons));
         for (const auto iphot : *Photons) {
             //Store if the photon passes the isolation (only needed for later comparisons)
             dec_PassIsol(*iphot) = m_isoSelectorTool->accept(*iphot);
             //Quality criteria only baseline kinematic selection
-            dec_PassQuality(*iphot) = iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
+            dec_PassQuality(*iphot) = m_consider_pho && iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
+            dec_Consider(*iphot) = iphot->pt() > 25.e3 && fabs(iphot->eta()) < 2.35;
         }
 
         ATH_CHECK(CreateContainerLinks("Muons", Muons));
@@ -79,7 +89,8 @@ namespace CP {
             //Store if the muon passes the isolation
             dec_PassIsol(*imuon) = m_isoSelectorTool->accept(*imuon);
             //Quality criteria only baseline kinematic selection
-            dec_PassQuality(*imuon) = imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
+            dec_PassQuality(*imuon) = m_consider_muo && imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
+            dec_Consider(*imuon) = imuon->pt() > 5.e3 && fabs(imuon->eta()) < 2.7;
         }
         //Okay everything is defined for the preselection of the algorithm. lets  pass the things  towards the IsoCorrectionTool
 

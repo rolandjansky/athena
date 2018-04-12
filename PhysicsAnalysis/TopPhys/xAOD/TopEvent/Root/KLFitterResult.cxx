@@ -65,12 +65,61 @@ namespace xAOD{
     AUX_VARIABLE( model_lep_eta );    
     AUX_VARIABLE( model_lep_phi );
     AUX_VARIABLE( model_lep_E );     
+    AUX_VARIABLE( model_lep_index );
+
+    AUX_VARIABLE( model_lepZ1_pt );
+    AUX_VARIABLE( model_lepZ1_eta );
+    AUX_VARIABLE( model_lepZ1_phi );
+    AUX_VARIABLE( model_lepZ1_E );
+    AUX_VARIABLE( model_lepZ1_index );
+
+    AUX_VARIABLE( model_lepZ2_pt );
+    AUX_VARIABLE( model_lepZ2_eta );
+    AUX_VARIABLE( model_lepZ2_phi );
+    AUX_VARIABLE( model_lepZ2_E );
+    AUX_VARIABLE( model_lepZ2_index );
 
     AUX_VARIABLE( model_nu_pt );
     AUX_VARIABLE( model_nu_eta );
     AUX_VARIABLE( model_nu_phi );
     AUX_VARIABLE( model_nu_E );
 
+    AUX_VARIABLE( model_b_from_top1_pt );
+    AUX_VARIABLE( model_b_from_top1_eta );    
+    AUX_VARIABLE( model_b_from_top1_phi );
+    AUX_VARIABLE( model_b_from_top1_E );
+    AUX_VARIABLE( model_b_from_top1_jetIndex );
+    
+    AUX_VARIABLE( model_b_from_top2_pt );
+    AUX_VARIABLE( model_b_from_top2_eta );    
+    AUX_VARIABLE( model_b_from_top2_phi );
+    AUX_VARIABLE( model_b_from_top2_E );
+    AUX_VARIABLE( model_b_from_top2_jetIndex );
+    
+    AUX_VARIABLE( model_lj1_from_top1_pt );
+    AUX_VARIABLE( model_lj1_from_top1_eta );    
+    AUX_VARIABLE( model_lj1_from_top1_phi );
+    AUX_VARIABLE( model_lj1_from_top1_E );
+    AUX_VARIABLE( model_lj1_from_top1_jetIndex );
+    
+    AUX_VARIABLE( model_lj2_from_top1_pt );
+    AUX_VARIABLE( model_lj2_from_top1_eta );    
+    AUX_VARIABLE( model_lj2_from_top1_phi );
+    AUX_VARIABLE( model_lj2_from_top1_E );
+    AUX_VARIABLE( model_lj2_from_top1_jetIndex );
+    
+    AUX_VARIABLE( model_lj1_from_top2_pt );
+    AUX_VARIABLE( model_lj1_from_top2_eta );    
+    AUX_VARIABLE( model_lj1_from_top2_phi );
+    AUX_VARIABLE( model_lj1_from_top2_E );
+    AUX_VARIABLE( model_lj1_from_top2_jetIndex );
+    
+    AUX_VARIABLE( model_lj2_from_top2_pt );
+    AUX_VARIABLE( model_lj2_from_top2_eta );    
+    AUX_VARIABLE( model_lj2_from_top2_phi );
+    AUX_VARIABLE( model_lj2_from_top2_E );
+    AUX_VARIABLE( model_lj2_from_top2_jetIndex );
+    
 
   }
   
@@ -131,12 +180,60 @@ namespace xAOD{
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lep_eta , setModel_lep_eta )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lep_phi , setModel_lep_phi )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lep_E , setModel_lep_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lep_index , setModel_lep_index )
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ1_pt , setModel_lepZ1_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ1_eta , setModel_lepZ1_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ1_phi , setModel_lepZ1_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ1_E , setModel_lepZ1_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lepZ1_index , setModel_lepZ1_index )
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ2_pt , setModel_lepZ2_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ2_eta , setModel_lepZ2_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ2_phi , setModel_lepZ2_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lepZ2_E , setModel_lepZ2_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lepZ2_index , setModel_lepZ2_index )
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_nu_pt , setModel_nu_pt )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_nu_eta , setModel_nu_eta )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_nu_phi , setModel_nu_phi )
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_nu_E , setModel_nu_E )
 
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_b_from_top1_pt , setModel_b_from_top1_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_b_from_top1_eta , setModel_b_from_top1_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_b_from_top1_phi , setModel_b_from_top1_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_b_from_top1_E , setModel_b_from_top1_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_b_from_top1_jetIndex , setModel_b_from_top1_jetIndex )
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_b_from_top2_pt , setModel_b_from_top2_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_b_from_top2_eta , setModel_b_from_top2_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_b_from_top2_phi , setModel_b_from_top2_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_b_from_top2_E , setModel_b_from_top2_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_b_from_top2_jetIndex , setModel_b_from_top2_jetIndex )
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj1_from_top1_pt , setModel_lj1_from_top1_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj1_from_top1_eta , setModel_lj1_from_top1_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj1_from_top1_phi , setModel_lj1_from_top1_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj1_from_top1_E , setModel_lj1_from_top1_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lj1_from_top1_jetIndex , setModel_lj1_from_top1_jetIndex )
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj2_from_top1_pt , setModel_lj2_from_top1_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj2_from_top1_eta , setModel_lj2_from_top1_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj2_from_top1_phi , setModel_lj2_from_top1_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj2_from_top1_E , setModel_lj2_from_top1_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lj2_from_top1_jetIndex , setModel_lj2_from_top1_jetIndex )
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj1_from_top2_pt , setModel_lj1_from_top2_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj1_from_top2_eta , setModel_lj1_from_top2_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj1_from_top2_phi , setModel_lj1_from_top2_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj1_from_top2_E , setModel_lj1_from_top2_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lj1_from_top2_jetIndex , setModel_lj1_from_top2_jetIndex )
+
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj2_from_top2_pt , setModel_lj2_from_top2_pt )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj2_from_top2_eta , setModel_lj2_from_top2_eta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj2_from_top2_phi , setModel_lj2_from_top2_phi )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , float , model_lj2_from_top2_E , setModel_lj2_from_top2_E )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( KLFitterResult , unsigned int , model_lj2_from_top2_jetIndex , setModel_lj2_from_top2_jetIndex )
 
 }
 ADD_NS_DV_PROXY( xAOD , KLFitterResultContainer );

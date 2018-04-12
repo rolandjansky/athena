@@ -7,8 +7,6 @@
 
 #include "G4Trajectory.hh"
 
-#include "SimHelpers/SecondaryTracksHelper.h"
-
 namespace ISF {
   class ITruthSvc;
 }
@@ -27,8 +25,6 @@ namespace iGeant4 {
   private:
     ISF::ITruthSvc        *m_truthRecordSvcQuick;
     
-    SecondaryTracksHelper m_sHelper;
-
   };
   
 }

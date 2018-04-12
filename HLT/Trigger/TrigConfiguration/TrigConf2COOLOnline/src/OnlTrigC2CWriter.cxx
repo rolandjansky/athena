@@ -17,10 +17,10 @@
 
 #include "TrigConf2COOLOnline/OnlTrigC2CWriter.h"
 
-#include "TrigConf2COOLOnline/TrigConfSmKeyNamed.h"
-#include "TrigConf2COOLOnline/TrigConfL1PsKeyNamed.h"
-#include "TrigConf2COOLOnline/TrigConfHltPsKeyNamed.h"
-#include "TrigConf2COOLOnline/TrigConfReleaseNamed.h"
+#include "TTCInfo/TrigConfSmKeyNamed.h"
+#include "TTCInfo/TrigConfL1PsKeyNamed.h"
+#include "TTCInfo/TrigConfHltPsKeyNamed.h"
+#include "TTCInfo/TrigConfReleaseNamed.h"
 
 #include "config/Configuration.h"
 

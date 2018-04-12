@@ -54,9 +54,32 @@ class EFMultiMuHypo_DiMu2700 (TrigEFMultiMuHypo):
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
 	
-        # EF Bmumu cuts
+        # 
+        self.OppositeSign = True
         self.LowerMassCut      = 100.
         self.UpperMassCut     = 2700.
+        self.ApplyUpperMassCut     = True
+        self.Chi2VtxCut       =   20.
+	
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+	
+        validation = TrigEFMultiMuHypoValidationMonitoring()
+        online = TrigEFMultiMuHypoOnlineMonitoring()
+        self.AthenaMonTools = [ validation, online, time ]
+
+class EFMultiMuHypo_DiMu6000 (TrigEFMultiMuHypo):
+    __slots__ = []
+    def __init__(self, name = "EFMultiMuHypo_DiMu6000"):
+        super( EFMultiMuHypo_DiMu6000, self ).__init__( name )
+        
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+	
+        # 
+        self.OppositeSign = True
+        self.LowerMassCut      = 100.
+        self.UpperMassCut     = 6000.
         self.ApplyUpperMassCut     = True
         self.Chi2VtxCut       =   20.
 	

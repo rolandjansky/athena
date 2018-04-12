@@ -41,6 +41,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("GRLDir","Location of GRL File","TopAnalysis");
     registerParameter("GRLFile","Name of GRL File", " ");
 
+    registerParameter("TDPPath","Path to TopDataPreparation file (accessible via PathResolver)","dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data");
+
     registerParameter("DumpBtagSystsInSystTrees", "Dump systematics-shifted b-tagging SFs in systematic TTrees, True or False (default: False)","False");
 
     registerParameter("ElectronID", "Type of electron. IsEM : Loose, Medium, Tight or Likelihood LooseAndBLayerLH, MediumLH, TightLH","TightLH");
@@ -109,6 +111,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("RCJetEta",    "Reclustered Jet eta cut for object selection. Default 2.0.",   "2.0");
     registerParameter("RCJetTrim",   "Reclustered Jet trimming cut for object selection. Default 0.05.", "0.05");
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0",   "1.0");
+    registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",   "False");
+    
     registerParameter("UseRCJets",   "Use Reclustered Jets. Default False.", "False");
 
     registerParameter("VarRCJetPt",        "Reclustered Jet (variable-R) pT cut for object selection (in MeV). Default 100000 MeV.", "100000.");
@@ -166,12 +170,16 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("Systematics", "What to run? Nominal (just the nominal), All(do all systematics) " , "Nominal");
 
     registerParameter("LibraryNames", "Names of any libraries that need loading");
-    registerParameter("UseAodMetaData", "Whether to read xAOD meta-data from input files (default: False)", "False");
+    registerParameter("UseAodMetaData", "Whether to read xAOD meta-data from input files (default: True)", "True");
+    registerParameter("WriteTrackingData", "Whether to generate and store analysis-tracking data (default: True)", "True");
     registerParameter("ObjectSelectionName", "Code used to define objects, e.g. ObjectLoaderStandardCuts");
     registerParameter("OutputFormat", "Format, can be user defined, e.g. top::EventSaverFlatNtuple");
     registerParameter("OutputEvents", "AllEvents (saves all events + decison bits), SelectedEvents (saves only the events passing your cuts)");
     registerParameter("OutputFilename", "The file that will contain the output histograms and trees");
-    registerParameter("OutputFileSetAutoFlushZero", "setAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround. Default False","False");
+    registerParameter("OutputFileSetAutoFlushZero", "setAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround. (default: False)","False");
+    registerParameter("OutputFileNEventAutoFlush", "Set the number of events after which the TTree cache is optimised, ie setAutoFlush(nEvents). (default: 1000)" , "1000");
+    registerParameter("OutputFileBasketSizePrimitive", "Set the TTree basket size for primitive objects (int, float, ...). (default: 4096)" , "4096");
+    registerParameter("OutputFileBasketSizeVector", "Set the TTree basket size for vector objects. (default: 40960)" , "40960");   
 
     registerParameter("EventVariableSaveList", "The list of event variables to save (EventSaverxAODNext only).", "runNumber.eventNumber.eventTypeBitmask.averageInteractionsPerCrossing");
     registerParameter("PhotonVariableSaveList", "The list of photon variables to save (EventSaverxAODNext only).", "pt.eta.phi.m.charge.ptvarcone20.topoetcone20.passPreORSelection");
@@ -197,7 +205,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ApplyTightSFsInLooseTree","Special: in Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)", "False");
 
     registerParameter("ApplyElectronInJetSubtraction","Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory","ttbar, tb, False (default)", "False");
+    registerParameter("TopPartonHistory","ttbar, tb, Wtb, False (default)", "False");
 
     registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",
@@ -268,7 +276,9 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       " Default 'default'",
                       "default");
 
-    registerParameter("PRWConfigFiles", "List of PU config files, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWConfigFiles",    "List of PU config files, seperated by spaces (nothing by default) - Not compatible with FS/AF options", " ");
+    registerParameter("PRWConfigFiles_FS", "List of PU config files only for full sim samples, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWConfigFiles_AF", "List of PU config files only for fast sim samples, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWLumiCalcFiles", "List of PU lumicalc files, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWUseGRLTool", "Pass the GRL tool to the PU reweighting tool (False by default)", "False");
     registerParameter("PRWMuDependent",
@@ -280,14 +290,15 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "Format is \'nominal:up:down\'."
                       "If nothing is set, the default values will be used (recommended).",
                       " ");
+    registerParameter("PRWUnrepresentedDataTolerance", "Specify value between 0 and 1 to represent acceptable fraction of unrepresented data in PRW [default: 0.05]", "0.05");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
     registerParameter("KLFitterTransferFunctionsPath","Select the transfer functions to use","8TeV/ttbar/mc12_LCJets_v1");
     registerParameter("KLFitterOutput","Select the KLFitter output (FULL, FITTEDTOPS_ONLY, JETPERM_ONLY)","FULL");
-    registerParameter("KLFitterJetSelectionMode","kLeadingFour , kLeadingFive , kBtagPriorityFourJets , kBtagPriorityFiveJets","kBtagPriorityFourJets");
+    registerParameter("KLFitterJetSelectionMode","kLeadingThree , kLeadingFour , kLeadingFive , kLeadingSix , kLeadingSeven , kBtagPriorityThreeJets , kBtagPriorityFourJets , kBtagPriorityFiveJets, kBtagPrioritySixJets , kBtagPrioritySevenJets","kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod","Recommend use kNotag or kVetoNoFit - see KLFitter TWiki","kNotag");
-    registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH", "ttbar");
+    registerParameter("KLFitterLH", "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets", "ttbar");
     registerParameter("KLFitterTopMassFixed","Fix the mass of the top quark? True or False","True");
     registerParameter("KLFitterSaveAllPermutations","Save All permutations to the output file (False will save only the best)","False");
 
@@ -305,6 +316,11 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                      "Set to run HL-LHC studies,"
                      "True or False (default False)",
                      "False");
+
+    registerParameter("HLLHCFakes",
+                      "Set to enable Fakes HL-LHC studies,"
+                      "True or False (default False)",
+                      "False");
 
     registerParameter("SaveBootstrapWeights", "Set to true in order to save Poisson bootstrap weights,"
 		      "True or False (default False)", "False");

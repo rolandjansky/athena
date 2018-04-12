@@ -8,22 +8,19 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include <string>
-#include <map>
-
 #include "G4Pow.hh"
 #include "TString.h"
 
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
+
+#include <string>
+#include <map>
+
+// Forward declarations
 class TProfile;
 class TProfile2D;
 
-
-// User action to evaluate the thickness (in %r.l. or i.l.) of all detectors
-// traversed by outgoing particles
-
-#include "G4AtlasInterfaces/IBeginEventAction.h"
-#include "G4AtlasInterfaces/IEndEventAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
 
 namespace G4UA
 {
@@ -41,9 +38,8 @@ namespace G4UA
   /// that each instance has its own copy of the histograms which get merged in
   /// finalization of the LengthIntegratorTool.
   ///
-  class LengthIntegrator final : public IBeginEventAction,
-                                 public IEndEventAction,
-                                 public ISteppingAction
+  class LengthIntegrator final : public G4UserEventAction,
+                                 public G4UserSteppingAction
   {
 
     public:
@@ -53,13 +49,13 @@ namespace G4UA
 
       /// Called at beginning of G4 event to cache some details about the
       /// current primary vertex and particle. Also resets some measurements.
-      virtual void beginOfEvent(const G4Event*) override;
+      virtual void BeginOfEventAction(const G4Event*) override;
 
       /// Called at end of G4 event to finalize measurements and fill hists
-      virtual void endOfEvent(const G4Event*) override;
+      virtual void EndOfEventAction(const G4Event*) override;
 
       /// Called at every particle step to accumulate thickness.
-      virtual void processStep(const G4Step*) override;
+      virtual void UserSteppingAction(const G4Step*) override;
 
     private:
 

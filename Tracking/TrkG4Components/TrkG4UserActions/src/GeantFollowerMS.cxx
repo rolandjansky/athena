@@ -37,17 +37,17 @@ namespace G4UA{
     , m_helperPointer(nullptr)
   {}
 
-  void GeantFollowerMS::beginOfEvent(const G4Event*)
+  void GeantFollowerMS::BeginOfEventAction(const G4Event*)
   {
     m_helperPointer->beginEvent();
   }
 
-  void GeantFollowerMS::endOfEvent(const G4Event*)
+  void GeantFollowerMS::EndOfEventAction(const G4Event*)
   {
     m_helperPointer->endEvent();
   }
 
-  void GeantFollowerMS::beginOfRun(const G4Run*)
+  void GeantFollowerMS::BeginOfRunAction(const G4Run*)
   {
     if(m_config.helper.retrieve()!=StatusCode::SUCCESS)
       {
@@ -69,7 +69,7 @@ namespace G4UA{
     return;
   }
 
-  void GeantFollowerMS::processStep(const G4Step* aStep)
+  void GeantFollowerMS::UserSteppingAction(const G4Step* aStep)
   {
     // kill secondaries
     if (aStep->GetTrack()->GetParentID())

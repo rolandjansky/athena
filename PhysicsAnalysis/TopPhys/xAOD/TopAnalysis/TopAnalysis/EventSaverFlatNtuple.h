@@ -454,8 +454,9 @@ private:
     std::vector<float> m_el_delta_z0_sintheta;
     std::vector<int>   m_el_true_type;
     std::vector<int>   m_el_true_origin;
-    std::vector<int>   m_el_true_typebkg;
-    std::vector<int>   m_el_true_originbkg;
+    std::vector<int>   m_el_true_firstEgMotherTruthType;
+    std::vector<int>   m_el_true_firstEgMotherTruthOrigin;
+    std::vector<char>  m_el_true_isPrompt;
 
     //muons
     std::vector<float> m_mu_pt;
@@ -471,6 +472,7 @@ private:
     std::vector<float> m_mu_delta_z0_sintheta;
     std::vector<int>   m_mu_true_type;
     std::vector<int>   m_mu_true_origin;
+    std::vector<char>  m_mu_true_isPrompt;
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;
@@ -498,8 +500,9 @@ private:
     std::vector<int>   m_jet_truthflav;
     std::vector<int>   m_jet_truthPartonLabel;
     std::vector<char>  m_jet_isTrueHS;
+    std::vector<int>   m_jet_HadronConeExclExtendedTruthLabelID; // Newer jet truth flavour label
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
-    std::vector<int>  m_jet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    std::unordered_map<std::string, std::vector<int>>   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
     // R21 b-tagging
     std::vector<float> m_jet_MV2c10mu;
     std::vector<float> m_jet_MV2c10rnn;
@@ -546,12 +549,13 @@ private:
     std::vector<float> m_tjet_mv2c10;
     std::vector<float> m_tjet_mv2c20;
     std::unordered_map<std::string, std::vector<char>>  m_tjet_isbtagged;//one vector per jet per WP
-    std::vector<int>  m_tjet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    std::unordered_map<std::string, std::vector<int>>   m_tjet_tagWeightBin;//one vector per jet tag-weight bin in case Continuous WP is used
 
     //re-clustered jets
     //  -> need unordered map for systematics
     bool m_makeRCJets; // making re-clustered jets
     bool m_makeVarRCJets; // making VarRC jets
+    bool m_useRCJSS; // write RCJSS variables
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
     std::vector<std::string> m_VarRCJetMassScale;
@@ -576,6 +580,26 @@ private:
     std::vector<std::vector<float> > m_rcjetsub_e;
     std::vector<std::vector<float> > m_rcjetsub_mv2c10;
 
+    std::vector<float> m_rrcjet_pt;
+    std::vector<float> m_rrcjet_eta;
+    std::vector<float> m_rrcjet_phi;
+    std::vector<float> m_rrcjet_e;
+    
+    std::vector<float> m_rcjet_tau32_clstr;
+    std::vector<float> m_rcjet_tau21_clstr;
+    std::vector<float> m_rcjet_tau3_clstr;
+    std::vector<float> m_rcjet_tau2_clstr;
+    std::vector<float> m_rcjet_tau1_clstr;
+     
+    std::vector<float> m_rcjet_D2_clstr;
+    std::vector<float> m_rcjet_ECF1_clstr;
+    std::vector<float> m_rcjet_ECF2_clstr;
+    std::vector<float> m_rcjet_ECF3_clstr;
+
+    std::vector<float> m_rcjet_d12_clstr;
+    std::vector<float> m_rcjet_d23_clstr;
+    std::vector<float> m_rcjet_Qw_clstr;
+    
     //met
     float m_met_met;
     float m_met_phi;
@@ -636,11 +660,60 @@ private:
     std::vector<float> m_klfitter_model_lep_eta;
     std::vector<float> m_klfitter_model_lep_phi;
     std::vector<float> m_klfitter_model_lep_E;
+    std::vector<unsigned int> m_klfitter_model_lep_index;
+
+    std::vector<float> m_klfitter_model_lepZ1_pt;
+    std::vector<float> m_klfitter_model_lepZ1_eta;
+    std::vector<float> m_klfitter_model_lepZ1_phi;
+    std::vector<float> m_klfitter_model_lepZ1_E;
+    std::vector<unsigned int> m_klfitter_model_lepZ1_index;
+
+    std::vector<float> m_klfitter_model_lepZ2_pt;
+    std::vector<float> m_klfitter_model_lepZ2_eta;
+    std::vector<float> m_klfitter_model_lepZ2_phi;
+    std::vector<float> m_klfitter_model_lepZ2_E;
+    std::vector<unsigned int> m_klfitter_model_lepZ2_index;
 
     std::vector<float> m_klfitter_model_nu_pt;
     std::vector<float> m_klfitter_model_nu_eta;
     std::vector<float> m_klfitter_model_nu_phi;
     std::vector<float> m_klfitter_model_nu_E;
+
+    std::vector<float> m_klfitter_model_b_from_top1_pt;
+    std::vector<float> m_klfitter_model_b_from_top1_eta;
+    std::vector<float> m_klfitter_model_b_from_top1_phi;
+    std::vector<float> m_klfitter_model_b_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_b_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_b_from_top2_pt;
+    std::vector<float> m_klfitter_model_b_from_top2_eta;
+    std::vector<float> m_klfitter_model_b_from_top2_phi;
+    std::vector<float> m_klfitter_model_b_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_b_from_top2_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj1_from_top1_pt;
+    std::vector<float> m_klfitter_model_lj1_from_top1_eta;
+    std::vector<float> m_klfitter_model_lj1_from_top1_phi;
+    std::vector<float> m_klfitter_model_lj1_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_lj1_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj2_from_top1_pt;
+    std::vector<float> m_klfitter_model_lj2_from_top1_eta;
+    std::vector<float> m_klfitter_model_lj2_from_top1_phi;
+    std::vector<float> m_klfitter_model_lj2_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_lj2_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj1_from_top2_pt;
+    std::vector<float> m_klfitter_model_lj1_from_top2_eta;
+    std::vector<float> m_klfitter_model_lj1_from_top2_phi;
+    std::vector<float> m_klfitter_model_lj1_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_lj1_from_top2_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj2_from_top2_pt;
+    std::vector<float> m_klfitter_model_lj2_from_top2_eta;
+    std::vector<float> m_klfitter_model_lj2_from_top2_phi;
+    std::vector<float> m_klfitter_model_lj2_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_lj2_from_top2_jetIndex;
 
     // calculated KLFitter variables for best perm
     float m_klfitter_bestPerm_topLep_pt;
@@ -948,8 +1021,9 @@ protected:
   const std::vector<float>& el_delta_z0_sintheta() const { return m_el_delta_z0_sintheta;}
   const std::vector<int>& el_true_type() const { return m_el_true_type;}
   const std::vector<int>& el_true_origin() const { return m_el_true_origin;}
-  const std::vector<int>& el_true_typebkg() const { return m_el_true_typebkg;}
-  const std::vector<int>& el_true_originbkg() const { return m_el_true_originbkg;}
+  const std::vector<int>& el_true_firstEgMotherTruthType() const { return m_el_true_firstEgMotherTruthType;}
+  const std::vector<int>& el_true_firstEgMotherTruthOrigin() const { return m_el_true_firstEgMotherTruthOrigin;}
+  const std::vector<char>& el_true_isPrompt() const { return m_el_true_isPrompt;}
 
   //muons
   const std::vector<float>& mu_pt() const { return m_mu_pt;}
@@ -965,6 +1039,7 @@ protected:
   const std::vector<float>& mu_delta_z0_sintheta() const { return m_mu_delta_z0_sintheta;}
   const std::vector<int>& mu_true_type() const { return m_mu_true_type;}
   const std::vector<int>& mu_true_origin() const { return m_mu_true_origin;}
+  const std::vector<char>& mu_true_isPrompt() const { return m_mu_true_isPrompt;}
 
   //photons
   const std::vector<float>& ph_pt() const { return m_ph_pt;}
@@ -989,12 +1064,12 @@ protected:
   const std::vector<float>& jet_mv2c20() const { return m_jet_mv2c20;}
   const std::vector<float>& jet_jvt() const { return m_jet_jvt;}
   const std::vector<char>& jet_passfjvt() const { return m_jet_passfjvt;}
-  const std::vector<float>& jet_ip3dsv1() const { return m_jet_ip3dsv1;}
   const std::vector<int>& jet_truthflav() const { return m_jet_truthflav;}
   const std::vector<int>& jet_truthPartonLabel() const { return m_jet_truthPartonLabel;}
   const std::vector<char>& jet_isTrueHS() const { return m_jet_isTrueHS;}
+  const std::vector<int>& jet_truthflavExtended() const { return m_jet_HadronConeExclExtendedTruthLabelID;}
   const std::unordered_map<std::string, std::vector<char>>& jet_isbtagged() const { return m_jet_isbtagged;}//one vector per jet per WP
-  const std::vector<int>& jet_tagWeightBin() const { return m_jet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+  const std::unordered_map<std::string, std::vector<int>> & jet_tagWeightBin() const { return m_jet_tagWeightBin;}//one vector per jet tag-weight bin in case Continuous WP is used
   // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
   const std::vector<float>& jet_mv1eff() const { return m_jet_mv1eff;}
   const std::vector<float>& jet_isPileup() const { return m_jet_isPileup;}
@@ -1022,7 +1097,7 @@ protected:
   const std::vector<float>& tjet_mv2c10() const { return m_tjet_mv2c10;}
   const std::vector<float>& tjet_mv2c20() const { return m_tjet_mv2c20;}
   const std::unordered_map<std::string, std::vector<char>>& tjet_isbtagged() const { return m_tjet_isbtagged;}//one vector per jet per WP
-  const std::vector<int>& tjet_tagWeightBin() const { return m_tjet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+  const std::unordered_map<std::string, std::vector<int>>&  tjet_tagWeightBin() const { return m_tjet_tagWeightBin;}//one vector per jet tag-weight bin in case Continuous WP is used
 
   //re-clustered jets
   // -> need unordered map for systematics
@@ -1051,6 +1126,19 @@ protected:
   const std::vector<std::vector<float> >& rcjetsub_phi() const { return m_rcjetsub_phi;}
   const std::vector<std::vector<float> >& rcjetsub_e() const { return m_rcjetsub_e;}
   const std::vector<std::vector<float> >& rcjetsub_mv2c10() const { return m_rcjetsub_mv2c10;}
+  const std::vector<float>& rcjet_tau32_clstr() const { return m_rcjet_tau32_clstr;}
+  const std::vector<float>& rcjet_tau21_clstr() const { return m_rcjet_tau21_clstr;}
+  const std::vector<float>& rcjet_tau3_clstr() const { return m_rcjet_tau3_clstr;}
+  const std::vector<float>& rcjet_tau2_clstr() const { return m_rcjet_tau2_clstr;}
+  const std::vector<float>& rcjet_tau1_clstr() const { return m_rcjet_tau1_clstr;}
+  const std::vector<float>& rcjet_D2_clstr() const { return m_rcjet_D2_clstr;}
+  const std::vector<float>& rcjet_ECF1_clstr() const { return m_rcjet_ECF1_clstr;}
+  const std::vector<float>& rcjet_ECF2_clstr() const { return m_rcjet_ECF2_clstr;}
+  const std::vector<float>& rcjet_ECF3_clstr() const { return m_rcjet_ECF3_clstr;}
+  const std::vector<float>& rcjet_d12_clstr() const { return m_rcjet_d12_clstr;}
+  const std::vector<float>& rcjet_d23_clstr() const { return m_rcjet_d23_clstr;}
+  const std::vector<float>& rcjet_Qw_clstr() const { return m_rcjet_Qw_clstr;}
+  
 
   //met
   const float& met_met() const { return m_met_met;}
@@ -1108,6 +1196,37 @@ protected:
   const std::vector<float>& klfitter_model_nu_eta() const { return m_klfitter_model_nu_eta;}
   const std::vector<float>& klfitter_model_nu_phi() const { return m_klfitter_model_nu_phi;}
   const std::vector<float>& klfitter_model_nu_E() const { return m_klfitter_model_nu_E;}
+  const std::vector<float>& klfitter_model_b_from_top1_pt() const { return m_klfitter_model_b_from_top1_pt;}
+  const std::vector<float>& klfitter_model_b_from_top1_eta() const { return m_klfitter_model_b_from_top1_eta;}
+  const std::vector<float>& klfitter_model_b_from_top1_phi() const { return m_klfitter_model_b_from_top1_phi;}
+  const std::vector<float>& klfitter_model_b_from_top1_E() const { return m_klfitter_model_b_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_b_from_top1_jetIndex() const { return m_klfitter_model_b_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_b_from_top2_pt() const { return m_klfitter_model_b_from_top2_pt;}
+  const std::vector<float>& klfitter_model_b_from_top2_eta() const { return m_klfitter_model_b_from_top2_eta;}
+  const std::vector<float>& klfitter_model_b_from_top2_phi() const { return m_klfitter_model_b_from_top2_phi;}
+  const std::vector<float>& klfitter_model_b_from_top2_E() const { return m_klfitter_model_b_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_b_from_top2_jetIndex() const { return m_klfitter_model_b_from_top2_jetIndex;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_pt() const { return m_klfitter_model_lj1_from_top1_pt;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_eta() const { return m_klfitter_model_lj1_from_top1_eta;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_phi() const { return m_klfitter_model_lj1_from_top1_phi;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_E() const { return m_klfitter_model_lj1_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_lj1_from_top1_jetIndex() const { return m_klfitter_model_lj1_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_pt() const { return m_klfitter_model_lj2_from_top1_pt;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_eta() const { return m_klfitter_model_lj2_from_top1_eta;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_phi() const { return m_klfitter_model_lj2_from_top1_phi;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_E() const { return m_klfitter_model_lj2_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_lj2_from_top1_jetIndex() const { return m_klfitter_model_lj2_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_pt() const { return m_klfitter_model_lj1_from_top2_pt;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_eta() const { return m_klfitter_model_lj1_from_top2_eta;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_phi() const { return m_klfitter_model_lj1_from_top2_phi;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_E() const { return m_klfitter_model_lj1_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_lj1_from_top2_jetIndex() const { return m_klfitter_model_lj1_from_top2_jetIndex;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_pt() const { return m_klfitter_model_lj2_from_top2_pt;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_eta() const { return m_klfitter_model_lj2_from_top2_eta;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_phi() const { return m_klfitter_model_lj2_from_top2_phi;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_E() const { return m_klfitter_model_lj2_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_lj2_from_top2_jetIndex() const { return m_klfitter_model_lj2_from_top2_jetIndex;}
+  
   // calculated KLFitter variables for best perm
   const float& klfitter_bestPerm_topLep_pt() const { return m_klfitter_bestPerm_topLep_pt;}
   const float& klfitter_bestPerm_topLep_eta() const { return m_klfitter_bestPerm_topLep_eta;}
@@ -1195,6 +1314,10 @@ protected:
   // This can be expanded as required
   // This is just a first pass at doing this sort of thing
   const std::unordered_map<std::string,int*>& extraTruthVars_int() const { return m_extraTruthVars_int;}
+
+  // Prompt lepton definition for event saver
+  bool isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin);
+  bool isPromptMuon(int type, int origin);
 
   ClassDef(top::EventSaverFlatNtuple, 0);
 };

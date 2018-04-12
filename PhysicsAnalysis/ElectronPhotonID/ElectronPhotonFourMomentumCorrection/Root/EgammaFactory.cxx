@@ -116,13 +116,14 @@ EgammaFactory::~EgammaFactory()
   m_store.clear();
 }
 
-xAOD::EventInfo* EgammaFactory::create_eventinfo(bool simulation, int runnumber, int eventnumber)
+xAOD::EventInfo* EgammaFactory::create_eventinfo(bool simulation, int runnumber, int eventnumber, int average_interaction_per_crossing)
 {
   xAOD::EventInfo* ei= new xAOD::EventInfo();
   ei->makePrivateStore();
   ei->setRunNumber(runnumber);
   ei->setEventNumber(eventnumber);
   ei->setEventTypeBitmask(simulation);
+  ei->setAverageInteractionsPerCrossing(average_interaction_per_crossing);
   return ei;
 }
 

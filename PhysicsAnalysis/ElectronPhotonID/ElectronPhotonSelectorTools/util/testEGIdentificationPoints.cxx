@@ -130,15 +130,15 @@ int main( int argc, char* argv[] ) {
        for (const xAOD::Electron* el : *electrons) {
        ANA_MSG_INFO("---------------------------");
        ANA_MSG_INFO("Electron: " << counter);
-       ANA_MSG_INFO("Electron LH Medium accept result: " <<electronMediumLHSelector->accept(*el));
+       ANA_MSG_INFO("Electron LH Medium accept result: " <<electronMediumLHSelector->accept(el));
        ANA_MSG_INFO("Electron Cut based");
-       ANA_MSG_INFO("Electron Cut Medium accept result: " <<electronMediumIsEMSelector->accept(*el));
+       ANA_MSG_INFO("Electron Cut Medium accept result: " <<electronMediumIsEMSelector->accept(el));
    
        //Bitset manipulation 
        ANA_MSG_INFO("Decision as a bitset: ");
-       std::bitset<32> decision = electronMediumIsEMSelector->accept(*el).getCutResultBitSet();
+       std::bitset<32> decision = electronMediumIsEMSelector->accept(el).getCutResultBitSet();
        ANA_MSG_INFO("Result bitset: " <<decision);
-       std::bitset<32> isEMdecision = electronMediumIsEMSelector->accept(*el).getCutResultInvertedBitSet() ;
+       std::bitset<32> isEMdecision = electronMediumIsEMSelector->accept(el).getCutResultInvertedBitSet() ;
        ANA_MSG_INFO("isEM Result bitset: " << isEMdecision);
        //
        ANA_MSG_INFO("Masks: " );
@@ -191,7 +191,7 @@ int main( int argc, char* argv[] ) {
        for (const xAOD::Photon* ph : *photons) {
 	 ANA_MSG_INFO("---------------------------");
 	 ANA_MSG_INFO("Photon: " << counter);
-	 ANA_MSG_INFO("Photon Tight accept result: " <<photonTightIsEMSelector->accept(*ph));
+	 ANA_MSG_INFO("Photon Tight accept result: " <<photonTightIsEMSelector->accept(ph));
 	 ++counter;       
        }
      }// loop entries

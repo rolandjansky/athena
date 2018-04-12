@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CalcTopPartonHistory.h 800464 2017-03-13 18:06:24Z tpelzer $
@@ -53,13 +53,20 @@ namespace top{
      
       ///Store the four-momentum of several particles in the top decay chain
       bool topWb(const xAOD::TruthParticleContainer* truthParticles, int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4, TLorentzVector& W_p4, TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId);
-      
+      bool topWq(const xAOD::TruthParticleContainer* truthParticles, int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4, TLorentzVector& W_p4, TLorentzVector& q_p4, int& q_pdgId, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId);
+
       ///Store the four-momentum of b (not from tops_ before and after FSR
       bool b(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& b_beforeFSR, TLorentzVector& b_afterFSR);
       
       ///Store the four-momentum of several particles in the W decay chain
       bool Wlv(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& W_p4, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId);
-      
+     
+      /// Store the four-momentum of several particles in W decay chain for W that is NOT from top in Wt ST events
+      bool Wt_W(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& W_p4, int& W_pdgId, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId);
+ 
+      /// Store the four-momentum of b quark that is NOT from top in Wt(b) ST events
+      bool Wt_b(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& b_beforeFSR, TLorentzVector& b_afterFSR, int& b_pdgId);
+ 
       ///Return particle after FSR (before the decay vertex)
       const xAOD::TruthParticle* findAfterFSR(const xAOD::TruthParticle* particle);
       

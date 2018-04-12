@@ -24,10 +24,8 @@ class IDetectorGeometrySvc : virtual public IService {
  public:
   IDetectorGeometrySvc() {}
   virtual ~IDetectorGeometrySvc() {}
-  static const InterfaceID& interfaceID() {
-    static const InterfaceID IID_IDetectorGeometrySvc( "IDetectorGeometrySvc" , 1 , 0 ) ;
-    return IID_IDetectorGeometrySvc ; 
-  }
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(IDetectorGeometrySvc, 1, 0);
 
   /// Setup the magnetic field managers for detector volumes
   virtual StatusCode initializeFields() = 0;

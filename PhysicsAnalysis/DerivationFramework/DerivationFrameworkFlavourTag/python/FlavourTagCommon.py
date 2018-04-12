@@ -182,11 +182,11 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
 
 ######################################################################
 
-def FlavorTagInit(DoReduceInfo   =False,
-                  DoMSV        =False,
-                  Rel20        =True,
-                  DoRetag      =True,
-                  isFTAG1      = False, 
+def FlavorTagInit(DoReduceInfo = False,
+                  DoMSV = False,
+                  Rel20 = True,
+                  DoRetag = True,
+                  scheduleFlipped = False, 
                   myTaggers  = [],  
                   JetCollections = ['AntiKt4EMTopoJets' ],     #['AntiKt4PV0TrackJets', 'AntiKt4LCTopoJets' ]
                   DoFullRetag=True, 
@@ -206,22 +206,17 @@ def FlavorTagInit(DoReduceInfo   =False,
         DoReduceInfo=True
 
 
-    #List of taggers used in RUN2
-    Taggers = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP','MV2c10Flip']
-    #Taggers = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'MV2c10', 'MV2c100', 'JetVertexCharge', 'MV2cl100', 'MVb']
     #if the user has defined a list of desired taggers use that one, otherwise use only the active taggers
     if len( myTaggers ) >0:
-        Taggers = myTaggers
+      Taggers = myTaggers
+    else:
+      from BTagging.BTaggingFlags import BTaggingFlags
+      if scheduleFlipped:
+        Taggers = BTaggingFlags.ExpertTaggers
+      else:
+        Taggers = BTaggingFlags.StandardTaggers
  
 
-    if isFTAG1==True:
-        FlipTaggers = ['SV1Flip','JetFitterNNFlip','IP2DNeg','IP3DNeg','MV2c10Flip','MV2c100Flip','MV2cl100Flip']
-        for tag in FlipTaggers:
-            if tag not in Taggers:
-                Taggers.append( tag )
-    #####################END SWITCHES
-
- 
     ##### VD: THIS IS ALSO NOT NEEDED?????
     ##write minimal amount of info on the output file
     #if DoReduceInfo==False:

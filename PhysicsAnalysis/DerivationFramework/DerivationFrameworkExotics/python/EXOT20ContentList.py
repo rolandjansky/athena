@@ -2,11 +2,9 @@
 
 EXOT20SmartCollections = [
     "Muons",
-    "AntiKt4LCTopoJets",
     "AntiKt4EMTopoJets",
     "BTagging_AntiKt4EMTopo",
     "MET_Reference_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4LCTopo",
     "InDetTrackParticles",
     "PrimaryVertices"
 ]

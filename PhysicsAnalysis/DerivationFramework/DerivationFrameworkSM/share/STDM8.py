@@ -11,6 +11,8 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkSM import STDMTriggers
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
@@ -178,6 +180,15 @@ DerivationFrameworkJob += STDM8Sequence
 #evtStream = augStream.GetEventStream()
 #svcMgr += createThinningSvc( svcName="STDM8ThinningSvc", outStreams=[evtStream] )
 
+
+#====================================================================
+# Jet reconstruction/retagging
+#====================================================================
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM8Sequence)
+
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -192,6 +203,9 @@ STDM8SlimmingHelper.SmartCollections = ["Electrons",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -208,6 +222,7 @@ if globalflags.DataSource()=='geant4':
     STDM8SlimmingHelper.AllVariables += ExtraContainersTruth
     STDM8SlimmingHelper.AppendToDictionary = ExtraDictionary
 
+addMETOutputs(STDM8SlimmingHelper,["AntiKt4EMPFlow"])
 
 STDM8SlimmingHelper.AppendContentToStream(STDM8Stream)
 

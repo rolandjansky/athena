@@ -13,7 +13,7 @@
 
 /** Constructor **/
 Barcode::GenericBarcodeSvc::GenericBarcodeSvc(const std::string& name,ISvcLocator* svc) :
-  AthService(name,svc),
+  base_class(name,svc),
   m_incidentSvc("IncidentSvc", name),
   m_firstVertex(-1000001),
   m_vertexIncrement(-1),
@@ -187,23 +187,5 @@ StatusCode Barcode::GenericBarcodeSvc::finalize()
 {
   ATH_MSG_VERBOSE ("finalize() ...");
   ATH_MSG_VERBOSE ("finalize() successful");
-  return StatusCode::SUCCESS;
-}
-
-
-/** Query the interfaces. */
-StatusCode Barcode::GenericBarcodeSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-
-  if ( IID_IBarcodeSvc == riid )
-    {
-      *ppvInterface = (IBarcodeSvc*)this;
-    }
-  else
-    {
-      // Interface is not directly available: try out a base class
-      return Service::queryInterface(riid, ppvInterface);
-    }
-  addRef();
   return StatusCode::SUCCESS;
 }

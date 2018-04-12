@@ -22,14 +22,13 @@ class TProfile;
 class TH1;
 class TH2;
 
-class DigiTestToolBase :  virtual public IDigiTestTool, public AthAlgTool {
+class DigiTestToolBase : public extends<AthAlgTool, IDigiTestTool> {
 public:
  /// \name structors and AlgTool implementation
  //@{
   DigiTestToolBase(const std::string& name, 
          const std::string& type,
          const IInterface* parent);
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
   virtual StatusCode initialize() {
     return StatusCode::SUCCESS;
   }

@@ -28,18 +28,17 @@ class CaloClusterConstituentsOrigin: public JetConstituentModifierBase {
   public:
   
   CaloClusterConstituentsOrigin(const std::string & name); // MEN: constructor 
-  StatusCode process(xAOD::IParticleContainer* cont) const; 
-  StatusCode process(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
+
+  // Check that the configuration is reasonable
+  StatusCode initialize();
   
-  
-protected:
+  private:
 
-  StatusCode processLC(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
-  StatusCode processEM(xAOD::CaloClusterContainer* cont, const xAOD::Vertex *vert) const; // MEN: Might need to rename this process
+  // Implement the correction
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
+  StatusCode correctToOriginVtx(xAOD::CaloClusterContainer& cont, const xAOD::Vertex& vert) const;
 
-
-  std::string m_vertexContName = "";
-  bool m_useEMScale = false;
+  std::string m_vertexContName = "PrimaryVertices";
   
 };
 

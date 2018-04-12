@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # EGammaCommon.py 
@@ -22,7 +22,7 @@ ToolSvc += DFCommonPhotonsDirection
 
 #====================================================================
 # SHOWER SHAPE FUDGING IN MC 
-# (PRESELECTION=21: FUDGE FACTORS RUN2 2015+2016 DATA)
+# (PRESELECTION=22: FUDGE FACTORS RUN2 2015+2016 DATA, Rel 21)
 #====================================================================
 
 from PyUtils import AthFile
@@ -42,11 +42,8 @@ if isMC:
     print "EGammaCommon: isFullSim = ", isFullSim
 
 if isFullSim:
-#from AthenaCommon.GlobalFlags import globalflags
-#print "globalflags.DataSource(): ", globalflags.DataSource()
-#if globalflags.DataSource()=='geant4':
     from ElectronPhotonShowerShapeFudgeTool.ElectronPhotonShowerShapeFudgeToolConf import ElectronPhotonShowerShapeFudgeTool
-    DF_ElectronPhotonShowerShapeFudgeTool = ElectronPhotonShowerShapeFudgeTool(Preselection=21)
+    DF_ElectronPhotonShowerShapeFudgeTool = ElectronPhotonShowerShapeFudgeTool(Preselection=22)
     ToolSvc += DF_ElectronPhotonShowerShapeFudgeTool
     print DF_ElectronPhotonShowerShapeFudgeTool
 
@@ -55,8 +52,6 @@ if isFullSim:
 # ELECTRON SELECTION (loose, medium and tight LLH)
 # see http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/egamma/egammaTools/python/EMPIDBuilderBase.py on how to configure the selectors
 #====================================================================
-import PyCintex
-PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
 from ROOT import LikeEnum
 
 from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import ConfiguredAsgElectronLikelihoodTool
@@ -81,35 +76,20 @@ ElectronLHSelectorTight = ConfiguredAsgElectronLikelihoodTool("ElectronLHSelecto
 ElectronLHSelectorTight.primaryVertexContainer = "PrimaryVertices"
 ToolSvc += ElectronLHSelectorTight
 
-#====================================================================
-# ELECTRON SELECTION (loose, medium and tight cut-based)
-#====================================================================
-from ROOT import egammaPID
+# LooseBL
+from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronLikelihoodTool
+ElectronLHSelectorLooseBL = AsgElectronLikelihoodTool("ElectronLHSelectorLooseBL", WorkingPoint="LooseBLLHElectron")
+ElectronLHSelectorLooseBL.primaryVertexContainer = "PrimaryVertices"
+ToolSvc += ElectronLHSelectorLooseBL
 
-from ElectronPhotonSelectorTools.ConfiguredAsgElectronIsEMSelectors import ConfiguredAsgElectronIsEMSelector
 
-# Loose
-ElectronIsEMSelectorLoose = ConfiguredAsgElectronIsEMSelector("ElectronIsEMSelectorLoose", egammaPID.ElectronIDLoosePP)
-ToolSvc += ElectronIsEMSelectorLoose
 
-# Medium
-ElectronIsEMSelectorMedium = ConfiguredAsgElectronIsEMSelector("ElectronIsEMSelectorMedium", egammaPID.ElectronIDMediumPP)
-ToolSvc += ElectronIsEMSelectorMedium
-
-# Tight
-ElectronIsEMSelectorTight = ConfiguredAsgElectronIsEMSelector("ElectronIsEMSelectorTight", egammaPID.ElectronIDTightPP)
-ToolSvc += ElectronIsEMSelectorTight
-
-#====================================================================
-# ELECTRON SELECTION (multi lepton)
-#====================================================================
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronMultiLeptonSelector
-ElectronMLSelector = AsgElectronMultiLeptonSelector("ElectronMLSelector")
-ToolSvc += ElectronMLSelector
 
 #====================================================================
 # PHOTON SELECTION (loose and tight cut-based)
 #====================================================================
+from ROOT import egammaPID
+
 # Loose
 from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
 PhotonIsEMSelectorLoose = ConfiguredAsgPhotonIsEMSelector("PhotonIsEMSelectorLoose", egammaPID.PhotonIDLoose)
@@ -118,6 +98,7 @@ ToolSvc += PhotonIsEMSelectorLoose
 # Tight
 PhotonIsEMSelectorTight = ConfiguredAsgPhotonIsEMSelector("PhotonIsEMSelectorTight", egammaPID.PhotonIDTight)
 ToolSvc += PhotonIsEMSelectorTight
+
 
 #====================================================================
 # RECTANGULAR CLUSTER TOOLS
@@ -153,6 +134,7 @@ EGAMCOM_caloFillRect711 = CaloFillRectangularCluster (	name = "EGAMCOMCaloFillRe
                                                         fill_cluster = True)
 ToolSvc += EGAMCOM_caloFillRect711
 
+
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
@@ -176,6 +158,15 @@ ElectronPassLHLoose = DerivationFramework__AsgSelectionToolWrapper( name = "Elec
 ToolSvc += ElectronPassLHLoose
 print ElectronPassLHLoose
 
+# decorate electrons with the output of LH loose+BL
+ElectronPassLHLooseBL = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHLooseBL",
+                                                                    AsgSelectionTool = ElectronLHSelectorLooseBL,
+                                                                    CutType = "",
+                                                                    StoreGateEntryName = "DFCommonElectronsLHLooseBL",
+                                                                    ContainerName = "Electrons")
+ToolSvc += ElectronPassLHLooseBL
+print ElectronPassLHLooseBL
+
 # decorate electrons with the output of LH medium
 ElectronPassLHMedium = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassLHMedium",
                                                                      AsgSelectionTool = ElectronLHSelectorMedium,
@@ -195,58 +186,9 @@ ToolSvc += ElectronPassLHTight
 print ElectronPassLHTight
 
 
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
-
-# decorate electrons with the output of IsEM loose
-ElectronPassIsEMLoose = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassIsEMLoose",
-                                                                     EGammaSelectionTool = ElectronIsEMSelectorLoose,
-                                                                     EGammaFudgeMCTool = None,
-                                                                     CutType = "",
-                                                                     StoreGateEntryName = "DFCommonElectronsIsEMLoose",
-                                                                     ContainerName = "Electrons")
-
-ToolSvc += ElectronPassIsEMLoose
-print ElectronPassIsEMLoose
-
-# decorate electrons with the output of IsEM medium
-ElectronPassIsEMMedium = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassIsEMMedium",
-                                                                     EGammaSelectionTool = ElectronIsEMSelectorMedium,
-                                                                     EGammaFudgeMCTool = None,
-                                                                     CutType = "",
-                                                                     StoreGateEntryName = "DFCommonElectronsIsEMMedium",
-                                                                     ContainerName = "Electrons")
-
-
-ToolSvc += ElectronPassIsEMMedium
-print ElectronPassIsEMMedium
-
-# decorate electrons with the output of IsEM tight
-ElectronPassIsEMTight = DerivationFramework__EGSelectionToolWrapper( name = "ElectronPassIsEMTight",
-                                                                     EGammaSelectionTool = ElectronIsEMSelectorTight,
-                                                                     EGammaFudgeMCTool = None,
-                                                                     CutType = "",
-                                                                     StoreGateEntryName = "DFCommonElectronsIsEMTight",
-                                                                     ContainerName = "Electrons")
-
-ToolSvc += ElectronPassIsEMTight
-print ElectronPassIsEMTight
-
-# decorate electrons with the output of MultiLepton
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__AsgSelectionToolWrapper
-ElectronPassML = DerivationFramework__AsgSelectionToolWrapper( name = "ElectronPassML",
-                                                               AsgSelectionTool = ElectronMLSelector,
-                                                               CutType = "",
-                                                               StoreGateEntryName = "DFCommonElectronsML",
-                                                               ContainerName = "Electrons")
-ToolSvc += ElectronPassML
-print ElectronPassML
-
-
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
-
 # decorate photons with the output of IsEM loose
 # on MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
-#if globalflags.DataSource()=='geant4':
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
 if isFullSim:
     PhotonPassIsEMLoose = DerivationFramework__EGSelectionToolWrapper( name = "PhotonPassIsEMLoose",
                                                                        EGammaSelectionTool = PhotonIsEMSelectorLoose,
@@ -266,7 +208,6 @@ print PhotonPassIsEMLoose
  
 # decorate photons with the output of IsEM tight
 # on full-sim MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
-#if globalflags.DataSource()=='geant4':
 if isFullSim:
     PhotonPassIsEMTight = DerivationFramework__EGSelectionToolWrapper( name = "PhotonPassIsEMTight",
                                                                        EGammaSelectionTool = PhotonIsEMSelectorTight,
@@ -284,13 +225,27 @@ else:
 ToolSvc += PhotonPassIsEMTight
 print PhotonPassIsEMTight
 
+# decorate photons with the photon cleaning flags
+# on MC, fudge the shower shapes before computing the flags
+from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGPhotonCleaningWrapper
+if isFullSim:
+    PhotonPassCleaning = DerivationFramework__EGPhotonCleaningWrapper( name = "PhotonPassCleaning",
+                                                                       EGammaFudgeMCTool = DF_ElectronPhotonShowerShapeFudgeTool,
+                                                                       StoreGateEntryName = "DFCommonPhotonsCleaning",
+                                                                       ContainerName = "Photons")
+else:
+    PhotonPassCleaning = DerivationFramework__EGPhotonCleaningWrapper( name = "PhotonPassCleaning",
+                                                                       EGammaFudgeMCTool = None,
+                                                                       StoreGateEntryName = "DFCommonPhotonsCleaning",
+                                                                       ContainerName = "Photons")
+ToolSvc += PhotonPassCleaning
+print PhotonPassCleaning
+
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
-                       ElectronPassLHVeryLoose,ElectronPassLHLoose,ElectronPassLHMedium,ElectronPassLHTight,
-                       ElectronPassIsEMLoose,ElectronPassIsEMMedium,ElectronPassIsEMTight,
-                       PhotonPassIsEMLoose,
-                       PhotonPassIsEMTight,
-                       ElectronPassML]
+                       ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
+                       PhotonPassIsEMLoose, PhotonPassIsEMTight, PhotonPassCleaning]
+
 
 #==================================================
 # Truth Related tools 
@@ -363,6 +318,7 @@ if  rec.doTruth():
     topSequence = AlgSequence()
     topSequence += EventDensityAlg("EDTruthCentralAlg", EventDensityTool = tc )
     topSequence += EventDensityAlg("EDTruthForwardAlg", EventDensityTool = tf )
+
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   

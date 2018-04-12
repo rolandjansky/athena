@@ -6,6 +6,7 @@
 #include "TrigConfHLTData/HLTPrescaleSet.h"
 
 #include <iomanip>
+#include <iostream>
 #include <stdexcept>
 
 using namespace std;
@@ -193,12 +194,12 @@ TrigConf::HLTPrescaleSetCollection::print(const std::string& indent, unsigned in
       for(const cont& psinfo : m_prescaleSets)
          if(psinfo.pss!=0) count_loaded++;
 
-      cout << indent << "HLTPrescaleSetCollection has " << size() << " prescale set(s) defined, " << count_loaded << " loaded." << endl;
+      std::cout << indent << "HLTPrescaleSetCollection has " << size() << " prescale set(s) defined, " << count_loaded << " loaded." << std::endl;
       if(size()>0) {
-         cout << indent << "       LB      PSK       Loaded     Name" << endl;
+         std::cout << indent << "       LB      PSK       Loaded     Name" << std::endl;
          for(const cont& psinfo : m_prescaleSets)
-            cout << indent << setw(9) << right << psinfo.lb << setw(9) << right << psinfo.psk << "          " << (psinfo.pss!=0?"yes":" no")
-                 << "     " << (psinfo.pss!=0?psinfo.pss->name():"") << endl;
+            std::cout << indent << setw(9) << right << psinfo.lb << setw(9) << right << psinfo.psk << "          " << (psinfo.pss!=0?"yes":" no")
+                      << "     " << (psinfo.pss!=0?psinfo.pss->name():"") << std::endl;
       }
       if(detail>=2) {
          for(const cont& psinfo : m_prescaleSets)
@@ -211,12 +212,12 @@ TrigConf::HLTPrescaleSetCollection::print(const std::string& indent, unsigned in
 std::ostream&
 TrigConf::operator<<(std::ostream & o, const TrigConf::HLTPrescaleSetCollection & c) {
    boost::recursive_mutex::scoped_lock lock(c.m_prescaleSetCollection_mutex);
-   o << "HLTPrescaleSetCollection has " << c.size() << " prescale sets" << endl;
+   o << "HLTPrescaleSetCollection has " << c.size() << " prescale sets" << std::endl;
    if(c.size()>0) {
-      o << "       LB   Prescale set key   Loaded   Prescale set" << endl;
+      o << "       LB   Prescale set key   Loaded   Prescale set" << std::endl;
       for(const TrigConf::HLTPrescaleSetCollection::cont& psinfo : c.m_prescaleSets)
          o << setw(9) << psinfo.lb << setw(19) << psinfo.psk << "   " << (psinfo.pss!=0?"yes":" no")
-           << "   " << (psinfo.pss!=0?psinfo.pss->name():"") << endl;
+           << "   " << (psinfo.pss!=0?psinfo.pss->name():"") << std::endl;
    }
    return o;
 }

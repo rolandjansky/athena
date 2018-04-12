@@ -19,6 +19,7 @@
 #include "G4Track.hh"
 
 #include "LArG4Code/EnergySpot.h"
+#include "LArG4ShowerLib/ShowerEnergySpot.h"
 
 #include "TTree.h"
 #include "TFile.h"
@@ -214,10 +215,10 @@ namespace ShowerLib {
 	  //std::cout << "Scale: " << energyScale << std::endl;
 
 	  for (iter = (*etait).second.begin() /*outshower->begin()*/; iter != (*etait).second.end() /*outshower->end()*/; iter++) {
-		  EnergySpot tmp(**iter);
-		  tmp.SetEnergy(tmp.GetEnergy() * energyScale);
-		  outshower->push_back(tmp);
-		  //(*iter).SetEnergy((*iter).GetEnergy() * energyScale);
+        EnergySpot tmp( (*iter)->GetPosition(), (*iter)->GetEnergy(), (*iter)->GetTime() );
+        tmp.SetEnergy(tmp.GetEnergy() * energyScale);
+        outshower->push_back(tmp);
+        //(*iter).SetEnergy((*iter).GetEnergy() * energyScale);
 	  }
 	  //std::cout << "Scaled" << std::endl;
 	  if (stats != NULL) {
@@ -448,7 +449,7 @@ namespace ShowerLib {
 			  shower->setZSize(z);
 			  for(int j = 0; j < nhits; j++) {
 				  source->GetEntry(entr++); //variables mean what the name suggests
-				  shower->push_back(new EnergySpot(G4ThreeVector(x,y,z),e,time));
+				  shower->push_back(new ShowerEnergySpot(G4ThreeVector(x,y,z),e,time));
 			  }
 		  }
 	  } while (entr < nentr);

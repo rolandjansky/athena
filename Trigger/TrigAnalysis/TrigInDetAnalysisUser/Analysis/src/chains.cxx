@@ -24,6 +24,7 @@ int usage(std::ostream& s, int argc, char** argv) {
   s << "    -a, --always             \t always descend, \n";
   s << "    -d, --depth    maxdepth  \t maximum depth to descend, \n";
   s << "    -c, --contents histogram \t display number of entries in histogram, \n";
+  s << "    -f, --fast               \t bomb out as soon as a single chain has been found, \n";
   s << "    -v, --verbose            \t verbose output, \n";
   s << "    -h, --help               \t this help,\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
@@ -39,6 +40,7 @@ int usage(std::ostream& s, int argc, char** argv) {
 bool               verbose = false;
 bool        always_descend = false;
 std::string      histogram = "";
+bool                  fast = false;
 
 int main(int argc, char** argv ) { 
 
@@ -51,6 +53,7 @@ int main(int argc, char** argv ) {
     std::string arg = argv[i];
     if      ( arg=="-h" || arg=="--help" )    return usage( std::cout, argc, argv );
     else if ( arg=="-v" || arg=="--verbose" ) verbose        = true;
+    else if ( arg=="-f" || arg=="--fast" )    fast = true;
     else if ( arg=="-a" || arg=="--always" )  always_descend = true;
     else if ( arg=="-d" || arg=="--depth" )  { 
       if ( ++i<argc ) maxdepth = std::atoi(argv[i]);

@@ -338,17 +338,15 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 HIGG2D5TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D5TPThinningTool",
                                                                    ThinningService        = HIGG2D5ThinningHelper.ThinningSvc(),
                                                                    SelectionString        = thinning_expression,
-                                                                   InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                   ApplyAnd               = True)
+                                                                   InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D5TPThinningTool
 thinningTools.append(HIGG2D5TPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 HIGG2D5JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D5JetTPThinningTool",
                                                                          ThinningService        = HIGG2D5ThinningHelper.ThinningSvc(),
-                                                                         JetKey                 = "AntiKt4LCTopoJets",
-                                                                         InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                         ApplyAnd               = True)
+                                                                         JetKey                 = "AntiKt4EMTopoJets",
+                                                                         InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D5JetTPThinningTool
 thinningTools.append(HIGG2D5JetTPThinningTool)
 
@@ -568,9 +566,7 @@ HIGG2D5SlimmingHelper.SmartCollections = ["Electrons",
                                           "Muons",
                                           "TauJets",
                                           "MET_Reference_AntiKt4EMTopo",
-                                          "MET_Reference_AntiKt4LCTopo",
                                           "AntiKt4EMTopoJets",
-                                          "AntiKt4LCTopoJets",
                                           "BTagging_AntiKt4EMTopo",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
@@ -583,9 +579,6 @@ if DerivationFrameworkIsMonteCarlo:
 
 # For J/psi vertex augmentation
 HIGG2D5SlimmingHelper.StaticContent = HIGG2D5StaticContent
-
-# Add MET_RefFinalFix
-addMETOutputs(HIGG2D5SlimmingHelper,["AntiKt4LCTopo","Track"])
 
 HIGG2D5SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D5SlimmingHelper.IncludeBPhysTriggerContent = True

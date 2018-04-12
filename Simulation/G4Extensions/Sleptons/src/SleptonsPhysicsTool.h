@@ -17,7 +17,7 @@
  *  @author Edoardo Farina
  *  @date   15-05-2015
  */
-class SleptonsPhysicsTool :  public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool  {
+class SleptonsPhysicsTool :  public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>  {
 public:
   /// Standard constructor
   SleptonsPhysicsTool( const std::string& type , const std::string& name,

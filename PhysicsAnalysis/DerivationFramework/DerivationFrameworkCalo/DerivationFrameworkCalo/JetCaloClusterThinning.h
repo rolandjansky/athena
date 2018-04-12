@@ -40,13 +40,12 @@ namespace DerivationFramework {
       std::string m_sgKey;
       std::string m_TopoClSGKey;
       std::string m_selectionString;
-      float m_coneSize;
+      std::vector<std::string> m_addClustersSGKey;
       bool m_and;
       ExpressionParsing::ExpressionParser *m_parser;
 
-      void setJetClustersMask(std::vector<bool>&, const xAOD::JetContainer*&, const xAOD::CaloClusterContainer*&) const;
-      void setJetClustersMask(std::vector<bool>&, std::vector<const xAOD::Jet*>&, const xAOD::CaloClusterContainer*&) const;
-      void select(const xAOD::Jet* particle, float coneSize, const xAOD::CaloClusterContainer* clusters, std::vector<bool> &mask) const;
+      void setJetClustersMask(std::vector<bool>&, const xAOD::JetContainer*&) const;
+      void setJetClustersMask(std::vector<bool>&, std::vector<const xAOD::Jet*>&) const;
   };
 
 }

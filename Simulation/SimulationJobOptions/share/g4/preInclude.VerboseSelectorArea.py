@@ -5,7 +5,7 @@
 # Note that the event number is the number of events into the G4 run, rather than the ATLAS event number.
 
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::VerboseSelectorTool',['BeginOfEvent','PreTracking','Step','PostTracking'])
+simFlags.OptionalUserActionList.addAction('G4UA::VerboseSelectorTool',['Event','Tracking','Step'])
 simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','Xmin',-25000)
 simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','Xmax',25000)
 simFlags.UserActionConfig.addConfig('G4UA::VerboseSelectorTool','Ymin',-25000)

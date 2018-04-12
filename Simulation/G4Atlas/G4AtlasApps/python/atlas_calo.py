@@ -6,7 +6,7 @@ ATLAS calorimeter detector description
 
 __author__  = 'A. Dell`Acqua, M. Gallas, A. Di Simone '
 
-from PyG4Atlas import DetConfigurator
+from DetConfigurator import DetConfigurator
 
 
 # -- LAr --

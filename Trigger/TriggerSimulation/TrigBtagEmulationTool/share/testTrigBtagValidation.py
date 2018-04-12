@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
@@ -18,34 +18,9 @@ from TrigBjetHypo.TrigBjetFexTuning_NVTX import *
 
 
 rec.readAOD=True
+acf.EvtMax=10
 
-
-#Skip first 47000 events
-#acf.SkipEvents=47000 
-#
-#Run on the firsts 47000 events only
-#acf.EvtMax=47000
-
-#Run in all events
-acf.EvtMax=-1
-
-#complete EOS sample (do "eosmount eos" in ~/ before using it)
-#lista = glob.glob('/afs/cern.ch/user/g/gmarceca/eos/atlas/atlasdatadisk/rucio/valid1/*/*/AOD.01575399._*.pool.root.1')
-
-#Local file:
-# REAL DATA
-#lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/data15_13TeV.00280500.physics_EnhancedBias.merge.AOD.r7806_p2565_tid08010770_00/AOD.08010770._000198.pool.root.1')
-# MC DATA: TTBAR
-#lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r6630_r6264/AOD.05382618._000251.pool.root.1')
-lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r7773_r7676/AOD.07981831._000076.pool.root.1')
-# MC DATA: VBF Hbb
-#lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/mc15_13TeV.341566.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_VBFH125_bb.merge.AOD.e3988_a766_a767_r6264/AOD.05739017._000075.pool.root.1')
-# REPROCESSED DATA
-#lista = glob.glob('/afs/cern.ch/work/c/cschiavi/public/DATA-VALIDATION/data15_13TeV.00282625.physics_Main.recon.AOD.r7734/AOD.07908618._001196.pool.root.1')
-# HIGGS DERIVED SAMPLE
-#lista = glob.glob('root://eosatlas//eos/atlas/user/c/cvarni/VBF/Run2/VBFH125_bb_merge_DAOD_HIGG5D3/DAOD_HIGG5D3.05894664._000001.pool.root.1')
-
-#####acf.FilesInput.set_Value_and_Lock(['root://eosatlas//eos/atlas/user/c/cvarni/VBF/Run2/VBFH125_bb_merge_DAOD_HIGG5D3/DAOD_HIGG5D3.05894664._000001.pool.root.1'])
+lista = glob.glob('/eos/atlas/user/c/cvarni/TrigBtagEmulationToolValidator/CheckCompilationAndRunning/r21/mc16_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e5602_s3126_r9703_r9728/*')
 acf.FilesInput.set_Value_and_Lock(lista) 
 
 rec.doCBNT=False
@@ -97,16 +72,9 @@ BTagConfig.PrefixxAODBaseName(False)
 BTagConfig.PrefixVertexFinderxAODBaseName(False)
 BTagConfig.setupJetBTaggerTool(ToolSvc, "AntiKt4EMTopo", SetupScheme="Trig", TaggerList=BTaggingFlags.TriggerTaggers)
 
-# ONLINE EMULATOR
-from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagEmulationTool
-emulator = Trig__TrigBtagEmulationTool()
-emulator.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
-emulator.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
-emulator.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
-emulator.UseTriggerNavigation = True
-emulator.TagOfflineWeights = False
-emulator.TagOnlineWeights = False
-emulator.EmulatedChainDefinitions = [
+
+# Define Triggers To be Emulated
+toBeEmulatedTriggers = [
     ["L1_MJJ-100",
      "EMUL_L1_MJJ-100"],
     ["HLT_10j40_L14J15",
@@ -117,12 +85,23 @@ emulator.EmulatedChainDefinitions = [
      "EMUL_HLT_2j15_gsc35_bmv2c1070_split",
      "EMUL_HLT_4j15_gsc35_bmv2c1085_split"]
 ]
+
+# ONLINE EMULATOR
+from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagEmulationTool
+emulator = Trig__TrigBtagEmulationTool()
+emulator.BTagTrackAssocTool = BTagConfig.getJetCollectionMainAssociatorTool("AntiKt4EMTopo")
+emulator.BTagTool           = BTagConfig.getJetCollectionTool("AntiKt4EMTopo")
+emulator.BTagSecVertexing   = BTagConfig.getJetCollectionSecVertexingTool("AntiKt4EMTopo")
+emulator.Verbosity = 2
+emulator.EmulatedChainDefinitions = toBeEmulatedTriggers
 ToolSvc += emulator
 
 # TEST ALGORITHM
 from TrigBtagEmulationTool.TrigBtagEmulationToolConf import Trig__TrigBtagValidationTest
 test = Trig__TrigBtagValidationTest()
 test.TrigBtagEmulationTool = emulator
+test.ToBeEmulatedTriggers = [x[0] for x in toBeEmulatedTriggers]
+test.RetrieveRetaggedJets = True
 test.OutputLevel = 0
 theJob += test
 

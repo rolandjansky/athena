@@ -26,7 +26,7 @@ namespace G4UA
   StatusCode LArGeoH62004EventActionTool::initialize()
   {
     //FIXME Old-style configuration - to be removed
-    const LArGeoTB2004Options *largeoTB2004Options;
+    const LArGeoTB2004Options *largeoTB2004Options = nullptr;
     if(detStore()->retrieve(largeoTB2004Options, "LArGeoTB2004Options").isFailure())
       {
         ATH_MSG_WARNING ( "Can't access LArGeoTB2004Options, using default values" );
@@ -52,8 +52,8 @@ namespace G4UA
   //---------------------------------------------------------------------------
   StatusCode LArGeoH62004EventActionTool::queryInterface(const InterfaceID& riid, void** ppvIf)
   {
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
+    if(riid == IG4EventActionTool::interfaceID()) {
+      *ppvIf = (IG4EventActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }

@@ -76,6 +76,26 @@ AODFix_postEgammaRec()
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+#from IsoGetter.py
+import ROOT, cppyy
+cppyy.loadDictionary('xAODCoreRflxDict')
+cppyy.loadDictionary('xAODPrimitivesDict')
+isoPar = ROOT.xAOD.Iso
+
+#remove isoPar.pileupCorrection from standard corrections
+
+IsoCorEg = [
+    [ isoPar.core57cells, isoPar.ptCorrection ],
+    [ isoPar.core57cells, isoPar.ptCorrection ],
+    [ isoPar.coreTrackPtr ] #still hard-coded
+    ]
+IsoCorMu = [
+    #[ isoPar.coreCone ], 
+    [ isoPar.coreMuon ],
+    [ isoPar.coreCone ],
+    [ isoPar.coreTrackPtr ] #still hard-coded
+    ]
+
 if hasattr(topSequence,"EDtpIsoCentralAlg") :
     EDtpIsoCentralAlg=getattr(topSequence,"EDtpIsoCentralAlg")
     topSequence.remove(EDtpIsoCentralAlg)
@@ -86,10 +106,20 @@ if hasattr(topSequence,"EDtpIsoForwardAlg") :
     topSequence.remove(EDtpIsoForwardAlg)
     topSequence+=EDtpIsoForwardAlg
 
+if hasattr(topSequence,"EDtpIsoVeryForwardAlg") :
+    EDtpIsoVeryForwardAlg=getattr(topSequence,"EDtpIsoVeryForwardAlg")
+    topSequence.remove(EDtpIsoVeryForwardAlg)
+    topSequence+=EDtpIsoVeryForwardAlg
+
 if hasattr(topSequence,"IsolationBuilder") :
     iso=getattr(topSequence,"IsolationBuilder")
     topSequence.remove(iso)
     iso.EgIsoTypes=iso.MuIsoTypes
+    iso.EgCorTypes=IsoCorEg
+    iso.MuCorTypes=IsoCorMu
     iso.CellCollectionName='SubtractedCells'
-    topSequence+=iso
+
+    
+
+topSequence+=iso
 

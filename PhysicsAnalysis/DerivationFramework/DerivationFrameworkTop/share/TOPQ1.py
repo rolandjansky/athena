@@ -110,9 +110,17 @@ DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ1
 # Then apply thinning
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools)
 
+#====================================================================
 # JetTagNonPromptLepton decorations
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-TOPQ1Sequence += Config.GetDecoratePromptLeptonAlgs()
+#====================================================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
+# Build AntiKt4PV0TrackJets and run b-tagging
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ1Sequence, 'TOPQ1')
+
+# Add BDT decoration algs
+TOPQ1Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
+TOPQ1Sequence += JetTagConfig.GetDecoratePromptTauAlgs()
 
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += TOPQ1Sequence

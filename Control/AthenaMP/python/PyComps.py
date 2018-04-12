@@ -32,7 +32,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         self.MemSamplingInterval = jp.AthenaMPFlags.MemSamplingInterval()
 
         from AthenaCommon.DetFlags import DetFlags
-        if DetFlags.pileup.any_on():
+        if DetFlags.pileup.any_on() or DetFlags.overlay.any_on():
             self.IsPileup = True
         else:
             self.IsPileup = False

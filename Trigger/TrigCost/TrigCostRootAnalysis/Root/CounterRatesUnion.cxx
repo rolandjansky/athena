@@ -228,7 +228,14 @@ namespace TrigCostRootAnalysis {
     for (ChainItemSetIt_t _L2TestIt = m_L2s.begin(); _L2TestIt != m_L2s.end(); ++_L2TestIt) {
       RatesChainItem* _L2Test = (*_L2TestIt);
       // Check that I have exactly one seed
-      if (_L2Test->getLower().size() != 1) {
+      if (_L2Test->getLower().size() == 2) { // TODO this is temporary for July 2017
+        for (ChainItemSetIt_t _L1Hack = _L2Test->getLower().begin(); _L1Hack != _L2Test->getLower().end(); ++_L1Hack) {
+          if ((*_L1Hack)->getName() == "L1_MU20") continue;
+          else if ((*_L1Hack)->getName() == "L1_MU21") continue;
+          _allOneToMany = kFALSE;
+          break; 
+        }
+      } else if (_L2Test->getLower().size() != 1) {
         _allOneToMany = kFALSE;
         break;
       }
@@ -239,7 +246,15 @@ namespace TrigCostRootAnalysis {
       for (ChainItemSetIt_t _L2It = _cpsGroup->getChainStart(); _L2It != _cpsGroup->getChainEnd(); ++_L2It) {
         if (m_myCPSChains.count((*_L2It)->getName()) == 0) continue;
         //This CPS group member is not in this rates group
-        if ((*_L2It)->getLower().size() != 1) {
+        RatesChainItem* _L2Test = (*_L2It);
+        if (_L2Test->getLower().size() == 2) { // TODO this is temporary for July 2017
+          for (ChainItemSetIt_t _L1Hack = _L2Test->getLower().begin(); _L1Hack != _L2Test->getLower().end(); ++_L1Hack) {
+            if ((*_L1Hack)->getName() == "L1_MU20") continue;
+            else if ((*_L1Hack)->getName() == "L1_MU21") continue;
+            _allOneToMany = kFALSE;
+            break; 
+          }
+        } else if (_L2Test->getLower().size() != 1) {
           _allOneToMany = kFALSE;
           break;
         }
@@ -256,9 +271,9 @@ namespace TrigCostRootAnalysis {
     }
 
     // Otherwise we have to use the general form
-    if (m_L1s.size() > 20) { // 32 is the technical maximim - but the this is already impractical
+    if (m_L1s.size() > 15) { // 32 is the technical maximim - but the this is already impractical
       Warning("CounterRatesUnion::classify",
-              "Union %s topology is Many-To-Many with NL1:%i (Complexity (2^NL1-1)=%e). Disabling (max L1 seeds is 20 for Many-To-Many).",
+              "Union %s topology is Many-To-Many with NL1:%i (Complexity (2^NL1-1)=%e). Disabling (max L1 seeds is 15 for Many-To-Many).",
               getName().c_str(), (Int_t) m_L1s.size(), TMath::Power(2., (Double_t) m_L1s.size()) - 1.);
       m_cannotCompute = kTRUE;
     } else if (m_L1s.size() > 10) {

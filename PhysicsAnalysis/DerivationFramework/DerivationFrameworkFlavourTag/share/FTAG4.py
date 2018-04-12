@@ -11,9 +11,6 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if globalflags.DataSource()!='data':
-    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-    addStandardTruthContents()
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
@@ -23,10 +20,16 @@ from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTop
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 
+#====================================================================
+# Create Private Sequence
+#====================================================================
+
+FTAG4Seq = CfgMgr.AthSequencer("FTAG4Sequence")
 
 #====================================================================
 # SKIMMING TOOLS
 # (SKIMMING = REMOVING WHOLE EVENTS THAT FAIL CRITERIA)
+# Create skimming tool, and create + add kernel to sequence
 #====================================================================
 
 # offline lepton skimming : require at least one lepton
@@ -60,12 +63,16 @@ FTAG4TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FTAG
 ToolSvc += FTAG4TriggerSkimmingTool
 print FTAG4TriggerSkimmingTool
 
-#====================================================================
-# CREATE PRIVATE SEQUENCE
-#====================================================================
+FTAG4Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG4SkimKernel",
+                                                         SkimmingTools = [FTAG4StringSkimmingTool,FTAG4TriggerSkimmingTool])
 
-FTAG4Seq = CfgMgr.AthSequencer("FTAG4Sequence");
-DerivationFrameworkJob += FTAG4Seq
+#====================================================================
+# TRUTH SETUP
+#====================================================================
+if globalflags.DataSource()!='data':
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addHFAndDownstreamParticles
+    addStandardTruthContents()
+    addHFAndDownstreamParticles()
 
 #====================================================================
 # Basic Jet Collections 
@@ -84,14 +91,14 @@ addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
+FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG4Seq)
 
 #====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
+# Add sequence (with all kernels needed) to DerivationFrameworkJob 
 #====================================================================
-FTAG4Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG4Kernel",
-                                                         SkimmingTools = [FTAG4StringSkimmingTool,FTAG4TriggerSkimmingTool])
-                                                                       
+
+DerivationFrameworkJob += FTAG4Seq
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -103,7 +110,7 @@ FTAG4Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # Name must match that of the kernel above
 # AcceptAlgs  = logical OR of filters
 # RequireAlgs = logical AND of filters
-FTAG4Stream.AcceptAlgs(["FTAG4Kernel"])
+FTAG4Stream.AcceptAlgs(["FTAG4SkimKernel"])
 
 FTAG4SlimmingHelper = SlimmingHelper("FTAG4SlimmingHelper")
 
@@ -111,7 +118,6 @@ FTAG4SlimmingHelper = SlimmingHelper("FTAG4SlimmingHelper")
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG4SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMTopo"]
@@ -129,9 +135,16 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     ]
 
 FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
-                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
-
-addJetOutputs(FTAG4SlimmingHelper,["FTAG4"],[],[])
+                                       "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
+                                       "InDetTrackParticles.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits",
+                                       "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSharedHits.numberOfContribPixelLayers.hitPattern.radiusOfFirstHit",
+                                       "PrimaryVertices.x.y.z.neutralWeights.numberDoF.sumPt2.chiSquared.covariance.trackWeights",
+                                       "CombinedMuonTrackParticles.vx.vy.vz",
+                                       "ExtrapolatedMuonTrackParticles.vx.vy.vz",
+                                       "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
+                                       "MuonSpectrometerTrackParticles.vx.vy.vz",
+                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex"]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
@@ -148,9 +161,9 @@ addJetOutputs(FTAG4SlimmingHelper,["FTAG4"])
 
 FTAG4SlimmingHelper.IncludeMuonTriggerContent = True
 FTAG4SlimmingHelper.IncludeEGammaTriggerContent = True
-FTAG4SlimmingHelper.IncludeJetTriggerContent = False
+FTAG4SlimmingHelper.IncludeJetTriggerContent = True
 FTAG4SlimmingHelper.IncludeEtMissTriggerContent = False
-FTAG4SlimmingHelper.IncludeBJetTriggerContent = False
+FTAG4SlimmingHelper.IncludeBJetTriggerContent = True
 
 #FTAG4 TrigNav Thinning
 FTAG4ThinningHelper = ThinningHelper( "FTAG4ThinningHelper" )

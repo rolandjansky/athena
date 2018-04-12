@@ -18,8 +18,9 @@ using namespace TauAnalysisTools;
 //______________________________________________________________________________
 CommonDiTauEfficiencyTool::CommonDiTauEfficiencyTool(std::string sName)
   : CommonEfficiencyTool( sName )
-  , m_fX(&DiTauPt)
-  , m_fY(&DiTauEta)
+  , m_fX(&TruthLeadPt)
+  , m_fY(&TruthSubleadPt)
+  , m_fZ(&TruthDeltaR)
   , m_bSFIsAvailable(false)
   , m_bSFIsAvailableChecked(false)
 {
@@ -31,6 +32,51 @@ CommonDiTauEfficiencyTool::~CommonDiTauEfficiencyTool()
 
 
 /*
+  - Find the root files with scale factor inputs on afs/cvmfs using PathResolver
+    (more info here:
+    https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PathResolver)
+  - Call further functions to process and define NP strings and so on
+  - Configure to provide nominal scale factors by default
+*/
+StatusCode CommonDiTauEfficiencyTool::initialize()
+{
+  ATH_MSG_INFO( "Initializing CommonDiTauEfficiencyTool" );
+  // only read in histograms once
+  if (m_mSF==nullptr)
+  {
+    std::string sInputFilePath = PathResolverFindCalibFile(m_sInputFilePath);
+
+    m_mSF = std::make_unique< tSFMAP >();
+    std::unique_ptr< TFile > fSF( TFile::Open( sInputFilePath.c_str(), "READ" ) );
+    if(!fSF)
+    {
+      ATH_MSG_FATAL("Could not open file " << sInputFilePath.c_str());
+      return StatusCode::FAILURE;
+    }
+    ReadInputs(fSF);
+    fSF->Close();
+  }
+
+  // needed later on in generateSystematicSets(), maybe move it there
+  std::vector<std::string> vInputFilePath;
+  split(m_sInputFilePath,'/',vInputFilePath);
+  m_sInputFileName = vInputFilePath.back();
+
+  generateSystematicSets();
+
+  if (m_sWP.length()>0)
+    m_sSFHistName = "sf_"+m_sWP;
+
+  // load empty systematic variation by default
+  if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok )
+    return StatusCode::FAILURE;
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+/*
   Retrieve the scale factors and if requested the values for the NP's and add
   this stuff in quadrature. Finally return sf_nom +/- n*uncertainty
 */
@@ -39,7 +85,7 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::getEfficiencyScaleFactor(const xAO
     double& dEfficiencyScaleFactor)
 {
   // check which true state is requestet
-  if (!m_bSkipTruthMatchCheck and checkTruthMatch(xDiTau) != m_eCheckTruth)
+  if (checkTruthMatch(xDiTau) != m_eCheckTruth)
   {
     dEfficiencyScaleFactor = 1.;
     return CP::CorrectionCode::Ok;
@@ -76,7 +122,6 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::getEfficiencyScaleFactor(const xAO
     if (dDirection>0)   sHistName+="_up";
     else                sHistName+="_down";
     if (!m_sWP.empty()) sHistName+="_"+m_sWP;
-    // sHistName += sProng;
 
     // get the uncertainty from the histogram
     tmpCorrectionCode = getValue(sHistName,
@@ -141,13 +186,14 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::applyEfficiencyScaleFactor(const x
 
 
 // //______________________________________________________________________________
-void CommonDiTauEfficiencyTool::ReadInputs(TFile* fFile)
+void CommonDiTauEfficiencyTool::ReadInputs(std::unique_ptr<TFile> &fFile)
 {
   m_mSF->clear();
 
   // initialize function pointer
-  m_fX = &DiTauPt;
-  m_fY = &DiTauEta;
+  m_fX = &TruthLeadPt;
+  m_fY = &TruthSubleadPt;
+  m_fZ = &TruthDeltaR;
 
   TKey *kKey;
   TIter itNext(fFile->GetListOfKeys());
@@ -179,6 +225,66 @@ void CommonDiTauEfficiencyTool::ReadInputs(TFile* fFile)
 }
 
 
+/*  
+  This function parses the names of the objects from the input file and
+  generates the systematic sets and defines which ones are recommended or only
+  available. It also checks, based on the root file name, on which tau it needs
+  to be applied, e.g. only on reco taus coming from true taus or on those faked
+  by true electrons...
+  Examples:
+  filename: JetID_TrueHadDiTau_2017-fall.root -> apply only to true ditaus
+  histname: sf_* -> nominal scale factor
+  histname: TOTAL_* -> "total" NP, recommended
+  histname: afii_* -> "total" NP, not recommended, but available
+*/
+//______________________________________________________________________________
+void CommonDiTauEfficiencyTool::generateSystematicSets()
+{
+  // creation of basic string for all NPs, e.g. "TAUS_TRUEHADTAU_EFF_RECO_"
+  std::vector<std::string> vSplitInputFilePath = {};
+  split(m_sInputFileName,'_',vSplitInputFilePath);
+  std::string sEfficiencyType = vSplitInputFilePath.at(0);
+  std::string sTruthType = vSplitInputFilePath.at(1);
+  std::transform(sEfficiencyType.begin(), sEfficiencyType.end(), sEfficiencyType.begin(), toupper);
+  std::transform(sTruthType.begin(), sTruthType.end(), sTruthType.begin(), toupper);
+  std::string sSystematicBaseString = "TAUS_"+sTruthType+"_EFF_"+sEfficiencyType+"_";
+  // set truth type to check for in truth matching
+  if (sTruthType=="TRUEHADTAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicTau;
+  if (sTruthType=="TRUEELECTRON") m_eCheckTruth = TauAnalysisTools::TruthElectron;
+  if (sTruthType=="TRUEMUON") m_eCheckTruth = TauAnalysisTools::TruthMuon;
+  if (sTruthType=="TRUEJET") m_eCheckTruth = TauAnalysisTools::TruthJet;
+  if (sTruthType=="TRUEHADDITAU") m_eCheckTruth = TauAnalysisTools::TruthHadronicDiTau;
+  if (sEfficiencyType=="ELEOLR") m_bNoMultiprong = true;
+  for (auto mSF : *m_mSF)
+  {
+    // parse for nuisance parameter in histogram name
+    std::vector<std::string> vSplitNP = {};
+    split(mSF.first,'_',vSplitNP);
+    std::string sNP = vSplitNP.at(0);
+    std::string sNPUppercase = vSplitNP.at(0);
+    // skip nominal scale factors
+    if (sNP == "sf") continue;
+    // test if NP starts with a capital letter indicating that this should be recommended
+    bool bIsRecommended = false;
+    if (isupper(sNP.at(0)))
+      bIsRecommended = true;
+    // make sNP uppercase and build final NP entry name
+    std::transform(sNPUppercase.begin(), sNPUppercase.end(), sNPUppercase.begin(), toupper);
+    std::string sSystematicString = sSystematicBaseString+sNPUppercase;
+    // add all found systematics to the AffectingSystematics
+    m_sAffectingSystematics.insert(CP::SystematicVariation (sSystematicString, 1));
+    m_sAffectingSystematics.insert(CP::SystematicVariation (sSystematicString, -1));
+    // only add found uppercase systematics to the RecommendedSystematics
+    if (bIsRecommended)
+    {
+      m_sRecommendedSystematics.insert(CP::SystematicVariation (sSystematicString, 1));
+      m_sRecommendedSystematics.insert(CP::SystematicVariation (sSystematicString, -1));
+    }
+    ATH_MSG_DEBUG("connected base name " << sNP << " with systematic " <<sSystematicString);
+    m_mSystematicsHistNames.insert({sSystematicString,sNP});
+  }
+}
+
 /*
   return value from the tuple map object based on the pt/eta values (or the
   corresponding value in case of configuration)
@@ -201,19 +307,20 @@ CP::CorrectionCode CommonDiTauEfficiencyTool::getValue(const std::string& sHistN
   tTupleObjectFunc tTuple = (*m_mSF)[sHistName];
 
   // get pt and eta (for x and y axis respectively)
-  double dPt = m_fX(xDiTau);
-  double dEta = m_fY(xDiTau);
+  double dX = m_fX(xDiTau);
+  double dY = m_fY(xDiTau);
+  double dZ = m_fZ(xDiTau);
 
+  double dVars[3] = {dX, dY, dZ};
   // finally obtain efficiency scale factor from TH1F/TH1D/TF1, by calling the
   // function pointer stored in the tuple from the scale factor map
-  return  (std::get<1>(tTuple))(std::get<0>(tTuple), dEfficiencyScaleFactor, dPt, dEta);
+  return  (std::get<1>(tTuple))(std::get<0>(tTuple), dEfficiencyScaleFactor, dVars);
 }
-
 
 /*
   Check the type of truth particle, previously matched with the
   DiTauTruthMatchingTool. The type to match was parsed from the input file in
-  CommonEfficiencyTool::generateSystematicSets()
+  CommonDiTauEfficiencyTool::generateSystematicSets()
 */
 //______________________________________________________________________________
 e_TruthMatchedParticleType CommonDiTauEfficiencyTool::checkTruthMatch(const xAOD::DiTauJet& xDiTau) const
@@ -231,18 +338,27 @@ e_TruthMatchedParticleType CommonDiTauEfficiencyTool::checkTruthMatch(const xAOD
   return eTruthMatchedParticleType;
 }
 
-
 //______________________________________________________________________________
-double TauAnalysisTools::DiTauPt(const xAOD::DiTauJet& xDiTau)
+double TauAnalysisTools::TruthLeadPt(const xAOD::DiTauJet& xDiTau)
 {
-  // return ditau pt in GeV
-  return xDiTau.auxdata<double>("ditau_pt")/1000.;
+  // return leading truth tau pt in GeV
+  static const SG::AuxElement::ConstAccessor< double > acc( "TruthVisLeadPt" );
+  return acc( xDiTau ) * 0.001;
 }
 
+//______________________________________________________________________________
+double TauAnalysisTools::TruthSubleadPt(const xAOD::DiTauJet& xDiTau)
+{
+  // return subleading truth tau pt in GeV
+  static const SG::AuxElement::ConstAccessor< double > acc( "TruthVisSubleadPt" );
+  return acc( xDiTau ) * 0.001;
+}
 
 //______________________________________________________________________________
-double TauAnalysisTools::DiTauEta(const xAOD::DiTauJet& xDiTau)
+double TauAnalysisTools::TruthDeltaR(const xAOD::DiTauJet& xDiTau)
 {
-  // return ditau eta
-  return xDiTau.eta();
+  // return truth taus distance delta R
+  static const SG::AuxElement::ConstAccessor< double > acc( "TruthVisDeltaR" );
+  return acc( xDiTau );
 }
+

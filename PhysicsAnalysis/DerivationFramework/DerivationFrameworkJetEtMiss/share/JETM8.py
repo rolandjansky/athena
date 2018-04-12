@@ -165,37 +165,41 @@ ctm.add( ConstituentSubtractorTool("JetConstit_ConstSub"),
 clustOrigSeq = ctm.buildConstitModifSequence( 'ConstitOrigSeq',
                                               OutputContainer = 'OrigTopoClusters',
                                               InputContainer= 'CaloCalTopoClusters',
-                                              modList = [  'lc_origin'] )
+                                              modList = [  'clus_origin'] )
+
+# Hardcoding the equivalent value from the enum in xAODBase/ObjectType.h
+# as loading the relevant dictionary seems to cause problems later
+xAOD_Type_CaloCluster = 1
 
 clustSKSeq = ctm.buildConstitModifSequence( 'ConstitOrigSKSeq',
                                             OutputContainer = 'OrigSKTopoClusters',
                                             InputContainer= 'OrigTopoClusters',
-                                            modList = [  'softkiller'] , InputType="CaloCluster")
+                                            modList = [  'softkiller'] , InputType=xAOD_Type_CaloCluster)
 
 clustVorSeq = ctm.buildConstitModifSequence( 'ConstitOrigVorSeq',
                                             OutputContainer = 'OrigVorTopoClusters',
                                             InputContainer= 'OrigTopoClusters',
-                                            modList = [  'voronoi'] , InputType="CaloCluster")
+                                            modList = [  'voronoi'] , InputType=xAOD_Type_CaloCluster)
 
 clustVorSuppSeq = ctm.buildConstitModifSequence( 'ConstitOrigVorSuppSeq',
                                                  OutputContainer = 'OrigVorSuppTopoClusters',
                                                  InputContainer= 'OrigTopoClusters',
-                                                 modList = [  'voronoiSupp'] , InputType="CaloCluster")
+                                                 modList = [  'voronoiSupp'] , InputType=xAOD_Type_CaloCluster)
 
 clustVorSKSeq = ctm.buildConstitModifSequence( 'ConstitOrigVorSKSeq',
                                             OutputContainer = 'OrigVorSuppSKTopoClusters',
                                             InputContainer= 'OrigVorSuppTopoClusters',
-                                            modList = [  'softkiller'] , InputType="CaloCluster")
+                                            modList = [  'softkiller'] , InputType=xAOD_Type_CaloCluster)
 
 clustCSSeq = ctm.buildConstitModifSequence( 'ConstitOrigCSSeq',
                                             OutputContainer = 'OrigCSTopoClusters',
                                             InputContainer= 'OrigTopoClusters',
-                                            modList = [  'constsub'] , InputType="CaloCluster")
+                                            modList = [  'constsub'] , InputType=xAOD_Type_CaloCluster)
 
 clustCSSKSeq = ctm.buildConstitModifSequence( 'ConstitOrigCSSKSeq',
                                             OutputContainer = 'OrigCSSKTopoClusters',
                                             InputContainer= 'OrigCSTopoClusters',
-                                            modList = [  'softkiller'] , InputType="CaloCluster")
+                                            modList = [  'softkiller'] , InputType=xAOD_Type_CaloCluster)
 
 correctedClusters = [ "OrigTopoClusters", "OrigSKTopoClusters", "OrigCSTopoClusters", "OrigCSSKTopoClusters", "OrigVorSuppSKTopoClusters", "OrigVorTopoClusters", "OrigVorSuppTopoClusters" ]
 
@@ -214,6 +218,7 @@ addStandardJets("CamKt", 1.5, "LCTopo", mods="lctopo_ungroomed", calibOpt="none"
 addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 
 # PFlow fat jets
+addCHSPFlowObjects()
 #addTrimmedJets("AntiKt", 1.0, "EMCPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 addTrimmedJets("AntiKt", 1.0, "EMPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 
@@ -227,13 +232,6 @@ addAntiKt4PV0TrackJets(jetm8Seq, "JETM8")
 if DerivationFrameworkIsMonteCarlo:
      addAntiKt4TruthJets(jetm8Seq, "JETM8")
      addAntiKt10TruthJets(jetm8Seq, "JETM8")
-
-#=======================================
-# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
-#=======================================
-
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections  = ['AntiKt2PV0TrackJets'], Sequencer = jetm8Seq)
 
 #====================================================================
 # SET UP STREAM   
@@ -268,9 +266,11 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
 
-JETM8SlimmingHelper.AppendToDictionary.update({"LCOriginTopoClusters":"xAOD::CaloClusterContainer",
-                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer"})
-JETM8SlimmingHelper.ExtraVariables =['LCOriginTopoClusters.calE.calEta.calM.calPhi']
+#JETM8SlimmingHelper.AppendToDictionary.update({"LCOriginTopoClusters":"xAOD::CaloClusterContainer",
+#                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer"})
+#JETM8SlimmingHelper.ExtraVariables =['LCOriginTopoClusters.calE.calEta.calM.calPhi']
+
+addOriginCorrectedClusters(JETM8SlimmingHelper,writeLC=True,writeEM=False)
 
 #JETM8SlimmingHelper.ExtraVariables = []
 

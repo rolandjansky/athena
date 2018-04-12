@@ -536,17 +536,17 @@ def makeOneHistFile( htmlDir, name, subname, sp, runlistLoc, compare ):
         extra-=2
     elif cc<len(sp)-1 and 'inputname' not in sp[cc]:
       if currentHeading == 'results':
-        namecache.append(sp[cc])
+        namecache.append(sp[cc-2])
         if ':' not in sp[cc]:
           cc+=1
           extra-=1
           continue
         else:
-          name = ' '.join(namecache)
+          name = ' '.join([namecache[-1]])
           namecache = []
         import urllib
         resultname = name.rsplit(':', 1)[0]
-        resultval = sp[cc+1]
+        resultval = sp[cc-1]
         if algorithm == 'RepeatAlgorithm' and resultname.endswith('|Status'):
           resultval = {'1': 'Red', '2': 'Yellow', '3': 'Green'}[resultval]
         if compare and run != None:

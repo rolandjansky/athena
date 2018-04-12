@@ -26,7 +26,7 @@ namespace LVL1MUCTPI {
       *  \param inputEvent reference to the inputEvent
       */
 
-     virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo & ) const = 0;
+     virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo &, int bcidOffset=0) const = 0;
 
   };
 

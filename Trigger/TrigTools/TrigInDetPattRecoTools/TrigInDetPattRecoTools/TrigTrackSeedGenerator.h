@@ -469,11 +469,7 @@ private:
   void storeTriplets(INTERNAL_TRIPLET_BUFFER&);
 
   const TrigCombinatorialSettings& m_settings;
-  int m_maxSoaSize;
-  double m_maxOuterRadius;
-  //double m_minRadius, m_maxRadius, m_radBinWidth;
   double m_phiSliceWidth;
-  //int m_nMaxRadBin;
   double m_minDeltaRadius, m_maxDeltaRadius, m_zTol;
 
   L_PHI_STORAGE* m_pStore;
@@ -492,4 +488,4 @@ private:
   std::vector<int> m_innerMarkers, m_outerMarkers;
 } TRIG_TRACK_SEED_GENERATOR;
 
-#endif
+#endif // not TRIGINDETPATTRECOTOOLS_TRIGTRACKSEEDGENERATOR_H

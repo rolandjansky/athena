@@ -154,7 +154,8 @@ class TrigCorMonitor(TrigCorMoni):
     def target(self):
         return [ "Online", "Validation" ]
     
-TrigSteerMonitorToolList = [  TrigErrorMonitor(),
+TrigSteerMonitorToolList = [  TrigRateMoniConfig20s(),   # leave first(!) so it gets finalized first (ATDSUPPORT-223)
+                              TrigErrorMonitor(),
                               TrigErrorExpertMonitor(),
                               TrigRoIMoniConfigValidation(), TrigRoIMoniConfigOnline(),
                               TrigSignatureMoniConfigValidation(), TrigSignatureMoniConfigOnline(),

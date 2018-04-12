@@ -11,17 +11,17 @@
    @class AthPhotonEfficiencyCorrectionTool
    @brief Calculate the egamma scale factors in Athena
 
-   @author Rob Roy Fletcher, Karsten Koeneke, Michael Pitt, Giovanni Marchiori
-   @date   August 2014
+   @author Michael Pitt <michael.pitt@cern.ch>, Giovanni Marchiori
+   @date   February 2018
 */
 
 // STL includes
 #include <vector>
 #include <string>
-#include <fstream>      // std::ifstream
+#include <fstream>
+#include <unordered_map>
 
 // Utility includes
-#include "boost/unordered_map.hpp"
 #include "boost/algorithm/string.hpp" // this one to replace std::string names
 
 // Include the return object and the underlying ROOT tool
@@ -103,32 +103,29 @@ private:
   /// Pointer to the underlying ROOT based tool
   Root::TPhotonEfficiencyCorrectionTool* m_rootTool_unc;
   Root::TPhotonEfficiencyCorrectionTool* m_rootTool_con;
-  /// additional pointers for ISO SF using RadZ decays
-  Root::TPhotonEfficiencyCorrectionTool* m_rootTool_uncRadZ;
-  Root::TPhotonEfficiencyCorrectionTool* m_rootTool_conRadZ;
   
   /// A dummy return TResult object
   Root::TResult m_resultDummy;
 
   /// Systematics filter map
-  boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
+  std::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
   
   /// Currently applied systematics
   CP::SystematicSet* m_appliedSystematics = nullptr;
   
   // The prefix for the systematic name
   std::string m_sysSubstring;
-  std::string m_sysSubstringRadZ;
   
   // Get the correction filename from the map
-  std::string getFileName(std::string isoWP, bool isConv, std::string sufix);
+  std::string getFileName(std::string isoWP, std::string trigWP, bool isConv);
+  
+  // Set prefix of the corresponding calibration filenames:
+  std::string file_prefix_ID="offline.Tight";
+  std::string file_prefix_ISO="Isolation.isolFixedCut";
+  std::string file_prefix_Trig="HLT";
   
   // Properties
   
-  /// The list of input file names
-  std::string m_corrFileNameConv;
-  std::string m_corrFileNameUnconv;
- 
   /// The prefix string for the result
   std::string m_resultPrefix;
 
@@ -141,15 +138,16 @@ private:
   /// Isolation working point
   std::string m_isoWP;
   
+  /// Trigger name for trigger SF
+  std::string m_trigger;
+  
   /// map filename
   std::string m_mapFile;  
   
-  /// photonPT threshold for different isolation menus
-  float m_Threshold_lowPT;
-  float m_Threshold_highPT;
-  bool  m_UseRadZ_mediumPT;
-
-
+  //use RandomRun Number
+  bool m_useRandomRunNumber;
+  int m_defaultRandomRunNumber;
+ 
 
 }; // End: class definition
 

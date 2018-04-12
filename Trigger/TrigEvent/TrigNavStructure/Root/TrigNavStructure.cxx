@@ -254,7 +254,7 @@ bool TrigNavStructure::deserializeTEs(std::vector<uint32_t>::const_iterator& sta
   const size_t payloadSize = *inputIt++; 
   
   if ( totalSize < payloadSize ) { // not all TEs were recorded
-    std::cerr << "size of the navigation payload smaller then reported size used to save TEs. " << totalSize << " < " << payloadSize << std::endl;
+    std::cerr << "size of the navigation payload smaller than the one required to save TEs. " << totalSize << " < " << payloadSize << std::endl;
     return false;
   }
 

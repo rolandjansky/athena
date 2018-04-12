@@ -30,6 +30,8 @@
 
 // The output object of the simulation
 #include "TrigT1Result/MuCTPI_RDO.h"
+#include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
+#include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
 
 // Inlcudes for the MuCTPI simulation
 #include "../Algorithms/L1MuctpiTool.h"
@@ -370,63 +372,93 @@ namespace LVL1MUCTPI {
   // algorithm code what to execute. This is essetnially the execute from RDO variant
   // below without the saveOutput call, since we only want part of that routine.
 
-  StatusCode L1MuctpiTool::fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& l1topoCandidates ) const {
+  StatusCode L1MuctpiTool::fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& l1topoCandidates, int bcidOffset) const {
     ATH_MSG_DEBUG( "in fillMuCTPIL1Topo()" );
     
     // Retrieve the MuCTPIToRoIBSLink or RoIBResult object from storegate:
     const ROIB::RoIBResult* roibResult {nullptr};
     const L1MUINT::MuCTPIToRoIBSLink* muctpi_slink {nullptr};
+    const MuCTPI_RDO* muctpiRDO = {nullptr};
     
-    if( evtStore()->contains<L1MUINT::MuCTPIToRoIBSLink>( m_roiOutputLocId) ) {
-      CHECK( evtStore()->retrieve( muctpi_slink,  m_roiOutputLocId) );
-    } else if( evtStore()->contains<ROIB::RoIBResult>(m_roibLocation) ) {
-      CHECK( evtStore()->retrieve(roibResult, m_roibLocation) );
-    } else {
-      ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key '/Run/L1MuCTPItoRoIBLocation' nor a an RoIBResult were found in the event.");
-      return StatusCode::RECOVERABLE;
+    if(bcidOffset==0) {      
+      if( evtStore()->contains<L1MUINT::MuCTPIToRoIBSLink>( m_roiOutputLocId) ) {
+	CHECK( evtStore()->retrieve( muctpi_slink,  m_roiOutputLocId) );
+      } else if( evtStore()->contains<ROIB::RoIBResult>(m_roibLocation) ) {
+	CHECK( evtStore()->retrieve(roibResult, m_roibLocation) );
+      } else {
+	ATH_MSG_WARNING("Neither a MuCTPIToRoIBSLink with SG key '/Run/L1MuCTPItoRoIBLocation' nor a an RoIBResult were found in the event.");
+	return StatusCode::RECOVERABLE;
+      }
+    }else{
+      CHECK( evtStore()->retrieve( muctpiRDO, m_rdoLocId ) );
+      ATH_MSG_DEBUG( "Retrieved MuCTPI_RDO object from StoreGate" );
     }
     
-    // Extract the RoIs into a vector:
-    std::vector< unsigned int > convertableRoIs;
-
-   if( roibResult ) {
-
-      const std::vector< ROIB::MuCTPIRoI >& rois = roibResult->muCTPIResult().roIVec();
-      ATH_MSG_DEBUG("Filling the input event from RoIBResult. Number of Muon ROIs: " << rois.size() );
-      for( const ROIB::MuCTPIRoI & muonRoI : rois ) {
-	   convertableRoIs.push_back(  muonRoI.roIWord() );
-      }
-   } else if( muctpi_slink ) {
-
-      ATH_MSG_DEBUG("Filling the input event. Number of Muon ROIs: " << muctpi_slink->getMuCTPIToRoIBWords().size() - ROIB::Header::wordsPerHeader - ROIB::Trailer::wordsPerTrailer - 1);
-      unsigned int icnt = 0;
-      for ( unsigned int roiword : muctpi_slink->getMuCTPIToRoIBWords() ) {
-
-         ++icnt;
-         // skip header
-         if ( icnt <= ROIB::Header::wordsPerHeader + 1 )
-            continue;
-
-         // skip trailer
-         if ( icnt > ( muctpi_slink->getMuCTPIToRoIBWords().size() - ROIB::Trailer::wordsPerTrailer ) )
-            continue;
-
-	 // fill RoI into vector
-	 convertableRoIs.push_back(roiword);
-      }
-   }
-
-    // Create the input to the MuCTPI:
+    // Convert output of MUCTPi to input
     LVL1MUONIF::Lvl1MuCTPIInput convertedInput;
-    CHECK( Converter::convertRoIs( convertableRoIs, &convertedInput ) );
 
+    // if reading from ROS data
+    if(muctpiRDO) {
+      
+      //std::cout << "DataWord Decoding" << std::endl;
+      //for(auto dW : muctpiRDO->dataWord()) 
+      //MuCTPI_DataWord_Decoder(dW).dumpData(msg());
+      
+      // Get the BCID of the collision:
+      unsigned int bcid_next = ( ( muctpiRDO->candidateMultiplicity() >> 18 ) & 0x7 ) + bcidOffset;
+      if(bcid_next==8) bcid_next=0;
+      ATH_MSG_DEBUG("Filling the input event from MUCTPI_RDO for bcid = " << bcid_next);
+      
+      // Create the input to the MuCTPI for the +1 BC
+      CHECK( Converter::convertRDO( muctpiRDO->dataWord(), bcid_next, &convertedInput ) );
+      ATH_MSG_DEBUG("Input converted");
+     
+    }
+    // or from RoIB data
+    else{
+      
+      // Extract the RoIs into a vector:
+      std::vector< unsigned int > convertableRoIs;
+      
+      if( roibResult ) {
+	
+	const std::vector< ROIB::MuCTPIRoI >& rois = roibResult->muCTPIResult().roIVec();
+	ATH_MSG_DEBUG("Filling the input event from RoIBResult. Number of Muon ROIs: " << rois.size() );
+	for( const ROIB::MuCTPIRoI & muonRoI : rois ) {
+	  convertableRoIs.push_back(  muonRoI.roIWord() );
+	}
+      } else if( muctpi_slink ) {
+	
+	ATH_MSG_DEBUG("Filling the input event. Number of Muon ROIs: " << muctpi_slink->getMuCTPIToRoIBWords().size() - ROIB::Header::wordsPerHeader - ROIB::Trailer::wordsPerTrailer - 1);
+	unsigned int icnt = 0;
+	for ( unsigned int roiword : muctpi_slink->getMuCTPIToRoIBWords() ) {
+	  
+	  ++icnt;
+	  // skip header
+	  if ( icnt <= ROIB::Header::wordsPerHeader + 1 )
+	    continue;
+	  
+	  // skip trailer
+	  if ( icnt > ( muctpi_slink->getMuCTPIToRoIBWords().size() - ROIB::Trailer::wordsPerTrailer ) )
+	    continue;
+	  
+	  // fill RoI into vector
+	  convertableRoIs.push_back(roiword);
+	}
+      }
+      
+      // Create the input to the MuCTPI:
+      CHECK( Converter::convertRoIs( convertableRoIs, &convertedInput ) );     
+    }
+    
     // process the input with the MuCTPI simulation
+    ATH_MSG_DEBUG("MUCTPI data processing...");
     m_theMuctpi->processData( &convertedInput );
-
+    
     // get outputs for L1Topo 
     ATH_MSG_DEBUG("Getting the output for L1Topo");
     l1topoCandidates = m_theMuctpi->getL1TopoData();
- 
+    
     return StatusCode::SUCCESS;
   }
 
@@ -763,8 +795,8 @@ namespace LVL1MUCTPI {
       CHECK( evtStore()->record( l1topo, m_l1topoOutputLocId ) );
       //      std::cout << "TW: central slice: offset: " <<  bcidOffset << "  location: " << m_l1topoOutputLocId << std::endl;
       //l1topo->print();
-   }
-    
+    }
+
     /// if we have a bcid offset, then just get the topo output and put it on storegate
     if (bcidOffset  != 0) {
       ATH_MSG_DEBUG("Getting the output for L1Topo for BCID slice");

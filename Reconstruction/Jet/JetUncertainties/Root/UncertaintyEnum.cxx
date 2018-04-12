@@ -98,6 +98,9 @@ namespace CompParametrization
             case PtMass:        return "PtMass";
             case PtMassEta:     return "PtMassEta";
             case PtMassAbsEta:  return "PtMassAbsEta";
+            case eLOGmOe:       return "eLOGmOe";
+            case eLOGmOeEta:    return "eLOGmOeEta";
+            case eLOGmOeAbsEta: return "eLOGmOeAbsEta";
             default:            return "UNKNOWN";
         }
     }
@@ -116,6 +119,12 @@ namespace CompParametrization
             return PtMassEta;
         if (!type.CompareTo("PtMassAbsEta",TString::kIgnoreCase))
             return PtMassAbsEta;
+        if (!type.CompareTo("eLOGmOe",TString::kIgnoreCase))
+            return eLOGmOe;
+        if (!type.CompareTo("eLOGmOeEta",TString::kIgnoreCase))
+            return eLOGmOeEta;
+        if (!type.CompareTo("eLOGmOeAbsEta",TString::kIgnoreCase))
+            return eLOGmOeAbsEta;
         return UNKNOWN;
     }
 
@@ -124,7 +133,8 @@ namespace CompParametrization
         switch(type)
         {
             case PtAbsEta:
-            case PtMassAbsEta:  return true;
+            case PtMassAbsEta:  
+            case eLOGmOeAbsEta: return true;
             
             default:            return false;
         }
@@ -213,6 +223,7 @@ namespace CompScaleVar
             case Tau21WTA:      return "Tau21WTA";
             case Tau32WTA:      return "Tau32WTA";
             case D2Beta1:       return "D2Beta1";
+            case C2Beta1:       return "C2Beta1";
             case Qw:            return "Qw";
             case MassRes:       return "MassRes";
             default:            return "UNKNOWN";
@@ -241,6 +252,8 @@ namespace CompScaleVar
             return Tau32WTA;
         if (!type.CompareTo("D2Beta1",TString::kIgnoreCase))
             return D2Beta1;
+        if (!type.CompareTo("C2Beta1",TString::kIgnoreCase))
+            return C2Beta1;
         if (!type.CompareTo("Qw",TString::kIgnoreCase))
             return Qw;
         if (!type.CompareTo("MassRes",TString::kIgnoreCase))

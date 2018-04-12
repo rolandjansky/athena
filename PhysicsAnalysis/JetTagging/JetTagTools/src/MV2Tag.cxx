@@ -109,6 +109,7 @@ namespace Analysis {
     m_tmvaReaders.clear();
     m_tmvaMethod.clear();
     m_egammaBDTs.clear();
+    m_inputPointers = new std::vector<float*>();
     return StatusCode::SUCCESS;
   }
 
@@ -129,6 +130,9 @@ namespace Analysis {
     for (auto& iter: m_local_inputvals) {
         delete iter.second;
     }
+    m_inputPointers->clear();
+    delete m_inputPointers;
+    
     return StatusCode::SUCCESS;
   }
 
@@ -261,7 +265,7 @@ namespace Analysis {
 
     /*KM: Get back the calib objects from calibration broker*/
     if (!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name()) ) {
-      std::vector<float*>  inputPointers; inputPointers.clear();
+      m_inputPointers->clear();
       unsigned nConfgVar=0; bool badVariableFound=false;
 
       CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib");
@@ -289,11 +293,11 @@ namespace Analysis {
 
   CreateLocalVariables( inputs );
 
-  SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
+  SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,*m_inputPointers);
 
 
    ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
-		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
+		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<m_inputPointers->size() );
 
 	if ( inputVars.size()!=nConfgVar or badVariableFound ) {
 	  ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
@@ -340,10 +344,10 @@ namespace Analysis {
 
   CreateLocalVariables( inputs );
 
-  SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
+  SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,*m_inputPointers);
 
   ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
-		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
+		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<m_inputPointers->size() );
 
 	if ( inputVars.size()!=nConfgVar or badVariableFound ) {
 	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
@@ -352,7 +356,6 @@ namespace Analysis {
     return;
 	}
 
-	bdt->SetPointers(inputPointers);
 
 	it_egammaBDT = m_egammaBDTs.find(alias);
 	if(it_egammaBDT!=m_egammaBDTs.end()) {
@@ -411,7 +414,10 @@ namespace Analysis {
       }
       else {
         if(it_egammaBDT->second !=0) {
-          if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
+        
+	it_egammaBDT->second->SetPointers(*m_inputPointers);
+
+	if (m_taggerNameBase.find("MV2c")!=std::string::npos) mv2= GetClassResponse(it_egammaBDT->second);//this gives back double
 	        else { //if it is MV2m
       	    std::vector<float> outputs= GetMulticlassResponse(it_egammaBDT->second);//this gives back float
       	    //vector size is checked in the function above

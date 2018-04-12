@@ -15,8 +15,6 @@
 
 namespace ISF {
 
-  static const InterfaceID IID_IG4RunManagerHelper("IG4RunManagerHelper", 1, 0);
-   
   /**
    @class IG4RunManagerHelper
        
@@ -29,8 +27,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IG4RunManagerHelper(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IG4RunManagerHelper; }
+       /// Creates the InterfaceID and interfaceID() method
+       DeclareInterfaceID(IG4RunManagerHelper, 1, 0);
        
        /** get the fully configured G4RunManager */
        virtual iGeant4::G4AtlasRunManager* g4RunManager() const = 0;

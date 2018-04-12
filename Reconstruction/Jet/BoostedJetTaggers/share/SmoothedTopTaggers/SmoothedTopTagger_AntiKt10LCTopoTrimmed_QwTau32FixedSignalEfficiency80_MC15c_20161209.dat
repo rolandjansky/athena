@@ -20,6 +20,8 @@
 # - only valid with the combined mass (if using mass)
 ####################################################################################
 
+DecorationName: SmoothTop80QwTau32
+
 Var1: Qw
 Var2: Tau32
 

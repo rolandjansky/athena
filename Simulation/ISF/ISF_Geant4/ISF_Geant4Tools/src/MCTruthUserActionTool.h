@@ -4,8 +4,7 @@
 
 #ifndef ISF_GEANT4TOOLS_G4UA__MCTRUTHUSERACTIONTOOL_H 
 #define ISF_GEANT4TOOLS_G4UA__MCTRUTHUSERACTIONTOOL_H 
-#include "G4AtlasInterfaces/IPreTrackingActionTool.h"
-#include "G4AtlasInterfaces/IPostTrackingActionTool.h"
+#include "G4AtlasInterfaces/IG4TrackingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "MCTruthUserAction.h"
 
@@ -22,18 +21,15 @@ namespace G4UA{
   
     class MCTruthUserActionTool: 
     public ActionToolBase<MCTruthUserAction>,
-      public IPreTrackingActionTool,  public IPostTrackingActionTool
+      public IG4TrackingActionTool
     {
       
     public:
       /// Standard constructor
       MCTruthUserActionTool(const std::string& type, const std::string& name,const IInterface* parent);
-      /// Retrieve the preTracking action
-      virtual IPreTrackingAction* getPreTrackingAction() override final 
-      { return static_cast<IPreTrackingAction*>( getAction() ); }
-      /// Retrieve the postTracking action
-      virtual IPostTrackingAction* getPostTrackingAction() override final 
-      { return static_cast<IPostTrackingAction*>( getAction() ); }
+      /// Retrieve the tracking action
+      virtual G4UserTrackingAction* getTrackingAction() override final 
+      { return static_cast<G4UserTrackingAction*>( getAction() ); }
 
       /// Query interface for gaudi
       virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;

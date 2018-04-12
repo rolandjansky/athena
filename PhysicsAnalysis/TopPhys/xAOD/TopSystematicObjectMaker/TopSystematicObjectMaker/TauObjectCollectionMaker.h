@@ -49,7 +49,7 @@ namespace top{
       TauObjectCollectionMaker& operator=(const TauObjectCollectionMaker& rhs) = delete;
 
       StatusCode initialize();
-      StatusCode execute();
+      StatusCode execute(bool);
 
       StatusCode printout();
 

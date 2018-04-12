@@ -55,7 +55,7 @@ namespace top{
       MuonObjectCollectionMaker& operator=(const MuonObjectCollectionMaker& rhs) = delete;
 
       StatusCode initialize();
-      StatusCode execute();
+      StatusCode execute(bool);
 
       StatusCode printout();
 
@@ -76,7 +76,8 @@ namespace top{
       std::list<CP::SystematicSet> m_recommendedSystematics;
 
       ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool;
-      
+      ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_calibrationTool2017;
+
       ///-- Isolation --///
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_LooseTrackOnly;
       ToolHandle<CP::IIsolationSelectionTool> m_isolationTool_Loose;

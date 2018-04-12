@@ -1791,3 +1791,24 @@ int TileDddbManager::Ushape() const
     }
 }
 
+bool TileDddbManager::glue() const
+{
+  if (m_tileSwitches)
+    {
+      if ((*m_tileSwitches)[0]->isFieldNull("GLUE"))
+        {
+          // std::cerr << "\nTileDddbManager   WARNING TileSwitches(GLUE) is EMPTY, returning TRUE\n\n";
+          return true;
+        }
+      else
+	{
+	  return (*m_tileSwitches)[0]->getInt("GLUE");
+	}
+    }
+  else
+    {
+      std::cerr << "\nTileDddbManager ERROR! TileSwitches is not set, returning glue= TRUE\n\n";
+      return true;
+    }
+}
+

@@ -76,6 +76,7 @@ SUSYToolsAlg::~SUSYToolsAlg() { }
 //**********************************************************************
 
 StatusCode SUSYToolsAlg::initialize() {
+
   ATH_MSG_INFO("Initializing " << name() << "...");
 
   m_SUSYTools.setTypeAndName("ST::SUSYObjDef_xAOD/SUSYTools");
@@ -84,7 +85,8 @@ StatusCode SUSYToolsAlg::initialize() {
 
   // Need truth matching for tau CP tools
   if( !m_SUSYTools->isData() ){
-    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatch");
+    m_tauTruthTool.setTypeAndName("TauAnalysisTools::TauTruthMatchingTool/TauTruthMatchingTool");
+    ATH_CHECK( m_tauTruthTool.setProperty("WriteTruthTaus", true) );
     ATH_CHECK( m_tauTruthTool.retrieve() );
     ATH_MSG_INFO("Retrieved tool: " << m_tauTruthTool->name() );  
   }
@@ -141,21 +143,23 @@ StatusCode SUSYToolsAlg::initialize() {
   count_mu_signal=0;
 
   /// SETUP TRIGGERS TO BE CHECKED
-  const int n_el_trig = 3;
-  el_triggers.push_back("HLT_e24_lhmedium_L1EM18VH"); // reference xAOD used for tests doesn't have the reprocessed menu yet (i.e. no *20VH in there) //MT
+  const int n_el_trig = 6;
+  el_triggers.push_back("HLT_e24_lhmedium_L1EM20VH"); // reference xAOD used for tests doesn't have the reprocessed menu yet (i.e. no *20VH in there) //MT
   el_triggers.push_back("HLT_e60_lhmedium");
   el_triggers.push_back("HLT_e120_lhloose");
+  el_triggers.push_back("HLT_e26_lhtight_nod0_ivarloose");
+  el_triggers.push_back("HLT_e60_lhmedium_nod0");
+  el_triggers.push_back("HLT_e140_lhloose_nod0");
 
   const int n_ph_trig = 2;
   ph_triggers.push_back("HLT_g120_loose");
   ph_triggers.push_back("HLT_g140_loose");
 
-  const int n_mu_trig = 5;
+  const int n_mu_trig = 3;
   mu_triggers.push_back("HLT_mu20_iloose_L1MU15");
   mu_triggers.push_back("HLT_mu50");
-  mu_triggers.push_back("HLT_mu18");
-  mu_triggers.push_back("HLT_mu8noL1");
-  mu_triggers.push_back("HLT_mu18_mu8noL1");
+  mu_triggers.push_back("HLT_mu26_ivarmedium");
+
 
   //-- Book histograms
   CHECK( book(TH1D("el_n_flow_nominal", "Electron Cutflow (Nominal)", nSel, 0, nSel) ) );
@@ -422,15 +426,15 @@ StatusCode SUSYToolsAlg::execute() {
     } else {
       //std::string fatjetcoll = m_FatJetCollection.substr(0, m_FatJetCollection.size()-4);
       CHECK( m_SUSYTools->GetFatJets(fatjets_nominal,fatjets_nominal_aux) ); //,true,fatjetcoll,true) );
-      ATH_MSG_INFO( "Number of Large Radius jets: " << fatjets_nominal->size() );   
+      ATH_MSG_DEBUG( "Number of Large Radius jets: " << fatjets_nominal->size() );   
     }
   } else if(doFatJets) {
     ATH_MSG_DEBUG("FatJets xAOD::JetContainer with name " << m_FatJetCollection <<" not found");
     doFatJets=false;
   }
 
-  // FIXME: Make empty TruthTaus if taus_nominal is empty and not data 
-  // Tau code fails in this case!  
+//  // FIXME: Make empty TruthTaus if taus_nominal is empty and not data 
+//  // Tau code fails in this case!  
   if( isSim ) {
     const xAOD::TauJetContainer* p_TauJets = 0;
     ATH_CHECK( evtStore()->retrieve(p_TauJets, "TauJets") );
@@ -480,6 +484,17 @@ StatusCode SUSYToolsAlg::execute() {
                 << ", et=" << (*metcst_nominal)["Final"]->met()
                 << ", sumet=" << (*metcst_nominal)["Final"]->sumet());
 
+  double metsig_cst(0.);
+
+  CHECK( m_SUSYTools->GetMETSig(*metcst_nominal,
+        			metsig_cst,
+                             	jets_nominal,
+                             	electrons_nominal,
+                             	muons_nominal,
+                             	photons_nominal, 0, false, false) );
+
+  ATH_MSG_DEBUG("METSignificance = " << metsig_cst);
+
   xAOD::MissingETContainer* mettst_nominal = new xAOD::MissingETContainer;
   xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
   mettst_nominal->setStore(mettst_nominal_aux);
@@ -496,6 +511,16 @@ StatusCode SUSYToolsAlg::execute() {
                 << ", et=" << (*mettst_nominal)["Final"]->met()
                 << ", sumet=" << (*mettst_nominal)["Final"]->sumet());
   
+  double metsig_tst(0.);
+
+  CHECK( m_SUSYTools->GetMETSig(*mettst_nominal,
+        			metsig_tst,
+                             	jets_nominal,
+                             	electrons_nominal,
+                             	muons_nominal,
+                             	photons_nominal, 0, true, true) );
+
+  ATH_MSG_DEBUG("METSignificance = " << metsig_tst);
 
   TH1* met_et    = hist("met_et");
   TH1* met_sumet = hist("met_sumet");
@@ -767,17 +792,11 @@ StatusCode SUSYToolsAlg::execute() {
 
     // Define the generic collection pointers
     xAOD::ElectronContainer* electrons(electrons_nominal);
-    xAOD::ShallowAuxContainer* electrons_aux(electrons_nominal_aux);
     xAOD::PhotonContainer* photons(photons_nominal);
-    xAOD::ShallowAuxContainer* photons_aux(photons_nominal_aux);
     xAOD::MuonContainer* muons(muons_nominal);
-    xAOD::ShallowAuxContainer* muons_aux(muons_nominal_aux);
     xAOD::JetContainer* jets(jets_nominal);
-    xAOD::ShallowAuxContainer* jets_aux(jets_nominal_aux);
     xAOD::JetContainer* fatjets(fatjets_nominal);
-    xAOD::ShallowAuxContainer* fatjets_aux(fatjets_nominal_aux);
     xAOD::TauJetContainer* taus(taus_nominal);
-    xAOD::ShallowAuxContainer* taus_aux(taus_nominal_aux);
     xAOD::MissingETContainer *mettst(mettst_nominal), *metcst(metcst_nominal);
     xAOD::MissingETAuxContainer *mettst_aux(mettst_nominal_aux), *metcst_aux(metcst_nominal_aux);
 
@@ -787,16 +806,16 @@ StatusCode SUSYToolsAlg::execute() {
     bool syst_affectsTaus      = ST::testAffectsObject(xAOD::Type::Tau, sysInfo.affectsType);
     bool syst_affectsJets      = ST::testAffectsObject(xAOD::Type::Jet, sysInfo.affectsType);
     bool syst_affectsBTag      = ST::testAffectsObject(xAOD::Type::BTag, sysInfo.affectsType);
+
+    // If necessary (kinematics affected), make a shallow copy with the variation applied
+    // otherwise set the collection pointers to the nominal
     if (sysInfo.affectsKinematics) {
-      // If necessary (kinematics affected), make a shallow copy with the variation applied
-      // otherwise set the collection pointers to the nominal
       if (syst_affectsElectrons) {
         ATH_MSG_DEBUG("Get systematics-varied electrons");
         xAOD::ElectronContainer* electrons_syst(0);
         xAOD::ShallowAuxContainer* electrons_syst_aux(0);
         CHECK( m_SUSYTools->GetElectrons(electrons_syst, electrons_syst_aux) );
         electrons = electrons_syst;
-        electrons_aux = electrons_syst_aux;
       }
 
       if (syst_affectsPhotons) {
@@ -805,7 +824,6 @@ StatusCode SUSYToolsAlg::execute() {
         xAOD::ShallowAuxContainer* photons_syst_aux(0);
         CHECK( m_SUSYTools->GetPhotons(photons_syst, photons_syst_aux) );
         photons = photons_syst;
-        photons_aux = photons_syst_aux;
       }
 
       if (syst_affectsMuons) {
@@ -814,7 +832,6 @@ StatusCode SUSYToolsAlg::execute() {
         xAOD::ShallowAuxContainer* muons_syst_aux(0);
         CHECK( m_SUSYTools->GetMuons(muons_syst, muons_syst_aux) );
         muons = muons_syst;
-        muons_aux = muons_syst_aux;
       }
 
       if (syst_affectsJets) {
@@ -823,16 +840,6 @@ StatusCode SUSYToolsAlg::execute() {
         xAOD::ShallowAuxContainer* jets_syst_aux(0);
         CHECK( m_SUSYTools->GetJetsSyst(*jets_nominal, jets_syst, jets_syst_aux) );
         jets = jets_syst;
-        jets_aux = jets_syst_aux;
-      }
-
-      if (syst_affectsJets && doFatJets) {
-        ATH_MSG_DEBUG("Get systematics-varied large radius jets");
-        xAOD::JetContainer* fatjets_syst(0);
-        xAOD::ShallowAuxContainer* fatjets_syst_aux(0);
-        CHECK( m_SUSYTools->GetJetsSyst(*fatjets_nominal, fatjets_syst, fatjets_syst_aux, false, m_FatJetCollection) );
-        fatjets = fatjets_syst;
-        fatjets_aux = fatjets_syst_aux;
       }
 
       if (syst_affectsTaus) {
@@ -841,7 +848,6 @@ StatusCode SUSYToolsAlg::execute() {
         xAOD::ShallowAuxContainer* taus_syst_aux(0);
         CHECK( m_SUSYTools->GetTaus(taus_syst, taus_syst_aux) );
         taus = taus_syst;
-        taus_aux = taus_syst_aux;
       }
 
       ATH_MSG_DEBUG("Get systematics-varied MET");
@@ -1096,50 +1102,9 @@ StatusCode SUSYToolsAlg::execute() {
       delete mettst;
       delete metcst_aux;
       delete mettst_aux;
-      if (syst_affectsElectrons) {
-        delete electrons;
-        delete electrons_aux;
-      }
-      if (syst_affectsPhotons) {
-        delete photons;
-        delete photons_aux;
-      }
-      if (syst_affectsMuons) {
-        delete muons;
-        delete muons_aux;
-      }
-      if (syst_affectsJets) {
-        delete jets;
-        delete jets_aux;
-      }
-      if (syst_affectsJets && doFatJets) {
-        delete fatjets;
-        delete fatjets_aux;
-      }
-      if (syst_affectsTaus) {
-        delete taus;
-        delete taus_aux;
-      }
     }
     isNominal = false;
   }
-
-  delete taus_nominal;
-  delete taus_nominal_aux;
-  delete jets_nominal;
-  delete jets_nominal_aux;
-  delete fatjets_nominal;
-  delete fatjets_nominal_aux;
-  delete electrons_nominal;
-  delete electrons_nominal_aux;
-  delete photons_nominal;
-  delete photons_nominal_aux;
-  delete muons_nominal;
-  delete muons_nominal_aux;
-  delete mettst_nominal;
-  delete mettst_nominal_aux;
-  delete metcst_nominal;
-  delete metcst_nominal_aux;
 
   m_clock0.Stop();
   if (m_Nevts == 0) {

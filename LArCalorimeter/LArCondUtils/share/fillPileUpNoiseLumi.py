@@ -9,8 +9,9 @@ def createFolder(db,name):
     spec = cool.RecordSpecification()
     spec.extend('LBAvInstLumi',cool.StorageType.Float)
     spec.extend('Valid',cool.StorageType.UInt32)
-    return db.createFolder(name,spec,desc,cool.FolderVersioning.MULTI_VERSION, True)
-
+    folderSpec=cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION, spec)
+    #return db.createFolder(name,spec,desc,cool.FolderVersioning.MULTI_VERSION, True)
+    return db.createFolder(name,folderSpec,desc, True)
  
 
 def fillPileUpNoiseLumi(db,tag,dataIn, folderName="/CALO/Ofl/Noise/PileUpNoiseLumi"):
