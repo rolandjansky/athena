@@ -186,7 +186,7 @@ if DerivationFrameworkIsMonteCarlo:
 muonQual = "Muons.DFCommonMuonsPreselection"
 
 #electron quality
-eleQual  = "(Electrons.DFCommonElectronsIsEMLoose || Electrons.DFCommonElectronsLHLoose)"
+eleQual  = "Electrons.DFCommonElectronsLHLoose"
 
 #muon eta
 muonEta = "abs(Muons.eta) < 2.5"
@@ -203,14 +203,14 @@ mu18p0 = '(count( Muons.pt > 18.0*GeV && '+muonEta+' && '+muonQual+' ) >= 1)'
 mu21p6 = '(count( Muons.pt > 21.6*GeV && '+muonEta+' && '+muonQual+' ) >= 1)'
 mu23p4 = '(count( Muons.pt > 23.4*GeV && '+muonEta+' && '+muonQual+' ) >= 1)'
 
-#tau prongs and tracks
-tauProngs = "abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3)"
+### tau prongs and tracks
+tauProngs = "abs(TauJets.charge) == 1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3)"
 
-# taus 10% * pT corresponds to a 2sigma deviation from the nominal
+### taus 10% * pT corresponds to a 2sigma deviation from the nominal
 tau18p0  = '(count( TauJets.ptFinalCalib >= 18.0*GeV && '+tauProngs+' ) >= 1)'
 tau22p5  = '(count( TauJets.ptFinalCalib >= 22.5*GeV && '+tauProngs+' ) >= 1)'
 
-#muon triggers: 
+### Muon triggers: 
 # pT offline  = pT online x 1.05
 # conservative pT offline derivations = pT online x 0.9
 MuTau_SMT_2015        = mu18p0+' && '+tau18p0+' && ('+trig.SMT_OR_2015+')'
@@ -218,22 +218,24 @@ MuTau_SMT_2016_A      = mu21p6+' && '+tau18p0+' && ('+trig.SMT_OR_2016_A+')'
 MuTau_SMT_2016_B_D3   = mu21p6+' && '+tau18p0+' && ('+trig.SMT_OR_2016_B_D3+')'
 MuTau_SMT_2016_D4_End = mu23p4+' && '+tau18p0+' && ('+trig.SMT_OR_2016_D4_End+')'
 MuTau_SMT_2017	      = mu23p4+' && '+tau18p0+' && ('+trig.SMT_OR_2017+')'
+# 2018 still same as 2017
 
-#Ele triggers
+### Ele triggers
 # conservative pT offline derivations = pT online x 0.9
 ElTau_SET_2015 = e21p6+' && '+tau18p0+' && ('+trig.SET_OR_2015+')'
 ElTau_SET_2016 = e23p4+' && '+tau22p5+' && ('+trig.SET_OR_2016+')'
 ElTau_SET_2017 = e23p4+' && '+tau22p5+' && ('+trig.SET_OR_2017+')'
+# 2018 still same as 2017
 
-# tau + lepton triggers
+### tau + lepton triggers
 MuTau_MTT = mu12p6+' && '+tau22p5+' && ('+trig.MTT_OR+')'
 ElTau_ETT = e15p3+' && '+tau22p5+' && ('+trig.ETT_OR+')'
 
-# tau + lepton + met triggers
+### tau + lepton + met triggers
 MuTau_MTMT = mu12p6+' && '+tau22p5+' && ('+trig.MTMT_OR+')'
 ElTau_ETMT = e15p3+' && '+tau22p5+' && ('+trig.ETMT_OR+')'
 
-#final skim: object+trigger selection
+### final skim: object+trigger selection
 ORdelim = '||'
 skim_expression = \
 '('+MuTau_SMT_2015+')' + ORdelim + \
@@ -339,15 +341,10 @@ SUSY18SlimmingHelper.SmartCollections = ["Electrons",
                                          "PrimaryVertices"]
 
 #all variables
-SUSY18SlimmingHelper.AllVariables = ["TruthParticles",
-                                     "TruthEvents",
-                                     "TruthVertices",
-                                     "MET_Truth",
-                                     "AntiKt4TruthJets",
-                                     "AntiKt4TruthWZJets",
-                                     "LVL1JetRoIs",
-                                     "MET_Track" #needed for the forward JVT
-                                     ]
+SUSY18SlimmingHelper.AllVariables = [ "LVL1JetRoIs",
+                                      "MET_Track" #needed for the forward JVT
+                                      ]
+
 
 #extra truth content
 ExtraElectronsTruth = [
@@ -355,9 +352,6 @@ ExtraElectronsTruth = [
     "truthOrigin."
     "truthType."
     "truthParticleLink."
-    "bkgMotherPdgId."
-    "bkgTruthOrigin."
-    "bkgTruthType."
     "firstEgMotherTruthType."
     "firstEgMotherTruthOrigin."
     "firstEgMotherPdgId"
@@ -424,7 +418,7 @@ ExtraVtx = ["PrimaryVertices."
                    "vertexType"
                  ]
 
-ExtraBtag = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant"]
+ExtraBtag = ["BTagging_AntiKt4EMTopo.MV1_discriminant"]
 
 ExtraElectrons = ["Electrons.author.charge.ptcone20"]
 
@@ -463,7 +457,20 @@ if DerivationFrameworkIsMonteCarlo:
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
-  SUSY18SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]   
-
+  SUSY18SlimmingHelper.AllVariables += ["TruthElectrons", 
+                                        "TruthMuons", 
+                                        "TruthTaus", 
+                                        "TruthPhotons", 
+                                        "TruthNeutrinos", 
+                                        "TruthTop", 
+                                        "TruthBSM", 
+                                        "TruthBoson",
+                                        "TruthParticles",
+                                        "TruthEvents",
+                                        "TruthVertices",
+                                        "MET_Truth",
+                                        "AntiKt4TruthJets",
+                                        "AntiKt4TruthWZJets"
+                                        ]   
 
 SUSY18SlimmingHelper.AppendContentToStream(SUSY18Stream)

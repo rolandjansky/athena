@@ -14,7 +14,7 @@ cd athena
 git remote add upstream https://:@gitlab.cern.ch:8443/atlas/athena.git
 git remote -v show
 ```
-we perform a "sparse" checkout
+we perform a "sparse" checkout:
 ```
 git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
 ```
@@ -26,10 +26,10 @@ git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
 * `cd ../`
 * `mkdir run build; cd build`
 * `cmake ../athena/Projects/WorkDir`
-* Compile `make -j$(nproc)'
+* Compile `make -j$(nproc)`
 * `source x86_64-slc6-gcc62-opt/setup.sh`
 * `cd ../run/`
-* Modify things and run
+* Modify things and run:
 ```
 INPUT=AOD.input.pool.root
 OUTPUT=AOD.output.pool.root
@@ -41,7 +41,6 @@ Reco_tf.py \
     --outputDAODFile $OUTPUT \
     --maxEvents $NEVT \
     --reductionConf $TRAIN
-
 ```
 Note that the preexec for MC and data is different.
 * Check your file staging status `git status`
@@ -69,7 +68,10 @@ PreExec
 
 PreExec commands may vary between caches. Also, the syntax is different for MC and Data. 
 
-Please consult this page for the PreExec commands used in caches: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DerivationProductionTeam#Info_on_AtlasDerivation_caches_a and this page https://gitlab.cern.ch/atlas/athena/tree/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkART/test for those in the ART tests.
+Please consult this page for the PreExec commands used in caches: 
+* https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DerivationProductionTeam#Info_on_AtlasDerivation_caches_a 
+and this page
+* https://gitlab.cern.ch/atlas/athena/tree/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkART/test for those in the ART tests.
 
 References
 ==========
