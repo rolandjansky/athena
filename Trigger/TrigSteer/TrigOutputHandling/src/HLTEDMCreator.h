@@ -131,6 +131,14 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
     StatusCode createIfMissing( const EventContext& context, const ConstHandlesGroup<T>& handles, G generator, M merger ) const;
 
 
+  template<typename T>
+  StatusCode  viewsMerge( std::vector< SG::View* > const& views, const SG::ReadHandleKey<T>& inViewKey,
+			  EventContext const& context, T & output ) const;
+  
+  template<typename T>
+  StatusCode  noMerge( std::vector< SG::View* > const& views, const SG::ReadHandleKey<T>& inViewKey,
+		       EventContext const& context, T & output ) const;
+  
 }; 
 
 

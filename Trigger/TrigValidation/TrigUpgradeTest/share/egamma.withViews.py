@@ -212,15 +212,20 @@ edmCreator = HLTEDMCreator()
 edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult" ]
 
 
-mergeElectronsFromViews = HLTEDMCreator("MergeElectronsFormViews")
+egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
 
-mergeElectronsFromViews.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
-mergeElectronsFromViews.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
-mergeElectronsFromViews.TrigElectronContainer = ["HLT_electrons"]
+egammaViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
+egammaViewsMerger.TrackParticleContainerInViews = [ theElectronFex.TrackParticlesName ]
+egammaViewsMerger.TrackParticleContainer = ["HLT_electron_tracks"]
+
+egammaViewsMerger.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
+egammaViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
+egammaViewsMerger.TrigElectronContainer = ["HLT_electrons"]
 
 
 
-summary.OutputTools = [ edmCreator, mergeElectronsFromViews ]
+
+summary.OutputTools = [ edmCreator, egammaViewsMerger ]
 
 
 summary.OutputLevel = DEBUG
@@ -246,6 +251,8 @@ for tc in edmCreator.TrigCompositeContainer:
    addTC( tc )
 
 addTC("HLTSummary")
+
+StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_electrons", "xAOD::TrackParticleContainer#HLT_electron_tracks"]
 
 print "ESD file content " 
 print StreamESD.ItemList
