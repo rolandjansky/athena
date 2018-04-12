@@ -63,6 +63,17 @@ asetup --restore
 cd build/ && source x86_64-slc6-gcc62-opt/setup.sh && cd -
 ```
 
+Merge Conflicts
+===============
+To resolve conflicts that appear in your "Merge Request", pull in the upstream changes and run `git merge`:
+```
+git fetch upstream         # Fetch changes from upstream (i.e. the upstream branch of the athena release)
+git merge upstream/21.2    # Apply those changes to your branch
+```
+Because there are conflicts between your changes and the upstream ones, git needs you to resolve them. 
+The affected files are marked up with the usual conflict indicators (`>>>>>>>`) showing which pieces of the file came from which versions.
+Make sure you choose the right piece of code and merge again with your topic's target branch!
+
 PreExec
 =======
 
