@@ -29,10 +29,6 @@ from JetRecTools.JetRecToolsConf import JetInputElRemovalTool
 # make EXOT4 sequence
 exot4Seq = CfgMgr.AthSequencer("EXOT4Sequence")
 
-
-from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-addStandardTruthContents()
-
 #====================================================================
 # SET UP STREAM
 #====================================================================

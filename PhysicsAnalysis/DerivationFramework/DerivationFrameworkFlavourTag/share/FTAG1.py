@@ -27,10 +27,16 @@ from DerivationFrameworkFlavourTag.FlavourTagAllVariables import FTAllVars_bjetT
 from DerivationFrameworkFlavourTag.FlavourTagExtraVariables import FTExtraVars_bjetTriggerTracks
 from DerivationFrameworkFlavourTag.FlavourTagExtraVariables import FTExtraVars_bjetTriggerTracks
 
+#====================================================================
+# Create Private Sequence
+#====================================================================
+
+FTAG1Seq = CfgMgr.AthSequencer("FTAG1Sequence")
 
 #====================================================================
 # SKIMMING TOOLS
 # (SKIMMING = REMOVING WHOLE EVENTS THAT FAIL CRITERIA)
+# Create skimming tool, and create + add kernel to sequence
 #====================================================================
 
 # triggers used for skimming:
@@ -43,6 +49,10 @@ FTAG1TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FTAG
 ToolSvc += FTAG1TriggerSkimmingTool
 print FTAG1TriggerSkimmingTool
 
+FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1SkimKernel",
+                                                         SkimmingTools = [FTAG1TriggerSkimmingTool],
+                                                        )
+
 #====================================================================
 # TRUTH SETUP
 #====================================================================
@@ -54,6 +64,7 @@ if globalflags.DataSource()!='data':
 #====================================================================                                                                                                                   
 # AUGMENTATION TOOLS
 # ( AUGMENTATION = adding information to the output DxAOD that is not found in the input file )
+# Create DStar vertexing tool, and create + add kernel to sequence
 #====================================================================  
 
 #add D0 augmentation 
@@ -68,6 +79,10 @@ ToolSvc += FTAG1DstarVertexing
 print "using DstarVertexing package to add D0 vertex information"
 print FTAG1DstarVertexing
 
+FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1AugmentKernel",
+                                                         AugmentationTools = [FTAG1DstarVertexing]
+                                                        )
+
 #Add unbiased track parameters to track particles
 #FTAG1IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG1IPETool")
 #ToolSvc += FTAG1IPETool
@@ -79,13 +94,6 @@ print FTAG1DstarVertexing
 #        ContainerName = "InDetTrackParticles")
 #ToolSvc += FTAG1TrackToVertexWrapper
 #print FTAG1TrackToVertexWrapper
-
-#====================================================================
-# CREATE PRIVATE SEQUENCE
-#====================================================================
-
-FTAG1Seq = CfgMgr.AthSequencer("FTAG1Sequence");
-DerivationFrameworkJob += FTAG1Seq
 
 #====================================================================
 # Basic Jet Collections 
@@ -120,16 +128,13 @@ BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtV
 # Tag custom or pre-built jet collections
 #===================================================================
 
-FlavorTagInit(isFTAG1 = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG1Seq)
+FlavorTagInit(scheduleFlipped = True, JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG1Seq)
 
 #====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
+# Add sequence (with all kernels needed) to DerivationFrameworkJob 
 #====================================================================
 
-FTAG1Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG1Kernel",
-                                                         SkimmingTools = [FTAG1TriggerSkimmingTool],
-                                                         AugmentationTools = [FTAG1DstarVertexing]
-                                                         )
+DerivationFrameworkJob += FTAG1Seq
 
 #====================================================================
 # SET UP STREAM   
@@ -143,8 +148,7 @@ FTAG1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 # Name must match that of the kernel above
 # AcceptAlgs  = logical OR of filters
 # RequireAlgs = logical AND of filters
-FTAG1Stream.AcceptAlgs(["FTAG1Kernel"])
-
+FTAG1Stream.AcceptAlgs(["FTAG1SkimKernel"])
 FTAG1SlimmingHelper = SlimmingHelper("FTAG1SlimmingHelper")
 
 # nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo
@@ -185,7 +189,14 @@ for FT1_bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
     FTAG1SlimmingHelper.AllVariables.append(FT1_bjetTriggerVtx)
 
 FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
-                                       "InDetTrackParticles.truthMatchProbability",
+                                       "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
+                                       "InDetTrackParticles.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSharedHits",
+                                       "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSharedHits.numberOfContribPixelLayers.hitPattern.radiusOfFirstHit",
+                                       "PrimaryVertices.neutralWeights.numberDoF.sumPt2.chiSquared.covariance.trackWeights",
+                                       "CombinedMuonTrackParticles.vx.vy.vz",
+                                       "ExtrapolatedMuonTrackParticles.vx.vy.vz",
+                                       "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
+                                       "MuonSpectrometerTrackParticles.vx.vy.vz",
                                        "AntiKt10LCTopoJets.ConeExclBHadronsFinal",
                                        "AntiKt10LCTopoJets.GhostAntiKt2TrackJet.GhostAntiKt2TrackJetPt.GhostAntiKt2TrackJetCount",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
@@ -203,8 +214,6 @@ FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
 
 for FT1_bjetTriggerTracks in FTExtraVars_bjetTriggerTracks:
     FTAG1SlimmingHelper.ExtraVariables.append(FT1_bjetTriggerTracks)
-
-addJetOutputs(FTAG1SlimmingHelper,["FTAG1"],[],[])
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff

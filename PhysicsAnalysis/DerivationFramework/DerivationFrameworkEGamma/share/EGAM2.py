@@ -47,9 +47,9 @@ EGAM2Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 #====================================================================
 electronPtRequirement = '(Electrons.pt > 4.5*GeV)'
 if RecomputeElectronSelectors :
-    electronQualityRequirement = '(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium)'
+    electronQualityRequirement = '(Electrons.DFCommonElectronsLHMedium)'
 else :
-    electronQualityRequirement = '(Electrons.Medium || Electrons.DFCommonElectronsLHMedium)'
+    electronQualityRequirement = '(Electrons.LHMedium)'
 requirement_el = '(' + electronQualityRequirement + '&&' + electronPtRequirement + ')'
 
 
@@ -79,9 +79,9 @@ print EGAM2_JPSIEEMassTool
 # dR>0.15
 #====================================================================
 if RecomputeElectronSelectors :
-    requirement_el_tag = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 4.5*GeV'
+    requirement_el_tag = '(Electrons.DFCommonElectronsLHTight) && (Electrons.pt > 4.5*GeV)'
 else :
-    requirement_el_tag = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 4.5*GeV'
+    requirement_el_tag = '(Electrons.LHTight) && (Electrons.pt > 4.5*GeV)'
 requirement_el_probe = 'Electrons.pt > 4.5*GeV'
 
 EGAM2_JPSIEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM2_JPSIEEMassTool2",
@@ -342,6 +342,12 @@ else:
 
 for tool in EGAM2_ClusterEnergyPerLayerDecorators:
     EGAM2SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+# Add detailed shower shape variables
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+EGAM2SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+EGAM2SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 # This line must come after we have finished configuring EGAM2SlimmingHelper
 EGAM2SlimmingHelper.AppendContentToStream(EGAM2Stream)

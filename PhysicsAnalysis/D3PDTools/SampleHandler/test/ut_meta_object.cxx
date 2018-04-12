@@ -31,7 +31,7 @@ using namespace SH;
   {									\
     bool failXXX = true;						\
     try	{								\
-      X; failXXX = false;						\
+      X; if(failXXX) failXXX = false;						\
     } catch (...) {}							\
     RCU_ASSERT2 (failXXX, (std::string ("command didn't fail: ") + #X).c_str()); \
   }

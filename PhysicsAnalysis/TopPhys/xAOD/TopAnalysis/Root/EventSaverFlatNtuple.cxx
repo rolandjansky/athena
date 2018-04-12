@@ -226,8 +226,8 @@ namespace top {
         std::string nominalTTreeName("SetMe"),nominalLooseTTreeName("SetMe");
         if (m_config->doTightEvents() && !m_config->HLLHC()) {
           for (auto treeName : *config->systAllTTreeNames()) {
-              m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileSetAutoFlushZero()) ) );
-              m_treeManagers.back()->branchFilters() = branchFilters();
+    	      m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()  ) ) );
+	      m_treeManagers.back()->branchFilters() = branchFilters();
               if (treeName.first == m_config->nominalHashValue()) {
                   nominalTTreeName = treeName.second;
               }
@@ -236,7 +236,7 @@ namespace top {
 
         if (m_config->doLooseEvents()) {
             for (auto treeName : *config->systAllTTreeNames()) {
-                m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileSetAutoFlushZero()) ) );
+	        m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()) ) );
                 m_treeManagers.back()->branchFilters() = branchFilters();
                 if (treeName.first == m_config->nominalHashValue()) {
                     nominalLooseTTreeName = treeName.second+"_Loose";
@@ -249,7 +249,7 @@ namespace top {
 
             m_sfRetriever = std::unique_ptr<top::ScaleFactorRetriever> ( new top::ScaleFactorRetriever( m_config ) );
 
-            m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileSetAutoFlushZero()) );
+            m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector() ) );
             m_truthTreeManager->branchFilters() = branchFilters();
             m_truthTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
             m_truthTreeManager->makeOutputVariable(m_eventNumber, "eventNumber");
@@ -604,8 +604,9 @@ namespace top {
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_el_true_type,      "el_true_type");
                 systematicTree->makeOutputVariable(m_el_true_origin,    "el_true_origin");
-                systematicTree->makeOutputVariable(m_el_true_typebkg,   "el_true_typebkg");
-                systematicTree->makeOutputVariable(m_el_true_originbkg, "el_true_originbkg");
+                systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
+                systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
+		systematicTree->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
               }
             }
 
@@ -626,6 +627,7 @@ namespace top {
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_mu_true_type,   "mu_true_type");
                 systematicTree->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+		systematicTree->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
               }
             }
 
@@ -1015,7 +1017,7 @@ namespace top {
             return;
         }
 
-        m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileSetAutoFlushZero() );
+        m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
         m_particleLevelTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
@@ -1176,7 +1178,7 @@ namespace top {
             return;
         }
 
-        m_upgradeTreeManager = std::make_shared<top::TreeManager>( "upgrade", m_outputFile, m_config->outputFileSetAutoFlushZero() );
+        m_upgradeTreeManager = std::make_shared<top::TreeManager>( "upgrade", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
         m_upgradeTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
@@ -1576,8 +1578,9 @@ namespace top {
             if (m_config->isMC()) {
               m_el_true_type.resize(n_electrons);
               m_el_true_origin.resize(n_electrons);
-              m_el_true_typebkg.resize(n_electrons);
-              m_el_true_originbkg.resize(n_electrons);
+              m_el_true_firstEgMotherTruthOrigin.resize(n_electrons);
+              m_el_true_firstEgMotherTruthType.resize(n_electrons);
+	      m_el_true_isPrompt.resize(n_electrons);
             }
 
             for (const auto* const elPtr : event.m_electrons) {
@@ -1609,16 +1612,20 @@ namespace top {
                 if (m_config->isMC()) {
                   m_el_true_type[i] = 0;
                   m_el_true_origin[i] = 0;
-                  m_el_true_typebkg[i] = 0;
-                  m_el_true_originbkg[i] = 0;
+                  m_el_true_firstEgMotherTruthType[i] = 0;
+                  m_el_true_firstEgMotherTruthOrigin[i] = 0;
                   static SG::AuxElement::Accessor<int> typeel("truthType");
                   static SG::AuxElement::Accessor<int> origel("truthOrigin");
-                  static SG::AuxElement::Accessor<int> typebkgel("bkgTruthType");
-                  static SG::AuxElement::Accessor<int> origbkgel("bkgTruthOrigin");
+		  static SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
+                  static SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
+
                   if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
                   if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
-                  if (typebkgel.isAvailable(*elPtr)) m_el_true_typebkg[i] = typebkgel(*elPtr);
-                  if (origbkgel.isAvailable(*elPtr)) m_el_true_originbkg[i] = origbkgel(*elPtr);
+		  if (firstEgMotherTruthType.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthType[i] = firstEgMotherTruthType(*elPtr);
+		  if (firstEgMotherTruthOrigin.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthOrigin[i] = firstEgMotherTruthOrigin(*elPtr);
+
+		  m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
+		  
                 }
                 ++i;
             }
@@ -1643,6 +1650,7 @@ namespace top {
             if (m_config->isMC()) {
               m_mu_true_type.resize(n_muons);
               m_mu_true_origin.resize(n_muons);
+	      m_mu_true_isPrompt.resize(n_muons);
             }
 
             for (const auto* const muPtr : event.m_muons) {
@@ -1677,6 +1685,7 @@ namespace top {
                   if (mutrack!=nullptr) {
                       if (acc_mctt.isAvailable(*mutrack)) m_mu_true_type[i] = acc_mctt(*mutrack);
                       if (acc_mcto.isAvailable(*mutrack)) m_mu_true_origin[i] = acc_mcto(*mutrack);
+		      m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
                   }
                 }
                 ++i;
@@ -3435,5 +3444,26 @@ namespace top {
       }
       return out;
     }
+  
+  bool EventSaverFlatNtuple::isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin){
+    // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
+    bool prompt            = (type == 2 &&
+			      (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
+    // New recovery using first Non-Geant 
+    bool recovered_FSRConv = (type == 4 && egMotherType == 40);
+    bool recovered_Other   = (type == 4 && egMotherType == 2 &&			      
+			      (egMotherOrigin == 10 || egMotherOrigin == 12 || egMotherOrigin == 13 || egMotherOrigin == 14 || egMotherOrigin == 43) );
+
+    return (prompt || recovered_FSRConv || recovered_Other);
+  }
+
+  bool EventSaverFlatNtuple::isPromptMuon(int type, int origin){
+    // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
+    bool prompt = (type == 6 &&
+		   (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
+
+    return prompt;
+  }
+  
 
 } // namespace

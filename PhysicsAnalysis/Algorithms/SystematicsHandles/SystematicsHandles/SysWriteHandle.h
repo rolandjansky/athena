@@ -116,7 +116,12 @@ namespace CP
                     const std::string& propertyDescription);
 
 
-    /// \brief retrieve the object for the given name
+    /// \brief get the name we record to the event store
+  public:
+    const std::string& getName (const CP::SystematicSet& sys) const;
+
+
+    /// \brief record the object for the given systematic
   public:
     ::StatusCode record (std::unique_ptr<T> object,
                          const CP::SystematicSet& sys) const;

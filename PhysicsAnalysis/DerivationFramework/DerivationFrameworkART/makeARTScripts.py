@@ -5,11 +5,11 @@ makeMCDAODs=False
 makeTruthDAODs=False
 makeTrains=True
 
-formatList = [#'PHYSVAL',
-              'TOPQ1', 'TOPQ2', 'TOPQ3', 'TOPQ4', 'TOPQ5',
+formatList = ['PHYSVAL',
+              'TOPQ1', 'TOPQ2', 'TOPQ4', 'TOPQ5',
               'HIGG1D1', 'HIGG1D2',
-              'HIGG2D1', 'HIGG2D2', 'HIGG2D4', 'HIGG2D5',
-              'HIGG3D1', 'HIGG3D2', 'HIGG3D3',
+              'HIGG2D1', 'HIGG2D4', 'HIGG2D5',
+              'HIGG3D1', 'HIGG3D3',
               'HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D4', 'HIGG4D5','HIGG4D6',
               'HIGG5D1', 'HIGG5D2', 'HIGG5D3',
               'HIGG6D1', 'HIGG6D2',
@@ -30,26 +30,24 @@ formatList = [#'PHYSVAL',
 
 truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 
-trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
-              ["JETM10","BPHY10","EGAM4","EXOT10","STDM5","MUON2"], # 0.1-0.15%
-              ["SUSY13","HIGG1D2","HIGG3D2","EXOT12","EGAM9"], # 0.16-0.2%
-              ["JETM3","SUSY12","HIGG4D4","EGAM3","SUSY2","EXOT0","EXOT17","SUSY9"], # 0.2-0.3%
-              ["JETM7","BPHY5","MUON3","EXOT6","EGAM2","HIGG4D6","BPHY8"], # 0.3-0.4%
-              ["BPHY4","BPHY7","HIGG4D5","EXOT15","EXOT9","BPHY1","EGAM7"], # 0.4-0.5%
-              ["SUSY16","EXOT20","HIGG1D1","STDM3","TOPQ2"], # 0.5-0.6%
-              ["SUSY18","JETM4","HIGG4D1","HIGG6D1","SUSY7"], # 0.6-0.7%
-              ["HIGG4D3","STDM2","STDM7","SUSY3","EXOT5","TOPQ5"], # 0.8-1%
-              ["JETM2","SUSY11","EXOT3","SUSY4","JETM6","EXOT19","EGAM1","EXOT7"], # 1-1.3%
-              ["JETM1","HIGG2D4","EGAM8","SUSY1","SUSY5","HIGG8D1","EXOT21","EXOT22"], # 1.3-1.6%
-              ["STDM9","HIGG5D3","BPHY9","HIGG5D1","BPHY6"], # 1.6-1.8%
-              ["EGAM5","JETM11","SUSY8","HIGG2D2","SUSY10"], # 1.9-2.1%
-              ["HIGG3D3","EXOT4","TAUP1","EXOT13","EXOT2","HIGG4D2"], # 2.1-2.7%
-              ["MUON1","SUSY6","JETM9","EXOT8","FTAG1","TAUP4"], # 2.9-3.4%
-              ["HIGG3D1","STDM4","HIGG2D1","HIGG5D2"], # 3.6-3.7%
-              ["TOPQ1","FTAG2","TOPQ3","FTAG4"], # 4-5%
-              ["HIGG6D2","MUON0","TAUP3","TOPQ4"] ] # 5-7%
-
-
+trainList = [ ["HIGG2D5","TCAL1"], # < 0.1%
+              ["BPHY2","EGAM4","STDM5","SUSY14","EXOT12","EXOT10","JETM10"], # 0.1-0.2%
+              ["EGAM3","HIGG1D2","EXOT20","EXOT0","EXOT17","HIGG4D4"], # 0.24-0.33%
+              ["JETM7","EXOT6","SUSY9","EGAM2","SUSY12","SUSY2"], # 0.35-0.43%
+              ["EXOT9","EXOT15","JETM3","SUSY13","HIGG4D1","TOPQ2","MUON2","SUSY16"], # 0.47-0.63%
+              ["EXOT7","SUSY11","SUSY9","STDM3","TOPQ5","EXOT19"], # 0.66-0.76%
+              ["HIGG1D1","EGAM9","BPHY5","BPHY4","EXOT18","JETM4","SUSY18"], # 0.76-0.91%
+              ["EGAM7","HIGG6D1","STDM2","SUSY3","EGAM8","EGAM1"], # 0.96-1.09%
+              ["EXOT22","SUSY1","HIGG2D4","JETM1","EXOT3","BPHY8","SUSY4","BPHY1"], # 1.15-1.35%
+              ["JETM11","STDM9","HIGG8D1","EXOT5","SUSY5","HIGG5D3"], # 1.42-1.69%
+              ["SUSY10","STDM7","JETM6","JETM9","TAUP1","SUSY7","HIGG4D5"], # 1.76-2.06%
+              ["EXOT4","HIGG4D6","JETM2","SUSY8","HIGG4D2","MUON1","BPHY7"], # 2.1-2.7%
+              ["EXOT8","TAUP4","HIGG4D3","HIGG5D2","EXOT2","HIGG5D1"], # 2.8-3.1%
+              ["HIGG2D1","SUSY6","HIGG3D1","EXOT13"], # 3.35-3.77%
+              ["TOPQ1","EGAM5","BPHY6","BPHY9","STDM4"], # 4.3-4.9%
+              ["HIGG6D2","EXOT21","MUON0","TAUP3","TOPQ4"], # 5.1-5.9%
+              ["FTAG1","FTAG2","FTAG4"], # FTAG train (3.5-4.6%). FTAG3 alone.
+]
 mcLabel = "mc16"
 dataLabel = "data17"
 truthLabel = "mc15"
@@ -146,5 +144,5 @@ if (makeTruthDAODs):
 if (makeTrains):
    for train in trainList:
       generateTrains(train,dataLabel,dataFile,False)
-      generateTrains(train,mcLabel,mcFile,True)
-   generateTrains(['TOPQ1','TOPQ2','TOPQ3','TOPQ4','TOPQ5'],mcLabel,mcFile,True) # special train, not run in production but needed for testing purposes
+      #generateTrains(train,mcLabel,mcFile,True)
+   generateTrains(['TOPQ1','TOPQ2','TOPQ4','TOPQ5'],mcLabel,mcFile,True) # special train, not run in production but needed for testing purposes

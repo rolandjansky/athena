@@ -24,7 +24,7 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
                                               "PrimaryVertices"]
     
     # extra containers for some formats                                                  
-    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3','HIGG4D6']:
+    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6']:
         HIGG4DxSlimmingHelper.SmartCollections += ["Photons"]
 
     if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:

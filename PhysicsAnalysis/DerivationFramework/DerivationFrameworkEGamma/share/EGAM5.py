@@ -155,9 +155,9 @@ print "EGAM5 trigger skimming tool:", EGAM5_TriggerSkimmingTool
 
 # could add track isolation (if included in single electron trigger..)
 if RecomputeElectronSelectors :
-    requirement_el = '(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
+    requirement_el = '(Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
 else :
-    requirement_el = '(Electrons.Tight || Electrons.DFCommonElectronsLHTight) && Electrons.pt > 24.5*GeV'
+    requirement_el = '(Electrons.LHTight) && Electrons.pt > 24.5*GeV'
 
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGTransverseMassTool
 EGAM5_MTTool = DerivationFramework__EGTransverseMassTool( name = "EGAM5_MTTool",
@@ -396,6 +396,12 @@ else:
 
 for tool in EGAM5_ClusterEnergyPerLayerDecorators:
     EGAM5SlimmingHelper.ExtraVariables.extend( getClusterEnergyPerLayerDecorations( tool ) )
+
+# Add detailed shower shape variables
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+EGAM5SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+EGAM5SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 # This line must come after we have finished configuring EGAM5SlimmingHelper
 EGAM5SlimmingHelper.AppendContentToStream(EGAM5Stream)

@@ -115,8 +115,8 @@ namespace CP
 
 
 
-  template<typename T> ::StatusCode SysWriteHandle<T,void> ::
-  record (std::unique_ptr<T> object, const CP::SystematicSet& sys) const
+  template<typename T> const std::string& SysWriteHandle<T,void> ::
+  getName (const CP::SystematicSet& sys) const
   {
     auto cache = m_outputNameCache.find (sys);
     if (cache == m_outputNameCache.end())
@@ -126,11 +126,22 @@ namespace CP
       m_outputNameCache.insert (std::make_pair (sys, newName));
       cache = m_outputNameCache.find (sys);
       assert (cache != m_outputNameCache.end());
+
+      // retrieving this here, just so that it exists
       if (!m_evtStore)
         m_evtStore = m_evtStoreGetter();
     }
+    return cache->second;
+  }
+
+
+
+  template<typename T> ::StatusCode SysWriteHandle<T,void> ::
+  record (std::unique_ptr<T> object, const CP::SystematicSet& sys) const
+  {
+    const std::string& name = getName (sys);
     assert (m_evtStore);
-    return m_evtStore->record (object.release(), cache->second);
+    return m_evtStore->record (object.release(), name);
   }
 
 

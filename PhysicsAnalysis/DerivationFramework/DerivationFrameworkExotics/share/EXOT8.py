@@ -13,7 +13,11 @@ from DerivationFrameworkCore.WeightMetadata            import *
 
 from JetRec.JetRecFlags import jetFlags
 
-exot8Seq = CfgMgr.AthSequencer("EXOT8Sequence")
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+from DerivationFrameworkCore.DerivationFrameworkCoreConf   import DerivationFramework__DerivationKernel
 
 #========================================================================================================================================
 # Set up Stream
@@ -28,7 +32,8 @@ EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
 #
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT8ThinningHelper = ThinningHelper( "EXOT8ThinningHelper" )
-EXOT8ThinningHelper.TriggerChains = 'HLT_.*gsc.*|HLT_.*bmv2c.*|HLT_e.*|HLT_mu.*|HLT_j.*a10.*'
+if globalflags.DataSource() is not "geant4":
+    EXOT8ThinningHelper.TriggerChains = 'HLT_.*gsc.*|HLT_.*bmv2c.*|HLT_e.*|HLT_mu.*|HLT_j.*a10.*'
 EXOT8ThinningHelper.AppendToStream( EXOT8Stream )
 
 #========================================================================================================================================
@@ -127,15 +132,15 @@ if globalflags.DataSource()=="geant4":
 # AUGMENTATION TOOLS
 #====================================================================
 augmentationTools = []
-#from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BJetRegressionVariables
-#EXOT8BJetRegressionVariables = DerivationFramework__BJetRegressionVariables(name = "EXOT8BJetRegressionVariables",
-#                                                                            ContainerName = "AntiKt4EMTopoJets",
-#                                                                            AssociatedTracks = "GhostTrack",
-#                                                                            MinTrackPtCuts = [0])
-#
-#ToolSvc += EXOT8BJetRegressionVariables
-#augmentationTools.append(EXOT8BJetRegressionVariables)
-#print EXOT8BJetRegressionVariables
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BJetRegressionVariables
+EXOT8BJetRegressionVariables = DerivationFramework__BJetRegressionVariables(name = "EXOT8BJetRegressionVariables",
+                                                                            ContainerName = "AntiKt4EMTopoJets",
+                                                                            AssociatedTracks = "GhostTrack",
+                                                                            MinTrackPtCuts = [0])
+
+ToolSvc += EXOT8BJetRegressionVariables
+augmentationTools.append(EXOT8BJetRegressionVariables)
+print EXOT8BJetRegressionVariables
    
 #========================================================================================================================================
 # Triggers (https://indico.cern.ch/event/403233/contribution/4/material/slides/0.pdf)
@@ -167,11 +172,6 @@ triggers = ["L1_J50",
             "L1_MU20",            
             ]
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-EXOT8TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT8TriggerSkimmingTool",
-                                                                    TriggerListAND = [],
-                                                                    TriggerListOR  = triggers)
-ToolSvc += EXOT8TriggerSkimmingTool
 
 #========================================================================================================================================
 # Event Skimming
@@ -202,33 +202,72 @@ boosted_trackjet_R20 = "count(BTagging_AntiKt2Track."+mv2track_tagger+" > %s) >=
 
 boosted_2LargeR      = "(%s) && (%s)" % (boosted_2LargeR_R20, boosted_trackjet_R20)
 
-#eventSkim_zeroLepton   = "(%s) && ((%s) || (%s))" % (trigger, resolved_4jet, boosted_2LargeR)
 eventSkim_zeroLepton   = "((%s) || (%s))" % (resolved_4jet, boosted_2LargeR)
 eventSkim_singleLepton = "(%s) && ((%s) || (%s))" % (singleLepton, resolved_2jet, boosted_1LargeR)
 
+#------------------------------------------
+#pre-skimming tools
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+#trigger
+EXOT8TriggerPreSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT8TriggerPreSkimmingTool",
+                                                                       TriggerListAND = [],
+                                                                       TriggerListOR  = triggers)
+ToolSvc += EXOT8TriggerPreSkimmingTool
+
+#1 lepton
+EXOT8PreSkimmingTool_sl = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8PreSkimmingTool_sl", expression = singleLepton)
+ToolSvc += EXOT8PreSkimmingTool_sl
+
+#------------------------------------------
+#skimming tools
+
+#trigger
+EXOT8TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT8TriggerSkimmingTool",
+                                                                    TriggerListAND = [],
+                                                                    TriggerListOR  = triggers)
+ToolSvc += EXOT8TriggerSkimmingTool
+
+#1 lepton
 EXOT8SkimmingTool_sl = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8SkimmingTool_sl", expression = eventSkim_singleLepton)
 ToolSvc += EXOT8SkimmingTool_sl
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+#0 lepton
 EXOT8SkimmingTool_zl = DerivationFramework__xAODStringSkimmingTool(name = "EXOT8SkimmingTool_zl", expression = eventSkim_zeroLepton)
 ToolSvc += EXOT8SkimmingTool_zl
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+
+#------------------------------------------
+#pre-skimming tools combinations
+
+#trigger || 1 lepton
+EXOT8PreSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT8PreSkimmingTool", FilterList = [EXOT8TriggerPreSkimmingTool, EXOT8PreSkimmingTool_sl])
+ToolSvc += EXOT8PreSkimmingTool
+
+#------------------------------------------
+#skimming tools combinations
+
+#trigger && 0 lepton
 EXOT8ANDSkimmingTool_zl = DerivationFramework__FilterCombinationAND(name = "EXOT8ANDSkimmingTool_zl", FilterList = [EXOT8TriggerSkimmingTool, EXOT8SkimmingTool_zl])
 ToolSvc += EXOT8ANDSkimmingTool_zl
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+#(trigger && 0 lepton) || 1 lepton
 EXOT8SkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT8SkimmingTool", FilterList = [EXOT8ANDSkimmingTool_zl, EXOT8SkimmingTool_sl])
 ToolSvc += EXOT8SkimmingTool
 
 
-#========================================================================================================================================
-# Create the derivation kernel alg
-#========================================================================================================================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += exot8Seq
+#=======================================
+# Create private sequences
+# Create the derivation kernel algorithm and pass the above skimming, thinning and augmentation tools
+#=======================================
+#this pre-sequence skims events based on what is available from the input xAOD, thus reducing the use of CPU resources
+exot8PreSeq = CfgMgr.AthSequencer("EXOT8PreSequence")
+exot8PreSeq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8PreKernel_skim", SkimmingTools = [EXOT8PreSkimmingTool])
+DerivationFrameworkJob += exot8PreSeq
+
+
+#the main sequence tools will be passed after jets have been reconstructed
+exot8Seq = CfgMgr.AthSequencer("EXOT8Sequence")
+exot8PreSeq += exot8Seq
 
 #=======================================
 # JETS
@@ -303,8 +342,9 @@ EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumMass",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumPt",
                                       "AntiKt4EMTopoJets.TrackSumPt",
-                                      "AntiKt4EMTopoJets.ScalSumPtTrkPt0",
-                                      "AntiKt4EMTopoJets.VecSumPtTrkPt0",
+#                                      "AntiKt4EMTopoJets.ScalSumPtTrkPt0",
+#                                      "AntiKt4EMTopoJets.VecSumPtTrkPt0",
+                                      "AntiKt4EMTopoJets.ScalSumPtTrkCleanPt0",
                                       "AntiKt4EMTopoJets.ScalSumPtTrkCleanPt0PV0",
                                       "AntiKt4EMTopoJets.VecSumPtTrkCleanPt0PV0",
                                       "BTagging_AntiKt4EMTopo.JetVertexCharge_discriminant",
