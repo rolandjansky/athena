@@ -38,6 +38,7 @@ conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova
 conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels")
 conddb.blockFolder("/TRIGGER/L1Calo/V2/Conditions/DisabledTowers")
 conddb.blockFolder("/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults")
+# Cannot read AFS
 conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels <tag>V2-DEADCHANNELS-00-00</tag>", force=True)
 conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Conditions/DisabledTowers <tag>V2-DISABLEDTOWERS-00-00</tag>", force=True)
 conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Configuration/PprChanDefaults <tag>V2-CHANDEFAULTS-00-00</tag>", force=True)
