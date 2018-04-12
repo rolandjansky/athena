@@ -31,9 +31,9 @@ namespace CP {
             void getCutValue(const float pt);
 
         private:
+            std::vector<xAOD::Iso::IsolationType> m_isolationTypes;
             std::shared_ptr<TF1> m_cutFunction;
             std::shared_ptr<TF1> m_isoFunction;
-            std::vector<xAOD::Iso::IsolationType> m_isolationTypes;
             std::vector<SG::AuxElement::Accessor<float>*> m_accs;
     };
 }

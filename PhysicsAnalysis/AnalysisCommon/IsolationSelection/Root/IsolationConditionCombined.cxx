@@ -13,8 +13,8 @@
 
 namespace CP {
     IsolationConditionCombined::IsolationConditionCombined(std::string name, std::vector<xAOD::Iso::IsolationType> isoType, const TF2& isoFunction, const std::string& cutFunction) :
-                m_isolationTypes(isoType),
-                IsolationCondition(name, isoType[0]) {
+                IsolationCondition(name, isoType[0]),
+                m_isolationTypes(isoType) {
         for (auto& iso : isoType) m_accs.push_back(xAOD::getIsolationAccessor(iso));
         m_cutFunction = std::shared_ptr < TF1 > (new TF1(cutFunction.c_str(), cutFunction.c_str()));
         m_isoFunction = std::shared_ptr < TF1 > (new TF2(isoFunction));
