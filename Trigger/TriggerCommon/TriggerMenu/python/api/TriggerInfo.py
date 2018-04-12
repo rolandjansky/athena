@@ -73,12 +73,25 @@ class TriggerInfo:
     def _getAllHLT(self,triggerType, additionalTriggerType, matchPattern):
         return {x.name: x.livefraction for x in self.triggerChains if x.passType(triggerType, additionalTriggerType) and re.search(matchPattern, x.name)}
 
+    def _checkPeriodConsistency(self,triggerType, additionalTriggerType, matchPattern):
+        inconsistent = set()
+        for i in range(len(self.triggerChains)):
+            probe1 = self.triggerChains[i]
+            if not (probe1.passType(triggerType, additionalTriggerType) and re.search(matchPattern, probe1.name)): continue
+            for j in range(i+1,len(self.triggerChains)):
+                probe2 = self.triggerChains[j]
+                if not (probe2.passType(triggerType, additionalTriggerType) and re.search(matchPattern, probe2.name)): continue
+                if probe1.isUnprescaled() and not probe2.isUnprescaled() and probe1.isLowerThan(probe2)==1: inconsistent.add(probe2.name)
+                if probe2.isUnprescaled() and not probe1.isUnprescaled() and probe2.isLowerThan(probe1)==1: inconsistent.add(probe1.name)
+                
+        return inconsistent
+
 
 class TriggerLeg:
     types          = ('e','j','mu','tau','xe','g','ht')
     legpattern     = re.compile('([0-9]*)(%s)([0-9]+)' % '|'.join(types))
     detailpattern  = re.compile('(?:-?\d+)|(?:[^0-9|-]+)')
-    bjetpattern    = re.compile('bmv')
+    bjetpattern    = re.compile('bmv|btight|bmedium|bloose')
     bphyspattern   = re.compile('b[A-Z]')
     exoticspattern = re.compile('llp|LLP|muvtx|hiptrt|LATE|NOMATCH')
 
@@ -289,7 +302,7 @@ class TriggerChain:
         for triggerType in TriggerType:
             for l in legs:
                 if not l.legtype == triggerType: continue
-                for i in range(l.count):
+                for i in range(l.count): #split into N single legs
                     tmp = deepcopy(l)
                     tmp.count = 1
                     if tmp.legtype & TriggerType.el_multi:

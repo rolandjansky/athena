@@ -10,7 +10,7 @@ from PathResolver import PathResolver
 from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180228.pickle")
+    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180412.pickle")
     if centralPickleFile: centralPickleFile = os.path.realpath(centralPickleFile)
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = None
@@ -112,6 +112,20 @@ class TriggerAPI:
         '''
         cls._loadTriggerPeriod(period,reparse)
         return cls.dbQueries[(period,cls.customGRL)]._getAllHLT(triggerType, additionalTriggerType, matchPattern)
+        
+    @classmethod
+    def checkPeriodConsistency(cls, period=TriggerPeriod.future, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", reparse=False):
+        ''' Returns a list of triggers that are tighter than the lowest unprescaled but are not flagged as primary
+            This only makes sense for future periods, the past is already consistent :)
+            period: see TriggerEnums.TriggerPeriod for all possibilities, recommeded TriggerPeriod.future
+            triggerType: see TriggerEnums.TriggerType for all possibilities, example TriggerType.el_single
+            additionalTriggerType: can request additional types to match, use TriggerType.ALL to show combined triggers of any kind
+                                   accepts also a list as input in that case all types have to match
+            matchPattern: provide additionally a regex-like expression to be applied
+        '''
+        period &= TriggerPeriod.future #Only meaningful for future periods
+        cls._loadTriggerPeriod(period,reparse)
+        return cls.dbQueries[(period,cls.customGRL)]._checkPeriodConsistency(triggerType, additionalTriggerType, matchPattern)
         
     @classmethod
     def _loadTriggerPeriod(cls, period, reparse):
