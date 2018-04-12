@@ -27,7 +27,7 @@ unsigned int finalState(const int SUSY_Spart1_pdgId, const int SUSY_Spart2_pdgId
 class CrossSectionDB
 {
 public:
-  CrossSectionDB(const std::string& txtfilenameOrDir = "SUSYTools/data/mc15_13TeV/", bool usePathResolver = false, bool isExtended = false);
+  CrossSectionDB(const std::string& txtfilenameOrDir = "SUSYTools/data/mc15_13TeV/", bool usePathResolver = false, bool isExtended = false, bool usePMGTool = true);
 
   // Load all the information from a file
   void loadFile(const std::string&);
@@ -82,6 +82,7 @@ public:
 
   // set extended mode
   void setExtended(bool isExtended=true){ m_extended = isExtended; };
+  void setUsePMGTool(bool usePMGTool=true){ m_usePMGTool = usePMGTool; };
 
 
   // invalid ID returns a process with ID < 0
@@ -112,6 +113,7 @@ public:
 private:
   typedef std::map<Key, Process> xsDB_t; // Internal data format
   bool m_extended;
+  bool m_usePMGTool;
 public:
   typedef xsDB_t::const_iterator iterator; // External iterator format
   iterator begin() const { return m_xsectDB.begin(); }

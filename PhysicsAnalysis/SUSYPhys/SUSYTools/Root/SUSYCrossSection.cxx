@@ -17,11 +17,12 @@
 // Text file i/o
 #include <fstream>
 
-SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool usePathResolver, bool isExtended)
+SUSY::CrossSectionDB::CrossSectionDB(const std::string& txtfilenameOrDir, bool usePathResolver, bool isExtended, bool usePMGTool)
   : m_pmgxs("")
 {
   setExtended(isExtended);
-  
+  setUsePMGTool(usePMGTool);
+
   // configuring the PMG tool... 
   m_pmgxs.setTypeAndName("PMGTools::PMGCrossSectionTool/PMGCrossSectionTool");
   m_pmgxs.retrieve().ignore(); // Ignore the status code
@@ -141,7 +142,7 @@ void SUSY::CrossSectionDB::extend(const std::string& txtfilename){
 SUSY::CrossSectionDB::Process SUSY::CrossSectionDB::process(int id, int proc) const
 {
   // for background x-sections, use the PMG tool
-  if(proc==0) {
+  if(proc==0 && m_usePMGTool) {
     return Process( id, m_pmgxs->getSampleName(id), m_pmgxs->getAMIXsection(id), m_pmgxs->getKfactor(id), m_pmgxs->getFilterEff(id), -1, -1, -1 );  
   } else {
     const Key k(id, proc);
