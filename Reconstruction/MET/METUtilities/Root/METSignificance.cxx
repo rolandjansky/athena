@@ -593,9 +593,9 @@ namespace met {
       unc=0.4;
     }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
       unc=0.4;
-    }else if(jet_pt<30.0e3 && fabs(jet_eta)>2.7){
+    }else if(jet_pt<30.0 && fabs(jet_eta)>2.7){
       unc=0.2;
-    }else if(jet_pt<40.0e3 && fabs(jet_eta)>2.7){
+    }else if(jet_pt<40.0 && fabs(jet_eta)>2.7){
       unc=0.07;
     }
     return unc;

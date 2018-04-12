@@ -29,10 +29,6 @@ from JetRecTools.JetRecToolsConf import JetInputElRemovalTool
 # make EXOT4 sequence
 exot4Seq = CfgMgr.AthSequencer("EXOT4Sequence")
 
-
-from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
-addStandardTruthContents()
-
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -63,6 +59,7 @@ EXOT16ElRemovalTool=JetInputElRemovalTool(
    ElectronMinpT                 =25000.0,
    ClusterContainerName          ='CaloCalTopoClusters',
    ClusterNoElName               ='CaloCalTopoClustersNoEl',
+   ClusterSelectionType          =1,
    ClusterRemovRadius            =0.1,
    ClusterEMFrac                 =0.8,
    TrkInputContainer             ="InDetTrackParticles",

@@ -80,41 +80,41 @@ private:
   
   float getElectronInfo(const xAOD::Electron* el, const xAOD::EgammaParameters::ShowerShapeType information);
 
-  double n_subjets(const xAOD::DiTauJet& xDiTau) const;
-  double ditau_pt(const xAOD::DiTauJet& xDiTau) const;
-  double f_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double f_subjet(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double f_subjets(const xAOD::DiTauJet& xDiTau) const;
-  double f_track(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double R_max(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float n_subjets(const xAOD::DiTauJet& xDiTau) const;
+  float ditau_pt(const xAOD::DiTauJet& xDiTau) const;
+  float f_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float f_subjet(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float f_subjets(const xAOD::DiTauJet& xDiTau) const;
+  float f_track(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float R_max(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   int n_track(const xAOD::DiTauJet& xDiTau) const;
   int n_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   int n_isotrack(const xAOD::DiTauJet& xDiTau) const;
   int n_othertrack(const xAOD::DiTauJet& xDiTau) const;
-  double R_track(const xAOD::DiTauJet& xDiTau) const;
-  double R_track_all(const xAOD::DiTauJet& xDiTau) const;
-  double R_track_core(const xAOD::DiTauJet& xDiTau) const;
-  double R_isotrack(const xAOD::DiTauJet& xDiTau) const;
-  double R_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double R_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double mass_track(const xAOD::DiTauJet& xDiTau) const;
-  double mass_track_core(const xAOD::DiTauJet& xDiTau) const;
-  double mass_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double mass_track_all(const xAOD::DiTauJet& xDiTau) const;
-  double mass_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double E_frac(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double R_subjets(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double d0_leadtrack(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double f_isotracks(const xAOD::DiTauJet& xDiTau) const;
+  float R_track(const xAOD::DiTauJet& xDiTau) const;
+  float R_track_all(const xAOD::DiTauJet& xDiTau) const;
+  float R_track_core(const xAOD::DiTauJet& xDiTau) const;
+  float R_isotrack(const xAOD::DiTauJet& xDiTau) const;
+  float R_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float R_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float mass_track(const xAOD::DiTauJet& xDiTau) const;
+  float mass_track_core(const xAOD::DiTauJet& xDiTau) const;
+  float mass_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float mass_track_all(const xAOD::DiTauJet& xDiTau) const;
+  float mass_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float E_frac(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float R_subjets(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float d0_leadtrack(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  float f_isotracks(const xAOD::DiTauJet& xDiTau) const;
   int n_iso_ellipse(const xAOD::DiTauJet& xDiTau) const;
   std::vector<fastjet::PseudoJet> getClusters(const xAOD::DiTauJet& xDiTau) const;
   int n_antikt_subjets(std::vector<fastjet::PseudoJet> vClusters);
   int n_ca_subjets(std::vector<fastjet::PseudoJet> vClusters);
   void mass_drop(const xAOD::DiTauJet& xDiTau, std::vector<fastjet::PseudoJet> vClusters) const;
-  double f_clusters(const xAOD::DiTauJet& xDiTau, std::vector<fastjet::PseudoJet> vClusters) const;
+  float f_clusters(const xAOD::DiTauJet& xDiTau, std::vector<fastjet::PseudoJet> vClusters) const;
 
   // steering variables
-  double m_dMaxDeltaR;
+  float m_dMaxDeltaR;
   std::string m_sDiTauContainerName;
   std::string m_DiTauContainerNameAux;
   bool m_bCalcCluserVariables;
@@ -123,7 +123,7 @@ private:
   std::string m_sDecayChannel;
   enum DecayChannel{ HadHad, HadEl, HadMu, Default };
   DecayChannel m_eDecayChannel;
-  double m_dDefault;
+  float m_dDefault;
 
   asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_loose;    
   asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_medium;   

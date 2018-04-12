@@ -52,7 +52,7 @@ from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT7ThinningHelper = ThinningHelper( "EXOT7ThinningHelper" )
 
 #trigger navigation content
-EXOT7ThinningHelper.TriggerChains = 'HLT_[0-9]*j.*|HLT_xe.*'
+EXOT7ThinningHelper.TriggerChains = 'HLT_[0-9]*j.*|HLT_xe.*|HLT_ht.*'
 EXOT7ThinningHelper.AppendToStream( EXOT7Stream )
 
 #=====================
@@ -114,15 +114,18 @@ ToolSvc += EXOT7DeltaRTool
 #=======================================
 # SKIMMING   
 #=======================================
+#W'->tb all-had skimming
 expression1 = "(( count( AntiKt4EMTopoJets.pt > 300*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && ( count( AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt>300*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.2) > 0) && ( count( dRkt4kt10 > 1.0) >= 1))"
 
-expression2 = "(( count( AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 250*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.2) >= 1) && (HLT_xe70 || HLT_j80_xe80 || HLT_xe90_mht_L1XE50 || HLT_xe100_mht_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50 || HLT_noalg_L1J400 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_xe110_pufit_L1XE55))"
+#Monotop skimming
+expression2 = "(( count( AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 250*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.2) >= 1) && (HLT_xe70 || HLT_j80_xe80 || HLT_xe90_mht_L1XE50 || HLT_xe100_mht_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50 || HLT_noalg_L1J400 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_xe110_pufit_L1XE55 || HLT_xe110_pufit_xe70_L1XE50 ||  HLT_xe120_pufit_L1XE50 || HLT_j420 || HLT_J450 || HLT_xe110_pufit_xe65_L1XE55 || HLT_xe120_pufit_L1XE55 || HLT_xe100_pufit_xe75_L1XE60 || HLT_xe110_pufit_xe65_L1XE60 || HLT_xe120_pufit_L1XE60))"
 
-expression3 = "(( count( AntiKt4EMTopoJets.pt > 45*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 2) && (HLT_xe70 || HLT_j80_xe80 || HLT_xe90_mht_L1XE50 || HLT_xe100_mht_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50 || HLT_noalg_L1J400 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_xe110_pufit_L1XE55))"
+expression3 = "(( count( AntiKt4EMTopoJets.pt > 45*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 2) && (HLT_xe70 || HLT_j80_xe80 || HLT_xe90_mht_L1XE50 || HLT_xe100_mht_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50 || HLT_noalg_L1J400 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_xe110_pufit_L1XE55 || HLT_xe110_pufit_xe70_L1XE50 ||  HLT_xe120_pufit_L1XE50 || HLT_j420 || HLT_J450 || HLT_xe110_pufit_xe65_L1XE55 || HLT_xe120_pufit_L1XE55 || HLT_xe100_pufit_xe75_L1XE60 || HLT_xe110_pufit_xe65_L1XE60 || HLT_xe120_pufit_L1XE60))"
 
-expressionleptonveto = "! (( count( Electrons.Tight && Electrons.pt > 30*GeV && Electrons.eta > -2.4 && Electrons.eta < 2.4) > 0) || ( count( Muons.DFCommonGoodMuon && Muons.pt > 30*GeV && Muons.eta > -2.4 && Muons.eta < 2.4) > 0))"
+#VLQ all-had skimming
+expression4 = "( (count( AntiKt4EMTopoJets.pt > 250*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && ( count( AntiKt4EMTopoJets.pt > 150*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && ( count( AntiKt4EMTopoJets.pt > 100*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && ( count( AntiKt4EMTopoJets.pt > 50*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && HLT_ht1000_L1J100)"
 
-expression = "(( " + expression1 + " || " + expression2 + " || " + expression3 + ") && " + expressionleptonveto + ")"
+expression = "(( " + expression1 + " || " + expression2 + " || " + expression3 + " || " + expression4 + " ))"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EXOT7StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT7StringSkimmingTool", expression = expression)
@@ -286,7 +289,7 @@ EXOT7SlimmingHelper.SmartCollections = EXOT7SmartCollections
 EXOT7SlimmingHelper.ExtraVariables = EXOT7ExtraVariables
 EXOT7SlimmingHelper.AllVariables = EXOT7AllVariables
 addMETOutputs(EXOT7SlimmingHelper, ["Track", "EXOT7"], ["AntiKt4EMTopo"])
-addJetOutputs(EXOT7SlimmingHelper, ["EXOT7"])
+addJetOutputs(EXOT7SlimmingHelper, ["EXOT7"], ["AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
 addOriginCorrectedClusters(EXOT7SlimmingHelper, writeLC = True, writeEM = False)
 listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']
 if globalflags.DataSource()=='geant4':

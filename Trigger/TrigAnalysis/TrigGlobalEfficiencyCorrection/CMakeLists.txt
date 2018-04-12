@@ -58,7 +58,7 @@ endif()
 foreach(example TrigGlobEffCorrExample0 TrigGlobEffCorrExample1
 TrigGlobEffCorrExample2 TrigGlobEffCorrExample3a TrigGlobEffCorrExample3b
 TrigGlobEffCorrExample3c TrigGlobEffCorrExample3d TrigGlobEffCorrExample3e
-TrigGlobEffCorrExample4)
+TrigGlobEffCorrExample4 TrigGlobEffCorrExample5a TrigGlobEffCorrExample5b)
    atlas_add_executable( ${example}
       SOURCES examples/${example}.cxx
 	  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}

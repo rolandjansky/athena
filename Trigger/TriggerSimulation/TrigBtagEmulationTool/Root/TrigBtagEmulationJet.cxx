@@ -8,10 +8,6 @@ using namespace Trig;
 
 //**********************************************************************
 
-bool Trig::sortEmulationJetByPt(Trig::TrigBtagEmulationJet* a,Trig::TrigBtagEmulationJet* b) { return a->pt() > b->pt(); }
-
-//**********************************************************************
-
 TrigBtagEmulationJet::TrigBtagEmulationJet()
   : m_pt( 0 ),
     m_eta( 0 ),

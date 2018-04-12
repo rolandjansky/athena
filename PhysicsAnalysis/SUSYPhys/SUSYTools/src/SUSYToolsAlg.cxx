@@ -143,21 +143,23 @@ StatusCode SUSYToolsAlg::initialize() {
   count_mu_signal=0;
 
   /// SETUP TRIGGERS TO BE CHECKED
-  const int n_el_trig = 3;
-  el_triggers.push_back("HLT_e24_lhmedium_L1EM18VH"); // reference xAOD used for tests doesn't have the reprocessed menu yet (i.e. no *20VH in there) //MT
+  const int n_el_trig = 6;
+  el_triggers.push_back("HLT_e24_lhmedium_L1EM20VH"); // reference xAOD used for tests doesn't have the reprocessed menu yet (i.e. no *20VH in there) //MT
   el_triggers.push_back("HLT_e60_lhmedium");
   el_triggers.push_back("HLT_e120_lhloose");
+  el_triggers.push_back("HLT_e26_lhtight_nod0_ivarloose");
+  el_triggers.push_back("HLT_e60_lhmedium_nod0");
+  el_triggers.push_back("HLT_e140_lhloose_nod0");
 
   const int n_ph_trig = 2;
   ph_triggers.push_back("HLT_g120_loose");
   ph_triggers.push_back("HLT_g140_loose");
 
-  const int n_mu_trig = 5;
+  const int n_mu_trig = 3;
   mu_triggers.push_back("HLT_mu20_iloose_L1MU15");
   mu_triggers.push_back("HLT_mu50");
-  mu_triggers.push_back("HLT_mu18");
-  mu_triggers.push_back("HLT_mu8noL1");
-  mu_triggers.push_back("HLT_mu18_mu8noL1");
+  mu_triggers.push_back("HLT_mu26_ivarmedium");
+
 
   //-- Book histograms
   CHECK( book(TH1D("el_n_flow_nominal", "Electron Cutflow (Nominal)", nSel, 0, nSel) ) );

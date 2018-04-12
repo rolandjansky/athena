@@ -144,12 +144,15 @@ jetRequirements = '(AntiKt4EMTopoJets.DFCommonJets_Calib_pt >= 40.*GeV && abs(An
 # expression = '(((count('+electronsRequirements+') + count('+muonsRequirements+') >= 1) && (count('+jetRequirements+') >=3)) || ((count('+electronsRequirements+') + count('+muonsRequirements+') >= 2) && (count('+jetRequirements+') >=2)) || (HLT_5j.*) || (HLT_6j.*) || (HLT_7j.*) )'
 expression = '(((count('+electronsRequirements+') + count('+muonsRequirements+') >= 1) && (count('+jetRequirements+') >=3)) || ((count('+electronsRequirements+') + count('+muonsRequirements+') >= 2) && (count('+jetRequirements+') >=2)) )'
 
+triggers = ["HLT_5j.*", "HLT_6j.*", "HLT_7j.*", "HLT_g45_loose_5j45_0eta240", "HLT_g45_loose_6j45_0eta240"]
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool, DerivationFramework__TriggerSkimmingTool, DerivationFramework__FilterCombinationOR
 SUSY4ObjectSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY4ObjectSkimmingTool",
                                                                 expression = expression)
 ToolSvc += SUSY4ObjectSkimmingTool
+# Multijet and Multijet + photon triggers
 SUSY4TrigSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY4TrigSkimmingTool",
-                                                                  TriggerListOR = ["HLT_5j.*", "HLT_6j.*", "HLT_7j.*"])
+                                                                  TriggerListOR = triggers)
 ToolSvc += SUSY4TrigSkimmingTool
 SUSY4SkimmingTool = DerivationFramework__FilterCombinationOR( name = "SUSY4SkimmingTool",
                                                               FilterList = [SUSY4ObjectSkimmingTool, SUSY4TrigSkimmingTool])

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGERPERFORMANCEFUNCTIONS_CXX
@@ -61,7 +61,7 @@ float UpgradePerformanceFunctions::getDiElectronTriggerEfficiency(float pt1MeV, 
 
 float UpgradePerformanceFunctions::getSinglePhotonTriggerEfficiency(float etMeV, float eta) {
   if (etMeV<120000. || fabs(eta)>2.4 ) {
-    std::cout << "WARNING: no trigger efficiency is returned for PT<120 GeV or eta>2.4 since it is assumed this will be the lowest photon trigger threshold !" << std::endl;
+    ATH_MSG_WARNING("no trigger efficiency is returned for PT<120 GeV or eta>2.4 since it is assumed this will be the lowest photon trigger threshold !");
     return 0.;
   }
   return 1.0;
@@ -69,7 +69,7 @@ float UpgradePerformanceFunctions::getSinglePhotonTriggerEfficiency(float etMeV,
 
 float UpgradePerformanceFunctions::getDiPhotonTriggerEfficiency(float et1MeV, float et2MeV, float eta1, float eta2) {
   if (et1MeV<25000. || et2MeV<25000. || fabs(eta1)>2.4 || fabs(eta2)>2.4) {
-    std::cout << "WARNING: no trigger efficiency is returned for PT<25 GeV or eta >2.4 since it is assumed this will be the lowest diphoton trigger threshold !" << std::endl;
+    ATH_MSG_WARNING("no trigger efficiency is returned for PT<25 GeV or eta >2.4 since it is assumed this will be the lowest diphoton trigger threshold !");
     return 0.;
   }
   return 1.00;
@@ -85,14 +85,14 @@ float UpgradePerformanceFunctions::muonEtaTriggerEfficiency(float eta) {
     //=======
     
     float eff = 0.98*0.98; //TGC*MDT efficiency
-    if (fabs(eta)>2.4) return 0.;
+    if (fabs(eta)>2.65) return 0.;
     if (fabs(eta)>1.05) {
         if ( m_layout == LoI || m_layout == LoIVF) eff=0.86; //obsolete numbers
         if ( m_layout == bronze) eff*=0.98; //additional 2% loss from L1Track
     } else {
         int ibin=fabs(eta)/eta_bin;
         float eff_rpc= eff=0.70; //obsolete numbers
-        if ( m_layout == gold ) {
+        if ( m_layout == gold || m_layout == InclBrl || m_layout ==  ExtBrl || m_layout ==  Step1p6 ) {
             eff_rpc=eff_gold[ibin];
         } else if   ( m_layout == silver ) {
             eff_rpc=eff_silver[ibin];
@@ -100,7 +100,7 @@ float UpgradePerformanceFunctions::muonEtaTriggerEfficiency(float eta) {
             eff_rpc=eff_bronze[ibin];
         } 
         
-        if ( m_layout == gold )   eff=eff_rpc*0.98; //RPC recovery with BI RPC chambers
+        if ( m_layout == gold  || m_layout == InclBrl || m_layout == ExtBrl || m_layout ==  Step1p6)   eff=eff_rpc; //RPC recovery with BI RPC chambers
         if ( m_layout == silver ) eff=eff_rpc*0.98; //only partial recovery with BI RPC chambers
         if ( m_layout == bronze ) eff=eff_rpc*0.98*0.98; //inefficient RPC, and additional 2% L1Track inefficiency
     }
@@ -111,7 +111,7 @@ float UpgradePerformanceFunctions::getSingleMuonTriggerEfficiency(float etMeV, f
   //single-mu trigger efficiency w.r.t. reconstruction efficiency (tight=true)
   //using 2012 values from K. Nagano
   float minPt=25000.;
-  if ( m_layout == gold ) minPt=20000.;
+  if ( m_layout == gold  || m_layout == InclBrl || m_layout == ExtBrl || m_layout ==  Step1p6 ) minPt=20000.;
   if (etMeV > minPt) return muonEtaTriggerEfficiency(eta);
   return 0.;
 }
@@ -119,7 +119,7 @@ float UpgradePerformanceFunctions::getSingleMuonTriggerEfficiency(float etMeV, f
 float UpgradePerformanceFunctions::getDiMuonTriggerEfficiency(float et1MeV, float et2MeV, float eta1, float eta2) {
   float eff=muonEtaTriggerEfficiency(eta1)*muonEtaTriggerEfficiency(eta2);
   float minPt=15000.;
-  if (m_layout == gold) minPt=11000.;
+  if (m_layout == gold  || m_layout == InclBrl || m_layout == ExtBrl || m_layout ==  Step1p6) minPt=11000.;
   
   // Result is product of individual muon efficiencies 
   if (et1MeV > minPt && et2MeV > minPt) return eff;
@@ -139,7 +139,7 @@ float UpgradePerformanceFunctions::getElectronMuonTriggerEfficiency(float elecEt
 
 float UpgradePerformanceFunctions::getSingleTauTriggerEfficiency(float etMeV, float eta, short prong) {
   if (etMeV<150000. || fabs(eta)>2.5 || prong>3) {
-    std::cout << "WARNING: no trigger efficiency is returned for ET<150 GeV or |eta|>2.5. since it is assumed this will be the first unprescaled single tau trigger threshold !" << std::endl;
+    ATH_MSG_WARNING("no trigger efficiency is returned for ET<150 GeV or |eta|>2.5. since it is assumed this will be the first unprescaled single tau trigger threshold !");
     return 0.;
   }
   return 0.80;

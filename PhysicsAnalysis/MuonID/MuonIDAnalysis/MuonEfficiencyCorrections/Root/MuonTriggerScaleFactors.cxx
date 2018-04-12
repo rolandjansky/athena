@@ -47,10 +47,8 @@ namespace CP {
                 m_fileName(),
                 m_efficiencyMap(),
                 m_efficiencyMapReplicaArray(),
-
                 m_muonquality("Medium"),
-
-                m_calibration_version("180214_Moriond21"),
+                m_calibration_version("180312_TriggerUpdate"),
                 m_custom_dir(),
                 m_binning("fine"),
 		m_eventInfoContName("EventInfo"),
@@ -62,7 +60,7 @@ namespace CP {
                 m_nReplicas(100),
                 m_ReplicaRandomSeed(12345) {
       
-        declareProperty("MuonQuality", m_muonquality); // HighPt,Tight,Medium,Loose
+        declareProperty("MuonQuality", m_muonquality); // HighPt,Tight,Medium,Loose,LowPt
         declareProperty("CalibrationRelease", m_calibration_version);
         // these are for debugging / testing, *not* for general use!
         declareProperty("filename", m_fileName);
@@ -87,7 +85,7 @@ namespace CP {
         if (fileName.empty() && !m_useRel207) {
             if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v01.root";
             else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v01.root";
-	    else if (year == 2017) fileName = "muontrigger_sf_2017_mc16c_v01.root";
+	    else if (year == 2017) fileName = "muontrigger_sf_2017_mc16c_v02.root";
             else {
                 ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
                 return StatusCode::SUCCESS;
@@ -131,8 +129,9 @@ namespace CP {
         //Why loading coarse binning if you never use it?!
 //        static const std::vector<std::string> bins { "coarse", "fine" };
         static const std::vector<std::string> systematic { "nominal", "stat_up", "stat_down", "syst_up", "syst_down" };
-
-        const std::string quality = m_muonquality;
+	if(m_muonquality.compare("LowPt") == 0)
+	  m_muonquality = "Medium";
+	const std::string quality = m_muonquality;
         TDirectory* qualityDirectory = file->GetDirectory(m_muonquality.c_str());
         if (qualityDirectory == nullptr) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize cannot find directory with selected quality");
@@ -246,14 +245,6 @@ namespace CP {
 	return CorrectionCode::Error;
       }
 
-      unsigned int run = getRunNumber();
-      auto year = getYear(run);
-      if(year == 2017 && m_muonquality=="HighPt"){
-	ATH_MSG_ERROR("Scale factors for HighPt working point are currently not supported for 2017. Returning 1. Update coming soon, so please stay tuned.");
-	triggersf = 1.;
-	return CorrectionCode::Ok;
-      }
-      
       TrigMuonEff::Configuration configuration;
 
       if (trigger == "HLT_mu8noL1")
@@ -270,14 +261,6 @@ namespace CP {
             ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor Trigger must have value.");
             return CorrectionCode::Error;
         }
-
-	unsigned int run = getRunNumber();
-	auto year = getYear(run);
-	if(year == 2017 && m_muonquality=="HighPt"){
-	  ATH_MSG_ERROR("Scale factors for HighPt working point are currently not supported for 2017. Returning 1. Update coming soon, so please stay tuned.");
-	  triggersf = 1.;
-	  return CorrectionCode::Ok;
-	}
 
         TrigMuonEff::Configuration configuration;
 
@@ -334,9 +317,9 @@ namespace CP {
         static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
 
         std::string systype = "";
-        if (appliedSystematics().matchSystematic(syst_down)) {
+        if (appliedSystematics().matchSystematic(syst_down) && !dataType) {
             systype = "syst_down";
-        } else if (appliedSystematics().matchSystematic(syst_up)) {
+        } else if (appliedSystematics().matchSystematic(syst_up) && !dataType) {
             systype = "syst_up";
         } else if (appliedSystematics().matchSystematic(stat_down)) {
             systype = "stat_down";
@@ -355,7 +338,6 @@ namespace CP {
             configuration.replicaIndex = getReplica_index(appliedSystematics().begin()->basename(), trigger);
             if (configuration.replicaIndex != -1) systype = "replicas";
         }
-
         CorrectionCode cc = getMuonEfficiency(efficiency, configuration, mu, trigger, systype);
         return cc;
     }
@@ -404,7 +386,8 @@ namespace CP {
     bool isBarrel = fabs(mu_eta) < muon_barrel_endcap_boundary;
     TH1_Ptr cit = getEfficiencyHistogram(trigger, true, "nominal", isBarrel);
     if(!cit.get()){
-      ATH_MSG_ERROR("Could not find efficiency map for muon with eta: " << mu_eta << " and phi: " << mu_phi << ". Something is inconsistent. Please check your settings for year, mc and trigger." );
+      if(!m_allowZeroSF)
+	ATH_MSG_ERROR("Could not find efficiency map for muon with eta: " << mu_eta << " and phi: " << mu_phi << ". Something is inconsistent. Please check your settings for year, mc and trigger." );
       return -1;
     }
     auto eff_h2 = cit;
@@ -426,6 +409,7 @@ namespace CP {
 
     }
     TH1_Ptr MuonTriggerScaleFactors::getEfficiencyHistogram(unsigned int year, const std::string& period, const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel) const {
+      
         EffiHistoIdent Ident = EffiHistoIdent(YearPeriod(year, period), encodeHistoName(period, trigger, isData, Systematic, isBarrel));
         EfficiencyMap::const_iterator Itr = m_efficiencyMap.find(Ident);
         if (Itr == m_efficiencyMap.end()) {
@@ -629,7 +613,6 @@ namespace CP {
         if ((mucont.size()) and (fabs(1. - rate_not_fired_mc) > 0.0001)) {
 
             event_SF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
-
         }
         TriggerSF = event_SF;
 
@@ -642,8 +625,6 @@ namespace CP {
         if (result != CorrectionCode::Ok)
 	  return result;
 
-        double rate_not_fired_data = 1.;
-        double rate_not_fired_mc = 1.;
 	double eff_data = 0., eff_mc = 0.;
 
 	if (mu.pt() < threshold) {
@@ -694,11 +675,10 @@ namespace CP {
 	CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, mu, muon_trigger_name, mc_err);
 	if (result_mc != CorrectionCode::Ok)
 	  return result_data;
-	if (1 - rate_not_fired_data == 0)
+	if (eff_data == 0)
 	  TriggerSF =  0;
-        if (fabs(1. - rate_not_fired_mc) > 0.0001)
-	  TriggerSF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
-
+        if (fabs(eff_mc) > 0.0001)
+	  TriggerSF = eff_data / eff_mc;
         return CorrectionCode::Ok;
   }
   

@@ -54,8 +54,8 @@ namespace top{
 
       StatusCode initialize();
 
-      StatusCode executePhotons();
-      StatusCode executeElectrons();
+      StatusCode executePhotons(bool);
+      StatusCode executeElectrons(bool);
 
       StatusCode printoutPhotons();
       StatusCode printoutElectrons();

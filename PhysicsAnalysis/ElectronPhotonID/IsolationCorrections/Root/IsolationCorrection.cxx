@@ -99,8 +99,7 @@ namespace CP {
     float energy = 0;
 
     //energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3); //input.e()
-    if(m_tool_ver == REL21) energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3);
-    if(m_tool_ver == REL20_2) energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3); //input.e()
+    if(m_tool_ver == REL21 || m_tool_ver == REL20_2) energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3);
     else energy = input.caloCluster()->e();
 
     bool is_mc = m_is_mc;
@@ -166,6 +165,7 @@ namespace CP {
     bool is_topo = xAOD::Iso::isolationFlavour(isol) == xAOD::Iso::topoetcone ? true : false;
 
     if(is_topo){
+    
       isolation_ptcorrection = GetPtCorrectionTopo(  energy,
 						     etaS2,
 						     etaPointing,
@@ -1235,7 +1235,7 @@ namespace CP {
       FreeClear( m_graph_dd_cone40_photon_shift );
       FreeClear( m_graph_dd_cone40_photon_smearing );
 
-    } else if (m_tool_ver == REL20_2) {
+    } else if (m_tool_ver == REL20_2 || m_tool_ver == REL21) {
 
       //---- Rel 20_2 pT leakage correction file
       FreeClear( m_function_2015_cone40_photon_unconverted );
@@ -1475,7 +1475,7 @@ namespace CP {
     double correction_value = 0.;
     if (ver== REL17_2) {
       correction_value = GetPtCorrection_FromGraph(energy,etaS2,etaPointing,etaCluster,radius,isConversion,parttype);
-    } else if (m_tool_ver == REL20_2){
+    } else if (m_tool_ver == REL20_2 || m_tool_ver == REL21){
       correction_value = GetPtCorrection_FromGraph_2015(energy, etaS2, radius, convFlag_int, author, conv_radius, conv_ratio, parttype);
     }
 

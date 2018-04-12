@@ -20,8 +20,15 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 
 #====================================================================
+# Create Private Sequence
+#====================================================================
+
+FTAG3Seq = CfgMgr.AthSequencer("FTAG3Sequence");
+
+#====================================================================
 # SKIMMING TOOLS
 # (SKIMMING = REMOVING WHOLE EVENTS THAT FAIL CRITERIA)
+# Create skimming tool, and create + add kernel to sequence
 #====================================================================
 triggers = []
 #mu-jet triggers without online b-tagging information
@@ -48,6 +55,10 @@ FTAG3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FATG
 ToolSvc += FTAG3TriggerSkimmingTool
 print FTAG3TriggerSkimmingTool
 
+FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3SkimKernel",
+                                                         SkimmingTools = [FTAG3TriggerSkimmingTool],
+                                                         )
+
 #====================================================================
 # TRUTH SETUP
 #====================================================================
@@ -55,14 +66,6 @@ if globalflags.DataSource()!='data':
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addHFAndDownstreamParticles
     addStandardTruthContents()
     addHFAndDownstreamParticles()   
-
-#====================================================================
-# CREATE PRIVATE SEQUENCE
-#====================================================================
-
-FTAG3Seq = CfgMgr.AthSequencer("FTAG3Sequence");
-DerivationFrameworkJob += FTAG3Seq
-
 
 #====================================================================
 # Basic Jet Collections 
@@ -85,13 +88,10 @@ addDefaultTrimmedJets(FTAG3Seq,"FTAG3",dotruth=True)
 FlavorTagInit(JetCollections  = ['AntiKt4EMTopoJets'],Sequencer = FTAG3Seq)
 
 #====================================================================
-# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
+# Add sequence (with all kernels needed) to DerivationFrameworkJob 
 #====================================================================
 
-FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3Kernel",
-                                                         SkimmingTools = [FTAG3TriggerSkimmingTool],
-                                                         )
-
+DerivationFrameworkJob += FTAG3Seq
 
 #====================================================================
 # SET UP STREAM
@@ -101,7 +101,7 @@ FTAG3Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG3Kernel",
 streamName = derivationFlags.WriteDAOD_FTAG3Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_FTAG3Stream )
 FTAG3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-FTAG3Stream.AcceptAlgs(["FTAG3Kernel"])
+FTAG3Stream.AcceptAlgs(["FTAG3SkimKernel"])
 
 FTAG3SlimmingHelper = SlimmingHelper("FTAG3SlimmingHelper")
 
@@ -134,8 +134,6 @@ FTAG3SlimmingHelper.AllVariables =  ["AntiKt4EMTopoJets",
 FTAG3SlimmingHelper.ExtraVariables += ["BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt10TruthSecVtx.-vxTrackAtVertex"]
-
-addJetOutputs(FTAG3SlimmingHelper,["FTAG3"],[],[])
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff

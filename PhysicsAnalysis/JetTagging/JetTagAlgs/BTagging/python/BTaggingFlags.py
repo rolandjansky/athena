@@ -3,6 +3,19 @@
 class _BTaggingFlags:
 
 # default is analysis
+    StandardTaggers = \
+      [ 'IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN',
+        'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge',
+        'MV2c100', 'MV2cl100', 'MVb', 'DL1', 'DL1rnn', 'DL1mu',  'RNNIP' ]
+
+    ExpertTaggers = \
+      StandardTaggers + \
+      [ 'SV1Flip', 'JetFitterNNFlip', 'IP2DNeg', 'IP3DNeg',
+        'MV2c10Flip', 'MV2c100Flip', 'DL1Flip' ]
+      # do we have these already?
+      # 'DL1muFlip', 'RNNIPFlip', 'DL1rnnFlip'
+
+
 
     _Active = [ 'Active' ]
 
