@@ -18,8 +18,19 @@ if DerivationFrameworkIsMonteCarlo:
 # Private sequence here
 # =============================================
 TAUP3seq = CfgMgr.AthSequencer("TAUP3Sequence")
-DerivationFrameworkJob += TAUP3seq
 
+#==================================================================== 
+# JetTagNonPromptLepton decorations 
+#==================================================================== 
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+# Build AntiKt4PV0TrackJets and run b-tagging 
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(TAUP3seq, 'TAUP3')
+# Add BDT decoration algs 
+TAUP3seq += JetTagConfig.GetDecoratePromptLeptonAlgs(name="Muons")
+TAUP3seq += JetTagConfig.GetDecoratePromptTauAlgs()
+
+# Add private sequence to the DerivationFrameworkJob
+DerivationFrameworkJob += TAUP3seq
 
 # =============================================
 # Set up stream
@@ -197,6 +208,11 @@ TAUP3SlimmingHelper.IncludeBJetTriggerContent    = False
 
 TAUP3SlimmingHelper.ExtraVariables               = ExtraContentTAUP3
 TAUP3SlimmingHelper.AllVariables                 = ExtraContainersTAUP3
+
+# TODO: do these extra b-jet veto variables in TAUPExtraContent to keep this master file cleaner
+TAUP3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+TAUP3SlimmingHelper.ExtraVariables += ["Muons.PromptLeptonIso.PromptLeptonVeto"]
+TAUP3SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(name="Muons")
 
 if globalflags.DataSource() == "geant4":
   #TAUP3SlimmingHelper.AppendToDictionary = {'AntiKt4TruthJets':'xAOD::JetContainer','AntiKt4TruthJetsAux':'xAOD::JetAuxContainer'}
