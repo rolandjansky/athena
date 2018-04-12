@@ -773,7 +773,7 @@ class FakeLVL1(_modifier):
 
 class reprocessTT(_modifier):
     """
-    Flags the reproccesing of trigger towsers in rerunLVL1
+    Flags the reproccesing of trigger towers in rerunLVL1
     """
     def preSetup(self):
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
