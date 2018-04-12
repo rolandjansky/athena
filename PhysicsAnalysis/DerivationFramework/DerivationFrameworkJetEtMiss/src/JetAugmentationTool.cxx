@@ -44,7 +44,7 @@ namespace DerivationFramework {
     m_jetPtAssociationTool(""),
     m_decorateptassociation(false),
     dec_AssociatedNtracks(0),
-    m_decoratentracks(false),
+    m_decoratentracks(true),
     m_trkSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this) //
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -60,6 +60,7 @@ namespace DerivationFramework {
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
     declareProperty("JetPtAssociationTool", m_jetPtAssociationTool);
     declareProperty("JetOriginCorrectionTool",m_jetOriginCorrectionTool);
+    declareProperty("TrackSelectionTool",m_trkSelectionTool);
   }
 
   StatusCode JetAugmentationTool::initialize()
@@ -126,16 +127,20 @@ namespace DerivationFramework {
     dec_minPtTracks = new SG::AuxElement::Decorator<float>("minPtTracks");
     dec_dTrkPv = new SG::AuxElement::Decorator<vector<float>>("dTrkPv");
     dec_count = new SG::AuxElement::Decorator<vector<int>>("count");
-
+    dec_NTracks_Null = new SG::AuxElement::Decorator<int>("NTracks_Null");
+    dec_Track_pt = new SG::AuxElement::Decorator<vector<float>>("Track_pt");
+    dec_Track_passCount1 = new SG::AuxElement::Decorator<vector<int>>("Track_passCount1");
+    dec_Track_passCount2 = new SG::AuxElement::Decorator<vector<int>>("Track_passCount2");
+    dec_Track_passCount3 = new SG::AuxElement::Decorator<vector<int>>("Track_passCount3");
 
     // set up InDet selection tool
-    if(!m_trkSelectionTool.empty()) {
-      //assert( ASG_MAKE_ANA_TOOL( m_trkSelectionTool,  InDet::InDetTrackSelectionTool ) );
-      assert( m_trkSelectionTool.retrieve() );
-      assert( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
-      //m_trkSelectionTool.CutLevel = "LoosePrimary";
-      m_decoratentracks = true;
-    }
+    //if(!m_trkSelectionTool.empty()) {
+    assert( m_trkSelectionTool.retrieve() );
+    assert( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
+    //CHECK( m_trkSelectionTool.retrieve() );
+    //CHECK( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
+      m_decoratentracks = true; 
+      //} non funziona??
 
 
     if(!m_jetOriginCorrectionTool.empty()) {
@@ -311,10 +316,10 @@ namespace DerivationFramework {
 	  std::vector<const xAOD::IParticle*> jettracks;
 	  jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks);
 	  //(*dec_AssociatedNtracks)(jet_orig) = jettracks.size();
-
+	  
 	  int nTracksCount = 0;
 	  bool invalidJet = false;
-
+	  
 	  const xAOD::Vertex *pv = 0;
 	  const xAOD::VertexContainer* vxCont = 0;
 	  if(evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure()){
@@ -336,20 +341,30 @@ namespace DerivationFramework {
 	      }
 	    }
 	  }
-
+	  
 	  float minPtTracks = 10000000;
 	  float dTrkPv_value = -1.;
 	  vector<float> dTrkPv;
 	  vector<int> count;
+	  int ntracks_null = 0;
+	  vector<float> track_pt;
 
+	  vector<int> track_passCount1;
+	  vector<int> track_passCount2;
+	  vector<int> track_passCount3;
+	  
 	  for (size_t i = 0; i < jettracks.size(); i++) {
-
+	    
 	    dTrkPv_value = -1;
 	    if(invalidJet) continue;
-
+	    
 	    const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(jettracks[i]);
 
+	    if(trk==NULL) ntracks_null++;
+
 	    if(trk->pt()<minPtTracks) minPtTracks = trk->pt();
+
+	    track_pt.push_back( trk->pt() );
 
 	    // only count tracks with selections
 	    // 1) pt>500 MeV
@@ -359,29 +374,52 @@ namespace DerivationFramework {
 			   m_trkSelectionTool->accept(*trk) &&
 			   (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
 			   );	    
-
+	    
 	    if(trk->pt()>500 && m_trkSelectionTool->accept(*trk)){
 	      if(!trk->vertex()) dTrkPv_value = fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()));
 	      if(trk->vertex()==pv) dTrkPv_value = 0.;
 	      dTrkPv.push_back(dTrkPv_value);
 	    }
 
+
+	    // check nTracks counting ---
+	    if(   trk->pt()>500  ) track_passCount1.push_back(1);
+	    if( !(trk->pt()>500) ) track_passCount1.push_back(0);
+
+	    if(   m_trkSelectionTool->accept(*trk)  ) track_passCount2.push_back(1);
+	    if( !(m_trkSelectionTool->accept(*trk)) ) track_passCount2.push_back(0);
+
+	    //TString string = Form("Test Decorate QG: trkSelTool output %d", m_trkSelectionTool->accept(*trk));
+	    //ATH_MSG_INFO(string);
+	    std::cout << "Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk) << std::endl;
+	    
+	    if(  (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))  ) track_passCount3.push_back(1);
+	    if( !(trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))  ) track_passCount3.push_back(0);
+	    // ---------------------------
+
 	    if (!accept) continue;
-	
+	    
 	    count.push_back(1);
 	    nTracksCount++;
-
+	    
 	  }// end loop over jettracks
-
+	  
 	  (*dec_AssociatedNtracks)(jet_orig) = nTracksCount;
 	  (*dec_AssociatedNtracks_noCut)(jet_orig) = jettracks.size();
 	  (*dec_minPtTracks)(jet_orig) = minPtTracks;
 	  (*dec_dTrkPv)(jet_orig) = dTrkPv;
 	  (*dec_count)(jet_orig) = count;
+	  (*dec_NTracks_Null)(jet_orig) = ntracks_null;
+	  (*dec_Track_pt)(jet_orig) = track_pt;	  
+	  (*dec_Track_passCount1)(jet_orig) = track_passCount1;	  
+	  (*dec_Track_passCount2)(jet_orig) = track_passCount2;	  
+	  (*dec_Track_passCount3)(jet_orig) = track_passCount3;	  
+	  
+	}// end if m_decoratentracks
 
-	}
-    }
+    }//end loop on jets copies
 
     return StatusCode::SUCCESS;
-  }
+  }//end addBranches
+
 }

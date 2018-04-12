@@ -24,10 +24,15 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Jet/JetInterface
 			  Reconstruction/Jet/JetJvtEfficiency
 			  Reconstruction/PFlow/PFlowUtils
-                          Tools/PathResolver )
+                          Tools/PathResolver 
+			  PhysicsAnalysis/TrackingID/InDetTrackSelectionTool #for nTracks	
+			  )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+
+# package for nTracks
+#LINK_LIBRARIES(InDetTrackSelectionTool)
 
 # Component(s) in the package:
 atlas_add_library( DerivationFrameworkJetEtMissLib
@@ -35,7 +40,10 @@ atlas_add_library( DerivationFrameworkJetEtMissLib
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface JetJvtEfficiency PathResolver PFlowUtils AssociationUtilsLib )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface JetJvtEfficiency PathResolver PFlowUtils AssociationUtilsLib 
+		   InDetTrackSelectionToolLib #for nTracks
+ 		   InDetTrackSelectionTool    #for nTracks      
+		   )
 
 atlas_add_component( DerivationFrameworkJetEtMiss
                      src/components/*.cxx
