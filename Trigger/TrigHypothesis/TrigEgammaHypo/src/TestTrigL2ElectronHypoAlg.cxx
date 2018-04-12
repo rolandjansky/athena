@@ -29,12 +29,6 @@ StatusCode TestTrigL2ElectronHypoAlg::initialize() {
   CHECK( m_electronsKey.initialize() );
   if (  m_runInView)   renounce( m_electronsKey );// clusters are made in views, so they are not in the EvtStore: hide them
 
-  // CHECK( m_previousDecisionsKey.initialize() );
-  // renounce(m_previousDecisionsKey);
-
-  // CHECK( m_decisionsKey.initialize() );
-
- 
   return StatusCode::SUCCESS;
 }
 

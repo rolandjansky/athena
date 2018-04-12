@@ -36,9 +36,6 @@ class TestTrigL2CaloHypoAlg : public ::HypoBase {
   ToolHandleArray< ITrigL2CaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in view" };  
-  // SG::ReadHandleKey  < TrigCompositeUtils::DecisionContainer > m_previousDecisionsKey { this, "previousDecisions", "Unspecified", "Input decisions" };
-  //SG::WriteHandleKey < TrigCompositeUtils::DecisionContainer > m_decisionsKey         { this, "Decisions", "Unspecified", "Output Decisions" };
-
   Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
 
 }; 

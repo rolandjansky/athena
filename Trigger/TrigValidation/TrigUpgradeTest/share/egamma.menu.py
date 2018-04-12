@@ -37,8 +37,6 @@ from InDetRecExample.InDetKeys import InDetKeys
 if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
-## testChains = ["HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut", "HLT_2e3_etcut", "HLT_e3e5_etcut"]
-## topSequence.L1DecoderTest.prescaler.Prescales = ["HLT_e3_etcut:2", "HLT_2e3_etcut:2.5"]
 
 from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
 from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep2
@@ -65,56 +63,30 @@ from ViewAlgs.ViewAlgsConf import TestEventViewCreatorAlgorithm
 
 fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo, trigL2CaloRingerFexMT])
 
-## filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
-## filterL1RoIsAlg.Input = ["EMRoIDecisions"]
-## filterL1RoIsAlg.Output = ["FilteredEMRoIDecisions"]
-## filterL1RoIsAlg.Chains = testChains
-## filterL1RoIsAlg.OutputLevel = DEBUG
 
 
 fastCaloViewsMaker = TestEventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
 fastCaloViewsMaker.ViewFallThrough = True
-#fastCaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTool
 fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
 fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
 fastCaloViewsMaker.Views = "EMCaloViews"
-#fastCaloViewsMaker.AlgorithmNameSequence = [theFastCaloAlgo.getName(), trigL2CaloRingerFexMT.getName()]
 fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgs"
 theFastCaloAlgo.RoIs = fastCaloViewsMaker.InViewRoIs
 
+# are these needed?
 CaloViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastCaloViewDataVerifier")
 CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fastCaloViewsMaker_InViewRoIs_out')]
 
 
-
-#from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlg
-#from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
 from TrigEgammaHypo.TrigEgammaHypoConf import TestTrigL2CaloHypoAlg
 theFastCaloHypo = TestTrigL2CaloHypoAlg("L2CaloHypo")
 theFastCaloHypo.OutputLevel = DEBUG
 theFastCaloHypo.RunInView=True
-## theFastCaloHypo.L1Decisions = "EMRoIDecisions"
-## theFastCaloHypo.Views = fastCaloViewsMaker.Views
 theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
-#theFastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
-#theFastCaloHypo.Decisions = "EgammaCaloDecisions"
-#theFastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
-#[ TrigL2CaloHypoToolFromName("HLT_e5_etcut"),   TrigL2CaloHypoToolFromName("HLT_e7_etcut") , TrigL2CaloHypoToolFromName("HLT_2e3_etcut"), TrigL2CaloHypoToolFromName("HLT_e3e5_etcut") ]
 
-## for t in theFastCaloHypo.HypoTools:
-##   t.OutputLevel = DEBUG
-  
-# topSequence += theFastCaloHypo
-
-#caloDecisionsDumper = DumpDecisions("caloDecisionsDumper", OutputLevel=DEBUG, Decisions = theFastCaloHypo.Output )  
 
 fastCaloViewSequence = seqAND("fastCaloViewSequence", [fastCaloViewsMaker, fastCaloInViewAlgs ])
-
 fastCaloSequence =  seqAND("fastCaloSequence", [fastCaloViewSequence])
-
-
-#egammaCaloStep = stepSeq("egammaCaloStep", filterL1RoIsAlg, [ fastCaloSequence,  caloDecisionsDumper ])
-#NodeSequence("muNodeSeq1",  Maker=muIM, Sequence=mustep1_sequence, Hypo=muHypo, Seed="L1MU", HypoToolClassName=MuStep1HypoTool())
 
 fastCalo_NodeSequence = NodeSequence("fastCalo_NodeSequence",
                                          Sequence=fastCaloSequence,
@@ -162,17 +134,7 @@ theElectronFex.ElectronsName="Electrons"
 theElectronFex.OutputLevel=VERBOSE
 
 
-
-## filterCaloRoIsAlg = RoRSeqFilter("filterCaloRoIsAlg")
-## filterCaloRoIsAlg.Input = [theFastCaloHypo.Decisions]
-## filterCaloRoIsAlg.Output = ["Filtered"+theFastCaloHypo.Decisions]
-## filterCaloRoIsAlg.Chains = testChains
-## filterCaloRoIsAlg.OutputLevel = DEBUG
-
-
 l2ElectronViewsMaker = TestEventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
-# topSequence += l2ElectronViewsMaker
-#l2ElectronViewsMaker.Decisions = filterCaloRoIsAlg.Output[0] # output of L2CaloHypo
 l2ElectronViewsMaker.RoIsLink = "roi" # -||-
 l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
 l2ElectronViewsMaker.Views = "EMElectronViews"
@@ -192,21 +154,12 @@ l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
 
 from TrigEgammaHypo.TrigEgammaHypoConf import TestTrigL2ElectronHypoAlg
-#from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
 theElectronHypo = TestTrigL2ElectronHypoAlg()
-#theElectronHypo.Views = l2ElectronViewsMaker.Views
 theElectronHypo.Electrons = theElectronFex.ElectronsName
 theElectronHypo.RunInView=True
-#theElectronHypo.ClusterDecisions = theFastCaloHypo.Decisions 
-#theElectronHypo.ElectronDecisions = "ElectronL2Decisions"
 theElectronHypo.OutputLevel = VERBOSE
-#theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName( c ) for c in testChains ]
 
-#for t in theElectronHypo.HypoTools:
-#  t.OutputLevel = VERBOSE
-# topSequence += theElectronHypo
-# InDetCacheCreatorTrigViews,
-
+# this needs to be added:
 #electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", OutputLevel=DEBUG, Decisions = theElectronHypo.Output )    
 
 electronViewSequence = seqAND("electronViewSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
@@ -220,7 +173,6 @@ electron_NodeSequence = NodeSequence("electron_NodeSequence",
                                         Seed="L1EM")
 
 
-#egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ electronSequence,  electronDecisionsDumper ] )
 electronSequence = MenuSequence("electronStep", nodeSeqList=[electron_NodeSequence])
 
 ##########################################
@@ -234,7 +186,15 @@ for unpack in topSequence.L1DecoderTest.roiUnpackers:
         unpack.Decisions="L1EM"
     if unpack.name() is "MURoIsUnpackingTool":
         unpack.Decisions="L1MU"
+        
+for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
+    if unpack.name() is "EMRerunRoIsUnpackingTool":
+        unpack.Decisions="RerunL1EM"
+        unpack.SourceDecisions="L1EM"
 
+    if unpack.name() is "MURerunRoIsUnpackingTool":
+        unpack.Decisions="RerunL1MU"
+        unpack.SourceDecisions="L1MU"
 
 testChains  = [
    Chain(name='HLT_e3_etcut', Seed="L1_EM3",   \

@@ -3,18 +3,15 @@ from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestComboHypoAlg
 from AthenaCommon.Constants import VERBOSE,DEBUG
-#from TrigUpgradeTest.HLTCFConfig import *
-#from TrigUpgradeTest.MenuComponents import *
+
 from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep2
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
-
 
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
 def InputMakerAlg(name):
     return HLTTest__TestInputMaker(name, OutputLevel = DEBUG, LinkName="initialRoI")
 
-print "cacca"  
 
 # here define the sequences from the signatures
 # signatures do this:
@@ -27,7 +24,7 @@ UseThisLinkName="initialRoI"
 #### muon signatures
 #####################
 
-def  TestHypoTool(name, prop, threshold_value):
+def TestHypoTool(name, prop, threshold_value):
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
     value  =  int(threshold_value)*1000
     h = HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=value, Property=prop, LinkName=UseThisLinkName)
@@ -140,7 +137,6 @@ elHypo2.Input = elAlg2.Output
 elstep2_sequence = seqAND("elSeqStep2", [elIM2, elAlg2])
 nodeSequence2_el = NodeSequence("elNodeSeq2",  Maker=elIM2, Sequence=elstep2_sequence, Hypo=elHypo2, Seed="L1EM", HypoToolClassName=ElStep2HypoTool())
 
-#nodeSequence2_el = NodeSequence("elNodeSeq2",  Maker=step2_el_inputMaker, Algs=[ step2_el_recoAlg], Hypo=step2_el_HypoAlg, Seed="L1EM",HypoToolClassName=ElStep2HypoTool())
 def elStep2Sequence():
     return MenuSequence("elStep2Seq", nodeSeqList=[nodeSequence2_el])
 
@@ -153,11 +149,8 @@ class ComboTestHypoTool(HLTTest__TestHypoTool):
         #doing nothing
         HLTTest__TestHypoTool.__init__(self,name, OutputLevel=DEBUG, Property="pt")
 
-
 def ComboMuEHypo(name):
     return HLTTest__TestComboHypoAlg(name=name, OutputLevel = DEBUG, Property1="pt", Property2="et")
-
-
 
 def ComboStep1HypoTool():
    return "ComboTestHypoTool"
@@ -173,10 +166,6 @@ nodeSequence_muComb = NodeSequence("Combo1NodeSeq1",  Maker=muIM, Sequence=muste
 nodeSequence_elComb = NodeSequence("Combo2NodeSeq1",  Maker=elIM, Sequence=elstep1_sequence, Hypo=comboAlg, Seed="L1EM", HypoToolClassName=ComboStep1HypoTool())
 
 
-#nodeSequence_muComb = NodeSequence("CombmuNodeSeq1",  Maker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_comb_HypoAlgMu, Seed="L1MU", HypoToolClassName=ComboStep1HypoTool())
-#nodeSequence_elComb = NodeSequence("CombelNodeSeq1",  Maker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_comb_HypoAlgEl, Seed="L1EM", HypoToolClassName=ComboStep2HypoTool())
-
-
 def combStep1Sequence():
     return MenuSequence("comboStep1Seq", nodeSeqList=[nodeSequence_muComb,nodeSequence_elComb])
 
@@ -188,16 +177,6 @@ comboAlg2.Input2=elAlg2.Output
 
 nodeSequence2_muComb = NodeSequence("Combo1NodeSeq2",  Maker=muIM2, Sequence=mustep2_sequence, Hypo=comboAlg2, Seed="L1MU", HypoToolClassName=ComboStep2HypoTool())
 nodeSequence2_elComb = NodeSequence("Combo2NodeSeq2",  Maker=elIM2, Sequence=elstep2_sequence, Hypo=comboAlg2, Seed="L1EM", HypoToolClassName=ComboStep2HypoTool())
-
-
-
-
-## step2_comb_HypoAlgMu =  HypoAlgNode( Alg=comboAlg2,inputProp='Input1', outputProp='Output1')
-## step2_comb_HypoAlgEl =  HypoAlgNode( Alg=comboAlg2,inputProp='Input2', outputProp='Output2')
-
-## nodeSequence2_muComb = NodeSequence("CombmuNodeSeq2",  Maker=step2_mu_inputMaker, Algs=[step2_mu_recoAlg], Hypo=step2_comb_HypoAlgMu, Seed="L1MU", HypoToolClassName=ComboStep1HypoTool())
-## nodeSequence2_elComb = NodeSequence("CombelNodeSeq2",  Maker=step2_el_inputMaker, Algs=[step2_el_recoAlg], Hypo=step2_comb_HypoAlgEl, Seed="L1EM", HypoToolClassName=ComboStep2HypoTool())
-
 
 def combStep2Sequence():
     return MenuSequence("comboStep2Seq", nodeSeqList=[nodeSequence2_muComb,nodeSequence2_elComb])

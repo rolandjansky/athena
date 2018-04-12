@@ -38,12 +38,7 @@ class TestTrigL2ElectronHypoAlg  :  public ::HypoBase
  private: 
   TestTrigL2ElectronHypoAlg();
   ToolHandleArray< TrigL2ElectronHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
-
-  //  SG::ReadHandleKey  < TrigCompositeUtils::DecisionContainer > m_previousDecisionsKey { this, "previousDecisions", "Unspecified", "Input decisions" };
-  //  SG::WriteHandleKey < TrigCompositeUtils::DecisionContainer > m_decisionsKey         { this, "Decisions", "Unspecified", "Output Decisions" };
-
   Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
-  
   // internally used to getch from views
   SG::ReadHandleKey< xAOD::TrigElectronContainer > m_electronsKey {this, "Electrons", "L2ElectronContainer", "Input"};
 

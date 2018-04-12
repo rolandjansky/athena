@@ -5,8 +5,6 @@ class Node():
         self.algname = Alg.name()
         self.outputProp=outputProp
         self.inputProp=inputProp
-        #self.viewNodeName=ViewNodeName
-
 
     def setOutput(self, name):
          self.outputProp=name
@@ -40,14 +38,8 @@ class Node():
     
 class AlgNode(Node):
     def __init__(self, Alg, inputProp, outputProp, ViewNodeName=''):
-        Node.__init__(self, Alg, inputProp, outputProp)
-        ## self.name = ("%s_%s_%s")%( Alg.name(), inputProp, outputProp)
-        ## self.Alg=Alg
-        ## self.algname = Alg.name()
-        ## self.outputProp=outputProp
-        ## self.inputProp=inputProp
-        self.viewNodeName=ViewNodeName
-        #self.addDefaultOutput()
+        Node.__init__(self, Alg, inputProp, outputProp)        
+        self.viewNodeName=ViewNodeName       
 
     def addDefaultOutput(self):
         if self.outputProp is not '':
@@ -230,20 +222,10 @@ class RoRSequenceFilterNode(SequenceFilterNode):
         
 class NodeSequence():
     def __init__(self, name, Sequence, Hypo, Seed, Maker, HypoToolClassName):
-        print "init cacca"
         print "Making sequence %s"%(name)
         self.name = name
         self.seed = Seed
-        self.hypoToolClassName = HypoToolClassName
-        ## # need to create a new Athsequence for combined chains
-        ## new_seq = AthSequencer( name )
-        ## new_seq.ModeOR = Sequence.ModeOR
-        ## new_seq.Sequential = Sequence.Sequential
-        ## new_seq.StopOverride = Sequence.StopOverride
-        ## for c in Sequence.getChildren():
-        ##     new_seq += c
-        
-        #self.sequence =    Node( Alg=new_seq, inputProp='%s_in'%(new_seq.name()), outputProp='%s_out'%(new_seq.name()))
+        self.hypoToolClassName = HypoToolClassName        
         self.sequence =    Node( Alg=Sequence, inputProp='%s_in'%(Sequence.name()), outputProp='%s_out'%(Sequence.name()))
         self.maker =    AlgNode( Alg=Maker, inputProp='InputDecisions',    outputProp='OutputDecisions')
         # tmp for combo algo
@@ -254,8 +236,6 @@ class NodeSequence():
         else:
             self.hypo = HypoAlgNode( Alg=Hypo,  inputProp='previousDecisions', outputProp='Output')
             
-
-#        self.hypo.addDefaultOutput() # reset name
         self.output = "%s_%s"%(Seed, self.hypo.getOutput())
         self.hypo.setOutput(self.output)
         self.reuse = False
@@ -267,9 +247,6 @@ class NodeSequence():
     def getInputList(self):
         return self.maker.getInput()
         
-    ## def setInput(self,theinput):
-    ##     self.maker.setInput(theinput)
-
     def addInput(self,theinput):
         print "adding input to sequence: %s to %s"%(theinput, self.maker.algname )
         self.maker.addInput(theinput)
@@ -290,69 +267,6 @@ class NodeSequence():
 
 ##########################################################
 
-class NodeSequenceOld():
-    def __init__(self, name, Algs, Hypo, Seed, Maker, HypoToolClassName, OtherNodes=[]):
-        self.name = name
-        self.algs = Algs
-        self.hypo = Hypo
-        self.seed = Seed
-        self.maker = Maker
-        self.hypoToolClassName = HypoToolClassName
-        self.otherNodes=OtherNodes
-        self.hypo.addDefaultOutput() # reset name
-        self.output = "%s_%s"%(Seed, Hypo.getOutput())
-        self.hypo.setOutput(self.output)
-        self.reuse = 0
-        self.hasView()
-        self.connect()
- 
-    def connect(self):
-        self.maker.setInput("")
-        alg_input = self.maker.getOutput()
-        #if self.viewNodeName =='':
-        for Alg in self.algs:
-            Alg.setInput(alg_input) 
-            alg_input = Alg.getOutput()
-        self.hypo.setInput(Alg.getOutput())
-
-        # add decisions: from InputMaker to Hypo
-#        sequence_outDecisions= ["%s_decisions"%out for out in self.maker.getInputList()]
-#        for out in sequence_outDecisions: self.addOutputDecision(out) #
-#        for out in sequence_outDecisions: self.hypo.setPreviousDecision(out)
-        
-#        sequence_outDecisions= "%s_decisions"%self.maker.algname
-            #    self.addOutputDecision(sequence_outDecisions) #
-#        self.hypo.setPreviousDecision(sequence_outDecisions) # works for one        
-        print "connect NodeSequence %s"%self.name
-
-        
-    def hasView(self):
-        self.viewNodeName=''
-        hasView=False
-        for Alg in self.algs:
-            if Alg.viewNodeName !='':
-                hasView=True
-                self.viewNodeName = Alg.viewNodeName
-                break;
-        return hasView
-
-    def addNode(self,node):
-        self.algs.append(node)
-        
-    def setInput(self,theinput):
-        self.maker.setInput(theinput)
-
-    def addInput(self,theinput):
-        print "adding input to sequence: %s to %s"%(theinput, self.maker.algname )
-        self.maker.addInput(theinput)
-
-
-    def addOutputDecision(self,theinput):
-        print "adding output decisions (%s) to sequence %s  (output of alg %s)"%(theinput, self.name, self.maker.algname )
-        self.maker.setPar("OutputDecisions", theinput)
-        
-    def __str__(self):
-        return "NodeSequence::%s with \n Seed::%s \n Maker::%s \n %s \n Hypo::%s"%(self.name, self.seed, self.maker, ',\n '.join(map(str, self.algs)), self.hypo)
 
     
 class ViewNodeSequence(NodeSequence):

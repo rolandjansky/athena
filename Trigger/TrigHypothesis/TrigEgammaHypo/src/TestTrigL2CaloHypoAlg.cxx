@@ -13,7 +13,6 @@ using namespace TrigCompositeUtils;
 TestTrigL2CaloHypoAlg::TestTrigL2CaloHypoAlg( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
-//  ::AthReentrantAlgorithm( name, pSvcLocator ) {}
 
 TestTrigL2CaloHypoAlg::~TestTrigL2CaloHypoAlg() {}
 
@@ -26,10 +25,6 @@ StatusCode TestTrigL2CaloHypoAlg::initialize() {
   CHECK( m_clustersKey.initialize() );
   if (  m_runInView)   renounce( m_clustersKey );// clusters are made in views, so they are not in the EvtStore: hide them
 
-  // CHECK( m_previousDecisionsKey.initialize() );
-  // renounce(m_previousDecisionsKey);
-
-  // CHECK( m_decisionsKey.initialize() );
   return StatusCode::SUCCESS;
 }
 
@@ -76,7 +71,6 @@ StatusCode TestTrigL2CaloHypoAlg::execute_r( const EventContext& context ) const
   std::vector<ITrigL2CaloHypoTool::ClusterInfo> toolInput;
 
   // loop over previous decisions
-  //  auto previousDecisionsHandle = SG::makeHandle( m_previousDecisionsKey, context );
   size_t counter=0;
   for ( auto previousDecision: *previousDecisionsHandle ) {
     //get RoI
@@ -109,9 +103,6 @@ StatusCode TestTrigL2CaloHypoAlg::execute_r( const EventContext& context ) const
      d->setObjectLink( "roi", roiEL );
      d->setObjectLink( "view", viewEL );
      TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-     //     TrigCompositeUtils::linkToPrevious( d, m_previousDecisionsKey.key(), counter );
-     //     d->setObjectLink( "previousDecisions", ElementLink<DecisionContainer>(m_previousDecisionsKey.key(), counter) );// link to previous decision object
-     
      ATH_MSG_DEBUG( "Added view, roi, cluster, previous decision to new decision "<<counter <<" for view "<<view->name()  );
      counter++;
 
