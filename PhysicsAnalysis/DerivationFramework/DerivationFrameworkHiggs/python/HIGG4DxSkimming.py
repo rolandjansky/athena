@@ -17,9 +17,9 @@ def setup(HIGG4DxName, ToolSvc):
     muonQual = "Muons.DFCommonMuonsPreselection"
     
     #electron quality
-    eleLoose  = "(Electrons.DFCommonElectronsIsEMLoose || Electrons.DFCommonElectronsLHLoose)"
-    eleMedium = "(Electrons.DFCommonElectronsIsEMMedium || Electrons.DFCommonElectronsLHMedium)"
-    eleTight  = "(Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight)"
+    eleLoose  = "(Electrons.DFCommonElectronsLHLoose)"
+    eleMedium = "(Electrons.DFCommonElectronsLHMedium)"
+    eleTight  = "(Electrons.DFCommonElectronsLHTight)"
 
     # el calo crack region: 1.52 < el->caloCluster()->etaBE(2) < 1.37,  with el->eta: apply a 5% offset 
     # veto events with el->caloCluster()->etaBE(2) ) < 2.47, with el->eta: apply a 5% offset 
