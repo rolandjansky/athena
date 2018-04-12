@@ -460,17 +460,18 @@ StatusCode MdtRawDataValAlg::fillHistograms()
 
   SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiKey);
 
-  ATH_MSG_VERBOSE( "Retrieved LVL1MuonRoIs object with key: " << m_l1RoiKey.key() ); 
-  xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
-  xAOD::MuonRoIContainer::const_iterator mu_it_end= muonRoIs->end();
+  if(muonRoIs.isPresent() && muonRoIs.isValid()){
+    ATH_MSG_VERBOSE( "Retrieved LVL1MuonRoIs object with key: " << m_l1RoiKey.key() ); 
+    xAOD::MuonRoIContainer::const_iterator mu_it = muonRoIs->begin(); 
+    xAOD::MuonRoIContainer::const_iterator mu_it_end= muonRoIs->end();
 
-  for( ; mu_it != mu_it_end; mu_it++){
-    //ATH_MSG_ERROR( "(*mu_it)->getSource(): " << (*mu_it)->getSource() << ", is Muon_ROI::Endcap: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Endcap)) << ", is Muon_ROI::Barrel: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Barrel)) );
-    if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Barrel) StoreTriggerType(L1_BARREL);
-    if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Endcap ) StoreTriggerType(L1_ENDCAP);
+    for( ; mu_it != mu_it_end; mu_it++){
+      //ATH_MSG_ERROR( "(*mu_it)->getSource(): " << (*mu_it)->getSource() << ", is Muon_ROI::Endcap: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Endcap)) << ", is Muon_ROI::Barrel: " << ((*mu_it)->getSource()==(xAOD::MuonRoI::RoISource::Barrel)) );
+      if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Barrel) StoreTriggerType(L1_BARREL);
+      if( (*mu_it)->getSource() == xAOD::MuonRoI::RoISource::Endcap ) StoreTriggerType(L1_ENDCAP);
+    }
+    //   ATH_MSG_ERROR( "Stored m_trigtype: " << GetTriggerType() << " " << (GetTriggerType()==L1_UNKNOWN) << " " << (GetTriggerType()==L1_BARREL) << " " << (GetTriggerType()==L1_ENDCAP) );
   }
-  //   ATH_MSG_ERROR( "Stored m_trigtype: " << GetTriggerType() << " " << (GetTriggerType()==L1_UNKNOWN) << " " << (GetTriggerType()==L1_BARREL) << " " << (GetTriggerType()==L1_ENDCAP) );
-
   //declare MDT stuff 
   SG::ReadHandle<Muon::MdtPrepDataContainer> mdt_container(m_key_mdt);
 
