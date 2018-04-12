@@ -18,12 +18,12 @@
 
 //Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //Athena
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
-///Example class to show calling the SCT_ConditionsSummarySvc
+///Example class to show calling the SCT_ConditionsSummaryTool
 class SCT_ConditionsSummaryTestAlg : public AthAlgorithm {
  public:
   SCT_ConditionsSummaryTestAlg(const std::string &name,ISvcLocator *pSvcLocator) ;
@@ -34,7 +34,7 @@ class SCT_ConditionsSummaryTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ServiceHandle<IInDetConditionsSvc> m_pSummarySvc;
+  ToolHandle<IInDetConditionsTool> m_pSummaryTool;
 }; //end of class
 
 #endif // SCT_ConditionsSummaryTestAlg_H

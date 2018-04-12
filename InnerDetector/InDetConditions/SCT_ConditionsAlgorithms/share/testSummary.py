@@ -66,32 +66,33 @@ IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 print "conddb.dbdata", conddb.dbdata
 IOVDbSvc.OutputLevel = 3
 
-from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import SCT_TdaqEnabledSvcSetup
-sct_TdaqEnabledSvcSetup = SCT_TdaqEnabledSvcSetup()
-sct_TdaqEnabledSvcSetup.setup()
+from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup
+sct_TdaqEnabledToolSetup = SCT_TdaqEnabledToolSetup()
+sct_TdaqEnabledToolSetup.setup()
 
-from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
-sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
-sct_ConfigurationConditionsSvcSetup.setup()
+from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
+sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
+sct_ConfigurationConditionsToolSetup.setup()
 
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog") # Needed for cabling
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR") # Needed for cabling
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD") # Needed for cabling
 
-from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import SCT_ModuleVetoSvcSetup
-sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()
-sct_ModuleVetoSvcSetup.setUseDB(False)
-sct_ModuleVetoSvcSetup.setup()
-SCT_ModuleVetoSvc=sct_ModuleVetoSvcSetup.getSvc()
-SCT_ModuleVetoSvc.BadModuleIdentifiers=["1", "2"]
+from SCT_ConditionsTools.SCT_ModuleVetoToolSetup import SCT_ModuleVetoToolSetup
+sct_ModuleVetoToolSetup = SCT_ModuleVetoToolSetup()
+sct_ModuleVetoToolSetup.setUseDB(False)
+sct_ModuleVetoToolSetup.setup()
+SCT_ModuleVetoTool=sct_ModuleVetoToolSetup.getTool()
+SCT_ModuleVetoTool.BadModuleIdentifiers=["1", "2"]
 
-from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
-sct_ConditionsSummarySvcSetup = SCT_ConditionsSummarySvcSetup()
-sct_ConditionsSummarySvcSetup.setup()
-SCT_ConditionsSummarySvc = sct_ConditionsSummarySvcSetup.getSvc()
-SCT_ConditionsSummarySvc.ConditionsServices=[sct_ModuleVetoSvcSetup.getSvcName(),
-                                             sct_ConfigurationConditionsSvcSetup.getSvcName(),
-                                             sct_TdaqEnabledSvcSetup.getSvcName()]
+from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
+sct_ConditionsSummaryToolSetup.setToolName("SCT_ConditionsSummaryTool")
+sct_ConditionsSummaryToolSetup.setup()
+SCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
+SCT_ConditionsSummaryTool.ConditionsTools=[sct_ModuleVetoToolSetup.getToolName(),
+                                           sct_ConfigurationConditionsToolSetup.getToolName(),
+                                           sct_TdaqEnabledToolSetup.getToolName()]
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConditionsSummaryTestAlg
 job+= SCT_ConditionsSummaryTestAlg()
