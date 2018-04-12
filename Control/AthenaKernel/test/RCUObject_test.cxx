@@ -224,7 +224,8 @@ void ThreadedTest::testThread::operator()()
     }
     else if (i%29 == 0) {
       if (i%2 == 0) {
-        auto r = m_test.m_rcuobj.readerQuiesce (EventContext (0, m_iworker));
+        EventContext ctx (0, m_iworker);
+        auto r = m_test.m_rcuobj.readerQuiesce (ctx);
         r->check();
       }
       else {

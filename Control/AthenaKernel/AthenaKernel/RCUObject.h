@@ -310,9 +310,10 @@ public:
    * @brief Return a reader for this @c RCUObject.
    *        When destroyed, this reader will declare
    *        the @c RCUObject as quiescent
-   * @param ctx The event context.
+   * @param ctx The event context (must not be a temporary).
    */
   ReadQuiesce_t readerQuiesce (const EventContext& ctx);
+  ReadQuiesce_t readerQuiesce (const EventContext&& ctx) = delete;
 
 
   /**
@@ -325,9 +326,10 @@ public:
 
   /**
    * @brief Return an updater for this @c RCUObject.
-   * @param ctx The event context.
+   * @param ctx The event context (must not be a temporary).
    */
   Update_t updater (const EventContext& ctx);
+  Update_t updater (const EventContext&& ctx) = delete;
 
 
 private:
@@ -413,9 +415,10 @@ public:
   /**
    * @brief Constructor.
    * @param rcuobj The @c RCUObject we're reading.
-   * @param ctx The event context.
+   * @param ctx The event context (must not be a temporary).
    */
   RCUReadQuiesce (RCUObject<T>& rcuobj, const EventContext& ctx);
+  RCUReadQuiesce (RCUObject<T>& rcuobj, const EventContext&& ctx) = delete;
 
 
   /**
@@ -456,9 +459,10 @@ public:
   /**
    * @brief Constructor.
    * @param rcuobj The @c RCUObject we're reading.
-   * @param ctx The event context.
+   * @param ctx The event context (must not be a temporary).
    */
   RCUUpdate (RCUObject<T>& rcuobj, const EventContext& ctx);
+  RCUUpdate (RCUObject<T>& rcuobj, const EventContext&& ctx) = delete;
 
   
   /**
