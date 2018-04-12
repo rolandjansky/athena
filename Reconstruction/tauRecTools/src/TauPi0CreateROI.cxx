@@ -92,7 +92,7 @@ StatusCode TauPi0CreateROI::eventInitialize() {
     //---------------------------------------------------------------------
     // Create CustomCellContainer and register in StoreGate
     //---------------------------------------------------------------------
-    m_pPi0CellContainer = new CaloCellContainer(SG::OWN_ELEMENTS);
+    m_pPi0CellContainer = new CaloCellContainer();
 
     return StatusCode::SUCCESS;
 }
