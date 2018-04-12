@@ -3,9 +3,9 @@
 # add the common trigger list
 from DerivationFrameworkSUSY.SUSYCommonTriggerList import *
 
-SUSY7SingleLeptonTriggers = SingleLepton_2017 + SingleLepton_2016 + SingleLepton_2015
+SUSY7SingleLeptonTriggers = SingleLepton_2018 + SingleLepton_2017 + SingleLepton_2016 + SingleLepton_2015
 
-SUSY7DiLeptonTriggers = DiLepton_2017 + DiLepton_2016 + DiLepton_2015 + [
+SUSY7DiLeptonTriggers = DiLepton_2018 + DiLepton_2017 + DiLepton_2016 + DiLepton_2015 + [
 	# 2017
 	'HLT_2e22_lhvloose_nod0',
 	'HLT_2mu15_L1MU10'
@@ -27,9 +27,9 @@ SUSY7LeptonJetTriggers = [
 
 SUSY7LeptonTriggers = SUSY7SingleLeptonTriggers + SUSY7DiLeptonTriggers + SUSY7LeptonJetTriggers
 
-SUSY7PhotonTriggers = SinglePhoton_2017 + SinglePhoton_2016 + SinglePhoton_2015
+SUSY7PhotonTriggers = SinglePhoton_2018 + SinglePhoton_2017 + SinglePhoton_2016 + SinglePhoton_2015
 
-SUSY7XETriggers = MET_2017 + MET_2016 + MET_2015 + [
+SUSY7XETriggers = MET_2018 + MET_2017 + MET_2016 + MET_2015 + [
     # 2017
     'HLT_noalg_L1J400',
 	# 2016
@@ -59,7 +59,7 @@ SUSY7CombinedXETriggers = [
 ]
 
 # 1 b-jet, 2 b-jets, b+VHF (maybe we remove 1 b-jet?)
-SUSY7BjetTriggers = [
+SUSY7BjetTriggers = MultiBJet_2018 + [
 	# 2015
 	'HLT_j225_bloose',
 	'HLT_j65_btight_3j65_L13J25.0ETA23',
