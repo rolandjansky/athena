@@ -11,6 +11,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
+#include "DecisionHandling/HypoBase.h"
 
 #include "ITrigL2CaloHypoTool.h"
 
@@ -18,8 +19,8 @@
  * @class Implements egamma calo selection for the new HLT framework
  * @brief 
  **/
-
-class TestTrigL2CaloHypoAlg : public ::AthReentrantAlgorithm { 
+class TestTrigL2CaloHypoAlg : public ::HypoBase {
+  //class TestTrigL2CaloHypoAlg : public ::AthReentrantAlgorithm { 
  public: 
 
   TestTrigL2CaloHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
@@ -28,15 +29,15 @@ class TestTrigL2CaloHypoAlg : public ::AthReentrantAlgorithm {
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute_r( const EventContext& context ) const override;
-  
+  virtual StatusCode  finalize() override;
  
  private: 
   TestTrigL2CaloHypoAlg();
   ToolHandleArray< ITrigL2CaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in view" };  
-  SG::ReadHandleKey  < TrigCompositeUtils::DecisionContainer > m_previousDecisionsKey { this, "previousDecisions", "Unspecified", "Input decisions" };
-  SG::WriteHandleKey < TrigCompositeUtils::DecisionContainer > m_decisionsKey         { this, "Decisions", "Unspecified", "Output Decisions" };
+  // SG::ReadHandleKey  < TrigCompositeUtils::DecisionContainer > m_previousDecisionsKey { this, "previousDecisions", "Unspecified", "Input decisions" };
+  //SG::WriteHandleKey < TrigCompositeUtils::DecisionContainer > m_decisionsKey         { this, "Decisions", "Unspecified", "Output Decisions" };
 
   Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
 

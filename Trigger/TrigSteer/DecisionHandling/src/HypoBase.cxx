@@ -21,8 +21,8 @@ StatusCode HypoBase::sysInitialize() {
   CHECK( AthReentrantAlgorithm::sysInitialize() ); // initialise base class
   CHECK( m_input.initialize() );
   renounce(m_input); // make inputs implicit, i.e. not required by scheduler
-  ATH_MSG_DEBUG("Will consume implicit decision: " << m_input.key() );
+  ATH_MSG_DEBUG("HypoBase::sysInitialize() Will consume implicit decision: " << m_input.key() );
   CHECK( m_output.initialize() );
-  ATH_MSG_DEBUG(" and produce decision: " << m_output.key() );
+  ATH_MSG_DEBUG("HypoBase::sysInitialize()           and produce decision: " << m_output.key() );
   return StatusCode::SUCCESS;
 }

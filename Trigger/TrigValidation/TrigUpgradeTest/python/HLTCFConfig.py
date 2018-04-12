@@ -21,209 +21,198 @@ def remember(name, instance):
     return instance
 
 
-class AlgNode():
-    def __init__(self, Alg, inputProp='', outputProp='', ViewNodeName=''):
-        self.name = ("%s_%s_%s")%( Alg.name(), inputProp, outputProp)
-        self.algname = Alg.name()
-        self.outputProp=outputProp
-        self.inputProp=inputProp
-        self.viewNodeName=ViewNodeName
-        #if exist: remember (Alg.name(), Alg)
-        self.configureAlg(Alg)
+
+
+## class AlgNodeOld():
+##     def __init__(self, Alg, inputProp='', outputProp='', ViewNodeName=''):
+##         self.name = ("%s_%s_%s")%( Alg.name(), inputProp, outputProp)
+##         self.algname = Alg.name()
+##         self.outputProp=outputProp
+##         self.inputProp=inputProp
+##         self.viewNodeName=ViewNodeName
+##         #if exist: remember (Alg.name(), Alg)
+##         self.configureAlg(Alg)
                 
-    def configureAlg(self, Alg):
-        alg_name = Alg.name()
-        if AlgExisting(alg_name):
-            print "AlgNode::%s: found already Alg %s"%(self.name,alg_name)
-            self.Alg = useExisting(alg_name)
-        else:
-            print "AlgNode::%s: new Alg %s added in list"%(self.name,alg_name)
-            self.Alg=Alg
-            remember(alg_name, self.Alg)
+##     def configureAlg(self, Alg):
+##         alg_name = Alg.name()
+##         if AlgExisting(alg_name):
+##             print "AlgNode::%s: found already Alg %s"%(self.name,alg_name)
+##             self.Alg = useExisting(alg_name)
+##         else:
+##             print "AlgNode::%s: new Alg %s added in list"%(self.name,alg_name)
+##             self.Alg=Alg
+##             remember(alg_name, self.Alg)
             
-        if self.Alg is  None:
-            return
+##         if self.Alg is  None:
+##             return
 
-        self.addDefaultOutput()
+##         self.addDefaultOutput()
 
-    def addDefaultOutput(self):
-        if self.outputProp is not '':
-            self.setOutput(("%s_%s_out"%(self.algname,self.outputProp)))
+##     def addDefaultOutput(self):
+##         if self.outputProp is not '':
+##             self.setOutput(("%s_%s_out"%(self.algname,self.outputProp)))
 
         
 
-    def setPar(self, prop, name):
-        cval = self.Alg.getProperties()[prop]
-        try:
-            if type(cval) == type(list()):                
-                cval.append(name)
-                return setattr(self.Alg, prop, cval)
-            else:
-                return setattr(self.Alg, prop, name)
-        except:
-            pass
+##     def setPar(self, prop, name):
+##         cval = self.Alg.getProperties()[prop]
+##         try:
+##             if type(cval) == type(list()):                
+##                 cval.append(name)
+##                 return setattr(self.Alg, prop, cval)
+##             else:
+##                 return setattr(self.Alg, prop, name)
+##         except:
+##             pass
 
-    def setParArray(self, prop, name):
-        cval = self.Alg.getProperties()[prop]
-        try:
-            cval.append(name)
-            return setattr(self.Alg, prop, cval)
-        except:
-            pass
+##     def setParArray(self, prop, name):
+##         cval = self.Alg.getProperties()[prop]
+##         try:
+##             cval.append(name)
+##             return setattr(self.Alg, prop, cval)
+##         except:
+##             pass
  
-    def getPar(self, prop):
-        try:
-            return getattr(self.Alg, prop)
-        except:
-            return self.Alg.getDefaultProperty(prop)
-        raise "Error in reading property " + prop + " from " + self.Alg
+##     def getPar(self, prop):
+##         try:
+##             return getattr(self.Alg, prop)
+##         except:
+##             return self.Alg.getDefaultProperty(prop)
+##         raise "Error in reading property " + prop + " from " + self.Alg
 
 
-    def setOutput(self, name):
-        if self.outputProp is not '':
-            print "setOutput %s on %s of %s"%(name, self.outputProp, self.name)
-            return self.setPar(self.outputProp,name)
+##     def setOutput(self, name):
+##         if self.outputProp is not '':
+##             print "setOutput %s on %s of %s"%(name, self.outputProp, self.name)
+##             return self.setPar(self.outputProp,name)
 
-    def getOutput(self):
-        if self.outputProp is not '':
-            return self.getPar(self.outputProp)
-        return self.outputProp
+##     def getOutput(self):
+##         if self.outputProp is not '':
+##             return self.getPar(self.outputProp)
+##         return self.outputProp
     
-    def getOutputList(self):
-        outputs = []
-        cval = self.getOutput()
-        if cval == '':
-            return outputs
-        if type(cval) == type(list()):  
-            outputs.extend(cval)
-        else:
-            outputs.append(cval)
-        return outputs
+##     def getOutputList(self):
+##         outputs = []
+##         cval = self.getOutput()
+##         if cval == '':
+##             return outputs
+##         if type(cval) == type(list()):  
+##             outputs.extend(cval)
+##         else:
+##             outputs.append(cval)
+##         return outputs
     
-    def setInput(self, name):
-        if self.inputProp is not '':
-            return self.setPar(self.inputProp,name)
+##     def setInput(self, name):
+##         if self.inputProp is not '':
+##             return self.setPar(self.inputProp,name)
 
-    def addInput(self, name):
-        if self.inputProp is not '':
-            return self.setParArray(self.inputProp,name)
+##     def addInput(self, name):
+##         if self.inputProp is not '':
+##             return self.setParArray(self.inputProp,name)
     
-    def getInput(self):
-        if self.inputProp is not '':
-            return self.getPar(self.inputProp)
-        return self.inputProp
+##     def getInput(self):
+##         if self.inputProp is not '':
+##             return self.getPar(self.inputProp)
+##         return self.inputProp
     
-    def getInputList(self):
-        inputs = []
-        cval = self.getInput()
-        if cval =='':
-            return inputs
-        if type(cval) == type(list()):  
-            inputs.extend(cval)
-        else:
-            inputs.append(cval)
-        return inputs
+##     def getInputList(self):
+##         inputs = []
+##         cval = self.getInput()
+##         if cval =='':
+##             return inputs
+##         if type(cval) == type(list()):  
+##             inputs.extend(cval)
+##         else:
+##             inputs.append(cval)
+##         return inputs
 
-    def __str__(self):
-        return "Alg::%s.%s  [%s] -> [%s]"%(self.name,self.viewNodeName, ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
+##     def __str__(self):
+##         return "Alg::%s.%s  [%s] -> [%s]"%(self.name,self.viewNodeName, ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
 
+    
+## class HypoAlgNodeOld(AlgNodeOld):
+##     def __init__(self, Alg, inputProp, outputProp):
+##         AlgNode.__init__(self, Alg, inputProp, outputProp)
+##         self.tools = []
+##         self.previous=[]
 
- 
-class HypoAlgNode(AlgNode):
-    def __init__(self, Alg, inputProp, outputProp):
-        AlgNode.__init__(self, Alg, inputProp, outputProp)
-        self.tools = []
-        self.previous=[]
+##     def addHypoTool(self, hypoToolName, hypoToolClassName):
+##         from TrigUpgradeTest.MenuHypoTools import *
+##         if hypoToolClassName is "ComboTestHypoTool":
+## #        if "Comb" in self.name: ###TMP combo, only one threshold
+##             import re
+##             thresholds = map(int, re.findall(r'\d+', hypoToolName))
+##             self.setPar('Threshold1', thresholds[0])
+##             self.setPar('Threshold2', thresholds[1])
+##             status=self.setPar('DecisionLabel', hypoToolName)
+##         else:
+##             ## HypoTools are private, so need to be created when added to the Alg
+##             self.tools.append(hypoToolName)            
+##             tools = self.Alg.HypoTools
+##             self.Alg.HypoTools = tools+[eval(hypoToolClassName)(hypoToolName)]
+##             status = 0
+##         return status
 
+##     def addPreviousDecision(self,prev):
+##         self.previous.append(prev)
+##         status= self.setParArray('previousDecisions',prev)
+##         return status
 
-    ## def addHypoTool(self, hypotool):
-    ##     if "Comb" in self.name: ###TMP combo, only one threshold
-    ##         import re
-    ##         thresholds = map(int, re.findall(r'\d+', hypotool.name()))
-    ##         self.setPar('Threshold1', thresholds[0])
-    ##         self.setPar('Threshold2', thresholds[1])
-    ##         status=self.setPar('DecisionLabel', hypotool.name())
-    ##     else:
-    ##         self.tools.append(hypotool.name())            
-    ##         status= self.setParArray('HypoTools',hypotool)        
-    ##     return status
+##     def setPreviousDecision(self,prev):
+##         if "Comb" in self.name: ###TMP combo: how handle previous decisions in combo?            
+##             self.previous.append(prev)
+##             if  "from_L1MU" in prev:
+##                 if "pt" in self.getPar("Property1"):
+##                     status= self.setPar('previousDecisions1',prev)
+##                 if "pt" in self.getPar("Property2"):
+##                     status= self.setPar('previousDecisions2',prev)
 
-    def addHypoTool(self, hypoToolName, hypoToolClassName):
-        from TrigUpgradeTest.MenuHypoTools import *
-        if hypoToolClassName is "ComboTestHypoTool":
-#        if "Comb" in self.name: ###TMP combo, only one threshold
-            import re
-            thresholds = map(int, re.findall(r'\d+', hypoToolName))
-            self.setPar('Threshold1', thresholds[0])
-            self.setPar('Threshold2', thresholds[1])
-            status=self.setPar('DecisionLabel', hypoToolName)
-        else:
-            ## HypoTools are private, so need to be created when added to the Alg
-            self.tools.append(hypoToolName)            
-            tools = self.Alg.HypoTools
-            self.Alg.HypoTools = tools+[eval(hypoToolClassName)(hypoToolName)]
-            status = 0
-        return status
+##             if  "from_L1EM" in prev:
+##                 if "et" in self.getPar("Property1"):
+##                     status= self.setPar('previousDecisions1',prev)
+##                 if "et" in self.getPar("Property2"):
+##                     status= self.setPar('previousDecisions2',prev)
 
-    def addPreviousDecision(self,prev):
-        self.previous.append(prev)
-        status= self.setParArray('previousDecisions',prev)
-        return status
-
-    def setPreviousDecision(self,prev):
-        if "Comb" in self.name: ###TMP combo: how handle previous decisions in combo?            
-            self.previous.append(prev)
-            if  "from_L1MU" in prev:
-                if "pt" in self.getPar("Property1"):
-                    status= self.setPar('previousDecisions1',prev)
-                if "pt" in self.getPar("Property2"):
-                    status= self.setPar('previousDecisions2',prev)
-
-            if  "from_L1EM" in prev:
-                if "et" in self.getPar("Property1"):
-                    status= self.setPar('previousDecisions1',prev)
-                if "et" in self.getPar("Property2"):
-                    status= self.setPar('previousDecisions2',prev)
-
-            ## if  "Output1" in prev:
-            ##     status= self.setPar('previousDecisions1',prev)
-            ## if  "Output2" in prev:
-            ##     status= self.setPar('previousDecisions2',prev)
-            if "MuInputMaker" in prev:
-                status= self.setPar('previousDecisions1',prev)
-            if "ElInputMaker" in prev:
-                status= self.setPar('previousDecisions2',prev)
+##             ## if  "Output1" in prev:
+##             ##     status= self.setPar('previousDecisions1',prev)
+##             ## if  "Output2" in prev:
+##             ##     status= self.setPar('previousDecisions2',prev)
+##             if "MuInputMaker" in prev:
+##                 status= self.setPar('previousDecisions1',prev)
+##             if "ElInputMaker" in prev:
+##                 status= self.setPar('previousDecisions2',prev)
                 
         
-        else:
-            self.previous.append(prev)
-            status= self.setPar('previousDecisions',prev)
+##         else:
+##             self.previous.append(prev)
+##             status= self.setPar('previousDecisions',prev)
 
-        return status
+##         return status
 
-    def __str__(self):
-        return "HypoAlg::%s  [%s] -> [%s], previous = [%s], HypoTools=[%s]"%(self.Alg.name(),' '.join(map(str, self.getInputList())),
-                                                                                 ' '.join(map(str, self.getOutputList())),
-                                                                                 ' '.join(map(str, self.previous)),
-                                                                                 ' '.join(map(str, self.tools)))
+##     def __str__(self):
+##         return "HypoAlg::%s  [%s] -> [%s], previous = [%s], HypoTools=[%s]"%(self.Alg.name(),' '.join(map(str, self.getInputList())),
+##                                                                                  ' '.join(map(str, self.getOutputList())),
+##                                                                                  ' '.join(map(str, self.previous)),
+##                                                                                  ' '.join(map(str, self.tools)))
 
-class SequenceFilterNode(AlgNode):
-    def __init__(self, Alg, inputProp, outputProp):
-        AlgNode.__init__(self,  Alg, inputProp, outputProp)
-        self.seeds = []
-        
-    def addDefaultOutput(self):
-        #print "This is SequenceFilter addDefaultOutput"
-        return #do nothing    
-       
-    def setChains(self, name):
-        return self.setPar("Chains", name)
     
-    def getChains(self):
-        return self.getPar("Chains")
+## class SequenceFilterNodeOld(AlgNodeOld):
+##     def __init__(self, Alg, inputProp, outputProp):
+##         AlgNode.__init__(self,  Alg, inputProp, outputProp)
+##         self.seeds = []
+        
+##     def addDefaultOutput(self):
+##         #print "This is SequenceFilter addDefaultOutput"
+##         return #do nothing    
+       
+##     def setChains(self, name):
+##         return self.setPar("Chains", name)
+    
+##     def getChains(self):
+##         return self.getPar("Chains")
 
-    def addSeed(self, seed):
-        self.seeds.append(seed)
+##     def addSeed(self, seed):
+##         self.seeds.append(seed)
 
          
 
@@ -240,14 +229,7 @@ class SequenceFilterNode(AlgNode):
   
    
 
-from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-class RoRSequenceFilterNode(SequenceFilterNode):
-    def __init__(self, name):
-        Alg= RoRSeqFilter(name, OutputLevel = 2)
-        inputProp='Input'
-        outputProp='Output'
-        SequenceFilterNode.__init__(self,  Alg, inputProp, outputProp)
-        
+       
 
 
 
@@ -281,7 +263,7 @@ def create_step_filter_node(name, seq_list, dump=False):
     for seq in seq_list:
         filterAlg=seq.filter.Alg                    
         print "Add  %s to filter node %s"%(filterAlg.name(),name)
-        print "DUMPFILTER ",filterAlg
+#        print "DUMPFILTER ",filterAlg
         stepCF += filterAlg
     
     if dump: dumpSequence (stepCF, indent=0)        
@@ -319,7 +301,7 @@ def create_step_sequence(name, filterAlg, rest,sublist):
     return stepAnd
 
 
-def create_CFSequence(CFseq):   
+def create_CFSequenceOld(CFseq):   
     print "\n * Create CFSequence %s"%(CFseq.name)
     from TrigUpgradeTest.MenuComponents import ViewNodeSequence
     filterAlg=CFseq.filter.Alg
@@ -368,62 +350,92 @@ def create_CFSequence(CFseq):
         for other in seq.otherNodes:
          subs.append(other.Alg)
 
-      ##   view_sequences = []            
-##         # group algs on view seuqneces
-##         view_found=False
-##         for node in nodes:
-##             print "CAC Adding node: ",node           
-##             if node.viewNodeName is not '':
-##                 seq_found = False
-##                 view_found= True
-##                 for vseq in view_sequences:
-##                     if vseq.name() == node.viewNodeName:
-##                         vseq+= node.Alg
-##                         seq_found=True
-##                 if seq_found is False:
-##                     print "New Sequence done: %s with Alg::%s"%(node.viewNodeName, node.Alg.name())
-##         #                        vseq= seqAND(node.viewNodeName, [node.Alg])
-##                     vseq= parOR(node.viewNodeName, [node.Alg])
-##                     viewSeq += vseq
-## #                    viewSeq= seqAND(seq.viewNodeName+"Seq", [seq.maker.Alg, vseq, seq.hypo.Alg] )
-## #                    subs.append(viewSeq)
-##                     view_sequences.append(vseq)
-##             else:
-##                 if seq_has_view:
-##                     viewSeq += node.Alg
-##                 else:
-##                     subs.append(node.Alg)
-
-
-            
-        ## if len(view_sequences) > 1:
-        ##     print "WARNING: more than 1 View seuqence found!"
-
-        ## if  seq_has_view:
-        ##     viewSeq+ = seq.hypo.Alg
-
-           # vseq = view_sequences[0]                
-            #for vseq in view_sequences:
-            #viewSeq= seqAND(seq.viewNodeName+"Seq", [seq.maker.Alg, subs, vseq, seq.hypo.Alg] )
-            #subs = []
-#            subs.append(viewSeq)
-##         else:
-##             subs.append(seq.maker.Alg)
-## #                subs.extend(algos)
-##             subs.append(seq.hypo.Alg)
-
         print "The full list of seq %s"%(seq.name)
         print subs
 
-
-
-
-    #subs=list(set(subs))
+   
     stepReco = parOR(CFseq.name+"_reco", subs)
     stepAnd = seqAND(CFseq.name, [ filterAlg, stepReco ])
     return stepAnd
 
-  
+
+
+def create_CFSequence2(CFseq):   
+    print "\n * Create CFSequence %s *"%(CFseq.name)
+    from TrigUpgradeTest.MenuComponents import ViewNodeSequence
+    filterAlg=CFseq.filter.Alg
+
+    subs=[]
+    for seq in CFseq.menuSeq.nodeSeqList:
+        ath_sequence=seq.sequence.Alg
+        for c in ath_sequence.getChildren():
+            subs.append(c)
+        #subs.append(seq.hypo.Alg)
+#    print subs
+
+    ## for seq in CFseq.menuSeq.nodeSeqList:
+##         ath_sequence=seq.sequence.Alg
+
+##         new_seq = AthSequencer( seq.name+"_sub" )
+##         new_seq.ModeOR = ath_sequence.ModeOR
+##         new_seq.Sequential = ath_sequence.Sequential
+##         new_seq.StopOverride = ath_sequence.StopOverride 
+##         for c in ath_sequence.getChildren():
+##             new_seq += c
+## #            subsub.append(c)
+##         ## # need to create new Athsequence for combined chains
+##         #new_seq += seq.hypo.Alg
+##         #print "Added seq %s"%(new_seq.name())
+##         subs.append(new_seq)
+
+    subs.append(seq.hypo.Alg)
+    seqAndView = seqAND(CFseq.name+"_view", subs)
+    #print subs
+    stepReco = parOR(CFseq.name+"_reco", [seqAndView])
+    #stepReco = parOR(CFseq.name+"_reco", subs)
+    stepAnd = seqAND(CFseq.name, [ filterAlg, stepReco ])
+    return stepAnd
+
+def create_CFSequence(CFseq):   
+    print "\n * Create CFSequence %s *"%(CFseq.name)
+    from TrigUpgradeTest.MenuComponents import ViewNodeSequence
+    filterAlg=CFseq.filter.Alg
+
+    subs=[]
+    for seq in CFseq.menuSeq.nodeSeqList:
+        ath_sequence=seq.sequence.Alg
+        subs.append(ath_sequence)
+
+    stepReco = parOR(CFseq.name+"_reco", subs)
+    seqAndView = seqAND(CFseq.name+"_view", [stepReco,seq.hypo.Alg ])
+     
+    #    for c in ath_sequence.getChildren():
+    #        subs.append(c)
+        #subs.append(seq.hypo.Alg)
+#    print subs
+
+    ## for seq in CFseq.menuSeq.nodeSeqList:
+##         ath_sequence=seq.sequence.Alg
+
+##         new_seq = AthSequencer( seq.name+"_sub" )
+##         new_seq.ModeOR = ath_sequence.ModeOR
+##         new_seq.Sequential = ath_sequence.Sequential
+##         new_seq.StopOverride = ath_sequence.StopOverride 
+##         for c in ath_sequence.getChildren():
+##             new_seq += c
+## #            subsub.append(c)
+##         ## # need to create new Athsequence for combined chains
+##         #new_seq += seq.hypo.Alg
+##         #print "Added seq %s"%(new_seq.name())
+##         subs.append(new_seq)
+
+    ## subs.append(seq.hypo.Alg)
+    ## seqAndView = seqAND(CFseq.name+"_view", subs)
+    ## #print subs
+    ## stepReco = parOR(CFseq.name+"_reco", [seqAndView])
+    #stepReco = parOR(CFseq.name+"_reco", subs)
+    stepAnd = seqAND(CFseq.name, [ filterAlg, seqAndView ])
+    return stepAnd
 
 def find_stepCF_algs(step_list):
     algos = []
@@ -465,6 +477,7 @@ def addChainToHypoAlg(hypoAlg, chain):
 def decisionTree_From_Chains(HLTAllStepsSeq, chains):
     #from TrigUpgradeTest.MenuHypoTools import *
     print "Run decisionTree_From_Chains on %s"%(HLTAllStepsSeq.name())
+    from TrigUpgradeTest.MenuComponents import RoRSequenceFilterNode
     HLTNodeName= HLTAllStepsSeq.name()
     testRoR=False
     # find nsteps
@@ -485,7 +498,7 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains):
         CFseq_list = []
         step_decisions = []
         for chain in chains:
-            print len(chain.steps), count_steps
+            #print len(chain.steps), count_steps
             if len(chain.steps) <= count_steps:
                 continue
             chain_step=chain.steps[count_steps]
@@ -623,9 +636,7 @@ def decisionTree_From_Chains(HLTAllStepsSeq, chains):
                     #for i in input_maker_input: hypoAlg.addPreviousDecision(i)
 
                     #needed for the summary
-                    step_decisions.append(nodeSeq.output)
-
-                
+                    step_decisions.append(nodeSeq.output)                
                                     
                 CF_seq = CFSequence( cfseq_name, FilterAlg=sfilter, MenuSequence=sequence)
                 #for seq in otherSubsequence: CF_seq.addSubSequence(seq)
@@ -765,6 +776,9 @@ def all_DataFlow_to_dot(name, step_list):
             file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.algname)))
             
             step_connections.append(cfseq.filter)
+            for seq in cfseq.menuSeq.nodeSeqList:
+                step_connections.append(seq.maker)
+                step_connections.append(seq.hypo)
 
             #for inp in cfseq.filter.getInputList():
                 #file.write(addConnection(name, cfseq.filter.algname, inp))
@@ -784,10 +798,12 @@ def all_DataFlow_to_dot(name, step_list):
 
             for seq in cfseq.menuSeq.nodeSeqList:
                 cfseq_algs.append(seq.maker)
-                cfseq_algs.extend(seq.algs )
+                cfseq_algs.append(seq.sequence )
+                #cfseq_algs.extend(seq.algs )
                 if seq.reuse==False:
                     file.write("    %s[fillcolor=%s]\n"%(seq.maker.algname, algColor(seq.maker.algname)))
-                    for alg in seq.algs: file.write("    %s[fillcolor=%s]\n"%(alg.algname, algColor(alg.algname)))
+                    file.write("    %s[fillcolor=%s]\n"%(seq.sequence.name, algColor(seq.sequence.name)))
+                    #for alg in seq.algs: file.write("    %s[fillcolor=%s]\n"%(alg.algname, algColor(alg.algname)))
                     seq.reuse=True
                 cfseq_algs.append(seq.hypo)
                 last_step_hypoNodes.append(seq.hypo)
@@ -804,6 +820,50 @@ def all_DataFlow_to_dot(name, step_list):
     
 
 def stepCF_DataFlow_to_dot(name, cfseq_list):
+    # to visualize: dot -T pdf Step1.dot > Step1.pdf
+    file = open( '%s.DF.dot'%name, mode="wt" )
+    #strict
+    file.write( 'digraph step  {\n'\
+                +'\n'\
+                +'  node [ shape=polygon, fontname=Helvetica ]\n'\
+                +'  edge [ fontname=Helvetica ]\n'
+                +'  %s   [shape=Mdiamond]\n'%name)
+
+
+    for cfseq in cfseq_list:
+        print cfseq.name
+        file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.algname)))
+        for inp in cfseq.filter.getInputList():
+            file.write(addConnection(name, cfseq.filter.algname, inp))
+           
+        file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.name)\
+                    +'     node [color=white style=filled]\n'\
+                    +'     style=filled\n'\
+                    +'     color=lightgrey\n'\
+                    +'     fontname=Helvetica\n'\
+                    +'     label = %s\n'%(cfseq.name))
+
+        cfseq_algs = []
+        cfseq_algs.append(cfseq.filter)       
+
+        for seq in cfseq.menuSeq.nodeSeqList:
+            cfseq_algs.append(seq.maker)
+            cfseq_algs.append(seq.sequence )
+            if seq.reuse==False:
+                file.write("    %s[fillcolor=%s]\n"%(seq.maker.algname, algColor(seq.maker.algname)))
+                file.write("    %s[fillcolor=%s]\n"%(seq.sequence.name, algColor(seq.sequence.name)))
+                seq.reuse=True
+            cfseq_algs.append(seq.hypo)
+ 
+            file.write("    %s[color=%s]\n"%(seq.hypo.algname, algColor(seq.hypo.algname)))
+        file.write('  }\n')              
+        file.write(findConnections(cfseq_algs))
+        file.write('\n')    
+  
+    file.write( '}')
+    file.close()
+
+def old_stepCF_DataFlow_to_dot(name, cfseq_list):
     # to visualize: dot -T pdf Step1.dot > Step1.pdf
     file = open( '%s.DF.dot'%name, mode="wt" )
     #strict
@@ -854,6 +914,7 @@ def findConnections(alg_list):
         for nodeB in alg_list:
             if nodeA is nodeB:
                 continue
+#            print "Find connection between %s and %s"%(nodeA.name, nodeB.name)
             dataIntersection = list(set(nodeA.getOutputList()) & set(nodeB.getInputList()))
             if len(dataIntersection) > 0:
                 for line in dataIntersection:

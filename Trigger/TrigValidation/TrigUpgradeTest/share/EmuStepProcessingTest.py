@@ -139,8 +139,8 @@ muStep1 = muStep1Sequence()
 muStep2 = muStep2Sequence()
 
 MuChains  = [
-    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep2("Step1_mu20", [muStep1]),  ChainStep2("Step2_mu20", [muStep2] )]) ,
-    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep2("Step1_mu8",  [muStep1] ), ChainStep2("Step2_mu8",  [muStep2] ) ] )
+    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep2("Step1_mu20", [muStep1]) , ChainStep2("Step2_mu20", [muStep2] )]) ,
+    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep2("Step1_mu8",  [muStep1]) , ChainStep2("Step2_mu8",  [muStep2] ) ] )
      ]
 
 
@@ -164,14 +164,12 @@ CombChains =[
 
 
 group_of_chains = MuChains + ElChains + CombChains
-#+ ElChains + CombChains
-
 
 
 # main HLT top sequence
 from AthenaCommon.AlgSequence import AlgSequence, AthSequencer, dumpSequence
 topSequence = AlgSequence()
-dumpSequence(topSequence)
+#dumpSequence(topSequence)
    
 TopHLTRootSeq = seqAND("TopHLTRootSeq") # Root
 topSequence += TopHLTRootSeq

@@ -3,15 +3,18 @@ from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestComboHypoAlg
 from AthenaCommon.Constants import VERBOSE,DEBUG
-from TrigUpgradeTest.HLTCFConfig import *
-from TrigUpgradeTest.MenuComponents import *
+#from TrigUpgradeTest.HLTCFConfig import *
+#from TrigUpgradeTest.MenuComponents import *
+from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep2
+from AthenaCommon.CFElements import parOR, seqAND, stepSeq
+
 
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
 def InputMakerAlg(name):
     return HLTTest__TestInputMaker(name, OutputLevel = DEBUG, LinkName="initialRoI")
 
-  
+print "cacca"  
 
 # here define the sequences from the signatures
 # signatures do this:
@@ -24,9 +27,7 @@ UseThisLinkName="initialRoI"
 #### muon signatures
 #####################
 
-
 def  TestHypoTool(name, prop, threshold_value):
-#    threshold_value=''.join(filter(lambda x: x.isdigit(), name))
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
     value  =  int(threshold_value)*1000
     h = HLTTest__TestHypoTool(name, OutputLevel=DEBUG, Threshold=value, Property=prop, LinkName=UseThisLinkName)
@@ -49,31 +50,36 @@ def MuStep2HypoTool():
    return "MuTestHypoTool"
 
 
-
 muIM= InputMakerAlg(name="Step1MuInputMaker")
-step1_mu_inputMaker = AlgNode(Alg=muIM, inputProp='InputDecisions', outputProp='Output')
+muIM.Output='muIM_out'
 
 muAlg = muMSRecAlg(name="muMSRecAlg", FileName="msmu.dat")
-step1_mu_recoAlg = AlgNode( Alg=muAlg,inputProp='Input', outputProp='Output')
+muAlg.Output='muAlg_out'
 
 muHypo = MuHypo(name="Step1MuHypo")
+muAlg.Input  = muIM.Output
+muHypo.Input = muAlg.Output
 
-step1_mu_HypoAlg = HypoAlgNode( Alg=muHypo,inputProp='Input', outputProp='Output')
-nodeSequence_mu = NodeSequence("muNodeSeq1",  Maker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_mu_HypoAlg, Seed="L1MU", HypoToolClassName=MuStep1HypoTool())
+mustep1_sequence = seqAND("muSeqStep1", [muIM, muAlg])
+nodeSequence_mu = NodeSequence("muNodeSeq1",  Maker=muIM, Sequence=mustep1_sequence, Hypo=muHypo, Seed="L1MU", HypoToolClassName=MuStep1HypoTool())
+
 
 def muStep1Sequence():
     return MenuSequence("muStep1Seq", nodeSeqList=[nodeSequence_mu])
 
 # mu step2
 muIM2= InputMakerAlg(name="Step2MuInputMaker")
-step2_mu_inputMaker = AlgNode(Alg=muIM2, inputProp='InputDecisions', outputProp='Output')
+muIM2.Output='muIM2_out'
 
 muAlg2 = muMSRecAlg(name="muMSRecAlg2", FileName="msmu.dat")
-step2_mu_recoAlg = AlgNode( Alg=muAlg2,inputProp='Input', outputProp='Output')
+muAlg2.Output='muAlg2_out'
 
 muHypo2 = MuHypo(name="Step2MuHypo")
-step2_mu_HypoAlg = HypoAlgNode( Alg=muHypo2,inputProp='Input', outputProp='Output')
-nodeSequence2_mu = NodeSequence("muNodeSeq2",  Maker=step2_mu_inputMaker, Algs=[step2_mu_recoAlg], Hypo=step2_mu_HypoAlg, Seed="L1MU", HypoToolClassName=MuStep2HypoTool())
+muAlg2.Input  = muIM2.Output
+muHypo2.Input = muAlg2.Output
+
+mustep2_sequence = seqAND("muSeqStep2", [muIM2, muAlg2])
+nodeSequence2_mu = NodeSequence("muNodeSeq2",  Maker=muIM2, Sequence=mustep2_sequence, Hypo=muHypo2, Seed="L1MU", HypoToolClassName=MuStep2HypoTool())
 
 def muStep2Sequence():
     return MenuSequence("muStep2Seq", nodeSeqList=[nodeSequence2_mu])
@@ -81,15 +87,9 @@ def muStep2Sequence():
 
 
 
-##### electron signatures
-##########################
+## ##### electron signatures
+## ##########################
 
-## class ElTestHypoTool(HLTTest__TestHypoTool):
-##     def __init__(self,name):
-##         HLTTest__TestHypoTool.__init__(self,name, OutputLevel=DEBUG, Property="et")
-##         threshold_value = name.replace("HLT_e","")
-##         value  =  int(threshold_value)*1000
-##         self.Threshold=value
 
 def ElTestHypoTool(name):
     threshold = name.replace("HLT_e","")
@@ -111,29 +111,36 @@ def ElStep2HypoTool():
 
 
 elIM= InputMakerAlg(name="Step1ElInputMaker")
-step1_el_inputMaker = AlgNode(Alg=elIM, inputProp='InputDecisions', outputProp='Output')
+elIM.Output='elIM_out'
 
 elAlg = CaloClustering(name="CaloClustering", FileName="emclusters.dat")
-step1_el_recoAlg = AlgNode( Alg=elAlg,inputProp='Input', outputProp='Output')
+elAlg.Output='elAlg_out'
 
 elHypo = ElGamHypo(name="Step1ElHypo")
-step1_el_HypoAlg = HypoAlgNode( Alg=elHypo,inputProp='Input', outputProp='Output')
+elAlg.Input  = elIM.Output
+elHypo.Input = elAlg.Output
 
-nodeSequence_el = NodeSequence("elNodeSeq1",  Maker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_el_HypoAlg, Seed="L1EM", HypoToolClassName=ElStep1HypoTool())
+elstep1_sequence = seqAND("elSeqStep1", [elIM, elAlg])
+nodeSequence_el = NodeSequence("elNodeSeq1",  Maker=elIM, Sequence=elstep1_sequence, Hypo=elHypo, Seed="L1EM", HypoToolClassName=ElStep1HypoTool())
+
 def elStep1Sequence():
     return MenuSequence("elStep1Seq", nodeSeqList=[nodeSequence_el])
 
 #step2
 elIM2= InputMakerAlg(name="Step2ElInputMaker")
-step2_el_inputMaker = AlgNode(Alg=elIM2, inputProp='InputDecisions', outputProp='Output')
+elIM2.Output='elIM2_out'
 
 elAlg2 = CaloClustering(name="CaloClustering2", FileName="emclusters.dat")
-step2_el_recoAlg = AlgNode( Alg=elAlg2,inputProp='Input', outputProp='Output')
+elAlg2.Output='elAlg2_out'
 
 elHypo2 = ElGamHypo(name="Step2ElHypo")
-step2_el_HypoAlg = HypoAlgNode( Alg=elHypo2,inputProp='Input', outputProp='Output')
+elAlg2.Input  = elIM2.Output
+elHypo2.Input = elAlg2.Output
 
-nodeSequence2_el = NodeSequence("elNodeSeq2",  Maker=step2_el_inputMaker, Algs=[ step2_el_recoAlg], Hypo=step2_el_HypoAlg, Seed="L1EM",HypoToolClassName=ElStep2HypoTool())
+elstep2_sequence = seqAND("elSeqStep2", [elIM2, elAlg2])
+nodeSequence2_el = NodeSequence("elNodeSeq2",  Maker=elIM2, Sequence=elstep2_sequence, Hypo=elHypo2, Seed="L1EM", HypoToolClassName=ElStep2HypoTool())
+
+#nodeSequence2_el = NodeSequence("elNodeSeq2",  Maker=step2_el_inputMaker, Algs=[ step2_el_recoAlg], Hypo=step2_el_HypoAlg, Seed="L1EM",HypoToolClassName=ElStep2HypoTool())
 def elStep2Sequence():
     return MenuSequence("elStep2Seq", nodeSeqList=[nodeSequence2_el])
 
@@ -159,25 +166,38 @@ def ComboStep2HypoTool():
    return "ComboTestHypoTool"
 
 comboAlg = ComboMuEHypo("Step1ComboMuElHypo")
-step1_comb_HypoAlgMu =  HypoAlgNode( Alg=comboAlg,inputProp='Input1', outputProp='Output1')
-step1_comb_HypoAlgEl =  HypoAlgNode( Alg=comboAlg,inputProp='Input2', outputProp='Output2')
+comboAlg.Input1=muAlg.Output
+comboAlg.Input2=elAlg.Output
 
-nodeSequence_muComb = NodeSequence("CombmuNodeSeq1",  Maker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_comb_HypoAlgMu, Seed="L1MU", HypoToolClassName=ComboStep1HypoTool())
-nodeSequence_elComb = NodeSequence("CombelNodeSeq1",  Maker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_comb_HypoAlgEl, Seed="L1EM", HypoToolClassName=ComboStep2HypoTool())
+nodeSequence_muComb = NodeSequence("Combo1NodeSeq1",  Maker=muIM, Sequence=mustep1_sequence, Hypo=comboAlg, Seed="L1MU", HypoToolClassName=ComboStep1HypoTool())
+nodeSequence_elComb = NodeSequence("Combo2NodeSeq1",  Maker=elIM, Sequence=elstep1_sequence, Hypo=comboAlg, Seed="L1EM", HypoToolClassName=ComboStep1HypoTool())
+
+
+#nodeSequence_muComb = NodeSequence("CombmuNodeSeq1",  Maker=step1_mu_inputMaker, Algs=[step1_mu_recoAlg], Hypo=step1_comb_HypoAlgMu, Seed="L1MU", HypoToolClassName=ComboStep1HypoTool())
+#nodeSequence_elComb = NodeSequence("CombelNodeSeq1",  Maker=step1_el_inputMaker, Algs=[step1_el_recoAlg], Hypo=step1_comb_HypoAlgEl, Seed="L1EM", HypoToolClassName=ComboStep2HypoTool())
 
 
 def combStep1Sequence():
-    return MenuSequence("combStep1Seq", nodeSeqList=[nodeSequence_muComb,nodeSequence_elComb])
+    return MenuSequence("comboStep1Seq", nodeSeqList=[nodeSequence_muComb,nodeSequence_elComb])
 
 # step2
 
 comboAlg2 = ComboMuEHypo("Step2ComboMuElHypo")
-step2_comb_HypoAlgMu =  HypoAlgNode( Alg=comboAlg2,inputProp='Input1', outputProp='Output1')
-step2_comb_HypoAlgEl =  HypoAlgNode( Alg=comboAlg2,inputProp='Input2', outputProp='Output2')
+comboAlg2.Input1=muAlg2.Output
+comboAlg2.Input2=elAlg2.Output
 
-nodeSequence2_muComb = NodeSequence("CombmuNodeSeq2",  Maker=step2_mu_inputMaker, Algs=[step2_mu_recoAlg], Hypo=step2_comb_HypoAlgMu, Seed="L1MU", HypoToolClassName=ComboStep1HypoTool())
-nodeSequence2_elComb = NodeSequence("CombelNodeSeq2",  Maker=step2_el_inputMaker, Algs=[step2_el_recoAlg], Hypo=step2_comb_HypoAlgEl, Seed="L1EM", HypoToolClassName=ComboStep2HypoTool())
+nodeSequence2_muComb = NodeSequence("Combo1NodeSeq2",  Maker=muIM2, Sequence=mustep2_sequence, Hypo=comboAlg2, Seed="L1MU", HypoToolClassName=ComboStep2HypoTool())
+nodeSequence2_elComb = NodeSequence("Combo2NodeSeq2",  Maker=elIM2, Sequence=elstep2_sequence, Hypo=comboAlg2, Seed="L1EM", HypoToolClassName=ComboStep2HypoTool())
+
+
+
+
+## step2_comb_HypoAlgMu =  HypoAlgNode( Alg=comboAlg2,inputProp='Input1', outputProp='Output1')
+## step2_comb_HypoAlgEl =  HypoAlgNode( Alg=comboAlg2,inputProp='Input2', outputProp='Output2')
+
+## nodeSequence2_muComb = NodeSequence("CombmuNodeSeq2",  Maker=step2_mu_inputMaker, Algs=[step2_mu_recoAlg], Hypo=step2_comb_HypoAlgMu, Seed="L1MU", HypoToolClassName=ComboStep1HypoTool())
+## nodeSequence2_elComb = NodeSequence("CombelNodeSeq2",  Maker=step2_el_inputMaker, Algs=[step2_el_recoAlg], Hypo=step2_comb_HypoAlgEl, Seed="L1EM", HypoToolClassName=ComboStep2HypoTool())
 
 
 def combStep2Sequence():
-    return MenuSequence("combStep2Seq", nodeSeqList=[nodeSequence2_muComb,nodeSequence2_elComb])
+    return MenuSequence("comboStep2Seq", nodeSeqList=[nodeSequence2_muComb,nodeSequence2_elComb])

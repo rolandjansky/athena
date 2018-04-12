@@ -13,7 +13,7 @@
 
 #include "TrigL2ElectronHypoTool.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
-
+#include "DecisionHandling/HypoBase.h"
 
 
 /**
@@ -21,8 +21,7 @@
  * @brief 
  **/
 
-class TestTrigL2ElectronHypoAlg
-  : public ::AthReentrantAlgorithm
+class TestTrigL2ElectronHypoAlg  :  public ::HypoBase 
 { 
  public: 
 
@@ -32,6 +31,7 @@ class TestTrigL2ElectronHypoAlg
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute_r(const EventContext& context) const override;
+  virtual StatusCode  finalize() override;
 
   
  
@@ -39,8 +39,8 @@ class TestTrigL2ElectronHypoAlg
   TestTrigL2ElectronHypoAlg();
   ToolHandleArray< TrigL2ElectronHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
 
-  SG::ReadHandleKey  < TrigCompositeUtils::DecisionContainer > m_previousDecisionsKey { this, "previousDecisions", "Unspecified", "Input decisions" };
-  SG::WriteHandleKey < TrigCompositeUtils::DecisionContainer > m_decisionsKey         { this, "Decisions", "Unspecified", "Output Decisions" };
+  //  SG::ReadHandleKey  < TrigCompositeUtils::DecisionContainer > m_previousDecisionsKey { this, "previousDecisions", "Unspecified", "Input decisions" };
+  //  SG::WriteHandleKey < TrigCompositeUtils::DecisionContainer > m_decisionsKey         { this, "Decisions", "Unspecified", "Output Decisions" };
 
   Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
   
