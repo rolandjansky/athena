@@ -112,6 +112,30 @@ TileTBBeamMonTool::TileTBBeamMonTool(const std::string & type, const std::string
   declareProperty("BC1Z", m_beamBC1Z  = 15600.0);
   declareProperty("BC2Z", m_beamBC2Z  = 2600.0); 
 
+  // Beam Chamber calibration with added offset results from the survey (tigran.mkrtchyan@cern.ch)
+  declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.175657);
+  declareProperty("BC1HorizontalOffset", m_horizontal_offset1 = 0.181797 + 0.5); //Additional parameter from survey
+  declareProperty("BC1VerticalSlope", m_vertical_slope1 = -0.175965);
+  declareProperty("BC1VerticalOffset", m_vertical_offset1 = -0.128910 - 1.9); //Additional parameter from survey
+
+  declareProperty("BC2HorizontalSlope", m_horizontal_slope2 = -0.176735);
+  declareProperty("BC2HorizontalOffset", m_horizontal_offset2 = 0.622896039922 - 25.); //Additional parameter from survey
+  declareProperty("BC2VerticalSlope", m_vertical_slope2 = -0.176182117624);
+  declareProperty("BC2VerticalOffset", m_vertical_offset2 = 0.195954125116 + 17.7); //Additional parameter from survey
+
+/*
+  // August 2017 calibration, https://pcata007.cern.ch/elog/TB2017/550 (schae@cern.ch)
+  declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.175657);
+  declareProperty("BC1HorizontalOffset", m_horizontal_offset1 = 0.181797);
+  declareProperty("BC1VerticalSlope", m_vertical_slope1 = -0.175965);
+  declareProperty("BC1VerticalOffset", m_vertical_offset1 = -0.128910);
+
+  declareProperty("BC2HorizontalSlope", m_horizontal_slope2 = -0.176735);
+  declareProperty("BC2HorizontalOffset", m_horizontal_offset2 = 0.622896039922);
+  declareProperty("BC2VerticalSlope", m_vertical_slope2 = -0.176182117624);
+  declareProperty("BC2VerticalOffset", m_vertical_offset2 = 0.195954125116);
+*/
+  /*
   // June 2017 calibration, https://pcata007.cern.ch/elog/TB2017/550 (schae@cern.ch)
   declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.175220);
   declareProperty("BC1HorizontalOffset", m_horizontal_offset1 = 0.153584934082);
@@ -123,7 +147,6 @@ TileTBBeamMonTool::TileTBBeamMonTool(const std::string & type, const std::string
   declareProperty("BC2VerticalSlope", m_vertical_slope2 = -0.173472808704);
   declareProperty("BC2VerticalOffset", m_vertical_offset2 = 0.150807740888);
 
-  /*
   // Constant updated 29-09-26 by Joakim Olsson: https://pcata007.cern.ch/elog/TB2016/300
   declareProperty("BC1HorizontalSlope", m_horizontal_slope1 = -0.172098);
   declareProperty("BC1HorizontalOffset", m_horizontal_offset1 = 0.100857923042);
