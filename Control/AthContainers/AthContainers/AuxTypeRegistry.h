@@ -23,6 +23,7 @@
 #include "AthContainers/tools/AuxTypeVector.h"
 #include "AthContainers/tools/AuxTypeVectorFactory.h"
 #include "AthContainers/tools/threading.h"
+#include "CxxUtils/bitmask.h"
 #ifndef XAOD_STANDALONE
 #include "AthenaKernel/IInputRename.h"
 #include "AthenaKernel/IStringPool.h"
@@ -62,8 +63,24 @@ namespace SG {
 class AuxTypeRegistry
 {
 public:
-  typedef AthContainers_detail::mutex mutex_t;
-  typedef AthContainers_detail::lock_guard<mutex_t> lock_t;
+  /// Additional flags to quality an auxiliary variable.
+  enum Flags {
+    /// No special flags set.
+    None   = 0x00,
+
+    /// Mark that this variable should only be accessed atomically.
+    /// If this is set, then the variable can be accessed only via
+    /// @c AtomicDecorator.
+    /// Be aware that this is not completely safe; it is still possible
+    /// to have non-atomic accesses to the variable via either the implicit
+    /// operations provided by this class or by explicit access to the
+    /// value vector.  Therefore, this is not recommended for general use.
+    /// Contact core software before using this for new code.
+    Atomic = 0x01,
+
+    /// Enable bitwise functions on this enum; see bitmask.h.
+    IS_ATH_BITMASK
+  };
 
   /**
    * @brief Return the singleton registry instance.
@@ -75,6 +92,7 @@ public:
    * @brief Look up a name -> @c auxid_t mapping.
    * @param name The name of the aux data item.
    * @param clsname The name of its associated class.  May be blank.
+   * @param flags Optional flags qualifying the type.  See above.
    *
    * The type of the item is given by the template parameter @c T.
    * If an item with the same name was previously requested
@@ -82,7 +100,8 @@ public:
    */
   template <class T>
   SG::auxid_t getAuxID (const std::string& name,
-                        const std::string& clsname = "");
+                        const std::string& clsname = "",
+                        const Flags flags = Flags::None);
 
 
   /**
@@ -90,6 +109,7 @@ public:
    * @param ti Type of the aux data item.
    * @param name The name of the aux data item.
    * @param clsname The name of its associated class.  May be blank.
+   * @param flags Optional flags qualifying the type.  See above.
    *
    * The type of the item is given by @a ti.
    * Return @c null_auxid if we don't know how to make vectors of @a ti.
@@ -99,7 +119,8 @@ public:
    */
   SG::auxid_t getAuxID (const std::type_info& ti,
                         const std::string& name,
-                        const std::string& clsname = "");
+                        const std::string& clsname = "",
+                        const Flags flags = Flags::None);
 
 
   /**
@@ -112,7 +133,7 @@ public:
    * returns @c null_auxid.
    */
   SG::auxid_t findAuxID( const std::string& name,
-                         const std::string& clsname = "" ) const;
+                         const std::string& clsname = "") const;
 
   
   /**
@@ -200,6 +221,13 @@ public:
    * @param auxid The desired aux data item.
    */
   size_t getEltSize (SG::auxid_t auxid) const;
+
+
+  /**
+   * @brief Return flags associated with an auxiliary variable.
+   * @param auxid The desired aux data item.
+   */
+  Flags getFlags (SG::auxid_t auxid) const;
 
 
   /**
@@ -309,6 +337,9 @@ public:
 
 
 private:
+  typedef AthContainers_detail::mutex mutex_t;
+  typedef AthContainers_detail::lock_guard<mutex_t> lock_t;
+
   /**
    * @brief Constructor.
    *
@@ -334,6 +365,7 @@ private:
    * @brief Look up a name -> @c auxid_t mapping.
    * @param name The name of the aux data item.
    * @param clsname The name of its associated class.  May be blank.
+   * @param flags Optional flags qualifying the type.  See above.
    * @param ti The type of this aux data item.
    * @param makeFactory Function to create a factory for this type, if needed.
    *                    May return 0 if the type is unknown.
@@ -352,6 +384,7 @@ private:
   SG::auxid_t
   findAuxID (const std::string& name,
              const std::string& clsname,
+             const Flags flags,
              const std::type_info& ti,
              IAuxTypeVectorFactory* (AuxTypeRegistry::*makeFactory) () const);
 
@@ -428,6 +461,9 @@ private:
 
     /// Class name associated with this aux data item.  May be blank.
     std::string m_clsname;
+
+    /// Additional type flags.
+    Flags m_flags;
   };
 
 

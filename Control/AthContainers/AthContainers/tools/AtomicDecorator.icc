@@ -1,0 +1,128 @@
+// This file's extension implies that it's C, but it's really -*- C++ -*-.
+/**
+ * @file AthContainers/tools/AtomicDecorator.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Mar, 2018
+ * @brief Access an auxiliary variable atomically.
+ */
+
+
+namespace SG {
+
+
+/**
+ * @brief Constructor.
+ * @param name Name of this aux variable.
+ *
+ * The name -> auxid lookup is done here.
+ */
+template <class T>
+inline
+AtomicDecorator<T>::AtomicDecorator (const std::string& name)
+  : Base (name, "", SG::AuxTypeRegistry::Flags::Atomic)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param name Name of this aux variable.
+ * @param clsname The name of its associated class.  May be blank.
+ *
+ * The name -> auxid lookup is done here.
+ */
+template <class T>
+inline
+AtomicDecorator<T>::AtomicDecorator (const std::string& name,
+                                     const std::string& clsname)
+  : Base (name, clsname, SG::AuxTypeRegistry::Flags::Atomic)
+{
+}
+
+
+/**
+ * @brief Fetch the variable for one element, as a non-const reference.
+ * @param e The element for which to fetch the variable.
+ *
+ * If the container is locked, this will allow fetching only variables
+ * that do not yet exist (in which case they will be marked as decorations)
+ * or variables already marked as decorations.
+ */
+template <class T>
+inline
+typename AtomicDecorator<T>::reference_type
+AtomicDecorator<T>::operator() (const AuxElement& e) const
+{
+  return reinterpret_cast<reference_type> (Base::operator() (e));
+}
+
+
+/**
+ * @brief Fetch the variable for one element, as a non-const reference.
+ * @param container The container from which to fetch the variable.
+ * @param index The index of the desired element.
+ *
+ * This allows retrieving aux data by container / index.
+ * Looping over the index via this method will be faster then
+ * looping over the elements of the container.
+ *
+ * If the container is locked, this will allow fetching only variables
+ * that do not yet exist (in which case they will be marked as decorations)
+ * or variables already marked as decorations.
+ */
+template <class T>
+inline
+typename AtomicDecorator<T>::reference_type
+AtomicDecorator<T>::operator() (const AuxVectorData& container,
+                                size_t index) const
+{
+  return reinterpret_cast<reference_type> (Base::operator() (container, index));
+}
+
+
+/**
+ * @brief Set the variable for one element.
+ * @param e The element for which to fetch the variable.
+ * @param x The variable value to set.
+ */
+template <class T>
+inline
+void AtomicDecorator<T>::set (const AuxElement& e, const element_type& x) const
+{
+  (*this)(e) = x;
+}
+
+
+/**
+ * @brief Get a pointer to the start of the auxiliary data array.
+ * @param container The container from which to fetch the variable.
+ */
+template <class T>
+inline
+typename AtomicDecorator<T>::const_container_pointer_type
+AtomicDecorator<T>::getDataArray (const AuxVectorData& container) const
+{
+  return reinterpret_cast<const_container_pointer_type>
+    (container.getDataArray (Base::auxid()));
+}
+
+
+/**
+ * @brief Get a pointer to the start of the auxiliary data array.
+ * @param container The container from which to fetch the variable.
+ *
+ * If the container is locked, this will allow fetching only variables
+ * that do not yet exist (in which case they will be marked as decorations)
+ * or variables already marked as decorations.
+ */
+template <class T>
+inline
+typename AtomicDecorator<T>::container_pointer_type
+AtomicDecorator<T>::getDecorationArray (const AuxVectorData& container) const
+{
+  return reinterpret_cast<container_pointer_type>
+    (container.getDecorationArray (Base::auxid()));
+}
+
+
+} // namespace SG

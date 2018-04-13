@@ -683,6 +683,20 @@ public:
     SG::auxid_t auxid() const;
 
 
+  protected:
+    /**
+     * @brief Constructor.
+     * @param name Name of this aux variable.
+     * @param clsname The name of its associated class.  May be blank.
+     * @param flags Optional flags qualifying the type.  See AuxTypeRegsitry.
+     *
+     * The name -> auxid lookup is done here.
+     */
+    Decorator (const std::string& name,
+               const std::string& clsname,
+               const SG::AuxTypeRegistry::Flags flags);
+
+
   private:
     /// The cached @c auxid.
     SG::auxid_t m_auxid;

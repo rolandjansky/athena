@@ -511,7 +511,7 @@ AuxElement::Accessor<T>::isAvailableWritable (AuxElement& e) const
 template <class T>
 inline
 AuxElement::Decorator<T>::Decorator (const std::string& name)
-  : m_auxid (SG::AuxTypeRegistry::instance().getAuxID<T> (name))
+  : Decorator (name, "", SG::AuxTypeRegistry::Flags::None)
 {
 }
 
@@ -527,7 +527,25 @@ template <class T>
 inline
 AuxElement::Decorator<T>::Decorator (const std::string& name,
                                      const std::string& clsname)
-  : m_auxid (SG::AuxTypeRegistry::instance().getAuxID<T> (name, clsname))
+  : Decorator (name, clsname, SG::AuxTypeRegistry::Flags::None)
+{
+}
+
+
+/**
+ * @brief Constructor.
+ * @param name Name of this aux variable.
+ * @param clsname The name of its associated class.  May be blank.
+ * @param flags Optional flags qualifying the type.  See AuxTypeRegsitry.
+ *
+ * The name -> auxid lookup is done here.
+ */
+template <class T>
+inline
+AuxElement::Decorator<T>::Decorator (const std::string& name,
+                                     const std::string& clsname,
+                                     const SG::AuxTypeRegistry::Flags flags)
+  : m_auxid (SG::AuxTypeRegistry::instance().getAuxID<T> (name, clsname, flags))
 {
 }
 
