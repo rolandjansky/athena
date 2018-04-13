@@ -1127,13 +1127,14 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
 
   }  else  {
 
-    //with no iterator it's up to us to create an EventInfo
-    unsigned int runNmb{1}, evtNmb{m_nevt};
+    // with no iterator it's up to us to create an EventInfo
+    // first event # == 1
+    unsigned int runNmb{1}, evtNmb{m_nevt + 1};
 
     // increment the run/lumiBlock number if desired
     if (m_flmbi != 0) {
       runNmb = m_nevt / m_flmbi + 1;
-      evtNmb = m_nevt % m_flmbi;
+      evtNmb = m_nevt % m_flmbi + 1;
     }
     auto eid = std::make_unique<EventID> (runNmb,evtNmb, m_timeStamp);
     // Change lumiBlock# to match runNumber

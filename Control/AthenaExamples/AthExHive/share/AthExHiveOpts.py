@@ -14,6 +14,9 @@ if (nThreads < 1) :
    msg.fatal('numThreads must be >0. Did you set the --threads=N option?')
    sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
 
+# setup the McEventSelector
+import AthenaCommon.AtlasUnixGeneratorJob
+
 #
 ## Override Setup for Hive
 #
