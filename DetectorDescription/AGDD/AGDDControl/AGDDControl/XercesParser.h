@@ -23,6 +23,7 @@ public:
 	bool ParseFileAndNavigate(std::string);
 	bool ParseString(std::string);
 	bool ParseStringAndNavigate(std::string);
+	bool WriteToFile(std::string);
 	void navigateTree();
 	static void elementLoop();
 	static void elementLoop(xercesc::DOMNode*);
