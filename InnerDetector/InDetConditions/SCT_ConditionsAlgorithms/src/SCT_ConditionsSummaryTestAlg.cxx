@@ -23,7 +23,7 @@ SCT_ConditionsSummaryTestAlg::SCT_ConditionsSummaryTestAlg(
                                                            const std::string& name, 
                                                            ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ),
-  m_pSummarySvc("SCT_ConditionsSummarySvc", name){
+  m_pSummaryTool("SCT_ConditionsSummaryTool", this) {
   //nop
 }
 
@@ -33,7 +33,7 @@ SCT_ConditionsSummaryTestAlg::initialize(){
   
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_INFO("Calling initialize");
-  sc = m_pSummarySvc.retrieve();
+  sc = m_pSummaryTool.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
     ATH_MSG_ERROR("Could not retrieve the summary service");
   }
@@ -48,10 +48,10 @@ SCT_ConditionsSummaryTestAlg::execute(){
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_INFO("Calling execute");
   ATH_MSG_INFO("Dummy call to module id 0: module is ");
-  bool result=m_pSummarySvc->isGood(Identifier(0));
+  bool result=m_pSummaryTool->isGood(Identifier(0));
   ATH_MSG_INFO((result ? "good" : "bad"));
   ATH_MSG_INFO("Dummy call to module id 1: module is ");
-  result=m_pSummarySvc->isGood(Identifier(1));
+  result=m_pSummaryTool->isGood(Identifier(1));
   ATH_MSG_INFO((result ? "good" : "bad"));
   /** some bad strips
       SCT_ConfigurationConditionsSvc             INFO 216808130
@@ -65,9 +65,9 @@ SCT_ConditionsSummaryTestAlg::execute(){
       SCT_ConfigurationConditionsSvc             INFO 217299496
       SCT_ConfigurationConditionsSvc             INFO 217299649
   **/
-  result=m_pSummarySvc->isGood(Identifier(216808130), InDetConditions::SCT_STRIP);
+  result=m_pSummaryTool->isGood(Identifier(216808130), InDetConditions::SCT_STRIP);
   ATH_MSG_INFO("Strip  216808130 " << (result ? "good" : "bad"));
-  result=m_pSummarySvc->isGood(Identifier(216808743), InDetConditions::SCT_STRIP);
+  result=m_pSummaryTool->isGood(Identifier(216808743), InDetConditions::SCT_STRIP);
   ATH_MSG_INFO("Strip  216808743 " << (result ? "good" : "bad"));
   return sc;
 }
