@@ -178,14 +178,14 @@ print fatCalib
 hbbTagger = CfgMgr.HbbTaggerDNN(
     "HbbTagger",
     OutputLevel=DEBUG,
-    neuralNetworkFile="HbbNetwork.json",
-    decorationName="HbbScore")
+    neuralNetworkFile="HbbNetwork.json")
 ToolSvc += hbbTagger
 print hbbTagger
 
 FTAG5Seq += CfgMgr.HbbTaggingAlgorithm(
     "HbbTaggerAlg",
     jetCollectionName="AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+    decorationName="HbbScore",
     minPt=250e3,
     maxEta=2.0,
     tagger=hbbTagger,

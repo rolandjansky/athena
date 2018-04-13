@@ -25,10 +25,12 @@ public:
   virtual StatusCode  finalize();
 private:
   std::string m_jet_collection;
+  std::string m_decoration_name;
   double m_min_pt;
   double m_max_eta;
   ToolHandle<HbbTaggerDNN> m_tagger;
   ToolHandle<JetCalibrationTool> m_jet_calib_tool;
+  SG::AuxElement::Decorator<double> m_dec_jet;
 };
 
 #endif
