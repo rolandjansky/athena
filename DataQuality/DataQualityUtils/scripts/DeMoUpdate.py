@@ -114,8 +114,8 @@ from argparse import RawTextHelpFormatter,ArgumentParser
 
 parser = ArgumentParser(description='',formatter_class=RawTextHelpFormatter)
 parser.add_argument('-r','--run',type=int,dest='parser_run',default=[],help='Run or run range',nargs='*',action='store')
-parser.add_argument('-y','--year',dest='parser_year',default = "2017",help='Year [Default: 2017]. May also include special conditions such as 5TeV, hi... Check the RunList files',action='store')
-parser.add_argument('-t','--tag',dest='parser_tag',default = "Tier0_2017",help='Defect tag [Default: "Tier0_2017"]',action='store')
+parser.add_argument('-y','--year',dest='parser_year',default = "2018",help='Year [Default: 2017]. May also include special conditions such as 5TeV, hi... Check the RunList files',action='store')
+parser.add_argument('-t','--tag',dest='parser_tag',default = "Tier0_2018",help='Defect tag [Default: "Tier0_2018"]',action='store')
 parser.add_argument('-b','--batch',dest='parser_batchMode',help='Batch mode',action='store_true')
 parser.add_argument('-s','--system',dest='parser_system',default="LAr",help='System: LAr, CaloCP [Default: "LAr"]',action='store')
 parser.add_argument('--weekly',dest='parser_weekly',help='Weekly report. No run range to specify',action='store_true')

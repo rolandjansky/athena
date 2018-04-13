@@ -69,8 +69,8 @@ from ROOT import gROOT
 #gROOT.LoadMacro("AtlasLabels.C")
 
 parser = ArgumentParser(description='',formatter_class=RawTextHelpFormatter)
-parser.add_argument('-y','--year',dest='parser_year',default = ["2017"],nargs='*',help='Year [Default: 2017]',action='store')
-parser.add_argument('-t','--tag',dest='parser_tag',default = ["Tier0_2017"],nargs='*',help='Defect tag [Default: "Tier0_2017"]',action='store')
+parser.add_argument('-y','--year',dest='parser_year',default = ["2018"],nargs='*',help='Year [Default: 2018]',action='store')
+parser.add_argument('-t','--tag',dest='parser_tag',default = ["Tier0_2018"],nargs='*',help='Defect tag [Default: "Tier0_2018"]',action='store')
 parser.add_argument('-s','--system',dest='parser_system',default="LAr",help='System: LAr, CaloCP [Default: "LAr"]',action='store')
 parser.add_argument('-d','--directory',dest='parser_directory',default="/afs/cern.ch/user/l/larmon/public/prod/LADIeS",help='Directory to display',action='store')
 parser.add_argument('--yearStats',dest='parser_plotYS',help='Plot the year stats per period',action='store_true')

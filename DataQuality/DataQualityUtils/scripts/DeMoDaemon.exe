@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh
+cd $1
+
+export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
+source $AtlasSetup/scripts/asetup.sh 21.0.66,Athena,gcc62
+
+python DeMoUpdate.py --weekly -b
+python DeMoUpdate.py --grlUpdate -b

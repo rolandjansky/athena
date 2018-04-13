@@ -175,14 +175,16 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
                             "Tier0_2016":"/Tier0",
                             "Reproc_2017":"/2017 reproc.",
                             "Tier0_2017":"/Tier0",
-                            "Reproc_2018":"/2017 reproc."}
+                            "Reproc_2018":"/2017 reproc.",
+                            "Tier0_2018":"/Tier0"}
   # DB tag for the defect database - Common to all systems
   yearTag["defect"] = {"Tier0_2015":"DetStatus-v73-pro19-08",
                        "Reproc_2016":"DetStatus-v75-repro20-01",
                        "Tier0_2016":"DetStatus-v84-pro20-16",
                        "Reproc_2017":"DetStatus-v89-pro21-01",
                        "Tier0_2017":"DetStatus-v97-pro21-13",
-                       "Reproc_2018":"HEAD"}  
+                       "Reproc_2018":"HEAD",
+                       "Tier0_2018":"HEAD"}  
 
   yearTag["offlineLumiTag"] = "OflLumi-13TeV-010"
 
@@ -230,7 +232,8 @@ def initialize(system,yearTag,partitions,defects0,defectVeto,veto,signOff,year =
                        "Tier0_2016":"LARBadChannelsOflEventVeto-RUN2-UPD4-04",
                        "Reproc_2017":"LARBadChannelsOflEventVeto-RUN2-UPD4-06",
                        "Tier0_2017":"LARBadChannelsOflEventVeto-RUN2-UPD4-06",
-                       "Reproc_2018":"LARBadChannelsOflEventVeto-RUN2-UPD4-08"
+                       "Reproc_2018":"LARBadChannelsOflEventVeto-RUN2-UPD4-08",
+                       "Tier0_2018":"LARBadChannelsOflEventVeto-RUN2-UPD4-09"
                        }
 
     # Tags below are derived from the regular ones. 
