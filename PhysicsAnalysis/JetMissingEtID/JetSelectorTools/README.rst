@@ -3,8 +3,8 @@ PhysicsAnalysis/JetMissingEtID/JetSelectorTools:
    Package hosting jet selection (cleaning) tools
 ========================================================
 
-:authors: Zach Marshall
-:contact: ZLMarshall@lbl.gov
+:authors: Julia Gonski
+:contact: j.gonski@cern.ch
 
 .. meta::
    :description: JetSelectorTools: Package hosting jet selection (cleaning) tools
@@ -17,40 +17,52 @@ Introduction
 ------------
 
 This package contains dual-use tools for selecting good jets passing one of
-several levels of jet cleaning cuts.  There is only one tool, the **JetCleaningTool**,
-which is configurable and provides a good/bad decision for each jet.
+several levels of jet cleaning cuts.  There are two tools, the **JetCleaningTool**,
+which is configurable and provides a good/bad decision for each jet, and the 
+**EventCleaningTool**, which performs the full jet cleaning procedure for 
+an event. 
 
 The documentation is on the twiki here:
-`HowToCleanJets2012
-<https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HowToCleanJets2012>`_.
+`HowToCleanJets2017
+<https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/HowToCleanJets2017>`_.
 
-This procedure applies to all of run 1.
+This procedure applies to all of Run 2. 
 
------
-Athena Setup
------
+------------------------------
+Checkout & Setup in Release 21
+------------------------------
 
-After athena is set up, simply do:
+mkdir source build run 
+cd source 
 
-  cmt co PhysicsAnalysis/JetMissingEtID/JetSelectorTools
-  cd PhysicsAnalysis/JetMissingEtID/JetSelectorTools/cmt/
+git atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
+cd athena
+git atlas addpkg JetSelectorTools
+git checkout -b topic-name upstream/21.2 --no-track
 
-and compile::
+Edit source/athena/Projects/WorkDir/package_filters_example.txt to include the packages
+you want to compile.
+cd ../../build
 
-  cmt make
+asetup AthDerivation,21.2.13.0 (or latest) 
+cmake ../source/athena/Projects/WorkDir/
+make -j8 
+source x86_64-slc6-gcc62-opt/setup.sh
 
-AnalysisBase
-------------
+NOTE: currently you will see the following warning when you compile. This is not
+relevant to the tool performance and can be disregarded. 
 
-After RootCore is setup, simply do:
+In file included from input_line_9:103:
+..... /source/athena/PhysicsAnalysis/JetMissingEtID/JetSelectorTools/JetSelectorTools/EventCleaningTool.h:55:24: warning: 'finalize' overrides a
+      member function but is not marked 'override' [-Winconsistent-missing-override]
+    virtual StatusCode finalize();
+                       ^
+/cvmfs/atlas.cern.ch/repo/sw/software/21.2/GAUDI/21.2.13.0/InstallArea/x86_64-slc6-gcc62-opt/include/GaudiKernel/AlgTool.h:74:14: note: overridden virtual function is here
+  StatusCode finalize() override;
 
-  svn co ${SVNOFF}/PhysicsAnalysis/JetMissingEtID/JetSelectorTools/trunk JetSelectorTools
-  rc find_packages
-  rc compile_pkg JetSelectorTools
-
----------------
+-----------------------
 Jet Cleaning Tool Usage
----------------
+-----------------------
 
 The tool can be constructed in C++ or python using one of three constructors:
   - A constructor taking the name of the tool
@@ -82,9 +94,9 @@ python/JetCleaningCutDefs.py contains a simple helper to set up the tool at a gi
 These functions are a bit of overkill given the current interface, but they may be helpful in
 the future if the cleaning functions change significantly.
 
----------------
+-------------------------
 Event Cleaning Tool Usage
----------------
+-------------------------
 
 The EventCleaningTool is designed to assess the cleanliness of every jet in an event. The tool 
 runs over a jet collection which is required to have JVT and overlap removal decorations applied 
@@ -110,18 +122,26 @@ The properties of the tool are:
    - Maximum eta cut for cleaning consideration (default 2.8) 
    - The name of the JVT decorator for cleaning consideration (default 'passJvt')
    - The name of the OR decorator for cleaning consideration (default 'passOR') 
+   - The prefix for the name of the decoration (default empty)
+   - A boolean for whether you want to do the jet clean decorations (default 'true')
    - The cleaning level (default 'LooseBad') for initializing the JetCleaningTool
+   - The AnaToolHandle for the JetCleaningTool itself. 
 
 In addition to the EventCleaningTool, there is an EventCleaningTestAlg which calls acceptEvent 
-once per event. Here, the tool can be configured, and its five properties can be set. The algorithm has
-an additional property, the name of the jet collection (default "AntiKt4EMTopoJets"). It then uses this
-name to pull the jet collection out of event store. The event decision is decorated onto the EventInfo
-object, using the boolean return value of acceptEvent.
+once per event. The algorithm should be passed a configured EventCleaningTool (see ExtendedJetCommon
+for an example). The algorithm has an additional property, the name of the jet collection 
+(default "AntiKt4EMTopoJets"). It then uses this name to pull the jet collection out of event store. 
+The event decision is decorated onto the EventInfo object, using the boolean return value of acceptEvent.
 
 A sample job options file for the algorithm can be found in share/EventCleaningTest_jobOptions.py. 
 
 NOTE: Because the algorithm relies on JVT and OR decorations, it can only be used in an algorithm
 sequence where these decorations have already been performed (for example, applyST.py in SUSYTools.) 
+If you reach an error like the one below, you need to decorate your AOD first.
+ERROR SG::ExcBadAuxVar: Attempt to retrieve nonexistent aux data item `::passJvt' (28).
+
+
+
 
 
 

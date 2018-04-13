@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ASSOCIATIONUTILS_OVERLAPREMOVALTESTALG_H
@@ -7,6 +7,7 @@
 
 // Framework includes
 #include "GaudiKernel/ToolHandle.h"
+#include "AsgTools/AnaToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // EDM includes
@@ -40,7 +41,7 @@ class EventCleaningTestAlg : public AthAlgorithm
   private:
 
     /// Handle to the tool
-    ToolHandle<ECUtils::IEventCleaningTool> m_ecTool;
+    asg::AnaToolHandle<ECUtils::IEventCleaningTool> m_ecTool;
     
     /// Configuration
     double m_pt;
@@ -51,7 +52,7 @@ class EventCleaningTestAlg : public AthAlgorithm
     std::string m_cleaningLevel;
     std::string m_collection;
     bool m_doEvent;
-    SG::AuxElement::Decorator<char>* m_dec_eventClean; 
+    std::unique_ptr<SG::AuxElement::Decorator<char>> m_dec_eventClean; 
 };
 
 #endif

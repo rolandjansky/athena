@@ -6,5 +6,5 @@
 #define SUSYTOOLS_SUSYTOOLSDICT_H
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
-
+#include "SUSYTools/SUSYCrossSection.h"
 #endif // not SUSYTOOLS_SUSYTOOLSDICT_H

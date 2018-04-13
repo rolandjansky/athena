@@ -6,14 +6,16 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 
 
-def buildDL1(basename):
+def buildDL1(basename, calibrationName=''):
+  if not calibrationName:
+    calibrationName = basename
 
   metaInstance = { 'IsATagger'          : False,
                   'xAODBaseName'       : basename,
                   'DependsOn'          : ['AtlasExtrapolator',
                                           'BTagCalibrationBrokerTool',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : [basename],
+                  'CalibrationFolders' : [calibrationName],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                   'ToolCollection'     : basename+'Tag'}
 
@@ -38,7 +40,7 @@ def buildDL1(basename):
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'forceDL1CalibrationAlias'         : BTaggingFlags.ForceDL1CalibrationAlias,
                      'DL1CalibAlias'                    : BTaggingFlags.DL1CalibAlias,
-                     'calibration_directory'            : basename,
+                     'calibration_directory'            : calibrationName,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])

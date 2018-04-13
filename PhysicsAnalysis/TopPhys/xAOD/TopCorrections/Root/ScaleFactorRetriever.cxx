@@ -642,8 +642,7 @@ namespace top {
         sf = x.auxdataConst<float>("MU_SF_Isol_"+iso+"_STAT_DOWN");
       }
     }
-
-
+    
     return sf;
   }
 

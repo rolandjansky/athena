@@ -23,6 +23,20 @@ bool PrintEventSelector::apply(const top::Event& event) const {
     return true;
 }
 
+bool PrintEventSelector::applyParticleLevel(const top::ParticleLevelEvent& plEvent) const {
+    //print some stuff about the event
+    std::cout << "Particle Level\n";
+    std::cout << plEvent << std::endl;
+
+    //print the SF if calculated and if MC
+//     if (top::isSimulation(event)) {
+//         top::ScaleFactorRetriever::print(event);
+//         std::cout << std::endl;
+//     }
+
+    return true;
+}
+
 std::string PrintEventSelector::name() const {
     return "PRINT";
 }

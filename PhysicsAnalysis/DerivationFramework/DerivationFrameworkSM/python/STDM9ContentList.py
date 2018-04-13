@@ -8,8 +8,10 @@ STDM9SmartContent = [
     "PrimaryVertices", 
      "MET_Reference_AntiKt4EMTopo",
      "MET_Reference_AntiKt4LCTopo",
+     "MET_Reference_AntiKt4EMPFlow",
      "AntiKt4LCTopoJets",
      "AntiKt4EMTopoJets",
+     "AntiKt4EMPFlowJets"
 ]
 
 STDM9ExtraVariables = [
@@ -49,6 +51,7 @@ STDM9AllVariablesContent = [
      "AntiKt10LCTopoJets",
      "AntiKt4LCTopoJets",
      "AntiKt4EMTopoJets",
+     "AntiKt4EMPFlowJets",
      "AntiKt2PV0TrackJets",
      
      ### MET ###
@@ -57,6 +60,7 @@ STDM9AllVariablesContent = [
      ### B JETS ###
      "BTagging_AntiKt4EMTopo",
      "BTagging_AntiKt2Track",
+     "BTagging_AntiKt4EMPFlow",
 
      ### MUONS ###
      "MuonSegments",
@@ -67,6 +71,10 @@ STDM9AllVariablesContent = [
      "METAssoc_AntiKt4EMTopo",
      "MET_Core_AntiKt4EMTopo",
      "MET_Reference_AntiKt4EMTopo",
+
+     "METAssoc_AntiKt4EMPFlow",
+     "MET_Core_AntiKt4EMPFlow",
+     "MET_Reference_AntiKt4EMPFlow",
 
      "METAssoc_AntiKt4LCTopo",
      "MET_Core_AntiKt4LCTopo",

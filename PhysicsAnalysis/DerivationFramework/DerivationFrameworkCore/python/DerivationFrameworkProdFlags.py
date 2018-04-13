@@ -221,7 +221,7 @@ listAODtoDPD.append(WriteDAOD_MCTEST3Stream.StreamName)
 ##################################
 
 class WriteDAOD_TOPQ1Stream(JobProperty):
-    """TOPQ1 derivation"""
+    """TOPQ1: fakes, single t"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -234,7 +234,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TOPQ1Stream
 listAODtoDPD.append(WriteDAOD_TOPQ1Stream.StreamName)
 
 class WriteDAOD_TOPQ2Stream(JobProperty):
-    """TOPQ2 derivation"""
+    """TOPQ2: dilepton"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -246,21 +246,21 @@ class WriteDAOD_TOPQ2Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TOPQ2Stream)
 listAODtoDPD.append(WriteDAOD_TOPQ2Stream.StreamName)
 
-class WriteDAOD_TOPQ3Stream(JobProperty):
-    """TOPQ3 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_TOPQ3'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkTop/TOPQ3.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TOPQ3Stream)
-listAODtoDPD.append(WriteDAOD_TOPQ3Stream.StreamName)
+#class WriteDAOD_TOPQ3Stream(JobProperty):
+#    """TOPQ3: l+jets signal region - obsolete"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_TOPQ3'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkTop/TOPQ3.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TOPQ3Stream)
+#listAODtoDPD.append(WriteDAOD_TOPQ3Stream.StreamName)
 
 class WriteDAOD_TOPQ4Stream(JobProperty):
-    """TOPQ4 derivation"""
+    """TOPQ4: all hadronic"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -273,7 +273,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TOPQ4Stream
 listAODtoDPD.append(WriteDAOD_TOPQ4Stream.StreamName)
 
 class WriteDAOD_TOPQ5Stream(JobProperty):
-    """TOPQ5 derivation"""
+    """TOPQ5: tt with Jpsi->mumu"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -291,7 +291,7 @@ listAODtoDPD.append(WriteDAOD_TOPQ5Stream.StreamName)
 ##################################
 
 class WriteDAOD_HIGG1D1Stream(JobProperty):
-    """HIGG1D1 derivation"""
+    """HIGG1D1: diphoton"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -304,7 +304,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG1D1Stre
 listAODtoDPD.append(WriteDAOD_HIGG1D1Stream.StreamName)
 
 class WriteDAOD_HIGG1D2Stream(JobProperty):
-    """HIGG1D2 derivation"""
+    """HIGG1D2: H->Zy"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -317,7 +317,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG1D2Stre
 listAODtoDPD.append(WriteDAOD_HIGG1D2Stream.StreamName)
 
 #class WriteDAOD_HIGG1D3Stream(JobProperty):
-#    """HIGG1D3 derivation"""
+#    """HIGG1D3: obsolete"""
 #    statusOn = True
 #    allowedTypes = ['bool']
 #    StoredValue = False
@@ -334,7 +334,7 @@ listAODtoDPD.append(WriteDAOD_HIGG1D2Stream.StreamName)
 ##################################
 
 class WriteDAOD_HIGG2D1Stream(JobProperty):
-    """HIGG2D1 derivation"""
+    """HIGG2D1: 2 lepton"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -346,21 +346,21 @@ class WriteDAOD_HIGG2D1Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D1Stream)
 listAODtoDPD.append(WriteDAOD_HIGG2D1Stream.StreamName)
 
-class WriteDAOD_HIGG2D2Stream(JobProperty):
-    """HIGG2D2 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_HIGG2D2'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkHiggs/HIGG2D2.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D2Stream)
-listAODtoDPD.append(WriteDAOD_HIGG2D2Stream.StreamName)
+#class WriteDAOD_HIGG2D2Stream(JobProperty):
+#    """HIGG2D2: obsolete"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_HIGG2D2'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkHiggs/HIGG2D2.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D2Stream)
+#listAODtoDPD.append(WriteDAOD_HIGG2D2Stream.StreamName)
 
 #class WriteDAOD_HIGG2D3Stream(JobProperty):
-#    """HIGG2D3 derivation"""
+#    """HIGG2D3: obsolete"""
 #    statusOn = True
 #    allowedTypes = ['bool']
 #    StoredValue = False
@@ -373,7 +373,7 @@ listAODtoDPD.append(WriteDAOD_HIGG2D2Stream.StreamName)
 #listAODtoDPD.append(WriteDAOD_HIGG2D3Stream.StreamName)
 
 class WriteDAOD_HIGG2D4Stream(JobProperty):
-    """HIGG2D4 derivation"""
+    """HIGG2D4: llqq"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -386,7 +386,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG2D4Stre
 listAODtoDPD.append(WriteDAOD_HIGG2D4Stream.StreamName)
 
 class WriteDAOD_HIGG2D5Stream(JobProperty):
-    """HIGG2D5 derivation"""
+    """HIGG2D5: J/psi gamma"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -404,7 +404,7 @@ listAODtoDPD.append(WriteDAOD_HIGG2D5Stream.StreamName)
 ##################################
 
 class WriteDAOD_HIGG3D1Stream(JobProperty):
-    """HIGG3D1 derivation"""
+    """HIGG3D1: WW to lvlv"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -416,21 +416,21 @@ class WriteDAOD_HIGG3D1Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG3D1Stream)
 listAODtoDPD.append(WriteDAOD_HIGG3D1Stream.StreamName)
 
-class WriteDAOD_HIGG3D2Stream(JobProperty):
-    """HIGG3D2 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_HIGG3D2'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkHiggs/HIGG3D2.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG3D2Stream)
-listAODtoDPD.append(WriteDAOD_HIGG3D2Stream.StreamName)
+#class WriteDAOD_HIGG3D2Stream(JobProperty):
+#    """HIGG3D2: obsolete"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_HIGG3D2'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkHiggs/HIGG3D2.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG3D2Stream)
+#listAODtoDPD.append(WriteDAOD_HIGG3D2Stream.StreamName)
 
 class WriteDAOD_HIGG3D3Stream(JobProperty):
-    """HIGG3D3 derivation"""
+    """HIGG3D3: MJ background"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -448,7 +448,7 @@ listAODtoDPD.append(WriteDAOD_HIGG3D3Stream.StreamName)
 ##################################
 
 class WriteDAOD_HIGG4D1Stream(JobProperty):
-    """HIGG4D1 derivation"""
+    """HIGG4D1: SM H->tautau, LFV H->l+tau, H->mumu, VH->tautau"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -461,7 +461,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG4D1Stre
 listAODtoDPD.append(WriteDAOD_HIGG4D1Stream.StreamName)
 
 class WriteDAOD_HIGG4D2Stream(JobProperty):
-    """HIGG4D2 derivation"""
+    """HIGG4D2: SM H->tautau, LFV H->l+tau, BSM H->tautau, HH->tautaubb"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -475,7 +475,7 @@ listAODtoDPD.append(WriteDAOD_HIGG4D2Stream.StreamName)
 
 
 class WriteDAOD_HIGG4D3Stream(JobProperty):
-    """HIGG4D3 derivation"""
+    """HIGG4D3: SM H->tautau, Higgs CP, HH->tautaubb"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -488,7 +488,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG4D3Stre
 listAODtoDPD.append(WriteDAOD_HIGG4D3Stream.StreamName)
 
 class WriteDAOD_HIGG4D4Stream(JobProperty):
-    """HIGG4D4 derivation"""
+    """HIGG4D4: BSM H->tautau"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -502,7 +502,7 @@ listAODtoDPD.append(WriteDAOD_HIGG4D4Stream.StreamName)
 
 
 class WriteDAOD_HIGG4D5Stream(JobProperty):
-    """HIGG4D5 derivation"""
+    """HIGG4D5: W'->tau nu"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -515,7 +515,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG4D5Stre
 listAODtoDPD.append(WriteDAOD_HIGG4D5Stream.StreamName)
 
 class WriteDAOD_HIGG4D6Stream(JobProperty):
-    """HIGG4D6 derivation"""
+    """HIGG4D6: boosted HH->tautaubb"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -532,7 +532,7 @@ listAODtoDPD.append(WriteDAOD_HIGG4D6Stream.StreamName)
 ##################################
 
 class WriteDAOD_HIGG5D1Stream(JobProperty):
-    """HIGG5D1 derivation"""
+    """HIGG5D1: VH H to bb"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -545,7 +545,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG5D1Stre
 listAODtoDPD.append(WriteDAOD_HIGG5D1Stream.StreamName)
 
 class WriteDAOD_HIGG5D2Stream(JobProperty):
-   """HIGG5D2 derivation"""
+   """HIGG5D2: VH H to bb"""
    statusOn = True
    allowedTypes = ['bool']
    StoredValue = False
@@ -558,7 +558,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG5D2Stre
 listAODtoDPD.append(WriteDAOD_HIGG5D2Stream.StreamName)
 
 class WriteDAOD_HIGG5D3Stream(JobProperty):
-    """HIGG5D3 derivation"""
+    """HIGG5D3: VBF H """
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -575,7 +575,7 @@ listAODtoDPD.append(WriteDAOD_HIGG5D3Stream.StreamName)
 ##################################
 
 class WriteDAOD_HIGG6D1Stream(JobProperty):
-    """HIGG6D1 derivation"""
+    """HIGG6D1: H+ to taujet BSM"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -588,7 +588,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG6D1Stre
 listAODtoDPD.append(WriteDAOD_HIGG6D1Stream.StreamName)
 
 class WriteDAOD_HIGG6D2Stream(JobProperty):
-   """HIGG6D2 derivation"""
+   """HIGG6D2: H+ to taulep BSM"""
    statusOn = True
    allowedTypes = ['bool']
    StoredValue = False
@@ -606,7 +606,7 @@ listAODtoDPD.append(WriteDAOD_HIGG6D2Stream.StreamName)
 ##################################
 
 class WriteDAOD_HIGG8D1Stream(JobProperty):
-    """HIGG8D1 derivation"""
+    """HIGG8D1: ttH, H to WW/tautau/ZZ"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -619,7 +619,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_HIGG8D1Stre
 listAODtoDPD.append(WriteDAOD_HIGG8D1Stream.StreamName)
 
 #class WriteDAOD_HIGG8D2Stream(JobProperty):
-#    """HIGG8D1 derivation"""
+#    """HIGG8D1: obsolete"""
 #    statusOn = True
 #    allowedTypes = ['bool']
 #    StoredValue = False
@@ -636,7 +636,7 @@ listAODtoDPD.append(WriteDAOD_HIGG8D1Stream.StreamName)
 #################################
 
 #class WriteDAOD_STDM1Stream (JobProperty):
-#    """STDM jet slim"""
+#    """STDM jet slim: obsolete"""
 #    statusOn = True
 #    allowedTypes = ['bool']
 #    StoredValue = False
@@ -752,6 +752,19 @@ class WriteDAOD_STDM9Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM9Stream)
 listAODtoDPD.append(WriteDAOD_STDM9Stream.StreamName)
 
+class WriteDAOD_STDM10Stream (JobProperty):
+    """STDM Heavy ION Derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM10'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM10.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM10Stream)
+listAODtoDPD.append(WriteDAOD_STDM10Stream.StreamName)
+
 
 
 #################################
@@ -759,7 +772,7 @@ listAODtoDPD.append(WriteDAOD_STDM9Stream.StreamName)
 #################################
 
 class WriteDAOD_TAUP1Stream(JobProperty):
-    """TAUP1 derivation"""
+    """TAUP1: Z to etau"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -772,7 +785,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TAUP1Stream
 listAODtoDPD.append(WriteDAOD_TAUP1Stream.StreamName)
 
 class WriteDAOD_TAUP2Stream(JobProperty):
-    """TAUP2 derivation"""
+    """TAUP2: Z to mutau"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -785,7 +798,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TAUP2Stream
 listAODtoDPD.append(WriteDAOD_TAUP2Stream.StreamName)
 
 class WriteDAOD_TAUP3Stream(JobProperty):
-    """TAUP3 derivation"""
+    """TAUP3: Tau ID training on MC"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -798,7 +811,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TAUP3Stream
 listAODtoDPD.append(WriteDAOD_TAUP3Stream.StreamName)
 
 class WriteDAOD_TAUP4Stream(JobProperty):
-    """TAUP4 derivation"""
+    """TAUP4: Tau ID traning on Data"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -816,7 +829,7 @@ listAODtoDPD.append(WriteDAOD_TAUP4Stream.StreamName)
 #################################
 
 class WriteDAOD_SUSY1Stream(JobProperty):
-    """SUSY1 derivation"""
+    """SUSY1: 0-lepton"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -829,7 +842,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY1Stream
 listAODtoDPD.append(WriteDAOD_SUSY1Stream.StreamName)
 
 class WriteDAOD_SUSY2Stream(JobProperty):
-    """SUSY2 derivation"""
+    """SUSY2: Z+MET, EWK searches"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -842,7 +855,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY2Stream
 listAODtoDPD.append(WriteDAOD_SUSY2Stream.StreamName)
 
 class WriteDAOD_SUSY3Stream(JobProperty):
-    """SUSY3 derivation"""
+    """SUSY3: SUSY w tau"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -855,7 +868,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY3Stream
 listAODtoDPD.append(WriteDAOD_SUSY3Stream.StreamName)
 
 class WriteDAOD_SUSY4Stream(JobProperty):
-    """SUSY4 derivation"""
+    """SUSY4: multi-jet searches"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -868,7 +881,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY4Stream
 listAODtoDPD.append(WriteDAOD_SUSY4Stream.StreamName)
 
 class WriteDAOD_SUSY5Stream(JobProperty):
-    """SUSY5 derivation"""
+    """SUSY5: stop / strong 1-lepton"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -881,7 +894,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY5Stream
 listAODtoDPD.append(WriteDAOD_SUSY5Stream.StreamName)
 
 class WriteDAOD_SUSY6Stream(JobProperty):
-    """SUSY6 derivation"""
+    """SUSY6: pixel dE/dx"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -894,7 +907,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY6Stream
 listAODtoDPD.append(WriteDAOD_SUSY6Stream.StreamName)
 
 class WriteDAOD_SUSY7Stream(JobProperty):
-    """SUSY7 derivation"""
+    """SUSY7: b-jet"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -907,7 +920,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY7Stream
 listAODtoDPD.append(WriteDAOD_SUSY7Stream.StreamName)
 
 class WriteDAOD_SUSY8Stream(JobProperty):
-    """SUSY8 derivation"""
+    """SUSY8: SMP"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -920,7 +933,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY8Stream
 listAODtoDPD.append(WriteDAOD_SUSY8Stream.StreamName)
 
 class WriteDAOD_SUSY9Stream(JobProperty):
-    """SUSY9 derivation"""
+    """SUSY9: Low-pt Z+jets"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -933,7 +946,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY9Stream
 listAODtoDPD.append(WriteDAOD_SUSY9Stream.StreamName)
 
 class WriteDAOD_SUSY10Stream(JobProperty):
-    """SUSY10 derivation"""
+    """SUSY10: Gtt"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -946,7 +959,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY10Strea
 listAODtoDPD.append(WriteDAOD_SUSY10Stream.StreamName)
 
 class WriteDAOD_SUSY11Stream(JobProperty):
-    """SUSY11 derivation"""
+    """SUSY11: jet smearing"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -959,7 +972,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY11Strea
 listAODtoDPD.append(WriteDAOD_SUSY11Stream.StreamName)
 
 class WriteDAOD_SUSY12Stream(JobProperty):
-    """SUSY12 derivation"""
+    """SUSY12: stop -> c+LSP"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -972,7 +985,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY12Strea
 listAODtoDPD.append(WriteDAOD_SUSY12Stream.StreamName)
 
 class WriteDAOD_SUSY13Stream(JobProperty):
-    """SUSY13 derivation"""
+    """SUSY13: stop 1L"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -985,7 +998,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY13Strea
 listAODtoDPD.append(WriteDAOD_SUSY13Stream.StreamName)
 
 class WriteDAOD_SUSY14Stream(JobProperty):
-    """SUSY14 derivation"""
+    """SUSY14: stop 1L"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -998,7 +1011,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY14Strea
 listAODtoDPD.append(WriteDAOD_SUSY14Stream.StreamName)
 
 class WriteDAOD_SUSY15Stream(JobProperty):
-    """SUSY15 derivation"""
+    """SUSY15: Displaced vertex"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1011,7 +1024,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY15Strea
 listAODtoDPD.append(WriteDAOD_SUSY15Stream.StreamName)
 
 class WriteDAOD_SUSY16Stream(JobProperty):
-    """SUSY16 derivation"""
+    """SUSY16: Higgsino"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1024,7 +1037,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY16Strea
 listAODtoDPD.append(WriteDAOD_SUSY16Stream.StreamName)
 
 class WriteDAOD_SUSY17Stream(JobProperty):
-    """SUSY17 derivation"""
+    """SUSY17: stop 1-lepton R&D"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1037,7 +1050,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_SUSY17Strea
 listAODtoDPD.append(WriteDAOD_SUSY17Stream.StreamName)
 
 class WriteDAOD_SUSY18Stream(JobProperty):
-    """SUSY18 derivation"""
+    """SUSY18: Direct stau"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1054,7 +1067,7 @@ listAODtoDPD.append(WriteDAOD_SUSY18Stream.StreamName)
 #################################
 
 class WriteDAOD_EXOT0Stream(JobProperty):
-    """EXOT0 derivation"""
+    """EXOT0: dileptons"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1067,7 +1080,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT0Stream
 listAODtoDPD.append(WriteDAOD_EXOT0Stream.StreamName)
 
 #class WriteDAOD_EXOT1Stream(JobProperty):
-#    """EXOT1 derivation"""
+#    """EXOT1: obsolete"""
 #    statusOn = True
 #    allowedTypes = ['bool']
 #    StoredValue = False
@@ -1080,7 +1093,7 @@ listAODtoDPD.append(WriteDAOD_EXOT0Stream.StreamName)
 #listAODtoDPD.append(WriteDAOD_EXOT1Stream.StreamName)
 
 class WriteDAOD_EXOT2Stream(JobProperty):
-    """EXOT2 derivation"""
+    """EXOT2: dijets"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1093,7 +1106,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT2Stream
 listAODtoDPD.append(WriteDAOD_EXOT2Stream.StreamName)
 
 class WriteDAOD_EXOT3Stream(JobProperty):
-    """EXOT3 derivation"""
+    """EXOT3: diboson to dijets"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1106,7 +1119,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT3Stream
 listAODtoDPD.append(WriteDAOD_EXOT3Stream.StreamName)
 
 class WriteDAOD_EXOT4Stream(JobProperty):
-    """EXOT4 derivation"""
+    """EXOT4: ttbar resonances (lepton+jets), single VLQ production, VLQ opposite sign, VLQ pair production -> Wb+X"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1119,7 +1132,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT4Stream
 listAODtoDPD.append(WriteDAOD_EXOT4Stream.StreamName)
 
 class WriteDAOD_EXOT5Stream(JobProperty):
-    """EXOT5 derivation"""
+    """EXOT5: Monojets"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1132,7 +1145,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT5Stream
 listAODtoDPD.append(WriteDAOD_EXOT5Stream.StreamName)
 
 class WriteDAOD_EXOT6Stream(JobProperty):
-    """EXOT6 derivation"""
+    """EXOT6: mono-photon, gamma+jet, SM Z(nunu)g"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1145,7 +1158,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT6Stream
 listAODtoDPD.append(WriteDAOD_EXOT6Stream.StreamName)
 
 class WriteDAOD_EXOT7Stream(JobProperty):
-    """EXOT7 derivation"""
+    """EXOT7: ttbar res., monotop (HQT)"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1158,7 +1171,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT7Stream
 listAODtoDPD.append(WriteDAOD_EXOT7Stream.StreamName)
 
 class WriteDAOD_EXOT8Stream(JobProperty):
-    """EXOT8 derivation"""
+    """EXOT8: 4b"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1171,7 +1184,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT8Stream
 listAODtoDPD.append(WriteDAOD_EXOT8Stream.StreamName)
 
 class WriteDAOD_EXOT9Stream(JobProperty):
-    """EXOT9 derivation"""
+    """EXOT9: lepton + MET, leptoquarks"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1184,7 +1197,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT9Stream
 listAODtoDPD.append(WriteDAOD_EXOT9Stream.StreamName)
 
 class WriteDAOD_EXOT10Stream(JobProperty):
-    """EXOT10 derivation"""
+    """EXOT10: SUSY diphoton + MET, SUSY photon + jets + MET, SUSY C1N2 production with C1 -> W+N1(LSP), N2 -> h(->diphoton) + N1 (LSP)"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1197,7 +1210,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT10Strea
 listAODtoDPD.append(WriteDAOD_EXOT10Stream.StreamName)
 
 #class WriteDAOD_EXOT11Stream(JobProperty):
-#    """EXOT11 derivation"""
+#    """EXOT11: obsolete"""
 #    statusOn = True
 #    allowedTypes = ['bool']
 #    StoredValue = False
@@ -1210,7 +1223,7 @@ listAODtoDPD.append(WriteDAOD_EXOT10Stream.StreamName)
 #listAODtoDPD.append(WriteDAOD_EXOT11Stream.StreamName)
 
 class WriteDAOD_EXOT12Stream(JobProperty):
-    """EXOT12 derivation"""
+    """EXOT12: leptoquarks, SS dilepton, type III seesaw, lepton compositness/contact interaction, heavy neutrinos, heavy leptons"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1223,7 +1236,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT12Strea
 listAODtoDPD.append(WriteDAOD_EXOT12Stream.StreamName)
 
 class WriteDAOD_EXOT13Stream(JobProperty):
-    """EXOT13 derivation"""
+    """EXOT13: displaced lepton-jet"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1235,21 +1248,21 @@ class WriteDAOD_EXOT13Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT13Stream)
 listAODtoDPD.append(WriteDAOD_EXOT13Stream.StreamName)
 
-class WriteDAOD_EXOT14Stream(JobProperty):
-    """EXOT14 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_EXOT14'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT14.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT14Stream)
-listAODtoDPD.append(WriteDAOD_EXOT14Stream.StreamName)
+#class WriteDAOD_EXOT14Stream(JobProperty):
+#    """EXOT14: obsolete"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_EXOT14'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkExotics/EXOT14.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT14Stream)
+#listAODtoDPD.append(WriteDAOD_EXOT14Stream.StreamName)
 
 class WriteDAOD_EXOT15Stream(JobProperty):
-    """EXOT15 derivation"""
+    """EXOT15: MS-CR-ID vertices"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1262,7 +1275,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT15Strea
 listAODtoDPD.append(WriteDAOD_EXOT15Stream.StreamName)
 
 #class WriteDAOD_EXOT16Stream(JobProperty):
-#    """EXOT16 derivation"""
+#    """EXOT16: obsolete"""
 #    statusOn = True
 #    allowedTypes = ['bool']
 #    StoredValue = False
@@ -1275,7 +1288,7 @@ listAODtoDPD.append(WriteDAOD_EXOT15Stream.StreamName)
 #listAODtoDPD.append(WriteDAOD_EXOT16Stream.StreamName)
 
 class WriteDAOD_EXOT17Stream(JobProperty):
-    """EXOT17 derivation"""
+    """EXOT17: muon+MET, multicharge """
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1288,7 +1301,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT17Strea
 listAODtoDPD.append(WriteDAOD_EXOT17Stream.StreamName)
 
 #class WriteDAOD_EXOT18Stream(JobProperty):
-#    """EXOT18 derivation"""
+#    """EXOT18: obsolete"""
 #    statusOn = True
 #    allowedTypes = ['bool']
 #    StoredValue = False
@@ -1301,7 +1314,7 @@ listAODtoDPD.append(WriteDAOD_EXOT17Stream.StreamName)
 #listAODtoDPD.append(WriteDAOD_EXOT18Stream.StreamName)
 
 class WriteDAOD_EXOT19Stream(JobProperty):
-    """EXOT19 derivation"""
+    """EXOT19: leptoquarks, SS dilepton, type III seesaw (electron fakes)"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1314,7 +1327,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT19Strea
 listAODtoDPD.append(WriteDAOD_EXOT19Stream.StreamName)
 
 class WriteDAOD_EXOT20Stream(JobProperty):
-    """EXOT20 derivation"""
+    """EXOT20: displaced non-collimated dimuons"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1327,7 +1340,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT20Strea
 listAODtoDPD.append(WriteDAOD_EXOT20Stream.StreamName)
 
 class WriteDAOD_EXOT21Stream(JobProperty):
-    """EXOT21 derivation"""
+    """EXOT21: lepton-jet prompt"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1340,7 +1353,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT21Strea
 listAODtoDPD.append(WriteDAOD_EXOT21Stream.StreamName)
 
 class WriteDAOD_EXOT22Stream(JobProperty):
-    """EXOT22 derivation"""
+    """EXOT22: SS dilepton, type III seesaw (muon fakes)"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1353,7 +1366,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT22Strea
 listAODtoDPD.append(WriteDAOD_EXOT22Stream.StreamName)
 
 class WriteDAOD_EXOT23Stream(JobProperty):
-    """EXOT23 derivation"""
+    """EXOT23: emerging jets (runs on DAOD_RPVLL)"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1370,7 +1383,7 @@ listAODtoDPD.append(WriteDAOD_EXOT23Stream.StreamName)
 #################################
 
 class WriteDAOD_JETM1Stream(JobProperty):
-    """JETM1 derivation"""
+    """JETM1: dijet calibration, JES/JER, small&large R"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1383,7 +1396,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM1Stream
 listAODtoDPD.append(WriteDAOD_JETM1Stream.StreamName)
 
 class WriteDAOD_JETM2Stream(JobProperty):
-    """JETM2 derivation"""
+    """JETM2: W+j MET ana"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1396,7 +1409,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM2Stream
 listAODtoDPD.append(WriteDAOD_JETM2Stream.StreamName)
 
 class WriteDAOD_JETM3Stream(JobProperty):
-    """JETM3 derivation"""
+    """JETM3: Z+jets"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1409,7 +1422,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM3Stream
 listAODtoDPD.append(WriteDAOD_JETM3Stream.StreamName)
 
 class WriteDAOD_JETM4Stream(JobProperty):
-    """JETM4 derivation"""
+    """JETM4: gamma+jet"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1422,7 +1435,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM4Stream
 listAODtoDPD.append(WriteDAOD_JETM4Stream.StreamName)
 
 class WriteDAOD_JETM5Stream(JobProperty):
-    """JETM5 derivation"""
+    """JETM5: zero bias"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1435,7 +1448,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM5Stream
 listAODtoDPD.append(WriteDAOD_JETM5Stream.StreamName)
 
 class WriteDAOD_JETM6Stream(JobProperty):
-    """JETM6 derivation"""
+    """JETM6: jet substructure: top"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1448,7 +1461,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM6Stream
 listAODtoDPD.append(WriteDAOD_JETM6Stream.StreamName)
 
 class WriteDAOD_JETM7Stream(JobProperty):
-    """JETM7 derivation"""
+    """JETM7: top"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1461,7 +1474,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM7Stream
 listAODtoDPD.append(WriteDAOD_JETM7Stream.StreamName)
 
 class WriteDAOD_JETM8Stream(JobProperty):
-    """JETM8 derivation"""
+    """JETM8: jet substructure: gen"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1474,7 +1487,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM8Stream
 listAODtoDPD.append(WriteDAOD_JETM8Stream.StreamName)
 
 class WriteDAOD_JETM9Stream(JobProperty):
-    """JETM9 derivation"""
+    """JETM9: Many R values calibration"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1487,7 +1500,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM9Stream
 listAODtoDPD.append(WriteDAOD_JETM9Stream.StreamName)
 
 class WriteDAOD_JETM10Stream(JobProperty):
-    """JETM10 derivation"""
+    """JETM10: trigger MET rate study"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1500,7 +1513,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM10Strea
 listAODtoDPD.append(WriteDAOD_JETM10Stream.StreamName)
 
 class WriteDAOD_JETM11Stream(JobProperty):
-    """JETM11 derivation"""
+    """JETM11: trigger MET efficiency study"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1511,6 +1524,20 @@ class WriteDAOD_JETM11Stream(JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM11Stream)
 listAODtoDPD.append(WriteDAOD_JETM11Stream.StreamName)
+
+class WriteDAOD_JETM12Stream(JobProperty):
+    """JETM12: Tau E over p ana"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_JETM12'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkJetEtMiss/JETM12.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_JETM12Stream)
+listAODtoDPD.append(WriteDAOD_JETM12Stream.StreamName)
+
 
 #####################################
 # Defined by the inner tracking group
@@ -1671,7 +1698,7 @@ listAODtoDPD.append(WriteDAOD_EGAM9Stream.StreamName)
 ######################################
 
 class WriteDAOD_FTAG1Stream (JobProperty):
-     """FTAG1 derivation"""
+     """FTAG1: D*, negative tag"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1684,7 +1711,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG1Stream
 listAODtoDPD.append(WriteDAOD_FTAG1Stream.StreamName)
 
 class WriteDAOD_FTAG2Stream (JobProperty):
-     """FTAG2 derivation"""
+     """FTAG2: top dilepton"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1697,7 +1724,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG2Stream
 listAODtoDPD.append(WriteDAOD_FTAG2Stream.StreamName)
 
 class WriteDAOD_FTAG3Stream (JobProperty):
-     """FTAG3 derivation"""
+     """FTAG3: pTrel"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1710,7 +1737,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG3Stream
 listAODtoDPD.append(WriteDAOD_FTAG3Stream.StreamName)
 
 class WriteDAOD_FTAG4Stream (JobProperty):
-     """FTAG4 derivation"""
+     """FTAG4: Wc, single lep top"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1723,7 +1750,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG4Stream
 listAODtoDPD.append(WriteDAOD_FTAG4Stream.StreamName)
 
 class WriteDAOD_FTAG5Stream (JobProperty):
-    """FTAG5 derivation"""
+    """FTAG5: Xbb Studies"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1740,7 +1767,7 @@ listAODtoDPD.append(WriteDAOD_FTAG5Stream.StreamName)
 ######################################
 
 class WriteDAOD_BPHY1Stream (JobProperty):
-     """BPHY1 derivation"""
+     """BPHY1: dimuon"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1753,7 +1780,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY1Stream
 listAODtoDPD.append(WriteDAOD_BPHY1Stream.StreamName)
 
 class WriteDAOD_BPHY2Stream (JobProperty):
-     """BPHY2 derivation"""
+     """BPHY2: Bs-> Upsilon phi"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1766,7 +1793,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY2Stream
 listAODtoDPD.append(WriteDAOD_BPHY2Stream.StreamName)
 
 class WriteDAOD_BPHY3Stream (JobProperty):
-     """BPHY3 derivation"""
+     """BPHY3: di-track resonances (not in prod.)"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1779,7 +1806,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY3Stream
 listAODtoDPD.append(WriteDAOD_BPHY3Stream.StreamName)
 
 class WriteDAOD_BPHY4Stream (JobProperty):
-     """BPHY4 derivation"""
+     """BPHY4: charmed mesons"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1792,7 +1819,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY4Stream
 listAODtoDPD.append(WriteDAOD_BPHY4Stream.StreamName)
 
 class WriteDAOD_BPHY5Stream (JobProperty):
-     """BPHY5 derivation"""
+     """BPHY5: Bs->J/psi B+ -> J/psiK+; B_c"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1805,7 +1832,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY5Stream
 listAODtoDPD.append(WriteDAOD_BPHY5Stream.StreamName)
 
 class WriteDAOD_BPHY6Stream (JobProperty):
-     """BPHY6 derivation"""
+     """BPHY6: Trigger-based studies; like BPHY1, wider invariant mass window. Run on demand."""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1818,7 +1845,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY6Stream
 listAODtoDPD.append(WriteDAOD_BPHY6Stream.StreamName)
 
 class WriteDAOD_BPHY7Stream (JobProperty):
-     """BPHY7 derivation"""
+     """BPHY7: 3 muon"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1831,7 +1858,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY7Stream
 listAODtoDPD.append(WriteDAOD_BPHY7Stream.StreamName)
 
 class WriteDAOD_BPHY8Stream (JobProperty):
-     """BPHY8 derivation"""
+     """BPHY8: B(s) -> mumu & references"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1844,7 +1871,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY8Stream
 listAODtoDPD.append(WriteDAOD_BPHY8Stream.StreamName)
 
 class WriteDAOD_BPHY9Stream (JobProperty):
-     """BPHY9 derivation"""
+     """BPHY9: J/psi+vector"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1857,7 +1884,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY9Stream
 listAODtoDPD.append(WriteDAOD_BPHY9Stream.StreamName)
 
 class WriteDAOD_BPHY10Stream (JobProperty):
-     """BPHY10 derivation"""
+     """BPHY10: Bd->J/psiK*"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1870,7 +1897,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY10Strea
 listAODtoDPD.append(WriteDAOD_BPHY10Stream.StreamName)
 
 class WriteDAOD_BPHY11Stream (JobProperty):
-     """BPHY11 derivation"""
+     """BPHY11: pentaquark analyses"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1883,7 +1910,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY11Strea
 listAODtoDPD.append(WriteDAOD_BPHY11Stream.StreamName)
 
 class WriteDAOD_BPHY12Stream (JobProperty):
-     """BPHY12 derivation"""
+     """BPHY12: B->K*mumu"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1896,7 +1923,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY12Strea
 listAODtoDPD.append(WriteDAOD_BPHY12Stream.StreamName)
 
 class WriteDAOD_BPHY15Stream (JobProperty):
-     """BPHY15 derivation"""
+     """BPHY15: Bc->J/psi D"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1913,7 +1940,7 @@ listAODtoDPD.append(WriteDAOD_BPHY15Stream.StreamName)
 ######################################
 
 class WriteDAOD_MUON0Stream (JobProperty):
-     """MUON0 derivation"""
+     """MUON0: General MCP use"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1926,7 +1953,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON0Stream
 listAODtoDPD.append(WriteDAOD_MUON0Stream.StreamName)
 
 class WriteDAOD_MUON1Stream (JobProperty):
-     """MUON1 derivation"""
+     """MUON1: Z to mumu"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1939,7 +1966,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON1Stream
 listAODtoDPD.append(WriteDAOD_MUON1Stream.StreamName)
 
 class WriteDAOD_MUON2Stream (JobProperty):
-     """MUON2 derivation"""
+     """MUON2: J/psi->mumu"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1952,7 +1979,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON2Stream
 listAODtoDPD.append(WriteDAOD_MUON2Stream.StreamName)
 
 class WriteDAOD_MUON3Stream (JobProperty):
-     """MUON3 derivation"""
+     """MUON3: J/psi & Upsilon"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False
@@ -1965,7 +1992,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_MUON3Stream
 listAODtoDPD.append(WriteDAOD_MUON3Stream.StreamName)
 
 class WriteDAOD_MUON4Stream (JobProperty):
-     """MUON4 derivation"""
+     """MUON4: MC only"""
      statusOn = True
      allowedTypes = ['bool']
      StoredValue = False

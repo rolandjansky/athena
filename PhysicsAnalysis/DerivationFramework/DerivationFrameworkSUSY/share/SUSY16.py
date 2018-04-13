@@ -113,7 +113,7 @@ SUSY16MuonCCThinningTool = DerivationFramework__CaloClusterThinning(
     ThinningService         = SUSY16ThinningHelper.ThinningSvc(),
     SGKey                   = "Muons",
     TopoClCollectionSGKey   = "CaloCalTopoClusters",
-    SelectionString         = "Muons.pt > 3*GeV",
+    SelectionString         = "Muons.pt > 2.5*GeV",
     ConeSize                = 0.4)
 ToolSvc += SUSY16MuonCCThinningTool
 thinningTools.append(SUSY16MuonCCThinningTool)
@@ -173,7 +173,7 @@ if DerivationFrameworkIsMonteCarlo:
 
 # ------------------------------------------------------------
 # Lepton selection
-muonsRequirements = '(Muons.pt > 3*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
+muonsRequirements = '(Muons.pt > 2.5*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 3*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
 leptonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 2)'
 expression='('+leptonSelection+')'

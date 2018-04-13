@@ -1,0 +1,22 @@
+<lcgdict>
+<!-- <class name="JetBadChanCorrTool.h"/> -->
+<!-- <class name="JetCaloQualityTool.h"/> -->
+<!-- <class name="JetIsolationTool.h"/> -->
+<!-- <class name="JetVoronoiDiagramHelpers.h"/> -->
+<!-- <class name="JetVoronoiMomentsTool.h"/> -->
+<class name="JetCaloEnergies.h"/>
+<class name="JetClusterMomentsTool.h"/>
+<class name="JetConstitFourMomTool.h"/>
+<class name="JetECPSFractionTool.h"/>
+<class name="JetForwardJvtTool.h"/>
+<class name="JetLArHVTool.h"/>
+<class name="JetMuonSegmentMomentsTool.h"/>
+<class name="JetOriginCorrectionTool.h"/>
+<class name="JetPtAssociationTool.h"/>
+<class name="JetTrackMomentsTool.h"/>
+<class name="JetTrackSumMomentsTool.h"/>
+<class name="JetVertexFractionTool.h"/>
+<class name="JetVertexTaggerTool.h"/>
+<class name="JetWidthTool.h"/>
+
+</lcgdict>

@@ -36,7 +36,7 @@ namespace CP {
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
     declareProperty("SmearingType", m_type = "q_pT" );
-    declareProperty("Release", m_release = "Recs2016_15_07" );
+    declareProperty("Release", m_release = "Recs2017_08_02" );
     declareProperty("ToroidOff", m_toroidOff = false );
     declareProperty("FilesPath", m_FilesPath = "" );
     declareProperty("StatComb", m_useStatComb = false);
@@ -161,7 +161,7 @@ namespace CP {
     declareProperty( "Year", m_year = "Data16" );
     declareProperty( "Algo", m_algo = "muons" );
     declareProperty( "SmearingType", m_type = "q_pT" );
-    declareProperty( "Release", m_release = "Recs2016_15_07" );
+    declareProperty( "Release", m_release = "Recs2017_08_02" );
     declareProperty( "ToroidOff", m_toroidOff = false );
     declareProperty( "FilesPath", m_FilesPath = "" );
 
@@ -293,7 +293,7 @@ namespace CP {
       ATH_MSG_INFO("Will be correcting the sagitta for data ");
     }
 
-    if(m_Tdata == MCAST::DataType::Data16 && ( m_doSagittaCorrection || m_doSagittaMCDistortion) ){
+    if(m_Tdata >= MCAST::DataType::Data15    && ( m_doSagittaCorrection || m_doSagittaMCDistortion) ){
       m_GlobalZScales.clear();
       m_GlobalZScales.push_back(90.2893);  m_GlobalZScales.push_back(90.4996);    m_GlobalZScales.push_back(90.1407);
 
@@ -677,6 +677,7 @@ namespace CP {
         double sigmaID = ExpectedResolution( MCAST::DetectorType::ID, mu, true ) * muonInfo.ptcb;
         double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, true ) * muonInfo.ptcb;
         double denominator = (  muonInfo.ptcb  ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
+        //double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
         double res= denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
 
         if(m_currentParameters->SagittaRho==MCAST::SystVariation::Up){
@@ -1229,7 +1230,7 @@ namespace CP {
   SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
 
     // First check if we already know this systematic configuration
-    boost::unordered_map< SystematicSet, ParameterSet >::iterator parIter = m_Parameters.find( systConfig );
+    std::unordered_map< SystematicSet, ParameterSet >::iterator parIter = m_Parameters.find( systConfig );
     if( parIter != m_Parameters.end() ) {
       m_currentParameters = &parIter->second;
       return SystematicCode::Ok;
@@ -1381,6 +1382,9 @@ namespace CP {
     else if( data == "Data16" ) {
       m_Tdata = MCAST::DataType::Data16;
     }
+    else if( data == "Data17" ) {
+      m_Tdata = MCAST::DataType::Data17;
+    }
     else {
       ATH_MSG_ERROR( "Unrecognized value for SetData" );
       return StatusCode::FAILURE;
@@ -1471,9 +1475,12 @@ namespace CP {
     else if (rel == "Recs2016_15_07") {
       m_Trel = MCAST::Release::Recs2016_08_07;
     }
+    else if (rel == "Recs2017_08_02") {
+      m_Trel = MCAST::Release::Recs2017_08_02;
+    }
     else {
-      m_Trel = MCAST::Release::Recs2016_08_07;
-      //ATH_MSG_ERROR( "Unrecognized value for SetRelease" );
+      m_Trel = MCAST::Release::Recs2017_08_02;
+      ATH_MSG_DEBUG( "Unrecognized value for SetRelease, using Recs2017_08_02" );
       //return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
@@ -2113,7 +2120,8 @@ namespace CP {
       double sigmaMS = ExpectedResolution( MCAST::DetectorType::MS, mu, mc ) * loc_ptms;
       ATH_MSG_VERBOSE("sigmaID,sigmaMS = "<<sigmaID<<"  "<<sigmaMS);
       double denominator = ( loc_ptcb ) * sqrt( sigmaID*sigmaID + sigmaMS*sigmaMS );
-      return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+      //return denominator ? sqrt( 2. ) * sigmaID * sigmaMS / denominator : 0.;
+      return denominator ?  sigmaID * sigmaMS / denominator : 0.;
     }
     else {
       ATH_MSG_ERROR( "wrong DetType in input "<<DetType );

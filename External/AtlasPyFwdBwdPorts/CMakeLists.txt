@@ -196,5 +196,11 @@ _setup_python_package( simplejson
    ${CMAKE_CURRENT_SOURCE_DIR}/src/simplejson-2.1.6.tar.gz
    2f8351f6e6fe7ef25744805dfa56c0d5 )
 
+# Install scandir:
+_setup_python_package( scandir
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/scandir-1.6.tar.gz
+   0180ddb97c96cbb2d4f25d2ae11c64ac
+   )
+
 # Clean up:
 unset( _setup_python_package )

@@ -20,15 +20,18 @@
 #include "xAODPFlow/PFO.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
+#include "xAODPFlow/TrackCaloCluster.h"
+#include "xAODPFlow/TrackCaloClusterContainer.h"
+#include "xAODPFlow/TrackCaloClusterAuxContainer.h"
 
-JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name), m_trigInputClusters(NULL), m_trigOutputClusters(NULL) {
+JetConstituentModSequence::JetConstituentModSequence(const std::string &name): asg::AsgTool(name), m_trigInputConstits(NULL), m_trigOutputConstits(NULL) {
 
 #ifdef ASG_TOOL_ATHENA
   declareInterface<IJetConstituentModifier>(this);
 #endif
   declareProperty("InputContainer", m_inputContainer, "The input container for the sequence.");
   declareProperty("OutputContainer", m_outputContainer, "The output container for the sequence.");
-  declareProperty("InputType", m_inputTypeName, "The xAOD type name for the input container.");
+  declareProperty("InputType", m_inputType, "The xAOD type name for the input container.");
   declareProperty("Modifiers", m_modifiers, "List of IJet tools.");
   declareProperty("Trigger", m_trigger=false);
   declareProperty("SaveAsShallow", m_saveAsShallow=true, "Save as shallow copy");
@@ -42,12 +45,15 @@ StatusCode JetConstituentModSequence::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if(m_inputTypeName == "CaloCluster") m_inputType =  xAOD::Type::CaloCluster;
-  else if(m_inputTypeName == "TruthParticle") m_inputType =  xAOD::Type::TruthParticle;
-  else if(m_inputTypeName == "TrackParticle") m_inputType = xAOD::Type::TrackParticle;
-  else if(m_inputTypeName == "ParticleFlow") m_inputType = xAOD::Type::ParticleFlow;
-  else {
-    ATH_MSG_ERROR(" Unkonwn input type "<< m_inputType );
+  switch(m_inputType) {
+  case xAOD::Type::CaloCluster:
+    break;
+  case xAOD::Type::ParticleFlow:
+    break;
+  case xAOD::Type::TrackCaloCluster:
+    break;
+  default:
+    ATH_MSG_ERROR(" Unsupported input type "<< m_inputType );
     return StatusCode::FAILURE;
   }
   
@@ -55,13 +61,18 @@ StatusCode JetConstituentModSequence::initialize() {
 }
   
 int JetConstituentModSequence::execute() const {
-  const xAOD::IParticleContainer* cont = 0;
-  if (!m_trigger)
-    ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
-  else
-    cont = m_trigInputClusters;
+  const xAOD::IParticleContainer* cont = nullptr;
+  if (!m_trigger) {
+    if(m_inputType != xAOD::Type::ParticleFlow) {
+      ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
+    }
+  } else {
+    cont = m_trigInputConstits;
+  }
 
-  xAOD::IParticleContainer* modifiedCont = 0;
+  xAOD::IParticleContainer* modifiedCont = nullptr;
+  xAOD::PFOContainer* chargedCopy(nullptr);
+  xAOD::PFOContainer* neutralCopy(nullptr);
 
   // Create the shallow copy according to the input type
   switch(m_inputType){
@@ -79,13 +90,45 @@ int JetConstituentModSequence::execute() const {
 
 
   case xAOD::Type::ParticleFlow : {
-    modifiedCont = copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(cont, !m_trigger);
+    const xAOD::PFOContainer *charged(nullptr);
+    const xAOD::PFOContainer *neutral(nullptr);
+    ATH_CHECK( evtStore()->retrieve(charged, m_inputContainer+"ChargedParticleFlowObjects") );
+    ATH_CHECK( evtStore()->retrieve(neutral, m_inputContainer+"NeutralParticleFlowObjects") );
+
+    chargedCopy = static_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(charged, !m_trigger, "ChargedParticleFlowObjects"));
+    neutralCopy = static_cast<xAOD::PFOContainer *>(copyAndRecord<xAOD::PFOContainer, xAOD::PFOAuxContainer, xAOD::PFO>(neutral, !m_trigger, "NeutralParticleFlowObjects"));
+
+    if(!chargedCopy || !neutralCopy) {
+      ATH_MSG_ERROR("Unable to record output collections for " << m_outputContainer+"*ParticleFlowObjects" );
+      return 1;
+    }
+
+    xAOD::PFOContainer* tmpCont = new xAOD::PFOContainer(SG::VIEW_ELEMENTS);
+    for ( xAOD::PFO* pfo: *chargedCopy){
+      tmpCont->push_back(pfo);
+    }
+    for ( xAOD::PFO* pfo: *neutralCopy){
+      tmpCont->push_back(pfo);
+    }
+    modifiedCont=tmpCont;
+
+    if(!m_trigger){
+      if( evtStore()->record(tmpCont, m_outputContainer+"ParticleFlowObjects").isFailure() ){
+        ATH_MSG_ERROR("Unable to record output collections " << m_outputContainer+"*ParticleFlowObjects" );
+        return 1;
+      }
+    }
     break; }
+    case xAOD::Type::TrackCaloCluster : {
+    modifiedCont = copyAndRecord<xAOD::TrackCaloClusterContainer, xAOD::TrackCaloClusterAuxContainer, xAOD::TrackCaloCluster>(cont, !m_trigger);
+    break;}
+
+
 
   default: {
     ATH_MSG_WARNING( "Unsupported input type " << m_inputType );
   }
-    
+
 
   }
 
@@ -103,15 +146,28 @@ int JetConstituentModSequence::execute() const {
       return 1;
     }
   }
+
+#ifndef XAOD_STANDALONE
+  if(!m_trigger) {
+    ATH_CHECK( evtStore()->setConst(modifiedCont) );
+    if(m_inputType == xAOD::Type::ParticleFlow) {
+      ATH_CHECK( evtStore()->setConst(chargedCopy) );
+      ATH_CHECK( evtStore()->setConst(neutralCopy) );
+    }
+  }
+#endif
+
+  //To prevent memory leak when modified PFO are not recorded to event store
+  if(m_inputType == xAOD::Type::ParticleFlow && m_trigger) delete modifiedCont;
   
   return 0;
 }
 
 void JetConstituentModSequence::setInputClusterCollection(const xAOD::IParticleContainer *cont) {
-	m_trigInputClusters = cont;
+	m_trigInputConstits = cont;
 }
 
 xAOD::IParticleContainer* JetConstituentModSequence::getOutputClusterCollection() {
-    return m_trigOutputClusters;
+    return m_trigOutputConstits;
 }
 

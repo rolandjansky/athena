@@ -23,7 +23,7 @@
 #include "xAODTau/DiTauJetContainer.h"
 
 // Local include(s):
-#include "tauRecTools/IDiTauDiscriminantTool.h"
+#include "tauRecTools/IDiTauToolBase.h"
 
 // MVAUtils includes
 #include "MVAUtils/BDT.h"
@@ -37,12 +37,12 @@ namespace tauRecTools
 
 
 class DiTauDiscriminantTool
-  : public tauRecTools::IDiTauDiscriminantTool
+  : public tauRecTools::IDiTauToolBase
   , public asg::AsgTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( DiTauDiscriminantTool,
-                  tauRecTools::IDiTauDiscriminantTool )
+                  tauRecTools::IDiTauToolBase )
 
 public:
 
@@ -51,23 +51,29 @@ public:
   virtual ~DiTauDiscriminantTool();
 
   // initialize the tool
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  // set pointer to event
-  virtual StatusCode initializeEvent();
+  // get ID score depricated
+  double getJetBDTScore(const xAOD::DiTauJet& xDiTau);
 
-  // get ID score
-  virtual double getJetBDTScore(const xAOD::DiTauJet& xDiTau);
-
+  // calculate and decorate BDTJetScore
+  virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) override;
+  
+  // get decay mode
+  virtual std::string getDecayMode() override;
+  
 private:
 
   StatusCode parseWeightsFile();
 
   void setIDVariables(const xAOD::DiTauJet& xDiTau);
 
+  const xAOD::DiTauJetContainer* m_xDiTauContainer;
+
   // steering variables
   std::string m_sWeightsFile;
-
+  std::string m_sBDTScoreName;
+  
   MVAUtils::BDT* m_bdt; //!
 
   std::map<TString, float*> m_mIDVariables; //!
@@ -76,6 +82,11 @@ private:
   inline float& setVar(const TString& var) { return *(m_mIDVariables[var]); } //!< not-stateless, many such examples need to be fixed for r22
 
   std::vector<std::string> m_vVarNames;
+private:
+  double GeV = 1000.;
+  enum DecayMode{ HadHad, HadMu, HadEl, Default };
+  std::string m_sDecayMode;
+  DecayMode m_eDecayMode;
 }; // class DiTauDiscriminantTool
 
 }

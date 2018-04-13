@@ -22,6 +22,7 @@
 - PhysicsAnalysis/D3PDTools/EventLoop
 - PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
 - PhysicsAnalysis/AnalysisCommon/PMGTools
+- PhysicsAnalysis/AnalysisCommon/HDF5Utils
 - PhysicsAnalysis/D3PDTools/EventLoop
 - PhysicsAnalysis/D3PDTools/EventLoopAlgs
 - PhysicsAnalysis/D3PDTools/EventLoopGrid

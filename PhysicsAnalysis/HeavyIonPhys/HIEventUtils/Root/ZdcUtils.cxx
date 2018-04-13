@@ -34,7 +34,7 @@ namespace ZDC
     return amplitude;
   }
 
-  float getAmplitudeSum(const xAOD::ZdcModuleContainer* in, std::function<bool (const xAOD::ZdcModule*)> incFunction, std::string suffix)
+  float getAmplitudeSum(const xAOD::ZdcModuleContainer* in, std::function<bool (const xAOD::ZdcModule*)> incFunction, std::string /*suffix*/)
   {
     float amplitude = 0;
     for (const auto zm : *in)

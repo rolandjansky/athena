@@ -125,14 +125,7 @@ int main( int argc, char* argv[] ) {
 
   //::: Decide how many events to run over:
   Long64_t entries = event.getEntries();
-
-  //if( argc > 2 ) {
-  // const Long64_t e = atoll( argv[ 2 ] );
-  //if( e < entries ) {
-  //  entries = e;
-  //}
-  //}
-
+ 
   ////////////////////////////////////////////////////
   //::: MuonCalibrationAndSmearingTool
   // setup the tool handle as per the
@@ -141,34 +134,31 @@ int main( int argc, char* argv[] ) {
   //::: create the tool handle
   asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> corrTool; //!
   corrTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/MuonCorrectionTool");
-
-  //::: set the properties
-  corrTool.setProperty("Year",                  "Data16" );
-//   corrTool.setProperty("Algo",                  "muons" );
-//   corrTool.setProperty("SmearingType",          "q_pT" );
-//   corrTool.setProperty("Release",               "Recs2016_15_07" );
-//   corrTool.setProperty("ToroidOff",             false );
-//   corrTool.setProperty("FilesPath",             "" );
-  corrTool.setProperty("StatComb",              true);
-//   corrTool.setProperty("MinCombPt",             300.0);
-  corrTool.setProperty("SagittaCorr",           true);
+    //::: set the properties
+  corrTool.setProperty("Year",                  "Data17" );
+  //   corrTool.setProperty("Algo",                  "muons" );
+  //   corrTool.setProperty("SmearingType",          "q_pT" );
+  corrTool.setProperty("Release",               "Recs2017_08_02" );
+  //   corrTool.setProperty("ToroidOff",             false );
+  //   corrTool.setProperty("FilesPath",             "" );
+  corrTool.setProperty("StatComb",              false);
+  //   corrTool.setProperty("MinCombPt",             300.0);
+  corrTool.setProperty("SagittaCorr",           false);
   corrTool.setProperty("SagittaRelease",        "sagittaBiasDataAll_25_07_17");
-  corrTool.setProperty("doSagittaMCDistortion", false);
-//   corrTool.setProperty("SagittaCorrPhaseSpace", false);
-//   corrTool.setProperty("sgItersCB",             11);
-//   corrTool.setProperty("sgItersID",             11);
-//   corrTool.setProperty("sgItersME",             11);
-//   corrTool.setProperty("sgIetrsMamual",         false);
-//   corrTool.setProperty("fixedRho",              1.0);
-//   corrTool.setProperty("useFixedRho",           false);
+  corrTool.setProperty("doSagittaMCDistortion", true);
+  //   corrTool.setProperty("SagittaCorrPhaseSpace", false);
+  //   corrTool.setProperty("sgItersCB",             11);
+  //   corrTool.setProperty("sgItersID",             11);
+  //   corrTool.setProperty("sgItersME",             11);
+  //   corrTool.setProperty("sgIetrsMamual",         false);
+  //   corrTool.setProperty("fixedRho",              1.0);
+  //   corrTool.setProperty("useFixedRho",           false);
   corrTool.setProperty("noEigenDecor" ,         false);
-//   corrTool.setProperty("useExternalSeed" ,      false);
-//   corrTool.setProperty("externalSeed" ,         0);
-
+  //   corrTool.setProperty("useExternalSeed" ,      false);
+  //   corrTool.setProperty("externalSeed" ,         0);
+  
   //::: retrieve the tool
   corrTool.retrieve();
-
-
 
   ////////////////////////////////////////////////////
   //::: MuonSelectionTool

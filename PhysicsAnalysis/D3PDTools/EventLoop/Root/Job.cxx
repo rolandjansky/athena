@@ -103,7 +103,7 @@ namespace EL
   void swap (Job& a, Job& b)
   {
     swap (a.m_sampleHandler, b.m_sampleHandler);
-    swap (a.m_algs, b.m_algs);
+    a.m_jobConfig.swap (b.m_jobConfig);
     swap (a.m_output, b.m_output);
   }
 
@@ -113,8 +113,6 @@ namespace EL
   testInvariant () const
   {
     RCU_INVARIANT (this);
-    for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-      RCU_INVARIANT (m_algs[iter] != 0);
   }
 
 
@@ -134,17 +132,10 @@ namespace EL
     : m_sampleHandler ((RCU_READ_INVARIANT (&that),
 			that.m_sampleHandler)),
       m_output (that.m_output),
-      m_options (that.m_options)
+      m_options (that.m_options),
+      m_jobConfig (that.m_jobConfig)
   {
     RCU_NEW_INVARIANT (this);
-
-    m_algs.reserve (that.m_algs.size());
-    for (algsIter alg = that.m_algs.begin(), end = that.m_algs.end();
-	 alg != end; ++ alg)
-    {
-      m_algs.push_back (dynamic_cast<Algorithm*>((*alg)->Clone()));
-      RCU_ASSERT (m_algs.back() != 0);
-    }
   }
 
 
@@ -153,9 +144,6 @@ namespace EL
   ~Job ()
   {
     RCU_DESTROY_INVARIANT (this);
-
-    for (std::size_t iter = 0, end = m_algs.size(); iter != end; ++ iter)
-      delete m_algs[iter];
   }
 
 
@@ -189,20 +177,43 @@ namespace EL
 
 
 
-  Job::algsIter Job ::
-  algsBegin () const
+  void Job ::
+  algsAdd (std::unique_ptr<Algorithm> val_algorithm)
   {
-    RCU_READ_INVARIANT (this);
-    return m_algs.begin();
-  }
+    using namespace msgEventLoop;
+
+    RCU_CHANGE_INVARIANT (this);
+    RCU_REQUIRE_SOFT (val_algorithm != nullptr);
 
 
+    std::string myname = val_algorithm->GetName();
+    if (myname.empty() || algsHas (myname))
+    {
+      if (myname.empty())
+        myname = "UnnamedAlgorithm";
+      bool unique = false;
+      for (unsigned iter = 1; !unique; ++ iter)
+      {
+        std::ostringstream str;
+        str << myname << iter;
+        if (!algsHas (str.str()))
+        {
+          myname = str.str();
+          unique = true;
+        }
+      }
+      if (strlen (val_algorithm->GetName()) > 0)
+        ANA_MSG_WARNING ("renaming algorithm " << val_algorithm->GetName() << " to " << myname << " to make the name unique");
+      val_algorithm->SetName (myname.c_str());
+      if (val_algorithm->GetName() != myname)
+      {
+        std::ostringstream message;
+        message << "failed to rename algorithm " << val_algorithm->GetName() << " to " << myname;
+        RCU_THROW_MSG (message.str());
+      }
+    }
 
-  Job::algsIter Job ::
-  algsEnd () const
-  {
-    RCU_READ_INVARIANT (this);
-    return m_algs.end();
+    ANA_CHECK_THROW (m_jobConfig.addAlgorithm (std::move (val_algorithm)));
   }
 
 
@@ -212,7 +223,7 @@ namespace EL
   {
     using namespace msgEventLoop;
 
-    std::auto_ptr<Algorithm> alg (alg_swallow);
+    std::unique_ptr<Algorithm> alg (alg_swallow);
 
     RCU_CHANGE_INVARIANT (this);
     RCU_REQUIRE_SOFT (alg_swallow != 0);
@@ -245,8 +256,7 @@ namespace EL
     }
 
     alg->sysSetupJob (*this);
-    m_algs.push_back (alg.get());
-    alg.release();
+    ANA_CHECK_THROW (m_jobConfig.addAlgorithm (std::move (alg)));
   }
 
 
@@ -273,13 +283,7 @@ namespace EL
   algsHas (const std::string& name) const
   {
     RCU_READ_INVARIANT (this);
-    for (algsIter alg = algsBegin(), end = algsEnd();
-	 alg != end; ++ alg)
-    {
-      if ((*alg)->GetName() == name)
-	return true;
-    }
-    return false;
+    return m_jobConfig.getAlgorithm (name) != nullptr;
   }
 
 
@@ -370,5 +374,14 @@ namespace EL
   {
     RCU_READ_INVARIANT (this);
     return &m_options;
+  }
+
+
+
+  const JobConfig& Job ::
+  jobConfig () const noexcept
+  {
+    RCU_READ_INVARIANT (this);
+    return m_jobConfig;
   }
 }

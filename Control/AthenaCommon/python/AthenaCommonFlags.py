@@ -90,21 +90,28 @@ class AccessMode(JobProperty):
 
     def _do_action( self, *args, **kwds ):
         import AppMgr
-        if hasattr(AppMgr.ServiceMgr,"EventSelector"):
-            del AppMgr.ServiceMgr.EventSelector
-        if self.StoredValue=="ClassAccess":
-            import AthenaRootComps.ReadAthenaxAODHybrid
-            AppMgr.ServiceMgr.EventSelector.AccessMode = 1
-        elif self.StoredValue=="BranchAccess":
-            import AthenaRootComps.ReadAthenaxAODHybrid
-            AppMgr.ServiceMgr.EventSelector.AccessMode = 0
-        elif self.StoredValue=="AthenaAccess":
-            import AthenaRootComps.ReadAthenaxAODHybrid
-            AppMgr.ServiceMgr.EventSelector.AccessMode = 2
+
+        if self.StoredValue in ["ClassAccess","AthenaAccess","BranchAccess"]:
+            if hasattr(AppMgr.ServiceMgr,"EventSelector"):
+                if AppMgr.ServiceMgr.EventSelector.getType()!="Athena::xAODEventSelector": 
+                    raise ValueError("Cannot switch to %s mode with existing EventSelector of type %s" % (self.StoredValue,AppMgr.ServiceMgr.EventSelector.getType()) )
+            else:
+                import AthenaRootComps.ReadAthenaxAODHybrid
+            if self.StoredValue=="ClassAccess": AppMgr.ServiceMgr.EventSelector.AccessMode = 1
+            elif self.StoredValue=="BranchAccess": AppMgr.ServiceMgr.EventSelector.AccessMode = 0
+            elif self.StoredValue=="AthenaAccess": AppMgr.ServiceMgr.EventSelector.AccessMode = 2
         elif self.StoredValue=="POOLAccess":
-            import AthenaPoolCnvSvc.ReadAthenaPool
+            if hasattr(AppMgr.ServiceMgr,"EventSelector"):
+                if AppMgr.ServiceMgr.EventSelector.getType()!="EventSelectorAthenaPool": 
+                    raise ValueError("Cannot switch to %s mode with existing EventSelector of type %s" % (self.StoredValue,AppMgr.ServiceMgr.EventSelector.getType()) )
+            else:
+                import AthenaPoolCnvSvc.ReadAthenaPool
         elif self.StoredValue=="TreeAccess":
-            import AthenaRootComps.ReadAthenaRoot
+            if hasattr(AppMgr.ServiceMgr,"EventSelector"):
+                if AppMgr.ServiceMgr.EventSelector.getType()!="Athena::RootNtupleEventSelector": 
+                    raise ValueError("Cannot switch to %s mode with existing EventSelector of type %s" % (self.StoredValue,AppMgr.ServiceMgr.EventSelector.getType()) )
+            else:
+                import AthenaRootComps.ReadAthenaRoot
             AppMgr.ServiceMgr.EventSelector.TupleName = jobproperties.AthenaCommonFlags.TreeName()
 
 

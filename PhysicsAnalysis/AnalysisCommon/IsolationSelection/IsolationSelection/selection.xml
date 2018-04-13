@@ -4,6 +4,7 @@
   <class name="CP::IsolationWP" />
   <class name="CP::IsolationCondition" />
   <class name="CP::IsolationConditionFormula" />
+  <class name="CP::IsolationConditionCombined" />
   <class name="CP::IsolationConditionHist" />
   <class name="Interp3D" />
   <class name="CP::IsolationCloseByCorrectionTool" />

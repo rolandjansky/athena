@@ -57,9 +57,9 @@ if isMC:
 # dataSource = 1:  fullsim in ST__SUSYObjDef_xAOD
 # dataSource = 2:  AtlFastII in ST__SUSYObjDef_xAOD
 
-if isMC:  
+if isMC:
     isData = 0
-    if isFullSim: 
+    if isFullSim:
         dataSource = 1
     else:
         dataSource = 2
@@ -92,7 +92,7 @@ from AthenaCommon import CfgMgr
 AST99Job = CfgMgr.AthSequencer("AthAlgSeq")
 
 # Add a tool for thinning derivations
-AST99Job += CfgMgr.xAODMaker__AuxStoreWrapper("AST99AuxStoreWrapperAlg", 
+AST99Job += CfgMgr.xAODMaker__AuxStoreWrapper("AST99AuxStoreWrapperAlg",
                                               SGKeys = auxList,
                                               OutputLevel = INFO)
 
@@ -121,7 +121,6 @@ skimmingTools = []
 AST99ObjDef = CfgMgr.ST__SUSYObjDef_xAOD("AST99ObjDef",
                                          DataSource = dataSource,
                                          ConfigFile = "SUSYTools/SUSYTools_Default.conf",
-                                         JESNuisanceParameterSet = 1, 
                                          PRWConfigFiles = [
                                          "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root",
                                          "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"],
@@ -130,7 +129,7 @@ AST99ObjDef = CfgMgr.ST__SUSYObjDef_xAOD("AST99ObjDef",
 ToolSvc += AST99ObjDef
 
 # For tau CP tools need to run TauTruthMatchingTool. Should be provided
-# by most derivations but NOT in xAOD. 
+# by most derivations but NOT in xAOD.
 # Can avoid by using SkipTruthMatchCheck = True.
 
 ### Not needed for 2.4?
@@ -200,7 +199,7 @@ applyST = CfgMgr.ST__ApplySUSYTools(
                           MaxCount = 10,
                          SUSYTools = ToolSvc.AST99ObjDef,
               TauTruthMatchingTool = AST99tauTruthTool,
-                    #BuildTruthTaus = AST99tauBuildTruthTaus, 
+                    #BuildTruthTaus = AST99tauBuildTruthTaus,
                        ThinningSvc = "AST99ThinningSvc",
                        OutputLevel = Lvl.INFO)
 AST99Job += applyST

@@ -25,7 +25,7 @@
 #include <string>
 #include <memory>
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 namespace CP {
     class MuonEfficiencyScaleFactors: virtual public CP::IMuonEfficiencyScaleFactors, public asg::AsgTool {
@@ -116,7 +116,7 @@ namespace CP {
             void SetupCheckSystematicSets();
             /// the working point to operate on
             std::string m_wp;
-            boost::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr> m_sf_sets;
+            std::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr> m_sf_sets;
 
             EffiCollection_Ptr m_current_sf;
 

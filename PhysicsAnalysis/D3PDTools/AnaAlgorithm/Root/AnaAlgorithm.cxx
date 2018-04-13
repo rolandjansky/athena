@@ -44,6 +44,10 @@ namespace EL
     : AthHistogramAlgorithm (name, pSvcLocator)
 #endif
   {
+#ifdef ROOTCORE
+     msg().declarePropertyFor (*this);
+#endif
+
     ANA_MSG_DEBUG ("AnaAlgorithm: " << name);
   }
 
@@ -229,6 +233,14 @@ namespace EL
     if (m_wk)
       throw std::logic_error ("set wk twice on algorithm " + name());
     m_wk = val_wk;
+  }
+
+
+
+  void AnaAlgorithm ::
+  addCleanup (const std::shared_ptr<void>& cleanup)
+  {
+    m_cleanup.push_back (cleanup);
   }
 
 

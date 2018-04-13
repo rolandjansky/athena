@@ -119,6 +119,10 @@ class TopConfig final {
   inline std::string getDerivationStream() const { return m_derivationStream;}
   inline void setDerivationStream(const std::string value) {if(!m_configFixed){m_derivationStream = value;}}
 
+  // AMI tag from metadata
+  std::string const & getAmiTag() const;
+  void setAmiTag(std::string const & amiTag);
+
   inline unsigned int getDSID() const {return m_DSID;}
   inline void setDSID(unsigned int value) {
     // Check here if this is a sherpa 2.2 V+jets sample
@@ -489,12 +493,14 @@ class TopConfig final {
   inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
   inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
   inline virtual float RCJetRadius() const {return m_RCJetRadius;}
-
+  inline virtual bool  useRCJetSubstructure() const {return m_useRCJetSubstructure;}
+ 
   inline virtual void RCJetPtcut(const float pt)      {if(!m_configFixed){m_RCJetPtcut = pt;}}
   inline virtual void RCJetEtacut(const float eta)    {if(!m_configFixed){m_RCJetEtacut = eta;}}
   inline virtual void RCJetTrimcut(const float trim)  {if(!m_configFixed){m_RCJetTrimcut = trim;}}
   inline virtual void RCJetRadius(const float radius) {if(!m_configFixed){m_RCJetRadius = radius;}}
-
+  inline virtual void useRCJetSubstructure(const bool use) {if (!m_configFixed){m_useRCJetSubstructure = use;}}
+  
   inline virtual float VarRCJetPtcut() const{return m_VarRCJetPtcut;}
   inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
   inline virtual float VarRCJetTrimcut() const {return m_VarRCJetTrimcut;}
@@ -688,6 +694,8 @@ class TopConfig final {
   /// HL LHC studies
   inline  virtual void HLLHC(const bool s) { if(!m_configFixed){m_HLLHC=s;} }
   inline  virtual bool HLLHC() const {return m_HLLHC;}
+  inline  virtual void HLLHCFakes(const bool s) { if(!m_configFixed){m_HLLHCFakes=s;} }
+  inline  virtual bool HLLHCFakes() const {return m_HLLHCFakes;}
 
   void setBTaggingSFSysts( std::string WP, const std::set<std::string>& btagging_SFs, bool isTrackJet=false );
 
@@ -749,6 +757,11 @@ class TopConfig final {
   const std::vector<std::string>& PileupLumiCalc(){ return m_pileup_reweighting.lumi_calc_files; };
 
   bool PileupMuDependent(){return m_pileup_reweighting.mu_dependent;};
+
+  // Update for R21
+  const std::vector<std::string>& PileupConfig_FS(){ return m_pileup_reweighting.config_files_FS; };
+  const std::vector<std::string>& PileupConfig_AF(){ return m_pileup_reweighting.config_files_AF; };
+  inline virtual  float PileupDataTolerance() const { return m_pileup_reweighting.unrepresented_data_tol; };
   
   const std::vector<double>& PileUpCustomScaleFactors(){ return m_pileup_reweighting.custom_SF; };
 
@@ -771,6 +784,10 @@ class TopConfig final {
 
   // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
   inline bool outputFileSetAutoFlushZero() const {return m_outputFileSetAutoFlushZero;}
+  // Better configurable settings for TTree memory optimisation (ANALYSISTO-44, ANALYSISTO-463)
+  inline int outputFileNEventAutoFlush() const {return m_outputFileNEventAutoFlush;}
+  inline int outputFileBasketSizePrimitive() const {return m_outputFileBasketSizePrimitive;}
+  inline int outputFileBasketSizeVector() const {return m_outputFileBasketSizeVector;}
 
   // Number of events to run on (only for testing)
   inline virtual unsigned int numberOfEventsToRun() const { return m_numberOfEventsToRun;}
@@ -858,6 +875,10 @@ class TopConfig final {
   // Just a function that might need to be used in multiple places - return the running year (2015, 2016, 2017)
   const std::string getYear(unsigned int runnumber);
 
+  // Setter and getter functions for recording whether we have configured the nominal objects
+  inline virtual void setNominalAvailable(const bool s){m_isNominalAvailable = s;}
+  inline bool isNominalAvailable() const { return m_isNominalAvailable;}
+    
  private:
   // Prevent any more configuration
   bool m_configFixed;
@@ -907,6 +928,9 @@ class TopConfig final {
 
   std::string m_jetSubstructureName;
 
+  // Store in config a boolean which lets us know if we called the nominal object setup
+  bool m_isNominalAvailable;
+    
   // Do systematics? - this needs many more configuration options
   std::string m_systematics;
   std::string m_nominalSystName;
@@ -921,6 +945,8 @@ class TopConfig final {
   bool m_isPrimaryxAOD;
   bool m_isTruthDxAOD = false;
   std::string m_derivationStream;
+  std::string m_amiTag;
+  int m_amiTagSet = 0;
 
   // Do fakes MM weights calculation? - only for data loose
   bool m_doFakesMMWeights;
@@ -1087,6 +1113,7 @@ class TopConfig final {
   float m_RCJetEtacut;
   float m_RCJetTrimcut;
   float m_RCJetRadius;
+  bool  m_useRCJetSubstructure;
   
   // Jet configuration for variable large-R jets
   float m_VarRCJetPtcut;
@@ -1186,6 +1213,7 @@ class TopConfig final {
 
   // Options for upgrade studies
   bool m_HLLHC;
+  bool m_HLLHCFakes;
 
   // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
   std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
@@ -1247,6 +1275,11 @@ class TopConfig final {
 
     std::vector<std::string> config_files = {};
 
+    // R21 - Need to allow configuration for FS and AF2
+    std::vector<std::string> config_files_FS = {};
+    std::vector<std::string> config_files_AF = {};
+    float unrepresented_data_tol = 0.05;
+
     bool apply = false;
 
     bool use_grl_tool = false;
@@ -1292,7 +1325,10 @@ class TopConfig final {
   bool m_saveOnlySelectedEvents;
   // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
   bool m_outputFileSetAutoFlushZero;
-
+  // Better configurable settings for TTree memory optimisation (ANALYSISTO-44, ANALYSISTO-463)
+  int m_outputFileNEventAutoFlush;
+  int m_outputFileBasketSizePrimitive;
+  int m_outputFileBasketSizeVector;
   // Number of events to run on (for testing)
   unsigned int m_numberOfEventsToRun;
 

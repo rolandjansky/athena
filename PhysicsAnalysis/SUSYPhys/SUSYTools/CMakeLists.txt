@@ -59,6 +59,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/Interfaces/FTagAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/TriggerAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
    Reconstruction/Jet/JetCPInterfaces
@@ -94,7 +95,7 @@ atlas_add_library( SUSYToolsLib
    AthContainers EventPrimitives FourMomUtils xAODBTagging xAODBase
    xAODPrimitives IsolationSelectionLib PileupReweightingLib
    EgammaAnalysisInterfacesLib EgammaAnalysisHelpersLib		
-   IsolationCorrectionsLib JetSelectorToolsLib
+   IsolationCorrectionsLib JetSelectorToolsLib TriggerAnalysisInterfacesLib
    FTagAnalysisInterfacesLib TauAnalysisToolsLib
    JetCPInterfaces JetCalibToolsLib JetInterface JetResolutionLib
    JetUncertaintiesLib JetMomentToolsLib METInterface METUtilitiesLib
@@ -129,6 +130,13 @@ atlas_add_executable( SUSYToolsTester
    xAODEgamma xAODTau xAODTruth xAODJet xAODCaloEvent xAODCore xAODMissingET
    FTagAnalysisInterfacesLib xAODBase TauAnalysisToolsLib GoodRunsListsLib
    PileupReweightingLib PATInterfaces PathResolver METUtilitiesLib xAODCutFlow
+   SUSYToolsLib ${extra_libs} )
+
+atlas_add_executable( SUSYTruthTester
+   util/SUSYTruthTester.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo 
+   xAODTruth xAODCore xAODBase PATInterfaces PathResolver xAODCutFlow
    SUSYToolsLib ${extra_libs} )
 
 atlas_add_executable( SUSYTools_check_xsections

@@ -11,6 +11,14 @@ from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
 addStandardTruthContents()
 # Extra classifiers for the Higgs group
 import DerivationFrameworkHiggs.TruthCategories
+# Extra classifiers for the SUSY group
+from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+if IsSUSYSignal():
+    from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+    DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH3KernelSigAug",
+                                                             AugmentationTools = DecorateSUSYProcess("TRUTH3")
+                                                             )
 
 #==============================================================================
 # HEAVY FLAVOR DECORATIONS (ttbar)

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
 */
 
 #include "TrigBtagEmulationTool/TriggerFeature.h"
@@ -15,7 +15,8 @@ using namespace Trig;
 
 //**********************************************************************
 
-bool Trig::sortEmulationJetByPt(Trig::TrigBtagEmulationJet& a,Trig::TrigBtagEmulationJet& b) { return a.pt > b.pt; }
+bool Trig::sortJetTupleByPt(const std::tuple<double,double,double>& a, const std::tuple<double,double,double>& b )
+{ return std::get< 0 >(a) > std::get< 0 >(b); }
 
 //**********************************************************************
 
@@ -23,7 +24,7 @@ TriggerFeature::TriggerFeature(int type, std::string name) : m_type(type), m_nam
 TriggerFeature::TriggerFeature(const TriggerFeature& other) : m_type(other.m_type), m_name(other.m_name) {}
 TriggerFeature::~TriggerFeature() {}
 
-std::string TriggerFeature::name() const { return m_name; }
+const std::string& TriggerFeature::name() const { return m_name; }
 
 TriggerFeatureBtag::TriggerFeatureBtag(std::string name,float weight)
   : TriggerFeature(TriggerFeature::THRESHOLD,name), m_weight(weight) {}
@@ -33,9 +34,11 @@ TriggerFeatureBtag::~TriggerFeatureBtag() {}
 
 float TriggerFeatureBtag::getCut() const {return m_weight;}
 
-bool TriggerFeatureBtag::isPassed() {return true;}
-bool TriggerFeatureBtag::evaluateJet(struct TrigBtagEmulationJet* jet) { return jet->weights[m_name.c_str()] >= m_weight; }
+bool TriggerFeatureBtag::isPassed() const { return true; }
+bool TriggerFeatureBtag::evaluateJet(const TrigBtagEmulationJet& jet) { return jet.weights( m_name.c_str() ) >= m_weight; }
 void TriggerFeatureBtag::clear() {}
+
+std::unique_ptr< TriggerFeature > TriggerFeatureBtag::uniqueClone() const { return std::unique_ptr< TriggerFeatureBtag >( new TriggerFeatureBtag( *this ) ); }
 
 // ***
 
@@ -45,7 +48,7 @@ TriggerFeatureAntiBtag::TriggerFeatureAntiBtag(const TriggerFeatureAntiBtag& oth
   : TriggerFeatureBtag(other) {}
 TriggerFeatureAntiBtag::~TriggerFeatureAntiBtag() {}
 
-bool TriggerFeatureAntiBtag::evaluateJet(struct TrigBtagEmulationJet* jet) { return !TriggerFeatureBtag::evaluateJet(jet); } 
+bool TriggerFeatureAntiBtag::evaluateJet(const TrigBtagEmulationJet& jet) { return !TriggerFeatureBtag::evaluateJet(jet); } 
 
 // ***
 
@@ -61,41 +64,42 @@ float TriggerFeatureHt::getCut() const {return m_min_ht;}
 void TriggerFeatureHt::setCuts(float min_pt, float min_eta, float max_eta)
 {m_cut_pt = min_pt; m_cut_min_eta = min_eta; m_cut_max_eta = max_eta;}
 
-bool TriggerFeatureHt::satisfyCuts(struct TrigBtagEmulationJet* jet) {
-  if (jet->pt <= m_cut_pt) return false;
-  if (fabs(jet->eta) < m_cut_min_eta) return false;
-  if (fabs(jet->eta) > m_cut_max_eta) return false;
+bool TriggerFeatureHt::satisfyCuts(const double pt, const double eta) const {
+  if ( pt <= m_cut_pt) return false;
+  if (fabs( eta ) < m_cut_min_eta) return false;
+  if (fabs( eta ) > m_cut_max_eta) return false;
   return true;
 }
 
-bool TriggerFeatureHt::isPassed() {
+bool TriggerFeatureHt::isPassed() const {
   if (m_trigLevel == "L1" ) return isPassed_L1();
   if (m_trigLevel == "HLT") return isPassed_HLT();
   return false;
 }
 
-bool TriggerFeatureHt::evaluateJet(struct TrigBtagEmulationJet* jet) {
+bool TriggerFeatureHt::evaluateJet(const TrigBtagEmulationJet& jet) {
   if (m_trigLevel == "L1" ) return evaluateJet_L1(jet);
   if (m_trigLevel == "HLT") return evaluateJet_HLT(jet);
   return false;
 }
 
-bool TriggerFeatureHt::isPassed_L1()  { return m_count_ht > m_min_ht; }
-bool TriggerFeatureHt::isPassed_HLT() { return m_count_ht >= m_min_ht; }
-bool TriggerFeatureHt::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {
-  if ( satisfyCuts(jet) )
-    m_count_ht+=jet->pt;
+bool TriggerFeatureHt::isPassed_L1() const  { return m_count_ht > m_min_ht; }
+bool TriggerFeatureHt::isPassed_HLT() const { return m_count_ht >= m_min_ht; }
+bool TriggerFeatureHt::evaluateJet_L1(const TrigBtagEmulationJet& jet) {
+  if ( satisfyCuts( jet.pt(),jet.eta() ) )
+    m_count_ht += jet.pt();
   return true;
 }
-bool TriggerFeatureHt::evaluateJet_HLT(struct TrigBtagEmulationJet* jet) {
-  if ( jet->pt < 30000 ) return true;
-  if ( fabs(jet->eta) > 3.2 ) return true;
-  m_count_ht+=jet->pt; 
+bool TriggerFeatureHt::evaluateJet_HLT(const TrigBtagEmulationJet& jet) {
+  if ( jet.pt() < 30000 ) return true;
+  if ( fabs(jet.eta()) > 3.2 ) return true;
+  m_count_ht += jet.pt(); 
   return true;
 }
 
 void TriggerFeatureHt::clear() { m_count_ht = 0; }
 
+std::unique_ptr< TriggerFeature > TriggerFeatureHt::uniqueClone() const { return std::unique_ptr< TriggerFeatureHt >( new TriggerFeatureHt( *this ) ); }
 // ***
 
 TriggerFeatureHtTop::TriggerFeatureHtTop(std::string triggerLevel,std::string name, float ht, unsigned int topEt)
@@ -111,23 +115,26 @@ void TriggerFeatureHtTop::clear() {
   TriggerFeatureHt::clear();
   m_piorityQueue.clear();
 }
-bool TriggerFeatureHtTop::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {
-  if ( fabs(jet->eta) > 3.1) return true;
-  m_piorityQueue.push_back( *jet );
+bool TriggerFeatureHtTop::evaluateJet_L1(const TrigBtagEmulationJet& jet) {
+  if ( fabs(jet.eta()) > 3.1) return true;
+  m_piorityQueue.push_back( std::make_tuple( jet.pt(),jet.eta(),jet.phi() ) );
   calculateHT_L1();
   return true;
 }
 
 void TriggerFeatureHtTop::calculateHT_L1() {
-  sort(m_piorityQueue.begin(),m_piorityQueue.end(),Trig::sortEmulationJetByPt);
+  sort(m_piorityQueue.begin(),m_piorityQueue.end(),Trig::sortJetTupleByPt);
   while ( m_topEt < m_piorityQueue.size() )
     m_piorityQueue.pop_back();
 
   m_count_ht = 0;
   for (unsigned int i=0; i<m_piorityQueue.size();i++)
-      if ( TriggerFeatureHt::satisfyCuts(&m_piorityQueue.at(i)) ) 
-	m_count_ht += m_piorityQueue.at(i).pt;
+    if ( TriggerFeatureHt::satisfyCuts( std::get< JetElement::PT  >( m_piorityQueue.at(i) ),
+					std::get< JetElement::ETA >( m_piorityQueue.at(i) ) ) )
+      m_count_ht += std::get< JetElement::PT  >( m_piorityQueue.at(i) );
 }
+
+std::unique_ptr< TriggerFeature > TriggerFeatureHtTop::uniqueClone() const { return std::unique_ptr< TriggerFeatureHtTop >( new TriggerFeatureHtTop( *this ) );}
 
 // ***
 
@@ -208,8 +215,8 @@ double TriggerFeatureInvm::cos_LUT(double value) const {
   return 1.0;
 }
 
-bool TriggerFeatureInvm::isPassed() { return m_count_invm >= m_min_invm; }
-bool TriggerFeatureInvm::evaluateJet(struct TrigBtagEmulationJet* jet) {
+bool TriggerFeatureInvm::isPassed() const { return m_count_invm >= m_min_invm; }
+bool TriggerFeatureInvm::evaluateJet(const TrigBtagEmulationJet& jet) {
   if (m_trigLevel == "L1") return evaluateJet_L1( jet );
   if (m_trigLevel == "HLT") return evaluateJet_HLT( jet );
   return false;
@@ -224,21 +231,22 @@ void TriggerFeatureInvm::clear() {
 
 void TriggerFeatureInvm::setCuts(float min_pt,float min_eta,float max_eta) 
 { m_cut_pt = min_pt; m_cut_min_eta = min_eta; m_cut_max_eta = max_eta; }
-bool TriggerFeatureInvm::satisfyCuts(struct TrigBtagEmulationJet* jet) {
-  if (jet->pt <= m_cut_pt) return false;
-  if (fabs(jet->eta) < m_cut_min_eta) return false;
-  if (fabs(jet->eta) > m_cut_max_eta) return false;
+
+bool TriggerFeatureInvm::satisfyCuts(const double pt,const double eta) const {
+  if (pt <= m_cut_pt) return false;
+  if (fabs( eta ) < m_cut_min_eta) return false;
+  if (fabs( eta ) > m_cut_max_eta) return false;
   return true;
 }
 
-bool TriggerFeatureInvm::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {   
-  if ( jet->pt > 20 )
-    m_priorityQueue_20.push_back( *jet );
-  if ( jet->pt > 30 )
-    m_priorityQueue_30.push_back( *jet );
+bool TriggerFeatureInvm::evaluateJet_L1(const TrigBtagEmulationJet& jet) {   
+  if ( jet.pt() > 20 )
+    m_priorityQueue_20.push_back( std::make_tuple(jet.pt(),jet.eta(),jet.phi()) );
+  if ( jet.pt() > 30 )
+    m_priorityQueue_30.push_back( std::make_tuple(jet.pt(),jet.eta(),jet.phi()) );
 
-  std::sort(m_priorityQueue_20.begin(),m_priorityQueue_20.end(),Trig::sortEmulationJetByPt);
-  std::sort(m_priorityQueue_30.begin(),m_priorityQueue_30.end(),Trig::sortEmulationJetByPt);
+  std::sort(m_priorityQueue_20.begin(),m_priorityQueue_20.end(),Trig::sortJetTupleByPt);
+  std::sort(m_priorityQueue_30.begin(),m_priorityQueue_30.end(),Trig::sortJetTupleByPt);
 
   while ( m_priorityQueue_20.size() > 6)
     m_priorityQueue_20.pop_back();
@@ -247,34 +255,32 @@ bool TriggerFeatureInvm::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {
 
   m_count_invm = 0;
   for (unsigned int i=0; i<m_priorityQueue_20.size(); i++)
-    for (unsigned int j=0; j<m_priorityQueue_30.size(); j++)
-      {
-        double mjj = calculateINVM( m_priorityQueue_20.at(i),m_priorityQueue_30.at(j) );
-        m_count_invm = std::max( m_count_invm, sqrt(mjj) );
-      }
+    for (unsigned int j=0; j<m_priorityQueue_30.size(); j++) {
+      double mjj = calculateINVM( m_priorityQueue_20.at(i),m_priorityQueue_30.at(j) );
+      m_count_invm = std::max( m_count_invm, sqrt(mjj) );
+    }
 
   return true;
 }
 
-bool TriggerFeatureInvm::evaluateJet_HLT(struct TrigBtagEmulationJet* jet) { 
-  m_jetCollection_HLT.push_back( *jet );
+bool TriggerFeatureInvm::evaluateJet_HLT(const TrigBtagEmulationJet& jet) { 
+  m_jetCollection_HLT.push_back( std::make_tuple(jet.pt(),jet.eta(),jet.phi()) );
 
   m_count_invm = 0;
   for (unsigned int i=0; i<m_jetCollection_HLT.size();i++)
-    for (unsigned int j=i+1; j<m_jetCollection_HLT.size();j++)
-      {
-	double mjj = calculateINVM( m_jetCollection_HLT.at(i),m_jetCollection_HLT.at(j) );
-	m_count_invm = std::max( m_count_invm, sqrt(mjj) );
-      }
+    for (unsigned int j=i+1; j<m_jetCollection_HLT.size();j++) {
+      double mjj = calculateINVM( m_jetCollection_HLT.at(i),m_jetCollection_HLT.at(j) );
+      m_count_invm = std::max( m_count_invm, sqrt(mjj) );
+    }
   
   return true;
 }
 
-double TriggerFeatureInvm::calculateINVM(struct TrigBtagEmulationJet const& jetA,struct TrigBtagEmulationJet const& jetB) const {
+double TriggerFeatureInvm::calculateINVM(const std::tuple<double,double,double>& jetA,const std::tuple<double,double,double>& jetB) const {
   // change eta accordingly to L1Topo
   // https://svnweb.cern.ch/trac/atlasgroups/browser/Trigger/L1Topo/L1TopoValidation/trunk/L1TopoCheck/Root/JetTOB.cxx#L56
-  double eta_A = int( fabs(jetA.eta*100) + 0.1) * jetA.eta / fabs(jetA.eta);
-  double eta_B = int( fabs(jetB.eta*100) + 0.1) * jetB.eta / fabs(jetB.eta);
+  double eta_A = int( fabs( std::get< JetElement::ETA >(jetA) *100) + 0.1) * std::get< JetElement::ETA >(jetA) / fabs( std::get< JetElement::ETA >(jetA) );
+  double eta_B = int( fabs( std::get< JetElement::ETA >(jetB) *100) + 0.1) * std::get< JetElement::ETA >(jetB) / fabs( std::get< JetElement::ETA >(jetB) );
   
   if ( eta_A == 245 ) { eta_A = 250; }
   else if ( eta_A == -245 ) { eta_A = -250; }
@@ -292,31 +298,31 @@ double TriggerFeatureInvm::calculateINVM(struct TrigBtagEmulationJet const& jetA
     
   // ***
 
-  double Deta = m_trigLevel == "L1" ? fabs( eta_B - eta_A )/100. : fabs( jetA.eta - jetB.eta );
-  double Dphi = fabs( jetA.phi - jetB.phi );
-  if (Dphi > M_PI)
-    Dphi = 2*M_PI - Dphi;
+  double Deta = m_trigLevel == "L1" ? fabs( eta_B - eta_A )/100. : fabs( std::get< JetElement::ETA >(jetA) - std::get< JetElement::ETA >(jetB) );
+  double Dphi = fabs( TVector2::Phi_mpi_pi( std::get< JetElement::PHI >(jetA) - std::get< JetElement::PHI >(jetB) ) );
 
   double coshDeta = m_trigLevel == "L1" ? cosh_LUT( Deta ) : cosh( Deta );
   double cosPhi   = m_trigLevel == "L1" ? cos_LUT( Dphi )  : cos( Dphi ) ;
-  double mjj = 2 * jetA.pt * jetB.pt * ( coshDeta - cosPhi);
+  double mjj = 2 * std::get< JetElement::PT >(jetA) * std::get< JetElement::PT >(jetB) * ( coshDeta - cosPhi);
 
   return  m_trigLevel == "L1" ? mjj : round(mjj);
 }
+
+std::unique_ptr< TriggerFeature > TriggerFeatureInvm::uniqueClone() const { return std::unique_ptr< TriggerFeatureInvm >( new TriggerFeatureInvm( *this ) ); }
 
 // ***
 TriggerFeatureInvmCF::TriggerFeatureInvmCF(std::string triggerLevel,std::string name, float min_invm) : TriggerFeatureInvm(triggerLevel,name,min_invm) {}
 TriggerFeatureInvmCF::TriggerFeatureInvmCF(const TriggerFeatureInvmCF& other) : TriggerFeatureInvm(other) {}
 TriggerFeatureInvmCF::~TriggerFeatureInvmCF() {}
 
-bool TriggerFeatureInvmCF::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {
-  if ( jet->pt > 20 )
-    m_priorityQueue_20.push_back( *jet );
-  if ( jet->pt > 30 )
-    m_priorityQueue_30.push_back( *jet );
+bool TriggerFeatureInvmCF::evaluateJet_L1(const TrigBtagEmulationJet& jet) {
+  if ( jet.pt() > 20 )
+    m_priorityQueue_20.push_back( std::make_tuple(jet.pt(),jet.eta(),jet.phi()) );
+  if ( jet.pt() > 30 )
+    m_priorityQueue_30.push_back( std::make_tuple(jet.pt(),jet.eta(),jet.phi()) );
 
-  std::sort(m_priorityQueue_20.begin(),m_priorityQueue_20.end(),Trig::sortEmulationJetByPt);
-  std::sort(m_priorityQueue_30.begin(),m_priorityQueue_30.end(),Trig::sortEmulationJetByPt);
+  std::sort(m_priorityQueue_20.begin(),m_priorityQueue_20.end(),Trig::sortJetTupleByPt);
+  std::sort(m_priorityQueue_30.begin(),m_priorityQueue_30.end(),Trig::sortJetTupleByPt);
 
   while ( m_priorityQueue_20.size() > 6)
     m_priorityQueue_20.pop_back();
@@ -325,14 +331,13 @@ bool TriggerFeatureInvmCF::evaluateJet_L1(struct TrigBtagEmulationJet* jet) {
 
   m_count_invm = 0;
   for (unsigned int i=0; i<m_priorityQueue_20.size(); i++)
-    for (unsigned int j=0; j<m_priorityQueue_30.size(); j++)
-      {
-	double mjj = calculateINVM( m_priorityQueue_20.at(i),m_priorityQueue_30.at(j) );
-        if ( fabs(m_priorityQueue_20.at(i).eta) < 3.1 ) continue;
-        if ( fabs(m_priorityQueue_30.at(j).eta) > 3.1 ) continue;
-        m_count_invm = std::max( m_count_invm, sqrt(mjj) );
-      }
-
+    for (unsigned int j=0; j<m_priorityQueue_30.size(); j++) {
+      double mjj = calculateINVM( m_priorityQueue_20.at(i),m_priorityQueue_30.at(j) );
+      if ( fabs( std::get< JetElement::ETA >( m_priorityQueue_20.at(i) ) ) < 3.1 ) continue;
+      if ( fabs( std::get< JetElement::ETA >( m_priorityQueue_30.at(j) ) ) > 3.1 ) continue;
+      m_count_invm = std::max( m_count_invm, sqrt(mjj) );
+    }
+  
   return true;
 }
 

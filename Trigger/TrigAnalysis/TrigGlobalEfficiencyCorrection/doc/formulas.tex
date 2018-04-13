@@ -1,0 +1,519 @@
+\documentclass{article}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{subfigure}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage[labelformat=empty]{caption}
+%\usepackage{url}
+\usepackage{hyperref}
+\newcommand{\link}[2]{\textcolor{blue}{\underline{\smash{\href{#1}{#2}}}}}
+\newcommand{\pt}{\ensuremath{p_\mathrm{T}}}
+\newcommand{\met}{\ensuremath{E_\mathrm{T}^\mathrm{miss}}}
+\newcommand{\meff}{\ensuremath{m_\mathrm{eff}}}
+\newcommand{\amu}{\ensuremath{\langle\mu\rangle}}
+\newcommand{\BYes}{\textcolor{green}{$\bullet$}}
+\newcommand{\BNeutr}{\textcolor{orange}{$\bullet$}}
+\newcommand{\BNo}{\textcolor{red}{$\bullet$}}
+%\newcommand{\pro}{\ensuremath{\mathbb{P}}}
+\newcommand{\pro}{\ensuremath{\mathbb{P}}}
+
+\usepackage{pbox}
+\usepackage{multirow}
+
+\definecolor{col0}{RGB}{0,0,0}
+
+
+\begin{document}
+
+\section*{Definitions}
+
+Making generous use of the formulas to expand probabilities of unions or intersections of $n$ events 
+(RHS sums have $2^n-1$ terms in total):
+\begin{align*}
+\pro(A_1\vee \ldots \vee A_n)  &= \pro(A_1) + \ldots - \pro(A_1\wedge A_2) - \ldots + (-1)^{n+1} \pro(A_1\wedge\ldots\wedge A_n)\\
+\pro(A_1\wedge \ldots \wedge A_n)  &= \pro(A_1) + \ldots - \pro(A_1\vee A_2) - \ldots + (-1)^{n+1} \pro(A_1\vee\ldots\vee A_n)
+\end{align*}
+
+\tableofcontents
+
+\section{Single lepton triggers}
+\subsection{One $e/\mu$ trigger, $n$ leptons}
+\begin{align}
+\pro(T_n) & =\pro(\ell_1\vee\ldots\vee\ell_n)\notag\\
+&= 1 - \pro(\bar\ell_1\wedge\ldots\wedge\bar\ell_n)\notag\\
+&= 1- \prod_{1\leq k\leq n} (1-\pro(\ell_k))
+\label{e:1}
+\end{align}
+
+This is the formula implemented in the muon trigger scale factor tool. 
+
+\subsection{One $e$ + one $\mu$ trigger, $n_e+n_\mu$ leptons}
+\label{s:eOm}
+
+\begin{align}
+\pro(T_{n_e+n_\mu})&=\pro(E_{n_e}\vee M_{n_\mu})\notag\\
+& =1 - \pro(\bar E_{n_e})\pro(\bar M_{n_\mu})\notag\\
+&= 1- \prod_{1\leq k\leq n_e} (1-\pro(e_k))\prod_{1\leq k\leq n_\mu} (1-\pro(\mu_k))
+\label{e:eOm}
+\end{align}
+
+This is the same formula as the previous case. Note however that the total efficiency can't be factorized into separate contributions for electrons and muons (because of this leading ``1 -'' term breaking linearity), so the scale factor has to be evaluated at once considering both lepton flavours. 
+
+\subsection{Several $e/\mu$ triggers, $n$ leptons}
+\label{s:x1e}
+
+If there are $k$ triggers in the combination: 
+
+\begin{align}
+\pro(T_n)&=\pro(T^{1}_n\vee\ldots\vee T^{k}_n) \notag\\
+&= 1 - \pro(\bar T^1_n\wedge\ldots\wedge\bar T_n^k) \notag\\
+&= \pro(\bar \ell_1^1\vee\ldots\bar\ell_1^k)\times\ldots\times\pro(\bar \ell_n^1\vee\ldots\bar\ell_n^k)\notag\\
+& = 1- \prod_{1\leq j\leq n} (1-\pro(\ell_j^{\lambda_j}))
+\end{align}
+
+This is, conveniently, the same expression as for a single trigger~\ref{e:1}, except that for each lepton 
+one needs to consider the probability of triggering the loosest trigger leg according to the established hierarchy, 
+The index of this loosest leg is indicated by $\lambda_j\in [0,k-1]$. 
+As indicated by the subscript $j$, this index may vary from one lepton 
+to the other since a given lepton might not be on plateau for all $k$ legs; 
+also, the hierarchy itself is sometimes $p_\mathrm{T}$-dependent. 
+
+\subsection{Several $e$ + $\mu$ triggers, $n_e+n_\mu$ leptons}
+\label{s:x1l}
+
+Straightforward combination of sections~\ref{s:eOm} and~\ref{s:x1e}:
+\begin{align}
+\pro(T_n)&=
+1- \prod_{1\leq j\leq n_e} (1-\pro(e_j^{\lambda_j}))\prod_{1\leq j\leq n_\mu} (1-\pro(\mu_j^{\lambda_j}))
+\label{e:x1l}
+\end{align}
+
+
+\section{Dilepton triggers, simple cases}
+
+\subsection{One $e\mu$ trigger, $n_e+n_\mu$ leptons}
+
+Need to fire both the electron and the muon legs, things factorize nicely: 
+\begin{align}
+\pro(T_{n_e+n_\mu})&=\pro(E_{n_e}\wedge M_{n_\mu}) \notag\\
+&= \pro(E_{n_e})\times\pro(M_{n_\mu})\notag\\
+&=\left(1- \prod_{1\leq k\leq n_e} (1-\pro(e_k))\right)\times\left(1- \prod_{1\leq k\leq n_\mu} (1-\pro(\mu_k))\right)
+\end{align}
+
+\subsection{One symmetric $ee/\mu\mu$ trigger, $n$ leptons}
+
+For example \textrm{2e12\_lhloose}. 
+The efficiency is computed by induction over the number of leptons $n$. 
+Let's define $S_{n-1}=\ell_1\vee\ldots\vee\ell_{n-1}$, i.e. when at least one leg was fired by one of the first $n-1$ leptons. 
+Then: 
+
+\begin{align}
+\pro(T_n) &= \pro(T_{n-1}  \vee (\ell_n\wedge S_{n-1}))\notag\\
+&= \pro(T_{n-1}) + \pro(\ell_n\wedge S_{n-1}) - \pro(T_{n-1}\wedge \ell_n\wedge S_{n-1})\notag\\
+&= (1-\pro(\ell_n))\pro(T_{n-1})+\pro(\ell_n)\pro(S_{n-1})\quad\text{since }T_{n-1}\wedge S_{n-1}=T_{n-1}\notag\\
+&= (1-\pro(\ell_n))\pro(T_{n-1})+\pro(\ell_n)\left[1-\!\!\prod_{1\leq k\leq n-1}\!\!\!(1-\pro(\ell_k))\right]
+%&=\pro(((S_{n-1}\vee \bar S_{n-1})\wedge T_{n-1})  \vee (\ell_n\wedge S_{n-1}))\notag\\
+\label{e:2s}
+\end{align}
+This is straightforward to implement: 
+
+\begin{verbatim}
+p[0] = 0
+s[0] = 1
+for k = 1 to n:
+    p[k] = (1-e[k])*p[k-1] + e[k]*(1-s[k-1])
+    s[k] *= (1-e[k])
+return p[n]
+\end{verbatim}
+
+\subsection{One asymmetric $\ell\ell$ trigger, $n$ leptons}
+
+For example \textrm{mu18\_mu8noL1}. The two legs are differentiated by superscripts ($\ell_k^1$, $\ell_k^2$), 
+with the leg(1) having a higher \pt\ threshold than the leg (2). 
+Using induction again: 
+
+\begin{align}
+\pro(T_n) &= 
+\pro(T_{n-1}\vee (\ell_n^1 \wedge S_{n-1}^2) \vee (\ell_n^2 \wedge S_{n-1}^1))\notag\\
+&=(1-\pro(\ell_n^{\lambda_n}))\pro(T_{n-1})
++\pro(\ell_n^1)\pro(S_{n-1}^2) + \pro(\ell_n^2)\pro(S_{n-1}^1)\notag\\
+&\qquad- \pro(\ell_n^{\tau_n})\pro(S_{n-1}^1\wedge S_{n-1}^2)\notag\\
+&=(1-\pro(\ell_n^{\lambda_n}))\pro(T_{n-1})
++(\pro(\ell_n^{\lambda_n})-\pro(\ell_n^{\tau_n}))\pro(S_{n-1}^{\tau_n})\notag\\
+&\qquad + \pro(\ell_n^{\tau_n}) \pro(S_{n-1}^1\vee S_{n-1}^2)
+\label{e:2a}
+\end{align}
+where $\lambda_k$ (resp. $\tau_k$) is the index of the trigger leg that is the loosest 
+(resp. tightest) according to the established hierarchy at the lepton $k$'s \pt. 
+
+The expressions for $\pro(S_{n-1}^1)$ and $\pro(S_{n-1}^2)$ are given by~\ref{e:1}, 
+and $\pro(S_{n}^1\vee S_{n}^2)$ is simply the probability 
+for a logical ``or'' of two same-flavour two single-lepton triggers, hence is given by~\ref{e:x1l}. 
+
+\section{Combination of dilepton and single lepton triggers, only one lepton flavour}
+
+\subsection{One symmetric $\ell\ell$ + one or more same-flavour $\ell$ triggers, $n$ leptons}
+
+First addressing the case of one single-lepton trigger, then generalizing. 
+Superscripts 1 and 2 will respectively correspond to the single lepton trigger leg, and the dilepton trigger leg. 
+\begin{align}
+\pro(T_n) &= \pro(T_{n-1} \vee \ell_n^1 \vee (\ell_n^2 \wedge S_{n-1}^2))\notag\\
+&= \pro(T_{n-1})[1-\pro(\ell_n^1)] + \pro(\ell_n^1)
++ [\pro(\ell_n^2)-\pro(\ell_n^{\tau_n})][\pro(S_{n-1}^2) - \pro(T_{n-1}\wedge S_{n-1}^2)] \notag\\
+&= \pro(T_{n-1})[1-\pro(\ell_n^1)] + \pro(\ell_n^1)
++ [\pro(\ell_n^2)-\pro(\ell_n^{\tau_n})][\pro(T_{n-1}\vee S_{n-1}^2) - \pro(T_{n-1})]\notag\\
+&= \pro(T_{n-1})[1-\pro(\ell_n^1)] + \pro(\ell_n^1)
++ [\pro(\ell_n^2)-\pro(\ell_n^{\tau_n})][\pro(S_{n-1}^1\vee S_{n-1}^2) - \pro(T_{n-1})]\notag\\
+&= \pro(T_{n-1})[1-\pro(\ell_n^{\lambda_n})] + \pro(\ell_n^1)
++ \pro(S_{n-1}^1\vee S_{n-1}^2)[\pro(\ell_n^2)-\pro(\ell_n^{\tau_n})]\notag\\
+&= \pro(T_{n-1})[1-\pro(\ell_n^{\lambda_n})] + \pro(\ell_n^1)
++ \delta_2^{\lambda_n}\pro(S_{n-1}^1\vee S_{n-1}^2)[\pro(\ell_n^2)-\pro(\ell_n^1)]\notag
+\end{align}
+
+The expression for $\pro(S_{n-1}^1\vee S_{n-1}^2)$ is given by~\ref{e:1O1}. 
+
+For more than one single-lepton trigger, we denote $Z_n:=S_n^{1,1}\vee\ldots\vee S_n^{1,k}$ the union of the 
+$k$ single-lepton triggers. We also denote by the superscript $1$ the loosest single-lepton trigger for the lepton $n$.  
+Then: 
+\begin{align}
+\pro(T_n) 
+&= \pro(T_{n-1} \vee (\ell_n^{1,1}\vee\ldots\vee\ell_n^{1,k}) \vee (\ell_n^2 \wedge S_{n-1}^2))\notag\\
+&= \pro(T_{n-1} \vee \ell_n^{1} \vee (\ell_n^2 \wedge S_{n-1}^2))\notag\\
+&= \pro(T_{n-1})[1-\pro(\ell_n^{\lambda_n})] + \pro(\ell_n^{1})
++ \delta_2^{\lambda_n}
+\pro(Z_{n-1}\vee S_{n-1}^2)[\pro(\ell_n^2)-\pro(\ell_n^{1})]
+\label{e:2sO1}
+\end{align}
+
+
+\subsection{One asymmetric $\ell\ell$ + one or more same-flavour $\ell$ trigger, $n$ leptons}
+
+Uperscripts $2$ and $3$ indicate the two legs of the dilepton trigger, while $1$ indicates the loosest of the single-lepton trigger legs 
+for the lepton $n$ (i.e. equivalent to $\lambda_n^1$ in the previous section). However, $S_{n-1}^1$ still represents the event of triggering with any of the single-lepton triggers for one of the first $n-1$ leptons. 
+ 
+\begin{align}
+\pro(T_n) &= \pro(T_{n-1} \
+\vee (\ell_n^{1} \wedge S_{n-1}^{2}) \vee (\ell_n^{2} \wedge S_{n-1}^{1}) \vee \ell_n^3) \notag\\
+%
+&=[1-\pro(\ell_n^3)]\pro(T_{n-1}) + \pro(\ell_n^3)
++ [\pro(\ell_n^{1}) - \pro(\ell_n^{\tau_n^{1,3}})][\pro(S_{n-1}^{2}) - \pro(T_{n-1}\wedge S_{n-1}^2) ]\notag\\
+&\qquad + [\pro(\ell_n^{2}) - \pro(\ell_n^{\tau_n^{2,3}})][\pro(S_{n-1}^{1})-\pro(T_{n-1}\wedge S_{n-1}^1)]\notag\\
+&\qquad +  [\pro(\ell_n^{\tau_{n}}) - \pro(\ell_n^{\tau_{n}^{1,2}}) ]
+[\pro(S_{n-1}^{1}\wedge S_{n-1}^{2}) - \pro(T_{n-1}\wedge S_{n-1}^{1}\wedge S_{n-1}^{2})]\notag\\
+%
+&=[1-\pro(\ell_n^3)]\pro(T_{n-1}) + \pro(\ell_n^3)
+ + [\pro(\ell_n^{1}) - \pro(\ell_n^{\tau_n^{1,3}})][\pro(T_{n-1}\vee  S_{n-1}^2) - \pro(T_{n-1})]\notag\\
+&\qquad + [\pro(\ell_n^{2}) - \pro(\ell_n^{\tau_n^{2,3}})][\pro(T_{n-1}\vee  S_{n-1}^1) - \pro(T_{n-1})]\notag\\
+&\qquad +  [\pro(\ell_n^{\tau_{n}}) - \pro(\ell_n^{\tau_{n}^{1,2}}) ]
+[\pro(T_{n-1} \vee S_{n-1}^{1})+\pro(T_{n-1}\vee S_{n-1}^{2}) 
+- \pro(T_{n-1})-\pro(T_{n-1} \vee S_{n-1}^{1} \vee S_{n-1}^{2})]\notag\\
+%
+&= [1-\pro(\ell_n^{\lambda_n})]\pro(T_{n-1}) + \pro(\ell_n^3)
++ (1-\delta_3^{\lambda_n})[\pro(\ell_n^{\lambda_n}) - \pro(\ell_n^{m_n})]\pro(T_{n-1}\vee  S_{n-1}^{\tau_n^{1,2}})\notag\\
+&\qquad +  \delta_3^{\tau_n}[\pro(\ell_n^{m_n}) - \pro(\ell_n^3) ]
+\pro(T_{n-1} \vee (S_{n-1}^{1}\wedge S_{n-1}^{2}))\notag\\
+%
+&= [1-\pro(\ell_n^{\lambda_n})]\pro(T_{n-1}) + \pro(\ell_n^3)
++ (1-\delta_3^{\lambda_n})[\pro(\ell_n^{\lambda_n}) -\pro(\ell_n^{m_n})]\pro(S_{n-1}^3\vee  S_{n-1}^{\tau^{1,2}_n})\notag\\
+&\qquad + \delta_3^{\tau_n} [\pro(\ell_n^{m_n}) - \pro(\ell_n^3) ]
+\pro(S_{n-1}^1 \vee S_{n-1}^{2}\vee S_{n-1}^{3})
+\label{e:2aO1}
+\end{align}
+where $m_n$ stands for the ``medium'' leg (neither the tightest, nor the loosest) according to the hierarchy for the lepton $n$. 
+The different terms can be evaluated with~\ref{e:x1l}, and using induction. 
+
+
+%\subsection{One sym. $\ell\ell$ + one asym. $\ell\ell$, $n$ leptons}
+%
+%Notation: $D_n$ for the symmetric trigger, $A_n$ for the asymmetric trigger, $S_n^1$ for a single leg of the 
+%symmetric trigger, $S_n^2$ and $S_n^3$ similarly for the two different legs of the asymmetric trigger. 
+%\begin{align}
+%\pro(T_n)
+%&= \pro(T_{n-1}\vee (\ell_n^1\wedge S_{n-1}^1)
+%\vee  (\ell_n^2\wedge S_{n-1}^3) \vee (\ell_n^3\wedge S_{n-1}^2))\notag\\
+%%
+%&= \pro(T_{n-1}) 
+%+\pro(\ell_n^1)[\pro(S_{n-1}^1) - \pro(T_{n-1}\wedge S_{n-1}^1)]
+%+\pro(\ell_n^2)[\pro(S_{n-1}^3) - \pro(T_{n-1}\wedge S_{n-1}^3)]\notag\\
+%&\qquad +\pro(\ell_n^3)[\pro(S_{n-1}^2) - \pro(T_{n-1}\wedge S_{n-1}^2)]
+%+\pro(\ell_n^{\tau_n^{1,2}})[\pro(T_{n-1}\wedge S_{n-1}^1\wedge S_{n-1}^3) - \pro( S_{n-1}^1\wedge S_{n-1}^3)]\notag\\
+%&\qquad+\pro(\ell_n^{\tau_n^{1,3}})[\pro(T_{n-1}\wedge S_{n-1}^1\wedge S_{n-1}^2) - \pro( S_{n-1}^1\wedge S_{n-1}^2)]\notag\\
+%&\qquad+\pro(\ell_n^{\tau_n^{2,3}})[\pro(T_{n-1}\wedge S_{n-1}^2\wedge S_{n-1}^3) - \pro( S_{n-1}^2\wedge S_{n-1}^3)]\notag\\
+%&\qquad+ \pro(\ell_n^{\tau_n^{1,2,3}})[\pro(S_{n-1}^1 \wedge S_{n-1}^2\wedge S_{n-1}^3) - 
+%\pro(T_{n-1}\wedge S_{n-1}^1\wedge S_{n-1}^2\wedge S_{n-1}^3)]\notag\\
+%%
+%&= \pro(T_{n-1}) 
+%+\pro(\ell_n^1)[\pro(T_{n-1}\vee S_{n-1}^1) - \pro(T_{n-1})]
+%+\pro(\ell_n^2)[\pro(T_{n-1}\vee S_{n-1}^3) - \pro(T_{n-1})]\notag\\
+%&\qquad +\pro(\ell_n^3)[\pro(T_{n-1}\vee S_{n-1}^2) - \pro(T_{n-1})]
+%+ \pro(\ell_n^{\tau_n^{1,2}})X_{1,3}+\pro(\ell_n^{\tau_n^{1,3}})X_{1,2}
+%+\pro(\ell_n^{\tau_n^{2,3}})X_{2,3}\notag\\
+%&\qquad+ \pro(\ell_n^{\tau_n^{1,2,3}})[\pro(T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^2\vee S_{n-1}^3)
+%- X_{1,2} - X_{1,3} - X_{2,3}\notag\\
+%&\qquad\qquad+ 2\pro(T_{n-1}) - \pro(T_{n-1}\vee S_{n-1}^1) - \pro(T_{n-1}\vee S_{n-1}^2) - \pro(T_{n-1}\vee S_{n-1}^3)]\notag\\
+%\text{with }&X_{j,k}:=
+%\pro(T_{n-1}\wedge S_{n-1}^j\wedge S_{n-1}^k) - \pro( S_{n-1}^j\wedge S_{n-1}^k)\notag\\
+%&\qquad=\pro(T_{n-1}\vee S_{n-1}^j\vee S_{n-1}^k) 
+%- \pro(T_{n-1}\vee S_{n-1}^j) - \pro(T_{n-1}\vee S_{n-1}^k) + \pro( T_{n-1})\notag
+%\end{align}
+%
+%Therefore: 
+%\begin{align}
+%\pro(T_n)
+%&= [1 - \pro(\ell_n^1) - \pro(\ell_n^2) - \pro(\ell_n^3) 
+%+ \pro(\ell_n^{\tau_n^{1,2}}) + \pro(\ell_n^{\tau_n^{1,3}}) + \pro(\ell_n^{\tau_n^{2,3}})
+%- \pro(\ell_n^{\tau_n^{1,2,3}})]\pro(T_{n-1})\notag\\
+%&\qquad+\pro(\ell_n^1)\pro(T_{n-1}\vee S_{n-1}^1)
+%+\pro(\ell_n^2)\pro(T_{n-1}\vee S_{n-1}^3)
+%+\pro(\ell_n^3)\pro(T_{n-1}\vee S_{n-1}^2)
+%\notag\\
+%&\qquad + [\pro(\ell_n^{\tau_n^{1,2}}) - \pro(\ell_n^{\tau_n^{1,2,3}})]\pro(T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^3)
+%+ [\pro(\ell_n^{\tau_n^{1,3}}) - \pro(\ell_n^{\tau_n^{1,2,3}})]\pro(T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^2)\notag\\
+%&\qquad+ [\pro(\ell_n^{\tau_n^{2,3}}) - \pro(\ell_n^{\tau_n^{1,2,3}})]\pro(T_{n-1}\vee S_{n-1}^2\vee S_{n-1}^3)
+%+ \pro(\ell_n^{\tau_n^{1,2,3}})\pro(T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^2\vee S_{n-1}^3)\notag\\
+%&\qquad- [\pro(\ell_n^{\tau_n^{1,2}}) + \pro(\ell_n^{\tau_n^{1,3}}) - \pro(\ell_n^{\tau_n^{1,2,3}})]
+%\pro(T_{n-1}\vee S_{n-1}^1)\notag\\
+%&\qquad- [\pro(\ell_n^{\tau_n^{1,3}}) + \pro(\ell_n^{\tau_n^{2,3}}) - \pro(\ell_n^{\tau_n^{1,2,3}})]
+%\pro(T_{n-1}\vee S_{n-1}^2)\notag\\
+%&\qquad- [\pro(\ell_n^{\tau_n^{1,2}}) + \pro(\ell_n^{\tau_n^{2,3}}) - \pro(\ell_n^{\tau_n^{1,2,3}})]
+%\pro(T_{n-1}\vee S_{n-1}^3)\notag\\
+%%
+%&= [1 - \pro(\ell_n^{\lambda_n})]\pro(T_{n-1}) 
+%+ \pro(\ell_n^{\tau_n^{1,2,3}})\pro(S_{n-1}^1\vee S_{n-1}^2\vee S_{n-1}^3)\notag\\
+%&\qquad
+%-\delta_1^{\lambda_n}\pro(\ell_n^{m_n})\pro(A_{n-1}\vee S_{n-1}^1)
+%-\delta_2^{\lambda_n}\pro(\ell_n^{m_n})\pro(D_{n-1}\vee S_{n-1}^3)
+%-\delta_3^{\lambda_n}\pro(\ell_n^{m_n})\pro(D_{n-1}\vee S_{n-1}^2)
+%\notag\\
+%&\qquad + \delta_3^{\tau_n}[\pro(\ell_n^{m_n}) - \pro(\ell_n^3)]\pro(S_{n-1}^1\vee S_{n-1}^3)
+%+ \delta_2^{\tau_n}[\pro(\ell_n^{m_n}) - \pro(\ell_n^2)]\pro(S_{n-1}^1\vee S_{n-1}^2)\notag\\
+%&\qquad+  \delta_1^{\tau_n}[\pro(\ell_n^{m_n}) - \pro(\ell_n^1)]\pro(D_{n-1}\vee S_{n-1}^2\vee S_{n-1}^3)
+%%  + \delta_2^{\tau_n}[\pro(\ell_n^{m_n}) - \pro(\ell_n^2)]\pro(T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^3)\notag\\
+%% &\qquad + \delta_3^{\tau_n}[\pro(\ell_n^{m_n}) - \pro(\ell_n^3)]\pro(T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^2)
+%\end{align}
+
+\subsection{Two sym. $\ell\ell$ + several $\ell$ triggers, $n$ leptons}
+
+Superscripts $1$ and $2$ stand for the symmetric triggers, and superscript $3$ for the loosest single lepton trigger for the lepton $n$. $S_{n-1}^j$ represents the event of triggering the leg $j$ with any of the first $n-1$ leptons 
+(for $j=3$, it should be interpreted as ``any single lepton trigger''). 
+$m_n$ stands for the sub-tightest leg for the lepton $n$. 
+
+\begin{align*}
+\pro(T_n)&=
+\pro(T_{n-1}\vee (\ell_n^1\wedge S_{n-1}^1) \vee (\ell_n^2\wedge S_{n-1}^2) \vee \ell_n^3)
+\end{align*}
+
+This happens to be the same starting expression as eq.\ref{e:2sO1}, except that the reduction of the $(T_{n-1}\vee S_{n-1}\ldots)$ 
+terms in the last step is different; here the remaining terms resolve to:
+\begin{itemize}
+\item $T_{n-1}\vee S_{n-1}^{1,2} = D_{n-1}^{2,1}\vee Z_{n-1}\vee S_{n-1}^{1,2}$, then evaluated with eq.~\ref{e:2sO1}
+\item $T_{n-1}\vee S_{n-1}^{1}\vee S_{n-1}^{2} = Z_{n-1} \vee S_{n-1}^{1}\vee S_{n-1}^2$, with eq.~\ref{e:eOm}
+\end{itemize}
+where $D^{1,2}$ stand for the symmetric triggers and $Z$ for the combination of single-lepton triggers. 
+
+\subsection{One sym. $\ell\ell$ + one asym. $\ell\ell$ + several $\ell$ triggers, $n$ leptons}
+
+Superscript $1$ stands for the symmetric trigger, superscripts $2$ and $3$ for the two legs of the asymmetric trigger, 
+and superscript $4$ for the loosest single lepton trigger for the lepton $n$. $S_{n-1}^j$ represents the event of 
+triggering the leg $j$ with any of the first $n-1$ leptons (for $j=4$, it should be interpreted as ``any single lepton trigger''). 
+$m_n$ stands for the second tightest leg for the lepton $n$, $\nu_n$ for the third. 
+\begin{align}
+\pro(T_n)&=
+\pro(T_{n-1}\vee (\ell_n^1\wedge S_{n-1}^1) \vee (\ell_n^2\wedge S_{n-1}^3) 
+\vee (\ell_n^3\wedge S_{n-1}^2) \vee \ell_n^4)\notag\\
+%
+&=\pro(\ell_n^4) + \pro(T_{n-1})[1-\pro(\ell_n^4)]
++ [\pro(S_{n-1}^1) - \pro(T_{n-1}\wedge S_{n-1}^1)][\pro(\ell_n^1)-\pro(\ell_n^{\tau_n^{1,4}})])\notag\\
+&\qquad+[\pro(S_{n-1}^2) - \pro(T_{n-1}\wedge S_{n-1}^2)][\pro(\ell_n^3)-\pro(\ell_n^{\tau_n^{3,4}})]
++ [\pro(S_{n-1}^3) - \pro(T_{n-1}\wedge S_{n-1}^3)][\pro(\ell_n^2)-\pro(\ell_n^{\tau_n^{2,4}})])\notag\\
+&\qquad + [\pro(S_{n-1}^1\wedge S_{n-1}^2) - \pro(T_{n-1}\wedge S_{n-1}^1\wedge S_{n-1}^2)]
+[\pro(\ell_n^{\tau_n^{1,3,4}})-\pro(\ell_n^{\tau_n^{1,3}})])\notag\\
+&\qquad+ [\pro(S_{n-1}^1\wedge S_{n-1}^3) - \pro(T_{n-1}\wedge S_{n-1}^1\wedge S_{n-1}^3)]
+[\pro(\ell_n^{\tau_n^{1,2,4}})-\pro(\ell_n^{\tau_n^{1,2}})])\notag\\
+&\qquad+ [\pro(S_{n-1}^2\wedge S_{n-1}^3) - \pro(T_{n-1}\wedge S_{n-1}^2\wedge S_{n-1}^3)]
+[\pro(\ell_n^{\tau_n^{2,3,4}})-\pro(\ell_n^{\tau_n^{2,3}})])\notag\\
+&\qquad+ [\pro(S_{n-1}^1\wedge S_{n-1}^2\wedge S_{n-1}^3) 
+- \pro(T_{n-1}\wedge S_{n-1}^1\wedge S_{n-1}^2\wedge S_{n-1}^3)]
+[\pro(\ell_n^{\tau_n^{1,2,3}})-\pro(\ell_n^{\tau_n^{1,2,3,4}})]\notag\\
+%
+&= \pro(\ell_n^4) + \pro(T_{n-1})[1 - \pro(\ell_n^{\lambda_n})]
++ \delta_1^{\lambda_n}\pro(T_{n-1}\vee S_{n-1}^1)
+[\pro(\ell_n^1)-\pro(\ell_n^{\nu_n})])\notag\\
+&\qquad+\delta_3^{\lambda_n}\pro(T_{n-1}\vee S_{n-1}^2)
+[\pro(\ell_n^3)-\pro(\ell_n^{\nu_n})]
++ \delta_2^{\lambda_n}\pro(T_{n-1}\vee S_{n-1}^3)
+[\pro(\ell_n^2)-\pro(\ell_n^{\nu_n})])\notag\\
+&\qquad -\pro(T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^2)
+[\pro(\ell_n^{m_n})-\pro(\ell_n^{\tau_n^{1,3}})]
+-\pro(T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^3)[\pro(\ell_n^{m_n})-\pro(\ell_n^{\tau_n^{1,2}})])\notag\\
+&\qquad -\pro(T_{n-1}\vee S_{n-1}^2\vee S_{n-1}^3)[\pro(\ell_n^{m_n})-\pro(\ell_n^{\tau_n^{2,3}})]
++ \delta_4^{\tau_n}\pro(T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^2\vee S_{n-1}^3)]
+[\pro(\ell_n^{m_n})-\pro(\ell_n^{4})]
+\label{e:2s2a}
+%
+\end{align}
+
+The different terms forming this expression can be evaluated with already-established formulas for simpler combinations of triggers, 
+by using that: 
+\begin{itemize}
+\item $T_{n-1}\vee S_{n-1}^1 = A_{n-1} \vee Z_{n-1} \vee S_{n-1}^1$, then evaluated with eq.~\ref{e:2aO1}
+\item $T_{n-1}\vee S_{n-1}^{2,3} = D_{n-1} \vee Z_{n-1} \vee S_{n-1}^{2,3}$, with eq.~\ref{e:2sO1}
+\item $T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^{2,3} = Z_{n-1} \vee S_{n-1}^1\vee S_{n-1}^{2,3}$, with eq.~\ref{e:eOm}
+\item $T_{n-1}\vee S_{n-1}^2\vee S_{n-1}^3= D_{n-1}\vee Z_{n-1} \vee S_{n-1}^2\vee S_{n-1}^3$, with eq.~\ref{e:2sO1}
+\item $T_{n-1}\vee S_{n-1}^1\vee S_{n-1}^2\vee S_{n-1}^3= Z_{n-1} \vee S_{n-1}^1\vee S_{n-1}^2\vee S_{n-1}^3$, with eq.~\ref{e:eOm}
+\end{itemize}
+where $D$ stands for the symmetric trigger, $A$ for the asymmetric trigger, and $Z$ for the combination of single-lepton triggers. 
+
+
+
+
+
+\section{Combinations of dilepton and single lepton triggers, mixing lepton flavours}
+
+\subsection{One $e\mu$ + several single-$e/\mu$ triggers, $n_e+n_\mu$ leptons}
+\label{s:emO1}
+
+We denote by $Z_e$ and $Z_\mu$ the unions of the single-electron (resp. single-muon) triggers, 
+and by $S_e^2/S_\mu^2$ the legs of the $e\mu$ trigger. Then: 
+
+\begin{align}
+\pro(T_{n_e+n_\mu}) & = \pro((S_e^2\wedge S_\mu^2)\vee Z_e \vee Z_\mu)\notag\\
+&= \pro(Z_e\vee Z_\mu) + [\pro(S_e^2) - \pro(S_e^2\wedge Z_e)][\pro(S_\mu^2) - \pro(S_\mu^2\wedge Z_\mu)]\notag\\
+&= \pro(Z_e\vee Z_\mu)+ [\pro(Z_e\vee S_e^2) - \pro(Z_e)][\pro(Z_\mu\vee S_\mu^2) - \pro(Z_\mu) ]\notag\\
+&= 1 - [1-\pro(Z_e)][1-\pro(Z_\mu)]+ [\pro(Z_e\vee S_e^2) - \pro(Z_e)][\pro(Z_\mu\vee S_\mu^2) - \pro(Z_\mu) ]
+\end{align}
+
+\subsection{One $ee/\mu\mu$ + one $e\mu$ trigger, $n_e+n_\mu$ leptons}
+
+\begin{align}
+\pro(T_{n_e+n_\mu}) &= \pro(D_e \vee (S_e\wedge S_\mu))\notag\\
+&= \pro(D_e)(1-\pro(S_\mu)) + \pro(S_\mu)\pro(D_e\vee S_e) 
+\end{align}
+
+the different terms can be evaluated with~\ref{e:1},~\ref{e:2s} (\ref{e:2a}) or~\ref{e:2sO1}, 
+depending whether the $ee/\mu\mu$ trigger is symmetric or not. 
+
+\subsection{One $ee$ + one $\mu\mu$ + one $e\mu$ trigger, $n_e+n_\mu$ leptons}
+
+\begin{align}
+\pro(T_{n_e+n_\mu}) &= \pro(D_e \vee (S_e\wedge S_\mu) \vee D_\mu)\notag\\
+&= \pro(D_e)[1-\pro(D_\mu\vee S_\mu)] + \pro(D_\mu)[1-\pro(D_e\vee S_e)]\notag\\
+&\qquad\qquad +  \pro(D_e\vee S_e) \pro(D_\mu\vee S_\mu) 
+\end{align}
+
+the different terms can be evaluated with~\ref{e:1},~\ref{e:2s} or~\ref{e:2sO1}. 
+
+
+%\subsection{One $ee$ + one $\mu\mu$ + one $e\mu$ trigger + one or more same-flavour $e/\mu$ trigger, $n_e+n_\mu$ leptons}
+%
+%We denote $Z_e:=S_e^{1a}\vee\ldots\vee S_e^{1k}$ the union of the $k$ single-lepton triggers. Then: 
+%\begin{align}
+%&\quad\,\,\pro(D_e \vee (S_e^2\wedge S_\mu^2) \vee D_\mu \vee Z_e)\notag\\
+%&=
+%\pro(D_\mu)
+%+ [\pro(D_e)+\pro(Z_e) - \pro(D_e \wedge Z_e)][1 - \pro(D_\mu)]\notag\\
+%&\quad+ [\pro(S_e^2) - \pro(D_e \wedge S_e^2) - \pro(Z_e\wedge S_e^2) + \pro(D_e \wedge Z_e\wedge S_e^2) ]
+%[\pro(S_\mu^2) - \pro( D_\mu\wedge S_\mu^2)]\notag\\
+%&= \pro(D_\mu) + \pro(D_e \vee Z_e)[1 - \pro(D_\mu)]\notag\\
+%&\quad+ [\pro(D_e \vee Z_e\vee S_e^2) - \pro(D_e\vee Z_e)]
+%[\pro( D_\mu\vee S_\mu^2)-\pro(D_\mu)]
+%\end{align}
+
+\subsection{One $ee$ + one $\mu\mu$ + one $e\mu$ trigger + several $e/\mu$ triggers, $n_e+n_\mu$ leptons}
+
+We denote $Z_e:=S_e^{1a}\vee\ldots\vee S_e^{1{k_e}}$ the union of the $k_e$ single-electron triggers, 
+and similarly $Z_\mu$ for the $k_\mu$ single-muon triggers. Then: 
+\begin{align}
+&\quad\,\,\pro(D_e \vee (S_e^2\wedge S_\mu^2) \vee D_\mu \vee Z_e \vee Z_\mu)\notag\\
+&=
+\pro(D_\mu \vee Z_\mu)
++ [1-\pro(D_\mu \vee Z_\mu)]\pro(D_e \vee Z_e)\notag\\
+&\qquad+ [\pro(S_\mu^2) - \pro(S_\mu^2\wedge D_\mu) 
+- \pro(S_\mu^2\wedge Z_\mu)+ \pro(S_\mu^2\wedge D_\mu\wedge Z_\mu)]\notag\\
+&\qquad\qquad\times[\pro(S_e^2) - \pro(S_e^2\wedge D_e) - \pro(S_e^2\wedge Z_e) + \pro(S_e^2\wedge D_e\wedge Z_e)]\notag\\
+&=
+1
+- [1-\pro(D_\mu \vee Z_\mu)][1-\pro(D_e \vee Z_e)]\notag\\
+&\qquad+[\pro(D_\mu\vee Z_\mu\vee S_\mu^2) - \pro(D_\mu\vee Z_\mu)]
+[\pro(D_e\vee Z_e \vee S_e^2) - \pro(D_e\vee Z_e)]
+\end{align}
+
+the evaluation of the different terms (one dilepton trigger + several single-lepton triggers) can be performed 
+with~\ref{e:2sO1} and~\ref{e:2aO1}. 
+
+
+\subsection{Two $ee$ + two $\mu\mu$ + two $e\mu$ + several $e/\mu$ triggers, $n_e+n_\mu$ leptons}
+
+Notation: $E=$ all dielectron or single electron triggers, $M=$ all dimuon or single muon triggers, 
+$S_e^k$ (resp. $S_\mu^k$) the electron leg (resp. muon leg) of the $k$-th $e\mu$ trigger. 
+
+\begin{align}
+\pro(T_n)&=\pro(E\vee (S_e^1\wedge S_\mu^1)\vee(S_e^1\wedge S_\mu^1)\vee M)\notag\\
+&= 1 - (1-\pro(E))(1-\pro(M)) + [\pro(E\vee S_e^1)-\pro(E)][\pro(M\vee S_\mu^1)-\pro(M)]\notag\\
+&\qquad + [\pro(E\vee S_e^2)-\pro(E)][\pro(M\vee S_\mu^2)-\pro(M)]\notag\\
+&\qquad + [\pro(E\vee S_e^1)+\pro(E\vee S_e^2)-\pro(E)-\pro(E\vee S_e^1\vee S_e^2)]\times\notag\\
+&\qquad\qquad\times[-\pro(M\vee S_\mu^1)-\pro(M\vee S_\mu^2)+\pro(M)+\pro(M\vee S_\mu^1\vee S_\mu^2)]
+\end{align}
+
+\section{Trilepton triggers}
+
+\subsection{Fully symmetric $3e/3\mu$ trigger, $n$ leptons}
+By induction:
+\begin{align}
+\pro(T_n) &= \pro(T_{n-1} \vee (D_{n-1}\wedge \ell_n))\notag\\
+&= \pro(T_{n-1})(1-\pro(\ell_n)) + \pro(\ell_n)\pro(D_{n-1})
+\end{align}
+with $\pro(D_{n-1})$ given by~\ref{e:2s}. 
+
+\subsection{Mixed $2e\_\mu/2\mu\_e/e\_e\_\mu/\mu\_\mu\_e$ trigger, $n_e+n_\mu$ leptons}
+
+
+\begin{align}
+\pro(T_{n_e+n_\mu}) &= \pro(E_{n_e})\pro(M_{n_\mu})
+\end{align}
+with $\pro(M_{n_\mu})$ given by~\ref{e:1} and $\pro(E_{n_e})$ by either~\ref{e:2s} or~\ref{e:2a} 
+depending whether the two electrons legs are identical or not. 
+
+
+
+
+\subsection{Half-symmetric $e\_2e/\mu\_2\mu$ trigger, $n$ leptons}
+Superscript 1 indicates the leg of the symmetric part, and 2 the other leg; $D_{n-1}$ 
+and $A_{n-1}$ stand for pseudo dilepton triggers built respectively with legs $1+1$ and $1+2$. 
+By induction: 
+\begin{align}
+\pro(T_n) &= \pro(T_{n-1} \vee (A_{n-1}\wedge \ell_n^1) \vee (D_{n-1}\wedge \ell_n^2))\notag\\
+&= [1-\pro(\ell_n^{\lambda_n})]\pro(T_{n-1}) +  [\pro(\ell_n^1) - \pro(\ell_n^{\tau_n})]\pro(A_{n-1})\notag\\
+&\qquad+ [\pro(\ell_n^2) - \pro(\ell_n^{\tau_n})]\pro(D_{n-1})
++ \pro(\ell_n^{\tau_n})\pro(D_{n-1}\vee A_{n-1})
+\end{align}
+
+with $\pro(D_{n-1})$ given by~\ref{e:2s}, $\pro(A_{n-1})$ by~\ref{e:2a}, 
+ and $\pro(D_{n-1}\vee A_{n-1})$ by~\ref{e:2s2a}; 
+the latter's expression is however greatly simplified since there is no single-lepton trigger involved 
+and the two ``dilepton'' triggers have a leg in common. 
+Its expression is therefore: 
+\begin{align}
+\pro(D_{n}\vee A_{n}) = [1-\pro(\ell_n^{\lambda_n})]\pro(D_{n-1}\vee A_{n-1}) + [\pro(\ell_n^{\lambda_n})-\pro(\ell_n^1)]\pro(S_{n-1}^1)
++\pro(\ell_n^1)\pro(S_{n-1}^1\vee S_{n-1}^2) 
+\end{align}
+
+
+\subsection{Two complementary mixed $2e\_\mu/2\mu\_e/e\_e\_\mu/\mu\_\mu\_e$ triggers, $n_e+n_\mu$ leptons}
+
+Complementary = two electrons+1 muon for one trigger, and two muons+1 electron for the other. 
+
+\begin{align}
+\pro(T_{n_e+n_\mu}) &= \pro((S_e\wedge D_\mu) \vee (S_\mu\wedge D_e))\notag\\
+&= \pro(S_e)\pro(D_\mu) + \pro(S_\mu)\pro(D_e) 
++ [\pro(D_e\vee S_e) - \pro(D_e)-\pro(S_e)]
+[\pro(D_\mu)+\pro(S_\mu)-\pro(D_\mu\vee S_\mu)]
+\end{align}
+with $\pro(S)$ given by~\ref{e:1}, $\pro(D)$ by either~\ref{e:2s} or~\ref{e:2a} 
+and $\pro(D\vee S)$ by~\ref{e:2sO1} or~\ref{e:2aO1}.
+
+
+
+\end{document}

@@ -52,12 +52,10 @@ public:
         /// Gaudi Service Interface method implementations
         virtual StatusCode finalize();
 
-        // Introducing to check if  METADATA working
+        /// Metadata methods
         virtual StatusCode beginInputFile();    
         virtual StatusCode beginEvent();
-        virtual StatusCode endInputFile();    
 
-        // Main methods from IUserDataCalcTool
 public:
 
         int getNumberOfToys( ){return m_number_of_toys;} ;

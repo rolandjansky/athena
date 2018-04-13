@@ -51,8 +51,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 HIGG2D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D1TPThinningTool",
                                                                    ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
                                                                    SelectionString        = thinning_expression,
-                                                                   InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                   ApplyAnd               = True)
+                                                                   InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D1TPThinningTool
 thinningTools.append(HIGG2D1TPThinningTool)
 
@@ -60,8 +59,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 HIGG2D1EMJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D1EMJetTPThinningTool",
                                                                            ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
                                                                            JetKey                 = "AntiKt4EMTopoJets",
-                                                                           InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                           ApplyAnd               = True)
+                                                                           InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D1EMJetTPThinningTool
 thinningTools.append(HIGG2D1EMJetTPThinningTool)
 
@@ -74,6 +72,16 @@ HIGG2D1MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name 
 ToolSvc += HIGG2D1MuonTPThinningTool
 thinningTools.append(HIGG2D1MuonTPThinningTool)
 
+# Tracks around (dR<0.4) Muons with pT>4 GeV
+HIGG2D1MuonTPThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name                   = "HIGG2D1MuonTPThinningTool2",
+                                                                            ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
+                                                                            MuonKey                = "Muons",
+                                                                            SelectionString        = "Muons.pt>4.*GeV",
+                                                                            ConeSize               = 0.4,
+                                                                            InDetTrackParticlesKey = "InDetTrackParticles")
+ToolSvc += HIGG2D1MuonTPThinningTool2
+thinningTools.append(HIGG2D1MuonTPThinningTool2)
+
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 HIGG2D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "HIGG2D1ElectronTPThinningTool",
@@ -83,6 +91,17 @@ HIGG2D1ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning
                                                                                  BestMatchOnly          = False)
 ToolSvc += HIGG2D1ElectronTPThinningTool
 thinningTools.append(HIGG2D1ElectronTPThinningTool)
+
+# Tracks around (dR<0.4) Electrons with pT>4 GeV
+HIGG2D1ElectronTPThinningTool2 = DerivationFramework__EgammaTrackParticleThinning(name                   = "HIGG2D1ElectronTPThinningTool2",
+                                                                                  ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
+                                                                                  SGKey                  = "Electrons",
+                                                                                  SelectionString        = "Electrons.pt>4.*GeV",
+                                                                                  ConeSize               = 0.4,
+                                                                                  InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                                  BestMatchOnly          = False)
+ToolSvc += HIGG2D1ElectronTPThinningTool2
+thinningTools.append(HIGG2D1ElectronTPThinningTool2)
 
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
@@ -190,7 +209,6 @@ else:
     TrkVKalVrtFitter = None    
 print "HIGG2D1.py Do4LVertexing", Do4LVertexing
 
-
 from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SkimmingToolHIGG2
 SkimmingToolHIGG2D1 = DerivationFramework__SkimmingToolHIGG2(name                     = "SkimmingToolHIGG2D1",
                                                              FilterType               = "2L", 
@@ -220,6 +238,9 @@ augmentationTools = []
 if Do4LVertexing:
     ToolSvc += SkimmingToolHIGG2D1
     augmentationTools.append(SkimmingToolHIGG2D1)
+
+# Custom muon isolation requested on 08/03/2018
+include("DerivationFrameworkHiggs/HIGG2D1CustomMuonIsolation.py")
 
 #=======================================
 # CREATE PRIVATE SEQUENCE
@@ -283,9 +304,6 @@ if DerivationFrameworkIsMonteCarlo:
                                                      'TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                                      'TruthBoson':'xAOD::TruthParticleContainer',
                                                      'TruthBosonAux':'xAOD::TruthParticleAuxContainer'})
-
-# Add MET_RefFinalFix
-addMETOutputs(HIGG2D1SlimmingHelper,["Track"])
 
 HIGG2D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D1SlimmingHelper.IncludeEGammaTriggerContent = True

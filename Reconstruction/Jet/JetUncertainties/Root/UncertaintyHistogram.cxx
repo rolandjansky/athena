@@ -191,7 +191,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     // Check third dimension boundaries, if applicable
     const float valZ = checkBoundaries(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
     if (m_interpolate) return Interpolate(m_histo,valX,valY,valZ);
-                       return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY),FindBin(m_histo->GetZaxis(),valZ));
+    return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY),FindBin(m_histo->GetZaxis(),valZ));
 }
 
 

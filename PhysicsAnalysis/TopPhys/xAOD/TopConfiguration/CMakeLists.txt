@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
-find_package( Boost REQUIRED COMPONENTS iostreams )
+find_package( Boost REQUIRED COMPONENTS iostreams regex )
 
 message( STATUS "${Boost_LIBRARIES}" )
 

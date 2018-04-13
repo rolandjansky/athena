@@ -22,11 +22,17 @@ class ClusterAtEMScaleTool : public JetConstituentModifierBase{
   ASG_TOOL_CLASS(ClusterAtEMScaleTool, IJetConstituentModifier)
 
   public:
-  
+
   ClusterAtEMScaleTool(const std::string& name);
   ~ClusterAtEMScaleTool();
-  StatusCode process(xAOD::IParticleContainer* cont) const; 
-  StatusCode process(xAOD::CaloClusterContainer* cont) const; // MEN: Might need to rename this process
+
+  // Check that the configuration is reasonable
+  StatusCode initialize();
+  
+  private:
+  // Implement the correction
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
+  StatusCode setClustersToEMScale(xAOD::CaloClusterContainer& cont) const;
 
 
 		

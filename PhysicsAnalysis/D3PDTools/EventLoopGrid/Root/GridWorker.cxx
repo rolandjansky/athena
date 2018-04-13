@@ -32,7 +32,7 @@ namespace EL
   GridWorker::GridWorker (const SH::MetaObject *meta, 
 			  TList *output,
 			  const TList& bigOutputs, 
-			  const TList& algs, 
+                          JobConfig&& jobConfig, 
 			  const std::string& location,
 			  PandaRootTools& pandaTools)
     : Worker(meta, output), 
@@ -53,25 +53,9 @@ namespace EL
 	}
       }
     }
-    
-    {//Register the algorithms with base class
-      TIter itr(&algs);
-      TObject *obj = 0;
-      while ((obj = itr())) {
-	if (obj->InheritsFrom("EL::Algorithm")) {
-	  EL::Algorithm * alg = dynamic_cast<EL::Algorithm*>(obj);
-	  if (alg) {
-	    addAlg(alg);
-	  }
-	  else {
-	    throw "ERROR: Bad input"; 
-	  }
-	}
-	else {
-	  throw "ERROR: Bad input"; 
-	}
-      }    
-    }
+
+    setJobConfig (std::move (jobConfig));
+
     RCU_NEW_INVARIANT (this);
   }
 

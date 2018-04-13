@@ -62,10 +62,11 @@ namespace Root {
         inline int finalize() { return 1; }
 
         /** The main salculate method: the actual cuts are applied here */
-        const std::vector<double> calculate( const PATCore::ParticleDataType::DataType dataType,
+        int calculate( const PATCore::ParticleDataType::DataType dataType,
                 const unsigned int runnumber,
                 const double cluster_eta,
                 const double et, /* in MeV */
+                std::vector<double>& result,
                 size_t& index_of_corr,
                 size_t& index_of_toys) const;
 

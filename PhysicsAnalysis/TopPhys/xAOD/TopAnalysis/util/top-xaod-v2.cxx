@@ -35,6 +35,7 @@
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/SelectionConfigurationData.h"
 
+#include "TopAnalysis/AnalysisTrackingHelper.h"
 #include "TopAnalysis/EventSelectionManager.h"
 #include "TopAnalysis/Tools.h"
 #include "TopCPTools/TopToolStore.h"
@@ -50,6 +51,7 @@
 #include "TopObjectSelectionTools/EventCleaningSelection.h"
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
+#include "TopPartons/CalcTtbarLightPartonHistory.h"
 #include "TopPartons/CalcTbbarPartonHistory.h"
 #include "TopPartons/CalcWtbPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
@@ -114,6 +116,7 @@ struct AnalysisTopTools{
   std::shared_ptr<top::TopToolStore> topToolStore;
   std::shared_ptr<top::ParticleLevelLoader> topParticleLevelLoader;
   std::shared_ptr<top::UpgradeObjectLoader> topUpgradeObjectLoader;
+  std::shared_ptr<top::AnalysisTrackingHelper> topAnalysisTrackingHelper;
   xAOD::TEvent* xaodEvent;
   xAOD::TStore* store;
 };
@@ -134,6 +137,8 @@ void InitialiseLHAPDFWeights(AnalysisTopTools, bool);
 void ReprocessLHE3Weights(AnalysisTopTools, bool);
 /// Preselection check
 bool PassPreselection(AnalysisTopTools);
+/// Function to create objects
+void CreateObjectCollection(AnalysisTopTools, bool);
 /// Function for checking and saving tight reco event
 void ProcessRecoEventTight(AnalysisTopTools, unsigned int&);
 /// Function for checking and saving loose reco event
@@ -226,6 +231,16 @@ int main(int argc, char** argv) {
   // Create the event saver
   std::shared_ptr<top::EventSaverBase> topEventSaver = CreateEventSaver(outputFile, topEventSelectionManager, topConfig);
 
+  // Create the analysis tracking helper
+  std::shared_ptr<top::AnalysisTrackingHelper> topAnalysisTrackingHelper;
+  {
+    bool useTracking = true;
+    top::ConfigurationSettings::get()->retrieve("WriteTrackingData", useTracking);
+    if (useTracking) {
+      topAnalysisTrackingHelper.reset(new top::AnalysisTrackingHelper());
+      topAnalysisTrackingHelper->setTopConfig(topConfig);
+    }
+  }
 
   // At this point, we have configured a lot of tools... let's store them somewhere safe
   AnalysisTopTools analysisTopTools;
@@ -245,6 +260,7 @@ int main(int argc, char** argv) {
   analysisTopTools.topToolStore                = topToolStore;
   analysisTopTools.topParticleLevelLoader      = topParticleLevelLoader;
   analysisTopTools.topUpgradeObjectLoader      = topUpgradeObjectLoader;
+  analysisTopTools.topAnalysisTrackingHelper   = topAnalysisTrackingHelper;
   analysisTopTools.xaodEvent                   = xaodEvent;
   analysisTopTools.store                       = store;
 
@@ -259,6 +275,10 @@ int main(int argc, char** argv) {
   analysisTopTools.outputFile->cd();
   analysisTopTools.topEventSelectionManager->finalise();
   analysisTopTools.topEventSaver->finalize();
+  analysisTopTools.outputFile->cd();
+  if (analysisTopTools.topAnalysisTrackingHelper) {
+    analysisTopTools.topAnalysisTrackingHelper->writeTree("AnalysisTracking");
+  }
   analysisTopTools.outputFile->Close();
   bool outputFileGood = !analysisTopTools.outputFile->TestBit(TFile::kWriteError);
   if (outputFileGood) {
@@ -310,14 +330,14 @@ xAOD::TStore* InitialiseXAOD(){
 std::string CheckForValidInput(std::vector<std::string> filenames){
 
   std::string usethisfile = "";
-  bool atLeastOneFileIsValid(false);
+  //bool atLeastOneFileIsValid(false);
   for (const auto& filename : filenames) {
     std::shared_ptr<TFile> checkingYieldFile(TFile::Open(filename.c_str()));
     //collection tree means > 0 events
     const TTree* const collectionTree = dynamic_cast<TTree* > (checkingYieldFile->Get("CollectionTree"));
     if (collectionTree) {
       usethisfile = filename;
-      atLeastOneFileIsValid = true;
+      //atLeastOneFileIsValid = true;
       break;
     }
   }
@@ -359,7 +379,7 @@ void SetMetadata(bool useAodMetaData, std::string usethisfile, std::string input
   std::shared_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
 
   // This function reads directly the Metadata object in xAOD file (we don't use it)
-  if(! top::readMetaData(testFile.get(), topConfig)){
+  if(! top::readMetaData(testFile.get(), topConfig) ){
     std::cerr << "Unable to access metadata object in this file : " << usethisfile << std::endl;
     std::cerr << "Please report this message" << std::endl;
   }
@@ -511,6 +531,10 @@ std::shared_ptr<top::CalcTopPartonHistory> CreateTopPartonHistory(std::shared_pt
     topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcTtbarPartonHistory( "top::CalcTtbarPartonHistory" ) );
     top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarPartonHistory");
   }
+  else if(settings->value("TopPartonHistory") == "ttbarlight"){
+    topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTtbarLightPartonHistory( "top::CalcTtbarLightPartonHistory" ) );
+    top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarLightPartonHistory");
+  }
   else if(settings->value("TopPartonHistory") == "tb"){
     topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcTbbarPartonHistory( "top::CalcTbbarPartonHistory" ) );
     top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTbbarPartonHistory");
@@ -634,13 +658,13 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
   // I/O Performance stats
   // Summary gives a summary
   // Full gives detailed info on each collection in the file
-  unsigned int doPerfStats(0);
+  //unsigned int doPerfStats(0);
   if (settings->value("PerfStats") == "Summary"){
-    doPerfStats = 1;
+    //doPerfStats = 1;
     xAOD::PerfStats::instance().start();  // start Perfstats timer
   }
   if (settings->value("PerfStats") == "Full"){
-    doPerfStats = 2;
+    //doPerfStats = 2;
     xAOD::PerfStats::instance().start();  // start Perfstats timer
   }
 
@@ -685,7 +709,8 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
     }
 
     // Start processing events
-    for (unsigned int entry = firstEvent; entry < entries; ++entry, ++totalYieldSoFar) {     
+    unsigned int entry;
+    for (entry = firstEvent; entry < entries; ++entry, ++totalYieldSoFar) {     
 
       // Work out if we stop processing
       if (topConfig->numberOfEventsToRun() != 0 && totalYieldSoFar >= topConfig->numberOfEventsToRun() ) break;
@@ -719,6 +744,10 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
       // Run preselection and cutflows - if failed preselection, get next event
       if( !PassPreselection(analysisTopTools) )
         continue;
+      // Run nominal object creation and selection
+      CreateObjectCollection(analysisTopTools, true);
+      // Run systematic object creation and selection
+      CreateObjectCollection(analysisTopTools, false);
       // Process reconstruction level event which passed preselection - Tight selection
       if (topConfig->doTightEvents()) {
         ProcessRecoEventTight(analysisTopTools, eventSavedReco);
@@ -730,6 +759,9 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
       // Needed for xAOD output, all systematics go into the same TTree
       analysisTopTools.topEventSaver->saveEventToxAOD();
     } // End events in file
+    if (analysisTopTools.topAnalysisTrackingHelper) {
+      analysisTopTools.topAnalysisTrackingHelper->addInputFile(inputFile->GetName(), entry-firstEvent);
+    }
     analysisTopTools.metadataTree->Update();
     // Handle the LHAPDF weights after processing current file
     ProcessLHAPDFWeights(analysisTopTools);
@@ -1066,21 +1098,29 @@ bool PassPreselection(AnalysisTopTools analysisTopTools){
   bool passAnyTriggerVeto = analysisTopTools.topEventCleaningSelection->applyTrigger();
   if (!passAnyTriggerVeto)
     return false;
+    
+  return true;
+  }
+
+void CreateObjectCollection(AnalysisTopTools analysisTopTools, bool executeNominal){
+
+  // Get the config object                                               
+  std::shared_ptr<top::TopConfig> topConfig = analysisTopTools.topConfig;
 
   ///-- Calibrate objects and make all required systematic copies --///
-  top::check( analysisTopTools.topObjectCollectionMaker->execute() , "Failed to execute systObjMaker" );
+  top::check( analysisTopTools.topObjectCollectionMaker->execute(executeNominal) , "Failed to execute systObjMaker" );
 
   ///-- Object selection (e.g. good electrons, muons, jets etc.). Event selection cuts comes later --///
-  top::check( analysisTopTools.topObjectSelection->execute() , "Failed to execute objectSelection" );
+  top::check( analysisTopTools.topObjectSelection->execute(executeNominal) , "Failed to execute objectSelection" );
 
   ///-- Recalculate MissingET based on object selection --///
-  top::check( analysisTopTools.topObjectCollectionMaker->recalculateMET() , "Failed to recalculateMET with systObjMaker" );
+  top::check( analysisTopTools.topObjectCollectionMaker->recalculateMET(executeNominal) , "Failed to recalculateMET with systObjMaker" );
 
   ///-- Scale Factor calculation --///
-  if (topConfig->isMC())
+  if (topConfig->isMC() && !executeNominal)
     top::check( analysisTopTools.topScaleFactorCalculator->execute() , "Failed to calculate scale factors" );
 
-  return true;
+  return;
 }
 
 void ProcessRecoEventTight(AnalysisTopTools analysisTopTools, unsigned int &eventSavedReco){

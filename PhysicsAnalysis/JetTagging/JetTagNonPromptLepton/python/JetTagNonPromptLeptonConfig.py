@@ -35,7 +35,10 @@ def GetDecoratePromptLeptonAlgs(name=""):
 #------------------------------------------------------------------------------
 def GetDecoratePromptTauAlgs():
 
-    algs = [DecoratePromptTau("PromptTauVeto", "TauJets", "AntiKt4PV0TrackJets")]
+    algs  = []
+
+    algs += [DecoratePromptTau("PromptTauIso", "TauJets", "AntiKt4PV0TrackJets")]
+    algs += [DecoratePromptTau("PromptTauVeto", "TauJets", "AntiKt4PV0TrackJets")]
 
     return algs
 
@@ -64,8 +67,9 @@ def GetExtraPromptTauVariablesForDxAOD():
 
     prompt_lep_vars = []
 
-    prompt_vars  = "PromptTauVeto."
+    prompt_vars  = "PromptTauIso.PromptTauVeto."
     prompt_vars += "PromptTauInput_TrackJetNTrack.PromptTauInput_rnnip."
+    prompt_vars += "PromptTauInput_MV2c10."
     prompt_vars += "PromptTauInput_MV2c10rnn."
     prompt_vars += "PromptTauInput_JetF.PromptTauInput_SV1."
     prompt_vars += "PromptTauInput_ip2.PromptTauInput_ip3."
@@ -128,8 +132,8 @@ def DecoratePromptTau(BDT_name, lepton_name, track_jet_name):
 
     alg.LeptonContainerName         = lepton_name
     alg.TrackJetContainerName       = track_jet_name
-    alg.ConfigFileVersionOneTrack   = 'InputData-2017-10-27/%s/%sOneTrack'   %(part_type, BDT_name)
-    alg.ConfigFileVersionThreeTrack = 'InputData-2017-10-27/%s/%sThreeTrack' %(part_type, BDT_name)
+    alg.ConfigFileVersionOneTrack   = 'InputData-2018-02-22/%s/%sOneTrack'   %(part_type, BDT_name)
+    alg.ConfigFileVersionThreeTrack = 'InputData-2018-02-22/%s/%sThreeTrack' %(part_type, BDT_name)
     alg.MethodTitleMVAOneTrack      = 'BDT_%s_%sOneTrack'   %(part_type, BDT_name)
     alg.MethodTitleMVAThreeTrack    = 'BDT_%s_%sThreeTrack' %(part_type, BDT_name)
     alg.BDTName                     = '%s' %BDT_name
@@ -155,6 +159,9 @@ def getStringIntVars(BDT_name):
                      'sv1_jf_ntrkv']
 
     elif BDT_name == "PromptLeptonVeto":
+        int_vars += ['TrackJetNTrack']
+
+    elif BDT_name == "PromptTauIso":
         int_vars += ['TrackJetNTrack']
 
     elif BDT_name == "PromptTauVeto":
@@ -186,6 +193,15 @@ def getStringFloatVars(BDT_name):
                        'DRlj',
                        'TopoEtCone30Rel',
                        'PtVarCone30Rel']
+
+    elif BDT_name == "PromptTauIso":
+        float_vars += ['MV2c10',                      
+                       'JetF',
+                       'SV1',
+                       'ip2',
+                       'ip3',
+                       'LepJetPtFrac',
+                       'DRlj']
 
     elif BDT_name == "PromptTauVeto":
         float_vars += ['rnnip',

@@ -61,4 +61,4 @@ atlas_add_dictionary( JetRecDict
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/JetRec_jobOptions.py share/myjets.py )
+atlas_install_joboptions( share/*.py )

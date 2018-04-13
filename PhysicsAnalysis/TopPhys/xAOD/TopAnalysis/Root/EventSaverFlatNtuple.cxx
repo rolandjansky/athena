@@ -134,6 +134,7 @@ namespace top {
 	m_hasBadMuon(0),
 	m_makeRCJets(false),
 	m_makeVarRCJets(false),
+	m_useRCJSS(false),
 	m_met_met(0.),
         m_met_phi(0.)
     {
@@ -188,6 +189,10 @@ namespace top {
 	// fixed-R re-clustering (RC)
 	if (config->useRCJets() == true){
 	  m_makeRCJets = true;
+
+	  if (config->useRCJetSubstructure() == true)
+	    m_useRCJSS = true;
+	  
 	  m_rc = std::unique_ptr<RCJetMC15> ( new RCJetMC15( "RCJetMC15" ) );
 	  top::check(m_rc->setProperty( "config" , config ) , "Failed to set config property of RCJetMC15");
 	  top::check(m_rc->initialize(),"Failed to initialize RCJetMC15");
@@ -221,8 +226,8 @@ namespace top {
         std::string nominalTTreeName("SetMe"),nominalLooseTTreeName("SetMe");
         if (m_config->doTightEvents() && !m_config->HLLHC()) {
           for (auto treeName : *config->systAllTTreeNames()) {
-              m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileSetAutoFlushZero()) ) );
-              m_treeManagers.back()->branchFilters() = branchFilters();
+    	      m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second, file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()  ) ) );
+	      m_treeManagers.back()->branchFilters() = branchFilters();
               if (treeName.first == m_config->nominalHashValue()) {
                   nominalTTreeName = treeName.second;
               }
@@ -231,7 +236,7 @@ namespace top {
 
         if (m_config->doLooseEvents()) {
             for (auto treeName : *config->systAllTTreeNames()) {
-                m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileSetAutoFlushZero()) ) );
+	        m_treeManagers.push_back(std::shared_ptr<top::TreeManager>( new top::TreeManager(treeName.second+"_Loose", file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector()) ) );
                 m_treeManagers.back()->branchFilters() = branchFilters();
                 if (treeName.first == m_config->nominalHashValue()) {
                     nominalLooseTTreeName = treeName.second+"_Loose";
@@ -244,7 +249,7 @@ namespace top {
 
             m_sfRetriever = std::unique_ptr<top::ScaleFactorRetriever> ( new top::ScaleFactorRetriever( m_config ) );
 
-            m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileSetAutoFlushZero()) );
+            m_truthTreeManager = std::shared_ptr<top::TreeManager>( new top::TreeManager( "truth" , file , m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector() ) );
             m_truthTreeManager->branchFilters() = branchFilters();
             m_truthTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
             m_truthTreeManager->makeOutputVariable(m_eventNumber, "eventNumber");
@@ -599,8 +604,9 @@ namespace top {
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_el_true_type,      "el_true_type");
                 systematicTree->makeOutputVariable(m_el_true_origin,    "el_true_origin");
-                systematicTree->makeOutputVariable(m_el_true_typebkg,   "el_true_typebkg");
-                systematicTree->makeOutputVariable(m_el_true_originbkg, "el_true_originbkg");
+                systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthType,   "el_true_firstEgMotherTruthType");
+                systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
+		systematicTree->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
               }
             }
 
@@ -621,6 +627,7 @@ namespace top {
               if (m_config->isMC()) {
                 systematicTree->makeOutputVariable(m_mu_true_type,   "mu_true_type");
                 systematicTree->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+		systematicTree->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
               }
             }
 
@@ -657,10 +664,11 @@ namespace top {
                   systematicTree->makeOutputVariable(m_jet_truthflav, "jet_truthflav");
                   systematicTree->makeOutputVariable(m_jet_truthPartonLabel, "jet_truthPartonLabel");
                   systematicTree->makeOutputVariable(m_jet_isTrueHS, "jet_isTrueHS");
+		  systematicTree->makeOutputVariable(m_jet_HadronConeExclExtendedTruthLabelID, "jet_truthflavExtended");
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
-                  if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
-                  else systematicTree->makeOutputVariable(m_jet_tagWeightBin , "jet_tagWeightBin");
+                  if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
+                  else systematicTree->makeOutputVariable(m_jet_tagWeightBin[tagWP] , "jet_tagWeightBin_"+tagWP);
                 }
 		// R21 - new b-tagging variables
 		if(m_config->getReleaseSeries() == 25){
@@ -710,8 +718,8 @@ namespace top {
                 systematicTree->makeOutputVariable(m_tjet_mv2c10,  "tjet_mv2c10");
                 systematicTree->makeOutputVariable(m_tjet_mv2c20,  "tjet_mv2c20");
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
-                  if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP] , "tjet_isbtagged_"+shortBtagWP(tagWP));
-                  else systematicTree->makeOutputVariable(m_tjet_tagWeightBin , "tjet_tagWeightBin");
+                  if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP] , "tjet_isbtagged_"+shortBtagWP(tagWP));
+                  else systematicTree->makeOutputVariable(m_tjet_tagWeightBin[tagWP] , "tjet_tagWeightBin_"+tagWP);
                 }
             }
 
@@ -728,8 +736,30 @@ namespace top {
 	      systematicTree->makeOutputVariable(m_rcjetsub_phi, "rcjetsub_phi");
 	      systematicTree->makeOutputVariable(m_rcjetsub_e,   "rcjetsub_e");
 	      systematicTree->makeOutputVariable(m_rcjetsub_mv2c10, "rcjetsub_mv2c10");
-	    }
 
+	      if (m_useRCJSS){
+		systematicTree->makeOutputVariable(m_rrcjet_pt,     "rrcjet_pt");
+		systematicTree->makeOutputVariable(m_rrcjet_eta,    "rrcjet_eta");
+		systematicTree->makeOutputVariable(m_rrcjet_phi,    "rrcjet_phi");
+		systematicTree->makeOutputVariable(m_rrcjet_e,      "rrcjet_e");
+ 
+		// RCJet SS from Clusters
+		systematicTree->makeOutputVariable(m_rcjet_tau32_clstr,  "rcjet_tau32_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_tau21_clstr,  "rcjet_tau21_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_tau3_clstr,  "rcjet_tau3_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_tau2_clstr,  "rcjet_tau2_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_tau1_clstr,  "rcjet_tau1_clstr");
+ 
+		systematicTree->makeOutputVariable(m_rcjet_D2_clstr,    "rcjet_D2_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_ECF1_clstr,  "rcjet_ECF1_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_ECF2_clstr,  "rcjet_ECF2_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_ECF3_clstr,  "rcjet_ECF3_clstr");
+ 
+		systematicTree->makeOutputVariable(m_rcjet_d12_clstr,  "rcjet_d12_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_d23_clstr,  "rcjet_d23_clstr");
+		systematicTree->makeOutputVariable(m_rcjet_Qw_clstr,  "rcjet_Qw_clstr");
+	      }
+	    }
 	    // vRC branches
 	    if (m_makeVarRCJets){
 	      std::string VarRC = "vrcjet";
@@ -866,11 +896,11 @@ namespace top {
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_E,"klfitter_model_lj1_from_top1_E");
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_jetIndex,"klfitter_model_lj1_from_top1_jetIndex");
 
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_pt,"klfitter_model_lj1_from_top1_pt");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_eta,"klfitter_model_lj1_from_top1_eta");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_phi,"klfitter_model_lj1_from_top1_phi");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_E,"klfitter_model_lj1_from_top1_E");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_jetIndex,"klfitter_model_lj1_from_top1_jetIndex");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_pt,"klfitter_model_lj2_from_top1_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_eta,"klfitter_model_lj2_from_top1_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_phi,"klfitter_model_lj2_from_top1_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_E,"klfitter_model_lj2_from_top1_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_jetIndex,"klfitter_model_lj2_from_top1_jetIndex");
 
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_pt,"klfitter_model_lj1_from_top2_pt");
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_eta,"klfitter_model_lj1_from_top2_eta");
@@ -878,11 +908,11 @@ namespace top {
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_E,"klfitter_model_lj1_from_top2_E");
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_jetIndex,"klfitter_model_lj1_from_top2_jetIndex");
 
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_pt,"klfitter_model_lj1_from_top2_pt");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_eta,"klfitter_model_lj1_from_top2_eta");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_phi,"klfitter_model_lj1_from_top2_phi");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_E,"klfitter_model_lj1_from_top2_E");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_jetIndex,"klfitter_model_lj1_from_top2_jetIndex");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_pt,"klfitter_model_lj2_from_top2_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_eta,"klfitter_model_lj2_from_top2_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_phi,"klfitter_model_lj2_from_top2_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_E,"klfitter_model_lj2_from_top2_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_jetIndex,"klfitter_model_lj2_from_top2_jetIndex");
 
                   }
                 }
@@ -987,7 +1017,7 @@ namespace top {
             return;
         }
 
-        m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileSetAutoFlushZero() );
+        m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
         m_particleLevelTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
@@ -1148,7 +1178,7 @@ namespace top {
             return;
         }
 
-        m_upgradeTreeManager = std::make_shared<top::TreeManager>( "upgrade", m_outputFile, m_config->outputFileSetAutoFlushZero() );
+        m_upgradeTreeManager = std::make_shared<top::TreeManager>( "upgrade", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
         m_upgradeTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
@@ -1182,6 +1212,24 @@ namespace top {
 
        m_upgradeTreeManager->makeOutputVariable(m_jet_Ghosts_BHadron_Final_Count, "jet_nGhosts_bHadron");
        m_upgradeTreeManager->makeOutputVariable(m_jet_Ghosts_CHadron_Final_Count, "jet_nGhosts_cHadron");
+
+       //large R jets
+       if ( m_config->useTruthLargeRJets() ){
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_pt, "ljet_pt");
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_eta, "ljet_eta");
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_phi, "ljet_phi");
+          m_upgradeTreeManager->makeOutputVariable(m_ljet_e, "ljet_e");
+
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_Ghosts_BHadron_Final_Count, "ljet_nGhosts_bHadron");
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_Ghosts_CHadron_Final_Count, "ljet_nGhosts_cHadron");
+       }
+
+       if (m_config->useTruthPhotons()) {
+           m_upgradeTreeManager->makeOutputVariable(m_ph_pt, "ph_pt");
+           m_upgradeTreeManager->makeOutputVariable(m_ph_eta, "ph_eta");
+           m_upgradeTreeManager->makeOutputVariable(m_ph_phi, "ph_phi");
+           m_upgradeTreeManager->makeOutputVariable(m_ph_e, "ph_e");
+       }
 
        // MET
        m_upgradeTreeManager->makeOutputVariable(m_met_met, "met_met");
@@ -1248,10 +1296,12 @@ namespace top {
               m_weight_photonSF = m_sfRetriever->photonSF(event, top::topSFSyst::nominal);
 
             for( auto& tagWP : m_config -> bTagWP_available()) {
+	      if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
               m_weight_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP);
             }
             if (m_config->useTrackJets()) {
               for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
+		if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
                 m_weight_trackjet_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP, true);
               }
             }
@@ -1528,8 +1578,9 @@ namespace top {
             if (m_config->isMC()) {
               m_el_true_type.resize(n_electrons);
               m_el_true_origin.resize(n_electrons);
-              m_el_true_typebkg.resize(n_electrons);
-              m_el_true_originbkg.resize(n_electrons);
+              m_el_true_firstEgMotherTruthOrigin.resize(n_electrons);
+              m_el_true_firstEgMotherTruthType.resize(n_electrons);
+	      m_el_true_isPrompt.resize(n_electrons);
             }
 
             for (const auto* const elPtr : event.m_electrons) {
@@ -1561,16 +1612,20 @@ namespace top {
                 if (m_config->isMC()) {
                   m_el_true_type[i] = 0;
                   m_el_true_origin[i] = 0;
-                  m_el_true_typebkg[i] = 0;
-                  m_el_true_originbkg[i] = 0;
+                  m_el_true_firstEgMotherTruthType[i] = 0;
+                  m_el_true_firstEgMotherTruthOrigin[i] = 0;
                   static SG::AuxElement::Accessor<int> typeel("truthType");
                   static SG::AuxElement::Accessor<int> origel("truthOrigin");
-                  static SG::AuxElement::Accessor<int> typebkgel("bkgTruthType");
-                  static SG::AuxElement::Accessor<int> origbkgel("bkgTruthOrigin");
+		  static SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
+                  static SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
+
                   if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
                   if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
-                  if (typebkgel.isAvailable(*elPtr)) m_el_true_typebkg[i] = typebkgel(*elPtr);
-                  if (origbkgel.isAvailable(*elPtr)) m_el_true_originbkg[i] = origbkgel(*elPtr);
+		  if (firstEgMotherTruthType.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthType[i] = firstEgMotherTruthType(*elPtr);
+		  if (firstEgMotherTruthOrigin.isAvailable(*elPtr)) m_el_true_firstEgMotherTruthOrigin[i] = firstEgMotherTruthOrigin(*elPtr);
+
+		  m_el_true_isPrompt[i] = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i]);
+		  
                 }
                 ++i;
             }
@@ -1595,6 +1650,7 @@ namespace top {
             if (m_config->isMC()) {
               m_mu_true_type.resize(n_muons);
               m_mu_true_origin.resize(n_muons);
+	      m_mu_true_isPrompt.resize(n_muons);
             }
 
             for (const auto* const muPtr : event.m_muons) {
@@ -1629,6 +1685,7 @@ namespace top {
                   if (mutrack!=nullptr) {
                       if (acc_mctt.isAvailable(*mutrack)) m_mu_true_type[i] = acc_mctt(*mutrack);
                       if (acc_mcto.isAvailable(*mutrack)) m_mu_true_origin[i] = acc_mcto(*mutrack);
+		      m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
                   }
                 }
                 ++i;
@@ -1710,10 +1767,11 @@ namespace top {
               m_jet_truthflav.resize(event.m_jets.size());
               m_jet_truthPartonLabel.resize(event.m_jets.size());
               m_jet_isTrueHS.resize(event.m_jets.size());
+	      m_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_jets.size());
             }
             for( auto& tagWP : m_config -> bTagWP_available()){
-              if (tagWP!= "Continuous") m_jet_isbtagged[tagWP].resize(event.m_jets.size());
-              else m_jet_tagWeightBin.resize(event.m_jets.size());
+              if (tagWP.find("Continuous") == std::string::npos) m_jet_isbtagged[tagWP].resize(event.m_jets.size());
+              else m_jet_tagWeightBin[tagWP].resize(event.m_jets.size());
             }
             for (const auto* const jetPtr : event.m_jets) {
                 m_jet_pt[i] = jetPtr->pt();
@@ -1741,17 +1799,21 @@ namespace top {
                   if(jetPtr->isAvailable<char>("AnalysisTop_isHS")){
                     jetPtr->getAttribute("AnalysisTop_isHS", m_jet_isTrueHS[i]);
                   }
+		  m_jet_HadronConeExclExtendedTruthLabelID[i] = -99;
+		  if(jetPtr->isAvailable<int>("HadronConeExclExtendedTruthLabelID")){
+		    jetPtr->getAttribute("HadronConeExclExtendedTruthLabelID", m_jet_HadronConeExclExtendedTruthLabelID[i]);
+		  }
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
-                  if (tagWP!= "Continuous") {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     m_jet_isbtagged[tagWP][i] = false;
                     if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
                       m_jet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
                   }
                   else {
-                    m_jet_tagWeightBin[i] = -2;// AT default value
-                    if(jetPtr->isAvailable<int>("tagWeightBin"))
-                      m_jet_tagWeightBin[i] = jetPtr->auxdataConst<int>("tagWeightBin");
+                    m_jet_tagWeightBin[tagWP][i] = -2;// AT default value
+                    if(jetPtr->isAvailable<int>("tagWeightBin_"+tagWP))
+                      m_jet_tagWeightBin[tagWP][i] = jetPtr->auxdataConst<int>("tagWeightBin_"+tagWP);
                   }
                 }
 
@@ -1897,8 +1959,8 @@ namespace top {
             m_tjet_mv2c10.resize(event.m_trackJets.size());
             m_tjet_mv2c20.resize(event.m_trackJets.size());
             for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
-              if (tagWP!= "Continuous") m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
-              else m_tjet_tagWeightBin.resize(event.m_trackJets.size());
+              if (tagWP.find("Continuous") == std::string::npos) m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
+              else m_tjet_tagWeightBin[tagWP].resize(event.m_trackJets.size());
             }
             for (const auto* const jetPtr : event.m_trackJets) {
                 m_tjet_pt[i] = jetPtr->pt();
@@ -1918,15 +1980,15 @@ namespace top {
                 if (btag) btag->MVx_discriminant("MV2c20", mvx);
                 m_tjet_mv2c20[i] = mvx;
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
-                  if (tagWP!= "Continuous") {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     m_tjet_isbtagged[tagWP][i] = false;
                     if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
                       m_tjet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
                   }
                   else {
-                    m_tjet_tagWeightBin[i] = -2;// AT default value
-                    if(jetPtr->isAvailable<int>("tagWeightBin"))
-                      m_tjet_tagWeightBin[i] = jetPtr->auxdataConst<int>("tagWeightBin");
+                    m_tjet_tagWeightBin[tagWP][i] = -2;// AT default value
+                    if(jetPtr->isAvailable<int>("tagWeightBin_"+tagWP))
+                      m_tjet_tagWeightBin[tagWP][i] = jetPtr->auxdataConst<int>("tagWeightBin_"+tagWP);
                   }
                 }
                 ++i;
@@ -1949,33 +2011,96 @@ namespace top {
 	  static SG::AuxElement::ConstAccessor<float> RCSplit12("Split12");
 	  static SG::AuxElement::ConstAccessor<float> RCSplit23("Split23");
 
+
+ 
+ 	  // re-clustered jet substructure from clusters
+ 	  static SG::AuxElement::ConstAccessor<float> Tau21_clstr("Tau21_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> Tau32_clstr("Tau32_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> Tau3_clstr("Tau3_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> Tau2_clstr("Tau2_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> Tau1_clstr("Tau1_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> D2_clstr("D2_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> ECF1_clstr("ECF1_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> ECF2_clstr("ECF2_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> ECF3_clstr("ECF3_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> d12_clstr("d12_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> d23_clstr("d23_clstr");
+ 	  static SG::AuxElement::ConstAccessor<float> Qw_clstr("Qw_clstr");
+	  // store also the jet that is rebuilt to calculate the JSS
+ 	  static SG::AuxElement::ConstAccessor<float> RRCJet_pt("RRCJet_pt");
+ 	  static SG::AuxElement::ConstAccessor<float> RRCJet_eta("RRCJet_eta");
+ 	  static SG::AuxElement::ConstAccessor<float> RRCJet_phi("RRCJet_phi");
+ 	  static SG::AuxElement::ConstAccessor<float> RRCJet_e("RRCJet_e");
+	  
 	  // Initialize the vectors to be saved as branches
 	  unsigned int sizeOfRCjets(rc_jets->size());
 
-    m_rcjet_pt.clear();
-    m_rcjet_eta.clear();
-    m_rcjet_phi.clear();
-    m_rcjet_e.clear();
-    m_rcjet_d12.clear();
-    m_rcjet_d23.clear();
-    m_rcjetsub_pt.clear();
-    m_rcjetsub_eta.clear();
-    m_rcjetsub_phi.clear();
-    m_rcjetsub_e.clear();
-    m_rcjetsub_mv2c10.clear();
+	  m_rcjet_pt.clear();
+	  m_rcjet_eta.clear();
+	  m_rcjet_phi.clear();
+	  m_rcjet_e.clear();
+	  m_rcjet_d12.clear();
+	  m_rcjet_d23.clear();
+	  m_rcjetsub_pt.clear();
+	  m_rcjetsub_eta.clear();
+	  m_rcjetsub_phi.clear();
+	  m_rcjetsub_e.clear();
+	  m_rcjetsub_mv2c10.clear();
+	  m_rrcjet_pt.clear();
+	  m_rrcjet_eta.clear();
+	  m_rrcjet_phi.clear();
+	  m_rrcjet_e.clear();
+     
+     
+	  m_rcjet_tau32_clstr.clear();
+	  m_rcjet_tau21_clstr.clear();
+	  m_rcjet_tau3_clstr.clear();
+	  m_rcjet_tau2_clstr.clear();
+	  m_rcjet_tau1_clstr.clear();
+ 
+	  m_rcjet_D2_clstr.clear();
+	  m_rcjet_ECF1_clstr.clear();
+	  m_rcjet_ECF2_clstr.clear();
+	  m_rcjet_ECF3_clstr.clear();
+ 
+	  m_rcjet_d12_clstr.clear();
+	  m_rcjet_d23_clstr.clear();    
+	  m_rcjet_Qw_clstr.clear();
 
-    m_rcjet_pt.resize(sizeOfRCjets,-999.);
-    m_rcjet_eta.resize(sizeOfRCjets,-999.);
-    m_rcjet_phi.resize(sizeOfRCjets,-999.);
-    m_rcjet_e.resize(sizeOfRCjets,-999.);
-    m_rcjet_d12.resize(sizeOfRCjets,-999.);
-    m_rcjet_d23.resize(sizeOfRCjets,-999.);
-    m_rcjetsub_pt.resize(sizeOfRCjets, std::vector<float>());
-    m_rcjetsub_eta.resize(sizeOfRCjets, std::vector<float>());
-    m_rcjetsub_phi.resize(sizeOfRCjets, std::vector<float>());
-    m_rcjetsub_e.resize(sizeOfRCjets, std::vector<float>());
-    m_rcjetsub_mv2c10.resize(sizeOfRCjets, std::vector<float>());
 
+	  m_rcjet_pt.resize(sizeOfRCjets,-999.);
+	  m_rcjet_eta.resize(sizeOfRCjets,-999.);
+	  m_rcjet_phi.resize(sizeOfRCjets,-999.);
+	  m_rcjet_e.resize(sizeOfRCjets,-999.);
+	  m_rcjet_d12.resize(sizeOfRCjets,-999.);
+	  m_rcjet_d23.resize(sizeOfRCjets,-999.);
+	  m_rcjetsub_pt.resize(sizeOfRCjets, std::vector<float>());
+	  m_rcjetsub_eta.resize(sizeOfRCjets, std::vector<float>());
+	  m_rcjetsub_phi.resize(sizeOfRCjets, std::vector<float>());
+	  m_rcjetsub_e.resize(sizeOfRCjets, std::vector<float>());
+	  m_rcjetsub_mv2c10.resize(sizeOfRCjets, std::vector<float>());
+
+	  if (m_useRCJSS){
+	    m_rrcjet_pt.resize(sizeOfRCjets,-999.);
+	    m_rrcjet_eta.resize(sizeOfRCjets,-999.);
+	    m_rrcjet_phi.resize(sizeOfRCjets,-999.);
+	    m_rrcjet_e.resize(sizeOfRCjets,-999.);
+     
+	    m_rcjet_tau32_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_tau21_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_tau1_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_tau2_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_tau3_clstr.resize(sizeOfRCjets,-999.);
+ 	  
+	    m_rcjet_D2_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_ECF1_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_ECF2_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_ECF3_clstr.resize(sizeOfRCjets,-999.);
+ 
+	    m_rcjet_d12_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_d23_clstr.resize(sizeOfRCjets,-999.);
+	    m_rcjet_Qw_clstr.resize(sizeOfRCjets,-999.);
+	  }
 	  unsigned int i = 0;
 	  for (xAOD::JetContainer::const_iterator jet_itr = rc_jets->begin(); jet_itr != rc_jets->end(); ++jet_itr) {
 	    const xAOD::Jet* rc_jet = *jet_itr;
@@ -1991,6 +2116,26 @@ namespace top {
             m_rcjet_d12[i] = (RCSplit12.isAvailable(*rc_jet)) ? RCSplit12(*rc_jet) : -999.;
             m_rcjet_d23[i] = (RCSplit23.isAvailable(*rc_jet)) ? RCSplit23(*rc_jet) : -999.;
 
+	    if (m_useRCJSS){
+	      m_rrcjet_pt[i]   =  (RRCJet_pt.isAvailable(*rc_jet))  ? RRCJet_pt(*rc_jet) : -999.;
+	      m_rrcjet_eta[i]  =  (RRCJet_eta.isAvailable(*rc_jet)) ? RRCJet_eta(*rc_jet) : -999.;
+	      m_rrcjet_phi[i]  =  (RRCJet_phi.isAvailable(*rc_jet)) ? RRCJet_phi(*rc_jet) : -999.;
+	      m_rrcjet_e[i]    =  (RRCJet_e.isAvailable(*rc_jet))   ? RRCJet_e(*rc_jet) : -999.;
+
+	      m_rcjet_tau32_clstr[i] = (Tau32_clstr.isAvailable(*rc_jet)) ? Tau32_clstr(*rc_jet) : -999.;
+	      m_rcjet_tau21_clstr[i] = (Tau21_clstr.isAvailable(*rc_jet)) ? Tau21_clstr(*rc_jet) : -999.;
+	      m_rcjet_tau3_clstr[i] = (Tau3_clstr.isAvailable(*rc_jet)) ? Tau3_clstr(*rc_jet) : -999.;
+	      m_rcjet_tau2_clstr[i] = (Tau2_clstr.isAvailable(*rc_jet)) ? Tau2_clstr(*rc_jet) : -999.;
+	      m_rcjet_tau1_clstr[i] = (Tau1_clstr.isAvailable(*rc_jet)) ? Tau1_clstr(*rc_jet) : -999.;
+	      m_rcjet_D2_clstr[i] = (D2_clstr.isAvailable(*rc_jet)) ? D2_clstr(*rc_jet) : -999.;
+	      m_rcjet_ECF1_clstr[i] = (ECF1_clstr.isAvailable(*rc_jet)) ? ECF1_clstr(*rc_jet) : -999.;
+	      m_rcjet_ECF2_clstr[i] = (ECF2_clstr.isAvailable(*rc_jet)) ? ECF2_clstr(*rc_jet) : -999.;
+	      m_rcjet_ECF3_clstr[i] = (ECF3_clstr.isAvailable(*rc_jet)) ? ECF3_clstr(*rc_jet) : -999.;
+	      m_rcjet_d12_clstr[i] = (d12_clstr.isAvailable(*rc_jet)) ? d12_clstr(*rc_jet) : -999.;
+	      m_rcjet_d23_clstr[i] = (d23_clstr.isAvailable(*rc_jet)) ? d23_clstr(*rc_jet) : -999.;
+	      m_rcjet_Qw_clstr[i] = (Qw_clstr.isAvailable(*rc_jet)) ? Qw_clstr(*rc_jet) : -999.;
+	    }
+	    
             // loop over subjets
             m_rcjetsub_pt[i].clear();     // clear the vector size (otherwise it grows out of control!)
             m_rcjetsub_eta[i].clear();
@@ -2033,6 +2178,28 @@ namespace top {
 	  m_rcjetsub_phi.resize(i, std::vector<float>());
 	  m_rcjetsub_e.resize(i, std::vector<float>());
 	  m_rcjetsub_mv2c10.resize(i, std::vector<float>());
+
+	  if (m_useRCJSS){
+	    m_rrcjet_pt.resize(i);
+	    m_rrcjet_eta.resize(i);
+	    m_rrcjet_phi.resize(i);
+	    m_rrcjet_e.resize(i);
+
+	    m_rcjet_tau21_clstr.resize(i);
+	    m_rcjet_tau32_clstr.resize(i);
+	    m_rcjet_tau1_clstr.resize(i);
+	    m_rcjet_tau2_clstr.resize(i);
+	    m_rcjet_tau3_clstr.resize(i);
+ 	  
+	    m_rcjet_D2_clstr.resize(i);
+	    m_rcjet_ECF1_clstr.resize(i);
+	    m_rcjet_ECF2_clstr.resize(i);
+	    m_rcjet_ECF3_clstr.resize(i);
+ 
+	    m_rcjet_d12_clstr.resize(i);
+	    m_rcjet_d23_clstr.resize(i);
+	    m_rcjet_Qw_clstr.resize(i);
+	  }
 	} // end if make rcjets
 	// end re-clustered jets
 
@@ -3034,6 +3201,46 @@ namespace top {
          ++i;
        }
 
+       //large R jets
+       if ( m_config->useTruthLargeRJets() ){
+           unsigned int i = 0;
+
+           m_ljet_pt.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_eta.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_phi.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_e.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_Ghosts_BHadron_Final_Count.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_Ghosts_CHadron_Final_Count.resize(upgradeEvent.m_largeRJets->size());
+           for (const auto & jetPtr : * upgradeEvent.m_largeRJets) {
+               m_ljet_pt[i] = jetPtr->pt();
+               m_ljet_eta[i] = jetPtr->eta();
+               m_ljet_phi[i] = jetPtr->phi();
+               m_ljet_e[i] = jetPtr->e();
+
+               m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+               m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+
+               ++i;
+           }
+       }
+
+       //photons
+        if (m_config->useTruthPhotons()) {
+            unsigned int i(0);
+            m_ph_pt.resize(upgradeEvent.m_photons->size());
+            m_ph_eta.resize(upgradeEvent.m_photons->size());
+            m_ph_phi.resize(upgradeEvent.m_photons->size());
+            m_ph_e.resize(upgradeEvent.m_photons->size());
+            for (const auto* const phPtr : * upgradeEvent.m_photons) {
+                m_ph_pt[i] = phPtr->pt();
+                m_ph_eta[i] = phPtr->eta();
+                m_ph_phi[i] = phPtr->phi();
+                m_ph_e[i] = phPtr->e();
+
+                ++i;
+            }
+        }
+
        // MET
        m_met_met = upgradeEvent.m_met->met();
        m_met_phi = upgradeEvent.m_met->phi();
@@ -3237,5 +3444,26 @@ namespace top {
       }
       return out;
     }
+  
+  bool EventSaverFlatNtuple::isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin){
+    // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
+    bool prompt            = (type == 2 &&
+			      (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
+    // New recovery using first Non-Geant 
+    bool recovered_FSRConv = (type == 4 && egMotherType == 40);
+    bool recovered_Other   = (type == 4 && egMotherType == 2 &&			      
+			      (egMotherOrigin == 10 || egMotherOrigin == 12 || egMotherOrigin == 13 || egMotherOrigin == 14 || egMotherOrigin == 43) );
+
+    return (prompt || recovered_FSRConv || recovered_Other);
+  }
+
+  bool EventSaverFlatNtuple::isPromptMuon(int type, int origin){
+    // 43 is "diboson" origin, but is needed due to buggy origin flags in Sherpa ttbar
+    bool prompt = (type == 6 &&
+		   (origin == 10 || origin == 12 || origin == 13 || origin == 14 || origin == 43) ); 
+
+    return prompt;
+  }
+  
 
 } // namespace

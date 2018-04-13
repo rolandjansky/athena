@@ -80,7 +80,6 @@ namespace Root {
                 const double cluster_eta,
                 const double et /* in MeV */
                 );
-        double GetIsoSyst(bool isConv, double eta, int isolationcut);  
 
     private :
     };
