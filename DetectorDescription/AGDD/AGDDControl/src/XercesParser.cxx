@@ -162,6 +162,27 @@ bool XercesParser::ParseStringAndNavigate(std::string s)
 	return true;
 }
 
+bool XercesParser::WriteToFile(std::string s)
+{
+	XMLCh tempStr[100];
+	XMLString::transcode("LS", tempStr, 99);
+	DOMImplementation* implemenation = DOMImplementationRegistry::getDOMImplementation(tempStr);
+	DOMLSSerializer*   serializer    = ((DOMImplementationLS*)implemenation)->createLSSerializer();
+	// if one wants a nicely indented file -- not in this case as it goes to the DB and be compressed
+	// DOMConfiguration*  domconfig     = serializer->getDomConfig();
+	// domconfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+
+	XMLFormatTarget* target    = new LocalFileFormatTarget(s.c_str());
+	DOMLSOutput*     domoutput = ((DOMImplementationLS*)implemenation)->createLSOutput();
+	domoutput->setByteStream(target);
+	serializer->write(m_doc, domoutput);
+	domoutput->release();
+	serializer->release();
+	delete target;
+
+	return true;
+}
+
 void XercesParser::navigateTree()
 {
 	if (!m_doc) 
