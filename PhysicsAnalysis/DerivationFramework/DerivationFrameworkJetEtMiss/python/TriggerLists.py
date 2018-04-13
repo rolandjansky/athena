@@ -5,7 +5,6 @@ from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 # jet triggers (single Jets, prescaled and unprescaled)
 def jetTrig():
 	jetTriggers = TriggerAPI.getAllHLT(TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.future, TriggerType.j_single)
-	jetTriggers.update(TriggerAPI.getAllHLT(TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.future, TriggerType.j_multi))
 	# Large-radius multijet triggers	
 	jetTriggers.update(TriggerAPI.getAllHLT(TriggerPeriod.y2017,TriggerType.j_multi,matchPattern=".*_a10t_.*"))
 	jetTriggers.update(TriggerAPI.getAllHLT(TriggerPeriod.future,TriggerType.j_multi,matchPattern=".*_a10t_.*"))
