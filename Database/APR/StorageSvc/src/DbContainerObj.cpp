@@ -48,12 +48,11 @@ DbContainerObj::DbContainerObj( const DbDatabase& dbH,
                                 const string&     nam, 
                                 const DbType&     dbtyp,
                                 DbAccessMode      mod)   
-: Base(nam, mod, dbtyp, dbH.db()), m_info(0), m_tokH(0), m_transactOpen(false)
+: Base(nam, mod, dbtyp, dbH.db()), m_info(0), m_tokH(0)
 {
   DbPrint log( dbH.logon() );
   m_isOpen    = false;
   s_count->increment();
-  m_transactOpen = dbH.transactionActive();
 
   if ( 0 != db() && dbtyp == dbH.type() )   {
     if ( dbH.isValid() )  {
@@ -202,28 +201,8 @@ bool DbContainerObj::updatesPending() const  {
 }
 
 /// Start/Commit/Rollback Database Transaction
-DbStatus DbContainerObj::transAct(DbTransaction& refTr) {
-  if ( m_info )    {
-    Transaction::Action typ = refTr.state();
-    switch( typ ) {
-    case Transaction::TRANSACT_START:
-      if ( m_transactOpen )
-        return Error;
-      m_transactOpen = true;
-      break;
-    case Transaction::TRANSACT_FLUSH:
-    case Transaction::TRANSACT_COMMIT:
-    case Transaction::TRANSACT_ROLLBACK:
-      if ( !m_transactOpen )
-        return Error;
-      m_transactOpen = false;
-      break;
-    default:
-      break;
-    }
-    return m_info->transAct(refTr); 
-  }
-  return Success;
+DbStatus DbContainerObj::transAct(Transaction::Action action) {
+   return m_info?  m_info->transAct(action) : Error;
 }
 
 /// Pass options to the implementation
@@ -365,7 +344,7 @@ DbStatus DbContainerObj::load(DataCallBack* call,
 
 /// Perform UPDATE select
 DbStatus DbContainerObj::update(DbSelect& sel)  {
-  if ( !isReadOnly() && hasAccess() && transactionActive() )  {
+  if ( !isReadOnly() && hasAccess() )  {
     m_dbH.setAge(0);
     return m_info->update(sel);
   }
@@ -374,7 +353,7 @@ DbStatus DbContainerObj::update(DbSelect& sel)  {
 
 /// Perform DELETE statement
 DbStatus DbContainerObj::destroy(DbSelect& sel) {
-  if ( !isReadOnly() && hasAccess() && transactionActive() )  {
+  if ( !isReadOnly() && hasAccess() )  {
     m_dbH.setAge(0);
     return m_info->destroy(sel);
   }

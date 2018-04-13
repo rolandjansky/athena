@@ -34,10 +34,6 @@ DbStatus DbDatabaseImp::onOpen(const DbDatabase& /* dbH  */,DbAccessMode /* mode
 DbStatus DbDatabaseImp::reopen(DbAccessMode /* mode */)
 {  return Error;                                                        }
 
-/// Find container in Database: to be overridden
-DbStatus DbDatabaseImp::find(DbContainer& /* handle */)
-{  return Success;                                                      }
-
 /// Access options
 DbStatus DbDatabaseImp::getOption(DbOption& /* opt */) const
 {  return Error;                                                        }
@@ -46,6 +42,6 @@ DbStatus DbDatabaseImp::getOption(DbOption& /* opt */) const
 DbStatus DbDatabaseImp::setOption(const DbOption& /* opt */)
 {  return Success;                                                      }
 
-/// Start/Commit/Rollback Database Transaction
-DbStatus DbDatabaseImp::transAct(DbTransaction& /* refTr */)
+/// Execute Database Transaction action
+DbStatus DbDatabaseImp::transAct(Transaction::Action /*action*/)
 {  return Success;                                                      }

@@ -29,6 +29,7 @@ namespace pool  {
   class DbDomainObj;
   class DbDatabaseObj;
   class DbContainerObj;
+  class DbStorageSvc;
 
   /** Definition of the Transaction class
 
@@ -42,6 +43,7 @@ namespace pool  {
     friend class DbDomain;
     friend class DbDatabase;
     friend class DbContainer;
+    friend class DbStorageSvc;
   private:
     /// Transaction type
     Transaction::Action m_state;

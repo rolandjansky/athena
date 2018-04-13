@@ -151,7 +151,7 @@ TestDriver::testWriting()
    cout << "Writing objects" << endl;
    for( int objn=0; objn <nObjects; objn++ ) {
       Token* token;
-      if( ! ( storSvc->allocate( transaction, fd,
+      if( ! ( storSvc->allocate( fd,
                                  container, pool::ROOTTREE_StorageType.type(),
                                  objs[objn], shape, token ).isSuccess() ) ) {
          throw std::runtime_error( "Could not write an object" );

@@ -24,7 +24,6 @@
 #include "StorageSvc/DbReflex.h"
 #include "StorageSvc/DbColumn.h"
 #include "StorageSvc/DbTypeInfo.h"
-#include "StorageSvc/DbTransaction.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/IDbDatabase.h"
@@ -53,7 +52,7 @@ DbDatabaseObj::DbDatabaseObj( const DbDomain& dom,
                               const string&   fid, 
                               DbAccessMode    mod) 
 : Base(fid, mod, dom.type(), dom.db()), m_dom(dom), 
-  m_info(0), m_string_t(0), m_transactOpen(false), m_fileAge(0)
+  m_info(0), m_string_t(0), m_fileAge(0)
 {
   DbPrint log( m_dom.name() );
   DbInstanceCount::increment(this);
@@ -535,7 +534,6 @@ DbStatus DbDatabaseObj::reopen(DbAccessMode mod) {
           (*i).second->cancelTransaction();
           (*i).second->setMode(mod);
         }
-        m_transactOpen = false;
         return sc;
       }
       log << DbPrintLvl::Error << "Failed to reopen the database " << name()
@@ -586,7 +584,7 @@ bool DbDatabaseObj::updatesPending() const  {
 
 /// Close Database object
 DbStatus DbDatabaseObj::retire()  {
-  if ( !updatesPending() && !transactionActive() )  {
+  if ( !updatesPending() )  {
     DbPrint log( m_logon);
     log << DbPrintLvl::Info << "Database being retired..." << DbPrint::endmsg;
 
@@ -821,69 +819,32 @@ DbStatus DbDatabaseObj::associations(vector<const Token*>& assocs) {
   return Error;
 }
 
-/// Start/Commit/Rollback Database Transaction
-DbStatus DbDatabaseObj::transAct(DbTransaction& refTr)  {
-  Transaction::Action typ = refTr.state();
+/// Execute Database Transaction action
+DbStatus DbDatabaseObj::transAct(Transaction::Action action)  {
   bool upda = (0 != (mode()&pool::CREATE) || 0 != (mode()&pool::UPDATE));
   if ( 0 != m_info )  {
     DbStatus iret, status = Success;
-    switch( typ ) {
-    case Transaction::TRANSACT_START:
-      if ( m_transactOpen )
-        return Error;
-      m_transactOpen = true;
-      break;
-    case Transaction::TRANSACT_FLUSH:
-    case Transaction::TRANSACT_COMMIT:
-    case Transaction::TRANSACT_ROLLBACK:
-      if ( !m_transactOpen )
-        return Error;
-      m_transactOpen = false;
-      break;
-    default:
-      break;
-    }
-
     for (iterator i=begin(); i != end(); ++i )    {
       DbContainerObj* c = (*i).second;
-      if ( c == m_links.ptr() ) continue;
-      else if ( c == m_params.ptr() ) continue;
-      else if ( c == m_shapes.ptr() ) continue;
-      else  {
-        iret = (*i).second->transAct(refTr);
-        if ( !iret.isSuccess() ) {
-          status = iret;
-        }
-        if ( i != end() )  {
-          switch( typ ) {
-          case Transaction::TRANSACT_FLUSH:
-          case Transaction::TRANSACT_START:
-          case Transaction::TRANSACT_COMMIT:
-          case Transaction::TRANSACT_ROLLBACK:
-            refTr.set(typ);
-            break;
-          default:
-            status = Error;
-            break;
-          }
-        }
+      if( c == m_links.ptr() || c == m_params.ptr() || c == m_shapes.ptr() ) continue;
+      iret = c->transAct( action );
+      if ( !iret.isSuccess() ) {
+         status = iret;
       }
     }
+
     if ( status.isSuccess() )  {
-      status = m_params.transAct(refTr);
-      refTr.set(typ);
+      status = m_params.transAct(action);
     }
     if ( status.isSuccess() )  {
-      status = m_shapes.transAct(refTr);
-      refTr.set(typ);
+      status = m_shapes.transAct(action);
     }
-    if ( status.isSuccess() )  {
-      status = m_links.transAct(refTr);
-      refTr.set(typ);
+      if ( status.isSuccess() )  {
+      status = m_links.transAct(action);
     }
+    // now execute the action on the DB implementation
     if ( status.isSuccess() )  {
-      status = m_info->transAct(refTr);
-      refTr.set(typ);
+      status = m_info->transAct(action);
     }
     return status;
   }
@@ -897,24 +858,6 @@ DbStatus DbDatabaseObj::transAct(DbTransaction& refTr)  {
   else  {
     // This means, that the database is retired.
     // Only READONLY databases may be retired.
-    switch( typ ) {
-    case Transaction::TRANSACT_START:
-      if ( m_transactOpen )
-        return Error;
-      m_transactOpen = true;
-      refTr.set(typ);
-      break;
-    case Transaction::TRANSACT_FLUSH:
-    case Transaction::TRANSACT_COMMIT:
-    case Transaction::TRANSACT_ROLLBACK:
-      if ( !m_transactOpen )
-        return Error;
-      m_transactOpen = false;
-      refTr.set(typ);
-      break;
-    default:
-      break;
-    }
     // Should be safe: Pending updates were checked on Re-open
     for (iterator i=begin(); i != end(); ++i )    {
       (*i).second->cancelTransaction();

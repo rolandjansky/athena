@@ -113,7 +113,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token;
-    if ( ! ( storSvc->allocate( transaction, fd,
+    if ( ! ( storSvc->allocate( fd,
 				container, pool::ROOTTREE_StorageType.type(),
 				myObject, shape, token ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );

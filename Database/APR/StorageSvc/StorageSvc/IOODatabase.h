@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IOODatabase.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //  IOODatabase interface definition
 //--------------------------------------------------------------------
@@ -16,7 +15,6 @@
 //====================================================================
 #ifndef POOL_IOODATABASE_H
 #define POOL_IOODATABASE_H
-// $Header: /cvs/PF/pool/StorageSvc/StorageSvc/IOODatabase.h,v 1.18 2007/11/28 16:19:33 frankb Exp $
 
 // Framework include files
 #include "StorageSvc/pool.h"

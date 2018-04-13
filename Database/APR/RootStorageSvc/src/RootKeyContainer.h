@@ -16,7 +16,6 @@
 // Framework include files
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbContainerImp.h"
-#include "StorageSvc/DbImplementation.h"
 
 // Forward declarations
 namespace CINT { class IOHandler; }
@@ -125,7 +124,8 @@ namespace pool  {
       *
       * @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus endTransaction(DbTransaction& refTr);
+    /// Execute transaction action
+    virtual DbStatus transAct(Transaction::Action action);
   };
 }
 #endif //POOL_ROOTKEYCONTAINER_H

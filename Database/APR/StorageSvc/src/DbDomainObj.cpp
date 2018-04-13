@@ -122,8 +122,7 @@ DbStatus DbDomainObj::ageOpenDbs() {
     for (iterator i = begin(); i != end(); ++i ) {
       DbDatabaseObj* pDB = (*i).second;
       DbAccessMode m  = pDB->mode();
-      bool         tr = pDB->transactionActive();
-      if ( false == tr && 0==(m&pool::CREATE) && 0==(m&pool::UPDATE) )  {
+      if( 0==(m&pool::CREATE) && 0==(m&pool::UPDATE) )  {
         pDB->setAge(1);
       }
     }
@@ -140,8 +139,7 @@ DbStatus DbDomainObj::closeAgedDbs()  {
       DbDatabaseObj* pDB = (*i).second;
       if ( pDB->age() > m_maxAge )   {
         DbAccessMode m  = pDB->mode();
-        bool         tr = pDB->transactionActive();
-        if ( false == tr && 0 == (m&pool::CREATE) && 0 == (m&pool::UPDATE) )  {
+        if( 0 == (m&pool::CREATE) && 0 == (m&pool::UPDATE) )  {
           aged_dbs.push_back(pDB);
         }
       }

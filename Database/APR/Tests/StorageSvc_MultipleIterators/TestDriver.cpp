@@ -112,7 +112,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token_SimpleTestClass;
-    if ( ! ( storSvc->allocate( transaction, fd,
+    if ( ! ( storSvc->allocate( fd,
 				container, pool::ROOTKEY_StorageType.type(),
 				myObject_SimpleTestClass, shape_SimpleTestClass, token_SimpleTestClass ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
@@ -138,7 +138,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token_TestClassPrimitives;
-    if ( ! ( storSvc->allocate( transaction, fd,
+    if ( ! ( storSvc->allocate( fd,
 				container, pool::ROOTKEY_StorageType.type(),
 				myObject_TestClassPrimitives, shape_TestClassPrimitives, token_TestClassPrimitives ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );

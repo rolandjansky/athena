@@ -75,13 +75,6 @@ namespace pool    {
       */
     virtual DbStatus reopen(DbAccessMode mode);
 
-    /// Find container in Database: to be overridden
-    /** @param handle   [IN]  Handle to invalid container object.
-      *
-      * @return DbStatus code indicating success or failure.  
-      */
-    virtual DbStatus find(DbContainer& handle);
-
     /// Access options
     /** @param opt      [IN]  Reference to option object.
       *
@@ -96,12 +89,19 @@ namespace pool    {
       */
     virtual DbStatus setOption(const DbOption& opt);
 
-    /// Start/Commit/Rollback Database Transaction
-    /** @param refTransaction [IN/OUT]  Transaction context.
-      *
-      * @return DbStatus code indicating success or failure.  
+    /// Execute Database Transaction action
+    /** @param   action     [IN]  action to perform
+      * @return Status code indicating success or failure.
       */
-    virtual DbStatus transAct(DbTransaction& refTransaction);
+    virtual DbStatus transAct(Transaction::Action action);
   };
 }      // End namespace pool
 #endif // POOL_DBDATABASEIMP_H
+
+
+
+
+
+
+
+

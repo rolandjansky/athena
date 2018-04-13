@@ -122,7 +122,7 @@ DbStatus DbContainerImp::clearStack()   {
 }
 
 /// Execute object modification requests during a transaction
-DbStatus DbContainerImp::commitTransaction(DbTransaction& refTr ) {
+DbStatus DbContainerImp::commitTransaction() {
   DbStatus iret   = Success;
   DbStatus status = Success;
   TransactionStack::iterator i = m_stack.begin();
@@ -150,43 +150,18 @@ DbStatus DbContainerImp::commitTransaction(DbTransaction& refTr ) {
       break;
     }
   }
-  clearStack();
-  status = endTransaction(refTr);
-  if ( !status.isSuccess() )  {
-    iret = status;
-  }
   return iret;
 }
 
-/// Execute object modification requests during a transaction
-DbStatus DbContainerImp::endTransaction(DbTransaction& /* refTr */ ) {
-  return Success;
-}
 
-/// Start/Commit/Rollback Database Transaction
-DbStatus DbContainerImp::transAct(DbTransaction& refTr)   {
+/// Execute Database Transaction action
+DbStatus DbContainerImp::transAct(Transaction::Action action)
+{
   DbStatus status = Success;
-  switch(refTr.state()) {
-  case Transaction::TRANSACT_COMMIT:
-    status = commitTransaction(refTr);
-    refTr.set(Transaction::TRANSACT_ENDED);
-    break;
-  case Transaction::TRANSACT_FLUSH:
-    status = commitTransaction(refTr);
-    refTr.set(Transaction::TRANSACT_ENDED);
-    break;
-  case Transaction::TRANSACT_START:
-    refTr.set(Transaction::TRANSACT_ACTIVE);
-    clearStack();
-    break;
-  case Transaction::TRANSACT_ROLLBACK:
-    clearStack();
-    refTr.set(Transaction::TRANSACT_ENDED);
-    break;
-  default:
-    status = Error;
-    break;
+  if( action==Transaction::TRANSACT_COMMIT || action==Transaction::TRANSACT_FLUSH ) {
+     status = commitTransaction();
   }
+  clearStack();
   return status;
 }
 

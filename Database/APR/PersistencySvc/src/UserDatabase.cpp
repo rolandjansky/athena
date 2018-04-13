@@ -145,7 +145,8 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
 
     if ( this->checkInRegistry() ) {
       if ( m_openMode == pool::IDatabase::READ ) {
-        this->revertMode( pool::IDatabase::UPDATE );
+         m_databaseHandler->reconnect( pool::UPDATE );
+         m_openMode = pool::IDatabase::UPDATE;
       }
     }
     else { // The database is not yet connected.
@@ -250,33 +251,6 @@ pool::IDatabase::OpenMode
 pool::PersistencySvc::UserDatabase::openMode() const
 {
   return m_openMode;
-}
-
-
-void
-pool::PersistencySvc::UserDatabase::revertMode( pool::IDatabase::OpenMode mode )
-{
-  if ( m_databaseHandler ) {
-    switch ( mode ){
-    case pool::IDatabase::CLOSED:
-      this->disconnect();
-      break;
-    case pool::IDatabase::READ:
-      if ( m_openMode == pool::IDatabase::UPDATE ) {
-        m_databaseHandler->reconnect( pool::READ );
-        m_openMode = pool::IDatabase::READ;
-      }
-      break;
-    case pool::IDatabase::UPDATE:
-      if ( m_openMode == pool::IDatabase::READ ) {
-        m_databaseHandler->reconnect( pool::UPDATE );
-        m_openMode = pool::IDatabase::UPDATE;
-      }
-      break;
-    default:
-      break;
-    };
-  }
 }
 
 

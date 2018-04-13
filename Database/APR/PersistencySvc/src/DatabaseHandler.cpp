@@ -26,7 +26,6 @@ pool::PersistencySvc::DatabaseHandler::DatabaseHandler( pool::IStorageSvc& stora
   m_storageSvc( storageSvc ),
   m_storageExplorer( storageExplorer ),
   m_session( session ),
-  m_transaction( 0 ),
   m_fileDescriptor( fid, pfn ),
   m_technology( technology ),
   m_accessMode( accessmode )
@@ -39,115 +38,67 @@ pool::PersistencySvc::DatabaseHandler::DatabaseHandler( pool::IStorageSvc& stora
   }
 }
 
-
 pool::PersistencySvc::DatabaseHandler::~DatabaseHandler()
 {
-  if ( this->isTransactionActive() ) {
-    this->rollBackTransaction();
-  }
-  m_storageSvc.disconnect( m_fileDescriptor );
-}
-
-
-bool
-pool::PersistencySvc::DatabaseHandler::startTransaction()
-{
-  if ( m_transaction ) return false;
-  if ( m_storageSvc.startTransaction( m_fileDescriptor.dbc(),
-                                      m_transaction ).isSuccess() ) {
-    return true;
-  }
-  else return false;
+   rollBackTransaction();
+   m_storageSvc.disconnect( m_fileDescriptor );
 }
 
 
 bool
 pool::PersistencySvc::DatabaseHandler::commitTransaction()
 {
-  bool result = false;
-  if ( m_transaction ) {
-    if ( m_storageSvc.endTransaction( m_transaction,
-                                      pool::Transaction::TRANSACT_COMMIT ).isSuccess() &&
-         m_storageSvc.startTransaction( m_fileDescriptor.dbc(),
-                                        m_transaction ).isSuccess() &&
-         m_storageSvc.endTransaction( m_transaction,
-                                      pool::Transaction::TRANSACT_FLUSH ).isSuccess() ) {
-      result = true;
-    }
-    m_transaction = 0;
-  }
-  return result;
+   return ( m_storageSvc.endTransaction( m_fileDescriptor.dbc(),
+                                         Transaction::TRANSACT_COMMIT ).isSuccess() &&
+            m_storageSvc.endTransaction( m_fileDescriptor.dbc(),
+                                         Transaction::TRANSACT_FLUSH ).isSuccess() );
 }
 
 
 bool
 pool::PersistencySvc::DatabaseHandler::commitAndHoldTransaction()
 {
-  bool result = false;
-  if ( m_transaction ) {
-    if ( m_storageSvc.endTransaction( m_transaction,
-                                      pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) {
-      m_transaction = 0;
-      if ( m_storageSvc.startTransaction( m_fileDescriptor.dbc(),
-                                          m_transaction ).isSuccess() ) {
-        result = true;
-      }
-    }
-  }
-  return result;
+   return ( m_storageSvc.endTransaction( m_fileDescriptor.dbc(),
+                                         Transaction::TRANSACT_COMMIT ).isSuccess() );
 }
 
 
 void
 pool::PersistencySvc::DatabaseHandler::rollBackTransaction()
 {
-  if ( m_transaction ) {
-    m_storageSvc.endTransaction( m_transaction, pool::Transaction::TRANSACT_ROLLBACK );
-    m_transaction = 0;
-  }
+   m_storageSvc.endTransaction( m_fileDescriptor.dbc(), Transaction::TRANSACT_ROLLBACK );
 }
 
-
-bool
-pool::PersistencySvc::DatabaseHandler::isTransactionActive() const
-{
-  if ( m_transaction ) return true;
-  else return false;
-}
 
 
 std::vector< std::string >
 pool::PersistencySvc::DatabaseHandler::containers()
 {
-  std::vector< std::string > result;
-  if ( m_transaction ) {
-    std::vector<const Token*> containerTokens;
-    m_storageExplorer.containers( m_fileDescriptor, containerTokens );
-    for ( std::vector<const Token*>::const_iterator iToken = containerTokens.begin();
-          iToken != containerTokens.end(); ++iToken ) {
+   std::vector< std::string > result;
+   std::vector<const Token*> containerTokens;
+   m_storageExplorer.containers( m_fileDescriptor, containerTokens );
+   for ( std::vector<const Token*>::const_iterator iToken = containerTokens.begin();
+         iToken != containerTokens.end(); ++iToken ) {
       result.push_back( m_storageSvc.getContName(m_fileDescriptor, **iToken) );
-    }
-  }
-  return result;
+   }
+   return result;
 }
 
 pool::IContainer*
 pool::PersistencySvc::DatabaseHandler::container( const std::string& containerName )
 {
-  if ( m_transaction ) {
-    // Check the existence of a given container.
-    std::vector< std::string > allContainers = this->containers();
-    for ( std::vector< std::string >::const_iterator iName = allContainers.begin();
-          iName != allContainers.end(); ++iName ) {
+   // Check the existence of a given container.
+   std::vector< std::string > allContainers = this->containers();
+   for ( std::vector< std::string >::const_iterator iName = allContainers.begin();
+         iName != allContainers.end(); ++iName ) {
       if ( *iName == containerName ) {
-        return new pool::PersistencySvc::Container( m_fileDescriptor,
-                                                    m_storageExplorer,
-                                                    m_technology,
-                                                    containerName );
+         return new pool::PersistencySvc::Container( m_fileDescriptor,
+                                                     m_storageExplorer,
+                                                     m_technology,
+                                                     containerName );
       }
-    }
-  }
-  return 0;
+   }
+   return 0;
 }
 
 
@@ -182,12 +133,10 @@ pool::PersistencySvc::DatabaseHandler::accessMode() const
 void
 pool::PersistencySvc::DatabaseHandler::reconnect( long accessMode )
 {
-  bool activeTransaction = this->isTransactionActive();
-  if ( activeTransaction ) this->rollBackTransaction();
-  if ( m_storageSvc.reconnect( m_fileDescriptor, accessMode ).isSuccess() ) {
-    m_accessMode = accessMode;
-  }
-  if ( activeTransaction ) this->startTransaction();
+   rollBackTransaction();
+   if( m_storageSvc.reconnect( m_fileDescriptor, accessMode ).isSuccess() ) {
+      m_accessMode = accessMode;
+   }
 }
 
 
@@ -198,7 +147,6 @@ pool::PersistencySvc::DatabaseHandler::writeObject( const std::string& container
                                                     const RootType& type )
 {
   Token* token = 0;
-  if ( ! m_transaction ) return token;
   if ( ! object ) return token;
 
   // Get the persistent shape.
@@ -209,8 +157,7 @@ pool::PersistencySvc::DatabaseHandler::writeObject( const std::string& container
   }
 
   if ( shape )  {
-    if ( m_storageSvc.allocate( m_transaction,
-                                m_fileDescriptor,
+    if ( m_storageSvc.allocate( m_fileDescriptor,
                                 containerName,
                                 minorTechnology,
                                 object,
@@ -227,7 +174,6 @@ void*
 pool::PersistencySvc::DatabaseHandler::readObject( const Token& token, void* object )
 {
   void* result( object );
-  if ( ! m_transaction ) return result;
 
   // Get the persistent shape
   const pool::Shape* shape = 0;

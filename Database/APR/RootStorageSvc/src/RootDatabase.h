@@ -39,7 +39,8 @@ namespace pool  {
     * @date    1/8/2002
     * @version 1.0
     */
-  class RootDatabase : public DbDatabaseImp  {
+   class RootDatabase : public DbDatabaseImp
+   {
   public:
     enum { READ_COUNTER = 0, WRITE_COUNTER = 1, OTHER_COUNTER = 2 };
   private:
@@ -177,9 +178,8 @@ namespace pool  {
       */
     virtual DbStatus close(DbAccessMode mode);
 
-    /// Start/Commit/Rollback Database Transaction
-    virtual DbStatus transAct(DbTransaction& /* refTr */);
-
+    /// Execute Database Transaction action
+    virtual DbStatus transAct(Transaction::Action action);
   };
 }       // End namespace pool
 #endif  /* POOL_ROOTSTORAGESVC_ROOTDBASE_H */

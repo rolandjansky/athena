@@ -248,12 +248,8 @@ namespace pool  {
     /// Commit single entry to container
     virtual DbStatus writeObject(TransactionStack::value_type& entry);
 
-    /// Execute end of object modification requests during a transaction
-    /** @param refTr    [IN]     Transaction reference
-      *
-      * @return DbStatus code indicating success or failure.  
-      */
-    virtual DbStatus endTransaction(DbTransaction& refTr);
+    /// Execute Transaction action
+    virtual DbStatus transAct(Transaction::Action action);
   };
 }
 #endif //POOL_ROOTTREECONTAINER_H

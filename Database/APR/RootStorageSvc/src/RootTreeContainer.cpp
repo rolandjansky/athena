@@ -22,7 +22,7 @@
 #include "StorageSvc/DataCallBack.h"
 #include "StorageSvc/DbArray.h"
 #include "POOLCore/DbPrint.h"
-#include "StorageSvc/DbTransaction.h"
+#include "StorageSvc/Transaction.h"
 #include "StorageSvc/DbReflex.h"
 
 // Local implementation files
@@ -1213,44 +1213,24 @@ DbStatus RootTreeContainer::setOption(const DbOption& opt)  {
 }
 
 
-/// Execute object modification requests during a transaction
-DbStatus RootTreeContainer::endTransaction(DbTransaction& refTr)  {
-  DbStatus status = Success;
-  switch(refTr.state()) {
-  case Transaction::TRANSACT_COMMIT:
-    break;
-  case Transaction::TRANSACT_FLUSH:
-     if( m_tree )  {
-        DbPrint log(m_name);
-        if( isBranchContainer() ) {
-           log << DbPrintLvl::Debug << "endTransaction: go to finish" << DbPrint::endmsg;
-           status = finishTransAct();
-        } else {
-           log << DbPrintLvl::Debug << "endTransaction:  tree AutoSave" << DbPrint::endmsg;
-           m_tree->AutoSave();
-        }
-     }
-     else {
-        status = Error;
-     }
-     break;
-  case Transaction::TRANSACT_START:
-    break;
-  case Transaction::TRANSACT_ROLLBACK:
-    break;
-  default:
-    status = Error;
-    break;
-  }
-  return status;
-}
+/// Execute transaction action
+DbStatus RootTreeContainer::transAct(Transaction::Action action) 
+{
+   // execure action on the base class first
+   DbStatus status = DbContainerImp::transAct(action);
+   if( !status.isSuccess() ) return status;
 
-DbStatus RootTreeContainer::finishTransAct()    {
+   if( action != Transaction::TRANSACT_FLUSH ) return Success;
+   if( !m_tree ) return Error;
+   if( !isBranchContainer() ) {
+      m_tree->AutoSave();
+      return Success;
+   }
+   // check if all TTree branches were filled and write the TTree
    Branches::const_iterator k;
    for(k=m_branches.begin(); k !=m_branches.end(); ++k) {
       Long64_t branchEntries = k->branch->GetEntries();
       Long64_t treeEntries = m_tree->GetEntries();
-      // cout << "  +++  End Transaction. Tree rows=" << treeEntries << " , Branch " << k->branch->GetName() << " " << branchEntries << endl;
       if (branchEntries > treeEntries) {
          TIter next(m_tree->GetListOfBranches());
          TBranch * b = nullptr;

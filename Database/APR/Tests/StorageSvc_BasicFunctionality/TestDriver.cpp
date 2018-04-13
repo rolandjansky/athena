@@ -64,11 +64,6 @@ TestDriver::testWriting()
       throw std::runtime_error( "Could not start a connection." );
    }
    pool::DatabaseConnection* connection = fd.dbc();
-   pool::Transaction* transaction = 0;
-   cout << "startTransaction" << endl;
-   if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
-      throw std::runtime_error( "Could not start a transaction." );
-   }
 
   // Retrieve the dictionary
   RootType class_SimpleTestClass ( "SimpleTestClass" );
@@ -101,7 +96,7 @@ TestDriver::testWriting()
   
     // Writing the object.
     Token* token;
-    if ( ! ( storSvc->allocate( transaction, fd,
+    if ( ! ( storSvc->allocate( fd,
 				container, pool::ROOTTREE_StorageType.type(),
 				myObject, shape, token ).isSuccess() ) ) {
       throw std::runtime_error( "Could not write an object" );
@@ -111,7 +106,7 @@ TestDriver::testWriting()
   }
 
   // Closing the transaction.
-  if ( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+  if ( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end a transaction." );
   }
 
