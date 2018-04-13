@@ -49,9 +49,6 @@ class LArFCALCalculatorBase : public LArCalculatorSvcImp
 
  protected:
 
-  // Store the endcap shift and out-of-time cut from the description:
-  G4float m_OOTcut;
-
   bool m_doHV;
 
   FCAL_ChannelMap   *m_ChannelMap;
