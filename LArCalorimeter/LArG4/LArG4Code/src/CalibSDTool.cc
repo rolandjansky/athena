@@ -34,7 +34,8 @@ namespace LArG4
       m_larFcalID(nullptr),
       m_larHecID(nullptr),
       m_larMiniFcalID(nullptr),
-      m_caloDmID(nullptr)
+      m_caloDmID(nullptr),
+      m_id_helper(nullptr)
   {
     declareProperty("ParticleID", m_doPID);
   }
