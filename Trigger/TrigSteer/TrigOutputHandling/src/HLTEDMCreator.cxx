@@ -83,57 +83,12 @@ StatusCode  HLTEDMCreator::noMerge( std::vector< SG::View* > const&, const SG::R
 template<typename T>
 StatusCode  HLTEDMCreator::viewsMerge( std::vector< SG::View* > const& views, const SG::ReadHandleKey<T>& inViewKey,
 				       EventContext const& context, T & output ) const {
-
+  
   typedef typename T::base_value_type type_in_container;
-    //Check that there's a non-const aux store for output bookkeeping
-    if ( !output.getStore() ) {
-      ATH_MSG_ERROR( "output data not in store " );
-      return StatusCode::FAILURE;
-    }
-
-    //Make ReadHandle to access views
-    SG::ReadHandle< T > queryHandle( inViewKey, context );
-
-    //Make accessor for bookkeeping
-    SG::AuxElement::Accessor< int > viewBookkeeper( "viewIndex" );
-
-    //Loop over all views
-    unsigned int offset = 0;
-    for ( unsigned int viewIndex = 0; viewIndex < views.size(); ++viewIndex ) {
-      SG::View * inputView = views.at( viewIndex );
-
-      //Attach the handle to the view
-      StatusCode sc = queryHandle.setProxyDict( inputView );
-      if ( sc.isFailure() ) {
-	ATH_MSG_ERROR("Failed to use view " << inputView->name() << " to read " << queryHandle.key() );
-        output.clear();
-        return sc;
-      }
-
-      //Nothing to do for empty collections
-      if ( queryHandle->size() == 0 ) {
-	ATH_MSG_DEBUG("Empty collection " << queryHandle.key() <<" in a view " << inputView->name() );
-	continue;
-      }
-
-      //Merge the data
-
-      for ( const auto inputObject : *queryHandle.cptr() ) {
-        //Element-wise copy data
-	type_in_container * outputObject = new type_in_container();
-        output.push_back( outputObject );
-        *outputObject = *inputObject;
-
-        //Add aux data for bookkeeping
-        viewBookkeeper( *outputObject ) = viewIndex;
-      }
-
-      ATH_MSG_DEBUG( "Copied " << queryHandle->size() << " objects from collection in view  " << inputView->name() );
-
-      //Declare remapping
-      evtStore()->remap( ClassID_traits< T >::ID(), inputView->name() + "_" + queryHandle.name(), queryHandle.name(), offset );
-      offset += queryHandle->size();
-    }
+  StoreGateSvc* sg = evtStore().operator->(); // why the get() method is returing a null ptr is a puzzle, we have to use this ugly call to operator instead of it
+  CHECK( sg != nullptr );
+  ViewHelper::ViewMerger merger( sg, msg() );
+  merger.mergeViewCollection<type_in_container>( views, inViewKey, context, output );
 
     return StatusCode::SUCCESS;
 }
