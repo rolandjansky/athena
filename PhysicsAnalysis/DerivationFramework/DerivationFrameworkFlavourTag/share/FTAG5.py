@@ -161,6 +161,38 @@ for jc in OutputJets["FTAG5"]:
        SaveTrackVectors = True,
    )
 
+#================================================================
+# Add Hbb tagger
+#================================================================
+
+fatCalib = CfgMgr.JetCalibrationTool(
+    "Jabbelator",
+    JetCollection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",
+    ConfigFile="JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config",
+    CalibSequence="EtaJES_JMS",
+    CalibArea="00-04-81",
+    IsData=False)
+ToolSvc += fatCalib
+print fatCalib
+
+hbbTagger = CfgMgr.HbbTaggerDNN(
+    "HbbTagger",
+    OutputLevel=DEBUG,
+    neuralNetworkFile="HbbNetwork.json",
+    decorationName="HbbScore")
+ToolSvc += hbbTagger
+print hbbTagger
+
+FTAG5Seq += CfgMgr.HbbTaggingAlgorithm(
+    "HbbTaggerAlg",
+    jetCollectionName="AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+    minPt=250e3,
+    maxEta=2.0,
+    tagger=hbbTagger,
+    calibrationTool=fatCalib)
+
+print FTAG5Seq.HbbTaggerAlg
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
@@ -198,6 +230,7 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount.GhostHBosonsCount",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
 ]
 
 

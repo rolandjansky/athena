@@ -6,7 +6,7 @@
 #define HBB_TAGGING_ALGORITHM_HH
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/AuxElement.h"
 // #include "GeoPrimitives/GeoPrimitives.h"
 // #include "xAODTracking/TrackingPrimitives.h"
@@ -25,8 +25,10 @@ public:
   virtual StatusCode  finalize();
 private:
   std::string m_jet_collection;
-  asg::AnaToolHandle<HbbTaggerDNN> m_tagger;
-  asg::AnaToolHandle<JetCalibrationTool> m_jet_calib_tool;
+  double m_min_pt;
+  double m_max_eta;
+  ToolHandle<HbbTaggerDNN> m_tagger;
+  ToolHandle<JetCalibrationTool> m_jet_calib_tool;
 };
 
 #endif
