@@ -75,7 +75,11 @@ namespace met {
       
     StatusCode varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName);
 
-    StatusCode RotateToPhi(float phi);
+    // rotates the phi direction of the object resolutions & recomputes the MET significance
+    StatusCode RotateToPhi(const float phi);
+    
+    // subtracks the vector lambda from the MET & recomputes the met signficance in new MET - lambda direction
+    StatusCode SetLambda(const float px, const float py, const bool GeV=true);
 
     ///////////////////////////////////////////////////////////////////
     // Const methods:
@@ -87,6 +91,8 @@ namespace met {
     double GetRho()              const { return m_rho;  }
     double GetVarL()             const { return m_VarL; }
     double GetVarT()             const { return m_VarT; }
+    double GetTermVarL(const int term) const { if(m_term_VarL.find(term)!=m_term_VarL.end()) return m_term_VarL.find(term)->second; return -1.0e3; }
+    double GetTermVarT(const int term) const { if(m_term_VarT.find(term)!=m_term_VarT.end()) return m_term_VarT.find(term)->second; return -1.0e3; }
 
     ///////////////////////////////////////////////////////////////////
     // Non-const methods:
@@ -120,7 +126,6 @@ namespace met {
 
     double Significance_LT(double Numerator, double var_parall, double var_perpen, double cov);
 
-
     void InvertMatrix(double (&mat)[2][2], double (&m)[2][2]);
     void AddMatrix(double (&X)[2][2],double (&Y)[2][2], double (&mat_new)[2][2]);
     void RotateXY(const double (&mat)[2][2], double (&mat_new)[2][2], double phi);
@@ -133,13 +138,18 @@ namespace met {
     double Bias_PtSoftParall(const double PtSoft_Parall);
     double Var_Ptsoft(const double PtSoft);
 
+    // Fill Reso map
+    void AddResoMap(const double varL,
+		    const double varT, 
+		    const double CvTV, const int term);
+
     // variables
     double m_GeV;
 
     TVector3 m_met_vect;
     TVector3 m_soft_vect;
     TVector3 m_pthard_vect;
-
+    TVector3 m_lamda_vect;
 
     int    m_softTermParam;
     double m_softTermReso;
@@ -161,6 +171,10 @@ namespace met {
     double m_met_VarL;
     double m_met_VarT;
     double m_met_CvLT;
+
+    std::map<int, double> m_term_VarL;
+    std::map<int, double> m_term_VarT;
+    std::map<int, double> m_term_CvLT;
 
     double m_met;
     double m_metphi;

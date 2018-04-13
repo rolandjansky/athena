@@ -205,6 +205,7 @@ namespace met {
       m_VarT = 0.0;
       m_CvLT = 0.0;
 
+      int metTerm = 0;
       double particle_sum[2][2] = {{0.0,0.0},
 				   {0.0,0.0}};
       m_metphi = 0.0; //Angle for rotation of the cov matrix
@@ -213,6 +214,10 @@ namespace met {
       m_metsoftphi = 0.0;
       m_sumet=-1.0;
       m_ht=0.0;
+      m_term_VarL.clear();
+      m_term_VarT.clear();
+      m_term_CvLT.clear();
+
       unsigned nIterSoft=0;
       double softSumET=0.0;
 
@@ -260,6 +265,7 @@ namespace met {
 	  AddSoftTerm(met, m_met_vect, particle_sum);
 	  m_metsoft = met->met()/m_GeV;
 	  m_metsoftphi = met->phi();
+	  metTerm = 2; // this is actually filled in AddSoftTerm
 	  // done with the soft term. go to the next term.
 	  continue;
 	}
@@ -269,19 +275,23 @@ namespace met {
 	  float pt_reso=0.0, phi_reso=0.0;
 	  if(obj->type()==xAOD::Type::Muon){
 	    ATH_CHECK(AddMuon(obj, pt_reso, phi_reso));
+	    metTerm=4;
 	  }else if(obj->type()==xAOD::Type::Jet){
 
 	    // make sure the container name matches
 	    if(met->name()!=jetTermName) continue;
 
 	    AddJet(obj, pt_reso, phi_reso);
-
+	    metTerm=1;
 	  }else if(obj->type()==xAOD::Type::Electron){
 	    AddElectron(obj, pt_reso, phi_reso);
+	    metTerm=3;
 	  }else if(obj->type()==xAOD::Type::Photon){
 	    AddPhoton(obj, pt_reso, phi_reso);
+	    metTerm=5;
 	  }else if(obj->type()==xAOD::Type::Tau){
 	    AddTau(obj, pt_reso, phi_reso);
+	    metTerm=6;
 	  }
 
 	  // compute NEW
@@ -294,11 +304,16 @@ namespace met {
 	  m_VarT+=particle_u_rot[1][1];
 	  m_CvLT+=particle_u_rot[0][1];
 
+	  // Save the resolutions separated for each object type
+	  AddResoMap(particle_u_rot[0][0],
+		     particle_u_rot[1][1],
+		     particle_u_rot[0][1],
+		     metTerm);
+
 	  RotateXY (particle_u,   particle_u_rot, obj->p4().Phi()); // positive phi rotation
 	  AddMatrix(particle_sum, particle_u_rot, particle_sum);
 
 	  // END compute NEW
-
 
 	  ATH_MSG_VERBOSE("Resolution: " << pt_reso << " phi reso: " << phi_reso );
 
@@ -384,13 +399,39 @@ namespace met {
 
 
   // Add access to rotate the direction of the MET resolution to a new phi position
-  StatusCode METSignificance::RotateToPhi(float phi){
+  StatusCode METSignificance::RotateToPhi(const float phi){
 
     // Rotation (components)
     std::tie(m_VarL, m_VarT, m_CvLT) = CovMatrixRotation(m_met_VarL , m_met_VarT, m_met_CvLT, (phi-m_metphi));
 
     if( m_VarL != 0 ){
       m_significance = Significance_LT(m_met,m_VarL,m_VarT,m_CvLT );
+      m_rho = m_CvLT  / sqrt( m_VarL * m_VarT ) ;
+    }
+    ATH_MSG_DEBUG("     Significance (squared) at new phi: " << m_significance
+		    << " rho: " << GetRho()
+		    << " MET: " << m_met
+		    << " sigmaL: " << GetVarL()
+		    << " sigmaT: " << GetVarT() );
+
+    return StatusCode::SUCCESS;
+  }
+
+  // subtracks the vector lambda from the MET & recomputes the met signficance in new MET - lambda direction
+  StatusCode METSignificance::SetLambda(const float px, const float py, const bool GeV){
+
+    // compute the new direction
+    double GeVConv = GeV ? 1.0 : m_GeV;
+    m_lamda_vect.SetXYZ(px/GeVConv, py/GeVConv, 0.0);
+    m_lamda_vect = (m_met_vect - m_lamda_vect);
+    const double met_m_lamda = m_lamda_vect.Pt();
+
+    // Rotation (components)
+    std::tie(m_VarL, m_VarT, m_CvLT) = CovMatrixRotation(m_met_VarL , m_met_VarT, m_met_CvLT, (m_lamda_vect.Phi()-m_metphi));
+
+
+    if( m_VarL != 0 ){
+      m_significance = Significance_LT(met_m_lamda,m_VarL,m_VarT,m_CvLT );
       m_rho = m_CvLT  / sqrt( m_VarL * m_VarT ) ;
     }
     ATH_MSG_DEBUG("     Significance (squared) at new phi: " << m_significance
@@ -522,6 +563,12 @@ namespace met {
       m_VarL+=particle_u_rot[0][0];
       m_VarT+=particle_u_rot[1][1];
       m_CvLT+=particle_u_rot[0][1];
+      
+      // Save the resolutions separated for each object type
+      AddResoMap(particle_u_rot[0][0],
+		 particle_u_rot[1][1],
+		 particle_u_rot[0][1],
+		 met::ResoSoft);
 
       RotateXY (particle_u,   particle_u_rot,-1.0*soft->phi()); // negative phi rotation
       AddMatrix(particle_sum, particle_u_rot,     particle_sum);
@@ -550,6 +597,12 @@ namespace met {
       m_VarT+=particle_u_rot[1][1];
       m_CvLT+=particle_u_rot[0][1];
 
+      // Save the resolutions separated for each object type
+      AddResoMap(particle_u_rot[0][0],
+		 particle_u_rot[1][1],
+		 particle_u_rot[0][1],
+		 met::ResoSoft);
+
       RotateXY (particle_u,   particle_u_rot,-1.0*m_pthard_vect.Phi()); // negative phi rotation
       AddMatrix(particle_sum, particle_u_rot,     particle_sum);
 
@@ -570,6 +623,12 @@ namespace met {
       m_VarL+=particle_u_rot[0][0];
       m_VarT+=particle_u_rot[1][1];
       m_CvLT+=particle_u_rot[0][1];
+
+      // Save the resolutions separated for each object type
+      AddResoMap(particle_u_rot[0][0],
+		 particle_u_rot[1][1],
+		 particle_u_rot[0][1],
+		 met::ResoSoft);
 
       RotateXY (particle_u,   particle_u_rot,-1.0*soft->phi()); // negative phi rotation
       AddMatrix(particle_sum, particle_u_rot,     particle_sum);
@@ -807,6 +866,21 @@ namespace met {
     if( PtSoft_Parall>=0. && PtSoft_Parall<60.) return -8. -PtSoft_Parall;
     if(PtSoft_Parall>60.) return -8. -60.;
     return 0.0;
+  }
+
+  void METSignificance::AddResoMap(const double varL,
+				   const double varT, 
+				   const double CvLT, const int term){
+    if(m_term_VarL.find(term)==m_term_VarL.end()){
+      m_term_VarL[term] = 0.0;
+      m_term_VarT[term] = 0.0;
+      m_term_CvLT[term] = 0.0;
+    }
+
+    m_term_VarL[term] += varL;
+    m_term_VarT[term] += varT;
+    m_term_CvLT[term] += CvLT;
+    
   }
 
 
