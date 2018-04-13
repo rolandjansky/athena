@@ -87,15 +87,14 @@ SCT_ModuleVetoTool.BadModuleIdentifiers=["1", "2"]
 
 from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
 sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
-sct_ConditionsSummaryToolSetup.setToolName("SCT_ConditionsSummaryTool")
 sct_ConditionsSummaryToolSetup.setup()
 SCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
-SCT_ConditionsSummaryTool.ConditionsTools=[sct_ModuleVetoToolSetup.getToolName(),
-                                           sct_ConfigurationConditionsToolSetup.getToolName(),
-                                           sct_TdaqEnabledToolSetup.getToolName()]
+SCT_ConditionsSummaryTool.ConditionsTools=[sct_ModuleVetoToolSetup.getTool().getFullName(),
+                                           sct_ConfigurationConditionsToolSetup.getTool().getFullName(),
+                                           sct_TdaqEnabledToolSetup.getTool().getFullName()]
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConditionsSummaryTestAlg
-job+= SCT_ConditionsSummaryTestAlg()
+job+= SCT_ConditionsSummaryTestAlg(SCT_ConditionsSummaryTool=SCT_ConditionsSummaryTool)
 
 import AthenaCommon.AtlasUnixGeneratorJob
 

@@ -22,8 +22,7 @@
 SCT_ConditionsSummaryTestAlg::SCT_ConditionsSummaryTestAlg( 
                                                            const std::string& name, 
                                                            ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ),
-  m_pSummaryTool("SCT_ConditionsSummaryTool", this) {
+  AthAlgorithm( name, pSvcLocator ) {
   //nop
 }
 
