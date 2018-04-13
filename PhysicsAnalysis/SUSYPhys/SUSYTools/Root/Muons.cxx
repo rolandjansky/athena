@@ -25,6 +25,8 @@
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
+#include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
+
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
@@ -518,6 +520,16 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors for systematic var. " << systConfig.name() );
   }
 
+  ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(systConfig);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+  }
+
+  ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(systConfig);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
+  }
+
   sf = GetTotalMuonSF(muons, recoSF, isoSF, trigExpr, bmhptSF);
 
   //Roll back to default
@@ -544,6 +556,16 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
   ret  = m_muonTriggerSFTool->applySystematicVariation(m_currentSyst);
   if ( ret != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors back to default.");
+  }
+
+  ret = m_trigGlobalEffCorrTool_diLep->applySystematicVariation(m_currentSyst);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) back to default.");
+  }
+
+  ret = m_trigGlobalEffCorrTool_multiLep->applySystematicVariation(m_currentSyst);
+  if (ret != CP::SystematicCode::Ok) {
+    ATH_MSG_ERROR("Cannot configure TrigGlobalEfficiencyCorrectionTool (trigger) back to default.");
   }
 
   return sf;
