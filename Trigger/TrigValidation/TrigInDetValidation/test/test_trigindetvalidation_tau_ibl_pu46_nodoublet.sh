@@ -142,8 +142,6 @@ function waitonallproc   {
 
 # run athena  
 
-iathena=0
-
 function runathena { 
    timestamp  "runathena:"
 
@@ -163,9 +161,7 @@ function runathena {
      echo "ARGS: $ARGS"
      echo -e "\nrunning athena in athena-$1\n"
      athena.py  -c "$ARGS"              TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py  &> athena-local-$1.log
-     echo "art-result: $? athena_$iathena"
-
-     ((iathena++))
+     echo "art-result: $? athena_$1"
 
      pwd
      ls -lt
@@ -313,7 +309,9 @@ hadd expert-monitoring.root athena-*/expert-monitoring.root &> hadd.log
 # file to the check will fail. This creates a link so this 
 # test will pass
   
-for git in output-dataset/*.root ; do ln -s $git TrkNtuple-0000.root ; break ; done  
+for git in output-dataset/*.root ; do if [ -e $git ]; then ln -s $git TrkNtuple-0000.root ; break ; fi ; done  
+
+[ -e TrkNtuple-0000.root ] || echo "WARNING: all athena stages failed"
 
 fi
 
