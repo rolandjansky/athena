@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
-atlas_add_library( POOLRootAccess
+atlas_add_library( POOLRootAccessLib
                    src/*.cxx
                    PUBLIC_HEADERS POOLRootAccess
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
