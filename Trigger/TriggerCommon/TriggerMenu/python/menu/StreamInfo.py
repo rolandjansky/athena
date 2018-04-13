@@ -52,6 +52,7 @@ calibStreams = [
                 'BeamSpot',
                 'zdcCalib',
                 'AFP',
+                'AFPALFA',
                 'BphysPEB',
                 'RPCNoise',
                 'IDprescaledL1',

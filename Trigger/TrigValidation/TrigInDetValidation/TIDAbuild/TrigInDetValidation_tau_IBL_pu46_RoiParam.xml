@@ -1,7 +1,8 @@
-	 <athena trendId='tau_merging' userJobId='TrigInDetValidation_tau_IBL_pu46' >
+	 <athena trendId='tau_merging' userJobId='TrigInDetValidation_tau_IBL_pu46_RoiParam' >
            <doc>TauSlice, H->tautau IBL sample, pu46</doc>
            <displayName>TauSlice, H->tautau IBL sample, pu46</displayName>
-           <commandLineFlags>EventMax=4000;PdgId=15</commandLineFlags>
+
+           <commandLineFlags>EventMax=4000;PdgId=15;TauDoubletFilter=False;TauRoiParam=True</commandLineFlags>
            <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice</options>
            <package>Trigger/TrigValidation/TrigInDetValidation</package>
            <group>TrigInDetValidation</group>

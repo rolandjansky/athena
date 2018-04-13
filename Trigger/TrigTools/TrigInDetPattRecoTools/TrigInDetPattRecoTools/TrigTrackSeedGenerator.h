@@ -9,6 +9,7 @@
 #include<algorithm>
 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
+#include "TrigInDetPattRecoTools/DoubletResLookup.h"
 
 class TrigSiSpacePointBase;
 class TrigInDetTriplet;
@@ -464,6 +465,7 @@ private:
   bool validateLayerPairNew(int, int, float, float); 
   bool getSpacepointRange(int, const std::vector<const TrigSiSpacePointBase*>&, SP_RANGE&);
   int processSpacepointRange(int, float, float, bool, const SP_RANGE&);
+  int processSpacepointRangeNew(int, int, float, float, bool, const SP_RANGE&);
   int processSpacepointRangeZv(float, float, bool, const SP_RANGE&);
   void createTriplets(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&);
   void createTripletsNew(const TrigSiSpacePointBase*, int, int, INTERNAL_TRIPLET_BUFFER&);
@@ -473,6 +475,8 @@ private:
   double m_phiSliceWidth;
   double m_minDeltaRadius, m_maxDeltaRadius, m_zTol;
 
+  DoubletResLookup m_doubletResLookup;
+
   L_PHI_STORAGE* m_pStore;
 
   INTERNAL_SOA m_SoA;
@@ -481,7 +485,7 @@ private:
 
   INTERNAL_TRIPLET_BUFFER m_triplets;
 
-  float m_zMinus, m_zPlus, m_minCoord, m_maxCoord;
+  float m_zMinus, m_zPlus, m_zCentre, m_theta, m_phi, m_minCoord, m_maxCoord, m_spPickWidth;
 
   //bool m_isBarrel;
 

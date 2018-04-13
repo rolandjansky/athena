@@ -501,6 +501,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           if remapped_type=="cosmics":
             self.Doublet_FilterRZ = False
 
+          if remapped_type == "tauIso":
+            self.Doublet_Filter_ParamByRes = True
+
 
           ## SCT and Pixel detector elements road builder
           from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker

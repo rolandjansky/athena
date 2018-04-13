@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: art job for tau_IBL_pu46
+# art-description: art job for tau_IBL_pu46_RoiParam
 # art-type: grid
 # art-output: HLTEF-plots
 # art-output: HLTL2-plots
@@ -199,7 +199,7 @@ ls -l
 
 
 
-export RTTJOBNAME=TrigInDetValidation_tau_IBL_pu46
+export RTTJOBNAME=TrigInDetValidation_tau_IBL_pu46_RoiParam
 
 jobList=
 
@@ -232,7 +232,7 @@ i=0
 
 for git in $jobList ; do 
 
-    ARGS="$git;EventMax=2000;PdgId=15"
+    ARGS="$git;EventMax=2000;PdgId=15;TauDoubletFilter=False;TauRoiParam=True"
  
 #   echo "ARGS: $ARGS"
 

@@ -125,8 +125,10 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   /** Doublet finding properties. */
   declareProperty("Doublet_FilterRZ",            m_tcs.m_doubletFilterRZ = true);
+  declareProperty("Doublet_Filter_ParamByRes",   m_tcs.m_doubletFilter_paramByRes = false);
   declareProperty("DoubletDR_Max",            m_tcs.m_doublet_dR_Max = 270.0);
   declareProperty("SeedRadBinWidth",            m_tcs.m_seedRadBinWidth = 2.0);
+  declareProperty("SeedGen_CorrectToBeamline",   m_tcs.m_correctToBeamline = true); // CK temp beamline correction
 
   /** Triplet finding properties. */
 
@@ -458,6 +460,10 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inpu
   }
   else {
     m_vertex = Amg::Vector3D(0.0,0.0,0.0);
+  }
+
+  if(m_tcs.m_correctToBeamline) {
+    m_tcs.m_vertex = m_vertex;
   }
   
 
