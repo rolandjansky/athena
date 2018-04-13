@@ -26,6 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Reconstruction/PFlow/PFlowUtils
                           Tools/PathResolver 
 			  PhysicsAnalysis/TrackingID/InDetTrackSelectionTool #for nTracks	
+			  InnerDetector/InDetRecTools/InDetTrackSelectionTool #for nTracks
 			  )
 
 # External dependencies:

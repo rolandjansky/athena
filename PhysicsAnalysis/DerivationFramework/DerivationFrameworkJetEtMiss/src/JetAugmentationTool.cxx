@@ -13,6 +13,8 @@
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
 
 #include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+//#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
 
 namespace DerivationFramework {
 
@@ -44,8 +46,8 @@ namespace DerivationFramework {
     m_jetPtAssociationTool(""),
     m_decorateptassociation(false),
     dec_AssociatedNtracks(0),
-    m_decoratentracks(true),
-    m_trkSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this) //
+    m_decoratentracks(true)
+    //m_trkSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this) //
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("MomentPrefix",   m_momentPrefix = "DFCommonJets_");
@@ -60,7 +62,7 @@ namespace DerivationFramework {
     declareProperty("JetTrackSumMomentsTool", m_jetTrackSumMomentsTool);
     declareProperty("JetPtAssociationTool", m_jetPtAssociationTool);
     declareProperty("JetOriginCorrectionTool",m_jetOriginCorrectionTool);
-    declareProperty("TrackSelectionTool",m_trkSelectionTool);
+    //declareProperty("TrackSelectionTool",m_trkSelectionTool);
   }
 
   StatusCode JetAugmentationTool::initialize()
@@ -135,13 +137,28 @@ namespace DerivationFramework {
 
     // set up InDet selection tool
     //if(!m_trkSelectionTool.empty()) {
-    assert( m_trkSelectionTool.retrieve() );
-    assert( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
+    //assert( m_trkSelectionTool.retrieve() );
+    //assert( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
     //CHECK( m_trkSelectionTool.retrieve() );
     //CHECK( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
-      m_decoratentracks = true; 
+    m_decoratentracks = true; 
       //} non funziona??
-
+    /*    
+    InDet::InDetTrackSelectionTool *trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
+    CHECK( trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
+    CHECK( trkSelectionTool->initialize() );
+    m_trkSelectionTool = ToolHandle<InDet::IInDetTrackSelectionTool>(trkSelectionTool);
+    //m_trkSelectionTool = new InDet::IInDetTrackSelectionTool(trkSelectionTool);
+    CHECK( m_trkSelectionTool.retrieve() );
+    */
+    /*
+    ServiceHandle<IJobOptionsSvc> josvc("JobOptionsSvc", name());
+    string toolName = "TrackSelectionTool";
+    m_trkSelectionTool.setTypeAndName("InDet::InDetTrackSelectionTool/"+toolName);
+    std::string fullToolName = "ToolSvc."+toolName;
+    ATH_CHECK( josvc->addPropertyToCatalogue(fullToolName,StringProperty("CutLevel", "TightPrimary")) );
+    ATH_CHECK( m_trkSelectionTool.retrieve() );
+    */
 
     if(!m_jetOriginCorrectionTool.empty()) {
       CHECK(m_jetOriginCorrectionTool.retrieve());
@@ -352,6 +369,12 @@ namespace DerivationFramework {
 	  vector<int> track_passCount1;
 	  vector<int> track_passCount2;
 	  vector<int> track_passCount3;
+
+	  // tesf for InDet tool ---
+	  InDet::InDetTrackSelectionTool *m_trkSelectionTool = new InDet::InDetTrackSelectionTool("TrackSelectionTool");
+	  CHECK( m_trkSelectionTool->setProperty( "CutLevel", "Loose" ) );
+	  CHECK( m_trkSelectionTool->initialize() );
+	  // -----------------------
 	  
 	  for (size_t i = 0; i < jettracks.size(); i++) {
 	    
@@ -392,7 +415,9 @@ namespace DerivationFramework {
 	    //TString string = Form("Test Decorate QG: trkSelTool output %d", m_trkSelectionTool->accept(*trk));
 	    //ATH_MSG_INFO(string);
 	    std::cout << "Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk) << std::endl;
-	    
+	    std::cout << "Test Decorate QG: trkSelTool output " << m_trkSelectionTool->accept(*trk, NULL) << std::endl;
+	    //cout << "Test Decorate QG: trkSelTool " << m_trkSelectionTool::m_cutLevel << endl;
+
 	    if(  (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))  ) track_passCount3.push_back(1);
 	    if( !(trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))  ) track_passCount3.push_back(0);
 	    // ---------------------------

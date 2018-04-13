@@ -25,6 +25,8 @@
 
 using namespace std;
 namespace InDet { class IInDetTrackSelectionTool; }
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+//#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 
 namespace DerivationFramework {
 
@@ -94,7 +96,8 @@ namespace DerivationFramework {
     SG::AuxElement::Decorator<int>* dec_AssociatedNtracks;
     SG::AuxElement::Decorator<int>* dec_AssociatedNtracks_noCut;
     SG::AuxElement::Decorator<float>* dec_minPtTracks;
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
+    //ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelectionTool;
+    //InDet::IInDetTrackSelectionTool *m_trkSelectionTool;
     SG::AuxElement::Decorator<vector<float>>* dec_dTrkPv;
     SG::AuxElement::Decorator<vector<int>>* dec_count;
     SG::AuxElement::Decorator<int>* dec_NTracks_Null;
