@@ -383,6 +383,7 @@ EXOT3SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
 
 # Save certain b-tagging variables for VR track-jet
 EXOT3SlimmingHelper.ExtraVariables += [
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.DL1_pb.DL1_pu.DL1_pc.DL1mu_pb.DL1mu_pu.DL1mu_pc.DL1rnn_pb.DL1rnn_pu.DL1rnn_pc",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
