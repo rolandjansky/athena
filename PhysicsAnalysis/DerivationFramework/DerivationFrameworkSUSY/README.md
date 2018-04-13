@@ -74,6 +74,17 @@ Because there are conflicts between your changes and the upstream ones, git need
 The affected files are marked up with the usual conflict indicators (`>>>>>>>`) showing which pieces of the file came from which versions.
 Make sure you choose the right piece of code and merge again with your topic's target branch!
 
+Inspecting the content of a (D)xAOD file
+========================================
+In a ROOT session
+```
+TFile *_file0 = TFile::Open("your file")
+xAOD::Init()
+t = xAOD::MakeTransientTree( _file0 )
+CollectionTree->Print("AntiKt4TruthJetsAux*")
+t->Draw("Muons.isolation(xAOD::Iso::ptcone20)") 
+```
+
 PreExec
 =======
 

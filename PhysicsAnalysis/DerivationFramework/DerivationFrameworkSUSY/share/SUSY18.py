@@ -291,23 +291,6 @@ SeqSUSY18 += CfgMgr.DerivationFramework__DerivationKernel(
   SkimmingTools = [SUSY18SkimmingTool]#, SUSY18TriggerSkimmingTool]
   )
 
-
-#==============================================================================
-# Jet building
-#==============================================================================
-#re-tag PFlow jets so they have b-tagging info.
-FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY18)
-
-#==============================================================================
-# now part of MCTruthCommon
-#if DerivationFrameworkIsMonteCarlo:
-#
-#  OutputJets["SUSY18"] = []
-#  reducedJetList = [ "AntiKt4TruthJets", "AntiKt4TruthWZJets" ]
-#
-#  replaceAODReducedJets(reducedJetList, SeqSUSY18, "SUSY18")
-
-
 #==============================================================================
 # Tau truth building/matching
 #==============================================================================
@@ -341,21 +324,15 @@ SUSY18SlimmingHelper.SmartCollections = ["Electrons",
                                          "Muons",
                                          "TauJets",
                                          "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
-
                                          "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-
                                          "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
-
                                          "InDetTrackParticles",
                                          "PrimaryVertices",
                                          "AntiKt4TruthJets",
                                          "AntiKt4TruthWZJets"]
 
 #all variables
-SUSY18SlimmingHelper.AllVariables = [ "LVL1JetRoIs",
+SUSY18SlimmingHelper.AllVariables = [ "LVL1JetRoIs", #for L1 jet ROI matching (tau trigs)
                                       "MET_Track" #needed for the forward JVT
                                       ]
 
@@ -408,30 +385,13 @@ ExtraTausTruth = [
     "truthType"
     ]
 
-ExtraJetsTruth = [
-    "AntiKt4TruthJets."
-    "eta."
-    "m."
-    "phi."
-    "pt."
-    "TruthLabelDeltaR_B."
-    "TruthLabelDeltaR_C."
-    "TruthLabelDeltaR_T."
-    "TruthLabelID."
-    "ConeTruthLabelID."
-    "PartonTruthLabelID."
-    "HadronConeExclTruthLabelID"
-]
-
 #extra reco content
 ExtraVtx = ["PrimaryVertices."
-                   "x."
-                   "y."
-                   "z."
-                   "vertexType"
-                 ]
-
-ExtraBtag = ["BTagging_AntiKt4EMTopo.MV1_discriminant"]
+            "x."
+            "y."
+            "z."
+            "vertexType"
+            ]
 
 ExtraElectrons = ["Electrons.author.charge.ptcone20"]
 
@@ -442,19 +402,18 @@ ExtraPhotons = ["Photons.author.Loose.Tight"]
 ExtraJets = [ "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.N90Constituents.Timing.Width"]
 
 ExtraMuonTrks = [ "GSFTrackParticles.z0.d0.vz.definingParametersCovMatrix",
-              "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix",
-              "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix"]
+                  "CombinedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix",
+                  "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix"]
 
 ExtraHLT = [ "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
-             "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant",
              "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
 
 ExtraTracks= ["InDetTrackParticles.truthOrigin.truthType"]
 
-SUSY18SlimmingHelper.ExtraVariables = ExtraBtag + ExtraElectrons + ExtraMuons + ExtraPhotons + ExtraJets + ExtraMuonTrks + ExtraHLT + ExtraTracks
+SUSY18SlimmingHelper.ExtraVariables = ExtraElectrons + ExtraMuons + ExtraPhotons + ExtraJets + ExtraMuonTrks + ExtraHLT + ExtraTracks
 
 if DerivationFrameworkIsMonteCarlo:
-    SUSY18SlimmingHelper.ExtraVariables += ExtraElectronsTruth + ExtraMuonsTruth + ExtraTausTruth + ExtraJetsTruth
+    SUSY18SlimmingHelper.ExtraVariables += ExtraElectronsTruth + ExtraMuonsTruth + ExtraTausTruth
 
 
 #trigger content
@@ -466,10 +425,12 @@ SUSY18SlimmingHelper.IncludeTauTriggerContent = True
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY18SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
+  SUSY18SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer',
+                                             'TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                             'TruthBSM':'xAOD::TruthParticleContainer',
+                                             'TruthBSMAux':'xAOD::TruthParticleAuxContainer',
+                                             'TruthBoson':'xAOD::TruthParticleContainer',
+                                             'TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
   SUSY18SlimmingHelper.AllVariables += ["TruthElectrons", 
                                         "TruthMuons", 
@@ -482,9 +443,7 @@ if DerivationFrameworkIsMonteCarlo:
                                         "TruthParticles",
                                         "TruthEvents",
                                         "TruthVertices",
-                                        "MET_Truth",
-                                        "AntiKt4TruthJets",
-                                        "AntiKt4TruthWZJets"
+                                        "MET_Truth"
                                         ]   
 
 SUSY18SlimmingHelper.AppendContentToStream(SUSY18Stream)
