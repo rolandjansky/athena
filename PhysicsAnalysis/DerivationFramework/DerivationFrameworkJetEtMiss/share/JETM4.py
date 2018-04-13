@@ -30,6 +30,20 @@ JETM4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM4Sk
                                                                     expression = expression)
 ToolSvc += JETM4SkimmingTool
 
+#Trigger matching decorations
+from DerivationFrameworkSM.DerivationFrameworkSMConf import DerivationFramework__TriggerMatchingAugmentation
+DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
+                                                             name = "JETM4_TriggerMatchingAugmentation",
+                                                             DecorationPrefix = "DFCommonTrigger_",
+                                                             PhotonContainerName = "Photons",
+                                                             SingleTriggerList = [singlePhotonTriggers]
+	                                                             )
+ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
+NewTrigVars=[]
+new_content=".".join(["JETM4_"+t for t in singlePhotonTriggers
+                      ])
+NewTrigVars.append("Photons."+new_content)
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -186,7 +200,7 @@ JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-#JETM4SlimmingHelper.ExtraVariables = []
+JETM4SlimmingHelper.ExtraVariables = []+NewTrigVars
 for truthc in [
     "TruthMuons",
     "TruthElectrons",

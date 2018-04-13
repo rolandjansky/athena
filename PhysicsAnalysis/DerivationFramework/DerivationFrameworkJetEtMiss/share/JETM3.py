@@ -42,6 +42,23 @@ JETM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM3Sk
                                                                     expression = expression)
 ToolSvc += JETM3SkimmingTool
 
+#Trigger matching decorations
+#commented out because of merge with EXOT5
+from DerivationFrameworkSM.DerivationFrameworkSMConf import DerivationFramework__TriggerMatchingAugmentation
+DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
+                                                             name = "JETM3_TriggerMatchingAugmentation",
+                                                             DecorationPrefix = "DFCommonTrigger_",
+                                                             ElectronContainerName = "Electrons",
+                                                             MuonContainerName = "Muons",
+                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
+	                                                             )
+ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
+NewTrigVars=[]
+for contain in ["Electrons","Muons"]:
+    new_content=".".join(["JETM3_"+t for t in eltrigsel +
+                          mutrigsel])
+    NewTrigVars.append(contain+"."+new_content)
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -216,7 +233,7 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
 JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
-				      "AntiKt4TruthWZJets.pt","AntiKt4TruthWZJets.eta", "AntiKt4TruthWZJets.phi", "AntiKt4TruthWZJets.m"]
+				      "AntiKt4TruthWZJets.pt","AntiKt4TruthWZJets.eta", "AntiKt4TruthWZJets.phi", "AntiKt4TruthWZJets.m"]+NewTrigVars
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
