@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/Particle
                           Reconstruction/egamma/egammaEvent
                           Reconstruction/tauEvent
-                          Tools/AtlasDoxygen )
+                           )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )

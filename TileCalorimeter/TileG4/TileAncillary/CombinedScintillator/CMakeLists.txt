@@ -7,7 +7,7 @@ atlas_subdir( CombinedScintillator )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Tools/AtlasDoxygen
+                          
                           PRIVATE
                           Calorimeter/CaloIdentifier
                           Control/CxxUtils
