@@ -83,7 +83,7 @@ PP="$PP"'|PluginMgr +INFO loaded plugin info for'
 # ignore HistorySvc registered count
 PP="$PP"'|HistorySvc +INFO Registered'
 # ignore clid registry entries count
-PP="$PP"'|ClassIDSvc +INFO  getRegistryEntries: read'
+PP="$PP"'|ClassIDSvc[ 0]+INFO  getRegistryEntries: read'
 # ignore existsDir path WARNINGS
 PP="$PP"'|DirSearchPath::existsDir: WARNING not a directory'
 # ignore warnings about duplicate services/converters.
