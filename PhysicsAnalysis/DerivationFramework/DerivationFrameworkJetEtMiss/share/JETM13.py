@@ -31,19 +31,19 @@ if DerivationFrameworkIsMonteCarlo:
 #=======================================
 # Here we run custom reconstruction
 
-jetm12Seq = CfgMgr.AthSequencer("JETM13Sequence")
-DerivationFrameworkJob += jetm12Seq
+jetm13Seq = CfgMgr.AthSequencer("JETM13Sequence")
+DerivationFrameworkJob += jetm13Seq
 
 from DerivationFrameworkJetEtMiss.TCCReconstruction import runTCCReconstruction
-runTCCReconstruction(jetm12Seq,ToolSvc)
+runTCCReconstruction(jetm13Seq,ToolSvc)
 
 #=======================================
 # RESTORE AOD-REDUCED JET COLLECTIONS
 #=======================================
 reducedJetList = ["AntiKt4TruthJets","AntiKt10TruthJets",]
-replaceAODReducedJets(reducedJetList,jetm12Seq,"JETM13")
+replaceAODReducedJets(reducedJetList,jetm13Seq,"JETM13")
 
-jetm12Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM13MainKernel", 
+jetm13Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM13MainKernel", 
                                                           SkimmingTools = [],
                                                           ThinningTools = [])
 
