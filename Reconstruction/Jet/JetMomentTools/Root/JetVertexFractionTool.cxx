@@ -134,7 +134,7 @@ int JetVertexFractionTool::modify(xAOD::JetContainer& jetCont) const {
     std::vector<float> vsumpttrk = jet->getAttribute<std::vector<float> >(m_sumPtTrkName);
     float sumpttrk_all = tracksums.first;
     float sumpttrk_nonPV = tracksums.second;
-    float sumpttrk_PV = vsumpttrk[HSvertex->index()];
+    float sumpttrk_PV = vsumpttrk[HSvertex->index() - (*vertices)[0]->index()];
 
     // Get and set the JVF vector
     std::vector<float> jvf(vertices->size());
