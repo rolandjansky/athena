@@ -274,6 +274,12 @@ for unpack in topSequence.L1DecoderTest.roiUnpackers:
     if unpack.name() is "MURoIsUnpackingTool":
         unpack.Decisions="L1MU"
 
+for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
+    if unpack.name() is "EMRerunRoIsUnpackingTool":
+        unpack.SourceDecisions="L1EM"
+    if unpack.name() is "MURerunRoIsUnpackingTool":
+        unpack.SourceDecisions="L1MU"
+
 
 testChains  = [
    Chain(name='HLT_e3_etcut', Seed="L1_EM3",   \
