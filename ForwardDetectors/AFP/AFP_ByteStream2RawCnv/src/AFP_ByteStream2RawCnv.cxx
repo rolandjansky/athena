@@ -198,7 +198,8 @@ StatusCode AFP_ByteStream2RawCnv::fillCollection(const OFFLINE_FRAGMENTS_NAMESPA
 	return StatusCode::SUCCESS;
       }
 
-    } // end is data
+    } 
+    // end is data
     
   } // end of loop
   return StatusCode::SUCCESS;
@@ -213,9 +214,9 @@ AFP_ByteStream2RawCnv::getCollectionSi(const unsigned int link, const unsigned i
     return nullptr;
   }
 
-  for (const AFP_SiRawCollection& collection : container->collectionsSi())
-    if (collection.link() == link && collection.robId() == robId)
-      ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection. (Reading several BCX?)");
+  // for (const AFP_SiRawCollection& collection : container->collectionsSi())
+  //   if (collection.link() == link && collection.robId() == robId)
+  //     ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection. (Reading several BCX?)");
 
   AFP_SiRawCollection& newCollection = container->newCollectionSi();
   return &newCollection;
@@ -232,7 +233,7 @@ AFP_ByteStream2RawCnv::getCollectionToF(const unsigned int link, const unsigned 
 
   for (const AFP_ToFRawCollection& collection : container->collectionsToF())
     if (collection.link() == link && collection.robId() == robId)
-      ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection (Reading several BCX?)");
+      ATH_MSG_WARNING("ToF collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection (Reading several BCX?)");
 
   AFP_ToFRawCollection& newCollection = container->newCollectionToF();
   return &newCollection;
