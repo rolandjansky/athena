@@ -2811,3 +2811,22 @@ dataset_number  physics_short                                                 cr
 # aMcAtNloPythia8EvtGen ttbar+gamma (NLO)
 
 407320          aMcAtNloPythia8EvtGen_MEN30NLO_A14N23LO_tta140                0.21553               1.0             1.0000E+00         0.0                           
+################################################################################################################
+# Z' to qq + ISR
+
+309710          MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp1_gSp25    687.83                1.0      1.2396E-02  0.0                           
+309711          MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp1_gSp25    140.0                 1.0      1.4135E-02  0.0                           
+309712          MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp125_gSp25  638.0                 1.0      1.1573E-02  0.0                           
+309713          MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp125_gSp25  108.4                 1.0      1.6417E-02  0.0                           
+309714          MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp15_gSp25   646.35                1.0      1.0436E-02  0.0                           
+309715          MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp15_gSp25   83.76                 1.0      1.9435E-02  0.0                           
+309716          MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp175_gSp25  758.26                1.0      8.2217E-03  0.0                           
+309717          MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp175_gSp25  65.1                  1.0      2.3257E-02  0.0                           
+309718          MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp2_gSp25    911.6                 1.0      6.4326E-03  0.0                           
+309719          MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp2_gSp25    51.064                1.0      2.7921E-02  0.0                           
+309720          MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp25_gSp25   695.53                1.0      7.5845E-03  0.0                           
+309721          MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp25_gSp25   32.459                1.0      3.8588E-02  0.0                           
+309722          MGPy8EG_N30LO_A14N23LO_dmA_qqj_Jet350P100_mRp3_gSp25    466.8                 1.0      1.0364E-02  0.0                           
+309723          MGPy8EG_N30LO_A14N23LO_dmA_bbj_Jet350P100_mRp3_gSp25    21.512                1.0      5.1821E-02  0.0  
+
+################################################################################################################
