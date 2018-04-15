@@ -84,6 +84,10 @@ def getParticlePositionFilterDynamic(name="ISF_ParticlePositionFilterDynamic", *
       return getParticlePositionFilterWorld(name, **kwargs)
 
 def getGenParticleInteractingFilter(name="ISF_GenParticleInteractingFilter", **kwargs):
+    from G4AtlasApps.SimFlags import simFlags
+    simdict = simFlags.specialConfiguration.get_Value()
+    if "InteractingPDGCodes" in simdict:
+        kwargs.setdefault('AdditionalInteractingParticleTypes', simdict["InteractingPDGCodes"])
     return CfgMgr.ISF__GenParticleInteractingFilter(name, **kwargs)
 
 def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
