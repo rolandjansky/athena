@@ -23,9 +23,10 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 
 from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
-photonTriggers = singlePhotonTriggers
+electronTriggers = single_el_Trig()
+muonTriggers = single_mu_Trig()
+photonTriggers = single_photon_Trig()
+jetTriggers = single_jetTrig()
 
 # For first data
 jetSelection = '(count( AntiKt10LCTopoJets.pt > 400.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
