@@ -213,12 +213,9 @@ AFP_ByteStream2RawCnv::getCollectionSi(const unsigned int link, const unsigned i
     return nullptr;
   }
 
-  for (const AFP_SiRawCollection& collection : container->collectionsSi()) {
-    if (collection.link() == link && collection.robId() == robId) {
-      ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there.");
-      return nullptr;
-    }
-  }
+  for (const AFP_SiRawCollection& collection : container->collectionsSi())
+    if (collection.link() == link && collection.robId() == robId)
+      ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection. (Reading several BCX?)");
 
   AFP_SiRawCollection& newCollection = container->newCollectionSi();
   return &newCollection;
@@ -233,12 +230,9 @@ AFP_ByteStream2RawCnv::getCollectionToF(const unsigned int link, const unsigned 
     return nullptr;
   }
 
-  for (const AFP_ToFRawCollection& collection : container->collectionsToF()) {
-    if (collection.link() == link && collection.robId() == robId) {
-      ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there.");
-      return nullptr;
-    }
-  }
+  for (const AFP_ToFRawCollection& collection : container->collectionsToF())
+    if (collection.link() == link && collection.robId() == robId)
+      ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection (Reading several BCX?)");
 
   AFP_ToFRawCollection& newCollection = container->newCollectionToF();
   return &newCollection;
