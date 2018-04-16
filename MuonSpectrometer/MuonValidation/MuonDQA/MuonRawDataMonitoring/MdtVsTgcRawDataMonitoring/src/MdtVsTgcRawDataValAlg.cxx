@@ -39,9 +39,6 @@
 #include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-//xAOD MDT segment container
-#include "xAODMuon/MuonSegmentContainer.h"
-
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH1.h>
@@ -64,7 +61,6 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
   // Declare the properties 
   declareProperty("CheckCabling",     m_checkCabling=false);
   declareProperty("TgcLv1File",       m_tgclv1file=true);    
-  declareProperty("UseNewMDTSegment", m_new_MDTSG=true);    
   declareProperty("ChamberName",      m_chamberName="XXX");
   declareProperty("StationSize",      m_StationSize="XXX");
   declareProperty("Sector",           m_sector=0); 
@@ -73,13 +69,8 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
   declareProperty("CosmicStation",    m_cosmicStation=0);
   declareProperty("MdtAdcCut",        m_MdtAdcCut=50);
   declareProperty("MdtTdcCut",        m_MdtTdcCut=1600);
-  declareProperty("TgcPrepDataContainer", m_tgc_PrepDataContainerName = "TGC_Measurements");
-  declareProperty("OutputCoinCollection", m_tgc_CoinContainerName     = "TrigT1CoinDataCollection" );
-  declareProperty("MdtPrepDataContainer", m_mdt_PrepDataContainerName = "MDT_DriftCircles");
-  declareProperty("MdtSegmentCollection", m_mdt_SegmentCollectionName = "MuonSegments");
   
   // initialize class members
-  m_activeStore = 0;
   m_muonMgr = 0;
   m_mdtIdHelper = 0;
   m_tgcIdHelper = 0;
@@ -134,9 +125,6 @@ StatusCode
 MdtVsTgcRawDataValAlg::initialize(){
   // init message stream
   ATH_MSG_INFO( "in initializing MdtVsTgcRawDataValAlg"  );
-
-  // retrieve the active store
-  ATH_CHECK( serviceLocator()->service("ActiveStoreSvc", m_activeStore) );
 
   // Retrieve the MuonDetectorManager  
   ATH_CHECK( detStore()->retrieve(m_muonMgr) );
@@ -198,6 +186,11 @@ MdtVsTgcRawDataValAlg::initialize(){
   //18 2 3 14030.6
 
   prepareTREarray();
+
+  ATH_CHECK(m_tgc_PrepDataContainerName.initialize());
+  ATH_CHECK(m_tgc_CoinContainerName.initialize());
+  ATH_CHECK(m_mdt_PrepDataContainerName.initialize());
+  ATH_CHECK(m_mdt_SegmentCollectionName.initialize());
    
   return StatusCode::SUCCESS;
 }
@@ -230,34 +223,22 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
   ATH_MSG_DEBUG( "MdtVsTgcRawDataValAlg::TGC RawData Monitoring Histograms being filled"  );
 
   //TGC PRD
-  const Muon::TgcPrepDataContainer* tgc_prd_container;
-  ATH_CHECK( (*m_activeStore)->retrieve(tgc_prd_container, m_tgc_PrepDataContainerName) );
+  SG::ReadHandle<Muon::TgcPrepDataContainer> tgc_prd_container(m_tgc_PrepDataContainerName);
   
   //TGC Coincidence
-  const Muon::TgcCoinDataContainer* tgc_coin_container;
-  ATH_CHECK( (*m_activeStore)->retrieve(tgc_coin_container, m_tgc_CoinContainerName) );
+  SG::ReadHandle<Muon::TgcCoinDataContainer> tgc_coin_container(m_tgc_CoinContainerName);
 
   ATH_MSG_DEBUG( "size of tgc container is " << tgc_coin_container -> size()  );
   
   //MDT PRD
-  const Muon::MdtPrepDataContainer* mdt_prd_container;
-  ATH_CHECK( (*m_activeStore)->retrieve(mdt_prd_container, m_mdt_PrepDataContainerName) );
-  
-  if(m_new_MDTSG){ //new MDT Segments container
-    const xAOD::MuonSegmentContainer* mdt_new_segment ;
-    ATH_CHECK( (*m_activeStore)->retrieve(mdt_new_segment, m_mdt_SegmentCollectionName) );
-    tgceffcalc(mdt_new_segment, tgc_prd_container);
-    maphists(mdt_new_segment, tgc_prd_container);
+  SG::ReadHandle<Muon::MdtPrepDataContainer> mdt_prd_container(m_mdt_PrepDataContainerName);
 
-  }else{//MDT Segments
-    const Trk::SegmentCollection* mdt_segment_collection;
-    ATH_CHECK( (*m_activeStore)->retrieve(mdt_segment_collection, m_mdt_SegmentCollectionName) );
-    tgceffcalc(mdt_segment_collection, tgc_prd_container);
-    maphists(mdt_segment_collection, tgc_prd_container);
-  }
+  SG::ReadHandle<xAOD::MuonSegmentContainer> mdt_segment_collection(m_mdt_SegmentCollectionName) ;
+  tgceffcalc(mdt_segment_collection.cptr(), tgc_prd_container.cptr());
+  maphists(mdt_segment_collection.cptr(), tgc_prd_container.cptr());
 
   //only analyze nSL==1
-  int nSL = numberOfSL(tgc_coin_container);
+  int nSL = numberOfSL(tgc_coin_container.cptr());
   //mdtvstgclv1_eff[0]->Fill(0);
   //mdtvstgclv1_eff[1]->Fill(0);
 
@@ -273,7 +254,7 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
     //m_log<<MSG::INFO <<"RoI_Eta_Vs_Phi_A_Side has been got"<<endmsg;
     
     //fill MDT hit vs TGC RoI
-    correlation(mdt_prd_container, tgc_coin_container);
+    correlation(mdt_prd_container.cptr(), tgc_coin_container.cptr());
   }
 
  
