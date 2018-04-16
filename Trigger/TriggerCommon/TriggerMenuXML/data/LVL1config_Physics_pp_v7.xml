@@ -601,9 +601,10 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="79" partition="1" name="L1_FTK-MU" complex_deadtime="0" definition="(FTK-MU10s1[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="79" partition="1" name="L1_FTK-MU" complex_deadtime="0" definition="(FTK-MU10s1[x1]&amp;MU20[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="FTK-MU10s1_x1" triggerthreshold="FTK-MU10s1"/>
+        <TriggerCondition multi="1" name="MU20_x1" triggerthreshold="MU20"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
