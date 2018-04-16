@@ -27,16 +27,13 @@ namespace LArG4 {
 
   namespace HEC {
 
-    class HECGeometry: public AthService, virtual public IHECGeometry {
+    class HECGeometry: public extends<AthService, IHECGeometry> {
 
     public:
 
       HECGeometry(const std::string& name, ISvcLocator * pSvcLocator);
       StatusCode initialize() override final;
       virtual ~HECGeometry(){;}
-
-      /** Query interface method to make athena happy */
-      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
       LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eHECGeometryType type = kWheelActive, int *subgap=NULL) const override final;
 

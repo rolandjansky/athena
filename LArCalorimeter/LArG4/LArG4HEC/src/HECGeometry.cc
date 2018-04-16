@@ -57,7 +57,7 @@ namespace LArG4 {
   namespace HEC {
 
     HECGeometry::HECGeometry(const std::string& name, ISvcLocator * pSvcLocator)
-      : AthService(name, pSvcLocator)
+      : base_class(name, pSvcLocator)
       , m_hecManager(nullptr)
       , m_depthHist(false)
       , m_withMother(false)
@@ -177,20 +177,6 @@ namespace LArG4 {
             }
         }
 
-      return StatusCode::SUCCESS;
-    }
-
-   //============================================================================================
-
-    StatusCode HECGeometry::queryInterface( const InterfaceID & riid,  void** ppvInterface )
-    {
-      if ( IHECGeometry::interfaceID().versionMatch(riid) ) {
-        *ppvInterface = dynamic_cast<IHECGeometry*>(this);
-      } else {
-        // Interface is not directly available : try out a base class
-        return AthService::queryInterface(riid, ppvInterface);
-      }
-      addRef();
       return StatusCode::SUCCESS;
     }
 
