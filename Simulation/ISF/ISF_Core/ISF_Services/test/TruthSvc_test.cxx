@@ -60,7 +60,9 @@ namespace ISFTesting {
 
     virtual ~MockTruthStrategy() {};
 
-    // mock method which will be called by tested code
+    // This TruthStrategy only applies to the Inner Detector region
+    bool appliesToRegion(unsigned short geoID) const override { return (AtlasDetDescr::fAtlasID==geoID); }
+    // mock methods which will be called by tested code
     MOCK_CONST_METHOD1(pass, bool(ISF::ITruthIncident&));
   };
 
@@ -234,8 +236,9 @@ namespace ISFTesting {
       return m_svc->deleteChildVertex(std::forward<Args>(args)...);
     }
 
-    ToolHandleArray<ISF::ITruthStrategy>& getIDTruthStrategies() const {
-      return m_svc->m_geoStrategyHandles[AtlasDetDescr::fAtlasID];
+    ISF::ITruthStrategy** getIDTruthStrategies(unsigned int& nStrategies) const {
+      nStrategies = static_cast<unsigned int>(m_svc->m_numStrategies[AtlasDetDescr::fAtlasID]);
+      return m_svc->m_geoStrategies[AtlasDetDescr::fAtlasID];
     }
 
     // void forceEndVertexInID() const {
@@ -464,13 +467,14 @@ namespace ISFTesting {
   TEST_F(TruthSvc_test, registerTruthIncident_failMockStrat_ForceEndVtx) {
     bool forceEndVtx[AtlasDetDescr::fNumAtlasRegions] = {true, true, true, true, true, true};
     ASSERT_TRUE( m_svc->setProperty( "ForceEndVtxInRegions", forceEndVtx ).isSuccess() );
-    // retrieve mockable TruthStrategy tool and point InputConverter to the same instance
-    m_svc->setProperty("IDTruthStrategies", "['ISFTesting::MockTruthStrategy/DummyTruthStrategy']");
+    m_svc->setProperty("TruthStrategies", "['ISFTesting::MockTruthStrategy/DummyTruthStrategy']");
+
     ASSERT_TRUE( m_svc->initialize().isSuccess() );
-    ToolHandleArray<ISF::ITruthStrategy>& idTruthStrategies = getIDTruthStrategies();
+    unsigned int nIDTruthStrategies(0);
+    ISF::ITruthStrategy** truthStrategies = getIDTruthStrategies(nIDTruthStrategies);
     const unsigned int expectedSize(1);
-    ASSERT_EQ (idTruthStrategies.size(), expectedSize);
-    MockTruthStrategy* truthStrategy = dynamic_cast<MockTruthStrategy*>(&*(idTruthStrategies[0]));
+    ASSERT_EQ (nIDTruthStrategies, expectedSize);
+    MockTruthStrategy* truthStrategy = dynamic_cast<MockTruthStrategy*>(truthStrategies[0]);
     ASSERT_TRUE( truthStrategy );
 
     /// Create dummy GenEvent
@@ -531,13 +535,13 @@ namespace ISFTesting {
 
 
   TEST_F(TruthSvc_test, registerTruthIncident_passMockStrat_parentSurvives) {
-    // retrieve mockable TruthStrategy tool and point InputConverter to the same instance
-    m_svc->setProperty("IDTruthStrategies", "['ISFTesting::MockTruthStrategy/DummyTruthStrategy']");
+    m_svc->setProperty("TruthStrategies", "['ISFTesting::MockTruthStrategy/DummyTruthStrategy']");
     ASSERT_TRUE( m_svc->initialize().isSuccess() );
-    ToolHandleArray<ISF::ITruthStrategy>& idTruthStrategies = getIDTruthStrategies();
+    unsigned int nIDTruthStrategies(0);
+    ISF::ITruthStrategy** truthStrategies = getIDTruthStrategies(nIDTruthStrategies);
     const unsigned int expectedSize(1);
-    ASSERT_EQ (idTruthStrategies.size(), expectedSize);
-    MockTruthStrategy* truthStrategy = dynamic_cast<MockTruthStrategy*>(&*(idTruthStrategies[0]));
+    ASSERT_EQ (nIDTruthStrategies, expectedSize);
+    MockTruthStrategy* truthStrategy = dynamic_cast<MockTruthStrategy*>(truthStrategies[0]);
     ASSERT_TRUE( truthStrategy );
 
     /// Create dummy GenEvent
@@ -625,6 +629,3 @@ int main(int argc, char *argv[]) {
   std::quick_exit( RUN_ALL_TESTS() );
 }
 
-// // retrieve mockable GenParticleFilter tool and point InputConverter to the same instance
-// m_svc->setProperty("GenParticleFilters", "['ISFTesting::MockFilterTool/DummyFilter']");
-// ASSERT_TRUE( m_svc->initialize().isSuccess() );

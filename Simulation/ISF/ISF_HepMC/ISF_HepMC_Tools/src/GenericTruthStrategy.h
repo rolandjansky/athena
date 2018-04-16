@@ -15,6 +15,7 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "AtlasDetDescr/AtlasRegion.h"
 
 // ISF includes
 #include "ISF_HepMC_Interfaces/ITruthStrategy.h"
@@ -31,7 +32,7 @@ namespace ISF {
   
       @author Elmar.Ritsch -at- cern.ch
      */
-  class GenericTruthStrategy : public extends<AthAlgTool, ITruthStrategy> {
+  class GenericTruthStrategy final : public extends<AthAlgTool, ITruthStrategy> {
       
     public: 
      /** Constructor with parameters */
@@ -41,12 +42,13 @@ namespace ISF {
      ~GenericTruthStrategy();
 
      // Athena algtool's Hooks
-     StatusCode  initialize();
-     StatusCode  finalize();
+     virtual StatusCode  initialize() override;
+     virtual StatusCode  finalize() override;
 
      /** true if the ITruthStrategy implementation applies to the given ITruthIncident */
-     bool pass( ITruthIncident& incident) const;
+     virtual bool pass( ITruthIncident& incident) const override;
 
+     virtual bool appliesToRegion(unsigned short geoID) const override;
 	  private:
      /** parent kinetic energy / transverse momentum cuts
          (pT is stored as pT^2 which allows for faster comparisons) */
@@ -72,6 +74,8 @@ namespace ISF {
      /** PDG code checks */
      PDGCodesVector                         m_parentPdgCodesVector;  //!< Python property
      PDGCodesSet                            m_parentPdgCodes;        //!< optimized for search
+
+    IntegerArrayProperty            m_regionListProperty;
    }; 
   
 }

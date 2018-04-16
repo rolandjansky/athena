@@ -39,6 +39,7 @@
 ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
   base_class(name,svc),
   m_barcodeSvc("BarcodeSvc",name),
+  m_truthStrategies(this),
   m_geoStrategies(),
   m_numStrategies(),
   m_skipIfNoChildren(true),
@@ -49,19 +50,14 @@ ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
   m_forceEndVtx(),
   m_quasiStableParticlesIncluded(false)
 {
-  // the barcode service (used to compute Vertex Barco des)
+  // the barcode service (used to compute Vertex Barcodes)
   declareProperty("BarcodeSvc",                        m_barcodeSvc              );
   // MCTruth writing strategies
   declareProperty("SkipIfNoChildren",                  m_skipIfNoChildren        );
   declareProperty("SkipIfNoParentBarcode",             m_skipIfNoParentBarcode   );
   declareProperty("IgnoreUndefinedBarcodes",           m_ignoreUndefinedBarcodes );
   declareProperty("PassWholeVertices",                 m_passWholeVertex         );
-  // the truth strategies for the different AtlasDetDescr regions
-  declareProperty("BeamPipeTruthStrategies",           m_geoStrategyHandles[AtlasDetDescr::fAtlasForward] );
-  declareProperty("IDTruthStrategies",                 m_geoStrategyHandles[AtlasDetDescr::fAtlasID]      );
-  declareProperty("CaloTruthStrategies",               m_geoStrategyHandles[AtlasDetDescr::fAtlasCalo]    );
-  declareProperty("MSTruthStrategies",                 m_geoStrategyHandles[AtlasDetDescr::fAtlasMS]      );
-  declareProperty("CavernTruthStrategies",             m_geoStrategyHandles[AtlasDetDescr::fAtlasCavern]  );
+  declareProperty("TruthStrategies",                   m_truthStrategies);
   // attach end-vertex if parent particle dies for the different AtlasDetDescr regions
   declareProperty("ForceEndVtxInRegions",              m_forceEndVtxRegionsVec );
 
@@ -86,31 +82,35 @@ StatusCode ISF::TruthSvc::initialize()
     return StatusCode::FAILURE;
   }
 
-  // retrieve the strategies for each atlas region (Athena Alg Tools)
-  // and setup whether we want to write end-vertices in this region whenever a truth particle dies
+  // copy a pointer to the strategy instance to the local
+  // array of pointers (for faster access)
+  ATH_CHECK(m_truthStrategies.retrieve());
+  // Would be nicer to make m_geoStrategies a vector of vectors
   for ( unsigned short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID) {
-    if ( m_geoStrategyHandles[geoID].retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Could not retrieve TruthStrategy Tool Array for SimGeoID="
-                    << AtlasDetDescr::AtlasRegionHelper::getName(geoID) << ". Abort.");
-      return StatusCode::FAILURE;
+    m_numStrategies[geoID] = 0;
+    for ( const auto &truthStrategy : m_truthStrategies) {
+      if(truthStrategy->appliesToRegion(geoID)) {
+        ++m_numStrategies[geoID];
+      }
     }
-
-    // copy a pointer to the strategy instance to the local
-    // array of pointers (for faster access)
-    unsigned short curNumStrategies = m_geoStrategyHandles[geoID].size();
-    m_numStrategies[geoID] = curNumStrategies;
-    m_geoStrategies[geoID] = new ISF::ITruthStrategy*[curNumStrategies];
+  }
+  for ( unsigned short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID) {
+    m_geoStrategies[geoID] = new ISF::ITruthStrategy*[m_numStrategies[geoID]];
+    unsigned short curNumStrategies = m_truthStrategies.size();
+    unsigned short nStrat(0);
     for ( unsigned short i = 0; i < curNumStrategies; ++i) {
-      m_geoStrategies[geoID][i] = &(*m_geoStrategyHandles[geoID][i]);
+      if(m_truthStrategies[i]->appliesToRegion(geoID)) {
+        m_geoStrategies[geoID][nStrat++] = &(*m_truthStrategies[i]);
+      }
     }
 
+    // setup whether we want to write end-vertices in this region whenever a truth particle dies
     // create an end-vertex for all truth particles ending in the current AtlasRegion?
     bool forceEndVtx = std::find( m_forceEndVtxRegionsVec.begin(),
                                   m_forceEndVtxRegionsVec.end(),
                                   geoID ) != m_forceEndVtxRegionsVec.end();
     m_forceEndVtx[geoID] = forceEndVtx;
   }
-
   ATH_MSG_VERBOSE("initialize() successful");
   return StatusCode::SUCCESS;
 }
