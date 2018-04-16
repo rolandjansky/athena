@@ -53,7 +53,7 @@ class HeartbeatTimer(RepeatingTimer):
         """
         self.start_time = datetime.datetime.now()
         self.output_file = output_file
-        super(self.__class__, self).__init__(interval, lambda: self.__emit_heartbeat())
+        super(HeartbeatTimer, self).__init__(interval, lambda: self.__emit_heartbeat())
 
     def __emit_heartbeat(self):
         """! Output a heartbeat message."""

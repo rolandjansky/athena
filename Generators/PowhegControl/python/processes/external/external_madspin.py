@@ -1,8 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+import os
 from AthenaCommon import Logging
 from .external_base import ExternalBase
-import os
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
@@ -19,7 +19,7 @@ class ExternalMadSpin(ExternalBase):
 
         @param process  MadSpin process description string.
         """
-        super(self.__class__, self).__init__("MadSpin", os.environ["MADPATH"], "MadSpin", "madspin")
+        super(ExternalMadSpin, self).__init__("MadSpin", os.environ["MADPATH"], "MadSpin", "madspin")
 
         # Add parameters used by MadSpin
         self.add_keyword("alphaem_inv")
@@ -59,7 +59,6 @@ class ExternalMadSpin(ExternalBase):
         # Check that MadSpin is not disabled
         self.expose()
         if not self.MadSpin_enabled:
-            print self.MadSpin_enabled
             logger.warning("MadSpin not enabled")
             return False
         # Check that tops have not already been decayed

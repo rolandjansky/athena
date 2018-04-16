@@ -18,7 +18,7 @@ class ExternalPHOTOS(ExternalBase):
 
         @param process  PHOTOS process
         """
-        super(self.__class__, self).__init__("PHOTOS", *args)
+        super(ExternalPHOTOS, self).__init__("PHOTOS", *args)
 
         # Add parameters used by PHOTOS
         self.add_keyword("PHOTOS_enabled")
