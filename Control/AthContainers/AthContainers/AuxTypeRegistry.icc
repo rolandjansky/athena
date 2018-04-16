@@ -18,6 +18,7 @@ namespace SG {
  * @brief Look up a name -> @c auxid_t mapping.
  * @param name The name of the aux data item.
  * @param clsname The name of its associated class.  May be blank.
+ * @param flags Optional flags qualifying the type.  See above.
  *
  * The type of the item is given by the template parameter @c T.
  * If an item with the same name was previously requested
@@ -26,9 +27,10 @@ namespace SG {
 template <class T>
 SG::auxid_t
 AuxTypeRegistry::getAuxID (const std::string& name,
-                           const std::string& clsname /*= ""*/)
+                           const std::string& clsname /*= ""*/,
+                           const Flags flags /*= Flags::None*/)
 {
-  return findAuxID (name, clsname, typeid(T), &AuxTypeRegistry::makeFactory<T>);
+  return findAuxID (name, clsname, flags, typeid(T), &AuxTypeRegistry::makeFactory<T>);
 }
 
 
@@ -46,6 +48,19 @@ AuxTypeRegistry::getFactory (SG::auxid_t auxid) const
   if (auxid >= m_types.size())
     return 0;
   return m_types[auxid].m_factory;
+}
+
+
+/**
+ * @brief Return flags associated with an auxiliary variable.
+ * @param auxid The desired aux data item.
+ */
+inline
+AuxTypeRegistry::Flags AuxTypeRegistry::getFlags (SG::auxid_t auxid) const
+{
+  if (auxid >= m_types.size())
+    return Flags::None;
+  return m_types[auxid].m_flags;
 }
 
 

@@ -4,3 +4,4 @@ test_factories
 test_get_by_ti
 test_copyForOutput
 test_renameMap
+test_atomic
