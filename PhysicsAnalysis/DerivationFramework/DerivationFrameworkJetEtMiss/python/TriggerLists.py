@@ -45,7 +45,3 @@ def single_photon_Trig():
 	API_singlePhotonTriggers = list(singlePhotonTriggers.keys())
 	return API_singlePhotonTriggers
 
-def multi_photon_Trig():
-	multiPhotonTriggers = TriggerAPI.getAllHLT(TriggerPeriod.y2015 | TriggerPeriod.y2016 | TriggerPeriod.y2017 | TriggerPeriod.future, TriggerType.g_multi)
-	API_multiPhotonTriggers = list(multiPhotonTriggers.keys())
-	return API_multiPhotonTriggers

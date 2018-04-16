@@ -16,8 +16,8 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 # SKIMMING TOOL 
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-
+from DerivationFrameworkJetEtMiss import TriggerLists
+metTriggers = TriggerLists.MET_Trig()
 orstr  = ' || '
 andstr = ' && '
 trackRequirements = '(InDetTrackParticles.pt > 10.*GeV && InDetTrackParticles.TrkIsoPt1000_ptcone20 < 0.12*InDetTrackParticles.pt && InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 3.0*mm )'
