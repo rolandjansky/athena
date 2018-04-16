@@ -129,9 +129,6 @@ StatusCode TestTrigL2ElectronHypoAlg::execute_r( const EventContext& context ) c
     
   }
 
-  
-  
-
   return StatusCode::SUCCESS;
 }
 

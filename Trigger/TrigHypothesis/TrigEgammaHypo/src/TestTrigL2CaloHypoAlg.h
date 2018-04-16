@@ -16,11 +16,10 @@
 #include "ITrigL2CaloHypoTool.h"
 
 /**
- * @class Implements egamma calo selection for the new HLT framework
- * @brief 
+ * @class TestTrigL2CaloHypoAlg
+ * @brief Implements egamma calo selection for the new HLT framework
  **/
 class TestTrigL2CaloHypoAlg : public ::HypoBase {
-  //class TestTrigL2CaloHypoAlg : public ::AthReentrantAlgorithm { 
  public: 
 
   TestTrigL2CaloHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );

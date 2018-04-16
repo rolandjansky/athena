@@ -17,8 +17,8 @@
 
 
 /**
- * @class Implements Hypo selection on L2 electrons
- * @brief 
+ * @class TestTrigL2ElectronHypoAlg
+ * @brief Implements Hypo selection on L2 electrons
  **/
 
 class TestTrigL2ElectronHypoAlg  :  public ::HypoBase 
