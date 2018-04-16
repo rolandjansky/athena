@@ -56,7 +56,9 @@ SCT_FwdSensor::SCT_FwdSensor(const std::string & name,
   m_logVolume = preBuild();
 }
 
-
+SCT_FwdSensor::~SCT_FwdSensor() {
+  if (m_inactive) m_inactive->unref();
+}
 
 void
 SCT_FwdSensor::getParameters()
@@ -173,6 +175,7 @@ const GeoLogVol * SCT_FwdSensor::preBuild()
     const GeoShape & sensorPosN = (*sensorShapeN<< HepGeom::TranslateZ3D(positionZ) );
     GeoLogVol * inactiveLog = new GeoLogVol(getName()+"Glass", &sensorPosN, m_materialGlass); 	
     m_inactive = new GeoPhysVol(inactiveLog);	
+    m_inactive->ref();
   } else {
     m_inactive = NULL;
   }
