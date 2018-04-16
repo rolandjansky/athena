@@ -59,6 +59,8 @@ SCT_Ski::~SCT_Ski()
   delete m_coolingPipe;
   delete m_env1RefPointVector;
   delete m_env2RefPointVector;
+  if (m_refPointTransform) m_refPointTransform->unref();
+  if (m_coolingPipePos) m_coolingPipePos->unref();
 }
 
 
@@ -253,7 +255,7 @@ SCT_Ski::preBuild()
   //double yCoolingPipePos = yCoolingBlockPosMin + m_coolingPipePhiOffset;
   double yCoolingPipePos = coolingPipeOffsetY() + m_coolingPipePhiOffset; 
   m_coolingPipePos = new GeoTransform(HepGeom::Translate3D(xCoolingPipePos, yCoolingPipePos, 0));
- 
+  m_coolingPipePos->ref();
   //
   //
   //
@@ -418,6 +420,7 @@ SCT_Ski::preBuild()
   //double yCoolingPipeShift = yCoolingPipePos - yCenter;
 
   m_refPointTransform = new GeoTransform(HepGeom::Translate3D(-xCenter, -yCenter, 0));
+  m_refPointTransform->ref();
   //  std::cout << "xCenter, yCenter = " << xCenter << "  " << yCenter << std::endl;
   //  std::cout << "xShift2, yShift2 = " << xShift2 << "  " << yShift2 << std::endl;
   //  std::cout << "xCoolingPipePos, yCoolingPipePos = " << xCoolingPipePos << "  " << yCoolingPipePos << std::endl;

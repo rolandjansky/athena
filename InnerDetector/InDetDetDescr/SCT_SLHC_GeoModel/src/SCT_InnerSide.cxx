@@ -44,6 +44,7 @@ SCT_InnerSide::SCT_InnerSide(const std::string & name, int moduleType, bool stav
 SCT_InnerSide::~SCT_InnerSide(){
   // Clean up
   delete m_sensor;
+  if (m_sensorPos) m_sensorPos->unref();
 }
 
 
@@ -82,6 +83,7 @@ const GeoLogVol* SCT_InnerSide::preBuild(){
   double innerSensorXPos = 0;
   //Position sensor
   m_sensorPos = new GeoTransform(HepGeom::TranslateX3D(innerSensorXPos));
+  m_sensorPos->ref();
   return InnerSideLogV;
 }
 

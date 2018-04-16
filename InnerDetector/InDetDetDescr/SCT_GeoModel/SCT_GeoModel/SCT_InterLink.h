@@ -22,6 +22,7 @@ class SCT_InterLink : public SCT_SharedComponentFactory
 
 public:
   SCT_InterLink(const std::string & name);
+  ~SCT_InterLink();
 
 public:
   //  const GeoMaterial * material() const {return m_material;}

@@ -36,6 +36,9 @@ SCT_Sensor::SCT_Sensor(const std::string & name, int moduleType)
   m_logVolume = preBuild();
 }
 
+SCT_Sensor::~SCT_Sensor() {
+  if (m_subSensorLog) m_subSensorLog->unref();
+}
 
 void
 SCT_Sensor::getParameters()
@@ -78,6 +81,7 @@ SCT_Sensor::preBuild()
     double epsilon = 1e-7*CLHEP::mm;
     const GeoBox * subSensorShape = new GeoBox(0.5*m_thickness-epsilon, 0.5*m_width-epsilon, 0.5*m_subSensorLength-epsilon);
     m_subSensorLog = new GeoLogVol(getName(), subSensorShape, m_material);  
+    m_subSensorLog->ref();
   }
 
   // Build the sensor. Just a simple box.
