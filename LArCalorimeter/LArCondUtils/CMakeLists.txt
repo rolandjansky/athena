@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloGeoHelpers
                           Control/AthenaKernel
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           Database/RegistrationServices
                           Event/EventInfo
                           LArCalorimeter/LArCabling

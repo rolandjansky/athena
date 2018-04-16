@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthContainers
                           Control/AthenaBaseComps
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           Database/CoolConvUtilities
                           Database/CoraCool
                           DetectorDescription/GeoModel/GeoModelInterfaces

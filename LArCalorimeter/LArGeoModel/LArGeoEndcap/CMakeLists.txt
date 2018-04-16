@@ -8,7 +8,7 @@ atlas_subdir( LArGeoEndcap )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelKernel
                           LArCalorimeter/LArGeoModel/LArGeoFcal
                           LArCalorimeter/LArGeoModel/LArGeoHec

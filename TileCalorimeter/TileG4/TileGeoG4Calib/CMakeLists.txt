@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloSimEvent
                           Control/CxxUtils
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
                           GaudiKernel
