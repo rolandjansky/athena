@@ -22,11 +22,11 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = single_el_Trig()
-muonTriggers = single_mu_Trig()
-photonTriggers = single_photon_Trig()
-jetTriggers = single_jetTrig()
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
+photonTriggers = TriggerLists.single_photon_Trig()
+jetTriggers = TriggerLists.jetTrig()
 
 # For first data
 jetSelection = '(count( AntiKt10LCTopoJets.pt > 400.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
