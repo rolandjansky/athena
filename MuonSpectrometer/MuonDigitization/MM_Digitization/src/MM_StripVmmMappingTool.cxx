@@ -4,7 +4,7 @@
 
 //MMStripVmmMappingTool.cxx
 
-#include "MM_Digitization/MMStripVmmMappingTool.h"
+#include "MM_Digitization/MM_StripVmmMappingTool.h"
 #include <iostream>
 #include <string>
 #include <tuple>

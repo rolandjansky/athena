@@ -6,7 +6,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "MM_Digitization/MmDigitToolInput.h"
+#include "MM_Digitization/MM_DigitToolInput.h"
 #include "MM_Digitization/MM_Response_DigitTool.h"
 
 
@@ -36,11 +36,11 @@ MM_Response_DigitTool::MM_Response_DigitTool( const std::string& type,
   declareProperty("RndmEngine", m_rndmEngineName,  "Random engine name");
 }
 /*******************************************************************************/
-MmDigitToolOutput MM_Response_DigitTool::digitize( /*const MmDigitToolInput& input*/ )
+MM_DigitToolOutput MM_Response_DigitTool::digitize( /*const MmDigitToolInput& input*/ )
 {
   vector<float> a, b;
   vector<int> c;
-  MmDigitToolOutput output(false, c, b, a, 1, 1);
+  MM_DigitToolOutput output(false, c, b, a, 1, 1);
   return output;
 }
 /*******************************************************************************/

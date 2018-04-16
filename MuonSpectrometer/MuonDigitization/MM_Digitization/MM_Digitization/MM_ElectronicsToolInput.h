@@ -2,15 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MM_DIGITIZATION_MMELECTRONICSTOOLINPUT_H
-#define MM_DIGITIZATION_MMELECTRONICSTOOLINPUT_H
+#ifndef MM_DIGITIZATION_MM_ELECTRONICSTOOLINPUT_H
+#define MM_DIGITIZATION_MM_ELECTRONICSTOOLINPUT_H
 #include "Identifier/Identifier.h"
 /*******************************************************************************/
-class MmElectronicsToolInput {
+class MM_ElectronicsToolInput {
 
  public:
 
- MmElectronicsToolInput(const std::vector<int>& NumberOfStripsPos,
+ MM_ElectronicsToolInput(const std::vector<int>& NumberOfStripsPos,
                         const std::vector<std::vector<float>>& chipCharge,
                         const std::vector<std::vector<float>>& chipTime,
 			const Identifier digitID,
@@ -22,7 +22,7 @@ class MmElectronicsToolInput {
     m_digitID(digitID),
     m_kineticEnergy(kineticEnergy) {}
 
-    ~MmElectronicsToolInput() {}
+    ~MM_ElectronicsToolInput() {}
 
     std::vector<int> NumberOfStripsPos() const { return m_NumberOfStripsPos; }
     std::vector<std::vector<float>> chipCharge() const { return m_chipCharge; }
