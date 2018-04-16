@@ -34,7 +34,7 @@ class SCT_ConditionsSummaryTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ToolHandle<IInDetConditionsTool> m_pSummaryTool;
+  ToolHandle<IInDetConditionsTool> m_pSummaryTool{this, "SCT_ConditionsSummaryTool", "SCT_ConditionsSummaryTool", "ConditionsSummaryTool for SCT"};
 }; //end of class
 
 #endif // SCT_ConditionsSummaryTestAlg_H
