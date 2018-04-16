@@ -17,7 +17,6 @@
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbContainer.h"
 #include "StorageSvc/DbObjectCallBack.h"
-#include "StorageSvc/DbTransaction.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DbContainerImp.h"
 

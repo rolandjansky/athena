@@ -88,11 +88,6 @@ TestDriver::testWriting()
       throw std::runtime_error( "Could not start a connection." );
    }
    pool::DatabaseConnection* connection = fd.dbc();
-   pool::Transaction* transaction = 0;
-   cout << "startTransaction" << endl;
-   if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
-      throw std::runtime_error( "Could not start a transaction." );
-   }
 
    void *pVoid;
    pool::DbStatus sc = storSvc->queryInterface( pool::IStorageExplorer::interfaceID(), &pVoid );
@@ -157,18 +152,15 @@ TestDriver::testWriting()
          throw std::runtime_error( "Could not write an object" );
       }
       cout << "Committing transaction" << endl;
-      if( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+      if( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
          throw std::runtime_error( "Commit ERROR" );
-      }
-      if( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
-         throw std::runtime_error( "Could not restart the transaction." );
       }
       delete token;
    }
 
    // Closing the transaction.
    cout << "Committing transaction" << endl;
-   if ( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+   if ( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
       throw std::runtime_error( "Could not end a transaction." );
    }
 

@@ -16,7 +16,6 @@
 
 #include "StorageSvc/DbDomain.h"
 #include "StorageSvc/DbDatabase.h"
-#include "StorageSvc/DbTransaction.h"
 #include "DbContainerObj.h"
 #include "DbDatabaseObj.h"
 

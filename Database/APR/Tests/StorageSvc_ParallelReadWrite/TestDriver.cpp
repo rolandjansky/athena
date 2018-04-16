@@ -64,10 +64,6 @@ TestDriver::testWriting()
     throw std::runtime_error( "Could not start a connection." );
   }
   pool::DatabaseConnection* connection = fd.dbc();
-  pool::Transaction* transaction = 0;
-  if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
-    throw std::runtime_error( "Could not start a transaction." );
-  }
 
   // Retrieve the dictionary
   RootType class_SimpleTestClass  ( "SimpleTestClass" );
@@ -110,7 +106,7 @@ TestDriver::testWriting()
   }
 
   // Closing the transaction.
-  if ( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+  if ( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end a transaction." );
   }
 
@@ -158,22 +154,11 @@ TestDriver::testParallelReadWrite()
     throw std::runtime_error( "Could not start a connection." );
   }
 
-  pool::Transaction* transaction1 = 0;
-  if ( ! ( storSvc->startTransaction( fd1.dbc(), transaction1 ).isSuccess() ) ) {
-    throw std::runtime_error( "Could not start a transaction." );
-  }
-
   // Open the file to write
   pool::FileDescriptor fd2( file2, file2 );
   if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, fd2 ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a connection." );
   }
-
-  pool::Transaction* transaction2 = 0;
-  if ( ! ( storSvc->startTransaction( fd2.dbc(), transaction2 ).isSuccess() ) ) {
-    throw std::runtime_error( "Could not start a transaction." );
-  }
-
 
   // Fetch the containers
   std::vector<const Token*> containerTokens;
@@ -274,10 +259,10 @@ TestDriver::testParallelReadWrite()
 
 
   // Closing the transaction.
-  if ( ! ( storSvc->endTransaction( transaction1, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+  if ( ! ( storSvc->endTransaction( fd1.dbc(), pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end a transaction." );
   }
-  if ( ! ( storSvc->endTransaction( transaction2, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+  if ( ! ( storSvc->endTransaction( fd2.dbc(), pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end a transaction." );
   }
 
@@ -333,11 +318,6 @@ TestDriver::testReading()
     throw std::runtime_error( "Could not start a connection." );
   }
 
-  pool::Transaction* transaction = 0;
-  if ( ! ( storSvc->startTransaction( fd.dbc(), transaction ).isSuccess() ) ) {
-    throw std::runtime_error( "Could not start a transaction." );
-  }
-
   // Fetch the containers
   std::vector<const Token*> containerTokens;
   storageExplorer->containers( fd, containerTokens );
@@ -388,7 +368,7 @@ TestDriver::testReading()
     throw std::runtime_error( "Objects read different from objects written" );
   }
 
-  if ( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+  if ( ! ( storSvc->endTransaction( fd.dbc(), pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end a transaction." );
   }
 

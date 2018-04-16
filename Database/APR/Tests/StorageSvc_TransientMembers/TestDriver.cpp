@@ -64,10 +64,6 @@ TestDriver::testWriting()
     throw std::runtime_error( "Could not start a connection." );
   }
   pool::DatabaseConnection* connection = fd.dbc();
-  pool::Transaction* transaction = 0;
-  if ( ! ( storSvc->startTransaction( connection, transaction ).isSuccess() ) ) {
-    throw std::runtime_error( "Could not start a transaction." );
-  }
 
   // Retrieve the dictionary
   RootType class_TestClassWithTransients  ( "TestClassWithTransients" );
@@ -123,7 +119,7 @@ TestDriver::testWriting()
   }
 
   // Closing the transaction.
-  if ( ! ( storSvc->endTransaction( transaction, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
+  if ( ! ( storSvc->endTransaction( connection, pool::Transaction::TRANSACT_COMMIT ).isSuccess() ) ) {
     throw std::runtime_error( "Could not end a transaction." );
   }
 

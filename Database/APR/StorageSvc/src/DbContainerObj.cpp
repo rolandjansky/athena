@@ -24,7 +24,6 @@
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbContainer.h"
-#include "StorageSvc/DbTransaction.h"
 #include "StorageSvc/DbInstanceCount.h"
 #include <memory>
 using namespace std;
