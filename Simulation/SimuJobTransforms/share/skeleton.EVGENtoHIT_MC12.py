@@ -112,10 +112,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
     if hasattr(runArgs, "outputEVNT_TRFile"):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
-# Avoid command line preInclude for event service
-if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
-
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     include('SimulationJobOptions/preInclude.Cosmics.py')
 
