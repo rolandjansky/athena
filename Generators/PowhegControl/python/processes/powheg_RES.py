@@ -32,6 +32,12 @@ class PowhegRES(PowhegBase):
         return __PDF_list
 
     @property
+    def default_scales(self):
+        """! Default scale variations for this process."""
+        return [[1.0, 1.0, 1.0, 0.5, 0.5, 2.0, 2.0],\
+                [1.0, 0.5, 2.0, 0.5, 1.0, 1.0, 2.0]]
+
+    @property
     def files_for_cleanup(self):
         """! Wildcarded list of files created by this process that can be deleted."""
         return [
