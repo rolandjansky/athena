@@ -45,18 +45,18 @@ class SCT_SiliconConditionsTool: public extends<AthAlgTool, ISiliconConditionsTo
   virtual StatusCode finalize() override;
 
   /** Silicon temperature by Identifier */
-  virtual float temperature(const Identifier& elementId) override;
+  virtual float temperature(const Identifier& elementId) const override;
   /** Silicon bias voltage by Identifier */
-  virtual float biasVoltage(const Identifier& elementId) override;
+  virtual float biasVoltage(const Identifier& elementId) const override;
   /** Silicon depletion voltage by Identifier */
-  virtual float depletionVoltage(const Identifier& elementId) override;
+  virtual float depletionVoltage(const Identifier& elementId) const override;
 
   /** Silicon temperature by IdentifierHash */
-  virtual float temperature(const IdentifierHash& elementHash) override;
+  virtual float temperature(const IdentifierHash& elementHash) const override;
   /** Silicon bias voltage by IdentifierHash */
-  virtual float biasVoltage(const IdentifierHash& elementHash) override;
+  virtual float biasVoltage(const IdentifierHash& elementHash) const override;
   /** Silicon depletion voltage by IdentifierHash */
-  virtual float depletionVoltage(const IdentifierHash& elementHash) override;
+  virtual float depletionVoltage(const IdentifierHash& elementHash) const override;
 
  private:
  
