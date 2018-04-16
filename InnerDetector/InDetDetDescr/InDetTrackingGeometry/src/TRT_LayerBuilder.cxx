@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -367,6 +367,8 @@ const std::vector< const Trk::CylinderLayer* >* InDet::TRT_LayerBuilder::cylindr
                  }  // loop over posneg done
                  // show the phiMin/phiMax to the screen
                  // prepare the 
+                 // fix to CID 24918
+                 if (!sectorStraws) return nullptr;
                  double deltaPhi  = (phiMax-phiMin);
                  double phiStep   = deltaPhi/(0.5*sectorStraws-1);   
                  ATH_MSG_VERBOSE("---> Sector " << phisec << " - with " << 0.5*sectorStraws << " straws - straw phiMin/phiMax (step) = " << phiMin << " / " << phiMax << " (" << phiStep << ")");
@@ -646,8 +648,8 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
                     ++numberOfStraws;
                 }
            }
-
-
+           // fix to CID 11326
+           if (!numberOfStraws) return nullptr;
            Trk::BinUtility* currentBinUtility = new Trk::BinUtility(numberOfStraws, -M_PI, M_PI, Trk::closed, Trk::binPhi);
            Trk::BinnedArray<Trk::Surface>*  strawArray = new Trk::BinnedArray1D<Trk::Surface>(strawPerEndcapLayer, currentBinUtility);
            Trk::DiscLayer* currentLayer = 0;
