@@ -140,6 +140,11 @@ mc16_13TeV.364222.Sherpa_221_NNPDF30NNLO_Znunu_PTV500_1000.merge.EVNT.e5626_e598
 mc16_13TeV.364223.Sherpa_221_NNPDF30NNLO_Znunu_PTV1000_E_CMS.merge.EVNT.e5626_e5984
 # mc16_13TeV.344772.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_l13l7.merge.EVNT.e5585_e5984
 
+mc16_13TeV.308092.Sherpa_221_NNPDF30NNLO_Zee2jets_Min_N_TChannel.merge.EVNT.e5767_e5984    
+mc16_13TeV.308093.Sherpa_221_NNPDF30NNLO_Zmm2jets_Min_N_TChannel.merge.EVNT.e5767_e5984    
+mc16_13TeV.308094.Sherpa_221_NNPDF30NNLO_Ztautau2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
+mc16_13TeV.308095.Sherpa_221_NNPDF30NNLO_Znunu2jets_Min_N_TChannel.merge.EVNT.e5789_e5984  
+
 ##########################################################################################################################
 # madgraph+pythia8 Z+jets
 
@@ -251,6 +256,10 @@ mc16_13TeV.364194.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV280_500_CFilterBVeto.mer
 mc16_13TeV.364195.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV280_500_BFilter.merge.EVNT.e5340_e5984
 mc16_13TeV.364196.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV500_1000.merge.EVNT.e5340_e5984
 mc16_13TeV.364197.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV1000_E_CMS.merge.EVNT.e5340_e5984
+
+mc16_13TeV.308096.Sherpa_221_NNPDF30NNLO_Wenu2jets_Min_N_TChannel.merge.EVNT.e5789_e5984   
+mc16_13TeV.308097.Sherpa_221_NNPDF30NNLO_Wmunu2jets_Min_N_TChannel.merge.EVNT.e5767_e5984  
+mc16_13TeV.308098.Sherpa_221_NNPDF30NNLO_Wtaunu2jets_Min_N_TChannel.merge.EVNT.e5767_e5984 
 
 ##########################################################################################################################
 # madgraph+pythia8 W+jets
