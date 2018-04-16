@@ -177,8 +177,8 @@ print fatCalib
 
 hbbTagger = CfgMgr.HbbTaggerDNN(
     "HbbTagger",
-    OutputLevel=DEBUG,
-    neuralNetworkFile="HbbNetwork.json")
+    OutputLevel=WARNING,
+    neuralNetworkFile="BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json")
 ToolSvc += hbbTagger
 print hbbTagger
 
