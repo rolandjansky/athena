@@ -1,7 +1,18 @@
 #!/bin/sh
 #
 # art-description: Reading single particle gen events, checking that the SkipEvents argument works, using 2015 geometry and conditions
+# art-include: 21.0/Athena
+# art-include: 21.0/AthSimulation
+# art-include: 21.3/Athena
+# art-include: 21.9/Athena
+# art-include: master/Athena
+# art-include: master/AthSimulation
 # art-type: grid
+# art-output: hitsFull.ttbar.pool.root
+# art-output: hitsHalf1.ttbar.pool.root
+# art-output: hitsHalf2.ttbar.pool.root
+# art-output: hitsMerged.ttbar.pool.root
+# art-output: hitsFullMerged.ttbar.pool.root
 
 # Run 10 events normally
 Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00' --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1' --outputHITSFile 'hitsFull.ttbar.pool.root' --maxEvents '10' --skipEvents '0'
