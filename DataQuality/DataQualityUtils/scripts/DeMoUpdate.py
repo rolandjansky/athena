@@ -1,7 +1,7 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*- 
-# Author : Benjamin Trocme (LPSC - Grenoble)
-# January-March 2017
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Author : Benjamin Trocme (LPSC - Grenoble) - 2017
+# Udpates the year stats
 ##################################################################
 
 import os,sys  

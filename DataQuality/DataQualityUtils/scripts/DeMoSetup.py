@@ -1,9 +1,7 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*- 
-# Author : Benjamin Trocme (LPSC - Grenoble)
-# December 2017
-# Create directories for new year, tag, system...
-# Only for experts
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Author : Benjamin Trocme (LPSC - Grenoble)- 2017
+# Creates directories for new year, tag, system... Only for experts
 ##################################################################
 
 import os,sys  

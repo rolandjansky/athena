@@ -1,6 +1,7 @@
 #! /usr/bin/env python
-# Author : Benjamin Trocme (LPSC - Grenoble)
-# January-March 2017
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Author : Benjamin Trocme (LPSC - Grenoble) - 2017
+# Displays the year cumulated stats (GRL runs)
 ##################################################################
 
 import os,sys  

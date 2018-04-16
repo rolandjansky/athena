@@ -1,4 +1,8 @@
 #!/bin/bash
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Author : Benjamin Trocme (LPSC - Grenoble) - 2017
+# Daemon job to update daily the DQ stats
+##################################################################
 
 source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh
 cd $1

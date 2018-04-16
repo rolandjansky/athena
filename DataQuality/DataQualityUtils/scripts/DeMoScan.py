@@ -1,6 +1,8 @@
 #! /usr/bin/env python
-# Author : Benjamin Trocme (LPSC - Grenoble)
-# January-May 2017
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Author : Benjamin Trocme (LPSC - Grenoble) - 2017
+# Displays the run affected per defect type
+# Perform run by run differences for difference tags
 ##################################################################
 
 import os,sys  

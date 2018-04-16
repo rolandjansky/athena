@@ -1,5 +1,7 @@
-# Author : Benjamin Trocme (LPSC - Grenoble)
-# January-March 2017
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Author : Benjamin Trocme (LPSC - Grenoble) - 2017
+# Auxiliary libraries used DemoUpdate, DeMoStatus and DemoScan
+##################################################################
 
 from ROOT import THStack
 from ROOT import TCanvas,TLegend
