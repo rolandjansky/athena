@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/AGDD/AGDD2GeoSvc
                           DetectorDescription/AGDD/AGDDKernel
                           DetectorDescription/AGDD/AGDDModel
