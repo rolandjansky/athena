@@ -62,3 +62,6 @@ if hasattr(runArgs,"autoConfiguration"):
 if hasattr(runArgs, "valid") and runArgs.valid is True:
     rec.doPhysicsValidationAugmentation = True
 
+# Avoid command line preInclude for event service
+if hasattr(runArgs, "eventService") and runArgs.eventService:
+    include('AthenaMP/AthenaMP_EventService.py')

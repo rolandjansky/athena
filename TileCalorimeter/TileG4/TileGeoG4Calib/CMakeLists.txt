@@ -7,7 +7,7 @@ atlas_subdir( TileGeoG4Calib )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Tools/AtlasDoxygen
+                          
                           PRIVATE
                           Calorimeter/CaloG4Sim
                           Calorimeter/CaloIdentifier

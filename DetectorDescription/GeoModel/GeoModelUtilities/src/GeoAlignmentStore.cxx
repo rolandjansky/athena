@@ -3,6 +3,7 @@
 */
 
 #include "GeoModelUtilities/GeoAlignmentStore.h"
+#include <thread>
 
 void GeoAlignmentStore::setDelta(const GeoAlignableTransform* axf, const HepGeom::Transform3D& xf)
 {
@@ -29,11 +30,8 @@ const HepGeom::Transform3D* GeoAlignmentStore::getDelta(const GeoAlignableTransf
 
 void GeoAlignmentStore::setAbsPosition(const GeoVFullPhysVol* fpv, const HepGeom::Transform3D& xf) 
 {
-  auto result = m_absPositions.emplace(fpv,xf);
-  if(!result.second) {
-    // Instertion did not take place! The alignment store already contains AbsPosition corresponding to given GeoVFullPhysVol
-    throw ExcAlignmentStore("Attempted to overwrite AbsPosition in the Alignment Store");    
-  }
+  std::lock_guard<std::mutex> guard(m_mutex);
+  m_absPositions.emplace(fpv,xf);
 }
  
 const HepGeom::Transform3D* GeoAlignmentStore::getAbsPosition(const GeoVFullPhysVol* fpv) const 
@@ -49,11 +47,8 @@ const HepGeom::Transform3D* GeoAlignmentStore::getAbsPosition(const GeoVFullPhys
 
 void GeoAlignmentStore::setDefAbsPosition(const GeoVFullPhysVol* fpv, const HepGeom::Transform3D& xf) 
 {
-  auto result = m_defAbsPositions.emplace(fpv,xf);
-  if(!result.second) {
-    // Instertion did not take place! The alignment store already contains DefAbsPosition corresponding to given GeoVFullPhysVol
-    throw ExcAlignmentStore("Attempted to overwrite DefAbsPosition in the Alignment Store");    
-  }
+  std::lock_guard<std::mutex> guard(m_mutex);
+  m_defAbsPositions.emplace(fpv,xf);
 }
 
 const HepGeom::Transform3D* GeoAlignmentStore::getDefAbsPosition(const GeoVFullPhysVol* fpv) const 

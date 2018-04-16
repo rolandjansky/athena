@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/DataModel
                           Control/SGTools
                           GaudiKernel
-                          Tools/AtlasDoxygen
+                          
                           PRIVATE
                           Event/xAOD/xAODTrigMissingET
                           Trigger/TrigDataAccess/TrigSerializeCnvSvc

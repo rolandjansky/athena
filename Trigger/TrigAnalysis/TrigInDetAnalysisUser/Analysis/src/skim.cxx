@@ -16,6 +16,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <regex>
 
 #include "TChain.h"
 #include "TFile.h"
@@ -25,7 +26,6 @@
 #include "TrigInDetAnalysis/TIDAEvent.h"
 
 #include "utils.h"
-
 
 
 
@@ -44,8 +44,8 @@ int usage(int e=0) {
 template<class T>
 std::ostream& operator<<( std::ostream& s, const std::set<T>& _s ) { 
   typename std::set<T>::const_iterator sitr = _s.begin();
-  s << "[ ";
-  while ( sitr!=_s.end() ) s << "\t" << (*sitr++); 
+  s << "[  ";
+  while ( sitr!=_s.end() ) s << (*sitr++) << "\t"; 
   s << " ]";
   return s;
 }
@@ -54,11 +54,30 @@ std::ostream& operator<<( std::ostream& s, const std::set<T>& _s ) {
 template<class T>
 std::ostream& operator<<( std::ostream& s, const std::vector<T>& _s ) { 
   typename std::vector<T>::const_iterator sitr = _s.begin();
-  s << "[ ";
-  while ( sitr!=_s.end() ) s << "\t" << (*sitr++); 
+  s << "[  ";
+  while ( sitr!=_s.end() ) s << (*sitr++) << "\t"; 
   s << " ]";
   return s;
 }
+
+
+
+void copyReleaseInfo( TFile* finput, TFile* foutdir ) { 
+
+  if ( finput && foutdir ) { 
+
+    TTree* tree  = (TTree*)finput->Get("dataTree");    
+    TTree* clone = tree->CloneTree();
+
+    foutdir->cd();
+    clone->Write("", TObject::kOverwrite);
+
+    delete clone;
+
+  }
+  
+}
+
 
 
 
@@ -123,7 +142,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  std::cout << "required chains " << require_chains << std::endl;
+  //  std::cout << "required chains " << require_chains << std::endl;
 
   if ( require_chains.size()==0 ) { 
     std::cout << "no chains requested - not doing anything" << std::endl;
@@ -143,19 +162,27 @@ int main(int argc, char** argv) {
 
   std::cout << "reading from file " << infile << std::endl;
   std::cout << "writing to file   " << outfile << std::endl;
-     
+
+
+
   /// open output file
   TIDA::Event* track_ev = new TIDA::Event();
   TIDA::Event* h = track_ev;
 
   TFile fout( outfile.c_str(), "recreate");
+
+  /// create the main event TTree ... 
+
   TTree *tree = new TTree("tree","tree");
   
   //  tree->Branch("Track","Int",&t,6400);
   tree->Branch("TIDA::Event", "TIDA::Event",&h,6400, 1);
     
   h->clear();
-      
+
+
+
+  /// event counters
 
   int ev_in  = 0;
   int ev_out = 0;
@@ -168,7 +195,14 @@ int main(int argc, char** argv) {
       std::cerr << "Error: could not open output file" << std::endl;
       exit(-1);
     }
-    
+
+
+    copyReleaseInfo( &finput, &fout );
+
+    finput.cd();
+
+    /// now the main event TTree    
+
     //   TChain* data = new TChain("tree");
     
     TTree* data = (TTree*)finput.Get("tree");
@@ -224,14 +258,14 @@ int main(int argc, char** argv) {
 
 	std::vector<std::string> chainnames = track_ev->chainnames();
 
-
-	for ( unsigned ic=chainnames.size() ; ic-- ; ) { 
-	  if ( ( require  && require_chains.find( chainnames[ic] )==require_chains.end() ) ||
-	       ( deleting && require_chains.find( chainnames[ic] )!=require_chains.end() ) )  { 
-	    //	    std::cout << "deleting chain: " << chainnames[ic] << std::endl;
-	    track_ev->erase( chainnames[ic] );
-	    //	    deleted_chains = true;
+	for ( size_t ic=chainnames.size() ; ic-- ; ) {
+	  
+	  bool matched = false;
+	  for ( std::set<std::string>::iterator it=require_chains.begin() ; it!=require_chains.end() ; it++ ) { 
+	    matched |= std::regex_match( chainnames[ic], std::regex(*it) );
 	  }
+	    
+	  if ( ( require && !matched ) || ( deleting && matched ) ) track_ev->erase( chainnames[ic] );
 	}
 	        
 	if ( verbose ) std::cout << track_ev->size() << std::endl;

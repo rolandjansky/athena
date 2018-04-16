@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           ForwardDetectors/LUCID/LUCID_SimUtils/LUCID_SimEvent
                           Simulation/G4Atlas/G4AtlasTools
                           Simulation/HitManagement
-                          Tools/AtlasDoxygen )
+                         )
 
 # External dependencies:
 find_package( CLHEP )

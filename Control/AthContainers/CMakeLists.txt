@@ -26,6 +26,7 @@ atlas_depends_on_subdirs(
 # External dependencies:
 find_package( Boost COMPONENTS thread )
 find_package( ROOT COMPONENTS Core )
+find_package( TBB )
 
 # Component(s) in the package:
 atlas_add_library( AthContainers
@@ -33,8 +34,9 @@ atlas_add_library( AthContainers
    AthContainers/tools/*.h AthContainers/tools/*.icc
    Root/*.cxx ${extra_sources}
    PUBLIC_HEADERS AthContainers
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks CxxUtils ${extra_libs} )
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES}
+                  AthLinks CxxUtils ${extra_libs} )
 
 atlas_add_dictionary( AthContainersDict
    AthContainers/AthContainersDict.h
@@ -92,6 +94,7 @@ _add_test( PackedParameters_test )
 _add_test( PackedConverter_test )
 _add_test( PackedContainer_test )
 _add_test( debug_test )
+_add_test( AtomicDecorator_test )
 
 if( NOT XAOD_STANDALONE )
    _add_test( dataVectorAsELV_test )

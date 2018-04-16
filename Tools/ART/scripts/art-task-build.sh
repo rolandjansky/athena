@@ -1,6 +1,6 @@
 #!/bin/bash
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-# arguments: RELEASE_BASE, PROJECT, PLATFORM, DATESTAMP
+# arguments: RELEASE_BASE, PROJECT, PLATFORM
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>, Emil Obreshkov <Emil.Obreshkov@cern.ch>
 
 echo "INFO: Script executed by $(whoami) on $(date)"
@@ -8,7 +8,6 @@ echo "INFO: Script executed by $(whoami) on $(date)"
 RELEASE_BASE=$1
 PROJECT=$2
 PLATFORM=$3
-DATESTAMP=$4
 
 BRANCH="$(echo "${RELEASE_BASE}" | tr '/' ' ' | awk '{print $5}')"
 echo BRANCH "${BRANCH}"
@@ -50,9 +49,9 @@ ART_VERSION=$(art.py --version)
 echo "INFO: Using ART version ${ART_VERSION} in ${ART_DIRECTORY} directory"
 
 # run build tests
-SUBDIR=${BRANCH}/${PROJECT}/${PLATFORM}/${DATESTAMP}
+SUBDIR=${AtlasBuildBranch}/${AtlasProject}/${PLATFORM}/${AtlasBuildStamp}
 OUTDIR="${RELEASE_BASE}/art-build/${SUBDIR}"
-CMD="art.py run ${RELEASE_BASE}/build/install/${PROJECT}/*/InstallArea/${PLATFORM}/src ${OUTDIR}"
+CMD="art.py run ${RELEASE_BASE}/build/install/${AtlasProject}/*/InstallArea/${PLATFORM}/src ${OUTDIR}"
 echo "${CMD}"
 RESULT=$(eval "${CMD}")
 echo "${RESULT}"

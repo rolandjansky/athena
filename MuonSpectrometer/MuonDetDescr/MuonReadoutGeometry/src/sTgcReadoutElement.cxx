@@ -25,6 +25,7 @@
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/DiamondBounds.h"
+#include "TrkSurfaces/RotatedDiamondBounds.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
@@ -431,11 +432,11 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
       / If QL3, a cutoff trapezoid, we use diamondBounds. Otherwise, Trapezoid */
       // For pad and wires Active geometry, we add 4mm to the values of A and B to account for fuzziness of +-2mm included in PadDesign
       if (m_sTGC_type == 3) {
-        m_surfaceData->m_surfBounds.push_back( new Trk::DiamondBounds(m_minHalfY[layer],m_maxHalfY[layer],m_maxHalfY[layer],m_halfX[layer] - m_etaDesign[layer].yCutout/2,m_etaDesign[layer].yCutout/2) ); // strips
+        m_surfaceData->m_surfBounds.push_back( new Trk::RotatedDiamondBounds(m_minHalfY[layer],m_maxHalfY[layer],m_maxHalfY[layer],m_halfX[layer] - m_etaDesign[layer].yCutout/2,m_etaDesign[layer].yCutout/2) ); // strips
         m_surfaceData->m_surfBounds.push_back( new Trk::DiamondBounds(m_PadminHalfY[layer],m_PadmaxHalfY[layer],m_PadmaxHalfY[layer],m_PadhalfX[layer] - m_padDesign[layer].yCutout/2,m_padDesign[layer].yCutout/2) ); // pad and wires
       }
       else {
-        m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_minHalfY[layer], m_maxHalfY[layer], m_halfX[layer]));    
+        m_surfaceData->m_surfBounds.push_back( new Trk::RotatedTrapezoidBounds( m_halfX[layer], m_minHalfY[layer], m_maxHalfY[layer]));  // strips
         m_surfaceData->m_surfBounds.push_back( new Trk::TrapezoidBounds( m_PadminHalfY[layer], m_PadmaxHalfY[layer], m_PadhalfX[layer]));
       }
       
@@ -466,7 +467,10 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
       //std::cerr<<"center of wire plane, layer:"<<layer<<","<< m_surfaceData->m_layerCenters.back().perp()<< std::endl;
 
       // strip plane moved along normal, pad plane in the opposite direction
-      double shift = 0.5*m_etaDesign[layer].thickness;
+      // We no longer want the readout elements to be seperated by the gas gas volume
+      // We place all 3 readouts at the center of the gas gap in z, with a 10 micron offset to seperate them
+      // Alexandre Laurier 2018-02-28
+      double shift = 0.01;
       if (layer%2) shift = -shift; // In layers indexed 1 and 3, order is reversed
 
       // identifier of the first channel - strip plane
@@ -478,13 +482,12 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
       if (m_sTGC_type == 1 || m_sTGC_type == 2)
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
 						 Amg::Translation3D(shift,0.,-offset)*
-						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
-						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
+						 Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)));
+
       else if (m_sTGC_type == 3) // if QL3, diamond. have to shift geometry to account for origin not being in center
         m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*
 					Amg::Translation3D(shift,0.,-offset + m_halfX[layer] - m_etaDesign[layer].yCutout)*
-					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.))*
-					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,0.,1.)) );
+					Amg::AngleAxis3D(-90*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
       else reLog()<<MSG::ERROR << "sTGC_type : " << m_sTGC_type << " is not valid! Strip Geometry not Created!" << endmsg;
 
       // is this cache really needed ? 

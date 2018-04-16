@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           DetectorDescription/Identifier
                           Simulation/HitManagement
-                          Tools/AtlasDoxygen
+                          
                           PRIVATE
                           Calorimeter/CaloIdentifier
                           TileCalorimeter/TileConditions )

@@ -291,7 +291,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
   float charge_width = CLHEP::RandGauss::shoot(m_engine, m_GausMean, m_GausSigma);
   float norm = 1000. * energyDeposit/(charge_width*TMath::Sqrt(2.*TMath::Pi())); //normalization: 1Kev --> Intergral=1
   TF1 *charge_spread = new TF1("fgaus", "gaus(0)", -1000., 1000.); 
-  charge_spread->SetParameters(norm, posOnSurf_strip.y(), charge_width);
+  charge_spread->SetParameters(norm, posOnSurf_strip.x(), charge_width);
   
   m_noiseFactor = getNoiseFactor(inAngle_space);
 
@@ -318,8 +318,8 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
       //}
       //double stripHalfWidth = design->StripWidth() / 2.;
       float stripHalfWidth = 2.7 / 2.; 
-      float xmax = locpos.y() + stripHalfWidth;
-      float xmin = locpos.y() - stripHalfWidth;
+      float xmax = locpos.x() + stripHalfWidth;
+      float xmin = locpos.x() - stripHalfWidth;
       float charge = charge_spread->Integral(xmin, xmax);
       charge = CLHEP::RandGauss::shoot(m_engine, charge, m_noiseFactor*charge);
 
@@ -359,8 +359,8 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const GenericMuonSimHit* hit, c
       //}
       //double stripHalfWidth = design->StripWidth() / 2.;
       float stripHalfWidth = 2.7 / 2.; 
-      float xmax = locpos.y() + stripHalfWidth;
-      float xmin = locpos.y() - stripHalfWidth;
+      float xmax = locpos.x() + stripHalfWidth;
+      float xmin = locpos.x() - stripHalfWidth;
       float charge = charge_spread->Integral(xmin, xmax);
       charge = CLHEP::RandGauss::shoot(m_engine, charge, m_noiseFactor*charge);
 

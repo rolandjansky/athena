@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           ForwardDetectors/AFP/AFP_Geometry
                           ForwardDetectors/AFP/AFP_SimEv
                           Simulation/G4Atlas/G4AtlasTools
-                          Tools/AtlasDoxygen )
+                           )
 
 # External dependencies:
 find_package( CLHEP )

@@ -29,7 +29,6 @@
 
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/StatusCode.h"
-#include "StoreGate/StoreGateSvc.h"
 //#include "StoreGate/DataHandle.h"
 
 #include "GaudiKernel/MsgStream.h"
@@ -79,9 +78,6 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
     virtual StatusCode procHistograms();
 
   private:
-    // Stores
-    //StoreGateSvc*   m_eventStore;
-    StoreGateSvc*   m_detStore;
 
     // Muon Detector Manager
     const MuonGM::MuonDetectorManager* m_muonMgr;

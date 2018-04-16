@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/StoreGate
                           Generators/GeneratorObjects
-                          Tools/AtlasDoxygen )
+                           )
 
 # External dependencies:
 find_package( CLHEP )

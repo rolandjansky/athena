@@ -450,4 +450,32 @@ ExcInsertMoveOwnershipMismatch::ExcInsertMoveOwnershipMismatch()
 }
 
 
+//*************************************************************************
+
+
+/// Helper: format exception error string.
+std::string excAtomicMismatch_format (SG::auxid_t auxid,
+                                      const std::type_info& type)
+{
+  std::ostringstream os;
+  os << "SG::ExcAtomicMismatch: "
+     << "Non-atomic access to atomic aux variable  "
+     << excFormatName (auxid)
+     << " of type " << AthContainers_detail::typeinfoName (type);
+  return os.str();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param auxid ID of the requested aux data item.
+ * @param new_type Type of the item.
+ */
+ExcAtomicMismatch::ExcAtomicMismatch (SG::auxid_t auxid,
+                                      const std::type_info& type)
+  : std::runtime_error (excAtomicMismatch_format (auxid, type))
+{
+}
+
+
 } // namespace SG

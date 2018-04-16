@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventKernel
                           Event/FourMom
                           GaudiKernel
-                          Tools/AtlasDoxygen
+                          
                           Trigger/TrigEvent/TrigMissingEtEvent
                           PRIVATE
                           Calorimeter/CaloEvent
