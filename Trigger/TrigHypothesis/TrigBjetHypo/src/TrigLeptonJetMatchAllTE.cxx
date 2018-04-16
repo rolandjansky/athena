@@ -75,15 +75,15 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltInitialize() {
 
   //* declareProperty overview *//
       if (msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-        msg() << MSG::DEBUG << " WorkingMode = " << m_workingMode  << endmsg; 
+	ATH_MSG_DEBUG( "declareProperty review:" );
+	ATH_MSG_DEBUG( " WorkingMode = " << m_workingMode );
         //        msg() << MSG::DEBUG << " Instance = "            << m_instance << endmsg;
-        msg() << MSG::DEBUG << " DeltaRCut = "   << m_deltaRCut << endmsg; 
-        msg() << MSG::DEBUG << " DeltaZCut = "   << m_deltaZCut << endmsg; 
-        msg() << MSG::DEBUG << " JetKey = "   << m_jetKey << endmsg;
-        msg() << MSG::DEBUG << " PriVtxKey = "   << m_priVtxKey << endmsg;
+	ATH_MSG_DEBUG( " DeltaRCut = "   << m_deltaRCut );
+	ATH_MSG_DEBUG( " DeltaZCut = "   << m_deltaZCut );
+	ATH_MSG_DEBUG( " JetKey = "   << m_jetKey );
+	ATH_MSG_DEBUG( " PriVtxKey = "   << m_priVtxKey );
 
-        msg() << MSG::DEBUG << " EtCut = "   << m_etCut << endmsg;
+	ATH_MSG_DEBUG( " EtCut = "   << m_etCut );
       }
   
   return HLT::OK;
@@ -108,16 +108,15 @@ float TrigLeptonJetMatchAllTE::phiCorr(float phi) {
 HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output) {
   
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Executing TrigLeptonJetMatchAllTE" << endmsg;
+    ATH_MSG_DEBUG( "Executing TrigLeptonJetMatchAllTE" );
 
   bool pass = false;
 
   beforeExecMonitors().ignore();
 
-  msg() << MSG::DEBUG 
-        << "Number of input TEs is " <<  inputTE.size() 
-        << " TE0: " << inputTE[0].size() 
-        << " TE1: " << inputTE[1].size() <<  endmsg;  
+  ATH_MSG_DEBUG( "Number of input TEs is " <<  inputTE.size() 
+		 << " TE0: " << inputTE[0].size() 
+		 << " TE1: " << inputTE[1].size() );
 
   m_cutCounter   = -1;
   m_deltaEtaPass = -9; m_muonEFEta = -9;
@@ -132,13 +131,13 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
 
   if(inputTE[0].size() == 0) {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "No muon TE found" << endmsg;
+      ATH_MSG_DEBUG( "No muon TE found" );
     return HLT::OK;
   }
 
   if(inputTE[1].size() == 0) {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "No jet TE found" << endmsg;
+      ATH_MSG_DEBUG( "No jet TE found" );
     return HLT::OK;
   }
 
@@ -155,29 +154,29 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
     const xAOD::VertexContainer*  pointerToPrmVtxCollections(0);
     
     if (getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), m_priVtxKey) != HLT::OK) {
-      msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endmsg;
+      ATH_MSG_DEBUG( "No primary vertex collection retrieved" );
       // If the ID PV-finding fails then use the PV from T2HistoPrmVtx instead
       // This is not ideal... investigate why ID PV finding fails
       if (m_priVtxKey == "xPrimVx" && getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), "EFHistoPrmVtx") != HLT::OK) {
-        msg() << MSG::DEBUG<< "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endmsg;
+	ATH_MSG_DEBUG( "No primary vertex collection retrieved with name EFHistoPrmVtx either..." );
       }
       else if (msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endmsg;
+	ATH_MSG_DEBUG( "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." );
       }
     } 
     else if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Primary vertex collection retrieved" << endmsg;
+      ATH_MSG_DEBUG( "Primary vertex collection retrieved" );
     }
     
     
     
     if(pointerToPrmVtxCollections == 0 ){
-      msg() << MSG::DEBUG << "No vertex retrieved" << endmsg;
+      ATH_MSG_DEBUG( "No vertex retrieved" );
     }
     else{
       const xAOD::Vertex* prmVertex = (*pointerToPrmVtxCollections)[0];
       zPrmVtx = prmVertex->z();
-      msg() << MSG::DEBUG << "Found primary vertex at z = " << zPrmVtx << endmsg;
+      ATH_MSG_DEBUG( "Found primary vertex at z = " << zPrmVtx );
     }
   }
   
@@ -240,12 +239,12 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
     } 
     else if (muons->size()==0) {
       if (msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Muon vector empty." << endmsg;
+	ATH_MSG_DEBUG( "Muon vector empty." );
       return HLT::OK;
     } 
     else {
       if (msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Retrieved " << muons->size() << " muons." << endmsg;
+	ATH_MSG_DEBUG( "Retrieved " << muons->size() << " muons." );
     } 
 
     // ==============================
@@ -266,7 +265,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
       }
       //
       if( outJets == 0 ){
-        msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endmsg;
+	ATH_MSG_DEBUG( " Got no JetCollections associated to the TE! " );
         return HLT::MISSING_FEATURE;
       }
       std::vector<const xAOD::Jet*> theJets(outJets->begin(), outJets->end());
@@ -274,12 +273,12 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
 
       //check size of JetCollection
       if( theJets.size() == 0 ){
-        msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endmsg;
+	ATH_MSG_DEBUG( " Size of JetCollection is 0! " );
         return HLT::OK;
       }
 
       if (msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Retrieved " << theJets.size() << " jets." << endmsg;
+	ATH_MSG_DEBUG( "Retrieved " << theJets.size() << " jets." );
   
  
       // ===============================
@@ -304,10 +303,9 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
 
         const xAOD::Muon::MuonType muontype = Muon->muonType();
        if (msgLvl() <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "Muon type "<< muontype << " and " 
-	<< xAOD::Muon::MuonType::Combined 
+	 ATH_MSG_DEBUG( "Muon type "<< muontype << " and " 
+			<< xAOD::Muon::MuonType::Combined );
 	//<< " which gives " << muontype == xAOD::Muon::MuonType::Combined 
-	<<  endmsg;
 
 	if(muontype != xAOD::Muon::MuonType::Combined) continue;
 
@@ -321,13 +319,13 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
         //   msg() << MSG::DEBUG << "Z je " <<tr->z0() << " = " <<muonZ <<  endmsg;
       
         if (msgLvl() <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "Muon "<< j+1 << "; pt " << Muon->pt()  << " eta "<< muonEta << "; phi " << muonPhi << "; z " << muonZ << endmsg;
+	  ATH_MSG_DEBUG( "Muon "<< j+1 << "; pt " << Muon->pt()  << " eta "<< muonEta << "; phi " << muonPhi << "; z " << muonZ );
       
         for(unsigned int i=0; Jet!=lastJet; Jet++,i++) {
 
          if (msgLvl() <= MSG::DEBUG)
-            msg() << MSG::DEBUG << "Jet "<< i+1 << "; et " << (*Jet)->p4().Et()/1000.
-	<< " and cut " << m_etCut   <<  endmsg;
+	      ATH_MSG_DEBUG( "Jet "<< i+1 << "; et " << (*Jet)->p4().Et()/1000.
+			     << " and cut " << m_etCut );
 	
           if((*Jet)->p4().Et() < m_etCut)continue;
 
@@ -336,7 +334,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
           jetZ=zPrmVtx;
 	
           if (msgLvl() <= MSG::DEBUG)
-            msg() << MSG::DEBUG << "Jet "<< i+1 << "; et " << (*Jet)->p4().Et()/1000. << " eta "<< jetEta << "; phi " << jetPhi << "; z " << jetZ  <<  endmsg;
+	    ATH_MSG_DEBUG( "Jet "<< i+1 << "; et " << (*Jet)->p4().Et()/1000. << " eta "<< jetEta << "; phi " << jetPhi << "; z " << jetZ );
 	  
 
           deltaEta = muonEta - jetEta;
@@ -346,7 +344,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
           double dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
 
           if (msgLvl() <= MSG::DEBUG) 
-            msg() << MSG::DEBUG << "deltaR = "<< dR << "; deltaZ = " << deltaZ <<  endmsg; 
+	    ATH_MSG_DEBUG( "deltaR = "<< dR << "; deltaZ = " << deltaZ );
 
           m_deltaRAll=dR;
           m_deltaZAll=deltaZ;
@@ -377,7 +375,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
       if (pass) {
 	
         if(msgLvl() <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "Accepting the event" << endmsg;
+	  ATH_MSG_DEBUG( "Accepting the event" );
 	
         m_cutCounter=1;
         
@@ -386,7 +384,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
       } else {
 	
         if(msgLvl() <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "Rejecting the event" << endmsg;
+	  ATH_MSG_DEBUG( "Rejecting the event" );
 	
         m_cutCounter=0;
          
@@ -440,7 +438,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getTrackCollection(const xAOD::TrackPart
   if (status != HLT::OK) {
     msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element" << endmsg;
   } else if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Got " << vectorOfEFTrackCollections.size() << " TrackParticleContainer" << endmsg;
+    ATH_MSG_DEBUG( "Got " << vectorOfEFTrackCollections.size() << " TrackParticleContainer" );
   
   std::vector<const xAOD::TrackParticleContainer*>::iterator pTrackColl    = vectorOfEFTrackCollections.begin();
   std::vector<const xAOD::TrackParticleContainer*>::iterator lastTrackColl = vectorOfEFTrackCollections.end();
@@ -459,7 +457,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getTrackCollection(const xAOD::TrackPart
 HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexContainer*& pointerToEFPrmVtxCollections, const HLT::TriggerElement* outputTE, std::string priVtxKey) {
 
   if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Retrieving PV with key = " << priVtxKey << std::endl;
+    ATH_MSG_DEBUG( "Retrieving PV with key = " << priVtxKey );
 
   std::vector<const xAOD::VertexContainer*> vectorOfEFPrmVtxCollections;
   
@@ -468,7 +466,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
     msg() << MSG::ERROR << "Failed to get xAOD::VertexContainer from the trigger element" << endmsg;
   } 
   else if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Got " << vectorOfEFPrmVtxCollections.size() << " xAOD::VertexContainer" << endmsg;
+    ATH_MSG_DEBUG( "Got " << vectorOfEFPrmVtxCollections.size() << " xAOD::VertexContainer" );
   
   std::vector<const xAOD::VertexContainer*>::iterator pPrmVtxColl    = vectorOfEFPrmVtxCollections.begin();
   std::vector<const xAOD::VertexContainer*>::iterator lastPrmVtxColl = vectorOfEFPrmVtxCollections.end();
@@ -479,7 +477,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
     for ( ; pPrmVtxColl != lastPrmVtxColl; pPrmVtxColl++) { 
       
       if ((*pPrmVtxColl)->size() != 0)
-        msg() << MSG::VERBOSE << "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() << endmsg;
+	ATH_MSG_VERBOSE( "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() );
     }
     pPrmVtxColl = vectorOfEFPrmVtxCollections.begin();
   }
@@ -487,14 +485,14 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
   for ( ; pPrmVtxColl != lastPrmVtxColl; pPrmVtxColl++) { 
     
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Size of pPrmVtxColl = " << (*pPrmVtxColl)->size() << endmsg;
+      ATH_MSG_DEBUG( "Size of pPrmVtxColl = " << (*pPrmVtxColl)->size() );
     
     if ((*pPrmVtxColl)->size() != 0) {
       
       if ((*pPrmVtxColl)->front()->vertexType() == xAOD::VxType::PriVtx) { // was == 1
         if (msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG << "Selected collection with Primary Vertex label " << (*pPrmVtxColl)->front()->vertexType() << endmsg;
-          msg() << MSG::DEBUG << "First PV has z-position = " <<  (*pPrmVtxColl)->front()->z() << endmsg;
+	  ATH_MSG_DEBUG( "Selected collection with Primary Vertex label " << (*pPrmVtxColl)->front()->vertexType() );
+	  ATH_MSG_DEBUG( "First PV has z-position = " <<  (*pPrmVtxColl)->front()->z() );
         }
         break;
       }
@@ -505,12 +503,12 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::getPrmVtxCollection(const xAOD::VertexCo
   
   if (pPrmVtxColl == lastPrmVtxColl) {
     pointerToEFPrmVtxCollections = 0;
-    msg() << MSG::DEBUG << "No primary vertex collection found" << endmsg;
+    ATH_MSG_DEBUG( "No primary vertex collection found" );
     return HLT::ERROR;
   } 
   else {
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Found a primary vertex collection." << endmsg;
+      ATH_MSG_DEBUG( "Found a primary vertex collection." );
     }
     pointerToEFPrmVtxCollections = *pPrmVtxColl;
     return HLT::OK;
