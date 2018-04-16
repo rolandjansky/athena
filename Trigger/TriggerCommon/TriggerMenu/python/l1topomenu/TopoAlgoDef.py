@@ -1496,7 +1496,7 @@ class TopoAlgoDef:
         for x in [
             {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "EM", "ocut" : 20, "inputwidth": HW.OutputWidthSortEM},
             {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET},
-            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "MU", "ocut" : 20, "inputwidth": HW.OutputWidthSortMU},
+            {"minEta": -16, "maxEta": 16, "minPhi": 15, "maxPhi": 29, "otype" : "MU", "ocut" : 10, "inputwidth": HW.OutputWidthSortMU},
             ]:
 
             for k in x:

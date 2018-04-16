@@ -1724,7 +1724,7 @@ class ItemDef:
                         LVL1MenuItem('L1_LAR-ZEE_LAR-EM').setLogic( TOPO_ZEE_EM20shi2 & TOPO_LAR_EM20shi1 &physcond).setTriggerType( TT.lardemo )  # noqa: F821
                         LVL1MenuItem('L1_FTK-EM').setLogic( TOPO_FTK_EM20s1 & physcond).setTriggerType( TT.ftk ) # noqa: F821
                         LVL1MenuItem('L1_FTK-J').setLogic( TOPO_FTK_J100s1 & physcond).setTriggerType( TT.ftk ) # noqa: F821
-                        LVL1MenuItem('L1_FTK-MU').setLogic( TOPO_FTK_MU20s1 & physcond).setTriggerType( TT.ftk ) # noqa: F821
+                        LVL1MenuItem('L1_FTK-MU').setLogic( TOPO_FTK_MU10s1 & MU20 & physcond).setTriggerType( TT.ftk ) # noqa: F821
                         
                     LVL1MenuItem('L1_KF-XE40').setLogic( TOPO_KF_XE40_AJall & physcond)    # noqa: F821
                     LVL1MenuItem('L1_KF-XE50').setLogic( TOPO_KF_XE50_AJall & physcond)    # noqa: F821
