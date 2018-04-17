@@ -233,7 +233,31 @@ SUSY7TauTriggers = [
 	'HLT_tau60_medium1_tracktwo_tau25_medium1_tracktwo_xe50',
 	'HLT_tau80_medium1_L1TAU60_tau50_medium1_L1TAU12',
 	'HLT_tau125_medium1_tracktwo_tau50_medium1_tracktwo_L1TAU12',
-	'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM_4J12'
+	'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM_4J12',
+	# 2018
+	'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30',
+	'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM_4J12.0ETA23',
+	'HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_tautsf_L1DR-TAU20ITAU12I-J25',
+	'HLT_tau35_tight1_tracktwo_tau25_tight1_tracktwo_03dR30_L1DR-TAU20ITAU12I-J25',
+	'HLT_tau35_tight1_tracktwo_tau25_tight1_tracktwo_L1DR-TAU20ITAU12I-J25',
+	'HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF',
+	'HLT_tau40_medium1_tracktwoEF_tau35_medium1_tracktwoEF',
+	'HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1TAU20IM_2TAU12IM_4J12.0ETA23',
+	'HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25',
+	'HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25',
+	'HLT_tau60_medium1_tracktwoEF_tau25_medium1_tracktwoEF_xe50',
+	'HLT_tau35_medium1_tracktwoMVA_tau25_medium1_tracktwoMVA',
+	'HLT_tau40_medium1_tracktwoMVA_tau35_medium1_tracktwoMVA',
+	'HLT_tau35_medium1_tracktwoMVA_tau25_medium1_tracktwoMVA_L1TAU20IM_2TAU12IM_4J12.0ETA23',
+	'HLT_tau35_medium1_tracktwoMVA_tau25_medium1_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+	'HLT_tau35_medium1_tracktwoMVA_tau25_medium1_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25',
+	'HLT_tau60_medium1_tracktwoMVA_tau25_medium1_tracktwoMVA_xe50',
+	'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA',
+	'HLT_tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA',
+	'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1TAU20IM_2TAU12IM_4J12.0ETA23',
+	'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25',
+	'HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25',
+	'HLT_tau60_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_xe50'
 ]
 
 #all triggers
