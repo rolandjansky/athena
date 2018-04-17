@@ -52,7 +52,7 @@ class AODFix_r210(AODFix_base):
             if "elIso" not in oldMetadataList:
                 self.elIso_postSystemRec(topSequence)
                 pass
-            if "felIso" not in oldMetadataList:
+            if "felIso" not in oldMetadataList and not self.isHI:
                 self.felIso_postSystemRec(topSequence)
                 pass
             if "phIso" not in oldMetadataList:
