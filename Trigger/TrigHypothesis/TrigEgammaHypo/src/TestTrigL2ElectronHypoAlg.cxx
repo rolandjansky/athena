@@ -17,7 +17,7 @@ using TrigCompositeUtils::linkToPrevious;
 
 TestTrigL2ElectronHypoAlg::TestTrigL2ElectronHypoAlg( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
-  ::AthReentrantAlgorithm( name, pSvcLocator ) {}
+  ::HypoBase( name, pSvcLocator ) {}
 
 TestTrigL2ElectronHypoAlg::~TestTrigL2ElectronHypoAlg() {}
 
@@ -29,28 +29,25 @@ StatusCode TestTrigL2ElectronHypoAlg::initialize() {
   CHECK( m_electronsKey.initialize() );
   if (  m_runInView)   renounce( m_electronsKey );// clusters are made in views, so they are not in the EvtStore: hide them
 
-  CHECK( m_previousDecisionsKey.initialize() );
-  renounce(m_previousDecisionsKey);
-
-  CHECK( m_decisionsKey.initialize() );
-
- 
   return StatusCode::SUCCESS;
 }
 
+ StatusCode TestTrigL2ElectronHypoAlg::finalize() {
+    ATH_MSG_INFO( "Finalizing " << name() << "..." );
+    return StatusCode::SUCCESS;
+  }
 
 StatusCode TestTrigL2ElectronHypoAlg::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
-
-  auto previousDecisionsHandle = SG::makeHandle( m_previousDecisionsKey, context );
+  auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
-    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<   m_previousDecisionsKey.key()<<": is this expected?" );
+    ATH_MSG_DEBUG( "No implicit RH for previous decisions "<<  decisionInput().key()<<": is this expected?" );
     return StatusCode::SUCCESS;      
   }
 
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" implicit ReadHandles for previous decisions");
   
-  
+  // new output
   auto decisions = std::make_unique<DecisionContainer>();
   auto aux = std::make_unique<DecisionAuxContainer>();
   decisions->setStore( aux.get() );
@@ -99,7 +96,7 @@ StatusCode TestTrigL2ElectronHypoAlg::execute_r( const EventContext& context ) c
       // since we have a map made in advance we can make use of the index lookup w/o the need for additional loop 
       auto origCluster = clusterToIndexMap.find( clusterPtr );
       ATH_CHECK( origCluster != clusterToIndexMap.end() );
-      linkToPrevious( d, m_previousDecisionsKey.key(), origCluster->second );
+      linkToPrevious( d, decisionInput().key(), origCluster->second );
       
       // now we have DecisionObject ready to be passed to hypo tool. it has link to electron, 
       // and decisions on clusters
@@ -115,10 +112,21 @@ StatusCode TestTrigL2ElectronHypoAlg::execute_r( const EventContext& context ) c
     ATH_CHECK( tool->decide( hypoToolInput ) );    
   } 
 
+  auto outputHandle = SG::makeHandle(decisionOutput(), context);
+  CHECK( outputHandle.record(std::move(decisions), std::move(aux) ) );
   
-  {
-    auto handle =  SG::makeHandle( m_decisionsKey, context );
-    CHECK( handle.record( std::move( decisions ), std::move( aux ) ) );
+  ATH_MSG_DEBUG( "Exiting with "<< outputHandle->size() <<" decisions");
+  //debug
+  for (auto outh: *outputHandle){
+    TrigCompositeUtils::DecisionIDContainer objDecisions;      
+    TrigCompositeUtils::decisionIDs( outh, objDecisions );
+    
+    ATH_MSG_DEBUG("Number of positive decisions for this input: " << objDecisions.size() );
+    
+    for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
+      ATH_MSG_DEBUG( " --- found new decision " << HLT::Identifier( id ) );
+    }  
+    
   }
 
   return StatusCode::SUCCESS;
