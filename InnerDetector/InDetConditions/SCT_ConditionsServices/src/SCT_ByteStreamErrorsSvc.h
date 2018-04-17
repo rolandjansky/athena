@@ -61,7 +61,7 @@ public:
   virtual ~SCT_ByteStreamErrorsSvc() = default;
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   //@}
   
   virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
