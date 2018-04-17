@@ -65,7 +65,7 @@ from AthenaCommon import CfgMgr
 
 doL2SA=True
 doL2CB=True
-doEFSA=True
+doEFSA=False
 
 
 # ===============================================================================================
