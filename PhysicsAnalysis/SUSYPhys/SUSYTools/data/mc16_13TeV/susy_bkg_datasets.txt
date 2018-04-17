@@ -57,15 +57,26 @@ mc16_13TeV.410146.PowhegHerwigppEvtGen_UEEE5_Wt_dilepton_antitop.merge.EVNT.e459
 mc16_13TeV.410147.PowhegHerwigppEvtGen_UEEE5_Wt_inclusive_top.merge.EVNT.e4595_e5984
 mc16_13TeV.410148.PowhegHerwigppEvtGen_UEEE5_Wt_inclusive_antitop.merge.EVNT.e4595_e5984
 mc16_13TeV.410165.aMcAtNloHerwigppEvtGen_UEEE5_CTEQ6L1_CT10ME_Wt_inclusive.merge.EVNT.e5204_e5984
+mc16_13TeV.410642.PhPy8EG_A14_tchan_lept_top.merge.EVNT.e6536_e5984
+mc16_13TeV.410643.PhPy8EG_A14_tchan_lept_antitop.merge.EVNT.e6536_e5984
+mc16_13TeV.410644.PowhegPythia8EvtGen_A14_singletop_schan_lept_top.merge.EVNT.e6527_e5984
+mc16_13TeV.410645.PowhegPythia8EvtGen_A14_singletop_schan_lept_antitop.merge.EVNT.e6527_e5984
+mc16_13TeV.410646.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_top.merge.EVNT.e6552_e5984
+mc16_13TeV.410647.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_antitop.merge.EVNT.e6552_e5984
+
+##########################################################################################################################
+# sherpa 2.1 Z+jets
+
+mc16_13TeV.304020.Sherpa_CT10_Zmumu2JetsEW1JetQCD15GeVM40.merge.EVNT.e4523_e5984
 
 ##########################################################################################################################
 # sherpa 2.2.1 Z+jets
 
-# mc16_13TeV.308092.Sherpa_221_NNPDF30NNLO_Zee2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
-mc16_13TeV.308093.Sherpa_221_NNPDF30NNLO_Zmm2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
-# mc16_13TeV.308094.Sherpa_221_NNPDF30NNLO_Ztautau2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
-# mc16_13TeV.308095.Sherpa_221_NNPDF30NNLO_Znunu2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
-mc16_13TeV.304020.Sherpa_CT10_Zmumu2JetsEW1JetQCD15GeVM40.merge.EVNT.e4523_e5984
+mc16_13TeV.308092.Sherpa_221_NNPDF30NNLO_Zee2jets_Min_N_TChannel.merge.EVNT.e5767_e5984    
+mc16_13TeV.308093.Sherpa_221_NNPDF30NNLO_Zmm2jets_Min_N_TChannel.merge.EVNT.e5767_e5984    
+mc16_13TeV.308094.Sherpa_221_NNPDF30NNLO_Ztautau2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
+mc16_13TeV.308095.Sherpa_221_NNPDF30NNLO_Znunu2jets_Min_N_TChannel.merge.EVNT.e5789_e5984  
+# mc16_13TeV.344772.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_l13l7.merge.EVNT.e5585_e5984
 mc16_13TeV.344774.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_l15h20.merge.EVNT.e5585_e5984
 mc16_13TeV.344775.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_h30h20.merge.EVNT.e5585_e5984
 mc16_13TeV.344776.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV70_140_l13l7.merge.EVNT.e5585_e5984
@@ -138,12 +149,6 @@ mc16_13TeV.364220.Sherpa_221_NNPDF30NNLO_Ztautau_PTV500_1000.merge.EVNT.e5626_e5
 mc16_13TeV.364221.Sherpa_221_NNPDF30NNLO_Ztautau_PTV1000_E_CMS.merge.EVNT.e5626_e5984
 mc16_13TeV.364222.Sherpa_221_NNPDF30NNLO_Znunu_PTV500_1000.merge.EVNT.e5626_e5984
 mc16_13TeV.364223.Sherpa_221_NNPDF30NNLO_Znunu_PTV1000_E_CMS.merge.EVNT.e5626_e5984
-# mc16_13TeV.344772.Sherpa_221_NNPDF30NNLO_Ztautau_MAXHTPTV0_70_l13l7.merge.EVNT.e5585_e5984
-
-mc16_13TeV.308092.Sherpa_221_NNPDF30NNLO_Zee2jets_Min_N_TChannel.merge.EVNT.e5767_e5984    
-mc16_13TeV.308093.Sherpa_221_NNPDF30NNLO_Zmm2jets_Min_N_TChannel.merge.EVNT.e5767_e5984    
-mc16_13TeV.308094.Sherpa_221_NNPDF30NNLO_Ztautau2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
-mc16_13TeV.308095.Sherpa_221_NNPDF30NNLO_Znunu2jets_Min_N_TChannel.merge.EVNT.e5789_e5984  
 
 ##########################################################################################################################
 # madgraph+pythia8 Z+jets
@@ -211,8 +216,8 @@ mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.merge.EVNT.e3601_e598
 ##########################################################################################################################
 # sherpa 2.2.1 W+jets
 
-# mc16_13TeV.308096.Sherpa_221_NNPDF30NNLO_Wenu2jets_Min_N_TChannel.merge.EVNT.e5789_e5984
-# mc16_13TeV.308097.Sherpa_221_NNPDF30NNLO_Wmunu2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
+mc16_13TeV.308096.Sherpa_221_NNPDF30NNLO_Wenu2jets_Min_N_TChannel.merge.EVNT.e5789_e5984
+mc16_13TeV.308097.Sherpa_221_NNPDF30NNLO_Wmunu2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
 mc16_13TeV.308098.Sherpa_221_NNPDF30NNLO_Wtaunu2jets_Min_N_TChannel.merge.EVNT.e5767_e5984
 mc16_13TeV.364156.Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_CVetoBVeto.merge.EVNT.e5340_e5984
 mc16_13TeV.364157.Sherpa_221_NNPDF30NNLO_Wmunu_MAXHTPTV0_70_CFilterBVeto.merge.EVNT.e5340_e5984
@@ -256,10 +261,6 @@ mc16_13TeV.364194.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV280_500_CFilterBVeto.mer
 mc16_13TeV.364195.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV280_500_BFilter.merge.EVNT.e5340_e5984
 mc16_13TeV.364196.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV500_1000.merge.EVNT.e5340_e5984
 mc16_13TeV.364197.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV1000_E_CMS.merge.EVNT.e5340_e5984
-
-mc16_13TeV.308096.Sherpa_221_NNPDF30NNLO_Wenu2jets_Min_N_TChannel.merge.EVNT.e5789_e5984   
-mc16_13TeV.308097.Sherpa_221_NNPDF30NNLO_Wmunu2jets_Min_N_TChannel.merge.EVNT.e5767_e5984  
-mc16_13TeV.308098.Sherpa_221_NNPDF30NNLO_Wtaunu2jets_Min_N_TChannel.merge.EVNT.e5767_e5984 
 
 ##########################################################################################################################
 # madgraph+pythia8 W+jets
@@ -380,6 +381,7 @@ mc16_13TeV.364286.Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW4.merge.EVNT.e6055_e5984
 mc16_13TeV.364287.Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW6.merge.EVNT.e6055_e5984
 mc16_13TeV.364288.Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement.merge.EVNT.e6096_e5984
 mc16_13TeV.364289.Sherpa_222_NNPDF30NNLO_lllv_lowMllPtComplement.merge.EVNT.e6133_e5984
+mc16_13TeV.364290.Sherpa_222_NNPDF30NNLO_llvv_lowMllPtComplement.merge.EVNT.e6096_e5984
 mc16_13TeV.364302.Sherpa_222_NNPDF30NNLO_ggZllZqq.merge.EVNT.e6273_e5984
 mc16_13TeV.364303.Sherpa_222_NNPDF30NNLO_ggZvvZqq.merge.EVNT.e6273_e5984
 mc16_13TeV.364304.Sherpa_222_NNPDF30NNLO_ggWmlvWpqq.merge.EVNT.e6273_e5984
@@ -389,6 +391,7 @@ mc16_13TeV.364305.Sherpa_222_NNPDF30NNLO_ggWplvWmqq.merge.EVNT.e6273_e5984
 # sherpa 2.2.1 diboson (VV and VVV)
 
 mc16_13TeV.363355.Sherpa_221_NNPDF30NNLO_ZqqZvv.merge.EVNT.e5525_e5984
+mc16_13TeV.363356.Sherpa_221_NNPDF30NNLO_ZqqZll.merge.EVNT.e5525_e5984
 mc16_13TeV.363357.Sherpa_221_NNPDF30NNLO_WqqZvv.merge.EVNT.e5525_e5984
 mc16_13TeV.363358.Sherpa_221_NNPDF30NNLO_WqqZll.merge.EVNT.e5525_e5984
 mc16_13TeV.363359.Sherpa_221_NNPDF30NNLO_WpqqWmlv.merge.EVNT.e5583_e5984
@@ -562,11 +565,11 @@ mc16_13TeV.361669.PowhegPythia8EvtGen_AZNLOCTEQ6L1_DYtautau_10M60.merge.EVNT.e47
 
 mc16_13TeV.364198.Sherpa_221_NN30NNLO_Zmm_Mll10_40_MAXHTPTV0_70_BVeto.merge.EVNT.e5421_e5984
 mc16_13TeV.364199.Sherpa_221_NN30NNLO_Zmm_Mll10_40_MAXHTPTV0_70_BFilter.merge.EVNT.e5421_e5984
-# mc16_13TeV.364200.Sherpa_221_NN30NNLO_Zmm_Mll10_40_MAXHTPTV70_280_BVeto.merge.EVNT.e5421_e5984
+mc16_13TeV.364200.Sherpa_221_NN30NNLO_Zmm_Mll10_40_MAXHTPTV70_280_BVeto.merge.EVNT.e5421_e5984
 mc16_13TeV.364201.Sherpa_221_NN30NNLO_Zmm_Mll10_40_MAXHTPTV70_280_BFilter.merge.EVNT.e5421_e5984
 mc16_13TeV.364202.Sherpa_221_NN30NNLO_Zmm_Mll10_40_MAXHTPTV280_E_CMS_BVeto.merge.EVNT.e5421_e5984
 mc16_13TeV.364203.Sherpa_221_NN30NNLO_Zmm_Mll10_40_MAXHTPTV280_E_CMS_BFilter.merge.EVNT.e5421_e5984
-# mc16_13TeV.364204.Sherpa_221_NN30NNLO_Zee_Mll10_40_MAXHTPTV0_70_BVeto.merge.EVNT.e5421_e5984
+mc16_13TeV.364204.Sherpa_221_NN30NNLO_Zee_Mll10_40_MAXHTPTV0_70_BVeto.merge.EVNT.e5421_e5984
 mc16_13TeV.364205.Sherpa_221_NN30NNLO_Zee_Mll10_40_MAXHTPTV0_70_BFilter.merge.EVNT.e5421_e5984
 mc16_13TeV.364206.Sherpa_221_NN30NNLO_Zee_Mll10_40_MAXHTPTV70_280_BVeto.merge.EVNT.e5421_e5984
 mc16_13TeV.364207.Sherpa_221_NN30NNLO_Zee_Mll10_40_MAXHTPTV70_280_BFilter.merge.EVNT.e5421_e5984

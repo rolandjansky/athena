@@ -185,6 +185,13 @@ mc15_13TeV.410110.PowhegPythiaEvtGen_P2012radLo_SingleTopSchan_lept_antitop.evge
 mc15_13TeV.410178.MadGraphPythia8EvtGen_A14NNPDF23LO_WtbMET200.evgen.EVNT.e5264
 mc15_13TeV.410179.MadGraphPythia8EvtGen_A14NNPDF23LO_WtbMET60_200.evgen.EVNT.e5264
 
+mc16_13TeV.410642.PhPy8EG_A14_tchan_lept_top.merge.EVNT.e6536_e5984
+mc16_13TeV.410643.PhPy8EG_A14_tchan_lept_antitop.merge.EVNT.e6536_e5984
+mc16_13TeV.410644.PowhegPythia8EvtGen_A14_singletop_schan_lept_top.merge.EVNT.e6527_e5984
+mc16_13TeV.410645.PowhegPythia8EvtGen_A14_singletop_schan_lept_antitop.merge.EVNT.e6527_e5984
+mc16_13TeV.410646.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_top.merge.EVNT.e6552_e5984
+mc16_13TeV.410647.PowhegPythia8EvtGen_A14_Wt_DR_inclusive_antitop.merge.EVNT.e6552_e5984
+
 ################################################################################################################
 # WWbb LO
 

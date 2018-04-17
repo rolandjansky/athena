@@ -186,6 +186,13 @@ dataset_number  physics_short                                                 cr
 410178          MadGraphPythia8EvtGen_A14NNPDF23LO_WtbMET200                  9.6918                1.0             4.2646E-02         0.0                           
 410179          MadGraphPythia8EvtGen_A14NNPDF23LO_WtbMET60_200               9.6943                1.0             2.8643E-01         0.0                           
 
+410642          PhPy8EG_A14_tchan_lept_top                                    36.993                1.0             1.0000E+00         0.0                           
+410643          PhPy8EG_A14_tchan_lept_antitop                                22.174                1.0             1.0000E+00         0.0                           
+410644          PowhegPythia8EvtGen_A14_singletop_schan_lept_top              2.0268                1.0             1.0000E+00         0.0                           
+410645          PowhegPythia8EvtGen_A14_singletop_schan_lept_antitop          1.2676                1.0             1.0000E+00         0.0                           
+410646          PowhegPythia8EvtGen_A14_Wt_DR_inclusive_top                   37.937                1.0             1.0000E+00         0.0                           
+410647          PowhegPythia8EvtGen_A14_Wt_DR_inclusive_antitop               37.907                1.0             1.0000E+00         0.0                           
+
 ################################################################################################################
 # WWbb LO
 
