@@ -13,6 +13,9 @@
 
 #undef NDEBUG
 #include "xAODCore/AuxContainerBase.h"
+#include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/exceptions.h"
+#include "TestTools/expect_exception.h"
 #include <iostream>
 #include <sstream>
 #include <cassert>
@@ -47,13 +50,21 @@ public:
 
   std::vector<int> i1;
   std::vector<MoveTest> m1;
+  std::vector<int> a1;
 };
 
 
 AuxContainerTest::AuxContainerTest()
 {
-  AUX_VARIABLE(i1);
-  AUX_VARIABLE(m1);
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+
+  SG::auxid_t i1aux = AUX_VARIABLE(i1);
+  SG::auxid_t m1aux = AUX_VARIABLE(m1);
+  SG::auxid_t a1aux = AUX_VARIABLE(a1, SG::AuxTypeRegistry::Flags::Atomic);
+
+  assert (i1aux == r.findAuxID ("i1"));
+  assert (m1aux == r.findAuxID ("m1"));
+  assert (a1aux == r.findAuxID ("a1"));
 }
 
 
@@ -62,11 +73,14 @@ void test1()
 {
   std::cout << "test1\n";
 
-  SG::auxid_t ityp1 = SG::AuxTypeRegistry::instance().getAuxID<int> ("i1");
-  SG::auxid_t ityp2 = SG::AuxTypeRegistry::instance().getAuxID<int> ("i2");
-  SG::auxid_t ityp3 = SG::AuxTypeRegistry::instance().getAuxID<int> ("i3");
-  SG::auxid_t ityp4 = SG::AuxTypeRegistry::instance().getAuxID<int> ("i4");
-  SG::auxid_t mtyp1 = SG::AuxTypeRegistry::instance().getAuxID<MoveTest> ("m1");
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  SG::auxid_t ityp1 = r.getAuxID<int> ("i1");
+  SG::auxid_t ityp2 = r.getAuxID<int> ("i2");
+  SG::auxid_t ityp3 = r.getAuxID<int> ("i3");
+  SG::auxid_t ityp4 = r.getAuxID<int> ("i4");
+  SG::auxid_t mtyp1 = r.getAuxID<MoveTest> ("m1");
+  SG::auxid_t atyp1 = r.getAuxID<int> ("a1", "",
+                                       SG::AuxTypeRegistry::Flags::Atomic);
   AuxContainerTest s1;
   s1.reserve(20);
   s1.resize(5);
@@ -95,7 +109,7 @@ void test1()
     m1_2[i] = MoveTest(i+10);
   }
 
-  SG::auxid_set_t exp1 { ityp1, ityp2, mtyp1 };
+  SG::auxid_set_t exp1 { ityp1, ityp2, mtyp1, atyp1 };
   assert (s1.getAuxIDs() == exp1);
 
   SG::auxid_set_t exp2 = exp1;
@@ -170,8 +184,27 @@ void test1()
 }
 
 
+void test2()
+{
+  std::cout << "test2\n";
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  EXPECT_EXCEPTION (SG::ExcAtomicMismatch,
+                    r.getAuxID<int> ("a1"));
+
+  SG::auxid_t atyp1 = r.getAuxID<int> ("a1", "",
+                                       SG::AuxTypeRegistry::Flags::Atomic);
+  assert (r.getFlags (atyp1) == SG::AuxTypeRegistry::Flags::Atomic);
+
+  AuxContainerTest s1;
+  s1.resize(5);
+  assert (s1.getData(atyp1, 5, 5) != nullptr);
+}
+
+
 int main()
 {
+  std::cout << "ut_xaodcore_auxcontainerbase_test\n";
   test1();
+  test2();
   return 0;
 }
