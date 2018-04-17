@@ -42,6 +42,8 @@ namespace CP {
 
     m_isol_corr->msg().setLevel(this->msg().level());
 
+    std::cout << "Yooopppplllllaaaa" << std::endl;
+    
     //
     // Resolve the paths to the input files
     std::vector < std::string > corrFileNameList;
