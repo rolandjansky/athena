@@ -35,6 +35,7 @@ defaultFileReport = {'input': 'name', 'temporary': None, 'output': 'full'}
 ## @brief Base (almost virtual) report from which all real transform reports derive
 class trfReport(object):
     def __init__(self):
+        self._dataDictionary = {}
         pass
 
     ## @brief String representation of the job report
@@ -64,11 +65,13 @@ class trfReport(object):
     def classicPython(self, fast = False):
         return {}
 
-    def writeJSONReport(self, filename, sort_keys = True, indent = 2, fast = False,
-                        fileReport = defaultFileReport):
+    def writeJSONReport(self, filename, sort_keys = True, indent = 2, fast = False, fileReport = defaultFileReport):
         with open(filename, 'w') as report:
             try:
-                json.dump(self.python(fast = fast, fileReport = fileReport), report, sort_keys = sort_keys, indent = indent)
+                if not self._dataDictionary:
+                    self._dataDictionary = self.python(fast=fast, fileReport=fileReport)
+
+                json.dump(self._dataDictionary, report, sort_keys = sort_keys, indent = indent)
             except TypeError as e:
                 # TypeError means we had an unserialisable object - re-raise as a trf internal
                 message = 'TypeError raised during JSON report output: {0!s}'.format(e)
@@ -77,8 +80,11 @@ class trfReport(object):
 
     def writeTxtReport(self, filename, dumpEnv = True, fast = False, fileReport = defaultFileReport):
         with open(filename, 'w') as report:
+            if not self._dataDictionary:
+                self._dataDictionary = self.python(fast = fast, fileReport = fileReport)
+
             print >> report, '# {0} file generated on'.format(self.__class__.__name__), isodate()
-            print >> report, pprint.pformat(self.python(fast = fast, fileReport = fileReport))
+            print >> report, pprint.pformat(self._dataDictionary)
             if dumpEnv:
                 print >> report, '# Environment dump'
                 eKeys = os.environ.keys()
@@ -98,7 +104,10 @@ class trfReport(object):
 
     def writePilotPickleReport(self, filename, fast = False, fileReport = defaultFileReport):
         with open(filename, 'w') as report:
-            pickle.dump(self.python(fast = fast, fileReport = fileReport), report)
+            if not self._dataDictionary:
+                self._dataDictionary = self.python(fast = fast, fileReport = fileReport)
+
+            pickle.dump(self._dataDictionary, report)
 
 
 ## @brief Class holding a transform job report
@@ -109,14 +118,15 @@ class trfJobReport(trfReport):
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
-    _dbDataTotal = 0
-    _dbTimeTotal = 0.0
 
     ## @brief Constructor
     #  @param parentTrf Mandatory link to the transform this job report represents
     def __init__(self, parentTrf):
+        super(trfJobReport, self).__init__()
         self._trf = parentTrf
         self._precisionDigits = 3
+        self._dbDataTotal = 0
+        self._dbTimeTotal = 0.0
 
     ## @brief generate the python transform job report
     #  @param type The general type of this report (e.g. fast)
