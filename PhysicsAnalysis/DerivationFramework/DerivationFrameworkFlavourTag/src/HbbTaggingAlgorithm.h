@@ -8,9 +8,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthContainers/AuxElement.h"
-// #include "GeoPrimitives/GeoPrimitives.h"
-// #include "xAODTracking/TrackingPrimitives.h"
-// #include "xAODTracking/TrackParticleContainer.h"
 
 class HbbTaggerDNN;
 class JetCalibrationTool;

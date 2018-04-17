@@ -33,6 +33,12 @@ from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
+# logging
+from AthenaCommon import Logging
+ftag5_log = Logging.logging.getLogger('FTAG5LOG')
+def log_setup(algo):
+    ftag5_log.info('set up {}'.format(algo))
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -58,7 +64,7 @@ FTAG5StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
     expression = skim_expr)
 
 ToolSvc += FTAG5StringSkimmingTool
-print FTAG5StringSkimmingTool
+log_setup(FTAG5StringSkimmingTool)
 
 #=====================================================================
 # Thinning tools
@@ -82,7 +88,7 @@ FTAG5HbbThinningTool = HbbThinner(
     addConstituents = True,
     addConeAssociated = True)
 ToolSvc += FTAG5HbbThinningTool
-print FTAG5HbbThinningTool
+log_setup(FTAG5HbbThinningTool)
 
 #====================================================================
 # TRUTH SETUP
@@ -100,7 +106,7 @@ if globalflags.DataSource()!='data':
 #make IPE tool for TrackToVertexWrapper
 FTAG5IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG5IPETool")
 ToolSvc += FTAG5IPETool
-print FTAG5IPETool
+log_setup(FTAG5IPETool)
 
 #====================================================================
 # CREATE PRIVATE SEQUENCE
@@ -173,14 +179,14 @@ fatCalib = CfgMgr.JetCalibrationTool(
     CalibArea="00-04-81",
     IsData=False)
 ToolSvc += fatCalib
-print fatCalib
+log_setup(fatCalib)
 
 hbbTagger = CfgMgr.HbbTaggerDNN(
     "HbbTagger",
     OutputLevel=WARNING,
     neuralNetworkFile="BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json")
 ToolSvc += hbbTagger
-print hbbTagger
+log_setup(hbbTagger)
 
 FTAG5Seq += CfgMgr.HbbTaggingAlgorithm(
     "HbbTaggerAlg",
@@ -191,7 +197,7 @@ FTAG5Seq += CfgMgr.HbbTaggingAlgorithm(
     tagger=hbbTagger,
     calibrationTool=fatCalib)
 
-print FTAG5Seq.HbbTaggerAlg
+log_setup(FTAG5Seq.HbbTaggerAlg)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
