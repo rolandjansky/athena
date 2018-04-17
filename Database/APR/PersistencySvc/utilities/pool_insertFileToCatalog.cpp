@@ -8,6 +8,7 @@
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "POOLCore/SystemTools.h"
+#include "POOLCore/DbPrint.h"
 
 using namespace pool;
 
@@ -58,8 +59,6 @@ InsertFileToCatalogApplication::parseArguments()
   }
   return SimpleUtilityBase::parseArguments();
 }
-
-#include "POOLCore/DbPrint.h"
 
 void
 InsertFileToCatalogApplication::execute()
