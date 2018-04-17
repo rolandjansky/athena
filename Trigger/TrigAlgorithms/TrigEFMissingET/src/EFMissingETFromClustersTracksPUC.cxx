@@ -23,18 +23,24 @@ PURPOSE:  Pile-up fit + tracks
 using namespace std;
 namespace {
   // Helper class
-  struct Tower {
+  struct Tower{
+    xAOD::CaloCluster::State m_clusterstate;
     float sumEt{0.};
     float px{0.};
     float py{0.};
     float pt() { return sqrt(px*px+py*py); }
     float cosPhi() { return pt() > 0 ? px/pt() : 1.; }
     float sinPhi() { return pt() > 0 ? py/pt() : 0.; }
+    Tower& operator=(bool m_saveuncalibrated) {
+      if(m_saveuncalibrated) m_clusterstate = xAOD::CaloCluster::UNCALIBRATED;
+      else m_clusterstate = xAOD::CaloCluster::CALIBRATED;
+      return *this;
+    }
     Tower& operator+=(const xAOD::CaloCluster& clus) {
       float sinPhi;
       float cosPhi;
-      sincosf(clus.phi(xAOD::CaloCluster::CALIBRATED), &sinPhi, &cosPhi);
-      float Et = clus.pt(xAOD::CaloCluster::CALIBRATED);
+      sincosf(clus.phi(m_clusterstate), &sinPhi, &cosPhi);
+      float Et = clus.pt(m_clusterstate);
       sumEt += Et;
       px += Et * cosPhi;
       py += Et * sinPhi;
@@ -53,6 +59,7 @@ EFMissingETFromClustersTracksPUC::EFMissingETFromClustersTracksPUC(const std::st
   // declare the algorithm configurables here
   // declareProperty("PropertyName", m_property=default_value, "Property Description");
   // (*Do* add a property description...)
+  declareProperty("SaveUncalibrated", m_saveuncalibrated = false ,"save uncalibrated topo. clusters");
   declareProperty("TargetTowerWidth", m_targetTowerWidth = 0.7, "The target width of the towers");
   declareProperty("MaxEta", m_maxEta = 5., "The maximum eta");
   declareProperty("ForwardpTCut", m_forward_ptcut = 50.0e3 ,"pT Cut for forward jets");
@@ -60,7 +67,7 @@ EFMissingETFromClustersTracksPUC::EFMissingETFromClustersTracksPUC(const std::st
   declareProperty("dRCut", m_dRCut = 0.4, "dR Cut for track - jet association");
   declareProperty("MinJetPtJvt", m_minJetPtJvt = 20.e3, "The minimum pT (in MeV) for jets to consider for JVT");
   declareProperty("MaxJetPtJvt", m_maxJetPtJvt = 60.e3, "The maximum pT (in MeV) for jets to consider for JVT (above this jets automatically pass");
-  declareProperty("JetRpTCut", m_jetRpTCut = 0.1, "The JVT RpT cut to apply to jets");
+  declareProperty("JetRpTCut", m_jetRpTCut = 0.1, "The JVT RpT cut to apply to jets");//0.1, "The JVT RpT cut to apply to jets");
   declareProperty("CaloResSqrtTerm", m_caloResSqrtTerm = 15.81, "The coefficient of the sqrt term in the calorimeter resolution (in MeV)");
   declareProperty("CaloResFloor", m_caloResFloor = 50, "Floor for calorimeter resolution (in MeV)");
   declareProperty("ConstraintWeight", m_constraintWeight = 1., "The relative weighting applied to the constraints");
@@ -77,6 +84,8 @@ EFMissingETFromClustersTracksPUC::EFMissingETFromClustersTracksPUC(const std::st
 
   m_towerEtaWidth = 2 * m_maxEta / m_nEtaBins;
   m_towerPhiWidth = TMath::TwoPi() / m_nPhiBins;
+
+  m_clusterstate = xAOD::CaloCluster::UNCALIBRATED;
 }
 
 
@@ -100,6 +109,9 @@ StatusCode EFMissingETFromClustersTracksPUC::initialize()
     std::string basename=name()+".TotalTime";
     m_glob_timer = m_timersvc->addItem(basename);
   } // if timing service
+
+  if(m_saveuncalibrated) m_clusterstate = xAOD::CaloCluster::UNCALIBRATED;
+  else m_clusterstate = xAOD::CaloCluster::CALIBRATED;
 
   return StatusCode::SUCCESS;
 }
@@ -247,17 +259,18 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
   // Assume all of our jets have the same radius - the rest of the algorithm basically
   // relies on this anyway.
   float jetRadiusParameter = hardScatterJets.front()->getSizeParameter();
-
+  
   for (const xAOD::Jet* ijet : hardScatterJets)
     for (const auto& link : ijet->constituentLinks() )
       hardScatterIndices.insert(link.index() );
   for (unsigned int ii = 0; ii < clusters.size(); ++ii) {
-    if (fabs(clusters.at(ii)->eta(xAOD::CaloCluster::CALIBRATED) ) > m_maxEta)
+    if (fabs(clusters.at(ii)->eta(m_clusterstate) ) > m_maxEta)
       continue;
-    if (hardScatterIndices.count(ii) )
+    if (hardScatterIndices.count(ii) ){
       hardScatterClusters.push_back(clusters.at(ii) );
-    else
+    } else {
       pileupClusters.push_back(clusters.at(ii) );
+    }
   }
 
   // Calculate covariance of pileup deposits, collect into towers and calculate pileup 2-vector
@@ -267,17 +280,18 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
   std::vector<Tower> pileupTowers(m_nTowers);
   TVector2 ptPileup;
   for (const xAOD::CaloCluster* iclus : pileupClusters) {
-    float sigma2 = m_caloResFloor*m_caloResFloor + m_caloResSqrtTerm*m_caloResSqrtTerm*iclus->pt(xAOD::CaloCluster::CALIBRATED);
+    float sigma2 = m_caloResFloor*m_caloResFloor + m_caloResSqrtTerm*m_caloResSqrtTerm*iclus->pt(m_clusterstate);
     float sinPhi;
     float cosPhi;
-    sincosf(iclus->phi(xAOD::CaloCluster::CALIBRATED), &sinPhi, &cosPhi);
+    sincosf(iclus->phi(m_clusterstate), &sinPhi, &cosPhi);
     sigma_xx += sigma2 * cosPhi*cosPhi;
     sigma_yy += sigma2 * sinPhi*sinPhi;
     sigma_xy += sigma2 * cosPhi*sinPhi;
-    unsigned int etaBin = (iclus->eta(xAOD::CaloCluster::CALIBRATED) + m_maxEta)/(2*m_maxEta) * m_nEtaBins;
-    unsigned int phiBin = fmod(iclus->phi(xAOD::CaloCluster::CALIBRATED)/TMath::TwoPi() + 1, 1) * m_nPhiBins;
+    unsigned int etaBin = (iclus->eta(m_clusterstate) + m_maxEta)/(2*m_maxEta) * m_nEtaBins;
+    unsigned int phiBin = fmod(iclus->phi(m_clusterstate)/TMath::TwoPi() + 1, 1) * m_nPhiBins;
+    pileupTowers.at(etaBin*m_nPhiBins + phiBin) = m_clusterstate;
     pileupTowers.at(etaBin*m_nPhiBins + phiBin) += *iclus;
-    ptPileup += TVector2(cosPhi, sinPhi) * iclus->pt(xAOD::CaloCluster::CALIBRATED);
+    ptPileup += TVector2(cosPhi, sinPhi) * iclus->pt(m_clusterstate);
   }
   float sigma_det = sigma_yy*sigma_xx - sigma_xy*sigma_xy;
   double cosPhiPileup = ptPileup.Px()/ptPileup.Mod();
@@ -353,16 +367,16 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
   float sumEt  = 0;
   float sumE = 0;
   for (const xAOD::CaloCluster* iclus : hardScatterClusters) {
-    float pt = iclus->pt(xAOD::CaloCluster::CALIBRATED);
+    float pt = iclus->pt(m_clusterstate);
     float sinPhi;
     float cosPhi;
-    float eta = iclus->eta(xAOD::CaloCluster::CALIBRATED);
-    sincosf(iclus->phi(xAOD::CaloCluster::CALIBRATED), &sinPhi, &cosPhi);
+    float eta = iclus->eta(m_clusterstate);
+    sincosf(iclus->phi(m_clusterstate), &sinPhi, &cosPhi);
     ex -= pt * cosPhi;
     ey -= pt * sinPhi;
     ez += pt * sinhf(eta);
     sumEt  += pt;
-    sumE += iclus->p4(xAOD::CaloCluster::CALIBRATED).E();
+    sumE += iclus->p4(m_clusterstate).E();
   }
   // Apply corrections
   for (unsigned int ii = 0; ii < hardScatterJets.size(); ++ii) {
