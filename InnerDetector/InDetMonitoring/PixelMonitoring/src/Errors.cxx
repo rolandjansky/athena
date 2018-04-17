@@ -340,7 +340,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   int num_errors[PixLayerIBL2D3DDBM::COUNT] = {0};
   int num_errors_per_bit[PixLayerIBL2D3DDBM::COUNT][kNumErrorBits] = {0};
   int num_errors_per_state[PixLayer::COUNT - 1][kNumErrorStates] = {0};  // no IBL here
-  int num_errors_per_stateIBL[kNumErrorStatesIBL] = {0};                 // IBL
+  int num_errors_per_stateDBMIBL[PixLayerDBM::COUNT - PixLayerDBM::kDBMA][kNumErrorStatesIBL] = {0}; // DBMA, DBMC, IBL
 
   // Counter for erroneous modules on the layer, per error type and
   // category (error cat. = error type w/o ROD/MOD distinction).
