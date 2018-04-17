@@ -259,7 +259,6 @@ SUSY7SkimmingORTool = DerivationFramework__FilterCombinationOR(name = "SUSY7Skim
 ToolSvc += SUSY7SkimmingORTool   
 
 #add AND with Trigger skimming criteria
-from DerivationFrameworkSUSY.SUSY7TriggerList import *
 trigExpr = '('+' || '.join(SUSY7AllTriggers)+')'
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
@@ -385,8 +384,7 @@ SUSY7SlimmingHelper.IncludeEtMissTriggerContent = True
 #                                                            "AntiKt4TruthWZJets","AntiKt4TruthJets","AntiKt2PV0TrackJets","AntiKt4PV0TrackJets"])
 
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-SUSY7SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-                                          'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+SUSY7SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                           'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                           'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 
