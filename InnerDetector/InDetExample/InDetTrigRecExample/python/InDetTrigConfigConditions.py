@@ -159,14 +159,13 @@ class PixelConditionsServicesSetup:
     ServiceMgr += SpecialPixelMapSvc
 
     #Alg is suppose to replace service, sync withh service for now
-#   SpecialPixelMapCondAlg conflicts with InDetPixelConditionsSummarySvc
-#    from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
-#    SpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="SpecialPixelMapCondAlg",
-#            DBFolders  = SpecialPixelMapSvc.DBFolders,
-#            SpecialPixelMapKeys = SpecialPixelMapSvc.SpecialPixelMapKeys ,
-#            OverlayFolder       = SpecialPixelMapSvc.OverlayFolder,
-#            OverlayKey          = SpecialPixelMapSvc.OverlayKey)
-#    condSeq += SpecialPixelMapCondAlg
+    from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
+    SpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="SpecialPixelMapCondAlg",
+            DBFolders  = SpecialPixelMapSvc.DBFolders,
+            SpecialPixelMapKeys = SpecialPixelMapSvc.SpecialPixelMapKeys ,
+            OverlayFolder       = SpecialPixelMapSvc.OverlayFolder,
+            OverlayKey          = SpecialPixelMapSvc.OverlayKey)
+    condSeq += SpecialPixelMapCondAlg
 
     #theApp.CreateSvc += [ 'SpecialPixelMapSvc/%s' % self.instanceName('SpecialPixelMapSvc') ]
 
