@@ -1,0 +1,85 @@
+###############################################################
+#
+# Loads Detector Description for Pixel and SCT
+# and prints out various quanities for each detector element.
+#
+###############################################################
+
+
+# Use Global flags and DetFlags.
+from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.GlobalFlags import globalflags
+
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+ServiceMgr.MessageSvc.defaultLimit = 20000
+
+# Just the pixel and SCT
+DetFlags.ID_setOn()
+DetFlags.detdescr.pixel_setOn()
+DetFlags.detdescr.SCT_setOn()
+
+
+# MC or data - affects which conditions database instance is used
+globalflags.DataSource='geant4'
+#globalflags.DataSource='data'
+
+# Select the geometry version. 
+globalflags.DetDescrVersion = 'ATLAS-R2-2016-00-00-00'
+
+# print "HERE"
+# print globalflags.DetDescrVersion
+
+# Initialize geometry
+# THIS ACTUALLY DOES STUFF!!
+from AtlasGeoModel import GeoModelInit
+from AtlasGeoModel import SetGeometryVersion
+
+# For misalignments
+from IOVDbSvc.CondDB import conddb
+conddb.setGlobalTag('OFLCOND-SIM-00-00-00')
+# conddb.addOverride("/Indet/Align", "InDetAlign_R2_Nominal")
+
+import glob
+fileList = glob.glob("*root*") #/tmp/salzburg/*/*.root*")
+
+from AthenaCommon.AppMgr import ServiceMgr
+
+# Read material step file
+import AthenaPoolCnvSvc.ReadAthenaPool 
+ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile.root"]
+
+ServiceMgr += CfgMgr.THistSvc()
+ServiceMgr.THistSvc.Output += ["MATTRACKVAL DATAFILE='MaterialTracks.root' OPT='RECREATE'"]
+# ServiceMgr.ToolSvc.OutputLevel = VERBOSE
+
+# Set up ACTS tracking geometry service
+from GeomACTS.GeomACTSConfig import TrackingGeometrySvc
+trkGeomSvc = TrackingGeometrySvc()
+trkGeomSvc.OutputLevel = INFO
+ServiceMgr += trkGeomSvc
+
+# Set up ACTS extrapolation cell writer service
+exCellWriterSvc = CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
+exCellWriterSvc.FilePath = "excells_charged.root"
+ServiceMgr += exCellWriterSvc
+
+# Set up algorithm sequence
+from AthenaCommon.AlgSequence import AlgSequence
+job = AlgSequence()
+
+# Set up material mapping algorithm
+from GeomACTS.GeomACTSConf import ActsMaterialMapping
+
+alg = ActsMaterialMapping()
+alg.Cardinality = nThreads
+# exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
+# exTool.OutputLevel = INFO
+alg.ExtrapolationTool.FieldMode = "Constant"
+alg.ExtrapolationTool.ConstantFieldVector = [0, 0, 0]
+alg.ExtrapolationTool.OutputLevel = INFO
+
+
+alg.OutputLevel = INFO
+job += alg
+
