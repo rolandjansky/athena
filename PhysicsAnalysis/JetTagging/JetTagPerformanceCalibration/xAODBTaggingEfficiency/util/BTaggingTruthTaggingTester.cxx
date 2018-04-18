@@ -12,7 +12,6 @@ int main() {
 
   asg::AnaToolHandle<IBTaggingTruthTaggingTool> tool("BTaggingTruthTaggingTool/BtagTT_Tool");
 
-  StatusCode::enableFailure();
 
    //choose working point and CDI file
    StatusCode code = tool.setProperty("TaggerName", "MV2c10");
