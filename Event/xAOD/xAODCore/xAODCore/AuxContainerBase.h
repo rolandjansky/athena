@@ -16,6 +16,7 @@
 #include "AthContainersInterfaces/IAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
+#include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/tools/threading.h"
 #include "AthContainers/PackedContainer.h"
 #ifndef XAOD_STANDALONE
@@ -169,19 +170,22 @@ namespace xAOD {
    protected:
       /// Register one of the persistent variables internally
       template< typename T >
-      void regAuxVar( const std::string& name,
-                      std::vector< T >& vec );
+      SG::auxid_t regAuxVar( const std::string& name,
+                             std::vector< T >& vec,
+                             SG::AuxTypeRegistry::Flags flags = SG::AuxTypeRegistry::Flags::None );
 
       /// Register one of the persistent variables internally
       template< typename T >
-      void regAuxVar( const std::string& name,
-                      SG::PackedContainer< T >& vec );
+      SG::auxid_t regAuxVar( const std::string& name,
+                             SG::PackedContainer< T >& vec,
+                             SG::AuxTypeRegistry::Flags flags );
 
    private:
       /// Common code between regAuxVar cases.
       template< typename ELT, typename CONT >
-      void regAuxVar1( const std::string& name,
-                       CONT& vec );
+      SG::auxid_t regAuxVar1( const std::string& name,
+                              CONT& vec,
+                              SG::AuxTypeRegistry::Flags flags);
 
       /// Dynamic attributes selection implementation
       AuxSelection  m_selection;
