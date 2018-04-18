@@ -154,15 +154,22 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
     m_availableOP.resize(m_availableOP_fixEff.size());
     m_availableOP=m_availableOP_fixEff;
   }
-  else{
+  else if(m_OP.find("FixedCutBEff") != std::string::npos){
     m_availableOP.resize(m_availableOP_fixCut.size());
     m_availableOP=m_availableOP_fixCut;
-  }
-
-  m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_OP) - m_availableOP.begin();
-  if(m_OperatingPoint_index >= m_availableOP.size()) {
+  }else if(m_useQuntile){
     ATH_MSG_ERROR(m_OP << " not in the list of available OPs");
   }
+
+
+
+  if(m_useQuntile){
+    m_OperatingPoint_index = find(m_availableOP.begin(), m_availableOP.end(), m_OP) - m_availableOP.begin();
+    if(m_OperatingPoint_index >= m_availableOP.size()) {
+      ATH_MSG_ERROR(m_OP << " not in the list of available OPs");
+    }
+  }
+
 
   m_eff_syst.clear();
   m_sys_name.clear();
@@ -181,7 +188,13 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
       }
   }
   if(m_useQuntile){
-    ATH_MSG_INFO("m_useQuantile true");
+    ATH_MSG_INFO("m_useQuntile true");
+
+    //open the CDI file to get the cutvalues for all working points.
+    TString pathtofile =  PathResolverFindCalibFile(m_SFFile);
+    m_inf = TFile::Open(pathtofile, "read");
+    m_binEdges.clear();
+
     for(unsigned int iop=0; iop<m_availableOP.size(); iop++){
 
        std::string toolname = name()+"_eff_"+m_availableOP.at(iop);
@@ -211,7 +224,14 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
       ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel ));
 
       ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].initialize());
+
+      if(m_OP.find("FixedCutBEff")!= std::string::npos){
+        TString cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_availableOP.at(iop)+"/cutvalue";
+        float cutval = ((TVector*) m_inf->Get(cutname))[0](0);
+        m_binEdges.push_back(cutval);
+      }
     }
+
   }
 
   return StatusCode::SUCCESS;
@@ -323,6 +343,7 @@ double BTaggingTruthTaggingTool::getPermutationRW(TRFinfo &trfinf,bool isIncl, u
 StatusCode BTaggingTruthTaggingTool::GetTruthTagWeights(TRFinfo &trfinf, std::vector<double> &trf_weight_ex, std::vector<double> &trf_weight_in, int sys){
 
   ANA_CHECK_SET_TYPE (StatusCode);
+
   if(sys==0) ANA_CHECK(getAllEffMC(trfinf));
   ANA_CHECK(check_syst_range(sys));
   if(trfinf.trfwsys_ex.size()==0)  trfinf.trfwsys_ex.resize(m_eff_syst.size());
@@ -361,6 +382,9 @@ StatusCode BTaggingTruthTaggingTool::GetTruthTagWeights(TRFinfo &trfinf, std::ve
 
 StatusCode BTaggingTruthTaggingTool::CalculateResults(TRFinfo &trfinf,Analysis::TruthTagResults& results,int rand_seed){
   ANA_CHECK_SET_TYPE (StatusCode);
+  results.clear();
+
+  results.tagweight_bin_edges = m_binEdges;
 
   if(rand_seed!=-1){
     trfinf.rand.SetSeed(rand_seed);
@@ -397,10 +421,15 @@ StatusCode BTaggingTruthTaggingTool::CalculateResults(TRFinfo &trfinf,Analysis::
     }
   }
 
+  if(m_usePerm){
   ANA_CHECK(getTagPermutation(trfinf,results.trf_chosen_perm_ex,results.trf_chosen_perm_in));
+  }
+  if(m_useQuntile){
   ANA_CHECK(getQuantiles(trfinf,results.trf_bin_ex, results.trf_bin_in));
+  ANA_CHECK(generateRandomTaggerScores(results.trf_bin_ex, results.trf_bin_score_ex));
+  ANA_CHECK(generateRandomTaggerScores(results.trf_bin_in, results.trf_bin_score_in));
+  }
   ANA_CHECK(getDirectTaggedJets(trfinf,results.is_tagged));
-
 
   return StatusCode::SUCCESS;
 
@@ -431,8 +460,6 @@ StatusCode BTaggingTruthTaggingTool::CalculateResults(const xAOD::JetContainer& 
 
 StatusCode BTaggingTruthTaggingTool::getAllEffMC(TRFinfo &trfinf){
 
-  CorrectionCode code;
-
   float eff =1.;
   float eff_all =1.;
   trfinf.effMC.clear();
@@ -444,9 +471,7 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMC(TRFinfo &trfinf){
   for(unsigned int i=0; i<trfinf.jets.size(); i++){
     eff=1.;
 
-
-     code = m_effTool->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff);
-     code = m_effTool->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff);
+     CorrectionCode code = m_effTool->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff);
      if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
       ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
       return StatusCode::FAILURE;
@@ -463,7 +488,7 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMC(TRFinfo &trfinf){
        }
 
       eff_all=1.;
-      code = m_effTool_allOP[op_appo]->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff_all) ;
+      CorrectionCode code = m_effTool_allOP[op_appo]->getMCEfficiency(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, eff_all) ;
 
      if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
       ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
@@ -481,7 +506,6 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMC(TRFinfo &trfinf){
 
 StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
   ANA_CHECK_SET_TYPE ( StatusCode );
-  CorrectionCode code;
 
   trfinf.eff.clear();
   trfinf.eff.resize(trfinf.effMC.size());
@@ -524,13 +548,11 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
 
   for(unsigned int i=0; i<trfinf.jets.size(); i++){
     SF=1.;
-    code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF) ;
+    CorrectionCode code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF) ;
     if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
       ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
       return StatusCode::FAILURE;
      }
-
-
     trfinf.eff.at(i) = trfinf.effMC.at(i)*SF;
     if(m_useQuntile){
       // loop on OP
@@ -540,7 +562,7 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(TRFinfo &trfinf,int sys){
     continue;
   }
   SF_all=1.;
-  code = m_effTool_allOP[op_appo]->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF_all) ;
+  CorrectionCode code = m_effTool_allOP[op_appo]->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, SF_all) ;
   if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
       ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
       return StatusCode::FAILURE;
@@ -939,7 +961,6 @@ StatusCode BTaggingTruthTaggingTool::getDirectTaggedJets(TRFinfo &trfinf,std::ve
 
 double BTaggingTruthTaggingTool::getEvtSF(TRFinfo &trfinf,int sys){
   ANA_CHECK_SET_TYPE (StatusCode);
-  CorrectionCode code;
 
   double SF = 1.;
   std::vector<bool> is_tagged;
@@ -956,7 +977,7 @@ double BTaggingTruthTaggingTool::getEvtSF(TRFinfo &trfinf,int sys){
     float effSF=1;
 
     if(is_btagged){    // tagged --> look at sf
-      code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, ineffSF);
+      CorrectionCode code = m_effTool->getScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, ineffSF);
       if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
         ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
         return StatusCode::FAILURE;
@@ -966,7 +987,7 @@ double BTaggingTruthTaggingTool::getEvtSF(TRFinfo &trfinf,int sys){
       SF*=ineffSF;
     }
     else{    // not tagged --> loop at ineff SF
-      code = m_effTool->getInefficiencyScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, effSF);
+      CorrectionCode code = m_effTool->getInefficiencyScaleFactor(trfinf.jets.at(i).flav, trfinf.jets.at(i).vars, effSF);
       if(!(code==CorrectionCode::Ok || code==CorrectionCode::OutOfValidityRange)){
         ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency returned CorrectionCode::Error");
         return StatusCode::FAILURE;
@@ -1039,5 +1060,55 @@ int BTaggingTruthTaggingTool::ExclusiveConeHadronFlavourLabel (const xAOD::Jet& 
   // We don't check the return value, as we would not be able to handle it gracefully anyway
   jet.getAttribute("HadronConeExclTruthLabelID",label);
   return label;
+}
+
+
+StatusCode BTaggingTruthTaggingTool::generateRandomTaggerScores(std::vector< std::vector<int> > &quantiles, std::vector< std::vector<double> > &scores){
+
+  //quantiles:
+  // returns 5 if between 60% and 0%
+  // returns 4 if between 70% and 60%
+  // returns 3 if between 77% and 70%
+  // returns 2 if between 85% and 77%
+  // returns 1 if between 100% and 85%
+  //m_binEdges
+  // 3 60%
+  // 2 70%
+  // 1 77%
+  // 0 85%
+
+  scores.clear();
+
+  TRandom3 random;
+
+  scores.resize(quantiles.size());
+  for(unsigned int i=0; i <quantiles.size(); i++ ){
+
+    scores.at(i).resize(quantiles.at(i).size());
+
+    for(unsigned int j=0; j <quantiles.at(i).size(); j++ ){
+
+        int quantile = quantiles.at(i).at(j);
+
+        if(quantile == 1){
+          double lowTaggerScore = -1.0;
+          if(m_taggerName.find("MV2") != string::npos){ lowTaggerScore = -1.0; }
+          if(m_taggerName.find("DL1") != string::npos){ lowTaggerScore = -20.0;}
+
+          scores.at(i).at(j) = lowTaggerScore + random.Uniform()*( m_binEdges.at(0)-lowTaggerScore );
+        }else if(quantile == 5){
+          double highTaggerScore = +1.0;
+          if(m_taggerName.find("MV2") != string::npos){ highTaggerScore = 1.0; }
+          if(m_taggerName.find("DL1") != string::npos){ highTaggerScore = 20.0; }
+
+          scores.at(i).at(j) = m_binEdges.at(3) + random.Uniform()*( highTaggerScore-m_binEdges.at(3) );
+        }else{
+          scores.at(i).at(j) = m_binEdges.at(quantile-2) + random.Uniform()*( m_binEdges.at(quantile-1)-m_binEdges.at(quantile-2) );
+        }
+    }
+  }
+
+  return StatusCode::SUCCESS;
+
 }
 

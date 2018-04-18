@@ -20,6 +20,8 @@
 
 #include "TFile.h"
 #include "TRandom3.h"
+#include "TVector.h"
+#include "TFile.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -132,10 +134,15 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   double getEvtSF(TRFinfo &trfinf,int syst=0);
   StatusCode getDirectTaggedJets(TRFinfo &trfinf,std::vector<bool> &is_tagged);
 
+  //These WP must be listed in ascending order of cut value, meaning 85 to 60
   std::vector<std::string> m_availableOP_fixCut= {"FixedCutBEff_85", "FixedCutBEff_77","FixedCutBEff_70","FixedCutBEff_60"};
   std::vector<std::string> m_availableOP_fixEff= {"FlatBEff_85", "FlatBEff_77", "FlatBEff_70", "FlatBEff_60"};
   std::vector<std::string> m_availableOP_HybEff= {"HybBEff_85", "HybBEff_77", "HybBEff_70", "HybBEff_60"};
   std::vector<std::string> m_availableOP;
+
+  //this vector gets filled automatically when you initialize the tool, and given to the user.
+  std::vector<float> m_binEdges = {};
+  TFile *m_inf; //file for reading the cut values from the CDI.
 
   bool m_initialised;
 
@@ -221,6 +228,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
 
   std::map<std::string, asg::AnaToolHandle<IBTaggingEfficiencyTool> > m_effTool_allOP;
 
+
   asg::AnaToolHandle<IBTaggingEfficiencyTool> m_effTool;
   asg::AnaToolHandle<IBTaggingSelectionTool> m_selTool; //!
 
@@ -234,10 +242,13 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   StatusCode chooseTagPermutation(TRFinfo &trfinf,unsigned int nbtag, bool isIncl);
   double getPermutationRW(TRFinfo &trfinf,bool isIncl,unsigned int nbtag, int sys);
 
+
   StatusCode chooseAllTagBins(TRFinfo &trfinf);
   StatusCode chooseTagBins_cum(TRFinfo &trfinf,std::vector<bool> &tagconf, bool isIncl, unsigned int nbtag);
+  StatusCode generateRandomTaggerScores(std::vector< std::vector<int> > &quantiles, std::vector< std::vector<double> > &scores);
   double getTagBinsConfProb(TRFinfo &trfinf,std::vector<int> &tagws);
   double getTagBinsRW(TRFinfo &trfinf,bool isIncl, unsigned int nbtag);
+
 
   bool fillVariables(const xAOD::Jet& jet, Analysis::CalibrationDataVariables& x);
   bool fillVariables(const double jetPt, const double jetEta, const double jetTagWeight, Analysis::CalibrationDataVariables& x);
