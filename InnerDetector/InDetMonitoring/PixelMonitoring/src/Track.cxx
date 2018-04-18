@@ -109,6 +109,7 @@ StatusCode PixelMainMon::bookTrackMon(void) {
     hname = makeHistname("NPixhits_per_track_last100lb", false);
     htitles = makeHisttitle("Number of pixhits per track last 100 LB", ";last 100 lumi blocks;number of hits", false);
     sc = trackHistos.regHist(m_npixhits_per_track_lastXlb = new TH2F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, 10, -0.5, 9.5));
+    if (m_npixhits_per_track_lastXlb) m_npixhits_per_track_lastXlb->SetOption("colz");
   }
 
   if (sc.isFailure()) ATH_MSG_WARNING("Problems with booking Track histograms");
