@@ -1,7 +1,6 @@
 ################################################################################
 # Package: InDetV0Finder
-###############################################################################
-
+################################################################################
 
 # Declare the package name:
 atlas_subdir( InDetV0Finder )
@@ -29,7 +28,7 @@ find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
-atlas_add_component( InDetV0FinderLib
+atlas_add_component( InDetV0Finder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
