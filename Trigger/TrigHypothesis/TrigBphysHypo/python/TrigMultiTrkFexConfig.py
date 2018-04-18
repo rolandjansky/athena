@@ -176,7 +176,8 @@ class TrigMultiTrkFex_trkTau (TrigMultiTrkFexPy):
         self.AcceptAll = False
 
         #self.trackCollectionKey = "'
-        self.trkMass = 105.6583745  # looking for di-muon resonances       
+        self.maxNOutputObject = -1
+        self.trkMass = 105.6583745  # looking for di-muon         
         self.nTrk = 2
         self.nTrkMassMin = [0.]
         self.nTrkMassMax = [2900.] # cut away J/psi

@@ -125,8 +125,9 @@ hlt__setup1=ef_Default_setup.xml
 
 # get dtd file for L1 menu
 get_files -xmls LVL1config.dtd
-
-
+l1_schema=`find . -name LVL1config.dtd`
+cp $l1_schema PS_tight/.
+cp $l1_schema PS_tightperf/.
 
 p1_rel="AthenaP1"
 if [ $NICOS_ATLAS_RELEASE ]
@@ -165,31 +166,31 @@ echo "rundate=${rundate}"
 cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
 
 # create script to upload keys
-echo "# setup release\n" >> uploadSMK_"$stump"_tight.sh
-echo "asetup AthenaP1,21.1,r${rel}\n" >> uploadSMK_"$stump"_tight.sh
-echo "# create SMK\n" >> uploadSMK_"$stump"_tight.sh
+echo "# setup release" >> uploadSMK_"$stump"_tight.sh
+echo "asetup AthenaP1,21.1,r${rel}" >> uploadSMK_"$stump"_tight.sh
+echo "# create SMK" >> uploadSMK_"$stump"_tight.sh
 echo "rm MenusKeys.txt" >> uploadSMK_"$stump"_tight.sh
-echo "$cmd &> SMK_upload.log\n" >> uploadSMK_"$stump"_tight.sh
-echo "smk=\`grep SM MenusKeys.txt | awk '{print $3}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tight.sh
-echo "echo 'Created SMK ' $smk\n" >> uploadSMK_"$stump"_tight.sh
-echo "# upload prescaled\n" >> uploadSMK_"$stump"_tight.sh
-echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tight -smk ${smk} -w_n 50 -w_t 60\n" >> uploadSMK_"$stump"_tight.sh
-echo "l1psk=\`grep 'L1 PS' MenusKeys.txt | awk '{print $4}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tight.sh
-echo "hltpsk=\`grep 'HLT PS' MenusKeys.txt | awk '{print $4}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tight.sh
-echo "echo 'L1 PSK ' $l1psk ', HLT PSK ' $hltpsk\n" >> uploadSMK_"$stump"_tight.sh
+echo "$cmd &> SMK_upload.log" >> uploadSMK_"$stump"_tight.sh
+echo "smk=\`grep SM MenusKeys.txt | awk '{print \$3}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tight.sh
+echo "echo 'Created SMK ' \$smk" >> uploadSMK_"$stump"_tight.sh
+echo "# upload prescaled" >> uploadSMK_"$stump"_tight.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tight -smk \${smk} -w_n 50 -w_t 60" >> uploadSMK_"$stump"_tight.sh
+echo "l1psk=\`grep 'L1 PS' MenusKeys.txt | awk '{print \$4}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tight.sh
+echo "hltpsk=\`grep 'HLT PS' MenusKeys.txt | awk '{print \$4}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tight.sh
+echo "echo 'L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk" >> uploadSMK_"$stump"_tight.sh
 
-echo "# setup release\n" >> uploadSMK_"$stump"_tightperf.sh
-echo "asetup AthenaP1,21.1,r${rel}\n" >> uploadSMK_"$stump"_tightperf.sh
-echo "# create SMK\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "# setup release" >> uploadSMK_"$stump"_tightperf.sh
+echo "asetup AthenaP1,21.1,r${rel}" >> uploadSMK_"$stump"_tightperf.sh
+echo "# create SMK" >> uploadSMK_"$stump"_tightperf.sh
 echo "rm MenusKeys.txt" >> uploadSMK_"$stump"_tightperf.sh
-echo "$cmd &> SMK_upload.log\n" >> uploadSMK_"$stump"_tightperf.sh
-echo "smk=\`grep SM MenusKeys.txt | awk '{print $3}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tightperf.sh
-echo "echo 'Created SMK ' $smk\n" >> uploadSMK_"$stump"_tightperf.sh
-echo "# upload prescaled\n" >> uploadSMK_"$stump"_tightperf.sh
-echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tightperf -smk ${smk} -w_n 50 -w_t 60\n" >> uploadSMK_"$stump"_tightperf.sh
-echo "l1psk=\`grep 'L1 PS' MenusKeys.txt | awk '{print $4}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tightperf.sh
-echo "hltpsk=\`grep 'HLT PS' MenusKeys.txt | awk '{print $4}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tightperf.sh
-echo "echo 'L1 PSK ' $l1psk ', HLT PSK ' $hltpsk\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "$cmd &> SMK_upload.log" >> uploadSMK_"$stump"_tightperf.sh
+echo "smk=\`grep SM MenusKeys.txt | awk '{print \$3}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tightperf.sh
+echo "echo 'Created SMK ' \$smk" >> uploadSMK_"$stump"_tightperf.sh
+echo "# upload prescaled" >> uploadSMK_"$stump"_tightperf.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tightperf -smk \${smk} -w_n 50 -w_t 60" >> uploadSMK_"$stump"_tightperf.sh
+echo "l1psk=\`grep 'L1 PS' MenusKeys.txt | awk '{print \$4}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tightperf.sh
+echo "hltpsk=\`grep 'HLT PS' MenusKeys.txt | awk '{print \$4}' | sed 's#:##'\`" >> uploadSMK_"$stump"_tightperf.sh
+echo "echo 'L1 PSK ' \$l1psk ', HLT PSK ' \$hltpsk" >> uploadSMK_"$stump"_tightperf.sh
 
 if [ $noUpload -eq 1 ]; then
   exit 0

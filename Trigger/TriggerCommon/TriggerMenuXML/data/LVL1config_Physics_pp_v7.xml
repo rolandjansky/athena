@@ -601,9 +601,10 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="79" partition="1" name="L1_FTK-MU" complex_deadtime="0" definition="(FTK-MU20s1[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="79" partition="1" name="L1_FTK-MU" complex_deadtime="0" definition="(FTK-MU10s1[x1]&amp;MU20[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="FTK-MU20s1_x1" triggerthreshold="FTK-MU20s1"/>
+        <TriggerCondition multi="1" name="FTK-MU10s1_x1" triggerthreshold="FTK-MU10s1"/>
+        <TriggerCondition multi="1" name="MU20_x1" triggerthreshold="MU20"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -7441,7 +7442,7 @@
         <Signal range_begin="13" range_end="14" clock="0"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="1" id="238" mapping="79" name="FTK-MU20s1" type="TOPO" input="ctpcore" version="1">
+    <TriggerThreshold active="1" bitnum="1" id="238" mapping="79" name="FTK-MU10s1" type="TOPO" input="ctpcore" version="1">
       <Cable connector="CON2" input="CTPCORE" name="TOPO2">
         <Signal range_begin="15" range_end="15" clock="0"/>
       </Cable>
