@@ -11,6 +11,4 @@ ArtJobName=$2
 art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo "art-result: $?"
 
-art.py compare grid --days=3 --entries 10 ${ArtPackage} ${ArtJobName}
-echo "art-result: $?"
 

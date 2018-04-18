@@ -231,6 +231,43 @@
                             
                         </chainElement>
                         
+
+			<!-- Reconstruction job -->
+                        <chainElement>
+                            
+                            <jobTransform userJobId="Run00330470_Muons_Collisions">
+                                <doc>RecoTrf with beamType=collisions</doc>
+                                <jobTransformJobName>Run00183021_Muons_Collisions</jobTransformJobName>
+                                <jobTransformCmd>
+                                  Reco_tf.py  --outputHISTFile=myMergedMonitoring_Muons_0.root --maxEvents=500 --outputESDFile=myESD_Muons_0.pool.root --outputAODFile=myAOD_Muons_0.AOD.pool.root --outputTAGFile=myTAG_Muons_0.root --ignoreErrors=False --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.merge.DRAW_ZMUMU.f843_m1831._0245.1 --preExec='rec.doTrigger=False;' --conditionsTag=CONDBR2-BLKPA-2018-03 --geometryVersion=ATLAS-R2-2016-01-00-01
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Run00183021_Muons0_Collisions.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                                
+                            </jobTransform>
+                            
+                            
+                        </chainElement>
+
                                               
 			<sequential> <!-- Pileup20 jobs first run in parallel, then we compare those without monitoring to those with it -->
                             <parallel> <!-- Define pileup20 jobs -->
@@ -1038,8 +1075,7 @@
           		            <doc>RecoTrf</doc>
           		            <jobTransformJobName>q221_NTUP_PHYSVAL</jobTransformJobName>
           		            <jobTransformCmd>
-				    <!-- Temporarilyd remove doTopoCluster from validation flags. To be re-added upon resolution of ATLPHYSVAL-519 -->
-				    Reco_tf.py --validationFlags 'doExample,doMET,doPFlow,doTau,doEgamma,doBtag,doZee,doJet,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau,doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult' --inputAODFile myAOD.pool.root  --outputNTUP_PHYSVALFile myNTUP_PHYSVAL.root --preExec "all:from InDetPhysValMonitoring.addTruthJets import addTruthJetsIfNotExising; addTruthJetsIfNotExising(\"AntiKt4TruthJets\");"
+				      Reco_tf.py --validationFlags 'doTopoCluster,doExample,doMET,doPFlow,doTau,doEgamma,doBtag,doZee,doJet,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau,doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult' --inputAODFile myAOD.pool.root  --outputNTUP_PHYSVALFile myNTUP_PHYSVAL.root"
           		            </jobTransformCmd>
           		            <group>TCTTransform</group>
                                     <chaindataset_info>
@@ -1201,37 +1237,7 @@
                             </jobTransform>
                         </chainElement>
                         
-                        <!-- Standard reco test job q222 with Athena MP -->
-                        <chainElement>
-                            <jobTransform userJobId="q222_MP">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>q222_MP</jobTransformJobName>
-                                <jobTransformCmd>
-                                    Reco_tf.py --AMI=q222 --athenaopts='--nprocs=2' --maxEvents=100
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>q222_MP.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                            </jobTransform>
-                        </chainElement>
-
+                        
                         <!-- Standard reco test job q223 with Athena MP -->
                         <chainElement>
                             <jobTransform userJobId="q223_MP">
