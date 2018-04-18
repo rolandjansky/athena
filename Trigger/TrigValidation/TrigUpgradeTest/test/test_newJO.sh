@@ -13,5 +13,5 @@ else
     echo
     echo "JOs reading stage finished, launching Athena from pickle file"
     echo 
-    athena --threads=1 newJOtest.pkl
+    athena --evtMax=20 --threads=1 newJOtest.pkl
 fi

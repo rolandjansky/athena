@@ -25,6 +25,9 @@ def L1DecoderCfg(flags):
                                                           OutputTrigRoI = "METRoI") ]
 
     if flags.get("Trigger.L1Decoder.doMuon") == True:
+        from L1Decoder.L1MuonConfig import RPCCablingConfig, TGCCablingConfig
+        acc.addConfig( TGCCablingConfig, flags )
+        acc.addConfig( RPCCablingConfig, flags )
         decoderAlg.roiUnpackers += [ MURoIsUnpackingTool( Decisions = "MURoIDecisions",
                                                           OutputTrigRoIs = "MURoIs",
                                                           MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
@@ -39,6 +42,7 @@ def L1DecoderCfg(flags):
 
     from TrigConfigSvc.TrigConfigSvcConfig import TrigConfigSvcCfg
     acc.addConfig( TrigConfigSvcCfg, flags )
+
 
     return acc
 
