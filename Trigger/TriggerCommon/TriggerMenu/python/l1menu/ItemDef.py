@@ -857,7 +857,11 @@ class ItemDef:
         LVL1MenuItem('L1_MBTSA10').setLogic( MBTS_A10 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSA12').setLogic( MBTS_A12 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSA14').setLogic( MBTS_A14 & physcond).setTriggerType(TT.minb)    # noqa: F821
-        # L1_MBTSA/C 9, 11, 13, 15 are removed in Run 2
+
+        LVL1MenuItem('L1_MBTSA9' ).setLogic( MBTS_A9 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSA11').setLogic( MBTS_A11 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSA13').setLogic( MBTS_A13 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSA15').setLogic( MBTS_A15 & physcond).setTriggerType(TT.minb)    # noqa: F821
 
         LVL1MenuItem('L1_MBTSC0' ).setLogic( MBTS_C0 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSC1' ).setLogic( MBTS_C1 & physcond).setTriggerType(TT.minb)    # noqa: F821
@@ -871,6 +875,11 @@ class ItemDef:
         LVL1MenuItem('L1_MBTSC10').setLogic( MBTS_C10 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSC12').setLogic( MBTS_C12 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSC14').setLogic( MBTS_C14 & physcond).setTriggerType(TT.minb)    # noqa: F821
+
+        LVL1MenuItem('L1_MBTSC9' ).setLogic( MBTS_C9 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSC11').setLogic( MBTS_C11 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSC13').setLogic( MBTS_C13 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSC15').setLogic( MBTS_C15 & physcond).setTriggerType(TT.minb)    # noqa: F821
         
         LVL1MenuItem('L1_MBTS_1_BGRP9'    ).setLogic( MBTS_1 & bgrp9cond ).setTriggerType(TT.minb)      # noqa: F821
         LVL1MenuItem('L1_MBTS_1_1_BGRP9'  ).setLogic( MBTS_1_1 & bgrp9cond ).setTriggerType(TT.minb)    # noqa: F821
