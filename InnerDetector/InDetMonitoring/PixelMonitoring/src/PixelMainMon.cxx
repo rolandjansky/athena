@@ -233,14 +233,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_hiteff_incl_mod, 0, sizeof(m_hiteff_incl_mod));
   memset(m_hiteff_lastXlb_mod, 0, sizeof(m_hiteff_lastXlb_mod));
   
-  // Lorentz Angle
-  m_LorentzAngle_IBL = 0;
-  m_LorentzAngle_IBL2D = 0;
-  m_LorentzAngle_IBL3D = 0;
-  m_LorentzAngle_B0 = 0;
-  m_LorentzAngle_B1 = 0;
-  m_LorentzAngle_B2 = 0;
-
   // cluster size
   memset(m_clusize_ontrack_mod, 0, sizeof(m_clusize_ontrack_mod));
   memset(m_clusize_offtrack_mod, 0, sizeof(m_clusize_offtrack_mod));

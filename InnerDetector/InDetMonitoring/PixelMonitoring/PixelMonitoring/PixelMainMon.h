@@ -396,14 +396,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH2F_LW* m_npixhits_per_track_lumi;
   TH2F* m_npixhits_per_track_lastXlb;
 
-  // lorentz angle
-  TProfile2D_LW* m_LorentzAngle_IBL;
-  TProfile2D_LW* m_LorentzAngle_IBL2D;
-  TProfile2D_LW* m_LorentzAngle_IBL3D;
-  TProfile2D_LW* m_LorentzAngle_B0;
-  TProfile2D_LW* m_LorentzAngle_B1;
-  TProfile2D_LW* m_LorentzAngle_B2;
-
   // cluster size
   TH1F_LW* m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_clusize_offtrack_mod[PixLayerIBL2D3D::COUNT];

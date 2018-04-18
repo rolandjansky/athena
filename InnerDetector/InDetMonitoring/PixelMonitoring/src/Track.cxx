@@ -70,32 +70,6 @@ StatusCode PixelMainMon::bookTrackMon(void) {
   sc = trackHistos.regHist(m_track_chi2 = TH1F_LW::create("Track_chi2", ("chi2 of rec. track" + m_histTitleExt + ";#chi^{2}/DoF;#tracks").c_str(), 50, -0., 10.));
   sc = trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB" + m_histTitleExt + ";lumi block;tracks/event").c_str(), nbins_LB, min_LB, max_LB));
 
-  hname = makeHistname("LorentzAngle_IBL", false);
-  htitles = makeHisttitle("Lorentz angle IBL", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_IBL = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 14, -0.5, 13.5));
-  hname = makeHistname("LorentzAngle_IBL2D", false);
-  htitles = makeHisttitle("Lorentz angle IBL2D", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_IBL2D = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 14, -0.5, 13.5));
-  hname = makeHistname("LorentzAngle_IBL3D", false);
-  htitles = makeHisttitle("Lorentz angle IBL3D", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_IBL3D = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 14, -0.5, 13.5));
-  hname = makeHistname("LorentzAngle_B0", false);
-  htitles = makeHisttitle("Lorentz angle B0", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_B0 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 22, -0.5, 21.5));
-  hname = makeHistname("LorentzAngle_B1", false);
-  htitles = makeHisttitle("Lorentz angle B1", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_B1 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 38, -0.5, 37.5));
-  hname = makeHistname("LorentzAngle_B2", false);
-  htitles = makeHisttitle("Lorentz angle B2", ";#phi of track incidence [rad];phi module index;cluster row (phi) width [pixels]", false);
-  sc = trackHistos.regHist(m_LorentzAngle_B2 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), 100, -0.4, 0.6, 52, -0.5, 51.5));
-
-  if (m_LorentzAngle_IBL) m_LorentzAngle_IBL->SetOption("colz");
-  if (m_LorentzAngle_IBL2D) m_LorentzAngle_IBL2D->SetOption("colz");
-  if (m_LorentzAngle_IBL3D) m_LorentzAngle_IBL3D->SetOption("colz");
-  if (m_LorentzAngle_B0) m_LorentzAngle_B0->SetOption("colz");
-  if (m_LorentzAngle_B1) m_LorentzAngle_B1->SetOption("colz");
-  if (m_LorentzAngle_B2) m_LorentzAngle_B2->SetOption("colz");
-
   if (m_do2DMaps && !m_doOnline) {
     m_tsos_hitmap = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW("TSOS_Measurement", ("TSOS of type Measurement" + m_histTitleExt), PixMon::HistConf::kPixDBMIBL2D3D, true));
     sc = m_tsos_hitmap->regHist(trackHistos);
@@ -180,7 +154,6 @@ StatusCode PixelMainMon::fillTrackMon(void) {
     }
     int nPixelHits = 0;
     bool passJOTrkTightCut = m_trackSelTool->accept(*track0);
-    bool passTightCut = (passJOTrkTightCut && npixholes == 0);                                 // lorentz angle
     bool pass1hole1GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 1.0));  // misshit ratios
     bool pass1hole5GeVptTightCut = (passJOTrkTightCut && (measPerigee->pT() / 1000.0 > 5.0));  // eff vs lumi
 
@@ -249,17 +222,10 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 
       nPixelHits++;  //add another pixel hit
 
-      bool passClusterSelection = false;
       float npixHitsInCluster = 0;
       float rowWidthOfCluster = 0;
       const InDet::PixelCluster *pixelCluster = dynamic_cast<const InDet::PixelCluster *>(RawDataClus);
       if (pixelCluster) {
-        if (!RawDataClus->gangedPixel() &&  // not include ganged-pixel
-            !pixelCluster->isFake() &&      // not fake
-            ((pixlayer == PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX]) < 8.3) || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locX]) < 8.1)) &&
-            ((pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && fabs(clus->localParameters()[Trk::locY]) < 19.7) || (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && fabs(clus->localParameters()[Trk::locY]) < 9.5) || (pixlayer != PixLayer::kIBL && fabs(clus->localParameters()[Trk::locY]) < 28.7))) {
-          passClusterSelection = true;
-        }
         npixHitsInCluster = pixelCluster->rdoList().size();
         rowWidthOfCluster = pixelCluster->width().colRow().x();
       }
@@ -286,19 +252,8 @@ StatusCode PixelMainMon::fillTrackMon(void) {
         if (m_track_pull_eta) m_track_pull_eta->Fill(pull);
 
         Amg::Vector3D mynormal = side->normal();
-        Amg::Vector3D myphiax = side->phiAxis();
         Amg::Vector3D mytrack = trackAtPlane->momentum();
-        double trkphicomp = mytrack.dot(myphiax);
         double trknormcomp = mytrack.dot(mynormal);
-        double phiIncident = atan2(trkphicomp, trknormcomp);
-        if (npixHitsInCluster > 0 && passTightCut && passClusterSelection) {
-          if (pixlayer == PixLayer::kIBL && m_LorentzAngle_IBL) m_LorentzAngle_IBL->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL2D && m_LorentzAngle_IBL2D) m_LorentzAngle_IBL2D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayeribl2d3d == PixLayerIBL2D3D::kIBL3D && m_LorentzAngle_IBL3D) m_LorentzAngle_IBL3D->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayer == PixLayer::kB0 && m_LorentzAngle_B0) m_LorentzAngle_B0->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayer == PixLayer::kB1 && m_LorentzAngle_B1) m_LorentzAngle_B1->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-          if (pixlayer == PixLayer::kB2 && m_LorentzAngle_B2) m_LorentzAngle_B2->Fill(phiIncident, m_pixelid->phi_module(surfaceID), 1.0 * rowWidthOfCluster);
-        }
 
         // Fill containers, which hold id's of hits and clusters on track _and_ incident angle information for later normalization
         double mytrack_mag = mytrack.mag();
