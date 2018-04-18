@@ -6,6 +6,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "GaudiKernel/Property.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -41,12 +42,18 @@ public:
               const Surface*       sf,
               const BoundaryCheck& bcheck) const;
 
+  virtual
+  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine() const;
+
 private:
 
   ServiceHandle<MagField::IMagFieldSvc> m_fieldServiceHandle;
   ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
 
-  std::unique_ptr<Acts::ExtrapolationEngine> m_exEngine;
+  std::shared_ptr<Acts::ExtrapolationEngine> m_exEngine;
+
+  Gaudi::Property<std::string> m_fieldMode{this, "FieldMode", "ATLAS"};
+  Gaudi::Property<std::vector<double>> m_constantFieldVector{this, "ConstantFieldVector", {0, 0, 0}};
 
 };
 

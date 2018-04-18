@@ -6,12 +6,14 @@
 #include "GaudiKernel/IInterface.h"
 #include "ACTS/Extrapolation/ExtrapolationCell.hpp"
 #include "ACTS/Extrapolation/IExtrapolationEngine.hpp"
+#include <memory>
 
 namespace Acts {
 
 class ExtrapolationCode;
 class Surface;
 class BoundaryCheck;
+class IExtrapolationEngine;
 
 static const InterfaceID IID_IACTSExtrapolationTool("IACTSExtrapolationTool", 1, 0);
 
@@ -36,6 +38,9 @@ public:
   extrapolate(ExCellNeutral&       ecNeutral,
               const Surface*       sf     = 0,
               const BoundaryCheck& bcheck = true) const = 0;
+  
+  virtual
+  std::shared_ptr<Acts::IExtrapolationEngine> extrapolationEngine() const = 0;
 
 };
 
