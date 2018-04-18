@@ -818,9 +818,13 @@ StatusCode PixelMainMon::procHitsMon(void) {
 	//m_avgocc_ratio_lastXlb_mod[i]->SetEntries(lastlb);      // for testing
       }
     }
-    for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
-      if (m_doIBL) m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kIBL]);
-      else m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kB0]);
+    if (m_avgocc_ratio_lastXlb_mod[PixLayer::kIBL] && m_avgocc_ratio_lastXlb_mod[PixLayer::kB0]) {
+      for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
+	if (m_avgocc_ratio_lastXlb_mod[i]) {
+	  if (m_doIBL) m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kIBL]);
+	  else m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kB0]);
+	}
+      }
     }
   }
 
