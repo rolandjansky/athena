@@ -13,7 +13,7 @@
 #include "InDetRawData/PixelRDO_Container.h"
 #include "InDetPrepRawDataFormation/PixelClusterization.h"
 #include "InDetRawData/PixelRDORawData.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"

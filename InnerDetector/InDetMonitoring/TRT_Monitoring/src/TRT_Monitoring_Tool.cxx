@@ -6,7 +6,7 @@
 
 #include "TRT_TrackHoleSearch/TRTTrackHoleSearchTool.h"
 #include "DataModel/DataVector.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkTrackSummary/TrackSummary.h"

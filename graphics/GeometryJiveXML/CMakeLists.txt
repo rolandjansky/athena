@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
@@ -29,7 +30,7 @@ atlas_add_component( GeometryJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps JiveXMLLib CaloDetDescrLib StoreGateLib SGtests GeoModelKernel GaudiKernel InDetIdentifier InDetReadoutGeometry LArReadoutGeometry MuonReadoutGeometry MuonIdHelpersLib TileDetDescr )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps JiveXMLLib CaloDetDescrLib StoreGateLib SGtests GeoModelKernel GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry LArReadoutGeometry MuonReadoutGeometry MuonIdHelpersLib TileDetDescr )
 
 # Install files from the package:
 atlas_install_headers( GeometryJiveXML )

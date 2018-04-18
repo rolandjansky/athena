@@ -3,7 +3,7 @@
 */
 
 #include "PixelClusterContainerCnv_p0.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 #include "MsgUtil.h"
 

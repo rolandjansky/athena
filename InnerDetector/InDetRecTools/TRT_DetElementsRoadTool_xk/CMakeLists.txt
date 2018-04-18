@@ -9,7 +9,7 @@ atlas_subdir( TRT_DetElementsRoadTool_xk )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           MagneticField/MagFieldInterfaces
                           Tracking/TrkDetDescr/TrkGeometry
@@ -23,7 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_DetElementsRoadTool_xk
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkSurfaces AthenaPoolUtilities EventInfo TrkExInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TRT_ReadoutGeometry InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkSurfaces AthenaPoolUtilities EventInfo TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TRT_DetElementsRoadTool_xk )

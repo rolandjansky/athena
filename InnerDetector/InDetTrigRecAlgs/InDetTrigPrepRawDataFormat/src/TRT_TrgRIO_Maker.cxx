@@ -15,7 +15,7 @@
 #include "GaudiKernel/SmartDataPtr.h"
 #include "AthenaKernel/Timeout.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetTrigPrepRawDataFormat/TRT_TrgRIO_Maker.h"
 #include "TRT_DriftCircleTool/ITRT_DriftCircleTool.h"
 #include "TRT_ConditionsServices/ITRT_ByteStream_ConditionsSvc.h"

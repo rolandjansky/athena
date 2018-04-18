@@ -9,6 +9,8 @@ atlas_subdir( SiDetElementsRoadTool_xk )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           MagneticField/MagFieldInterfaces
@@ -24,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( SiDetElementsRoadTool_xk
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkSurfaces AthenaPoolUtilities EventInfo TrkPrepRawData TrkExInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkSurfaces AthenaPoolUtilities EventInfo TrkPrepRawData TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( SiDetElementsRoadTool_xk )

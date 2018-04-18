@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/IdDictDetDescr
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -42,10 +43,10 @@ atlas_add_library( InDetTestPixelLayerLib
                    PUBLIC_HEADERS InDetTestPixelLayer
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel InDetIdentifier InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces
-                   PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetReadoutGeometry TrkGeometry TrkSurfaces TrkMeasurementBase TrkParticleBase TrkTrack TrkTrackSummary TrkExInterfaces )
+                   PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetReadoutGeometry PixelReadoutGeometry TrkGeometry TrkSurfaces TrkMeasurementBase TrkParticleBase TrkTrack TrkTrackSummary TrkExInterfaces )
 
 atlas_add_component( InDetTestPixelLayer
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel InDetIdentifier InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr IdDictDetDescr InDetReadoutGeometry TrkGeometry TrkSurfaces TrkMeasurementBase TrkParticleBase TrkTrack TrkTrackSummary TrkExInterfaces InDetTestPixelLayerLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier GaudiKernel InDetIdentifier InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr IdDictDetDescr InDetReadoutGeometry PixelReadoutGeometry TrkGeometry TrkSurfaces TrkMeasurementBase TrkParticleBase TrkTrack TrkTrackSummary TrkExInterfaces InDetTestPixelLayerLib )
 

@@ -14,6 +14,9 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Reconstruction/Particle
@@ -120,29 +123,29 @@ atlas_add_library( TrigFTKSimLib
                    PUBLIC_HEADERS TrigFTKSim
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool PileUpToolsLib StoreGateLib SGtests
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool PileUpToolsLib StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack )
 
 atlas_add_component( TrigFTKSim
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
 
 
 atlas_add_executable( trigftk_partitionbalancing
                       standalone/partitionbalancing.cc
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
 
 atlas_add_executable( trigftk_efficiency
                       standalone/efficiency.cc
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
 
 atlas_add_executable( trigftk_dataflow
                       standalone/dataflow.cc
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${EIGEN_LIBRARIES} ${HEPMC_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps PileUpToolsLib StoreGateLib SGtests GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData Particle TrkParameters TrkParticleBase TrkTrack TrkTruthData TrkExInterfaces TrkToolInterfaces TrigInDetEvent TrigFTKPool IdDictDetDescr EventInfo NavFourMom GeneratorObjects InDetRawData InDetSimData TrkMeasurementBase TrkRIO_OnTrack TrigFTKSimLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/__init__.py python/TrigFTKTruthAlgsConfig.py python/QueryFTKdb.py python/findInputs.py python/FTKSimOptions.py )

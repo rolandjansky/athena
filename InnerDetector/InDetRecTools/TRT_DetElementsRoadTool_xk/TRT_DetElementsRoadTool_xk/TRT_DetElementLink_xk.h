@@ -15,7 +15,7 @@
 #ifndef TRT_DetElementLink_xk_H
 #define TRT_DetElementLink_xk_H
 
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 namespace InDet {
 

@@ -18,7 +18,7 @@
 
 // Base class
 #include "TrkPrepRawData/PrepRawData.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 class TRT_DriftCircleContainerCnv;
 class TRT_DriftCircleContainerCnv_p0;

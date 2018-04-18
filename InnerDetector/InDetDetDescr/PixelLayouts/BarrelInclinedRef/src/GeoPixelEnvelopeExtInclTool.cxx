@@ -24,7 +24,7 @@
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 #include "InDetGeoModelUtils/InDetMaterialManager.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "GeoModelInterfaces/IGeoSubDetTool.h"
 #include "GaudiKernel/StatusCode.h"

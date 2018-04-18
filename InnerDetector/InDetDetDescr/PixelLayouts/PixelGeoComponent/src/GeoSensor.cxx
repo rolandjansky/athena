@@ -3,7 +3,7 @@
 */
 
 #include "PixelGeoComponent/GeoSensor.h"
-/*#include "InDetReadoutGeometry/PixelModuleDesign.h"*/
+/*#include "PixelReadoutGeometry/PixelModuleDesign.h"*/
 
 #include "GeoModelKernel/GeoFullPhysVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"

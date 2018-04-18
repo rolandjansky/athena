@@ -15,7 +15,7 @@
 #include <string>
 #include "StoreGate/StoreGateSvc.h"
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "PixelConditionsData/PixelCalibDataColl.h"

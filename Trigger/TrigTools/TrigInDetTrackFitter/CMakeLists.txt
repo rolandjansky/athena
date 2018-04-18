@@ -10,6 +10,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           MagneticField/MagFieldInterfaces
                           Tracking/TrkEvent/TrkTrack
@@ -35,7 +37,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrigInDetTrackFitter
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetIdentifier InDetReadoutGeometry MagFieldInterfaces TrkTrack TrkExInterfaces TrkDistributedKalmanFilterLib TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces TrigInDetEvent AtlasDetDescr InDetPrepRawData InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrigTimeAlgsLib )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry MagFieldInterfaces TrkTrack TrkExInterfaces TrkDistributedKalmanFilterLib TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces TrigInDetEvent AtlasDetDescr InDetPrepRawData InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkParameters TrkPrepRawData TrkRIO_OnTrack TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigInDetTrackFitter )

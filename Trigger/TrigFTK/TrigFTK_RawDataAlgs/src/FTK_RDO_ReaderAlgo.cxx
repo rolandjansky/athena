@@ -13,7 +13,7 @@
 #include "TrkSurfaces/Surface.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 #include "EventInfo/EventInfo.h"

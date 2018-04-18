@@ -29,6 +29,9 @@ atlas_depends_on_subdirs(
    Event/EventPrimitives
    ForwardDetectors/ForwardSimulation/ForwardRegion_SimEv
    InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetRecEvent/InDetPrepRawData
    InnerDetector/InDetRecEvent/InDetRIO_OnTrack
@@ -82,7 +85,7 @@ atlas_add_library( VP1TrackSystems VP1TrackSystems/*.h src/*.cxx
    MuonIdHelpersLib MuonRecHelperToolsLib Qt4::QtCore Qt4::QtGui
    PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${CLHEP_LIBRARIES}
    ${HEPMC_LIBRARIES} DataModel AtlasDetDescr EventPrimitives
-   ForwardRegion_SimEv InDetIdentifier InDetReadoutGeometry InDetPrepRawData
+   ForwardRegion_SimEv InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData
    InDetRIO_OnTrack InDetSimEvent MuonReadoutGeometry MuonChamberT0s
    MuonPrepRawData MuonRIO_OnTrack MuonSegment MuonSimEvent Particle
    TrkDetDescrUtils TrkDetElementBase TrkVolumes TrkCompetingRIOsOnTrack

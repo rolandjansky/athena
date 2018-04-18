@@ -19,7 +19,7 @@
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 union RawWord{
   uint32_t word32;

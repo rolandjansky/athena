@@ -6,7 +6,7 @@
 #include "PixelGeoModel/GeoPixelStaveSupport.h"
 #include "PixelGeoModel/GeoPixelModule.h"
 #include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "GeoModelKernel/GeoTrap.h"

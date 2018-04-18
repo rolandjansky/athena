@@ -13,7 +13,7 @@
 #include "TrkTrack/TrackCollection.h" //
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "FTK_DataProviderInterfaces/IFTK_DataProviderSvc.h"
 

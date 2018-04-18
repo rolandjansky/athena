@@ -18,8 +18,8 @@
 #include "VP1Base/VP1Msg.h"
 
 #include "InDetSimEvent/TRTUncompressedHit.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkParameters/TrackParameters.h"

@@ -4,7 +4,7 @@
 
 #include "JetTagPixelModuleGetterTool.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "AthenaKernel/errorcheck.h"

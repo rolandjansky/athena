@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/TRT_Cabling )
 
@@ -27,7 +28,7 @@ atlas_add_component( InDetRegionSelector
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps RegSelLUT GaudiKernel SCT_CablingLib Identifier InDetIdentifier InDetReadoutGeometry PixelCablingLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps RegSelLUT GaudiKernel SCT_CablingLib Identifier InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry PixelCablingLib )
 
 # Install files from the package:
 atlas_install_headers( InDetRegionSelector )

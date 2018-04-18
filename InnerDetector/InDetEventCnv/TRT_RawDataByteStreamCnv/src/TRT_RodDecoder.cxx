@@ -28,7 +28,7 @@
 /*
  * TRT Specific detector manager to get layout information
  */
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"  
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"  
 
 /*
  * Event info to check if ByteStream is Simulation

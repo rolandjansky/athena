@@ -21,7 +21,7 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkToolInterfaces/IPRD_AssociationTool.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TGraph.h"
 #include "TGraphErrors.h"

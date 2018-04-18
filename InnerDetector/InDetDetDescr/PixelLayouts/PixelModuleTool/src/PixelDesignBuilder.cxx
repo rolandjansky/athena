@@ -6,10 +6,10 @@
 
 #include "PixelGeoModel/PixelGeoBuilder.h"
 
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "StoreGate/StoreGate.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"

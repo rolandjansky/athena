@@ -7,7 +7,7 @@
 
 #include "TrkCaloClusterROI/CaloClusterROI.h"
 
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 #include "CxxUtils/make_unique.h"
 

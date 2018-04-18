@@ -18,7 +18,7 @@
 
 // Det Descr includes
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 // CLHEP
@@ -28,9 +28,9 @@
 
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
-#include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
-#include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 
 // FATRAS
 #include "InDetReadoutGeometry/SiCellId.h"

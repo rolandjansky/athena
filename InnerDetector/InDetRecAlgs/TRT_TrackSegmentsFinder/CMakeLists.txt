@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           PRIVATE
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           Tracking/TrkEvent/TrkCaloClusterROI
                           Tracking/TrkEvent/TrkSegment )
 
@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_TrackSegmentsFinder
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces InDetReadoutGeometry TrkCaloClusterROI TrkSegment )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRecToolInterfaces TRT_ReadoutGeometry TrkCaloClusterROI TrkSegment )
 
 # Install files from the package:
 atlas_install_headers( TRT_TrackSegmentsFinder )

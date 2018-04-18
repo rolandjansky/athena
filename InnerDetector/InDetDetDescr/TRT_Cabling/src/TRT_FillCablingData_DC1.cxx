@@ -12,7 +12,7 @@
 #include <iostream>
 //#include <math.h>
 //#include "GaudiKernel/MsgStream.h"
-//#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+//#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 //#include "StoreGate/StoreGateSvc.h"
 
 static const InterfaceID IID_ITRT_FillCablingData_DC1

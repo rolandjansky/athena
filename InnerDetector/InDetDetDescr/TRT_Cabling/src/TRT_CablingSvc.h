@@ -23,7 +23,7 @@
 #include "TRT_FillCablingData_DC2.h"
 #include "TRT_FillCablingData_DC3.h"
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h" 
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h" 
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "AthenaBaseComps/AthService.h"

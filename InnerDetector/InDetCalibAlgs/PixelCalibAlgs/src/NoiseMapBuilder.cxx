@@ -17,9 +17,9 @@
 
 // EDM
 #include "InDetRawData/PixelRDO_Container.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h" 
+#include "PixelReadoutGeometry/PixelDetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h" 
-//#include "InDetReadoutGeometry/PixelModuleDesign.h" 
+//#include "PixelReadoutGeometry/PixelModuleDesign.h" 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h" 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"

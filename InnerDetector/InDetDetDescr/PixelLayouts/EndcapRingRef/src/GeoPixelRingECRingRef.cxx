@@ -8,7 +8,7 @@
 #include "PixelGeoModelModule/GeoDetModulePixel.h"
 #include "PixelGeoModel/PixelGeoBuilder.h"
 
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "GeoModelKernel/GeoTube.h"
@@ -21,7 +21,7 @@
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
