@@ -22,33 +22,19 @@
 
 #include "Gaudi/PluginService.h"
 
-// C++ include files
-#include <memory>
-#include <map>
-
 using namespace pool;
-typedef std::map<DbType, IOODatabase*> DbTypeMap;
 
 // Standard Constructor
 DbSessionObj::DbSessionObj()
 : Base("DbSession", pool::READ, POOL_StorageType)
 {
-  m_dbTypes = new DbTypeMap();
   DbInstanceCount::increment(this);
 }
 
 // Standard Destructor
 DbSessionObj::~DbSessionObj()  {
-  std::auto_ptr<DbTypeMap> types((DbTypeMap*)m_dbTypes);
   clearEntries();
-  if ( types.get() )  {
-    for(DbTypeMap::iterator i=types->begin(); i != types->end(); ++i)  {
-      if ( (*i).second ) (*i).second->release();
-      (*i).second = 0;
-    }
-    types->clear();
-    m_dbTypes = 0;
-  }
+  for( auto& i : m_dbTypes )  releasePtr( i.second );
   DbInstanceCount::decrement(this);
 }
 
@@ -67,34 +53,16 @@ DbStatus DbSessionObj::close()   {
 }
 
 // Access different implementations
-IOODatabase* DbSessionObj::db(const DbType& typ)  const   {
-  DbTypeMap* types = (DbTypeMap*)m_dbTypes;
-  if ( 0 == (*types)[typ] )   {
-    const std::string nam = typ.storageName();
-    IOODatabase* imp = Gaudi::PluginService::Factory<IOODatabase*>::create(nam);
-    if ( imp )  {
-      DbStatus sc = imp->initialize(nam);
-      if ( sc.isSuccess() )   {
-        addDb(imp);
-        return imp;
+IOODatabase* DbSessionObj::db(const DbType& typ) {
+   if( m_dbTypes[typ] == 0 ) {
+      const std::string nam = typ.storageName();
+      IOODatabase* imp = Gaudi::PluginService::Factory<IOODatabase*>::create(nam);
+      if( imp )  {
+         m_dbTypes[typ] = imp;
+      } else {
+         DbPrint log( "DbSession");
+         log << DbPrintLvl::Fatal << "Failed to load plugin for " << nam << " storage type" << DbPrint::endmsg;
       }
-      imp->release();
-    }
-  }
-  return (*types)[typ];
-}
-
-// Inject new Database implementation
-DbStatus DbSessionObj::addDb(IOODatabase* db_impl)   const   {
-  if ( db_impl )    {
-    DbTypeMap* types = (DbTypeMap*)m_dbTypes;
-    const DbType& typ = db_impl->type();
-    if ( 0 != (*types)[typ] )   {
-      (*types)[typ]->release();
-    }
-    (*types)[typ] = db_impl;
-    (*types)[typ]->addRef();
-    return Success;
-  }
-  return Error;
+   }
+   return m_dbTypes[typ] ;
 }

@@ -12,7 +12,6 @@
 
 
 #include "StorageSvc/Shape.h"
-#include "StorageSvc/poolDb.h"
 #include "StorageSvc/IStorageSvc.h"
 #include "StorageSvc/IStorageExplorer.h"
 #include "StorageSvc/DbSelect.h"
@@ -55,12 +54,12 @@ TestDriver::testWriting()
   }
   storSvc->addRef();
   pool::Session* sessionHandle = 0;
-  if ( ! ( storSvc->startSession( poolDb::CREATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+  if ( ! ( storSvc->startSession( pool::CREATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a session." );
   }
 
   pool::FileDescriptor fd( file1, file1 );
-  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, fd ).isSuccess() ) ) {
+  if ( ! ( storSvc->connect( sessionHandle, pool::CREATE, fd ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a connection." );
   }
   pool::DatabaseConnection* connection = fd.dbc();
@@ -142,21 +141,21 @@ TestDriver::testParallelReadWrite()
   }
 
   pool::Session* sessionHandle = 0;
-  if ( ! ( storSvc->startSession( poolDb::UPDATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+  if ( ! ( storSvc->startSession( pool::UPDATE, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a session." );
   }
 
 
   // Open the file to read
   pool::FileDescriptor fd1( file1, file1 );
-  sc = storSvc->connect( sessionHandle, poolDb::READ, fd1 );
+  sc = storSvc->connect( sessionHandle, pool::READ, fd1 );
   if ( sc != pool::DbStatus::Success ) {
     throw std::runtime_error( "Could not start a connection." );
   }
 
   // Open the file to write
   pool::FileDescriptor fd2( file2, file2 );
-  if ( ! ( storSvc->connect( sessionHandle, poolDb::CREATE, fd2 ).isSuccess() ) ) {
+  if ( ! ( storSvc->connect( sessionHandle, pool::CREATE, fd2 ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a connection." );
   }
 
@@ -308,12 +307,12 @@ TestDriver::testReading()
   storageExplorer->addRef();
 
   pool::Session* sessionHandle = 0;
-  if ( ! ( storSvc->startSession( poolDb::READ, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
+  if ( ! ( storSvc->startSession( pool::READ, pool::ROOT_StorageType.type(), sessionHandle ).isSuccess() ) ) {
     throw std::runtime_error( "Could not start a session." );
   }
 
   pool::FileDescriptor fd( file2, file2 );
-  sc = storSvc->connect( sessionHandle, poolDb::READ, fd );
+  sc = storSvc->connect( sessionHandle, pool::READ, fd );
   if ( sc != pool::DbStatus::Success ) {
     throw std::runtime_error( "Could not start a connection." );
   }

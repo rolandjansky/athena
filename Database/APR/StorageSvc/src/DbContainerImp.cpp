@@ -24,8 +24,8 @@ using namespace std;
 using namespace pool;
 
 /// Standard Constructor
-DbContainerImp::DbContainerImp(IOODatabase* idb)
-: DbImplementation(idb), m_size(0), m_writeSize(0), m_name("UNKNOWN"),
+DbContainerImp::DbContainerImp()
+: m_size(0), m_writeSize(0), m_name("UNKNOWN"),
   m_canUpdate(false),
   m_canDestroy(false)
 {

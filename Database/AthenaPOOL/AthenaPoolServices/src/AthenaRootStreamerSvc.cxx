@@ -17,17 +17,10 @@
 #include "GaudiKernel/IService.h"
 
 #include "StorageSvc/DbSession.h"
-#include "StorageSvc/IOODatabase.h"
 
 #include "DataModelRoot/RootType.h"
 #include "TInterpreter.h"
 
-#include "RVersion.h"
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,19,0)
-using namespace ROOT;
-#endif
-
-#include <iostream>
 #include <vector>
 
 

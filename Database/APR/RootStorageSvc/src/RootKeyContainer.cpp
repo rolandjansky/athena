@@ -38,8 +38,7 @@
 
 using namespace pool;
 
-RootKeyContainer::RootKeyContainer(IOODatabase* idb)
-: DbContainerImp(idb), m_dbH(POOL_StorageType) {
+RootKeyContainer::RootKeyContainer() : m_dbH(POOL_StorageType) {
   DbInstanceCount::increment(this);
   m_ioHandler  = new RootKeyIOHandler;
   m_policy     = TObject::kOverwrite;    // On update write new versions

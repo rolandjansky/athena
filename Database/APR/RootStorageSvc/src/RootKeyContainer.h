@@ -42,7 +42,7 @@ namespace pool  {
     * @date    1/8/2002
     * @version 1.0
     */
-  class RootKeyContainer : public DbContainerImp   {
+  class RootKeyContainer : public DbContainerImp  {
     /// Reference to the root tree object
     TDirectory*        m_dir;
     /// Parent Database handle
@@ -63,7 +63,7 @@ namespace pool  {
     virtual DbStatus writeObject(TransactionStack::value_type& entry);
   public:
     /// Standard constructor
-    RootKeyContainer(IOODatabase* idb);
+    RootKeyContainer();
     /// Standard destructor
     virtual ~RootKeyContainer();
     /// Close the container and deallocate resources

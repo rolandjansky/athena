@@ -75,7 +75,7 @@ DbDomainObj::~DbDomainObj()  {
   if ( m_session.isValid() )    {
     m_session.remove (this);
   }
-  releasePtr(m_info);
+  deletePtr(m_info);
   log << DbPrintLvl::Info    << ">   Deaccess DbDomain     "
       << accessMode(mode()) 
       << " [" << type().storageName() << "] " 
@@ -87,7 +87,8 @@ bool DbDomainObj::existsDbase( const string& name)
 
 DbStatus DbDomainObj::open(DbAccessMode mod)   {
   setMode(mod);
-  return m_info ? m_info->open(session(),name(),mode()) : Error;
+//  return m_info ? m_info->open(session(),name(),mode()) : Error;
+  return m_info ? Success : Error;
 }
 
 DbStatus DbDomainObj::open()
@@ -106,9 +107,6 @@ DbStatus DbDomainObj::close()   {
       this->remove(curr);
     }
     clearEntries();
-    if ( m_info )    {
-      m_info->close();
-    }
     m_session.remove(this);
     m_session = DbSession(0);
     return Success;

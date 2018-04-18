@@ -107,8 +107,10 @@ DbDatabaseObj::~DbDatabaseObj()  {
   DbInstanceCount::decrement(this);
   clearEntries();
   cleanup();
-  if ( m_string_t ) m_string_t->deleteRef();
-  m_string_t = 0;
+  if( m_string_t ) {
+     m_string_t->deleteRef();
+     m_string_t = 0;
+  }
   m_dom.remove(this);
   m_token->release();
 }
@@ -135,8 +137,8 @@ DbStatus DbDatabaseObj::cleanup()  {
   m_paramMap.clear();
   m_classMap.clear();
   if ( m_info )   {
-    releasePtr(m_info);
-    DbPrint log( m_dom.name());
+    deletePtr( m_info );
+    DbPrint log( m_dom.name() );
     log << DbPrintLvl::Info
         << "->  Deaccess DbDatabase   " << accessMode(mode())  
         << " [" << type().storageName() << "] " << name()
@@ -505,7 +507,7 @@ DbStatus DbDatabaseObj::open()   {
         return m_info->onOpen(DbDatabase(this), mode());
       }
     }
-    releasePtr(m_info);
+    deletePtr(m_info);
     return Error;
   }
   return Success;

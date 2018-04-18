@@ -37,11 +37,9 @@ namespace pool    {
     *
     * <P> The IOODatabase interface allows to:
     * <UL>
-    * <LI> Create Database sessions.
     * <LI> Create Database domains.
     * <LI> Create Database files.
     * <LI> Create Database containers.
-    * <LI> Create, delete and release Database objects.
     * <LI> The Db conversion service also supports storage technology
     *      independent object linking.
     * </UL>
@@ -49,43 +47,23 @@ namespace pool    {
     * @author  Markus Frank
     * @version 1.0
     */
-  class IOODatabase   {
-  protected:
-    /// Destructor (called only by sub-classes)
-    virtual ~IOODatabase()   {     }
+   class IOODatabase : public RefCounter  {
+   protected:  
+    virtual ~IOODatabase() {}
 
-  public:
-    /// Retrieve interface ID
-    static const Guid& interfaceID();
-
-    /// Default empty constructor
-    explicit IOODatabase() {}
-    /// IInterface implementation: Query interfaces of Interface
-    virtual DbStatus queryInterface(const Guid& riid, void** ppvUnkn) = 0;
-    /** Increment the reference count of the  Interface instance.
-        @return  Current reference count value.
-    */
-    virtual unsigned int addRef() = 0;
-    /** Decrement reference count and release Interface instance when reference count=0.
-        @return  Current reference count value.
-    */
-    virtual unsigned int release() = 0;
-    /// Initialize the Database
-    virtual DbStatus  initialize(const std::string& nam) = 0;
-    /// Initialize the Database
-    virtual DbStatus  finalize (void) = 0;
-    /// Access to technology type
-    virtual const DbType& type () const = 0;
+   public:
     /// Name of the Database implementation
     virtual const std::string&  name () const = 0;
-    /// Access to user context
-    virtual void*  context()  const = 0;
+
     /// Create Database domain
     virtual IDbDomain* createDomain(void) = 0;
     /// Create Database
     virtual IDbDatabase* createDatabase(void) = 0;
     /// Create Database container
     virtual IDbContainer* createContainer(const DbType& typ) = 0;
+
+    ///  delete object if ref count drops to 0
+    void release() { if( RefCounter::subRef() <= 0 ) delete this; }
   };
 }       // End namespace pool
 #endif  // POOL_IOODATABASE_H

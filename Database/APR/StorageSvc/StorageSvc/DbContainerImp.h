@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbContainerImp.h 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
 //
 //  Package    : StorageSvc (The POOL project)
@@ -16,7 +15,6 @@
 #include "PersistentDataModel/Token.h"
 #include "StorageSvc/DbObject.h"
 #include "StorageSvc/IDbContainer.h"
-#include "StorageSvc/DbImplementation.h"
 
 // STL include files
 #include <map>
@@ -42,8 +40,7 @@ namespace pool    {
     *  @author  M.Frank
     *  @version 1.0
     */
-  class DbContainerImp : public DbImplementation, 
-                         virtual public IDbContainer
+  class DbContainerImp : virtual public IDbContainer
   {
   protected:
     /// Transaction Fifo definition
@@ -118,8 +115,7 @@ namespace pool    {
     virtual const DbSection& getSection(const Token::OID_t& oid) const;
 
   public:
-    /// Constructor with initializing arguments
-    DbContainerImp(IOODatabase* db);
+    DbContainerImp();
     /// Release instance (Abstract interfaces do not expose destructor!)
     virtual void release()                             { delete this;           }
     /// Attach sections to container object

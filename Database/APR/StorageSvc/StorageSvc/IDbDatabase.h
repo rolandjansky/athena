@@ -40,13 +40,8 @@ namespace pool    {
     * @version 1.0
     */
   class IDbDatabase    {
-  protected:
-    /// Destructor (called only by sub-classes)
-    virtual ~IDbDatabase()   {     }
-
   public:
-    /// Release implementation object
-    virtual void release() = 0;
+    virtual ~IDbDatabase()   { }
 
     /// Access the size of the database: May be undefined for some technologies
     virtual long long int size()  const = 0;

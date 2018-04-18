@@ -129,8 +129,8 @@ static IntDbArray   s_int_Blob;
 //using namespace std;
 
 
-RootTreeContainer::RootTreeContainer(IOODatabase* idb)
-: DbContainerImp(idb), m_tree(nullptr), m_type(0), m_dbH(POOL_StorageType), 
+RootTreeContainer::RootTreeContainer()
+: m_tree(nullptr), m_type(0), m_dbH(POOL_StorageType), 
   m_rootDb(nullptr), m_branchName(), m_ioBytes(0), m_treeFillMode(false),
   m_isDirty(false)
 {

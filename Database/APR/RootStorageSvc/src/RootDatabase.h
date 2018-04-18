@@ -12,7 +12,7 @@
 #define POOL_ROOTSTORAGESVC_ROOTDBASE_H 1
 
 // Framework include files
-#include "StorageSvc/DbDatabaseImp.h"
+#include "StorageSvc/IDbDatabase.h"
 
 #include <set>
 #include <map>
@@ -39,7 +39,7 @@ namespace pool  {
     * @date    1/8/2002
     * @version 1.0
     */
-   class RootDatabase : public DbDatabaseImp
+   class RootDatabase : public IDbDatabase
    {
   public:
     enum { READ_COUNTER = 0, WRITE_COUNTER = 1, OTHER_COUNTER = 2 };
@@ -88,11 +88,7 @@ namespace pool  {
     
   public:
     /// Standard Constuctor
-    /** @param idb      [IN]  Pointer to implementation object
-      *
-      * @return Reference to initialized object
-      */
-    RootDatabase(IOODatabase* idb);
+    RootDatabase();
 
     /// Standard destructor
     virtual ~RootDatabase();

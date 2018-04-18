@@ -36,8 +36,7 @@ using namespace pool;
 using namespace std;
 
 /// Standard Constuctor
-RootDatabase::RootDatabase(IOODatabase* idb)
-      : DbDatabaseImp(idb),
+RootDatabase::RootDatabase() :
         m_file(nullptr), 
         m_defCompression(1),
         m_defCompressionAlg(1),

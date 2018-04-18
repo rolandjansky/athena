@@ -18,7 +18,6 @@
 // Framework include files
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbContainerImp.h"
-#include "StorageSvc/DbImplementation.h"
 
 #include <map>
 #include <vector>
@@ -162,9 +161,8 @@ namespace pool  {
     void setBranchOffsetTabLen(TBranch* b, int offsettab_len);	
     
   public:
-
     /// Standard constructor
-    RootTreeContainer(IOODatabase* idb);
+    RootTreeContainer();
 
     /// Standard destructor
     virtual ~RootTreeContainer();
