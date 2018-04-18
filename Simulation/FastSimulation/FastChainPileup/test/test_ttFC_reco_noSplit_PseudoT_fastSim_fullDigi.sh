@@ -15,5 +15,18 @@ ArtPackage=$1
 ArtJobName=$2
 art.py compare grid --entries 10  
 echo  "art-result: $? regression"
-#rootcomp.py -o comparison -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/ISF_G4_WriteCalHitsTest.truth.root truth.root
+#add an additional payload from the job (corollary file).                                                           
+# art-output: InDetStandardPlots.root  
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_PseudoT_fastSim_fullDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+
+
+
+
+# InDetStandardPlots.root -l dcube.log -p -r   -x dcube.xml -s /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/
+
+# art-output: dcube.xml
+# art-output: dcube.log
+# art-output: dcubelog.xml
+# art-output: dcube.xml.php
+
 echo  "art-result: $? histcomp"

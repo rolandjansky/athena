@@ -21,10 +21,25 @@ echo "art-result: $? Digi step"
 FastChain_tf.py --maxEvents 50 --skipEvents 0 --geometryVersion ATLAS-R2-2015-03-01-00 --conditionsTag OFLCOND-RUN12-SDR-31  --inputRDOFile RDO.pool.root --outputAODFile AOD_Split_stdFullSimDigi.pool.root --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doStandardPlots.set_Value_and_Lock(True);"
 #end of job
 echo "art-result: $? AOD step"
+#add an additional payload from the job (corollary file).
+# art-output: InDetStandardPlots.root
 
-ArtPackage=$1
-ArtJobName=$2
+#ArtPackage=$1
+#ArtJobName=$2
 #art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}  
 echo  "art-result: $? regression"
-rootcomp.py -o comparison -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/AOD_Split_stdFullSimDigi.pool.root AOD_Split_stdFullSimDigi.pool.root_
+
+
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_ttFC_reco_noSplit_noPseudoT_stdFullSimDigi InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+
+
+
+
+# InDetStandardPlots.root -l dcube.log -p -r   -x dcube.xml -s /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/
+
+# art-output: dcube.xml
+# art-output: dcube.log
+# art-output: dcubelog.xml
+# art-output: dcube.xml.php
+
 echo  "art-result: $? histcomp test"

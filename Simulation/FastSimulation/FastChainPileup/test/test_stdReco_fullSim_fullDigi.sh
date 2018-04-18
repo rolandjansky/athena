@@ -9,10 +9,17 @@ echo "art-result: $? RDO step"
 Reco_tf.py --inputRDOFile=RDO_pileup_fullsim_fulldigi.pool.root --outputAODFile=AOD_fullSim_fullDigi.pool.root --autoConfiguration=everything --maxEvents=500 --preExec "RAWtoESD:rec.doTrigger.set_Value_and_Lock(False);recAlgs.doTrigger.set_Value_and_Lock(False);InDetFlags.doStandardPlots.set_Value_and_Lock(True)"
 
 echo "art-result: $? ESD step"
-
+#add an additional payload from the job (corollary file).                                                           
+# art-output: InDetStandardPlots.root  
 ArtPackage=$1
 ArtJobName=$2
 art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}  
 echo  "art-result: $? regression"
-#rootcomp.py -o comparison -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/ISF_G4_WriteCalHitsTest.truth.root truth.root
+/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube TEST_stdReco_fullSim_fullDigi.sh InDetStandardPlots.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/dcube_configs/config/dcube_indetplots_no_pseudotracks.xml /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/InDetStandardPlots_TEST.root
+
+
+# art-output: dcube.xml
+# art-output: dcube.log
+# art-output: dcubelog.xml
+# art-output: dcube.xml.php
 echo  "art-result: $? histcomp"
