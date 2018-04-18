@@ -16,36 +16,32 @@ svcMgr +=  LVL1ConfigSvc
 #include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
 
 from IOVDbSvc.CondDB import conddb
-#default database /Calibration/Physics/Calib
-###conddb.addMarkup("/TRIGGER/L1Calo/V2/Calibration/PprChanCalib","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
-###conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
-#conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/PprChanCalib")
-#conddb.addFolder("", "<dbConnection>dbname=COOLOFL_TRIGGER/OFLP200</dbConnection> /Trigger/L1Calo/V2/Configuration/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
+
+#conddb.addMarkup("/TRIGGER/L1Calo/V2/Calibration/PprChanCalib","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
+
+#conddb.addFolder("","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>", force=True)
+#conddb.addFolder("","<dbConnection>dbname=COOLOFL_TRIGGER/OFLP200</dbConnection> /Trigger/L1Calo/V2/Configuration/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
+#conddb.addFolder("","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
 
 
-conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
-conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-03</tag>", force=True)
-
-###conddb.addFolder("","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>", force=True)
-
-#conddb.addFolder("","<dbConnection>dbname=COOLOFL_TRIGGER/OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Configuration/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
-
-
-# test COOL folder version 03 i.e. folder tag V2-PHYSICS-CHANCALIB-00-03
-##conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
-##conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-03</tag>", force=True)
 # the other three folders do not require modification
 conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels")
 conddb.blockFolder("/TRIGGER/L1Calo/V2/Conditions/DisabledTowers")
 conddb.blockFolder("/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults")
-# Cannot read AFS
-conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels <tag>V2-DEADCHANNELS-00-00</tag>", force=True)
-conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Conditions/DisabledTowers <tag>V2-DISABLEDTOWERS-00-00</tag>", force=True)
-conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Configuration/PprChanDefaults <tag>V2-CHANDEFAULTS-00-00</tag>", force=True)
+conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
+
+conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib<tag>HEAD</tag>")
+conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels<tag>HEAD</tag>")
+conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults<tag>HEAD</tag>")
+conddb.addFolder("", "<dbConnection>frontier://ATLF/();schema=ATLAS_COOLOFL_TRIGGER;dbname=OFLP200</dbConnection>/TRIGGER/L1Calo/V2/Conditions/DisabledTowers<tag>HEAD</tag>")
+
+# Should not read AFS
+#conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib <tag>V2-PHYSICS-CHANCALIB-00-03</tag>", force=True)
+#conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels <tag>V2-DEADCHANNELS-00-00</tag>", force=True)
+#conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Conditions/DisabledTowers <tag>V2-DISABLEDTOWERS-00-00</tag>", force=True)
+#conddb.addFolder("","<dbConnection>sqlite://;schema=/afs/cern.ch/work/h/hristova/public/l1calo/l1calo.sqlite;dbname=OFLP200</dbConnection> /TRIGGER/L1Calo/V2/Configuration/PprChanDefaults <tag>V2-CHANDEFAULTS-00-00</tag>", force=True)
 
 
-#conddb.blockFolder("/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib")
-#conddb.addFolder("","<db>COOLOFL_TRIGGER/OFLP200</db><tag>V2-PHYSICS-CHANCALIB-00-00</tag>")
 #reprocess
 from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2TriggerTowerMaker
 from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__Run2CPMTowerMaker
