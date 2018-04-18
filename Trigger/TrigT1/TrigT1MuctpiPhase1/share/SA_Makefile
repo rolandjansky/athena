@@ -1,0 +1,52 @@
+DIR=MUCTPISIM
+
+HXX=h
+CXX=cxx
+
+TEMPLATES  = $(shell if [ -f inc/*.inl ]; then ls inc/*.inl; fi)
+TEMPLATES += $(shell if [ -f inc/*.inl ]; then ls inc/*.inl | sed 's|\.inl|.h|'; fi)
+
+#General list of files to compile
+SRCS = $(shell ls src/*.$(CXX))
+OBJS = $(shell ls src/*.$(CXX) | sed 's|\.$(CXX)|.o|' | sed 's|src|obj|')
+SRCS_T1I += ../TrigT1Interfaces/src/Lvl1MuSectorLogicData.cxx
+OBJS += $(shell ls $(SRCS_T1I) | sed 's|\.$(CXX)|.o|' | sed 's|../TrigT1Interfaces/src|obj/TrigT1Interfaces|')
+
+INCLUDE  = -I. -I.. -Iinc -I../TrigT1Interfaces
+CXXFLAGS = -Wall -O3 -fPIC $(INCLUDE) -DMUCTPI_STANDALONE
+
+
+
+LD            = g++ 
+LDFLAGS       = -Wall -O3 -fPIC
+SOFLAGS       = -shared
+
+LIB = lib/lib$(DIR).so
+
+GLOBALDEP=$(TEMPLATES)
+
+all: $(LIB) $(GLOBALDEP) bin/main
+
+$(LIB): $(OBJS) $(GLOBALDEP)
+	@rm -f $(LIB)
+	$(LD) $(LDFLAGS) $(SOFLAGS) $(OBJS) -o $(LIB) 
+	@chmod 555 $(LIB)
+
+obj/TrigT1Interfaces/%.o: ../TrigT1Interfaces/src/%.$(CXX) $(GLOBALDEP)
+	g++ $(CXXFLAGS) -c ../TrigT1Interfaces/src/$*.$(CXX) -o obj/TrigT1Interfaces/$*.o
+
+obj/%.o: src/%.$(CXX) $(GLOBALDEP)
+	g++ $(CXXFLAGS) -c src/$*.$(CXX) -o obj/$*.o
+
+
+clean:
+	rm -rf $(shell ls obj/*.o) $(LIB)
+
+
+main/%.o: main/%.$(CXX) $(LIB)
+	g++ $(CXXFLAGS) -c main/$*.$(CXX) -o main/$*.o
+
+
+bin/%: main/%.o
+	g++ $(LDFLAGS) -o bin/$* main/$*.o $(LIB)
+
