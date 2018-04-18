@@ -12,7 +12,7 @@ def makePileupAnalysisSequence (dataType) :
                  "dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"]
     muDataFiles = ["dev/SUSYTools/ilumicalc_histograms_None_276262-284154.root"]
 
-    alg = createAlgorithm( 'CP::AsgPileupReweightingAlg', 'AsgPileupReweightingAlg' )
+    alg = createAlgorithm( 'CP::PileupReweightingAlg', 'PileupReweightingAlg' )
     addPrivateTool (alg, "pileupReweightingTool", "CP::PileupReweightingTool")
     alg.pileupReweightingTool.ConfigFiles = muMcFiles
     alg.pileupReweightingTool.LumiCalcFiles = muDataFiles
