@@ -112,7 +112,7 @@ SCT_InterLink::build()
     m_interLinkSegShape = new GeoTubs(m_innerRadius, m_outerRadius, 0.5*m_length, - 0.5*m_dPhi*CLHEP::radian, m_dPhi*CLHEP::radian);
     m_interLinkSegLog = new GeoLogVol("InterlinkSegment", m_interLinkSegShape, materials.getMaterialForVolume(m_materialName, m_interLinkSegShape->volume()));
     m_interLinkSeg = new GeoPhysVol(m_interLinkSegLog);
-    m_interLinkSeg->unref();
+    m_interLinkSeg->ref();
 
     for(int i=0; i<m_nRepeat; i++) {
       double interlinkAngle = m_phiPos + (i * 360./m_nRepeat)*CLHEP::deg;
