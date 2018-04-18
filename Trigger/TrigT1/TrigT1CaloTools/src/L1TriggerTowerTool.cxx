@@ -401,17 +401,9 @@ void L1TriggerTowerTool::simulateChannel(const xAOD::TriggerTower& tt, std::vect
  
     int nSlices = tt.adc().size();
 
-    if((nSlices%4)==3){
-      for (int i=0 ; i < (nSlices-1)/2 ; i++ ){
-	digits40.push_back(tt.adc().at(2*i+1));
-      }
+    for (int i=0 ; i < (nSlices-1)/2 ; i++ ){
+      digits40.push_back(tt.adc().at(2*i+1));
     }
-    else if((nSlices%4)==1){
-      for (int i=0 ; i <= (nSlices-1)/2 ; i++ ){
-	digits40.push_back(tt.adc().at(2*i));
-      }
-    }
-
 
   }else{
     if(m_debug){
@@ -900,13 +892,17 @@ void L1TriggerTowerTool::lut(const std::vector<int> &fir, const L1CaloCoolChanne
 // TODO implement scale
 void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {   
+  int startBit = 0;
   int strategy = 0;
   int offset   = 0;
   int slope    = 0;
   int cut      = 0;
   unsigned short scale = 0;
+  double pedMean = 0;
   int ped      = 0;
-
+  int hwCoeffSum = 0;
+  const std::vector<short int>* hwCoeffs;
+  
   if(!m_isRun2) {
     // assert instead ?!
     ATH_MSG_WARNING("::cpLut: Run-1 data - behaviour undefined!");
@@ -916,12 +912,31 @@ void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChan
     auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer);
     const L1CaloPprConditionsRun2* settings = conditionsContainer->pprConditions(channelId.id());
     if (settings) {
+      startBit = settings->firStartBit();
       strategy = settings->lutCpStrategy();
-      offset   = settings->lutCpOffset();
       slope    = settings->lutCpSlope();
       cut      = settings->lutCpNoiseCut();
       scale    = settings->lutCpScale();
       ped      = settings->pedValue();
+      pedMean  = settings->pedMean();
+
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+
+      for (unsigned int i = 0; i < hwCoeffs->size(); i++){
+        hwCoeffSum += hwCoeffs->at(i);
+      }
+      
+      if (strategy == 0){
+        offset = pedMean * hwCoeffSum / pow(2.,startBit);
+      }
+      else{
+        offset = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+      }
+      offset = static_cast<unsigned short>( offset < 0. ? 0 : offset + 0.5 );
+
+      ATH_MSG_VERBOSE( "::cpLut: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
+		       << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
+      
     } else ATH_MSG_WARNING( "::cpLut: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::cpLut: No Conditions Container retrieved" );
 
@@ -941,6 +956,7 @@ void L1TriggerTowerTool::cpLut(const std::vector<int> &fir, const L1CaloCoolChan
 
 void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolChannelId& channelId, std::vector<int> &output)
 {   
+  int startBit = 0;
   int strategy   = 0;
   int offset     = 0;
   int slope      = 0;
@@ -948,6 +964,9 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
   unsigned short scale_db   = 0;
   unsigned short scale_menu = 0;
   int ped        = 0;
+  double pedMean = 0;
+  int hwCoeffSum = 0;
+  const std::vector<short int>* hwCoeffs;
   short par1     = 0;
   short par2     = 0;
   short par3     = 0;
@@ -962,11 +981,12 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
     auto conditionsContainer = boost::any_cast<L1CaloPprConditionsContainerRun2*>(m_conditionsContainer);
     const L1CaloPprConditionsRun2* settings = conditionsContainer->pprConditions(channelId.id());
     if (settings) {
+      startBit = settings->firStartBit();
       strategy   = settings->lutJepStrategy();
-      offset     = settings->lutJepOffset();
       slope      = settings->lutJepSlope();
       cut        = settings->lutJepNoiseCut();
       ped        = settings->pedValue();
+      pedMean    = settings->pedMean();
       scale_db   = settings->lutJepScale();
       scale_menu = m_configSvc->thresholdConfig()->caloInfo().globalJetScale(); // Retrieve scale param from menu instead of coolDB
       if (strategy == 3) {
@@ -975,6 +995,24 @@ void L1TriggerTowerTool::jepLut(const std::vector<int> &fir, const L1CaloCoolCha
         par3  = settings->lutJepPar3();
         par4  = settings->lutJepPar4();
       }
+
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+
+      for (unsigned int i = 0; i < hwCoeffs->size(); i++){
+        hwCoeffSum += hwCoeffs->at(i);
+      }
+      
+      if (strategy == 0){
+        offset = pedMean * hwCoeffSum / pow(2.,startBit);
+      }
+      else{
+        offset = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+      }
+      offset = static_cast<unsigned short>( offset < 0. ? 0 : offset + 0.5 );
+
+      ATH_MSG_VERBOSE( "::jepLut: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
+		       << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
+
     } else ATH_MSG_WARNING( "::jepLut: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::jepLut: No Conditions Container retrieved" );
 
@@ -1316,6 +1354,8 @@ void L1TriggerTowerTool::cpLutParams(const L1CaloCoolChannelId& channelId, int& 
   pedValue = 0;
   pedMean  = 0.;
   disabled = true;
+  int hwCoeffSum = 0;
+  const std::vector<short int>* hwCoeffs;
   
   if(!m_isRun2) {
     // assert instead ?!
@@ -1329,11 +1369,27 @@ void L1TriggerTowerTool::cpLutParams(const L1CaloCoolChannelId& channelId, int& 
     if(settings) {
       startBit = settings->firStartBit();
       strategy = settings->lutCpStrategy();
-      offset   = settings->lutCpOffset();
       slope    = settings->lutCpSlope();
       cut      = settings->lutCpNoiseCut();
       pedValue = settings->pedValue();
       pedMean  = settings->pedMean();
+
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+      for (unsigned int i = 0; i < hwCoeffs->size(); i++){
+	hwCoeffSum += hwCoeffs->at(i);
+      }
+      
+      if (strategy == 0){
+	offset = pedMean * hwCoeffSum / pow(2.,startBit);
+      }
+      else{
+	offset = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+      }
+      offset = static_cast<unsigned short>( offset < 0. ? 0 : offset + 0.5 );
+      
+      ATH_MSG_VERBOSE( "::jepLutParams: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
+		     << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
+
     } else ATH_MSG_WARNING( "::cpLutParams: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::cpLutParams: No Conditions Container retrieved" );
 
@@ -1354,6 +1410,8 @@ void L1TriggerTowerTool::jepLutParams(const L1CaloCoolChannelId& channelId, int&
   pedValue = 0;
   pedMean  = 0.;
   disabled = true;
+  int hwCoeffSum = 0;
+  const std::vector<short int>* hwCoeffs;
   
   if(!m_isRun2) {
     // assert instead ?!
@@ -1367,11 +1425,28 @@ void L1TriggerTowerTool::jepLutParams(const L1CaloCoolChannelId& channelId, int&
     if(settings) {
       startBit = settings->firStartBit();
       strategy = settings->lutJepStrategy();
-      offset   = settings->lutJepOffset();
       slope    = settings->lutJepSlope();
       cut      = settings->lutJepNoiseCut();
       pedValue = settings->pedValue();
       pedMean  = settings->pedMean();
+
+      hwCoeffs = getFirCoefficients<L1CaloPprConditionsContainerRun2>(channelId.id(), m_conditionsContainer);
+
+      for (unsigned int i = 0; i < hwCoeffs->size(); i++){
+	hwCoeffSum += hwCoeffs->at(i);
+      }
+      
+      if (strategy == 0){
+	offset = pedMean * hwCoeffSum / pow(2.,startBit);
+      }
+      else{
+	offset = pedMean * hwCoeffSum * slope / pow(2.,startBit) - slope/2.;
+      }
+      offset = static_cast<unsigned short>( offset < 0. ? 0 : offset + 0.5 );
+      
+      ATH_MSG_VERBOSE( "::jepLutParams: Offset: offset/strategy/pedMean/firCoeffSum/startBit/slope: "
+		     << offset << " " << strategy << " " << " " << pedMean << " " << hwCoeffSum << " " << startBit << " " << slope );
+
     } else ATH_MSG_WARNING( "::jepLutParams: No L1CaloPprConditions found" );
   } else ATH_MSG_WARNING( "::jepLutParams: No Conditions Container retrieved" );
 
