@@ -1523,7 +1523,7 @@ execute( TGraph* graph )
 bool MonitoringFile::GatherStatistics::execute( TEfficiency* eff ) {
   ++m_nEfficiency;
   
-  TH1* h_total = eff->GetCopyTotalHisto();
+  TH1* h_total = eff->GetCopyPassedHisto();
   TH2* h_total2D = dynamic_cast<TH2*>( h_total );
 
   if( h_total2D != 0 ) {
@@ -1634,15 +1634,15 @@ loopOnHistograms( HistogramOperation& fcn, TDirectory* dir )
   TKey* key;
   while( (key = dynamic_cast<TKey*>( next() )) != 0 ) {
     TObject* obj = key->ReadObj();
-    TH1* h = dynamic_cast<TH1*>( obj );
-    if( h != 0 ) {
+    TH1* h(0);
+    TGraph* g(0);
+    TEfficiency* e(0);
+    if ((h = dynamic_cast<TH1*>(obj))) {
       fcn.execute( h );
-    }
-    else {
-      TGraph* g = dynamic_cast<TGraph*>( obj );
-      if( g != 0 ) {
-        fcn.execute( g );
-      }
+    } else if ((g = dynamic_cast<TGraph*>(obj))) {
+      fcn.execute( g );
+    } else if ((e = dynamic_cast<TEfficiency*>(obj))) {
+      fcn.execute( e );
     }
     delete obj;
   }
@@ -1790,6 +1790,7 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, std::string merg
    TH2 *h2=0, *nextH2=0;
    TGraph *g=0; 
    TTree *t=0;
+   TEfficiency *e=0;
 
 //    h = dynamic_cast<TH1*>( objTarget );
 //    g = dynamic_cast<TGraph*>( objTarget );
@@ -1846,6 +1847,16 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, std::string merg
      listG.Add( nextG );
      g->Merge( &listG );
      listG.Clear();
+   }else if( (e = dynamic_cast<TEfficiency*>( objTarget )) ) {  // TEfficiencies
+     if( mergeType != "<default>" ) {
+       std::cerr << name << ": TEfficiency " << obj->GetName() << " request mergeType = " << mergeType
+     << " but only default merging implemented for TEfficiencies.\n";              
+     }
+     TEfficiency *nextE = dynamic_cast<TEfficiency*>( obj );
+     TList listE;
+     listE.Add( nextE );
+     e->Merge( &listE );
+     listE.Clear();
    }else if ((t = dynamic_cast<TTree*>( objTarget ))) { // TTrees
      if ( debugLevel >= VERBOSE) {
        std::cout << "Merging Tree " << obj->GetName() << std::endl;
@@ -1960,7 +1971,8 @@ int MonitoringFile::mergeLB_createListOfHistos(TDirectory *dir_top, TDirectory *
       std::string keyClassName(key->GetClassName());
       if( ( (keyClassName.size() > 2) && ( (keyClassName.substr(0,3) == "TH1") || (keyClassName.substr(0,3) == "TH2")  ) ) ||
           ( (keyClassName.size() > 7) && ( (keyClassName.substr(0,8) == "TProfile") ) ) || 
-          ( (keyClassName.size() > 5) && ( (keyClassName.substr(0,6) == "TGraph") ) ) ) {
+          ( (keyClassName.size() > 5) && ( (keyClassName.substr(0,6) == "TGraph") ) ) ||
+          ( (keyClassName.size() > 10) && ( (keyClassName.substr(0,11) == "TEfficiency") ) ) ) {
          if( debugLevel >= VERBOSE )
             std::cout << name << ": found object: " << key->GetName();  
 

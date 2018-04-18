@@ -53,6 +53,7 @@ class LockAcquisitionException(Exception):
 
 def DQWebDisplay( inputFilePath, runAccumulating, c ):
     
+    print 'htmlDir',c.htmlDir
     print ""
     print "SVN version:"
     print VERSION
@@ -135,6 +136,7 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
       if len(fields) >= 6:
           amitag = fields[5]
     
+    print 'rA',runAccumulating
     if runAccumulating:
       print ""
       print "Searching for existing histogram cache to merge with input histograms..."
@@ -180,6 +182,7 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
     fileList=total.rsplit('\n')
     if amitag is not None:
         addAmiTags(fileList, amitag)
+    print 'fileList',fileList
     
     number=len(fileList) 
     if (len(fileList[number-1])<1): # last line is empty
@@ -198,6 +201,7 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
       if len(splitLine) >= 1:
         xferFileList.append( splitLine[0] + "\n" )
     
+    print 'server',c.server
     ## Archive han results - 090422 : PUEO
     if c.server != []:
         failures = 0
@@ -229,6 +233,7 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
             print "These are:", ', '.join(c.server)
             print "Will die so as to alert Tier-0 shifter"
             raise IOError('tarfile ssh transfer failed')
+    print 'eosRD',c.eosResultsDir
     if c.eosResultsDir != "":
         print "Transfering han files to EOS"
         success_EOS = transferFilesToEOS( xferFileList[:], "./han_results/", c.eosResultsDir )
@@ -253,6 +258,7 @@ def DQWebDisplay( inputFilePath, runAccumulating, c ):
 
     runNumber = runfile[1]
     rN=runNumber.lstrip("run_")
+    print 'doHandi',c.doHandi
     if c.doHandi:
         rundir=outputHtmlDir+runNumber+"/"
         makeOutputDirectory( rundir )

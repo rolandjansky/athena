@@ -169,7 +169,6 @@ getAllAssessments( AssMap_t& dirmap, TDirectory* dir )
   TKey* key;
   while( (key = dynamic_cast<TKey*>( next() )) != 0 ) {
     TObject* obj = key->ReadObj();
-    //TH1* h = dynamic_cast<TH1*>( obj );
     if( dynamic_cast<TH1*>(obj) || dynamic_cast<TGraph*>(obj) || dynamic_cast<TEfficiency*>(obj) ) {
       const char * path(dir->GetPath() ); 
       std::string assName( obj->GetName() );
@@ -1021,7 +1020,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   }
 
   if( h!=0 ){     
-
+    std::cout<<"h is not zero. found TH1."<<std::endl;
     TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
 
     // if(  h->GetMinimum() >= 0) {
@@ -1056,15 +1055,14 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       std::size_t fpos1,fpos2,fpos;
       fpos=display.find("MinStat");
       if (fpos!= std::string::npos){
-	fpos1=display.find("(",fpos+1);
-	if (fpos1!=std::string::npos) {
-	  fpos2 = display.find(")",fpos1+1);
-	  if (fpos2!=std::string::npos) {
-	    std::string s_minstat=display.substr(fpos1+1,fpos2-fpos1-1);
-	    minstat=std::strtod(s_minstat.c_str(),NULL);
-    	  }
-    
-	}
+        fpos1=display.find("(",fpos+1);
+        if (fpos1!=std::string::npos) {
+          fpos2 = display.find(")",fpos1+1);
+          if (fpos2!=std::string::npos) {
+            std::string s_minstat=display.substr(fpos1+1,fpos2-fpos1-1);
+            minstat=std::strtod(s_minstat.c_str(),NULL);
+          }
+        }
       }
       std::string fitopt("");
       fpos=display.find("FitOption");
@@ -1512,7 +1510,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
     tt.SetNDC();
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
-    getImageBuffer(img, myC, &x, &y);
+    convertToGraphics(cnvsType,myC,json,img,&x,&y);
     delete myC;
     gStyle->Reset();
   }
@@ -1592,6 +1590,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
   TH1* h(0),*hist2(0);
   TH2* h2(0),*h2_2(0),*h2Diff(0);
   TGraph* g(0),*g2(0);
+  TEfficiency *e(0), *e2(0);
 
   std::string json;
   std::string nameJSON  = nameHis;
@@ -1719,6 +1718,32 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
 
+    convertToGraphics(cnvsType,myC,namePNG,nameJSON);
+    
+    delete myC;
+    gStyle->Reset();
+  }
+
+  if(((e = dynamic_cast<TEfficiency*>(hobj))!=0 ) && ((e2=dynamic_cast<TEfficiency*>(hobj2))!=0) ){
+    TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
+    myC->cd();
+
+    formatTEfficiency( myC, e );
+    formatTEfficiency( myC, e2 );
+    e->Draw((std::string("AP") + drawopt).c_str());
+    displayExtra(myC,display);
+    e2->SetMarkerColor(2);
+    e2->SetLineColor(2);
+    e2->Draw((std::string("P") + drawopt+" same").c_str());
+    TLatex t;
+    t.SetNDC();
+    t.SetTextSize(0.03);
+    t.DrawLatex(0.02,0.04,run_min_LB.c_str());
+    TLatex tt;
+    tt.SetNDC();
+    tt.SetTextSize(0.03);
+    tt.DrawLatex(0.02,0.01,pathName.c_str());
+    
     convertToGraphics(cnvsType,myC,namePNG,nameJSON);
     
     delete myC;
@@ -2733,6 +2758,8 @@ saveFile(int cnvsType, std::string pngfName,std::string pngContent, std::string 
     bool json=false;
     if (cnvsType & GENERATE_PNG) 
     {
+      std::cout<<"in saveFile()"<<std::endl;
+      std::cout<<"pngfName = "<<pngfName<<std::endl;
       png   = writeToFile(pngfName,pngContent);
     }
     if (cnvsType & GENERATE_JSON) 

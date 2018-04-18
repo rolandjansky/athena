@@ -392,8 +392,10 @@ namespace dqutils {
       virtual ~HistogramOperation() { }
       virtual bool execute(TH1* hist) = 0;
       virtual bool execute(TGraph* graph) = 0;
+      virtual bool execute(TEfficiency* efficiency) = 0;
       virtual bool executeMD(TH1* hist, const MetaData&) { return execute(hist); }
       virtual bool executeMD(TGraph* graph, const MetaData&) { return execute(graph); }
+      virtual bool executeMD(TEfficiency* efficiency, const MetaData&) {return execute(efficiency); }
     };
 
     class CopyHistogram : public HistogramOperation {
