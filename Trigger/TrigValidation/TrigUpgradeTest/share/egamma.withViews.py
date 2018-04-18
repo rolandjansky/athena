@@ -57,7 +57,7 @@ trigL2CaloRingerFexMT.OutputLevel = DEBUG
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, TestEventViewCreatorAlgorithm
 
 
 def createFastCaloSequence(rerun=False):
@@ -80,32 +80,33 @@ def createFastCaloSequence(rerun=False):
    filterL1RoIsAlg.Chains = testChains
    filterL1RoIsAlg.OutputLevel = DEBUG
 
-   fastCaloViewsMaker = EventViewCreatorAlgorithm( __prefix+"fastCaloViewsMaker", OutputLevel=DEBUG)
+   fastCaloViewsMaker = TestEventViewCreatorAlgorithm( __prefix+"fastCaloViewsMaker", OutputLevel=DEBUG)
    fastCaloViewsMaker.ViewFallThrough = True
-   fastCaloViewsMaker.Decisions =  __forViewDecsions
+   fastCaloViewsMaker.InputDecisions =  [ __forViewDecsions ]
    fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
    fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
    fastCaloViewsMaker.Views = __prefix+"EMCaloViews"
    fastCaloViewsMaker.ViewNodeName = __prefix+"fastCaloInViewAlgs"
+   fastCaloViewsMaker.OutputDecisions = [ "L2CaloLinks"]
    clusterMaker.RoIs = fastCaloViewsMaker.InViewRoIs
 
-   from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlg
+   from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
-   fastCaloHypo = TrigL2CaloHypoAlg( __prefix+"L2CaloHypo" )
+   fastCaloHypo = TrigL2CaloHypoAlgMT( __prefix+"L2CaloHypo" )
    fastCaloHypo.OutputLevel = DEBUG
-   fastCaloHypo.L1Decisions = __l1RoIDecisions
-   fastCaloHypo.Views = fastCaloViewsMaker.Views
+   fastCaloHypo.previousDecisions =  fastCaloViewsMaker.OutputDecisions[0] #   __l1RoIDecisions
+#   fastCaloHypo.Views = fastCaloViewsMaker.Views
    fastCaloHypo.CaloClusters = clusterMaker.ClustersName
-   fastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
-   fastCaloHypo.Decisions = __prefix+"EgammaCaloDecisions"
+#   fastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
+   fastCaloHypo.Output = __prefix+"EgammaCaloDecisions"
    fastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
 
    for t in fastCaloHypo.HypoTools:
       t.OutputLevel = DEBUG
 
    fastCaloSequence = seqAND( __prefix+"fastCaloSequence", [fastCaloViewsMaker, fastCaloInViewAlgs, fastCaloHypo ])
-   if rerun: 
-      return parOR(__prefix+"egammaCaloStep", [ fastCaloSequence ] )
+   #if rerun: 
+   #   return parOR(__prefix+"egammaCaloStep", [ fastCaloSequence ] )
    return stepSeq(__prefix+"egammaCaloStep", filterL1RoIsAlg, [ fastCaloSequence ])
 
 egammaCaloStep = createFastCaloSequence( rerun=False )
@@ -144,7 +145,7 @@ theElectronFex.OutputLevel=VERBOSE
 
 
 filterCaloRoIsAlg = RoRSeqFilter("filterCaloRoIsAlg")
-caloHypoDecisions = findAlgorithm(egammaCaloStep, "L2CaloHypo").Decisions
+caloHypoDecisions = findAlgorithm(egammaCaloStep, "L2CaloHypo").Output
 print "kkkk ", caloHypoDecisions
 filterCaloRoIsAlg.Input = [caloHypoDecisions]
 filterCaloRoIsAlg.Output = ["Filtered" + caloHypoDecisions]

@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOALG_H
-#define TRIGEGAMMAHYPO_TESTTRIGL2CALOHYPOALG_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGL2CALOHYPOALGMT_H
+#define TRIGEGAMMAHYPO_TRIGL2CALOHYPOALGMT_H 1
 
 #include <string>
 
@@ -16,26 +16,26 @@
 #include "ITrigL2CaloHypoTool.h"
 
 /**
- * @class TestTrigL2CaloHypoAlg
+ * @class TrigL2CaloHypoAlgMT
  * @brief Implements egamma calo selection for the new HLT framework
  **/
-class TestTrigL2CaloHypoAlg : public ::HypoBase {
+class TrigL2CaloHypoAlgMT : public ::HypoBase {
  public: 
 
-  TestTrigL2CaloHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigL2CaloHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TestTrigL2CaloHypoAlg(); 
+  virtual ~TrigL2CaloHypoAlgMT(); 
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute_r( const EventContext& context ) const override;
   virtual StatusCode  finalize() override;
  
  private: 
-  TestTrigL2CaloHypoAlg();
+  TrigL2CaloHypoAlgMT();
   ToolHandleArray< ITrigL2CaloHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
      
   SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in view" };  
-  Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
+  
 
 }; 
 

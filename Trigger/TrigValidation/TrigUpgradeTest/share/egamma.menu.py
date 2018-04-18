@@ -78,10 +78,9 @@ CaloViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastCaloViewDataVerifier")
 CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fastCaloViewsMaker_InViewRoIs_out')]
 
 
-from TrigEgammaHypo.TrigEgammaHypoConf import TestTrigL2CaloHypoAlg
-theFastCaloHypo = TestTrigL2CaloHypoAlg("L2CaloHypo")
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
+theFastCaloHypo = TrigL2CaloHypoAlgMT("L2CaloHypo")
 theFastCaloHypo.OutputLevel = DEBUG
-theFastCaloHypo.RunInView=True
 theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 

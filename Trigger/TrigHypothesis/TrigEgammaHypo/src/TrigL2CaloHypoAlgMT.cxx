@@ -3,35 +3,34 @@
 */
 
 #include "GaudiKernel/Property.h"
-#include "TestTrigL2CaloHypoAlg.h"
+#include "TrigL2CaloHypoAlgMT.h"
 #include "DecisionHandling/HLTIdentifier.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
 
 
 using namespace TrigCompositeUtils;
 
-TestTrigL2CaloHypoAlg::TestTrigL2CaloHypoAlg( const std::string& name, 
+TrigL2CaloHypoAlgMT::TrigL2CaloHypoAlgMT( const std::string& name, 
 				      ISvcLocator* pSvcLocator ) :
   ::HypoBase( name, pSvcLocator ) {}
 
-TestTrigL2CaloHypoAlg::~TestTrigL2CaloHypoAlg() {}
+TrigL2CaloHypoAlgMT::~TrigL2CaloHypoAlgMT() {}
 
-StatusCode TestTrigL2CaloHypoAlg::initialize() {
+StatusCode TrigL2CaloHypoAlgMT::initialize() {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
-  ATH_MSG_DEBUG( "RunInView  = " << ( m_runInView==true ? "True" : "False" ) );
+
   
   CHECK( m_hypoTools.retrieve() );
   
   CHECK( m_clustersKey.initialize() );
-  if (  m_runInView)   renounce( m_clustersKey );// clusters are made in views, so they are not in the EvtStore: hide them
+  renounce( m_clustersKey );// clusters are made in views, so they are not in the EvtStore: hide them
 
   return StatusCode::SUCCESS;
 }
 
- StatusCode TestTrigL2CaloHypoAlg::finalize() {
-    ATH_MSG_INFO( "Finalizing " << name() << "..." );
-    return StatusCode::SUCCESS;
-  }
+StatusCode TrigL2CaloHypoAlgMT::finalize() {   
+  return StatusCode::SUCCESS;
+}
 
   /*
 OLD
@@ -51,7 +50,7 @@ NEW
 
    */
 
-StatusCode TestTrigL2CaloHypoAlg::execute_r( const EventContext& context ) const {  
+StatusCode TrigL2CaloHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
