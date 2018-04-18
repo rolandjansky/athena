@@ -59,6 +59,7 @@ Acts::ExCellWriterSvc::doWrite()
   // wait until we have events
   while(m_exCells.size() == 0) {
     std::this_thread::sleep_for(2s);
+    if (m_doEnd) return;
   }
 
   while(true) {
