@@ -301,7 +301,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   // hit occupancy
   TProfile_LW* m_avgocc_per_lumi;
-  TProfile_LW* m_avgocc_ratioIBLB0_per_lumi;
   TProfile_LW* m_avgocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1F* m_avgocc_ratio_lastXlb_mod[PixLayer::COUNT];
   TProfile_LW* m_avgocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
