@@ -15,7 +15,9 @@ class ITagInfoMgr;
 class IRDBAccessSvc;
 class IGeoModelSvc;
 class GeoFullPhysVol;
+#ifndef SIMULATIONBASE
 class AmdcsimrecAthenaSvc;
+#endif
 
 
 class MuonAGDDTool: public AGDDToolBase
@@ -41,7 +43,9 @@ private:
 	
 	bool m_buildNSW;
 
+#ifndef SIMULATIONBASE
 	ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;
+#endif
 
 	void BuildMuonSpectrometerFromFlags();
 	bool WritePREsqlFile() const;

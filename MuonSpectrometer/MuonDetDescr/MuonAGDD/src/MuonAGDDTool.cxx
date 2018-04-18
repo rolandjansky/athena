@@ -8,21 +8,25 @@
 #include "AGDDControl/AGDDController.h"
 #include "AGDDControl/AGDD2GeoModelBuilder.h"
 #include "AGDDKernel/AliasStore.h"
+#ifndef SIMULATIONBASE
 #include "AmdcAth/AmdcsimrecAthenaSvc.h"
+#endif
 
 using namespace MuonGM;
 
 MuonAGDDTool::MuonAGDDTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent):AGDDToolBase(type,name,parent),
-					m_overrideConfiguration(false),m_buildNSW(true),
-					p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
+					m_overrideConfiguration(false),m_buildNSW(true)
+#ifndef SIMULATIONBASE
+					, p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
+#endif
 {
   	declareProperty( "Structures" ,     m_structuresToBuild);
 	declareProperty( "ReadAGDD",   		m_readAGDD = true);
 	declareProperty( "DumpAGDD",		m_dumpAGDD = false);
 	declareProperty( "OverrideConfiguration",m_overrideConfiguration = false);
 	declareProperty( "BuildNSW",		m_buildNSW = true);
-	declareProperty( "OutputFileType",	m_outFileType = "AGDD");
+	declareProperty( "OutputFileType",	m_outFileType = "AGDD", "Name for database table");
 
 	m_outFileName = "Out.AmdcOracle.AM." + m_outFileType + "temp.data";
 	m_outPREsqlName = "Out.AmdcOracle.AM." + m_outFileType + ".PREsql";
@@ -40,7 +44,9 @@ StatusCode MuonAGDDTool::initialize()
 
 	// please see more details on regarding the dependency on AMDB on ATLASSIM-3636
 	// and the CMakeLists.txt . the NSWAGDDTool avoids the dependency already
+#ifndef SIMULATIONBASE
 	if(m_writeDBfile) CHECK( p_AmdcsimrecAthenaSvc.retrieve() );
+#endif
 
 	if (m_buildNSW) 
 	{
@@ -79,8 +85,9 @@ StatusCode MuonAGDDTool::construct()
 	ATH_MSG_INFO(" now reading AGDD blob ");
 	
 	std::string AGDDfile=theHelper.GetAGDD(m_dumpAGDD);
-	
+#ifndef SIMULATIONBASE
 	if(m_writeDBfile) AGDDfile = p_AmdcsimrecAthenaSvc->GetAgddString();
+#endif
 	if( AGDDfile.empty() ) {
 		ATH_MSG_ERROR("\t-- empty AGDDfile - this cannot be correct " );
 		return StatusCode::FAILURE;
@@ -155,11 +162,14 @@ bool MuonAGDDTool::WritePREsqlFile() const
 		return false;
 	}
 
+	std::string TheAmdcName = "";
 	// in principle this information could also be accessed differently and the
 	// dependency on AMDB could be avoided. for the moment it's kept to be fully
 	// consistent with previous table generations
+#ifndef SIMULATIONBASE
 	Amdcsimrec* pAmdcsimrec = p_AmdcsimrecAthenaSvc->GetAmdcsimrec();
-	std::string TheAmdcName = pAmdcsimrec->AmdcName();
+	TheAmdcName = pAmdcsimrec->AmdcName();
+#endif
 
 	std::ofstream prefile;
 	prefile.open (m_outPREsqlName.c_str());
