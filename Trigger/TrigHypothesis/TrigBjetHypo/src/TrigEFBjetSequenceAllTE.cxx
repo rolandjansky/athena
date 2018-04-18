@@ -55,14 +55,12 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltInitialize() {
     msg() << MSG::INFO << "Initializing TrigEFBjetSequenceAllTE, version " << PACKAGE_VERSION << endmsg;
 
   //* declareProperty overview *//
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " JetInputKey = "  << m_jetInputKey  << endmsg; 
-    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endmsg; 
-    msg() << MSG::DEBUG << " UseSuperRoi  = " << m_useSuperRoi  << endmsg;
-    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endmsg; 
-    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endmsg; 
-  }
+  ATH_MSG_DEBUG( "declareProperty review:" );
+  ATH_MSG_DEBUG( " JetInputKey = "  << m_jetInputKey  );
+  ATH_MSG_DEBUG( " JetOutputKey = " << m_jetOutputKey );
+  ATH_MSG_DEBUG( " UseSuperRoi  = " << m_useSuperRoi  );
+  ATH_MSG_DEBUG( " EtaHalfWidth = " << m_etaHalfWidth );
+  ATH_MSG_DEBUG( " PhiHalfWidth = " << m_phiHalfWidth );
 
   msg() << MSG::INFO << " UseSuperRoi  = " << m_useSuperRoi  << endmsg;
 
@@ -81,8 +79,7 @@ TrigEFBjetSequenceAllTE::~TrigEFBjetSequenceAllTE(){}
 
 HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
   
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Running TrigEFBjetSequenceAllTE::hltExecute" << endmsg;
+  ATH_MSG_DEBUG( "Running TrigEFBjetSequenceAllTE::hltExecute" );
   
   beforeExecMonitors().ignore();
   
@@ -100,9 +97,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
     return HLT::MISSING_FEATURE; 
   }
   
-  if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() << endmsg;
-  }
+  ATH_MSG_DEBUG( " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() );
   
   const xAOD::JetContainer* jets_EF = 0;
   HLT::ErrorCode statusJets = getFeature(inputTE.front(), jets_EF); // or ""
@@ -121,8 +116,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
     return HLT::MISSING_FEATURE;
   }
   
-  if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endmsg; 
+  ATH_MSG_DEBUG( "Found " << jets->size() << " jets, creating corresponding RoIs" );
   
   HLT::TriggerElement* outputTE = 0;
   std::string key = "";
@@ -130,8 +124,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
   // This is a pretty horrible way to do things but will all change later anyway, so probably doesn't matter too much...
   if ( m_useSuperRoi ) {
     
-    if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Using super ROI" << endmsg;
+    ATH_MSG_DEBUG( "Using super ROI" );
     
     TrigRoiDescriptor* superRoi = new TrigRoiDescriptor();
     superRoi->setComposite(true);
@@ -148,13 +141,11 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       float jet_Et = (*jet)->p4().Et()*0.001;
       
       if (jet_Et < 15) {
-	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " below the 15 GeV threshold; Et " << jet_Et << "; skipping this jet." << endmsg;
+	ATH_MSG_DEBUG( "Jet "<< i << " below the 15 GeV threshold; Et " << jet_Et << "; skipping this jet." );
 	continue;
       }
       
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << endmsg;
+      ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() );
 
       std::cout << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << std::endl;
       
@@ -168,12 +159,12 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       TrigRoiDescriptor* newRoiDescriptor =  new TrigRoiDescriptor((*jet)->eta(), etaMin, etaMax, 
 								   (*jet)->phi(), phiMin, phiMax );
       
-      msg() << MSG::DEBUG << "Adding ROI descriptor to superROI - ta da!!" << endmsg;
+      ATH_MSG_DEBUG( "Adding ROI descriptor to superROI - ta da!!" );
       superRoi->push_back( newRoiDescriptor );
 
     }
     
-    msg() << MSG::DEBUG << "Attaching feature" << endmsg;
+    ATH_MSG_DEBUG( "Attaching feature" );
     HLT::ErrorCode hltStatus = attachFeature(outputTE, superRoi, m_jetOutputKey);
     if (hltStatus != HLT::OK) {
       msg() << MSG::ERROR << "Failed to attach SuperRoi as feature" << endmsg;
@@ -192,8 +183,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
   
   else {
     
-    if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Using normal ROI" << endmsg;
+    ATH_MSG_DEBUG( "Using normal ROI" );
 
     unsigned int i = 0;
     for (xAOD::JetContainer::const_iterator jet = jets->begin(); jet != jets->end(); jet++){
@@ -202,13 +192,11 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       float jet_Et = (*jet)->p4().Et()*0.001;
       
       if (jet_Et < 15) {
-	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " below the 15 GeV threshold; Et " << jet_Et << "; skipping this jet." << endmsg;
+	ATH_MSG_DEBUG( "Jet "<< i << " below the 15 GeV threshold; Et " << jet_Et << "; skipping this jet." );
 	continue;
       }
       
-      if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << endmsg;
+      ATH_MSG_DEBUG( "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() );
       
       // Create an output TE seeded by an empty vector
       HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
