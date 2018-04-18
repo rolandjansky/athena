@@ -16,3 +16,5 @@ DECLARE_COMPONENT( SCT_RodDecoder )
 #include "../SCT_RodEncoder.h"
 DECLARE_COMPONENT( SCT_RodEncoder )
 
+#include "../SCTEventFlagWriter.h"
+DECLARE_COMPONENT( SCTEventFlagWriter )

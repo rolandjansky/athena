@@ -6,7 +6,7 @@
 #include "SCT_RodEncoder.h" 
 
 ///SCT
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 
 ///InDet
 #include "InDetIdentifier/SCT_ID.h"
@@ -46,7 +46,6 @@ SCT_RodEncoder::SCT_RodEncoder
 (const std::string& type, const std::string& name,const IInterface* parent) : 
   AthAlgTool(type, name, parent),
   m_cabling{"SCT_CablingSvc", name},
-  m_bsErrs{"SCT_ByteStreamErrorsSvc", name},
   m_sct_id{nullptr},
   m_condensed{false},
   m_swapModuleId{},

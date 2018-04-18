@@ -242,6 +242,16 @@ if DetFlags.haveRIO.SCT_on():
     InDetSCT_ConfigurationConditionsSvc = sct_ConfigurationConditionsSvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ConfigurationConditionsSvc
+    # The same for tool
+    from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
+    sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
+    sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
+    sct_ConfigurationConditionsToolSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
+    sct_ConfigurationConditionsToolSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
+    sct_ConfigurationConditionsToolSetup.setup()
+    InDetSCT_ConfigurationConditionsTool = sct_ConfigurationConditionsToolSetup.getTool()
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetSCT_ConfigurationConditionsTool
 
     # Load calibration conditions service
     from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import SCT_ReadCalibDataSvcSetup
@@ -286,6 +296,14 @@ if DetFlags.haveRIO.SCT_on():
     include( 'InDetRecExample/InDetRecCabling.py' )
     if (InDetFlags.doPrintConfigurables()):
         print sct_ByteStreamErrorsSvcSetup.getSvc()
+    # The same for tool
+    from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
+    sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
+    sct_ByteStreamErrorsToolSetup.setConfigTool(InDetSCT_ConfigurationConditionsTool)
+    sct_ByteStreamErrorsToolSetup.setup()
+    include( 'InDetRecExample/InDetRecCabling.py' )
+    if (InDetFlags.doPrintConfigurables()):
+        print sct_ByteStreamErrorsToolSetup.getTool()
     
     if InDetFlags.useSctDCS():
         from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup

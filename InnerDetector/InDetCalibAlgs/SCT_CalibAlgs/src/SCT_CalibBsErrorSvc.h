@@ -21,7 +21,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"  //template parameter
+#include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 
 
 //local includes
@@ -59,7 +59,7 @@ public:
 private:
   ServiceHandle<StoreGateSvc> m_detStore;
   ServiceHandle<StoreGateSvc> m_evtStore;
-  ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bytestreamErrorsSvc;
+  ToolHandle<ISCT_ByteStreamErrorsTool> m_bytestreamErrorsTool{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   const SCT_ID* m_pSCTHelper;
 
 

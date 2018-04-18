@@ -29,7 +29,7 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/InDetBeamSpotService
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsServices
-   InnerDetector/InDetConditions/SCT_ConditionsServices
+   InnerDetector/InDetConditions/SCT_ConditionsTools
    InnerDetector/InDetConditions/TRT_ConditionsData
    InnerDetector/InDetConditions/TRT_ConditionsServices
    InnerDetector/InDetDetDescr/InDetIdentifier

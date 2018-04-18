@@ -15,8 +15,6 @@
 #include "ByteStreamData/RawEvent.h"
 //Inner detector
 #include "SCT_Cabling/ISCT_CablingSvc.h"
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
-#include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
@@ -33,8 +31,6 @@ SCT_RodDecoder::SCT_RodDecoder
   m_sct_id{nullptr},
   m_indet_mgr{nullptr},
   m_cabling{"SCT_CablingSvc", name},
-  m_byteStreamErrSvc{"SCT_ByteStreamErrorsSvc", name},
-  m_configSvc{"InDetSCT_ConfigurationConditionsSvc", name},
   m_condensedMode{false},
   m_superCondensedMode{false},
   m_singleCondHitNumber{0},
@@ -69,8 +65,6 @@ SCT_RodDecoder::SCT_RodDecoder
   m_incidentSvc{"IncidentSvc", name}
 {
   declareProperty("CablingSvc", m_cabling);
-  declareProperty("ErrorsSvc", m_byteStreamErrSvc);
-  declareProperty("ConfigSvc", m_configSvc);
   declareProperty("TriggerMode", m_triggerMode=true);
   declareInterface<ISCT_RodDecoder>(this);
 }
@@ -93,8 +87,7 @@ StatusCode SCT_RodDecoder::initialize() {
   ATH_CHECK(detStore()->retrieve(m_sct_id,"SCT_ID"));
   m_cntx_sct = m_sct_id->wafer_context();
 
-  ATH_CHECK(m_byteStreamErrSvc.retrieve());
-  ATH_CHECK(m_configSvc.retrieve());
+  ATH_CHECK(m_configTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -982,7 +975,7 @@ SCT_RodDecoder::setFirstTempMaskedChip(const IdentifierHash& hashId, const unsig
 
   int type{0};
   // Check if Rx redundancy is used or not in this module
-  std::pair<bool, bool> badLinks{m_configSvc->badLinks(moduleId)};
+  std::pair<bool, bool> badLinks{m_configTool->badLinks(moduleId)};
   if (badLinks.first xor badLinks.second) {
     // Rx redundancy is used in this module.
     if (badLinks.first and not badLinks.second) {

@@ -31,7 +31,7 @@
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 
-class ISCT_ByteStreamErrorsSvc;
+class ISCT_ByteStreamErrorsTool;
 class SCT_ID;
 
 class SCT_RDORawData;
@@ -131,7 +131,7 @@ class SCT_RodEncoder : virtual public ISCT_RodEncoder, virtual public AthAlgTool
   void addSpecificErrors(const uint32_t robid, const std::set<IdentifierHash>* errors, 
                          ErrorWords errType, std::vector<uint16_t>& v16data);
   ServiceHandle<ISCT_CablingSvc> m_cabling;
-  ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrs;
+  ToolHandle<ISCT_ByteStreamErrorsTool> m_bsErrs{this, "SCT_ByteStreamErrorsTool", "SCT_ByteStreamErrorsTool", "Tool to retrieve SCT ByteStream Errors"};
   const SCT_ID* m_sct_id;
   bool m_condensed;
   std::set<Identifier> m_swapModuleId;

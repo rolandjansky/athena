@@ -7,8 +7,6 @@
 
 #include "InDetIdentifier/PixelID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
-#include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
@@ -26,8 +24,6 @@ InDetGlobalErrorMonTool::InDetGlobalErrorMonTool( const std::string & type,
   m_pixManager( 0 ),
   m_sctManager( 0 ),
   m_pixCond("PixelConditionsSummarySvc", name),
-  m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name),
-  m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
   m_ErrorSvc("PixelByteStreamErrorsSvc",name),
   m_errorGeoPixel(),
   m_disabledGeoPixel(),
@@ -66,6 +62,9 @@ StatusCode InDetGlobalErrorMonTool::initialize() {
     msg(MSG::ERROR) << "Could not retrieve Pixel conditions service!" << endmsg;
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK(m_ConfigurationTool.retrieve());
+  ATH_CHECK(m_byteStreamErrTool.retrieve());
   
   return ManagedMonitorToolBase::initialize();
 }
@@ -259,7 +258,7 @@ bool InDetGlobalErrorMonTool::SyncErrorSCT()
   
   for ( unsigned int i = 0; i < SCT_ByteStreamErrors::NUM_ERROR_TYPES; i++ )
     {
-      const std::set<IdentifierHash> * sctErrors = m_byteStreamErrSvc->getErrorSet( i );
+      const std::set<IdentifierHash> * sctErrors = m_byteStreamErrTool->getErrorSet( i );
       std::set<IdentifierHash>::const_iterator fit = sctErrors->begin();
       std::set<IdentifierHash>::const_iterator fitEnd = sctErrors->end();
       
@@ -341,7 +340,7 @@ bool InDetGlobalErrorMonTool::SyncDisabledSCT()
   double deltaZ = 0;
   
   m_disabledGeoSCT.clear();
-  const std::set<Identifier>* badModules = m_ConfigurationSvc->badModules();
+  const std::set<Identifier>* badModules = m_ConfigurationTool->badModules();
   std::set<Identifier>::const_iterator fit = badModules->begin();
   std::set<Identifier>::const_iterator fitEnd = badModules->end();
   

@@ -18,7 +18,6 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
 //#include "InDetTrackValidation/SCT_ClusterStruct.h"
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 #include "InDetRawData/SCT3_RawData.h"
@@ -51,7 +50,6 @@ InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(cons
         m_dataObjectName(std::string("SCT_RDOs")),
 	m_spacePointContainerName(std::string("SCT_SpacePoints")),
 	m_inputTrackCollection(std::string("CombinedInDetTracks")),
-        m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
         m_cabling("SCT_CablingSvc",name),
         m_ntupleFileName("/NTUPLES/FILE1"), 
         m_ntupleDirName("FitterValidation"),
@@ -119,7 +117,6 @@ InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(cons
     declareProperty("NtupleFileName", m_ntupleFileName);
     declareProperty("NtupleDirectoryName", m_ntupleDirName);
     declareProperty("NtupleTreeName", m_ntupleTreeName);
-    declareProperty("ByteStreamErrService", m_byteStreamErrSvc);
     declareProperty("FillCluster",        m_fillCluster);
     declareProperty("FillSpacePoint",        m_fillSpacePoint);
     declareProperty("FillRDO",        m_fillRDO);
@@ -137,11 +134,11 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
     }
 
     if (m_fillBSErrs) {
-      if (m_byteStreamErrSvc.retrieve().isFailure()) {
-        ATH_MSG_ERROR("Failed to retrieve service " << m_byteStreamErrSvc);
+      if (m_byteStreamErrTool.retrieve().isFailure()) {
+        ATH_MSG_ERROR("Failed to retrieve tool " << m_byteStreamErrTool);
         return StatusCode::FAILURE;
       } else {
-        ATH_MSG_INFO("Retrieved service " << m_byteStreamErrSvc);
+        ATH_MSG_INFO("Retrieved service " << m_byteStreamErrTool);
       }
       if (m_cabling.retrieve().isFailure()) {
         ATH_MSG_ERROR("Failed to retrieve service " << m_cabling);
@@ -149,6 +146,8 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::initialize() {
       } else {
         ATH_MSG_INFO("Retrieved service " << m_cabling);
       }
+    } else {
+      m_byteStreamErrTool.disable();
     }
 
 
@@ -632,7 +631,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
        * At the moment there are 15 different types of BS error.
        */
       for (int type=0; type < SCT_ByteStreamErrors::NUM_ERROR_TYPES; ++type) { 
-	const std::set<IdentifierHash>* errorSet = m_byteStreamErrSvc->getErrorSet(type);
+	const std::set<IdentifierHash>* errorSet = m_byteStreamErrTool->getErrorSet(type);
 	if (errorSet != 0) {
 	  int eta=0,phi=0,bec=0,layer=0,side=0;
 	  std::set<IdentifierHash>::const_iterator it = errorSet->begin();

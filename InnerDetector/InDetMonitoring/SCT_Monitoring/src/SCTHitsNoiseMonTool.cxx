@@ -44,6 +44,8 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h" // ?
 
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
+
 #include "PathResolver/PathResolver.h" // ?
 #include "InDetPrepRawData/SCT_ClusterContainer.h" // ?
 #include "TrkSpacePoint/SpacePoint.h"
@@ -297,7 +299,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
   //
   m_dataObjectName(std::string("SCT_RDOs")),
   m_pSCTHelper(nullptr),
-  m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name),
   m_eventInfoKey(std::string("EventInfo")),
   m_clusContainerKey("SCT_Clusters") {
     /** sroe 3 Sept 2015:
@@ -325,7 +326,6 @@ SCTHitsNoiseMonTool::SCTHitsNoiseMonTool(const std::string &type,
     declareProperty("doTrackHits", m_doTrackHits = true);
     declareProperty("MaxTracks", m_maxTracks = 250);
     declareProperty("doLogXNoise", m_doLogXNoise = true);
-    declareProperty("conditionsService", m_ConfigurationSvc);
 
     clear1D(m_tbinfrac);
     clear1D(m_tbinfracECp);
@@ -371,7 +371,7 @@ SCTHitsNoiseMonTool::bookHistograms() {
   }
   // Get the helper:
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
-  ATH_CHECK(m_ConfigurationSvc.retrieve());
+  ATH_CHECK(m_ConfigurationTool.retrieve());
   m_initialize = true;
 
   const bool doSystem[] = {
@@ -462,7 +462,7 @@ SCTHitsNoiseMonTool::bookHistogramsRecurrent() {
   m_numberOfEvents = 0;
   // Get the helper:
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
-  ATH_CHECK(m_ConfigurationSvc.retrieve());
+  ATH_CHECK(m_ConfigurationTool.retrieve());
   m_initialize = true;
 
   const bool doSystem[] = {
@@ -596,7 +596,7 @@ SCTHitsNoiseMonTool::fillHistograms() {
       Identifier planeId(*planeIterator);
       const int bec(m_pSCTHelper->barrel_ec(planeId));
       // Don't initialize a value for disabled  modules
-      if (!m_ConfigurationSvc->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
+      if (!m_ConfigurationTool->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
         continue;
       }
       if (m_events_lb > 0) {
@@ -2182,7 +2182,7 @@ SCTHitsNoiseMonTool::checkNoiseMaps(bool final) {
 	  Identifier planeId(*planeIterator);
 	  const int bec(m_pSCTHelper->barrel_ec(planeId));
 	  // Don't initialize a value for disabled  modules
-	  if (!m_ConfigurationSvc->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
+	  if (!m_ConfigurationTool->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
 	    continue;
 	  }
 	  if (m_events_lb > 0) {
@@ -2422,7 +2422,7 @@ SCTHitsNoiseMonTool::initializeNoiseMaps() {
          m_pSCTHelper->wafer_begin(); planeIterator != m_pSCTHelper->wafer_end();
        ++planeIterator) {
     // Don't initialize a value for disabled  modules
-    if (!m_ConfigurationSvc->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
+    if (!m_ConfigurationTool->isGood(*planeIterator, InDetConditions::SCT_SIDE)) {
       continue;
     }
     m_occSumUnbiased[*planeIterator] = 0.;

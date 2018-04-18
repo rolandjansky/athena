@@ -31,8 +31,6 @@
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "StoreGate/ReadHandle.h"
 
-#include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
-
 // InDet
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -55,7 +53,7 @@
 // SCT
 #include "SCT_Monitoring/SCTHitEffMonTool.h"
 #include "SCT_NameFormatter.h"
-
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 // macros (ugh)
 #define DEBUG(x) ATH_MSG_DEBUG(x)
 #define INFO(x) ATH_MSG_INFO(x)
@@ -168,7 +166,6 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator", this),
   m_rotcreator("InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool", this),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool", this),
-  m_configConditions("InDetSCT_ConfigurationConditionsSvc", name),
   m_Eff_Total(nullptr),
   m_Eff_TotalBCID(nullptr),
   m_Eff_hashCodeHisto(nullptr),
@@ -232,7 +229,6 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   declareProperty("HoleSearch", m_holeSearchTool);
   declareProperty("ResPullCalc", m_residualPullCalculator);
   declareProperty("useIDGlobal", m_useIDGlobal);
-  declareProperty("ConfigConditions", m_configConditions);
   declareProperty("MagFieldSvc", m_fieldServiceHandle);
   declareProperty("BunchCrossingTool", m_bunchCrossingTool);
 

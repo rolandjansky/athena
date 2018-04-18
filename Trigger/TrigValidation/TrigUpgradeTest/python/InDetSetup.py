@@ -80,7 +80,13 @@ def makeInDetAlgs():
     InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
     
     viewAlgs.append(InDetSCTRawDataProvider)
-    
+
+    # load the SCTEventFlagWriter
+    from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTEventFlagWriter
+    InDetSCTEventFlagWriter = SCTEventFlagWriter(name = "InDetSCTEventFlagWriter")
+
+    viewAlgs.append(InDetSCTEventFlagWriter)
+
     
     #TRT
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc

@@ -25,6 +25,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 #include "InDetByteStreamErrors/SCT_ByteStreamFractionContainer.h"
 
@@ -39,7 +40,6 @@
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
 class SCT_ID;
-class ISCT_ConfigurationConditionsSvc;
 namespace InDetDD {
   class SCT_DetectorManager;
 }
@@ -76,7 +76,8 @@ public:
 
 private:
 
-  ServiceHandle<ISCT_ConfigurationConditionsSvc> m_config;
+  ToolHandle<ISCT_ConfigurationConditionsTool> m_config{this, "ConfigTool",
+      "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
   const SCT_ID* m_sct_id;
   IdContext m_cntx_sct;
   const InDetDD::SCT_DetectorManager* m_pManager; //!< SCT detector manager
