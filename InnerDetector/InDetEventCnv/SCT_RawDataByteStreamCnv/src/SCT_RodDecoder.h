@@ -20,11 +20,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
+#include "SCT_ConditionsData/SCT_ByteStreamErrors.h"
 #include "Identifier/IdContext.h"
+#include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 
 class ISCT_CablingSvc;
-class ISCT_ByteStreamErrorsSvc;
-class ISCT_ConfigurationConditionsSvc;
 class SCT_ID;
 
 namespace InDetDD{
@@ -90,8 +90,8 @@ class SCT_RodDecoder : public AthAlgTool, public ISCT_RodDecoder
   IdContext m_cntx_sct;
   const InDetDD::SCT_DetectorManager *m_indet_mgr;
   ServiceHandle<ISCT_CablingSvc> m_cabling;
-  ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
-  ServiceHandle<ISCT_ConfigurationConditionsSvc> m_configSvc;
+  ToolHandle<ISCT_ConfigurationConditionsTool> m_configTool{this, "ConfigTool",
+      "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
   bool m_condensedMode ;
   bool m_superCondensedMode ;
   /** Summary of the decoding process */

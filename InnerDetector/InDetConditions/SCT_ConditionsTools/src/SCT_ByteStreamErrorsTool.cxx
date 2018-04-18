@@ -15,7 +15,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "SCT_Cabling/ISCT_CablingSvc.h"
-#include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -25,7 +24,6 @@
 /** Constructor */
 SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   base_class(type, name, parent),
-  m_config{"InDetSCT_ConfigurationConditionsSvc", name},
   m_sct_id{nullptr},
   m_pManager{nullptr},
   m_tempMaskedChips{},
@@ -35,7 +33,6 @@ SCT_ByteStreamErrorsTool::SCT_ByteStreamErrorsTool(const std::string& type, cons
 {
   declareProperty("ContainerName", m_bsErrContainerName=std::string{"SCT_ByteStreamErrs"});
   declareProperty("FracContainerName", m_bsFracContainerName=std::string{"SCT_ByteStreamFrac"});
-  declareProperty("ConfigService", m_config);
 }
 
 /** Initialize */

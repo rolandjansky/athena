@@ -58,6 +58,12 @@ if DetFlags.readRDOBS.SCT_on():
   topSequence += InDetSCTRawDataProvider
   #InDetSCTRawDataProvider.OutputLevel = VERBOSE
 
+  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTEventFlagWriter
+  InDetSCTEventFlagWriter = SCTEventFlagWriter(name = "InDetSCTEventFlagWriter")
+  if (InDetFlags.doPrintConfigurables()):
+    print InDetSCTEventFlagWriter
+  topSequence += InDetSCTEventFlagWriter
+
   #ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += [ "SCT_RDO_Container/"+InDetKeys.SCT_RDOs()]
 
 if DetFlags.readRDOBS.TRT_on():

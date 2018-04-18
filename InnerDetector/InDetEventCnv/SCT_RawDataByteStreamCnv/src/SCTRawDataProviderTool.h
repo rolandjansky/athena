@@ -13,16 +13,10 @@
 #include "GaudiKernel/IIncidentListener.h"
 #include "SCT_RawDataByteStreamCnv/ISCTRawDataProviderTool.h"
 
-// For Read Handle
-#include "StoreGate/ReadHandleKey.h"
-#include "xAODEventInfo/EventInfo.h"
-#include "EventInfo/EventInfo.h"
-
 #include <set>
 #include <string>
 
 
-class ISCT_ByteStreamErrorsSvc;
 class ISCT_RodDecoder;
 
 class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool, 
@@ -39,7 +33,7 @@ class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool,
                          const IInterface* parent ) ;
 
   //! destructor 
-  virtual ~SCTRawDataProviderTool();
+  virtual ~SCTRawDataProviderTool() = default;
 
   //! initialize
   virtual StatusCode initialize() override;
@@ -57,13 +51,9 @@ class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool,
  private: 
   
   ToolHandle<ISCT_RodDecoder> m_decoder{this, "Decoder", "SCT_RodDecoder", "Decoder"};
-  ServiceHandle<ISCT_ByteStreamErrorsSvc> m_bsErrSvc;
   
   // bookkeeping if we have decoded a ROB already
   std::set<uint32_t> m_robIdSet;
-
-  SG::ReadHandleKey<xAOD::EventInfo> m_xevtInfoKey;
-  SG::ReadHandleKey<EventInfo> m_evtInfoKey;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWDATAPROVIDERTOOL_H

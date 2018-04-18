@@ -47,7 +47,6 @@ class TrigTimer;
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
-class ISCT_ByteStreamErrorsSvc;
 
 class IInDetConditionsSvc;
 

@@ -111,13 +111,12 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
 
 
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
+      from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ByteStreamErrorsTool
       from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-      InDetTrigBSErrorSvc = SCT_ByteStreamErrorsSvc(name=SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsSvc"))
+      InDetTrigBSErrorTool = SCT_ByteStreamErrorsTool(name=SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsTool"))
 
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
       InDetTrigSCTRodDecoder = SCT_RodDecoder(name = "InDetTrigSCTRodDecoder",
-                                              ErrorsSvc = InDetTrigBSErrorSvc,
                                               TriggerMode = True)
       ToolSvc += InDetTrigSCTRodDecoder
       if (InDetTrigFlags.doPrintConfigurables()):
@@ -127,9 +126,7 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
       from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
       InDetTrigSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetTrigSCTRawDataProviderTool",
-                                                               Decoder = InDetTrigSCTRodDecoder,
-                                                               ErrorsSvc = InDetTrigBSErrorSvc
-                                                               )
+                                                               Decoder = InDetTrigSCTRodDecoder)
       ToolSvc += InDetTrigSCTRawDataProviderTool
 
 

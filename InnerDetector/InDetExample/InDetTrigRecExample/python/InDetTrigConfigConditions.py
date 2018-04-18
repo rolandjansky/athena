@@ -292,7 +292,9 @@ class SCT_ConditionsServicesSetup:
     self.summarySvc  = self.initSummarySvc(self.instanceName('InDetSCT_ConditionsSummarySvc'))     
     self.flaggedSvc  = self.initFlaggedSvc(self.instanceName('InDetSCT_FlaggedConditionSvc'))      
     self.configSvc   = self.initConfigSvc(self.instanceName('InDetSCT_ConfigurationConditionsSvc'))
+    self.configTool  = self.initConfigTool(self.instanceName('InDetSCT_ConfigurationConditionsTool'))
     self.bsErrSvc    = self.initBSErrSvc(self.instanceName('InDetSCT_ByteStreamErrorsSvc'))
+    self.bsErrTool   = self.initBSErrTool(self.instanceName('InDetSCT_ByteStreamErrorsTool'))
     self.calibSvc    = self.initCalibSvc(self.instanceName('InDetSCT_ReadCalibDataSvc'))
     if not self.onlineMode:
       self.monitorSvc  = self.initMonitorSvc(self.instanceName('InDetSCT_MonitorConditionsSvc'))
@@ -372,6 +374,34 @@ class SCT_ConditionsServicesSetup:
 
     if self._print:  print self.condDB
     return configSvc
+
+  def initConfigTool(self, instanceName):
+    "Init configuration conditions tool"
+    
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    from IOVDbSvc.CondDB import conddb
+    if conddb.dbdata == "COMP200" or InDetTrigFlags.ForceCoraCool():
+      sctdaqpath='/SCT/DAQ/Configuration'
+    else:
+      sctdaqpath='/SCT/DAQ/Config'
+
+    if InDetTrigFlags.ForceCoolVectorPayload():
+      sctdaqpath='/SCT/DAQ/Config'
+
+    from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
+    sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
+    sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/Chip")
+    sct_ConfigurationConditionsToolSetup.setModuleFolder(sctdaqpath+"/Module")
+    sct_ConfigurationConditionsToolSetup.setMurFolder(sctdaqpath+"/MUR")
+    sct_ConfigurationConditionsToolSetup.setToolName(instanceName)
+    sct_ConfigurationConditionsToolSetup.setup()
+    configTool = sct_ConfigurationConditionsToolSetup.getTool()
+    if self._print:  print configTool
+    #if not (instanceName in self.summaryTool.ConditionsTools):
+    #  self.summaryTool.ConditionsTools+=[instanceName]
+
+    if self._print:  print self.condDB
+    return configTool
 
   def initMonitorSvc(self, instanceName):
     "Init monitoring conditions service"
@@ -468,6 +498,19 @@ class SCT_ConditionsServicesSetup:
     if not (instanceName in self.summarySvc.ConditionsServices):
       self.summarySvc.ConditionsServices+=[instanceName]
     return  bsErrSvc
+
+  def initBSErrTool(self, instanceName):
+    "Init ByteStream errors tool"
+    from SCT_ConditionsTools.SCT_ByteStreamErrorsToolSetup import SCT_ByteStreamErrorsToolSetup
+    sct_ByteStreamErrorsToolSetup = SCT_ByteStreamErrorsToolSetup()
+    sct_ByteStreamErrorsToolSetup.setToolName(instanceName)
+    sct_ByteStreamErrorsToolSetup.setConfigTool(self.configTool)
+    sct_ByteStreamErrorsToolSetup.setup()
+    bsErrTool =sct_ByteStreamErrorsToolSetup.getTool()
+    if self._print:  print bsErrTool
+    #if not (instanceName in self.summaryTool.ConditionsTools):
+    #  self.summaryTool.ConditionsTools+=[instanceName]
+    return  bsErrTool
 
   def initCalibSvc(self, instanceName):
     "Init Calibration Data service"

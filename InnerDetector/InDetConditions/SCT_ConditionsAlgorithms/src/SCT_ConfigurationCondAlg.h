@@ -23,7 +23,6 @@
 #include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
 
 // Forward declarations
-class ISCT_ConfigurationConditionsSvc;
 class SCT_ID;
 namespace InDetDD {class SCT_DetectorManager; }
 
