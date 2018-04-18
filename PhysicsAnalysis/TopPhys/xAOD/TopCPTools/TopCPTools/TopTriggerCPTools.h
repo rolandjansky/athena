@@ -20,6 +20,7 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "TrigTauMatching/ITrigTauMatching.h"
+#include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 
 namespace top {
 
@@ -41,7 +42,10 @@ class TriggerCPTools final : public asg::AsgTool {
   ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
   ToolHandle<Trig::IMatchingTool> m_trigMatchTool;
   ToolHandle<Trig::ITrigTauMatchingTool> m_trigMatchTauTool;
-
+  ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffTool;
+  ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffToolLoose;
+  StatusCode initialiseGlobalTriggerEff();
+  std::string mapWorkingPoints(const std::string& type);
 };
 }  // namespace top
 
