@@ -18,7 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/StoreGate
                           InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkVolumes )
 
@@ -32,12 +33,12 @@ atlas_add_library( ISF_FatrasDetDescrToolsLib
                    PUBLIC_HEADERS ISF_FatrasDetDescrTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel ISF_FatrasDetDescrInterfaces ISF_FatrasDetDescrModel TrkDetDescrInterfaces TrkDetDescrUtils TrkSurfaces StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES InDetIdentifier InDetReadoutGeometry TrkGeometry TrkVolumes )
+                   PRIVATE_LINK_LIBRARIES InDetIdentifier SCT_ReadoutGeometry PixelReadoutGeometry TrkGeometry TrkVolumes )
 
 atlas_add_component( ISF_FatrasDetDescrTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel ISF_FatrasDetDescrInterfaces ISF_FatrasDetDescrModel TrkDetDescrInterfaces TrkDetDescrUtils TrkSurfaces StoreGateLib SGtests InDetIdentifier InDetReadoutGeometry TrkGeometry TrkVolumes ISF_FatrasDetDescrToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel ISF_FatrasDetDescrInterfaces ISF_FatrasDetDescrModel TrkDetDescrInterfaces TrkDetDescrUtils TrkSurfaces StoreGateLib SGtests InDetIdentifier SCT_ReadoutGeometry PixelReadoutGeometry TrkGeometry TrkVolumes ISF_FatrasDetDescrToolsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

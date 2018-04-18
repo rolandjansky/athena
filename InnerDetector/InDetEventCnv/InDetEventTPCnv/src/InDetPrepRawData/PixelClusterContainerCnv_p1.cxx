@@ -7,7 +7,7 @@
 #include "InDetEventTPCnv/InDetPrepRawData/PixelCluster_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterCnv_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterContainerCnv_p1.h"
 

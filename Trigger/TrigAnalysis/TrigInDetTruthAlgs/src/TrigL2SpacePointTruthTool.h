@@ -13,8 +13,8 @@
 
 //#include "InDetIdentifier/SCT_ID.h"
 //#include "InDetIdentifier/PixelID.h" 
-//#include "InDetReadoutGeometry/PixelDetectorManager.h"
-//#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+//#include "PixelReadoutGeometry/PixelDetectorManager.h"
+//#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 // detector geometry and helper classes
 #include "InDetSimData/InDetSimDataCollection.h"

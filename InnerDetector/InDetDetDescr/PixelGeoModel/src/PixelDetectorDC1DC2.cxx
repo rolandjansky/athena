@@ -28,7 +28,7 @@ using namespace PixelGeoDC2;
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
 
@@ -233,7 +233,7 @@ GeoVPhysVol* GeoPixelChip::Build() {
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 GeoPixelDisk::GeoPixelDisk() {
 
@@ -485,7 +485,7 @@ GeoVPhysVol* GeoPixelECCable::Build( ) {
 #include "GeoModelKernel/GeoMaterial.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
 
 
@@ -738,7 +738,7 @@ GeoVPhysVol* GeoPixelHybrid::Build() {
 //#include "PixelGeoModel/GeoPixelLadder.h"
 //#include "PixelGeoModel/GeoPixelModule.h"
 //#include "PixelGeoModel/GeoPixelSiCrystal.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "GeoModelKernel/GeoBox.h"
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoNameTag.h"
@@ -1285,11 +1285,11 @@ GeoVPhysVol* GeoPixelServices::Build( ) {
 #include "GeoModelKernel/GeoMaterial.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/PixelDiodeMatrix.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
 
@@ -1721,7 +1721,7 @@ void GeoVPixelFactory::SetDDMgr(PixelDetectorManager* mgr) {
 //
 // Get the pixelDD Manager from SG.
 //
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/DataHandle.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"

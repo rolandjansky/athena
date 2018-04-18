@@ -17,6 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventPrimitives
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecAlgs/SiSpacePointFormation
                           InnerDetector/InDetRecTools/SiSpacePointTool
@@ -31,7 +33,7 @@ include_directories(src)
 atlas_add_component( SiTrigSpacePointFormation
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES Identifier GaudiKernel InDetPrepRawData TrigInterfacesLib AthenaBaseComps IRegionSelector EventPrimitives InDetIdentifier InDetReadoutGeometry SiSpacePointFormationLib SiSpacePointToolLib TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib )
+                     LINK_LIBRARIES Identifier GaudiKernel InDetPrepRawData TrigInterfacesLib AthenaBaseComps IRegionSelector EventPrimitives InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SiSpacePointFormationLib SiSpacePointToolLib TrkSpacePoint TrigSteeringEvent TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( SiTrigSpacePointFormation )

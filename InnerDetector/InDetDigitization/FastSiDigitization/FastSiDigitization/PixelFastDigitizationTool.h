@@ -27,7 +27,7 @@
 #include "xAODEventInfo/EventAuxInfo.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "FastSiDigitization/IPixelFastDigitizationTool.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include <string>
 
 #include "HitManagement/TimedHitCollection.h"

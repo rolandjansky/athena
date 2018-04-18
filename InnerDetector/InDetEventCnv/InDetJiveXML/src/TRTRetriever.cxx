@@ -9,8 +9,8 @@
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 

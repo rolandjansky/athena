@@ -4,10 +4,10 @@
 
 #include "AthContainers/DataVector.h"
 
-#include "InDetReadoutGeometry/TRT_BarrelElement.h"
-#include "InDetReadoutGeometry/TRT_EndcapElement.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_Numerology.h"
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "TrkAlignInterfaces/IAlignModuleTool.h"

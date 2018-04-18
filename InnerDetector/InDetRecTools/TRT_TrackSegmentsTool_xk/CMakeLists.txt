@@ -9,7 +9,7 @@ atlas_subdir( TRT_TrackSegmentsTool_xk )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
@@ -32,7 +32,7 @@ atlas_add_component( TRT_TrackSegmentsTool_xk
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces TrkGeometry TrkEventPrimitives TrkParameters TrkToolInterfaces EventInfo TrkSurfaces TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkExInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces TrkGeometry TrkEventPrimitives TrkParameters TrkToolInterfaces EventInfo TrkSurfaces TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TRT_TrackSegmentsTool_xk )

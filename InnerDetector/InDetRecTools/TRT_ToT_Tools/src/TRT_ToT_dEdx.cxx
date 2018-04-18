@@ -16,7 +16,7 @@
 
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/IChronoStatSvc.h"

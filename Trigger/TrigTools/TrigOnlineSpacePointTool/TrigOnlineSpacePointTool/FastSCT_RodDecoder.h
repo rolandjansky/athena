@@ -29,7 +29,7 @@
 #include "Identifier/IdContext.h" 
 #include "ByteStreamData/RawEvent.h" 
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"  
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"  
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include <deque>
 

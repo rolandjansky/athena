@@ -10,7 +10,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 // readout includes:
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "PixelInterfaces/IGeoPixelEnvelopeTool.h"
 

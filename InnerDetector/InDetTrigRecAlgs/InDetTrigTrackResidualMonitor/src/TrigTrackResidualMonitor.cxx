@@ -25,7 +25,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictDetDescr/IdDictManager.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "TrkToolInterfaces/IUpdator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"

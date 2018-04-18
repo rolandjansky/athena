@@ -12,8 +12,8 @@
 #include <iostream>
 #include <cmath>
 #include "GaudiKernel/SystemOfUnits.h"
-#include "InDetReadoutGeometry/TRT_BarrelElement.h"
-#include "InDetReadoutGeometry/TRT_EndcapElement.h"
+#include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
+#include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "TrkSurfaces/Surface.h"
 #include "TRT_Rec/TRT_Prediction.h"
 

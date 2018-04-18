@@ -41,7 +41,7 @@
 #include "InDetSimData/SCT_SimHelper.h"
 #include "InDetSimData/PixelSimHelper.h"
 #include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"

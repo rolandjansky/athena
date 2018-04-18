@@ -12,7 +12,7 @@
 
 #undef NDEBUG
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p2.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "InDetIdentifier/SCT_ID.h"

@@ -23,7 +23,7 @@ class ITRT_CalDbSvc;
 class TRT_ID;
 class IIncidentSvc;
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 /**

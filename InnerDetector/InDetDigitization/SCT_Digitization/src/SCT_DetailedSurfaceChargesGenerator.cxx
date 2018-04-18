@@ -6,8 +6,8 @@
 
 // DD
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
-#include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 
 // random number service includes
 #include "AthenaKernel/IAtRndmGenSvc.h"

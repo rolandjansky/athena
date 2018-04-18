@@ -28,7 +28,7 @@
 
 #include "SCT_Monitoring/SCTMotherTrigMonTool.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "GaudiKernel/ServiceHandle.h"
 //#include "GaudiKernel/ToolHandle.h"
 

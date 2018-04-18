@@ -15,7 +15,7 @@
 
 #include "GeoModelKernel/GeoPhysVol.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 GeoVPhysVol* DBM_ModuleCage::Build() {
 

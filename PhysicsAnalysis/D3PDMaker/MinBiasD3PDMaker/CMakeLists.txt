@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           Control/StoreGate
                           GaudiKernel
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
@@ -26,11 +27,11 @@ atlas_add_library( MinBiasD3PDMakerLib
                    src/*.cxx
                    NO_PUBLIC_HEADERS
                    LINK_LIBRARIES TrigCaloEvent TrigInDetEvent StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaKernel SGTools GaudiKernel InDetReadoutGeometry InDetPrepRawData D3PDMakerUtils TrkTrack TrkToolInterfaces )
+                   PRIVATE_LINK_LIBRARIES AthenaKernel SGTools GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData D3PDMakerUtils TrkTrack TrkToolInterfaces )
 
 atlas_add_component( MinBiasD3PDMaker
                      src/components/*.cxx
-                     LINK_LIBRARIES TrigCaloEvent TrigInDetEvent AthenaKernel SGTools StoreGateLib SGtests GaudiKernel InDetReadoutGeometry InDetPrepRawData D3PDMakerUtils TrkTrack TrkToolInterfaces MinBiasD3PDMakerLib )
+                     LINK_LIBRARIES TrigCaloEvent TrigInDetEvent AthenaKernel SGTools StoreGateLib SGtests GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData D3PDMakerUtils TrkTrack TrkToolInterfaces MinBiasD3PDMakerLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

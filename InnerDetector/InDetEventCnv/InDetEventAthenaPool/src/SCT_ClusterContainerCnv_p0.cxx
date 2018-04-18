@@ -3,7 +3,7 @@
 */
 
 #include "SCT_ClusterContainerCnv_p0.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "MsgUtil.h"
 

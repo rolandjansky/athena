@@ -18,6 +18,8 @@ atlas_depends_on_subdirs(
    InnerDetector/InDetConditions/InDetBeamSpotService
    InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetDetDescr/InDetIdentifier
+   InnerDetector/InDetDetDescr/PixelReadoutGeometry
+   InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
    InnerDetector/InDetRawEvent/InDetRawData
    InnerDetector/InDetRecEvent/InDetPrepRawData
@@ -47,7 +49,7 @@ atlas_add_library( SiClusterizationToolLib
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives
    Identifier EventPrimitives GaudiKernel InDetSimData InDetIdentifier
-   InDetReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces
+   InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetRawData InDetPrepRawData InDetRecToolInterfaces
    TrkParameters TrkNeuralNetworkUtilsLib
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaPoolUtilities AtlasDetDescr
    TrkSurfaces TrkEventPrimitives VxVertex PixelGeoModelLib )

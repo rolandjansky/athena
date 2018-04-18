@@ -43,9 +43,9 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/shared_ptr.hpp>

@@ -24,7 +24,7 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "InDetRawData/PixelRDORawData.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 

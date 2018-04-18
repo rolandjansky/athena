@@ -34,8 +34,8 @@
 #include "InDetTrigToolInterfaces/ITrigSCT_SpacePointTool.h"
 #include "SiSpacePointTool/SiSpacePointMakerTool.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"  
-#include "InDetReadoutGeometry/PixelDetectorManager.h"  
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"  
+#include "PixelReadoutGeometry/PixelDetectorManager.h"  
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
