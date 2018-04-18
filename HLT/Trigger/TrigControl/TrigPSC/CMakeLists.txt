@@ -9,7 +9,7 @@ atlas_subdir( TrigPSC )
 atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           HLT/Trigger/TrigControl/TrigKernel
                           Tools/PathResolver
                           Trigger/TrigConfiguration/TrigConfBase )

@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Event/EventInfo
                           Event/xAOD/xAODEventInfo
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelUtilities
                           InnerDetector/InDetConditions/SCT_ConditionsServices

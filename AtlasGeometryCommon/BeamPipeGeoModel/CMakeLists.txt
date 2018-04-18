@@ -7,7 +7,7 @@ atlas_subdir( BeamPipeGeoModel )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelKernel
                           DetectorDescription/GeoModel/GeoModelUtilities
                           PRIVATE

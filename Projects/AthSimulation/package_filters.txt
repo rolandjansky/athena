@@ -79,7 +79,6 @@
 + Database/AthenaPOOL/EventSelectorAthenaPool
 + Database/AthenaPOOL/OutputStreamAthenaPool
 + Database/AthenaPOOL/PoolSvc
-+ Database/AthenaPOOL/RDBAccessSvc
 + Database/AthenaPOOL/RootConversions
 + Database/AthenaPOOL/RootFileTools
 + Database/AthenaPOOL/StlAthenaPoolCnv

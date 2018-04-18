@@ -18,7 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonSimEvent
                           Simulation/HitManagement
                           PRIVATE
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           Event/xAOD/xAODEventInfo
                           Generators/GeneratorObjects

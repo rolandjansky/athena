@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
                           Control/SGTools
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces )
 
 # External dependencies:

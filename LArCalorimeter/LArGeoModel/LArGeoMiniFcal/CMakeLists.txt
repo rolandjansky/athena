@@ -8,7 +8,7 @@ atlas_subdir( LArGeoMiniFcal )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Control/StoreGate
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/GeoModel/GeoModelKernel
                           GaudiKernel )

@@ -17,7 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/SGTools
                           Control/StoreGate
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/AthenaPOOL/RDBAccessSvc
+                          Database/RDBAccessSvc
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           DetectorDescription/Identifier
                           MuonSpectrometer/MuonAlignment/MuonAlignmentData
