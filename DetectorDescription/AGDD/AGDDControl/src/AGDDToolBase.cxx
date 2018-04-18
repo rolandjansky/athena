@@ -23,6 +23,8 @@ AGDDToolBase::AGDDToolBase(const std::string& type, const std::string& name,
 	declareProperty("DefaultDetector",	m_defaultDetector);
 	declareProperty("NavigateDetector",	m_navigateDetector);
 	declareProperty("DisableSections",	m_disableSections);
+	declareProperty("WriteAGDDFile",	m_writeDBfile = false);
+	declareProperty("OutAGDDXMLName",	m_outFileName = "mytest.xml");
 	
 	ATH_MSG_DEBUG(" trying to get the controller");
   	m_controller =AGDDController::GetController();
