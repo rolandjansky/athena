@@ -24,6 +24,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
 #include "GaudiKernel/EventContext.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "AthContainers/DataVector.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "StoreGate/WriteHandle.h"
@@ -699,7 +700,10 @@ TEST_F( ViewCollectionMerge_test, mergeHelperTest ) {
   // Merge data into the collection with a helper
   SG::ReadHandleKey< DataVector< DummyData > > inputDataHandleKey( DATA_NAME );
   inputDataHandleKey.initialize();
-  ASSERT_TRUE( ViewHelper::MergeViewCollection( *inputViewsHandle, inputDataHandleKey, dummyContext, *mergedData ).isSuccess() );
+  
+  MsgStream log(Athena::getMessageSvc(), "ViewCollectionMerge_test");
+  ViewHelper::ViewMerger merger( storeGate,  log);
+  ASSERT_TRUE( merger.mergeViewCollection( *inputViewsHandle, inputDataHandleKey, dummyContext, *mergedData ).isSuccess() );
 
   // Verify merging
   ASSERT_EQ( mergedData->size(), inputViewsHandle->size() );

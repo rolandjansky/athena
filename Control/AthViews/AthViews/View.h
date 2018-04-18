@@ -118,5 +118,8 @@ private:
 #include "SGTools/CLASS_DEF.h"
 CLASS_DEF( std::vector< SG::View* >, 1111111111 , 1 )
 
+#include "AthContainers/DataVector.h"
+typedef DataVector<SG::View> ViewContainer;
+CLASS_DEF( ViewContainer , 1160627009 , 1 )
 
 #endif

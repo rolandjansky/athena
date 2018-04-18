@@ -67,10 +67,11 @@ StatusCode ViewMergeAlg::execute()
   //Merge results
   std::vector< int > outputVector;
   SG::ReadHandle< std::vector< SG::View* > > inputViews( m_r_views, ctx );
-  CHECK( ViewHelper::MergeViewCollection( *inputViews,  //Vector of views (inside ReadHandle)
-				m_r_ints,               //ReadHandleKey to access the views
-                                ctx,                    //The context of this algorithm
-				outputVector ) );       //Container to merge results into
+  ViewHelper::ViewMerger merger( evtStore().get(), msg() );
+  CHECK( merger.mergeViewCollection( *inputViews,  //Vector of views (inside ReadHandle)
+				     m_r_ints,               //ReadHandleKey to access the views
+				     ctx,                    //The context of this algorithm
+				     outputVector ) );       //Container to merge results into
 
   //Output the merged data
   SG::WriteHandle< std::vector< int > > outputHandle( m_w_ints, ctx );

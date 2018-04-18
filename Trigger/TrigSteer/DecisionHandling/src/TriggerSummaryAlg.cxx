@@ -70,8 +70,6 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   for ( auto id: allPassingIDs ) {
     TrigCompositeUtils::addDecisionID( id, summaryObj );
   }
-  
-
 
   
   // if ( ! m_hltResultKey.empty() ) {
@@ -82,12 +80,9 @@ StatusCode TriggerSummaryAlg::execute_r(const EventContext& context) const
   auto summaryHandle = SG::makeHandle( m_summaryKey, context );
   CHECK( summaryHandle.record( std::move( summaryCont ), std::move( summaryAuxCont ) ) );
 
-
   for ( auto& tool: m_outputTools ) {
-    CHECK( tool->createOutput() );
+    CHECK( tool->createOutput( context ) );
   }
-
-
 
   return StatusCode::SUCCESS;
 }

@@ -19,7 +19,7 @@ class IHLTOutputTool : virtual public ::IAlgTool
   virtual ~IHLTOutputTool(){}
 
   // method to be called by clients
-  virtual StatusCode createOutput() const = 0;
+  virtual StatusCode createOutput(const EventContext& context) const = 0;
 
 }; 
 

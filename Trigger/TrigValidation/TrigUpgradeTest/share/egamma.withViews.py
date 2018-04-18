@@ -217,7 +217,24 @@ summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 from TrigOutputHandling.TrigOutputHandlingConf import HLTEDMCreator
 edmCreator = HLTEDMCreator()
 edmCreator.TrigCompositeContainer = [ "EgammaCaloDecisions", "ElectronL2Decisions", "MuonL2Decisions", "EMRoIDecisions", "METRoIDecisions", "MURoIDecisions", "HLTChainsResult" ]
-summary.OutputTools = [ edmCreator ]
+
+
+egammaViewsMerger = HLTEDMCreator("egammaViewsMerger")
+
+egammaViewsMerger.TrackParticleContainerViews = [ l2ElectronViewsMaker.Views ]
+egammaViewsMerger.TrackParticleContainerInViews = [ theElectronFex.TrackParticlesName ]
+egammaViewsMerger.TrackParticleContainer = ["HLT_electron_tracks"]
+
+egammaViewsMerger.TrigElectronContainerViews = [ l2ElectronViewsMaker.Views ]
+egammaViewsMerger.TrigElectronContainerInViews = [ theElectronFex.ElectronsName ]
+egammaViewsMerger.TrigElectronContainer = ["HLT_electrons"]
+
+
+
+
+summary.OutputTools = [ edmCreator, egammaViewsMerger ]
+
+
 summary.OutputLevel = DEBUG
 
 steps = seqAND("HLTSteps", [ step0, step1, step0r, summary ]  )
@@ -242,6 +259,8 @@ for tc in edmCreator.TrigCompositeContainer:
    addTC( tc )
 
 addTC("HLTSummary")
+
+StreamESD.ItemList += [ "xAOD::TrigElectronContainer#HLT_electrons", "xAOD::TrackParticleContainer#HLT_electron_tracks"]
 
 print "ESD file content " 
 print StreamESD.ItemList
