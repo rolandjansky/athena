@@ -4,6 +4,12 @@
 
 // ACTS
 #include "ACTS/Tools/ILayerBuilder.hpp"
+#include "ACTS/Material/SurfaceMaterialProxy.hpp"
+#include "ACTS/Surfaces/CylinderSurface.hpp"
+#include "ACTS/Surfaces/DiscSurface.hpp"
+#include "ACTS/Layers/GenericApproachDescriptor.hpp"
+#include "ACTS/Layers/GenericApproachDescriptor.hpp"
+#include "ACTS/Utilities/ApproachDescriptor.hpp"
 
 const Acts::LayerVector
 Acts::GeoModelLayerBuilder::negativeLayers() const
@@ -139,6 +145,9 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
 
   for (const auto& layerPair : layers) {
 
+    std::unique_ptr<Acts::ApproachDescriptor> approachDescriptor = nullptr;
+    std::shared_ptr<const SurfaceMaterialProxy> materialProxy = nullptr;
+
     std::vector<const Surface*> layerSurfaces = layerPair.second;
 
     if (type == 0) {  // BARREL
@@ -146,24 +155,143 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       ProtoLayer pl(layerSurfaces);
       pl.envR    = {0, 0};
       pl.envZ    = {20, 20};
-      auto layer = m_cfg.layerCreator->cylinderLayer(
-          layerSurfaces, equidistant, equidistant, pl);
+        
+      // Copied from layercreator
+      //double layerThickness
+        //= std::abs(pl.minZ - pl.maxZ) + pl.envZ.first + pl.envZ.second;
+  
+      double binPosZ   = 0.5 * (pl.minZ + pl.maxZ);
+      double envZShift = 0.5 * (-pl.envZ.first + pl.envZ.second);
+      double layerZ    = binPosZ + envZShift;
+      double layerHalfZ
+        = std::abs(pl.maxZ + pl.envZ.second - layerZ);
+
+      auto transform
+        = std::make_shared<const Transform3D>(Translation3D(0., 0., -layerZ));
+      // set up approach descriptor
+
+      Acts::CylinderSurface* innerBoundary 
+        = new Acts::CylinderSurface(transform, pl.minR, layerHalfZ);
+      
+      Acts::CylinderSurface* outerBoundary 
+        = new Acts::CylinderSurface(transform, pl.maxR, layerHalfZ);
+      
+      Acts::CylinderSurface* centralSurface 
+        = new Acts::CylinderSurface(transform, (pl.minR + pl.maxR)/2., layerHalfZ);
+      
+      // @TODO: needs to be configurable
+      size_t binsZ = 100;
+      size_t binsPhi = 100;
+
+      Acts::BinUtility materialBinUtil(
+          binsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
+      materialBinUtil += Acts::BinUtility(
+            binsZ, -layerHalfZ, layerHalfZ, Acts::open, Acts::binZ, transform);
+
+      materialProxy
+        = std::make_shared<const SurfaceMaterialProxy>(materialBinUtil);
+
+      ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
+          "inner=0 / center=1 / outer=2 ) : " << "inner");
+      ACTS_VERBOSE("with binning: [" << binsPhi << ", " << binsZ << "]");
+
+      ACTS_VERBOSE("Created ApproachSurfaces for cylinder layer at:");
+      ACTS_VERBOSE(" - inner:   R=" << pl.minR);
+      ACTS_VERBOSE(" - central: R=" << (pl.minR + pl.maxR)/2.);
+      ACTS_VERBOSE(" - outer:   R=" << pl.maxR);
+
+
+
+      // set material on inner
+      // @TODO: make this configurable somehow
+      innerBoundary->setAssociatedMaterial(materialProxy);
+
+      approachDescriptor 
+        = std::make_unique<Acts::GenericApproachDescriptor<Acts::Surface>>(
+            std::vector<const Acts::Surface*>({innerBoundary, 
+                                               centralSurface,
+                                               outerBoundary}));
+
+      auto layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces, 
+                                                     equidistant, 
+                                                     equidistant, 
+                                                     pl, 
+                                                     transform,
+                                                     std::move(approachDescriptor));
 
       layersOutput.push_back(layer);
-      // std::cout << (*layer->surfaceArray()) << std::endl;
     } else {  // ENDCAP
-      // for(const auto &srf : layerSurfaces) {
-      // Vector3D ctr = srf->center();
-      // std::cout << "SRF: " << ctr.z() << " " << ctr.perp() << " " <<
-      // ctr.phi() << std::endl;
-      //}
       ProtoLayer pl(layerSurfaces);
       pl.envR    = {0, 0};
       pl.envZ    = {5, 5};
-      auto layer = m_cfg.layerCreator->discLayer(
-          layerSurfaces, equidistant, equidistant, pl);
+
+
+      // copied from layercreator
+      double layerZ
+        = 0.5 * (pl.minZ - pl.envZ.first + pl.maxZ
+            + pl.envZ.second);
+      double layerThickness = (pl.maxZ - pl.minZ)
+        + pl.envZ.first + pl.envZ.second;
+
+      double layerZInner = layerZ - layerThickness/2.;
+      double layerZOuter = layerZ + layerThickness/2.;
+
+      if (layerZInner > layerZOuter) std::swap(layerZInner, layerZOuter);
+
+      auto transformNominal
+        = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZ));
+      
+      auto transformInner
+        = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZInner));
+      
+      auto transformOuter
+        = std::make_shared<const Transform3D>(Translation3D(0., 0., layerZOuter));
+
+      Acts::DiscSurface* innerBoundary 
+        = new Acts::DiscSurface(transformInner, pl.minR, pl.maxR);
+      
+      Acts::DiscSurface* nominalSurface 
+        = new Acts::DiscSurface(transformNominal, pl.minR, pl.maxR);
+      
+      Acts::DiscSurface* outerBoundary 
+        = new Acts::DiscSurface(transformOuter, pl.minR, pl.maxR);
+
+      size_t binsPhi = 100;
+      size_t binsR = 50;
+
+      Acts::BinUtility materialBinUtil(
+          binsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
+      materialBinUtil += Acts::BinUtility(
+            binsR, -pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
+
+      ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
+          "inner=0 / center=1 / outer=2 ) : " << "inner");
+      ACTS_VERBOSE("with binning: [" << binsPhi << ", " << binsR << "]");
+
+      ACTS_VERBOSE("Created ApproachSurfaces for disc layer at:");
+      ACTS_VERBOSE(" - inner:   Z=" << layerZInner);
+      ACTS_VERBOSE(" - central: Z=" << layerZ);
+      ACTS_VERBOSE(" - outer:   Z=" << layerZOuter);
+      
+
+      // set material on inner
+      // @TODO: make this configurable somehow
+      innerBoundary->setAssociatedMaterial(materialProxy);
+
+      approachDescriptor 
+        = std::make_unique<Acts::GenericApproachDescriptor<Acts::Surface>>(
+            std::vector<const Acts::Surface*>({innerBoundary, 
+                                               nominalSurface,
+                                               outerBoundary}));
+
+      auto layer = m_cfg.layerCreator->discLayer(layerSurfaces, 
+                                                 equidistant, 
+                                                 equidistant, 
+                                                 pl,
+                                                 transformNominal,
+                                                 std::move(approachDescriptor));
+
       layersOutput.push_back(layer);
-      // std::cout << (*layer->surfaceArray()) << std::endl;
     }
   }
 }
