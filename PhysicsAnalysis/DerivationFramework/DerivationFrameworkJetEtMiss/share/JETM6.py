@@ -66,7 +66,7 @@ JETM6OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "
 ToolSvc += JETM6OfflineSkimmingTool
 
 #Trigger matching decorations
-from DerivationFrameworkSM.DerivationFrameworkSMConf import DerivationFramework__TriggerMatchingAugmentation
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
 DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
                                                              name = "JETM6_TriggerMatchingAugmentation",
                                                              DecorationPrefix = "DFCommonTrigger_",

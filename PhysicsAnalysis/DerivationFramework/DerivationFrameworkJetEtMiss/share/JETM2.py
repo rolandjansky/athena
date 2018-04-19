@@ -43,7 +43,7 @@ ToolSvc += JETM2SkimmingTool
 
 #Trigger matching decorations
 #commented out because of merge with EXOT5
-#from DerivationFrameworkSM.DerivationFrameworkSMConf import DerivationFramework__TriggerMatchingAugmentation
+#from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
 #DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
 #                                                             name = "JETM2_TriggerMatchingAugmentation",
 #                                                             DecorationPrefix = "DFCommonTrigger_",
