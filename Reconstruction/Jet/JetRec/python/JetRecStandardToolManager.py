@@ -250,7 +250,8 @@ groomed_modifiers = [
     jtm.planarflow,
     jtm.width,
     jtm.qw,
-    jtm.trksummoms
+    jtm.trksummoms,
+    jtm.jetens
     ]
 
 # Modifiers for pflow jets.
