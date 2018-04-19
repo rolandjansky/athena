@@ -52,38 +52,46 @@ namespace PMGTools {
 	std::string str_dsid;
 	std::string containerName;
 	std::string str_amiXsec;
-	std::string str_br;
 	std::string str_filterEff;
-	std::string str_hoXsec;
 	std::string str_kFac;
-	std::string str_hoSampleXsec;
+	std::string str_XsecUnc; 
+	// :: below is for future use?
+	//std::string str_br;
+	//std::string str_hoXsec;
+	//std::string str_hoSampleXsec;
       
 	input_line >> str_dsid;
 	input_line >> containerName;
 	input_line >> str_amiXsec;
-	input_line >> str_br;
-	input_line >> str_filterEff;
-	input_line >> str_hoXsec;
+	input_line >> str_filterEff; 
 	input_line >> str_kFac;
-	input_line >> str_hoSampleXsec; // this is hoXsec * filter eff
+	input_line >> str_XsecUnc;
+	// :: below is for future use?  
+	//input_line >> str_br;
+	//input_line >> str_hoXsec; 
+	//input_line >> str_hoSampleXsec; // this is hoXsec * filter eff
 
 	int dsid = TString(str_dsid).Atoi();
-	double BR           = TString(str_br).Atof();
-	double kFactor      = TString(str_kFac).Atof(); 
-	double filterEff    = TString(str_filterEff).Atof(); 
-	double hoXsec       = TString(str_hoXsec).Atof();
-	double hoSampleXsec = TString(str_hoSampleXsec).Atof();
 	double amiXsec      = TString(str_amiXsec).Atof();
+	double filterEff    = TString(str_filterEff).Atof();
+	double kFactor      = TString(str_kFac).Atof(); 
+	double XsecUnc      = TString(str_XsecUnc).Atof();
+	// :: below is for future use?
+	//double br           = TString(str_br).Atof();
+	//double hoXsec       = TString(str_hoXsec).Atof();
+	//double hoSampleXsec = TString(str_hoSampleXsec).Atof();
            
 	AllSampleInfo help;
 	help.dsid = dsid;
 	help.containerName = containerName;
-	help.br = BR;
 	help.amiXSec = amiXsec;
 	help.filterEff = filterEff;
-	help.higherOrderXsecTotal = hoXsec;
 	help.kFactor = kFactor;
-	help.higherOrderXsecSample = hoSampleXsec;
+	help.XSecUnc = XsecUnc;
+	// :: below is for future use?
+	//help.br = br;
+	//help.higherOrderXsecTotal = hoXsec;
+	//help.higherOrderXsecSample = hoSampleXsec;
       
 	fStoreSampleInfo.push_back(help);
       
@@ -170,16 +178,31 @@ namespace PMGTools {
     return -1;
 
   } 
-
-  double PMGCrossSectionTool::getBR(const int dsid) const
+								
+  // :: below is for future use? 
+  /*double PMGCrossSectionTool::getBR(const int dsid) const
   {
 
     for (const auto& info : fStoreSampleInfo){
       if(dsid == info.dsid)
-	return info.br;
+        return info.br;
     }
 
     std::cout << "ERROR::getBR --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
+
+    return -1;
+
+  }*/
+
+  double PMGCrossSectionTool::getXsectionUncertainty(const int dsid) const
+  {
+
+    for (const auto& info : fStoreSampleInfo){
+      if(dsid == info.dsid)
+        return info.XSecUnc;
+    }
+
+    std::cout << "ERROR::getXsectionUncertainty --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
 
     return -1;
 
@@ -199,12 +222,15 @@ namespace PMGTools {
 
   }
 
+  // :: below is for future use? 
   double PMGCrossSectionTool::getSampleXsection(const int dsid) const
   {
 
     for (const auto& info : fStoreSampleInfo){
       if(dsid == info.dsid)
-	return info.higherOrderXsecSample;
+	return info.amiXSec * info.kFactor * info.filterEff;
+        // :: below is for future use?  
+	//return info.higherOrderXsecSample;
     }
 
     std::cout << "ERROR::getSampleXsection --> Sample with DSID " << dsid << " has no info stored!!! ---> EXIT." << std::endl;
