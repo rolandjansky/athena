@@ -1,8 +1,8 @@
 import os
 
-makeDataDAODs=False
-makeMCDAODs=False
-makeTruthDAODs=False
+makeDataDAODs=True
+makeMCDAODs=True
+makeTruthDAODs=True
 makeTrains=True
 
 formatList = ['PHYSVAL',
@@ -24,8 +24,9 @@ formatList = ['PHYSVAL',
               'FTAG1', 'FTAG2', 'FTAG3', 'FTAG4', 'FTAG5',
               'BPHY1', 'BPHY2', 'BPHY3', 'BPHY4', 'BPHY5', 'BPHY6', 'BPHY7', 'BPHY8', 'BPHY9', 'BPHY10', 'BPHY11', 'BPHY12',
               'MUON0', 'MUON1', 'MUON2', 'MUON3', 'MUON4',
-              'TCAL1']
-              #'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10'
+              'TCAL1',
+              'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10'
+]
 
 truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 
@@ -56,7 +57,7 @@ mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrame
 mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/user.ctreado.11717804.EXT0._000056.DAOD_RPVLL.pool.root"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12169019._004055.pool.root.1"
 dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12818484._004694.pool.root.1"
-dataFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.09788089._000056.pool.root.1"
+dataFileRPVLL = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.13679930._004714.pool.root.1"
 dataFileDelayed = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11270451._000007.pool.root.1"
 dataFileBLS = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00337491.physics_BphysLS.merge.AOD.f873_m1885._lb0100._0001.1"
 dataFileZeroBias = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00327057.physics_ZeroBias.merge.AOD.f832_m1812._lb0120-lb0129._0001.1"
@@ -82,10 +83,20 @@ def generateText(formatName,label,inputFile,isTruth,isMC,nEvents):
    if ((isTruth==False) and (isMC==True) ): outputFile.write("Reco_tf.py --inputAODFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+mcPreExec+"\n")
    if (isTruth==True): outputFile.write("Reco_tf.py --inputEVNTFile "+inputFile+" --outputDAODFile art.pool.root --reductionConf "+formatName+" --maxEvents "+nEvents+"\n")
    outputFile.write("\n")
+   outputFile.write("echo \"art-result: $? reco\""+"\n")
+   outputFile.write("\n")
    if (isTruth==False): outputFile.write("DAODMerge_tf.py --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+"\n")
    if (isTruth==True): outputFile.write("DAODMerge_tf.py --inputDAOD_"+formatName+"File DAOD_"+formatName+".art.pool.root --outputDAOD_"+formatName+"_MRGFile art_merged.pool.root"+" --autoConfiguration ProjectName RealOrSim BeamType ConditionsTag DoTruth InputType BeamEnergy LumiFlags TriggerStream --athenaopts=\"-s\" "+"\n")
+   outputFile.write("\n")
+   outputFile.write("echo \"art-result: $? merge\""+'\n')
+   outputFile.write("\n")
    outputFile.write("checkFile.py DAOD_"+formatName+".art.pool.root > checkFile.txt"+"\n")
-   outputFile.write("checkxAOD.py DAOD_"+formatName+".art.pool.root > checkxAOD.txt")
+   outputFile.write("\n")
+   outputFile.write("echo \"art-result: $?  checkfile\""+'\n')
+   outputFile.write("\n")
+   outputFile.write("checkxAOD.py DAOD_"+formatName+".art.pool.root > checkxAOD.txt"+"\n")
+   outputFile.write("\n")
+   outputFile.write("echo \"art-result: $?  checkxAOD\""+'\n')
    outputFile.close()
    os.system("chmod +x "+outputFileName)
 
@@ -110,7 +121,7 @@ if (makeDataDAODs or makeMCDAODs):
    for formatName in formatList:
       if (makeDataDAODs): 
          if formatName=="EXOT23":
-            generateText(formatName,dataLabel,dataFileEXOT23,False,False,"-1")
+            generateText(formatName,dataLabel,dataFileRPVLL,False,False,"-1")
          elif formatName=="BPHY3":
             generateText(formatName,dataLabel,dataFile,False,False,"500")
          elif formatName in ['BPHY7']:
