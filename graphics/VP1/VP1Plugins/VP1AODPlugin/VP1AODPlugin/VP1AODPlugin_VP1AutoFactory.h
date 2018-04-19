@@ -14,7 +14,7 @@ class VP1AODPlugin_VP1AutoFactory : public QObject, public IVP1ChannelWidgetFact
   Q_OBJECT
 
   #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    Q_PLUGIN_METADATA(IID "VP1AODPlugin" )
+    Q_PLUGIN_METADATA(IID "VP1AODPlugin" FILE "") // apparently, FILE can be empty
   # else
     Q_EXPORT_PLUGIN2(pnp_vp1aodplugin_vp1autofactory, VP1AODPlugin_VP1AutoFactory)
   #endif

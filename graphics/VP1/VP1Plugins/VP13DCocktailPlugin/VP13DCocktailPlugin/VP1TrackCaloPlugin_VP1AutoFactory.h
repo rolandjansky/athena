@@ -14,7 +14,7 @@ class VP1TrackCaloPlugin_VP1AutoFactory : public QObject, public IVP1ChannelWidg
   Q_OBJECT
 
   #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    Q_PLUGIN_METADATA(IID "VP1TrackCaloPlugin" ) 
+    Q_PLUGIN_METADATA(IID "VP1TrackCaloPlugin" FILE "") // apparently, FILE can be empty
   # else
     Q_EXPORT_PLUGIN2(pnp_vp1trackcaloplugin_vp1autofactory, VP1TrackCaloPlugin_VP1AutoFactory)
   #endif
