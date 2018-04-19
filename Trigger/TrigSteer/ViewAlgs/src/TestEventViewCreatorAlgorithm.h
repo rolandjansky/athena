@@ -13,6 +13,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthContainers/ConstDataVector.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
+#include "DecisionHandling/InputMakerBase.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
@@ -20,23 +21,31 @@
 #include "GaudiKernel/IScheduler.h"
 #include "AthViews/View.h"
 
-class TestEventViewCreatorAlgorithm : public AthAlgorithm
+ /**
+   * @class TestEventViewCreatorAlgorithm
+   * @brief Used at the start of a sequence to create the EventViews: retrieves filtered collection via menu decision from previous step and writes it out directly so it can be used as input by the reco alg that follows in sequence.
+   **/
+
+class TestEventViewCreatorAlgorithm : public ::InputMakerBase
 {
-  public:
+ public:
     TestEventViewCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
-    StatusCode initialize();
-    StatusCode execute();
+    virtual ~TestEventViewCreatorAlgorithm();
+    virtual StatusCode initialize();
+    virtual StatusCode execute_r(const EventContext&) const override;
+    virtual StatusCode finalize() override;
 
   private:
+
+    TestEventViewCreatorAlgorithm();
+    
     ServiceHandle< IScheduler > m_scheduler{ this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
 
     //Input trig composite collection to split into views
-    SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputDecisionsKey { this, "InputDecisions", {}, "The vector name of input decision container (implicit)" } ;
+    //SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputDecisionsKey { this, "InputDecisions", {}, "The vector name of input decision container (implicit)" } ;
 
     // Ouput decisions
-    //SG::WriteHandleKey< TrigCompositeUtils::DecisionContainer > m_outputDecisionsKey{ this, "OutputDecisions", "Unspecified", "The name of output decision container" };
-    //    SG::WriteHandleKeyArray< ConstDataVector<TrigCompositeUtils::DecisionContainer> > m_outputDecisionsKey{ this, "OutputDecisions", {}, "Output Decisions" };
-    SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputDecisionsKey { this, "OutputDecisions", {}, "Ouput Decisions" };
+    //SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputDecisionsKey { this, "OutputDecisions", {}, "Ouput Decisions" };
 
     //Output views for merging
     SG::WriteHandleKey< std::vector< SG::View* > > m_viewsKey{ this, "Views", "Unspecified", "The key of views collection produced" };

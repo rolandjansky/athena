@@ -83,8 +83,9 @@ theFastCaloHypo.OutputLevel = DEBUG
 theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 
-fastCaloViewSequence = seqAND("fastCaloViewSequence", [fastCaloViewsMaker, fastCaloInViewAlgs ])
-fastCaloSequence =  seqAND("fastCaloSequence", [fastCaloViewSequence])
+#fastCaloViewSequence = seqAND("fastCaloViewSequence", [fastCaloViewsMaker, fastCaloInViewAlgs ])
+#fastCaloSequence =  seqAND("fastCaloSequence", [fastCaloViewSequence])
+fastCaloSequence =  seqAND("fastCaloSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
 fastCalo_NodeSequence = NodeSequence("fastCalo_NodeSequence",
                                          Sequence=fastCaloSequence,

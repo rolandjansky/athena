@@ -39,8 +39,6 @@ namespace HLTTest {
  
     auto outputHandles = decisionOutputs().makeHandles(context);
 
-  
-
     size_t validInput=0;
     for ( auto inputKey: decisionInputs() ) {
       auto inputHandle = SG::makeHandle( inputKey, context );
