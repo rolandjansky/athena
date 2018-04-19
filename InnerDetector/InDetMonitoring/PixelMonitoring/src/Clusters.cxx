@@ -276,27 +276,6 @@ StatusCode PixelMainMon::bookClustersMon(void) {
       tmp2 = "Average cluster ToT map";
       m_clusToT_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
       sc = m_clusToT_map->regHist(clusterExpert);
-
-      hname = makeHistname("Cluster_Occupancy_FEMap_mon", true);
-      tmp2 = "Cluster Occ.";
-      sc = clusterExpert.regHist(m_cluster_occupancy_FE_B0_mon = TH2F_LW::create((hname + "_B0").c_str(), (tmp2 + ", B0 " + ";eta index of FE;phi index of FE").c_str(), 13 * 8, -48.5, -48.5 + (13 * 8), 22 * 2, -0.5, -0.5 + (22 * 2)));
-
-      // For FE map (temporary)
-      const int nmod = 13;
-      const char* mod[nmod] = {"M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0", "M1A", "M2A", "M3A", "M4A", "M5A", "M6A"};
-      const int nstave0 = 22;
-      const char* stave0[nstave0] = {"B11_S2", "B01_S1", "B01_S2", "B02_S1", "B02_S2",
-                                     "B03_S1", "B03_S2", "B04_S1", "B04_S2", "B05_S1",
-                                     "B05_S2", "B06_S1", "B06_S2", "B07_S1", "B07_S2",
-                                     "B08_S1", "B08_S2", "B09_S1", "B09_S2", "B10_S1", "B10_S2", "B11_S1"};
-      for (unsigned int x = 0; x < m_cluster_occupancy_FE_B0_mon->GetNbinsX(); x++) {
-        if (x % 8 == 0) m_cluster_occupancy_FE_B0_mon->GetXaxis()->SetBinLabel(x + 1, mod[x / 8]);
-      }
-      for (unsigned int y = 0; y < m_cluster_occupancy_FE_B0_mon->GetNbinsY(); y++) {
-        if (y % 2 == 0) m_cluster_occupancy_FE_B0_mon->GetYaxis()->SetBinLabel(y + 1, stave0[y / 2]);
-      }
-      m_cluster_occupancy_FE_B0_mon->GetYaxis()->SetLabelSize(0.03);
-      m_cluster_occupancy_FE_B0_mon->SetOption("colz");
     }
   }
 
@@ -521,9 +500,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
         npixHitsInCluster = (int)(m_cluster_groupsize_mod[pixlayeribl2d3ddbm]->getXMax() - 0.5);
       }
 
-      int fephi = 0;
-      int feeta = 0;
-     
       if (pixlayer != 99) nclusters_all++;  // count all (no DBM) clusters on and off track
 
       if (isOnTrack(clusID, true)) {
@@ -634,16 +610,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
         if (m_cluster_occupancy_LB) m_cluster_occupancy_LB->fill(clusID, m_pixelid);
         if (m_cluster_ToT_LB) m_cluster_ToT_LB->Fill(cluster.totalToT());
         if (m_cluster_ToT_mod_LB) m_cluster_ToT_mod_LB->fill(cluster.totalToT(), clusID, m_pixelid);
-      }
-
-      // Quick Status
-      fephi = 0;
-      feeta = 0;
-      if (pixlayer == PixLayer::kB0 && getFEID(pixlayer, m_pixelid->phi_index(clusID), m_pixelid->eta_index(clusID), fephi, feeta)) {
-        if (m_doOnline) {
-          if (m_cluster_occupancy_FE_B0_mon) m_cluster_occupancy_FE_B0_mon->Fill((8.0 * m_pixelid->eta_module(clusID)) + (1.0 * feeta), (2.0 * m_pixelid->phi_module(clusID)) + (1.0 * fephi));
-          if (m_doRefresh5min && m_cluster_occupancy_FE_B0_mon) m_cluster_occupancy_FE_B0_mon->Reset();
-        }
       }
     }  // PixelClusterContainer loop
   }    // end of cluster collections loop

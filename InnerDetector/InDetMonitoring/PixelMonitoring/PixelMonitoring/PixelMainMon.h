@@ -433,7 +433,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DMapsLW> m_clustermap_mon;
   std::unique_ptr<PixelMon2DMapsLW> m_clustermap_tmp;
   std::unique_ptr<PixelMon2DMapsLW> m_cluster_occupancy;
-  TH2F_LW* m_cluster_occupancy_FE_B0_mon;
 
   std::unique_ptr<PixelMonModulesProf> m_cluseff_mod;
   std::unique_ptr<PixelMonModules1D> m_cluster_ToT_mod;

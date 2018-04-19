@@ -260,7 +260,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_cluster_LVL1A1d_mod, 0, sizeof(m_cluster_LVL1A1d_mod));
   m_clusterSize_eta = 0;
   memset(m_clussize_vs_eta_mod, 0, sizeof(m_clussize_vs_eta_mod));
-  m_cluster_occupancy_FE_B0_mon = 0;
   m_num_clusters = 0;
   memset(m_clusters_per_track_per_lumi_mod, 0, sizeof(m_clusters_per_track_per_lumi_mod));
   memset(m_num_clusters_mod, 0, sizeof(m_num_clusters_mod));
