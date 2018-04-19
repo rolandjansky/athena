@@ -21,6 +21,7 @@ class Node():
         self.inputProp=name
 
     def addInput(self, name):
+        # not sure is needed
         self.inputProp=name
     
     def getInput(self):
@@ -32,7 +33,7 @@ class Node():
         return inputs
 
     def __str__(self):
-        return "Node::%s  [%s] -> [%s]"%(self.name, self.getInput(), self.getOutput())
+        return "Node::%s  [%s] -> [%s]"%(self.algname, self.getInput(), self.getOutput())
 
     
     
@@ -74,7 +75,6 @@ class AlgNode(Node):
 
     def setOutput(self, name):
         if self.outputProp is not '':
-            print "setOutput %s on %s of %s"%(name, self.outputProp, self.name)
             return self.setPar(self.outputProp,name)
 
     def getOutput(self):
@@ -132,7 +132,7 @@ class HypoAlgNode(AlgNode):
     def addHypoTool(self, hypoToolName, hypoToolClassName):
         from TrigUpgradeTest.MenuHypoTools import *
         if hypoToolClassName is "ComboTestHypoTool":
-#        if "Comb" in self.name: ###TMP combo, only one threshold
+            ###TMP combo, only one threshold
             import re
             thresholds = map(int, re.findall(r'\d+', hypoToolName))
             self.setPar('Threshold1', thresholds[0])
@@ -164,18 +164,11 @@ class HypoAlgNode(AlgNode):
                 if "et" in self.getPar("Property1"):
                     status= self.setPar('previousDecisions1',prev)
                 if "et" in self.getPar("Property2"):
-                    status= self.setPar('previousDecisions2',prev)
-
-            ## if  "Output1" in prev:
-            ##     status= self.setPar('previousDecisions1',prev)
-            ## if  "Output2" in prev:
-            ##     status= self.setPar('previousDecisions2',prev)
+                    status= self.setPar('previousDecisions2',prev)          
             if "MuInputMaker" in prev:
                 status= self.setPar('previousDecisions1',prev)
             if "ElInputMaker" in prev:
-                status= self.setPar('previousDecisions2',prev)
-                
-        
+                status= self.setPar('previousDecisions2',prev)                        
         else:
             self.previous.append(prev)
             status= self.setPar('previousDecisions',prev)
@@ -195,7 +188,6 @@ class SequenceFilterNode(AlgNode):
         self.seeds = []
         
     def addDefaultOutput(self):
-        #print "This is SequenceFilter addDefaultOutput"
         return #do nothing    
        
     def setChains(self, name):
@@ -219,7 +211,12 @@ class RoRSequenceFilterNode(SequenceFilterNode):
         SequenceFilterNode.__init__(self,  Alg, inputProp, outputProp)
 
         
-        
+
+
+##########################################################
+# NOW sequences and chains
+##########################################################
+
 class NodeSequence():
     def __init__(self, name, Sequence, Hypo, Seed, Maker, HypoToolClassName):
         print "Making sequence %s"%(name)
@@ -238,8 +235,7 @@ class NodeSequence():
             
         self.output = "%s_%s"%(Seed, self.hypo.getOutput())
         self.hypo.setOutput(self.output)
-        self.reuse = False
-     
+        self.reuse = False     
 
     def getOutputList(self):
         return self.hypo.getOutput()
@@ -251,30 +247,13 @@ class NodeSequence():
         print "adding input to sequence: %s to %s"%(theinput, self.maker.algname )
         self.maker.addInput(theinput)
 
-
     def addOutputDecision(self,theinput):
         print "adding output decisions (%s) to sequence %s  (output of alg %s)"%(theinput, self.name, self.maker.algname )
         self.maker.setPar("OutputDecisions", theinput)
         
     def __str__(self):
-        return "NodeSequence::%s with \n Seed::%s \n Maker::%s \n Hypo::%s \n Sequence::%s"%(self.name, self.seed, self.maker, self.hypo, self.sequence.name)
-    #return "NodeSequence::%s with \n Seed::%s \n Maker::%s \n %s \n Hypo::%s"%(self.name, self.seed, self.maker, ',\n '.join(map(str, self.algs)), self.hypo)
+        return "NodeSequence::%s with \n Seed::%s \n Maker::%s \n Hypo::%s \n Sequence::%s"%(self.name, self.seed, self.maker, self.hypo, self.sequence)
 
-
-
-
-
-
-##########################################################
-
-
-    
-class ViewNodeSequence(NodeSequence):
-    def __init__(self, name, Algs, Hypo, Seed, Maker, OtherNodes):
-        NodeSequence.__init__(self, name, Algs, Hypo, Seed,Maker)
-        self.viewNodeName = self.maker.Alg.ViewNodeName
-        self.otherNodes=OtherNodes
-        
         
     
 class MenuSequence():
@@ -304,16 +283,6 @@ class CFSequence():
             self.filter, \
             self.menuSeq)
 
-    ## def getAllNodes(self):
-    ##     nodes = []
-    ##     for seq in self.menuSeq.nodeSeqList:
-    ##         nodes.extend(seq.algs)
-    ##         nodes.append(seq.hypo)
-    ##     for node in self.otherNodes:
-    ##         nodes.append(node)
-            
-     ##   return nodes
-        
 
 class SequenceHypoTool:
     def __init__(self, MenuSequence, HypoTool):
@@ -322,12 +291,6 @@ class SequenceHypoTool:
         
 
 class ChainStep:
-     def __init__(self, name,  SequenceHypoTools=[]):
-        self.name = name        
-        self.sequenceHypoTools = SequenceHypoTools
-        self.sequences = [sh.sequence for sh in SequenceHypoTools ] 
-
-class ChainStep2:
      def __init__(self, name,  Sequences=[]):
         self.name = name        
         self.sequences = Sequences 
@@ -337,12 +300,9 @@ class Chain:
          self.name = name
          self.seed=Seed
          self.steps=ChainSteps
-         self.hypoToolName=name
-         #self.hypoToolName=name.replace("HLT_","")
-         
+         self.hypoToolName=name         
          seeds = Seed.strip().split("_")
          seeds.pop(0) #remove first L1
-                      #         print "Chians seed: "%seeds
          self.group_seed  = ["L1"+filter(lambda x: x.isalpha(), stri) for stri in seeds]
 
 

@@ -4,9 +4,6 @@ from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoTool
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestComboHypoAlg
 from AthenaCommon.Constants import VERBOSE,DEBUG
 
-from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep2
-from AthenaCommon.CFElements import parOR, seqAND, stepSeq
-
 
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
 def InputMakerAlg(name):
@@ -17,7 +14,11 @@ def InputMakerAlg(name):
 # signatures do this:
 # - declare all the RecoAlg and the HypoAlg -> create the Sequence
 # - creates the InputMaker, without the inputs
-  
+
+from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence
+from AthenaCommon.CFElements import parOR, seqAND, stepSeq
+
+
 UseThisLinkName="initialRoI"
 #UseThisLinkName="feature"
 
