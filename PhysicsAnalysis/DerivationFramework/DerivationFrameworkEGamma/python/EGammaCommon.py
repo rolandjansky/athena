@@ -329,5 +329,12 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("EGamma
                                                                          AugmentationTools = EGAugmentationTools
                                                                          )
 
+#=======================================
+# ADD TOOLS
+#=======================================
+
+import IsolationAlgs.IsoUpdatedTrackCones as isoCones
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+    DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
 
 
