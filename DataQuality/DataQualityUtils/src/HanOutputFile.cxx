@@ -1020,7 +1020,6 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   }
 
   if( h!=0 ){     
-    std::cout<<"h is not zero. found TH1."<<std::endl;
     TCanvas *myC = new TCanvas( nameHis.c_str(), "myC", ww, wh );
 
     // if(  h->GetMinimum() >= 0) {
@@ -1055,14 +1054,15 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
       std::size_t fpos1,fpos2,fpos;
       fpos=display.find("MinStat");
       if (fpos!= std::string::npos){
-        fpos1=display.find("(",fpos+1);
-        if (fpos1!=std::string::npos) {
-          fpos2 = display.find(")",fpos1+1);
-          if (fpos2!=std::string::npos) {
-            std::string s_minstat=display.substr(fpos1+1,fpos2-fpos1-1);
-            minstat=std::strtod(s_minstat.c_str(),NULL);
-          }
+  fpos1=display.find("(",fpos+1);
+  if (fpos1!=std::string::npos) {
+    fpos2 = display.find(")",fpos1+1);
+    if (fpos2!=std::string::npos) {
+      std::string s_minstat=display.substr(fpos1+1,fpos2-fpos1-1);
+      minstat=std::strtod(s_minstat.c_str(),NULL);
         }
+    
+  }
       }
       std::string fitopt("");
       fpos=display.find("FitOption");
@@ -2758,8 +2758,6 @@ saveFile(int cnvsType, std::string pngfName,std::string pngContent, std::string 
     bool json=false;
     if (cnvsType & GENERATE_PNG) 
     {
-      std::cout<<"in saveFile()"<<std::endl;
-      std::cout<<"pngfName = "<<pngfName<<std::endl;
       png   = writeToFile(pngfName,pngContent);
     }
     if (cnvsType & GENERATE_JSON) 
