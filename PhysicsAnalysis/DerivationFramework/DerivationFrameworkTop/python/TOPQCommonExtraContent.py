@@ -478,6 +478,7 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
                                                                + "Dip13."
                                                                + "Dip23."
                                                                + "DipExcl12."
+                                                               + "EMFrac."
                                                                + "FoxWolfram0."
                                                                + "FoxWolfram1."
                                                                + "FoxWolfram2."
