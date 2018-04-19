@@ -36,10 +36,13 @@ if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 
 
-   
+# menu components   
 from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
 from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep
 
+# ===============================================================================================
+#      L2 Calo
+# ===============================================================================================
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
 theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
@@ -56,7 +59,7 @@ trigL2CaloRingerFexMT.OutputLevel = DEBUG
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 
-from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
+#from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
 
 from ViewAlgs.ViewAlgsConf import TestEventViewCreatorAlgorithm
 
@@ -83,8 +86,6 @@ theFastCaloHypo.OutputLevel = DEBUG
 theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 
-#fastCaloViewSequence = seqAND("fastCaloViewSequence", [fastCaloViewsMaker, fastCaloInViewAlgs ])
-#fastCaloSequence =  seqAND("fastCaloSequence", [fastCaloViewSequence])
 fastCaloSequence =  seqAND("fastCaloSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
 fastCalo_NodeSequence = NodeSequence("fastCalo_NodeSequence",

@@ -338,16 +338,8 @@ def all_DataFlow_to_dot(name, step_list):
         last_step_hypoNodes =[]
         for cfseq in cfseq_list:
             print cfseq.name
-            file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.algname)))
-            
-            step_connections.append(cfseq.filter)
-            for seq in cfseq.menuSeq.nodeSeqList:
-                step_connections.append(seq.maker)
-                step_connections.append(seq.hypo)
-
-            #for inp in cfseq.filter.getInputList():
-                #file.write(addConnection(name, cfseq.filter.algname, inp))
-           
+            file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.algname)))            
+            step_connections.append(cfseq.filter)                      
             file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.name)\
                         +'     node [color=white style=filled]\n'\
                         +'     style=filled\n'\
@@ -364,11 +356,9 @@ def all_DataFlow_to_dot(name, step_list):
             for seq in cfseq.menuSeq.nodeSeqList:
                 cfseq_algs.append(seq.maker)
                 cfseq_algs.append(seq.sequence )
-                #cfseq_algs.extend(seq.algs )
                 if seq.reuse==False:
                     file.write("    %s[fillcolor=%s]\n"%(seq.maker.algname, algColor(seq.maker.algname)))
                     file.write("    %s[fillcolor=%s]\n"%(seq.sequence.algname, algColor(seq.sequence.algname)))
-                    #for alg in seq.algs: file.write("    %s[fillcolor=%s]\n"%(alg.algname, algColor(alg.algname)))
                     seq.reuse=True
                 cfseq_algs.append(seq.hypo)
                 last_step_hypoNodes.append(seq.hypo)
