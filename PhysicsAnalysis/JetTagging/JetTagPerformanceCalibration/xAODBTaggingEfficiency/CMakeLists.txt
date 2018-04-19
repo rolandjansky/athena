@@ -36,15 +36,19 @@ atlas_depends_on_subdirs(
   Tools/PathResolver )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Hist RIO )
+find_package( ROOT COMPONENTS Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
+
+atlas_add_root_dictionary( xAODBTaggingEfficiencyLib xAODBTaggingEfficiencyLibDictSource ROOT_HEADERS xAODBTaggingEfficiency/TruthTagResults.h Root/LinkDef.h )
 
 # Component(s) in the package:
 atlas_add_library( xAODBTaggingEfficiencyLib
+  ${xAODBTaggingEfficiencyLibDictSource}
   xAODBTaggingEfficiency/*.h Root/*.cxx
   PUBLIC_HEADERS xAODBTaggingEfficiency
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBTagging xAODJet
   PATCoreLib PATInterfaces CalibrationDataInterfaceLib PathResolver FTagAnalysisInterfacesLib ${extra_libs} )
+
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( xAODBTaggingEfficiency
@@ -64,14 +68,22 @@ if( XAOD_ANALYSIS OR XAOD_STANDALONE )
       util/BTaggingEfficiencyToolTester.cxx
       LINK_LIBRARIES xAODRootAccess xAODBTaggingEfficiencyLib )
 endif()
+
 if ( XAOD_ANALYSIS AND NOT ROOTCORE )
    atlas_add_executable( BTaggingSelectionToolTester
       util/BTaggingSelectionToolTester.cxx
       LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib POOLRootAccessLib GaudiKernel )
 elseif( XAOD_STANDALONE OR ROOTCORE )
-   atlas_add_executable( BTaggingSelectionToolTester
+      atlas_add_executable( BTaggingSelectionToolTester
       util/BTaggingSelectionToolTester.cxx
       LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib xAODRootAccess )
+endif()
+
+
+if( XAOD_ANALYSIS OR XAOD_STANDALONE )
+   atlas_add_executable( BTaggingTruthTaggingTester
+      util/BTaggingTruthTaggingTester.cxx
+      LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib xAODRootAccess FTagAnalysisInterfacesLib )
 endif()
 
 # Install files from the package:
