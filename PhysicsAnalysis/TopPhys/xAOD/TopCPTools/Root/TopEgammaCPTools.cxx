@@ -250,7 +250,7 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   const std::string trigger_string = "SINGLE_E_2015_e24_lhmedium_L1EM20VH_"
                                      "OR_e60_lhmedium_"
                                      "OR_e120_lhloose_"
-                                     "2016_e26_lhtight_nod0_ivarloose_"
+                                     "2016_2017_e26_lhtight_nod0_ivarloose_"
                                      "OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0";
 
   // Define the data type variable - 0 : Data, 1 : MC FullSim, 3 : MC AFII
