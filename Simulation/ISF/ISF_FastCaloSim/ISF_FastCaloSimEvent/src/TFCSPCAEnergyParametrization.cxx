@@ -61,20 +61,15 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
 {
 
   int pcabin=simulstate.Ebin();
-
-  TMatrixDSym* symCov        =m_symCov[pcabin-1];
-  
-  TMatrixDSymEigen cov_eigen(*symCov);
-  TMatrixD EV1 = cov_eigen.GetEigenVectors();
-  TMatrixD* EV=&EV1;
-  
-  TVectorD*    MeanValues    =m_MeanValues[pcabin-1];
-  TVectorD*    SigmaValues   =m_SigmaValues[pcabin-1];
-  TVectorD*    Gauss_means   =m_Gauss_means[pcabin-1];
-  TVectorD*    Gauss_rms     =m_Gauss_rms[pcabin-1];
-  TVectorD*    LowerBounds   =m_LowerBounds[pcabin-1];
+ 
+  TMatrixD* EV            =m_EV[pcabin-1]; 
+  TVectorD* MeanValues    =m_MeanValues[pcabin-1];
+  TVectorD* SigmaValues   =m_SigmaValues[pcabin-1];
+  TVectorD* Gauss_means   =m_Gauss_means[pcabin-1];
+  TVectorD* Gauss_rms     =m_Gauss_rms[pcabin-1];
+  TVectorD* LowerBounds   =m_LowerBounds[pcabin-1];
   std::vector<TFCS1DFunction*> cumulative=m_cumulative[pcabin-1];
-
+  
   TRandom3* Random3=new TRandom3(); Random3->SetSeed(0);
 
   std::vector<std::string> layer;
@@ -87,7 +82,7 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
       layer.push_back(thislayer);
     }
   layer.push_back("totalE");
-
+  
   double* vals_gauss_means=(double*)Gauss_means->GetMatrixArray();
   double* vals_gauss_rms  =Gauss_rms->GetMatrixArray();
   double* vals_lowerBounds=LowerBounds->GetMatrixArray();
@@ -102,7 +97,7 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
       double gauszz=Random3->Gaus(mean,rms);
       input_data[l]=gauszz;
     }
-  
+
   P2X(SigmaValues, MeanValues, EV, layer.size(), input_data, output_data, layer.size());
 
   double *simdata_uniform = new double[layer.size()];
@@ -139,7 +134,8 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
         }
     }
 
-  double total_energy=simdata[layer.size()-1];
+  double total_energy=simdata[layer.size()-1]*simulstate.E()/Ekin_nominal();
+  //double total_energy=simdata[layer.size()-1];
   simulstate.set_E(total_energy);
   ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
 
@@ -181,13 +177,17 @@ void TFCSPCAEnergyParametrization::P2X(TVectorD* SigmaValues, TVectorD* MeanValu
         }
     }
 }
-void TFCSPCAEnergyParametrization::loadInputs(TFile* file){
-  loadInputs(file, "");
+
+bool TFCSPCAEnergyParametrization::loadInputs(TFile* file)
+{
+  return loadInputs(file, "");
 }
 
-void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
+bool TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
 {
-
+  
+  bool load_ok=1;
+  
   int trynext=1;
   TString x;
   if(folder=="") x="bin";
@@ -207,13 +207,17 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
 
   file->cd(x+"1/pca");
   IntArray* RelevantLayers=(IntArray*)gDirectory->Get("RelevantLayers");
-  if(RelevantLayers == NULL) {
+  if(RelevantLayers == NULL)
+  {
     ATH_MSG_ERROR("TFCSPCAEnergyParametrization::m_RelevantLayers in first pcabin is null!");
-  } else {
-    m_RelevantLayers.reserve(RelevantLayers->GetSize());
-    for(int i=0;i<RelevantLayers->GetSize();i++) m_RelevantLayers.push_back(RelevantLayers->GetAt(i));
+    load_ok=false;
   }
-
+  
+  if(!load_ok) return false;
+  
+  m_RelevantLayers.reserve(RelevantLayers->GetSize());
+  for(int i=0;i<RelevantLayers->GetSize();i++) m_RelevantLayers.push_back(RelevantLayers->GetAt(i));
+    
   for(int bin=1;bin<=m_numberpcabins;bin++)
     {
 
@@ -225,24 +229,28 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
       TVectorD* Gauss_means   =(TVectorD*)gDirectory->Get("Gauss_means");
       TVectorD* Gauss_rms     =(TVectorD*)gDirectory->Get("Gauss_rms");
       TVectorD* LowerBounds   =(TVectorD*)gDirectory->Get("LowerBounds");
-
-      if(symCov == NULL)         ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_symCov in pcabin "<<bin<<" is null!");
-      if(MeanValues == NULL)     ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_MeanValues in pcabin "<<bin<<" is null!");
-      if(SigmaValues == NULL)    ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_SigmaValues in pcabin "<<bin<<" is null!");
-      if(Gauss_means == NULL)    ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_Gauss_means in pcabin "<<bin<<" is null!");
-      if(Gauss_rms == NULL)      ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_Gause_rms in pcabin "<<bin<<" is null!");
-      if(LowerBounds == NULL)    ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_LowerBounds in pcabin "<<bin<<" is null!");
-
-      m_symCov.push_back(symCov);
+      
+      if(symCov == NULL)       {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::symCov in pcabin "<<bin<<" is null!"); load_ok=false;}
+      if(MeanValues == NULL)   {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::MeanValues in pcabin "<<bin<<" is null!"); load_ok=false;}
+      if(SigmaValues == NULL)  {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::SigmaValues in pcabin "<<bin<<" is null!"); load_ok=false;}
+      if(Gauss_means == NULL)  {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::Gauss_means in pcabin "<<bin<<" is null!"); load_ok=false;}
+      if(Gauss_rms == NULL)    {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::Gause_rms in pcabin "<<bin<<" is null!"); load_ok=false;}
+      if(LowerBounds == NULL)  {ATH_MSG_WARNING("TFCSPCAEnergyParametrization::LowerBounds in pcabin "<<bin<<" is null!"); load_ok=false;}
+      
+      if(!load_ok) return false;
+      
+      TMatrixDSymEigen cov_eigen(*symCov);
+      TMatrixD *EV = new TMatrixD(cov_eigen.GetEigenVectors());
+      m_EV.push_back(EV);
       m_MeanValues.push_back(MeanValues);
       m_SigmaValues.push_back(SigmaValues);
       m_Gauss_means.push_back(Gauss_means);
       m_Gauss_rms.push_back(Gauss_rms);
       m_LowerBounds.push_back(LowerBounds);
-
+      
       std::vector<std::string> layer;
       std::vector<int> layerNr;
-
+      
       for(unsigned int i=0;i<m_RelevantLayers.size();i++)
         layerNr.push_back(m_RelevantLayers[i]);
 
@@ -272,5 +280,7 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
       m_cumulative.push_back(cumulative);
 
    }
+
+ return true;
 
 }
