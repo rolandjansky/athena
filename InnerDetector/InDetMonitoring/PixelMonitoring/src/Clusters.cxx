@@ -145,38 +145,6 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     htitles = makeHisttitle(("Average number of pixel clusters per event per LB, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_LB + atext_clu), false);
     sc = clusterExpert.regHist(m_clusters_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
-    hname = makeHistname(("1Hit_Cluster_ToT_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-    htitles = makeHisttitle(("ToT for 1-hit clusters, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_tot + atext_nclu), false);
-    sc = clusterExpert.regHist(m_1cluster_ToT_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_tot, min_tot, max_tot));
-
-    hname = makeHistname(("2Hit_Cluster_ToT_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-    htitles = makeHisttitle(("ToT for 2-hit clusters, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_tot + atext_nclu), false);
-    sc = clusterExpert.regHist(m_2cluster_ToT_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_tot, min_tot, max_tot));
-
-    hname = makeHistname(("3Hit_Cluster_ToT_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-    htitles = makeHisttitle(("ToT for 3-hit clusters, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_tot + atext_nclu), false);
-    sc = clusterExpert.regHist(m_3cluster_ToT_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_tot, min_tot, max_tot));
-
-    hname = makeHistname(("BigHit_Cluster_ToT_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-    htitles = makeHisttitle(("ToT for cluster size > 3, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_tot + atext_nclu), false);
-    sc = clusterExpert.regHist(m_bigcluster_ToT_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_tot, min_tot, max_tot));
-
-    hname = makeHistname(("1Hit_Cluster_Q_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-    htitles = makeHisttitle(("Charge for 1-hit clusters, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_Q + atext_nclu), false);
-    sc = clusterExpert.regHist(m_1cluster_Q_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q));
-
-    hname = makeHistname(("2Hit_Cluster_Q_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-    htitles = makeHisttitle(("Charge for 2-hit clusters, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_Q + atext_nclu), false);
-    sc = clusterExpert.regHist(m_2cluster_Q_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q));
-
-    hname = makeHistname(("3Hit_Cluster_Q_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-    htitles = makeHisttitle(("Charge for 3-hit clusters, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_Q + atext_nclu), false);
-    sc = clusterExpert.regHist(m_3cluster_Q_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q));
-
-    hname = makeHistname(("BigHit_Cluster_Q_" + m_modLabel_PixLayerIBL2D3D[i1]), false);
-    htitles = makeHisttitle(("Charge for cluster size > 3, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_Q + atext_nclu), false);
-    sc = clusterExpert.regHist(m_bigcluster_Q_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q));
-
     hname = makeHistname(("Cluster_LVL1A_" + m_modLabel_PixLayerIBL2D3D[i1]), true);
     if (i != PixLayer::kIBL) {
       htitles = makeHisttitle(("Cluster Level 1 Accept with ToT > 15, " + m_modLabel_PixLayerIBL2D3D[i1]), (atext_lvl1 + atext_nclu), false);
@@ -276,11 +244,6 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     tmp2 = "Average cluster Level 1 Accept";
     m_cluster_LVL1A_mod = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
     sc = m_cluster_LVL1A_mod->regHist(timeShift);
-
-    tmp = "Clus_Occ_SizeCut";
-    tmp2 = "Size>1 Cluster occupancy";
-    m_clusocc_sizenot1 = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
-    sc = m_clusocc_sizenot1->regHist(clusterShift);
 
     tmp = "Clus_LVL1A_SizeCut";
     tmp2 = "Average Size>1 Cluster Level 1 Accept";
@@ -613,15 +576,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
       }
 
       if (m_cluster_ToT_mod) m_cluster_ToT_mod->fill(cluster.totalToT(), clusID, m_pixelid);
-      if (cluster.rdoList().size() == 1 && m_1cluster_ToT_mod[pixlayer]) m_1cluster_ToT_mod[pixlayer]->Fill(cluster.totalToT());
-      if (cluster.rdoList().size() == 2 && m_2cluster_ToT_mod[pixlayer]) m_2cluster_ToT_mod[pixlayer]->Fill(cluster.totalToT());
-      if (cluster.rdoList().size() == 3 && m_3cluster_ToT_mod[pixlayer]) m_3cluster_ToT_mod[pixlayer]->Fill(cluster.totalToT());
-      if (cluster.rdoList().size() > 3 && m_bigcluster_ToT_mod[pixlayer]) m_bigcluster_ToT_mod[pixlayer]->Fill(cluster.totalToT());
-
-      if (cluster.rdoList().size() == 1 && m_1cluster_Q_mod[pixlayer]) m_1cluster_Q_mod[pixlayer]->Fill(cluster.totalCharge());
-      if (cluster.rdoList().size() == 2 && m_2cluster_Q_mod[pixlayer]) m_2cluster_Q_mod[pixlayer]->Fill(cluster.totalCharge());
-      if (cluster.rdoList().size() == 3 && m_3cluster_Q_mod[pixlayer]) m_3cluster_Q_mod[pixlayer]->Fill(cluster.totalCharge());
-      if (cluster.rdoList().size() > 3 && m_bigcluster_Q_mod[pixlayer]) m_bigcluster_Q_mod[pixlayer]->Fill(cluster.totalCharge());
 
       // Fill the number of pixel hits in a cluster
       if (m_cluster_groupsize) m_cluster_groupsize->Fill(npixHitsInClusterRaw);
@@ -650,7 +604,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
       if (pixlayer == PixLayer::kIBL && m_totalclusters_per_bcid_mod[PixLayerIBL2D3D::kIBL]) m_totalclusters_per_bcid_mod[PixLayerIBL2D3D::kIBL]->Fill(1.0 * m_currentBCID);
 
       // Fill Occupancy
-      if (cluster.rdoList().size() > 1 && m_clusocc_sizenot1) m_clusocc_sizenot1->fill(clusID, m_pixelid);
       if (m_doOnline && m_clustermap_tmp) m_clustermap_tmp->fill(clusID, m_pixelid);
 
       // 2D Map

@@ -251,16 +251,8 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_highNclusters_per_lumi = 0;
   memset(m_cluster_ToT1d_mod, 0, sizeof(m_cluster_ToT1d_mod));
   memset(m_cluster_ToT1d_corr, 0, sizeof(m_cluster_ToT1d_corr));
-  memset(m_1cluster_ToT_mod, 0, sizeof(m_1cluster_ToT_mod));
-  memset(m_2cluster_ToT_mod, 0, sizeof(m_2cluster_ToT_mod));
-  memset(m_3cluster_ToT_mod, 0, sizeof(m_3cluster_ToT_mod));
-  memset(m_bigcluster_ToT_mod, 0, sizeof(m_bigcluster_ToT_mod));
   memset(m_cluster_Q_mod, 0, sizeof(m_cluster_Q_mod));
   memset(m_cluster_Q_corr, 0, sizeof(m_cluster_Q_corr));
-  memset(m_1cluster_Q_mod, 0, sizeof(m_1cluster_Q_mod));
-  memset(m_2cluster_Q_mod, 0, sizeof(m_2cluster_Q_mod));
-  memset(m_3cluster_Q_mod, 0, sizeof(m_3cluster_Q_mod));
-  memset(m_bigcluster_Q_mod, 0, sizeof(m_bigcluster_Q_mod));
   m_cluster_groupsize = 0;
   m_cluster_col_width = 0;
   m_cluster_row_width = 0;
