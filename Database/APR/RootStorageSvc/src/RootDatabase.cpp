@@ -782,7 +782,6 @@ void RootDatabase::registerBranchContainer(RootTreeContainer* cont)
 /// Execute Database Transaction action
 DbStatus RootDatabase::transAct(Transaction::Action action)
 {
-   cout << "RootDatabase::transAct" << endl;
    // process flush to write file
    if( action == Transaction::TRANSACT_FLUSH && m_file != nullptr && m_file->IsWritable()) m_file->Write();
    // process commits only

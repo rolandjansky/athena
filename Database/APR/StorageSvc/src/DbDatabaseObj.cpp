@@ -834,7 +834,6 @@ DbStatus DbDatabaseObj::transAct(Transaction::Action action)  {
          status = iret;
       }
     }
-
     if ( status.isSuccess() )  {
       status = m_params.transAct(action);
     }

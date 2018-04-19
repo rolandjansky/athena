@@ -199,9 +199,9 @@ bool DbContainerObj::updatesPending() const  {
   return m_info != 0 ? m_info->updatesPending() : false;
 }
 
-/// Start/Commit/Rollback Database Transaction
+/// Execute Transaction Action
 DbStatus DbContainerObj::transAct(Transaction::Action action) {
-   return m_info?  m_info->transAct(action) : Error;
+   return m_info?  m_info->transAct(action) : Success;
 }
 
 /// Pass options to the implementation
