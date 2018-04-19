@@ -237,7 +237,7 @@
                             
                             <jobTransform userJobId="Run00330470_Muons_Collisions">
                                 <doc>RecoTrf with beamType=collisions</doc>
-                                <jobTransformJobName>Run00183021_Muons_Collisions</jobTransformJobName>
+                                <jobTransformJobName>Run00330470_Muons_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
                                   Reco_tf.py  --outputHISTFile=myMergedMonitoring_Muons_0.root --maxEvents=500 --outputESDFile=myESD_Muons_0.pool.root --outputAODFile=myAOD_Muons_0.AOD.pool.root --outputTAGFile=myTAG_Muons_0.root --ignoreErrors=False --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/data17_13TeV.00330470.physics_Main.merge.DRAW_ZMUMU.f843_m1831._0245.1 --preExec='rec.doTrigger=False;' --conditionsTag=CONDBR2-BLKPA-2018-03 --geometryVersion=ATLAS-R2-2016-01-00-01
                                 </jobTransformCmd>
@@ -255,7 +255,7 @@
                                     </arg>
                                     <arg>
                                         <argname>outputFile</argname>
-                                        <argvalue>Run00183021_Muons0_Collisions.summary.txt</argvalue>
+                                        <argvalue>Run00330470_Muons_Collisions.summary.txt</argvalue>
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>
