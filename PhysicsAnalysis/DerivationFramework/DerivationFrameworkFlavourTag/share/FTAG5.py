@@ -33,6 +33,12 @@ from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
+# logging
+from AthenaCommon import Logging
+ftag5_log = Logging.logging.getLogger('FTAG5LOG')
+def log_setup(algo):
+    ftag5_log.info('set up {}'.format(algo))
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -58,7 +64,7 @@ FTAG5StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
     expression = skim_expr)
 
 ToolSvc += FTAG5StringSkimmingTool
-print FTAG5StringSkimmingTool
+log_setup(FTAG5StringSkimmingTool)
 
 #=====================================================================
 # Thinning tools
@@ -82,7 +88,7 @@ FTAG5HbbThinningTool = HbbThinner(
     addConstituents = True,
     addConeAssociated = True)
 ToolSvc += FTAG5HbbThinningTool
-print FTAG5HbbThinningTool
+log_setup(FTAG5HbbThinningTool)
 
 #====================================================================
 # TRUTH SETUP
@@ -100,7 +106,7 @@ if globalflags.DataSource()!='data':
 #make IPE tool for TrackToVertexWrapper
 FTAG5IPETool = Trk__TrackToVertexIPEstimator(name = "FTAG5IPETool")
 ToolSvc += FTAG5IPETool
-print FTAG5IPETool
+log_setup(FTAG5IPETool)
 
 #====================================================================
 # CREATE PRIVATE SEQUENCE
@@ -161,6 +167,38 @@ for jc in OutputJets["FTAG5"]:
        SaveTrackVectors = True,
    )
 
+#================================================================
+# Add Hbb tagger
+#================================================================
+
+fatCalib = CfgMgr.JetCalibrationTool(
+    "Jabbelator",
+    JetCollection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",
+    ConfigFile="JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config",
+    CalibSequence="EtaJES_JMS",
+    CalibArea="00-04-81",
+    IsData=False)
+ToolSvc += fatCalib
+log_setup(fatCalib)
+
+hbbTagger = CfgMgr.HbbTaggerDNN(
+    "HbbTagger",
+    OutputLevel=WARNING,
+    neuralNetworkFile="BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json")
+ToolSvc += hbbTagger
+log_setup(hbbTagger)
+
+FTAG5Seq += CfgMgr.HbbTaggingAlgorithm(
+    "HbbTaggerAlg",
+    jetCollectionName="AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+    decorationName="HbbScore",
+    minPt=250e3,
+    maxEta=2.0,
+    tagger=hbbTagger,
+    calibrationTool=fatCalib)
+
+log_setup(FTAG5Seq.HbbTaggerAlg)
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
@@ -198,6 +236,7 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount.GhostHBosonsCount",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
 ]
 
 
