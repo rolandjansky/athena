@@ -10,6 +10,8 @@
 #include "AGDDKernel/AliasStore.h"
 #ifndef SIMULATIONBASE
 #include "AmdcAth/AmdcsimrecAthenaSvc.h"
+#else
+#include <fstream>
 #endif
 
 using namespace MuonGM;
