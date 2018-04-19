@@ -41,6 +41,9 @@ namespace H5Utils {
       ("chunk-size,c",
        po::value(&app.tree.chunk_size)->default_value(CHUNK_SIZE),
        "chunk size in HDF5 file")
+      ("selection,s",
+       po::value(&app.tree.selection)->default_value(""),
+       "selection string applied to ntuples")
       ("print-interval,p",
        po::value(&app.tree.print_interval)->default_value(0, "never")->implicit_value(-1, "1%"),
        "print progress")
