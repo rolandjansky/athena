@@ -223,14 +223,6 @@ StatusCode PixelMainMon::fillTrackMon(void) {
 
       nPixelHits++;  //add another pixel hit
 
-      float npixHitsInCluster = 0;
-      float rowWidthOfCluster = 0;
-      const InDet::PixelCluster *pixelCluster = dynamic_cast<const InDet::PixelCluster *>(RawDataClus);
-      if (pixelCluster) {
-        npixHitsInCluster = pixelCluster->rdoList().size();
-        rowWidthOfCluster = pixelCluster->width().colRow().x();
-      }
-
       const Trk::AtaPlane *trackAtPlane = dynamic_cast<const Trk::AtaPlane *>(trkParameters);
       if (trackAtPlane) {
         const Amg::Vector2D localpos = trackAtPlane->localPosition();

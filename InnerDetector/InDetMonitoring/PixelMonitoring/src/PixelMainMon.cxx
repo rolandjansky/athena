@@ -165,9 +165,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_avgocc_active_per_lumi_mod, 0, sizeof(m_avgocc_active_per_lumi_mod));
   memset(m_maxocc_per_lumi_mod, 0, sizeof(m_maxocc_per_lumi_mod));
   memset(m_maxocc_per_bcid_mod, 0, sizeof(m_maxocc_per_bcid_mod));
-  m_occupancy_time1 = 0;
-  m_occupancy_time2 = 0;
-  m_occupancy_time3 = 0;
   memset(m_occupancy_summary_mod, 0, sizeof(m_occupancy_summary_mod));
   m_occupancy_PP0_ECA = 0;
   m_occupancy_PP0_ECC = 0;
@@ -262,13 +259,8 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_cluster_LVL1A = 0;
   memset(m_cluster_LVL1A1d_mod, 0, sizeof(m_cluster_LVL1A1d_mod));
   m_clusterSize_eta = 0;
-  memset(m_clusToT_vs_eta_mod, 0, sizeof(m_clusToT_vs_eta_mod));
-  memset(m_ToT_vs_clussize_mod, 0, sizeof(m_ToT_vs_clussize_mod));
   memset(m_clussize_vs_eta_mod, 0, sizeof(m_clussize_vs_eta_mod));
   m_cluster_occupancy_FE_B0_mon = 0;
-  m_cluster_occupancy_time1 = 0;
-  m_cluster_occupancy_time2 = 0;
-  m_cluster_occupancy_time3 = 0;
   m_num_clusters = 0;
   memset(m_clusters_per_track_per_lumi_mod, 0, sizeof(m_clusters_per_track_per_lumi_mod));
   memset(m_num_clusters_mod, 0, sizeof(m_num_clusters_mod));
@@ -289,9 +281,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_errhist_syncerr_LB_pix = 0;
   memset(m_errhist_errcat_LB, 0, sizeof(m_errhist_errcat_LB));
   memset(m_errhist_errtype_LB, 0, sizeof(m_errhist_errtype_LB));
-  m_error_time1 = 0;
-  m_error_time2 = 0;
-  m_error_time3 = 0;
   memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
   memset(m_errhist_expert_IBL_LB, 0, sizeof(m_errhist_expert_IBL_LB));
   memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
