@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
    */
 
 #include "xAODJiveXML/xAODJetRetriever.h"
@@ -39,11 +39,6 @@ namespace JiveXML {
 
       //Only declare the interface
       declareInterface<IDataRetriever>(this);
-
-      //In xAOD 25Mar14: 
-      //  AntiKt4LCTopoJets, CamKt12LCTopoJets, AntiKt4EMTopoJets, AntiKt4TruthWZJets
-      //  Kt4EMTopoJets, AntiKt10TruthWZJets, Kt4LCTopoJets, AntiKt4TruthJets
-      //  CamKt12TruthJets, AntiKt10TruthJets, CamKt12TruthWZJets, AntiKt10LCTopoJets
 
       declareProperty("StoreGateKey", m_sgKey  = "AntiKt4EMTopoJets", 
           "Collection to be first in output, shown in Atlantis without switching");
@@ -143,7 +138,6 @@ namespace JiveXML {
     DataVect energy; energy.reserve(jetCont->size());
     DataVect bTagName; bTagName.reserve(jetCont->size());
     DataVect bTagValue; bTagValue.reserve(jetCont->size());
-    //DataVect charge; energy.reserve(jetCont->size());
     DataVect idVec; idVec.reserve(jetCont->size());
     DataVect px; px.reserve(jetCont->size());
     DataVect py; py.reserve(jetCont->size());
@@ -198,7 +192,6 @@ namespace JiveXML {
         } else {
 
           isCalo=true;
-          //	  const xAOD::CaloClusterContainer* container = dynamic_cast< const xAOD::CaloClusterContainer* >( cluster);
           clusterID.push_back(DataType(cluster->index()));
 
 
@@ -260,7 +253,6 @@ namespace JiveXML {
           if(!isCalo){
             trackKey.push_back(DataType(track->index()));
             trackContKey.push_back(m_tracksName);
-	    //trackLinkCount.push_back(DataType(
             trackcounter++;
 	    if (msgLvl(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "  Associated track: d0 = " << track->d0() << ", pt = " << track->pt() << endmsg; }
           }
@@ -290,8 +282,6 @@ namespace JiveXML {
       }
       else{
         btag1=0;}
-      //    bTagJet->MVx_discriminant("MV2c10",btag1); 
-      //     bTagJet->MVx_discriminant("MV2c10"); 
       bTagValue.push_back( btag1 );
       bTagName.push_back(DataType( "MV2c10"));
       bTagValue.push_back(btag1);
@@ -304,23 +294,6 @@ namespace JiveXML {
 
       if (msgLvl(MSG::VERBOSE)) { msg(MSG::VERBOSE) << " Jet #" << counter << "; BTagging: MV2c10: "
         << btag1 << ", IP3D: " << btag2 << ", SV1: " << btag3 << endmsg; }
-
-      // from AnalysisJiveXML:
-      //   bTagName.push_back( DataType( "JetFitterTagNN" ));
-      //   bTagValue.push_back( DataType( (*itr)->getFlavourTagWeight("JetFitterTagNN") ));
-      //
-      // code from PaulT, 16Oct14
-      /*
-         const xAOD::BTagging *btag = (*jetItr)->btagging();
-         std::cout << "btag " << btag << std::endl;
-         double mv1 = (btag) ? btag->MV1_discriminant() : 0;
-         std::cout <<"mv1 "<< mv1 << std::endl;
-         double ip3d = (btag) ? btag->IP3D_loglikelihoodratio() : 0;
-         std::cout <<"ip3d "<< ip3d << std::endl;
-         double sv1 = (btag) ? btag->SV1_loglikelihoodratio() : 0;
-         std::cout <<"sv1 "<< sv1 << std::endl;
-         */
-      //charge.push_back( DataType( (*jetItr)->charge() )); // charge not directly accessible. placeholder.
 
       // updated for data15
       // from: Reconstruction/MET/METReconstruction/Root/METJetFilterTool.cxx
@@ -339,9 +312,6 @@ namespace JiveXML {
           << endmsg; }
 
       isGood.push_back( DataType( -1111. )); // not anymore defined ? 
-      //// this is defined in xAOD-JetAttribute, but doesn't work with data15:
-      //      isBad.push_back( DataType( (*jetItr)->auxdata<float>("isBadMedium") ));
-      //      isUgly.push_back( DataType( (*jetItr)->auxdata<float>("isUgly") ));
       isBad.push_back( DataType( -1111. ));
       isUgly.push_back( DataType( -1111. ));
       if (isCalo){
@@ -360,7 +330,6 @@ namespace JiveXML {
     DataMap["mass"] = mass;
     DataMap["bTagName multiple=\"4\""] = bTagName; // assigned by hand !
     DataMap["bTagValue multiple=\"4\""] = bTagValue;
-    //    DataMap["charge"] = charge;
     DataMap["id"] = idVec;
     DataMap["px"] = px;
     DataMap["py"] = py;
