@@ -68,6 +68,7 @@ StatusCode InDetGlobalBackgroundMonTool::bookHistograms() {
   }
 
   for (unsigned int k = 0; k < int(int(SCT_DISKS_N) / 2); k++) {
+    //Average over 5 Lumiblocks for increased statistics
     m_AsymDisks[k] = new TH1I(Form("AsymDisks%i%i", 2 * k + 1, 2 * k + 2),
                               Form("Asymmetry of Disks %i and %i;Z Asymmetry;Counts", 2 * k + 1,
                                    2 * k + 2), 201, -1.1, 1.1);
@@ -75,16 +76,17 @@ StatusCode InDetGlobalBackgroundMonTool::bookHistograms() {
     m_EndCapLB[0][k] = new TProfile(Form("EndCapLB%i%iAC", 2 * k + 1, 2 * k + 2),
                                     Form(
                                       "SPs per Event per LB on Disks %i-%i (both ECs) with beam AC; LumiBlock;Counts per Event",
-                                      2 * k + 1, 2 * k + 2), 3000, 0.5, 3000.5);
+                                      2 * k + 1, 2 * k + 2), 600, 0.5, 3000.5);
     status &= regHist(m_EndCapLB[0][k], "InDetGlobal/BackgroundNCB", run, ATTRIB_MANAGED).isSuccess();
     m_EndCapLB[1][k] = new TProfile(Form("EndCapLB%i%iCA", 2 * k + 1, 2 * k + 2),
                                     Form(
                                       "SPs per Event on Disks %i-%i (both ECs) with beam CA; LumiBlock;Counts per Event",
-                                      2 * k + 1, 2 * k + 2), 3000, 0.5, 3000.5);
+                                      2 * k + 1, 2 * k + 2), 600, 0.5, 3000.5);
     status &= regHist(m_EndCapLB[1][k], "InDetGlobal/BackgroundNCB", run, ATTRIB_MANAGED).isSuccess();
   }
 
-  m_asymLB = new TProfile("asymLB", "Fraction of Events with beam CA;LumiBlock;", 3000, 0.5, 3000.5);
+  //Average over 5 Lumiblocks for increased statistics
+  m_asymLB = new TProfile("asymLB", "Fraction of Events with beam CA;LumiBlock;", 600, 0.5, 3000.5);
   status &= regHist(m_asymLB, "InDetGlobal/BackgroundNCB", run, ATTRIB_MANAGED).isSuccess();
 
   m_asymBCID =
