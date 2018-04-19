@@ -29,8 +29,7 @@ ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name,
 // Destructor
 ///////////////
 ViewSubgraphAlg::~ViewSubgraphAlg()
-{
-}
+{}
 
 // Athena Algorithm's Hooks
 ////////////////////////////
@@ -65,7 +64,7 @@ StatusCode ViewSubgraphAlg::execute()
   
   //Make a vector of dummy data to initialise the views
   std::vector<int> viewData;
-  std::vector< SG::View* > viewVector;
+  ViewContainer viewVector;
   for ( int viewIndex = 0; viewIndex < m_viewNumber; ++viewIndex )
   {
     viewData.push_back( ( viewIndex * 10 ) + 10 + ctx.evt() );
@@ -85,30 +84,10 @@ StatusCode ViewSubgraphAlg::execute()
         m_scheduler.get() ) );                  //ServiceHandle for the scheduler
 
   //Store the collection of views
-  SG::WriteHandle< std::vector< SG::View* > > outputViewHandle( m_w_views, ctx );
-  outputViewHandle.record( CxxUtils::make_unique< std::vector< SG::View* > >( viewVector ) );
+  SG::WriteHandle< ViewContainer > outputViewHandle( m_w_views, ctx );
+  outputViewHandle.record( CxxUtils::make_unique< ViewContainer >( viewVector ) );
 
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthViews
