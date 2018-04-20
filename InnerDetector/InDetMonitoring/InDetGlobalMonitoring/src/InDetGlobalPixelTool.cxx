@@ -137,7 +137,12 @@ StatusCode InDetGlobalPixelTool::fillHistograms()
   m_tracks=m_combined_tracks;
   int nPixelHits=0;
 
-
+  if(m_tracks==0)
+    {
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Tracks. Skipping Event!" << endmsg;
+	  return StatusCode::SUCCESS;	
+    }
+    
   std::vector<Identifier> myRDOIDs;
   for (int i=0; i<(int)m_tracks->size(); i++)
     {
