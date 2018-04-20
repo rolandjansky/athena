@@ -79,7 +79,8 @@ JETM13SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJe
                                         ]
 JETM13SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                      "TrackCaloClustersCombinedAndNeutral",
-                                     "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects",
+                                     "JetETMissChargedParticleFlowObjects",
+                                     "JetETMissNeutralParticleFlowObjects",
                                      "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape",
                                      ]
 
