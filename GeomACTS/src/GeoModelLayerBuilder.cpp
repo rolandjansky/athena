@@ -14,6 +14,7 @@
 const Acts::LayerVector
 Acts::GeoModelLayerBuilder::negativeLayers() const
 {
+  ACTS_VERBOSE("Building negative layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<GeoModelLayerBuilder*>(this);
   LayerVector nVector;
@@ -24,6 +25,7 @@ Acts::GeoModelLayerBuilder::negativeLayers() const
 const Acts::LayerVector
 Acts::GeoModelLayerBuilder::centralLayers() const
 {
+  ACTS_VERBOSE("Building central layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<GeoModelLayerBuilder*>(this);
   LayerVector cVector;
@@ -34,6 +36,7 @@ Acts::GeoModelLayerBuilder::centralLayers() const
 const Acts::LayerVector
 Acts::GeoModelLayerBuilder::positiveLayers() const
 {
+  ACTS_VERBOSE("Building positive layers");
   // @todo Remove this hack once the m_elementStore mess is sorted out
   auto        mutableThis = const_cast<GeoModelLayerBuilder*>(this);
   LayerVector pVector;
@@ -143,6 +146,29 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
     // layerElements.push_back(&element->surface());
   }
 
+  // @TODO: Maybe exclude BLM (BCM?)
+
+  ACTS_VERBOSE("Found " << layers.size() << " layers");
+  // pre loop for more concise output. only do if we actually print it
+  if(logger().doPrint(Acts::Logging::VERBOSE)) {
+    size_t n = 1;
+    for (const auto& layerPair : layers) {
+      std::vector<const Surface*> layerSurfaces = layerPair.second;
+      auto key = layerPair.first;
+      ProtoLayer pl(layerSurfaces);
+      ACTS_VERBOSE("Layer #" << n << " with layerKey: ("
+          << key.first << ", " << key.second << ")");
+      if (type == 0) {  // BARREL
+        ACTS_VERBOSE(" -> at rMin / rMax: " << pl.minR << " / " << pl.maxR);
+      }
+      else {
+        ACTS_VERBOSE(" -> at zMin / zMax: " << pl.minZ << " / " << pl.maxZ);
+      }
+
+      n++;
+    }
+  }
+
   for (const auto& layerPair : layers) {
 
     std::unique_ptr<Acts::ApproachDescriptor> approachDescriptor = nullptr;
@@ -180,8 +206,8 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
         = new Acts::CylinderSurface(transform, (pl.minR + pl.maxR)/2., layerHalfZ);
       
       // @TODO: needs to be configurable
-      size_t binsZ = 100;
-      size_t binsPhi = 100;
+      size_t binsZ = 10;
+      size_t binsPhi = 10;
 
       Acts::BinUtility materialBinUtil(
           binsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
@@ -256,13 +282,16 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       Acts::DiscSurface* outerBoundary 
         = new Acts::DiscSurface(transformOuter, pl.minR, pl.maxR);
 
-      size_t binsPhi = 100;
-      size_t binsR = 50;
+      size_t binsPhi = 20;
+      size_t binsR = 5;
 
       Acts::BinUtility materialBinUtil(
           binsPhi, -M_PI, M_PI, Acts::closed, Acts::binPhi);
       materialBinUtil += Acts::BinUtility(
             binsR, -pl.minR, pl.maxR, Acts::open, Acts::binR, transformNominal);
+      
+      materialProxy
+        = std::make_shared<const SurfaceMaterialProxy>(materialBinUtil);
 
       ACTS_VERBOSE("[L] Layer is marked to carry support material on Surface ( "
           "inner=0 / center=1 / outer=2 ) : " << "inner");
