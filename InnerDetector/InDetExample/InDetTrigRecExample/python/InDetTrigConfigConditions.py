@@ -143,35 +143,35 @@ class PixelConditionsServicesSetup:
     if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
       conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
-    from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc
+#    from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc
 
-    SpecialPixelMapSvc = SpecialPixelMapSvc(name='SpecialPixelMapSvc')
-    ServiceMgr += SpecialPixelMapSvc
-    SpecialPixelMapSvc.RegisterCallback = False;
-    SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" ]
-    SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong" ]
+#    SpecialPixelMapSvc = SpecialPixelMapSvc(name='SpecialPixelMapSvc')
+#    ServiceMgr += SpecialPixelMapSvc
+#    SpecialPixelMapSvc.RegisterCallback = True;
+#    SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" ]
+#    SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong" ]
   
-    SpecialPixelMapSvc.DBFolders += [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
-    SpecialPixelMapSvc.SpecialPixelMapKeys += [ "NoiseMapShort", "NoiseMapLong" ]
-  
-    SpecialPixelMapSvc.OverlayKey = "PixMapOverlay"
-    SpecialPixelMapSvc.OverlayFolder = "/PIXEL/PixMapOverlay"
-    ServiceMgr += SpecialPixelMapSvc
+#    SpecialPixelMapSvc.DBFolders += [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
+#    SpecialPixelMapSvc.SpecialPixelMapKeys += [ "NoiseMapShort", "NoiseMapLong" ]
+#  
+#    SpecialPixelMapSvc.OverlayKey = "PixMapOverlay"
+#    SpecialPixelMapSvc.OverlayFolder = "/PIXEL/PixMapOverlay"
+#    ServiceMgr += SpecialPixelMapSvc
 
     #Alg is suppose to replace service, sync withh service for now
-#   SpecialPixelMapCondAlg conflicts with InDetPixelConditionsSummarySvc
-#    from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
-#    SpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="SpecialPixelMapCondAlg",
-#            DBFolders  = SpecialPixelMapSvc.DBFolders,
-#            SpecialPixelMapKeys = SpecialPixelMapSvc.SpecialPixelMapKeys ,
-#            OverlayFolder       = SpecialPixelMapSvc.OverlayFolder,
-#            OverlayKey          = SpecialPixelMapSvc.OverlayKey)
-#    condSeq += SpecialPixelMapCondAlg
+#    if "InDetSpecialPixelMapCondAlg" not in condSeq:
+#       from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapCondAlg
+#       SpecialPixelMapCondAlg = SpecialPixelMapCondAlg(name="SpecialPixelMapCondAlg",
+#               DBFolders  = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong", "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong"  ],
+#               SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong", "NoiseMapShort", "NoiseMapLong" ],
+#               OverlayFolder       = "/PIXEL/PixMapOverlay",
+#               OverlayKey          = "PixMapOverlay")
+#       condSeq += SpecialPixelMapCondAlg
 
     #theApp.CreateSvc += [ 'SpecialPixelMapSvc/%s' % self.instanceName('SpecialPixelMapSvc') ]
 
     
-    if self._print:  print SpecialPixelMapSvc
+#    if self._print:  print SpecialPixelMapSvc
 
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     from AthenaCommon.GlobalFlags import globalflags

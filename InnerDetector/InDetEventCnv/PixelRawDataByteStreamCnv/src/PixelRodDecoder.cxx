@@ -6,7 +6,6 @@
 
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "ExtractCondensedIBLhits.h"
@@ -55,7 +54,6 @@ PixelRodDecoder::PixelRodDecoder
       m_pixel_id(nullptr),
       m_det(eformat::SubDetector()),
       m_cablingData(nullptr),
-      m_condsummary("PixelConditionsSummarySvc",name),
       m_errors("PixelByteStreamErrorsSvc",name)
 {
     declareInterface< IPixelRodDecoder  >( this );
@@ -101,13 +99,6 @@ StatusCode PixelRodDecoder::initialize() {
     const InDetDD::SiNumerology& pixSiNum = pixelManager->numerology();
     m_is_ibl_present = (pixSiNum.numLayers() == 4);
     ATH_MSG_DEBUG( "m_is_ibl_present = " << m_is_ibl_present );
-
-    // Retrieve Pixel Conditions Summary
-    if (m_condsummary.retrieve().isFailure()) {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_condsummary );
-        return StatusCode::FAILURE;
-    } else
-        ATH_MSG_INFO ("Retrieved tool " << m_condsummary );
 
     // Retrieve Pixel Errors Service
     if (m_errors.retrieve().isFailure()) {

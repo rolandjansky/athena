@@ -17,7 +17,6 @@ atlas_depends_on_subdirs(
    Control/StoreGate
    DetectorDescription/IRegionSelector
    Event/ByteStreamCnvSvcBase
-   InnerDetector/InDetConditions/InDetConditionsSummaryService
    InnerDetector/InDetConditions/PixelConditionsServices
    InnerDetector/InDetDetDescr/InDetIdentifier
    InnerDetector/InDetDetDescr/InDetReadoutGeometry
