@@ -110,6 +110,8 @@ namespace xAOD {
     /** set CenterMag moment needed for vertex correction */
     void setCenterMag(float CenterMag);
     
+    /** is a charged PFO */
+    bool isCharged() const;
     /** get charge of PFO */
     float charge() const;
     /** set charge of PFO */

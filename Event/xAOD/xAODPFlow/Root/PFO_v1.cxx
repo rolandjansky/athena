@@ -249,7 +249,9 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, centerMag, setCenterMag)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(PFO_v1, float, charge, setCharge)
 
-
+  bool PFO_v1::isCharged() const{
+     return (fabs(this->charge())>FLT_MIN);
+  }
 
   /** specaial implementations for floats, for eflowRec JetETMiss variables, to reduce disk space usage */
 
