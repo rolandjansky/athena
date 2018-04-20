@@ -16,6 +16,8 @@ from DerivationFrameworkTop.TOPQCommonExtraContent import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addOriginCorrectedClusters
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
 
@@ -74,6 +76,9 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_CaloCalTopoClusters;
   # MET
   TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_MET_Track;
+  # electron and photon shower information
+  TOPQSlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+  TOPQSlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
   # Also write the origin-corrected clusters for both EMTopo (small-R-jets) and
   # LCTopo (large-R-jets).

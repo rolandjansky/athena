@@ -14,6 +14,9 @@ DFisMC = (globalflags.DataSource()=='geant4')
 ## add LHE3 weights metadata
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+## jet tag nonprompt lepton
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
 def setup(HIGG4DxName, ToolSvc):
 
     augmentationTools=[]
@@ -129,3 +132,14 @@ def addVRJetsAndBTagging(HIGG4DxName, sequence):
     # alias for VR
     BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
     
+#====================================================================
+# JetTagNonPromptLepton decorations. Called from HIGG4D1.py
+#====================================================================
+def addJetTagNonPromptLepton(HIGG4DxName, sequence):
+    
+    # Build AntiKt4PV0TrackJets and run b-tagging
+    JetTagConfig.ConfigureAntiKt4PV0TrackJets(sequence, HIGG4DxName)
+    
+    # Add BDT decoration algs
+    sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
+    sequence += JetTagConfig.GetDecoratePromptTauAlgs()

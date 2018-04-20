@@ -160,10 +160,23 @@ StatusCode GhostTrackCPTools::setupTruthFilterTool(){
 
 StatusCode GhostTrackCPTools::setupJetTrackFilterTool(){
 
+  if (asg::ToolStore::contains<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName)){
+    m_truthOriginTool = asg::ToolStore::get<InDet::InDetTrackTruthOriginTool>(m_truthOriginToolName);
+  } else {
+    auto tool = new InDet::InDetTrackTruthOriginTool(m_truthOriginToolName);
+    top::check(tool->initialize(),
+                "Failure to initialize InDetTrackTruthOriginTool "+m_truthOriginToolName);
+    m_truthOriginTool = tool;
+    ATH_MSG_INFO(" Creating truth origin tool "+m_truthOriginToolName );
+  }
+
   if (asg::ToolStore::contains<InDet::JetTrackFilterTool>(m_jetTrackFilterToolName)){
     m_jetTrackFilterTool = asg::ToolStore::get<InDet::JetTrackFilterTool>(m_jetTrackFilterToolName);
   } else {
     auto tool = new InDet::JetTrackFilterTool(m_jetTrackFilterToolName);
+    top::check(tool->setProperty("trackOriginTool",
+                                  ToolHandle<InDet::IInDetTrackTruthOriginTool>{&(* m_truthOriginTool)}),
+                "Failed to setProperty trackOriginTool of InDetTrackTruthFilterTool "+m_truthFilterToolName);
     top::check(tool->initialize(), "Failure to initialize JetTrackFilterTool");
     m_jetTrackFilterTool = tool;
     ATH_MSG_INFO(" Creating jet track filter tool" );

@@ -229,6 +229,19 @@ STDM2SlimmingHelper.ExtraVariables += [
 STDM2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
 STDM2SlimmingHelper.AllVariables = ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
 
+# add photon shower shape variables
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+STDM2SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
+
+# add isolation variable needed to study AODfix
+STDM2SlimmingHelper.ExtraVariables += ["Photons.core57cellsEnergyCorrection"]
+
+# add new TTVA isolation variables 
+import IsolationAlgs.IsoUpdatedTrackCones as isoCones
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+    DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
+STDM2SlimmingHelper.ExtraVariables += ["Photons.ptcone20_TightTTVA_pt1000.ptcone20_TightTTVA_pt500.ptvarcone30_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt500"]
+
 # # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *
 

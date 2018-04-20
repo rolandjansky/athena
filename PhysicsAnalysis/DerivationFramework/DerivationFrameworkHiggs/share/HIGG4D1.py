@@ -79,8 +79,8 @@ HIGG4D1Sequence += CfgMgr.DerivationFramework__CommonAugmentation("HIGG4DxCommon
 #skimming
 HIGG4D1Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = skimmingTools)
 
-# fat/trimmed jet building (after skimming)
-# not in this derivation
+# NonPrompt Lepton Tagger
+DerivationFrameworkHiggs.HIGG4DxAugmentation.addJetTagNonPromptLepton(DAOD_StreamID, HIGG4D1Sequence)
 
 #thinning
 HIGG4D1Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"Kernel", ThinningTools = thinningTools)

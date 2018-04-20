@@ -21,9 +21,9 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL 
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
 
 orstr  = ' || '
 andstr = ' && '
@@ -39,7 +39,8 @@ muofflinesel = andstr.join(['count((Muons.pt > 25*GeV) && (Muons.DFCommonMuonsPr
                             ])
 muonSelection = ' ( (' + mutrigsel + ') && (' + muofflinesel + ') )'
 expression = '( ' + electronSelection + ' || ' + muonSelection + ' )'
-
+for i in expression:
+	print "ISHAN " + i
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 JETM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM7SkimmingTool1",
                                                                  expression = expression)

@@ -156,7 +156,7 @@ template<>
 bool OverlapRemovalGenUseAlg::selectObject<xAOD::Jet>(const xAOD::Jet& obj)
 {
   // Label bjets
-  const static SG::AuxElement::ConstAccessor<float> acc_applyBTag("DFCommonJets_FixedCutBEff_85");
+  const static SG::AuxElement::ConstAccessor<float> acc_applyBTag("DFCommonJets_FixedCutBEff_85_MV2c10");
   static ort::inputDecorator_t bJetDec(m_bJetLabel);
   bJetDec(obj) = acc_applyBTag(obj);
   // Selection

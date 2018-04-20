@@ -49,7 +49,7 @@ EXOT8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name   
                                                                          ThinningService        = EXOT8ThinningHelper.ThinningSvc(),
                                                                          MuonKey                = "Muons",
                                                                          InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                         SelectionString        = "Muons.pt > 500*GeV", # Remove tracks with high pt cut
+                                                                         SelectionString        = "Muons.pt > 5*GeV",
                                                                          ConeSize               = 0)
 ToolSvc += EXOT8MuonTPThinningTool
 thinningTools.append(EXOT8MuonTPThinningTool)
@@ -62,7 +62,7 @@ EXOT8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(n
                                                                                 ThinningService        = EXOT8ThinningHelper.ThinningSvc(),
                                                                                 SGKey                  = "Electrons",
                                                                                 InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                                SelectionString        = "Electrons.pt > 500*GeV", # Remove tracks with high pt cut
+                                                                                SelectionString        = "Electrons.pt > 25*GeV", # Remove tracks with high pt cut
                                                                                 ConeSize               = 0)
 ToolSvc += EXOT8ElectronTPThinningTool
 thinningTools.append(EXOT8ElectronTPThinningTool)

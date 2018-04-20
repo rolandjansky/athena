@@ -11,6 +11,9 @@
 #********************************************************************
 
 import AthenaCommon.Constants as Lvl
+from AthenaCommon import Logging
+ftaglog = Logging.logging.getLogger('FlavourTagCommon')
+
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from BTagging.BTaggingFlags import BTaggingFlags
@@ -83,7 +86,7 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
         algname = SA + author.lower()
 
         if algname in SAJetBTaggerAlgs:
-            print " Tagger ", algname, " already exists. Add to ", Sequencer
+            ftaglog.info("Tagger {} already exists. Add to {}".format(algname,Sequencer))
             Sequencer += SAJetBTaggerAlgs[algname]
         else:
             JetCollectionList.append((JetCollection,name))
@@ -129,8 +132,8 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
                 Sequencer=DerivationFrameworkJob
             Sequencer += SAbtagger
             SAJetBTaggerAlgs[SA + AuthorSubString[i].lower()] = SAbtagger
-            print " Create ", SAbtagger, " in ", Sequencer
-            print SAbtagger
+            ftaglog.info("Create {} in {}".format(SAbtagger,Sequencer))
+            # print SAbtagger
             #global DerivationFrameworkJob
             #DerivationFrameworkJob += SAbtagger
         except AttributeError as error:
@@ -229,29 +232,29 @@ def FlavorTagInit(DoReduceInfo = False,
 ######################################################################
 
 def applyBTagging(jetalg,algname,sequence):
-    btagWPlist = [ 'FixedCutBEff_30', 'FixedCutBEff_50', 'FixedCutBEff_60',
-                   'FixedCutBEff_70', 'FixedCutBEff_77', 'FixedCutBEff_80',
-                   'FixedCutBEff_85', 'FixedCutBEff_90',
-                   'FlatBEff_30', 'FlatBEff_50', 'FlatBEff_60',
-                   'FlatBEff_70', 'FlatBEff_77', 'FlatBEff_85' ]
+    btagWPlist = [ 'FixedCutBEff_60', 'FixedCutBEff_70', 'FixedCutBEff_77', 'FixedCutBEff_85',
+                   'HybBEff_60', 'HybBEff_70', 'HybBEff_77', 'HybBEff_85' ]
+    btagAlglist = [ 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'DL1', 'DL1rnn', 'DL1mu' ]
 
     btagtooldict = {}
     from AthenaCommon.AppMgr import ToolSvc
     for btagWP in btagWPlist:
-        btagtoolname = 'DFBtagSel'+btagWP+'_'+jetalg
-        print 'FlavourTagCommon: Add B-tag WP '+btagWP+' for '+jetalg
-        btagtool = None
-        if hasattr(ToolSvc,btagtoolname):
-            btagtool = getattr(ToolSvc,btagtoolname)
-        else:
-            btagtool = CfgMgr.BTaggingSelectionTool(btagtoolname)
-            ToolSvc += btagtool
-            btagtool.TaggerName = "MV2c10"
-            # In the absence of properly defined FlatBEff WP we alias them on the flat cut ones
-            btagtool.OperatingPoint = btagWP
-            btagtool.JetAuthor = jetalg+"Jets"
-            btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-May31_v1.root"
-        btagtooldict[btagWP] = btagtool
+        for btagAlg in btagAlglist:
+            btagtoolname = 'DFBtagSel'+btagWP+'_'+btagAlg+'_'+jetalg
+            ftaglog.info("Add B-tag WP {} of the {} algorithm for {}".format(btagWP,btagAlg,jetalg))
+            btagtool = None
+            if hasattr(ToolSvc,btagtoolname):
+                btagtool = getattr(ToolSvc,btagtoolname)
+            else:
+                btagtool = CfgMgr.BTaggingSelectionTool(btagtoolname)
+                ToolSvc += btagtool
+                btagtool.TaggerName = btagAlg
+                # In the absence of properly defined FlatBEff WP we alias them on the flat cut ones
+                btagtool.OperatingPoint = btagWP
+                btagtool.JetAuthor = jetalg+"Jets"
+                btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root"
+            btagKey = btagWP+'_'+btagAlg
+            btagtooldict[btagKey] = btagtool
 
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
     applyBTaggingAugmentation(jetalg,algname,sequence,btagtooldict)
@@ -259,7 +262,7 @@ def applyBTagging(jetalg,algname,sequence):
 def applyBTagging_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     supportedJets = ['AntiKt4EMTopo']
     if not jetalg in supportedJets:
-        print 'FlavourTagCommon: *** WARNING: B-tagging requested for unsupported jet collection! ***'
+        ftaglog.warning('B-tagging requested for unsupported jet collection!')
         return
     else:
         applyBTagging(jetalg,'JetCommonKernel_xAODJets',sequence)

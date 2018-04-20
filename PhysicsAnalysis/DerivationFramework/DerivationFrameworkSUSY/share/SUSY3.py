@@ -53,16 +53,6 @@ SUSY3ThinningHelper.AppendToStream( SUSY3Stream ) # needs to go after SUSY3Thinn
 # THINNING TOOLS 
 #====================================================================
 
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
-# TrackParticles directly
-#SUSY3TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY3TPThinningTool",
-#                                                                 ThinningService         = SUSY3ThinningHelper.ThinningSvc(),
-#                                                                 SelectionString         = "InDetTrackParticles.pt > 10*GeV",
-#                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
-#ToolSvc += SUSY3TPThinningTool
-#thinningTools.append(SUSY3TPThinningTool)
-
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 SUSY3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "SUSY3MuonTPThinningTool",
@@ -143,7 +133,38 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL 
 #====================================================================
 
-TauRequirements = '(abs(TauJets.eta) < 2.6) && (TauJets.nTracks == 1 || TauJets.nTracks == 3) && (TauJets.DFCommonTausLoose) && (TauJets.ptFinalCalib >= 15.*GeV)'
+TauRequirements = '(abs(TauJets.eta) < 2.6) && (TauJets.ptFinalCalib >= 15.*GeV)'
+TauBDT = '(TauJets.nTracks == 1 || TauJets.nTracks == 3) && (TauJets.DFCommonTausLoose)'
+# prepare for RNN Tau ID, JetRNNSigLoose not available yet in DFTau, need to cut on the flattened score
+TauRNN = '(TauJets.nTracks == 1 && TauJets.RNNJetScoreSigTrans>0.15) || (TauJets.nTracks == 3 && TauJets.RNNJetScoreSigTrans>0.25)'
+
+import sys
+import PyUtils.AthFile
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon import Logging
+susy3log = Logging.logging.getLogger('SUSY3')
+useRNN = False
+# RNN ID present in offline reconstruction for Athena-21.0.63 or higher
+# the autodetection will have to be extended if RNN is deployed via an AODFix for older data/MC
+try:
+  fileinfo = PyUtils.AthFile.fopen(athenaCommonFlags.FilesInput()[0])
+  release = fileinfo.infos['metadata']['/TagInfo']['AtlasRelease']
+  rel_split = release.split('.')
+  if not '21.0.' in release or len(rel_split) < 3:
+    susy3log.info("Incorrect AtlasRelease retrieved from metadata: {}. Expected 21.0.X".format(release))
+  elif int(rel_split[2]) >= 63:
+    susy3log.info("RNN tau ID present in {}. Allow JetRNNSigLoose taus in the skimming!".format(release))
+    useRNN = True
+except:
+  susy3log.info("Could not retrieve AtlasRelease from metadata: {}".format(sys.exc_info()[0]))
+
+if useRNN:
+  TauRequirements += ' && ( (' + TauBDT + ') || (' + TauRNN + ') )'
+else:
+  TauRequirements += ' && ( (' + TauBDT + ') )'
+
+susy3log.info("Applying the following skimming to offline taus (if not in passthrough mode):")
+susy3log.info(TauRequirements)
 
 objectSelection = 'count('+TauRequirements+') >= 1'
 
@@ -227,13 +248,9 @@ SeqSUSY3 += CfgMgr.DerivationFramework__DerivationKernel(
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY3SlimmingHelper = SlimmingHelper("SUSY3SlimmingHelper")
-SUSY3SlimmingHelper.SmartCollections = ["Electrons","Photons","Muons","MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-"TauJets","AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
- "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
- "InDetTrackParticles", "PrimaryVertices"]
+SUSY3SlimmingHelper.SmartCollections = ["Electrons","Photons","Muons","MET_Reference_AntiKt4EMTopo", "MET_Reference_AntiKt4EMPFlow", "TauJets","AntiKt4EMTopoJets",
+                                        "AntiKt4EMPFlowJets", "BTagging_AntiKt4EMTopo","BTagging_AntiKt4EMPFlow", "InDetTrackParticles", "PrimaryVertices",
+                                        "AntiKt4TruthJets"]
 SUSY3SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY3SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                                       "Electrons.author.charge.ptcone20.truthOrigin.truthType.bkgMotherPdgId.bkgTruthOrigin.bkgTruthType.firstEgMotherTruthType.firstEgMotherTruthOrigin.firstEgMotherPdgId",
@@ -246,10 +263,12 @@ SUSY3SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "ExtrapolatedMuonTrackParticles.d0.z0.vz.definingParametersCovMatrix.truthOrigin.truthType",
                                       "TauJets.IsTruthMatched.truthParticleLink.truthOrigin.truthType.truthJetLink.DFCommonTausLoose",
                                       "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
-                                      "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
                                       "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
-                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant",
-                                      "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht.ex.ey"]
+                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant"
+                                      ]
+
+#"AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID.HadronConeExclTruthLabelID",
+
 SUSY3SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY3SlimmingHelper.IncludeEGammaTriggerContent = True
 #SUSY3SlimmingHelper.IncludeBPhysTriggerContent = True 
@@ -264,8 +283,7 @@ SUSY3SlimmingHelper.IncludeBJetTriggerContent = False
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY3SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY3SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
   

@@ -89,7 +89,8 @@ public:
 	static bool relevantFor(const Lepton& lepton) { return lepton.type()==object(); }
 	static bool irrelevantFor(const Lepton& lepton) { return !relevantFor(lepton); }
 	
-	static constexpr bool is1L(xAOD::Type::ObjectType obj = xAOD::Type::Other) { return (tt&TT_SINGLELEPTON_FLAG) && extraCheck(obj); }
+        static constexpr bool is1L() { return is1L (xAOD::Type::Other); }
+	static constexpr bool is1L(xAOD::Type::ObjectType obj) { return (tt&TT_SINGLELEPTON_FLAG) && extraCheck(obj); }
 	static constexpr bool is2Lasym(xAOD::Type::ObjectType obj = xAOD::Type::Other) { return ((tt&TT_MASK_TYPE)==TT_DILEPTON_ASYM) && extraCheck(obj); }
 	static constexpr bool is2Lsym(xAOD::Type::ObjectType obj = xAOD::Type::Other) { return ((tt&TT_MASK_TYPE)==TT_DILEPTON_SYM) && extraCheck(obj); }
 	static constexpr bool is2L(xAOD::Type::ObjectType obj = xAOD::Type::Other) { return (tt&TT_DILEPTON_FLAG) && !mixed() && extraCheck(obj); }
