@@ -11,6 +11,8 @@
 
 
 // STL includes
+#include <chrono>
+#include <cmath>
 
 // FrameWork includes
 #include "GaudiKernel/Property.h"
@@ -43,12 +45,13 @@ CpuCruncherAlg::CpuCruncherAlg( const std::string& name,
   //declareProperty( "Property", m_nProperty );
 
   declareProperty( "MeanCpu",
-		   m_meanCpuTime = 10.*CLHEP::millisecond,
+		   m_meanCpuTime = 100.,
 		   "Mean (in ms) of CPU time to consume." );
-
+    
   declareProperty( "RmsCpu",
-		   m_rmsCpuTime =   2.*CLHEP::millisecond,
+		   m_rmsCpuTime = 5.,
 		   "RMS (in ms) of CPU time to consume." );
+  
 }
 
 // Destructor
@@ -63,16 +66,25 @@ CpuCruncherAlg::~CpuCruncherAlg()
 StatusCode CpuCruncherAlg::initialize()
 {
   // configure our MsgStream
-  msg().setLevel( outputLevel() );
+  msg().setLevel( msgLevel() );
 
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   
   // retrieve random number svc
   ATH_CHECK( m_rndmSvc.retrieve() );
 
+  // Get the engine
+  m_rndmEngine = m_rndmSvc->GetEngine("PerfMonTestCpuCruncher");
+
+  if(!m_rndmSvc) {
+    ATH_MSG_FATAL( "Failed to retrieve random number engine PerfMonTestCpuCruncher");
+    return StatusCode::FAILURE;
+  }
+  
   ATH_MSG_INFO ( "CPU usage configuration: <" 
                  << m_meanCpuTime << "> +/- "
-                 << m_rmsCpuTime << " seconds" ) ;
+                 << m_rmsCpuTime << " ms" ) ;
+  
 
   return StatusCode::SUCCESS;
 }
@@ -86,7 +98,40 @@ StatusCode CpuCruncherAlg::finalize()
 StatusCode CpuCruncherAlg::execute()
 {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." ) ;
+
+  // Volatile to avoid optimization
+  volatile double test_result = 0.0;
+
+  // Sample randomly - use w/ care
+  double ms_interval = CLHEP::RandGauss::shoot(m_rndmEngine, m_meanCpuTime, m_rmsCpuTime);
+
+  ATH_MSG_DEBUG ( "Will burn CPU for " << ms_interval << " milliseconds ..." );
+
+  std::chrono::duration<float, std::milli> chrono_interval(ms_interval);
+
+  auto start = std::chrono::system_clock::now();
+
+  while (std::chrono::system_clock::now() - start < chrono_interval)
+    test_result += burn(10000);
+
+  ATH_MSG_DEBUG ( "Test result sum is " << test_result );
+
   return StatusCode::SUCCESS;
+}
+
+double CpuCruncherAlg::burn(unsigned long nIterations = 10000000lu) {
+
+  // Volatile to avoid optimization
+  volatile double sum = 0.0;
+
+  double val;
+
+  for(auto idx = 0lu; idx < nIterations; ++idx) {
+    val = (double) (idx + 1) / nIterations * 0.7854;
+    sum += std::tan(std::log(val));
+  }
+
+  return sum;
 }
 
 /////////////////////////////////////////////////////////////////// 

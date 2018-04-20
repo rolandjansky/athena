@@ -50,6 +50,9 @@ class CpuCruncherAlg : public AthAlgorithm
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
 
+  // Perform math operations to burn CPU for a number of iterations
+  double burn(unsigned long nIterations);
+
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
