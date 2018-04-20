@@ -9,17 +9,19 @@ dqconfig.config         = "TEST"
 
 # Use this setup to test your new han configuration before committing it. Set "hcfg_dir" manually if the default doesn't work for you.
 # You can change these settings in your local working copy of this file, but please do not commit the change to SVN.
-hcfg_dir = resolve_data_path('DataQualityConfigurations')
-if hcfg_dir:
-    print "Found DataQualityConfigurations data directory %s, using it" % hcfg_dir
-else:
-    hcfg_dir = os.getcwd()
-    print "DataQualityConfigurations data directory not found, using $PWD instead."
-print "Looking for collisions_*.hcfg files in %s" % (hcfg_dir)
+#hcfg_dir = resolve_data_path('/afs/cern.ch/user/f/fasohns/work/private/dq_level/athena/DataQuality/DataQualityConfigurations/config') #  'DataQualityConfigurations')
+#if hcfg_dir:
+#    print "Found DataQualityConfigurations data directory %s, using it" % hcfg_dir
+#else:
+#    hcfg_dir = os.getcwd()
+#    print "DataQualityConfigurations data directory not found, using $PWD instead."
+#print "Looking for collisions_*.hcfg files in %s" % (hcfg_dir)
+
+hcfg_dir                = '/afs/cern.ch/user/f/fasohns/work/private/dq_level/athena/DataQuality/DataQualityConfigurations/config'
 
 dqconfig.hcfg           = "%s/collisions_run.hcfg"       % (hcfg_dir)
-dqconfig.hcfg_min10     = "%s/collisions_minutes10.hcfg" % (hcfg_dir)
-dqconfig.hcfg_min30     = "%s/collisions_minutes30.hcfg" % (hcfg_dir)
+#dqconfig.hcfg_min10     = "%s/collisions_minutes10.hcfg" % (hcfg_dir)
+#dqconfig.hcfg_min30     = "%s/collisions_minutes30.hcfg" % (hcfg_dir)
 
 dqconfig.histogramCache = "/afs/cern.ch/user/a/atlasdqm/w1/histogram_web_display_cache"
 dqconfig.hanResultsDir  = "/afs/cern.ch/user/a/atlasdqm/dqmdisk/han_results/test"
@@ -29,3 +31,4 @@ dqconfig.runlist        = "runlist_TEST.xml"
 dqconfig.indexFile      = "results_TEST.html"
 dqconfig.lockFile       = "DQWebDisplay_TEST.lock"
 dqconfig.doHandi        = False
+print "End of TestDisplay"
