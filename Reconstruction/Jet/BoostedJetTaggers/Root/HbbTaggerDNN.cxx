@@ -186,6 +186,7 @@ double HbbTaggerDNN::getScore(const xAOD::Jet& jet) const {
   }
 
   auto nn_output = m_lwnn->compute(cleaned);
+  ATH_MSG_DEBUG("Hbb score " << nn_output.at(m_output_value_name));
   return nn_output.at(m_output_value_name);
 }
 

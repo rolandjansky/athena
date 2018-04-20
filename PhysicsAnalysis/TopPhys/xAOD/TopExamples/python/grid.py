@@ -236,6 +236,7 @@ def submit(config, allSamples):
 
       if l.find('OutputFilename') > -1:
           outputFilename = l.replace('OutputFilename', '').strip()
+          outputFilename = outputFilename.replace(".root","_root") + ":" + outputFilename
 
   if outputFilename == 'EMPTY':
       print 'OutputFilename not found in %s' % config.settingsFile

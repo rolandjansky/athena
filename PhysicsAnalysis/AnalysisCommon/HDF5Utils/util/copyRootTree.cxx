@@ -85,7 +85,26 @@ namespace H5Utils {
     private:
       std::vector<std::vector<T> >* m_buffer;
     };
+
+
+    // Selection function 
+    //
+    // Define a bool function that returns false if event doesn't
+    // pass TTreeFormula cut.
+    bool passTTreeCut(TTreeFormula* selection) {
+      // GetNdim looks to see how many valid arguements there are.
+      // Returns false for none.
+      if ( !selection || !selection->GetNdim()) return true;
+      Int_t ndata = selection->GetNdata();
+      for(Int_t current = 0; current < ndata; current++) {
+        if (selection->EvalInstance(current) == 0) return false;
+      }
+      return true;
+    }
+
+
   } // close anonymous namespace
+
 // _____________________________________________________________________
 // main copy root tree function
 //
@@ -247,12 +266,25 @@ namespace H5Utils {
     // Very little actually happens here since the buffers are already
     // defined, as are the HDF5 reader functions.
     //
+    
+    // Get the selection string and build a new TTreeFormula
+    std::string cut_string = opts.selection;
+    const char * cut_char = cut_string.c_str();
+    TTreeFormula *cut =0;
+    if(!cut_string.empty()){
+      // This is so a cut can be applied without requiring the 
+      // branch to be output to the hdf5 file.
+      tt.SetBranchStatus("*", true);
+      cut = new TTreeFormula("selection", cut_char, &tt);
+    }
+
     size_t n_entries = tt.GetEntries();
     if (opts.n_entries) n_entries = std::min(n_entries, opts.n_entries);
     int print_interval = opts.print_interval;
     if (print_interval == -1) {
       print_interval = std::max(1UL, n_entries / 100);
     }
+
     for (size_t iii = 0; iii < n_entries; iii++) {
       if (print_interval && (iii % print_interval == 0)) {
         std::cout << "events processed: " << iii
@@ -260,6 +292,8 @@ namespace H5Utils {
                   << n_entries << ")" << std::endl;
       }
       tt.GetEntry(iii);
+      if(cut) cut->UpdateFormulaLeaves();
+      if (!passTTreeCut(cut)) continue;
       if (writer1d) writer1d->fillWhileIncrementing();
       if (writer2d) writer2d->fillWhileIncrementing(idx);
       if (writer3d) writer3d->fillWhileIncrementing(idx2);

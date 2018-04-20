@@ -33,6 +33,11 @@ namespace xAOD{
    this->auxdecor< float >( "MC_ttbar_afterFSR_eta" ) = -1000 ; 
    this->auxdecor< float >( "MC_ttbar_afterFSR_phi" ) = -1000 ; 
 
+   this->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_m" ) = -1;
+   this->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_pt" ) = -1;
+   this->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_eta" ) = -1000;
+   this->auxdecor< float >( "MC_ttbar_afterFSR_beforeDecay_phi" ) = -1000;
+
    //t variables  
    this->auxdecor< float >( "MC_t_beforeFSR_m" ) = -1 ; 
    this->auxdecor< float >( "MC_t_beforeFSR_pt" ) = -1 ; 

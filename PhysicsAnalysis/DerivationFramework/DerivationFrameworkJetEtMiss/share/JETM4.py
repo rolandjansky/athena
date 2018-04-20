@@ -19,8 +19,8 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # NOTE: need to add isSimulation as OR with trigger
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-triggerlist = singlePhotonTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+triggerlist = TriggerLists.single_photon_Trig()
 
 triggers = '||'.join(triggerlist)
 expression = '( (EventInfo.eventTypeBitmask==1) || ('+triggers+') )'

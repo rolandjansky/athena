@@ -1019,6 +1019,7 @@ namespace top {
 
         m_particleLevelTreeManager = std::make_shared<top::TreeManager>( "particleLevel", m_outputFile, m_config->outputFileNEventAutoFlush(), m_config->outputFileBasketSizePrimitive(), m_config->outputFileBasketSizeVector());
 
+        m_particleLevelTreeManager->branchFilters() = branchFilters();
         m_particleLevelTreeManager->makeOutputVariable(m_weight_mc, "weight_mc");
 
         //event info

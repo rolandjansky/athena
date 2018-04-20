@@ -611,7 +611,7 @@ StatusCode IsolationBuilder::IsolateMuon() {
 ////
 StatusCode IsolationBuilder::DecorateEgamma(std::string egType) {
 
-  xAOD::EgammaContainer *egC(0);
+  const xAOD::EgammaContainer *egC(0);
   if (egType == "electron") {
     if (evtStore()->contains<xAOD::ElectronContainer>(m_ElectronContainerName)) {
       if (evtStore()->retrieve(egC,m_ElectronContainerName).isFailure()) {
@@ -646,9 +646,9 @@ StatusCode IsolationBuilder::DecorateEgamma(std::string egType) {
     ATH_MSG_WARNING("Unknown egamma type " << egType);
     return StatusCode::SUCCESS;
   }
-  xAOD::EgammaContainer::iterator it = egC->begin(), itE = egC->end();
+  xAOD::EgammaContainer::const_iterator it = egC->begin(), itE = egC->end();
   for (; it != itE; it++) {
-    xAOD::Egamma *eg = *it; 
+    const xAOD::Egamma *eg = *it; 
     //
     ATH_MSG_DEBUG(egType << " pt,eta,phi = " << eg->pt()/1e3 << " " << eg->eta() << " " << eg->phi());
     // 
@@ -708,7 +708,7 @@ StatusCode IsolationBuilder::DecorateEgamma(std::string egType) {
 } 
 StatusCode IsolationBuilder::DecorateMuon() {
 
-  xAOD::MuonContainer *muonC(0);
+  const xAOD::MuonContainer *muonC(0);
   if (evtStore()->contains<xAOD::MuonContainer>(m_MuonContainerName)) {
     if (evtStore()->retrieve(muonC,m_MuonContainerName).isFailure()) {
       ATH_MSG_FATAL("Cannot retrieve muons container " << m_MuonContainerName);
@@ -719,9 +719,9 @@ StatusCode IsolationBuilder::DecorateMuon() {
     return StatusCode::SUCCESS;
   }
 
-  xAOD::MuonContainer::iterator it = muonC->begin(), itE = muonC->end();
+  xAOD::MuonContainer::const_iterator it = muonC->begin(), itE = muonC->end();
   for (; it != itE; it++) {
-    xAOD::Muon *mu = *it;
+    const xAOD::Muon *mu = *it;
     //
     ATH_MSG_DEBUG("Muon pt,eta,phi = " << mu->pt()/1e3 << " " << mu->eta() << " " << mu->phi());
     // 

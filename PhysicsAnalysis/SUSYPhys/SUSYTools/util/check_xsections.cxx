@@ -116,7 +116,8 @@ int main( int argc, char* argv[] ) {
 		<< my_XsecDB.kfactor(id) <<  delim
 		<< pmgxs->getKfactor(id) <<  delim
 		<< my_XsecDB.efficiency(id) << delim
-		<< pmgxs->getFilterEff(id) * pmgxs->getBR(id) << std::endl;
+	        << pmgxs->getFilterEff(id) //* pmgxs->getBR(id) 
+		<< std::endl;
     }
   }
 

@@ -126,7 +126,9 @@ JETM5SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-#JETM5SlimmingHelper.ExtraVariables = []
+JETM5SlimmingHelper.ExtraVariables = ["JetETMissNeutralParticleFlowObjects.m.mEM.pfo_TrackLinks.eflowRec_ISOLATION.pfo_ClusterLinks.eflowRec_TIMING.eflowRec_AVG_LAR_Q.eflowRec_EM_PROBABILITY.eflowRec_CENTER_LAMBDA.centerMag.pt.ptEM.phi.eta",
+"JetETMissChargedParticleFlowObjects.pt.eta.phi.m.eflowRec_tracksExpectedEnergyDeposit.pfo_vertex.charge.eflowRec_isInDenseEnvironment.pfo_TrackLinks",]
+
 for truthc in [
     "TruthMuons",
     "TruthElectrons",

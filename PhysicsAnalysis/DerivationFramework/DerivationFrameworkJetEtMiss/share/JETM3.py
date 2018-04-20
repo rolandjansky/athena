@@ -22,9 +22,9 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers+multiElTriggers
-muonTriggers = singleMuTriggers+multiMuTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
 
 orstr  = ' || '
 andstr = ' && '
