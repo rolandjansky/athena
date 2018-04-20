@@ -701,10 +701,11 @@ void VP1MainWindow::request_loadPlugin()
 #else
 	QString sharedlibsuffix = "so";
 #endif
+  qDebug() << "VP1MainWindow::request_loadPlugin()"<<m_currentloadpluginpath;
 
 	QString filename = QFileDialog::getOpenFileName(this, "Select plugin file to load",
 			m_currentloadpluginpath,
-			"VP1 plugin files (*."+sharedlibsuffix+")",0,QFileDialog::DontResolveSymlinks);
+			"VP1 plugin files (*VP1*."+sharedlibsuffix+")",0,QFileDialog::DontResolveSymlinks);
 	if(filename.isEmpty())
 		return;
 	m_currentloadpluginpath = QFileInfo(filename).dir().absolutePath();
@@ -719,7 +720,7 @@ QMap<QString,QString> VP1MainWindow::availableFiles(const QString& extension,
 		bool currentdir ) const
 {
 
-    qDebug() << "VP1MainWindow::availableFiles()";
+  qDebug() << "VP1MainWindow::availableFiles()";
  	qDebug() << "extension:" << extension << "pathvar:" << pathvar << "instareasubdir:" << instareasubdir << "extradirenvvar:" << extradirenvvar << "currentdir:" << currentdir;
 
 	//Add directories from extradirenvvar (e.g. $VP1PlUGINPATH)
