@@ -24,9 +24,9 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   /// initialise this base class and renounce input decision key handles
   virtual StatusCode sysInitialize() override;
   /// execute to be implemented in derived clas
-  virtual StatusCode execute_r(const EventContext&) const = 0;
-  virtual StatusCode finalize() = 0;
-  virtual StatusCode initialize()= 0;  
+  virtual StatusCode execute_r(const EventContext&) const override = 0;
+  virtual StatusCode finalize() override = 0;
+  virtual StatusCode initialize() override = 0;  
  protected:
   /// methods for derived classes to access handles of the base class input and output decisions; other read/write handles may be implemented by derived classes
   const SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionInputs() const;
