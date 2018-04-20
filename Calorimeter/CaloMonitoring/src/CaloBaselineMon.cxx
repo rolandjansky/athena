@@ -181,7 +181,7 @@ void CaloBaselineMon::bookPartitionHistos(partitionHistos& partition, uint partN
     
     partition.hProf_pedestalMon_vs_EtaBCID.resize(m_nbOfEtaBins[partNumber]);
     for (uint iEta = 0; iEta < m_nbOfEtaBins[partNumber]; iEta ++){
-      hName  = "hprof_pedestalMon_"+m_partNames[partNumber]+"_eta"+std::to_string(iEta);
+      hName  = "hprof1d_pedestalMon_"+m_partNames[partNumber]+"_eta"+std::to_string(iEta);
       std::string str_eta0 = std::to_string( ((float) iEta)*m_etaBinWidth[partNumber]+m_etaMin[partNumber] );
       std::string str_eta1 = std::to_string( ((float) iEta + 1)*m_etaBinWidth[partNumber]+m_etaMin[partNumber] );
       hTitle = "Pedestal baseline ( "+str_auxTitle+") - "+m_partNames[partNumber]+" - " + str_eta0 +" < eta < " + str_eta1;
@@ -213,7 +213,7 @@ void CaloBaselineMon::bookPartitionHistos(partitionHistos& partition, uint partN
     
     partition.hProf_bcidtoolMon_vs_EtaBCID.resize(m_nbOfEtaBins[partNumber]);
     for (uint iEta = 0; iEta < m_nbOfEtaBins[partNumber]; iEta ++){
-      hName  = "hprof_bcidtoolMon_"+m_partNames[partNumber]+"_eta"+std::to_string(iEta);
+      hName  = "hprof1d_bcidtoolMon_"+m_partNames[partNumber]+"_eta"+std::to_string(iEta);
       std::string str_eta0 = std::to_string( ((float) iEta)*m_etaBinWidth[partNumber]+m_etaMin[partNumber] );
       std::string str_eta1 = std::to_string( ((float) iEta + 1)*m_etaBinWidth[partNumber]+m_etaMin[partNumber] );
       hTitle = "BCIDtool baseline ( "+str_auxTitle+")-"+m_partNames[partNumber]+" - " + str_eta0 +" < eta < " + str_eta1;
@@ -224,14 +224,14 @@ void CaloBaselineMon::bookPartitionHistos(partitionHistos& partition, uint partN
     }
 
     
-    hName  = "hprof1d_bcidtoolMon"+m_partNames[partNumber]+"_AllEta";
+    hName  = "hprof1d_bcidtoolMon_"+m_partNames[partNumber]+"_AllEta";
     hTitle = "BCIDtool baseline ( "+str_auxTitle+") - "+m_partNames[partNumber];
     partition.hProf_bcidtoolMon_vs_Eta = TProfile_LW::create(hName.c_str(), hTitle.c_str(),m_nbOfEtaBins[partNumber],m_etaMin[partNumber],m_etaMax[partNumber]);
     partition.hProf_bcidtoolMon_vs_Eta->GetXaxis()->SetTitle("Eta");
     partition.hProf_bcidtoolMon_vs_Eta->GetYaxis()->SetTitle("Average over BCID");
     group.regHist(partition.hProf_bcidtoolMon_vs_Eta).ignore();  
 
-    hName  = "hprof1d_bcidtoolMon"+m_partNames[partNumber]+"_LB";
+    hName  = "hprof1d_bcidtoolMon_"+m_partNames[partNumber]+"_LB";
     partition.hProf_bcidtoolMon_vs_LB = TProfile_LW::create(hName.c_str(), hTitle.c_str(),lb_nbins,0,(float) lb_nbins);
     partition.hProf_bcidtoolMon_vs_LB->GetXaxis()->SetTitle("Luminosity block");
     partition.hProf_bcidtoolMon_vs_LB->GetYaxis()->SetTitle("Average over BCID and eta");

@@ -40,26 +40,27 @@ namespace LArG4 {
     private:
       bool checkDaughters(const G4LogicalVolume *possibleParent, const G4VPhysicalVolume *thePhysicalVolume, int& level) const;
 
-      const HECDetectorManager *m_hecManager;
+      const HECDetectorManager *m_hecManager{nullptr};
 
-      bool m_depthHist;
-      bool m_withMother;
+      bool m_depthHist{false};
+      bool m_withMother{false};
 
-      int  m_g4historyDepth;
-      double m_depthSize[7];
-      double m_depthSum[7];
-      double m_minval[7][2][10];
-      double m_maxval[7][2][10];
+      int  m_g4historyDepth{0};
+      double m_depthSize[7]{};
+      double m_depthSum[7]{};
+      double m_minval[7][2][10]{};
+      double m_maxval[7][2][10]{};
 
-      double m_firstAbsThickness[2];
-      double m_wheel1;
-      double m_wheel2;
-      double m_betweenWheels;
-      double m_hecLength;
-      double m_startHec2;
-      double m_rOuter;
-      double m_rInner1;
-      double m_rInner2;
+      // Some essential numbers we'll need over and over again:
+      double m_firstAbsThickness[2]{};
+      double m_wheel1{};
+      double m_wheel2{};
+      double m_betweenWheels{40.5}; // FIXME HACK!! -- can't find this through LArReadoutGeometry, so hard-code it here
+      double m_hecLength{};
+      double m_startHec2{};
+      double m_rOuter{};
+      double m_rInner1{};
+      double m_rInner2{};
 
     };
 
