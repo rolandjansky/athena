@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONHISTUTILS_MUONRESPLOTS_H
-#define MUONHISTUTILS_MUONRESPLOTS_H
+#ifndef MUONRESONANCETOOLS_MUONRESPLOTS_H
+#define MUONRESONANCETOOLS_MUONRESPLOTS_H
 
 #include "AsgTools/AsgTool.h"
 #ifndef ROOTCORE

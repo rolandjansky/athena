@@ -11,7 +11,7 @@
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODBase/IParticleContainer.h"
-#include "MuonPerformanceHistUtils/MuonResonancePlots.h"
+#include "MuonResonanceTools/MuonResonancePlots.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicCode.h"

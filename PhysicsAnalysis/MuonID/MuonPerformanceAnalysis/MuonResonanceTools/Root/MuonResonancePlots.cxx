@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MuonPerformanceHistUtils/MuonResonancePlots.h"
+#include "MuonResonanceTools/MuonResonancePlots.h"
 #include "TLorentzVector.h"
 #include <iostream>
 #ifndef ROOTCORE
@@ -42,7 +42,8 @@ void MuonResonancePlots::Binning2D(TH2*& histo, std::string hname){
     if(it->first != hname) continue;
 
     if(m_binning[hname].size()==6) 
-      histo = Book2D(m_prefix+hname+m_suffix, m_prefix+hname+m_suffix, m_binning[hname][0],m_binning[hname][1],m_binning[hname][2],m_binning[hname][3],m_binning[hname][4],m_binning[hname][5], false);  
+      histo = Book2D(m_prefix+hname+m_suffix, m_prefix+hname+m_suffix, 
+m_binning[hname][0],m_binning[hname][1],m_binning[hname][2],m_binning[hname][3],m_binning[hname][4],m_binning[hname][5], false);  
   }
 }
 
