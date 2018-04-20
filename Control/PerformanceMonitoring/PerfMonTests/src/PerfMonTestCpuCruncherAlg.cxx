@@ -18,10 +18,6 @@
 #include "GaudiKernel/Property.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-// CLHEP includes
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Random/RandGauss.h"
-
 // PerfMonTests includes
 #include "PerfMonTestCpuCruncherAlg.h"
 
@@ -36,8 +32,7 @@ using namespace PerfMonTest;
 CpuCruncherAlg::CpuCruncherAlg( const std::string& name, 
 				ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name,    pSvcLocator ),
-  m_rndmSvc   ( "AtRndmGenSvc", name ),
-  m_rndmEngine( 0 )
+  m_random(0)
 {
   //
   // Property declaration
@@ -51,7 +46,6 @@ CpuCruncherAlg::CpuCruncherAlg( const std::string& name,
   declareProperty( "RmsCpu",
 		   m_rmsCpuTime = 5.,
 		   "RMS (in ms) of CPU time to consume." );
-  
 }
 
 // Destructor
@@ -70,17 +64,9 @@ StatusCode CpuCruncherAlg::initialize()
 
   ATH_MSG_INFO ( "Initializing " << name() << "..." ) ;
   
-  // retrieve random number svc
-  ATH_CHECK( m_rndmSvc.retrieve() );
+  // Random number service
+  m_distribution = std::normal_distribution<double>(m_meanCpuTime,m_rmsCpuTime);
 
-  // Get the engine
-  m_rndmEngine = m_rndmSvc->GetEngine("PerfMonTestCpuCruncher");
-
-  if(!m_rndmSvc) {
-    ATH_MSG_FATAL( "Failed to retrieve random number engine PerfMonTestCpuCruncher");
-    return StatusCode::FAILURE;
-  }
-  
   ATH_MSG_INFO ( "CPU usage configuration: <" 
                  << m_meanCpuTime << "> +/- "
                  << m_rmsCpuTime << " ms" ) ;
@@ -103,10 +89,11 @@ StatusCode CpuCruncherAlg::execute()
   volatile double test_result = 0.0;
 
   // Sample randomly - use w/ care
-  double ms_interval = CLHEP::RandGauss::shoot(m_rndmEngine, m_meanCpuTime, m_rmsCpuTime);
+  double ms_interval = m_distribution(m_random);
 
   ATH_MSG_DEBUG ( "Will burn CPU for " << ms_interval << " milliseconds ..." );
 
+  // Define the interval, do some math until the interval is exhausted
   std::chrono::duration<float, std::milli> chrono_interval(ms_interval);
 
   auto start = std::chrono::system_clock::now();
