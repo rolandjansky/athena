@@ -8,7 +8,7 @@
     <Output algname="INVM_NFF" triggerline="600INVM9999-J30s6-AJ20s6,500INVM9999-J30s6-AJ20s6,400INVM9999-J30s6-AJ20s6,200INVM9999-J30s6-AJ20s6" algoId="93" module="0" fpga="1" firstbit="12" clock="1"/>
     <Output algname="63DETA127-FJ20s1-FJ20s2" triggerline="63DETA127-FJ20s1-FJ20s2" algoId="39" module="1" fpga="1" firstbit="14" clock="0"/>
     <Output algname="0DETA20-J50s1-Js2" triggerline="0DETA20-J50s1-Js2" algoId="40" module="1" fpga="1" firstbit="12" clock="0"/>
-    <Output algname="27DPHI31-EMs1-EMs6" triggerline="27DPHI31-EMs1-EMs6" algoId="94" module="0" fpga="0" firstbit="12" clock="1"/>
+    <Output algname="27DPHI32-EMs1-EMs6" triggerline="27DPHI32-EMs1-EMs6" algoId="94" module="0" fpga="0" firstbit="12" clock="1"/>
     <Output algname="HT150-J20s5.ETA31" triggerline="HT150-J20s5.ETA31" algoId="25" module="0" fpga="0" firstbit="9" clock="0"/>
     <Output algname="HT190-J15s5.ETA21" triggerline="HT190-J15s5.ETA21" algoId="26" module="0" fpga="0" firstbit="10" clock="0"/>
     <Output algname="05MINDPHI-EM12s6-XE0" triggerline="05MINDPHI-EM12s6-XE0" algoId="35" module="0" fpga="0" firstbit="14" clock="0"/>
@@ -585,11 +585,11 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="DeltaPhiIncl1" name="27DPHI31-EMs1-EMs6" algoId="94">
+  <DecisionAlgo type="DeltaPhiIncl1" name="27DPHI32-EMs1-EMs6" algoId="94">
     <Fixed>
       <Input name="Tob" value="EMs" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="27DPHI31-EMs1-EMs6"/>
+        <Bit selection="0" name="27DPHI32-EMs1-EMs6"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortEM:"/>
       <Generic name="MaxTob" value="6"/>
@@ -599,7 +599,7 @@
       <Parameter pos="0" name="MinET1" selection="0" value="6"/>
       <Parameter pos="1" name="MinET2" selection="0" value="6"/>
       <Parameter pos="2" name="MinDeltaPhi" selection="0" value="27"/>
-      <Parameter pos="3" name="MaxDeltaPhi" selection="0" value="31"/>
+      <Parameter pos="3" name="MaxDeltaPhi" selection="0" value="32"/>
     </Variable>
   </DecisionAlgo>
 

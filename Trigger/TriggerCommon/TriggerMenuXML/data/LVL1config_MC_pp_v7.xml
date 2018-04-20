@@ -2163,9 +2163,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="288" partition="1" name="L1_DPHI-2EM3" complex_deadtime="0" definition="(27DPHI31-EMs1-EMs6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="288" partition="1" name="L1_DPHI-2EM3" complex_deadtime="0" definition="(27DPHI32-EMs1-EMs6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="27DPHI31-EMs1-EMs6_x1" triggerthreshold="27DPHI31-EMs1-EMs6"/>
+        <TriggerCondition multi="1" name="27DPHI32-EMs1-EMs6_x1" triggerthreshold="27DPHI32-EMs1-EMs6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -7285,7 +7285,7 @@
         <Signal range_begin="11" range_end="11" clock="1"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="1" id="208" mapping="44" name="27DPHI31-EMs1-EMs6" type="TOPO" input="ctpcore" version="1">
+    <TriggerThreshold active="1" bitnum="1" id="208" mapping="44" name="27DPHI32-EMs1-EMs6" type="TOPO" input="ctpcore" version="1">
       <Cable connector="CON1" input="CTPCORE" name="TOPO1">
         <Signal range_begin="12" range_end="12" clock="1"/>
       </Cable>
