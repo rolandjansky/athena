@@ -27,8 +27,8 @@ echo  "art-result: $? regression"
 
 
 
-# art-output: dcube.xml
-# art-output: dcube.log
-# art-output: dcubelog.xml
-# art-output: dcube.xml.php
+# art-output: dcube/dcube.xml
+# art-output: dcube/dcube.log
+# art-output: dcube/dcubelog.xml
+# art-output: dcube/dcube.xml.php
 echo  "art-result: $? histcomp"
