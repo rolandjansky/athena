@@ -17,17 +17,11 @@
 
 namespace AthViews {
 
+
 class DigiDemoSetupAlg
   : public ::AthAlgorithm
 { 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // Copy constructor: 
-
   /// Constructor with parameters: 
   DigiDemoSetupAlg( const std::string& name, ISvcLocator* pSvcLocator );
 
@@ -39,17 +33,6 @@ class DigiDemoSetupAlg
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
-
-  /////////////////////////////////////////////////////////////////// 
-  // Non-const methods: 
-  /////////////////////////////////////////////////////////////////// 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Private data: 
-  /////////////////////////////////////////////////////////////////// 
  private: 
 
   /// Default constructor: 
@@ -60,19 +43,13 @@ class DigiDemoSetupAlg
   // vars
   ServiceHandle< IScheduler > m_scheduler { this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
   ServiceHandle< IProxyDict > m_digiStore { this, "DigiStore", "digi_store", "The store for pileup events" };
-  SG::WriteHandleKey< std::vector< SG::View* > > m_w_views { this, "AllViews", "all_views", "All views" };
+  SG::WriteHandleKey< ViewContainer > m_w_views { this, "AllViews", "all_views", "All views" };
   SG::WriteHandleKey< std::vector< int > > m_w_ints { this, "DigiData", "digi_data", "Something to store for each pileup event" };
   Gaudi::Property< std::string > m_viewBaseName { this, "ViewBaseName", "", "Name to use for all views - number will be appended" };
   Gaudi::Property< std::string > m_viewNodeName { this, "ViewNodeName", "", "Name of CF node to attach views to" };
   Gaudi::Property< int > m_viewNumber { this, "ViewNumber", 0, "Total number of views to make" };
 }; 
 
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace AthViews
 

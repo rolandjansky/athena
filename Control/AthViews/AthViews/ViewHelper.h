@@ -36,7 +36,7 @@ namespace ViewHelper
 
   //Function to create a vector of views, each populated with one data object
   template< typename T >
-  inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, std::vector< SG::View* > & ViewVector,
+  inline StatusCode MakeAndPopulate( std::string const& ViewNameRoot, ViewContainer & ViewVector,
 				     SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData, bool const allowFallThrough=true )
   {
     //Make a WriteHandle to use
@@ -73,7 +73,7 @@ namespace ViewHelper
 
   //Function to add data to existing views
   template< typename T >
-  inline StatusCode Populate( std::vector< SG::View* > const& ViewVector,
+  inline StatusCode Populate( ViewContainer const& ViewVector,
 			      SG::WriteHandleKey< T > const& PopulateKey, EventContext const& SourceContext, std::vector< T > const& InputData )
   {
     //Make a WriteHandle to use
@@ -105,7 +105,7 @@ namespace ViewHelper
   }
 
   //Function to attach a set of views to a graph node
-  inline StatusCode ScheduleViews( std::vector< SG::View* > const& ViewVector, std::string const& NodeName,
+  inline StatusCode ScheduleViews( ViewContainer & ViewVector, std::string const& NodeName,
 				   EventContext const& SourceContext, IScheduler * Scheduler )
   {
     //Prevent view nesting - test if source context has view attached
@@ -157,7 +157,7 @@ namespace ViewHelper
 
     //Function merging view data into a single collection
     template< typename T >
-    inline StatusCode mergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< T > const& QueryKey, EventContext const& SourceContext, T & OutputData )
+    inline StatusCode mergeViewCollection( ViewContainer const& ViewVector, SG::ReadHandleKey< T > const& QueryKey, EventContext const& SourceContext, T & OutputData )
     {
       //Make a ReadHandle to use
       SG::ReadHandle<T> queryHandle( QueryKey, SourceContext );
@@ -186,7 +186,7 @@ namespace ViewHelper
     //Adds aux data element "viewIndex" to indicate which element of the merged collection came from where
     //Calls remap for ElementLinks so that they point to the merged collection
     template< typename T >
-    inline StatusCode mergeViewCollection( std::vector< SG::View* > const& ViewVector, SG::ReadHandleKey< DataVector< T > > const& QueryKey, EventContext const& SourceContext, DataVector< T > & OutputData )
+    inline StatusCode mergeViewCollection( ViewContainer const& ViewVector, SG::ReadHandleKey< DataVector< T > > const& QueryKey, EventContext const& SourceContext, DataVector< T > & OutputData )
     {
       //Check that there's a non-const aux store for output bookkeeping
       if ( !OutputData.getStore() )
