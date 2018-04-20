@@ -222,9 +222,10 @@ class NodeSequence():
         print "Making sequence %s"%(name)
         self.name = name
         self.seed = Seed
-        self.hypoToolClassName = HypoToolClassName        
         self.sequence =    Node( Alg=Sequence, inputProp='%s_in'%(Sequence.name()), outputProp='%s_out'%(Sequence.name()))
         self.maker =    AlgNode( Alg=Maker, inputProp='InputDecisions',    outputProp='OutputDecisions')
+
+        self.hypoToolClassName = HypoToolClassName        
         # tmp for combo algo
         if "Combo1" in name:
             self.hypo = HypoAlgNode( Alg=Hypo,  inputProp='previousDecisions1', outputProp='Output1')
