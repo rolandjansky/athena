@@ -11,6 +11,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagAllVariables import FTAllVars_bjetTriggerVtx
 
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
@@ -369,23 +370,46 @@ SUSY1SlimmingHelper.IncludeBPhysTriggerContent  = False
 SUSY1SlimmingHelper.IncludeJetTriggerContent    = True
 SUSY1SlimmingHelper.IncludeTauTriggerContent    = True
 SUSY1SlimmingHelper.IncludeEtMissTriggerContent = True
-SUSY1SlimmingHelper.IncludeBJetTriggerContent   = False
+SUSY1SlimmingHelper.IncludeBJetTriggerContent   = True
+
+appendToDictDict = {
+  "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer", 
+  "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer", 
+  "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
+  "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
+  "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
+  "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"   :   "xAOD::VertexAuxContainer",
+  "BTagging_AntiKt2Track"                          :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt2TrackAux"                       :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt2TrackJFVtx"                     :   "xAOD::BTagVertexContainer"   ,
+  "BTagging_AntiKt2TrackJFVtxAux"                  :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKt2TrackSecVtx"                    :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKt2TrackSecVtxAux"                 :   "xAOD::VertexAuxContainer",
+  }
 
 if DerivationFrameworkIsMonteCarlo:
-
   # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-  SUSY1SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
-                                            'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
-                                            'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
+  appendToDictDict['TruthTop']='xAOD::TruthParticleContainer';
+  appendToDictDict['TruthTopAux']='xAOD::TruthParticleAuxContainer';
 
+  appendToDictDict['TruthBSM']='xAOD::TruthParticleContainer';
+  appendToDictDict['TruthBSMAux']='xAOD::TruthParticleAuxContainer';
+
+  appendToDictDict['TruthBoson']='xAOD::TruthParticleContainer';
+  appendToDictDict['TruthBosonAux']='xAOD::TruthParticleAuxContainer'
+  
   # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
   SUSY1SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
-
-# AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets added to 'AllVariables' here, is it intended?
-#addJetOutputs(SUSY1SlimmingHelper, ["SmallR", "SUSY1"], ["AntiKt4EMTopoJets"], ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt4EMPFlowJets", "AntiKt4TruthJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets", "AntiKt10LCTopoJets"])
-
+SUSY1SlimmingHelper.AppendToDictionary = appendToDictDict
+for bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
+    SUSY1SlimmingHelper.AllVariables.append(bjetTriggerVtx)
 
 SUSY1SlimmingHelper.AppendContentToStream(SUSY1Stream)
 
