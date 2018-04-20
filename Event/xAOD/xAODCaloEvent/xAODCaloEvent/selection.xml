@@ -52,18 +52,11 @@
 
   <!-- CaloTower(Container) -->
   <class name="xAOD::CaloTower_v1" >
-    <field name="m_isComplete" transient="true" />
     <field name="v_fourmom" transient="true" />
     <field name="m_eta" transient="true" />       
     <field name="m_phi" transient="true" />
     <field name="m_invcosheta" transient="true" />
   </class>
-  <read sourceClass="xAOD::CaloTower_v1" version="[1-]"
-	targetClass="xAOD::CaloTower_v1" source="" target="m_isComplete" >
-    <![CDATA[
-       m_isComplete=false;
-    ]]>
-  </read>
 
   <class name="xAOD::CaloTowerContainer_v1"
 	 id="EEA02A0F-98D3-464D-BAF1-1C944A700B8A" />
