@@ -21,6 +21,11 @@ from RecJobTransforms.recTransformUtils import addCommonRecTrfArgs
 from PyJobTransforms.trfExe import DQMergeExecutor
 from PyJobTransforms.trfExe import tagMergeExecutor
 from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs
+from PyJobTransforms.trfExe import bsMergeExecutor
+from PyJobTransforms.trfExe import NTUPMergeExecutor
+from PyJobTransforms.trfArgs import addD3PDArguments, addExtraDPDTypes
+from PATJobTransforms.PATTransformUtils import addNTUPMergeSubsteps, addPhysValidationMergeFiles
+from PATJobTransforms.PATTransformUtils import addDAODArguments, addDAODMergerSubsteps
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
@@ -46,11 +51,15 @@ def getTransform():
                                    inData = ['AOD'], outData = ['AOD_MRG']))
     executorSet.add(athenaExecutor(name = 'AODtoTAG', skeletonFile = 'RecJobTransforms/skeleton.AODtoTAG_tf.py',
                                    inData = ['AOD_MRG'], outData = ['TAG'],))
+    executorSet.add(tagMergeExecutor(name = 'TAGFileMerge', exe = 'CollAppend', inData = set(['TAG']), outData = set(['TAG_MRG'])))
     executorSet.add(DQMergeExecutor(name = 'DQHistogramMerge', inData = [('HIST_ESD', 'HIST_AOD'), 'HIST'], outData = ['HIST_MRG']))
     executorSet.add(athenaExecutor(name = 'RDOMerge', skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
                                    inData = ['RDO'], outData = ['RDO_MRG']))
+    executorSet.add(bsMergeExecutor(name = 'RAWFileMerge', exe = 'file_merging', inData = set(['BS']), outData = set(['BS_MRG'])))
+    executorSet.add(athenaExecutor(name = 'EVNTMerge', skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',inData = ['EVNT'], outData = ['EVNT_MRG']))
 
-    #executorSet.add(athenaExecutor(name = 'Merge', skeletonFile = 'PyJobTransforms/skeleton.Merge.py',inData = ['EVNT'], outData = ['EVNT_MRG']))
+    addDAODMergerSubsteps(executorSet)
+    addNTUPMergeSubsteps(executorSet)
 
     trf = transform(executor = executorSet)
 
@@ -58,6 +67,12 @@ def getTransform():
     addDetectorArguments(trf.parser)
     addCommonRecTrfArgs(trf.parser)
     addMyArgs(trf.parser)
+
+    addDAODArguments(trf.parser)
+    addPhysValidationMergeFiles(trf.parser)
+    addD3PDArguments(trf.parser, transform=trf, addD3PDMRGtypes=True)
+    addExtraDPDTypes(trf.parser, transform=trf, NTUPMergerArgs = True)
+
     return trf
 
 
@@ -85,6 +100,14 @@ def addMyArgs(parser):
                         type=trfArgClasses.argFactory(trfArgClasses.argTAGFile, io='output', type='tag'), 
                         help='Output TAG file', group='AODMerge_tf')
 
+    parser.defineArgGroup('TAGMerge_tf', 'TAG merging specific options')
+    parser.add_argument('--inputTAGFile', nargs='+', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argTAGFile, io='input'),
+                        help='Input TAG file(s)', group='TAGMerge_tf')
+    parser.add_argument('--outputTAG_MRGFile',
+                        type=trfArgClasses.argFactory(trfArgClasses.argTAGFile, io='output'),
+                        help='Output merged TAG file', group='TAGMerge_tf')
+
     parser.defineArgGroup('DQHistMerge_tf', 'DQ merge specific options')
     parser.add_argument('--inputHISTFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='input', runarg=True, type='hist'), 
@@ -108,6 +131,31 @@ def addMyArgs(parser):
     parser.add_argument('--outputRDO_MRGFile', '--outputRDOFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='output'),
                         help='Output merged RDO file', group='RDOMerge_tf')
+
+    parser.defineArgGroup('RAWMerge_tf', 'RAWMerge specific options')
+    parser.add_argument('--inputBSFile', nargs='+', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input'),
+                        help='Input BS file(s)', group='RAWMerge_tf')
+    parser.add_argument('--outputBS_MRGFile', '--outputBSFile', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='output'),
+                        help='Output merged BS file (best if this file ends in ._0001.data, but see allowRename option below)', 
+                        group='RAWMerge_tf')
+    parser.add_argument('--maskEmptyInputs', type=trfArgClasses.argFactory(trfArgClasses.argBool), group='RAWMerge_tf',
+                        help='If true then empty BS files are not included in the merge (default True)', 
+                        default=trfArgClasses.argBool('True'))
+    parser.add_argument('--allowRename', type=trfArgClasses.argFactory(trfArgClasses.argBool), group='RAWMerge_tf',
+                        help='If true merged BS file will be forcibly renamed to the value of "outputBSFile" (default True)', 
+                        default=trfArgClasses.argBool('True'))
+
+    parser.defineArgGroup('EVNTMerge_tf', 'EVNT merge job specific options')
+    parser.add_argument('--inputEVNTFile', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='input', runarg=True, type='evnt'),
+                        help='Input EVNT file', group='EVNTMerge_tf')
+    parser.add_argument('--outputEVNT_MRGFile', '--outputEVNTFile', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argEVNTFile, io='output', runarg=True, type='evnt'),
+                        help='Output merged EVNT file', group='EVNTMerge_tf')
+    parser.add_argument('--eventService', type=trfArgClasses.argFactory(trfArgClasses.argBool), metavar = "BOOL",
+                        help='Switch AthenaMP to the Event Service configuration', group='EVNTMerge_tf')
 
 
 if __name__ == '__main__':
