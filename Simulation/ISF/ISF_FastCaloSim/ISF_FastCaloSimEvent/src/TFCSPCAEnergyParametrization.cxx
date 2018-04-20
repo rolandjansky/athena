@@ -138,7 +138,7 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
   //double total_energy=simdata[layer.size()-1];
   simulstate.set_E(total_energy);
   ATH_MSG_DEBUG("set E to total_energy="<<total_energy);
-
+  
   for(int s=0;s<CaloCell_ID_FCS::MaxSample;s++)
     {
       double energyfrac=0.0;
@@ -284,3 +284,10 @@ bool TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
  return true;
 
 }
+
+void TFCSPCAEnergyParametrization::clean()
+{
+ for(unsigned int i=0;i<m_EV.size();i++)
+  delete m_EV[i];
+}
+
