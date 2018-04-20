@@ -112,7 +112,7 @@ StatusCode CpuCruncherAlg::execute()
   auto start = std::chrono::system_clock::now();
 
   while (std::chrono::system_clock::now() - start < chrono_interval)
-    test_result += burn(10000);
+    test_result += burn(5000);
 
   ATH_MSG_DEBUG ( "Test result sum is " << test_result );
 
