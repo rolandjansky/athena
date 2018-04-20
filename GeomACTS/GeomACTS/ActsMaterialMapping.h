@@ -10,6 +10,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "TrkGeometry/MaterialStepCollection.h"
 
+#include "GaudiKernel/ContextSpecificPtr.h"
+
 // ACTS
 #include "ACTS/EventData/TrackParameters.hpp"
 #include "ACTS/Utilities/BFieldMapUtils.hpp"
@@ -36,6 +38,8 @@ namespace Acts {
   class ITrackingGeometrySvc;
   class IExtrapolationTool;
   
+  class IMaterialTrackWriterSvc;
+
   template<typename>
   class ExtrapolationCell;
 }
@@ -51,44 +55,28 @@ class ITHistSvc;
 
 
 
-class ActsMaterialMapping : public AthAlgorithm {
+class ActsMaterialMapping : public AthReentrantAlgorithm {
 public:
   ActsMaterialMapping (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize() override;
-  StatusCode execute() override;
+  StatusCode execute_r(const EventContext& ctx) const override;
   StatusCode finalize() override;
 
-  bool isClonable() const override { return true; }
-  struct TreeEntry {
-    double X0;
-    double L0;
-    double theta;
-    double phi;
-    double tTot;
-    std::vector<std::array<double, 3>> step_pos;
-    std::vector<double> step_X0;
-    std::vector<double> step_L0;
-    std::vector<double> step_A;
-    std::vector<double> step_Z;
-    std::vector<double> step_Rho;
-    std::vector<double> step_t;
-    std::vector<double> step_tX0;
-  };
-  
-  // val tree
-  /*static*/ TTree* p_materialTrackTree;
-  //static TreeEntry m_treeEntry; 
-  //static std::mutex m_treeMutex;
+  //bool isClonable() const override { return true; }
 
 private:
 
+  Acts::MaterialTrack makeInputTrack(const Trk::MaterialStepCollection& materialStepCollection) const;
 
+  // thread-local state object
+  //Acts::MaterialMapper::Cache m_mapCache;
 
-  StatusCode registerOutputTree();
+  Gaudi::Hive::ContextSpecificData<Acts::MaterialMapper::Cache> m_ctxSpecificMapperCache;
+
 
   ServiceHandle<Acts::ITrackingGeometrySvc> m_trackingGeometrySvc;
   ServiceHandle<Acts::IExCellWriterSvc> m_exCellWriterSvc;
-  ServiceHandle<ITHistSvc> m_tHistSvc;
+  ServiceHandle<Acts::IMaterialTrackWriterSvc> m_materialTrackWriterSvc;
 
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeometry;
 
@@ -100,26 +88,6 @@ private:
   SG::ReadHandleKey<Trk::MaterialStepCollection> m_inputMaterialStepCollection{this, "InputMaterialStepCollection", "StoreGateSvc+MaterialStepRecords"};
 
   std::unique_ptr<Acts::MaterialMapper> m_materialMapper;
-
-
-  //Acts::MaterialTrack m_trackRecord;
-
-  double m_treeX0;
-  double m_treeL0;
-  double m_treeTheta;
-  double m_treePhi;
-  double m_treeTTot;
-
-  const std::string m_validationTreeName = "/MATTRACKVAL/MaterialTracks";
-  std::vector<std::array<double, 3>> m_treeStepPos;
-  std::vector<double> m_treeStepX0;
-  std::vector<double> m_treeStepL0;
-  std::vector<double> m_treeStepA;
-  std::vector<double> m_treeStepZ;
-  std::vector<double> m_treeStepRho;
-  std::vector<double> m_treeStepSteplength;
-  std::vector<double> m_treeStepTX0;
-
 };
 
 #endif // GeomACTS_ActsMaterialMapping_h

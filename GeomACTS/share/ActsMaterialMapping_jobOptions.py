@@ -49,8 +49,8 @@ from AthenaCommon.AppMgr import ServiceMgr
 import AthenaPoolCnvSvc.ReadAthenaPool 
 ServiceMgr.EventSelector.InputCollections =  ["MaterialStepFile.root"]
 
-ServiceMgr += CfgMgr.THistSvc()
-ServiceMgr.THistSvc.Output += ["MATTRACKVAL DATAFILE='MaterialTracks.root' OPT='RECREATE'"]
+# ServiceMgr += CfgMgr.THistSvc()
+# ServiceMgr.THistSvc.Output += ["MATTRACKVAL DATAFILE='MaterialTracks.root' OPT='RECREATE'"]
 # ServiceMgr.ToolSvc.OutputLevel = VERBOSE
 
 # Set up ACTS tracking geometry service
@@ -64,6 +64,11 @@ exCellWriterSvc = CfgMgr.Acts__ExCellWriterSvc("ExCellWriterSvc")
 exCellWriterSvc.FilePath = "excells_charged.root"
 ServiceMgr += exCellWriterSvc
 
+mTrackWriterSvc = CfgMgr.Acts__MaterialTrackWriterSvc("MaterialTrackWriterSvc")
+mTrackWriterSvc.OutputLevel = INFO
+ServiceMgr += mTrackWriterSvc
+
+
 # Set up algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
@@ -72,7 +77,7 @@ job = AlgSequence()
 from GeomACTS.GeomACTSConf import ActsMaterialMapping
 
 alg = ActsMaterialMapping()
-alg.Cardinality = nThreads
+alg.Cardinality = 0#nThreads
 # exTool = CfgMgr.Acts__ExtrapolationTool("ExtrapolationTool")
 # exTool.OutputLevel = INFO
 alg.ExtrapolationTool.FieldMode = "Constant"
@@ -80,6 +85,6 @@ alg.ExtrapolationTool.ConstantFieldVector = [0, 0, 0]
 alg.ExtrapolationTool.OutputLevel = INFO
 
 
-alg.OutputLevel = INFO
+alg.OutputLevel = VERBOSE
 job += alg
 

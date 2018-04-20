@@ -14,6 +14,7 @@ ROOT.SetAtlasStyle()
 
 p = argparse.ArgumentParser()
 p.add_argument("file")
+p.add_argument("--events", "-n", type=int)
 
 args = p.parse_args()
 
@@ -38,16 +39,16 @@ def mkprofile(name, xlab, ylab, *args):
 
 mkprofile("theta_x0", '\\theta', "X_{0}", 40, 0, math.pi)
 mkprofile("theta_tX0", '\\theta', "t/X_{0}", 40, 0, math.pi)
-mkprofile("theta_t", '\\theta', "t", 40, 0, math.pi)
+mkprofile("theta_dInX0", '\\theta', "t", 40, 0, math.pi)
 mkprofile("theta_tTot", '\\theta', "t_#text{tot}", 40, 0, math.pi)
 
 mkprofile("phi_x0", "\\phi", "X_{0}", 40, -math.pi, math.pi)
-mkprofile("phi_tX0", '\\phi', "t/X_{0}", 40, -math.pi, math.pi)
+mkprofile("phi_dInX0", '\\phi', "t/X_{0}", 40, -math.pi, math.pi)
 mkprofile("phi_t", '\\phi', 't', 40, -math.pi, math.pi)
 mkprofile("phi_tTot", '\\phi', 't_#text{tot}', 40, -math.pi, math.pi)
 
 mkprofile("eta_x0", '\\eta', 'X_{0}', 40, -4, 4)
-mkprofile("eta_tX0", '\\eta', 't/X_{0}', 40, -4, 4)
+mkprofile("eta_dInX0", '\\eta', 't/X_{0}', 40, -4, 4)
 mkprofile("eta_t", '\\eta', 't', 40, -6, 6)
 mkprofile("eta_tTot", '\\eta', 't_#text{tot}', 40, -6, 6)
 
@@ -63,7 +64,8 @@ ETA_CUT = 2.5
 
 for idx, event in enumerate(tree):
 
-    # if idx > 1000: break
+    if args.events:
+        if idx > args.events: break
     if idx % 1000 == 0:
         print("{} / {}".format(idx, tree.GetEntries()))
 
@@ -78,37 +80,46 @@ for idx, event in enumerate(tree):
 
     tTot = 0
 
-    if abs(eta) < ETA_CUT:
-        hists["eta_x0"].Fill(eta, X0)
-        hist2D_eta_phi_x0.Fill(eta, phi, X0)
-        hist2D_eta_phi_x0_count.Fill(eta, phi)
+    # if abs(eta) < ETA_CUT:
+    hists["eta_x0"].Fill(eta, X0)
+    hist2D_eta_phi_x0.Fill(eta, phi, X0)
+    hist2D_eta_phi_x0_count.Fill(eta, phi)
 
-    for t, x0 in zip(event.step_steplength, event.step_X0):
-        tX0 = t/x0
-        tTot += t
+    dInX0_tot = 0
 
-        hists["theta_tX0"].Fill(theta, tX0)
-        hists["theta_t"].Fill(theta, t)
+    for t, x0, dInX0 in zip(event.step_t, event.step_X0, event.step_dInX0):
+        # tX0 = t/x0
+        # tTot += t
 
-        hists["phi_tX0"].Fill(phi, tX0)
-        hists["phi_t"].Fill(phi, t)
+        dInX0_tot += dInX0
 
-        if abs(eta) < ETA_CUT:
-            hists["eta_tX0"].Fill(eta, tX0)
+        # hists["theta_dInX0"].Fill(theta, dInX0)
+        # hists["theta_t"].Fill(theta, t)
 
-        hists["eta_t"].Fill(eta, t)
+        # hists["phi_dInX0"].Fill(phi, dInX0)
+        # hists["phi_t"].Fill(phi, t)
+
+        # if abs(eta) < ETA_CUT:
+            # hists["eta_tX0"].Fill(eta, tX0)
+
+        # hists["eta_t"].Fill(eta, t)
+
+    hists["theta_dInX0"].Fill(theta, dInX0_tot)
+    hists["phi_dInX0"].Fill(phi, dInX0_tot)
+    # if abs(eta) < ETA_CUT:
+    hists["eta_dInX0"].Fill(eta, dInX0_tot)
 
     hists["theta_tTot"].Fill(theta, tTot)
     hists["phi_tTot"].Fill(phi, tTot)
-    if abs(eta) < ETA_CUT:
-        hists["eta_tTot"].Fill(eta, tTot)
+    # if abs(eta) < ETA_CUT:
+    hists["eta_tTot"].Fill(eta, tTot)
 
 hist2D_eta_phi_x0.Divide(hist2D_eta_phi_x0_count)
 
 hist2D_eta_phi_x0.Draw("colz")
 c.SaveAs("hist/eta_phi_x0.pdf")
 
-hists["phi_tX0"].GetYaxis().SetRangeUser(0, hists["phi_tX0"].GetMaximum()*1.2)
+hists["phi_dInX0"].GetYaxis().SetRangeUser(0, hists["phi_dInX0"].GetMaximum()*1.2)
 hists["phi_x0"].GetYaxis().SetRangeUser(0, hists["phi_x0"].GetMaximum()*1.2)
 hists["phi_t"].GetYaxis().SetRangeUser(0, hists["phi_t"].GetMaximum()*1.2)
 hists["phi_tTot"].GetYaxis().SetRangeUser(0, hists["phi_tTot"].GetMaximum()*1.2)
@@ -120,5 +131,5 @@ hists["phi_tTot"].GetYaxis().SetRangeUser(0, hists["phi_tTot"].GetMaximum()*1.2)
 # c.SaveAs("hist_phi_x0.pdf")
 
 for k, v in hists.iteritems():
-    v.Draw("")
+    v.Draw("hist")
     c.SaveAs("hist/{}.pdf".format(k))
