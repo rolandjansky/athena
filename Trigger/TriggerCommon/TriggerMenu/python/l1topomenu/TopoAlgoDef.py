@@ -1644,7 +1644,7 @@ class TopoAlgoDef:
 
         if usev7:
             algoList = [
-                {"minDphi": 27,  "maxDphi": 31, "otype" : "EM",  "ocut1" : 0,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortEM, "ocut2" : 0, "nleading2": 6},
+                {"minDphi": 27,  "maxDphi": 32, "otype" : "EM",  "ocut1" : 0,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortEM, "ocut2" : 0, "nleading2": 6},
             ]
         else:
             algoList = []

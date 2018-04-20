@@ -65,7 +65,7 @@ def defineMenu():
         TopoOutput( algoname='INVM_NFF',                                    module=0, fpga=1, clock=1, firstbit=12 ), # 4 bits 
         TopoOutput( algoname='63DETA127-FJ20s1-FJ20s2',                     module=1, fpga=1, clock=0, firstbit=14 ), # 4 bits 
         TopoOutput( algoname='0DETA20-J50s1-Js2',                           module=1, fpga=1, clock=0, firstbit=12 ), # 4 bits 
-        TopoOutput( algoname='27DPHI31-EMs1-EMs6',                          module=0, fpga=0, clock=1, firstbit=12 ), # 4 bits 
+        TopoOutput( algoname='27DPHI32-EMs1-EMs6',                          module=0, fpga=0, clock=1, firstbit=12 ), # 4 bits 
         TopoOutput( algoname='HT150-J20s5.ETA31',                           module=0, fpga=0, clock=0, firstbit=9 ),
         TopoOutput( algoname='HT190-J15s5.ETA21',                           module=0, fpga=0, clock=0, firstbit=10 ),
         TopoOutput( algoname='05MINDPHI-EM12s6-XE0',                        module=0, fpga=0, clock=0, firstbit=14 ),#v6

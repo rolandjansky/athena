@@ -303,7 +303,7 @@ def defineMenu():
         '200INVM9999-J30s6-AJ20s6',
         '63DETA127-FJ20s1-FJ20s2',
         '0DETA20-J50s1-Js2',
-        '27DPHI31-EMs1-EMs6',
+        '27DPHI32-EMs1-EMs6',
         #'350INVM9999-J30s6-J20s6',
         #'300INVM9999-J30s6-J20s6',
         #'250INVM9999-J30s6-J20s6',
