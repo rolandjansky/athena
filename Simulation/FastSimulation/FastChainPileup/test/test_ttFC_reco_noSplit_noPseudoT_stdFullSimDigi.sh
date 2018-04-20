@@ -3,6 +3,12 @@
 # art-type: grid
 # 
 
+# specify branches of athena that are being targeted:                                                               
+# art-include: 21.0/Athena                                                                                          
+# art-include: 21.3/Athena                                                                                          
+# Also include temporary branch 21.3-hmpl                                                                           
+# art-include: 21.3-hmpl/Athena       
+
 # job 1: Simulation from evgen
 Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4' --postInclude 'default:RecJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "Hits.pool.root" --maxEvents 50
 
