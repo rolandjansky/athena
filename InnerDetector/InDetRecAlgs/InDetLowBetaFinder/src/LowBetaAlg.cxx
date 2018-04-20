@@ -123,7 +123,7 @@ namespace InDet
                       float TRTLikelihoodError   = CSMP_indicators[8];
                       float TRTHighTbits         = CSMP_indicators[9];
 
-                      CSMP_Candidate = std::move (
+                      CSMP_Candidate = 
                           std::make_unique<InDet::InDetLowBetaCandidate>(TRTToTdEdx,
                                                                          TRTTrailingEdge,
                                                                          TRTTGapdEdx,
@@ -131,7 +131,7 @@ namespace InDet
                                                                          TRTToolsdEdx,
                                                                          TRTLikelihoodBeta,
                                                                          TRTLikelihoodError,
-                                                                         TRTHighTbits) );
+                                                                         TRTHighTbits);
 		    }
 	          }//check for valid CSMP
                 }
