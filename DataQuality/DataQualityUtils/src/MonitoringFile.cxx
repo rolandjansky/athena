@@ -742,7 +742,7 @@ void
 MonitoringFile::
 mergeFiles( std::string outFileName, const std::vector<std::string>& files )
 {
-  dqi::DisableMustClean disabled;
+  //dqi::DisableMustClean disabled;
   TH1::AddDirectory(false);
   if(m_useRE){
     std::cout<<" ========== Using regular expressions for selective merging ========== "<<std::endl;
