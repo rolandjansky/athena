@@ -8,14 +8,11 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( DerivationFramework , CommonAugmentation )
 
 #include "../GoodRunsListFilterAlgorithm.h"
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( DerivationFramework, GoodRunsListFilterAlgorithm )
+DECLARE_TOOL_FACTORY( DerivationFramework::TriggerMatchingAugmentation  )
 
 DECLARE_FACTORY_ENTRIES(DerivationFrameworkCore) {
  DECLARE_NAMESPACE_ALGORITHM( DerivationFramework, GoodRunsListFilterAlgorithm )
  DECLARE_NAMESPACE_ALGORITHM( DerivationFramework , DerivationKernel )
  DECLARE_NAMESPACE_ALGORITHM( DerivationFramework , CommonAugmentation )
-}
-
-DECLARE_TOOL_FACTORY( TriggerMatchingAugmentation  )
-DECLARE_FACTORY_ENTRIES( DerivationFrameworkCore ) {
-    DECLARE_TOOL( TriggerMatchingAugmentation )
+ DECLARE_TOOL( DerivationFramework::TriggerMatchingAugmentation )
 }
