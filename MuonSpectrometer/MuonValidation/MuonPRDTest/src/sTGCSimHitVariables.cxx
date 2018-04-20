@@ -173,6 +173,9 @@ StatusCode sTGCSimHitVariables::fillVariables()
       // hitOnSurface.x() will be susequent smeared to simulate the detector resolution, here we do not apply any smearing
       Amg::Vector2D  posOnSurf(hitOnSurface.x(), rSurface_pos.y());
 
+      // remember whether the given hit is inside the active volume (and produces a valid digit)
+      m_NSWsTGC_isInsideBounds->push_back( surf.insideBounds(posOnSurf) );
+
       int stripNumber = detEl->stripNumber(posOnSurf,newId);
       if( stripNumber == -1 ){
         ATH_MSG_WARNING("sTGC validation: failed to obtain strip number " << m_sTgcIdHelper->print_to_string(offId) );
@@ -264,6 +267,8 @@ StatusCode sTGCSimHitVariables::clearVariables()
 {
   m_NSWsTGC_nSimHits = 0;
   m_NSWsTGC_trackId->clear();
+
+  m_NSWsTGC_isInsideBounds->clear();
 
   m_NSWsTGC_globalTime->clear();
   m_NSWsTGC_hitGlobalPositionX->clear();
@@ -390,6 +395,8 @@ void sTGCSimHitVariables::deleteVariables()
   m_NSWsTGC_nSimHits = 0;
   m_NSWsTGC_trackId  = nullptr;
 
+  m_NSWsTGC_isInsideBounds = nullptr;
+
   m_NSWsTGC_globalTime = nullptr;
   m_NSWsTGC_hitGlobalPositionX = nullptr;
   m_NSWsTGC_hitGlobalPositionY = nullptr;
@@ -454,6 +461,8 @@ StatusCode sTGCSimHitVariables::initializeVariables()
   m_NSWsTGC_nSimHits = 0;
   m_NSWsTGC_trackId  = new std::vector<int>();
 
+  m_NSWsTGC_isInsideBounds = new std::vector<bool>;
+
   m_NSWsTGC_globalTime = new std::vector<double>;
   m_NSWsTGC_hitGlobalPositionX = new std::vector<double>;
   m_NSWsTGC_hitGlobalPositionY = new std::vector<double>;
@@ -514,6 +523,8 @@ StatusCode sTGCSimHitVariables::initializeVariables()
   if(m_tree) {
     m_tree->Branch("Hits_sTGC_n", &m_NSWsTGC_nSimHits, "Hits_sTGC_nSimHits/i");
     m_tree->Branch("Hits_sTGC_trackId", &m_NSWsTGC_trackId);
+
+    m_tree->Branch("Hits_sTGC_isInsideBounds", &m_NSWsTGC_isInsideBounds);
 
     m_tree->Branch("Hits_sTGC_globalTime", &m_NSWsTGC_globalTime);
     m_tree->Branch("Hits_sTGC_hitGlobalPositionX", &m_NSWsTGC_hitGlobalPositionX);
