@@ -64,9 +64,12 @@ TRT_RodDecoder::TRT_RodDecoder
      m_compressTableFolder   ( "/TRT/Onl/ROD/Compress" ),
      m_maxCompressionVersion ( 255 ),
      m_forceRodVersion       ( -1 ),
+     m_trt_id                ( nullptr ),
+     m_eventTypeIsSim        ( false ),
      //     m_Nsymbols              ( 0 ),
      m_escape_marker         ( 0x8000000 ),
      m_Nrdos                 ( 0 )
+
 {
   declareProperty ( "TRT_Cabling", m_CablingSvc );
   declareProperty ( "BSCondSvc", m_bsErrSvc );
@@ -213,7 +216,6 @@ StatusCode TRT_RodDecoder::initialize()
     m_incsvc->addListener( this, "BeginRun");
 
 
-  m_eventTypeIsSim = false;
 
   if ( m_loadCompressTableFile )
   {
