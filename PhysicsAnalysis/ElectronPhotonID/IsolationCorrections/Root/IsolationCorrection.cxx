@@ -260,19 +260,18 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
       ATH_MSG_ERROR("file " << m_corr_ddshift_file << " not found ! Check your inputs");
       return StatusCode::FAILURE;
     }
-    TString baseN = year + "/" + (m_AFII_corr ? "AFII/" : "FullSim/");
+    TString baseN = year + "/" + (m_AFII_corr ? "AF2/" : "FullSim/");
     TVector *veta = (TVector*)file_ptleakagecorr->Get(baseN+"/etaBinning");
     m_feta_bins_dd->resize(veta->GetNrows());
     for (unsigned int ieta = 0; ieta < veta->GetNrows(); ieta++) m_feta_bins_dd->at(ieta) = (*veta)[ieta];
     TTree *tbinLabel = (TTree*)file_ptleakagecorr->Get(baseN+"tbinLabel");
-    TBranch *bbinLabel;
-    TString *binLabel; tbinLabel->SetBranchAddress("binLabel",&binLabel,&bbinLabel);
+    TBranch *bbinLabel(0);
+    TString *binLabel(0); tbinLabel->SetBranchAddress("binLabel",&binLabel,&bbinLabel);
     for (unsigned int ieta = 0; ieta < m_feta_bins_dd->size()-2; ieta++) {
       tbinLabel->GetEntry(ieta);
       TString gN = "topoETcone40_DataDriven_unconverted_photon_eta_";
       gN += (*binLabel);
       m_graph_dd_cone40_unconv_photon_shift->push_back( (TGraph*) file_ptleakagecorr->Get(baseN+gN));
-      std::cout << "base dir " << baseN << " graph name " << gN << " pointer " << m_graph_dd_cone40_unconv_photon_shift->at(ieta) << std::endl;
       gN = "topoETcone40_DataDriven_converted_photon_eta_";
       gN += (*binLabel);
       m_graph_dd_cone40_conv_photon_shift->push_back( (TGraph*) file_ptleakagecorr->Get(baseN+gN));
@@ -593,7 +592,8 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
 
   void IsolationCorrection::load2015Corr() {
     TFile* file_ptleakagecorr = new TFile( m_corr_file.c_str(), "read" );
-    if(m_AFII_corr) ATH_MSG_INFO("Using corrections for AFII, are you sure you're selecting the right file? (must be _AFII or something)");
+    // JBdV comment about this... Were there really AFII leakage correction ?
+    //if(m_AFII_corr) ATH_MSG_INFO("Using corrections for AFII, are you sure you're selecting the right file? (must be _AFII or something)");
     if(!file_ptleakagecorr){
       ATH_MSG_WARNING("Correction file for 2015 data/mc not found, "<<m_corr_file<<". tool not initialized for 2015 corrections\n");
       m_corr_file = "";
@@ -887,8 +887,6 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
     std::unique_ptr< TFile > file_ddshift_corr( TFile::Open( m_corr_ddshift_file.c_str(), "READ" ) );
     std::unique_ptr< TFile > file_ddsmearingcorr( TFile::Open( m_corr_ddsmearing_file.c_str(), "READ" ) );
     
-    if(m_AFII_corr) ATH_MSG_INFO("Using corrections for AFII, are you sure you're selecting the right file? (must be _AFII or something)");
-
     if(!file_ddshift_corr || !file_ddsmearingcorr){
       ATH_MSG_WARNING("Correction file for data-driven corrections not found, tool not initialized for data-driven corrections\n");
       m_corr_ddshift_file = "";

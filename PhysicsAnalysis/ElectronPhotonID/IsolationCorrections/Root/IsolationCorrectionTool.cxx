@@ -102,15 +102,15 @@ namespace CP {
 	  if( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
 	}
 	m_apply_dd = true;
-      } else{
+      } else {
 	ATH_MSG_WARNING("Unknown data driven correction");
 	m_apply_dd = false;
       }
     } else
       m_apply_dd = false;
     
-    // Don't use DD Corrections for AFII (not yet available for mc16) 
-    if( m_tool_ver_str == "REL21" && m_AFII_corr) m_apply_dd = false;
+    // Don't use DD Corrections for AFII if not rel21 (I do not know what was done in rel20.7 !)
+    if( m_tool_ver_str != "REL21" && m_AFII_corr) m_apply_dd = false;
 
     //If we do not want to use metadata
     if (!m_usemetadata) {
@@ -323,8 +323,8 @@ namespace CP {
 	m_ddVersion = "2015_2016" ; // RunNo found, but less than 2017 range
       // otherwise, stick with default (m_ddVersion is already assigned)
       
-      // Don't use DD Corrections for AFII (not yet available for mc16) 
-      if (m_tool_ver_str == "REL21" && m_AFII_corr) m_apply_dd = false;
+      // Don't use DD Corrections for AFII if not rel21 ? (I do not know what was done for rel20.7 !!!) 
+      if (m_tool_ver_str != "REL21" && m_AFII_corr) m_apply_dd = false;
       
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
@@ -339,6 +339,8 @@ namespace CP {
       //if (eg.pt() > 25e3) ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
       bool setIso = eg.setIsolationValue(iso,type);
       setIso = (setIso && eg.setIsolationCaloCorrection(newleak-ddcorr,type,xAOD::Iso::ptCorrection));
+      ATH_MSG_VERBOSE("oldeak = " << oldleak << " ddcor = " << ddcorr << " leak param = " << newleak
+		      << " stored correction " << eg.isolationCaloCorrection(type,xAOD::Iso::ptCorrection));
       if (!setIso) {
 	ATH_MSG_WARNING("Can't correct leakage for " << xAOD::Iso::toString(type));
       	return CP::CorrectionCode::Error;
