@@ -82,7 +82,6 @@ pool::PersistencySvc::MicroSessionManager::connect( const std::string& fid,
                                                     accessMode );
     m_registry.registerDatabaseHandler( db );
     m_databaseHandlers.insert( db );
-    db->startTransaction();
   }
   catch( pool::PersistencySvcException& /* error */) {
   }

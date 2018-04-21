@@ -16,7 +16,6 @@
 
 #include "StorageSvc/DbDomain.h"
 #include "StorageSvc/DbDatabase.h"
-#include "StorageSvc/DbTransaction.h"
 #include "DbContainerObj.h"
 #include "DbDatabaseObj.h"
 
@@ -157,13 +156,9 @@ DbStatus DbDatabase::getLink(const Token::OID_t& lnkH, Token* pTok, const DbSect
 std::string DbDatabase::cntName(const Token& token) const
 {  return isValid() ? ptr()->cntName(token) : "";                       }
 
-/// Allow query if Transaction is active
-bool DbDatabase::transactionActive() const  
-{  return isValid() ? ptr()->transactionActive() : false;               }
-
-/// Start/Commit/Rollback Database Transaction
-DbStatus DbDatabase::transAct(DbTransaction& refTr) {
-  return isValid() && refTr.validate(ptr()).isSuccess() ? ptr()->transAct(refTr) : Error;
+/// Execute Database Transaction action
+DbStatus DbDatabase::transAct(Transaction::Action action) {
+  return isValid()? ptr()->transAct(action) : Error;
 }
 
 /// Pass options to the implementation

@@ -21,7 +21,6 @@
 #include "StorageSvc/DbObjectCallBack.h"
 #include "StorageSvc/DbTypeInfo.h"
 #include "StorageSvc/DbContainer.h"
-#include "StorageSvc/DbTransaction.h"
 #include "StorageSvc/DbToken.h"
 #include "DbContainerObj.h"
 
@@ -106,15 +105,9 @@ bool DbContainer::isOpen() const  {
   return isValid();
 }
 
-/// Allow query if Transaction is active
-bool DbContainer::transactionActive() const  {
-  return isValid() ? m_ptr->transactionActive() : false;
-}
-
-/// Start/Commit/Rollback Database Transaction
-DbStatus DbContainer::transAct(DbTransaction& refTr) {
-  return (isValid() && refTr.validate(m_ptr).isSuccess()) 
-    ? m_ptr->transAct(refTr) : Error;
+/// Execute Database Transaction Action
+DbStatus DbContainer::transAct(Transaction::Action action) {
+  return isValid() ? m_ptr->transAct(action) : Error;
 }
 
 /// Pass options to the implementation
@@ -268,7 +261,7 @@ DbStatus DbContainer::_load(DbObjectHandle<DbObject>& objH,
     Token::OID_t oid;
     DbCallBack call(this, &objH, typ);
     if ( m_ptr->load(&call, linkH, oid, mod, false).isSuccess() )  {
-objH._setObject(call.object());
+      objH._setObject(call.object());
       objH.oid() = oid;
       return Success;
     }

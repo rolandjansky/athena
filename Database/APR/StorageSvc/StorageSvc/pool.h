@@ -130,5 +130,18 @@ namespace pool   {
     }
     return ~0x0;
   }
+
+  class RefCounter {
+  private: 
+    mutable int m_count = 1;
+  public:
+    RefCounter() {}
+    RefCounter( const RefCounter& ) { m_count = 1; }
+    /// Increase the reference count
+    int addRef()   { return ++m_count; }
+    /// Decrease the reference count 
+    int subRef()   { return --m_count; }
+  };
+    
 }
 #endif  // POOL_POOL_H

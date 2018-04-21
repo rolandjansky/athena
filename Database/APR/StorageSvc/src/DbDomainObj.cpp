@@ -75,7 +75,7 @@ DbDomainObj::~DbDomainObj()  {
   if ( m_session.isValid() )    {
     m_session.remove (this);
   }
-  releasePtr(m_info);
+  deletePtr(m_info);
   log << DbPrintLvl::Info    << ">   Deaccess DbDomain     "
       << accessMode(mode()) 
       << " [" << type().storageName() << "] " 
@@ -87,7 +87,8 @@ bool DbDomainObj::existsDbase( const string& name)
 
 DbStatus DbDomainObj::open(DbAccessMode mod)   {
   setMode(mod);
-  return m_info ? m_info->open(session(),name(),mode()) : Error;
+//  return m_info ? m_info->open(session(),name(),mode()) : Error;
+  return m_info ? Success : Error;
 }
 
 DbStatus DbDomainObj::open()
@@ -106,9 +107,6 @@ DbStatus DbDomainObj::close()   {
       this->remove(curr);
     }
     clearEntries();
-    if ( m_info )    {
-      m_info->close();
-    }
     m_session.remove(this);
     m_session = DbSession(0);
     return Success;
@@ -122,8 +120,7 @@ DbStatus DbDomainObj::ageOpenDbs() {
     for (iterator i = begin(); i != end(); ++i ) {
       DbDatabaseObj* pDB = (*i).second;
       DbAccessMode m  = pDB->mode();
-      bool         tr = pDB->transactionActive();
-      if ( false == tr && 0==(m&pool::CREATE) && 0==(m&pool::UPDATE) )  {
+      if( 0==(m&pool::CREATE) && 0==(m&pool::UPDATE) )  {
         pDB->setAge(1);
       }
     }
@@ -140,8 +137,7 @@ DbStatus DbDomainObj::closeAgedDbs()  {
       DbDatabaseObj* pDB = (*i).second;
       if ( pDB->age() > m_maxAge )   {
         DbAccessMode m  = pDB->mode();
-        bool         tr = pDB->transactionActive();
-        if ( false == tr && 0 == (m&pool::CREATE) && 0 == (m&pool::UPDATE) )  {
+        if( 0 == (m&pool::CREATE) && 0 == (m&pool::UPDATE) )  {
           aged_dbs.push_back(pDB);
         }
       }

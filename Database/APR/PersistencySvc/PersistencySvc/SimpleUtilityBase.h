@@ -13,7 +13,6 @@
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/DbOption.h"
 #include "StorageSvc/FileDescriptor.h"
-#include "StorageSvc/poolDb.h"
 
 
 namespace pool {
@@ -60,6 +59,3 @@ namespace pool {
    
 } // pool namespace
 #endif
-
-
-

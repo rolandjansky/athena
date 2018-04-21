@@ -16,7 +16,6 @@
 // Framework include files
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbContainerImp.h"
-#include "StorageSvc/DbImplementation.h"
 
 // Forward declarations
 namespace CINT { class IOHandler; }
@@ -43,7 +42,7 @@ namespace pool  {
     * @date    1/8/2002
     * @version 1.0
     */
-  class RootKeyContainer : public DbContainerImp   {
+  class RootKeyContainer : public DbContainerImp  {
     /// Reference to the root tree object
     TDirectory*        m_dir;
     /// Parent Database handle
@@ -64,7 +63,7 @@ namespace pool  {
     virtual DbStatus writeObject(TransactionStack::value_type& entry);
   public:
     /// Standard constructor
-    RootKeyContainer(IOODatabase* idb);
+    RootKeyContainer();
     /// Standard destructor
     virtual ~RootKeyContainer();
     /// Close the container and deallocate resources
@@ -125,7 +124,8 @@ namespace pool  {
       *
       * @return DbStatus code indicating success or failure.  
       */
-    virtual DbStatus endTransaction(DbTransaction& refTr);
+    /// Execute transaction action
+    virtual DbStatus transAct(Transaction::Action action);
   };
 }
 #endif //POOL_ROOTKEYCONTAINER_H

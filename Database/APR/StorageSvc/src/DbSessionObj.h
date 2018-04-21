@@ -26,6 +26,7 @@ namespace pool    {
 
   // Forward declarations
   class DbDomainObj;
+  class IOODatabase;
 
   /** Db objects: DbSessionObj
 
@@ -44,20 +45,18 @@ namespace pool    {
   class DbSessionObj : public DbAccessObj<DbType, DbDomainObj >   {
   private:
     /// Known Implementation types
-    void*         m_dbTypes;
+    std::map<DbType, IOODatabase*>         m_dbTypes;
   public:
     /// Standard constructor
     DbSessionObj();
     /// Standard destructor
     virtual ~DbSessionObj();
     /// Allow access to the Database implementation
-    IOODatabase* db(const DbType& typ)  const;
+    IOODatabase* db(const DbType& typ) ;
     /// Open session
     DbStatus open();
     /// Close Database session
     DbStatus close();
-    /// Inject new Database implementation
-    DbStatus addDb(IOODatabase* db_impl)   const;
   };
 }       // End namespace pool
 #endif  // POOL_DBSESSIONOBJ_H

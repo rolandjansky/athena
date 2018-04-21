@@ -24,34 +24,8 @@ bool
 pool::PersistencySvc::GlobalTransaction::start( pool::ITransaction::Type type )
 {
   if ( this->isActive() || type == pool::ITransaction::UNDEFINED ) return false;
-  unsigned int successfullDatabases = 0;
-  bool result = false;
-  for ( pool::PersistencySvc::DatabaseRegistry::iterator iDb = m_databases.begin();
-        iDb != m_databases.end(); ++iDb ) {
-    if ( ! (*iDb)->startTransaction() ) {
-      coral::MessageStream log( "PersistencySvc::GlobalTransaction" );
-      log << coral::Error << "Could not start a transaction for the database with" << coral::MessageStream::endmsg
-          << "FID = " << (*iDb)->fid() << coral::MessageStream::endmsg
-          << "PFN = " << (*iDb)->pfn() << coral::MessageStream::endmsg;
-      break;
-    }
-    ++successfullDatabases;
-  }
-
-  if ( successfullDatabases == m_databases.size() ) {
-    result = true;
-  }
-  else { // at least one database failed. Rollback the ones we started
-    pool::PersistencySvc::DatabaseRegistry::iterator iDb = m_databases.begin();
-    while ( successfullDatabases > 0 ) {
-      (*iDb)->rollBackTransaction();
-      --successfullDatabases;
-      ++iDb;
-    }
-  }
-
-  if ( result ) m_type = type;
-  return result;
+  m_type = type;
+  return true;
 }
 
 
