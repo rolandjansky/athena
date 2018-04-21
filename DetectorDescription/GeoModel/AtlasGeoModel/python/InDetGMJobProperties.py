@@ -70,7 +70,7 @@ class InDetGMFlags(CommonGMFlags, object):
         self.__dict__["SLHC"] = False
         if _layout in ['IBL'] : self.__dict__["IBL"] = True
         if self.__dict__["IBL"] == False: self.__dict__["IBLlayout"]="noIBL"
-        if _layout not in ['SLHC'] and CommonGeometryFlags.Run().lower()=="run2": self.__dict__["IBL"] = True
+        if _layout not in ['SLHC'] and ( CommonGeometryFlags.Run().lower()=="run2" or CommonGeometryFlags.Run().lower()=="run3" ) : self.__dict__["IBL"] = True
         if _layout in ['SLHC'] : self.__dict__["SLHC"] = True
 
 
