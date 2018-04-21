@@ -205,8 +205,9 @@ namespace Overlay {
         const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*rdo);
         if (!rdo3) {
           std::ostringstream os;
+          const auto& elt = **rdo;
           os<<"mergeCollectionNew<SCT_RDORawData>(): wrong datum format. Only SCT3_RawData are produced by SCT_RodDecoder and supported by overlay."
-            <<"For the supplied datum  typeid(datum).name() = "<<typeid(**rdo).name();
+            <<"For the supplied datum  typeid(datum).name() = "<<typeid(elt).name();
           throw std::runtime_error(os.str());
         }
         int strip = parent->get_sct_id()->strip(rdo3->identify());
