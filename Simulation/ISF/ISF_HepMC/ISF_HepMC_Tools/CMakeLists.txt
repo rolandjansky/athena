@@ -38,6 +38,12 @@ atlas_add_test( GenParticleGenericFilter_test
                 INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                 LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps )
 
+# Tests
+atlas_add_test( GenParticleInteractingFilter_test
+                SOURCES test/GenParticleInteractingFilter_test.cxx src/GenParticleInteractingFilter.cxx
+                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
+                LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps TruthUtils )
+
 # Install files from the package:
 atlas_install_headers( ISF_HepMC_Tools )
 atlas_install_python_modules( python/*.py )
