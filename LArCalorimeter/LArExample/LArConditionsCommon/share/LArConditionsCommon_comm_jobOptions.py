@@ -225,7 +225,7 @@ if larCondFlags.LoadElecCalib():
       
       #5. MphysOverMcal
       if larCondFlags.MphysOverMcalFolder()=="":
-          addLArFolder ('LAR_ONL', MphysOverMcal,
+          addLArFolder ('LAR_ONL', 'MphysOverMcal',
                         'LArMphysOverMcalComplete')
       else: 
           #Load from offline database:
