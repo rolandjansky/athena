@@ -46,7 +46,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf);
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
 
   virtual bool isActive(const Identifier & elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override final;
   virtual bool isActive(const IdentifierHash & elementHash) const override final;

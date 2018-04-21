@@ -80,7 +80,7 @@ StatusCode SpecialPixelMapCondAlg::initialize()
         return StatusCode::FAILURE;
     }
     {   //Limited scope to help avoid errors
-        std::array<SG::ReadCondHandleKey<CondAttrListCollection>*, s_max> condarray{ &m_ConAttrList1, &m_ConAttrList2, &m_ConAttrList3, &m_ConAttrList4 };
+        std::array<SG::ReadCondHandleKey<CondAttrListCollection>*, s_max> condarray{{ &m_ConAttrList1, &m_ConAttrList2, &m_ConAttrList3, &m_ConAttrList4 }};
         if(m_condAttrListCollectionKeys.size() > s_max) {
             ATH_MSG_FATAL("Too many collection keys provided, improve code (this was a messy comprimise)");
             return StatusCode::FAILURE;
@@ -91,7 +91,7 @@ StatusCode SpecialPixelMapCondAlg::initialize()
         }
     }
     {
-        std::array<SG::WriteCondHandleKey<DetectorSpecialPixelMap>*,s_max> outarray{ &m_pixmap1, &m_pixmap2, &m_pixmap3, &m_pixmap4 };
+        std::array<SG::WriteCondHandleKey<DetectorSpecialPixelMap>*,s_max> outarray{{ &m_pixmap1, &m_pixmap2, &m_pixmap3, &m_pixmap4 }};
         for(size_t i=0; i< m_specialPixelMapKeys.size(); i++) {
             *(outarray.at(i)) = m_specialPixelMapKeys[i];
             if((*outarray.at(i)).initialize().isFailure()){
@@ -154,8 +154,8 @@ StatusCode SpecialPixelMapCondAlg::initialize()
 StatusCode SpecialPixelMapCondAlg::execute_r (const EventContext& ctx) const
 {
     ATH_MSG_DEBUG("Entering SpecialPixelMapCondAlg");
-    const std::array<const SG::ReadCondHandleKey<CondAttrListCollection>*, s_max> condarray{ &m_ConAttrList1, &m_ConAttrList2, &m_ConAttrList3, &m_ConAttrList4 };
-    const std::array<const SG::WriteCondHandleKey<DetectorSpecialPixelMap>*, s_max> outarray{ &m_pixmap1, &m_pixmap2, &m_pixmap3, &m_pixmap4 };
+    const std::array<const SG::ReadCondHandleKey<CondAttrListCollection>*, s_max> condarray{{ &m_ConAttrList1, &m_ConAttrList2, &m_ConAttrList3, &m_ConAttrList4 }};
+    const std::array<const SG::WriteCondHandleKey<DetectorSpecialPixelMap>*, s_max> outarray{{ &m_pixmap1, &m_pixmap2, &m_pixmap3, &m_pixmap4 }};
     std::array<bool, s_max> newobject; newobject.fill(true);
     const size_t N = m_condAttrListCollectionKeys.size();//should never be higher than s_max, check in initialize
     std::array<DetectorSpecialPixelMap*, s_max> ptrcache;
