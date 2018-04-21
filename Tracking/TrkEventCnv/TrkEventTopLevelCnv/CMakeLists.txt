@@ -9,10 +9,10 @@ atlas_subdir( TrkEventTopLevelCnv )
 atlas_depends_on_subdirs(
    PUBLIC
    Database/AthenaPOOL/AthenaPoolCnvSvc
-   Tracking/TrkEvent/TrkEventTPCnv
+   Tracking/TrkEventCnv/TrkEventTPCnv
    InnerDetector/InDetEventCnv/InDetEventTPCnv
    MuonSpectrometer/MuonCnv/MuonEventTPCnv
-   Reconstruction/RecTPCnv/RecTPCnv
+   Reconstruction/RecTPCnv
    PRIVATE
    AtlasTest/TestTools
    Control/CxxUtils
