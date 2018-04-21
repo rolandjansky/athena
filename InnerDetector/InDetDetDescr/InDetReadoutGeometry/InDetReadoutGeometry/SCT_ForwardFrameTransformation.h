@@ -47,6 +47,9 @@ class SiLocalPosition;
       /** Assignment operator: */
       SCT_ForwardFrameTransformation &operator=(const SCT_ForwardFrameTransformation &frame);
 
+      /** Default move assignment operator: */
+      SCT_ForwardFrameTransformation &operator=(SCT_ForwardFrameTransformation &&) = default;
+
       ///////////////////////////////////////////////////////////////////
       // Const methods:
       ///////////////////////////////////////////////////////////////////
