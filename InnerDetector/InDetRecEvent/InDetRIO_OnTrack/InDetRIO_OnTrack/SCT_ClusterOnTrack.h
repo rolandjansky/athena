@@ -101,6 +101,8 @@ namespace InDet{
 
       /**Assignment operator*/
       SCT_ClusterOnTrack &operator=(const SCT_ClusterOnTrack &);
+      /**Default move assigment operator*/
+      SCT_ClusterOnTrack &operator=(SCT_ClusterOnTrack &&) = default;
 
       /** Destructor */
       virtual ~SCT_ClusterOnTrack() = default;

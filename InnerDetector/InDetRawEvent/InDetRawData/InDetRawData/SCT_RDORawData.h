@@ -47,6 +47,9 @@ public:
   // Static methods:
   ///////////////////////////////////////////////////////////////////
 
+  // Default assignment operator
+  SCT_RDORawData& operator=(const SCT_RDORawData &) = default;
+
   // Create a new SCT_RawData and return a pointer to it:
   //  static SCT_RawData *newObject(const Identifier rdoId, const unsigned int word);
   ///////////////////////////////////////////////////////////////////

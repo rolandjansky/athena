@@ -54,6 +54,8 @@ public:
     CompetingSCT_ClustersOnTrack(const CompetingSCT_ClustersOnTrack& compROT);
     /** Assignment operator */
     CompetingSCT_ClustersOnTrack& operator=(const CompetingSCT_ClustersOnTrack& compROT);
+    /** Default move assignment operator */
+    CompetingSCT_ClustersOnTrack& operator=(CompetingSCT_ClustersOnTrack&& compROT) = default;
 
     /** Constructor with all parameters: PLEASE do not use directly,
     but call InDet::CompetingSCT_ClustersOnTrackTool, otherwise inconsistency of
