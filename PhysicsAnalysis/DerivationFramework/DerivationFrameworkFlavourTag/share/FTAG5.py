@@ -29,7 +29,7 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
     Trk__TrackToVertexIPEstimator)
 
 # flavor tagging
-from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, addHbbTagger
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
@@ -171,33 +171,7 @@ for jc in OutputJets["FTAG5"]:
 # Add Hbb tagger
 #================================================================
 
-fatCalib = CfgMgr.JetCalibrationTool(
-    "Jabbelator",
-    JetCollection="AntiKt10LCTopoTrimmedPtFrac5SmallR20",
-    ConfigFile="JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config",
-    CalibSequence="EtaJES_JMS",
-    CalibArea="00-04-81",
-    IsData=False)
-ToolSvc += fatCalib
-log_setup(fatCalib)
-
-hbbTagger = CfgMgr.HbbTaggerDNN(
-    "HbbTagger",
-    OutputLevel=WARNING,
-    neuralNetworkFile="BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json")
-ToolSvc += hbbTagger
-log_setup(hbbTagger)
-
-FTAG5Seq += CfgMgr.HbbTaggingAlgorithm(
-    "HbbTaggerAlg",
-    jetCollectionName="AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-    decorationName="HbbScore",
-    minPt=250e3,
-    maxEta=2.0,
-    tagger=hbbTagger,
-    calibrationTool=fatCalib)
-
-log_setup(FTAG5Seq.HbbTaggerAlg)
+addHbbTagger(FTAG5Seq, ToolSvc, ftag5_log)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
