@@ -24,6 +24,10 @@ ContainersOnTheFly = [
                         ["AntiKt4TruthJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt4TruthWZJets","xAOD::JetContainer"],
                         ["AntiKt4TruthWZJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt4EMTopoCSSKJets","xAOD::JetContainer"],
+                        ["AntiKt4EMTopoCSSKJetsAux","xAOD::JetAuxContainer"],
+                        ["AntiKt4EMPFlowCSSKJets","xAOD::JetContainer"],
+                        ["AntiKt4EMPFlowCSSKJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt10LCTopoJets","xAOD::JetContainer"],
                         ["AntiKt10LCTopoJetsAux","xAOD::JetAuxContainer"],
                         ["AntiKt10TrackCaloClusterJets","xAOD::JetContainer"],
@@ -36,4 +40,6 @@ ContainersOnTheFly = [
                         ["BTagging_AntiKt2TrackAux","xAOD::BTaggingAuxContainer"],
                         ["BTagging_AntiKtVR30Rmax4Rmin02Track","xAOD::BTaggingContainer"],
                         ["BTagging_AntiKtVR30Rmax4Rmin02TrackAux","xAOD::BTaggingAuxContainer"],
+                        ["BTagging_AntiKt4EMPFlow","xAOD::BTaggingContainer"],
+                        ["BTagging_AntiKt4EMPFlowAux","xAOD::BTaggingAuxContainer"],
 ]

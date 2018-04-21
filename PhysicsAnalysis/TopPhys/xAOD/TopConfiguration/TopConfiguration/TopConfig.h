@@ -694,6 +694,8 @@ class TopConfig final {
   /// HL LHC studies
   inline  virtual void HLLHC(const bool s) { if(!m_configFixed){m_HLLHC=s;} }
   inline  virtual bool HLLHC() const {return m_HLLHC;}
+  inline  virtual void HLLHCFakes(const bool s) { if(!m_configFixed){m_HLLHCFakes=s;} }
+  inline  virtual bool HLLHCFakes() const {return m_HLLHCFakes;}
 
   void setBTaggingSFSysts( std::string WP, const std::set<std::string>& btagging_SFs, bool isTrackJet=false );
 
@@ -782,6 +784,10 @@ class TopConfig final {
 
   // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
   inline bool outputFileSetAutoFlushZero() const {return m_outputFileSetAutoFlushZero;}
+  // Better configurable settings for TTree memory optimisation (ANALYSISTO-44, ANALYSISTO-463)
+  inline int outputFileNEventAutoFlush() const {return m_outputFileNEventAutoFlush;}
+  inline int outputFileBasketSizePrimitive() const {return m_outputFileBasketSizePrimitive;}
+  inline int outputFileBasketSizeVector() const {return m_outputFileBasketSizeVector;}
 
   // Number of events to run on (only for testing)
   inline virtual unsigned int numberOfEventsToRun() const { return m_numberOfEventsToRun;}
@@ -869,6 +875,10 @@ class TopConfig final {
   // Just a function that might need to be used in multiple places - return the running year (2015, 2016, 2017)
   const std::string getYear(unsigned int runnumber);
 
+  // Setter and getter functions for recording whether we have configured the nominal objects
+  inline virtual void setNominalAvailable(const bool s){m_isNominalAvailable = s;}
+  inline bool isNominalAvailable() const { return m_isNominalAvailable;}
+    
  private:
   // Prevent any more configuration
   bool m_configFixed;
@@ -918,6 +928,9 @@ class TopConfig final {
 
   std::string m_jetSubstructureName;
 
+  // Store in config a boolean which lets us know if we called the nominal object setup
+  bool m_isNominalAvailable;
+    
   // Do systematics? - this needs many more configuration options
   std::string m_systematics;
   std::string m_nominalSystName;
@@ -1200,6 +1213,7 @@ class TopConfig final {
 
   // Options for upgrade studies
   bool m_HLLHC;
+  bool m_HLLHCFakes;
 
   // B-tagging WPs requested by the user (updated to pair of string to hold algorithm and WP)
   std::vector<std::pair<std::string, std::string> > m_chosen_btaggingWP; // = { };
@@ -1311,7 +1325,10 @@ class TopConfig final {
   bool m_saveOnlySelectedEvents;
   // SetAutoFlush(0) on EventSaverFlatNtuple for ANALYSISTO-44 workaround
   bool m_outputFileSetAutoFlushZero;
-
+  // Better configurable settings for TTree memory optimisation (ANALYSISTO-44, ANALYSISTO-463)
+  int m_outputFileNEventAutoFlush;
+  int m_outputFileBasketSizePrimitive;
+  int m_outputFileBasketSizeVector;
   // Number of events to run on (for testing)
   unsigned int m_numberOfEventsToRun;
 

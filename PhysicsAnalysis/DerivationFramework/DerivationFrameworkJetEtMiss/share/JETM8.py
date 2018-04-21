@@ -20,9 +20,10 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # this recopying the latest JETM6
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
+jetTriggers = TriggerLists.jetTrig()
 
 # For first data
 jetSelection = '(count( AntiKt10LCTopoJets.pt > 100.*GeV ) >=1)'
@@ -218,6 +219,7 @@ addStandardJets("CamKt", 1.5, "LCTopo", mods="lctopo_ungroomed", calibOpt="none"
 addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 
 # PFlow fat jets
+addCHSPFlowObjects()
 #addTrimmedJets("AntiKt", 1.0, "EMCPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 addTrimmedJets("AntiKt", 1.0, "EMPFlow", rclus=0.2, ptfrac=0.05, algseq=jetm8Seq, outputGroup="JETM8")
 

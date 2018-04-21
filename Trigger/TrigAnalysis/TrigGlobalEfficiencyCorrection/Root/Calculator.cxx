@@ -19,9 +19,10 @@ using std::placeholders::_3;
 using std::placeholders::_4;
 
 Calculator::Helper::Helper(const std::vector<TrigDef>& defs) :
-	n1L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_GENERIC_SINGLELEPTON;})),
-	n2L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_GENERIC_DILEPTON;})),
-	n3L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_GENERIC_TRILEPTON;})),
+	m_n1L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_SINGLELEPTON_FLAG;})),
+	m_n2L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_DILEPTON_FLAG;})),
+	m_n3L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_TRILEPTON_FLAG;})),
+	m_nPhotonTriggers(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_PHOTON_FLAG;})),
 	m_func(nullptr), m_defs(defs)
 {
 }
@@ -50,8 +51,8 @@ bool Calculator::Helper::bind_1x1L()
 template<>
 bool Calculator::Helper::bind_1x1L<void>()
 {
-	auto nE = count<Trig1E>(), nM = count<Trig1MU>();
-	if(!n1L || n1L!=m_defs.size()) return false;
+	auto nE = count<Trig1E>(), nM = count<Trig1MU>(), n1 = nE+nM;
+	if(!n1 || n1!=m_defs.size()) return false;
 	if(nE>1 || nM>1)
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
@@ -67,17 +68,12 @@ bool Calculator::Helper::bind_1x1L<void>()
 }
 
 template<typename Trig2L>
-bool Calculator::Helper::bind_1x2L()
+bool Calculator::Helper::bind_1x2L_singleFlavour()
 {
-	using Trig1L = typename std::conditional<Trig2L::object()==xAOD::Type::Electron, Trig1E, Trig1MU>::type;
+	using Trig1L = typename Trig2L::companionTrig1LType;
 	auto n2 = count<Trig2L>(), n1 = count<Trig1L>();
-	if(n2!=1 || n2+n1L!=m_defs.size()) return false;
-	if(n1L > n1)
-	{
-		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2L, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2L>(0), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
-	}
-	else if(n1 > 0)
+	if(n2!=1 || n2+n1!=m_defs.size()) return false;
+	if(n1 > 0)
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2L, const flat_set<Trig1L>&, Efficiencies&);
 		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2L>(0), get_all<Trig1L>(), ::_4);
@@ -90,12 +86,27 @@ bool Calculator::Helper::bind_1x2L()
 	return true;
 }
 
+template<typename Trig2L>
+bool Calculator::Helper::bind_1x2L()
+{
+	using Trig1L = typename Trig2L::companionTrig1LType;
+	std::size_t n2 = count<Trig2L>(), n1 = count<Trig1E>()+count<Trig1MU>(), n1sf = count<Trig1L>();
+	if(n2!=1 || n2+n1!=m_defs.size()) return false;
+	if(n1 > n1sf)
+	{
+		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2L, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2L>(0), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
+		return true;
+	}
+	return bind_1x2L_singleFlavour<Trig2L>();
+}
+
 template<>
 bool Calculator::Helper::bind_1x2L<TrigEMU>()
 {
-	auto n2 = count<TrigEMU>();
-	if(n2!=1 || n2+n1L!=m_defs.size()) return false;
-	if(n1L > 0)
+	auto n2 = count<TrigEMU>(), n1 = count<Trig1E>()+count<Trig1MU>();
+	if(n2!=1 || n2+n1!=m_defs.size()) return false;
+	if(n1 > 0)
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const TrigEMU, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
 		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<TrigEMU>(0), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
@@ -108,12 +119,28 @@ bool Calculator::Helper::bind_1x2L<TrigEMU>()
 	return true;
 }
 
+template<typename Trig2L1, typename Trig2L2>
+bool Calculator::Helper::bind_2x2L_singleFlavour()
+{
+	static_assert((Trig2L1::object()==Trig2L2::object()) && !Trig2L1::mixed() && !Trig2L2::mixed(), "");
+	using Trig1L = typename Trig2L1::companionTrig1LType;
+	constexpr bool sameType = (Trig2L1::type()==Trig2L2::type());
+	auto n2 = count<Trig2L1>()+(sameType?0:count<Trig2L2>()), n1 = count<Trig1L>();
+	if(n2!=2 || n2+n1!=m_defs.size()) return false;
+	using Trig2Lsym = typename std::conditional<Trig2L1::is2Lasym(), Trig2L2, Trig2L1>::type;
+	using Trig2L = typename std::conditional<Trig2L1::is2Lasym(), Trig2L1, Trig2L2>::type;
+	using fnptr = bool(Calculator::*)(const LeptonList& leptons, unsigned runNumber, const Trig2L, const Trig2Lsym, const flat_set<Trig1L>&, Efficiencies&);
+	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Two2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2L>(0), get<Trig2Lsym>(sameType*1), get_all<Trig1L>(), ::_4);
+	return true;
+}
+
 template<typename Trig2E, typename Trig2MU>
 bool Calculator::Helper::bind_3x2L()
 {
-	std::size_t n2E = count<Trig2E>(), n2M = count<Trig2MU>(), nEM = count<TrigEMU>();
-	if(n2E>1 || n2M>1 || nEM>1 || n2E+n2M+nEM+n1L!=m_defs.size()) return false;
-	if(n1L > 0)
+	static_assert(Trig2E::object()==xAOD::Type::Electron && Trig2MU::object()==xAOD::Type::Muon, "");
+	std::size_t n2E = count<Trig2E>(), n2M = count<Trig2MU>(), nEM = count<TrigEMU>(), n1 = count<Trig1E>()+count<Trig1MU>();
+	if(n2E>1 || n2M>1 || nEM>1 || n2E+n2M+nEM+n1!=m_defs.size()) return false;
+	if(n1 > 0)
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2E, const Trig2MU, 
 			const TrigEMU, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
@@ -131,11 +158,12 @@ bool Calculator::Helper::bind_3x2L()
 template<typename Trig2E, typename Trig2MU>
 bool Calculator::Helper::bind_6x2L()
 {
+	static_assert(Trig2E::object()==xAOD::Type::Electron && Trig2MU::object()==xAOD::Type::Muon, "");
 	constexpr bool two2Esym = std::is_same<Trig2E, Trig2Esym>::value, two2MUsym = std::is_same<Trig2MU, Trig2MUsym>::value;
-	std::size_t n2E = count<Trig2Esym>() + (two2Esym? 0 : count<Trig2E>());
-	std::size_t n2M = count<Trig2MUsym>() + (two2MUsym? 0 : count<Trig2MU>());
-	std::size_t nEM = count<TrigEMU>();
-	if(n2E>2 || n2M>2 || count<Trig2Easym>()>1 || count<Trig2MUasym>()>1 || nEM>2 || n2E+n2M+nEM+n1L!=m_defs.size()) return false;
+	auto n2E = count<Trig2Esym>() + (two2Esym? 0 : count<Trig2E>());
+	auto n2M = count<Trig2MUsym>() + (two2MUsym? 0 : count<Trig2MU>());
+	auto nEM = count<TrigEMU>(), n1 = count<Trig1E>()+count<Trig1MU>();
+	if(n2E>2 || n2M>2 || count<Trig2Easym>()>1 || count<Trig2MUasym>()>1 || nEM>2 || n2E+n2M+nEM+n1!=m_defs.size()) return false;
 	Trig2Esym trig2Esym = get<Trig2Esym>(two2Esym? 1 : 0);
 	Trig2MUsym trig2MUsym = get<Trig2MUsym>(two2MUsym? 1 : 0);
 	using fnptr =  bool(Calculator::*)(const LeptonList&, unsigned, const Trig2E, const Trig2Esym, const Trig2MU, const Trig2MUsym, 
@@ -158,7 +186,7 @@ bool Calculator::Helper::bind_1x3L()
 template<typename Trig3L1, typename Trig3L2>
 bool Calculator::Helper::bind_2x3L()
 {
-	static_assert(!std::is_same<Trig3L1,Trig3L2>::value, "complete the implementation if this becomes needed");
+	static_assert((Trig3L1::type()!=Trig3L2::type()) && Trig3L1::is3Lmix() && Trig3L2::is3Lmix(), "");
 	std::size_t n31 = count<Trig3L1>(), n32 = count<Trig3L2>();
 	if(n31!=1 || n32!=1 || n31+n32!=m_defs.size()) return false;
 	using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig3L1, const Trig3L2, Efficiencies&);
@@ -216,50 +244,51 @@ Calculator::Calculator(TrigGlobalEfficiencyCorrectionTool& parent, unsigned nPer
 }
 		
 bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>& boundaries, const std::string& combination, 
-	bool useToys, bool useDefaultTools, std::size_t& uniqueElectronLeg)
+	bool useToys, bool useDefaultElectronTools, std::size_t& uniqueElectronLeg, bool useDefaultPhotonTools, std::size_t& uniquePhotonLeg)
 {
 	bool success = true;
 	m_parent = data.getParent();
 	
-	flat_set<std::size_t> singleelectron, singlemuon;
-	std::vector<TrigDef> dilep, trilep;
 	auto triggers = data.parseTriggerString(combination,success);
 	if(!success) return false;
 
-	uniqueElectronLeg = 0;
-	bool severalElectronLegs = false;
+	uniqueElectronLeg = uniquePhotonLeg = 0;
+	bool severalElectronLegs = false, severalPhotonLegs = false;
 	for(auto& trig : triggers)
 	{
-		if(!useToys)
+		switch(trig.type)
 		{
-			if(trig.type==TT_SINGLE_E) singleelectron.insert(trig.leg[0]);
-			else if(trig.type==TT_SINGLE_MU) singlemuon.insert(trig.leg[0]);
-			else if(trig.type&TT_GENERIC_DILEPTON) dilep.emplace_back(trig);
-			else if(trig.type&TT_GENERIC_TRILEPTON) trilep.emplace_back(trig);
-			else
+		case TT_SINGLE_MU: case TT_2MU_ASYM: case TT_2MU_SYM: case TT_3MU_ASYM: case TT_3MU_SYM:
+			break;
+		case TT_SINGLE_E: case TT_2E_SYM: case TT_EMU: case TT_3E_SYM: case TT_E_2MU_ASYM: case TT_E_2MU_SYM:
+			if(!severalElectronLegs)
 			{
-				ATH_MSG_ERROR("Implementation incomplete, unrecognised trigger type " << trig.type);
-				return false;
-			}
-		}
-		if(!severalElectronLegs)
-		{
-			switch(trig.type)
-			{
-			case TT_SINGLE_MU: case TT_2MU_ASYM: case TT_2MU_SYM: case TT_3MU_ASYM: case TT_3MU_SYM:
-				break;
-			case TT_SINGLE_E: case TT_2E_SYM: case TT_EMU: case TT_3E_SYM: case TT_2MU_E_ASYM: case TT_2MU_E_SYM:
 				if(uniqueElectronLeg && uniqueElectronLeg!=trig.leg[0]) severalElectronLegs = true;
 				uniqueElectronLeg = trig.leg[0];
-				break;
-			default:
-				severalElectronLegs = true;
 			}
+			break;
+		case TT_SINGLE_PH: case TT_2PH_SYM: case TT_3PH_SYM:
+			if(!severalPhotonLegs)
+			{
+				if(uniquePhotonLeg && uniquePhotonLeg!=trig.leg[0]) severalPhotonLegs = true;
+				uniquePhotonLeg = trig.leg[0];
+			}
+			break;
+		case TT_2PH_ASYM: case TT_3PH_HALFSYM: case TT_3PH_ASYM:
+			severalPhotonLegs = true;
+			break;
+		default: // other defined triggers have >= 2 distinct electron legs
+			severalElectronLegs = true;
 		}
 	}
-	if(useDefaultTools && severalElectronLegs)
+	if(useDefaultElectronTools && severalElectronLegs)
 	{
 		ATH_MSG_ERROR("The property 'ListOfLegsPerTool' needs to be filled as the specified trigger combination involves several electron trigger legs");
+		return false;
+	}
+	if(useDefaultPhotonTools && severalPhotonLegs)
+	{
+		ATH_MSG_ERROR("The property 'ListOfLegsPerTool' needs to be filled as the specified trigger combination involves several photon trigger legs");
 		return false;
 	}
 	
@@ -273,7 +302,7 @@ bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>&
 	}
 	if(!useToys)
 	{	
-		const unsigned n1L = helper.n1L, n2L = helper.n2L, n3L = helper.n3L;
+		const unsigned n1L = helper.m_n1L, n2L = helper.m_n2L, n3L = helper.m_n3L;
 		if(!(n1L+n2L+n3L))
 		{
 			ATH_MSG_ERROR("The trigger combination is empty!");
@@ -283,29 +312,48 @@ bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>&
 		{
 			success = helper.bind_1x1L();
 		}
-		else if(n2L==1 && !n3L) // one dilepton trigger (+ single-lepton triggers)
+		else if(!helper.m_nPhotonTriggers)
 		{
-			success = helper.bind_1x2L<TrigEMU>() || helper.bind_1x2L<Trig2Esym>() || helper.bind_1x2L<Trig2Easym>()
-				|| helper.bind_1x2L<Trig2MUsym>() || helper.bind_1x2L<Trig2MUasym>();
+			
+			if(n2L==1 && !n3L) // one dilepton trigger (+ single-lepton triggers)
+			{
+				success = helper.bind_1x2L<TrigEMU>() || helper.bind_1x2L<Trig2Esym>() || helper.bind_1x2L<Trig2Easym>()
+					|| helper.bind_1x2L<Trig2MUsym>() || helper.bind_1x2L<Trig2MUasym>();
+			}
+			else if(n2L>=2 && n2L<=6 && !n3L) // several dilepton triggers (+ single-lepton triggers)
+			{
+				success = helper.bind_3x2L<Trig2Esym,Trig2MUsym>() || helper.bind_3x2L<Trig2Easym,Trig2MUsym>() 
+					|| helper.bind_3x2L<Trig2Esym,Trig2MUasym>() || helper.bind_3x2L<Trig2Easym,Trig2MUasym>() 
+					|| helper.bind_6x2L<Trig2Esym,Trig2MUsym>() || helper.bind_6x2L<Trig2Easym,Trig2MUsym>()
+					|| helper.bind_6x2L<Trig2Esym,Trig2MUasym>() || helper.bind_6x2L<Trig2Easym,Trig2MUasym>();
+			}
+			else if(n3L==1 && !n2L && !n1L)
+			{
+				success = helper.bind_1x3L<Trig3Esym>() || helper.bind_1x3L<Trig3Ehalfsym>()
+					|| helper.bind_1x3L<Trig3MUsym>() || helper.bind_1x3L<Trig3MUhalfsym>()
+					|| helper.bind_1x3L<Trig2EMUsym>() || helper.bind_1x3L<Trig2EMUasym>()
+					|| helper.bind_1x3L<TrigE2MUsym>() || helper.bind_1x3L<TrigE2MUasym>();			
+			}
+			else if(n3L==2 && !n2L && !n1L)
+			{
+				success = helper.bind_2x3L<Trig2EMUsym,TrigE2MUsym>() || helper.bind_2x3L<Trig2EMUsym,TrigE2MUasym>()
+					|| helper.bind_2x3L<Trig2EMUasym,TrigE2MUsym>() || helper.bind_2x3L<Trig2EMUasym,TrigE2MUasym>();
+			}
 		}
-		else if(n2L>=2 && n2L<=6 && !n3L) // several dilepton triggers (+ single-lepton triggers)
+		else if(helper.m_nPhotonTriggers == triggers.size())
 		{
-			success = helper.bind_3x2L<Trig2Esym,Trig2MUsym>() || helper.bind_3x2L<Trig2Easym,Trig2MUsym>() 
-				|| helper.bind_3x2L<Trig2Esym,Trig2MUasym>() || helper.bind_3x2L<Trig2Easym,Trig2MUasym>() 
-				|| helper.bind_6x2L<Trig2Esym,Trig2MUsym>() || helper.bind_6x2L<Trig2Easym,Trig2MUsym>()
-				|| helper.bind_6x2L<Trig2Esym,Trig2MUasym>() || helper.bind_6x2L<Trig2Easym,Trig2MUasym>();
-		}
-		else if(n3L==1 && !n2L && !n1L)
-		{
-			success = helper.bind_1x3L<Trig3Esym>() || helper.bind_1x3L<Trig3Ehalfsym>()
-				|| helper.bind_1x3L<Trig3MUsym>() || helper.bind_1x3L<Trig3MUhalfsym>()
-				|| helper.bind_1x3L<Trig2EMUsym>() || helper.bind_1x3L<Trig2EMUasym>()
-				|| helper.bind_1x3L<TrigE2MUsym>() || helper.bind_1x3L<TrigE2MUasym>();			
-		}
-		else if(n3L==2 && !n2L && !n1L)
-		{
-			success = helper.bind_2x3L<Trig2EMUsym,TrigE2MUsym>() || helper.bind_2x3L<Trig2EMUsym,TrigE2MUasym>()
-				|| helper.bind_2x3L<Trig2EMUasym,TrigE2MUsym>() || helper.bind_2x3L<Trig2EMUasym,TrigE2MUasym>();
+			if(n2L==1 && !n3L) // one diphoton trigger (+ single-photon triggers)
+			{
+				success = helper.bind_1x2L_singleFlavour<Trig2PHsym>() || helper.bind_1x2L_singleFlavour<Trig2PHasym>();
+			}
+			else if(n2L==2 && !n3L) // two diphoton triggers (+ single-photon triggers)
+			{
+				success = helper.bind_2x2L_singleFlavour<Trig2PHasym,Trig2PHsym>() || helper.bind_2x2L_singleFlavour<Trig2PHsym,Trig2PHsym>();
+			}
+			else if(n3L==1 && !n2L && !n1L)
+			{
+				success = helper.bind_1x3L<Trig3PHsym>() || helper.bind_1x3L<Trig3PHhalfsym>();	
+			}
 		}
 		if(!helper.m_func)
 		{
@@ -315,7 +363,15 @@ bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>&
 	}
 	else
 	{
-		helper.m_func = std::bind(&Calculator::globalEfficiency_Toys, ::_1, ::_2, ::_3, triggers, ::_4);
+		if(!helper.m_nPhotonTriggers || helper.m_nPhotonTriggers==triggers.size())
+		{
+			helper.m_func = std::bind(&Calculator::globalEfficiency_Toys, ::_1, ::_2, ::_3, triggers, ::_4);
+		}
+		else
+		{
+			ATH_MSG_ERROR("Currently it is not possible to combine electron/muon and photon triggers: " << combination);
+			return false;
+		}
 	}
 	if(success)
 	{
@@ -356,6 +412,9 @@ Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, u
 			break;
 		case xAOD::Type::Muon:
 			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.muon(), leg, lepton.tag(), efficiencies);
+			break;
+		case xAOD::Type::Photon:
+			cpSuccess = m_parent->getTriggerLegEfficiencies(lepton.photon(), leg, lepton.tag(), efficiencies);
 			break;
 		default: ATH_MSG_ERROR("Unsupported particle type");
 		}
@@ -549,8 +608,8 @@ bool Calculator::globalEfficiency_One2LSeveral1L(const LeptonList& leptons, unsi
 	Efficiencies efficiencies[4];
 	bool success = globalEfficiency_Several1L(leptons, runNumber, trigs1E, efficiencies[0])
 		&& globalEfficiency_Several1L(leptons, runNumber, trigs1MU, efficiencies[1])
-		&& globalEfficiency_Several1L(leptons, runNumber, trigEMU.merge(trigs1E), efficiencies[2])
-		&& globalEfficiency_Several1L(leptons, runNumber, trigEMU.merge(trigs1MU), efficiencies[3]);
+		&& globalEfficiency_Several1L(leptons, runNumber, trigEMU.addTo(trigs1E), efficiencies[2])
+		&& globalEfficiency_Several1L(leptons, runNumber, trigEMU.addTo(trigs1MU), efficiencies[3]);
 	if(success)
 	{
 		globalEfficiencies = Efficiencies(1.) - ~efficiencies[0]*~efficiencies[1]
@@ -941,14 +1000,14 @@ auto Calculator::globalEfficiency_Three2LSeveral1L(const LeptonList& leptons, un
 	else success = success && globalEfficiency_Several1L(leptons, runNumber, trigs1MU, efficiencies[1]);
 	if(trigEMU && !trigEMU.hiddenBy(trigs1E))
 	{
-		auto trigs1E_plusEMU = trigEMU.merge(trigs1E);
+		auto trigs1E_plusEMU = trigEMU.addTo(trigs1E);
 		if(trig2E) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2E, trigs1E_plusEMU, efficiencies[2]);
 		else success = success && globalEfficiency_Several1L(leptons, runNumber, trigs1E_plusEMU, efficiencies[2]);
 	}
 	else efficiencies[2] = efficiencies[0];
 	if(trigEMU && !trigEMU.hiddenBy(trigs1MU))
 	{
-		auto trigs1MU_plusEMU = trigEMU.merge(trigs1MU);
+		auto trigs1MU_plusEMU = trigEMU.addTo(trigs1MU);
 		if(trig2MU) success = success && globalEfficiency_One2LSeveral1L(leptons, runNumber, trig2MU, trigs1MU_plusEMU, efficiencies[3]);
 		else success = success && globalEfficiency_Several1L(leptons, runNumber, trigs1MU_plusEMU, efficiencies[3]);
 	}
@@ -971,13 +1030,13 @@ auto Calculator::globalEfficiency_Six2LSeveral1L_singleObjectFactor(const Lepton
 		else return globalEfficiency_Several1L(leptons, runNumber, trigs1L_extended, eff);
 	};
 	bool success = eval_for(trigs1L, efficiencies[0]);
-	if(trigEMU1) success = success && eval_for(trigEMU1.merge(trigs1L), efficiencies[1]);
+	if(trigEMU1) success = success && eval_for(trigEMU1.addTo(trigs1L), efficiencies[1]);
 	else efficiencies[1] = efficiencies[0];
 	if(trigEMU2)
 	{
-		auto trigs1L_withEMU2 = trigEMU2.merge(trigs1L);
+		auto trigs1L_withEMU2 = trigEMU2.addTo(trigs1L);
 		success = success && eval_for(trigs1L_withEMU2, efficiencies[2]);
-		if(trigEMU1) success && eval_for(trigEMU1.merge(trigs1L_withEMU2), efficiencies[3]);
+		if(trigEMU1) success && eval_for(trigEMU1.addTo(trigs1L_withEMU2), efficiencies[3]);
 		else efficiencies[3] = efficiencies[2];
 	}
 	else
@@ -1055,19 +1114,21 @@ bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNu
 		flat_set<std::size_t> validLegs;
 		for(auto& trig : triggers)
 		{
+			bool success = true;
 			if(lepton.type() == xAOD::Type::Electron)
 			{
 				switch(trig.type)
 				{
-				 case TT_3E_ASYM:
+				case TT_3E_ASYM:
 					if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
 				case TT_2E_ASYM: case TT_2E_MU_ASYM: case TT_3E_HALFSYM:
 					if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
 				case TT_SINGLE_E: case TT_2E_SYM: case TT_EMU: case TT_3E_SYM: 
-				case TT_2E_MU_SYM: case TT_2MU_E_SYM: case TT_2MU_E_ASYM:
+				case TT_2E_MU_SYM: case TT_E_2MU_SYM: case TT_E_2MU_ASYM:
 					if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
 					break;
-				default:;
+				default:
+					if(trig.type&TT_ELECTRON_FLAG) success = false;
 				}
 			}
 			else if(lepton.type() == xAOD::Type::Muon)
@@ -1081,20 +1142,41 @@ bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNu
 				case TT_SINGLE_MU: case TT_2MU_SYM: case TT_3MU_SYM: 
 					if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
 					break;
-				case TT_2MU_E_ASYM:
+				case TT_E_2MU_ASYM:
 					if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
-				case TT_EMU: case TT_2MU_E_SYM: 
+				case TT_EMU: case TT_E_2MU_SYM: 
 					if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]);
 					break;
 				case TT_2E_MU_SYM: case TT_2E_MU_ASYM: 
 					if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]);
 					break;
-				default:;
+				default:
+					if(trig.type&TT_MUON_FLAG) success = false;
+				}
+			}
+			else if(lepton.type() == xAOD::Type::Photon)
+			{
+				switch(trig.type)
+				{
+				case TT_3PH_ASYM:
+					if(aboveThreshold(lepton, trig.leg[2])) validLegs.emplace(trig.leg[2]); // no break
+				case TT_2PH_ASYM: case TT_2E_MU_ASYM: case TT_3E_HALFSYM:
+					if(aboveThreshold(lepton, trig.leg[1])) validLegs.emplace(trig.leg[1]); // no break
+				case TT_SINGLE_PH: case TT_2PH_SYM: case TT_3PH_SYM:
+					if(aboveThreshold(lepton, trig.leg[0])) validLegs.emplace(trig.leg[0]);
+					break;
+				default:
+					if(trig.type&TT_PHOTON_FLAG) success = false;
 				}
 			}
 			else
 			{
 				ATH_MSG_ERROR("Unknown lepton type");
+				return false;
+			}
+			if(!success)
+			{
+				ATH_MSG_ERROR("Unrecognized trigger type " << trig.type);
 				return false;
 			}
 		}
@@ -1160,7 +1242,7 @@ bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNu
 			auto& mc2 = firingLeptonsMC.at(trig.leg[2]);
 			switch(trig.type)
 			{
-			case TT_SINGLE_E: case TT_SINGLE_MU:
+			case TT_SINGLE_E: case TT_SINGLE_MU: case TT_SINGLE_PH:
 				passedData = passedData || (data0.size()>=1);
 				passedMC = passedMC || (mc0.size()>=1);
 				break;
@@ -1168,15 +1250,15 @@ bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNu
 				passedData = passedData || (data0.size()>=1 && data1.size()>=1);
 				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=1);
 				break;
-			case TT_2E_SYM: case TT_2MU_SYM:
+			case TT_2E_SYM: case TT_2MU_SYM: case TT_2PH_SYM:
 				passedData = passedData || (data0.size()>=2);
 				passedMC = passedMC || (mc0.size()>=2);
 				break;
-			case TT_2E_ASYM: case TT_2MU_ASYM:
+			case TT_2E_ASYM: case TT_2MU_ASYM: case TT_2PH_ASYM:
 				passedData = passedData || (data0.size()>=1 && data1.size()>=1 && (data0.size()>=2 || data1.size()>=2 || data0[0]!=data1[0]));
 				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=1 && (mc0.size()>=2 || mc1.size()>=2 || mc0[0]!=mc1[0]));
 				break;
-			case TT_3E_SYM: case TT_3MU_SYM:
+			case TT_3E_SYM: case TT_3MU_SYM: case TT_3PH_SYM:
 				passedData = passedData || (data0.size()>=3);
 				passedMC = passedMC || (mc0.size()>=3);
 				break;
@@ -1184,7 +1266,7 @@ bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNu
 				passedData = passedData || (data0.size()>=2 && data2.size()>=1);
 				passedMC = passedMC || (mc0.size()>=2 && mc2.size()>=1);
 				break;
-			case TT_2MU_E_SYM:
+			case TT_E_2MU_SYM:
 				passedData = passedData || (data0.size()>=1 && data1.size()>=2);
 				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=2);
 				break;
@@ -1192,11 +1274,11 @@ bool Calculator::globalEfficiency_Toys(const LeptonList& leptons, unsigned runNu
 				passedData = passedData || (data0.size()>=1 && data1.size()>=1 && data2.size()>=1 && (data0.size()>=2 || data1.size()>=2 ||data0[0]!=data1[0]));
 				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=1 && mc2.size()>=1 && (mc0.size()>=2 || mc1.size()>=2 ||mc0[0]!=mc1[0]));
 				break;
-			case TT_2MU_E_ASYM:
+			case TT_E_2MU_ASYM:
 				passedData = passedData || (data0.size()>=1 && data1.size()>=1 && data2.size()>=1 && (data1.size()>=2 || data2.size()>=2 ||data1[0]!=data2[0]));
 				passedMC = passedMC || (mc0.size()>=1 && mc1.size()>=1 && mc2.size()>=1 && (mc1.size()>=2 || mc2.size()>=2 || mc1[0]!=mc2[0]));
 				break;
-			case TT_3E_ASYM: case TT_3MU_ASYM: case TT_3E_HALFSYM: case TT_3MU_HALFSYM:
+			case TT_3E_ASYM: case TT_3MU_ASYM: case TT_3PH_ASYM: case TT_3E_HALFSYM: case TT_3MU_HALFSYM: case TT_3PH_HALFSYM:
 				if(!passedData)
 				{
 					for(int i0 : data0) for(int i1 : data1) for(int i2 : data2)

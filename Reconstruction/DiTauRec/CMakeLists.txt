@@ -6,7 +6,7 @@
 atlas_subdir( DiTauRec )
 
 # Declare the package's dependencies:
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_ANALYSIS )
   atlas_depends_on_subdirs( PUBLIC
     Control/AthenaBaseComps
     Event/xAOD/xAODEgamma
@@ -47,7 +47,7 @@ endif()
 # External dependencies:
 find_package( FastJet )
 
-if( XAOD_STANDALONE)
+if(XAOD_ANALYSIS)
 atlas_add_root_dictionary( DiTauRec DiTauRecLibCintDict
   ROOT_HEADERS
   DiTauRec/ILepHadBuilder.h
@@ -60,18 +60,24 @@ endif()
 
 # Component(s) in the package:
 
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_ANALYSIS )
   atlas_add_component( DiTauRec
     src/*.cxx
     src/components/*.cxx
     INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
     LINK_LIBRARIES ${FASTJET_LIBRARIES} AthenaBaseComps xAODEgamma xAODJet xAODMuon xAODTau GaudiKernel MuonSelectorToolsLib JetEDM TrkToolInterfaces CaloEvent xAODTracking RecoToolInterfaces tauRecToolsLib TrkParametersIdentificationHelpers )
 else()
-atlas_add_library( DiTauRec
+
+atlas_add_library( DiTauRecLib
   DiTauRec/*.h Root/*.cxx ${DiTauRecLibCintDict}
   PUBLIC_HEADERS DiTauRec
   LINK_LIBRARIES AsgTools xAODEgamma xAODJet xAODMuon xAODTau MuonSelectorToolsLib JetEDM xAODTracking RecoToolInterfaces tauRecToolsLib
   )
+
+if( NOT XAOD_STANDALONE )
+  atlas_add_component(DiTauRec Root/components/*.cxx LINK_LIBRARIES DiTauRecLib)
+endif()
+
 endif()
 
 # Install files from the package:

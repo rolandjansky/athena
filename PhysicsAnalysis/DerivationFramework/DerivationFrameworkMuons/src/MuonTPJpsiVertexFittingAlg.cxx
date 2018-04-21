@@ -1,4 +1,4 @@
-#include "MuonTPJpsiVertexFittingAlg.h"
+#include "DerivationFrameworkMuons/MuonTPJpsiVertexFittingAlg.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "xAODEventInfo/EventInfo.h"

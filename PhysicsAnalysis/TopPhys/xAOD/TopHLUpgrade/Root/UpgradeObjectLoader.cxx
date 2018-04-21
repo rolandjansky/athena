@@ -36,7 +36,7 @@ UpgradeObjectLoader::UpgradeObjectLoader( const std::shared_ptr<top::TopConfig> 
 
   if ( m_active ){
     std::cout << "Upgrade level reconstruction is enabled; telling you how I am configured:" << '\n';
-    m_upgrade.reset(new UpgradePerformanceFunctionsxAOD(UpgradePerformanceFunctions::gold, 200.0)); //layout & mu hard coded for now
+    m_upgrade.reset(new UpgradePerformanceFunctionsxAOD("TopHLUpgradeFunctions", UpgradePerformanceFunctions::gold, 200.0)); //layout & mu hard coded for now
     m_upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::looseElectron);
     m_upgrade->setElectronRandomSeed(171);
     m_upgrade->setMuonWorkingPoint(UpgradePerformanceFunctions::tightMuon);

@@ -68,7 +68,7 @@ EventSelection::EventSelection(const std::string& name, const std::vector<std::s
     // string comparisions during the event loop
     CP::SystematicSet nominal;
     m_nominalHashValue = nominal.hash();
-    
+
     // need that later for the sf in the cutflow, not especially elegant but works for now
     m_config = config;
     m_isMC   = config->isMC();
@@ -125,27 +125,27 @@ EventSelection::EventSelection(const std::string& name, const std::vector<std::s
             std::cout << "Could not find " << currentCutName << std::endl;
             exit(1);
         }
-        
-        // Initlal and GRL 
+
+        // Initlal and GRL
         if (currentCutName == "INITIAL") {
           m_containsInitial = true;
           m_positionInitial = i;
         }
-        
+
         if (currentCutName == "GRL") {
           m_containsGRL = true;
           m_positionGRL = i;
         }
-        
+
         if (currentCutName == "GOODCALO") {
           m_containsGoodCalo = true;
           m_positionGoodCalo = i;
-        } 
-        
+        }
+
         if (currentCutName == "PRIVTX") {
           m_containsPrimaryVertex = true;
           m_positionPrimaryVertex = i;
-        }         
+        }
 
         //some cutflow histograms
         if (config->doTightEvents()) {
@@ -180,7 +180,7 @@ EventSelection::EventSelection(const std::string& name, const std::vector<std::s
         if ( m_cutflowUpgradeLevel ){
             m_cutflowUpgradeLevel->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         }
-        
+
         if (currentCutName == "SAVE") {
           m_toBeSaved = true;
         }
@@ -341,7 +341,7 @@ bool EventSelection::apply(const top::Event& event) const {
       NJetBtagSelector* nJetBtagSelection = dynamic_cast<NJetBtagSelector*>((*foundBtagSelection).get());
       btag_string = nJetBtagSelection->getFullCutName();
     }
-    
+
     for (const auto& currentCut : m_allCuts) {
         const bool passed = currentCut->apply(event);
         //std::cout << (*it)->name() << " " << passed << std::endl;
@@ -366,7 +366,7 @@ bool EventSelection::apply(const top::Event& event) const {
 
 	    // Need to be careful with b-tagging. Can now load multiple taggers/calibrated or not.
 	    // Can only retrieve SF for cutflow if its calibrated
-	    if( (m_config->useTrackJets() && std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated_trkJet().end(), btag_string) != m_config->bTagWP_calibrated_trkJet().end()) ||
+	    if( (m_config->useTrackJets() && std::find(m_config->bTagWP_calibrated_trkJet().begin(), m_config->bTagWP_calibrated_trkJet().end(), btag_string) != m_config->bTagWP_calibrated_trkJet().end()) ||
 		(!m_config->useTrackJets() && std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), btag_string) != m_config->bTagWP_calibrated().end()) ){
 	      btagSF = m_sfRetriever -> btagSF(event, top::topSFSyst::nominal, btag_string, m_config->useTrackJets());
 	    }
@@ -507,7 +507,7 @@ void EventSelection::finalise() const {
     if( m_cutflowParticleLevelMCWeights ) {
 	std::cout << std::setw(15) << "particle level mc";
     }
- 
+
     if( m_cutflowUpgradeLevel ) {
        std::cout << std::setw(15) << "upgrade level";
     }
@@ -533,7 +533,7 @@ void EventSelection::finalise() const {
 	if ( m_cutflowParticleLevelMCWeights ){
 	    std::cout << std::setw(15) << m_cutflowParticleLevelMCWeights->GetBinContent(i);
 	}
- 
+
         if ( m_cutflowUpgradeLevel ){
             std::cout << std::setw(15) << m_cutflowUpgradeLevel->GetBinContent(i);
         }

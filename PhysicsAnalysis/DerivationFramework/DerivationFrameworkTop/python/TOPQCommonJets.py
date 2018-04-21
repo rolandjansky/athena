@@ -29,10 +29,7 @@ def addStandardJetsForTop(algseq, outputGroup):
   # Only include those ones that you use. The order in the list is not significant
   reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
                     "AntiKt4PV0TrackJets",
-                    "AntiKt10LCTopoJets",
-                    "AntiKt4TruthJets",
-                    "AntiKt4TruthWZJets",
-                    "AntiKt10TruthJets"]
+                    "AntiKt10LCTopoJets"]
   replaceAODReducedJets(reducedJetList, algseq, outputGroup)
 
   # If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MISSINGETPERFORMANCEFUNCTIONS_CXX
@@ -8,89 +8,85 @@
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
 #include "TFile.h"
 
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 // Framework include(s):
 #include "PathResolver/PathResolver.h"
-#endif // ROOTCORE
+#endif // XAOD_STANDALONE
 
 void UpgradePerformanceFunctions::setMETRandomSeed(unsigned seed) {
   m_METRandom.SetSeed(seed);
 }
 
 void UpgradePerformanceFunctions::loadMETHistograms(TString filename) {
-  std::cout << "Loading Missing ET histogram file " << filename << std::endl;
+  ATH_MSG_INFO("Loading Missing ET histogram file " << filename);
   std::string METFile = filename.Data();
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
 // Get file from data path
   METFile = PathResolverFindCalibFile(METFile);
-  std::cout << "Found Missing ET histogram file: " << METFile << std::endl;
-#endif // ROOTCORE
+  ATH_MSG_INFO("Found Missing ET histogram file: " << METFile);
+#endif // XAOD_STANDALONE
 
   TFile *m_infile=new TFile(METFile.c_str(),"READ");
- 
-//  m_SumEtH[0][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th60_calibrated"));
-//  m_SumEtH[0][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu60_th60_calibrated"));
-//  m_SumEtH[0][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th80_uncalibrated"));
-//  m_SumEtH[0][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th40_uncalibrated"));
-//  m_SumEtH[0][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th60_calibrated"));
-//  m_SumEtH[0][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th60_calibrated"));    
-//  m_Ress[0]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu60_th60_calibrated"));
+  if(m_layout!=run2){  //upgrade settings
+    //  m_SumEtH[0][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th60_calibrated"));
+    //  m_SumEtH[0][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu60_th60_calibrated"));
+    //  m_SumEtH[0][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th80_uncalibrated"));
+    //  m_SumEtH[0][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th40_uncalibrated"));
+    //  m_SumEtH[0][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th60_calibrated"));
+    //  m_SumEtH[0][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu60_th60_calibrated"));    
+    //  m_Ress[0]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu60_th60_calibrated"));
+    
+    //  m_SumEtH[1][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th80_calibrated"));
+    //  m_SumEtH[1][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu80_th80_calibrated"));
+    //  m_SumEtH[1][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_j3_mu80_th100_uncalibrated"));
+    //  m_SumEtH[1][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th60_uncalibrated"));
+    //  m_SumEtH[1][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th80_calibrated"));
+    //  m_SumEtH[1][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th80_calibrated"));  
+    //  m_Ress[1]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu80_th80_calibrated"));
+    
+    //  m_SumEtH[2][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
+    //  m_SumEtH[2][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu140_th140_calibrated"));
+    //  m_SumEtH[2][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th200_uncalibrated"));
+    //  m_SumEtH[2][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th100_uncalibrated"));
+    //  m_SumEtH[2][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
+    //  m_SumEtH[2][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
+    //  m_Ress[2]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu140_th140_calibrated"));
 
-//  m_SumEtH[1][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th80_calibrated"));
-//  m_SumEtH[1][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu80_th80_calibrated"));
-//  m_SumEtH[1][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_j3_mu80_th100_uncalibrated"));
-//  m_SumEtH[1][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th60_uncalibrated"));
-//  m_SumEtH[1][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th80_calibrated"));
-//  m_SumEtH[1][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu80_th80_calibrated"));  
-//  m_Ress[1]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu80_th80_calibrated"));
+    m_SumEtH[3][nominal]=static_cast<TH1F*>(m_infile->Get("h_sumetPU"));
+    //  m_SumEtH[3][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
+    //  m_SumEtH[3][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu200_th200_uncalibrated"));
+    //  m_SumEtH[3][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
+    //  m_SumEtH[3][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th140_uncalibrated"));
+    //  m_SumEtH[3][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
+    //  m_SumEtH[3][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
+    //  m_Ress[3]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu200_th200_uncalibrated"));
+  }
+  else{ //Run2 settings
 
-//  m_SumEtH[2][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
-//  m_SumEtH[2][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu140_th140_calibrated"));
-//  m_SumEtH[2][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th200_uncalibrated"));
-//  m_SumEtH[2][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th100_uncalibrated"));
-//  m_SumEtH[2][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
-//  m_SumEtH[2][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu140_th140_calibrated"));
-//  m_Ress[2]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu140_th140_calibrated"));
+    //kindly provided by M. Valente
+    //https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PLOTS/JETM-2017-001/fig_01.png
+    //https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PLOTS/JETM-2017-001/fig_03.png
+    //https://atlas.web.cern.ch/Atlas/GROUPS/PHYSICS/PLOTS/JETM-2017-001/fig_05.png
 
-  m_SumEtH[3][nominal]=static_cast<TH1F*>(m_infile->Get("h_sumetPU"));
-//  m_SumEtH[3][nominal]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
-//  m_SumEtH[3][process]=static_cast<TH1F*>(m_infile->Get("sumetPU_j0_mu200_th200_uncalibrated"));
-//  m_SumEtH[3][thresholdUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
-//  m_SumEtH[3][thresholdDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th140_uncalibrated"));
-//  m_SumEtH[3][resoUp]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
-//  m_SumEtH[3][resoDown]=static_cast<TH1F*>(m_infile->Get("sumetPU_zprime_mu200_th200_uncalibrated"));
-//  m_Ress[3]=static_cast<TGraphErrors*>(m_infile->Get("METresol_j0_mu200_th200_uncalibrated"));
+    m_met_resoperp  = dynamic_cast<TGraphErrors*>( m_infile->Get("Zee/Data_perpendicular_reso2") ); //MT: it's squared!
+    m_met_resopara  = dynamic_cast<TGraphErrors*>( m_infile->Get("Zee/Data_parallel_reso2") );      //MT: it's squared!
+    m_met_shiftpara = dynamic_cast<TGraphErrors*>( m_infile->Get("Zee/Data_parallel_scale") );
 
+  }
 }
 
-UpgradePerformanceFunctions::MET UpgradePerformanceFunctions::getMETSmeared(float sumEtMeV, float METxMeV, float METyMeV, METSyst systValue) {
-  double sumETPU;
-  double sumET;
+UpgradePerformanceFunctions::MET UpgradePerformanceFunctions::getMETSmeared(float truthSumEtMeV, float METxMeV, float METyMeV, METSyst systValue) {
   double METPUreso;
-  
   double METPUsmearX;
   double METPUsmearY;
   UpgradePerformanceFunctions::MET tmpMET;
 
-  int PUcondition;
-  //  typedef enum {mu60=0, mu80=1, mu140=2, mu200=3} mu;
-  if (m_avgMu <= 60.) PUcondition = 0;
-  else if (m_avgMu <= 80.) PUcondition = 1;
-  else if (m_avgMu <= 140.) PUcondition = 2;
-  else PUcondition = 3;
-
-  if (PUcondition!=3 || systValue != nominal){
-    std::cout<<"getMETSmeared error: The only parametrization approved is for the nominal working point <mu>=200!"<<std::endl;
-    std::cout<<"       The tool will return the truth MET"<<std::endl;
-    tmpMET.first=METxMeV;
-    tmpMET.second=METyMeV;
-    return tmpMET;
-  }
- 
-  sumETPU=m_SumEtH[PUcondition][systValue]->GetRandom();
-  sumET=(sumETPU*1000.)+sumEtMeV; // in MeV
+  // GetRandom() uses ROOT gRandom, which uses process-specific seed
+  // For reproducibility, we reset the seed using our controlled m_METRandom
+  gRandom->SetSeed( int(1./m_METRandom.Rndm()) );
   
-  METPUreso=getMETResolution(sumET, systValue);
+  METPUreso=getMETResolution(getSumETwithPileup(truthSumEtMeV, systValue),
+			     systValue);
 
   METPUsmearX=m_METRandom.Gaus(0,METPUreso);
   METPUsmearY=m_METRandom.Gaus(0,METPUreso);
@@ -119,8 +115,8 @@ float UpgradePerformanceFunctions::getMETResolution(float sumEtMeV, METSyst syst
   else PUcondition = 3;
 
   if (PUcondition!=3 || systValue != nominal){
-    std::cout<<"getMETResolution error: The only parametrization approved is for the nominal working point <mu>=200!"<<std::endl;
-    std::cout<<"       The tool will return 0"<<std::endl;
+    ATH_MSG_ERROR("getMETResolution error: The only parametrization approved is for the nominal working point <mu>=200!");
+    ATH_MSG_ERROR("The tool will return 0");
     return 0.;
   }
 
@@ -153,14 +149,14 @@ float UpgradePerformanceFunctions::getMETResolution(float sumEtMeV, METSyst syst
   double fitParsSilver[4] = {37.5551, -0.000627389, 6.11304e-06, -6.52893e-10};
   double fitParsBronze[4] = {39.049, -0.00202729, 8.30795e-06, -9.24871e-10};
 
-  if (m_layout==gold) {
+  if (m_layout==gold || m_layout==Step1p6) {
     METPUreso = ((fitParsGold[3]*sumEtGeV + fitParsGold[2])*sumEtGeV + fitParsGold[1])*sumEtGeV + fitParsGold[0];
   } else if (m_layout==silver) {
     METPUreso = ((fitParsSilver[3]*sumEtGeV + fitParsSilver[2])*sumEtGeV + fitParsSilver[1])*sumEtGeV + fitParsSilver[0];
   } else if (m_layout==bronze) {
     METPUreso = ((fitParsBronze[3]*sumEtGeV + fitParsBronze[2])*sumEtGeV + fitParsBronze[1])*sumEtGeV + fitParsBronze[0];
   } else {
-    std::cout << "getMETResolution error: layout " << m_layout << " is not implemented.  Returning 0." << std::endl;
+    ATH_MSG_ERROR("getMETResolution error: layout " << m_layout << " is not implemented.  Returning 0.");
     METPUreso = 0.;
   }
 
@@ -175,4 +171,46 @@ float UpgradePerformanceFunctions::getMETResolution(float sumEtMeV, METSyst syst
   return METPUreso*1000.; // conversion to MeV
 }
 
+float UpgradePerformanceFunctions::getSumETwithPileup(float truthSumEtMeV, METSyst systValue) {
+  // This method accesses the corrected sumET = truthSumET + pileupSumET
+
+  int PUcondition;
+  //  typedef enum {mu60=0, mu80=1, mu140=2, mu200=3} mu;
+  if (m_avgMu <= 60.) PUcondition = 0;
+  else if (m_avgMu <= 80.) PUcondition = 1;
+  else if (m_avgMu <= 140.) PUcondition = 2;
+  else PUcondition = 3;
+  
+  if (PUcondition!=3 || systValue != nominal) {
+    ATH_MSG_ERROR("getSumETwithPileup error: The only parametrization approved is for the nominal working point <mu>=200!");
+    ATH_MSG_ERROR("       The tool will return the truth sum ET");
+    return truthSumEtMeV;
+  } else {
+    // GetRandom() uses ROOT gRandom, which uses process-specific seed
+    // For reproducibility, we reset the seed using our controlled m_METRandom
+    gRandom->SetSeed( int(1./m_METRandom.Rndm()) );
+    double sumETPU=m_SumEtH[PUcondition][systValue]->GetRandom();
+    
+    return sumETPU*1000. + truthSumEtMeV; // in MeV
+  }
+}
+
+TVector3 UpgradePerformanceFunctions::getTSTsmearing(TVector3 pthard) { //input in MeV
+  
+  float pth = pthard.Mag()*0.001; 
+
+  float shift = m_met_shiftpara->Eval(pth) * 1000.;   //convert GeV to MeV
+  float reso_para = sqrt(m_met_resopara->Eval(pth)) * 1000.;
+  float reso_perp = sqrt(m_met_resoperp->Eval(pth)) * 1000.;
+  
+  // std::cout << "shift = " << shift << std::endl;
+  // std::cout << "reso_para = " << reso_para << std::endl;
+  // std::cout << "reso_perp = " << reso_perp << std::endl;
+
+  auto para = pthard.Unit() * (shift + m_METRandom.Gaus(0,reso_para));
+  auto perp = pthard.Orthogonal().Unit() * m_METRandom.Gaus(0,reso_perp);
+
+  return (para+perp);  //in MeV
+  
+}
 #endif

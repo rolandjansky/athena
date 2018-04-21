@@ -43,23 +43,34 @@ bool CheckConfig::basicConfigChecks()
 		return false;
 	}
 	
+	if(m_parent.m_suppliedPhotonEfficiencyTools.size() != m_parent.m_suppliedPhotonScaleFactorTools.size())
+	{
+		ATH_MSG_ERROR("The numbers of photon tools supplied via the 'PhotonEfficiencyTools' and 'PhotonScaleFactorTools' properties should be identical");
+		return false;
+	}
+	
 	/// All tools mentioned in 'ListOfLegsPerTool' must be in 'ElectronEfficiencyTools' or 'ElectronScaleFactorTools'
 	for(auto& kv : m_parent.m_legsPerTool)
 	{
 		auto& name = kv.first;
 		if(findToolByName(m_parent.m_suppliedElectronEfficiencyTools, name)
-			|| findToolByName(m_parent.m_suppliedElectronScaleFactorTools, name)) continue;
+			|| findToolByName(m_parent.m_suppliedElectronScaleFactorTools, name)
+			|| findToolByName(m_parent.m_suppliedPhotonEfficiencyTools, name)
+			|| findToolByName(m_parent.m_suppliedPhotonScaleFactorTools, name)
+			) continue;
 		success = false;
 		if(findToolByName(m_parent.m_suppliedMuonTools, name))
 		{
-			ATH_MSG_ERROR("Muon tool " << name << " mentioned in property 'ListOfLegsPerTool', which is only aimed at electron tools");
+			ATH_MSG_ERROR("Muon tool " << name << " mentioned in property 'ListOfLegsPerTool', which is only aimed at electron and photon tools");
 		}
 		else
 		{
-			std::string all_tools = "; the known tools are";
-			for(auto& tool : m_parent.m_suppliedElectronEfficiencyTools) all_tools += " " + tool.name();
-			for(auto& tool : m_parent.m_suppliedElectronScaleFactorTools) all_tools += " " + tool.name();
-			ATH_MSG_ERROR("Unknown tool " << name << " mentioned in property 'ListOfLegsPerTool'" << all_tools);
+			std::string known_tools = "; the known tools are";
+			for(auto& tool : m_parent.m_suppliedElectronEfficiencyTools) known_tools += " " + tool.name();
+			for(auto& tool : m_parent.m_suppliedElectronScaleFactorTools) known_tools += " " + tool.name();
+			for(auto& tool : m_parent.m_suppliedPhotonEfficiencyTools) known_tools += " " + tool.name();
+			for(auto& tool : m_parent.m_suppliedPhotonScaleFactorTools) known_tools += " " + tool.name();
+			ATH_MSG_ERROR("Unknown tool " << name << " mentioned in property 'ListOfLegsPerTool'" << known_tools);
 		}
 	}
 	if(!success) return false;
@@ -148,6 +159,8 @@ bool CheckConfig::basicConfigChecks()
 	 * - [ImportData::parseTriggerString()] no duplicated triggers in the combination
 	 * - [UNCHECKED] for each configured electron tool there is at least one associated tag^leg pair in 'ListOfLegsPerTag' (unless no electron tags used)
 	 * - [UNCHECKED] for each configured muon tool there is at least one associated tag in 'MuonLegsPerTag' (unless empty)
+	 * - [UNCHECKED] electron tools can't be associated to photon legs
+	 * - [UNCHECKED] all checks also for photon tools
 	 */
 	
 	return success;

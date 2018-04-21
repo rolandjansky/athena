@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include <iostream>
 #include <cmath>
 #include <vector>
@@ -9,6 +5,7 @@
 #include <sstream>
 #include "TStyle.h"
 #include "TString.h"
+#include "TLatex.h"
 #include "TColor.h"
 #include "TFile.h"
 #include "TH2D.h"
@@ -17,6 +14,7 @@
 #include "TROOT.h"
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
 
+typedef std::vector<double> vec;
 
 void plotElectronEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt);
 void plotElectronTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt);
@@ -24,10 +22,15 @@ void plotMuonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, 
 void plotMuonTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt);
 void plotPhotonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_plotPt);
 void plotElectronEnergyResolution(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt);
-void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt, char flavour, TString Tagger, int operating_point);
+void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt, char flavour, TString Tagger, int operating_point, bool track_confirmation);
 void plotMETResolution(UpgradePerformanceFunctions *m_upgrade, float sumEtGeV, float METxGeV, float METyGeV);
+
 void plotTrackJetConfirmEff(UpgradePerformanceFunctions *m_upgrade, float plot_pt);
 void plotJetTriggerEfficiency(UpgradePerformanceFunctions *m_upgrade);
+
+void plotPUjetPerformance(UpgradePerformanceFunctions *upgrade);
+void plotLargeRjetSmearing(UpgradePerformanceFunctions *upgrade);
+void plotJER(UpgradePerformanceFunctions *upgrade, double CtermPenalty=0.00);
 
 int main() {
   // This hack is needed to force dictionary loading in ROOT 5
@@ -37,26 +40,15 @@ int main() {
   Int_t font=42; // Helvetica
   Double_t tsize=0.05;
   gStyle->SetTextFont(font);
-
   gStyle->SetTextSize(tsize);
-  gStyle->SetLabelFont(font,"x");
-  gStyle->SetTitleFont(font,"x");
-  gStyle->SetLabelFont(font,"y");
-  gStyle->SetTitleFont(font,"y");
-  gStyle->SetLabelFont(font,"z");
-  gStyle->SetTitleFont(font,"z");
-
-  gStyle->SetLabelSize(tsize,"x");
-  gStyle->SetTitleSize(tsize,"x");
-  gStyle->SetLabelSize(tsize,"y");
-  gStyle->SetTitleSize(tsize,"y");
-  gStyle->SetLabelSize(tsize,"z");
-  gStyle->SetTitleSize(tsize,"z");
-
+  for (TString ax:{"x","y","z"}) {
+    gStyle->SetLabelFont(font,ax); gStyle->SetTitleFont(font,ax);
+    gStyle->SetLabelSize(tsize,ax); gStyle->SetTitleSize(tsize,ax);
+  }
   gStyle->SetPadTickX(1);
   gStyle->SetPadTickY(1);
 
-  UpgradePerformanceFunctions *m_upgrade = new UpgradePerformanceFunctions();
+  UpgradePerformanceFunctions *m_upgrade = new UpgradePerformanceFunctions("UpgradePerformanceFunctions");
   m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
   m_upgrade->setAvgMu(200.);
   std::cout << "Layout is " << m_upgrade->getLayout() 
@@ -66,16 +58,20 @@ int main() {
   // m_upgrade->extendJetTrigger(true);
   // m_upgrade->setUseHGTD1(true);
 
-  //  plotElectronEfficiency(m_upgrade,3.0,32.0);
-  // plotElectronTriggerEfficiency(m_upgrade,3.0,32.0);
+  plotElectronEfficiency(m_upgrade,0.5,32.0);
+
+  plotPUjetPerformance(m_upgrade);
+  plotLargeRjetSmearing(m_upgrade);
+  plotJER(m_upgrade,0.00);
+  //  plotElectronTriggerEfficiency(m_upgrade,0.5,32.0);
   //  plotElectronEnergyResolution(m_upgrade,3.3,100.0);
-  // plotMuonEfficiency(m_upgrade,2,80.0);
-  // plotMuonTriggerEfficiency(m_upgrade,0.61,45.0);
-  // plotPhotonEfficiency(m_upgrade,1.0,80.0);
-  // plotFlavourTagEfficiency(m_upgrade,1.5,45,'B',"mv1",70);
-  // plotMETResolution(m_upgrade, 100,200,0);
-  plotTrackJetConfirmEff(m_upgrade,35);
-  plotJetTriggerEfficiency(m_upgrade);
+  //  plotMuonEfficiency(m_upgrade,2,80.0);
+  //  plotMuonTriggerEfficiency(m_upgrade,0.61,45.0);
+  //  plotPhotonEfficiency(m_upgrade,1.0,80.0);
+  //  plotFlavourTagEfficiency(m_upgrade,1.5,45,'B',"mv1",70,true);
+  //  plotMETResolution(m_upgrade, 100,200,0);
+  //  plotTrackJetConfirmEff(m_upgrade,35);
+  //  plotJetTriggerEfficiency(m_upgrade);
 
   return 0;
 }
@@ -801,7 +797,7 @@ void plotPhotonEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta
   TH2D *gold_PhotonEfficiency = new TH2D("gold_PhotonEfficiency","gold_PhotonEfficiency",1000,0,120,1000,0,5);
   TH2D *silver_PhotonEfficiency = new TH2D("silverPhotonEfficiency","silver_PhotonEfficiency",1000,0,120,1000,0,5);
   TH2D *bronze_PhotonEfficiency = new TH2D("bronze_PhotonEfficiency","bronze_PhotonEfficiency",1000,0,120,1000,0,5);
-  TH2D *gold_PhotonFakeRate = new TH2D("gold_PhotonFakeRate","gold_PhotonFakeRate",1000,0,120,1000,0,5);  
+  //TH2D *gold_PhotonFakeRate = new TH2D("gold_PhotonFakeRate","gold_PhotonFakeRate",1000,0,120,1000,0,5);  
 
   std::vector<float> eta; //Store x values for eta scan
   std::vector<float> pt; //Store x values for pt scan
@@ -1099,12 +1095,12 @@ void plotElectronEnergyResolution(UpgradePerformanceFunctions *m_upgrade, float 
   return;
 }
 
-void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt, char flavour, TString Tagger, int operating_point) {
+void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot_eta, float plot_pt, char flavour, TString Tagger, int operating_point, bool track_confirmation) {
   // Make plot of choosen Flavour tagging efficiency for pt and eta
   std::cout << "Generating " << flavour << "Tagging Efficiency plots" << std::endl;
 
   //Choose file containing histograms for Flavour tagging
-  m_upgrade->setFlavourTaggingCalibrationFilename("UpgradePerformanceFunctions/flavor_tags_v1.1.root");
+  m_upgrade->setFlavourTaggingCalibrationFilename("UpgradePerformanceFunctions/flavor_tags_v1.5.root");
 
   TH2D *gold_FlavourTagEfficiency = new TH2D("gold_FlavourTagEfficiency","gold_FlavourTagEfficiency",1000,0,120,1000,0,5);
   
@@ -1121,7 +1117,7 @@ void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot
     
     for(int i=0;i<1000;i++){ //Begin pt loop
       m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-      result_f = m_upgrade->getFlavourTagEfficiency(pt_f*1000,eta_f,flavour,Tagger,operating_point);
+      result_f = m_upgrade->getFlavourTagEfficiency(pt_f*1000,eta_f,flavour,Tagger,operating_point,track_confirmation);
       gold_FlavourTagEfficiency->SetBinContent(i,j,result_f);
       if(eta_f < (plot_eta + .004) && eta_f > (plot_eta - .004)) {
         plot_eta = eta_f;
@@ -1134,7 +1130,7 @@ void plotFlavourTagEfficiency(UpgradePerformanceFunctions *m_upgrade, float plot
         eta.push_back(eta_f);
         
         m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-        result_f = m_upgrade->getFlavourTagEfficiency(pt_f*1000,eta_f,flavour,Tagger,operating_point);
+        result_f = m_upgrade->getFlavourTagEfficiency(pt_f*1000,eta_f,flavour,Tagger,operating_point,track_confirmation);
         gold_eta.push_back(result_f);
       }
 
@@ -1495,4 +1491,346 @@ void plotTrackJetConfirmEff(UpgradePerformanceFunctions *m_upgrade, float plot_p
   can->Close();
 
   return;
+}
+
+// Plotting of jet pileup stuff
+// Dag Gillberg, Feb 2018
+
+TH1F *makeHisto(int Nbins, double xmin, double xmax, int col=kBlue, int ls=1, TString tit="") {
+  TH1F *h = new TH1F("",tit,Nbins,xmin,xmax);
+  h->SetLineColor(col); h->SetLineStyle(ls); h->SetLineWidth(2); h->SetStats(0);
+  h->GetYaxis()->SetTitleOffset(1.2);
+  return h;
+}
+
+void drawText(double x, double y, TString txt, int col=kBlack) {
+  static TLatex *tex = new TLatex(); tex->SetTextSize(0.045); tex->SetNDC(); tex->SetTextColor(col); tex->DrawLatex(x,y,txt);
+}
+
+void plotPUjetPerformance(UpgradePerformanceFunctions *upgrade) {
+  TCanvas *can = new TCanvas();
+  can->SetTopMargin(0.04); can->SetRightMargin(0.04); can->SetBottomMargin(0.12); can->SetLeftMargin(0.14);
+  TString pdf("HLLHC_PUjetPerformance.pdf");
+  can->Print(pdf+"[");
+  
+  printf("\n===========\n plotPUjetPerformance\n============\n\n");
+
+  // Since we want to look at pileup jets, let's create an emtpy HS-jet vector
+  Upgrade::Jets hsJets;
+  Upgrade::Jets recoJets = upgrade->getSmearedJets(hsJets);
+
+  // PU overlay
+  int Nevents=5000;
+  upgrade->getPileupJets();
+  printf("Will sample %i PU overlay events (will take a while, sorry)\n",Nevents);
+
+  auto *h_NPUjets = makeHisto(30,-0.5,29.5,kAzure,1,";Number of PU jets, #it{p}_{T} > 30 GeV;Number of events");
+  auto *h_pTPUjets = makeHisto(40,0,200,kAzure,1,";#it{p}_{T} [GeV];Number of PU jets");
+  auto *h_pTPUjetsJVT = makeHisto(40,0,200,kRed,1,";#it{p}_{T} [GeV];Number of PU jets");
+  auto *h_etaPUjets = makeHisto(50,-5.0,5,kAzure,1,";#it{#eta};Number of PU jets");
+  auto *h_etaPUjetsJVT = makeHisto(50,-5.0,5,kRed,1,";#it{#eta};Number of PU jets");
+
+  for (int ievt=0;ievt<Nevents;++ievt) {
+    std::vector<TLorentzVector> all_pujets = upgrade->getPileupJets();
+    std::vector<TLorentzVector> pujets;
+    for (auto pujet : all_pujets) {
+      double jvtEff = upgrade->getJVTeff_PUjet(pujet.Pt(),pujet.Eta());
+      if ( gRandom->Rndm() > jvtEff ) continue;
+      pujets.push_back(pujet);
+    }
+    if (ievt%100==0) printf("Evt %4i has %3lu PU jets, %lu survived JVT\n",ievt,all_pujets.size(),pujets.size());
+    h_NPUjets->Fill(all_pujets.size());
+    for (auto j:all_pujets) h_pTPUjets->Fill(j.Pt()/1000);
+    for (auto j:pujets) h_pTPUjetsJVT->Fill(j.Pt()/1000);
+    for (auto j:all_pujets) h_etaPUjets->Fill(j.Eta());
+    for (auto j:pujets) h_etaPUjetsJVT->Fill(j.Eta());
+  }
+  h_NPUjets->Draw();
+  drawText(0.5,0.88,"Prior to any JVT cuts");
+  can->Print(pdf);
+
+  h_pTPUjets->Draw();
+  h_pTPUjetsJVT->Draw("same"); h_pTPUjetsJVT->Draw("same e");
+  drawText(0.5,0.88,"PU jets, no JVT",kAzure); drawText(0.5,0.82,"PU jets, standard JVT selection",kRed);
+  can->Print(pdf);
+
+  h_etaPUjets->Draw();
+  h_etaPUjetsJVT->Draw("same"); h_etaPUjetsJVT->Draw("same e");
+  drawText(0.5,0.88,"PU jets, no JVT",kAzure); drawText(0.5,0.82,"PU jets, standard JVT selection",kRed);
+  can->Print(pdf);
+
+  can->SetLogy();
+  h_pTPUjets->GetYaxis()->SetRangeUser(0.5,h_pTPUjets->GetMaximum()*2);
+  h_pTPUjets->Draw();
+  h_pTPUjetsJVT->Draw("same"); h_pTPUjetsJVT->Draw("same e");
+  drawText(0.5,0.88,"PU jets, no JVT",kAzure); drawText(0.5,0.82,"PU jets, standard JVT selection",kRed);
+  can->Print(pdf);
+
+  h_etaPUjets->GetYaxis()->SetRangeUser(0.5,h_etaPUjets->GetMaximum()*2);
+  h_etaPUjets->Draw();
+  h_etaPUjetsJVT->Draw("same"); h_etaPUjetsJVT->Draw("same e");
+  drawText(0.5,0.88,"PU jets, no JVT",kAzure); drawText(0.5,0.82,"PU jets, standard JVT selection",kRed);
+  can->Print(pdf);
+  can->SetLogy(0);
+
+  // will plot JVT efficinecy vs eta for the following pT and eta values
+  vec pts({25,40,60,80,120});
+  vec etas({0.5,1.5,2.5,3.2,3.75});
+
+  // create axis and canvas
+  TH1F *axis = makeHisto(1,0,4.5,1,1,";Jet #eta;JVT efficiency");
+  TH1F *pTaxis = makeHisto(200,20,120,1,1,";Jet #it{p}_{T};JVT efficiency");
+  axis->GetYaxis()->SetRangeUser(0,1.2);
+  pTaxis->GetYaxis()->SetRangeUser(0,1.2);
+
+  // make 3 sets of plots for ITk only, full vs limited HGTD 
+  for (TString det:{"ITk_only","HGTD0","HGTD1"}) {
+    upgrade->setUseHGTD0(det=="HGTD0");
+    upgrade->setUseHGTD1(det=="HGTD1");
+
+    for (int old=0;old<1;++old) {
+      axis->Draw(); drawText(0.7,0.88,det); 
+      drawText(0.15,0.88,old?"Old implementation":"New implementation (Mar '18)");
+      drawText(0.2,0.45,"HS jets",kOrange); drawText(0.45,0.45,"PU jets",kAzure);
+      for (int pti=0;pti<5;++pti) {
+	TH1F *PUeff = new TH1F("","",180,0,4.5);
+	TH1F *HSeff = new TH1F("","",180,0,4.5);
+	PUeff->SetLineColor(kAzure+pti); PUeff->SetLineStyle(pti+1); PUeff->SetLineWidth(2);
+	HSeff->SetLineColor(kOrange+pti); HSeff->SetLineStyle(pti+1); HSeff->SetLineWidth(2);
+	for (int bin=1;bin<=PUeff->GetNbinsX();++bin) {
+	  double eta = PUeff->GetBinCenter(bin);
+	  if (old==0) {
+	    PUeff->SetBinContent(bin,upgrade->getJVTeff_PUjet(pts[pti]*1000,eta));
+	    HSeff->SetBinContent(bin,upgrade->getJVTeff_HSjet(pts[pti]*1000,eta));
+	  } else {
+	    PUeff->SetBinContent(bin,upgrade->getTrackJetConfirmEff(pts[pti]*1000,eta,"PU"));
+	    HSeff->SetBinContent(bin,upgrade->getTrackJetConfirmEff(pts[pti]*1000,eta,"HS"));
+	  }
+	}
+	PUeff->Draw("hist l same"); HSeff->Draw("hist l same");
+	drawText(0.45,0.4-0.05*pti,Form("#it{p}_{T} = %.0f GeV",pts[pti]),kAzure+pti);
+	drawText(0.20,0.4-0.05*pti,Form("#it{p}_{T} = %.0f GeV",pts[pti]),kOrange+pti);
+      }
+      can->Print(pdf);
+      
+      pTaxis->Draw(); drawText(0.7,0.88,det);
+      drawText(0.15,0.88,old?"Old implementation":"New implementation (Mar '18)");
+      drawText(0.2,0.45,"HS jets",kOrange); drawText(0.45,0.45,"PU jets",kAzure);
+      for (int etai=0;etai<5;++etai) {
+	double eta=etas[etai];
+	TH1F *PUeff = makeHisto(200,20,120,kAzure+etai,etai+1);
+	TH1F *HSeff = makeHisto(200,20,120,kOrange+etai,etai+1);
+	for (int bin=1;bin<=PUeff->GetNbinsX();++bin) {
+	  double pT = PUeff->GetBinCenter(bin);
+	  if (old==0) {
+	    PUeff->SetBinContent(bin,upgrade->getJVTeff_PUjet(pT*1000,eta));
+            HSeff->SetBinContent(bin,upgrade->getJVTeff_HSjet(pT*1000,eta));
+	  } else {
+	    PUeff->SetBinContent(bin,upgrade->getTrackJetConfirmEff(pT*1000,eta,"PU"));
+            HSeff->SetBinContent(bin,upgrade->getTrackJetConfirmEff(pT*1000,eta,"HS"));
+	  }
+	}
+	PUeff->Draw("hist l same"); HSeff->Draw("hist l same");
+	drawText(0.45,0.4-0.05*etai,Form("|#it{#eta}| = %.2f",eta),kAzure+etai);
+	drawText(0.20,0.4-0.05*etai,Form("|#it{#eta}| = %.2f",eta),kOrange+etai);
+      } // for each eta value
+      can->Print(pdf);
+    } // for old vs new implementation
+  } // for each detector (ITk only vs HGTD)
+  can->Print(pdf+"]");
+}
+
+void plotLargeRjetSmearing(UpgradePerformanceFunctions *upgrade) {
+  TString pdf("HLLHC_largeRjetSmearing.pdf");
+  TCanvas *can = new TCanvas();
+  can->SetTopMargin(0.04); can->SetRightMargin(0.04); can->SetBottomMargin(0.12); can->SetLeftMargin(0.12);
+  can->Print(pdf+"[");
+  // See https://cds.cern.ch/record/2290109/
+
+  printf("JMR for pT=400 and m=200 is: %.3f\n",upgrade->getLargeRjetJMR(400e3,200e3));
+
+  TH1F *pTaxis = makeHisto(5,200,2000,1,1,";Large-R jet #it{p}_{T} [GeV];Jet mass resolution #sigma_{#it{m}} / #it{m}");
+  pTaxis->SetStats(0); pTaxis->GetYaxis()->SetRangeUser(0,0.5);
+  
+  TH1F *jmrQCD    = makeHisto(180,200,2000,kOrange+1);
+  TH1F *jmrWprime = makeHisto(180,200,2000,kAzure);
+  TH1F *jmrZprime = makeHisto(180,200,2000,kGreen+1);
+  for (double mOpT :{0.1,0.25}) {
+    for (int bin=1;bin<=jmrQCD->GetNbinsX();++bin) {
+      double pT = jmrQCD->GetBinCenter(bin)*1000;
+      double mass=mOpT*pT;
+      jmrQCD->SetBinContent(bin,upgrade->getLargeRjetJMR(pT,mass));
+      jmrWprime->SetBinContent(bin,upgrade->getLargeRjetJMR(pT,mass,UpgradePerformanceFunctions::Wprime));
+      jmrZprime->SetBinContent(bin,upgrade->getLargeRjetJMR(pT,mass,UpgradePerformanceFunctions::Zprime));
+    }
+    
+    pTaxis->Draw();
+    jmrQCD->Draw("hist l same"); jmrWprime->Draw("hist l same"); jmrZprime->Draw("hist l same");
+    drawText(0.18,0.88,Form("Anti-#it{k_{t}} #it{R} = 1.0, trimmed, #LT#it{m}#GT = 200, #it{m} / #it{p}_{T} = %.2f",mOpT));
+    drawText(0.6,0.83,"Sample topology");
+    drawText(0.6,0.78,"QCD",kOrange+1); drawText(0.6,0.73,"W'",kAzure); drawText(0.6,0.68,"Z'",kGreen+1);
+    can->Print(pdf);
+  }
+
+  pTaxis->SetYTitle("Jet #it{p}_{T} resolution #sigma_{#it{p}_{T}} / #it{p}_{T}");
+  pTaxis->GetYaxis()->SetRangeUser(0,0.4);
+  for (int bin=1;bin<=jmrQCD->GetNbinsX();++bin) {
+    double pT = jmrQCD->GetBinCenter(bin)*1000;
+    double mass=0.2*pT;
+    jmrQCD->SetBinContent(bin,upgrade->getLargeRjetJER(pT,mass));
+    jmrWprime->SetBinContent(bin,upgrade->getLargeRjetJER(pT,mass,UpgradePerformanceFunctions::Wprime));
+    jmrZprime->SetBinContent(bin,upgrade->getLargeRjetJER(pT,mass,UpgradePerformanceFunctions::Zprime));
+  }
+  pTaxis->Draw();
+  jmrQCD->Draw("hist l same"); jmrWprime->Draw("hist l same"); jmrZprime->Draw("hist l same");
+  drawText(0.18,0.88,"Anti-#it{k_{t}} #it{R} = 1.0, trimmed, #LT#it{m}#GT = 200, #it{m} / #it{p}_{T} = 0.2");
+  drawText(0.6,0.83,"Sample topology");
+  drawText(0.6,0.78,"QCD",kOrange+1); drawText(0.6,0.73,"W'",kAzure); drawText(0.6,0.68,"Z'",kGreen+1);
+  can->Print(pdf);
+
+  // Shoot in a jet with pT=400, m=80 GeV to the detector. 
+  // See what mass is reconstructed
+  TH1F *mAxis = makeHisto(1,0,200,1,1,";Large-R jet #it{m} [GeV];Number of jets");
+  mAxis->SetStats(0);
+  TH1F *jmQCD    = makeHisto(100,0,200,kOrange+1);
+  TH1F *jmWprime = makeHisto(100,0,200,kAzure);
+  TH1F *jmZprime = makeHisto(100,0,200,kGreen+1);
+
+  double pT_truth = 400e3, mass_truth = 80e3;
+  for (int i=0;i<10000;++i) {
+    jmQCD->Fill(upgrade->getSmearedLargeRjet(pT_truth,0.0,0.0,mass_truth).M()/1000);
+    jmWprime->Fill(upgrade->getSmearedLargeRjet(pT_truth,0.0,0.0,mass_truth,UpgradePerformanceFunctions::Wprime).M()/1000);
+    jmZprime->Fill(upgrade->getSmearedLargeRjet(pT_truth,0.0,0.0,mass_truth,UpgradePerformanceFunctions::Zprime).M()/1000);
+  }
+  
+  mAxis->SetMaximum(1.2*jmZprime->GetMaximum());
+  mAxis->Draw();
+  drawText(0.18,0.88,Form("Anti-#it{k_{t}} #it{R} = 1.0, #LT#it{m}#GT = 200. Truth #it{m} = %.0f GeV, #it{p}_{T} = %.0f GeV",
+			  mass_truth/1000,pT_truth/1000));
+  drawText(0.6,0.83,"Sample topology");
+  drawText(0.6,0.78,"QCD",kOrange+1); drawText(0.6,0.73,"W'",kAzure); drawText(0.6,0.68,"Z'",kGreen+1);
+  jmZprime->Draw("same"); jmWprime->Draw("same");
+  jmQCD->Draw("same");
+  can->Print(pdf);
+
+  mass_truth = 15e3;
+  jmQCD    = makeHisto(100,0,50,kOrange+1,1,";Large-R jet #it{m} [GeV];Number of jets");
+  for (int i=0;i<10000;++i) 
+    jmQCD->Fill(upgrade->getSmearedLargeRjet(pT_truth,0.0,0.0,mass_truth).M()/1000);
+  
+  jmQCD->Draw();
+  drawText(0.18,0.88,Form("Anti-#it{k_{t}} #it{R} = 1.0, #LT#it{m}#GT = 200. Truth #it{m} = %.0f GeV, #it{p}_{T} = %.0f GeV",
+			  mass_truth/1000,pT_truth/1000));
+  drawText(0.6,0.83,"Sample topology"); drawText(0.6,0.78,"QCD",kOrange+1); 
+  can->Print(pdf);
+
+  can->Print(pdf+"]");
+  printf("\nProduced %s\n",pdf.Data());
+}
+
+void plotJER(UpgradePerformanceFunctions *upgrade, double CtermPenalty) {
+  TString pdf("HLLHC_jetSmearing.pdf");
+  upgrade->setConstantTermPenaltyFactor(CtermPenalty);
+  upgrade->setAvgMu(200.);
+  TCanvas *can = new TCanvas();
+  can->SetLogx();
+  can->SetTopMargin(0.04); can->SetRightMargin(0.04); can->SetBottomMargin(0.12); can->SetLeftMargin(0.12);
+  can->Print(pdf+"[");
+
+  TH1F *pTaxis = makeHisto(1,30,2000,1,1,";Jet #it{p}_{T} [GeV];JER #sigma_{#it{p}_{T}} / #it{p}_{T}");
+  pTaxis->GetYaxis()->SetRangeUser(0,0.5); pTaxis->GetXaxis()->SetMoreLogLabels();
+  vec etas({0.5,1.0,1.5,2.5,3.0,3.7});
+  std::vector<int> cols({kRed,kOrange,kGreen+1,kBlue,kViolet,kBlack});
+  printf(" JER is %.3f\n",upgrade->getJetEnergyResolution(40e3,1.0,1));
+
+  for (int par=0;par<2;++par) {
+    
+    pTaxis->Draw();
+    for (size_t etai=0;etai<etas.size();++etai) {
+      double eta=etas[etai];
+      TH1F *jer = makeHisto(117,30,1200,cols[etai],etai+1);
+      for (int bin=1;bin<=jer->GetNbinsX();++bin) {
+	double pT=jer->GetBinCenter(bin);
+	jer->SetBinContent(bin,upgrade->getJetEnergyResolution(pT*1000,eta,1));
+      }
+      jer->Draw("same hist l");
+      drawText(0.60,0.6-0.05*etai,Form("|#it{#eta}| = %.2f",eta),cols[etai]);
+    }
+    drawText(0.60,0.85,Form("%s #it{#mu} = %.0f","Previous",200.0));
+    can->Print(pdf);
+
+    for (double mu:{200,22,0}) {
+      
+    pTaxis->Draw();
+    for (size_t etai=0;etai<etas.size();++etai) {
+      double eta=etas[etai];
+      TH1F *jer = makeHisto(117,30,1200,cols[etai],etai+1);
+      for (int bin=1;bin<=jer->GetNbinsX();++bin) {
+	double pT=jer->GetBinCenter(bin);
+	if (par==0) jer->SetBinContent(bin,upgrade->getJER(pT*1000,eta,mu,UpgradePerformanceFunctions::TopoEM));
+	else 
+	  jer->SetBinContent(bin,upgrade->getJER(pT*1000,eta,mu,UpgradePerformanceFunctions::PFlow));
+      }
+      jer->Draw("same hist l");
+      drawText(0.60,0.6-0.05*etai,Form("|#it{#eta}| = %.2f",eta),cols[etai]);
+    }
+    drawText(0.60,0.85,Form("%s #it{#mu} = %.0f",par==0?"EM+JES":"PFlow",mu));
+    drawText(0.60,0.80,Form("C-term penalty: %.2f",CtermPenalty));
+    can->Print(pdf);
+    }
+  }
+
+  double mu=200;
+  for (size_t etai=0;etai<etas.size();++etai) {
+    double eta=etas[etai];
+    pTaxis->Draw();
+    TH1F *jerCur   = makeHisto(117,30,1200,cols[0]);
+    TH1F *jerTopo  = makeHisto(117,30,1200,cols[1]);
+    TH1F *jerPflow = makeHisto(117,30,1200,cols[2]);
+    for (int bin=1;bin<=jerCur->GetNbinsX();++bin) {
+      double pT=jerCur->GetBinCenter(bin);
+      jerTopo->SetBinContent(bin,upgrade->getJER(pT*1000,eta,mu,UpgradePerformanceFunctions::TopoEM));
+      jerPflow->SetBinContent(bin,upgrade->getJER(pT*1000,eta,mu,UpgradePerformanceFunctions::PFlow));
+      jerCur->SetBinContent(bin,upgrade->getJetEnergyResolution(pT*1000,eta,true));
+    }
+    jerCur->Draw("same hist l"); jerTopo->Draw("same histl"); jerPflow->Draw("same hist l");
+    drawText(0.60,0.85,Form("|#it{#eta}| = %.2f",eta));
+    drawText(0.60,0.80,"Previous",cols[0]);
+    drawText(0.60,0.75,"TopoEM",cols[1]);
+    drawText(0.60,0.70,"PFlow",cols[2]);
+    drawText(0.60,0.65,Form("#it{#mu} = %.0f",mu));
+    drawText(0.60,0.60,Form("C-term penalty: %.2f",CtermPenalty));
+    can->Print(pdf);
+  }
+
+  can->SetLogx(0);
+  vec pts({30,40,60,100,1000});
+  TH1F *eta_axis = makeHisto(1,0,4.5,1,1,";Jet |#it{#eta}|;JER #sigma_{#it{p}_{T}} / #it{p}_{T}");
+  eta_axis->GetYaxis()->SetRangeUser(0,0.5);
+  
+  for (double pT:pts) {
+    eta_axis->Draw();
+    TH1F *jerCur   = makeHisto(90,0,4.5,cols[0]);
+    TH1F *jerTopo  = makeHisto(90,0,4.5,cols[1]);
+    TH1F *jerPflow = makeHisto(90,0,4.5,cols[2]);
+    for (int bin=1;bin<=jerCur->GetNbinsX();++bin) {
+      double eta=jerCur->GetBinCenter(bin);
+      jerTopo->SetBinContent(bin,upgrade->getJER(pT*1000,eta,mu,UpgradePerformanceFunctions::TopoEM));
+      jerPflow->SetBinContent(bin,upgrade->getJER(pT*1000,eta,mu,UpgradePerformanceFunctions::PFlow));
+      jerCur->SetBinContent(bin,upgrade->getJetEnergyResolution(pT*1000,eta,true));
+    }
+    jerCur->Draw("same hist l"); jerTopo->Draw("same histl"); jerPflow->Draw("same hist l");
+    drawText(0.60,0.85,Form("#it{p}_{T} = %.0f GeV",pT));
+    drawText(0.60,0.80,"Previous",cols[0]);
+    drawText(0.60,0.75,"TopoEM",cols[1]);
+    drawText(0.60,0.70,"PFlow",cols[2]);
+    drawText(0.60,0.65,Form("#it{#mu} = %.0f",mu));
+    drawText(0.60,0.60,Form("C-term penalty: %.2f",CtermPenalty));
+    can->Print(pdf);
+  }
+
+  //for (int etai=0;etai<40;++etai) 
+  //  printf("p-flow JER, pT=34 GeV, eta = %.1f : %.1f%%\n",0.1*etai,upgrade->getJER(34000,0.1*etai,200,UpgradePerformanceFunctions::PFlow)*100);
+  can->Print(pdf+"]");
+  printf("\nProduced %s\n",pdf.Data());
 }
