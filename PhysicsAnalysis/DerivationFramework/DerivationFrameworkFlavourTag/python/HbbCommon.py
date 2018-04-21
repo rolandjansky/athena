@@ -399,12 +399,14 @@ def addCopyJet(FTAG5Seq, ToolSvc, InputJetCollectionName, OutputJetCollectionNam
 # Hbb Tagger
 #========================================================================
 def addHbbTagger(sequence, ToolSvc, logger,
+                 output_level=WARNING,
                  jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20"):
     fat_calibrator_name = "HbbCalibrator"
     is_data = not DerivationFrameworkIsMonteCarlo
     if not hasattr(ToolSvc, fat_calibrator_name):
         fatCalib = CfgMgr.JetCalibrationTool(
             fat_calibrator_name,
+            OutputLevel=output_level,
             JetCollection=jet_collection,
             ConfigFile="JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config",
             CalibSequence="EtaJES_JMS",
@@ -421,7 +423,7 @@ def addHbbTagger(sequence, ToolSvc, logger,
     if not hasattr(ToolSvc, hbb_tagger_name):
         hbbTagger = CfgMgr.HbbTaggerDNN(
             hbb_tagger_name,
-            OutputLevel=WARNING,
+            OutputLevel=output_level,
             neuralNetworkFile=config_file_name)
         ToolSvc += hbbTagger
         logger.info('set up {}'.format(hbbTagger))
@@ -436,6 +438,7 @@ def addHbbTagger(sequence, ToolSvc, logger,
         else:
             tagger_alg = CfgMgr.HbbTaggingAlgorithm(
                 tagger_alg_name,
+                OutputLevel=output_level,
                 jetCollectionName=(jet_collection + "Jets"),
                 decorationName="HbbScore",
                 minPt=250e3,

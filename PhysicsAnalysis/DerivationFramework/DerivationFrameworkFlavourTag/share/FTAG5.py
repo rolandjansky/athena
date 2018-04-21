@@ -171,7 +171,7 @@ for jc in OutputJets["FTAG5"]:
 # Add Hbb tagger
 #================================================================
 
-addHbbTagger(FTAG5Seq, ToolSvc, ftag5_log)
+addHbbTagger(FTAG5Seq, ToolSvc, ftag5_log, output_level=INFO)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
