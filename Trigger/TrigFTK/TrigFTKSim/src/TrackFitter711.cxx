@@ -851,7 +851,7 @@ void TrackFitter711::processor_Incomplete(const FTKRoad &road,
        newtrkI.setHWTrackID(-1);
 
        // add one fit in the counters
-       m_nfitsI += 1;
+       if (nmissing==0) m_nfitsI += 1;
        if (nmissing>0) m_nfits_majI += 1;
        if (missPix) m_nfits_majI_pix += 1;
        if (missSCT) m_nfits_majI_SCT += 1;
@@ -1800,7 +1800,7 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
         //for ( int i = 0; i < 16; i++)
         //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
 
-        m_nfits += 1;
+        if (nmissing_more==0)m_nfits += 1;
         //std::cout << "m_nfits: " << m_nfits << std::endl;
 
         if (nmissing_more>0) {
@@ -3645,7 +3645,7 @@ void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
       //for ( int i = 0; i < 16; i++)
       //  std::cout << "newtrk.getCoord(" << i << ") = " << newtrk.getCoord(i) << std::endl;
 
-      m_nfits += 1;
+      if (nmissing_more==0)m_nfits += 1;
       //std::cout << "m_nfits: " << m_nfits << std::endl;
 
       if (nmissing_more>0) {
