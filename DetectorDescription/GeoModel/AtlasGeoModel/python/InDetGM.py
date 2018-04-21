@@ -73,7 +73,7 @@ elif ( DetFlags.detdescr.ID_on() ):
             from AthenaCommon import CfgGetter
             GeoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("SCT_DetectorTool", checkType=True) ]
 
-        GeoModelSvc.DetectorTools['SCT_DetectorTool'].useDynamicAlignFolders = GeometryFlags.useDynamicAlignFolders()
+            GeoModelSvc.DetectorTools['SCT_DetectorTool'].useDynamicAlignFolders = GeometryFlags.useDynamicAlignFolders()
 
     if ( DetFlags.detdescr.TRT_on() ):
         from TRT_GeoModel.TRT_GeoModelConf import TRT_DetectorTool
