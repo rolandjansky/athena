@@ -2,7 +2,6 @@
 # Package: InDetV0Finder
 ###############################################################################
 
-
 # Declare the package name:
 atlas_subdir( InDetV0Finder )
 
