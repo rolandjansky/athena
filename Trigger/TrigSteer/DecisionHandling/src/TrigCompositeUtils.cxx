@@ -55,7 +55,7 @@ namespace TrigCompositeUtils {
     return decisions.empty();
   }
 
-  bool passingIDs( const Decision* d,  const DecisionIDContainer& required ) {
+  bool isAnyIDPassing( const Decision* d,  const DecisionIDContainer& required ) {
     for ( auto id : readOnlyAccessor( *d ) ) {
       if ( required.count( id ) > 0 )
 	return true;
@@ -66,8 +66,6 @@ namespace TrigCompositeUtils {
   bool passed( DecisionID id, const DecisionIDContainer& idSet ) {
     return idSet.count( id ) != 0;
   }
-
-  bool passingIDs( const Decision* d,  const DecisionIDContainer& required );
 
   void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
     d->setObjectLink( "seed", ElementLink<DecisionContainer>( previousCollectionKey, previousIndex ) );

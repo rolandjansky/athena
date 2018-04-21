@@ -77,7 +77,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief Checks if any of the DecisionIDs passed in arg required is availble in Decision object
    **/
-  bool passingIDs( const Decision* d,  const DecisionIDContainer& required);
+  bool isAnyIDPassing( const Decision* d,  const DecisionIDContainer& required);
 
   /**
    * @brief checks if required ID is in the set of the decisions
