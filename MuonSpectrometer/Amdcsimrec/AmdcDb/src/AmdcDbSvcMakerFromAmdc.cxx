@@ -40,7 +40,7 @@ void AmdcDbSvcMakerFromAmdc::SetEpsAngle   (std::string NameOfTheSet, int EpsAng
 void AmdcDbSvcMakerFromAmdc::Set(Amdcsimrec* pAmdcsimrec,AmdcDbSvc* pAmdcDbSvc){
 
   AMDC(pAmdcsimrec,pAmdcDbSvc);
-  AGDD(pAmdcsimrec,pAmdcDbSvc);
+//  AGDD(pAmdcsimrec,pAmdcDbSvc);
 
   ATYP(pAmdcsimrec,pAmdcDbSvc);
   ACUT(pAmdcsimrec,pAmdcDbSvc);

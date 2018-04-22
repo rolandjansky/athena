@@ -52,12 +52,12 @@ MuonAGDDToolHelper::MuonAGDDToolHelper()
 	result=Gaudi::svcLocator()->service("GeoModelSvc",p_GeoModelSvc);
   	if (result.isFailure())
     {
-    	std::cout<<"unable to access GeoModelSvc "<<std::endl;
+	std::cout<<"MuonAGDDToolHelper\tunable to access GeoModelSvc "<<std::endl;
     }
     result=Gaudi::svcLocator()->service("RDBAccessSvc",p_RDBAccessSvc);
     if (result.isFailure())
     {
-    	std::cout<<"unable to access RBDAccessSvc "<<std::endl;
+	std::cout<<"MuonAGDDToolHelper\tunable to access RBDAccessSvc "<<std::endl;
     }
 	else
 		p_RDBAccessSvc->connect();
@@ -65,7 +65,7 @@ MuonAGDDToolHelper::MuonAGDDToolHelper()
 	result=Gaudi::svcLocator()->service("TagInfoMgr",m_tagInfoMgr);
   	if (result.isFailure()) 
   	{
-    	std::cout<<"Unable to retrieve TagInfoMgr!"<<std::endl;
+	std::cout<<"MuonAGDDToolHelper\tUnable to retrieve TagInfoMgr!"<<std::endl;
   	}
   	else
   		tagInfoKey=m_tagInfoMgr->tagInfoKey();
@@ -99,7 +99,7 @@ std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
    }
    else
    {
-      std::cout<<"  agdd2geoVersion is empty " <<std::endl;
+      std::cout<<"MuonAGDDToolHelper\tagdd2geoVersion is empty " <<std::endl;
    }	
    return m_structuresFromFlags;
 }
@@ -107,14 +107,16 @@ std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
 
 std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
 {
-	
+
    const IGeoModelSvc * geoModel=p_GeoModelSvc;
+   if(!geoModel) return "";
 
    IRDBAccessSvc * accessSvc=p_RDBAccessSvc;
+   if(!accessSvc) return "";
 
    std::string AtlasVersion = geoModel->atlasVersion();
    std::string MuonVersion  = geoModel->muonVersionOverride();
-   
+
    std::string detectorKey  = MuonVersion.empty() ? AtlasVersion : MuonVersion;
    std::string detectorNode = MuonVersion.empty() ? "ATLAS" : "MuonSpectrometer";
    if ( MuonVersion == "CUSTOM"){
@@ -124,8 +126,10 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
 
 
    const IRDBRecordset *recordsetAGDD = accessSvc->getRecordset("AGDD",detectorKey,detectorNode);
+   if(!recordsetAGDD) return "";
 
    const IRDBRecord *recordAGDD =  (*recordsetAGDD)[0];
+   if(!recordAGDD) return "";
    std::string AgddString = recordAGDD->getString("DATA");
    accessSvc->shutdown();
 
@@ -139,7 +143,7 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
 		GeneratedFile<<AgddString<<std::endl;
 		GeneratedFile.close();
    }
-	 
+
    return AgddString;
 
 }
