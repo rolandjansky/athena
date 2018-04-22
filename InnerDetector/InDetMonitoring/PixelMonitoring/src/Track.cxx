@@ -314,6 +314,8 @@ StatusCode PixelMainMon::procTrackMon(void) {
 	    bing--;
 	  } 
 	}
+	m_hiteff_lastXlb_mod[i]->SetMinimum(0.8);
+        m_hiteff_lastXlb_mod[i]->SetMaximum(1.01);
 	m_hiteff_lastXlb_mod[i]->SetEntries(entries);
 	//m_hiteff_lastXlb_mod[i]->SetEntries(lastlb);      // for testing
       }
@@ -342,8 +344,10 @@ StatusCode PixelMainMon::procTrackMon(void) {
   }
   if (m_doOffline) {
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
-      if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMinimum(0.8);
-      if (m_hiteff_incl_mod[i]) m_hiteff_incl_mod[i]->SetMaximum(1.01);
+      if (m_hiteff_incl_mod[i]) {
+	m_hiteff_incl_mod[i]->SetMinimum(0.8);
+	m_hiteff_incl_mod[i]->SetMaximum(1.01);
+      }
     }
   }
   return StatusCode::SUCCESS;
