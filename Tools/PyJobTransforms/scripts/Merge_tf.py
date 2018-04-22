@@ -1,9 +1,10 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-## Merge_tf.py - Transform for merging any data types
+## Merge_tf.py - Transform for merging any data type
 
+import os.path
 import sys
 import time
 
@@ -21,6 +22,7 @@ from RecJobTransforms.recTransformUtils import addCommonRecTrfArgs
 from PyJobTransforms.trfExe import DQMergeExecutor
 from PyJobTransforms.trfExe import tagMergeExecutor
 from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs
+from SimuJobTransforms.SimTransformUtils import addHITSMergeArguments
 from PyJobTransforms.trfExe import bsMergeExecutor
 from PyJobTransforms.trfExe import NTUPMergeExecutor
 from PyJobTransforms.trfArgs import addD3PDArguments, addExtraDPDTypes
@@ -57,6 +59,8 @@ def getTransform():
                                    inData = ['RDO'], outData = ['RDO_MRG']))
     executorSet.add(bsMergeExecutor(name = 'RAWFileMerge', exe = 'file_merging', inData = set(['BS']), outData = set(['BS_MRG'])))
     executorSet.add(athenaExecutor(name = 'EVNTMerge', skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',inData = ['EVNT'], outData = ['EVNT_MRG']))
+    executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
+                                   tryDropAndReload = False, inData = ['HITS'], outData = ['HITS_MRG']))
 
     addDAODMergerSubsteps(executorSet)
     addNTUPMergeSubsteps(executorSet)
@@ -68,6 +72,7 @@ def getTransform():
     addCommonRecTrfArgs(trf.parser)
     addMyArgs(trf.parser)
 
+    addHITSMergeArguments(trf.parser)
     addDAODArguments(trf.parser)
     addPhysValidationMergeFiles(trf.parser)
     addD3PDArguments(trf.parser, transform=trf, addD3PDMRGtypes=True)
