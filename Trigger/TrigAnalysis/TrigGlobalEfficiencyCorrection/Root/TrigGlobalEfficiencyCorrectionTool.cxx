@@ -765,7 +765,7 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 	
 	ATH_MSG_DEBUG("Computing global trigger efficiency for this event with  " << leptons.size() << " lepton(s) as input");
 	
-	if(runNumber<266904 || runNumber>339205)
+	if(runNumber<266904 || runNumber>341649)
 	{
 		ATH_MSG_WARNING("Suspicious run number provided " << runNumber << ", continuing anyway");
 	}
