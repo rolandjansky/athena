@@ -303,6 +303,8 @@ private:
   /// when using cone-based labelling (see above), if true, use the "traditional" (parton-based) labelling instead of the current default (hadron-based, exclusive)
   bool m_oldConeFlavourLabel;
   // bool m_excludeJESFromEV;
+  /// if true, ignore out-of-extrapolation range errors (i.e., return CorrectionCode::Ok if these are encountered)
+  bool m_ignoreOutOfValidityRange;
   /// @}
 
   /// @name Cached variables
