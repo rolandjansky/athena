@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "NSWPRDValAlg.h"
@@ -7,6 +7,7 @@
 #include "MMDigitVariables.h"
 #include "MMSimHitVariables.h"
 #include "MMFastDigitVariables.h"
+#include "MMRDOVariables.h"
 
 #include "sTGCDigitVariables.h"
 #include "sTGCSimHitVariables.h"
@@ -26,7 +27,8 @@
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
-#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
@@ -38,6 +40,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_MmSimHitVar(nullptr),
     m_MmFastDigitVar(nullptr),
     m_MmDigitVar(nullptr),
+    m_MmRdoVar(nullptr),
     m_CscDigitVar(nullptr),
     m_thistSvc(nullptr),
     m_tree(nullptr),
@@ -56,6 +59,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("NSWMM_ContainerName", m_NSWMM_ContainerName="MicromegasSensitiveDetector");
   declareProperty("NSWMM_FastDigitContainerName", m_NSWMM_FastDigitContainerName="MM_Measurements");
   declareProperty("NSWMM_DigitContainerName", m_NSWMM_DigitContainerName="MM_DIGITS");
+  declareProperty("NSWMM_RDOContainerName", m_NSWMM_RDOContainerName="MMRDO");
   declareProperty("CSC_DigitContainerName", m_CSC_DigitContainerName="CSC_DIGITS");
 
   declareProperty("doTruth",         m_doTruth=false);
@@ -66,6 +70,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("doMMHit",         m_doMMHit=false);
   declareProperty("doMMFastDigit",   m_doMMFastDigit=false);
   declareProperty("doMMDigit",       m_doMMDigit=false);
+  declareProperty("doMMRDO",         m_doMMRDO=false);
   declareProperty("doCSCDigit",      m_doCSCDigit=false);
 }
 
@@ -131,6 +136,13 @@ StatusCode NSWPRDValAlg::initialize() {
      ATH_CHECK( m_MmDigitVar->initializeVariables() );
   }
 
+  if (m_doMMRDO) {
+
+    m_MmRdoVar = new MMRDOVariables(&(*(evtStore())), m_detManager,
+				    m_MmIdHelper, m_tree, m_NSWMM_RDOContainerName);
+    ATH_CHECK( m_MmRdoVar->initializeVariables() );
+  }
+
   if (m_doMMFastDigit){
      m_MmFastDigitVar = new MMFastDigitVariables(&(*(evtStore())), m_detManager,
                                                    m_MmIdHelper, m_tree, m_NSWMM_FastDigitContainerName);
@@ -158,6 +170,7 @@ StatusCode NSWPRDValAlg::finalize()
   if (m_MmSimHitVar) { delete m_MmSimHitVar; m_MmSimHitVar=0;}
   if (m_MmFastDigitVar) { delete m_MmFastDigitVar; m_MmFastDigitVar=0;}
   if (m_MmDigitVar) { delete m_MmDigitVar; m_MmDigitVar=0;}
+  if (m_MmRdoVar) { delete m_MmRdoVar; m_MmRdoVar=0;}
   if (m_CscDigitVar) { delete m_CscDigitVar; m_CscDigitVar=0;}
 
   return StatusCode::SUCCESS;
@@ -168,14 +181,15 @@ StatusCode NSWPRDValAlg::execute()
   ATH_MSG_INFO("execute()");
 
   // Event information
-  const xAOD::EventInfo *pevt = nullptr;
-  if( ! ( evtStore()->retrieve(pevt).isSuccess() ) ) {
-    ATH_MSG_WARNING("Could not retrieve event info!");
-    m_runNumber = -999999;
-    m_eventNumber = -999999;
+  const EventInfo* pevt(0);
+  if( evtStore()->retrieve(pevt).isSuccess() ) {
+    m_runNumber = pevt->event_ID()->run_number();
+    m_eventNumber = pevt->event_ID()->event_number();
+    ATH_MSG_DEBUG("Now processing event number:" << m_eventNumber << ", run number:" << m_runNumber);
   } else {
-    m_runNumber = pevt->runNumber();
-    m_eventNumber = pevt->eventNumber();
+    ATH_MSG_WARNING("Could not retrieve event info!");
+    m_runNumber = -1;
+    m_eventNumber = -1;
   }
 
   if (m_doTruth) ATH_CHECK( m_TruthVar->fillVariables() );
@@ -184,7 +198,7 @@ StatusCode NSWPRDValAlg::execute()
 
   if (m_doSTGCHit) ATH_CHECK( m_sTgcSimHitVar->fillVariables() );
 
-  if (m_doSTGCFastDigit) ATH_CHECK( m_sTgcDigitVar->fillVariables() );
+  if (m_doSTGCFastDigit) ATH_CHECK( m_sTgcFastDigitVar->fillVariables() );
 
   if (m_doSTGCDigit) ATH_CHECK( m_sTgcDigitVar->fillVariables() );
 
@@ -193,6 +207,8 @@ StatusCode NSWPRDValAlg::execute()
   if (m_doMMFastDigit) ATH_CHECK( m_MmFastDigitVar->fillVariables() );
 
   if (m_doMMDigit) ATH_CHECK( m_MmDigitVar->fillVariables() );
+
+  if (m_doMMRDO) ATH_CHECK( m_MmRdoVar->fillVariables() );
 
   if (m_doCSCDigit) ATH_CHECK( m_CscDigitVar->fillVariables() );
 
