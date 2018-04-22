@@ -1239,7 +1239,7 @@
 	  <!-- END sim jobs, reco jobs + tests chains  -->
 	  </parallel>
 	  <!-- Run tests dependent on different reco jobs -->
-	  <chainElement>
+<!--	  <chainElement>
 	    <jobTransform userJobId="0reg_stdReco_fastSim_fullDigi_vs_ttFC_reco_Split_fastSim_fullDigi">
 	      <doc>Regression test of FastChainPileup job stdReco_fastSim_fullDigi vs ttFC_reco_Split_fastSim_fullDigi</doc>
 	      <jobTransformJobName>0reg_stdReco_fastSim_fullDigi_vs_ttFC_reco_Split_fastSim_fullDigi</jobTransformJobName>
@@ -1390,7 +1390,238 @@
 		    <testidentifier>CheckFileRunner0</testidentifier>
 		</testToRemove>		
 	    </jobTransform>
-	  </chainElement>
+	  </chainElement>-->
+	  <sequential>
+	    <chainElement>
+	      <jobTransform userJobId="ATLFASTIIF_ttbar_1sim">
+		<doc>Tests detector functionality for ISF ATLFASTIIF using ttbar</doc>
+		<jobTransformJobName>ATLFASTIIF_ttbar_1sim</jobTransformJobName>
+		<jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'ATLFASTIIF' --postInclude 'default:PyJobTransforms/UseFrontier.py' 'G4AtlasTests/postInclude.DCubeTest.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "AFIIF_ttbar.pool.root" --maxEvents 2000</jobTransformCmd>
+		<group>FastChainPileup</group>
+		<queue>medium</queue>
+	      </jobTransform>
+	      <chainfileout>AFIIF_ttbar.pool.root</chainfileout>
+	    </chainElement>
+	    <chainElement>
+	      <jobTransform userJobId="ATLFASTIIF_ttbar_prodDigireco">
+		<doc>MC production-like reco job</doc>
+		<jobTransformJobName>ATLFASTIIF_ttbar_prodDigireco</jobTransformJobName>
+		<jobTransformCmd> 
+		  Reco_tf.py --inputHITSFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/AFIIF_ttbar.pool.root" --maxEvents="500" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); InDetFlags.doStandardPlots.set_Value_and_Lock(True)" "ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False)" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v1.py" --skipEvents="0" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-30" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --runNumber="110401" --digiSeedOffset1="2" --digiSeedOffset2="2" --digiSteeringConf='StandardSignalOnlyTruth' --outputRDOFile="RDO.pool.root" --AMITag="r9110" --inputHighPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098387._000006.pool.root.1" --inputLowPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098374._000016.pool.root.1" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --pileupFinalBunch="6" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root" --jobNumber="2"
+		</jobTransformCmd>
+		<group>FastChainPileup</group>
+		<chaindataset_info>
+		    <jobTransformData />    
+		    <chaindatasetName>None</chaindatasetName>
+		    <!-- If the file on the previous line is not in the chain store, then use the following fallback file. -->
+		    <dataset_info>
+			<jobTransformData />
+			<datasetName>/afs/cern.ch/user/a/abasalae/work/FastChainRTT/20.20.3_ReferenceProduction/standardReco_pseudoTracking_oldHits/valid1/HITS.06695914._000339.pool.root.1</datasetName>
+		    </dataset_info>
+		</chaindataset_info>
+		<queue>medium</queue>
+	      </jobTransform>
+	      <chainfileout>
+		ESD.pool.root
+	      </chainfileout>
+	      <chainfileout>
+		RDO.pool.root 
+	      </chainfileout>
+	    </chainElement>
+	    <chainElement>
+	      <jobTransform userJobId="1reg_InDetStandardPlots_21.3_vs_21.3-hmpl_ATLFASTIIF_ttbar_prodDigireco">
+	      <doc>Regression test of the job ATLFASTIIF_ttbar_prodDigireco in releases 21.3 vs 21.3-hmpl</doc>
+	      <jobTransformJobName>1reg_InDetStandardPlots_21.3_vs_21.3-hmpl_ATLFASTIIF_ttbar_prodDigireco</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 21.3 ATLFASTIIF_ttbar_prodDigireco InDetStandardPlots.root FastChainPileup 21.3-hmpl ATLFASTIIF_ttbar_prodDigireco InDetStandardPlots.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>medium</queue>
+		<test position="1">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>ISF_Validation_InDetStandardPlots.root.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>tolerateWARN</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.InDetStandardPlots.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+		</test>
+		<testToRemove>
+		    <jobGroupName>RTT:Top</jobGroupName>
+		    <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove>		
+	      </jobTransform>
+	    </chainElement>
+	  </sequential>
+	  <sequential>
+	    <chainElement>
+	      <jobTransform userJobId="ATLFASTII_ttbar_1sim">
+		<doc>Tests detector functionality for ISF ATLFASTII-like configuration using ttbar events</doc>
+		<jobTransformJobName>ATLFASTII_ttbar_1sim</jobTransformJobName>
+		<!-- MC15 production AMI tag a766 -->
+		<jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC12' --simulator 'ATLFASTII' --postInclude 'default:PyJobTransforms/UseFrontier.py' 'G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "AFII_ttbar.pool.root" --maxEvents 250</jobTransformCmd>
+		<group>FastChainPileup</group>
+		<queue>long</queue>
+	      </jobTransform>
+	      <chainfileout>AFII_ttbar.pool.root</chainfileout>
+	    </chainElement>
+	    <chainElement>
+	      <jobTransform userJobId="ATLFASTII_ttbar_prodDigireco">
+		<doc>MC production-like reco job</doc>
+		<jobTransformJobName>ATLFASTII_ttbar_prodDigireco</jobTransformJobName>
+		<jobTransformCmd> 
+		  Reco_tf.py --inputHITSFile="AFII_ttbar.pool.root" --maxEvents="500" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); InDetFlags.doStandardPlots.set_Value_and_Lock(True)" "ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False)" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v1.py" --skipEvents="0" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-30" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --runNumber="110401" --digiSeedOffset1="2" --digiSeedOffset2="2" --digiSteeringConf='StandardSignalOnlyTruth' --outputRDOFile="RDO.pool.root" --AMITag="r9110" --inputHighPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098387._000006.pool.root.1" --inputLowPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098374._000016.pool.root.1" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --pileupFinalBunch="6" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root" --jobNumber="2"
+		</jobTransformCmd>
+		<group>FastChainPileup</group>
+		<chaindataset_info>
+		    <jobTransformData />    
+		    <chaindatasetName>None</chaindatasetName>
+		    <!-- If the file on the previous line is not in the chain store, then use the following fallback file. -->
+		    <dataset_info>
+			<jobTransformData />
+			<datasetName>/afs/cern.ch/user/a/abasalae/work/FastChainRTT/20.20.3_ReferenceProduction/standardReco_pseudoTracking_oldHits/valid1/HITS.06695914._000339.pool.root.1</datasetName>
+		    </dataset_info>
+		</chaindataset_info>
+		<queue>medium</queue>
+	      </jobTransform>
+	      <chainfileout>
+		ESD.pool.root
+	      </chainfileout>
+	      <chainfileout>
+		RDO.pool.root 
+	      </chainfileout>
+	    </chainElement>
+	    <chainElement>
+	      <jobTransform userJobId="1reg_InDetStandardPlots_21.3_vs_21.3-hmpl_ATLFASTII_ttbar_prodDigireco">
+	      <doc>Regression test of the job ATLFASTII_ttbar_prodDigireco in releases 21.3 vs 21.3-hmpl</doc>
+	      <jobTransformJobName>1reg_InDetStandardPlots_21.3_vs_21.3-hmpl_ATLFASTII_ttbar_prodDigireco</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 21.3 ATLFASTII_ttbar_prodDigireco InDetStandardPlots.root FastChainPileup 21.3-hmpl ATLFASTII_ttbar_prodDigireco InDetStandardPlots.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>medium</queue>
+		<test position="1">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>ISF_Validation_InDetStandardPlots.root.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>tolerateWARN</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.InDetStandardPlots.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+		</test>
+		<testToRemove>
+		    <jobGroupName>RTT:Top</jobGroupName>
+		    <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove>		
+	      </jobTransform>
+	    </chainElement>
+	  </sequential>
+	  <sequential>
+	    <chainElement>
+	      <jobTransform userJobId="FullG4_ttbar_1sim">
+		<doc>Test detector functionality for ISF FullG4 using ttbar events</doc>
+		<jobTransformJobName>FullG4_ttbar_1sim</jobTransformJobName>
+		<jobTransformCmd>Sim_tf.py --conditionsTag 'default:OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --truthStrategy 'MC15aPlus' --simulator 'FullG4' --postInclude 'default:PyJobTransforms/UseFrontier.py,G4AtlasTests/postInclude.DCubeTest.py' --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --DataRunNumber '222525' --geometryVersion 'default:ATLAS-R2-2015-03-01-00_VALIDATION' --inputEVNTFile "/afs/cern.ch/atlas/groups/Simulation/EVNT_files/mc12_valid.110401.PowhegPythia_P2012_ttbar_nonallhad.evgen.EVNT.e3099.01517252._000001.pool.root.1" --outputHITSFile "G4_ttbar.pool.root" --maxEvents 4</jobTransformCmd>
+		<group>FastChainPileup</group>
+		<queue>medium</queue>
+	      </jobTransform>
+	      <chainfileout>
+		G4_ttbar.pool.root
+	      </chainfileout>
+	    </chainElement>
+	    <chainElement>
+	      <jobTransform userJobId="G4_ttbar_prodDigireco">
+		<doc>MC production-like reco job</doc>
+		<jobTransformJobName>G4_ttbar_prodDigireco</jobTransformJobName>
+		<jobTransformCmd> 
+		  Reco_tf.py --inputHITSFile="G4_ttbar.pool.root" --maxEvents="500" --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RAWtoESD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False); InDetFlags.doStandardPlots.set_Value_and_Lock(True)" "ESDtoAOD:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doSlimming.set_Value_and_Lock(False)" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_v1.py" --skipEvents="0" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-30" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --runNumber="110401" --digiSeedOffset1="2" --digiSeedOffset2="2" --digiSteeringConf='StandardSignalOnlyTruth' --outputRDOFile="RDO.pool.root" --AMITag="r9110" --inputHighPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098387._000006.pool.root.1" --inputLowPtMinbiasHitsFile="/afs/cern.ch/user/a/abasalae/work/FastChainRTT/21.3_Reference/HITS.05098374._000016.pool.root.1" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --pileupFinalBunch="6" --outputAODFile="AOD.pool.root" --outputESDFile="ESD.pool.root" --jobNumber="2"
+		</jobTransformCmd>
+		<group>FastChainPileup</group>
+		<chaindataset_info>
+		    <jobTransformData />    
+		    <chaindatasetName>None</chaindatasetName>
+		    <!-- If the file on the previous line is not in the chain store, then use the following fallback file. -->
+		    <dataset_info>
+			<jobTransformData />
+			<datasetName>/afs/cern.ch/user/a/abasalae/work/FastChainRTT/20.20.3_ReferenceProduction/standardReco_pseudoTracking_oldHits/valid1/HITS.06695914._000339.pool.root.1</datasetName>
+		    </dataset_info>
+		</chaindataset_info>
+		<queue>medium</queue>
+	      </jobTransform>
+	      <chainfileout>
+		ESD.pool.root
+	      </chainfileout>
+	      <chainfileout>
+		RDO.pool.root 
+	      </chainfileout>
+	    </chainElement>
+	    <chainElement>
+	      <jobTransform userJobId="1reg_InDetStandardPlots_21.3_vs_21.3-hmpl_G4_ttbar_prodDigireco">
+	      <doc>Regression test of the job G4_ttbar_prodDigireco in releases 21.3 vs 21.3-hmpl</doc>
+	      <jobTransformJobName>1reg_InDetStandardPlots_21.3_vs_21.3-hmpl_G4_ttbar_prodDigireco</jobTransformJobName>
+	      <jobTransformCmd>sim_reg_test_fastchain.py FastChainPileup 21.3 G4_ttbar_prodDigireco InDetStandardPlots.root FastChainPileup 21.3-hmpl G4_ttbar_prodDigireco InDetStandardPlots.root</jobTransformCmd>
+	      <group>FastChainPileup</group>
+	      <queue>medium</queue>
+		<test position="1">
+		  <modulename>RttLibraryTools</modulename>
+		  <testname>DCubeRunner</testname>
+		  <arg>
+		    <argname>DCubeCfg</argname>
+		    <argvalue>ISF_Validation_InDetStandardPlots.root.xml</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>tolerateWARN</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeRef</argname>
+		    <argvalue>yesterday.InDetStandardPlots.root</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>localRefFile</argname>
+		    <argvalue>True</argvalue>
+		  </arg>
+		  <arg>
+		    <argname>DCubeMon</argname>
+		    <argvalue>today.InDetStandardPlots.root</argvalue>
+		  </arg>
+		  <keepFilePattern>DCube-yesterday.InDetStandardPlots.root/today.InDetStandardPlots.root.dcube.xml.php</keepFilePattern>
+		</test>
+		<testToRemove>
+		    <jobGroupName>RTT:Top</jobGroupName>
+		    <testidentifier>CheckFileRunner0</testidentifier>
+		</testToRemove>		
+	      </jobTransform>
+	    </chainElement>
+	  </sequential>
 	<!-- END main job sequence -->
 	</sequential>
 	<!-- run stdReco_PseudoT_oldHits job and test -->
