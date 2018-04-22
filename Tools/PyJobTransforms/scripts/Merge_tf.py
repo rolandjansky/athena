@@ -162,6 +162,9 @@ def addMyArgs(parser):
     parser.add_argument('--eventService', type=trfArgClasses.argFactory(trfArgClasses.argBool), metavar = "BOOL",
                         help='Switch AthenaMP to the Event Service configuration', group='EVNTMerge_tf')
 
+    parser.add_argument('--fastPoolMerge', type=trfArgClasses.argFactory(trfArgClasses.argBool),
+                        help='Hybrid POOL merging switch (default True)')
+
 
 if __name__ == '__main__':
     main()
