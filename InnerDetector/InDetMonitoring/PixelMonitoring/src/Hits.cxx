@@ -670,9 +670,10 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
 
     if (m_avgocc_per_lumi_mod[i]) m_avgocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_mod[i]);
     if (m_avgocc_per_bcid_mod[i]) m_avgocc_per_bcid_mod[i]->Fill(pix_rod_bcid, avgocc_mod[i]);
-    if (m_avgocc_active_per_lumi_mod[i]) m_avgocc_active_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[i]);
 
+    if (m_avgocc_active_per_lumi_mod[i]) m_avgocc_active_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[i]);
     if (m_maxocc_per_lumi_mod[i]) m_maxocc_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), avgocc_active_mod[i]);
+
     if (m_maxocc_per_bcid_mod[i]) {
       int bin = m_maxocc_per_bcid_mod[i]->GetXaxis()->FindBin(1.0 * pix_rod_bcid);
       double content = m_maxocc_per_bcid_mod[i]->GetBinContent(bin);
@@ -813,12 +814,11 @@ StatusCode PixelMainMon::procHitsMon(void) {
 	//m_avgocc_ratio_lastXlb_mod[i]->SetEntries(lastlb);      // for testing
       }
     }
-    if (m_avgocc_ratio_lastXlb_mod[PixLayer::kIBL] && m_avgocc_ratio_lastXlb_mod[PixLayer::kB0]) {
-      for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
-	if (m_avgocc_ratio_lastXlb_mod[i]) {
-	  if (m_doIBL) m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kIBL]);
-	  else m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kB0]);
-	}
+ 
+    for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
+      if (m_avgocc_ratio_lastXlb_mod[i]) {
+	if (m_doIBL && m_avgocc_ratio_lastXlb_mod[PixLayer::kIBL]) m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kIBL]);
+	else if (m_avgocc_ratio_lastXlb_mod[PixLayer::kB0]) m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kB0]);
       }
     }
   }
