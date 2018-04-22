@@ -27,6 +27,7 @@ public:
 	void AddVolume(std::string volume);
 	void ParseFiles();
 	void ParseString(std::string);
+	bool WriteAGDDtoDBFile(std::string);
 	void PrintSections() const;
 	void BuildVolumes();
 	void BuildSections();
