@@ -296,7 +296,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DMapsLW> m_hitmap_tmp;
   TH1F_LW* m_nhits_mod[PixLayer::COUNT];
   TProfile_LW* m_hits_per_lumi_mod[PixLayer::COUNT];
-  TH1F_LW* m_nlargeevt_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_totalhits_per_bcid_mod[PixLayerIBL2D3D::COUNT];
 
   // hit occupancy
@@ -406,12 +405,9 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_clusters_col_width_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_clusters_row_width_per_bcid_mod[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_clusters_col_width_per_bcid_mod[PixLayerIBL2D3D::COUNT];
-  TProfile_LW* m_largeclusters_per_lumi;
-  TProfile_LW* m_verylargeclusters_per_lumi;
   TH1I_LW* m_totalclusters_per_lumi;
   TH1I_LW* m_totalclusters_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1I_LW* m_totalclusters_per_bcid_mod[PixLayerIBL2D3D::COUNT];
-  TH1I_LW* m_highNclusters_per_lumi;
   TH1F_LW* m_cluster_ToT1d_mod[PixLayerIBL2D3DDBM::COUNT];
   TH1F_LW* m_cluster_ToT1d_corr[PixLayerIBL2D3DDBM::COUNT];
   TH1F_LW* m_cluster_Q_mod[PixLayerIBL2D3DDBM::COUNT];

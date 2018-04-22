@@ -101,18 +101,6 @@ StatusCode PixelMainMon::bookClustersMon(void) {
   htitles = makeHisttitle("Average cluster size as a function of barrel module eta", (atext_eta + atext_cluw), false);
   sc = clusterExpert.regHist(m_clusterSize_eta = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_eta, min_eta, max_eta));
 
-  hname = makeHistname("LargeClusters_per_lumi", true);
-  htitles = makeHisttitle("Average number of large clusters (with >10 pixels) per event", (atext_LB + atext_clu), true);
-  sc = clusterShift.regHist(m_largeclusters_per_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
-
-  hname = makeHistname("VeryLargeClusters_per_lumi", true);
-  htitles = makeHisttitle("Average number of very large clusters (with >50 pixels) per event", (atext_LB + atext_clu), true);
-  sc = clusterShift.regHist(m_verylargeclusters_per_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
-
-  hname = makeHistname("HighNClusters_per_lumi", true);
-  htitles = makeHisttitle("Number of events with >1000 clusters/event", (atext_LB + atext_nevt), true);
-  sc = clusterExpert.regHist(m_highNclusters_per_lumi = TH1I_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
-
   hname = makeHistname("Clusters_per_lumi", true);
   htitles = makeHisttitle("Average number of pixel clusters per event", (atext_LB + atext_clu), true);
   sc = clusterShift.regHist(m_clusters_per_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
@@ -427,8 +415,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
 
   int nclusters = 0;
   int nclusters_mod[PixLayer::COUNT] = {0};
-  int nlargeclusters = 0;
-  int nverylargeclusters = 0;
   int nclusters_all = 0;
   int nclusters_ontrack = 0;
 
@@ -592,8 +578,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
 
       nclusters++;
       nclusters_mod[pixlayer]++;
-      if (cluster.rdoList().size() > 10) nlargeclusters++;
-      if (cluster.rdoList().size() > 50) nverylargeclusters++;
 
       if (m_doModules && m_doOnTrack) {
         if (m_pixelid->barrel_ec(clusID) == 2) m_ClusPerEventArray_disksA[m_pixelid->phi_module(clusID)][m_pixelid->layer_disk(clusID)]++;
@@ -651,10 +635,6 @@ StatusCode PixelMainMon::fillClustersMon(void) {
       m_clusters_per_track_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), (1.0 * nclusters_mod[i]) / (1.0 * m_ntracksPerEvent));
     }
   }
-
-  if (m_largeclusters_per_lumi) m_largeclusters_per_lumi->Fill(m_manager->lumiBlockNumber(), nlargeclusters);
-  if (m_verylargeclusters_per_lumi) m_verylargeclusters_per_lumi->Fill(m_manager->lumiBlockNumber(), nverylargeclusters);
-  if ((nclusters >= 1000) && m_highNclusters_per_lumi) m_highNclusters_per_lumi->Fill(m_manager->lumiBlockNumber());
   if (m_doOnTrack && m_clustersOnOffTrack_per_lumi && nclusters_all > 0) {
     m_clustersOnOffTrack_per_lumi->Fill(m_manager->lumiBlockNumber(), (float)nclusters_ontrack / nclusters_all);
   }

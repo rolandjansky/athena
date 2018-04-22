@@ -154,7 +154,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_nhits_mod, 0, sizeof(m_nhits_mod));
   memset(m_hits_per_lumi_mod, 0, sizeof(m_hits_per_lumi_mod));
   memset(m_avgocc_ratio_lastXlb_mod, 0, sizeof(m_avgocc_ratio_lastXlb_mod));
-  memset(m_nlargeevt_per_lumi_mod, 0, sizeof(m_nlargeevt_per_lumi_mod));
   memset(m_totalhits_per_bcid_mod, 0, sizeof(m_totalhits_per_bcid_mod));
 
   // hit occupancy
@@ -240,12 +239,9 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_clusters_row_width_per_lumi_mod, 0, sizeof(m_clusters_row_width_per_lumi_mod));
   memset(m_clusters_col_width_per_bcid_mod, 0, sizeof(m_clusters_col_width_per_bcid_mod));
   memset(m_clusters_row_width_per_bcid_mod, 0, sizeof(m_clusters_row_width_per_bcid_mod));
-  m_largeclusters_per_lumi = 0;
-  m_verylargeclusters_per_lumi = 0;
   m_totalclusters_per_lumi = 0;
   memset(m_totalclusters_per_lumi_mod, 0, sizeof(m_totalclusters_per_lumi_mod));
   memset(m_totalclusters_per_bcid_mod, 0, sizeof(m_totalclusters_per_bcid_mod));
-  m_highNclusters_per_lumi = 0;
   memset(m_cluster_ToT1d_mod, 0, sizeof(m_cluster_ToT1d_mod));
   memset(m_cluster_ToT1d_corr, 0, sizeof(m_cluster_ToT1d_corr));
   memset(m_cluster_Q_mod, 0, sizeof(m_cluster_Q_mod));

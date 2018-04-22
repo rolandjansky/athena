@@ -146,10 +146,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     hname = makeHistname(("ToatlHits_per_BCID_" + m_modLabel_PixLayerIBL2D3D[i]), false);
     htitles = makeHisttitle(("Total Number of hits per BCID, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_BCID + ";#hits"), false);
     sc = rdoExpert.regHist(m_totalhits_per_bcid_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_BCID, min_BCID, max_BCID));
-
-    hname = makeHistname(("nLargeEvent_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
-    htitles = makeHisttitle(("Number of large events (hitocc > 0.7#times 10^{-3}), " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_nevt), false);
-    sc = rdoShift.regHist(m_nlargeevt_per_lumi_mod[i] = TH1F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
   }
 
   for (int i = 0; i < PixLayerIBL2D3DDBM::COUNT; i++) {
@@ -683,7 +679,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       if (avgocc_mod[i] > content) m_maxocc_per_bcid_mod[i]->SetBinContent(bin, avgocc_mod[i]);
     }
     if (m_totalhits_per_bcid_mod[i]) m_totalhits_per_bcid_mod[i]->Fill(1.0 * pix_rod_bcid, nhits_mod[i]);
-    if (avgocc_mod[i] > 0.0007 && m_nlargeevt_per_lumi_mod[i]) m_nlargeevt_per_lumi_mod[i]->Fill(m_lumiBlockNum);
   }
 
   if (m_Atlas_BCID_hits) m_Atlas_BCID_hits->Fill(pix_rod_bcid, nhits);
