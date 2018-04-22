@@ -1075,7 +1075,7 @@
           		            <doc>RecoTrf</doc>
           		            <jobTransformJobName>q221_NTUP_PHYSVAL</jobTransformJobName>
           		            <jobTransformCmd>
-				      Reco_tf.py --validationFlags 'doTopoCluster,doExample,doMET,doPFlow,doTau,doEgamma,doBtag,doZee,doJet,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau,doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult' --inputAODFile myAOD.pool.root  --outputNTUP_PHYSVALFile myNTUP_PHYSVAL.root"
+				      Reco_tf.py --validationFlags 'doTopoCluster,doExample,doMET,doPFlow,doTau,doEgamma,doBtag,doZee,doJet,doMuon,doTrigMinBias,doTrigIDtrk,doTrigBphys,doTrigMET,doTrigJet,doTrigTau,doTrigEgamma,doTrigMuon,doTrigBjet,doTrigHLTResult' --inputAODFile myAOD.pool.root  --outputNTUP_PHYSVALFile myNTUP_PHYSVAL.root
           		            </jobTransformCmd>
           		            <group>TCTTransform</group>
                                     <chaindataset_info>
