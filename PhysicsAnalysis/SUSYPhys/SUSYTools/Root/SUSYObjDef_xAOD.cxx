@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -262,6 +262,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_elecEfficiencySFTool_id(""),
     m_elecEfficiencySFTool_trig_singleLep(""),
     m_elecEfficiencySFTool_iso(""),
+    m_elecEfficiencySFTool_isoHighPt(""),
     m_elecEfficiencySFTool_chf(""),
     m_elecEfficiencySFTool_trigEff_singleLep(""),
     //
@@ -506,6 +507,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_elecEfficiencySFTool_trig_singleLep.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_trig_singleLep", "The ElectronEfficiencyCorrectionTool for single-e triggers" );
   m_elecEfficiencySFTool_id.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_id", "The ElectronEfficiencyCorrectionTool for ID SFs" );
   m_elecEfficiencySFTool_iso.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_iso" , "The ElectronEfficiencyCorrectionTool for iso SFs" );
+  m_elecEfficiencySFTool_isoHighPt.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_isoHigPt" , "The ElectronEfficiencyCorrectionTool for iso high-pt SFs" );
   m_elecEfficiencySFTool_chf.declarePropertyFor( this, "ElectronEfficiencyCorrectionTool_chf" , "The ElectronEfficiencyCorrectionTool for charge-flip SFs" );
   m_elecSelLikelihood.declarePropertyFor( this, "ElectronLikelihoodTool" , "The ElectronSelLikelihoodTool for signal electrons" );
   m_elecSelLikelihoodBaseline.declarePropertyFor( this, "ElectronLikelihoodToolBaseline" , "The ElectronSelLikelihoodTool for baseline electrons" );
@@ -550,7 +552,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //
   m_isoCorrTool.declarePropertyFor( this, "IsolationCorrectionTool", "The IsolationCorrectionTool" );
   m_isoTool.declarePropertyFor( this, "IsolationSelectionTool", "The IsolationSelectionTool");
-  m_isoHighPtTool.declarePropertyFor( this, "IsolationSelectionTool", "The IsolationSelectionTool for High Pt");
+  m_isoHighPtTool.declarePropertyFor( this, "IsolationSelectionTool_HighPt", "The IsolationSelectionTool for High Pt");
   m_isoCloseByTool.declarePropertyFor( this, "IsolationCloseByCorrectionTool", "The IsolationCloseByCorrectionTool");
   //
   m_prwTool.declarePropertyFor( this, "PileupReweightingTool", "The PRW tool" );
@@ -709,7 +711,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
   // doing here some black magic to autoconfigure the pileup reweighting tool
   std::string prwConfigFile = "";
   if ( !isData() && m_autoconfigPRW ) {
-    prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/PRW_AUTOCONGIF/files/");
+    prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/PRW_AUTOCONFIG/files/");
     // ::
     float dsid = -999;
     std::string amiTag = "";
@@ -1664,6 +1666,15 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (iso) configured for systematic var. " << systConfig.name() );
     }
   }
+  if (!m_elecEfficiencySFTool_isoHighPt.empty()) {
+    CP::SystematicCode ret = m_elecEfficiencySFTool_isoHighPt->applySystematicVariation(systConfig);
+    if (ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso high-pt) for systematic var. " << systConfig.name() );
+      return ret;
+    } else {
+      ATH_MSG_VERBOSE("AsgElectronEfficiencyCorrectionTool (iso high-pt) configured for systematic var. " << systConfig.name() );
+    }
+  }
   if (!m_elecEfficiencySFTool_chf.empty()) {
     CP::SystematicCode ret = m_elecEfficiencySFTool_chf->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
@@ -1975,6 +1986,13 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
   }
   if (!m_elecEfficiencySFTool_iso.empty() ) {
     if ( m_elecEfficiencySFTool_iso->isAffectedBySystematic(sys) ) {
+      sysInfo.affectsWeights = true;
+      sysInfo.affectsType = SystObjType::Electron;
+      sysInfo.affectedWeights.insert(ST::Weights::Electron::Isolation);
+    }
+  }
+  if (!m_elecEfficiencySFTool_isoHighPt.empty() ) {
+    if ( m_elecEfficiencySFTool_isoHighPt->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
       sysInfo.affectsType = SystObjType::Electron;
       sysInfo.affectedWeights.insert(ST::Weights::Electron::Isolation);
