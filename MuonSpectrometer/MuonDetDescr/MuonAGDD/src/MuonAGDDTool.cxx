@@ -29,14 +29,14 @@ MuonAGDDTool::MuonAGDDTool(const std::string& type, const std::string& name,
 	declareProperty( "OverrideConfiguration",m_overrideConfiguration = false);
 	declareProperty( "BuildNSW",		m_buildNSW = true);
 	declareProperty( "OutputFileType",	m_outFileType = "AGDD", "Name for database table");
-
-	m_outFileName = "Out.AmdcOracle.AM." + m_outFileType + "temp.data";
-	m_outPREsqlName = "Out.AmdcOracle.AM." + m_outFileType + ".PREsql";
-
 }
 
 StatusCode MuonAGDDTool::initialize()
 {
+
+	m_outFileName = "Out.AmdcOracle.AM." + m_outFileType + "temp.data";
+	m_outPREsqlName = "Out.AmdcOracle.AM." + m_outFileType + ".PREsql";
+
 	StatusCode result;
 	result = AGDDToolBase::initialize();
 	if (result.isFailure())
@@ -81,12 +81,12 @@ StatusCode MuonAGDDTool::construct()
 		controller->BuildAll();
 		controller->Clean();
 
-		return StatusCode::SUCCESS;
+		if(!m_writeDBfile) return StatusCode::SUCCESS;
 	}
 	
 	ATH_MSG_INFO(" now reading AGDD blob ");
 	
-	std::string AGDDfile=theHelper.GetAGDD(m_dumpAGDD);
+	std::string AGDDfile=theHelper.GetAGDD(m_dumpAGDD, m_outFileType);
 #ifndef SIMULATIONBASE
 	if(m_writeDBfile) AGDDfile = p_AmdcsimrecAthenaSvc->GetAgddString();
 #endif
@@ -151,6 +151,28 @@ bool MuonAGDDTool::WritePREsqlFile() const
 {
 
 	std::ifstream outfile(m_outFileName.c_str(), std::ifstream::in | std::ifstream::binary);
+
+	std::vector<std::string> newoutfilelines;
+	std::string outfileline;
+	while( getline(outfile, outfileline) )
+		if( outfileline != "\n" && outfileline != "\r" && outfileline.size() )
+		{
+			const auto strBegin = outfileline.find_first_not_of(" \t");
+			const auto strEnd = outfileline.find_last_not_of(" \t");
+			const auto strRange = strEnd - strBegin + 1;
+			if (strBegin != std::string::npos) outfileline = outfileline.substr(strBegin, strRange);
+			newoutfilelines.push_back(outfileline);
+		}
+	outfile.close();
+
+	std::ofstream newoutfile(m_outFileName.c_str(), std::ofstream::out | std::ofstream::trunc);
+	for(auto it = newoutfilelines.begin(); it != newoutfilelines.end(); ++it)
+	{
+		if(it != newoutfilelines.begin()) newoutfile << "\n";
+		newoutfile << *it;
+	}
+	newoutfile.close();
+	outfile.open(m_outFileName.c_str(), std::ifstream::in | std::ifstream::binary);
 
 	int fileSize = 0;
 	if(outfile.is_open())
