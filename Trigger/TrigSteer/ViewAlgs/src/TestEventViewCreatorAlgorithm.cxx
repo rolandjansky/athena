@@ -35,13 +35,7 @@ StatusCode TestEventViewCreatorAlgorithm::finalize() {
 
 StatusCode TestEventViewCreatorAlgorithm::execute_r( const EventContext& context ) const
 {
-  // do we still need it?
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
   const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif
-
  
   auto outputHandles = decisionOutputs().makeHandles(context);
 
