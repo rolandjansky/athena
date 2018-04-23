@@ -83,10 +83,11 @@ Pythia8_i::~Pythia8_i() {
   delete m_atlasRndmEngine;
   
   if(m_procPtr != 0)     delete m_procPtr;
-  
-  for(Pythia8::UserHooks *ptr: m_userHooksPtrs){
-    delete ptr;
-  }
+  if(m_userHookPtr != 0) delete m_userHookPtr;
+
+  //  for(Pythia8::UserHooks *ptr: m_userHooksPtrs){
+  // delete ptr;
+  //}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -467,13 +468,13 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   size_t firstWeight = (m_doLHE3Weights)? 1: 0;
   
-  for(int iw = firstWeight; iw != m_pythia.info.nWeights(); ++iw){
+  for(int iw = firstWeight; iw != m_pythia->info.nWeights(); ++iw){
     
-    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia.info.nWeights())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
+    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia->info.nWeights())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
     
-    if(m_pythia.info.nWeights() != 1){
+    if(m_pythia->info.nWeights() != 1){
       if(m_internal_event_number == 1) m_weightIDs.push_back(wtName);
-      evt->weights()[wtName] = mergingWeight*m_pythia.info.weight(iw);
+      evt->weights()[wtName] = mergingWeight*m_pythia->info.weight(iw);
     }else{
       evt->weights().push_back(eventWeight);
     }
