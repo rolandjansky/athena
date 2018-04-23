@@ -201,7 +201,7 @@ StatusCode MM_FastDigitizer::execute() {
   SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
   ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
 
-  MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelper->detectorElement_hash_max());
+  MMPrepDataContainer* prdContainer = new MMPrepDataContainer(m_idHelper->module_hash_max());
   std::string key = "MM_Measurements";
   ATH_MSG_DEBUG(" Done! Total number of MM chambers with PRDS: " << prdContainer->numberOfCollections() << " key " << key);
   ATH_CHECK( evtStore()->record(prdContainer,key) );
@@ -211,7 +211,7 @@ StatusCode MM_FastDigitizer::execute() {
     return StatusCode::SUCCESS;
   }
   // as the MMPrepDataContainer only allows const accesss, need a local vector as well.
-  std::vector<MMPrepDataCollection*> localMMVec(m_idHelper->detectorElement_hash_max());
+  std::vector<MMPrepDataCollection*> localMMVec(m_idHelper->module_hash_max());
 
   const DataHandle< GenericMuonSimHitCollection > collGMSH;
   if ( evtStore()->retrieve( collGMSH,m_inputObjectName ).isFailure()) {
@@ -291,7 +291,7 @@ StatusCode MM_FastDigitizer::execute() {
 
     // collections stored per readout element
     IdentifierHash hash;
-    m_idHelper->get_detectorElement_hash(layid, hash);
+    m_idHelper->get_module_hash(layid, hash);
     MuonPrepDataCollection<Muon::MMPrepData>* col  = localMMVec[hash];
     if( !col ){
       col = new MMPrepDataCollection(hash);
