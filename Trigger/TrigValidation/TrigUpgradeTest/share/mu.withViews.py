@@ -65,7 +65,7 @@ from AthenaCommon import CfgMgr
 
 doL2SA=True
 doL2CB=True
-doEFSA=False
+doEFSA=True
 
 
 # ===============================================================================================
@@ -438,6 +438,13 @@ if TriggerFlags.doMuon:
 # ===============================================================================================
 
   if doEFSA:
+ ### RoRSeqFilter step2 ###
+    filterEFSAAlg = RoRSeqFilter("filterEFSAAlg")
+    filterEFSAAlg.Input = [trigmuCombHypo.Decisions]
+    filterEFSAAlg.Output = ["Filtered"+trigmuCombHypo.Decisions]
+    filterEFSAAlg.Chains = testChains
+    filterEFSAAlg.OutputLevel = DEBUG
+    
     from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
     ServiceMgr += Trk__TrackingVolumesSvc("TrackingVolumesSvc",BuildVolumesFromTagInfo = False)
 
@@ -543,7 +550,7 @@ if TriggerFlags.doMuon:
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
     muonEFSADecisionsDumper = DumpDecisions("muonEFSADecisionsDumper", OutputLevel=DEBUG, Decisions = trigMuonEFSAHypo.Decisions )
-    muonEFSAStep = seqAND("muonEFSAStep", [filterL1RoIsAlg, efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo, muonEFSADecisionsDumper])
+    muonEFSAStep = seqAND("muonEFSAStep", [filterEFSAAlg, efMuViewsMaker, efMuViewNode, trigMuonEFSAHypo, muonEFSADecisionsDumper])
 
 
 # ===============================================================================================
