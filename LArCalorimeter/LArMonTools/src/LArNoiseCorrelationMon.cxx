@@ -57,12 +57,18 @@
 #include "xAODEventInfo/EventInfo.h"
 
 //trigger dec. tool
-#include "TrigDecisionTool/TrigDecisionTool.h"
+//#include "TrigDecisionTool/TrigDecisionTool.h"
 
 //Header:
 #include "LArMonTools/LArNoiseCorrelationMon.h"
 
 #include "LArTrigStreamMatching.h"
+
+
+// BCIDs of the abort gap
+const int ABORT_GAP_START = 3446;
+const int ABORT_GAP_END   = 3563;
+
 
 /*---------------------------------------------------------*/
 LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type, 
@@ -83,7 +89,8 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
     m_PercComputed(false),
     m_Samplenbr(0),
     m_eventsCounter(0),
-    m_evtId(0)
+    m_evtId(0),
+    m_thisTrigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {	
    /**bool use to mask the bad channels*/
   declareProperty("IgnoreBadChannels", m_ignoreKnownBadChannels=false);
@@ -119,7 +126,7 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
   declareProperty("TreshSat",m_TreshSat=5);
   declareProperty("TreshNull",m_TreshNull=5);
   */
-  declareProperty("TrigDecisionTool", m_trigDecTool );
+  //  declareProperty("TrigDecisionTool", m_trigDecTool );
 }
 
 /*---------------------------------------------------------*/
@@ -219,11 +226,11 @@ LArNoiseCorrelationMon::initialize()
   /** Bool used for online*/
   m_PercComputed=false;
   
-  /** get trigger decision tool*/ 
-  if( !m_trigDecTool.empty() ) {
-     ATH_CHECK( m_trigDecTool.retrieve() );
+  /** get trigger decision tool*/ //TO BE ADJUSTED, TEMPORARY 
+    if( !m_thisTrigDecTool.empty() ) {
+      ATH_CHECK( m_thisTrigDecTool.retrieve() );
      ATH_MSG_INFO ( "  --> Found AlgTool TrigDecisionTool" );
-  }
+     }
 
 
   return ManagedMonitorToolBase::initialize();
@@ -233,15 +240,11 @@ LArNoiseCorrelationMon::initialize()
 StatusCode 
 LArNoiseCorrelationMon::bookHistograms()
 {
-  //ATH_MSG_DEBUG("in bookHists()" << isNewEventsBlock << " " << isNewLumiBlock << " " << isNewRun );
-  
-  //  if(isNewRun){// Commented by B.Trocme to comply with new ManagedMonitorToolBase
-    
     
     /** Reset event counter*/
     m_eventsCounter=0;
 
-
+    /** lar noise correlation: for now, single group with one histogram */
     MonGroup generalGroup( this, "/LAr/NoiseCorrel", run, ATTRIB_MANAGED );
     std::string  hName = "test";
     std::string hTitle = "LAr Noise Correlation test";
@@ -251,9 +254,11 @@ LArNoiseCorrelationMon::bookHistograms()
     m_corr = TH2F_LW::create(hName.c_str(), hTitle.c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
     generalGroup.regHist(m_corr).ignore();
     m_TMP_sums = TH2F_LW::create((hName+"_TMP_sum").c_str(),(hTitle+" TMP sum").c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
+    generalGroup.regHist(m_TMP_sums).ignore();
     m_av = TProfile_LW::create((hName+"_TMP_av").c_str(),(hTitle+" TMP av").c_str(),Nchan,chan_low,chan_up,"s");
-    
-    /**Book Histograms of Barrel.*/
+    generalGroup.regHist(m_av).ignore();
+
+    /**Book Histograms of Barrel. to be added (?) see LArDigit (what this was copied from) to copy the template*/
     /*    MonGroup GroupBarrelShift( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED );
     MonGroup GroupBarrelExpert( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED );
     MonGroup GroupBarrelExpertEff( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED ,"","weightedEff");
@@ -348,23 +353,6 @@ LArNoiseCorrelationMon::fillHistograms()
   
   /** Increment event counter */
   m_eventsCounter++;
-  
-  // retrieve LArNoisyROSummary and skip the event if number of FEB is greater than the one declare in JO.  VEDIAMO SE POI CI SERVE
-  /*
-  LArNoisyROSummary* noisyRO;
-  StatusCode sc = evtStore()->retrieve(noisyRO,"LArNoisyROSummary");
-  if (sc.isFailure()) 
-  {
-    ATH_MSG_WARNING( "Can't retrieve LArNoisyROSummary " );
-    return StatusCode::SUCCESS;
-  }
-  const std::vector<HWIdentifier>& noisyFEB = noisyRO->get_noisy_febs();
-  if(int(noisyFEB.size())>m_NumberBadFebs)
-  {
-    ATH_MSG_DEBUG("Skip this Noisy event ");
-    return StatusCode::SUCCESS;
-  }
-  */
 
   /**EventID is a part of EventInfo, search event informations:*/
   //  unsigned long run=0;
@@ -379,22 +367,21 @@ LArNoiseCorrelationMon::fillHistograms()
   ATH_MSG_DEBUG("Event nb " << m_evtId );
   unsigned LBN = thisEvent->lumiBlock(); //FORSE SERVE
   ATH_MSG_DEBUG("LB id: " << LBN );
-    
-  //  m_streamsThisEvent=trigStreamMatching(m_streams,thisEvent->streamTags());
   
 
   /** check trigger */
-  bool passTrig = false;
-  if ( (m_triggerChainProp != "")  && (!m_trigDecTool.empty()) ) {
-     if (m_triggerChainProp != "") passTrig = m_trigDecTool->isPassed(m_triggerChainProp);
+  bool passTrig = false; 
+  if ( (m_triggerChainProp != "")  && (!m_thisTrigDecTool.empty()) ) {
+    passTrig = m_thisTrigDecTool->isPassed(m_triggerChainProp);
+    if (m_triggerChainProp == "HLT_noalg_cosmiccalo_L1RD1_EMPTY") passTrig=(passTrig && thisEvent->bcid() >= ABORT_GAP_START && thisEvent->bcid() <= ABORT_GAP_END); //need to manually select abort gap for this trigger
   }
-     if (!passTrig) {
-       ATH_MSG_DEBUG ( " Failed trigger selection " );
-       return StatusCode::SUCCESS;
-     }
-     else {
-       ATH_MSG_DEBUG ( " Pass trigger selection " );
-     }
+  if (!passTrig) {
+    ATH_MSG_DEBUG ( " Failed trigger selection " );
+    return StatusCode::SUCCESS;
+  }
+  else {
+    ATH_MSG_DEBUG ( " Pass trigger selection " );
+  }
 
 
 
@@ -519,8 +506,6 @@ LArNoiseCorrelationMon::fillHistograms()
   for ( ; itDig!=itDig_e;++itDig) {
     pLArDigit = *itDig;
     
-    
-    
     /** Retrieve pedestals */
     HWIdentifier id = pLArDigit->hardwareID();
     CaloGain::CaloGain gain = pLArDigit->gain();
@@ -528,7 +513,7 @@ LArNoiseCorrelationMon::fillHistograms()
     //float pedestalRMS= m_larPedestal->pedestalRMS(id,gain);
     
     if(!isGoodChannel(id,pedestal))
-      continue;
+	continue;
     
     /** Determine to which partition this channel belongs to*/
     //    LArNoiseCorrelationMon::partition &ThisPartition=WhatPartition(id);
@@ -555,7 +540,6 @@ LArNoiseCorrelationMon::fillHistograms()
     m_febID = m_LArOnlineIDHelper->feb_Id(id);
     m_ch1 = m_LArOnlineIDHelper->channel(id);
 
-    
     /** if event pass the sigma cut:*/
     /*if((*maxSam-pedestal)>pedestalRMS*m_SigmaCut)
     {
@@ -578,8 +562,10 @@ LArNoiseCorrelationMon::fillHistograms()
 
 
     /** check if this is the FEB we want DA AGGIUSTARE*/
-    if(!(m_LArOnlineIDHelper->isEMBchannel(id) && m_LArOnlineIDHelper->pos_neg(id)==1 && m_feedthrough==9 && m_slot==1))
-      continue;
+    //    ATH_MSG_INFO( Form(":) %d && %d && %d && %d",m_LArOnlineIDHelper->isEMBchannel(id),m_LArOnlineIDHelper->pos_neg(id),m_feedthrough,m_slot) );
+    if(!(m_LArOnlineIDHelper->isEMBchannel(id) && m_LArOnlineIDHelper->pos_neg(id)==1 && m_feedthrough==9 && m_slot==2))
+	continue;
+    //    ATH_MSG_INFO( Form(":) first channel: %d",m_ch1) );
 
     /** HERE GOES THE SECOND LOOP */
     bool av_set=false;
@@ -589,7 +575,7 @@ LArNoiseCorrelationMon::fillHistograms()
 	HWIdentifier id2 = pLArDigit2->hardwareID();
 	if(m_LArOnlineIDHelper->feb_Id(id2)!=m_febID)
 	  continue;
-
+	//	ATH_MSG_INFO( ":) second digi loop: right FEB" );
 	/** get the pedestal */
 	CaloGain::CaloGain gain2 = pLArDigit2->gain();
 	float pedestal2 = m_larPedestal->pedestal(id2,gain2);
@@ -599,6 +585,7 @@ LArNoiseCorrelationMon::fillHistograms()
 
 	/** get the channel number */
 	m_ch2 = m_LArOnlineIDHelper->channel(id2);
+	//	ATH_MSG_INFO( Form(":) second channe: %d",m_ch2) );
 
 	/** get the samples */
 	const std::vector<short>* digito2 = &pLArDigit2->samples();
@@ -609,7 +596,7 @@ LArNoiseCorrelationMon::fillHistograms()
 	int Nsam=pLArDigit->nsamples();
 	if(pLArDigit2->nsamples()!=Nsam)
 	  {
-	    ATH_MSG_INFO( "Different number of samples, skipping these two" );
+	    ATH_MSG_INFO( Form(":)b Different number of samples: %d vs %d skipping these two",Nsam,pLArDigit2->nsamples()) );
 	    continue; //ATTENZIONE A QUESTO COSO
 	  }
 	/** Loop over the samples and compute what we need:*/
@@ -623,8 +610,9 @@ LArNoiseCorrelationMon::fillHistograms()
 	    part_sum+=((*iterSam-pedestal)*(*iterSam2-pedestal2));
 	  }
 	av_set=true; /** now the average is set and I won't do this again in next ch2 loop*/
-	m_TMP_sums->Fill(m_ch1,m_ch2,part_sum); //ATTENZIONE QUANDO LO LEGGI A NON BECCARE TUTTI GLI ZERI
-
+	m_TMP_sums->Fill(m_ch1,m_ch2,part_sum);
+	m_TMP_sums->Fill(m_ch2,m_ch1,part_sum);
+	//	std::cout << Form(":) Filled h_%d,%d: %f",m_ch1,m_ch2,part_sum) << std::endl;
       }/** End of second loop on LArDigit*/
 
     
@@ -635,21 +623,35 @@ LArNoiseCorrelationMon::fillHistograms()
   if(endOfLumiBlockFlag() || endOfEventsBlockFlag())
     {
       double mean1,mean2;
-      double sigma1,sigma2;
+      double sigma1,sigma2,sigma1ii,sigma2ii;
+      double sumVar1,sumVar2;
       double N;
       double cor;
       for(int i=1;i<=Nchan;i++)
 	{
 	  mean1=m_av->GetBinContent(i);
-	  sigma1=m_av->GetBinError(i);
+	  sigma1ii=m_av->GetBinError(i);
+	  sigma1=TMath::Sqrt(m_TMP_sums->GetBinContent(i,i)/(N));
+	  sumVar1=m_TMP_sums->GetBinContent(i,i);
 	  N=m_av->GetBinEntries(i);
+	  if(N==0) 
+	    {
+	      std::cout << "Bin " << i << " has N=0" << std::endl;
+	      continue;
+	    }
 	  for(int j=i+1;j<=Nchan;j++)
 	    {
+	      std::cout << "looking at bin: " << i << "-" << j << std::endl;
 	      if(m_av->GetBinEntries(j)!=N)
-		ATH_MSG_INFO( "HEY! different number of entries here!" );
+		std::cout << "HEY! different number of entries here! bin " << i << ": " << N << " vs bin " << j << ": " << m_av->GetBinEntries(j) << std::endl;
+		//		ATH_MSG_INFO( Form("HEY! different number of entries here! bin %d: %d vs bin %d: %f",i,N,j,m_av->GetBinEntries(j)) );
 	      mean2=m_av->GetBinContent(j);
-	      sigma2=m_av->GetBinError(j);
-	      cor=(m_TMP_sums->GetBinContent(i,j)-N*mean1*mean2)/(N*sigma1*sigma2);
+	      sigma2ii=m_av->GetBinError(j);
+	      sigma2=TMath::Sqrt(m_TMP_sums->GetBinContent(j,j)/(N));
+	      sumVar2=m_TMP_sums->GetBinContent(j,j);
+	      if((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2)==0) continue;
+	      cor=(m_TMP_sums->GetBinContent(i,j)-N*mean1*mean2)/TMath::Sqrt((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2));
+	      //	      std::cout << Form(":) corr=%f TMP_sum(%d,%d)=%f, -Nm1m2=%f, sumVar1=%f, Nmean1mean1=%f, sumVar2=%f, Nmean2mean2=%f",cor,i,j,(m_TMP_sums->GetBinContent(i,j)),-1*N*mean1*mean2,sumVar1,N*mean1*mean1,sumVar2,N*mean2*mean2) << std::endl;
 	      m_corr->SetBinContent(i,j,cor);
 	      m_corr->SetBinContent(j,i,cor);
 	    }

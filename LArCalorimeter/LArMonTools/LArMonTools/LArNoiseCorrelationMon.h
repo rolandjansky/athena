@@ -24,6 +24,8 @@
 //STL:
 #include <string>
 
+//trigger decision tool
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 class LArOnlineID;
 class HWIdentifier;
@@ -31,7 +33,7 @@ class LArOnlineIDStrHelper;
 class LArCablingService;
 class TProfile2D_LW;
 class TProfile_LW;
-class TrigDecisionTool;
+//class TrigDecisionTool;
 
 class LWHist1D;
 class TH1F_LW;
@@ -79,7 +81,7 @@ protected:
   const DataHandle<ILArPedestal>  m_larPedestal;
   
   /** TriggerDecTool handle */
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecTool;
+  ToolHandle<Trig::TrigDecisionTool> m_thisTrigDecTool;
   
 private:
   
