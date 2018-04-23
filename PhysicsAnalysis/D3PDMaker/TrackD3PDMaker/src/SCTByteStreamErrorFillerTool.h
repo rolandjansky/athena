@@ -7,7 +7,7 @@
  
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"

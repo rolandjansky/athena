@@ -21,9 +21,9 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TimeSvc.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include<fstream>
 #include<sstream>

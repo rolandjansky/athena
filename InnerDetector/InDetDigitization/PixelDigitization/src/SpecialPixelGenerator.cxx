@@ -17,9 +17,9 @@
 #include "SiDigitization/SiHelper.h"
 #include "PixelConditionsServices/ISpecialPixelMapSvc.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetSimEvent/SiCharge.h"
 
 #include "CLHEP/Random/RandomEngine.h"

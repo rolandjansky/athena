@@ -54,7 +54,7 @@
 #include "SiDigitization/ISiChargedDiodesProcessorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "PixelConditionsServices/ISpecialPixelMapSvc.h"
 
 class PixelID;

@@ -29,7 +29,7 @@
 //#include "TrkEventPrimitives/ErrorMatrix.h"
 //#include "TrkEventPrimitives/CovarianceMatrix.h"
 //#include "TrkParameters/MeasuredTrackParameters.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 //#include "TrkParameters/MeasuredAtaStraightLine.h"
 

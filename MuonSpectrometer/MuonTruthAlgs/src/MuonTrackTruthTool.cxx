@@ -53,7 +53,7 @@ namespace Muon {
     declareProperty("MinHits",                    m_minHits = 4 );
     declareProperty("MatchAllParticles",          m_matchAllParticles = true );
     declareProperty("ConsideredPDGs",             m_pdgsToBeConsidered );
-    m_simDataMapNames = { "MDT_SDO", "RPC_SDO", "TGC_SDO", "STGC_SDO", "MM_SDO" };
+    m_simDataMapNames = { "MDT_SDO", "RPC_SDO", "TGC_SDO", "sTGC_SDO", "MM_SDO" };
   }
 
 

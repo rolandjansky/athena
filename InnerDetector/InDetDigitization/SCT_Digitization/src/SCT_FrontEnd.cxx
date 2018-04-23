@@ -16,8 +16,8 @@
                                                               // Cond DB data
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 // C++ Standard Library
 #include <algorithm>

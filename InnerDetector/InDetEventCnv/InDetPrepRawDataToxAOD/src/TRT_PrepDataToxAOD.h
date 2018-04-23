@@ -18,7 +18,7 @@
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include <string>
 

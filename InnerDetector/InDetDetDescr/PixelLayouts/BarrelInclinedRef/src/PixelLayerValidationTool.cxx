@@ -1,7 +1,7 @@
 #include "BarrelInclinedRef/PixelLayerValidationTool.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetGeoModelUtils/InDetMaterialManager.h" 
 #include "InDetTrackingGeometryXML/XMLReaderSvc.h"

@@ -26,7 +26,7 @@
 
 // Base class
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include <string>
 
 

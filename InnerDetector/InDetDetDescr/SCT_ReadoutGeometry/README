@@ -1,0 +1,9 @@
+Package:      offline/InnerDetector/InDetDetDescr/SCT_ReadoutGeometry  
+
+Responsible:  Grant Gorfine <Grant.Gorfine@nikhef.nl>
+
+Description:  Detector description managers and readout elements for SCT. 
+
+Dependencies: Identifier, InDetIdentifier, GeoModelKernel, IdDictDetDescr, StoreGate
+
+Last modified: October 1, 2003 by Grant Gorfine

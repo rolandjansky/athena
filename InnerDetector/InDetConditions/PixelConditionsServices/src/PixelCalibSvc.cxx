@@ -21,7 +21,7 @@
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "InDetIdentifier/PixelID.h"
 //#include "PixelCabling/IPixelCablingSvc.h"

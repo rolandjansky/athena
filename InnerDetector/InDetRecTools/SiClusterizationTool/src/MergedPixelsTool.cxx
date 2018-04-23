@@ -20,7 +20,7 @@
 #include "GaudiKernel/Incident.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetRawData/InDetRawDataCollection.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetPrepRawData/PixelClusterParts.h"
 #include "InDetPrepRawData/PixelCluster.h"

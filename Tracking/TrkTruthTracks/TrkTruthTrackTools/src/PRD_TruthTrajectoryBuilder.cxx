@@ -75,6 +75,7 @@ StatusCode Trk::PRD_TruthTrajectoryBuilder::refreshEvent()  {
 
    ATH_MSG_VERBOSE("Calling refreshEvent() to reset cache and retrieve collections");
    // clear the cache & reserve
+   m_prdTruthTrajectories.clear();
    m_gpPrdTruthTrajectories.clear();
    m_prdMultiTruthCollections.clear();
    m_prdMultiTruthCollections.reserve(m_prdMultiTruthCollectionNames.size());
@@ -105,11 +106,12 @@ StatusCode Trk::PRD_TruthTrajectoryBuilder::refreshEvent()  {
    
 }
 
-const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& Trk::PRD_TruthTrajectoryBuilder::truthTrajectories() const {
+const std::vector< Trk::PRD_TruthTrajectory >& Trk::PRD_TruthTrajectoryBuilder::truthTrajectories() const {
     // ndof
     size_t ndofTotal = 0;
     size_t ndof      = 0;
     // PART 1 --------------------------------------------------------------------------------------------------------
+    std::vector<const HepMC::GenParticle*> vecGP; //vector storing the initial order of GenParticles
     // loop over the PRD_MultiTruthCollection, search for the PRD and create (if necessary and entry in the return map)
     std::vector<const PRD_MultiTruthCollection*>::const_iterator pmtCollIter  = m_prdMultiTruthCollections.begin();
     std::vector<const PRD_MultiTruthCollection*>::const_iterator pmtCollIterE = m_prdMultiTruthCollections.end();
@@ -141,6 +143,7 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& Trk::PRD_
                     newPrdTruthTrajectory.genParticle = curGenP;
                     // fill into map
                     m_gpPrdTruthTrajectories[curGenP] = newPrdTruthTrajectory;
+                    if (std::find(vecGP.begin(),vecGP.end(),curGenP)==vecGP.end()) vecGP.push_back(curGenP);
                     ndofTotal = ndof;
                 } else {
                     // this PRD_TruthTrajectory already exists
@@ -153,23 +156,31 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& Trk::PRD_
             }
         }        
     }
+
+    //Create the output vector of Trk::PRD_TruthTrajectory ordered like the input GenParticles
+    for (auto gp : vecGP) {
+        std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >::iterator prdTrajIter = m_gpPrdTruthTrajectories.find(gp);
+        if ( prdTrajIter !=  m_gpPrdTruthTrajectories.end() )
+                m_prdTruthTrajectories.push_back(prdTrajIter->second);
+    }
+
     // PART 2 --------------------------------------------------------------------------------------------------------
     // loop through the provided list of manipulators ( sorter is included )
-    std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >::iterator prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
-    std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >::iterator prdTruthTrajIterE = m_gpPrdTruthTrajectories.end();
+    std::vector< PRD_TruthTrajectory >::iterator prdTruthTrajIter  = m_prdTruthTrajectories.begin();
+    std::vector< PRD_TruthTrajectory >::iterator prdTruthTrajIterE = m_prdTruthTrajectories.end();
     for ( ; prdTruthTrajIter != prdTruthTrajIterE; ++prdTruthTrajIter ){
     //std::cout << "sorting, barcode: " << prdTruthTrajIter->first->barcode() << std::endl;
         if ( m_prdTruthTrajectoryManipulators.size() ){
             ToolHandleArray<IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIter  = m_prdTruthTrajectoryManipulators.begin();
             ToolHandleArray<IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIterE = m_prdTruthTrajectoryManipulators.end();
             for ( ; prdTTMIter != prdTTMIterE; ++prdTTMIter ){
-                if ((*prdTTMIter)->manipulateTruthTrajectory((*prdTruthTrajIter).second))
+                if ((*prdTTMIter)->manipulateTruthTrajectory(*prdTruthTrajIter))
                     ATH_MSG_VERBOSE("PRD truth trajectory got manipulated by: " << (*prdTTMIter).name() );
             }
         }
     }
     // return the truth trajectories and leave it to the TruthTrack creation to proceed further
-    return m_gpPrdTruthTrajectories;
+    return m_prdTruthTrajectories;
 }
                                     
 StatusCode  Trk::PRD_TruthTrajectoryBuilder::finalize()

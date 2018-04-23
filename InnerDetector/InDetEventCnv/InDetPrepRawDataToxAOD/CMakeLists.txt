@@ -16,7 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/InDetCondServices
                           InnerDetector/InDetConditions/TRT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRawEvent/InDetRawData
                           InnerDetector/InDetRawEvent/InDetSimData
                           InnerDetector/InDetRecEvent/InDetPrepRawData
@@ -35,7 +36,7 @@ atlas_add_component( InDetPrepRawDataToxAOD
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AthenaBaseComps Identifier xAODTracking TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry InDetRawData InDetSimData InDetPrepRawData InDetSimEvent TrkSurfaces TrkTruthData )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel AthenaBaseComps Identifier xAODTracking TRT_ConditionsServicesLib InDetIdentifier TRT_ReadoutGeometry PixelReadoutGeometry InDetRawData InDetSimData InDetPrepRawData InDetSimEvent TrkSurfaces TrkTruthData )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

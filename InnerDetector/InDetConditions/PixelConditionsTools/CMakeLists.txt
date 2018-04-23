@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetConditions/PixelCoralClientUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Simulation/Tools/AtlasCLHEP_RandomGenerators
                           TestPolicy
@@ -37,7 +38,7 @@ atlas_add_component( PixelConditionsTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel AthenaBaseComps SGTools AthenaPoolUtilities DetDescrConditions Identifier PixelConditionsData PixelCoralClientUtils InDetIdentifier GeoModelUtilities InDetReadoutGeometry AtlasCLHEP_RandomGenerators PathResolver )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives GaudiKernel AthenaBaseComps SGTools AthenaPoolUtilities DetDescrConditions Identifier PixelConditionsData PixelCoralClientUtils InDetIdentifier GeoModelUtilities InDetReadoutGeometry PixelReadoutGeometry AtlasCLHEP_RandomGenerators PathResolver )
 
 # Install files from the package:
 atlas_install_headers( PixelConditionsTools )

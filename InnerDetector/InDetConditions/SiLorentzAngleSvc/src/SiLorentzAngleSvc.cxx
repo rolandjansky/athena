@@ -10,7 +10,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "StoreGate/StoreGate.h"
 #include "GaudiKernel/SystemOfUnits.h"

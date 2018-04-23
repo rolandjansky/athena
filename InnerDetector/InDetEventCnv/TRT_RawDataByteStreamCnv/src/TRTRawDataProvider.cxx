@@ -3,7 +3,7 @@
 */
 
 #include "TRTRawDataProvider.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"  
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"  
 
 // --------------------------------------------------------------------
 // Constructor

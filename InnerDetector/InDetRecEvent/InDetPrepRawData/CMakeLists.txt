@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           Event/EventPrimitives
                           GaudiKernel
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -28,12 +29,12 @@ atlas_add_library( InDetPrepRawData
                    PUBLIC_HEADERS InDetPrepRawData
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks SGTools GeoPrimitives Identifier EventPrimitives GaudiKernel InDetReadoutGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks SGTools GeoPrimitives Identifier EventPrimitives GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( InDetPrepRawDataDict
                       InDetPrepRawData/InDetPrepRawDataDict.h
                       InDetPrepRawData/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks SGTools GeoPrimitives Identifier EventPrimitives GaudiKernel InDetReadoutGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData InDetPrepRawData )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthLinks SGTools GeoPrimitives Identifier EventPrimitives GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry TrkSurfaces TrkEventPrimitives TrkPrepRawData InDetPrepRawData )
 

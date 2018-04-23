@@ -24,8 +24,8 @@
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "InDetAlignGenTools/InDetAlignFillSiCluster.h"
 

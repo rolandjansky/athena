@@ -20,7 +20,7 @@
 // InDetReadoutGeometry
 #include "InDetReadoutGeometry/SiCommonItems.h" 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "PixelGeoModel/PixelGeoModelAthenaComps.h"
 #include "PixelGeoModel/OraclePixGeoManager.h"

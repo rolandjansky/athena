@@ -5,7 +5,7 @@
 #include "SCT_DistortionsTool.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "PathResolver/PathResolver.h"

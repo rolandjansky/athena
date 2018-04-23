@@ -7,7 +7,7 @@
 #include "SCT_SLHC_GeoModel/SCT_GeometryManager.h" 
 #include "SCT_SLHC_GeoModel/SCT_Options.h" 
 #include "SCT_SLHC_GeoModel/SCT_GeoModelAthenaComps.h" 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"

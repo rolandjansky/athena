@@ -87,7 +87,7 @@ namespace Muon {
     declareProperty("BuildCompRots",              m_buildCompRots = true);
     declareProperty("MDT_SDO_Container",          m_MDT_SimDataMapName = "MDT_SDO" );
     declareProperty("MM_SDO_Container",           m_MM_SimDataMapName  = "MM_SDO" );
-    declareProperty("STGC_SDO_Container",         m_STGC_SimDataMapName = "STGC_SDO" );
+    declareProperty("sTGC_SDO_Container",         m_STGC_SimDataMapName = "sTGC_SDO" );
     declareProperty("CSC_SDO_Container",          m_CSC_SimDataMapName = "CSC_SDO" );
     declareProperty("RPC_SDO_Container",          m_RPC_SimDataMapName = "RPC_SDO" );
     declareProperty("TGC_SDO_Container",          m_TGC_SimDataMapName = "TGC_SDO" );  

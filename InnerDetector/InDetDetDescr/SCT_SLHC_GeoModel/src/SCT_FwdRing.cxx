@@ -8,7 +8,7 @@
 #include "SCT_SLHC_GeoModel/SCT_ForwardParameters.h"
 #include "SCT_SLHC_GeoModel/SCT_FwdModule.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoBox.h"

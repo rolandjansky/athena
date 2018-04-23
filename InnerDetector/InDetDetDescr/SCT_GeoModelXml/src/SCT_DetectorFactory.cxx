@@ -17,9 +17,9 @@
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "InDetReadoutGeometry/SiCommonItems.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/Version.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"

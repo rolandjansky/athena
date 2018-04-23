@@ -119,13 +119,13 @@ StatusCode Trk::TruthTrackCreation::execute()
 
     // ----------------------------------- main loop ------------------------------------------------------------------
     // get the PRD truth trajectories
-    const std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >& truthTraj =
+    const std::vector< PRD_TruthTrajectory >& truthTraj =
         m_prdTruthTrajectoryBuilder->truthTrajectories();
     // some screen output
     ATH_MSG_VERBOSE("PRD_TruthTrajectoryBuilder delivered " << truthTraj.size() << " PRD truth trajectories, starting track creation.");
     // loop over truth trajectories and create track
-    std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >::const_iterator ttIter  = truthTraj.begin();
-    std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >::const_iterator ttIterE = truthTraj.end();
+    std::vector< PRD_TruthTrajectory >::const_iterator ttIter  = truthTraj.begin();
+    std::vector< PRD_TruthTrajectory >::const_iterator ttIterE = truthTraj.end();
     for ( ; ttIter != ttIterE; ++ttIter){
         // run through the selector chain
         if (m_prdTruthTrajectorySelectors.size()){
@@ -133,7 +133,7 @@ StatusCode Trk::TruthTrackCreation::execute()
             ToolHandleArray<Trk::IPRD_TruthTrajectorySelector>::const_iterator prdTTSelIterE = m_prdTruthTrajectorySelectors.end();
             bool passed = true;
             for ( ; prdTTSelIter != prdTTSelIterE && passed; ++prdTTSelIter ){
-                if (!(*prdTTSelIter)->pass((*ttIter).second)){
+                if (!(*prdTTSelIter)->pass(*ttIter)){
                     ATH_MSG_VERBOSE("PRD truth trajectory did not pass the selection cuts. Skipping ... ");
                     passed = false;
                 }
@@ -142,12 +142,12 @@ StatusCode Trk::TruthTrackCreation::execute()
             if (!passed) continue;
         }
         // create the truth track
-        Trk::Track* truthTrack = m_truthTrackBuilder->createTrack(ttIter->second,outputSegmentCollection);
+        Trk::Track* truthTrack = m_truthTrackBuilder->createTrack(*ttIter,outputSegmentCollection);
         if (!truthTrack){
-            ATH_MSG_VERBOSE("Track creation for PRD truth trajectory with size " << (*ttIter).second.prds.size() << " failed. Skipping ...");
+            ATH_MSG_VERBOSE("Track creation for PRD truth trajectory with size " << (*ttIter).prds.size() << " failed. Skipping ...");
             continue;
         } 
-        ATH_MSG_VERBOSE("Track creation for PRD truth trajectory with size " << (*ttIter).second.prds.size() << " successful.");
+        ATH_MSG_VERBOSE("Track creation for PRD truth trajectory with size " << (*ttIter).prds.size() << " successful.");
         // If configured : update the track summary
         if (!m_trackSummaryTool.empty()){
             ATH_MSG_VERBOSE("Updating the TrackSummary.");

@@ -20,7 +20,7 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "Identifier/Identifier.h"
 #include "InDetGeoModelUtils/ExtraMaterial.h"
 #include "InDetIdentifier/PixelID.h"

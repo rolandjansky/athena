@@ -34,7 +34,7 @@
 #include "PileUpTools/PileUpMergeSvc.h"
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 // Fatras
 #include "InDetPrepRawData/PixelCluster.h"

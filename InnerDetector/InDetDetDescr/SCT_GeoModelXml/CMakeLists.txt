@@ -13,6 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
 			  DetectorDescription/GeoModel/GeoModelUtilities
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           PRIVATE
                           Control/CLIDSvc
@@ -38,13 +40,13 @@ atlas_add_library( SCT_GeoModelXmlLib
                    PUBLIC_HEADERS SCT_GeoModelXml
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry StoreGateLib SGtests
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry SCT_ReadoutGeometry StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES SGTools AthenaPoolUtilities DetDescrConditions Identifier InDetCondServices InDetIdentifier PathResolver)
 
 atlas_add_component( SCT_GeoModelXml
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SGTools StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions Identifier InDetCondServices InDetIdentifier SCT_GeoModelXmlLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry SCT_ReadoutGeometry SGTools StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions Identifier InDetCondServices InDetIdentifier SCT_GeoModelXmlLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

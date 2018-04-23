@@ -7,7 +7,7 @@
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircle_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleContainerCnv_p1.h"
 #include "AthenaKernel/errorcheck.h"

@@ -11,7 +11,7 @@
 #include "SCT_GeoModel/SCT_Options.h" 
 #include "SCT_GeoModel/SCT_GeoModelAthenaComps.h" 
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "InDetCondServices/ISiLorentzAngleSvc.h"
 

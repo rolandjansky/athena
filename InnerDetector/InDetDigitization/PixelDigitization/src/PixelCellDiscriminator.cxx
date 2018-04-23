@@ -12,7 +12,7 @@
 #include "PixelCellDiscriminator.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "SiDigitization/SiHelper.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "TimeSvc.h"
 // random number service

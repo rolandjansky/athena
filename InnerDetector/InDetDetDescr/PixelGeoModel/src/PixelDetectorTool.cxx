@@ -10,7 +10,7 @@
 #include "PixelGeoModel/PixelGeometryManager.h" 
 #include "PixelGeoModel/PixelSwitches.h" 
 #include "PixelGeoModel/IBLParameterSvc.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h" 
+#include "PixelReadoutGeometry/PixelDetectorManager.h" 
 #include "PixelGeoModel/PixelDetectorFactoryFastGeo.h" 
 #include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"

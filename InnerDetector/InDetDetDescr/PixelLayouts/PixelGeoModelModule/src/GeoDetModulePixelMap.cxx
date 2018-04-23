@@ -9,7 +9,7 @@
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "GeoModelKernel/GeoBox.h"

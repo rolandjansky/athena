@@ -21,6 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IdDictDetDescr
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Reconstruction/Particle
                           Tracking/TrkDetDescr/TrkGeometry
@@ -42,10 +43,10 @@ atlas_add_library( InDetTestBLayerLib
                    PUBLIC_HEADERS InDetTestBLayer
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces
-                   PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry Particle TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack TrkExInterfaces )
+                   PRIVATE_LINK_LIBRARIES AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry Particle TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack TrkExInterfaces )
 
 atlas_add_component( InDetTestBLayer
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry Particle TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack TrkExInterfaces InDetTestBLayerLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel InDetRecToolInterfaces TrkEventPrimitives TrkParameters TrkToolInterfaces AtlasDetDescr IdDictDetDescr InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry Particle TrkGeometry TrkSurfaces TrkMeasurementBase TrkTrack TrkExInterfaces InDetTestBLayerLib )
 

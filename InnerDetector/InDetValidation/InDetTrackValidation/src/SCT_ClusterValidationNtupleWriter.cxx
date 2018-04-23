@@ -15,7 +15,7 @@
 //#include "TrkEventPrimitives/GlobalPosition.h"
 //#include "TrkEventPrimitives/LocalPosition.h"
 //#include "TrkEventPrimitives/ErrorMatrix.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetIdentifier/SCT_ID.h"
 //#include "InDetTrackValidation/SCT_ClusterStruct.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"

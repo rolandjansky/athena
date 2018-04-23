@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoModel/GeoModelKernel
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/PixelGeoModel
                           InnerDetector/InDetDetDescr/PixelLayouts/PixelGeoComponent
@@ -28,6 +29,6 @@ atlas_add_library( PixelGeoModelModule
                    INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS}
                    LINK_LIBRARIES ${XERCESC_LIBRARIES} 
 		   GeoModelKernel InDetGeoModelUtils InDetIdentifier 
-		   InDetReadoutGeometry PathResolver PixelGeoComponent
+		   InDetReadoutGeometry PixelReadoutGeometry PathResolver PixelGeoComponent
 		   PRIVATE_LINK_LIBRARIES Identifier PixelLayoutUtils )
 

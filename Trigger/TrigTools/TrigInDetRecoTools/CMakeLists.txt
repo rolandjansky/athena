@@ -26,6 +26,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           InnerDetector/InDetConditions/InDetBeamSpotService
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkDetDescr/TrkSurfaces
@@ -44,7 +46,7 @@ atlas_add_component( TrigInDetRecoTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel InDetPrepRawData SiSpacePoint InDetRecToolInterfaces TrkSpacePoint TrkTrack TrigInDetEvent TrigInDetPattRecoEvent TrigSteeringEvent AthenaKernel GeoPrimitives IRegionSelector ByteStreamCnvSvcBaseLib EventInfo InDetIdentifier InDetReadoutGeometry InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkSegment TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel InDetPrepRawData SiSpacePoint InDetRecToolInterfaces TrkSpacePoint TrkTrack TrigInDetEvent TrigInDetPattRecoEvent TrigSteeringEvent AthenaKernel GeoPrimitives IRegionSelector ByteStreamCnvSvcBaseLib EventInfo InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetRIO_OnTrack TrkSurfaces TrkEventPrimitives TrkParameters TrkRIO_OnTrack TrkSegment TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigInDetRecoTools )

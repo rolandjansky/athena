@@ -10,7 +10,7 @@
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/TRT_ID.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p2.h"
 #include "InDetEventTPCnv/TRT_DriftCircleContainerCnv_p2.h"
 #include "DataModel/DataPool.h"

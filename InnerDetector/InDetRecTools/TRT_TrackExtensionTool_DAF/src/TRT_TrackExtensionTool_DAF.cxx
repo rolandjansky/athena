@@ -32,9 +32,9 @@
 
 #include "TRT_TrackExtensionTool_DAF/TRT_TrackExtensionTool_DAF.h"
 
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "InDetIdentifier/TRT_ID.h"
-//#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+//#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 //#include "TrkPrepRawData/PrepRawData.h"
 

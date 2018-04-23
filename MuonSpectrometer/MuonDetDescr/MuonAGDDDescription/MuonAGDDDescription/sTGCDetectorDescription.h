@@ -18,6 +18,8 @@ using MuonGM::sTGC_Technology;
 struct sTGCReadoutParameters {
     double sPadWidth;
     double lPadWidth;
+    double sStripWidth;
+    double lStripWidth;
     std::vector<double> padH;
     std::vector<int> nPadPhi;
     double anglePadPhi;
@@ -58,6 +60,8 @@ public:
 		y(v[2]);
 		z(v[3]);
 		_yCutout=v[4];
+		_stripPitch=v[5];
+		_wirePitch=v[6];
 	}
 	
 	double sWidth() {return small_x();}
@@ -67,6 +71,12 @@ public:
 
 	void yCutout(double y) {_yCutout=y;}
 	double yCutout() {return _yCutout;}
+	
+	void stripPitch(double y) {_stripPitch=y;}
+	double stripPitch() {return _stripPitch;}
+	
+	void wirePitch(double y) {_wirePitch=y;}
+	double wirePitch() {return _wirePitch;}
 	
 	void xFrame(double y) {_xFrame=y;}
 	double xFrame() {return _xFrame;}
@@ -88,6 +98,8 @@ public:
 protected:
 
 	double _yCutout;
+	double _stripPitch;
+	double _wirePitch;
 	
 	double _xFrame;
 	double _ysFrame;

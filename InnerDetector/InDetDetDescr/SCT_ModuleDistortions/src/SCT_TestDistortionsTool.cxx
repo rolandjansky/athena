@@ -9,7 +9,7 @@
 
 //Athena
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 //Package
 #include "SCT_TestDistortionsTool.h"

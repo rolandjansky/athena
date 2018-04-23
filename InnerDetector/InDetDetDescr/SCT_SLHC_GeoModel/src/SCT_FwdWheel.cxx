@@ -10,7 +10,7 @@
 #include "SCT_SLHC_GeoModel/SCT_FwdRing.h"
 #include "SCT_SLHC_GeoModel/SCT_FwdDiscSupport.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"

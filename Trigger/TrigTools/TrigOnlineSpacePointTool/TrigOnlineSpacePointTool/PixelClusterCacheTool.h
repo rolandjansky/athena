@@ -8,7 +8,7 @@
 #include "ByteStreamData/RawEvent.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "PixelCabling/IPixelCablingSvc.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "TrigOnlineSpacePointTool/FastPixelClusterization.h"
 #include "TrigOnlineSpacePointTool/IPixelClusterCacheTool.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"

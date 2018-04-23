@@ -5,7 +5,7 @@
 #include "SCT_GeoModelXml/SCT_GMX_DetectorTool.h"
 #include "SCT_GeoModelXml/SCT_DetectorFactory.h"
 #include "SCT_GeoModelXml/SCT_Options.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
 #include "InDetReadoutGeometry/SiCommonItems.h"
 #include "InDetCondServices/ISiLorentzAngleSvc.h"

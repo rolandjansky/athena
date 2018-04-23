@@ -12,6 +12,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/Identifier
                           GaudiKernel
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Tracking/TrkEvent/TrkEventPrimitives
@@ -45,7 +47,7 @@ atlas_add_component( InDetTrigTrackResidualMonitor
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps DataModel AtlasDetDescr Identifier GaudiKernel InDetReadoutGeometry InDetPrepRawData TrkEventPrimitives TrkParameters TrkTrack TrkValEvent TrigSteeringEvent TrigInterfacesLib IdDictDetDescr InDetIdentifier MagFieldInterfaces TrkGeometry TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack TrkTrackSummary TrkExInterfaces TrkToolInterfaces TrigParticle )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps DataModel AtlasDetDescr Identifier GaudiKernel InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData TrkEventPrimitives TrkParameters TrkTrack TrkValEvent TrigSteeringEvent TrigInterfacesLib IdDictDetDescr InDetIdentifier MagFieldInterfaces TrkGeometry TrkSurfaces TrkMaterialOnTrack TrkMeasurementBase TrkRIO_OnTrack TrkTrackSummary TrkExInterfaces TrkToolInterfaces TrigParticle )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigTrackResidualMonitor )

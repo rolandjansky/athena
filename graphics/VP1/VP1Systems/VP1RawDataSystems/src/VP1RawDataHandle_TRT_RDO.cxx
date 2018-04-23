@@ -23,8 +23,8 @@
 #include <Inventor/nodes/SoGroup.h>
 #include <Inventor/nodes/SoMaterial.h>
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_BaseElement.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetRawData/TRT_LoLumRawData.h"
 

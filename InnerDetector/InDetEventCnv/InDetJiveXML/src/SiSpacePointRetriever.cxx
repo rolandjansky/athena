@@ -9,8 +9,8 @@
 #include "DataModel/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "TrkSpacePoint/SpacePoint.h"
 #include "TrkSpacePoint/SpacePointCollection.h"
 #include "TrkSpacePoint/SpacePointContainer.h"

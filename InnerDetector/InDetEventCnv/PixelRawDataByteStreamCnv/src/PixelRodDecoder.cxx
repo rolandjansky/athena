@@ -8,7 +8,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "ExtractCondensedIBLhits.h"
 #include "PixelByteStreamModuleMask.h"
 #include "eformat/SourceIdentifier.h"

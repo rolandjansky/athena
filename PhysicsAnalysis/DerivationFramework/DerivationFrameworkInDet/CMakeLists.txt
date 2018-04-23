@@ -22,6 +22,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_Cabling
                           InnerDetector/InDetRecEvent/InDetPrepRawData
@@ -64,13 +67,13 @@ atlas_add_library( DerivationFrameworkInDetLib
                    PUBLIC_HEADERS DerivationFrameworkInDet
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel SGTools IRegionSelector Identifier RoiDescriptor xAODBase xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry InDetPrepRawData TrkTrack VxVertex StoreGateLib SGtests SCT_CablingLib TRT_ConditionsServicesLib ExpressionEvaluationLib
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel SGTools IRegionSelector Identifier RoiDescriptor xAODBase xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetPrepRawData TrkTrack VxVertex StoreGateLib SGtests SCT_CablingLib TRT_ConditionsServicesLib ExpressionEvaluationLib
                    PRIVATE_LINK_LIBRARIES CommissionEvent AtlasDetDescr FourMomUtils xAODJet xAODMuon xAODTau xAODTruth GaudiKernel InDetRIO_OnTrack LArRecEvent TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces )
 
 atlas_add_component( DerivationFrameworkInDet
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests IRegionSelector Identifier RoiDescriptor xAODBase xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry SCT_CablingLib InDetPrepRawData TrkTrack VxVertex CommissionEvent AtlasDetDescr FourMomUtils xAODJet xAODMuon xAODTau xAODTruth GaudiKernel TRT_ConditionsServicesLib InDetRIO_OnTrack LArRecEvent ExpressionEvaluationLib TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces DerivationFrameworkInDetLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel SGTools StoreGateLib SGtests IRegionSelector Identifier RoiDescriptor xAODBase xAODEgamma xAODEventInfo xAODTracking InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry SCT_CablingLib InDetPrepRawData TrkTrack VxVertex CommissionEvent AtlasDetDescr FourMomUtils xAODJet xAODMuon xAODTau xAODTruth GaudiKernel TRT_ConditionsServicesLib InDetRIO_OnTrack LArRecEvent ExpressionEvaluationLib TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces DerivationFrameworkInDetLib )
 
 
 # Install files from the package:

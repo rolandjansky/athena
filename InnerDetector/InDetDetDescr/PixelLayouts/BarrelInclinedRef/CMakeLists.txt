@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tools/PathResolver )
 
@@ -38,7 +39,7 @@ atlas_add_component( BarrelInclinedRef
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} 
 		     AthenaBaseComps AthenaKernel GeoModelKernel GaudiKernel
 		     PixelGeoModelModule PixelLayoutUtils 
-		     PRIVATE_LINK_LIBRARIES Identifier InDetGeoModelUtils InDetIdentifier InDetReadoutGeometry PathResolver InDetTrackingGeometryXMLLib)
+		     PRIVATE_LINK_LIBRARIES Identifier InDetGeoModelUtils InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry PathResolver InDetTrackingGeometryXMLLib)
 
 # Install files from the package:
 atlas_install_headers( BarrelInclinedRef )
