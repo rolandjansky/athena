@@ -233,6 +233,11 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     m_cluster_LVL1A_mod = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
     sc = m_cluster_LVL1A_mod->regHist(timeShift);
 
+    tmp = "Clus_Occ_SizeCut";
+    tmp2 = "Size>1 Cluster occupancy";
+    m_clusocc_sizenot1 = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixDBMIBL2D3D));
+    sc = m_clusocc_sizenot1->regHist(clusterShift);
+
     tmp = "Clus_LVL1A_SizeCut";
     tmp2 = "Average Size>1 Cluster Level 1 Accept";
     m_clus_LVL1A_sizenot1 = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
@@ -566,6 +571,7 @@ StatusCode PixelMainMon::fillClustersMon(void) {
       if (pixlayer == PixLayer::kIBL && m_totalclusters_per_bcid_mod[PixLayerIBL2D3D::kIBL]) m_totalclusters_per_bcid_mod[PixLayerIBL2D3D::kIBL]->Fill(1.0 * m_currentBCID);
 
       // Fill Occupancy
+      if (cluster.rdoList().size() > 1 && m_clusocc_sizenot1) m_clusocc_sizenot1->fill(clusID, m_pixelid);
       if (m_doOnline && m_clustermap_tmp) m_clustermap_tmp->fill(clusID, m_pixelid);
 
       // 2D Map
