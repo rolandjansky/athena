@@ -226,10 +226,10 @@ void CSCSegmValAlg::bookSegmentHistograms() {
   float binmax = float(nbins) + binmin;
   
   MgmtAttr_t attr = ATTRIB_MANAGED;
-  m_segmDetail_EA=std::move(std::unique_ptr<MonGroup>(new MonGroup(this, segm_detailA+theKey+"/CSC", run, attr )));
-  m_segmDetail_EC=std::move(std::unique_ptr<MonGroup>(new MonGroup(this, segm_detailC+theKey+"/CSC", run, attr )));  
-  m_segmOview_EA=std::move(std::unique_ptr<MonGroup>(new MonGroup(this, segm_oviewA+theKey+"/CSC", run, attr )));
-  m_segmOview_EC=std::move(std::unique_ptr<MonGroup>(new MonGroup(this, segm_oviewC+theKey+"/CSC", run, attr )));
+  m_segmDetail_EA=std::unique_ptr<MonGroup>(new MonGroup(this, segm_detailA+theKey+"/CSC", run, attr ));
+  m_segmDetail_EC=std::unique_ptr<MonGroup>(new MonGroup(this, segm_detailC+theKey+"/CSC", run, attr ));
+  m_segmOview_EA=std::unique_ptr<MonGroup>(new MonGroup(this, segm_oviewA+theKey+"/CSC", run, attr ));
+  m_segmOview_EC=std::unique_ptr<MonGroup>(new MonGroup(this, segm_oviewC+theKey+"/CSC", run, attr ));
   
   // segment hists
   m_h2CSC_Segm_NumOfSegs_EA= new TH2F("Muon_Segm_NumSegments_EA",
