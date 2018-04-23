@@ -189,7 +189,7 @@ namespace InDet{
 	 std::vector<const InDet::SiCluster*>     &); 
 
       void detectorElementLinks
-	(std::vector<const InDetDD::SiDetectorElement*>        &,
+	(const std::vector<const InDetDD::SiDetectorElement*>  &,
 	 std::vector<const InDet::SiDetElementBoundaryLink_xk*>&);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
