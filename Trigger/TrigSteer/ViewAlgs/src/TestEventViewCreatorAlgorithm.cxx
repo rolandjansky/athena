@@ -5,14 +5,9 @@
 */
 
 #include "TestEventViewCreatorAlgorithm.h"
-
-//#include "StoreGate/ReadHandle.h"
-//#include "StoreGate/WriteHandle.h"
-//#include "CxxUtils/make_unique.h"
-//#include "AthContainers/ConstDataVector.h"
 #include "AthViews/ViewHelper.h"
-#include <DecisionHandling/TrigCompositeUtils.h>
-#include <DecisionHandling/HLTIdentifier.h>
+#include "DecisionHandling/TrigCompositeUtils.h"
+#include "DecisionHandling/HLTIdentifier.h"
 
 
 TestEventViewCreatorAlgorithm::TestEventViewCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
