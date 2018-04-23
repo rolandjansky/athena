@@ -1,3 +1,7 @@
+/*                                                                                                                      
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration                                               
+*/
+
 // This file is really -*- C++ -*-.
 #ifndef TRIGT1MUCTPIPHASE1_SIMCONTROLLER_H
 #define TRIGT1MUCTPIPHASE1_SIMCONTROLLER_H
