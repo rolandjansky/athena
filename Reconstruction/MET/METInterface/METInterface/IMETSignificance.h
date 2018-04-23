@@ -54,7 +54,7 @@ public:
   virtual StatusCode varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName)=0;
     
   // rotates the phi direction of the object resolutions & recomputes the MET significance
-  virtual StatusCode RotateToPhi(const float phi) = 0;
+  virtual StatusCode RotateToPhi(float phi) = 0;
 
   // subtracks the vector lambda from the MET & recomputes the met signficance in new MET - lambda direction
   virtual StatusCode SetLambda(const float px, const float py, const bool GeV=true) = 0;

@@ -399,7 +399,7 @@ namespace met {
 
 
   // Add access to rotate the direction of the MET resolution to a new phi position
-  StatusCode METSignificance::RotateToPhi(const float phi){
+  StatusCode METSignificance::RotateToPhi(float phi){
 
     // Rotation (components)
     std::tie(m_VarL, m_VarT, m_CvLT) = CovMatrixRotation(m_met_VarL , m_met_VarT, m_met_CvLT, (phi-m_metphi));

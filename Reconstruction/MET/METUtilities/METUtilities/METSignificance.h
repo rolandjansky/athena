@@ -76,7 +76,7 @@ namespace met {
     StatusCode varianceMET(xAOD::MissingETContainer* metCont, std::string jetTermName, std::string softTermName, std::string totalMETName);
 
     // rotates the phi direction of the object resolutions & recomputes the MET significance
-    StatusCode RotateToPhi(const float phi);
+    StatusCode RotateToPhi(float phi);
     
     // subtracks the vector lambda from the MET & recomputes the met signficance in new MET - lambda direction
     StatusCode SetLambda(const float px, const float py, const bool GeV=true);
