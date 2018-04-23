@@ -110,14 +110,15 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     applyClusterOriginCorrection('LC')
     applyClusterOriginCorrection('EM')
 
+    # Apply the four-vector corrections (neutral origin correction and charged weights)
+    # to PFlow objects, and apply primary vertex associations
     # For now we want to disable this, because data17 T0 AODs have corrupted PFOs,
     # on which the CHSPFO addition breaks
     # To be reenabled when results on these are complete and it is possible to
     # only use reprocessed AODs with the bugfix
     doCHSPFO = False
-    if doCHSPFO and not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
-      if not hasattr(job,"jetalgCHSPFlow"):
-        import eflowRec.ScheduleCHSPFlowMods
+    if doCHSPFO:
+      import eflowRec.ScheduleCHSPFlowMods
 
   # Add the algorithm. It runs the jetrec tools.
   from JetRec.JetRecConf import JetAlgorithm
