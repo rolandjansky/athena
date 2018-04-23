@@ -33,9 +33,9 @@ AugmentationTools   = []
 SeqSUSY15 = CfgMgr.AthSequencer("SeqSUSY15")
 DerivationFrameworkJob += SeqSUSY15
 
-from DerivationFrameworkSUSY.SUSY15TriggerList import triggers_met, triggers_jet, triggers_lep
+from DerivationFrameworkSUSY.SUSY15TriggerList import triggers_met, triggers_jet, triggers_lep, triggers_photon
 
-triggers = triggers_met + triggers_jet + triggers_lep
+triggers = triggers_met + triggers_jet + triggers_lep + triggers_photon
 
 #SUSY15ThinningHelper.TriggerChains = '(' + ' | '.join(triggers) + ')' #triggerRegEx
 
@@ -155,11 +155,8 @@ if DerivationFrameworkIsMonteCarlo:
 
 
 #=============================================================================================
-# SKIMMING - for now only skimming on MET triggers listed in python/SUSY15TriggerList.py /CO
+# SKIMMING - skimming on triggers listed in python/SUSY15TriggerList.py 
 #=============================================================================================
-# now done in ExtendedJetCommon 
-#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY15) # default: sequence=DerivationFrameworkJob
-#updateJVT_xAODColl("AntiKt4EMTopo") # TODO: for next cache?
 
 expression_trigger = "(" + " || ".join(triggers) + ")"
 
@@ -253,16 +250,12 @@ SUSY15SlimmingHelper.SmartCollections = [
                                          "Muons",
                                          "TauJets",
                                          "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
-
+                                         "MET_Reference_AntiKt4EMPFlow",
                                          "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
-
+                                         "AntiKt4EMPFlowJets",
                                          "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
-
+                                         "BTagging_AntiKt4EMPFlow",
                                          "InDetTrackParticles",
-                                         "PrimaryVertices"
                                          ]
 
 SUSY15SlimmingHelper.AllVariables = [
@@ -270,14 +263,11 @@ SUSY15SlimmingHelper.AllVariables = [
                                      "TruthEvents",
                                      "TruthVertices",
                                      "MET_Truth",
-                                     # additions for DV specific content /CO
+                                     # additions for DV specific content
                                      "PrimaryVertices",
                                      "VrtSecInclusive_SecondaryVertices",
                                      "VrtSecInclusive_SecondaryVertices_Leptons",
-                                     "VrtSecInclusive_SelectedTrackParticles",
-                                     "VrtSecInclusive_All2TrksVertices",
-                                     "MET_LocHadTopo",
-                                     "MET_Track"
+                                     "VrtSecInclusive_All2TrksVertices", # only filled for debug, by default off
                                      ]
 
 SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
@@ -296,6 +286,8 @@ SUSY15SlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopo.MV1_discriminant
                                         "InDetTrackParticles.is_selected_Leptons.is_associated_Leptons.is_svtrk_final_Leptons.pt_wrtSV_Leptons.eta_wrtSV_Leptons.phi_wrtSV_Leptons.d0_wrtSV_Leptons.z0_wrtSV_Leptons.errP_wrtSV_Leptons.errd0_wrtSV_Leptons.errz0_wrtSV_Leptons.chi2_toSV_Leptons", # Laura J via Hide March 2018
                                         "Electrons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs", # Laura J via Hide March 2018
                                         "Muons.svLinks.d0_wrtSVs.z0_wrtSVs.pt_wrtSVs.eta_wrtSVs.phi_wrtSVs.d0err_wrtSVs.z0err_wrtSVs", # Laura J via Hide March 2018
+                                        "MET_LocHadTopo.source.name.mpx.mpy.sumet", #Laura J April 2018 removing allVariables
+                                        "MET_Track.source.name.mpx.mpy.sumet", #Laura J April 2018 removing allVariables
 ]
 SUSY15SlimmingHelper.IncludeMuonTriggerContent = True # needed? /CO
 SUSY15SlimmingHelper.IncludeEGammaTriggerContent = True # can change to photons only? /CO
