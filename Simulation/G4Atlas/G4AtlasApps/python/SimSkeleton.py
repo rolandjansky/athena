@@ -104,9 +104,9 @@ class SimSkeleton(object):
                                  "CSCSimHitCollection#*",
                                  "MDTSimHitCollection#*",
                                  "TrackRecordCollection#MuonExitLayer"]
-            if hasattr(simFlags, 'SimulateNewSmallWheel'):
-                if simFlags.SimulateNewSmallWheel():
-                    stream1.ItemList += ["GenericMuonSimHitCollection#*"]
+            from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
+            if ( hasattr(simFlags, 'SimulateNewSmallWheel') and simFlags.SimulateNewSmallWheel() ) or CommonGeometryFlags.Run()=="RUN3" :
+                stream1.ItemList += ["GenericMuonSimHitCollection#*"]
         ## Lucid
         if DetFlags.Lucid_on():
             stream1.ItemList += ["LUCID_SimHitCollection#*"]
