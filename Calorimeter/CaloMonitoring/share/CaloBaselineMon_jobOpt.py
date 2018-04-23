@@ -14,6 +14,8 @@ if not 'rec' in dir():
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
 
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+
 tmp_CaloBaselineMon = {"useBadLBTool":FALSE,
                        "useReadyFilterTool":FALSE,
                        "useLArNoisyAlg":FALSE,
@@ -37,9 +39,10 @@ if rec.triggerStream()=='ZeroBias':
 
 CaloBaseline = CaloBaselineMon(
    name           = "CaloBaseline",
-
+   
    useBadLBTool=tmp_CaloBaselineMon["useBadLBTool"],
    BadLBTool = GetLArBadLBFilterTool(),
+   BunchCrossingTool=BunchCrossingTool(),
    useReadyFilterTool = tmp_CaloBaselineMon["useReadyFilterTool"],
    ReadyFilterTool = monAtlasReadyFilterTool,
    useLArCollisionFilterTool = tmp_CaloBaselineMon["useLArCollisionFilter"],

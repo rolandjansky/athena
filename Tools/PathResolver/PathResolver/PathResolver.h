@@ -32,7 +32,7 @@ public:
       PR_directory
    } PR_file_type;
 
-
+   PathResolver(); //need a constructor to link the dictionary library with the implementation library
 
   /**
 
@@ -104,6 +104,9 @@ public:
 
    static void setOutputLevel(MSG::Level level);
 
+   inline static std::string FindCalibFile(const std::string& logical_file_name) { return find_calib_file(logical_file_name); }
+   inline static std::string FindCalibDirectory(const std::string& logical_file_name) { return find_calib_directory(logical_file_name); }
+   inline static void SetOutputLevel(int lvl) { setOutputLevel(MSG::Level(lvl)); }
 
    private:
       static bool PR_find( const std::string& logical_file_name, const std::string& search_list, PR_file_type file_type, SearchType search_type,
