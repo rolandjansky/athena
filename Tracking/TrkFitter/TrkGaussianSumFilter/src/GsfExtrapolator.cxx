@@ -219,7 +219,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
   // ===============
   // Debug print-out
   // ===============
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
     ATH_MSG_VERBOSE( "extrapolate() with configuration ++++++++++++++++++++++++++++++++++++++++++++" );
     ATH_MSG_VERBOSE( " -> Combined state:      " << *combinedState );
     ATH_MSG_VERBOSE( " --------------------------------------------------------------------------------------------" );
@@ -393,7 +393,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
   // Debug print-out
   // =============== 
 
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
     combinedState = m_stateCombiner->combine( *currentState );
 
     if ( !combinedState ){
@@ -463,7 +463,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
   // ===============
   // Debug print-out
   // ===============
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
 
     combinedState = m_stateCombiner->combine( *destinationState );
 
@@ -827,7 +827,7 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
   throwIntoGarbageBin( navigationParameters );
   if ( currentState != &multiComponentState ) throwIntoGarbageBin( currentState );
 
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
     combinedState = m_stateCombiner->combine( *currentState );
 
     printState( "State at boundary surface", *combinedState );
@@ -1116,7 +1116,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateToIntermediateL
 {
 
   const Trk::TrackParameters* combinedState = 0;
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
     combinedState = m_stateCombiner->combine( multiComponentState );
 
     ATH_MSG_VERBOSE( "GSF extrapolateToIntermediateLayer()" );
@@ -1177,7 +1177,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateToIntermediateL
   if ( destinationState != initialState && initialState != &multiComponentState )
     delete initialState;
 
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
     combinedState = m_stateCombiner->combine( *destinationState );
 
     this->printState( "Propagation to intermediate completed with", *combinedState );
@@ -1217,7 +1217,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateToIntermediateL
 
 
 
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
 
     combinedState = m_stateCombiner->combine( *reducedState );
 
@@ -1256,7 +1256,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateToDestinationLa
 
   const Trk::TrackParameters* combinedState = 0;
 
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
 
     combinedState = m_stateCombiner->combine( *initialState );
 
@@ -1306,7 +1306,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateToDestinationLa
     ATH_MSG_VERBOSE(  "DestinationState state has  " << destinationState->size() << " components " );
 
 
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
 
     combinedState = m_stateCombiner->combine( *destinationState );
 
@@ -1353,7 +1353,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateToDestinationLa
 
 
 
-  if (msg().level()<=MSG::DEBUG){
+  if (msgLvl(MSG::DEBUG)){
     ATH_MSG_VERBOSE( "Successfully completed extrapolation to destination: " );
 
     combinedState = m_stateCombiner->combine( *reducedState );
@@ -1865,7 +1865,7 @@ void Trk::GsfExtrapolator::addMaterialtoVector(const Trk::Layer* nextLayer,
  
 
 std::string
-Trk::GsfExtrapolator::layerRZoutput(const Trk::Layer* lay) const{
+Trk::GsfExtrapolator::layerRZoutput(const Trk::Layer* lay) const {
   std::string result("NULL");
   if (not lay) return result;
   result =  "[r,z] = [ " + std::to_string(lay->surfaceRepresentation().bounds().r() )

@@ -258,7 +258,7 @@ class GsfExtrapolator : public AthAlgTool, virtual public IMultiStateExtrapolato
 
 
   std::string layerRZoutput(const Trk::Layer * lay) const;
-
+  
   std::string positionOutput(const Amg::Vector3D& pos) const;
 
 
