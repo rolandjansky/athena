@@ -130,7 +130,7 @@ class HypoAlgNode(AlgNode):
         self.previous=[]
 
     def addHypoTool(self, hypoToolName, hypoToolClassName):
-        from TrigUpgradeTest.MenuHypoTools import *
+        from TrigUpgradeTest.MenuHypoTools import createHypoTool
         if hypoToolClassName is "ComboTestHypoTool":
             ###TMP combo, only one threshold
             import re
@@ -139,10 +139,10 @@ class HypoAlgNode(AlgNode):
             self.setPar('Threshold2', thresholds[1])
             status=self.setPar('DecisionLabel', hypoToolName)
         else:
-            ## HypoTools are private, so need to be created when added to the Alg
             self.tools.append(hypoToolName)            
             tools = self.Alg.HypoTools
-            self.Alg.HypoTools = tools+[eval(hypoToolClassName)(hypoToolName)]
+            ## HypoTools are private, so need to be created when added to the Alg
+            self.Alg.HypoTools = tools+[createHypoTool(hypoToolClassName, hypoToolName)]
             status = 0
         return status
 
