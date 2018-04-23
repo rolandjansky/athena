@@ -9,7 +9,7 @@ def getATLAS_RegionCreatorList():
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     isUpgrade = commonGeoFlags.Run()=="RUN4" or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isSLHC())
-    isRUN2 = (commonGeoFlags.Run()=="RUN2" or commonGeoFlags.Run()=="RUN3") or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
+    isRUN2 = (commonGeoFlags.Run() in ["RUN2", "RUN3"]) or (commonGeoFlags.Run()=="UNDEFINED" and geoFlags.isIBL())
 
     from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.DetFlags import DetFlags
