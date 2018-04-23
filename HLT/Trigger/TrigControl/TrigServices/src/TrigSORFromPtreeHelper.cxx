@@ -66,9 +66,9 @@ const SORHelper::SOR * SORHelper::fillSOR(const ptree & rparams, const EventCont
     IOVTime currentIOVTime(rparams.get<unsigned int>("run_number"), 
 			   IOVTime::MINEVENT,
 			   OWLTime{(rparams.get_child("timeSOR").data()).c_str()}.total_mksec_utc() * 1000);
-
+    
     // Signal BeginRun directly to IOVDbSvc to set complete IOV start time
-    if (StatusCode::SUCCESS != iovdbsvc->signalBeginRun(currentIOVTime, ctx)) {
+    if (StatusCode::SUCCESS != iovdbsvc->signalBeginRun(currentIOVTime,m_dummyEventContext)) {
       m_log << MSG::ERROR << ST_WHERE 
             << "Unable to signal begin run IOVTime to IOVDbSvc. IOVTime = " << currentIOVTime << endmsg;
     } else {
@@ -221,8 +221,7 @@ SORHelper::updateProxy(const SG & dstore, SOR * sor) const
     return StatusCode::FAILURE;
   }
 
-  // check if the transient address has an IAddressProvider, if not set
-  //IOVDbSvc as provider
+  // check if the proxy has an IAddressProvider, if not set IOVDbSvc as provider
   if (!proxy->provider()) {
     // get handle to the IOVDbSvc
     ServiceHandle<IIOVDbSvc> iovdbsvc("IOVDbSvc", CLNAME);

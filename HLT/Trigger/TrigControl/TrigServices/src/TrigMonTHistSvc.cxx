@@ -59,6 +59,8 @@ StatusCode TrigMonTHistSvc::initialize() {
 
   msg().setLevel(outputLevel());
   // fix summing up flag if not running in separate threads
+  //~ if ( ! isGaudiThreaded(name()) )
+    m_add = true;
  
   // Protect against multiple instances of TROOT
   if ( 0 == gROOT )   {
@@ -186,16 +188,34 @@ template <typename T> StatusCode TrigMonTHistSvc::regHist_i(std::unique_ptr<T> h
   std::string regid;
   if ( isObjectAllowed(id, hist).isFailure() ) {
 	return  StatusCode::FAILURE;
-  }
-  regid = id;
-  
-  if (hist->Class()->InheritsFrom(TH1::Class())) {
-    hltinterface::IInfoRegister::instance()->registerTObject(name(), regid, hist);
-    ATH_MSG_DEBUG("Histogram " << hist->GetName() 
-                  << " registered under " << regid << " " << name());
-  } else {
-    ATH_MSG_ERROR("Trying to register " << hist->ClassName() 
-                  << " but this does not inherit from TH1 histogram");
+    }
+    // prepend by  service name if the histograms are not going to be added
+    // this way they are registered under different unique names
+    // from each service
+    //~ if ( m_add )
+	regid = id;
+/*
+    else {
+	std::string n = getGaudiThreadIDfromName(name());
+
+	// strip blanks at the end of service name
+	std::string::size_type pos;
+	while ( (pos = n.find('\0', 0)) != std::string::npos) 
+	    n.erase(pos,1);
+	// build the name used for registration
+	regid = id+n;
+    }
+*/
+
+    if (hist->Class()->InheritsFrom(TH1::Class())) {
+        hltinterface::IInfoRegister::instance()->registerTObject(name(), regid, hist);
+        ATH_MSG_DEBUG("Histogram " << hist->GetName() 
+                      << " registered under " << regid << " " << m_add << " " << name());
+    } else {
+      ATH_MSG_ERROR("Trying to register " << hist->ClassName() 
+                    << " but this does not inherit from TH1 histogram");
+      return StatusCode::SUCCESS; 
+    }
     return StatusCode::SUCCESS; 
   }
   return StatusCode::SUCCESS; 

@@ -130,11 +130,12 @@ bool psc::Psc::configure(const ptree& config)
        * of libGaudiSvc.
        */
       void* libHandle = 0;
-      if (System::loadDynamicLib(dllname, &libHandle)) {
+      auto retval = System::loadDynamicLib(dllname, &libHandle);
+      if (retval == 0) {
         ERS_DEBUG(1,"Successfully pre-loaded " << dllname << "library");
       }
       else {
-        ERS_DEBUG(1,"Failed pre-loading " << dllname << "library");
+        ERS_DEBUG(1,"Failed pre-loading " << dllname << "library with error code " << retval);
       }
     }
 
@@ -530,6 +531,7 @@ bool psc::Psc::prepareForRun (const ptree& args)
     return false;
   }
 
+  /* commenting out as shutdown() is private in master branch
   // Cleanup of dangling database connections from RDBAccessSvc
   ServiceHandle<IRDBAccessSvc> p_rdbAccessSvc("RDBAccessSvc","psc::Psc");
   if(p_rdbAccessSvc->shutdown("*Everything*")) {
@@ -539,6 +541,7 @@ bool psc::Psc::prepareForRun (const ptree& args)
     p_rdbAccessSvc->release();
     return false;
   }
+  */
 
   // sleep some time to allow the closing of DB connections;
   // actual timeout depends on connection parameters, we seem to have 5 seconds
