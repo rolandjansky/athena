@@ -11,7 +11,6 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
-from DerivationFrameworkFlavourTag.FlavourTagAllVariables import FTAllVars_bjetTriggerVtx
 
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
@@ -335,15 +334,15 @@ SUSY1SlimmingHelper = SlimmingHelper("SUSY1SlimmingHelper")
 # BTagging_AntiKt4Track changed to BTagging_AntiKt2Track, as the former is no longer supported
 SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         "AntiKt4EMTopoJets",
-"AntiKt4EMPFlowJets",
+                                        "AntiKt4EMPFlowJets",
 
                                         "MET_Reference_AntiKt4EMTopo",
-"MET_Reference_AntiKt4EMPFlow",
+                                        "MET_Reference_AntiKt4EMPFlow",
 
                                         "Muons",
                                         "TauJets",
                                         "BTagging_AntiKt4EMTopo",
-"BTagging_AntiKt4EMPFlow",
+                                        "BTagging_AntiKt4EMPFlow",
 
                                         "InDetTrackParticles",
                                         "PrimaryVertices",
@@ -373,24 +372,8 @@ SUSY1SlimmingHelper.IncludeEtMissTriggerContent = True
 SUSY1SlimmingHelper.IncludeBJetTriggerContent   = True
 
 appendToDictDict = {
-  "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer", 
-  "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer", 
-  "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
-  "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
-  "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
-  "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"      :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"   :   "xAOD::VertexAuxContainer",
-  "BTagging_AntiKt2Track"                          :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt2TrackAux"                       :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKt2TrackJFVtx"                     :   "xAOD::BTagVertexContainer"   ,
-  "BTagging_AntiKt2TrackJFVtxAux"                  :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKt2TrackSecVtx"                    :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKt2TrackSecVtxAux"                 :   "xAOD::VertexAuxContainer",
+  "BTagging_AntiKt4EMPFlow":"xAOD::BTaggingContainer", 
+  "BTagging_AntiKt4EMPFlowAux":"xAOD::BTaggingAuxContainer",
   }
 
 if DerivationFrameworkIsMonteCarlo:
@@ -408,8 +391,6 @@ if DerivationFrameworkIsMonteCarlo:
   SUSY1SlimmingHelper.AllVariables += ["TruthElectrons", "TruthMuons", "TruthTaus", "TruthPhotons", "TruthNeutrinos", "TruthTop", "TruthBSM", "TruthBoson"]
 
 SUSY1SlimmingHelper.AppendToDictionary = appendToDictDict
-for bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
-    SUSY1SlimmingHelper.AllVariables.append(bjetTriggerVtx)
 
 SUSY1SlimmingHelper.AppendContentToStream(SUSY1Stream)
 
