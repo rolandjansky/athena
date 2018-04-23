@@ -466,51 +466,39 @@ StatusCode MmDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 
   ATH_MSG_DEBUG ( "MmDigitizationTool::in processBunchXing()"  << bunchXing );
 
-#ifdef ATHENA_20_20
-  PileUpEventInfo::SubEvent::const_iterator iEvt = bSubEvents;
-#else
-  SubEventIterator iEvt = bSubEvents;
-#endif
+  typedef PileUpMergeSvc::TimedList<GenericMuonSimHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
 
-  //loop on event and sub-events for the current bunch Xing
-  for (; iEvt!=eSubEvents; ++iEvt) {
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
+                                          bSubEvents, eSubEvents).isSuccess()) &&
+      hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " GenericMuonSimHitCollection with key " <<
+                    m_inputObjectName << " found");
+  }
 
-    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
 
-    ATH_MSG_INFO( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-                  << " bunch crossing : " << bunchXing );
-		  // << " time offset : " << iEvt->time()
-		  // << " event number : " << iEvt->ptr()->eventNumber()
-		  // << " run number : " << iEvt->ptr()->runNumber() );
+  // Iterating over the list of collections
+  for( ; iColl != endColl; iColl++){
 
-    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+    GenericMuonSimHitCollection *hitCollPtr = new GenericMuonSimHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
 
-    const GenericMuonSimHitCollection* seHitColl = 0;
-    if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
-      ATH_MSG_ERROR ( "SubEvent MicroMegas SimHitCollection not found in StoreGate " << seStore.name() );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE ( "MicroMegas SimHitCollection found with " << seHitColl->size() << " hits" );
+    ATH_MSG_DEBUG("GenericMuonSimHitCollection found with " << hitCollPtr->size() <<
+                  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+                    << " index: " << timeIndex.index()
+                    << " type: " << timeIndex.type());
 
-    const double timeOfBCID(static_cast<double>(iEvt->time()));
-    ATH_MSG_DEBUG ( "timeOfBCID " << timeOfBCID );
+    m_thpcMM->insert(timeIndex, hitCollPtr);
+    m_MMHitCollList.push_back(hitCollPtr);
 
-    //Copy hit Collection
-    GenericMuonSimHitCollection* MMHitColl = new GenericMuonSimHitCollection(m_inputObjectName);
+  }
 
-    GenericMuonSimHitCollection::const_iterator i = seHitColl->begin();
-    GenericMuonSimHitCollection::const_iterator e = seHitColl->end();
-
-    // Read hits from this collection
-    for (; i!=e; ++i){
-      MMHitColl->Emplace(*i);
-    }
-    m_thpcMM->insert(thisEventIndex, MMHitColl);
-
-    //store these for deletion at the end of mergeEvent
-    m_MMHitCollList.push_back(MMHitColl);
-
-  }//  while (iEvt != eSubEvents) {
   return StatusCode::SUCCESS;
 }
 
