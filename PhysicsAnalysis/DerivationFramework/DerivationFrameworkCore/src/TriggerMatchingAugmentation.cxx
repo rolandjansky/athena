@@ -9,7 +9,7 @@
 //
 
 // local includes
-#include "DerivationFrameworkSM/TriggerMatchingAugmentation.h"
+#include "DerivationFrameworkCore/TriggerMatchingAugmentation.h"
 
 // EDM includes
 #include "xAODEgamma/PhotonContainer.h"
@@ -27,7 +27,7 @@ namespace DerivationFramework {
       const IInterface* p) :
     AthAlgTool(t,n,p),
     m_tool("Trig::MatchingTool"),
-    m_trigDec( "Trig::TrigDecisionTool/STDM4_TrigDecisionTool" ),
+    m_trigDec( "Trig::TrigDecisionTool/DFTriggerMatch_TrigDecisionTool" ),
     m_sgName(""),
     m_muonContainerName(""),
     m_electronContainerName(""),
@@ -53,10 +53,10 @@ namespace DerivationFramework {
 
   StatusCode TriggerMatchingAugmentation::initialize()
   {
-    m_trigDec.setTypeAndName( "Trig::TrigDecisionTool/STDM4_TrigDecisionTool" );
+    m_trigDec.setTypeAndName( "Trig::TrigDecisionTool/DFTriggerMatch_TrigDecisionTool" );
     CHECK( m_trigDec.retrieve() );
     CHECK( m_trigDec->initialize() );
-    m_tool.setTypeAndName("Trig::MatchingTool/STDM4MatchingTool");
+    m_tool.setTypeAndName("Trig::MatchingTool/DFTriggerMatchMatchingTool");
     CHECK(m_tool.retrieve()); //important to retrieve here, because TrigDecisionTool must be initialized before event loop
     
 

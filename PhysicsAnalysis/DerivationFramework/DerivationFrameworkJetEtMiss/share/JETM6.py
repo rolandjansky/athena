@@ -66,6 +66,23 @@ JETM6OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "
                                                                         expression = expression)
 ToolSvc += JETM6OfflineSkimmingTool
 
+#Trigger matching decorations
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
+DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
+                                                             name = "JETM6_TriggerMatchingAugmentation",
+                                                             DecorationPrefix = "DFCommonTrigger_",
+                                                             PhotonContainerName = "Photons",
+                                                             ElectronContainerName = "Electrons",
+                                                             MuonContainerName = "Muons",
+                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]+[gammatrigsel]
+	                                                             )
+ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
+NewTrigVars=[]
+for contain in ["Electrons","Photons","Muons"]:
+    new_content=".".join(["JETM6_"+t for t in eltrigsel +
+                          mutrigsel + gammatrigsel])
+    NewTrigVars.append(contain+"."+new_content)
+
 #====================================================================
 # THINNING TOOLS
 #====================================================================
@@ -275,9 +292,8 @@ JETM6SlimmingHelper.AllVariables = [
     ]
 
 JETM6SlimmingHelper.ExtraVariables = [
-    'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG',
-    'BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu'
-    ]
+    'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG', 'BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu'
+    ]+NewTrigVars
 
 #JETM6SlimmingHelper.AppendToDictionary.update({"LCOriginTopoClusters":"xAOD::CaloClusterContainer",
 #                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer",

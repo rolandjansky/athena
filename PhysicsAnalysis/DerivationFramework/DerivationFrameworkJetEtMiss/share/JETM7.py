@@ -46,6 +46,22 @@ JETM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM7Sk
                                                                  expression = expression)
 ToolSvc += JETM7SkimmingTool
 
+#Trigger matching decorations
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
+DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
+                                                             name = "JETM7_TriggerMatchingAugmentation",
+                                                             DecorationPrefix = "DFCommonTrigger_",
+                                                             ElectronContainerName = "Electrons",
+                                                             MuonContainerName = "Muons",
+                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
+	                                                             )
+ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
+NewTrigVars=[]
+for contain in ["Electrons","Muons"]:
+    new_content=".".join(["JETM7_"+t for t in eltrigsel +
+                          mutrigsel])
+    NewTrigVars.append(contain+"."+new_content)
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -209,7 +225,7 @@ JETM7SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM7SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]
+JETM7SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]+NewTrigVars
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
