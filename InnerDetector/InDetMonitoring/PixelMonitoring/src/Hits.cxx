@@ -556,7 +556,7 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       }
       if (m_pixel_occupancy) m_pixel_occupancy->fill(m_pixelid->eta_index(rdoID), m_pixelid->phi_index(rdoID), rdoID, m_pixelid);
 
-      if (pixlayer != 99) nhits_mod[pixlayerdbm]++;
+      if (pixlayerdbm != 99) nhits_mod[pixlayerdbm]++;
       nhits++;
       nhitsM1++;
       nhitsM2++;
