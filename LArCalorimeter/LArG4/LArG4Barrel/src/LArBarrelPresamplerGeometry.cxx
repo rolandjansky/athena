@@ -50,7 +50,7 @@ namespace LArG4 {
   namespace BarrelPresampler {
 
     Geometry::Geometry(const std::string& name, ISvcLocator *pSvcLocator)
-      : AthService(name, pSvcLocator)
+      : base_class(name, pSvcLocator)
     {
       declareProperty("DetectorName",m_detectorName);
     }
@@ -101,19 +101,6 @@ namespace LArG4 {
       for (int i=0;i<8;i++) m_pitch[i]=m_mod[i][4]*m_cmm;
 
       return StatusCode::SUCCESS;
-    }
-
-    // ====================================================================================
-
-    StatusCode Geometry::queryInterface( const InterfaceID & riid,  void** ppvInterface )
-    {
-      if ( ILArBarrelPresamplerGeometry::interfaceID().versionMatch(riid) ) {
-        *ppvInterface = dynamic_cast<ILArBarrelPresamplerGeometry*>(this);
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      /** Interface is not directly available : try out a base class */
-      return AthService::queryInterface(riid, ppvInterface);
     }
 
     //======================================================================================

@@ -109,7 +109,7 @@ namespace LArG4 {
     }
 
     LocalGeometry::LocalGeometry(const std::string& name, ISvcLocator * pSvcLocator)
-      : AthService(name, pSvcLocator)
+      : base_class(name, pSvcLocator)
       , m_geoModel("GeoModelSvc", name)
       , m_AccessSvc("RDBAccessSvc", name)
       , m_isX(false)
@@ -184,19 +184,6 @@ namespace LArG4 {
 
       return StatusCode::SUCCESS;
     }
-
-    StatusCode LocalGeometry::queryInterface( const InterfaceID & riid,  void** ppvInterface )
-    {
-      if ( ILocalGeometry::interfaceID().versionMatch(riid) ) {
-        *ppvInterface = dynamic_cast<ILocalGeometry*>(this);
-      } else {
-        // Interface is not directly available : try out a base class
-        return AthService::queryInterface(riid, ppvInterface);
-      }
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-
 
     LArG4Identifier LocalGeometry::CalculateIdentifier(const G4Step* a_step, const eLocalGeometryType g_type, int depthadd, double deadzone, double locyadd) const {
 
