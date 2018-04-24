@@ -40,7 +40,6 @@ SCT_CalibHvSvc::SCT_CalibHvSvc(const std::string &name, ISvcLocator * svc):
   AthService(name,svc),
   m_detStore("DetectorStore", name),
   m_evtStore("StoreGateSvc", name),
-  m_DCSConditionsSvc( "SCT_DCSConditionsSvc", name ),
   m_cablingSvc( "SCT_CablingSvc", name ),
   m_pSCTHelper(0),
   m_sct_waferHash(0),  
@@ -60,7 +59,7 @@ SCT_CalibHvSvc::SCT_CalibHvSvc(const std::string &name, ISvcLocator * svc):
 
 StatusCode 
 SCT_CalibHvSvc::initialize(){
-  //if (not retrievedService(m_DCSConditionsSvc, "DCSConditionsSvc")) return StatusCode::FAILURE;
+  ATH_CHECK(m_DCSConditionsTool.retrieve());
   
   return StatusCode::SUCCESS;
 
@@ -146,7 +145,7 @@ SCT_CalibHvSvc::fill(const bool fromData){
     Identifier waferId = m_pSCTHelper->wafer_id(waferhash);
     Identifier moduleId = m_pSCTHelper->module_id(waferId);
     //step one is to make sure this one isn't already know to be messed up:
-    isgoodnow = m_DCSConditionsSvc->isGood(moduleId,InDetConditions::SCT_MODULE);
+    isgoodnow = m_DCSConditionsTool->isGood(moduleId,InDetConditions::SCT_MODULE);
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "checked is good "<< isgoodnow <<endmsg;
     if (isgoodnow){
       int numhits = (*m_sct_numHitsInWafer)[itrk];

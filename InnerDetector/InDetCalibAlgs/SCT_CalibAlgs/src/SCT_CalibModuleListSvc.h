@@ -24,7 +24,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "SCT_CalibAlgs/ISCT_CalibModuleListSvc.h"       
-#include "SCT_ConditionsServices/ISCT_MonitorConditionsSvc.h" 
+#include "SCT_ConditionsTools/ISCT_MonitorConditionsTool.h"
 
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -50,7 +50,7 @@ public:
 private:
   const SCT_ID* m_pSCTHelper;
   ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<ISCT_MonitorConditionsSvc> m_MonitorConditionsSvc;
+  ToolHandle<ISCT_MonitorConditionsTool> m_MonitorConditionsTool{this, "SCT_MonitorConditionsTool", "SCT_MonitorConditionsTool/InDetSCT_MonitorConditionsTool", "Tool to retrieve noisy strip information"};
   ServiceHandle<IIOVDbSvc> m_IOVDbSvc;
   
 };

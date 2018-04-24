@@ -58,9 +58,8 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 // SCT Conditions
-#include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h" //template parameter
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h" //template parameter
-#include "SCT_ConditionsServices/ISCT_ReadCalibDataSvc.h"  //template parameter
+#include "SCT_ConditionsTools/ISCT_ReadCalibDataTool.h"  //template parameter
 #include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h" //template parameter
 
 // SCT Cabling
@@ -111,9 +110,8 @@ class SCTCalib : public AthAlgorithm {
         const InDetDD::SCT_DetectorManager*             m_pManager;
 
         ServiceHandle<SCTCalibWriteSvc>                 m_pCalibWriteSvc;
-        ServiceHandle<ISCT_DCSConditionsSvc>            m_DCSConditionsSvc;
-        ToolHandle<ISCT_ConfigurationConditionsTool>    m_ConfigurationConditionsTool{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration Tool"};
-        ServiceHandle<ISCT_ReadCalibDataSvc>            m_ReadCalibDataSvc;
+        ToolHandle<ISCT_ConfigurationConditionsTool>    m_ConfigurationConditionsTool{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration"};
+        ToolHandle<ISCT_ReadCalibDataTool>              m_ReadCalibDataTool{this, "SCT_ReadCalibDataTool", "SCT_ReadCalibDataTool/InDetSCT_ReadCalibDataTool", "Tool to retrieve SCT calibration data"};
         ToolHandle<ISCT_DetectorLevelConditionsTool>    m_MajorityConditionsTool{this, "SCT_MajorityConditionsTool", "SCT_MajorityConditionsTool", "Tool to retrieve the majority conditions of SCT"};
         ServiceHandle<ISCT_CablingSvc>                  m_CablingSvc;
 
