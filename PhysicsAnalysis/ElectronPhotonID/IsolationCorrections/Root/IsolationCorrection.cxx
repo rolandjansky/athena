@@ -263,7 +263,7 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
     TString baseN = year + "/" + (m_AFII_corr ? "AF2/" : "FullSim/");
     TVector *veta = (TVector*)file_ptleakagecorr->Get(baseN+"/etaBinning");
     m_feta_bins_dd->resize(veta->GetNrows());
-    for (unsigned int ieta = 0; ieta < veta->GetNrows(); ieta++) m_feta_bins_dd->at(ieta) = (*veta)[ieta];
+    for (int ieta = 0; ieta < veta->GetNrows(); ieta++) m_feta_bins_dd->at(ieta) = (*veta)[ieta];
     TTree *tbinLabel = (TTree*)file_ptleakagecorr->Get(baseN+"tbinLabel");
     TBranch *bbinLabel(0);
     TString *binLabel(0); tbinLabel->SetBranchAddress("binLabel",&binLabel,&bbinLabel);

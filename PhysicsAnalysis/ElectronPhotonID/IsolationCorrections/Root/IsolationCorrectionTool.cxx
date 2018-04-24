@@ -134,7 +134,7 @@ namespace CP {
     //
     std::string simType("");
     
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
     //Athena environent
     std::string dataType("");
     if( AthAnalysisHelper::retrieveMetadata( "/TagInfo", "project_name" , dataType, inputMetaStore() ).isFailure() ) {
