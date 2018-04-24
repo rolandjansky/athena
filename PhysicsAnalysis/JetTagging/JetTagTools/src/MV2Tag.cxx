@@ -255,7 +255,7 @@ namespace Analysis {
 
     /*KM: Get back the calib objects from calibration broker*/
     std::string alias = m_calibrationTool->channelAlias(author);
-    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, author, m_taggerNameBase+"Calib", name()) ) {
+    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, author, m_taggerNameBase+"Calib") ) {
       std::vector<float*>  inputPointers; inputPointers.clear();
       unsigned nConfgVar=0; bool badVariableFound=false;
 
@@ -350,7 +350,7 @@ namespace Analysis {
 	m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
 
       }
-      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,author, m_taggerNameBase+"Calib", false, name());
+      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,author, m_taggerNameBase+"Calib", false);
     }
 
     // #2 fill inputs

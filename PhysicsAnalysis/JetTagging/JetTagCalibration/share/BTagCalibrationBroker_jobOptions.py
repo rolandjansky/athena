@@ -25,7 +25,7 @@ from JetTagCalibration.JetTagCalibrationConf import Analysis__CalibrationBroker
 BTagCalibrationBrokerTool = Analysis__CalibrationBroker(
   name = "BTagCalibrationBrokerTool",
   folderRoot = BTaggingFlags.CalibrationFolderRoot,
-  folders = theFolders,
+  taggers = theFolders,
   channels = JetCollectionForCalib,
   channelAliases = BTaggingFlags.CalibrationChannelAliases,
   shadowFoldersAndChannels = BTaggingFlags.CalibrationSingleFolder,   

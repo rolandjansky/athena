@@ -1598,7 +1598,7 @@ class Configuration:
       PassByPointer = getToolMetadata(tool_type, 'PassByPointer')
       PassByName = getToolMetadata(tool_type, 'PassByName')
       PassTracksAs = getToolMetadata(tool_type, 'PassTracksAs')
-      CalibrationFolders = getToolMetadata(tool_type, 'CalibrationFolders')
+      CalibrationTaggers = getToolMetadata(tool_type, 'CalibrationTaggers')
       PassMuonCollectionAs = getToolMetadata(tool_type, 'PassMuonCollectionAs')
       PassElectronCollectionAs = getToolMetadata(tool_type, 'PassElectronCollectionAs')
       PassPhotonCollectionAs = getToolMetadata(tool_type, 'PassPhotonCollectionAs')
@@ -1626,7 +1626,7 @@ class Configuration:
               print self.BTagTag()+' - ERROR - setupDefaultTool() called for a tool that has PassTracksAs metadata but without specifying a track collection.'
               raise ValueError
           options.setdefault(PassTracksAs, track)
-      if CalibrationFolders:
+      if CalibrationTaggers:
           if BTaggingFlags.CalibrationSingleFolder is False:
               print self.BTagTag()+' - ERROR - BTaggingFlags.CalibrationSingleFolder is False, the new calibration scheme does not support this!'
               print self.BTagTag()+' - ERROR - Calibrations will not function!'
@@ -1636,13 +1636,12 @@ class Configuration:
               if broker is None:
                   print self.BTagTag()+' - ERROR - CalibrationBroker not found; calibrations will not function!'
                   raise ValueError
-              elif not hasattr(broker, 'folders'):
-                  print self.BTagTag()+' - ERROR - CalibrationBroker does not have "folders" as an attribute; calibrations will not function!'
+              elif not hasattr(broker, 'taggers'):
+                  print self.BTagTag()+' - ERROR - CalibrationBroker does not have "taggers" as an attribute; calibrations will not function!'
                   raise ValueError
-              for folder in CalibrationFolders:
-                  ToAdd = broker.folderRoot + folder
-                  if not ToAdd in broker.folders:
-                      broker.folders.append(ToAdd)
+              for tagger in CalibrationTaggers:
+                  if not tagger in broker.taggers:
+                      broker.taggers.append(tagger)
       # Set up the actual tool
       try:
           exec('tool = tool'+tool_type+'(**options)')
