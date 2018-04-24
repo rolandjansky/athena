@@ -12,8 +12,8 @@
 
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "TH2F.h"

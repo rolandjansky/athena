@@ -148,7 +148,8 @@ else:
     InDetFlags.doBremRecovery.set_Value_and_Lock(True);
     InDetFlags.doCaloSeededBrem.set_Value_and_Lock(False);
     # --- Turn on Forward tracking
-    InDetFlags.doForwardTracks.set_Value_and_Lock(True);
+    if not InDetFlags.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region
+        InDetFlags.doForwardTracks.set_Value_and_Lock(True);
 
     # --- de-activate monitorings
     InDetFlags.doMonitoringGlobal    = False
@@ -211,8 +212,8 @@ from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 SLHC_Flags.SLHC_Version = ''
 
 # ---- setup of pixel tool
-from PixelGeoModel.PixelGeoModelConf import PixelDetectorTool
-pixelTool           = PixelDetectorTool()
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
 # --- turn off alignment
 pixelTool.Alignable = False
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -36,6 +36,9 @@ from TrigMuonHypo.TrigMuonHypoConfig import (TrigMuonEFTrackIsolationHypoConfig,
 from TrigHIHypo.HFMuonHypos import hiHFMuonHypos
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
+
+from TrigMuSuperEF.TrigMuonEFTagandProbeConfig import TrigMuonEFTagandProbeConfig 
+
 #-----------------------------------
 class L2EFChain_mu(L2EFChainDef):
 #-----------------------------------
@@ -156,7 +159,12 @@ class L2EFChain_mu(L2EFChainDef):
           and "ds3" in self.chainPart['addInfo'] :
       self.setup_muXX_muoncalib_ds3()
     elif self.thisIsBphysChain  and "cosmicEF" not in self.chainPart['addInfo'] :  ## Keep this  at the end, in case non-default chain is requested
+      if  self.chainPart['reccalibInfo'] == "btrk"  or "btrk" in self.chainPart['extra']  :
+        self.setup_muXX_noL1btrk()
+      else :
         self.setup_muXX_nomucomb()
+    elif not self.thisIsBphysChain  and  "btrk" in self.chainPart['extra']  :
+      log.error('btrk option exists only for bPhys chains, please check the chain %s ' % (self.chainPartName))      
     elif "cosmicEF" in self.chainPart['addInfo']:
       self.setup_muXX_cosmicEF()
     elif "mucombTag" in self.chainPart['reccalibInfo'] and "noEF" in self.chainPart['addInfo'] :
@@ -205,6 +213,8 @@ class L2EFChain_mu(L2EFChainDef):
       muFastThresh = '4GeV_v15a'
     elif int(self.chainPart['threshold']) == 2:
       muFastThresh = '2GeV_v15a'
+    elif "3layersEC" in self.chainPart['extra']:
+      muFastThresh = str(self.chainPart['threshold'])+ "GeV" + "_v15a"
     else:
       muFastThresh = '6GeV_v15a'
     return muFastThresh
@@ -1243,6 +1253,13 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsequenceList += [['EF_CB_ROI',
                                [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']]
+
+      if 'TagandProbe' in self.chainPart['FSinfo']:
+        TrigMuonEFTagandProbeInstance = TrigMuonEFTagandProbeConfig()
+        self.EFsequenceList += [['EF_CB_FS',
+                                 [TrigMuonEFTagandProbeInstance],
+                                 'EF_CB_FSTaP']]      
+
       if run_isolation:
         self.EFsequenceList += [['EF_CB_FS_single',
                                  trkiso,
@@ -1257,7 +1274,8 @@ class L2EFChain_mu(L2EFChainDef):
         self.EFsequenceList += [[['EF_ISO_FS'],
                                  [theTrigMuonEFTrackIsolationMultiHypoConfig],
                                  'EF_ISO_HYPO']]
-        
+                                
+
     ########### Signatures ###########
       
     self.EFsignatureList += [ [['EF_dummy']] ]
@@ -1269,11 +1287,16 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
       self.EFsignatureList += [ [['EF_CB_ROI']] ]
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
+      if 'TagandProbe' in self.chainPart['FSinfo']:
+        self.EFsignatureList += [ [['EF_CB_FSTaP']] ]
+
       if run_isolation:
         self.EFsignatureList += [ [['EF_ID_FS']] ]
         self.EFsignatureList += [ [['EF_ID_FS_single']] ]
         self.EFsignatureList += [ [['EF_ISO_FS']] ]
         self.EFsignatureList += [ [['EF_ISO_HYPO']] ]
+
+
     ########### TE renaming ##########
 
     if 'msonly' in self.chainPart['reccalibInfo']:
@@ -1291,11 +1314,15 @@ class L2EFChain_mu(L2EFChainDef):
       }
       self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi')
       self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+
+      if 'TagandProbe' in self.chainPart['FSinfo'] : self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+
       if run_isolation:
         self.TErenamingDict['EF_ID_FS_single'] = mergeRemovingOverlap('EF_trkIso_', chainPartNameNoMultNoDS+'EFFSID')
         self.TErenamingDict['EF_ID_FS'] = mergeRemovingOverlap('EF_ID_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF + "_ID")
         self.TErenamingDict['EF_ISO_FS'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISO')
         self.TErenamingDict['EF_ISO_HYPO'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISOHypo')
+
       
  #################################################################################################
   #################################################################################################
@@ -2300,7 +2327,127 @@ class L2EFChain_mu(L2EFChainDef):
                               'EF_mu_step3']]
       self.EFsignatureList += [ [['EF_mu_step3']          ] ]
       self.TErenamingDict['EF_mu_step3'] = mergeRemovingOverlap('EF_mutrkmulti_', idmulti+'_'+self.chainPartNameNoMult.replace(self.chainPart['specialStream'], '')+'_'+self.L2InputTE).replace('__', '_')
+###########################################
+## Adding new noL1btrk feature for muXnoL1btrk triggers, where EF is seeded by 
+#################################################################################################
+  def setup_muXX_noL1btrk(self):
 
+    
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFExtrapolatorMultiHypoConfig, TrigMuonEFExtrapolatorHypoConfig
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerMultiHypoConfig
+    
+    ########### EF algos  #################
+    
+    ##Use list of muon threshold in the chain to correctly configure the FS hypos
+    
+    if len(self.allMuThrs) == 0:
+      log.error("The list of allMuonThreshold is empty for a btrk chain! It should never happen")
+
+    if len(self.allMuThrs) == 1:
+      theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorHypoConfig('Muon', '0GeV')
+      hypocut = '0GeV'
+      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerHypoConfig('Muon', self.allMuThrs[0])
+
+    elif len(self.allMuThrs) == 2:
+      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0], self.allMuThrs[1]) 
+      theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon', '0GeV','0GeV')
+      hypocut = '0GeV_0GeV'
+
+    elif len(self.allMuThrs) == 3:
+      theTrigMuonEFCombinerMultiHypoConfig = TrigMuonEFCombinerMultiHypoConfig('Muon',self.allMuThrs[0],self.allMuThrs[1],self.allMuThrs[2])
+      theTrigMuonEFSA_FS_Hypo = TrigMuonEFExtrapolatorMultiHypoConfig('Muon', '0GeV','0GeV','0GeV')
+      hypocut = '0GeV_0GeV_0GeV'
+    else:
+      log.error("No MuonEFExtrapolatorHypo config yet for events with more than 3 muons (btrk chain)")
+      log.error("No TrigMuonEFCombinerHypo config yet for events with more than 3 muons")
+      
+
+    hypocutEF="MultiComb"     
+    for i in range(0,len(self.allMuThrs)):        
+        hypocutEF +=  "_%s" %(self.allMuThrs[i])
+
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkfast, trkiso, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour=["2step"]).getSequence()
+    #[trkfast, trkprec] = TrigInDetSequence("Muon", "muonBtrk", "IDTrig").getSequence()
+
+
+    from TrigBphysHypo.TrigBphysHypoConf import TrigBphysTrackRoiMaker
+    theTrigBphysTrackRoiMaker = TrigBphysTrackRoiMaker()
+    
+    ########### Sequence List ##############
+
+    # first we would like to get extra tracks in slightly wider cone
+    
+    # This is a tricky place.  So Here we need input from L2 bphys FEX that fills tracks.
+    # but this part of the code is called before bPhys FEX is attached.
+    # so we put a dummy TE here, which is corrected in generateBPhysicsChainDef.py
+
+#    inputTEs = theChainDef.signatureList[-1]['listOfTriggerElements']
+
+#    self.EFsequenceList += [['',
+#                            [PESA__DummyUnseededAllTEAlgo("EFDummyAlgo",createRoIDescriptors=True)],
+#                             'EF_dummyFTK']]
+#    self.EFsequenceList += [['EF_dummyFTK',
+#                             [FSroimaker],
+#                             'EF_dummyRoIFTK']]
+#    self.EFsequenceList += [[inputTEs,
+#                             trkfast,
+#                             'L2_trk_trkBTRK']]
+    self.EFsequenceList += [['L2BPHYS_TOBEFILLED',  # the following algorithm should just find all available tracks
+                             [theTrigBphysTrackRoiMaker],
+                             'EF_trk_ROIBTRK']]
+    self.EFsequenceList += [['EF_trk_ROIBTRK',
+#                            [CfgGetter.getAlgorithm("TrigMuSuperEF_SAonly")],
+                            [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
+                             'EF_SA_FSBTRK']]
+    self.EFsequenceList += [['EF_SA_FSBTRK',
+                             [theTrigMuonEFSA_FS_Hypo],
+                             'EF_SA_FSBTRK2']]
+    self.EFsequenceList += [['EF_SA_FSBTRK',
+                            [CfgGetter.getAlgorithm("TrigMuonEFFSRoiMaker")],
+                             'EF_SAR_FSBTRK']]
+    self.EFsequenceList += [['EF_SAR_FSBTRK',
+                             trkfast+trkprec,       #theTrigEFIDInsideOut_Muon,     #a fallback - it should be replaced by the previous line if it works
+                             'EF_FStracksMuonBTRK']]
+    self.EFsequenceList += [['EF_FStracksMuonBTRK',
+                             [CfgGetter.getAlgorithm("TrigMuSuperEF_TMEFCombinerOnly")],
+                             'EF_CB_FS_singleBTRK']]
+    self.EFsequenceList += [['EF_CB_FS_singleBTRK',
+                            [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregator')],
+                             'EF_CB_FSBTRK']]
+    self.EFsequenceList += [['EF_CB_FSBTRK',
+                             [theTrigMuonEFCombinerMultiHypoConfig],
+                             'EF_CB_FSBTRK2']]
+
+    ########### Signatures ###########
+      
+#    self.EFsignatureList += [ [['EF_dummyBTRK']] ]
+#    self.EFsignatureList += [ [['EF_dummyRoIBTRK']] ]
+#    self.EFsignatureList += [ [['EF_trk_trkBTRK']] ]
+    self.EFsignatureList += [ [['EF_trk_ROIBTRK']] ]
+    self.EFsignatureList += [ [['EF_SA_FSBTRK']] ]
+    self.EFsignatureList += [ [['EF_SA_FSBTRK2']] ]
+    self.EFsignatureList += [ [['EF_SAR_FSBTRK']] ]
+    self.EFsignatureList += [ [['EF_FStracksMuonBTRK']] ]
+    self.EFsignatureList += [ [['EF_CB_FS_singleBTRK']] ]
+    self.EFsignatureList += [ [['EF_CB_FSBTRK']] ]
+    self.EFsignatureList += [ [['EF_CB_FSBTRK2']] ]
+
+    ########### TE renaming ##########
+
+    self.TErenamingDict = {
+        #'EF_trk_ROIBTRK': mergeRemovingOverlap('EF_trk_trkBTRK_','SAFSHypo'+hypocut),
+      'EF_trk_ROIBTRK': mergeRemovingOverlap('EF_trk_ROIBTRK_','SAFSHypo'+hypocutEF),
+      'EF_SA_FSBTRK': mergeRemovingOverlap('EF_SA_FSBTRK_','SAFSHypo'+hypocutEF),
+      'EF_SA_FSBTRK2': mergeRemovingOverlap('EF_SA_FSBTRK2_','SAFSHypo'+hypocutEF),
+      'EF_SAR_FSBTRK': mergeRemovingOverlap('EF_SAR_FSBTRK_','SAFSHypo'+hypocutEF),
+      'EF_FStracksMuonBTRK': mergeRemovingOverlap('EF_FStracksMuonBTRK_', 'SAFSHypo'+hypocutEF),
+      'EF_CB_FS_singleBTRK': mergeRemovingOverlap('EF_CB_FSBTRK_single_','SAFSHypo'+hypocutEF), 
+      'EF_CB_FSBTRK': mergeRemovingOverlap('EF_CB_FSBTRK_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
+      'EF_CB_FSBTRK2': mergeRemovingOverlap('EF_CB_FSBTRK2_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
+
+      }
+ 
 ###########################################
 ## Adding new late-muon chain
 ###########################################

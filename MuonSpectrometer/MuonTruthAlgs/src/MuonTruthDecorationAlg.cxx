@@ -60,7 +60,7 @@ namespace Muon {
     m_SDO_TruthNames.push_back("TGC_SDO");
     m_SDO_TruthNames.push_back("MDT_SDO");
     m_SDO_TruthNames.push_back("MM_SDO");
-    m_SDO_TruthNames.push_back("STGC_SDO");
+    m_SDO_TruthNames.push_back("sTGC_SDO");
     declareProperty("CSCSDOs",   m_CSC_SDO_TruthNames);
     declareProperty("SDOs",      m_SDO_TruthNames);
     std::stable_sort(m_SDO_TruthNames.begin(),m_SDO_TruthNames.end());
@@ -387,7 +387,7 @@ namespace Muon {
 	}
 	if( firstPos && secondPos ){
           Amg::Vector3D gpos = (*firstPos+*secondPos)/2.;
-          Amg::Vector3D gdir = (*firstPos-*secondPos).unit();
+          Amg::Vector3D gdir = (*secondPos-*firstPos).unit();
 	  ATH_MSG_DEBUG(" got position : r " << gpos.perp() << " z " << gpos.z()  
                         << "  and direction: theta " << gdir.theta() << " phi " << gdir.phi() );
           segment->setPosition(gpos.x(),gpos.y(),gpos.z());

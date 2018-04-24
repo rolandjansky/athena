@@ -15,6 +15,9 @@ atlas_depends_on_subdirs( PUBLIC
                           ForwardDetectors/LUCID/LUCID_RawEvent
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRawEvent/InDetBCM_RawData
                           InnerDetector/InDetRawEvent/InDetRawData
@@ -44,5 +47,5 @@ atlas_add_library( VP1RawDataSystems VP1RawDataSystems/*.h src/*.h src/*.cxx src
                    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
                    FILES LUCID_RawEvent/LUCID_Digit.h
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives VP1Base GL
-                   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoModelKernel EventPrimitives LUCID_RawEvent GaudiKernel InDetIdentifier InDetReadoutGeometry InDetBCM_RawData InDetRawData VP1HEPVis VP1Utils )
+                   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} GeoModelKernel EventPrimitives LUCID_RawEvent GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetBCM_RawData InDetRawData VP1HEPVis VP1Utils )
 

@@ -44,6 +44,7 @@ monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e4_etcut',
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1RD0_FILLED',
+    'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5',
     'HLT_e5_lhtight_nod0_e9_etcut_Jpsiee_L1JPSI-1M5-EM7',
     'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',
     'HLT_e5_lhtight_nod0_e14_etcut_Jpsiee_L1JPSI-1M5-EM12',
@@ -82,12 +83,13 @@ monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
 
 monitoring_photon = ['HLT_g25_medium_L1EM20VH',
                      'HLT_g25_medium_sc_L1EM20VH',
-                     'HLT_g200_loose']
+                     'HLT_g20_tight_icalovloose_L1EM15VHI',
+                     'HLT_g140_loose']
 
 #Add the Menu-Aware monitoring; maps a trigger to a category
 monitoring_mam = {'primary_single_ele_iso':'HLT_e28_lhtight_nod0_ivarloose',
                   'primary_double_pho':'HLT_g25_medium_L1EM20VH',
-                  'primary_single_pho':'HLT_g200_loose',
+                  'primary_single_pho':'HLT_g140_loose',
                   'monitoring_Jpsiee' :'HLT_e5_lhtight_nod0'}
 
 # Cosmic items

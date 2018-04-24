@@ -70,10 +70,7 @@ class MMSimHitVariables : public ValAlgVariables
 
   ~MMSimHitVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete MMSimHitVariables.");
-      throw;
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -89,7 +86,7 @@ class MMSimHitVariables : public ValAlgVariables
     }
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   const MmIdHelper* m_MmIdHelper;

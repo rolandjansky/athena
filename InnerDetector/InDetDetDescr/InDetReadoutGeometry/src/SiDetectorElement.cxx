@@ -25,8 +25,6 @@
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
-#include "InDetReadoutGeometry/StripStereoAnnulusDesign.h"
 
 
 #include "InDetReadoutGeometry/SiCommonItems.h"
@@ -158,8 +156,11 @@ SiDetectorElement::updateCache() const
   const HepGeom::Transform3D & geoTransform = transformHit();
 
   double radialShift = 0.;
-  const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
-  if(testDesign) radialShift = testDesign->localModuleCentreRadius(); 
+  //TO:
+  auto testDesign = m_design;
+
+  if(testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
+     radialShift = testDesign->localModuleCentreRadius(); 
       
   HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
   m_centerCLHEP = geoTransform * centerGeoModel;
@@ -629,8 +630,33 @@ bool SiDetectorElement::isNextToInnermostPixelLayer() const
   }
 }  
 
+int SiDetectorElement::getPixelLayer() const {
+  if( isPixel() ){
+    const PixelID *p_pixelId = static_cast<const PixelID *>(getIdHelper());
+    return p_pixelId->layer_disk(m_id);
+  }else{
+    return -1;
+  }
+}
 
-  Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const
+bool SiDetectorElement::isInclined() const {
+  if (isPixel() && isBarrel()) {
+    double myNormalZ = this->normal()[Amg::z];
+    // inclined barrel modules (in the ITk Step 2.2 Inclined Duals layout)
+    // have myNormalZ values of -0.965926 or -0.829044.
+    // Flat barrel modules have myNormalZ = 0
+    // in a perfectly-aligned detector
+    // but once misalignment is added, perhaps the value of 0 below should be changed
+    // to 0.1 or whatever is a reasonable value.
+    double epsilon = 0.1;
+    return(fabs(myNormalZ) > epsilon);
+  }
+  else {
+    return false;
+  }
+}
+
+Amg::Vector2D SiDetectorElement::correctLocalPosition(const Amg::Vector2D &position) const
 {
   Amg::Vector2D correctedPosition(position);
   correctedPosition[distPhi] += getLorentzCorrection();
@@ -836,7 +862,8 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 	       double &phiMin, double &phiMax) const
 {
 
-  const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
+  //TO:
+  auto testDesign = m_design;
 
   HepGeom::Point3D<double> corners[4];
   getCorners(corners);
@@ -846,12 +873,16 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
   double phiOffset = 0.;
 
   double radialShift = 0.;
-  if(testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
+  //TO: check if testdesign is a StripStereoAnnulusDesign
+  if (testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
+      radialShift = testDesign->localModuleCentreRadius(); // additional radial shift for sensors centred on beamline
+
   const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
 
   for (int i = 0; i < 4; i++) {
-
-    if(testDesign) corners[i].transform(rShift);
+    //TO:
+    if(testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
+       corners[i].transform(rShift);
 
     HepGeom::Point3D<double> globalPoint = globalPosition(corners[i]);
 

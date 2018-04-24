@@ -32,10 +32,10 @@ athenaCommonFlags.EvtMax = 1
 #SLHC_Flags.SLHC_Version = ''
 
 ## Simulation flags
-from G4AtlasApps.SimFlags import simFlags
-simFlags.load_atlas_flags()
-simFlags.SimLayout.set_On()
-simFlags.SimLayout='ATLAS-P2-ITK-07-00-00_VALIDATION'
+from G4AtlasApps.SimFlags import SimFlags
+SimFlags.load_atlas_flags()
+SimFlags.SimLayout.set_On()
+SimFlags.SimLayout='ATLAS-P2-ITK-07-00-00_VALIDATION'
 
 # Select the geometry version. 
 from AthenaCommon.GlobalFlags import globalflags
@@ -77,7 +77,7 @@ athenaCommonFlags.SkipEvents.set_Off()
 import ParticleGun as PG
 print dir(PG)
 
-pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
 pg.sampler.pid = 999     # geantino
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[-4.,4.], phi=[0,6.28318])
 topSeq += pg
@@ -85,7 +85,7 @@ topSeq += pg
 
 myRandomSeed1 = int(random.uniform(0,time.time()))
 myRandomSeed2 = int(random.uniform(0,time.time()))
-simFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
+SimFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
 
 from RngComps.RngCompsConf import AtRndmGenSvc
 myAtRndmGenSvc = AtRndmGenSvc()
@@ -95,7 +95,7 @@ myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 
 ## Enable the EtaPhi, VertexSpread and VertexRange checks
-simFlags.EventFilter.set_On()
+SimFlags.EventFilter.set_On()
 
 ## Use the G4 UI commands via a callback function at level 1
 def setup_g4geo():
@@ -109,7 +109,7 @@ def setup_g4geo():
     ## Turn off processes other than transport
     # TODO! Do this using the UI commands
     print "WARNING: the fast physics list is dead! We need to tell this JO to run particle transport only"
-#simFlags.InitFunctions.add_function(1, setup_g4geo)
+#SimFlags.InitFunctions.add_function(1, setup_g4geo)
 
 def test_preInit():
     print "CALLBACK AT PREINIT"
@@ -119,18 +119,16 @@ def use_geometry_check():
     print "CALLBACK use_geometry_check"
     from G4AtlasApps import AtlasG4Eng
     AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetGeometryCheck(250)
-simFlags.InitFunctions.add_function("preInitG4", use_geometry_check)
-simFlags.InitFunctions.add_function("preInit", test_preInit)
-simFlags.InitFunctions.add_function("postInit", test_postInit)
+SimFlags.InitFunctions.add_function("preInitG4", use_geometry_check)
+SimFlags.InitFunctions.add_function("preInit", test_preInit)
+SimFlags.InitFunctions.add_function("postInit", test_postInit)
 
 # ## Exit before instantiation to level 2
 # def force_exit():
 #     from AthenaCommon.AppMgr import theApp
 #     theApp.exit(0)
-# simFlags.InitFunctions.add_function(1, force_exit)
-
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
+# SimFlags.InitFunctions.add_function(1, force_exit)
 
 ## Add app to alg sequence
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
+from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
+topSeq += PyG4AtlasAlg()

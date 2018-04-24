@@ -16,7 +16,7 @@
 
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TRT_TrackExtensionTool_xk/TRT_TrackExtensionToolCosmics.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IPropagator.h"
 #include "TrkSurfaces/CylinderSurface.h"

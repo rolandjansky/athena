@@ -3,5 +3,8 @@ Package:      offline/InnerDetector/InDetDetDescr/InDetReadoutGeometry
 Description:  Detector description managers and readout elements for Pixel
               SCT and TRT.
 
-Dependencies: Identifier, InDetIdentifier, GeoModelKernel, IdDictDetDescr, StoreGate
+History: Original written by Grant Gorfine, bringing together many elements that pre-date Athena. 
+         This package handled the detector managers and readout geometry of all inner detector components. 
+         Split into four packages by Xiaocong Ai, March 2018: InDetReadoutGeometry as the basic package, and 
+         PixelReadoutGeometry, SCT_ReadoutGeometry, and TRT_ReadoutGeometry packages which use InDetReadoutGeometry.
 

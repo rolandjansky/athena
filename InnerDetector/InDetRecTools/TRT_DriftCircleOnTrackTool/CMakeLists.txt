@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           Tracking/TrkTools/TrkToolInterfaces
                           PRIVATE
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecTools/TRT_DriftFunctionTool
                           Tracking/TrkEvent/TrkEventPrimitives )
 
@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TRT_DriftCircleOnTrackTool
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRIO_OnTrack TrkToolInterfaces InDetReadoutGeometry TrkEventPrimitives )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel InDetRIO_OnTrack TrkToolInterfaces TRT_ReadoutGeometry TrkEventPrimitives )
 
 # Install files from the package:
 atlas_install_headers( TRT_DriftCircleOnTrackTool )

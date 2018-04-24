@@ -11,8 +11,8 @@
 #include "Identifier/Identifier.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "InDetAlignGenTools/InDetAlignHitQualSelTool.h"
 

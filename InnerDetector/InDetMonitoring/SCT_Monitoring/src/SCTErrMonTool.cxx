@@ -34,7 +34,7 @@
 #include "DataModel/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "cArrayUtilities.h"
@@ -892,7 +892,7 @@ SCTErrMonTool::fillByteStreamErrors() {
       }
     }
     for (int lyr = 0; lyr != nLayers; ++lyr) {
-      if (m_environment == AthenaMonManager::online &&
+      if (m_environment == AthenaMonManager::online && abs(reg)<3 &&
 	  m_current_lb % m_checkrecent == 0 && m_current_lb > m_last_reset_lb && m_summaryErrsRecent[reg][lyr]) {
 	m_summaryErrsRecent[reg][lyr]->Reset();
       }

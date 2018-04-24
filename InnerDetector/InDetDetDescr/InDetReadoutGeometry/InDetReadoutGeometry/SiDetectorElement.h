@@ -93,7 +93,6 @@ namespace InDetDD {
       -  Miscellaneous
       -  Cache handling.
   
-  
    @author Grant Gorfine
    - modified & maintained: Nick Styles, Andreas Salzburger
    - modified Nigel Hessey: get directions from the design instead of hard-wiring them   
@@ -143,6 +142,8 @@ namespace InDetDD {
       bool isBlayer() const;
       bool isInnermostPixelLayer() const;
       bool isNextToInnermostPixelLayer() const;
+      int  getPixelLayer() const;
+      bool isInclined() const;
       bool isDBM() const;
 
       // Identifier <-> SiCellId (ie strip number or pixel eta_index,phi_index)

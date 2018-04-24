@@ -71,6 +71,9 @@ namespace Trk
       */
       virtual const Surface& surface (const Identifier& id) const = 0;
      
+      /** Returns the full list of all detection surfaces associated to this detector element */
+      virtual const std::vector<const Surface*>& surfaces() const = 0;
+      
       /**Return the boundaries of the element*/
       virtual const SurfaceBounds & bounds() const = 0;
     
@@ -92,6 +95,9 @@ namespace Trk
       /**Return the normal of the surface associated with this identifier
        In the case of silicon it returns the same as normal()*/  
       virtual const Amg::Vector3D & normal(const Identifier& id) const = 0;
+    
+    protected:
+      mutable std::vector<const Trk::Surface*> m_surfaces;  
     
     };
 

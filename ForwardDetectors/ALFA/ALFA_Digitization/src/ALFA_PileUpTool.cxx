@@ -64,7 +64,6 @@ ALFA_PileUpTool::ALFA_PileUpTool(const std::string& type,
   m_AmplitudeCut    (0.24)  
 //  m_fillRootTree    (false) 
 { 
-  declareInterface<IPileUpTool>(this);
   
   m_SimHitCollectionName = "ALFA_HitCollection";
   m_SimODHitCollectionName = "ALFA_ODHitCollection";

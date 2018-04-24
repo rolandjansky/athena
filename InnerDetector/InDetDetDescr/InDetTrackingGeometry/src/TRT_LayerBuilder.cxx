@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetTrackingGeometry/TRT_LayerBuilder.h"
-#include "InDetTrackingGeometry/TRT_OverlapDescriptor.h"
+#include "InDetTrackingGeometryUtils/TRT_OverlapDescriptor.h"
 //Trk
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/RectangleBounds.h"
@@ -27,8 +27,8 @@
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 // InDetDD
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_Numerology.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_Numerology.h"
 #include "InDetIdentifier/TRT_ID.h"
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"

@@ -1,0 +1,35 @@
+package TrigL1CaloUpgradeAnalysis
+
+author Denis Oliveira Damazio <Denis.Oliveira.Damazio@cern.ch>
+
+use AtlasPolicy         AtlasPolicy-*
+#use StoreGate StoreGate-* Control
+
+use GaudiInterface      GaudiInterface-*             External
+
+private
+use AthenaBaseComps AthenaBaseComps-*      Control
+use CaloEvent       CaloEvent-*         Calorimeter
+use LArRawEvent		LArRawEvent-*	LArCalorimeter
+use AtlasROOT	AtlasROOT-*		External/
+use CaloIdentifier              CaloIdentifier-*                Calorimeter
+#use CaloTriggerTool             CaloTriggerTool-*               Calorimeter
+use xAODTrigCalo	xAODTrigCalo-*		Event/xAOD
+use xAODTruth	xAODTruth-*		Event/xAOD
+use xAODEgamma	xAODEgamma-*		Event/xAOD
+use xAODTracking	xAODTracking-*	Event/xAOD
+use xAODTrigger	xAODTrigger-*		Event/xAOD
+use xAODEventInfo	xAODEventInfo-*		Event/xAOD
+use LArCabling        LArCabling-*    LArCalorimeter
+use CaloInterface	CaloInterface-*	Calorimeter
+use TrigL1CaloUpgrade	TrigL1CaloUpgrade-*	Trigger/TrigL1Upgrade
+
+library TrigL1CaloUpgradeAnalysis *.cxx components/*.cxx
+apply_pattern component_library
+#apply_pattern dual_use_library files="*.cxx"
+#apply_pattern installed_library files="*.cxx"
+#apply_pattern library files="*.cxx"
+apply_pattern declare_joboptions files="*.py"
+apply_pattern declare_python_modules files="*.py"
+end_private
+

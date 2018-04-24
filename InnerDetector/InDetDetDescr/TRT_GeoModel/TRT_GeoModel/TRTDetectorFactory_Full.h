@@ -15,7 +15,7 @@
 #ifndef TRTDetectorFactory_Full_h
 #define TRTDetectorFactory_Full_h 1
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h" //for Argon
 #include "GaudiKernel/ServiceHandle.h"

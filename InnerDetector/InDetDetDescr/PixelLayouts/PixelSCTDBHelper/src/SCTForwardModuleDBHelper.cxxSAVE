@@ -1,0 +1,389 @@
+#include "SCTLayoutStdTools/SCTForwardModuleDBHelper.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+#include <cmath>
+
+
+InDet::SCTForwardModuleDBHelper::SCTForwardModuleDBHelper(const OraclePixGeoAccessor* geoAccessor):
+  m_geoAccessor(geoAccessor)
+{
+
+  m_fwdSensor = geoAccessor->getTable("fwdSensor");
+  m_fwdHybrid = geoAccessor->getTable("fwdHybrid");
+  m_fwdSpine = geoAccessor->getTable("fwdSpine");
+  m_fwdModule = geoAccessor->getTable("fwdModule");
+  m_fwdModuleConnector = geoAccessor->getTable("fwdModuleConnector");
+
+
+}
+
+//
+// Forward Sensor
+//
+int
+SCTForwardModuleDBHelper::fwdSensorNumWafers(int iModuleType) const
+{
+  return m_rdb->fwdSensor(iModuleType)->getInt("NUMWAFERS");
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorThickness(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorInnerWidthNear(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("INNERWIDTHNEAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorInnerWidthFar(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("INNERWIDTHFAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorOuterWidthNear(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("OUTERWIDTHNEAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorOuterWidthFar(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("OUTERWIDTHFAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorLengthNear(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("LENGTHNEAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorLengthFar(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("LENGTHFAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorRadiusNear(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("RADIUSNEAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorRadiusFar(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("RADIUSFAR") * CLHEP::mm;
+}
+
+std::string 
+SCTForwardModuleDBHelper::fwdSensorMaterialNear(int iModuleType) const
+{
+  return m_rdb->fwdSensor(iModuleType)->getString("MATERIALNEAR");
+}
+
+std::string 
+SCTForwardModuleDBHelper::fwdSensorMaterialFar(int iModuleType) const
+{
+  return m_rdb->fwdSensor(iModuleType)->getString("MATERIALFAR");
+}
+
+bool
+SCTForwardModuleDBHelper::fwdSensorActiveNear(int iModuleType) const
+{
+  return m_rdb->fwdSensor(iModuleType)->getInt("ACTIVENEAR");
+}
+
+bool
+SCTForwardModuleDBHelper::fwdSensorActiveFar(int iModuleType) const
+{
+  return m_rdb->fwdSensor(iModuleType)->getInt("ACTIVEFAR");
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorActiveHalfLengthNear(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("ACTIVEHALFLENGTHNEAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorActiveHalfLengthFar(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("ACTIVEHALFLENGTHFAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSensorAngularPitch(int iModuleType) const
+{
+  return  m_rdb->fwdSensor(iModuleType)->getDouble("ANGULARPITCH") * CLHEP::radian;
+}
+
+int
+SCTForwardModuleDBHelper::fwdSensorNumStrips(int iModuleType) const
+{
+  return m_rdb->fwdSensor(iModuleType)->getInt("NUMSTRIPS");
+}
+
+int
+SCTForwardModuleDBHelper::fwdSensorNumReadoutStrips(int iModuleType) const
+{
+  return m_rdb->fwdSensor(iModuleType)->getInt("NUMREADOUTSTRIPS");
+}
+
+int
+SCTForwardModuleDBHelper::fwdSensorStripShift(int iModuleType) const
+{
+  return m_rdb->fwdSensor(iModuleType)->getInt("STRIPSHIFT");
+}
+
+
+//
+// Forward Hybrid
+//
+double 
+SCTForwardModuleDBHelper::fwdHybridThickness() const
+{
+  return  m_rdb->fwdHybrid()->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdHybridInnerWidth() const
+{
+  return  m_rdb->fwdHybrid()->getDouble("INNERWIDTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdHybridOuterWidth() const
+{
+  return  m_rdb->fwdHybrid()->getDouble("OUTERWIDTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdHybridLength() const
+{
+  return  m_rdb->fwdHybrid()->getDouble("LENGTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdHybridLengthToCorner() const
+{
+  return  m_rdb->fwdHybrid()->getDouble("LENGTHTOCORNER") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdHybridMountPointToInnerEdge() const
+{
+  return  m_rdb->fwdHybrid()->getDouble("MOUNTPOINTTOINEDGE") * CLHEP::mm;
+}
+
+std::string 
+SCTForwardModuleDBHelper::fwdHybridMaterial() const
+{
+  return m_rdb->fwdHybrid()->getString("MATERIAL");
+}
+
+//
+// Forward Spine
+//
+double 
+SCTForwardModuleDBHelper::fwdSpineThickness(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSpineWidth(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("WIDTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSpineEndToModuleCenter(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("ENDTOMODULECENTER") * CLHEP::mm;
+}
+
+
+double 
+SCTForwardModuleDBHelper::fwdSpineEndLocatorToEndMount(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("ENDLOCATORTOENDMOUNT") * CLHEP::mm;
+}
+
+
+std::string 
+SCTForwardModuleDBHelper::fwdSpineMaterial(int iModuleType) const
+{
+  return m_rdb->fwdSpine(iModuleType)->getString("MATERIAL");
+}
+
+//
+// Forward SubSpine
+//
+
+double 
+SCTForwardModuleDBHelper::fwdSubSpineInnerWidth(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBINNERWIDTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSubSpineInnerLength(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBINNERLENGTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSubSpineInnerRefDist(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBINNERREFDIST") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSubSpineMiddleWidth(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBMIDDLEWIDTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSubSpineMiddleLength(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBMIDDLELENGTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSubSpineMiddleRefDist(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBMIDDLEREFDIST") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSubSpineOuterWidth(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBOUTERWIDTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSubSpineOuterLength(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBOUTERLENGTH") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdSubSpineOuterRefDist(int iModuleType) const
+{
+  return  m_rdb->fwdSpine(iModuleType)->getDouble("SUBOUTERREFDIST") * CLHEP::mm;
+}
+
+std::string 
+SCTForwardModuleDBHelper::fwdSubSpineMaterial(int iModuleType) const
+{
+  return m_rdb->fwdSpine(iModuleType)->getString("SUBMATERIAL");
+}
+
+
+
+//
+// Forward Module
+//
+int
+SCTForwardModuleDBHelper::fwdModuleNumTypes() const
+{
+  return m_rdb->fwdModuleSize();
+}  
+
+double 
+SCTForwardModuleDBHelper::fwdModuleStereoAngle(int iModuleType) const
+{
+  return m_rdb->fwdModule(iModuleType)->getDouble("STEREOANGLE") * CLHEP::milliradian;
+}
+
+int
+SCTForwardModuleDBHelper::fwdModuleStereoUpperSign(int iModuleType) const
+{
+  return m_rdb->fwdModule(iModuleType)->getInt("STEREOUPPERSIGN");
+}
+
+int 
+SCTForwardModuleDBHelper::fwdModuleUpperSideNumber(int iModuleType) const
+{
+  // Old geometries have lower module side = 0 and upper = 1
+  if (m_rdb->fwdModule(iModuleType)->isFieldNull("SIDEUPPER")) {
+    return 1;
+  }
+  return m_rdb->fwdModule(iModuleType)->getInt("SIDEUPPER");
+}
+
+double
+SCTForwardModuleDBHelper::fwdModuleGlueThickness(int iModuleType) const
+{
+  return m_rdb->fwdModule(iModuleType)->getDouble("GLUETHICKNESS") * CLHEP::mm;
+}
+
+double
+SCTForwardModuleDBHelper::fwdModuleMountPoint(int iModuleType) const
+{
+  return m_rdb->fwdModule(iModuleType)->getDouble("MOUNTPOINT") * CLHEP::mm;
+}
+
+double
+SCTForwardModuleDBHelper::fwdModuleDistBtwMountPoints(int iModuleType) const
+{
+  return m_rdb->fwdModule(iModuleType)->getDouble("DISTBTWMOUNTPOINTS") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdModuleHybridEdgeToSpine(int iModuleType) const
+{
+  return m_rdb->fwdModule(iModuleType)->getDouble("HYBRIDEDGETOSPINE")*CLHEP::mm;
+}  
+
+bool 
+SCTForwardModuleDBHelper::fwdHybridIsOnInnerEdge(int iModuleType) const
+{
+  return m_rdb->fwdModule(iModuleType)->getInt("HYBRIDISONINNEREDGE"); 
+}
+
+//
+// Module Connectors
+//
+bool
+SCTForwardModuleDBHelper::fwdModuleConnectorPresent() const
+{
+  if(m_rdb->fwdModuleConnectorTable()->size() > 0) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+
+double 
+SCTForwardModuleDBHelper::fwdModuleConnectorDeltaR() const
+{
+  return m_rdb->fwdModuleConnector()->getDouble("DELTAR") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdModuleConnectorRPhi() const
+{
+  return m_rdb->fwdModuleConnector()->getDouble("RPHI") * CLHEP::mm;
+}
+
+double 
+SCTForwardModuleDBHelper::fwdModuleConnectorThickness() const
+{
+  return m_rdb->fwdModuleConnector()->getDouble("THICKNESS") * CLHEP::mm;
+}
+
+std::string
+SCTForwardModuleDBHelper::fwdModuleConnectorMaterial() const
+{
+  return m_rdb->fwdModuleConnector()->getString("MATERIAL");
+}
+
+

@@ -25,19 +25,6 @@ def muonChains(doIDNewTracking, doFTK):
   if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
   
-  idTrigChainlist.append(['mu24_L2Star_idperf', 'L1_MU20', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
-  idTrigChainlist.append(['mu6_L2Star_idperf', 'L1_MU6', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:0')
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:1')
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:2')
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:InDetTrigParticleCreation_Muon_EFID')
-  tidaAnalysischains.append('HLT_mu24_L2Star_idperf:InDetTrigTrackingxAODCnv_Muon_EFID')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:0')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:1')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:TrigL2SiTrackFinder_Muon:2')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:InDetTrigParticleCreation_Muon_EFID')
-  tidaAnalysischains.append('HLT_mu6_L2Star_idperf:InDetTrigTrackingxAODCnv_Muon_EFID')
-
   idTrigChainlist.append(['mu24_idperf',  'L1_MU20', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
   idTrigChainlist.append(['mu6_idperf',   'L1_MU6', [], ['Main'], ['RATE:SingleMuon','BW:Muon'],   1])
   tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_FTF')
@@ -138,16 +125,16 @@ def bjetChains(doIDNewTracking, doFTK, doBperf):
     #
     'HLT_j55_bperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig',
     'HLT_j55_bperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_FTF',
-    'HLT_j55_bperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig',
-    'HLT_j55_bperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK',
-    'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig',
-    'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit',
+    'HLT_j55_bperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet',
+    'HLT_j55_bperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet:roi=SplitJet',
+    'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet',
+    'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet',
     'HLT_j55_boffperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig',
     'HLT_j55_boffperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_FTF',
-    'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig',
-    'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK',
-    'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig',
-    'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit',
+    'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet',
+    'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet',
+    'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet',
+    'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet',
     ]
   return (idTrigChainlist, tidaAnalysischains)
 
@@ -182,9 +169,12 @@ def minBiasChains(doIDNewTracking):
   if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
 
-  idTrigChainlist.append(['mb_idperf_L1MBTS_2', 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1])
+# idTrigChainlist.append(['mb_idperf_L1MBTS_2', 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1])
+  idTrigChainlist.append(['mb_idperf_L1MBTS_2', 'L1_RD1_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1])
+  idTrigChainlist.append(['mb_idperf_L1RD1_FILLED', 'L1_RD1_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1])
   tidaAnalysischains.append('HLT_mb_idperf_L1MBTS_2:InDetTrigParticleCreation_minBias_EFID')
   tidaAnalysischains.append('HLT_mb_idperf_L1MBTS_2:InDetTrigTrackingxAODCnv_minBias_EFID') 
-  
+  tidaAnalysischains.append('HLT_mb_idperf_L1RD1_FILLED:InDetTrigTrackingxAODCnv_minBias_EFID')
+
   return (idTrigChainlist, tidaAnalysischains)
 

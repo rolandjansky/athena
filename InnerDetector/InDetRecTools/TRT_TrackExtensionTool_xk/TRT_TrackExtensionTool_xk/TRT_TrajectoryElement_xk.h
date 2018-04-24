@@ -17,7 +17,7 @@
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkGeometry/MagneticFieldProperties.h"

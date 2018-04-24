@@ -6,7 +6,7 @@
 #define SCT_CLUSTERIZATION_H
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "TrkPrepRawData/PrepRawDataCLASS_DEF.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "Identifier/Identifier.h"

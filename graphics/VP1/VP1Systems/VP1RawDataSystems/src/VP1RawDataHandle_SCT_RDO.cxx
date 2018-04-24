@@ -20,11 +20,11 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-//#include "InDetReadoutGeometry/InDetReadoutGeometry/SCT_ModuleSideDesign.h" // old CMT
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"   // new CMake
+//#include "InDetReadoutGeometry/SCT_ReadoutGeometry/SCT_ModuleSideDesign.h" // old CMT
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"   // new CMake
 
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetIdentifier/SCT_ID.h"

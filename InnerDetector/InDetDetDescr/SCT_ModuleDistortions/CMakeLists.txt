@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           GaudiKernel
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkParameters
@@ -30,7 +31,7 @@ atlas_add_component( SCT_ModuleDistortions
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives Identifier GaudiKernel InDetReadoutGeometry TrkEventPrimitives TrkParameters AthenaBaseComps StoreGateLib SGtests InDetIdentifier PathResolver )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel GeoPrimitives Identifier GaudiKernel InDetReadoutGeometry SCT_ReadoutGeometry TrkEventPrimitives TrkParameters AthenaBaseComps StoreGateLib SGtests InDetIdentifier PathResolver )
 
 # Install files from the package:
 atlas_install_headers( SCT_ModuleDistortions )

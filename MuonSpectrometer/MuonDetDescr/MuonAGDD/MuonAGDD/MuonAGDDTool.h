@@ -15,6 +15,9 @@ class ITagInfoMgr;
 class IRDBAccessSvc;
 class IGeoModelSvc;
 class GeoFullPhysVol;
+#ifndef SIMULATIONBASE
+class AmdcsimrecAthenaSvc;
+#endif
 
 
 class MuonAGDDTool: public AGDDToolBase
@@ -28,20 +31,24 @@ public:
 			
 private:
 	
-	std::vector<std::string> m_sectionsToBuild;
-	std::vector<std::string> m_volumesToBuild;
 	std::vector<std::string> m_structuresToBuild;
 	std::vector<std::string> m_structuresFromFlags;
 	//std::vector<GeoFullPhysVol*>* m_detectors;
+	std::string m_outFileType;
+	std::string m_outPREsqlName;
 
 	bool m_readAGDD;
-	bool m_locked;
 	bool m_dumpAGDD;
 	bool m_overrideConfiguration;
 	
 	bool m_buildNSW;
-			
+
+#ifndef SIMULATIONBASE
+	ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;
+#endif
+
 	void BuildMuonSpectrometerFromFlags();
+	bool WritePREsqlFile() const;
 
 };
 

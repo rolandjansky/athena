@@ -3,7 +3,7 @@
 */
 
 #include "SCT_CalibModuleListSvc.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 SCT_CalibModuleListSvc::SCT_CalibModuleListSvc(const std::string& name, ISvcLocator* pSvcLocator ) :
     AthService(name, pSvcLocator),

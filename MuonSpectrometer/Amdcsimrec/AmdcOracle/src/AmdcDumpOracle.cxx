@@ -44,7 +44,6 @@ p_IRDBAccessSvcWithUpdate ( "AmdcDb",name )
 // Initialize
 StatusCode AmdcDumpOracle::initialize(){
 
-  StatusCode sc ;
   ATH_MSG_INFO( "Initialisation started     " ) ;
 
 
@@ -61,6 +60,7 @@ StatusCode AmdcDumpOracle::initialize(){
 
 
   if (m_SwitchOff == 0) {
+    StatusCode sc ;
 
 //  Retrieve p_IRDBAccessSvcWithUpdate and set up call back
     if ( p_IRDBAccessSvcWithUpdate.retrieve().isFailure() ) {

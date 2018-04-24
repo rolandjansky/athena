@@ -13,7 +13,7 @@
 
 #include "FTK_RecTools/FTK_PixelClusterOnTrackTool.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"

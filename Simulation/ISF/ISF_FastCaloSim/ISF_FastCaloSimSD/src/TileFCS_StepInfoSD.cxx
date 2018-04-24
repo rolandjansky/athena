@@ -21,7 +21,6 @@
 #include "G4TouchableHistory.hh"
 
 /// Athena headers
-#include "CaloIdentifier/TileID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "TileG4Interfaces/ITileCalculator.h"
 
@@ -56,12 +55,12 @@ G4bool TileFCS_StepInfoSD::ProcessHits(G4Step* a_step, G4TouchableHistory* /*ROh
     else {
       // Some cells is the gap scintillator are only read out by one
       // PMT, so only print warnings if this is not the case.
-      if ((micHit.pmt_up == invalid_id) && !(m_tileID->is_tile_gapscin(micHit.pmt_down))) {
+      if ((micHit.pmt_up == invalid_id) && !(cellReadOutByOnePMT(micHit.pmt_down))) {
         G4cout <<this->GetName()<<" WARNING ProcessHits: Something wrong in identifier: tile pmt_up: "<<micHit.pmt_up<<std::endl;
         G4cout <<this->GetName()<<" WARNING ProcessHits: tile pmt_down : "<<micHit.pmt_down<<" "<<m_tileID->to_string(micHit.pmt_down,-1)<<std::endl;
         G4cout <<this->GetName()<<" WARNING ProcessHits: E up: "<<micHit.e_up<<" E down: "<<micHit.e_down<<" T up: "<<micHit.time_up<<" T down: "<<micHit.time_down<<std::endl;
       }
-      if ((micHit.pmt_down == invalid_id) && !(m_tileID->is_tile_gapscin(micHit.pmt_up))) {
+      if ((micHit.pmt_down == invalid_id) && !(cellReadOutByOnePMT(micHit.pmt_up))) {
         G4cout <<this->GetName()<<" WARNING ProcessHits: Something wrong in identifier: tile pmt_down: "<<micHit.pmt_down<<std::endl;
         G4cout <<this->GetName()<<" WARNING ProcessHits: tile pmt_up: "<<micHit.pmt_up<<" "<<m_tileID->to_string(micHit.pmt_up,-1)<<std::endl;
         G4cout <<this->GetName()<<" WARNING ProcessHits: E up: "<<micHit.e_up<<" E down: "<<micHit.e_down<<" T up: "<<micHit.time_up<<" T down: "<<micHit.time_down<<std::endl;

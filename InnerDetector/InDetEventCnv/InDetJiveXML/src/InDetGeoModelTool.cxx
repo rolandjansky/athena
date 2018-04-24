@@ -4,13 +4,13 @@
 
 #include "InDetJiveXML/InDetGeoModelTool.h"
 
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetIdentifier/TRT_ID.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetIdentifier/SCT_ID.h"
 
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetIdentifier/PixelID.h"
 
 #include "IdDictDetDescr/IdDictManager.h"

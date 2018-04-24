@@ -32,7 +32,7 @@ public:
 
   virtual Trk::ITrkEventCnvTool* getCnvTool(const Identifier& /*id*/) override
   { std::abort(); }
-  virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack */*RoT*/ ) override
+  virtual void recreateRIO_OnTrack( Trk::RIO_OnTrack* /*RoT*/ ) override
   { std::abort(); }
   virtual void prepareRIO_OnTrack( Trk::RIO_OnTrack* /*Rot*/) override
   { std::abort(); }
@@ -99,6 +99,8 @@ public:
   virtual const Amg::Transform3D & transform(const Identifier& /*id*/) const override
   { std::abort(); }
   virtual const Trk::Surface& surface () const override
+  { std::abort(); }
+  virtual const std::vector<const Trk::Surface*>& surfaces() const override
   { std::abort(); }
   virtual const Trk::Surface& surface (const Identifier& /*id*/) const override
   { std::abort(); }

@@ -12,7 +12,7 @@
 
 #undef NDEBUG
 #include "InDetEventTPCnv/PixelClusterContainerCnv_p2.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TestTools/initGaudi.h"
 #include "InDetIdentifier/PixelID.h"

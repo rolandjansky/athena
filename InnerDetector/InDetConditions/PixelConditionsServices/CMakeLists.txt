@@ -24,6 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/Identifier
                           InnerDetector/InDetConditions/PixelConditionsTools
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/PixelCabling
                           InnerDetector/InDetDetDescr/PixelGeoModel )
@@ -50,7 +51,7 @@ atlas_add_component( PixelConditionsServices
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES}
    ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities
    GaudiKernel PixelConditionsData SGTools StoreGateLib CoralDB
-   GeoModelUtilities Identifier InDetIdentifier InDetReadoutGeometry
+   GeoModelUtilities Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry
    PixelGeoModelLib PixelCablingLib PixelConditionsServicesLib )
 
 # Install files from the package:

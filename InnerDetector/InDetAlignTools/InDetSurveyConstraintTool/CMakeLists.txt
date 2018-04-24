@@ -19,6 +19,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/DetDescrCond/DetDescrConditions
                           InnerDetector/InDetAlignTools/InDetAlignGenTools
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry )
 
 # External dependencies:
@@ -30,7 +32,7 @@ atlas_add_component( InDetSurveyConstraintTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel AthenaKernel AtlasDetDescr DetDescrConditions InDetIdentifier InDetReadoutGeometry )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives Identifier EventPrimitives GaudiKernel AthenaKernel AtlasDetDescr DetDescrConditions InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry )
 
 # Install files from the package:
 atlas_install_headers( InDetSurveyConstraintTool )

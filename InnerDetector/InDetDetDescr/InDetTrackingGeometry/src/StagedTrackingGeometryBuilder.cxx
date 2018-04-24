@@ -30,6 +30,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/MsgStream.h"
 #include <boost/lexical_cast.hpp>
+#include <algorithm>
 
 // constructor
 InDet::StagedTrackingGeometryBuilder::StagedTrackingGeometryBuilder(const std::string& t, const std::string& n, const IInterface* p) :
@@ -477,26 +478,54 @@ bool InDet::StagedTrackingGeometryBuilder::setupFitsCache(LayerSetup& layerSetup
 }
  
 bool InDet::StagedTrackingGeometryBuilder::ringLayout(const std::vector<const Trk::Layer*>& layers, std::vector<double>& rmins, std::vector<double>& rmaxs) const {
-    // get the maximum extent in z
-    ATH_MSG_INFO("Checking for Ring layout ... ");
-    for (auto& ring : layers){
-        // Surface
-        const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
-        const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
-        if (ringBounds){
-            // get the main parameters
-            double zpos         = ringSurface.center().z();
-            double rMin         = ringBounds->rMin();
-            double rMax         = ringBounds->rMax();
-            // take and check
-            checkForInsert(rmins,rMin);
-            checkForInsert(rmaxs,rMax);
-            ATH_MSG_INFO(" -> Ring at z-position " << zpos << " - with rMin/rMax = " << rMin << "/" << rMax );
-        }
+  // get the maximum extent in z
+  std::vector<std::pair<double,double>> radii;
+  ATH_MSG_INFO("Checking for Ring layout ... ");
+  for (auto& ring : layers) {
+    // Surface
+    const Trk::Surface&     ringSurface = ring->surfaceRepresentation(); 
+    const Trk::DiscBounds*  ringBounds  = dynamic_cast<const Trk::DiscBounds*>(&(ringSurface.bounds()));
+    if (ringBounds){
+      // get the main parameters
+      double zpos         = ringSurface.center().z();
+      double rMin         = ringBounds->rMin();
+      double rMax         = ringBounds->rMax();
+      // take and check
+      //checkForInsert(rmins,rMin);
+      //checkForInsert(rmaxs,rMax);
+      // take and check the couple rmin/rmax
+      checkForInsert(rMin, rMax, radii);
+      ATH_MSG_INFO(" -> Ring at z-position " << zpos << " - with rMin/rMax = " << rMin << "/" << rMax );
     }
-    return (rmins.size() > 1 );
+  }
+  
+  // you need a post processing of the (rmin,rmax) in order to fit z-overlapping disks in the same ring
+  std::vector<std::pair<double,double>> tmpradii;
+  
+  for (auto& rs: radii) {
+    bool found = false;
+    for (auto& tmprs: tmpradii) {
+      if ((rs.first<tmprs.first and rs.first>tmprs.second) or (rs.second>tmprs.first and rs.second<tmprs.second)) {
+	tmprs.first  = std::min(tmprs.first ,rs.first );
+	tmprs.second = std::max(tmprs.second,rs.second);
+	found = true;
+	break;
+      }
+    }
+    if (found) continue;
+    tmpradii.push_back(rs);
+  }
+   
+  // now you fill rmin and rmax
+  for (auto& r: tmpradii) {
+    rmins.push_back(r.first);
+    rmaxs.push_back(r.second);
+  }
+   
+  //add rmin and rmax
+  return (rmins.size() > 1 );
 }                                              
- 
+
  
 
 const Trk::TrackingVolume* InDet::StagedTrackingGeometryBuilder::createTrackingVolume(const std::vector<const Trk::Layer*>& layers, 

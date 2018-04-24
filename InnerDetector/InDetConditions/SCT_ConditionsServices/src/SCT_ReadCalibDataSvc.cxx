@@ -25,7 +25,7 @@
 #include "Identifier/IdentifierHash.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h" 
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h" 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 // Include Gaudi stuff

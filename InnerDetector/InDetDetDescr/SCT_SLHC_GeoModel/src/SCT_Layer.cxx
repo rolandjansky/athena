@@ -11,7 +11,7 @@
 #include "SCT_SLHC_GeoModel/SCT_Module.h"
 #include "SCT_SLHC_GeoModel/SCT_Ski.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 
 #include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoLogVol.h"

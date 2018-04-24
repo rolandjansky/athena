@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           Tracking/TrkExtrapolation/TrkExInterfaces
@@ -38,7 +39,7 @@ atlas_add_component( TrigTRT_TrackExtensionTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel InDetIdentifier InDetReadoutGeometry InDetPrepRawData TrkExInterfaces TrigInDetEvent GeoPrimitives IRegionSelector Identifier ByteStreamCnvSvcBaseLib MagFieldInterfaces TrkSurfaces TrkParameters TrkRIO_OnTrack TrkDistributedKalmanFilterLib TrkToolInterfaces TrigSteeringEvent TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData TrkExInterfaces TrigInDetEvent GeoPrimitives IRegionSelector Identifier ByteStreamCnvSvcBaseLib MagFieldInterfaces TrkSurfaces TrkParameters TrkRIO_OnTrack TrkDistributedKalmanFilterLib TrkToolInterfaces TrigSteeringEvent TrigTimeAlgsLib )
 
 # Install files from the package:
 atlas_install_headers( TrigTRT_TrackExtensionTool )

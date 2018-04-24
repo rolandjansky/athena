@@ -37,8 +37,8 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"  
-#include "InDetReadoutGeometry/PixelDetectorManager.h"  
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"  
+#include "PixelReadoutGeometry/PixelDetectorManager.h"  
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 

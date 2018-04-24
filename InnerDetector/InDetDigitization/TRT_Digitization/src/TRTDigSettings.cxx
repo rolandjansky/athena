@@ -17,7 +17,7 @@
 //                                                             //
 /////////////////////////////////////////////////////////////////
 #include "TRTDigSettings.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h" //For speed of light
 #include "GaudiKernel/Algorithm.h"         //For adding properties to an algorithm

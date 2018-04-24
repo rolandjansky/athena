@@ -16,7 +16,7 @@
 #include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 
 ///////////////////////////////////////////////////////////////////

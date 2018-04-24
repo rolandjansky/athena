@@ -70,7 +70,7 @@
 #include "InDetSimData/SCT_SimHelper.h"
 #include "InDetSimData/PixelSimHelper.h"
 #include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
 #include "EventInfo/EventInfo.h"
@@ -109,9 +109,9 @@
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "InDetReadoutGeometry/SiDetectorManager.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
+#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"

@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef INDETMATERIALMANAGER_H
 #define INDETMATERIALMANAGER_H
 
@@ -86,7 +82,8 @@ public:
   /// Create and get material with a density calculated to give weight in predefined weight table.
   const GeoMaterial * getMaterialForVolume(const std::string & materialName, 
 					   double volume, 
-					   const std::string & newName = "");
+					   const std::string & newName = "",
+					   const double fudgeFactor=1.);
 
   // Similar to getMaterialForVolume but if weight table uses linear weight, then determine weight 
   // using length. First looks in special table of material compositions which can specify several
@@ -94,7 +91,8 @@ public:
   const GeoMaterial * getMaterialForVolumeLength(const std::string & materialName, 
 						 double volume, 
 						 double length, 
-						 const std::string & newName = "");
+						 const std::string & newName = "",
+						 const double fudgeFactor=1.);
 
   // As above but rather than using the special table of material compositions, the compositions is specified
   // in the arguments as a vector of materials and multiplictive factors.
@@ -102,7 +100,8 @@ public:
 						 const std::vector<std::string> & materialComponents, 
 						 const std::vector<double> factors, 
 						 double volume, 
-						 double length);
+						 double length,
+						 const double fudgeFactor=1.);
   
   // As above but only one material making up the composition.
   const GeoMaterial * getMaterialForVolumeLength(const std::string & name,

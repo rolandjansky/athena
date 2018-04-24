@@ -32,6 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/EventInfo
                           InnerDetector/InDetConditions/InDetCoolCoralClientUtils
                           InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/InDetRecToolInterfaces
                           Tools/PathResolver
@@ -49,11 +50,11 @@ atlas_add_library( TRT_ConditionsServicesLib
                    PUBLIC_HEADERS TRT_ConditionsServices
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaKernel GeoPrimitives EventPrimitives GaudiKernel TRT_ConditionsData StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} AthenaBaseComps AthenaPoolUtilities DetDescrConditions GeoModelUtilities Identifier EventInfo InDetCoolCoralClientUtils InDetIdentifier InDetReadoutGeometry PathResolver )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} AthenaBaseComps AthenaPoolUtilities DetDescrConditions GeoModelUtilities Identifier EventInfo InDetCoolCoralClientUtils InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry PathResolver )
 
 atlas_add_component( TRT_ConditionsServices
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} AthenaKernel GeoPrimitives EventPrimitives GaudiKernel TRT_ConditionsData AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions GeoModelUtilities Identifier EventInfo InDetCoolCoralClientUtils InDetIdentifier InDetReadoutGeometry PathResolver TRT_ConditionsServicesLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES} AthenaKernel GeoPrimitives EventPrimitives GaudiKernel TRT_ConditionsData AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions GeoModelUtilities Identifier EventInfo InDetCoolCoralClientUtils InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry PathResolver TRT_ConditionsServicesLib )
 
 atlas_install_python_modules( python/*.py )

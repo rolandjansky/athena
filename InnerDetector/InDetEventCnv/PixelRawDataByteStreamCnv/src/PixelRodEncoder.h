@@ -24,7 +24,7 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "PixelByteStreamModuleMask.h"
 
 #include "GaudiKernel/ISvcLocator.h"
