@@ -48,6 +48,9 @@ class EFMissingETFromClustersTracksPUC : public EFMissingETBaseTool
     double m_towerEtaWidth;
     double m_towerPhiWidth;
 
+    bool m_saveuncalibrated;
+    xAOD::CaloCluster::State m_clusterstate;
+
     int  m_methelperposition;
     // Tower
     double m_targetTowerWidth;
