@@ -360,7 +360,10 @@ SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.q
 				      "TauJets.IsTruthMatched.truthOrigin.truthType.truthParticleLink.truthJetLink",
 				      "MuonTruthParticles.barcode.decayVtxLink.e.m.pdgId.prodVtxLink.px.py.pz.recoMuonLink.status.truthOrigin.truthType",
 				      "AntiKt4TruthJets.eta.m.phi.pt.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.TruthLabelID.ConeTruthLabelID.PartonTruthLabelID",
-                                      "InDetTrackParticles.TrkIsoPt1000_ptcone20.TrkIsoPt1000_ptcone30.TrkIsoPt1000_ptcone40.TrkIsoPt500_ptcone20.TrkIsoPt500_ptcone30.TrkIsoPt500_ptcone40"
+                                      "InDetTrackParticles.TrkIsoPt1000_ptcone20.TrkIsoPt1000_ptcone30.TrkIsoPt1000_ptcone40.TrkIsoPt500_ptcone20.TrkIsoPt500_ptcone30.TrkIsoPt500_ptcone40",
+                                      "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant.COMB",
+                                      "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
+                                      "HLT_xAOD__JetContainer_GSCJet.pt.eta.phi.m",
                                     ]	      
 
 SUSY1SlimmingHelper.IncludeMuonTriggerContent   = True
@@ -369,7 +372,7 @@ SUSY1SlimmingHelper.IncludeBPhysTriggerContent  = False
 SUSY1SlimmingHelper.IncludeJetTriggerContent    = True
 SUSY1SlimmingHelper.IncludeTauTriggerContent    = True
 SUSY1SlimmingHelper.IncludeEtMissTriggerContent = True
-SUSY1SlimmingHelper.IncludeBJetTriggerContent   = True
+SUSY1SlimmingHelper.IncludeBJetTriggerContent   = False
 
 appendToDictDict = {
   "BTagging_AntiKt4EMPFlow":"xAOD::BTaggingContainer", 
