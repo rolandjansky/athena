@@ -92,7 +92,7 @@ class pidVersion (JobProperty):
     """
     statusOn=True
     allowedTypes=['str']
-    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20180216/'
+    StoredValue='ElectronPhotonSelectorTools/trigger/rel21_20180312/'
 
 _flags.append(pidVersion)
 

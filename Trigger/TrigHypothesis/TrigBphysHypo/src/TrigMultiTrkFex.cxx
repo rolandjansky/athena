@@ -49,7 +49,7 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   HLT::AllTEAlgo(name, pSvcLocator)
   ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
   ,m_BmmHypTot(0)
-  
+  , m_maxNOutputObject(-1)
   , m_trackCollectionKey()
   , m_outputTrackCollectionKey()
   , m_bphysCollectionKey()
@@ -78,6 +78,7 @@ TrigMultiTrkFex::TrigMultiTrkFex(const std::string & name, ISvcLocator* pSvcLoca
   // Read cuts
 
   declareProperty("AcceptAll",    m_acceptAll=true);
+  declareProperty("maxNOutputObject", m_maxNOutputObject  = -1 );
   declareProperty("trackCollectionKey", m_trackCollectionKey  = "" );
   declareProperty("outputTrackCollectionKey", m_outputTrackCollectionKey  = "MultiTrkFex" );
   declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "MultiTrkFex" );
@@ -132,13 +133,13 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
 
   unsigned int nTEs = inputTE.size();
   for ( unsigned int i=0; i < nTEs; ++i) {
-    ATH_MSG_DEBUG(" TE input array " << i );
+    ATH_MSG_DEBUG(  " TE input array " << i );
     unsigned int mTEs = inputTE[i].size();
-   for ( unsigned int j=0; j < mTEs; ++j) {
-     ATH_MSG_DEBUG(" TE input  " << j );
-    if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE[i][j], inVecColl, collectionKey)==HLT::OK ) {
-      ATH_MSG_DEBUG("got track container  " << inVecColl.size() );
-      for( const auto & efmu : inVecColl){	//auto const & inVec: inVecColl ) 
+    for ( unsigned int j=0; j < mTEs; ++j) {
+      ATH_MSG_DEBUG(  " TE input  " << j );
+      if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE[i][j], inVecColl, collectionKey)==HLT::OK ) {
+	ATH_MSG_DEBUG(  "got track container  " << inVecColl.size() );
+	for( const auto & efmu : inVecColl){	//auto const & inVec: inVecColl ) 
 	  // check for overlap
 	  bool found = false;
 	  for(const auto& part : outVec ){
@@ -148,16 +149,16 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
 	    double deltaR2 = deta*deta +dphi*dphi;
 	    if( deltaR2 <= mindR2){
 	      found = true;
- 	      ATH_MSG_DEBUG("Duplicated track pt/eta/phi/q "
+ 	      ATH_MSG_DEBUG(  "Duplicated track pt/eta/phi/q "
 						   << (*efmu)->pt()<< " /  "
 						   << (*efmu)->eta()<< " /  "
 						   << (*efmu)->phi()<< " /  "
-						   << (*efmu)->charge()<< " skip " <<deltaR2 );
+			      << (*efmu)->charge()<< " skip " <<deltaR2 );
 	    }
 	  }
 	  if( !found ) {
 	    outVec.push_back(efmu);	    	
-	    ATH_MSG_DEBUG("Found track pt/eta/phi/q "
+	    ATH_MSG_DEBUG(  "Found track pt/eta/phi/q "
 						 << (*efmu)->pt()<< " /  "  
 						 << (*efmu)->eta()<< " /  "
 						 << (*efmu)->phi()<< " /  "
@@ -185,7 +186,7 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
     if(  pt < ptObjMin[ipt] ) failMuonPt = true;	  
   }
   if( failMuonPt ){
-    ATH_MSG_DEBUG("Fail track pt cut" );
+    ATH_MSG_DEBUG(  "Fail track pt cut" );
     return false;
   }
   // here would be good to limit number of objects to the minimum
@@ -205,8 +206,8 @@ HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
     std::sort(m_ptTrkMin.begin(),m_ptTrkMin.end(), std::greater<float>());
     std::sort(m_ptMuonMin.begin(),m_ptMuonMin.end(), std::greater<float>());
     
-    if(  m_trackCollectionKey != "" ) msg() << MSG::INFO << "trackCollectionKey"<< m_trackCollectionKey  << endmsg;
-    msg() << MSG::INFO << "Select "           << m_nTrk 	<< " tracks " << endmsg;    
+    if(  m_trackCollectionKey != "" )  msg() << MSG::INFO << "trackCollectionKey"<< m_trackCollectionKey  << endmsg;
+    msg() << MSG::INFO << "Select "           << m_nTrk 	<< " tracks " << endmsg;
     msg() << MSG::INFO << " with pts ";	
     for(float pt :  m_ptTrkMin) msg() << MSG::INFO << pt<<", ";
     msg() << MSG::INFO << endmsg;  
@@ -265,8 +266,12 @@ HLT::ErrorCode TrigMultiTrkFex::hltInitialize()
       msg() << MSG::INFO << endmsg;
     }  
     msg() << MSG::INFO << " Overlap removal dR<"<<m_mindR << endmsg;
+    if ( m_maxNOutputObject > 0 ){
+       msg() << MSG::INFO << " Will consider only first " <<  m_maxNOutputObject << " good combinations " << endmsg;
+    }
   }
 
+  
   if ( timerSvc() ) {
     m_BmmHypTot = addTimer("TrigMultiTrkFex");
   }
@@ -404,13 +409,14 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 
     //std::vector<const xAOD::TrackParticle*> highptTracks; 
     std::vector<ElementLink<xAOD::TrackParticleContainer> > highptTracks; 
-
+    highptTracks.reserve(tracks.size());
+    
     // preserve all tracks with pt passing lowest requested
     float lowestPt = m_ptTrkMin.back();
     for(const auto& trk :  tracks ){
       if( (*trk)->pt() < lowestPt ) continue;      
       highptTracks.push_back( trk );
-	  ATH_MSG_DEBUG("Select track: " << " pt: " <<  (*trk)->pt()<< " eta: " << (*trk)->eta()<< " phi: " << (*trk)->phi()<< " q: "   << (*trk)->charge());
+      ATH_MSG_DEBUG("Select track: " << " pt: " <<  (*trk)->pt()<< " eta: " << (*trk)->eta()<< " phi: " << (*trk)->phi()<< " q: "   << (*trk)->charge());
     }
 
     m_mon_highptNTrk = highptTracks.size() ;
@@ -420,13 +426,14 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     xAOD::TrigBphysContainer * xAODTrigBphysColl = new xAOD::TrigBphysContainer;
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl;
     xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
+    xAODTrigBphysColl->reserve(highptTracks.size()); // hard to give here good estimate
     std::vector<double> masses(2,m_trkMass);    
     
     // record also tracks that are used in any collection
     xAOD::TrackParticleContainer* outputTrackColl = new xAOD::TrackParticleContainer();
     xAOD::TrackParticleAuxContainer outputTrackCollAuxCont;
     outputTrackColl->setStore( &outputTrackCollAuxCont );
-
+    outputTrackColl->reserve(highptTracks.size());
 
     
     //=====make all requested m_nTrk combinations =================
@@ -438,28 +445,29 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     ATH_MSG_DEBUG(" Making combinations with "<< m_nTrk<<" tracks out of "<<NtracksTotal);
 
     // permute bitmask
-    std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks; 
-    std::vector<int> thisIterationTracksIndex; 
-    std::vector<int> index_0;
+    std::vector<ElementLink<xAOD::TrackParticleContainer> > thisIterationTracks;
+    std::vector<int> thisIterationTracksIndex;
+    thisIterationTracks.reserve(m_nTrk);
+    thisIterationTracksIndex.reserve(m_nTrk);
+    std::unordered_set<int> index_0;
+    index_0.reserve(NtracksTotal);
     do {
-      
       thisIterationTracks.clear();
-      std::ostringstream combi;
-      std::ostringstream hpts;
+      thisIterationTracksIndex.clear();
+      
       for (size_t i = 0; i < NtracksTotal; ++i) // [0..N-1] integers	
 	{
 	  if (bitmask[i]) {
 	    thisIterationTracks.push_back( highptTracks[i] );// std::cout << " " << i;
 	    thisIterationTracksIndex.push_back( i );
-	    combi << i << " ";  // for debug
-	    hpts << (*highptTracks[i])->pt() << ", " ;
 	  }
 	}
-      
       //=== now check if combination is OK
-      ATH_MSG_DEBUG( " Combination "<< combi.str() 
-                     << ", Ntrk="<< thisIterationTracks.size() 
-                     << " pts=["<< hpts.str() << " ]" );
+      // OI : here we need a print out, need to figure out how to do this efficienctly
+      //combinationIndex++;
+      //ATH_MSG_DEBUG( " Combination "<< combinationIndex
+      //               << ", Ntrk="<< thisIterationTracks.size() 
+      //               << " pts=["<< hpts.str() << " ]" );
       
       
       //==== re-check pts
@@ -530,6 +538,7 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
       //== calculate mass of pairs if requested ================
        
        std::vector<double> dimasses;
+       dimasses.reserve(m_nTrk*m_nTrk);
        
        int npair = 0; 
        int npairAcc = 0;
@@ -611,17 +620,25 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
 	     //delete xaodobj; xaodobj = nullptr;
 	     continue;
 	   }else{
-	    ATH_MSG_DEBUG(" nTrk Vertex chi2  "<< chi2 << " required "<<m_nTrkVertexChi2 << " is good" );
-	     index_0.insert( index_0.end(), thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );
+	     ATH_MSG_DEBUG(  " nTrk Vertex chi2  "<< chi2 << " required "<<m_nTrkVertexChi2 << " is good" );
+	     index_0.insert( thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );
 	   }
 	 }else{
-	     index_0.insert( index_0.end(), thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );    
+	     index_0.insert( thisIterationTracksIndex.begin(), thisIterationTracksIndex.end()  );    
 	 }
        } // end of vertexFit.isFailure
 
        passNTrkVertexChi2 = true;
 
        m_mon_accepted_highptNTrk =  highptTracks.size() ;
+
+       // now check if the number of output objects is too large for further processing. In principle a few candidate is already enough for further steps.
+       if( m_maxNOutputObject> 0 && ((int)xAODTrigBphysColl->size() > m_maxNOutputObject ||  (int)index_0.size() > m_maxNOutputObject*m_nTrk) ){
+	 if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << " found "<<  xAODTrigBphysColl->size()
+					 << " suitable objects and "<< index_0.size()<< " tracks, enough for acceptance, stopping" <<endmsg;
+	 break;
+       }
+       
 
     } while (std::prev_permutation(bitmask.begin(), bitmask.end()));
   //------------- end of combination loop
@@ -664,10 +681,11 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     }
 
     //OI if we did not reach this point, then we do not have a good combination at all, nothing to save
-    ATH_MSG_DEBUG(" OI got # of indexes " << index_0.size() );
-    sort( index_0.begin(), index_0.end() );
-    index_0.erase( unique( index_0.begin(), index_0.end() ), index_0.end() );
-    ATH_MSG_DEBUG(" OI got unique # of indexes " << index_0.size() );
+    ATH_MSG_DEBUG(  " got # of indexes " << index_0.size() );
+    //sort( index_0.begin(), index_0.end() );
+    //index_0.erase( unique( index_0.begin(), index_0.end() ), index_0.end() );
+    //ATH_MSG_DEBUG(  " got unique # of indexes " << index_0.size() );
+    outputTrackColl->reserve(index_0.size());
     for( auto ind : index_0 ){
       xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
       trk1->makePrivateStore(*highptTracks[ind]);
@@ -675,8 +693,6 @@ HLT::ErrorCode TrigMultiTrkFex::hltExecute(std::vector<std::vector<HLT::TriggerE
     }
    
     ATH_MSG_DEBUG(" OI size of output Track collection " << outputTrackColl->size() );
- 
-
 
     // add also containter with tracks for seeded EF Muon
     if (m_outputTrackCollectionKey!= "" && outputTrackColl && outputTrackColl->size()) {

@@ -32,3 +32,4 @@ class AFPJetAllTE(TrigAFPJetAllTE):
         self.maxProtonDist=4
         self.maxProtonDiff_x=3
         self.maxProtonDiff_y=2
+        self.requireDoubleTag=True #true to require protons on both sides, false to only require a tag on one side

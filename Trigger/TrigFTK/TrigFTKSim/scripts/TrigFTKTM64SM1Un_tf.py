@@ -277,5 +277,12 @@ def addFTKSimulationArgs(parser):
         help='Output BS_FTK file',
         group='BS Files')
 
+    parser.add_argument(
+        '--outputAODFile', nargs='+',
+        type=trfArgClasses.argFactory(trfArgClasses.argTAGFile, io='output'),
+        help='Output AOD file',
+        group='Reco Files')
+
+
 if __name__ == '__main__':
     main()

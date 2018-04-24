@@ -79,7 +79,7 @@ if doHitsOnTrack:
                                          doSpacePoint        = True,      #Turn on/off histograms with Spacepoint information                              
                                          doCluster           = True,      #Turn on/off histograms with Cluster information
                                          doTrack             = True,      #Turn on/off histograms with Track information                                   
-                                         doStatus            = False,     #Turn on/off histograms with Module Status information                           
+                                         doStatus            = True,     #Turn on/off histograms with Module Status information                           
                                          doDCS               = False,
                                         
                                          ##Names of storegate containers                                                                                                     

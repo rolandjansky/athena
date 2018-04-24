@@ -387,7 +387,7 @@
     </Variable>
   </SortAlgo>
 
-  <SortAlgo type="MuonSelect" name="MUs" output="MUs" algoId="21">
+  <SortAlgo type="MuonSort" name="MUs" output="MUs" algoId="21">
     <Fixed>
       <Input name="MuonTobArray" value="MuonTobArray"/>
       <Output name="TobArrayOut" value="MUs"/>
@@ -850,9 +850,9 @@
     <Variable>
       <Parameter pos="0" name="MinET" value="40"/>
       <Parameter pos="1" name="EtaMin" value="-16"/>
-      <Parameter pos="2" name="EtaMax" value="1"/>
+      <Parameter pos="2" name="EtaMax" value="16"/>
       <Parameter pos="3" name="PhiMin" value="15"/>
-      <Parameter pos="4" name="PhiMax" value="21"/>
+      <Parameter pos="4" name="PhiMax" value="29"/>
     </Variable>
   </DecisionAlgo>
 
@@ -869,9 +869,9 @@
     <Variable>
       <Parameter pos="0" name="MinET" value="100"/>
       <Parameter pos="1" name="EtaMin" value="-16"/>
-      <Parameter pos="2" name="EtaMax" value="1"/>
+      <Parameter pos="2" name="EtaMax" value="16"/>
       <Parameter pos="3" name="PhiMin" value="15"/>
-      <Parameter pos="4" name="PhiMax" value="21"/>
+      <Parameter pos="4" name="PhiMax" value="29"/>
     </Variable>
   </DecisionAlgo>
 
@@ -888,9 +888,9 @@
     <Variable>
       <Parameter pos="0" name="MinET" value="19"/>
       <Parameter pos="1" name="EtaMin" value="-16"/>
-      <Parameter pos="2" name="EtaMax" value="1"/>
+      <Parameter pos="2" name="EtaMax" value="16"/>
       <Parameter pos="3" name="PhiMin" value="15"/>
-      <Parameter pos="4" name="PhiMax" value="21"/>
+      <Parameter pos="4" name="PhiMax" value="29"/>
     </Variable>
   </DecisionAlgo>
 

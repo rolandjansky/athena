@@ -124,6 +124,10 @@ from TrigEgammaHypo.TrigEFPhotonHypoConfig import (EFPhotonHypo_g_EtCut,
                                                    EFPhotonHypo_g_ID_CaloOnly_Iso)
 
 from TriggerMenu.egamma.EgammaCleanMonitoring import EgammaChainsToKeepMonitoring
+
+# In order to smartly turn off monitoring, and to avoid turning off monitoring on algorithms previusly selected to keep monitoring The following list will keep track of what is turned on:
+ListOfMonitoredHypos=[]
+
 from TriggerMenu.menu.CleanMonitoring import KeepMonitoring, DisableMonitoringButValAndTime
 
 # Helper utilities
@@ -936,8 +940,18 @@ class EgammaSequence(object):
             if step not in seq:
                 log.debug('Hypo only step %s ', step)
                 seq[step]=hypo[step]
-        if ( self._disable_mon ):
-            self._config_monitoring(hypo)
+        if ( self._disable_mon):
+            if not hypo in ListOfMonitoredHypos:
+                #only disable monitoring of hypo if both, chain is *not* in list and if hypo NOT in the list of hypos to keep monitoring
+                self._config_monitoring(hypo)
+                log.debug('DISABLED_MON for '+str(hypo))
+            else:
+                log.debug('NOTDISABLED_MON for '+str(hypo))
+        else:
+            # if here it means this hypo IS to be configured. So store it in ListOfMonitoredHypos, unless is already there:
+            if not hypo in ListOfMonitoredHypos:
+                log.debug('ENABLED_MON for '+str(hypo))
+                ListOfMonitoredHypos.append(hypo)
         self.sequences = seq
         return seq       
     
