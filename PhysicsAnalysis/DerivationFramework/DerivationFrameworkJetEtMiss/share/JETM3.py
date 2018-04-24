@@ -43,7 +43,6 @@ JETM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM3Sk
 ToolSvc += JETM3SkimmingTool
 
 #Trigger matching decorations
-#commented out because of merge with EXOT5
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
 DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
                                                              name = "JETM3_TriggerMatchingAugmentation",

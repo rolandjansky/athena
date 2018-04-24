@@ -42,21 +42,20 @@ JETM2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM2Sk
 ToolSvc += JETM2SkimmingTool
 
 #Trigger matching decorations
-#commented out because of merge with EXOT5
-#from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
-#DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
-#                                                             name = "JETM2_TriggerMatchingAugmentation",
-#                                                             DecorationPrefix = "DFCommonTrigger_",
-#                                                             ElectronContainerName = "Electrons",
-#                                                             MuonContainerName = "Muons",
-#                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
-#	                                                             )
-#ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
-#NewTrigVars=[]
-#for contain in ["Electrons","Muons"]:
-#    new_content=".".join(["JETM2_"+t for t in eltrigsel +
-#                          mutrigsel])
-#    NewTrigVars.append(contain+"."+new_content)
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
+DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
+                                                             name = "JETM2_TriggerMatchingAugmentation",
+                                                             DecorationPrefix = "DFCommonTrigger_",
+                                                             ElectronContainerName = "Electrons",
+                                                             MuonContainerName = "Muons",
+                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
+	                                                             )
+ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
+NewTrigVars=[]
+for contain in ["Electrons","Muons"]:
+    new_content=".".join(["JETM2_"+t for t in eltrigsel +
+                          mutrigsel])
+    NewTrigVars.append(contain+"."+new_content)
 
 #====================================================================
 # SET UP STREAM   
@@ -200,9 +199,7 @@ JETM2SlimmingHelper.AllVariables = ["MuonTruthParticles", "egammaTruthParticles"
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
 JETM2SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
-                                      "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
-#JETM2SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
-#                                      "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]+NewTrigVars
+                                      "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]+NewTrigVars
 
 for truthc in [
     "TruthMuons",
