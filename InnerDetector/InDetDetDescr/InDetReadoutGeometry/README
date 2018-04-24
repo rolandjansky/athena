@@ -1,18 +1,10 @@
 Package:      offline/InnerDetector/InDetDetDescr/InDetReadoutGeometry  
 
-Originial author:  Grant Gorfine, left particle physics
-Responsible:       Xiaocong Ai <xiaocong.ai@desy.de>
-
-Description:  Detector description manager and readout elements base classes.
-              Used by Pixel, SCT/Strips and TRT.
+Description:  Detector description managers and readout elements for Pixel
+              SCT and TRT.
 
 History: Original written by Grant Gorfine, bringing together many elements that pre-date Athena. 
          This package handled the detector managers and readout geometry of all inner detector components. 
          Split into four packages by Xiaocong Ai, March 2018: InDetReadoutGeometry as the basic package, and 
          PixelReadoutGeometry, SCT_ReadoutGeometry, and TRT_ReadoutGeometry packages which use InDetReadoutGeometry.
 
-         Next: goal is to simplify the identifier schemes, reference frames, transformations, and generally simplify 
-         InDetReadoutGeometry and Pixel, SCT_ and TRT_ReadoutGeometry packages. Planned changes are in 
-         https://gitlab.cern.ch/nstyles/ReadoutGeometryDocumentation
-
-         This is a major change and will be disruptive, but hopefully worth it in the long run.
