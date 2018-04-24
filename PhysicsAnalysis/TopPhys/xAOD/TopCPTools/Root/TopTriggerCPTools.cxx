@@ -209,22 +209,26 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   
   // Create muon trigger SF tool 
   ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
-  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");  
+  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool;//("CP::MuonTriggerScaleFactors/MuonTrigEff");  
+  muonTool.setTypeAndName("CP::MuonTriggerScaleFactors/MuonTrigEff");
   if(muonQuality != "None")
     top::check(muonTool.setProperty("MuonQuality", muonQuality), "Failed to set MuonQuality");
   top::check(muonTool.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF");
   //top::check(muonTool.initialize(), "Failed to initialise");
   top::check(muonTool.retrieve(), "Failed to retrieve");
-  muonTools.push_back(muonTool.getHandle());
+  muonTools.push_back(muonTool.getHandle());      
+  ATH_MSG_INFO("Muon tool name (tight) " << muonTools[muonTools.size()-1].name());
 
   ToolHandleArray<CP::IMuonTriggerScaleFactors> muonToolsLoose;
-  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonToolLoose("CP::MuonTriggerScaleFactors/MuonTrigEffLoose");
+  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonToolLoose;//("CP::MuonTriggerScaleFactors/MuonTrigEffLoose");
+  muonToolLoose.setTypeAndName("CP::MuonTriggerScaleFactors/MuonTrigEffLoose");
   if(muonQualityLoose != "None")
     top::check(muonToolLoose.setProperty("MuonQuality", muonQualityLoose), "Failed to set MuonQuality");
   top::check(muonToolLoose.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF");
   //top::check(muonToolLoose.initialize(), "Failed to initialise");
   top::check(muonToolLoose.retrieve(), "Failed to retrieve");
   muonToolsLoose.push_back(muonToolLoose.getHandle());
+  ATH_MSG_INFO("Muon tool name (loose) " << muonToolsLoose[muonTools.size()-1].name());
 
   // Construct the trigger combinations from  the electron and muon trigger combinations
   // Electron triggers

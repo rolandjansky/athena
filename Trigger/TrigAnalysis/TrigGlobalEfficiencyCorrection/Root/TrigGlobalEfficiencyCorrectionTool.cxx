@@ -572,8 +572,9 @@ bool TrigGlobalEfficiencyCorrectionTool::getTriggerLegEfficiencies(const xAOD::M
 			hltTrig.insert(i+4, "HLT_", 4);
 		}
 	}
+	ATH_MSG_DEBUG(tool);
 	ATH_MSG_DEBUG("Muon - HLT trigger string : " << hltTrig );
-	ATH_MSG_DEBUG(tool->name());
+	ATH_MSG_DEBUG(tool.name());
 	success = success && checkAndRecord(tool->getTriggerEfficiency(*p, efficiencies.mc(), hltTrig, kFALSE));
 	success = success && checkAndRecord(tool->getTriggerEfficiency(*p, efficiencies.data(), hltTrig, kTRUE));
 	ATH_MSG_DEBUG("found for that muon eff(data) = " << efficiencies.data()<<" and eff(MC) = "<<efficiencies.mc());
