@@ -456,7 +456,6 @@ StatusCode CaloClusterMomentsMaker_DigiHSTruth::execute(xAOD::CaloClusterContain
 
         if(hashid >= (signalCells)->size()) continue;
         pCell = (*signalCells).findCell(hashid);
-				std::cout << "Jenn cell info: " << pCell->e() << "\t" << (*cellIter)->e() << std::endl;
         TLorentzVector cellPJ(0,0,0,0);
 
 	Identifier myId = pCell->ID();

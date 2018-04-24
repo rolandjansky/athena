@@ -40,6 +40,10 @@ namespace HepMC {
   class GenEvent;
 }
 
+namespace ISFTesting {
+  class TruthSvc_test;
+}
+
 namespace ISF {
 
   class ITruthStrategy;
@@ -54,6 +58,10 @@ namespace ISF {
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
   */
   class TruthSvc : public extends<AthService, ITruthSvc> {
+
+    // allow test to access private data
+    friend ISFTesting::TruthSvc_test;
+
   public:
 
     //** Constructor with parameters */
@@ -80,13 +88,20 @@ namespace ISF {
     /** Record the given truth incident to the MC Truth */
     void recordIncidentToMCTruth( ITruthIncident& truthincident);
     /** Record and end vertex to the MC Truth for the parent particle */
-    HepMC::GenVertex *createGenVertexFromTruthIncident( ITruthIncident& truthincident);
+    HepMC::GenVertex *createGenVertexFromTruthIncident( ITruthIncident& truthincident,
+                                                        bool replaceExistingGenVertex=false);
 
     /** Set shared barcode for child particles */
     void setSharedChildParticleBarcode( ITruthIncident& truthincident);
 
     /** Delete child vertex */
     void deleteChildVertex(HepMC::GenVertex*);
+
+    /** Helper function to determine the largest particle barcode set by the generator */
+    int maxGeneratedParticleBarcode(HepMC::GenEvent *genEvent) const;
+
+    /** Helper function to determine the largest vertex barcode set by the generator */
+    int maxGeneratedVertexBarcode(HepMC::GenEvent *genEvent) const;
 
     ServiceHandle<Barcode::IBarcodeSvc>       m_barcodeSvc;           //!< The Barcode service
 

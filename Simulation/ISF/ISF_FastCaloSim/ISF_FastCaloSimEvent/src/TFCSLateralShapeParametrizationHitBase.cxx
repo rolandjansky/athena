@@ -12,18 +12,8 @@
 //======= TFCSLateralShapeParametrization =========
 //=============================================
 
-TFCSLateralShapeParametrizationHitBase::TFCSLateralShapeParametrizationHitBase(const char* name, const char* title):TFCSParametrization(name,title),m_Ekin_bin(-1),m_calosample(-1)
+TFCSLateralShapeParametrizationHitBase::TFCSLateralShapeParametrizationHitBase(const char* name, const char* title):TFCSLateralShapeParametrization(name,title)
 {
-}
-
-void TFCSLateralShapeParametrizationHitBase::set_Ekin_bin(int bin)
-{
-  m_Ekin_bin=bin;
-}
-
-void TFCSLateralShapeParametrizationHitBase::set_calosample(int cs)
-{
-  m_calosample=cs;
 }
 
 int TFCSLateralShapeParametrizationHitBase::get_number_of_hits(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
@@ -36,14 +26,4 @@ void TFCSLateralShapeParametrizationHitBase::simulate_hit(Hit& hit,TFCSSimulatio
   int cs=calosample();
   hit.eta()=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
   hit.phi()=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-}
-
-void TFCSLateralShapeParametrizationHitBase::Print(Option_t *option) const
-{
-  TString opt(option);
-  if(!opt.IsWhitespace()) opt="";
-  TFCSParametrization::Print(option);
-
-  ATH_MSG_INFO(opt <<"  Ekin_bin="<<Ekin_bin());
-  ATH_MSG_INFO(opt <<"  calosample="<<calosample());
 }

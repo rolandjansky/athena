@@ -41,6 +41,7 @@ atlas_depends_on_subdirs(
    Tracking/TrkEvent/TrkMeasurementBase
    Tracking/TrkEvent/TrkParameters
    Tracking/TrkEvent/TrkParticleBase
+   Tracking/TrkEvent/TrkSpacePoint
    Tracking/TrkEvent/TrkTrack
    Tracking/TrkEvent/TrkTrackSummary
    Tracking/TrkEvent/TrkTruthData
@@ -62,6 +63,6 @@ atlas_add_component( InDetGlobalMonitoring
    IdDictDetDescr Identifier EventInfo EventPrimitives xAODJet xAODTracking
    GeneratorObjects InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry InDetBCM_RawData
    InDetRawData InDetPrepRawData InDetRIO_OnTrack LWHists TrkSurfaces
-   TrkEventPrimitives TrkMeasurementBase TrkParameters TrkParticleBase TrkTrack
+   TrkEventPrimitives TrkMeasurementBase TrkSpacePoint TrkParameters TrkParticleBase TrkTrack
    TrkTrackSummary TrkTruthData VxVertex TrkExInterfaces TrkToolInterfaces
    TrkVertexFitterInterfaces PixelGeoModelLib InDetTrackSelectionToolLib )

@@ -63,12 +63,8 @@ if hasattr(runArgs, "inputFile"):
 # We don't expect both inputFile and inputEVNT*File to be specified
 if hasattr(runArgs, "inputEVNTFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNTFile )
-elif hasattr(runArgs, "inputEVNT_COSMICSFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_COSMICSFile )
-elif hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_CAVERNFile )
-elif hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_STOPPEDFile )
+elif hasattr(runArgs, "inputEVNT_TRFile"):
+    setInputEvgenFileJobProperties( runArgs.inputEVNT_TRFile )
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
     fast_chain_log.debug('No inputEVNTFile provided. OK, as performing cosmics simulation.')
     athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -80,8 +76,9 @@ else:
 if hasattr(runArgs, "outputHITSFile"):
     athenaCommonFlags.PoolHitsOutput.set_Value_and_Lock( runArgs.outputHITSFile )
 else:
-    if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-        simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_STOPPEDFile )
+    if hasattr(runArgs, "outputEVNT_TRFile"):
+        if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+            simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_TRFile )
     #raise RuntimeError("No outputHITSFile provided.")
     fast_chain_log.info('No outputHITSFile provided. This simulation job will not write out any HITS file.')
     athenaCommonFlags.PoolHitsOutput = ""
@@ -102,16 +99,32 @@ if hasattr(runArgs, "preSimInclude"):
     for fragment in runArgs.preSimInclude:
         include(fragment)
 
-
-# Avoid command line preInclude for stopped particles
-if hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
+if hasattr(runArgs, "inputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
 
 # Avoid command line preInclude for cavern background
-if hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    include('SimulationJobOptions/preInclude.G4ReadCavern.py')
-if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
-    include('SimulationJobOptions/preInclude.G4WriteCavern.py')
+if jobproperties.Beam.beamType.get_Value() != 'cosmics':
+    # If it was already there, then we have a stopped particle file
+    if hasattr(runArgs, "inputEVNT_TRFile") and\
+        not hasattr(topSeq,'TrackRecordGenerator'):
+        include('SimulationJobOptions/preInclude.G4ReadCavern.py')
+    # If there's a stopped particle file, don't do all the cavern stuff
+    if hasattr(runArgs, "outputEVNT_TRFile") and\
+        not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
+        include('SimulationJobOptions/preInclude.G4WriteCavern.py')
+
+# Avoid command line preInclude for event service
+if hasattr(runArgs, "eventService") and runArgs.eventService:
+    include('AthenaMP/AthenaMP_EventService.py')
+
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if jobproperties.Beam.beamType.get_Value() == 'cosmics':
+    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
+elif hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('MC12G4')
 
 # temporary fix to ensure TRT will record hits if using FATRAS
 # this should eventually be removed when it is configured properly in ISF
@@ -120,25 +133,27 @@ if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
     TrkDetFlags.TRT_BuildStrawLayers=True
     fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
 
+try:
+    from ISF_Config import FlagSetters
+    FlagSetters.configureFlagsBase()
+## Check for any simulator-specific configuration
+    configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
+    if configureFlags is not None:
+        configureFlags()
+except:
+    ## Select detectors
+    if 'DetFlags' not in dir():
+        ## If you configure one det flag, you're responsible for configuring them all!
+        from AthenaCommon.DetFlags import DetFlags
+        DetFlags.all_setOn()
+    DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
+    DetFlags.Truth_setOn()
+    DetFlags.Forward_setOff() # Forward dets are off by default
+    checkHGTDOff = getattr(DetFlags, 'HGTD_setOff', None)
+    if checkHGTDOff is not None:
+        checkHGTDOff() #Default for now
 
-## Select detectors
-
-
-if 'DetFlags' not in dir():
-    ## If you configure one det flag, you're responsible for configuring them all!
-    from AthenaCommon.DetFlags import DetFlags
-    DetFlags.all_setOn()
-
-DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
-DetFlags.Truth_setOn()
-DetFlags.digitize.LVL1_setOff()
-# note this makeRIO enables forward detectors, so have to set them off after
-DetFlags.makeRIO.all_setOn()
-DetFlags.Forward_setOff()
-DetFlags.ZDC_setOff()
-DetFlags.digitize.ZDC_setOff()
-DetFlags.digitize.Micromegas_setOff()
-DetFlags.digitize.sTGC_setOff()
+DetFlags.Print()
 
 # removed configuration of forward detectors from standard simulation config
 # corresponding code block removed
@@ -222,9 +237,9 @@ if hasattr(runArgs, "postSimInclude"):
     for fragment in runArgs.postSimInclude:
         include(fragment)
 
-# Avoid command line postInclude for stopped particles
-if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
+if hasattr(runArgs, "outputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
 
 ## Post-exec
 if hasattr(runArgs, "postSimExec"):

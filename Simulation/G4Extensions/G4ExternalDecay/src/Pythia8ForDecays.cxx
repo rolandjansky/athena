@@ -23,6 +23,7 @@
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 #include "TLorentzVector.h"
+#include "MCUtils/HepMCUtils.h"
 
 // STL includes
 #include <cstdlib>
@@ -64,6 +65,27 @@ G4ParticleDefinition* Pythia8ForDecays::GetParticleDefinition(const int pdgEncod
   return particleDefinition;
 }
 
+
+std::pair<int,int> Pythia8ForDecays::fromIdWithSquark( int idRHad) const
+{
+
+  // Find squark flavour content.
+  int idRSb            = m_pythia->settings.mode("RHadrons:idSbottom");
+  int idRSt            = m_pythia->settings.mode("RHadrons:idStop");
+  int idLight = (abs(idRHad) - 1000000) / 10;
+  int idSq    = (idLight < 100) ? idLight/10 : idLight/100;
+  int id1     = (idSq == 6) ? idRSt : idRSb;
+  if (idRHad < 0) id1 = -id1;
+
+  // Find light (di)quark flavour content.
+  int id2     =  (idLight < 100) ? idLight%10 : idLight%100;
+  if (id2 > 10) id2 = 100 * id2 + abs(idRHad)%10;
+  if ((id2 < 10 && idRHad > 0) || (id2 > 10 && idRHad < 0)) id2 = -id2;
+
+  // Done.
+  return std::make_pair( id1, id2);
+
+}
 
 // TODO: Would be nice for this to be a public function in Pythia8::RHadrons.hh
 std::pair<int,int> Pythia8ForDecays::fromIdWithGluino( int idRHad, Pythia8::Rndm* rndmPtr) const 
@@ -139,6 +161,16 @@ void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event
   // Note: this function returns an int, but we don't need or use its output
 }
 
+bool Pythia8ForDecays::isGluinoRHadron(int pdgId) const{
+  const unsigned short q1 = MCUtils::PID::_digit(MCUtils::PID::Location::nq1,pdgId);
+  const unsigned short ql = MCUtils::PID::_digit(MCUtils::PID::Location::nl,pdgId);
+  if (q1 == 0 || q1 == 9 || ql == 9){
+    return true;
+  }
+  return false;
+
+}
+
 void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicParticle*> & particles)
 {
 
@@ -155,37 +187,55 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   double mRHad  = event[iRNow].m();
   int    iR0    = 0;
   int    iR2    = 0;
+  bool isTriplet = !isGluinoRHadron(idRHad);
 
   // Find flavour content of squark or gluino R-hadron.
-  // Note that for now, this only works with gluinos
-  // A similar function for squarks may be found in the RHadrons.cc code in Pythia8
-  std::pair<int,int> idPair = fromIdWithGluino( idRHad, &(m_pythia->rndm));
+  std::pair<int,int> idPair = (isTriplet) ? fromIdWithSquark( idRHad) : fromIdWithGluino( idRHad, &(m_pythia->rndm));
   int id1 = idPair.first;
   int id2 = idPair.second;
 
   // Sharing of momentum: the squark/gluino should be restored
   // to original mass, but error if negative-mass spectators.
-  int idRGo = 1000021; // Todo: Hard-coded, but could (and should) be generalized
+  int idRSb            = m_pythia->settings.mode("RHadrons:idSbottom");
+  int idRSt            = m_pythia->settings.mode("RHadrons:idStop");
+  int idRGo            = m_pythia->settings.mode("RHadrons:idGluino");
+  int idLight = (abs(idRHad) - 1000000) / 10;
+  int idSq    = (idLight < 100) ? idLight/10 : idLight/100;
+  int idRSq     = (idSq == 6) ? idRSt : idRSb;
+
+  int idRBef = isTriplet ? idRSq : idRGo;
   
-  double mRBef = pdt.mSel(idRGo);
+  double mRBef = pdt.mSel(idRBef);
   double fracR = mRBef / mRHad;
   if (fracR >= 1.) return;
 
-  // Hard wired for gluino -- could be generalized
-  double mOffsetCloudRH = 0.2; // could be read from internal data?
-  double m1Eff  = pdt.constituentMass(id1) + mOffsetCloudRH;
-  double m2Eff  = pdt.constituentMass(id2) + mOffsetCloudRH;
-  double frac1 = (1. - fracR) * m1Eff / ( m1Eff + m2Eff);
-  double frac2 = (1. - fracR) * m2Eff / ( m1Eff + m2Eff);
+  //Squark case
+  if(isTriplet){
+    int colNew = event.nextColTag();
+    int col    = (event[idRBef].col() != 0) ? colNew : 0;
+    int acol   = (col == 0) ? colNew : 0;
 
-  // Two new colours needed in the breakups.
-  int col1 = event.nextColTag();
-  int col2 = event.nextColTag();
+    // Store the constituents of a squark R-hadron.
+    iR0 = event.append( id1, 106, iRNow, 0, 0, 0, col, acol, fracR * event[iRNow].p(), fracR * mRHad, 0.);
+    iR2 = event.append( id2, 106, iRNow, 0, 0, 0, acol, col, (1. - fracR) * event[iRNow].p(), (1. - fracR) * mRHad, 0.);
+  }
+  //Gluino case
+  else{
+    double mOffsetCloudRH = 0.2; // could be read from internal data?
+    double m1Eff  = pdt.constituentMass(id1) + mOffsetCloudRH;
+    double m2Eff  = pdt.constituentMass(id2) + mOffsetCloudRH;
+    double frac1 = (1. - fracR) * m1Eff / ( m1Eff + m2Eff);
+    double frac2 = (1. - fracR) * m2Eff / ( m1Eff + m2Eff);
 
-  // Store the constituents of a gluino R-hadron.
-  iR0 = event.append( idRGo, 106, iRNow, 0, 0, 0, col2, col1, fracR * event[iRNow].p(), fracR * mRHad, 0.);
-  event.append( id1, 106, iRNow, 0, 0, 0, col1, 0, frac1 * event[iRNow].p(), frac1 * mRHad, 0.);
-  iR2 = event.append( id2, 106, iRNow, 0, 0, 0, 0, col2, frac2 * event[iRNow].p(), frac2 * mRHad, 0.);
+    // Two new colours needed in the breakups.
+    int col1 = event.nextColTag();
+    int col2 = event.nextColTag();
+
+    // Store the constituents of a gluino R-hadron.
+    iR0 = event.append( idRBef, 106, iRNow, 0, 0, 0, col2, col1, fracR * event[iRNow].p(), fracR * mRHad, 0.);
+    event.append( id1, 106, iRNow, 0, 0, 0, col1, 0, frac1 * event[iRNow].p(), frac1 * mRHad, 0.);
+    iR2 = event.append( id2, 106, iRNow, 0, 0, 0, 0, col2, frac2 * event[iRNow].p(), frac2 * mRHad, 0.);
+  }
 
   // Mark R-hadron as decayed and update history.
   event[iRNow].statusNeg();
@@ -194,9 +244,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   // Generate events. Quit if failure.
   if (!m_pythia->next()) {
     m_pythia->forceRHadronDecays();
-    event.list();
   }
-  event.list();
 
   ///////////////////////////////////////////////////////////////////////////
   // Add the particles from the Pythia event into the GEANT particle vector

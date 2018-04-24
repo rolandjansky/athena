@@ -137,6 +137,7 @@ InDetFlags.doSecVertexFinder=False
 InDetFlags.doV0Finder=False
 InDetFlags.preProcessing=doIDNewTracking
 InDetFlags.postProcessing=doIDNewTracking
+InDetFlags.doCaloSeededBrem=False
 
 
 

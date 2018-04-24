@@ -74,7 +74,6 @@ def MakeClustersFromTowers(clusterMakerName='CaloClusterMaker',clusterContainerK
     caloNoiseTool = CaloNoiseToolDefault()
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += caloNoiseTool
-    from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
 
     # moment maker
     from CaloRec.CaloTopoClusterFlags import jobproperties
@@ -86,7 +85,6 @@ def MakeClustersFromTowers(clusterMakerName='CaloClusterMaker',clusterContainerK
     clusterMoments.UsePileUpNoise = True
     clusterMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
     clusterMoments.MinBadLArQuality = 4000
-    clusterMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
     clusterMoments.MomentsNames = ["FIRST_PHI" 
                                    ,"FIRST_ETA"
                                    ,"SECOND_R" 
@@ -113,8 +111,6 @@ def MakeClustersFromTowers(clusterMakerName='CaloClusterMaker',clusterContainerK
                                    ,"BAD_CELLS_CORR_E"
                                    ,"BADLARQ_FRAC"
                                    ,"ENG_POS"
-                                   ,"ENG_BAD_HV_CELLS"
-                                   ,"N_BAD_HV_CELLS"
                                    ,"SIGNIFICANCE"
                                    ,"CELL_SIGNIFICANCE"
                                    ,"CELL_SIG_SAMPLING"
@@ -123,6 +119,15 @@ def MakeClustersFromTowers(clusterMakerName='CaloClusterMaker',clusterContainerK
                                    ,"PTD"
                                    ,"MASS"
                                    ]
+
+    # only add HV related moments if it is offline.
+    from IOVDbSvc.CondDB import conddb
+    if not conddb.isOnline:
+        from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
+        clusterMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
+        clusterMoments.MomentsNames += ["ENG_BAD_HV_CELLS"
+                                        ,"N_BAD_HV_CELLS"
+                                        ]
 
     # cluster maker
     from CaloRec.CaloRecConf import CaloClusterMaker
