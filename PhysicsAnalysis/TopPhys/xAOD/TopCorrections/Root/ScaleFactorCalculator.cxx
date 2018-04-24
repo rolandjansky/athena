@@ -25,7 +25,8 @@ ScaleFactorCalculator::ScaleFactorCalculator(const std::string& name) :
   m_jetSF(nullptr),
   m_btagSF(nullptr),
   m_pileupSF(nullptr),
-  m_sherpa_22_reweight_tool("PMGSherpa22VJetsWeightTool") {
+  m_sherpa_22_reweight_tool("PMGSherpa22VJetsWeightTool"),
+  m_globalLeptonTriggerSF(nullptr){
   declareProperty("config", m_config);
 }
 
@@ -39,6 +40,7 @@ StatusCode ScaleFactorCalculator::initialize() {
   m_jetSF = std::make_unique<top::JetScaleFactorCalculator>("top::JetScaleFactorCalculator");
   m_btagSF = std::make_unique<top::BTagScaleFactorCalculator>("top::BTagScaleFactorCalculator");
   m_pileupSF = std::make_unique<top::PileupScaleFactorCalculator>("top::PileupScaleFactorCalculator");
+  m_globalLeptonTriggerSF = std::make_unique<top::GlobalLeptonTriggerCalculator>("top::GlobalLeptonTriggerCalculator");
 
   if (m_config->isMC()) {
     if (m_config->usePhotons()) {
@@ -74,6 +76,11 @@ StatusCode ScaleFactorCalculator::initialize() {
     if (m_config->isSherpa22Vjets())
       top::check(m_sherpa_22_reweight_tool.retrieve(),
                  "Failed to retrieve PMGSherpa22VJetsWeightTool");
+    
+    if (m_config->useElectrons() || m_config->useMuons()){
+      top::check(m_globalLeptonTriggerSF->setProperty("config", m_config), "Failed to setProperty");
+      top::check(m_globalLeptonTriggerSF->initialize(), "Failed to initalize");
+    }
   }
 
   if (m_config->doPileupReweighting()) {
@@ -108,6 +115,9 @@ StatusCode ScaleFactorCalculator::execute() {
                  "Failed to retrieve EventInfo");
       double sherpa_weight = m_sherpa_22_reweight_tool->getWeight();
       eventInfo->auxdecor<double>("Sherpa22VJetsWeight") = sherpa_weight;
+    }
+    if (m_config->useElectrons() || m_config->useMuons()){
+      top::check(m_globalLeptonTriggerSF->execute(), "Failed to exectute global trigger SF");
     }
   }
   return StatusCode::SUCCESS;

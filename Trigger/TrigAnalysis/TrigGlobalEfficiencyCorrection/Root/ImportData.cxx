@@ -65,7 +65,7 @@ bool ImportData::readDataFile(const char* filename, std::vector<std::string>& co
 				{
 					auto i = line.find('#');
 					if(i != std::string::npos) line = line.substr(0,i);
-					if(line.length() >= 5) contents.emplace_back(std::move(line));
+					if(line.length() >= 4) contents.emplace_back(std::move(line));
 				}
 			}
 			if(!f.eof())
@@ -113,11 +113,13 @@ bool ImportData::importTriggers()
 	bool success = true;
 	for(auto& line : config)
 	{
+                ATH_MSG_DEBUG(line);
 		ss.clear();
 		ss.str(line);
 		ss >> triggerName;
 		std::size_t h = m_hasher(triggerName);
 		m_dictionary[h] = triggerName;
+		ATH_MSG_DEBUG(std::to_string(h) << " " << triggerName );
 		auto& def = m_triggerDefs[h];
 		for(std::size_t& leg : def.leg)
 		{
@@ -532,6 +534,7 @@ std::vector<ImportData::TrigDef> ImportData::parseTriggerString(const std::strin
 	while(std::getline(ss,s,'|'))
 	{
 		std::size_t trig = m_hasher(s);
+		ATH_MSG_DEBUG(std::to_string(trig) << " --> " << s );
 		auto itr = m_triggerDefs.find(trig);
 		if(itr == m_triggerDefs.end())
 		{

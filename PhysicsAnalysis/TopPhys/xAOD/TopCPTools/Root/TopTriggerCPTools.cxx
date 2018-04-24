@@ -6,6 +6,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 // Top includes
 #include "TopConfiguration/TopConfig.h"
@@ -20,7 +21,11 @@
 #include "TrigTauMatching/TrigTauMatching.h"
 #include "TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
-
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
+#include "PATCore/PATCoreEnums.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include "TopConfiguration/ConfigurationSettings.h"
 
 namespace top {
 
@@ -112,64 +117,162 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   // 1. Get trigger strings
   // eg...
   std::map<std::string,std::string> triggerCombination;
-  triggerCombination["2015"] = "2e12_lhloose_L12EM10VH || e17_lhloose_mu14  || mu18_mu8noL1"
-    "|| e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose || mu20_iloose_L1MU15";
-  triggerCombination["2016"] = "2e17_lhvloose_nod0 || e17_lhloose_nod0_mu14  || mu22_mu8noL1 "
-    "|| e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0 || mu26_ivarmedium";
   std::map<std::string,std::string> legsPerKey;
-  auto cc = TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(triggerCombination, "2015_2017/rel21.2/Moriond_February2018_v1", legsPerKey);
   
+  top::ConfigurationSettings* configSettings = top::ConfigurationSettings::get();
+  std::string electron_triggers = configSettings->value("ElectronTriggers");
+  std::string muon_triggers     = configSettings->value("MuonTriggers");
+  std::vector<std::string> e_trigs, m_trigs;
+  boost::split(e_trigs, electron_triggers, boost::is_any_of(" "));
+  boost::split(m_trigs, muon_triggers,     boost::is_any_of(" "));
+
+  std::map<std::string, std::vector<std::string> > electronTriggerCombination, muonTriggerCombination;
+  for(auto& t : e_trigs){
+    std::vector<std::string> tmp, tmp1;
+    boost::split(tmp, t, boost::is_any_of("@"));
+    boost::split(tmp1, tmp.at(1), boost::is_any_of(","));
+    electronTriggerCombination[tmp.at(0)] = tmp1;
+  }
+
+  for(auto& t : m_trigs){
+    std::vector<std::string> tmp, tmp1;
+    boost::split(tmp, t, boost::is_any_of("@"));
+    boost::split(tmp1, tmp.at(1), boost::is_any_of(","));
+    muonTriggerCombination[tmp.at(0)] = tmp1;
+  }
+
   // Get quality
   std::string electronID             = m_config->electronID();
   std::string electronIDLoose        = m_config->electronIDLoose();
   std::string electronIsolation      = m_config->electronIsolation();
   std::string electronIsolationLoose = m_config->electronIsolationLoose();
-  // Tidy name
+  std::string muonQuality            = m_config->muonQuality();
+  std::string muonQualityLoose       = m_config->muonQualityLoose();
+  // Tidy name for e/gamma
   electronID      = mapWorkingPoints(electronID);
   electronIDLoose = mapWorkingPoints(electronIDLoose);
-  // Create electron / muon tools for tight
+
+  // Create electron trigger SF and Eff tools
   ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> electronEffTools, electronSFTools, electronEffToolsLoose, electronSFToolsLoose;
-  std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> > electronToolsFactory, electronToolsFactoryLoose; // for RAII
+  std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> > electronToolsFactory, electronToolsFactoryLoose;
   std::map<std::string,std::string> legsPerTool, legsPerToolLoose;
   int nTools = 0;
   // Loop over the triggers found (electrons)
-  for(auto& kv : legsPerKey){
-    const std::string& trigKey = kv.first;
-    for(int j=0;j<2;++j) // one tool instance for efficiencies, another for scale factors
-      {
-	auto t = electronToolsFactory.emplace(electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff_"+std::to_string(nTools++));
-	top::check(t->setProperty("TriggerKey", (j? trigKey : "Eff_"+trigKey)), "Failed to set TriggerKey");
-	top::check(t->setProperty("IdKey", electronID), "Failed to set IdKey");
-	top::check(t->setProperty("IsoKey", electronIsolation), "Failed to set IsoKey");
-	top::check(t->setProperty("CorrelationModel","TOTAL"), "Failed to set CorrelationModel");
-	top::check(t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Failed to set ForceDataType");
-	top::check(t->setProperty("OutputLevel", MSG::DEBUG), "Failed to set OutputLevel");
-	top::check(t->initialize(), "Failed to initalise");
-	auto& handles = j? electronSFTools : electronEffTools;
-	handles.push_back(t->getHandle());
-	std::string name = handles[handles.size()-1].name();
-	legsPerTool[name] = legsPerKey[trigKey];
+  //  for(auto& trigKey : e_trigs){
+  for(auto& y_t : electronTriggerCombination){
+    std::string year = y_t.first;
+    for(auto& trigKey : y_t.second){
+      nTools++;
+      for(int j=0;j<2;++j) // one tool instance for efficiencies, another for scale factors
+	{
+	  ATH_MSG_INFO("TIGHT " << year << " " << trigKey << " " << electronID << " " << electronIsolation );
+	  auto t = electronToolsFactory.emplace(electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff_"+std::to_string(j)+"_"+std::to_string(nTools));
+	  top::check(t->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/map1.txt"), "Fail");
+	  top::check(t->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)), "Failed to set TriggerKey");
+	  if (electronID != "None")
+	    top::check(t->setProperty("IdKey", electronID), "Failed to set IdKey");
+	  if (electronIsolation != "None")
+	    top::check(t->setProperty("IsoKey", electronIsolation), "Failed to set IsoKey");
+	  top::check(t->setProperty("CorrelationModel","TOTAL"), "Failed to set CorrelationModel");
+	  top::check(t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Failed to set ForceDataType");
+	  top::check(t->setProperty("OutputLevel", MSG::INFO), "Failed to set OutputLevel");
+	  top::check(t->initialize(), "Failed to initalise");
+	  // Using syntax from examples
+	  auto& handles = j? electronSFTools : electronEffTools;
+	  handles.push_back(t->getHandle());
+	  std::string name = handles[handles.size()-1].name();
+	  legsPerTool[name] = trigKey;
+	  ATH_MSG_INFO("TIGHT " << name << " -> " << trigKey);
+	  
+	  ATH_MSG_INFO("LOOSE " << year << " " << trigKey << " " << electronIDLoose << " " << electronIsolationLoose );
+	  auto tLoose = electronToolsFactoryLoose.emplace(electronToolsFactoryLoose.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEffLoose_"+std::to_string(j)+"_"+std::to_string(nTools));
+	  top::check(tLoose->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/map1.txt"), "Fail");
+	  top::check(tLoose->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)),"Failed to set TriggerKey");
+	  if (electronIDLoose != "None")
+	    top::check(tLoose->setProperty("IdKey", electronIDLoose),"Failed to set IdKey");
+	  if (electronIsolationLoose != "None")
+	    top::check(tLoose->setProperty("IsoKey", electronIsolationLoose),"Failed to set IsoKey");
+	  top::check(tLoose->setProperty("CorrelationModel","TOTAL"), "Failed to set CorrelationModel");
+	  top::check(tLoose->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Failed to set ForceDataType");
+	  top::check(tLoose->setProperty("OutputLevel", MSG::INFO), "Failed to set OutputLevel");
+	  top::check(tLoose->initialize(), "Failed to initalise");
+	  // Using syntax from examples
+	  auto& handlesLoose = j? electronSFToolsLoose : electronEffToolsLoose;
+	  handlesLoose.push_back(tLoose->getHandle());
+	  name = handlesLoose[handlesLoose.size()-1].name();
+	  legsPerToolLoose[name] = trigKey;
+          ATH_MSG_INFO("LOOSE " << name << " -> " << trigKey);
+	  
+	}
+    }
+  } 
+  
+  // Create muon trigger SF tool 
+  ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
+  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");  
+  if(muonQuality != "None")
+    top::check(muonTool.setProperty("MuonQuality", muonQuality), "Failed to set MuonQuality");
+  top::check(muonTool.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF");
+  //top::check(muonTool.initialize(), "Failed to initialise");
+  top::check(muonTool.retrieve(), "Failed to retrieve");
+  muonTools.push_back(muonTool.getHandle());
 
-	auto t = electronToolsFactoryLoose.emplace(electronToolsFactoryLoose.end(), "AsgElectronEfficiencyCorrectionToolLoose/ElTrigEff_"+std::to_string(nTools++));
-	top::check(t->setProperty("TriggerKey", (j? trigKey : "Eff_"+trigKey)),"Failed to set TriggerKey");
-	top::check(t->setProperty("IdKey", electronIDLoose),"Failed to set IdKey");
-	top::check(t->setProperty("IsoKey", electronIsolationLoose),"Failed to set IsoKey");
-	top::check(t->setProperty("CorrelationModel","TOTAL"), "Failed to set CorrelationModel");
-	top::check(t->setProperty("ForceDataType", (int)PATCore::ParticleDataType::Full), "Failed to set ForceDataType");
-	top::check(t->setProperty("OutputLevel", MSG::DEBUG), "Failed to set OutputLevel");
-	top::check(t->initialize(), "Failed to initalise");
-	auto& handles = j? electronSFToolsLoose : electronEffToolsLoose;
-        handles.push_back(t->getHandle());
-	std::string name = handles[handles.size()-1].name();
-	legsPerToolLoose[name] = legsPerKey[trigKey];
-      }
+  ToolHandleArray<CP::IMuonTriggerScaleFactors> muonToolsLoose;
+  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonToolLoose("CP::MuonTriggerScaleFactors/MuonTrigEffLoose");
+  if(muonQualityLoose != "None")
+    top::check(muonToolLoose.setProperty("MuonQuality", muonQualityLoose), "Failed to set MuonQuality");
+  top::check(muonToolLoose.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF");
+  //top::check(muonToolLoose.initialize(), "Failed to initialise");
+  top::check(muonToolLoose.retrieve(), "Failed to retrieve");
+  muonToolsLoose.push_back(muonToolLoose.getHandle());
+
+  // Construct the trigger combinations from  the electron and muon trigger combinations
+  // Electron triggers
+  for(auto& key : electronTriggerCombination){
+    if(triggerCombination.find(key.first) == triggerCombination.end()){
+      triggerCombination[key.first] = "";
+    }
+    else{
+      triggerCombination[key.first] += " || ";
+    }
+    triggerCombination[key.first] += boost::algorithm::join(key.second, " || ");
   }
-  
+  // Muon triggers
+  for(auto& key : muonTriggerCombination){
+    if(triggerCombination.find(key.first) == triggerCombination.end()){
+      triggerCombination[key.first] = "";
+    }
+    else{
+      triggerCombination[key.first] += " || ";
+    }
+    triggerCombination[key.first] += boost::algorithm::join(key.second, " || ");
+  }
 
+  for(auto kv: triggerCombination) ATH_MSG_INFO("TRIG: " << kv.first << " -> " << kv.second);
 
-  
+  // Make the global trigger tool
+  //asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> globalTriggerEffTool("TrigGlobalEfficiencyCorrectionTool/TrigGlobal");
+  TrigGlobalEfficiencyCorrectionTool* globalTriggerEffTool =  new TrigGlobalEfficiencyCorrectionTool("TrigGlobalEfficiencyCorrectionTool::TrigGlobal");
+  top::check(globalTriggerEffTool->setProperty("ElectronEfficiencyTools", electronEffTools), "");
+  top::check(globalTriggerEffTool->setProperty("ElectronScaleFactorTools", electronSFTools), "");
+  top::check(globalTriggerEffTool->setProperty("MuonTools", muonTools), "");
+  top::check(globalTriggerEffTool->setProperty("ListOfLegsPerTool", legsPerTool), "");
+  top::check(globalTriggerEffTool->setProperty("TriggerCombination", triggerCombination), "");
+  top::check(globalTriggerEffTool->setProperty("OutputLevel", MSG::DEBUG), "");
+  top::check(globalTriggerEffTool->initialize(), "Failed to initalise");
+  m_globalTriggerEffTool = globalTriggerEffTool;
 
-
+  //asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> globalTriggerEffToolLoose("TrigGlobalEfficiencyCorrectionTool/TrigGlobalLoose");
+  TrigGlobalEfficiencyCorrectionTool* globalTriggerEffToolLoose =  new TrigGlobalEfficiencyCorrectionTool("TrigGlobalEfficiencyCorrectionTool::TrigGlobalLoose");
+  top::check(globalTriggerEffToolLoose->setProperty("ElectronEfficiencyTools", electronEffToolsLoose), "");
+  top::check(globalTriggerEffToolLoose->setProperty("ElectronScaleFactorTools", electronSFToolsLoose), "");
+  top::check(globalTriggerEffToolLoose->setProperty("MuonTools", muonToolsLoose), "");
+  top::check(globalTriggerEffToolLoose->setProperty("ListOfLegsPerTool", legsPerToolLoose), "");
+  top::check(globalTriggerEffToolLoose->setProperty("TriggerCombination", triggerCombination), "");
+  top::check(globalTriggerEffToolLoose->setProperty("OutputLevel", MSG::DEBUG), "");
+  top::check(globalTriggerEffToolLoose->initialize(), "Failed to initalise");
+  m_globalTriggerEffToolLoose = globalTriggerEffToolLoose;
+  return StatusCode::SUCCESS;
 }
 
 std::string TriggerCPTools::mapWorkingPoints(const std::string& type) {

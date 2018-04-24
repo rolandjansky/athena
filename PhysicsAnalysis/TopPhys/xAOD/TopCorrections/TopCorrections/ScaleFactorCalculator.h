@@ -34,6 +34,7 @@
 #include "TopCorrections/JetScaleFactorCalculator.h"
 #include "TopCorrections/BTagScaleFactorCalculator.h"
 #include "TopCorrections/PileupScaleFactorCalculator.h"
+#include "TopCorrections/GlobalLeptonTriggerCalculator.h"
 
 namespace top {
 
@@ -66,7 +67,7 @@ class ScaleFactorCalculator final : public asg::AsgTool{
   std::unique_ptr<top::BTagScaleFactorCalculator>     m_btagSF;
   std::unique_ptr<top::PileupScaleFactorCalculator>   m_pileupSF;
   ToolHandle<PMGTools::PMGSherpa22VJetsWeightTool> m_sherpa_22_reweight_tool;
-  
+  std::unique_ptr<top::GlobalLeptonTriggerCalculator> m_globalLeptonTriggerSF;
 };
 }  // namespace top
 
