@@ -48,39 +48,25 @@ namespace LArG4 {
       double zPosInMother;
     };
 
-    // Standard implementation of a singleton pattern.
-
-    const PresamplerGeometry* PresamplerGeometry::GetInstance()
+    PresamplerGeometry::PresamplerGeometry(const std::string& name, ISvcLocator * pSvcLocator)
+      : base_class(name, pSvcLocator)
+      , m_c(new Clockwork())
     {
-      static PresamplerGeometry instance; // used as const after initialization
-      return &instance;
+
     }
 
-    PresamplerGeometry::PresamplerGeometry():
-      m_c(new Clockwork())
+    StatusCode PresamplerGeometry::initialize()
     {
-      
-      StatusCode status;
       // Access the GeoModelSvc:
       ISvcLocator *svcLocator = Gaudi::svcLocator();
-      IGeoModelSvc *geoModel;
-      status = svcLocator->service ("GeoModelSvc",geoModel);
-      if (status != StatusCode::SUCCESS) {
-	throw std::runtime_error ("Cannot locate GeoModelSvc!!");
-      }
-      
+      IGeoModelSvc *geoModel(nullptr);
+      ATH_CHECK(svcLocator->service ("GeoModelSvc",geoModel));
       // Access the geometry database:
-      IRDBAccessSvc *pAccessSvc;
-      status=svcLocator->service("RDBAccessSvc",pAccessSvc);
-      if (status != StatusCode::SUCCESS) {
-	throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
-      }
-      
+      IRDBAccessSvc *pAccessSvc(nullptr);
+      ATH_CHECK(svcLocator->service("RDBAccessSvc",pAccessSvc));
       // Obtain the geometry version information:
-      
       const std::string AtlasVersion = geoModel->atlasVersion();
       const std::string LArVersion = geoModel->LAr_VersionOverride();
-      
       const std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
       const std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
       
@@ -98,54 +84,53 @@ namespace LArG4 {
       m_c->halfThickness=(*presamplerPosition)[0]->getDouble("TCK")*CLHEP::cm/2;;
       m_c->zEndcapFrontFace=(*presamplerPosition)[0]->getDouble("ZPOS")*CLHEP::cm-m_c->halfThickness;
       m_c->zEndcapBackFace =(*presamplerPosition)[0]->getDouble("ZPOS")*CLHEP::cm+m_c->halfThickness;
-      
+
       m_c->zPosInMother=30.5*CLHEP::mm;
-      
+      return StatusCode::SUCCESS;
     }
-    
+
     PresamplerGeometry::~PresamplerGeometry()
     {
       delete m_c;
     }
 
-
-    G4double PresamplerGeometry::GetValue(const kValue a_valueType) const
+    double PresamplerGeometry::GetValue(const kValue a_valueType) const
     {
       // Look up a value based on name.
-	  switch (a_valueType) {
-		case rMinEndcapPresampler:
-		  //return 1231.74 * mm;
-		  return  m_c->rMinEndcap;
-		  break;
-		case rMaxEndcapPresampler:
-		  //return 1701.98 * mm;
-		  return  m_c->rMaxEndcap;
-		  break;
-		  // At nominal (zShift=0) endcap position absolute z-coordinates:
-		  // of the faces of the EndcapPresampler
-		case zEndcapPresamplerFrontFace:
-		  //return 3622. * mm;
-		  return m_c->zEndcapFrontFace;
-		  break;
-		case zEndcapPresamplerBackFace:
-		  //return 3626. * mm;
-		  return m_c->zEndcapBackFace;
-		  break;
-		case EndcapPresamplerHalfThickness:
-		  //return ( GetValue(zEndcapPresamplerBackFace) - GetValue(zEndcapPresamplerFrontFace) ) / 2.;
-		  return  m_c->halfThickness;
-		  break;
-		case EndcapPresamplerZpositionInMother:
-		  // between cold wall center and presampler center which is at
-		  // 3624 mm nominal (zShift=0) absolute position
-		  return m_c->zPosInMother;
-		  break;
-		default:
-		  G4cerr << "LArEndcapPresamplerCalculator::GetValue -- type '"
-			<< a_valueType
-			<< "' not recognized; using zero" << G4endl;
-		  return 0.;
-	  }
+      switch (a_valueType) {
+      case rMinEndcapPresampler:
+        //return 1231.74 * mm;
+        return  m_c->rMinEndcap;
+        break;
+      case rMaxEndcapPresampler:
+        //return 1701.98 * mm;
+        return  m_c->rMaxEndcap;
+        break;
+        // At nominal (zShift=0) endcap position absolute z-coordinates:
+        // of the faces of the EndcapPresampler
+      case zEndcapPresamplerFrontFace:
+        //return 3622. * mm;
+        return m_c->zEndcapFrontFace;
+        break;
+      case zEndcapPresamplerBackFace:
+        //return 3626. * mm;
+        return m_c->zEndcapBackFace;
+        break;
+      case EndcapPresamplerHalfThickness:
+        //return ( GetValue(zEndcapPresamplerBackFace) - GetValue(zEndcapPresamplerFrontFace) ) / 2.;
+        return  m_c->halfThickness;
+        break;
+      case EndcapPresamplerZpositionInMother:
+        // between cold wall center and presampler center which is at
+        // 3624 mm nominal (zShift=0) absolute position
+        return m_c->zPosInMother;
+        break;
+      default:
+        G4cerr << "LArEndcapPresamplerCalculator::GetValue -- type '"
+               << a_valueType
+               << "' not recognized; using zero" << G4endl;
+        return 0.;
+      }
     }
 
 
@@ -166,7 +151,7 @@ namespace LArG4 {
     } geometry_t;
 
     static const geometry_t geometry =
-    // zSide sampling region etaScale etaOffset maxEta gapsPerBin maxPhi
+                  // zSide sampling region etaScale etaOffset maxEta gapsPerBin maxPhi
       {   2,      0,      0,      40,     60  ,    11,       0,     63 };
 
 
@@ -200,8 +185,8 @@ namespace LArG4 {
       const G4ThreeVector          pinLocal =(startPointinLocal+endPointinLocal)*0.5;
 
       const G4ThreeVector pForCell(pinLocal.x(), pinLocal.y(), pinLocal.z()
-                             + GetValue(zEndcapPresamplerFrontFace)
-                             + GetValue(EndcapPresamplerHalfThickness));
+                                   + GetValue(zEndcapPresamplerFrontFace)
+                                   + GetValue(EndcapPresamplerHalfThickness));
       //  pForCell.z() > 0 by definition (pinLocal.z() from -2 to +2)
       const G4double eta=pForCell.pseudoRapidity();
       G4double phi=pForCell.phi();
@@ -223,44 +208,44 @@ namespace LArG4 {
       G4int etaBin = G4int( eta * geometry.etaScale - geometry.etaOffset );
       //  28-Apr-2004 ML: Bug fix
       if ( etaBin == 12  &&  eta < 1.801 )
-	{
-	  etaBin = 11;
-	}
+        {
+          etaBin = 11;
+        }
       G4int phiBin = G4int( phi * phiScale );
 
       if( zSide < 0 )
-	{
-	  phiBin = halfMaxPhi1 - phiBin;
-	  if(phiBin < 0 ) phiBin += maxPhi1;
-	}
+        {
+          phiBin = halfMaxPhi1 - phiBin;
+          if(phiBin < 0 ) phiBin += maxPhi1;
+        }
 
       // Consistency asserts:
       assert ( etaBin >= 0 );
       assert ( phiBin >= 0 );
       //  assert ( etaBin <= geometry[c].maxEta );
 
-	  // Start with a blank identifier.
+      // Start with a blank identifier.
       LArG4Identifier identifier;
-  
+
       if ( etaBin > geometry.maxEta )
-	{
-	  G4cerr << "LArG4::EC::PresamplerGeometry::CalculateIdentifier: invalid hit, etaBin="
-		 << etaBin
-		 << " > geometry.maxEta="
-		 << geometry.maxEta
-		 << G4endl;
-	  return identifier;
-	}
+        {
+          G4cerr << "LArG4::EC::PresamplerGeometry::CalculateIdentifier: invalid hit, etaBin="
+                 << etaBin
+                 << " > geometry.maxEta="
+                 << geometry.maxEta
+                 << G4endl;
+          return identifier;
+        }
       assert ( phiBin <= geometry.maxPhi );
 
       // Append the values to the empty identifier.
       identifier << 4          // LArCalorimeter
-		 << 1          // LArEM
-		 << zSide
-		 << sampling
-		 << region
-		 << etaBin
-		 << phiBin;
+                 << 1          // LArEM
+                 << zSide
+                 << sampling
+                 << region
+                 << etaBin
+                 << phiBin;
 
       return identifier;
     }

@@ -36,7 +36,7 @@ namespace LArG4 {
   namespace Barrel {
 
     Geometry::Geometry(const std::string& name, ISvcLocator *pSvcLocator)
-      : AthService(name, pSvcLocator)
+      : base_class(name, pSvcLocator)
       , m_detectorName("LArMgr")
       , m_rMinAccordion(0)
       , m_rMaxAccordion(0)
@@ -150,19 +150,6 @@ namespace LArG4 {
       if (m_yc) delete [] m_yc;
 
       return StatusCode::SUCCESS;
-    }
-
-    // ====================================================================================
-
-    StatusCode Geometry::queryInterface( const InterfaceID & riid,  void** ppvInterface )
-    {
-      if ( ILArBarrelGeometry::interfaceID().versionMatch(riid) ) {
-        *ppvInterface = dynamic_cast<ILArBarrelGeometry*>(this);
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      // Interface is not directly available : try out a base class
-      return AthService::queryInterface(riid, ppvInterface);
     }
 
     //======================================================================================
