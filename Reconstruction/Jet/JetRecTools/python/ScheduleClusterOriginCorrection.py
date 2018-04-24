@@ -21,12 +21,11 @@ def applyClusterOriginCorrection(scale='LC'):
         tclog.info('Cluster collection {0} already present -- skip origin correction.'.format(clustersname))
         return
 
-    algname = 'jetalgTCOrigin'+scale
-
     # Check if the alg has already been scheduled    
+    algname = 'jetalgTCOrigin'+scale
     from AthenaCommon.AlgSequence import AlgSequence
     job = AlgSequence()
-    if hasattr(job,):
+    if hasattr(job,algname):
         tclog.info('Origin correction alg {0} already present -- skip origin correction.'.format(algname))
         return
 
@@ -41,9 +40,10 @@ def applyClusterOriginCorrection(scale='LC'):
     if not scale in origintools.keys():
         tclog.error('Invalid cluster scale {0} supplied! Allowable values: "EM", "LC".'.format(scale))
 
-    toolrunner += JetToolRunner('jetconstitTCOrigin'+scale,
+    from JetRec.JetRecConf import JetToolRunner
+    toolrunner = JetToolRunner('jetconstitTCOrigin'+scale,
                                 EventShapeTools=[],
-                                Tools=origintools[scale],
+                                Tools=[origintools[scale]],
                                 )
     jtm += toolrunner
 
