@@ -8,6 +8,6 @@ echo "art-result: $? Reco"
 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
-echo "art-result: $? Diff"
+# art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+# echo "art-result: $? Diff"
 
