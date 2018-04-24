@@ -330,13 +330,13 @@ class EFMetHypoTCPUCXE (EFMissingETHypoBase):
 
 class EFMetHypoTCTrkPUCXE (EFMissingETHypoBase):
     __slots__ = []
-    def __init__(self, name = "EFMetHypo_tctrkpucxe1000",ef_thr=1000*GeV):
+    def __init__(self, name = "EFMetHypo_tctrkpucxe1000",ef_thr=1000*GeV, extraCalib = ""):
         super( EFMetHypoTCTrkPUCXE, self ).__init__( name )
 
         self.SumETCut=ef_thr
         self.MissingETCut=ef_thr
         self.CutType=-2.0
-        self.METLabel='TrigEFMissingET_topocltrk_PUC'
+        self.METLabel='TrigEFMissingET_topocltrk_PUC{0}'.format(extraCalib)
         self.doMuonCorrection = False
         self.SumETCut = 100000000*GeV
         self.forceAccept=False

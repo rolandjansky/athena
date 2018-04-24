@@ -1183,21 +1183,23 @@ class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
 #### Use topo. clusters for noise suppression #####
 class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
     __slots__ = []
-    def __init__ (self, name="EFMissingET_Fex_topoClustersTracksPUC"):
+    def __init__ (self, name="EFMissingET_Fex_topoClustersTracksPUC", extraCalib = ""):
         super(EFMissingET_Fex_topoClustersTracksPUC, self).__init__(name)
 
         # name of TrigMissingET object
-        self.MissingETOutputKey = "TrigEFMissingET_topocltrk_PUC"
+        #print "XXXXXXXXXXXXXXXXX: extraCalib: ", extraCalib
+        self.MissingETOutputKey = "TrigEFMissingET_topocltrk_PUC{0}".format(extraCalib)
         self.doTopoClusters = True
         self.doPUC = True
         self.doJets = True
         self.doTracks = True
-
+        #print "XXXXXXXXXXXXXXXX: L1196"
         # tools
         clusterTool = EFMissingETFromClustersTracksPUC("TheClusterToolTracksPUC")
         flagTool =   EFMissingETFlags("TheFlagsTool")
         helperTool = EFMissingETFromHelper("TheHelperTool")
         #
+        #print "XXXXXXXXXXXXXX: name: ", name
         clusterTool.ParentFexName = name
         flagTool.ParentFexName = name
         helperTool.ParentFexName = name
