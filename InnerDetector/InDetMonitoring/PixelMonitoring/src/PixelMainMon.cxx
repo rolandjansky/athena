@@ -161,7 +161,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
 
   // hit occupancy
   m_avgocc_per_lumi = 0;
-  m_avgocc_ratioIBLB0_per_lumi = 0;
   memset(m_avgocc_per_lumi_mod, 0, sizeof(m_avgocc_per_lumi_mod));
   memset(m_avgocc_per_bcid_mod, 0, sizeof(m_avgocc_per_bcid_mod));
   memset(m_avgocc_active_per_lumi_mod, 0, sizeof(m_avgocc_active_per_lumi_mod));

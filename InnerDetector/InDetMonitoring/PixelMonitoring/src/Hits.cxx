@@ -94,10 +94,6 @@ StatusCode PixelMainMon::bookHitsMon(void) {
   htitles = makeHisttitle("Average pixel occupancy per event over all layers", (atext_LB + atext_occ), false);
   sc = rdoShift.regHist(m_avgocc_per_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
-  hname = makeHistname("AvgOcc_RatioIBLB0_per_lumi", false);
-  htitles = makeHisttitle("Average pixel occupancy ratio of IBL/B0 per event per LB", (atext_LB + ";ratio"), false);
-  sc = rdoShift.regHist(m_avgocc_ratioIBLB0_per_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
-
   for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {  // not include IBL2D and IBL3D
     hname = makeHistname(("Hits_per_lumi_" + m_modLabel_PixLayerIBL2D3D[i]), false);
     htitles = makeHisttitle(("Average number of pixel hits per event, " + m_modLabel_PixLayerIBL2D3D[i]), (atext_LB + atext_hit), false);
@@ -643,8 +639,6 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
     }
     if (m_totalhits_per_bcid_mod[i]) m_totalhits_per_bcid_mod[i]->Fill(1.0 * pix_rod_bcid, nhits_mod[getPixLayerIDWithDBM(i)]);
   }
-
-  if (avgocc_mod[PixLayerIBL2D3DDBM::kB0] > 0 && m_avgocc_ratioIBLB0_per_lumi) m_avgocc_ratioIBLB0_per_lumi->Fill(m_manager->lumiBlockNumber(), avgocc_mod[PixLayerIBL2D3DDBM::kIBL] / avgocc_mod[PixLayerIBL2D3DDBM::kB0]);
 
   if (m_Atlas_BCID_hits) m_Atlas_BCID_hits->Fill(pix_rod_bcid, nhits);
 
