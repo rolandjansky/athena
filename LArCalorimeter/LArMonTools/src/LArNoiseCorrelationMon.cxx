@@ -254,9 +254,8 @@ LArNoiseCorrelationMon::bookHistograms()
     m_corr = TH2F_LW::create(hName.c_str(), hTitle.c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
     generalGroup.regHist(m_corr).ignore();
     m_TMP_sums = TH2F_LW::create((hName+"_TMP_sum").c_str(),(hTitle+" TMP sum").c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
-    generalGroup.regHist(m_TMP_sums).ignore();
     m_av = TProfile_LW::create((hName+"_TMP_av").c_str(),(hTitle+" TMP av").c_str(),Nchan,chan_low,chan_up,"s");
-    generalGroup.regHist(m_av).ignore();
+
 
     /**Book Histograms of Barrel. to be added (?) see LArDigit (what this was copied from) to copy the template*/
     /*    MonGroup GroupBarrelShift( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED );
@@ -623,15 +622,15 @@ LArNoiseCorrelationMon::fillHistograms()
   if(endOfLumiBlockFlag() || endOfEventsBlockFlag())
     {
       double mean1,mean2;
-      double sigma1,sigma2,sigma1ii,sigma2ii;
+      //      double sigma1,sigma2,sigma1ii,sigma2ii;
       double sumVar1,sumVar2;
       double N;
       double cor;
       for(int i=1;i<=Nchan;i++)
 	{
 	  mean1=m_av->GetBinContent(i);
-	  sigma1ii=m_av->GetBinError(i);
-	  sigma1=TMath::Sqrt(m_TMP_sums->GetBinContent(i,i)/(N));
+	  //sigma1ii=m_av->GetBinError(i);
+	  //sigma1=TMath::Sqrt(m_TMP_sums->GetBinContent(i,i)/(N));
 	  sumVar1=m_TMP_sums->GetBinContent(i,i);
 	  N=m_av->GetBinEntries(i);
 	  if(N==0) 
@@ -646,8 +645,8 @@ LArNoiseCorrelationMon::fillHistograms()
 		std::cout << "HEY! different number of entries here! bin " << i << ": " << N << " vs bin " << j << ": " << m_av->GetBinEntries(j) << std::endl;
 		//		ATH_MSG_INFO( Form("HEY! different number of entries here! bin %d: %d vs bin %d: %f",i,N,j,m_av->GetBinEntries(j)) );
 	      mean2=m_av->GetBinContent(j);
-	      sigma2ii=m_av->GetBinError(j);
-	      sigma2=TMath::Sqrt(m_TMP_sums->GetBinContent(j,j)/(N));
+	      //	      sigma2ii=m_av->GetBinError(j);
+	      //	      sigma2=TMath::Sqrt(m_TMP_sums->GetBinContent(j,j)/(N));
 	      sumVar2=m_TMP_sums->GetBinContent(j,j);
 	      if((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2)==0) continue;
 	      cor=(m_TMP_sums->GetBinContent(i,j)-N*mean1*mean2)/TMath::Sqrt((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2));
