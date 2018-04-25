@@ -261,17 +261,13 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   std::vector<unsigned int> m_nMissingPixelClusters;
 
   bool m_reverseIBLlocx;
+  bool m_doVertexing;
   bool m_doVertexSorting;
 
 };
 
 inline bool compareFTK_Clusters (const Trk::RIO_OnTrack* cl1, const Trk::RIO_OnTrack* cl2) {
    
-  //  double r1 = cl1->globalPosition().x()*cl1->globalPosition().x() + cl1->globalPosition().y()*cl1->globalPosition().y();
-  //double r2 = cl2->globalPosition().x()*cl2->globalPosition().x() + cl2->globalPosition().y()*cl2->globalPosition().y();
-  //r1+=cl1->globalPosition().z()*cl1->globalPosition().z();
-  //r2+=cl2->globalPosition().z()*cl2->globalPosition().z();
-
   return (cl1->globalPosition().mag()<cl2->globalPosition().mag());
   
 }
