@@ -6,7 +6,8 @@ HIGG2D1ExtraContent=[
     "Muons.ptconecoreTrackPtrCorrection.ptvarcone40_LooseTTVA_pt500.ptvarcone30_LooseTTVA_pt500.ptvarcone20_LooseTTVA_pt500.ptvarcone40_TightTTVA_pt1000.ptvarcone30_TightTTVA_pt1000.ptvarcone20_TightTTVA_pt1000.ptvarcone40_TightTTVA_pt500.ptvarcone30_TightTTVA_pt500.ptvarcone20_TightTTVA_pt500.neflowisol20.neflowisol30.neflowisol40",
     "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
     "TauJets.IsTruthMatched.truthJetLink.truthParticleLink",
-    "CaloCalTopoClusters.rawM.rawE.rawEta.rawPhi.calM.calE.calPhi.calEta.e_sampl.phi_sampl.eta_sampl"
+    "CaloCalTopoClusters.rawM.rawE.rawEta.rawPhi.calM.calE.calPhi.calEta.e_sampl.phi_sampl.eta_sampl",
+    "Electrons.topoetcone30ptCorrection.topoetcone40ptCorrection.ptvarcone30"
     ]
 
 HIGG2D1ExtraContentTruth=[
