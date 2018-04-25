@@ -157,7 +157,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_num_hits = 0;
   memset(m_nhits_mod, 0, sizeof(m_nhits_mod));
   memset(m_hits_per_lumi_mod, 0, sizeof(m_hits_per_lumi_mod));
-  memset(m_nlargeevt_per_lumi_mod, 0, sizeof(m_nlargeevt_per_lumi_mod));
   memset(m_totalhits_per_bcid_mod, 0, sizeof(m_totalhits_per_bcid_mod));
 
   // hit occupancy

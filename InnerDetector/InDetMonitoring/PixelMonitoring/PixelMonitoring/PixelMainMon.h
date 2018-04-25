@@ -300,7 +300,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DMapsLW> m_hitmap_tmp;
   TH1F_LW* m_nhits_mod[PixLayer::COUNT];
   TProfile_LW* m_hits_per_lumi_mod[PixLayer::COUNT];
-  TH1F_LW* m_nlargeevt_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_totalhits_per_bcid_mod[PixLayerIBL2D3D::COUNT];
 
   // hit occupancy
