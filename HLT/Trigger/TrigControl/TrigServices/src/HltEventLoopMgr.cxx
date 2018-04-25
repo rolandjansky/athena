@@ -2,68 +2,60 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
+
+// Gaudi includes
+#include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/IAlgContextSvc.h"
+
+// Athena includes
+#include "StoreGate/StoreGateSvc.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+
+// Trigger includes
 #include "TrigServices/HltEventLoopMgr.h"
+#include "TrigSORFromPtreeHelper.h"
+#include "TrigCOOLUpdateHelper.h"
+
+#define ST_WHERE "HltEventLoopMgr::" << __func__ << "(): "
 
 using namespace boost::property_tree;
+using SOR = TrigSORFromPtreeHelper::SOR;
 
+
+// =============================================================================
+// Standard constructor
+// =============================================================================
 HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
-: MinimalEventLoopMgr(name, svcLoc)
+: MinimalEventLoopMgr(name, svcLoc),
+  m_incidentSvc("IncidentSvc", name),
+  m_evtStore("StoreGateSvc", name),
+  m_detectorStore("DetectorStore", name),
+  m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
+  m_robDataProviderSvc("ROBDataProviderSvc", name),
+  m_coolHelper("TrigCOOLUpdateHelper", this)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
   
-  // declareProperty("predefinedLumiBlock",      m_predefinedLumiBlock=0);
-  // declareProperty("Lvl1CTPROBid",             m_lvl1CTPROBid=0x770001);
-  // declareProperty("ApplicationName",          m_applicationName="None");
-  // declareProperty("PartitionName",            m_partitionName="None");
-  // declareProperty("setMagFieldFromPtree",     m_setMagFieldFromPtree=false);
-  // declareProperty("enabledROBs",              m_enabledROBs);
-  // declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
-  // declareProperty("MandatoryL1ROBs",          m_mandatoryL1ROBs,
-                  // "List of mandatory ROB IDs coming from the RoIB (must come in L1R seed)");
-  // declareProperty("HltEDMCollectionNames",    m_hltEdmCollectionNames,
-                  // "Names of all HLT EDM Collections");
-  // declareProperty("JobOptionsType",           m_jobOptionsType="NONE");
-  // declareProperty("doMonitoring",             m_doMonitoring=true,
-                  // "Produce framework monitoring histograms");
-/*
-  declareProperty("histHltResultSize",        m_histProp_Hlt_result_size,
-                  "Histogram for HLT result size in words (overall)");
-  declareProperty("histHltResultSizePhysics", m_histProp_Hlt_result_size_physics,
-                  "Histogram for HLT result size in words for physics stream ");
-  declareProperty("histHltResultSizeExpress", m_histProp_Hlt_result_size_express,
-                  "Histogram for HLT result size in words for express stream ");
-  declareProperty("histHltResultSizeDS",      m_histProp_Hlt_result_size_DataScouting,
-                  "Histogram for HLT result size in words for DataScouting stream ");
-  declareProperty("histNumberOfStreamTags",   m_histProp_numStreamTags,
-                  "Histogram with number of stream tags");
-  declareProperty("histStreamTagNames",       m_histProp_streamTagNames,
-                  "Histogram with stream tag names");  
-  declareProperty("histNumberROBsPartialEB",  m_histProp_num_partial_eb_robs,
-                  "Histogram with number of ROBs for PEB" );
-  declareProperty("histHltEdmSizes",          m_histProp_Hlt_Edm_Sizes,
-                  "Histogram with sizes of HLT EDM collections" );
-*/
-  // declareProperty("ForceHltReject",           m_forceHltReject=false);
-  // declareProperty("ForceHltAccept",           m_forceHltAccept=false);
-  // declareProperty("HltResultName",            m_HltResultName="HLTResult_HLT");
-  // declareProperty("HltDebugStreamName",       m_HltDebugStreamName ="HLTMissingData");
-  // declareProperty("HltForcedStreamName",      m_HltForcedStreamName ="HLTEventAcceptForced");
-  // declareProperty("CoolUpdateTool",           m_coolHelper);
-  // declareProperty("maxPrepareForRunSleepSec", m_prepareForRunSleep = 0,
-                  // "Max number of seconds to sleep at the beginning of prepareForRun");
-  // declareProperty("Lvl1CTPROBcheck",          m_lvl1CTPROBcheck=true);
-  // declareProperty("WriteTruncatedHLTtoDebug", m_writeHltTruncationToDebug=true);
-  // declareProperty("HltTruncationDebugStreamName", m_HltTruncationDebugStreamName="TruncatedHLTResult");
-  // declareProperty("ExcludeFromHltTruncationDebugStream", m_excludeFromHltTruncationDebugStream );
+  declareProperty("JobOptionsType",           m_jobOptionsType="NONE");
+  declareProperty("ApplicationName",          m_applicationName="None");
+  declareProperty("PartitionName",            m_partitionName="None");
+  declareProperty("enabledROBs",              m_enabledROBs);
+  declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
+  declareProperty("CoolUpdateTool",           m_coolHelper);
 
-  
   verbose() << "end of " << __FUNCTION__ << endmsg;
 }
 
+// =============================================================================
+// Standard destructor
+// =============================================================================
 HltEventLoopMgr::~HltEventLoopMgr()
 {
 }
 
+// =============================================================================
+// Implementation of IInterface::queryInterface
+// =============================================================================
 StatusCode HltEventLoopMgr::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
@@ -80,16 +72,20 @@ StatusCode HltEventLoopMgr::queryInterface(const InterfaceID& riid, void** ppvIn
   return StatusCode::SUCCESS;
 }
 
-
+// =============================================================================
+// Implementation of IService::initalize
+// =============================================================================
 StatusCode HltEventLoopMgr::initialize()
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
   
-  // initialize the base class
+  //----------------------------------------------------------------------------
+  // Initialize the base class
+  //----------------------------------------------------------------------------
   StatusCode sc = MinimalEventLoopMgr::initialize();
   
   
-  info() << "---> HltEventLoopMgr = " << name()
+  info() << " ---> HltEventLoopMgr = " << name()
          << " initialize - package version " << PACKAGE_VERSION << endmsg;
 
   if (sc.isFailure()) {
@@ -97,23 +93,185 @@ StatusCode HltEventLoopMgr::initialize()
     return sc;
   }
   
-  verbose() << "end of " << __FUNCTION__ << endmsg;
+  //----------------------------------------------------------------------------
+  // Setup properties
+  //----------------------------------------------------------------------------
   
-  return sc;
-}
+  // read DataFlow configuration properties
+  updateDFProps();
+  
+  // JobOptions type
+  SmartIF<IProperty> propMgr(Gaudi::createApplicationMgr());
+  if (propMgr.isValid()) {
+    try {
+      if (m_jobOptionsType.assign( propMgr->getProperty("JobOptionsType") ))
+        debug() << " ---> Read from DataFlow configuration: " << m_jobOptionsType << endmsg;
+    }
+    catch (...) {
+      warning() << "Could not set Property '" << m_jobOptionsType.name() << "' from DataFlow." << endmsg;
+    }
 
-StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
-{
-  verbose() << "dummy implementation of " << __FUNCTION__ << endmsg;
+  }
+  else {
+    warning() << "Error retrieving IProperty interface of ApplicationMgr"  << endmsg;
+  }
+
+  // print properties
+  info() << " ---> ApplicationName        = " << m_applicationName << endmsg;
+  info() << " ---> PartitionName          = " << m_partitionName << endmsg;
+  info() << " ---> JobOptionsType         = " << m_jobOptionsType << endmsg;
+  info() << " ---> Enabled ROBs: size = " << m_enabledROBs.value().size();
+  if (m_enabledROBs.value().size() == 0)
+    info() << ". No check will be performed";
+  info() << endmsg;
+
+  info() << " ---> Enabled Sub Detectors: size = " << m_enabledSubDetectors.value().size();
+  if (m_enabledSubDetectors.value().size() == 0)
+    info() << ". No check will be performed" << endmsg;
+  info() << endmsg;
+
+  //----------------------------------------------------------------------------
+  // Setup the IncidentSvc
+  //----------------------------------------------------------------------------
+  sc = m_incidentSvc.retrieve();
+  if( !sc.isSuccess() )  
+  {
+    fatal() << "Error retrieving IncidentSvc " + m_incidentSvc << endmsg;
+    return sc;
+  }
+  
+  //----------------------------------------------------------------------------
+  // Setup the StoreGateSvc
+  //----------------------------------------------------------------------------
+  sc = m_evtStore.retrieve();
+  if(sc.isFailure())
+  {
+    fatal() << "Error retrieving StoreGateSvc " + m_evtStore << endmsg;
+    return sc;
+  }
+
+  //----------------------------------------------------------------------------
+  // Setup the DetectorStore
+  //----------------------------------------------------------------------------
+  sc = m_detectorStore.retrieve();
+  if(sc.isFailure())
+  {
+    fatal() << "Error retrieving DetectorStore " + m_detectorStore << endmsg;
+    return sc;
+  }
+
+  //----------------------------------------------------------------------------
+  // Setup the InputMetaDataStore
+  //----------------------------------------------------------------------------
+  sc = m_inputMetaDataStore.retrieve();
+  if(sc.isFailure())
+  {
+    fatal() << "Error retrieving InputMetaDataStore" + m_inputMetaDataStore << endmsg;
+    return sc;
+  }
+
+
+  //----------------------------------------------------------------------------
+  // Setup the ROBDataProviderSvc 
+  //----------------------------------------------------------------------------
+  sc = m_robDataProviderSvc.retrieve();
+  if(sc.isFailure())
+  {
+    fatal() << "Error retrieving ROBDataProviderSvc " + m_robDataProviderSvc << endmsg;
+    return sc;
+  }
+
+  //--------------------------------------------------------------------------
+  // Setup the COOL helper
+  //--------------------------------------------------------------------------
+  if (m_coolHelper.retrieve().isFailure()) {
+    fatal() << "Error retrieving" << m_coolHelper << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  //--------------------------------------------------------------------------
+  // Setup the AlgContextSvc (optional)
+  //--------------------------------------------------------------------------
+  if (service("AlgContextSvc", m_algContextSvc, /*createIf=*/ false).isFailure()) {
+    m_algContextSvc = 0;
+    debug() << "No AlgContextSvc available" << endmsg;
+  }
+  
+  verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
 
+// =============================================================================
+// Implementation of ITrigEventLoopMgr::prepareForRun
+// =============================================================================
+StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  try
+  {
+    // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
+    // (void)TClass::GetClass("vector<unsigned long>");
+
+    const SOR* sor;
+    // update SOR in det store and get it back
+    if(!(sor = processRunParams(pt)))
+      return StatusCode::FAILURE;
+    /*
+    auto& soral = getSorAttrList(sor);
+    updInternal(soral);     // update internally kept info
+    updMetadaStore(soral);  // update metadata store
+
+    const EventInfo * evinfo;
+    if(updMagField(pt).isFailure() ||     // update mag field when appropriate
+       updHLTConfigSvc().isFailure() ||   // update config svc when appropriate
+       resetCoolValidity().isFailure() || // reset selected proxies/IOV folders
+       prepXAODEventInfo().isFailure() || // update xAOD event data in SG
+       !(evinfo = prepEventInfo()))       // update old event data in SG
+      return StatusCode::FAILURE;
+
+    bookAllHistograms();
+
+    verbose() << "end of " << __FUNCTION__ << endmsg;
+    if(prepareAlgs(*evinfo).isSuccess())
+      return StatusCode::SUCCESS;
+    */
+    verbose() << "end of " << __FUNCTION__ << endmsg;
+    return StatusCode::SUCCESS;
+  }
+  catch(const ptree_bad_path & e)
+  {
+    error() << ST_WHERE << "Bad ptree path: \""
+            << e.path<ptree::path_type>().dump()
+            << "\" - " << e.what() << endmsg;
+  }
+  catch(const ptree_bad_data & e)
+  {
+    error() << ST_WHERE << "Bad ptree data: \""
+            << e.data<ptree::data_type>()
+            << "\" - " << e.what() << endmsg;
+  }
+  catch(const std::runtime_error& e)
+  {
+    error() << ST_WHERE << "Runtime error: " << e.what() << endmsg;
+  }
+
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+  return StatusCode::FAILURE;
+}
+
+// =============================================================================
+// Implementation of ITrigEventLoopMgr::hltUpdateAfterFork
+// =============================================================================
 StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree & pt)
 {
   verbose() << "dummy implementation of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
 
+// =============================================================================
+// Implementation of ITrigEventLoopMgr::processRoIs
+// DUE TO BE REMOVED
+// =============================================================================
 StatusCode HltEventLoopMgr::processRoIs(
              const std::vector<eformat::ROBFragment<const uint32_t*> >& l1_result,
              hltinterface::HLTResult& hlt_result,
@@ -123,8 +281,84 @@ StatusCode HltEventLoopMgr::processRoIs(
   return StatusCode::SUCCESS;
 }
 
+// =============================================================================
+// Implementation of ITrigEventLoopMgr::timeOutReached
+// =============================================================================
 StatusCode HltEventLoopMgr::timeOutReached(const boost::property_tree::ptree& pt)
 {
   verbose() << "dummy implementation of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
+
+// =============================================================================
+void HltEventLoopMgr::updateDFProps()
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  ServiceHandle<IJobOptionsSvc> p_jobOptionsSvc("JobOptionsSvc", name());
+  if ((p_jobOptionsSvc.retrieve()).isFailure()) {
+    warning() << "Could not find JobOptionsSvc to set DataFlow properties" << endmsg;
+  } else {
+    auto dfprops = p_jobOptionsSvc->getProperties("DataFlowConfig");
+
+    // Application name
+    auto pname = "DF_ApplicationName";
+    const auto * prop = Gaudi::Utils::getProperty(dfprops, pname);
+    if(prop && m_applicationName.assign(*prop)) {
+      debug() << " ---> Read from DataFlow configuration: " << m_applicationName << endmsg;
+    } else {
+      warning() << "Could not set Property '" << pname << "' from DataFlow." << endmsg;
+    }
+
+    // Partition name
+    pname = "DF_PartitionName";
+    prop = Gaudi::Utils::getProperty(dfprops, pname);
+    if (prop && m_partitionName.assign(*prop)) {
+      debug() << " ---> Read from DataFlow configuration: " << m_partitionName << endmsg;
+    } else {
+      warning() << "Could not set Property '" << pname << "' from DataFlow." << endmsg;
+    }
+
+    // get the list of enabled ROBs
+    pname = "DF_Enabled_ROB_IDs";
+    prop = Gaudi::Utils::getProperty(dfprops, pname);
+    if (prop && m_enabledROBs.assign(*prop)) {
+      debug() << " ---> Read from DataFlow configuration: "
+              << m_enabledROBs.value().size() << " enabled ROB IDs." << endmsg;
+    } else {
+      // this is only info, because it is normal in athenaHLT
+      info() << "Could not set Property '" << pname << "' from DataFlow." << endmsg;
+    }
+
+    // get the list of enabled Sub Detectors
+    pname = "DF_Enabled_SubDet_IDs";
+    prop = Gaudi::Utils::getProperty(dfprops, pname);
+    if (prop && m_enabledSubDetectors.assign(*prop)) {
+      debug() << " ---> Read from DataFlow configuration: "
+              << m_enabledSubDetectors.value().size() << " enabled Sub Detector IDs." << endmsg;
+    } else {
+      // this is only info, because it is normal in athenaHLT
+      info() << "Could not set Property '" << pname << "' from DataFlow." << endmsg;
+    }
+  }
+
+  p_jobOptionsSvc.release().ignore();
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+}
+
+// =============================================================================
+const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  // update the run number
+  m_currentRun = pt.get<uint32_t>("RunParams.run_number");
+
+  // Fill SOR parameters from the ptree
+  TrigSORFromPtreeHelper sorhelp{msgStream()};
+  const SOR* sor = sorhelp.fillSOR(pt.get_child("RunParams"));
+  if(!sor)
+   error() << ST_WHERE << "setup of SOR from ptree failed" << endmsg;
+
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+  return sor;
+}
+

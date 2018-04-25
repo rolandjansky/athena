@@ -12,6 +12,8 @@
  */
 
 #include "TrigSORFromPtreeHelper.h"
+#include "GaudiKernel/EventContext.h"
+#include "AthenaKernel/ExtendedEventContext.h"
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "owl/time.h"
@@ -63,12 +65,24 @@ const SORHelper::SOR * SORHelper::fillSOR(const ptree & rparams, const EventCont
     m_log << MSG::ERROR << ST_WHERE 
           << "could not find IOVDbSvc. Time dependent conditions data may be not properly handled." << endmsg;
   } else {
+    m_log << MSG::VERBOSE << ST_WHERE 
+          << "Retrieved IOVDbSvc" << endmsg;
     IOVTime currentIOVTime(rparams.get<unsigned int>("run_number"), 
 			   IOVTime::MINEVENT,
 			   OWLTime{(rparams.get_child("timeSOR").data()).c_str()}.total_mksec_utc() * 1000);
     
+    m_log << MSG::VERBOSE << ST_WHERE 
+          << "Created currentIOVTime object" << endmsg;
+    
+    // need to provide an event context extended with a run number to IOVDBSvc::signalBeginRun
+    EventContext dummyEventContext(0, 0);
+    dummyEventContext.setExtension(Atlas::ExtendedEventContext(dstore.get(), rparams.get<unsigned int>("run_number")));
+    
+    m_log << MSG::VERBOSE << ST_WHERE 
+          << "Created dummyEventContext" << endmsg;
+    
     // Signal BeginRun directly to IOVDbSvc to set complete IOV start time
-    if (StatusCode::SUCCESS != iovdbsvc->signalBeginRun(currentIOVTime,m_dummyEventContext)) {
+    if (StatusCode::SUCCESS != iovdbsvc->signalBeginRun(currentIOVTime,dummyEventContext)) {
       m_log << MSG::ERROR << ST_WHERE 
             << "Unable to signal begin run IOVTime to IOVDbSvc. IOVTime = " << currentIOVTime << endmsg;
     } else {

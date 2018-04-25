@@ -16,7 +16,6 @@
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -53,15 +52,12 @@ private:
   StatusCode updateProxy(const SG & dstore, SOR * sor) const;
 
   mutable MsgStream m_log;
-  
-  // temporary workaround for IIOVDbSvc interface change
-  EventContext m_dummyEventContext;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 inline TrigSORFromPtreeHelper::
 TrigSORFromPtreeHelper(const MsgStream & log)
-  : m_log(log), m_dummyEventContext()
+  : m_log(log)
 {
 }
 
