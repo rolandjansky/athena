@@ -96,6 +96,7 @@
 + Event/NavFourMom
 - Event/xAOD/xAODMissingETCnv
 + Event/xAOD/.*
++ Event/PyDumper
 
 # External package(s):
 + External/AtlasDataArea
@@ -325,6 +326,7 @@
 - TileCalorimeter/TileSvc/TileByteStream
 + TileCalorimeter/TileSvc/.*
 + TileCalorimeter/TileTrackingGeometry
++ TileCalorimeter/TileRecUtils
 
 # Tool package(s):
 + Tools/ART
