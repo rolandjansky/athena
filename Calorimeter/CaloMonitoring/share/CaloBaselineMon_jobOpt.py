@@ -14,6 +14,8 @@ if not 'rec' in dir():
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
 
+from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+
 tmp_CaloBaselineMon = {"useBadLBTool":FALSE,
                        "useReadyFilterTool":FALSE,
                        "useLArNoisyAlg":FALSE,
@@ -29,7 +31,7 @@ if not (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_V
 
 if rec.triggerStream()=='CosmicCalo':
   tmp_CaloBaselineMon["useLArCollisionFilter"] = TRUE
-  tmp_CaloBaselineMon["pedestalMon_BCIDmin"] = 20
+  tmp_CaloBaselineMon["pedestalMon_BCIDmin"] = 40
 
 if rec.triggerStream()=='ZeroBias':
   tmp_CaloBaselineMon["bcidtoolMon_BCIDmax"] = 144
@@ -37,9 +39,10 @@ if rec.triggerStream()=='ZeroBias':
 
 CaloBaseline = CaloBaselineMon(
    name           = "CaloBaseline",
-
+   
    useBadLBTool=tmp_CaloBaselineMon["useBadLBTool"],
    BadLBTool = GetLArBadLBFilterTool(),
+   BunchCrossingTool=BunchCrossingTool(),
    useReadyFilterTool = tmp_CaloBaselineMon["useReadyFilterTool"],
    ReadyFilterTool = monAtlasReadyFilterTool,
    useLArCollisionFilterTool = tmp_CaloBaselineMon["useLArCollisionFilter"],

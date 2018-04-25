@@ -25,6 +25,7 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   AthService(name, pSvcLocator),
   m_pixelDefaults(false),
   m_sctDefaults(false),
+	m_siPropertiesSvc("SiPropertiesSvc",name),
   m_siConditionsSvc("PixelSiliconConditionsSvc", name),
   m_magFieldSvc("AtlasFieldSvc", name),
   m_detStore("StoreGateSvc/DetectorStore", name),
@@ -37,6 +38,7 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   m_bfieldFolders.push_back("/GLOBAL/BField/Map");
   m_bfieldFolders.push_back("/EXT/DCS/MAGNETS/SENSORDATA");
     
+	declareProperty("SiPropertiesSvc",m_siPropertiesSvc,"SiPropertiesSvc");
   declareProperty("SiConditionsServices", m_siConditionsSvc);
   declareProperty("DetectorName", m_detectorName="Pixel", "Detector name (Pixel or SCT)");
   // Temperature and voltages from job options only used if SiConditionsServices is None or
@@ -74,6 +76,8 @@ SiLorentzAngleSvc::~SiLorentzAngleSvc() {
 StatusCode SiLorentzAngleSvc::initialize() { 
 
   ATH_MSG_DEBUG( "SiLorentzAngleSvc Initialized" );
+
+  CHECK(m_siPropertiesSvc.retrieve());
 
   // Detector store
   CHECK(m_detStore.retrieve());
@@ -425,9 +429,19 @@ void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Am
  
   double meanElectricField = 0;
   if (depletionDepth) { meanElectricField = biasVoltage / depletionDepth; }
-  double mobility = 0;
-  m_siProperties.setConditions(temperature, meanElectricField);
-  mobility = m_siProperties.signedHallMobility(element->carrierType());
+  const InDet::SiliconProperties &siProperties = m_siPropertiesSvc->getSiProperties(elementHash);
+  double mobility = siProperties.signedHallMobility(element->carrierType());
+
+  // should be removed in rel.22
+  if (m_sctDefaults && !m_isPixel) {
+    m_siProperties.setConditions(temperature, meanElectricField);
+    mobility = m_siProperties.signedHallMobility(element->carrierType());
+  }
+  if (m_pixelDefaults && m_isPixel) {
+    m_siProperties.setConditions(temperature, meanElectricField);
+    mobility = m_siProperties.signedHallMobility(element->carrierType());
+  }
+
   // Get magnetic field. This first checks that field cache is valid.
   const Amg::Vector3D& magneticField = getMagneticField(elementHash, locPos, useLocPos);
   

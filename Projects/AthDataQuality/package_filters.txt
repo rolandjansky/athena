@@ -12,4 +12,5 @@
 + Database/CoraCool
 + Tools/ART
 + Tools/AthDataQuality
++ External/pyAMI
 - .*

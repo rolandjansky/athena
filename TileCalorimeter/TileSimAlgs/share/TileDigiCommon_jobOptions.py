@@ -74,8 +74,9 @@ if doTileDigitsFromPulse:
 
 if doTileDigitToRawChannel:
     
-    #from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    #RUN1=(geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+    #from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    #from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    #RUN1=(commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
     OF2asDefault=True
 
     # Reconstruction method: COF or OF2-NI for collisions, OF2-I for cosmics  

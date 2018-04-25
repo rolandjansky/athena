@@ -58,6 +58,12 @@
 #include "xAODForward/versions/AFPTrackAuxContainer_v2.h"
 #include "xAODForward/versions/AFPTrack_v2.h"
 
+#include "xAODForward/AFPProtonContainer.h"
+#include "xAODForward/AFPProtonAuxContainer.h"
+#include "xAODForward/versions/AFPProtonContainer_v1.h"
+#include "xAODForward/versions/AFPProtonAuxContainer_v1.h"
+#include "xAODForward/versions/AFPProton_v1.h"
+
 #include "xAODForward/ZdcModuleContainer.h"
 #include "xAODForward/ZdcModuleAuxContainer.h"
 #include "xAODForward/versions/ZdcModuleContainer_v1.h"

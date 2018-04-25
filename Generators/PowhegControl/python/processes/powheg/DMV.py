@@ -20,7 +20,7 @@ class DMV(PowhegV2):
         @param base_directory  path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "DMV", **kwargs)
+        super(DMV, self).__init__(base_directory, "DMV", **kwargs)
 
         ## List of allowed decay modes
         self.allowed_decay_modes = ["vector EFT", "axial-vector EFT", "vector full theory", "axial-vector full theory"]

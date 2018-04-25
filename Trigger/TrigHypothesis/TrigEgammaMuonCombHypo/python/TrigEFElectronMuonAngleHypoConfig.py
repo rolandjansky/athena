@@ -123,3 +123,23 @@ class TrigEFElectronMuonAngleHypo_e5mu4_medium ( TrigEFElectronMuonAngleHypo ):
 
         
         self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
+
+class TrigEFElectronMuonAngleHypo_bXemu ( TrigEFElectronMuonAngleHypo ):
+    __slots__ = []
+    def __init__(self, name="TrigEFElectronMuonAngleHypo_bXemu"):
+        super(TrigEFElectronMuonAngleHypo_bXemu, self).__init__(name)
+
+        self.inputLabel= "EF_ElectronMuonTopoFEX"
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll=False
+                
+        # require invariant mass within window
+        self.LowerMassCut=0.1*GeV
+        self.UpperMassCut=7.0*GeV
+        self.CommonVertex=True
+        self.OppositeSign=True
+        self.MaxDRCut=3.
+        self.MinDRCut=0.
+        self.MaxDPhiCut=1.5
+
+        self.AthenaMonTools = [ TrigEFElectronMuonAngleOnlineHypoMonitoring(), TrigEFElectronMuonAngleValidationHypoMonitoring_emutopo() ] 
