@@ -23,7 +23,7 @@ class tt(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "hvq", **kwargs)
+        super(tt, self).__init__(base_directory, "hvq", **kwargs)
 
         # Add algorithms to the sequence
         self.add_algorithm(ExternalMadSpin(process="generate p p > t t~ [QCD]"))

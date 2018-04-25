@@ -118,7 +118,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_lbRange = 3000;
   m_bcidRange = 3600;
   m_isNewRun = false;
-  m_isNewLumiBlock = false;
   m_newLowStatInterval = false;
   m_doRefresh = false;
   m_doRefresh5min = false;
@@ -136,8 +135,6 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_majorityDisabled = 0;
   m_lumiBlockNum = 0;
   m_currentTime = 0;
-  m_LBstartTime = 0;
-  m_LBendTime = 0;
   m_runNum = 0;
   m_idHelper = 0;
   m_Pixel_clcontainer = 0;
@@ -157,6 +154,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_num_hits = 0;
   memset(m_nhits_mod, 0, sizeof(m_nhits_mod));
   memset(m_hits_per_lumi_mod, 0, sizeof(m_hits_per_lumi_mod));
+  memset(m_avgocc_ratio_lastXlb_mod, 0, sizeof(m_avgocc_ratio_lastXlb_mod));
   memset(m_nlargeevt_per_lumi_mod, 0, sizeof(m_nlargeevt_per_lumi_mod));
   memset(m_totalhits_per_bcid_mod, 0, sizeof(m_totalhits_per_bcid_mod));
 
@@ -164,6 +162,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_avgocc_per_lumi = 0;
   m_avgocc_ratioIBLB0_per_lumi = 0;
   memset(m_avgocc_per_lumi_mod, 0, sizeof(m_avgocc_per_lumi_mod));
+  memset(m_modocc_per_lumi, 0, sizeof(m_modocc_per_lumi));
   memset(m_avgocc_per_bcid_mod, 0, sizeof(m_avgocc_per_bcid_mod));
   memset(m_avgocc_active_per_lumi_mod, 0, sizeof(m_avgocc_active_per_lumi_mod));
   memset(m_maxocc_per_lumi_mod, 0, sizeof(m_maxocc_per_lumi_mod));
@@ -172,6 +171,21 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_occupancy_time2 = 0;
   m_occupancy_time3 = 0;
   memset(m_occupancy_summary_mod, 0, sizeof(m_occupancy_summary_mod));
+  m_occupancy_PP0_ECA = 0;
+  m_occupancy_PP0_ECC = 0;
+  m_occupancy_PP0_B0 = 0;
+  m_occupancy_PP0_B1 = 0;
+  m_occupancy_PP0_B2 = 0;
+  m_occupancy_PP0_IBLA = 0;
+  m_occupancy_PP0_IBLC = 0;
+  m_cluster_occupancy_PP0_ECA = 0;
+  m_cluster_occupancy_PP0_ECC = 0;
+  m_cluster_occupancy_PP0_B0 = 0;
+  m_cluster_occupancy_PP0_B1 = 0;
+  m_cluster_occupancy_PP0_B2 = 0;
+  m_cluster_occupancy_PP0_IBLA = 0;
+  m_cluster_occupancy_PP0_IBLC = 0;
+  
   memset(m_nFEswithHits_mod, 0, sizeof(m_nFEswithHits_mod));
 
   // hit tot
@@ -218,7 +232,8 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_tracksPerEvt_per_lumi = 0;
   m_tracksPerEvtPerMu_per_lumi = 0;
   memset(m_hiteff_incl_mod, 0, sizeof(m_hiteff_incl_mod));
-
+  memset(m_hiteff_lastXlb_mod, 0, sizeof(m_hiteff_lastXlb_mod));
+  
   // Lorentz Angle
   m_LorentzAngle_IBL = 0;
   m_LorentzAngle_IBL2D = 0;
@@ -245,11 +260,13 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_totalclusters_per_bcid_mod, 0, sizeof(m_totalclusters_per_bcid_mod));
   m_highNclusters_per_lumi = 0;
   memset(m_cluster_ToT1d_mod, 0, sizeof(m_cluster_ToT1d_mod));
+  memset(m_cluster_ToT1d_corr, 0, sizeof(m_cluster_ToT1d_corr));
   memset(m_1cluster_ToT_mod, 0, sizeof(m_1cluster_ToT_mod));
   memset(m_2cluster_ToT_mod, 0, sizeof(m_2cluster_ToT_mod));
   memset(m_3cluster_ToT_mod, 0, sizeof(m_3cluster_ToT_mod));
   memset(m_bigcluster_ToT_mod, 0, sizeof(m_bigcluster_ToT_mod));
   memset(m_cluster_Q_mod, 0, sizeof(m_cluster_Q_mod));
+  memset(m_cluster_Q_corr, 0, sizeof(m_cluster_Q_corr));
   memset(m_1cluster_Q_mod, 0, sizeof(m_1cluster_Q_mod));
   memset(m_2cluster_Q_mod, 0, sizeof(m_2cluster_Q_mod));
   memset(m_3cluster_Q_mod, 0, sizeof(m_3cluster_Q_mod));
@@ -260,6 +277,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_cluster_col_width_mod, 0, sizeof(m_cluster_col_width_mod));
   memset(m_cluster_row_width_mod, 0, sizeof(m_cluster_row_width_mod));
   memset(m_cluster_groupsize_mod, 0, sizeof(m_cluster_groupsize_mod));
+  m_cluster_LVL1A = 0;
   memset(m_cluster_LVL1A1d_mod, 0, sizeof(m_cluster_LVL1A1d_mod));
   m_clusterSize_eta = 0;
   memset(m_clusToT_vs_eta_mod, 0, sizeof(m_clusToT_vs_eta_mod));
@@ -284,6 +302,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
 
   // errors
   memset(m_errhist_errcat_avg, 0, sizeof(m_errhist_errcat_avg));
+  memset(m_errhist_errtype_avg, 0, sizeof(m_errhist_errtype_avg));
   memset(m_errhist_tot_LB, 0, sizeof(m_errhist_tot_LB));
   m_errhist_syncerr_LB_pix = 0;
   memset(m_errhist_errcat_LB, 0, sizeof(m_errhist_errcat_LB));
@@ -292,6 +311,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   m_error_time2 = 0;
   m_error_time3 = 0;
   memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
+  memset(m_errhist_expert_IBL_LB, 0, sizeof(m_errhist_expert_IBL_LB));
   memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
   memset(m_errhist_per_type_LB, 0, sizeof(m_errhist_per_type_LB));
   memset(m_errhist_expert_fe_trunc_err_3d, 0, sizeof(m_errhist_expert_fe_trunc_err_3d));
@@ -335,6 +355,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
 
   m_hist_LVoltageEtaPhi = 0;
   memset(m_hist_LVoltage2Dscatter, 0, sizeof(m_hist_LVoltage2Dscatter));
+  memset(m_hist_LVoltageLB, 0, sizeof(m_hist_LVoltageLB));
   m_hist_LB_staveID_LVoltage = 0;
   memset(m_hist_LB_moduleGroup_LVoltage, 0, sizeof(m_hist_LB_moduleGroup_LVoltage));
 
@@ -581,9 +602,6 @@ StatusCode PixelMainMon::bookHistograms() {
     } else {
       m_histTitleExt = "";
     }
-    if (newLumiBlockFlag()) {
-      m_LBstartTime = thisEventInfo->event_ID()->time_stamp();
-    }
     if (!m_isFirstBook) {
       m_firstBookTime = thisEventInfo->event_ID()->time_stamp();
       m_isFirstBook = true;
@@ -657,7 +675,7 @@ StatusCode PixelMainMon::bookHistograms() {
       if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not book histograms" << endmsg;
     }
 
-    m_storegate_errors->SetOption("colz");
+    if(m_storegate_errors) m_storegate_errors->SetOption("colz");
     const char* xlabel[6] = {"RDOs", "SpacePoints", "Clusters", "Tracks", "RODErrors", "DCS"};
     for (int i = 0; i < 6; i++) {
       if (m_storegate_errors) m_storegate_errors->GetXaxis()->SetBinLabel(i + 1, xlabel[i]);  // bin 0 is underflow
@@ -865,35 +883,44 @@ StatusCode PixelMainMon::fillHistograms() {
 
 StatusCode PixelMainMon::procHistograms() {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "finalize()" << endmsg;
-  if (endOfLumiBlockFlag()) m_LBendTime = m_currentTime;
 
   if (!m_doOnline && endOfRunFlag()) {
     if (m_doRDO) {
       if (procHitsMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Hit histograms" << endmsg;
       }
     }
     if (m_doCluster) {
       if (procClustersMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Cluster histograms" << endmsg;
       }
     }
     if (m_doStatus) {
       if (procStatusMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Status histograms" << endmsg;
       }
     }
     if (m_doDCS) {
       if (procPixelDCSMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc DCS histograms" << endmsg;
       }
     }
     if (m_doTrack) {
       if (procTrackMon().isFailure()) {
-        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc histograms" << endmsg;
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Track histograms" << endmsg;
+      }
+    }
+  } else if (m_doOnline && (endOfLumiBlockFlag() || endOfRunFlag())) {
+    if (m_doRDO) {
+      if (procHitsMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Hit histograms" << endmsg;
+      }
+    }
+    if (m_doTrack) {
+      if (procTrackMon().isFailure()) {
+        if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Could not proc Track histograms" << endmsg;
       }
     }
   }
-
   return StatusCode::SUCCESS;
 }

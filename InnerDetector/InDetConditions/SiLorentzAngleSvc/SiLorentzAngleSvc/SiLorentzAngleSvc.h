@@ -19,7 +19,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "StoreGate/DataHandle.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
+#include "SiPropertiesSvc/ISiPropertiesSvc.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -150,6 +150,7 @@ private:
   bool m_isPixel;  
 
   InDet::SiliconProperties m_siProperties;
+  ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
   const InDetDD::SiDetectorManager * m_detManager;
 
   std::vector<double> m_lorentzShift;

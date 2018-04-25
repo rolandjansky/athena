@@ -143,8 +143,8 @@ try:
 except:
     ## Select detectors
     if 'DetFlags' not in dir():
-        ## If you configure one det flag, you're responsible for configuring them all!
         from AthenaCommon.DetFlags import DetFlags
+        ## If you configure one det flag, you're responsible for configuring them all!
         DetFlags.all_setOn()
     DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
     DetFlags.Truth_setOn()
@@ -153,6 +153,7 @@ except:
     if checkHGTDOff is not None:
         checkHGTDOff() #Default for now
 
+from AthenaCommon.DetFlags import DetFlags
 DetFlags.Print()
 
 # removed configuration of forward detectors from standard simulation config

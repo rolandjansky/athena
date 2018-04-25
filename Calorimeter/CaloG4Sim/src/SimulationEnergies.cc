@@ -120,8 +120,7 @@
 #include "G4TouchableHistory.hh"
 
 #include "G4ios.hh"
-#include <vector>
-#include <string>
+
 #include <mutex>
 
 static std::once_flag warning1OnceFlag;

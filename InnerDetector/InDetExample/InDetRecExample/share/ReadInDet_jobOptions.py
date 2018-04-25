@@ -206,9 +206,12 @@ InDetFlags.doStatistics   = doInDetRecStatistics
 TrackCollectionKeys        = [InDetKeys.Tracks()]
 TrackCollectionTruthKeys   = [InDetKeys.TracksTruth()]
 
-# Uncomment to use medical image seeding
+# Uncomment to use variant vertex seeding and/or finding
+# InDetFlags.primaryVertexSetup = "AdaptiveMultiFinding"
 # InDetFlags.primaryVertexSetup = "MedImgMultiFinding"
-  
+# InDetFlags.primaryVertexSetup = "GaussIterativeFinding"  
+# InDetFlags.primaryVertexSetup = "GaussAdaptiveMultiFinding"
+
 #--------------------------------------------------------------
 # load master joboptions file
 #--------------------------------------------------------------

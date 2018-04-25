@@ -19,7 +19,7 @@ class ExternalNNLOReweighter(ExternalBase):
 
         @param executable_path  path to appropriate PowhegBox executable.
         """
-        super(self.__class__, self).__init__("NNLO reweighter", *executable_path)
+        super(ExternalNNLOReweighter, self).__init__("NNLO reweighter", *executable_path)
 
         # Add parameters used by MadSpin
         self.add_keyword("NNLO_reweighting_inputs")

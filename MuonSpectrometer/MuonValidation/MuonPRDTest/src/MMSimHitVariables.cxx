@@ -34,17 +34,10 @@ StatusCode MMSimHitVariables::fillVariables()
     const GenericMuonSimHit hit = it;
 
     if(hit.depositEnergy()==0.) continue; // SimHits without energy loss are not recorded. 
-    //    if( hit.kineticEnergy()<m_energyThreshold && abs(hit.particleEncoding())==11) continue ; 
        
     // connect the hit with the MC truth
-//    int barcode = hit.particleLink().barcode();
-//    m_NSWMM_trackId->push_back(barcode);
-//    for (unsigned int tr=0;tr<m_Truth_particleBarcode->size();tr++) {
-//        if (barcode==m_Truth_particleBarcode->at(tr)) {
-//            m_NSWMM_truthEl->push_back(tr);
-//        }
-//    }
-
+    int barcode = hit.particleLink().barcode();
+    m_NSWMM_trackId->push_back(barcode);
 
     m_NSWMM_globalTime->push_back(hit.globalTime());
   
@@ -145,19 +138,10 @@ StatusCode MMSimHitVariables::fillVariables()
     ATH_MSG_DEBUG("MicroMegas geometry, retrieving detector element for: isSmall " << isSmall << " eta " << m_MmIdHelper->stationEta(offId)
                   << " phi " << m_MmIdHelper->stationPhi(offId) << " ml " << m_MmIdHelper->multilayer(offId) );
 
-    int phiCor = m_MmIdHelper->stationPhi(offId);
-    int mlCor  = m_MmIdHelper->multilayer(offId);
-
-    const MuonGM::MMReadoutElement* detEl = m_detManager->getMMRElement_fromIdFields(isSmall, m_MmIdHelper->stationEta(offId), phiCor, mlCor );  
-    // const MuonGM::MMReadoutElement* detEl = m_detManager->getMMReadoutElement(offId);
+    const MuonGM::MMReadoutElement* detEl = m_detManager->getMMReadoutElement(offId);
 
     if( !detEl ){
-      /*
-	ATH_MSG_WARNING("MicroMegas geometry, failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_MmIdHelper->stationEta(offId)
-	<< " phi " << m_MmIdHelper->stationPhi(offId) << " ml " << m_MmIdHelper->multiplet(offId) );
-      */		      
       ATH_MSG_WARNING("MicroMegas geometry, failed to retrieve detector element for: " << m_MmIdHelper->print_to_string(offId) );
-      continue;
     }
 
     // surface
@@ -194,7 +178,7 @@ StatusCode MMSimHitVariables::fillVariables()
     //  int LastStripNumber = detEl->stripNumber(posOnTopSurf, offId);
      
     // perform bound check
-    if( !surf.insideBounds(posOnSurf) ) continue;
+    m_NSWMM_isInsideBounds->push_back( surf.insideBounds(posOnSurf) );
         
     if( stripNumber == -1 ){
       ATH_MSG_WARNING("MicroMegas validation: failed to obtain strip number " << m_MmIdHelper->print_to_string(offId) );
@@ -212,7 +196,6 @@ StatusCode MMSimHitVariables::fillVariables()
     Amg::Vector2D fastDigitPos(0.,0.);
     if( !detEl->stripPosition(offId,fastDigitPos ) ){
       ATH_MSG_WARNING("MicroMegas validation: failed to obtain local position for identifier " << m_MmIdHelper->print_to_string(offId) );
-      continue;
     }
 
     Amg::Vector3D detpos = detEl->globalPosition();
@@ -270,8 +253,8 @@ StatusCode MMSimHitVariables::clearVariables()
 {
   m_NSWMM_nSimHits = 0;
   m_NSWMM_trackId->clear();
-  m_NSWMM_truthEl->clear();
   m_NSWMM_globalTime->clear();
+  m_NSWMM_isInsideBounds->clear();
   m_NSWMM_hitGlobalPositionX->clear();
   m_NSWMM_hitGlobalPositionY->clear();
   m_NSWMM_hitGlobalPositionZ->clear();
@@ -302,12 +285,10 @@ StatusCode MMSimHitVariables::clearVariables()
   m_NSWMM_FastDigitRsurfacePositionX->clear();
   m_NSWMM_FastDigitRsurfacePositionY->clear();
 
-
   m_NSWMM_particleEncoding->clear();
   m_NSWMM_kineticEnergy->clear();
   m_NSWMM_depositEnergy->clear();
   m_NSWMM_StepLength->clear();
-
 
   m_NSWMM_sim_stationName->clear();
   m_NSWMM_sim_stationEta->clear();
@@ -328,6 +309,9 @@ StatusCode MMSimHitVariables::clearVariables()
 
 void MMSimHitVariables::deleteVariables() 
 { 
+  delete m_NSWMM_trackId;
+
+  delete m_NSWMM_isInsideBounds;
   delete m_NSWMM_globalTime;
   delete m_NSWMM_hitGlobalPositionX;
   delete m_NSWMM_hitGlobalPositionY;
@@ -381,7 +365,9 @@ void MMSimHitVariables::deleteVariables()
 
   m_NSWMM_nSimHits = 0;
 
+  m_NSWMM_trackId = nullptr;
   m_NSWMM_globalTime = nullptr;
+  m_NSWMM_isInsideBounds = nullptr;
   m_NSWMM_hitGlobalPositionX = nullptr;
   m_NSWMM_hitGlobalPositionY = nullptr;
   m_NSWMM_hitGlobalPositionZ = nullptr;
@@ -439,8 +425,8 @@ StatusCode MMSimHitVariables::initializeVariables()
 {
   m_NSWMM_nSimHits = 0;
   m_NSWMM_trackId  = new std::vector<int>;
-  m_NSWMM_truthEl  = new std::vector<int>;
   m_NSWMM_globalTime = new std::vector<double>;
+  m_NSWMM_isInsideBounds = new std::vector<bool>;
   m_NSWMM_hitGlobalPositionX = new std::vector<double>;
   m_NSWMM_hitGlobalPositionY = new std::vector<double>;
   m_NSWMM_hitGlobalPositionZ = new std::vector<double>;
@@ -495,7 +481,7 @@ StatusCode MMSimHitVariables::initializeVariables()
   if(m_tree) {
     m_tree->Branch("Hits_MM_n", &m_NSWMM_nSimHits, "Hits_MM_n/i");
     m_tree->Branch("Hits_MM_trackId", &m_NSWMM_trackId);
-    m_tree->Branch("Hits_MM_truthEl", &m_NSWMM_truthEl);
+    m_tree->Branch("Hits_MM_isInsideBounds", &m_NSWMM_isInsideBounds);
     m_tree->Branch("Hits_MM_globalTime", &m_NSWMM_globalTime);
     m_tree->Branch("Hits_MM_hitGlobalPositionX", &m_NSWMM_hitGlobalPositionX);
     m_tree->Branch("Hits_MM_hitGlobalPositionY", &m_NSWMM_hitGlobalPositionY);

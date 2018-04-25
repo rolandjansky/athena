@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 /**
  * @file InDetPerfPlot_hitResidual.cxx
  * @author shaun roe
  **/
 
 #include "InDetPerfPlot_hitResidual.h"
+#include <vector>
 
-using namespace TMath;
 
 InDetPerfPlot_hitResidual::InDetPerfPlot_hitResidual(InDetPlotBase* pParent, const std::string& sDir)  : InDetPlotBase(
     pParent, sDir),
@@ -68,22 +67,14 @@ InDetPerfPlot_hitResidual::initializePlots() {
   book(m_residualy_2ormorehits[PIXEL][BARREL], "residualy_pixel_barrel_2ormorehits");
   //
   // SCT and TRT do not have y-residuals/pulls
-  // book(m_residualy[SCT][BARREL],"residualy_sct_barrel");
-  // book(m_residualy_1hit[SCT][BARREL],"residualy_sct_barrel_1hit");
-  // book(m_residualy_2ormorehits[SCT][BARREL],"residualy_sct_barrel_2ormorehits");
   //
-  // book(m_residualy[TRT][BARREL],"residualy_trt_barrel");
   // ..now endcaps
   book(m_residualy[PIXEL][ENDCAP], "residualy_pixel_endcap");
   book(m_residualy_1hit[PIXEL][ENDCAP], "residualy_pixel_endcap_1hit");
   book(m_residualy_2ormorehits[PIXEL][ENDCAP], "residualy_pixel_endcap_2ormorehits");
   //
+
   // SCT and TRT do not have y-residuals/pulls
-  // book(m_residualy[SCT][ENDCAP],"residualy_sct_endcap");
-  // book(m_residualy_1hit[SCT][ENDCAP],"residualy_sct_endcap_1hit");
-  // book(m_residualy_2ormorehits[SCT][ENDCAP],"residualy_sct_endcap_2ormorehits");
-  // SCT and TRT do not have y-residuals/pulls
-  // book(m_residualy[TRT][ENDCAP],"residualy_trt_endcap");
   // DBM
   book(m_residualy[DBM][0], "residualy_dbm_neg");
   book(m_residualy[DBM][1], "residualy_dbm_pos");
@@ -105,14 +96,10 @@ InDetPerfPlot_hitResidual::initializePlots() {
   book(m_residualpully[PIXEL][BARREL], "residualpully_pixel_barrel");
   //
   // SCT and TRT do not have y-residuals/pulls
-  // book(m_residualpully[SCT][BARREL],"residualpully_sct_barrel");
-  // book(m_residualpully[TRT][BARREL],"residualpully_trt_barrel");
   book(m_residualpully[DBM][0], "residualpully_dbm_barrel");
   book(m_residualpully[PIXEL][ENDCAP], "residualpully_pixel_endcap");
   //
   ////SCT and TRT do not have y-residuals/pulls
-  // book(m_residualpully[SCT][ENDCAP],"residualpully_sct_endcap");
-  // book(m_residualpully[TRT][ENDCAP],"residualpully_trt_endcap");
   book(m_residualpully[DBM][1], "residualpully_dbm_endcap");
   // introduce cluster width histograms
   book(m_phiWidth[PIXEL][BARREL], "clusterPhiWidth_pixel_barrel");
@@ -122,8 +109,6 @@ InDetPerfPlot_hitResidual::initializePlots() {
   //
   book(m_phiWidth[SCT][BARREL], "clusterPhiWidth_sct_barrel");
   book(m_phiWidth[SCT][ENDCAP], "clusterPhiWidth_sct_endcap");
-  // book(m_etaWidth[SCT][BARREL],"clusterEtaWidth_sct_barrel");
-  // book(m_etaWidth[SCT][ENDCAP],"clusterEtaWidth_sct_endcap");
 }
 
 void
@@ -171,7 +156,9 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
         if ((det == INVALID_DETECTOR)or(region == INVALID_REGION)) {
           continue;
         }
-        if ((width > 0) or (det ==TRT)){//TRT does not have defined cluster width 
+        //TRT cluster width is undefined
+        
+        if ((width > 0) or (det == TRT)) {
           // introduce cluster width histograms
           fillHisto(m_phiWidth[det][region], width);
           fillHisto(m_etaWidth[det][region], etaWidth);
@@ -184,7 +171,7 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle& trkprt) {
           if (hasYCoordinate) { // SCT & TRT do not have LocY
             fillHisto(m_residualpully[det][region], pullLocY);
           }
-          if ((det == TRT)or(det == DBM) or(width < 0)) {
+          if ((det == TRT)or(det == DBM) ) {
             continue;
           }
           if (width == 1) {

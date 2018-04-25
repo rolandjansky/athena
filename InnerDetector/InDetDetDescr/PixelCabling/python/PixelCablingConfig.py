@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 
@@ -7,7 +7,8 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
     logger = logging.getLogger("PixelCablingSvc")
     from IOVDbSvc.CondDB import conddb
     from AthenaCommon.GlobalFlags import globalflags
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
         #FIXME is this only needed for RECO?
@@ -48,13 +49,13 @@ def getPixelCablingSvc(name="PixelCablingSvc", **kwargs):
             # ITk:
             if geoFlags.isSLHC():
                 IdMappingDat = "ITk_Atlas_IdMapping.dat"
-                if "BrlIncl4.0_ref" == geoFlags.GeoType():
+                if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
                     IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-                elif "IBrlExt4.0ref" == geoFlags.GeoType():
+                elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
                     IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-                elif "BrlExt4.0_ref" == geoFlags.GeoType():
+                elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
                     IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-                elif "BrlExt3.2_ref" == geoFlags.GeoType():
+                elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
                     IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
                 logger.info("Using ITk pixel mapping: %s" % IdMappingDat)
                 kwargs.setdefault("MappingFile", IdMappingDat)

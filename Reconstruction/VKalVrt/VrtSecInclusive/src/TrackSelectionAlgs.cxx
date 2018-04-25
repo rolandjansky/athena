@@ -107,7 +107,7 @@ namespace VKalVrtAthena {
       // These cuts are optional. Specified by JobProperty
       if( m_jp.do_PVvetoCut )   m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_notPVassociated );
       if( m_jp.do_d0Cut )       m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_d0Cut );
-      if( m_jp.do_z0Cut )       m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_d0Cut );
+      if( m_jp.do_z0Cut )       m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_z0Cut );
       if( m_jp.do_d0errCut )    m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_d0errCut );
       if( m_jp.do_z0errCut )    m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_z0errCut );
       //if( m_jp.do_d0signifCut ) m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_d0signifCut ); // not implemented yet

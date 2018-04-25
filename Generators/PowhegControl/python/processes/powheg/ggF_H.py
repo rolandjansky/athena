@@ -21,7 +21,7 @@ class ggF_H(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "gg_H_quark-mass-effects", **kwargs)
+        super(ggF_H, self).__init__(base_directory, "gg_H_quark-mass-effects", **kwargs)
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("bornktmin")

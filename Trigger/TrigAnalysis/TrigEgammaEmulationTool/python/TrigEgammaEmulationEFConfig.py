@@ -17,11 +17,7 @@ ElectronPidTools()
 PhotonPidTools()
 #***********************************************************************
 
-OutputLevel=0
 
-# Track isolation -- remember to add TrackIsolation as a property of the class
-#from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool,xAOD__TrackIsolationTool
-#TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrigEgammaTrackIsolationTool')
 #TrkIsoCfg = CfgMgr.xAOD__TrackIsolationTool('TrigEgammaTrackIsolationTool')
 #TrkIsoCfg.TrackSelectionTool.maxZ0SinTheta = 3.
 #TrkIsoCfg.TrackSelectionTool.minPt = 1000.

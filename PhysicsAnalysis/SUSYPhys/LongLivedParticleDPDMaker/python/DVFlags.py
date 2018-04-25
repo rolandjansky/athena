@@ -149,16 +149,27 @@ class DV_7JetFilterFlags(JobProperty):
     pass
 primRPVLLDESDM.add_JobProperty(DV_7JetFilterFlags)
 
-class DV_MuonFilterFlags(JobProperty):
+class DV_MuonBarrelFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=["bool"]
     StoredValue=True
     cutEtMin=60.0*Units.GeV
-    cutEtaMax=2.5
+    cutEtaMax=1.1
     triggers=["HLT_mu60_0eta105_msonly"]
     nPassed=1
     pass
-primRPVLLDESDM.add_JobProperty(DV_MuonFilterFlags)
+primRPVLLDESDM.add_JobProperty(DV_MuonBarrelFilterFlags)
+
+class DV_MuonFullMSFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=["bool"]
+    StoredValue=True
+    cutEtMin=80.0*Units.GeV
+    cutEtaMax=2.5
+    triggers=["HLT_mu80_msonly_3layersEC"]
+    nPassed=1
+    pass
+primRPVLLDESDM.add_JobProperty(DV_MuonFullMSFilterFlags)
 
 class DV_PhotonFilterFlags(JobProperty):
     statusOn=True
