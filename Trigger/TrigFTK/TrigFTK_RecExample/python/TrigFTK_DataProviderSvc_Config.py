@@ -14,7 +14,6 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
         from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigTrackFitterFTK, InDetTrigRotCreatorFTK, TrigFTK_VertexCollectionSortingTool, \
         TrigFTK_UncertaintyTool,TrigFTK_RawVertexFinderTool,InDetTrigTrackParticleCreatorToolFTK,InDetTrigTrackSummaryToolFTK
-        from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
         
         self.TrackCollectionName= "FTK_TrackCollection"
         self.TrackParticleContainerName= "FTK_TrackParticleContainer"
@@ -36,6 +35,13 @@ class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
         self.VertexCollectionSortingTool=TrigFTK_VertexCollectionSortingTool
         self.ROTcreatorTool= InDetTrigRotCreatorFTK 
 
+        from AthenaCommon.BeamFlags import jobproperties
+        if (jobproperties.Beam.beamType() != 'cosmics'):
+            from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
+            self.VertexFinderTool=InDetTrigPriVxFinderTool
+            self.DoVertexing=True
+        else:
+            self.DoVertexing=False
 
         from RecExConfig.RecFlags import rec
         self.doTruth= rec.doTruth()
