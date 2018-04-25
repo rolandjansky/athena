@@ -13,15 +13,17 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODCore
    PRIVATE
-   Event/xAOD/xAODEventInfo
    Event/xAOD/xAODJet
+   Event/xAOD/xAODMuon
+   Event/xAOD/xAODEgamma
    PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS SystematicsHandles
    LINK_LIBRARIES AsgTools PATInterfaces AnaAlgorithmLib xAODBase xAODCore
-   PRIVATE_LINK_LIBRARIES RootCoreUtils )
+   PRIVATE_LINK_LIBRARIES RootCoreUtils
+   xAODJet xAODMuon xAODEgamma )
 
 atlas_add_test( cc_SysReadHandle
    SOURCES test/cc_SysReadHandle.cxx

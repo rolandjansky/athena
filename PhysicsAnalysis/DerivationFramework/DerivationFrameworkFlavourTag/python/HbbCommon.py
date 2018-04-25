@@ -1,6 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
+# import Common Algs
+from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs
+
+# Import star stuff (it was like that when I got here)
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from JetRec.JetRecConf import JetAlgorithm
@@ -396,3 +400,62 @@ def addCopyJet(FTAG5Seq, ToolSvc, InputJetCollectionName, OutputJetCollectionNam
                           )
 
   return OutputJetCollectionName
+
+
+#========================================================================
+# Hbb Tagger
+#========================================================================
+def addHbbTagger(sequence, ToolSvc, logger,
+                 output_level=WARNING,
+                 jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20"):
+    fat_calibrator_name = "HbbCalibrator"
+    is_data = not DerivationFrameworkIsMonteCarlo
+    if not hasattr(ToolSvc, fat_calibrator_name):
+        fatCalib = CfgMgr.JetCalibrationTool(
+            fat_calibrator_name,
+            OutputLevel=output_level,
+            JetCollection=jet_collection,
+            ConfigFile="JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config",
+            CalibSequence="EtaJES_JMS",
+            CalibArea="00-04-81",
+            IsData=is_data)
+        ToolSvc += fatCalib
+        logger.info('set up {}'.format(fatCalib))
+    else:
+        logger.info('took {} from tool svc'.format(fat_calibrator_name))
+
+    hbb_tagger_name = "HbbTagger"
+    config_file_name = (
+        "BoostedJetTaggers/HbbTagger/Summer2018/Apr13HbbNetwork.json")
+    if not hasattr(ToolSvc, hbb_tagger_name):
+        hbbTagger = CfgMgr.HbbTaggerDNN(
+            hbb_tagger_name,
+            OutputLevel=output_level,
+            neuralNetworkFile=config_file_name)
+        ToolSvc += hbbTagger
+        logger.info('set up {}'.format(hbbTagger))
+    else:
+        logger.info('took {} from tool svc'.format(hbb_tagger_name))
+
+    tagger_alg_name = "HbbTaggerAlg"
+    if not hasattr(sequence, tagger_alg_name):
+        if tagger_alg_name in DFJetAlgs:
+            sequence += DFJetAlgs[tagger_alg_name]
+            logger.info('took {} from jet algs'.format(tagger_alg_name))
+        else:
+            tagger_alg = CfgMgr.HbbTaggingAlgorithm(
+                tagger_alg_name,
+                OutputLevel=output_level,
+                jetCollectionName=(jet_collection + "Jets"),
+                decorationName="HbbScore",
+                minPt=250e3,
+                maxEta=2.0,
+                tagger=hbbTagger,
+                calibrationTool=fatCalib)
+            DFJetAlgs[tagger_alg_name] = tagger_alg
+            sequence += tagger_alg
+            logger.info('set up {}'.format(tagger_alg))
+    else:
+        logger.info('{} already scheduled for {}'.format(
+            tagger_alg_name, jet_collection))
+

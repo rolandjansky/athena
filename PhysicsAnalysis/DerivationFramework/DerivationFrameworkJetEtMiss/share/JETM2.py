@@ -20,9 +20,9 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL 
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
 
 orstr  = ' || '
 andstr = ' && '
@@ -40,6 +40,22 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 JETM2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM2SkimmingTool1",
                                                                     expression = expression)
 ToolSvc += JETM2SkimmingTool
+
+#Trigger matching decorations
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
+DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
+                                                             name = "JETM2_TriggerMatchingAugmentation",
+                                                             DecorationPrefix = "DFCommonTrigger_",
+                                                             ElectronContainerName = "Electrons",
+                                                             MuonContainerName = "Muons",
+                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
+	                                                             )
+ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
+NewTrigVars=[]
+for contain in ["Electrons","Muons"]:
+    new_content=".".join(["JETM2_"+t for t in eltrigsel +
+                          mutrigsel])
+    NewTrigVars.append(contain+"."+new_content)
 
 #====================================================================
 # SET UP STREAM   
@@ -183,7 +199,8 @@ JETM2SlimmingHelper.AllVariables = ["MuonTruthParticles", "egammaTruthParticles"
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
 JETM2SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
-                                      "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
+                                      "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]+NewTrigVars
+
 for truthc in [
     "TruthMuons",
     "TruthElectrons",

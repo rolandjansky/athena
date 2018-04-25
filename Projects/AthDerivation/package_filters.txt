@@ -120,6 +120,7 @@
 + Generators/TruthConverters
 + Generators/TruthRivetTools
 + Generators/TruthUtils
++ Generators/McEventSelector
 
 # Inner detector package(s):
 + InnerDetector/InDetConditions/InDetBeamSpotService

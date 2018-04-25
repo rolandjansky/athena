@@ -363,9 +363,11 @@ int main(int argc, char** argv) {
     std::vector<std::string> names_LHE3;
     bool recalc_LHE3 = false;
     int dsid = 0;
+    int isAFII = topConfig->isAFII();
     ULong64_t totalEvents = 0;
     ULong64_t totalEventsInFiles = 0;
     sumWeights->Branch("dsid", &dsid);
+    sumWeights->Branch("isAFII", &isAFII);
     sumWeights->Branch("totalEventsWeighted", &totalEventsWeighted);
     if (topConfig->doMCGeneratorWeights()) {// the main problem is that we don't have the list of names a priori
       sumWeights->Branch("totalEventsWeighted_mc_generator_weights", &totalEventsWeighted_LHE3);
@@ -694,14 +696,26 @@ int main(int argc, char** argv) {
             if (!passAnyTriggerVeto)
                 continue;
 
+	    ///-- Nominal objects -- ///
             ///-- Calibrate objects and make all required systematic copies --///
-            top::check( systObjMaker->execute() , "Failed to execute systObjMaker" );
+            top::check( systObjMaker->execute(true) , "Failed to execute systObjMaker" );
 
             ///-- Object selection (e.g. good electrons, muons, jets etc.). Event selection cuts comes later --///
-            top::check( objectSelection->execute() , "Failed to execute objectSelection" );
+            top::check( objectSelection->execute(true) , "Failed to execute objectSelection" );
 
             ///-- Recalculate MissingET based on object selection --///
-            top::check( systObjMaker->recalculateMET() , "Failed to recalculateMET with systObjMaker" );
+            top::check( systObjMaker->recalculateMET(true) , "Failed to recalculateMET with systObjMaker" );
+
+	    ///-- Systematic objects -- ///
+	    ///-- Calibrate objects and make all required systematic copies --///                                  
+	    top::check( systObjMaker->execute(false) , "Failed to execute systObjMaker" );
+
+	    ///-- Object selection (e.g. good electrons, muons, jets etc.). Event selection cuts comes later --/// 
+	    top::check( objectSelection->execute(false) , "Failed to execute objectSelection" );
+
+	    ///-- Recalculate MissingET based on object selection --///                                            
+	    top::check( systObjMaker->recalculateMET(false) , "Failed to recalculateMET with systObjMaker" );
+
 
             ///-- Scale Factor calculation --///
             if (topConfig->isMC())

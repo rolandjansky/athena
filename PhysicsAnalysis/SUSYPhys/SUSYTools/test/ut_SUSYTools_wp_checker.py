@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 import unittest
 import ROOT
@@ -40,6 +40,7 @@ Ele.Et: 25000.
 Ele.Eta: 2.47
 Ele.CrackVeto: false
 Ele.Iso: ${ELE_ISO}
+Ele.IsoHighPt: FixedCutHighPtCaloOnly # tight iso required for electrons pt > 400 GeV
 Ele.Id: ${ELE_ID}
 Ele.d0sig: 5.
 Ele.z0: 0.5
@@ -116,8 +117,8 @@ OR.DoMuonJetGhostAssociation: true
 OR.DoTau: false
 OR.DoPhoton: false
 OR.Bjet: true
-OR.ElBjet: true
-OR.MuBjet: true
+OR.ElBjet: false
+OR.MuBjet: false
 OR.TauBjet: false
 OR.MuJetApplyRelPt: false
 OR.MuJetPtRatio: -999.
@@ -126,7 +127,6 @@ OR.RemoveCaloMuons: true
 OR.MuJetInnerDR: -999.
 OR.BtagWP: FixedCutBEff_85
 #
-#add fatjets to OR
 OR.DoFatJets: false
 OR.EleFatJetDR: 1.
 OR.JetFatJetDR: 1.
@@ -157,9 +157,7 @@ METSig.DoPhiReso: true
 PRW.MuUncertainty: 0.2
 #
 # Trigger SFs configuration
-Ele.TriggerSFStringSingle: SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
-Ele.TriggerSFStringDi: DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0
-Ele.TriggerSFStringMixedLepton: DI_E_2015_e17_lhloose_2016_e17_lhloose
+Ele.TriggerSFStringSingle: SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_2017_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
 #
 StrictConfigCheck: false
 """)

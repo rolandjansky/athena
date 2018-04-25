@@ -485,7 +485,6 @@ if DoCellReweighting:
 
 # Extra variables
 EGAM1SlimmingHelper.ExtraVariables = ExtraContentAll
-
 # the next line is not needed because we save all variables for electrons, including the prompt lepton decorations
 # EGAM1SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 EGAM1SlimmingHelper.AllVariables = ExtraContainersElectrons
@@ -502,6 +501,12 @@ for tool in EGAM1_ClusterEnergyPerLayerDecorators:
 
 # Add energy density variables
 EGAM1SlimmingHelper.ExtraVariables += ExtraVariablesEventShape
+
+# Add detailed shower shape variables (not needed for electrons because we save everything but it doesn't hurt..)
+from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
+EGAM1SlimmingHelper.ExtraVariables += ElectronsCPDetailedContent
+from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
+EGAM1SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 # This line must come after we have finished configuring EGAM1SlimmingHelper
 EGAM1SlimmingHelper.AppendContentToStream(EGAM1Stream)

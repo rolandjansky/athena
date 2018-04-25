@@ -454,8 +454,9 @@ private:
     std::vector<float> m_el_delta_z0_sintheta;
     std::vector<int>   m_el_true_type;
     std::vector<int>   m_el_true_origin;
-    std::vector<int>   m_el_true_typebkg;
-    std::vector<int>   m_el_true_originbkg;
+    std::vector<int>   m_el_true_firstEgMotherTruthType;
+    std::vector<int>   m_el_true_firstEgMotherTruthOrigin;
+    std::vector<char>  m_el_true_isPrompt;
 
     //muons
     std::vector<float> m_mu_pt;
@@ -471,6 +472,7 @@ private:
     std::vector<float> m_mu_delta_z0_sintheta;
     std::vector<int>   m_mu_true_type;
     std::vector<int>   m_mu_true_origin;
+    std::vector<char>  m_mu_true_isPrompt;
     //photons
     std::vector<float> m_ph_pt;
     std::vector<float> m_ph_eta;
@@ -1019,8 +1021,9 @@ protected:
   const std::vector<float>& el_delta_z0_sintheta() const { return m_el_delta_z0_sintheta;}
   const std::vector<int>& el_true_type() const { return m_el_true_type;}
   const std::vector<int>& el_true_origin() const { return m_el_true_origin;}
-  const std::vector<int>& el_true_typebkg() const { return m_el_true_typebkg;}
-  const std::vector<int>& el_true_originbkg() const { return m_el_true_originbkg;}
+  const std::vector<int>& el_true_firstEgMotherTruthType() const { return m_el_true_firstEgMotherTruthType;}
+  const std::vector<int>& el_true_firstEgMotherTruthOrigin() const { return m_el_true_firstEgMotherTruthOrigin;}
+  const std::vector<char>& el_true_isPrompt() const { return m_el_true_isPrompt;}
 
   //muons
   const std::vector<float>& mu_pt() const { return m_mu_pt;}
@@ -1036,6 +1039,7 @@ protected:
   const std::vector<float>& mu_delta_z0_sintheta() const { return m_mu_delta_z0_sintheta;}
   const std::vector<int>& mu_true_type() const { return m_mu_true_type;}
   const std::vector<int>& mu_true_origin() const { return m_mu_true_origin;}
+  const std::vector<char>& mu_true_isPrompt() const { return m_mu_true_isPrompt;}
 
   //photons
   const std::vector<float>& ph_pt() const { return m_ph_pt;}
@@ -1310,6 +1314,10 @@ protected:
   // This can be expanded as required
   // This is just a first pass at doing this sort of thing
   const std::unordered_map<std::string,int*>& extraTruthVars_int() const { return m_extraTruthVars_int;}
+
+  // Prompt lepton definition for event saver
+  bool isPromptElectron(int type, int origin, int egMotherType, int egMotherOrigin);
+  bool isPromptMuon(int type, int origin);
 
   ClassDef(top::EventSaverFlatNtuple, 0);
 };

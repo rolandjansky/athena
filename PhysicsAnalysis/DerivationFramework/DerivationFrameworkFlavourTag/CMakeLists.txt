@@ -22,6 +22,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
                           Reconstruction/Jet/JetInterface
+                          Reconstruction/Jet/BoostedJetTaggers
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           )
@@ -35,12 +36,12 @@ atlas_add_library( DerivationFrameworkFlavourTagLib
                    NO_PUBLIC_HEADERS
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces)
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces BoostedJetTaggersLib)
 
 atlas_add_component( DerivationFrameworkFlavourTag
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger JetInterface DerivationFrameworkFlavourTagLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger JetInterface BoostedJetTaggersLib DerivationFrameworkFlavourTagLib )
 
 
 # Install files from the package:

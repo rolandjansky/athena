@@ -59,6 +59,7 @@ def addAntiKt10TrackCaloClusterJets(sequence, outputlist):
 def addAntiKt2PV0TrackJets(sequence, outputlist):
     if not "akt2track" in jtm.modifiersMap.keys():
         from AthenaCommon.AppMgr import ToolSvc
+        from BTagging.BTaggingFlags import BTaggingFlags
         btag_akt2trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt2Track", AddToToolSvc=True,
                                                     Verbose=True,
                                                     options={"name"         : "btagging_antikt2track",
@@ -67,7 +68,7 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
                                                              "BTagSVName"   : "SecVtx",
                                                              },
                                                     SetupScheme = "",
-                                                    TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                                                    TaggerList = BTaggingFlags.StandardTaggers
                                                     )
 
         from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
@@ -79,6 +80,7 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
 def addAntiKt4PV0TrackJets(sequence, outputlist):
     if not "akt4track" in jtm.modifiersMap.keys():
         from AthenaCommon.AppMgr import ToolSvc
+        from BTagging.BTaggingFlags import BTaggingFlags
         btag_akt4trk = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4Track", AddToToolSvc=True,
                                                     Verbose=True,
                                                     options={"name"         : "btagging_antikt4track",
@@ -87,7 +89,7 @@ def addAntiKt4PV0TrackJets(sequence, outputlist):
                                                              "BTagSVName"   : "SecVtx",
                                                              },
                                                     SetupScheme = "",
-                                                    TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                                                    TaggerList = BTaggingFlags.StandardTaggers
                                                     )
 
         from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc

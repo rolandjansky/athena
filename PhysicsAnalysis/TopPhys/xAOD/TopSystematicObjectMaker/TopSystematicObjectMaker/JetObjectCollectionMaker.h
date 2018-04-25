@@ -71,9 +71,9 @@ namespace top{
       
       StatusCode initialize(); 
       
-      StatusCode executeJets();
-      StatusCode executeLargeRJets();
-      StatusCode executeTrackJets();
+      StatusCode executeJets(bool);
+      StatusCode executeLargeRJets(bool);
+      StatusCode executeTrackJets(bool);
       
       StatusCode printoutJets();
       StatusCode printoutLargeRJets();
@@ -90,7 +90,7 @@ namespace top{
       virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<ICPJetUncertaintiesTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , const std::string& modName , bool isLargeR = false); 
       virtual void specifiedSystematics( const std::set<std::string>& specifiedSystematics , const ToolHandle<IJERSmearingTool>& tool , std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map );      
       
-      StatusCode execute( const bool isLargeR );
+      StatusCode execute( const bool isLargeR, bool executeNominal );
       
       StatusCode calibrate( const bool isLargeR );
       virtual StatusCode applySystematic( ToolHandle<ICPJetUncertaintiesTool>& tool, const std::unordered_map<CP::SystematicSet,CP::SystematicSet>& map , bool isLargeR = false);

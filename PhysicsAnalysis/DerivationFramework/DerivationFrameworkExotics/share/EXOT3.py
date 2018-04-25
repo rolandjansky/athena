@@ -12,16 +12,21 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+
+
 from JetRec.JetRecStandard import jtm
 
-exot3Seq = CfgMgr.AthSequencer("EXOT3Sequence")
-
 from AthenaCommon.GlobalFlags import globalflags
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+
 
 isMC = False
 if globalflags.DataSource()=='geant4':
   isMC = True
-
 #====================================================================
 # SET UP STREAM   
 #====================================================================
@@ -30,15 +35,18 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT3Stream )
 EXOT3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT3Stream.AcceptAlgs(["EXOT3Kernel"])
 
+#=====================
+# TRIGGER NAV THINNING
+#=====================
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EXOT3ThinningHelper = ThinningHelper("EXOT3ThinningHelper")
+EXOT3ThinningHelper.TriggerChains = 'HLT_j.*|HLT_g.*'
+EXOT3ThinningHelper.AppendToStream( EXOT3Stream )
+
 #====================================================================
 # THINNING TOOL 
 #====================================================================
 
-#thinning helper
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-EXOT3ThinningHelper = ThinningHelper( "EXOT3ThinningHelper" )
-EXOT3ThinningHelper.AppendToStream( EXOT3Stream )
-  
 thinningTools = []
 
 # Track thinning
@@ -92,22 +100,22 @@ thinningTools.append(EXOT3PhotonTPThinningTool)
 
 #Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT3AKt10JetTPThinningTool",
-                                                                            ThinningService         = EXOT3ThinningHelper.ThinningSvc(),
-                                                                            JetKey                  = "AntiKt10LCTopoJets",
-                                                                            SelectionString         = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
-                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
+EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name               = "EXOT3AKt10JetTPThinningTool",
+                                                                        ThinningService         = EXOT3ThinningHelper.ThinningSvc(),
+                                                                        JetKey                  = "AntiKt10LCTopoJets",
+                                                                        SelectionString         = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3AKt10JetTPThinningTool
 thinningTools.append(EXOT3AKt10JetTPThinningTool)
 
 # Calo-cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "EXOT3Ak10CCThinningTool",
-                                                                       ThinningService       = EXOT3ThinningHelper.ThinningSvc(),
-                                                                       SGKey                 = "AntiKt10LCTopoJets",
-                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
-                                                                       SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
-                                                                       AdditionalClustersKey = ["LCOriginTopoClusters"])
+EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                 = "EXOT3Ak10CCThinningTool",
+                                                                      ThinningService       = EXOT3ThinningHelper.ThinningSvc(),
+                                                                      SGKey                 = "AntiKt10LCTopoJets",
+                                                                      TopoClCollectionSGKey = "CaloCalTopoClusters",
+                                                                      SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
+                                                                      AdditionalClustersKey = ["LCOriginTopoClusters"])
 ToolSvc += EXOT3AKt10CCThinningTool
 thinningTools.append(EXOT3AKt10CCThinningTool)
 
@@ -198,49 +206,81 @@ triggers = [
 
 topology_selection_1jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 1))"
 
-topology_selection_2jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 2)"
+topology_selection_2jet_lowpt =  "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 2)"
 
-topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 1000*GeV)  >= 2))"
+topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 1000*GeV)  >= 2)"
 
-topology_selection_2jet += " || " + topology_selection_2jet_highpt
+topology_selection_2jet =  "(" + topology_selection_2jet_lowpt + " || " + topology_selection_2jet_highpt + ")"
 
-EXOT3_trigger1 = "(EF_g120_loose || EF_xe80_tclcw_tight)"
 EXOT3_trigger2 = "(HLT_g120_loose || HLT_g140_loose || HLT_xe100 || HLT_xe90_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50)"
 EXOT3_selection = "((count(Photons.pt > 100*GeV) > 0) || (count(Electrons.pt > 100*GeV) > 0))"
 
-expression = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' && ' + topology_selection_1jet + ' )'# || ( ' + r2_trigger_selection + ' && ' + topology_selection_2jet + ' ) '
-expression2 = topology_selection_2jet
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+#------------------------------------------
+#pre-skimming tools
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT3SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool1", expression = expression)
+#photons and electrons
+#NOTE this does *NOT* include 1 jet selection
+EXOT3PreSkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3PreSkimmingTool1",
+                                                                    expression = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' )')#photons and electrons
+ToolSvc += EXOT3PreSkimmingTool1
+
+#trigger
+EXOT3TriggerPreSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT3TriggerPreSkimmingTool",
+                                                                       TriggerListAND = [],
+                                                                       TriggerListOR  = triggers)#triggers
+ToolSvc += EXOT3TriggerPreSkimmingTool
+
+#------------------------------------------
+#skimming tools
+#1 jet, photons and electrons
+EXOT3SkimmingTool1 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool1",
+                                                                 expression = '( ' + EXOT3_trigger2 + ' && ' + EXOT3_selection + ' && ' + topology_selection_1jet + ' )')#1 jet, photons and electrons
 ToolSvc += EXOT3SkimmingTool1
 
-EXOT3SkimmingTool2 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool2", expression = expression2)
+#2 jets
+EXOT3SkimmingTool2 = DerivationFramework__xAODStringSkimmingTool(name = "EXOT3SkimmingTool2",
+                                                                 expression = topology_selection_2jet)#2 jets
 ToolSvc += EXOT3SkimmingTool2
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
 EXOT3TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT3TriggerSkimmingTool",
                                                                     TriggerListAND = [],
-                                                                    TriggerListOR  = triggers)
+                                                                    TriggerListOR  = triggers)#triggers
 ToolSvc += EXOT3TriggerSkimmingTool
 
-# topology_selection_2jet && triggers
-EXOT3ANDSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT3ANDSkimmingTool", FilterList = [EXOT3SkimmingTool2, EXOT3TriggerSkimmingTool])
+#------------------------------------------
+#pre-skimming tools combinations
+
+#combination: (1 jet, photons and electrons) || (triggers)
+EXOT3CombinedPreSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORPreSkimmingTool",
+                                                                        FilterList = [EXOT3TriggerPreSkimmingTool, EXOT3PreSkimmingTool1])
+ToolSvc += EXOT3CombinedPreSkimmingTool
+
+#------------------------------------------
+#skimming tools combinations
+
+#2 jets && triggers
+EXOT3ANDSkimmingTool = DerivationFramework__FilterCombinationAND(name = "EXOT3ANDSkimmingTool",
+                                                                 FilterList = [EXOT3SkimmingTool2, EXOT3TriggerSkimmingTool])
 ToolSvc += EXOT3ANDSkimmingTool
 
-# expression || (topology_selection_2jet && triggers)
-EXOT3FinalSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORSkimmingTool", FilterList = [EXOT3ANDSkimmingTool, EXOT3SkimmingTool1])
-ToolSvc += EXOT3FinalSkimmingTool
+#combination: (1 jet, photons and electrons) || (2 jets && triggers)
+EXOT3CombinedSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT3ORSkimmingTool",
+                                                                     FilterList = [EXOT3ANDSkimmingTool, EXOT3SkimmingTool1])
+ToolSvc += EXOT3CombinedSkimmingTool
 
 #=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM   
+# CREATE PRIVATE SEQUENCES
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE SKIMMING, THINNING AND AUGMENTATION TOOLS  
 #=======================================
+#this pre-sequence skims events based on what is available from the input xAOD, thus reducing the use of CPU resources
+exot3PreSeq = CfgMgr.AthSequencer("EXOT3PreSequence")
+exot3PreSeq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3PreKernel_skim", SkimmingTools = [EXOT3CombinedPreSkimmingTool])
+DerivationFrameworkJob += exot3PreSeq
 
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += exot3Seq
+#the main sequence tools will be passed after jets have been reconstructed
+exot3Seq = CfgMgr.AthSequencer("EXOT3Sequence")
+exot3PreSeq += exot3Seq
 
 #=======================================
 # JETS
@@ -273,13 +313,13 @@ addTCCTrimmedJets(exot3Seq,"EXOT3")
 # A wrapper function which does all the necessary steps
 addVRJets(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
           VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
-          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+          ghostArea = 0 , ptmin = 7000, ptminFilter = 7000,
           variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
 # Create variable-R trackjets and dress AntiKt10TCC with ghost VR-trkjet
 # A wrapper function which does all the necessary steps
 # addVRJetsTCC(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
              # VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track",
-             # ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+             # ghostArea = 0 , ptmin = 7000, ptminFilter = 7000,
              # variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
 
 #b-tagging
@@ -287,19 +327,17 @@ addVRJets(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet"
 # use alias for VR jets
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-
-#some jets collections are not included in the new jet restoring mechanism and need to be added the old way
-#trimmed jets
-addTrimmedJets("AntiKt", 1.0, "PV0Track", rclus=0.2, ptfrac=0.05, mods="groomed", algseq=exot3Seq, outputGroup="EXOT3")#AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets
+from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+FlavorTagInit(JetCollections = ["AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = exot3Seq)
 
 #jet calibration
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
 
 #=======================================
-# SKIMMING, THINNING, AUGMENTATION
+# CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE SKIMMING, THINNING AND AUGMENTATION TOOLS
 #=======================================
-exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim", SkimmingTools = [EXOT3FinalSkimmingTool])
-exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel", ThinningTools = thinningTools)
+exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim", SkimmingTools = [EXOT3CombinedSkimmingTool])
+exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel",      ThinningTools = thinningTools)
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -308,6 +346,10 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkExotics.EXOT3ContentList import *
 
 EXOT3SlimmingHelper = SlimmingHelper("EXOT3SlimmingHelper")
+
+#=====================
+# Variable definitions
+#=====================
 
 # Containers to be smart slimmed, see https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis
 # /DerivationFramework/DerivationFrameworkExamples/trunk/share/SlimmingExample.py#L38
@@ -321,10 +363,10 @@ EXOT3SlimmingHelper.AllVariables = EXOT3AllVariablesContent
 # Add jet collections created by derivation job
 EXOT3SlimmingHelper.StaticContent = EXOT3StaticContent
 
-addJetOutputs(EXOT3SlimmingHelper, ["EXOT3"])
+# addJetOutputs(EXOT3SlimmingHelper, ["EXOT3"], ["AntiKt4TruthJets", "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "BTagging_AntiKtVR30Rmax4Rmin02Track"])
 
 EXOT3SlimmingHelper.AppendToDictionary = {}
-listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets', 'AntiKt10PV0TrackTrimmedPtFrac5SmallR20Jets']
+listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets', 'AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets']
 
 # Add VR track-jet collection and its b-tagging container to output stream
 EXOT3SlimmingHelper.AppendToDictionary = {
@@ -341,6 +383,7 @@ EXOT3SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
 
 # Save certain b-tagging variables for VR track-jet
 EXOT3SlimmingHelper.ExtraVariables += [
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.DL1_pb.DL1_pu.DL1_pc.DL1mu_pb.DL1mu_pu.DL1mu_pc.DL1rnn_pb.DL1rnn_pu.DL1rnn_pc",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
@@ -360,3 +403,4 @@ EXOT3SlimmingHelper.IncludeJetTriggerContent = True
 EXOT3SlimmingHelper.IncludeEGammaTriggerContent = True
 
 EXOT3SlimmingHelper.AppendContentToStream(EXOT3Stream)
+

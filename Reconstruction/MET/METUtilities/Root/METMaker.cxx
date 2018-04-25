@@ -114,6 +114,7 @@ namespace met {
 
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
+    declareProperty("GreedyPhotons",      m_greedyPhotons      = false               );
     
     declareProperty("UseGhostMuons",      m_useGhostMuons      = false               );
     declareProperty("DoRemoveMuonJets",   m_doRemoveMuonJets   = true                );
@@ -312,6 +313,17 @@ namespace met {
 	selected = MissingETComposition::selectIfNoOverlaps(map,orig,p) || !removeOverlap;
         ATH_MSG_VERBOSE(obj->type() << " (" << orig <<") with pt " << obj->pt()
                         << " is " << ( selected ? "non-" : "") << "overlapping");
+
+	// reinstate greedy photon option for testing
+	if (selected && obj->type() == xAOD::Type::Photon && m_greedyPhotons) {
+	  for (size_t i = 0; i < assocs.size(); i++) {
+	    std::vector<size_t> ind = assocs[i]->overlapIndices(orig);
+	    std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
+	    for (size_t indi = 0; indi < ind.size(); indi++) {
+	      if (allObjects[ind[indi]] && allObjects[ind[indi]]->type()==xAOD::Type::Electron) assocs[i]->setObjSelectionFlag(allObjects[ind[indi]],true);
+	    }
+	  }
+	}
 
 	//Do special overlap removal for calo tagged muons
 	if(m_orCaloTaggedMuon && !removeOverlap && orig->type()==xAOD::Type::Muon && static_cast<const xAOD::Muon*>(orig)->muonType()==xAOD::Muon::CaloTagged) {

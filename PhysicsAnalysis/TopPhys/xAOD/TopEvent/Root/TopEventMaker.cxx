@@ -273,20 +273,6 @@ namespace top {
       //sort only the selected taus (faster)
       event.m_jets.sort(top::descendingPtSorter);
       
-      // for JetFlavour composition/response uncertainty, we need to decorate EventInfo with NJets (nominal)
-      // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertainties2015ICHEP2016#Tool_requirements_and_assumption
-      // use the Loose (Tight) definition if only the Loose (Tight) tree is requested
-      // use Tight if both, or none, are requestd (unlikely)
-      if (currentSystematic.hashValue() == m_config->nominalHashValue()) {
-        bool UseLooseNJets = false;
-        if (m_config->doLooseEvents() && !m_config->doTightEvents()) UseLooseNJets = true;
-        if (event.m_isLoose && UseLooseNJets) {
-          event.m_info->auxdecor< int >("Njet") = event.m_jets.size();
-        }
-        else if (!event.m_isLoose && !UseLooseNJets) {
-          event.m_info->auxdecor< int >("Njet") = event.m_jets.size();
-        }
-      }
     }
 
     //large-R jets

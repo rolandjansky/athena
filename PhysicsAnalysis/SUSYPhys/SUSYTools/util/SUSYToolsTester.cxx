@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: SUSYToolsTester_opt.cxx 696994 2015-09-26 20:40:26Z khoo $
@@ -339,12 +339,11 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
 
   /// SETUP TRIGGERS TO BE CHECKED
-  std::vector<std::string> el_triggers {"HLT_e24_lhmedium_L1EM18VH","HLT_e60_lhmedium","HLT_e120_lhloose"};
-  //std::vector<std::string> el_triggers {"HLT_e24_lhmedium_L1EM20VH","HLT_e60_lhmedium","HLT_e120_lhloose"};
+  std::vector<std::string> el_triggers {"HLT_e24_lhmedium_L1EM20VH","HLT_e60_lhmedium","HLT_e120_lhloose", "HLT_e26_lhtight_nod0_ivarloose", "HLT_e60_lhmedium_nod0", "HLT_e140_lhloose_nod0"};
   std::vector<std::string> mu_triggers {"HLT_mu20_iloose_L1MU15","HLT_mu50","HLT_mu18","HLT_mu8noL1","HLT_mu18_mu8noL1"};
   std::vector<std::string> ph_triggers {"HLT_g120_loose"};
   std::vector<std::string> tau_triggers {"HLT_tau25_medium1_tracktwo", "HLT_tau35_medium1_tracktwo"};
-
+  std::vector<std::string> emu_triggers {"HLT_2e12_lhloose_mu10", "HLT_e12_lhloose_2mu10", "HLT_e17_lhloose_mu14", "HLT_e7_lhmedium_mu24", "HLT_e17_lhloose_nod0_mu14", "HLT_e7_lhmedium_nod0_mu24", "HLT_e12_lhloose_nod0_2mu10", "HLT_2e12_lhloose_nod0_mu10"};
 
   // Counter for cuts:
   std::vector<ST::SystInfo> systInfoList;
@@ -1041,6 +1040,23 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
       }
 
+      ///CHECK FOR COMBINED E-MU TRIGGERS
+      bool comb_trig_check = false;
+
+      if (comb_trig_check) {
+        if (objTool.IsTrigPassed("HLT_e17_lhloose_mu14") || objTool.IsTrigPassed("HLT_e17_lhloose_nod0_mu14")) {
+          std::cout << "e-mu trigger SFs (e17 chain):  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger Effs (e17 chain): " << objTool.GetTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        } 
+        if (objTool.IsTrigPassed("HLT_2e12_lhloose_mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_2mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_nod0_2mu10") || objTool.IsTrigPassed("HLT_2e12_lhloose_nod0_mu10")) { 
+          std::cout << "e-mu trigger SFs (e12 chain):  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger Effs (e12 chain): " << objTool.GetTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        } 
+        if (objTool.IsTrigPassed("HLT_e7_lhmedium_mu24") || objTool.IsTrigPassed("HLT_e7_lhmedium_nod0_mu24")) {
+          std::cout << "e-mu trigger SFs (e7 chain):  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+          std::cout << "e-mu trigger Effs (e7 chain): " << objTool.GetTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        }
+      }
 
       ///CHECK FOR ATLSUSYSW-147
       // if( mu_idx[goodpt] >= 2 ){

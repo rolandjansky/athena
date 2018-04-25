@@ -143,6 +143,7 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   declareProperty("ConeFlavourLabel",                    m_coneFlavourLabel = true,     "specify whether or not to use the cone-based flavour labelling instead of the default ghost association based labelling");
   declareProperty("ExtendedFlavourLabel",                m_extFlavourLabel = false,     "specify whether or not to use an 'extended' flavour labelling (allowing for multiple HF hadrons or perhaps partons)");
   declareProperty("OldConeFlavourLabel",                 m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
+  declareProperty("IgnoreOutOfValidityRange",            m_ignoreOutOfValidityRange = false, "ignore out-of-extrapolation-range errors as returned by the underlying tool");
   // initialise some variables needed for caching
   // TODO : add configuration of the mapIndices - rather than just using the default of 0
   //m_mapIndices["Light"] = m_mapIndices["T"] = m_mapIndices["C"] = m_mapIndices["B"] = 0;
@@ -428,6 +429,11 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     ATH_CHECK( m_selectionTool.setProperty("JetAuthor",                    m_jetAuthor) );
     ATH_CHECK( m_selectionTool.retrieve() );
   }
+
+  // if the user decides to ignore these errors, at least make her/him aware of this
+  if (m_ignoreOutOfValidityRange) {
+    ATH_MSG_INFO("!!!!! You have chosen to disable out-of-validity return codes -- contact the Flavour Tagging group if such jets comprise a substantial part of the phase space in your analysis !!!!!");
+  }
   
   m_initialised = true;
   return StatusCode::SUCCESS;
@@ -509,7 +515,7 @@ BTaggingEfficiencyTool::getScaleFactor( int flavour, const Analysis::Calibration
     ATH_MSG_ERROR("BTaggingEfficiencyTool::getScaleFactor call to underlying code returned a kError!");
     return CorrectionCode::Error;
   case Analysis::kExtrapolatedRange:
-    return CorrectionCode::OutOfValidityRange;
+    return m_ignoreOutOfValidityRange ? CorrectionCode::Ok : CorrectionCode::OutOfValidityRange;
   case Analysis::kSuccess:
   default:
     return CorrectionCode::Ok;
@@ -585,7 +591,7 @@ BTaggingEfficiencyTool::getEfficiency( int flavour, const Analysis::CalibrationD
     ATH_MSG_ERROR("BTaggingEfficiencyTool::getEfficiency call to underlying code returned a kError!");
     return CorrectionCode::Error;
   case Analysis::kExtrapolatedRange:
-    return CorrectionCode::OutOfValidityRange;
+    return m_ignoreOutOfValidityRange ? CorrectionCode::Ok : CorrectionCode::OutOfValidityRange;
   case Analysis::kSuccess:
   default:
     return CorrectionCode::Ok;
@@ -661,7 +667,7 @@ BTaggingEfficiencyTool::getInefficiency( int flavour, const Analysis::Calibratio
     ATH_MSG_ERROR("BTaggingEfficiencyTool::getInefficiency call to underlying code returned a kError!");
     return CorrectionCode::Error;
   case Analysis::kExtrapolatedRange:
-    return CorrectionCode::OutOfValidityRange;
+    return m_ignoreOutOfValidityRange ? CorrectionCode::Ok : CorrectionCode::OutOfValidityRange;
   case Analysis::kSuccess:
   default:
     return CorrectionCode::Ok;
@@ -739,7 +745,7 @@ BTaggingEfficiencyTool::getInefficiencyScaleFactor( int flavour, const Analysis:
     ATH_MSG_ERROR("BTaggingEfficiencyTool::getInefficiencyScaleFactor call to underlying code returned a kError!");
     return CorrectionCode::Error;
   case Analysis::kExtrapolatedRange:
-    return CorrectionCode::OutOfValidityRange;
+    return m_ignoreOutOfValidityRange ? CorrectionCode::Ok : CorrectionCode::OutOfValidityRange;
   case Analysis::kSuccess:
   default:
     return CorrectionCode::Ok;
@@ -795,7 +801,7 @@ BTaggingEfficiencyTool::getMCEfficiency( int flavour, const Analysis::Calibratio
     ATH_MSG_ERROR("BTaggingEfficiencyTool::getMCEfficiency call to underlying code returned a kError!");
     return CorrectionCode::Error;
   case Analysis::kExtrapolatedRange:
-    return CorrectionCode::OutOfValidityRange;
+    return m_ignoreOutOfValidityRange ? CorrectionCode::Ok : CorrectionCode::OutOfValidityRange;
   case Analysis::kSuccess:
   default:
     return CorrectionCode::Ok;
