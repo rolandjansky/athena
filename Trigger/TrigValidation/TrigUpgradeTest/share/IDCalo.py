@@ -144,8 +144,8 @@ if TriggerFlags.doID:
 
   from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
   InDetTrigMTxAODTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg(name = "InDetTrigMTxAODParticleCreatorAlg",
-                                                                      TrackContainerName = 'AmbiSolver_Tracks',
-                                                                      xAODContainerName = 'xAODTracks',
+                                                                      TrackContainerName = 'InDetTrigMTAmbiSolTracks',
+                                                                      xAODContainerName = 'InDetTrigMTAmbiSolxAODTracks',
                                                                       TrackCollectionCnvTool = InDetTrigMTxAODTrackCollectionCnvTool,
                                                                       RecTrackParticleContainerCnvTool = InDetTrigMTRecTrackParticleContainerCnvTool,
                                                                       TrackParticleCreator = InDetTrigMTxAODParticleCreatorTool
