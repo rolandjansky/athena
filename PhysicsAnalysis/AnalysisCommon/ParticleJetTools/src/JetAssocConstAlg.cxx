@@ -5,7 +5,7 @@
 // author: cpollard@cern.ch
 
 #include "xAODCore/ShallowCopy.h"
-#include "ParticleJetTools/JetAssocConstAlg.h"
+#include "src/JetAssocConstAlg.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODBase/IParticle.h"
 
