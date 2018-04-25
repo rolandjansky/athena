@@ -23,8 +23,8 @@ namespace CP {
     : asg::AsgMetadataTool(name), m_systDDonoff("PH_Iso_DDonoff"){
     declareProperty("CorrFile",                    m_corr_file            = "IsolationCorrections/v1/isolation_ptcorrections_rel20_2.root");
     declareProperty("CorrFile_ddshift",            m_corr_ddshift_file    = "IsolationCorrections/v2/isolation_ddcorrection_shift.root");
-    declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file = ""); //Obsolete, ketp for compatibility
-    declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file      = ""); //Obsolete, ketp for compatibility
+    declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file = ""); //Obsolete, kept for compatibility
+    declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file      = ""); //Obsolete, kept for compatibility
     declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root", "a run I smearing for MC calo iso"); 
     declareProperty("ToolVer",                     m_tool_ver_str         = "REL21");
     declareProperty("DataDrivenVer",               m_ddVersion            = "2017");
@@ -110,7 +110,7 @@ namespace CP {
       m_apply_dd = false;
     
     // Don't use DD Corrections for AFII if not rel21 (I do not know what was done in rel20.7 !)
-    if( m_tool_ver_str != "REL21" && m_AFII_corr) m_apply_dd = false;
+    if (m_tool_ver_str != "REL21" && m_AFII_corr) m_apply_dd = false;
 
     //If we do not want to use metadata
     if (!m_usemetadata) {
@@ -184,7 +184,8 @@ namespace CP {
   
   StatusCode IsolationCorrectionTool::beginInputFile() {
     // If we do not want to use metadata
-    if(!m_usemetadata) {
+    if (!m_usemetadata) {
+      ATH_MSG_INFO("is MC = " << m_is_mc << ", use AFII = " << m_AFII_corr);
       return StatusCode::SUCCESS;    
     }
     //
@@ -192,22 +193,16 @@ namespace CP {
     const StatusCode status = get_simflavour_from_metadata(result);
     if (status == StatusCode::SUCCESS) {
       ATH_MSG_DEBUG("We have metadata");
-    
       if (result == PATCore::ParticleDataType::Fast) {
 	m_is_mc     = true;
 	m_AFII_corr = true;
-	ATH_MSG_DEBUG("Fast sim");
       } else if (result == PATCore::ParticleDataType::Full) {
 	m_is_mc     = true;
 	m_AFII_corr = false;
-	ATH_MSG_DEBUG("Full sim");
       } else {
 	m_is_mc     = false;
 	m_AFII_corr = false;
-	ATH_MSG_DEBUG("Data ");
       }
-      ATH_MSG_INFO("is MC = " << m_is_mc);
-      ATH_MSG_INFO("use AFII = " << m_AFII_corr);
       ATH_MSG_DEBUG("metadata from new file: " << (result == PATCore::ParticleDataType::Data ? "data" : 
 						   (result == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));    
     }
@@ -217,6 +212,7 @@ namespace CP {
       m_is_mc     = false;
       m_AFII_corr = false;
     }
+    ATH_MSG_INFO("is MC = " << m_is_mc << ", use AFII = " << m_AFII_corr);
     m_isol_corr->SetAFII(m_AFII_corr);
     m_isol_corr->SetDataMC(m_is_mc);    
     //
@@ -224,25 +220,22 @@ namespace CP {
   }
 
   StatusCode IsolationCorrectionTool::endInputFile() {
-    // If we do not want to use metadata
-    if(!m_usemetadata) {
-      return StatusCode::SUCCESS;    
-    }
-    m_metadata_retrieved = false;
+    if (m_usemetadata)
+      m_metadata_retrieved = false;
     return StatusCode::SUCCESS;
   }
 
   StatusCode IsolationCorrectionTool::beginEvent() {
     // If we do not want to use metadata, or we retrieved them already
-    if((!m_usemetadata) || m_metadata_retrieved) {
+    if ((!m_usemetadata) || m_metadata_retrieved)
       return StatusCode::SUCCESS;    
-    }
+  
     //
     //If not metadata have been available and want to use them go via event info 
     const xAOD::EventInfo* evtInfo(0);
     if( (evtStore()->retrieve(evtInfo, "EventInfo")).isFailure()){
-      ATH_MSG_WARNING(" No default Event Info collection found") ;
-      return StatusCode::SUCCESS;
+      ATH_MSG_WARNING("EventInfo not found ??") ;
+      return StatusCode::FAILURE;
     }
     m_is_mc = evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION);   
     m_metadata_retrieved = true;
@@ -250,20 +243,26 @@ namespace CP {
     return StatusCode::SUCCESS;
   }
 
+  // this will correct a corrected topoetcone : replace a (old) leakage by another (new) one
   // This is not for photon, as it does not consider DD
   CP::CorrectionCode IsolationCorrectionTool::CorrectLeakage(xAOD::Egamma & eg) {
 
     static std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
-									xAOD::Iso::topoetcone30,
+									/* xAOD::Iso::topoetcone30, */
 									xAOD::Iso::topoetcone40};
     
     for (auto type : topoisolation_types) {
-      // this will correct a corrected topoetcone : replace a (old) leakage by another (new) one
-      float oldleak = eg.isolationCaloCorrection(type, xAOD::Iso::ptCorrection);
+      float oldleak = 0.;
+      if (eg.isolationCaloCorrection(oldleak, type, xAOD::Iso::ptCorrection)) {
+	ATH_MSG_DEBUG("leakage correction not stored for isolation type " << xAOD::Iso::toString(type) << ". Nothing done.");
+	continue;
+      }
       float newleak = this->GetPtCorrection(eg,type);
       float iso     = 0;
-      bool gotIso   = eg.isolationValue(iso,type);
-      if (!gotIso) continue;
+      if (!eg.isolationValue(iso,type)) {
+	ATH_MSG_WARNING("Isolation variable " << xAOD::Iso::toString(type) << " not stored. Nothing done.");
+	continue;
+      }
       iso += (oldleak-newleak);
       bool setIso = eg.setIsolationValue(iso,type);
       setIso = (setIso && eg.setIsolationCaloCorrection(newleak,type,xAOD::Iso::ptCorrection));
@@ -295,10 +294,14 @@ namespace CP {
     static SG::AuxElement::Decorator<float> decDDcor40("topoetcone40_DDcorr");
 	
     static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
-									      xAOD::Iso::topoetcone30,
+									      /* xAOD::Iso::topoetcone30, */
 									      xAOD::Iso::topoetcone40};
     for (auto type : topoisolation_types) {
-      float oldleak = eg.isolationCaloCorrection(type, xAOD::Iso::ptCorrection);
+      float oldleak = 0.;
+      if (!eg.isolationCaloCorrection(oldleak, type, xAOD::Iso::ptCorrection)) {
+	ATH_MSG_DEBUG("leakage correction not stored for isolation type " << xAOD::Iso::toString(type) << ". Nothing done");
+	continue;
+      }
       float newleak = this->GetPtCorrection(eg,type);
       float oldiso  = 0;
       bool gotIso   = eg.isolationValue(oldiso,type);

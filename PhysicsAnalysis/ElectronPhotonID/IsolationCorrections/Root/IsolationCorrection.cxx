@@ -105,8 +105,14 @@ namespace CP {
     float energy = 0;
 
     //energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3); //input.e()
-    if(m_tool_ver == REL21 || m_tool_ver == REL20_2) energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3);
-    else energy = input.caloCluster()->e();
+    if (input.caloCluster() == nullptr) {
+      ATH_MSG_WARNING("The associated cluster of the object does not exist ! Maybe the thinning was too agressive... No leakage correction computed.");
+      return 0.;
+    }
+    if (m_tool_ver == REL21 || m_tool_ver == REL20_2)
+      energy = input.caloCluster()->energyBE(1) + input.caloCluster()->energyBE(2) + input.caloCluster()->energyBE(3);
+    else
+      energy = input.caloCluster()->e();
 
     bool is_mc = m_is_mc;
     ParticleType part_type = ( (input.type() == xAOD::Type::Electron) ? IsolationCorrection::ELECTRON : IsolationCorrection::PHOTON);
@@ -354,6 +360,10 @@ StatusCode IsolationCorrection::setupDD(std::string year) {
   }
 
   float IsolationCorrection::GetEtaPointing(const xAOD::Egamma* input){
+    if (input->caloCluster() == nullptr) {
+      ATH_MSG_WARNING("The associated cluster of the object does not exist ! Maybe the thinning was too agressive... use object eta for eta (instead of etaS2 or pointing).");
+      return input->eta();
+    }
     float etaS1 = input->caloCluster()->etaBE(1);
     float etaS2 = input->caloCluster()->etaBE(2);
     float phiCluster = input->caloCluster()->phi();
