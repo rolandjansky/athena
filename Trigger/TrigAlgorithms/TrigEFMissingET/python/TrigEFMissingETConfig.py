@@ -1187,26 +1187,24 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
         super(EFMissingET_Fex_topoClustersTracksPUC, self).__init__(name)
 
         # name of TrigMissingET object
-        #print "XXXXXXXXXXXXXXXXX: extraCalib: ", extraCalib
         self.MissingETOutputKey = "TrigEFMissingET_topocltrk_PUC{0}".format(extraCalib)
         self.doTopoClusters = True
         self.doPUC = True
         self.doJets = True
         self.doTracks = True
-        #print "XXXXXXXXXXXXXXXX: L1196"
+
         # tools
         clusterTool = EFMissingETFromClustersTracksPUC("TheClusterToolTracksPUC")
         flagTool =   EFMissingETFlags("TheFlagsTool")
         helperTool = EFMissingETFromHelper("TheHelperTool")
-        #
-        #print "XXXXXXXXXXXXXX: name: ", name
+
         clusterTool.ParentFexName = name
         flagTool.ParentFexName = name
         helperTool.ParentFexName = name
 
         #clusterTool.SubtractPileup = True
         is2016 = (TriggerFlags.run2Config() == '2016')
-        clusterTool.SaveUncalibrated = True if extraCalib == "_em" else False
+        clusterTool.SaveUncalibrated = True if "_em" in extraCalib else False
 
         '''
         clusterTool.use2016Algo = is2016
