@@ -72,6 +72,8 @@ namespace Analysis {
         bool m_pipiMassHyp;
         bool m_kkMassHyp;
         bool m_kpiMassHyp;
+        bool m_kpMassHyp; //KB
+        bool m_oppChargesOnly; //KB
         double m_trkThresholdPt;
         double m_trkMaxEta;
         double m_BThresholdPt;
