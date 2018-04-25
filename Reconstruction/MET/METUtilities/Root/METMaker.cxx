@@ -115,6 +115,7 @@ namespace met {
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
     declareProperty("GreedyPhotons",      m_greedyPhotons      = false               );
+    declareProperty("VeryGreedyPhotons",  m_veryGreedyPhotons  = false           );
     
     declareProperty("UseGhostMuons",      m_useGhostMuons      = false               );
     declareProperty("DoRemoveMuonJets",   m_doRemoveMuonJets   = true                );
@@ -321,6 +322,16 @@ namespace met {
 	    std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
 	    for (size_t indi = 0; indi < ind.size(); indi++) {
 	      if (allObjects[ind[indi]] && allObjects[ind[indi]]->type()==xAOD::Type::Electron) assocs[i]->setObjSelectionFlag(allObjects[ind[indi]],true);
+	    }
+	  }
+	}
+	// reinstate greedy photon option for testing
+	if (selected && obj->type() == xAOD::Type::Photon && m_veryGreedyPhotons) {
+	  for (size_t i = 0; i < assocs.size(); i++) {
+	    std::vector<size_t> ind = assocs[i]->overlapIndices(orig);
+	    std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
+	    for (size_t indi = 0; indi < ind.size(); indi++) {
+	      if (allObjects[ind[indi]] && (allObjects[ind[indi]]->type()==xAOD::Type::Electron ||  allObjects[ind[indi]]->type()==xAOD::Type::Jet)) assocs[i]->setObjSelectionFlag(allObjects[ind[indi]],true);
 	    }
 	  }
 	}
@@ -612,7 +623,9 @@ namespace met {
 	    }
 	  }
         }
-        if (m_extraJetRejection && jet->auxdata<char>(m_jetRejectionDec)==0) JVT_reject = true;
+        if (m_extraJetRejection && jet->auxdata<char>(m_jetRejectionDec)==0){
+	  JVT_reject = true;
+	}
         bool hardJet(false);
         MissingETBase::Types::constvec_t calvec = assoc->overlapCalVec();
         bool caloverlap = false;

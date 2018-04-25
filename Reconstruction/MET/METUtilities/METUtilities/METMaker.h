@@ -176,6 +176,7 @@ namespace met {
     bool m_muEloss;
     bool m_orCaloTaggedMuon;
     bool m_greedyPhotons;
+    bool m_veryGreedyPhotons;
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     /// Default constructor:
