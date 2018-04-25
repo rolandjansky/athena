@@ -1,22 +1,50 @@
 #!/bin/bash
        
 echo 'Testing SMKey upload'
-if [ $# -ge 1 ]; then
-   type=$1
-   echo "Trying to upload Menu generated  with test "${type}"_menu" 
-else
-   type=""
-fi
 
-if [ $# -ge 2 ]; then
-   uploadPrescale=1
-   echo "Will try to upload prescaled menu" 
-else
-   uploadPrescale=0
-fi
+# defaults
+uploadPrescale=0
+noUpload=0
+database="ATN"
+type=""
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    --menu)
+    type=$2
+    echo "Trying to upload Menu generated  with test "${type}"_menu" 
+    shift # past argument
+    shift # past value
+    ;;
+    --uploadPrescale)
+    uploadPrescale=1
+    shift # past argument
+    ;;
+    --notUploadMenu)
+    noUpload=1
+    shift # past argument
+    ;;
+    --art)
+    database="ART"
+    shift # past argument
+    ;;
+    *)    # unknown option
+    echo "unkown option "$key
+    exit 1
+    ;;
+esac
+done
+
+echo "menu "$type
+echo "uploadPrescale "$uploadPrescale
+echo "noUpload "$noUpload
+echo "database "$database
 
 #setup the TT
-export DBConn="TRIGGERDBATN"
+export DBConn="TRIGGERDB${database}"
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
 
 ##get the right pattern to load LVl1 xml file
@@ -30,18 +58,14 @@ elif [ "$type" == "HLT_physicsV6" ]; then
   stump="Physics_pp_v6"
 elif [ "$type" == "HLT_physicsV6_rerunLVL1" ]; then
   stump="Physics_pp_v6"
-elif [ "$type" == "HLT_physicsV6" ]; then
-  stump="Physics_pp_v6"
-elif [ "$type" == "HLT_physicsV6_rerunLVL1" ]; then
-  stump="Physics_pp_v6"
 elif [ "$type" == "HLT_physicsV7" ]; then
   stump="Physics_pp_v7"
 elif [ "$type" == "HLT_physicsV7_rerunLVL1" ]; then
   stump="Physics_pp_v7"
-elif [ "$type" == "HLT_physicsV7" ]; then
-  stump="Physics_pp_v7"
-elif [ "$type" == "HLT_physicsV7_rerunLVL1" ]; then
-  stump="Physics_pp_v7"
+elif [ "$type" == "HLT_mcV7" ]; then
+  stump="MC_pp_v7"
+elif [ "$type" == "HLT_mcV7_rerunLVL1" ]; then
+  stump="MC_pp_v7"
 else 
   stump=""
 fi
@@ -56,6 +80,32 @@ l1topo=`find . -name L1Topoconfig_${stump}.xml`
 
 #prepare files for first key: l2 and ef menus are the same (full menu)
 hltmenu1=`find ../"${type}"_menu/ -name outputHLTconfig_\*.xml`
+
+
+
+#echo $AthenaP1_VERSION -> 21.1.23
+echo "AthenaP1_VERSION, ${AthenaP1_VERSION}"
+#get prescale files
+
+if [[ $stump =~ .*MC.* ]]; then
+  menu_type="mc"
+elif [[ $stump =~ .*Physics.* ]]; then
+  menu_type="physics"
+fi
+
+get_files -xmls HLTconfig_"${stump}"_tight_"${menu_type}"_prescale_"${AthenaP1_VERSION}".xml
+hltmenu1_tight=`find . -name HLTconfig_\*_tight_\*.xml`
+
+get_files -xmls HLTconfig_"${stump}"_tightperf_"${menu_type}"_prescale_"${AthenaP1_VERSION}".xml
+hltmenu1_tightperf=`find . -name HLTconfig_\*_tightperf_\*.xml`
+
+mkdir PS_tight
+cp $l1menu PS_tight/.
+cp $hltmenu1_tight PS_tight/.
+
+mkdir PS_tightperf
+cp $l1menu PS_tightperf/.
+cp $hltmenu1_tightperf PS_tightperf/.
 
 
 # copy the setup files to the local directory to have tests independent of each other
@@ -113,6 +163,37 @@ echo "rundate=${rundate}"
 # Upload SMK
 
 cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
+
+# create script to upload keys
+echo "# setup release\n" >> uploadSMK_"$stump"_tight.sh
+echo "asetup AthenaP1,21.1,r${rel}\n" >> uploadSMK_"$stump"_tight.sh
+echo "# create SMK\n" >> uploadSMK_"$stump"_tight.sh
+echo "rm MenusKeys.txt" >> uploadSMK_"$stump"_tight.sh
+echo "$cmd &> SMK_upload.log\n" >> uploadSMK_"$stump"_tight.sh
+echo "smk=\`grep SM MenusKeys.txt | awk '{print $3}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tight.sh
+echo "echo 'Created SMK ' $smk\n" >> uploadSMK_"$stump"_tight.sh
+echo "# upload prescaled\n" >> uploadSMK_"$stump"_tight.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tight -smk ${smk} -w_n 50 -w_t 60\n" >> uploadSMK_"$stump"_tight.sh
+echo "l1psk=\`grep 'L1 PS' MenusKeys.txt | awk '{print $4}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tight.sh
+echo "hltpsk=\`grep 'HLT PS' MenusKeys.txt | awk '{print $4}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tight.sh
+echo "echo 'L1 PSK ' $l1psk ', HLT PSK ' $hltpsk\n" >> uploadSMK_"$stump"_tight.sh
+
+echo "# setup release\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "asetup AthenaP1,21.1,r${rel}\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "# create SMK\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "rm MenusKeys.txt" >> uploadSMK_"$stump"_tightperf.sh
+echo "$cmd &> SMK_upload.log\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "smk=\`grep SM MenusKeys.txt | awk '{print $3}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "echo 'Created SMK ' $smk\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "# upload prescaled\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup PS_tightperf -smk ${smk} -w_n 50 -w_t 60\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "l1psk=\`grep 'L1 PS' MenusKeys.txt | awk '{print $4}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "hltpsk=\`grep 'HLT PS' MenusKeys.txt | awk '{print $4}' | sed 's#:##'\`\n" >> uploadSMK_"$stump"_tightperf.sh
+echo "echo 'L1 PSK ' $l1psk ', HLT PSK ' $hltpsk\n" >> uploadSMK_"$stump"_tightperf.sh
+
+if [ $noUpload -eq 1 ]; then
+  exit 0
+fi
 
 echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log

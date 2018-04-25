@@ -1,12 +1,8 @@
 #!/bin/bash
 
-# art-description: Physics pp v7 menu with athenaHLT over EnhancedBias data with prescales created in ART build job and read from DB
+# art-description: Physics pp v7 menu with athenaHLT over EnhancedBias data with prescales created in ART build job and read from DB. FROM NIGHTLY OF THE DAY BEFORE!
 # art-type: grid
 # art-include: 21.1/AthenaP1
-# art-include: 21.1-dev/AthenaP1
-# art-include: 21.0/AthenaP1
-# art-include: 21.0-TrigMC/AthenaP1
-# art-include: master/AthenaP1
 # art-output: HLTChain.txt
 # art-output: HLTTE.txt
 # art-output: L1AV.txt
@@ -34,9 +30,18 @@ echo 'smk' ${smk}
 echo 'l1psk' ${l1psk}
 echo 'hltpsk' ${hltpsk}
 
+echo "Reading release from SMK"
+python releaseFromSMK.py TRIGGERDBART ${smk} &> releaseFromSMK.log
+eval "$( grep 'export release=' releaseFromSMK.log)" 
+if [ -z ${release} ]; then
+   echo "Release not found"
+else
+   asetup AthenaP1,21.1,${release}
+fi
+
 #athenaHLT.py -M -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_eb_zmm_egz.merged.RAW.selected._0001.data -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBATN" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" -c 'rerunLVL1=True;enableCostD3PD=True;enableCostForCAF=True'
 
-athenaHLT.py -n 10000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBATN" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" | tee ${JOB_LOG} 
+athenaHLT.py -n 10000 -f /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1 -o HLT_physicsV7_prescaled -J TrigConf::HLTJobOptionsSvc --use-database --db-type "Coral" --db-server "TRIGGERDBART" --db-smkey ${smk} --db-hltpskey ${hltpsk} --db-extra "{'lvl1key': ${l1psk}}" | tee ${JOB_LOG} 
 
 Trig_reco_tf.py --inputBSFile=HLT_physicsV7_prescaled._0001.data --outputNTUP_TRIGCOST=trig_cost.root
 

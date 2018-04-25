@@ -6,10 +6,9 @@
 #define TFCSHistoLateralShapeParametrization_h
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
+#include "ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h"
 
-#include "TH2.h"
-#include "TRandom3.h"
-
+class TH2;
 
 class TFCSHistoLateralShapeParametrization:public TFCSLateralShapeParametrizationHitBase {
 public:
@@ -17,7 +16,9 @@ public:
   ~TFCSHistoLateralShapeParametrization();
 
   /// set the integral of the histogram to the desired number of hits
-  void set_number_of_hits(int nhits);
+  void set_number_of_hits(float nhits);
+
+  float get_number_of_expected_hits() const {return m_nhits;};
 
   /// default for this class is to simulate poisson(integral histogram) hits
   int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
@@ -27,18 +28,18 @@ public:
   /// someone also needs to map all hits into cells
   virtual void simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 
-  /// Init from histogram
+  /// Init from histogram. The integral of the histogram is used as number of expected hits to be generated
   bool Initialize(TH2* hist);
   bool Initialize(const char* filepath, const char* histname);
   
-  TH2* histogram() {return m_hist;};
-  const TH2* histogram() const {return m_hist;};
+  TFCS2DFunctionHistogram& histogram() {return m_hist;};
+  const TFCS2DFunctionHistogram& histogram() const {return m_hist;};
   
   void Print(Option_t *option = "") const;
 private:
   /// Histogram to be used for the shape simulation
-  /// TODO: replace with more space efficient storage
-  TH2* m_hist;
+  TFCS2DFunctionHistogram m_hist;
+  float m_nhits;
 
   ClassDef(TFCSHistoLateralShapeParametrization,1)  //TFCSHistoLateralShapeParametrization
 };

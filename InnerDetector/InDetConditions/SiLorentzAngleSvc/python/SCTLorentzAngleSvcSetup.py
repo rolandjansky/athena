@@ -48,10 +48,8 @@ class SCTLorentzAngleSvcSetup:
         if hasattr(svcMgr,'SCTLorentzAngleSvc'):
             sctLorentzAngleSvc = svcMgr.SCTLorentzAngleSvc
         else :
-            sctLorentzAngleSvc = SiLorentzAngleSvc(name="SCTLorentzAngleSvc",
-                                                   DetectorName="SCT")
-            svcMgr+=sctLorentzAngleSvc     
-            
+            sctLorentzAngleSvc = SiLorentzAngleSvc(name="SCTLorentzAngleSvc",DetectorName="SCT")
+            svcMgr+=sctLorentzAngleSvc
        
         # Init PixelSiliconConditionsSvc
         if hasattr(svcMgr,'SCT_SiliconConditionsSvc'):
@@ -61,16 +59,24 @@ class SCTLorentzAngleSvcSetup:
             sctSiliconConditionsSvc=SCT_SiliconConditionsSvc()
             svcMgr+=sctSiliconConditionsSvc
 
+        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+        sctSiPropertiesSvc=SiPropertiesSvc(name="SCT_SiPropertiesSvc",DetectorName="SCT",SiConditionsServices=sctSiliconConditionsSvc)
+        svcMgr+=sctSiPropertiesSvc
+
         # Pass the silicon conditions services to the Lorentz angle service
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
         # if loaded first.
         sctLorentzAngleSvc.UseMagFieldSvc = True
         sctLorentzAngleSvc.SiConditionsServices = sctSiliconConditionsSvc
+        sctLorentzAngleSvc.SiPropertiesSvc = sctSiPropertiesSvc
 
         self.SCTLorentzAngleSvc = sctLorentzAngleSvc
         self.sctSiliconConditionsSvc = sctSiliconConditionsSvc
         self.SCT_SiliconConditionsSvc = sctSiliconConditionsSvc
+        self.sctSiPropertiesSvc       = sctSiPropertiesSvc
+        self.SCT_SiPropertiesSvc      = sctSiPropertiesSvc
 
+        self.SCT_SiPropertiesSvc.UseConditionsDB = True
 
     # Force the Lorentz angle sercive to use SiliconConditions service (which are assumed to use the DB)
     # Default is to decide based on GeoModel.
