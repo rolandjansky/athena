@@ -71,7 +71,7 @@ namespace Analysis {
     m_pipiMassHyp(true),
     m_kkMassHyp(true),
     m_kpiMassHyp(true),
-    m_kpMassHyp(true), //KB
+    m_kpMassHyp(false), //KB
     m_oppChargesOnly(true), //KB
     m_trkThresholdPt(0.0),
     m_trkMaxEta(102.5),
@@ -319,8 +319,7 @@ namespace Analysis {
                        fabs((*trkItr2)->z0() - (*jpsiItr)->z()) > m_trkDeltaZ )
                         continue;
                     
-		    if (m_oppChargesOnly) //KB
-                       if (!oppositeCharges(*trkItr1,*trkItr2)) continue; //enforce opposite charges
+		    if (m_oppChargesOnly && !oppositeCharges(*trkItr1,*trkItr2)) continue; //enforce opposite charges
                     
                     if (m_diTrackPt>0 && JpsiUpsilonCommon::getPt(*trkItr1,*trkItr2) < m_diTrackPt ) continue; // track pair pT cut (daniel Scheirich)
                      
