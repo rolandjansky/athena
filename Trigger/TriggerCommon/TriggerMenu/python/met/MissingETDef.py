@@ -192,7 +192,6 @@ class L2EFChain_met(L2EFChainDef):
                 mucorr= '_wMu' if EFmuon else ''
                 #theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
                 theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s%s'%(threshold,jetCalib,calibration,mucorr),ef_thr=float(threshold)*GeV, extraCalib=calibCorr)
-                #print "XXXXXXXXXXx MissingETDef: L 195"
 
             ##MET based on trigger jets
             if EFrecoAlg=='mht':
@@ -267,7 +266,7 @@ class L2EFChain_met(L2EFChainDef):
         #This is a dummy b-jet chain, with a threshold at 20 GeV at the uncalibrated scale. It computes the tracks within each jet RoI. 
         #Change the calibration by changing 'nojcalib' to the desired calibration scale. 
         #For pufittrack, we found that the performance was superior using uncalibrated jets. 
-        dummy_bjet_chain = ['j20_{0}_{1}_boffperf_split'.format(calibration, 'nojcalib'),  '', [], ["Main"], ['RATE:SingleBJet', 'BW:BJet'], -1]
+        dummy_bjet_chain = ['j20_{0}_{1}_boffperf_split'.format(calibration, jetCalib),  '', [], ["Main"], ['RATE:SingleBJet', 'BW:BJet'], -1]
         bjet_chain_dict = theDictFromChainName.getChainDict(dummy_bjet_chain)
         bjet_chain_dict["chainCounter"] = 9152
         bjet_chain_dict['topoThreshold'] = None
@@ -356,18 +355,15 @@ class L2EFChain_met(L2EFChainDef):
         elif EFrecoAlg=='pufittrack':
             makelist = lambda x: x if isinstance(x, list) else [x]
             self.EFsequenceList += [ [ x['input'], makelist(x['algorithm']), x['output'] ] for x in bjet_chain_def.sequenceList[:-2] ]
-            #for x in bjet_chain_def.sequenceList[:-2]:
-            #    print x
-            #print self.EFsequenceList[-14][2], "Clusters, output EF_FSTopoClusters"
-            #print self.EFsequenceList[-12][2], "Jets, output EF_8389636500743033767_jetrec_a4tclcwnojcalibFS"
-            #print self.EFsequenceList[-9][2]
-            #print self.EFsequenceList[-1][2], "Tracks, output HLT_j20_eta_jsplit_IDTrig"
-            #print self.EFsequenceList[-5][2], "Vertex, output HLT_superIDTrig_prmVtx"
+#            for x in bjet_chain_def.sequenceList[:-2]:
+#                print x
+#            print self.EFsequenceList[4][2], "Clusters, output EF_FSTopoClusters"
+#            print self.EFsequenceList[6][2], "Jets, output EF_8389636500743033767_jetrec_a4tclcwnojcalibFS"
+#            print self.EFsequenceList[-1][2], "Tracks, output HLT_j20_eta_jsplit_IDTrig"
+#            print self.EFsequenceList[-5][2], "Vertex, output HLT_superIDTrig_prmVtx"
 #            Fill the sequence with clusters, jets, tracks, vertices 
-            #print "PUFITTRACK XXXXX L366"
-            self.EFsequenceList += [[ [self.EFsequenceList[-14][2],self.EFsequenceList[-9][2],self.EFsequenceList[-1][2],self.EFsequenceList[-5][2]], [theEFMETFex], 'EF_xe_step1' ]]  
+            self.EFsequenceList += [[ [self.EFsequenceList[4][2],self.EFsequenceList[6][2],self.EFsequenceList[-1][2],self.EFsequenceList[-5][2]], [theEFMETFex], 'EF_xe_step1' ]]  
             self.EFsequenceList += [[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
-            #print "PUFITTRACK XXXXX L370"
 
         #trigger-jet based MET
         elif EFrecoAlg=='mht': 
