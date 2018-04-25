@@ -189,10 +189,6 @@ Muon::sTgcRdoToPrepDataTool::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdoToPr
     }
     m_stgcPrepDataContainer = handle.ptr();
     return ADDED;
-
-    // retrieve the STGC RDO container
-    
-
     
   }
   return ALREADYCONTAINED;
