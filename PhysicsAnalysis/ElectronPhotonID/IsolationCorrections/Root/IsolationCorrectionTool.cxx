@@ -401,7 +401,7 @@ namespace CP {
     return affectingSystematics();
   }
 
-  CP::SystematicCode IsolationCorrectionTool::applySystematicVariation( const CP::SystematicSet& systConfig ) {
+  CP::SystematicCode IsolationCorrectionTool::applySystematicVariation( const CP::SystematicSet& /* systConfig */ ) {
     return CP::SystematicCode::Ok;
   }
 
