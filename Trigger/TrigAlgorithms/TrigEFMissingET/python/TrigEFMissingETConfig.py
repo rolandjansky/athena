@@ -1206,7 +1206,8 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
 
         #clusterTool.SubtractPileup = True
         is2016 = (TriggerFlags.run2Config() == '2016')
-        
+        clusterTool.SaveUncalibrated = True if extraCalib == "_em" else False
+
         '''
         clusterTool.use2016Algo = is2016
 # N.B. - defaults for 2016 running: nSigma = 3.2 and varRhoScale = 4.0
