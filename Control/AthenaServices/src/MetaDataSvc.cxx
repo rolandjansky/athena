@@ -286,15 +286,18 @@ StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
       }
       if (!initInputMetaDataStore(fileName).isSuccess()) {
          ATH_MSG_WARNING("Unable to initialize InputMetaDataStore");
+         return StatusCode::FAILURE;
       }
    }
+   StatusCode rc(StatusCode::SUCCESS);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       ATH_MSG_DEBUG(" calling beginInputFile for " << (*it)->name());
       if ( (*it)->beginInputFile().isFailure() ) {
          ATH_MSG_ERROR("Unable to call beginInputFile for " << it->name());
+         rc = StatusCode::FAILURE;
       }
    }
-   return StatusCode::SUCCESS;
+   return rc;
 }
 
 StatusCode MetaDataSvc::retireMetadataSource(const Incident&)
@@ -302,6 +305,7 @@ StatusCode MetaDataSvc::retireMetadataSource(const Incident&)
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       if ( (*it)->endInputFile().isFailure() ) {
          ATH_MSG_ERROR("Unable to call endInputFile for " << it->name());
+         return StatusCode::FAILURE;
       }
    }
    m_allowMetaDataStop = true;
@@ -310,16 +314,18 @@ StatusCode MetaDataSvc::retireMetadataSource(const Incident&)
 
 StatusCode MetaDataSvc::prepareOutput()
 {
+   StatusCode rc(StatusCode::SUCCESS);
    for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
       ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
       if ( (*it)->metaDataStop().isFailure() ) {
          ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
+         rc = StatusCode::FAILURE;
       }
    }
    if (!m_metaDataTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
    }
-   return StatusCode::SUCCESS;
+   return rc;
 }
 
 StatusCode MetaDataSvc::proxyIncident(const Incident& inc)
