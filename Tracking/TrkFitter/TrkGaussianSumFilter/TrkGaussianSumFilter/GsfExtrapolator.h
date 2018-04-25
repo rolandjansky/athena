@@ -257,8 +257,8 @@ class GsfExtrapolator : public AthAlgTool, virtual public IMultiStateExtrapolato
                            ParticleHypothesis particleHypothesis = nonInteracting) const;
 
 
-  std::string layerRZoutput(const Trk::Layer& lay) const;
-
+  std::string layerRZoutput(const Trk::Layer * lay) const;
+  
   std::string positionOutput(const Amg::Vector3D& pos) const;
 
 
@@ -271,9 +271,7 @@ class GsfExtrapolator : public AthAlgTool, virtual public IMultiStateExtrapolato
                            PropDirection dir,
                            ParticleHypothesis particle) const;
 
- private:
-
-  int                                m_outputlevel;                      //!< to cache current output level
+ private:  
   
   ToolHandleArray< IPropagator >     m_propagators;                      //!< Propagators to be retrieved from the ToolSvc
   bool                               m_propagatorStickyConfiguration;    //!< Switch between simple and full configured propagators
