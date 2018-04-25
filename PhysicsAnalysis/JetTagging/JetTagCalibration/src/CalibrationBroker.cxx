@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagCalibration/CalibrationBroker.h"
@@ -481,42 +481,8 @@ namespace Analysis {
         }
       }
     } else {
-      // check all the keys, if we find the histogram folder, update the pointers
-      for(std::list<std::string>::const_iterator itr=keys.begin();
-	  itr!=keys.end();++itr) {
-	for(uint i=0;i<m_taggers.size();i++) {
-	  if((*itr)==m_taggers[i]) {
-	    ATH_MSG_DEBUG( "#BTAG# Key and tagger match: " << (*itr) );
-	    std::map<std::string, std::pair<TObject*, bool> >::iterator mI = m_histos[i].begin();
-	    std::map<std::string, std::pair<TObject*, bool> >::iterator mE = m_histos[i].end();
-	    for(; mI!=mE; ++mI) {
-	      std::string fname = (*mI).first;
-	      ATH_MSG_DEBUG( "#BTAG# Retrieving " << fname );
-	      std::string channel = this->channelName(fname);
-	      std::string hname = this->histoName(fname);
-	      ATH_MSG_DEBUG( "#BTAG# Channel= " << channel 
-			     << " hname= " << hname);
-	      TObject* hPointer = 0;
-	      StatusCode sc = p_coolhistsvc->getTObject(m_taggers[i], channel, hname, hPointer);
-	      if(sc.isSuccess()) {
-		if(hPointer) {
-		  ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram: " 
-				 << hPointer );
-		  (*mI).second.first = hPointer;
-		  (*mI).second.second = true;
-		  updateHistoStatusTaggerList(m_taggers[i],fname);
-		} else {
-		  ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " 
-				 << fname );
-		}
-	      } else {
-		ATH_MSG_WARNING( "#BTAG# Problem getting histogram " << hname << " from COOL" );
-	      }
-	    }
-	  }
-	}
+      ATH_MSG_DEBUG(  "#BTAG# The multiple folders DB schema has been deprecated in Run2. Contact Flavour Tagging software team if you get this message.");
       }
-    }
     return StatusCode::SUCCESS;
   }
 

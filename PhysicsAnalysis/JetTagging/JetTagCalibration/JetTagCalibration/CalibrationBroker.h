@@ -25,8 +25,9 @@ namespace Analysis {
   @ class CalibrationBroker
 
   This class retrieves or stores calibration histograms in COOL for the taggers.
-  Each tagger corresponds to a folder in COOL. The folders are subdivided in 
-  channels, each channel being associated to a jet type (Cone4Topo, Kt6, etc).
+  A single COOL folder is defined for all the taggers.
+  Each tagger is subdivided in channels, each channel being associated to a jet type
+   (Cone4Topo, Kt6, etc).
 
   Any further substructure (track categories, signal/background) is hidden to COOL 
   and is defined by the actual name of the histogram.
