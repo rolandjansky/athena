@@ -152,7 +152,9 @@ private:
   ServiceHandle<StoreGateSvc> m_storeGate;
   ServiceHandle<StoreGateSvc> m_detStore;
 
-  SG::ReadHandleKey<InDetBSErrContainer> m_BSErrContainerKey;
+  SG::ReadHandleKey<InDetBSErrContainer>  m_BSErrContReadKey;
+  SG::WriteHandleKey<InDetBSErrContainer> m_BSErrContWriteKey;
+  SG::WriteHandle<InDetBSErrContainer>    m_BSErrContWrite;
 
   unsigned int* m_module_errors;
   unsigned int* m_moduleROD_errors;
@@ -186,6 +188,7 @@ private:
   // count for code 0 (BCID counter error)
   unsigned int m_ServiceRecords[32];
 
+  unsigned int m_checkError;
 
   //  int m_numRawErrors;
   

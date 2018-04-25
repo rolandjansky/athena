@@ -32,11 +32,11 @@ PixelByteStreamErrorsSvc::PixelByteStreamErrorsSvc( const std::string& name,
   m_FE_errors(0),
   m_module_isread(0),
   m_ServiceRecords(),
+  m_checkError(0),
   m_max_hashes(0),
   m_readESD(false)
 { 
   declareProperty("ReadingESD",     m_readESD,"Get summary of BS errors from StoreGate, if available"); 
-  declareProperty("BSErrContainer", m_BSErrContainerKey=std::string("PixelByteStreamErrs"));
   resetCounts();
 }
 
@@ -53,7 +53,11 @@ StatusCode PixelByteStreamErrorsSvc::initialize() {
   // Pixel ID
   CHECK(m_detStore->retrieve(m_pixel_id,"PixelID"));
 
-  ATH_CHECK(m_BSErrContainerKey.initialize());
+  m_BSErrContReadKey=std::string("PixelByteStreamErrs");
+  ATH_CHECK(m_BSErrContReadKey.initialize());
+
+  m_BSErrContWriteKey=std::string("PixelByteStreamErrs");
+  ATH_CHECK(m_BSErrContWriteKey.initialize());
 
   m_max_hashes = m_pixel_id->wafer_hash_max();
 
@@ -79,6 +83,7 @@ StatusCode PixelByteStreamErrorsSvc::initialize() {
 
 //Finalize
 StatusCode PixelByteStreamErrorsSvc::finalize() {
+
   if (m_module_errors != NULL){
     free(m_module_errors);
     m_module_errors = NULL;
@@ -150,7 +155,7 @@ StatusCode PixelByteStreamErrorsSvc::finalize() {
 void PixelByteStreamErrorsSvc::handle(const Incident&) {
   reset();
 
-  if (m_readESD && m_storeGate->contains<InDetBSErrContainer>(m_BSErrContainerKey.key())) {
+  if (m_readESD && m_storeGate->contains<InDetBSErrContainer>(m_BSErrContReadKey.key())) {
     if (readData().isFailure()) {
       ATH_MSG_ERROR("PixelByteStreamErrs container is registered in SG, but cannot be retrieved");
     }
@@ -293,7 +298,7 @@ void PixelByteStreamErrorsSvc::reset(){
 // retrieve the data from Storegate: for one event, one entry per module with errors
 StatusCode PixelByteStreamErrorsSvc::readData() {
 
-  SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContainerKey);
+  SG::ReadHandle<InDetBSErrContainer> errCont(m_BSErrContReadKey);
   if (!errCont.isValid()) {
     ATH_MSG_ERROR("Failed to retrieve BS error container from SG");
     return StatusCode::FAILURE;
@@ -323,11 +328,6 @@ StatusCode PixelByteStreamErrorsSvc::readData() {
 StatusCode PixelByteStreamErrorsSvc::recordData() {
 
   InDetBSErrContainer* cont = new InDetBSErrContainer();
-  StatusCode sc = m_storeGate->overwrite(cont,"PixelByteStreamErrs");
-  if (sc.isFailure() ){
-    ATH_MSG_ERROR("Failed to record/overwrite BSErrors to SG");
-    return sc;
-  }
   for (unsigned int i=0; i<m_max_hashes; i++) {
     if (m_module_errors[i] != 0){
       std::pair<IdentifierHash, int>* err = new std::pair<IdentifierHash, int>(std::make_pair((IdentifierHash)i, m_module_errors[i]));
@@ -342,5 +342,20 @@ StatusCode PixelByteStreamErrorsSvc::recordData() {
       cont->push_back(err);
     }
   }
+
+  StatusCode sc = StatusCode::SUCCESS;
+  if (cont->size()==2048) {
+    m_checkError = -1;
+  }
+  else if (cont->size()!=m_checkError) {
+    m_checkError = cont->size();
+    m_BSErrContWrite = SG::makeHandle(m_BSErrContWriteKey);
+    sc = m_BSErrContWrite.record(std::unique_ptr<InDetBSErrContainer>(cont));
+  }
+  if (sc.isFailure() ){
+    ATH_MSG_ERROR("Failed to record/overwrite BSErrors to SG");
+    return sc;
+  }
+
   return sc;
 }
