@@ -25,7 +25,7 @@
   <!-- Selected via an iterator typedef matching the pattern below.
   <class name="std::pair<unsigned int, coral::AttributeList>" /> -->
   <class pattern="*iterator<*CondAttrListCollection*"/>
-  <class pattern="*iterator<const*AttributeList*"/>
+  <class pattern="*iterator<const*AttributeList*>"/>
   <class pattern="*iterator<*pair<const*,const*"/>
   <class name="std::map<unsigned int, IOVRange>" />
   <class name="std::pair<unsigned int, IOVRange>" />
