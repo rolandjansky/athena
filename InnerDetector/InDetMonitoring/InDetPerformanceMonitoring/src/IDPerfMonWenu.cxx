@@ -638,7 +638,7 @@ const xAOD::CaloCluster* IDPerfMonWenu::getLeadingEMcluster(const xAOD::PhotonCo
     // check ID
     if(m_doIDCuts){
       LHSel = false;
-      LHSel = m_LHTool2015->accept(em);
+      LHSel = (bool) m_LHTool2015->accept(em);
       if(!LHSel) continue;
       ATH_MSG_DEBUG("Electron passes " << m_electronIDLevel << " likelihood selection");
     }
