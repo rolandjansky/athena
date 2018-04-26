@@ -53,8 +53,7 @@ namespace iFatras
       @author Andreas.Salzburger -at- cern.ch
   */  
   
-  class TransportTool : virtual public ISF::IParticleProcessor,
-                        public AthAlgTool
+  class TransportTool : public extends<AthAlgTool, ISF::IParticleProcessor>
   {
   public:
     /** Constructor */

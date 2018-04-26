@@ -14,7 +14,7 @@ find_package( AtlasCMake QUIET )
 # Try to figure out what project is our parent. Just using a hard-coded list
 # of possible project names. Basically the names of all the other
 # sub-directories inside the Projects/ directory in the repository.
-set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysisBase
+set( _parentProjectNames Athena AthenaP1 AnalysisBase AthAnalysisBase AthDataQuality
    AthSimulation )
 set( _defaultParentProject Athena )
 set( _defaultUseFortran TRUE )
@@ -66,3 +66,10 @@ install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
 
 # Set up CPack:
 atlas_cpack_setup()
+
+# Remind to set up the environment
+message( STATUS "")
+message( STATUS "            In order to test your updates, please don't forget to" )
+message( STATUS "            set up the environment with e.g.:" )
+message( STATUS "            --->   source x86_64-slc6-gcc62-opt/setup.sh" )
+message( STATUS "")

@@ -18,18 +18,15 @@ Purpose : build the Photon Tag objects - PhotonTagCollection.h.
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationSelection/IsolationSelectionTool.h"
+#include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 #include <map>
 
 class PhotonTagCollection;
-
-// forward declarations
-namespace CP {
-  class IIsolationSelectionTool;
-}
 class IAsgPhotonIsEMSelector;
 
 
@@ -62,6 +59,7 @@ private:
   /** Properties */
   std::string m_containerName;
   double m_cut_Et;
+  std::string m_photon_met_container_name;
   std::vector<float> m_etconeisocutvalues;
   std::vector<float> m_ptconeisocutvalues;
 
@@ -79,12 +77,20 @@ private:
   ToolHandle<IAsgPhotonIsEMSelector>      m_loose_cut_based; 
   ToolHandle<IAsgPhotonIsEMSelector>      m_tight_cut_based; 
 
+  ToolHandle<IEGammaAmbiguityTool>        m_egamma_ambi_tool; 
+  
+  /** isolation correction tool */
+  ToolHandle<CP::IIsolationCorrectionTool> m_isolation_correction_tool; 
+  
   ToolHandle<CP::IIsolationSelectionTool> m_cone40_calo_isolation;//!
   ToolHandle<CP::IIsolationSelectionTool> m_cone40_isolation;//!
   ToolHandle<CP::IIsolationSelectionTool> m_cone20_isolation;//!
+  ToolHandle<CP::IIsolationSelectionTool> m_fixedcut_tightcaloonly_isolation;//!
+  ToolHandle<CP::IIsolationSelectionTool> m_fixedcut_loose_isolation;//!
+  ToolHandle<CP::IIsolationSelectionTool> m_fixedcut_tight_isolation;//!
 
   /** calib tool */
-  ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
+  // ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
 
  };
 

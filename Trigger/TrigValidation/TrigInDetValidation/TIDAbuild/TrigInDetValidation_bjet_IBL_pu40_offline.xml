@@ -1,7 +1,7 @@
          <athena trendId='bjetIBLPU40Trend' userJobId='TrigInDetValidation_bjet_IBL_pu40_offline'>
-            <doc>Bjetslice, ttbar, pu40, IBL, run2 chains, vs offline</doc>
-            <displayName>BjetSlice, ttbar, pu40, IBL, run2 chains, vs offline</displayName>
-	    <commandLineFlags>EventMax=900;doIDNewTracking=True;runMergedChain=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
+            <doc>Bjetslice, ttbar, pu40, IBL, vs offline</doc>
+            <displayName>BjetSlice, ttbar, pu40, IBL, vs offline</displayName>
+	    <commandLineFlags>EventMax=900;doIDNewTracking=True;globalTag='OFLCOND-RUN12-SDR-17'</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

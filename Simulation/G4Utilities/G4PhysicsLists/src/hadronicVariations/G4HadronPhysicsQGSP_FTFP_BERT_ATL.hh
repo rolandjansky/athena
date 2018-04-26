@@ -75,7 +75,6 @@ class G4HadronPhysicsQGSP_FTFP_BERT_ATL : public G4VPhysicsConstructor
 
   private:
     void CreateModels();
-    G4bool QuasiElastic;
 
     // Simplify handling of TLS data, encapsulate everyhing in a structure
     struct ThreadPrivate { 

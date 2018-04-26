@@ -61,11 +61,11 @@ void CaloGeometry::addcell(const CaloDetDescrElement* cell)
   int sampling=cell->getSampling();
   Identifier identify=cell->identify();
   
-  //m_cells[identify]=cell;
-  //m_cells_in_sampling[sampling][identify]=cell;
+  m_cells[identify]=cell;
+  m_cells_in_sampling[sampling][identify]=cell;
   
-  m_cells[identify]= new CaloDetDescrElement(*cell);
-  m_cells_in_sampling[sampling][identify]= new CaloDetDescrElement(*cell);
+  //m_cells[identify]= new CaloDetDescrElement(*cell);
+  //m_cells_in_sampling[sampling][identify]= new CaloDetDescrElement(*cell);
   
   CaloGeometryLookup* lookup=0;
   for(unsigned int i=0;i<m_cells_in_regions[sampling].size();++i) {

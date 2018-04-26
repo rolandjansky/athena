@@ -32,16 +32,13 @@ namespace LArG4 {
 
   namespace EC {
 
-    class PresamplerGeometry: public AthService, virtual public IECPresamplerGeometry {
+    class PresamplerGeometry: public extends<AthService, IECPresamplerGeometry> {
 
     public:
       // Constructor
       PresamplerGeometry(const std::string& name, ISvcLocator * pSvcLocator);
       StatusCode initialize() override final;
       virtual ~PresamplerGeometry();
-
-      /** Query interface method to make athena happy */
-      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
       // 15-Jan-2002 WGS: A "lookup" function for detector measurements,
       // sizes, and other values.

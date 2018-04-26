@@ -31,6 +31,7 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+#include <vector>
 
 #include "TObject.h"
 
@@ -135,6 +136,21 @@ public:
   double zedMinus() const { return m_params.zedMinus(); }
   double zedPlus()  const { return m_params.zedPlus(); }
 
+
+  /// full containment methods
+ 
+  double zedPlusR()  const { return m_zedPlusR; }
+  double zedMinusR() const { return m_zedMinusR; }
+
+  double rPlusZed()  const { return m_rPlusZed; }
+  double rMinusZed() const { return m_rMinusZed; }
+
+  double maxR()   const { return maxRadius; }
+  double maxZ()   const { return maxZed; }
+
+  static double  exitpoint( double tz0, double teta, double& zexit, double& rexit );
+
+  /// identifier methods
 
   unsigned roiId()   const { return m_roiId; }
   unsigned l1Id()    const { return m_l1Id; }
@@ -241,6 +257,11 @@ protected:
   double etacheck(double eta);  //!< helper function to check if eta range was violated
   double zedcheck(double zed);  //!< helper function to check if zed range was violated
 
+protected: 
+
+  static double maxRadius; //! don't save 
+  static double maxZed;    //! don't save 
+
 protected:
 
   TIDARoiParameters m_params;   //  actual roi values
@@ -255,6 +276,16 @@ protected:
 
   bool    m_cached;  //! cache flag   - these should be mutable
   double  m_dphi;    //! cached value -  
+
+  double m_zedPlusR;  //! don't save - transient zPlus at radius R
+  double m_zedMinusR; //! don't save - transient zMinus at radius R
+
+  double m_rPlusZed;  //! don't save - transient zPlus at radius R
+  double m_rMinusZed; //! don't save - transient zMinus at radius R
+
+  double m_tanthetaPlus;   //! don't save - transient roi edge gradients
+  double m_tanthetaMinus; //! don't save - transient roi edge gradients
+  
 
   ClassDef( TIDARoiDescriptor, 2 ) 
 

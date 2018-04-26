@@ -22,7 +22,7 @@
 SensitiveDetectorBase::SensitiveDetectorBase(const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
-  : AthAlgTool(type,name,parent)
+  : base_class(type,name,parent)
 #ifndef ATHENAHIVE
   , m_SD(nullptr)
 #endif
@@ -122,21 +122,6 @@ assignSD(G4VSensitiveDetector* sd, const std::vector<std::string>& volumes) cons
   }
 
   return StatusCode::SUCCESS;
-}
-
-//-----------------------------------------------------------------------------
-// Interface query boiler plate
-//-----------------------------------------------------------------------------
-StatusCode SensitiveDetectorBase::
-queryInterface(const InterfaceID& riid, void** ppvIf)
-{
-  if ( riid == ISensitiveDetector::interfaceID() )
-    {
-      *ppvIf = (ISensitiveDetector*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 G4VSensitiveDetector* SensitiveDetectorBase::getSD()

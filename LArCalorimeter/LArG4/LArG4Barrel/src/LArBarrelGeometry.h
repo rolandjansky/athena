@@ -33,7 +33,7 @@ namespace LArG4 {
 
   namespace Barrel {
 
-    class Geometry: public AthService, virtual public ILArBarrelGeometry {
+    class Geometry: public extends<AthService, ILArBarrelGeometry> {
 
     public:
 
@@ -41,9 +41,6 @@ namespace LArG4 {
       Geometry(const std::string& name, ISvcLocator * pSvcLocator);
 
       virtual ~Geometry() { };
-
-      /** Query interface method to make athena happy */
-      virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
       virtual StatusCode initialize() override final;
       virtual StatusCode finalize() override final;
@@ -107,7 +104,6 @@ namespace LArG4 {
       G4double m_Rmax;
       G4double m_Rphi[5000];
       G4double m_dR;
-      double m_2pi;
 
       // function to compute distance to electrode
       double Distance_Ele(const double &x, const double &y,

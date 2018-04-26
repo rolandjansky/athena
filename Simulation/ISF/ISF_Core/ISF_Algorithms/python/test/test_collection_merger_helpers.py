@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-from mock import Mock
 import sys
 import unittest
 

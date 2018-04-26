@@ -3,6 +3,7 @@
 import pickle
 import subprocess
 import unittest
+import os
 
 
 class TestTestBeam(unittest.TestCase):
@@ -294,4 +295,8 @@ class TestTestBeam(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    dirname = 'TestBeam_tf_config_test'
+    os.system ('rm -rf ' + dirname)
+    os.mkdir (dirname)
+    os.chdir (dirname)
     unittest.main()

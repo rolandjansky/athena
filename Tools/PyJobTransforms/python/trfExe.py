@@ -1250,7 +1250,17 @@ class athenaExecutor(scriptExecutor):
                         AtlasSetupDirectory = os.environ['AtlasSetup'],
                         asetupStatus        = asetup
                     )
-                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi'
+                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi '
+                    #check for TestArea if it exists then source setup.sh, used for local patches areas
+                    print >>wrapper, '#Need to check and source for  TestArea/build/cfgdir/setup.sh  '
+                    print >>wrapper, 'if [ ${TestArea} ]; then '
+                    print >>wrapper, '    cfgdir=`/bin/ls ${TestArea}/build/ | grep gcc` '
+                    print >>wrapper, '    if [ ${?} == "0" ]; then ' 
+                    print >>wrapper, '        echo "${TestArea}/build/${cfgdir} exist , will source setup.sh " '
+                    print >>wrapper, '        source ${TestArea}/build/${cfgdir}/setup.sh '
+                    print >>wrapper, '    fi '
+                    print >>wrapper, 'fi '
+
                 if dbsetup:
                     dbroot = path.dirname(dbsetup)
                     dbversion = path.basename(dbroot)
@@ -1305,22 +1315,7 @@ class athenaExecutor(scriptExecutor):
                 else:
                     msg.info('Valgrind not engaged')
                     # run Athena command
-                    if 'checkpoint' in self.conf.argdict and self.conf._argdict['checkpoint'].value is True:
-                        for port in range(7770,7790):
-                            if bind_port("127.0.0.1",port)==0:
-                                break
-                        msg.info("Using port %s for dmtcp_launch."%port)
-                        print >>wrapper,'dmtcp_launch -p %s'%port, ' '.join(self._cmd)
-                    elif 'restart' in self.conf.argdict and self.conf._argdict['restart'].value is not None and 'MergeAthenaMP' not in self.name:
-                        restartTarball = self.conf._argdict['restart'].value
-                        print >>wrapper, 'tar -xf %s -C .' % restartTarball
-                        for port in range(7770,7790):
-                            if bind_port("127.0.0.1",port)==0:
-                                break
-                        msg.info("Using port %s for dmtcp_launch."%port)
-                        print >>wrapper, './dmtcp_restart_script.sh -p %s -h 127.0.0.1'%port
-                    else:
-                        print >>wrapper, ' '.join(self._cmd)
+                    print >>wrapper, ' '.join(self._cmd)
             os.chmod(self._wrapperFile, 0755)
         except (IOError, OSError) as e:
             errMsg = 'error writing athena wrapper {fileName}: {error}'.format(

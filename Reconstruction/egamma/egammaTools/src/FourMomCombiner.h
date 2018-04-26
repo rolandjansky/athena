@@ -25,7 +25,7 @@
 #include "egammaBaseTool.h"
 #include "EventPrimitives/EventPrimitives.h"
 
-//#include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
+//#include "EgammaAnalysisInterfaces/egammaEnergyCorrectionTool.h"
 
 class IEMExtrapolCaloConversion;
 

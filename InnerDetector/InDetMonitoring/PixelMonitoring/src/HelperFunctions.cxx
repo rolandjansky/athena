@@ -14,8 +14,12 @@
 #include "LWHists/TH1I_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TH2I_LW.h"
+#include "LWHists/TProfile_LW.h"
+#include "LWHists/TProfile2D_LW.h"
 #include "PixelMonitoring/PixelMainMon.h"
 #include "PixelMonitoring/PixelMon2DMapsLW.h"
+#include "PixelMonitoring/PixelMon2DProfilesLW.h"
+#include "PixelMonitoring/Components.h"
 #include "TH1I.h"
 #include "TH2I.h"
 #include "TProfile2D.h"
@@ -114,118 +118,6 @@ void PixelMainMon::th1FillMonitoring(TH1F_LW* mon, TH1F_LW* tmp) {
   tmp->Reset();
 }
 
-void PixelMainMon::fillTimeHisto(double value, TProfile* one = 0, TProfile* two = 0, TProfile* three = 0, double time1 = 10., double time2 = 60., double time3 = 360.) {
-  // This function fills time profile histograms
-  time_t rawtime;
-  struct tm* timeinfo;
-  char buffer1[14];
-
-  time_t endtime;
-  struct tm* endtimeinfo;
-  char buffer2[14];
-
-  time(&rawtime);
-  timeinfo = localtime(&rawtime);
-  strftime(buffer1, 14, "%I:%M:%S", timeinfo);
-  char* buffer = buffer1;
-
-  // Make m_startTime a global variable
-  double lagtime = difftime(rawtime, m_startTime);  // how long since we started the run;
-
-  if (one) {
-    int binNo = one->GetNbinsX();
-    double histoTime = time1 * 60.;                            // number of seconds this histogram represents;
-    double timeInterval = histoTime / binNo;                   // number of seconds per bin
-    int intervalNumber = int(lagtime / timeInterval);          // what interval we are in.  Keep this stored as number of Entries;
-    int bins2shift = intervalNumber - int(one->GetEntries());  // how many bins to shift the bin contents;
-    if (bins2shift) {                                          // shift bins, skip this if we are in the same bin
-      for (int iii = 0; iii <= binNo - bins2shift; iii++) {    // loop over all bins that need moved;
-        one->SetBinEntries(iii, one->GetBinEntries(iii + bins2shift));                                         // move bins to right
-        one->SetBinContent(iii, one->GetBinContent(iii + bins2shift) * one->GetBinEntries(iii + bins2shift));  // move bins to right
-      }
-      for (int jjj = binNo; jjj > binNo - bins2shift; jjj--) {
-        one->SetBinContent(jjj, 0.0);
-        one->SetBinEntries(jjj, 0.0);
-      }
-      one->GetXaxis()->SetBinLabel(binNo, buffer);  // write the timestamp on the first and last bin
-      endtime = time_t(rawtime - histoTime);
-      endtimeinfo = localtime(&endtime);
-      strftime(buffer2, 14, "%I:%M:%S", endtimeinfo);
-      char* buffer3 = buffer2;
-      one->GetXaxis()->SetBinLabel(1, buffer3);  // write the timestamp on the first and last bin
-      one->LabelsOption("h", "X");
-    }
-    double binEntries = one->GetBinEntries(binNo);
-    double binContent = one->GetBinContent(binNo);
-    one->SetBinEntries(binNo, binEntries + 1);
-    one->SetBinContent(binNo, binContent * binEntries + value);
-
-    one->SetEntries(intervalNumber);  // store the interval number in a convienent place
-  }
-
-  if (two) {
-    int binNo = two->GetNbinsX();
-    double histoTime = time2 * 60.;                            // number of seconds this histogram represents;
-    double timeInterval = histoTime / binNo;                   // number of seconds per bin
-    int intervalNumber = int(lagtime / timeInterval);          // what interval we are in.  Keep this stored as number of Entries;
-    int bins2shift = intervalNumber - int(two->GetEntries());  // how many bins to shift the bin contents;
-    if (bins2shift) {                                          // shift bins, skip this if we are in the same bin
-      for (int iii = 0; iii <= binNo - bins2shift; iii++) {    // loop over all bins that need moved;
-        two->SetBinEntries(iii, two->GetBinEntries(iii + bins2shift));                                         // move bins to right
-        two->SetBinContent(iii, two->GetBinContent(iii + bins2shift) * two->GetBinEntries(iii + bins2shift));  // move bins to right
-      }
-      for (int jjj = binNo; jjj > binNo - bins2shift; jjj--) {
-        two->SetBinContent(jjj, 0.0);
-        two->SetBinEntries(jjj, 0.0);
-      }
-      two->GetXaxis()->SetBinLabel(binNo, buffer);  // write the timestamp on the first and last bin
-      endtime = rawtime - time2 * 60;
-      endtimeinfo = localtime(&endtime);
-      strftime(buffer2, 14, "%I:%M:%S", endtimeinfo);
-      char* buffer3 = buffer2;
-      two->GetXaxis()->SetBinLabel(1, buffer3);  // write the timestamp on the first and last bin
-      two->LabelsOption("h", "X");
-    }
-    double binEntries = two->GetBinEntries(binNo);
-    double binContent = two->GetBinContent(binNo);
-    two->SetBinEntries(binNo, binEntries + 1);
-    two->SetBinContent(binNo, binContent * binEntries + value);
-
-    two->SetEntries(intervalNumber);  // store the interval number in a convienent place
-  }
-
-  if (three) {
-    int binNo = three->GetNbinsX();
-    double histoTime = time3 * 60.;                              // number of seconds this histogram represents;
-    double timeInterval = histoTime / binNo;                     // number of seconds per bin
-    int intervalNumber = int(lagtime / timeInterval);            // what interval we are in.  Keep this stored as number of Entries;
-    int bins2shift = intervalNumber - int(three->GetEntries());  // how many bins to shift the bin contents;
-    if (bins2shift) {                                            // shift bins, skip this if we are in the same bin
-      for (int iii = 0; iii <= binNo - bins2shift; iii++) {      // loop over all bins that need moved;
-        three->SetBinEntries(iii, three->GetBinEntries(iii + bins2shift));                                           // move bins to right
-        three->SetBinContent(iii, three->GetBinContent(iii + bins2shift) * three->GetBinEntries(iii + bins2shift));  // move bins to right
-      }
-      for (int jjj = binNo; jjj > binNo - bins2shift; jjj--) {
-        three->SetBinContent(jjj, 0.0);
-        three->SetBinEntries(jjj, 0.0);
-      }
-      three->GetXaxis()->SetBinLabel(binNo, buffer);  // write the timestamp on the first and last bin
-      endtime = rawtime - time3 * 60;
-      endtimeinfo = localtime(&endtime);
-      strftime(buffer2, 14, "%I:%M:%S", endtimeinfo);
-      char* buffer3 = buffer2;
-      three->GetXaxis()->SetBinLabel(1, buffer3);  // write the timestamp on the first and last bin
-      three->LabelsOption("h", "X");
-    }
-    double binEntries = three->GetBinEntries(binNo);
-    double binContent = three->GetBinContent(binNo);
-    three->SetBinEntries(binNo, binEntries + 1);
-    three->SetBinContent(binNo, binContent * binEntries + value);
-
-    three->SetEntries(intervalNumber);  // store the interval number in a convienent place
-  }
-}
-
 void PixelMainMon::fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2) {
   // if the histos don't exist, dont' fill them
   if (!(A && C && B0 && B1 && B2 && occupancy)) return;
@@ -272,6 +164,118 @@ void PixelMainMon::fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH
   }
 }
 
+void PixelMainMon::formatPP0Histos(TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C) {
+  if (!(D_A && D_C && B0 && B1 && B2)) return;
+  if (IBL_A && IBL_C) {
+    for (unsigned int i = 0; i < PixMon::kNumStavesIBL; ++i) {
+      IBL_A->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesIBL.at(i).c_str());
+      IBL_A->GetXaxis()->SetLabelSize(0.03);
+      IBL_A->SetMinimum(0.);
+      IBL_C->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesIBL.at(i).c_str());
+      IBL_C->GetXaxis()->SetLabelSize(0.03);
+      IBL_C->SetMinimum(0.);
+    }
+  }
+  if (B0 && B1 && B2) {
+    for (unsigned int i = 0; i < PixMon::kNumStavesL0; ++i) {
+      B0->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesL0.at(i).c_str());
+      B0->GetXaxis()->SetLabelSize(0.03);
+      B0->SetMinimum(0.);
+    }
+    for (unsigned int i = 0; i < PixMon::kNumStavesL1; ++i) {
+      B1->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesL1.at(i).c_str());
+      B1->GetXaxis()->SetLabelSize(0.02);
+      B1->SetMinimum(0.);
+    }
+    for (unsigned int i = 0; i < PixMon::kNumStavesL2; ++i) {
+      B2->GetXaxis()->SetBinLabel(i + 1, PixMon::StavesL2.at(i).c_str());
+      B2->GetXaxis()->SetLabelSize(0.02);
+      B2->SetMinimum(0.);
+    }
+  }
+  if (D_A && D_C) {
+    for (unsigned int i = 0; i < PixMon::kNumPP0sEC; ++i) {
+      D_A->GetXaxis()->SetBinLabel(i + 1, PixMon::PP0sEC.at(i).c_str());
+      D_A->GetXaxis()->SetLabelSize(0.02);
+      D_A->SetMinimum(0.);
+      D_C->GetXaxis()->SetBinLabel(i + 1, PixMon::PP0sEC.at(i).c_str());
+      D_C->GetXaxis()->SetLabelSize(0.02);
+      D_C->SetMinimum(0.);
+    }
+  }
+}
+
+void PixelMainMon::fillPP0Histos(PixelMon2DMapsLW* occupancy, TProfile_LW* D_A, TProfile_LW* D_C, TProfile_LW* B0, TProfile_LW* B1, TProfile_LW* B2, TProfile_LW* IBL_A, TProfile_LW* IBL_C) {
+  if (!(D_A && D_C && B0 && B1 && B2 && occupancy && m_status && m_event)) return;
+  unsigned int nbinx;
+  unsigned int nbiny;
+  // use FE occ for IBL, mod occ for the rest
+  // fill only if FE is active
+  if (IBL_A && IBL_C) {              
+    nbinx = occupancy->IBL->GetNbinsX();
+    nbiny = occupancy->IBL->GetNbinsY();
+    for (unsigned int x = 1; x <= nbinx; ++x) {
+      for (unsigned int y = 1; y <= nbiny; ++y) {
+        const auto content = occupancy->IBL->GetBinContent(x, y) / (1.0 * m_event);
+	if (m_status->IBL->GetBinContent(x, y)!=2) {
+	  if (x>0.5*nbinx) IBL_A->Fill(y, content);
+	  else IBL_C->Fill(y, content);
+	}
+      }
+    }
+  }
+  nbinx = occupancy->B0->GetNbinsX();
+  nbiny = occupancy->B0->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->B0->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->B0->GetBinContent(x, y)!=2) {
+	B0->Fill(y, content);
+      }
+    }
+  }
+  nbinx = occupancy->B1->GetNbinsX();
+  nbiny = occupancy->B1->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->B1->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->B1->GetBinContent(x, y)!=2) {
+	B1->Fill(y, content);
+      }
+    }
+  }
+  nbinx = occupancy->B2->GetNbinsX();
+  nbiny = occupancy->B2->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->B2->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->B2->GetBinContent(x, y)!=2) {
+	B2->Fill(y, content);
+      }
+    }
+  }
+  nbinx = occupancy->A->GetNbinsX();
+  nbiny = occupancy->A->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->A->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->A->GetBinContent(x, y)!=2) {
+	D_A->Fill( (x-1)*8 + (y-1)/6 + 1, content);
+      }
+    }
+  }
+  nbinx = occupancy->C->GetNbinsX();
+  nbiny = occupancy->C->GetNbinsY();
+  for (unsigned int x = 1; x <= nbinx; ++x) {
+    for (unsigned int y = 1; y <= nbiny; ++y) {
+      const auto content = occupancy->C->GetBinContent(x, y) / (1.0 * m_event);
+      if (m_status->C->GetBinContent(x, y)!=2) {
+	D_C->Fill( (x-1)*8 + (y-1)/6 + 1, content);
+      }
+    }
+  }
+}
+
 bool PixelMainMon::isOnTrack(Identifier id, bool isCluster) {
   bool onTrack = false;
   if (isCluster) {
@@ -302,7 +306,7 @@ int PixelMainMon::parseDetailsString(std::string& detailsMod) {
   int modID[4] = {0, 0, 0, 0};
   char* pch;
   pch = new char[detailsMod.size() + 1];
-  strcpy(pch, detailsMod.c_str());
+  strncpy(pch, detailsMod.c_str(), detailsMod.size());
   const int nmod = 13;
   const char* mod[nmod] = {"M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0", "M1A", "M2A", "M3A", "M4A", "M5A", "M6A"};
   const int nstave0 = 22;
@@ -430,4 +434,21 @@ bool PixelMainMon::getFEID(int pixlayer, int phiid, int etaid, int& oufephi, int
   oufephi = phiid / npixPerFe_phi;
   outfeeta = etaid / npixPerFe_eta;
   return isValid;
+}
+
+void PixelMainMon::divide_TH1F_LW(TH1F_LW* num, TH1F_LW* den) {
+  if (!num || !den || (num->GetXaxis()->GetNbins() != den->GetXaxis()->GetNbins())) return;
+  unsigned int binidx;
+  double numVal, numErr;
+  double denVal, denErr;
+  const unsigned int entries = num->GetEntries();
+  num->resetActiveBinLoop();
+  while (num->getNextActiveBin(binidx, numVal, numErr)) {
+    den->GetBinContentAndError(binidx, denVal, denErr);
+    if (denVal == 0)
+      num->SetBinContentAndError(binidx, 0, 0);
+    else
+      num->SetBinContentAndError(binidx, numVal / denVal, sqrt(pow(numErr*denVal,2)+pow(denErr*numVal,2)) / pow(denVal,2));
+  }
+  num->SetEntries(entries);
 }

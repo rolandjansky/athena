@@ -37,7 +37,8 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
      m_runPurity(false),
      m_shifter(false),
      m_shifterChains(1),
-     m_sliceTag("")
+     m_sliceTag(""),
+     m_containTracks(false)
 {
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() compiled: " << __DATE__ << " " << __TIME__ << endmsg;
 
@@ -67,6 +68,8 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "pixHolesOffline",   m_pixHolesOffline   =  20 ); // essentially no limit
   declareProperty( "sctHolesOffline",   m_sctHolesOffline   =  20 ); // essentially no limit
   declareProperty( "siHolesOffline",    m_siHolesOffline    =  2 );  // npix holes + nsi holes <= 2 ( not degrees of freedom ! )   
+
+  declareProperty( "ContainTracks",     m_containTracks     = false );  // use only basic track containment
 
   declareProperty( "trtHitsOffline",    m_trtHitsOffline    = -2 );
   declareProperty( "strawHitsOffline",  m_strawHitsOffline  = -2 );
@@ -357,7 +360,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
 	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->setRunPurity(m_runPurity);
 	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->setShifter(m_shifter);
-
+	dynamic_cast<AnalysisConfig_Tier0*>(m_sequences.back())->containTracks(m_containTracks);
 
 	std::string highestPT_str = "";
 	std::string vtxindex_str  = "";
@@ -466,7 +469,7 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
   bool endOfRun       = endOfRunFlag();
 #endif
 
-  msg(MSG::INFO) << " ----- enter proc() ----- " << endmsg;
+  msg(MSG::VERBOSE) << " ----- enter proc() ----- " << endmsg;
   if ( m_initialisePerRun && endOfRun ) {
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
     m_fileopen = false;

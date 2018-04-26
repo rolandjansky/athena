@@ -65,10 +65,26 @@ echo "====================================================="
 
 DESTDIR=${DESTDIR}/${BRANCH}/${ARCH}/${DDAY}
 
+_retry_() {
+    local cmd="$*" dt=16 retr=0
+    while ! $cmd ; do
+        if test $retr -ge 6 ; then
+            echo "ERROR: 6 retries of $cmd FAILED ... " >&2
+            return 1
+        fi
+        echo "WARNING: $cmd failed, waiting $dt sec ..."
+        sleep ${dt}s
+        dt=`expr $dt + $dt`
+        retr=`expr $retr + 1`
+    done
+    return 0
+}
+
+
 if [ ! -d ${DESTDIR} ] ; then 
    echo "mkdir -p ${DESTDIR}"
-   mkdir -p ${DESTDIR} 
-   if [ ! -d ${DESTDIR} ] ; then ERROR_COUNT++ ; fi  #avoid false positive eos error if the directory was actually created
+   _retry_ mkdir -p ${DESTDIR} 
+   if [ ! -d ${DESTDIR} ] ; then ((ERROR_COUNT++)) ; fi  #avoid false positive eos error if the directory was actually created
 fi
 
 arr_rpm=(`(shopt -s nocaseglob; ls ${SOURCEDIR}/*.rpm)`)
@@ -79,7 +95,7 @@ if [ "${#arr_rpm[@]}" -le 0 ]; then
    for ele in "${arr_rpm[@]}" 
    do
       echo "Info: copying $ele to ${DESTDIR}"                                                 
-      cp -a $ele ${DESTDIR} || ((ERROR_COUNT++))
+      _retry_ cp -a $ele ${DESTDIR} || ((ERROR_COUNT++))
    done
 fi 
 echo "====================================================="

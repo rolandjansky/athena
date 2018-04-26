@@ -14,6 +14,9 @@ import logging
 recoLog = logging.getLogger('raw_to_all')
 recoLog.info( '****************** STARTING RAW->ALL MAKING *****************' )
 
+from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
 ## Input
 # BS
 DRAWInputs = [ prop for prop in dir(runArgs) if prop.startswith('inputDRAW') and prop.endswith('File')]
@@ -94,7 +97,14 @@ if hasattr(runArgs,"outputNTUP_MUONCALIBFile"):
 if hasattr(runArgs, 'outputTXT_JIVEXMLTGZFile'):
     jp.Rec.doJiveXML.set_Value_and_Lock(True)
 
-# DESD and DRAW
+# DESD, DAOD and DRAW
+DRAWOutputs = [ prop for prop in dir(runArgs) if prop.startswith('outputDRAW') and prop.endswith('File')]
+DAODOutputs = [ prop for prop in dir(runArgs) if prop.startswith('outputDAOD') and prop.endswith('File')]
+DESDOutputs = [ prop for prop in dir(runArgs) if prop.startswith('outputDESD') and prop.endswith('File')]
+
+if len(DESDOutputs) > 0 or len(DAODOutputs) > 0:
+    rec.doWriteDPD.set_Value_and_Lock(True)
+
 listOfFlags=[]
 try:
     from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
@@ -104,9 +114,6 @@ except ImportError:
 
 from RecJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
-
-DRAWOutputs = [ prop for prop in dir(runArgs) if prop.startswith('outputDRAW') and prop.endswith('File')]
-
 
 # Need to handle this properly in RecExCommon top options
 rec.OutputFileNameForRecoStep="RAWtoALL"
@@ -136,6 +143,17 @@ if hasattr(runArgs,"inputRDO_TRIGFile") and rec.doFileMetaData():
     ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
                               OutputLevel = 3 )
     svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+
+#==========================================================
+# Use LZIB for compression of temporary outputs of AthenaMP
+#==========================================================
+if hasattr(runArgs, "outputESDFile") and '_000' in runArgs.outputESDFile:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
+
+if hasattr(runArgs, "outputAODFile") and '_000' in runArgs.outputAODFile:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

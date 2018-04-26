@@ -17,11 +17,11 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRKIPATFITTERUTILS_FITPROCEDURE_H
-# define TRKIPATFITTERUTILS_FITPROCEDURE_H
+#define TRKIPATFITTERUTILS_FITPROCEDURE_H
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include <list>
+#include <vector>
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -64,7 +64,7 @@ public:
     // forbidden assignment operator
 
     // retrieve result
-    Track*	constructTrack (const std::list<FitMeasurement*>&		measurements,
+    Track*	constructTrack (const std::vector<FitMeasurement*>&		measurements,
 				const FitParameters&				parameters,
 				const TrackInfo&				trackInfo,
 				const DataVector<const TrackStateOnSurface>*	leadingTSOS = 0);
@@ -72,7 +72,7 @@ public:
     // perform fit procedure
     const FitProcedureQuality&	execute (bool					asymmetricCaloEnergy,
 					 MsgStream&				log,
-					 std::list<FitMeasurement*>&		measurements,
+					 std::vector<FitMeasurement*>&		measurements,
 					 FitParameters*&			parameters,
 					 const FitQuality*			perigeeQuality = 0,
 					 bool					for_iPatTrack = false);
@@ -88,10 +88,10 @@ private:
     FitProcedure (const FitProcedure&);
     FitProcedure &operator= (const FitProcedure&);
     
-    void				calculateChiSq(std::list<FitMeasurement*>&	measurements);
-    ToolHandle<IIntersector>&		chooseIntersector(std::list<FitMeasurement*>&	measurements,
+    void				calculateChiSq(std::vector<FitMeasurement*>&	measurements);
+    ToolHandle<IIntersector>&		chooseIntersector(std::vector<FitMeasurement*>&	measurements,
 							  const FitParameters&	parameters) const;
-    void				reportQuality(const std::list<FitMeasurement*>&	measurements,
+    void				reportQuality(const std::vector<FitMeasurement*>& measurements,
 						      const FitParameters&	parameters) const;
 
     double				m_chRatio1;

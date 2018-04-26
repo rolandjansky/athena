@@ -146,6 +146,10 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
     #kwargs.setdefault("PhiAndEtaEff_C"    ,[0.905,  0.905,  0.905,  0.905,  0.905,  0.905, 0.905] ) #ref. par.s low pt plateau w.r.t. reco = 77.7% 
     #kwargs.setdefault("OnlyPhiEff_C"      ,[0.030,  0.030,  0.030,  0.030,  0.030,  0.030, 0.030] ) #ref. par.s low pt plateau w.r.t. reco = 77.7%
     #kwargs.setdefault("OnlyEtaEff_C"      ,[0.030,  0.030,  0.030,  0.030,  0.030,  0.030, 0.030] ) #ref. par.s low pt plateau w.r.t. reco = 77.7%
+
+    # Pile-up premixing - do not include pile-up truth
+    if jobproperties.Digitization.PileUpPremixing():
+        kwargs.setdefault("IncludePileUpTruth", False)
     
     return CfgMgr.RpcDigitizationTool(name, **kwargs)
 
@@ -153,6 +157,3 @@ def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     kwargs.setdefault("EvtStore", overlayFlags.evtStore())
     return RpcDigitizationTool(name, **kwargs)
-
-
-

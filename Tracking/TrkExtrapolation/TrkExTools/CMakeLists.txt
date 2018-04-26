@@ -25,7 +25,6 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthContainers
                           Control/CxxUtils
-                          Control/StoreGate
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkEvent/TrkEventUtils
                           Tracking/TrkEvent/TrkMaterialOnTrack
@@ -42,7 +41,7 @@ atlas_add_component( TrkExTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives EventPrimitives xAODTracking GaudiKernel TrkDetDescrUtils TrkGeometry TrkSurfaces TrkVolumes TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils AthContainers CxxUtils StoreGateLib SGtests TrkDetDescrInterfaces TrkEventUtils TrkMaterialOnTrack TrkParticleBase TrkTrack )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives EventPrimitives xAODTracking GaudiKernel TrkDetDescrUtils TrkGeometry TrkSurfaces TrkVolumes TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils AthContainers CxxUtils TrkDetDescrInterfaces TrkEventUtils TrkMaterialOnTrack TrkParticleBase TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( TrkExTools )

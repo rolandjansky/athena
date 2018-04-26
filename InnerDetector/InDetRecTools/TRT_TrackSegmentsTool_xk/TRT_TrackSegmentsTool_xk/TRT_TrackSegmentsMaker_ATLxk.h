@@ -25,7 +25,7 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
-#include "TRT_TrackSegmentsTool_xk/TRT_DriftCircleLink_xk.h"
+#include "TRT_TrackSegmentsTool_xk/TRT_DriftCircleLinkN_xk.h"
 
 class MsgStream;
 
@@ -136,7 +136,7 @@ namespace InDet{
       int                                    m_nMom            ; // number momentum  channel
       int                                    m_histsize        ; // histogram size
       int                                    m_cirsize         ; // Size of m_circles
-      TRT_DriftCircleLink_xk*                m_circles         ;
+      TRT_DriftCircleLinkN_xk*               m_circles         ;
 
       union {unsigned char H[227500*4]; unsigned int H4[227500];} m_U;
       std::multimap<unsigned int,unsigned int> 

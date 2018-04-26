@@ -18,6 +18,7 @@
 #   include "xAODRootAccess/Init.h"
 #   include "xAODRootAccess/TEvent.h"
 #   include "xAODRootAccess/TStore.h"
+#   include "xAODRootAccess/tools/ReturnCheck.h"
 #endif // ROOTCORE
 
 // EDM include(s):
@@ -69,10 +70,14 @@ int main( int argc, char* argv[] ) {
    CHECK( xAOD::Init( APP_NAME ) );
 
    // Open the input file:
-   const TString fileName = argv[ 1 ];
+   const TString fileName = argv[1];
    Info( APP_NAME, "Opening file: %s", fileName.Data() );
-   std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
+   std::unique_ptr<TFile> ifile(TFile::Open( fileName, "READ"));
    CHECK( ifile.get() );
+   if ((!ifile.get() ) || ifile->IsZombie()) {
+     Error(APP_NAME, "Couldn't open file: %s", argv[1]);
+     return 1;
+   }
 
    // Create a TEvent object:
    xAOD::TEvent event( xAOD::TEvent::kClassAccess );
@@ -91,8 +96,9 @@ int main( int argc, char* argv[] ) {
 
    // Create the tool
    std::unique_ptr<CP::IEgammaCalibrationAndSmearingTool> tool(new CP::EgammaCalibrationAndSmearingTool("EgammaCalibrationAndSmearingTool"));
-   asg::setProperty(tool.get(), "ESModel", "es2015PRE");
-   tool->initialize();
+   asg::setProperty(tool.get(), "ESModel", "es2017_R21_PRE");
+   asg::setProperty(tool.get(), "randomRunNumber", 123456);
+   RETURN_CHECK(APP_NAME, tool->initialize());
 
 
    //===========SYSTEMATICS
@@ -103,6 +109,7 @@ int main( int argc, char* argv[] ) {
    std::cout << "SIZE of the systematics set:" << recommendedSystematics.size() << std::endl;
 
    for (auto sys : recommendedSystematics) { sysList.push_back(CP::SystematicSet({sys})); }
+
 
    // Loop over the events:
    for (Long64_t entry = 0; entry < entries; ++entry) {

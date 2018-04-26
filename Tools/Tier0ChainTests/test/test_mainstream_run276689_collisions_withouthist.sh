@@ -9,18 +9,11 @@ echo "art-result: $?"
 Reco_tf.py --autoConfiguration=everything  --inputESDFile=myESD_Main_2.pool.root --outputTAGFile=myTAG_Main_3.root
 echo "art-result: $?"
 
-
-SCRIPT_DIRECTORY=$1
-PACKAGE=$2
-TYPE=$3
-TEST_NAME=$4
-NIGHTLY_RELEASE=$5
-PROJECT=$6
-PLATFORM=$7
-NIGHTLY_TAG=$8
-
-art.py compare grid $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME myAOD_Main_2.AOD.pool.root myESD_Main_2.pool.root
+ArtPackage=$1
+ArtJobName=$2
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo "art-result: $?"
 
-art.py compare grid --days=3 $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME myAOD_Main_2.AOD.pool.root myESD_Main_2.pool.root
+art.py compare grid --days=3 --entries 10 ${ArtPackage} ${ArtJobName}
 echo "art-result: $?"
+

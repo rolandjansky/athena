@@ -45,8 +45,7 @@ namespace iParSim {
    @author Andreas.Salzburger -at- cern.ch 
    */
       
-  class TrackParticleSmearer : public AthAlgTool, 
-        virtual public ISF::IParticleProcessor, virtual public IIncidentListener
+  class TrackParticleSmearer : public extends<AthAlgTool, ISF::IParticleProcessor, IIncidentListener>
   {
     public:
 

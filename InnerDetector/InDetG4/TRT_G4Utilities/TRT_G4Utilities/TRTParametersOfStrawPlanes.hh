@@ -29,51 +29,49 @@ class TRTParametersOfStrawPlanes
     void DefineParameters();
     void PrintParameters() const;
 
-    int printMessages;
+    double m_innerRadiusOfStrawPlanesAB;
+    double m_innerRadiusOfStrawPlaneC;
+    double m_outerRadiusOfStrawPlanesAB;
+    double m_outerRadiusOfStrawPlaneC;
+    double m_lengthOfStrawPlane;
 
-    double innerRadiusOfStrawPlanesAB;
-    double innerRadiusOfStrawPlaneC;
-    double outerRadiusOfStrawPlanesAB;
-    double outerRadiusOfStrawPlaneC;
-    double lengthOfStrawPlane;
+    int m_numberOfSectorsAB;
+    int m_numberOfSectorsC;
 
-    int numberOfSectorsAB;
-    int numberOfSectorsC;
+    double m_innerRadiusOfSectorsAB;
+    double m_innerRadiusOfSectorC;
+    double m_outerRadiusOfSectorsAB;
+    double m_outerRadiusOfSectorC;
+    double m_lengthOfSector;
 
-    double innerRadiusOfSectorsAB;
-    double innerRadiusOfSectorC;
-    double outerRadiusOfSectorsAB;
-    double outerRadiusOfSectorC;
-    double lengthOfSector;
+    int m_numberOfStrawsInPlanesAB;
+    int m_numberOfStrawsInPlaneC;
 
-    int numberOfStrawsInPlanesAB;
-    int numberOfStrawsInPlaneC;
+    int m_numberOfStrawsInSectorsAB;
+    int m_numberOfStrawsInSectorC;
 
-    int numberOfStrawsInSectorsAB;
-    int numberOfStrawsInSectorC;
+    double m_outerRadiusOfStraw;
+    double m_lengthOfStrawsAB;
+    double m_lengthOfStrawC;
+    double m_positionOfStrawsAB;
+    double m_positionOfStrawC;
 
-    double outerRadiusOfStraw;
-    double lengthOfStrawsAB;
-    double lengthOfStrawC;
-    double positionOfStrawsAB;
-    double positionOfStrawC;
+    double m_innerRadiusOfGas;
+    double m_outerRadiusOfGas;
+    double m_lengthOfGasAB;
+    double m_lengthOfGasC;
 
-    double innerRadiusOfGas;
-    double outerRadiusOfGas;
-    double lengthOfGasAB;
-    double lengthOfGasC;
+    double m_innerRadiusOfDeadRegion;
+    double m_outerRadiusOfDeadRegion;
+    double m_lengthOfDeadRegion;
+    double m_positionOfDeadRegionsAB;
+    double m_positionOfDeadRegionC;
 
-    double innerRadiusOfDeadRegion;
-    double outerRadiusOfDeadRegion;
-    double lengthOfDeadRegion;
-    double positionOfDeadRegionsAB;
-    double positionOfDeadRegionC;
+    double m_outerRadiusOfWire;
+    double m_lengthOfWiresAB;
+    double m_lengthOfWireC;
 
-    double outerRadiusOfWire;
-    double lengthOfWiresAB;
-    double lengthOfWireC;
-
-    TRTParameters* pParameters;
+    TRTParameters* m_pParameters;
 
     mutable Athena::MsgStreamMember m_msg;
 

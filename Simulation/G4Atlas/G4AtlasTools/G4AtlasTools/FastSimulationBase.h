@@ -23,7 +23,7 @@
 
 /// @class FastSimulationBase
 /// @todo TODO needs class documentation
-class FastSimulationBase : virtual public IFastSimulation, public AthAlgTool {
+class FastSimulationBase : public extends<AthAlgTool, IFastSimulation> {
  public:
   FastSimulationBase(const std::string& type, const std::string& name,
                      const IInterface *parent);
@@ -39,9 +39,6 @@ class FastSimulationBase : virtual public IFastSimulation, public AthAlgTool {
 
   /** End of an athena event - do any tidying up required at the end of each *athena* event. */
   virtual StatusCode EndOfAthenaEvent() override { return StatusCode::SUCCESS; }
-
-  /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
 
  protected:
   /// Retrieve the current Fast Simulation Model. In MT, this means the

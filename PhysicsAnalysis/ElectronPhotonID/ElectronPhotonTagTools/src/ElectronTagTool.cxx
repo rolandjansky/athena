@@ -24,13 +24,12 @@ Purpose : create a collection of ElectronTag
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "TagEvent/ElectronAttributeNames.h"
 #include "AnalysisUtils/AnalysisMisc.h"
-
+#include "AthContainers/ConstDataVector.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
-
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 #include <sstream>
@@ -51,65 +50,90 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
   m_tight_isolation(""),
   m_gradient_loose_isolation(""),
   m_gradient_isolation(""),
-  m_EgammaCalibrationAndSmearingTool("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool", this) {
+  m_fixedcut_tight_trackonly_isolation(""),
+  m_fixedcut_loose_isolation(""),
+  m_fixedcut_tight_isolation("") {
+  // m_EgammaCalibrationAndSmearingTool("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool", this) {
   
   /** Electron AOD Container Name */
-  declareProperty("Container",     m_containerNames);
-  
+  declareProperty("Container",                 m_containerNames);
+
+  /**Electron MET input container Name */
+  declareProperty("ElectronMETContainerName",  m_electron_met_container_name);
+
   /** selection cut of Pt */
-  declareProperty("EtCut",         m_cut_Et = 7.0*CLHEP::GeV);
+  declareProperty("EtCut",                     m_cut_Et = 7.0*CLHEP::GeV);
 
   /** Etcone Isolation cut values */
-  declareProperty("EtconeIsoCutValues",m_etconeisocutvalues, "Cut values for etcone isolation");
+  declareProperty("EtconeIsoCutValues",        m_etconeisocutvalues, "Cut values for etcone isolation");
  
   /** Ptcone Isolation cut values */
-  declareProperty("PtconeIsoCutValues",m_ptconeisocutvalues, "Cut values for ptcone isolation");
+  declareProperty("PtconeIsoCutValues",        m_ptconeisocutvalues, "Cut values for ptcone isolation");
 
   /** Electron Likelihood ID Tool name */
-  declareProperty("VeryLooseLHSelector",    m_veryloose_likelihood);
-  declareProperty("LooseLHSelector",    m_loose_likelihood);
-  declareProperty("MediumLHSelector",    m_medium_likelihood);
-  declareProperty("TightLHSelector",    m_tight_likelihood);
+  declareProperty("VeryLooseLHSelector",       m_veryloose_likelihood);
+  declareProperty("LooseLHSelector",           m_loose_likelihood);
+  declareProperty("MediumLHSelector",          m_medium_likelihood);
+  declareProperty("TightLHSelector",           m_tight_likelihood);
 
   /** Electron Cut based ID Tool name */
-  declareProperty("ElectronIsEMSelectorLoose",    m_loose_cut_based);
-  declareProperty("ElectronIsEMSelectorMedium",    m_medium_cut_based);
-  declareProperty("ElectronIsEMSelectorTight",    m_tight_cut_based);
+  declareProperty("ElectronIsEMSelectorLoose", m_loose_cut_based);
+  declareProperty("ElectronIsEMSelectorMedium",m_medium_cut_based);
+  declareProperty("ElectronIsEMSelectorTight", m_tight_cut_based);
+
+  /**Photon Ambiguity Tools */
+  declareProperty("IsolationCorrectionTool", m_isolation_correction_tool);
 
   /** Electron Isolation Tool names */
-  declareProperty("LooseTrackOnlyIsolation",m_loose_trackonly_isolation);
-  declareProperty("LooseIsolation",         m_loose_isolation);
-  declareProperty("TightIsolation",         m_tight_isolation);
-  declareProperty("GradientLooseIsolation", m_gradient_loose_isolation);
-  declareProperty("GradientIsolation",      m_gradient_isolation);
+  declareProperty("LooseTrackOnlyIsolation",        m_loose_trackonly_isolation);
+  declareProperty("LooseIsolation",                 m_loose_isolation);
+  declareProperty("TightIsolation",                 m_tight_isolation);
+  declareProperty("GradientLooseIsolation",         m_gradient_loose_isolation);
+  declareProperty("GradientIsolation",              m_gradient_isolation);
+  declareProperty("FixedCutTightTrackOnlyIsolation",m_fixedcut_tight_trackonly_isolation);
+  declareProperty("FixedCutLooseIsolation",         m_fixedcut_loose_isolation);
+  declareProperty("FixedCutTightIsolation",         m_fixedcut_tight_isolation);
+
+  /** key for primary vertex container */
+  declareProperty ("PrimaryVertexKey", m_vxCandidate = "PrimaryVertices");
 
   /** CP tool to calib objects */
-  declareProperty( "EgammaCalibrationAndSmearingTool", m_EgammaCalibrationAndSmearingTool);
+  // declareProperty( "EgammaCalibrationAndSmearingTool", m_EgammaCalibrationAndSmearingTool);
 
   declareInterface<ElectronTagTool>( this );
 }
 
 /** initialization - called once at the beginning */
 StatusCode  ElectronTagTool::initialize() {
+
   ATH_MSG_DEBUG( "in initialize()" );
+
   /** retrieve and check the electron likelihood ID tool*/
   CHECK(m_veryloose_likelihood.retrieve());
   CHECK(m_loose_likelihood.retrieve());
   CHECK(m_medium_likelihood.retrieve());
   CHECK(m_tight_likelihood.retrieve());
+
  /** retrieve and check the electron cut based ID tool*/
   CHECK(m_loose_cut_based.retrieve());
   CHECK(m_medium_cut_based.retrieve());
   CHECK(m_tight_cut_based.retrieve()); 
+
+  /** retrieve and check the gamma ambi tool*/
+  CHECK(m_isolation_correction_tool.retrieve());
+
  /** retrieve and check the electron isolation tool*/
   CHECK(m_loose_trackonly_isolation.retrieve());
   CHECK(m_loose_isolation.retrieve());
   CHECK(m_tight_isolation.retrieve());
   CHECK(m_gradient_loose_isolation.retrieve());
   CHECK(m_gradient_isolation.retrieve());
+  CHECK(m_fixedcut_tight_trackonly_isolation.retrieve());
+  CHECK(m_fixedcut_loose_isolation.retrieve());
+  CHECK(m_fixedcut_tight_isolation.retrieve());
 
   /** retreive and check the calibration tool */
-  CHECK(m_EgammaCalibrationAndSmearingTool.retrieve());
+  // CHECK(m_EgammaCalibrationAndSmearingTool.retrieve());
 
   if (m_etconeisocutvalues.size() > 4) {
     ATH_MSG_FATAL ("More than four etcone values are not permitted");
@@ -173,17 +197,8 @@ StatusCode ElectronTagTool::attributeSpecification(std::map<std::string,AthenaAt
 /** execute - called on every event */
 StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& max) {
 
-
   ATH_MSG_DEBUG( "in execute()" );
-  /** retrieve the  EventInfo container */
-  const xAOD::EventInfo* eventInfo = 0;
-  StatusCode sc = evtStore()->retrieve( eventInfo, "EventInfo");
-  if (sc.isFailure()) {
-     ATH_MSG_WARNING( "No AOD EventInfo container found in SG" );
-     return StatusCode::SUCCESS;
-  }
-  ATH_MSG_DEBUG( "AOD EventInfo container successfully retrieved");
-  
+
   /** initialize a vector of electrons */
   std::vector<const xAOD::Electron*> unique_electrons;
 
@@ -211,11 +226,16 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     for ( xAOD::Electron *shallowCopyElectron : * electronContainerShallowCopy ) {
 
       /** fix calibration using tool */
-      ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyElectron->pt());
-      if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*shallowCopyElectron) != CP::CorrectionCode::Ok){
-          ATH_MSG_WARNING("Cannot calibrate electron");
+      // ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyElectron->pt());
+      // if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*shallowCopyElectron) != CP::CorrectionCode::Ok){
+      //    ATH_MSG_WARNING("Cannot calibrate electron");
+      // }
+      // ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyElectron->pt()); 
+
+      /** apply isolation fix */
+      if (m_isolation_correction_tool->applyCorrection(*shallowCopyElectron) != CP::CorrectionCode::Ok) {
+	ATH_MSG_WARNING("Cannot correct isolation of electron");
       }
-      ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyElectron->pt()); 
 
       const xAOD::IParticleLink originLink( *electronContainer, shallowCopyElectron->index() );
       accSetOriginLink(*shallowCopyElectron) = originLink;
@@ -223,43 +243,39 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     CHECK(evtStore()->setConst(electronContainerShallowCopy ));
     CHECK(evtStore()->setConst(electronAuxContainerShallowCopy ));
 
-    xAOD::ElectronContainer userContainer( SG::VIEW_ELEMENTS );
-    userContainer = *electronContainerShallowCopy;
-    AnalysisUtils::Sort::pT( &userContainer );
-    
-    /** Loop over the container*/
-    
-    xAOD::ElectronContainer::const_iterator elecItr  = userContainer.begin();
-    xAOD::ElectronContainer::const_iterator elecItrE = userContainer.end();
-   
+    /** create an electron container for MET calculation */
+    ConstDataVector< xAOD::ElectronContainer >* selectedElectrons = new ConstDataVector< xAOD::ElectronContainer >( SG::VIEW_ELEMENTS );
+    ATH_CHECK( evtStore()->record( selectedElectrons, m_electron_met_container_name ) );
+
+    /** Loop over the container */
+    xAOD::ElectronContainer::const_iterator elecItr  = electronContainerShallowCopy->begin();
+    xAOD::ElectronContainer::const_iterator elecItrE = electronContainerShallowCopy->end();
     int k=0;
-    
-    for (; elecItr != elecItrE; ++elecItr) { 
+    for (; elecItr != elecItrE; ++elecItr, ++k) { 
       
       ATH_MSG_DEBUG( "Electron " << k << ", pt = " << (*elecItr)->pt() );
-      k++;  
 
       /**Apply loose preselection using the likelihood tool and pT cut*/
-      if (  ! m_loose_likelihood->accept(*elecItr) )continue;      
-      bool select = (*elecItr)->pt()>m_cut_Et;
-      
-      if ( !select )continue; 
+      if ( ! m_loose_likelihood->accept(*elecItr) ) continue;
+      bool select = (*elecItr)->pt()>m_cut_Et;      
+      if ( ! select ) continue; 
       
       /** Fill a vector with selected electrons */
       unique_electrons.push_back(*elecItr);
-      
+      /** Fill the MET input Container with selected electrons*/
+      selectedElectrons->push_back(*elecItr);
     }
   }
   
   /**Sorted electron vector by pT*/ 
   if ( unique_electrons.size() > 1) {
-    ATH_MSG_DEBUG( "sorting electron file" );
+    ATH_MSG_DEBUG( "sorting electrons" );
     AnalysisUtils::Sort::pT( &unique_electrons );
   }      
   
   /**Filling TAG variables*/
-  int i=0;
   std::vector<const xAOD::Electron*>::const_iterator EleItr  = unique_electrons.begin();
+  int i=0;
   for (; EleItr != unique_electrons.end() && i < max; ++EleItr, ++i) {
     
     ATH_MSG_DEBUG( "Electron " << i << ", pt = " << (*EleItr)->pt() );
@@ -285,39 +301,59 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     if ( m_tight_likelihood->accept(*EleItr))       tightness |= (1 << 5);//Likelihood Tight
     if ( m_veryloose_likelihood->accept(*EleItr) )  tightness |= (1 << 8);//Likelihood VeryLoose
 
+    /** get impact parameters of electron */
+    double d0_significance = 0.;
+    double z0_sintheta     = 0.;
+    getElectronImpactParameter (*EleItr, d0_significance, z0_sintheta);
+    /** cut on d0 */
+    if ( fabs(d0_significance)<5.0 ) tightness |= (1 << 6);
+    /** cut on z0 */
+    if ( fabs(z0_sintheta)<0.5 )     tightness |= (1 << 9);
     
-    /** We try to find the link to the primary track and after we retrieve it*/
+    /** Object Quality */
+    bool isGoodOQ = (*EleItr)->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON);
+    if( isGoodOQ )                   tightness |= (1 << 7);
+    
+    /** b-layer cut */
     const ElementLink<xAOD::TrackParticleContainer> &  tp_prime = (*EleItr)->trackParticleLink();
     if(!tp_prime){
       ATH_MSG_DEBUG("found no link to primary track particle");
     } else {
-
       if( tp_prime.isValid() ) {
-	const xAOD::TrackParticle* trk = *tp_prime;
-      
-	/** d0 Significance */
-      
-	Double_t d0_significance = xAOD::TrackingHelpers::d0significance(trk, eventInfo->beamPosSigmaX(), eventInfo->beamPosSigmaY(), eventInfo->beamPosSigmaXY() );
-	if ( fabs(d0_significance)<5.0 )           tightness |= (1 << 6);
+        ATH_MSG_DEBUG("elementLink<TrackParticle> is valid");
+	const xAOD::TrackParticle* tp = *tp_prime;
+
+        // check blayer, if expected                                                                                                                                                            
+        uint8_t nblh   = 0x0;
+        uint8_t eblh   = 0x0;
+        uint8_t nblo   = 0x0;
+        if( !tp->summaryValue(nblh,xAOD::numberOfBLayerHits)){
+          ATH_MSG_WARNING("No nBLayerHits");
+        }
+        if( !tp->summaryValue(nblo,xAOD::numberOfBLayerOutliers)){
+          ATH_MSG_WARNING("No nofBLayerOutliers");
+        }
+        if( !tp->summaryValue(eblh,xAOD::expectBLayerHit) ||
+            (nblh + nblo > 0) )        tightness |= (1 << 10);
       }
     }
-    
-    /** Object Quality */
-    bool isGoodOQ = (*EleItr)->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON);
-    if( isGoodOQ )                             tightness |= (1 << 7);
-    
+
     /**  Using Isolation Tool to fill bit from 4 to 7 with loosetrackonly,loose,gradientloose,gradient*/    
     if(m_loose_trackonly_isolation->accept(**EleItr))tightness |= (1 << 24);
     if(m_loose_isolation->accept(**EleItr))          tightness |= (1 << 25);
     if(m_tight_isolation->accept(**EleItr))          tightness |= (1 << 26);
     if(m_gradient_isolation->accept(**EleItr))       tightness |= (1 << 27);
     if(m_gradient_loose_isolation->accept(**EleItr)) tightness |= (1 << 28);
+    if(m_fixedcut_tight_trackonly_isolation->accept(**EleItr))tightness |= (1 << 29);
+    if(m_fixedcut_loose_isolation->accept(**EleItr))          tightness |= (1 << 30);
+    if(m_fixedcut_tight_isolation->accept(**EleItr))          tightness |= (1 << 31);
 
     eTagColl.insert( m_tightStr[i], tightness ); 
     
 
     unsigned int iso = 0x0;
-    float elEt = (*EleItr)->pt();
+    const float elEt = (*EleItr)->pt();
+    const float inv_elEt = elEt != 0 ? 1. / elEt : 1;
     float etcone=0;
 
     /** now start filling the isolation information */
@@ -331,7 +367,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	/** apply etcone20/pt cuts first */
 	if(m_etconeisocutvalues[j]<1.0) {
 	  float relIso = etcone;
-	  if ( elEt != 0.0 ) relIso = relIso/elEt;
+	  relIso *= inv_elEt;
 	  if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << j;
 	  
 	  /**apply absolute etcone20 cut*/
@@ -349,7 +385,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	/** apply topoetcone20/pt cuts first */
 	if(m_etconeisocutvalues[j]<1.0) {
 	  float relIso = etcone;
-	  if ( elEt != 0.0 ) relIso = relIso/elEt;
+	  relIso *= inv_elEt;
 	  if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << (8+j);
 	  
 	  /**apply absolute topoetcone20 cut*/
@@ -371,7 +407,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	  if ( m_etconeisocutvalues[j] < 1.0 ) 
 	    {
 	      float relIso = etcone;
-	      if ( elEt != 0.0 ) relIso = relIso/elEt;
+	      relIso *= inv_elEt;
 	      if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << (16+j);
 	    }
 	  /**apply absolute topoetcone40 cut*/
@@ -394,7 +430,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	  if ( m_ptconeisocutvalues[j] < 1.0 )
 	    {
 	      float relIso = ptcone;
-	      if ( elEt != 0.0 ) relIso = relIso/elEt;
+	      relIso *= inv_elEt;
 	      if ( relIso < m_ptconeisocutvalues[j] ) iso |= 1 << (24+j);
 	    }
 	  /**apply absolute ptcone20 cut*/
@@ -414,7 +450,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	  if ( m_ptconeisocutvalues[j] < 1.0 )
 	    {
 	      float relIso = ptcone;
-	      if ( elEt != 0.0 ) relIso = relIso/elEt;
+	      relIso *= inv_elEt;
 	      if ( relIso < m_ptconeisocutvalues[j] ) iso |= 1 << (20+j);
 	    }
 	  /**apply absolute ptcone30 cut*/
@@ -434,8 +470,8 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	  if ( m_ptconeisocutvalues[j] < 1.0 ) 
 	    {
 	      float relIso = ptcone;
-	      if ( elEt != 0.0 ) relIso = relIso/elEt;
-	      if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << (28+j);
+	      relIso *= inv_elEt;
+	      if ( relIso < m_ptconeisocutvalues[j] ) iso |= 1 << (28+j);
 	    }
 	   /**apply absolute ptcone40 cut*/
 	  /* ptcone40 are bits 30 and 31 */
@@ -454,7 +490,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	  if ( m_etconeisocutvalues[j] < 1.0 )
 	    {
 	      float relIso = etcone;
-	      if ( elEt != 0.0 ) relIso = relIso/elEt;
+              relIso *= inv_elEt;
 	      if ( relIso < m_etconeisocutvalues[j] ) iso |= 1 << (12+j);
 	    }
 	  /**apply absolute topoetcone30 cut*/
@@ -482,4 +518,58 @@ StatusCode  ElectronTagTool::finalize() {
 /** destructor */
 ElectronTagTool::~ElectronTagTool() {}
 
+/** private function to get impact parameter */
+void ElectronTagTool::getElectronImpactParameter (const xAOD::Electron* elec, double& d0_significance, double& z0_sintheta) {
 
+  /** let's initialize to 0 the impact parameters*/
+  d0_significance = 0.;
+  z0_sintheta     = 0.;
+
+  StatusCode sc;
+
+  /** retrieve the  EventInfo container for Beam Spot */
+  const xAOD::EventInfo* eventInfo = 0;
+  sc = evtStore()->retrieve( eventInfo, "EventInfo");
+  if (sc.isFailure()) {
+     ATH_MSG_WARNING( "No AOD EventInfo container found in SG, return 0 impact paramters." );
+     return;
+  }
+  
+  /** get vertex container, we assume the first vertex is the primary by convention */
+  const xAOD::VertexContainer* vxContainer=0;
+  sc = evtStore()->retrieve(vxContainer, m_vxCandidate);
+  if (sc.isFailure() || !vxContainer) {
+    ATH_MSG_DEBUG ("Could not retrieve primary vertex info: " << m_vxCandidate <<", return 0 impact parameter.");
+    return;
+  }
+  if (vxContainer->size()<1) {
+    ATH_MSG_DEBUG ("No primary vertices reconstructed, return 0 impact parameters.");
+    return;
+  }
+  xAOD::VertexContainer::const_iterator vxI = vxContainer->begin();
+  if ((*vxI)->vertexType() != xAOD::VxType::PriVtx) {
+    ATH_MSG_DEBUG ("---> no primary vertex reconstructed, return 0 impact parameters.");
+    return;
+  }
+  ATH_MSG_DEBUG ("---> vertex at (x/y/z) = " << (*vxI)->x() << " / " << (*vxI)->y() << " / " << (*vxI)->z() );
+  
+  /** We try to find the link to the primary track and after we retrieve it*/
+  const ElementLink<xAOD::TrackParticleContainer> &  tp_prime = elec->trackParticleLink();
+  if(!tp_prime){
+    ATH_MSG_DEBUG("found no link to primary track particle");
+  } else {
+    if( tp_prime.isValid() ) {
+      const xAOD::TrackParticle* trk = *tp_prime;
+      
+      /** d0 Significance w.r.t. Beam Spot covariance as recommended (even if it makes little sense) */
+      d0_significance = xAOD::TrackingHelpers::d0significance(trk,
+							      eventInfo->beamPosSigmaX(),
+							      eventInfo->beamPosSigmaY(),
+							      eventInfo->beamPosSigmaXY()); 
+      /** z0_sintheta is an approximation, just do the diff */
+      double delta_z0 = fabs(trk->z0() + trk->vz() - (*vxI)->z());
+      z0_sintheta = delta_z0/sin(sin(trk->theta()));
+    }
+  }
+}
+    

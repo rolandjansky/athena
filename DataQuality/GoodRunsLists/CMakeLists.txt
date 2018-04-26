@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 754313 2016-06-12 10:28:19Z will $
+# $Id: CMakeLists.txt 777875 2016-10-11 17:17:13Z krasznaa $
 ################################################################################
 # Package: GoodRunsLists
 ################################################################################
@@ -12,6 +12,7 @@ if( XAOD_STANDALONE )
       PUBLIC
       Control/AthToolSupport/AsgTools
       Event/xAOD/xAODEventInfo
+      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
       PRIVATE
       Tools/PathResolver )
 else()
@@ -21,6 +22,7 @@ else()
       Control/AthenaBaseComps
       Control/AthenaKernel
       Event/xAOD/xAODEventInfo
+      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
       GaudiKernel
       PRIVATE
       Control/StoreGate
@@ -47,7 +49,7 @@ atlas_add_library( GoodRunsListsLib
    PUBLIC_HEADERS GoodRunsLists
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${LIBXML2_INCLUDE_DIR}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo AsgAnalysisInterfaces
    PRIVATE_LINK_LIBRARIES ${LIBXML2_LIBRARIES} PathResolver )
 
 if( NOT XAOD_STANDALONE )

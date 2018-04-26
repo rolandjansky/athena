@@ -21,6 +21,7 @@ class LArFCAL_ID;
 class LArHEC_ID;
 class LArMiniFCAL_ID;
 class CaloDM_ID;
+class AtlasDetectorID;
 
 class ILArCalibCalculatorSvc; 
 
@@ -47,7 +48,7 @@ public:
   G4bool ProcessHits(G4Step* a_step,G4TouchableHistory*) override;
 
   /// End of athena event processing
-  void EndOfAthenaEvent( CaloCalibrationHitContainer* hitContainer );
+  void EndOfAthenaEvent( CaloCalibrationHitContainer* hitContainer, CaloCalibrationHitContainer* deadHitContainer=nullptr );
 
   /// Sets the ID helper pointers
   void setupHelpers( const LArEM_ID* EM ,
@@ -62,24 +63,12 @@ public:
     m_caloDmID = caloDm;
   }
 
+  void addDetectorHelper( const AtlasDetectorID* id_helper) { m_id_helper=id_helper; }
+
   /// For other classes that need to call into us...
   G4bool SpecialHit(G4Step* a_step, const std::vector<G4double>& a_energies);
 
 protected:
-
-  /// Constructs the calibration hit and saves it to the set
-  G4bool SimpleHit( const LArG4Identifier& a_ident, const std::vector<double>& energies );
-
-protected:
-
-  /// Member variable - the calculator we'll use
-  ILArCalibCalculatorSvc * m_calculator;
-
-  /// Count the number of invalid hits.
-  G4int m_numberInvalidHits;
-
-  /// Are we set up to run with PID hits?
-  G4bool m_doPID;
 
   // We need two types containers for hits:
 
@@ -97,9 +86,23 @@ protected:
   };
 
   typedef std::set< CaloCalibrationHit*, LessHit >  m_calibrationHits_t;
+  /// Constructs the calibration hit and saves it to the set
+  G4bool SimpleHit( const LArG4Identifier& a_ident, const std::vector<double>& energies, m_calibrationHits_t& calibrationHits );
+
+  /// Member variable - the calculator we'll use
+  ILArCalibCalculatorSvc * m_calculator;
+
+  /// Count the number of invalid hits.
+  G4int m_numberInvalidHits;
+
+  /// Are we set up to run with PID hits?
+  G4bool m_doPID;
 
   /// The actual set of calibration hits
   m_calibrationHits_t m_calibrationHits;
+
+  /// The actual set of dead material calibration hits
+  m_calibrationHits_t m_deadCalibrationHits;
 
   /// Helper function for making "real" identifiers from LArG4Identifiers
   Identifier ConvertID(const LArG4Identifier& a_ident) const;
@@ -110,6 +113,7 @@ protected:
   const LArHEC_ID*      m_larHecID;
   const LArMiniFCAL_ID* m_larMiniFcalID;
   const CaloDM_ID*      m_caloDmID;
+  const AtlasDetectorID* m_id_helper;
 };
 
 #endif

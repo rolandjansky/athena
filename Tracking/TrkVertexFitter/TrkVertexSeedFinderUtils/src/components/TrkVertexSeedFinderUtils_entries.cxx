@@ -9,33 +9,20 @@
 #include "TrkVertexSeedFinderUtils/LocalMax1DClusterFinder.h"
 #include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
 #include "TrkVertexSeedFinderUtils/ImagingSeedTuningAlg.h"
+#include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
+#include "../GaussianDensityTestAlg.h"
 
 using namespace Trk ;
 
-DECLARE_TOOL_FACTORY( Trk2dDistanceSeeder )
-DECLARE_TOOL_FACTORY( NewtonTrkDistanceFinder )
-DECLARE_TOOL_FACTORY( Mode3dTo1dFinder )
-DECLARE_TOOL_FACTORY( SeedNewtonTrkDistanceFinder )
-DECLARE_TOOL_FACTORY( FsmwMode1dFinder )
-DECLARE_TOOL_FACTORY( Trk2DDistanceFinder )
-DECLARE_TOOL_FACTORY( SimpleVertexClusterFinder )
-DECLARE_TOOL_FACTORY( LocalMax1DClusterFinder )
-DECLARE_TOOL_FACTORY( VertexImageMaker )
-DECLARE_ALGORITHM_FACTORY( ImagingSeedTuningAlg )
-
-/** factory entries need to have the name of the package */
-
-DECLARE_FACTORY_ENTRIES( TrkVertexSeedFinderUtils )
-{
-  DECLARE_ALGORITHM( ImagingSeedTuningAlg );
-
-  DECLARE_TOOL( Trk2dDistanceSeeder );
-  DECLARE_TOOL( NewtonTrkDistanceFinder );
-  DECLARE_TOOL( Mode3dTo1dFinder );
-  DECLARE_TOOL( SeedNewtonTrkDistanceFinder );
-  DECLARE_TOOL( FsmwMode1dFinder );
-  DECLARE_TOOL( Trk2DDistanceFinderpwd );
-  DECLARE_TOOL( SimpleVertexClusterFinder );
-  DECLARE_TOOL( LocalMax1DClusterFinder );
-  DECLARE_TOOL( VertexImageMaker );
-}
+DECLARE_COMPONENT( Trk2dDistanceSeeder )
+DECLARE_COMPONENT( NewtonTrkDistanceFinder )
+DECLARE_COMPONENT( Mode3dTo1dFinder )
+DECLARE_COMPONENT( SeedNewtonTrkDistanceFinder )
+DECLARE_COMPONENT( FsmwMode1dFinder )
+DECLARE_COMPONENT( Trk2DDistanceFinder )
+DECLARE_COMPONENT( SimpleVertexClusterFinder )
+DECLARE_COMPONENT( LocalMax1DClusterFinder )
+DECLARE_COMPONENT( VertexImageMaker )
+DECLARE_COMPONENT( ImagingSeedTuningAlg )
+DECLARE_COMPONENT( GaussianTrackDensity )
+DECLARE_COMPONENT( GaussianDensityTestAlg )

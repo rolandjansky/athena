@@ -58,7 +58,8 @@ private:
   int m_chi2cut;
   int m_chi2cut_maj;
   int m_chi2cut_vetmaj;
-  int m_chi2dofcut;
+  int m_chi2dofcutAux;
+  int m_chi2dofcutSSB;
 
   bool m_doAuxFW;
  

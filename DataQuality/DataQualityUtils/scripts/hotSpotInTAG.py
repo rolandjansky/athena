@@ -282,3 +282,5 @@ if (not args.noplot):
     
 if ("Tau" in objectType):     
   print 'WARNING : in recent TAGs, the TauJet were not filled - A double check is welcome: tree.Draw(\"TauJetEta1\")'
+
+raw_input("I am done...")

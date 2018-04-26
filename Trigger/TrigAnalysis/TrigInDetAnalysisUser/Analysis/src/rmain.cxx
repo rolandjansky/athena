@@ -21,6 +21,7 @@
 
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "TrigInDetAnalysisUtils/Filters.h"
+#include "TrigInDetAnalysisUtils/Filter_Offline2017.h"
 #include "TrigInDetAnalysisExample/NtupleTrackSelector.h"
 #include "TrigInDetAnalysisExample/ChainString.h"
 #include "TrigInDetAnalysisUtils/Associator_TruthMatch.h"
@@ -178,6 +179,56 @@ std::ostream& operator<<(std::ostream& s, const std::vector<T>& v ) {
   if ( v.size()<5 ) for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\t" << v[i];
   else              for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\n\t" << v[i];
   return s;
+}
+
+
+const std::vector<TIDA::Track> ibl_filter( const std::vector<TIDA::Track>& tv ) { 
+
+  static TH2D* h  = 0;
+  static TH2D* h2 = 0;
+
+  static int ic = 0;
+
+
+  if ( h==0 ) { 
+    h  = new TH2D( "hzvphi",  "hzvphi", 150, -300, 300, 150, -M_PI, M_PI ); 
+    h2 = new TH2D( "hzvphi2", "hzvphi", 150, -300, 300, 150, -M_PI, M_PI ); 
+  }
+
+  for ( size_t i=tv.size() ; i-- ; ) { 
+    
+    if ( tv[i].author()!=5 ) break;
+
+    double eta = tv[i].eta();
+      
+    double theta = 2*std::atan(-std::exp(eta));
+
+    double ribl = 34.2; // actually 32.26 - 36.21 mm
+
+    double z = tv[i].z0() + ribl/std::tan(theta);
+
+    if ( !tv[i].expectBL() ) { 
+      std::cout << "missing IBL: phi: " << tv[i].phi() << "\tz: " << z << " (" << eta << " " << theta*180/3.14159 << ")" << std::endl; 
+      if ( h ) h->Fill( z, tv[i].phi() );
+    }
+    else { 
+      if ( h2 ) h2->Fill( z, tv[i].phi() );
+    }
+  }
+
+  if ( ic>=500 ) { 
+    ic = 0;
+    if ( h ) { 
+      h->DrawCopy();
+      gPad->Print("zphimap.pdf");
+      h2->DrawCopy();
+      gPad->Print("zphimap2.pdf");
+    }
+  }
+
+  ic++;
+
+  return tv;
 }
 
 
@@ -440,6 +491,7 @@ int main(int argc, char** argv)
 
   double Rmatch = 0.1;
 
+  int ntracks = 0;
 
   //bool printflag = false;  // JK removed (unused)
 
@@ -482,6 +534,11 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("expectBL") ) expectBL = ( inputdata.GetValue("expectBL") > 0.5 ? true : false );
   if ( inputdata.isTagDefined("nsct") )     nsct     = inputdata.GetValue("nsct");
   if ( inputdata.isTagDefined("nbl") )      nbl      = inputdata.GetValue("nbl");
+  if ( inputdata.isTagDefined("chi2prob") ) chi2prob = inputdata.GetValue("chi2prob");
+
+  if ( inputdata.isTagDefined("ntracks") )  ntracks  = inputdata.GetValue("ntracks")+0.5; // rounding necessary ?
+
+
   if ( inputdata.isTagDefined("chi2prob") ) chi2prob = inputdata.GetValue("chi2prob");
 
   /// only if not set from the command line
@@ -835,7 +892,7 @@ int main(int argc, char** argv)
   Filter_Author    filter_auth(author);
 
   Filter_TrackQuality filter_q(0.01);  
-  Filter_Combined   filter_off (&filter_offline, &filter_vertex);
+  Filter_Combined   filter_off(&filter_offline, &filter_vertex);
 
   Filter_Combined  filter_truth( &filter_pdgtruth, &filter_etaPT);
 
@@ -849,21 +906,42 @@ int main(int argc, char** argv)
   Filter_Combined   filter_offtight( &filter_offkinetight, &filter_inout ); 
 
 
+
+  Filter_Offline2017* filter_offline2017 = 0;
+  Filter_Combined*    filter_off2017     = 0;
   /// track selectors so we can select multiple times with different 
   /// filters if we want (simpler then looping over vectors each time 
 
   TrackFilter* refFilter;
   TrackFilter* truthFilter;
-  if      ( refChain=="Offline" )            refFilter = &filter_off;
-  else if ( contains(refChain,"Electrons") ) refFilter = &filter_off;
-  else if ( contains( refChain, "Muons" ) )  refFilter = &filter_muon;
-  else if ( contains( refChain,"1Prong" ) )  refFilter = &filter_off;  // tau ref chains
-  else if ( contains( refChain,"3Prong" ) )  refFilter = &filter_off;  // tau ref chains
-  else if ( refChain=="Truth" && pdgId!=0 )  refFilter = &filter_truth;
-  else if ( refChain=="Truth" && pdgId==0 )  refFilter = &filter_off;
+
+
+  if ( inputdata.isTagDefined("Filter" ) ) { 
+    ChainString filter = inputdata.GetString("Filter");
+    std::cout << "Filter: " << inputdata.GetString("Filter") << " : " << filter << std::endl;
+    if ( filter.head()=="Offline2017" ) {
+      std::string filter_type = filter.tail();
+      filter_offline2017 = new Filter_Offline2017( pT, filter_type ); 
+      filter_off2017     = new Filter_Combined ( filter_offline2017, &filter_vertex);
+      refFilter = filter_off2017;
+    }
+    else { 
+      std::cerr << "unimplemented Filter requested: " << filter.head() << std::endl; 
+      return -1; 
+    }
+  }
   else { 
-    std::cerr << "unknown reference chain defined" << std::endl;
-    return (-1);
+    if      ( refChain=="Offline" )             refFilter = &filter_off;
+    else if ( contains( refChain,"Electrons") ) refFilter = &filter_off;
+    else if ( contains( refChain, "Muons" ) )   refFilter = &filter_muon;
+    else if ( contains( refChain,"1Prong" ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( contains( refChain,"3Prong" ) )   refFilter = &filter_off;  // tau ref chains
+    else if ( refChain=="Truth" && pdgId!=0 )   refFilter = &filter_truth;
+    else if ( refChain=="Truth" && pdgId==0 )   refFilter = &filter_off;
+    else { 
+      std::cerr << "unknown reference chain defined" << std::endl;
+      return (-1);
+    }
   }
 
   if (pdgId==0) truthFilter = &filter_off;
@@ -977,14 +1055,23 @@ int main(int argc, char** argv)
 
   /// track selectors for efficiencies
 
-  bool fullyContainTracks = true;
+  bool fullyContainTracks = false;
 
   if ( inputdata.isTagDefined("FullyContainTracks") ) { 
     fullyContainTracks = ( inputdata.GetValue("FullyContainTracks")==0 ? false : true ); 
   }
 
-  dynamic_cast<Filter_Combined*>(refFilter)->setDebug(debugPrintout);
-  dynamic_cast<Filter_Combined*>(refFilter)->containtracks(fullyContainTracks);
+  bool containTracksPhi = true;
+
+  if ( inputdata.isTagDefined("ContainTracksPhi") ) { 
+    containTracksPhi = ( inputdata.GetValue("ContainTracksPhi")==0 ? false : true ); 
+  }
+
+  if ( dynamic_cast<Filter_Combined*>(refFilter) ) { 
+    dynamic_cast<Filter_Combined*>(refFilter)->setDebug(debugPrintout);
+    dynamic_cast<Filter_Combined*>(refFilter)->containtracks(fullyContainTracks);
+    dynamic_cast<Filter_Combined*>(refFilter)->containtracksPhi(containTracksPhi);
+  }    
 
   NtupleTrackSelector  refTracks( refFilter );
   NtupleTrackSelector  offTracks( testFilter );
@@ -997,7 +1084,6 @@ int main(int argc, char** argv)
   //    NtupleTrackSelector  refTracks(  &filter_pdgtruth);
   //    NtupleTrackSelector  testTracks( &filter_off );
   //    NtupleTrackSelector testTracks(&filter_roi);
-
 
   /// do we want to filter the RoIs ? 
 
@@ -1082,13 +1168,10 @@ int main(int argc, char** argv)
   }
   
 
-  //NtupleTrackSelector  roiTracks( refFilter );
+  // NtupleTrackSelector  roiTracks( refFilter );
 
 
   /// track selectors for purities
-
-  //  NtupleTrackSelector  refPurityTracks( &filter_offtight );
-  //  NtupleTrackSelector  testPurityTracks( &filter_online );
 
   NtupleTrackSelector  refPurityTracks( &filter_inout );
   NtupleTrackSelector  testPurityTracks( &filter_online );
@@ -1465,6 +1548,10 @@ int main(int argc, char** argv)
       for ( unsigned iv=0 ; iv<mv.size() ; iv++ ) vertices.push_back( mv[iv] );
     }
     
+    
+    //    if ( vertices.size()>0 ) std::cout << "vertex " << vertices[0] << std::endl;
+    //    else                     std::cout << "NO vertex !!!" << std::endl;
+
     /// always push back the vector - if required there will be only one vertex on it
     filter_vertex.setVertex( vertices );
 
@@ -1501,6 +1588,7 @@ int main(int argc, char** argv)
 	refchain = &chains[ic];
      	foundReference = true;
 	//Get tracks from within reference roi
+        //        ibl_filter( chains[ic].rois()[0].tracks() ); 
 	refTracks.selectTracks( chains[ic].rois()[0].tracks() );
 	break;
       }
@@ -1554,16 +1642,6 @@ int main(int argc, char** argv)
 
 	/// do we want to filter on the RoI properties? 
 	/// If so, if the RoI fails the cuts, then skip this roi
-
-
-	// 	std::cout << "\nfilterRoi: " << filterRoi << "\t" << chain.name() << std::endl;
-	// 	if ( filterRoi ) { 
-	// 	  bool keeproi = roiFilter.filter( roi );
-	// 	  std::cout << "\t\t" << roiFilter << std::endl;
-	// 	  std::cout << "\t\t" << roi << std::endl; 
-	// 	  std::cout << "\tkeep roi:\t" << keeproi << std::endl;
-	// 	  if ( !keeproi ) continue; 
-	// 	}
 
 	if ( filterRoi && !roiFilter.filter( roi ) ) continue; 
 	
@@ -1648,7 +1726,7 @@ int main(int argc, char** argv)
 	}
 	
 	testTracks.clear();
-	
+
 	testTracks.selectTracks( troi.tracks() );
 	
 	/// trigger tracks already restricted by roi - so no roi filtering required 
@@ -1804,7 +1882,7 @@ int main(int argc, char** argv)
 	    for (unsigned itr=0; itr<refp.size(); itr++){
 	      TIDA::Track* tr = refp[itr];
 	      double theta_     = 2*std::atan(std::exp(-tr->eta())); 
-	      double dzsintheta = std::fabs(vx.z()-tr->z0()) * std::sin(theta_);
+	      double dzsintheta = std::fabs( (vx.z()-tr->z0()) * std::sin(theta_) );
 	      if( dzsintheta < 1.5 ) trackcount++;
 	    }
 
@@ -1839,7 +1917,10 @@ int main(int argc, char** argv)
 	ConfVtxAnalysis* vtxanal = 0;
 	analitr->second->store().find( vtxanal, "rvtx" );
 
-	if ( vtxanal ) {	  
+	/// NB: because ntracks = 0 by default, this second clause should 
+	///     always be true unless ntracks has been set to some value
+	if ( vtxanal && ( refp.size() >= size_t(ntracks) ) ) {	  
+
 	  /// AAAAAARGH!!! because you cannot cast vector<T> to const vector<const T>
 	  ///  we first need to copy the actual elements from the const vector, to a normal
 	  ///  vector. This is because if we take the address of elements of a const vector<T>

@@ -73,6 +73,7 @@
    nNextToInnerMostLayerOutliers 	: next to the inner most 
    expectNextToInnerMostLayer 	: next to the inner most 
    convBit 		: el_isEM & (0x1 << egammaPID::ConversionMatch_Electron)
+   ambiguityBit 	: cut on the ambiguity type
    ip 		: Count number of vertices in vxp_n with >= 2 tracks in vxp_trk_n
 
    Created:
@@ -107,17 +108,11 @@ namespace LikeEnum {
     double likelihood;
     double eta;
     double eT;
-    int nSi;
-    int nSiDeadSensors;
-    int nPix;
-    int nPixDeadSensors;
-    int nBlayer;
-    int nBlayerOutliers;
-    bool expectBlayer;
-    int nNextToInnerMostLayer;
-    int nNextToInnerMostLayerOutliers;
-    bool expectNextToInnerMostLayer;
+    int nSiHitsPlusDeadSensors;
+    int nPixHitsPlusDeadSensors;
+    bool passBLayerRequirement;
     int convBit;
+    uint8_t ambiguityBit;
     double d0;
     double deltaEta;
     double deltaphires;
@@ -190,10 +185,9 @@ namespace Root {
     const Root::TAccept& accept(LikeEnum::LHAcceptVars_t& vars_struct) const;
     const Root::TAccept& accept( double likelihood,
                                  double eta, double eT,
-                                 int nSi,int nSiDeadSensors, int nPix, int nPixDeadSensors,
-                                 int nBlayer, int nBlayerOutliers, bool expectBlayer,
-				 int nNextToInnerMostLayer, int nNextToInnerMostLayerOutliers, bool expectNextToInnerMostLayer,
-                                 int convBit, double d0, double deltaEta, double deltaphires, 
+                                 int nSiHitsPlusDeadSensors, int nPixHitsPlusDeadSensors,
+                                 bool passBLayerRequirement,
+                                 int convBit, uint8_t ambiguityBit, double d0, double deltaEta, double deltaphires, 
                                  double wstot, double EoverP, double ip ) const;
     const Root::TResult& calculate(LikeEnum::LHCalcVars_t& vars_struct) const ;
     const Root::TResult& calculate( double eta, double eT,double f3, double rHad, double rHad1,
@@ -264,6 +258,8 @@ namespace Root {
     std::vector<double> CutDeltaPhiRes;
     /** @brief do cut on conversion bit*/
     bool doCutConversion;
+    /** @brief do cut on ambiguity bit*/
+    std::vector<int> CutAmbiguity;
     /** @brief do remove f3 variable from likelihood at high Et (>80 GeV)*/
     bool doRemoveF3AtHighEt;
     /** @brief do remove TRTPID variable from likelihood at high Et (>80 GeV)*/
@@ -330,7 +326,7 @@ namespace Root {
     unsigned int getLikelihoodEtHistBin(double eT) const ;
     
     /// Fine Et binning. Used for the likelihood discriminant cuts.
-    unsigned int getLikelihoodEtDiscBin(double eT, const bool isLHbinning) const;
+    unsigned int getLikelihoodEtDiscBin(double eT , const bool isLHbinning) const;
 
 
     // Private member variables
@@ -365,6 +361,9 @@ namespace Root {
 
     /// The position of the conversion cut bit in the TAccept return object
     int m_cutPosition_conversion;
+
+    /// The position of the ambiguity cut bit in the TAccept return object
+    int m_cutPosition_ambiguity;
 
     /// The position of the likelihood cut bit in the TAccept return object
     int m_cutPosition_LH;

@@ -191,49 +191,28 @@ StatusCode egammaMVATool::hltexecute(xAOD::CaloCluster* cluster, const std::stri
   return StatusCode::SUCCESS;
 }
 
-float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const std::string& egType){
-
-  // Check for errors...
-  if ( !cluster ){
-    ATH_MSG_WARNING("no xAOD::CaloCluster object provided");
+float egammaMVATool::getEnergy(const xAOD::Egamma* eg){
+  if (!eg){
+    ATH_MSG_WARNING("no xAOD::Egamma object provided");
     return 0;
   }
-
-
-  if (egType == "Electron") {
-    ATH_MSG_DEBUG("Processing for HLT electron");
-    m_MVATreeElectron->update(nullptr, cluster);
-    return m_mvaElectron->getMVAEnergy();
-  }
-  else if(egType == "Photon"){
-    ATH_MSG_DEBUG("Processing for HLT photon");
-    m_MVATreePhoton->update(nullptr, cluster);
-    return m_mvaPhoton->getMVAEnergy();
-  }
-  else {
-    ATH_MSG_WARNING("Unknown particle type");
-  }
-  return 0;
-  
-
+  return getEnergy(eg->caloCluster(),eg);
 }
 
-float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Egamma* eg){
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, 
+			       const xAOD::Egamma* eg){
   ATH_MSG_DEBUG("In execute...");
-
   // Check for errors...
   if ( !eg ){
     ATH_MSG_WARNING("no xAOD::Egamma object provided");
     return 0;
   }
-
   if( eg->type() == xAOD::Type::Electron  ){
-    ATH_MSG_DEBUG("Processing for electron...");
+    ATH_MSG_DEBUG("Processing for electron");
     return getEnergy(cluster, static_cast<const xAOD::Electron*>(eg));
   }
   else if (eg->type() == xAOD::Type::Photon ){
-    ATH_MSG_DEBUG("Processing for photon...");
-
+    ATH_MSG_DEBUG("Processing for photon");
     // this is because topo seeded electron (author == 128) have cluster in
     // another collection, which is not decorated with etaCalo, m_cl_phiCalo
     // needed by the MVA calibration
@@ -245,11 +224,43 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Ega
   else{
     ATH_MSG_INFO("Unknown Type");
   }
-
   return 0;
 }
 
-float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Electron* el){
+
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, 
+			       const std::string& egType){
+  // Check for errors...
+  if ( !cluster ){
+    ATH_MSG_WARNING("no xAOD::CaloCluster object provided");
+    return 0;
+  }
+  if (egType == "Electron") {
+    ATH_MSG_DEBUG("Processing  for type electron");
+    m_MVATreeElectron->update(nullptr, cluster);
+    return m_mvaElectron->getMVAEnergy();
+  }
+  else if(egType == "Photon"){
+    ATH_MSG_DEBUG("Processing for type photon");
+    m_MVATreePhoton->update(nullptr, cluster);
+    return m_mvaPhoton->getMVAEnergy();
+  }
+  else {
+    ATH_MSG_WARNING("Unknown particle type");
+  }
+  return 0;
+}
+
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, 
+			       const xAOD::EgammaParameters::EgammaType egType){
+  return  ( (egType==xAOD::EgammaParameters::electron) ?  
+	   getEnergy(cluster, "Electron") : 
+	   getEnergy(cluster, "Photon"));
+}
+
+
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, 
+			       const xAOD::Electron* el){
   if(!el){
     ATH_MSG_ERROR("No electron passed");
     return 0;
@@ -259,17 +270,14 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Ele
   return m_mvaElectron->getMVAEnergy();
 }
 
-float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Photon* ph){
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, 
+			       const xAOD::Photon* ph){
   if(!ph){
     ATH_MSG_ERROR("No photon passed");
     return 0;
   }
-
   ATH_MSG_DEBUG("updating variables photon");
   m_MVATreePhoton->update(ph, cluster);
   return m_mvaPhoton->getMVAEnergy();
 }
 
-float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::EgammaParameters::EgammaType egType){
-  return  ( (egType==xAOD::EgammaParameters::electron) ?  getEnergy(cluster, "Electron") : getEnergy(cluster, "Photon") );
-}

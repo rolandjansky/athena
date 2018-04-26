@@ -1,73 +1,171 @@
 #!/bin/bash
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 # NOTE do NOT run with /bin/bash -x as the output is too big for gitlab-ci
-# arguments: [options] SUBMIT_DIRECTORY SCRIPT_DIRECTORY PACKAGE SEQUENCE_TAG NUMBER_OF_TESTS NIGHTLY_RELEASE PROJECT PLATFORM NIGHTLY_TAG
+#
+# Example command lines for three types:
+#
+# art-task-grid.sh [--no-action] batch <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_type> <number_of_tests>
+#
+# art-task-grid.sh [--no-action] single [--inds <input_file> --n-files <number_of_files> --split <split>] <submit_directory> <script_directory> <sequence_tag> <package> <outfile> <job_name>
+#
 # env: ART_GRID_OPTIONS
 #
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>
 #
-# example: [--skip-setup] tmp /cvmfs/atlas-nightlies.cern.ch/sw/... Tier0ChainTests grid 316236 32 21.0 Athena x86_64-slc6-gcc62-opt 2017-02-26T2119
-#set -e
+# options have to be in-order, and at the correct place
+#
+# example: [--test-name TestName --inDS user.tcuhadar.SingleMuon... --nFiles 3 --in] tmp /cvmfs/atlas-nightlies.cern.ch/sw/... Tier0ChainTests grid 316236 3  user.${USER}.atlas.${NIGHTLY_RELEASE_SHORT}.${PROJECT}.${PLATFORM}.${NIGHTLY_TAG}.${SEQUENCE_TAG}.${PACKAGE}[.${TEST_NUMBER}]
+set -e
 
-echo "Script executed by $(whoami) on $(date)"
+echo "art-task-grid.sh executed by $(whoami) on $(date)"
 
-SKIP_SETUP=0
-if [ $1 == "--skip-setup" ]; then
-  SKIP_SETUP=1
-  shift
+NO_ACTION=0
+if [ "$1" == "--no-action" ]; then
+    NO_ACTION=1
+    shift
+    echo "NO_ACTION=${NO_ACTION}"
 fi
-SUBMIT_DIRECTORY=$1
-shift
-SCRIPT_DIRECTORY=$1
-shift
-PACKAGE=$1
-shift
+
 TYPE=$1
 shift
+echo "TYPE=${TYPE}"
+
+case ${TYPE} in
+
+    'batch')
+        echo "Running 'batch'"
+        SPLIT=""
+        ;;
+    'single')
+        echo "Running 'single'"
+        INDS=""
+        if [ "$1" == "--inds" ]; then
+            INDS="--inDS $2"
+            shift
+            shift
+        fi
+        NFILES=""
+        NFILES_PER_JOB=""
+        if [ "$1" == "--n-files" ]; then
+            NFILES="--nFiles $2"
+            NFILES_PER_JOB="--nFilesPerJob $2"
+            shift
+            shift
+        fi
+        SPLIT=""
+        LARGE_JOB="--long --memory 4096"
+        if [ "$1" == "--split" ]; then
+            SPLIT="--split $2"
+            NFILES_PER_JOB=""
+            LARGE_JOB=""
+            shift
+            shift
+        fi
+        IN_FILE=""
+        if [ "$1" == "--in" ]; then
+          IN_FILE="--in=%IN"
+          shift
+        fi
+        NCORES=""
+        if [ "$1" == "--ncore" ]; then
+            NCORES="--nCore $2"
+            NFILES_PER_JOB=""
+            shift
+            shift
+        fi
+        ;;
+    *)
+        echo "Unknown TYPE: ${TYPE}"
+        exit 1
+        ;;
+esac
+
+SUBMIT_DIRECTORY=$1
+shift
+echo "SUBMIT_DIRECTORY=${SUBMIT_DIRECTORY}"
+
+SCRIPT_DIRECTORY=$1
+shift
+echo "SCRIPT_DIRECTORY=${SCRIPT_DIRECTORY}"
+
 SEQUENCE_TAG=$1
 shift
-NUMBER_OF_TESTS=$1
+echo "SEQUENCE_TAG=${SEQUENCE_TAG}"
+
+PACKAGE=$1
 shift
-NIGHTLY_RELEASE=$1
+echo "PACKAGE=${PACKAGE}"
+
+OUTFILE=$1
 shift
-PROJECT=$1
-shift
-PLATFORM=$1
-shift
-NIGHTLY_TAG=$1
-shift
+echo "OUTFILE=${OUTFILE}"
+
+case ${TYPE} in
+
+    'batch')
+        JOB_TYPE=$1
+        shift
+        echo "JOB_TYPE=${JOB_TYPE}"
+
+        NUMBER_OF_TESTS=$1
+        SPLIT="--split ${NUMBER_OF_TESTS}"
+        shift
+        echo "NUMBER_OF_TESTS=${NUMBER_OF_TESTS}"
+        echo "SPLIT=${SPLIT}"
+        ;;
+
+    'single')
+        JOB_NAME=$1
+        shift
+        echo "JOB_NAME=${JOB_NAME}"
+        ;;
+esac
+
+# general options
+PATHENA_OPTIONS="--destSE=CERN-PROD_SCRATCHDISK"
+OUT="%OUT.tar"
 
 # we seem to have to copy the env variables locally
 GRID_OPTIONS=$ART_GRID_OPTIONS
+echo "GRID_OPTIONS=${GRID_OPTIONS}"
 
-# change -VAL-Prod and others into -VAL
-NIGHTLY_RELEASE_SHORT=${NIGHTLY_RELEASE/-VAL-*/-VAL}
 
-if [ ${SKIP_SETUP} -eq 0 ]; then
-    echo "Setting up release: ${PLATFORM} ${NIGHTLY_RELEASE_SHORT} ${NIGHTLY_TAG} ${PROJECT}"
-    USER=artprod
+case ${TYPE} in
 
-    export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-    source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh
+    'batch')
+        # <script_directory> <sequence_tag> <package> <outfile> <job_type> <job_index>
+        INTERNAL_COMMAND="grid batch"
+        JOB_INDEX="%RNDM:0"
+        ARGS="${JOB_TYPE} ${JOB_INDEX}"
+        echo "JOB_INDEX=${JOB_INDEX}"
+        echo "ARGS=${ARGS}"
+        ;;
+    'single')
+        # <script_directory> <sequence_tag> <package> <outfile> <job_name>
+        INTERNAL_COMMAND="grid single"
+        PATHENA_TYPE_OPTIONS="${LARGE_JOB} ${INDS} ${NFILES} ${NFILES_PER_JOB} ${NCORES}"
+        ARGS="${JOB_NAME}"
+        echo "PATHENA_TYPE_OPTIONS=${PATHENA_TYPE_OPTIONS}"
+        echo "ARGS=${ARGS}"
+        ;;
+esac
 
-    export RUCIO_ACCOUNT=artprod
-
-    lsetup panda "asetup --platform=${PLATFORM} ${NIGHTLY_RELEASE_SHORT},${NIGHTLY_TAG},${PROJECT}"
-
-    voms-proxy-init --rfc -noregen -cert ./grid.proxy -voms atlas
-
-fi
 
 # NOTE: for art-internal.py the current dir can be used as it is copied there
-cd ${SUBMIT_DIRECTORY}/${PACKAGE}/run
-OUTFILE="user.${USER}.atlas.${NIGHTLY_RELEASE_SHORT}.${PROJECT}.${PLATFORM}.${NIGHTLY_TAG}.${SEQUENCE_TAG}.${PACKAGE}"
-CMD="pathena ${GRID_OPTIONS} --noBuild --expertOnly_skipScout --trf \"./art-internal.py job grid ${SCRIPT_DIRECTORY} ${PACKAGE} ${TYPE} ${SEQUENCE_TAG} %RNDM:0 %OUT.tar ${NIGHTLY_RELEASE_SHORT} ${PROJECT} ${PLATFORM} ${NIGHTLY_TAG}\" --split ${NUMBER_OF_TESTS} --outDS ${OUTFILE}"
+cd "${SUBMIT_DIRECTORY}"/"${PACKAGE}"/run
+SUBCOMMAND="./art-internal.py ${INTERNAL_COMMAND} ${IN_FILE} ${SCRIPT_DIRECTORY} ${SEQUENCE_TAG} ${PACKAGE} ${OUT} ${ARGS}"
+CMD="pathena ${GRID_OPTIONS} ${PATHENA_OPTIONS} ${PATHENA_TYPE_OPTIONS} --noBuild --expertOnly_skipScout --trf \"${SUBCOMMAND}\" ${SPLIT} --outDS ${OUTFILE} --extOutFile art-job.json"
+
 #--disableAutoRetry
 #--excludedSite=ANALY_TECHNION-HEP-CREAM
 #--site=ANALY_NIKHEF-ELPROD_SHORT,ANALY_NIKHEF-ELPROD"
 #--site=ANALY_FZK,ANALY_BNL,ANALY_RAL"
-echo ${CMD}
 
-RESULT=`eval "${CMD}"`
-echo ${RESULT}
+echo "Command: ${CMD}"
+
+if [ ${NO_ACTION} -ne 1 ]; then
+    echo "Submitting..."
+    RESULT=$(eval "${CMD}")
+    echo "${RESULT}"
+fi

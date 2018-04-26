@@ -47,12 +47,9 @@ Identifier TGCHitsTestTool::getIdentifier(HitID tgchit) {
 
 StatusCode TGCHitsTestTool::checkIdentifier(Identifier offid) {
   const MuonGM::TgcReadoutElement* descriptor = m_pMuonMgr->getTgcReadoutElement(offid);
-  if (descriptor != NULL) {
-    // *AS*    Amg::Vector3D xU;
-    // *AS*    Amg::Vector3D localHit((*i_hit).localPosition().x(),(*i_hit).localPosition().y(),(*i_hit).localPosition().z());
-    // *AS* xU = descriptor->localToGlobalCoords(localHit,offid);
-  } else {
+  if (!descriptor) {
     ATH_MSG_FATAL("TGC readout element not found for Id = " << m_pTgcIdHelper->show_to_string(offid));
+    return StatusCode::FAILURE;
   }
 
   // -------- Testing Sim to Offline ID conversion ---------

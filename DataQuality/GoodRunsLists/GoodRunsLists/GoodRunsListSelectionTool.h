@@ -15,7 +15,7 @@
 #include "AsgTools/AsgTool.h"
 
 // Local include(s):
-#include "GoodRunsLists/IGoodRunsListSelectionTool.h"
+#include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
 #include "GoodRunsLists/TGRLCollection.h"
 
 /// Tool implementing the GRL selection

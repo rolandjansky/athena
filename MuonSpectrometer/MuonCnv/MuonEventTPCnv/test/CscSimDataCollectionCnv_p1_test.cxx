@@ -17,6 +17,22 @@
 #include <iostream>
 
 
+#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+
+
+void compare (const HepMcParticleLink& p1,
+              const HepMcParticleLink& p2)
+{
+  assert ( p1.isValid() == p2.isValid() );
+  assert ( p1.barcode() == p2.barcode() );
+  assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.cptr() == p2.cptr() );
+  assert ( p1 == p2 );
+}
+
+
 void compare (const CscMcData& p1,
               const CscMcData& p2)
 {
@@ -35,6 +51,7 @@ void compare (const CscSimData& p1,
   const std::vector< CscSimData::Deposit >& dep2 = p2.getdeposits();
   assert (dep1.size() == dep2.size());
   for (size_t i = 0; i < dep1.size(); i++) {
+    compare (dep1[i].first, dep2[i].first);
     assert (dep1[i].first == dep2[i].first);
     compare (dep1[i].second, dep2[i].second);
   }
@@ -67,16 +84,19 @@ void testit (const CscSimDataCollection& trans1)
 }
 
 
-void test1()
+void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
 
   CscSimDataCollection trans1;
   for (int i=0; i < 3; i++) {
     std::vector<CscSimData::Deposit> deps;
-    deps.emplace_back (123, CscMcData ( 2.5+i,  3.5+i,  4.5+i));
-    deps.emplace_back (223, CscMcData (12.5+i, 13.5+i, 14.5+i));
-    deps.emplace_back (323, CscMcData (22.5+i, 23.5+i, 24.5+i));
+    HepMcParticleLink trkLink1(genPartVector.at(0+(3*i))->barcode(),0);
+    deps.emplace_back (trkLink1, CscMcData ( 2.5,  3.5,  4.5));
+    HepMcParticleLink trkLink2(genPartVector.at(1+(3*i))->barcode(),0);
+    deps.emplace_back (trkLink2, CscMcData (12.5, 13.5, 14.5));
+    HepMcParticleLink trkLink3(genPartVector.at(2+(3*i))->barcode(),0);
+    deps.emplace_back (trkLink3, CscMcData (22.5, 23.5, 24.5));
     deps[0].second.setCharge ( 5.5+i);
     deps[1].second.setCharge (15.5+i);
     deps[2].second.setCharge (25.5+i);
@@ -88,6 +108,13 @@ void test1()
 
 int main()
 {
-  test1();
+  ISvcLocator* pSvcLoc = nullptr;
+  std::vector<HepMC::GenParticle*> genPartVector;
+  if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
+  test1(genPartVector);
   return 0;
 }

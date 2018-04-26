@@ -1463,6 +1463,53 @@ class EFMissingET_Fex_TrackAndJets (EFMissingETBase):
 
         self.AthenaMonTools = [ validation, online, cosmic]
 
+##### loop over tracks and jets #####
+class EFMissingET_Fex_FTKTrackAndJets (EFMissingETBase):
+    __slots__ = []
+    def __init__ (self, name="EFMissingET_Fex_FTKTrackAndJets"):
+        super(EFMissingET_Fex_FTKTrackAndJets, self).__init__(name)
+
+        # name of TrigMissingET object
+        self.MissingETOutputKey = "TrigEFMissingET_trkmhtFTK"
+        self.doJets = True
+        self.doTracks = True
+
+        # tools
+        febTool    = EFMissingETFromFEBHeader("TheFEBTool")
+        jetTool    = EFMissingETFromTrackAndJets("TheTrackAndJetTool")
+        flagTool   = EFMissingETFlags("TheFlagsTool")
+        helperTool = EFMissingETFromHelper("TheHelperTool")
+        #
+        febTool.ParentFexName = name
+        jetTool.ParentFexName = name
+        flagTool.ParentFexName = name
+        helperTool.ParentFexName = name
+        #
+
+        ## Configuration of jet fex
+        jetTool.EtaSeparation = 2.2
+        jetTool.CentralpTCut = 25 #GeV
+        jetTool.ForwardpTCut = 0.0
+        jetTool.TrackpTCut = 1 #GeV
+        jetTool.CentralJetJVTCut = 0.9
+        jetTool.TrackSelectionTool.CutLevel = "Loose"
+        jetTool.TrackSelectionTool.maxZ0SinTheta = 1.5
+        jetTool.TrackSelectionTool.maxD0overSigmaD0 = 3
+
+        ## chain of tools
+        self.Tools = []
+        self.Tools += [ jetTool ]
+        self.Tools += [ flagTool ]
+        self.Tools += [ helperTool ]
+
+        from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_alt, TrigEFMissingETOnlineMonitoring_alt, TrigEFMissingETCosmicMonitoring_alt
+        validation = TrigEFMissingETValidationMonitoring_alt()
+        online = TrigEFMissingETOnlineMonitoring_alt()
+        cosmic = TrigEFMissingETCosmicMonitoring_alt()
+
+        self.AthenaMonTools = [ validation, online, cosmic]
+
+
 ##### THE DEFAULT FEX #####
 class EFMissingET_Fex (EFMissingET_Fex_2sidednoiseSupp):
     __slots__ = []

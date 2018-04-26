@@ -1,9 +1,8 @@
 # Author: Max Baak (mbaak@cern.ch)
-# GoodRunsLists root stand-alone makefile
 
 PACKAGE          = GoodRunsLists
 PACKAGE_PRELOAD  = Tree TreePlayer XMLParser XMLIO
-PACKAGE_TRYDEP   = AsgTools xAODEventInfo PathResolver
+PACKAGE_TRYDEP   = AsgTools xAODEventInfo PathResolver AsgAnalysisInterfaces
 PACKAGE_CXXFLAGS = -I/usr/include/libxml2
 PACKAGE_BINFLAGS = -lxml2
 PACKAGE_PEDANTIC = 1

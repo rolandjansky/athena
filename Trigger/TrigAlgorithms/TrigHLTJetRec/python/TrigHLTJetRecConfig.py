@@ -170,6 +170,35 @@ def addTrkMomsTool(toolname,
         print 'TrigHLTJetRecConfig.addTrkMomsTool '\
             'Added trkmoms tools "%s" to jtm' % toolname
 
+
+
+def addJVFTool(toolname,
+                  tvSGkey,
+                  vcSGkey,
+                  tpcSGkey, ):
+
+    global jtm
+
+    try:
+        jvfTool  = getattr(jtm, toolname)
+    except AttributeError:       
+        from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
+ 
+        # Build the tool :
+        jvfTool = JetVertexFractionTool(toolname,
+                                        VertexContainer = vcSGkey, 
+                                        AssociatedTracks = "GhostTrack",
+                                        TrackVertexAssociation = tvSGkey,
+                                        TrackParticleContainer = tpcSGkey, 
+                                        TrackSelector = jtm.trackselloose,
+                                        JVFName = "JVF",
+                                        IsTrigger=True,)
+        
+        jtm += jvfTool
+        print 'TrigHLTJetRecConfig.addJVFTool '\
+            'Added jvf tool "%s" to jtm' % toolname
+
+
 # *** FTK track moment tool helpers set up ***
 def configTVassocTool(name,
                     tvSGkey,
@@ -184,6 +213,7 @@ def configTVassocTool(name,
         TrackParticleContainer = tpcSGkey,
         TrackVertexAssociation = tvSGkey,
         VertexContainer = vcSGkey,
+        TrackVertexAssoTool = jtm.jetLooseTVAtool,
     )
 
     # Build the tool :
@@ -219,7 +249,9 @@ def _getJetBuildTool(merge_param,
                      jet_calib,
                      cluster_calib,
                      do_minimalist_setup,
+                     do_substructure,
                      name='',
+                     trkopt = '',
                      secondary_label='',
                      outputLabel=''):
     """Set up offline tools. do_minimalist_setup controls whether
@@ -239,11 +271,12 @@ def _getJetBuildTool(merge_param,
 
     # Ensure the calibration is valid
     _is_calibration_supported(int_merge_param, jet_calib, cluster_calib)
-    
-    if secondary_label == '':     
+   
+    if secondary_label == '': 
         mygetters = [_getTriggerPseudoJetGetter(cluster_calib)]
     else:   
         mygetters = [_getTriggerPseudoJetGetter(cluster_calib), _getTriggerPseudoJetGetter(secondary_label)]
+   
     jtm.gettersMap["mygetters"] = mygetters
    
     print "my getters are "
@@ -268,14 +301,22 @@ def _getJetBuildTool(merge_param,
     if outputLabel!='triggerTowerjets': #towers don't have cluster moments
         mymods.append(jtm.clsmoms)
     if secondary_label == 'GhostTrack': # ghost track association expected, will want track moments.
-        if not hasattr(jtm, 'trkmoms_GhostTracks'):
+        if not hasattr(jtm, 'trkmoms_'+trkopt):
             print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no track moment tools configured. Continuing without trkmodifers."
         else:        
-            trkmoms_ghosttrack = getattr(jtm, 'trkmoms_GhostTracks')
+            trkmoms_ghosttrack = getattr(jtm, 'trkmoms_'+trkopt)
             trkmoms_ghosttrack.unlock()
             trkmoms_ghosttrack.AssociatedTracks = secondary_label
             trkmoms_ghosttrack.lock()
             mymods.append(trkmoms_ghosttrack)
+        if not hasattr(jtm, 'jvf_'+trkopt):
+            print "In TrigHLTJetRecConfig._getJetBuildTool: Something went wrong. GhostTrack label set but no JVF tool configured. Continuing without jvf calculations."
+        else:        
+            jvf_ghosttrack = getattr(jtm, 'jvf_'+trkopt)
+            jvf_ghosttrack.unlock()
+            jvf_ghosttrack.AssociatedTracks = secondary_label
+            jvf_ghosttrack.lock()
+            mymods.append(jvf_ghosttrack)
 
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
@@ -288,9 +329,40 @@ def _getJetBuildTool(merge_param,
                 jtm.bchcorrclus,
                 jtm.width
                 ])
+
+    if do_substructure:
+        # this set of moments will be reduced once we've run once to evaluate costs
+
+        # don't want to include nsubjettiness and width twice
+        if do_minimalist_setup:
+            mymods.extend([
+                    jtm.nsubjettiness,
+                    jtm.width
+                    ])
+        mymods.extend([
+                # jtm.nsubjettiness,
+                jtm.ktdr,
+                jtm.ktsplitter,
+                jtm.encorr,
+                jtm.charge,
+                jtm.angularity,
+                jtm.comshapes,
+                jtm.ktmassdrop,
+                jtm.dipolarity,
+                jtm.pull,
+                jtm.planarflow,
+                # jtm.width,
+                jtm.qw,
+                # jtm.trksummoms # this needs tracks and vertices which we don't have by default
+                ])
+
     # DEBUG DEBUG DEBUG
     # mymods = []
     # DEBUG DEBUG DEBUG
+
+    # Add jet calo width always
+    if do_minimalist_setup and not do_substructure:
+        mymods.append(jtm.width)
 
     jtm.modifiersMap["mymods"] = mymods
     
@@ -300,6 +372,7 @@ def _getJetBuildTool(merge_param,
         name = 'TrigAntiKt%d%s%sTopoJets' % (int_merge_param,
                                              cluster_calib,
                                              jet_calib)
+
 
     def findjetBuildTool():
         for jr in jtm.trigjetrecs:
@@ -384,6 +457,7 @@ def _getJetBuildTool(merge_param,
 def _getJetTrimmerTool (merge_param,
                         jet_calib, 
                         cluster_calib, 
+                        do_substructure,
                         ptfrac,
                         rclus, 
                         name="",
@@ -420,6 +494,25 @@ def _getJetTrimmerTool (merge_param,
     except Exception, e:
         print 'Error building trimmed jet calibration modifier for %s' % name
         raise e
+
+    if do_substructure:
+        # this set of moments will be reduced once we've run once to evaluate costs
+        mymods.extend([
+                jtm.nsubjettiness,
+                jtm.ktdr,
+                jtm.ktsplitter,
+                jtm.encorr,
+                jtm.charge,
+                jtm.angularity,
+                jtm.comshapes,
+                jtm.ktmassdrop,
+                jtm.dipolarity,
+                jtm.pull,
+                jtm.planarflow,
+                jtm.width,
+                jtm.qw,
+                # jtm.trksummoms # this needs tracks and vertices which we don't have by default
+                ])
 
     jtm.modifiersMap["mymods"] = mymods
  
@@ -696,6 +789,7 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
                  jet_calib='subjes',
                  cluster_calib='EM',
                  do_minimalist_setup=True,
+                 do_substructure=False,
                  output_collection_label='defaultJetCollection',
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
                  ):
@@ -726,8 +820,10 @@ class TrigHLTJetRecFromCluster(TrigHLTJetRecConf.TrigHLTJetRecFromCluster):
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
+            do_substructure=do_substructure,
             name=name,
-            secondary_label=secondary_label, # needed for retrieving the track psjgetter.
+            trkopt = trkopt,
+            secondary_label=secondary_label, # needed for retrieving the track psjgetter and configuring and adding of track modifiers.
             )
         print 'after jetbuild'
         
@@ -750,6 +846,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                  jet_calib='subjes',
                  cluster_calib='LC',
                  do_minimalist_setup=True,
+                 do_substructure=False,
                  output_collection_label='defaultJetCollection',
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromCluster',
                  rclus= 0.2,
@@ -770,6 +867,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
                                              jet_calib='nojcalib',
                                              cluster_calib=cluster_calib,
                                              do_minimalist_setup=do_minimalist_setup,
+                                             do_substructure=do_substructure,
                                              name=name+'notrim',
                                              )
         print 'after trimming jetbuild'
@@ -777,6 +875,7 @@ class TrigHLTJetRecGroomer(TrigHLTJetRecConf.TrigHLTJetRecGroomer):
         self.jetTrimTool = _getJetTrimmerTool(merge_param=float(int(merge_param))/10.,
                                               jet_calib=jet_calib,
                                               cluster_calib=cluster_calib,
+                                              do_substructure=do_substructure,
                                               rclus=rclus,
                                               ptfrac=ptfrac,
                                               name=name,
@@ -799,6 +898,7 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
                  jet_calib='nojcalib',  # no calibration to be done
                  cluster_calib='EM',
                  do_minimalist_setup=True,
+                 do_substructure=False,
                  output_collection_label='reclusteredJets',  # do not use this
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromJet',
                  ptMinCut=15000.,
@@ -822,6 +922,7 @@ class TrigHLTJetRecFromJet(TrigHLTJetRecConf.TrigHLTJetRecFromJet):
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
+            do_substructure=do_substructure,
             )
 
         self.output_collection_label = output_collection_label
@@ -840,6 +941,7 @@ class TrigHLTJetRecFromTriggerTower(
                  jet_calib='nojcalib',  # no calibration to be done
                  cluster_calib='EM',
                  do_minimalist_setup=True,
+                 do_substructure=False,
                  output_collection_label='triggerTowerjets',  # do not use this
                  pseudojet_labelindex_arg='PseudoJetLabelMapTriggerFromTriggerTower',
                  ptMinCut=15000.,
@@ -864,6 +966,7 @@ class TrigHLTJetRecFromTriggerTower(
             jet_calib=jet_calib,
             cluster_calib=cluster_calib,
             do_minimalist_setup=do_minimalist_setup,
+            do_substructure=do_substructure,
             outputLabel='triggerTowerjets',
             )
 
@@ -1057,6 +1160,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
 
     def __init__(self,
                  name,
+                 trkopt,
                  tvassocSGkey,
                  trackSGkey,
                  primVtxSGkey,
@@ -1067,7 +1171,7 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         self.primVtxSGkey = primVtxSGkey
 
         #retrieve and configure the TVA tool 
-        tvatoolname = 'tvassoc_GhostTracks'
+        tvatoolname = 'tvassoc_'+trkopt
 
         tvaoptions = dict(tvSGkey=tvassocSGkey,
                        tpcSGkey=trackSGkey,
@@ -1077,12 +1181,21 @@ class TrigHLTTrackMomentHelpers(TrigHLTJetRecConf.TrigHLTTrackMomentHelpers):
         self.tvassocTool = _getTVassocTool(tvatoolname, **tvaoptions)
     
         # add  a specially configured trkmoms tool to jtm 
-        trkmomstoolname = 'trkmoms_GhostTracks'
+        trkmomstoolname = 'trkmoms_'+trkopt
         
         trkmomsoptions = dict(tvSGkey=tvassocSGkey,
                        vcSGkey=primVtxSGkey,
                        )
         addTrkMomsTool(trkmomstoolname, **trkmomsoptions)
+        
+        # add  a specially configured jvf tool to jtm 
+        jvftoolname = 'jvf_'+trkopt
+        
+        jvfoptions = dict(tvSGkey=tvassocSGkey,
+                       tpcSGkey=trackSGkey,
+                       vcSGkey=primVtxSGkey,
+                       )
+        addJVFTool(jvftoolname, **jvfoptions)
 
 # Data scouting algorithm
 class TrigHLTJetDSSelector(TrigHLTJetRecConf.TrigHLTJetDSSelector):

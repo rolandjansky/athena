@@ -5,7 +5,7 @@
 #ifndef PILEUPREWEIGHTINGPROVIDER
 #define PILEUPREWEIGHTINGPROVIDER
 
-#include "PileupReweighting/IPileupReweightingTool.h"
+#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 

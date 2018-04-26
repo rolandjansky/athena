@@ -157,25 +157,6 @@ elif hasattr(runArgs,'jobNumber'):
         simFlags.RunNumber = simFlags.RunDict.GetRunNumber( runArgs.jobNumber )
         atlasG4log.info( 'Set run number based on dictionary to '+str(simFlags.RunNumber) )
 
-# uncomment and modify any of options below to have non-standard simulation
-from TileSimUtils.TileSimInfoConfigurator import TileSimInfoConfigurator
-tileSimInfoConfigurator=TileSimInfoConfigurator()
-# tileSimInfoConfigurator.DeltaTHit = [ 1. ]
-# tileSimInfoConfigurator.TimeCut = 200.5
-# tileSimInfoConfigurator.TileTB = True
-# tileSimInfoConfigurator.PlateToCell = True
-# tileSimInfoConfigurator.DoExpAtt = False
-# tileSimInfoConfigurator.DoTileRow = False
-# tileSimInfoConfigurator.DoTOFCorrection = True
-# Birks' law
-if 'DoBirk' in dir():
-    tileSimInfoConfigurator.DoBirk = DoBirk
-# U-shape
-if 'TileUshape' in dir():
-    tileSimInfoConfigurator.Ushape = TileUshape
-
-print tileSimInfoConfigurator
-
 if hasattr(runArgs, 'testBeamConfig') and 'tbtile' == runArgs.testBeamConfig:
     # avoid reading CaloTTMap from COOL
     include.block ( "CaloConditions/CaloConditions_jobOptions.py" )
@@ -236,8 +217,6 @@ except:
 include('G4AtlasApps/Tile2000_2003.flat.configuration.py')#HACK - has to be here for TBDetDescrLoader
 
 ## Add G4 alg to alg sequence
-#from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg #HACK
-#topSeq += PyG4AtlasAlg() #HACK
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 

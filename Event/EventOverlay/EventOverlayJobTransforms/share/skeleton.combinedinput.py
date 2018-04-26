@@ -158,11 +158,11 @@ if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Add G4 alg to alg sequence
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 

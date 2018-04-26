@@ -27,11 +27,8 @@ namespace G4UA
       /// @brief Return the action for current thread.
       virtual G4UserSteppingAction* getSteppingAction() = 0;
 
-      /// Interface declaration
-      static const InterfaceID& interfaceID() {
-        static const InterfaceID iid_IStepTool("G4UA::IG4SteppingActionTool", 1, 0);
-        return iid_IStepTool;
-      }
+      /// Creates the InterfaceID and interfaceID() method
+      DeclareInterfaceID(G4UA::IG4SteppingActionTool, 1, 0);
 
   }; // class IG4SteppingActionTool
 

@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
 class TrigL2MuonSAValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigL2MuonSAValidationMonitoring"):
         super(TrigL2MuonSAValidationMonitoring, self).__init__(name)
         self.defineTarget("Validation")
-
         self.Histograms = [ defineHistogram('InnMdtHits', type='TH1F', title="Hit multiplicity in the INNER road; MDT hits",
                                             xbins=50, xmin=-0.5, xmax=50.5) ]
         self.Histograms += [ defineHistogram('MidMdtHits', type='TH1F', title="Hit multiplicity in the MIDDLE road; MDT hits",
@@ -37,6 +37,8 @@ class TrigL2MuonSAValidationMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
         self.Histograms += [ defineHistogram('FailedRoIEta, FailedRoIPhi', type='TH2F', title="Location of LVL2 track failure; Eta; Phi",
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
+        self.Histograms += [ defineHistogram('InvalidRpcRoINumber', type='TH1F', title="RoI Number of Invalid RPC RoI; RoI Number",
+                                            xbins=150, xmin=-0.5, xmax=150.5) ]
         
 class TrigL2MuonSAOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigL2MuonSAOnlineMonitoring"):
@@ -73,6 +75,8 @@ class TrigL2MuonSAOnlineMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
         self.Histograms += [ defineHistogram('FailedRoIEta, FailedRoIPhi', type='TH2F', title="Location of LVL2 track failure; Eta; Phi",
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
+        self.Histograms += [ defineHistogram('InvalidRpcRoINumber', type='TH1F', title="RoI Number of Invalid RPC RoI ; RoI Number",
+                                            xbins=150, xmin=-0.5, xmax=150.5) ]
 
 
 class TrigL2MuonSACosmicMonitoring(TrigGenericMonitoringToolConfig):
@@ -110,4 +114,6 @@ class TrigL2MuonSACosmicMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
         self.Histograms += [ defineHistogram('FailedRoIEta, FailedRoIPhi', type='TH2F', title="Location of LVL2 track failure; Eta; Phi",
                                              xbins=108, xmin=-2.7, xmax=2.7, ybins=96, ymin=-3.1416, ymax=3.1416 ) ]
+        self.Histograms += [ defineHistogram('InvalidRpcRoINumber', type='TH1F', title="RoI Number of Invalid RPC RoI; RoI Number",
+                                            xbins=150, xmin=-0.5, xmax=150.5) ]
         

@@ -121,7 +121,7 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltFinalize() {
 HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, HLT::TriggerElement* outputTE){
 
   // For now, this must be [avgmu, rnnOutputWithTansig, rnnOutputWithoutTansig] 
-  m_output=-99;
+  m_output=-999;
   std::vector<float> output;
 
   ///Retrieve rings pattern information
@@ -162,38 +162,39 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
 
   // Fix eta range
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
+  // Add avgmu!
+  output.push_back(avgmu);
 
-
+  if(doTiming())  m_decisionTimer->start();
+  
   if(m_discriminators.size() > 0){
-    if(doTiming())  m_decisionTimer->start();
+      
     for(unsigned i=0; i<m_discriminators.size(); ++i){
-      if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
-        if(eta > m_discriminators[i]->etamin() && eta <= m_discriminators[i]->etamax()){
-          discr   = m_discriminators[i];
-          preproc = m_preproc[i];
-          break;
+      if(avgmu > m_discriminators[i]->mumin() && avgmu <= m_discriminators[i]->mumax()){
+        if(et > m_discriminators[i]->etmin() && et <= m_discriminators[i]->etmax()){
+          if(eta > m_discriminators[i]->etamin() && eta <= m_discriminators[i]->etamax()){
+            discr   = m_discriminators[i];
+            preproc = m_preproc[i];
+            break;
+          }// mu conditions
         }///eta conditions
       }///Et conditions
     }///Loop over discriminators
 
-    ///get shape
-    const std::vector<float> rings = ringerShape->rings();
-    ATH_MSG_DEBUG( "ringerShape->rings().size() is: " <<rings.size() );
- 
-    std::vector<float> refRings(rings.size());
-    refRings.assign(rings.begin(), rings.end());
-
     ATH_MSG_DEBUG( "Et = " << et << " GeV, |eta| = " << eta );
-
-    ///pre-processing ringer shape (default is Norm1...)
-    if(doTiming())  m_normTimer->start();
-    if(preproc)     preproc->ppExecute(refRings);
-    if(doTiming())  m_normTimer->stop();
-
-    ATH_MSG_DEBUG( "after preproc refRings.size() is: " <<rings.size() );
- 
+    
     ///Apply the discriminator
     if(discr){
+
+      const std::vector<float> rings = ringerShape->rings();
+      std::vector<float> refRings(rings.size());
+      refRings.assign(rings.begin(), rings.end());
+
+      ///pre-processing ringer shape (default is Norm1...)
+      if(doTiming())  m_normTimer->start();
+      if(preproc)     preproc->ppExecute(refRings);
+      if(doTiming())  m_normTimer->stop();
+
 
       float eta_norm=0.0;
       float avgmu_norm=0.0;
@@ -214,15 +215,12 @@ HLT::ErrorCode TrigL2CaloRingerFex::hltExecute(const HLT::TriggerElement* /*inpu
       }
 
       m_output=discr->propagate(refRings);
-      output.push_back(avgmu);
       output.push_back(m_output);
       output.push_back(discr->getOutputBeforeTheActivationFunction());
-    }
-
+    }// has discr?
   }else{
     ATH_MSG_DEBUG( "There is no discriminator into this Fex." );
   }
-
 
   if(doTiming())  m_decisionTimer->stop();
 

@@ -41,7 +41,8 @@ namespace G4UA{
     NTuple::Array<float>   m_ke1, m_ke2;
     NTuple::Array<int>   m_rh, m_rhid, m_step;
     std::set<int> rhs;//rhadron pdgid's
-    long nevents, rhid;
+    long m_nevents = 0;
+    long m_rhadronIndex = 0;
     
     
   }; // class SG_StepNtuple

@@ -17,7 +17,7 @@
  *  @author Edoardo Farina
  *  @date   15-05-2015
  */
-class GauginosPhysicsTool :  public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool  {
+class GauginosPhysicsTool :  public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>  {
 public:
   /// Standard constructor
   GauginosPhysicsTool( const std::string& type , const std::string& name,
@@ -41,11 +41,11 @@ protected:
 
   static GauginosPhysicsTool* m_physList;
 
-  G4double GravitinoMass, GravitinoWidth, GravitinoLifetime, GravitinoCharge, NeutralinoPDGCode;
-  G4double NeutralinoMass, NeutralinoWidth,  NeutralinoLifetime, NeutralinoCharge, GravitinoPDGCode;
+  G4double m_GravitinoMass, m_GravitinoWidth, m_GravitinoLifetime, m_GravitinoCharge, m_NeutralinoPDGCode;
+  G4double m_NeutralinoMass, m_NeutralinoWidth,  m_NeutralinoLifetime, m_NeutralinoCharge, m_GravitinoPDGCode;
 
-  G4bool NeutralinoStable, NeutralinoShortlived;
-  G4bool GravitinoStable, GravitinoShortlived;
+  G4bool m_NeutralinoStable, m_NeutralinoShortlived;
+  G4bool m_GravitinoStable, m_GravitinoShortlived;
 
 };
 

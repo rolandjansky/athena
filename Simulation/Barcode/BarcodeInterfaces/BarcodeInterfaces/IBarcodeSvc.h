@@ -18,10 +18,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-/** Declaration of the interface ID ( interface id, major version, minor version) */
-static const InterfaceID IID_IBarcodeSvc("IBarcodeSvc", 1 , 0);
-
-
 namespace Barcode {
 
   class BitCalculator;
@@ -37,8 +33,8 @@ namespace Barcode {
     ///////////////////////////////////////////////////////////////////
   public:
 
-    /** Retrieve interface ID */
-    static const InterfaceID& interfaceID() { return IID_IBarcodeSvc; }
+    /// Creates the InterfaceID and interfaceID() method
+    DeclareInterfaceID(IBarcodeSvc, 1 , 0);
 
     /** Generate a new unique vertex barcode, based on the parent particle barcode and
         the physics process code causing the truth vertex*/

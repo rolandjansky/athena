@@ -25,9 +25,8 @@
 ISF::GenParticleSimWhiteList::GenParticleSimWhiteList( const std::string& t,
                                                        const std::string& n,
                                                        const IInterface* p )
-  : AthAlgTool(t,n,p)
+  : base_class(t,n,p)
 {
-    declareInterface<ISF::IGenParticleFilter>(this);
     // different options
     declareProperty("WhiteList", m_whiteList="G4particle_whitelist.txt");
     declareProperty("QuasiStableSim", m_qs=true);

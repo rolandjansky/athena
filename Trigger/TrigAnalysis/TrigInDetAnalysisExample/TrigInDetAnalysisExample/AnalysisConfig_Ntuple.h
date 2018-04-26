@@ -69,12 +69,13 @@ public:
     this->keepAllEvents( _keepAllEvents ); /// this is now i nthe base class
 
     for ( unsigned i=0 ; i<chainNames.size() ; i++ ) { 
-      if ( chainNames[i] != "Offline"     &&
-	   chainNames[i] != "Muons"       &&
-	   chainNames[i] != "Bjets"       &&
+      if ( chainNames[i] != "Offline"         &&
+	   chainNames[i] != "Vertex"          &&
+	   chainNames[i] != "Bjets"           &&
+	   chainNames[i].find("Muons")!=0     &&
 	   chainNames[i].find("Electrons")!=0 &&
 	   chainNames[i].find("Taus")!=0  )   { 
-	
+
 	//	std::cout << "AnalysisConfig_Ntuple: chain[" << i << "] " << chainNames[i] << std::endl;
 	
 	m_chainNames.push_back( ChainString(chainNames[i]) );

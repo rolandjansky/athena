@@ -44,7 +44,7 @@
 iFatras::TransportTool::TransportTool( const std::string& t,
                                       const std::string& n,
                                       const IInterface*  p )
- : AthAlgTool(t,n,p),
+ : base_class(t,n,p),
    m_rndGenSvc("AtDSFMTGenSvc", n), 
    m_randomEngine(0),
    m_randomEngineName("FatrasRnd"),
@@ -62,8 +62,6 @@ iFatras::TransportTool::TransportTool( const std::string& t,
    m_errorPropagation(false),
    m_hitsOff(false)
 {
-  declareInterface<ISF::IParticleProcessor>(this);
-  
   // validation output section
   declareProperty( "ValidationOutput",  m_validationOutput );
   declareProperty( "PhysicsValidationTool",     m_validationTool  );
@@ -92,7 +90,9 @@ iFatras::TransportTool::TransportTool( const std::string& t,
  *  ==> see headerfile
  *=======================================================================*/
 iFatras::TransportTool::~TransportTool()
-{}
+{
+  delete m_randomEngine;
+}
 
 /*=========================================================================
  *  DESCRIPTION OF FUNCTION:
@@ -359,6 +359,13 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
 									    eParameters->position(),
 									    eParameters->momentum(),
 									    timeLim.time-isp.timeStamp()) : 0;     // update expects time difference
+  // free memory
+  if ( hitVector ) {
+    for (auto& h : *hitVector) delete h.trackParms;
+    delete hitVector;
+  }
+  delete eParameters;
+
   if (uisp && m_validationOutput) {
     // save validation info
     ISF::ParticleUserInformation* validInfo = new ISF::ParticleUserInformation();

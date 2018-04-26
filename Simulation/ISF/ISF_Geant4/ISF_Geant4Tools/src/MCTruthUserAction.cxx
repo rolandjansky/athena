@@ -26,8 +26,6 @@
 #include "MCTruth/EventInformation.h"
 #include "MCTruth/TrackHelper.h"
 
-#include "SimHelpers/StepHelper.h"
-
 #include "G4EventManager.hh"
 
 // Atlas G4 Helpers
@@ -37,8 +35,10 @@ namespace G4UA{
 
   namespace iGeant4{
 
-    MCTruthUserAction::MCTruthUserAction(const Config& config):
-      m_config(config){
+    MCTruthUserAction::MCTruthUserAction(const Config& config)
+      : m_config(config)
+      , m_truthRecordSvcQuick(nullptr)
+    {
 
       if(4<m_config.verboseLevel)
         {

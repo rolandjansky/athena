@@ -46,12 +46,8 @@ if hasattr(runArgs, "inputFile"):
 # We don't expect both inputFile and inputEVNT*File to be specified
 if hasattr(runArgs, "inputEVNTFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNTFile )
-elif hasattr(runArgs, "inputEVNT_COSMICSFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_COSMICSFile )
-elif hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_CAVERNFile )
-elif hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_STOPPEDFile )
+elif hasattr(runArgs, "inputEVNT_TRFile"):
+    setInputEvgenFileJobProperties( runArgs.inputEVNT_TRFile )
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
     atlasG4log.debug('No inputEVNTFile provided. OK, as performing cosmics simulation.')
     athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -62,7 +58,7 @@ else:
 ## Handle cosmics configs
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     simFlags.load_cosmics_flags()
-    if hasattr(runArgs, "inputEVNT_COSMICSFile"):
+    if hasattr(runArgs, "inputEVNT_TRFile"):
         if simFlags.CosmicFilterVolumeName.statusOn and simFlags.CosmicFilterVolumeName.get_Value() != "Muon":
             atlasG4log.warning("Filtering was already done. Using CosmicFilterVolumeName=Muon rather than "
                                "provided value (%s)" % str(runArgs.CosmicFilterVolumeName))
@@ -77,8 +73,9 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
 if hasattr(runArgs, "outputHITSFile"):
     athenaCommonFlags.PoolHitsOutput.set_Value_and_Lock( runArgs.outputHITSFile )
 else:
-    if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-        simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_STOPPEDFile )
+    if hasattr(runArgs, "outputEVNT_TRFile"):
+        if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+            simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_TRFile )
     #raise RuntimeError("No outputHITSFile provided.")
     atlasG4log.info('No outputHITSFile provided. This simulation job will not write out any HITS file.')
     athenaCommonFlags.PoolHitsOutput = ""
@@ -89,6 +86,12 @@ else:
 atlasG4log.info( '**** Transformation run arguments' )
 atlasG4log.info( str(runArgs) )
 
+## Set up the top sequence
+from AthenaCommon.AlgSequence import AlgSequence
+topSeq = AlgSequence()
+
+## Set Overall per-Algorithm time-limit on the AlgSequence
+topSeq.TimeOut = 43200 * Units.s
 
 #==============================================================
 # Job Configuration parameters:
@@ -105,19 +108,20 @@ if hasattr(runArgs, "preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
-# Avoid command line preInclude for stopped particles
-if hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
+if hasattr(runArgs, "inputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
 
 # Avoid command line preInclude for cavern background
-if hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    include('SimulationJobOptions/preInclude.G4ReadCavern.py')
-if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
-    include('SimulationJobOptions/preInclude.G4WriteCavern.py')
-
-# Avoid command line preInclude for event service
-if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
+if jobproperties.Beam.beamType.get_Value() != 'cosmics':
+    # If it was already there, then we have a stopped particle file
+    if hasattr(runArgs, "inputEVNT_TRFile") and\
+        not hasattr(topSeq,'TrackRecordGenerator'):
+        include('SimulationJobOptions/preInclude.G4ReadCavern.py')
+    # If there's a stopped particle file, don't do all the cavern stuff
+    if hasattr(runArgs, "outputEVNT_TRFile") and\
+        not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
+        include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
 from ISF_Config.ISF_jobProperties import ISF_Flags
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
@@ -219,11 +223,11 @@ elif hasattr(runArgs,'jobNumber'):
 ## Handle cosmics track record
 from AthenaCommon.BeamFlags import jobproperties
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    if hasattr(runArgs, "inputEVNT_COSMICSFile"):
+    if hasattr(runArgs, "inputEVNT_TRFile"):
         simFlags.ReadTR = athenaCommonFlags.PoolEvgenInput()[0]
     else:
-        if hasattr(runArgs, "outputEVNT_COSMICSTRFile"):
-            simFlags.WriteTR = runArgs.outputEVNT_COSMICSTRFile
+        if hasattr(runArgs, "outputEVNT_TRFile"):
+            simFlags.WriteTR = runArgs.outputEVNT_TRFile
         #include( 'CosmicGenerator/jobOptions_ConfigCosmicProd.py' )
 
 ## Add filters for non-cosmics simulation
@@ -235,12 +239,6 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
         simFlags.WorldZRange.set_Value(26050)
     else:
         simFlags.EventFilter.set_On()
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSeq = AlgSequence()
-
-## Set Overall per-Algorithm time-limit on the AlgSequence
-topSeq.TimeOut = 43200 * Units.s
 
 try:
     from RecAlgs.RecAlgsConf import TimingAlg
@@ -282,9 +280,9 @@ if hasattr(runArgs, "postInclude"):
     for fragment in runArgs.postInclude:
         include(fragment)
 
-# Avoid command line postInclude for stopped particles
-if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
+if hasattr(runArgs, "outputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
 
 ## Post-exec
 if hasattr(runArgs, "postExec"):

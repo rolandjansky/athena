@@ -41,8 +41,12 @@ double TFCS1DFunction::get_maxdev(TH1* h_input1, TH1* h_approx1)
 
 }
 
+void TFCS1DFunction::rnd_to_fct(float value[],const float rnd[])
+{
+  value[0]=rnd_to_fct(rnd[0]);
+}
+
 double TFCS1DFunction::rnd_to_fct(double)
 {
-
   return 0;
 }

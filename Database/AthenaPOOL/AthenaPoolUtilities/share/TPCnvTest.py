@@ -35,10 +35,12 @@ if (not globals().has_key ('ATLAS_REFERENCE_TAG') and
     ATLAS_REFERENCE_TAG = os.environ['ATLAS_REFERENCE_TAG']
 
 testdata = '/afs/cern.ch/atlas/maxidisk/d33/referencefiles'
+refdata = '/afs/cern.ch/atlas/maxidisk/d33/referencefiles'
 if infile.startswith ('rtt:'):
     testdata = '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV'
     infile = infile[4:]
 testdata = os.environ.get ('ATLAS_REFERENCE_DATA', testdata)
+refdata = os.environ.get ('ATLAS_REFERENCE_DATA', refdata)
 
 svcMgr.EventSelector.InputCollections        = [ os.path.join (testdata,
                                                                infile) ]
@@ -87,7 +89,7 @@ class Dumper (PyAthena.Alg):
                                                   refbase)
 
         if not os.path.exists (self.reffile_name):
-            self.reffile_name = os.path.join (testdata, ATLAS_REFERENCE_TAG,
+            self.reffile_name = os.path.join (refdata, ATLAS_REFERENCE_TAG,
                                               refbase)
 
         self.ofile = open (self.ofile_name, 'w')
@@ -96,7 +98,9 @@ class Dumper (PyAthena.Alg):
 
     def finalize (self):
         self.ofile.close()
-        os.system ('diff -u %s %s' % (self.reffile_name, self.ofile_name))
+        ret = os.system ('diff -u %s %s' % (self.reffile_name, self.ofile_name))
+        if ret != 0:
+            print 'ERROR running diff with reference'
         return 1
 
     def execute (self):

@@ -10,6 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloInterface
+                          Calorimeter/CaloGeoHelpers
                           Commission/CommissionEvent
                           Control/AthenaMonitoring
                           Control/StoreGate
@@ -24,9 +25,9 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Tools/LWHists
                           Trigger/TrigAnalysis/TrigDecisionTool
+			  Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           PRIVATE
                           Calorimeter/CaloDetDescr
-                          Calorimeter/CaloGeoHelpers
                           Control/AthenaKernel
                           Event/xAOD/xAODEventInfo
                           LArCalorimeter/LArRecEvent
@@ -47,3 +48,4 @@ atlas_add_component( CaloMonitoring
 atlas_install_headers( CaloMonitoring )
 atlas_install_joboptions( share/*.py )
 
+#SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Og " ) 

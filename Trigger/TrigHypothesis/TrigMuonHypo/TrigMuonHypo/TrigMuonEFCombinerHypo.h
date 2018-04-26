@@ -7,6 +7,7 @@
 
 #include <string>
 #include "TrigInterfaces/HypoAlgo.h"
+#include "LumiBlockComps/ILuminosityTool.h"
 
 class TriggerElement;
 
@@ -27,12 +28,15 @@ class TrigMuonEFCombinerHypo: public HLT::HypoAlgo {
   std::vector<float> m_ptThresholds;
   BooleanProperty m_acceptAll;
   BooleanProperty m_rejectCBmuons;
+  ToolHandle<ILuminosityTool> m_lumiTool;
 
   // Other members:   
   std::vector<float>::size_type m_bins;
   std::vector<float> m_fex_pt;
   std::vector<float> m_fex_eta;
   std::vector<float> m_fex_phi;
+  float m_fex_rate;
+  float m_fex_bcid;
 };
 
 #endif

@@ -33,7 +33,7 @@
 G4FieldManagerToolBase::G4FieldManagerToolBase(const std::string& type,
                                                const std::string& name,
                                                const IInterface* parent)
-  : AthAlgTool(type, name, parent),
+  : base_class(type, name, parent),
     m_fieldSvc("G4FieldSvc", name),
     m_fieldOn(true),
     m_integratorStepper("AtlasRK4"),
@@ -45,9 +45,6 @@ G4FieldManagerToolBase::G4FieldManagerToolBase(const std::string& type,
     m_deltaIntersection(-1.0),
     m_maxStep(-1.0) // (1.*CLHEP::m)
 {
-  // Declare interface to the framework
-  declareInterface< IFieldManagerTool >( this ) ;
-
   // Declare common configurable properties
   declareProperty( "FieldSvc", m_fieldSvc, "Service providing a G4MagneticField");
   declareProperty( "FieldOn", m_fieldOn, "Toggles field on/off");

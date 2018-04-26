@@ -48,9 +48,9 @@ TrigCheckForTracks::TrigCheckForTracks(const std::string& name, ISvcLocator* pSv
   declareProperty("eta_Width",    m_etaWidth = 0.1);
   declareProperty("etaEdge",      m_etaEdge = 5.0, "Upper limit of |eta| range");
   declareProperty("etaLowEdge",   m_etaLowEdge = 0.0, "Lower limit of |eta| range");
-  declareProperty("tracksName",   tracksName = "HLT_TrigFastTrackFinder_Tau");  
-  declareProperty("doNotPass",           doNotPass = false);        // pass through flag for initial beam items.
-  declareProperty("lookForAnyTracks",    lookForAnyTracks = false); // any vs isolated. any is needed for initial beam items.
+  declareProperty("tracksName",   m_tracksName = "HLT_TrigFastTrackFinder_Tau");  
+  declareProperty("doNotPass",           m_doNotPass = false);        // pass through flag for initial beam items.
+  declareProperty("lookForAnyTracks",    m_lookForAnyTracks = false); // any vs isolated. any is needed for initial beam items.
   declareProperty("AddCTPResult", m_addCTPResult = false, "Add the CTP result to the list of ROBs");
   declareProperty("AddL2Result",  m_addL2Result = false,  "Add the L2 result to the list of ROBs");
   declareProperty("AddEFResult",  m_addEFResult = false,  "Add the EF result to the list of ROBs");
@@ -66,7 +66,7 @@ TrigCheckForTracks::TrigCheckForTracks(const std::string& name, ISvcLocator* pSv
   declareMonitoredStdContainer("phi_tracks",     m_phi);
   declareMonitoredStdContainer("eta_tracks_ISO", m_ROB_eta);
   declareMonitoredStdContainer("phi_tracks_ISO", m_ROB_phi);
-  declareMonitoredVariable("iso_Tracks",         n_IsoTracks);
+  declareMonitoredVariable("iso_Tracks",         m_n_IsoTracks);
 
 }
 
@@ -82,8 +82,8 @@ HLT::ErrorCode TrigCheckForTracks::hltInitialize()
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timerSvc).isFailure() ) {
-    msg() << MSG::WARNING << name()
-	<< ": Unable to locate TrigTimer Service" << endmsg;
+    ATH_MSG_WARNING( name()
+                     << ": Unable to locate TrigTimer Service"  );
   }
   if (m_timerSvc)    
     m_timers.push_back(m_timerSvc->addItem("TrigCheckForTracks.TrigCheckForTracksTot"));
@@ -111,7 +111,7 @@ HLT::ErrorCode TrigCheckForTracks::hltBeginRun()
 HLT::ErrorCode TrigCheckForTracks::hltFinalize(){
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_acceptedEvts <<" / "<< m_rejectedEvts << " / "<< m_errorEvts << endmsg;
+  ATH_MSG_INFO( "Events accepted/rejected/errors:  "<< m_acceptedEvts <<" / "<< m_rejectedEvts << " / "<< m_errorEvts  );
   return HLT::OK;
 }
 
@@ -121,23 +121,18 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 // ----------------------------------------------------------------------
 
   if (m_executedEvent) {
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "*** Not Executing this TrigCheckForTracks " << name() << ", already executed"  << endmsg;
-    }
-
+    ATH_MSG_DEBUG( "*** Not Executing this TrigCheckForTracks " << name() << ", already executed"   );
     return HLT::OK;
   }
 
-  if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "***  Executing this TrigCheckForTracks : " << name() << endmsg;
-  }
+  ATH_MSG_DEBUG( "***  Executing this TrigCheckForTracks : " << name()  );
 
 
   //--> PEB Related Stuff
 
   PartialEventBuildingInfo* pebInfo = config()->getPEBI();
   if(!pebInfo){
-    if (msgLvl() <= MSG::DEBUG) msg() << "*** Not Executing this TrigCheckForTracks " << name() << ", not a calib chain" << endmsg;
+    ATH_MSG_DEBUG( "*** Not Executing this TrigCheckForTracks " << name() << ", not a calib chain" );
     return HLT::OK;
   }
   //--< PEB Related Stuff
@@ -161,34 +156,25 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 
   const TrackCollection* tracks = 0;
 
-  if (evtStore()->transientContains<TrackCollection>(tracksName)) {
-    if (msgLvl() <= MSG::DEBUG ) {
-      msg()  << MSG::DEBUG << "*** TrackCollection with name "<< tracksName <<" found in StoreGate (transientContains)" << endmsg;
-    }
+  if (evtStore()->transientContains<TrackCollection>(m_tracksName)) {
+    ATH_MSG_DEBUG( MSG::DEBUG << "*** TrackCollection with name "<< m_tracksName <<" found in StoreGate (transientContains)"  );
   }
   else {
-    if (msgLvl() <= MSG::DEBUG ) {
-      msg()  << MSG::DEBUG << "*** No TrackCollection with name" << tracksName << " found in StoreGate (transientContains)" << endmsg;
-    }
+    ATH_MSG_DEBUG( "*** No TrackCollection with name" << m_tracksName << " found in StoreGate (transientContains)"  );
     return HLT::OK;
   }
   
-  StatusCode sc = evtStore()->retrieve(tracks,tracksName);
+  StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
   
-  msg()  << MSG::DEBUG << "***** Status code: "<< sc << " for key: " << tracksName << endmsg;
+  ATH_MSG_DEBUG( "***** Status code: "<< sc << " for key: " << m_tracksName  );
 
   if (sc.isFailure()) {
-    if (msgLvl() <= MSG::DEBUG ) {
-      msg()  << MSG::DEBUG << "No TrackCollection with name "<<tracksName<<" found in StoreGate" << endmsg;
-    }
+    ATH_MSG_DEBUG( "No TrackCollection with name "<<m_tracksName<<" found in StoreGate"  );
     m_errorEvts++;
     m_rejectedEvts++;
   } else {
-    if (msgLvl() <= MSG::DEBUG ) {
-      msg()  << MSG::DEBUG << "TrackCollection with name "<<tracksName<<" found in StoreGate" << endmsg;
-      msg()  << MSG::DEBUG << "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate" << endmsg;
-    }
-    
+    ATH_MSG_DEBUG( "TrackCollection with name "<<m_tracksName<<" found in StoreGate"  );
+    ATH_MSG_DEBUG( "Retrieved "<< tracks->size() <<" reconstructed tracks from StoreGate"  );
 
     // Have found tracks...
     // Now loop over the tracks to find the isolated ones.
@@ -216,7 +202,7 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 	  
 	  bool gotIsoTrack = true;
 	  
-	  if (!lookForAnyTracks) 
+	  if (!m_lookForAnyTracks) 
 	    {
 
 	      for (TrackCollection::const_iterator jt = tracks->begin(); jt!=tracks->end(); ++jt)
@@ -225,16 +211,12 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 
 		  const Trk::Perigee *jp = (*jt)->perigeeParameters();
 		  
-		  //	      msg() << MSG::INFO << "pT " << jp->pT() << " eta " << jp->eta() << endmsg;
-		  
 
 		  double dphi = fabs(ip->parameters()[Trk::phi] - jp->parameters()[Trk::phi]);
 		  if(dphi>M_PI) dphi = 2*M_PI-dphi;
 		  
 		  double dR = sqrt(pow((ip->eta() - jp->eta()),2) + pow(dphi,2));
 		  m_dR.push_back(dR);
-		  
-		  //	      msg() << MSG::INFO << "DR Tracks " << dR << endmsg; 
 		  
 		  if ((fabs(jp->pT()) > m_pT_min_iso) && (dR > m_dR0_overlap) && (dR < m_dR0 ) ) {
 		    gotIsoTrack = false;	      
@@ -260,10 +242,10 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 	    while (phiMIN < 0)      phiMIN += 2*M_PI;
 	    while (phiMAX > 2*M_PI) phiMAX -= 2*M_PI;
 	    
-	    TrigRoiDescriptor _roi( ip->eta(), etaMIN, etaMAX, ip->parameters()[Trk::phi], phiMIN, phiMAX );
+	    TrigRoiDescriptor roi( ip->eta(), etaMIN, etaMAX, ip->parameters()[Trk::phi], phiMIN, phiMAX );
 
 	    // now add ROBs
-	    HLT::ErrorCode ec = m_robSelector->fillPEBInfo(*pebInfo, _roi, &m_dets, &m_nROBs);
+	    HLT::ErrorCode ec = m_robSelector->fillPEBInfo(*pebInfo, roi, &m_dets, &m_nROBs);
 	    if (ec != HLT::OK) return ec;
 	    
 	    
@@ -274,7 +256,7 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
             if(m_trigResults.size()!=0)
                 pebInfo->addSubDetector(m_trigResults);
 
-	    if (!doNotPass){
+	    if (!m_doNotPass){
 	      //generate output here
 	      //addRoI(output);
               HLT::TriggerElement* te = addRoI(output);
@@ -286,8 +268,8 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
 	}
     
       m_acceptedEvts++;
-      n_IsoTracks = count_IsoTracks ;  
-      msg() << MSG::DEBUG << "Found "<< n_IsoTracks <<" Isolated ("<< lookForAnyTracks  <<") Tracks" << endmsg;
+      m_n_IsoTracks = count_IsoTracks ;  
+      ATH_MSG_DEBUG( "Found "<< m_n_IsoTracks <<" Isolated ("<< m_lookForAnyTracks  <<") Tracks"  );
     }
     else {
       m_rejectedEvts++;

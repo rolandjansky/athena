@@ -31,9 +31,6 @@ class SCT_DetectorFactory : public InDetDD::DetectorFactoryBase
   // Access to the results: 
   virtual const InDetDD::SCT_DetectorManager * getDetectorManager() const; 
 
-  // Determine which alignment folders are loaded to decide if we register old or new folders
-  virtual InDetDD::AlignFolderType getAlignFolderType() const;
-
  private: 
   // Copy and assignments operations illegal and so are made private
   SCT_DetectorFactory(const SCT_DetectorFactory &right); 
@@ -41,6 +38,7 @@ class SCT_DetectorFactory : public InDetDD::DetectorFactoryBase
 
   InDetDD::SCT_DetectorManager *m_detectorManager;
   SCT_GeometryManager *m_geometryManager;
+  bool m_useDynamicAlignFolders;
 
 }; 
  

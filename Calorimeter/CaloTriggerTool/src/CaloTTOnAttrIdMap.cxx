@@ -45,7 +45,7 @@ void CaloTTOnAttrIdMap::set( const CaloTTOnAttrId& m ) {
      log << MSG::ERROR <<  "Cannot locate DetectorStore" << endreq;
   }
 
-  const TTOnlineID* online_id;
+  const TTOnlineID* online_id = nullptr;
 
   status=detStore->retrieve(online_id);
   if(status.isFailure()){
