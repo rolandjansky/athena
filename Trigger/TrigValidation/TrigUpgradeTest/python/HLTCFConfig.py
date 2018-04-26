@@ -74,7 +74,7 @@ def create_CFSequence(CFseq):
         subs.append(ath_sequence)
 
     stepReco = parOR(CFseq.name+"_reco", subs)
-    seqAndView = seqAND(CFseq.name+"_view", [stepReco,seq.hypo.Alg ])      
+    seqAndView = seqAND(CFseq.name+"_view", [stepReco,CFseq.menuSeq.hypo.Alg ])      
     stepAnd = seqAND(CFseq.name, [ filterAlg, seqAndView ])
     return stepAnd
 
@@ -151,13 +151,12 @@ def decisionTree_From_Chains(HLTNode, chains):
                         print "ERROR: found %d filter inputs and %d seeds"%(len(filter_input), len(previous_seeds))
                         sys.exit("ERROR, in size") 
 
-                # add hypotools
-                for nodeSeq in sequence.nodeSeqList:
-                    hypoAlg= nodeSeq.hypo
-                    hypoToolClassName= nodeSeq.hypoToolClassName
-                    if DH_DEBUG: print "Adding HypoTool::%s with name %s to %s"%(hypoToolClassName,chain.hypoToolName, hypoAlg.algname)
-                    hypoAlg.addHypoTool(chain.hypoToolName, hypoToolClassName)
-                    addChainToHypoAlg(hypoAlg, chain.name) # only for TMP Combo
+               
+                hypoAlg= sequence.hypo
+                hypoToolClassName= sequence.hypoToolClassName
+                if DH_DEBUG: print "Adding HypoTool::%s with name %s to %s"%(hypoToolClassName,chain.hypoToolName, hypoAlg.algname)
+                hypoAlg.addHypoTool(chain.hypoToolName, hypoToolClassName)
+                addChainToHypoAlg(hypoAlg, chain.name) # only for TMP Combo
 
                 #### Build the FILTER
                 # one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
@@ -201,15 +200,15 @@ def decisionTree_From_Chains(HLTNode, chains):
                         sys.exit("ERROR, no outputs to sequence are set!") 
                     if DH_DEBUG:
                         print "connecting InputMaker to HypoAlg"
-                        print "Adding %d output to InputMaker::%s and sending to HypoAlg::%s"%(len(input_maker_output), nodeSeq.maker.algname, nodeSeq.hypo.algname)
+                        print "Adding %d output to InputMaker::%s and sending to HypoAlg::%s"%(len(input_maker_output), nodeSeq.maker.algname, sequence.hypo.algname)
                         for i in input_maker_output: print i
                    
                     for out in input_maker_output:
                           nodeSeq.addOutputDecision(out) 
-                          nodeSeq.hypo.setPreviousDecision(out)
+                          sequence.hypo.setPreviousDecision(out)
 
-                    #needed for the summary
-                    step_decisions.append(nodeSeq.output)                
+                #needed for the summary
+                step_decisions.extend(sequence.outputs)                
                                     
                 CF_seq = CFSequence( cfseq_name, FilterAlg=sfilter, MenuSequence=sequence)
                 if DH_DEBUG:  print CF_seq

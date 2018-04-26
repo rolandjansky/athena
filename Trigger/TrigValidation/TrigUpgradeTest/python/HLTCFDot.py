@@ -107,9 +107,9 @@ def all_DataFlow_to_dot(name, step_list):
                     file.write("    %s[fillcolor=%s]\n"%(seq.maker.algname, algColor(seq.maker.algname)))
                     file.write("    %s[fillcolor=%s]\n"%(seq.sequence.algname, algColor(seq.sequence.algname)))
                     seq.reuse=True
-                cfseq_algs.append(seq.hypo)
-                last_step_hypoNodes.append(seq.hypo)
-                file.write("    %s[color=%s]\n"%(seq.hypo.algname, algColor(seq.hypo.algname)))
+            cfseq_algs.append(cfseq.menuSeq.hypo)
+            last_step_hypoNodes.append(cfseq.menuSeq.hypo)
+            file.write("    %s[color=%s]\n"%(cfseq.menuSeq.hypo.algname, algColor(cfseq.menuSeq.hypo.algname)))
             file.write('  }\n')              
             file.write(findConnections(cfseq_algs))
             file.write('\n')
@@ -155,9 +155,9 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
                 file.write("    %s[fillcolor=%s]\n"%(seq.maker.algname, algColor(seq.maker.algname)))
                 file.write("    %s[fillcolor=%s]\n"%(seq.sequence.algname, algColor(seq.sequence.algname)))
                 seq.reuse=True
-            cfseq_algs.append(seq.hypo)
+        cfseq_algs.append(cfseq.menuSeq.hypo)
  
-            file.write("    %s[color=%s]\n"%(seq.hypo.algname, algColor(seq.hypo.algname)))
+        file.write("    %s[color=%s]\n"%(cfseq.menuSeq.hypo.algname, algColor(cfseq.menuSeq.hypo.algname)))
         file.write('  }\n')              
         file.write(findConnections(cfseq_algs))
         file.write('\n')    
@@ -172,6 +172,9 @@ def findConnections(alg_list):
         for nodeB in alg_list:
             if nodeA is nodeB:
                 continue
+            #print "get connections between %s and %s"%(nodeA.algname, nodeB.algname)
+            print nodeA.getOutputList()
+            print nodeB.getOutputList()
             dataIntersection = list(set(nodeA.getOutputList()) & set(nodeB.getInputList()))
             if len(dataIntersection) > 0:
                 for line in dataIntersection:

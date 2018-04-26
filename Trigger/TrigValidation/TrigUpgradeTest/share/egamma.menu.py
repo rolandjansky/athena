@@ -90,12 +90,13 @@ fastCaloSequence =  seqAND("fastCaloSequence",[fastCaloViewsMaker, fastCaloInVie
 
 fastCalo_NodeSequence = NodeSequence("fastCalo_NodeSequence",
                                          Sequence=fastCaloSequence,
-                                         Maker=fastCaloViewsMaker,
-                                         Hypo=theFastCaloHypo,
-                                         HypoToolClassName="TrigL2CaloHypoToolConf",
+                                         Maker=fastCaloViewsMaker,                                         
                                          Seed="L1EM")
 
-fastCaloSequence = MenuSequence("egammaCaloStep", nodeSeqList=[fastCalo_NodeSequence])
+fastCaloSequence = MenuSequence("egammaCaloStep",
+                                    nodeSeqList=[fastCalo_NodeSequence],
+                                    Hypo=theFastCaloHypo,
+                                    HypoToolClassName="TrigL2CaloHypoToolConf",)
 
 #########################################
 # second step:  tracking.....
@@ -166,14 +167,15 @@ electronViewSequence = seqAND("electronViewSequence", eventAlgs + [l2ElectronVie
 electronSequence = seqAND("electronSequence", [electronViewSequence] )
 
 electron_NodeSequence = NodeSequence("electron_NodeSequence",
-                                        Maker=l2ElectronViewsMaker,                                        
-                                        Sequence=electronSequence,
-                                        Hypo=theElectronHypo,
-                                        HypoToolClassName="TrigL2ElectronHypoToolConf",
-                                        Seed="L1EM")
+                                       Maker=l2ElectronViewsMaker,                                        
+                                       Sequence=electronSequence,
+                                       Seed="L1EM")
 
 
-electronSequence = MenuSequence("electronStep", nodeSeqList=[electron_NodeSequence])
+electronSequence = MenuSequence("electronStep",
+                                    nodeSeqList=[electron_NodeSequence],
+                                    Hypo=theElectronHypo,
+                                    HypoToolClassName="TrigL2ElectronHypoToolConf")
 
 ##########################################
 # menu

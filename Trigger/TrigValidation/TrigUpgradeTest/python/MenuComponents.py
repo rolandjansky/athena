@@ -130,20 +130,12 @@ class HypoAlgNode(AlgNode):
         self.previous=[]
 
     def addHypoTool(self, hypoToolName, hypoToolClassName):
-        from TrigUpgradeTest.MenuHypoTools import createHypoTool
-        if hypoToolClassName is "ComboTestHypoTool":
-            ###TMP combo, only one threshold
-            import re
-            thresholds = map(int, re.findall(r'\d+', hypoToolName))
-            self.setPar('Threshold1', thresholds[0])
-            self.setPar('Threshold2', thresholds[1])
-            status=self.setPar('DecisionLabel', hypoToolName)
-        else:
-            self.tools.append(hypoToolName)            
-            tools = self.Alg.HypoTools
-            ## HypoTools are private, so need to be created when added to the Alg
-            self.Alg.HypoTools = tools+[createHypoTool(hypoToolClassName, hypoToolName)]
-            status = 0
+        from TrigUpgradeTest.MenuHypoTools import createHypoTool        
+        self.tools.append(hypoToolName)            
+        tools = self.Alg.HypoTools
+        ## HypoTools are private, so need to be created when added to the Alg
+        self.Alg.HypoTools = tools+[createHypoTool(hypoToolClassName, hypoToolName)]
+        status = 0
         return status
 
     def addPreviousDecision(self,prev):
@@ -151,29 +143,10 @@ class HypoAlgNode(AlgNode):
         status= self.setParArray('previousDecisions',prev)
         return status
 
-    def setPreviousDecision(self,prev):
-        if "Comb" in self.name: ###TMP combo: how handle previous decisions in combo?            
-            self.previous.append(prev)
-            if  "from_L1MU" in prev:
-                if "pt" in self.getPar("Property1"):
-                    status= self.setPar('previousDecisions1',prev)
-                if "pt" in self.getPar("Property2"):
-                    status= self.setPar('previousDecisions2',prev)
-
-            if  "from_L1EM" in prev:
-                if "et" in self.getPar("Property1"):
-                    status= self.setPar('previousDecisions1',prev)
-                if "et" in self.getPar("Property2"):
-                    status= self.setPar('previousDecisions2',prev)          
-            if "MuInputMaker" in prev:
-                status= self.setPar('previousDecisions1',prev)
-            if "ElInputMaker" in prev:
-                status= self.setPar('previousDecisions2',prev)                        
-        else:
-            self.previous.append(prev)
-            status= self.setPar('previousDecisions',prev)
-
-        return status
+    def setPreviousDecision(self,prev):        
+        self.previous.append(prev)
+        return self.setPar('previousDecisions',prev)
+    
 
     def __str__(self):
         return "HypoAlg::%s  [%s] -> [%s], previous = [%s], HypoTools=[%s]"%(self.Alg.name(),' '.join(map(str, self.getInputList())),
@@ -181,6 +154,73 @@ class HypoAlgNode(AlgNode):
                                                                                  ' '.join(map(str, self.previous)),
                                                                                  ' '.join(map(str, self.tools)))
 
+
+
+class ComboHypoAlgNode(HypoAlgNode):
+    # TMP class for curent Combo alg
+    def __init__(self, Alg, inputProp, outputProp):
+        HypoAlgNode.__init__(self, Alg, inputProp, outputProp)
+        self.addDefaultOutput()
+
+    def addDefaultOutput(self):
+         self.setPar('Output1', ("%s_Output1"%(self.algname)))
+         self.setPar('Output2', ("%s_Output2"%(self.algname)))
+
+    def setInputs(self, inputs):
+        self.setPar('previousDecisions1', inputs[0])
+        self.setPar('previousDecisions2', inputs[1])
+
+    def setOutputs(self, outputs):
+        self.setPar('Output1', outputs[0])
+        self.setPar('Output2', outputs[1])
+
+
+    def addHypoTool(self, hypoToolName, hypoToolClassName):
+        self.tools.append(hypoToolName) 
+        import re
+        thresholds = map(int, re.findall(r'\d+', hypoToolName))
+        self.setPar('Threshold1', thresholds[0])
+        self.setPar('Threshold2', thresholds[1])
+        return self.setPar('DecisionLabel', hypoToolName)        
+
+
+    def setPreviousDecision(self,prev):
+        self.previous.append(prev)
+        if  "from_L1MU" in prev:
+            if "pt" in self.getPar("Property1"):
+                status= self.setPar('previousDecisions1',prev)
+            if "pt" in self.getPar("Property2"):
+                status= self.setPar('previousDecisions2',prev)
+
+        if  "from_L1EM" in prev:
+            if "et" in self.getPar("Property1"):
+                status= self.setPar('previousDecisions1',prev)
+            if "et" in self.getPar("Property2"):
+                status= self.setPar('previousDecisions2',prev)          
+        if "MuInputMaker" in prev:
+            status= self.setPar('previousDecisions1',prev)
+        if "ElInputMaker" in prev:
+            status= self.setPar('previousDecisions2',prev)
+        return status
+
+    def getOutputList(self):
+        outputs = []
+        outputs.append(self.getPar('Output1'))
+        outputs.append(self.getPar('Output2'))
+        return outputs
+    
+    def getInputList(self):
+        inputs = []
+        inputs.append(self.getPar('previousDecisions1'))
+        inputs.append(self.getPar('previousDecisions2'))
+        return inputs
+        
+
+    def __str__(self):
+        return "ComboHypoAlg::%s  [%s] -> [%s], previous = [%s], HypoTools=[%s]"%(self.Alg.name(),' '.join(map(str, self.getInputList())),
+                                                                                 ' '.join(map(str, self.getOutputList())),
+                                                                                 ' '.join(map(str, self.previous)),
+                                                                                 ' '.join(map(str, self.tools)))
 
 class SequenceFilterNode(AlgNode):
     def __init__(self, Alg, inputProp, outputProp):
@@ -217,29 +257,18 @@ class RoRSequenceFilterNode(SequenceFilterNode):
 # NOW sequences and chains
 ##########################################################
 
+    
 class NodeSequence():
-    def __init__(self, name, Sequence, Hypo, Seed, Maker, HypoToolClassName):
-        print "Making sequence %s"%(name)
+    def __init__(self, name, Sequence, Maker, Seed):
+        print "Making NEW sequence %s"%(name)
         self.name = name
         self.seed = Seed
         self.sequence =    Node( Alg=Sequence, inputProp='%s_in'%(Sequence.name()), outputProp='%s_out'%(Sequence.name()))
         self.maker =    AlgNode( Alg=Maker, inputProp='InputDecisions',    outputProp='OutputDecisions')
-
-        self.hypoToolClassName = HypoToolClassName        
-        # tmp for combo algo
-        if "Combo1" in name:
-            self.hypo = HypoAlgNode( Alg=Hypo,  inputProp='previousDecisions1', outputProp='Output1')
-        elif "Combo2" in name:
-            self.hypo = HypoAlgNode( Alg=Hypo,  inputProp='previousDecisions2', outputProp='Output2')
-        else:
-            self.hypo = HypoAlgNode( Alg=Hypo,  inputProp='previousDecisions', outputProp='Output')
-            
-        self.output = "%s_%s"%(Seed, self.hypo.getOutput())
-        self.hypo.setOutput(self.output)
         self.reuse = False     
 
     def getOutputList(self):
-        return self.hypo.getOutput()
+        return self.maker.getOutput()
 
     def getInputList(self):
         return self.maker.getInput()
@@ -253,31 +282,46 @@ class NodeSequence():
         self.maker.setPar("OutputDecisions", theinput)
         
     def __str__(self):
-        return "NodeSequence::%s with \n Seed::%s \n Maker::%s \n Hypo::%s \n Sequence::%s"%(self.name, self.seed, self.maker, self.hypo, self.sequence)
+        return "NodeSequence::%s with \n Seed::%s \n Maker::%s  \n Sequence::%s"%(self.name, self.seed, self.maker, self.sequence)
 
-        
-    
+
+
 class MenuSequence():
-    def __init__(self, name, nodeSeqList):
+    def __init__(self, name, nodeSeqList,  Hypo, HypoToolClassName):
         from AthenaCommon.AlgSequence import AthSequencer
         self.name = name
         self.nodeSeqList=nodeSeqList
-        self.outputs=[seq.output for seq in nodeSeqList]
+        self.hypoToolClassName = HypoToolClassName
         self.seeds=[seq.seed for seq in nodeSeqList]
+        self.outputs=[]
+        if "Combo" in name:
+            self.hypo = ComboHypoAlgNode( Alg=Hypo,  inputProp='', outputProp='')
+            new_outputs = []
+            outputs=self.hypo.getOutputList()
+            iseq=0
+            for seq in self.nodeSeqList:
+                new_outputs.append("%s_%s"%(seq.seed, outputs[iseq]))
+            
+            self.hypo.setOutputs(new_outputs)
+            self.outputs=new_outputs
+        
+        elif len(self.nodeSeqList) == 1:
+            self.hypo = HypoAlgNode( Alg=Hypo,  inputProp='previousDecisions', outputProp='Output')
+            new_output = "%s_%s"%(self.nodeSeqList[0].seed, self.hypo.getOutput())
+            self.hypo.setOutput(new_output)
+            self.outputs.append(new_output)
+
+
         
     def __str__(self):
-        return "MenuSequence::%s \n %s"%(self.name,',\n '.join(map(str, self.nodeSeqList)))
+        return "MenuSequence::%s \n Hypo::%s \n %s"%(self.name, self.hypo, ',\n '.join(map(str, self.nodeSeqList)))
 
-
+    
 class CFSequence():
     def __init__(self, name, FilterAlg, MenuSequence):
         self.name = name        
         self.filter = FilterAlg
         self.menuSeq = MenuSequence
-        self.otherNodes = []
-
-    def addNode(self, node):
-        self.otherNodes.append(node)
     
     def __str__(self):
         return "--- CFSequence %s ---\n + Filter: %s \n +  %s \n "%(self.name,\
