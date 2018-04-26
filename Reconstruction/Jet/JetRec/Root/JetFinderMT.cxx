@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// JetFinder.cxx
+// JetFinderMT.cxx
 
-#include "JetRec/JetFinder.h"
+#include "JetRec/JetFinderMT.h"
 #include <iomanip>
 #include <sstream>
 #include "fastjet/PseudoJet.hh"
@@ -19,9 +19,12 @@
 #include "JetEDM/FastJetUtils.h"
 #include "JetEDM/PseudoJetVector.h"
 #include "JetEDM/ClusterSequence.h"
-#include "JetEDM/IConstituentUserInfo.h"
-#include "JetEDM/JetConstituentFiller.h"
-#include "xAODJet/JetContainerInfo.h"
+
+#include "JetEDM/FastJetLink.h"       // templated Jet_v1::setPseudoJet
+#include "xAODJet/Jet_PseudoJet.icc"  // templated Jet_v1::setPseudoJet
+
+// #include "JetRec/JetFromPseudojet.h"
+#include <algorithm>
 
 #ifdef USE_BOOST_AUTO
 #include <boost/typeof/typeof.hpp>
@@ -36,20 +39,20 @@ using std::setw;
 using fastjet::contrib::VariableRPlugin;
 #endif
 using xAOD::JetContainer;
-using jet::IConstituentUserInfo;
-using jet::JetConstituentFiller;
+// using jet::IConstituentUserInfo;
+// using jet::JetConstituentFiller;
 
-typedef IJetFinder::NameList NameList;
+// typedef IJetFinderMT::NameList NameList;
 
 //**********************************************************************
 
-JetFinder::JetFinder(string name)
+JetFinderMT::JetFinderMT(string name)
 : AsgTool(name),
-  m_bld("JetFromPseudojet"),
+  // m_bld("JetFromPseudojet"),
   m_fjalg(fastjet::undefined_jet_algorithm),
   m_isVariableR(false) {
-  declareProperty("JetAlgorithm", m_jetalg);
-  declareProperty("JetRadius", m_jetrad =0.0);
+  declareProperty("JetAlgorithm", m_jetalg="AntiKt");
+  declareProperty("JetRadius", m_jetrad =0.4);
   declareProperty("VariableRMinRadius", m_minrad =-1.0);
   declareProperty("VariableRMassScale", m_massscale =-1.0);
   declareProperty("PtMin", m_ptmin =0.0);
@@ -60,7 +63,7 @@ JetFinder::JetFinder(string name)
 
 //**********************************************************************
 
-StatusCode JetFinder::initialize() {
+StatusCode JetFinderMT::initialize() {
   ATH_MSG_DEBUG("Initializing...");
   xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_jetalg);
   m_fjalg = xAOD::JetAlgorithmType::fastJetDef(ialg);
@@ -73,10 +76,13 @@ StatusCode JetFinder::initialize() {
     ATH_MSG_ERROR("Invalid jet size parameter: " << m_jetrad);
     return StatusCode::FAILURE;
   }
+  /*
   if ( m_bld.empty() ) {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
   }
   ATH_CHECK(m_bld.retrieve());
+  */
+
   fastjet::JetDefinition jetdef(m_fjalg, m_jetrad);
   PseudoJetVector empty;
   fastjet::ClusterSequence cs(empty, jetdef);
@@ -87,18 +93,57 @@ StatusCode JetFinder::initialize() {
     ATH_MSG_ERROR("Variable-R jet findng is not supported in theis build.");
   }
 #endif
+
+  // Input DataHandles
+  m_eventinfokey = "EventInfo";
+  ATH_CHECK( m_eventinfokey.initialize() );
+
+  std::string sdrop = "ToolSvc.";
+  std::string myname = name();
+  std::string::size_type ipos = myname.find(sdrop);
+  if ( ipos != std::string::npos ) myname.replace(ipos, sdrop.size(), "");
+  std::string cname = "ClusterSequence_JetFinderMT_" + myname;
+
+  cnameRKey = cname;
+  cnameWKey = cname;
+  ATH_CHECK( cnameRKey.initialize() );
+  ATH_CHECK( cnameWKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
 
 //**********************************************************************
 
-int JetFinder::find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
-                    xAOD::JetInput::Type inputtype,
-                    const NameList& ghostlabs) const {
+int JetFinderMT::find(const PseudoJetContainer& pjContainer, 
+                    xAOD::JetContainer & finalJets, 
+                    xAOD::JetInput::Type inputtype ) const {
+
+  constexpr bool doSave = true;
+  return _find(pjContainer, finalJets, inputtype, doSave);
+}
+
+//**********************************************************************
+
+int JetFinderMT::findNoSave(const PseudoJetContainer& pjContainer, 
+                    xAOD::JetContainer & finalJets, 
+                    xAOD::JetInput::Type inputtype ) const {
+
+  constexpr bool doSave = false;
+  return _find(pjContainer, finalJets, inputtype, doSave);
+}
+
+
+int JetFinderMT::_find(const PseudoJetContainer& pjContainer,
+                       xAOD::JetContainer& jets,
+                       xAOD::JetInput::Type inputtype,
+                       bool doSave) const {
   if ( m_fjalg == fastjet::undefined_jet_algorithm ) {
     ATH_MSG_ERROR("Jet finder is not properly initiialized.");
     return 1;
   }
+
+  PseudoJetVector inps = pjContainer.asVectorPseudoJet();
+
   ATH_MSG_DEBUG("Jet finding input count: " << inps.size());
   fastjet::JetDefinition jetdef(m_fjalg, m_jetrad);
 #ifndef NO_JET_VARIABLER
@@ -180,8 +225,14 @@ int JetFinder::find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
   ATH_MSG_DEBUG("Calling fastjet");
   PseudoJetVector outs = sorted_by_pt(pcs->inclusive_jets(m_ptmin));
   ATH_MSG_DEBUG("Found jet count: " << outs.size());
-  for ( PseudoJetVector::const_iterator ijet=outs.begin(); ijet!=outs.end(); ++ijet ) {
-    xAOD::Jet* pjet = m_bld->add(*ijet, jets, inputtype, ghostlabs);
+  // for ( PseudoJetVector::const_iterator ijet=outs.begin(); ijet!=outs.end(); ++ijet ) {
+  for (const auto &  pj: outs ) {
+    xAOD::Jet* pjet = m_bld->add(pj, pjContainer, jets, inputtype);
+    
+    // transfer the  contituents of pseudojet (which are pseudojets)
+    // to constiuents of jet (which are IParticles)
+    // pjContainer.extractConstituents(*pjet, pj);
+
     xAOD::JetAlgorithmType::ID ialg = xAOD::JetAlgorithmType::algId(m_fjalg);
     pjet->setAlgorithmType(ialg);
     pjet->setSizeParameter(m_jetrad);
@@ -192,52 +243,34 @@ int JetFinder::find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
     pjet->setAttribute("JetGhostArea", m_ghostarea);
   }
   ATH_MSG_DEBUG("Reconstructed jet count: " << jets.size() <<  "  clusterseq="<<pcs);
-  
   for(const xAOD::Jet* j : jets){
     ATH_MSG_DEBUG("jets reconstructed no of constituents "
                   << j->numConstituents());
   }
 
-  if ( outs.size() ) save(pcs);
-  else delete pcs;
+  // (outs.size() && doSave) ? save(pcs) : delete pcs;
+  if(doSave){save(pcs);}  // do not delete as needed by the trigger
+  // vpj.clear();
+
   return 0;
 }
 
+
 //**********************************************************************
 
-void JetFinder::save(fastjet::ClusterSequence* pcs) const {
-  // Create name for event store.
-  string sdrop = "ToolSvc.";
-  string myname = name();
-  string::size_type ipos = myname.find(sdrop);
-  if ( ipos != string::npos ) myname.replace(ipos, sdrop.size(), "");
-  std::string cname = "ClusterSequence_JetFinder_" + myname;
-  // Append version number if name already exists.
-  if ( evtStore()->contains<fastjet::ClusterSequence>(cname) ) {
-    bool found = false;
-    for ( int iver=1; iver<100; ++iver ) {
-      std::ostringstream ssnewname;
-      ssnewname << cname << "_";
-      if ( iver < 10 ) ssnewname << "00";
-      if ( iver < 100 ) ssnewname << "0";
-      ssnewname << iver;
-      string newname = ssnewname.str();
-      if ( ! evtStore()->contains<fastjet::ClusterSequence>(newname) ) {
-        found = true;
-        cname = newname;
-        break;
-      }
-    }
-    if ( ! found ) {
-      ATH_MSG_WARNING("Event store already contains " << cname);
-    }
-  }
-  if ( ! evtStore()->record(pcs, cname).isSuccess() ) {
-    ATH_MSG_WARNING("Unable to record " << cname);
+void JetFinderMT::save(fastjet::ClusterSequence* pcs) const {
+
+  auto handle_out = SG::makeHandle(cnameWKey);
+  if ( ! handle_out.record( std::unique_ptr<fastjet::ClusterSequence>(pcs)) ) {
+    ATH_MSG_WARNING("Unable to record " << cnameWKey.key());
   } else {
-    ATH_MSG_DEBUG("Recorded " << cname << "   " << pcs );
+    ATH_MSG_DEBUG("Recorded " << cnameWKey.key() << "   " << pcs );
   }
-  bool present = evtStore()->contains<fastjet::ClusterSequence>(cname);
+  auto handle_in = SG::makeHandle(cnameRKey);
+  bool present = false;
+  if ( handle_in.isValid()) {
+    present = true;
+  }
   ATH_MSG_DEBUG("Check presence: " << present);
   ATH_MSG_DEBUG("Will delete self: " << pcs->will_delete_self_when_unused());
   const fastjet::SharedPtr<fastjet::PseudoJetStructureBase>& shrptr = pcs->structure_shared_ptr();
@@ -247,13 +280,13 @@ void JetFinder::save(fastjet::ClusterSequence* pcs) const {
 
 //**********************************************************************
 
-bool JetFinder::isVariableR() const {
+bool JetFinderMT::isVariableR() const {
   return m_isVariableR;
 }
 
 //**********************************************************************
 
-void JetFinder::print() const {
+void JetFinderMT::print() const {
   ATH_MSG_INFO("      Jet algorithm: " << m_jetalg);
   if ( isVariableR() ) {
     ATH_MSG_INFO("         Variable-R: true");

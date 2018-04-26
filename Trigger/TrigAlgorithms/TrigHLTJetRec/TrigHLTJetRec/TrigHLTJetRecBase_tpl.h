@@ -23,14 +23,14 @@ template<typename InputContainer>
 TrigHLTJetRecBase<InputContainer>::TrigHLTJetRecBase(const std::string& name, 
                                                      ISvcLocator* pSvcLocator):
 HLT::FexAlgo( name, pSvcLocator ) {
-  declareProperty( "jetBuildTool", m_jetbuildTool);
-  declareProperty( "pseudoJetGetter", m_pseudoJetGetter);
+  declareProperty( "jetBuildTool", m_jetBuildTool);
+  // declareProperty( "pseudoJetGetter", m_pseudoJetGetter);
   declareProperty( "cluster_calib", m_clusterCalib);
   declareProperty( "output_collection_label", m_outputCollectionLabel);
-  declareProperty( "pseudojet_labelindex_arg", m_pseudoJetLabelIndexArg);
-  declareProperty( "iPseudoJetSelector", m_IPseudoJetSelector);
+  // declareProperty( "pseudojet_labelindex_arg", m_pseudoJetLabelIndexArg);
+  // declareProperty( "iPseudoJetSelector", m_IPseudoJetSelector);
   declareProperty( "secondary_label", m_secondarylabel);
-  declareProperty( "secondarypseudoJetGetter", m_secondarypseudoJetGetter = NULL);
+  // declareProperty( "secondarypseudoJetGetter", m_secondarypseudoJetGetter = NULL);
 }
 
 
@@ -46,55 +46,53 @@ HLT::ErrorCode TrigHLTJetRecBase<InputContainer>::hltInitialize() {
 
   ATH_MSG_INFO("Initializing " << name() << "...");
   ATH_MSG_INFO("Retrieving tools...");
-  auto sc = m_jetbuildTool.retrieve();
+  auto sc = m_jetBuildTool.retrieve();
   
   if (sc.isSuccess()) {
     ATH_MSG_INFO("Retrieved  jetBuildTool "
-                 <<  m_jetbuildTool -> name());
+                 <<  m_jetBuildTool -> name());
+    m_jetBuildTool->print();
   }else{
     ATH_MSG_ERROR("Unable to retrieve the jetBuildTool.");
     return HLT::ERROR;
   }
 
-  if  (m_IPseudoJetSelector.retrieve().isSuccess()){
-    ATH_MSG_INFO("Retrieved IPseudoJetSelector "
-                 <<  m_IPseudoJetSelector->name());
-  } else {
-    ATH_MSG_ERROR("Unable to retrieve the IPseudoJetSelector");
-    return HLT::ERROR;
-  }
+  //PS 3/4/18  if  (m_IPseudoJetSelector.retrieve().isSuccess()){
+  //PS 3/4/18    ATH_MSG_INFO("Retrieved IPseudoJetSelector "
+  //PS 3/4/18                 <<  m_IPseudoJetSelector->name());
+  //PS 3/4/18  } else {
+  //PS 3/4/18    ATH_MSG_ERROR("Unable to retrieve the IPseudoJetSelector");
+  //PS 3/4/18    return HLT::ERROR;
+  //PS 3/4/18  }
 
-  if  (m_pseudoJetGetter.retrieve().isSuccess()){
-      ATH_MSG_INFO("Retrieved  shared PseudoJetGetter "
-                   <<  m_pseudoJetGetter->name());
-  } else {
-    ATH_MSG_ERROR("Unable to retrieve shared PseudoJetGetter");
-    return HLT::ERROR;
-  }
+  //PS 3/4/18  if  (m_pseudoJetGetter.retrieve().isSuccess()){
+  //PS 3/4/18      ATH_MSG_INFO("Retrieved  shared PseudoJetGetter "
+  //PS 3/4/18                   <<  m_pseudoJetGetter->name());
+  //PS 3/4/18  } else {
+  //PS 3/4/18    ATH_MSG_ERROR("Unable to retrieve shared PseudoJetGetter");
+  //PS 3/4/18    return HLT::ERROR;
+  //PS 3/4/18  }
 
-   ATH_MSG_DEBUG("checking secondary label for secondary pseudojet getter...");
-   if ( !secondaryLabelisEmpty() ){
-	ATH_MSG_DEBUG("Retrieving secondary pseudojet getter...");
-	if  (m_secondarypseudoJetGetter.retrieve().isSuccess()){
-      		ATH_MSG_DEBUG("Retrieved  secondary PseudoJetGetter "
-                   <<  m_secondarypseudoJetGetter->name());
-  	} else {
-    		ATH_MSG_ERROR("Unable to retrieve secondary PseudoJetGetter");
-    		return HLT::ERROR;
-  	}
-   }
-   else {
-	ATH_MSG_DEBUG("No secondary PseudojetGetter required. Will disable the tool handle.");
-	m_secondarypseudoJetGetter.disable();
-   }
+  //PS 3/4/18   ATH_MSG_DEBUG("checking secondary label for secondary pseudojet getter...");
+  //PS 3/4/18   if ( !secondaryLabelisEmpty() ){
+  //PS 3/4/18	ATH_MSG_DEBUG("Retrieving secondary pseudojet getter...");
+  //PS 3/4/18	if  (m_secondarypseudoJetGetter.retrieve().isSuccess()){
+  //PS 3/4/18      		ATH_MSG_DEBUG("Retrieved  secondary PseudoJetGetter "
+  //PS 3/4/18                   <<  m_secondarypseudoJetGetter->name());
+  //PS 3/4/18  	} else {
+  //PS 3/4/18    		ATH_MSG_ERROR("Unable to retrieve secondary PseudoJetGetter");
+  //PS 3/4/18    		return HLT::ERROR;
+  //PS 3/4/18  	}
+  //PS 3/4/18   }
+  //PS 3/4/18   else {
+  //PS 3/4/18	ATH_MSG_DEBUG("No secondary PseudojetGetter required. Will disable the tool handle.");
+  //PS 3/4/18	m_secondarypseudoJetGetter.disable();
+  //PS 3/4/18   }
 
   ATH_MSG_INFO("Tool retrieval completed.");
 
-  ATH_MSG_INFO("    " << m_jetbuildTool->name());
-  m_jetbuildTool->print();
-
-  ATH_MSG_INFO("  Shared PseudojetGetter:");
-  ATH_MSG_INFO("    " << m_pseudoJetGetter->name());
+  //PS 3/4/18  ATH_MSG_INFO("  Shared PseudojetGetter:");
+  //PS 3/4/18  ATH_MSG_INFO("    " << m_pseudoJetGetter->name());
 
   return HLT::OK;
 }
@@ -122,11 +120,14 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
    */
 
   ATH_MSG_VERBOSE("Executing " << name() << "...");
-  ATH_MSG_DEBUG("Executing tool " << m_jetbuildTool->name());
+  ATH_MSG_DEBUG("Executing tool " << m_jetBuildTool->name());
   
   ATH_MSG_DEBUG("outputTE->getId(): " << outputTE->getId());
   ATH_MSG_DEBUG("inputTE->getId(): " << inputTE->getId());
 
+  // clear the jet build tools
+  m_jetBuildTool->resetInputs();
+  
   const InputContainer* inContainer = nullptr;
   auto status = this -> getInputContainer(outputTE, inContainer);
 
@@ -141,54 +142,64 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
 
   //convert selected inputs to pseudojets
   // LabelIndex* indexMap = new LabelIndex("PseudoJetLabelMapTrigger");
-  jet::LabelIndex* indexMap = new jet::LabelIndex(m_pseudoJetLabelIndexArg);
-  jet::PseudoJetVector pjv_in;
+  //PS 3/4/18 jet::LabelIndex* indexMap = new jet::LabelIndex(m_pseudoJetLabelIndexArg);
+  //PS 3/4/18 jet::PseudoJetVector pjv_in;
   
-  status = this -> getPseudoJets(inContainer, indexMap, pjv_in);
-  if (status == HLT::OK) {
-    ATH_MSG_DEBUG("Obtained pseudojets");
-  } else {
-    ATH_MSG_ERROR("Failed to get pseudojets ");
-    return status;
-  }
+  //PS 3/4/18 status = this -> getPseudoJets(inContainer, indexMap, pjv_in);
+  //PS 3/4/18 if (status == HLT::OK) {
+  //PS 3/4/18   ATH_MSG_DEBUG("Obtained pseudojets");
+  //PS 3/4/18 } else {
+  //PS 3/4/18   ATH_MSG_ERROR("Failed to get pseudojets ");
+  //PS 3/4/18   return status;
+  //PS 3/4/18 }
 
-  // select inputs
-  PseudoJetVector pjv;
-  auto sc = m_IPseudoJetSelector->select(pjv_in, pjv);
+  //PS 3/4/18 // select inputs
+  //PS 3/4/18 PseudoJetVector pjv;
+  //PS 3/4/18 auto sc = m_IPseudoJetSelector->select(pjv_in, pjv);
 
-  if (sc == StatusCode::SUCCESS) {
-    ATH_MSG_DEBUG("Selected jet reconstruction inputs "
-                  << pjv.size());
-  } else {
-    ATH_MSG_ERROR("Failed to select jet reconstruction constituents");
-    return HLT::ERROR;
-  }
+  //PS 3/4/18  if (sc == StatusCode::SUCCESS) {
+  //PS 3/4/18   ATH_MSG_DEBUG("Selected jet reconstruction inputs "
+  //PS 3/4/18                 << pjv.size());
+  //PS 3/4/18 } else {
+  //PS 3/4/18   ATH_MSG_ERROR("Failed to select jet reconstruction constituents");
+  //PS 3/4/18   return HLT::ERROR;
+  //PS 3/4/18 }
 
-  for(auto p: pjv)
-    {
-      ATH_MSG_DEBUG("pseudojet "  
-                    << " E " 
-                    << p.e() << " " 
-                    <<p.eta() );
-    }
+  //PS 3/4/18 for(auto p: pjv)
+  //PS 3/4/18   {
+  //PS 3/4/18     ATH_MSG_DEBUG("pseudojet "  
+  //PS 3/4/18                   << " E " 
+  //PS 3/4/18                   << p.e() << " " 
+  //PS 3/4/18                   <<p.eta() );
+  //PS 3/4/18   }
  
 
   // Load the pseudo jets into the TriggerSPseudoJetGetter tool
   // Despite the name, we push the pseudojets into the tool. This is
   // in contrast to offline PseudoJetGetters which fetch the pseudojets.
-  m_pseudoJetGetter->prime(&pjv);  
-  m_pseudoJetGetter->print();
+  //PS 3/4/18 m_pseudoJetGetter->prime(&pjv);  
+  //PS 3/4/18 m_pseudoJetGetter->print();
 
   // 
   // secondary pseudojet set up if secondary exists (at the moment only for clusters)
   //
-  jet::PseudoJetVector pjv_secondary;
-  status = this->checkforSecondaryPseudoJets(outputTE, indexMap, pjv_secondary);
+  //PS 3/4/18 jet::PseudoJetVector pjv_secondary;
+  //PS 3/4/18 status = this->checkforSecondaryPseudoJets(outputTE, indexMap, pjv_secondary);
   
-  ATH_MSG_DEBUG("Executing tool " << m_jetbuildTool->name());
+  //PS 3/4/18 ATH_MSG_DEBUG("Executing tool " << m_jetbuildTool->name());
 
   // auto j_container = m_jetbuildTool->build();
   //auto j_container = defaultBuild();
+
+  m_jetBuildTool->prime(inContainer);
+  ATH_MSG_DEBUG("Primed  jet build Tool");
+
+
+  // add in tracks if appropriate and configured. Implemented in subclasses
+  // addTracks(inputTE);
+
+  ATH_MSG_DEBUG("Executing tool " << m_jetBuildTool->name());
+  ATH_MSG_DEBUG(m_jetBuildTool->toString(1));
   auto j_container = build();
   
 
@@ -217,7 +228,7 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
 
   } 
 
-  delete indexMap;
+  // delete indexMap;
 
   status = attachJetCollection(outputTE, j_container);
   return status;
@@ -289,42 +300,48 @@ TrigHLTJetRecBase<InputContainer>::getInputContainer(const HLT::TriggerElement*
 }
 
 
-template<typename InputContainer>
-HLT::ErrorCode
-TrigHLTJetRecBase<InputContainer>::getPseudoJets(const InputContainer* ic,
-                                                 jet::LabelIndex* indexMap,
-                                                 jet::PseudoJetVector& pjv){
+//PS 3/4/18template<typename InputContainer>
+//PS 3/4/18HLT::ErrorCode
+//PS 3/4/18TrigHLTJetRecBase<InputContainer>::getPseudoJets(const InputContainer* ic,
+//PS 3/4/18                                                 jet::LabelIndex* indexMap,
+//PS 3/4/18                                                 jet::PseudoJetVector& pjv){
 
-  indexMap->addLabel(m_clusterCalib + "Topo");
+//PS 3/4/18  indexMap->addLabel(m_clusterCalib + "Topo");
 
   // convert IParticle objects to the fastjet::Pseudojets.
   // setup input object to PseudoJet convertor
-  AnyToPseudoJet<typename InputContainer::const_value_type> 
-    toPseudoJet(indexMap);
+//PS 3/4/18  AnyToPseudoJet<typename InputContainer::const_value_type> 
+//PS 3/4/18    toPseudoJet(indexMap);
 
   // create the pseudojets
-  std::transform(ic->cbegin(),
-                 ic->cend(),
-                 std::back_inserter(pjv),
-                 toPseudoJet);
+//PS 3/4/18  std::transform(ic->cbegin(),
+//PS 3/4/18                 ic->cend(),
+//PS 3/4/18                 std::back_inserter(pjv),
+//PS 3/4/18                 toPseudoJet);
 
-  ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
-  return HLT::OK;
-}
+//PS 3/4/18  ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
+//PS 3/4/18  return HLT::OK;
+//PS 3/4/18}
 
-template<typename InputContainer>
-HLT::ErrorCode
-TrigHLTJetRecBase<InputContainer>::checkforSecondaryPseudoJets(
-                                                 const HLT::TriggerElement* /*unused*/, 
-                                                 jet::LabelIndex* /*unused*/,
-                                                 jet::PseudoJetVector& /*unused*/){
-  ATH_MSG_INFO("No actions for loading of secondary pseudojets as input not of type calo cluster.");
-  return HLT::OK;
-}
+//PS 3/4/18template<typename InputContainer>
+//PS 3/4/18HLT::ErrorCode
+//PS 3/4/18TrigHLTJetRecBase<InputContainer>::checkforSecondaryPseudoJets(
+//PS 3/4/18                                                 const HLT::TriggerElement* /*unused*/, 
+                                                 // jet::LabelIndex* /*unused*/,
+//PS 3/4/18                                                 jet::PseudoJetVector& /*unused*/){
+//PS 3/4/18  ATH_MSG_INFO("No actions for loading of secondary pseudojets as input not of type calo cluster.");
+//PS 3/4/18  return HLT::OK;
+//PS 3/4/18}
 
 template<typename InputContainer>
 const xAOD::JetContainer*
 TrigHLTJetRecBase<InputContainer>::defaultBuild() const{
-  return m_jetbuildTool->build();
+  return m_jetBuildTool->build();
 
+}
+
+template<typename InputContainer>
+const PseudoJetContainer*
+TrigHLTJetRecBase<InputContainer>::getPseudoJetContainer() const {
+  return m_jetBuildTool->getInputPseudoJetContainer();
 }

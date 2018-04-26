@@ -22,6 +22,7 @@
 #include "JetEDM/PseudoJetVector.h"
 #include "TrigHLTJetRec/TrigHLTJetRecFunctions.h"
 #include "TrigHLTJetRec/IParticleVector.h"
+#include "TrigHLTJetRec/ITriggerJetBuildTool.h"
 
 class IJetBuildTool;
 // class JetRecTool;
@@ -46,53 +47,63 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
   
  protected:
 
+  /*
   virtual HLT::ErrorCode getPseudoJets(const InputContainer*,
                                        jet::LabelIndex* indexMap,
                                        jet::PseudoJetVector& pjv);
-
+  */
+  
   std::string getClusterCalib() const {return m_clusterCalib;}
   std::string getSecondaryLabel() const {return m_secondarylabel;}
   bool secondaryLabelisEmpty() const { return m_secondarylabel == ""; }
 
   // functions and variables for secondary(associated) pseudojets
+  /*
   virtual HLT::ErrorCode checkforSecondaryPseudoJets(
                                       const HLT::TriggerElement*,
                                       jet::LabelIndex*,
                                       jet::PseudoJetVector&);
+  */
 
-  ToolHandle<ITriggerPseudoJetGetter>  m_secondarypseudoJetGetter; // a secondary pseudojet getter (for e.g. ghost association)
+  // ToolHandle<ITriggerPseudoJetGetter>  m_secondarypseudoJetGetter; // a secondary pseudojet getter (for e.g. ghost association)
   //
 
   virtual const xAOD::JetContainer* build() const = 0; 
   const xAOD::JetContainer* defaultBuild() const;
 
+  const PseudoJetContainer* getPseudoJetContainer() const;
+
  private:
   std::string m_clusterCalib;
   std::string  m_secondarylabel; // to label secondary pseudojets
+  // IJetBuildTool - offline code to transform pseudojets to xAOD jets
+  ToolHandle<ITriggerJetBuildTool> m_jetBuildTool;
 
- HLT::ErrorCode getInputContainer(const HLT::TriggerElement*,
-                                  const InputContainer*&);
+ 
+  HLT::ErrorCode getInputContainer(const HLT::TriggerElement*,
+                                   const InputContainer*&);
 
  // IJetBuildTool - offline code to transform pseudojets to xAOD jets
- ToolHandle<IJetBuildTool> m_jetbuildTool;
+ // ToolHandle<IJetBuildTool> m_jetbuildTool;
  // ToolHandle<JetRecTool> m_jetbuildTool;
  
  /* A PseudojetGetter shared by this algorithm and the IJetBuildTool
     The algorithm loads the psg, the ijbt processes them. */
- ToolHandle<ITriggerPseudoJetGetter>  m_pseudoJetGetter;
+ // ToolHandle<ITriggerPseudoJetGetter>  m_pseudoJetGetter;
  
  /* A tool to select the pseudojets to be converted to jets */
- ToolHandle<IPseudoJetSelector>  m_IPseudoJetSelector;
+ // ToolHandle<IPseudoJetSelector>  m_IPseudoJetSelector;
  
  /* label saying which cluster calibration was configured.
     Used to label tools.*/
 
  std::string m_outputCollectionLabel;
- std::string m_pseudoJetLabelIndexArg;
+ // std::string m_pseudoJetLabelIndexArg;
 
  
   HLT::ErrorCode attachJetCollection(HLT::TriggerElement*,
                                      const xAOD::JetContainer*);
+  
 
 };
 
