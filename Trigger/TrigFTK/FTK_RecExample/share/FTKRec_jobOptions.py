@@ -64,3 +64,29 @@ if rec.doFTK():
         FTKRefitTrackParticleCnvAlg.TrackTruthContainerName = "FTK_RefitTracks_TruthCollection"
         FTKRefitTrackParticleCnvAlg.PrintIDSummaryInfo = True
         topSequence += FTKRefitTrackParticleCnvAlg
+
+        augmentation_tools = []
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import (DerivationFramework__TrackParametersForTruthParticles)
+
+        TruthDecor = DerivationFramework__TrackParametersForTruthParticles(
+           name="TruthTPDecor",
+           TruthParticleContainerName="TruthParticles",
+           DecorationPrefix="")
+        augmentation_tools.append(TruthDecor)
+
+        # Set up derivation framework
+        from AthenaCommon import CfgMgr
+        
+        theFTKseq = CfgMgr.AthSequencer("FTKSeq")
+        from DerivationFrameworkCore.DerivationFrameworkCoreConf import (
+            DerivationFramework__CommonAugmentation)
+        
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += DerivationFramework__TrackParametersForTruthParticles('TruthTPDecor')
+        theFTKseq += CfgMgr.DerivationFramework__CommonAugmentation(
+          "TSOS_Kernel",
+          AugmentationTools=augmentation_tools,
+          OutputLevel=INFO)
+        topSequence += theFTKseq
+
+
