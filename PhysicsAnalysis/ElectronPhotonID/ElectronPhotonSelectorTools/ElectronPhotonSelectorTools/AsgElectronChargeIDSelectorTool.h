@@ -8,6 +8,7 @@
 #define ELECTRONPHOTONSELECTORTOOLS_ASGELECTRONCHARGEIDSELECTORTOOL_H
 // Atlas includes
 #include "AsgTools/AsgTool.h"
+#include "PATCore/AcceptData.h"
 #include "MVAUtils/BDT.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
@@ -16,7 +17,7 @@
 class AsgElectronChargeIDSelectorTool : public asg::AsgTool, 
 					virtual public IAsgElectronLikelihoodTool
 {
-  ASG_TOOL_CLASS2(AsgElectronChargeIDSelectorTool, IAsgElectronLikelihoodTool, IAsgSelectionTool)
+  ASG_TOOL_CLASS2(AsgElectronChargeIDSelectorTool, IAsgElectronLikelihoodTool, CP::ISelectionTool)
 
 public:
   /** Standard constructor */
@@ -32,61 +33,53 @@ public:
   /** Gaudi Service Interface method implementations */
   virtual StatusCode finalize();
 
-  // Main methods for IAsgSelectorTool interface
+  /** Method to get the plain AcceptInfo.
+      This is needed so that one can already get the AcceptInfo 
+      and query what cuts are defined before the first object 
+      is passed to the tool. */
+  const asg::AcceptInfo& getAcceptInfo() const { return m_acceptInfo; }
+
+    // Main methods for IAsgSelectorTool interface
   /** The main accept method: using the generic interface */
-  const Root::TAccept& accept( const xAOD::IParticle* part ) const;
+  asg::AcceptData accept( const xAOD::IParticle* part ) const;
 
   /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::Electron* eg ) const {
+  asg::AcceptData accept( const xAOD::Electron* eg ) const {
     return accept (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::Egamma* eg ) const {
+  asg::AcceptData accept( const xAOD::Egamma* eg ) const {
     return accept (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main accept method: in case mu not in EventInfo online */
-  const Root::TAccept& accept( const xAOD::Electron* eg, double mu ) const;
+  asg::AcceptData accept( const xAOD::Electron* eg, double mu ) const;
 
   /** The main accept method: in case mu not in EventInfo online */
-  const Root::TAccept& accept( const xAOD::Egamma* eg, double mu ) const;
+  asg::AcceptData accept( const xAOD::Egamma* eg, double mu ) const;
   
   // Main methods for IAsgCalculatorTool interface
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::IParticle* part ) const;
+  double calculate( const xAOD::IParticle* part ) const;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron* eg ) const {
+  double calculate( const xAOD::Electron* eg ) const {
     return calculate (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma* eg ) const {
+  double calculate( const xAOD::Egamma* eg ) const {
     return calculate (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron* eg, double mu ) const;
+  double calculate( const xAOD::Electron* eg, double mu ) const;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const; 
+  double calculate( const xAOD::Egamma* eg, double mu ) const; 
 
-  /** Method to get the plain TAccept */
-  inline virtual const Root::TAccept& getTAccept( ) const
-  {
-    // return m_rootTool->getTAccept();
-    return m_acceptDummy;
-  }
-
-
-  /** Method to get the plain TResult */
-  inline virtual const Root::TResult& getTResult( ) const
-  {
-    // return m_rootTool->getTResult();
-    return m_resultDummy;
-  }
 
   /// Get the name of the current operating point
   inline virtual std::string getOperatingPointName( ) const
@@ -106,21 +99,11 @@ private:
   TString m_pid_name;
   float m_cutOnBDT;
 
+  asg::AcceptInfo m_acceptInfo;
   int m_cutPosition_bdt;
-  int m_resultPosition_bdt;
 
   /** Working Point */
   std::string m_WorkingPoint;
-
-  /** A dummy return TAccept object */
-  Root::TAccept m_acceptDummy;
-
-  /** A dummy return TResult object */
-  Root::TResult m_resultDummy;
-
-  /** A BDT to return TResult/TAccept object */
-  mutable Root::TAccept m_acceptBDT;
-  mutable Root::TResult m_resultBDT;
 
   /// Whether to use the PV (not available for trigger)
   bool m_usePVCont;

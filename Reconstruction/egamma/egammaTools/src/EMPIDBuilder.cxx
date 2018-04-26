@@ -8,8 +8,7 @@
 #include "EMPIDBuilder.h"
 #include "xAODEgamma/Egamma.h"
 //#include "LumiBlockComps/LumiBlockMuTool.h"
-#include "PATCore/TAccept.h"            // for TAccept
-#include "PATCore/TResult.h"            // for TResult
+#include "PATCore/AcceptData.h"
 
 // ===========================================================================
 EMPIDBuilder::EMPIDBuilder(const std::string& type,
@@ -42,7 +41,7 @@ StatusCode EMPIDBuilder::initialize()
   //
 
   ATH_MSG_DEBUG(" Initializing EMPIDBuilder");
- 
+
   for (const auto& selector : m_electronIsEMselectors) {
     CHECK(selector.retrieve());
   }
@@ -61,7 +60,6 @@ StatusCode EMPIDBuilder::initialize()
     return StatusCode::FAILURE;
   }
 
-
   for (const auto& selector : m_genericIsEMselectors) {
     CHECK(selector.retrieve());
   }
@@ -70,8 +68,6 @@ StatusCode EMPIDBuilder::initialize()
     ATH_MSG_ERROR("The number of selectors does not match the number of given generic selector names");
     return StatusCode::FAILURE;
   }
-
-
   for (const auto& selector : m_photonIsEMselectors) {
     CHECK(selector.retrieve());
   }
@@ -121,22 +117,32 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg)
   size_t size = m_electronIsEMselectors.size();
 
   for (size_t i = 0; i<size;++i) {
-    const Root::TAccept& accept = m_electronIsEMselectors[i]->accept(eg);
+    asg::AcceptData accept = m_electronIsEMselectors[i]->accept(eg);
     //save the bool result
     eg->setPassSelection(static_cast<bool>(accept), m_electronIsEMselectorResultNames[i]);
     //save the isem
-    eg->setSelectionisEM(m_electronIsEMselectors[i]->IsemValue(), "isEM"+m_electronIsEMselectorResultNames[i]);
+    unsigned int isEM = (~0);
+    if ( m_electronIsEMselectors[i]->execute(eg, isEM).isFailure() ) {
+        ATH_MSG_ERROR("problem to get isEM for " << m_electronIsEMselectorResultNames[i]);
+        return StatusCode::FAILURE;
+    }
+    eg->setSelectionisEM(isEM, "isEM"+m_electronIsEMselectorResultNames[i]);
 
   }
 
   size_t sizePh = m_photonIsEMselectors.size();
 
   for (size_t i = 0; i<sizePh;++i) {
-    const Root::TAccept& accept = m_photonIsEMselectors[i]->accept(eg);
+    asg::AcceptData accept = m_photonIsEMselectors[i]->accept(eg);
     //save the bool result
     eg->setPassSelection(static_cast<bool>(accept), m_photonIsEMselectorResultNames[i]);
     //save the isem
-    eg->setSelectionisEM(m_photonIsEMselectors[i]->IsemValue(), "isEM"+m_photonIsEMselectorResultNames[i]);
+    unsigned int isEM = ~0;
+    if ( m_photonIsEMselectors[i]->execute(eg, isEM).isFailure() ) {
+        ATH_MSG_ERROR("problem to get isEM for " << m_photonIsEMselectorResultNames[i]);
+        return StatusCode::FAILURE;
+    }
+    eg->setSelectionisEM(isEM, "isEM"+m_photonIsEMselectorResultNames[i]);
   }
 
   size_t sizeLH = m_electronLHselectors.size();
@@ -153,7 +159,7 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg)
 
   for (size_t i = 0; i<sizeLH; ++i) {
   
-    const Root::TAccept& accept = m_electronLHselectors[i]->accept(eg,avg_mu);
+    asg::AcceptData accept = m_electronLHselectors[i]->accept(eg,avg_mu);
     //save the bool result
     eg->setPassSelection(static_cast<bool>(accept), m_electronLHselectorResultNames[i]);
     //save the isem
@@ -161,13 +167,13 @@ StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg)
     
     //save the LHValue only once
     if(i==0){
-      eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->getTResult().getResult(0)),m_LHValueName);
+        eg->setLikelihoodValue(static_cast<float>(m_electronLHselectors[i]->calculate(eg,avg_mu)), m_LHValueName);
     }  
   }
   
   size_t sizeGen = m_genericIsEMselectors.size();
   for (size_t i = 0; i<sizeGen;++i) {
-    const Root::TAccept& accept = m_genericIsEMselectors[i]->accept(eg);
+    asg::AcceptData accept = m_genericIsEMselectors[i]->accept(eg);
     //save the bool result
     eg->setPassSelection(static_cast<bool>(accept), m_genericIsEMselectorResultNames[i]);
     //save the isem

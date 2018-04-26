@@ -22,9 +22,6 @@
 #include "AsgTools/AsgTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronMultiLeptonSelector.h"
 
-// Include the return object and ROOT tool
-#include "PATCore/TAccept.h"
-
 namespace Root{
   class TElectronMultiLeptonSelector;
 }
@@ -34,7 +31,7 @@ class AsgElectronMultiLeptonSelector : public asg::AsgTool,
 	    virtual public IAsgElectronMultiLeptonSelector
 {
   ASG_TOOL_CLASS2(AsgElectronMultiLeptonSelector, IAsgElectronMultiLeptonSelector,
-		  IAsgSelectionTool)
+		  CP::ISelectionTool)
 
 public: 
   /** Standard constructor */
@@ -54,14 +51,17 @@ public:
 
   // Main methods for IAsgSelectionTool interface
 
-  /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::IParticle* part ) const;
+  /** Method to get the plain AcceptInfo.
+      This is needed so that one can already get the AcceptInfo 
+      and query what cuts are defined before the first object 
+      is passed to the tool. */
+  const asg::AcceptInfo& getAcceptInfo() const;
 
   /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::Electron* eg ) const;
+  asg::AcceptData accept( const xAOD::IParticle* part ) const;
 
-  /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
+  /** The main accept method: the actual cuts are applied here */
+  asg::AcceptData accept( const xAOD::Electron* eg ) const;
 
   /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
@@ -72,9 +72,6 @@ private:
   /** Pointer to the underlying ROOT based tool */
   Root::TElectronMultiLeptonSelector* m_rootTool;
   
-  /** A dummy return TAccept object */
-  Root::TAccept m_acceptDummy;
-
 }; // End: class definition
 
 

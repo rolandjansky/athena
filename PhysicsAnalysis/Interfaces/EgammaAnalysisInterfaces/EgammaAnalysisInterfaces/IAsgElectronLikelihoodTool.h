@@ -15,58 +15,50 @@
 */
 
 // Include the interfaces
-#include "PATCore/IAsgSelectionTool.h"
-// Forward declarations
-namespace Root{
-  class TAccept;
-  class TResult;
-}
+#include "AsgAnalysisInterfaces/ISelectionTool.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 
-class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
+class IAsgElectronLikelihoodTool : virtual public CP::ISelectionTool
 {
 
   ASG_TOOL_INTERFACE(IAsgElectronLikelihoodTool)
 
  public:
 
-  /// @name IAsgElectronLikelihoodTool  methods in Addition to the IAsgSelectionTool ones
+  /// @name IAsgElectronLikelihoodTool  methods in Addition to the ISelectionTool ones
   /// Some are there to mainly support the calls done from the online/Trigger side 
   /// @{
 
-  /// accept with pointer to  IParticle  so as to not hide the IAsgSelectionTool one
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
+  /// accept with pointer to  IParticle  so as to not hide the ISelectionTool one
+  virtual asg::AcceptData accept( const xAOD::IParticle* part ) const = 0;
 
   /// accept method with pointer to electron 
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Electron* part ) const = 0;
 
   /// accept method with pointer to electron  when mu not in EventInfo for online 
-  virtual const Root::TAccept& accept( const xAOD::Electron* part, double mu ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Electron* part, double mu ) const = 0;
 
   /// accept method with pointer to  egamma 
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Egamma* part ) const = 0;
 
   /// accept method with pointer to egammma when mu not in EventInfo for online 
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part, double mu ) const = 0;
+  virtual asg::AcceptData accept( const xAOD::Egamma* part, double mu ) const = 0;
 
-  /// TResult method: for pointer to IParticle
-  virtual const Root::TResult& calculate( const xAOD::IParticle* part ) const = 0;
+  /// calculate method: for pointer to IParticle
+  virtual double calculate( const xAOD::IParticle* part ) const = 0;
 
-  /// TResult method: for pointer to electron
-  virtual const Root::TResult& calculate( const xAOD::Electron* eg ) const = 0;
+  /// calculate method: for pointer to electron
+  virtual double calculate( const xAOD::Electron* eg ) const = 0;
 
-  /// TResult method: for pointer to egamma 
-  virtual const Root::TResult& calculate( const xAOD::Egamma* eg ) const = 0;
+  /// calculate method: for pointer to egamma 
+  virtual double calculate( const xAOD::Egamma* eg ) const = 0;
 
-  /// TResult method: for pointer to electron  when mu not in EventInfo for online
-  virtual const Root::TResult& calculate( const xAOD::Electron* eg, double mu ) const = 0;
+  /// calculate method: for pointer to electron  when mu not in EventInfo for online
+  virtual double calculate( const xAOD::Electron* eg, double mu ) const = 0;
 
-  /// TResult method: for pointer to egamma when mu not in EventInfo for online
-  virtual const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const = 0;
-
-  // Just return the TResult 
-  virtual const Root::TResult& getTResult( ) const=0;
+  /// calculate method: for pointer to egamma when mu not in EventInfo for online
+  virtual double calculate( const xAOD::Egamma* eg, double mu ) const = 0;
 
   ///Method to get the operating point 
   virtual std::string getOperatingPointName( ) const =0;

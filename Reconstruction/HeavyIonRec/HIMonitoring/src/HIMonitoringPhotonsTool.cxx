@@ -7,6 +7,7 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
+#include "PATCore/AcceptData.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "HIMonitoring/HIMonitoringPhotonsTool.h"
@@ -181,8 +182,8 @@ StatusCode HIMonitoringPhotonsTool::fillHistograms()
 	    m_h_photon_pt_phi->Fill( pt, phi );
 	    m_h_photon_pt_fcal->Fill( pt, phi );
 
-	    bool loose_MC15 = m_photonLooseIsEMSelector->accept(*photons_itr);
-	    bool tight_MC15 = m_photonTightIsEMSelector->accept(*photons_itr);
+	    bool loose_MC15 = (bool) m_photonLooseIsEMSelector->accept(*photons_itr);
+	    bool tight_MC15 = (bool) m_photonTightIsEMSelector->accept(*photons_itr);
 
 	    if (tight_MC15) {
 

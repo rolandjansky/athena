@@ -29,6 +29,7 @@ Purpose : create a collection of ElectronTag
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
+#include "PATCore/AcceptData.h"
 //#include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 #include <sstream>
