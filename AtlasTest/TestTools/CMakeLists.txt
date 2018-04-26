@@ -8,6 +8,8 @@ atlas_subdir( TestTools )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
+   PUBLIC
+   TestPolicy
    PRIVATE
    GaudiKernel )
 
