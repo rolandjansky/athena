@@ -95,6 +95,7 @@ bool CalcTTZPartonHistory::getZ(const xAOD::TruthParticleContainer* truthParticl
   }  // for
 
   // Our job is done if the event has a real Z boson.
+  if (hasZ && (!hasZDecay1 || !hasZDecay2)) m_ancestry_corrupted = true;
   if (hasZ) return hasZ && hasZDecay1 && hasZDecay2;
 
   // For off-shell Z bosons it's a bit more tricky. We now look
@@ -130,6 +131,7 @@ bool CalcTTZPartonHistory::getZ(const xAOD::TruthParticleContainer* truthParticl
     hasZ = true;
   }  // for
 
+  if (hasZ && (!hasZDecay1 || !hasZDecay2)) m_ancestry_corrupted = true;
   return hasZ && hasZDecay1 && hasZDecay2;
 }
 
