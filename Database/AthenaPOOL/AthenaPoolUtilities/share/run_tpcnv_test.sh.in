@@ -1,5 +1,21 @@
 #!/bin/sh
 
+for libroot in @ARG_REQUIRED_LIBRARIES@; do
+  fullpath=""
+  for p in `echo $LD_LIBRARY_PATH | tr : ' ' `; do
+    if [ -r $p/lib${libroot}.so ]; then
+      fullpath="$p/lib${libroot}.so"
+    fi
+  done
+  if [ "$fullpath" = "" ]; then
+    echo "WARNING: Library $libroot not found; skipping test @testName@"
+    # Signal post_tpcnvtest.sh to skip the reffile comparison.
+    touch @testName@-SKIPPED
+    exit 0
+  fi
+done
+rm -f @testName@-SKIPPED
+
 reffile=`echo @CMAKE_CURRENT_SOURCE_DIR@/share/@refName@.pool.root*.ref`
 if [ -f "$reffile" ] &&
     [ "@CMAKE_CURRENT_SOURCE_DIR@" != "@CMAKE_CURRENT_BINARY_DIR@" ]; then
