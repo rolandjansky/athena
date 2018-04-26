@@ -43,7 +43,7 @@ ToolSvc += JETM2SkimmingTool
 
 #Trigger matching decorations
 from DerivationFrameworkCore.TriggerMatchingAugmentation import *
-NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,"",ToolSvc)
+NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,[])
 
 #from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
 #DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
@@ -201,8 +201,8 @@ JETM2SlimmingHelper.AllVariables = ["MuonTruthParticles", "egammaTruthParticles"
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM2SlimmingHelper.ExtraVariables = [NewTrigVars[0],
-                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"+NewTrigVars[1].split(".",1)[1],
+JETM2SlimmingHelper.ExtraVariables = [NewTrigVars["Electrons"][0],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"+"."+NewTrigVars["Muons"][0].split(".",1)[1],
                                       "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
 
 for truthc in [

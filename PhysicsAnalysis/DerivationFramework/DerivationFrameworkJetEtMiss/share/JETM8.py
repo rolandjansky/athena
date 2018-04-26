@@ -61,7 +61,7 @@ ToolSvc += JETM8OfflineSkimmingTool
 
 #Trigger matching decorations
 from DerivationFrameworkCore.TriggerMatchingAugmentation import *
-NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,"",ToolSvc)
+NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,[])
 
 #====================================================================
 # THINNING TOOLS 
@@ -277,7 +277,7 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
 
 addOriginCorrectedClusters(JETM8SlimmingHelper,writeLC=True,writeEM=False)
 
-JETM8SlimmingHelper.ExtraVariables = [NewTrigVars[0],NewTrigVars[1]]
+JETM8SlimmingHelper.ExtraVariables = [NewTrigVars["Electrons"][0],NewTrigVars["Muons"][0]]
 
 for truthc in [
     "TruthMuons",

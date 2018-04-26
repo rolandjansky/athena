@@ -44,7 +44,7 @@ ToolSvc += JETM3SkimmingTool
 
 #Trigger matching decorations
 from DerivationFrameworkCore.TriggerMatchingAugmentation import *
-NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,"",ToolSvc)
+NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,[])
 
 #====================================================================
 # SET UP STREAM
@@ -219,8 +219,8 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM3SlimmingHelper.ExtraVariables = [NewTrigVars[0],
-                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"+NewTrigVars[1].split(".",1)[1],
+JETM3SlimmingHelper.ExtraVariables = [NewTrigVars["Electrons"][0],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"+"."+NewTrigVars["Muons"][0].split(".",1)[1],
 				      "AntiKt4TruthWZJets.pt","AntiKt4TruthWZJets.eta", "AntiKt4TruthWZJets.phi", "AntiKt4TruthWZJets.m"]
 for truthc in [
     "TruthMuons",

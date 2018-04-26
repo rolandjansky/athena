@@ -32,7 +32,7 @@ ToolSvc += JETM4SkimmingTool
 
 #Trigger matching decorations
 from DerivationFrameworkCore.TriggerMatchingAugmentation import *
-NewTrigVars = TriggerMatchingAugmentation("","",TriggerLists.single_photon_Trig(),ToolSvc)
+NewTrigVars = TriggerMatchingAugmentation([],[],TriggerLists.single_photon_Trig())
 
 #====================================================================
 # SET UP STREAM
@@ -190,7 +190,7 @@ JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM4SlimmingHelper.ExtraVariables = [NewTrigVars[2]]
+JETM4SlimmingHelper.ExtraVariables = [NewTrigVars["Photons"][0]]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
