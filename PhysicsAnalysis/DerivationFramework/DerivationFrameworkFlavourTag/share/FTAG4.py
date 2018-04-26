@@ -12,6 +12,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -78,7 +79,8 @@ if globalflags.DataSource()!='data':
 # Basic Jet Collections 
 #====================================================================
 
-OutputJets["FTAG4"] = ["AntiKt4EMTopoJets"]
+OutputJets["FTAG4"] = ["AntiKt4EMTopoJets",
+                       "AntiKtVR30Rmax4Rmin02TrackJets"]
 
 reducedJetList = ["AntiKt2PV0TrackJets",
                   "AntiKt4PV0TrackJets",
@@ -86,6 +88,19 @@ reducedJetList = ["AntiKt2PV0TrackJets",
 replaceAODReducedJets(reducedJetList,FTAG4Seq,"FTAG4")
 
 addDefaultTrimmedJets(FTAG4Seq,"FTAG4",dotruth=True)
+
+#===================================================================
+# Variable Radius (VR) Jets
+#===================================================================
+
+# Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
+addVRJets(FTAG4Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
+          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", #or should this be lctopo?
+          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+
+# alias for VR
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 #===================================================================
 # Tag custom or pre-built jet collections
@@ -123,6 +138,8 @@ FTAG4SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "MET_Reference_AntiKt4EMTopo"]
 
 FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
+                                    "BTagging_AntiKtVR30Rmax4Rmin02Track",
+                                    "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
                                     "BTagging_AntiKt4EMTopo",
                                     "BTagging_AntiKt4EMTopoJFVtx",
                                     "BTagging_AntiKt2Track",
@@ -143,6 +160,7 @@ FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "ExtrapolatedMuonTrackParticles.vx.vy.vz",
                                        "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
                                        "MuonSpectrometerTrackParticles.vx.vy.vz",
+                                       "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex"]
 
@@ -155,6 +173,15 @@ FTAG4SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt2TrackJFVtxAux"              :   "xAOD::BTagVertexAuxContainer",
   "BTagging_AntiKt2TrackSecVtx"                :   "xAOD::VertexContainer"   ,
   "BTagging_AntiKt2TrackSecVtxAux"             :   "xAOD::VertexAuxContainer",
+  "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
+  "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"      :   "xAOD::VertexContainer"   ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"   :   "xAOD::VertexAuxContainer",
+
 }
 #----------------------------------------------------------------------
 addJetOutputs(FTAG4SlimmingHelper,["FTAG4"])
