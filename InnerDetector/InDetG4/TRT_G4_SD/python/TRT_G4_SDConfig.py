@@ -15,7 +15,7 @@ def getTRTSensitiveDetector(name="TRTSensitiveDetector", **kwargs):
                                                               merger_input_property)
     logicalVolumeNames = ["TRT::Gas","TRT::GasMA"]
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
-    if geoFlags.Run()=="RUN2":
+    if ( geoFlags.Run() in ["RUN2", "RUN3"] ) :
         ## RUN2 configuration
         logicalVolumeNames += ["TRT::Gas_Ar","TRT::GasMA_Ar",
                                "TRT::Gas_Kr","TRT::GasMA_Kr"]
