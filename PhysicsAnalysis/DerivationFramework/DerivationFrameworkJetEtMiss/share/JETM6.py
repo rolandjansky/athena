@@ -68,7 +68,7 @@ ToolSvc += JETM6OfflineSkimmingTool
 
 #Trigger matching decorations
 from DerivationFrameworkCore.TriggerMatchingAugmentation import *
-NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,photonTriggers)
+NewTrigVars = applyTriggerMatching(ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers,PhotonTriggers=photonTriggers)
 
 #====================================================================
 # THINNING TOOLS

@@ -32,7 +32,7 @@ ToolSvc += JETM4SkimmingTool
 
 #Trigger matching decorations
 from DerivationFrameworkCore.TriggerMatchingAugmentation import *
-NewTrigVars = TriggerMatchingAugmentation([],[],TriggerLists.single_photon_Trig())
+NewTrigVars = applyTriggerMatching(PhotonTriggers=TriggerLists.single_photon_Trig())
 
 #====================================================================
 # SET UP STREAM

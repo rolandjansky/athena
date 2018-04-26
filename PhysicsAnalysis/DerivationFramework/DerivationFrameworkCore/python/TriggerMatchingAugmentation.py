@@ -1,4 +1,6 @@
-def TriggerMatchingAugmentation(ElectronTriggers,MuonTriggers,PhotonTriggers):
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+
+def applyTriggerMatching(ElectronTriggers=[],MuonTriggers=[],PhotonTriggers=[]):
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
     from AthenaCommon.AppMgr import ToolSvc
     DFCommonTrigMatch_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation(

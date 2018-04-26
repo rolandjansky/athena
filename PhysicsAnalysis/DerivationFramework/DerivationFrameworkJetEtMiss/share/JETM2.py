@@ -43,7 +43,7 @@ ToolSvc += JETM2SkimmingTool
 
 #Trigger matching decorations
 from DerivationFrameworkCore.TriggerMatchingAugmentation import *
-NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,[])
+NewTrigVars = applyTriggerMatching(ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # SET UP STREAM   
