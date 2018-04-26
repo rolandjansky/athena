@@ -887,16 +887,24 @@ StatusCode ISF_HitAnalysis::execute()
     larhec = true;
          else if(m_larFcalID->is_lar_fcal(id))
     larfcal = true;
-         else if(m_tileID->is_tile_barrel(id) || m_tileID->is_tile_extbarrel(id) || m_tileID->is_tile_gap(id) || m_tileID->is_tile_gapscin(id) || m_tileID->is_tile_aux(id))
+         else if (m_tileID->is_tile_aux(id)) {
+           // special case for E4'
+           tile = true;
+           cell_id = m_tileID->cell_id(id);
+           sampling = CaloCell_ID::TileGap3;
+           sampfrac = m_tileInfo->HitCalib(id);
+         }
+         else if(m_tileID->is_tile_barrel(id) || m_tileID->is_tile_extbarrel(id) || m_tileID->is_tile_gap(id))
          {
+          // all other Tile cells
+          tile = true;
           cell_id = m_tileID->cell_id(id);
           Int_t tile_sampling = -1;
           if(m_calo_dd_man->get_element(cell_id))
                 {
-                 tile_sampling = m_calo_dd_man->get_element(cell_id)->getSampling();
-                 sampfrac = m_tileInfo->HitCalib(cell_id);
+                  tile_sampling = m_calo_dd_man->get_element(cell_id)->getSampling();
+                  sampfrac = m_tileInfo->HitCalib(cell_id);
                 }
-          tile = true;
           if(tile_sampling!= -1)
            sampling = tile_sampling; //m_calo_dd_man needs to be called with cell_id not pmt_id!!
          }
@@ -1104,8 +1112,13 @@ StatusCode ISF_HitAnalysis::execute()
   {
          m_cell_energy->push_back((*itrCell)->energy());
          m_cell_identifier->push_back((*itrCell)->ID().get_compact());
-         if (m_calo_dd_man->get_element((*itrCell)->ID()))
+         if (m_tileID->is_tile_aux((*itrCell)->ID())) {
+           // special case for E4'
+           m_cell_sampling->push_back(CaloCell_ID::TileGap3);
+         }
+         else if (m_calo_dd_man->get_element((*itrCell)->ID()))
          {
+          // all other Tile cells
           CaloCell_ID::CaloSample layer = m_calo_dd_man->get_element((*itrCell)->ID())->getSampling();
           m_cell_sampling->push_back(layer);
          }
