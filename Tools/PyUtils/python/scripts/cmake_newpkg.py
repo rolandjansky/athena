@@ -108,6 +108,7 @@ def main(args):
         # if you add components (tools, algorithms) to this package
         # uncomment the next lines
         # atlas_add_component( %(pkg_name)s src/components/*.cxx
+        #                      NOCLIDDB
         #                      LINK_LIBRARIES %(pkg_name)sLib 
         # )
       
