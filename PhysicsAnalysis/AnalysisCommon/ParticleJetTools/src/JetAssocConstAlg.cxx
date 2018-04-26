@@ -47,7 +47,7 @@ StatusCode JetAssocConstAlg::execute() {
           jetContainerName + "\"");
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_INFO(name() + 
+      ATH_MSG_VERBOSE(name() + 
           " retrieved jet collection \"" +
           jetContainerName + "\"");
     }
@@ -66,22 +66,20 @@ StatusCode JetAssocConstAlg::execute() {
       SG::AuxElement::ConstAccessor<vector<ElementLink<IParticleContainer> > > acc(jpa->outputCollectionName());
       SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > > dec(jpa->outputCollectionName());
 
-      ATH_MSG_INFO(jpa->name() + " branch access: " + jpa->outputCollectionName());
-
       // modify the shallow copy of the jets
       if ( jpa->modify(*jets_copy) ) {
         ATH_MSG_FATAL(jpa->name() + " tool execution failed.");
         return StatusCode::FAILURE;
       } else {
-        ATH_MSG_INFO(jpa->name() + " tool execution success.");
+        ATH_MSG_VERBOSE(jpa->name() + " tool execution success.");
       }
 
       // directly copy over the decoration to the original jet
       // collections
       for (size_t iJet = 0; iJet < jets.size(); iJet++) {
         dec(*jets.at(iJet)) = acc(*jets_copy->at(iJet));
-        ATH_MSG_INFO(jpa->name() + " number of associated particles to copy: " + to_string(acc(*jets_copy->at(iJet)).size()));
-        ATH_MSG_INFO(jpa->name() + " number of associated particles to jet: " + to_string(acc(*jets.at(iJet)).size()));
+        ATH_MSG_VERBOSE(jpa->name() + " number of associated particles to copy: " + to_string(acc(*jets_copy->at(iJet)).size()));
+        ATH_MSG_VERBOSE(jpa->name() + " number of associated particles to jet: " + to_string(acc(*jets.at(iJet)).size()));
       }
 
     }
