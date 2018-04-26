@@ -18,7 +18,7 @@ using namespace MuonGM;
 NSWAGDDTool::NSWAGDDTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent):AGDDToolBase(type,name,parent)
 {
-	declareProperty( "ReadAGDD",   		m_readAGDD    = false,          "read description from DB");
+	declareProperty( "ReadAGDD",   		m_readAGDD    = true,           "read description from DB");
 	declareProperty( "DumpAGDD",		m_dumpAGDD    = false,          "write out parsed XML");
 	declareProperty( "OutputFileACTVERS",	m_outFileActV = 0,		"active version number");
 	declareProperty( "OutputFileACTVNAME",	m_outFileActN = "",		"active version string");
