@@ -275,7 +275,7 @@ class BjetHypoSplit (TrigBjetHypo):
                     self.CutMV2c10 =  0.948
                 elif cut=="mv2c1060":
                     # Actually ~65% efficient
-                    self.CutMV2c10 =  0.847
+                    self.CutMV2c10 =  0.846
                 elif cut=="mv2c1070":
                     # Actually ~75% efficient
                     self.CutMV2c10 =  0.580
