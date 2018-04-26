@@ -11,25 +11,10 @@ atlas_subdir( ParticleJetTools )
 if( XAOD_STANDALONE )
    atlas_depends_on_subdirs(
       PUBLIC
-      Control/AthenaBaseComps
       Control/AthToolSupport/AsgTools
       Event/EventPrimitives
       Event/xAOD/xAODJet
       Event/xAOD/xAODTruth
-      PhysicsAnalysis/MCTruthClassifier
-      Reconstruction/Jet/JetInterface
-      Reconstruction/Jet/JetRec
-      PRIVATE
-      Control/AthContainers
-      Generators/TruthUtils )
-elseif ( XAOD_ANALYSIS AND NOT ROOTCORE )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgTools
-      Event/EventPrimitives
-      Event/xAOD/xAODJet
-      Event/xAOD/xAODTruth
-      GaudiKernel
       PhysicsAnalysis/MCTruthClassifier
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
@@ -39,7 +24,6 @@ elseif ( XAOD_ANALYSIS AND NOT ROOTCORE )
 else()
    atlas_depends_on_subdirs(
       PUBLIC
-      Control/AthenaBaseComps
       Control/AthToolSupport/AsgTools
       Event/EventPrimitives
       Event/xAOD/xAODJet
@@ -49,19 +33,13 @@ else()
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
       PRIVATE
+      Control/AthenaBaseComps
       Control/AthContainers
       Generators/TruthUtils )
 endif()
 
 # Component(s) in the package:
 if( XAOD_STANDALONE )
-   atlas_add_library( ParticleJetToolsLib
-      ParticleJetTools/*.h Root/*.cxx src/*.cxx
-      PUBLIC_HEADERS ParticleJetTools
-      LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTruth
-      JetInterface MCTruthClassifierLib JetRecLib
-      PRIVATE_LINK_LIBRARIES AthContainers TruthUtils )
-elseif ( XAOD_ANALYSIS AND NOT ROOTCORE )
    atlas_add_library( ParticleJetToolsLib
       ParticleJetTools/*.h Root/*.cxx
       PUBLIC_HEADERS ParticleJetTools
