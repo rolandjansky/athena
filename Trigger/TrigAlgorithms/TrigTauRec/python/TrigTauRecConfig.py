@@ -484,7 +484,6 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
                 # RNN tau ID
                 tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile1P="rnnid_config_deep_1p_v0.json",
                                                            NetworkFile3P="rnnid_config_deep_3p_v0.json",
-                                                           MinChargedTracks=1,
                                                            MaxTracks=10, 
                                                            MaxClusters=6,
                                                            MaxClusterDR=1.0))
