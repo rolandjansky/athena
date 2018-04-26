@@ -620,22 +620,24 @@ int main(int argc, char** argv)
     }
   }
 
-  // Clean this up, it's a right mess and could surely be automated
   if ( use_custom_ref_roi ) {
     std::cout << "****                                              \t****" << std::endl;
     std::cout << "**** Custom RoI will be used to filter ref. tracks\t****" << std::endl;
+
+    if ( custRefRoi_params[0] != -999. ) std::cout << "****    etaHalfWidth = " << custRefRoi_params[0] << "\t\t\t\t****" << std::endl;
+    else                                 std::cout << "****    etaHalfWidth = value used in trigger RoI\t****" << std::endl;
+      
+    if ( custRefRoi_params[1] != -999. ) std::cout << "****    phiHalfWidth = " << custRefRoi_params[1] << "\t\t\t\t****" << std::endl;
+    else                                 std::cout << "****    phiHalfWidth = value used in trigger RoI\t****" << std::endl;
+      
+    if ( custRefRoi_params[2] != -999. ) std::cout << "****    zedHalfWidth = " << custRefRoi_params[2] << "\t\t\t\t****" << std::endl;
+    else                                 std::cout << "****    zedHalfWidth = value used in trigger RoI\t****" << std::endl;
+      
     if ( !custRefRoi_chainList.empty()  ) {
+      std::cout << "****                                                \t****" << std::endl;
       std::cout << "****    Applying custom RoI only to specified chains\t****" << std::endl;
- 
-      if ( custRefRoi_params[0] != -999. ) std::cout << "****    etaHalfWidth = " << custRefRoi_params[0] << "\t\t\t\t****" << std::endl;
-      else                                 std::cout << "****    etaHalfWidth = value used in trigger RoI\t****" << std::endl;
-      
-      if ( custRefRoi_params[1] != -999. ) std::cout << "****    phiHalfWidth = " << custRefRoi_params[1] << "\t\t\t\t****" << std::endl;
-      else                                 std::cout << "****    phiHalfWidth = value used in trigger RoI\t****" << std::endl;
-      
-      if ( custRefRoi_params[2] != -999. ) std::cout << "****    zedHalfWidth = " << custRefRoi_params[2] << "\t\t\t\t****" << std::endl;
-      else                                 std::cout << "****    zedHalfWidth = value used in trigger RoI\t****" << std::endl;
     }
+    std::cout << "****                                              \t****" << std::endl;
   }
   
   // Checking for SelectRoi after any other options that will set select_roi, to ensure that the value set

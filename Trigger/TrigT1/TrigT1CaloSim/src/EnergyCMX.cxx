@@ -61,6 +61,7 @@ EnergyCMX::EnergyCMX
   declareProperty("EnergyRoILocation",       m_energyRoILocation );
   declareProperty("EnergyCTPLocation",       m_energyCTPLocation );
   declareProperty("EnergyCMXDataLocation",   m_energyCMXDataLocation );
+  declareProperty("CMXRoILocation",          m_cmxRoILocation );
 }
 
 // Destructor

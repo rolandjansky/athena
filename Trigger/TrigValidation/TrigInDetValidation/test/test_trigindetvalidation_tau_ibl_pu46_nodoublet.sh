@@ -1,23 +1,23 @@
 #!/bin/bash
-# art-description: art job for FTK_bjet_ttbar
+# art-description: art job for tau_IBL_pu46_NoDoublet
 # art-type: grid
-# art-output: HLTL2-plots
 # art-output: HLTEF-plots
+# art-output: HLTL2-plots
 # art-output: times
 # art-output: times-FTF
 # art-output: cost-perCall
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
-# art-input:  mc16_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.digit.RDO_FTK.e5602_s3126_d1455_d1457
+# art-input:  mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s3126_r9546
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
 # art-output: output-dataset
 # art-output: output-cost
 # art-output: output-logs
-# art-input-nfiles: 4
-# art-ncores: 4
+# art-input-nfiles: 3
+# art-ncores: 3
 
 
 
@@ -160,7 +160,7 @@ function runathena {
      pwd
      echo "ARGS: $ARGS"
      echo -e "\nrunning athena in athena-$1\n"
-     athena.py  -c "$ARGS"               TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice.py  &> athena-local-$1.log
+     athena.py  -c "$ARGS"              TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py  &> athena-local-$1.log
      echo "art-result: $? athena_$1"
 
      pwd
@@ -195,7 +195,7 @@ ls -l
 
 
 
-export RTTJOBNAME=TrigInDetValidation_FTK_bjet_ttbar
+export RTTJOBNAME=TrigInDetValidation_tau_IBL_pu46_NoDoublet
 
 jobList=
 
@@ -216,7 +216,7 @@ fi
 
 if [ $RUNATHENA -eq 1 ]; then 
 
-get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice.py
+get_files -jo            TrigInDetValidation/TrigInDetValidation_RTT_topOptions_TauSlice.py
 
 
 # run athena in separate directories
@@ -228,7 +228,7 @@ i=0
 
 for git in $jobList ; do 
 
-    ARGS="$git;EventMax=500;doFTK=True"
+    ARGS="$git;EventMax=2000;PdgId=15;TauDoubletFilter=False"
  
 #   echo "ARGS: $ARGS"
 
@@ -324,7 +324,6 @@ get_files -data TIDAdata_cuts.dat
 get_files -data TIDAdata_chains.dat
 get_files -data TIDAbeam.dat
 get_files -data Test_bin.dat
-get_files -data data-FTK_bjet_ttbar-reference.root
 
 for DATFILE in *.dat ; do
     if ( grep -q DataFile $DATFILE ); then
@@ -337,7 +336,7 @@ done
 if [ $RUNATHENA -eq 1 -o $RUNPOST -eq 1 ]; then
 
 
-TIDArdict TIDAdata11-rtt.dat -f data-bjet-FTK.root -b Test_bin.dat data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_FTF HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_SplitJet HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_SplitJet -d HLTL2-plots  2>&1 | tee TIDArdict_1.log
+TIDArdict TIDAdata11-rtt.dat -f data-tau-IBL.root -b Test_bin.dat  2>&1 | tee TIDArdict_1.log
 echo "art-result: $? TIDArdict_1"
 
 
@@ -349,7 +348,7 @@ timestamp "TIDArdict"
 fi
 
 
-TIDArun-art.sh data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig_SplitJet HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig_SplitJet -d HLTEF-plots  2>&1 | tee TIDArun_2.log
+TIDArun-art.sh data-tau-IBL.root data-tau_IBL_pu46-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3 -d HLTEF-plots  2>&1 | tee TIDArun_2.log
 echo "art-result: $? TIDArun_2"
 
 
@@ -358,7 +357,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh expert-monitoring.root expert-monitoring*-ref.root --auto -o times  2>&1 | tee TIDArun_3.log
+TIDArun-art.sh data-tau-IBL.root data-tau_IBL_pu46-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 -d HLTL2-plots  2>&1 | tee TIDArun_3.log
 echo "art-result: $? TIDArun_3"
 
 
@@ -367,7 +366,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh expert-monitoring.root expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF  2>&1 | tee TIDArun_4.log
+TIDArun-art.sh expert-monitoring.root expert-monitoring*-ref.root --auto -o times  2>&1 | tee TIDArun_4.log
 echo "art-result: $? TIDArun_4"
 
 
@@ -376,8 +375,17 @@ timestamp "TIDArun-art.sh"
 
 
 
-RunTrigCostD3PD --files output-cost/*trig_cost.root --outputTagFromAthena --costMode --linkOutputDir  2>&1 | tee RunTrigCostD3PD_5.log
-echo "art-result: $? RunTrigCostD3PD_5"
+TIDArun-art.sh expert-monitoring.root expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF  2>&1 | tee TIDArun_5.log
+echo "art-result: $? TIDArun_5"
+
+
+
+timestamp "TIDArun-art.sh"
+
+
+
+RunTrigCostD3PD --files output-cost/*trig_cost.root --outputTagFromAthena --costMode --linkOutputDir  2>&1 | tee RunTrigCostD3PD_6.log
+echo "art-result: $? RunTrigCostD3PD_6"
 
 
 
@@ -385,16 +393,7 @@ timestamp "RunTrigCostD3PD"
 
 
 
-TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall"  2>&1 | tee TIDAcpucost_6.log
-echo "art-result: $? TIDAcpucost_6"
-
-
-
-timestamp "TIDAcpucost"
-
-
-
-TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent"  2>&1 | tee TIDAcpucost_7.log
+TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall"  2>&1 | tee TIDAcpucost_7.log
 echo "art-result: $? TIDAcpucost_7"
 
 
@@ -403,7 +402,7 @@ timestamp "TIDAcpucost"
 
 
 
-TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall"  2>&1 | tee TIDAcpucost_8.log
+TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent"  2>&1 | tee TIDAcpucost_8.log
 echo "art-result: $? TIDAcpucost_8"
 
 
@@ -412,8 +411,17 @@ timestamp "TIDAcpucost"
 
 
 
-TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent"  2>&1 | tee TIDAcpucost_9.log
+TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall"  2>&1 | tee TIDAcpucost_9.log
 echo "art-result: $? TIDAcpucost_9"
+
+
+
+timestamp "TIDAcpucost"
+
+
+
+TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent"  2>&1 | tee TIDAcpucost_10.log
+echo "art-result: $? TIDAcpucost_10"
 
 
 

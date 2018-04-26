@@ -113,6 +113,7 @@ TrigFastTrackFinderMT::TrigFastTrackFinderMT(const std::string& name, ISvcLocato
 
   /** Doublet finding properties. */
   declareProperty("Doublet_FilterRZ",            m_tcs.m_doubletFilterRZ = true);
+  declareProperty("Doublet_Filter_ParamByRes",   m_tcs.m_doubletFilter_paramByRes = false);
   declareProperty("DoubletDR_Max",            m_tcs.m_doublet_dR_Max = 270.0);
   declareProperty("SeedRadBinWidth",            m_tcs.m_seedRadBinWidth = 2.0);
 

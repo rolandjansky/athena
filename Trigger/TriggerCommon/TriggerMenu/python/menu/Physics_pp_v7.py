@@ -124,7 +124,10 @@ def setupMenu():
         ['mu20_2mu4noL1',          'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu20','2mu4noL1']]],
         ['mu20_2mu2noL1_JpsimumuFS', 'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['mu20','2mu2noL1_JpsimumuFS']]],  # OI - who owns these triggers? Bphys?
         ['mu20_2mu4_JpsimumuL2',     'L1_MU20MU21', ['L1_MU20','L1_2MU4'], [PhysicsStream], [RATE_BMultiMuonTag,'BW:Muon'], -1,['serial',-1,['2mu4_JpsimumuL2','mu20']]], # OI - who owns these triggers?
-        
+       
+	  # multi-muon TagandProbe chains (ATR-17625)
+	  ['mu22_mu8noL1_TagandProbe', 'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:17000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1']]],
+
         # Primary (multi muon chains)
         ['3mu4',                   'L1_3MU4',           [], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
         ['3mu4_mu2noL1',           'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu4','mu2noL1']]],
@@ -3909,6 +3912,9 @@ def setupMenu():
         ['calibAFP_L1AFP_FSA_SIT', 'L1_AFP_FSA_SIT', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_FSC_SIT', 'L1_AFP_FSC_SIT', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1RD0_FILLED',  'L1_RD0_FILLED', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+
+        #AFP+ALFA BBA ATR-17865
+        ['calibAFPALFA_L1ALFA_BGT_BGRP1',    'L1_ALFA_BGT_BGRP1',   [],  ['AFPALFA'], ['RATE:CalibrationAFPALFA','BW:Detector'], -1],
 
         ['rpcpeb_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['RPCNoise'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
 
