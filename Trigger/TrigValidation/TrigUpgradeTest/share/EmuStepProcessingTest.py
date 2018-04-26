@@ -13,25 +13,9 @@
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
-#AlgScheduler.ShowDataFlow( True )
-
-# include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-# svcMgr.ByteStreamInputSvc.FullFileName = [ "./input.data" ]
-
-# # This is the list of proxies to set up so that retrieval attempt will trigger the BS conversion
-# if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
-#     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc
-#     svcMgr += ByteStreamAddressProviderSvc()
-# svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
-
-# Event-level algorithm sequence
+AlgScheduler.ShowDataFlow( True )
 
 
-# from SGComps.SGCompsConf import SGInputLoader
-# topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
-# topSequence.SGInputLoader.Load = [ ('ROIB::RoIBResult','RoIBResult') ]
-
-#from AthenaCommon.CFElements import stepSeq
 
 
 data = {'noreco': [';', ';', ';']}  # in the lists there are the events
@@ -78,8 +62,7 @@ writeEmulationFiles(data)
 from AthenaCommon.CFElements import parOR, seqAND, stepSeq
 
 ########################## L1 #################################################
-# this is the same as in "TrigUpgradeTest/L1CF.py"
-#include("TrigUpgradeTest/HLTCF.py")
+
 L1UnpackingSeq = parOR("L1UnpackingSeq")
 
 from L1Decoder.L1DecoderConf import CTPUnpackingEmulationTool, RoIsUnpackingEmulationTool, L1Decoder
@@ -127,10 +110,11 @@ for unpack in l1Decoder.roiUnpackers:
 
         
 # signatures
-from TrigUpgradeTest.HLTCFConfig import *
-from TrigUpgradeTest.MenuComponents import *
+from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
+from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep
 
-
+#from TrigUpgradeTest.HLTCFConfig import *
+#from TrigUpgradeTest.MenuComponents import *
 from TrigUpgradeTest.HLTSignatureConfig import *
 
 
@@ -139,8 +123,8 @@ muStep1 = muStep1Sequence()
 muStep2 = muStep2Sequence()
 
 MuChains  = [
-    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep2("Step1_mu20", [muStep1]) , ChainStep2("Step2_mu20", [muStep2] )]) ,
-    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep2("Step1_mu8",  [muStep1]) , ChainStep2("Step2_mu8",  [muStep2] ) ] )
+    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [muStep1]) , ChainStep("Step2_mu20", [muStep2] )]) ,
+    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [muStep1]) , ChainStep("Step2_mu8",  [muStep2] ) ] )
      ]
 
 
@@ -150,7 +134,7 @@ MuChains  = [
 elStep1 = elStep1Sequence()
 elStep2 = elStep2Sequence()
 ElChains  = [
-    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep2("Step1_e20",  [elStep1]), ChainStep2("Step2_e20",  [elStep2]) ] )
+    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [elStep1]), ChainStep("Step2_e20",  [elStep2]) ] )
     ]
 
 
@@ -158,8 +142,8 @@ ElChains  = [
 muelStep1 = combStep1Sequence()
 muelStep2 = combStep2Sequence()
 CombChains =[
-    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep2("Step1_mu8_e8",  [muelStep1]),
-                                                              ChainStep2("Step2_mu8_e8",  [muelStep2]) ] )
+    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [muelStep1]),
+                                                              ChainStep("Step2_mu8_e8",  [muelStep2]) ] )
     ]
 
 
