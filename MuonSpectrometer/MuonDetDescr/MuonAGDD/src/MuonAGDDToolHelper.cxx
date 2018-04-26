@@ -105,7 +105,7 @@ std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
 }
 
 
-std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
+std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt, std::string tableName)
 {
 
    const IGeoModelSvc * geoModel=p_GeoModelSvc;
@@ -125,7 +125,7 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
    } 
 
 
-   const IRDBRecordset *recordsetAGDD = accessSvc->getRecordset("AGDD",detectorKey,detectorNode);
+   const IRDBRecordset *recordsetAGDD = accessSvc->getRecordset(tableName.c_str(), detectorKey,detectorNode);
    if(!recordsetAGDD) return "";
 
    const IRDBRecord *recordAGDD =  (*recordsetAGDD)[0];
@@ -139,7 +139,11 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
    if (dumpIt) 
    {
 	 	std::ofstream  GeneratedFile;
-	 	GeneratedFile.open("generated_amdb_simrec_pool.txt");
+		std::string fileName;
+		fileName.append("Generated_");
+		fileName.append(tableName);
+		fileName.append("_pool.txt");
+	 	GeneratedFile.open(fileName);
 		GeneratedFile<<AgddString<<std::endl;
 		GeneratedFile.close();
    }

@@ -29,7 +29,7 @@ public:
 	
 	void SetNSWComponents();
 	
-	std::string GetAGDD(bool dumpIt);
+	std::string GetAGDD(bool dumpIt, std::string tableName);
 	
 	bool BuildMScomponents() const;
 	bool BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr) const;
