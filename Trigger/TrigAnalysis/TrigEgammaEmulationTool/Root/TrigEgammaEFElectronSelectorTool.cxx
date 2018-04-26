@@ -12,6 +12,7 @@
  *
  **********************************************************************/
 #include "TrigEgammaEmulationTool/TrigEgammaEFElectronSelectorTool.h"
+#include "PATCore/AcceptData.h"
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include "boost/algorithm/string.hpp"
@@ -166,28 +167,28 @@ bool TrigEgammaEFElectronSelectorTool::ApplyElectronPid(const xAOD::Electron *eg
   bool passSel=false;
   eg->passSelection(passSel,pidname);
   if (pidname == "Tight") {
-    passTool = m_electronOnlIsEMTool[0]->accept(eg);
+    passTool = (bool) m_electronOnlIsEMTool[0]->accept(eg);
   }
   else if (pidname == "Medium") {
-    passTool = m_electronOnlIsEMTool[1]->accept(eg);
+    passTool = (bool) m_electronOnlIsEMTool[1]->accept(eg);
   }
   else if (pidname == "Loose") {
-    passTool = m_electronOnlIsEMTool[2]->accept(eg);
+    passTool = (bool) m_electronOnlIsEMTool[2]->accept(eg);
   }
   else if (pidname == "VLoose") {
-    passTool = m_electronOnlIsEMTool[3]->accept(eg);
+    passTool = (bool) m_electronOnlIsEMTool[3]->accept(eg);
   }
   else if (pidname == "LHTight") {
-    passTool = m_electronOnlLHTool[0]->accept(eg,avgmu);
+    passTool = (bool) m_electronOnlLHTool[0]->accept(eg,avgmu);
   }// Tight
   else if (pidname == "LHMedium") {
-    passTool = m_electronOnlLHTool[1]->accept(eg,avgmu);
+    passTool = (bool) m_electronOnlLHTool[1]->accept(eg,avgmu);
   }// Medium
   else if (pidname == "LHLoose") {
-    passTool = m_electronOnlLHTool[2]->accept(eg,avgmu);
+    passTool = (bool) m_electronOnlLHTool[2]->accept(eg,avgmu);
   }// Loose
   else if (pidname == "LHVLoose") {
-    passTool = m_electronOnlLHTool[3]->accept(eg,avgmu);
+    passTool = (bool) m_electronOnlLHTool[3]->accept(eg,avgmu);
   }// VeryLoose
   else {
     ATH_MSG_DEBUG("No Pid tool, continue without PID");

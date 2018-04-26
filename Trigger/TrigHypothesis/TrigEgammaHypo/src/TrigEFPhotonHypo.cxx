@@ -45,8 +45,7 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgammaCnv/xAODPhotonMonFuncs.h"
-#include "PATCore/TAccept.h"            // for TAccept
-#include "PATCore/TResult.h"            // for TResult
+#include "PATCore/AcceptData.h"
 // to add TrigPassBits 
 #include "xAODTrigger/TrigPassBits.h"
 using std::string;
@@ -356,18 +355,15 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
               msg() << MSG::ERROR << m_egammaPhotonCutIDTool << " null, hypo continues but no isEM cut applied" << endmsg;
           }else{
               if (timerSvc()) m_timerPIDTool_Pho->start(); //timer
-              if ( m_egammaPhotonCutIDTool->accept(egIt) ) {
+              if ( (bool) m_egammaPhotonCutIDTool->accept(egIt) ) {
                   if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                       << "passes PID egammaPhotonCutIDTool with TAccept"
                           << endmsg;
               } 
               // Get isEM value from m_egammaPhotonCutIDTool->IsemValue(), not from (*egIt)->isem()
-              if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<" IsemValue() = "<< m_egammaPhotonCutIDTool->IsemValue()<< endmsg;
-              isEMTrig = m_egammaPhotonCutIDTool->IsemValue();
-              if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                  <<" isEMTrig = "
-                      << std::hex << isEMTrig
-                      << endmsg;
+              if (m_egammaPhotonCutIDTool->execute(egIt, isEMTrig).isFailure()) 
+                  ATH_MSG_DEBUG("REGTEST Could not get isEM value ");
+              ATH_MSG_DEBUG(" isEMTrig = " << std::hex << isEMTrig);
               if (timerSvc()) m_timerPIDTool_Pho->stop(); //timer
           }
           //-------------------------------------------------------------

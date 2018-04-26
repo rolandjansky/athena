@@ -192,6 +192,12 @@ int JetFinder::find(const PseudoJetVector& inps, xAOD::JetContainer& jets,
     pjet->setAttribute("JetGhostArea", m_ghostarea);
   }
   ATH_MSG_DEBUG("Reconstructed jet count: " << jets.size() <<  "  clusterseq="<<pcs);
+  
+  for(const xAOD::Jet* j : jets){
+    ATH_MSG_DEBUG("jets reconstructed no of constituents "
+                  << j->numConstituents());
+  }
+
   if ( outs.size() ) save(pcs);
   else delete pcs;
   return 0;

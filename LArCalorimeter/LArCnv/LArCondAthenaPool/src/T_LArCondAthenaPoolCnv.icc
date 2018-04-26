@@ -16,6 +16,13 @@ T_LArCondAthenaPoolCnv<T>::~T_LArCondAthenaPoolCnv()
 }
 
 template <class T> 
+ StatusCode T_LArCondAthenaPoolCnv<T>::DataObjectToPers(DataObject* pObj, std::string tname)
+{
+   return LArCondAthenaPoolCnvBase::DataObjectToPers(pObj, tname) ;
+
+}
+
+template <class T> 
  StatusCode T_LArCondAthenaPoolCnv<T>::DataObjectToPool(DataObject* pObj, std::string tname)
 {
 

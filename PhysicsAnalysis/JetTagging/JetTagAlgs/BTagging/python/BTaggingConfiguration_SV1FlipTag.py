@@ -52,7 +52,7 @@ def toolSV1FlipTag(name, useBTagFlagsDefaults = True, **options):
 
 #---------------------------------------------------------------------
 
-metaSV1FlipNewLikelihoodTool = { 'CalibrationFolders' : ['SV1',],
+metaSV1FlipNewLikelihoodTool = { 'CalibrationTaggers' : ['SV1',],
                                  'DependsOn'          : ['BTagCalibrationBrokerTool',],
                                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool' },
                                  'ToolCollection'     : 'SV1FlipTag' }

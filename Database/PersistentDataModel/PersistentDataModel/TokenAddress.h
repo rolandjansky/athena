@@ -41,6 +41,7 @@ public:
    virtual ~TokenAddress() { delete m_token; m_token = 0; }
 
    const Token* getToken() const { return m_token; }
+   void setToken(const Token* token) { delete m_token; m_token = token; }
    const std::string* par() const {
       if (m_par->empty()) {
          if (this->GenericAddress::par()->empty() && m_token != 0) {

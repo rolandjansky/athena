@@ -26,8 +26,6 @@
 // Include the interfaces
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
 
-#include "PATCore/TAccept.h"
-
 #include <string>
 
 namespace Root{
@@ -39,7 +37,7 @@ class AsgForwardElectronIsEMSelector : public asg::AsgTool,
 {
 
   ASG_TOOL_CLASS3(AsgForwardElectronIsEMSelector, IAsgForwardElectronIsEMSelector,
-		  IAsgEGammaIsEMSelector,IAsgSelectionTool)
+		  IAsgEGammaIsEMSelector, CP::ISelectionTool)
 
   public:
   /** Standard constructor */
@@ -56,35 +54,32 @@ class AsgForwardElectronIsEMSelector : public asg::AsgTool,
 
   // Main methods for IAsgSelectionTool interface
 
+  /** Method to get the plain AcceptInfo.
+      This is needed so that one can already get the AcceptInfo 
+      and query what cuts are defined before the first object 
+      is passed to the tool. */
+  virtual const asg::AcceptInfo& getAcceptInfo() const;
 
   /** Accept with generic interface */
-  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const ;
+  virtual asg::AcceptData accept( const xAOD::IParticle* part ) const ;
 
 
   /** Accept with Egamma objects */
-  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const ;
+  virtual asg::AcceptData accept( const xAOD::Egamma* part) const ;
 
 
   /** Accept with Photon objects */
-  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const ;
+  virtual asg::AcceptData accept( const xAOD::Photon* part ) const ;
 
 
   /** Accept with Electron objects */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const ;
-
-
-  /** The value of the isem **/
-  virtual unsigned int IsemValue() const ;
+  virtual asg::AcceptData accept( const xAOD::Electron* part ) const ;
 
   /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
 
   //The main execute method
-  StatusCode execute(const xAOD::Egamma* eg) const;
-
-  /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
-
+  StatusCode execute(const xAOD::Egamma* eg, unsigned int& isEM) const;
 
   // Private member variables
 private:
@@ -103,9 +98,6 @@ private:
 
   /** Pointer to the underlying ROOT based tool */
   Root::TForwardElectronIsEMSelector* m_rootForwardTool;
-
-  /** A dummy return TAccept object */
-  Root::TAccept m_acceptDummy;
 
   bool m_usePVCont;
 

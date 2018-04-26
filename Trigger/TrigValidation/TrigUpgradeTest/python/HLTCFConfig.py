@@ -4,7 +4,7 @@ import sys
 import re
 
 from AthenaCommon.AlgSequence import dumpSequence
-from TrigUpgradeTest.HLTCFDot import *
+from TrigUpgradeTest.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot
 
 DH_DEBUG = True
 
@@ -158,6 +158,7 @@ def decisionTree_From_Chains(HLTNode, chains):
                 hypoAlg.addHypoTool(chain.hypoToolName, hypoToolClassName)
                 addChainToHypoAlg(hypoAlg, chain.name) # only for TMP Combo
 
+
                 #### Build the FILTER
                 # one filter per previous sequence at the start of the sequence: check if it exists or create a new one        
                 # if the previous hypo has more than one output, try to get all of them
@@ -251,7 +252,3 @@ def decisionTree_From_Chains(HLTNode, chains):
 #    dumpSequence (HLTNode, indent=0)
     all_DataFlow_to_dot(HLTNodeName, allSeq_list)
     return
-
-###########################################################
-
-

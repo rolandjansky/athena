@@ -112,8 +112,7 @@ for unpack in l1Decoder.roiUnpackers:
 # signatures
 from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
 from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep
-
-from TrigUpgradeTest.HLTSignatureConfig import *
+#from TrigUpgradeTest.HLTSignatureConfig import *
 
 doMuon=True
 doElectron=True
@@ -122,8 +121,10 @@ doCombo=True
 group_of_chains = []
 # muon chains
 if doMuon:
+    from TrigUpgradeTest.HLTSignatureConfig import muStep1Sequence, muStep2Sequence
     muStep1 = muStep1Sequence()
     muStep2 = muStep2Sequence()
+
 
     MuChains  = [
         Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [muStep1]) , ChainStep("Step2_mu20", [muStep2] )]) ,
@@ -134,8 +135,10 @@ if doMuon:
 
 
 
+
 ## #electron chains
 if doElectron:
+    from TrigUpgradeTest.HLTSignatureConfig import elStep1Sequence, elStep2Sequence
     elStep1 = elStep1Sequence()
     elStep2 = elStep2Sequence()
     ElChains  = [
@@ -147,6 +150,7 @@ if doElectron:
 
 # combined chain
 if doCombo:
+    from TrigUpgradeTest.HLTSignatureConfig import combStep1Sequence, combStep2Sequence
     muelStep1 = combStep1Sequence()
     muelStep2 = combStep2Sequence()
     CombChains =[
@@ -175,11 +179,7 @@ HLTAllStepsSeq = seqAND("EmuTest_HLTAllStepsSequence")
 TopHLTRootSeq += HLTAllStepsSeq
 
 # make CF tree
-
 decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains)
-
-
-
 
 
 from AthenaCommon.AlgSequence import dumpMasterSequence

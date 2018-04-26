@@ -143,7 +143,7 @@ void test1()
 
     //======
 
-    map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist));
+    assert (map.emplace (Range (10, 20), std::make_unique<Payload> (100, &phist)));
     // 10..20->100 - -
     assert (map.capacity() == 3);
     assert (map.size() == 1);
@@ -159,9 +159,11 @@ void test1()
     assert (map.find (5) == nullptr);
     assert (map.find (25)->second->m_x == 100);
 
+    assert (!map.emplace (Range (10, 20), std::make_unique<Payload> (100)));
+
     //======
 
-    map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist));
+    assert (map.emplace (Range (25, 30), std::make_unique<Payload> (200, &phist)));
     // 10..20->100 25..30->200 -
     assert (map.capacity() == 3);
     assert (map.size() == 2);
@@ -179,7 +181,7 @@ void test1()
 
     //======
 
-    map.emplace (Range (30, 40), std::make_unique<Payload> (300, &phist));
+    assert (map.emplace (Range (30, 40), std::make_unique<Payload> (300, &phist)));
     // 10..20->100 25..30->200 30..40->300
     assert (map.capacity() == 3);
     assert (map.size() == 3);
@@ -199,7 +201,7 @@ void test1()
 
     //======
 
-    map.emplace (Range (50, 60), std::make_unique<Payload> (400, &phist));
+    assert (map.emplace (Range (50, 60), std::make_unique<Payload> (400, &phist)));
     // 10..20->100 25..30->200 30..40->300 50..60->400 - -
     assert (map.capacity() == 6);
     assert (map.size() == 4);
@@ -221,7 +223,7 @@ void test1()
 
     //======
 
-    map.emplace (Range (40, 45), std::make_unique<Payload> (500, &phist));
+    assert (map.emplace (Range (40, 45), std::make_unique<Payload> (500, &phist)));
     // 10..20->100 25..30->200 30..40->300 40..45->500 50..60->400 - - -
     assert (map.capacity() == 8);
     assert (map.size() == 5);
@@ -242,6 +244,8 @@ void test1()
     assert (map.find (35)->second->m_x == 300);
     assert (map.find (40)->second->m_x == 500);
     assert (map.find (55)->second->m_x == 400);
+
+    assert (!map.emplace (Range (30, 35), std::make_unique<Payload> (501)));
 
     //======
 
@@ -335,7 +339,7 @@ void test1()
 
     //======
 
-    map.emplace (Range (70, 75), std::make_unique<Payload> (600, &phist));
+    assert (map.emplace (Range (70, 75), std::make_unique<Payload> (600, &phist)));
     // - - 70..75->600 - - - - -
     assert (map.capacity() == 8);
     assert (map.size() == 1);
@@ -347,11 +351,11 @@ void test1()
 
     //======
 
-    map.emplace (Range (75, 80), std::make_unique<Payload> (610, &phist));
-    map.emplace (Range (80, 85), std::make_unique<Payload> (620, &phist));
-    map.emplace (Range (85, 90), std::make_unique<Payload> (630, &phist));
-    map.emplace (Range (90, 93), std::make_unique<Payload> (640, &phist));
-    map.emplace (Range (93, 96), std::make_unique<Payload> (650, &phist));
+    assert (map.emplace (Range (75, 80), std::make_unique<Payload> (610, &phist)));
+    assert (map.emplace (Range (80, 85), std::make_unique<Payload> (620, &phist)));
+    assert (map.emplace (Range (85, 90), std::make_unique<Payload> (630, &phist)));
+    assert (map.emplace (Range (90, 93), std::make_unique<Payload> (640, &phist)));
+    assert (map.emplace (Range (93, 96), std::make_unique<Payload> (650, &phist)));
     // - - 70..75->600 75..80->610 80..85->620 85..90->630 90..93->640 93..96->650
     assert (map.capacity() == 8);
     assert (map.size() == 6);
@@ -393,7 +397,7 @@ void test1()
 
     //======
 
-    map.emplace (Range (97, 99), std::make_unique<Payload> (660, &phist));
+    assert (map.emplace (Range (97, 99), std::make_unique<Payload> (660, &phist)));
     // 93..96->650 97..99->660 - - - - - -
     assert (map.capacity() == 8);
     assert (map.size() == 2);
@@ -471,7 +475,7 @@ void test2_Writer::operator()()
       m_map.erase (rr.m_begin, ctx());
     }
     Range r = makeRange(i);
-    m_map.emplace (r, std::make_unique<Payload> (i), ctx());
+    assert (m_map.emplace (r, std::make_unique<Payload> (i), ctx()));
     m_map.quiescent (ctx());
     if (((i+1)%128) == 0) {
       usleep (1000);

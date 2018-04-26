@@ -20,6 +20,7 @@
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include <AsgTools/AnaToolHandle.h>
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "PATCore/AcceptData.h"
 
 #include <vector>
 #include <cmath>

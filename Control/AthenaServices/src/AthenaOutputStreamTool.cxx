@@ -350,12 +350,7 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
          if ((m_conversionSvc->createRep(*doIter, addr)).isSuccess()) {
             SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
             if (proxy != 0) {
-               m_dataHeader->insert(proxy, addr);
-               if (proxy->address() == 0) {
-                  proxy->setAddress(addr);
-               } else {
-                  delete addr; addr = 0;
-               }
+               proxy->setAddress(addr);
             } else {
                ATH_MSG_WARNING("Could cast DataObject " << (*doIter)->clID() << " " << (*doIter)->name());
             }
@@ -372,12 +367,7 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
       if ((m_conversionSvc->createRep(dataHeaderObj, addr)).isSuccess()) {
          SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(dataHeaderObj->registry());
          if (proxy != 0) {
-            m_dataHeader->insert(proxy, addr, m_processTag);
-            if (proxy->address() == 0) {
-               proxy->setAddress(addr);
-            } else {
-               delete addr; addr = 0;
-            }
+            proxy->setAddress(addr);
          } else {
             ATH_MSG_ERROR("Could cast DataHeader");
             return(StatusCode::FAILURE);
@@ -405,8 +395,23 @@ StatusCode AthenaOutputStreamTool::fillObjectRefs(const DataObjectVec& dataObjec
    for (std::vector<DataObject*>::const_iterator doIter = dataObjects.begin(), doLast = dataObjects.end();
 	   doIter != doLast; doIter++) {
       // call fillRepRefs of persistency service
-      if (!(m_conversionSvc->fillRepRefs((*doIter)->registry()->address(), *doIter)).isSuccess()) {
-         return(StatusCode::FAILURE);
+      SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>((*doIter)->registry());
+      if (proxy != 0) {
+         IOpaqueAddress* addr(proxy->address());
+         if ((m_conversionSvc->fillRepRefs(addr, *doIter)).isSuccess()) {
+            if ((*doIter)->clID() != 1 || addr->par()[0] != "\n") {
+               if ((*doIter)->clID() != ClassID_traits<DataHeader>::ID()) {
+                  m_dataHeader->insert(proxy, addr);
+               } else if (addr != 0) {
+                  m_dataHeader->insert(proxy, addr, m_processTag);
+               }
+            }
+         } else {
+            ATH_MSG_ERROR("Could not fill Object Refs for DataObject (clid/key):" << (*doIter)->clID() << " " << (*doIter)->name());
+            return(StatusCode::FAILURE);
+         }
+      } else {
+         ATH_MSG_WARNING("Could cast DataObject " << (*doIter)->clID() << " " << (*doIter)->name());
       }
    }
    return(StatusCode::SUCCESS);

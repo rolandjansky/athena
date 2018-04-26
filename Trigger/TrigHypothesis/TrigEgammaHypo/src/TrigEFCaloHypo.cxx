@@ -33,8 +33,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODTrigger/TrigPassBits.h"
-#include "PATCore/TAccept.h"            // for TAccept
-#include "PATCore/TResult.h"            // for TResult
+#include "PATCore/AcceptData.h"
 
 class ISvcLocator;
 
@@ -356,28 +355,30 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       // Apply selection
       if(m_applyIsEM){
           ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
-          if(m_SelectorTool->execute(&eg).isFailure())
+          unsigned int isEM = 0;
+          if(m_SelectorTool->execute(&eg, isEM).isFailure())
               ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
-          else isEMTrig = m_SelectorTool->IsemValue();
+          else isEMTrig = isEM;
       }
       else if(m_applyPhotonIsEM){
           ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
-          if(m_PhSelectorTool->execute(&eg).isFailure())
+          unsigned int isEM = 0;
+          if(m_PhSelectorTool->execute(&eg, isEM).isFailure())
               ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
-          else isEMTrig = m_PhSelectorTool->IsemValue();
+          else isEMTrig = isEM;
       }
       else if(m_applyLH){
           if(useLumiTool){
-              const Root::TAccept& acc = m_LHSelectorTool->accept(&eg,avg_mu);
-              lhval=m_LHSelectorTool->getTResult().getResult(0);
+              asg::AcceptData acc = m_LHSelectorTool->accept(&eg,avg_mu);
+              lhval = m_LHSelectorTool->calculate(&eg);
               ATH_MSG_DEBUG("LHValue with mu " << lhval);
               m_lhval.push_back(lhval);
               isLHAcceptTrig = (bool) (acc);
           }
           else {
               ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
-              const Root::TAccept& lhacc = m_LHSelectorTool->accept(&eg); // use method for calo-only
-              lhval=m_LHSelectorTool->getTResult().getResult(0);
+              asg::AcceptData lhacc = m_LHSelectorTool->accept(&eg); // use method for calo-only
+              lhval = m_LHSelectorTool->calculate(&eg);
               ATH_MSG_DEBUG("LHValue without mu " << lhval);
               m_lhval.push_back(lhval);
               isLHAcceptTrig = (bool) (lhacc);

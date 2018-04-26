@@ -135,6 +135,7 @@ class HypoAlgNode(AlgNode):
         tools = self.Alg.HypoTools
         ## HypoTools are private, so need to be created when added to the Alg
         self.Alg.HypoTools = tools+[createHypoTool(hypoToolClassName, hypoToolName)]
+        # here add a check of good creation of the new tools
         status = 0
         return status
 
@@ -191,7 +192,6 @@ class ComboHypoAlgNode(HypoAlgNode):
                 status= self.setPar('previousDecisions1',prev)
             if "pt" in self.getPar("Property2"):
                 status= self.setPar('previousDecisions2',prev)
-
         if  "from_L1EM" in prev:
             if "et" in self.getPar("Property1"):
                 status= self.setPar('previousDecisions1',prev)
@@ -257,7 +257,7 @@ class RoRSequenceFilterNode(SequenceFilterNode):
 # NOW sequences and chains
 ##########################################################
 
-    
+
 class NodeSequence():
     def __init__(self, name, Sequence, Maker, Seed):
         print "Making NEW sequence %s"%(name)
@@ -283,7 +283,6 @@ class NodeSequence():
         
     def __str__(self):
         return "NodeSequence::%s with \n Seed::%s \n Maker::%s  \n Sequence::%s"%(self.name, self.seed, self.maker, self.sequence)
-
 
 
 class MenuSequence():
