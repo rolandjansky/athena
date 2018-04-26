@@ -49,8 +49,11 @@ StatusCode HbbTaggingAlgorithm::execute() {
     if (jet->pt() < m_min_pt) continue;
     if (std::abs(jet->eta()) > m_max_eta) continue;
     const xAOD::Jet* raw_jet = rawjets->at(jet->index());
-    double score = m_tagger->getScore(*jet);
-    m_dec_jet(*raw_jet) = score;
+    // don't bother tagging if the decorator is already there
+    if (!m_dec_jet.isAvailable(*raw_jet)) {
+      double score = m_tagger->getScore(*jet);
+      m_dec_jet(*raw_jet) = score;
+    }
   }
   return StatusCode::SUCCESS;
 }
