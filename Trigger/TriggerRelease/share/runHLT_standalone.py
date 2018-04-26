@@ -70,6 +70,9 @@ log = logging.getLogger('runHLT_standalone.py')
 
 #predefined menu setups accessible using 'test<NAME>[MC]=True' commandline
 menuMap={
+         #Run-3 preparation menu
+         'LS2V1':           ('LS2_v1',                  'TriggerMenuXML/LVL1config_LS2_v1.xml'),         
+
          #2017 menus:       menu name                   L1 xml file
          'PhysicsV7':       ('Physics_pp_v7',           'TriggerMenuXML/LVL1config_Physics_pp_v7.xml'),
          'MCV7':            ('MC_pp_v7',                'TriggerMenuXML/LVL1config_MC_pp_v7.xml'),
