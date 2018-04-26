@@ -173,8 +173,8 @@ def findConnections(alg_list):
             if nodeA is nodeB:
                 continue
             #print "get connections between %s and %s"%(nodeA.algname, nodeB.algname)
-            print nodeA.getOutputList()
-            print nodeB.getOutputList()
+           # print nodeA.getOutputList()
+            #print nodeB.getOutputList()
             dataIntersection = list(set(nodeA.getOutputList()) & set(nodeB.getInputList()))
             if len(dataIntersection) > 0:
                 for line in dataIntersection:

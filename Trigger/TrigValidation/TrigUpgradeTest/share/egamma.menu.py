@@ -163,8 +163,8 @@ theElectronHypo.OutputLevel = VERBOSE
 # this needs to be added:
 #electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", OutputLevel=DEBUG, Decisions = theElectronHypo.Output )    
 
-electronViewSequence = seqAND("electronViewSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
-electronSequence = seqAND("electronSequence", [electronViewSequence] )
+electronSequence = seqAND("electronSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
+#electronSequence = seqAND("electronSequence", [electronViewSequence] )
 
 electron_NodeSequence = NodeSequence("electron_NodeSequence",
                                        Maker=l2ElectronViewsMaker,                                        
