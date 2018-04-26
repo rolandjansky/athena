@@ -126,16 +126,16 @@ class Alg( CfgPyAlgorithm ):
     def finalize(self):
         return StatusCode.Success
 
-    def sysBeginRun(self):
-        return self.beginRun()
+    def sysStart(self):
+        return self.start()
     
-    def beginRun(self):
+    def start(self):
         return StatusCode.Success
 
-    def sysEndRun(self):
-        return self.endRun()
+    def sysStop(self):
+        return self.stop()
     
-    def endRun(self):
+    def stop(self):
         return StatusCode.Success
 
     def filterPassed(self):
