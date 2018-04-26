@@ -6,6 +6,7 @@
 // Gaudi includes
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IAlgContextSvc.h"
+#include "GaudiKernel/ITHistSvc.h"
 
 // Athena includes
 #include "StoreGate/StoreGateSvc.h"
@@ -15,6 +16,9 @@
 #include "TrigServices/HltEventLoopMgr.h"
 #include "TrigSORFromPtreeHelper.h"
 #include "TrigCOOLUpdateHelper.h"
+#include "TrigPreFlightCheck.h"
+
+#include "owl/time.h"
 
 #define ST_WHERE "HltEventLoopMgr::" << __func__ << "(): "
 
@@ -32,6 +36,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   m_detectorStore("DetectorStore", name),
   m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name),
   m_robDataProviderSvc("ROBDataProviderSvc", name),
+  m_THistSvc("THistSvc", name ),
   m_coolHelper("TrigCOOLUpdateHelper", this)
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
@@ -120,6 +125,7 @@ StatusCode HltEventLoopMgr::initialize()
   info() << " ---> ApplicationName        = " << m_applicationName << endmsg;
   info() << " ---> PartitionName          = " << m_partitionName << endmsg;
   info() << " ---> JobOptionsType         = " << m_jobOptionsType << endmsg;
+  
   info() << " ---> Enabled ROBs: size = " << m_enabledROBs.value().size();
   if (m_enabledROBs.value().size() == 0)
     info() << ". No check will be performed";
@@ -134,8 +140,7 @@ StatusCode HltEventLoopMgr::initialize()
   // Setup the IncidentSvc
   //----------------------------------------------------------------------------
   sc = m_incidentSvc.retrieve();
-  if( !sc.isSuccess() )  
-  {
+  if( !sc.isSuccess() ) {
     fatal() << "Error retrieving IncidentSvc " + m_incidentSvc << endmsg;
     return sc;
   }
@@ -144,8 +149,7 @@ StatusCode HltEventLoopMgr::initialize()
   // Setup the StoreGateSvc
   //----------------------------------------------------------------------------
   sc = m_evtStore.retrieve();
-  if(sc.isFailure())
-  {
+  if(sc.isFailure()) {
     fatal() << "Error retrieving StoreGateSvc " + m_evtStore << endmsg;
     return sc;
   }
@@ -154,8 +158,7 @@ StatusCode HltEventLoopMgr::initialize()
   // Setup the DetectorStore
   //----------------------------------------------------------------------------
   sc = m_detectorStore.retrieve();
-  if(sc.isFailure())
-  {
+  if(sc.isFailure()) {
     fatal() << "Error retrieving DetectorStore " + m_detectorStore << endmsg;
     return sc;
   }
@@ -164,39 +167,89 @@ StatusCode HltEventLoopMgr::initialize()
   // Setup the InputMetaDataStore
   //----------------------------------------------------------------------------
   sc = m_inputMetaDataStore.retrieve();
-  if(sc.isFailure())
-  {
+  if(sc.isFailure()) {
     fatal() << "Error retrieving InputMetaDataStore" + m_inputMetaDataStore << endmsg;
     return sc;
   }
-
 
   //----------------------------------------------------------------------------
   // Setup the ROBDataProviderSvc 
   //----------------------------------------------------------------------------
   sc = m_robDataProviderSvc.retrieve();
-  if(sc.isFailure())
-  {
+  if(sc.isFailure()) {
     fatal() << "Error retrieving ROBDataProviderSvc " + m_robDataProviderSvc << endmsg;
     return sc;
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
+  // Setup the Histogram Service
+  //----------------------------------------------------------------------------
+  sc = m_THistSvc.retrieve();
+  if(sc.isFailure()) {
+    fatal() << "Error retrieving THistSvc " + m_THistSvc << endmsg;
+    return sc;
+  }
+
+  //----------------------------------------------------------------------------
   // Setup the COOL helper
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   if (m_coolHelper.retrieve().isFailure()) {
     fatal() << "Error retrieving" << m_coolHelper << endmsg;
     return StatusCode::FAILURE;
   }
 
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // Setup the AlgContextSvc (optional)
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   if (service("AlgContextSvc", m_algContextSvc, /*createIf=*/ false).isFailure()) {
     m_algContextSvc = 0;
     debug() << "No AlgContextSvc available" << endmsg;
   }
   
+  //----------------------------------------------------------------------------
+  // Pre-flight check
+  //----------------------------------------------------------------------------
+  ToolHandle<TrigPreFlightCheck> preFlightCheck("TrigPreFlightCheck");
+  if (preFlightCheck.retrieve().isFailure()) {
+    fatal() << "Error retrieving TrigPreFlightCheck " + preFlightCheck << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  // A failed pre-flight check is fatal in a partition
+  if (validPartition()) {
+    if (preFlightCheck->check(MSG::ERROR).isFailure()) {
+      fatal() << "Pre-flight check for HLT failed." << endmsg;
+      return StatusCode::FAILURE;
+    }
+  }
+  else {
+    if (preFlightCheck->check(MSG::WARNING).isFailure())
+      warning() << "Pre-flight check for HLT failed." << endmsg;
+  }
+  preFlightCheck->release();
+
+  //----------------------------------------------------------------------------
+  // Setup the HLT Histogram Service when configured
+  //----------------------------------------------------------------------------
+  if ( &*m_THistSvc ) {
+    m_hltTHistSvc = SmartIF<IHltTHistSvc>( &*m_THistSvc );
+    if (m_hltTHistSvc.isValid())
+      info() << "A THistSvc implementing the HLT interface IHltTHistSvc was found." << endmsg;
+    else
+      info() << "No THistSvc implementing the HLT interface IHltTHistSvc was found." << endmsg;
+  }
+
+  //----------------------------------------------------------------------------
+  // Setup the HLT ROB Data Provider Service when configured
+  //----------------------------------------------------------------------------
+  if ( &*m_robDataProviderSvc ) {
+    m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
+    if (m_hltROBDataProviderSvc.isValid())
+      info() << "A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found." << endmsg;
+    else
+      info() << "No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found." << endmsg;
+  }
+
   verbose() << "end of " << __FUNCTION__ << endmsg;
   return StatusCode::SUCCESS;
 }
@@ -211,16 +264,26 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
   {
     // (void)TClass::GetClass("vector<unsigned short>"); // preload to overcome an issue with dangling references in serialization
     // (void)TClass::GetClass("vector<unsigned long>");
-
+    
+    // do the necessary resets
+    // internalPrepareResets() was here
+    StatusCode sc = clearTemporaryStores();
+    if (sc.isFailure()) {
+      error() << "Clearing temporary stores failed" << endmsg;
+      return sc;
+    }
+    
     const SOR* sor;
     // update SOR in det store and get it back
     if(!(sor = processRunParams(pt)))
       return StatusCode::FAILURE;
-    /*
+      
     auto& soral = getSorAttrList(sor);
+    
+    /*
     updInternal(soral);     // update internally kept info
     updMetadaStore(soral);  // update metadata store
-
+    
     const EventInfo * evinfo;
     if(updMagField(pt).isFailure() ||     // update mag field when appropriate
        updHLTConfigSvc().isFailure() ||   // update config svc when appropriate
@@ -362,3 +425,80 @@ const SOR* HltEventLoopMgr::processRunParams(const ptree & pt)
   return sor;
 }
 
+
+//==============================================================================
+StatusCode HltEventLoopMgr::clearTemporaryStores()
+{
+  //----------------------------------------------------------------------------
+  // Clear the event store, if used in the event loop
+  //----------------------------------------------------------------------------
+  auto sc = m_evtStore->clearStore();
+  debug() << ST_WHERE << "clear of Event Store " << sc << endmsg;
+  if(sc.isFailure()) {
+    error() << ST_WHERE << "clear of Event Store failed" << endmsg;
+    return sc;
+  }
+
+  //----------------------------------------------------------------------------
+  // Clear the InputMetaDataStore
+  //----------------------------------------------------------------------------
+  sc = m_inputMetaDataStore->clearStore();
+  debug() << ST_WHERE << "clear of InputMetaDataStore store " << sc << endmsg;
+  if(sc.isFailure())
+    error() << ST_WHERE << "clear of InputMetaDataStore failed" << endmsg;
+
+  return sc;
+}
+
+
+//==============================================================================
+const coral::AttributeList& HltEventLoopMgr::getSorAttrList(const SOR* sor) const
+{
+  if(sor->size() != 1)
+  {
+    // This branch should never be entered (the CondAttrListCollection
+    // corresponding to the SOR should contain one single AttrList). Since
+    // that's required by code ahead but not checked at compile time, we
+    // explicitly guard against any potential future mistake with this check
+    error() << ST_WHERE << "Wrong SOR: size = " << sor->size() << endmsg;
+    throw std::runtime_error("SOR record should have one and one only attribute list, but it has " + sor->size());
+  }
+
+  const auto & soral = sor->begin()->second;
+  printSORAttrList(soral, info());
+  return soral;
+}
+
+//==============================================================================
+void HltEventLoopMgr::printSORAttrList(const coral::AttributeList& atr, MsgStream& log) const
+{
+  unsigned long long sorTime_ns(atr["SORTime"].data<unsigned long long>());
+
+  // Human readable format of SOR time if available
+  time_t sorTime_sec = sorTime_ns/1000000000;
+  const auto sorTime_readable = OWLTime(sorTime_sec);
+
+  log << "SOR parameters:" << endmsg;
+  log << "   RunNumber        = "
+      << atr["RunNumber"].data<unsigned int>() << endmsg;
+  log << "   SORTime [ns]     = "
+      << sorTime_ns << " (" << sorTime_readable << ") " << endmsg;
+
+  // save current stream flags for later reset
+  // cast needed (stream thing returns long, but doesn't take it back)
+  auto previous_stream_flags = static_cast<std::ios::fmtflags>(log.flags());
+  auto dmfst = atr["DetectorMaskFst"].data<unsigned long long>();
+  auto dmsnd = atr["DetectorMaskSnd"].data<unsigned long long>();
+  log << MSG::hex << std::setfill('0');
+  log << "   DetectorMaskFst     = 0x" << std::setw(16) << dmfst << endmsg;
+  log << "   DetectorMaskSnd     = 0x" << std::setw(16) << dmsnd << endmsg;
+  log << "   (complete DetectorMask = 0x"
+      << std::setw(16) << dmfst << std::setw(16) << dmsnd << ")" << endmsg;
+  // reset stream flags
+  log.flags(previous_stream_flags);
+
+  log << "   RunType          = "
+      << atr["RunType"].data<std::string>() << endmsg;
+  log << "   RecordingEnabled = "
+      << (atr["RecordingEnabled"].data<bool>() ? "true" : "false") << endmsg;
+}

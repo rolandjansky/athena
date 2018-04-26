@@ -9,14 +9,24 @@
 #include "EventInfo/EventID.h"  /* number_type */
 
 #include "GaudiKernel/MinimalEventLoopMgr.h"
+#include "GaudiKernel/SmartIF.h"
+
+#include "TrigKernel/IHltTHistSvc.h"
+#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
+
 
 // Forward declarations
 class IIncidentSvc;
 class IAlgContextSvc;
 class StoreGateSvc;
+class ITHistSvc;
 class IROBDataProviderSvc;
 class CondAttrListCollection;
 class TrigCOOLUpdateHelper;
+namespace coral {
+  class AttributeList;
+}
+
 
 class HltEventLoopMgr : public MinimalEventLoopMgr,
                         virtual public ITrigEventLoopMgr
@@ -35,9 +45,9 @@ public:
   ///@{
   virtual StatusCode initialize();
 
-  virtual StatusCode prepareForRun(const boost::property_tree::ptree & pt);
+  virtual StatusCode prepareForRun(const boost::property_tree::ptree& pt);
   
-  virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree & pt);
+  virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt);
   ///@}
   
   virtual StatusCode
@@ -48,14 +58,26 @@ public:
   virtual StatusCode timeOutReached(const boost::property_tree::ptree& pt);
   
 private:
+  // ------------------------- Helper methods ----------------------------------
+  
+  /// Check if running in partition
+  bool validPartition() const;
 
-  /// read DataFlow configuration properties
+  /// Read DataFlow configuration properties
   void updateDFProps();
   
-  /// Helper to do whatever is necessary with RunParams (prepare) ptree
-  const CondAttrListCollection* processRunParams(const boost::property_tree::ptree & pt);
-
+  /// Do whatever is necessary with RunParams (prepare) ptree
+  const CondAttrListCollection* processRunParams(const boost::property_tree::ptree& pt);
   
+  /// Clear per-event stores
+  StatusCode clearTemporaryStores();
+  
+  /// Extract the single attr list off the SOR CondAttrListCollection
+  const coral::AttributeList& getSorAttrList(const CondAttrListCollection* sor) const;
+  
+  /// Print the SOR record
+  void printSORAttrList(const coral::AttributeList& atr, MsgStream& log) const;
+
   // ------------------------- Handles to required services/tools --------------
   typedef ServiceHandle<IIncidentSvc> IIncidentSvc_t;
   IIncidentSvc_t m_incidentSvc;
@@ -65,14 +87,22 @@ private:
   StoreGateSvc_t m_detectorStore;
   StoreGateSvc_t m_inputMetaDataStore;
 
-  
   typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
   IIROBDataProviderSvc_t m_robDataProviderSvc;
+
+  typedef ServiceHandle<ITHistSvc> ITHistSvc_t;
+  ITHistSvc_t m_THistSvc;
   
   ToolHandle<TrigCOOLUpdateHelper> m_coolHelper;
   
-  // ------------------------- Pointers to optional services/tools -------------
+  // ------------------------- Optional services/tools -------------------------
   IAlgContextSvc* m_algContextSvc{0};
+  
+  /// Reference to a THistSvc which implements also the Hlt additions
+  SmartIF<IHltTHistSvc> m_hltTHistSvc;
+
+  /// Reference to a ROBDataProviderSvc which implements also the Hlt additions
+  SmartIF<ITrigROBDataProviderSvc> m_hltROBDataProviderSvc;
 
 
   // ------------------------- Properties --------------------------------------
@@ -94,5 +124,10 @@ private:
   EventID::number_type m_currentRun{0};
 
 };
+
+//==============================================================================
+inline bool HltEventLoopMgr::validPartition() const {
+  return (m_partitionName.value()!="None" && m_partitionName.value()!="NONE");
+}
 
 #endif // TRIGSERVICES_HLTEVENTLOOPMGR_H
