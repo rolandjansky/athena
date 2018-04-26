@@ -81,7 +81,7 @@ bool CalcTTZPartonHistory::getZ(const xAOD::TruthParticleContainer* truthParticl
 
     for (size_t i = 0; i < z->nChildren(); ++i) {
       const auto& child = z->child(i);
-      if (isCorrupted(child)) continue;
+      if (!child) continue;
       if (child->pdgId() > 0) {
         *ZDecay1 = findAfterFSR(child)->p4();
         *ZDecay1_pdgId = child->pdgId();
@@ -109,10 +109,10 @@ bool CalcTTZPartonHistory::getZ(const xAOD::TruthParticleContainer* truthParticl
     bool has_top_sibling{false};
     bool has_antitop_sibling{false};
     const auto& parent = p->parent(0);
-    if (isCorrupted(parent)) continue;
+    if (!parent) continue;
     for (size_t i = 0; i < parent->nChildren(); ++i) {
       const auto* child = parent->child(i);
-      if (isCorrupted(child)) continue;
+      if (!child) continue;
       if (child->pdgId() == 6) has_top_sibling = true;
       if (child->pdgId() == -6) has_antitop_sibling = true;
       if (has_top_sibling && has_antitop_sibling) break;
@@ -135,25 +135,15 @@ bool CalcTTZPartonHistory::getZ(const xAOD::TruthParticleContainer* truthParticl
 
 const xAOD::TruthParticle* CalcTTZPartonHistory::getFlavourSibling(const xAOD::TruthParticle *particle){
   const auto& parent = particle->parent(0);
-  if (isCorrupted(parent)) return nullptr;
+  if (!parent) return nullptr;
   for (size_t i = 0; i < parent->nChildren(); ++i) {
     const auto& sibling_candidate = parent->child(i);
-    if (isCorrupted(sibling_candidate)) continue;
+    if (!sibling_candidate) continue;
     if (sibling_candidate->pdgId() == -particle->pdgId()) {
       return sibling_candidate;
     }
   }
   return nullptr;
-}
-
-bool CalcTTZPartonHistory::isCorrupted(const xAOD::TruthParticle *particle){
-  if (!particle) {
-    ATH_MSG_WARNING("Particle in ancestry not accessible. Skipping event");
-    m_ancestry_corrupted = true;
-    return true;
-  } else {
-    return false;
-  }
 }
 
 StatusCode CalcTTZPartonHistory::execute(){

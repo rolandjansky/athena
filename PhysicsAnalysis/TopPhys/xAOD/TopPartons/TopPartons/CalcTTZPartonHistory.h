@@ -39,7 +39,6 @@ class CalcTTZPartonHistory : public CalcTtbarPartonHistory {
   virtual StatusCode execute();
 
   const xAOD::TruthParticle* getFlavourSibling(const xAOD::TruthParticle* particle);
-  bool isCorrupted(const xAOD::TruthParticle* particle);
   bool getZ(const xAOD::TruthParticleContainer* truthParticles,
             TLorentzVector* Z,
             TLorentzVector* ZDecay1,
