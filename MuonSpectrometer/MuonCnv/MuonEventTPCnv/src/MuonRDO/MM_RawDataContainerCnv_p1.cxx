@@ -58,7 +58,7 @@ void  Muon::MM_RawDataContainerCnv_p1::persToTrans(const Muon::MM_RawDataContain
 //================================================================
 Muon::MM_RawDataContainer* Muon::MM_RawDataContainerCnv_p1::createTransient(const Muon::MM_RawDataContainer_p1* persObj, MsgStream& log) 
 {
-  std::unique_ptr<MM_RawDataContainer> trans(new Muon::MM_RawDataContainer(m_idHelper->detectorElement_hash_max())); // FIXME This seems to give a ridiculously large number. Maybe I need to call something else?
+  std::unique_ptr<MM_RawDataContainer> trans(new Muon::MM_RawDataContainer(m_idHelper->module_hash_max())); // FIXME This seems to give a ridiculously large number. Maybe I need to call something else?
   if (DEBUG) log<<MSG::VERBOSE<<"MM_RawDataContainerCnv_p1::createTransient() Created new MM_RawDataContainer with this many collections "<<trans->numberOfCollections()<<std::endl;
   
   persToTrans(persObj, trans.get(), log);

@@ -2291,7 +2291,7 @@ namespace Muon {
     it_end = m_idHelper->mmIdHelper().detectorElement_end();
     for( ;it!=it_end; ++it ){
       IdentifierHash hash;
-      m_idHelper->mmIdHelper().get_detectorElement_hash(*it,hash);
+      m_idHelper->mmIdHelper().get_module_hash(*it,hash);
       insertHash(hash,*it);
     }
 
@@ -2300,7 +2300,7 @@ namespace Muon {
     it_end = m_idHelper->stgcIdHelper().detectorElement_end();
     for( ;it!=it_end; ++it ){
       IdentifierHash hash;
-      m_idHelper->stgcIdHelper().get_detectorElement_hash(*it,hash);
+      m_idHelper->stgcIdHelper().get_module_hash(*it,hash);
       int sector = m_idHelper->sector(*it);
       insertHash(sector,hash,*it);
       int sectorU = sector != 1 ? sector-1 : 16;
