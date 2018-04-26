@@ -45,21 +45,6 @@ ToolSvc += JETM2SkimmingTool
 from DerivationFrameworkCore.TriggerMatchingAugmentation import *
 NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,[])
 
-#from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
-#DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
-#                                                             name = "JETM2_TriggerMatchingAugmentation",
-#                                                             DecorationPrefix = "DFCommonTrigger_",
-#                                                             ElectronContainerName = "Electrons",
-#                                                             MuonContainerName = "Muons",
-#                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
-#	                                                             )
-#ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
-#NewTrigVars=[]
-#for contain in ["Electrons","Muons"]:
-#    new_content=".".join(["JETM2_"+t for t in eltrigsel +
-#                          mutrigsel])
-#    NewTrigVars.append(contain+"."+new_content)
-
 #====================================================================
 # SET UP STREAM   
 #====================================================================
