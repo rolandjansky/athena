@@ -115,6 +115,7 @@ bool CalcTTZPartonHistory::getZ(const xAOD::TruthParticleContainer* truthParticl
     for (size_t i = 0; i < parent->nChildren(); ++i) {
       const auto* child = parent->child(i);
       if (!child) continue;
+      if (child == p) continue;  // Make sure we don't look at our candidate.
       if (child->pdgId() == 6) has_top_sibling = true;
       if (child->pdgId() == -6) has_antitop_sibling = true;
       if (has_top_sibling && has_antitop_sibling) break;
