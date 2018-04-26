@@ -147,7 +147,7 @@ def toolIP1DTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
 #------------------------------------------------------------------
 
-metaIP1DNewLikelihoodTool = { 'CalibrationFolders' : ['IP1D',],
+metaIP1DNewLikelihoodTool = { 'CalibrationTaggers' : ['IP1D',],
                               'DependsOn'          : ['BTagCalibrationBrokerTool',],
                               'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                               'ToolCollection'     : 'IP1DTag' }

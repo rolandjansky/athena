@@ -444,7 +444,7 @@ def toolNeuralNetworkToHistoToolNN(name, useBTagFlagsDefaults = True, **options)
 
 #-------------------------------------------------------------------------
 
-metaJetFitterNNTool = { 'CalibrationFolders' : ['JetFitter',],
+metaJetFitterNNTool = { 'CalibrationTaggers' : ['JetFitter',],
                         'DependsOn'          : ['NeuralNetworkToHistoToolNN',
                                                 'BTagCalibrationBrokerTool'],
                         'PassByPointer'      : {'calibrationTool'          : 'BTagCalibrationBrokerTool',
@@ -585,7 +585,7 @@ def toolNeuralNetworkToHistoToolCOMBNN(name, useBTagFlagsDefaults = True, **opti
 
 #-----------------------------------------------------------------------------
 
-metaJetFitterCOMBNNTool = { 'CalibrationFolders' : ['JetFitter',],
+metaJetFitterCOMBNNTool = { 'CalibrationTaggers' : ['JetFitter',],
                             'DependsOn'          : ['NeuralNetworkToHistoToolCOMBNN',
                                                     'BTagCalibrationBrokerTool'],
                             'PassByPointer'      : {'calibrationTool'          : 'BTagCalibrationBrokerTool',

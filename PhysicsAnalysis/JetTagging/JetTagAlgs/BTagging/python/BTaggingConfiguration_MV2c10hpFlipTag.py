@@ -9,7 +9,7 @@ metaMV2c10hpFlipTag = { 'IsATagger'          : False,#True,
                   'DependsOn'          : ['AtlasExtrapolator',
                                           'BTagCalibrationBrokerTool',
                                           'BTagTrackToVertexTool'],
-                  'CalibrationFolders' : ['MV2c10hp',],
+                  'CalibrationTaggers' : ['MV2c10hp',],
                   'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                   'ToolCollection'     : 'MV2c10hpFlipTag'}
 

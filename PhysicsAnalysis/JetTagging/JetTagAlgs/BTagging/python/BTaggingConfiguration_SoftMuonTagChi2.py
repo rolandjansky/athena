@@ -55,7 +55,7 @@ def toolSoftMuonTagChi2(name, useBTagFlagsDefaults = True, **options):
 
 #--------------------------------------------------------------------------
 
-metaSoftMuonTagChi2NewLikelihoodTool = { 'CalibrationFolders' : ['SoftMu',],
+metaSoftMuonTagChi2NewLikelihoodTool = { 'CalibrationTaggers' : ['SoftMu',],
                                          'DependsOn'          : ['BTagCalibrationBrokerTool',],
                                          'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                                          'ToolCollection'     : 'SoftMuonTagChi2' }
