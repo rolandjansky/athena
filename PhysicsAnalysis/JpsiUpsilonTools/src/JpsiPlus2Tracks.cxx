@@ -71,8 +71,8 @@ namespace Analysis {
     m_pipiMassHyp(true),
     m_kkMassHyp(true),
     m_kpiMassHyp(true),
-    m_kpMassHyp(false), //KB
-    m_oppChargesOnly(true), //KB
+    m_kpMassHyp(false),
+    m_oppChargesOnly(true),
     m_trkThresholdPt(0.0),
     m_trkMaxEta(102.5),
     m_BThresholdPt(0.0),
@@ -105,8 +105,8 @@ namespace Analysis {
         declareProperty("pionpionHypothesis",m_pipiMassHyp);
         declareProperty("kaonkaonHypothesis",m_kkMassHyp);
         declareProperty("kaonpionHypothesis",m_kpiMassHyp);
-        declareProperty("kaonprotonHypothesis",m_kpMassHyp); //KB
-	declareProperty("oppChargesOnly",m_oppChargesOnly); //KB
+        declareProperty("kaonprotonHypothesis",m_kpMassHyp);
+	declareProperty("oppChargesOnly",m_oppChargesOnly);
         declareProperty("trkThresholdPt",m_trkThresholdPt);
         declareProperty("trkMaxEta",m_trkMaxEta);
         declareProperty("BThresholdPt",m_BThresholdPt);
@@ -164,7 +164,7 @@ namespace Analysis {
         constexpr double muMass = 105.658;
         constexpr double kMass = 493.677;
         constexpr double piMass = 139.57;
-        constexpr double pMass = 938.272; //KB
+        constexpr double pMass = 938.272;
         
         // Get the J/psis from StoreGate
         const xAOD::VertexContainer* importedJpsiCollection(0);
@@ -252,8 +252,8 @@ namespace Analysis {
         const std::vector<double> mumupipiMasses = {muMass, muMass, piMass, piMass};
         const std::vector<double> mumukpiMasses = {muMass, muMass, kMass, piMass};
         const std::vector<double> mumupikMasses = {muMass, muMass, piMass, kMass};
-        const std::vector<double> mumukpMasses = {muMass, muMass, kMass, pMass}; //KB
-        const std::vector<double> mumupkMasses = {muMass, muMass, pMass, kMass}; //KB
+        const std::vector<double> mumukpMasses = {muMass, muMass, kMass, pMass};
+        const std::vector<double> mumupkMasses = {muMass, muMass, pMass, kMass};
         
         
         // Attempt to fit each track with the two tracks from the J/psi candidates
@@ -344,7 +344,6 @@ namespace Analysis {
 			   massCuts.push_back(getInvariantMass(*trkItr1,kMass,*trkItr2,piMass));
 			   massCuts.push_back(getInvariantMass(*trkItr1,piMass,*trkItr2,kMass));
                         }
-		        //KB in case of Kp hypothesis cuts on piK and Kpi invatiant mass are used 
                         if(m_kpMassHyp){
 			   massCuts.push_back(getInvariantMass(*trkItr1,kMass,*trkItr2,piMass));
 			   massCuts.push_back(getInvariantMass(*trkItr1,piMass,*trkItr2,kMass));
@@ -364,7 +363,6 @@ namespace Analysis {
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass , *trkItr2, piMass));
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,piMass, *trkItr2, kMass));
                         }
-		        //KB
                         if(m_kpMassHyp){
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,kMass, *trkItr2, pMass));
                            massCuts.push_back(getInvariantMass(jpsiTP1, muMass, jpsiTP2, muMass, *trkItr1,pMass, *trkItr2, kMass));
@@ -391,7 +389,6 @@ namespace Analysis {
                                       (m_pipiMassHyp && passCuts(bHelper, mumupipiMasses, "pi pi")) ||
                                       (m_kpiMassHyp && (passCuts(bHelper, mumukpiMasses, "K pi") ||
                                                         passCuts(bHelper, mumupikMasses, "pi K"))) ||
-			              //KB
                                       (m_kpMassHyp && (passCuts(bHelper, mumukpMasses, "K p") ||
                                                        passCuts(bHelper, mumupkMasses, "p K")));
                      
