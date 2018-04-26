@@ -102,7 +102,8 @@ bool CalcTTZPartonHistory::getZ(const xAOD::TruthParticleContainer* truthParticl
   // for two same-flavour particles that are attached to the
   // ttbar vertex.
   for (const auto& p : *truthParticles) {
-    if (p->pdgId() < 0) continue;
+    if (abs(p->pdgId()) > 19) continue;  // Only elementary fermions
+    if (p->pdgId() < 0) continue;        // No anti-particles (to avoid double-counting)
     const auto& sibling = getFlavourSibling(p);
     if (!sibling) continue;
 
