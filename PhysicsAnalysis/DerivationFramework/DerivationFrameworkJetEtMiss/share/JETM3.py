@@ -43,20 +43,8 @@ JETM3SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM3Sk
 ToolSvc += JETM3SkimmingTool
 
 #Trigger matching decorations
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
-DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
-                                                             name = "JETM3_TriggerMatchingAugmentation",
-                                                             DecorationPrefix = "DFCommonTrigger_",
-                                                             ElectronContainerName = "Electrons",
-                                                             MuonContainerName = "Muons",
-                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
-	                                                             )
-ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
-NewTrigVars=[]
-for contain in ["Electrons","Muons"]:
-    new_content=".".join(["JETM3_"+t for t in eltrigsel +
-                          mutrigsel])
-    NewTrigVars.append(contain+"."+new_content)
+from DerivationFrameworkCore.TriggerMatchingAugmentation import *
+NewTrigVars = applyTriggerMatching(ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # SET UP STREAM
@@ -231,8 +219,9 @@ JETM3SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM3SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
-				      "AntiKt4TruthWZJets.pt","AntiKt4TruthWZJets.eta", "AntiKt4TruthWZJets.phi", "AntiKt4TruthWZJets.m"]+NewTrigVars
+JETM3SlimmingHelper.ExtraVariables = [NewTrigVars["Electrons"][0],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"+"."+NewTrigVars["Muons"][0].split(".",1)[1],
+				      "AntiKt4TruthWZJets.pt","AntiKt4TruthWZJets.eta", "AntiKt4TruthWZJets.phi", "AntiKt4TruthWZJets.m"]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
