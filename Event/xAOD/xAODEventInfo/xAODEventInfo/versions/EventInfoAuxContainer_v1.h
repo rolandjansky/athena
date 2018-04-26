@@ -17,6 +17,7 @@ extern "C" {
 
 // EDM include(s):
 #include "xAODCore/AuxContainerBase.h"
+#include "CxxUtils/ConcurrentBitset.h"
 
 namespace xAOD {
 
@@ -35,6 +36,34 @@ namespace xAOD {
    public:
       /// Default constructor
       EventInfoAuxContainer_v1();
+
+     /**
+       * @brief Return the data vector for one aux data decoration item.
+       * @param auxid The identifier of the desired aux data item.
+       * @param size The current size of the container (in case the data item
+       *             does not already exist).
+       * @param capacity The current capacity of the container (in case
+       *                 the data item does not already exist).
+       */
+      virtual void* getDecoration (SG::auxid_t auxid,
+                                   size_t size,
+                                   size_t capacity) override;
+
+
+     /**
+      * @brief Lock a decoration.
+      * @param auxid Identifier of the decoration to lock.
+      */
+     virtual void lockDecoration (SG::auxid_t auxid) override;
+
+
+     /**
+      * @brief Called after one of these objects is read.
+      *        Locks any detector flag words that appear to have already
+      *        been set.
+      */
+     void toTransient();
+
 
    private:
       /// @name Basic event information
@@ -78,6 +107,14 @@ namespace xAOD {
       std::vector< unsigned long long > mcEventNumber;
       std::vector< std::vector< float > > mcEventWeights;
       /// @}
+
+
+
+      /// Keep track of the event status flags.
+      /// The set bits here correspond to the auxids of all unlocked
+      /// detector flag words.  This is not persistent,
+      /// but is filled in the constructor and toTransient.
+      CxxUtils::ConcurrentBitset m_decorFlags;
 
    }; // class EventInfoAuxContainer_v1
 
