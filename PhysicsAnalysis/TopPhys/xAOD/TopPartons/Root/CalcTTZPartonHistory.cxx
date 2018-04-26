@@ -44,10 +44,10 @@ void CalcTTZPartonHistory::zHistorySaver(const xAOD::TruthParticleContainer* tru
     ttbarPartonHistory->auxdecor< float >( "MC_Zdecay2_phi" ) = ZDecay2.Phi();
     ttbarPartonHistory->auxdecor< int >( "MC_Zdecay2_pdgId" ) = ZDecay2_pdgId;
 
-    ttbarPartonHistory->auxdecor< int >( "MC_Z_IsOnShell" ) = is_on_shell;
+    ttbarPartonHistory->auxdecor< int >( "MC_Z_IsOnShell" ) = static_cast<int>(is_on_shell);
   }  // if
 
-  ttbarPartonHistory->auxdecor< int >( "MC_Z_AncestryCorrupted" ) = m_ancestry_corrupted;
+  ttbarPartonHistory->auxdecor< int >( "MC_Z_AncestryCorrupted" ) = static_cast<int>(m_ancestry_corrupted);
 }
 
 bool CalcTTZPartonHistory::getZ(const xAOD::TruthParticleContainer* truthParticles,
