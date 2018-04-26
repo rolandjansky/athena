@@ -60,20 +60,8 @@ JETM8OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "
 ToolSvc += JETM8OfflineSkimmingTool
 
 #Trigger matching decorations
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
-DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
-                                                             name = "JETM8_TriggerMatchingAugmentation",
-                                                             DecorationPrefix = "DFCommonTrigger_",
-                                                             ElectronContainerName = "Electrons",
-                                                             MuonContainerName = "Muons",
-                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
-	                                                             )
-ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
-NewTrigVars=[]
-for contain in ["Electrons","Muons"]:
-    new_content=".".join(["JETM8_"+t for t in eltrigsel +
-                          mutrigsel])
-    NewTrigVars.append(contain+"."+new_content)
+from DerivationFrameworkCore.TriggerMatchingAugmentation import *
+NewTrigVars = TriggerMatchingAugmentation(electronTriggers,muonTriggers,"",ToolSvc)
 
 #====================================================================
 # THINNING TOOLS 
@@ -289,7 +277,7 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
 
 addOriginCorrectedClusters(JETM8SlimmingHelper,writeLC=True,writeEM=False)
 
-JETM8SlimmingHelper.ExtraVariables = []+NewTrigVars
+JETM8SlimmingHelper.ExtraVariables = [NewTrigVars[0],NewTrigVars[1]]
 
 for truthc in [
     "TruthMuons",
