@@ -277,7 +277,7 @@ Muon::MMPrepDataContainer* Muon::MMPrepDataContainerCnv_p1::createTransient(cons
       return 0;
     } 
   }
-  std::auto_ptr<Muon::MMPrepDataContainer> trans(new Muon::MMPrepDataContainer(m_MMId->detectorElement_hash_max()));
+  std::auto_ptr<Muon::MMPrepDataContainer> trans(new Muon::MMPrepDataContainer(m_MMId->module_hash_max()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }
