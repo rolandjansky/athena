@@ -4,67 +4,48 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "./TestEventViewCreatorAlgorithm.h"
-
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
-#include "CxxUtils/make_unique.h"
-#include "AthContainers/ConstDataVector.h"
+#include "TestEventViewCreatorAlgorithm.h"
 #include "AthViews/ViewHelper.h"
-#include <DecisionHandling/TrigCompositeUtils.h>
+#include "DecisionHandling/TrigCompositeUtils.h"
 #include "DecisionHandling/HLTIdentifier.h"
 
 
 TestEventViewCreatorAlgorithm::TestEventViewCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator )
-  : AthAlgorithm( name, pSvcLocator ) {
-}
+  : InputMakerBase( name, pSvcLocator ) {}
+
+
+TestEventViewCreatorAlgorithm::~TestEventViewCreatorAlgorithm(){}
+
 
 StatusCode TestEventViewCreatorAlgorithm::initialize()
 {
-
-  CHECK( m_inputDecisionsKey.initialize() );
-  renounceArray(m_inputDecisionsKey);
-  ATH_MSG_DEBUG("Will consume implicit input data:" );
-  for (auto& input: m_inputDecisionsKey){  
-    ATH_MSG_DEBUG(" "<<input.key());
-  }
-
- CHECK( m_outputDecisionsKey.initialize() );
-   
-   ATH_MSG_DEBUG("Will produce decisions: ");
-   for (auto& output: m_outputDecisionsKey){  
-     ATH_MSG_DEBUG(" - "<<output.key());
-   }
-    
   ATH_MSG_DEBUG("Will produce views="<<m_viewsKey<<" roIs="<<m_inViewRoIs );
-
   CHECK( m_viewsKey.initialize() );
   CHECK( m_inViewRoIs.initialize() );
   CHECK( m_scheduler.retrieve() );
-
-
   return StatusCode::SUCCESS;
 }
 
-StatusCode TestEventViewCreatorAlgorithm::execute()
+
+StatusCode TestEventViewCreatorAlgorithm::finalize() {
+    ATH_MSG_INFO( "Finalizing " << name() << "..." );
+    return StatusCode::SUCCESS;
+}
+
+
+StatusCode TestEventViewCreatorAlgorithm::execute_r( const EventContext& context ) const
 {
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
   const EventContext& ctx = getContext();
-#else
-  const EventContext& ctx = *getContext();
-#endif
+ 
+  auto outputHandles = decisionOutputs().makeHandles(context);
 
   size_t validInput=0;
-  {// print valid inputs
-    for ( auto inputKey: m_inputDecisionsKey ) {
-      auto inputHandle = SG::makeHandle( inputKey );
-      ATH_MSG_DEBUG(" "<<inputKey.key()<<(inputHandle.isValid()? " is valid": " is NOT valid" ) );
+    for ( auto inputKey: decisionInputs() ) {
+      auto inputHandle = SG::makeHandle( inputKey, context );
+      ATH_MSG_DEBUG(" "<<inputKey.key()<<(inputHandle.isValid()? "valid": "not valid" ) );
       if (inputHandle.isValid()) validInput++;
     }
-    ATH_MSG_DEBUG( "number of implicit ReadHandles is " << m_inputDecisionsKey.size() <<", "<< validInput<<" are valid" );
-  }
-
-  auto outputHandles = m_outputDecisionsKey.makeHandles();
+    ATH_MSG_DEBUG( "number of implicit ReadHandles is " << decisionInputs().size() <<", "<< validInput<<" are valid" );
 
    
     // make the views
@@ -75,16 +56,16 @@ StatusCode TestEventViewCreatorAlgorithm::execute()
 
   const TrigRoiDescriptor* previousRoI = 0;
   size_t outputIndex = 0;
- // Loop over all input containers, which are of course TrigComposites, and request their features   
-  for ( auto inputKey: m_inputDecisionsKey ) {
-    // sme as inputmaker:
-    auto inputHandle = SG::makeHandle( inputKey );    
+ // Loop over all input containers, which are of course TrigComposites, and request their features
+  // this is the same as InputMaker, apart from the view creation. The loop can be splitted in two loops, to have one common part
+  for ( auto inputKey: decisionInputs() ) {
+    auto inputHandle = SG::makeHandle( inputKey, context );
     if( not inputHandle.isValid() ) {
       ATH_MSG_DEBUG( "Got no decisions from input "<< inputKey.key());
       outputIndex++;
       continue;
     }
-
+    
     if( inputHandle->size() == 0){ // input filtered out
       ATH_MSG_ERROR( "Got 0 decisions from valid input "<< inputKey.key()<<". Is it expected?");
       return StatusCode::FAILURE;
@@ -155,16 +136,13 @@ StatusCode TestEventViewCreatorAlgorithm::execute()
       //store the RoI in the view
       auto handle = SG::makeHandle( m_inViewRoIs, contexts.back() );
       CHECK( handle.setProxyDict( viewVector->back() ) );
-      CHECK( handle.record( std::move( oneRoIColl ) ) );
-      
-      input_counter++;
-      
+      CHECK( handle.record( std::move( oneRoIColl ) ) );      
+      input_counter++;      
     }
 
-      ATH_MSG_DEBUG( "Recording output key " <<  m_outputDecisionsKey[ outputIndex ].key() <<" of size "<<OutputDecisions->size()  <<" at index "<< outputIndex);
+      ATH_MSG_DEBUG( "Recording output key " <<  decisionOutputs()[ outputIndex ].key() <<" of size "<<OutputDecisions->size()  <<" at index "<< outputIndex);
       CHECK( outputHandles[outputIndex].record( std::move( OutputDecisions ), std::move( dec_aux ) ) );
       outputIndex++;
-
   }
 
   
@@ -180,32 +158,32 @@ StatusCode TestEventViewCreatorAlgorithm::execute()
   CHECK( viewsHandle.record(  std::move( viewVector ) ) );
   ATH_MSG_DEBUG( "Store "<< viewsHandle->size() <<" Views");
 
-    //debug - the same as inputmaker
-    size_t validOutput=0;
-    for ( auto outHandle: outputHandles ) {
-      if( not outHandle.isValid() ) continue;
-      validOutput++;
+  //debug - the same as inputmaker
+  size_t validOutput=0;
+  for ( auto outHandle: outputHandles ) {
+    if( not outHandle.isValid() ) continue;
+    validOutput++;
+  }
+  ATH_MSG_DEBUG("Produced "<<validOutput<<" decisions containers");
+  if(validInput != validOutput) {
+    ATH_MSG_ERROR("Found "<<validInput<<" inputs and "<<validOutput<<" outputs");
+  }
+  
+  for ( auto outHandle: outputHandles ) {
+    if( not outHandle.isValid() ) continue;
+    ATH_MSG_DEBUG(outHandle.key() <<" with "<< outHandle->size() <<" decisions:");
+    for (auto outdecision:  *outHandle){
+      TrigCompositeUtils::DecisionIDContainer objDecisions;      
+      TrigCompositeUtils::decisionIDs( outdecision, objDecisions );
+      
+      ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
+      
+      for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
+	ATH_MSG_DEBUG( " ---  decision " << HLT::Identifier( id ) );
+      }  
     }
-    ATH_MSG_DEBUG("Produced "<<validOutput<<" decisions containers");
-    if(validInput != validOutput) {
-      ATH_MSG_ERROR("Found "<<validInput<<" inputs and "<<validOutput<<" outputs");
-    }
-
-    for ( auto outHandle: outputHandles ) {
-      if( not outHandle.isValid() ) continue;
-      ATH_MSG_DEBUG(outHandle.key() <<" with "<< outHandle->size() <<" decisions:");
-      for (auto outdecision:  *outHandle){
-    	TrigCompositeUtils::DecisionIDContainer objDecisions;      
-    	TrigCompositeUtils::decisionIDs( outdecision, objDecisions );
-	
-    	ATH_MSG_DEBUG("Number of positive decisions for this output: " << objDecisions.size() );
-	
-    	for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
-    	  ATH_MSG_DEBUG( " ---  decision " << HLT::Identifier( id ) );
-    	}  
-      }
-    }
-
+  }
+  
 
  
   return StatusCode::SUCCESS;
