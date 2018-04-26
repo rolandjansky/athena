@@ -363,7 +363,6 @@ SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.q
                                       "InDetTrackParticles.TrkIsoPt1000_ptcone20.TrkIsoPt1000_ptcone30.TrkIsoPt1000_ptcone40.TrkIsoPt500_ptcone20.TrkIsoPt500_ptcone30.TrkIsoPt500_ptcone40",
                                       "HLT_xAOD__BTaggingContainer_HLTBjetFex.MV2c20_discriminant.MV2c10_discriminant.COMB",
                                       "HLT_xAOD__JetContainer_SplitJet.pt.eta.phi.m",
-                                      "HLT_xAOD__JetContainer_GSCJet.pt.eta.phi.m",
                                     ]	      
 
 SUSY1SlimmingHelper.IncludeMuonTriggerContent   = True
