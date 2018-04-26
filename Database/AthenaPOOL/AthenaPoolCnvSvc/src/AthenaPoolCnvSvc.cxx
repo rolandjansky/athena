@@ -261,8 +261,8 @@ StatusCode AthenaPoolCnvSvc::fillRepRefs(IOpaqueAddress* pAddress, DataObject* p
          status = cnv->fillRepRefs(pAddress, pObject);
       }
    } else {
+      // Forward to base class fillRepRefs
       try {
-         // Forward to base class fillRepRefs
          status = ::AthCnvSvc::fillRepRefs(pAddress, pObject);
       } catch(std::runtime_error& e) {
          ATH_MSG_FATAL(e.what());

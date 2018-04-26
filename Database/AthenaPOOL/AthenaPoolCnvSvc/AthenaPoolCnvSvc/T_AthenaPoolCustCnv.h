@@ -20,6 +20,7 @@ namespace pool {
 }
 
 #include <string>
+#include <map>
 
 class DataObject;
 class StatusCode;
@@ -45,6 +46,11 @@ protected:
    /// Set POOL placement for type P.
    template <class P>
    void setPlacementForP(P& p, const std::string& key = "");
+
+   /// Convert an object into Persistent.
+   /// @param pObj [IN] pointer to the transient object.
+   /// @param key [IN] StoreGate key (string) - placement hint to generate POOL container name
+   virtual StatusCode DataObjectToPers(DataObject* pObj, const std::string& key);
 
    /// Write an object into POOL.
    /// @param pObj [IN] pointer to the transient object.
@@ -90,6 +96,9 @@ protected:
 public:
    /// @return class ID.
    static const CLID& classID();
+
+private:
+   std::map<DataObject*, PERS*> m_persMap;
 };
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustCnv.icc"

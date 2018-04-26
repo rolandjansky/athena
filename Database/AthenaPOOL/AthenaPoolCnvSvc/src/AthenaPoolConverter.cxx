@@ -96,10 +96,17 @@ StatusCode AthenaPoolConverter::createObj(IOpaqueAddress* pAddr, DataObject*& pO
 //__________________________________________________________________________
 StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
    std::lock_guard<CallMutex> lock(m_conv_mut);
-   // Create a Pool object for DataObject
-   m_o_poolToken = nullptr;
+   const SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(pObj->registry());
+   if (proxy == nullptr) {
+      ATH_MSG_ERROR("AthenaPoolConverter CreateRep failed to cast DataProxy, key = "
+             << pObj->registry()->name());
+      return(StatusCode::FAILURE);
+   }
+   const CLID clid = proxy->clID();
+   // Create a IOpaqueAddress for this object.
+   pAddr = new TokenAddress(POOL_StorageType, clid, "", "", 0, 0);
    try {
-      if (!DataObjectToPool(pObj, pObj->registry()->name()).isSuccess()) {
+      if (!DataObjectToPers(pObj, pObj->registry()->name()).isSuccess()) {
          ATH_MSG_ERROR("CreateRep failed, key = " << pObj->registry()->name());
          return(StatusCode::FAILURE);
       }
@@ -107,21 +114,40 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAd
       ATH_MSG_ERROR("createRep - caught exception: " << e.what());
       return(StatusCode::FAILURE);
    }
+   return(StatusCode::SUCCESS);
+}
+//__________________________________________________________________________
+StatusCode AthenaPoolConverter::fillRepRefs(IOpaqueAddress* pAddr, DataObject* pObj) {
+   std::lock_guard<CallMutex> lock(m_conv_mut);
+   m_o_poolToken = nullptr;
+   try {
+      if (!DataObjectToPool(pObj, pObj->registry()->name()).isSuccess()) {
+         ATH_MSG_ERROR("FillRepRefs failed, key = " << pObj->registry()->name());
+         return(StatusCode::FAILURE);
+      }
+   } catch (std::exception& e) {
+      ATH_MSG_ERROR("fillRepRefs - caught exception: " << e.what());
+      return(StatusCode::FAILURE);
+   }
    // Null/empty token means ERROR
    if (m_o_poolToken == nullptr || m_o_poolToken->classID() == Guid::null()) {
-      ATH_MSG_ERROR("CreateRep failed to get Token, key = " << pObj->registry()->name());
+      ATH_MSG_ERROR("FillRepRefs failed to get Token, key = " << pObj->registry()->name());
       return(StatusCode::FAILURE);
    }
    const SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(pObj->registry());
    if (proxy == nullptr) {
-      ATH_MSG_ERROR("AthenaPoolConverter CreateRep failed to cast DataProxy, key = "
+      ATH_MSG_ERROR("AthenaPoolConverter FillRepRefs failed to cast DataProxy, key = "
 	      << pObj->registry()->name());
       return(StatusCode::FAILURE);
    }
-   const CLID clid = proxy->clID();
-   // Create a IOpaqueAddress for this object.
-   pAddr = new TokenAddress(POOL_StorageType, clid, "", "", 0, m_o_poolToken);
-   m_o_poolToken = nullptr; // Token will be inserted into DataHeader, which takes ownership
+   // Update IOpaqueAddress for this object.
+   TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(pAddr);
+   if (tokAddr != nullptr) {
+      tokAddr->setToken(m_o_poolToken);
+      m_o_poolToken = nullptr; // Token will be inserted into DataHeader, which takes ownership
+   } else { // No address (e.g. satellite DataHeader), delete Token
+      delete m_o_poolToken; m_o_poolToken = nullptr;
+   }
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
