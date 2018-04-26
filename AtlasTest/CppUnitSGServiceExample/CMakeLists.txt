@@ -9,7 +9,7 @@ atlas_subdir( CppUnitSGServiceExample )
 atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthContainers
                           Control/StoreGate
                           GaudiKernel
                           TestPolicy )
