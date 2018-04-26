@@ -75,7 +75,12 @@ HIGG4D4Sequence = CfgMgr.AthSequencer(DAOD_StreamID+"Sequence")
 HIGG4D4Sequence += CfgMgr.DerivationFramework__CommonAugmentation("HIGG4DxCommonAugmentationKernel", AugmentationTools = augmentationTools)
 
 # skimming
-HIGG4D4Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = skimmingTools)
+# Note - unique to 21.2.10.1
+higg4d4_expression = "(((count( (( abs(TauJets.charge)==1.0 && (TauJets.nTracks == 1 || TauJets.nTracks == 3) ) || (TauJets.pt > 100.0*GeV && TauJets.nTracks == 2 )) && TauJets.pt > 45.0*GeV) >= 2)) || ((count((TauJets.pt > 100.0*GeV)) >= 1) && (count((TauJets.pt > 45.0*GeV)) >= 2) && (count((TauJets.nTracks == 1 || TauJets.nTracks == 2 || TauJets.nTracks == 3) && TauJets.pt > 45.0*GeV) >= 1)))&&(count( Electrons.pt > 15.0*GeV && (abs(Electrons.eta) < 1.30 || abs(Electrons.eta) > 1.60) && abs(Electrons.eta) < 2.35  && (Electrons.DFCommonElectronsIsEMTight || Electrons.DFCommonElectronsLHTight) ) == 0)"
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+HIGG4D4SpecialSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name 		= "HIGG4D4SpecialSkimmingTool",
+                                                                         expression 	= higg4d4_expression)
+HIGG4D4Sequence += CfgMgr.DerivationFramework__DerivationKernel(DAOD_StreamID+"SkimmingKernel", SkimmingTools = HIGG4D4SpecialSkimmingTool)
 
 # fat/trimmed jet building (after skimming)
 DerivationFrameworkHiggs.HIGG4DxJets.setup(DAOD_StreamID, HIGG4D4Sequence, HIGG4D4SlimmingHelper)
@@ -88,4 +93,3 @@ DerivationFrameworkJob += HIGG4D4Sequence
 
 # slimming - last position
 DerivationFrameworkHiggs.HIGG4DxSlimming.setup(DAOD_StreamID, HIGG4D4Stream, HIGG4D4SlimmingHelper)
-
