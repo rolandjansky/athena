@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigL1TopoROBMonitor.h"
@@ -549,7 +549,7 @@ StatusCode TrigL1TopoROBMonitor::doCnvMon(bool prescalForDAQROBAccess) {
     }
     else {
       // loop over and print RDOs
-      for (auto & rdo : *rdos){
+      for (const auto & rdo : *rdos){
         ATH_MSG_VERBOSE( *rdo );
         ATH_MSG_DEBUG( "CnvMon: Found DAQ RDO with source ID " << L1Topo::formatHex8(rdo->getSourceID()) );
         m_histSIDsViaConverters->Fill(m_allSIDLabelsToInts.at(rdo->getSourceID()));
