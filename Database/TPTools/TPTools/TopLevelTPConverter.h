@@ -35,7 +35,7 @@ having it as a data member is redundant - fix?
 template< class MAIN_CNV, class TL_PERS >
 class TopLevelTPConverter
    : public TopLevelTPCnvBaseP< TL_PERS >
-   , public TPConverterBase< typename MAIN_CNV::Trans_t, TL_PERS >
+//   , public TPConverterBase< typename MAIN_CNV::Trans_t, TL_PERS >
 {
 public:
   typedef typename MAIN_CNV::Trans_t	TRANS;
@@ -123,6 +123,7 @@ public:
  // method implementations allowing nesting top level objects
  //- -----------------------------------------------
 
+  /*
   /// probably obsolete (wrong?) and pending removal
   virtual TPObjRef virt_toPersistent( const TRANS *trans, MsgStream &log ) {
      m_mainConverter.virt_toPersistent( trans, log );
@@ -138,7 +139,7 @@ public:
   virtual void	pstoreToTrans( unsigned index, TRANS *trans, MsgStream &log ) {
      m_mainConverter.pstoreToTrans( index, trans, log );
   }
-
+  
   virtual void persToTrans (const TL_PERS* pers,
                             TRANS* trans,
                             MsgStream& msg)
@@ -155,7 +156,7 @@ public:
     m_mainConverter.virt_toPersistent(trans, msg);
     this->clearTLPersObject();
   }
-
+  */
 protected:
   MAIN_CNV		m_mainConverter;
 

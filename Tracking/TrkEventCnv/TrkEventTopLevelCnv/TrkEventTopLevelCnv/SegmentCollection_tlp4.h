@@ -51,6 +51,9 @@ namespace Trk
         delete m_inDetTrackExt; 
         delete m_muonMeasurementsExt;
      }
+
+     SegmentCollection_tlp4 (const SegmentCollection_tlp4&) = delete;
+     SegmentCollection_tlp4& operator= (const SegmentCollection_tlp4&) = delete;
      
      std::vector< Trk::SegmentCollection_p1 >           m_segmentCollections;
      std::vector< Trk::Segment_p1 >                     m_segments;
