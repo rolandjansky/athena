@@ -36,7 +36,7 @@ DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatching
                                                              name = "JETM4_TriggerMatchingAugmentation",
                                                              DecorationPrefix = "DFCommonTrigger_",
                                                              PhotonContainerName = "Photons",
-                                                             SingleTriggerList = [singlePhotonTriggers]
+                                                             SingleTriggerList = [triggerlist]
 	                                                             )
 ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
 NewTrigVars=[]
