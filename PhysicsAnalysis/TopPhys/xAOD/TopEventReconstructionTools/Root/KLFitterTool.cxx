@@ -356,7 +356,7 @@ namespace top{
           for (unsigned int i = 0; i < 3; ++i) {
             const auto& electron = event.m_electrons.at(i);
             el.SetPtEtaPhiE(electron->pt() / 1.e3, electron->eta(), electron->phi(), electron->e() / 1.e3);
-            myParticles->AddParticle(&el, el.Eta(), KLFitter::Particles::kElectron, "", i);
+            myParticles->AddParticle(&el, electron->caloCluster()->etaBE(2), KLFitter::Particles::kElectron, "", i);
           }
         } else {
           // Trivial case of mixed lepton flavours. Use ttbar->l+jets likelihood and only add the single lepton.
