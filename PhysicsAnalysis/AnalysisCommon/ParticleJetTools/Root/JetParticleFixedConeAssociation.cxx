@@ -10,6 +10,8 @@
 using namespace std;
 using namespace xAOD;
 
+typedef ElementLink<IParticleContainer> ParticleLink;
+
 JetParticleFixedConeAssociation::JetParticleFixedConeAssociation(const string& name)
     : JetParticleAssociation(name) {
 
@@ -25,29 +27,29 @@ JetParticleFixedConeAssociation::JetParticleFixedConeAssociation(const string& n
 // - for each particle we find the closest jet
 // - if the closest jet is within the dR cone of that jet,
 //   it is considered "associated"
-const vector<vector<ElementLink<IParticleContainer> > >*
-JetParticleFixedConeAssociation::match(const xAOD::JetContainer& jets) const {
+const vector<vector<ParticleLink> >*
+JetParticleFixedConeAssociation::match(const JetContainer& jets) const {
 
-    const xAOD::IParticleContainer* parts = NULL;
+    const IParticleContainer* parts = nullptr;
     if (evtStore()->retrieve( parts, m_InputParticleCollectionName ).isFailure() )
         ATH_MSG_FATAL("JetParticleFixedConeAssociation: "
                       "failed to retrieve part collection \"" +
                       m_InputParticleCollectionName + "\"");
 
 
-    vector<vector<ElementLink<IParticleContainer> > >* matchedparts =
-        new vector<vector<ElementLink<IParticleContainer> > >(jets.size());
+    vector<vector<ParticleLink> >* matchedparts =
+        new vector<vector<ParticleLink> >(jets.size());
 
 
-    for (xAOD::IParticleContainer::const_iterator part_itr = parts->begin();
+    for (IParticleContainer::const_iterator part_itr = parts->begin();
             part_itr != parts->end(); ++part_itr) {
 
-        const xAOD::IParticle& part = **part_itr;
+        const IParticle& part = **part_itr;
 
         double drmin = -1;
         int matchjetidx = -1;
         for (unsigned int iJet = 0; iJet < jets.size(); iJet++) {
-            const xAOD::Jet& jet = *jets[iJet];
+            const Jet& jet = *jets[iJet];
 
             double dr = jet.p4().DeltaR(part.p4());
 
@@ -63,7 +65,7 @@ JetParticleFixedConeAssociation::match(const xAOD::JetContainer& jets) const {
         if (matchjetidx >= 0) {
             if (drmin > m_coneSize) continue;
 
-            ElementLink<IParticleContainer> EL; 
+            ParticleLink EL; 
             EL.toContainedElement(*parts, *part_itr);
             (*matchedparts)[matchjetidx].push_back(EL);
         }
