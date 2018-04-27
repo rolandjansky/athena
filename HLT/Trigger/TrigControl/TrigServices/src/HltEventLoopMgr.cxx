@@ -277,7 +277,6 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_sorTime_stamp(2,0),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_l1_hltPrescaleUpdateLB(0xffffffff),
-  m_mandatoryL1ROBs{{begin(L1R_MANDATORY_ROBS), end(L1R_MANDATORY_ROBS)}},
   m_histProp_Hlt_result_size(Gaudi::Histo1DDef("HltResultSize",0,500000,100)),
   m_histProp_Hlt_result_size_physics(Gaudi::Histo1DDef("HltResultSize-(Stream (Main_physics))",0,500000,100)),
   m_histProp_Hlt_result_size_express(Gaudi::Histo1DDef("HltResultSize-(Stream (express_express))",0,250000,100)),
@@ -288,6 +287,8 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100)),
   m_eventContext(nullptr)
 {
+  m_mandatoryL1ROBs.value() = {begin(L1R_MANDATORY_ROBS), end(L1R_MANDATORY_ROBS)};
+
   // General properties for event loop managers
   declareProperty("predefinedLumiBlock",      m_predefinedLumiBlock=0);
   declareProperty("Lvl1CTPROBid",             m_lvl1CTPROBid=0x770001);
