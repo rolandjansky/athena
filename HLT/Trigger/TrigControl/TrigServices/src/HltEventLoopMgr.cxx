@@ -10,7 +10,6 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IssueSeverity.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/Timing.h"
 #include "GaudiKernel/IAlgContextSvc.h"
 #include "GaudiKernel/IAlgManager.h"
@@ -1938,7 +1937,7 @@ void HltEventLoopMgr::bookHistograms()
   regHistsTProfile.reserve(4);
 
   // monitoring information root directory
-  const std::string histPath = std::string("/EXPERT/") + getGaudiThreadGenericName(name()) + "/";
+  const std::string histPath = std::string("/EXPERT/");
 
   //     +--------------------+
   // *-- | Event accept flags |
@@ -2231,7 +2230,7 @@ void HltEventLoopMgr::HltBookHistograms()
   if ( !m_doMonitoring.value() ) { return; }
 
   // monitoring information root directory
-  std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+  std::string path = std::string("/EXPERT/");
 
   // *-- SubDetectors from l1 ROBs
   auto nbins = L1R_BINS.size() + 2;

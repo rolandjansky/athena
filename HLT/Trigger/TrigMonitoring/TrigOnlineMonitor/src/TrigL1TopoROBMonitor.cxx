@@ -20,7 +20,6 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
-#include "GaudiKernel/ThreadGaudi.h"
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 //#include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
@@ -215,7 +214,7 @@ StatusCode TrigL1TopoROBMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& r
 StatusCode TrigL1TopoROBMonitor::bookAndRegisterHist(ServiceHandle<ITHistSvc>& rootHistSvc, TH1F*& hist, std::string hName, std::string hTitle, int bins, float lowEdge, float highEdge){
 
   // *-- booking path
-  std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+  std::string path = std::string("/EXPERT/");
   ATH_MSG_VERBOSE( "Booking monitoring histogram " << hName );
   hist = new TH1F(hName.c_str(), hTitle.c_str(), bins, lowEdge, highEdge);
   if (hist) {
