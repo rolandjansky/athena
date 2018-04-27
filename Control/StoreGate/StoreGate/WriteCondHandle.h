@@ -103,7 +103,9 @@ namespace SG {
         << "WriteCondHandle::record() : obj at: " << t.get() << "  range: " << r 
         << endmsg;
 
-    if (!m_cc->insert(r, std::move(t))) {
+    StatusCode sc = m_cc->insert(r, std::move(t));
+    // Preserve sc for return, since it may be DUPLICATE.
+    if (sc.isFailure()) {
       msg << MSG::ERROR 
           << "WriteCondHandle::record() : unable to insert obj in CondCont<T>"
           << endmsg;
@@ -112,7 +114,7 @@ namespace SG {
  
     updateStore();
  
-    return StatusCode::SUCCESS;
+    return sc;
   }
 
   
