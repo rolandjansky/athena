@@ -8,7 +8,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/Timing.h"
 #include "GaudiKernel/IAlgContextSvc.h"
@@ -286,7 +285,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,19.5,20)),
   m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,.5,1)),
   m_histProp_num_partial_eb_robs(Gaudi::Histo1DDef("NumberROBsPartialEB",-.5,199.5,200)),
-  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100))
+  m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100)),
   m_eventContext(nullptr)
 {
   // General properties for event loop managers
@@ -847,48 +846,48 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
     }
     catch (CTPfragment::NullFragmentPointer& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::Inconsistency& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::TimeOutOfRange& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::TriggerWordsOutOfRange& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::GenericIssue& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (eformat::Issue& ex) {
       std::string issue_msg = std::string("Uncaught eformat issue:    ")+std::string(ex.what());
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;
     }
     catch (ers::Issue& ex) {
       std::string issue_msg = std::string("Uncaught ERS issue:        ")+std::string(ex.what());
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;   
     }
     catch (std::exception& ex) {
       std::string issue_msg = std::string("Uncaught std exception:    ")+std::string(ex.what());
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;     
     }
     catch (...) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,"Uncaught unknown exception.");
+      msgStream() << MSG::ERROR << "Uncaught unknown exception" << endmsg;
     }
   } else {
     // no valid CTP fragment found
     std::string issue_msg = std::string("No valid CTP fragment found.  ") ;
     b_invalidCTPRob=true;
-    ISSUE(IssueSeverity::ERROR, issue_msg);
+    msgStream() << MSG::ERROR << issue_msg << endmsg;     
   }
 
   //-----------------------------------------------------------------------
@@ -916,7 +915,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
   }
   catch (CTPfragment::ExtraPayloadTooLong& ex) {
     b_invalidCTPRob=true;
-    ISSUE(IssueSeverity::ERROR, std::string("Invalid CTP fragment. Exception = ")+ex.what());
+    msgStream() << MSG::ERROR << "Invalid CTP fragment. Exception = " << ex.what() << endmsg;
   }
 
   if ( msgLevel() <= MSG::DEBUG ) {
@@ -1204,7 +1203,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::Inconsistency& ex) {
       m_invalid_lvl1_result++;
@@ -1212,7 +1211,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::TimeOutOfRange& ex) {
       m_invalid_lvl1_result++;
@@ -1220,7 +1219,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::TriggerWordsOutOfRange& ex) {
       m_invalid_lvl1_result++;
@@ -1228,7 +1227,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::GenericIssue& ex) {
       m_invalid_lvl1_result++;
@@ -1236,7 +1235,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (eformat::Issue& ex) {
       m_invalid_lvl1_result++;
@@ -1245,7 +1244,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;
     }
     catch (ers::Issue& ex) {
       m_invalid_lvl1_result++;
@@ -1254,7 +1253,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;
     }
     catch (std::exception& ex) {
       m_invalid_lvl1_result++;
@@ -1263,7 +1262,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;
     }
     catch (...) {
       m_invalid_lvl1_result++;
@@ -1271,7 +1270,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Uncaught unknown exception.";
       }
-      ISSUE(IssueSeverity::ERROR,"Uncaught unknown exception.");
+      msgStream() << MSG::ERROR << "Uncaught unknown exception." << endmsg;
     }
   } else {
     // no valid CTP fragment found
@@ -1285,7 +1284,7 @@ StatusCode HltEventLoopMgr::processRoIs (
       b_invalidCTPRob=true;
       ost << " No valid CTP fragment found. " ;
     }
-    ISSUE(IssueSeverity::ERROR, issue_msg);
+    msgStream() << MSG::ERROR << issue_msg << endmsg;     
   }
 
   // in case a check of the CTP Rob is requested and an invalid fragment was found
