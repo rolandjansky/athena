@@ -246,7 +246,7 @@ namespace MuonGM {
       
       m_nStrips.push_back(m_etaDesign[il].nch);
 
-      reLog()<<MSG::INFO 
+      reLog()<<MSG::DEBUG
 	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << endmsg;
 
     }
