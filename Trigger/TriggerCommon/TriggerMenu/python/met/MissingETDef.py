@@ -11,7 +11,6 @@ from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.met.MissingETDef")
-import sys
 
 def trace(frame, event, arg):
     if event == "call":
