@@ -20,6 +20,14 @@ if IsSUSYSignal():
                                                              AugmentationTools = DecorateSUSYProcess("TRUTH3")
                                                              )
 
+#Extra classifier for D2 variable
+from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthD2Decorator
+TruthD2Decorator= DerivationFramework__TruthD2Decorator("TruthD2Decorator"
+                                                        )
+ToolSvc += TruthD2Decorator
+DerivationFrameworkJob +=CfgMgr.DerivationFramework__DerivationKernel("TRUTH1KernelD2",
+                                                                      AugmentationTools = [TruthD2Decorator]
+                                                                      )
 #==============================================================================
 # HEAVY FLAVOR DECORATIONS (ttbar)
 #==============================================================================
@@ -59,7 +67,7 @@ TRUTH1SlimmingHelper.AppendToDictionary = {'MET_Truth':'xAOD::MissingETContainer
                                           }
 TRUTH1SlimmingHelper.AllVariables = ["MET_Truth","MET_TruthRegions","TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"]
 TRUTH1SlimmingHelper.ExtraVariables = ["AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.constituentLinks",
-                                       "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.constituentLinks.ECF1.ECF2.ECF3"]
+                                       "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.constituentLinks.D2"]
 
 TRUTH1SlimmingHelper.AppendContentToStream(TRUTH1Stream)
 # Add the event info, in its entirety
