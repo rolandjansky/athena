@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -115,7 +115,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   bool is_barrel = (stName.substr(0,1)=="B");
 
   std::string geometry_version=manager->geometryVersion();    
-  int igeometry_ref = 405; // allow to apply the new refinements for cutouts only for layout r.04.0x (not for r.03.0x)
   int igeometry_version = 0;
   //std::cout<<" geometry version = <"<<geometry_version<<">"<<std::endl;
   if (geometry_version.substr(0,1)=="R")
@@ -123,8 +122,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       igeometry_version = MuonGM::strtoint(geometry_version, 2, 2)*100+ MuonGM::strtoint(geometry_version, 5, 2);
       //std::cout<<"  strtoint(geometry_version, 2, 2) = <"<< strtoint(geometry_version, 2, 2)<<">"<<" strtoint(geometry_version, 5, 2) =<"<<strtoint(geometry_version, 5, 2)<<">"<<std::endl;
     }
-  //std::cout<<"geometry_version: "<<geometry_version<<" igeometry_version / ref "<< igeometry_version <<" "<<igeometry_ref<<std::endl;
-
     
   double extratop    = m_station->GetExtraTopThickness();
   double extrabottom = m_station->GetExtraBottomThickness();
@@ -571,16 +568,11 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
         }
         cut->dx = tempdx;
         cut->dy = tempdy;
-	if (igeometry_version < igeometry_ref)
-	  {
-	    // do nothing
-	  }
-	else 
-	  {
-	    if (fabs(cut->dead1) > 1. && techname=="MDT03") cut->dy = cut->dy+15.0*cos(cut->dead1*CLHEP::deg); 
-	    // should compensate for the dy position defined in amdb at the bottom of the foam in ML 1 of EMS1,3 and BOS 6
-	    // can be applied only for layout >=r.04.04 in rel 15.6.X.Y due to the frozen Tier0 policy
-	  }
+
+	if (fabs(cut->dead1) > 1. && techname=="MDT03") cut->dy = cut->dy+15.0*cos(cut->dead1*CLHEP::deg);
+	// should compensate for the dy position defined in amdb at the bottom of the foam in ML 1 of EMS1,3 and BOS 6
+	// can be applied only for layout >=r.04.04 in rel 15.6.X.Y due to the frozen Tier0 policy
+
         cut->lengthY = templengthY;
         // in thickness, cutout will coincide with component
 // not needed (DHW)  double xposcut = 0.;  // rel. to component thickness
@@ -626,25 +618,16 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 	// the following is a fine tuning ----- MUST CHECK for a better solution
         if (stName.substr(0,3) == "BOS" && zi == -6 && type == "MDT") {
           cut->dy = c->dy - cut->dy - cut->lengthY - halfpitch;
-	  if ( igeometry_version < igeometry_ref )
-	    {
-	      // do nothing 
-	      if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endmsg;
-	    }
-	  else
-	    { 
-	      cut->dead1 = 30.; // why this is not 30. or -30. already ?????
-	      if (techname=="MDT03") cut->dy = cut->dy + 30.0; // *cos(cut->dead1*CLHEP::deg);
-	      if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endmsg;
-	    }
+	  cut->dead1 = 30.; // why this is not 30. or -30. already ?????
+	  if (techname=="MDT03") cut->dy = cut->dy + 30.0; // *cos(cut->dead1*CLHEP::deg);
+	  if (verbose) log <<MSG::VERBOSE <<"Cut dead1 for BOS 6 on C side is "<< cut->dead1<<endmsg;
         }
 
 
 	// this mirroring of the cutout is necessary only for barrel MDT chambers; for EC the cutout will be automatically mirrored  
 	// this fix cannot be applied in 15.6.X.Y for layout < r.04.04 due to the frozen tier0 policy
-	if (  ( igeometry_version <  igeometry_ref && (type=="MDT" && (is_mirrored || zi < 0)) ) ||
-	      ( igeometry_version >= igeometry_ref && (type=="MDT" && (is_mirrored || zi < 0) && stName.substr(0,1)=="B") ) ) 
-	  {
+	if (  type=="MDT" && (is_mirrored || zi < 0) && stName.substr(0,1)=="B" )
+	{
           // MDT in chambers explicitly described at z<0 have to be 
           // rotated by 180deg to adj. tube staggering
           // reverse the position (x amdb) of the cutout if the m_station is mirrored

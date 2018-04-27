@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -60,8 +60,6 @@ GeoFullPhysVol* Mdt::build()
 
 GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
 {
-
-  int igeometry_ref = 405;
 
   int Ncuts = vcutdef.size();
   if (Ncuts > 0) {
@@ -142,17 +140,11 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
     int tubeCounter = 0;
     for (int i = 0; i < Nsteps; i++) {
       if (cutoutFullLength[i]) fullLengthCounter++;
-      if (getGeoVersion() < igeometry_ref)
-	{
-	  regionLength = cutoutYmax[i] - low + tol;
-	  cutoutNtubes[i] = int(regionLength/tubePitch);
-	}
-      else 
-	{
-	  regionLength = cutoutYmax[i] - low;
-	  cutoutNtubes[i] = int(regionLength/tubePitch);
-	  if ((regionLength/tubePitch - cutoutNtubes[i])>0.5) cutoutNtubes[i]+=1; 
-	}
+
+      regionLength = cutoutYmax[i] - low;
+      cutoutNtubes[i] = int(regionLength/tubePitch);
+      if ((regionLength/tubePitch - cutoutNtubes[i])>0.5) cutoutNtubes[i]+=1;
+
       if (fullLengthCounter > 1) cutoutNtubes[i]++;
       low = cutoutYmax[i];
       tubeCounter += cutoutNtubes[i];
@@ -261,15 +253,8 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
       // For now assume multiple cutouts have same width and take only the last value 
     }
     
-    if (getGeoVersion() < igeometry_ref)
-      {
-	// do nothing - preserve frozen Tier0 policy for layout < r.0404
-	layer->cutoutAtAngle = false;
-      }
-    else 
-      {
-	layer->cutoutAtAngle = cutAtAngle;
-      }
+    layer->cutoutAtAngle = cutAtAngle;
+
     return layer->build();
 
   } else {        
