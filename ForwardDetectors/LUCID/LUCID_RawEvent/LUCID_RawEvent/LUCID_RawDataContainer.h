@@ -5,8 +5,8 @@
 #ifndef LUCID_RAWDATACONTAINER_H
 #define LUCID_RAWDATACONTAINER_H
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "LUCID_RawEvent/LUCID_RawData.h"
 
 class LUCID_RawDataContainer : public DataVector<LUCID_RawData> {
