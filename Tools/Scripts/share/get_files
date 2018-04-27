@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #   get_files [options] [files] [options] [files] ... 
 #
