@@ -820,8 +820,8 @@ def getTauIDVarCalculator():
 
 ########################################################################
 # TauJetRNNEvaluator
-def getTauJetRNNEvaluator(NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
-                          MinChargedTracks=1, MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, 
+def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
+                          MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, 
                           InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", 
                           OutputLayer="rnnid_output", OutputNode="sig_prob"):
 
@@ -833,10 +833,10 @@ def getTauJetRNNEvaluator(NetworkFile1P="", NetworkFile3P="", OutputVarname="RNN
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
     TauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
+                                      NetworkFile0P=NetworkFile0P,
                                       NetworkFile1P=NetworkFile1P,
                                       NetworkFile3P=NetworkFile3P,
                                       OutputVarname=OutputVarname,
-                                      MinChargedTracks=MinChargedTracks,
                                       MaxTracks=MaxTracks,
                                       MaxClusters=MaxClusters,
                                       MaxClusterDR=MaxClusterDR,
