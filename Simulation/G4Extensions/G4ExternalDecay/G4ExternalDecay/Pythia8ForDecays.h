@@ -19,10 +19,12 @@
 #include <memory>
 #include <mutex>
 
+#include "AthenaBaseComps/AthMessaging.h"
+
 class G4DynamicParticle;
 class G4ParticleDefinition;
 
-class Pythia8ForDecays
+class Pythia8ForDecays : public AthMessaging
 {
   public:
 

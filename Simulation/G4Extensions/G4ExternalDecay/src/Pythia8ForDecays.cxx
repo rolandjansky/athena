@@ -42,7 +42,9 @@ Pythia8ForDecays* Pythia8ForDecays::Instance() {
   return s_instance.get();
 }
 
-Pythia8ForDecays::Pythia8ForDecays() {
+Pythia8ForDecays::Pythia8ForDecays() :
+  AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), "Pythia8ForDecays")
+  {
   // Pythia instance where RHadrons can decay
   std::string docstring = Pythia8_i::xmlpath();
   m_pythia = std::make_unique<Pythia8::Pythia>(docstring);
@@ -88,7 +90,7 @@ std::pair<int,int> Pythia8ForDecays::fromIdWithSquark( int idRHad) const
 }
 
 // TODO: Would be nice for this to be a public function in Pythia8::RHadrons.hh
-std::pair<int,int> Pythia8ForDecays::fromIdWithGluino( int idRHad, Pythia8::Rndm* rndmPtr) const 
+std::pair<int,int> Pythia8ForDecays::fromIdWithGluino( int idRHad, Pythia8::Rndm* rndmPtr) const
 {
   // Find light flavour content of R-hadron.
   int idLight = (abs(idRHad) - 1000000) / 10;
@@ -156,17 +158,23 @@ void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event
   double mm = aTrack.GetDynamicParticle()->GetMass();
 
   // Store the particle in the event record.
-  event.append( aTrack.GetDefinition()->GetPDGEncoding(), 1, 0, 0, aTrack.GetMomentum().x()/CLHEP::GeV, aTrack.GetMomentum().y()/CLHEP::GeV, 
+  event.append( aTrack.GetDefinition()->GetPDGEncoding(), 1, 0, 0, aTrack.GetMomentum().x()/CLHEP::GeV, aTrack.GetMomentum().y()/CLHEP::GeV,
                 aTrack.GetMomentum().z()/CLHEP::GeV, aTrack.GetDynamicParticle()->GetTotalEnergy()/CLHEP::GeV, mm/CLHEP::GeV);
   // Note: this function returns an int, but we don't need or use its output
 }
 
 bool Pythia8ForDecays::isGluinoRHadron(int pdgId) const{
+  // Checking what kind of RHadron this is based on the digits in its PDGID
   const unsigned short q1 = MCUtils::PID::_digit(MCUtils::PID::Location::nq1,pdgId);
   const unsigned short ql = MCUtils::PID::_digit(MCUtils::PID::Location::nl,pdgId);
-  if (q1 == 0 || q1 == 9 || ql == 9){
+
+  // Gluino R-Hadrons have the form 109xxxx or 1009xxx
+  if ((q1 == 0 && ql == 9) || q1 == 9 ){
+    // This is a gluino R-Hadron
     return true;
   }
+
+  // This is not a gluino R-Hadron (probably a squark R-Hadron)
   return false;
 
 }
@@ -181,12 +189,13 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   // Use pythiaDecay information to fill event with the input particle
   fillParticle(aTrack, event);
 
-  // Copy and past of RHadron decay code
+  // Copy and paste of RHadron decay code
   int    iRNow  = 1;
   int    idRHad = event[iRNow].id();
   double mRHad  = event[iRNow].m();
   int    iR0    = 0;
   int    iR2    = 0;
+
   bool isTriplet = !isGluinoRHadron(idRHad);
 
   // Find flavour content of squark or gluino R-hadron.
@@ -203,23 +212,45 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   int idSq    = (idLight < 100) ? idLight/10 : idLight/100;
   int idRSq     = (idSq == 6) ? idRSt : idRSb;
 
-  int idRBef = isTriplet ? idRSq : idRGo;
-  
-  double mRBef = pdt.mSel(idRBef);
-  double fracR = mRBef / mRHad;
-  if (fracR >= 1.) return;
+  // Handling R-Hadrons with anti-squarks
+  idRSq = idRSq * std::copysign(1, idRHad);
 
-  //Squark case
+  int idRBef = isTriplet ? idRSq : idRGo;
+
+  // Mass of the underlying sparticle
+  double mRBef = pdt.mSel(idRBef);
+
+  // Fraction of the RHadron mass given by the sparticle
+  double fracR = mRBef / mRHad;
+
+  ATH_MSG_DEBUG("Printing some R-Hadron decay debug parameters");
+  ATH_MSG_DEBUG("... idRHad:" << idRHad);
+  ATH_MSG_DEBUG("... mRHad :" << mRHad );
+  ATH_MSG_DEBUG("... idRBef: " << idRBef );
+  ATH_MSG_DEBUG("... mRBef: " << mRBef );
+  ATH_MSG_DEBUG("... idRSq: " << idRSt );
+  ATH_MSG_DEBUG("... isTriplet: " << isTriplet );
+
+  if (fracR >= 1.){
+    ATH_MSG_ERROR("R-Hadron mass is smaller than (or the same as) the constituent sparticle! Something must be wrong!");
+    return;
+  }
+
+  // Squark case
   if(isTriplet){
-    int colNew = event.nextColTag();
-    int col    = (event[idRBef].col() != 0) ? colNew : 0;
-    int acol   = (col == 0) ? colNew : 0;
+    int col    = (event[idRBef].col() != 0) ? event.nextColTag() : 0;
+    int tmpSparticleColor = id1>0 ? col : 0;
+    int tmpSparticleAnticolor = id1>0 ? 0 : col;
 
     // Store the constituents of a squark R-hadron.
-    iR0 = event.append( id1, 106, iRNow, 0, 0, 0, col, acol, fracR * event[iRNow].p(), fracR * mRHad, 0.);
-    iR2 = event.append( id2, 106, iRNow, 0, 0, 0, acol, col, (1. - fracR) * event[iRNow].p(), (1. - fracR) * mRHad, 0.);
+
+    // Sparticle
+    // (id, status, mother1, mother2, daughter1, daughter2, col, acol, px, py, pz, e, m=0., scaleIn=0., polIn=9.)
+    iR0 = event.append( id1, 106, iRNow, 0, 0, 0, tmpSparticleColor, tmpSparticleAnticolor, fracR * event[iRNow].p(), fracR * mRHad, 0.);
+    // Spectator quark
+    iR2 = event.append( id2, 106, iRNow, 0, 0, 0, tmpSparticleAnticolor, tmpSparticleColor, (1. - fracR) * event[iRNow].p(), (1. - fracR) * mRHad, 0.);
   }
-  //Gluino case
+  // Gluino case
   else{
     double mOffsetCloudRH = 0.2; // could be read from internal data?
     double m1Eff  = pdt.constituentMass(id1) + mOffsetCloudRH;
@@ -246,6 +277,10 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
     m_pythia->forceRHadronDecays();
   }
 
+  if(msgLvl(MSG::DEBUG)) {
+    m_pythia->event.list();
+  }
+
   ///////////////////////////////////////////////////////////////////////////
   // Add the particles from the Pythia event into the GEANT particle vector
   ///////////////////////////////////////////////////////////////////////////
@@ -258,7 +293,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
     const G4ParticleDefinition * particleDefinition = GetParticleDefinition( m_pythia->event[i].id() );
 
     if (!particleDefinition){
-      G4cout<<"WARNING: I don't know a definition for pdgid "<<m_pythia->event[i].id()<<"! Skipping it..."<<G4endl;
+      ATH_MSG_WARNING("I don't know a definition for pdgid "<<m_pythia->event[i].id()<<"! Skipping it...");
       continue;
     }
 

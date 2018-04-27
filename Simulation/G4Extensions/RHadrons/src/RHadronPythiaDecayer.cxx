@@ -16,8 +16,9 @@
 #include "G4DecayProducts.hh"
 
 RHadronPythiaDecayer::RHadronPythiaDecayer( const std::string s , bool usePythia8 )
- : G4VExtDecayer(s)
- , m_usePythia8(usePythia8)
+ : G4VExtDecayer(s),
+   AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), "RHadronPythiaDecayer"),
+   m_usePythia8(usePythia8)
 {
   // In the constructor, make a decayer instance, so that it's initialized here and not in the event loop
   if (m_usePythia8) Pythia8ForDecays::Instance();
@@ -36,10 +37,13 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
 
   // Different approaches depending on whether we care about Pythia8 or Pythia6
   if(m_usePythia8){
+    ATH_MSG_DEBUG("Pythia8 is selected in RHadronPythiaDecayer");
+
     // Pythia8 decay the particle and import the decay products
     Pythia8ForDecays::Instance()->Py1ent(aTrack, particles);
   }
   else{
+    ATH_MSG_DEBUG("Pythia6 is selected in RHadronPythiaDecayer");
     // let Pythia6Decayer decay the particle and import the decay products
     G4ThreeVector momentum = aTrack.GetMomentum();
     CLHEP::HepLorentzVector p;
@@ -53,24 +57,24 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
     PythiaForDecays::Instance()->ImportParticles(particles);
   }
 
-  G4cout << "Decayed an RHadron with ID " << pdgEncoding << " and momentum " << aTrack.GetMomentum() << " in Pythia.  Decay products are:" << G4endl;
+  ATH_MSG_DEBUG("Decayed an RHadron with ID " << pdgEncoding << " and momentum " << aTrack.GetMomentum() << " in Pythia.  Decay products are:");
   double totalE=0.0;
   for (unsigned int i=0; i<particles.size(); ++i){
     if (particles[i]) {
-      G4cout<<i<<" ";
       dp->PushProducts(particles[i]);
       totalE += particles[i]->GetTotalEnergy();
     }
     else {
-      G4cout << i << " null pointer!" << G4endl;
+      ATH_MSG_DEBUG( i << " null pointer!" );
     }
   }
-  G4cout << G4endl;
-  //G4cout <<"\nSummary:" << G4endl;
-  G4cout<<" total energy in was "<<etot<<G4endl;
-  G4cout<<" total energy out is "<<totalE<<G4endl;
-  //G4cout << G4endl;
-  dp->DumpInfo();
+
+  ATH_MSG_DEBUG( "Total energy in was "<<etot);
+  ATH_MSG_DEBUG( "Total energy out is "<<totalE);
+
+  if(msgLvl(MSG::DEBUG)) {
+    dp->DumpInfo();
+  }
 
   return dp;
 }
