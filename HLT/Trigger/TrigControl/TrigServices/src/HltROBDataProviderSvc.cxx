@@ -35,7 +35,7 @@ namespace HltROBDataProviderConstants {
   // reserve a number of ROB monitor collections
   static const int Number_of_Rob_Monitor_Structs = 10;
   // number of ROBs in an event, used to reserve space in an array
-  static const int Max_Number_Of_ROBs = 1800;
+  static const int Max_Number_Of_ROBs = 2000;
 }
 
 // Constructor.
@@ -1089,21 +1089,20 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
         }
       }
     }
-
+    
     if (m_ignoreROB.value().size() != 0) {
-    std::vector<uint32_t>::const_iterator rob_ignore_it =
-    std::find(m_ignoreROB.value().begin(), m_ignoreROB.value().end(),id);
-    if(rob_ignore_it != m_ignoreROB.value().end()) {
-      ATH_MSG_DEBUG(" ---> addROBDataToCache: ROB Id : 0x" << MSG::hex << id << MSG::dec
-      << " will be not retrieved, since it is on the veto list.");
-      if ( p_robMonStruct ) {
-      	
-        (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::IGNORED;
-       }
-       continue;
-     }
-   }
-
+      std::vector<uint32_t>::const_iterator rob_ignore_it =
+        std::find(m_ignoreROB.value().begin(), m_ignoreROB.value().end(),id);
+      if(rob_ignore_it != m_ignoreROB.value().end()) {
+        ATH_MSG_DEBUG(" ---> addROBDataToCache: ROB Id : 0x" << MSG::hex << id << MSG::dec
+                      << " will be not retrieved, since it is on the veto list.");
+        if ( p_robMonStruct ) {
+          (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::IGNORED;
+        }
+        continue;
+      }
+    }
+    
     // separate MET and detector ROBs if requested
     if ( (m_separateMETandDetROBRetrieval.value()) &&
 	 ( (eformat::helper::SourceIdentifier(*rob_it).subdetector_id() == eformat::TDAQ_LAR_MET) || 
@@ -1135,10 +1134,6 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
 
     
   }
-
-
-
-  
 
   if(msgLvl(MSG::DEBUG) && ((vRobIds.size()!=0) || (vMETRobIds.size()!=0))) {
     std::ostringstream ost;
@@ -1220,7 +1215,7 @@ void HltROBDataProviderSvc::updateROBDataCache(std::vector<hltinterface::DCM_ROB
       ATH_MSG_DEBUG(" ---> addROBDataToCache: Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
                     << " removed for L1 Id = " << m_currentLvl1ID);
       if ( p_robMonStruct ) {
-	(p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::IGNORED;
+        (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::IGNORED;
       }
     } else if ( ROBDataProviderSvc::filterRobWithStatus(&it->robFragment)) {
       if (msgLvl(MSG::DEBUG) && (it->robFragment.nstatus() > 0)) {
@@ -1247,20 +1242,19 @@ void HltROBDataProviderSvc::updateROBDataCache(std::vector<hltinterface::DCM_ROB
     } else {
       m_online_robmap[id]= (it->robFragment);
       //* detailed monitoring
-    if ( p_robMonStruct ) {
-    	
-      (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::RETRIEVED;
-      (p_robMonStruct->requested_ROBs)[id].rob_size    = it->robFragment.fragment_size_word();
-      if ( it->robFragment.nstatus() != 0 ) {
-        const uint32_t* it_status;
-        it->robFragment.status(it_status);
-        for (uint32_t k=0; k < it->robFragment.nstatus(); k++) {
-          (p_robMonStruct->requested_ROBs)[id].rob_status_words.push_back( *(it_status+k) );
+      if ( p_robMonStruct ) {
+        (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::RETRIEVED;
+        (p_robMonStruct->requested_ROBs)[id].rob_size    = it->robFragment.fragment_size_word();
+        if ( it->robFragment.nstatus() != 0 ) {
+          const uint32_t* it_status;
+          it->robFragment.status(it_status);
+          for (uint32_t k=0; k < it->robFragment.nstatus(); k++) {
+            (p_robMonStruct->requested_ROBs)[id].rob_status_words.push_back( *(it_status+k) );
+          }
         }
-      }
-    } // end detailed monitoring
+      } // end detailed monitoring
     }
-
+    
     //* fill monitoring histogram for ROB generic status
     if ( ( m_hist_genericStatusForROB ) && ( it->robFragment.nstatus() != 0 ) ) {
       const uint32_t* it_status;
@@ -1285,8 +1279,6 @@ void HltROBDataProviderSvc::updateROBDataCache(std::vector<hltinterface::DCM_ROB
         }
       }
     }
-    
-    
   }   // end loop over ROBInfo records
   return;
 } // end void updateROBDataCache(...)
