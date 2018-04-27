@@ -22,6 +22,7 @@
 #include "TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
+#include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
 #include "PATCore/PATCoreEnums.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
@@ -30,7 +31,7 @@
 namespace top {
 
 TriggerCPTools::TriggerCPTools(const std::string& name) :
-    asg::AsgTool(name) {
+  asg::AsgTool(name){
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
 
@@ -39,6 +40,9 @@ TriggerCPTools::TriggerCPTools(const std::string& name) :
   declareProperty( "TrigMatchTool", m_trigMatchTool );
   declareProperty( "GlobalTriggerEffTool", m_globalTriggerEffTool );
   declareProperty( "GlobalTriggerEffToolLoose", m_globalTriggerEffToolLoose );
+
+  m_muonTool = asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors/MuonTrigEff");
+  m_muonToolLoose = asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors/MuonTrigEffLoose");
 
 }
 
@@ -154,7 +158,6 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 
   // Create electron trigger SF and Eff tools
   ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> electronEffTools, electronSFTools, electronEffToolsLoose, electronSFToolsLoose;
-  std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool> > electronToolsFactory, electronToolsFactoryLoose;
   std::map<std::string,std::string> legsPerTool, legsPerToolLoose;
   int nTools = 0;
   // Loop over the triggers found (electrons)
@@ -166,7 +169,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
       for(int j=0;j<2;++j) // one tool instance for efficiencies, another for scale factors
 	{
 	  ATH_MSG_INFO("TIGHT " << year << " " << trigKey << " " << electronID << " " << electronIsolation );
-	  auto t = electronToolsFactory.emplace(electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff_"+std::to_string(j)+"_"+std::to_string(nTools));
+	  auto t = m_electronToolsFactory.emplace(m_electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff_"+std::to_string(j)+"_"+std::to_string(nTools));
 	  top::check(t->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/map1.txt"), "Fail");
 	  top::check(t->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)), "Failed to set TriggerKey");
 	  if (electronID != "None")
@@ -185,7 +188,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	  ATH_MSG_INFO("TIGHT " << name << " -> " << trigKey);
 	  
 	  ATH_MSG_INFO("LOOSE " << year << " " << trigKey << " " << electronIDLoose << " " << electronIsolationLoose );
-	  auto tLoose = electronToolsFactoryLoose.emplace(electronToolsFactoryLoose.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEffLoose_"+std::to_string(j)+"_"+std::to_string(nTools));
+	  auto tLoose = m_electronToolsFactoryLoose.emplace(m_electronToolsFactoryLoose.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEffLoose_"+std::to_string(j)+"_"+std::to_string(nTools));
 	  top::check(tLoose->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/map1.txt"), "Fail");
 	  top::check(tLoose->setProperty("TriggerKey", (j? year+"_"+trigKey : "Eff_"+year+"_"+trigKey)),"Failed to set TriggerKey");
 	  if (electronIDLoose != "None")
@@ -206,30 +209,29 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	}
     }
   } 
-  
+
   // Create muon trigger SF tool 
   ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
-  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool;//("CP::MuonTriggerScaleFactors/MuonTrigEff");  
-  muonTool.setTypeAndName("CP::MuonTriggerScaleFactors/MuonTrigEff");
-  if(muonQuality != "None")
-    top::check(muonTool.setProperty("MuonQuality", muonQuality), "Failed to set MuonQuality");
-  top::check(muonTool.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF");
-  //top::check(muonTool.initialize(), "Failed to initialise");
-  top::check(muonTool.retrieve(), "Failed to retrieve");
-  muonTools.push_back(muonTool.getHandle());      
-  ATH_MSG_INFO("Muon tool name (tight) " << muonTools[muonTools.size()-1].name());
-
   ToolHandleArray<CP::IMuonTriggerScaleFactors> muonToolsLoose;
-  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonToolLoose;//("CP::MuonTriggerScaleFactors/MuonTrigEffLoose");
-  muonToolLoose.setTypeAndName("CP::MuonTriggerScaleFactors/MuonTrigEffLoose");
+ 
+  if(muonQuality != "None")
+    top::check(m_muonTool.setProperty("MuonQuality", muonQuality), "Failed to set MuonQuality");
+  top::check(m_muonTool.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF"); 
+  top::check(m_muonTool.initialize(), "Failed to initialise");
+  ATH_MSG_INFO(muonTools.size());
+  muonTools.push_back(m_muonTool.getHandle());
+  ATH_MSG_INFO("Muon tool name (tight) " << muonTools[muonTools.size()-1].name());
+  ATH_MSG_INFO(muonTools.size());
+ 
   if(muonQualityLoose != "None")
-    top::check(muonToolLoose.setProperty("MuonQuality", muonQualityLoose), "Failed to set MuonQuality");
-  top::check(muonToolLoose.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF");
-  //top::check(muonToolLoose.initialize(), "Failed to initialise");
-  top::check(muonToolLoose.retrieve(), "Failed to retrieve");
-  muonToolsLoose.push_back(muonToolLoose.getHandle());
-  ATH_MSG_INFO("Muon tool name (loose) " << muonToolsLoose[muonTools.size()-1].name());
-
+    top::check(m_muonToolLoose.setProperty("MuonQuality", muonQualityLoose), "Failed to set MuonQuality");
+  top::check(m_muonToolLoose.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF");
+  top::check(m_muonToolLoose.initialize(), "Failed to initialise");
+  ATH_MSG_INFO(muonToolsLoose.size());
+  muonToolsLoose.push_back(m_muonToolLoose.getHandle());
+  ATH_MSG_INFO(muonToolsLoose.size());
+  ATH_MSG_INFO("Muon tool name (loose) " << muonToolsLoose[muonToolsLoose.size()-1].name());
+  
   // Construct the trigger combinations from  the electron and muon trigger combinations
   // Electron triggers
   for(auto& key : electronTriggerCombination){

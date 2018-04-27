@@ -21,6 +21,9 @@
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "TrigTauMatching/ITrigTauMatching.h"
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
+// Need to have these tools held in the class
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 
 namespace top {
 
@@ -46,6 +49,13 @@ class TriggerCPTools final : public asg::AsgTool {
   ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffToolLoose;
   StatusCode initialiseGlobalTriggerEff();
   std::string mapWorkingPoints(const std::string& type);
+
+  // Tool handles for the tool
+  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTool;
+  asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonToolLoose;
+  std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_electronToolsFactory;
+  std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_electronToolsFactoryLoose;
+
 };
 }  // namespace top
 
