@@ -1,8 +1,8 @@
 import os
 
 makeDataDAODs=True
-makeMCDAODs=True
-makeTruthDAODs=True
+makeMCDAODs=False
+makeTruthDAODs=False
 makeTrains=True
 
 formatList = ['PHYSVAL',
@@ -49,14 +49,14 @@ trainList = [ ["HIGG2D5","TCAL1"], # < 0.1%
               ["FTAG1","FTAG2","FTAG4"], # FTAG train (3.5-4.6%). FTAG3 alone.
 ]
 mcLabel = "mc16"
-dataLabel = "data17"
+dataLabel = "data18"
 truthLabel = "mc15"
 delayedStreamLabel = "data16DELAYED"
 blsStreamLabel = "data17BPHYSLS"
 mcFileBPHY8 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11705353._000001.pool.root.1"
 mcFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/user.ctreado.11717804.EXT0._000056.DAOD_RPVLL.pool.root"
 mcFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12169019._004055.pool.root.1"
-dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.12818484._004694.pool.root.1"
+dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data18_13TeV.00348403.physics_Main.merge.AOD.f920_m1947._lb0829._0001.1"
 dataFileRPVLL = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.13679930._004714.pool.root.1"
 dataFileDelayed = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11270451._000007.pool.root.1"
 dataFileBLS = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00337491.physics_BphysLS.merge.AOD.f873_m1885._lb0100._0001.1"
