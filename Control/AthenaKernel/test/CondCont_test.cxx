@@ -127,9 +127,14 @@ RE: [0]\n");
   ptrs.push_back (new T(2));
   ptrs.push_back (new T(3));
 
-  assert( cc.typelessInsert (r1, ptrs[0]) );
-  assert( cc.typelessInsert (r2, ptrs[1]) );
-  assert( cc.insert (r3, std::unique_ptr<T> (ptrs[2])) );
+  assert( cc.typelessInsert (r1, ptrs[0]).isSuccess() );
+  assert( cc.typelessInsert (r2, ptrs[1]).isSuccess() );
+  assert( cc.insert (r3, std::unique_ptr<T> (ptrs[2])).isSuccess() );
+  {
+    StatusCode sc = cc.insert (r3, std::make_unique<T> (99));
+    assert (sc.isSuccess());
+    assert (CondContBase::Category::isDuplicate (sc));
+  }
   assert (cc.entries() == 3);
   std::ostringstream ss2;
   cc.list (ss2);
@@ -146,7 +151,7 @@ RE: [0]\n");
   assert (ss2.str() == exp2.str());
 
   auto t4 = std::make_unique<T> (4);
-  assert( ! cc.insert (EventIDRange (runlbn (40, 2), timestamp (543)), std::move(t4)) );
+  assert( ! cc.insert (EventIDRange (runlbn (40, 2), timestamp (543)), std::move(t4)).isSuccess() );
 }
 
 
@@ -225,7 +230,7 @@ void test2 (TestRCUSvc& rcusvc)
   checkit (bcc, bptrs);
 
   auto b4 = std::make_unique<B> (4);
-  assert( ! bcc.insert (EventIDRange (runlbn (40, 2), timestamp (543)), std::move(b4)) );
+  assert( ! bcc.insert (EventIDRange (runlbn (40, 2), timestamp (543)), std::move(b4)).isSuccess() );
 }
 
 
@@ -288,7 +293,7 @@ void test3_Writer::operator()()
       m_map.erase (rr.start(), ctx());
     }
     EventIDRange r = makeRange(i);
-    m_map.insert (r, std::make_unique<B> (i), ctx());
+    assert (m_map.insert (r, std::make_unique<B> (i), ctx()).isSuccess());
     m_map.quiescent (ctx());
     if (((i+1)%128) == 0) {
       usleep (1000);
