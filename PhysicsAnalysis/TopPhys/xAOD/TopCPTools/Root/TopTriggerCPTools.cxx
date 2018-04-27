@@ -122,7 +122,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   // eg...
   std::map<std::string,std::string> triggerCombination;
   std::map<std::string,std::string> legsPerKey;
-  
+
   top::ConfigurationSettings* configSettings = top::ConfigurationSettings::get();
   std::string electron_triggers = configSettings->value("ElectronTriggers");
   std::string muon_triggers     = configSettings->value("MuonTriggers");
