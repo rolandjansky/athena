@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -130,8 +130,7 @@ bool psc::Psc::configure(const ptree& config)
        * of libGaudiSvc.
        */
       void* libHandle = 0;
-      StatusCode sc = System::loadDynamicLib(dllname, &libHandle);
-      if (sc.isSuccess()) {
+      if (System::loadDynamicLib(dllname, &libHandle)) {
         ERS_DEBUG(1,"Successfully pre-loaded " << dllname << "library");
       }
       else {
