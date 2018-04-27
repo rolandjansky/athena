@@ -47,8 +47,9 @@ JETM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM7Sk
 ToolSvc += JETM7SkimmingTool
 
 #Trigger matching decorations
-from DerivationFrameworkCore.TriggerMatchingAugmentation import *
-NewTrigVars = applyTriggerMatching(ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM7",
+                                                 ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # SET UP STREAM   
@@ -174,7 +175,7 @@ replaceAODReducedJets(reducedJetList,jetm7Seq,"JETM7")
 #==============================================================================
 # background generator filters
 #==============================================================================
-augmentationTools = []
+augmentationTools = [TrigMatchAug]
 if globalflags.DataSource() == 'geant4':
     from DerivationFrameworkMCTruth.GenFilterToolSetup import *
     augmentationTools.append(ToolSvc.DFCommonTruthGenFilt)
@@ -213,8 +214,8 @@ JETM7SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM7SlimmingHelper.ExtraVariables = [NewTrigVars["Electrons"][0],
-                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"+"."+NewTrigVars["Muons"][0].split(".",1)[1]]
+JETM7SlimmingHelper.ExtraVariables = ["Electrons."+NewTrigVars["Electrons"],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus."+NewTrigVars["Muons"]]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",

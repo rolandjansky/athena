@@ -42,8 +42,9 @@ JETM2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM2Sk
 ToolSvc += JETM2SkimmingTool
 
 #Trigger matching decorations
-from DerivationFrameworkCore.TriggerMatchingAugmentation import *
-NewTrigVars = applyTriggerMatching(ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM2",
+                                                 ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # SET UP STREAM   
@@ -141,7 +142,8 @@ DerivationFrameworkJob += jetm2Seq
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm2Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM2Kernel",
                                                          SkimmingTools = [JETM2SkimmingTool],
-                                                         ThinningTools = thinningTools)
+                                                         ThinningTools = thinningTools,
+                                                         AugmentationTools = [TrigMatchAug])
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
@@ -186,8 +188,8 @@ JETM2SlimmingHelper.AllVariables = ["MuonTruthParticles", "egammaTruthParticles"
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM2SlimmingHelper.ExtraVariables = [NewTrigVars["Electrons"][0],
-                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"+"."+NewTrigVars["Muons"][0].split(".",1)[1],
+JETM2SlimmingHelper.ExtraVariables = ["Electrons."+NewTrigVars["Electrons"],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus."+NewTrigVars["Muons"],
                                       "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
 
 for truthc in [
