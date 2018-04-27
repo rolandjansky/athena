@@ -258,9 +258,9 @@ if not "HIGG2D4Jets" in OutputJets:
 #====================================================================
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
-addVRJets(higg5d2Seq)
+addVRJets(higg2d4Seq)
 # Also add Hbb Tagger
-addHbbTagger(higg5d2Seq, ToolSvc)
+addHbbTagger(higg2d4Seq, ToolSvc)
 
 #===================================================================
 # Run b-tagging
