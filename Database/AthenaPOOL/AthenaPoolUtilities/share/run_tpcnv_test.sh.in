@@ -3,8 +3,9 @@
 for libroot in @ARG_REQUIRED_LIBRARIES@; do
   fullpath=""
   for p in `echo $LD_LIBRARY_PATH | tr : ' ' `; do
-    if [ -r $p/lib${libroot}.so ]; then
-      fullpath="$p/lib${libroot}.so"
+    thispath="$p/@CMAKE_SHARED_LIBRARY_PREFIX@${libroot}@CMAKE_SHARED_LIBRARY_SUFFIX@"
+    if [ -r "$thispath" ]; then
+      fullpath="$thispath"
     fi
   done
   if [ "$fullpath" = "" ]; then
