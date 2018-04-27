@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files.
@@ -47,6 +47,7 @@ HltROBDataProviderSvc::HltROBDataProviderSvc(const std::string& name, ISvcLocato
  m_removeEmptyROB(false),
  m_isEventComplete(false),
  m_callerName("UNKNOWN"),
+ m_RobRequestInfo(0),
  m_histProp_requestedROBsPerCall(Gaudi::Histo1DDef("RequestedROBsPerCall" ,0,300,50)),
  m_histProp_receivedROBsPerCall(Gaudi::Histo1DDef("ReceivedROBsPerCall" ,0,300,50)),
  m_histProp_timeROBretrieval(Gaudi::Histo1DDef("TimeForROBretrieval" ,0.,500.,50)),
@@ -275,6 +276,8 @@ StatusCode HltROBDataProviderSvc::queryInterface(const InterfaceID& riid, void**
     *ppvInterface = (IROBDataProviderSvc*)this;
   } else if ( ITrigROBDataProviderSvc::interfaceID().versionMatch(riid) )  {
     *ppvInterface = (ITrigROBDataProviderSvc*)this;
+  } else if ( ITrigROBDataProviderSvcPrefetch::interfaceID().versionMatch(riid) )  {
+    *ppvInterface = (ITrigROBDataProviderSvcPrefetch*)this;
   } else if ( IIncidentListener::interfaceID().versionMatch(riid) )  {
     *ppvInterface = (IIncidentListener*)this;
   } else {
@@ -402,7 +405,6 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
       ONLINE_ROBMAP::iterator map_it = m_online_robmap.find(id) ;
       if(map_it != m_online_robmap.end()) {
         ATH_MSG_DEBUG(" ---> addROBData: Found   ROB Id : 0x" << MSG::hex << (*map_it).second.source_id());
-        
         continue;
       } 
 
@@ -412,8 +414,6 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
             std::find(m_ignoreROB.value().begin(), m_ignoreROB.value().end(),id);
         if(rob_ignore_it != m_ignoreROB.value().end()) {
           ATH_MSG_DEBUG(" ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec << " will be not retrieved, since it is on the veto list.");
-          
-          
           continue;
         }
       }
@@ -428,16 +428,13 @@ void HltROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, cons
         if(rob_enabled_it == m_enabledROBs.value().end()) {
           ATH_MSG_DEBUG(" ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec
                         << " will be not retrieved, since it is not on the list of enabled ROBs.");
-          
-          
           continue;
         }
       }
       // Only Monitor SCHEDULED ROBs
       if ( p_robMonStruct ) {
-      		
-          (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::SCHEDULED;
-        }
+        (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::SCHEDULED;
+      }
 
       // the ROB should be retrieved from the ROS
       ATH_MSG_DEBUG(" ---> addROBData: Request ROB Id : 0x" << MSG::hex << id <<" from ROS ");
@@ -504,6 +501,9 @@ void HltROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
 
   // set the complete event flag
   m_isEventComplete = false;
+
+  // clear the ROB info object from steering
+  if (m_RobRequestInfo) m_RobRequestInfo->clearRequestScheduledRobIDs();
 
   if ( result.size() == 0 ) {
     ATH_MSG_ERROR(" ---> setNextEvent online for "<< name() 
@@ -619,6 +619,15 @@ void HltROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std:
     //--- online running
     //------------------
   } else {
+    // ---------------------------------------------------------------------------------------------
+    // make sure that all ROB prefetching information is taken into account before the ROB retrieval
+    // ---------------------------------------------------------------------------------------------
+    if (m_RobRequestInfo) {
+      // add ROBs in the info object to the prefetching list
+      addROBData(m_RobRequestInfo->requestScheduledRobIDs()); 
+      m_RobRequestInfo->clearRequestScheduledRobIDs();
+    }
+
     //--------------------
     // make unique ROB IDs
     //--------------------
@@ -1066,23 +1075,20 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
     // check if ROB is actually enabled for readout
     // do not perform this check for MET ROBs
     if (m_enabledROBs.value().size() != 0) { 
-	 if ( (eformat::helper::SourceIdentifier(*rob_it).subdetector_id() != eformat::TDAQ_LAR_MET) &&
-	 (eformat::helper::SourceIdentifier(*rob_it).subdetector_id() != eformat::TDAQ_TILE_MET) ){
-      std::vector<uint32_t>::const_iterator rob_enabled_it =
-	std::find(m_enabledROBs.value().begin(), m_enabledROBs.value().end(),(*rob_it));
-      if(rob_enabled_it == m_enabledROBs.value().end()) {
-        ATH_MSG_DEBUG(" ---> addROBDataToCache: ROB Id : 0x" << MSG::hex << (*rob_it) << MSG::dec
-                      << " will be not retrieved, since it is not on the list of enabled ROBs.");
-        if ( p_robMonStruct ) {
-        	
-        (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::DISABLED;
-        
-      }
-	continue;
+      if ( (eformat::helper::SourceIdentifier(*rob_it).subdetector_id() != eformat::TDAQ_LAR_MET) &&
+           (eformat::helper::SourceIdentifier(*rob_it).subdetector_id() != eformat::TDAQ_TILE_MET) ){
+        std::vector<uint32_t>::const_iterator rob_enabled_it =
+          std::find(m_enabledROBs.value().begin(), m_enabledROBs.value().end(),(*rob_it));
+        if(rob_enabled_it == m_enabledROBs.value().end()) {
+          ATH_MSG_DEBUG(" ---> addROBDataToCache: ROB Id : 0x" << MSG::hex << (*rob_it) << MSG::dec
+                        << " will be not retrieved, since it is not on the list of enabled ROBs.");
+          if ( p_robMonStruct ) {
+            (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::DISABLED;
+          }
+          continue;
+        }
       }
     }
-    
-  }
 
     if (m_ignoreROB.value().size() != 0) {
     std::vector<uint32_t>::const_iterator rob_ignore_it =
@@ -1100,15 +1106,13 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
 
     // separate MET and detector ROBs if requested
     if ( (m_separateMETandDetROBRetrieval.value()) &&
-      ( (eformat::helper::SourceIdentifier(*rob_it).subdetector_id() == eformat::TDAQ_LAR_MET) || 
-	(eformat::helper::SourceIdentifier(*rob_it).subdetector_id() == eformat::TDAQ_TILE_MET) ) )  {
-        vMETRobIds.push_back( *rob_it ) ;
+	 ( (eformat::helper::SourceIdentifier(*rob_it).subdetector_id() == eformat::TDAQ_LAR_MET) || 
+	   (eformat::helper::SourceIdentifier(*rob_it).subdetector_id() == eformat::TDAQ_TILE_MET) ) )  {
+      vMETRobIds.push_back( *rob_it ) ;
     } else {
       vRobIds.push_back( *rob_it );
     }
   }
- 
-
 
   typedef std::vector<hltinterface::DCM_ROBInfo> ROBInfoVec;
   ROBInfoVec vRobInfos ;
@@ -1126,7 +1130,6 @@ void HltROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForRe
     vMETRobInfos.reserve( vMETRobIds.size() ) ;
     // retrieve MET ROBs
     hltinterface::DataCollector::instance()->collect(vMETRobInfos, m_currentLvl1ID, vMETRobIds);
-
     // add MET ROBs to Det ROBs
     vRobInfos.insert( vRobInfos.end(), vMETRobInfos.begin(), vMETRobInfos.end() );
 
@@ -1204,19 +1207,21 @@ void HltROBDataProviderSvc::updateROBDataCache(std::vector<hltinterface::DCM_ROB
   // return if no ROB Info records are available
   if (vRobInfo.size() == 0) return;
   
-  
   // add ROBs to cache
   typedef std::vector<hltinterface::DCM_ROBInfo> ROBInfoVec;
   for(ROBInfoVec::const_iterator it=vRobInfo.begin(); it!=vRobInfo.end(); ++it) {
     uint32_t id = it->robFragment.source_id() ;
     
+    // check first if ROB is already in cache (for full event requests)
+    ONLINE_ROBMAP::iterator map_it = m_online_robmap.find(id) ;
+    if(map_it != m_online_robmap.end()) continue;
+
     if ((it->robFragment.rod_ndata() == 0) && (m_removeEmptyROB)) {
       ATH_MSG_DEBUG(" ---> addROBDataToCache: Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
                     << " removed for L1 Id = " << m_currentLvl1ID);
       if ( p_robMonStruct ) {
-      	
-          (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::IGNORED;
-        }
+	(p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::IGNORED;
+      }
     } else if ( ROBDataProviderSvc::filterRobWithStatus(&it->robFragment)) {
       if (msgLvl(MSG::DEBUG) && (it->robFragment.nstatus() > 0)) {
         const uint32_t* it_status;
@@ -1241,7 +1246,6 @@ void HltROBDataProviderSvc::updateROBDataCache(std::vector<hltinterface::DCM_ROB
       }
     } else {
       m_online_robmap[id]= (it->robFragment);
-
       //* detailed monitoring
     if ( p_robMonStruct ) {
     	
@@ -1277,7 +1281,7 @@ void HltROBDataProviderSvc::updateROBDataCache(std::vector<hltinterface::DCM_ROB
         std::bitset<16> specificBits(eformat::helper::Status(*it_status).specific());
         for (unsigned int index=0; index < 16; ++index) {
           if (specificBits[index]) m_hist_specificStatusForROB->Fill(eformat::helper::SourceIdentifier(it->robFragment.source_id()).human_detector().c_str(),
-              m_vec_SpecificStatus[index].c_str(),1.);
+								     m_vec_SpecificStatus[index].c_str(),1.);
         }
       }
     }
