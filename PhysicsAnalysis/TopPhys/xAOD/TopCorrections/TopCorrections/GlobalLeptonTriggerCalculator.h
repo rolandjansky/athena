@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: GlobalLeptonTriggerCalculator.h 799556 2017-03-05 19:46:03Z tpelzer $
@@ -8,11 +8,11 @@
 
 /**
   * @author Ian Connelly <ian.connelly@cern.ch>
-  * 
+  *
   * @brief Global lepton trigger calculator
   *   Interface to retrieve the global lepton trigger scale factors
-  * 
-  **/ 
+  *
+  **/
 
 // system include(s):
 #include <memory>
@@ -52,16 +52,23 @@ namespace top{
       std::shared_ptr<top::TopConfig> m_config;
 
       CP::SystematicSet m_systNominal;
-      CP::SystematicSet m_systTrigger_UP;
-      CP::SystematicSet m_systTrigger_DOWN;
+      CP::SystematicSet m_systTrigger_ELECTRON_UP;
+      CP::SystematicSet m_systTrigger_ELECTRON_DOWN;
+      CP::SystematicSet m_systTrigger_MUON_UP;
+      CP::SystematicSet m_systTrigger_MUON_DOWN;
 
       ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSF;
       ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSFLoose;
 
-      std::string m_decor_triggerEff;
-      std::string m_decor_triggerEff_loose;
       std::string m_decor_triggerSF;
       std::string m_decor_triggerSF_loose;
+      SG::AuxElement::Accessor<int> m_selectedLepton;
+      SG::AuxElement::Accessor<int> m_selectedLeptonLoose;
+
+      ///-- Functions to handle different configurations --///
+      StatusCode executeNominalVariations();
+      StatusCode exectuteElectronSystematics();
+      StatusCode executeMuonSystematics();
 
   };
 } // namespace
