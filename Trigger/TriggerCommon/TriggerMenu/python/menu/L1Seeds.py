@@ -191,29 +191,105 @@ def getEBnoL1PSSeed(l1items, l1seedname):
 
     # All of these L1 items must be PS=1 for an EB campaign
     noL1PS_seeds = ''
+    l1EBitems = []
     if ('L1_PhysicsLow' in l1seedname):
-      noL1PS_seeds = 'L1_2EM15VHI,L1_2EM20VH,L1_2EM8VH_MU10,L1_2J15_XE55,L1_2J50_XE40,L1_2MU10,L1_2MU4_J20_XE30_DPHI-J20s2XE30,L1_2MU4_J40_XE50,L1_2MU6_3MU4,L1_3J15.0ETA25_XE40,L1_3J35.0ETA23,L1_3J50,L1_3MU4,L1_4J15.0ETA25,L1_4J20,L1_4MU4,L1_4J20,L1_5J15.0ETA25,L1_DR-EM15TAU12I-J25,L1_EM15VHI_2TAU12IM_4J12,L1_DR-MU10TAU12I_TAU12I-J25,L1_DR-TAU20ITAU12I-J25,L1_EM15VHI_2TAU12IM_XE35,L1_EM15VHI_TAU40_2TAU15,L1_EM15VH_MU10,L1_EM18VHI_3J20,L1_EM18VHI_MJJ-300,L1_EM20VHI_TAU20IM_2TAU20_J25_3J20,L1_EM20VH_3EM10VH,L1_EM22VHI,L1_EM24VHI,L1_EM7_MU20,L1_EM8VH_MU20,L1_HT150-J20s5.ETA31_MJJ-400-CF,L1_HT190-J15s5.ETA21,L1_J100,L1_J25.0ETA23_2J15.31ETA49,L1_J40.0ETA25_2J25_J20.31ETA49,L1_J40_XE50_DPHI-J20s2XE50,L1_J40_XE60,L1_J75.31ETA49,L1_J85_3J30,L1_LATE-MU10_J50,L1_LATE-MU10_XE40,L1_LATE-MU10_XE50,L1_LLP-NOMATCH,L1_LLP-RO,L1_MU10_2J15_J20,L1_MU10_2J20,L1_MU10_TAU12IM_3J12,L1_MU10_TAU12IM_XE35,L1_MU11_2MU6,L1_MU20,L1_MU20_J40,L1_MU20_XE30,L1_MU4_J30_XE40_DPHI-J20s2XE30,L1_MU4_XE60,L1_MU4_J50_XE50_DPHI-J20s2XE30,L1_MU6_3MU4,L1_MU6_J75,L1_TAU100,L1_TAU20IM_2TAU12IM_4J12,L1_TAU40_2TAU12IM_XE40,L1_TAU60_2TAU40,L1_TAU20IM_2J20_XE45,L1_TAU60_DR-TAU20ITAU12I,L1_XE55,L1_XE60'
+        l1EBitems.append('L1_2EM15VHI')
+        l1EBitems.append('L1_2EM20VH')
+        l1EBitems.append('L1_2EM8VH_MU10')
+        l1EBitems.append('L1_2J15_XE55')
+        l1EBitems.append('L1_2J50_XE40')
+        l1EBitems.append('L1_2MU10')
+        l1EBitems.append('L1_2MU4_J20_XE30_DPHI-J20s2XE30')
+        l1EBitems.append('L1_2MU4_J40_XE50')
+        l1EBitems.append('L1_3J15.0ETA25_XE40')
+        l1EBitems.append('L1_3J35.0ETA23')
+        l1EBitems.append('L1_3J50')
+        l1EBitems.append('L1_3MU4')
+        l1EBitems.append('L1_4J15.0ETA25')
+        l1EBitems.append('L1_4J20')
+        l1EBitems.append('L1_4MU4')
+        l1EBitems.append('L1_AFP_A_AND_C_SPECTOF_J75')
+        l1EBitems.append('L1_DR-EM15TAU12I-J25')
+        l1EBitems.append('L1_DR-TAU20ITAU12I-J25')
+        l1EBitems.append('L1_EM15VHI_2TAU12IM_4J12')
+        l1EBitems.append('L1_EM15VHI_2TAU12IM_XE35')
+        l1EBitems.append('L1_EM15VHI_TAU40_2TAU15')
+        l1EBitems.append('L1_EM15VH_MU10')
+        l1EBitems.append('L1_EM18VHI_3J20')
+        l1EBitems.append('L1_EM18VHI_MJJ-300')
+        l1EBitems.append('L1_EM20VHI_TAU20IM_2TAU20_J25_3J20')
+        l1EBitems.append('L1_EM20VH_3EM10VH')
+        l1EBitems.append('L1_EM22VHI')
+        l1EBitems.append('L1_EM7_MU20')
+        l1EBitems.append('L1_HT150-J20s5.ETA31_MJJ-400-CF')
+        l1EBitems.append('L1_HT190-J15s5.ETA21')
+        l1EBitems.append('L1_J100')
+        l1EBitems.append('L1_J25.0ETA23_2J15.31ETA49')
+        l1EBitems.append('L1_J40.0ETA25_2J25_J20.31ETA49')
+        l1EBitems.append('L1_J40_XE50_DPHI-J20s2XE50')
+        l1EBitems.append('L1_J40_XE60')
+        l1EBitems.append('L1_J75.31ETA49')
+        l1EBitems.append('L1_J85_3J30')
+        l1EBitems.append('L1_LATE-MU10_J50')
+        l1EBitems.append('L1_LATE-MU10_XE40')
+        l1EBitems.append('L1_LFV-MU11')
+        l1EBitems.append('L1_LLP-NOMATCH')
+        l1EBitems.append('L1_LLP-RO')
+        l1EBitems.append('L1_MU10_2J15_J20')
+        l1EBitems.append('L1_MU10_TAU12IM_3J12')
+        l1EBitems.append('L1_MU10_TAU12IM_XE35')
+        l1EBitems.append('L1_MU11_2MU6')
+        l1EBitems.append('L1_MU20')
+        l1EBitems.append('L1_MU4_J30_XE40_DPHI-J20s2XE30')
+        l1EBitems.append('L1_MU4_XE60')
+        l1EBitems.append('L1_MU6_J75')
+        l1EBitems.append('L1_SC111-CJ15')
+        l1EBitems.append('L1_TAU100')
+        l1EBitems.append('L1_TAU20IM_2J20_XE45')
+        l1EBitems.append('L1_TAU20IM_2TAU12IM_4J12.0ETA23')
+        l1EBitems.append('L1_TAU40_2TAU12IM_XE40')
+        l1EBitems.append('L1_TAU60_2TAU40')
+        l1EBitems.append('L1_TAU60_DR-TAU20ITAU12I')
+        l1EBitems.append('L1_XE50')
     elif ('L1_PhysicsHigh' in l1seedname):
-      noL1PS_seeds = 'L1_6J15,L1_J75.31ETA49,L1_J400,L1_XE80'
+        l1EBitems.append('L1_6J15')
+        l1EBitems.append('L1_J400')
+        l1EBitems.append('L1_XE80')
     elif ('L1_EMPTY' in l1seedname):
-      noL1PS_seeds = 'L1_J12_EMPTY,L1_MU11_EMPTY,L1_TAU8_EMPTY,L1_EM7_EMPTY'
+        l1EBitems.append('L1_J12_EMPTY')
+        l1EBitems.append('L1_MU11_EMPTY')
+        l1EBitems.append('L1_TAU8_EMPTY')
+        l1EBitems.append('L1_EM7_EMPTY')
     elif ('L1_FIRSTEMPTY' in l1seedname):
-      noL1PS_seeds = 'L1_J12_FIRSTEMPTY,L1_MU20_FIRSTEMPTY,L1_TAU8_FIRSTEMPTY,L1_EM7_FIRSTEMPTY'
+        l1EBitems.append('L1_J12_FIRSTEMPTY')
+        l1EBitems.append('L1_MU20_FIRSTEMPTY')
+        l1EBitems.append('L1_TAU8_FIRSTEMPTY')
+        l1EBitems.append('L1_EM7_FIRSTEMPTY')
     elif ('L1_UNPAIRED_ISO' in l1seedname):
-      noL1PS_seeds = 'L1_J12_UNPAIRED_ISO,L1_J15.31ETA49_UNPAIRED_ISO,L1_BCM_Wide_UNPAIRED_ISO,L1_BCM_AC_UNPAIRED_ISO,L1_BCM_CA_UNPAIRED_ISO,L1_MU4_UNPAIRED_ISO,L1_EM7_UNPAIRED_ISO,L1_TAU8_UNPAIRED_ISO'
+        l1EBitems.append('L1_J12_UNPAIRED_ISO')
+        l1EBitems.append('L1_J15.31ETA49_UNPAIRED_ISO')
+        l1EBitems.append('L1_BCM_Wide_UNPAIRED_ISO')
+        l1EBitems.append('L1_BCM_AC_UNPAIRED_ISO')
+        l1EBitems.append('L1_BCM_CA_UNPAIRED_ISO')
+        l1EBitems.append('L1_MU4_UNPAIRED_ISO')
+        l1EBitems.append('L1_EM7_UNPAIRED_ISO')
+        l1EBitems.append('L1_TAU8_UNPAIRED_ISO')
     elif ('L1_UNPAIRED_NONISO' in l1seedname):
-      noL1PS_seeds = 'L1_J12_UNPAIRED_NONISO,L1_BCM_Wide_UNPAIRED_NONISO,L1_BCM_AC_UNPAIRED_NONISO,L1_BCM_CA_UNPAIRED_NONISO'
+        l1EBitems.append('L1_J12_UNPAIRED_NONISO')
+        l1EBitems.append('L1_BCM_Wide_UNPAIRED_NONISO')
+        l1EBitems.append('L1_BCM_AC_UNPAIRED_NONISO')
+        l1EBitems.append('L1_BCM_CA_UNPAIRED_NONISO')
     elif ('L1_ABORTGAPNOTCALIB' in l1seedname): 
-      noL1PS_seeds = 'L1_J12_ABORTGAPNOTCALIB'
+        l1EBitems.append('L1_J12_ABORTGAPNOTCALIB')
     else:
       log.error('Do not know how to supply EnhancedBias L1 seeds for %s' % l1seedname)
 
     # check if all the l1 seeds given are in the current L1 menu
-    l1EBitems = noL1PS_seeds.split(',')
     for item in l1EBitems:
         if item not in l1items:
-            log.error('L1 item %s from %s seed is not in current L1 menu (EnhancedBias)' % (item, l1seedname))
+            log.error('L1 item "%s" from "%s" seed is not in current L1 menu (EnhancedBias)' % (item, l1seedname))
             
+    noL1PS_seeds = ",".join(l1EBitems)
     return noL1PS_seeds
 
 ##############################
