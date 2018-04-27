@@ -45,14 +45,21 @@ HIGG5D1ThinningHelper.TriggerChains = 'HLT_xe.*|HLT_j.*|HLT_g.*'
 HIGG5D1ThinningHelper.AppendToStream(HIGG5D1Stream)
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
+#TrackParticles thinning
 # thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D1',HIGG5D1ThinningHelper) )
-thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG5D1',HIGG5D1ThinningHelper) )
-thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG5D1',HIGG5D1ThinningHelper) )
-thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D1',HIGG5D1ThinningHelper) )
+# thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG5D1',HIGG5D1ThinningHelper) )
 thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'HIGG5D1',HIGG5D1ThinningHelper) )
 
+#Track Particles + CaloCluster thinning
+thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
+
+#calocluster thinning
+thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG5D1',HIGG5D1ThinningHelper) )
+thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D1',HIGG5D1ThinningHelper) )
+
+#generic object thinning
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D1',HIGG5D1ThinningHelper) )
 
 # MC truth thinning (not for data)

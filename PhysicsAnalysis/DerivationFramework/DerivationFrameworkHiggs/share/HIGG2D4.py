@@ -45,17 +45,23 @@ HIGG2D4ThinningHelper.AppendToStream(HIGG2D4Stream)
 
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
-#thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG2D4',HIGG2D4ThinningHelper) ) 
+#TrackParticles thinning
+# thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG2D4',HIGG2D4ThinningHelper) )
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG2D4',HIGG2D4ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG2D4',HIGG2D4ThinningHelper,   BestMatchOnly=False) )
-#thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG2D4',HIGG2D4ThinningHelper) )
-#thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG2D4',HIGG2D4ThinningHelper) )
-thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG2D4',HIGG2D4ThinningHelper) )
-thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG2D4',HIGG2D4ThinningHelper) )
+# thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG2D4',HIGG2D4ThinningHelper) )
+# thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG2D4',HIGG2D4ThinningHelper) )
 thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'HIGG2D4',HIGG2D4ThinningHelper) )
 
-thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
+#Track Particles + CaloCluster thinning
 thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
+
+#calocluster thinning
+thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG2D4',HIGG2D4ThinningHelper) )
+thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG2D4',HIGG2D4ThinningHelper) )
+
+#generic object thinning
+thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG2D4',HIGG2D4ThinningHelper) )
 
 # Truth particles
 if DerivationFrameworkIsMonteCarlo:

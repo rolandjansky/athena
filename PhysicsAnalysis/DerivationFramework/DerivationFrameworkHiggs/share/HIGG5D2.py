@@ -47,13 +47,13 @@ HIGG5D2ThinningHelper.AppendToStream(HIGG5D2Stream)
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
 #Do not store anymore tracks that are associated to jets
 #TrackParticles thinning
-#thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
-#thinningTools.append( HIGG5Common.getAntiKt4EMPFlowTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
-#thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
+# thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
+# thinningTools.append( HIGG5Common.getAntiKt4EMPFlowTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
+# thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D2',HIGG5D2ThinningHelper) )
-##thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D2',HIGG5D2ThinningHelper) )
-thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG5D2',HIGG5D2ThinningHelper) )
+# thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D2',HIGG5D2ThinningHelper) )
+# thinningTools.append( HIGG5Common.getTauTrackParticleThinning(          'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getTCCTrackParticleThinning(          'HIGG5D2',HIGG5D2ThinningHelper) )
 
 #Track Particles + CaloCluster thinning
@@ -62,7 +62,6 @@ thinningTools.append( HIGG5Common.getAntiKt10TrackCaloClusterTrimmedPtFrac5Small
 #calocluster thinning
 thinningTools.append( HIGG5Common.getTauCaloClusterThinning(            'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoCaloClusterThinning( 'HIGG5D2',HIGG5D2ThinningHelper) )
-
 
 #generic object thinning
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrimmedPtFrac5SmallR20Thinning('HIGG5D2',HIGG5D2ThinningHelper) )
