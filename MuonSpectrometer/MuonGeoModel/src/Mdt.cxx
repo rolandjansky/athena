@@ -39,8 +39,6 @@ Mdt::Mdt(Component* ss, std::string lVName): DetectorElement(ss->name)
    if (longWidth  > width) layer->nrOfSteps = int(length/s->tubelenStepSize);
    tubelenStepSize = s->tubelenStepSize;
    index = s->index;
-   m_geo_version = 400;
-   layer->setGeoVersion(m_geo_version);
 }
 
 
@@ -266,12 +264,6 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
 void Mdt::print()
 {
   std::cout << "Mdt " << name.c_str() << " :" << std::endl;
-}
-
-void Mdt::setGeoVersion(int ver)
-{
-  m_geo_version = ver;   
-  layer->setGeoVersion(m_geo_version);
 }
 
 } // namespace MuonGM

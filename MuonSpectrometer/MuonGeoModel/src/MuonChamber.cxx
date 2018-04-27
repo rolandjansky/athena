@@ -115,13 +115,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   bool is_barrel = (stName.substr(0,1)=="B");
 
   std::string geometry_version=manager->geometryVersion();    
-  int igeometry_version = 0;
-  //std::cout<<" geometry version = <"<<geometry_version<<">"<<std::endl;
-  if (geometry_version.substr(0,1)=="R")
-    {       
-      igeometry_version = MuonGM::strtoint(geometry_version, 2, 2)*100+ MuonGM::strtoint(geometry_version, 5, 2);
-      //std::cout<<"  strtoint(geometry_version, 2, 2) = <"<< strtoint(geometry_version, 2, 2)<<">"<<" strtoint(geometry_version, 5, 2) =<"<<strtoint(geometry_version, 5, 2)<<">"<<std::endl;
-    }
     
   double extratop    = m_station->GetExtraTopThickness();
   double extrabottom = m_station->GetExtraBottomThickness();
@@ -738,7 +731,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       GeoVPhysVol* fpv = savemem->GetDetector(key);
       if (fpv == 0) {
         Mdt* r = new Mdt(c, stName+techname);
-	r->setGeoVersion(igeometry_version);
         if (debug) log << MSG::DEBUG << " Building an MDT for station "
                          << key << " component name is " << c->name 
                          << " manager->IncludeCutoutsFlag() "
