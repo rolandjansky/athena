@@ -356,7 +356,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
     bool is_fei4 = false;
     if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID) == 0 && m_pixelid->layer_disk(WaferID) == 0 && m_doIBL) is_fei4 = true;
-    if (m_ErrorSvc->isActive(id_hash) && (m_pixelid->barrel_ec(WaferID) == 4 || m_pixelid->barrel_ec(WaferID) == -4) && m_doIBL) is_fei4 = true;
+    if (m_ErrorSvc->isActive(id_hash) && abs(m_pixelid->barrel_ec(WaferID)) == 4 && m_doIBL) is_fei4 = true;
 
     // Determine layer; functions return '99' for non-sensible IDs.
     const int kLayer = getPixLayerIDDBM(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
