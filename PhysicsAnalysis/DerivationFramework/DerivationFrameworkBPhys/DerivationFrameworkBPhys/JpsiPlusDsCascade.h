@@ -39,33 +39,28 @@ namespace DerivationFramework {
     {
 
         std::string m_vertexContainerKey;
-        std::string m_vertexV0ContainerKey;
+        std::string m_vertexDxContainerKey;
         std::vector<std::string> m_cascadeOutputsKeys;
 
         std::string   m_VxPrimaryCandidateName;   //!< Name of primary vertex container
 
         double m_jpsiMassLower;
         double m_jpsiMassUpper;
-        double m_V0MassLower;
-        double m_V0MassUpper;
+        double m_DxMassLower;
+        double m_DxMassUpper;
         double m_MassLower;
         double m_MassUpper;
 
         const HepPDT::ParticleDataTable*           m_particleDataTable;
         double m_mass_muon;
         double m_mass_pion;
-        double m_mass_proton;
-        double m_mass_lambda;
-        double m_mass_ks;
         double m_mass_jpsi;
-        double m_mass_b0;
-        double m_mass_lambdaB;
         double m_mass_kaon;
         double m_mass_Ds;
         double m_mass_Dp;
         double m_mass_Bc;
-        int m_v0_pid;
-        bool m_constrV0;
+        int m_Dx_pid;
+        bool m_constrDx;
         bool m_constrJpsi;
 
         ServiceHandle<IBeamCondSvc>                m_beamSpotSvc;

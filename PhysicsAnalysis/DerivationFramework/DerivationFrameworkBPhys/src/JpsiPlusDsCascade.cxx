@@ -99,12 +99,7 @@ namespace DerivationFramework {
         // retrieve particle masses
         m_mass_muon     = getParticleMass(PDG::mu_minus);
         m_mass_pion     = getParticleMass(PDG::pi_plus);
-        m_mass_proton   = getParticleMass(PDG::p_plus);
-        m_mass_lambda   = getParticleMass(PDG::Lambda0);
-        m_mass_ks       = getParticleMass(PDG::K_S0);
         m_mass_jpsi     = getParticleMass(PDG::J_psi);
-        m_mass_b0       = getParticleMass(PDG::B0);
-        m_mass_lambdaB  = getParticleMass(PDG::Lambda_b0);
         m_mass_kaon     = getParticleMass(PDG::K_plus);
         m_mass_Dp       = getParticleMass(PDG::D_plus);
         m_mass_Ds       = getParticleMass(PDG::D_s_plus);
@@ -173,31 +168,31 @@ namespace DerivationFramework {
       // Decorators for the main vertex: chi2, ndf, pt and pt error, plus the V0 vertex variables
       SG::AuxElement::Decorator<VertexLinkVector> CascadeLinksDecor("CascadeVertexLinks"); 
       SG::AuxElement::Decorator<VertexLinkVector> JpsiLinksDecor("JpsiVertexLinks"); 
-      SG::AuxElement::Decorator<VertexLinkVector> V0LinksDecor("V0VertexLinks"); 
+      SG::AuxElement::Decorator<VertexLinkVector> DxLinksDecor("DxVertexLinks"); 
       SG::AuxElement::Decorator<float> chi2_decor("ChiSquared");
       SG::AuxElement::Decorator<float> ndof_decor("NumberDoF");
       SG::AuxElement::Decorator<float> Pt_decor("Pt");
       SG::AuxElement::Decorator<float> PtErr_decor("PtErr");
-      SG::AuxElement::Decorator<float> Mass_svdecor("V0_mass");
-      SG::AuxElement::Decorator<float> MassErr_svdecor("V0_massErr");
-      SG::AuxElement::Decorator<float> Pt_svdecor("V0_Pt");
-      SG::AuxElement::Decorator<float> PtErr_svdecor("V0_PtErr");
-      SG::AuxElement::Decorator<float> Lxy_svdecor("V0_Lxy");
-      SG::AuxElement::Decorator<float> LxyErr_svdecor("V0_LxyErr");
-      SG::AuxElement::Decorator<float> Tau_svdecor("V0_Tau");
-      SG::AuxElement::Decorator<float> TauErr_svdecor("V0_TauErr");
+      SG::AuxElement::Decorator<float> Mass_svdecor("Dx_mass");
+      SG::AuxElement::Decorator<float> MassErr_svdecor("Dx_massErr");
+      SG::AuxElement::Decorator<float> Pt_svdecor("Dx_Pt");
+      SG::AuxElement::Decorator<float> PtErr_svdecor("Dx_PtErr");
+      SG::AuxElement::Decorator<float> Lxy_svdecor("Dx_Lxy");
+      SG::AuxElement::Decorator<float> LxyErr_svdecor("Dx_LxyErr");
+      SG::AuxElement::Decorator<float> Tau_svdecor("Dx_Tau");
+      SG::AuxElement::Decorator<float> TauErr_svdecor("Dx_TauErr");
 
-      SG::AuxElement::Decorator<float> MassMumu_decor("Mumu_massOri");
-      SG::AuxElement::Decorator<float> MassKX_svdecor("KX_massOri");
-      SG::AuxElement::Decorator<float> MassKXpi_svdecor("KXpi_massOri");
+      SG::AuxElement::Decorator<float> MassMumu_decor("Mumu_mass");
+      SG::AuxElement::Decorator<float> MassKX_svdecor("KX_mass");
+      SG::AuxElement::Decorator<float> MassKXpi_svdecor("KXpi_mass");
 
       ATH_MSG_DEBUG("cascadeinfoContainer size " << cascadeinfoContainer.size());
 
       // Get Jpsi container and identify the input Jpsi
       const xAOD::VertexContainer  *jpsiContainer(nullptr);
       CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
-      const xAOD::VertexContainer  *v0Container(nullptr);
-      CHECK(evtStore()->retrieve(v0Container   , m_vertexV0ContainerKey       ));
+      const xAOD::VertexContainer  *dxContainer(nullptr);
+      CHECK(evtStore()->retrieve(dxContainer   , m_vertexDxContainerKey       ));
 
       for (Trk::VxCascadeInfo* x : cascadeinfoContainer) {
         if(x==nullptr) ATH_MSG_ERROR("cascadeinfoContainer is null");
@@ -228,8 +223,8 @@ namespace DerivationFramework {
         for(int i =0;i<topoN;i++) Vtxwritehandles[i]->push_back(cascadeVertices[i]);
         
         x->getSVOwnership(false); // Prevent Container from deleting vertices
-        const auto mainVertex = cascadeVertices[1];   // this is the Bd (Bd, Lambda_b, Lambda_bbar) vertex
-        //const auto v0Vertex = cascadeVertices[0];   // this is the V0 (Kshort, Lambda, Lambdabar) vertex
+        const auto mainVertex = cascadeVertices[1];   // this is the B_c+/- vertex
+        //const auto v0Vertex = cascadeVertices[0];   // this is the D_(s)+/- vertex
         const std::vector< std::vector<TLorentzVector> > &moms = x->getParticleMoms();
 
         // Set links to cascade vertices
@@ -244,15 +239,15 @@ namespace DerivationFramework {
         ATH_MSG_DEBUG("1 pt Jpsi tracks " << cascadeVertices[1]->trackParticle(0)->pt() << ", " << cascadeVertices[1]->trackParticle(1)->pt());
         if (jpsiVertex) ATH_MSG_DEBUG("2 pt Jpsi tracks " << jpsiVertex->trackParticle(0)->pt() << ", " << jpsiVertex->trackParticle(1)->pt());
 
-        // Identify the input V0
+        // Identify the input D_(s)+
 /*
         xAOD::Vertex* v0Vertex = BPhysPVCascadeTools::FindVertex<2>(v0Container, cascadeVertices[0]);;
         ATH_MSG_DEBUG("1 pt V0 tracks " << cascadeVertices[0]->trackParticle(0)->pt() << ", " << cascadeVertices[0]->trackParticle(1)->pt());
         if (v0Vertex) ATH_MSG_DEBUG("2 pt V0 tracks " << v0Vertex->trackParticle(0)->pt() << ", " << v0Vertex->trackParticle(1)->pt()); 
 */
-        xAOD::Vertex* v0Vertex = BPhysPVCascadeTools::FindVertex<3>(v0Container, cascadeVertices[0]);;
-        ATH_MSG_DEBUG("1 pt V0 tracks " << cascadeVertices[0]->trackParticle(0)->pt() << ", " << cascadeVertices[0]->trackParticle(1)->pt() << ", " << cascadeVertices[0]->trackParticle(2)->pt());
-        if (v0Vertex) ATH_MSG_DEBUG("2 pt V0 tracks " << v0Vertex->trackParticle(0)->pt() << ", " << v0Vertex->trackParticle(1)->pt() << ", " << v0Vertex->trackParticle(2)->pt());
+        xAOD::Vertex* dxVertex = BPhysPVCascadeTools::FindVertex<3>(dxContainer, cascadeVertices[0]);;
+        ATH_MSG_DEBUG("1 pt D_(s)+ tracks " << cascadeVertices[0]->trackParticle(0)->pt() << ", " << cascadeVertices[0]->trackParticle(1)->pt() << ", " << cascadeVertices[0]->trackParticle(2)->pt());
+        if (dxVertex) ATH_MSG_DEBUG("2 pt D_(s)+ tracks " << dxVertex->trackParticle(0)->pt() << ", " << dxVertex->trackParticle(1)->pt() << ", " << dxVertex->trackParticle(2)->pt());
 
         // Set links to input vertices
         std::vector<xAOD::Vertex*> jpsiVerticestoLink;
@@ -261,11 +256,11 @@ namespace DerivationFramework {
         if(!LinkVertices_dupl1(JpsiLinksDecor, jpsiVerticestoLink, jpsiContainer, cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with Jpsi vertices");
 
-        std::vector<xAOD::Vertex*> v0VerticestoLink;
-        if (v0Vertex) v0VerticestoLink.push_back(v0Vertex);
-        else ATH_MSG_WARNING("Could not find linking V0");
-        if(!LinkVertices_dupl1(V0LinksDecor, v0VerticestoLink, v0Container, cascadeVertices[1]))
-            ATH_MSG_ERROR("Error decorating with V0 vertices");
+        std::vector<xAOD::Vertex*> dxVerticestoLink;
+        if (dxVertex) dxVerticestoLink.push_back(dxVertex);
+        else ATH_MSG_WARNING("Could not find linking D_(s)+");
+        if(!LinkVertices_dupl1(DxLinksDecor, dxVerticestoLink, dxContainer, cascadeVertices[1]))
+            ATH_MSG_ERROR("Error decorating with D_(s)+ vertices");
 
         // Collect the tracks that should be excluded from the PV
         std::vector<const xAOD::TrackParticle*> exclTrk; exclTrk.clear();
@@ -277,22 +272,28 @@ namespace DerivationFramework {
           }
         }
 
-        double mass_v0 = m_mass_Ds; 
+        double mass_d = m_mass_Ds; 
         double mass_b = m_mass_Bc;
         std::vector<double> massesJpsi(2, m_mass_muon);
-        std::vector<double> massesV0;
+        std::vector<double> massesDx;
         std::vector<double> Masses(2, m_mass_muon);
-        if (m_v0_pid == 431) {
-           massesV0.push_back(m_mass_kaon);
-           massesV0.push_back(m_mass_pion);
-           massesV0.push_back(m_mass_pion);
+        if (m_Dx_pid == 431) { // D_s+/-
+           massesDx.push_back(m_mass_kaon);
+           massesDx.push_back(m_mass_kaon);
+           massesDx.push_back(m_mass_pion);
            Masses.push_back(m_mass_Ds);
-        } else if (m_v0_pid == 411) {
-           massesV0.push_back(m_mass_kaon);
-           massesV0.push_back(m_mass_pion);
-           massesV0.push_back(m_mass_pion);
+        } else if (m_Dx_pid == 411) { // D+
+           massesDx.push_back(m_mass_pion);
+           massesDx.push_back(m_mass_kaon);
+           massesDx.push_back(m_mass_pion);
            Masses.push_back(m_mass_Dp);
-           mass_v0 = m_mass_Dp;
+           mass_d = m_mass_Dp;
+        } else if (m_Dx_pid == -411) { // D-
+           massesDx.push_back(m_mass_kaon);
+           massesDx.push_back(m_mass_pion);
+           massesDx.push_back(m_mass_pion);
+           Masses.push_back(m_mass_Dp);
+           mass_d = m_mass_Dp;
         }
 
         // reset beamspot cache
@@ -336,41 +337,52 @@ namespace DerivationFramework {
         chi2_decor(*mainVertex) = x->fitChi2();
         ndof_decor(*mainVertex) = x->nDoF();
 
-        float massMumu_ori = 0.;
+        float massMumu = 0.;
         if (jpsiVertex) {
-          TLorentzVector  p4Mup_ori, p4Mum_ori;
-          p4Mup_ori.SetPtEtaPhiM(jpsiVertex->trackParticle(0)->pt(), 
-                                 jpsiVertex->trackParticle(0)->eta(),
-                                 jpsiVertex->trackParticle(0)->phi(), m_mass_muon); 
-          p4Mum_ori.SetPtEtaPhiM(jpsiVertex->trackParticle(1)->pt(), 
-                                 jpsiVertex->trackParticle(1)->eta(),
-                                 jpsiVertex->trackParticle(1)->phi(), m_mass_muon); 
-          massMumu_ori = (p4Mup_ori + p4Mum_ori).M();
+          TLorentzVector  p4_mu1, p4_mu2;
+          p4_mu1.SetPtEtaPhiM(jpsiVertex->trackParticle(0)->pt(), 
+                              jpsiVertex->trackParticle(0)->eta(),
+                              jpsiVertex->trackParticle(0)->phi(), m_mass_muon); 
+          p4_mu2.SetPtEtaPhiM(jpsiVertex->trackParticle(1)->pt(), 
+                              jpsiVertex->trackParticle(1)->eta(),
+                              jpsiVertex->trackParticle(1)->phi(), m_mass_muon); 
+          massMumu = (p4_mu1 + p4_mu2).M();
         }
-        MassMumu_decor(*mainVertex) = massMumu_ori;
+        MassMumu_decor(*mainVertex) = massMumu;
 
-        float massKX_ori = 0., massKXpi_ori = 0.;
-        if (v0Vertex) {
-          TLorentzVector  p4Km_ori, p4Xp_ori, p4Pip_ori;
-          p4Km_ori.SetPtEtaPhiM(v0Vertex->trackParticle(0)->pt(), 
-                                v0Vertex->trackParticle(0)->eta(),
-                                v0Vertex->trackParticle(0)->phi(), m_mass_kaon); 
-          if(m_v0_pid == 431)
-            p4Xp_ori.SetPtEtaPhiM(v0Vertex->trackParticle(1)->pt(), 
-                                  v0Vertex->trackParticle(1)->eta(),
-                                  v0Vertex->trackParticle(1)->phi(), m_mass_kaon); 
-          if(m_v0_pid == 411)
-            p4Xp_ori.SetPtEtaPhiM(v0Vertex->trackParticle(1)->pt(), 
-                                  v0Vertex->trackParticle(1)->eta(),
-                                  v0Vertex->trackParticle(1)->phi(), m_mass_pion); 
-          p4Pip_ori.SetPtEtaPhiM(v0Vertex->trackParticle(2)->pt(), 
-                                 v0Vertex->trackParticle(2)->eta(),
-                                 v0Vertex->trackParticle(2)->phi(), m_mass_pion); 
-          massKX_ori = (p4Km_ori + p4Xp_ori).M();
-          massKXpi_ori = (p4Km_ori + p4Xp_ori + p4Pip_ori).M();
+        float massKX = 0., massKXpi = 0.;
+        if (dxVertex) {
+          TLorentzVector  p4_h1, p4_h2, p4_h3;
+          if(m_Dx_pid == 431) {
+             p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
+                                dxVertex->trackParticle(0)->eta(),
+                                dxVertex->trackParticle(0)->phi(), m_mass_kaon); 
+             p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
+                                dxVertex->trackParticle(1)->eta(),
+                                dxVertex->trackParticle(1)->phi(), m_mass_kaon); 
+          } else if(m_Dx_pid == 411) {
+             p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
+                                dxVertex->trackParticle(0)->eta(),
+                                dxVertex->trackParticle(0)->phi(), m_mass_pion); 
+             p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
+                                dxVertex->trackParticle(1)->eta(),
+                                dxVertex->trackParticle(1)->phi(), m_mass_kaon); 
+          } else {
+             p4_h1.SetPtEtaPhiM(dxVertex->trackParticle(0)->pt(), 
+                                dxVertex->trackParticle(0)->eta(),
+                                dxVertex->trackParticle(0)->phi(), m_mass_kaon); 
+             p4_h2.SetPtEtaPhiM(dxVertex->trackParticle(1)->pt(), 
+                                dxVertex->trackParticle(1)->eta(),
+                                dxVertex->trackParticle(1)->phi(), m_mass_pion); 
+          }
+          p4_h3.SetPtEtaPhiM(dxVertex->trackParticle(2)->pt(), 
+                                 dxVertex->trackParticle(2)->eta(),
+                                 dxVertex->trackParticle(2)->phi(), m_mass_pion); 
+          massKX = (p4_h1 + p4_h2).M();
+          massKXpi = (p4_h1 + p4_h2 + p4_h3).M();
         }
-        MassKX_svdecor(*mainVertex) = massKX_ori;
-        MassKXpi_svdecor(*mainVertex) = massKXpi_ori;
+        MassKX_svdecor(*mainVertex) = massKX;
+        MassKXpi_svdecor(*mainVertex) = massKXpi;
 
         // 2) PV dependent variables
         if (GoodPVs.empty() == false) {
@@ -539,47 +551,47 @@ namespace DerivationFramework {
                   << " chi2_2 " << m_V0Tools->chisq(cascadeVertices[1])
                   << " vprob " << m_CascadeTools->vertexProbability(x->nDoF(),x->fitChi2()));
         ATH_MSG_DEBUG("ndf " << x->nDoF() << " ndf_1 " << m_V0Tools->ndof(cascadeVertices[0]) << " ndf_2 " << m_V0Tools->ndof(cascadeVertices[1]));
-        ATH_MSG_DEBUG("V0Tools mass_v0 " << m_V0Tools->invariantMass(cascadeVertices[0],massesV0)
-                   << " error " << m_V0Tools->invariantMassError(cascadeVertices[0],massesV0)
+        ATH_MSG_DEBUG("V0Tools mass_d " << m_V0Tools->invariantMass(cascadeVertices[0],massesDx)
+                   << " error " << m_V0Tools->invariantMassError(cascadeVertices[0],massesDx)
                    << " mass_J " << m_V0Tools->invariantMass(cascadeVertices[1],massesJpsi)
                    << " error " << m_V0Tools->invariantMassError(cascadeVertices[1],massesJpsi));
         // masses and errors, using track masses assigned in the fit
         double Mass_B = m_CascadeTools->invariantMass(moms[1]);
-        double Mass_V0 = m_CascadeTools->invariantMass(moms[0]);
+        double Mass_D = m_CascadeTools->invariantMass(moms[0]);
         double Mass_B_err = m_CascadeTools->invariantMassError(moms[1],x->getCovariance()[1]);
-        double Mass_V0_err = m_CascadeTools->invariantMassError(moms[0],x->getCovariance()[0]);
-        ATH_MSG_DEBUG("Mass_B " << Mass_B << " Mass_V0 " << Mass_V0);
-        ATH_MSG_DEBUG("Mass_B_err " << Mass_B_err << " Mass_V0_err " << Mass_V0_err);
+        double Mass_D_err = m_CascadeTools->invariantMassError(moms[0],x->getCovariance()[0]);
+        ATH_MSG_DEBUG("Mass_B " << Mass_B << " Mass_D " << Mass_D);
+        ATH_MSG_DEBUG("Mass_B_err " << Mass_B_err << " Mass_D_err " << Mass_D_err);
         double mprob_B = m_CascadeTools->massProbability(mass_b,Mass_B,Mass_B_err);
-        double mprob_V0 = m_CascadeTools->massProbability(mass_v0,Mass_V0,Mass_V0_err);
-        ATH_MSG_DEBUG("mprob_B " << mprob_B << " mprob_V0 " << mprob_V0);
+        double mprob_D = m_CascadeTools->massProbability(mass_d,Mass_D,Mass_D_err);
+        ATH_MSG_DEBUG("mprob_B " << mprob_B << " mprob_D " << mprob_D);
         // masses and errors, assigning user defined track masses
         ATH_MSG_DEBUG("Mass_b " << m_CascadeTools->invariantMass(moms[1],Masses)
-                  << " Mass_v0 " << m_CascadeTools->invariantMass(moms[0],massesV0));
+                  << " Mass_d " << m_CascadeTools->invariantMass(moms[0],massesDx));
         ATH_MSG_DEBUG("Mass_b_err " << m_CascadeTools->invariantMassError(moms[1],x->getCovariance()[1],Masses)
-                  << " Mass_v0_err " << m_CascadeTools->invariantMassError(moms[0],x->getCovariance()[0],massesV0));
+                  << " Mass_d_err " << m_CascadeTools->invariantMassError(moms[0],x->getCovariance()[0],massesDx));
         ATH_MSG_DEBUG("pt_b " << m_CascadeTools->pT(moms[1])
-                  << " pt_v " << m_CascadeTools->pT(moms[0])
-                  << " pt_v0 " << m_V0Tools->pT(cascadeVertices[0]));
+                  << " pt_d " << m_CascadeTools->pT(moms[0])
+                  << " pt_dp " << m_V0Tools->pT(cascadeVertices[0]));
         ATH_MSG_DEBUG("ptErr_b " << m_CascadeTools->pTError(moms[1],x->getCovariance()[1])
-                  << " ptErr_v " << m_CascadeTools->pTError(moms[0],x->getCovariance()[0])
-                  << " ptErr_v0 " << m_V0Tools->pTError(cascadeVertices[0]));
-        ATH_MSG_DEBUG("lxy_B " << m_V0Tools->lxy(cascadeVertices[1],primaryVertex) << " lxy_V " << m_V0Tools->lxy(cascadeVertices[0],cascadeVertices[1]));
-        ATH_MSG_DEBUG("lxy_b " << m_CascadeTools->lxy(moms[1],cascadeVertices[1],primaryVertex) << " lxy_v " << m_CascadeTools->lxy(moms[0],cascadeVertices[0],cascadeVertices[1]));
+                  << " ptErr_d " << m_CascadeTools->pTError(moms[0],x->getCovariance()[0])
+                  << " ptErr_dp " << m_V0Tools->pTError(cascadeVertices[0]));
+        ATH_MSG_DEBUG("lxy_B " << m_V0Tools->lxy(cascadeVertices[1],primaryVertex) << " lxy_D " << m_V0Tools->lxy(cascadeVertices[0],cascadeVertices[1]));
+        ATH_MSG_DEBUG("lxy_b " << m_CascadeTools->lxy(moms[1],cascadeVertices[1],primaryVertex) << " lxy_d " << m_CascadeTools->lxy(moms[0],cascadeVertices[0],cascadeVertices[1]));
         ATH_MSG_DEBUG("lxyErr_b " << m_CascadeTools->lxyError(moms[1],x->getCovariance()[1],cascadeVertices[1],primaryVertex)
-                  << " lxyErr_v " << m_CascadeTools->lxyError(moms[0],x->getCovariance()[0],cascadeVertices[0],cascadeVertices[1])
-                  << " lxyErr_v0 " << m_V0Tools->lxyError(cascadeVertices[0],cascadeVertices[1]));
+                  << " lxyErr_d " << m_CascadeTools->lxyError(moms[0],x->getCovariance()[0],cascadeVertices[0],cascadeVertices[1])
+                  << " lxyErr_dp " << m_V0Tools->lxyError(cascadeVertices[0],cascadeVertices[1]));
         ATH_MSG_DEBUG("tau_B " << m_CascadeTools->tau(moms[1],cascadeVertices[1],primaryVertex,mass_b)
-                   << " tau_v0 " << m_V0Tools->tau(cascadeVertices[0],cascadeVertices[1],massesV0));
+                   << " tau_dp " << m_V0Tools->tau(cascadeVertices[0],cascadeVertices[1],massesDx));
         ATH_MSG_DEBUG("tau_b " << m_CascadeTools->tau(moms[1],cascadeVertices[1],primaryVertex)
-                   << " tau_v " << m_CascadeTools->tau(moms[0],cascadeVertices[0],cascadeVertices[1])
-                   << " tau_V " << m_CascadeTools->tau(moms[0],cascadeVertices[0],cascadeVertices[1],mass_v0));
+                   << " tau_d " << m_CascadeTools->tau(moms[0],cascadeVertices[0],cascadeVertices[1])
+                   << " tau_D " << m_CascadeTools->tau(moms[0],cascadeVertices[0],cascadeVertices[1],mass_d));
         ATH_MSG_DEBUG("tauErr_b " << m_CascadeTools->tauError(moms[1],x->getCovariance()[1],cascadeVertices[1],primaryVertex)
-                  << " tauErr_v " << m_CascadeTools->tauError(moms[0],x->getCovariance()[0],cascadeVertices[0],cascadeVertices[1])
-                  << " tauErr_v0 " << m_V0Tools->tauError(cascadeVertices[0],cascadeVertices[1],massesV0));
+                  << " tauErr_d " << m_CascadeTools->tauError(moms[0],x->getCovariance()[0],cascadeVertices[0],cascadeVertices[1])
+                  << " tauErr_dp " << m_V0Tools->tauError(cascadeVertices[0],cascadeVertices[1],massesDx));
         ATH_MSG_DEBUG("TauErr_b " << m_CascadeTools->tauError(moms[1],x->getCovariance()[1],cascadeVertices[1],primaryVertex,mass_b)
-                  << " TauErr_v " << m_CascadeTools->tauError(moms[0],x->getCovariance()[0],cascadeVertices[0],cascadeVertices[1],mass_v0)
-                  << " TauErr_v0 " << m_V0Tools->tauError(cascadeVertices[0],cascadeVertices[1],massesV0,mass_v0));
+                  << " TauErr_d " << m_CascadeTools->tauError(moms[0],x->getCovariance()[0],cascadeVertices[0],cascadeVertices[1],mass_d)
+                  << " TauErr_dp " << m_V0Tools->tauError(cascadeVertices[0],cascadeVertices[1],massesDx,mass_d));
 
         ATH_MSG_DEBUG("CascadeTools main vert wrt PV " << " CascadeTools SV " << " V0Tools SV");
         ATH_MSG_DEBUG("a0z " << m_CascadeTools->a0z(moms[1],cascadeVertices[1],primaryVertex)
@@ -626,30 +638,25 @@ namespace DerivationFramework {
 
     JpsiPlusDsCascade::JpsiPlusDsCascade(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
     m_vertexContainerKey(""),
-    m_vertexV0ContainerKey(""),
+    m_vertexDxContainerKey(""),
     m_cascadeOutputsKeys{ "JpsiPlusDsCascadeVtx1", "JpsiPlusDsCascadeVtx2" },
     m_VxPrimaryCandidateName("PrimaryVertices"),
     m_jpsiMassLower(0.0),
     m_jpsiMassUpper(10000.0),
-    m_V0MassLower(0.0),
-    m_V0MassUpper(10000.0),
+    m_DxMassLower(0.0),
+    m_DxMassUpper(10000.0),
     m_MassLower(0.0),
     m_MassUpper(20000.0),
     m_particleDataTable(nullptr),
     m_mass_muon   ( 0 ),
     m_mass_pion   ( 0 ),
-    m_mass_proton ( 0 ),
-    m_mass_lambda ( 0 ),
-    m_mass_ks     ( 0 ),
     m_mass_jpsi   ( 0 ),
-    m_mass_b0     ( 0 ),
-    m_mass_lambdaB( 0 ),
     m_mass_kaon   ( 0 ),
     m_mass_Ds     ( 0 ),
     m_mass_Dp     ( 0 ),
     m_mass_Bc     ( 0 ),
-    m_v0_pid(431),
-    m_constrV0(true),
+    m_Dx_pid(431),
+    m_constrDx(true),
     m_constrJpsi(true),
     m_beamSpotSvc("BeamCondSvc",n),
     m_iVertexFitter("Trk::TrkVKalVrtFitter"),
@@ -658,18 +665,18 @@ namespace DerivationFramework {
     m_CascadeTools("DerivationFramework::CascadeTools")
     {
        declareProperty("JpsiVertices", m_vertexContainerKey);
-       declareProperty("V0Vertices", m_vertexV0ContainerKey);
+       declareProperty("DxVertices", m_vertexDxContainerKey);
        declareProperty("VxPrimaryCandidateName", m_VxPrimaryCandidateName);
        declareProperty("RefPVContainerName", m_refPVContainerName  = "RefittedPrimaryVertices");
        declareProperty("JpsiMassLowerCut", m_jpsiMassLower);
        declareProperty("JpsiMassUpperCut", m_jpsiMassUpper);
-       declareProperty("V0MassLowerCut", m_V0MassLower);
-       declareProperty("V0MassUpperCut", m_V0MassUpper);
+       declareProperty("DxMassLowerCut", m_DxMassLower);
+       declareProperty("DxMassUpperCut", m_DxMassUpper);
        declareProperty("MassLowerCut", m_MassLower);
        declareProperty("MassUpperCut", m_MassUpper);
        declareProperty("HypothesisName",            m_hypoName               = "Bc");
-       declareProperty("V0Hypothesis",              m_v0_pid);
-       declareProperty("ApplyV0MassConstraint",     m_constrV0);
+       declareProperty("DxHypothesis",              m_Dx_pid);
+       declareProperty("ApplyDxMassConstraint",     m_constrDx);
        declareProperty("ApplyJpsiMassConstraint",   m_constrJpsi);
        declareProperty("RefitPV",                   m_refitPV                = true);
        declareProperty("MaxnPV",                    m_PV_max                 = 999);
@@ -698,26 +705,32 @@ namespace DerivationFramework {
         CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
 
         // Get V0 container
-        const xAOD::VertexContainer  *v0Container(nullptr);
-        CHECK(evtStore()->retrieve(v0Container   , m_vertexV0ContainerKey       ));
+        const xAOD::VertexContainer  *dxContainer(nullptr);
+        CHECK(evtStore()->retrieve(dxContainer   , m_vertexDxContainerKey       ));
 
-        double mass_v0 = m_mass_Ds; 
+        double mass_d = m_mass_Ds; 
         std::vector<const xAOD::TrackParticle*> tracksJpsi;
-        std::vector<const xAOD::TrackParticle*> tracksV0;
+        std::vector<const xAOD::TrackParticle*> tracksDx;
         std::vector<const xAOD::TrackParticle*> tracksBc;
         std::vector<double> massesJpsi(2, m_mass_muon);
-        std::vector<double> massesV0;
+        std::vector<double> massesDx;
         std::vector<double> Masses(2, m_mass_muon);
-        if (m_v0_pid == 431) {
-           massesV0.push_back(m_mass_kaon);
-           massesV0.push_back(m_mass_kaon);
-           massesV0.push_back(m_mass_pion);
+        if (m_Dx_pid == 431) {
+           massesDx.push_back(m_mass_kaon);
+           massesDx.push_back(m_mass_kaon);
+           massesDx.push_back(m_mass_pion);
            Masses.push_back(m_mass_Ds);
-        } else if (m_v0_pid == 411) {
-           massesV0.push_back(m_mass_kaon);
-           massesV0.push_back(m_mass_pion);
-           massesV0.push_back(m_mass_pion);
-           mass_v0 = m_mass_Dp;
+        } else if (m_Dx_pid == 411) {
+           massesDx.push_back(m_mass_pion);
+           massesDx.push_back(m_mass_kaon);
+           massesDx.push_back(m_mass_pion);
+           mass_d = m_mass_Dp;
+           Masses.push_back(m_mass_Dp);
+        } else if (m_Dx_pid == -411) {
+           massesDx.push_back(m_mass_kaon);
+           massesDx.push_back(m_mass_pion);
+           massesDx.push_back(m_mass_pion);
+           mass_d = m_mass_Dp;
            Masses.push_back(m_mass_Dp);
         }
 
@@ -738,51 +751,54 @@ namespace DerivationFramework {
              continue;
            }
 
-           for(auto v0 : *v0Container) { //Iterate over V0 vertices
+           for(auto dx : *dxContainer) { //Iterate over D_(s)+/- vertices
 
-              size_t v0TrkNum = v0->nTrackParticles();
-              tracksV0.clear();
-              for( unsigned int it=0; it<v0TrkNum; it++) tracksV0.push_back(v0->trackParticle(it));
-              if (tracksV0.size() != 3 || massesV0.size() != 3 ) {
-                ATH_MSG_INFO("problems with V0 input");
+              size_t dxTrkNum = dx->nTrackParticles();
+              tracksDx.clear();
+              for( unsigned int it=0; it<dxTrkNum; it++) tracksDx.push_back(dx->trackParticle(it));
+              if (tracksDx.size() != 3 || massesDx.size() != 3 ) {
+                ATH_MSG_INFO("problems with D_(s) input");
               }
-              double mass_V0 = m_V0Tools->invariantMass(v0,massesV0);
-              ATH_MSG_DEBUG("V0 mass " << mass_V0);
-              if (mass_V0 < m_V0MassLower || mass_V0 > m_V0MassUpper) {
-                 ATH_MSG_DEBUG(" Original V0 candidate rejected by the mass cut: mass = "
-                               << mass_V0 << " != (" << m_V0MassLower << ", " << m_V0MassUpper << ")" );
+              if (m_Dx_pid == 411 && (dx->trackParticle(0)->charge() != 1 || dx->trackParticle(1)->charge() != -1 || dx->trackParticle(2)->charge() != 1)) {
+                 ATH_MSG_DEBUG(" Original D+ candidate rejected by the charge requirement: "
+                                 << dx->trackParticle(0)->charge() << ", " << dx->trackParticle(1)->charge() << ", " << dx->trackParticle(2)->charge() );
                 continue;
               }
-              ATH_MSG_DEBUG("using tracks" << tracksJpsi[0] << ", " << tracksJpsi[1] << ", " << tracksV0[0] << ", " << tracksV0[1] << ", " << tracksV0[2]);
-            //ATH_MSG_DEBUG("using tracks" << tracksJpsi[0] << ", " << tracksJpsi[1] << ", " << tracksV0[0] << ", " << tracksV0[1]);
-            //if (tracksJpsi[0] == tracksJpsi[1] || tracksV0[0] == tracksV0[1] ||
-            //    tracksJpsi[0] == tracksV0[0] || tracksJpsi[0] == tracksV0[1] ||
-            //    tracksJpsi[1] == tracksV0[0] || tracksJpsi[1] == tracksV0[1]) {
-            //  ATH_MSG_DEBUG("identical tracks in input");
-            //  continue;
-            //}
-                tracksBc.clear();
-                for( unsigned int it=0; it<jpsiTrkNum; it++) tracksBc.push_back(jpsi->trackParticle(it));
-                for( unsigned int it=0; it<v0TrkNum; it++) tracksBc.push_back(v0->trackParticle(it));
-                //-*-
-                bool isIdenticalTrk(false);
-                for( unsigned int it=0; it<tracksBc.size()-1; it++){
-                  for( unsigned int jt=it+1; jt<tracksBc.size(); jt++){
-                    if(tracksBc[it]==tracksBc[jt]) isIdenticalTrk = true;
-                  }
+              if (m_Dx_pid == -411 && (dx->trackParticle(0)->charge() != 1 || dx->trackParticle(1)->charge() != -1 || dx->trackParticle(2)->charge() != -1)) {
+                 ATH_MSG_DEBUG(" Original D- candidate rejected by the charge requirement: "
+                                 << dx->trackParticle(0)->charge() << ", " << dx->trackParticle(1)->charge() << ", " << dx->trackParticle(2)->charge() );
+                continue;
+              }
+
+              double mass_D = m_V0Tools->invariantMass(dx,massesDx);
+              ATH_MSG_DEBUG("D_(s) mass " << mass_D);
+              if (mass_D < m_DxMassLower || mass_D > m_DxMassUpper) {
+                 ATH_MSG_DEBUG(" Original D_(s) candidate rejected by the mass cut: mass = "
+                               << mass_D << " != (" << m_DxMassLower << ", " << m_DxMassUpper << ")" );
+                continue;
+              }
+
+              ATH_MSG_DEBUG("using tracks" << tracksJpsi[0] << ", " << tracksJpsi[1] << ", " << tracksDx[0] << ", " << tracksDx[1] << ", " << tracksDx[2]);
+              tracksBc.clear();
+              for( unsigned int it=0; it<jpsiTrkNum; it++) tracksBc.push_back(jpsi->trackParticle(it));
+              for( unsigned int it=0; it<dxTrkNum; it++) tracksBc.push_back(dx->trackParticle(it));
+              bool isIdenticalTrk(false);
+              for( unsigned int it=0; it<tracksBc.size()-1; it++){
+                for( unsigned int jt=it+1; jt<tracksBc.size(); jt++){
+                  if(tracksBc[it]==tracksBc[jt]) isIdenticalTrk = true;
                 }
-                //-*-
-                if( isIdenticalTrk ) {
-                  ATH_MSG_DEBUG("identical tracks in input");
-                  continue;
-                }
+              }
+              if( isIdenticalTrk ) {
+                ATH_MSG_DEBUG("identical tracks in input");
+                continue;
+              }
 
               //if (std::find(trackContainer->begin(), trackContainer->end(), tracksJpsi[0]) == trackContainer->end()) {
               //   ATH_MSG_ERROR("Track is not in standard container");
               //} else {
               //   ATH_MSG_DEBUG("Track " << tracksJpsi[0] << " is at position " << std::distance(trackContainer->begin(), std::find(trackContainer->begin(), trackContainer->end(), tracksJpsi[0])) );
               //}
-              //ATH_MSG_DEBUG("using tracks " << tracksJpsi[0] << ", " << tracksJpsi[1] << ", " << tracksV0[0] << ", " << tracksV0[1]);
+              //ATH_MSG_DEBUG("using tracks " << tracksJpsi[0] << ", " << tracksJpsi[1] << ", " << tracksDx[0] << ", " << tracksDx[1]);
 
               // Apply the user's settings to the fitter
               // Reset
@@ -795,10 +811,10 @@ namespace DerivationFramework {
               std::vector<Trk::VertexID> vrtList;
               // V0 vertex
               Trk::VertexID vID;
-              if (m_constrV0) {
-                vID = m_iVertexFitter->startVertex(tracksV0,massesV0,mass_v0);
+              if (m_constrDx) {
+                vID = m_iVertexFitter->startVertex(tracksDx,massesDx,mass_d);
               } else {
-                vID = m_iVertexFitter->startVertex(tracksV0,massesV0);
+                vID = m_iVertexFitter->startVertex(tracksDx,massesDx);
               }
               vrtList.push_back(vID);
               // B vertex including Jpsi
@@ -842,7 +858,7 @@ namespace DerivationFramework {
                 }
               }
 
-           } //Iterate over V0 vertices
+           } //Iterate over D_(s)+ vertices
 
         } //Iterate over Jpsi vertices
 

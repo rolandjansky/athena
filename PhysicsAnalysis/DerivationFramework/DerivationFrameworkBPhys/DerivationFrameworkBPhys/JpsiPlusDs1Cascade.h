@@ -53,26 +53,20 @@ namespace DerivationFramework {
         double m_D0MassUpper;
         double m_K0MassLower;
         double m_K0MassUpper;
-        double m_DpstMassLower;
-        double m_DpstMassUpper;
+        double m_DstMassLower;
+        double m_DstMassUpper;
         double m_MassLower;
         double m_MassUpper;
 
         const HepPDT::ParticleDataTable*           m_particleDataTable;
         double m_mass_muon;
         double m_mass_pion;
-        double m_mass_proton;
-        double m_mass_lambda;
         double m_mass_ks;
         double m_mass_jpsi;
-        double m_mass_b0;
-        double m_mass_lambdaB;
         double m_mass_kaon;
-        double m_mass_Dpst;
         double m_mass_D0;
         double m_mass_Bc;
-        int m_v0_pid;
-        int m_k0_pid;
+        int m_Dx_pid;
         bool m_constrD0;
         bool m_constrK0;
         bool m_constrJpsi;
@@ -85,7 +79,7 @@ namespace DerivationFramework {
 
         bool        m_refitPV;
         std::string m_refPVContainerName;
-        std::string m_hypoName;               //!< name of the mass hypothesis. E.g. Jpis, Upsi, etc. Will be used as a prefix for decorations
+        std::string m_hypoName;               //!< name of the mass hypothesis. E.g. Jpsi, Upsi, etc. Will be used as a prefix for decorations
         //This parameter will allow us to optimize the number of PVs under consideration as the probability
         //of a useful primary vertex drops significantly the higher you go
         int         m_PV_max;
