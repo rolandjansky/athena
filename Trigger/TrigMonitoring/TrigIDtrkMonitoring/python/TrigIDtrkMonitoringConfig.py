@@ -468,7 +468,9 @@ def TrigIDtrkMonitoringTool():
 		# tidabase.OutputLevel = DEBUG
 		tidaftk.ntupleChainNames += [
 			"Offline",
-			#jets
+			# full scan analysis
+                       ":key=FTK_TrackParticleContainer",
+			#jets			
 			"HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit",
 			"HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig",
 			"HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK",
