@@ -1919,6 +1919,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      if( mf.size() == 1 ) {
 		mf_active = mf[0].te()->getActiveState();
 		ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active); 
+		getDirectSuccessorHypoTEForL2(mf[0].te(), "L2MuonSA", chainName);
 	      }
 	      if( mf_active ) {
 		// float mf_pt = mf[0].cptr()->pt();
@@ -2503,6 +2504,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		if( mf.size() == 1 ) {
 		  mf_active = mf[0].te()->getActiveState();
 		  ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active);
+		  getDirectSuccessorHypoTEForL2(mf[0].te(), "L2MuonSA", chainName);
 		}
 		//if(!mf_active)return StatusCode::SUCCESS;
 
@@ -2511,6 +2513,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		if( combMf.size() == 1 ) {
 		  combMf_active = combMf[0].te()->getActiveState();
 		  ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active);
+		  getDirectSuccessorHypoTEForL2(combMf[0].te(), "L2muComb", chainName);
 		}
 		//if(!combMf_active)return StatusCode::SUCCESS;
 		if(mf_active && combMf_active)match_L2_RoI_activate[n_mu] = 1;
@@ -2869,6 +2872,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 	      if( mf.size() == 1 ) {
 		mf_active = mf[0].te()->getActiveState();
 		ATH_MSG_DEBUG("...mF: label/active=" << getTEName(*mf[0].te()) << " / " << mf_active); 
+		getDirectSuccessorHypoTEForL2( mf[0].te(), "L2MuonSA", chainName);
 	      }
 
 
@@ -2961,6 +2965,7 @@ StatusCode HLTMuonMonTool::bookChainDQA_generic(const std::string& cName, bool i
 		if( combMf.size() == 1 ) {
 		  combMf_active = combMf[0].te()->getActiveState();
 		  ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
+		  getDirectSuccessorHypoTEForL2( combMf[0].te(), "L2muComb", chainName);
 		}
 
 
