@@ -277,7 +277,7 @@ PixelMainMon::PixelMainMon(const std::string& type, const std::string& name, con
   memset(m_errhist_errcat_LB, 0, sizeof(m_errhist_errcat_LB));
   memset(m_errhist_errtype_LB, 0, sizeof(m_errhist_errtype_LB));
   memset(m_errhist_expert_LB, 0, sizeof(m_errhist_expert_LB));
-  memset(m_errhist_expert_IBL_LB, 0, sizeof(m_errhist_expert_IBL_LB));
+  memset(m_errhist_expert_DBMIBL_LB, 0, sizeof(m_errhist_expert_DBMIBL_LB));
   memset(m_errhist_per_bit_LB, 0, sizeof(m_errhist_per_bit_LB));
   memset(m_errhist_per_type_LB, 0, sizeof(m_errhist_per_type_LB));
   memset(m_errhist_expert_fe_trunc_err_3d, 0, sizeof(m_errhist_expert_fe_trunc_err_3d));
