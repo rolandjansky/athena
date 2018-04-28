@@ -470,6 +470,7 @@ def TrigIDtrkMonitoringTool():
 			"Offline",
 			# full scan analysis
                        ":key=FTK_TrackParticleContainer",
+                       ":key=FTK_TrackParticleContainerRefit",
 			#jets			
 			"HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit",
 			"HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig",
