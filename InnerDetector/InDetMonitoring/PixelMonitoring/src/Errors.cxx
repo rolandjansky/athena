@@ -560,7 +560,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
   for (int j = 0; j < kNumErrorStatesIBL; j++) {
     for (int i = 0; i < PixLayerDBM::COUNT - PixLayerDBM::kDBMA; i++) {
-      if (m_errhist_expert_DBMIBL_LB[i][j]) {
+      if (m_errhist_expert_DBMIBL_LB[i][j] && m_nActive_mod[i + PixLayerIBL2D3DDBM::kDBMA] > 0) {
         m_errhist_expert_DBMIBL_LB[i][j]->Fill(kLumiBlock, (float)num_errors_per_stateDBMIBL[i][j] / m_nActive_mod[i + PixLayerIBL2D3DDBM::kDBMA]);
       }
     }
