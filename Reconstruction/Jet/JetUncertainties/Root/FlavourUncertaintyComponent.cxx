@@ -258,7 +258,7 @@ StatusCode FlavourUncertaintyComponent::initialize(TFile* histFile)
         else
         {
             // Fill the actual vectors now, in proper order
-            for (int nJets = 0; nJets < nJetsMax; ++nJets)
+            for (int nJets = 0; nJets <= nJetsMax; ++nJets)
             {
                 m_gluonFractionHists.push_back(NULL);
                 m_gluonFractionErrorHists.push_back(NULL);
@@ -285,12 +285,12 @@ StatusCode FlavourUncertaintyComponent::initialize(TFile* histFile)
             }
         }
         
-        // Initialize the histograms
+        // Initialize the non-NULL histograms
         for (size_t iHist = 0; iHist < m_gluonFractionHists.size(); ++iHist)
         {
-            if (m_gluonFractionHists.at(iHist)->initialize(analysisFile).isFailure())
+            if (m_gluonFractionHists.at(iHist)      && m_gluonFractionHists.at(iHist)->initialize(analysisFile).isFailure())
                 return StatusCode::FAILURE;
-            if (m_gluonFractionErrorHists.at(iHist)->initialize(analysisFile).isFailure())
+            if (m_gluonFractionErrorHists.at(iHist) && m_gluonFractionErrorHists.at(iHist)->initialize(analysisFile).isFailure())
                 return StatusCode::FAILURE;
         }
 
@@ -315,7 +315,7 @@ StatusCode FlavourUncertaintyComponent::initialize(TFile* histFile)
             // Store all of the key names for now, retrieval will happen later
             std::vector<TString> gluonFractionDefaultKeys;
             std::vector<TString> gluonFractionErrorDefaultKeys;
-            getGluonKeys(analysisFile,gluonFractionDefaultKeys,gluonFractionErrorDefaultKeys);
+            getGluonKeys(defAnaFile,gluonFractionDefaultKeys,gluonFractionErrorDefaultKeys);
 
             // Ensure that there is exactly one histogram (not another nJets file, not missing)
             if (gluonFractionDefaultKeys.size() != 1 || gluonFractionErrorDefaultKeys.size() != 1)
@@ -551,16 +551,14 @@ double FlavourUncertaintyComponent::getPerJetFlavourUncertainty(const xAOD::Jet&
 
 double FlavourUncertaintyComponent::getGluonFraction(const double pT, const double eta, const int nJets) const
 {
-    // Check if we need to use the inclusive composition
-    const int indexToUse = m_gluonFractionHists.at(nJets) != NULL ? nJets : 0;
-    return m_gluonFractionHists.at(indexToUse)->getValue(pT,fabs(eta));
+    // nJets value checking is done in checkNjetsInput
+    return m_gluonFractionHists.at(nJets)->getValue(pT,fabs(eta));
 }
 
 double FlavourUncertaintyComponent::getGluonFractionError(const double pT, const double eta, const int nJets) const
 {
-    // Check if we need to use the inclusive composition
-    const int indexToUse = m_gluonFractionHists.at(nJets) != NULL ? nJets : 0;
-    return m_gluonFractionErrorHists.at(indexToUse)->getValue(pT,fabs(eta));
+    // nJets value checking is done in checkNjetsInput
+    return m_gluonFractionErrorHists.at(nJets)->getValue(pT,fabs(eta));
 }
 
 double FlavourUncertaintyComponent::getGluonResponseDifference(const double pT, const double eta) const
@@ -619,7 +617,7 @@ StatusCode FlavourUncertaintyComponent::readNjetsHistograms(std::vector<Uncertai
         int nJets = -1;
         if (getNjetFromKey(histName,nJets).isFailure())
             return StatusCode::FAILURE;
-        if (nJets < 0 || nJets > static_cast<int>(histKeys.size())-1)
+        if (nJets < 0 || nJets >= static_cast<int>(hists.size()))
         {
             ATH_MSG_ERROR(Form("Unexpected gluon fraction nJet %d of index %zu: %s",nJets,iKey,histName.Data()));
             return StatusCode::FAILURE;
@@ -655,27 +653,27 @@ StatusCode FlavourUncertaintyComponent::checkNjetsInput(int& nJets) const
 {
     // nJets = 0 is the inclusive composition
     // nJets = # is the composition for # jets
+    // nJets < 0 uses default if available
+    // nJets > MAX uses default if available
+    // nJets = #, but # is NULL uses default if available
     
     // Case of no histograms is checked in initialization, no need to repeat here
     // Initialization also ensures gluonFractionHists and gluonFractionErrorHists are consistent
 
-    // Take overflow from the highest bin
-    // Note that this means the nJets=0 inclusive composition is used for ALL nJets values if the user did not provide nJets histograms (intended functionality)
-    if (nJets > 0 && static_cast<size_t>(nJets) >= m_gluonFractionHists.size())
-        nJets = m_gluonFractionHists.size() - 1;
-
-    // Watch for missing histograms (users don't need to specify every nJet bin if they don't use them)
-    if (!m_gluonFractionHists.at(nJets))
+    // Check if we need to use the default histogram
+    if (nJets < 0 || nJets >= static_cast<int>(m_gluonFractionHists.size()) || m_gluonFractionHists.at(nJets) == NULL)
     {
-        // If the zero-bin is specified, this is still ok
-        // Zero-bin is the inclusive composition to use when encountering unexpected nJets
-        // So check if the inclusive composition has been specified or not
+        // Check if we can fall back on the default bin (does it exist?)
         if (m_gluonFractionHists.at(0) == NULL)
         {
-            ATH_MSG_ERROR(Form("nJets of %d is NULL for %s",nJets,getName().Data()));
+            ATH_MSG_ERROR("nJets of " << nJets << " is invalid, and default does not exist to fall back on, for " << getName().Data());
             return StatusCode::FAILURE;
         }
+        // Fall back on the default bin
+        nJets = 0;
     }
+    // Otherwise, the specified nJets value is fine and doesn't need to be touched
+
 
     return StatusCode::SUCCESS;
 }

@@ -34,7 +34,6 @@ class OptionHelper : public asg::AsgMessaging
         TString GetNamePrefix()   const { checkInit(); return m_compNamePrefix; }
         TString GetCalibArea()    const { checkInit(); return m_calibArea;      }
         TString GetPath()         const { checkInit(); return m_path;           }
-        TString GetAnalysisFile() const { checkInit(); return m_analysisFile;   }
 
         // Plot control
         bool    DoATLASLabel()    const { checkInit(); return m_doATLASLabel;  }
@@ -63,11 +62,11 @@ class OptionHelper : public asg::AsgMessaging
         bool IsTLA()    const { checkInit(); return m_isTLA;         }
 
         // Compositions
-        bool IsUnknownComposition() const { checkInit(); return m_isUnknownComp; }
-        bool IsDijetComposition()   const { checkInit(); return m_isDijetComp;   }
-        bool IsGinosComposition()   const { checkInit(); return m_isGinosComp;   }
-        bool IsReginasComposition() const { checkInit(); return m_isReginasComp; }
-        int  FixedTruthLabel()      const { checkInit(); return m_truthLabel;    }
+        bool IsSpecialComposition() const { checkInit(); return m_composition != ""; }
+        TString GetCompositionPath()   const;
+        TString GetCompositionName()   const;
+        int  GetNjetFlavour()       const { checkInit(); return m_nJetFlavour;       }
+        int  FixedTruthLabel()      const { checkInit(); return m_truthLabel;        }
 
         // Comparison helpers
         bool                 CompareOnly()    const { checkInit(); return m_onlyCompare; }
@@ -90,7 +89,6 @@ class OptionHelper : public asg::AsgMessaging
         TString m_compNamePrefix;
         TString m_calibArea;
         TString m_path;
-        TString m_analysisFile;
 
         bool    m_doATLASLabel;
         TString m_ATLASLabel;
@@ -116,11 +114,10 @@ class OptionHelper : public asg::AsgMessaging
         bool    m_isJER;
         bool    m_isTLA;
 
-        bool    m_isUnknownComp;
-        bool    m_isDijetComp;
-        bool    m_isGinosComp;
-        bool    m_isReginasComp;
+        TString m_composition;
+        int     m_nJetFlavour;
         int     m_truthLabel;
+        bool    m_isDijet; // legacy support
 
         bool    m_onlyCompare;
         TString m_doCompare;
@@ -153,7 +150,6 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_compNamePrefix("JET_")
     , m_calibArea("")
     , m_path("")
-    , m_analysisFile("")
 
     , m_doATLASLabel(true)
     , m_ATLASLabel("Internal")
@@ -179,11 +175,10 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_isJER(false)
     , m_isTLA(false)
 
-    , m_isUnknownComp(true)
-    , m_isDijetComp(false)
-    , m_isGinosComp(false)
-    , m_isReginasComp(false)
+    , m_composition("")
+    , m_nJetFlavour(-1)
     , m_truthLabel(0)
+    , m_isDijet(false)
 
     , m_onlyCompare(false)
     , m_doCompare("")
@@ -214,7 +209,6 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_compNamePrefix = getOptionValueWithDefault(options,"prefix",m_compNamePrefix);
     m_calibArea      = getOptionValueWithDefault(options,"CalibArea",m_calibArea);
     m_path           = getOptionValueWithDefault(options,"Path",m_path);
-    m_analysisFile   = getOptionValueWithDefault(options,"AnalysisFile",m_analysisFile);
 
     m_doATLASLabel   = getOptionValueWithDefault(options,"DoATLASLabel",m_doATLASLabel);
     m_ATLASLabel     = getOptionValueWithDefault(options,"ATLASLabel",m_ATLASLabel);
@@ -253,15 +247,20 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_isTLA          = getOptionValueWithDefault(options,"isTLA",m_isTLA);
     m_isSmallR       = !(m_isLargeR || m_isJER);
     
-    m_isDijetComp    = getOptionValueWithDefault(options,"isDijet",m_isDijetComp);
-    m_isGinosComp    = getOptionValueWithDefault(options,"isGinos",m_isGinosComp);
-    m_isReginasComp  = getOptionValueWithDefault(options,"isReginas",m_isReginasComp);
-    m_isUnknownComp  = !m_isDijetComp;
-    if (m_isGinosComp) {
-      m_isDijetComp = false;
-      m_isUnknownComp = false;
-    }
+    m_composition    = getOptionValueWithDefault(options,"Composition",m_composition);
+    m_nJetFlavour    = getOptionValueWithDefault(options,"NjetFlavour",m_nJetFlavour);
     m_truthLabel     = getOptionValueWithDefault(options,"TruthLabel",m_truthLabel);
+    m_isDijet        = getOptionValueWithDefault(options,"isDijet",m_isDijet);
+    if (m_isDijet)
+    {
+        if (!m_composition)
+            m_composition = "Dijet";
+        else
+        {
+            ATH_MSG_ERROR("The composition was double-specified, please check that you don't specify both \"Composition\" and \"isDijet\"");
+            throw std::string("Double composition failure");
+        }
+    }
 
     m_onlyCompare    = getOptionValueWithDefault(options,"compareOnly",m_onlyCompare);
     m_doCompare      = getOptionValueWithDefault(options,"doCompare",m_doCompare);
@@ -476,6 +475,61 @@ std::vector<double> OptionHelper::GetFixedMoverPtVals() const
         bins = jet::utils::vectorize<double>("0.001,0.05,0.101,0.15,0.201,0.25,0.301,0.35,0.401,0.45,0.501,0.55,0.601,0.65,0.701,0.75,0.801,0.85,0.901,0.95,1.001",",");
     
     return bins;
+}
+
+TString OptionHelper::GetCompositionPath() const
+{
+    checkInit();
+
+    // Trivial case (unknown composition)
+    if (m_composition == "")
+        return "";
+    // Path-based case (user specified file path, return it)
+    if (m_composition.Contains(".root"))
+        return m_composition;
+    // Name-based case (user specified name, return expected path)
+    else
+    {
+        if (!m_composition.CompareTo("Unknown",TString::kIgnoreCase))
+            return "";
+        if (!m_composition.CompareTo("Dijet",TString::kIgnoreCase))
+            return GetInputsDir()+"/DijetFlavourComp_13TeV.root";
+        if (!m_composition.CompareTo("Gino",TString::kIgnoreCase))
+            return GetInputsDir()+"/GinoComposition.root";
+    }
+    
+    ATH_MSG_FATAL("Unable to interpret special composition path: " << m_composition);
+    throw std::string("Composition path failure");
+    return "";
+}
+
+TString OptionHelper::GetCompositionName() const
+{
+    checkInit();
+
+    // Trivial case (unknown composition)
+    if (m_composition == "")
+        return "unknown composition";
+    // Path-based case (user specified the file path, return "custom" as name)
+    if (m_composition.Contains(".root"))
+    {
+        return "custom composition";
+    }
+    // Name-based case (user specified name, interpret or return it)
+    if (!m_composition.Contains(".root"))
+    {
+        if (!m_composition.CompareTo("Unknown",TString::kIgnoreCase))
+            return "unknown composition";
+        if (!m_composition.CompareTo("Dijet",TString::kIgnoreCase))
+            return "inclusive jets";
+        if (!m_composition.CompareTo("Gino",TString::kIgnoreCase))
+            return "Gino's composition";
+        return m_composition + " composition";
+    }
+
+    ATH_MSG_FATAL("Unable to interpret special composition name: " << m_composition);
+    throw std::string("Composition name failure");
+    return "";
 }
 
 
