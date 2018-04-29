@@ -1,6 +1,6 @@
 import os
 
-makeDataDAODs=True
+makeDataDAODs=False
 makeMCDAODs=False
 makeTruthDAODs=False
 makeTrains=True
@@ -30,24 +30,32 @@ formatList = ['PHYSVAL',
 
 truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
 
-trainList = [ ["HIGG2D5","TCAL1"], # < 0.1%
-              ["BPHY2","EGAM4","STDM5","SUSY14","EXOT12","EXOT10","JETM10"], # 0.1-0.2%
-              ["EGAM3","HIGG1D2","EXOT20","EXOT0","EXOT17","HIGG4D4"], # 0.24-0.33%
-              ["JETM7","EXOT6","SUSY9","EGAM2","SUSY12","SUSY2"], # 0.35-0.43%
-              ["EXOT9","EXOT15","JETM3","SUSY13","HIGG4D1","TOPQ2","MUON2","SUSY16"], # 0.47-0.63%
-              ["EXOT7","SUSY11","SUSY9","STDM3","TOPQ5","EXOT19"], # 0.66-0.76%
-              ["HIGG1D1","EGAM9","BPHY5","BPHY4","EXOT18","JETM4","SUSY18"], # 0.76-0.91%
-              ["EGAM7","HIGG6D1","STDM2","SUSY3","EGAM8","EGAM1"], # 0.96-1.09%
-              ["EXOT22","SUSY1","HIGG2D4","JETM1","EXOT3","BPHY8","SUSY4","BPHY1"], # 1.15-1.35%
-              ["JETM11","STDM9","HIGG8D1","EXOT5","SUSY5","HIGG5D3"], # 1.42-1.69%
-              ["SUSY10","STDM7","JETM6","JETM9","TAUP1","SUSY7","HIGG4D5"], # 1.76-2.06%
-              ["EXOT4","HIGG4D6","JETM2","SUSY8","HIGG4D2","MUON1","BPHY7"], # 2.1-2.7%
-              ["EXOT8","TAUP4","HIGG4D3","HIGG5D2","EXOT2","HIGG5D1"], # 2.8-3.1%
-              ["HIGG2D1","SUSY6","HIGG3D1","EXOT13"], # 3.35-3.77%
-              ["TOPQ1","EGAM5","BPHY6","BPHY9","STDM4"], # 4.3-4.9%
-              ["HIGG6D2","EXOT21","MUON0","TAUP3","TOPQ4"], # 5.1-5.9%
-              ["FTAG1","FTAG2","FTAG4"], # FTAG train (3.5-4.6%). FTAG3 alone.
-]
+trainList = [ ["TCAL1","HIGG2D5","EXOT10"], # 0.02-0.03%
+              ["EGAM3","JETM12","EGAM4"], # 0.08-0.12%
+              ["STDM5","EXOT12","EGAM2","EXOT9"], # 0.17-0.23%
+              ["BPHY5","HIGG4D4","SUSY9","EXOT17"], # 0.3-0.32%
+              ["EXOT0","SUSY12","JETM7","HIGG1D2"], # 0.35-0.38%
+              ["MUON2","EGAM7","EGAM9","BPHY1"], # 0.39-0.46%
+              ["BPHY4","EXOT6","HIGG4D1","SUSY2","SUSY11"], # 0.5-0.53%
+              ["STDM3","EXOT19","TOPQ5","TOPQ2","JETM4","JETM3" ], # 0.69-0.76%
+              ["EXOT15","SUSY7","SUSY16","HIGG4D6"], # 0.8-0.9%
+              ["STDM2","SUSY18","EXOT7","EGAM1","HIGG4D5"], # 0.98-10.8%
+              ["EXOT3","SUSY3","HIGG4D3","EXOT22"], # 1.1-1.2%
+              ["HIGG6D1","SUSY1","TAUP1","SUSY4"], # 1.28-1.41%
+              ["EXOT2","JETM11","STDM7","EXOT21"], # 1.45-1.58%
+              ["JETM1","JETM9","EXOT5"], # 1.62-1.65%
+              ["SUSY10","SUSY8","SUSY5"], # 1.7-1.75%
+              ["EXOT13","EGAM5","EXOT8","EXOT4"], # 2.09.2.4%
+              ["HIGG4D2","HIGG8D1","JETM6"], #2.7-2.9%
+              ["SUSY6","HIGG2D1"], # 3.3-3.7%
+              ["MUON1","TOPQ1"], # 3.9-4.5%
+              ["STDM4","MUON0"], # 5.2-5.9%
+              ["HIGG6D2","TOPQ4","TAUP3"], # 7.1-8.4%
+              ["FTAG2","FTAG4"] # FTAG train
+              # Following run as singletons: FTAG1, FTAG3, JETM10, HIGG1D1 
+              # Special streams (BLS/ZB) not run as trains
+            ]
+
 mcLabel = "mc16"
 dataLabel = "data18"
 truthLabel = "mc15"
