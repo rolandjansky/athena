@@ -1,3 +1,4 @@
+// -*- c++ -*- 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -23,6 +24,10 @@ class TRT_DriftCircleContainerCnv_p0  : public T_AthenaPoolTPCnvBase<InDet::TRT_
    const TRT_ID*  m_trtId;
    const InDetDD::TRT_DetectorManager* m_trtMgr;
  public:
+
+	// CID 106239 fix
+	TRT_DriftCircleContainerCnv_p0() : m_trtId(nullptr), m_trtMgr(nullptr) {}
+
   virtual void   persToTrans(const TRT_DriftCircleContainer_p0*, InDet::TRT_DriftCircleContainer*, MsgStream&) override {
     // everything is done in createTransient()
   }
