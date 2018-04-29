@@ -23,7 +23,6 @@ namespace Trig
   class IMatchingTool;
   class TrigDecisionTool;
 }
-
  
 namespace DerivationFramework {
  
@@ -36,18 +35,38 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
  
     private:
-      ToolHandle< Trig::IMatchingTool > m_tool;
+
+      typedef SG::AuxElement::Decorator<char> decor_t;
+
+      ToolHandle< Trig::IMatchingTool > m_matchTool;
       ToolHandle< Trig::TrigDecisionTool > m_trigDec; 
-      std::string m_sgName;
+      std::string m_decorPrefix;
       std::string m_muonContainerName;
       std::string m_electronContainerName;
       std::string m_photonContainerName;
-      std::vector< std::string >  m_singletriggerList;
-      std::vector< std::string >  m_2mutriggerList;
-      std::vector< std::string > m_2etriggerList;
-      std::vector< std::string > m_emtriggerList;
-      StatusCode matchSingle(const xAOD::IParticleContainer* collection,std::string trigger) const;
-      StatusCode matchDi(const xAOD::IParticleContainer* collection1 ,const xAOD::IParticleContainer* collection2 ,std::string trigger) const;
+    // Used for property setting
+      std::vector< std::string >  m_singleTriggerList = {};
+      std::vector< std::string >  m_2mTriggerList = {};
+      std::vector< std::string >  m_2eTriggerList = {};
+      std::vector< std::string >  m_emTriggerList = {};
+
+    // Used internally
+      std::vector< std::pair<const std::string, decor_t> >  m_1eDecorList = {};
+      std::vector< std::pair<const std::string, decor_t> >  m_1mDecorList = {};
+      std::vector< std::pair<const std::string, decor_t> >  m_1gDecorList = {};
+
+      std::vector< std::pair<const std::string, decor_t> >  m_2eDecorList = {};
+      std::vector< std::pair<const std::string, decor_t> >  m_2mDecorList = {};
+      std::vector< std::pair<const std::string, decor_t> >  m_emDecorList = {};
+
+    StatusCode matchSingle(const xAOD::IParticleContainer* collection,
+			   const std::string& trigger,
+			   const decor_t& decor) const;
+
+    StatusCode matchDi(const xAOD::IParticleContainer* collection1,
+		       const xAOD::IParticleContainer* collection2,
+		       const std::string& trigger,
+		       const decor_t& decor) const;
 
 
   };

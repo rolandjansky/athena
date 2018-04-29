@@ -31,18 +31,9 @@ JETM4SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM4Sk
 ToolSvc += JETM4SkimmingTool
 
 #Trigger matching decorations
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
-DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
-                                                             name = "JETM4_TriggerMatchingAugmentation",
-                                                             DecorationPrefix = "DFCommonTrigger_",
-                                                             PhotonContainerName = "Photons",
-                                                             SingleTriggerList = [triggerlist]
-	                                                             )
-ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
-NewTrigVars=[]
-new_content=".".join(["JETM4_"+t for t in singlePhotonTriggers
-                      ])
-NewTrigVars.append("Photons."+new_content)
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM4",
+                                                 PhotonTriggers=TriggerLists.single_photon_Trig())
 
 #====================================================================
 # SET UP STREAM
@@ -148,7 +139,8 @@ DerivationFrameworkJob += jetm4Seq
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm4Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM4Kernel" ,
                                                          SkimmingTools = [JETM4SkimmingTool],
-                                                         ThinningTools = thinningTools)
+                                                         ThinningTools = thinningTools,
+                                                         AugmentationTools = [TrigMatchAug])
 #====================================================================
 # Special jets
 #====================================================================
@@ -200,7 +192,7 @@ JETM4SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM4SlimmingHelper.ExtraVariables = []+NewTrigVars
+JETM4SlimmingHelper.ExtraVariables = ["Photons."+NewTrigVars["Photons"]]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",
