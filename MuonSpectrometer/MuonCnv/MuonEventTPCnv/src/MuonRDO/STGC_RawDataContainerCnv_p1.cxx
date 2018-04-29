@@ -41,7 +41,10 @@ void  Muon::STGC_RawDataContainerCnv_p1::persToTrans(const Muon::STGC_RawDataCon
   STGC_RawDataCollection* coll = nullptr;
   for ( const STGC_RawDataCollection_p1 collection : *persCont){
     coll = new STGC_RawDataCollection(collection.m_idHash);
-    transCont->addCollection(coll,collection.m_idHash);
+    if ( transCont->addCollection(coll,collection.m_idHash).isFailure() ) {
+      log << MSG::WARNING << "Could not add the sTGC collection during persistent->transient conversion" << std::endl;
+      return;
+    }
     if (DEBUG) log<<MSG::VERBOSE<<"Have created empty transient collection, now looping over persistent coll with this many entries: "<<collection.size() <<std::endl;
     
     for ( unsigned int j=0 ; j < collection.size() ; ++j ){
@@ -59,7 +62,7 @@ void  Muon::STGC_RawDataContainerCnv_p1::persToTrans(const Muon::STGC_RawDataCon
 //================================================================
 Muon::STGC_RawDataContainer* Muon::STGC_RawDataContainerCnv_p1::createTransient(const Muon::STGC_RawDataContainer_p1* persObj, MsgStream& log) 
 {
-  std::unique_ptr<STGC_RawDataContainer> trans(new Muon::STGC_RawDataContainer(m_idHelper->module_hash_max())); // FIXME This seems to give a ridiculously large number. Maybe I need to call something else?
+  std::unique_ptr<STGC_RawDataContainer> trans(new Muon::STGC_RawDataContainer(m_idHelper->detectorElement_hash_max())); // FIXME This seems to give a ridiculously large number. Maybe I need to call something else?
   if (DEBUG) log<<MSG::VERBOSE<<"STGC_RawDataContainerCnv_p1::createTransient() Created new STGC_RawDataContainer with this many collections "<<trans->numberOfCollections()<<std::endl;
   
   persToTrans(persObj, trans.get(), log);
