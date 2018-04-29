@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -638,6 +638,24 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_CHECK( m_elecEfficiencySFTool_iso.initialize() );
     }
 
+    // electron iso high-pt
+    toolName = "AsgElectronEfficiencyCorrectionTool_isoHigPt_" + m_eleId + m_eleIsoHighPt_WP;
+    // can't do the iso tool via the macro, it needs two properties set
+    if ( !m_elecEfficiencySFTool_isoHighPt.isUserConfigured() ) {
+      m_elecEfficiencySFTool_isoHighPt.setTypeAndName("AsgElectronEfficiencyCorrectionTool/"+toolName);
+
+      // New isolation recommendations are in the release - no need to update the map file by hand
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty ("MapFilePath", m_eleEffMapFilePath) );
+
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IdKey", eleId) );
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("IsoKey", m_eleIsoHighPt_WP) );
+      if (!isData()) {
+        ATH_CHECK (m_elecEfficiencySFTool_isoHighPt.setProperty("ForceDataType", (int) data_type) );
+      }
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.setProperty("CorrelationModel", m_EG_corrModel) );
+      ATH_CHECK( m_elecEfficiencySFTool_isoHighPt.initialize() );
+    }
+
     // electron ChargeID (NEW) (doesn't support keys yet . and only Medium ChIDWP )
     toolName = "AsgElectronEfficiencyCorrectionTool_chf_" + m_eleId + m_eleIso_WP + m_eleChID_WP;
     CONFIG_EG_EFF_TOOL(m_elecEfficiencySFTool_chf, toolName, "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v1/charge_misID/efficiencySF.ChargeID.MediumLLH_d0z0_v11_isolGradient_MediumCFT.root");
@@ -754,7 +772,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
       ATH_CHECK( t_sf->initialize() );
       m_elecTrigSFTools.push_back(t_sf->getHandle());
+#ifndef XAOD_STANDALONE
+      m_legsPerTool[toolName] = item.first;
+#else
       m_legsPerTool["ToolSvc."+toolName] = item.first;
+#endif
 
       toolName = "AsgElectronEfficiencyCorrectionTool_trigEff_mixLep_" + item.first + m_eleId;
       auto t_eff = m_elecEfficiencySFTool_trigEff_mixLep.emplace(m_elecEfficiencySFTool_trigEff_mixLep.end(), "AsgElectronEfficiencyCorrectionTool/"+toolName);
@@ -768,7 +790,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
       ATH_CHECK( t_eff->initialize() );
       m_elecTrigEffTools.push_back(t_eff->getHandle());
+#ifndef XAOD_STANDALONE
+      m_legsPerTool[toolName] = item.first;
+#else
       m_legsPerTool["ToolSvc."+toolName] = item.first;
+#endif
 
     }
   }
@@ -927,6 +953,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_tauSelTool.isUserConfigured()) {
     std::string inputfile = "";
     if (!m_tauConfigPath.empty() && (m_tauConfigPath!="default")) inputfile = m_tauConfigPath;
+    else if (m_tauId == "VeryLoose") inputfile = "SUSYTools/tau_selection_veryloose.conf";
     else if (m_tauId == "Loose") inputfile = "SUSYTools/tau_selection_loose.conf";
     else if (m_tauId == "Medium") inputfile = "SUSYTools/tau_selection_medium.conf";
     else if (m_tauId == "Tight") inputfile = "SUSYTools/tau_selection_tight.conf";
@@ -944,6 +971,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_tauSelToolBaseline.isUserConfigured()) {
     std::string inputfile = "";
     if (!m_tauConfigPathBaseline.empty() && (m_tauConfigPathBaseline!="default")) inputfile = m_tauConfigPathBaseline;
+    else if (m_tauIdBaseline == "VeryLoose") inputfile = "SUSYTools/tau_selection_veryloose.conf";
     else if (m_tauIdBaseline == "Loose") inputfile = "SUSYTools/tau_selection_loose.conf";
     else if (m_tauIdBaseline == "Medium") inputfile = "SUSYTools/tau_selection_medium.conf";
     else if (m_tauIdBaseline == "Tight") inputfile = "SUSYTools/tau_selection_tight.conf";
@@ -978,7 +1006,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 // Initialise tau trigger efficiency tool(s)
 
   int iTauID = (int) TauAnalysisTools::JETIDNONEUNCONFIGURED;
-  if (m_tauId == "Loose")       iTauID = (int) TauAnalysisTools::JETIDBDTLOOSE;
+  if (m_tauId == "VeryLoose")   iTauID = (int) TauAnalysisTools::JETIDBDTVERYLOOSE;
+  else if (m_tauId == "Loose")  iTauID = (int) TauAnalysisTools::JETIDBDTLOOSE;
   else if (m_tauId == "Medium") iTauID = (int) TauAnalysisTools::JETIDBDTMEDIUM;
   else if (m_tauId == "Tight")  iTauID = (int) TauAnalysisTools::JETIDBDTTIGHT;
   else {
@@ -1199,8 +1228,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("ElectronScaleFactorTools", m_elecTrigSFTools) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("MuonTools", m_muonTrigSFTools) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2015", m_trig2015combination_multiLep) );
-    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2016", m_trig2015combination_multiLep) );
-    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2017", m_trig2015combination_multiLep) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2016", m_trig2016combination_multiLep) );
+    ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("TriggerCombination2017", m_trig2017combination_multiLep) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("ListOfLegsPerTool", m_legsPerTool) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.setProperty("NumberOfToys", 250) );
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.initialize() );

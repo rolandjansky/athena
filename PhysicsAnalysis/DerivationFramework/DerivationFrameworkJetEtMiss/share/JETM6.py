@@ -22,10 +22,11 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
-photonTriggers = singlePhotonTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
+photonTriggers = TriggerLists.single_photon_Trig()
+jetTriggers = TriggerLists.jetTrig()
 
 # For first data
 jetSelection = '(count( AntiKt10LCTopoJets.pt > 400.*GeV && abs(AntiKt10LCTopoJets.eta) < 2.5 ) >=1)'
@@ -65,26 +66,17 @@ JETM6OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "
                                                                         expression = expression)
 ToolSvc += JETM6OfflineSkimmingTool
 
+#Trigger matching decorations
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM6",
+                                   ElectronTriggers=electronTriggers,
+                                   MuonTriggers=muonTriggers,
+                                   PhotonTriggers=photonTriggers)
+
 #====================================================================
 # THINNING TOOLS
 #====================================================================
 thinningTools = []
-
-# thinning_expression = "InDetTrackParticles.pt > 0.5*GeV"
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-# JETM6TPThinningTool = DerivationFramework__TrackParticleThinning( name                    = "JETM6ThinningTool",
-#                                                                   ThinningService         = "JETM6ThinningSvc",
-#                                                                   SelectionString         = thinning_expression,
-#                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
-
-# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-# JETM6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4JetTPThinningTool",
-#                                                                         ThinningService         = "JETM6ThinningSvc",
-#                                                                         JetKey                  = "AntiKt4EMTopoJets",
-#                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
-#                                                                         ApplyAnd                = True)
-# ToolSvc += JETM6JetTPThinningTool
-# thinningTools.append(JETM6JetTPThinningTool)
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
 JETM6Akt4JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "JETM6Akt4JetTPThinningTool",
@@ -219,7 +211,7 @@ replaceAODReducedJets(reducedJetList,jetm6Seq,"JETM6")
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm6Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM6MainKernel",
-                                                          AugmentationTools = [] ,
+                                                          AugmentationTools = [TrigMatchAug] ,
                                                           SkimmingTools = [JETM6OfflineSkimmingTool],
                                                           ThinningTools = thinningTools)
 
@@ -274,15 +266,8 @@ JETM6SlimmingHelper.AllVariables = [
     ]
 
 JETM6SlimmingHelper.ExtraVariables = [
-    'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG',
-    'BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu'
-    ]
-
-#JETM6SlimmingHelper.AppendToDictionary.update({"LCOriginTopoClusters":"xAOD::CaloClusterContainer",
-#                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer",
-#					       "EMOriginTopoClusters":"xAOD::CaloClusterContainer",
-#                                               "EMOriginTopoClustersAux":"xAOD::ShallowAuxContainer"})
-#JETM6SlimmingHelper.ExtraVariables +=['LCOriginTopoClusters.calEta.calPhi','EMOriginTopoClusters.calE.calEta.calPhi']
+    'CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG', 'BTagging_AntiKt4EMTopo.MSV_N2Tpair.MSV_badTracksIP.MSV_energyTrkInJet.MSV_normdist.MSV_nvsec.MSV_vertices.MV1_discriminant.MV2c00_discriminant.MV2c100_discriminant.MV2c10_discriminant.MV2c20_discriminant.MV2m_pb.MV2m_pc.MV2m_pu.MultiSVbb1_discriminant.MultiSVbb2_discriminant.SV0_N2Tpair.SV1_pb.SV1_pc.SV1_pu.IP3D_pb.IP3D_pc.IP3D_pu',
+    NewTrigVars["Electrons"][0],NewTrigVars["Muons"][0],NewTrigVars["Photons"][0]]
 
 addOriginCorrectedClusters(JETM6SlimmingHelper,writeLC=True,writeEM=True)
 
@@ -321,10 +306,10 @@ JETM6SlimmingHelper.ExtraVariables += [
     "AntiKt2PV0TrackJets.AlgorithmType.ConstituentScale.Width.eta.pt.phi.m.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.OriginVertex.SizeParameter",
     'HLT_xAOD__JetContainer_a4tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',
     'HLT_xAOD__JetContainer_a10tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AlgorithmType.AverageLArQF.BchCorrCell.CentroidR.ConstituentScale.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.InputType.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.OriginCorrected.PileupCorrected.SizeParameter.Timing.eta.kinematics.m.phi.pt',
+    "Electrons."+NewTrigVars["Electrons"],
+    "Muons."+NewTrigVars["Muons"],
+    "Photons."+NewTrigVars["Photons"]
     ]
-
-#JETM6SlimmingHelper.StaticContent.append("xAOD::JetContainer#CamKt15LCTopoJets")
-#JETM6SlimmingHelper.StaticContent.append("xAOD::JetAuxContainer#CamKt15LCTopoJetsAux.eta.pt.phi")
 
 # Add the MET containers to the stream
 addMETOutputs(JETM6SlimmingHelper,["Diagnostic","AntiKt4LCTopo","AntiKt4EMPFlow","Track"])

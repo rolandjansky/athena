@@ -158,8 +158,7 @@ int main(int argc, char* argv[])
         {"e12_lhloose_L1EM10VH", "*", "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0", "LooseBLayer", ""}
     };
 
-    const char* mapPath = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/"
-            "ElectronEfficiencyCorrection/2015_2016/"
+    const char* mapPath = "ElectronEfficiencyCorrection/2015_2016/"
             "rel20.7/Moriond_February2017_v3/map1.txt";
     for(auto& cfg : toolConfigs) /// one instance per trigger leg x working point
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
@@ -282,8 +281,8 @@ int main(int argc, char* argv[])
 
         /// Finally retrieve the global trigger scale factor
         double sf = 1.;
-        auto cc = myTool->getEfficiencyScaleFactor(runNumber,
-                myTriggeringElectrons, myTriggeringMuons, sf);
+        auto cc = myTool->getEfficiencyScaleFactor(myTriggeringElectrons,
+            myTriggeringMuons, sf);
         if(cc==CP::CorrectionCode::Ok)
         {
             nSuitableEvents += 1;

@@ -22,6 +22,8 @@
 #   TOPQExtraVariables_BTagging_AntiKt4EMTopo
 #   TOPQExtraVariables_CombinedMuonTrackParticles
 #   TOPQExtraVariables_ExtrapolatedMuonTrackParticles
+#   TOPQExtraVariables_InDetTrackParticles
+#   TOPQExtraVariables_PrimaryVertices
 #   TOPQExtraVariables_InDetForwardTrackParticles
 #   TOPQExtraVariables_MET_Track
 #
@@ -277,20 +279,22 @@ TOPQExtraVariables_AntiKt4EMTopoJets =  ["AntiKt4EMTopoJets."
                                          + "DFCommonJets_Calib_m."
                                          + "DFCommonJets_Calib_phi."
                                          + "DFCommonJets_Calib_pt."
-                                         + "DFCommonJets_FixedCutBEff_30."
-                                         + "DFCommonJets_FixedCutBEff_50."
-                                         + "DFCommonJets_FixedCutBEff_60."
-                                         + "DFCommonJets_FixedCutBEff_70."
-                                         + "DFCommonJets_FixedCutBEff_77."
-                                         + "DFCommonJets_FixedCutBEff_80."
-                                         + "DFCommonJets_FixedCutBEff_85."
-                                         + "DFCommonJets_FixedCutBEff_90."
-                                         + "DFCommonJets_FlatBEff_30."
-                                         + "DFCommonJets_FlatBEff_50."
-                                         + "DFCommonJets_FlatBEff_60."
-                                         + "DFCommonJets_FlatBEff_70."
-                                         + "DFCommonJets_FlatBEff_77."
-                                         + "DFCommonJets_FlatBEff_85."
+                                         + "DFCommonJets_FixedCutBEff_60_MV2c10."
+                                         + "DFCommonJets_FixedCutBEff_60_DL1."
+                                         + "DFCommonJets_FixedCutBEff_70_MV2c10."
+                                         + "DFCommonJets_FixedCutBEff_70_DL1."
+                                         + "DFCommonJets_FixedCutBEff_77_MV2c10."
+                                         + "DFCommonJets_FixedCutBEff_77_DL1."
+                                         + "DFCommonJets_FixedCutBEff_85_MV2c10."
+                                         + "DFCommonJets_FixedCutBEff_85_DL1."
+                                         + "DFCommonJets_HybBEff_60_MV2c10."
+                                         + "DFCommonJets_HybBEff_60_DL1."
+                                         + "DFCommonJets_HybBEff_70_MV2c10."
+                                         + "DFCommonJets_HybBEff_70_DL1."
+                                         + "DFCommonJets_HybBEff_77_MV2c10."
+                                         + "DFCommonJets_HybBEff_77_DL1."
+                                         + "DFCommonJets_HybBEff_85_MV2c10."
+                                         + "DFCommonJets_HybBEff_85_DL1."
                                          + "DFCommonJets_Jvt."
                                          + "DFCommonJets_passJvt."
                                          + "DFCommonJets_passOR."
@@ -476,6 +480,7 @@ TOPQExtraVariables_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets = ["AntiKt10LCTopoTr
                                                                + "Dip13."
                                                                + "Dip23."
                                                                + "DipExcl12."
+                                                               + "EMFrac."
                                                                + "FoxWolfram0."
                                                                + "FoxWolfram1."
                                                                + "FoxWolfram2."
@@ -814,6 +819,23 @@ TOPQExtraVariables_MuonSpectrometerTrackParticles = ["MuonSpectrometerTrackParti
                                                      + "trackProperties."
                                                      + "vx."
                                                      + "vy"]
+
+# default list for InDetTrackParticles : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/InDetTrackParticlesCPContent.py
+TOPQExtraVariables_InDetTrackParticles = ["InDetTrackParticles."
+                                          + "vx."
+                                          + "vy."
+                                          + "vz."
+                                          + "truthMatchProbability."
+                                          + "TRTdEdx."
+                                          + "pixeldEdx."
+                                          + "particleHypothesis."
+                                          + "radiusOfFirstHit"]
+
+
+# default list for PrimaryVertices : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/python/PrimaryVerticesCPContent.py
+TOPQExtraVariables_PrimaryVertices = ["PrimaryVertices"
+                                      + "x."
+                                      + "y"]
 
 # default list for InDetForwardTrackParticles through Muons : https://gitlab.cern.ch/atlas/athena/blob/21.2/PhysicsAnalysis/DerivationFramework/DerivationFrameworkMuons/python/MuonsCPContent.py
 TOPQExtraVariables_InDetForwardTrackParticles = ["InDetForwardTrackParticles."

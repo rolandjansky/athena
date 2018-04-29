@@ -105,7 +105,7 @@ namespace CP {
             CorrectionCode MCEfficiencyReplicas(const xAOD::Muon& mu, std::vector<float> & eff);
 
             /// debug method
-            void DebugPrint();
+            void DebugPrint() const;
 
             virtual ~EfficiencyScaleFactor();
 

@@ -65,7 +65,7 @@ DerivationFramework::SkimmingToolHIGG2::SkimmingToolHIGG2(const std::string& t,
 
   declareProperty("ElectronQuality", m_electronQual="any");
   declareProperty("MuonQuality", m_muonQual="inMS");
-  declareProperty("TightElectronQuality", m_tightElectronQual="DFCommonElectronsLHVeryLoose");
+  declareProperty("TightElectronQuality", m_tightElectronQual="DFCommonElectronsLHLoose");
   declareProperty("TightMuonQuality", m_tightMuonQual="DFCommonGoodMuon");
   declareProperty("VertexingElectronQuality", m_vertexingElectronQual="any");
   declareProperty("VertexingMuonQuality", m_vertexingMuonQual="inMS");

@@ -106,15 +106,12 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
                         metavar='N', group='Athena',
                         help='Set AthenaMP to fork after processing N events (default is to fork immediately after '
                         'initialisation')
-    parser.add_argument('--checkpoint', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg = False),
-                        metavar='BOOL', group='Athena',
-                        help='Checkpoint mode active')
-    parser.add_argument('--restart', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg = False),
-                        group='Athena',
-                        help='Full path to the checkpoint image')
     parser.add_argument('--sharedWriter', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=False),
                         metavar='BOOL', group='Athena',
                         help='SharedWriter mode active')
+    parser.add_argument('--eventService', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        metavar='BOOL', group='Athena',
+                        help='Switch AthenaMP to the Event Service configuration')
 
     if addValgrind:
         addValgrindArguments(parser)

@@ -13,6 +13,7 @@
 #include "AsgTools/ToolHandleArray.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "AthContainers/AuxElement.h"
 
 #include <string>
@@ -45,6 +46,9 @@ public:
 	virtual CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyScaleFactor) override;
 	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) override;
 	virtual CP::CorrectionCode getEfficiency(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) override;
+	
+	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::Photon*>& photons, double& efficiencyScaleFactor) override;
+	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::Photon*>& photons, double& efficiencyData, double& efficiencyMc) override;
 	
 	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor) override;
 	virtual CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor) override;
@@ -85,6 +89,8 @@ private:
 	/// Properties:
 	ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> m_suppliedElectronEfficiencyTools;
 	ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> m_suppliedElectronScaleFactorTools;
+	ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> m_suppliedPhotonEfficiencyTools;
+	ToolHandleArray<IAsgPhotonEfficiencyCorrectionTool> m_suppliedPhotonScaleFactorTools;
 	ToolHandleArray<CP::IMuonTriggerScaleFactors> m_suppliedMuonTools;
 	std::map<std::string, std::string> m_legsPerTool;
 	std::map<std::string, std::string> m_triggerCb;
@@ -103,10 +109,13 @@ private:
 	std::multimap<std::size_t, CachedRanking> m_cachedLegRankings; //!
 	std::map<std::size_t, ToolHandle<IAsgElectronEfficiencyCorrectionTool>* > m_electronSfTools; //!
 	std::map<std::size_t, ToolHandle<IAsgElectronEfficiencyCorrectionTool>* > m_electronEffTools; //!
+	std::map<std::size_t, ToolHandle<IAsgPhotonEfficiencyCorrectionTool>* > m_photonSfTools; //!
+	std::map<std::size_t, ToolHandle<IAsgPhotonEfficiencyCorrectionTool>* > m_photonEffTools; //!
 	std::map<std::size_t, ToolHandle<CP::IMuonTriggerScaleFactors>* > m_muonTools; //!
 	std::set<std::size_t> m_validLegTagPairs; //!
 	bool m_checkElectronLegTag; //!
 	bool m_checkMuonLegTag; //!
+	bool m_checkPhotonLegTag; //!
 	std::map<std::size_t, std::string> m_dictionary; //!
 	
 	std::vector<Hierarchy> m_hierarchyMeta; //!
@@ -127,9 +136,9 @@ private:
 	template<class CPTool> bool enumerateTools(ToolHandleArray<CPTool>& suppliedTools,
 		std::map<std::size_t, ToolHandle<CPTool>* >& indexedTools, flat_set<std::size_t>& collectedTags);
 	bool parseTagString(const std::string& tagstring, flat_set<std::size_t>& tags);
-	bool loadTriggerCombination(TrigGlobEffCorr::ImportData& data, bool useDefaultTools);
-	bool loadTagDecorators(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags);
-	bool loadListOfLegsPerTag(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags);
+	bool loadTriggerCombination(TrigGlobEffCorr::ImportData& data, bool useDefaultElectronTools, bool useDefaultPhotonTools);
+	bool loadTagDecorators(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags, const flat_set<std::size_t>& collectedPhotonTags);
+	bool loadListOfLegsPerTag(const flat_set<std::size_t>& collectedElectronTags, const flat_set<std::size_t>& collectedMuonTags, const flat_set<std::size_t>& collectedPhotonTags);
 	bool processDeprecatedProperties();
 	
 	/// Internal methods (II) -- core task
@@ -146,6 +155,7 @@ private:
 	void updateMuonTriggerNames(std::size_t leg, const std::string& name);
 	bool getTriggerLegEfficiencies(const xAOD::Electron* p, std::size_t leg, std::size_t tag, TrigGlobEffCorr::Efficiencies& efficiencies);
 	bool getTriggerLegEfficiencies(const xAOD::Muon* p, std::size_t leg, std::size_t tag, TrigGlobEffCorr::Efficiencies& efficiencies);
+	bool getTriggerLegEfficiencies(const xAOD::Photon* p, std::size_t leg, std::size_t tag, TrigGlobEffCorr::Efficiencies& efficiencies);
 	CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const LeptonList& leptons, double& efficiencyScaleFactor);
 	CP::CorrectionCode getEfficiency(unsigned runNumber, const LeptonList& leptons, double& efficiencyData, double& efficiencyMc);
 	std::size_t getCombinedHash(const flat_set<std::size_t>& legs);

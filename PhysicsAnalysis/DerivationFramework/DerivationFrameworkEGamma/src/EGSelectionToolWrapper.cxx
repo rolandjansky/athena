@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ namespace DerivationFramework {
   StatusCode EGSelectionToolWrapper::initialize()
   {
     if (m_sgName=="") {
-      ATH_MSG_ERROR("No SG name provided for the output of invariant mass tool!");
+      ATH_MSG_ERROR("No SG name provided for the output of EGSelectionToolWrapper!");
       return StatusCode::FAILURE;
     }
     if (m_containerName!="Photons" && m_containerName!="Electrons") {

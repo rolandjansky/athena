@@ -109,7 +109,7 @@ if isMC:
 # CREATE THE SKIMMING TOOL   
 #=======================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-triggerStrategy = '(count(Electrons.pt > 60*GeV && (Electrons.DFCommonElectronsLHLoose||Electrons.DFCommonElectronsLHMedium||Electrons.DFCommonElectronsLHTight||Electrons.DFCommonElectronsIsEMLoose||Electrons.DFCommonElectronsIsEMMedium||Electrons.DFCommonElectronsIsEMTight)) >= 1)'
+triggerStrategy = '(count(Electrons.pt > 60*GeV && (Electrons.DFCommonElectronsLHLoose||Electrons.DFCommonElectronsLHMedium||Electrons.DFCommonElectronsLHTight||Electrons.DFCommonElectronsLHLooseBL)) >= 1)'
 EXOT9SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT9SkimmingTool1", expression = triggerStrategy)
 ToolSvc += EXOT9SkimmingTool
 print EXOT9SkimmingTool

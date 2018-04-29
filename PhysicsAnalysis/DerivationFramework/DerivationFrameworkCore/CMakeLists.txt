@@ -10,7 +10,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           GaudiKernel
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
+			  Event/xAOD/xAODBase
                           PRIVATE
+                          Event/xAOD/xAODEgamma
+			  Event/xAOD/xAODMuon
+			  Trigger/TrigAnalysis/TriggerMatchingTool
                           Control/AthenaKernel
                           Control/DataModel
                           Control/SGTools
@@ -21,11 +25,11 @@ atlas_add_library( DerivationFrameworkCoreLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkCore
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaKernel DataModel SGTools AsgAnalysisInterfaces AthAnalysisBaseCompsLib GoodRunsListsLib PathResolver )
+                   PRIVATE_LINK_LIBRARIES xAODEgamma xAODBase xAODMuon TriggerMatchingToolLib AthenaKernel DataModel SGTools AsgAnalysisInterfaces AthAnalysisBaseCompsLib GoodRunsListsLib PathResolver )
 
 atlas_add_component( DerivationFrameworkCore
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel AthenaKernel DataModel SGTools StoreGateLib SGtests DerivationFrameworkCoreLib AsgAnalysisInterfaces )
+                     LINK_LIBRARIES xAODBase xAODEgamma xAODMuon TriggerMatchingToolLib AthenaBaseComps GaudiKernel AthenaKernel DataModel SGTools StoreGateLib SGtests DerivationFrameworkCoreLib AsgAnalysisInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

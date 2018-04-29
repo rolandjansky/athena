@@ -21,29 +21,35 @@ if DerivationFrameworkIsMonteCarlo:
 # SKIMMING TOOL 
 #====================================================================
 
-from DerivationFrameworkJetEtMiss.TriggerLists import *
-electronTriggers = singleElTriggers
-muonTriggers = singleMuTriggers
+from DerivationFrameworkJetEtMiss import TriggerLists
+electronTriggers = TriggerLists.single_el_Trig()
+muonTriggers = TriggerLists.single_mu_Trig()
 
 orstr  = ' || '
 andstr = ' && '
 eltrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(electronTriggers)
 elofflinesel = andstr.join(['count((Electrons.pt > 25*GeV) && (Electrons.DFCommonElectronsLHMedium)) >= 1',
-                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77) >= 1'
+                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1'
                             ])
 electronSelection = '( (' + eltrigsel + ') && (' + elofflinesel + ') )'
 
 mutrigsel = '(EventInfo.eventTypeBitmask==1) || '+orstr.join(muonTriggers)
 muofflinesel = andstr.join(['count((Muons.pt > 25*GeV) && (Muons.DFCommonMuonsPreselection)) >= 1',
-                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77) >= 1'
+                            'count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>20*GeV && AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10) >= 1'
                             ])
 muonSelection = ' ( (' + mutrigsel + ') && (' + muofflinesel + ') )'
 expression = '( ' + electronSelection + ' || ' + muonSelection + ' )'
-
+for i in expression:
+	print "ISHAN " + i
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 JETM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM7SkimmingTool1",
                                                                  expression = expression)
 ToolSvc += JETM7SkimmingTool
+
+#Trigger matching decorations
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM7",
+                                                 ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # SET UP STREAM   
@@ -169,7 +175,7 @@ replaceAODReducedJets(reducedJetList,jetm7Seq,"JETM7")
 #==============================================================================
 # background generator filters
 #==============================================================================
-augmentationTools = []
+augmentationTools = [TrigMatchAug]
 if globalflags.DataSource() == 'geant4':
     from DerivationFrameworkMCTruth.GenFilterToolSetup import *
     augmentationTools.append(ToolSvc.DFCommonTruthGenFilt)
@@ -208,7 +214,8 @@ JETM7SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM7SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]
+JETM7SlimmingHelper.ExtraVariables = ["Electrons."+NewTrigVars["Electrons"],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus."+NewTrigVars["Muons"]]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",

@@ -8,6 +8,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkTau.TauCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 
 exot19Seq = CfgMgr.AthSequencer("EXOT19Sequence")
@@ -66,6 +67,16 @@ EXOT19PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(na
 ToolSvc += EXOT19PhotonTPThinningTool
 thinningTools.append(EXOT19PhotonTPThinningTool)
 
+# TrackParticles associated with taus
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
+EXOT19TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                    = "EXOT19TauTPThinningTool",
+                                                                        ThinningService         = EXOT19ThinningHelper.ThinningSvc(),
+                                                                        TauKey                  = "TauJets",
+                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                        ConeSize                =  0) # change wrt. EXOT0 that uses 0.4
+ToolSvc += EXOT19TauTPThinningTool
+thinningTools.append(EXOT19TauTPThinningTool)
+
 # truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT19TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT19TruthTool",
@@ -75,7 +86,7 @@ EXOT19TruthTool = DerivationFramework__MenuTruthThinning(name                  =
                                                          WriteBHadrons         = False,
                                                          WriteGeant            = False,
                                                          GeantPhotonPtThresh   = -1.0,
-                                                         WriteTauHad           = False,
+                                                         WriteTauHad           = True,
                                                          PartonPtThresh        = -1.0,
                                                          WriteBSM              = True,
                                                          WriteBosons           = True,
@@ -87,12 +98,16 @@ EXOT19TruthTool = DerivationFramework__MenuTruthThinning(name                  =
                                                          WriteStatus3          = False,
                                                          PreserveGeneratorDescendants  = False,
                                                          PreserveAncestors     = True,
-                                                         WriteFirstN           = -1)
+                                                         WriteFirstN           = -1,
+                                                         SimBarcodeOffset      = DerivationFrameworkSimBarcodeOffset)
 
-from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
   ToolSvc += EXOT19TruthTool
   thinningTools.append(EXOT19TruthTool)
+
+  # tau truth
+  from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+  scheduleTauTruthTools()
 
 truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16) && (TruthParticles.pt > 1*GeV) && ((TruthParticles.status ==1) || (TruthParticles.status ==2) || (TruthParticles.status ==3) || (TruthParticles.status ==23)) && (TruthParticles.barcode<200000))"
 
@@ -103,7 +118,7 @@ EXOT19TruthTool2 = DerivationFramework__GenericTruthThinning(name               
                                                              PreserveDescendants          = False,
                                                              PreserveGeneratorDescendants = True,
                                                              PreserveAncestors            = True)
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
   ToolSvc += EXOT19TruthTool2
   thinningTools.append(EXOT19TruthTool2)
 
@@ -124,8 +139,9 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 OutputJets["EXOT19"] = []
 reducedJetList = [
   "AntiKt4TruthJets",
-  "AntiKt4TruthWZJets"]
-replaceAODReducedJets(reducedJetList,exot19Seq,"EXOT19")
+  "AntiKt4TruthWZJets"
+]
+replaceAODReducedJets(reducedJetList, exot19Seq, "EXOT19")
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
@@ -146,9 +162,10 @@ EXOT19SlimmingHelper.StaticContent = EXOT19Content
 EXOT19SlimmingHelper.AllVariables = EXOT19AllVariables
 EXOT19SlimmingHelper.ExtraVariables = EXOT19ExtraVariables
 EXOT19SlimmingHelper.SmartCollections = EXOT19SmartCollections
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkIsMonteCarlo:
   EXOT19SlimmingHelper.AllVariables += EXOT19AllVariablesTruth
   EXOT19SlimmingHelper.ExtraVariables += EXOT19ExtraVariablesTruth
+  EXOT19SlimmingHelper.SmartCollections += EXOT19SmartCollectionsTruth
 
 EXOT19SlimmingHelper.IncludeEGammaTriggerContent = True
 EXOT19SlimmingHelper.AppendContentToStream(EXOT19Stream)

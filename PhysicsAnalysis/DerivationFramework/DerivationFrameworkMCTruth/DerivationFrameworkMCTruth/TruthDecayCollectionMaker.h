@@ -39,6 +39,7 @@ namespace DerivationFramework {
       int addTruthVertex( const xAOD::TruthVertex& old_vert, xAOD::TruthParticleContainer* part_cont,
                                 xAOD::TruthVertexContainer* vert_cont, std::vector<int>& seen_particles,
                           const int generations=-1) const;
+      bool id_ok( const xAOD::TruthParticle& part ) const;
   }; 
 }
 
