@@ -11,6 +11,8 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+from DerivationFrameworkFlavourTag.HbbCommon import *
+from BTagging.BTaggingFlags import BTaggingFlags
 
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
@@ -288,6 +290,8 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY1)
 
+FlavorTagInit(JetCollections = ["AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = SeqSUSY1)
+
 #==============================================================================
 OutputJets["SUSY1"] = []
 
@@ -302,7 +306,6 @@ replaceAODReducedJets(reducedJetList, SeqSUSY1, "SUSY1")
 
 # AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
 addDefaultTrimmedJets(SeqSUSY1, "SUSY1")
-
 
 #==============================================================================
 # Tau truth building/matching
@@ -322,6 +325,10 @@ SeqSUSY1 += CfgMgr.DerivationFramework__DerivationKernel(
 	ThinningTools = thinningTools,
 )
 
+# Add VR jets
+addVRJets(SeqSUSY1, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet", VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", ghostArea = 0 , ptmin = 2000, ptminFilter = 7000, variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
 #====================================================================
 # CONTENT LIST  
@@ -348,7 +355,11 @@ SUSY1SlimmingHelper.SmartCollections = ["Electrons","Photons",
                                         "PrimaryVertices",
                                         "BTagging_AntiKt2Track",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
-SUSY1SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "MET_Track"]
+SUSY1SlimmingHelper.AllVariables = [
+  "TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth",
+  #"AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets",
+  "MET_Track"
+]
 SUSY1SlimmingHelper.ExtraVariables = ["Muons.etcone30.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
 				      "Photons.author.Loose.Tight",
 				      "AntiKt4EMTopoJets.NumTrkPt1000.TrackWidthPt1000.NumTrkPt500.DFCommonJets_Calib_pt.DFCommonJets_Calib_eta.DFCommonJets_Calib_phi.Timing",
@@ -376,6 +387,10 @@ SUSY1SlimmingHelper.IncludeBJetTriggerContent   = False
 appendToDictDict = {
   "BTagging_AntiKt4EMPFlow":"xAOD::BTaggingContainer", 
   "BTagging_AntiKt4EMPFlowAux":"xAOD::BTaggingAuxContainer",
+  "AntiKtVR30Rmax4Rmin02TrackJets" : "xAOD::JetContainer" ,
+  "AntiKtVR30Rmax4Rmin02TrackJetsAux" : "xAOD::JetAuxContainer" ,
+  "BTagging_AntiKtVR30Rmax4Rmin02Track" : "xAOD::BTaggingContainer" ,
+  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux" : "xAOD::BTaggingAuxContainer",
   }
 
 if DerivationFrameworkIsMonteCarlo:
