@@ -53,7 +53,7 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
     PythiaForDecays::Instance()->ImportParticles(particles);
   }
 
-  g4cout << "Decayed an RHadron with ID " << pdgEncoding << " and momentum " << aTrack.GetMomentum() << " in Pythia.  Decay products are:" << g4endl;
+  G4cout << "Decayed an RHadron with ID " << pdgEncoding << " and momentum " << aTrack.GetMomentum() << " in Pythia.  Decay products are:" << G4endl;
   double totalE=0.0;
   for (unsigned int i=0; i<particles.size(); ++i){
     if (particles[i]) {
@@ -61,12 +61,12 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
       totalE += particles[i]->GetTotalEnergy();
     }
     else {
-      g4cout << i << " null pointer!" << g4endl;
+      G4cout << i << " null pointer!" << G4endl;
     }
   }
 
-  g4cout << "Total energy in was "<<etot   << g4endl;
-  g4cout << "Total energy out is "<<totalE << g4endl;
+  G4cout << "Total energy in was "<<etot   << G4endl;
+  G4cout << "Total energy out is "<<totalE << G4endl;
 
   dp->DumpInfo();
 

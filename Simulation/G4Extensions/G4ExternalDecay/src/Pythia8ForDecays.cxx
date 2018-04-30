@@ -223,7 +223,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   double fracR = mRBef / mRHad;
 
   if (fracR >= 1.){
-    g4cout << "R-Hadron mass is smaller than (or the same as) the constituent sparticle! Something must be wrong!" << g4endl;
+    G4cout << "R-Hadron mass is smaller than (or the same as) the constituent sparticle! Something must be wrong!" << G4endl;
     return;
   }
 
@@ -280,7 +280,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
     const G4ParticleDefinition * particleDefinition = GetParticleDefinition( m_pythia->event[i].id() );
 
     if (!particleDefinition){
-      g4cout << "I don't know a definition for pdgid "<<m_pythia->event[i].id()<<"! Skipping it..." << g4endl;
+      G4cout << "I don't know a definition for pdgid "<<m_pythia->event[i].id()<<"! Skipping it..." << G4endl;
       continue;
     }
 
