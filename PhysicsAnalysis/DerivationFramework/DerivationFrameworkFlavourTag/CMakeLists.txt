@@ -42,7 +42,8 @@ atlas_add_library( DerivationFrameworkFlavourTagLib
 atlas_add_component( DerivationFrameworkFlavourTag
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger JetInterface BoostedJetTaggersLib JetCalibToolsLib DerivationFrameworkFlavourTagLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel JetCalibToolsLib DerivationFrameworkFlavourTagLib )
+
 
 
 # Install files from the package:
