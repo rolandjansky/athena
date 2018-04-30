@@ -123,7 +123,7 @@ namespace Overlay {
 
   template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *mc_coll,
                                       InDetRawDataCollection<SCT_RDORawData> *data_coll,
-				      InDetRawDataCollection<SCT_RDORawData> *out_coll,
+                                      InDetRawDataCollection<SCT_RDORawData> *out_coll,
                                       IDC_OverlayBase *tmp)
   {
     // We want to use the SCT_ID helper provided by InDetOverlay, thus the constraint
@@ -304,8 +304,12 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("overlayInputPixelKey", m_overlayInputPixelKey);
   declareProperty("mainOutputPixelKey", m_mainOutputPixelKey);    
   
-  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.1);
-  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.9);
+  
+  declareProperty("TRTinputSDO_Name", m_TRTinputSDO_Name="TRT_SDO_Map");
+  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.160);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.130);
+  declareProperty("TRT_HT_OccupancyCorrectionBarrelNoE",m_HTOccupancyCorrectionB_noE=0.105);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcapNoE",m_HTOccupancyCorrectionEC_noE=0.080);
 
   declareProperty("RndmSvc",    m_rndmSvc,       "Random Number Service");
   declareProperty("RndmEngine", m_rndmEngineName,"Random engine name");
@@ -391,10 +395,12 @@ StatusCode InDetOverlay::overlayExecute() {
 
     if(dataContainer.isValid() && mcContainer.isValid() && outputContainer.isValid()) {
       if (m_do_TRT_background ){ 
+        SG::ReadHandle<InDetSimDataCollection> sdoContainer(m_TRTinputSDO_Name, m_storeGateMC->name());
+
         // Calculate occupancy here
         std::map<int, double> occupancy = m_TRT_LocalOccupancyTool->getDetectorOccupancy( dataContainer.cptr() );
         //Merge containers
-        overlayTRTContainers(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr(), occupancy);
+        overlayTRTContainers(dataContainer.cptr(), mcContainer.cptr(), outputContainer.ptr(), occupancy, *sdoContainer);
       } else if(!m_do_TRT_background){
         TRT_RDO_Container* nobkg = nullptr;
         overlayContainerNew( nobkg , mcContainer.cptr() , outputContainer.ptr());
@@ -503,7 +509,8 @@ for (containerItr=mcContainer->begin(); containerItr!=mcContainer->end(); ++cont
 void InDetOverlay::overlayTRTContainers(const TRT_RDO_Container *pileupContainer,
                                         const TRT_RDO_Container *signalContainer,
                                         TRT_RDO_Container *outputContainer,
-                                        std::map<int,double>&  occupancyMap) 
+                                        std::map<int,double>&  occupancyMap,
+                                        const InDetSimDataCollection& SDO_Map) 
 {
 
    //There are some use cases where this is empty
@@ -544,7 +551,7 @@ void InDetOverlay::overlayTRTContainers(const TRT_RDO_Container *pileupContainer
          Retrieve q */
          std::unique_ptr <TRT_RDO_Collection> coll_data ((TRT_RDO_Collection *) *q );
          int det =  m_trt_id->barrel_ec( (*p_ovl)->identify() );
-         mergeTRTCollections(coll_data.get(),coll_ovl.get(),coll_out.get(), occupancyMap[det] );
+         mergeTRTCollections(coll_data.get(),coll_ovl.get(),coll_out.get(), occupancyMap[det], SDO_Map);
          
          outputContainer->removeCollection(p_ovl.hashId());
          if (outputContainer->addCollection(coll_out.release(), p_ovl.hashId()).isFailure() ) {
@@ -567,7 +574,8 @@ void InDetOverlay::overlayTRTContainers(const TRT_RDO_Container *pileupContainer
 void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll, 
                                        TRT_RDO_Collection *data_coll, 
                                        TRT_RDO_Collection *out_coll, 
-                                       double occupancy) 
+                                       double occupancy,
+                                       const InDetSimDataCollection& SDO_Map) 
 {
    
   if(mc_coll->identify() != data_coll->identify()) {
@@ -640,10 +648,34 @@ void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll,
         
           //If the hit is not already a high level hit 
           if( !(pr1->getWord() & 0x04020100) ) {
+            
+            //Determine if the hit is from an electron or not
+            bool isElectron = false;
+            Identifier rdoId = p_rdo->identify();
+            InDetSimDataCollection::const_iterator sdoIter(SDO_Map.find(rdoId));
+            if( sdoIter != SDO_Map.end() ){
+              const std::vector< InDetSimData::Deposit >& deposits = sdoIter->second.getdeposits();
+              for ( const auto& deposit: deposits ){
+                const auto& particleLink = deposit.first;
+                if( particleLink.isValid() ){
+                  if( abs( particleLink->pdg_id() ) == 11 ){
+                    isElectron = true;
+                  }
+                }
+              }
+            }
+
+            
             unsigned int newword = 0;
             //Get random number 
             int det =  m_trt_id->barrel_ec( pr1->identify() );
-            float HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;  
+            float HTOccupancyCorrection = 0;
+            if(isElectron){ 
+              HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;  
+            } else { 
+              HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC_noE : m_HTOccupancyCorrectionB_noE; 
+            }
+
             if( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) 
               newword += 1 << (26-9);
             //
