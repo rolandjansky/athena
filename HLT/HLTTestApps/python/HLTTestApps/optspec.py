@@ -26,7 +26,7 @@ supported =  ['file', 'number-of-events', 'perfmon', 'verbosity',
               'preloadlib', 'msgsvc-type', 'joboptionsvc-type', 'interactive',
               'show-includes', 'use-database', 'db-type', 'db-server', 
               'db-smkey', 'db-hltpskey', 'db-extra', 'sor-time', 
-              'detector-mask', 'ros2rob', 'leak-check-execute', 'leak-check', 
+              'detector-mask', 'ros2rob', 'dcm-prefetch-strategy', 'leak-check-execute', 'leak-check', 
               'delete-check', 'no-ers-signal-handlers', 'oh-monitoring', 
               'oh-display', 'user-ipc', 'info-service', 'histogram-include',
               'histogram-exclude', 'histogram-publishing-interval', 
@@ -86,6 +86,13 @@ common['ros2rob'] = \
    'group': 'Run mode',
    'description': "ROS to ROB map. This should be provided as a dictionary whose keys are ROS IDs - strings - and whose values are lists of ROB IDs - integers in the range [0..4294967295]. This dictionary can be provided either directly on the command line (e.g. --ros2rob '{\"foobar\": [0xABCD0001, 0xABCD0002]}'), or through a python module that contains it in the variable ros2rob (e.g. --ros2rob 'mymod', where mymod.py contains 'ros2rob={\"bla\": [0x123, 0x321]}'). In the latter case, the module should be accessible with a regular import (it should be in the PYTHONPATH). Such a module can be obtained from a partition with the script ros2rob_from_partition.py, which is included in this package. Any ROB that is not covered by the dictionary and that comes up in an event is considered as part of an artificial ROS corresponding to its subdetector. Notice, in particular, that is how all ROBs are treated when an empty dictionary is provided (the default)! In that case all ROBs are assumed to be in their SubDetector's artificial single ROS. If a non-empty dictionary is provided and, at runtime, a ROB is requested which is not in the provided map, a big WARNING is printed, as this indicates an incomplete mapping."
    }
+common['dcm-prefetch-strategy'] = \
+  {'short': '',
+   'arg': True,
+   'default': 0,
+   'group': 'Run mode',
+   'description': "ROB prefetching strategy in DCM: = 0: retrieve ROBs on prefetch list only when needed for decoding (as in Run 1), = 1: retrieve ROBs on prefetch list immediately (as begin on Run 2)"
+  }
 common['save-output'] = \
   {'short': 'o', 
    'arg': True, 
