@@ -37,7 +37,8 @@ if DetFlags.digitize.pixel_on():
         pixeldigi = getPublicTool("PixelDigitizationTool")
     if None == pixeldigi:
         raise AttributeError("PixelDigitization(Tool) not found.")
-
+    pixeldigi.PixelTools = []
+    pixeldigi.PixelTools += ['PixelDiodeCrossTalkGenerator','PixelChargeSmearer','PixelGangedMerger','PixelRandomDisabledCellGenerator','PixelCellDiscriminator']
     pixeldigi.EnableSpecialPixels = False
     if hasattr(pixeldigi,'UseCalibCondDB'):
         pixeldigi.UseCalibCondDB = False
@@ -51,9 +52,6 @@ if DetFlags.digitize.pixel_on():
     else:
         ## From PixelDigitization-01-00-05 onwards configure tools directly
         from AthenaCommon.CfgGetter import getService, getPublicTool
-        calibSvc = getService("CalibSvc")
-        calibSvc.UseCalibCondDB = False
-        calibSvc.UsePixMapCondDB = False
         getPublicTool("SpecialPixelGenerator").UsePixCondSum = False
         getPublicTool("PixelBarrelChargeTool").DisableDistortions = True
         getPublicTool("PixelECChargeTool").DisableDistortions = True
@@ -77,27 +75,19 @@ if DetFlags.digitize.pixel_on():
     ServiceMgr.PixelCalibSvc.ToTParC       = 150000
     ServiceMgr.PixelCalibSvc.ToTParP1      = 0.4
     ServiceMgr.PixelCalibSvc.ToTParP2      = 0.02
+    # Avoid using calibration folders which may not exist
+    ServiceMgr.PixelCalibSvc.DisableDB     = True
 
     if hasattr(pixeldigi,'OfflineCalibSvc') :
        pixeldigi.OfflineCalibSvc=""
-
-
-##     if DetFlags.pileup.pixel_on():
-##         #changing the range of the Pixels
-##         from AthenaCommon.AppMgr import ServiceMgr
-##         from PileUpComps.PileUpCompsConf import PileUpXingFolder
-##         pixelxingFolder = ServiceMgr.PileUpMergeSvc.Intervals['PixelRange']
-##         pixelxingFolder.FirstXing = -50
-##         pixelxingFolder.LastXing = 25
 
 if DetFlags.digitize.SCT_on():
     outStream.ItemList+=["SiHitCollection#SCT_Hits"]
     if not hasattr( ToolSvc, 'SCT_FrontEnd'):
         from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
         ToolSvc += SCT_FrontEnd("SCT_FrontEnd")
-    theSCT_FrontEnd = ToolSvc.SCT_FrontEnd
-    theSCT_FrontEnd.MaxStripsPerSide = 1280
-    theSCT_FrontEnd.UseCalibData = False
+    getPublicTool("SCT_DigitizationTool").FrontEnd.UseCalibData = False
+    getPublicTool("SCT_DigitizationTool").FrontEnd.MaxStripsPerSide = 1280
 
     if not digitizationFlags.doXingByXingPileUp():
         if DetFlags.pileup.SCT_on():

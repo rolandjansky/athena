@@ -96,7 +96,6 @@ StatusCode SpecialPixelGenerator::initialize() {
     ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
   }
   
-  const PixelDetectorManager *m_pixMgr;
   CHECK(detStore()->retrieve(m_pixMgr,"Pixel"));
   ATH_MSG_DEBUG("PixelDetectorManager: <" << "Pixel" << "> retrieved");
   setManager(m_pixMgr);

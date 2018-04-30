@@ -37,7 +37,8 @@ if DetFlags.digitize.pixel_on():
         pixeldigi = getPublicTool("PixelDigitizationTool")
     if None == pixeldigi:
         raise AttributeError("PixelDigitization(Tool) not found.")
-
+    pixeldigi.PixelTools = []
+    pixeldigi.PixelTools += ['PixelDiodeCrossTalkGenerator','PixelChargeSmearer','PixelGangedMerger','PixelRandomDisabledCellGenerator','PixelCellDiscriminator']
     pixeldigi.EnableSpecialPixels = False
     if hasattr(pixeldigi,'UseCalibCondDB'):
         pixeldigi.UseCalibCondDB = False
@@ -46,15 +47,14 @@ if DetFlags.digitize.pixel_on():
         pixeldigi.DisableDistortions = True
     else:
         #From PixelDigitization-01-00-05 onwards configure tools directly
-        calibSvc = getService("CalibSvc")
-        calibSvc.UseCalibCondDB = False
-        calibSvc.UsePixMapCondDB = False
         getPublicTool("SpecialPixelGenerator").UsePixCondSum = False
         getPublicTool("PixelBarrelChargeTool").DisableDistortions = True
         getPublicTool("PixelECChargeTool").DisableDistortions = True
         getPublicTool("DBMChargeTool").DisableDistortions = True
         getPublicTool("IblPlanarChargeTool").DisableDistortions = True
         getPublicTool("Ibl3DChargeTool").DisableDistortions = True
+
+    ServiceMgr.PixelCalibSvc.DisableDB     = True
 
     if hasattr(pixeldigi,'OfflineCalibSvc') :
        pixeldigi.OfflineCalibSvc=""
@@ -72,10 +72,8 @@ if DetFlags.digitize.SCT_on():
     if not hasattr( ToolSvc, 'SCT_FrontEnd'):
         from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
         ToolSvc += SCT_FrontEnd("SCT_FrontEnd")
-    theSCT_FrontEnd = ToolSvc.SCT_FrontEnd
-    theSCT_FrontEnd.MaxStripsPerSide = 1280
-    theSCT_FrontEnd.UseCalibData = False
-    ToolSvc += theSCT_FrontEnd
+    getPublicTool("SCT_DigitizationTool").FrontEnd.UseCalibData = False
+    getPublicTool("SCT_DigitizationTool").FrontEnd.MaxStripsPerSide = 1280
 
     if DetFlags.pileup.SCT_on():
         #changing the range of the SCT

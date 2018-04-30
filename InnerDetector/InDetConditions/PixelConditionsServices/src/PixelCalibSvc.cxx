@@ -104,6 +104,7 @@ PixelCalibSvc::PixelCalibSvc(const std::string& name, ISvcLocator* sl):AthServic
   declareProperty("PixelOfflineCalibSvc",m_offlineCalibSvc);
   declareProperty("SpecialIBLCorrection", m_specialIBL_correction);
   declareProperty("SpecialIBLChargeScale",m_specialIBL_chargescale);
+  declareProperty("DisableDB",m_disableDb);
 }
 
 //================ Destructor =================================================
@@ -148,7 +149,7 @@ StatusCode PixelCalibSvc::initialize() {
   CHECK(m_offlineCalibSvc.retrieve());
 
   // locate PixelCalibTools  
-  CHECK(m_dbTool.retrieve());
+  if(!m_disableDb) CHECK(m_dbTool.retrieve());
 
   if (m_IBLParameterSvc.retrieve().isFailure()) {
     ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");

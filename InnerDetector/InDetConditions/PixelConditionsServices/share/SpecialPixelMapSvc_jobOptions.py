@@ -19,15 +19,18 @@ from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapS
 
 ServiceMgr += SpecialPixelMapSvc()
 SpecialPixelMapSvc = ServiceMgr.SpecialPixelMapSvc
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
 
 SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" ]
 SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong" ]
 
-SpecialPixelMapSvc.DBFolders += [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
-SpecialPixelMapSvc.SpecialPixelMapKeys += [ "NoiseMapShort", "NoiseMapLong" ]
+if not geoFlags.isSLHC():
 
-SpecialPixelMapSvc.OverlayKey = "PixMapOverlay"
-SpecialPixelMapSvc.OverlayFolder = "/PIXEL/PixMapOverlay"
+ SpecialPixelMapSvc.DBFolders += [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
+ SpecialPixelMapSvc.SpecialPixelMapKeys += [ "NoiseMapShort", "NoiseMapLong" ]
+
+ SpecialPixelMapSvc.OverlayKey = "PixMapOverlay"
+ SpecialPixelMapSvc.OverlayFolder = "/PIXEL/PixMapOverlay"
 
 if DetFlags.pixel_on() : 
    theApp.CreateSvc += [ ServiceMgr.SpecialPixelMapSvc.getFullName() ]

@@ -12,19 +12,15 @@ from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.CfgGetter import getService, getPublicTool
 
-from AthenaCommon.CfgGetter import getService, getPublicTool
-calibSvc = getService("CalibSvc")
-calibSvc.UseCalibCondDB = False
-calibSvc.UsePixMapCondDB = False
+ServiceMgr.PixelCalibSvc.DisableDB     = True
 
 if DetFlags.digitize.SCT_on():
     outStream.ItemList+=["SiHitCollection#SCT_Hits"]
     if not hasattr( ToolSvc, 'SCT_FrontEnd'):
         from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
         ToolSvc += SCT_FrontEnd("SCT_FrontEnd")
-    theSCT_FrontEnd = ToolSvc.SCT_FrontEnd
-    theSCT_FrontEnd.MaxStripsPerSide = 1280
-    theSCT_FrontEnd.UseCalibData = False
+    getPublicTool("SCT_DigitizationTool").FrontEnd.UseCalibData = False
+    getPublicTool("SCT_DigitizationTool").FrontEnd.MaxStripsPerSide = 1280
 
     if not digitizationFlags.doXingByXingPileUp():
         if DetFlags.pileup.SCT_on():
