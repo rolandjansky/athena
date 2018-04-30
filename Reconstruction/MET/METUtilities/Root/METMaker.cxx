@@ -124,6 +124,14 @@ namespace met {
     declareProperty("DoRemoveElecTrks",   m_doRemoveElecTrks   = true                );
     declareProperty("DoRemoveElecTrksEM", m_doRemoveElecTrksEM = false               );    
 
+    // muon overlap variables
+    declareProperty("JetTrkNMuOlap",      m_jetTrkNMuOlap = 5                        );    
+    declareProperty("JetWidthMuOlap",     m_jetWidthMuOlap = 0.1                     );    
+    declareProperty("JetPsEMuOlap",       m_jetPsEMuOlap = 2.5e3                     );    
+    declareProperty("JetEmfMuOlap",       m_jetEmfMuOlap = 0.9                       );    
+    declareProperty("JetTrkPtMuPt",       m_jetTrkPtMuPt = 0.8                       );    
+    declareProperty("muIDPTJetPtRatioMuOlap", m_muIDPTJetPtRatioMuOlap = 2.0         );    
+
     declareProperty("TrackSelectorTool",  m_trkseltool                               );
   }
 
@@ -753,7 +761,9 @@ namespace met {
 	      float jet_trk_N = acc_trkN.isAvailable(*jet) && this->getPV() ? acc_trkN(*jet)[this->getPV()->index()] : 0.;
 	      ATH_MSG_VERBOSE("Muon has ID pt " << mu_id_pt);
 	      ATH_MSG_VERBOSE("Jet has pt " << jet->pt() << ", trk sumpt " << jet_trk_sumpt << ", trk N " << jet_trk_N);
-	      bool jet_from_muon = mu_id_pt>1e-9 && jet_trk_sumpt>1e-9 && (jet->pt()/mu_id_pt < 2 && mu_id_pt/jet_trk_sumpt>0.8) && jet_trk_N<5;
+	    //m_jetTrkNMuOlap , m_jetWidthMuOlap, m_jetPsEMuOlap, m_jetEmfMuOlap, m_muIDPTJetPtRatioMuOlap
+
+	      bool jet_from_muon = mu_id_pt>1e-9 && jet_trk_sumpt>1e-9 && (jet->pt()/mu_id_pt < m_muIDPTJetPtRatioMuOlap && mu_id_pt/jet_trk_sumpt>m_jetTrkPtMuPt) && jet_trk_N<m_jetTrkNMuOlap;
 	      if(jet_from_muon) {
 		ATH_MSG_VERBOSE("Jet is from muon -- remove.");
 		JVT_reject = true;
@@ -769,7 +779,7 @@ namespace met {
 		jet_trk_sumpt+=mu_id_pt;
 	      float jet_trk_N = acc_trkN.isAvailable(*jet) && this->getPV() ? acc_trkN(*jet)[this->getPV()->index()] : 0.;
 	      float jet_psE = acc_sampleE(*jet)[0] + acc_sampleE(*jet)[4];
-	      bool jet_from_muon = jet_trk_sumpt>1e-9 && jet_trk_N<3 && mu_id_pt / jet_trk_sumpt > 0.8 && acc_emf(*jet)>0.9 && acc_width(*jet)<0.1 && jet_psE>2500;
+	      bool jet_from_muon = jet_trk_sumpt>1e-9 && jet_trk_N<3 && mu_id_pt / jet_trk_sumpt > m_jetTrkPtMuPt && acc_emf(*jet)>m_jetEmfMuOlap && acc_width(*jet)<m_jetWidthMuOlap && jet_psE>m_jetPsEMuOlap;
 	      ATH_MSG_VERBOSE("Muon has ID pt " << mu_id_pt);
 	      ATH_MSG_VERBOSE("Jet has trk sumpt " << jet_trk_sumpt << ", trk N " << jet_trk_N << ", PS E " << jet_psE << ", width " << acc_width(*jet) << ", emfrac " << acc_emf(*jet));
 

@@ -178,6 +178,13 @@ namespace met {
     bool m_greedyPhotons;
     bool m_veryGreedyPhotons;
 
+    int m_jetTrkNMuOlap;
+    double m_jetWidthMuOlap;
+    double m_jetPsEMuOlap;
+    double m_jetEmfMuOlap;
+    double m_jetTrkPtMuPt;
+    double m_muIDPTJetPtRatioMuOlap;
+
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     /// Default constructor:
     METMaker();
