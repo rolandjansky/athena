@@ -32,7 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
-atlas_add_component( DerivationFrameworkFlavourTag
+atlas_add_component( DerivationFrameworkFlavourTagLib
    src/*.h src/*.cxx src/components/*.cxx
    LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow
    xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces
