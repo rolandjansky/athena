@@ -254,13 +254,15 @@ CondCont<T>::ranges() const
  * correspond to the most-derived @c CondCont type.
  * The container will take ownership of this object.
  *
- * Returns true if the object was successfully inserted; false otherwise
- * (ownership of the object will be taken in either case).
+ * Returns SUCCESS if the object was successfully inserted;
+ * DUPLICATE if the object wasn't inserted because the range
+ * duplicates an existing one, and FAILURE otherwise
+ * (ownership of the object will be taken in any case).
  */
 template <typename T>
-bool CondCont<T>::typelessInsert (const EventIDRange& r,
-                                  void* obj,
-                                  const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+StatusCode CondCont<T>::typelessInsert (const EventIDRange& r,
+                                        void* obj,
+                                        const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
   return insert (r, std::unique_ptr<T> (static_cast<T*>(obj)), ctx);
 }
@@ -279,17 +281,20 @@ bool CondCont<T>::typelessInsert (const EventIDRange& r,
  * This will give an error if this is not called
  * on the most-derived @c CondCont.
  *
- * Returns true if the object was successfully inserted; false otherwise.
+ * Returns SUCCESS if the object was successfully inserted;
+ * DUPLICATE if the object wasn't inserted because the range
+ * duplicates an existing one, and FAILURE otherwise
+ * (ownership of the object will be taken in any case).
  */
 template <typename T>
-bool CondCont<T>::insert (const EventIDRange& r,
-                          std::unique_ptr<T> t,
-                          const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
+StatusCode CondCont<T>::insert (const EventIDRange& r,
+                                std::unique_ptr<T> t,
+                                const EventContext& ctx /*= Gaudi::Hive::currentContext()*/)
 {
   if (this->clid() != ClassID_traits<CondCont<T> >::ID()) {
     std::cerr << "CondCont<T>::insert error: Not most-derived class."
               << std::endl;
-    return false;
+    return StatusCode::FAILURE;
   }
 
   EventIDBase start = r.start();
@@ -299,26 +304,32 @@ bool CondCont<T>::insert (const EventIDRange& r,
   if (start.run_number() != EventIDBase::UNDEFNUM &&
       stop.run_number() != EventIDBase::UNDEFNUM)
   {
-    m_condSet_RE.emplace( RangeKey(r,
-                                   CondContBase::keyFromRunLBN (start),
-                                   CondContBase::keyFromRunLBN (stop)),
-                          std::move(t), ctx );
+    if (!m_condSet_RE.emplace( RangeKey(r,
+                                        CondContBase::keyFromRunLBN (start),
+                                        CondContBase::keyFromRunLBN (stop)),
+                               std::move(t), ctx ))
+    {
+      return CondContStatusCode::DUPLICATE;
+    }
     
   }
   else if (start.isTimeStamp() && stop.isTimeStamp()) {
-    m_condSet_clock.emplace( RangeKey(r,
-                                      CondContBase::keyFromTimestamp (start),
-                                      CondContBase::keyFromTimestamp (stop)),
-                             std::move(t), ctx );
+    if (!m_condSet_clock.emplace( RangeKey(r,
+                                           CondContBase::keyFromTimestamp (start),
+                                           CondContBase::keyFromTimestamp (stop)),
+                                  std::move(t), ctx ))
+    {
+      return CondContStatusCode::DUPLICATE;
+    }
   }
   else {
     std::cerr << "CondCont<T>::insert error: EventIDRange " << r 
               << " is neither fully RunEvent nor TimeStamp" 
               << std::endl;
-    return false;
+    return StatusCode::FAILURE;
   }
 
-  return true;
+  return StatusCode::SUCCESS;
 }
 
 

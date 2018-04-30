@@ -15,7 +15,7 @@
 
 #include "ByteStreamData/RawEvent.h" 
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "ALFA_RawEv/ALFA_RawDataContainer.h"
 #include "ALFA_RawEv/ALFA_RawDataCollection.h"

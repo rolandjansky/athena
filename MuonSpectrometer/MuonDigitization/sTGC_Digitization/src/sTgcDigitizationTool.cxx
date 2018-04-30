@@ -318,34 +318,38 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
   if(!m_thpcsTGC) {
     m_thpcsTGC = new TimedHitCollection<GenericMuonSimHit>();
   }
-  SubEventIterator iEvt = bSubEvents;
-  //loop on event and sub-events for the current bunch Xing
-  for (; iEvt!=eSubEvents; ++iEvt) {
-    StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-    PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-    ATH_MSG_VERBOSE( "SubEvt EventInfo from StoreGate " << seStore.name() << " :"
-                     << " bunch crossing : " << bunchXing );
-//                     << " time offset : " << iEvt->time()
-//                     << " event number : " << iEvt->ptr()->eventNumber()
-//                     << " run number : " << iEvt->ptr()->runNumber() );
-    const GenericMuonSimHitCollection* seHitColl(nullptr);
-    if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess()) {
-      ATH_MSG_ERROR ( "SubEvent sTGC SimHitCollection not found in StoreGate " << seStore.name() );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE ( "sTGC SimHitCollection found with " << seHitColl->size() << " hits" );
-    //Copy hit Collection
-    GenericMuonSimHitCollection* sTGCHitColl = new GenericMuonSimHitCollection("sTGCSensitiveDetector");
-    GenericMuonSimHitCollection::const_iterator i = seHitColl->begin();
-    GenericMuonSimHitCollection::const_iterator e = seHitColl->end();
-	   
-    // Read hits from this collection
-    for (; i!=e; ++i){
-      sTGCHitColl->Emplace(*i);
-    }
-    m_thpcsTGC->insert(thisEventIndex, sTGCHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_STGCHitCollList.push_back(sTGCHitColl);
+
+  typedef PileUpMergeSvc::TimedList<GenericMuonSimHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
+
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
+                                          bSubEvents, eSubEvents).isSuccess()) &&
+      hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " GenericMuonSimHitCollection with key " <<
+                    m_inputHitCollectionName << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  // Iterating over the list of collections
+  for( ; iColl != endColl; iColl++){
+
+    GenericMuonSimHitCollection *hitCollPtr = new GenericMuonSimHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+
+    ATH_MSG_DEBUG("GenericMuonSimHitCollection found with " << hitCollPtr->size() <<
+                  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+                    << " index: " << timeIndex.index()
+                    << " type: " << timeIndex.type());
+
+    m_thpcsTGC->insert(timeIndex, hitCollPtr);
+    m_STGCHitCollList.push_back(hitCollPtr);
+
   }
 
   return StatusCode::SUCCESS;

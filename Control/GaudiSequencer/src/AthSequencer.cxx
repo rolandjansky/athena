@@ -338,7 +338,14 @@ AthSequencer::beginRun()
     for (it = theAlgs->begin(); it != itend; it++) {
       Algorithm* theAlgorithm = (*it);
       if ( ! theAlgorithm->isEnabled( ) ) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
         theAlgorithm->beginRun( ).ignore();
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
       }
     }
     
@@ -361,7 +368,14 @@ AthSequencer::endRun()
     for (it = theAlgms->begin(); it != itend; it++) {
       Algorithm* theAlgorithm = (*it);
       if ( ! theAlgorithm->isEnabled( ) ) {
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
         theAlgorithm->endRun( ).ignore();
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
       }
     }
   }
