@@ -179,11 +179,10 @@ _setup_python_package( simplejson
    2f8351f6e6fe7ef25744805dfa56c0d5
    )
 
-
 # Install gcovr:
 _setup_python_package( gcovr
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/gcovr-3.3.tar.gz
-   85af705ca6e1187d2bae967d26810c55
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/gcovr-3.4.tar.gz
+   0e8aece2bd438530853e7e10968efd56
    SINGLE_VERSION )
 
 # Install scandir:
@@ -191,7 +190,6 @@ _setup_python_package( scandir
    ${CMAKE_CURRENT_SOURCE_DIR}/src/scandir-1.6.tar.gz
    0180ddb97c96cbb2d4f25d2ae11c64ac
    )
-
 
 # Clean up:
 unset( _setup_python_package )
