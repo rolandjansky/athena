@@ -88,7 +88,8 @@ UnusedOldTau = ["ipZ0SinThetaSigLeadTrk", "trkWidth2", "numEffTopoClusters", "to
 
 UnusedProperties = ["Likelihood", "SafeLikelihood", "BDTEleScore", "BDTJetScoreSigTrans", "BDTJetScoreBkgTrans",
                     "vetoFlags", "isTauFlags", "trackFlags", "trackFilterProngs", "trackFilterQuality", "trackEtaStrip", "trackPhiStrip",
-                    "TauJetVtxFraction", "LeadClusterFrac", "UpsilonCluster" ]
+                    "TauJetVtxFraction", "LeadClusterFrac", "UpsilonCluster", "ClustersMeanSecondLambda", "ClustersMeanEMProbability", 
+                    "ClustersMeanCenterLambda", "ClustersMeanPresamplerFrac", "mu", "nVtxPU", "ClustersMeanFirstEngDens", "nModifiedIsolationTracks" ]
 
 UnusedFourMom = ["ptIntermediateAxis", "etaIntermediateAxis", "phiIntermediateAxis", "mIntermediateAxis",
                  "ptTauEtaCalib", "etaTauEtaCalib", "phiTauEtaCalib", "mTauEtaCalib", "EM_TES_scale"]
@@ -352,6 +353,9 @@ TriggerHLTList = [
     ('xAOD::TrigMissingETAuxContainer#HLT_EFMissingET_Fex_2sidednoiseSupp_PUCAux.',      'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_mht',                             'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_mhtAux.',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    
+    ('xAOD::TrigMissingET#HLT_TrigEFMissingET_topocltrk_PUC',                      'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
+    ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_topocltrk_PUCAux.',               'BS ESD AODFULL AODSLIM AODVERYSLIM',                'MET'),
 
     ('xAOD::TrigMissingET#HLT_TrigEFMissingET_trkmht',                             'BS ESD AODFULL AODSLIM',                'MET'),
     ('xAOD::TrigMissingETAuxContainer#HLT_TrigEFMissingET_trkmhtAux.',                      'BS ESD AODFULL AODSLIM',                'MET'),
