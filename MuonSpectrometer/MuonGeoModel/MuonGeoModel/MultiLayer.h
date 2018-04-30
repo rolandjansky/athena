@@ -38,12 +38,6 @@ public:
    bool cutoutFullLength[5];   // true if this region is outside the cutout
    bool cutoutAtAngle;      // true if this station has cutouts at an angle; //EMS1,3 and BOS6
     
-   void setGeoVersion(int ver) {m_geo_version = ver;}
-   int getGeoVersion() {return m_geo_version;}
-   
-   private:
-   int m_geo_version;
-
 };
 } // namespace MuonGM
 
