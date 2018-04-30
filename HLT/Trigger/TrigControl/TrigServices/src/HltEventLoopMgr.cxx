@@ -2471,7 +2471,7 @@ const SOR * HltEventLoopMgr::processRunParams(const ptree & pt)
 
   // Fill SOR parameters from the ptree
   TrigSORFromPtreeHelper sorhelp{msgStream()};
-  auto sor = sorhelp.fillSOR(pt.get_child("RunParams"));
+  auto sor = sorhelp.fillSOR(pt.get_child("RunParams"), *m_eventContext);
   if(!sor)
     msgStream() << MSG::ERROR << ST_WHERE
                 << "setup of SOR from ptree failed" << endmsg;
