@@ -17,7 +17,6 @@
 
 RHadronPythiaDecayer::RHadronPythiaDecayer( const std::string s , bool usePythia8 )
  : G4VExtDecayer(s),
-   AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), "RHadronPythiaDecayer"),
    m_usePythia8(usePythia8)
 {
   // In the constructor, make a decayer instance, so that it's initialized here and not in the event loop
@@ -37,13 +36,10 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
 
   // Different approaches depending on whether we care about Pythia8 or Pythia6
   if(m_usePythia8){
-    ATH_MSG_DEBUG("Pythia8 is selected in RHadronPythiaDecayer");
-
     // Pythia8 decay the particle and import the decay products
     Pythia8ForDecays::Instance()->Py1ent(aTrack, particles);
   }
   else{
-    ATH_MSG_DEBUG("Pythia6 is selected in RHadronPythiaDecayer");
     // let Pythia6Decayer decay the particle and import the decay products
     G4ThreeVector momentum = aTrack.GetMomentum();
     CLHEP::HepLorentzVector p;
@@ -57,7 +53,7 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
     PythiaForDecays::Instance()->ImportParticles(particles);
   }
 
-  ATH_MSG_DEBUG("Decayed an RHadron with ID " << pdgEncoding << " and momentum " << aTrack.GetMomentum() << " in Pythia.  Decay products are:");
+  g4cout << "Decayed an RHadron with ID " << pdgEncoding << " and momentum " << aTrack.GetMomentum() << " in Pythia.  Decay products are:" << g4endl;
   double totalE=0.0;
   for (unsigned int i=0; i<particles.size(); ++i){
     if (particles[i]) {
@@ -65,16 +61,14 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
       totalE += particles[i]->GetTotalEnergy();
     }
     else {
-      ATH_MSG_DEBUG( i << " null pointer!" );
+      g4cout << i << " null pointer!" << g4endl;
     }
   }
 
-  ATH_MSG_DEBUG( "Total energy in was "<<etot);
-  ATH_MSG_DEBUG( "Total energy out is "<<totalE);
+  g4cout << "Total energy in was "<<etot   << g4endl;
+  g4cout << "Total energy out is "<<totalE << g4endl;
 
-  if(msgLvl(MSG::DEBUG)) {
-    dp->DumpInfo();
-  }
+  dp->DumpInfo();
 
   return dp;
 }

@@ -42,8 +42,7 @@ Pythia8ForDecays* Pythia8ForDecays::Instance() {
   return s_instance.get();
 }
 
-Pythia8ForDecays::Pythia8ForDecays() :
-  AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ), "Pythia8ForDecays")
+Pythia8ForDecays::Pythia8ForDecays()
   {
   // Pythia instance where RHadrons can decay
   std::string docstring = Pythia8_i::xmlpath();
@@ -223,16 +222,8 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   // Fraction of the RHadron mass given by the sparticle
   double fracR = mRBef / mRHad;
 
-  ATH_MSG_DEBUG("Printing some R-Hadron decay debug parameters");
-  ATH_MSG_DEBUG("... idRHad:" << idRHad);
-  ATH_MSG_DEBUG("... mRHad :" << mRHad );
-  ATH_MSG_DEBUG("... idRBef: " << idRBef );
-  ATH_MSG_DEBUG("... mRBef: " << mRBef );
-  ATH_MSG_DEBUG("... idRSq: " << idRSt );
-  ATH_MSG_DEBUG("... isTriplet: " << isTriplet );
-
   if (fracR >= 1.){
-    ATH_MSG_ERROR("R-Hadron mass is smaller than (or the same as) the constituent sparticle! Something must be wrong!");
+    g4cout << "R-Hadron mass is smaller than (or the same as) the constituent sparticle! Something must be wrong!" << g4endl;
     return;
   }
 
@@ -277,10 +268,6 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
     m_pythia->forceRHadronDecays();
   }
 
-  if(msgLvl(MSG::DEBUG)) {
-    m_pythia->event.list();
-  }
-
   ///////////////////////////////////////////////////////////////////////////
   // Add the particles from the Pythia event into the GEANT particle vector
   ///////////////////////////////////////////////////////////////////////////
@@ -293,7 +280,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
     const G4ParticleDefinition * particleDefinition = GetParticleDefinition( m_pythia->event[i].id() );
 
     if (!particleDefinition){
-      ATH_MSG_WARNING("I don't know a definition for pdgid "<<m_pythia->event[i].id()<<"! Skipping it...");
+      g4cout << "I don't know a definition for pdgid "<<m_pythia->event[i].id()<<"! Skipping it..." << g4endl;
       continue;
     }
 

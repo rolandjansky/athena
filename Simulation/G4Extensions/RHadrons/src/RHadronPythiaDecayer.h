@@ -9,13 +9,9 @@
 #include "G4Track.hh"
 #include <string>
 
-
-#include "AthenaBaseComps/AthMessaging.h"
-
-
 class G4DecayProducts;
 
-class RHadronPythiaDecayer: public G4VExtDecayer, public AthMessaging
+class RHadronPythiaDecayer: public G4VExtDecayer
 {
   public:
    RHadronPythiaDecayer( const std::string s , bool usePythia8=false );
