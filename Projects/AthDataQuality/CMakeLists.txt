@@ -33,6 +33,7 @@ set( LCG_VERSION_NUMBER 88
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
+# Extra packages to find, for a "healthy" runtime environment:
 find_package( Xrootd )
 find_package( GSL )
 find_package( Frontier_Client )
@@ -81,9 +82,13 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
 string( REPLACE "${DQM-COMMON_VERSION}" "\${DQM-COMMON_VERSION}"
    DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
+configure_file( ${CMAKE_SOURCE_DIR}/PreConfig.cmake.in
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake @ONLY )
 configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake @ONLY )
-install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
+install( FILES
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
+   ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
 
 # Set up CPack:
