@@ -466,6 +466,9 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
     elif (l1seedname in ['L1_MinBias', 'L1_MinBias_EMPTY']):
         L1Seed = getL1MinBiasSeed(l1seedname, l1itemobject)
 
+    elif (l1seedname == 'L1_RD0_UNPAIRED'):
+        L1Seed = 'L1_RD0_UNPAIRED_ISO,L1_RD0_UNPAIRED_NONISO'
+
     elif (l1seedname == 'L1_ALFA_Phys'):
         L1Seed = getL1_ALFA_Phys(l1items)
 
