@@ -24,9 +24,9 @@ if( LCG_NIGHTLY )
     set( DQM-COMMON_VERSION "99-00-00" )
     set( TDAQ_VERSION "99-00-00" )
 else()
-    set( TDAQ-COMMON_VERSION "02-06-00" )
-    set( DQM-COMMON_VERSION "01-06-00" )
-    set( TDAQ_VERSION "07-01-00" )
+    set( TDAQ-COMMON_VERSION "02-07-00" )
+    set( DQM-COMMON_VERSION "01-07-00" )
+    set( TDAQ_VERSION "08-00-00" )
 endif()
 
 set( TDAQ-COMMON_ROOT
@@ -34,7 +34,8 @@ set( TDAQ-COMMON_ROOT
 set( DQM-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
 set( TDAQ_PROJECT_NAME "tdaq")
-set( TDAQ_ROOT "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}" )
+set( TDAQ_ROOT
+   "$ENV{TDAQ_RELEASE_BASE}/${TDAQ_PROJECT_NAME}/${TDAQ_PROJECT_NAME}-${TDAQ_VERSION}" )
 
 # Find the ATLAS CMake code:
 find_package( AtlasCMake QUIET )
@@ -102,6 +103,13 @@ string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
 string( REPLACE "${DQM-COMMON_VERSION}" "\${DQM-COMMON_VERSION}"
    DQM-COMMON_ROOT "${DQM-COMMON_ROOT}" )
+
+# Temporarily add tdaq dependency to Athena build:
+string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
+   TDAQ_ROOT "${TDAQ_ROOT}" )
+string( REPLACE "${TDAQ_VERSION}" "\${TDAQ_VERSION}"
+   TDAQ_ROOT "${TDAQ_ROOT}" )
+
 configure_file( ${CMAKE_SOURCE_DIR}/PostConfig.cmake.in
    ${CMAKE_BINARY_DIR}/PostConfig.cmake @ONLY )
 install( FILES ${CMAKE_BINARY_DIR}/PostConfig.cmake
