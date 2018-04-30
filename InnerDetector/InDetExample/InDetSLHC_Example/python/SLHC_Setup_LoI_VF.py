@@ -11,8 +11,8 @@ import os
 from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
-auto_isGMX = (SLHC_Flags.doGMX()) or (GeometryFlags.StripGeoType() == "GMX")
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+auto_isGMX = (SLHC_Flags.doGMX()) or (InDetGeometryFlags.StripGeoType() == "GMX")
 
 class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags

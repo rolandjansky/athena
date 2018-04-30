@@ -116,6 +116,10 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
     m_services(0)
 {
 
+  ///*****NB SERVICE BUILDING DISABLED TEMPORARILY PENDING DEBUGGING******
+  return;
+
+
   // Envelope interface
   PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML",basics);
 
@@ -146,7 +150,7 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
 
   msg(MSG::DEBUG)<<" ************************** ServiceStaticBuilder built - END  - svcBuilderTool ****************************"<<endreq;
     
-  return;
+  //return;
 
 }
 
