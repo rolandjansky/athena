@@ -69,6 +69,13 @@ public:
      return m_tlPersObject;
   }
 
+  /// @release the persistent object from this converter
+  TL_PERS*	releaseTLPersObject() {
+     TL_PERS	*tmp = m_tlPersObject;
+     clearTLPersObject();
+     return tmp;
+  }
+
   /// @copydoc TopLevelTPCnvBase::getTLPersObjectAsVoid()
   virtual void*	getTLPersObjectAsVoid() const {
      return getTLPersObject();

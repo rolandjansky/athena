@@ -27,16 +27,10 @@
     list of elemental TP converters by invoking addMainTPConverter() 
 */
 
-/*
-MN: TODO - seems that inheritance from the main converter and also
-having it as a data member is redundant - fix?
-*/
-    
 template< class MAIN_CNV, class TL_PERS >
 class TopLevelTPConverter
    : public TopLevelTPCnvBaseP< TL_PERS >
    , public ITPCnvBase
-//   , public TPConverterBase< typename MAIN_CNV::Trans_t, TL_PERS >
 {
 public:
   typedef typename MAIN_CNV::Trans_t	TRANS;
