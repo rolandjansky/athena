@@ -50,7 +50,7 @@ class TriggerCPTools final : public asg::AsgTool {
   StatusCode initialiseGlobalTriggerEff();
   std::string mapWorkingPoints(const std::string& type);
 
-  // Tool handles for the tool
+  // Tool handles for the CP tools, need to be members here, or inaccessible to global trigger tool
   asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonTool;
   asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> m_muonToolLoose;
   std::vector<asg::AnaToolHandle<IAsgElectronEfficiencyCorrectionTool>> m_electronToolsFactory;

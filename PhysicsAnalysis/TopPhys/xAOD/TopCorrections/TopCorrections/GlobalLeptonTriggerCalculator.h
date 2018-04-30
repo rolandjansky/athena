@@ -54,21 +54,31 @@ namespace top{
       CP::SystematicSet m_systNominal;
       CP::SystematicSet m_systTrigger_ELECTRON_UP;
       CP::SystematicSet m_systTrigger_ELECTRON_DOWN;
-      CP::SystematicSet m_systTrigger_MUON_UP;
-      CP::SystematicSet m_systTrigger_MUON_DOWN;
+      CP::SystematicSet m_systTrigger_MUON_STAT_UP;
+      CP::SystematicSet m_systTrigger_MUON_STAT_DOWN;
+      CP::SystematicSet m_systTrigger_MUON_SYST_UP;
+      CP::SystematicSet m_systTrigger_MUON_SYST_DOWN;
 
       ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSF;
       ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerSFLoose;
 
       std::string m_decor_triggerSF;
       std::string m_decor_triggerSF_loose;
-      SG::AuxElement::Accessor<int> m_selectedLepton;
-      SG::AuxElement::Accessor<int> m_selectedLeptonLoose;
+      std::string m_decor_triggerEffMC;
+      std::string m_decor_triggerEffMC_loose;
+      std::string m_decor_triggerEffData;
+      std::string m_decor_triggerEffData_loose;
+
+      // Accessor method to centralise the checks to leptons across functions
+      SG::AuxElement::Accessor<char> m_selectedLepton;
+      SG::AuxElement::Accessor<char> m_selectedLeptonLoose;
 
       ///-- Functions to handle different configurations --///
       StatusCode executeNominalVariations();
-      StatusCode exectuteElectronSystematics();
+      StatusCode executeElectronSystematics();
       StatusCode executeMuonSystematics();
+      StatusCode decorateEventInfo(std::string, double);
+      void Print(double, double, double);
 
   };
 } // namespace

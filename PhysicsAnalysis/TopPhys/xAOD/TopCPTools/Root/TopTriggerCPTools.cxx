@@ -41,7 +41,7 @@ TriggerCPTools::TriggerCPTools(const std::string& name) :
   declareProperty( "GlobalTriggerEffTool", m_globalTriggerEffTool );
   declareProperty( "GlobalTriggerEffToolLoose", m_globalTriggerEffToolLoose );
 
-  m_muonTool = asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors/MuonTrigEff");
+  m_muonTool      = asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors/MuonTrigEff");
   m_muonToolLoose = asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors/MuonTrigEffLoose");
 
 }
@@ -120,17 +120,21 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   
   // 1. Get trigger strings
   // eg...
-  std::map<std::string,std::string> triggerCombination;
-  std::map<std::string,std::string> legsPerKey;
+  std::map<std::string,std::string> triggerCombination, triggerCombinationLoose;
+  std::vector<std::string> electronSystematics, muonSystematics, electronToolNames, muonToolNames;
 
   top::ConfigurationSettings* configSettings = top::ConfigurationSettings::get();
-  std::string electron_triggers = configSettings->value("ElectronTriggers");
-  std::string muon_triggers     = configSettings->value("MuonTriggers");
-  std::vector<std::string> e_trigs, m_trigs;
+  std::string electron_triggers      = configSettings->value("ElectronTriggers");
+  std::string muon_triggers          = configSettings->value("MuonTriggers");
+  std::string electron_triggersLoose = configSettings->value("ElectronTriggersLoose");
+  std::string muon_triggersLoose     = configSettings->value("MuonTriggersLoose");
+  std::vector<std::string> e_trigs, m_trigs, e_trigsLoose, m_trigsLoose;
   boost::split(e_trigs, electron_triggers, boost::is_any_of(" "));
   boost::split(m_trigs, muon_triggers,     boost::is_any_of(" "));
+  boost::split(e_trigsLoose, electron_triggersLoose, boost::is_any_of(" "));
+  boost::split(m_trigsLoose, muon_triggersLoose,     boost::is_any_of(" "));
 
-  std::map<std::string, std::vector<std::string> > electronTriggerCombination, muonTriggerCombination;
+  std::map<std::string, std::vector<std::string> > electronTriggerCombination, muonTriggerCombination, electronTriggerCombinationLoose, muonTriggerCombinationLoose;
   for(auto& t : e_trigs){
     std::vector<std::string> tmp, tmp1;
     boost::split(tmp, t, boost::is_any_of("@"));
@@ -143,6 +147,20 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
     boost::split(tmp, t, boost::is_any_of("@"));
     boost::split(tmp1, tmp.at(1), boost::is_any_of(","));
     muonTriggerCombination[tmp.at(0)] = tmp1;
+  }
+
+  for(auto& t : e_trigsLoose){
+    std::vector<std::string> tmp, tmp1;
+    boost::split(tmp, t, boost::is_any_of("@"));
+    boost::split(tmp1, tmp.at(1), boost::is_any_of(","));
+    electronTriggerCombinationLoose[tmp.at(0)] = tmp1;
+  }
+
+  for(auto& t : m_trigsLoose){
+    std::vector<std::string> tmp, tmp1;
+    boost::split(tmp, t, boost::is_any_of("@"));
+    boost::split(tmp1, tmp.at(1), boost::is_any_of(","));
+    muonTriggerCombinationLoose[tmp.at(0)] = tmp1;
   }
 
   // Get quality
@@ -160,8 +178,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   ToolHandleArray<IAsgElectronEfficiencyCorrectionTool> electronEffTools, electronSFTools, electronEffToolsLoose, electronSFToolsLoose;
   std::map<std::string,std::string> legsPerTool, legsPerToolLoose;
   int nTools = 0;
-  // Loop over the triggers found (electrons)
-  //  for(auto& trigKey : e_trigs){
+  // Loop over the triggers found (electrons - tight)
   for(auto& y_t : electronTriggerCombination){
     std::string year = y_t.first;
     for(auto& trigKey : y_t.second){
@@ -186,7 +203,22 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	  std::string name = handles[handles.size()-1].name();
 	  legsPerTool[name] = trigKey;
 	  ATH_MSG_INFO("TIGHT " << name << " -> " << trigKey);
-	  
+	  electronToolNames.push_back(name);
+	  // Special - Record the systematic names
+	  if(electronSystematics.size() == 0){
+	    for(auto& s : handles[handles.size()-1]->affectingSystematics().getBaseNames() ) electronSystematics.push_back(s);
+	  }
+	}
+    }
+  }
+  nTools = 0;
+  // Loop over the triggers found (electrons - loose) 
+  for(auto& y_t : electronTriggerCombinationLoose){
+    std::string year = y_t.first;
+    for(auto& trigKey : y_t.second){
+      nTools++;
+      for(int j=0;j<2;++j) // one tool instance for efficiencies, another for scale factors
+	{	  
 	  ATH_MSG_INFO("LOOSE " << year << " " << trigKey << " " << electronIDLoose << " " << electronIsolationLoose );
 	  auto tLoose = m_electronToolsFactoryLoose.emplace(m_electronToolsFactoryLoose.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEffLoose_"+std::to_string(j)+"_"+std::to_string(nTools));
 	  top::check(tLoose->setProperty("MapFilePath", "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/map1.txt"), "Fail");
@@ -202,13 +234,13 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	  // Using syntax from examples
 	  auto& handlesLoose = j? electronSFToolsLoose : electronEffToolsLoose;
 	  handlesLoose.push_back(tLoose->getHandle());
-	  name = handlesLoose[handlesLoose.size()-1].name();
+	  std::string name = handlesLoose[handlesLoose.size()-1].name();
 	  legsPerToolLoose[name] = trigKey;
           ATH_MSG_INFO("LOOSE " << name << " -> " << trigKey);
-	  
+	  electronToolNames.push_back(name);
 	}
     }
-  } 
+  }
 
   // Create muon trigger SF tool 
   ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
@@ -218,22 +250,22 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
     top::check(m_muonTool.setProperty("MuonQuality", muonQuality), "Failed to set MuonQuality");
   top::check(m_muonTool.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF"); 
   top::check(m_muonTool.initialize(), "Failed to initialise");
-  ATH_MSG_INFO(muonTools.size());
   muonTools.push_back(m_muonTool.getHandle());
   ATH_MSG_INFO("Muon tool name (tight) " << muonTools[muonTools.size()-1].name());
-  ATH_MSG_INFO(muonTools.size());
+  muonToolNames.push_back(muonTools[muonTools.size()-1].name());
+  // Special - Get muon systematics
+  for(auto& s: muonTools[muonTools.size()-1]->affectingSystematics().getBaseNames()) muonSystematics.push_back(s);
  
   if(muonQualityLoose != "None")
     top::check(m_muonToolLoose.setProperty("MuonQuality", muonQualityLoose), "Failed to set MuonQuality");
   top::check(m_muonToolLoose.setProperty("AllowZeroSF", true), "Failed to set AllowZeroSF");
   top::check(m_muonToolLoose.initialize(), "Failed to initialise");
-  ATH_MSG_INFO(muonToolsLoose.size());
   muonToolsLoose.push_back(m_muonToolLoose.getHandle());
-  ATH_MSG_INFO(muonToolsLoose.size());
   ATH_MSG_INFO("Muon tool name (loose) " << muonToolsLoose[muonToolsLoose.size()-1].name());
-  
+  muonToolNames.push_back(muonToolsLoose[muonToolsLoose.size()-1].name());
+
   // Construct the trigger combinations from  the electron and muon trigger combinations
-  // Electron triggers
+  // Electron triggers (tight)
   for(auto& key : electronTriggerCombination){
     if(triggerCombination.find(key.first) == triggerCombination.end()){
       triggerCombination[key.first] = "";
@@ -243,7 +275,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
     }
     triggerCombination[key.first] += boost::algorithm::join(key.second, " || ");
   }
-  // Muon triggers
+  // Muon triggers (tight)
   for(auto& key : muonTriggerCombination){
     if(triggerCombination.find(key.first) == triggerCombination.end()){
       triggerCombination[key.first] = "";
@@ -254,10 +286,32 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
     triggerCombination[key.first] += boost::algorithm::join(key.second, " || ");
   }
 
-  for(auto kv: triggerCombination) ATH_MSG_INFO("TRIG: " << kv.first << " -> " << kv.second);
+  // Electron triggers (loose)                                                       
+  for(auto& key : electronTriggerCombinationLoose){
+    if(triggerCombinationLoose.find(key.first) == triggerCombinationLoose.end()){
+      triggerCombinationLoose[key.first] = "";
+    }
+    else{
+      triggerCombinationLoose[key.first] += " || ";
+    }
+    triggerCombinationLoose[key.first] += boost::algorithm::join(key.second, " || ");
+  }
+  // Muon triggers (loose)                                                   
+  for(auto& key : muonTriggerCombinationLoose){
+    if(triggerCombinationLoose.find(key.first) == triggerCombinationLoose.end()){
+      triggerCombinationLoose[key.first] = "";
+    }
+    else{
+      triggerCombinationLoose[key.first] += " || ";
+    }
+    triggerCombinationLoose[key.first] += boost::algorithm::join(key.second, " || ");
+  }
+
+  // Print out what we configured
+  for(auto kv: triggerCombination)      ATH_MSG_DEBUG("TRIG (TIGHT): " << kv.first << " -> " << kv.second);
+  for(auto kv: triggerCombinationLoose) ATH_MSG_DEBUG("TRIG (LOOSE): " << kv.first << " -> " << kv.second);
 
   // Make the global trigger tool
-  //asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> globalTriggerEffTool("TrigGlobalEfficiencyCorrectionTool/TrigGlobal");
   TrigGlobalEfficiencyCorrectionTool* globalTriggerEffTool =  new TrigGlobalEfficiencyCorrectionTool("TrigGlobalEfficiencyCorrectionTool::TrigGlobal");
   top::check(globalTriggerEffTool->setProperty("ElectronEfficiencyTools", electronEffTools), "");
   top::check(globalTriggerEffTool->setProperty("ElectronScaleFactorTools", electronSFTools), "");
@@ -268,16 +322,19 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   top::check(globalTriggerEffTool->initialize(), "Failed to initalise");
   m_globalTriggerEffTool = globalTriggerEffTool;
 
-  //asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> globalTriggerEffToolLoose("TrigGlobalEfficiencyCorrectionTool/TrigGlobalLoose");
   TrigGlobalEfficiencyCorrectionTool* globalTriggerEffToolLoose =  new TrigGlobalEfficiencyCorrectionTool("TrigGlobalEfficiencyCorrectionTool::TrigGlobalLoose");
   top::check(globalTriggerEffToolLoose->setProperty("ElectronEfficiencyTools", electronEffToolsLoose), "");
   top::check(globalTriggerEffToolLoose->setProperty("ElectronScaleFactorTools", electronSFToolsLoose), "");
   top::check(globalTriggerEffToolLoose->setProperty("MuonTools", muonToolsLoose), "");
   top::check(globalTriggerEffToolLoose->setProperty("ListOfLegsPerTool", legsPerToolLoose), "");
-  top::check(globalTriggerEffToolLoose->setProperty("TriggerCombination", triggerCombination), "");
+  top::check(globalTriggerEffToolLoose->setProperty("TriggerCombination", triggerCombinationLoose), "");
   top::check(globalTriggerEffToolLoose->setProperty("OutputLevel", MSG::DEBUG), "");
   top::check(globalTriggerEffToolLoose->initialize(), "Failed to initalise");
   m_globalTriggerEffToolLoose = globalTriggerEffToolLoose;
+
+  // Set information about systematics inside TopConfig
+  m_config->setGlobalTriggerConfiguration(electronSystematics, muonSystematics, electronToolNames, muonToolNames);
+
   return StatusCode::SUCCESS;
 }
 
