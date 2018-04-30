@@ -3419,6 +3419,8 @@ def setupMenu():
         ['mb_sp_L1RD0_UNPAIRED_ISO',     'L1_RD0_UNPAIRED_ISO', [], ['Background'], ["RATE:Calibration", "BW:Other"], -1],
         ['mb_sp_ncb_L1RD0_UNPAIRED_ISO', 'L1_RD0_UNPAIRED_ISO', [], ['Background'], ["RATE:Calibration", "BW:Other"], -1], #ATR-13982
         ['mb_sp_blayer_L1RD0_UNPAIRED_ISO', 'L1_RD0_UNPAIRED_ISO', [], ['Background'], ["RATE:Calibration", "BW:Other"], -1], #ATR-14301
+        ['mb_sp_ncb_L1RD0_UNPAIRED', 'L1_RD0_UNPAIRED', [], ['Background'], ["RATE:Calibration", "BW:Other"], -1], #ATR-17573
+        ['mb_sp_blayer_L1RD0_UNPAIRED', 'L1_RD0_UNPAIRED', [], ['Background'], ["RATE:Calibration", "BW:Other"], -1], #ATR-17573
         ['mb_sptrk_L1RD0_EMPTY',         'L1_RD0_EMPTY', [], ['MinBias'], ["RATE:Cosmic_MinBias", "BW:MinBias"], -1],
         ['mb_sptrk_noisesup',            'L1_RD0_FILLED', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],
         ['mb_sptrk_noisesup_L1RD0_UNPAIRED_ISO',    'L1_RD0_UNPAIRED_ISO', [], ['MinBias'], ["RATE:MinBias", "BW:MinBias"], -1],

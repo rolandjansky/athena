@@ -1065,6 +1065,7 @@ class ItemDef:
         LVL1MenuItem('L1_RD0_FILLED_OVERLAY' ).setLogic( RNDM0 & physcond           ).setTriggerType(TT.zerobs)  # noqa: F821
         LVL1MenuItem('L1_RD0_EMPTY'          ).setLogic( RNDM0 & cosmiccond         ).setTriggerType(TT.rand)    # noqa: F821
         LVL1MenuItem('L1_RD0_UNPAIRED_ISO'   ).setLogic( RNDM0 & unpaired_isocond   ).setTriggerType(TT.rand)    # noqa: F821
+        LVL1MenuItem('L1_RD0_UNPAIRED_NONISO'   ).setLogic( RNDM0 & unpaired_nonisocond   ).setTriggerType(TT.rand)    # noqa: F821
         LVL1MenuItem('L1_RD0_FIRSTEMPTY'     ).setLogic( RNDM0 & firstempty         ).setTriggerType(TT.rand)    # noqa: F821
         LVL1MenuItem('L1_RD0_BGRP9'          ).setLogic( RNDM0 & bgrp9cond          ).setTriggerType(TT.rand)    # noqa: F821
         LVL1MenuItem('L1_RD0_BGRP10'         ).setLogic( RNDM0 & alfacalib          ).setTriggerType(TT.rand)    # noqa: F821
