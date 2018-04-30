@@ -20,6 +20,16 @@ class PowhegV1(PowhegBase):
         super(PowhegV1, self).__init__(base_directory, "POWHEG-BOX", executable_name, is_reweightable=False, **kwargs)
 
     @property
+    def default_PDFs(self):
+        """! Default PDFs for this process."""
+        return 260000 # Use NNPDF30_nlo_as_0118 central value
+
+    @property
+    def default_scales(self):
+        """! Default scale variations for this process."""
+        return [1.0, 1.0] # Do not set any scale variations
+
+    @property
     def files_for_cleanup(self):
         """! Wildcarded list of files created by this process that can be deleted."""
         return [

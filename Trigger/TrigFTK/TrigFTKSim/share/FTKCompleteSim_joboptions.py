@@ -279,7 +279,8 @@ for reg in xrange(0,8) :
 FTKTrackFitter.Chi2Cut         = 17 #Default 17
 FTKTrackFitter.Chi2Cut_Maj     = 14 #Default 0
 FTKTrackFitter.Chi2Cut_VetoMaj = 0 #Default 0
-FTKTrackFitter.Chi2DofCut      = 4 #Default 0
+FTKTrackFitter.Chi2DofCutAux   = 4 #Default 0
+FTKTrackFitter.Chi2DofCutSSB   = 4 #Default 0
 
 FTKTrackFitter.NCoords        = 10 # 10 for 7L, 11 for 8L, 14 for 11L
 FTKTrackFitter.HitWarrior     = 2  #Default 2
