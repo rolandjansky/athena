@@ -14,7 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
 
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree )
+find_package( ROOT COMPONENTS Core Tree RIO)
 find_package( tdaq-common COMPONENTS DataReader )
 
 # tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
@@ -25,7 +25,7 @@ atlas_add_executable( PoolFilePeeker
 		      src/PoolFilePeeker.cxx
 		      src/FileMetaData.cxx 
 		      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-                      LINK_LIBRARIES  ${ROOT_LIBRARIES}  xAODEventInfo EventTPCnv EventTPCnvDict)
+                      LINK_LIBRARIES  ${ROOT_LIBRARIES})#  xAODEventInfo EventTPCnv EventTPCnvDict)
 
 
 atlas_add_executable( BSFilePeeker 

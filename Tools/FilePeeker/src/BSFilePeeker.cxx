@@ -39,6 +39,7 @@ bool BSFilePeeker::extractValue(const std::string& source, const std::string& ke
 
 BSFilePeeker::BSFilePeeker(const std::string& fName) {
 
+  m_fmd.m_fileName=fName;
   DataReader *pDR = pickDataReader(fName);
 
   if(!pDR) {
@@ -61,6 +62,10 @@ BSFilePeeker::BSFilePeeker(const std::string& fName) {
 
   const unsigned bt=pDR->beamType();
 
+  //Accoring to info from Rainer and Guiseppe the beam type is
+  //0: No beam
+  //1: protons
+  //2: ions
   switch (bt) {
   case 0:
     m_fmd.m_beamType="cosmics";
@@ -80,6 +85,7 @@ BSFilePeeker::BSFilePeeker(const std::string& fName) {
   }
 
   m_fmd.m_valid=true;
+  delete pDR;
 }
 
 
@@ -103,25 +109,32 @@ int main(int argc, char** argv) {
     }
   }
 
-  if (optind+1!=argc) {
-    std::cerr << "Expected exactly one file name as parameter" << std::endl;
-    return -1;
-  }
 
-  const char* filename=argv[optind];
-  if (verbose) std::cout << "Checking file " << filename << std::endl;
+ const int nfiles=argc-optind;
+ if (nfiles<=0) {
+   std::cerr << "Expected at least one file name as parameter" << std::endl;
+   return -1;
+ }
 
-  BSFilePeeker bsfile(filename);
+  
+ std::vector<FileMetaData> output;
 
-  if (kvDump) {
-    bsfile.get().keyValueDump();
-  }
-  else {
-    bsfile.get().dump();
-  }
+ for (int iFile=optind;iFile<argc;++iFile) {
+   const std::string filename(argv[iFile]);
+   if (verbose) std::cout << "Checking file " << filename << std::endl;
+    
+   BSFilePeeker bsfp(filename);
 
-  if (bsfile.get().m_valid) 
-    return 0;
-  else
-    return -1;
+   output.push_back(bsfp.get());
+ }//end loop over input file names
+
+
+ if (kvDump) {
+   for (const auto& o : output) o.keyValueDump();
+ }
+ else {
+   for (const auto& o : output) o.dump();
+ }
+ 
+ return 0;
 }
