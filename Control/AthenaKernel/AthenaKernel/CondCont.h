@@ -20,6 +20,7 @@
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
 #include "GaudiKernel/DataObjID.h"
+#include "GaudiKernel/StatusCode.h"
 #include "boost/preprocessor/facilities/overload.hpp"
 
 #include <iostream>
@@ -37,9 +38,54 @@ namespace Athena {
 }
 
 
+/**
+ * @brief Define extended status codes used by CondCont.
+ *        We add DUPLICATE.
+ */
+enum class CondContStatusCode : StatusCode::code_t
+{
+  FAILURE           = 0,
+  SUCCESS           = 1,
+  RECOVERABLE       = 2,
+
+  // Attempt to insert an item in a CondCont with a range duplicating
+  // an existing one.  The original contents of the container are unchanged,
+  // and the new item has been deleted.
+  // This is classified as Success.
+  DUPLICATE         = 10
+};
+STATUSCODE_ENUM_DECL (CondContStatusCode)
+
+
 class CondContBase
 {
 public:
+  /**
+   * @brief Status code category for ContCont.
+   *        This adds a new code, DUPLICATE, which is classified
+   *        as success.
+   */
+  class Category : public StatusCode::Category
+  {
+  public:
+    typedef StatusCode::code_t code_t;
+
+    /// Name of the category
+    virtual const char* name() const override;
+
+    /// Description for code within this category.
+    virtual std::string message (code_t code) const override;
+
+    /// Is code considered success?
+    virtual bool isSuccess (code_t code) const override;
+
+    /// Helper to test whether a code is DUPLICATE.
+    static bool isDuplicate (code_t code);
+    /// Helper to test whether a code is DUPLICATE.
+    static bool isDuplicate (StatusCode code);
+  };
+
+
   /// Payload type held by this class.
   /// Need to define this here for @c cast() to work properly.
   typedef void Payload;
@@ -102,12 +148,14 @@ public:
    * correspond to the most-derived @c CondCont type.
    * The container will take ownership of this object.
    *
-   * Returns true if the object was successfully inserted; false otherwise
-   * (ownership of the object will be taken in either case).
+   * Returns SUCCESS if the object was successfully inserted;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
    */
-  virtual bool typelessInsert (const EventIDRange& r,
-                               void* obj,
-                               const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+  virtual StatusCode typelessInsert (const EventIDRange& r,
+                                     void* obj,
+                                     const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
 
 
   /**
@@ -418,12 +466,14 @@ public:
    * correspond to the most-derived @c CondCont type.
    * The container will take ownership of this object.
    *
-   * Returns true if the object was successfully inserted; false otherwise
-   * (ownership of the object will be taken in either case).
+   * Returns SUCCESS if the object was successfully inserted;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
    */
-  virtual bool typelessInsert (const EventIDRange& r,
-                               void* obj,
-                               const EventContext& ctx = Gaudi::Hive::currentContext()) override;
+  virtual StatusCode typelessInsert (const EventIDRange& r,
+                                     void* obj,
+                                     const EventContext& ctx = Gaudi::Hive::currentContext()) override;
 
 
   /** 
@@ -436,11 +486,14 @@ public:
    * This will give an error if this is not called
    * on the most-derived @c CondCont.
    *
-   * Returns true if the object was successfully inserted; false otherwise.
+   * Returns SUCCESS if the object was successfully inserted;
+   * DUPLICATE if the object wasn't inserted because the range
+   * duplicates an existing one, and FAILURE otherwise
+   * (ownership of the object will be taken in any case).
    */
-  bool insert (const EventIDRange& r,
-               std::unique_ptr<T> obj,
-               const EventContext& ctx = Gaudi::Hive::currentContext());
+  StatusCode insert (const EventIDRange& r,
+                     std::unique_ptr<T> obj,
+                     const EventContext& ctx = Gaudi::Hive::currentContext());
 
 
   /** 
