@@ -11,6 +11,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include <iostream>
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -212,10 +213,14 @@ double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> v
     if( AbsPtInv > AbsPtInvMax ) AbsPtInv = AbsPtInvMax;
       
     const double* vpar;
-    int spReg = whichECRegion(AbsEta,phi);
-
-    if     ( spReg==1 ) { vpar = vparECA; }
-      else if( spReg==2 ) { vpar = vparECB; }
+//koko
+    //int spReg = whichECRegion(AbsEta,phi);
+    xAOD::L2MuonParameters::ECRegions reg = xAOD::L2MuonParameters::whichECRegion(AbsEta,phi);
+    std::cout << "Esumi message2 " << std::endl;
+//    if     ( spReg==1 ) { vpar = vparECA; }
+//      else if( spReg==2 ) { vpar = vparECB; }
+    if     ( reg ==  xAOD::L2MuonParameters::ECRegions::WeakBFieldA ) { vpar = vparECA; }
+      else if( reg == xAOD::L2MuonParameters::ECRegions::WeakBFieldB ) { vpar = vparECB; }
       else {
         if     ( AbsEta < 1.20) { vpar = vparEC1; }
         else if( AbsEta < 1.35) { vpar = vparEC2; }
