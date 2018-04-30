@@ -545,10 +545,11 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="72" partition="1" name="L1_DR-MU10TAU12I_TAU12I-J25" complex_deadtime="0" definition="(0DR28-MU10ab-TAU12abi[x1]&amp;1DISAMB-TAU12abi-J25ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="72" partition="1" name="L1_DR-MU10TAU12I_TAU12I-J25" complex_deadtime="0" definition="(0DR28-MU10ab-TAU12abi[x1]&amp;1DISAMB-TAU12abi-J25ab[x1]&amp;MU10[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="0DR28-MU10ab-TAU12abi_x1" triggerthreshold="0DR28-MU10ab-TAU12abi"/>
         <TriggerCondition multi="1" name="1DISAMB-TAU12abi-J25ab_x1" triggerthreshold="1DISAMB-TAU12abi-J25ab"/>
+        <TriggerCondition multi="1" name="MU10_x1" triggerthreshold="MU10"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1856,9 +1857,10 @@
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="243" partition="1" name="L1_BTAG-MU6J20" complex_deadtime="0" definition="(0DR04-MU6ab-CJ20ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="243" partition="1" name="L1_BTAG-MU6J20" complex_deadtime="0" definition="(0DR04-MU6ab-CJ20ab[x1]&amp;MU6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="0DR04-MU6ab-CJ20ab_x1" triggerthreshold="0DR04-MU6ab-CJ20ab"/>
+        <TriggerCondition multi="1" name="MU6_x1" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1888,10 +1890,11 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="248" partition="1" name="L1_3J15_BTAG-MU6J25" complex_deadtime="0" definition="(J15[x3]&amp;0DR04-MU6ab-CJ25ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="248" partition="1" name="L1_3J15_BTAG-MU6J25" complex_deadtime="0" definition="(J15[x3]&amp;0DR04-MU6ab-CJ25ab[x1]&amp;MU6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="3" name="J15_x3" triggerthreshold="J15"/>
         <TriggerCondition multi="1" name="0DR04-MU6ab-CJ25ab_x1" triggerthreshold="0DR04-MU6ab-CJ25ab"/>
+        <TriggerCondition multi="1" name="MU6_x1" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2222,40 +2225,45 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="299" partition="1" name="L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4" complex_deadtime="0" definition="(8INVM15-MU6ab-MU4ab[x1]&amp;0DR22-MU6ab-MU4ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="299" partition="1" name="L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4" complex_deadtime="0" definition="(8INVM15-MU6ab-MU4ab[x1]&amp;0DR22-MU6ab-MU4ab[x1]&amp;MU6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="8INVM15-MU6ab-MU4ab_x1" triggerthreshold="8INVM15-MU6ab-MU4ab"/>
         <TriggerCondition multi="1" name="0DR22-MU6ab-MU4ab_x1" triggerthreshold="0DR22-MU6ab-MU4ab"/>
+        <TriggerCondition multi="1" name="MU6_x1" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="300" partition="1" name="L1_BPH-2M9-2MU6_BPH-2DR15-2MU6" complex_deadtime="0" definition="(2INVM9-2MU6ab[x1]&amp;2DR15-2MU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="300" partition="1" name="L1_BPH-2M9-2MU6_BPH-2DR15-2MU6" complex_deadtime="0" definition="(2INVM9-2MU6ab[x1]&amp;2DR15-2MU6ab[x1]&amp;MU6[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="2INVM9-2MU6ab_x1" triggerthreshold="2INVM9-2MU6ab"/>
         <TriggerCondition multi="1" name="2DR15-2MU6ab_x1" triggerthreshold="2DR15-2MU6ab"/>
+        <TriggerCondition multi="2" name="MU6_x2" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="301" partition="1" name="L1_BPH-8M15-2MU6_BPH-0DR22-2MU6" complex_deadtime="0" definition="(8INVM15-2MU6ab[x1]&amp;0DR22-2MU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="301" partition="1" name="L1_BPH-8M15-2MU6_BPH-0DR22-2MU6" complex_deadtime="0" definition="(8INVM15-2MU6ab[x1]&amp;0DR22-2MU6ab[x1]&amp;MU6[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="8INVM15-2MU6ab_x1" triggerthreshold="8INVM15-2MU6ab"/>
         <TriggerCondition multi="1" name="0DR22-2MU6ab_x1" triggerthreshold="0DR22-2MU6ab"/>
+        <TriggerCondition multi="2" name="MU6_x2" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="302" partition="1" name="L1_BPH-2M9-2MU6" complex_deadtime="0" definition="(2INVM9-2MU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="302" partition="1" name="L1_BPH-2M9-2MU6" complex_deadtime="0" definition="(2INVM9-2MU6ab[x1]&amp;MU6[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="2INVM9-2MU6ab_x1" triggerthreshold="2INVM9-2MU6ab"/>
+        <TriggerCondition multi="2" name="MU6_x2" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="303" partition="1" name="L1_BPH-8M15-2MU6" complex_deadtime="0" definition="(8INVM15-2MU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="303" partition="1" name="L1_BPH-8M15-2MU6" complex_deadtime="0" definition="(8INVM15-2MU6ab[x1]&amp;MU6[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="8INVM15-2MU6ab_x1" triggerthreshold="8INVM15-2MU6ab"/>
+        <TriggerCondition multi="2" name="MU6_x2" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2330,24 +2338,28 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="318" partition="1" name="L1_DY-BOX-2MU6" complex_deadtime="0" definition="(5DETA99-5DPHI99-2MU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="318" partition="1" name="L1_DY-BOX-2MU6" complex_deadtime="0" definition="(5DETA99-5DPHI99-2MU6ab[x1]&amp;MU6[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="5DETA99-5DPHI99-2MU6ab_x1" triggerthreshold="5DETA99-5DPHI99-2MU6ab"/>
+        <TriggerCondition multi="2" name="MU6_x2" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="319" partition="1" name="L1_LFV-MU" complex_deadtime="0" definition="(0DR10-MU10ab-MU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="319" partition="1" name="L1_LFV-MU" complex_deadtime="0" definition="(0DR10-MU10ab-MU6ab[x1]&amp;MU10[x1]&amp;MU6[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="0DR10-MU10ab-MU6ab_x1" triggerthreshold="0DR10-MU10ab-MU6ab"/>
+        <TriggerCondition multi="1" name="MU10_x1" triggerthreshold="MU10"/>
+        <TriggerCondition multi="2" name="MU6_x2" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="320" partition="1" name="L1_LFV-EM8I" complex_deadtime="0" definition="(0DETA04-EM8abi-MU10ab[x1]&amp;0DPHI03-EM8abi-MU10ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
+    <TriggerItem ctpid="320" partition="1" name="L1_LFV-EM8I" complex_deadtime="0" definition="(0DETA04-EM8abi-MU10ab[x1]&amp;0DPHI03-EM8abi-MU10ab[x1]&amp;MU10[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
       <AND>
         <TriggerCondition multi="1" name="0DETA04-EM8abi-MU10ab_x1" triggerthreshold="0DETA04-EM8abi-MU10ab"/>
         <TriggerCondition multi="1" name="0DPHI03-EM8abi-MU10ab_x1" triggerthreshold="0DPHI03-EM8abi-MU10ab"/>
+        <TriggerCondition multi="1" name="MU10_x1" triggerthreshold="MU10"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2405,9 +2417,10 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="332" partition="1" name="L1_LFV-MU6" complex_deadtime="0" definition="(0DR15-2MU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="332" partition="1" name="L1_LFV-MU6" complex_deadtime="0" definition="(0DR15-2MU6ab[x1]&amp;MU6[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="0DR15-2MU6ab_x1" triggerthreshold="0DR15-2MU6ab"/>
+        <TriggerCondition multi="2" name="MU6_x2" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2595,10 +2608,11 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="364" partition="1" name="L1_LFV-MU11" complex_deadtime="0" definition="(0DR15-2MU6ab[x1]&amp;MU11[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="364" partition="1" name="L1_LFV-MU11" complex_deadtime="0" definition="(0DR15-2MU6ab[x1]&amp;MU11[x1]&amp;MU6[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="0DR15-2MU6ab_x1" triggerthreshold="0DR15-2MU6ab"/>
         <TriggerCondition multi="1" name="MU11_x1" triggerthreshold="MU11"/>
+        <TriggerCondition multi="2" name="MU6_x2" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -3027,10 +3041,11 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="427" partition="1" name="L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4" complex_deadtime="0" definition="(2INVM9-MU6ab-MU4ab[x1]&amp;0DR15-MU6ab-MU4ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="427" partition="1" name="L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4" complex_deadtime="0" definition="(2INVM9-MU6ab-MU4ab[x1]&amp;0DR15-MU6ab-MU4ab[x1]&amp;MU6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="2INVM9-MU6ab-MU4ab_x1" triggerthreshold="2INVM9-MU6ab-MU4ab"/>
         <TriggerCondition multi="1" name="0DR15-MU6ab-MU4ab_x1" triggerthreshold="0DR15-MU6ab-MU4ab"/>
+        <TriggerCondition multi="1" name="MU6_x1" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -3555,21 +3570,23 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="487" partition="1" name="L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B" complex_deadtime="0" definition="(8INVM15-MU6ab-MU4ab[x1]&amp;0DR22-MU6ab-MU4ab[x1]&amp;MULT-CMU4ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="487" partition="1" name="L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B" complex_deadtime="0" definition="(8INVM15-MU6ab-MU4ab[x1]&amp;0DR22-MU6ab-MU4ab[x1]&amp;MULT-CMU4ab[x1]&amp;MU6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="8INVM15-MU6ab-MU4ab_x1" triggerthreshold="8INVM15-MU6ab-MU4ab"/>
         <TriggerCondition multi="1" name="0DR22-MU6ab-MU4ab_x1" triggerthreshold="0DR22-MU6ab-MU4ab"/>
         <TriggerCondition multi="1" name="MULT-CMU4ab_x1" triggerthreshold="MULT-CMU4ab"/>
+        <TriggerCondition multi="1" name="MU6_x1" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="488" partition="1" name="L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO" complex_deadtime="0" definition="(8INVM15-MU6ab-MU4ab[x1]&amp;0DR22-MU6ab-MU4ab[x1]&amp;MULT-CMU4ab[x2]&amp;MULT-CMU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="488" partition="1" name="L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO" complex_deadtime="0" definition="(8INVM15-MU6ab-MU4ab[x1]&amp;0DR22-MU6ab-MU4ab[x1]&amp;MULT-CMU4ab[x2]&amp;MULT-CMU6ab[x1]&amp;MU6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="8INVM15-MU6ab-MU4ab_x1" triggerthreshold="8INVM15-MU6ab-MU4ab"/>
         <TriggerCondition multi="1" name="0DR22-MU6ab-MU4ab_x1" triggerthreshold="0DR22-MU6ab-MU4ab"/>
         <TriggerCondition multi="2" name="MULT-CMU4ab_x2" triggerthreshold="MULT-CMU4ab"/>
         <TriggerCondition multi="1" name="MULT-CMU6ab_x1" triggerthreshold="MULT-CMU6ab"/>
+        <TriggerCondition multi="1" name="MU6_x1" triggerthreshold="MU6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
