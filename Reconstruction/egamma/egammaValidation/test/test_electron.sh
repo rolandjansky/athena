@@ -35,7 +35,6 @@ athena -c "particleType='electron'" egamma_art_checker_joboptions.py
 
 echo  "art-result: $? athena_job"
 
-get_files -jo plotsMaker.py
-python plotsMaker.py /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egammaValidation/Baseline_Files/rootFiles/Baseline-monitoring_electron.hist.root Nightly-monitoring_electron.hist.root electron
+plotsMaker.py /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egammaValidation/Baseline_Files/rootFiles/Baseline-monitoring_electron.hist.root Nightly-monitoring_electron.hist.root electron
 
 echo  "art-result: $? final_comparison"
