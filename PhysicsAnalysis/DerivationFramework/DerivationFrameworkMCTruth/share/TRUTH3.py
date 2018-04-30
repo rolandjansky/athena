@@ -7,9 +7,10 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 # Add translator from EVGEN input to xAOD-like truth
 # Add all the particle derivation tools
 # This sets up its own common kernel and adds the common tools to it
-from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addWbosonsAndDownstreamParticles
+from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addWbosonsAndDownstreamParticles,addLargeRJetD2
 addStandardTruthContents()
 addWbosonsAndDownstreamParticles()
+addLargeRJetD2()
 # Extra classifiers for the Higgs group
 import DerivationFrameworkHiggs.TruthCategories
 # Extra classifiers for the SUSY group
@@ -20,15 +21,6 @@ if IsSUSYSignal():
     DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TRUTH3KernelSigAug",
                                                              AugmentationTools = DecorateSUSYProcess("TRUTH3")
                                                              )
-#Extra classifier for D2 variable
-from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthD2Decorator
-TruthD2Decorator= DerivationFramework__TruthD2Decorator("TruthD2Decorator"
-                                                        )
-ToolSvc += TruthD2Decorator
-DerivationFrameworkJob +=CfgMgr.DerivationFramework__DerivationKernel("TRUTH3KernelD2",
-                                                                      AugmentationTools = [TruthD2Decorator]
-                                                                      )
-
 
 #==============================================================================
 # Set up stream

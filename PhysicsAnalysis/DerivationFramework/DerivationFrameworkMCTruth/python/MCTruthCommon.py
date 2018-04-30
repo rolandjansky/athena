@@ -410,3 +410,22 @@ def addBornLeptonCollection(kernel=None):
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonBornLeptonsKernel",
                                                              AugmentationTools = [DFCommonBornLeptonCollTool] )
+
+def addLargeRJetD2(kernel=None):
+    #Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'TRUTHD2Kernel'):
+        # Already there!  Carry on...
+        return 
+
+    #Extra classifier for D2 variable
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthD2Decorator
+    TruthD2Decorator= DerivationFramework__TruthD2Decorator("TruthD2Decorator",
+                                                             JetContainerKey = "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
+                                                             DecoratorName = "decoratorD2")
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += TruthD2Decorator
+    kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHD2Kernel",
+                                                          AugmentationTools = [TruthD2Decorator] )

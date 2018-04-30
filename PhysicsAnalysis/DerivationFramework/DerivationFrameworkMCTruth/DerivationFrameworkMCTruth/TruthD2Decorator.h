@@ -20,6 +20,11 @@ namespace DerivationFramework {
     public: 
       TruthD2Decorator(const std::string& t, const std::string& n, const IInterface* p);
       virtual StatusCode addBranches() const;
+
+    private:
+      //configurables
+      std::string m_jetContainerKey; 
+      std::string m_decoratorName;
   }; 
 }
 
