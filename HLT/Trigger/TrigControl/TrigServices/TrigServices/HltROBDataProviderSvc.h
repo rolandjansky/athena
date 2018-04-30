@@ -217,6 +217,9 @@ private:
     TH1F* m_hist_timeROBretrieval;
     TH2F* m_hist_genericStatusForROB;
     TH2F* m_hist_specificStatusForROB;
+
+    // Temporary hack to make this version compile in master
+    uint32_t m_currentLvl1ID;
 };
 
 #endif
