@@ -69,7 +69,7 @@ def create_CFSequence(CFseq):
     filterAlg=CFseq.filter.Alg
 
     subs=[]
-    for seq in CFseq.menuSeq.nodeSeqList:
+    for seq in CFseq.menuSeq.recoSeqList:
         ath_sequence=seq.sequence.Alg
         subs.append(ath_sequence)
 
@@ -131,7 +131,7 @@ def decisionTree_From_Chains(HLTNode, chains):
                 cfseq_name= sequence.name
                 if DH_DEBUG: print "Going through sequence %s with threshold %s"%(sequence.name, hypotool)
 
-                seeds= [nodeSeq.seed for nodeSeq in sequence.nodeSeqList]
+                seeds= [recoSeq.seed for recoSeq in sequence.recoSeqList]
                 if DH_DEBUG: print "Found these seeds form the sequence: %s"%(seeds)
                 #define sequence input
                 if count_steps == 0: # L1 seeding                   
@@ -186,26 +186,26 @@ def decisionTree_From_Chains(HLTNode, chains):
                     if DH_DEBUG: print "Filter Done: %s"%(sfilter.name)
                     
                 # Connect the InputMaker
-                #loop over NodeSequences of this sequence to add inputs to InputMaker and send decisions to HypoAlg
-                for nodeSeq in sequence.nodeSeqList:
-                    seed=nodeSeq.seed
+                #loop over RecoSequences of this sequence to add inputs to InputMaker and send decisions to HypoAlg
+                for recoSeq in sequence.recoSeqList:
+                    seed=recoSeq.seed
                     input_maker_input=[sfilter.getOutputList()[i] for i,fseed in enumerate (sfilter.seeds) if fseed in seed  ]
-                    if DH_DEBUG: print "Adding %d inputs to sequence::%s from Filter::%s (from seed %s)"%(len(input_maker_input), nodeSeq.name, sfilter.algname, seed)
+                    if DH_DEBUG: print "Adding %d inputs to sequence::%s from Filter::%s (from seed %s)"%(len(input_maker_input), recoSeq.name, sfilter.algname, seed)
                     for i in input_maker_input: print i
                     if len(input_maker_input) == 0:
                         sys.exit("ERROR, no inputs to sequence are set!") 
-                    for i in input_maker_input: nodeSeq.addInput(i)
-                    input_maker_output=["%s_from_%s_output"%(nodeSeq.maker.algname,i)  for i in input_maker_input  ]
+                    for i in input_maker_input: recoSeq.addInput(i)
+                    input_maker_output=["%s_from_%s_output"%(recoSeq.maker.algname,i)  for i in input_maker_input  ]
 
                     if len(input_maker_output) == 0:
                         sys.exit("ERROR, no outputs to sequence are set!") 
                     if DH_DEBUG:
                         print "connecting InputMaker to HypoAlg"
-                        print "Adding %d output to InputMaker::%s and sending to HypoAlg::%s"%(len(input_maker_output), nodeSeq.maker.algname, sequence.hypo.algname)
+                        print "Adding %d output to InputMaker::%s and sending to HypoAlg::%s"%(len(input_maker_output), recoSeq.maker.algname, sequence.hypo.algname)
                         for i in input_maker_output: print i
                    
                     for out in input_maker_output:
-                          nodeSeq.addOutputDecision(out) 
+                          recoSeq.addOutputDecision(out) 
                           sequence.hypo.setPreviousDecision(out)
 
                 #needed for the summary

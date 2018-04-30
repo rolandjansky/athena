@@ -38,7 +38,7 @@ if globalflags.InputFormat.is_bytestream():
 
 # menu components   
 from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
-from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep
+from TrigUpgradeTest.MenuComponents import HLTRecoSequence, MenuSequence, Chain, ChainStep
 
 # ===============================================================================================
 #      L2 Calo
@@ -58,9 +58,6 @@ trigL2CaloRingerFexMT.OutputLevel = DEBUG
 
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
-
-#from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-
 from ViewAlgs.ViewAlgsConf import TestEventViewCreatorAlgorithm
 
 fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo, trigL2CaloRingerFexMT])
@@ -88,13 +85,13 @@ theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 fastCaloSequence =  seqAND("fastCaloSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
-fastCalo_NodeSequence = NodeSequence("fastCalo_NodeSequence",
+fastCalo_HLTSequence = HLTRecoSequence("fastCalo_HLTSequence",
                                          Sequence=fastCaloSequence,
                                          Maker=fastCaloViewsMaker,                                         
                                          Seed="L1EM")
 
 fastCaloSequence = MenuSequence("egammaCaloStep",
-                                    nodeSeqList=[fastCalo_NodeSequence],
+                                    recoSeqList=[fastCalo_HLTSequence],
                                     Hypo=theFastCaloHypo,
                                     HypoToolClassName="TrigL2CaloHypoToolConf",)
 
@@ -164,23 +161,21 @@ theElectronHypo.OutputLevel = VERBOSE
 #electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", OutputLevel=DEBUG, Decisions = theElectronHypo.Output )    
 
 electronSequence = seqAND("electronSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs ] )
-#electronSequence = seqAND("electronSequence", [electronViewSequence] )
 
-electron_NodeSequence = NodeSequence("electron_NodeSequence",
+electron_HLTSequence = HLTRecoSequence("electron_HLTSequence",
                                        Maker=l2ElectronViewsMaker,                                        
                                        Sequence=electronSequence,
                                        Seed="L1EM")
 
 
 electronSequence = MenuSequence("electronStep",
-                                    nodeSeqList=[electron_NodeSequence],
+                                    recoSeqList=[electron_HLTSequence],
                                     Hypo=theElectronHypo,
                                     HypoToolClassName="TrigL2ElectronHypoToolConf")
 
 ##########################################
 # menu
 ##########################################
-#testChains = ["HLT_e3_etcut", "HLT_e5_etcut", "HLT_e7_etcut", "HLT_2e3_etcut", "HLT_e3e5_etcut"]
 
 # map L1 decisions for menu
 for unpack in topSequence.L1DecoderTest.roiUnpackers:
@@ -200,14 +195,13 @@ for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
     if unpack.name() is "MURerunRoIsUnpackingTool":
         unpack.SourceDecisions="L1MU"
 
+
+# menu        
+
 testChains  = [
    Chain(name='HLT_e3_etcut', Seed="L1_EM3",   \
              ChainSteps=[ ChainStep("Step1_e3_etcut", [fastCaloSequence]),
                           ChainStep("Step2_e3_etcut", [electronSequence])]  ),
-
-    ## Chain(name='HLT_e3_etcut', Seed="L1_EM3",   \
-    ##         ChainSteps=[ ChainStep("Step1_e3_etcut", [SequenceHypoTool(fastCaloSequence,step1_e3_etcut() )])]  ),
- 
     Chain(name='HLT_e5_etcut', Seed="L1_EM3",   \
               ChainSteps=[ChainStep("Step1_e5_etcut", [fastCaloSequence])]),
     Chain(name='HLT_e7_etcut', Seed="L1_EM3",   \

@@ -21,7 +21,6 @@ class Node():
         self.inputProp=name
 
     def addInput(self, name):
-        # not sure is needed
         self.inputProp=name
     
     def getInput(self):
@@ -38,9 +37,8 @@ class Node():
     
     
 class AlgNode(Node):
-    def __init__(self, Alg, inputProp, outputProp, ViewNodeName=''):
+    def __init__(self, Alg, inputProp, outputProp):
         Node.__init__(self, Alg, inputProp, outputProp)        
-        self.viewNodeName=ViewNodeName       
 
     def addDefaultOutput(self):
         if self.outputProp is not '':
@@ -76,6 +74,11 @@ class AlgNode(Node):
     def setOutput(self, name):
         if self.outputProp is not '':
             return self.setPar(self.outputProp,name)
+
+    def addOutput(self, name):
+        if self.outputProp is not '':
+            return self.setParArray(self.outputProp,name)
+ 
 
     def getOutput(self):
         if self.outputProp is not '':
@@ -118,36 +121,35 @@ class AlgNode(Node):
         return inputs
 
     def __str__(self):
-        return "Alg::%s.%s  [%s] -> [%s]"%(self.algname,self.viewNodeName, ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
+        return "Alg::%s  [%s] -> [%s]"%(self.algname, ' '.join(map(str, self.getInputList())), ' '.join(map(str, self.getOutputList())))
 
 
  
 class HypoAlgNode(AlgNode):
-    def __init__(self, Alg, inputProp, outputProp):
-        AlgNode.__init__(self, Alg, inputProp, outputProp)
+    def __init__(self, Alg):
+        assert isHypoBase(Alg), "Error in creating HypoAlgNode from Alg "  + Alg.name()
+        AlgNode.__init__(self, Alg, 'HypoInputDecisions', 'HypoOutputDecisions')
         self.addDefaultOutput()
         self.tools = []
         self.previous=[]
 
     def addHypoTool(self, hypoToolName, hypoToolClassName):
         from TrigUpgradeTest.MenuHypoTools import createHypoTool        
-        self.tools.append(hypoToolName)            
+
         tools = self.Alg.HypoTools
         ## HypoTools are private, so need to be created when added to the Alg
-        self.Alg.HypoTools = tools+[createHypoTool(hypoToolClassName, hypoToolName)]
-        # here add a check of good creation of the new tools
-        status = 0
-        return status
+        try:
+            self.Alg.HypoTools = tools+[createHypoTool(hypoToolClassName, hypoToolName)]
+        except:
+            print "Error in creating HypoTool " + hypoToolName + " of type " + hypoToolClassName
 
-    def addPreviousDecision(self,prev):
-        self.previous.append(prev)
-        status= self.setParArray('previousDecisions',prev)
-        return status
+        self.tools.append(hypoToolName)            
+        return True
+           
 
     def setPreviousDecision(self,prev):        
         self.previous.append(prev)
-        return self.setPar('previousDecisions',prev)
-    
+        return self.setInput(prev)
 
     def __str__(self):
         return "HypoAlg::%s  [%s] -> [%s], previous = [%s], HypoTools=[%s]"%(self.Alg.name(),' '.join(map(str, self.getInputList())),
@@ -157,10 +159,12 @@ class HypoAlgNode(AlgNode):
 
 
 
-class ComboHypoAlgNode(HypoAlgNode):
+class ComboHypoAlgNode(AlgNode):
     # TMP class for curent Combo alg
-    def __init__(self, Alg, inputProp, outputProp):
-        HypoAlgNode.__init__(self, Alg, inputProp, outputProp)
+    def __init__(self, Alg):
+        AlgNode.__init__(self, Alg, inputProp='', outputProp='')
+        self.tools = []
+        self.previous=[]
         self.addDefaultOutput()
 
     def addDefaultOutput(self):
@@ -246,25 +250,45 @@ from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
 class RoRSequenceFilterNode(SequenceFilterNode):
     def __init__(self, name):
         Alg= RoRSeqFilter(name, OutputLevel = 2)
-        inputProp='Input'
-        outputProp='Output'
-        SequenceFilterNode.__init__(self,  Alg, inputProp, outputProp)
+        SequenceFilterNode.__init__(self,  Alg, 'Input', 'Output')
 
+
+
+class InputMakerNode(AlgNode):
+    def __init__(self, Alg):
+        assert isInputMakerBase(Alg), "Error in creating InputMakerNode from Alg "  + Alg.name()
+        AlgNode.__init__(self,  Alg, 'InputMakerInputDecisions', 'InputMakerOutputDecisions')
+
+            
+
+#########################################################
+# USEFULL TOOLS
+#########################################################
+
+def isHypoBase(alg):
+    return  ('HypoInputDecisions'  in alg.__class__.__dict__)
+
+def isInputMakerBase(alg):
+    return  ('InputMakerInputDecisions'  in alg.__class__.__dict__)
+
+def isFilterAlg(alg):
+    return isinstance(alg, RoRSeqFilter)
         
-
-
 ##########################################################
 # NOW sequences and chains
 ##########################################################
 
 
-class NodeSequence():
+
+
+class HLTRecoSequence():
     def __init__(self, name, Sequence, Maker, Seed):
-        print "Making NEW sequence %s"%(name)
+        print "Making sequence %s"%(name)
         self.name = name
         self.seed = Seed
         self.sequence =    Node( Alg=Sequence, inputProp='%s_in'%(Sequence.name()), outputProp='%s_out'%(Sequence.name()))
-        self.maker =    AlgNode( Alg=Maker, inputProp='InputDecisions',    outputProp='OutputDecisions')
+        self.maker =    InputMakerNode( Alg=Maker)
+        #self.maker =    AlgNode( Alg=Maker, inputProp='InputMakerInputDecisions',    outputProp='InputMakerOutputDecisions')
         self.reuse = False     
 
     def getOutputList(self):
@@ -279,41 +303,41 @@ class NodeSequence():
 
     def addOutputDecision(self,theinput):
         print "adding output decisions (%s) to sequence %s  (output of alg %s)"%(theinput, self.name, self.maker.algname )
-        self.maker.setPar("OutputDecisions", theinput)
+        self.maker.addOutput(theinput)
         
     def __str__(self):
-        return "NodeSequence::%s with \n Seed::%s \n Maker::%s  \n Sequence::%s"%(self.name, self.seed, self.maker, self.sequence)
+        return "HLTRecoSequence::%s with \n Seed::%s \n Maker::%s  \n Sequence::%s"%(self.name, self.seed, self.maker, self.sequence)
 
 
 class MenuSequence():
-    def __init__(self, name, nodeSeqList,  Hypo, HypoToolClassName):
+    def __init__(self, name, recoSeqList,  Hypo, HypoToolClassName):
         from AthenaCommon.AlgSequence import AthSequencer
         self.name = name
-        self.nodeSeqList=nodeSeqList
+        self.recoSeqList=recoSeqList
         self.hypoToolClassName = HypoToolClassName
-        self.seeds=[seq.seed for seq in nodeSeqList]
+        self.seeds=[seq.seed for seq in recoSeqList]
         self.outputs=[]
-        if "Combo" in name:
-            self.hypo = ComboHypoAlgNode( Alg=Hypo,  inputProp='', outputProp='')
+        if "Combo" in name: #TMP for combo
+            self.hypo = ComboHypoAlgNode( Alg=Hypo )
             new_outputs = []
             outputs=self.hypo.getOutputList()
             iseq=0
-            for seq in self.nodeSeqList:
+            for seq in self.recoSeqList:
                 new_outputs.append("%s_%s"%(seq.seed, outputs[iseq]))
             
             self.hypo.setOutputs(new_outputs)
             self.outputs=new_outputs
         
-        elif len(self.nodeSeqList) == 1:
-            self.hypo = HypoAlgNode( Alg=Hypo,  inputProp='previousDecisions', outputProp='Output')
-            new_output = "%s_%s"%(self.nodeSeqList[0].seed, self.hypo.getOutput())
+        elif len(self.recoSeqList) == 1:
+            self.hypo = HypoAlgNode( Alg=Hypo)
+            new_output = "%s_%s"%(self.recoSeqList[0].seed, self.hypo.getOutput())
             self.hypo.setOutput(new_output)
             self.outputs.append(new_output)
 
 
         
     def __str__(self):
-        return "MenuSequence::%s \n Hypo::%s \n %s"%(self.name, self.hypo, ',\n '.join(map(str, self.nodeSeqList)))
+        return "MenuSequence::%s \n Hypo::%s \n %s"%(self.name, self.hypo, ',\n '.join(map(str, self.recoSeqList)))
 
     
 class CFSequence():

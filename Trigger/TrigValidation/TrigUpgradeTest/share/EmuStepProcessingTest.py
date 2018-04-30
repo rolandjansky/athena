@@ -111,8 +111,8 @@ for unpack in l1Decoder.roiUnpackers:
         
 # signatures
 from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
-from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep
-#from TrigUpgradeTest.HLTSignatureConfig import *
+from TrigUpgradeTest.MenuComponents import MenuSequence, Chain, ChainStep
+
 
 doMuon=True
 doElectron=True

@@ -33,9 +33,9 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   const SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer>& decisionOutputs() const;
  private:
   /// input decisions, will be implicit (renounced).
-  SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "InputDecisions", {}, "Input Decisions (implicit)" };
+  SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_inputs { this, "InputMakerInputDecisions", {}, "Input Decisions (implicit)" };
   /// output decisions
-  SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "OutputDecisions", {}, "Ouput Decisions" };
+  SG::WriteHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", {}, "Ouput Decisions" };
 };
 
 
