@@ -4590,6 +4590,11 @@ for t in tlist:
     accessors[t] = getattr (ROOT, aname)
 
 
+atomic_accessors = {
+    'unsigned int' : getattr (ROOT, 'SG::AtomicConstAccessor<unsigned int>'),
+    }
+
+
 def format_obj (x, name=None):
     if type(x) == type(1.5):
         return format_float (x)
@@ -4666,7 +4671,11 @@ def dump_auxitem (x, auxid, f = sys.stdout):
 
     reg=ROOT.SG.AuxTypeRegistry.instance()
     tname = reg.getTypeName (auxid)
-    ac_cl = accessors.get (tname)
+    atomic = reg.getFlags (auxid) & ROOT.SG.AuxTypeRegistry.Atomic
+    if atomic:
+        ac_cl = atomic_accessors.get (tname)
+    else:
+        ac_cl = accessors.get (tname)
     #print x, auxid, reg.getName(auxid)
     if ac_cl:
         ac = ac_cl(reg.getName(auxid))
