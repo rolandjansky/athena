@@ -35,6 +35,7 @@ having it as a data member is redundant - fix?
 template< class MAIN_CNV, class TL_PERS >
 class TopLevelTPConverter
    : public TopLevelTPCnvBaseP< TL_PERS >
+   , public ITPCnvBase
 //   , public TPConverterBase< typename MAIN_CNV::Trans_t, TL_PERS >
 {
 public:
@@ -120,43 +121,32 @@ public:
   virtual unsigned short	getConverterID() { return 0; }
 
 
- // method implementations allowing nesting top level objects
- //- -----------------------------------------------
+  //- --------------------------------------------------------------------------
+  // implementation of ITPCnvBase interface
+  // (MN: not really sure why ITPCnvBase is needed)
 
-  /*
-  /// probably obsolete (wrong?) and pending removal
-  virtual TPObjRef virt_toPersistent( const TRANS *trans, MsgStream &log ) {
-     m_mainConverter.virt_toPersistent( trans, log );
-     return TPObjRef(this->m_pStorageTID, 0);  // 0 -> no index (not a vector)
-  }
+  /// @copydoc ITPCnvBase::transientTInfo()
+  virtual const std::type_info& transientTInfo() const { return typeid(TRANS); }
 
-  /// probably obsolete and pending removal
-  virtual TRANS* virt_createTransFromPStore( unsigned index, MsgStream &log ) {
-     return m_mainConverter.virt_createTransFromPStore( index, log );
-  }
+  /// @copydoc ITPCnvBase::persistentTInfo()
+  virtual const std::type_info& persistentTInfo() const { return typeid(PERS); }
 
-  /// probably obsolete and pending removal
-  virtual void	pstoreToTrans( unsigned index, TRANS *trans, MsgStream &log ) {
-     m_mainConverter.pstoreToTrans( index, trans, log );
-  }
-  
-  virtual void persToTrans (const TL_PERS* pers,
-                            TRANS* trans,
-                            MsgStream& msg)
+
+  /// @copydoc ITPCnvBase::persToTransUntyped()
+  virtual void persToTransUntyped(const void* pers, void* trans, MsgStream& log)
   {
-    setPStorage (const_cast<TL_PERS*> (pers));
-    m_mainConverter.pstoreToTrans (0, trans, msg);
+     setPStorage( reinterpret_cast<PERS*>( const_cast<void*>(pers) ) );
+     m_mainConverter.pstoreToTrans (0, reinterpret_cast<TRANS*>(trans), log);
   }
-  
-  virtual void transToPers(const TRANS* trans,
-                           TL_PERS* pers,
-                           MsgStream& msg)
+
+  /// @copydoc ITPCnvBase::transToPersUntyped()
+  virtual void transToPersUntyped(const void* trans, void* pers, MsgStream& log)
   {
-    this->setTLPersObject( pers );
-    m_mainConverter.virt_toPersistent(trans, msg);
+    this->setTLPersObject( reinterpret_cast<PERS*>(pers) );
+    m_mainConverter.virt_toPersistent( reinterpret_cast<const TRANS*>(trans), log );
     this->clearTLPersObject();
   }
-  */
+
 protected:
   MAIN_CNV		m_mainConverter;
 

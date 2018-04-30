@@ -8,7 +8,7 @@ atlas_subdir( TrkEventTopLevelCnv )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
-   Database/AthenaPOOL/AthenaPoolCnvSvc
+   Database/TPTools
    Tracking/TrkEventCnv/TrkEventTPCnv
    InnerDetector/InDetEventCnv/InDetEventTPCnv
    MuonSpectrometer/MuonCnv/MuonEventTPCnv
