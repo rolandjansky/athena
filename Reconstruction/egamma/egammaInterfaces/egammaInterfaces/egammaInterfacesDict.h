@@ -25,7 +25,6 @@
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
-#include "egammaInterfaces/IFourMomCombiner.h"
 #include "egammaInterfaces/IegammaBackShape.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"
