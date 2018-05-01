@@ -1047,10 +1047,12 @@ StatusCode HLTMETMonTool::fillMETHist() {
   // L1 Jets                                                           
   monFolderName = monGroupName + "/Jets";
   setCurrentMonGroup(monFolderName);
-  for (auto l1_jet : *m_l1_jet_roi_cont) {
-    l1_jet_pt = l1_jet->et4x4()/CLHEP::GeV;
-    l1_jet_eta = l1_jet->eta();
-    fillL1JetHistograms(l1_jet_pt,l1_jet_eta);
+  if (getTDT()->isPassed("L1_XE50", TrigDefs::eventAccepted)) {
+    for (auto l1_jet : *m_l1_jet_roi_cont) {
+      l1_jet_pt = l1_jet->et4x4()/CLHEP::GeV;
+      l1_jet_eta = l1_jet->eta();
+      fillL1JetHistograms(l1_jet_pt,l1_jet_eta);
+    }
   }
 
   // L1 efficiency                                                           
