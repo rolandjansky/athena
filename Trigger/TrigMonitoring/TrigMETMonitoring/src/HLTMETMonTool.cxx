@@ -46,9 +46,11 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("monitoring_alg_expert", m_monitoring_alg_expert);
   declareProperty("prescaled_met", m_prescaled_met);
 
+  // Jet keys
+  declareProperty("l1_jet_key", m_lvl1_jet_roi_key="LVL1JetRoIs");
+
   // Met keys
   declareProperty("l1_key", m_lvl1_roi_key="LVL1EnergySumRoI");
-  //declareProperty("hlt_main_key", m_hlt_main_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC");
   declareProperty("hlt_cell_key", m_hlt_cell_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET");
   declareProperty("hlt_mht_key", m_hlt_mht_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht");
   declareProperty("hlt_mhtem_key", m_hlt_mhtem_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht_em");
@@ -278,6 +280,12 @@ StatusCode HLTMETMonTool::book() {
   monGroupName = m_expert_path + "/L1";
   addMonGroup(new MonGroup(this, monGroupName.c_str(), run));
 
+  // Jets Expert L1 histograms 
+  monFolderName = monGroupName + "/Jets";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1JetHistograms();
+
   // Efficiencies Expert L1 histograms 
   monFolderName = monGroupName + "/Efficiency";
   addMonGroup(new MonGroup(this, monFolderName, run));
@@ -434,14 +442,21 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
 
 
- // retrieve EventInfo 
+  // retrieve EventInfo 
   const xAOD::EventInfo *eventInfo = nullptr;
   sc = evtStore()->retrieve(eventInfo, "EventInfo");
   if(sc.isFailure() || !eventInfo) {
     ATH_MSG_WARNING("Could not retrieve EventInfo with key \"EventInfo\" from TDS"  );
   }
 
- // retrieve xAOD L1 ROI 
+  // retrieve L1 Jet ROI 
+  const xAOD::JetRoIContainer *m_l1_jet_roi_cont = 0;
+  sc = evtStore()->retrieve(m_l1_jet_roi_cont, m_lvl1_jet_roi_key);
+  if(sc.isFailure() || !m_l1_jet_roi_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_Jet_RoIs with key \"" << m_lvl1_jet_roi_key << "\" from TDS"  );
+  }
+
+  // retrieve xAOD L1 ROI 
   const xAOD::EnergySumRoI *m_l1_roi_cont = 0;
   sc = evtStore()->retrieve(m_l1_roi_cont, m_lvl1_roi_key);
   if(sc.isFailure() || !m_l1_roi_cont) {
@@ -625,6 +640,15 @@ StatusCode HLTMETMonTool::fillMETHist() {
   //####################
   const xAOD::TrigMissingET *m_hlt_met = 0;
   const xAOD::MissingET     *m_off_met = 0;
+ 
+  //***********
+  /// L1 JET
+  //***********
+  float l1_jet_pt = -9e9;
+  float l1_jet_eta = -9e9;
+  if (m_l1_jet_roi_cont) {
+  }
+
  
   //***********
   /// L1 MET
@@ -1020,6 +1044,15 @@ StatusCode HLTMETMonTool::fillMETHist() {
   /////////////
   monGroupName = m_expert_path + "/L1";
 
+  // L1 Jets                                                           
+  monFolderName = monGroupName + "/Jets";
+  setCurrentMonGroup(monFolderName);
+  for (auto l1_jet : *m_l1_jet_roi_cont) {
+    l1_jet_pt = l1_jet->et4x4()/CLHEP::GeV;
+    l1_jet_eta = l1_jet->eta();
+    fillL1JetHistograms(l1_jet_pt,l1_jet_eta);
+  }
+
   // L1 efficiency                                                           
   monFolderName = monGroupName + "/Efficiency";
   setCurrentMonGroup(monFolderName);
@@ -1342,7 +1375,6 @@ void HLTMETMonTool::addL1BasicHistograms() {
   addHistogram(new TH1F("L1_MET_phi",  "L1 MET #phi (rad);MET #phi (rad)", m_phi_bins, m_phi_min, m_phi_max));
   addHistogram(new TH1F("L1_MET_phi_etweight",  "L1 MET #phi (|Missing E_{T}|);MET #phi (rad)", m_phi_bins, m_phi_min, m_phi_max));
 
-
 }
 
 //___________________________________________________________________________________________________________
@@ -1359,6 +1391,21 @@ void HLTMETMonTool::fillL1BasicHistograms(float l1_mex,float l1_mex_log,float l1
   if ((h = hist("L1_SumEt_log"))) h->Fill(l1_sumet_log);
   if ((h = hist("L1_MET_phi")) && l1_met>0 && !saturated)   h->Fill(l1_phi);
   if ((h = hist("L1_MET_phi_etweight")) && l1_met>0 && !saturated)  h->Fill(l1_phi, l1_met);
+  
+}
+
+//___________________________________________________________________________________________________________
+void HLTMETMonTool::addL1JetHistograms() {
+
+  addHistogram(new TH2F("L1_Jet_eta_pt", "L1 Jet #eta/p_{T};#eta;p_{T} [GeV]", 15, -4, 4, 80, 10, 90));
+}
+
+
+//___________________________________________________________________________________________________________
+void HLTMETMonTool::fillL1JetHistograms(float l1_jet_pt,float l1_jet_eta) {
+
+  TH2 *h2(0);
+  if ((h2 = hist2("L1_Jet_eta_pt")) && l1_jet_pt>0)  h2->Fill(l1_jet_eta, l1_jet_pt);
   
 }
 
