@@ -36,6 +36,7 @@ find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 find_package( Xrootd )
 find_package( GSL )
 find_package( Frontier_Client )
+find_package( XercesC )
 
 # Make CMake find the project specific code we have here:
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/modules )
