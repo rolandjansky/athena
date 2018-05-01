@@ -31,6 +31,7 @@ float UpgradePerformanceFunctions::getTauEfficiency(float etMeV, float eta_in, s
   float eta2 = 2.5;
   float eta3 = 4.0;
 
+  float pt = etMeV;
   float pt1 = 50000.;
   float pt2 = 100000.;
 
@@ -186,6 +187,11 @@ float UpgradePerformanceFunctions::getTauFakeRate(float etMeV, float eta_in, sho
   float eta1 = 2.5;
   float eta2 = 4.0;
 
+  float a,b;
+  a = 0;
+  b = 0;
+
+  float pt = etMeV;
   float pt1 = 50000.;
   float pt2 = 100000.;
 
@@ -193,7 +199,6 @@ float UpgradePerformanceFunctions::getTauFakeRate(float etMeV, float eta_in, sho
   //  and an overall SF is added to account for the jet efficiency
   //  of the 1- and 3-prong selections
 
-  float Fake_SF_1, Fake_SF_2, Fake_SF_3;
   float Fake_SF_eff;
 
   if(prong == 1) Fake_SF_eff = 0.278;
@@ -305,7 +310,7 @@ float UpgradePerformanceFunctions::getTauFakeRate(float etMeV, float eta_in, sho
     return 0;
   }
 
-  float rate = (a + b*eta) * Fake_SF_Eff;
+  float rate = (a + b*eta) * Fake_SF_eff;
   return rate;
 
   ATH_MSG_WARNING("getTauFakeRate: no fake rate available for this tau");
