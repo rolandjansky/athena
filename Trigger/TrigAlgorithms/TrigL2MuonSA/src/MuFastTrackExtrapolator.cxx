@@ -11,7 +11,6 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-#include <iostream>
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -213,12 +212,7 @@ double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> v
     if( AbsPtInv > AbsPtInvMax ) AbsPtInv = AbsPtInvMax;
       
     const double* vpar;
-//koko
-    //int spReg = whichECRegion(AbsEta,phi);
     xAOD::L2MuonParameters::ECRegions reg = xAOD::L2MuonParameters::whichECRegion(AbsEta,phi);
-    std::cout << "Esumi message2 " << std::endl;
-//    if     ( spReg==1 ) { vpar = vparECA; }
-//      else if( spReg==2 ) { vpar = vparECB; }
     if     ( reg ==  xAOD::L2MuonParameters::ECRegions::WeakBFieldA ) { vpar = vparECA; }
       else if( reg == xAOD::L2MuonParameters::ECRegions::WeakBFieldB ) { vpar = vparECB; }
       else {
@@ -247,6 +241,7 @@ double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> v
 
 // Original author: Stefano Giagu
 // Copied from TrigmuComb/muCombUtil.cxx
+/*
 int TrigL2MuonSA::MuFastTrackExtrapolator::whichECRegion( const double eta, const double phi ) {
   // 0: bulk
   // 1: WeakBfield A
@@ -273,6 +268,8 @@ int TrigL2MuonSA::MuFastTrackExtrapolator::whichECRegion( const double eta, cons
   
   else return 0;
 }
+*/
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

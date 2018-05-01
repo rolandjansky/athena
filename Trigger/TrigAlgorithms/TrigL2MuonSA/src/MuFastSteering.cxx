@@ -1613,6 +1613,7 @@ float MuFastSteering::getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+/*
 ECRegions MuFastSteering::whichECRegion( const float eta, const float phi ) const
 {
    float absEta = fabs(eta);
@@ -1636,7 +1637,7 @@ ECRegions MuFastSteering::whichECRegion( const float eta, const float phi ) cons
    
    else return Bulk;
 }
-
+*/
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

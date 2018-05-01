@@ -8,6 +8,9 @@
 #include <string>
 #include "TrigInterfaces/HypoAlgo.h"
 
+//koko
+#include "xAODTrigMuon/TrigMuonDefs.h"
+
 class StoreGateSvc;
 class TriggerElement;
 
@@ -35,8 +38,12 @@ class MufastHypo: public HLT::HypoAlgo {
   private:
     
     float getLocalPhi(float, float, float) const;
-    MufastHypoConsts::ECRegions whichECRegion(const float eta, const float phi) const;
-    
+
+//koko
+    //MufastHypoConsts::ECRegions whichECRegion(const float eta, const float phi) const;
+    //xAOD::L2MuonParameters::ECRegions whichECRegion(const float eta,const float phi) const;
+    //L2MuonParameters::ECRegions whichECRegion(const float eta,const float phi) const;
+
     // Properties:
     std::vector<float> m_ptBins;
     std::vector<float> m_ptThresholds;

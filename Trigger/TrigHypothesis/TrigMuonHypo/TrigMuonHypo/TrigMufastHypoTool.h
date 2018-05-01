@@ -64,7 +64,10 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     HLT::Identifier m_decisionId;
     
     float getLocalPhi(float, float, float) const;
-    TrigMufastHypoToolConsts::ECRegions whichECRegion(const float eta, const float phi) const;
+
+//koko
+    //TrigMufastHypoToolConsts::ECRegions whichECRegion(const float eta, const float phi) const;
+
     
     // Properties:
     std::vector<float> m_ptBins;
