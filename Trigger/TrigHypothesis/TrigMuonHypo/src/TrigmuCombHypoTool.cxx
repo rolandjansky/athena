@@ -46,6 +46,7 @@ StatusCode TrigmuCombHypoTool::initialize()
       ATH_MSG_INFO("Accepting all the events with not cut!");
    } else {
       ATH_MSG_DEBUG("AcceptAll = False");
+      m_bins.resize (m_ptBins.size());
       for ( size_t j=0; j<m_ptBins.size(); ++j) {
          m_bins[j] = m_ptBins[j].size() - 1;
          if (m_bins[j] != m_ptThresholds[j].size()) {
