@@ -11,9 +11,9 @@
 // Lang include
 #include <inttypes.h>
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include "ZdcEvent/ZdcCell.h"
 
