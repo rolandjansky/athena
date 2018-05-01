@@ -818,6 +818,53 @@ bool xAOD::BPhysHelper::setLxyErr(const float val, const pv_type vertexType)
     default: return false;
   }
 }
+
+//3dLxyz
+/*****************************************************************************/
+float xAOD::BPhysHelper::lxyz(const pv_type vertexType)
+{
+  switch(vertexType) {
+    case PV_MAX_SUM_PT2 : GET_FLOAT("LxyzMaxSumPt2");
+    case PV_MIN_A0      : GET_FLOAT("LxyzMinA0");
+    case PV_MIN_Z0      : GET_FLOAT("LxyzMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("LxyzMinZ0BA");
+    default: return -9999999.;
+  }
+}
+/*****************************************************************************/
+float xAOD::BPhysHelper::lxyzErr(const pv_type vertexType)
+{
+  switch(vertexType) {
+    case PV_MAX_SUM_PT2 : GET_FLOAT("LxyzErrMaxSumPt2");
+    case PV_MIN_A0      : GET_FLOAT("LxyzErrMinA0");
+    case PV_MIN_Z0      : GET_FLOAT("LxyzErrMinZ0");
+    case PV_MIN_Z0_BA   : GET_FLOAT("LxyzErrMinZ0BA");
+    default: return -9999999.;
+  }
+}
+/*****************************************************************************/
+bool xAOD::BPhysHelper::setLxyz(const float val, const pv_type vertexType)
+{
+  switch(vertexType) {
+    case PV_MAX_SUM_PT2 : SET_FLOAT("LxyzMaxSumPt2", val);
+    case PV_MIN_A0      : SET_FLOAT("LxyzMinA0"    , val);
+    case PV_MIN_Z0      : SET_FLOAT("LxyzMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("LxyzMinZ0BA"  , val);
+    default: return false;
+  }
+}
+/*****************************************************************************/
+bool xAOD::BPhysHelper::setLxyzErr(const float val, const pv_type vertexType)
+{
+  switch(vertexType) {
+    case PV_MAX_SUM_PT2 : SET_FLOAT("LxyzErrMaxSumPt2", val);
+    case PV_MIN_A0      : SET_FLOAT("LxyzErrMinA0"    , val);
+    case PV_MIN_Z0      : SET_FLOAT("LxyzErrMinZ0"    , val);
+    case PV_MIN_Z0_BA   : SET_FLOAT("LxyzErrMinZ0BA"  , val);
+    default: return false;
+  }
+}
+
 /*****************************************************************************/
 float xAOD::BPhysHelper::a0     (const pv_type vertexType)
 {
