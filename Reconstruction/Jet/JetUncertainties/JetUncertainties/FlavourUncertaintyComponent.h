@@ -21,8 +21,7 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
                                     const TString analysisRootFileName,
                                     const TString defaultAnalysisRootFileName,
                                     const TString path,
-                                    const TString calibArea,
-                                    const bool    jetByJet
+                                    const TString calibArea
                                     );
         FlavourUncertaintyComponent(const FlavourUncertaintyComponent& toCopy);
         virtual FlavourUncertaintyComponent* clone() const;
@@ -51,7 +50,6 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         const TString m_defAnaFileName;
         const TString m_path;
         const TString m_calibArea;
-        const bool m_jetByJet;
         const bool m_absEta;
         const TString m_secondUncName;
         
@@ -69,7 +67,6 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         double getFlavourResponseUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
         double getFlavourCompositionUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
         double getBJESUncertainty(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
-        double getPerJetFlavourUncertainty(const xAOD::Jet& jet) const;
 
         double getGluonFraction(const double pT, const double eta, const int nJets) const;
         double getGluonFractionError(const double pT, const double eta, const int nJets) const;

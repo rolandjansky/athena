@@ -2889,7 +2889,7 @@ function Moriond2018_LargeR_Validation \
 function Moriond2018 \
 {
 
-    jetDefinition="AntiKt4EMPFlow"
+    jetDefinition="AntiKt4EMTopo;AntiKt4EMPFlow"
     MCtype="MC16"
     configFile="rel21/Moriond2018/R4_AllNuisanceParameters.config"
     outFile="JetUncertainties-Moriond2018-Nominal.pdf"
@@ -2967,6 +2967,20 @@ function testDefaultNjets \
     compList="Flavor_Response;Flavor_Composition"
     compLabels="Flavor_Response;Flavor_Composition"
     options="prefix=JET_;fixedEtaVals=0;fixedPtVals=40;NjetFlavour=${njet};Composition=//eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/Inputs/ANALYSISTO-370.root"
+}
+
+function testPerJetFlavour \
+{
+    label=50
+
+    jetDefinition="AntiKt4EMTopo"
+    MCtype="MC16"
+    CalibArea="CalibArea-03"
+    configFile="rel21/Moriond2018/R4_AllNuisanceParameters_PerJetFlavour.config"
+    outFile="JetUncertainties-TruthLabel-${label}.pdf"
+    compList="FlavorResponse_PerJet#;Flavor_Composition"
+    compLabels="FlavorResponse_PerJet ${label};Flavor_Composition"
+    options="prefix=JET_;fixedEtaVals=0;fixedPtVals=40;TruthLabel=${label};path=/eos/atlas/atlascerngroupdisk/perf-jets/JetUncertainties/"
 }
 
 

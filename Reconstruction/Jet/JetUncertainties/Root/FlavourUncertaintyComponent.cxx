@@ -24,7 +24,6 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const std::string& name
     , m_jetType("")
     , m_analysisFileName("")
     , m_defAnaFileName("")
-    , m_jetByJet(false)
     , m_absEta(false)
     , m_secondUncName("")
     , m_secondUncHist(NULL)
@@ -43,8 +42,7 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(   const ComponentHelpe
                                                             const TString analysisRootFileName,
                                                             const TString defaultAnalysisRootFileName,
                                                             const TString path,
-                                                            const TString calibArea,
-                                                            const bool jetByJet
+                                                            const TString calibArea
                                                             )
     : UncertaintyComponent(component,component.flavourType == FlavourComp::Composition ? 2 : 1)
     , m_flavourType(component.flavourType)
@@ -53,7 +51,6 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(   const ComponentHelpe
     , m_defAnaFileName(defaultAnalysisRootFileName)
     , m_path(path)
     , m_calibArea(calibArea)
-    , m_jetByJet(jetByJet)
     , m_absEta(CompParametrization::isAbsEta(component.parametrization))
     , m_secondUncName(component.uncNames.size()>1 ? component.uncNames.at(1) : "")
     , m_secondUncHist(NULL)
@@ -79,7 +76,6 @@ FlavourUncertaintyComponent::FlavourUncertaintyComponent(const FlavourUncertaint
     , m_defAnaFileName(toCopy.m_defAnaFileName)
     , m_path(toCopy.m_path)
     , m_calibArea(toCopy.m_calibArea)
-    , m_jetByJet(toCopy.m_jetByJet)
     , m_absEta(toCopy.m_absEta)
     , m_secondUncName(toCopy.m_secondUncName)
     , m_secondUncHist(NULL)
@@ -133,31 +129,10 @@ StatusCode FlavourUncertaintyComponent::initialize(TFile* histFile)
     // Ensure that the number of histograms matches what is expected for Flavour components
     if (m_flavourType == FlavourComp::Response)
     {
-        if (!m_jetByJet && m_secondUncName != "")
+        if (m_secondUncName != "")
         {
             ATH_MSG_ERROR("Expected one histogram for FlavourResponse: " << getName().Data());
             return StatusCode::FAILURE;
-        }
-        else if (m_jetByJet)
-        {
-            // Require two histograms for jet-by-jet
-            // Enforce the order too
-            // Histogram 1 = quark, histogram 2 = gluon
-            if (m_secondUncName == "")
-            {
-                ATH_MSG_ERROR("Expected two histograms for per-jet FlavourResponse, but only got one: " << getName().Data());
-                return StatusCode::FAILURE;
-            }
-            if (! (m_uncHistName.Contains("quark",TString::kIgnoreCase) || m_uncHistName.Contains("LQ",TString::kIgnoreCase)))
-            {
-                ATH_MSG_ERROR("FlavourResponse jet-by-jet histogram #1 must be for quarks, but the specified histogram name doesn't match expectations: " << m_uncHistName.Data());
-                return StatusCode::FAILURE;
-            }
-            if (! m_secondUncName.Contains("glu",TString::kIgnoreCase))
-            {
-                ATH_MSG_ERROR("FlavourResponse jet-by-jet histogram #1 must be for gluons, but the specified histogram name doesn't match expectations: " << m_secondUncName.Data());
-                return StatusCode::FAILURE;
-            }
         }
     }
     else if (m_flavourType == FlavourComp::Composition && m_secondUncName == "")
@@ -403,10 +378,6 @@ double FlavourUncertaintyComponent::getFlavourResponseUncertainty(const xAOD::Je
     if (isBjet(jet))
         return 0;
 
-    // Check if this is configured for jet-by-jet uncertainties
-    if (m_jetByJet)
-        return getPerJetFlavourUncertainty(jet);
-    
     // Get the number of jets
     int nJets = 0;
     if (m_gluonFractionHists.size() > 1)
@@ -441,10 +412,6 @@ double FlavourUncertaintyComponent::getFlavourCompositionUncertainty(const xAOD:
     //      fg = fraction of gluons
     //      Rq = light quark response
     //      Rg = gluon response
-
-    // Check if this is configured for jet-by-jet uncertainties
-    if (m_jetByJet)
-        return 0;
     
     // Check if this is a b-jet
     if (isBjet(jet))
@@ -499,47 +466,6 @@ double FlavourUncertaintyComponent::getBJESUncertainty(const xAOD::Jet& jet, con
     if (!isBjet(jet))
         return 0;
     return m_uncHist->getValue(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
-}
-
-
-double FlavourUncertaintyComponent::getPerJetFlavourUncertainty(const xAOD::Jet& jet) const
-{
-    static SG::AuxElement::ConstAccessor<int> truthLabelAccessor ("PartonTruthLabelID");
-    
-    if  (!truthLabelAccessor.isAvailable(jet))
-    {
-        ATH_MSG_ERROR("Unable to find PartonTruthLabelID on the jet");
-        return JESUNC_ERROR_CODE;
-    }
-    const int truthHighestEparton = truthLabelAccessor(jet);
-    
-    // choose the histogram to use based on the jet truth-label flavour
-    UncertaintyHistogram* histToUse = NULL;
-    switch (abs(truthHighestEparton))
-    {
-        // For the moment, treat all quark types identically
-        // The validity of this choice must be studied
-        case 1: // up
-        case 2: // down
-        case 3: // strange
-        case 4: // charm
-        case 5: // bottom
-            histToUse = m_uncHist;
-            break;
-        case 21: // gluon
-            histToUse = m_secondUncHist;
-            break;
-        default:
-            ATH_MSG_ERROR("got an unknown jet type, cannot proceed");
-            return JESUNC_ERROR_CODE;
-    }
-    if (!histToUse)
-    {
-        ATH_MSG_ERROR("unable to determine which histogram to use from the jet type");
-        return JESUNC_ERROR_CODE;
-    }
-
-    return histToUse->getValue(jet.pt()*m_energyScale,m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 

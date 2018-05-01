@@ -25,6 +25,7 @@
 #include "JetUncertainties/ELogMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/PileupUncertaintyComponent.h"
 #include "JetUncertainties/FlavourUncertaintyComponent.h"
+#include "JetUncertainties/PerJetFlavourUncertaintyComponent.h"
 #include "JetUncertainties/PunchthroughUncertaintyComponent.h"
 #include "JetUncertainties/ClosebyUncertaintyComponent.h"
 #include "JetUncertainties/CombinedMassUncertaintyComponent.h"
@@ -70,7 +71,6 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_path("")
     , m_analysisFile("")
     , m_systFilters()
-    , m_flavourJetByJet(false)
     , m_defAnaFile("")
     , m_refNPV(-1)
     , m_refMu(-1)
@@ -101,7 +101,6 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     declareProperty("Path",m_path);
     declareProperty("AnalysisFile",m_analysisFile);
     declareProperty("VariablesToShift",m_systFilters);
-    declareProperty("FlavourJetByJet",m_flavourJetByJet);
 
     ATH_MSG_DEBUG("Creating JetUncertaintiesTool named "<<m_name);
 
@@ -124,7 +123,6 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_path(toCopy.m_path)
     , m_analysisFile(toCopy.m_analysisFile)
     , m_systFilters(toCopy.m_systFilters)
-    , m_flavourJetByJet(toCopy.m_flavourJetByJet)
     , m_defAnaFile(toCopy.m_defAnaFile)
     , m_refNPV(toCopy.m_refNPV)
     , m_refMu(toCopy.m_refMu)
@@ -485,12 +483,6 @@ StatusCode JetUncertaintiesTool::initialize()
         }
         ATH_MSG_INFO(Form("  VariablesToShift: %s",varString.c_str()));
     }
-
-    // Inform the user whether or not the flavour treatment is jet-by-jet
-    if (m_flavourJetByJet)
-        ATH_MSG_INFO("  Flavour handling is configured jet-by-jet");
-    else
-        ATH_MSG_INFO("  Flavour handling is configured per default");
 
     // Prepare for reading components and groups
     // Components can be a group by themself (single component groups) if "Group" == 0
@@ -1031,7 +1023,12 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 return NULL;
             }
             else if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
-                return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile.c_str(),m_defAnaFile.c_str(),m_path.c_str(),m_calibArea.c_str(),m_flavourJetByJet);
+            {
+                if (component.flavourType == FlavourComp::PerJetResponse)
+                    return new PerJetFlavourUncertaintyComponent(component);
+                else
+                    return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile.c_str(),m_defAnaFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+            }
             else
             {
                 ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
