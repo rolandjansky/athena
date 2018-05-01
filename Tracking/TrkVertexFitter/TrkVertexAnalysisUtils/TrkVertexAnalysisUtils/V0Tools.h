@@ -205,6 +205,17 @@ namespace Trk
   double lxyError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
 
 /**
+ * projection of distance in 3D of the vertex wrt an xAOD::Vertex vertex along the momentum direction
+ * (Px*dx+Py*dy+Pz*dz)/p
+ */
+  double lxyz(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+
+/**
+ * error on lxyz
+ */
+  double lxyzError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const;
+
+/**
  * proper time wrt an xAOD::Vertex vertex assuming posTrackMass and negTrackMass
  * tau = CONST*M*lxy/pT
  */
@@ -268,6 +279,28 @@ namespace Trk
   Amg::MatrixX tauMassCovariance(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const;
   double massTauCov(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const;
   double massTauCov(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const;
+
+/**
+ * proper time in 3D wrt an xAOD::Vertex vertex assuming track masses
+ */
+  double tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const;
+
+/**
+ * proper time in 3D wrt an xAOD::Vertex vertex assuming massV0
+ * imposing a V0 mass without making an adjustment 
+ */
+  double tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double massV0) const;
+
+/**
+ * proper time error in 3D wrt an xAOD::Vertex vertex assuming track masses
+ */
+  double tau3DError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const;
+
+/**
+ * proper time error in 3D wrt an xAOD::Vertex vertex assuming massV0
+ * imposing a V0 mass without making an adjustment 
+ */
+  double tau3DError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double massV0) const;
 
 /**
  * Polarization angles in helicity frame (using positive track):

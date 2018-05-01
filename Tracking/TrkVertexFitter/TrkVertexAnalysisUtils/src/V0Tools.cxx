@@ -1116,7 +1116,7 @@ namespace Trk
     }
     double PTsq = Px*Px+Py*Py;
     double PT = (PTsq>0.) ? sqrt(PTsq) : 0.;
-    double LXYoverPT = (Px*dx+Py*dy)/(PT*PT);
+    double LXYoverPT = (Px*dx+Py*dy)/PTsq;
 
     for( unsigned int it=0; it<NTrk; it++) {
       dPTdqOverP[it]  = (Px*dpxdqOverP[it]+Py*dpydqOverP[it])/PT;
@@ -1188,6 +1188,145 @@ namespace Trk
     if (LxyErrsq <= 0.) ATH_MSG_DEBUG("lxyError: negative sqrt LxyErrsq " << LxyErrsq);
     delete fullCov;
     return (LxyErrsq>0.) ? sqrt(LxyErrsq) : 0.;
+  }
+
+  double V0Tools::lxyz(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  {
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
+    double dz = vert.z();
+    Amg::Vector3D mom = V0Momentum(vxCandidate);
+    double dxyz= (mom.x()*dx + mom.y()*dy + mom.z()*dz)/mom.mag();
+    return dxyz;
+  }
+
+  double V0Tools::lxyzError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex) const
+  {
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
+    double dz = vert.z();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
+    double Px=0., Py=0., Pz=0.; 
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
+    std::vector<double>dPdqOverP(NTrk), dPdtheta(NTrk), dPdphi(NTrk);
+    std::vector<double>dLxyzdqOverP(NTrk), dLxyzdtheta(NTrk), dLxyzdphi(NTrk);
+
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    for( unsigned int it=0; it<NTrk; it++) {
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+      double trkCharge = 1.;
+      if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
+      charge[it] = trkCharge;
+      phi[it]    = bPer->parameters()[Trk::phi];
+      theta[it]  = bPer->parameters()[Trk::theta];
+      qOverP[it] = bPer->parameters()[Trk::qOverP];
+      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
+      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
+      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
+      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
+      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
+      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
+      Px += bPer->momentum()[Trk::px];
+      Py += bPer->momentum()[Trk::py];
+      Pz += bPer->momentum()[Trk::pz];
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
+    }
+    double Psq = Px*Px+Py*Py+Pz*Pz;
+    double P = (Psq>0.) ? sqrt(Psq) : 0.;
+    double LXYZoverP = (Px*dx+Py*dy+Pz*dz)/Psq;
+
+    for( unsigned int it=0; it<NTrk; it++) {
+      dPdqOverP[it]  = (Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it])/P;
+      dPdtheta[it]   = (Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/P;
+      dPdphi[it]     = (Px*dpxdphi[it]+Py*dpydphi[it])/P;
+      dLxyzdqOverP[it] = (dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it])/P-LXYZoverP*dPdqOverP[it];
+      dLxyzdtheta[it]  = (dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it])/P-LXYZoverP*dPdtheta[it];
+      dLxyzdphi[it]    = (dx*dpxdphi[it]+dy*dpydphi[it])/P-LXYZoverP*dPdphi[it];
+    }
+    double dLxyzdx = Px/P;
+    double dLxyzdy = Py/P;
+    double dLxyzdz = Pz/P;
+    double dLxyzdx0 = -dLxyzdx;
+    double dLxyzdy0 = -dLxyzdy;
+    double dLxyzdz0 = -dLxyzdz;
+
+    unsigned int ndim = 0;
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
+    } else {
+      ndim = 5*NTrk+3;
+    }
+
+    Amg::MatrixX V0_err;
+    if (ndim == 5*NTrk+3 || ndim == 5*NTrk+6) {
+      Amg::MatrixX D_vec(5*NTrk+6,1); D_vec.setZero();
+      for( unsigned int it=0; it<NTrk; it++) {
+        D_vec(5*it+0)  = 0.;
+        D_vec(5*it+1)  = 0.;
+        D_vec(5*it+2)  = dLxyzdphi[it];
+        D_vec(5*it+3)  = dLxyzdtheta[it];
+        D_vec(5*it+4)  = dLxyzdqOverP[it];
+      }
+      D_vec(5*NTrk+0) = dLxyzdx;
+      D_vec(5*NTrk+1) = dLxyzdy;
+      D_vec(5*NTrk+2) = dLxyzdz;
+      D_vec(5*NTrk+3) = dLxyzdx0;
+      D_vec(5*NTrk+4) = dLxyzdy0;
+      D_vec(5*NTrk+5) = dLxyzdz0;
+
+      Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      } else {
+        W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
+        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
+      }
+      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex->covariancePosition();
+      V0_err = D_vec.transpose() * W_mat * D_vec;
+    } else if (ndim == 3*NTrk+3) {
+      Amg::MatrixX D_vec(3*NTrk+6,1); D_vec.setZero();
+      D_vec(0)  = dLxyzdx;
+      D_vec(1)  = dLxyzdy;
+      D_vec(2)  = dLxyzdz;
+      for( unsigned int it=0; it<NTrk; it++) {
+        D_vec(3*it+3) = dLxyzdphi[it];
+        D_vec(3*it+4) = dLxyzdtheta[it];
+        D_vec(3*it+5) = dLxyzdqOverP[it];
+      }
+      D_vec(3*NTrk+3) = dLxyzdx0;
+      D_vec(3*NTrk+4) = dLxyzdy0;
+      D_vec(3*NTrk+5) = dLxyzdz0;
+
+      Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
+      V0_err = D_vec.transpose() * W_mat * D_vec;
+    }
+
+    double LxyzErrsq = V0_err(0,0);
+    if (LxyzErrsq <= 0.) ATH_MSG_DEBUG("lxyzError: negative sqrt LxyzErrsq " << LxyzErrsq);
+    delete fullCov;
+    return (LxyzErrsq>0.) ? sqrt(LxyzErrsq) : 0.;
   }
 
   double V0Tools::tau(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double posTrackMass, double negTrackMass) const
@@ -1535,6 +1674,314 @@ namespace Trk
       D_vec(3*NTrk+3) = dTaudx0;
       D_vec(3*NTrk+4) = dTaudy0;
       D_vec(3*NTrk+5) = 0.;
+
+      Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) = vertex->covariancePosition();
+      V0_err = D_vec.transpose() * W_mat * D_vec;
+    }
+
+    double tauErrsq = V0_err(0,0);
+    if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
+    double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
+    delete fullCov;
+    return CONST*tauErr;
+  }
+
+  double V0Tools::tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const
+  {
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    if (masses.size() != NTrk) {
+      ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
+      return -999999.;
+    }
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
+    double M = invariantMass(vxCandidate, masses);
+    double LXYZ = lxyz(vxCandidate,vertex);
+    double P = V0Momentum(vxCandidate).mag();
+    return CONST*M*LXYZ/P;
+  }
+
+  double V0Tools::tau3D(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double M) const
+  {
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
+    double LXY = lxy(vxCandidate,vertex);
+    double PT = V0Momentum(vxCandidate).perp();
+    return CONST*M*LXY/PT;
+  }
+
+  double V0Tools::tau3DError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const
+  {
+    // Tau = CONST*M*(Px*dx+Py*dy+Pz*dz)/(P*P)
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    if (masses.size() != NTrk) {
+      ATH_MSG_DEBUG("The provided number of masses does not match the number of tracks in the vertex");
+      return -999999.;
+    }
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
+    double P = V0Momentum(vxCandidate).mag();
+    auto vert = vxCandidate->position() - vertex->position();
+    double dx = vert.x();
+    double dy = vert.y();
+    double dz = vert.z();
+    double M = invariantMass(vxCandidate, masses);
+    Amg::MatrixX V0_cov(5*NTrk,5*NTrk); V0_cov.setZero();
+    double E=0., Px=0., Py=0., Pz=0.; 
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk), dedqOverP(NTrk);
+    std::vector<double>dMdqOverP(NTrk), dMdtheta(NTrk), dMdphi(NTrk);
+    std::vector<double>dPdqOverP(NTrk), dPdtheta(NTrk), dPdphi(NTrk);
+    std::vector<double>dLXYZdqOverP(NTrk), dLXYZdtheta(NTrk), dLXYZdphi(NTrk);
+    std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
+
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    for( unsigned int it=0; it<NTrk; it++) {
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+      double trkCharge = 1.;
+      if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
+      charge[it] = trkCharge;
+      phi[it]    = bPer->parameters()[Trk::phi];
+      theta[it]  = bPer->parameters()[Trk::theta];
+      qOverP[it] = bPer->parameters()[Trk::qOverP];
+      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
+      double pe = (tmp>0.) ? sqrt(tmp) : 0.;
+      e[it] = pe;
+      dedqOverP[it]  = -1./(qOverP[it]*qOverP[it]*qOverP[it]*e[it]);
+      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
+      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
+      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
+      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
+      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
+      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
+      E  += e[it];
+      Px += bPer->momentum()[Trk::px];
+      Py += bPer->momentum()[Trk::py];
+      Pz += bPer->momentum()[Trk::pz];
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
+    }
+    double LXYZ = Px*dx+Py*dy+Pz*dz;
+
+    for( unsigned int it=0; it<NTrk; it++) {
+      dMdqOverP[it]    = -(Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it]-E*dedqOverP[it])/M;
+      dMdtheta[it]     = -(Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/M;
+      dMdphi[it]       = -(Px*dpxdphi[it]+Py*dpydphi[it])/M;
+      dPdqOverP[it]    =  (Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it])/P;
+      dPdtheta[it]     =  (Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/P;
+      dPdphi[it]       =  (Px*dpxdphi[it]+Py*dpydphi[it])/P;
+      dLXYZdqOverP[it] =  dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it];
+      dLXYZdtheta[it]  =  dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it];
+      dLXYZdphi[it]    =  dx*dpxdphi[it]+dy*dpydphi[it];
+      dTaudqOverP[it]  =  (LXYZ*dMdqOverP[it]+M*dLXYZdqOverP[it])/(P*P)-(2.*LXYZ*M*dPdqOverP[it])/(P*P*P);
+      dTaudtheta[it]   =  (LXYZ*dMdtheta[it]+M*dLXYZdtheta[it])/(P*P)-(2.*LXYZ*M*dPdtheta[it])/(P*P*P);
+      dTaudphi[it]     =  (LXYZ*dMdphi[it]+M*dLXYZdphi[it])/(P*P)-(2.*LXYZ*M*dPdphi[it])/(P*P*P);
+    }
+    double dTaudx = (M*Px)/(P*P);
+    double dTaudy = (M*Py)/(P*P);
+    double dTaudz = (M*Pz)/(P*P);
+    double dTaudx0 = -dTaudx;
+    double dTaudy0 = -dTaudy;
+    double dTaudz0 = -dTaudz;
+
+    unsigned int ndim = 0;
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
+    } else {
+      ndim = 5*NTrk+3;
+    }
+
+    Amg::MatrixX V0_err;
+    if (ndim == 5*NTrk+3 || ndim == 5*NTrk+6) {
+      Amg::MatrixX D_vec(5*NTrk+6,1); D_vec.setZero();
+      for( unsigned int it=0; it<NTrk; it++) {
+        D_vec(5*it+0) = 0.;
+        D_vec(5*it+1) = 0.;
+        D_vec(5*it+2) = dTaudphi[it];
+        D_vec(5*it+3) = dTaudtheta[it];
+        D_vec(5*it+4) = dTaudqOverP[it];
+      }
+      D_vec(5*NTrk+0) = dTaudx;
+      D_vec(5*NTrk+1) = dTaudy;
+      D_vec(5*NTrk+2) = dTaudz;
+      D_vec(5*NTrk+3) = dTaudx0;
+      D_vec(5*NTrk+4) = dTaudy0;
+      D_vec(5*NTrk+5) = dTaudz0;
+
+      Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      } else {
+        W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
+        W_mat.block(5*NTrk,5*NTrk,3,3) =  vxCandidate->covariancePosition();
+      }
+      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex->covariancePosition();
+      V0_err = D_vec.transpose() * W_mat * D_vec;
+    } else if (ndim == 3*NTrk+3) {
+      Amg::MatrixX D_vec(3*NTrk+6,1); D_vec.setZero();
+      D_vec(0) = dTaudx;
+      D_vec(1) = dTaudy;
+      D_vec(2) = dTaudz;
+      for( unsigned int it=0; it<NTrk; it++) {
+        D_vec(3*it+3) = dTaudphi[it];
+        D_vec(3*it+4) = dTaudtheta[it];
+        D_vec(3*it+5) = dTaudqOverP[it];
+      }
+      D_vec(3*NTrk+3) = dTaudx0;
+      D_vec(3*NTrk+4) = dTaudy0;
+      D_vec(3*NTrk+5) = dTaudz0;
+
+      Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
+      W_mat.block(0,0,ndim,ndim) = *fullCov;
+      W_mat.block(3*NTrk+3,3*NTrk+3,3,3) =  vertex->covariancePosition();
+      V0_err = D_vec.transpose() * W_mat * D_vec;
+    }
+
+    double tauErrsq = V0_err(0,0);
+    if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
+    double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
+    delete fullCov;
+    return CONST*tauErr;
+  }
+
+  double V0Tools::tau3DError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, double M) const
+  {
+    // Tau = CONST*M*(Px*dx+Py*dy+Pz*dz)/(P*P)
+    //double CONST = 1000./CLHEP::c_light;
+    double CONST = 1000./299.792;
+    double P = V0Momentum(vxCandidate).mag();
+    auto vecsub = vxCandidate->position() - vertex->position();
+    double dx = vecsub.x();
+    double dy = vecsub.y();
+    double dz = vecsub.z();
+    unsigned int NTrk = vxCandidate->vxTrackAtVertex().size();
+    Amg::MatrixX V0_cov(5*NTrk,1); V0_cov.setZero();
+    double Px=0., Py=0., Pz=0.; 
+    std::vector<double>phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk);
+    std::vector<double>dpxdqOverP(NTrk), dpxdtheta(NTrk), dpxdphi(NTrk);
+    std::vector<double>dpydqOverP(NTrk), dpydtheta(NTrk), dpydphi(NTrk);
+    std::vector<double>dpzdqOverP(NTrk), dpzdtheta(NTrk);
+    std::vector<double>dPdqOverP(NTrk), dPdtheta(NTrk), dPdphi(NTrk);
+    std::vector<double>dLXYZdqOverP(NTrk), dLXYZdtheta(NTrk), dLXYZdphi(NTrk);
+    std::vector<double>dTaudqOverP(NTrk), dTaudtheta(NTrk), dTaudphi(NTrk);
+
+    Amg::MatrixX* fullCov = convertCovMatrix(vxCandidate);
+    for( unsigned int it=0; it<NTrk; it++) {
+      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+      double trkCharge = 1.;
+      if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
+      charge[it] = trkCharge;
+      phi[it]    = bPer->parameters()[Trk::phi];
+      theta[it]  = bPer->parameters()[Trk::theta];
+      qOverP[it] = bPer->parameters()[Trk::qOverP];
+      dpxdqOverP[it] = -(sin(theta[it])*cos(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
+      dpxdtheta[it]  =  (cos(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      dpxdphi[it]    = -(sin(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
+      dpydqOverP[it] = -(sin(theta[it])*sin(phi[it])*charge[it])/(qOverP[it]*qOverP[it]);
+      dpydtheta[it]  =  (cos(theta[it])*sin(phi[it])*charge[it])/qOverP[it];
+      dpydphi[it]    =  (sin(theta[it])*cos(phi[it])*charge[it])/qOverP[it];
+      dpzdqOverP[it] = -(cos(theta[it])*charge[it])/(qOverP[it]*qOverP[it]);
+      dpzdtheta[it]  = -(sin(theta[it])*charge[it])/qOverP[it];
+      Px += bPer->momentum()[Trk::px];
+      Py += bPer->momentum()[Trk::py];
+      Pz += bPer->momentum()[Trk::pz];
+      if (fullCov == 0) {
+        //V0_cov.block(5*it,5*it,5,5) =  *(bPer->covariance());
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cov(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cov(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cov(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cov(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cov(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cov(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cov(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+      }
+    }
+    double LXYZ = Px*dx+Py*dy+Pz*dz;
+
+    for( unsigned int it=0; it<NTrk; it++) {
+      dPdqOverP[it]    = (Px*dpxdqOverP[it]+Py*dpydqOverP[it]+Pz*dpzdqOverP[it])/P;
+      dPdtheta[it]     = (Px*dpxdtheta[it]+Py*dpydtheta[it]+Pz*dpzdtheta[it])/P;
+      dPdphi[it]       = (Px*dpxdphi[it]+Py*dpydphi[it])/P;
+      dLXYZdqOverP[it] = dx*dpxdqOverP[it]+dy*dpydqOverP[it]+dz*dpzdqOverP[it];
+      dLXYZdtheta[it]  = dx*dpxdtheta[it]+dy*dpydtheta[it]+dz*dpzdtheta[it];
+      dLXYZdphi[it]    = dx*dpxdphi[it]+dy*dpydphi[it];
+      dTaudqOverP[it]  = M*dLXYZdqOverP[it]/(P*P)-(2.*LXYZ*M*dPdqOverP[it])/(P*P*P);
+      dTaudtheta[it]   = M*dLXYZdtheta[it]/(P*P)-(2.*LXYZ*M*dPdtheta[it])/(P*P*P);
+      dTaudphi[it]     = M*dLXYZdphi[it]/(P*P)-(2.*LXYZ*M*dPdphi[it])/(P*P*P);
+    }
+    double dTaudx = (M*Px)/(P*P);
+    double dTaudy = (M*Py)/(P*P);
+    double dTaudz = (M*Pz)/(P*P);
+    double dTaudx0 = -dTaudx;
+    double dTaudy0 = -dTaudy;
+    double dTaudz0 = -dTaudz;
+
+    unsigned int ndim = 0;
+    if (fullCov != 0) {
+      ndim = fullCov->rows();
+    } else {
+      ndim = 5*NTrk+3;
+    }
+
+    Amg::MatrixX V0_err;
+    if (ndim == 5*NTrk+3 || ndim == 5*NTrk+6) {
+      Amg::MatrixX D_vec(5*NTrk+6,1); D_vec.setZero();
+      for( unsigned int it=0; it<NTrk; it++) {
+        D_vec(5*it+0) = 0.;
+        D_vec(5*it+1) = 0.;
+        D_vec(5*it+2) = dTaudphi[it];
+        D_vec(5*it+3) = dTaudtheta[it];
+        D_vec(5*it+4) = dTaudqOverP[it];
+      }
+      D_vec(5*NTrk+0) = dTaudx;
+      D_vec(5*NTrk+1) = dTaudy;
+      D_vec(5*NTrk+2) = dTaudz;
+      D_vec(5*NTrk+3) = dTaudx0;
+      D_vec(5*NTrk+4) = dTaudy0;
+      D_vec(5*NTrk+5) = dTaudz0;
+
+      Amg::MatrixX W_mat(5*NTrk+6,5*NTrk+6); W_mat.setZero();
+      if (fullCov != 0) {
+        W_mat.block(0,0,ndim,ndim) = *fullCov;
+      } else {
+        W_mat.block(0,0,V0_cov.rows(),V0_cov.rows()) = V0_cov;
+        W_mat.block(5*NTrk,5*NTrk,3,3) = vxCandidate->covariancePosition();
+      }
+      W_mat.block(5*NTrk+3,5*NTrk+3,3,3) = vertex->covariancePosition();
+      V0_err = D_vec.transpose() * W_mat * D_vec;
+    } else if (ndim == 3*NTrk+3) {
+      Amg::MatrixX D_vec(3*NTrk+6,1); D_vec.setZero();
+      D_vec(0)  = dTaudx;
+      D_vec(1)  = dTaudy;
+      D_vec(2)  = dTaudz;
+      for( unsigned int it=0; it<NTrk; it++) {
+        D_vec(3*it+3) = dTaudphi[it];
+        D_vec(3*it+4) = dTaudtheta[it];
+        D_vec(3*it+5) = dTaudqOverP[it];
+      }
+      D_vec(3*NTrk+3) = dTaudx0;
+      D_vec(3*NTrk+4) = dTaudy0;
+      D_vec(3*NTrk+5) = dTaudz0;
 
       Amg::MatrixX W_mat(3*NTrk+6,3*NTrk+6); W_mat.setZero();
       W_mat.block(0,0,ndim,ndim) = *fullCov;
