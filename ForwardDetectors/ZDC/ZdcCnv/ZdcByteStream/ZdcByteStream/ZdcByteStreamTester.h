@@ -18,7 +18,7 @@
 #include <string>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 class ISvcLocator;
 class StatusCode;
