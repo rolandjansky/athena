@@ -35,8 +35,8 @@ namespace DerivationFramework {
 
       /** inirialization and finalization
        */
-      StatusCode initialize();
-      StatusCode finalize();
+      StatusCode initialize() override;
+      StatusCode finalize() override;
       
       /** @brief: augmentation and selection
        *  Retrieved vertices are augmented with usual information. 
@@ -45,8 +45,9 @@ namespace DerivationFramework {
        *  passed the selection. This flag is then used by the event selection tool
        *  and by the vertex thinning tool.
        */
-      virtual StatusCode addBranches() const;
-      
+      virtual StatusCode addBranches() const override;
+      void SetDo3d(bool t) { m_do3d = t; }
+
     private:
       void ProcessVertex(xAOD::BPhysHypoHelper&, xAOD::BPhysHelper::pv_type) const;
       /** tools
@@ -63,6 +64,7 @@ namespace DerivationFramework {
       double m_massMin;                     //!< invariant mass range
       double m_chi2Max;                     //!< max chi2 cut
       int m_DoVertexType;                   //!< Allows user to skip certain vertexes - bitwise test 7==all(111)
+      bool m_do3d;
   }; 
 }
 
