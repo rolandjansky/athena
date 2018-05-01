@@ -136,16 +136,16 @@ StatusCode ClusterCreator::execute() {
       const std::string ccclc_name = xaodName + "_links";
       CaloClusterCellLinkContainer* ccclc =
          new CaloClusterCellLinkContainer();
-
+      CHECK( evtStore()->record( ccclc, ccclc_name ) );
+      
       // Create the xAOD container and its auxiliary store:
       xAOD::CaloClusterContainer* xaod = new xAOD::CaloClusterContainer();
-      xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
-      xaod->setStore( aux );
-     
-      // Record all the new containers:
-      CHECK( evtStore()->record( ccclc, ccclc_name ) );
       CHECK( evtStore()->record( xaod, xaodName ) );
+      
+      xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer(); 
       CHECK( evtStore()->record( aux, xaodName + "Aux." ) );
+      
+      xaod->setStore( aux );
       ATH_MSG_DEBUG( "Recorded xAOD clusters with key: " << xaodName );
 
  
