@@ -111,6 +111,7 @@ namespace met {
     declareProperty("CustomForwardJetPt", m_customFwdJetPtCut  = 20e3                );
     declareProperty("CustomJetJvtCut",    m_customJvtCut       = 0.59                );
     declareProperty("CustomJetJvtPtMax",  m_customJvtPtMax     = 60e3                );
+    declareProperty("CustomJetEtaMax",    m_JetEtaMax          = -1.0                );
 
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
@@ -147,7 +148,7 @@ namespace met {
     ATH_MSG_INFO ("Initializing " << name() << "...");
     
     //default jet selection i.e. pre-recommendation
-    ATH_MSG_VERBOSE("Use jet selection criterion: " << m_jetSelection);
+    ATH_MSG_INFO("Use jet selection criterion: " << m_jetSelection << " PFlow: " <<m_doPFlow);
     if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
@@ -617,13 +618,14 @@ namespace met {
         bool selected = (fabs(jet->eta())<2.4 && jet->pt()>m_CenJetPtCut) || (fabs(jet->eta())>=2.4 && jet->pt()>m_FwdJetPtCut );//jjj
         bool JVT_reject(false);
 	bool isMuFSRJet(false);
-	
+
+	if(m_JetEtaMax>0.0 && fabs(jet->eta())>m_JetEtaMax) JVT_reject=true;
         if(doJetJVT) {
 	  if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<2.4) {
-	    float jvt;
+	    float jvt=-100.0;	
 	    bool gotJVT = jet->getAttribute<float>(m_jetJvtMomentName,jvt);
 	    if(gotJVT) {
-	      JVT_reject = jvt<m_JvtCut;
+	      JVT_reject = (jvt<m_JvtCut);
 	      ATH_MSG_VERBOSE("Jet " << (JVT_reject ? "fails" : "passes") <<" JVT selection");
 	    } else {
 	      JVT_reject = true;
@@ -631,7 +633,11 @@ namespace met {
 	    }
 	  }
         }
+	//std::cout << "JVT_reject:" << JVT_reject << " " << (jet->auxdata<char>("passJVT40T60M120L")==0) << " " << (assoc && !assoc->isMisc())
+	//	  << " m_jetRejectionDec:" << m_jetRejectionDec << " pt: " << jet->pt() << " eta:" << jet->eta() << " jvt:"<< jvt << " doJetJVT:" << doJetJVT << " gotIt:"<< gotJVT 
+	//	  << " m_JvtCut:"<<m_JvtCut << std::endl;
         if (m_extraJetRejection && jet->auxdata<char>(m_jetRejectionDec)==0){
+	  //std::cout << "JVT_reject:" << JVT_reject << " " << (jet->auxdata<char>("passJVT40T60M120L")==0) << " m_jetRejectionDec:" << m_jetRejectionDec << std::endl;
 	  JVT_reject = true;
 	}
         bool hardJet(false);
