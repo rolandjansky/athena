@@ -43,6 +43,7 @@
 #include "G4Deuteron.hh"
 #include "G4Triton.hh"
 #include "G4He3.hh"
+#include "G4Geantino.hh"
 #include "TGraph.h"
 #include "G4Step.hh"
 #include "G4StepPoint.hh"
@@ -248,6 +249,8 @@ namespace G4UA{
 	       aStep->GetTrack()->GetDefinition()==G4He3::Definition()){
       pdgid=9; // particles not protons treated as protons for NIEL 
 
+    } else if (aStep->GetTrack()->GetDefinition()==G4Geantino::Definition()) {
+      pdgid = 999; // geantinos are used for volume calculation
     } else if (!aStep->GetTrack()->GetDefinition()->GetPDGCharge()) return; // Not one of those and not a primary?
 
     if ( pdgid == 10 && aStep->GetTrack()->GetKineticEnergy() > 10 ) {
@@ -259,7 +262,7 @@ namespace G4UA{
     // process NIEL, h20 and Edep particles only
 
     if ( pdgid == 1 || pdgid == 2 || pdgid == 4 || pdgid == 5 || pdgid == 6 || pdgid == 7 || pdgid == 8 || pdgid == 9 || /* NIEL & h20*/
-	 aStep->GetTotalEnergyDeposit() > 0 ) {
+	 aStep->GetTotalEnergyDeposit() > 0 || pdgid == 999) {
       
     
       double rho = aStep->GetTrack()->GetMaterial()->GetDensity()/CLHEP::g*CLHEP::cm3; 
@@ -330,7 +333,7 @@ namespace G4UA{
       double dE_NIEL = aStep->GetNonIonizingEnergyDeposit()/nStep;
       double dE_ION = dE_TOT-dE_NIEL;
       
-      if ( weight > 0 || eKin > 20 || dE_TOT > 0 ) {
+      if ( weight > 0 || eKin > 20 || dE_TOT > 0 || pdgid == 999) {
 
 	for(unsigned int i=0;i<nStep;i++) {
 	  double absz = fabs(z0+dz*(i+0.5));
@@ -432,13 +435,20 @@ namespace G4UA{
 	  }
 	  if (!m_config.material.empty()) {
 	    // need volume fraction only if particular material is selected
-	    if ( eKin > 1 && (pdgid == 6 || pdgid == 7)) {
-	      // count all neutron > 1 MeV track length weighted by r to get 
-	      // norm for volume per bin.
-	      // High energetic neutrons are used because they travel far enough to 
+	    if ( (eKin > 1 && (pdgid == 6 || pdgid == 7)) || pdgid == 999) {
+	      // count all neutron > 1 MeV track lengths weighted by r
+	      // to get norm for volume per bin. High energetic
+	      // neutrons are used because they travel far enough to
 	      // map entire bins and are not bent by magnetic fields.
-	      // dl is a measure of length inside the current bin. The multiplication by r accounts for
-	      // the larger volume corresponding to larger r
+	      // dl is a measure of length inside the current bin.
+	      // The multiplication by r accounts for the larger
+	      // volume corresponding to larger r assuming that the
+	      // neutron flux is locally mainly from inside to
+	      // outside. In regions where the neutron flux differs
+	      // substantially from this cylindrical assumption a
+	      // cylindrical Geantino scan (vertex: flat in z, x=y=0;
+	      // momentum: pz=0, flat in phi) should be used to get
+	      // the correct volume fraction.
 	      if ( vBinZoom >=0 ) {
 		m_maps.m_rz_norm[vBinZoom] += rr*dl;
 	      }
