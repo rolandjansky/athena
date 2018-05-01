@@ -885,7 +885,7 @@ class TopConfig final {
   inline std::vector<std::string> getGlobalTriggerElectronSystematics() const { return m_trigGlobalConfiguration.electron_trigger_systematics; }
   inline std::vector<std::string> getGlobalTriggerMuonSystematics()     const {return m_trigGlobalConfiguration.muon_trigger_systematics; }
   inline std::vector<std::string> getGlobalTriggerElectronTools()       const {return m_trigGlobalConfiguration.electron_trigger_tool_names; }
-  inline std::vector<std::string> getGlobalTriggerMuonTools()           const {return m_trigGlobalConfiguration.electron_trigger_tool_names; }
+  inline std::vector<std::string> getGlobalTriggerMuonTools()           const {return m_trigGlobalConfiguration.muon_trigger_tool_names; }
 
 
 

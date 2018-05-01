@@ -73,12 +73,17 @@ namespace top{
       SG::AuxElement::Accessor<char> m_selectedLepton;
       SG::AuxElement::Accessor<char> m_selectedLeptonLoose;
 
+      // Name of active variation
+      std::string m_activeSystVariation;
+
       ///-- Functions to handle different configurations --///
       StatusCode executeNominalVariations();
       StatusCode executeElectronSystematics();
       StatusCode executeMuonSystematics();
       StatusCode decorateEventInfo(std::string, double);
-      void Print(double, double, double);
+      void Print(std::string, double, double, double);
+      StatusCode setElectronSystematic(std::string systematicName, int sig, std::vector<std::string> toolNames);
+      StatusCode setMuonSystematic(std::string systematicName, int sig, std::vector<std::string> toolNames);
 
   };
 } // namespace

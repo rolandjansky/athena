@@ -206,7 +206,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	  electronToolNames.push_back(name);
 	  // Special - Record the systematic names
 	  if(electronSystematics.size() == 0){
-	    for(auto& s : handles[handles.size()-1]->affectingSystematics().getBaseNames() ) electronSystematics.push_back(s);
+	    for(auto& s : handles[handles.size()-1]->recommendedSystematics().getBaseNames() ) electronSystematics.push_back(s);
 	  }
 	}
     }
@@ -254,7 +254,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   ATH_MSG_INFO("Muon tool name (tight) " << muonTools[muonTools.size()-1].name());
   muonToolNames.push_back(muonTools[muonTools.size()-1].name());
   // Special - Get muon systematics
-  for(auto& s: muonTools[muonTools.size()-1]->affectingSystematics().getBaseNames()) muonSystematics.push_back(s);
+  for(auto& s: muonTools[muonTools.size()-1]->recommendedSystematics().getBaseNames()) muonSystematics.push_back(s);
  
   if(muonQualityLoose != "None")
     top::check(m_muonToolLoose.setProperty("MuonQuality", muonQualityLoose), "Failed to set MuonQuality");
@@ -318,7 +318,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   top::check(globalTriggerEffTool->setProperty("MuonTools", muonTools), "");
   top::check(globalTriggerEffTool->setProperty("ListOfLegsPerTool", legsPerTool), "");
   top::check(globalTriggerEffTool->setProperty("TriggerCombination", triggerCombination), "");
-  top::check(globalTriggerEffTool->setProperty("OutputLevel", MSG::DEBUG), "");
+  top::check(globalTriggerEffTool->setProperty("OutputLevel", MSG::INFO), "");
   top::check(globalTriggerEffTool->initialize(), "Failed to initalise");
   m_globalTriggerEffTool = globalTriggerEffTool;
 
@@ -328,7 +328,7 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   top::check(globalTriggerEffToolLoose->setProperty("MuonTools", muonToolsLoose), "");
   top::check(globalTriggerEffToolLoose->setProperty("ListOfLegsPerTool", legsPerToolLoose), "");
   top::check(globalTriggerEffToolLoose->setProperty("TriggerCombination", triggerCombinationLoose), "");
-  top::check(globalTriggerEffToolLoose->setProperty("OutputLevel", MSG::DEBUG), "");
+  top::check(globalTriggerEffToolLoose->setProperty("OutputLevel", MSG::INFO), "");
   top::check(globalTriggerEffToolLoose->initialize(), "Failed to initalise");
   m_globalTriggerEffToolLoose = globalTriggerEffToolLoose;
 
