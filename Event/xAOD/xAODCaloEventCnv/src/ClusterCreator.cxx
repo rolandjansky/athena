@@ -141,7 +141,14 @@ StatusCode ClusterCreator::execute() {
       xAOD::CaloClusterContainer* xaod = new xAOD::CaloClusterContainer();
       xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
       xaod->setStore( aux );
-  
+     
+      // Record all the new containers:
+      CHECK( evtStore()->record( ccclc, ccclc_name ) );
+      CHECK( evtStore()->record( xaod, xaodName ) );
+      CHECK( evtStore()->record( aux, xaodName + "Aux." ) );
+      ATH_MSG_DEBUG( "Recorded xAOD clusters with key: " << xaodName );
+
+ 
       // Create the xAOD objects:
       CaloClusterContainer::const_iterator itr = aod->begin();
       CaloClusterContainer::const_iterator end = aod->end();
@@ -160,12 +167,6 @@ StatusCode ClusterCreator::execute() {
                           << aux->getDynamicAuxIDs().size() );
 
       } // end loop over clusters
-
-      // Record all the new containers:
-      CHECK( evtStore()->record( ccclc, ccclc_name ) );
-      CHECK( evtStore()->record( xaod, xaodName ) );
-      CHECK( evtStore()->record( aux, xaodName + "Aux." ) );
-      ATH_MSG_DEBUG( "Recorded xAOD clusters with key: " << xaodName );
 
    } // end loop over cluster containers
 
