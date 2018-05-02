@@ -780,7 +780,7 @@ namespace met {
 	opy += mu_calovec.cpy();
 	double opt = sqrt( opx*opx+opy*opy );
 	ATH_MSG_VERBOSE("Jet " << jet->index() << " const pT diff after OR readding muon clusters " << opt-jpt);
-	double uniquefrac = 1. - (calvec.ce() - mu_calovec.ce()) / constjet.E();
+	double uniquefrac = 1. - (calvec.cpt() - mu_calovec.cpt()) / constjet.pt();
 	ATH_MSG_VERBOSE( "Jet constscale px, py, pt, E = " << jpx << ", " << jpy << ", " << jpt << ", " << constjet.E() );
 	ATH_MSG_VERBOSE( "Jet overlap E = " << calvec.ce() - mu_calovec.ce() );
 	ATH_MSG_VERBOSE( "Jet OR px, py, pt, E = " << opx << ", " << opy << ", " << opt << ", " << constjet.E() - calvec.ce() );
