@@ -1,5 +1,4 @@
 #include "xAODTrigMuon/TrigMuonDefs.h"
-//#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include <math.h>
 #include <iostream>
 
@@ -10,10 +9,6 @@ namespace L2MuonParameters{
 
   ECRegions whichECRegion( const float eta, const float phi ){
       float absEta = fabs(eta);
-
-std::cout<<"esumi check"<<std::endl;
-
-
       if( ( 1.3 <= absEta && absEta < 1.45) &&
 	  ( (0                 <= fabs(phi) && fabs(phi) < CLHEP::pi/48. )     ||
 	    (CLHEP::pi*11./48. <= fabs(phi) && fabs(phi) < CLHEP::pi*13./48. ) ||
