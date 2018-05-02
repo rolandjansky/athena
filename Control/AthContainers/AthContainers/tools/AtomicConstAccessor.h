@@ -90,8 +90,11 @@ public:
   /**
    * @brief Fetch the variable for one element, as a const reference.
    * @param e The element for which to fetch the variable.
+   *
+   * As this class can be used only read-only for basic types, return
+   * the result by value.  That makes it easier to call from python.
    */
-  const_reference_type operator() (const AuxElement& e) const;
+  T operator() (const AuxElement& e) const;
 
 
   /**
@@ -102,9 +105,11 @@ public:
    * This allows retrieving aux data by container / index.
    * Looping over the index via this method will be faster then
    * looping over the elements of the container.
+   *
+   * As this class can be used only read-only for basic types, return
+   * the result by value.  That makes it easier to call from python.
    */
-  const_reference_type
-  operator() (const AuxVectorData& container, size_t index) const;
+  T operator() (const AuxVectorData& container, size_t index) const;
 
 
   /**

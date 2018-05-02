@@ -82,7 +82,7 @@ void test1()
   assert (ityp2.auxid() == ityp2_id);
 
   static_assert (std::is_same<decltype(ityp2(b)),
-                              const std::atomic<int>&>::value, "test");
+                              int>::value, "test");
 
   SG::AtomicDecorator<int> ityp2_d ("anInt2");
   ityp2_d(b) = 11;
@@ -95,7 +95,7 @@ void test1()
   ityp3_d(cb) = 12;
   assert (12 == ityp3(cb));
 
-  assert (ityp3.getDataArray (v)+5 == &ityp3(cb));
+  assert (*(ityp3.getDataArray (v)+5) == ityp3(cb));
   static_assert (std::is_same<decltype(ityp3.getDataArray(v)),
                               const std::atomic<int>*>::value, "test");
 
