@@ -231,7 +231,7 @@ class DV_DoubleTracklessJetFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=["bool"]
     StoredValue=True
-    cutEtMin=25.0*Units.GeV
+    cutEtMin=50.0*Units.GeV
     cutEtaMax=2.5
     cutSumPtTrkMax=5.0*Units.GeV
     pass
