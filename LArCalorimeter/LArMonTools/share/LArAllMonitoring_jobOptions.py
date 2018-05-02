@@ -52,24 +52,6 @@ if 'LArDigitKey'  in dir() :
     LArMonFlags.LArDigitKey=LArDigitKey 
 
 
-#add some trigger configuration to avoid errors from NoiseCorrelationTool (mspalla)
- ####################
-from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
-tf.readBS.set_Value_and_Lock(True)
-tf.doLVL1.set_Value_and_Lock(False)
-tf.doLVL2.set_Value_and_Lock(False)
-tf.doEF.set_Value_and_Lock(False)
-tf.doL1Topo.set_Value_and_Lock(False)
-tf.readLVL1Calo.set_Value_and_Lock(True)
-tf.enableMonitoring.set_Value_and_Lock(False)
-tf.doID.set_Value_and_Lock(False)
-tf.doMuon.set_Value_and_Lock(False)
-tf.doBcm.set_Value_and_Lock(False)
-tf.doTrt.set_Value_and_Lock(False)
-tf.configForStartup="HLTonline"
-tf.configForStartup.lock()
-include("TrigTier0/BStoESD_Tier0_HLTConfig_jobOptions.py")
-
 
 # This is the main block choosing what monitoring to run.
 # There is some repetition, but I think maintenance is easier (Rob).
@@ -95,6 +77,7 @@ if jobproperties.Beam.beamType() == 'cosmics':
             if LArMonFlags.doLArDigitMon():
                 include ("LArMonTools/LArDigitMon_jobOptions.py")
             if LArMonFlags.doLArNoiseCorrelationMon():
+                febs_for_coherent_noise_mon=["barrelaft09slot02","endcapCFT17slot04","EndCapAFT06Slot09"]
                 include ("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")
             if LArMonFlags.doLArNoisyROMon():
                 include ("LArMonTools/LArNoisyROMon_jobOptions.py")
