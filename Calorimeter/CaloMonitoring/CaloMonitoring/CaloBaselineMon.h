@@ -76,8 +76,8 @@ class CaloBaselineMon : public CaloMonToolBase {
    ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
    // Control plots of BCID filled for each type
-   TH1I_LW* h1_BCID_bcidtoolMon;
-   TH1I_LW* h1_BCID_pedestalMon;
+   TH1I_LW* m_h1_BCID_bcidtoolMon;
+   TH1I_LW* m_h1_BCID_pedestalMon;
 
    std::vector<std::vector<float>> m_sum_partition_eta;
 
