@@ -17,7 +17,7 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "InDetRawData/TRT_RDO_Container.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkTrack/Track.h"
 #include "VxVertex/VxContainer.h"
 #include "StoreGate/ReadHandleKey.h"
