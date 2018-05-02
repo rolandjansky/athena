@@ -423,9 +423,12 @@ def addCopyJet(FTAG5Seq, ToolSvc, InputJetCollectionName, OutputJetCollectionNam
 #========================================================================
 # Hbb Tagger
 #========================================================================
-def addHbbTagger(sequence, ToolSvc, logger,
+def addHbbTagger(sequence, ToolSvc, logger=None,
                  output_level=WARNING,
                  jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20"):
+    if logger is None:
+        logger = Logging.logging.getLogger('HbbTaggerLog')
+
     fat_calibrator_name = "HbbCalibrator"
     is_data = not DerivationFrameworkIsMonteCarlo
     if not hasattr(ToolSvc, fat_calibrator_name):
