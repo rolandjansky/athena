@@ -4,7 +4,7 @@
 
 #include "TRT_Monitoring/TRT_Monitoring_Tool.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
