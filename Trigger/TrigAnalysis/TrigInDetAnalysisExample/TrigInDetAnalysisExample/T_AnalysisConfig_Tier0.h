@@ -265,7 +265,7 @@ protected:
       
       m_provider->msg(MSG::VERBOSE) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endmsg;
 
-      if(m_provider->msg().level() <= MSG::VERBOSE) {
+      if (m_provider->msg().level() <= MSG::VERBOSE) {
 	
 	std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 	
@@ -290,38 +290,60 @@ protected:
 
         m_provider->msg(MSG::INFO) << "process chain " << chainName << endmsg;
 
-        /// get matching chains
-        std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );
+	if ( chainName.head() == "" ) { 
+	  
+	  std::string selectChain;
+	  
+	  if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
+	  if ( chainName.extra()!="" )   selectChain += ":index="+chainName.extra();
+	  if ( chainName.element()!="" ) continue;
+	  if ( chainName.roi()!="" )     continue;
+	  if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
+	  if ( !chainName.passed() )     continue;
+	  if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
 
-	
-        for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
-
-          if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-          if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
-          if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
-          if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
-          if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-          if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
-	  if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
-
-#if 0
-	  std::cout << "sorting:: chain specification: " << chainName << "\traw:" << chainName.raw() << std::endl;
-	  std::cout << "\tchain: " << chainName.head()    << std::endl;
-	  std::cout << "\tkey:   " << chainName.tail()    << std::endl;
-	  std::cout << "\tind:   " << chainName.extra()   << std::endl;
-	  std::cout << "\troi:   " << chainName.roi()     << std::endl;
-	  std::cout << "\tvtx:   " << chainName.vtx()     << std::endl;
-	  std::cout << "\tte:    " << chainName.element() << std::endl;
-#endif
-
-          /// replace wildcard with actual matching chains ...
-          chains.push_back( ChainString(selectChains[iselected]) );
-
-          if(m_provider->msg().level() <= MSG::VERBOSE) {
-            m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << ")" << endmsg;
+	  chains.push_back( ChainString(selectChain) );
+	    
+	  if ( m_provider->msg().level() <= MSG::VERBOSE ) {
+	    m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChain << " (" << chainName.head() << ")" << endmsg;
 	  }
 
-        }
+	}
+	else { 
+
+	  /// get matching chains
+	  std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );
+	  
+	  
+	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
+	    
+	    if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
+	    if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
+	    if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
+	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
+	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
+	    if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+	    if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
+	    
+#if 0
+	    std::cout << "sorting:: chain specification: " << chainName << "\traw:" << chainName.raw() << std::endl;
+	    std::cout << "\tchain: " << chainName.head()    << std::endl;
+	    std::cout << "\tkey:   " << chainName.tail()    << std::endl;
+	    std::cout << "\tind:   " << chainName.extra()   << std::endl;
+	    std::cout << "\troi:   " << chainName.roi()     << std::endl;
+	    std::cout << "\tvtx:   " << chainName.vtx()     << std::endl;
+	    std::cout << "\tte:    " << chainName.element() << std::endl;
+#endif
+	    
+	    /// replace wildcard with actual matching chains ...
+	    chains.push_back( ChainString(selectChains[iselected]) );
+	    
+	    if(m_provider->msg().level() <= MSG::VERBOSE) {
+	      m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << ")" << endmsg;
+	    }
+	    
+	  }
+	}
 
         chainitr++;
       }
@@ -435,28 +457,29 @@ protected:
     // Check HLTResult
 
     for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {
+
       const std::string& chainname = m_chainNames[ichain].head();
+ 
+      if ( chainname == "" ) analyse = true;
+      else { 
 
-      
-
-
-      //Only for trigger chains
-      if ( chainname.find("L2")  == std::string::npos &&
-	   chainname.find("EF")  == std::string::npos &&
-	   chainname.find("HLT") == std::string::npos ) continue;
-      
-      if ( m_provider->msg().level() <= MSG::DEBUG ) {
-        m_provider->msg(MSG::DEBUG) << "Chain "  << chainname
-                                    << "\tpass " << (*m_tdt)->isPassed(chainname)
-                                    << "\tpres " << (*m_tdt)->getPrescale(chainname) << endmsg;
+	//Only for trigger chains
+	if ( chainname.find("L2")  == std::string::npos &&
+	     chainname.find("EF")  == std::string::npos &&
+	     chainname.find("HLT") == std::string::npos ) continue;
+	
+	if ( m_provider->msg().level() <= MSG::DEBUG ) {
+	  m_provider->msg(MSG::DEBUG) << "Chain "  << chainname
+				      << "\tpass " << (*m_tdt)->isPassed(chainname)
+				      << "\tpres " << (*m_tdt)->getPrescale(chainname) << endmsg;
+	}
+	
+	//      std::cout << "Chain "  << chainname << "\tpass " << (*m_tdt)->isPassed(chainname)
+	//  		<< "\tpres " << (*m_tdt)->getPrescale(chainname) << std::endl;
+	
+	if ( (*(m_tdt))->isPassed(chainname) || (*(m_tdt))->getPrescale(chainname) ) analyse = true;
+	
       }
-
-      //      std::cout << "Chain "  << chainname << "\tpass " << (*m_tdt)->isPassed(chainname)
-      //  		<< "\tpres " << (*m_tdt)->getPrescale(chainname) << std::endl;
-
-      
-      if ( (*(m_tdt))->isPassed(chainname) || (*(m_tdt))->getPrescale(chainname) ) analyse = true;
-      
     }
     
 
@@ -612,8 +635,6 @@ protected:
     /// now loop over all relevant chains to get the trigger tracks...
     for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {
 
-      //      std::cout << "\tchain " << m_chainNames[ichain] << std::endl;
-
       test_tracks.clear();
 
       /// create chains for ntpl
@@ -652,15 +673,14 @@ protected:
       unsigned key_index = 0;
       if ( key_index_string!="" ) key_index = std::atoi( key_index_string.c_str() );
 
-      if(m_provider->msg().level() <= MSG::VERBOSE){
+      if ( chainname!="" && m_provider->msg().level() <= MSG::VERBOSE ) {
+
         m_provider->msg(MSG::VERBOSE) << "status for chain " << chainname
                                       << "\tpass "           << (*m_tdt)->isPassed(chainname)
                                       << "\tprescale "       << (*m_tdt)->getPrescale(chainname) << endmsg;
 
         m_provider->msg(MSG::VERBOSE) << "fetching features for chain " << chainname << endmsg;
-      }
-
-      if(m_provider->msg().level() <= MSG::VERBOSE){
+    
         m_provider->msg(MSG::VERBOSE) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << endmsg;
       }
 
@@ -670,249 +690,278 @@ protected:
       //		<< "\tprescale "       << (*m_tdt)->getPrescale( chainname ) << std::endl;
 	
 
-      //      m_provider->msg(MSG::INFO) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << "\t" << m_chainNames[ichain] << "\trun " << run_number << "\tevent " << event_number << endmsg;
+      //   m_provider->msg(MSG::INFO) << chainname << "\tpassed: " << (*m_tdt)->isPassed( chainname ) << "\t" << m_chainNames[ichain] << "\trun " << run_number << "\tevent " << event_number << endmsg;
 
 
-      if ( !this->m_keepAllEvents && !(*m_tdt)->isPassed( chainname, decisiontype ) ) continue;
-
-      //      std::cout << "\tprocessing " << std::endl; 
+      if ( chainname!="" && !this->m_keepAllEvents && !(*m_tdt)->isPassed( chainname, decisiontype ) ) continue;
 
       /// Get chain combinations and loop on them
       /// - loop made on chain selected as the one steering RoI creation
       // Trig::FeatureContainer f = (*m_tdt)->features( chainname, TrigDefs::alsoDeactivateTEs);
-
-
-
-      Trig::FeatureContainer f = (*m_tdt)->features( chainname, decisiontype );
-      Trig::FeatureContainer::combination_const_iterator c(f.getCombinations().begin());
-      Trig::FeatureContainer::combination_const_iterator cEnd(f.getCombinations().end());
-
-
-      if ( c==cEnd ) {
-        if(m_provider->msg().level() <= MSG::VERBOSE){
-          m_provider->msg(MSG::VERBOSE) << "No combinations: skipping this chain " << chainname << endmsg;
-        }
-        continue;
-      }
-
-      if(m_provider->msg().level() <= MSG::VERBOSE) {
-	m_provider->msg(MSG::VERBOSE) << "combinations for chain " << chainname << " " << (cEnd-c) << endmsg;
-      }
-
+     
+      /// only use the TDT for extracting collections if this was a trigger analysis 
+      /// for fullscan "offline" type analyses (ie fullscan FTK) do not use this
+ 
       ChainString& chainConfig = m_chainNames[ichain];
 
       std::string chainName = chainConfig.head();
 
-
       m_event->addChain( chainConfig );
-
+	
       TIDA::Chain& chain = m_event->back();
-    
-      unsigned icomb = 0;
-
-      for( ; c!=cEnd ; ++c ) {
-
-	icomb++;
-
-        //   now add rois to this ntuple chain
-
-        // Get seeding RoI
-        // std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
-        // std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
-
-        std::vector< Trig::Feature<TrigRoiDescriptor> > initRois;
 	
-        std::string roi_key = m_chainNames[ichain].roi();
-
-	if ( roi_key=="SuperRoi" && icomb>1 ) continue;
-	
-	if ( roi_key!="" ) { 
-	  initRois = c->get<TrigRoiDescriptor>(roi_key, decisiontype );
-	}
-	else { 
-	  initRois = c->get<TrigRoiDescriptor>("forID", decisiontype ); 
-	  if ( initRois.empty() ) initRois = c->get<TrigRoiDescriptor>("", decisiontype ); 
-	  if ( initRois.empty() ) initRois = c->get<TrigRoiDescriptor>("initialRoI", decisiontype );
-	}
-
-	//	std::cout << "initRois.size() " << initRois.size() << std::endl;
-
-	if ( initRois.empty() ) continue;
-
-
-	//	for ( unsigned ir=0 ; ir<initRois.size() ; ir++ ) { 
-	//	  std::cout << "\t" << ir << "\t" << *initRois[ir].cptr() << std::endl;
-	//	}
-	
-        // Skip chains seeded by multiple RoIs: not yet implemented
-        if(initRois.size()>1 && roi_key!="SuperRoi" ) {
-          if(m_provider->msg().level() <= MSG::VERBOSE)
-            m_provider->msg(MSG::VERBOSE) << " More than one initial RoI found for seeded chain " << chainname << ": not yet supported" << endmsg;
-          continue;
-        }
-
-        TIDARoiDescriptor* roiInfo = 0;
-
-        if( !initRois.empty() ) {
-          const TrigRoiDescriptor* roid = initRois[0].cptr();
-
-          if(m_provider->msg().level() <= MSG::VERBOSE)
-            m_provider->msg(MSG::VERBOSE) << " RoI descriptor for seeded chain " << chainname << " " << *roid << endmsg;
-
-          roiInfo = new TIDARoiDescriptor(TIDARoiDescriptorBuilder(*roid));
-          //  roiInfo->etaHalfWidth(m_roiInfo->etaHalfWidth());
-          //  roiInfo->phiHalfWidth(m_roiInfo->phiHalfWidth());
-          //  roiInfo->etaHalfWidth(roid->etaHalfWidth());
-          //  roiInfo->phiHalfWidth(roid->phiHalfWidth());
-          //  roiInfo->zedHalfWidth(roid->zedHalfWidth());
-
-          if(m_provider->msg().level() <= MSG::VERBOSE)
-            m_provider->msg(MSG::VERBOSE) << "using chain roi " << *roid << endmsg;
-
-        }
-        else {
-          roiInfo = new TIDARoiDescriptor();
-          //  roiInfo->etaHalfWidth(5);
-          //  roiInfo->phiHalfWidth(M_PI);
-          //  roiInfo->zedHalfWidth(m_roiInfo->zedHalfWidth());
-
-          if(m_provider->msg().level() <= MSG::WARNING)
-            m_provider->msg(MSG::WARNING) << "roi not found" <<  endmsg;
-
-        }
-
-        if(m_provider->msg().level() <= MSG::VERBOSE)
-          m_provider->msg(MSG::VERBOSE) << *roiInfo << endmsg;
+      if ( chainName == "" ) { 
 
         m_selectorTest->clear();
+	
+	/// dummy full scan chain 
 
-        m_provider->msg(MSG::VERBOSE) << "Searching for collection " << key << endmsg;
-	// std::cout << "Searching for collection " << key << std::endl;
+	TIDARoiDescriptor* roiInfo = new TIDARoiDescriptor(true);
+		
+        chain.addRoi( *roiInfo );
+	
 
-        /// HLT and EF-like EDM
-        if ( key.find("InDetTrigParticleCreation")!=std::string::npos ||
-	     key.find("_IDTrig")!=std::string::npos ||
-	     key.find("_EFID")!=std::string::npos ||
-             chainName.find("EF_")!=std::string::npos ||
-             chainName.find("HLT_")!=std::string::npos ) {
-#         ifdef XAODTRACKING_TRACKPARTICLE_H
-          if      ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) ) testbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( c, key );
-	  else if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
-#         else
-	  if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
-#         endif
-          else if ( this->template selectTracks<TrackCollection>( m_selectorTest, c, key ) );
-          else if ( this->template selectTracks<TrigInDetTrackCollection>( m_selectorTest, c, truthMap, key, key_index ) );
-	  else { 
-	    //m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endmsg;
-	  }
-        }
-        else {
-          /// L2 track EDM
-          if ( chainName.find("L2_")!=std::string::npos ) {
-            if      ( this->template selectTracks<TrigInDetTrackCollection>( m_selectorTest, c, truthMap, key, key_index ) );
-            else if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
-            else if ( this->template selectTracks<TrackCollection>( m_selectorTest, c, key ) );
-#           ifdef XAODTRACKING_TRACKPARTICLE_H
-            else if ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) ) testbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( c, key );
-#           endif
-            else m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endmsg;
-          }
-        }
-      
+#       ifdef XAODTRACKING_TRACKPARTICLE_H
+	if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>(key) ) {
+	  this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, key );
+	  refbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( key );
+	}
+#       endif
 
         const std::vector<TIDA::Track*>& testtracks = m_selectorTest->tracks();
 
-        m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endmsg;
-	// std::cout << "test tracks.size() " << testtracks.size() << std::endl;
-
-	//	std::cout  << "\ttest tracks.size() " << testtracks.size() << std::endl;
-
-        if(m_provider->msg().level() <= MSG::VERBOSE){
-          m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endmsg;
-          for ( int ii=testtracks.size() ; ii-- ; ) {
-            m_provider->msg(MSG::VERBOSE) << "  test track " << ii << " " << *testtracks[ii] << endmsg;
-            //test_tracks.push_back(testtracks.at(ii));
-          }
-        }
-      
-        chain.addRoi( *roiInfo );
-
         chain.back().addTracks(testtracks);
-
+	
         if ( roiInfo ) delete roiInfo;
 
-	/// get vertex information 
+      }
+      else {
 
-	/// now also add xAOD vertices
+	Trig::FeatureContainer f = (*m_tdt)->features( chainname, decisiontype );
+	Trig::FeatureContainer::combination_const_iterator c(f.getCombinations().begin());
+	Trig::FeatureContainer::combination_const_iterator cEnd(f.getCombinations().end());
+	
 
-	//	std::cout << "vertex " << vtx_name << "\tchain " << chainName << "\tconfig " << chainConfig << std::endl;
-
-	if ( vtx_name!="" ) { 
-
-	  m_provider->msg(MSG::VERBOSE) << "\tFetch xAOD::VertexContainer for chain " << chainConfig << " with key " << vtx_name << endmsg;
-
-	  std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = c->get<xAOD::VertexContainer>(vtx_name);
+	if ( c==cEnd ) {
+	  if(m_provider->msg().level() <= MSG::VERBOSE){
+	    m_provider->msg(MSG::VERBOSE) << "No combinations: skipping this chain " << chainname << endmsg;
+	  }
+	  continue;
+	}
+	
+	if(m_provider->msg().level() <= MSG::VERBOSE) {
+	  m_provider->msg(MSG::VERBOSE) << "combinations for chain " << chainname << " " << (cEnd-c) << endmsg;
+	}
+	
+	unsigned icomb = 0;
+	
+	for( ; c!=cEnd ; ++c ) {
 	  
-	  if ( xaodtrigvertices.empty() ) { 
-	    m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainConfig << " for key " << vtx_name << endmsg;
+	  icomb++;
+	  
+	  //   now add rois to this ntuple chain
+	  
+	  // Get seeding RoI
+	  // std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("initialRoI", TrigDefs::alsoDeactivateTEs);
+	  // std::vector< Trig::Feature<TrigRoiDescriptor> > initRois = c->get<TrigRoiDescriptor>("forID", TrigDefs::alsoDeactivateTEs);
+	  
+	  std::vector< Trig::Feature<TrigRoiDescriptor> > initRois;
+	  
+	  std::string roi_key = m_chainNames[ichain].roi();
+	  
+	  if ( roi_key=="SuperRoi" && icomb>1 ) continue;
+	  
+	  if ( roi_key!="" ) { 
+	    initRois = c->get<TrigRoiDescriptor>(roi_key, decisiontype );
+	  }
+	  else { 
+	    initRois = c->get<TrigRoiDescriptor>("forID", decisiontype ); 
+	    if ( initRois.empty() ) initRois = c->get<TrigRoiDescriptor>("", decisiontype ); 
+	    if ( initRois.empty() ) initRois = c->get<TrigRoiDescriptor>("initialRoI", decisiontype );
+	  }
+	  
+	  //	std::cout << "initRois.size() " << initRois.size() << std::endl;
+	  
+	  if ( initRois.empty() ) continue;
+	  
+	  
+	  //	for ( unsigned ir=0 ; ir<initRois.size() ; ir++ ) { 
+	  //	  std::cout << "\t" << ir << "\t" << *initRois[ir].cptr() << std::endl;
+	  //	}
+	  
+	  // Skip chains seeded by multiple RoIs: not yet implemented
+	  if(initRois.size()>1 && roi_key!="SuperRoi" ) {
+	    if(m_provider->msg().level() <= MSG::VERBOSE)
+	      m_provider->msg(MSG::VERBOSE) << " More than one initial RoI found for seeded chain " << chainname << ": not yet supported" << endmsg;
+	    continue;
+	  }
+	  
+	  TIDARoiDescriptor* roiInfo = 0;
+	  
+	  if( !initRois.empty() ) {
+	    const TrigRoiDescriptor* roid = initRois[0].cptr();
+	    
+	    if(m_provider->msg().level() <= MSG::VERBOSE)
+	      m_provider->msg(MSG::VERBOSE) << " RoI descriptor for seeded chain " << chainname << " " << *roid << endmsg;
+	    
+	    roiInfo = new TIDARoiDescriptor(TIDARoiDescriptorBuilder(*roid));
+	    //  roiInfo->etaHalfWidth(m_roiInfo->etaHalfWidth());
+	    //  roiInfo->phiHalfWidth(m_roiInfo->phiHalfWidth());
+	    //  roiInfo->etaHalfWidth(roid->etaHalfWidth());
+	    //  roiInfo->phiHalfWidth(roid->phiHalfWidth());
+	    //  roiInfo->zedHalfWidth(roid->zedHalfWidth());
+	    
+	    if(m_provider->msg().level() <= MSG::VERBOSE)
+	      m_provider->msg(MSG::VERBOSE) << "using chain roi " << *roid << endmsg;
+	    
 	  }
 	  else {
+	    roiInfo = new TIDARoiDescriptor();
+	    //  roiInfo->etaHalfWidth(5);
+	    //  roiInfo->phiHalfWidth(M_PI);
+	    //  roiInfo->zedHalfWidth(m_roiInfo->zedHalfWidth());
 	    
-	    m_provider->msg(MSG::VERBOSE) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endmsg;
-	    
-	    for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
-	      
-	      const xAOD::VertexContainer* vert = xaodtrigvertices[iv].cptr();
-	      
-	      m_provider->msg(MSG::VERBOSE) << "\t" << iv << "  xAOD VxContainer for " << chainConfig << " " << vert << " key " << vtx_name << endmsg;
-	      
-	      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
-	      
-	      for ( ; vtxitr != vert->end(); ++vtxitr) {
-		/// leave this code commented so that we have a record of the change - as soon as we can 
-		/// fix the missing track multiplicity from the vertex this will need to go back  
-		//  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
-		if ( (*vtxitr)->vertexType()!=0 || vtx_name=="EFHistoPrmVtx" ) {
-		  chain.back().addVertex( TIDA::Vertex( (*vtxitr)->x(),
-							(*vtxitr)->y(),
-							(*vtxitr)->z(),
-							/// variances
-							(*vtxitr)->covariancePosition()(Trk::x,Trk::x),
-							(*vtxitr)->covariancePosition()(Trk::y,Trk::y),
-							(*vtxitr)->covariancePosition()(Trk::z,Trk::z),
-							(*vtxitr)->nTrackParticles(),
-							/// quality
-							(*vtxitr)->chiSquared(),
-							(*vtxitr)->numberDoF() ) );
-		  
-		}
-	      }
-	    }
+	    if(m_provider->msg().level() <= MSG::WARNING)
+	      m_provider->msg(MSG::WARNING) << "roi not found" <<  endmsg;
 	    
 	  }
+	  
+	  if(m_provider->msg().level() <= MSG::VERBOSE) m_provider->msg(MSG::VERBOSE) << *roiInfo << endmsg;
+	  
+	  m_selectorTest->clear();
+	  
+	  m_provider->msg(MSG::VERBOSE) << "Searching for collection " << key << endmsg;
+	  // std::cout << "Searching for collection " << key << std::endl;
+	  
+	  /// HLT and EF-like EDM
+	  if ( key.find("InDetTrigParticleCreation")!=std::string::npos ||
+	       key.find("_IDTrig")!=std::string::npos ||
+	       key.find("_EFID")!=std::string::npos ||
+	       chainName.find("EF_")!=std::string::npos ||
+	       chainName.find("HLT_")!=std::string::npos ) {
+#         ifdef XAODTRACKING_TRACKPARTICLE_H
+	    if      ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) ) testbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( c, key );
+	    else if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
+#         else
+	    if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
+#         endif
+	    else if ( this->template selectTracks<TrackCollection>( m_selectorTest, c, key ) );
+	    else if ( this->template selectTracks<TrigInDetTrackCollection>( m_selectorTest, c, truthMap, key, key_index ) );
+	    else { 
+	      //m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endmsg;
+	    }
+	  }
+	  else {
+	    /// L2 track EDM
+	    if ( chainName.find("L2_")!=std::string::npos ) {
+	      if      ( this->template selectTracks<TrigInDetTrackCollection>( m_selectorTest, c, truthMap, key, key_index ) );
+	      else if ( this->template selectTracks<Rec::TrackParticleContainer>( m_selectorTest, c, key ) );
+	      else if ( this->template selectTracks<TrackCollection>( m_selectorTest, c, key ) );
+#           ifdef XAODTRACKING_TRACKPARTICLE_H
+	      else if ( this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorTest, c, key ) ) testbeamspot = this->template getBeamspot<xAOD::TrackParticleContainer>( c, key );
+#           endif
+	      else m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endmsg;
+	    }
+	  }
+	  
+	  
+	  const std::vector<TIDA::Track*>& testtracks = m_selectorTest->tracks();
+	  
+	  m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endmsg;
+	  // std::cout << "test tracks.size() " << testtracks.size() << std::endl;
+	  
+	  //	std::cout  << "\ttest tracks.size() " << testtracks.size() << std::endl;
+	  
+	  if ( m_provider->msg().level() <= MSG::VERBOSE ) {
+	    m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endmsg;
+	    for ( int ii=testtracks.size() ; ii-- ; ) {
+	      m_provider->msg(MSG::VERBOSE) << "  test track " << ii << " " << *testtracks[ii] << endmsg;
+	      //test_tracks.push_back(testtracks.at(ii));
+	    }
+	  }
+	  
+	  chain.addRoi( *roiInfo );
+	  
+	  chain.back().addTracks(testtracks);
+	  
+	  if ( roiInfo ) delete roiInfo;
+	  
+	  /// get vertex information 
+	  
+	  /// now also add xAOD vertices
+	  
+	  //	std::cout << "vertex " << vtx_name << "\tchain " << chainName << "\tconfig " << chainConfig << std::endl;
+	  
+	  if ( vtx_name!="" ) { 
+	    
+	    m_provider->msg(MSG::VERBOSE) << "\tFetch xAOD::VertexContainer for chain " << chainConfig << " with key " << vtx_name << endmsg;
+	    
+	    std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = c->get<xAOD::VertexContainer>(vtx_name);
+	    
+	    if ( xaodtrigvertices.empty() ) { 
+	      m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainConfig << " for key " << vtx_name << endmsg;
+	    }
+	    else {
+	      
+	      m_provider->msg(MSG::VERBOSE) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endmsg;
+	      
+	      for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
+		
+		const xAOD::VertexContainer* vert = xaodtrigvertices[iv].cptr();
+		
+		m_provider->msg(MSG::VERBOSE) << "\t" << iv << "  xAOD VxContainer for " << chainConfig << " " << vert << " key " << vtx_name << endmsg;
+		
+		xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
+		
+		for ( ; vtxitr != vert->end(); ++vtxitr) {
+		  /// leave this code commented so that we have a record of the change - as soon as we can 
+		  /// fix the missing track multiplicity from the vertex this will need to go back  
+		  //  if ( ( (*vtxitr)->nTrackParticles()>0 && (*vtxitr)->vertexType()!=0 ) || vtx_name=="EFHistoPrmVtx" ) {
+		  if ( (*vtxitr)->vertexType()!=0 || vtx_name=="EFHistoPrmVtx" ) {
+		    chain.back().addVertex( TIDA::Vertex( (*vtxitr)->x(),
+							  (*vtxitr)->y(),
+							  (*vtxitr)->z(),
+							  /// variances
+							  (*vtxitr)->covariancePosition()(Trk::x,Trk::x),
+							  (*vtxitr)->covariancePosition()(Trk::y,Trk::y),
+							  (*vtxitr)->covariancePosition()(Trk::z,Trk::z),
+							  (*vtxitr)->nTrackParticles(),
+							  /// quality
+							  (*vtxitr)->chiSquared(),
+							  (*vtxitr)->numberDoF() ) );
+		    
+		  }
+		}
+	      }
+	      
+	    }
+	    
+	  } /// retrieve online vertices
+	  
+	} /// loop over combinations
 
-	}  /// retrieve online vertices
-
+      } /// "offline" type chains
+	
+	
+      if ( m_provider->msg().level() <= MSG::VERBOSE ) {
+	m_provider->msg(MSG::VERBOSE) << "event: " << *m_event << endmsg;
       }
-
-      if(m_provider->msg().level() <= MSG::VERBOSE) {
-        m_provider->msg(MSG::VERBOSE) << "event: " << *m_event << endmsg;
-      }
-
-
+      
       /// now loop over the rois (again) 
-
-      for ( unsigned  iroi=0 ; iroi<chain.size() ; iroi++ ) {
-
-        m_selectorRef->clear();
-
-	if ( this->filterOnRoi() ) { filterRef.setRoi( &chain.rois().at(iroi).roi() ); filterRef.containtracks( m_containTracks ); }
-	else                       filterRef.setRoi( 0 );
-
-        test_tracks.clear();
-
-
+      
+      for ( unsigned iroi=0 ; iroi<chain.size() ; iroi++ ) {
+	
+	m_selectorRef->clear();
+	
+	if ( this->filterOnRoi() ) { 
+	  filterRef.setRoi( &chain.rois().at(iroi).roi() ); 
+	  filterRef.containtracks( m_containTracks ); 
+	}
+	else filterRef.setRoi( 0 );
+	
+	test_tracks.clear();
+	
+	
 	/// This is nonsense and needs restructuring - why is the truth and offline selection 
 	/// done within this RoI loop? It means the complete offline and truth tracks will be 
 	/// retrieved for every RoI ! really we should have the structure 
@@ -927,7 +976,7 @@ protected:
 	///
 	/// will leave as it is for the time being
 
-        if(m_provider->msg().level() <= MSG::VERBOSE)
+        if ( m_provider->msg().level() <= MSG::VERBOSE )
           m_provider->msg(MSG::VERBOSE) << "MC Truth flag " << m_mcTruth << endmsg;
 
         bool foundTruth = false;
@@ -939,33 +988,36 @@ protected:
 
           selectorTruth.clear();
 
-          if(m_provider->msg().level() <= MSG::VERBOSE)
+          if ( m_provider->msg().level() <= MSG::VERBOSE )
             m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
 
-          if (m_provider->evtStore()->template contains<TruthParticleContainer>("INav4MomTruthEvent")) {
+          if ( m_provider->evtStore()->template contains<TruthParticleContainer>("INav4MomTruthEvent") ) {
             //ESD
             this->template selectTracks<TruthParticleContainer>( &selectorTruth, "INav4MomTruthEvent" );
             foundTruth = true;
           }
-          else if (m_provider->evtStore()->template contains<TruthParticleContainer>("SpclMC")) {
+          else if ( m_provider->evtStore()->template contains<TruthParticleContainer>("SpclMC") ) {
             /// AOD
             this->template selectTracks<TruthParticleContainer>( &selectorTruth, "SpclMC");
             foundTruth = true;
           }
-          else if (m_provider->evtStore()->template contains<TruthParticleContainer>("")) {
+          else if ( m_provider->evtStore()->template contains<TruthParticleContainer>("") ) {
             /// anything else?
             this->template selectTracks<TruthParticleContainer>( &selectorTruth, "");
             foundTruth = true;
           }
           else
-            if(m_provider->msg().level() <= MSG::VERBOSE)
+            if ( m_provider->msg().level() <= MSG::VERBOSE ) {
               m_provider->msg(MSG::VERBOSE) << "Truth not found - none whatsoever!" << endmsg;
-        }
+	    }
+	}
 
       
         if ( !m_doOffline && m_mcTruth && !foundTruth ) {
-          if(m_provider->msg().level() <= MSG::VERBOSE)
+          
+	  if ( m_provider->msg().level() <= MSG::VERBOSE ) { 
             m_provider->msg(MSG::VERBOSE) << "getting Truth" << endmsg;
+	  }
 
           /// selectTracks<TruthParticleContainer>( &selectorTruth, "INav4MomTruthEvent" );
 
@@ -980,7 +1032,8 @@ protected:
           bool foundcollection = false;
 
           for ( int ik=0 ; ik<4 ; ik++ ) {
-            if( m_provider->msg().level() <= MSG::VERBOSE ) {
+         
+	    if ( m_provider->msg().level() <= MSG::VERBOSE ) {
               m_provider->msg(MSG::VERBOSE) << "Try McEventCollection: " << keys[ik] << endmsg;
             }
 
@@ -990,11 +1043,11 @@ protected:
               continue;
             }
 
-            if(m_provider->msg().level() <= MSG::VERBOSE)
+            if ( m_provider->msg().level() <= MSG::VERBOSE )
               m_provider->msg(MSG::VERBOSE) << "evtStore()->retrieve( mcevent, " << keys[ik] << " )" << endmsg;
 
             if ( m_provider->evtStore()->template retrieve( mcevent, keys[ik] ).isFailure() ) {
-              if(m_provider->msg().level() <= MSG::VERBOSE)
+              if ( m_provider->msg().level() <= MSG::VERBOSE )
                 m_provider->msg(MSG::VERBOSE) << "Failed to get McEventCollection: " << keys[ik] << endmsg;
             }
             else {
@@ -1036,7 +1089,6 @@ protected:
 
             int pid = (*evitr)->signal_process_id();
 
-
             if ( pid!=0 && (*evitr)->particles_size()>0 ) { /// hooray! actually found a sensible event
               /// go through the particles
               HepMC::GenEvent::particle_const_iterator pitr((*evitr)->particles_begin());
@@ -1070,24 +1122,19 @@ protected:
 
           if(selectorTruth.size() > 0) foundTruth = true;
 
-          ////////////////////////////////////////////////////////////////////////////////////////
-
-
           if ( !(ip>0) ) {
             if (m_provider->msg().level() <= MSG::VERBOSE) m_provider->msg(MSG::WARNING) << "NO TRUTH PARTICLES - returning" << endmsg;
 	    return; /// need to be careful here, if not requiring truth *only* should not return
           }
 	  
         }
-      
-        // std::cout << "seeking offline tracks..." << std::endl;
-
+	
         /// get offline tracks
 
         // m_provider->msg(MSG::VERBOSE) << " Offline tracks " << endmsg;
-
+	
         if ( m_doOffline ) {
-
+	  
 #         ifdef XAODTRACKING_TRACKPARTICLE_H
           if ( m_provider->evtStore()->template contains<xAOD::TrackParticleContainer>("InDetTrackParticles") ) {
             this->template selectTracks<xAOD::TrackParticleContainer>( m_selectorRef, "InDetTrackParticles" );
@@ -1107,12 +1154,13 @@ protected:
 
           ref_tracks = m_selectorRef->tracks();
 
-          if ( m_provider->msg().level() <= MSG::VERBOSE ) {
-            m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endmsg;
+	  if ( m_provider->msg().level() <= MSG::VERBOSE ) {
+	    m_provider->msg(MSG::VERBOSE) << "ref tracks.size() " << m_selectorRef->tracks().size() << endmsg;
             for ( int ii=m_selectorRef->tracks().size() ; ii-- ; ) {
               m_provider->msg(MSG::VERBOSE) << "  ref track " << ii << " " << *m_selectorRef->tracks()[ii] << endmsg;
 	    }
 	  }
+
         }
 	else { 
 	  /// what is this ???
@@ -1121,13 +1169,15 @@ protected:
 	  }
 	}	  
 
+	
+
         test_tracks.clear();
 
         for ( unsigned itrk=0 ; itrk<chain.rois().at(iroi).tracks().size() ; itrk++ ) {
           test_tracks.push_back(&(chain.rois().at(iroi).tracks().at(itrk)));
         }
 	
-
+	
 	//	std::cout << "sutt track multiplicities: offline " << offline_tracks.size() << "\ttest " << test_tracks.size() << std::endl;
 
         _analysis->setvertices( vertices.size() );  /// what is this for ???
@@ -1175,7 +1225,6 @@ protected:
 	 
 	  //	  std::cout << "SUTT: execute : N tracks " << ref_tracks.size() << " " << test_tracks.size() << std::endl; 
 	
-
 	  _analysis->setroi( &chain.rois().at(iroi).roi() );  
 	  _analysis->execute( ref_tracks, test_tracks, m_associator );
 	  
@@ -1208,6 +1257,7 @@ protected:
 	}
 
       }
+
     }
     
     if ( m_provider->msg().level() <= MSG::VERBOSE ) {
@@ -1273,33 +1323,53 @@ protected:
       /// get chain
       ChainString& chainName = (*chainitr);
 
-      /// get matching chains
-      std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );
-
-      // std::cout << "selected chains " << selectChains.size() << std::endl;
-
-      // if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endmsg;
-
-      for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
-
-        if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
-        if ( chainName.extra()!="" )   selectChains[iselected] += ":ind="+chainName.extra();
-        if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
-        if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
-        if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
-        if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
-	if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
-
-
-        /// replace wildcard with actual matching chains ...
-        chains.push_back( selectChains[iselected] );
-
-        if(m_provider->msg().level() <= MSG::VERBOSE) {
-          m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << endmsg;
-	}
+      if ( chainName.head() == "" ) {
+	
+	std::string selectChain = "";
+	
+	if ( chainName.tail()!="" )    selectChain += ":key="+chainName.tail();
+	if ( chainName.extra()!="" )   selectChain += ":ind="+chainName.extra();
+	if ( chainName.roi()!="" )     continue;
+	if ( chainName.vtx()!="" )     selectChain += ":vtx="+chainName.vtx();
+	if ( chainName.element()!="" ) continue;
+	if ( !chainName.passed() )     continue;
+	if ( chainName.postcount() )   selectChain += ":post:"+chainName.post();
+	
+	
+	/// replace wildcard with actual matching chains ...
+	chains.push_back( selectChain );
 
       }
-
+      else { 
+	
+	/// get matching chains
+	std::vector<std::string> selectChains  = (*(m_tdt))->getListOfTriggers( chainName.head() );
+	
+	// std::cout << "selected chains " << selectChains.size() << std::endl;
+	
+	// if ( selectChains.size()==0 ) m_provider->msg(MSG::WARNING) << "No chains matched for  " << chainName << endmsg;
+	
+	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
+	  
+	  if ( chainName.tail()!="" )    selectChains[iselected] += ":key="+chainName.tail();
+	  if ( chainName.extra()!="" )   selectChains[iselected] += ":ind="+chainName.extra();
+	  if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
+	  if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
+	  if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
+	  if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
+	  if ( chainName.postcount() )   selectChains[iselected] += ":post:"+chainName.post();
+	  
+	  
+	  /// replace wildcard with actual matching chains ...
+	  chains.push_back( selectChains[iselected] );
+	  
+	  if(m_provider->msg().level() <= MSG::VERBOSE) {
+	    m_provider->msg(MSG::VERBOSE) << "Matching chain " << selectChains[iselected] << " (" << chainName.head() << endmsg;
+	  }
+	  
+	}
+      }
+	
       chainitr++;
     }
 
@@ -1310,7 +1380,6 @@ protected:
 
     for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) { 
       
-
       if ( ic>0 ) { 
 	m_provider->msg(MSG::WARNING) << "more than one chain configured for this analysis - skipping " << m_chainNames[ic] << endmsg;
 	continue;
@@ -1360,7 +1429,8 @@ protected:
 
 	//	std::cout << "\tSUTT folder name " << folder_name << "\thead " << m_chainNames[ic].head() << "\tmongroup " << mongroup << std::endl;
 
-	mongroup = folder_name + "/" + m_chainNames[ic].head();
+	if ( m_chainNames[ic].head() == "" ) mongroup = folder_name + "/Fullscan";
+	else                                 mongroup = folder_name + "/" + m_chainNames[ic].head();
 
 	std::string track_collection = ""; 
 
