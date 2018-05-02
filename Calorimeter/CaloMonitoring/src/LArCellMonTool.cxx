@@ -1345,8 +1345,8 @@ void LArCellMonTool::divideByOccupancy(TH2F* fraction, const TH2F* total, const 
 
   fraction->Reset();
   const size_t nCells=total->GetNcells();
-  assert(nCells==fraction->GetNcells());
-  assert(nCells==occupancy->GetNcells());
+  assert(static_cast<int>(nCells)==fraction->GetNcells());
+  assert(static_cast<int>(nCells)==occupancy->GetNcells());
  
   for (size_t i=0;i<nCells;++i) {
     const double t = total->GetBinContent(i);
