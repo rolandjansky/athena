@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ToolFactory.h"
@@ -41,7 +41,6 @@ AdjustableT0Tool::AdjustableT0Tool(const std::string& t, const std::string& n, c
 
 StatusCode AdjustableT0Tool::initialize()
 {
-  StatusCode sc = StatusCode::SUCCESS;
 
   ATH_MSG_INFO( "Initialisation started     " << name() << " - package version " << PACKAGE_VERSION  ) ;
 
@@ -51,11 +50,7 @@ StatusCode AdjustableT0Tool::initialize()
   ATH_MSG_INFO(  "================================" ) ;
 
   const MdtIdHelper* pMdtIdHelper ;
-  sc = detStore()->retrieve(pMdtIdHelper,"MDTIDHELPER");
-  if (sc.isFailure()){
-    ATH_MSG_FATAL(  "Cannot retrieve MDTIDHELPER" ) ;
-    return( StatusCode::FAILURE );
-  }
+  ATH_CHECK( detStore()->retrieve(pMdtIdHelper,"MDTIDHELPER") );
   p_AdjustableT0Map = new AdjustableT0Map(pMdtIdHelper) ;
 
   ATH_MSG_INFO(  "Initialisation ended     " ) ;
