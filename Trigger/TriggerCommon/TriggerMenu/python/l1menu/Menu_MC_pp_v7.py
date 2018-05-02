@@ -581,7 +581,7 @@ def defineMenu():
         'L1_MBTS_1_BGRP11','L1_MBTS_2_BGRP11',
 
         # RNDM
-        'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO','L1_RD0_EMPTY',
+        'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO', 'L1_RD0_UNPAIRED_NONISO', 'L1_RD0_EMPTY',
         "L1_RD1_FILLED","L1_RD1_EMPTY","L1_RD1_BGRP10",
         "L1_RD2_FILLED","L1_RD2_EMPTY","L1_RD2_BGRP12",
         "L1_RD3_FILLED","L1_RD3_EMPTY",
@@ -1201,6 +1201,7 @@ def defineMenu():
         'L1_MBTS_2_BGRP11' : 199,
         'L1_RD0_FILLED' : 200,
         'L1_RD0_UNPAIRED_ISO' : 201,
+        'L1_RD0_UNPAIRED_NONISO' : 178,
         'L1_RD0_EMPTY' : 202,
         'L1_RD1_FILLED' : 203,
         'L1_RD1_EMPTY' : 204,
