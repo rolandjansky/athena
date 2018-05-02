@@ -44,10 +44,11 @@ theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon"
                              IgnoreBadChannels     = True,
                              LArBadChannelMask     = theLArBadChannelsMasker,
                              ProcessNEvents        = EventBlockSize,
-                             TriggerChain          = "HLT_noalg_zb_L1ZB"
+                             TriggerChain          = "HLT_noalg_zb_L1ZB",
 #                             TrigDecisionTool      = "Trig::TrigDecisionTool/TrigDecisionTool"
 #                             NumberBadFebs         = larNoisyROFlags.BadFEBCut(),
 #                             Streams = StreamsToMonitor                                                   
+                              FEBsToMonitor         = ["barrelaft09slot02","endcapCFT17slot04","EndCapAFT06Slot09"]
                              )
 
 from AthenaCommon.BeamFlags import jobproperties

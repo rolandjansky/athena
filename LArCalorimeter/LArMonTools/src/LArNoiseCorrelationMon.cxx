@@ -58,16 +58,21 @@
 
 //trigger dec. tool
 //#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "LArTrigStreamMatching.h"
+
+//for looping on FEBs
+#include "LArRawEvent/LArFebHeaderContainer.h"
 
 //Header:
 #include "LArMonTools/LArNoiseCorrelationMon.h"
 
-#include "LArTrigStreamMatching.h"
-
+//
 
 // BCIDs of the abort gap
 const int ABORT_GAP_START = 3446;
 const int ABORT_GAP_END   = 3563;
+
+
 
 
 /*---------------------------------------------------------*/
@@ -92,6 +97,11 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
     m_evtId(0),
     m_thisTrigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
 {	
+  declareProperty("silenceMonitoringOnline",m_silenceMonitoringOnline=false);
+  std::vector<std::string> empty_vector(0);
+  //  m_FEBsToMonitor=empty_vector;
+  /** FEBs to be monitored*/
+  declareProperty("FEBsToMonitor",m_FEBsToMonitor=empty_vector);
    /**bool use to mask the bad channels*/
   declareProperty("IgnoreBadChannels", m_ignoreKnownBadChannels=false);
   declareProperty("LArBadChannelMask",m_badChannelMask);
@@ -148,6 +158,7 @@ LArNoiseCorrelationMon::finalize()
   DeleteHist(m_FcalC);
   */
 
+  /** delete unpublished histograms. */
   if(m_IsOnline)
     {
       if(m_av)
@@ -160,6 +171,20 @@ LArNoiseCorrelationMon::finalize()
 	  LWHist::safeDelete(m_TMP_sums);
 	  m_TMP_sums=0;
 	} 
+      for (auto const& feb_entry : m_FEBhistograms)
+	{
+	  m_histos=feb_entry.second;
+	  if(m_histos.second.first)
+	    {
+	      LWHist::safeDelete(m_histos.second.first);
+	      m_histos.second.first=0;
+	    }
+	  if(m_histos.second.second)
+	    {
+	      LWHist::safeDelete(m_histos.second.second);
+	      m_histos.second.second=0;
+	    }
+	}
     }
   return StatusCode::SUCCESS;
  
@@ -250,12 +275,34 @@ LArNoiseCorrelationMon::bookHistograms()
     std::string hTitle = "LAr Noise Correlation test";
     
     Nchan=128;
-    double chan_low=-0.5,chan_up=127.5;
+    chan_low=-0.5;
+    chan_up=127.5;
     m_corr = TH2F_LW::create(hName.c_str(), hTitle.c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
     generalGroup.regHist(m_corr).ignore();
     m_TMP_sums = TH2F_LW::create((hName+"_TMP_sum").c_str(),(hTitle+" TMP sum").c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
     m_av = TProfile_LW::create((hName+"_TMP_av").c_str(),(hTitle+" TMP av").c_str(),Nchan,chan_low,chan_up,"s");
 
+    MonGroup GroupEMBA( this, "/LAr/NoiseCorrel/EMBA", run, ATTRIB_MANAGED );
+    MonGroup GroupEMBC( this, "/LAr/NoiseCorrel/EMBC", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECA( this, "/LAr/NoiseCorrel/EMECA", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECC( this, "/LAr/NoiseCorrel/EMECC", run, ATTRIB_MANAGED );
+    MonGroup GroupHECA( this, "/LAr/NoiseCorrel/HECA", run, ATTRIB_MANAGED );
+    MonGroup GroupHECC( this, "/LAr/NoiseCorrel/HECC", run, ATTRIB_MANAGED );
+    MonGroup GroupFCALA( this, "/LAr/NoiseCorrel/FCALA", run, ATTRIB_MANAGED );
+    MonGroup GroupFCALC( this, "/LAr/NoiseCorrel/FCALC", run, ATTRIB_MANAGED );
+
+    /**declare strings for histograms title*/
+    std::string  hist_name = "multtest_";
+    std::string hist_title = "LAr Noise Correlation";
+    m_strHelper = new LArOnlineIDStrHelper(m_LArOnlineIDHelper);
+    m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
+
+    if(m_silenceMonitoringOnline && m_IsOnline) {
+      ATH_MSG_INFO("Noise correlation monitoring is stopped for online run. Do nothing.");
+      return StatusCode::SUCCESS;
+    }
+    if(m_FEBsToMonitor.size()==0) bookAllFEBs(GroupEMBA,GroupEMBC,GroupEMECA,GroupEMECC,GroupHECA,GroupHECC,GroupFCALA,GroupFCALC);
+    else bookSelectedFEBs(GroupEMBA,GroupEMBC,GroupEMECA,GroupEMECC,GroupHECA,GroupHECC,GroupFCALA,GroupFCALC);
 
     /**Book Histograms of Barrel. to be added (?) see LArDigit (what this was copied from) to copy the template*/
     /*    MonGroup GroupBarrelShift( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED );
@@ -499,7 +546,7 @@ LArNoiseCorrelationMon::fillHistograms()
   }//Range and sample max are known now....
   */
   
-  
+  bool tmpNotFillCounterCheck=false; //this is temporary
   
   /** Loop over digits*/
   for ( ; itDig!=itDig_e;++itDig) {
@@ -562,9 +609,23 @@ LArNoiseCorrelationMon::fillHistograms()
 
     /** check if this is the FEB we want DA AGGIUSTARE*/
     //    ATH_MSG_INFO( Form(":) %d && %d && %d && %d",m_LArOnlineIDHelper->isEMBchannel(id),m_LArOnlineIDHelper->pos_neg(id),m_feedthrough,m_slot) );
-    if(!(m_LArOnlineIDHelper->isEMBchannel(id) && m_LArOnlineIDHelper->pos_neg(id)==1 && m_feedthrough==9 && m_slot==2))
-	continue;
+    bool tmpFillcheck=true;
+    tmpNotFillCounterCheck=false;
+    if(!(m_LArOnlineIDHelper->isEMBchannel(id) && m_LArOnlineIDHelper->pos_neg(id)==1 && m_feedthrough==9 && m_slot==1))
+      tmpFillcheck=false;
     //    ATH_MSG_INFO( Form(":) first channel: %d",m_ch1) );
+
+    /** check if this is a FEB to be monitored and if it is, get the histograms */
+
+    try {
+      m_histos=m_FEBhistograms.at(m_febID);
+    }
+    catch (const std::out_of_range& oor) {
+      if(!tmpFillcheck)//this if is temporary
+	continue;
+      else//this is temporary   
+	tmpNotFillCounterCheck=true;//this is temporary   
+    }
 
     /** HERE GOES THE SECOND LOOP */
     bool av_set=false;
@@ -603,14 +664,26 @@ LArNoiseCorrelationMon::fillHistograms()
 	  {
 	    if(!av_set) /** feed in the mean only once for channel 1 */
 	      {
-		m_av->Fill(m_ch1,(*iterSam-pedestal));
+		if(tmpFillcheck)//this if is temporary 
+		  m_av->Fill(m_ch1,(*iterSam-pedestal));//this is temporary   
+		if(!tmpNotFillCounterCheck)//this is temporary   
+		  m_histos.second.second->Fill(m_ch1,(*iterSam-pedestal));
 	      }
 	    /** now compute sum of squares */
 	    part_sum+=((*iterSam-pedestal)*(*iterSam2-pedestal2));
 	  }
 	av_set=true; /** now the average is set and I won't do this again in next ch2 loop*/
-	m_TMP_sums->Fill(m_ch1,m_ch2,part_sum);
-	m_TMP_sums->Fill(m_ch2,m_ch1,part_sum);
+	if(tmpFillcheck)//this is temporary   
+	  {
+	    m_TMP_sums->Fill(m_ch1,m_ch2,part_sum);//this is temporary   
+	    m_TMP_sums->Fill(m_ch2,m_ch1,part_sum);//this is temporary   
+	  }
+	if(!tmpNotFillCounterCheck)//this is temporary   
+	  {
+	    m_histos.second.first->Fill(m_ch1,m_ch2,part_sum);
+	    m_histos.second.first->Fill(m_ch2,m_ch1,part_sum);
+	  }
+
 	//	std::cout << Form(":) Filled h_%d,%d: %f",m_ch1,m_ch2,part_sum) << std::endl;
       }/** End of second loop on LArDigit*/
 
@@ -621,6 +694,8 @@ LArNoiseCorrelationMon::fillHistograms()
   /** update the published plot once per LB */
   if(endOfLumiBlockFlag() || endOfEventsBlockFlag())
     {
+      if(!tmpNotFillCounterCheck)//this IF is temporary 
+	fillInCorrelation();
       double mean1,mean2;
       //      double sigma1,sigma2,sigma1ii,sigma2ii;
       double sumVar1,sumVar2;
@@ -640,7 +715,7 @@ LArNoiseCorrelationMon::fillHistograms()
 	    }
 	  for(int j=i+1;j<=Nchan;j++)
 	    {
-	      std::cout << "looking at bin: " << i << "-" << j << std::endl;
+	      //	      std::cout << "looking at bin: " << i << "-" << j << std::endl;
 	      if(m_av->GetBinEntries(j)!=N)
 		std::cout << "HEY! different number of entries here! bin " << i << ": " << N << " vs bin " << j << ": " << m_av->GetBinEntries(j) << std::endl;
 		//		ATH_MSG_INFO( Form("HEY! different number of entries here! bin %d: %d vs bin %d: %f",i,N,j,m_av->GetBinEntries(j)) );
@@ -727,6 +802,121 @@ StatusCode LArNoiseCorrelationMon::procHistograms()
 
     return true;
  }
+
+/*---------------------------------------------------------*/
+/** compute the correlation from temporary histograms and fill in the one to be published. Assumes m_histos is defined. */
+void LArNoiseCorrelationMon::fillInCorrelation()
+{
+  double mean1,mean2;
+  double sumVar1,sumVar2;
+  double N;
+  double cor;
+  for (auto const& feb_entry : m_FEBhistograms)
+    {
+      m_histos=feb_entry.second;
+      for(int i=1;i<=Nchan;i++)
+	{
+	  mean1=m_histos.second.second->GetBinContent(i);
+	  sumVar1=m_histos.second.first->GetBinContent(i,i);
+	  N=m_histos.second.second->GetBinEntries(i);
+	  if(N==0) 
+	    {
+	      std::cout << "Bin " << i << " has N=0" << std::endl;
+	      continue;
+	    }
+	  for(int j=i+1;j<=Nchan;j++)
+	    {
+	      if(m_histos.second.second->GetBinEntries(j)!=N) std::cout << "HEY! different number of entries here! bin " << i << ": " << N << " vs bin " << j << ": " << m_histos.second.second->GetBinEntries(j) << std::endl;
+	      mean2=m_histos.second.second->GetBinContent(j);
+	      sumVar2=m_histos.second.first->GetBinContent(j,j);
+	      if((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2)==0) continue;
+	      cor=(m_histos.second.first->GetBinContent(i,j)-N*mean1*mean2)/TMath::Sqrt((sumVar1-N*mean1*mean1)*(sumVar2-N*mean2*mean2));
+	      m_histos.first->SetBinContent(i,j,cor);
+	      m_histos.first->SetBinContent(j,i,cor);
+	    }
+	}
+    }
+}
+
+
+/*---------------------------------------------------------*/
+/**Loops on selected FEBS to book and define histograms.*/
+void LArNoiseCorrelationMon::bookSelectedFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC)
+{
+  ATH_MSG_INFO( "Booking selected FEBs: " << m_FEBsToMonitor.size() << " provided." );
+  std::string aFEB; /**aFEB is the feb to monitor, it is a vector of (at least) 4 integers and it's expected to be of this format: {barrel_ec,pos_neg,feedthrough,slot} see initial comment on atlas/LArCalorimeter/LArIdentifier/LArIdentifier/LArOnlineID_Base.h for the meaning of the 4 elements. Any additional element of the vector will be ignored.*/
+  HWIdentifier febid;
+  for(int feb_i=0;feb_i<m_FEBsToMonitor.size();feb_i++) {
+    aFEB=m_FEBsToMonitor[feb_i];
+    febid=m_strHelper->feb_id(aFEB);
+    if(!febid.is_valid()) {
+      ATH_MSG_WARNING( "FEB id " << aFEB << " not valid. It will not be monitored." );
+      continue;
+    }
+    bookThisFEB(febid,grEMBA,grEMBC,grEMECA,grEMECC,grHECA,grHECC,grFCALA,grFCALC);
+  }
+}
+
+
+/*---------------------------------------------------------*/
+/**Loops on all FEBS to book and define histograms.*/
+void LArNoiseCorrelationMon::bookAllFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC)
+{
+  ATH_MSG_INFO( "No selected FEBs provided: booking all FEBs.");
+  
+  /** loop on FEBs to init histograms */
+  std::vector<HWIdentifier>::const_iterator feb_it = m_LArOnlineIDHelper->feb_begin();
+  std::vector<HWIdentifier>::const_iterator feb_it_e = m_LArOnlineIDHelper->feb_end();
+  for ( ; feb_it!=feb_it_e;++feb_it) {
+    bookThisFEB((*feb_it),grEMBA,grEMBC,grEMECA,grEMECC,grHECA,grHECC,grFCALA,grFCALC);
+  }
+}
+
+/*---------------------------------------------------------*/
+/**Book and defines histogramms for a given FEB.*/
+void LArNoiseCorrelationMon::bookThisFEB(HWIdentifier id,MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC)
+{
+  std::string this_name=m_strHelper->feb_str(id);
+  std::cout << ":) " << (hist_name+this_name).c_str() << std::endl;
+  TH2F_LW* h_corr = TH2F_LW::create((hist_name+this_name).c_str(), hist_title.c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
+  TH2F_LW* h_TMP_sums = TH2F_LW::create((hist_name+this_name+"_TMP_sum").c_str(),(hist_title+" TMP sum").c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
+  TProfile_LW* h_av = TProfile_LW::create((hist_name+this_name+"_TMP_av").c_str(),(hist_title+" TMP av").c_str(),Nchan,chan_low,chan_up,"s");
+  m_FEBhistograms[id]=std::make_pair(h_corr,std::make_pair(h_TMP_sums,h_av));
+
+  if(m_LArOnlineIDHelper->isEMBchannel(id)) {
+    if(m_LArOnlineIDHelper->pos_neg(id)==1) grEMBA.regHist(h_corr).ignore();
+    else grEMBC.regHist(h_corr).ignore();
+  }
+  else
+    if(m_LArOnlineIDHelper->isEMECchannel(id)) {
+      if(m_LArOnlineIDHelper->pos_neg(id)==1) grEMECA.regHist(h_corr).ignore();
+      else grEMECC.regHist(h_corr).ignore();
+    }
+    else
+      if(m_LArOnlineIDHelper->isHECchannel(id)) {
+	if(m_LArOnlineIDHelper->pos_neg(id)==1) grHECA.regHist(h_corr).ignore();
+	else grHECC.regHist(h_corr).ignore();
+      }
+      else
+	if(m_LArOnlineIDHelper->isFCALchannel(id)) {
+	  if(m_LArOnlineIDHelper->pos_neg(id)==1) grFCALA.regHist(h_corr).ignore();
+	  else grFCALC.regHist(h_corr).ignore();
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*---------------------------------------------------------*/
 /**Book and defines histogramms for a given partition.*/

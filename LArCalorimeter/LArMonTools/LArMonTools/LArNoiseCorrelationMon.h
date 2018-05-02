@@ -87,9 +87,22 @@ private:
   
   /**my test histo*/
   int Nchan; //for my test histo
+  double chan_low,chan_up;
   TH2F_LW* m_corr;
   TH2F_LW* m_TMP_sums;
   TProfile_LW* m_av;
+  std::string  hist_name;
+  std::string hist_title;
+  /** The FEB map*/
+  std::map<HWIdentifier,std::pair<TH2F_LW*,std::pair<TH2F_LW*,TProfile_LW*> > > m_FEBhistograms; 
+  //for handling histograms
+  std::pair<TH2F_LW*,std::pair<TH2F_LW*,TProfile_LW*> > m_histos;
+
+  /** list of FEBs to monitor. FEB names are expected to be of the type  LARONLINEID defined in the package atlas/LArCalorimeter/LArMonTools/LArMonTools/LArOnlineIDStrHelper.h  e.g. 'BarrelCFT00Slot02'  */
+  std::vector<std::string> m_FEBsToMonitor; 
+
+  /** to avoid publishing tons of histograms online, in case it's a problem*/
+  bool m_silenceMonitoringOnline;
 
   /**declaration histo summary*/
   //  TH2F_LW* m_summary;
@@ -179,8 +192,8 @@ private:
   int m_febHash;
   int m_channel;
   HWIdentifier m_febID;
-  int m_ch1,m_ch2;
-  
+  int m_ch1,m_ch2;  
+
   /**declaration variables used in joboptions*/
   int m_SampleRangeLow;
   int m_SampleRangeUp;
@@ -212,6 +225,10 @@ private:
   
   /** Declare methods used*/
   bool isGoodChannel(HWIdentifier id,float ped);
+  void fillInCorrelation();
+  void bookSelectedFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);
+  void bookAllFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);
+  void bookThisFEB(HWIdentifier id,MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC);
   void BookPartitions(partition& sub, const std::string& hTitle,MonGroup& ShiftGroup,MonGroup& ExpertGroup, MonGroup& ExpertGroupEff);
   void HistTitle(LWHist2D* hist,partition& sub);
   void HistTitle(TProfile2D_LW* hist,partition& sub);
