@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEventInfo
    PhysicsAnalysis/AnalysisCommon/PATCore
    Tools/PathResolver
+   Trigger/TrigAnalysis/TriggerMatchingTool
    ${athena_subdirs}
 )
 
@@ -33,7 +34,7 @@ atlas_add_library( TrigGlobalEfficiencyCorrectionLib
    #PUBLIC_HEADERS TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h
    PUBLIC_HEADERS TrigGlobalEfficiencyCorrection
    PRIVATE_INCLUDE_DIRS ${BOOST_INCLUDE_DIRS}
-   LINK_LIBRARIES AsgTools xAODEgamma xAODMuon EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib TriggerAnalysisInterfacesLib xAODEventInfo PathResolver
+   LINK_LIBRARIES AsgTools xAODEgamma xAODMuon EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib TriggerAnalysisInterfacesLib xAODEventInfo PathResolver TriggerMatchingToolLib
    PRIVATE_LINK_LIBRARIES ${BOOST_LIBRARIES}
 )
 

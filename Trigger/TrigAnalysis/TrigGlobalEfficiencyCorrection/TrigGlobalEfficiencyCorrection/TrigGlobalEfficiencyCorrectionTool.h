@@ -15,6 +15,7 @@
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonEfficiencyCorrectionTool.h"
 #include "AthContainers/AuxElement.h"
+#include "TriggerMatchingTool/IMatchingTool.h"
 
 #include <string>
 #include <vector>
@@ -60,6 +61,10 @@ public:
 	virtual CP::SystematicSet recommendedSystematics() const override;
 	virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
 
+	virtual bool checkTriggerMatching(const std::vector<const xAOD::IParticle*>& particles) override;
+	virtual bool checkTriggerMatching(const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons) override;
+	virtual bool checkTriggerMatching(const std::vector<const xAOD::Photon*>& photons) override;
+	
 	static CP::CorrectionCode suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination,
 		const std::string& version, std::map<std::string,std::string>& legsPerKey);
 	
@@ -103,6 +108,7 @@ private:
 	std::map<std::string, std::string> m_overrideThresholds;
 	unsigned long m_numberOfToys;
 	bool m_useInternalSeed;
+	ToolHandle<Trig::IMatchingTool> m_trigMatchTool;
 
 	std::hash<std::string> m_hasher; //!
 	std::map<std::size_t,float > m_thresholds; //!
@@ -124,6 +130,7 @@ private:
 	bool m_initialized = false; //!
 	CP::CorrectionCode m_cpCode = CP::CorrectionCode::Ok; //!
 	unsigned long m_seed;
+	bool m_validTrigMatchTool; //!
 	
 	std::vector<TagDecorator> m_leptonTagDecorators; //!
 	SG::AuxElement::Decorator<unsigned int> m_runNumberDecorator; //!
@@ -158,6 +165,7 @@ private:
 	bool getTriggerLegEfficiencies(const xAOD::Photon* p, std::size_t leg, std::size_t tag, TrigGlobEffCorr::Efficiencies& efficiencies);
 	CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const LeptonList& leptons, double& efficiencyScaleFactor);
 	CP::CorrectionCode getEfficiency(unsigned runNumber, const LeptonList& leptons, double& efficiencyData, double& efficiencyMc);
+	bool checkTriggerMatching(const LeptonList& leptons);
 	std::size_t getCombinedHash(const flat_set<std::size_t>& legs);
 	std::size_t getCombinedHash(std::size_t leg1, std::size_t leg2);
 	static inline constexpr const flat_set<std::size_t>& forwardLegs(const flat_set<std::size_t>& legs);

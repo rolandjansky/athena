@@ -31,7 +31,7 @@ using Lepton = TrigGlobEffCorr::Lepton;
 
 
 TrigGlobalEfficiencyCorrectionTool::TrigGlobalEfficiencyCorrectionTool(const std::string& name)
-	: asg::AsgTool(name), m_checkElectronLegTag(false), m_checkMuonLegTag(false), m_seed(1), 
+	: asg::AsgTool(name), m_trigMatchTool("", nullptr), m_checkElectronLegTag(false), m_checkMuonLegTag(false), m_seed(1), m_validTrigMatchTool(false),
 	m_runNumberDecorator("RandomRunNumber"), m_calculator()
 {
 	declareProperty("ElectronEfficiencyTools", m_suppliedElectronEfficiencyTools, "electron MC efficiency tools (one for each kind of electron trigger leg)");
@@ -54,6 +54,7 @@ TrigGlobalEfficiencyCorrectionTool::TrigGlobalEfficiencyCorrectionTool(const std
 	declareProperty("NumberOfToys", m_numberOfToys = 0, "if different from 0, use toy experiments instead of explicit formulas");
 	declareProperty("OverrideThresholds", m_overrideThresholds, "new thresholds (in MeV) for the plateaux of the indicated trigger legs -- use at your own risk!");
 	declareProperty("UseInternalSeed", m_useInternalSeed = false, "do not use event number as random number generation seed");
+	declareProperty("TriggerMatchingTool", m_trigMatchTool, "handle to an IMatchingTool instance");
 	
 	m_cpCode.ignore();
 }
@@ -123,6 +124,17 @@ StatusCode TrigGlobalEfficiencyCorrectionTool::initialize()
 	
 	ATH_MSG_DEBUG("Advanced checks");
 	if(!checks.advancedConfigChecks()) return StatusCode::FAILURE;
+	
+	m_validTrigMatchTool = false;
+	if(m_trigMatchTool.typeAndName() != "")
+	{
+		if(m_trigMatchTool.retrieve() != StatusCode::FAILURE)
+		{
+			ATH_MSG_ERROR("Unable to retrieve trigger matching tool");
+			return StatusCode::FAILURE;
+		}
+		m_validTrigMatchTool = true;
+	}
 	
 	ATH_MSG_INFO("Initialization successful"); 
 	m_initialized = true;
@@ -801,6 +813,44 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 		m_cpCode = CP::CorrectionCode::Error;
 	}
 	return m_cpCode;
+}
+
+bool TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(const std::vector<const xAOD::IParticle*>& particles)
+{
+	LeptonList leptons;
+	updateLeptonList(leptons, particles);
+	return checkTriggerMatching(leptons);
+}
+
+bool TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons)
+{
+	LeptonList leptons;
+	updateLeptonList(leptons, electrons);
+	updateLeptonList(leptons, muons);
+	return checkTriggerMatching(leptons);
+}
+
+bool TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(const std::vector<const xAOD::Photon*>& photons)
+{
+	LeptonList leptons;
+	updateLeptonList(leptons, photons);
+	return checkTriggerMatching(leptons);
+}
+
+bool TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(const LeptonList& leptons)
+{
+	unsigned runNumber;
+	if(!retrieveRunNumber(runNumber))
+	{
+		ATH_MSG_ERROR("Unable to retrieve run number, aborting checkTriggerMatching()");
+		return false;
+	}
+	if(!m_validTrigMatchTool)
+	{
+		ATH_MSG_ERROR("A valid IMatchingTool instance should be provided via the property 'TriggerMatchingTool'");
+		return false;
+	}
+	return m_calculator->checkTriggerMatching(*this, leptons, runNumber);
 }
 
 bool TrigGlobalEfficiencyCorrectionTool::aboveThreshold(const Lepton& lepton,std::size_t leg) const

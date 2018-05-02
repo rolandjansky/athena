@@ -375,7 +375,8 @@ bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>&
 	}
 	if(success)
 	{
-		m_periods.emplace_back(boundaries, std::move(helper.m_func));
+		if(m_parent->m_validTrigMatchTool) m_periods.emplace_back(boundaries, std::move(helper.m_func), std::move(triggers));
+		else m_periods.emplace_back(boundaries, std::move(helper.m_func));
 	}
 	else
 	{
@@ -396,6 +397,21 @@ bool Calculator::compute(TrigGlobalEfficiencyCorrectionTool& parent, const Lepto
 	}
 	m_cachedEfficiencies.clear();
 	return period->m_formula && period->m_formula(this, leptons, runNumber, efficiencies);
+}
+
+bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber)
+{
+	m_parent = &parent;
+	auto period = std::find_if(m_periods.begin(), m_periods.end(),
+		[=](const Period& p) { return runNumber>=p.m_boundaries.first && runNumber<=p.m_boundaries.second; });
+	if(period == m_periods.end() || !period->m_triggers.size())
+	{
+		ATH_MSG_ERROR("No trigger combination has been specified for run " << runNumber);
+		return false;
+	}
+	// eh, problem, we need the original trigger name to call the trigger matching tool, not only the legs. Need to store that somewhere (in the TrigDef? maybe as a hash). 
+	ATH_MSG_ERROR("implementation incomplete");
+	return false;
 }
 
 Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned /* runNumber */, std::size_t leg, bool& success)
