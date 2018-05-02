@@ -21,45 +21,38 @@
 #include <string>
 
 namespace DerivationFramework {
+  using std::pair;
+  using std::string;
 
   TriggerMatchingAugmentation::TriggerMatchingAugmentation(const std::string& t,
       const std::string& n,
       const IInterface* p) :
     AthAlgTool(t,n,p),
-    m_tool("Trig::MatchingTool"),
-    m_trigDec( "Trig::TrigDecisionTool/DFTriggerMatch_TrigDecisionTool" ),
-    m_sgName(""),
-    m_muonContainerName(""),
-    m_electronContainerName(""),
-    m_photonContainerName(""),
-    m_singletriggerList(),
-    m_2mutriggerList(),
-    m_2etriggerList(),
-    m_emtriggerList()
+    m_matchTool("Trig::MatchingTool"),
+    m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
+    m_decorPrefix("DFCommonTrigMatch_"),
+    m_muonContainerName("Muons"),
+    m_electronContainerName("Electrons"),
+    m_photonContainerName("Photons")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("MatchingTool", m_tool);
-    declareProperty("DecorationPrefix", m_sgName);
+    declareProperty("MatchingTool", m_matchTool);
+    declareProperty("DecorationPrefix", m_decorPrefix);
     declareProperty("PhotonContainerName", m_photonContainerName);
     declareProperty("ElectronContainerName", m_electronContainerName);
     declareProperty("MuonContainerName", m_muonContainerName);
-    declareProperty("SingleTriggerList", m_singletriggerList);
-    declareProperty("DiMuonList", m_2mutriggerList);
-    declareProperty("DiElectronList", m_2etriggerList);
-    declareProperty("ElectronMuonList", m_emtriggerList);
+    declareProperty("SingleTriggerList", m_singleTriggerList);
+    declareProperty("DiMuonList", m_2mTriggerList);
+    declareProperty("DiElectronList", m_2eTriggerList);
+    declareProperty("ElectronMuonList", m_emTriggerList);
     declareProperty( "TrigDecisionTool", m_trigDec);
-    //    declareProperty("TriggerList", m_triggerList);
   }
 
   StatusCode TriggerMatchingAugmentation::initialize()
   {
-    m_trigDec.setTypeAndName( "Trig::TrigDecisionTool/DFTriggerMatch_TrigDecisionTool" );
     CHECK( m_trigDec.retrieve() );
-    CHECK( m_trigDec->initialize() );
-    m_tool.setTypeAndName("Trig::MatchingTool/DFTriggerMatchMatchingTool");
-    CHECK(m_tool.retrieve()); //important to retrieve here, because TrigDecisionTool must be initialized before event loop
+    CHECK( m_matchTool.retrieve() );
     
-
     if (m_photonContainerName=="") {
       ATH_MSG_ERROR("No Photons collection provided for TriggerMatchingAugmentation!");
       return StatusCode::FAILURE;
@@ -73,7 +66,40 @@ namespace DerivationFramework {
       return StatusCode::FAILURE;
     }
 
-    ATH_CHECK(m_tool.retrieve());
+    // Generate vectors of decorators to use in the event loop,
+    // to avoid needless overhead from searching the AuxStoreRegistry
+    for(const std::string& trigname: m_singleTriggerList) {
+      // Split up e/gamma/mu to avoid string comparisons in the event loop
+      decor_t decor(m_decorPrefix+trigname);
+      pair<const string, decor_t> decorpair(trigname,decor);
+      if (trigname.find("HLT_e")!=std::string::npos) {
+	m_1eDecorList.push_back(decorpair);
+      } else if (trigname.find("HLT_m")!=std::string::npos) {
+	m_1mDecorList.push_back(decorpair);
+      } else {
+	m_1gDecorList.push_back(decorpair);
+      }
+      // Add the trigger name/decorator pair to the selected list
+    }
+
+    // Dilepton triggers are split by the user, so simpler to set up
+    for(const std::string& trigname: m_2mTriggerList) {
+      decor_t decor(m_decorPrefix+trigname);
+      pair<const string, decor_t> decorpair(trigname,decor);
+      m_2mDecorList.push_back(decorpair);
+    }
+    for(const std::string& trigname: m_2eTriggerList) {
+      decor_t decor(m_decorPrefix+trigname);
+      pair<const string, decor_t> decorpair(trigname,decor);
+      m_2eDecorList.push_back(decorpair);
+    }
+    for(const std::string& trigname: m_emTriggerList) {
+      decor_t decor(m_decorPrefix+trigname);
+      pair<const string, decor_t> decorpair(trigname,decor);
+      m_emDecorList.push_back(decorpair);
+    }
+
+
     return StatusCode::SUCCESS;
   }
 
@@ -85,6 +111,7 @@ namespace DerivationFramework {
   StatusCode TriggerMatchingAugmentation::addBranches() const
   {
 
+    // Retrieve the containers to decorate
     const xAOD::PhotonContainer* photons = 0;
     if (evtStore()->retrieve(photons, m_photonContainerName).isFailure()) {
          ATH_MSG_WARNING("Couldn't retrieve " << m_photonContainerName << " from TEvent");
@@ -100,58 +127,97 @@ namespace DerivationFramework {
          ATH_MSG_WARNING("Couldn't retrieve " << m_electronContainerName << " from TEvent");
          return StatusCode::FAILURE;
     }
-    
 
-    for (auto trigger :m_singletriggerList){
-      if (trigger.find("HLT_m")!=std::string::npos)CHECK(matchSingle(muons,trigger));
-      else if (trigger.find("HLT_e")!=std::string::npos) CHECK(matchSingle(electrons,trigger));
-      else CHECK(matchSingle(photons,trigger));
+    // Single electron triggers
+    for (const pair<const string, decor_t>& decorpair : m_1eDecorList ) {
+      const auto& trigname = decorpair.first;
+      const auto& decor = decorpair.second;
+      CHECK(matchSingle(electrons,trigname,decor));
     }
 
-    for( auto trigger:m_2etriggerList){ CHECK(matchDi(electrons,electrons,trigger));}
-    for( auto trigger:m_2mutriggerList){ CHECK(matchDi(muons,muons,trigger));}
-    for( auto trigger:m_emtriggerList){ CHECK(matchDi(electrons,muons,trigger));}
+    // Single muon triggers
+    for (const pair<const string, decor_t>& decorpair : m_1mDecorList ) {
+      const auto& trigname = decorpair.first;
+      const auto& decor = decorpair.second;
+      CHECK(matchSingle(muons,trigname,decor));
+    }
 
+    // Single photon triggers
+    for (const pair<const string, decor_t>& decorpair : m_1gDecorList ) {
+      const auto& trigname = decorpair.first;
+      const auto& decor = decorpair.second;
+      CHECK(matchSingle(photons,trigname,decor));
+    }
+
+    // Dielectron triggers
+    for (const pair<const string, decor_t>& decorpair : m_2eDecorList ) {
+      const auto& trigname = decorpair.first;
+      const auto& decor = decorpair.second;
+      CHECK(matchDi(electrons,electrons,trigname,decor));
+    }
+
+    // Dimuon triggers
+    for (const pair<const string, decor_t>& decorpair : m_2mDecorList ) {
+      const auto& trigname = decorpair.first;
+      const auto& decor = decorpair.second;
+      CHECK(matchDi(muons,muons,trigname,decor));
+    }
+
+    // Electron-muon triggers
+    for (const pair<const string, decor_t>& decorpair : m_emDecorList ) {
+      const auto& trigname = decorpair.first;
+      const auto& decor = decorpair.second;
+      CHECK(matchDi(electrons,muons,trigname,decor));
+    }
    
     return StatusCode::SUCCESS;
   }
 
 
-  StatusCode TriggerMatchingAugmentation::matchSingle(const xAOD::IParticleContainer* collection,std::string trigger) const{
-    SG::AuxElement::Decorator< char > decTrig(m_sgName+trigger);
+  StatusCode TriggerMatchingAugmentation::matchSingle(const xAOD::IParticleContainer* collection,
+						      const std::string& trigger,
+						      const decor_t& decor) const {
     std::vector<const xAOD::IParticle*> particles;
     bool fired=m_trigDec->isPassed( trigger );
     for(auto p : *collection) {   
-      if(fired){
-	particles.clear();
-	particles.push_back( p );      
-	decTrig(*p)=m_tool->match(particles,trigger);      
+      // Avoid repeating if decoration was already attached
+      if(!decor.isAvailable(*p)) {
+	if(fired){
+	  particles.clear();
+	  particles.push_back( p );
+	  decor(*p)=m_matchTool->match(particles,trigger);      
+	}
       }
-      else decTrig(*p)=false;
+      else decor(*p)=false;
     }
     return StatusCode::SUCCESS;
   }
 
 
 
-  StatusCode TriggerMatchingAugmentation::matchDi(const xAOD::IParticleContainer* collection1 ,const xAOD::IParticleContainer* collection2 ,std::string trigger) const{
-    SG::AuxElement::Decorator< char > decTrig(m_sgName+trigger);
+  StatusCode TriggerMatchingAugmentation::matchDi(const xAOD::IParticleContainer* collection1,
+						  const xAOD::IParticleContainer* collection2,
+						  const std::string& trigger,
+						  const decor_t& decor) const {
     std::vector<const xAOD::IParticle*> particles;
     bool matched=false;
     bool fired=m_trigDec->isPassed( trigger );
     for(auto p1 : *collection1) {   
       for(auto p2: *collection2){
-	if (fired){
-	  particles.clear();
-	  particles.push_back( p1 );
-	  particles.push_back( p2 );
-	  matched=m_tool->match(particles,trigger);
-	  decTrig(*p1)=matched;      
-	  decTrig(*p2)=matched;      
-	}
-	else{
-	  decTrig(*p1)=matched;
-	  decTrig(*p2)=matched;
+	// Avoid repeating if decoration was already attached
+	if(!decor.isAvailable(*p1) && !decor.isAvailable(*p2)) {
+	  if (fired){
+	    particles.clear();
+	    particles.push_back( p1 );
+	    particles.push_back( p2 );
+	    matched=m_matchTool->match(particles,trigger);
+	    decor(*p1)=matched;      
+	    decor(*p2)=matched;      
+	  }
+	  else{
+	    decor(*p1)=matched;
+	    decor(*p2)=matched;
+	  }
 	}
       }
     }

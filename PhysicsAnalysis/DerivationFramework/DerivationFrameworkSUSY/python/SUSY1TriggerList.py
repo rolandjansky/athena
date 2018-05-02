@@ -17,8 +17,8 @@ SUSY1XETriggers = MET_2015+MET_2016+MET_2017+MET_2018
 SUSY1BJetTriggers = MultiBJet_2015+MultiBJet_2016+MultiBJet_2017+MultiBJet_2018
 
 #all triggers
-SUSY1AllTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers + SUSY1XETriggers+JetTrigger_2016
+SUSY1AllTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers + SUSY1XETriggers + JetTrigger_2016 + SUSY1BJetTriggers
 
 #just those we need the navigation thinning for
-SUSY1ThinTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers
+SUSY1ThinTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers + SUSY1BJetTriggers
 

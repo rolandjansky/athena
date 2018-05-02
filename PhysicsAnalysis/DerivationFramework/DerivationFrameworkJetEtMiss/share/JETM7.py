@@ -47,20 +47,9 @@ JETM7SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM7Sk
 ToolSvc += JETM7SkimmingTool
 
 #Trigger matching decorations
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
-DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
-                                                             name = "JETM7_TriggerMatchingAugmentation",
-                                                             DecorationPrefix = "DFCommonTrigger_",
-                                                             ElectronContainerName = "Electrons",
-                                                             MuonContainerName = "Muons",
-                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
-	                                                             )
-ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
-NewTrigVars=[]
-for contain in ["Electrons","Muons"]:
-    new_content=".".join(["JETM7_"+t for t in eltrigsel +
-                          mutrigsel])
-    NewTrigVars.append(contain+"."+new_content)
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM7",
+                                                 ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # SET UP STREAM   
@@ -186,7 +175,7 @@ replaceAODReducedJets(reducedJetList,jetm7Seq,"JETM7")
 #==============================================================================
 # background generator filters
 #==============================================================================
-augmentationTools = []
+augmentationTools = [TrigMatchAug]
 if globalflags.DataSource() == 'geant4':
     from DerivationFrameworkMCTruth.GenFilterToolSetup import *
     augmentationTools.append(ToolSvc.DFCommonTruthGenFilt)
@@ -225,7 +214,8 @@ JETM7SlimmingHelper.AllVariables = [# "CaloCalTopoClusters",
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM7SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus"]+NewTrigVars
+JETM7SlimmingHelper.ExtraVariables = ["Electrons."+NewTrigVars["Electrons"],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus."+NewTrigVars["Muons"]]
 for truthc in [
     "TruthMuons",
     "TruthElectrons",

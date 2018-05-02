@@ -42,20 +42,9 @@ JETM2SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "JETM2Sk
 ToolSvc += JETM2SkimmingTool
 
 #Trigger matching decorations
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
-DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
-                                                             name = "JETM2_TriggerMatchingAugmentation",
-                                                             DecorationPrefix = "DFCommonTrigger_",
-                                                             ElectronContainerName = "Electrons",
-                                                             MuonContainerName = "Muons",
-                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
-	                                                             )
-ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
-NewTrigVars=[]
-for contain in ["Electrons","Muons"]:
-    new_content=".".join(["JETM2_"+t for t in eltrigsel +
-                          mutrigsel])
-    NewTrigVars.append(contain+"."+new_content)
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM2",
+                                                 ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # SET UP STREAM   
@@ -153,7 +142,8 @@ DerivationFrameworkJob += jetm2Seq
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 jetm2Seq += CfgMgr.DerivationFramework__DerivationKernel("JETM2Kernel",
                                                          SkimmingTools = [JETM2SkimmingTool],
-                                                         ThinningTools = thinningTools)
+                                                         ThinningTools = thinningTools,
+                                                         AugmentationTools = [TrigMatchAug])
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
@@ -198,8 +188,9 @@ JETM2SlimmingHelper.AllVariables = ["MuonTruthParticles", "egammaTruthParticles"
                                     "MuonSegments",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape",
                                     ]
-JETM2SlimmingHelper.ExtraVariables = ["Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus",
-                                      "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]+NewTrigVars
+JETM2SlimmingHelper.ExtraVariables = ["Electrons."+NewTrigVars["Electrons"],
+                                      "Muons.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus."+NewTrigVars["Muons"],
+                                      "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"]
 
 for truthc in [
     "TruthMuons",

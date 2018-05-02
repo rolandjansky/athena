@@ -125,8 +125,32 @@ def addExCoM(FTAG5Seq, ToolSvc, ExKtJetCollection__FatJet, doTrackSubJet):
 ##################################################################
 # Build variable-R subjets, recluster AntiKt10LCTopojet with ghost VR and copy ghost link to AntiKt10LCTopo 
 ##################################################################
-def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", **VRJetOptions):
+def addVRJets(sequence, *pos_opts, **opts):
     from JetRec.JetRecStandard import jtm
+    from AthenaCommon import Logging
+
+    if 'logger' not in opts:
+        logger = Logging.logging.getLogger('VRLogger')
+    else:
+        logger = opts['logger']
+
+    # define constants here, since we don't want every derivaiton
+    # deciding for themselves what a VR jet is. If we do want this
+    # flexibility, this code will need some rewriting to ensure that
+    # there are no issues with train safety.
+    if opts or pos_opts:
+        logger.warning('Options specified for VR jets, they will be ignored')
+
+    VRJetName="AntiKtVR30Rmax4Rmin02Track"
+    VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet"
+    VRJetAlg="AntiKt"
+    VRJetRadius=0.4
+    VRJetInputs='pv0track'
+    VRJetOptions = dict(
+        ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
+        variableRMinRadius = 0.02, variableRMassScale = 30000,
+        calibOpt = "none")
+
 
     #==========================================================
     # Build VR jets
@@ -187,6 +211,7 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
                 VRJetRadius,
                 pseudoJetGetters,
                 modifiersin=mods,
+                ivtxin=0,
                 **VRJetOptions)
 
         from JetRec.JetRecConf import JetAlgorithm
@@ -405,9 +430,12 @@ def addCopyJet(FTAG5Seq, ToolSvc, InputJetCollectionName, OutputJetCollectionNam
 #========================================================================
 # Hbb Tagger
 #========================================================================
-def addHbbTagger(sequence, ToolSvc, logger,
+def addHbbTagger(sequence, ToolSvc, logger=None,
                  output_level=WARNING,
                  jet_collection="AntiKt10LCTopoTrimmedPtFrac5SmallR20"):
+    if logger is None:
+        logger = Logging.logging.getLogger('HbbTaggerLog')
+
     fat_calibrator_name = "HbbCalibrator"
     is_data = not DerivationFrameworkIsMonteCarlo
     if not hasattr(ToolSvc, fat_calibrator_name):

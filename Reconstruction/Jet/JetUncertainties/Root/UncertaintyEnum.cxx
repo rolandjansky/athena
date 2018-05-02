@@ -313,10 +313,11 @@ namespace FlavourComp
     {
         switch (type)
         {
-            case Response:      return "FlavourResponse";
-            case Composition:   return "FlavourComposition";
-            case bJES:          return "bJES";
-            default:            return "UNKNOWN";
+            case Response:          return "FlavourResponse";
+            case Composition:       return "FlavourComposition";
+            case bJES:              return "bJES";
+            case PerJetResponse:    return "PerJetFlavourResponse";
+            default:                return "UNKNOWN";
         }
     }
 
@@ -325,7 +326,12 @@ namespace FlavourComp
         if (type.Contains("Flavour",TString::kIgnoreCase) || type.Contains("Flavor",TString::kIgnoreCase))
         {
             if (type.Contains("Response",TString::kIgnoreCase))
-                return Response;
+            {
+                if (type.Contains("PerJet",TString::kIgnoreCase))
+                    return PerJetResponse;
+                else
+                    return Response;
+            }
             if (type.Contains("Composition",TString::kIgnoreCase))
                 return Composition;
         }

@@ -302,6 +302,7 @@ namespace CP {
       isValid = false;
     }
 
+
     // If the object isn't valid there's no point applying the remaining cuts
     if (!isValid)
       return m_accept;
@@ -338,13 +339,19 @@ namespace CP {
     ATH_MSG_DEBUG( "Counting the number of tracks in the jet" );
 
     ntracks = 0;
-
     // loop over the tracks associated to the jet of interest
     std::vector<const xAOD::IParticle*> jettracks;
-    jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks);
+    if(!jet->getAssociatedObjects<xAOD::IParticle>(xAOD::JetAttribute::GhostTrack,jettracks)){
+        ATH_MSG_WARNING("Not able to getAssociatedObjects to Jet!!!!! Not processing this jet!");
+        return StatusCode::SUCCESS;
+    }
     for (size_t i = 0; i < jettracks.size(); i++) {
 
       const xAOD::TrackParticle* trk = static_cast<const xAOD::TrackParticle*>(jettracks[i]);
+      if(!trk){
+        ATH_MSG_WARNING("This track has a null pointer. Therefore this track will be skipped");
+        continue;
+        }
 
       // if you are applying a systematic variation then
       // FRANCESCO ADD COMMENT
@@ -367,7 +374,6 @@ namespace CP {
                      m_trkSelectionTool->accept(*trk) &&
                      (trk->vertex()==pv || (!trk->vertex() && fabs((trk->z0()+trk->vz()-pv->z())*sin(trk->theta()))<3.))
                     );
-
       if (!accept)
         continue;
 

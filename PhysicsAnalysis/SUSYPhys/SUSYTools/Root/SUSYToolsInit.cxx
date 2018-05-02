@@ -153,6 +153,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   ///////////////////////////////////////////////////////////////////////////////////////////
   // Initialise jet calibration tool
 
+  // pick the right config file for the JES tool : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
   std::string jetname("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
   std::string jetcoll(jetname + "Jets");
   std::string calibArea("00-04-81");
@@ -160,45 +161,48 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_jetCalibTool.isUserConfigured()) {
     toolName = "JetCalibTool_" + jetname;
     m_jetCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
+    std::string JES_config_file, calibseq; 
 
-    // pick the right config file for the JES tool : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
-    std::string JES_config_file(m_jesConfig);
-    // form the string describing the calibration sequence to use
-    std::string calibseq(m_jesCalibSeq);
-    if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
-      JES_config_file = m_jesConfigJMS;
-      calibseq = m_jesCalibSeqJMS;
+    if (m_jetInputType == xAOD::JetInput::EMTopo) {
+      JES_config_file = m_jesConfig;
+      calibseq = m_jesCalibSeq;
+    } else if (m_jetInputType == xAOD::JetInput::EMPFlow) {
+      JES_config_file = m_jesConfigEMPFlow;
+      calibseq = m_jesCalibSeqEMPFlow;
+    } else if (m_jetInputType == xAOD::JetInput::LCTopo){
+      ATH_MSG_WARNING("LCTopo jets are not fully supported in R21 (no in-situ calibration). Please use either PFlow or EMTopo jets.");
+      JES_config_file = "JES_MC16Recommendation_28Nov2017.config"; // old config, thus hard-coded
+      calibseq = m_jesCalibSeq; // no in-situ calibration for data
+    } else {
+      ATH_MSG_ERROR("Unknown (unsupported) jet collection is used, (m_jetInputType = " << m_jetInputType << ")");
+      return StatusCode::FAILURE;
     }
 
     if (isAtlfast()) {
-      if (m_jetInputType == xAOD::JetInput::EMTopo || m_jetInputType == xAOD::JetInput::LCTopo) { // only supported ones for AF-II
+      if (m_jetInputType == xAOD::JetInput::EMTopo) {
         JES_config_file = m_jesConfigAFII;
         calibseq = m_jesCalibSeqAFII;
+      } else if (m_jetInputType == xAOD::JetInput::EMPFlow) {
+        JES_config_file = m_jesConfigEMPFlowAFII;
+        calibseq = m_jesCalibSeqEMPFlowAFII;
       } else {
-        ATH_MSG_ERROR("JES recommendations only exist for EMTopo jets in AF-II samples (m_jetInputType = " << m_jetInputType << ")");
+        ATH_MSG_ERROR("JES recommendations only exist for EMTopo and PFlow jets in AF-II samples (m_jetInputType = " << m_jetInputType << ")");
         return StatusCode::FAILURE;
       }
+    }
 
-      if(!m_JMScalib.empty()){
+    if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
+      JES_config_file = m_jesConfigJMS;
+      calibseq = m_jesCalibSeqJMS;
+      if (m_jetInputType == xAOD::JetInput::EMPFlow) {
+        ATH_MSG_ERROR("JMS calibration is not supported for EMPFlow jets. Please modify your settings.");
+        return StatusCode::FAILURE;
+      }
+      if (isAtlfast()) {
         ATH_MSG_ERROR("JMS calibration is not supported for AF-II samples. Please modify your settings.");
         return StatusCode::FAILURE;
       }
     }
-
-    // finally, PFlow jets need special care
-    if (m_jetInputType == xAOD::JetInput::EMPFlow) {
-      JES_config_file = m_jesConfigEMPFlow;
-      calibseq = m_jesCalibSeqEMPFlow;
-
-      if(!m_JMScalib.empty()){
-        ATH_MSG_ERROR("JMS calibration is not supported for EMPFlow jets. Please modify your settings.");
-        return StatusCode::FAILURE;
-      }
-    }
-
-    //check isData parameter (no in-situ calibration for LCTopo yet) //MT : revise when it becomes available!
-    //    bool data_par = (( m_jetInputType == xAOD::JetInput::LCTopo) ? false : isData());
-    bool data_par = isData();
 
     // remove Insitu if it's in the string and not running on data
     if (!isData()) {
@@ -211,7 +215,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetCalibTool.setProperty("CalibSequence", calibseq) );
     ATH_CHECK( m_jetCalibTool.setProperty("CalibArea", calibArea) );
-    ATH_CHECK( m_jetCalibTool.setProperty("IsData", data_par) );
+    ATH_CHECK( m_jetCalibTool.setProperty("IsData", isData()) );
     ATH_CHECK( m_jetCalibTool.retrieve() );
   }
 
@@ -277,9 +281,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_jetUncertaintiesTool.isUserConfigured()) {
     std::string jetdef("AntiKt4" + xAOD::JetInput::typeName(xAOD::JetInput::Type(m_jetInputType)));
-    // Until uncertainties provided for other collections
-    if(jetdef != "AntiKt4EMTopo"){
-      ATH_MSG_WARNING("  *** HACK *** Treating " << jetdef << " jets as EMTopo -- use at your own risk!");
+
+    if(jetdef != "AntiKt4EMTopo" && jetdef !="AntiKt4EMPFlow"){
+      ATH_MSG_WARNING("Jet Uncertaintes recommendations only exist for EMTopo and PFlow jets, falling back to AntiKt4EMTopo");
       jetdef = "AntiKt4EMTopo";
     }
     toolName = "JetUncertaintiesTool_" + jetdef;
@@ -297,11 +301,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     }
     m_jetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
 
-    if(isAtlfast()) ATH_MSG_WARNING("MCType for AFII is not supported for JetUncertainties yet. This will be treated as MC16, but will be an under-estimate. See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018SmallR for details.");
-
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition", jetdef) );
-    //ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
-    ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", "MC16") );
+    ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018SmallR
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) ); 
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
@@ -1131,6 +1132,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_metMaker.setProperty("DoRemoveMuonJets", m_metDoRemoveMuonJets) );
     ATH_CHECK( m_metMaker.setProperty("UseGhostMuons", m_metUseGhostMuons) );
     ATH_CHECK( m_metMaker.setProperty("DoMuonEloss", m_metDoMuonEloss) );
+    ATH_CHECK( m_metMaker.setProperty("GreedyPhotons", m_metGreedyPhotons) );
 
     // set the jet selection if default empty string is overridden through config file
     if (m_metJetSelection.size())
@@ -1174,6 +1176,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
         ATH_CHECK( m_metSystTool.setProperty("JetConstitScaleMom","JetLCScaleMomentum") );
       }
     }
+ 
+    if (m_trkJetsyst) {
+      ATH_CHECK( m_metSystTool.setProperty("ConfigJetTrkFile", "JetTrackSyst.config") );
+    }
+
     ATH_CHECK( m_metSystTool.retrieve());
   }
 
@@ -1235,7 +1242,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_trigGlobalEffCorrTool_multiLep.initialize() );
   }
 
-// /////////////////////////////////////////////////////////////////////////////////////////
 // /////////////////////////////////////////////////////////////////////////////////////////
 // Initialise Isolation Correction Tool
 

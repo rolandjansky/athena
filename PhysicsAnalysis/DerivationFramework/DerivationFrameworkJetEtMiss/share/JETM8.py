@@ -60,20 +60,9 @@ JETM8OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "
 ToolSvc += JETM8OfflineSkimmingTool
 
 #Trigger matching decorations
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__TriggerMatchingAugmentation
-DFCommonTrigger_TriggerMatchingAugmentation=DerivationFramework__TriggerMatchingAugmentation( 
-                                                             name = "JETM8_TriggerMatchingAugmentation",
-                                                             DecorationPrefix = "DFCommonTrigger_",
-                                                             ElectronContainerName = "Electrons",
-                                                             MuonContainerName = "Muons",
-                                                             SingleTriggerList = [eltrigsel]+[mutrigsel]
-	                                                             )
-ToolSvc += DFCommonTrigger_TriggerMatchingAugmentation
-NewTrigVars=[]
-for contain in ["Electrons","Muons"]:
-    new_content=".".join(["JETM8_"+t for t in eltrigsel +
-                          mutrigsel])
-    NewTrigVars.append(contain+"."+new_content)
+from DerivationFrameworkCore.TriggerMatchingAugmentation import applyTriggerMatching
+TrigMatchAug, NewTrigVars = applyTriggerMatching(ToolNamePrefix="JETM8",
+                                                 ElectronTriggers=electronTriggers,MuonTriggers=muonTriggers)
 
 #====================================================================
 # THINNING TOOLS 
@@ -157,7 +146,8 @@ replaceAODReducedJets(reducedJetList,jetm8Seq,"JETM8")
 
 jetm8Seq += CfgMgr.DerivationFramework__DerivationKernel( name = "JETM8MainKernel", 
                                                           SkimmingTools = [JETM8OfflineSkimmingTool],
-                                                          ThinningTools = thinningTools)
+                                                          ThinningTools = thinningTools,
+                                                          AugmentationTools = [TrigMatchAug])
 
 #====================================================================
 # Special jets
@@ -289,7 +279,7 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
 
 addOriginCorrectedClusters(JETM8SlimmingHelper,writeLC=True,writeEM=False)
 
-JETM8SlimmingHelper.ExtraVariables = []+NewTrigVars
+JETM8SlimmingHelper.ExtraVariables = [NewTrigVars["Electrons"][0],NewTrigVars["Muons"][0]]
 
 for truthc in [
     "TruthMuons",
@@ -305,7 +295,9 @@ for caloc in correctedClusters:
     JETM8SlimmingHelper.AppendToDictionary.update({caloc:"xAOD::CaloClusterContainer",
                                                    caloc+"Aux":"xAOD::ShallowAuxContainer"})
     JETM8SlimmingHelper.ExtraVariables +=[
-        caloc+'.calE.calEta.calM.calPhi']
+      "Electrons."+NewTrigVars["Electrons"],
+      "Muons."+NewTrigVars["Muons"],
+      caloc+'.calE.calEta.calM.calPhi']
 
 print JETM8SlimmingHelper.AppendToDictionary
 

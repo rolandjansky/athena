@@ -1044,18 +1044,36 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       bool comb_trig_check = false;
 
       if (comb_trig_check) {
-        if (objTool.IsTrigPassed("HLT_e17_lhloose_mu14") || objTool.IsTrigPassed("HLT_e17_lhloose_nod0_mu14")) {
-          std::cout << "e-mu trigger SFs (e17 chain):  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
-          std::cout << "e-mu trigger Effs (e17 chain): " << objTool.GetTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
-        } 
-        if (objTool.IsTrigPassed("HLT_2e12_lhloose_mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_2mu10") || objTool.IsTrigPassed("HLT_e12_lhloose_nod0_2mu10") || objTool.IsTrigPassed("HLT_2e12_lhloose_nod0_mu10")) { 
-          std::cout << "e-mu trigger SFs (e12 chain):  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
-          std::cout << "e-mu trigger Effs (e12 chain): " << objTool.GetTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
-        } 
-        if (objTool.IsTrigPassed("HLT_e7_lhmedium_mu24") || objTool.IsTrigPassed("HLT_e7_lhmedium_nod0_mu24")) {
-          std::cout << "e-mu trigger SFs (e7 chain):  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
-          std::cout << "e-mu trigger Effs (e7 chain): " << objTool.GetTriggerGlobalEfficiency(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
-        }
+        if (objTool.IsTrigPassed("HLT_2e12_lhloose_L12EM10VH"))
+          std::cout << " 2e12_lhloose_L12EM10VH SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_e17_lhloose_mu14"))
+          std::cout << "e17_lhloose_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_2e17_lhvloose_nod0"))
+          std::cout << " 2e17_lhvloose_nod0 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_e17_lhloose_nod0_mu14"))
+          std::cout << " e17_lhloose_nod0_mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_e7_lhmedium_mu24"))
+          std::cout << " e7_lhmedium_mu24 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_e7_lhmedium_nod0_mu24"))
+          std::cout << " e7_lhmedium_nod0_mu24 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_mu18_mu8noL1"))
+          std::cout << " mu18_mu8noL1 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_mu20_mu8noL1"))
+          std::cout << " mu20_mu8noL1 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_2mu10"))
+          std::cout << " 2mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_2mu14"))
+          std::cout << " 2mu14 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "diLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_2e12_lhloose_mu10"))
+          std::cout << " 2e12_lhloose_mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_2e12_lhloose_nod0_mu10"))
+          std::cout << " 2e12_lhloose_nod0_mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_e12_lhloose_2mu10"))
+          std::cout << " e12_lhloose_2mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_e12_lhloose_nod0_2mu10"))
+          std::cout << " e12_lhloose_nod0_2mu10 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
+        if (objTool.IsTrigPassed("HLT_3mu6"))
+          std::cout << " 3mu6 SF:  " << objTool.GetTriggerGlobalEfficiencySF(*electrons_nominal, *muons_nominal, "multiLepton") << std::endl;
       }
 
       ///CHECK FOR ATLSUSYSW-147

@@ -178,45 +178,46 @@ namespace H5Utils {
       if (!keep) continue;
 
       leaf = tt.GetLeaf(lname.c_str());
+      std::string branchName = leaf->GetBranch()->GetName();
       std::string leaf_type = leaf->GetTypeName();
       if (leaf_type == "Int_t") {
-        buffers.emplace_back(new Buffer<int>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<int>(vars, tt, branchName));
       } else if (leaf_type == "Float_t") {
-        buffers.emplace_back(new Buffer<float>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<float>(vars, tt, branchName));
       } else if (leaf_type == "Double_t") {
-        buffers.emplace_back(new Buffer<double>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<double>(vars, tt, branchName));
       } else if (leaf_type == "Bool_t") {
-        buffers.emplace_back(new Buffer<bool>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<bool>(vars, tt, branchName));
       } else if (leaf_type == "Long64_t") {
-        buffers.emplace_back(new Buffer<long long>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<long long>(vars, tt, branchName));
       } else if (leaf_type == "UInt_t") {
-        buffers.emplace_back(new Buffer<unsigned int>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<unsigned int>(vars, tt, branchName));
       } else if (leaf_type == "UChar_t") {
-        buffers.emplace_back(new Buffer<unsigned char>(vars, tt, lname));
+        buffers.emplace_back(new Buffer<unsigned char>(vars, tt, branchName));
       } else if (leaf_type == "vector<float>") {
-        buffers.emplace_back(new VBuf<float>(vars2d, idx, tt, lname, NAN));
+        buffers.emplace_back(new VBuf<float>(vars2d, idx, tt, branchName, NAN));
       } else if (leaf_type == "vector<double>") {
-        buffers.emplace_back(new VBuf<double>(vars2d, idx, tt, lname, NAN));
+        buffers.emplace_back(new VBuf<double>(vars2d, idx, tt, branchName, NAN));
       } else if (leaf_type == "vector<int>") {
-        buffers.emplace_back(new VBuf<int>(vars2d, idx, tt, lname, 0));
+        buffers.emplace_back(new VBuf<int>(vars2d, idx, tt, branchName, 0));
       } else if (leaf_type == "vector<unsigned int>") {
-        buffers.emplace_back(new VBuf<unsigned int>(vars2d, idx, tt, lname, 0));
+        buffers.emplace_back(new VBuf<unsigned int>(vars2d, idx, tt, branchName, 0));
       } else if (leaf_type == "vector<unsigned char>") {
-        buffers.emplace_back(new VBuf<unsigned char>(vars2d, idx, tt, lname, 0));
+        buffers.emplace_back(new VBuf<unsigned char>(vars2d, idx, tt, branchName, 0));
       } else if (leaf_type == "vector<bool>") {
-        buffers.emplace_back(new VBuf<bool>(vars2d, idx, tt, lname, 0));
+        buffers.emplace_back(new VBuf<bool>(vars2d, idx, tt, branchName, 0));
       } else if (leaf_type == "vector<vector<int> >") {
-        buffers.emplace_back(new VVBuf<int>(vars3d, idx2, tt, lname, 0));
+        buffers.emplace_back(new VVBuf<int>(vars3d, idx2, tt, branchName, 0));
       } else if (leaf_type == "vector<vector<unsigned int> >") {
-        buffers.emplace_back(new VVBuf<unsigned int>(vars3d, idx2, tt, lname, 0));
+        buffers.emplace_back(new VVBuf<unsigned int>(vars3d, idx2, tt, branchName, 0));
       } else if (leaf_type == "vector<vector<unsigned char> >") {
-        buffers.emplace_back(new VVBuf<unsigned char>(vars3d, idx2, tt, lname, 0));
+        buffers.emplace_back(new VVBuf<unsigned char>(vars3d, idx2, tt, branchName, 0));
       } else if (leaf_type == "vector<vector<float> >") {
-        buffers.emplace_back(new VVBuf<float>(vars3d, idx2, tt, lname, NAN));
+        buffers.emplace_back(new VVBuf<float>(vars3d, idx2, tt, branchName, NAN));
       } else if (leaf_type == "vector<vector<double> >") {
-        buffers.emplace_back(new VVBuf<double>(vars3d, idx2, tt, lname, NAN));
+        buffers.emplace_back(new VVBuf<double>(vars3d, idx2, tt, branchName, NAN));
       } else if (leaf_type == "vector<vector<bool> >") {
-        buffers.emplace_back(new VVBuf<bool>(vars3d, idx2, tt, lname, 0));
+        buffers.emplace_back(new VVBuf<bool>(vars3d, idx2, tt, branchName, 0));
       } else {
         skipped.insert(leaf_type);
       }
