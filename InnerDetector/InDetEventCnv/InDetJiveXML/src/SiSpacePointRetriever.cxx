@@ -6,7 +6,7 @@
 #include "StoreGate/DataHandle.h"
 #include "JiveXML/DataType.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandle.h"
 
