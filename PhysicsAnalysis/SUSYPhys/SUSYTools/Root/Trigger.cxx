@@ -309,14 +309,16 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
 
     static std::string delOR = "_OR_";
     std::vector<std::string> trigchains = {};
-    
+    std::string newtrigExpr = TString(trigExpr).Copy().ReplaceAll("||",delOR).Data();
+    newtrigExpr = TString(trigExpr).Copy().ReplaceAll(" ","").Data();
+ 
     size_t pos = 0;
-    while ((pos = trigExpr.find(delOR)) != std::string::npos) {
-      trigchains.push_back( "HLT_"+trigExpr.substr(0, pos) );
-      trigExpr.erase(0, pos + delOR.length());
+    while ((pos = newtrigExpr.find(delOR)) != std::string::npos) {
+      trigchains.push_back( "HLT_"+newtrigExpr.substr(0, pos) );
+      newtrigExpr.erase(0, pos + delOR.length());
     }
     if(pos==std::string::npos)
-      trigchains.push_back("HLT_"+trigExpr);
+      trigchains.push_back("HLT_"+newtrigExpr);
     
     return trigchains;
   }
@@ -326,23 +328,19 @@ const Trig::ChainGroup* SUSYObjDef_xAOD::GetTrigChainGroup(const std::string& tr
     static std::string del15 = "_2015_";
     static std::string del16 = "_2016_";
     static std::string del17 = "_2017_";
-    static std::string delOR = "_OR_";
 
     size_t pos = 0;
     std::string token15, token16, token17;
 
     //get trigger tokens for 2015, 2016 and 2017 
     if ( (pos = trigExpr.find(del15)) != std::string::npos) {
-      trigExpr.erase(0, pos + del15.length());
+      trigExpr.erase(0, pos + del15.length()); 
 
       pos = 0;
       while ((pos = trigExpr.find(del16)) != std::string::npos) {
         token15 = trigExpr.substr(0, pos);
-        token16 = trigExpr.erase(0, pos + del16.length());
-      }
-      pos = 0;
-      while ((pos = trigExpr.find(del17)) != std::string::npos) {
-        token17 = trigExpr.erase(0, pos + del17.length());
+        token16 = trigExpr.erase(0, pos + del16.length() + del17.length());
+        token17 = token16; // 2017 and 2016 use exact same trigger in string
       }
     }
 
@@ -378,12 +376,28 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
 
   unsigned runNumber = (unsigned) this->GetRandomRunNumber();
 
+  std::vector<std::string> trigMChains={};
+  if (trigExpr=="diLepton") {
+    if (this->treatAsYear()==2015) 
+      std::set_difference(v_trigs15_cache_diLep.begin(), v_trigs15_cache_diLep.end(), v_trigs15_cache_singleLep.begin(), v_trigs15_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers 
+    else if (this->treatAsYear()==2016) 
+      std::set_difference(v_trigs16_cache_diLep.begin(), v_trigs16_cache_diLep.end(), v_trigs16_cache_singleLep.begin(), v_trigs16_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers
+    else 
+      std::set_difference(v_trigs17_cache_diLep.begin(), v_trigs17_cache_diLep.end(), v_trigs17_cache_singleLep.begin(), v_trigs17_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers
+  } else if (trigExpr=="multiLepton") {
+    if (this->treatAsYear()==2015) 
+      std::set_difference(v_trigs15_cache_multiLep.begin(), v_trigs15_cache_multiLep.end(), v_trigs15_cache_singleLep.begin(), v_trigs15_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
+    else if (this->treatAsYear()==2016) 
+      std::set_difference(v_trigs16_cache_multiLep.begin(), v_trigs16_cache_multiLep.end(), v_trigs16_cache_singleLep.begin(), v_trigs16_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
+    else 
+      std::set_difference(v_trigs17_cache_multiLep.begin(), v_trigs17_cache_multiLep.end(), v_trigs17_cache_singleLep.begin(), v_trigs17_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
+  }
+
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
   for (const auto& electron : electrons) {
     if (!acc_passOR(*electron)) continue;
     if (!acc_signal(*electron)) continue;
-    if (!(electron->pt()>8e3)) continue;
     elec_trig.push_back(electron);
   }
 
@@ -392,14 +406,11 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
   for (const auto& muon : muons) {
     if (!acc_passOR(*muon)) continue;
     if (!acc_signal(*muon)) continue;
-    if (trigExpr=="diLepton")
-      if (!(muon->pt()>9e3)) continue;
-    if (trigExpr=="multiLepton")
-      if (!(muon->pt()>5e3)) continue;
     muon_trig.push_back(muon);
   }
 
   CP::CorrectionCode result;
+  // important caveat: the tool still requires as argument a list of leptons before trigger matching!
   if ((elec_trig.size()+muon_trig.size())>1 && trigExpr=="diLepton") 
     result = m_trigGlobalEffCorrTool_diLep->getEfficiencyScaleFactor( runNumber, elec_trig, muon_trig, trig_sf);
   else if ((elec_trig.size()+muon_trig.size())>2 && trigExpr=="multiLepton") 
@@ -407,10 +418,10 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiencySF(const xAOD::ElectronContain
  
   switch (result) {
   case CP::CorrectionCode::Error:
-    ATH_MSG_ERROR( "Failed to retrieve signal electron trigger efficiency");
+    ATH_MSG_ERROR( "Failed to retrieve signal lepton trigger efficiency");
     return 1.;
   case CP::CorrectionCode::OutOfValidityRange:
-    ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron trigger efficiency");
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for signal lepton trigger efficiency");
     return 1.;
   default:
     break;
@@ -432,12 +443,28 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
 
   unsigned runNumber = (unsigned) this->GetRandomRunNumber();
 
+  std::vector<std::string> trigMChains={};
+  if (trigExpr=="diLepton") {
+    if (this->treatAsYear()==2015) 
+      std::set_difference(v_trigs15_cache_diLep.begin(), v_trigs15_cache_diLep.end(), v_trigs15_cache_singleLep.begin(), v_trigs15_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers 
+    else if (this->treatAsYear()==2016) 
+      std::set_difference(v_trigs16_cache_diLep.begin(), v_trigs16_cache_diLep.end(), v_trigs16_cache_singleLep.begin(), v_trigs16_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers
+    else 
+      std::set_difference(v_trigs17_cache_diLep.begin(), v_trigs17_cache_diLep.end(), v_trigs17_cache_singleLep.begin(), v_trigs17_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton triggers
+  } else if (trigExpr=="multiLepton") {
+    if (this->treatAsYear()==2015) 
+      std::set_difference(v_trigs15_cache_multiLep.begin(), v_trigs15_cache_multiLep.end(), v_trigs15_cache_singleLep.begin(), v_trigs15_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
+    else if (this->treatAsYear()==2016) 
+      std::set_difference(v_trigs16_cache_multiLep.begin(), v_trigs16_cache_multiLep.end(), v_trigs16_cache_singleLep.begin(), v_trigs16_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
+    else 
+      std::set_difference(v_trigs17_cache_multiLep.begin(), v_trigs17_cache_multiLep.end(), v_trigs17_cache_singleLep.begin(), v_trigs17_cache_singleLep.end(), std::back_inserter(trigMChains)); // a list of dilepton and trilepton triggers
+  }
+
   std::vector<const xAOD::Electron*> elec_trig;
   elec_trig.clear();
   for (const auto& electron : electrons) {
     if (!acc_passOR(*electron)) continue;
     if (!acc_signal(*electron)) continue;
-    if (!(electron->pt()>8e3)) continue;
     elec_trig.push_back(electron);
   }
 
@@ -446,10 +473,6 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
   for (const auto& muon : muons) {
     if (!acc_passOR(*muon)) continue;
     if (!acc_signal(*muon)) continue;
-    if (trigExpr=="diLepton")
-      if (!(muon->pt()>9e3)) continue;
-    if (trigExpr=="multiLepton")
-      if (!(muon->pt()>5e3)) continue;
     muon_trig.push_back(muon);
   }
 
@@ -461,10 +484,10 @@ double SUSYObjDef_xAOD::GetTriggerGlobalEfficiency(const xAOD::ElectronContainer
 
   switch (result) {
   case CP::CorrectionCode::Error:
-    ATH_MSG_ERROR( "Failed to retrieve signal electron trigger efficiency");
+    ATH_MSG_ERROR( "Failed to retrieve signal lepton trigger efficiency");
     return 1.;
   case CP::CorrectionCode::OutOfValidityRange:
-    ATH_MSG_VERBOSE( "OutOfValidityRange found for signal electron trigger efficiency");
+    ATH_MSG_VERBOSE( "OutOfValidityRange found for signal lepton trigger efficiency");
     return 1.;
   default:
     break;

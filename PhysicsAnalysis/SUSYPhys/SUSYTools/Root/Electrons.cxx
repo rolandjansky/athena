@@ -194,6 +194,7 @@ StatusCode SUSYObjDef_xAOD::FillElectron(xAOD::Electron& input, float etcut, flo
   if ( m_egammaCalibTool->applyCorrection(input) != CP::CorrectionCode::Ok)
     ATH_MSG_ERROR( "FillElectron: EgammaCalibTool applyCorrection failed ");
 
+  // no longer needed for electrons since the correcion is applied in AOD
   //if (m_isoCorrTool->applyCorrection(input)  != CP::CorrectionCode::Ok)
   //  ATH_MSG_ERROR("FillElectron: IsolationCorrectionTool applyCorrection failed");
 
@@ -343,9 +344,9 @@ float SUSYObjDef_xAOD::GetSignalElecSF(const xAOD::Electron& el,
     std::vector<std::string> trigMChains={};
     std::string theExpr ("");
     if(trigExpr==singleLepStr) { 
-      if (this->treatAsYear()==2015) trigMChains = v_trigs15_cache_single;
-      else if (this->treatAsYear()==2016) trigMChains = v_trigs16_cache_single; 
-      else trigMChains = v_trigs17_cache_single;
+      if (this->treatAsYear()==2015) trigMChains = v_trigs15_cache_singleEle;
+      else if (this->treatAsYear()==2016) trigMChains = v_trigs16_cache_singleEle; 
+      else trigMChains = v_trigs17_cache_singleEle;
       theExpr=m_electronTriggerSFStringSingle;
     } 
     else{

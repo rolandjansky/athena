@@ -383,15 +383,18 @@ namespace ST {
     bool m_isTrigInTDT(const std::string& triggerName) const;
 
     //book trigger chains for matching
-    std::vector<std::string> v_trigs15_cache_single;
-    std::vector<std::string> v_trigs16_cache_single;
-    std::vector<std::string> v_trigs17_cache_single;
-    std::vector<std::string> v_trigs15_cache_dilep;
-    std::vector<std::string> v_trigs16_cache_dilep;
-    std::vector<std::string> v_trigs17_cache_dilep;
-    std::vector<std::string> v_trigs15_cache_mixlep;
-    std::vector<std::string> v_trigs16_cache_mixlep;
-    std::vector<std::string> v_trigs17_cache_mixlep;
+    std::vector<std::string> v_trigs15_cache_singleEle;
+    std::vector<std::string> v_trigs16_cache_singleEle;
+    std::vector<std::string> v_trigs17_cache_singleEle;
+    std::vector<std::string> v_trigs15_cache_singleLep;
+    std::vector<std::string> v_trigs16_cache_singleLep;
+    std::vector<std::string> v_trigs17_cache_singleLep;
+    std::vector<std::string> v_trigs15_cache_diLep;
+    std::vector<std::string> v_trigs16_cache_diLep;
+    std::vector<std::string> v_trigs17_cache_diLep;
+    std::vector<std::string> v_trigs15_cache_multiLep;
+    std::vector<std::string> v_trigs16_cache_multiLep;
+    std::vector<std::string> v_trigs17_cache_multiLep;
 
   protected:
 
@@ -469,10 +472,12 @@ namespace ST {
     bool m_metDoRemoveMuonJets;
     bool m_metUseGhostMuons;
     bool m_metDoMuonEloss;
+    bool m_metGreedyPhotons;
     std::string m_metsysConfigPrefix;
 
     bool m_trkMETsyst;
     bool m_caloMETsyst;
+    bool m_trkJetsyst;
 
     int m_softTermParam;
     bool m_treatPUJets;
@@ -645,11 +650,13 @@ namespace ST {
     std::string m_jesConfigJMS;
     std::string m_jesConfigAFII;
     std::string m_jesConfigEMPFlow;
+    std::string m_jesConfigEMPFlowAFII;
     std::string m_jesConfigFat;
     std::string m_jesCalibSeq;
     std::string m_jesCalibSeqJMS;
     std::string m_jesCalibSeqAFII;
     std::string m_jesCalibSeqEMPFlow;
+    std::string m_jesCalibSeqEMPFlowAFII;
     std::string m_jesCalibSeqFat;
 
     //
@@ -711,6 +718,9 @@ namespace ST {
     asg::AnaToolHandle<IMETSystematicsTool> m_metSystTool;
     asg::AnaToolHandle<IMETSignificance> m_metSignif;
     //
+    std::string m_trig2015combination_singleLep;
+    std::string m_trig2016combination_singleLep;
+    std::string m_trig2017combination_singleLep;
     std::string m_trig2015combination_diLep;
     std::string m_trig2016combination_diLep;
     std::string m_trig2017combination_diLep;
