@@ -844,7 +844,8 @@ def defineMenu():
 #        #'L1_LHCF_ALFA_ANY_C',
 ##        'L1_LHCF_ALFA_ANY_A_UNPAIRED_ISO','L1_LHCF_ALFA_ANY_C_UNPAIRED_ISO',
 #        'L1_ALFA_BGT','L1_ALFA_BGT_UNPAIRED_ISO',
-#        'L1_ALFA_BGT_BGRP1','L1_ALFA_BGT_BGRP4','L1_ALFA_BGT_BGRP10',
+        'L1_ALFA_BGT_BGRP1',
+#        'L1_ALFA_BGT_BGRP4','L1_ALFA_BGT_BGRP10',
 #        'L1_ALFA_SHOWSYST5',
 #        'L1_ALFA_SYST10','L1_ALFA_SYST11','L1_ALFA_SYST12',
 #        'L1_ALFA_SYST17','L1_ALFA_SYST18',
@@ -1513,7 +1514,7 @@ def defineMenu():
 #        
 #        'L1_ALFA_BGT' : 471,
 #        'L1_ALFA_BGT_UNPAIRED_ISO' : 472,
-#        'L1_ALFA_BGT_BGRP1' : 395,
+        'L1_ALFA_BGT_BGRP1' : 395,
 #        'L1_ALFA_BGT_BGRP4' : 396,
 #        'L1_ALFA_BGT_BGRP10' : 497,
 #        'L1_ALFA_SHOWSYST5' : 285,
