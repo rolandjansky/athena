@@ -7,8 +7,8 @@
 
 StgcRdoToStgcPrepData::StgcRdoToStgcPrepData(const std::string& name, ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_decoderTool ("Muon::STGC_RawDataToPrepDataTool/STGC_RawDataToPrepDataTool"),
-m_prdContainer("sTGC_Measurements")
+m_decoderTool ("Muon::sTgcRdoToPrepDataTool/STGC_PrepDataProviderTool"),
+m_prdContainer("STGC_Measurements")
 {
   declareProperty("OutputCollection",   m_prdContainer);
 }
@@ -23,18 +23,24 @@ StatusCode StgcRdoToStgcPrepData::initialize(){
 
   ATH_CHECK(m_prdContainer.initialize());
 
+  ATH_CHECK( m_decoderTool.retrieve() );
+  ATH_MSG_INFO("Retrieved" << m_decoderTool);
+
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode StgcRdoToStgcPrepData::execute() {
   ATH_MSG_DEBUG( " *************** in StgcRdoToStgcPrepData::execute()");
 
-  /// process CSC RDO
+  /// process STGC RDO
   std::vector<IdentifierHash> givenIDs;
   std::vector<IdentifierHash> decodedIDs;
   StatusCode status = StatusCode::SUCCESS;
 
   // givenIDs size is zero so this invokes all the RDOs conversion to PrepData
+
+  givenIDs.reserve(0);
   status =   m_decoderTool->decode(givenIDs, decodedIDs);
 
   if (status.isFailure()) {
