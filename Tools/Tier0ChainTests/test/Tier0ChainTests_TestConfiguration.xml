@@ -355,6 +355,54 @@
                                         <chainfileout>myTAG_Main_2.root</chainfileout> <!-- Used by EgammaStream_Run307716_Pileup_20_Collisions_Comparison -->
                                         
                                     </chainElement>
+
+				    <!-- Reconstruction job -->
+				    <chainElement>
+				      <jobTransform userJobId="MainStream_Run307716_Collisions_ESDtoTAG">
+					<doc>RecoTrf with beamType=collisions</doc>
+					<jobTransformJobName>MainStream_Run307716_Collisions_ESDtoTAG</jobTransformJobName>
+					<jobTransformCmd>
+					  Reco_tf.py --autoConfiguration=everything  --inputESDFile=myESD_Main_2.pool.root --outputTAGFile=myTAG_Main_3.root
+					</jobTransformCmd>
+					<group>TCTTransform</group>
+					<chaindataset_info>
+					  <jobTransformData/>
+					  <chaindatasetName>myESD_Main_2.pool.root</chaindatasetName> <!-- Made by MainStream_Run307716_Collisions_withoutHIST -->
+					  <dataset_info>
+					    <jobTransformData/>
+					    <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/rtt/fallbackfiles/myESD_IDCosmic_0.pool.root</datasetName>
+					  </dataset_info>
+					</chaindataset_info>
+					<queue>short</queue>
+					<batchWallTime>60</batchWallTime>
+					<castorSvcClass>t0atlas</castorSvcClass>
+
+					<test>
+					  <modulename>RttLibraryTools</modulename>
+					  <testname>FileGrepper</testname>
+					  <arg>
+					    <argname>inputFile</argname>
+					    <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+					  </arg>
+					  <arg>
+					    <argname>outputFile</argname>
+					    <argvalue>MainStream_Run307716_Collisions_ESDtoTAG.summary.txt</argvalue>
+					  </arg>
+					  <arg>
+					    <argname>searchList</argname>
+					    <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+					  </arg>
+					</test>
+					<testToRemove> <!-- No POOL output produced -->
+					  <jobGroupName>Top</jobGroupName>
+					  <testidentifier>CheckFileRunner0</testidentifier>
+					</testToRemove>
+
+				      </jobTransform>
+
+				      <chainfileout>myTAG_Main_3.root</chainfileout> <!-- Used by MainStream_Run307716_Collisions_Comparison -->
+
+				    </chainElement>
                                     
                                 </sequential>
 			    </parallel> <!-- End pileup20 jobs -->
@@ -365,7 +413,7 @@
                                     <doc>Compare ESD, AOD and TAG files of MainStream_Run307716_Collisions jobs</doc>
                                     <jobTransformJobName>MainStream_Run307716_Collisions_Comparison</jobTransformJobName>
                                     <jobTransformCmd>
-                                        tct_findOverwrite.py myESD_Main_0.pool.root myAOD_Main_0.AOD.pool.root myTAG_Main_0.root myESD_Main_2.pool.root myAOD_Main_2.AOD.pool.root myTAG_Main_2.root MainStream_Run307716_Collisions_Comparison
+                                        tct_findOverwrite.py myESD_Main_0.pool.root myAOD_Main_0.AOD.pool.root myTAG_Main_0.root myESD_Main_2.pool.root myAOD_Main_2.AOD.pool.root myTAG_Main_2.root myTAG_Main_3.root MainStream_Run307716_Collisions_Comparison
                                     </jobTransformCmd>
                                         
                                     <group>TCTTransform</group>	
