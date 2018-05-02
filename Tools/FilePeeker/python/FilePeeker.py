@@ -4,7 +4,7 @@ import os,sys
 from subprocess import check_output
 
 
-def PeekFile(inputfiles):
+def PeekFiles(inputfiles):
 
     bsfiles=[]
     poolfiles=[]
@@ -46,6 +46,8 @@ def PeekFile(inputfiles):
         elif (k=="SGkeys"):
             result[k]=set(sgk for sgk in v.split())
         
+        elif (k=="isMC"):
+            result[k]=bool(int(v))
         else:
             result[k]=v
 
@@ -54,6 +56,6 @@ def PeekFile(inputfiles):
     
 
 if __name__=="__main__":
-    print PeekFile(sys.argv[1:])
+    print PeekFiles(sys.argv[1:])
      
                   

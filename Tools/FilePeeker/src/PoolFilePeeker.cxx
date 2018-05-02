@@ -167,6 +167,7 @@ PoolFilePeeker::PoolFilePeeker(const char* filename, const bool vbs) {
   std::set<unsigned> bmc_runNumbers;
   if (bmdc.first) {
     if (vbs) std::cout << " Got ByteStreamMetadataContainer" << std::endl;
+    m_fmd.m_isMC=false; //The presence of a ByteStreamMetaDataContainer indicates real data
     for (const auto& bmd : *bmdc.second) {
       bmc_runNumbers.insert(bmd.m_runNumber);
       if (m_fmd.m_stream.size()==0) {
@@ -184,6 +185,14 @@ PoolFilePeeker::PoolFilePeeker(const char* filename, const bool vbs) {
 	std::cerr << "Conflicting project names in file! Got " << 
 	  m_fmd.m_project << " and " << bmd.m_project << std::endl;
 	m_fmd.m_valid=false;
+      }
+ 
+      const std::vector<std::string>& freeMDs=bmd.m_freeMetaDataStrings;
+      for (const std::string& freeMD : freeMDs) {
+	if (freeMD.compare(0,11,"Event type:")==0 && freeMD.find("is sim")!=std::string::npos) {
+	  m_fmd.m_isMC=true; //This is made of a simulated bytestream file
+	  break;
+	}
       }
     }
     delete bmdc.second;
