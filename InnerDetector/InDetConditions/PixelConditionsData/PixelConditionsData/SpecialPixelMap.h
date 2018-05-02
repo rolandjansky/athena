@@ -7,7 +7,7 @@
 
 #include "PixelCoralClientUtils/SpecialPixelMap.hh"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/CondCont.h"
 #include<map>
 #include<string>
