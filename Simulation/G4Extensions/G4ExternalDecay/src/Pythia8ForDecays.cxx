@@ -164,11 +164,11 @@ void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event
 
 bool Pythia8ForDecays::isGluinoRHadron(int pdgId) const{
   // Checking what kind of RHadron this is based on the digits in its PDGID
-  const unsigned short q1 = MCUtils::PID::_digit(MCUtils::PID::Location::nq1,pdgId);
-  const unsigned short ql = MCUtils::PID::_digit(MCUtils::PID::Location::nl,pdgId);
+  const unsigned short digitValue_q1 = MCUtils::PID::_digit(MCUtils::PID::Location::nq1,pdgId);
+  const unsigned short digitValue_l = MCUtils::PID::_digit(MCUtils::PID::Location::nl,pdgId);
 
   // Gluino R-Hadrons have the form 109xxxx or 1009xxx
-  if ((q1 == 0 && ql == 9) || q1 == 9 ){
+  if ((digitValue_q1 == 0 && digitValue_l == 9) || digitValue_q1 == 9 ){
     // This is a gluino R-Hadron
     return true;
   }
