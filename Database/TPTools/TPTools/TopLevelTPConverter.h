@@ -117,7 +117,6 @@ public:
 
   //- --------------------------------------------------------------------------
   // implementation of ITPCnvBase interface
-  // (MN: not really sure why ITPCnvBase is needed)
 
   /// @copydoc ITPCnvBase::transientTInfo()
   virtual const std::type_info& transientTInfo() const { return typeid(TRANS); }
@@ -127,17 +126,24 @@ public:
 
 
   /// @copydoc ITPCnvBase::persToTransUntyped()
-  virtual void persToTransUntyped(const void* pers, void* trans, MsgStream& log)
-  {
-     setPStorage( reinterpret_cast<PERS*>( const_cast<void*>(pers) ) );
-     m_mainConverter.pstoreToTrans (0, reinterpret_cast<TRANS*>(trans), log);
+  virtual void persToTransUntyped(const void* pers, void* trans, MsgStream& log)  {
+     persToTrans( reinterpret_cast<const PERS*>(pers), reinterpret_cast<TRANS*>(trans), log );
   }
 
   /// @copydoc ITPCnvBase::transToPersUntyped()
-  virtual void transToPersUntyped(const void* trans, void* pers, MsgStream& log)
-  {
-    this->setTLPersObject( reinterpret_cast<PERS*>(pers) );
-    m_mainConverter.virt_toPersistent( reinterpret_cast<const TRANS*>(trans), log );
+  virtual void transToPersUntyped(const void* trans, void* pers, MsgStream& log)  {
+     transToPers( reinterpret_cast<const TRANS*>(trans),  reinterpret_cast<PERS*>(pers), log );
+  }
+
+  // ----------------------  methods used by T_TPCnv<> converters
+  virtual void persToTrans (const PERS* pers, TRANS* trans, MsgStream& msg)  {
+    setPStorage (const_cast<TL_PERS*> (pers));
+    m_mainConverter.pstoreToTrans (0, trans, msg);
+  }
+  
+  virtual void transToPers(const TRANS* trans, PERS* pers, MsgStream& msg)  {
+    this->setTLPersObject( pers );
+    m_mainConverter.virt_toPersistent(trans, msg);
     this->clearTLPersObject();
   }
 
@@ -147,3 +153,4 @@ protected:
 };
 
 #endif
+
