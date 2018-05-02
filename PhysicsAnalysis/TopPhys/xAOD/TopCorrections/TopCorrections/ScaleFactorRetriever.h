@@ -100,6 +100,10 @@ class ScaleFactorRetriever final {
 
   // Obtain the trigger SF
   float triggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
+  
+  // Obtain trigger SF via global tool
+  float globalTriggerSF(const top::Event& event, const top::topSFSyst SFSyst) const;
+
 
   // Obtain the electron SF
   float electronSF(const top::Event& event,

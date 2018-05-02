@@ -26,7 +26,6 @@
 #include "PATCore/PATCoreEnums.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/join.hpp>
-#include "TopConfiguration/ConfigurationSettings.h"
 
 namespace top {
 
@@ -102,8 +101,10 @@ StatusCode TriggerCPTools::initialize() {
         }
       }
       ///-- Trigger global efficiency corrections --///
-      top::check( this->initialiseGlobalTriggerEff(),
-		  "Failed to construct global trigger efficiencies" );
+      if(m_config->useGlobalTrigger()){
+	top::check( this->initialiseGlobalTriggerEff(),
+		    "Failed to construct global trigger efficiencies" );
+      }
     }
     else {
       ATH_MSG_INFO("top::TriggerCPTools: no need to initialise anything on truth DxAOD");
@@ -123,11 +124,11 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
   std::map<std::string,std::string> triggerCombination, triggerCombinationLoose;
   std::vector<std::string> electronSystematics, muonSystematics, electronToolNames, muonToolNames;
 
-  top::ConfigurationSettings* configSettings = top::ConfigurationSettings::get();
-  std::string electron_triggers      = configSettings->value("ElectronTriggers");
-  std::string muon_triggers          = configSettings->value("MuonTriggers");
-  std::string electron_triggersLoose = configSettings->value("ElectronTriggersLoose");
-  std::string muon_triggersLoose     = configSettings->value("MuonTriggersLoose");
+  std::string electron_triggers      = m_config->getGlobalTriggerElectronTriggerString();
+  std::string electron_triggersLoose = m_config->getGlobalTriggerElectronTriggerLooseString();
+  std::string muon_triggers          = m_config->getGlobalTriggerMuonTriggerString();
+  std::string muon_triggersLoose     = m_config->getGlobalTriggerMuonTriggerLooseString();
+
   std::vector<std::string> e_trigs, m_trigs, e_trigsLoose, m_trigsLoose;
   boost::split(e_trigs, electron_triggers, boost::is_any_of(" "));
   boost::split(m_trigs, muon_triggers,     boost::is_any_of(" "));

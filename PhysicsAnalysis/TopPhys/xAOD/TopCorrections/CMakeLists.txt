@@ -17,7 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
 			  PATInterfaces 
 			  FTagAnalysisInterfaces 
 			  MuonAnalysisInterfaces 
-			  TriggerAnalysisInterfaces)
+			  TriggerAnalysisInterfaces
+			  PMGAnalysisInterfaces)
 
 # This package uses LHAPDF:
 find_package( Lhapdf )
@@ -45,6 +46,7 @@ atlas_add_library( TopCorrections Root/*.cxx Root/*.h Root/*.icc
 				  FTagAnalysisInterfacesLib
 				  MuonAnalysisInterfacesLib
 				  TriggerAnalysisInterfacesLib
+				  PMGAnalysisInterfacesLib
 				  ${LHAPDF_LIBRARIES}
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
