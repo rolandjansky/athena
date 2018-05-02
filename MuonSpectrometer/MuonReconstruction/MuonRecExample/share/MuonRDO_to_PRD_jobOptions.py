@@ -33,6 +33,9 @@ if muonRecFlags.doTGCs() and DetFlags.makeRIO.TGC_on() and (DetFlags.haveRDO.TGC
 if muonRecFlags.dosTGCs() and DetFlags.makeRIO.sTGC_on() and (DetFlags.haveRDO.sTGC_on() or DetFlags.digitize.sTGC_on()):
     topSequence += getAlgorithm("StgcRdoToStgcPrepData", tryDefaultConfigurable=True)
 
+if muonRecFlags.doMicromegas() and DetFlags.makeRIO.Micromegas_on() and (DetFlags.haveRDO.Micromegas_on() or DetFlags.digitize.Micromegas_on()):
+    topSequence += getAlgorithm("MM_RdoToMM_PrepData", tryDefaultConfigurable=True)
+
 
 #
 # Remove hits from part of the detector to mimic dead channels

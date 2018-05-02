@@ -42,8 +42,10 @@ Muon::sTgcRdoToPrepDataTool::sTgcRdoToPrepDataTool(const std::string& t,
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
   
   //  template for property decalration
-  declareProperty("OutputCollection",    m_stgcPrepDataContainerKey = std::string("sTGC_Measurements"),
+  declareProperty("OutputCollection",    m_stgcPrepDataContainerKey = std::string("STGC_Measurements"),
 		  "Muon::sTgcPrepDataContainer to record");
+  declareProperty("InputCollection",    m_rdoContainerKey = std::string("sTGCRDO"),
+		  "RDO container to read");
   
 }
 
@@ -76,6 +78,8 @@ StatusCode Muon::sTgcRdoToPrepDataTool::initialize()
 
   // check if the initialization of the data container is success
   ATH_CHECK(m_stgcPrepDataContainerKey.initialize());
+
+  ATH_CHECK(m_rdoContainerKey.initialize());
 
 
   ATH_MSG_INFO("initialize() successful in " << name());
@@ -185,6 +189,7 @@ Muon::sTgcRdoToPrepDataTool::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdoToPr
     }
     m_stgcPrepDataContainer = handle.ptr();
     return ADDED;
+    
   }
   return ALREADYCONTAINED;
 }
@@ -206,6 +211,7 @@ const STGC_RawDataContainer* Muon::sTgcRdoToPrepDataTool::getRdoContainer() {
 void Muon::sTgcRdoToPrepDataTool::processRDOContainer( std::vector<IdentifierHash>& idWithDataVect ) 
 {
 
+
   ATH_MSG_DEBUG("In processRDOContainer");
   const STGC_RawDataContainer* rdoContainer = getRdoContainer();
   if (!rdoContainer) {
@@ -217,7 +223,8 @@ void Muon::sTgcRdoToPrepDataTool::processRDOContainer( std::vector<IdentifierHas
     
     auto rdoColl = *it;
     if (rdoColl->empty()) continue;
-    ATH_MSG_DEBUG("New RDO collection with " << rdoColl->size() << "MM Hits");
+    ATH_MSG_DEBUG("New RDO collection with " << rdoColl->size() << "STGC Hits");
+
     if(processCollection(rdoColl, idWithDataVect).isFailure()) {
       ATH_MSG_DEBUG("processCsm returns a bad StatusCode - keep going for new data collections in this event");
     }
@@ -244,13 +251,15 @@ StatusCode Muon::sTgcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idV
     return StatusCode::FAILURE;
   } 
 
+  processRDOContainer(idWithDataVect);
+
   // check if the full event has already been decoded
   if ( m_fullEventDone ) {
     ATH_MSG_DEBUG ("Full event dcoded, nothing to do");
     return StatusCode::SUCCESS;
   } 
 
- 
+
   return StatusCode::SUCCESS;
 } 
 

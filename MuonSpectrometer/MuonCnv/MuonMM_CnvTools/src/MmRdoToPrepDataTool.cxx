@@ -46,6 +46,8 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
   //  template for property decalration
   declareProperty("OutputCollection",    m_mmPrepDataContainerKey = std::string("MM_Measurements"),
 		  "Muon::MMPrepDataContainer to record");
+  declareProperty("InputCollection",    m_rdoContainerKey = std::string("MMRDO"),
+		  "Muon::MMPrepDataContainer to record");
   
 }
 
@@ -78,6 +80,7 @@ StatusCode Muon::MmRdoToPrepDataTool::initialize()
 
   // check if the initialization of the data container is success
   ATH_CHECK(m_mmPrepDataContainerKey.initialize());
+  ATH_CHECK(m_rdoContainerKey.initialize());
 
 
   ATH_MSG_INFO("initialize() successful in " << name());
@@ -231,6 +234,8 @@ StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVec
   if ( containerRecordStatus == FAILED ) {
     return StatusCode::FAILURE;
   } 
+
+  processRDOContainer(idWithDataVect);
 
   // check if the full event has already been decoded
   if ( m_fullEventDone ) {
