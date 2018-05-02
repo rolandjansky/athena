@@ -43,6 +43,7 @@ class ComponentHelper
         TString TAMassTerm;
         TString caloMassDef;
         TString TAMassDef;
+        TString truthLabelStr;
 
         // Derived values to parse from the raw values
         CompParametrization::TypeEnum parametrization;
@@ -55,6 +56,7 @@ class ComponentHelper
         bool interpolate;
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
+        std::vector<int> truthLabels;
 };
 
 class GroupHelper
