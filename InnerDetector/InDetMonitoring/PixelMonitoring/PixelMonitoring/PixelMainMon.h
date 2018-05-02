@@ -115,6 +115,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   virtual StatusCode procHistograms();  //!
 
   int getPixLayerID(int ec, int ld, bool ibl);
+  int getPixLayerIDWithDBM(int id);
   int getPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl);
   int getPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl);
   int getPixLayerIDDBM(int ec, int ld, bool ibl);
@@ -187,8 +188,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   unsigned int m_currentBCID;
   int m_runNum;
   int m_ntracksPerEvent;
-  int m_nGood_mod[PixLayerIBL2D3D::COUNT];
-  int m_nActive_mod[PixLayerIBL2D3D::COUNT];
+  int m_nGood_mod[PixLayerIBL2D3DDBM::COUNT];
+  int m_nActive_mod[PixLayerIBL2D3DDBM::COUNT];
 
   unsigned int m_nRefresh;
   unsigned int m_nRefresh5min;
@@ -300,9 +301,9 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   // hit occupancy
   TProfile_LW* m_avgocc_per_lumi;
-  TProfile_LW* m_avgocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+  TProfile_LW* m_avgocc_per_lumi_mod[PixLayerIBL2D3DDBM::COUNT];
   TH1F* m_avgocc_ratio_lastXlb_mod[PixLayer::COUNT];
-  TProfile_LW* m_avgocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
+  TProfile_LW* m_avgocc_per_bcid_mod[PixLayerIBL2D3DDBM::COUNT];
   TProfile_LW* m_avgocc_active_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH2F_LW* m_maxocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH2F_LW* m_modocc_per_lumi[PixLayer::COUNT];
@@ -457,15 +458,15 @@ class PixelMainMon : public ManagedMonitorToolBase {
   static const int kNumErrorBits{32};
   static const int kNumErrorStates{16};
   static const int kNumErrorStatesIBL{27};
-  TProfile_LW* m_errhist_errcat_LB[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT];
-  TProfile_LW* m_errhist_errtype_LB[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT - 3];
+  TProfile_LW* m_errhist_errcat_LB[PixLayerIBL2D3DDBM::COUNT][ErrorCategory::COUNT];
+  TProfile_LW* m_errhist_errtype_LB[PixLayerIBL2D3DDBM::COUNT][ErrorCategoryMODROD::COUNT - 3];
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_errcat_map[ErrorCategory::COUNT];
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_errtype_map[ErrorCategoryMODROD::COUNT];
-  TProfile_LW* m_errhist_errcat_avg[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
-  TProfile_LW* m_errhist_errtype_avg[ErrorCategoryMODROD::COUNT - 3][PixLayerIBL2D3D::COUNT];
-  TProfile_LW* m_errhist_tot_LB[PixLayerIBL2D3D::COUNT];
-  TProfile2D_LW* m_errhist_per_bit_LB[PixLayerIBL2D3D::COUNT];
-  TProfile2D_LW* m_errhist_per_type_LB[PixLayerIBL2D3D::COUNT];
+  TProfile_LW* m_errhist_errcat_avg[ErrorCategory::COUNT][PixLayerIBL2D3DDBM::COUNT];
+  TProfile_LW* m_errhist_errtype_avg[ErrorCategoryMODROD::COUNT - 3][PixLayerIBL2D3DDBM::COUNT];
+  TProfile_LW* m_errhist_tot_LB[PixLayerIBL2D3DDBM::COUNT];
+  TProfile2D_LW* m_errhist_per_bit_LB[PixLayerIBL2D3DDBM::COUNT];
+  TProfile2D_LW* m_errhist_per_type_LB[PixLayerIBL2D3DDBM::COUNT];
   TProfile_LW* m_errhist_syncerr_LB_pix;
   std::unique_ptr<PixelMonModules1D> m_errors;
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_femcc_errwords_map;
@@ -473,7 +474,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   // Histograms in 'ErrorsExpert' folder
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
   TProfile_LW* m_errhist_expert_LB[PixLayer::COUNT - 1][kNumErrorStates];
-  TProfile_LW* m_errhist_expert_IBL_LB[kNumErrorStatesIBL];
+  TProfile_LW* m_errhist_expert_DBMIBL_LB[PixLayerDBM::COUNT - PixLayerDBM::kDBMA][kNumErrorStatesIBL];
   TH3F* m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
   TH1F_LW* m_errhist_expert_servrec_ibl_unweighted;
   TH1F_LW* m_errhist_expert_servrec_ibl_weighted;
