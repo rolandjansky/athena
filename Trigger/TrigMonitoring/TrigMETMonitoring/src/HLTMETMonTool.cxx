@@ -1047,9 +1047,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
   // L1 Jets                                                           
   monFolderName = monGroupName + "/Jets";
   setCurrentMonGroup(monFolderName);
-  if (getTDT()->isPassed("L1_XE50", TrigDefs::eventAccepted)) {
+  if (l1_met > 50) {
     for (auto l1_jet : *m_l1_jet_roi_cont) {
-      l1_jet_pt = l1_jet->et4x4()/CLHEP::GeV;
+      l1_jet_pt = l1_jet->et8x8()/CLHEP::GeV;
       l1_jet_eta = l1_jet->eta();
       fillL1JetHistograms(l1_jet_pt,l1_jet_eta);
     }
@@ -1399,7 +1399,9 @@ void HLTMETMonTool::fillL1BasicHistograms(float l1_mex,float l1_mex_log,float l1
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::addL1JetHistograms() {
 
-  addHistogram(new TH2F("L1_Jet_eta_pt", "L1 Jet #eta/p_{T};#eta;p_{T} [GeV]", 15, -4, 4, 80, 10, 90));
+  const int nBins = 13;
+  double edges[nBins + 1] = {-4.9,-3.1,-2.5,-1.9,-1.3,-0.75,-0.25,0.25,0.75,1.3,1.9,2.5,3.1,4.9};
+  addHistogram(new TH2F("L1_Jet_eta_pt", "L1 Jet #eta/p_{T};#eta;p_{T} [GeV]", nBins, edges, 80, 10, 90));
 }
 
 
