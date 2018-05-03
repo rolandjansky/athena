@@ -29,6 +29,7 @@ DerivationFramework::DiLepFilters::DiLepFilters(const std::string& t, const std:
   declareProperty("SiPhTriggers", m_trig_siph);
   declareProperty("DiPhTriggers", m_trig_diph);
   declareProperty("SiMuTriggers", m_trig_simu);
+  declareProperty("SiMuBaTriggers", m_trig_simuba);
 
   declareProperty("ElEtaMax", m_el_eta);
   declareProperty("PhEtaMax", m_ph_eta);
@@ -42,6 +43,7 @@ DerivationFramework::DiLepFilters::DiLepFilters(const std::string& t, const std:
   declareProperty("SiPhPtMin", m_siph_pt);
   declareProperty("SiPhXPtMin", m_siph_xpt);
   declareProperty("SiMuPtMin", m_simu_pt);
+  declareProperty("SiMuBaPtMin", m_simuba_pt);
   declareProperty("DiElPtMin", m_diel_pt);
   declareProperty("DiPhPtMin", m_diph_pt);
   declareProperty("DiElPhPtMin", m_dielph_pt);
@@ -62,6 +64,7 @@ bool DerivationFramework::DiLepFilters::GetTriggers()
   m_pass_siph = false;
   m_pass_diph = false;
   m_pass_simu = false;
+  m_pass_simuba = false;
 
   for(const std::string& tn: m_trig_siph)
   {
@@ -87,8 +90,16 @@ bool DerivationFramework::DiLepFilters::GetTriggers()
       break;
     }
   }
+  for(const std::string& tn: m_trig_simuba)
+  {
+    if(m_tdt->isPassed(tn))
+    {
+      m_pass_simuba = true;
+      break;
+    }
+  }
 
-  return m_pass_siph || m_pass_diph || m_pass_simu;
+  return m_pass_siph || m_pass_diph || m_pass_simu || m_pass_simuba;
 }
 
 bool DerivationFramework::DiLepFilters::PassSiEl(const xAOD::Electron& el) const
@@ -136,7 +147,14 @@ bool DerivationFramework::DiLepFilters::PassSiMu(const xAOD::Muon& mu) const
 {
   if(!m_pass_simu) return false;
 
-  return PassCuts(mu, m_simu_pt, m_mu_beta);
+  return PassCuts(mu, m_simu_pt, m_mu_eta);
+}
+
+bool DerivationFramework::DiLepFilters::PassSiMuBa(const xAOD::Muon& mu) const
+{
+  if(!m_pass_simuba) return false;
+
+  return PassCuts(mu, m_simuba_pt, m_mu_beta);
 }
 
 bool DerivationFramework::DiLepFilters::PassDiEl(const xAOD::Electron& el1, const xAOD::Electron& el2) const

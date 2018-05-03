@@ -128,6 +128,9 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
       ServiceHandle< IGeoModelSvc > m_geoModelSvc;
       ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
+
+      bool m_specialIBL_correction;
+      double m_specialIBL_chargescale;
     }; 
 
 #endif 

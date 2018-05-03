@@ -17,7 +17,7 @@ class Wy(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "Wgamma", **kwargs)
+        super(Wy, self).__init__(base_directory, "Wgamma", **kwargs)
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
@@ -63,7 +63,7 @@ class Wy(PowhegV2):
         self.add_keyword("deltar")
         self.add_keyword("doublefsr")
         self.add_keyword("evenmaxrat")
-        self.add_keyword("facscfact")
+        self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("factsc2min", -1)
         self.add_keyword("fastbtlbound")
         self.add_keyword("fixedgrid")
@@ -91,8 +91,8 @@ class Wy(PowhegV2):
         self.add_keyword("iymax")
         self.add_keyword("kt2minqed")
         self.add_keyword("Lambda_gam")
-        self.add_keyword("lhans1")
-        self.add_keyword("lhans2")
+        self.add_keyword("lhans1", self.default_PDFs)
+        self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhapdf6maxsets")
         self.add_keyword("lhrwgt_descr")
         self.add_keyword("lhrwgt_group_combine")
@@ -130,7 +130,7 @@ class Wy(PowhegV2):
         self.add_keyword("radregion")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
-        self.add_keyword("renscfact")
+        self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("runningscale")
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")

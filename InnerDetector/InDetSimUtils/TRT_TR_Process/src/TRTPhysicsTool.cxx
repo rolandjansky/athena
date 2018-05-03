@@ -32,9 +32,8 @@
 //=============================================================================
 TRTPhysicsTool::TRTPhysicsTool( const std::string& type,
                                 const std::string& nam,const IInterface* parent )
-  : G4VPhysicsConstructor(nam), AthAlgTool ( type, nam , parent )
+  : G4VPhysicsConstructor(nam), base_class ( type, nam , parent )
 {
-  declareInterface< IPhysicsOptionTool >( this ) ;
   declareProperty("XMLFile", m_xmlFile="TRgeomodelgeometry.xml");
 }
 

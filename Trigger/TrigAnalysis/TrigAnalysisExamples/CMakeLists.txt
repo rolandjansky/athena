@@ -47,7 +47,7 @@ atlas_add_component( TrigAnalysisExamples
 atlas_add_executable( TrigAnalysisExApp
                       src/TrigAnalysisExApp.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccess TrigDecisionTool)
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib TrigDecisionTool)
                      
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -42,7 +42,6 @@ StatusCode CaloMonToolBase::initialize() {
      m_useReadyFilterTool = false;
      return sc;
    }
-   ATH_MSG_INFO("AtlasReadyFilterTool retrieved");
   }
 
   // retrieve BadLBFilter tool 
@@ -161,7 +160,6 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
       ATH_MSG_WARNING("Unable to retrieve BeamBackgroundData");
     }
     else {
-         ATH_MSG_INFO("BeamBackgroundData is retrieved");
       if( beamBackgroundData->GetNumSegment() > 0 ) {
         m_passBeamBackgroundRemoval = false;
 	ifPass = 0;

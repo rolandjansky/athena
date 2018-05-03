@@ -21,7 +21,7 @@ class ggF_HZ(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "ggHZ", **kwargs)
+        super(ggF_HZ, self).__init__(base_directory, "ggHZ", **kwargs)
 
         # Add algorithms to the sequence
         self.add_algorithm("quark colour fixer")
@@ -55,7 +55,7 @@ class ggF_HZ(PowhegV2):
         self.add_keyword("compute_rwgt")
         self.add_keyword("doublefsr")
         self.add_keyword("evenmaxrat")
-        self.add_keyword("facscfact")
+        self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fastbtlbound")
         self.add_keyword("fixedgrid")
         self.add_keyword("flg_debug")
@@ -77,8 +77,8 @@ class ggF_HZ(PowhegV2):
         self.add_keyword("itmx2rm")
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
-        self.add_keyword("lhans1")
-        self.add_keyword("lhans2")
+        self.add_keyword("lhans1", 262000) # use NNPDF30_lo_as_0118	as this is a LO process
+        self.add_keyword("lhans2", 262000) # use NNPDF30_lo_as_0118 as this is a LO process
         self.add_keyword("lhapdf6maxsets")
         self.add_keyword("lhrwgt_descr")
         self.add_keyword("lhrwgt_group_combine")
@@ -111,7 +111,7 @@ class ggF_HZ(PowhegV2):
         self.add_keyword("ptsupp")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
-        self.add_keyword("renscfact")
+        self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("runningscales")
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")

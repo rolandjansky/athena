@@ -357,7 +357,9 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   }
 
   // Fill monitoring variables
-
+  float sv_check;
+  float sv_mass_check;
+  
   sv_mass_check = 0.0 ; 
   
   trigBTagging->variable<float>("SV1", "masssvx",  sv_mass_check);
@@ -397,6 +399,11 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
       m_mon_tag_SV1= -999;
     } //set default values for jets that SV is not found
 
+  /// @brief JetFitter : Delta eta between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
+  float m_mon_jf_deta; 
+  /// @brief JetFitter : Delta phi between jet and momentum sum of all tracks associated with displaced vertices reconstructed by JetFitter
+  float m_mon_jf_dphi;
+  float jf_check;
   
   //Check JetFitter algorithm
   m_mon_jf_deta = -10.;

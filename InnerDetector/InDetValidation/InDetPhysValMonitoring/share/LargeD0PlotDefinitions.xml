@@ -36,8 +36,16 @@
   <x title="Matching Probability" n="51" lo="0" hi="1.02"/>
   <y title="Tracks"/>
 </h>
+<h id="matchProb_badFrac" type="TH1F" title="Matching Probability for tracks with mostly TRT tube hits">
+  <x title="Matching Probability" n="51" lo="0" hi="1.02"/>
+  <y title="Tracks"/>
+</h>
 <h id="trtTubeFrac" type="TH1F" title="TRT tube hit fraction">
   <x title="TRT tube hit fraction" n="50" lo="0" hi="1"/>
+  <y title="Tracks"/>
+</h>
+<h id="trtPrecFrac" type="TH1F" title="TRT precision hit fraction">
+  <x title="TRT precision hit fraction" n="50" lo="0" hi="1"/>
   <y title="Tracks"/>
 </h>
 <h id="trackCategories" type="TH1F" title="Different track categories">
@@ -216,8 +224,48 @@
   <x title="nTRTTubeHits" n="20" lo="0" hi="20"/>
   <y title="Entries"/>
 </h>
+<h id="tubeFrac" type="TH1F" title="TRT tube hit fraction">
+  <x title="TRT tube hit fraction" n="20" lo="0" hi="1"/>
+  <y title="Entries"/>
+</h>
+<h id="tubeFrac_trtHit" type="TH1F" title="TRT tube hit fraction for tracks with TRT hits">
+  <x title="TRT tube hit fraction" n="20" lo="0" hi="1"/>
+  <y title="Entries"/>
+</h>
+<h id="tubeFrac_trtHitNoOut" type="TH1F" title="TRT tube hit fraction for tracks with TRT hits and no outliers">
+  <x title="TRT tube hit fraction" n="20" lo="0" hi="1"/>
+  <y title="Entries"/>
+</h>
+<h id="tubeFrac_trtHitOut" type="TH1F" title="TRT tube hit for tracks with TRT hits and outliers">
+  <x title="TRT tube hit fraction" n="20" lo="0" hi="1"/>
+  <y title="Entries"/>
+</h>
+<h id="precFrac" type="TH1F" title="TRT precision hit fraction">
+  <x title="TRT precision hit fraction" n="20" lo="0" hi="1"/>
+  <y title="Entries"/>
+</h>
+<h id="precFrac_trtHit" type="TH1F" title="TRT precision hit fraction for tracks with TRT hits">
+  <x title="TRT precision hit fraction" n="20" lo="0" hi="1"/>
+  <y title="Entries"/>
+</h>
+<h id="precFrac_trtHitNoOut" type="TH1F" title="TRT precision hit fraction for tracks with TRT hits and no outliers">
+  <x title="TRT precision hit fraction" n="20" lo="0" hi="1"/>
+  <y title="Entries"/>
+</h>
+<h id="precFrac_trtHitOut" type="TH1F" title="TRT precision hit for tracks with TRT hits and outliers">
+  <x title="TRT precision hit fraction" n="20" lo="0" hi="1"/>
+  <y title="Entries"/>
+</h>
 
 <!-- TRT testing TH2s -->
+<h id="matchProb_vs_tubeFrac" type="TH2" title="Matching Probability vs TRT tube hit fraction">
+  <x title="Matching Probability" n="51" lo="0" hi="1.02"/>
+  <y title="TRT tube hit fraction" n="20" lo="0" hi="1"/>
+</h>
+<h id="matchProb_vs_precFrac" type="TH2" title="Matching Probability vs TRT precision hit fraction">
+  <x title="Matching Probability" n="51" lo="0" hi="1.02"/>
+  <y title="TRT precision hit fraction" n="20" lo="0" hi="1"/>
+</h>
 <h id="pt_vs_nTrtTubeHits" type="TH2" title="pT vs nTrtTubeHits">
   <x title="pT" n="200" lo="0" hi="200"/>
   <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
@@ -310,11 +358,94 @@
   <x title="nTrtHits" n="50" lo="0" hi="50"/>
   <y title="TRT tube hit fraction" n="25" lo="0" hi="1"/>
 </h>
+<h id="nTrtHit_vs_nTrtOutlier" type="TH2" title="nTrtHits vs nTrtOutliers">
+  <x title="nTrtHits" n="50" lo="0" hi="50"/>
+  <y title="nTrtOutliers" n="50" lo="0" hi="50"/>
+</h>
+<h id="nTrtTubeHit_vs_nTrtOutlier" type="TH2" title="nTrtTubeHits vs nTrtOutliers">
+  <x title="nTrtTubeHits" n="50" lo="0" hi="50"/>
+  <y title="nTrtOutliers" n="50" lo="0" hi="50"/>
+</h>
+<h id="trtTubeFrac_vs_nTrtOutlier" type="TH2" title="TRT tube hit fraction vs nTrtOutliers">
+  <x title="TRT tube hit fraction" n="20" lo="0" hi="1"/>
+  <y title="nTrtOutliers" n="50" lo="0" hi="50"/>
+</h>
+<h id="nTrtHit_vs_nTrtTubeHit_B" type="TH2" title="nTrtHits vs nTrtTubeHits in the barrel">
+  <x title="nTrtHits" n="50" lo="0" hi="50"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="nTrtHit_vs_nTrtTubeHit_E" type="TH2" title="nTrtHits vs nTrtTubeHits in the endcap">
+  <x title="nTrtHits" n="50" lo="0" hi="50"/>
+  <y title="nTrtTubeHits" n="20" lo="0" hi="20"/>
+</h>
+<h id="nTrtHit_vs_trtTubeFrac_B" type="TH2" title="nTrtHits vs TRT tube hit fraction in the barrel">
+  <x title="nTrtHits" n="50" lo="0" hi="50"/>
+  <y title="TRT tube hit fraction" n="20" lo="0" hi="1"/>
+</h>
+<h id="nTrtHit_vs_trtTubeFrac_E" type="TH2" title="nTrtHits vs TRT tube hit fraction in the endcap">
+  <x title="nTrtHits" n="50" lo="0" hi="50"/>
+  <y title="TRT tube hit fraction" n="20" lo="0" hi="1"/>
+</h>
 <h id="d0_vs_eta" type="TH2" title="d_{0}(mm) vs #eta">
   <x title="d_{0} (mm)" n="100" lo="-300" hi="300"/>
   <y title="eta" n="50" lo="-2.5" hi="2.5"/>
 </h>
-
+<h id="profile_mu_vs_trtTubeFrac" type="TProfile" title="#mu vs trt tube fraction">
+  <x title="#mu" n="60" lo="0" hi="60"/>
+  <y title="trt tube fraction" lo="0" hi="1"/>
+</h>
+<h id="profile_nPV_vs_trtTubeFrac" type="TProfile" title="nPV vs trt tube fraction">
+  <x title="nPV" n="60" lo="0" hi="60"/>
+  <y title="trt tube fraction" lo="0" hi="1"/>
+</h>
+<h id="profile_nTrtHit_vs_nTrtTubeHit" type="TProfile" title="ntrt hits vs ntrt tube hits">
+  <x title="nTrtHits" n="60" lo="0" hi="60"/>
+  <y title="nTrtTubeHits" lo="0" hi="60"/>
+</h>
+<h id="profile_nTrtHit_vs_trtTubeFrac" type="TProfile" title="ntrt hits vs trt tube fraction">
+  <x title="nTrtHits" n="60" lo="0" hi="60"/>
+  <y title="trt tube fraction" lo="0" hi="1"/>
+</h>
+<h id="profile_nTrtHit_vs_nTrtOutlier" type="TProfile" title="nTrtHits vs nTrtOutliers">
+  <x title="nTrtHits" n="60" lo="0" hi="60"/>
+  <y title="nTrtOutliers" lo="0" hi="60"/>
+</h>
+<h id="profile_nTrtOutlier_vs_nTrtHit" type="TProfile" title="nTrtOutliers vs nTrtHits">
+  <x title="nTrtOutliers" n="60" lo="0" hi="60"/>
+  <y title="nTrtHits" lo="0" hi="60"/>
+</h>
+<h id="profile_nTrtTubeHit_vs_nTrtOutlier" type="TProfile" title="nTrtTubeHits vs nTrtOutliers">
+  <x title="nTrtTubeHits" n="60" lo="0" hi="60"/>
+  <y title="nTrtOutliers" lo="0" hi="60"/>
+</h>
+<h id="profile_nTrtOutlier_vs_nTrtTubeHit" type="TProfile" title="nTrtOutliers vs nTrtTubeHits">
+  <x title="nTrtOutliers" n="60" lo="0" hi="60"/>
+  <y title="nTrtTubeHits" lo="0" hi="60"/>
+</h>
+<h id="profile_trtTubeFrac_vs_nTrtOutlier" type="TProfile" title="trt tube fraction vs nTrtOutliers">
+  <x title="trt tube fraction" n="20" lo="0" hi="1"/>
+  <y title="nTrtOutliers" lo="0" hi="60"/>
+</h>
+<h id="profile_nTrtOutlier_vs_trtTubeFrac" type="TProfile" title="nTrtOutliers vs trt tube fraction">
+  <x title="nTrtOutliers" n="60" lo="0" hi="60"/>
+  <y title="trt tube fraction" lo="0" hi="1"/>
+</h>
+<h id="profile_nTrtHit_vs_nTrtTubeHit_B" type="TProfile" title="ntrt hits vs ntrt tube hits in the barrel">
+  <x title="nTrtHits" n="60" lo="0" hi="60"/>
+  <y title="nTrtTubeHits" lo="0" hi="60"/>
+</h>
+<h id="profile_nTrtHit_vs_nTrtTubeHit_E" type="TProfile" title="ntrt hits vs ntrt tube hits in the endcap">
+  <x title="nTrtHits" n="60" lo="0" hi="60"/>
+  <y title="nTrtTubeHits" lo="0" hi="60"/>
+</h>
+<h id="profile_nTrtHit_vs_trtTubeFrac_B" type="TProfile" title="ntrt hits vs trt tube fraction in the barrel">
+  <x title="nTrtHits" n="60" lo="0" hi="60"/>
+  <y title="trt tube fraction" lo="0" hi="1"/>
+</h>
+<h id="profile_nTrtHit_vs_trtTubeFrac_E" type="TProfile" title="ntrt hits vs trt tube fraction in the endcap">
+  <x title="nTrtHits" n="60" lo="0" hi="60"/>
+  <y title="trt tube fraction" lo="0" hi="1"/>
+</h>
 
 <!--  -->
 <!-- testing -->
@@ -549,7 +680,7 @@
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h> 
 <h id="trackeff_vs_pt" type="TProfile" title="Fraction of reco-matched truth track">
-  <x title="Pt (GeV)" n="25" lo="0" hi="50"/>
+  <x title="Pt (GeV)" n="100" lo="0" hi="200"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="trackeff_vs_phi" type="TProfile" title="Fraction of reco-matched truth track">

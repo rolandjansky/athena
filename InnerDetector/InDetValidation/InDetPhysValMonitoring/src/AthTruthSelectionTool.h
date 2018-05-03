@@ -18,7 +18,10 @@
 #include "xAODTruth/TruthParticle.h" // typedef, can't fwd declare
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CutFlow.h"
-
+#include "GaudiKernel/ToolHandle.h"
+#include "TrkSurfaces/CylinderSurface.h"
+#include "TrkSurfaces/DiscSurface.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 
 
 /// class to apply selection to xAOD::TruthParticles,required by validation
@@ -35,6 +38,7 @@ public:
   std::vector<unsigned int> counters() const final;
   std::vector<std::string> names() const final;
   std::string str() const final;
+
 private:
   CutFlow<xAOD::TruthParticle> m_cutFlow;
   // Cut values;
@@ -51,7 +55,27 @@ private:
   bool m_grandparent;
   bool m_poselectronfromgamma;
   std::vector<unsigned int> m_counters;
-};
+  
+  /* \defgroup Selection on extrapolated particle to cylinder or disk surface
+   * @{
+   */
+  float m_radiusCylinder; ///< for cylinder topology: radius of cylinder
+  float m_minZCylinder; ///< for cylinder topology: minimum |z|
+  float m_maxZCylinder; ///< for cylinder topology: maximum |z|
+  float m_zDisc; ///< for disk topology: Z position of disk
+  float m_minRadiusDisc; ///< for disk topology: minimum radius
+  float m_maxRadiusDisc; ///< for disk topology: maximum radius
 
+  //cache surfaces
+  mutable Trk::CylinderSurface* cylinder;
+  mutable Trk::DiscSurface* disc1;
+  mutable Trk::DiscSurface* disc2;
+
+
+  /* @} */
+
+  ///Too handle for truth-track extrapolation
+  ToolHandle<Trk::IExtrapolator> m_extrapolator;
+};
 
 #endif

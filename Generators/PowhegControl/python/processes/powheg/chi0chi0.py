@@ -25,7 +25,7 @@ class chi0chi0(PowhegV2):
         @param base_directory  path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, os.path.join("weakinos", "neuIneuJ"), powheg_executable="pwhg_main_ninj", **kwargs)
+        super(chi0chi0, self).__init__(base_directory, os.path.join("weakinos", "neuIneuJ"), powheg_executable="pwhg_main_ninj", **kwargs)
 
         # Load SLHA input
         if len(glob.glob("*.slha")) > 0:
@@ -67,7 +67,7 @@ class chi0chi0(PowhegV2):
         self.add_keyword("doublefsr")
         self.add_keyword("evenmaxrat")
         self.add_keyword("ewi")
-        self.add_keyword("facscfact")
+        self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fakevirtuals")
         self.add_keyword("fastbtlbound")
         self.add_keyword("fin1", "chi10", name="neutralino_A")
@@ -94,8 +94,8 @@ class chi0chi0(PowhegV2):
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
         self.add_keyword("iymax")
-        self.add_keyword("lhans1")
-        self.add_keyword("lhans2")
+        self.add_keyword("lhans1", self.default_PDFs)
+        self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhrwgt_descr")
         self.add_keyword("lhrwgt_group_combine")
         self.add_keyword("lhrwgt_group_name")
@@ -127,7 +127,7 @@ class chi0chi0(PowhegV2):
         self.add_keyword("radregion")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
-        self.add_keyword("renscfact")
+        self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("runningscale", 0)
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")

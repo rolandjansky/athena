@@ -21,7 +21,7 @@ class Zjj(PowhegV2):
         @param base_directory: path to PowhegBox code.
         @param kwargs          dictionary of arguments from Generate_tf.
         """
-        super(self.__class__, self).__init__(base_directory, "Z2jet", **kwargs)
+        super(Zjj, self).__init__(base_directory, "Z2jet", **kwargs)
 
         # Add parameter validation functions
         self.validation_functions.append("validate_decays")
@@ -53,7 +53,7 @@ class Zjj(PowhegV2):
         self.add_keyword("compute_rwgt")
         self.add_keyword("doublefsr", 1)
         self.add_keyword("evenmaxrat")
-        self.add_keyword("facscfact")
+        self.add_keyword("facscfact", self.default_scales[0])
         self.add_keyword("fakevirt")
         self.add_keyword("fastbtlbound")
         self.add_keyword("fixedgrid")
@@ -76,8 +76,8 @@ class Zjj(PowhegV2):
         self.add_keyword("iupperfsr")
         self.add_keyword("iupperisr")
         self.add_keyword("iymax")
-        self.add_keyword("lhans1")
-        self.add_keyword("lhans2")
+        self.add_keyword("lhans1", self.default_PDFs)
+        self.add_keyword("lhans2", self.default_PDFs)
         self.add_keyword("lhapdf6maxsets")
         self.add_keyword("lhrwgt_descr")
         self.add_keyword("lhrwgt_group_combine")
@@ -113,7 +113,7 @@ class Zjj(PowhegV2):
         self.add_keyword("raisingscales")
         self.add_keyword("rand1")
         self.add_keyword("rand2")
-        self.add_keyword("renscfact")
+        self.add_keyword("renscfact", self.default_scales[1])
         self.add_keyword("runningscales")
         self.add_keyword("rwl_add")
         self.add_keyword("rwl_file")

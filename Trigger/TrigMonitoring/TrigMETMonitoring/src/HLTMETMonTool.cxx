@@ -79,7 +79,7 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   // et
   declareProperty("et_bins", m_et_bins=205,  "Number of bins Et");
   declareProperty("et_min",  m_et_min=-13.5, "Minimum Et");
-  declareProperty("et_max",  m_et_max=601.5, "Maximum Et");
+  declareProperty("et_max",  m_et_max=401.5, "Maximum Et");
   // Ex, Ey, Ez
   declareProperty("ec_bins", m_ec_bins=199,  "Number of bins Ex, Ey, Ez");
   declareProperty("ec_min",  m_ec_min=-298.5, "Minimum Ex, Ey, Ez");
@@ -87,11 +87,11 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   // sumet
   declareProperty("sumet_bins", m_sumet_bins=305,  "Number of bins SumEt");
   declareProperty("sumet_min",  m_sumet_min=-27.,  "Minimum SumEt");
-  declareProperty("sumet_max",  m_sumet_max=1803., "Maximum SumEt");
+  declareProperty("sumet_max",  m_sumet_max=4203., "Maximum SumEt");
   // sume
   declareProperty("sume_bins", m_sume_bins=153,  "Number of bins SumE");
   declareProperty("sume_min",  m_sume_min=-27.,  "Minimum SumE");
-  declareProperty("sume_max",  m_sume_max=18003., "Maximum SumE");
+  declareProperty("sume_max",  m_sume_max=24003., "Maximum SumE");
   // phi, dphi
   declareProperty("phi_bins", m_phi_bins=32,     "Number of bins Phi, dPhi");
   declareProperty("phi_min",  m_phi_min=-3.1416, "Minimum Phi");
@@ -230,6 +230,12 @@ StatusCode HLTMETMonTool::book() {
   setCurrentMonGroup(monFolderName);
   met_signatures_tolook = m_hlt_met_signatures_tolook_shifter;
   addHLTProfileHistograms(met_signatures_tolook);
+
+  // mu50 histograms
+  monFolderName = monGroupName + "/mu50";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addHLTBasicHistograms();
 
   // Signal like electron histograms
   monFolderName = monGroupName + "/SignalEl";
@@ -432,7 +438,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   const xAOD::EventInfo *eventInfo = nullptr;
   sc = evtStore()->retrieve(eventInfo, "EventInfo");
   if(sc.isFailure() || !eventInfo) {
-    ATH_MSG_WARNING("Could not retrieve LVL1_RoIs with key \"EventInfo\" from TDS"  );
+    ATH_MSG_WARNING("Could not retrieve EventInfo with key \"EventInfo\" from TDS"  );
   }
 
  // retrieve xAOD L1 ROI 
@@ -820,6 +826,16 @@ StatusCode HLTMETMonTool::fillMETHist() {
   fillHLTProfileHistograms(off_met,met_signatures_tolook);
 
 
+  // HLT mu50
+  monFolderName = monGroupName + "/mu50";
+  setCurrentMonGroup(monFolderName);
+  if (hlt_met > 0 && eventInfo) { // remove MET=0 events
+    if (eventInfo->actualInteractionsPerCrossing()>47. && eventInfo->actualInteractionsPerCrossing()<53.) {
+      fillHLTBasicHistograms(hlt_ex,hlt_ex_log,hlt_ey,hlt_ey_log,hlt_ez,hlt_ez_log,hlt_met,hlt_met_log,hlt_sumet,hlt_sumet_log,hlt_sume,hlt_sume_log,hlt_phi,hlt_eta,hlt_significance);
+    }
+  }
+
+
   // HLT signal-like electron
   monFolderName = monGroupName + "/SignalEl";
   setCurrentMonGroup(monFolderName);
@@ -855,6 +871,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
     // Lumi Block histogram
     if ((h = hist("HLT_limiBlock")) && eventInfo)    h->Fill(eventInfo->lumiBlock());
+
+    // <mju> histogram
+    if ((h = hist("HLT_mu")) && eventInfo)    h->Fill(eventInfo->actualInteractionsPerCrossing());
 
     // status histogram
     TH1F *h1i(0);
@@ -1491,6 +1510,9 @@ void HLTMETMonTool::addHLTStatusHistograms() {
   // Lumiblock histogram
   addHistogram(new TH1F("HLT_limiBlock", "HLT Lumi Block", 1000, 0, 1000));  
 
+  // <mu> histogram
+  addHistogram(new TH1F("HLT_mu", "HLT mu", 100, 0, 100));  
+
   // status in 1d
   TH1F *h1i = new TH1F("HLT_MET_status", "HLT MET Status", 32, -0.5, 31.5);
   for (size_t j = 0; j < m_bitNames.size(); j++) {
@@ -1569,8 +1591,8 @@ void HLTMETMonTool::addHLTCompHistograms() {
 void HLTMETMonTool::addOffMETHistograms() {
 
   addHistogram(new TH1F("Offline_MET", "Offline MET;Et", m_et_bins, m_et_min, m_et_max));
-  addHistogram(new TH1F("Offline_METx", "Offline METx;Et", m_ec_bins, m_ec_min, m_ec_max));
-  addHistogram(new TH1F("Offline_METy", "Offline METy;Et", m_ec_bins, m_ec_min, m_ec_max));
+  addHistogram(new TH1F("Offline_METx", "Offline METx;Ex", m_ec_bins, m_ec_min, m_ec_max));
+  addHistogram(new TH1F("Offline_METy", "Offline METy;Ey", m_ec_bins, m_ec_min, m_ec_max));
   addHistogram(new TH1F("Offline_SumEt", "Offline SumEt;sumEt", m_sumet_bins, m_sumet_min, m_sumet_max));
   addHistogram(new TH1F("Offline_MET_phi", "Offline MET phi;Phi", m_phi_bins, m_phi_min, m_phi_max));
 
