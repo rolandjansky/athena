@@ -13,7 +13,7 @@ from ROOT import TCanvas
 from ROOT import gStyle,gPad
 from ROOT import kBlack,kOrange,kGreen
 
-sys.path.append("../Misc")
+sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
 
 from gb import MakeTH1,SetXLabel,MakeTProfile
 
@@ -66,8 +66,6 @@ def ATLASLabel(x,y,text=""):
 # Main script
 from argparse import RawTextHelpFormatter,ArgumentParser
 from ROOT import gROOT
-
-#gROOT.LoadMacro("AtlasLabels.C")
 
 parser = ArgumentParser(description='',formatter_class=RawTextHelpFormatter)
 parser.add_argument('-y','--year',dest='parser_year',default = ["2018"],nargs='*',help='Year [Default: 2018]',action='store')

@@ -17,7 +17,7 @@ from ROOT import gStyle
 
 import xmlrpclib
 
-sys.path.append("../Misc")
+sys.path.append("/afs/cern.ch/user/l/larmon/public/prod/Misc")
 from LArMonCoolLib import GetLBTimeStamps,GetOnlineLumiFromCOOL,GetOfflineLumiFromCOOL,GetLBDuration,GetReadyFlag,GetNumberOfCollidingBunches
 from gb import MakeTH1,SetXLabel,MakeTProfile
 
@@ -118,6 +118,7 @@ parser.add_argument('-y','--year',dest='parser_year',default = "2018",help='Year
 parser.add_argument('-t','--tag',dest='parser_tag',default = "Tier0_2018",help='Defect tag [Default: "Tier0_2018"]',action='store')
 parser.add_argument('-b','--batch',dest='parser_batchMode',help='Batch mode',action='store_true')
 parser.add_argument('-s','--system',dest='parser_system',default="LAr",help='System: LAr, CaloCP [Default: "LAr"]',action='store')
+parser.add_argument('--runListUpdate',dest='parser_runListUpdate',help='Run list update. No other action allowed. Exit when done',action='store_true')
 parser.add_argument('--weekly',dest='parser_weekly',help='Weekly report. No run range to specify',action='store_true')
 parser.add_argument('--grlUpdate',dest='parser_grlUpdate',help='GRL update. No run range to specify',action='store_true')
 parser.add_argument('--noPlot',dest='parser_noPlot',help='Do not plot the results',action='store_false')
@@ -182,14 +183,32 @@ else:
   options['vetoTag']=""
 options['yearStatsDir'] = "YearStats-%s/%s/%s"%(options['system'],options['year'],args.parser_tag)
 
+passfile = open("/afs/cern.ch/user/l/larmon/public/atlasdqmpass.txt")
+passwd = passfile.read().strip(); passfile.close()
+s = xmlrpclib.ServerProxy('https://%s@atlasdqm.cern.ch'%(passwd))
 
-#if not args.parser_run: 
-#  print "Please specify run number or run range with -r option"
-#  os.system("rm -f %s"%tokenName)
-#  sys.exit()
+############ Update the RunList/all-[year].dat files
+if args.parser_runListUpdate:
+  allRunListDat = "RunList/all-%s.dat"%(options['year'])
+  if os.path.exists(allRunListDat):
+    latestRun = 0
+    fRunList = open(allRunListDat,'r+')
+    for iRun in fRunList.readlines(): # Look for the latest run in RunList/all.dat
+      if int(iRun)>latestRun:
+        latestRun = int(iRun)
+    recentRuns = s.get_run_beamluminfo({'low_run':"%d"%(latestRun+1),'high_run':"%s"%(latestRun+1000)})
 
-if debug:
-  print "I am querying DB to retrieve the periods"
+    for iRecentRun in sorted(recentRuns.keys()):
+      if (recentRuns[iRecentRun][2]): # ATLAS ready
+        print "I am adding the new run with ATLAS ready: %s"%iRecentRun
+        fRunList.write("%s\n"%iRecentRun)
+    fRunList.close()
+  else:
+    print "No %s..."%allRunListDat
+
+  os.system("rm -f %s"%tokenName)
+  print "I am exiting..."
+  sys.exit()
 
 ############ Fill runlist variable and change some options if single run
 # available runs are defined in ~larmon/public/prod/LADIeS/RunList directory
@@ -251,10 +270,6 @@ if (options['updateYearStats'] and options['resetYearStats']):
 
 
 runSpec = {} # Characteristics of each run: start, stop, data period, luminosity, computed inefficiencies
-
-passfile = open("/afs/cern.ch/user/l/larmon/public/atlasdqmpass.txt")
-passwd = passfile.read().strip(); passfile.close()
-s = xmlrpclib.ServerProxy('https://%s@atlasdqm.cern.ch'%(passwd))
 
 # Fill the list of runs to be considered 
 if args.parser_weekly: # Weekly report - Look for the last 7-days runs + unsigned off
@@ -889,7 +904,7 @@ if (len(runSpec.keys())>2 and runSpec['AllRuns']['Lumi']!=0):
     column[canvasIndex][7].AddText("%s"%(runSpec[runNb]["period"]))
     column[canvasIndex][8].AddText("%10s"%(runSpec[runNb]["signoff"]))
     lineNb[canvasIndex] += 1
-    if (lineNb[canvasIndex]==15 or runNb == "AllRuns"):
+    if (lineNb[canvasIndex]==25 or runNb == "AllRuns"):
       for i in xrange(len(column[canvasIndex])):
         column[canvasIndex][i].Draw()
       c1[canvasIndex].SetWindowSize(1000,lineNb[canvasIndex]*40)
@@ -1036,4 +1051,5 @@ for irun in runSpec.keys():
 errorLogFile.close()
 
 os.system("rm -f %s"%tokenName)
-raw_input("I am done. Type <return> to exit...")
+if not options['batchMode']:
+  raw_input("I am done. Type <return> to exit...")
