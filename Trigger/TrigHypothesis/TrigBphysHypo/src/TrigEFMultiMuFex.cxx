@@ -149,7 +149,7 @@ HLT::ErrorCode TrigEFMultiMuFex::hltFinalize()
 //-------------------------------------------------------------------------------------
 HLT::ErrorCode TrigEFMultiMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass) {
   
-  ATH_MSG_DEBUG("Running TrigEFMultiMuFex::acceptInputs" );
+  ATH_MSG_DEBUG("Running TrigEFMultiMuFex::acceptInputs");
   m_mon_Acceptance.push_back( ACCEPT_Input );
 
   if ( timerSvc() )    m_BmmHypTot->start();

@@ -851,3 +851,4 @@ def _prepareJetChainDict(cdict):
 def get_j35_ChainDef():
     return theDictFromChainName.getChainDict( ['j35', 'L1_J20', [], ["Main"], ['RATE:SingleJet',  'BW:Jets'], -1],) 
 
+

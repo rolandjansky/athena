@@ -784,6 +784,9 @@ def defineMenu():
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B',
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO',
 
+        'L1_BPH-8M15-2MU6',
+        'L1_BPH-2M9-2MU6',
+
         'L1_BPH-0M9-EM7-EM5',        
         'L1_BPH-0DR3-EM7J15',
         'L1_BPH-0M9-EM7-EM5_MU6',
@@ -1306,6 +1309,8 @@ def defineMenu():
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-B' : 487,
         'L1_BPH-8M15-MU6MU4_BPH-0DR22-MU6MU4-BO' : 488,
 
+        'L1_BPH-2M9-2MU6'  : 302,
+        'L1_BPH-8M15-2MU6'  : 303,
         ### ATR-14350 - these should be replaced in 2017 with items 296 and 298
         'L1_BPH-2M9-2MU4_BPH-0DR15-2MU4' : 426,
         'L1_BPH-2M9-MU6MU4_BPH-0DR15-MU6MU4' : 427,
