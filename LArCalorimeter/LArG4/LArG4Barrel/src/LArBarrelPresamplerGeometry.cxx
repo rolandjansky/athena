@@ -48,33 +48,6 @@ namespace LArG4 {
 
     Geometry::Geometry(const std::string& name, ISvcLocator *pSvcLocator)
       : AthService(name, pSvcLocator)
-      , m_detectorName("LArMgr")
-      , m_prep1_th(0)
-      , m_prep2_th(0)
-      , m_shell_th(0)
-      , m_prot_th(0)
-      , m_mech_clear(0)
-      , m_rail_th(0)
-      , m_rail_pos(0)
-      , m_rail_width(0)
-      , m_mb_th(0)
-      , m_mb_width(0)
-      , m_mb_length(0)
-      , m_widthFront(0)
-      , m_heightIn(0)
-      , m_heightOut(0)
-      , m_rMinPresamplerMother(0)
-      , m_rMaxPresamplerMother(0)
-      , m_PresamplerMother_length(0)
-      , m_Phi_min(0)
-      , m_Phi_span(0)
-      , m_nsectors(0)
-      , m_nbsectors(0)
-      , m_zminPS(0)
-      , m_zpres(0)
-      , m_cat_th(0)
-      , m_halfThickLAr(0)
-      , m_parameters (nullptr)
     {
       declareProperty("DetectorName",m_detectorName);
     }
@@ -87,17 +60,9 @@ namespace LArG4 {
         this should at some stage be taken from a database... */
     StatusCode Geometry::initialize()
     {
-#include "PresParameterDef.icc"
-
-      /** Access source of detector parameters. */
-      m_parameters = LArVG4DetectorParameters::GetInstance();
-
-      /** position of mother volume inside nominal Atlas frame */
-      m_zpres=1549.*CLHEP::mm;
       /** compute positions of end of modules and of first cathode in
        a module in nominal Atlas coordinates */
-      const double eps=0.007*CLHEP::mm;
-      m_zminPS=3.00*CLHEP::mm;   // FIXME this should come from database
+      const double eps=0.007*Athena::Units::mm;
       m_end_module[0]=(m_mod[0][0]*m_cmm+2*eps)+m_zminPS+eps;
       for (int i=1;i<8;i++) m_end_module[i]=m_end_module[i-1]+(m_mod[i][0]*m_cmm+2*eps)+eps;
 #ifdef DEBUGHITS
@@ -131,9 +96,6 @@ namespace LArG4 {
 
       // pitch in z of gaps
       for (int i=0;i<8;i++) m_pitch[i]=m_mod[i][4]*m_cmm;
-
-      // LAr total gap
-      m_halfThickLAr = 0.5*13.*CLHEP::mm;
 
       return StatusCode::SUCCESS;
     }
