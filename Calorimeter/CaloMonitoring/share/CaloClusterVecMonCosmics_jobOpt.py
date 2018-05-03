@@ -1,3 +1,4 @@
+#Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # CaloClusterVecMon_jobOpt.py   R. Kehoe 07/03/06
 # CaloClusterVecVecMon_jobOpt.py   H. Hadavand 07/30/07 --migrate to MMTB
 # CaloClusterVecVecMon_jobOpt.py   F Spano' 08/15/07 --change monMan to  CaloMon

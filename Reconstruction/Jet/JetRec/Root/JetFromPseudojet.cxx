@@ -217,7 +217,9 @@ JetFromPseudojet::addjet(const PseudoJet& pj, xAOD::JetContainer& jets,
   JetConstituentFiller confiller(m_isTrigger);
   if ( pparent == 0 ) {
     ATH_MSG_VERBOSE("  No parent jet.");
+
     int nconskip = confiller.extractConstituents(*pjet, pghostlabs, &pj);
+    
     if ( nconskip < 0 ) {
       ATH_MSG_WARNING("  Jet constituent filler returned error " << nconskip);
     }

@@ -4,11 +4,12 @@ from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, Tri
 from AthenaMonitoring.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 
 class TrigMufastHypoMonitoring(GenericMonitoringTool):
-    def __init__ (self, name="TrigMufastHypoMonitoring"):
+    def __init__ (self, name):
         super(TrigMufastHypoMonitoring, self).__init__(name)
 
         self.HistPath = name  
         self.Histograms = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #muFast; P_{T} (GeV)", xbins=200, xmin=-100, xmax=100),
+                            defineHistogram('PtFL', type='TH1F', title="P_{T} of not selected muons from #muFast; p_{T} (GeV)", xbins=200, xmin=-100, xmax=100),
                             defineHistogram('Eta , Phi', type='TH2F', title="Eta vs Phi reconstruction of #muFast; Eta; Phi",xbins=50, xmin=-3.2, xmax=3.2, ybins=25, ymin=-3.15, ymax=3.15),
                             defineHistogram('Eta', type='TH1F', title="Eta reconstruction from #muFast; Eta",xbins=100, xmin=-3.2, xmax=3.2),
                             defineHistogram('Phi', type='TH1F', title="Phi reconstruction from #muFast; Phi",xbins=100, xmin=-3.15, xmax=3.15),
@@ -19,7 +20,7 @@ class TrigMufastHypoMonitoring(GenericMonitoringTool):
 
 
 class TrigmuCombHypoMonitoring(GenericMonitoringTool):
-    def __init__ (self, name="TrigmuCombHypoMonitoring"):
+    def __init__ (self, name):
         super(TrigmuCombHypoMonitoring, self).__init__(name)
 
         self.HistPath = name  

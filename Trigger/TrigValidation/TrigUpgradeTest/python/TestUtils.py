@@ -38,7 +38,8 @@ class MenuTest:
 
     MUThresholdToChainMapping = ["MU6 : HLT_mu6",
                                  "MU6 : HLT_mu6idperf",
-                                 "MU4 : HLT_e15mu4"]
+                                 "MU4 : HLT_e15mu4",
+                                 "MU6 : HLT_2mu6"]
 
 
     METThresholdToChainMapping = ["UNUSED : HLT_xe10",

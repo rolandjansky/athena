@@ -11,7 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/GenInterfaces
                           PRIVATE
-                          Control/DataModel
+                          Control/AthContainers
                           Control/StoreGate
                           Generators/GeneratorObjects )
 
@@ -25,12 +25,12 @@ atlas_add_library( ReweightToolsLib
                    PUBLIC_HEADERS ReweightTools
                    INCLUDE_DIRS ${LHAPDF_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    LINK_LIBRARIES ${LHAPDF_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES DataModel GeneratorObjects )
+                   PRIVATE_LINK_LIBRARIES AthContainers GeneratorObjects )
 
 atlas_add_component( ReweightTools
                      src/components/*.cxx
                      INCLUDE_DIRS ${LHAPDF_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${LHAPDF_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel DataModel StoreGateLib SGtests GeneratorObjects ReweightToolsLib )
+                     LINK_LIBRARIES ${LHAPDF_LIBRARIES} ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel AthContainers StoreGateLib SGtests GeneratorObjects ReweightToolsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

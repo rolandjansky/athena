@@ -36,8 +36,7 @@
 #include "VxVertex/RecVertex.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "PATCore/TAccept.h"            // for TAccept
-#include "PATCore/TResult.h"            // for TResult
+#include "PATCore/AcceptData.h"
 #include "xAODTrigger/TrigPassBits.h"
 
 using std::string;
@@ -484,16 +483,16 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             }else{
                 if (timerSvc()) m_timerPIDTool->start(); //timer
                 if(useLumiTool){
-                    const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt,avg_mu);
-                    lhval=m_athElectronLHIDSelectorTool->getTResult().getResult(0);
+                    asg::AcceptData acc = m_athElectronLHIDSelectorTool->accept(egIt,avg_mu);
+                    lhval = m_athElectronLHIDSelectorTool->calculate(egIt,avg_mu);
                     ATH_MSG_DEBUG("LHValue with mu " << lhval);
                     m_lhval.push_back(lhval);
                     isLHAcceptTrig = (bool) (acc);
                 }
                 else {
                     ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
-                    const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt);
-                    lhval=m_athElectronLHIDSelectorTool->getTResult().getResult(0);
+                    asg::AcceptData acc = m_athElectronLHIDSelectorTool->accept(egIt);
+                    lhval = m_athElectronLHIDSelectorTool->calculate(egIt);
                     ATH_MSG_DEBUG("LHValue without mu " << lhval);
                     m_lhval.push_back(lhval);
                     isLHAcceptTrig = (bool) (acc);
@@ -511,9 +510,10 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
             ATH_MSG_ERROR(m_egammaElectronCutIDTool << " null, hypo continues but no isEM cut applied");
         }else{
             if (timerSvc()) m_timerPIDTool->start(); //timer
-            if ( m_egammaElectronCutIDTool->execute(egIt).isFailure() ) 
+            unsigned int isEM = 0;
+            if ( m_egammaElectronCutIDTool->execute(egIt, isEM).isFailure() ) 
                 ATH_MSG_DEBUG("problem with egammaElectronCutIDTool, egamma object not stored");
-            isEMTrig = m_egammaElectronCutIDTool->IsemValue();
+            isEMTrig = isEM;
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
                 <<" isEMTrig = "
                     << std::hex << isEMTrig

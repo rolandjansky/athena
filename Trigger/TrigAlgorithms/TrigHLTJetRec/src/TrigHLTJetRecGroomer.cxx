@@ -54,13 +54,14 @@ const xAOD::JetContainer* TrigHLTJetRecGroomer::build() const
     auto ungroomedJets = TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild();
     
     // Convert the trimming tool from a ToolHandle<IJetRecTool> to a JetRecTool so we can skip StoreGate
-    JetRecTool* trimmerTool = const_cast<JetRecTool*>(dynamic_cast<const JetRecTool*>(&*m_jetTrimTool));
+    // JetRecTool* trimmerTool = const_cast<JetRecTool*>(dynamic_cast<const JetRecTool*>(&*m_jetTrimTool));
     // Set the input jet container to be trimmed
-    trimmerTool->setInputJetContainer(ungroomedJets);
-    
+    // trimmerTool->setInputJetContainer(ungroomedJets);
+
+    const PseudoJetContainer* pseudojets = getPseudoJetContainer();
     // Now trim it
     ATH_MSG_VERBOSE("Applying jet trimming");
-    auto trimmedJets = trimmerTool->build();
+    auto trimmedJets = m_jetTrimTool->groom(ungroomedJets, *pseudojets);
     ATH_MSG_VERBOSE("Done trimming jets");
 
     

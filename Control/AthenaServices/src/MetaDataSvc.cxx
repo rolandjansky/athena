@@ -123,10 +123,8 @@ StatusCode MetaDataSvc::initialize() {
    }
 
    m_incSvc->addListener(this, "FirstInputFile", 90);
-   m_incSvc->addListener(this, "BeginTagFile", 90);
    m_incSvc->addListener(this, "BeginInputFile", 90);
    m_incSvc->addListener(this, "EndInputFile", 10);
-   m_incSvc->addListener(this, "EndTagFile", 10);
    m_incSvc->addListener(this, "LastInputFile", 10);
    m_incSvc->addListener(this, "ShmProxy", 90);
 
@@ -205,20 +203,14 @@ StatusCode MetaDataSvc::stop() {
          }
       }
    }
-   // finalizing tools via metaDataStop
-   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-      ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
-      if ( (*it)->metaDataStop().isFailure() ) {
-         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
-      }
-   }
-   ATH_MSG_DEBUG("Releasing MetaDataTools");
-   if (!m_metaDataTools.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
-   }
+
    // Set to be listener for end of event
    Incident metaDataStopIncident(name(), "MetaDataStop");
    m_incSvc->fireIncident(metaDataStopIncident);
+
+   // finalizing tools via metaDataStop
+   ATH_CHECK(this->prepareOutput());
+
    return(StatusCode::SUCCESS);
 }
 //_______________________________________________________________________
@@ -275,6 +267,88 @@ StatusCode MetaDataSvc::updateAddress(StoreID::type, SG::TransientAddress*,
                                       const EventContext&) {
    return(StatusCode::FAILURE);
 }
+
+StatusCode MetaDataSvc::newMetadataSource(const Incident& inc)
+{
+   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+   if (fileInc == nullptr) {
+      ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
+      return StatusCode::FAILURE;
+   }
+   const std::string fileName = fileInc->fileName();
+   m_allowMetaDataStop = false;
+   if (fileName.find("BSF:") != 0) {
+      if (!m_clearedInputDataStore) {
+         if (!m_inputDataStore->clearStore().isSuccess()) {
+            ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
+         }
+         m_clearedInputDataStore = true;
+      }
+      if (!initInputMetaDataStore(fileName).isSuccess()) {
+         ATH_MSG_WARNING("Unable to initialize InputMetaDataStore");
+         return StatusCode::FAILURE;
+      }
+   }
+   StatusCode rc(StatusCode::SUCCESS);
+   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+      ATH_MSG_DEBUG(" calling beginInputFile for " << (*it)->name());
+      if ( (*it)->beginInputFile().isFailure() ) {
+         ATH_MSG_ERROR("Unable to call beginInputFile for " << it->name());
+         rc = StatusCode::FAILURE;
+      }
+   }
+   return rc;
+}
+
+StatusCode MetaDataSvc::retireMetadataSource(const Incident&)
+{
+   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+      if ( (*it)->endInputFile().isFailure() ) {
+         ATH_MSG_ERROR("Unable to call endInputFile for " << it->name());
+         return StatusCode::FAILURE;
+      }
+   }
+   m_allowMetaDataStop = true;
+   return StatusCode::SUCCESS;
+}
+
+StatusCode MetaDataSvc::prepareOutput()
+{
+   StatusCode rc(StatusCode::SUCCESS);
+   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+      ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
+      if ( (*it)->metaDataStop().isFailure() ) {
+         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
+         rc = StatusCode::FAILURE;
+      }
+   }
+   if (!m_metaDataTools.release().isSuccess()) {
+      ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
+   }
+   return rc;
+}
+
+StatusCode MetaDataSvc::proxyIncident(const Incident& inc)
+{
+   const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+   if (fileInc == nullptr) {
+      ATH_MSG_ERROR("Unable to get FileName from EndInputFile incident");
+      return StatusCode::FAILURE;
+   }
+   const std::string fileName = fileInc->fileName();
+   if (!m_clearedInputDataStore) {
+      if (!m_inputDataStore->clearStore().isSuccess()) {
+         ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
+      }
+      m_clearedInputDataStore = true;
+   }
+   if (!addProxyToInputMetaDataStore(fileName).isSuccess()) {
+      ATH_MSG_WARNING("Unable to add proxy to InputMetaDataStore");
+   }
+
+   return StatusCode::SUCCESS;
+}
+
 //__________________________________________________________________________
 void MetaDataSvc::handle(const Incident& inc) {
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
@@ -295,44 +369,20 @@ void MetaDataSvc::handle(const Incident& inc) {
          ATH_MSG_WARNING("Unable to initialize InputMetaDataStore");
       }
    } else if (inc.type() == "BeginInputFile") {
-      m_allowMetaDataStop = false;
-      if (fileName.find("BSF:") != 0) {
-         if (!m_clearedInputDataStore) {
-            if (!m_inputDataStore->clearStore().isSuccess()) {
-               ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
-            }
-            m_clearedInputDataStore = true;
-         }
-         if (!initInputMetaDataStore(fileName).isSuccess()) {
-            ATH_MSG_WARNING("Unable to initialize InputMetaDataStore");
-         }
-      }
-      for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-         ATH_MSG_DEBUG(" calling beginInputFile for " << (*it)->name());
-         if ( (*it)->beginInputFile().isFailure() ) {
-            ATH_MSG_ERROR("Unable to call beginInputFile for " << it->name());
-         }
+      if(newMetadataSource(inc).isFailure()) {
+         ATH_MSG_ERROR("Could not process new metadata source " << fileName);
       }
    } else if (inc.type() == "EndInputFile") {
-      for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-         if ( (*it)->endInputFile().isFailure() ) {
-            ATH_MSG_ERROR("Unable to call endInputFile for " << it->name());
-         }
+      if(retireMetadataSource(inc).isFailure()) {
+         ATH_MSG_ERROR("Could not retire metadata source " << fileName);
       }
-      m_allowMetaDataStop = true;
    } else if (inc.type() == "LastInputFile") {
       if (!m_metaDataTools.release().isSuccess()) {
          ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
       }
    } else if (inc.type() == "ShmProxy") {
-      if (!m_clearedInputDataStore) {
-         if (!m_inputDataStore->clearStore().isSuccess()) {
-            ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
-         }
-         m_clearedInputDataStore = true;
-      }
-      if (!addProxyToInputMetaDataStore(fileName).isSuccess()) {
-         ATH_MSG_WARNING("Unable to add proxy to InputMetaDataStore");
+      if(proxyIncident(inc).isFailure()) {
+         ATH_MSG_ERROR("Could not process proxy incident for " << fileName);
       }
    }
 }
@@ -342,37 +392,17 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
    if (!m_allowMetaDataStop && !ignoreInputFile) {
       return(StatusCode::FAILURE);
    }
-   // Set to be listener for end of event
    Incident metaDataStopIncident(name(), "MetaDataStop");
    m_incSvc->fireIncident(metaDataStopIncident);
-   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-      ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
-      if ( (*it)->metaDataStop().isFailure() ) {
-         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
-      }
-   }
-   if (!m_metaDataTools.release().isSuccess()) {
-      ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
-   }
-/*
-   if (!m_outputDataStore->clearStore().isSuccess()) {
-      ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
-   }
-*/
+
+   // Set to be listener for end of event
+   ATH_CHECK(this->prepareOutput());
+
    AthCnvSvc* cnvSvc = dynamic_cast<AthCnvSvc*>(m_addrCrtr.operator->());
    if (cnvSvc) {
       if (!cnvSvc->disconnectOutput().isSuccess()) {
          ATH_MSG_WARNING("Cannot get disconnect Output Files");
       }
-   }
-   if (!m_metaDataTools.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
-      return(StatusCode::FAILURE);
-   }
-   else {
-     for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
-       ATH_MSG_INFO("TESST " << it->name());
-     }
    }
 
    return(StatusCode::SUCCESS);
@@ -421,7 +451,6 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
             m_incSvc->removeListener(cfSvc.get(), IncidentType::BeginInputFile);
             m_incSvc->removeListener(cfSvc.get(), IncidentType::EndInputFile);
             m_incSvc->removeListener(cfSvc.get(), IncidentType::EndRun);
-            m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
             m_incSvc->removeListener(cfSvc.get(), "StoreCleared");
             m_incSvc->removeListener(cfSvc.get(), "MetaDataStop");
             cfSvc.release().ignore();
@@ -565,3 +594,4 @@ StatusCode MetaDataSvc::initInputMetaDataStore(const std::string& fileName) {
    ATH_MSG_DEBUG("Loaded input meta data store proxies");
    return(StatusCode::SUCCESS);
 }
+

@@ -12,9 +12,9 @@
 #include <inttypes.h>
 
 #include "ZdcEvent/ZdcRawChannel.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 class ZdcRawChannelCollection : public DataVector<ZdcRawChannel>
 {

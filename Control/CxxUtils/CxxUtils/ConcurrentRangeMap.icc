@@ -155,9 +155,13 @@ CONCURRENTRANGEMAP::find (const key_query_type& key) const
  * @param range Validity range for this element.
  * @param ptr Payload for this element.
  * @param ctx Execution context.
+ *
+ * Returns true if the new element was successfully inserted.
+ * Returns false if the range compared equal to an existing one. In that case,
+ * no new element is inserted (and @c ptr gets deleted).
  */
 T_CONCURRENTRANGEMAP
-void
+bool
 CONCURRENTRANGEMAP::emplace (const RANGE& range,
                              std::unique_ptr<T> ptr,
                              const typename Updater_t::Context_t& ctx
@@ -165,14 +169,23 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
 {
   lock_t lock (m_mutex);
 
+  value_type* last = m_last;
+  value_type* begin = m_begin;
+
+  // Check if the element to be inserted is greater than all existing entries.
+  bool pastEnd = (!last || m_compare (last->first, range));
+
+  // Make sure the new element is not a duplicate of the last.  Fail if so.
+  if (last && !pastEnd && !m_compare (range, last->first)) {
+    // Duplicate of the last entry.
+    return false;
+  }
+
   // Can we add this to the end?
   // There has to be room for another, and either the container must be empty,
   // or the new element must be greater than the current last one.
-  value_type* last = m_last;
-  value_type* begin = m_begin;
   value_type* end = last ? last+1 : begin;
-  if (end < m_impl->data() + m_impl->capacity() &&
-      (!last || !m_compare (range, last->first)))
+  if (pastEnd && end < m_impl->data() + m_impl->capacity())
   {
     // Yes --- copy the data to the container.
     end->first = range;
@@ -181,7 +194,7 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
     // Update the last pointer.
     m_last = end;
     // Now the new element is visible to other threads.
-    return;
+    return true;
   }
 
   // No --- need to make a new implementation object and copy.
@@ -197,19 +210,34 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   value_type* new_end = new_begin;
 
   // Copy the data, adding the new item at the proper place.
-  while (begin < end) {
-    if (ptr && m_compare (range, begin->first)) {
-      new_end->first = range;
-      new_end->second = ptr.release();
-      ++new_end;
-    }
-    *new_end++ = *begin++;
-  }
-  // Maybe the new one goes at the end.
-  if (ptr) {
+  // Separate out the case where the new item goes at the end,
+  // since we can do that faster.
+  if (pastEnd) {
+    std::copy (begin, end, new_end);
+    new_end += (end-begin);
     new_end->first = range;
     new_end->second = ptr.release();
     ++new_end;
+  }
+  else {
+    // Otherwise we need to search for the proper place to insert the new entry.
+    while (begin < end) {
+      if (ptr && m_compare (range, begin->first)) {
+        // Make sure this isn't a duplicate.
+        if (begin > m_begin && !m_compare ((begin-1)->first, range)) {
+          // Duplicate entry; fail.  Everything allocated is held by unique_ptr,
+          // so should be cleaned up properly.
+          return false;
+        }
+        new_end->first = range;
+        new_end->second = ptr.release();
+        ++new_end;
+      }
+      *new_end++ = *begin++;
+    }
+
+    // Must have dealt with the new element by now.
+    assert (!ptr);
   }
 
   // Install the new implementation.
@@ -220,6 +248,8 @@ CONCURRENTRANGEMAP::emplace (const RANGE& range,
   // we've updated the pointers.
   updatePointers (new_begin, new_end);
   m_updater.update (std::move (new_impl), ctx);
+
+  return true;
 }
 
 

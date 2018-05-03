@@ -240,9 +240,6 @@ void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
     GeoNameTag* ntSection = new GeoNameTag(name);
 
     if (addToFirstSection && secNum!=1) {
-      if (!pvMotherSection) {
-	std::cout << "Unexpected condition when building beam pipe." << std::endl;
-      }
       //std::cout << "Placing section " << secNum << " in Section1" << std::endl;
       pvMotherSection->add(ntSection);
       pvMotherSection->add(pvSection);

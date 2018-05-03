@@ -6,7 +6,7 @@
 // TRT_StrawStatus.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 #include "TRT_CalibAlgs/TRT_StrawStatus.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/TRT_ID.h"
 

@@ -208,8 +208,12 @@ public:
    * @param range Validity range for this element.
    * @param ptr Payload for this element.
    * @param ctx Execution context.
+   *
+   * Returns true if the new element was successfully inserted.
+   * Returns false if the range compared equal to an existing one. In that case,
+   * no new element is inserted (and @c ptr gets deleted).
    */
-  void emplace (const RANGE& range,
+  bool emplace (const RANGE& range,
                 std::unique_ptr<T> ptr,
                 const typename Updater_t::Context_t& ctx =
                   Updater_t::defaultContext());
@@ -303,7 +307,7 @@ private:
   /// order.  First, m_begin should be set to null.  This marks that there's
   /// an update in progress.  Then m_last should be set, followed by m_begin.
   /// To read both pointers, we first fetch m_last.  Then fetch m_begin.
-  /// Then that that both m_begin is non-null and the previous value
+  /// Then check that both m_begin is non-null and the previous value
   /// we fetched for last matches what's now in m_last.  If either condition
   /// fails, then re-fetch both pointers.
   std::atomic<value_type*> m_begin;

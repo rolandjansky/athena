@@ -13,7 +13,7 @@ log = logging.getLogger( 'TriggerJobOpts.TriggerFlags' )
 log.setLevel(logging.DEBUG)
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from TriggerMenu.menu.CommonSliceHelper import AllowedList
+from TriggerJobOpts.CommonSignatureHelper import AllowedList
 from TrigConfigSvc.TrigConfigSvcUtils import getKeysFromNameRelease, getMenuNameFromDB
 
 
@@ -1041,6 +1041,10 @@ class triggerMenuSetup(JobProperty):
 
         'MC_pp_v6','Physics_pp_v6','MC_pp_v6_no_prescale', 'MC_pp_v6_tight_mc_prescale', 'MC_pp_v6_tightperf_mc_prescale', 'MC_pp_v6_loose_mc_prescale','Physics_pp_v6_tight_physics_prescale',
         'MC_pp_v7','Physics_pp_v7','MC_pp_v7_no_prescale', 'MC_pp_v7_tight_mc_prescale', 'MC_pp_v7_tightperf_mc_prescale', 'MC_pp_v7_loose_mc_prescale','Physics_pp_v7_tight_physics_prescale',
+        # -----------------------------------------------------------------
+        # Run 3 (and preparation for Run-3)
+        'LS2_v1', # for development of AthenaMT
+       
         ]
 
     _default_menu='MC_pp_v7_tight_mc_prescale'
@@ -1149,7 +1153,7 @@ from TriggerJobOpts.TriggerOnlineFlags      import OnlineFlags
 
 ## add slices generation flags
 
-from TriggerMenu.menu.SliceFlags import *
+from TriggerJobOpts.SliceFlags import *
 from TriggerJobOpts.Tier0TriggerFlags       import Tier0TriggerFlags
 from TrigTier0.NtupleProdFlags              import NtupleProductionFlags
 

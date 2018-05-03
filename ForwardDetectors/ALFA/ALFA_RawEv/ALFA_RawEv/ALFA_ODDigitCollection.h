@@ -5,15 +5,11 @@
 #ifndef ALFA_ODDigitCollection_h
 #define ALFA_ODDigitCollection_h
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "ALFA_RawEv/ALFA_ODDigit.h"
 
 #include "HitManagement/AthenaHitsVector.h"
-
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
 
 
 class ALFA_ODDigitCollection: public DataVector<ALFA_ODDigit> {

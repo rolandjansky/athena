@@ -317,7 +317,7 @@ if TriggerFlags.doMuon:
 
 
   ### muon thresholds ###
-  testChains = ["HLT_mu6"]
+  testChains = ["HLT_mu6", "HLT_2mu6"]
 
   ### set up L1RoIsFilter ###
   from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
@@ -416,7 +416,7 @@ if TriggerFlags.doMuon:
 
     ### set up muCombHypo algorithm ###
     from TrigMuonHypo.TrigMuonHypoConfig import TrigmuCombHypoConfig
-    trigmuCombHypo = TrigmuCombHypoConfig()
+    trigmuCombHypo = TrigmuCombHypoConfig("L2muCombHypoAlg")
     trigmuCombHypo.OutputLevel = DEBUG
   
     trigmuCombHypo.Decisions = "MuonL2CBDecisions"
@@ -424,7 +424,7 @@ if TriggerFlags.doMuon:
     trigmuCombHypo.ViewRoIs = l2muCombViewsMaker.Views
     trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muCombAlg.L2CombinedMuonContainerName 
   
-    trigmuCombHypo.HypoTools = [ trigmuCombHypo.TrigmuCombHypoToolFromName( name = "L2muCombHypoTool", nath = c ) for c in testChains ] 
+    trigmuCombHypo.HypoTools = [ trigmuCombHypo.TrigmuCombHypoToolFromName( "L2muCombHypoTool", c ) for c in testChains ] 
   
     muCombDecisionsDumper = DumpDecisions("muCombDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuCombHypo.Decisions )
  

@@ -9,7 +9,7 @@
 #ifndef PIXELCALIBDATA_H
 #define PIXELCALIBDATA_H
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #include <algorithm>
 #include <vector>

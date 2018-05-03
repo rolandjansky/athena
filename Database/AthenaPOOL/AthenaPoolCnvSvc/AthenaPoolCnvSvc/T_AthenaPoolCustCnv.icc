@@ -25,7 +25,7 @@
 template <class TRANS, class PERS>
 T_AthenaPoolCustCnv<TRANS, PERS>::T_AthenaPoolCustCnv(ISvcLocator* pSvcLocator,
                                                       const char* name /*= nullptr*/)
-  : T_AthenaPoolCnvBase<TRANS>(pSvcLocator, name) {
+  : T_AthenaPoolCnvBase<TRANS>(pSvcLocator, name), m_persMap() {
 }
 //______________________________________________________________________________
 template <class TRANS, class PERS>
@@ -99,48 +99,88 @@ StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::poolToObject(const Token*& token, P
 }
 //__________________________________________________________________________
 template <class TRANS, class PERS>
-StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPers(DataObject* pObj, const std::string&/* key*/) {
    const std::string className = ClassName<TRANS>::name();
-   bool skipDHE = false;
    TRANS* obj = nullptr;
    PERS* persObj = nullptr;
    SG::fromStorable(pObj, obj);
    if (obj == nullptr) {
-      if (pObj->clID() == 1) { 
-         if (pObj->registry() != nullptr && pObj->registry()->address() != nullptr) { 
-            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers"); 
-            if (!this->compareClassGuid(pool::DbReflex::guid(this->m_classDesc))) { 
-               ATH_MSG_ERROR("Can not evolve schema in pers to pers copy"); 
-               return(StatusCode::FAILURE); 
-            } 
-            if (!poolToObject<PERS>(this->m_i_poolToken, persObj).isSuccess()) { 
-               ATH_MSG_ERROR("Failed to read persistent DataType"); 
-               return(StatusCode::FAILURE); 
-            } 
-         } else { 
-            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, using empty default"); 
-            skipDHE = true; 
-            persObj = new PERS(); 
-         } 
-      } else { 
+      if (pObj->clID() == 1) {
+         if (pObj->registry() != nullptr && pObj->registry()->address() != nullptr) {
+            ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers");
+            if (!this->compareClassGuid(pool::DbReflex::guid(this->m_classDesc))) {
+               ATH_MSG_ERROR("Can not evolve schema in pers to pers copy");
+               return(StatusCode::FAILURE);
+            }
+            if (!poolToObject<PERS>(this->m_i_poolToken, persObj).isSuccess()) {
+               ATH_MSG_ERROR("Failed to read persistent DataType");
+               return(StatusCode::FAILURE);
+            }
+         }
+      } else {
          ATH_MSG_ERROR("failed to cast to T for class (type/key) " << className << "/" << pObj->name());
          return(StatusCode::FAILURE);
-      } 
+      }
    } else {
       if (!transToPers(obj, persObj).isSuccess()) {
          ATH_MSG_ERROR("Failed to convert to persistent DataType for class (type/key) " << className << "/" << pObj->name());
          return(StatusCode::FAILURE);
       }
    }
-   const Token* token = nullptr; 
-   StatusCode status = objectToPool<PERS>(persObj, token, key); 
-   if (skipDHE) { 
-      delete token; token = nullptr; 
-      this->setToken("\n"); 
-   } else { 
-      this->m_o_poolToken = token; token = nullptr; 
-   } 
-   return(status); 
+   m_persMap.insert(std::pair<DataObject*, PERS*>(pObj, persObj));
+   return(StatusCode::SUCCESS);
+}
+//__________________________________________________________________________
+template <class TRANS, class PERS>
+StatusCode T_AthenaPoolCustCnv<TRANS, PERS>::DataObjectToPool(DataObject* pObj, const std::string& key) {
+   const std::string className = ClassName<TRANS>::name();
+   bool skipDHE = false;
+   PERS* persObj = nullptr;
+   typename std::map<DataObject*, PERS*>::iterator it = m_persMap.find(pObj);
+   if (it != m_persMap.end()) {
+      persObj = it->second;
+      m_persMap.erase(it);
+   }
+   if (persObj == nullptr) {
+      TRANS* obj = nullptr;
+      SG::fromStorable(pObj, obj);
+      if (obj == nullptr) {
+         if (pObj->clID() == 1) {
+            if (pObj->registry() != nullptr && pObj->registry()->address() != nullptr) {
+               ATH_MSG_DEBUG("Failed to cast DataObject to transient type, doing pers to pers");
+               if (!this->compareClassGuid(pool::DbReflex::guid(this->m_classDesc))) {
+                  ATH_MSG_ERROR("Can not evolve schema in pers to pers copy");
+                  return(StatusCode::FAILURE);
+               }
+               if (!poolToObject<PERS>(this->m_i_poolToken, persObj).isSuccess()) {
+                  ATH_MSG_ERROR("Failed to read persistent DataType");
+                  return(StatusCode::FAILURE);
+               }
+            } else {
+               ATH_MSG_DEBUG("Failed to cast DataObject to transient type, using empty default");
+               skipDHE = true;
+               persObj = new PERS();
+            }
+         } else {
+            ATH_MSG_ERROR("failed to cast to T for class (type/key) " << className << "/" << pObj->name());
+            return(StatusCode::FAILURE);
+         }
+      } else {
+         if (!transToPers(obj, persObj).isSuccess()) {
+            ATH_MSG_ERROR("Failed to convert to persistent DataType for class (type/key) " << className << "/" << pObj->name());
+            return(StatusCode::FAILURE);
+         }
+      }
+   }
+   const Token* token = nullptr;
+   StatusCode status = objectToPool<PERS>(persObj, token, key);
+   if (skipDHE) {
+      delete token; token = nullptr;
+      this->setToken("\n");
+   } else {
+      this->m_o_poolToken = token; token = nullptr;
+   }
+   return(status);
 }
 //__________________________________________________________________________
 template <class TRANS, class PERS>

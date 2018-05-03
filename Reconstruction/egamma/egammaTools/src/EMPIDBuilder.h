@@ -59,7 +59,7 @@ protected:
   Gaudi::Property<std::vector<std::string> > m_electronLHselectorResultNames {this,
       "electronLHselectorResultNames", {}, "The selector result names"};
   
-  ToolHandleArray<IAsgSelectionTool> m_genericIsEMselectors {this,
+  ToolHandleArray<CP::ISelectionTool> m_genericIsEMselectors {this,
       "genericIsEMselectors", {},
       "The selectors that we need to apply to the generic object"};
   Gaudi::Property<std::vector<std::string> > m_genericIsEMselectorResultNames {this,

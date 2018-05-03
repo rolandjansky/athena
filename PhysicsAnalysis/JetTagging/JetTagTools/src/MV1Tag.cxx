@@ -123,7 +123,7 @@ namespace Analysis {
       m_calibrationTool->storeStr(m_taggerNameBase, alias, m_taggerNameBase+"Calib",iss.str());
     }
     
-    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name()) ) {
+    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib") ) {
       std::string str = m_calibrationTool->getStr(m_taggerNameBase, alias, m_taggerNameBase+"Calib");
       // now configure the TMVAReader:
       // check if the reader for this tagger needs update
@@ -149,7 +149,7 @@ namespace Analysis {
       m_tmvaReaders.insert( std::make_pair( alias, tmvaReader ) );
       m_tmvaMethod.insert( std::make_pair( alias, kl ) );
       
-      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,alias, m_taggerNameBase+"Calib", false, name());
+      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,alias, m_taggerNameBase+"Calib", false);
     }
 
     /* retrieveing weights: */

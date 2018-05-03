@@ -18,6 +18,7 @@
 #define TRIGHLTJETREC_TRIGHLTJETRECGROOMER_H
 
 #include "TrigHLTJetRec/TrigHLTJetRecFromCluster.h"
+#include "TrigHLTJetRec/ITriggerJetGroomerToolMT.h"
 
 class TrigHLTJetRecGroomer : public TrigHLTJetRecFromCluster
 {
@@ -32,7 +33,7 @@ class TrigHLTJetRecGroomer : public TrigHLTJetRecFromCluster
     
     private:
         // properties configurable via python
-        ToolHandle<IJetBuildTool> m_jetTrimTool;
+        ToolHandle<ITriggerJetGroomerToolMT> m_jetTrimTool;
 
 };
 

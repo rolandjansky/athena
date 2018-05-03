@@ -14,6 +14,7 @@
 class FileMetaData {
  
  public:
+  std::string m_fileName;
   std::set<unsigned> m_runNumbers;
   std::set<unsigned> m_lbNumbers;
 
@@ -30,6 +31,8 @@ class FileMetaData {
 
   unsigned m_beamEnergy=0.0;
   std::string m_beamType;
+
+  bool m_isMC=true;
 
   bool m_valid=false;
 

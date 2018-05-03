@@ -8,12 +8,14 @@
 
 void FileMetaData::dump(std::ostream& out) const {
 
+
+  out << "File Name: " << m_fileName << std::endl;
   if (!m_valid) {
     out << "File Meta Data is invalid" << std::endl;
     return;
   }
-
-
+  
+  
   out << "SG Keys: ";
   for (const std::string& k : m_sgKeys) {out << k << " ";}
   out << std::endl;
@@ -39,6 +41,8 @@ void FileMetaData::dump(std::ostream& out) const {
   
   out << "Number of events: " << m_nEvents << std::endl;
 
+  out << "is MC:" << (m_isMC ? "True" : "False") << std::endl;
+
   return;
 }
 
@@ -47,6 +51,7 @@ void  FileMetaData::keyValueDump(std::ostream& out) const {
   
   if (!m_valid) return;
 
+  out << "File:" << m_fileName << std::endl;
   out << "RunNumber:";
   for (const auto rn : m_runNumbers) {out << " " << rn;}
   out << std::endl;
@@ -68,6 +73,7 @@ void  FileMetaData::keyValueDump(std::ostream& out) const {
   
   out << "NEvents: " << m_nEvents << std::endl;
 
+  out << "isMC:" << (m_isMC ? "1" : "0") << std::endl;
 
   out << "SGKeys: ";
   for (const std::string& k : m_sgKeys) {out << k << " ";}

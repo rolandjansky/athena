@@ -23,6 +23,7 @@
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPBaseTool.h"
 #include "TrigConfxAOD/xAODConfigTool.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "PATCore/AcceptData.h"
 #include "string"
 #include <algorithm>
 #include "boost/algorithm/string.hpp"
@@ -375,12 +376,12 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
 
 void TrigEgammaNavTPBaseTool::DressPid(const xAOD::Electron *eg){
     for(int ipid=0;ipid<3;ipid++){
-        const Root::TAccept& accept=m_electronIsEMTool[ipid]->accept(eg);
+        bool accept = (bool) m_electronIsEMTool[ipid]->accept(eg);
         const std::string pidname="is"+m_isemname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
     for(int ipid=0;ipid<3;ipid++){
-        const Root::TAccept& accept=m_electronLHTool[ipid]->accept(eg);
+        bool accept = (bool) m_electronLHTool[ipid]->accept(eg);
         const std::string pidname="is"+m_lhname[ipid];
         eg->auxdecor<bool>(pidname)=static_cast<bool>(accept);
     }
@@ -390,27 +391,27 @@ void TrigEgammaNavTPBaseTool::DressPid(const xAOD::Electron *eg){
 bool TrigEgammaNavTPBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
     
     if (pidname == "Tight"){
-        const Root::TAccept& accept=m_electronIsEMTool[0]->accept(eg);
+        bool accept = (bool) m_electronIsEMTool[0]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "Medium"){
-        const Root::TAccept& accept=m_electronIsEMTool[1]->accept(eg);
+        bool accept = (bool) m_electronIsEMTool[1]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "Loose"){
-        const Root::TAccept& accept=m_electronIsEMTool[2]->accept(eg);
+        bool accept = (bool) m_electronIsEMTool[2]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHTight"){
-        const Root::TAccept& accept=m_electronLHTool[0]->accept(eg);
+        bool accept = (bool) m_electronLHTool[0]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHMedium"){
-        const Root::TAccept& accept=m_electronLHTool[1]->accept(eg);
+        bool accept = (bool) m_electronLHTool[1]->accept(eg);
         return static_cast<bool>(accept);
     }
     else if (pidname == "LHLoose"){
-        const Root::TAccept& accept=m_electronLHTool[2]->accept(eg);
+        bool accept = (bool) m_electronLHTool[2]->accept(eg);
         return static_cast<bool>(accept);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
