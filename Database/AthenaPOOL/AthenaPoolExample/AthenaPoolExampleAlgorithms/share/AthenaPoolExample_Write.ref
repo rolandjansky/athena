@@ -52,46 +52,6 @@ DecisionSvc          INFO Inserting stream: Stream3 with no Algs
 Stream3              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream3_MakeEventStreamInfo'])
 Stream3              INFO Data output: EmptyPoolFile.root
 Stream3              INFO ../O reinitialization...
-RegStream1          DEBUG In initialize 
-RegStream1          DEBUG Found IDecisionSvc.
-DecisionSvc          INFO Inserting stream: RegStream1 with no Algs
-RegStream1          DEBUG End initialize 
-RegStream1          DEBUG In initialize 
-RegStream1          DEBUG Found  'StoreName':StoreGateSvc store.
-RegStream1          DEBUG  Tool initialized
-RegStream1          DEBUG Retrieved IncidentSvc
-RegStream1          DEBUG Added MetaDataStop listener
-RegStream1          DEBUG  Not class requested by Tool, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream1          DEBUG End initialize 
-RegStream1          DEBUG Adding private ToolHandle tool RegStream1.TagTool (RegistrationStreamTagTool)
-RegStream2          DEBUG In initialize 
-RegStream2          DEBUG Found IDecisionSvc.
-DecisionSvc          INFO Inserting stream: RegStream2 with no Algs
-RegStream2          DEBUG End initialize 
-RegStream2          DEBUG In initialize 
-RegStream2          DEBUG Found  'StoreName':StoreGateSvc store.
-RegStream2          DEBUG  Tool initialized
-RegStream2          DEBUG Retrieved IncidentSvc
-RegStream2          DEBUG Added MetaDataStop listener
-RegStream2          DEBUG  Not class requested by Tool, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream2          DEBUG End initialize 
-RegStream2          DEBUG Adding private ToolHandle tool RegStream2.TagTool (RegistrationStreamTagTool)
-RegStream3          DEBUG In initialize 
-RegStream3          DEBUG Found IDecisionSvc.
-DecisionSvc          INFO Inserting stream: RegStream3 with no Algs
-RegStream3          DEBUG Trying to add PassNoneFilter of stream RegStream3 to RequireAlg list
-RegStream3          DEBUG End initialize 
-RegStream3          DEBUG In initialize 
-RegStream3          DEBUG Found  'StoreName':StoreGateSvc store.
-RegStream3          DEBUG  Tool initialized
-RegStream3          DEBUG Retrieved IncidentSvc
-RegStream3          DEBUG Added MetaDataStop listener
-RegStream3          DEBUG  Not class requested by Tool, skipping (40774349,"MagicTag") 
-RegStream3          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG End initialize 
-RegStream3          DEBUG Adding private ToolHandle tool RegStream3.TagTool (RegistrationStreamTagTool)
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
@@ -322,26 +282,6 @@ SimplePoolFile2...  DEBUG --->Adding Assoc :????/POOLCollectionTree(MagicNumber)
 SimplePoolFile2...  DEBUG ---->ClassID:????
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile2.root and cont: POOLContainer(DataHeader)
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolFile2.root and cont: POOLContainerForm(DataHeaderForm)
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RegStream1.TagTool   INFO No Primary Key defined
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000000] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
-RegStream2.TagTool   INFO No Primary Key defined
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 1 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -370,22 +310,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 2
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000001] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000001] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 2 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -414,22 +338,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 3
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000002] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000002] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 3 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -458,22 +366,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 4
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000003] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000003] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 4 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -502,22 +394,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 5
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000004] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000004] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 5 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -546,22 +422,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 6
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000005] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000005] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 6 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -590,22 +450,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 7
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000006] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000006] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 7 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -634,22 +478,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 8
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000007] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000007] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 8 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -678,22 +506,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 9
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000008] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000008] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 9 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -722,22 +534,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 10
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000009] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000009] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 10 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -766,22 +562,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 11
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000A] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000A] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 11 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -810,22 +590,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 12
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000B] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000B] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 12 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -854,22 +618,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 13
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000C] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000C] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 13 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -898,22 +646,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 14
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000D] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000D] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 14 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -942,22 +674,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 15
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000E] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000E] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 15 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -985,22 +701,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 16
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000F] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-0000000F] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 16 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1028,22 +728,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 17
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000010] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000010] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 17 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1071,22 +755,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 18
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000011] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000011] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 18 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1114,22 +782,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 19
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000012] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000012] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 19 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -1157,22 +809,6 @@ Stream2             DEBUG addItemObjects(9102,"*") called
 Stream2             DEBUG            Key:*
 Stream2             DEBUG  Collected objects:
 Stream2             DEBUG  Object/count: EventInfo_McEventInfo, 20
-RegStream1          DEBUG RegistrationStream execute
-RegStream1          DEBUG getRefs: Not DataHeader, skipping (40774349,"MagicTag") 
-RegStream1          DEBUG  get ref for (222376821,"Stream1") 
-RegStream1          DEBUG Retrieved DataHeader with key Stream1
-RegStream1          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000013] for Stream1
-RegStream1          DEBUG Setting tagKey to MagicTag
-RegStream1          DEBUG  Not class requested by Tool, skipping (222376821,"Stream1") 
-RegStream2          DEBUG RegistrationStream execute
-RegStream2          DEBUG getRefs: Not DataHeader, skipping (40774349,"RunEventTag") 
-RegStream2          DEBUG  get ref for (222376821,"Stream2") 
-RegStream2          DEBUG Retrieved DataHeader with key Stream2
-RegStream2          DEBUG Pushing back ref [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000005-00000013] for Stream2
-RegStream2          DEBUG Setting tagKey to RunEventTag
-RegStream2          DEBUG  Not class requested by Tool, skipping (222376821,"Stream2") 
-RegStream3          DEBUG RegistrationStream execute
-RegStream3          DEBUG Event rejected by filtering
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 Stream1             DEBUG handle() incident type: MetaDataStop
 Stream1             DEBUG addItemObjects(167728019,"Stream1") called
@@ -1295,13 +931,6 @@ PoolSvc             DEBUG Failed to get ContainerHandle to set POOL property.
 AthenaPoolCnvSvc    DEBUG setAttribute failed for BRANCH_BASKET_SIZE to 1024000 for db: EmptyPoolFile.root and cont: POOLContainerForm(DataHeaderForm)
 AthenaPoolCnvSvc    DEBUG commitOutput failed process POOL container attributes.
 Stream3              INFO Records written: 1
-RegStream1          DEBUG handle() incident type: MetaDataStop
-RegStream1.TagTool   INFO Collection Events output: 20
-RegStream2          DEBUG handle() incident type: MetaDataStop
-RegStream2.TagTool   INFO Collection Events output: 20
-RegStream3          DEBUG handle() incident type: MetaDataStop
-RegStream3.TagTool   INFO Collection Events output: 0
-PoolSvc              INFO Writing ExplicitROOT Collection - do not pass session pointer
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
@@ -1312,9 +941,6 @@ Stream1             DEBUG finalize: Optimize output
 Stream1             DEBUG finalize: end optimize output
 Stream2             DEBUG finalize: Optimize output
 Stream2             DEBUG finalize: end optimize output
-RegStream1          DEBUG In finalize
-RegStream2          DEBUG In finalize
-RegStream3          DEBUG In finalize
 EventSelector        INFO finalize
 AthenaPoolCnvSvc    DEBUG releasing all workers
 DecisionSvc          INFO Finalized successfully.

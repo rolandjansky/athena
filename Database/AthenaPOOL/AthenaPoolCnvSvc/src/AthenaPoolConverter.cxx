@@ -103,8 +103,6 @@ StatusCode AthenaPoolConverter::createRep(DataObject* pObj, IOpaqueAddress*& pAd
       return(StatusCode::FAILURE);
    }
    const CLID clid = proxy->clID();
-   // Create a IOpaqueAddress for this object.
-   pAddr = new TokenAddress(POOL_StorageType, clid, "", "", 0, 0);
    try {
       if (!DataObjectToPers(pObj, pObj->registry()->name()).isSuccess()) {
          ATH_MSG_ERROR("CreateRep failed, key = " << pObj->registry()->name());
