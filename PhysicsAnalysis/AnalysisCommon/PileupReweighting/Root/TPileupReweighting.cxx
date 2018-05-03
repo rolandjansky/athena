@@ -1601,7 +1601,6 @@ Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t chann
    if (l==0 && n==0){
       Error("GetPrimaryWeight","No events expected with this mu.  Incorrect PRW profile?  Throwing exception ...");
       throw std::runtime_error(Form("Incorrect PRW profile detected. x=%g is not in the config file profile for channel %d, period %d", x, channelNumber, periodNumber ));
-      return 0.;
    }
 
    return l/n;
