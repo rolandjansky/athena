@@ -6,23 +6,14 @@
 #define JETPERFORMANCEFUNCTIONS_CXX
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
+#include "PathResolver/PathResolver.h"
 
 #include <TH2D.h>
 #include <TFile.h>
 #include <Math/QuantFuncMathCore.h>
 
-#ifdef XAOD_STANDALONE
-// Framework include(s):
-#include "PathResolver/PathResolver.h"
-#endif // XAOD_STANDALONE
-
 namespace Upgrade {
 bool comparePt(Jet a, Jet b) { return a.Pt() > b.Pt(); }
-}
-
-void UpgradePerformanceFunctions::setJetRandomSeed(unsigned seed) {
-  m_jetRandom.SetSeed(seed);
-}
 
 void UpgradePerformanceFunctions::setJetAlgorithm(JetAlgorithm jetAlgo) {
   m_jetAlgo = jetAlgo;
@@ -470,4 +461,6 @@ Upgrade::Jets UpgradePerformanceFunctions::getSmearedBtaggedJets(Upgrade::Jets h
   return jets;
 }
 */
+}
+
 #endif

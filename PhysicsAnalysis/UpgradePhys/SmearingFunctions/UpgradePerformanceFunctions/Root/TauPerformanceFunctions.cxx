@@ -7,9 +7,7 @@
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
 
-void UpgradePerformanceFunctions::setTauRandomSeed(unsigned seed) {
-  m_tauRandom.SetSeed(seed);
-}
+namespace Upgrade {
 
 float UpgradePerformanceFunctions::getTauEfficiency(float etMeV, float eta_in, short prong, short wp) {
   // prong variable must be 1 or 3
@@ -266,4 +264,5 @@ float UpgradePerformanceFunctions::getTauSmearedEnergy(float eMeV, float eta, sh
   return (eMeV + m_tauRandom.Gaus(0., getTauEnergyResolution(eMeV, eta, prong)));
 }
 
+}
 #endif

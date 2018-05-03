@@ -6,34 +6,20 @@
 #define PHOTONPERFORMANCEFUNCTIONS_CXX
 
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
+#include "PathResolver/PathResolver.h"
+
 #include "TFile.h"
 #include <sstream>
 
-#ifdef XAOD_STANDALONE
-// Framework include(s):
-#include "PathResolver/PathResolver.h"
-#endif // XAOD_STANDALONE
+namespace Upgrade {
 
-void UpgradePerformanceFunctions::setPhotonWorkingPoint(PhotonCutLevel cutLevel) {
-  m_photonCutLevel = cutLevel;
-}
-
-void UpgradePerformanceFunctions::initPhotonFakeHistograms(TString filename) {
+StatusCode UpgradePerformanceFunctions::initPhotonFakeHistograms() {
   //    TString filename = "/afs/cern.ch/user/r/rpolifka/HGTDHInvAnalysis/UpgradePerformanceFunctions/share/PhotonFakes.root";
-  ATH_MSG_INFO("Loading Photon Fake Rate histogram file " << filename);
-  std::string FakeFile = filename.Data();
-#ifdef XAOD_STANDALONE
-  // Get file from data path
-  FakeFile = PathResolverFindCalibFile(FakeFile);
+  ATH_MSG_INFO("Loading Photon Fake Rate histogram file");
+  std::string FakeFile = PathResolverFindCalibFile(m_photonFakeFilename);
   ATH_MSG_INFO("Found Photon Fake Rate histogram file: " << FakeFile);
-#endif // XAOD_STANDALONE
 
   TFile *m_infile = new TFile(FakeFile.c_str(), "READ");
-
-  // hardcode number of allowed bins
-
-  // const int nHS = 200;
-  // const int nPU = 30;
 
   TString hsname = "PhotHSJetIsTightBkg2D";
   TString puname = "PhotPUJetIsTightBkg2D";
@@ -88,10 +74,8 @@ void UpgradePerformanceFunctions::initPhotonFakeHistograms(TString filename) {
   //  //        std::cout << " histogram " << i << " with integral: " << htemp->Integral() << " nbins: " << htemp->GetNbinsX() << " xmin: " << htemp->GetBinLowEdge(1) << " xmax: " << htemp->GetBinLowEdge(htemp->GetNbinsX())+htemp->GetBinWidth(htemp->GetNbinsX()) << std::endl;
   // }
 
-}
+  return StatusCode::SUCCESS;
 
-void UpgradePerformanceFunctions::setPhotonRandomSeed(unsigned seed) {
-  m_photonRandom.SetSeed(seed);
 }
 
 float UpgradePerformanceFunctions::getPhotonEfficiency(float ptMeV) {
@@ -298,5 +282,6 @@ float UpgradePerformanceFunctions::getPhotonPileupFakeRescaledET(float eTMeV) {
 
 }
 
+}
 
 #endif
