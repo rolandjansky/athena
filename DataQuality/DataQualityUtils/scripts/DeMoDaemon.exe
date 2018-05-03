@@ -4,11 +4,30 @@
 # Daemon job to update daily the DQ stats
 ##################################################################
 
-source /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/user/atlasLocalSetup.sh
+date
+
 cd $1
 
 export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
 source $AtlasSetup/scripts/asetup.sh 21.0.66,Athena,gcc62
 
-python DeMoUpdate.py --weekly -b
-python DeMoUpdate.py --grlUpdate -b
+
+echo "First, looking for new runs..."
+python DeMoUpdate.py --runListUpdate
+
+systems='TRT LAr Tile CaloCP'
+
+for system in $systems
+do
+echo "====================================================================================="
+echo "====================================================================================="
+echo "Processing "$system
+echo "====================================================================================="
+echo "====================================================================================="
+
+python DeMoUpdate.py -b --onlineLumiNorm -t $2.onlDelivNorm -s $system --weekly --vetoLumiEvol 
+python DeMoUpdate.py -b --onlineLumiNorm -t $2.onlDelivNorm -s $system --grlUpdate
+python DeMoScan.py -t $2.onlDelivNorm -s $system --recapDefects
+done
+
+
