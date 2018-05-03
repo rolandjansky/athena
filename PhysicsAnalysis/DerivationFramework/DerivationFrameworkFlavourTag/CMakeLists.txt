@@ -29,14 +29,19 @@ atlas_depends_on_subdirs( PUBLIC
                           )
 
 # Component(s) in the package:
-atlas_add_component( DerivationFrameworkFlavourTagLib
-   src/*.h src/*.cxx src/components/*.cxx
-   LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow
-   xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces
-   BoostedJetTaggersLib JetCalibToolsLib )
+atlas_add_library(   DerivationFrameworkFlavourTagLib
+                     src/*.cxx
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow
+                     xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces
+                     BoostedJetTaggersLib JetCalibToolsLib )
+
+atlas_add_component( DerivationFrameworkFlavourTag
+                     src/components/*.cxx
+                     LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODCore xAODJet xAODPFlow
+                     xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces
+                     BoostedJetTaggersLib JetCalibToolsLib DerivationFrameworkFlavourTagLib )
 
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-
