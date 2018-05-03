@@ -56,7 +56,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 # TrackParticles directly
 SUSY15TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY15TPThinningTool",
                                                                  ThinningService         = SUSY15ThinningHelper.ThinningSvc(),
-                                                                 SelectionString         = "InDetTrackParticles.pt > 1*GeV",
+                                                                 SelectionString         = "(InDetTrackParticles.pt > 1*GeV) && ((InDetTrackParticles.numberOfPixelHits + InDetTrackParticles.numberOfSCTHits) > 1)",
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY15TPThinningTool
 thinningTools.append(SUSY15TPThinningTool)
