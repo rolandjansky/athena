@@ -57,9 +57,6 @@ void IParticleExtractor::addToJet(xAOD::Jet& jet,
   } else {
     // these are constituents
     for(auto c: constituents) {
-      std::cerr<<"IParticleExtractor: adding constituent to jet. Jet  E: "
-               << jet.e() << '\n';
-      std::cerr<< "Contituent E " << c->e() << '\n';
       jet.addConstituent(c);
     }
   }
