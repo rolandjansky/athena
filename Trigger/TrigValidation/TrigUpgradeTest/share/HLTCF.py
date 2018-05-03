@@ -48,7 +48,7 @@ def TestRecoAlg(name, Output,  FileName="noreco.dat", Input=""):
 from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestHypoAlg
 def TestHypoAlg(name, Input, Output):
     fname = "H_"+name
-    h = HLTTest__TestHypoAlg(fname, OutputLevel = DEBUG, Input=Input, Output=Output)
+    h = HLTTest__TestHypoAlg(fname, OutputLevel = DEBUG, HypoInputDecisions=Input, HypoOutputDecisions=Output)
     allAlgs[name] = h
     return h
 
@@ -56,7 +56,7 @@ def TestHypoAlg(name, Input, Output):
 def merger(name, Inputs, Output ):
     from TrigUpgradeTest.TrigUpgradeTestConf import HLTTest__TestInputMaker
     outdec=["%s_decision"%i for i in Output]
-    return remember(name,   HLTTest__TestInputMaker( "M_"+name, OutputLevel=DEBUG, InputDecisions=Inputs, Output=Output, OutputDecisions=outdec, LinkName="initialRoI" ) )
+    return remember(name,   HLTTest__TestInputMaker( "M_"+name, OutputLevel=DEBUG, InputMakerInputDecisions=Inputs, Output=Output, InputMakerOutputDecisions=outdec, LinkName="initialRoI" ) )
 
 
 def addSteps(s):

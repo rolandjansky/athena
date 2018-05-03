@@ -111,43 +111,56 @@ for unpack in l1Decoder.roiUnpackers:
         
 # signatures
 from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
-from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep
-
-#from TrigUpgradeTest.HLTCFConfig import *
-#from TrigUpgradeTest.MenuComponents import *
-from TrigUpgradeTest.HLTSignatureConfig import *
+from TrigUpgradeTest.MenuComponents import MenuSequence, Chain, ChainStep
 
 
+doMuon=True
+doElectron=True
+doCombo=True
+
+group_of_chains = []
 # muon chains
-muStep1 = muStep1Sequence()
-muStep2 = muStep2Sequence()
-
-MuChains  = [
-    Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [muStep1]) , ChainStep("Step2_mu20", [muStep2] )]) ,
-    Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [muStep1]) , ChainStep("Step2_mu8",  [muStep2] ) ] )
-     ]
+if doMuon:
+    from TrigUpgradeTest.HLTSignatureConfig import muStep1Sequence, muStep2Sequence
+    muStep1 = muStep1Sequence()
+    muStep2 = muStep2Sequence()
 
 
+    MuChains  = [
+        Chain(name='HLT_mu20', Seed="L1_MU10",   ChainSteps=[ChainStep("Step1_mu20", [muStep1]) , ChainStep("Step2_mu20", [muStep2] )]) ,
+        Chain(name='HLT_mu8',  Seed="L1_MU6",    ChainSteps=[ChainStep("Step1_mu8",  [muStep1]) , ChainStep("Step2_mu8",  [muStep2] ) ] )
+        ]
+
+    group_of_chains += MuChains
 
 
-#electron chains
-elStep1 = elStep1Sequence()
-elStep2 = elStep2Sequence()
-ElChains  = [
-    Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [elStep1]), ChainStep("Step2_e20",  [elStep2]) ] )
-    ]
+
+
+## #electron chains
+if doElectron:
+    from TrigUpgradeTest.HLTSignatureConfig import elStep1Sequence, elStep2Sequence
+    elStep1 = elStep1Sequence()
+    elStep2 = elStep2Sequence()
+    ElChains  = [
+        Chain(name='HLT_e20' , Seed="L1_EM10", ChainSteps=[ ChainStep("Step1_e20",  [elStep1]), ChainStep("Step2_e20",  [elStep2]) ] )
+        ]
+
+    group_of_chains += ElChains
 
 
 # combined chain
-muelStep1 = combStep1Sequence()
-muelStep2 = combStep2Sequence()
-CombChains =[
-    Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [muelStep1]),
-                                                              ChainStep("Step2_mu8_e8",  [muelStep2]) ] )
-    ]
+if doCombo:
+    from TrigUpgradeTest.HLTSignatureConfig import combStep1Sequence, combStep2Sequence
+    muelStep1 = combStep1Sequence()
+    muelStep2 = combStep2Sequence()
+    CombChains =[
+        Chain(name='HLT_mu8_e8' , Seed="L1_EM6_MU6", ChainSteps=[ ChainStep("Step1_mu8_e8",  [muelStep1]),
+                                                                ChainStep("Step2_mu8_e8",  [muelStep2]) ] )
+        ]
+
+    group_of_chains += CombChains
 
 
-group_of_chains = MuChains + ElChains + CombChains
 
 
 # main HLT top sequence
@@ -166,11 +179,7 @@ HLTAllStepsSeq = seqAND("EmuTest_HLTAllStepsSequence")
 TopHLTRootSeq += HLTAllStepsSeq
 
 # make CF tree
-
 decisionTree_From_Chains(HLTAllStepsSeq, group_of_chains)
-
-
-
 
 
 from AthenaCommon.AlgSequence import dumpMasterSequence
