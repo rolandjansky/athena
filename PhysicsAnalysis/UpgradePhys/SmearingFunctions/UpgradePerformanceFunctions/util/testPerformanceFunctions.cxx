@@ -6,13 +6,17 @@
 #include <memory>
 #include "TROOT.h"
 #include "UpgradePerformanceFunctions/UpgradePerformanceFunctions.h"
+#include "AsgTools/AnaToolHandle.h"
 
 int main( int argc, char* argv[] ) {
 
   using namespace asg::msgUserCode;
+  using namespace Upgrade;
   ANA_CHECK_SET_TYPE (int);
 
-  StatusCode::enableFailure();
+  //StatusCode::enableFailure();
+  CP::SystematicCode::enableFailure();
+  CP::CorrectionCode::enableFailure();
 
   // The application's name:
   const char* APP_NAME = argv[ 0 ];
@@ -41,26 +45,9 @@ int main( int argc, char* argv[] ) {
   }
 
   auto m_upgrade = std::unique_ptr<UpgradePerformanceFunctions>( new UpgradePerformanceFunctions("UpgradePerformanceFunctions") );
-  m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
-  m_upgrade->setAvgMu(200.);
   Info( APP_NAME, "Layout is %d, and mu value is %f", m_upgrade->getLayout(), m_upgrade->getAvgMu());
-  m_upgrade->setElectronWorkingPoint(UpgradePerformanceFunctions::looseElectron);
-  m_upgrade->setMuonWorkingPoint(UpgradePerformanceFunctions::highPtMuon);
-  m_upgrade->setMuonHighEtaTagger(true);
-  m_upgrade->setPhotonWorkingPoint(UpgradePerformanceFunctions::tightPhoton);
-  m_upgrade->loadMETHistograms("UpgradePerformanceFunctions/CalibArea-00-01/sumetPU_mu200_ttbar_gold.root");
-  m_upgrade->setUseHGTD0(true);
-  m_upgrade->initPhotonFakeHistograms("UpgradePerformanceFunctions/CalibArea-00-01/PhotonFakes.root");
-  m_upgrade->setTauRandomSeed(1);
-  m_upgrade->setJetRandomSeed(1);
-  m_upgrade->setMETRandomSeed(1);
-  m_upgrade->setPileupRandomSeed(1);
-  m_upgrade->setPileupUseTrackConf(true);
-  m_upgrade->setPileupJetPtThresholdMeV(30000.);
-  m_upgrade->setPileupEfficiencyScheme(UpgradePerformanceFunctions::PU);
-  m_upgrade->setPileupEff(0.02);
-  m_upgrade->setPileupTemplatesPath("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/UpgradePerformanceFunctions");
-  m_upgrade->setFlavourTaggingCalibrationFilename("UpgradePerformanceFunctions/CalibArea-00-01/flavor_tags_v2.0.root");
+  ANA_CHECK( m_upgrade->setProperty("UseHGTD0", false) )
+  ANA_CHECK( m_upgrade->initialize() );
 
   // This is just a test of some methods without realistic input.
   if (testPhotons > 0) {
@@ -77,7 +64,6 @@ int main( int argc, char* argv[] ) {
   }
 
   if (testMET > 0) {
-    m_upgrade->setAvgMu(140.);
     float eventMETreso = m_upgrade->getMETResolution(200000.0);
     std::cout << "MET resolution test result is " << eventMETreso << std::endl;
     std::cout << "MET smearing test result (40, 40) --> ";
@@ -136,18 +122,11 @@ int main( int argc, char* argv[] ) {
               << muonQOverPtResolution << "/MeV" << std::endl;
   }
 
-  m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
   if (testElectrons > 0) {
-    std::cout << "electron efficiency at 40 GeV (Step1p6) = " << m_upgrade->getElectronEfficiency(40000., 1.0) << std::endl;
-    std::cout << "electron efficiency at 100 GeV (Step1p6) = " << m_upgrade->getElectronEfficiency(100000., 1.0) << std::endl;
+    std::cout << "electron efficiency at 40 GeV = " << m_upgrade->getElectronEfficiency(40000., 1.0) << std::endl;
+    std::cout << "electron efficiency at 100 GeV = " << m_upgrade->getElectronEfficiency(100000., 1.0) << std::endl;
   }
-  if (testMuons > 0)  std::cout << "muon efficiency (Step1p6) = " << m_upgrade->getMuonEfficiency(40000., 2.8) << std::endl;
-  m_upgrade->setLayout(UpgradePerformanceFunctions::gold);
-  if (testElectrons > 0) std::cout << "electron efficiency (gold) = " << m_upgrade->getElectronEfficiency(40000., 1.0) << std::endl;
-  if (testMuons > 0) std::cout << "muon efficiency (gold) = " << m_upgrade->getMuonEfficiency(40000., 2.8) << std::endl;
-
-  m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
-  m_upgrade->setAvgMu(200);
+  if (testMuons > 0)  std::cout << "muon efficiency = " << m_upgrade->getMuonEfficiency(40000., 2.8) << std::endl;
 
   if (testJets>0) {
 
@@ -193,11 +172,6 @@ int main( int argc, char* argv[] ) {
     printf("\n  Done jet tests.\n===============\n\n");
 
     // Temporarily change layout for flavour tagging
-    // In fact, it does not really matter what you use.  The result is determined by the calibration file.
-    m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
-    m_upgrade->setAvgMu(200.);
-    // v2.0 does not use HGTD
-    m_upgrade->setUseHGTD0(false);
 
     std::cout << "b-tagging efficiency for pT=40 GeV, eta=1.0 (no TC) is "
               << m_upgrade->getFlavourTagEfficiency(40000., 1.0, 'B', "mv2c10", 70, false) << std::endl;
@@ -235,7 +209,6 @@ int main( int argc, char* argv[] ) {
     std::vector<double> PtBins  = {30000, 70000, 200000, 1e7};
     std::vector<double> EtaBins = { -0.5, 0.5, 1.0, 1.4, 2.2};
 
-    m_upgrade->setLayout(UpgradePerformanceFunctions::Step1p6);
     std::cout << "-----------------------------------------------" << std::endl;
     std::cout << "Testing electron charge-flip rates for Phase II" << std::endl;
     std::cout << "-----------------------------------------------" << std::endl;
@@ -251,16 +224,11 @@ int main( int argc, char* argv[] ) {
     std::cout << "--------------------------------------------" << std::endl;
     std::cout << "Testing electron charge-flip rates for Run 2" << std::endl;
     std::cout << "--------------------------------------------" << std::endl;
-    m_upgrade->setLayout(UpgradePerformanceFunctions::run2);
-
-    m_upgrade->setChargeFlipRateFilename("invalidPath");
-    std::cout << "Testing electron charge-flip rates for Run 2 with an invalid path to the file. This should fail." << std::endl;
     std::cout << m_upgrade->getElectronChargeFlipProb(35000, 1.0) << std::endl;
     if (m_upgrade->getElectronChargeFlipProb(35000, 1.0) == -1) {
       std::cout << "Good, it failed.. Now set the path to default." << std::endl;
     }
 
-    m_upgrade->setChargeFlipRateFilename("");
     for (auto pt : PtBins) {
       std::cout << "pt " << pt / 1000. << " GeV: ";
       for (auto eta : EtaBins) {
