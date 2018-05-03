@@ -1707,9 +1707,9 @@ namespace Trk
   {
     //double CONST = 1000./CLHEP::c_light;
     double CONST = 1000./299.792;
-    double LXY = lxy(vxCandidate,vertex);
-    double PT = V0Momentum(vxCandidate).perp();
-    return CONST*M*LXY/PT;
+    double LXYZ = lxyz(vxCandidate,vertex);
+    double P = V0Momentum(vxCandidate).mag();
+    return CONST*M*LXYZ/P;
   }
 
   double V0Tools::tau3DError(const xAOD::Vertex * vxCandidate, const xAOD::Vertex* vertex, const std::vector<double> &masses) const
