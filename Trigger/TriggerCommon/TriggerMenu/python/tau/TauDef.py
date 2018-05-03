@@ -254,7 +254,8 @@ class L2EFChain_tau(L2EFChainDef):
         tauRoiUpdater.z0HalfWidth = 7.0
 
         #ftracks = trkcore+[tauRoiUpdater]+trkiso
-        if not idperf:
+        # WARNING: allow 0p for tracktwoMVA0p
+        if not idperf and preselection != 'tracktwoMVA0p':
             ftracks = trkcore + [tauRoiUpdater, tauRejectEmpty] + trkiso
         else :
             ftracks = trkcore+[tauRoiUpdater]+trkiso
@@ -313,14 +314,34 @@ class L2EFChain_tau(L2EFChainDef):
         needsCaloPre  = ['calo', 'ptonly', 'mvonly', 'caloonly',
                          'track', 'trackonly', 'tracktwo', 'tracktwoEF',
                          'trackcalo', 'tracktwocalo','tracktwo2015']
-        needsCaloMVAPre = ['tracktwoEFmvaTES','tracktwoMVA']
+        needsCaloMVAPre = ['tracktwoEFmvaTES','tracktwoMVA','tracktwoMVA0p']
         # Strategies which need fast-track finding
         needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo','tracktwo2015']
-        needsTrackTwoNoPre = ['tracktwoEF','tracktwoEFmvaTES','tracktwoMVA']
+        needsTrackTwoNoPre = ['tracktwoEF','tracktwoEFmvaTES','tracktwoMVA','tracktwoMVA0p']
         needsTrackPre    = ['track', 'trackonly', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec']
         # Strategies which need Run-II final hypo
-        needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly', 'trackonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'tracktwoMVA', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
+        needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly', 'trackonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'tracktwoMVA', 'tracktwoMVA0p', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
         fastTrackingUsed = needsTrackPre + needsTrackTwoPre + needsTrackTwoNoPre
+
+
+        # 2018 preselection
+        preselection2018 = needsCaloMVAPre + needsTrackTwoNoPre
+        # MVA TES for preselection and precision steps
+        MVATES = preselection in needsCaloMVAPre
+        # track counting based on EF tracks + BDT classification for core tracks
+        TrackBDT = preselection in ['tracktwoMVA','tracktwoMVA0p']
+
+        # evaluate RNN for triggers using RNN ID, and 2018 support triggers (even those using BDT ID, to avoid too many different precision sequences)
+        #RNN = selection in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'] or preselection in preselection2018
+        # to be able to test many 0p/1p/3p combinations of RNN WPs
+        RNN = 'RNN' in selection or preselection in preselection2018
+
+        # chains using 2018 features
+        needsAlgo2018 = (preselection in preselection2018) or MVATES or TrackBDT or RNN 
+        # give unique name to precision sequence
+        use = {True:'', False:'no'}
+        MVAprefix = '{0}MVATES_{1}TrackBDT_{2}RNN'.format(use[MVATES], use[TrackBDT], use[RNN])
+
         
         #Set the default values
         [trkcore, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
@@ -382,8 +403,8 @@ class L2EFChain_tau(L2EFChainDef):
             if selection == 'cosmic':
                 recmerged    = TrigTauRecCosmics_Tau2012()
             else:
-                if preselection == 'tracktwoMVA':
-                    recmerged    = TrigTauRecMerged_TauPrecisionMVA()
+                if needsAlgo2018:
+                    recmerged    = TrigTauRecMerged_TauPrecisionMVA(name='TrigTauMVA_{}'.format(MVAprefix), doMVATES=MVATES, doTrackBDT=TrackBDT, doRNN=RNN)
                 else:
                     recmerged    = TrigTauRecMerged_TauPrecision()
 
@@ -405,8 +426,17 @@ class L2EFChain_tau(L2EFChainDef):
                                          [recmerged, theEFHypo],
                                          self.continueChain('EF', 'effinal')]]                
 
-            elif preselection == 'tracktwoMVA':
-                 
+            elif needsAlgo2018:
+                
+                # don't evaluate BDT for RNN chains
+                EFsequence = []
+                # to test RNN WPs
+                #if selection not in ['verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN']:
+                if 'RNN' not in selection:
+                    EFsequence.append( TrigTauDiscriGetter2015() )
+
+                EFsequence.append( theEFHypo )
+
                 self.EFsequenceList += [[[ self.currentItem ],
                                          [recmerged],
                                          self.continueChain('EF', 'taurecef')]]
@@ -414,30 +444,13 @@ class L2EFChain_tau(L2EFChainDef):
                 if not idperf:
                     theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
                     self.EFsequenceList += [[[ self.currentItem ],
-                                             [theHLTTrackPre],
-                                             self.continueChain('EF', 'trackpre')]]
-
-                self.EFsequenceList += [[[ self.currentItem ],
-                                         [theEFHypo],
-                                         self.continueChain('EF', 'effinal')]]   
-
-            elif preselection in needsTrackTwoNoPre:
-                
-                theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
-                efmv              = TrigTauDiscriGetter2015()
-
-                self.EFsequenceList += [[[ self.currentItem ],
-                                         [recmerged],
-                                         self.continueChain('EF', 'taurecef')]]
-
-                if not idperf:
-                    self.EFsequenceList += [[[ self.currentItem ],
                                          [theHLTTrackPre],
                                          self.continueChain('EF', 'trackpre')]]
 
                 self.EFsequenceList += [[[ self.currentItem ],
-                                         [efmv, theEFHypo],
-                                         self.continueChain('EF', 'effinal')]]     
+                                         EFsequence,
+                                         self.continueChain('EF', 'effinal')]]
+     
             else:
             # TrigTauRec, BDT and Hypo
                 efmv              = TrigTauDiscriGetter2015()

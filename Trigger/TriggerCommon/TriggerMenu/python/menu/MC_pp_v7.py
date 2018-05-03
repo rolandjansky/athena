@@ -912,6 +912,9 @@ def setupMenu():
         ['tau25_mediumRNN_tracktwoMVA',                   'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
         ['tau25_tightRNN_tracktwoMVA',                    'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
 
+        # FOR RNN WP tests
+        ['tau25_RNN5_tracktwoMVA0p',                      'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],
+
 
         # Run-II - No BDT: variations
         ['tau25_perf_calo',                        'L1_TAU12IM', [], [PhysicsStream], ['RATE:SingleTau', 'BW:Tau'], -1],

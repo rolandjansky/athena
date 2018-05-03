@@ -383,7 +383,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             tools.append(taualgs.getTauAxis())
             # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017 (see ATR-15845)
             if TriggerFlags.run2Config == '2016':
-                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2))
+                tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=2, prefix='TrigTau2016_'))
             else:
                 tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
             # Calibrate to TES
@@ -413,13 +413,13 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
 
 
 
-
-
-
 class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
-        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA"):
+
+        def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doTrackBDT=False, doRNN=False):
+        
             super( TrigTauRecMerged_TauPrecisionMVA , self ).__init__( name )
+
             self._mytools = []
 
             # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
@@ -434,7 +434,9 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
-            taualgs.setPrefix("TrigTauMVA_")
+            # using same prefix as in TauPrecision sequence should be safe if tools with different configurations have different names
+            # e.g. TauTrackFinder in 2016 using dz0=2mm instead of 1mm in 2017
+            taualgs.setPrefix("TrigTau_")
 
             # Collection name
             self.OutputCollection = "TrigTauRecMerged"
@@ -448,16 +450,20 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)       
             tools.append(taualgs.getTauAxis())
 
-            # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017 (see ATR-15845)
+            # Count tracks with deltaZ0 cut of 1mm
             tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
-            # BDT track classification
-            tools.append(taualgs.getTauTrackClassifier())
+            
+            if doTrackBDT:                
+                # BDT track classification
+                tools.append(taualgs.getTauTrackClassifier())
 
-            # Calibrate to TES - for commissionning only
+            # Calibrate to calo TES
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
-            # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
-            tools.append(taualgs.getMvaTESVariableDecorator())
-            tools.append(taualgs.getMvaTESEvaluator())
+
+            if doMVATES:
+                # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
+                tools.append(taualgs.getMvaTESVariableDecorator())
+                tools.append(taualgs.getMvaTESEvaluator())
 
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
             tools.append(taualgs.getCellVariables(cellConeSize=0.2))
@@ -470,30 +476,39 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             tools.append(taualgs.getTauSubstructure())
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
             tools.append(taualgs.getPileUpCorrection())
-            # needed by TauWPDecorator
-            tools.append(taualgs.getTauIDVarCalculator())
-
-            # RNN tau ID
-            tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile1P="rnnid_config_deep_1p_v0.json",
-                                                       NetworkFile3P="rnnid_config_deep_3p_v0.json",
-                                                       MinChargedTracks=1,
-                                                       MaxTracks=10, 
-                                                       MaxClusters=6,
-                                                       MaxClusterDR=1.0))
-            
-            tools.append(taualgs.getTauWPDecoratorJetRNN())
 
 
+            # WARNING! moved here temporarily
             for tool in tools:
                 tool.inTrigger = True
                 tool.calibFolder = 'TrigTauRec/00-11-02/'
                 pass
+
+
+            if doRNN:
+                # RNN tau ID
+                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v1_tmp.json",
+                                                           NetworkFile1P="rnnid_config_1p_v1_tmp.json",
+                                                           NetworkFile3P="rnnid_config_mp_v1_tmp.json",
+                                                           MaxTracks=10, 
+                                                           MaxClusters=6,
+                                                           MaxClusterDR=1.0))
+                # flattened RNN score and WP
+                tools.append(taualgs.getTauWPDecoratorJetRNN())
+
+        
+            # WARNING! Moved before retrieving RNN algorithms, as those temporarily use files in dev/TrigTauRec (set from TrigTauAlgorithmsHolder)
+            #for tool in tools:
+            #    tool.inTrigger = True
+            #    tool.calibFolder = 'TrigTauRec/00-11-02/'
+            #    pass
 
             self.Tools = tools
 
             ## add beam type flag
             from AthenaCommon.BeamFlags import jobproperties
             self.BeamType = jobproperties.Beam.beamType()
+
 
             
 #end
