@@ -16,7 +16,7 @@ DetFlags.Muon_setOn()
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolHitsOutput = 'g4atlas.hits.pool.root'
-athenaCommonFlags.EvtMax = 3
+athenaCommonFlags.EvtMax = 1
 
 ## Set global conditions tag
 from AthenaCommon.GlobalFlags import jobproperties
@@ -62,13 +62,10 @@ except:
         print "WARNING: the fast physics list is dead! We need to tell this JO to run particle transport only"
     simFlags.InitFunctions.add_function("preInitG4", setup_g4geo)
 
-## Exit before instantiation to level 2
-def force_exit():
-    from AthenaCommon.AppMgr import theApp
-    theApp.exit(0)
-simFlags.InitFunctions.add_function("preInitG4", force_exit)
-
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Add app to alg sequence
 from AthenaCommon.CfgGetter import getAlgorithm
