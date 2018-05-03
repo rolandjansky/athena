@@ -77,7 +77,6 @@ if jobproperties.Beam.beamType() == 'cosmics':
             if LArMonFlags.doLArDigitMon():
                 include ("LArMonTools/LArDigitMon_jobOptions.py")
             if LArMonFlags.doLArNoiseCorrelationMon():
-                febs_for_coherent_noise_mon=["barrelaft09slot02","endcapCFT17slot04","EndCapAFT06Slot09"]
                 include ("LArMonTools/LArNoiseCorrelationMon_jobOptions.py")
             if LArMonFlags.doLArNoisyROMon():
                 include ("LArMonTools/LArNoisyROMon_jobOptions.py")

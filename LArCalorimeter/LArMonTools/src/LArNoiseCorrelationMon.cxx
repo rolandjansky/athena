@@ -8,33 +8,32 @@
 // NAME:     LArNoiseCorrelationMon.cxx
 // PACKAGE:  LArMonTools
 //
-// AUTHOR:   Helary Louis (helary@lapp.in2p3.fr)
-//           Originaly From LArOddCellsMonTool.cxx  by Benjamin Trocme
+// AUTHOR:   Margherita Spalla (margherita.spalla@cern.ch)
+//           Based on structure of LArDigitMon by Helary Louis (helary@lapp.in2p3.fr)
 // 
-// Monitor a few things in the LArDigit...
+// Computes and plots the correlation between single channels to monitor coherent noise. 
+// The correlation is computed as: 
+//    corr(i,j) = Cov(i,j)/sqrt(Var(i)*Var(j)) where 'Cov(i,j)' is the sample covariance of channels  i and j and 'Var(i)' is the sample variance of channel i.
+//    Variance and covariance are computed summing over all samples and all events for each channel: Cov(i,j)=[sum(x_i*x_j)-N*mean_i*mean_j]/(N-1) , where x_i is the single sample minus the pedestal.
 //
-//	1) Check that the highest value of the LArDigit is contained in an interval. 
-//         If it is not the case increment 3 histograms for each subdetector:
-//	      a) Out of range histograms
-//	      b) The average histograms: give the average value of the highest digit sample 
-//	      c) Channel VS FEB histograms: gives wich slot on wich FEB has his highest digit sample ou of the range
-//	2) Check if a digits samples are in saturation. If it's the case increment the saturation histograms. 
+// Correlation histograms are computed per FEB. The FEBs to be monitored are set in the JO.
 //
-// Available cuts in the jo file:
+// Available parameters in the jo file:
+//   1) List of FEBs to be monitored: should be passed as a list of strings of the form 'BarrelCFT00Slot02', case insensitive (corresponding to type  LARONLINEID defined in the package atlas/LArCalorimeter/LArMonTools/LArMonTools/LArOnlineIDStrHelper.h). If the list is empty, all FEBs are monitored.
+//   2) control PublishAllFebsOnline: if it is set to true, switched off the monitoring in case the FEB list (1) is empty and the algorithm is running online.
+//   3) list of triggers to be used ('TriggerChain'): to be passed as a single string "trigger_chain_1, trigger_chain_2". The default is "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY", for the latter, only events in the abort gap are used, selection done by hand.
+//   4) control IsCalibrationRun: to be set to true when running on calibration, it switches off the trigger selection.
 //
-//   a) SampleRangeLow-SampleRangeUp: range to check the digit sample.
-//   b) ADCcut : To select Digits Samples with signal.
-//   c) ADCsature: lowest value to check if a Digit sample is in saturation.
 // ********************************************************************
 
 //Histograms
 #include "GaudiKernel/ITHistSvc.h"
-#include "LWHists/TProfile2D_LW.h"
+//#include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
 
-#include "LWHists/TH1I_LW.h"
+/*#include "LWHists/TH1I_LW.h"
 #include "LWHists/TH2I_LW.h"
-#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH1F_LW.h"*/
 #include "LWHists/TH2F_LW.h"
 
 //STL:
@@ -52,11 +51,12 @@
 #include "LArRawEvent/LArDigit.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
+#include "TrigDecisionTool/TrigDecisionTool.h"
 
 //Events infos:
 #include "xAODEventInfo/EventInfo.h"
 
-#include "LArTrigStreamMatching.h"
+//#include "LArTrigStreamMatching.h"
 
 //for looping on FEBs
 #include "LArRawEvent/LArFebHeaderContainer.h"
@@ -80,13 +80,18 @@ LArNoiseCorrelationMon::LArNoiseCorrelationMon(const std::string& type,
   : ManagedMonitorToolBase(type, name, parent), 
     m_strHelper(0),
     m_LArOnlineIDHelper(0),
-    m_badChannelMask("BadLArRawChannelMask"),
-    m_thisTrigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
-{	
-  declareProperty("silenceMonitoringOnline",m_silenceMonitoringOnline=false);
-  /** FEBs to be monitored*/
+    m_badChannelMask("BadLArRawChannelMask")//,
+{
+  /** FEBs to be monitored. If empty, all FEBs will be monitored*/
   std::vector<std::string> empty_vector(0);
   declareProperty("FEBsToMonitor",m_FEBsToMonitor=empty_vector);
+	
+  /** If false, blocks the histogram booking in case it's running online and the 'm_FEBsToMonitor' list is empty. i.e. prevents the algorithm from publishing one histogram per FEB for all FEBs in online environnement */
+  declareProperty("PublishAllFebsOnline",m_publishAllFebsOnline=true);
+
+  /** To be set to true when running on calibration run. It swithces off trigger selection*/
+  declareProperty("IsCalibrationRun",m_isCalibrationRun=false);
+
    /**bool use to mask the bad channels*/
   declareProperty("IgnoreBadChannels", m_ignoreKnownBadChannels=false);
   declareProperty("LArBadChannelMask",m_badChannelMask);
@@ -171,12 +176,20 @@ LArNoiseCorrelationMon::initialize()
     return StatusCode::FAILURE;
   }
     
-  /** get trigger decision tool*/ 
-    if( !m_thisTrigDecTool.empty() ) {
-      ATH_CHECK( m_thisTrigDecTool.retrieve() );
-     ATH_MSG_INFO ( "  --> Found AlgTool TrigDecisionTool" );
-     }
 
+  /** get the trigger list from the 'm_triggerChainProp'*/
+  m_triggers.clear();
+  if(m_isCalibrationRun) {
+    ATH_MSG_INFO( "Running as 'calibration run'. No trigger selection will be applied.");
+  }
+  else {
+    ATH_MSG_DEBUG( "Parsing trigger chain list" );
+    sc=ManagedMonitorToolBase::parseList(m_triggerChainProp, m_triggers);
+    if(sc.isFailure()) {
+      ATH_MSG_ERROR( "Error parsing the trigger chain list, exiting." );
+      return StatusCode::FAILURE;
+    }
+  }
 
   return ManagedMonitorToolBase::initialize();
 }
@@ -190,27 +203,29 @@ LArNoiseCorrelationMon::bookHistograms()
     chan_low=-0.5;
     chan_up=127.5;
 
-    MonGroup GroupEMBA( this, "/LAr/NoiseCorrel/EMBA", run, ATTRIB_MANAGED );
-    MonGroup GroupEMBC( this, "/LAr/NoiseCorrel/EMBC", run, ATTRIB_MANAGED );
-    MonGroup GroupEMECA( this, "/LAr/NoiseCorrel/EMECA", run, ATTRIB_MANAGED );
-    MonGroup GroupEMECC( this, "/LAr/NoiseCorrel/EMECC", run, ATTRIB_MANAGED );
-    MonGroup GroupHECA( this, "/LAr/NoiseCorrel/HECA", run, ATTRIB_MANAGED );
-    MonGroup GroupHECC( this, "/LAr/NoiseCorrel/HECC", run, ATTRIB_MANAGED );
-    MonGroup GroupFCALA( this, "/LAr/NoiseCorrel/FCALA", run, ATTRIB_MANAGED );
-    MonGroup GroupFCALC( this, "/LAr/NoiseCorrel/FCALC", run, ATTRIB_MANAGED );
+    MonGroup GroupEMBA( this, "/LAr/NoiseCorrelation/EMBA", run, ATTRIB_MANAGED );
+    MonGroup GroupEMBC( this, "/LAr/NoiseCorrelation/EMBC", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECA( this, "/LAr/NoiseCorrelation/EMECA", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECC( this, "/LAr/NoiseCorrelation/EMECC", run, ATTRIB_MANAGED );
+    MonGroup GroupHECA( this, "/LAr/NoiseCorrelation/HECA", run, ATTRIB_MANAGED );
+    MonGroup GroupHECC( this, "/LAr/NoiseCorrelation/HECC", run, ATTRIB_MANAGED );
+    MonGroup GroupFCALA( this, "/LAr/NoiseCorrelation/FCALA", run, ATTRIB_MANAGED );
+    MonGroup GroupFCALC( this, "/LAr/NoiseCorrelation/FCALC", run, ATTRIB_MANAGED );
 
     /**declare strings for histograms title*/
-    std::string  hist_name = ""; //SEEMS NOT TO BE WORKING TO CHECK
-    std::string hist_title = "LAr Noise Correlation";
+    hist_name = "NoiseCorr_"; 
+    hist_title = "LAr Noise Correlation";
     m_strHelper = new LArOnlineIDStrHelper(m_LArOnlineIDHelper);
     m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
 
     /** Check which (if any) FEBs we want to monitor*/ 
-    if(m_silenceMonitoringOnline && m_IsOnline) {
-      ATH_MSG_INFO("Noise correlation monitoring is stopped for online run. Do nothing.");
-      return StatusCode::SUCCESS;
+    if(m_FEBsToMonitor.size()==0) {
+      if(!m_publishAllFebsOnline && m_IsOnline) {
+	ATH_MSG_INFO("'m_publishAllFebsOnline' set to false: cannot publish all FEBs in online run. Do nothing.");
+	return StatusCode::SUCCESS;
+      }
+      bookAllFEBs(GroupEMBA,GroupEMBC,GroupEMECA,GroupEMECC,GroupHECA,GroupHECC,GroupFCALA,GroupFCALC);
     }
-    if(m_FEBsToMonitor.size()==0) bookAllFEBs(GroupEMBA,GroupEMBC,GroupEMECA,GroupEMECC,GroupHECA,GroupHECC,GroupFCALA,GroupFCALC);
     else bookSelectedFEBs(GroupEMBA,GroupEMBC,GroupEMECA,GroupEMECC,GroupHECA,GroupHECC,GroupFCALA,GroupFCALC);
   
   return StatusCode::SUCCESS;
@@ -221,9 +236,9 @@ LArNoiseCorrelationMon::bookHistograms()
 StatusCode 
 LArNoiseCorrelationMon::fillHistograms()
 {
-  /** if this monitoring has been silenced, then no need to loop over histograms */
-  if(m_silenceMonitoringOnline && m_IsOnline) {
-      ATH_MSG_DEBUG("Noise correlation monitoring is stopped for online run. Do nothing.");
+  /** if publishing all FEBs has been forbidden and m_FEBsToMonitor is empty, then no histogram will be published anyway: no need to loop over channels */
+  if(!m_publishAllFebsOnline && m_IsOnline && m_FEBsToMonitor.size()==0) {
+      ATH_MSG_DEBUG("'m_publishAllFebsOnline' set to false and empty FEB list in online run. No FEB will be monitored.");
       return StatusCode::SUCCESS;
     }
 
@@ -241,19 +256,24 @@ LArNoiseCorrelationMon::fillHistograms()
   ATH_MSG_DEBUG("Event nb " << m_evtId );  
 
   /** check trigger */
-  bool passTrig = false; 
-  if ( (m_triggerChainProp != "")  && (!m_thisTrigDecTool.empty()) ) {
-    passTrig = m_thisTrigDecTool->isPassed(m_triggerChainProp);
-    /* For "HLT_noalg_cosmiccalo_L1RD1_EMPTY", we need to manually select abort gap*/
-    if (m_triggerChainProp == "HLT_noalg_cosmiccalo_L1RD1_EMPTY") passTrig=(passTrig && thisEvent->bcid() >= ABORT_GAP_START && thisEvent->bcid() <= ABORT_GAP_END); 
+  bool passTrig = m_isCalibrationRun;
+  if(!m_isCalibrationRun) { 
+    bool passBCID;
+    if(!m_trigDecTool.empty()) {
+      for(auto trig_chain : m_triggers) {
+	passBCID = ((trig_chain == "HLT_noalg_cosmiccalo_L1RD1_EMPTY")?(thisEvent->bcid() >= ABORT_GAP_START && thisEvent->bcid() <= ABORT_GAP_END):true);
+	passTrig=(passTrig || (passBCID && m_trigDecTool->isPassed(trig_chain)));
+      }
+    }
+    if (!passTrig) {
+      ATH_MSG_DEBUG ( " Failed trigger selection " );
+      return StatusCode::SUCCESS;
+    }
+    else {
+      ATH_MSG_DEBUG ( " Pass trigger selection " );
+    }
   }
-  if (!passTrig) {
-    ATH_MSG_DEBUG ( " Failed trigger selection " );
-    return StatusCode::SUCCESS;
-  }
-  else {
-    ATH_MSG_DEBUG ( " Pass trigger selection " );
-  }
+
 
 
   /** retrieve LArDigitContainer*/
@@ -461,7 +481,6 @@ void LArNoiseCorrelationMon::bookAllFEBs(MonGroup& grEMBA,MonGroup& grEMBC,MonGr
 void LArNoiseCorrelationMon::bookThisFEB(HWIdentifier id,MonGroup& grEMBA,MonGroup& grEMBC,MonGroup& grEMECA,MonGroup& grEMECC,MonGroup& grHECA,MonGroup& grHECC,MonGroup& grFCALA,MonGroup& grFCALC)
 {
   std::string this_name=m_strHelper->feb_str(id);
-  std::cout << ":) " << (hist_name+this_name).c_str() << std::endl; //this we need to understand why it's not getting the histogram name
   TH2F_LW* h_corr = TH2F_LW::create((hist_name+this_name).c_str(), hist_title.c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
   TH2F_LW* h_TMP_sums = TH2F_LW::create((hist_name+this_name+"_TMP_sum").c_str(),(hist_title+" TMP sum").c_str(),Nchan,chan_low,chan_up,Nchan,chan_low,chan_up);
   TProfile_LW* h_av = TProfile_LW::create((hist_name+this_name+"_TMP_av").c_str(),(hist_title+" TMP av").c_str(),Nchan,chan_low,chan_up,"s");

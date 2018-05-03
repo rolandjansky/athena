@@ -9,12 +9,6 @@ if 'EventBlockSize' not in dir():
 OnlineMode=athenaCommonFlags.isOnline()
 
 
-#check if there are FEBs to monitor
-if 'febs_for_coherent_noise_mon' not in dir():
-    febs_for_coherent_noise_mon=[]
-
-
-
 ###### LArNoiseCorrelationMon Configuration ###############
 from LArMonTools.LArMonToolsConf import LArNoiseCorrelationMon
 theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon",
@@ -23,8 +17,10 @@ theLArNoiseCorrelationMon = LArNoiseCorrelationMon(name="LArNoiseCorrelationMon"
                              IgnoreBadChannels     = True,
                              LArBadChannelMask     = theLArBadChannelsMasker,
                              ProcessNEvents        = EventBlockSize,
-                             TriggerChain          = "HLT_noalg_zb_L1ZB",
-                             FEBsToMonitor         = febs_for_coherent_noise_mon
+                             TriggerChain          = "HLT_noalg_zb_L1ZB, HLT_noalg_cosmiccalo_L1RD1_EMPTY",
+                             TrigDecisionTool      = "Trig::TrigDecisionTool/TrigDecisionTool",
+                             FEBsToMonitor         = ["barrelaft09slot01","barrelaft10slot13","endcapCFT17slot04","EndCapAFT06Slot09"],
+                             IsCalibrationRun      = False
                              )
 
 from AthenaCommon.BeamFlags import jobproperties

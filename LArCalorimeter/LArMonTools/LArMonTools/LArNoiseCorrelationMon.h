@@ -21,11 +21,11 @@
 #include "LArRecConditions/ILArBadChannelMasker.h"
 
 
+
 //STL:
 #include <string>
 
-//trigger decision tool
-#include "TrigDecisionTool/TrigDecisionTool.h"
+
 
 class LArOnlineID;
 class HWIdentifier;
@@ -71,8 +71,6 @@ protected:
   /** Handle to pedestal */
   const DataHandle<ILArPedestal>  m_larPedestal;
   
-  /** TriggerDecTool handle */
-  ToolHandle<Trig::TrigDecisionTool> m_thisTrigDecTool;
   
 private:
   
@@ -90,7 +88,10 @@ private:
   std::vector<std::string> m_FEBsToMonitor; 
 
   /** to avoid publishing tons of histograms online, in case it's a problem*/
-  bool m_silenceMonitoringOnline;
+  bool m_publishAllFebsOnline;
+
+  /** to avoid asking for triggers in case of a calibration run*/
+  bool m_isCalibrationRun;
   
   /**declare identifier*/
   HWIdentifier m_febID;
@@ -105,7 +106,7 @@ private:
   
   /** Private members*/
   int m_evtId;
-  
+  std::vector<std::string> m_triggers;
   
   /** Declare methods used*/
   bool isGoodChannel(HWIdentifier id,float ped);
