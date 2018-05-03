@@ -25,6 +25,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include <AsgTools/AnaToolHandle.h>
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
+#include "PATCore/AcceptData.h"
 
 #include "ElectronPlots.h"
 #include "PhotonPlots.h"
