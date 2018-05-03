@@ -463,6 +463,12 @@ if usePythia8:
           from EvgenJobTransforms.jo_proxy import mk_jo_proxy
           mk_jo_proxy(cvmfs_mc15, "MC15JobOptions", "_joproxy15")
 
+          # Updating JOBOPTSEARCHPATH env var on the athena side
+          import re,os
+          from AthenaCommon import Include
+          Include.optionsPathEnv = os.environ[ 'JOBOPTSEARCHPATH' ]
+          Include.optionsPath = re.split( ',|' + os.pathsep, Include.optionsPathEnv )
+
           # Include the job options themselves
           include(JO)
 
