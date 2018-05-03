@@ -22,7 +22,7 @@ namespace DerivationFramework {
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty ("JetContainerKey", m_jetContainerKey = "AntiKt10TruthTrimmedPtFrac5SmallR20Jets", "Name of jet container key for input");
-    declareProperty ("DecoratorName", m_decoratorName = "decoratorD2", "decorator Name");
+    declareProperty ("DecorationName", m_decorationName = "D2", "Decoration Name");
 
   }
 
@@ -30,7 +30,7 @@ namespace DerivationFramework {
   {
 
       // Set up the decorators 
-      SG::AuxElement::Decorator< float > decoratorD2(m_decoratorName); 
+      SG::AuxElement::Decorator< float > decoratorD2(m_decorationName); 
 
       // Get the Large-R jet Container
       const xAOD::JetContainer* largeRjets = evtStore()->retrieve< const xAOD::JetContainer >(m_jetContainerKey);

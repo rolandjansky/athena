@@ -424,7 +424,7 @@ def addLargeRJetD2(kernel=None):
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthD2Decorator
     TruthD2Decorator= DerivationFramework__TruthD2Decorator("TruthD2Decorator",
                                                              JetContainerKey = "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
-                                                             DecoratorName = "decoratorD2")
+                                                             DecorationName = "D2")
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += TruthD2Decorator
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHD2Kernel",

@@ -24,7 +24,7 @@ namespace DerivationFramework {
     private:
       //configurables
       std::string m_jetContainerKey; 
-      std::string m_decoratorName;
+      std::string m_decorationName;
   }; 
 }
 
