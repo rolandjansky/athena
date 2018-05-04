@@ -16,7 +16,7 @@ The matching of a track to a cluster is driven by the EMTrackMatchBuilder tool l
 */
 
 // INCLUDE HEADER FILES:
-#include "egammaBaseTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 #include "TrackMatchSorter.h"
@@ -30,7 +30,7 @@ class egammaRec;
 
 namespace Reco  { class ITrackToVertex; }
 
-class EMTrackMatchBuilder : public egammaBaseTool, virtual public IEMTrackMatchBuilder
+class EMTrackMatchBuilder : public AthAlgTool, virtual public IEMTrackMatchBuilder
 {
 
  public:
@@ -46,9 +46,9 @@ class EMTrackMatchBuilder : public egammaBaseTool, virtual public IEMTrackMatchB
   /** @brief Gaudi algorithm hooks*/
   StatusCode initialize() override;
   /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* eg) override;
+  virtual StatusCode executeRec(egammaRec* eg) const override final;
   /** @brief execute method*/
-  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) override;
+  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) const override final;
 
 private:
 

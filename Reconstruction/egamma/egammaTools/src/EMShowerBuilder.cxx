@@ -39,10 +39,7 @@
 EMShowerBuilder::EMShowerBuilder(const std::string& type,
         const std::string& name,
         const IInterface* parent)
-: egammaBaseTool(type, name, parent),
-    m_cellcoll(0),
-    m_clus(0),
-    m_timingProfile(0)
+: egammaBaseTool(type, name, parent)
 {
     //
     // constructor
@@ -72,11 +69,10 @@ StatusCode EMShowerBuilder::initialize()
     ATH_CHECK(m_cellsKey.initialize((m_UseShowerShapeTool || m_UseCaloIsoTool) && 
                 m_cellsKey.key() != ""));
 
-    StatusCode sc = StatusCode::SUCCESS;
-    //Retrieve shower shape Tool 
+    
     if (m_UseShowerShapeTool) { 
-        if ((sc = RetrieveShowerShapeTool()).isFailure()) { 
-            return sc; 
+        if ((RetrieveShowerShapeTool()).isFailure()) { 
+            return StatusCode::FAILURE; 
         } else {
             m_ShowerShapeTool.disable();
         }
@@ -85,22 +81,15 @@ StatusCode EMShowerBuilder::initialize()
     // call calorimeter isolation tool only if needed
     //
     if (m_UseCaloIsoTool) {
-        if ((sc = RetrieveHadronicLeakageTool()).isFailure()) {
-            return sc;
+        if ((RetrieveHadronicLeakageTool()).isFailure()) {
+            return StatusCode::FAILURE; 
         } else {
             m_HadronicLeakageTool.disable();
         }
     }
     // for measuring the timing
-    if (m_timing) {
-        sc = service("ChronoStatSvc",m_timingProfile);
-        if(sc.isFailure() || m_timingProfile == 0) {
-            ATH_MSG_ERROR("Cannot find the ChronoStatSvc " << m_timingProfile);
-            return sc;
-        }
-    }
 
-    return sc;
+    return StatusCode::SUCCESS;
 }
 
 StatusCode EMShowerBuilder::RetrieveShowerShapeTool()
@@ -148,154 +137,93 @@ StatusCode EMShowerBuilder::finalize(){
     return StatusCode::SUCCESS;
 }
 
-StatusCode EMShowerBuilder::execute(xAOD::Egamma* eg){ 
+StatusCode EMShowerBuilder::execute(xAOD::Egamma* eg) const { 
     // 
     // execute method as used in offline reconstruction
     // 
-
     ATH_MSG_DEBUG("Executing EMShowerBuilder::execute");
-
     // protection against bad pointers
     if (eg==0) return StatusCode::SUCCESS;
 
-    // retrieve the containers
-    StatusCode sc = retrieveContainers();
-    if (sc.isFailure()) {
-        ATH_MSG_WARNING("EMShowerBuilder returns failure on retrieveContainers");
-        return sc;
+    // retrieve the cell containers
+    SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
+    // check is only used for serial running; remove when MT scheduler used
+    if(!cellcoll.isValid()) {
+        ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());
+        return StatusCode::FAILURE;
     }
-
-    sc = recoExecute(eg,m_cellcoll);
-    if (sc.isFailure()) {
-        ATH_MSG_WARNING("execute(egamma* eg) returns failure on recoExecute");
-        return sc;
+    if(recoExecute(eg,cellcoll.cptr()).isFailure()) {
+        ATH_MSG_WARNING("execute(egamma* eg) returns failure on recoExecute"); 
+        return StatusCode::FAILURE;
     }
-
     return StatusCode::SUCCESS;
 }
 
 
-StatusCode EMShowerBuilder::recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll)
+StatusCode EMShowerBuilder::recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) const
 { 
     // 
     // execute method as used by online reconstruction
     // 
-
     ATH_MSG_DEBUG("Executing recoExecute");
-
-    // put the CaloCellContainer into the global variable
-    m_cellcoll = cellcoll;
-
     // calculate shower shapes
-    CHECK(CalcShowerShape(eg));
-
+    CHECK(CalcShowerShape(eg,cellcoll));
     ATH_MSG_DEBUG("Exiting recoExecute");
-
-    return StatusCode::SUCCESS;
-
-}
-
-StatusCode EMShowerBuilder::retrieveContainers()
-{ 
-    //
-    // method shared by the various execute method to retrieve 
-    // the cell and cluster containers
-    //
-
-    // retrieve Calo Cell Container
-    if (m_UseShowerShapeTool || m_UseCaloIsoTool) {
-        SG::ReadHandle<CaloCellContainer> cellcoll(m_cellsKey);
-
-        // check is only used for serial running; remove when MT scheduler used
-        if(!cellcoll.isValid()) {
-            ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());
-            return StatusCode::FAILURE;
-        }
-
-        m_cellcoll = cellcoll.cptr();
-    } else {
-        m_cellcoll = nullptr;
-    }
-
     return StatusCode::SUCCESS;
 }
 
-StatusCode EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg)
+StatusCode EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg,const CaloCellContainer* cellcoll) const
 { 
     // 
     // Estimate shower shapes and fill the EMShower object associated to eg
     // 
-
     ATH_MSG_DEBUG("Executing CalcShowerShape");
-
     // protection against bad pointers
     if (eg==0) {return StatusCode::SUCCESS;}
-
     StatusCode sc = StatusCode::SUCCESS;
-
     // retrieve the cluster 
-    m_clus = eg->caloCluster(); 
-
+    const xAOD::CaloCluster* clus = eg->caloCluster(); 
     // Protect against non-existent structures.
-    if (m_clus == nullptr) {
+    if (clus == nullptr) {
         ATH_MSG_WARNING("No Cluster");
         return StatusCode::SUCCESS; 
     }
-
-    if (m_cellcoll== nullptr) {
+    if (cellcoll== nullptr) {
         ATH_MSG_WARNING("No cells");
         return StatusCode::SUCCESS; 
     }
-
     // call calorimeter isolation tool only if needed
     if (m_UseCaloIsoTool){
-
-        if (m_timingProfile) {
-            std::string chronoName = this->name()+"_CalcHadronicLeakage";         
-            m_timingProfile->chronoStart(chronoName);
-            CHECK(CalcHadronicLeakage(eg));
-            m_timingProfile->chronoStop(chronoName);
-        } else {
-            CHECK(CalcHadronicLeakage(eg));
-        }
+           CHECK(CalcHadronicLeakage(eg,clus,cellcoll));
     } 
 
     // Calculate shower shapes in all samplings
     if (m_UseShowerShapeTool) {
         // protection in case tool does not exist 
         IegammaShowerShape::Info info;
-        if (m_timingProfile) {
-            std::string chronoName = this->name()+"_ShowerShapeTool";         
-            m_timingProfile->chronoStart(chronoName);
-        }
         if (!m_ShowerShapeTool.empty()) {
-            sc = m_ShowerShapeTool->execute(*m_clus,*m_cellcoll,info);
+            sc = m_ShowerShapeTool->execute(*clus,*cellcoll,info);
             if ( sc.isFailure() ) {
                 ATH_MSG_WARNING("call to ShowerShape returns failure ");
             } else {
                 CHECK(FillEMShowerShape(eg,info));
             }
         }
-        if (m_timingProfile) {
-            std::string chronoName = this->name()+"_ShowerShapeTool";         
-            m_timingProfile->chronoStop(chronoName);
-        }
     }
     return sc;
 }
 
 // ==========================================================================
-StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg){
+StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::CaloCluster* clus,
+        const CaloCellContainer* cellcoll) const {
     //
     // Call calorimeter isolation tool
     //
     ATH_MSG_DEBUG("Executing CalcHadronicLeakage");
-
     if ( m_caloNums.size() <3 ) {
         ATH_MSG_DEBUG("Less than 3 subCalos, skipping");
         return StatusCode::SUCCESS;
     }
-
     // protection in case tool does not exist
     if (m_HadronicLeakageTool.empty()) {
         return StatusCode::SUCCESS;
@@ -304,7 +232,7 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg){
     // define a new Calo Cell list corresponding to EM Calo
     // retrieve the corresponding CaloCell_ID
     CaloCell_ID::SUBCALO theCalo = CaloCell_ID::LAREM; 
-    CaloCellList* EMccl = new CaloCellList(m_cellcoll,theCalo); 
+    CaloCellList* EMccl = new CaloCellList(cellcoll,theCalo); 
 
     // define a new Calo Cell list corresponding to HAD Calo
     // retrieve the corresponding CaloCell_ID for LarHec
@@ -315,11 +243,11 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg){
     theVecCalo.push_back(theCalo1);
     theVecCalo.push_back(theCalo2);
     // define a new Calo Cell list
-    CaloCellList* HADccl = new CaloCellList(m_cellcoll,theVecCalo); 
+    CaloCellList* HADccl = new CaloCellList(cellcoll,theVecCalo); 
 
     // calculate information concerning just the hadronic leakage
     IegammaIso::Info info;
-    StatusCode sc =  m_HadronicLeakageTool->execute(*m_clus,*HADccl,info);
+    StatusCode sc =  m_HadronicLeakageTool->execute(*clus,*HADccl,info);
     if ( sc.isFailure() ) {
         ATH_MSG_WARNING("call to Iso returns failure for execute");
         // delete ccls
@@ -327,28 +255,21 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg){
         delete HADccl;
         return sc;
     }
-
     float value=0;
     /// @brief ethad/et
     const double et = eg->caloCluster()->et();
-
     value=static_cast<float>(info.ethad1);
     eg->setShowerShapeValue(value, xAOD::EgammaParameters::ethad1);
     eg->setShowerShapeValue( et != 0. ? value/et : 0., xAOD::EgammaParameters::Rhad1);
-
     value=static_cast<float>(info.ethad);
     eg->setShowerShapeValue(value, xAOD::EgammaParameters::ethad);
     eg->setShowerShapeValue( et != 0. ? value/et : 0., xAOD::EgammaParameters::Rhad);
-
     value=static_cast<float>(info.ehad1);
     eg->setShowerShapeValue(value, xAOD::EgammaParameters::ehad1);
-
     // delete ccls
     delete EMccl;
     delete HADccl;
-
     return StatusCode::SUCCESS;
-
 }
 
 

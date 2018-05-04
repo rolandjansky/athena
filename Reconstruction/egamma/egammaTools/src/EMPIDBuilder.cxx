@@ -103,7 +103,7 @@ StatusCode EMPIDBuilder::finalize()
 
 
 // =====================================================================
-StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg)
+StatusCode EMPIDBuilder::execute(xAOD::Egamma* eg) const
 { 
 
     ATH_MSG_DEBUG("Executing EMPIDBuilder::execute");

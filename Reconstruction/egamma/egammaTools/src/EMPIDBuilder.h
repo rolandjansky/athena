@@ -40,7 +40,7 @@ public:
   /** @brief initialize method*/
   StatusCode initialize();
   /** @brief standard execute method */
-  virtual StatusCode execute(xAOD::Egamma*);
+  virtual StatusCode execute(xAOD::Egamma*) const override final ;
   /** @brief finalize method*/
   StatusCode finalize();
 

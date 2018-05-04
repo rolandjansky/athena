@@ -60,9 +60,9 @@ public:
     /** @brief initialize method*/
     StatusCode initialize();
     /** @brief standard execute method */
-    virtual StatusCode execute(xAOD::Egamma*);
+    virtual StatusCode execute(xAOD::Egamma*) const override final ;
     /** @brief method to calculate shower shapes from a CaloCellContainer */
-    virtual StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll);
+    virtual StatusCode recoExecute(xAOD::Egamma* eg, const CaloCellContainer* cellcoll) const override final;
     /** @brief finalize method*/
     StatusCode finalize();
 
@@ -71,12 +71,11 @@ private:
     StatusCode RetrieveShowerShapeTool();
     /** @brief method to retrieve hadronic leakage calculation from CaloIso tool */
     StatusCode RetrieveHadronicLeakageTool(); 
-    /** @brief method shared by the various execute method to retrieve the cell and cluster containers */
-    StatusCode retrieveContainers();
     /** @brief calculate shower shapes*/
-    StatusCode CalcShowerShape(xAOD::Egamma* eg);
+    StatusCode CalcShowerShape(xAOD::Egamma* eg,const CaloCellContainer* cellcoll) const;
     /** @brief calculate Hadronic leakage*/
-    StatusCode CalcHadronicLeakage(xAOD::Egamma* eg);
+    StatusCode CalcHadronicLeakage(xAOD::Egamma* eg,const xAOD::CaloCluster* clus,
+                                        const CaloCellContainer* cellcoll) const ;
     /** @brief fill shower detail from shower shape calculation*/
     StatusCode FillEMShowerShape(xAOD::Egamma* eg,const IegammaShowerShape::Info& info) const ;
 
@@ -100,11 +99,7 @@ private:
 
     /** @brief the CaloCell container */
     const CaloCellContainer* m_cellcoll;
-    /** @brief the CaloCluster container */
-    const xAOD::CaloCluster* m_clus;
-
-    IChronoStatSvc* m_timingProfile;
-
+    
     /** @brief boolean to print results*/
     Gaudi::Property<bool> m_Print {this,
             "Print", false, "in case of extra prints"};
@@ -125,11 +120,7 @@ private:
     Gaudi::Property<bool> m_isCosmics {this,
             "isCosmics", false, "Boolean for use of cosmics"};
 
-    // for timing
-    Gaudi::Property<bool> m_timing {this, 
-            "Timing", false, "do extra timing"};
-
-
+    
 };
 
 #endif
