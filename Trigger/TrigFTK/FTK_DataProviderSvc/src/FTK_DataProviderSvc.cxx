@@ -823,7 +823,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getFastVertices(const ftk::FTK_Track
 bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackParticleContainer* tps) {
 
   bool gotVertices = false;
-  if (tps->size() > 0) {
+  if (tps->size() > 1) {
     ATH_MSG_DEBUG( "fillVertexContainerCache: finding vertices from " << tps->size() << " TrackParticles ");
 
     std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> theXAODContainers = m_VertexFinderTool->findVertex(tps);
@@ -843,7 +843,8 @@ bool FTK_DataProviderSvc::fillVertexContainerCache(bool withRefit, xAOD::TrackPa
       myVxContainers.first = theXAODContainers.first;
       myVxContainers.second = theXAODContainers.second;
     }
-
+    if (myVxContainers.first == nullptr) return gotVertices;
+    
     std::string cacheName= m_vertexCacheName;
     if (withRefit) cacheName+="Refit";
 
