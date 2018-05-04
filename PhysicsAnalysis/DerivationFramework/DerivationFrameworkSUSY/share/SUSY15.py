@@ -33,6 +33,107 @@ AugmentationTools   = []
 SeqSUSY15 = CfgMgr.AthSequencer("SeqSUSY15")
 DerivationFrameworkJob += SeqSUSY15
 
+
+#====================================================================
+# Vertex dissolving (variation of VrtSecInclusive)
+#====================================================================
+from VrtSecInclusive.TrackRandomizer import TrackRandomizer
+from VrtSecInclusive.VrtSecInclusive import VrtSecInclusive
+
+def setupVSI( vsiInstance ):
+    vsiInstance.OutputLevel                            = INFO
+    vsiInstance.do_PVvetoCut                           = True
+    vsiInstance.do_d0Cut                               = False
+    vsiInstance.do_z0Cut                               = False
+    vsiInstance.do_d0errCut                            = False
+    vsiInstance.do_z0errCut                            = False
+    vsiInstance.do_d0signifCut                         = False
+    vsiInstance.do_z0signifCut                         = False
+    vsiInstance.doTRTPixCut                            = True
+    vsiInstance.DoSAloneTRT                            = False
+    vsiInstance.ImpactWrtBL                            = True
+    vsiInstance.doPVcompatibilityCut                   = False
+    vsiInstance.RemoveFake2TrkVrt                      = True
+    vsiInstance.CheckHitPatternStrategy                = 'ExtrapolationAssist' # Either 'Classical', 'Extrapolation' or 'ExtrapolationAssist'
+    vsiInstance.doReassembleVertices                   = True
+    vsiInstance.doMergeByShuffling                     = True
+    vsiInstance.doMergeFinalVerticesDistance           = True
+    vsiInstance.doAssociateNonSelectedTracks           = True
+    vsiInstance.doFinalImproveChi2                     = False
+    vsiInstance.DoTruth                                = (globalflags.DataSource == 'geant4' and globalflags.InputFormat == "pool")
+    vsiInstance.FillHist                               = True
+    vsiInstance.FillIntermediateVertices               = False
+    vsiInstance.CutPixelHits                           = 0
+    vsiInstance.CutSctHits                             = 2
+    vsiInstance.TrkA0ErrCut                            = 200000
+    vsiInstance.TrkZErrCut                             = 200000
+    vsiInstance.a0TrkPVDstMinCut                       = 2.0    # track d0 min
+    vsiInstance.a0TrkPVDstMaxCut                       = 300.0  # track d0 max: default is 1000.0
+    vsiInstance.zTrkPVDstMinCut                        = 0.0    # track z0 min: default is 0.0, just for clarification
+    vsiInstance.zTrkPVDstMaxCut                        = 1500.0 # track z0 max: default is 1000.0
+    vsiInstance.twoTrkVtxFormingD0Cut                  = 2.0
+    vsiInstance.TrkPtCut                               = 1000
+    vsiInstance.SelVrtChi2Cut                          = 5.
+    vsiInstance.CutSharedHits                          = 2
+    vsiInstance.TrkChi2Cut                             = 50
+    vsiInstance.TruthTrkLen                            = 1
+    vsiInstance.SelTrkMaxCutoff                        = 2000
+    vsiInstance.mergeByShufflingAllowance              = 10.
+    vsiInstance.associatePtCut                         = 1000.
+    vsiInstance.associateMinDistanceToPV               = 2.
+    vsiInstance.associateMaxD0Signif                   = 5.
+    vsiInstance.associateMaxZ0Signif                   = 5.
+    vsiInstance.MergeFinalVerticesDist                 = 1.
+    vsiInstance.MergeFinalVerticesScaling              = 0.
+    vsiInstance.improveChi2ProbThreshold               = 0.0001
+    vsiInstance.doAugmentDVimpactParametersToMuons     = False
+    vsiInstance.doAugmentDVimpactParametersToElectrons = False
+    return
+
+# set options related to the vertex fitter
+from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
+InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVxFitter",
+                                              Extrapolator        = ToolSvc.AtlasExtrapolator,
+                                              IterationNumber     = 30,
+                                              AtlasMagFieldSvc    = "AtlasFieldSvc"
+                                             )
+ToolSvc +=  InclusiveVxFitterTool;
+InclusiveVxFitterTool.OutputLevel = INFO
+
+
+
+TrackRandomizingSuffices = [ "0p5", "1p0", "2p0", "3p0", "4p0" ]
+RandomizingSigmas        = [ 0.5, 1.0, 2.0, 3.0, 4.0 ]
+
+
+for suffix, sigma in zip( TrackRandomizingSuffices, RandomizingSigmas ):
+  randomizer = TrackRandomizer("TrackRandomizer_" + suffix)
+  vsi        = VrtSecInclusive("VrtSecInclusive_Random_" + suffix)
+  
+  randomizer.outputContainerName = suffix
+  randomizer.shuffleStrength = sigma
+  
+  setupVSI( vsi )
+  vsi.TrackLocation           = "InDetTrackParticlesRandomized" + suffix
+  vsi.AugmentingVersionString = "_Randomized" + suffix
+  vsi.VertexFitterTool        = InclusiveVxFitterTool
+  vsi.Extrapolator            = ToolSvc.AtlasExtrapolator
+
+  SeqSUSY15 += randomizer
+  SeqSUSY15 += vsi
+  
+
+MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticlesRandomized*',
+                                                'xAOD::TrackParticleAuxContainer#InDetTrackParticlesRandomized*',
+                                                'xAOD::VertexContainer#VrtSecInclusive_Random_*',
+                                                'xAOD::VertexAuxContainer#VrtSecInclusive_Random_*'] )
+print "List of items for the DAOD_RPVLL output stream:"
+print MSMgr.GetStream("StreamDAOD_SUSY15").GetItems()
+
+# end of vertex dissolving
+#------------------------------------------------------------------------------
+
+
 from DerivationFrameworkSUSY.SUSY15TriggerList import triggers_met, triggers_jet, triggers_lep, triggers_photon
 
 triggers = triggers_met + triggers_jet + triggers_lep + triggers_photon
@@ -60,6 +161,7 @@ SUSY15TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY15
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += SUSY15TPThinningTool
 thinningTools.append(SUSY15TPThinningTool)
+
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -96,6 +198,31 @@ SUSY15TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name   
                                                                         InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += SUSY15TauTPThinningTool
 thinningTools.append(SUSY15TauTPThinningTool)
+
+
+#====================================================================
+# THINNING FOR RANDOMIZED TRACKS
+#====================================================================
+# Set up your thinning tools (you can have as many as you need). 
+# Note how the thinning service (which must be passed to the tools) is accessed
+
+
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VsiTrackThinningTool
+
+#-----
+SUSY15ThinningTools = []
+for suffix in TrackRandomizingSuffices:
+  thinningTool = DerivationFramework__VsiTrackThinningTool( name = ("VsiTrackThinningTool" + suffix),
+                                                            ThinningService = SUSY15ThinningHelper.ThinningSvc(),
+                                                            TrackContainerName = ("InDetTrackParticlesRandomized"+suffix),
+                                                            VertexContainerName = ("VrtSecInclusive_SecondaryVertices_Randomized"+suffix) )
+  ToolSvc += thinningTool
+  thinningTools.append( thinningTool )
+#-----
+
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("SUSY15Kernel",
+                                                                       ThinningTools = SUSY15ThinningTools )
 
 
 #====================================================================
@@ -238,6 +365,20 @@ SeqSUSY15 += CfgMgr.DerivationFramework__DerivationKernel(
 )
 
 
+#==============================================================================
+# VrtSecInclusive IP Augmentor
+#==============================================================================
+
+from VrtSecInclusive.IPAugmentor import IPAugmentor
+
+IPAugmentor = IPAugmentor("VsiIPAugmentor")
+IPAugmentor.doAugmentDVimpactParametersToMuons     = True
+IPAugmentor.doAugmentDVimpactParametersToElectrons = True
+IPAugmentor.VertexFitterTool=InclusiveVxFitterTool
+
+SeqSUSY15 += IPAugmentor
+
+
 #====================================================================
 # CONTENT LIST
 #====================================================================
@@ -298,7 +439,7 @@ SUSY15SlimmingHelper.IncludeEtMissTriggerContent = True # Added /CO
 if DerivationFrameworkIsMonteCarlo:
 
   SUSY15SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
-'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+                                             'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
   
