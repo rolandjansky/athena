@@ -425,9 +425,6 @@ namespace ST {
 
     std::vector<std::string> getElSFkeys(const std::string& mapFile) const;
 
-    bool m_autoconfigPRW;
-    std::string m_mcCampaign;
-
 #ifdef XAOD_STANDALONE // more convenient for property setting
     DataSource m_dataSource;
     xAOD::JetInput::Type m_jetInputType; // permit switching between LC, PFlow, EM jets
@@ -483,8 +480,13 @@ namespace ST {
     bool m_treatPUJets;
     bool m_doPhiReso;
 
+    bool m_autoconfigPRW;
+    std::string m_mcCampaign;
+
     std::vector<std::string> m_prwConfFiles;
     std::vector<std::string> m_prwLcalcFiles;
+    std::string m_prwActualMuFile;
+
     double m_muUncert;
     double m_prwDataSF;
     double m_prwDataSF_UP;
