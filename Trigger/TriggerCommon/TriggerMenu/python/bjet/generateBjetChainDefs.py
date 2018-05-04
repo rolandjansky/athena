@@ -294,30 +294,30 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     theChainDef.addSequence(theVxSecondary, [jetTrackTE, comboPrmVtxTE], secVtxTE)
 
     #
+    #  GSC calculation
+    #
+    if doGSC:
+        gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+str(minBTagThreshold)+"_eta"+"_jsplit"+"_"+tracking
+        theGSCFex      = getGSCFexSplitInstance(algoInstance)
+        theChainDef.addSequence(theGSCFex,      secVtxTE                ,       gsc_jetTrackTEPreCut )
+
+        algoInstance = "GSC"   
+        gsc_jetTrackTE        = "HLT_gsc"+str(minGSCThreshold)+"_eta"+"_jsplit"+"_"+tracking
+        theGSCEtHypo   = getBjetEtHypoInstance(algoInstance, "Btagging", str(minGSCThreshold) +"GeV" )
+        theChainDef.addSequence(theGSCEtHypo,   gsc_jetTrackTEPreCut,           gsc_jetTrackTE )
+        jetsForBTagging = gsc_jetTrackTE 
+    else:
+        log.debug("No GSC Calculation")
+        jetsForBTagging = secVtxTE
+
+
+    #
     #  the tagging fex
     #
     log.debug("Getting tagging fex")
     theBjetFex = getBtagFexSplitInstance(algoInstance, "2012", "EFID") 
-    btaggingTE = secVtxTE+"_btagged"
-    theChainDef.addSequence(theBjetFex, secVtxTE, btaggingTE)
-
-    #
-    #  GSC calculation
-    #
-
-    if doGSC:
-        gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+str(minBTagThreshold)+"_eta"+"_jsplit"+"_"+tracking+"_ALLTE"
-        theGSCFex      = getGSCFexSplitInstance(algoInstance)
-        theChainDef.addSequence(theGSCFex,      btaggingTE                ,       gsc_jetTrackTEPreCut )
-
-        algoInstance = "GSC"   
-        gsc_jetTrackTE        = "HLT_gsc"+str(minGSCThreshold)+"_eta"+"_jsplit"+"_"+tracking+"_ALLTE"
-        theGSCEtHypo   = getBjetEtHypoInstance(algoInstance, "Btagging", str(minGSCThreshold) +"GeV" )
-        theChainDef.addSequence(theGSCEtHypo,   gsc_jetTrackTEPreCut,           gsc_jetTrackTE )
-        nextToLastTE = gsc_jetTrackTE
-    else:
-        log.debug("No GSC Calculation")
-        nextToLastTE = btaggingTE
+    btaggingTE = jetsForBTagging+"_btagged"
+    theChainDef.addSequence(theBjetFex, jetsForBTagging, btaggingTE)
 
     #
     #  The btagging hypo
@@ -352,7 +352,7 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
 
     #theChainDef.signatureList[-1]['listOfTriggerElements'][0]
     log.debug("Adding Sequence")
-    theChainDef.addSequence(theBjetHypoAllTE, nextToLastTE, lastTEout, topo_start_from = topoStartFrom)
+    theChainDef.addSequence(theBjetHypoAllTE, btaggingTE, lastTEout, topo_start_from = topoStartFrom)
 
     log.debug("Adding Signature")
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout])
