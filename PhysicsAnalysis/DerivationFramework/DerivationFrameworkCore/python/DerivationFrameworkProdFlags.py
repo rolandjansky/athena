@@ -1378,6 +1378,19 @@ class WriteDAOD_EXOT23Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT23Stream)
 listAODtoDPD.append(WriteDAOD_EXOT23Stream.StreamName)
 
+class WriteDAOD_EXOT24Stream(JobProperty):
+    """EXOT24: temporary HIGG5D1 port for monoHbb analysis"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT24'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT24.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT24Stream)
+listAODtoDPD.append(WriteDAOD_EXOT24Stream.StreamName)
+
 #################################
 # Defined by the Jet/MET group
 #################################
