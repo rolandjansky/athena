@@ -124,6 +124,12 @@ public:
 
 protected:
   ~THistSvcHLT() override = default;
+  
+private:
+  // Properties
+  IntegerProperty m_autoSave, m_autoFlush, m_compressionLevel, m_maxFileSize;
+  BooleanProperty m_print;
+  StringArrayProperty m_inputfile, m_outputfile;
 
 };
 

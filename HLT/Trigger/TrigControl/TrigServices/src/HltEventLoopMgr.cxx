@@ -7,6 +7,11 @@
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IAlgContextSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
+#include "GaudiKernel/IAlgResourcePool.h"
+#include "GaudiKernel/IEvtSelector.h"
+#include "GaudiKernel/IHiveWhiteBoard.h"
+#include "GaudiKernel/IScheduler.h"
+
 
 // Athena includes
 #include "StoreGate/StoreGateSvc.h"
@@ -47,6 +52,10 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc)
   declareProperty("enabledROBs",              m_enabledROBs);
   declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
   declareProperty("CoolUpdateTool",           m_coolHelper);
+  declareProperty("SchedulerSvc",             m_schedulerName="ForwardSchedulerSvc",
+                  "Name of the scheduler to be used");
+  declareProperty("WhiteboardSvc",            m_whiteboardName="EventDataSvc",
+                  "Name of the Whiteboard to be used");
 
   verbose() << "end of " << __FUNCTION__ << endmsg;
 }
@@ -135,6 +144,36 @@ StatusCode HltEventLoopMgr::initialize()
   if (m_enabledSubDetectors.value().size() == 0)
     info() << ". No check will be performed" << endmsg;
   info() << endmsg;
+
+  //----------------------------------------------------------------------------
+  // Setup stuff for hive - taken from AthenaHiveEventLoopMgr
+  //----------------------------------------------------------------------------
+
+  m_whiteboard = serviceLocator()->service(m_whiteboardName);
+  if( !m_whiteboard.isValid() )  {
+    fatal() << "Error retrieving " << m_whiteboardName << " interface IHiveWhiteBoard." << endmsg;
+    return StatusCode::FAILURE;
+  }
+  
+  m_schedulerSvc = serviceLocator()->service(m_schedulerName);
+  if ( !m_schedulerSvc.isValid()){
+    fatal() << "Error retrieving " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
+    return StatusCode::FAILURE;    
+  }
+  // Setup algorithm resource pool
+  m_algResourcePool = serviceLocator()->service("AlgResourcePool");
+  if( !m_algResourcePool.isValid() ) {
+    fatal() << "Error retrieving AlgResourcePool" << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+#ifdef REENTRANT_GAUDI
+  m_algExecMgr = serviceLocator()->service("AlgExecMgr");
+  if( !m_algExecMgr.isValid() ) {
+    fatal() << "Error retrieving AlgExecMgr" << endmsg;
+    return StatusCode::FAILURE;
+  }
+#endif
 
   //----------------------------------------------------------------------------
   // Setup the IncidentSvc

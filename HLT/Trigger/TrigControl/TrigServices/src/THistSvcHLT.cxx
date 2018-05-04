@@ -9,7 +9,19 @@ DECLARE_COMPONENT(THistSvcHLT)
 THistSvcHLT::THistSvcHLT(const std::string& name, ISvcLocator* svcLoc)
 : base_class(name, svcLoc)
 {
-  verbose() << "dummy implementation of " << __FUNCTION__ << endmsg;
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  declareProperty("AutoSave",          m_autoSave=0);
+  declareProperty("AutoFlush",         m_autoFlush=0);
+  declareProperty("PrintAll",          m_print=false);
+  declareProperty("MaxFileSize",       m_maxFileSize=10240,
+                  "maximum file size in MB. if exceeded, will cause an abort. -1 to never check.");
+  declareProperty("CompressionLevel",  m_compressionLevel=1);
+                  /*->declareUpdateHandler(&THistSvcHLT::setupCompressionLevel, this);*/
+  declareProperty("Output",            m_outputfile);
+                  /*->declareUpdateHandler(&THistSvcHLT::setupOutputFile, this);*/
+  declareProperty("Input",             m_inputfile);
+                  /*->declareUpdateHandler(&THistSvcHLT::setupInputFile,  this);*/
+  verbose() << "end of " << __FUNCTION__ << endmsg;
 }
 
 StatusCode THistSvcHLT::initialize()

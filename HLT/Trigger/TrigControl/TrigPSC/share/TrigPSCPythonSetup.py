@@ -41,6 +41,9 @@ if len(logLevel)==0:
 if len(logLevel)==1:
    logLevel.append("ERROR")
 
+### FOR DEVELOPMENT: force verbose log level
+logLevel=["VERBOSE","INFO","ERROR"]
+
 ## test and set log level
 try:
    exec( 'log.setLevel( logging.%s )' % logLevel[0] )

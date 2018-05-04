@@ -17,6 +17,9 @@
 #include "hltinterface/HLTInterface.h"
 #include "hltinterface/EventId.h"
 
+// to be removed
+#include "hltinterface/HLTResult.h"
+
 // Gaudi Includes
 #include "GaudiKernel/StatusCode.h"
 
@@ -92,7 +95,7 @@ namespace psc {
     /**
      * Calls the HLT framework to notify it that a time out is imminent
      */
-    virtual void timeOutReached (const boost::property_tree::ptree& args);
+    virtual void timeOutReached (uint64_t global_id, const boost::property_tree::ptree& args);
 
     /**
      * Calls the HLT framework to notify it that a user command has arrived
@@ -100,18 +103,11 @@ namespace psc {
     virtual bool hltUserCommand (const boost::property_tree::ptree& args);
 
     /**
-     * Process one event, taking as input, the LVL1 Result and producing as
-     * output, the HLT Result.
+     * Start the event loop
      *
-     * @param l1r.  LVL1 result ROBs (input)
-     * @param hltr. HLT result (output)
-     * @param evId. EventId structure containing global event number l1id and lb
-     *  number (input)
+     * The HLT will start requesting events only after this has been called.
      */
-    virtual bool
-    process(const std::vector<eformat::ROBFragment<const uint32_t*>>& l1r,
-            hltinterface::HLTResult& hltr,
-            const hltinterface::EventId& evId);
+    virtual void doEventLoop ();
 
     /**
      * Method which can be called for a worker to perform the necessary steps to set
@@ -124,7 +120,6 @@ namespace psc {
      * worker gets killed
      */
     virtual bool finalizeWorker (const boost::property_tree::ptree& args);
-
 
   private:
     bool setDFProperties(std::map<std::string, std::string> name_tr_table);
@@ -153,7 +148,26 @@ namespace psc {
     // User command handling
     bool           m_failNextUsrCmd;
     unsigned int   m_sleepNextUsrCmd;
-    psc::Config * m_config;
+    psc::Config * m_config;    
+
+// =========================== DEPRECATED METHODS ==============================
+
+  public:
+    /**
+     * Process one event, taking as input, the LVL1 Result and producing as
+     * output, the HLT Result.
+     *
+     * @param l1r.  LVL1 result ROBs (input)
+     * @param hltr. HLT result (output)
+     * @param evId. EventId structure containing global event number l1id and lb
+     *  number (input)
+     */
+    virtual bool
+    process(const std::vector<eformat::ROBFragment<const uint32_t*>>& l1r,
+            hltinterface::HLTResult& hltr,
+            const hltinterface::EventId& evId);
+
+    
   };
 }
   

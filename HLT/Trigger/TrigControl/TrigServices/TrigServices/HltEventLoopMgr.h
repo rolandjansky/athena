@@ -26,6 +26,13 @@ class TrigCOOLUpdateHelper;
 namespace coral {
   class AttributeList;
 }
+class IAlgResourcePool;
+class IHiveWhiteBoard;
+class IScheduler;
+#ifdef REENTRANT_GAUDI
+ class IAlgExecMgr;
+#endif
+
 
 
 class HltEventLoopMgr : public MinimalEventLoopMgr,
@@ -122,6 +129,41 @@ private:
   // ------------------------- Other private members ---------------------------
   /// Current run number
   EventID::number_type m_currentRun{0};
+
+protected:
+  // ------------------------- Hive stuff from AthenaHiveEventLoopMgr ----------
+  /// Reference to the Whiteboard interface
+  SmartIF<IHiveWhiteBoard>  m_whiteboard;
+
+  /// Reference to the Algorithm resource pool
+  SmartIF<IAlgResourcePool>  m_algResourcePool;
+
+  /// Property interface of ApplicationMgr
+  SmartIF<IProperty>        m_appMgrProperty;
+
+#ifdef REENTRANT_GAUDI
+  SmartIF<IAlgExecMgr>      m_algExecMgr;
+#endif
+
+  /// A shortcut for the scheduler
+  SmartIF<IScheduler> m_schedulerSvc;
+  /// Clear a slot in the WB 
+  StatusCode clearWBSlot(int evtSlot);
+  /// Declare the root address of the event
+  int declareEventRootAddress(const EventContext*);
+  /// Create event context
+  StatusCode createEventContext(EventContext*& eventContext, int createdEvents);
+  /// Drain the scheduler from all actions that may be queued
+  int drainScheduler(int& finishedEvents);
+  /// Instance of the incident listener waiting for AbortEvent. 
+  SmartIF< IIncidentListener >  m_abortEventListener;
+  /// Name of the scheduler to be used
+  StringProperty m_schedulerName;
+  /// Name of the Whiteboard to be used
+  StringProperty m_whiteboardName;
+  /// Scheduled stop of event processing
+  bool                m_scheduledStop;
+
 
 };
 

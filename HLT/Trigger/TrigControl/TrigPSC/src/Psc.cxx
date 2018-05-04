@@ -653,9 +653,9 @@ bool psc::Psc::publishStatistics (const ptree& /*args*/)
 //--------------------------------------------------------------------------------
 // Time out is reached
 //--------------------------------------------------------------------------------
-void psc::Psc::timeOutReached (const ptree& args)
+void psc::Psc::timeOutReached (uint64_t global_id, const ptree& args)
 {
-  ERS_DEBUG(1, "Time out reached for HLT processing");
+  ERS_DEBUG(1, "Time out reached for HLT processing, event global id = " << global_id);
 
   // bind args to timeOutReached
   auto tor = [&args](ITrigEventLoopMgr * mgr)
@@ -808,6 +808,11 @@ bool psc::Psc::hltUserCommand(const ptree& args)
 
   // Default if no action on command
   return true;
+}
+
+void psc::Psc::doEventLoop()
+{
+  ERS_LOG("psc::Psc::doEventLoop: Dummy implementation of doEventLoop()");
 }
 
 bool psc::Psc::process(const vector<ROBFragment<const uint32_t*> >& l1r,

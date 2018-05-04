@@ -7,9 +7,37 @@ from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 # from AthenaCommon.Constants import *
 
+# ==============================================================================
+# Set up for multithreading
+# ==============================================================================
+nThreads = 2
+numStores = 2
+numAlgsInFlight = nThreads
+
+from StoreGate.StoreGateConf import SG__HiveMgrSvc
+svcMgr += SG__HiveMgrSvc("EventDataSvc")
+svcMgr.EventDataSvc.NSlots = numStores
+
+from GaudiHive.GaudiHiveConf import AlgResourcePool
+arp=AlgResourcePool( OutputLevel = INFO );
+arp.TopAlg=["AthMasterSeq"] #this should enable control flow
+svcMgr += arp
+
+from AthenaCommon.AlgScheduler import AlgScheduler
+AlgScheduler.setThreadPoolSize(nThreads)
+AlgScheduler.ShowDataDependencies(True)
+AlgScheduler.ShowControlFlow(True)
+
+# ==============================================================================
+# General setup
+# ==============================================================================
+
 # make the HltEventLoopMgr service available
 svcMgr.HltEventLoopMgr = theApp.service( "HltEventLoopMgr" )     # already instantiated
 HltEventLoopMgr = svcMgr.HltEventLoopMgr
+HltEventLoopMgr.WhiteboardSvc = "EventDataSvc"
+HltEventLoopMgr.SchedulerSvc = AlgScheduler.getScheduler().getName()
+
 
 # configure here Level-1 CTP ROB identifier which is used in HLT
 # HltEventLoopMgr.Lvl1CTPROBid = 0x770001
