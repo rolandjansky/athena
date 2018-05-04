@@ -106,29 +106,36 @@ TrackRandomizingSuffices = [ "0p5", "1p0", "2p0", "3p0", "4p0" ]
 RandomizingSigmas        = [ 0.5, 1.0, 2.0, 3.0, 4.0 ]
 
 
-for suffix, sigma in zip( TrackRandomizingSuffices, RandomizingSigmas ):
-  randomizer = TrackRandomizer("TrackRandomizer_" + suffix)
-  vsi        = VrtSecInclusive("VrtSecInclusive_Random_" + suffix)
-  
-  randomizer.outputContainerName = suffix
-  randomizer.shuffleStrength = sigma
-  
-  setupVSI( vsi )
-  vsi.TrackLocation           = "InDetTrackParticlesRandomized" + suffix
-  vsi.AugmentingVersionString = "_Randomized" + suffix
-  vsi.VertexFitterTool        = InclusiveVxFitterTool
-  vsi.Extrapolator            = ToolSvc.AtlasExtrapolator
+# Temporary flag
 
-  SeqSUSY15 += randomizer
-  SeqSUSY15 += vsi
-  
+doDissolvedVertexing = False
 
-MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticlesRandomized*',
-                                                'xAOD::TrackParticleAuxContainer#InDetTrackParticlesRandomized*',
-                                                'xAOD::VertexContainer#VrtSecInclusive_Random_*',
-                                                'xAOD::VertexAuxContainer#VrtSecInclusive_Random_*'] )
-print "List of items for the DAOD_RPVLL output stream:"
-print MSMgr.GetStream("StreamDAOD_SUSY15").GetItems()
+#------------------------------------------------------------------------------
+if doDissolvedVertexing:
+  
+  for suffix, sigma in zip( TrackRandomizingSuffices, RandomizingSigmas ):
+    randomizer = TrackRandomizer("TrackRandomizer_" + suffix)
+    vsi        = VrtSecInclusive("VrtSecInclusive_Random_" + suffix)
+    
+    randomizer.outputContainerName = suffix
+    randomizer.shuffleStrength = sigma
+    
+    setupVSI( vsi )
+    vsi.TrackLocation           = "InDetTrackParticlesRandomized" + suffix
+    vsi.AugmentingVersionString = "_Randomized" + suffix
+    vsi.VertexFitterTool        = InclusiveVxFitterTool
+    vsi.Extrapolator            = ToolSvc.AtlasExtrapolator
+    
+    SeqSUSY15 += randomizer
+    SeqSUSY15 += vsi
+    
+    
+  MSMgr.GetStream("StreamDAOD_SUSY15").AddItem( [ 'xAOD::TrackParticleContainer#InDetTrackParticles*',
+                                                  'xAOD::TrackParticleAuxContainer#InDetTrackParticles*',
+                                                  'xAOD::VertexContainer#VrtSecInclusive*',
+                                                  'xAOD::VertexAuxContainer#VrtSecInclusive*'] )
+  print "List of items for the DAOD_RPVLL output stream:"
+  print MSMgr.GetStream("StreamDAOD_SUSY15").GetItems()
 
 # end of vertex dissolving
 #------------------------------------------------------------------------------
@@ -207,22 +214,25 @@ thinningTools.append(SUSY15TauTPThinningTool)
 # Note how the thinning service (which must be passed to the tools) is accessed
 
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VsiTrackThinningTool
+if doDissolvedVertexing:
+  
+  from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VsiTrackThinningTool
+  
+  #-----
+  SUSY15ThinningTools = []
+  for suffix in TrackRandomizingSuffices:
+    thinningTool = DerivationFramework__VsiTrackThinningTool( name = ("VsiTrackThinningTool" + suffix),
+                                                              ThinningService = SUSY15ThinningHelper.ThinningSvc(),
+                                                              TrackContainerName = ("InDetTrackParticlesRandomized"+suffix),
+                                                              VertexContainerName = ("VrtSecInclusive_SecondaryVertices_Randomized"+suffix) )
+    ToolSvc += thinningTool
+    thinningTools.append( thinningTool )
+  #-----
 
-#-----
-SUSY15ThinningTools = []
-for suffix in TrackRandomizingSuffices:
-  thinningTool = DerivationFramework__VsiTrackThinningTool( name = ("VsiTrackThinningTool" + suffix),
-                                                            ThinningService = SUSY15ThinningHelper.ThinningSvc(),
-                                                            TrackContainerName = ("InDetTrackParticlesRandomized"+suffix),
-                                                            VertexContainerName = ("VrtSecInclusive_SecondaryVertices_Randomized"+suffix) )
-  ToolSvc += thinningTool
-  thinningTools.append( thinningTool )
-#-----
 
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("SUSY15Kernel",
-                                                                       ThinningTools = SUSY15ThinningTools )
+  from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+  DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("SUSY15Kernel",
+                                                                         ThinningTools = SUSY15ThinningTools )
 
 
 #====================================================================
