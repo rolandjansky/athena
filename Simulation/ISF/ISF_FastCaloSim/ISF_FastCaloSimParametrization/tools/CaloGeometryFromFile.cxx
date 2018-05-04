@@ -17,7 +17,15 @@ map<unsigned long long, unsigned long long> g_cellId_vs_cellHashId_map;
 
 CaloGeometryFromFile::CaloGeometryFromFile() : CaloGeometry()
 {
-	ifstream textfile("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/cellId_vs_cellHashId_map.txt");
+}
+
+CaloGeometryFromFile::~CaloGeometryFromFile()
+{
+}
+
+bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treename,TString hashfile)
+{
+	ifstream textfile(hashfile);
 	unsigned long long id, hash_id; 
 	cout << "Loading cellId_vs_cellHashId_map" << endl;
 	int i=0;
@@ -35,14 +43,7 @@ CaloGeometryFromFile::CaloGeometryFromFile() : CaloGeometry()
 	}
 	cout << "Done." << endl;
 	
-}
 
-CaloGeometryFromFile::~CaloGeometryFromFile()
-{
-}
-
-bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treename)
-{
   TTree *tree;
   TFile *f = TFile::Open(filename);
   if(!f) return false;
@@ -103,7 +104,10 @@ bool CaloGeometryFromFile::LoadGeometryFromFile(TString filename,TString treenam
     if (ientry < 0) break;
     fChain->GetEntry(jentry);
     
-    if (g_cellId_vs_cellHashId_map.find(cell.m_identify)!=g_cellId_vs_cellHashId_map.end()) cell.m_hash_id=g_cellId_vs_cellHashId_map[cell.m_identify];
+    if (g_cellId_vs_cellHashId_map.find(cell.m_identify)!=g_cellId_vs_cellHashId_map.end()) {
+      cell.m_hash_id=g_cellId_vs_cellHashId_map[cell.m_identify];
+      if(cell.m_hash_id!=jentry) cout<<jentry<<" : ERROR hash="<<cell.m_hash_id<<endl;
+    }  
     else cout << endl << "ERROR: Cell id not found in the cellId_vs_cellHashId_map!!!" << endl << endl;
     
 
