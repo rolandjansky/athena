@@ -336,10 +336,12 @@ namespace met {
 	}
 	// reinstate greedy photon option for testing
 	if (selected && obj->type() == xAOD::Type::Photon && m_veryGreedyPhotons) {
+	  //std::cout << "photon! " << std::endl;
 	  for (size_t i = 0; i < assocs.size(); i++) {
 	    std::vector<size_t> ind = assocs[i]->overlapIndices(orig);
 	    std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
 	    for (size_t indi = 0; indi < ind.size(); indi++) {
+	      //std::cout << "associated object: " << allObjects[ind[indi]]->type() << std::endl;
 	      if (allObjects[ind[indi]] && (allObjects[ind[indi]]->type()==xAOD::Type::Electron ||  allObjects[ind[indi]]->type()==xAOD::Type::Jet)) assocs[i]->setObjSelectionFlag(allObjects[ind[indi]],true);
 	    }
 	  }
@@ -651,6 +653,12 @@ namespace met {
 	      ATH_MSG_VERBOSE("  Jet overlaps with " << object->type() << " " << object->index() 
 			   << " with pt " << object->pt() << ", phi " << object->phi() );
 	    }
+
+	    // if there is calorimeter overlap with a photon, then turn off the tracks Greedy
+	    if (object && object->type() == xAOD::Type::Photon && m_veryGreedyPhotons) {
+	      hardJet=true; // turning on the overlapping jet
+	    }// end greedy	    
+
 	  }
 	}
 
