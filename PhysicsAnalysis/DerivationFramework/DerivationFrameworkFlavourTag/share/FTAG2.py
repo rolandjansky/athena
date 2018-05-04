@@ -18,6 +18,7 @@ from JetRec.JetRecStandard import jtm
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+from DerivationFrameworkCore.LHE3WeightMetadata import *
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
