@@ -13,7 +13,7 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "xAODEventInfo/EventInfo.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
-
+#include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 #include <vector>
 
 namespace top{
@@ -56,14 +56,10 @@ namespace top{
 
 
     // Retrieve the systematic names we stored
-    for(auto& s : m_config->getGlobalTriggerElectronSystematics()) ATH_MSG_INFO(" - Electron systematics : " << s);
-    for(auto& s : m_config->getGlobalTriggerMuonSystematics())     ATH_MSG_INFO(" - Muon systematics : " << s);
-    for(auto& s : m_config->getGlobalTriggerElectronTools())       ATH_MSG_INFO(" - Electron tools : " << s);
-    for(auto& s : m_config->getGlobalTriggerMuonTools())           ATH_MSG_INFO(" - Muon tools : " << s);
-
-    
-    CP::SystematicSet sysSet = m_globalTriggerSF->affectingSystematics();
-    std::set<std::string> base_names = sysSet.getBaseNames();
+    for(auto& s : m_config->getGlobalTriggerElectronSystematics()) ATH_MSG_DEBUG(" - Electron systematics : " << s);
+    for(auto& s : m_config->getGlobalTriggerMuonSystematics())     ATH_MSG_DEBUG(" - Muon systematics : " << s);
+    for(auto& s : m_config->getGlobalTriggerElectronTools())       ATH_MSG_DEBUG(" - Electron tools : " << s);
+    for(auto& s : m_config->getGlobalTriggerMuonTools())           ATH_MSG_DEBUG(" - Muon tools : " << s);
 
     return StatusCode::SUCCESS;
   }
@@ -90,8 +86,7 @@ namespace top{
       }
       else{
 	m_activeSystVariation = "";
-      }
-      
+      }      
       top::check( electronTool->applySystematicVariation(systSet), "Failed to apply systematic "+systematicName );
     }
     return StatusCode::SUCCESS;   
@@ -143,7 +138,7 @@ namespace top{
       }
     }
 
-    top::check(evtStore()->retrieve(electrons, "Electrons_"), "Failed to retrieve Nominal muons");
+    top::check(evtStore()->retrieve(electrons, "Electrons_"), "Failed to retrieve Nominal electrons");
     // Put into a vector
     selectedElectrons.clear();
     selectedElectronsLoose.clear();
@@ -162,6 +157,11 @@ namespace top{
 
     int nTightLeptons = selectedMuons.size()      + selectedElectrons.size();
     int nLooseLeptons = selectedMuonsLoose.size() + selectedElectronsLoose.size();
+
+    ATH_MSG_DEBUG("Tight electrons " << std::to_string(selectedElectrons.size()));
+    ATH_MSG_DEBUG("Tight muons     " << std::to_string(selectedMuons.size()));
+    ATH_MSG_DEBUG("Loose electrons " << std::to_string(selectedElectronsLoose.size()));
+    ATH_MSG_DEBUG("Loose muons     " << std::to_string(selectedMuonsLoose.size()));
 
     double SF_Trigger(1.0), SF_TriggerLoose(1.0);
     double EFF_Trigger_MC(0.0), EFF_Trigger_DATA(0.0);
@@ -188,7 +188,7 @@ namespace top{
     ///-- Apply and calculate variations on nominal --///
     if(nTightLeptons >= 1){
       ///-- Set nominal muon for electron systematics --///
-      top::check( this->setMuonSystematic(    "", 1,  m_config->getGlobalTriggerMuonTools()), "Failed to apply muon nominal" );
+      top::check( this->setMuonSystematic("", 1,  m_config->getGlobalTriggerMuonTools()), "Failed to apply muon nominal" );
       for(auto& s : m_config->getGlobalTriggerElectronSystematics()){
 	top::check( this->setElectronSystematic(s, 1,  m_config->getGlobalTriggerElectronTools()), "Failed to apply electron up systematic" );
 	top::check(m_globalTriggerSF      -> getEfficiencyScaleFactor(selectedElectrons, selectedMuons, SF_Trigger  ) , "Failed to get SF");
@@ -323,8 +323,6 @@ namespace top{
       int nTightLeptons = selectedMuons.size() + selectedElectrons.size();
       int nLooseLeptons = selectedMuonsLoose.size() + selectedElectronsLoose.size();
 
-      if(nTightLeptons == 0 && nLooseLeptons == 0) continue;
-
       double SF_Trigger(1.0), SF_TriggerLoose(1.0);
       double EFF_Trigger_MC(0.0), EFF_Trigger_DATA(0.0);
       double EFF_TriggerLoose_MC(0.0), EFF_TriggerLoose_DATA(0.0);
@@ -404,8 +402,6 @@ namespace top{
       int nTightLeptons = selectedMuons.size()      + selectedElectrons.size();
       int nLooseLeptons = selectedMuonsLoose.size() + selectedElectronsLoose.size();
 
-      if(nTightLeptons == 0 && nLooseLeptons == 0) continue;
-
       double SF_Trigger(1.0), SF_TriggerLoose(1.0);
       double EFF_Trigger_MC(1.0), EFF_Trigger_DATA(1.0);
       double EFF_TriggerLoose_MC(1.0), EFF_TriggerLoose_DATA(1.0);
@@ -425,6 +421,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }
 
+
   StatusCode GlobalLeptonTriggerCalculator::decorateEventInfo(std::string decor, double value){
 
     // Retrive the EventInfo
@@ -434,7 +431,7 @@ namespace top{
     // Decorate using the string provided
     eventInfo->auxdecor<float>(decor) = value;
 
-    ATH_MSG_INFO("Decoration : " << decor);
+    ATH_MSG_DEBUG("Decoration : " << decor);
     return StatusCode::SUCCESS;
   }
 

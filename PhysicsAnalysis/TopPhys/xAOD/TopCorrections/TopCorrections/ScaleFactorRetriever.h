@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "AsgTools/AsgTool.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -80,8 +81,7 @@ enum topSFSyst{nominal = 0,
 
 enum topSFComp{ALL = 0, TRIGGER, RECO, ID, ISOLATION, CHARGEID, CHARGEMISID, TTVA};
 
-
-class ScaleFactorRetriever final {
+class ScaleFactorRetriever final : public asg::AsgTool{
  public:
   explicit ScaleFactorRetriever(std::shared_ptr<top::TopConfig> config);
   virtual ~ScaleFactorRetriever() {}

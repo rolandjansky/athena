@@ -18,6 +18,7 @@
 namespace top {
 
   ScaleFactorRetriever::ScaleFactorRetriever(std::shared_ptr<top::TopConfig> config) :
+    asg::AsgTool("top::ScaleFactorRetriever"),
     m_config(config) {
     std::shared_ptr<std::vector<std::string>> selectors = config ->  allSelectionNames();
 
@@ -76,7 +77,6 @@ namespace top {
     float sf(1.0);
     // We need to retrieve the systematic according to top::Event
     std::string systematicName = m_config->systematicName(event.m_hashValue);
-    std::cout << "This event is " << systematicName << std::endl;
     
     // We need to check if this is a loose event
     bool isLoose = event.m_isLoose;
@@ -107,10 +107,13 @@ namespace top {
       break;
     case top::topSFSyst::MU_SF_Trigger_SYST_DOWN:
       sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigSystUncertainty__1down");
-      break;    
-    default:
+      break;
+    case top::topSFSyst::nominal:
       // Nominal weight
       sf = eventInfo->auxdecor<float>(prefix);
+      break;
+    default:
+      ATH_MSG_INFO("Failed to retrieve a weight");
       break;
     
     }

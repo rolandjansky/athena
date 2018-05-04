@@ -314,22 +314,24 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 
   // Make the global trigger tool
   TrigGlobalEfficiencyCorrectionTool* globalTriggerEffTool =  new TrigGlobalEfficiencyCorrectionTool("TrigGlobalEfficiencyCorrectionTool::TrigGlobal");
-  top::check(globalTriggerEffTool->setProperty("ElectronEfficiencyTools", electronEffTools), "");
-  top::check(globalTriggerEffTool->setProperty("ElectronScaleFactorTools", electronSFTools), "");
-  top::check(globalTriggerEffTool->setProperty("MuonTools", muonTools), "");
-  top::check(globalTriggerEffTool->setProperty("ListOfLegsPerTool", legsPerTool), "");
-  top::check(globalTriggerEffTool->setProperty("TriggerCombination", triggerCombination), "");
-  top::check(globalTriggerEffTool->setProperty("OutputLevel", MSG::INFO), "");
+  top::check(globalTriggerEffTool->setProperty("ElectronEfficiencyTools", electronEffTools), "Failed to attach electron efficiency tools");
+  top::check(globalTriggerEffTool->setProperty("ElectronScaleFactorTools", electronSFTools), "Failed to attach electron scale factor tools");
+  top::check(globalTriggerEffTool->setProperty("MuonTools", muonTools), "Failed to attach muon tools");
+  top::check(globalTriggerEffTool->setProperty("ListOfLegsPerTool", legsPerTool), "Failed to define list of legs per tool");
+  top::check(globalTriggerEffTool->setProperty("TriggerCombination", triggerCombination), "Failed to define trigger combination");
+  // Setting MSG::ERROR to avoid flooding output with invalid efficiency warnings before event selection is complete
+  top::check(globalTriggerEffTool->setProperty("OutputLevel", MSG::ERROR), "Failed to set message level");
   top::check(globalTriggerEffTool->initialize(), "Failed to initalise");
   m_globalTriggerEffTool = globalTriggerEffTool;
 
   TrigGlobalEfficiencyCorrectionTool* globalTriggerEffToolLoose =  new TrigGlobalEfficiencyCorrectionTool("TrigGlobalEfficiencyCorrectionTool::TrigGlobalLoose");
-  top::check(globalTriggerEffToolLoose->setProperty("ElectronEfficiencyTools", electronEffToolsLoose), "");
-  top::check(globalTriggerEffToolLoose->setProperty("ElectronScaleFactorTools", electronSFToolsLoose), "");
-  top::check(globalTriggerEffToolLoose->setProperty("MuonTools", muonToolsLoose), "");
-  top::check(globalTriggerEffToolLoose->setProperty("ListOfLegsPerTool", legsPerToolLoose), "");
-  top::check(globalTriggerEffToolLoose->setProperty("TriggerCombination", triggerCombinationLoose), "");
-  top::check(globalTriggerEffToolLoose->setProperty("OutputLevel", MSG::INFO), "");
+  top::check(globalTriggerEffToolLoose->setProperty("ElectronEfficiencyTools", electronEffToolsLoose), "Failed to attach electron efficiency tools");
+  top::check(globalTriggerEffToolLoose->setProperty("ElectronScaleFactorTools", electronSFToolsLoose), "Failed to attach electron scale factor tools");
+  top::check(globalTriggerEffToolLoose->setProperty("MuonTools", muonToolsLoose), "Failed to attach muon tools");
+  top::check(globalTriggerEffToolLoose->setProperty("ListOfLegsPerTool", legsPerToolLoose), "Failed to define list of legs per tool");
+  top::check(globalTriggerEffToolLoose->setProperty("TriggerCombination", triggerCombinationLoose), "Failed to define trigger combination");
+  // Setting MSG::ERROR to avoid flooding output with invalid efficiency warnings before event selection is complete
+  top::check(globalTriggerEffToolLoose->setProperty("OutputLevel", MSG::ERROR), "Failed to set message level");
   top::check(globalTriggerEffToolLoose->initialize(), "Failed to initalise");
   m_globalTriggerEffToolLoose = globalTriggerEffToolLoose;
 

@@ -80,6 +80,7 @@ StatusCode ScaleFactorCalculator::initialize() {
     
     if ( (m_config->useElectrons() || m_config->useMuons()) && m_config->useGlobalTrigger() ){
       top::check(m_globalLeptonTriggerSF->setProperty("config", m_config), "Failed to setProperty");
+      // m_globalLeptonTriggerSF->msg().setLevel(MSG::DEBUG); 
       top::check(m_globalLeptonTriggerSF->initialize(), "Failed to initalize");
     }
     

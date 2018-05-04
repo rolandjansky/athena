@@ -573,6 +573,9 @@ namespace top {
     if (m_config->useMuons()) matchMuons();
     if (m_config->useTaus()) matchTaus();
 
+    // Decoreate eventinfo with this information
+    eventInfo->auxdecor<char>("orOfAllTriggers") = orOfAllTriggers;
+    
     // Do we veto events? Only if ALL selectors request TRIGDEC and no trigger passes
     if (m_vetoEventsTrigger) {
      return orOfAllTriggers;
