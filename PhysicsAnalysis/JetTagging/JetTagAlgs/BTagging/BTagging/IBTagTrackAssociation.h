@@ -31,7 +31,7 @@ namespace Analysis
 
        virtual StatusCode initialize() = 0;
        virtual StatusCode finalize() = 0;
-       virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks = 0) const = 0;
+       virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets) const = 0;
 
   };
 

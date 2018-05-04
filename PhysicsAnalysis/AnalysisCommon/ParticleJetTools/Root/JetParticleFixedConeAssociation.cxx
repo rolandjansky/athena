@@ -4,19 +4,19 @@
 
 // author: cpollard@cern.ch
 
-#include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
+#include "ParticleJetTools/JetParticleFixedConeAssociation.h"
 #include "AsgTools/Check.h"
 
 using namespace std;
 using namespace xAOD;
 
-JetParticleShrinkingConeAssociation::JetParticleShrinkingConeAssociation(const string& name)
+typedef ElementLink<IParticleContainer> ParticleLink;
+
+JetParticleFixedConeAssociation::JetParticleFixedConeAssociation(const string& name)
     : JetParticleAssociation(name) {
 
         declareProperty("InputParticleCollectionName", m_InputParticleCollectionName);
-        declareProperty("coneSizeFitPar1", m_coneSizeFitPar1=0);
-        declareProperty("coneSizeFitPar2", m_coneSizeFitPar2=0);
-        declareProperty("coneSizeFitPar3", m_coneSizeFitPar3=0);
+        declareProperty("coneSize", m_coneSize=0);
 
         return;
     }
@@ -25,31 +25,31 @@ JetParticleShrinkingConeAssociation::JetParticleShrinkingConeAssociation(const s
 // this algorithm associates particles jets using a pT-dependent
 // shrinking cone:
 // - for each particle we find the closest jet
-// - if the closest jet is within the shrinking dR cone of that jet,
+// - if the closest jet is within the dR cone of that jet,
 //   it is considered "associated"
-const vector<vector<ElementLink<IParticleContainer> > >*
-JetParticleShrinkingConeAssociation::match(const xAOD::JetContainer& jets) const {
+const vector<vector<ParticleLink> >*
+JetParticleFixedConeAssociation::match(const JetContainer& jets) const {
 
-    const xAOD::IParticleContainer* parts = NULL;
+    const IParticleContainer* parts = nullptr;
     if (evtStore()->retrieve( parts, m_InputParticleCollectionName ).isFailure() )
-        ATH_MSG_FATAL("JetParticleShrinkingConeAssociation: "
+        ATH_MSG_FATAL("JetParticleFixedConeAssociation: "
                       "failed to retrieve part collection \"" +
                       m_InputParticleCollectionName + "\"");
 
 
-    vector<vector<ElementLink<IParticleContainer> > >* matchedparts =
-        new vector<vector<ElementLink<IParticleContainer> > >(jets.size());
+    vector<vector<ParticleLink> >* matchedparts =
+        new vector<vector<ParticleLink> >(jets.size());
 
 
-    for (xAOD::IParticleContainer::const_iterator part_itr = parts->begin();
+    for (IParticleContainer::const_iterator part_itr = parts->begin();
             part_itr != parts->end(); ++part_itr) {
 
-        const xAOD::IParticle& part = **part_itr;
+        const IParticle& part = **part_itr;
 
         double drmin = -1;
         int matchjetidx = -1;
         for (unsigned int iJet = 0; iJet < jets.size(); iJet++) {
-            const xAOD::Jet& jet = *jets[iJet];
+            const Jet& jet = *jets[iJet];
 
             double dr = jet.p4().DeltaR(part.p4());
 
@@ -63,10 +63,9 @@ JetParticleShrinkingConeAssociation::match(const xAOD::JetContainer& jets) const
 
 
         if (matchjetidx >= 0) {
-            double match_dr = coneSize( (*jets[matchjetidx]).pt() );
-            if( drmin > match_dr ) continue;
+            if (drmin > m_coneSize) continue;
 
-            ElementLink<IParticleContainer> EL; 
+            ParticleLink EL; 
             EL.toContainedElement(*parts, *part_itr);
             (*matchedparts)[matchjetidx].push_back(EL);
         }

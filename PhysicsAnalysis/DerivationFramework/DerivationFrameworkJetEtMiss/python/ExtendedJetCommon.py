@@ -43,6 +43,8 @@ BTaggingFlags.CalibrationChannelAliases += [ "AntiKt4TopoEM->AntiKt4EMTopo" ]
 BTaggingFlags.Jets=[]
 from BTagging.BTaggingConfiguration import getConfiguration
 
+from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation
+
 ConfInst=getConfiguration()
 ConfInst.doNotCheckForTaggerObstacles()
 
@@ -68,8 +70,11 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
                                                     SetupScheme = "",
                                                     TaggerList = BTaggingFlags.StandardTaggers
                                                     )
-        jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt2trk]
-    addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=5000, mods="akt2track",
+
+        from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+        jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [defaultTrackAssoc, defaultMuonAssoc, btag_akt2trk]
+
+    addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
                     algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4PV0TrackJets(sequence, outputlist):
@@ -86,7 +91,10 @@ def addAntiKt4PV0TrackJets(sequence, outputlist):
                                                     SetupScheme = "",
                                                     TaggerList = BTaggingFlags.StandardTaggers
                                                     )
-        jtm.modifiersMap["akt4track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt4trk]
+
+        from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+        jtm.modifiersMap["akt4track"] = jtm.modifiersMap["track_ungroomed"] + [defaultTrackAssoc, defaultMuonAssoc, btag_akt4trk]
+
     addStandardJets("AntiKt", 0.4, "PV0Track", ptmin=2000, mods="akt4track", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10PV0TrackJets(sequence, outputlist):
