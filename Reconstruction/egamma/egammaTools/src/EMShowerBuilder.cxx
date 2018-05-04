@@ -7,14 +7,11 @@
 #include "StoreGate/ReadHandle.h"
 
 #include "EMShowerBuilder.h"
-
-#include "CaloUtils/CaloCellList.h"
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloEvent/CaloCluster.h"
-
 #include "egammaInterfaces/IegammaShowerShape.h"
 #include "egammaInterfaces/IegammaIso.h"
 
+#include "CaloUtils/CaloCellList.h"
+#include "CaloEvent/CaloCellContainer.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
@@ -24,14 +21,9 @@
 #include "xAODTracking/TrackParticleContainer.h" 
 #include "xAODTracking/VertexContainer.h" 
 
-#include "VxVertex/VxContainer.h"
-#include "Particle/TrackParticleContainer.h"
-
 #include "FourMomUtils/P4Helpers.h"
-
 #include <algorithm> 
 #include <cmath>
-#include <stdexcept>
 
 //  END OF HEADER FILES INCLUDE
 
