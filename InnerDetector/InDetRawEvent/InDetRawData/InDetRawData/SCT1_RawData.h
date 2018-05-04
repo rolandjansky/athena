@@ -56,8 +56,14 @@ public:
   // called from an alg
   SCT1_RawData();
 
+  // Default copy constructor
+  SCT1_RawData(const SCT1_RawData&) = default;
   // Default assignment operator
-  SCT1_RawData& operator=(const SCT1_RawData &) = default;
+  SCT1_RawData& operator=(const SCT1_RawData&) = default;
+  // Default move constructor
+  SCT1_RawData(SCT1_RawData&&) = default;
+  // Default move assignment operator
+  SCT1_RawData& operator=(SCT1_RawData&&) = default;
 
   ///////////////////////////////////////////////////////////////////
   // Private data:
