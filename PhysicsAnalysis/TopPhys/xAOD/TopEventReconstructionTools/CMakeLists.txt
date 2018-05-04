@@ -14,6 +14,9 @@ atlas_depends_on_subdirs( PUBLIC
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO Math MathMore MathCore Graf Minuit Minuit2 )
+
+# Find KLFitter package. As of May '18, included via atlasexternals,
+# source code pulled from https://www.github.com/KLFitter/KLFitter.
 find_package( KLFitter REQUIRED )
 
 # Custom definitions needed for this package:
