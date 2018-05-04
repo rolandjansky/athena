@@ -73,7 +73,6 @@ namespace FTK {
     ToolHandle <IFTKByteStreamDecoderEncoderTool> m_decoderAux;
     uint16_t m_AuxFormat;
     bool m_decodeAux;
-    bool m_decodeHeader;
     std::vector<uint32_t> m_robID;
 
   };
