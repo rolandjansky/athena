@@ -857,7 +857,11 @@ class ItemDef:
         LVL1MenuItem('L1_MBTSA10').setLogic( MBTS_A10 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSA12').setLogic( MBTS_A12 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSA14').setLogic( MBTS_A14 & physcond).setTriggerType(TT.minb)    # noqa: F821
-        # L1_MBTSA/C 9, 11, 13, 15 are removed in Run 2
+
+        LVL1MenuItem('L1_MBTSA9' ).setLogic( MBTS_A9 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSA11').setLogic( MBTS_A11 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSA13').setLogic( MBTS_A13 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSA15').setLogic( MBTS_A15 & physcond).setTriggerType(TT.minb)    # noqa: F821
 
         LVL1MenuItem('L1_MBTSC0' ).setLogic( MBTS_C0 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSC1' ).setLogic( MBTS_C1 & physcond).setTriggerType(TT.minb)    # noqa: F821
@@ -871,6 +875,11 @@ class ItemDef:
         LVL1MenuItem('L1_MBTSC10').setLogic( MBTS_C10 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSC12').setLogic( MBTS_C12 & physcond).setTriggerType(TT.minb)    # noqa: F821
         LVL1MenuItem('L1_MBTSC14').setLogic( MBTS_C14 & physcond).setTriggerType(TT.minb)    # noqa: F821
+
+        LVL1MenuItem('L1_MBTSC9' ).setLogic( MBTS_C9 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSC11').setLogic( MBTS_C11 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSC13').setLogic( MBTS_C13 & physcond).setTriggerType(TT.minb)    # noqa: F821
+        LVL1MenuItem('L1_MBTSC15').setLogic( MBTS_C15 & physcond).setTriggerType(TT.minb)    # noqa: F821
         
         LVL1MenuItem('L1_MBTS_1_BGRP9'    ).setLogic( MBTS_1 & bgrp9cond ).setTriggerType(TT.minb)      # noqa: F821
         LVL1MenuItem('L1_MBTS_1_1_BGRP9'  ).setLogic( MBTS_1_1 & bgrp9cond ).setTriggerType(TT.minb)    # noqa: F821
@@ -1686,7 +1695,7 @@ class ItemDef:
                         LVL1MenuItem('L1_MJJ-200-NFF').setLogic( TOPO_200INVM9999_J30s6_AJ20s6 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_63DETA-J30J15').setLogic( TOPO_63DETA127_FJ20s1_FJ20s2 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_J50_DETA20-J50J').setLogic( J50 & TOPO_0DETA20_J50s1_Js2 & physcond)    # noqa: F821
-                        LVL1MenuItem('L1_DPHI-2EM3').setLogic( TOPO_27DPHI31_EMs1_EMs6 & physcond)    # noqa: F821
+                        LVL1MenuItem('L1_DPHI-2EM3').setLogic( TOPO_27DPHI32_EMs1_EMs6 & physcond)    # noqa: F821
               
                     #LVL1MenuItem('L1_MJJ-350-0').setLogic( TOPO_350INVM9999_J30s6_J20s6 & physcond)    # noqa: F821
                     #LVL1MenuItem('L1_MJJ-300-0').setLogic( TOPO_300INVM9999_J30s6_J20s6 & physcond)    # noqa: F821
@@ -1724,7 +1733,7 @@ class ItemDef:
                         LVL1MenuItem('L1_LAR-ZEE_LAR-EM').setLogic( TOPO_ZEE_EM20shi2 & TOPO_LAR_EM20shi1 &physcond).setTriggerType( TT.lardemo )  # noqa: F821
                         LVL1MenuItem('L1_FTK-EM').setLogic( TOPO_FTK_EM20s1 & physcond).setTriggerType( TT.ftk ) # noqa: F821
                         LVL1MenuItem('L1_FTK-J').setLogic( TOPO_FTK_J100s1 & physcond).setTriggerType( TT.ftk ) # noqa: F821
-                        LVL1MenuItem('L1_FTK-MU').setLogic( TOPO_FTK_MU20s1 & physcond).setTriggerType( TT.ftk ) # noqa: F821
+                        LVL1MenuItem('L1_FTK-MU').setLogic( TOPO_FTK_MU10s1 & MU20 & physcond).setTriggerType( TT.ftk ) # noqa: F821
                         
                     LVL1MenuItem('L1_KF-XE40').setLogic( TOPO_KF_XE40_AJall & physcond)    # noqa: F821
                     LVL1MenuItem('L1_KF-XE50').setLogic( TOPO_KF_XE50_AJall & physcond)    # noqa: F821

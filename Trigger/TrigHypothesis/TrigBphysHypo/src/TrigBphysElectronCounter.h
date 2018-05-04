@@ -117,12 +117,12 @@ template<class Tin, class Tout> int TrigBphysElectronCounter::passNObjects(int n
 	    unsigned int isEMTrig = 0;
 	    if( m_applyIsEM && m_egammaElectronCutIDTool != 0 ){
 	      if( m_egammaElectronCutIDTool->execute( (*efmu) ).isFailure() )
-		if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " can not calculate isEM on electron " << (*efmu)->pt() << endmsg;
+		ATH_MSG_DEBUG(" can not calculate isEM on electron " << (*efmu)->pt() );
 	      isEMTrig = m_egammaElectronCutIDTool->IsemValue();
-	      if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " set isEM Trig " << std::hex << isEMTrig << " on electron " << (*efmu)->pt() << endmsg;
+	      ATH_MSG_DEBUG(" set isEM Trig " << std::hex << isEMTrig << " on electron " << (*efmu)->pt() );
 
 	    }else{
-	      if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << " No check of isEM is done " << endmsg;
+	      ATH_MSG_DEBUG(" No check of isEM is done " );
 	    }
 	    
 	    float pt = fabs((*efmu)->pt()) ;
@@ -131,10 +131,10 @@ template<class Tin, class Tout> int TrigBphysElectronCounter::passNObjects(int n
 	    pts.push_back(pt);	    
 	    outVec.push_back(efmu);
 	    isEMs.push_back(isEMTrig);	    
-	    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Found electron, pt= " << pt << ", isEMTrig= 0x"<< std::hex << isEMTrig << " (required isEM= 0x"<< std::hex << isEMBitCuts << std::dec<< ")"<< endmsg;
+	    ATH_MSG_DEBUG("Found electron, pt= " << pt << ", isEMTrig= 0x"<< std::hex << isEMTrig << " (required isEM= 0x"<< std::hex << isEMBitCuts << std::dec<< ")");
 	    unsigned int isEMbit=0;
 	    
-	    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "  passing isEMLoose =  " << (*efmu)->selectionisEM(isEMbit,"isEMLoose") << " 0x" << std::hex <<  isEMbit << endmsg;
+	    ATH_MSG_DEBUG("  passing isEMLoose =  " << (*efmu)->selectionisEM(isEMbit,"isEMLoose") << " 0x" << std::hex <<  isEMbit );
 	  }
       }//}// end loop over electrons in one TE
     } // end getFeaturesLinks
@@ -142,9 +142,7 @@ template<class Tin, class Tout> int TrigBphysElectronCounter::passNObjects(int n
 
     //=== check if it is enough electrons
   if( (int)outVec.size() < nObjMin ) {
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Rejecting: "
-    					 <<" #electrons= " <<  outVec.size() 
-    					 << " while need "<< nObjMin << endmsg;
+    ATH_MSG_DEBUG("Rejecting: " <<" #electrons= " <<  outVec.size() << " while need "<< nObjMin );
     return 1;
   }
   //std::sort(isEMs.begin(), isEMs.end(), [&pts](size_t i, size_t j) {return pts[i] > pts[j];});
@@ -163,11 +161,11 @@ template<class Tin, class Tout> int TrigBphysElectronCounter::passNObjects(int n
       failElectronIsEM = true;    
   }
   if( failElectronPt ){
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail electron pt cut" << endmsg;
+    ATH_MSG_DEBUG("Fail electron pt cut" );
     return 2;
   }
   if( failElectronIsEM ){
-    if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fail electron PID cut " << endmsg;
+    ATH_MSG_DEBUG("Fail electron PID cut " );
     return 3;
   }
   // here would be good to limit number of objects to the minimum

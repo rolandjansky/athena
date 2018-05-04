@@ -53,7 +53,7 @@ TrigBphysElectronCounter::TrigBphysElectronCounter(const std::string & name, ISv
   declareProperty("ApplyIsEM",             m_applyIsEM = true);
   declareProperty("IsEMrequiredBits",      m_IsEMrequiredBits = 0xF2);
 
-declareProperty("egammaElectronCutIDToolName",m_egammaElectronCutIDToolName="");
+  declareProperty("egammaElectronCutIDToolName",m_egammaElectronCutIDToolName="");
 
 
   declareMonitoredStdContainer("Acceptance" , m_mon_Acceptance   , AutoClear);
@@ -75,8 +75,6 @@ HLT::ErrorCode TrigBphysElectronCounter::hltInitialize()
     //std::sort(IsEMrequiredBits.begin(), IsEMrequiredBits.end(), [&m_ptElectronMin](size_t i, size_t j) {return m_ptElectronMin[i] > m_ptElectronMin[j];});
     std::sort(m_ptElectronMin.begin(), m_ptElectronMin.end(), std::greater<float>());
 
-   if (msgLvl() <= MSG::INFO) {
-
      if (m_egammaElectronCutIDToolName=="") {
        ATH_MSG_DEBUG("Electron IsEM PID is disabled, no tool specified "); 
        m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>();
@@ -85,28 +83,26 @@ HLT::ErrorCode TrigBphysElectronCounter::hltInitialize()
      else {
        m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>(m_egammaElectronCutIDToolName);    
        if(m_egammaElectronCutIDTool.retrieve().isFailure()) {
-	 ATH_MSG_ERROR("Unable to retrieve " << m_egammaElectronCutIDTool<< " tool ");
-	 return HLT::BAD_JOB_SETUP; 
+  	     ATH_MSG_ERROR("Unable to retrieve " << m_egammaElectronCutIDTool<< " tool ");
+	     return HLT::BAD_JOB_SETUP; 
        } 
        else {
-	 ATH_MSG_DEBUG("Tool " << m_egammaElectronCutIDTool << " retrieved");
+	     ATH_MSG_DEBUG("Tool " << m_egammaElectronCutIDTool << " retrieved");
        }
      }
      
-     msg() << MSG::INFO << "require at least "<< m_nEfElectron <<" EF Electrons from with collectionKey  m_electronCollectionKey \"" << m_electronCollectionKey  << "\" "<< endmsg;
-      msg() << MSG::INFO << " Electrons should have  pts ";	
-      for(float pt :  m_ptElectronMin)  msg() << MSG::INFO << pt <<", ";
-      msg() << MSG::INFO << endmsg;
-      if( m_applyIsEM )  {
-        msg() << MSG::INFO << " Electrons should have  isEM bits " << std::hex << "0x" << m_IsEMrequiredBits << std::dec <<", " << endmsg;
+     ATH_MSG_INFO("require at least "<< m_nEfElectron <<" EF Electrons from collection " << m_electronCollectionKey  << ", with pts: ");
+     if(msgLvl() <= MSG::INFO){	
+        for(float pt :  m_ptElectronMin){ msg() << MSG::INFO << pt <<", ";}
+        msg() << MSG::INFO << endmsg;
+     }
+     if( m_applyIsEM )  {
+        ATH_MSG_INFO(" Electrons should have  isEM bits " << std::hex << "0x" << m_IsEMrequiredBits << std::dec);
       }else{
-        msg() << MSG::INFO << " no isEM PID cuts are applied " << endmsg;
+        ATH_MSG_INFO(" no isEM PID cuts are applied ");
        }
      
-   }
-   if (msgLvl() <= MSG::INFO) {
-     msg() << MSG::INFO << " Overlap removal dR<"<<m_mindR<< endmsg;
-   }
+   ATH_MSG_INFO(" Overlap removal dR<"<<m_mindR);
 
   if ( timerSvc() ) {
     m_BmmHypTot = addTimer("TrigBphysElectronCounter");
@@ -120,12 +116,12 @@ HLT::ErrorCode TrigBphysElectronCounter::hltInitialize()
 
 HLT::ErrorCode TrigBphysElectronCounter::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  ATH_MSG_INFO("in finalize()");
   MsgStream log(msgSvc(), name());
   
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigBphysElectronCounter -------------|" << endmsg;
-  msg() << MSG::INFO << "Run on events " << m_countTotalEvents <<  endmsg;
-  msg() << MSG::INFO << "Passed events " << m_countPassedEvents<<  endmsg;
+  ATH_MSG_INFO("|----------------------- SUMMARY FROM TrigBphysElectronCounter -------------|");
+  ATH_MSG_INFO("Run on events " << m_countTotalEvents );
+  ATH_MSG_INFO("Passed events " << m_countPassedEvents);
 
   return HLT::OK;
 }
@@ -140,7 +136,7 @@ HLT::ErrorCode TrigBphysElectronCounter::hltExecute(std::vector<std::vector<HLT:
   m_mon_Acceptance.clear();
 
   m_mon_Acceptance.push_back( ACCEPT_hltExecute );
-  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " In TrigBphysElectronCounter hltExecute" << endmsg;
+  ATH_MSG_DEBUG(" In TrigBphysElectronCounter hltExecute");
 
 
   //========  check if we have enough EF electrons :  =====================
@@ -151,21 +147,21 @@ HLT::ErrorCode TrigBphysElectronCounter::hltExecute(std::vector<std::vector<HLT:
   if( failedCut != 0 ){
     if ( timerSvc() )  m_BmmHypTot->stop();
     if( failedCut == 1 ){
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found "<<efelectrons.size() <<" EF electrons - fail N object cut "<<  endmsg;
+      ATH_MSG_DEBUG("Found "<<efelectrons.size() <<" EF electrons - fail N object cut ");
     }else if( failedCut == 2 ){
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " fail pt cuts "<<  endmsg;
+      ATH_MSG_DEBUG(" fail pt cuts ");
        m_mon_Acceptance.push_back( ACCEPT_PassNElectrons );
     }else if( failedCut == 3 ){
-      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " fail isEM cuts "<<  endmsg;
+      ATH_MSG_DEBUG(" fail isEM cuts ");
        m_mon_Acceptance.push_back( ACCEPT_PassNElectrons );
        m_mon_Acceptance.push_back( ACCEPT_PassPtcut );
     }else {
-      if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << " unknown return code!! Please contact developers "<<  endmsg;
+       ATH_MSG_WARNING(" unknown return code!! Please contact developers ");
     }    
     afterExecMonitors().ignore();   
     return HLT::OK;
   }else{
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found "<<efelectrons.size() <<" EF electrons, require "<<m_nEfElectron<<" - accept "<<  endmsg; 
+    ATH_MSG_DEBUG("Found "<<efelectrons.size() <<" EF electrons, require "<<m_nEfElectron<<" - accept "); 
   }
   m_mon_Acceptance.push_back( ACCEPT_PassNElectrons );
   m_mon_Acceptance.push_back( ACCEPT_PassPtcut );
