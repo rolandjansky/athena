@@ -119,6 +119,7 @@ bool ImportData::importTriggers()
 		std::size_t h = m_hasher(triggerName);
 		m_dictionary[h] = triggerName;
 		auto& def = m_triggerDefs[h];
+		def.name = h;
 		for(std::size_t& leg : def.leg)
 		{
 			if(!(ss >> token)) break;
@@ -642,4 +643,38 @@ bool ImportData::suggestElectronMapKeys(const std::map<std::string,std::string>&
 		}
 	}
 	return success;
+}
+
+bool ImportData::adaptTriggerListForTriggerMatching(std::vector<ImportData::TrigDef>& triggers)
+{
+	/// This essentially splits _OR_ single lepton triggers into independent items
+	std::set<std::size_t> extraItems; /// to prevent duplicates
+	std::vector<ImportData::TrigDef> updatedTriggers;
+	for(auto& trig : triggers)
+	{
+		auto& name = m_dictionary.at(trig.name);
+		std::size_t pos = 0, newpos = name.find("_OR_");
+		if(newpos == std::string::npos)
+		{
+			updatedTriggers.emplace_back(trig);
+			continue;
+		}
+		while(true)
+		{
+			std::string item = name.substr(pos, newpos);
+			auto h = m_hasher(item);
+			auto def = m_triggerDefs.find(h);
+			if(def == m_triggerDefs.end())
+			{
+				ATH_MSG_ERROR("while listing triggers for trigger matching; trigger \"" << item << "\" extracted from \"" << name << "\" is not recognized");
+				return false;
+			}
+			if(extraItems.emplace(h).second) updatedTriggers.emplace_back(def->second);
+			if(newpos == std::string::npos) break;
+			pos = newpos + 4;
+			newpos = name.find("_OR_", pos);
+		}
+	}
+	triggers.swap(updatedTriggers);
+	return true;
 }
