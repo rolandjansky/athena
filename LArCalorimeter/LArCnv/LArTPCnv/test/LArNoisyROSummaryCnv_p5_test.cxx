@@ -28,7 +28,7 @@ void compare (const LArNoisyROSummary& p1,
   assert (p1.SatTightFlaggedPartitions() == p2.SatTightFlaggedPartitions());
   assert (p1.MNBLooseFlaggedPartitions() == p2.MNBLooseFlaggedPartitions());
   assert (p1.MNBTightFlaggedPartitions() == p2.MNBTightFlaggedPartitions());
-  assert (p1.MNBTightFlaggedPartitions_PsVeto() == p2.MNBTightFlaggedPartitions_PsVeto());
+  assert (p1.MNBTight_PsVetoFlaggedPartitions() == p2.MNBTight_PsVetoFlaggedPartitions());
   assert (p1.get_MNBTight_febs() == p2.get_MNBTight_febs());
   assert (p1.get_MNBLoose_febs() == p2.get_MNBLoose_febs());
 }
@@ -63,7 +63,7 @@ void test1()
   trans1.SetSatTightFlaggedPartitions (0x45);
   trans1.SetMNBTightFlaggedPartitions (0x56);
   trans1.SetMNBLooseFlaggedPartitions (0x67);
-  trans1.SetMNBTightFlaggedPartitions_PsVeto (0x48);
+  trans1.SetMNBTight_PsVetoFlaggedPartitions (0x48);
   trans1.add_MNBTight_feb(HWIdentifier (0xF1234));
   trans1.add_MNBTight_feb(HWIdentifier (0xF1235));
   trans1.add_MNBLoose_feb(HWIdentifier (0xF4321));

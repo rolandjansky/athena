@@ -7,7 +7,7 @@
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_FTK_ttbar_sample2.xml"
+#          include "samples/TrigInDetValidation_FTK_ttbar_sample3.xml"
 	   
 
 
@@ -39,6 +39,19 @@
               </arg>
             </action>
 
+
+           <action position="03">
+              <modulename>RttLibraryTools</modulename> 
+              <testname>ExeRunner</testname>  
+              <arg> 
+                <argname>exeName</argname>
+                <argvalue>TIDArun.sh</argvalue> 
+              </arg>
+              <arg> 
+                <argname>exeParamString</argname>
+                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root FTK_TrackParticleContainer -d HLTEF-plots  </argvalue>
+              </arg>
+            </action>
 
 
 

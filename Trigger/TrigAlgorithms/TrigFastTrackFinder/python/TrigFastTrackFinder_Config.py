@@ -496,7 +496,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
           self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
           self.SeedRadBinWidth = InDetTrigSliceSettings[('seedRadBinWidth',remapped_type)]
-          self.doTrigInDetTrack = InDetTrigSliceSettings[('doTrigInDetTrack',remapped_type)]
 
           if remapped_type=="cosmics":
             self.Doublet_FilterRZ = False

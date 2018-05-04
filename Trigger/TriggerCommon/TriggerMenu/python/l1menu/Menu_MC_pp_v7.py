@@ -174,11 +174,13 @@ def defineMenu():
         # 2 x MBTS
         'MBTS_A', 'MBTS_C',
 
-        # 24 x MBTSSI (all FTHR)
-        'MBTS_A0', 'MBTS_A1', 'MBTS_A2', 'MBTS_A3', 'MBTS_A4'  , 'MBTS_A5', 'MBTS_A6', 'MBTS_A7', 
-        'MBTS_A8', 'MBTS_A10', 'MBTS_A12' , 'MBTS_A14',
-        'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4'  , 'MBTS_C5', 'MBTS_C6', 'MBTS_C7', 
-        'MBTS_C8', 'MBTS_C10', 'MBTS_C12' , 'MBTS_C14',
+        # 32 x MBTSSI (all FTHR)
+        # NOTE: THESE ARE OUT OF ORDER FOR A REASON! Do not change!
+        # The order defines the mapping - see ATR-17870.
+        'MBTS_A0', 'MBTS_A1', 'MBTS_A2', 'MBTS_A3', 'MBTS_A4', 'MBTS_A5', 'MBTS_A6', 'MBTS_A7',
+        'MBTS_A8', 'MBTS_A10', 'MBTS_A12', 'MBTS_A14', 'MBTS_A9', 'MBTS_A11','MBTS_A13', 'MBTS_A15',
+        'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4', 'MBTS_C5', 'MBTS_C6', 'MBTS_C7',
+        'MBTS_C8', 'MBTS_C10', 'MBTS_C12', 'MBTS_C14', 'MBTS_C11', 'MBTS_C13','MBTS_C9','MBTS_C15',
 
         # L1A for CTP monitoring itself
         'NIML1A',
@@ -301,7 +303,7 @@ def defineMenu():
         '200INVM9999-J30s6-AJ20s6',
         '63DETA127-FJ20s1-FJ20s2',
         '0DETA20-J50s1-Js2',
-        '27DPHI31-EMs1-EMs6',
+        '27DPHI32-EMs1-EMs6',
         #'350INVM9999-J30s6-J20s6',
         #'300INVM9999-J30s6-J20s6',
         #'250INVM9999-J30s6-J20s6',
@@ -328,7 +330,7 @@ def defineMenu():
         'ZEE-EM20shi2',
         'FTK-EM20s1',
         'FTK-J100s1',
-        'FTK-MU20s1',
+        'FTK-MU10s1',
 
         '2INVM9-2MU6ab',
         '7INVM15-2MU4ab', 
