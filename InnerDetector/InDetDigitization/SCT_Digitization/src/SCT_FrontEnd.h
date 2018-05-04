@@ -104,6 +104,7 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   double m_NOShortMiddles ;                 //!< Noise Occupancy, EC Short Middles (in the case of no use of calibration data)
   double m_NOOuters ;                       //!< Noise Occupancy, Ec Outers  (in the case of no use of calibration data)
   bool m_NoiseOn ;                          //!< To know if Noise is on or off when using calibration data)
+  bool m_analogueNoiseOn ;                  //!< To know if analogue noise is on or off
   float m_GainRMS ;                         //!< Gain factor for gain generation 
   float m_Ospread ;                         //!< Offset factor for offset generation
   float m_OGcorr ;                          //!< Gain-offset correlation factor
@@ -111,7 +112,6 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   float m_timeOfThreshold ;                 //!< Time for the threshold factor
   short m_data_compression_mode;            //!< To set the data compression mode
   short m_data_readout_mode;                //!< To set the data read out mode
-  bool m_noise_expanded_mode;               //!< To set the noise expanded mode
   bool m_useCalibData;                      //!< Flag to set the use of calibration data for noise, Gain,offset etc. 
   mutable int m_strip_max;                  //!< For SLHC studies
  

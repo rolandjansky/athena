@@ -1,5 +1,8 @@
 #!/bin/bash
 
+[ $# -lt 2 ] && echo "Usage: mkreference <runscript> <dir_with_rootfile>" && exit -1
+
+! ( which TIDAcomparitor &> /dev/null ) && echo "release not set up" && exit
 
 # analysis comparitor chains ...
 
@@ -15,11 +18,20 @@ JOB=$(grep RTTJOBNAME= $1 | sed 's|.*=[[:space:]]*TrigInDetValidation_||g' )
 
 echo "JOB $JOB"
 
-ROOTFILE=$(grep TIDArun-art.sh $1 | grep -v timestamp | grep -v "^#" | grep -v expert | head -1 | awk '{print $2}' )
+DIR=$PWD
 
-REFFILE=$(grep TIDArun-art.sh $1 | grep -v timestamp | grep -v "^#" | grep -v expert | head -1 | awk '{print $3}' )
+SCRIPT=$1
+ROOTDIR=$2
 
-RAWCHAINS=$(grep TIDArun-art.sh $1 | grep -v timestamp | grep -v "^#" | grep -v expert | sed 's|.*root[[:space:]]||g' | sed 's| -.*||g' )
+
+mkdir -p .$JOB
+cd       .$JOB
+
+ROOTFILE=$(grep TIDArun-art.sh $SCRIPT | grep -v timestamp | grep -v "^#" | grep -v expert | head -1 | awk '{print $2}' )
+
+REFFILE=$(grep TIDArun-art.sh $SCRIPT | grep -v timestamp | grep -v "^#" | grep -v expert | head -1 | awk '{print $3}' )
+
+RAWCHAINS=$(grep TIDArun-art.sh $SCRIPT | grep -v timestamp | grep -v "^#" | grep -v expert | sed 's|.*root[[:space:]]||g' | sed 's| -.*||g' )
 
 for CHAIN in $RAWCHAINS; do echo "$CHAIN" >> $TMP ; done
 
@@ -33,14 +45,40 @@ echo "REF: $REFFILE"
 echo "     data-$JOB-reference.root"
 
 
+# [ -e $ROOTFILE ] && echo "cowardly: will not overwrite file: $ROOTFILE" && ls -l && exit -1
+
+if [ -d .Reduced-$JOB ]; then  
+
+   echo "job already processed" 
+#  rm -rf .Reduced-$JOB
+
+else
+
+   cp $ROOTDIR/$ROOTFILE  data-$JOB-reference-tmp.root
+   cp $ROOTDIR/$ROOTFILE  $ROOTFILE
+
+   echo "$(date) running comparitor ..."
+
+   TIDAcomparitor $ROOTFILE data-$JOB-reference-tmp.root $CHAINS -d .Reduced-$JOB --noplots --deleteref >& comparitor-$JOB.log
+
+   echo "done"
+
+fi
+
+pwd
+# ls -l data-$JOB-reference*.root
+ls -l data*.root
 
 
-cp $ROOTFILE data-$JOB-reference-tmp.root
+# NEWREF=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigInDetValidationReference/share/data-$JOB-reference.root
+NEWREF=/eos/atlas/atlascerngroupdisk/data-art/grid-input/TrigInDetValidationReference/share/21.1-dev/data-$JOB-reference.root
 
-TIDAcomparitor $ROOTFILE data-$JOB-reference-tmp.root $CHAINS -d Reduced --deleteref 
-# >& comparitor.log
+[ -e $NEWREF ] || cp  data-$JOB-reference-tmp.root $NEWREF 
 
-ls -l data-$JOB-reference*.root
+ls -l $NEWREF
+
+
+cd $DIR
 
 # expert histograms run TIDAcpucost not TIDAcomparitor
 

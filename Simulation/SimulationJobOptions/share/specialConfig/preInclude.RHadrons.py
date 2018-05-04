@@ -403,7 +403,7 @@ if usePythia8:
   simFlags.PhysicsOptions += ["RHadronsPythia8PhysicsTool"]
 
   rhlog.info("Doing Pythia8")
-  load_files_for_rhadrons_scenario("gluino", simdict["MASS"], "generic", MASSX)
+  load_files_for_rhadrons_scenario(simdict["CASE"], simdict["MASS"], "generic", MASSX)
 
   # In case we want to use Pythia8 for decays during simulation
   if simdict.has_key("LIFETIME"):
@@ -458,11 +458,20 @@ if usePythia8:
           include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
           include.block('MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')
           include.block('MC15JobOptions/Pythia8_MadGraph.py')
-          # Include the job options themselves
-          include(JO)
+
           # Make sure all the files can be found
           from EvgenJobTransforms.jo_proxy import mk_jo_proxy
           mk_jo_proxy(cvmfs_mc15, "MC15JobOptions", "_joproxy15")
+
+          # Updating JOBOPTSEARCHPATH env var on the athena side
+          import re,os
+          from AthenaCommon import Include
+          Include.optionsPathEnv = os.environ[ 'JOBOPTSEARCHPATH' ]
+          Include.optionsPath = re.split( ',|' + os.pathsep, Include.optionsPathEnv )
+
+          # Include the job options themselves
+          include(JO)
+
           # Build the param card, aka SLHA file
           from MadGraphControl.MadGraphUtils import build_param_card
           build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='SLHA_INPUT.DAT',masses=masses,decays=decays)

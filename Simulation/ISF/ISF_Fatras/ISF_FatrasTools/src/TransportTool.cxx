@@ -360,6 +360,10 @@ ISF::ISFParticle* iFatras::TransportTool::process( const ISF::ISFParticle& isp)
 									    eParameters->momentum(),
 									    timeLim.time-isp.timeStamp()) : 0;     // update expects time difference
   // free memory
+  if ( hitVector ) {
+    for (auto& h : *hitVector) delete h.trackParms;
+    delete hitVector;
+  }
   delete eParameters;
 
   if (uisp && m_validationOutput) {
