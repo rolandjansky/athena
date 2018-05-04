@@ -646,8 +646,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
   //***********
   float l1_jet_pt = -9e9;
   float l1_jet_eta = -9e9;
-  if (m_l1_jet_roi_cont) {
-  }
 
  
   //***********
