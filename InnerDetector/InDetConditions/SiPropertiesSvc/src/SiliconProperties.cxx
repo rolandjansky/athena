@@ -6,6 +6,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 #include <cmath>
+#include <iostream>
 
 namespace InDet {
 
@@ -39,8 +40,6 @@ const double holeBeta_exp      = 0.17;
 
 const double temperatureZero   = 273.15 * CLHEP::kelvin;
 
-
-
 SiliconProperties::SiliconProperties() 
   :  m_electronDriftMobility(0),
      m_holeDriftMobility(0),
@@ -48,10 +47,11 @@ SiliconProperties::SiliconProperties()
      m_holeHallMobility(0),
      m_electronDiffusionConstant(0),
      m_holeDiffusionConstant(0),
+     m_electronSaturationVelocity(0),
+     m_holeSaturationVelocity(0),
      m_ehPairsPerEnergy(s_ehPairsPerEnergyDefault),
      m_override(false)
 {}
-
 
 SiliconProperties::SiliconProperties(double temperature, double electricField) 
   :  m_electronDriftMobility(0),
@@ -60,15 +60,19 @@ SiliconProperties::SiliconProperties(double temperature, double electricField)
      m_holeHallMobility(0),
      m_electronDiffusionConstant(0),
      m_holeDiffusionConstant(0),
+     m_electronSaturationVelocity(0),
+     m_holeSaturationVelocity(0),
      m_ehPairsPerEnergy(s_ehPairsPerEnergyDefault),
      m_override(false)
 {
   setConditions(temperature, electricField);
 }
 
-void
-SiliconProperties::setConditions(double temperature, double electricField)
-{
+void SiliconProperties::setConditions(double temperature, double electricField) {
+
+  if (m_electronSaturationVelocity==0.0) { m_electronSaturationVelocity=elecV_sat_0; }
+  if (m_holeSaturationVelocity==0.0)     { m_holeSaturationVelocity=holeV_sat_0; }
+
   if (!m_override) {
     m_electronDriftMobility = calcElectronDriftMobility(temperature, electricField); 
     m_holeDriftMobility = calcHoleDriftMobility(temperature, electricField); 
@@ -79,9 +83,7 @@ SiliconProperties::setConditions(double temperature, double electricField)
   }
 }
 
-double
-SiliconProperties::driftMobility(CarrierType carrierType) const
-{
+double SiliconProperties::driftMobility(CarrierType carrierType) const {
   if (carrierType == holes) {
     return holeDriftMobility();
   } else {
@@ -89,9 +91,7 @@ SiliconProperties::driftMobility(CarrierType carrierType) const
   }
 }
 
-double
-SiliconProperties::hallMobility(CarrierType carrierType) const 
-{
+double SiliconProperties::hallMobility(CarrierType carrierType) const {
   if (carrierType == holes) {
     return holeHallMobility();
   } else {
@@ -99,9 +99,7 @@ SiliconProperties::hallMobility(CarrierType carrierType) const
   }
 }
 
-double
-SiliconProperties::diffusionConstant(CarrierType carrierType) const 
-{
+double SiliconProperties::diffusionConstant(CarrierType carrierType) const {
   if (carrierType == holes) {
     return holeDiffusionConstant();
   } else {
@@ -109,15 +107,11 @@ SiliconProperties::diffusionConstant(CarrierType carrierType) const
   }
 }
 
-double
-SiliconProperties::charge(CarrierType carrierType) const 
-{
+double SiliconProperties::charge(CarrierType carrierType) const {
   return (carrierType == holes) ? +1 : -1;
 }
 
-double
-SiliconProperties::signedHallMobility(CarrierType carrierType) const 
-{
+double SiliconProperties::signedHallMobility(CarrierType carrierType) const {
   if (carrierType == holes) {
     return holeHallMobility();
   } else {
@@ -126,151 +120,125 @@ SiliconProperties::signedHallMobility(CarrierType carrierType) const
 }
 
 
-double 
-SiliconProperties::calcElectronHallFactor(double temperature) const
-{
+double SiliconProperties::calcElectronHallFactor(double temperature) const {
   // Equation from ATL-INDET-2001-004
   return elecHallFactZero + elecHallFact_drdt * (temperature - temperatureZero);
 }
 
-double 
-SiliconProperties::calcHoleHallFactor(double temperature) const
-{
+double SiliconProperties::calcHoleHallFactor(double temperature) const {
   // Equation from ATL-INDET-2001-004
   return holeHallFactZero + holeHallFact_drdt * (temperature - temperatureZero);
 }
 
 // driftMobility
-double 
-SiliconProperties::calcDriftMobility(double electricField, double electricField_critical, 
-				     double saturationVelocity, double beta) const
-{
+double SiliconProperties::calcDriftMobility(double electricField, double electricField_critical, double saturationVelocity, double beta) const {
   // Equation from ATL-INDET-2001-004
   return saturationVelocity / electricField_critical / 
     pow(std::abs(1. + pow(std::abs(electricField/electricField_critical), beta)), 1./beta);
 }
   
-double 
-SiliconProperties::calcElectronDriftMobility(double temperature, double electricField) const
-{
+double SiliconProperties::calcElectronDriftMobility(double temperature, double electricField) const {
   // Equations from ATL-INDET-2001-004
-  double saturationVelocity = elecV_sat_0 * pow(temperature, elecV_sat_exp);
+//  double saturationVelocity = elecV_sat_0 * pow(temperature, elecV_sat_exp);
+  double saturationVelocity = m_electronSaturationVelocity*pow(temperature, elecV_sat_exp);
   double electricField_critical = elecE_crit_0 * pow(temperature, elecE_crit_exp);
   double beta = elecBeta_0 * pow(temperature, elecBeta_exp);
- 
   return calcDriftMobility(electricField, electricField_critical, saturationVelocity, beta);
 } 
 
-double 
-SiliconProperties::calcHoleDriftMobility(double temperature, double electricField) const
-{
+double SiliconProperties::calcHoleDriftMobility(double temperature, double electricField) const {
   // Equations from ATL-INDET-2001-004
-  double saturationVelocity = holeV_sat_0 * pow(temperature, holeV_sat_exp);
+//  double saturationVelocity = holeV_sat_0 * pow(temperature, holeV_sat_exp);
+  double saturationVelocity = m_holeSaturationVelocity*pow(temperature, holeV_sat_exp);
   double electricField_critical = holeE_crit_0 * pow(temperature, holeE_crit_exp);
   double beta = holeBeta_0 * pow(temperature, holeBeta_exp);
- 
   return calcDriftMobility(electricField, electricField_critical, saturationVelocity, beta);
 } 
 
 
-double 
-SiliconProperties::calcDiffusionConstant(double temperature, double mobility) const
-{
+double SiliconProperties::calcDiffusionConstant(double temperature, double mobility) const {
   // Einstein's relationship (in many text books)
   return -CLHEP::k_Boltzmann * temperature / CLHEP::electron_charge * mobility; // CLHEP::k_Boltzmann and CLHEP::electron_charge
-                                                                  // are defined in CLHEP/PhysicalConstants.h
 }
 
-double 
-SiliconProperties::electronDriftMobility() const
-{
+double SiliconProperties::electronDriftMobility() const {
   return m_electronDriftMobility;
 }
 
-double 
-SiliconProperties::holeDriftMobility() const
-{
+double SiliconProperties::holeDriftMobility() const {
   return m_holeDriftMobility;
 }
 
-double 
-SiliconProperties::electronHallMobility() const
-{
+double SiliconProperties::electronHallMobility() const {
   return m_electronHallMobility;
 }
 
-double 
-SiliconProperties::holeHallMobility() const
-{
+double SiliconProperties::holeHallMobility() const {
   return m_holeHallMobility;
 }
 
-double 
-SiliconProperties::electronDiffusionConstant() const
-{
+double SiliconProperties::electronDiffusionConstant() const {
   return m_electronDiffusionConstant;
 }
 
-double 
-SiliconProperties::holeDiffusionConstant() const
-{
+double SiliconProperties::holeDiffusionConstant() const {
   return m_holeDiffusionConstant;
 }
 
-void 
-SiliconProperties::setElectronDriftMobility(double mobility)
-{
+double SiliconProperties::electronSaturationVelocity() const {
+  return m_electronSaturationVelocity;
+}
+
+double SiliconProperties::holeSaturationVelocity() const {
+  return m_holeSaturationVelocity;
+}
+
+void SiliconProperties::setElectronDriftMobility(double mobility) {
   m_override = true;
   m_electronDriftMobility = mobility;
 }
 
-
-void 
-SiliconProperties::setHoleDriftMobility(double mobility)
-{
+void SiliconProperties::setHoleDriftMobility(double mobility) {
   m_override = true;
   m_holeDriftMobility = mobility;
 }
 
-void 
-SiliconProperties::setElectronHallMobility(double mobility)
-{
+void SiliconProperties::setElectronHallMobility(double mobility) {
   m_override = true;
   m_electronHallMobility = mobility;
 }
 
-void 
-SiliconProperties::setHoleHallMobility(double mobility)
-{
+void SiliconProperties::setHoleHallMobility(double mobility) {
   m_override = true;
   m_holeHallMobility = mobility;
 }
 
-
-void 
-SiliconProperties::setElectronDiffusionConstant(double diffusionConstant)
-{
+void SiliconProperties::setElectronDiffusionConstant(double diffusionConstant) {
   m_override = true;
   m_electronDiffusionConstant = diffusionConstant;
 }
 
-void 
-SiliconProperties::setHoleDiffusionConstant(double diffusionConstant)
-{
+void SiliconProperties::setHoleDiffusionConstant(double diffusionConstant) {
   m_override = true;
   m_holeDiffusionConstant = diffusionConstant;
 }
 
-void
-SiliconProperties::setElectronHolePairsPerEnergy(double ehPairsPerEnergy)
-{
+void SiliconProperties::setElectronSaturationVelocity(double electronSaturationVelocity) {
+  m_electronSaturationVelocity = electronSaturationVelocity;
+}
+
+void SiliconProperties::setHoleSaturationVelocity(double holeSaturationVelocity) {
+  m_holeSaturationVelocity = holeSaturationVelocity;
+}
+
+void SiliconProperties::setElectronHolePairsPerEnergy(double ehPairsPerEnergy) {
   m_ehPairsPerEnergy = ehPairsPerEnergy; 
 }
 
-
-double SiliconProperties::electronHolePairsPerEnergy() const
-{
+double SiliconProperties::electronHolePairsPerEnergy() const {
    return m_ehPairsPerEnergy;
 }
+
+
 
 } // namespace InDetDD

@@ -28,7 +28,7 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
                                                                )
 
         ToolSvc += InDetL2TrigClusterMakerTool
-        from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummaryTool
+        from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
         InDetL2TrigMergedPixelsTool = InDet__MergedPixelsTool( name = "InDetL2TrigMergedPixelsTool",
                                                                globalPosAlg  = InDetL2TrigClusterMakerTool,
                                                                UseSpecialPixelMap = False,

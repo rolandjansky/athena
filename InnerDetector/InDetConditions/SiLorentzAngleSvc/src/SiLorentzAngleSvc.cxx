@@ -24,6 +24,7 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   AthService(name, pSvcLocator),
   m_pixelDefaults(false),
   m_sctDefaults(false),
+	m_siPropertiesSvc("SiPropertiesSvc",name),
   m_siConditionsSvc("PixelSiliconConditionsSvc", name),
   m_magFieldSvc("AtlasFieldSvc", name),
   m_detStore("StoreGateSvc/DetectorStore", name),
@@ -35,6 +36,7 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   m_bfieldFolders.push_back("/GLOBAL/BField/Map");
   m_bfieldFolders.push_back("/EXT/DCS/MAGNETS/SENSORDATA");
     
+	declareProperty("SiPropertiesSvc",m_siPropertiesSvc,"SiPropertiesSvc");
   declareProperty("SiConditionsServices", m_siConditionsSvc);
   declareProperty("DetectorName", m_detectorName="Pixel", "Detector name (Pixel or SCT)");
   // Temperature and voltages from job options only used if SiConditionsServices is None or
@@ -68,6 +70,8 @@ SiLorentzAngleSvc::~SiLorentzAngleSvc() {
 StatusCode SiLorentzAngleSvc::initialize() { 
 
   ATH_MSG_DEBUG( "SiLorentzAngleSvc Initialized" );
+
+  CHECK(m_siPropertiesSvc.retrieve());
 
   // Detector store
   CHECK(m_detStore.retrieve());
@@ -350,40 +354,41 @@ void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Am
   // Pixel
   if (m_isPixel) {
     const InDetDD::PixelModuleDesign* p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-    if (p_design){
-      if (m_pixelDefaults) {
-        temperature = m_temperaturePix + 273.15;
-        if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-          if (p_design->numberOfCircuits()==2) {       // IBL planar
-            deplVoltage = 40.0*CLHEP::volt; 
-            biasVoltage = m_biasVoltageIBLPl*CLHEP::volt; 
-          }
-          else if (p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
-            deplVoltage =  10.0*CLHEP::volt; 
-            biasVoltage = m_biasVoltageIBL3D*CLHEP::volt; 
-            forceLorentzToZero = 0.0;
-          }
-        }else {
-          deplVoltage = m_deplVoltage*CLHEP::volt;
-          biasVoltage = m_biasVoltage*CLHEP::volt;
+    if (m_pixelDefaults) {
+      temperature = m_temperaturePix + 273.15;
+      if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
+        if (p_design->numberOfCircuits()==2) {       // IBL planar
+          deplVoltage = 40.0*CLHEP::volt; 
+          biasVoltage = m_biasVoltageIBLPl*CLHEP::volt; 
         }
-        ATH_MSG_DEBUG("Pixel Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
-      }else {
-        temperature = m_siConditionsSvc->temperature(elementHash)+273.15;
-        deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash)*CLHEP::volt;
-        biasVoltage = m_siConditionsSvc->biasVoltage(elementHash)*CLHEP::volt;
-        if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-          if (p_design->numberOfCircuits()==2) {        // IBL planar (this classification is a bit ugly since there is no method to choose sensor technology.)
-            deplVoltage = 40.0*CLHEP::volt; 
-          }else if (p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
-            deplVoltage = 10.0*CLHEP::volt; 
-            forceLorentzToZero = 0.0;
-          }
+        else if (p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
+          deplVoltage =  10.0*CLHEP::volt; 
+          biasVoltage = m_biasVoltageIBL3D*CLHEP::volt; 
+          forceLorentzToZero = 0.0;
         }
-        ATH_MSG_DEBUG("Pixel Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
       }
-    }//if p_design
-  } //if m_isPixel
+      else {
+        deplVoltage = m_deplVoltage*CLHEP::volt;
+        biasVoltage = m_biasVoltage*CLHEP::volt;
+      }
+      ATH_MSG_DEBUG("Pixel Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
+    }
+    else {
+      temperature = m_siConditionsSvc->temperature(elementHash)+273.15;
+      deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash)*CLHEP::volt;
+      biasVoltage = m_siConditionsSvc->biasVoltage(elementHash)*CLHEP::volt;
+      if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
+        if (p_design->numberOfCircuits()==2) {        // IBL planar (this classification is a bit ugly since there is no method to choose sensor technology.)
+          deplVoltage = 40.0*CLHEP::volt; 
+        }
+        else if (p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
+          deplVoltage = 10.0*CLHEP::volt; 
+          forceLorentzToZero = 0.0;
+        }
+      }
+      ATH_MSG_DEBUG("Pixel Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
+    }
+  }
 
 
   // Protect against invalid temperature
@@ -398,16 +403,13 @@ void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Am
   // the detector is not fully depleted and we need to take this into account.
   // We take absolute values just in case voltages are signed .  
   double depletionDepth = element->thickness();
-  if (deplVoltage==0.0) ATH_MSG_WARNING("Depletion voltage in "<<__FILE__<<" is zero, which might be a bug.");
   if (std::abs(biasVoltage) < std::abs(deplVoltage)) {
     depletionDepth *= sqrt(std::abs(biasVoltage / deplVoltage));
   }
  
-  double meanElectricField = 0;
-  if (depletionDepth) { meanElectricField = biasVoltage / depletionDepth; }
-  double mobility = 0;
-  m_siProperties.setConditions(temperature, meanElectricField);
-  mobility = m_siProperties.signedHallMobility(element->carrierType());
+  const InDet::SiliconProperties &siProperties = m_siPropertiesSvc->getSiProperties(elementHash);
+  double mobility = siProperties.signedHallMobility(element->carrierType());
+
   // Get magnetic field. This first checks that field cache is valid.
   const Amg::Vector3D& magneticField = getMagneticField(elementHash, locPos, useLocPos);
   
