@@ -10,7 +10,9 @@ from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 
 #This is more of legacy, in principle we want the one from std tracking
+# Seems trigger somehow end up using it ....
 def CreateEgammaRotCreator():
+  global ToolSvc
   #Setup e/gamma offline RotCreator if one is not present
   if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
     # --- temp: read calib file 
