@@ -100,6 +100,27 @@ class egammaBuilder : public AthAlgorithm
   ToolHandleArray<IegammaBaseTool> m_photonTools {this,
       "PhotonTools", {}, "Tools for dressing ONLY photons"};
 
+  /** @brief Tool to do the final electron/photon cluster building */
+  ToolHandle<IEMClusterTool> m_clusterTool {this, 
+      "EMClusterTool", "EMClusterTool", 
+      "Tool that does electron/photon final cluster building"};
+
+  /** @brief Tool to resolve electron/photon ambiguity */
+  ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
+      "AmbiguityTool", "EGammaAmbiguityTool", 
+      "Tool that does electron/photon ambiguity resolution"};
+
+  /** @brief Tool to perform track matching*/
+  ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder {this,
+      "TrackMatchBuilderTool", "EMTrackMatchBuilder",
+      "Tool that matches tracks to egammaRecs"};
+
+  /** @brief Tool to perfrom conversion vertex matching*/
+  ToolHandle<IEMConversionBuilder> m_conversionBuilder {this,
+      "ConversionBuilderTool", "EMConversionBuilder",
+      "Tool that matches conversion vertices to egammaRecs"};
+
+
   /** @brief Retrieve each tool in the given vector **/
   StatusCode RetrieveTools(ToolHandleArray<IegammaBaseTool>& tools);
   
@@ -107,6 +128,9 @@ class egammaBuilder : public AthAlgorithm
   StatusCode CallTool(ToolHandle<IegammaBaseTool>& tool, 
                       xAOD::ElectronContainer *electronContainer = 0, 
                       xAOD::PhotonContainer *photonContainer = 0);
+ 
+  /** @brief retrieve EMClusterTool **/
+  StatusCode RetrieveEMClusterTool();
 
   /** @brief retrieve EGammaAmbiguityTool **/
   StatusCode RetrieveAmbiguityTool();
@@ -140,26 +164,6 @@ class egammaBuilder : public AthAlgorithm
       "egammaRecContainer", "egammaRecCollection",
       "Output container for egammaRec objects"};
 
-  //
-  // The tools
-  //
-  // subalgorithm pointers cached in initialize:
-  /** @brief Tool to resolve electron/photon ambiguity */
-  ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
-      "AmbiguityTool", "EGammaAmbiguityTool", 
-      "Tool that does electron/photon ambiguity resolution"};
-
-  /** @brief Tool to perform track matching*/
-  ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder {this,
-      "TrackMatchBuilderTool", "EMTrackMatchBuilder",
-      "Tool that matches tracks to egammaRecs"};
-
-  /** @brief Tool to perfrom conversion vertex matching*/
-  ToolHandle<IEMConversionBuilder> m_conversionBuilder {this,
-      "ConversionBuilderTool", "EMConversionBuilder",
-      "Tool that matches conversion vertices to egammaRecs"};
-
-  //
   // All booleans
   //
   /** @brief private member flag to do the track matching */
