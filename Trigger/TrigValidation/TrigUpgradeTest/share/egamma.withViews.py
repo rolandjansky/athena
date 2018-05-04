@@ -174,14 +174,16 @@ electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
 l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
 
-from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlg
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT
 from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
-theElectronHypo = TrigL2ElectronHypoAlg()
-theElectronHypo.Views = l2ElectronViewsMaker.Views
+theElectronHypo = TrigL2ElectronHypoAlgMT()
+#theElectronHypo.Views = l2ElectronViewsMaker.Views
+theElectronHypo.RunInView=True
 theElectronHypo.Electrons = theElectronFex.ElectronsName
-theElectronHypo.ClusterDecisions = caloHypoDecisions #theFastCaloHypo.Decisions 
-theElectronHypo.ElectronDecisions = "ElectronL2Decisions"
+#theElectronHypo.ClusterDecisions = caloHypoDecisions #theFastCaloHypo.Decisions 
+#theElectronHypo.ElectronDecisions = "ElectronL2Decisions"
 theElectronHypo.OutputLevel = VERBOSE
+
 theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName( c ) for c in testChains ]
 
 for t in theElectronHypo.HypoTools:
@@ -190,8 +192,7 @@ for t in theElectronHypo.HypoTools:
 # InDetCacheCreatorTrigViews,
 electronSequence = seqAND("electronSequence", eventAlgs + [l2ElectronViewsMaker, electronInViewAlgs, theElectronHypo ] )
 
-electronDecisionsDumper = DumpDecisions("electronDecisionsDumper", OutputLevel=DEBUG, Decisions = theElectronHypo.ElectronDecisions )    
-egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ electronSequence,  electronDecisionsDumper ] )
+egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ electronSequence ] )
 
 
 # CF construction

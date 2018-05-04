@@ -17,8 +17,7 @@
 #include "../TrigL2CaloHypoToolMult.h"
 #include "../TrigL2ElectronHypoTool.h"
 #include "../TrigL2ElectronFexMT.h"
-#include "../TrigL2ElectronHypoAlg.h"
-#include "../TestTrigL2ElectronHypoAlg.h"
+#include "../TrigL2ElectronHypoAlgMT.h"
 #include "../TrigL2ElectronHypoTool.h"
 
 
@@ -37,11 +36,9 @@ DECLARE_COMPONENT( TrigEFPhotonHypo )
 DECLARE_COMPONENT( TrigEFTrackHypo )
 DECLARE_COMPONENT( TrigL2CaloLayersHypo )
 DECLARE_COMPONENT( TrigL2CaloHypoAlgMT )
-DECLARE_COMPONENT( TrigL2ElectronHypoAlg )
-DECLARE_COMPONENT( TestTrigL2ElectronHypoAlg )
+DECLARE_COMPONENT( TrigL2ElectronHypoAlgMT )
 DECLARE_COMPONENT( TrigL2CaloHypoToolInc )
 DECLARE_COMPONENT( TrigL2CaloHypoToolMult )
 DECLARE_COMPONENT( TrigL2ElectronHypoTool )
 DECLARE_COMPONENT( TrigL2ElectronFexMT )
-DECLARE_COMPONENT( TrigL2ElectronHypoAlg )
 DECLARE_COMPONENT( TrigL2ElectronHypoTool )
