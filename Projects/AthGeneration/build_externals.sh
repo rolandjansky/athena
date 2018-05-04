@@ -121,7 +121,7 @@ AthGenerationExternalsVersion=$(awk '/^AthGenerationExternalsVersion/{print $3}'
 
 # Check out AthGenerationExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
-    -e https://@gitlab.cern.ch:8443/ewelina/atlasexternals.git \
+#    -e https://@gitlab.cern.ch:8443/ewelina/atlasexternals.git \
     -t ${AthGenerationExternalsVersion} \
     -s ${BUILDDIR}/src/AthGenerationExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthGenerationExternals.log 
 
