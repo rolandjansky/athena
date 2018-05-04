@@ -1556,8 +1556,8 @@ def setupMenu():
 
         #ATR-17327
         ['2g3_loose_dPhi15_L1DPHI-2EM3', 'L1_DPHI-2EM3', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
-        
-
+        ['2g3_loose_L1DPHI-2EM3_VTE5.24ETA49', 'L1_DPHI-2EM3_VTE5.24ETA49', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
+        ['2g3_loose_L1DPHI-2EM3_VTE10', 'L1_DPHI-2EM3_VTE10', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
 
         #ATR-17836 W T&P for low-mu
         ['e15_etcut_trkcut_xe30noL1', 'L1_EM12', ['L1_EM12',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1, ['serial',-1,["e15_etcut_trkcut","xe30noL1"]]],
