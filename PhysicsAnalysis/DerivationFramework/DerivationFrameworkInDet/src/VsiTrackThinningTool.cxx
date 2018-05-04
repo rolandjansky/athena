@@ -88,7 +88,7 @@ StatusCode DerivationFramework::VsiTrackThinningTool::doThinning() const
   for( size_t i=0; i<mask.size(); i++) {
     if( mask[i] ) count++;
   }
-  ATH_MSG_INFO( __FUNCTION__ << ": filtered " << count << " / " << tracks->size() );
+  ATH_MSG_DEBUG( __FUNCTION__ << ": filtered " << count << " / " << tracks->size() );
   
   if (m_thinningSvc->filter(*tracks, mask, IThinningSvc::Operator::Or).isFailure()) {
     ATH_MSG_ERROR("Application of thinning service failed! ");
