@@ -9,11 +9,8 @@ from AthenaCommon.GlobalFlags import globalflags
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 
-
-#Deal with the Rot creator
-if  hasattr(ToolSvc, 'InDetRotCreator') :
-  egRotCreator=ToolSvc.InDetRotCreator
-else :
+#This is more of legacy, in principle we want the one from std tracking
+def CreateEgammaRotCreator():
   #Setup e/gamma offline RotCreator if one is not present
   if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
     # --- temp: read calib file 
@@ -57,9 +54,7 @@ else :
     ToolSvc += egNnClusterizationFactory 
       
   #End of do cluster splitting       
-
   # ----------- control loading of ROT_creator
-  
   if DetFlags.haveRIO.pixel_on():
     # load Pixel ROT creator, we overwrite the defaults for the
     # tool to always make conservative pixel cluster errors
@@ -68,7 +63,6 @@ else :
                                                                DisableDistortions = InDetFlags.doFatras(),
                                                                applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() 
                                                                                      and InDetFlags.pixelClusterSplittingType() == 'NeuralNet'))   
-    
     if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
       egPixelClusterOnTrackTool.NnClusterizationFactory  = egNnClusterizationFactory
       
@@ -83,7 +77,6 @@ else :
                                                               CorrectionStrategy = 0,  # do correct position bias
                                                               ErrorStrategy      = 2)  # do use phi dependent errors
     ToolSvc += egSCT_ClusterOnTrackTool
-  
   else:
     egSCT_ClusterOnTrackTool = None
 
@@ -98,36 +91,41 @@ else :
   from IOVDbSvc.CondDB import conddb
   if not conddb.folderRequested('Indet/TrkErrorScaling'):
     conddb.addFolderSplitOnline('INDET','/Indet/Onl/TrkErrorScaling','/Indet/TrkErrorScaling') 
-##################End of e/gamma Rot Creator ###################
 
-#
-#
-# Extrapolator to be used for tracking inside egamma i.e GSF , conversions
+  return egRotCreator
 
+#The following perhaps we need to factor inside the classes using them
+#i.e BremCollection Builder or so
+#Deal with the Rot creator
+
+if  hasattr(ToolSvc, 'InDetRotCreator') :
+  egRotCreator=ToolSvc.InDetRotCreator
+else :
+  egRotCreator=CreateEgammaRotCreator()
+
+# Extrapolator to be used for tracking inside egamma i.e for GSF and  Conversions
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
-# get propagator
+
+# get Rk propagator
 from TrkExRungeKuttaPropagator.TrkExRungeKuttaPropagatorConf import Trk__RungeKuttaPropagator as Propagator
-#
 egTrkPropagator = Propagator(name = 'egTrkPropagator')
 egTrkPropagator.AccuracyParameter = 0.0001
 ToolSvc += egTrkPropagator
-#
-from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as StepPropagator
-egTrkStepPropagator = StepPropagator(name = 'egTrkStepPropagator')
-ToolSvc += egTrkStepPropagator
-# Setup the Navigator (default)
+
+#Setup the Navigator (default)
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 egTrkNavigator = Trk__Navigator(name = 'egTrkNavigator')
 ToolSvc += egTrkNavigator
+
 # Setup the MaterialEffectsUpdator
 from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator
 egTrkMaterialUpdator = Trk__MaterialEffectsUpdator(name = "egTrkMaterialEffectsUpdator")
 ToolSvc += egTrkMaterialUpdator
+
 # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
 egTrkSubPropagators = []
 egTrkSubUpdators = []
-# -------------------- set it depending on the geometry ----------------------------------------------------
 # default for ID is (Rk,Mat)
 egTrkSubPropagators += [ egTrkPropagator.name() ]
 egTrkSubUpdators    += [ egTrkMaterialUpdator.name() ]
@@ -135,20 +133,22 @@ egTrkSubUpdators    += [ egTrkMaterialUpdator.name() ]
 egTrkSubPropagators += [ egTrkPropagator.name() ]
 egTrkSubUpdators    += [ egTrkMaterialUpdator.name() ]
 # default for MS is (STEP,Mat)
-egTrkSubPropagators += [ egTrkStepPropagator.name() ]
 egTrkSubUpdators    += [ egTrkMaterialUpdator.name() ]
-# ----------------------------------------------------------------------------------------------------------            
+            
 # set up extrapolator to be used by egamma during tracking / vertexing operations
 from TrkExTools.TrkExToolsConf import Trk__Extrapolator
 egTrkExtrapolator = Trk__Extrapolator(name                    = 'egTrkExtrapolator',
-                                      Propagators             = [ egTrkPropagator, egTrkStepPropagator ],
+                                      Propagators             = [ egTrkPropagator ],
                                       MaterialEffectsUpdators = [ egTrkMaterialUpdator ],
                                       Navigator               = egTrkNavigator,
                                       SubPropagators          = egTrkSubPropagators,
                                       SubMEUpdators           = egTrkSubUpdators)
 ToolSvc += egTrkExtrapolator
-#
 ###############################################################################
+
+def getTrkExtrapolator():
+	return egTrkExtrapolator
+
 # Set up the GSF
 from TrkGaussianSumFilter.TrkGaussianSumFilterConf import Trk__GsfMaterialMixtureConvolution
 GsfMaterialUpdator = Trk__GsfMaterialMixtureConvolution (name = 'GsfMaterialUpdator')
@@ -192,4 +192,5 @@ GSFTrackFitter = Trk__GaussianSumFitter(name                    = 'GSFTrackFitte
                                         ToolForROTCreation      = egRotCreator)
 # --- end of fitter loading
 ToolSvc += GSFTrackFitter
-#################################################################################
+
+
