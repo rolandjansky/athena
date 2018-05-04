@@ -252,7 +252,7 @@ StatusCode topoEgammaBuilder::execute(){
     // Call tools
     // First the final cluster/calibration
     ATH_MSG_DEBUG("Executing : " << m_clusterTool);  
-    if ( m_clusterTool->contExecute(electronContainer, photonContainer).isFailure() ){
+    if ( m_clusterTool->contExecute(electronContainer.ptr(), photonContainer.ptr()).isFailure() ){
         ATH_MSG_ERROR("Problem executing the " << m_clusterTool<<" tool");
         return StatusCode::FAILURE;
     }

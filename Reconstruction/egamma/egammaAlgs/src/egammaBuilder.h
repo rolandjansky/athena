@@ -41,6 +41,7 @@
 #include "egammaRecEvent/egammaRecContainer.h"
 
 #include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
+#include "egammaInterfaces/IEMClusterTool.h" 
 #include "egammaInterfaces/IegammaBaseTool.h" 
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
