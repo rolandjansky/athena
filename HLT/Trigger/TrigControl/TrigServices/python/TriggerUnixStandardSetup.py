@@ -207,7 +207,7 @@ def setupHLTServicesBegin():
     _setupCommonServices()   
 
     # --- Hlt ROBDataProvider configuration
-    svcMgr += CfgMgr.ROBDataProviderSvc("ROBDataProviderSvc")
+    svcMgr += CfgMgr.HltROBDataProviderSvc("ROBDataProviderSvc")
     theApp.CreateSvc += [ svcMgr.ROBDataProviderSvc.getFullName() ]
 
     log.debug( "---> End" )
