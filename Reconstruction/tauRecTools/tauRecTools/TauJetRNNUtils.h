@@ -138,7 +138,18 @@ bool nPixelHits(
 bool nSCTHits(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
+// trigger variants
+bool nIBLHitsAndExp (
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
+bool nPixelHitsPlusDeadSensors (
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
+bool nSCTHitsPlusDeadSensors (
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
 } // namespace Track
+
 
 namespace Cluster {
 

@@ -477,25 +477,31 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMerged) :
             # tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
             tools.append(taualgs.getPileUpCorrection())
 
+
+            # WARNING! moved here temporarily
+            for tool in tools:
+                tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
+                pass
+
+
             if doRNN:
-                # needed by TauWPDecorator
-                tools.append(taualgs.getTauIDVarCalculator())
-                
                 # RNN tau ID
-                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile1P="rnnid_config_deep_1p_v0.json",
-                                                           NetworkFile3P="rnnid_config_deep_3p_v0.json",
-                                                           MinChargedTracks=1,
+                tools.append(taualgs.getTauJetRNNEvaluator(NetworkFile0P="rnnid_config_0p_v1_tmp.json",
+                                                           NetworkFile1P="rnnid_config_1p_v1_tmp.json",
+                                                           NetworkFile3P="rnnid_config_mp_v1_tmp.json",
                                                            MaxTracks=10, 
                                                            MaxClusters=6,
                                                            MaxClusterDR=1.0))
                 # flattened RNN score and WP
                 tools.append(taualgs.getTauWPDecoratorJetRNN())
 
-
-            for tool in tools:
-                tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-02/'
-                pass
+        
+            # WARNING! Moved before retrieving RNN algorithms, as those temporarily use files in dev/TrigTauRec (set from TrigTauAlgorithmsHolder)
+            #for tool in tools:
+            #    tool.inTrigger = True
+            #    tool.calibFolder = 'TrigTauRec/00-11-02/'
+            #    pass
 
             self.Tools = tools
 

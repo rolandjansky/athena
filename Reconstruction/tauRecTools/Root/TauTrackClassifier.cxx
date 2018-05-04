@@ -276,7 +276,7 @@ StatusCode TrackMVABDT::initialize()
       {"track_delta_d0", new float(0)},
       {"track_dR_leadTrack", new float(0)},
       {"track_dR_tau", new float(0)},
-      {"log(tau_pt/track_pt)", new float(0)},
+      {"log(tau_ptDetectorAxis/track_pt)", new float(0)},
       {"track_nIBLHitsAndExp", new float(0)},
       {"track_isgood", new float(0)},
       {"track_nSCTHits", new float(0)},
@@ -577,7 +577,7 @@ StatusCode TrackMVABDT::setTriggerVars(const xAOD::TauTrack& xTrack, const xAOD:
   
   setVar("track_dR_tau") = xTrackParticle->p4().DeltaR(xTau.p4());
   
-  setVar("log(tau_pt/track_pt)") = xTrack.pt()!=0. ? std::log(xTau.pt()/xTrack.pt()) : 10.;
+  setVar("log(tau_ptDetectorAxis/track_pt)") = xTrack.pt()!=0. ? std::log(xTau.ptDetectorAxis()/xTrack.pt()) : 10.;
   
   setVar("track_nIBLHitsAndExp") = n_ibl_exp ? (float)n_ibl_hits : 1.;
   

@@ -7,8 +7,6 @@ errorcalolabels = 'NoROIDescr:NoCellCont:EmptyCellCont:NoClustCont:NoClustKey:Em
 
 errortracklabels = 'NoTrkCont:NoVtxCont'
 
-authorlabels = 'AutauRec:Autau13p:AuBoth:AutauRecOnly:Autau13pOnly'
-                    
 class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigTauRecOnlineMonitoring"):
         super(TrigTauRecOnlineMonitoring, self).__init__(name)
@@ -62,7 +60,7 @@ class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_SumPtTrkFrac', type='TH1F', title=" EF Sum Pt Track Fraction; SumPtTrkFrac; nRoIs", xbins=40, xmin=-0.5, xmax=1.1) ]
  
         self.Histograms += [ defineHistogram('EF_ActualInteractions', type='TH1F', title=" Number of actual interaction per bunch crossing;ActualInteractions;nevents", xbins=50, xmin=0.0, xmax=50.) ]
-        self.Histograms += [ defineHistogram('EF_AvgInteractions', type='TH1F', title=" Number of average interaction per bunch crossing;AvgInteractions;nevents", xbins=50, xmin=0.0, xmax=50.) ]
+        self.Histograms += [ defineHistogram('EF_AvgInteractions', type='TH1F', title=" Number of average interaction per bunch crossing;AvgInteractions;nevents", xbins=80, xmin=0.0, xmax=80.) ]
 
         self.Histograms += [ defineHistogram('EF_beamspot_x', type='TH1F', title=" Beamspot position;Beamspot x;nevents", xbins=50, xmin=-10.0, xmax=10.) ]
         self.Histograms += [ defineHistogram('EF_beamspot_y', type='TH1F', title=" Beamspot position;Beamspot y;nevents", xbins=50, xmin=-10.0, xmax=10.) ]
@@ -72,11 +70,6 @@ class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_calo_errors', type='TH1F', title=" EF Calo Errors ;  ; nRoIs", xbins=10, xmin=-0.5, xmax=9.5 , labels=errorcalolabels) ]
         self.Histograms += [ defineHistogram('EF_track_errors', type='TH1F', title=" EF Track Errors ;  ; nRoIs", xbins=2, xmin=-0.5, xmax=2.5 , labels=errortracklabels) ]
 
-        # these don't seem to be used anymore
-        self.Histograms += [ defineHistogram('EF_author', type='TH1F', title=" EF author ;  ; nRoIs", xbins=5, xmin=0.5, xmax=5.5 , labels=authorlabels) ]
-        self.Histograms += [ defineHistogram('EF_deltaZ0coreTrks', type='TH1F', title=" EF delta Z0 coreTrks wrt leadTrk ; #Delta Z0 [mm]; nRoIs x nTracks", xbins=160, xmin=-20, xmax=20) ]
-        self.Histograms += [ defineHistogram('EF_deltaZ0wideTrks', type='TH1F', title=" EF delta Z0 wideTrks wrt leadTrk ; #Delta Z0 [mm]; nRoIs x nTracks", xbins=160, xmin=-20, xmax=20) ]  
-        
 
         # RNN ID
         # scalar inputs
@@ -88,6 +81,10 @@ class TrigTauRecOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_RNN_cluster_et_log', type='TH1F', title=" EF RNN cluster et_log; Log10(cluster E_{T})", xbins=50, xmin=1., xmax=7.) ]
         self.Histograms += [ defineHistogram('EF_RNN_cluster_dEta', type='TH1F', title=" EF RNN cluster dEta; #Delta#eta(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5) ]
         self.Histograms += [ defineHistogram('EF_RNN_cluster_dPhi', type='TH1F', title=" EF RNN cluster dPhi; #Delta#phi(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5) ]
+        self.Histograms += [ defineHistogram('EF_RNN_cluster_CENTER_LAMBDA', type='TH1F', title=" EF RNN cluster moment CENTER_LAMBDA ; CENTER_LAMBDA", xbins=50, xmin=-2., xmax=5.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_cluster_SECOND_LAMBDA', type='TH1F', title=" EF RNN cluster moment SECOND_LAMBDA; SECOND_LAMBDA", xbins=50, xmin=-3., xmax=7.) ]
+        self.Histograms += [ defineHistogram('EF_RNN_cluster_SECOND_R', type='TH1F', title=" EF RNN cluster moment SECOND_R; SECOND_R", xbins=50, xmin=-3., xmax=7.) ]
+
         # track inputs
         self.Histograms += [ defineHistogram('EF_RNN_Ntracks', type='TH1F', title=" EF RNN Ntracks; Number of tracks", xbins=12, xmin=0., xmax=12.) ]
         self.Histograms += [ defineHistogram('EF_RNN_track_pt_log', type='TH1F', title=" EF RNN track pt_log; Log10(track p_{T})", xbins=50, xmin=2.7, xmax=7.) ]

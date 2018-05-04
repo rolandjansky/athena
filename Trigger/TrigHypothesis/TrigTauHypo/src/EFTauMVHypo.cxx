@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -376,7 +376,28 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	
 	m_cutCounter++;
       }
-    
+    // test new RNN WPs!
+    else if(m_method >= 4)
+      {
+	if(!(*tauIt)->isAvailable<char>(Form("RNN%i",m_method))) {
+	  msg() << MSG::WARNING << Form("RNN%i",m_method) << " not available. Make sure TauWPDecorator is run for RNN!"<<endmsg;
+	  continue;
+	}
+
+	if(local_level == -1111)
+	  { //noCut, accept this TE
+	    pass = true;
+	    m_cutCounter++;
+	    continue;
+	  }
+	// WARNING !!! CHOOSE MEANINGFUL RNN4 WP, since it will be used for all RNNXX triggers above 330 GeV
+	else if (local_level == 1 && !(*tauIt)->auxdata<char>("RNN4"))
+	  continue;
+	else if (local_level == 2 && !(*tauIt)->auxdata<char>(Form("RNN%i",m_method)))
+	  continue;
+	
+	m_cutCounter++;
+      }
     else
       {
 	msg() << MSG::ERROR << " no valid method defined "<<endmsg;	

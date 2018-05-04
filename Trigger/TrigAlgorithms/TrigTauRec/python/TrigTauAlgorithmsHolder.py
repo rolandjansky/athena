@@ -775,9 +775,9 @@ def getTauTrackClassifier():
     import cppyy
     cppyy.loadDictionary('xAODTau_cDict')
 
-    input_file_name = 'EFtracks_BDT_classifier_v0.root'
+    input_file_name = 'EFtracks_BDT_classifier_v1.root'
     calibrationFolder = 'TrigTauRec/00-11-02/'
-    BDTcut = 0.45
+    BDTcut = 0.44
     deltaZ0 = 1.0
 
     # =========================================================================
@@ -820,8 +820,8 @@ def getTauIDVarCalculator():
 
 ########################################################################
 # TauJetRNNEvaluator
-def getTauJetRNNEvaluator(NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
-                          MinChargedTracks=1, MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, 
+def getTauJetRNNEvaluator(NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
+                          MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, 
                           InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", 
                           OutputLayer="rnnid_output", OutputNode="sig_prob"):
 
@@ -833,10 +833,10 @@ def getTauJetRNNEvaluator(NetworkFile1P="", NetworkFile3P="", OutputVarname="RNN
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
     TauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
+                                      NetworkFile0P=NetworkFile0P,
                                       NetworkFile1P=NetworkFile1P,
                                       NetworkFile3P=NetworkFile3P,
                                       OutputVarname=OutputVarname,
-                                      MinChargedTracks=MinChargedTracks,
                                       MaxTracks=MaxTracks,
                                       MaxClusters=MaxClusters,
                                       MaxClusterDR=MaxClusterDR,
@@ -845,6 +845,10 @@ def getTauJetRNNEvaluator(NetworkFile1P="", NetworkFile3P="", OutputVarname="RNN
                                       InputLayerClusters=InputLayerClusters,
                                       OutputLayer=OutputLayer,
                                       OutputNode=OutputNode)
+
+    # WARNING: temporary
+    TauJetRNNEvaluator.inTrigger = True
+    TauJetRNNEvaluator.calibFolder = 'dev/TrigTauRec/'
 
     ToolSvc += TauJetRNNEvaluator
     cached_instances[_name] = TauJetRNNEvaluator
@@ -867,17 +871,29 @@ def getTauWPDecoratorJetRNN():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile1Prong = "rnnid_flat_deep_1p_v0.root",
-                                     flatteningFile3Prong = "rnnid_flat_deep_3p_v0.root",
+                                     flatteningFile0Prong = "rnnid_flat_0p_v1_tmp.root",
+                                     flatteningFile1Prong = "rnnid_flat_1p_v1_tmp.root",
+                                     flatteningFile3Prong = "rnnid_flat_3p_v1_tmp.root",
                                      CutEnumVals =
                                      [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
                                        ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
+                                     SigEff0P = [0.98, 0.95, 0.90, 0.80],
                                      SigEff1P = [0.992, 0.99, 0.98, 0.96],
-                                     SigEff3P = [0.99, 0.98, 0.95, 0.90],
+                                     SigEff3P = [0.99, 0.98, 0.92, 0.90],
+                                     # test WP combinations
+                                     DecorWPNames = ["RNN4","RNN5"],
+                                     DecorWPCutEffs0P = [0.95,0.80],
+                                     DecorWPCutEffs1P = [0.99,0.98],
+                                     DecorWPCutEffs3P = [0.95,0.92],
                                      ScoreName = "RNNJetScore",
                                      NewScoreName = "RNNJetScoreSigTrans",
                                      DefineWPs = True,
                                  )
+
+    # WARNING: temporary
+    TauWPDecorator.inTrigger = True
+    TauWPDecorator.calibFolder = 'dev/TrigTauRec/'
+
 
     ToolSvc += TauWPDecorator
     cached_instances[_name] = TauWPDecorator
