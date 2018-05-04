@@ -72,19 +72,19 @@ protected:
   double zpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
   double rzpos(int sample,double eta,int subpos = CaloSubPos::SUBPOS_MID) const;
 
-  HepPDT::ParticleDataTable*     m_particleDataTable;
+  HepPDT::ParticleDataTable*     m_particleDataTable{nullptr};
 
-  double m_CaloBoundaryR;
-  double m_CaloBoundaryZ;
-  double m_calomargin;
+  double m_CaloBoundaryR{1148.0};
+  double m_CaloBoundaryZ{3549.5};
+  double m_calomargin{100};
 
   std::vector< int > m_surfacelist;
 
   // The new Extrapolator setup
   ToolHandle<Trk::ITimedExtrapolator> m_extrapolator;
   ToolHandle<ICaloSurfaceHelper>      m_caloSurfaceHelper;
-  mutable const Trk::TrackingVolume*  m_caloEntrance;
-  std::string                         m_caloEntranceName;
+  mutable const Trk::TrackingVolume*  m_caloEntrance{nullptr};
+  std::string                         m_caloEntranceName{""};
 
   Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
 

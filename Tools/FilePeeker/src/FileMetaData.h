@@ -14,6 +14,7 @@
 class FileMetaData {
  
  public:
+  std::string m_fileName;
   std::set<unsigned> m_runNumbers;
   std::set<unsigned> m_lbNumbers;
 

@@ -27,7 +27,7 @@
 class PoolFilePeeker {
   
 public:
-  PoolFilePeeker(TFile* tf, const bool vbs=false);
+  PoolFilePeeker(const char* tf, const bool vbs=false);
 
   const FileMetaData& get() const {return m_fmd;}
 
@@ -62,8 +62,22 @@ bool PoolFilePeeker::findBranch(TBranch* br, const std::string& nametag, const s
 }
 
   
-PoolFilePeeker::PoolFilePeeker(TFile* tf, const bool vbs) {
+PoolFilePeeker::PoolFilePeeker(const char* filename, const bool vbs) {
 
+
+  m_fmd.m_fileName=filename;
+
+  auto start = std::chrono::system_clock::now();
+  std::unique_ptr<TFile> tf(TFile::Open(filename));  
+  if (!tf || tf->IsZombie()) {
+    std::cerr << "Failed to open file " << filename << std::endl;
+    return;
+  }
+  auto stop = std::chrono::system_clock::now();
+
+  if (vbs) std::cout << "Time to open input file: " << std::chrono::duration_cast<std::chrono::milliseconds>(stop-start).count() << " msec" << std::endl;
+
+  
   TTree* md=(TTree*)tf->Get("MetaData");
 
   if (!md) return;
@@ -88,7 +102,7 @@ PoolFilePeeker::PoolFilePeeker(TFile* tf, const bool vbs) {
 
   //Get the event! 
   md->GetEntry(0);
-      
+  
   m_fmd.m_valid=true;
 
   if (taginfo.first) {
@@ -249,41 +263,32 @@ int main(int argc, char** argv) {
     }
   }
   
-  if (optind+1!=argc) {
-    std::cerr << "Expected exactly one file name as parameter" << std::endl;
+  const int nfiles=argc-optind;
+  if (nfiles<=0) {
+    std::cerr << "Expected at least one file name as parameter" << std::endl;
     return -1;
   }
 
-  const char* filename=argv[optind];
-  if (verbose) std::cout << "Checking file " << filename << std::endl;
+  
+  std::vector<FileMetaData> output;
+
+  for (int iFile=optind;iFile<argc;++iFile) {
+    const char* filename=argv[iFile];
+    if (verbose) std::cout << "Checking file " << filename << std::endl;
+    
+    PoolFilePeeker pfp(filename,verbose);
+
+    output.push_back(pfp.get());
+  }//end loop over input file names
 
 
-  auto start = std::chrono::system_clock::now();
-  TFile* tf=TFile::Open(filename);  
-  if (!tf || tf->IsZombie()) {
-    std::cerr << "Failed to open file " << filename << std::endl;
-    return -1;
-  }
- auto stop = std::chrono::system_clock::now();
-
- if (verbose) std::cout << "Time to open input file: " << std::chrono::duration_cast<std::chrono::milliseconds>(stop-start).count() << " msec" << std::endl;
-
- PoolFilePeeker pfp(tf,verbose);
-
- tf->Close();
- delete tf;
 
  if (kvDump) {
-   pfp.get().keyValueDump();
+   for (const auto& o : output) o.keyValueDump();
  }
  else {
-   pfp.get().dump();
+   for (const auto& o : output) o.dump();
  }
-
  
- if (pfp.get().m_valid) 
-   return 0;
- else
-   return -1;
- 
+ return 0;
 }

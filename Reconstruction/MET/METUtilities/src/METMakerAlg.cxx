@@ -21,6 +21,7 @@
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
+#include "PATCore/AcceptData.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
 
 using std::string;
@@ -299,13 +300,13 @@ namespace met {
   bool METMakerAlg::accept(const xAOD::Electron* el)
   {
     if( fabs(el->eta())>2.47 || el->pt()<10e3 ) return false;
-    return m_elecSelLHTool->accept(el);
+    return static_cast<bool> (m_elecSelLHTool->accept(el));
   }
 
   bool METMakerAlg::accept(const xAOD::Photon* ph)
   {
     if( !(ph->author()&20) || fabs(ph->eta())>2.47 || ph->pt()<10e3 ) return false;
-    return m_photonSelIsEMTool->accept(ph);
+    return static_cast<bool> (m_photonSelIsEMTool->accept(ph));
   }
 
   bool METMakerAlg::accept(const xAOD::TauJet* tau)

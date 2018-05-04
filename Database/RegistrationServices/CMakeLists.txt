@@ -29,7 +29,6 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 # Component(s) in the package:
 atlas_add_component( RegistrationServices
                      src/RegistrationStream.cxx
-                     src/RegistrationStreamDefMeta.cxx
                      src/RegistrationStreamLCGTool.cxx
                      src/RegistrationStreamTagTool.cxx
                      src/IOVRegistrationSvc.cxx

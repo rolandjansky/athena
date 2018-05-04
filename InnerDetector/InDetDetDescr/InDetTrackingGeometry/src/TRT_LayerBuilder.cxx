@@ -649,7 +649,11 @@ const std::vector< const Trk::DiscLayer* >* InDet::TRT_LayerBuilder::discLayers(
                 }
            }
            // fix to CID 11326
-           if (!numberOfStraws) return nullptr;
+           if (!numberOfStraws){
+             //fix coverity 118656
+             delete fullDiscBounds;
+             return nullptr;
+           } 
            Trk::BinUtility* currentBinUtility = new Trk::BinUtility(numberOfStraws, -M_PI, M_PI, Trk::closed, Trk::binPhi);
            Trk::BinnedArray<Trk::Surface>*  strawArray = new Trk::BinnedArray1D<Trk::Surface>(strawPerEndcapLayer, currentBinUtility);
            Trk::DiscLayer* currentLayer = 0;

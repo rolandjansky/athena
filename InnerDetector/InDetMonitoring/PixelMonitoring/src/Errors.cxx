@@ -210,17 +210,6 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
     }
   }
 
-  if (m_doOnline) {
-    const std::string tmp = "errors_over_time";
-    const std::string tmp2 = "Number of Errors as function of time over";
-    int nbin = 99;
-    float min = 0.0;
-    float max = 1.0;
-    sc = rodHistos.regHist(m_error_time1 = new TProfile((tmp + "_10min").c_str(), (tmp2 + " 10 minutes. 6 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), nbin, min, max, "i"));
-    sc = rodHistos.regHist(m_error_time2 = new TProfile((tmp + "_1hr").c_str(), (tmp2 + " 1 hour.  36 sec/bin" + m_histTitleExt + ";time;module occupancy").c_str(), nbin, min, max, "i"));
-    sc = rodHistos.regHist(m_error_time3 = new TProfile((tmp + "_6hr").c_str(), (tmp2 + " 6 hours.  3.6 min/bin" + m_histTitleExt + ";time;module occupancy").c_str(), nbin, min, max, "i"));
-  }
-
   if (m_doModules) {
     m_errors = std::make_unique<PixelMonModules1D>(PixelMonModules1D("errors", ("Errors in module:ErrorType" + m_histTitleExt + ";Number of Errors").c_str(), 7, 0.5, 7.5));
     sc = m_errors->regHist(this, (path + "/ModulesErrors").c_str(), run);
@@ -556,9 +545,6 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   double total_errors = 0;
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; i++) {
     total_errors += num_errors[i];
-  }
-  if (m_error_time1 && m_error_time2 && m_error_time3) {
-    fillTimeHisto(total_errors, m_error_time1, m_error_time2, m_error_time3, 10., 60., 360.);
   }
 
   for (int i = 0; i < PixLayer::COUNT - 1; i++) {

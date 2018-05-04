@@ -10,7 +10,7 @@
 
 #include "DerivationFrameworkEGamma/EGSelectionToolWrapper.h"
 #include "xAODBase/IParticleContainer.h"
-#include "PATCore/TAccept.h"
+#include "PATCore/AcceptData.h"
 #include "xAODEgamma/EgammaContainer.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
@@ -113,8 +113,9 @@ namespace DerivationFramework {
       }
 
       // compute the output of the selector
-      Root::TAccept theAccept(m_tool->accept(pCopy));
-      unsigned int isEM = m_tool->IsemValue(); // this one should be done only for IsEM selectors..
+      asg::AcceptData theAccept(m_tool->accept(pCopy));
+      // this one should be done only for IsEM selectors..
+      unsigned int isEM = theAccept.getCutResultInverted();
 
       // decorate the original object
       if(m_cut==""){

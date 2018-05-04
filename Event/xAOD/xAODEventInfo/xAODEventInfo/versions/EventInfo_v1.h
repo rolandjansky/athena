@@ -369,14 +369,46 @@ namespace xAOD {
       /// Set the event flags for a particular sub-detector
       bool setEventFlags( EventFlagSubDet subDet, uint32_t flags );
       /// Set one particular bit of one particular sub-detector
-      bool setEventFlagBit( EventFlagSubDet subDet, size_t bit,
-                            bool set = true );
+      bool setEventFlagBit( EventFlagSubDet subDet, size_t bit );
+      /// Reset one particular bit of one particular sub-detector
+      bool resetEventFlagBit( EventFlagSubDet subDet, size_t bit );
 
       /// Get the error state for a particular sub-detector
       EventFlagErrorState errorState( EventFlagSubDet subDet ) const;
       /// Set the error state for a particular sub-detector
       bool setErrorState( EventFlagSubDet subDet,
                           EventFlagErrorState state );
+
+      /// Change detector flags with update semantics.  This means that
+      /// we can set bits but not reset them, and that the error state
+      /// can move higher (NotSet -> Warning -> Error) but not the other way.
+      /// These methods are const, so they can be called on an existing
+      /// EventInfo, but will fail with an exception if the detector flag
+      /// word has been locked.  This will happen on input if the flag word
+      /// has already been set to something; it could also happen if the flag
+      /// word is written explicitly with a DecorationHandle.
+      ///
+      /// Be aware that no dependency tracking is done for these flags,
+      /// so something that is reading them should ensure that whatever
+      /// writes them runs first.  In most cases, setting event flags
+      /// goes along with producing some data item; in those cases,
+      /// it should suffice for the reader to have a dependency on this
+      /// data item.  In other cases, one might need to use explicit
+      /// DecorationHandle's or produce a dummy data item.
+
+      /// Set one particular bit of one particular sub-detector
+      bool updateEventFlagBit ( const EventFlagSubDet subDet,
+                                const size_t bit ) const;
+      /// Turn on a set of event flags for one particular sub-detector.
+      /// This does a logical OR of the exising flags and FLAGS.
+      bool updateEventFlags( const EventFlagSubDet subDet,
+                             const uint32_t flags ) const;
+      /// Update the error state for one particular sub-detector.
+      /// The error state may only be increased by this method.
+      /// If STATE is less than the current error state, then this method
+      /// will return false and leave the current state unchanged.
+      bool updateErrorState( const EventFlagSubDet subDet,
+                             const EventFlagErrorState state ) const;
 
       /// @}
 

@@ -12,8 +12,7 @@
 #include "AsgTools/AsgTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "xAODEgamma/ElectronFwd.h"
-#include "PATCore/TAccept.h"            // for TAccept
-#include "PATCore/TResult.h"            // for TResult
+#include "PATCore/AcceptData.h"
 
 namespace Root{
   class TElectronLikelihoodTool;
@@ -23,7 +22,7 @@ namespace Root{
 class AsgElectronLikelihoodTool : public asg::AsgTool, 
 				  virtual public IAsgElectronLikelihoodTool
 {
-  ASG_TOOL_CLASS2(AsgElectronLikelihoodTool, IAsgElectronLikelihoodTool, IAsgSelectionTool)
+  ASG_TOOL_CLASS2(AsgElectronLikelihoodTool, IAsgElectronLikelihoodTool, CP::ISelectionTool)
 
 public:
   /** Standard constructor */
@@ -40,52 +39,52 @@ public:
   virtual StatusCode finalize();
 
   // Main methods for IAsgSelectorTool interface
-public:
+
+  /** Method to get the plain AcceptInfo.
+      This is needed so that one can already get the AcceptInfo 
+      and query what cuts are defined before the first object 
+      is passed to the tool. */
+  virtual const asg::AcceptInfo& getAcceptInfo() const;
+
   /** The main accept method: using the generic interface */
-  const Root::TAccept& accept( const xAOD::IParticle* part ) const;
+  asg::AcceptData accept( const xAOD::IParticle* part ) const;
 
   /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::Electron* eg ) const {
+  asg::AcceptData accept( const xAOD::Electron* eg ) const {
     return accept (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::Egamma* eg ) const {
+  asg::AcceptData accept( const xAOD::Egamma* eg ) const {
     return accept (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main accept method: in case mu not in EventInfo online */
-  const Root::TAccept& accept( const xAOD::Electron* eg, double mu ) const;
+  asg::AcceptData accept( const xAOD::Electron* eg, double mu ) const;
 
   /** The main accept method: in case mu not in EventInfo online */
-  const Root::TAccept& accept( const xAOD::Egamma* eg, double mu ) const;
+  asg::AcceptData accept( const xAOD::Egamma* eg, double mu ) const;
   
   // Main methods for IAsgCalculatorTool interface
 public:
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::IParticle* part ) const;
+  double calculate( const xAOD::IParticle* part ) const;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron* eg ) const {
+  double calculate( const xAOD::Electron* eg ) const {
     return calculate (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma* eg ) const {
+  double calculate( const xAOD::Egamma* eg ) const {
     return calculate (eg, -99); // mu = -99 as input will force accept to grab the pileup variable from the xAOD object
   }
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Electron* eg, double mu ) const;
+  double calculate( const xAOD::Electron* eg, double mu ) const;
 
   /** The main result method: the actual likelihood is calculated here */
-  const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const; 
-
-  /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
-
-  /** Method to get the plain TResult */
-  virtual const Root::TResult& getTResult( ) const;
+  double calculate( const xAOD::Egamma* eg, double mu ) const; 
 
   virtual std::string getOperatingPointName( ) const;
 
@@ -114,13 +113,6 @@ private:
   /** Pointer to the underlying ROOT based tool */
   Root::TElectronLikelihoodTool* m_rootTool;
   
-  /** A dummy return TAccept object */
-  Root::TAccept m_acceptDummy;
-
-  /** A dummy return TResult object */
-  Root::TResult m_resultDummy;
-
-
   /// Whether to use the PV (not available for trigger)
   bool m_usePVCont;
 

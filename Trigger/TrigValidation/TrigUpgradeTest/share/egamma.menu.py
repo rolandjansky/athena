@@ -11,9 +11,6 @@ InDetTrigFlags.useConditionsClasses.set_Value_and_Lock(False)
 
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doCaloSeededBrem = False
-
-
-from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.InDet25nsec = True 
 InDetFlags.doPrimaryVertex3DFinding = False 
 InDetFlags.doPrintConfigurables = False
@@ -38,9 +35,14 @@ if globalflags.InputFormat.is_bytestream():
    topSequence.L1DecoderTest.ctpUnpacker.OutputLevel=DEBUG
    topSequence.L1DecoderTest.roiUnpackers[0].OutputLevel=DEBUG
 
-from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
-from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep2
 
+# menu components   
+from TrigUpgradeTest.HLTCFConfig import decisionTree_From_Chains
+from TrigUpgradeTest.MenuComponents import NodeSequence, MenuSequence, Chain, ChainStep
+
+# ===============================================================================================
+#      L2 Calo
+# ===============================================================================================
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
 theFastCaloAlgo=T2CaloEgamma_FastAlgo("FastCaloAlgo" )
@@ -57,7 +59,7 @@ trigL2CaloRingerFexMT.OutputLevel = DEBUG
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 
-from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
+#from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
 
 from ViewAlgs.ViewAlgsConf import TestEventViewCreatorAlgorithm
 
@@ -84,8 +86,7 @@ theFastCaloHypo.OutputLevel = DEBUG
 theFastCaloHypo.CaloClusters = theFastCaloAlgo.ClustersName
 
 
-fastCaloViewSequence = seqAND("fastCaloViewSequence", [fastCaloViewsMaker, fastCaloInViewAlgs ])
-fastCaloSequence =  seqAND("fastCaloSequence", [fastCaloViewSequence])
+fastCaloSequence =  seqAND("fastCaloSequence",[fastCaloViewsMaker, fastCaloInViewAlgs ])
 
 fastCalo_NodeSequence = NodeSequence("fastCalo_NodeSequence",
                                          Sequence=fastCaloSequence,
@@ -199,16 +200,16 @@ for unpack in topSequence.L1DecoderTest.rerunRoiUnpackers:
 
 testChains  = [
    Chain(name='HLT_e3_etcut', Seed="L1_EM3",   \
-             ChainSteps=[ ChainStep2("Step1_e3_etcut", [fastCaloSequence]),
-                          ChainStep2("Step2_e3_etcut", [electronSequence])]  ),
+             ChainSteps=[ ChainStep("Step1_e3_etcut", [fastCaloSequence]),
+                          ChainStep("Step2_e3_etcut", [electronSequence])]  ),
 
     ## Chain(name='HLT_e3_etcut', Seed="L1_EM3",   \
     ##         ChainSteps=[ ChainStep("Step1_e3_etcut", [SequenceHypoTool(fastCaloSequence,step1_e3_etcut() )])]  ),
  
     Chain(name='HLT_e5_etcut', Seed="L1_EM3",   \
-              ChainSteps=[ChainStep2("Step1_e5_etcut", [fastCaloSequence])]),
+              ChainSteps=[ChainStep("Step1_e5_etcut", [fastCaloSequence])]),
     Chain(name='HLT_e7_etcut', Seed="L1_EM3",   \
-              ChainSteps=[ChainStep2("Step1_e7_etcut", [fastCaloSequence])]),
+              ChainSteps=[ChainStep("Step1_e7_etcut", [fastCaloSequence])]),
     #Chain(name='HLT_2e3_etcut', Seed="L1_EM3",   \
     #          ChainSteps=[ChainStep("Step1_2e3_etcut", [SequenceHypoTool(fastCaloSequence, 2e3_etcut() )])])
     ]

@@ -150,6 +150,7 @@ def makeInDetAlgs():
                                                         gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
                                                         DetectorManagerName     = InDetKeys.PixelManager(),
                                                         DataObjectName          = InDetKeys.PixelRDOs(),
+                                                        AmbiguitiesMap          = 'TrigPixelClusterAmbiguitiesMap',
                                                         ClustersName            = "PixelTrigClusters",)# OutputLevel = INFO)
   InDetPixelClusterization.isRoI_Seeded = True
   InDetPixelClusterization.RoIs = "EMViewRoIs"

@@ -71,15 +71,15 @@ Alg::reinitialize()
 }
 
 StatusCode 
-Alg::beginRun()
+Alg::start()
 { 
-  return PyAthena::callPyMethod( m_self, "sysBeginRun" );
+  return PyAthena::callPyMethod( m_self, "sysStart" );
 }
 
 StatusCode 
-Alg::endRun()
+Alg::stop()
 {
-  return PyAthena::callPyMethod( m_self, "sysEndRun" );
+  return PyAthena::callPyMethod( m_self, "sysStop" );
 }
 
 StatusCode 

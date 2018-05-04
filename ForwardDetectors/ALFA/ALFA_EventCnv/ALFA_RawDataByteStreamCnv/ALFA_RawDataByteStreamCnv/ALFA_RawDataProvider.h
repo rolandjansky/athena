@@ -23,7 +23,7 @@
 
 #include "ALFA_RawDataProviderTool.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include <map>
 #include <string>

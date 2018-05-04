@@ -189,7 +189,7 @@ def toolIP2DPosTrackSelector(name, useBTagFlagsDefaults = True, **options):
 
 #---------------------------------------------------------------------
 
-metaIP2DPosNewLikelihoodTool = { 'CalibrationFolders' : ['IP2D',],
+metaIP2DPosNewLikelihoodTool = { 'CalibrationTaggers' : ['IP2D',],
                                  'DependsOn'          : ['BTagCalibrationBrokerTool',],
                                  'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
                                  'ToolCollection'     : 'IP2DPosTag' }

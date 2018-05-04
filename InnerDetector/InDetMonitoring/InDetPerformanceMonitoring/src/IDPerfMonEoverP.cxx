@@ -704,7 +704,7 @@ void IDPerfMonEoverP::fillIsEM(const xAOD::Electron *eg) const
   m_isGoodOQ[m_electronCounter] = el_goodOQ;
 
   // check loose LH
-  bool val_loose=m_LHToolLoose2015->accept(eg);
+  bool val_loose = (bool) m_LHToolLoose2015->accept(eg);
   ATH_MSG_DEBUG( "Loose value : " << val_loose);
   //if(eg->passSelection(val_loose, "Loose")) {
   if(val_loose){
@@ -713,7 +713,7 @@ void IDPerfMonEoverP::fillIsEM(const xAOD::Electron *eg) const
   }//else{ATH_MSG_DEBUG("Loose electron not defined !");}
 
   // check medium LH
-  bool val_med=m_LHToolMedium2015->accept(eg);
+  bool val_med = (bool) m_LHToolMedium2015->accept(eg);
   ATH_MSG_DEBUG( "Medium value : " << val_med );
   //if(eg->passSelection(val_med, "Medium")) {
   if(val_med){
@@ -722,7 +722,7 @@ void IDPerfMonEoverP::fillIsEM(const xAOD::Electron *eg) const
   }//else{ATH_MSG_DEBUG("Mediu, electron not defined !");}
 
   // check tight LH
-  bool val_tight=m_LHToolTight2015->accept(eg);
+  bool val_tight = (bool) m_LHToolTight2015->accept(eg);
   ATH_MSG_DEBUG( "Tight value : " << val_tight);
   //if(eg->passSelection(val_tight, "Tight")) {
   if(val_tight){

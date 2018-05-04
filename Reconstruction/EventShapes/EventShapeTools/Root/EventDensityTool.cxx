@@ -10,6 +10,7 @@
 #include "fastjet/ClusterSequenceArea.hh"
 #include "xAODEventShape/EventShape.h"
 #include "xAODEventShape/EventShapeAuxInfo.h"
+// #include "JetRec/PseudoJetContainer.h"
 
 using fastjet::JetAlgorithm;
 using fastjet::JetDefinition;
@@ -145,12 +146,24 @@ StatusCode EventDensityTool::fillEventShape() const {
 //**********************************************************************
 StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs) const {
 
-  const PseudoJetVector* ppjv = m_pjgetter->get();
-  if ( ppjv == 0 ) {
-    ATH_MSG_ERROR( "Couldn't retrieve pseudojets from "<< m_pjgetter->name() );
+  /*
+  const PseudoJetContainer* cont = m_pjgetter->getC();
+  if ( cont == 0 ) {
+    ATH_MSG_ERROR( "Couldn't retrieve PseudoJetContainer from "<< m_pjgetter->name() );
     return StatusCode::FAILURE;
+  } 
+  std::vector<PseudoJet> ppjv = const_cast<PseudoJetContainer *>(cont)->asVectorPseudoJet();
+  */
+
+  const PseudoJetVector* ppjv = m_pjgetter->get();
+
+  // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
+  ATH_MSG_DEBUG("ppvj.size() = " << ppjv->size());
+  if ( ppjv->size() == 0 ) {
+    ATH_MSG_WARNING( "ppjv.size()=0 for pseudojets from "<< m_pjgetter->name() );
+    //return StatusCode::FAILURE;
   } else {
-    ATH_MSG_DEBUG("Retrieved input pseudojet count: " <<  ppjv->size());
+    ATH_MSG_DEBUG("Retrieved input pseudojets " << m_pjgetter->name() << ", count: " <<  ppjv->size());
   }
 
   // call fillEventShape(PseudoJetVector, EventShape) :
@@ -161,13 +174,25 @@ StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs) const {
 StatusCode EventDensityTool::fillEventShape(xAOD::EventShape *pevs, const xAOD::IParticleContainer*) const {
   // Ignore IParticleContainer argument.
 
+  /*
   // Fetch inputs.
-  const PseudoJetVector* ppjv = m_pjgetter->get();
- 
-  if ( ppjv == 0 ) {
-    ATH_MSG_ERROR("Could not retrieve pseudojets from " << m_pjgetter->name());
+  const PseudoJetContainer* cont = m_pjgetter->getC();
+  if ( cont == 0 ) {
+    ATH_MSG_ERROR( "Couldn't retrieve PseudoJetContainer from "<< m_pjgetter->name() );
     return StatusCode::FAILURE;
-    /// TODO : instead build a PseudoJetVector from the input IParticleContainer
+  } 
+  std::vector<PseudoJet> ppjv = const_cast<PseudoJetContainer *>(cont)->asVectorPseudoJet();
+  */
+
+  const PseudoJetVector* ppjv = m_pjgetter->get();
+
+  // !!! FIXME !!! Downgraded ERROR to WARNING and no FAILURE
+  ATH_MSG_DEBUG("ppvj.size() = " << ppjv->size());
+  if ( ppjv->size() == 0 ) {
+    ATH_MSG_WARNING( "ppjv.size()=0 for pseudojets from "<< m_pjgetter->name() );
+    //return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_DEBUG("Retrieved input pseudojets " << m_pjgetter->name() << ", count: " <<  ppjv->size());
   }
   
   return fillEventShape( pevs, *ppjv);

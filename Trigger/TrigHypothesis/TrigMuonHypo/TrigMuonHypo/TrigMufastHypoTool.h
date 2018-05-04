@@ -15,6 +15,8 @@
 #include "DecisionHandling/TrigCompositeUtils.h" 
 #include "AthenaMonitoring/GenericMonitoringTool.h"
 
+#include "DecisionHandling/Combinators.h"
+
 class StoreGateSvc;
 class TriggerElement;
 
@@ -57,7 +59,14 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     virtual StatusCode initialize() override;    
 
     virtual StatusCode decide(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const;
-    virtual StatusCode decide(TrigMufastHypoTool::MuonClusterInfo& input) const;
+
+    bool decideOnSingleObject(TrigMufastHypoTool::MuonClusterInfo& input, size_t cutIndex) const;
+
+    // for single muon event
+    StatusCode inclusiveSelection(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const;
+
+    // for multipul muon event    
+    StatusCode multiplicitySelection(std::vector<TrigMufastHypoTool::MuonClusterInfo>& toolInput) const;
     
   private:
 
@@ -65,22 +74,42 @@ class TrigMufastHypoTool: public ::AthAlgTool {
     
     float getLocalPhi(float, float, float) const;
     TrigMufastHypoToolConsts::ECRegions whichECRegion(const float eta, const float phi) const;
+
     
     // Properties:
-    std::vector<float> m_ptBins;
-    std::vector<float> m_ptThresholds;
-    BooleanProperty m_acceptAll;
-    BooleanProperty m_selectPV;
-    float m_ZPV;
-    float m_RPV;
+    Gaudi::Property< std::vector<std::vector<double>> > m_ptBins {
+        this, "PtBins", { {0, 2.5} }, "Bins range of each pT threshold" };
+
+    Gaudi::Property< std::vector<std::vector<double>> > m_ptThresholds {
+        this, "PtThresholds", { {5.49*CLHEP::GeV} }, "Track pT requirement ( separate threshold for each muon )" };
+
+    Gaudi::Property< bool > m_acceptAll {
+        this, "AcceptAll", false, "Ignore selection" };
+
+    Gaudi::Property< bool > m_selectPV {
+        this, "SelectPV", false, "Select PV" };
+
+    Gaudi::Property< float > m_ZPV {
+        this, "ZPVBins", 400. , "Define ZPV" };
+
+    Gaudi::Property< float > m_RPV {
+        this, "RPVBins", 200., "Define RPV" };
     
-    float m_ptThresholdForECWeakBRegionA;
-    float m_ptThresholdForECWeakBRegionB;
+    Gaudi::Property< std::vector<double> > m_ptThresholdForECWeakBRegionA {
+        this, "PtThresholdForECWeakBRegionA", {3.}, "Track pT requirement on regionA of weak magnetic field ( separate threshold for each muon )" };
+
+    Gaudi::Property< std::vector<double> > m_ptThresholdForECWeakBRegionB {
+        this, "PtThresholdForECWeakBRegionB", {3.}, "Track pT requirement on regionB of weak magnetic field ( separate threshold for each muon )" };
+
+    Gaudi::Property<bool>  m_decisionPerCluster { 
+	this, "DecisionPerCluster", true, "Is multiplicity requirement refering to muons ( false ) or RoIs/clusters with muons ( false ), relevant only in when multiplicity > 1" };
 
     // Other members:   
-    std::vector<float>::size_type m_bins;
+    std::vector<size_t> m_bins = {0};
 
     ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };   
+
+
 };
 
 #endif

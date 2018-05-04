@@ -5,13 +5,10 @@
 #ifndef ALFA_LocRecODEvCollection_h
 #define ALFA_LocRecODEvCollection_h
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "ALFA_LocRecEv/ALFA_LocRecODEvent.h"
 
-#ifndef __CINT__
-  #include "CLIDSvc/CLASS_DEF.h"
-#endif
 
 class ALFA_LocRecODEvCollection: public DataVector<ALFA_LocRecODEvent> {
   

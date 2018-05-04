@@ -19,7 +19,6 @@
 #include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "PATCore/AcceptData.h"
 
-
 #include <vector>
 #include <cmath>
 
