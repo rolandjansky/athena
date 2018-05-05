@@ -274,8 +274,8 @@ DerivationFrameworkJob += exot24Seq
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-#from DerivationFrameworkHiggs.EXOT24ContentList import EXOT24Content
-from DerivationFrameworkHiggs.EXOT24ExtraContent import *
+#from DerivationFrameworkHiggs.HIGG5D1ContentList import EXOT24Content
+from DerivationFrameworkHiggs.HIGG5D1ExtraContent import *
 EXOT24SlimmingHelper = SlimmingHelper("EXOT24SlimmingHelper")
 
 EXOT24SlimmingHelper.AppendToDictionary = {
