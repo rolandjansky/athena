@@ -202,14 +202,6 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   std::vector<unsigned char> m_calo_errors;
   /** track errors */
   std::vector<unsigned char> m_track_errors;
-  /** author */
-  std::vector<unsigned char> m_author;
-
-  /** deltaZ0 core Trks*/
-  std::vector<float> m_deltaZ0coreTrks;
-
-  /** deltaZ0 wide Trks*/
-  std::vector<float> m_deltaZ0wideTrks;
 
   //  RNN ID monitoring
   // retrieved from tool handle, if tool exists
@@ -223,6 +215,9 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   std::vector<double> m_RNN_cluster_et_log;
   std::vector<double> m_RNN_cluster_dEta;
   std::vector<double> m_RNN_cluster_dPhi;
+  std::vector<double> m_RNN_cluster_CENTER_LAMBDA;
+  std::vector<double> m_RNN_cluster_SECOND_LAMBDA;
+  std::vector<double> m_RNN_cluster_SECOND_R;
 
   int m_RNN_Ntracks;
   std::vector<double> m_RNN_track_pt_log;
