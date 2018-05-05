@@ -35,13 +35,61 @@ class TrigCostTRP:
 #----------------------------------------------------------------------
 # Note: prescale reading not used right now
 #
-def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', levels='L1,HLT'):
+def ReadTRPHLT(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', levels='HLT'):
+    HLTcollection = TrigCostAnalysis.CostResultCollection()
+    HLTcollection.run   = runnumber
+    HLTcollection.lbbeg = lb_beg
+    HLTcollection.lbend = lb_end
+    # Retrieve data
+    filename = GetFileName(runnumber, myafspath, myhttppath)
+    tchains  = GetTChains(runnumber, filename)
+
+    for lvl in levels.split(','):
+
+        log.info("Now processing Level = %s", lvl)
+
+        # Retrieve lvl-dependent quantities
+        sfx_in, sfx_ps, sfx_out = GetSuffixes(lvl, runnumber)
+        tree          = tchains[lvl]                      # Get tree
+        branches      = GetBranches(tree, lvl, sfx_out)   # Get branches
+
+        # Counters for this tree
+        entries       = tree.GetEntries()
+        startpoint    = GetStartpoint(tree, lb_beg, entries)
+        lblast        = 0                                 # Last LB number
+        count         = 0                                 # Number of lb to average
+        log.info("Tree name = %s, n-entries = %d", tree.GetName(), entries)
+        # Average samplings in lumiblock
+        for i in xrange(startpoint, entries):
+
+            tree.GetEvent(i)
+            lb = tree.LumiBlock
+            log.info("Now processing new lumiblock == %d", lb)
+
+            # Append to collection, if necessary
+            if StopLoopOrInstantiate(lb, lb_beg, lb_end, lblast, lvl, HLTcollection, options): break
+
+            # Loop over branch names
+            for bname in branches:
+                #print ' Branch', bname
+                ProcessBranch(tree, lb, lblast, bname, lvl, count, "output", HLTcollection)
+
+            # Increment
+            count += 1
+            lblast = lb
+
+        # Record end of range read
+        HLTcollection.lbend=lblast
+
+    log.info("Done with branch loop")
+    return HLTcollection
+def ReadTRPL1(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', levels='L1'):
 
     # Return object
-    collection = TrigCostAnalysis.CostResultCollection()
-    collection.run   = runnumber
-    collection.lbbeg = lb_beg
-    collection.lbend = lb_end
+    L1collection = TrigCostAnalysis.CostResultCollection()
+    L1collection.run   = runnumber
+    L1collection.lbbeg = lb_beg
+    L1collection.lbend = lb_end
 
     # Retrieve data
     filename = GetFileName(runnumber, myafspath, myhttppath)
@@ -61,7 +109,7 @@ def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', 
         startpoint    = GetStartpoint(tree, lb_beg, entries)
         lblast        = 0                                 # Last LB number
         count         = 0                                 # Number of lb to average
-        #print  ' tree name', tree.GetName(), ' Nebntries=', entries
+        log.info("Tree name = %s, n-entries = %d", tree.GetName(), entries)
         # Average samplings in lumiblock
         for i in xrange(startpoint, entries):
 
@@ -70,22 +118,23 @@ def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', 
             log.info("Now processing new lumiblock == %d", lb)
 
             # Append to collection, if necessary
-            if StopLoopOrInstantiate(lb, lb_beg, lb_end, lblast, lvl, collection, options): break
+            if StopLoopOrInstantiate(lb, lb_beg, lb_end, lblast, lvl, L1collection, options): break
 
             # Loop over branch names
             for bname in branches:
                 #print ' Branch', bname
-                ProcessBranch(tree, lb, lblast, bname, lvl, count, sfx_in, sfx_ps, sfx_out, collection)
+                ProcessBranch(tree, lb, lblast, bname, lvl, count, "TBP", L1collection)
 
             # Increment
             count += 1
             lblast = lb
 
         # Record end of range read
-        collection.lbend=lblast
+        L1collection.lbend=lblast
+    log.info("Appending HLT collection!;?")
 
     log.info("Done with branch loop")
-    return collection
+    return L1collection
 
 #----------------------------------------------------------------------
 def GetFileName(runnumber, myafspath='', myhttppath=''):
@@ -108,7 +157,7 @@ def GetTChains(runnumber, filename):
         print "export PYTHONPATH=$PYTHONPATH:$ROOTSYS/lib"
         sys.exit(-1)
 
-    subprocess.call(['/bin/sh', 'getfile.sh', filename])
+#    subprocess.call(['/bin/sh', 'getfile.sh', filename])
 
     # Name change --- See e-mail thread below
     prefix = ''
@@ -124,6 +173,7 @@ def GetTChains(runnumber, filename):
 #        tc.Add(filename)
 #        tc.Add(mda.FileRead().openFile(filename).GetEndpointUrl().GetUrl())
         tc.Add(filename)
+    log.info(">>>>>>>>>> Finished getting TChains! <<<<<<<<<<")
 
     return tchains
 
@@ -134,7 +184,7 @@ def GetStartpoint(tree, lb_beg, entries):
 
     startpoint = 0
     stepsize = 1
-    log.info("Finding TRP start point")
+    log.info("Finding TRP start point with %d entries", entries)
 
     for startpoint in xrange(0,entries,stepsize):
         tree.GetEvent(startpoint)
@@ -146,6 +196,7 @@ def GetStartpoint(tree, lb_beg, entries):
     if startpoint>=stepsize:
         startpoint=startpoint-stepsize
 
+    log.info(">>>>>>>>>> Finished finding GetStartPoint === %d <<<<<<<<<", startpoint)
     return startpoint
 
 #----------------------------------------------------------------------
@@ -208,16 +259,6 @@ def GetBranches(tree, lvl, sfx_out):
     comp = re.compile(br_out)
 
     for branch in list(tree.GetListOfBranches()):
-        #
-        # L1 example:
-        #   bname = L1_EM3_TAV
-        #   pos   = -4 = -(len(L1.*_TAV)-4)
-        #   cname = L1_EM3
-        # L2 example:
-        #   bname = L2_total_output
-        #   pos   = -7 = # -(len(L2.*_output)-4)
-        #   cname = L2_total
-        #
         if comp.match( branch.GetName() ):
             bname = branch.GetName()
             if "HLT" in bname :
@@ -226,7 +267,8 @@ def GetBranches(tree, lvl, sfx_out):
                 pos   = -(len(br_out)-4)
 
             cname = bname[:pos]
-            branches.append( cname )
+            if ("L1_XE" in bname or "pufit" in bname) :
+                branches.append( cname )
 
     return branches
 
@@ -246,10 +288,7 @@ def StopLoopOrInstantiate(lb, lb_beg, lb_end, lblast, lvl, collection, options):
     return False
 
 #----------------------------------------------------------------------
-def ProcessBranch(tree, lb, lblast, bname, lvl, count, sfx_in, sfx_ps, sfx_out, collection):
-
-#	    if bname!='L2_e24vh_medium1': return # TODO
-#	    if lb==5: print bname, # TODO
+def ProcessBranch(tree, lb, lblast, bname, lvl, count, sfx_out, collection):
 
     # Is CPS = "coherent prescale"?
     cpsval=None
@@ -258,15 +297,15 @@ def ProcessBranch(tree, lb, lblast, bname, lvl, count, sfx_in, sfx_ps, sfx_out, 
         return
 
     # Set rate, counts, errors
-    if lb!=lblast: ch = SetNewBranch(tree, lb, bname, lvl, count, sfx_in, sfx_ps, sfx_out, cpsval, collection)
-    else:          ch = SetOldBranch(tree, lb, bname, lvl, count, sfx_in, sfx_ps, sfx_out, collection)
+    if lb!=lblast: ch = SetNewBranch(tree, lb, bname, lvl, count, cpsval, collection)
+    else:          ch = SetOldBranch(tree, lb, bname, lvl, count, collection)
 
     # Print
-    PrintChain(bname, ch)
+#    PrintChain(bname, ch)
     return
 
 #----------------------------------------------------------------------
-def SetNewBranch(tree, lb, bname, lvl, count, sfx_in, sfx_ps, sfx_out, cpsval, collection):
+def SetNewBranch(tree, lb, bname, lvl, count, cpsval, collection):
 
     # If new LB, then dump previous LB data
     ch = TrigCostAnalysis.CostChain()
@@ -277,14 +316,14 @@ def SetNewBranch(tree, lb, bname, lvl, count, sfx_in, sfx_ps, sfx_out, cpsval, c
     if cpsval:
         ch.SetRate(cpsval)
     else:
-        rate = getattr(tree,bname+'_'+sfx_out)
-        ch.SetRate(rate)
+#        rate = getattr(tree,bname+'_'+sfx_out)
+#        ch.SetRate(rate)
 #	        # Debug
 #	        print bname, 'New lb=', lb, 'lblast=', lblast, 'count=', count, 'rate=', rate
 
         # Add all rates, not just output rates
         if lvl=='L1': SetNewChainL1 (tree, ch, bname)
-        else:         SetNewChainHLT(tree, ch, bname, sfx_in, sfx_ps, sfx_out)
+        else:         SetNewChainHLT(tree, ch, bname)
 
     collection.SetCostChain(lb,bname,ch)
     if collection.lbbeg==-1:
@@ -293,12 +332,12 @@ def SetNewBranch(tree, lb, bname, lvl, count, sfx_in, sfx_ps, sfx_out, cpsval, c
     return ch
 
 #----------------------------------------------------------------------
-def SetOldBranch(tree, lb, bname, lvl, count, sfx_in, sfx_ps, sfx_out, collection):
+def SetOldBranch(tree, lb, bname, lvl, count, collection):
     # Combine sample previous samples (#samples=count)
-    ch = GetChain(tree, bname, lb, count, sfx_out, collection)
+    ch = GetChain(tree, bname, lb, count, collection)
 
     if lvl=='L1': SetOldChainL1 (tree, ch, bname, count)
-    else:         SetOldChainHLT(tree, ch, bname, count, sfx_in, sfx_ps, sfx_out)
+    else:         SetOldChainHLT(tree, ch, bname, count)
 
     return ch
 
@@ -306,13 +345,13 @@ def SetOldBranch(tree, lb, bname, lvl, count, sfx_in, sfx_ps, sfx_out, collectio
 def PrintChain(bname, ch):
     if ch is None:
       return
-#	    print 'ch.GetRate()', bname, ch.GetRate()
-#	    print 'ch.GetTBPCnt()', bname, ch.GetTBPCnt()
-#	    print 'ch.GetTAPCnt()', bname, ch.GetTAPCnt()
-#	    print 'ch.GetTAVCnt()', bname, ch.GetTAVCnt()
-#	    print 'ch.GetTBPRate()', bname, ch.GetTBPRate()
-#	    print 'ch.GetTAPRate()', bname, ch.GetTAPRate()
-#    print 'ch.GetTAVRate()', bname, ch.GetTAVRate()
+    print 'ch.GetRate()', bname, ch.GetRate()
+    print 'ch.GetTBPCnt()', bname, ch.GetTBPCnt()
+    print 'ch.GetTAPCnt()', bname, ch.GetTAPCnt()
+    print 'ch.GetTAVCnt()', bname, ch.GetTAVCnt()
+    print 'ch.GetTBPRate()', bname, ch.GetTBPRate()
+    print 'ch.GetTAPRate()', bname, ch.GetTAPRate()
+    print 'ch.GetTAVRate()', bname, ch.GetTAVRate()
     return
 
 #----------------------------------------------------------------------
@@ -332,28 +371,17 @@ def IsCPS(bname, tree, sfx_out):
 # Note the formula:
 #   err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
 #
-def GetChain(tree, bname, lb, count, sfx_out, collection):
+def GetChain(tree, bname, lb, count, collection):
     ch          = collection.GetCostChain(lb,bname)
-    # TimM - no longer do any rates here
-    #pastrate    = ch.GetRate()
-    #cumulative  = ch.GetRate()*count
-    #lbrate      = getattr(tree,bname+'_'+sfx_out)
-    #avgrate     = (cumulative+lbrate)/(count+1)
-    #err2        = ch.GetRate() / ((count+1)*samplingrate)
-
-    #ch.SetRate(avgrate)
-    #ch.SetRateErr(math.sqrt(err2))
-
-#	  # Debug
-#    print 'Old lb=', lb, 'lblast=', lblast, 'count=', count, 'pastrate=', pastrate, 'cum=', cumulative, 'lbrate', lbrate, 'avgrate=', avgrate
     return ch
 
 #----------------------------------------------------------------------
 def SetNewChainL1(tree, ch, bname):
     ch.SetPrescale(getattr(tree,bname+'_PS'))
 
-    #if ch.GetName() == 'L1_EM10VH':
-    #    print "DBG NEW L1 " , getattr(tree,bname+'_TBP')
+    if ch.GetName() == 'L1_XE60':
+        log.info("L1_XE60 TBP = %f", getattr(tree,bname+'_TBP'))
+        log.info("L1_XE60 TAP = %f", getattr(tree,bname+'_TAP'))
 
     # Reverse-engineer counts -- will be approximate
     ch.SetTBPCnt (getattr(tree,bname+'_TBP')*samplingrate)
@@ -367,21 +395,25 @@ def SetNewChainL1(tree, ch, bname):
     return
 
 #----------------------------------------------------------------------
-def SetNewChainHLT(tree, ch, bname, sfx_in, sfx_ps, sfx_out):
+def SetNewChainHLT(tree, ch, bname):
 #	  ch.SetPrescale(getattr(tree,bname+'_prescale'))
 
+    if ch.GetName() == 'HLT_xe110_pufit_L1XE60':
+        log.info("HLT_xe110_pufit_L1XE60 input  = %f", getattr(tree,bname+'_input'))
+        log.info("HLT_xe110_pufit_L1XE60 output = %f", getattr(tree,bname+'_output'))
+
     # Reverse-engineer counts -- will be approximate
-    ch.SetTBPCnt (getattr(tree,bname+'_'+sfx_in )*samplingrate)
-    ch.SetTAPCnt (getattr(tree,bname+'_'+sfx_ps )*samplingrate)
-    ch.SetTAVCnt (getattr(tree,bname+'_'+sfx_out)*samplingrate)
+    ch.SetTBPCnt (getattr(tree,bname+'_input')*samplingrate)
+    ch.SetTAPCnt (getattr(tree,bname+'_output')*samplingrate)
+    ch.SetTAVCnt (getattr(tree,bname+'_raw')*samplingrate)
 
 #   if getattr(tree,bname+'_output'     )-getattr(tree,bname+'_raw'     ) > 1e-10:
 #   print "not equal",bname,getattr(tree,bname+'_'+sfx_out     ),getattr(tree,bname+'_raw'     )
 
     # Rates are stored in TRP ntuples
-    ch.SetTBPRate(getattr(tree,bname+'_'+sfx_in ))
-    ch.SetTAPRate(getattr(tree,bname+'_'+sfx_ps ))
-    ch.SetTAVRate(getattr(tree,bname+'_raw'     )) # Don't uncomment!! Already done in SetRate
+    ch.SetTBPRate(getattr(tree,bname+'_input'))
+    ch.SetTAPRate(getattr(tree,bname+'_output'))
+    ch.SetTAVRate(getattr(tree,bname+'_raw')) # Don't uncomment!! Already done in SetRate
     return
 
 #----------------------------------------------------------------------
@@ -420,23 +452,23 @@ def SetOldChainL1(tree, ch, bname, count):
 
 
 #----------------------------------------------------------------------
-def SetOldChainHLT(tree, ch, bname, count, sfx_in, sfx_ps, sfx_out):
+def SetOldChainHLT(tree, ch, bname, count):
 #	  ch.SetPrescale(getattr(tree,bname+'_prescale'))
 
     if ch is None:
       return
 
     # Reverse-engineer counts -- will be approximate
-    ch.SetTBPCnt (getattr(tree,bname+'_'+sfx_in )*samplingrate+ch.GetTBPCnt())
-    ch.SetTAPCnt (getattr(tree,bname+'_'+sfx_ps )*samplingrate+ch.GetTAPCnt())
-    ch.SetTAVCnt (getattr(tree,bname+'_'+sfx_out)*samplingrate+ch.GetTAVCnt())
+    ch.SetTBPCnt (getattr(tree,bname+'_input')*samplingrate+ch.GetTBPCnt())
+    ch.SetTAPCnt (getattr(tree,bname+'_prescaled')*samplingrate+ch.GetTAPCnt())
+    ch.SetTAVCnt (getattr(tree,bname+'_output')*samplingrate+ch.GetTAVCnt())
 
     # Rate are stored in TRP ntuples
     setattr(ch,"ratesCounts", ch.GetAttrWithDefault("ratesCounts",0) + 1.0)
 
-    setattr(ch,"cumulativeTBP", ch.GetAttrWithDefault("cumulativeTBP",0) + getattr(tree,bname+'_'+sfx_in))
-    setattr(ch,"cumulativeTAP", ch.GetAttrWithDefault("cumulativeTAP",0) + getattr(tree,bname+'_'+sfx_ps))
-    setattr(ch,"cumulativeTAV", ch.GetAttrWithDefault("cumulativeTAV",0) + getattr(tree,bname+'_'+sfx_out))
+    setattr(ch,"cumulativeTBP", ch.GetAttrWithDefault("cumulativeTBP",0) + getattr(tree,bname+'_input'))
+    setattr(ch,"cumulativeTAP", ch.GetAttrWithDefault("cumulativeTAP",0) + getattr(tree,bname+'_prescaled'))
+    setattr(ch,"cumulativeTAV", ch.GetAttrWithDefault("cumulativeTAV",0) + getattr(tree,bname+'_output'))
 
     ch.SetTBPRate(getattr(ch,"cumulativeTBP") / getattr(ch,"ratesCounts"))
     ch.SetTAPRate(getattr(ch,"cumulativeTAP") / getattr(ch,"ratesCounts"))

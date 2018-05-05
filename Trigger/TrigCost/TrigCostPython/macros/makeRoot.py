@@ -371,20 +371,24 @@ for i, runMap in enumerate(goodrunList):
 
     # Make file
     rootname = ''
-    if   opts.trp : rootname = '%s/%d_trp.root'  % (opts.dir, run)
-    else:           rootname = '%s/%d_cool.root' % (opts.dir, run)
+    if   opts.trp : rootname = '%s/%d_trp'  % (opts.dir, run)
+    else:           rootname = '%s/%d_cool' % (opts.dir, run)
     rootlist.append(rootname)
 
     # Get luminosity information
     lbset = TrigCostCool.GetLumiblocks(run, lbbeg, lbend, options)
 
     # Get trigger information
-    ratecoll = None
-    if   opts.trp : ratecoll = TrigCostTRP .ReadTRP (run, lbbeg, lbend, options, opts.trppath)
+    HLTratecoll = None
+    L1ratecoll  = None
+    if   opts.trp : L1ratecoll = TrigCostTRP .ReadTRPL1 (run, lbbeg, lbend, options, opts.trppath)
+    elif opts.cool: ratecoll = TrigCostCool.GetRates(run, lbbeg, lbend, options)
+    if   opts.trp : HLTratecoll = TrigCostTRP .ReadTRPHLT (run, lbbeg, lbend, options, opts.trppath)
     elif opts.cool: ratecoll = TrigCostCool.GetRates(run, lbbeg, lbend, options)
 
     # Make xmon ROOT file
-    TrigCostRoot.MakeRoot(rootname, ratecoll, lbset, options, opts.update)
+    TrigCostRoot.MakeRoot(rootname + "L1Rates.root", L1ratecoll, lbset, options, opts.update)
+    TrigCostRoot.MakeRoot(rootname + "HLTRates.root", HLTratecoll, lbset, options, opts.update)
 
 #	    # Stdout summary
 #	    ratecoll.Print(options)
@@ -392,20 +396,6 @@ for i, runMap in enumerate(goodrunList):
 
 # Clean up
 TrigCostCool.CloseDB()
-
-# Now done in updateRoot.sh
-#	# --force
-#	if user=='xmon' and opts.update:
-#	    tgtdir = '/afs/cern.ch/work/x/xmon/public/root'
-#	    for rootfile in rootlist:
-#	        if not os.path.isfile(rootfile):
-#	            log.info('%s does not exist, skipping' % rootfile)
-#	            continue
-#
-#	        log.info('Moving %s -> %s' % (rootfile, tgtdir))
-#	        shutil.move(rootfile, tgtdir)
-
-# Make html readable
 
 print 'That is all!'
 

@@ -14,7 +14,7 @@
 # - others...
 #
 
-#print 'Hello world TrigCostAnalysis.py'
+print 'Hello world TrigCostAnalysis.py'
 
 import string
 import re

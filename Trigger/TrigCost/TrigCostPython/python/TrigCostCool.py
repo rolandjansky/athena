@@ -46,6 +46,7 @@ from PyCool import cool                                 ;# print '\tLoaded speci
 from PyCool import coral                                ;# print '\tLoaded special PyCool.coral package'
 from CoolConvUtilities.AtlCoolLib import indirectOpen   ;# print '\tLoaded special CoolConvUtilitie.AtlCoolLib import indirectOpen package'
 from CoolConvUtilities import AtlCoolTool               ;# print '\tLoaded special CoolConvUtilities.AtlCoolTool package'
+#from TrigHLTRatesFromCool import TrigHltRates           ; log.info("Loaded special TrigHLTRatesFromCool tool")
 
 # for decoding blob
 from collections import namedtuple                      ;# print '\tLoaded special collections package'
@@ -1455,6 +1456,18 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
     collection = CostResultCollection()
     collection.SetName('Get%sRates' % lvl)
 
+
+    chaintag = "TriggerHltChains-Physics-01"
+    ratetag  = "TriggerHltRates-Physics-01"
+    hltrates = TrigHltRates.TrigHltRates(ratetag=ratetag, chaintag=chaintag)
+    iov = hltrates.getIOV(runno=args.runNumber, timestamp=args.timestamp)
+
+
+    return collection
+
+
+'''
+
     #
     # Read Counters
     #
@@ -1467,10 +1480,13 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
     readonly = True
     lb=2
     runlb = (runnumber << 32) + lb
+    log.info("runlb = %d" % runlb)
 
     try:
+        log.info("Trying to open special HLT database")
         db=dbSvc.openDatabase(dbconnect,readonly)
         chainfolder=db.getFolder(hltchains_foldername)
+        log.info("SUCCESS!!!! Opened %s @%s" % (hltchains_foldername, dbconnect))
     except Exception,e:
         print "Reading data from",hltchains_foldername,"failed:",e
         traceback.print_exc(file=sys.stdout)
@@ -1541,8 +1557,8 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
         print "Reading data from",hltcounters_foldername,"failed:",e
         traceback.print_exc(file=sys.stdout)
         sys.exit(-1)
+'''
 
-    return collection
 
 
 #------------------------------------------------------------

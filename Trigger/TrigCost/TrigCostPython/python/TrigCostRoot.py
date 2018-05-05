@@ -447,7 +447,7 @@ class CostRoot:
         self.tfile.Write()
 
         # Verbose
-        if 'debug' in self.options:
+        if True: # in self.options:
             chlist = ratecoll.GetChainNames()
             newlist = chlist[:5] # first 5
             newlist.extend(chlist[-5:]) # last 5
