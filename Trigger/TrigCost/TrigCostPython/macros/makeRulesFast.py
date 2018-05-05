@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 
 print ('Hello world makeRoot.py')
 import logging
@@ -38,7 +38,7 @@ log.info('Using %s database to process run=%s' % ('TRP', opts.run))
 
 log.info('Loading packages')
 from ROOT import TFile, TTree, TIter
-from TrigCostXmon import LumiBlockCollection
+from TrigCostPython.TrigCostXmon import LumiBlockCollection
 import os
 import subprocess
 
@@ -47,18 +47,6 @@ input_path = os.path.join(opts.db_path, "TriggerRates_ATLAS_%s.root" % opts.run)
 output_path = os.path.join(opts.dir, "rules_%s.root" % opts.run)
 rates_path = os.path.join(opts.dir, "rates_trp_%s.root" % opts.run)
 
-if opts.full:
-    dirname, filename = os.path.split(os.path.abspath(__file__))
-    subcall = "-q -n -l -b '%s(%s)'" % (os.path.join(dirname, "createNtupleFast.C"), opts.run)
-    text_file = open("runcard_%s.xmon" % opts.run, "w")
-    text_file.write("INPUT %s\n" % input_path)
-    text_file.write("RULES %s\n" % output_path)
-    text_file.write("OUTPUT %s\n" % rates_path)
-    text_file.close()
-
-    log.info("Going to call ::: %s" % subcall)
-    popen = subprocess.Popen(["root",subcall])
-    popen.wait()
 
 file_trp = TFile(input_path)
 lumi_tree = file_trp.Get("Lu_Rate_Luminosity")
@@ -110,6 +98,20 @@ for e in hlt_tree:
 lumicol.ProcessLumiBlock()
 lumicol.WriteOutRules(output_path)
 
+import shlex
+if opts.full:
+    dirname, filename = os.path.split(os.path.abspath(__file__))
+    subcall = "root -q -n -l -b '%s(%s)'" % (os.path.join(dirname, "createNtupleFast.C"), opts.run)
+    text_file = open("runcard_%s.xmon" % opts.run, "w")
+    text_file.write("INPUT %s\n" % input_path)
+    text_file.write("RULES %s\n" % output_path)
+    text_file.write("OUTPUT %s\n" % rates_path)
+    text_file.close()
+
+    args = shlex.split(subcall)
+    log.info("Going to call ::: %s" % subcall)
+    proc = subprocess.Popen(args)
+    proc.wait()
 
 
 print("I'm done now.")
