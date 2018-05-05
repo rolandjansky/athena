@@ -24,7 +24,7 @@ class IConstituentExtractor {
 
 public:
   virtual ~IConstituentExtractor();
-
+  virtual IConstituentExtractor* clone() const = 0;
   // Alow copying of concrete Extractors which reside behind this
   // interface. The ghost flag is set. This flag determines
   // whether EDM objects ar added to jets as consituents (ghost = false) or

@@ -41,6 +41,8 @@
 #include <string>
 #include <set>
 
+#include <iostream>
+
 using fastjet::PseudoJet;
 typedef std::vector<PseudoJet> PseudoJetVector;
 
@@ -100,13 +102,49 @@ private:
   struct ExtractorRange {
     ExtractorRange(unsigned int lo, 
                    unsigned int hi, 
-                   const IConstituentExtractor* e): m_lo(lo), m_hi(hi), m_e(e){
+                   const IConstituentExtractor* e):
+      m_lo(lo), m_hi(hi), m_e(std::move(e)){
     }
 
+    ExtractorRange(const ExtractorRange& other)
+      : m_lo(other.m_lo),
+        m_hi(other.m_hi),
+        m_e(other.m_e->clone()){
+    }
+
+    friend void swap(ExtractorRange& first, ExtractorRange& second){
+      using std::swap;
+
+      swap(first.m_lo, second.m_lo);
+      swap(first.m_hi, second.m_hi);
+      swap(first.m_e, second.m_e);
+    }
+
+    ExtractorRange& operator= (ExtractorRange other){
+      swap(*this, other);
+      return *this;
+    }
+      
+           
+    ~ExtractorRange(){
+      std::cerr << "ExtractorRange::deleteing extractor "
+                << (void const *)m_e << '\n' ;
+
+      delete m_e;
+      std::cerr << "ExtractorRange::deleted extractor   "
+                << (void const *)m_e << '\n' ;
+    } 
+    
     ExtractorRange bump(int step) const {
       ExtractorRange result = *this;
       result.m_lo += step;
       result.m_hi += step;
+      std::cerr << "ExtractorRange::bump about to clone "
+                << (void const *)m_e << '\n';
+      IConstituentExtractor* ce = m_e->clone();
+      std::cerr << "ExtractorRange::bump clone at "
+                <<(void const *)m_e << '\n';
+      result.m_e = ce;
       return result;
     }
 

@@ -16,6 +16,7 @@
 // #include "JetRec/constituentsDEBUG.h"  // DEBUG REMOVE ME
 #include <string>
 #include <sstream>
+#include <iostream>
 
 
 #include "JetEDM/JetConstituentFiller.h"  // DEBUG FIXME
@@ -207,7 +208,9 @@ void TriggerJetBuildTool::prime(const xAOD::IParticleContainer* inputs){
                 
 
   PseudoJetContainer pjc(extractor, vpj);
+  std::cerr<< "TriggerJetBuildTool::prime() appending PseudoJetContainer\n";
   m_inContainer.append(&pjc);
+  std::cerr<< "TriggerJetBuildTool::prime() end\n";
 }
 
 
