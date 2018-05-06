@@ -1392,6 +1392,11 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
     if(strict) return StatusCode::FAILURE;
   }
 
+  // Jets
+  if ( m_jetPt < 20e3 ){
+    ATH_MSG_WARNING("Your minimum signal jet pt is less than 20 GeV! Jet.Pt : " << m_jetPt << ". This is NOT supported by the jet group!");
+  }
+
   //Btagging //OR-wp looser than signal-wp?
   if( m_BtagWP.compare(0, m_BtagWP.size()-3, m_orBtagWP, 0, m_BtagWP.size()-3) == 0 ){ //same tagger WP (FixedCutBEff_XX or HybBEff_XX)
     if( atoi(m_BtagWP.substr(m_BtagWP.size()-2, m_BtagWP.size()).c_str()) < atoi(m_orBtagWP.substr(m_orBtagWP.size()-2, m_orBtagWP.size()).c_str()) ){
