@@ -9,7 +9,7 @@
 #include <math.h>
 #include <vector>
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "InDetAlignTrkInfo/AlignSiModule.h"
 #include "InDetAlignTrkInfo/AlignTrk.h"
 #include "InDetAlignTrkInfo/AlignTrkContainer.h"

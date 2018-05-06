@@ -136,12 +136,19 @@ StatusCode ClusterCreator::execute() {
       const std::string ccclc_name = xaodName + "_links";
       CaloClusterCellLinkContainer* ccclc =
          new CaloClusterCellLinkContainer();
-
+      CHECK( evtStore()->record( ccclc, ccclc_name ) );
+      
       // Create the xAOD container and its auxiliary store:
       xAOD::CaloClusterContainer* xaod = new xAOD::CaloClusterContainer();
-      xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
+      CHECK( evtStore()->record( xaod, xaodName ) );
+      
+      xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer(); 
+      CHECK( evtStore()->record( aux, xaodName + "Aux." ) );
+      
       xaod->setStore( aux );
-  
+      ATH_MSG_DEBUG( "Recorded xAOD clusters with key: " << xaodName );
+
+ 
       // Create the xAOD objects:
       CaloClusterContainer::const_iterator itr = aod->begin();
       CaloClusterContainer::const_iterator end = aod->end();
@@ -160,12 +167,6 @@ StatusCode ClusterCreator::execute() {
                           << aux->getDynamicAuxIDs().size() );
 
       } // end loop over clusters
-
-      // Record all the new containers:
-      CHECK( evtStore()->record( ccclc, ccclc_name ) );
-      CHECK( evtStore()->record( xaod, xaodName ) );
-      CHECK( evtStore()->record( aux, xaodName + "Aux." ) );
-      ATH_MSG_DEBUG( "Recorded xAOD clusters with key: " << xaodName );
 
    } // end loop over cluster containers
 

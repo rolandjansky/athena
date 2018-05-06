@@ -15,6 +15,8 @@ atlas_depends_on_subdirs(
    PRIVATE
    Control/AthenaBaseComps
    Control/StoreGate
+   Control/AthenaKernel
+   Control/AthContainers
    DetectorDescription/IRegionSelector
    Event/ByteStreamCnvSvcBase
    InnerDetector/InDetConditions/PixelConditionsServices
@@ -38,7 +40,7 @@ atlas_add_component( PixelRawDataByteStreamCnv
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
    LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamData
-   GaudiKernel InDetRawData AthenaBaseComps StoreGateLib
+   GaudiKernel InDetRawData AthenaBaseComps AthContainers  StoreGateLib
    ByteStreamCnvSvcBaseLib InDetIdentifier InDetReadoutGeometry IRegionSelector
    xAODEventInfo TrigSteeringEvent PixelRawDataByteStreamCnvLib )
 

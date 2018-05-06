@@ -41,6 +41,8 @@ void FileMetaData::dump(std::ostream& out) const {
   
   out << "Number of events: " << m_nEvents << std::endl;
 
+  out << "is MC:" << (m_isMC ? "True" : "False") << std::endl;
+
   return;
 }
 
@@ -71,6 +73,7 @@ void  FileMetaData::keyValueDump(std::ostream& out) const {
   
   out << "NEvents: " << m_nEvents << std::endl;
 
+  out << "isMC:" << (m_isMC ? "1" : "0") << std::endl;
 
   out << "SGKeys: ";
   for (const std::string& k : m_sgKeys) {out << k << " ";}

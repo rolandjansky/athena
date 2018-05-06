@@ -15,7 +15,6 @@
 #ifndef RINGER_STANDALONE
 // Athena includes
 #include "PATCore/TAccept.h"
-#include "PATCore/TResult.h"
 #include "AsgTools/AsgMetadataTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"

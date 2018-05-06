@@ -41,7 +41,7 @@ namespace TrigL2MuonSA {
 
     double getMuFastRes(std::vector<double> vec, const double pt, const int add, const double eta, const double phi);
 
-    int whichECRegion(const double eta, const double phi);
+    //int whichECRegion(const double eta, const double phi);
 
   private:
     // Reference to StoreGateSvc

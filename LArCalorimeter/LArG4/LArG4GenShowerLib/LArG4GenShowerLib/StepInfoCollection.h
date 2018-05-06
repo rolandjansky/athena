@@ -6,7 +6,7 @@
 #define LARG4GENSHOWERLIB_STEPINFOCOLLECTION_H
 
 // athena includes
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // local include
 #include "LArG4GenShowerLib/StepInfo.h"
@@ -42,9 +42,7 @@ namespace ShowerLib
 
 } // namespace ShowerLib
 
-#ifndef CLIDSVC_CLASSDEF_H
-#include "CLIDSvc/CLASS_DEF.h"
-#endif
+#include "AthenaKernel/CLASS_DEF.h"
 
 CLASS_DEF( ShowerLib::StepInfoCollection , 1151967000 , 1 )
 

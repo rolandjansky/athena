@@ -32,7 +32,7 @@ bool BSFilePeeker::extractValue(const std::string& source, const std::string& ke
     return false;
   }
   else {
-    value=source.substr(sep);
+    value=source.substr(sep+1);
     return true;
   }
 }
@@ -75,14 +75,24 @@ BSFilePeeker::BSFilePeeker(const std::string& fName) {
     m_fmd.m_beamType="collisions";
     break;
   default:
+    std::cerr << "WARNING: Unexpected beam type integer in BS file. Got " << bt << std::endl;
     m_fmd.m_beamType="unknown";
   }
 
+
+  m_fmd.m_isMC=false; //Generaly, BS-files are real data
   const std::vector<std::string> fmds=pDR->freeMetaDataStrings();
+  std::string eventTypeMD;
   for (const std::string& fm : fmds) {
     extractValue(fm,"GeoAtlas",m_fmd.m_geoTag);
     extractValue(fm,"IOVDbGlobalTag",m_fmd.m_condTag);
+    extractValue(fm,"Event type",eventTypeMD);
   }
+
+  if (eventTypeMD.find("is sim")!=std::string::npos) {
+    m_fmd.m_isMC=true; //This is a simulated bytestream file
+  }
+
 
   m_fmd.m_valid=true;
   delete pDR;
