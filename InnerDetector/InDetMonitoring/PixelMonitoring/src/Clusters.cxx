@@ -230,7 +230,7 @@ StatusCode PixelMainMon::bookClustersMon(void) {
 
     tmp = "Cluster_LVL1A_Mod";
     tmp2 = "Average cluster Level 1 Accept";
-    m_cluster_LVL1A_mod = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+    m_cluster_LVL1A_mod = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
     sc = m_cluster_LVL1A_mod->regHist(timeShift);
 
     tmp = "Clus_Occ_SizeCut";
@@ -240,7 +240,7 @@ StatusCode PixelMainMon::bookClustersMon(void) {
 
     tmp = "Clus_LVL1A_SizeCut";
     tmp2 = "Average Size>1 Cluster Level 1 Accept";
-    m_clus_LVL1A_sizenot1 = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+    m_clus_LVL1A_sizenot1 = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
     sc = m_clus_LVL1A_sizenot1->regHist(timeShift);
 
     if (m_doOnline) {
@@ -257,17 +257,17 @@ StatusCode PixelMainMon::bookClustersMon(void) {
     if (!m_doOnline) {
       tmp = "Cluster_Size_Map";
       tmp2 = "Average cluster size map";
-      m_clussize_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+      m_clussize_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
       sc = m_clussize_map->regHist(clusterExpert);
 
       tmp = "Cluster_Charge_Map";
       tmp2 = "Average cluster charge map";
-      m_cluscharge_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+      m_cluscharge_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
       sc = m_cluscharge_map->regHist(clusterExpert);
 
       tmp = "Cluster_ToT_Map";
       tmp2 = "Average cluster ToT map";
-      m_clusToT_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D, true));
+      m_clusToT_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW(tmp.c_str(), (tmp2 + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
       sc = m_clusToT_map->regHist(clusterExpert);
     }
   }
