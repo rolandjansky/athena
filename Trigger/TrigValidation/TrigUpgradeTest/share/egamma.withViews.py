@@ -57,7 +57,7 @@ trigL2CaloRingerFexMT.OutputLevel = DEBUG
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq, findAlgorithm
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
-from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm, TestEventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 
 def createFastCaloSequence(rerun=False):
@@ -80,7 +80,7 @@ def createFastCaloSequence(rerun=False):
    filterL1RoIsAlg.Chains = testChains
    filterL1RoIsAlg.OutputLevel = DEBUG
 
-   fastCaloViewsMaker = TestEventViewCreatorAlgorithm( __prefix+"fastCaloViewsMaker", OutputLevel=DEBUG)
+   fastCaloViewsMaker = EventViewCreatorAlgorithm( __prefix+"fastCaloViewsMaker", OutputLevel=DEBUG)
    fastCaloViewsMaker.ViewFallThrough = True
    fastCaloViewsMaker.InputMakerInputDecisions =  [ __forViewDecsions ]
    fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
@@ -155,12 +155,12 @@ filterCaloRoIsAlg.OutputLevel = DEBUG
 
 l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
 # topSequence += l2ElectronViewsMaker
-l2ElectronViewsMaker.Decisions = filterCaloRoIsAlg.Output[0] # output of L2CaloHypo
+l2ElectronViewsMaker.InputMakerInputDecisions = [ filterCaloRoIsAlg.Output[0] ] # output of L2CaloHypo
 l2ElectronViewsMaker.RoIsLink = "roi" # -||-
 l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
 l2ElectronViewsMaker.Views = "EMElectronViews"
 l2ElectronViewsMaker.ViewFallThrough = True
-
+l2ElectronViewsMaker.InputMakerOutputDecisions = ["L2ElectronLinks"]
 
 for viewAlg in viewAlgs:
   if viewAlg.properties().has_key("RoIs"):

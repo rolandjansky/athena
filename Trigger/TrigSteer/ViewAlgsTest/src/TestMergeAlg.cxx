@@ -13,10 +13,24 @@
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "ViewAlgs/TrigCompositeTraversal.h"
-#include "ViewAlgs/ViewAlgs.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 
 #include "./TestMergeAlg.h"
+
+
+#define SIMPLE_ASSERT( EXP )						\
+  do {	                                                                \
+    const bool result = EXP;						\
+    if( ! result ) {                                                    \
+          std::cerr << "Assertion failed at " << __FILE__ << ":" << __LINE__; \
+          std::cerr << " inside " << __FUNCTION__ ;                     \
+          std::cerr << ": Condition: " << #EXP << std::endl;            \
+          abort();                                                      \
+    }									\
+  } while( 0 )
+
+
+
 
 TestMergeAlg::TestMergeAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator),

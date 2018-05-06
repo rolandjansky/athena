@@ -13,32 +13,40 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthContainers/ConstDataVector.h"
 #include "DecisionHandling/TrigCompositeUtils.h"
+#include "DecisionHandling/InputMakerBase.h"
+
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 #include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IScheduler.h"
 #include "AthViews/View.h"
 
-class EventViewCreatorAlgorithm : public AthAlgorithm
+ /**
+   * @class EventViewCreatorAlgorithm
+   * @brief Used at the start of a sequence to create the EventViews: retrieves filtered collection via menu decision from previous step and writes it out directly so it can be used as input by the reco alg that follows in sequence.
+   **/
+
+class EventViewCreatorAlgorithm : public ::InputMakerBase
 {
-  public:
+ public:
     EventViewCreatorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
-    StatusCode initialize();
-    StatusCode execute();
+    virtual ~EventViewCreatorAlgorithm();
+    virtual StatusCode initialize();
+    virtual StatusCode execute_r(const EventContext&) const override;
+    virtual StatusCode finalize() override;
 
   private:
-    ServiceHandle< IScheduler > m_scheduler{ this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
 
-    //Input trig composite collection to split into views
-    SG::ReadHandleKey< TrigCompositeUtils::DecisionContainer > m_inputDecisionsKey{ this, "Decisions", "Unspecified", "The name of decision container to use in making views" };
-
+    EventViewCreatorAlgorithm();
+       
     //Output views for merging
     SG::WriteHandleKey< std::vector< SG::View* > > m_viewsKey{ this, "Views", "Unspecified", "The key of views collection produced" };
 
     // auxiliary handles
     SG::WriteHandleKey< ConstDataVector<TrigRoiDescriptorCollection> > m_inViewRoIs{ this, "InViewRoIs", "Unspecified", "Name with which the RoIs shoudl be inserted into the views" };
-    SG::WriteHandleKey< ConstDataVector<TrigCompositeUtils::DecisionContainer> > m_inViewDecisions{ this, "InViewDecisions", "Unspecified", "The name of decision container placed in the view" };
 
+
+    ServiceHandle< IScheduler > m_scheduler{ this, "Scheduler", "AvalancheSchedulerSvc", "The Athena scheduler" };
     Gaudi::Property<bool> m_viewPerRoI{ this, "ViewPerRoI", false, "Create one View per RoI as opposed to one View per Decision object, needs to be true when multiple decisions per RoI exists" };
     Gaudi::Property< std::string > m_viewNodeName{ this, "ViewNodeName", "", "Name of the CF node to attach a view to" };
     Gaudi::Property< std::string > m_roisLink{ this, "RoIsLink", "Unspecified", "Name of EL to RoI object lined to the decision" };

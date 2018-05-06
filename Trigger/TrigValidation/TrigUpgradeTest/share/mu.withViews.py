@@ -115,7 +115,8 @@ if TriggerFlags.doMuon:
     l2MuViewsMaker = EventViewCreatorAlgorithm("l2MuViewsMaker", OutputLevel=DEBUG)
     l2MuViewsMaker.ViewFallThrough = True
  
-    l2MuViewsMaker.Decisions = "MURoIDecisions"
+    l2MuViewsMaker.InputMakerInputDecisions = ["MURoIDecisions"]
+    l2MuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutput"]
     l2MuViewsMaker.RoIsLink = "initialRoI" # -||-
     l2MuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
     l2MuViewsMaker.Views = "MUViewRoIs"
@@ -127,7 +128,8 @@ if TriggerFlags.doMuon:
     efMuViewsMaker = EventViewCreatorAlgorithm("efMuViewsMaker", OutputLevel=DEBUG)
     efMuViewsMaker.ViewFallThrough = True
  
-    efMuViewsMaker.Decisions = "MURoIDecisions"
+    efMuViewsMaker.InputMakerInputDecisions = ["MURoIDecisions"]
+    efMuViewsMaker.InputMakerOutputDecisions = ["MURoIDecisionsOutputEF"]
     efMuViewsMaker.RoIsLink = "initialRoI" # -||-
     efMuViewsMaker.InViewRoIs = "MURoIs" # contract with the consumer
     efMuViewsMaker.Views = "EFMUViewRoIs"
@@ -358,7 +360,7 @@ if TriggerFlags.doMuon:
     trigMufastHypo.MuonL2SAInfoFromMuFastAlg = muFastAlg.MuonL2SAInfo
     trigMufastHypo.RoIs = l2MuViewsMaker.InViewRoIs
     trigMufastHypo.Decisions = "L2MuonFastDecisions"
-    trigMufastHypo.L1Decisions = l2MuViewsMaker.Decisions
+    trigMufastHypo.L1Decisions = l2MuViewsMaker.InputMakerInputDecisions[0]
 
     trigMufastHypo.HypoTools = [ trigMufastHypo.TrigMufastHypoToolFromName( "L2MufastHypoTool", c ) for c in testChains ] 
 
@@ -384,7 +386,8 @@ if TriggerFlags.doMuon:
     l2muCombViewsMaker = EventViewCreatorAlgorithm("l2muCombViewsMaker", OutputLevel=DEBUG)
     l2muCombViewsMaker.ViewFallThrough = True
  
-    l2muCombViewsMaker.Decisions = filterL2SAAlg.Output[0] # Output of TrigMufastHypo
+    l2muCombViewsMaker.InputMakerInputDecisions = [ filterL2SAAlg.Output[0] ] # Output of TrigMufastHypo
+    l2muCombViewsMaker.InputMakerOutputDecisions = [ filterL2SAAlg.Output[0]+"Comb" ] # Output of TrigMufastHypo
     l2muCombViewsMaker.RoIsLink = "roi" # -||-
     l2muCombViewsMaker.InViewRoIs = "MUTrkRoIs" # contract with the consumer
     l2muCombViewsMaker.Views = "MUTrkViewRoIs"
@@ -545,7 +548,7 @@ if TriggerFlags.doMuon:
     trigMuonEFSAHypo.MuonDecisions = "Muons"
     trigMuonEFSAHypo.RoIs = efMuViewsMaker.InViewRoIs
     trigMuonEFSAHypo.Decisions = "EFMuonSADecisions"
-    trigMuonEFSAHypo.L1Decisions = efMuViewsMaker.Decisions
+    trigMuonEFSAHypo.L1Decisions = efMuViewsMaker.InputMakerInputDecisions[0]
 
     trigMuonEFSAHypo.HypoTools = [ trigMuonEFSAHypo.TrigMuonEFMSonlyHypoToolFromName( "TrigMuonEFMSonlyHypoTool", c ) for c in testChains ] 
 
