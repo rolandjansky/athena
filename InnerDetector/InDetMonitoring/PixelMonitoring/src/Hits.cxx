@@ -194,32 +194,32 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     }
     if (m_doIBL) {
       hname = makeHistname("Occupancy_PP0_IBLA", false);
-      htitles = makeHisttitle("Average per FE occupancy, IBL A-side", ";stave ;average # hits per FE per event", false);
+      htitles = makeHisttitle("Average per FE occupancy reset every 5 min, IBL A-side", ";stave ;average # hits per FE per event", false);
       sc = rdoExpert.regHist(m_occupancy_PP0_IBLA = TProfile_LW::create(hname.c_str(), htitles.c_str(), 
 									PixMon::kNumStavesIBL, 0.5, 0.5 + PixMon::kNumStavesIBL));
       hname = makeHistname("Occupancy_PP0_IBLC", false);
-      htitles = makeHisttitle("Average per FE occupancy, IBL C-side", ";stave ;average # hits per FE per event", false);
+      htitles = makeHisttitle("Average per FE occupancy reset every 5 min, IBL C-side", ";stave ;average # hits per FE per event", false);
       sc = rdoExpert.regHist(m_occupancy_PP0_IBLC = TProfile_LW::create(hname.c_str(), htitles.c_str(), 
 									PixMon::kNumStavesIBL, 0.5, 0.5 + PixMon::kNumStavesIBL));
     }
     hname = makeHistname("Occupancy_PP0_B0", false);
-    htitles = makeHisttitle("Average per module occupancy, B0", ";stave ;average # hits per module per event", false);
+    htitles = makeHisttitle("Average per module occupancy reset every 5 min, B0", ";stave ;average # hits per module per event", false);
     sc = rdoExpert.regHist(m_occupancy_PP0_B0 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								    PixMon::kNumStavesL0, 0.5, 0.5 + PixMon::kNumStavesL0));
     hname = makeHistname("Occupancy_PP0_B1", false);
-    htitles = makeHisttitle("Average per module occupancy, B1", ";stave ;average # hits per module per event", false);
+    htitles = makeHisttitle("Average per module occupancy reset every 5 min, B1", ";stave ;average # hits per module per event", false);
     sc = rdoExpert.regHist(m_occupancy_PP0_B1 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								    PixMon::kNumStavesL1, 0.5, 0.5 + PixMon::kNumStavesL1));
     hname = makeHistname("Occupancy_PP0_B2", false);
-    htitles = makeHisttitle("Average per module occupancy, B2", ";stave ;average # hits per module per event", false);
+    htitles = makeHisttitle("Average per module occupancy reset every 5 min, B2", ";stave ;average # hits per module per event", false);
     sc = rdoExpert.regHist(m_occupancy_PP0_B2 = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								    PixMon::kNumStavesL2, 0.5, 0.5 + PixMon::kNumStavesL2));
     hname = makeHistname("Occupancy_PP0_ECA", false);
-    htitles = makeHisttitle("Average per module occupancy, ECA", ";sector ;average # hits per module per event", false);
+    htitles = makeHisttitle("Average per module occupancy reset every 5 min, ECA", ";sector ;average # hits per module per event", false);
     sc = rdoExpert.regHist(m_occupancy_PP0_ECA = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								     PixMon::kNumPP0sEC, 0.5, 0.5 + PixMon::kNumPP0sEC));
     hname = makeHistname("Occupancy_PP0_ECC", false);
-    htitles = makeHisttitle("Average per module occupancy, ECC", ";sector ;average # hits per module per event", false);
+    htitles = makeHisttitle("Average per module occupancy reset every 5 min, ECC", ";sector ;average # hits per module per event", false);
     sc = rdoExpert.regHist(m_occupancy_PP0_ECC = TProfile_LW::create(hname.c_str(), htitles.c_str(),
 								     PixMon::kNumPP0sEC, 0.5, 0.5 + PixMon::kNumPP0sEC));
     formatPP0Histos(m_occupancy_PP0_ECA, m_occupancy_PP0_ECC,
@@ -818,13 +818,13 @@ StatusCode PixelMainMon::procHitsMon(void) {
   }
 
   if (m_doOnline) {
-    unsigned int lastlb = m_manager->lumiBlockNumber()-1; //remove -1 for testing
+    int lastlb = m_manager->lumiBlockNumber()-1; //remove -1 for testing
     double cont(0.0), err(0.0);
     int entr(0);
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
       if (m_avgocc_per_lumi_mod[i] && m_avgocc_ratio_lastXlb_mod[i] && m_avgocc_ratio_lastXlb_mod_prof[i]) {
-	unsigned int bing = m_avgocc_per_lumi_mod[i]->GetXaxis()->FindBin(lastlb);
-	unsigned int nXbins = m_avgocc_ratio_lastXlb_mod[i]->GetNbinsX();
+	int bing = m_avgocc_per_lumi_mod[i]->GetXaxis()->FindBin(lastlb);
+	int nXbins = m_avgocc_ratio_lastXlb_mod[i]->GetNbinsX();
 	m_avgocc_ratio_lastXlb_mod[i]->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
 	m_avgocc_ratio_lastXlb_mod[i]->Reset();
 	m_avgocc_ratio_lastXlb_mod[i]->Sumw2();
