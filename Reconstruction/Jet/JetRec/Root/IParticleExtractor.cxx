@@ -8,7 +8,6 @@
 #include "JetRec/LineFormatter.h" // helper class for debug printing
 #include "xAODBase/IParticle.h"
 #include <vector>
-#include <iostream>
 
 IParticleExtractor::IParticleExtractor(const xAOD::IParticleContainer* ips,
                                        const std::string & label, 
@@ -23,14 +22,7 @@ IParticleExtractor::IParticleExtractor(const xAOD::IParticleContainer* ips,
 IParticleExtractor::~IParticleExtractor(){}
 
 IParticleExtractor* IParticleExtractor::clone() const {
-  
-  std::cerr << "IParticleExtractor about to clone\n";
-  IParticleExtractor* clone =  new IParticleExtractor(*this);
-  std::cerr << "IParticleExtractor::clone cloned. ori: "
-            << (void const *)this << " clone: "
-            << (void const *)clone << '\n';
-
-  return clone;
+  return new IParticleExtractor(*this);
 }
   
 IParticleExtractor* IParticleExtractor::ghostClone() const {

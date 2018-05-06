@@ -41,8 +41,6 @@
 #include <string>
 #include <set>
 
-#include <iostream>
-
 using fastjet::PseudoJet;
 typedef std::vector<PseudoJet> PseudoJetVector;
 
@@ -103,7 +101,7 @@ private:
     ExtractorRange(unsigned int lo, 
                    unsigned int hi, 
                    const IConstituentExtractor* e):
-      m_lo(lo), m_hi(hi), m_e(std::move(e)){
+      m_lo(lo), m_hi(hi), m_e(e){
     }
 
     ExtractorRange(const ExtractorRange& other)
@@ -127,23 +125,14 @@ private:
       
            
     ~ExtractorRange(){
-      std::cerr << "ExtractorRange::deleteing extractor "
-                << (void const *)m_e << '\n' ;
-
       delete m_e;
-      std::cerr << "ExtractorRange::deleted extractor   "
-                << (void const *)m_e << '\n' ;
     } 
     
     ExtractorRange bump(int step) const {
       ExtractorRange result = *this;
       result.m_lo += step;
       result.m_hi += step;
-      std::cerr << "ExtractorRange::bump about to clone "
-                << (void const *)m_e << '\n';
       IConstituentExtractor* ce = m_e->clone();
-      std::cerr << "ExtractorRange::bump clone at "
-                <<(void const *)m_e << '\n';
       result.m_e = ce;
       return result;
     }

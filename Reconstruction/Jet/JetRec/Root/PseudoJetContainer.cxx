@@ -26,7 +26,7 @@ PseudoJetContainer::PseudoJetContainer(const IConstituentExtractor* c,
   m_debug = debug;
   
   if (vecPJ.empty()){
-    m_emptyExtractors.insert(std::move(c));
+    m_emptyExtractors.insert(c);
     return;
   }
 
@@ -36,7 +36,7 @@ PseudoJetContainer::PseudoJetContainer(const IConstituentExtractor* c,
   // numbering of the EDM objects in th extractors.
   m_extractorRanges.push_back(ExtractorRange(0, 
                                              vecPJ.back().user_index(), 
-                                             std::move(c)));
+                                             c));
   if (m_debug){checkInvariants("PseudoJetContainer(vcPJ, c)");}
 }
 
@@ -58,7 +58,7 @@ PseudoJetContainer::extractConstituents(xAOD::Jet& jet,
   // to the extractor is received. But an empty list is used 
   // by the extractors to fill zeros into the jet.
   for(const auto& er : m_extractorRanges){
-    sorter.emplace(std::move(er.m_e), std::vector<int>{});
+    sorter.emplace(er.m_e, std::vector<int>{});
   }
 
   // see header file for explanation of empty extractors.
