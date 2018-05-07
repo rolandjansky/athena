@@ -57,6 +57,22 @@ public:
   virtual StatusCode hltUpdateAfterFork(const boost::property_tree::ptree& pt);
   ///@}
   
+  /** Implementation of IEventProcessor::executeRun which calls IEventProcessor::nextEvent
+   * @param maxevt number of events to process, -1 means all
+   */
+  virtual StatusCode executeRun(int maxevt=-1);
+  
+  /** Implementation of IEventProcessor::nextEvent which implements the event loop
+   * @param maxevt number of events to process, -1 means all
+   */
+  virtual StatusCode nextEvent(int maxevt=-1);
+  
+  /** Implementation of IEventProcessor::executeEvent which processes a single event
+   * @param par generic parameter
+   */
+  virtual StatusCode executeEvent(void* par);
+  
+  [[deprecated]]
   virtual StatusCode
   processRoIs(const std::vector<eformat::ROBFragment<const uint32_t*> >& l1_result,
               hltinterface::HLTResult& hlt_result,

@@ -27,6 +27,7 @@
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/IService.h"
@@ -812,7 +813,34 @@ bool psc::Psc::hltUserCommand(const ptree& args)
 
 void psc::Psc::doEventLoop()
 {
-  ERS_LOG("psc::Psc::doEventLoop: Dummy implementation of doEventLoop()");
+  ERS_DEBUG(1, "psc::Psc::doEventLoop: start of doEventLoop()");
+  StatusCode sc;
+  try
+  {
+    // bind maxevt=-1 (meaning all events) to executeRun
+    auto exec = [](IEventProcessor * mgr)
+                {return mgr->executeRun(-1);};
+    sc = callOnEventLoopMgr<IEventProcessor>(exec, "executeRun");
+  }
+  catch(const ers::Issue& e)
+  {
+    ERS_PSC_ERROR("Caught an unexpected ers::Issue: '" << e.what() << "'");
+    sc = StatusCode::FAILURE;
+  }
+  catch(const std::exception& e)
+  {
+    ERS_PSC_ERROR("Caught an unexpected std::exception: '" << e.what() << "'");
+    sc = StatusCode::FAILURE;
+  }
+  catch(...)
+  {
+    ERS_PSC_ERROR("Caught an unknown exception");
+    sc = StatusCode::FAILURE;
+  }
+  if (sc.isFailure()) {
+    ERS_PSC_ERROR("psc::Psc::doEventLoop failed");
+  }
+  ERS_DEBUG(1, "psc::Psc::doEventLoop: end of doEventLoop()");
 }
 
 bool psc::Psc::process(const vector<ROBFragment<const uint32_t*> >& l1r,

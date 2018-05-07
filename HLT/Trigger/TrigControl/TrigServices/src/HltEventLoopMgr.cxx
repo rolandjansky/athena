@@ -393,6 +393,49 @@ StatusCode HltEventLoopMgr::timeOutReached(const boost::property_tree::ptree& pt
 }
 
 // =============================================================================
+// Implementation of IEventProcessor::executeRun
+// =============================================================================
+StatusCode HltEventLoopMgr::executeRun(int maxevt)
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  StatusCode sc = nextEvent(maxevt);
+  if (sc.isFailure()) {
+    error() << "Event loop failed" << endmsg;
+    // some special cleanup here?
+  }
+  
+  // do some cleanup here
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+  return sc;
+}
+
+// =============================================================================
+// Implementation of IEventProcessor::nextEvent
+// maxevt is not used - we always want to process all events delivered
+// =============================================================================
+StatusCode HltEventLoopMgr::nextEvent(int /*maxevt*/)
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  // nothing happens here yet
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
+// Implementation of IEventProcessor::executeEvent
+// =============================================================================
+StatusCode HltEventLoopMgr::executeEvent(void* createdEvts_IntPtr)
+{
+  verbose() << "start of " << __FUNCTION__ << endmsg;
+  
+  // Capture the reference to createdEvts passed from nextEvent()
+  // int& createdEvts = *((int*)createdEvts_IntPtr);
+  
+  verbose() << "end of " << __FUNCTION__ << endmsg;
+  return StatusCode::SUCCESS;
+}
+
+// =============================================================================
 void HltEventLoopMgr::updateDFProps()
 {
   verbose() << "start of " << __FUNCTION__ << endmsg;
