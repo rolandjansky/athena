@@ -19,7 +19,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
