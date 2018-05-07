@@ -14,7 +14,7 @@
 //
 // AlgTool to create refitted tracks with only silicon hits present
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"

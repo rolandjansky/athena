@@ -58,29 +58,29 @@ G4InitTool::initThread() {
   G4int thisID = wThreadContext->GetThreadId();
   G4Threading::G4SetThreadId(thisID);
 
-  // Setup up thread-local workspace
-  wThreadContext->BuildGeometryAndPhysicsVector();
-
   // Retrieve the G4AtlasMTRunManager
-  auto masterRM = G4MTRunManager::GetMasterRunManager();
+  G4MTRunManager* masterRM = G4MTRunManager::GetMasterRunManager();
   // Worker thread initialization
-  auto workerInitializer = masterRM->GetUserWorkerThreadInitialization();
+  const G4UserWorkerThreadInitialization* workerInitializer = masterRM->GetUserWorkerThreadInitialization();
 
   const CLHEP::HepRandomEngine* masterEngine = masterRM->getMasterRandomEngine();
   workerInitializer->SetupRNGEngine(masterEngine);
 
+  // Setup up thread-local workspace
+  wThreadContext->BuildGeometryAndPhysicsVector();
+
   // Create the thread-local worker run manager (G4AtlasWorkerRunManager)
   ATH_MSG_INFO("Creating worker RM");
-  auto wrm = workerInitializer->CreateWorkerRunManager();
+  G4WorkerRunManager* wrm = workerInitializer->CreateWorkerRunManager();
   wrm->SetWorkerThread(wThreadContext);
 
   // Share detector from master with worker.
   ATH_MSG_INFO("Assigning detector construction");
-  const auto detector = masterRM->GetUserDetectorConstruction();
+  const G4VUserDetectorConstruction* detector = masterRM->GetUserDetectorConstruction();
   wrm->G4RunManager::SetUserInitialization
     (const_cast<G4VUserDetectorConstruction*>(detector));
   // Share physics list from master with worker.
-  const auto physicslist = masterRM->GetUserPhysicsList();
+  const G4VUserPhysicsList* physicslist = masterRM->GetUserPhysicsList();
   wrm->SetUserInitialization(const_cast<G4VUserPhysicsList*>(physicslist));
 
   // Build thread-local user actions - NOT CURRENTLY USED.
@@ -96,15 +96,6 @@ G4InitTool::initThread() {
   // Initialize the worker run manager
   ATH_MSG_INFO("Initializing worker RM");
   wrm->Initialize();
-
-  // Copy the UI commands to the worker
-  std::vector<G4String> cmds = masterRM->GetCommandStack();
-  ATH_MSG_INFO (cmds.size() << " commands in UI stack");
-  G4UImanager* uimgr = G4UImanager::GetUIpointer();
-  for(const auto& it : cmds) {
-    ATH_MSG_INFO ("Adding command to worker: " << it);
-    uimgr->ApplyCommand(it);
-  }
 
   // Atomic increment number of initialized threads
   m_nInitThreads++;

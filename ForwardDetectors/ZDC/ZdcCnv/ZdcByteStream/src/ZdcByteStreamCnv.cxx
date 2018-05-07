@@ -26,15 +26,15 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamData/ROBData.h"
-#include "CLIDSvc/tools/ClassID_traits.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/ClassID_traits.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
-#include "SGTools/StorableConversions.h"
+#include "AthenaKernel/StorableConversions.h"
 
 ///Zdc specific includes.
 #include "ZdcEvent/ZdcDigits.h"

@@ -24,7 +24,7 @@
 
 #include "InDetAlignDBTools/SiTrkAlignDBTool.h"
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TFile.h"
 
 #include <vector>

@@ -82,23 +82,23 @@ def createFastCaloSequence(rerun=False):
 
    fastCaloViewsMaker = TestEventViewCreatorAlgorithm( __prefix+"fastCaloViewsMaker", OutputLevel=DEBUG)
    fastCaloViewsMaker.ViewFallThrough = True
-   fastCaloViewsMaker.InputDecisions =  [ __forViewDecsions ]
+   fastCaloViewsMaker.InputMakerInputDecisions =  [ __forViewDecsions ]
    fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
    fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
    fastCaloViewsMaker.Views = __prefix+"EMCaloViews"
    fastCaloViewsMaker.ViewNodeName = __prefix+"fastCaloInViewAlgs"
-   fastCaloViewsMaker.OutputDecisions = [ "L2CaloLinks"]
+   fastCaloViewsMaker.InputMakerOutputDecisions = [ "L2CaloLinks"]
    clusterMaker.RoIs = fastCaloViewsMaker.InViewRoIs
 
    from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2CaloHypoAlgMT
    from TrigEgammaHypo.TrigL2CaloHypoTool import TrigL2CaloHypoToolFromName
    fastCaloHypo = TrigL2CaloHypoAlgMT( __prefix+"L2CaloHypo" )
    fastCaloHypo.OutputLevel = DEBUG
-   fastCaloHypo.previousDecisions =  fastCaloViewsMaker.OutputDecisions[0] #   __l1RoIDecisions
+   fastCaloHypo.HypoInputDecisions =  fastCaloViewsMaker.InputMakerOutputDecisions[0] #   __l1RoIDecisions
 #   fastCaloHypo.Views = fastCaloViewsMaker.Views
    fastCaloHypo.CaloClusters = clusterMaker.ClustersName
 #   fastCaloHypo.RoIs = fastCaloViewsMaker.InViewRoIs
-   fastCaloHypo.Output = __prefix+"EgammaCaloDecisions"
+   fastCaloHypo.HypoOutputDecisions = __prefix+"EgammaCaloDecisions"
    fastCaloHypo.HypoTools =  [ TrigL2CaloHypoToolFromName( c ) for c in testChains ]
 
    for t in fastCaloHypo.HypoTools:
@@ -145,7 +145,7 @@ theElectronFex.OutputLevel=VERBOSE
 
 
 filterCaloRoIsAlg = RoRSeqFilter("filterCaloRoIsAlg")
-caloHypoDecisions = findAlgorithm(egammaCaloStep, "L2CaloHypo").Output
+caloHypoDecisions = findAlgorithm(egammaCaloStep, "L2CaloHypo").HypoOutputDecisions
 print "kkkk ", caloHypoDecisions
 filterCaloRoIsAlg.Input = [caloHypoDecisions]
 filterCaloRoIsAlg.Output = ["Filtered" + caloHypoDecisions]

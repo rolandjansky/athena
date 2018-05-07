@@ -8,6 +8,8 @@
 #ifndef XAODTRIGMUON_TRIGMUONDEFS_H
 #define XAODTRIGMUON_TRIGMUONDEFS_H
 
+#include "CLHEP/Units/PhysicalConstants.h"
+
 /// Namespace holding all the xAOD EDM classes
 namespace xAOD {
 
@@ -31,12 +33,16 @@ namespace L2MuonParameters
     };
 
     ///  Define algoriths ID                                                                                                          
-    enum L2MuonAlgoId{GEV900ID=0,   MUONID=1,     HALOID=2,    COSMICID=3,
+	 enum L2MuonAlgoId{GEV900ID=0,   MUONID=1,     HALOID=2,    COSMICID=3,
                       LOOSE_HM=10,  MEDIUM_HM=11, TIGHT_HM=12, LOOSE_LM=13,
                       MEDIUM_LM=14, TIGHT_LM=15,
                       NULLID=99999};
 
+    enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB};
+  
+    ECRegions whichECRegion( const float eta, const float phi );
 }
+  
 
 }
 

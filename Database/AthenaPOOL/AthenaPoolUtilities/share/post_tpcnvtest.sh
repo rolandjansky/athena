@@ -243,7 +243,9 @@ if [ -z "$testStatus" ]; then
 else 
     # check exit status
     joblog=${test}.log
-    if [ "$testStatus" = 0 ]; then
+    if [ -r ${test}-SKIPPED ]; then
+        echo "WARNING: Test skipped because required libraries are not available."
+    elif [ "$testStatus" = 0 ]; then
 	reflog=../../share/${test}.ref
         if [ ! -r $reflog ]; then
 	  reflog=../share/${test}.ref

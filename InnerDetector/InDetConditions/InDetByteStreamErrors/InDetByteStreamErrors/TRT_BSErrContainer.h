@@ -12,8 +12,8 @@
 #define TRT_BYTESTREAMERRORS_TRT_BSERRCONTAINER_H
 
 #include <stdint.h>
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include <stdint.h>
 
 typedef DataVector<std::pair<uint8_t, uint32_t> > TRT_BSErrContainer; // <type, index>

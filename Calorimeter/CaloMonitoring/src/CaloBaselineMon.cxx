@@ -127,19 +127,19 @@ StatusCode CaloBaselineMon::bookHistograms(){
   if (m_bool_pedestalMon) {
     hName  = "h1BCID_pedestalMon";
     hTitle = "BCID used for baseline monitoring";
-    h1_BCID_pedestalMon = TH1I_LW::create(hName.c_str(), hTitle.c_str(),m_BCID0_nbins,m_BCID0_min,m_BCID0_max);
-    h1_BCID_pedestalMon->GetXaxis()->SetTitle("BCID");
-    h1_BCID_pedestalMon->GetYaxis()->SetTitle("Nb of events / BCID");
-    monGroup_general.regHist(h1_BCID_pedestalMon).ignore();  
+    m_h1_BCID_pedestalMon = TH1I_LW::create(hName.c_str(), hTitle.c_str(),m_BCID0_nbins,m_BCID0_min,m_BCID0_max);
+    m_h1_BCID_pedestalMon->GetXaxis()->SetTitle("BCID");
+    m_h1_BCID_pedestalMon->GetYaxis()->SetTitle("Nb of events / BCID");
+    monGroup_general.regHist(m_h1_BCID_pedestalMon).ignore();  
   }
 
   if (m_bool_bcidtoolMon) {
     hName  = "h1BCID_BCIDToolMon";
     hTitle = "BCID used for BCIDTool monitoring";
-    h1_BCID_bcidtoolMon = TH1I_LW::create(hName.c_str(), hTitle.c_str(),m_BCID0_nbins,m_BCID0_min,m_BCID0_max);
-    h1_BCID_bcidtoolMon->GetXaxis()->SetTitle("BCID");
-    h1_BCID_bcidtoolMon->GetYaxis()->SetTitle("Nb of events / BCID");
-    monGroup_general.regHist(h1_BCID_bcidtoolMon).ignore();  
+    m_h1_BCID_bcidtoolMon = TH1I_LW::create(hName.c_str(), hTitle.c_str(),m_BCID0_nbins,m_BCID0_min,m_BCID0_max);
+    m_h1_BCID_bcidtoolMon->GetXaxis()->SetTitle("BCID");
+    m_h1_BCID_bcidtoolMon->GetYaxis()->SetTitle("Nb of events / BCID");
+    monGroup_general.regHist(m_h1_BCID_bcidtoolMon).ignore();  
   }
     
   m_partHistos.resize(m_partNames.size());
@@ -290,7 +290,7 @@ StatusCode CaloBaselineMon::fillHistograms() {
 
   // Loop on cells is over. Now fill histograms with sum per eta.
   if (thisEvent_bool_pedestalMon ) {
-    h1_BCID_pedestalMon->Fill(bcid);
+    m_h1_BCID_pedestalMon->Fill(bcid);
     for (uint iPart = 0;iPart <  m_partNames.size();iPart++){ 
       for (uint iEta = 0; iEta < m_nbOfEtaBins[iPart]; iEta ++){
 	float etaToBeFilled = ((float) iEta)*m_etaBinWidth[iPart] + m_etaMin[iPart];
@@ -302,7 +302,7 @@ StatusCode CaloBaselineMon::fillHistograms() {
   }
 
   if (thisEvent_bool_bcidtoolMon ) {
-    h1_BCID_bcidtoolMon->Fill(bcid);
+    m_h1_BCID_bcidtoolMon->Fill(bcid);
     for (uint iPart = 0;iPart <  m_partNames.size();iPart++){ 
       for (uint iEta = 0; iEta < m_nbOfEtaBins[iPart]; iEta ++){
 	float etaToBeFilled = ((float) iEta)*m_etaBinWidth[iPart] + m_etaMin[iPart];

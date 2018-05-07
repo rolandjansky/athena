@@ -32,6 +32,8 @@ class FileMetaData {
   unsigned m_beamEnergy=0.0;
   std::string m_beamType;
 
+  bool m_isMC=true;
+
   bool m_valid=false;
 
   std::vector<std::string> m_sgKeys;

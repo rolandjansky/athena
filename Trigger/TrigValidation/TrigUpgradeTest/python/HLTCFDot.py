@@ -1,27 +1,28 @@
-
-
-###### Here some graphical methods
-
-
+###### Here some graphical methods to produce dot files from Decision Handling
+ # to visualize: dot -T pdf Step1.dot > Step1.pdf
+ 
 from ViewAlgsTest.connectAlgorithmsIO import connectAlgorithmsIO, graph_generator
 from AthenaCommon.AlgSequence import AthSequencer
+from TrigUpgradeTest.MenuComponents import isHypoBase, isInputMakerBase, isFilterAlg
 
 
 def algColor(alg):
-    if "Hypo" in alg: return "darkorchid1"
-    if "Filter" in alg: return "chartreuse3"
-    if "InputMaker" in alg: return "cyan3"
+    """ Set given color to Alg type"""
+    if isHypoBase(alg): return "darkorchid1"
+    if 'Combo'  in alg.name(): return "darkorchid1" #TMP for combo hypo
+    if isInputMakerBase(alg): return "cyan3"
+    if isFilterAlg(alg): return "chartreuse3"
+
     return "cadetblue1"
-    
+
 def stepCF_ControlFlow_to_dot(stepCF):
     def _dump (seq, indent):
         o = list()
-        for c in seq.getChildren():
+        for c in seq.getChildren():            
             if isinstance(c, AthSequencer):
-#            if "AthSequencer" in c.getFullName():
                 o.append( ("%s[color=%s, shape=circle, width=.5, fixedsize=true ,style=filled]\n"%(c.name(),_seqColor(c)), indent) )
             else:
-                o.append( ("%s[fillcolor=%s,style=filled]\n"%(c.name(),algColor(c.name())), indent) )
+                o.append( ("%s[fillcolor=%s,style=filled]\n"%(c.name(),algColor(c)), indent) )
             o.append( ("%s -> %s\n"%(seq.name(), c.name()), indent))
             o.extend( _dump (c, indent+1) )
         return o
@@ -47,7 +48,6 @@ def stepCF_ControlFlow_to_dot(stepCF):
 
    
 
-    # to visualize: dot -T pdf Step1.dot > Step1.pdf
     with open('%s.CF.dot'%stepCF.name(), mode="wt") as file:
     #strict
         file.write( 'digraph step  {\n'\
@@ -86,7 +86,7 @@ def all_DataFlow_to_dot(name, step_list):
             last_step_hypoNodes =[]
             for cfseq in cfseq_list:
                 print cfseq.name
-                file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.algname)))            
+                file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.Alg)))            
                 step_connections.append(cfseq.filter)                      
                 file.write(  '\n  subgraph cluster_%s {\n'%(cfseq.name)\
                             +'     node [color=white style=filled]\n'\
@@ -98,19 +98,19 @@ def all_DataFlow_to_dot(name, step_list):
                 cfseq_algs = []
                 cfseq_algs.append(cfseq.filter)
 
-                for seq in cfseq.menuSeq.nodeSeqList:
+                for seq in cfseq.menuSeq.recoSeqList:
                     seq.reuse=False
 
-                for seq in cfseq.menuSeq.nodeSeqList:
+                for seq in cfseq.menuSeq.recoSeqList:
                     cfseq_algs.append(seq.maker)
                     cfseq_algs.append(seq.sequence )
                     if seq.reuse==False:
-                        file.write("    %s[fillcolor=%s]\n"%(seq.maker.algname, algColor(seq.maker.algname)))
-                        file.write("    %s[fillcolor=%s]\n"%(seq.sequence.algname, algColor(seq.sequence.algname)))
+                        file.write("    %s[fillcolor=%s]\n"%(seq.maker.algname, algColor(seq.maker.Alg)))
+                        file.write("    %s[fillcolor=%s]\n"%(seq.sequence.algname, algColor(seq.sequence.Alg)))
                         seq.reuse=True
-                    cfseq_algs.append(seq.hypo)
-                    last_step_hypoNodes.append(seq.hypo)
-                    file.write("    %s[color=%s]\n"%(seq.hypo.algname, algColor(seq.hypo.algname)))
+                cfseq_algs.append(cfseq.menuSeq.hypo)
+                last_step_hypoNodes.append(cfseq.menuSeq.hypo)
+                file.write("    %s[color=%s]\n"%(cfseq.menuSeq.hypo.algname, algColor(cfseq.menuSeq.hypo.Alg)))
                 file.write('  }\n')              
                 file.write(findConnections(cfseq_algs))
                 file.write('\n')
@@ -123,7 +123,6 @@ def all_DataFlow_to_dot(name, step_list):
     
 
 def stepCF_DataFlow_to_dot(name, cfseq_list):
-    # to visualize: dot -T pdf Step1.dot > Step1.pdf
     with open( '%s.DF.dot'%name, mode="wt" ) as file:
     #strict
         file.write( 'digraph step  {\n'\
@@ -135,7 +134,7 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 
         for cfseq in cfseq_list:
             print cfseq.name
-            file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.algname)))
+            file.write("  %s[fillcolor=%s style=filled]\n"%(cfseq.filter.algname,algColor(cfseq.filter.Alg)))
             for inp in cfseq.filter.getInputList():
                 file.write(addConnection(name, cfseq.filter.algname, inp))
 
@@ -149,16 +148,15 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
             cfseq_algs = []
             cfseq_algs.append(cfseq.filter)       
 
-            for seq in cfseq.menuSeq.nodeSeqList:
+            for seq in cfseq.menuSeq.recoSeqList:
                 cfseq_algs.append(seq.maker)
                 cfseq_algs.append(seq.sequence )
                 if seq.reuse==False:
-                    file.write("    %s[fillcolor=%s]\n"%(seq.maker.algname, algColor(seq.maker.algname)))
-                    file.write("    %s[fillcolor=%s]\n"%(seq.sequence.algname, algColor(seq.sequence.algname)))
+                    file.write("    %s[fillcolor=%s]\n"%(seq.maker.algname, algColor(seq.maker.Alg)))
+                    file.write("    %s[fillcolor=%s]\n"%(seq.sequence.algname, algColor(seq.sequence.Alg)))
                     seq.reuse=True
-                cfseq_algs.append(seq.hypo)
-
-                file.write("    %s[color=%s]\n"%(seq.hypo.algname, algColor(seq.hypo.algname)))
+            cfseq_algs.append(cfseq.menuSeq.hypo)
+            file.write("    %s[color=%s]\n"%(cfseq.menuSeq.hypo.algname, algColor(cfseq.menuSeq.hypo.Alg)))
             file.write('  }\n')              
             file.write(findConnections(cfseq_algs))
             file.write('\n')    
@@ -169,19 +167,15 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 
 def findConnections(alg_list):
     lineconnect=''
-    for nodeA in alg_list:
-        for nodeB in alg_list:
-            if nodeA is nodeB:
-                continue
-            dataIntersection = list(set(nodeA.getOutputList()) & set(nodeB.getInputList()))
-            if len(dataIntersection) > 0:
-                for line in dataIntersection:
-                    lineconnect+=addConnection(nodeA.algname,nodeB.algname, line)
-                    print 'Data connections between %s and %s: %s'%(nodeA.algname, nodeB.algname, line)
-            
+    import itertools
+    for nodeA, nodeB in itertools.combinations(alg_list, 2):
+        line=addConnection(nodeA, nodeB)
+        lineconnect+=line
+        print 'Data connections between %s and %s: %s'%(nodeA.algname, nodeB.algname, line)
     return lineconnect
+  
 
-def findConnections_wihtin_sequence(alg_list):
+def findConnections_within_sequence(alg_list):
     lineconnect=''
     import itertools
     for nodeA, nodeB in itertools.combinations(alg_list, 2):
@@ -206,11 +200,10 @@ def getValuesProperties(node):
     Excluded = ["StoreGateSvc/DetectorStore", "StoreGateSvc"]
     values = []
     algs = []
-    if "AthSequencer" in node.Alg.getFullName():
+    if isinstance(node.Alg, AthSequencer):
          seq=node.Alg
          algs = seq.getChildren()
-         algs.pop(0)
-         #.pop(0) # remove inputmaker
+         algs.pop(0) # remove InputMaker
     else:
         algs.append(node.Alg)
 
@@ -231,7 +224,7 @@ def getValuesProperties(node):
     return set(values)
         
 
-def addConnection(nodeA, nodeB, label):
+def addConnection(nodeA, nodeB, label=''):
     line = "    %s -> %s \n"%(nodeA,nodeB)
     #line = "    %s -> %s [label=%s]\n"%(nodeA,nodeB,label)
     # print line

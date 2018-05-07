@@ -32,6 +32,7 @@
 //STL includes
 #include <iostream>
 #include <fstream>
+#include <limits>
 
 //Constants at file scope
 static const std::string atlasTableSignature{"Rod Fibre Bec LayerDisk Eta Phi Side RobId Sn"};
@@ -183,6 +184,10 @@ SCT_FillCablingFromText::readDataFromFile(ISCT_CablingSvc* cabling) {
       } catch (const std::ios_base::failure&) {
         ATH_MSG_ERROR("An error occurred while reading the cabling file "<<m_source
                       <<", Link ("<<Link<<") cannot be converted to an integer");
+        continue;
+      }
+      if (link<0 or link==std::numeric_limits<int>::max()) {
+        ATH_MSG_ERROR("link " << link << " seems invalid. This was obtained from Link " << Link << ". Will not be used.");
         continue;
       }
       if (link==disabledFibre) {

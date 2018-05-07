@@ -15,6 +15,8 @@
 #include "DecisionHandling/TrigCompositeUtils.h"
 #include "TrigMuonHypo/TrigMufastHypoTool.h"
 
+#include "xAODTrigMuon/TrigMuonDefs.h"
+
 using namespace TrigCompositeUtils;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -43,6 +45,7 @@ StatusCode TrigMufastHypoTool::initialize()
   }
   else {
      ATH_MSG_DEBUG("AcceptAll = False");
+     m_bins.resize (m_ptBins.size());
      for ( size_t j=0; j<m_ptBins.size(); ++j) {
         m_bins[j] = m_ptBins[j].size() - 1;
         if (m_bins[j] != m_ptThresholds[j].size()) {
@@ -159,12 +162,14 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
       if ( absEta > m_ptBins[cutIndex][i] && absEta < m_ptBins[cutIndex][i+1] ) threshold = m_ptThresholds[cutIndex][i]; 
 
    // if in the weak Bfield regions at endcap, set special threshold
-   TrigMufastHypoToolConsts::ECRegions ecRegion = whichECRegion( fexEta, fexPhi );
-   if( ecRegion == TrigMufastHypoToolConsts::WeakBFieldA ) {
+
+   xAOD::L2MuonParameters::ECRegions ecRegion = xAOD::L2MuonParameters::whichECRegion( fexEta , fexPhi );
+   if( ecRegion == xAOD::L2MuonParameters::ECRegions::WeakBFieldA ) { 
       ATH_MSG_DEBUG("threshold is set for EC WeakBField A");
       threshold = m_ptThresholdForECWeakBRegionA[cutIndex];
    }
-   if( ecRegion == TrigMufastHypoToolConsts::WeakBFieldB ) {
+
+   if( ecRegion == xAOD::L2MuonParameters::ECRegions::WeakBFieldA ) {
       ATH_MSG_DEBUG("threshold is set for EC WeakBField B");
       threshold = m_ptThresholdForECWeakBRegionB[cutIndex];
    }
@@ -194,7 +199,7 @@ bool TrigMufastHypoTool::decideOnSingleObject(TrigMufastHypoTool::MuonClusterInf
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-
+/*
 TrigMufastHypoToolConsts::ECRegions TrigMufastHypoTool::whichECRegion( const float eta, const float phi ) const
 {
    float absEta = fabs(eta);
@@ -218,7 +223,7 @@ TrigMufastHypoToolConsts::ECRegions TrigMufastHypoTool::whichECRegion( const flo
    
    else return TrigMufastHypoToolConsts::Bulk;
 }
-
+*/
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 

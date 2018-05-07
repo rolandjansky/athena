@@ -146,10 +146,10 @@ namespace JiveXML {
     const TileID* tileID;
     const TileHWID* tileHWID;
     const TileInfo* tileInfo;
-    const TileCablingService* cabling=0;
+    const TileCablingService* cabling=nullptr;
     ToolHandle<ITileBadChanTool> tileBadChanTool("TileBadChanTool"); //!< Tile Bad Channel tool
     ToolHandle<TileCondToolEmscale> tileToolEmscale("TileCondToolEmscale"); //!< main Tile Calibration tool
-    const TileDigitsContainer *tileDigits;
+    const TileDigitsContainer *tileDigits = nullptr;
     const TileRawChannelContainer* RawChannelCnt;
     TileRawChannelUnit::UNIT RChUnit = TileRawChannelUnit::ADCcounts;  //!< Unit for TileRawChannels (ADC, pCb, etc.)
     cabling = TileCablingService::getInstance();

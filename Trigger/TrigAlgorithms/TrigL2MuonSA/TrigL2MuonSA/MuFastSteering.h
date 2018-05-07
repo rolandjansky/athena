@@ -231,7 +231,7 @@ class MuFastSteering : public HLT::FexAlgo,
 
   Gaudi::Property< double > m_winPt { this, "WinPt", 4.0, "" };
 
-  ECRegions whichECRegion(const float eta, const float phi) const;
+  //ECRegions whichECRegion(const float eta, const float phi) const;
   float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
 
   // calibration streamer properties

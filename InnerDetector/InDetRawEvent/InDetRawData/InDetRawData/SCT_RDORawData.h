@@ -47,8 +47,14 @@ public:
   // Static methods:
   ///////////////////////////////////////////////////////////////////
 
+  // Default copy constructor
+  SCT_RDORawData(const SCT_RDORawData&) = default;
   // Default assignment operator
-  SCT_RDORawData& operator=(const SCT_RDORawData &) = default;
+  SCT_RDORawData& operator=(const SCT_RDORawData&) = default;
+  // Default move constructor
+  SCT_RDORawData(SCT_RDORawData&&) = default;
+  // Default move assignment operator
+  SCT_RDORawData& operator=(SCT_RDORawData&&) = default;
 
   // Create a new SCT_RawData and return a pointer to it:
   //  static SCT_RawData *newObject(const Identifier rdoId, const unsigned int word);
