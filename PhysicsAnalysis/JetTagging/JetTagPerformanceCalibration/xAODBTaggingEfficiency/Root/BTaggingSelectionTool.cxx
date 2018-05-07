@@ -41,7 +41,7 @@ BTaggingSelectionTool::BTaggingSelectionTool( const std::string & name)
   m_initialised = false;
   declareProperty( "MaxEta", m_maxEta = 2.5 );
   declareProperty( "MinPt", m_minPt = 20000 /*MeV*/);
-  declareProperty( "MaxRangePt", m_maxRangePt = 1000000 /*MeV*/);
+  declareProperty( "MaxRangePt", m_maxRangePt = 3000000 /*MeV*/);
   declareProperty( "FlvTagCutDefinitionsFileName", m_CutFileName = "", "name of the files containing official cut definitions (uses PathResolver)");
   declareProperty( "TaggerName",                    m_taggerName="",    "tagging algorithm name");
   declareProperty( "OperatingPoint",                m_OP="",            "operating point");
@@ -90,11 +90,6 @@ StatusCode BTaggingSelectionTool::initialize() {
     if ("AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor){ m_minPt= 7000; }
     if ("AntiKt4PV0TrackJets"== m_jetAuthor){ m_minPt= 7000; }
   }
-  // Change the maxRangePt cut if the user didn't touch it
-  if (1000000==m_maxRangePt){// is it still the default value
-    if ("AntiKt2PV0TrackJets"== m_jetAuthor || "AntiKtVR30Rmax4Rmin02TrackJets"== m_jetAuthor) m_maxRangePt= 400000;
-    if ("AntiKt4PV0TrackJets"== m_jetAuthor) m_maxRangePt= 500000;
-  }
 
   // Operating point reading
     TString cutname = m_OP;
@@ -127,17 +122,16 @@ StatusCode BTaggingSelectionTool::initialize() {
     m_continuouscuts[5]= +1.e4;
   }
   else {  // Else load only one WP
-    if ("2DFixedCut"==cutname(0,10)){
-      cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_OP+"/cutvalue";
-      m_constcut = (TVector*) m_inf->Get(cutname);
-      if (m_constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
-    }
-    else if ("FlatBEff"==cutname(0,8) || "HybBEff"==cutname(0,7) ){
+    if ("FlatBEff"==cutname(0,8) || "HybBEff"==cutname(0,7) ){
       cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_OP+"/cutprofile";
       m_spline = (TSpline3*) m_inf->Get(cutname);
       if (m_spline == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
-    }
-    else {
+
+      //check the user set range in pt and the range of the spline
+      if(m_spline->GetXmax() > m_maxRangePt/1000.0 ){
+      ATH_MSG_WARNING(" Max Pt is set to "<< m_maxRangePt/1000.0 << " GeV, while the pt-dependent cut is defined up to " << m_spline->GetXmax() << " GeV " );
+      }
+    }else{
       cutname = m_taggerName+"/"+m_jetAuthor+"/"+m_OP+"/cutvalue";
       m_constcut = (TVector*) m_inf->Get(cutname);
       if (m_constcut == nullptr) ATH_MSG_ERROR( "Invalid operating point" );
@@ -354,10 +348,6 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
     return m_accept;
   }
 
-  // flat cut for out of range pTs
-  if (pT>m_maxRangePt)
-    pT = m_maxRangePt-500; // 500 MeV below the maximum authorized range
-
   eta = std::fabs(eta);
 
   if (! checkRange(pT, eta))
@@ -389,10 +379,6 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
     ATH_MSG_ERROR("BTaggingSelectionTool has not been initialised");
     return m_accept;
   }
-
-  // flat cut for out of range pTs
-  if (pT>m_maxRangePt)
-    pT = m_maxRangePt-500; // 500 MeV below the maximum authorized range
 
   eta = std::fabs(eta);
 
@@ -428,10 +414,6 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
      ATH_MSG_ERROR("BTaggingSelectionTool has not been initialised");
      return m_accept;
    }
-
-   // flat cut for out of range pTs
-   if (pT>m_maxRangePt)
-     pT = m_maxRangePt-500; // 500 MeV below the maximum authorized range
 
    eta = std::fabs(eta);
 
@@ -553,8 +535,15 @@ CorrectionCode BTaggingSelectionTool::getCutValue(double pT, double & cutval) co
 {
    cutval = DBL_MAX;
 
+   // flat cut for out of range pTs
+   if (pT>m_maxRangePt)
+     pT = m_maxRangePt; // 500 MeV below the maximum authorized range
+
    if (m_spline != nullptr && m_constcut == nullptr) {
-     cutval = m_spline->Eval(pT/1000.);
+     pT = pT/1000.0;
+     double maxsplinept = m_spline->GetXmax();
+     if (pT>maxsplinept){ pT = maxsplinept; }
+     cutval = m_spline->Eval(pT);
    }
 
    else if (m_constcut != nullptr && m_spline == nullptr) {
