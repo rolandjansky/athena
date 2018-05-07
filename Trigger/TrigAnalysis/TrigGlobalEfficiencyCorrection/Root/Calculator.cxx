@@ -410,12 +410,17 @@ bool Calculator::compute(TrigGlobalEfficiencyCorrectionTool& parent, const Lepto
 	return period->m_formula && period->m_formula(this, leptons, runNumber, efficiencies);
 }
 
-bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber)
-{	
+bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent, bool& matched, const LeptonList& leptons, unsigned runNumber)
+{
+	matched = false;
 	m_parent = &parent;
 	auto period = getPeriod(runNumber);
 	if(!period) return false;
-	
+	if(!period->m_triggers.size())
+	{
+		ATH_MSG_ERROR("Empty list of triggers for run number " << runNumber);
+		return false;
+	}
 	auto& trigMatchTool = m_parent->m_trigMatchTool;
 	
 	/// First, for each lepton, list the trigger leg(s) it is allowed to fire (depends on pT and selection tags)
@@ -429,14 +434,15 @@ bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent
 	/// Then for each trigger, call trigger matching tool for all possible (valid) lepton combinations
 	std::vector<flat_set<std::size_t> > firedLegs;
 	std::vector<const xAOD::IParticle*> trigLeptons;
-	const std::size_t magicWord = 0xf7b8b87ef2917d66;
+	const std::size_t magicWordHLT = 0xf7b8b87ef2917d66;
+
 	for(auto& trig : period->m_triggers)
 	{
 		/// Get trigger chain name with a "HLT_" prefix
-		auto itr = m_parent->m_dictionary.find(trig.name ^ magicWord);
+		auto itr = m_parent->m_dictionary.find(trig.name ^ magicWordHLT);
 		if(itr == m_parent->m_dictionary.end())
 		{
-			itr = m_parent->m_dictionary.emplace(trig.name ^ magicWord, "HLT_" + m_parent->m_dictionary.at(trig.name)).first;
+			itr = m_parent->m_dictionary.emplace(trig.name ^ magicWordHLT, "HLT_" + m_parent->m_dictionary.at(trig.name)).first;
 		}
 		const std::string& chain = itr->second;
 		
@@ -458,7 +464,7 @@ bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent
 			if(nLegs == 1)
 			{
 				if(canTriggerBeFired(trig, firedLegs) /// enough lepton(s) on trigger plateau?
-					&& trigMatchTool->match(trigLeptons, chain)) return true;
+					&& trigMatchTool->match(trigLeptons, chain)) return (matched = true);
 			}
 			else for(unsigned i1=i0+1;i1<nLep;++i1)
 			{
@@ -467,14 +473,14 @@ bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent
 				if(nLegs == 2)
 				{
 					if(canTriggerBeFired(trig, firedLegs)
-						&& trigMatchTool->match(trigLeptons, chain)) return true;
+						&& trigMatchTool->match(trigLeptons, chain)) return (matched = true);
 				}
 				else for(unsigned i2=i1+1;i2<nLep;++i2)
 				{
 					firedLegs[2].swap(validLegs[i2]);
 					trigLeptons[2] = leptons[i2].particle();
 					if(canTriggerBeFired(trig, firedLegs)
-						&& trigMatchTool->match(trigLeptons, chain)) return true;
+						&& trigMatchTool->match(trigLeptons, chain)) return (matched = true);
 					firedLegs[2].swap(validLegs[i2]);
 				}
 				firedLegs[1].swap(validLegs[i1]);
@@ -482,7 +488,7 @@ bool Calculator::checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent
 			firedLegs[0].swap(validLegs[i0]); /// return the set of legs back to the main container
 		}
 	}
-	return false;
+	return true;
 }
 
 Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned /* runNumber */, std::size_t leg, bool& success)

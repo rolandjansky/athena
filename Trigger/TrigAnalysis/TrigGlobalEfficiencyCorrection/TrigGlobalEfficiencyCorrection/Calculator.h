@@ -37,7 +37,7 @@ public:
 	bool addPeriod(ImportData& data, const std::pair<unsigned,unsigned>& boundaries, const std::string& combination, 
 			bool useToys, bool useDefaultElectronTools, std::size_t& uniqueElectronLeg, bool useDefaultPhotonTools, std::size_t& uniquePhotonLeg);
 	bool compute(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber, Efficiencies& efficiencies);
-	bool checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber);
+	bool checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent, bool& matched, const LeptonList& leptons, unsigned runNumber);
 	
 	struct Period
 	{

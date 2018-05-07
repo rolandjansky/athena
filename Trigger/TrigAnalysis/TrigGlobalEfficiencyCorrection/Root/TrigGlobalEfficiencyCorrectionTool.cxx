@@ -96,6 +96,19 @@ StatusCode TrigGlobalEfficiencyCorrectionTool::initialize()
 		return StatusCode::FAILURE;
 	}
 	
+	ATH_MSG_DEBUG("Retrieving trigger matching tool (if provided)");
+	m_validTrigMatchTool = false;
+	if(m_trigMatchTool.name() != "")
+	{
+		if(m_trigMatchTool.retrieve() != StatusCode::SUCCESS)
+		{
+			ATH_MSG_ERROR("Unable to retrieve trigger matching tool");
+			return StatusCode::FAILURE;
+		}
+		ATH_MSG_DEBUG("Trigger matching support enabled");
+		m_validTrigMatchTool = true;
+	}
+	
 	ATH_MSG_DEBUG("Basic checks");
 	CheckConfig checks(*this);
 	if(!checks.basicConfigChecks()) return StatusCode::FAILURE;
@@ -124,17 +137,6 @@ StatusCode TrigGlobalEfficiencyCorrectionTool::initialize()
 	
 	ATH_MSG_DEBUG("Advanced checks");
 	if(!checks.advancedConfigChecks()) return StatusCode::FAILURE;
-	
-	m_validTrigMatchTool = false;
-	if(m_trigMatchTool.typeAndName() != "")
-	{
-		if(m_trigMatchTool.retrieve() != StatusCode::FAILURE)
-		{
-			ATH_MSG_ERROR("Unable to retrieve trigger matching tool");
-			return StatusCode::FAILURE;
-		}
-		m_validTrigMatchTool = true;
-	}
 	
 	ATH_MSG_INFO("Initialization successful"); 
 	m_initialized = true;
@@ -327,11 +329,6 @@ bool TrigGlobalEfficiencyCorrectionTool::loadTagDecorators(const flat_set<std::s
 	const flat_set<std::size_t>& collectedMuonTags, const flat_set<std::size_t>& collectedPhotonTags)
 {
 	bool success = true;
-	if(!m_muonTools.size() && !m_electronEffTools.size() && !m_photonEffTools.size())
-	{
-		ATH_MSG_ERROR("Internal implementation error: enumerateTools() must be called first");
-		return false;
-	}
 	
 	flat_set<std::size_t> collectedTags(collectedElectronTags);
 	collectedTags.insert(collectedMuonTags.begin(), collectedMuonTags.end());
@@ -815,42 +812,43 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 	return m_cpCode;
 }
 
-bool TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(const std::vector<const xAOD::IParticle*>& particles)
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const std::vector<const xAOD::IParticle*>& particles)
 {
 	LeptonList leptons;
 	updateLeptonList(leptons, particles);
-	return checkTriggerMatching(leptons);
+	return checkTriggerMatching(matched, leptons);
 }
 
-bool TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(const std::vector<const xAOD::Electron*>& electrons, const std::vector<const xAOD::Muon*>& muons)
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const std::vector<const xAOD::Electron*>& electrons, 
+	const std::vector<const xAOD::Muon*>& muons)
 {
 	LeptonList leptons;
 	updateLeptonList(leptons, electrons);
 	updateLeptonList(leptons, muons);
-	return checkTriggerMatching(leptons);
+	return checkTriggerMatching(matched, leptons);
 }
 
-bool TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(const std::vector<const xAOD::Photon*>& photons)
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const std::vector<const xAOD::Photon*>& photons)
 {
 	LeptonList leptons;
 	updateLeptonList(leptons, photons);
-	return checkTriggerMatching(leptons);
+	return checkTriggerMatching(matched, leptons);
 }
 
-bool TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(const LeptonList& leptons)
+CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching(bool& matched, const LeptonList& leptons)
 {
 	unsigned runNumber;
 	if(!retrieveRunNumber(runNumber))
 	{
 		ATH_MSG_ERROR("Unable to retrieve run number, aborting checkTriggerMatching()");
-		return false;
+		return CP::CorrectionCode::Error;
 	}
 	if(!m_validTrigMatchTool)
 	{
 		ATH_MSG_ERROR("A valid IMatchingTool instance should be provided via the property 'TriggerMatchingTool'");
-		return false;
+		return CP::CorrectionCode::Error;
 	}
-	return m_calculator->checkTriggerMatching(*this, leptons, runNumber);
+	return m_calculator->checkTriggerMatching(*this, matched, leptons, runNumber)? CP::CorrectionCode::Ok : CP::CorrectionCode::Error;
 }
 
 bool TrigGlobalEfficiencyCorrectionTool::aboveThreshold(const Lepton& lepton,std::size_t leg) const

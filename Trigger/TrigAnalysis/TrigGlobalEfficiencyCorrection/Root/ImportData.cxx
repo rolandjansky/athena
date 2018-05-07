@@ -65,7 +65,7 @@ bool ImportData::readDataFile(const char* filename, std::vector<std::string>& co
 				{
 					auto i = line.find('#');
 					if(i != std::string::npos) line = line.substr(0,i);
-					if(line.length() >= 5) contents.emplace_back(std::move(line));
+					if(line.length() >= 3) contents.emplace_back(std::move(line));
 				}
 			}
 			if(!f.eof())
@@ -653,15 +653,15 @@ bool ImportData::adaptTriggerListForTriggerMatching(std::vector<ImportData::Trig
 	for(auto& trig : triggers)
 	{
 		auto& name = m_dictionary.at(trig.name);
-		std::size_t pos = 0, newpos = name.find("_OR_");
-		if(newpos == std::string::npos)
+		std::size_t pos = 0, len = name.find("_OR_");
+		if(len == std::string::npos)
 		{
 			updatedTriggers.emplace_back(trig);
 			continue;
 		}
 		while(true)
 		{
-			std::string item = name.substr(pos, newpos);
+			std::string item = name.substr(pos, len);
 			auto h = m_hasher(item);
 			auto def = m_triggerDefs.find(h);
 			if(def == m_triggerDefs.end())
@@ -670,9 +670,10 @@ bool ImportData::adaptTriggerListForTriggerMatching(std::vector<ImportData::Trig
 				return false;
 			}
 			if(extraItems.emplace(h).second) updatedTriggers.emplace_back(def->second);
-			if(newpos == std::string::npos) break;
-			pos = newpos + 4;
-			newpos = name.find("_OR_", pos);
+			if(len == std::string::npos) break;
+			pos += len + 4;
+			len = name.find("_OR_", pos);
+			if(len != std::string::npos) len -= pos;
 		}
 	}
 	triggers.swap(updatedTriggers);
