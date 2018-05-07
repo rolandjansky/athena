@@ -43,12 +43,10 @@ class ILArBarrelPresamplerGeometry: virtual public IService {
 public:
 
   ILArBarrelPresamplerGeometry() {};
-  static const InterfaceID& interfaceID() {
-     static const InterfaceID  IID_ILArBarrelPresamplerGeometry("ILArBarrelPresamplerGeometry",1,0);
-     return IID_ILArBarrelPresamplerGeometry;
-  }
 
   virtual ~ILArBarrelPresamplerGeometry() {};
+
+  DeclareInterfaceID(ILArBarrelPresamplerGeometry,1,0);
 
   // Full identifier computation from a G4 step
   virtual LArG4Identifier CalculateIdentifier( const G4Step*) const = 0;
