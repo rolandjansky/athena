@@ -105,6 +105,7 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   double m_NOShortMiddles ;                 //!< Noise Occupancy, EC Short Middles (in the case of no use of calibration data)
   double m_NOOuters ;                       //!< Noise Occupancy, Ec Outers  (in the case of no use of calibration data)
   bool m_NoiseOn ;                          //!< To know if Noise is on or off when using calibration data)
+  bool m_analogueNoiseOn ;                  //!< To know if analogue noise is on or off
   float m_GainRMS ;                         //!< Gain factor for gain generation 
   float m_Ospread ;                         //!< Offset factor for offset generation
   float m_OGcorr ;                          //!< Gain-offset correlation factor
