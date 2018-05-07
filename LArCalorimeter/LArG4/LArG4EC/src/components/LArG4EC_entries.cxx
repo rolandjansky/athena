@@ -6,6 +6,7 @@
 #include "../CryostatCalibrationMixedCalculator.h"
 #include "../EnergyCalculator.h"
 #include "../PresamplerCalibrationCalculator.h"
+#include "LArG4EC/PresamplerGeometry.h"
 
 DECLARE_COMPONENT( LArG4::EC::CalibrationCalculator )
 DECLARE_COMPONENT( LArG4::EMECSupportCalibrationCalculator )
@@ -15,4 +16,5 @@ DECLARE_COMPONENT( LArG4::EndcapCryostat::CalibrationCalculator )
 DECLARE_COMPONENT( LArG4::EndcapCryostat::CalibrationMixedCalculator )
 DECLARE_COMPONENT( LArG4::EC::EnergyCalculator )
 DECLARE_COMPONENT( LArG4::EC::PresamplerCalibrationCalculator )
+DECLARE_COMPONENT( LArG4::EC::PresamplerGeometry )
 

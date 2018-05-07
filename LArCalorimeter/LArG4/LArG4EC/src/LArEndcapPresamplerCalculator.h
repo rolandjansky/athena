@@ -23,9 +23,7 @@ class G4Step;
 class LArG4BirksLaw;
 
 namespace LArG4 {
-  namespace EC {
-    class PresamplerGeometry;
-  }
+  class IECPresamplerGeometry;
 }
 
 class LArEndcapPresamplerCalculator : public LArCalculatorSvcImp {
@@ -52,7 +50,7 @@ public:
 private:
 
   // Pointer to geometry routine.
-  const LArG4::EC::PresamplerGeometry* m_geometry;
+  ServiceHandle<LArG4::IECPresamplerGeometry> m_geometry;
 
   LArG4BirksLaw *m_birksLaw;
 
