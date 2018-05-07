@@ -6,7 +6,7 @@
 atlas_subdir( egammaValidation )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
 	GaudiKernel
 	AsgExternal/Asg_MCUtils
 	Control/AthenaBaseComps
@@ -15,7 +15,6 @@ atlas_depends_on_subdirs( PUBLIC
 	Event/xAOD/xAODEventInfo
 	Event/xAOD/xAODTracking
         PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
-	PRIVATE
 	TestPolicy 
 	Tracking/TrkValidation/TrkValHistUtils) 
 
