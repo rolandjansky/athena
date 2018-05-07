@@ -51,8 +51,6 @@ namespace Analysis {
 
     StatusCode BTagTrackAssociation::BTagTrackAssociation_exec(jetcollection_t* theJets) const {
 
-        StatusCode sc;
-
         for (const Jet* jet : *theJets) {
             // We need a const_cast here, as the Jet does not have a method providing a pointer to a non-const BTagging object
             // A *much* cleaner solution would be to ask the ElementLink (btaggingLink())
@@ -72,7 +70,7 @@ namespace Analysis {
             std::vector< ElementLink< IParticleContainer > > tmptrks = acctrack(*jet);
 
             const TrackParticleContainer * tpContainer(0);
-            sc = evtStore()->retrieve( tpContainer, m_trackContainerName);
+            StatusCode sc = evtStore()->retrieve( tpContainer, m_trackContainerName);
             if ( sc.isFailure() || tpContainer==0) {
                 ATH_MSG_ERROR("#BTAG# Failed to retrieve TrackParticles through name: " << m_trackContainerName);
                 return StatusCode::FAILURE;
@@ -94,7 +92,7 @@ namespace Analysis {
 
             tagInfo->auxdata<std::vector<ElementLink<TrackParticleContainer> > >(m_trackAssociationName) = tpLinks;
 
-            ATH_MSG_INFO("Attached tracks to jet as " + m_trackAssociationName);
+            ATH_MSG_VERBOSE("Attached tracks to jet as " + m_trackAssociationName);
 
             // muon association
             // this is optional. currently (2018 03 21) online b-tagging has no
@@ -132,7 +130,7 @@ namespace Analysis {
 
             tagInfo->auxdata<std::vector<ElementLink<MuonContainer> > >(m_muonAssociationName) = mpLinks;
 
-            ATH_MSG_INFO("Attached mouns to jet as " + m_muonAssociationName);
+            ATH_MSG_VERBOSE("Attached mouns to jet as " + m_muonAssociationName);
 
             continue;
         }
