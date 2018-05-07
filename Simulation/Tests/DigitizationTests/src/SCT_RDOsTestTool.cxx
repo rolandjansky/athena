@@ -332,7 +332,7 @@ StatusCode SCT_RDOsTestTool::CheckSDOs() {
 
   const InDetSimDataCollection* simDataMapSCT(NULL);
   if(evtStore()->retrieve(simDataMapSCT,"SCT_SDO_Map").isFailure()) {
-    ATH_MSG_WARNING ("Could not find SCT SDO container");
+    ATH_MSG_WARNING ("Could not find SCT SDO container called " << "SCT_SDO_Map");
     return StatusCode::SUCCESS;
   }
 

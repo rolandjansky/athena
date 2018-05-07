@@ -14,9 +14,9 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 #include "ParticleTruth/TrackParticleTruthCollectionContainer.h"
 
-class TrackParticleTruthCollectionContainer_tlp1;
+class TrackParticleTruthCollectionContainer_tlp2;
 
-typedef TrackParticleTruthCollectionContainer_tlp1 TrackParticleTruthCollectionContainerPERS;
+typedef TrackParticleTruthCollectionContainer_tlp2 TrackParticleTruthCollectionContainerPERS;
 
 typedef T_AthenaPoolCustomCnv<TrackParticleTruthCollectionContainer, TrackParticleTruthCollectionContainerPERS> TrackParticleTruthCollectionContainerCnvBase;
 

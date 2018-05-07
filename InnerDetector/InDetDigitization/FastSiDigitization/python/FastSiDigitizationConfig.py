@@ -89,6 +89,12 @@ def commonPixelFastDigitizationConfig(name,**kwargs):
         kwargs.setdefault("FirstXing", FastPixel_FirstXing())
         kwargs.setdefault("LastXing",  FastPixel_LastXing() )
 
+    #If needed we'll adjust the output McEventCollections (for pileup mainly) names
+    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+        kwargs.setdefault("UseMcEventCollectionHelper",True)
+    else:
+        kwargs.setdefault("UseMcEventCollectionHelper",False)
+
     from AthenaCommon import CfgMgr
     return CfgMgr.PixelFastDigitizationTool(name,**kwargs)
 
@@ -123,6 +129,12 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
     if digitizationFlags.doXingByXingPileUp():
         kwargs.setdefault("FirstXing", FastSCT_FirstXing())
         kwargs.setdefault("LastXing",  FastSCT_LastXing() )
+
+    #If needed we'll adjust the output McEventCollections (for pileup mainly) names
+    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+        kwargs.setdefault("UseMcEventCollectionHelper",True)
+    else:
+        kwargs.setdefault("UseMcEventCollectionHelper",False)
 
     from AthenaCommon import CfgMgr
     return CfgMgr.SCT_FastDigitizationTool(name,**kwargs)

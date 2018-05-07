@@ -6,6 +6,7 @@
 #include "SCT_Digitization/SCT_DigitizationTool.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 
 // Mother Package includes
 #include "SiDigitization/SiHelper.h"
@@ -646,7 +647,7 @@ StatusCode SCT_DigitizationTool::processBunchXing(int bunchXing,
         }
         ATH_MSG_DEBUG("SiHitCollection found with " << seHitColl->size() <<
             " hits");
-        PileUpTimeEventIndex timeIndex(iEvt->time(), iEvt->index());
+        PileUpTimeEventIndex timeIndex(iEvt->time(), iEvt->index(), pileupTypeMapper(iEvt->type()));
         SiHitCollection *hitCollPtr = new SiHitCollection(*seHitColl);
         m_thpcsi->insert(timeIndex, hitCollPtr);
         hitCollPtrs.push_back(hitCollPtr);

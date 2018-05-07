@@ -376,7 +376,7 @@ namespace xAODMaker {
 			    << " eta " << (*link)->eta() << " phi " << (*link)->phi());
 	      // if configured also get truth classification
               if( result->second.particleLink().cptr() && !m_truthClassifier.empty() ){
-                auto truthClass = m_truthClassifier->particleTruthClassifier(result->second.particleLink().cptr());
+                auto truthClass = m_truthClassifier->particleTruthClassifier(*link);
                 type = truthClass.first;
                 origin = truthClass.second;
                 ATH_MSG_VERBOSE("Got truth type  " << static_cast<int>(type) << "  origin " << static_cast<int>(origin));

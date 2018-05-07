@@ -155,6 +155,7 @@ private:
   double m_DiffusionShiftX;
   double m_DiffusionShiftY;
   double m_sctMinimalPathCut;        //!< the 1. model parameter: minimal 3D path in strip
+  bool m_needsMcEventCollHelper;
 
   Amg::Vector3D stepToStripBorder(const InDetDD::SiDetectorElement& sidetel,
                                   //const Trk::Surface& surface,

@@ -12,7 +12,7 @@
 #include "MuonSimEventTPCnv/GenericMuonSimHitCollectionCnv_p2.h"
 
 // the latest persistent representation type of DataCollection:
-typedef  Muon::GenericMuonSimHitCollection_p1  GenericMuonSimHitCollection_PERS;
+typedef  Muon::GenericMuonSimHitCollection_p2  GenericMuonSimHitCollection_PERS;
 typedef  T_AthenaPoolCustomCnv<GenericMuonSimHitCollection, GenericMuonSimHitCollection_PERS >  GenericMuonSimHitCollectionCnvBase;
 
 /**

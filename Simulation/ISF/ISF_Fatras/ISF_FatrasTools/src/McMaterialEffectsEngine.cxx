@@ -454,6 +454,9 @@ ISF::ISFParticle* iFatras::McMaterialEffectsEngine::bremPhoton(const ISF::ISFPar
   if (!bremPhoton->getTruthBinding()) {
          bremPhoton->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
   }
+  if (!bremPhoton->getParticleLink()) {
+       bremPhoton->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+  }
 
   return bremPhoton;
   
@@ -710,7 +713,8 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   // register particle if not in the stack already 
   if (isp!=m_isp ) {
     ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
-						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
+						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode(),
+						  (isp->getTruthBinding() ? new ISF::TruthBinding(*isp->getTruthBinding()) : nullptr));
     // add presampled process info 
     if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
       ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
@@ -734,6 +738,9 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
     //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
     if (!regisp->getTruthBinding()) {
  	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
+    }
+    if (!regisp->getParticleLink()) {
+          regisp->setParticleLink(new HepMcParticleLink(*isp->getParticleLink()));
     }
     m_particleBroker->push(regisp, m_isp);
   }
@@ -899,7 +906,8 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   // register particle if not in the stack already
   if (isp!=m_isp ) {
     ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
-						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
+						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode(),
+						  (isp->getTruthBinding() ? new ISF::TruthBinding(*isp->getTruthBinding()) : nullptr));
     // add presampled process info 
     if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
       ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
@@ -922,6 +930,9 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
     //Making sure we get some correct truth info from parent if needed before pushing into the particle broker
     if (!regisp->getTruthBinding()) {
 	regisp->setTruthBinding(new ISF::TruthBinding(*isp->getTruthBinding()));
+    }
+    if (!regisp->getParticleLink()) {
+          regisp->setParticleLink(new HepMcParticleLink(*isp->getParticleLink()));
     }
     m_particleBroker->push(regisp, m_isp);
   }

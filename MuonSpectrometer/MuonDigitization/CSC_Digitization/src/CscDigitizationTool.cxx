@@ -15,6 +15,8 @@
 #include "StoreGate/DataHandle.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "CSC_Digitization/CscDigitizationTool.h"
@@ -45,6 +47,8 @@ CscDigitizationTool::CscDigitizationTool(const std::string& type,const std::stri
   declareProperty("WindowLowerOffset",m_timeWindowLowerOffset = -25.);
   declareProperty("WindowUpperOffset",m_timeWindowUpperOffset = +25.);
   declareProperty("isPileUp",m_isPileUp = false);
+
+  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
 
   declareProperty("RndmSvc", 		m_rndmSvc, "Random Number Service used in Muon digitization" );
   declareProperty("RndmEngine",       m_rndmEngineName,       "Random engine name");
@@ -277,6 +281,8 @@ StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContai
     return StatusCode::FAILURE;
   }
 
+  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
   while( m_thpcCSC->nextDetectorElement(i, e) ) {
  
     // Loop over the hits:
@@ -339,8 +345,16 @@ StatusCode CscDigitizationTool::CoreDigitization(CscSimDataCollection* sdoContai
         continue;
       }
 
+      HepMcParticleLink trklink(phit->particleLink());
+      if (m_needsMcEventCollHelper) {
+        if(phit.pileupType()!=lastPileupType)        {
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType());
+          lastPileupType=phit.pileupType();
+        }
+        trklink.setEventCollection(currentMcEventCollection);
+      }
       for (; vecBeg != vecEnd; vecBeg++) {
-        CscSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), CscMcData(energy, ypos, zpos));
+        CscSimData::Deposit deposit(trklink, CscMcData(energy, ypos, zpos));
         myDeposits[(*vecBeg)].push_back(deposit); 
       }
       hashVec.clear();
@@ -696,7 +710,7 @@ StatusCode CscDigitizationTool::processBunchXing(int bunchXing,
                        << " time offset : " << iEvt->time()
                        << " event number : " << iEvt->ptr()->eventNumber()
                        << " run number : " << iEvt->ptr()->runNumber());
-      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index(),pileupTypeMapper(iEvt->type()));
 
       const CSCSimHitCollection* seHitColl(nullptr);
       if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess())

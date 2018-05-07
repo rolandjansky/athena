@@ -21,6 +21,7 @@
 #include "TimeSvc.h"
 #include "PixelRandomDisabledCellGenerator.h"
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "InDetSimEvent/SiHitCollection.h"
 
@@ -1191,7 +1192,7 @@ StatusCode PixelDigitizationTool::processBunchXing(int bunchXing,
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("SiHitCollection found with " << seHitColl->size() << " hits");
-    PileUpTimeEventIndex timeIndex(iEvt->time(),iEvt->index());
+    PileUpTimeEventIndex timeIndex(iEvt->time(),iEvt->index(),pileupTypeMapper(iEvt->type()));
     SiHitCollection *hitCollPtr = new SiHitCollection(*seHitColl);
     m_thpcsi->insert(timeIndex,hitCollPtr);
     hitCollPtrs.push_back(hitCollPtr);

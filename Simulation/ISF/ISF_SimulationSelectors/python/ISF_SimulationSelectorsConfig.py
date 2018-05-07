@@ -19,7 +19,7 @@ def getDefaultParticleKillerSelector(name="ISF_DefaultParticleKillerSelector", *
     return getDefaultSimSelector(name, **kwargs )
 
 def getPileupParticleKillerSelector(name="ISF_PileupParticleKillerSelector", **kwargs):
-    kwargs.setdefault("PileupBCID"   , [1] ) 
+    kwargs.setdefault("PileupBCID"   , [] ) 
     kwargs.setdefault("Simulator"   , 'ISF_ParticleKillerSvc')
     return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs)
 
@@ -81,7 +81,7 @@ def getPileupSimSelector(name="ISF_PileupSimSelector", **kwargs):
     return CfgMgr.ISF__KinematicPileupSimSelector(name, **kwargs )
 
 def getFatrasPileupSelector(name="ISF_FatrasPileupSelector", **kwargs):
-    kwargs.setdefault("PileupBCID"   , [1] )
+    kwargs.setdefault("PileupBCID"   , [] )
     kwargs.setdefault("Simulator"   , 'ISF_FatrasPileupSimSvc')
     return getPileupSimSelector(name, **kwargs )
 
@@ -141,7 +141,7 @@ def getMuonFatrasSelector(name="ISF_MuonFatrasSelector", **kwargs):
 
 def getMuonFatrasPileupSelector(name="ISF_MuonFatrasPileupSelector", **kwargs):
     kwargs.setdefault('Simulator'       , 'ISF_FatrasPileupSimSvc')
-    kwargs.setdefault("PileupBCID"      , [1])    
+    kwargs.setdefault("PileupBCID"      , [])    
     kwargs.setdefault('ParticlePDG'     , 13)
     return getPileupSimSelector(name, **kwargs)
 

@@ -536,7 +536,7 @@ StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& is
   //extract the BCID from the ISFParticle:
   int bcid=isfp.getBCID();
   ATH_MSG_VERBOSE(m_screenOutputPrefix<<" BCID from the ISF Particle "<<bcid);
-  if(bcid>(int)m_puEnergyWeights_lar_em.size() || bcid==0)
+  if(bcid>(int)m_puEnergyWeights_lar_em.size())
   {
    ATH_MSG_FATAL( m_screenOutputPrefix<<" BCID="<<bcid<<" not valid");
    return StatusCode::FAILURE;
@@ -565,8 +565,8 @@ StatusCode ISF::FastCaloSimSvcPU::processOneParticle( const ISF::ISFParticle& is
     if (m_chrono) m_chrono->chronoStart( chronoName);
     
     //->PU Development:
-    ATH_MSG_VERBOSE(m_screenOutputPrefix<<" now call fcs->process_particle with [bcid-1]="<<bcid-1<<" for pdgid "<<isfp.pdgCode());
-    if(fcs->process_particle(m_puCellContainer[bcid-1],hitVector,isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode()).isFailure())
+    ATH_MSG_VERBOSE(m_screenOutputPrefix<<" now call fcs->process_particle with [bcid]="<<bcid<<" for pdgid "<<isfp.pdgCode());
+    if(fcs->process_particle(m_puCellContainer[bcid],hitVector,isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode()).isFailure())
     {
      ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " in bcid "<<bcid<<" failed" );   
      return StatusCode::FAILURE;

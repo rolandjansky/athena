@@ -18,6 +18,10 @@
 #include <cassert>
 #include <iostream>
 
+#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+
 
 void compare (const TrigIDHitStats& p1,
               const TrigIDHitStats& p2)
@@ -45,11 +49,15 @@ public:
     
   }
 
-  static void set (TrigInDetTrackTruth& p)
+  static void set (TrigInDetTrackTruth& p, std::vector<HepMC::GenParticle*>& genPartVector)
   {
-    p.m_true_part_vec.emplace_back (1001, 10);
-    p.m_true_part_vec.emplace_back (1002, 11);
-    p.m_true_part_vec.emplace_back (1003, 12);
+    HepMcParticleLink trkLink1(genPartVector.at(0)->barcode(),genPartVector.at(0)->parent_event()->event_number());
+    HepMcParticleLink trkLink2(genPartVector.at(1)->barcode(),genPartVector.at(1)->parent_event()->event_number());
+    HepMcParticleLink trkLink3(genPartVector.at(2)->barcode(),genPartVector.at(2)->parent_event()->event_number());
+
+    p.m_true_part_vec.emplace_back (trkLink1, 10);
+    p.m_true_part_vec.emplace_back (trkLink2, 11);
+    p.m_true_part_vec.emplace_back (trkLink3, 12);
 
     int nstat = 4;
     p.m_nr_common_hits.resize (nstat);
@@ -91,12 +99,12 @@ void testit (const TrigInDetTrackTruth& trans1)
 }
 
 
-void test1()
+void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
 
   TrigInDetTrackTruth trans1;
-  TrigInDetTrackTruthCnv_p1_test::set (trans1);
+  TrigInDetTrackTruthCnv_p1_test::set (trans1, genPartVector);
     
   testit (trans1);
 }
@@ -104,6 +112,13 @@ void test1()
 
 int main()
 {
-  test1();
+  ISvcLocator* pSvcLoc = nullptr;
+  std::vector<HepMC::GenParticle*> genPartVector;
+  if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
+  test1(genPartVector);
   return 0;
 }

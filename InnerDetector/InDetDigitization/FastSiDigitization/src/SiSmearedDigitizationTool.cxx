@@ -36,6 +36,8 @@
 
 // Pile-up
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
@@ -151,6 +153,8 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   // get the service handle for the TrackingGeometry
   declareProperty("TrackingGeometrySvc"          , m_trackingGeometrySvc);
   declareProperty("UseCustomGeometry", m_useCustomGeometry);
+
+  declareProperty("UseMcEventCollectionHelper",   m_needsMcEventCollHelper = false);
 
 }
 
@@ -345,7 +349,7 @@ StatusCode SiSmearedDigitizationTool::processBunchXing(int bunchXing,
   SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
     StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
-    PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
+    PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index(), pileupTypeMapper(iEvt->type())));
     const SiHitCollection* seHitColl(NULL);
     if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
       ATH_MSG_ERROR ( "SubEvent SiHitCollection not found in StoreGate " << seStore.name() );
@@ -586,12 +590,16 @@ StatusCode SiSmearedDigitizationTool::retrieveTruth(){
 template<typename CLUSTER>
 StatusCode SiSmearedDigitizationTool::FillTruthMap(PRD_MultiTruthCollection * map, CLUSTER * cluster, TimedHitPtr<SiHit> hit){
 
-  ATH_MSG_DEBUG("Truth map filling with cluster " << *cluster << " and link = " << hit->particleLink());
-  if (hit->particleLink().isValid()){
-    map->insert(std::make_pair(cluster->identify(), hit->particleLink()));
-    ATH_MSG_DEBUG("Truth map filled with cluster " << *cluster << " and link = " << hit->particleLink());
+  HepMcParticleLink trklink(hit->particleLink());
+  if (m_needsMcEventCollHelper) {
+    trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType()) );
+  }
+  ATH_MSG_DEBUG("Truth map filling with cluster " << *cluster << " and link = " << trklink);
+  if (trklink.isValid()){
+    map->insert(std::make_pair(cluster->identify(), trklink));
+    ATH_MSG_DEBUG("Truth map filled with cluster " << *cluster << " and link = " << trklink);
   }else{
-    ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << cluster << " and link = " << hit->particleLink());
+    ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << cluster << " and link = " << trklink);
   }
 
   return StatusCode::SUCCESS;

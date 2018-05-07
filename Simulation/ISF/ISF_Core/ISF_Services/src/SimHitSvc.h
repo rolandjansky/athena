@@ -117,6 +117,7 @@ namespace ISF {
     SG::ReadHandle<SiHitCollection>                              m_pixHits;
     SG::ReadHandle<SiHitCollection>                              m_sctHits;
     SG::ReadHandle<TRTUncompressedHitCollection>                 m_trtHits;
+    SG::ReadHandle<SiHitCollection>                              m_bcmPileupHits;
     SG::ReadHandle<SiHitCollection>                              m_pixPileupHits;
     SG::ReadHandle<SiHitCollection>                              m_sctPileupHits;
     SG::ReadHandle<TRTUncompressedHitCollection>                 m_trtPileupHits;

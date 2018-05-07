@@ -131,6 +131,7 @@ private:
   //unsigned int m_timer_eventcount;
   ServiceHandle <IAtRndmGenSvc> m_atRndmGenSvc;  /**< Random number service */
   ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
+  bool m_needsMcEventCollHelper;
 
   const InDetDD::TRT_DetectorManager* m_manager;
   TRTDigSettings* m_settings;

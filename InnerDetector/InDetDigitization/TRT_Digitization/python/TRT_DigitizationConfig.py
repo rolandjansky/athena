@@ -71,6 +71,11 @@ def BasicTRTDigitizationTool(name, **kwargs):
         kwargs.setdefault("FirstXing", TRT_FirstXing())
         kwargs.setdefault("LastXing",  TRT_LastXing())
 
+    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+         kwargs.setdefault("UseMcEventCollectionHelper",True)
+    else:
+        kwargs.setdefault("UseMcEventCollectionHelper",False)
+
     ##else:
     ##    from AthenaCommon.DetFlags import DetFlags
     ##    from AthenaCommon.AppMgr import ServiceMgr

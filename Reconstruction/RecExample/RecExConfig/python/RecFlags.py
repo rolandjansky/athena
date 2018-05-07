@@ -445,6 +445,19 @@ class doTruth(JobProperty):
 #            raise ValueError,jobproperties._log.info('RecExCommon_flags::doTruth :\
 #                    can not be set to true because Global.InputFormat= bytestream  ')
 #
+
+class TruthSubsetOption(JobProperty):
+   """ Allows for selecting only a subset of the truth information
+   to dump in xAOD
+   """
+   statusOn = True
+   allowedTypes = ['str']
+   StoredValue = 'HSonly'
+   allowedValues = [
+                    'HSonly',     # Stores only the in-time events from 'hard-scatter' McEventCollection
+                    'InTimeOnly', # Stores only the in-time events from the 'hard-scatter' and additional pile-up McEventCollections
+                    'All']        # Stores all events from the main and additional McEventCollections
+
 class doWriteAOD(JobProperty):
     """ If True writes out AOD file
     """
@@ -1033,7 +1046,7 @@ doAODall, doCBNT, doPyDump, doMonitoring, doCheckDictionary, doCheckJOT,CBNTAthe
 doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
 doDumpTDS, doDumpTES, doFloatingPointException, abortOnUncheckedStatusCode, abortOnErrorMessage, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
 doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
-doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\
+doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth, TruthSubsetOption, \
 doWriteAOD, doWritexAOD, doWriteESD, doWriteDPD, doWriteBS, doWriteRDO, doWriteTAG, doWriteTAGCOM, PoolTAGCOMOutput, readAOD, readTAG, readRDO, \
 readESD, doDetStatus, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
 doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doFTK,doTrigger,doBTagging, Production, doPhysValMonHists, \

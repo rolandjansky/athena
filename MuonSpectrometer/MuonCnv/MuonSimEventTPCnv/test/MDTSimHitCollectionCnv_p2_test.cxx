@@ -13,6 +13,7 @@
 
 #undef NDEBUG
 #include "MuonSimEventTPCnv/MDTSimHitCollectionCnv_p2.h"
+#include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
@@ -27,6 +28,7 @@ void compare (const HepMcParticleLink& p1,
   assert ( p1.isValid() == p2.isValid() );
   assert ( p1.barcode() == p2.barcode() );
   assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.getEventCollectionAsChar() == p2.getEventCollectionAsChar() );
   assert ( p1.cptr() == p2.cptr() );
   assert ( p1 == p2 );
 }
@@ -73,13 +75,21 @@ void testit (const MDTSimHitCollection& trans1)
 void test1(std::vector<HepMC::GenParticle*> genPartVector)
 {
   std::cout << "test1\n";
+  const HepMC::GenParticle *particle = genPartVector.at(0);
+  // Create HepMcParticleLink outside of leak check.
+  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
+  assert(dummyHMPL.cptr()==particle);
+  // Create DVL info outside of leak check.
+  MDTSimHitCollection dum ("coll");
+  Athena_test::Leakcheck check;
 
   MDTSimHitCollection trans1 ("coll");
   for (int i=0; i < 10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
+    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
     trans1.Emplace (123, 10.5, 11.5,
                     Amg::Vector3D (12.5, 13.5, 14.5),
-                    pGenParticle->barcode(), 19.5, 20.5, pGenParticle->pdg_id(), 22.5
+                    trkLink, 19.5, 20.5, pGenParticle->pdg_id(), 22.5
                     );
   }
 

@@ -156,9 +156,9 @@ private:
   bool m_acceptDiagonalClusters; //!< merging parameter used to define two clusters as neighbour >  
   std::string                           m_pixelClusterAmbiguitiesMapName;
   InDet::PixelGangedClusterAmbiguities* m_ambiguitiesMap;
-   
   ServiceHandle<IPixelCalibSvc>         m_pixelCalibSvc;
 
+  bool m_needsMcEventCollHelper;
 
   //  bool isActiveAndGood(const ServiceHandle<IInDetConditionsSvc> &svc, const IdentifierHash &idHash, const Identifier &id, bool querySingleChannel, const char *elementName, const char *failureMessage = "") const;
   bool areNeighbours(const std::vector<Identifier>& group,  const Identifier& rdoID, InDetDD::SiDetectorElement* /*element*/, const PixelID& pixelID) const;

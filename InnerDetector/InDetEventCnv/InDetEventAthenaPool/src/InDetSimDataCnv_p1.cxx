@@ -24,10 +24,10 @@ InDetSimDataCnv_p1::persToTrans(const InDetSimData_p1* persObj, InDetSimData* tr
 {
    MSG_VERBOSE(log,"InDetSimDataCnv_p1::persToTrans called ");
    HepMcParticleLinkCnv_p1 HepMcPLCnv;
-   HepMcParticleLink mcLink (m_sg);
    std::vector<InDetSimData::Deposit> deposits;
    deposits.reserve( persObj->m_enDeposits.size() );
    for (unsigned int icount=0; icount < persObj->m_enDeposits.size(); icount++) {
+     HepMcParticleLink mcLink;
      HepMcPLCnv.persToTrans(&(persObj->m_links[icount]),&mcLink, log);
      deposits.emplace_back (mcLink, persObj->m_enDeposits[icount]);
    }

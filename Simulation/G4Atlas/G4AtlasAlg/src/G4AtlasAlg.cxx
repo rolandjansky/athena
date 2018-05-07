@@ -30,6 +30,7 @@
 #include "CxxUtils/make_unique.h"
 #include "MCTruthBase/TruthStrategyManager.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeneratorObjects/HepMcParticleLink.h"
 
 // call_once mutexes
 #include <mutex>
@@ -334,7 +335,7 @@ StatusCode G4AtlasAlg::execute()
   // create copy
   m_outputTruthCollection = CxxUtils::make_unique<McEventCollection>(*m_inputTruthCollection);
   G4Event *inputEvent(nullptr);
-  ATH_CHECK( m_inputConverter->convertHepMCToG4Event(*m_outputTruthCollection, inputEvent, false) );
+  ATH_CHECK( m_inputConverter->convertHepMCToG4Event(*m_outputTruthCollection, inputEvent, HepMcParticleLink::find_enumFromKey(m_outputTruthCollection.name())) );
 
   bool abort = false;
   // Worker run manager

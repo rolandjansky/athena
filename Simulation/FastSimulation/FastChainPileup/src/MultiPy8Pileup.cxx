@@ -67,7 +67,7 @@ StatusCode MultiPy8Pileup::genInitialize() {
   m_evts.reserve( 50 );
 
   ATH_MSG_INFO("Simulate " << m_multbcid.size() << " bunch crossings per event");
-  int ibc=1;
+  int ibc=0;
   for (std::vector<float>::const_iterator itr=m_multbcid.begin();
        itr!=m_multbcid.end();++itr,++ibc) {
     ATH_MSG_INFO("Bunch crossing BCID " << ibc << " mu multiplier " << *itr);
@@ -88,8 +88,8 @@ StatusCode MultiPy8Pileup::callGenerator() {
   if (m_file) m_htgPileupMu->Fill(muval+0.1);
   m_evts.clear();
 
-  // loop over all BCID - starting from 1 for in-time pileup
-  int bcid=1;
+  // loop over all BCID - starting from 0 for in-time pileup
+  int bcid=0;
   for (std::vector<float>::const_iterator bcitr=m_multbcid.begin();
        bcitr!=m_multbcid.end();++bcitr,++bcid) {
     // actual number of minbias in this BCID

@@ -39,6 +39,7 @@
 
 // Pile-up
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
@@ -55,6 +56,7 @@
 #include "InDetPrepRawData/SiClusterContainer.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "HepMC/GenParticle.h"
 
 //Package For New Tracking:
@@ -151,6 +153,7 @@ PixelFastDigitizationTool::PixelFastDigitizationTool(const std::string &type, co
   declareProperty("PixelClusterAmbiguitiesMapName" , m_pixelClusterAmbiguitiesMapName);
   declareProperty("HardScatterSplittingMode"       , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
+  declareProperty("UseMcEventCollectionHelper"    , m_needsMcEventCollHelper = false);
   declareProperty("DigitizationStepper",     m_digitizationStepper);
   declareProperty("DiffusionShiftX", m_DiffusionShiftX);
   declareProperty("DiffusionShiftY", m_DiffusionShiftY);
@@ -264,8 +267,8 @@ StatusCode PixelFastDigitizationTool::processBunchXing(int bunchXing,
   SubEventIterator iEvt(bSubEvents);
   while (iEvt != eSubEvents) {
     StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
-    PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
-    const SiHitCollection* seHitColl(NULL);
+    PileUpTimeEventIndex thisEventIndex(iEvt->time(), iEvt->index(), pileupTypeMapper(iEvt->type()));
+    const SiHitCollection* seHitColl(nullptr);
     if (!seStore.retrieve(seHitColl,m_inputObjectName).isSuccess()) {
       ATH_MSG_ERROR ( "SubEvent SiHitCollection not found in StoreGate " << seStore.name() );
       return StatusCode::FAILURE;
@@ -870,14 +873,18 @@ StatusCode PixelFastDigitizationTool::digitize()
       (void) PixelDetElClusterMap.insert(Pixel_detElement_RIO_map::value_type(waferID, pixelCluster));
  
       
-      if (hit->particleLink().isValid()){
-        const int barcode( hit->particleLink().barcode());
+      HepMcParticleLink trklink(hit->particleLink());
+      if (m_needsMcEventCollHelper) {
+        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(hit.pileupType()) );
+      }
+      if (trklink.isValid()){
+        const int barcode( trklink.barcode());
         if ( barcode !=0 && barcode != m_vetoThisBarcode ) {
-          m_pixPrdTruth->insert(std::make_pair(pixelCluster->identify(), hit->particleLink()));
-          ATH_MSG_DEBUG("Truth map filled with cluster" << pixelCluster << " and link = " << hit->particleLink());
+          m_pixPrdTruth->insert(std::make_pair(pixelCluster->identify(), trklink));
+          ATH_MSG_DEBUG("Truth map filled with cluster" << pixelCluster << " and link = " << trklink);
         }
       }else{
-        ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << pixelCluster << " and link = " << hit->particleLink());
+        ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << pixelCluster << " and link = " << trklink);
       }
       
       //Add all hit that was connected to the cluster

@@ -22,6 +22,7 @@
 
 // Athena
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "SiPropertiesSvc/SiliconProperties.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
@@ -124,6 +125,7 @@ parent)
                     "Tool to retrieve SCT distortions");
     declareProperty("SCT_RadDamageSummarySvc", m_radDamageSvc);
     declareProperty("isOverlay", m_isOverlay=false);
+    declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
 }
 
 // Destructor:
@@ -397,7 +399,8 @@ void SCT_SurfaceChargesGenerator::processFromTool(const SiHit *phit, const
                                                   p_eventTime, const unsigned
                                                   short p_eventId) const {
     ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::processFromTool starts");
-    processSiHit(*phit, inserter, p_eventTime, p_eventId);
+    const int hardScatterPileUpType(0); // Based on enum defined in PileUpTimeEventIndex.h
+    processSiHit(*phit, inserter, p_eventTime, hardScatterPileUpType, p_eventId);
     return;
 }
 
@@ -415,7 +418,7 @@ const {
     float p_eventTime = phit.eventTime();
     unsigned short p_eventId = phit.eventId();
     // processSiHit(*phit,charges,p_eventTime,p_eventId);
-    processSiHit(*phit, inserter, p_eventTime, p_eventId);
+    processSiHit(*phit, inserter, p_eventTime, phit.pileupType(), p_eventId);
     return;
 }
 
@@ -429,8 +432,9 @@ const {
 void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
                                                ISiSurfaceChargesInserter &
                                                inserter, float p_eventTime,
+                                               int puType,
                                                unsigned short
-                                               p_eventId) const {
+                                               /*p_eventId*/) const {
     if (!m_design) {
         ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " <<
             m_design);
@@ -515,13 +519,14 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
 
     // check the status of truth information for this SiHit
     // some Truth information is cut for pile up events
-    HepMcParticleLink trklink = HepMcParticleLink(phit.trackNumber(),
-                                                  p_eventId);
+    HepMcParticleLink trklink(phit.particleLink());
+    if (m_needsMcEventCollHelper)
+       trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(puType) );
     SiCharge::Process hitproc = SiCharge::track;
     if (phit.trackNumber() != 0) {
-        if (!trklink.isValid()) {
-            hitproc = SiCharge::cut_track;
-        }
+      if (!trklink.isValid()) {
+        hitproc = SiCharge::cut_track;
+      }
     }
 
     float dstep = -0.5;

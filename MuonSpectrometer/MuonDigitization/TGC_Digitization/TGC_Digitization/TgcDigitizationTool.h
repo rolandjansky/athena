@@ -88,6 +88,7 @@ private:
   StatusCode digitizeCore();
 
 protected:  
+  bool m_needsMcEventCollHelper;
   PileUpMergeSvc *m_mergeSvc; // Pile up service
   CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;      // Random number service

@@ -10,7 +10,7 @@
 
 MDTSimHit::MDTSimHit() :
   m_MDTid(0xffff),
-  m_globalTime(0.), 
+  m_globalTime(0.),
   m_driftRadius(0.),
   m_partLink(),
   m_stepLength(0.),
@@ -22,13 +22,13 @@ MDTSimHit::MDTSimHit() :
 }
 
 //virtual destructor required by Pool
-MDTSimHit::~MDTSimHit() {} 
+MDTSimHit::~MDTSimHit() {}
 
 
-MDTSimHit::MDTSimHit(HitID id, 
-		     double time, 
-	             double radius, 
-	             const Amg::Vector3D& position)
+MDTSimHit::MDTSimHit(HitID id,
+                     double time,
+                     double radius,
+                     const Amg::Vector3D& position)
     : m_MDTid(id), m_globalTime(time)
     , m_driftRadius(radius)
     , m_localPosition(position)
@@ -39,11 +39,11 @@ MDTSimHit::MDTSimHit(HitID id,
  m_kineticEnergy    = -1.; // energy of the particle
 }
 
-MDTSimHit::MDTSimHit(HitID id, 
-		     double time, 
-	             double radius, 
-	             const Amg::Vector3D& position, 
-		     const int trackNumber)
+MDTSimHit::MDTSimHit(HitID id,
+                     double time,
+                     double radius,
+                     const Amg::Vector3D& position,
+                     const int trackNumber)
     : m_MDTid(id), m_globalTime(time)
     , m_driftRadius(radius)
     , m_localPosition(position)
@@ -56,13 +56,13 @@ MDTSimHit::MDTSimHit(HitID id,
 }
 
 MDTSimHit::MDTSimHit(HitID id,
-		     double time,
-		     double radius, 
-		     const Amg::Vector3D& position, 
-		     const int trackNumber,
-		     const double stepLength,
-		     const double energyDeposit,
-		     const int particleEncoding, 
+                     double time,
+                     double radius,
+                     const Amg::Vector3D& position,
+                     const int trackNumber,
+                     const double stepLength,
+                     const double energyDeposit,
+                     const int particleEncoding,
                       const double kineticEnergy)
     : m_MDTid(id), m_globalTime(time)
     , m_driftRadius(radius)
@@ -75,10 +75,30 @@ MDTSimHit::MDTSimHit(HitID id,
 {
 }
 
+MDTSimHit::MDTSimHit(HitID id,
+                     double time,
+                     double radius,
+                     const Amg::Vector3D& position,
+                     const HepMcParticleLink hmpl,
+                     const double stepLength,
+                     const double energyDeposit,
+                     const int particleEncoding,
+                      const double kineticEnergy)
+    : m_MDTid(id), m_globalTime(time)
+    , m_driftRadius(radius)
+    , m_localPosition(position)
+    , m_partLink(hmpl)
+    , m_stepLength(static_cast<float>(stepLength))
+    , m_energyDeposit(static_cast<float>(energyDeposit))
+    , m_particleEncoding(particleEncoding)
+    , m_kineticEnergy(static_cast<float>(kineticEnergy))
+{
+}
+
 
 // Implementation of member functions
 std::string MDTSimHit::print() const {
-    
+
     std::stringstream ss;
 
     ss << "MDTSimHit:";
@@ -97,4 +117,3 @@ std::string MDTSimHit::print() const {
 
 int MDTSimHit::trackNumber() const
  { return m_partLink.barcode(); }
- 

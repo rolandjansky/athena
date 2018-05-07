@@ -459,7 +459,18 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
    //!< barcode & time from current stack particle
    //  double   energyDeposit = m_siPathToCharge*localDirection.mag()*CLHEP::RandLandau::shoot(m_randomEngine);
    int    barcode       = isp.barcode();
-   
+
+  //HepMcParticleLink from ISFParticle
+  HepMcParticleLink *partLink = nullptr;
+  if (isp.getParticleLink()) {
+    partLink = new HepMcParticleLink(*isp.getParticleLink());
+  }
+  else {
+    ATH_MSG_WARNING("Could not retrieve original HepMcParticleLink from ISFParticle to associate to SiHit, creating one from barcode " << barcode);
+    partLink = new HepMcParticleLink(barcode);
+  }
+  ATH_MSG_DEBUG( "Creating SiHit for HMPL with barcode=" << partLink->barcode() << ", eventIndex=" << partLink->eventIndex() << " and collection enum=" << partLink->getEventCollection() );
+
    // create the silicon hit
    const HepGeom::Point3D<double> localEntryHep( localEntry.x(), localEntry.y(), localEntry.z() );
    const HepGeom::Point3D<double> localExitHep( localExit.x(), localExit.y(), localExit.z() );
@@ -468,7 +479,7 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
 	       localExitHep,
 	       energyDeposit,
 	       time,
-	       barcode,
+	       *partLink,
 	       m_pixIdHelper ? 0 : 1,
 	       m_pixIdHelper ? m_pixIdHelper->barrel_ec(hitId)  : m_sctIdHelper->barrel_ec(hitId),
 	       m_pixIdHelper ? m_pixIdHelper->layer_disk(hitId) : m_sctIdHelper->layer_disk(hitId),

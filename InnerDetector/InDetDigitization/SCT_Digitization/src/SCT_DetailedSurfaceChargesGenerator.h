@@ -52,6 +52,7 @@ class ISiPropertiesSvc;
  * certain key parameters were uninitialised and yet used.
  **/
 
+
 class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public ISCT_SurfaceChargesGenerator {
  public:
 
@@ -82,7 +83,7 @@ private:
   /** create a list of surface charges from a hit */
   virtual void process(const TimedHitPtr<SiHit> & phit, const ISiSurfaceChargesInserter& inserter) const;
   virtual void processFromTool(const SiHit* phit, const ISiSurfaceChargesInserter& inserter, float p_eventTime, unsigned short p_eventId) const;
-  void processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const unsigned short eventID) const;
+  void processSiHit(const SiHit& phit, const ISiSurfaceChargesInserter& inserter, const float eventTime, const int puType, const unsigned short eventID) const;
   
   // some diagnostics methods are needed here too
   float DriftTime(float zhit) const;           //!< calculate drift time perpandicular to the surface for a charge at distance zhit from mid gap
@@ -193,6 +194,7 @@ private:
   //ServiceHandles
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
+  bool m_needsMcEventCollHelper;
 
   const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine

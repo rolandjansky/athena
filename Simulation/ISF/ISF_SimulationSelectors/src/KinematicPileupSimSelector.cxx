@@ -25,7 +25,7 @@ ISF::KinematicPileupSimSelector::KinematicPileupSimSelector(const std::string& t
   declareProperty("MaxMom",               m_cut_maxMom2    , "Maximum Particle Moemntum"          );
   declareProperty("Charge",               m_cut_charge     , "Particle Charge"                    );
   declareProperty("ParticlePDG",          m_cut_pdg        , "Particle PDG Code"                  );
-  declareProperty("PileupBCID",           m_pileupbcid     , "BICDs to be flagged as being pileup");
+  declareProperty("PileupBCID",           m_pileupbcid     , "BICDs of pileup events to select");
 }
 
 /** Destructor **/
@@ -38,9 +38,11 @@ StatusCode  ISF::KinematicPileupSimSelector::initialize()
 {
   ATH_MSG_INFO("Initializing with " << m_pileupbcid.size() <<
                " BCIDs to be accepted");
-  for (std::vector<int>::const_iterator itr=m_pileupbcid.begin();
-       itr!=m_pileupbcid.end();++itr)
-    ATH_MSG_INFO(" - accept BCID " << *itr);
+  if (m_pileupbcid.size())
+	for (std::vector<int>::const_iterator itr=m_pileupbcid.begin();itr!=m_pileupbcid.end();++itr)
+		ATH_MSG_INFO(" - accept BCID " << *itr);
+  else
+	ATH_MSG_INFO(" - accept all BCIDs ");
 
   // compute and store the square of the momentum cuts (faster comparisons)
   if ( !(m_cut_minMom2<0.)) m_cut_minMom2 *= m_cut_minMom2;
@@ -57,13 +59,19 @@ StatusCode  ISF::KinematicPileupSimSelector::finalize()
 
 bool  ISF::KinematicPileupSimSelector::passSelectorCuts(const ISFParticle& particle) const
 {
-  int bcid = particle.getBCID();
+  //Check that the ISFParticle belongs to a pile-up event
+  const HepMcParticleLink* hmpl = particle.getParticleLink();
+  EBC_EVCOLL coll = EBC_MAINEVCOLL;
+  if (hmpl) coll = hmpl->getEventCollection();
+  bool isPileup = (coll!=EBC_MAINEVCOLL);
 
-  // test to see if BCID is in list to accept
-  bool isPileup = std::find(begin(m_pileupbcid), end(m_pileupbcid), bcid) != end(m_pileupbcid);
-
-  if (isPileup)
-      return ISF::KinematicParticleCuts::pass(particle);
+  if (isPileup) {
+          // test to see if BCID is in list to accept
+          int bcid = particle.getBCID();
+          bool acceptBCID = !m_pileupbcid.size() || (std::find(begin(m_pileupbcid), end(m_pileupbcid), bcid) != end(m_pileupbcid));
+          if (acceptBCID)
+              return ISF::KinematicParticleCuts::pass(particle);
+  }
 
   return false;
 }
