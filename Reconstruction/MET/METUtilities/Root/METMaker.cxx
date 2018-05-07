@@ -111,7 +111,7 @@ namespace met {
     declareProperty("CustomForwardJetPt", m_customFwdJetPtCut  = 20e3                );
     declareProperty("CustomJetJvtCut",    m_customJvtCut       = 0.59                );
     declareProperty("CustomJetJvtPtMax",  m_customJvtPtMax     = 60e3                );
-    declareProperty("CustomJetEtaMax",    m_JetEtaMax          = -1.0                );
+    declareProperty("CustomJetEtaMax",    m_JetEtaMax          = 4.5                 );
 
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
@@ -620,8 +620,11 @@ namespace met {
         bool selected = (fabs(jet->eta())<2.4 && jet->pt()>m_CenJetPtCut) || (fabs(jet->eta())>=2.4 && jet->pt()>m_FwdJetPtCut );//jjj
         bool JVT_reject(false);
 	bool isMuFSRJet(false);
-
+	
+	// Apply a cut on the maximum jet eta. This restricts jets to those with calibration. Excluding more forward jets was found to have a minimal impact on the MET in Zee events
 	if(m_JetEtaMax>0.0 && fabs(jet->eta())>m_JetEtaMax) JVT_reject=true;
+
+	// Apply the JVT
         if(doJetJVT) {
 	  if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<2.4) {
 	    float jvt=-100.0;	
