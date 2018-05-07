@@ -26,6 +26,8 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
 #include "CaloIdentifier/TileID.h"
+#include "CaloIdentifier/HGTD_ID.h"
+
 #include "IdDictParser/IdDictParser.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -69,20 +71,20 @@ public:
 
   static CaloHelper* GetInstance(void)
   {
-    if (!s_instance) {
-      s_instance = new CaloHelper();
-      s_instance->Initialize();
+    if (!instance) {
+      instance = new CaloHelper();
+      instance->Initialize();
     }
-    ++s_refCount;
-    return s_instance;
+    ++refCount;
+      return instance;
   }
 
 
   static void DeleteInstance(void)
   {
-    --s_refCount;
-    if (s_refCount == 0) delete s_instance;
-    s_instance = NULL;
+    --refCount;
+    if (refCount == 0) delete instance;
+    instance = NULL;
   }
 
 
@@ -93,6 +95,7 @@ public:
     if (m_fcalID) delete m_fcalID;
     if (m_minifcalID) delete m_minifcalID;
     if (m_tileID) delete m_tileID;
+    if (m_hgtdID) delete m_hgtdID;
     if (m_parser) delete m_parser;
 
     std::map<Identifier, CaloDetDescriptor*>::iterator it = m_ddmap.begin();
@@ -128,6 +131,7 @@ private:
     , m_fcalID(0)
     , m_minifcalID(0)
     , m_tileID(0)
+    , m_hgtdID(0)
     , m_parser(0)
     , m_caloID(0)
   {
@@ -141,8 +145,9 @@ private:
     m_fcalID = new LArFCAL_ID;
     m_minifcalID = new LArMiniFCAL_ID;
     m_tileID = new TileID;
+    m_hgtdID = new HGTD_ID;
 
-    m_parser = new IdDictParser;
+    IdDictParser* m_parser = new IdDictParser;
     m_parser->register_external_entity("LArCalorimeter", "IdDictLArCalorimeter.xml");
     IdDictMgr& idd = m_parser->parse("IdDictParser/ATLAS_IDS.xml");
     m_emID->set_do_neighbours(false);
@@ -154,26 +159,29 @@ private:
     m_minifcalID->initialize_from_dictionary(idd);
     m_tileID->set_do_neighbours(false);
     m_tileID->initialize_from_dictionary(idd);
+    m_hgtdID->initialize_from_dictionary(idd);
 
-    m_caloID = new CaloCell_ID(m_emID, m_hecID, m_fcalID, m_minifcalID, m_tileID);
+    //m_caloID = new CaloCell_ID(m_emID, m_hecID, m_fcalID, m_minifcalID, m_tileID);
+    m_caloID = new CaloCell_ID(m_emID, m_hecID, m_fcalID, m_minifcalID, m_tileID, m_hgtdID);
     m_caloID->initialize_from_dictionary(idd);
   }
 
-  static CaloHelper* s_instance;
+  static CaloHelper* instance;
 
   LArEM_ID* m_emID;
   LArHEC_ID* m_hecID;
   LArFCAL_ID* m_fcalID;
   LArMiniFCAL_ID* m_minifcalID;
   TileID* m_tileID;
+  HGTD_ID* m_hgtdID;
   IdDictParser* m_parser;
   CaloCell_ID* m_caloID;
   std::map<Identifier, CaloDetDescriptor*> m_ddmap;
-  static int s_refCount;
+  static int refCount;
 };
 
-CaloHelper* CaloHelper::s_instance = 0;
-int CaloHelper::s_refCount = 0;
+CaloHelper* CaloHelper::instance = 0;
+int CaloHelper::refCount = 0;
 
 
 /** Class to test the "CaloCellFastCopyTool.h" class
@@ -185,7 +193,8 @@ class CaloCellFastCopyToolTest
 public:
   
   CaloCellFastCopyToolTest()
-    : m_evtStore("StoreGateSvc","")
+    : m_svcLoc(0)
+    , m_evtStore("StoreGateSvc","")
     , m_detStore("DetectorStore","")
     , m_alg(0)
     , m_caloHelper(0)
@@ -832,6 +841,7 @@ private:
   }
 
 
+  ISvcLocator* m_svcLoc;
   ServiceHandle<StoreGateSvc> m_evtStore;
   ServiceHandle<StoreGateSvc> m_detStore;
   DummyAlgorithm* m_alg;
