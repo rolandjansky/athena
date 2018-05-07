@@ -27,15 +27,10 @@
     list of elemental TP converters by invoking addMainTPConverter() 
 */
 
-/*
-MN: TODO - seems that inheritance from the main converter and also
-having it as a data member is redundant - fix?
-*/
-    
 template< class MAIN_CNV, class TL_PERS >
 class TopLevelTPConverter
    : public TopLevelTPCnvBaseP< TL_PERS >
-   , public TPConverterBase< typename MAIN_CNV::Trans_t, TL_PERS >
+   , public ITPCnvBase
 {
 public:
   typedef typename MAIN_CNV::Trans_t	TRANS;
@@ -120,37 +115,33 @@ public:
   virtual unsigned short	getConverterID() { return 0; }
 
 
- // method implementations allowing nesting top level objects
- //- -----------------------------------------------
+  //- --------------------------------------------------------------------------
+  // implementation of ITPCnvBase interface
 
-  /// probably obsolete (wrong?) and pending removal
-  virtual TPObjRef virt_toPersistent( const TRANS *trans, MsgStream &log ) {
-     m_mainConverter.virt_toPersistent( trans, log );
-     return TPObjRef(this->m_pStorageTID, 0);  // 0 -> no index (not a vector)
+  /// @copydoc ITPCnvBase::transientTInfo()
+  virtual const std::type_info& transientTInfo() const { return typeid(TRANS); }
+
+  /// @copydoc ITPCnvBase::persistentTInfo()
+  virtual const std::type_info& persistentTInfo() const { return typeid(PERS); }
+
+
+  /// @copydoc ITPCnvBase::persToTransUntyped()
+  virtual void persToTransUntyped(const void* pers, void* trans, MsgStream& log)  {
+     persToTrans( reinterpret_cast<const PERS*>(pers), reinterpret_cast<TRANS*>(trans), log );
   }
 
-  /// probably obsolete and pending removal
-  virtual TRANS* virt_createTransFromPStore( unsigned index, MsgStream &log ) {
-     return m_mainConverter.virt_createTransFromPStore( index, log );
+  /// @copydoc ITPCnvBase::transToPersUntyped()
+  virtual void transToPersUntyped(const void* trans, void* pers, MsgStream& log)  {
+     transToPers( reinterpret_cast<const TRANS*>(trans),  reinterpret_cast<PERS*>(pers), log );
   }
 
-  /// probably obsolete and pending removal
-  virtual void	pstoreToTrans( unsigned index, TRANS *trans, MsgStream &log ) {
-     m_mainConverter.pstoreToTrans( index, trans, log );
-  }
-
-  virtual void persToTrans (const TL_PERS* pers,
-                            TRANS* trans,
-                            MsgStream& msg)
-  {
+  // ----------------------  methods used by T_TPCnv<> converters
+  virtual void persToTrans (const PERS* pers, TRANS* trans, MsgStream& msg)  {
     setPStorage (const_cast<TL_PERS*> (pers));
     m_mainConverter.pstoreToTrans (0, trans, msg);
   }
   
-  virtual void transToPers(const TRANS* trans,
-                           TL_PERS* pers,
-                           MsgStream& msg)
-  {
+  virtual void transToPers(const TRANS* trans, PERS* pers, MsgStream& msg)  {
     this->setTLPersObject( pers );
     m_mainConverter.virt_toPersistent(trans, msg);
     this->clearTLPersObject();
@@ -162,3 +153,4 @@ protected:
 };
 
 #endif
+

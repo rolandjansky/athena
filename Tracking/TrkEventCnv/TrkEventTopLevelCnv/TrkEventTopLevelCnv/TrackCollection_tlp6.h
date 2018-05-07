@@ -61,12 +61,17 @@ namespace Trk
   class TrackCollection_tlp6
   {
    public:
+    TrackCollection_tlp6() { }
+    
     ~TrackCollection_tlp6() {
        delete m_inDetTrackExt; 
        delete m_muonMeasurementsExt;
        delete m_muonCaloEnergiesExt;
     }
-    
+
+    TrackCollection_tlp6 (const TrackCollection_tlp6&) = delete;
+    TrackCollection_tlp6& operator= (const TrackCollection_tlp6&) = delete; 
+
      std::vector< Trk::TrackCollection_p1 >             m_trackCollections;
      std::vector< Trk::Track_p4 >                       m_tracks;
      std::vector< Trk::TrackStateOnSurface_p3 >         m_trackStates;	

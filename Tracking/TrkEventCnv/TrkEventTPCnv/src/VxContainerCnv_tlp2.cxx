@@ -58,22 +58,8 @@ void VxContainerCnv_tlp2::setPStorage( Trk::VxContainer_tlp2 *storage )
 
 T_TPCnv<VxContainer, Trk::VxContainer_tlp2 >::T_TPCnv(){
   TPObjRef::typeID_t tid (m_MVFVxContainerCnv_tlp1.getConverterID(), 0);
-  m_MVFVxContainerCnv_tlp1.setTopConverter (this, tid);
-  addExtTPConverterForReading (&m_MVFVxContainerCnv_tlp1);
+  // Attention Scott:
+  //  m_MVFVxContainerCnv_tlp1.setTopConverter (this, tid);
+  //  addExtTPConverterForReading (&m_MVFVxContainerCnv_tlp1);
   m_MVFVxContainerCnv_tlp1.addTPConvertersTo (this);
 }
-
-
-void T_TPCnv<VxContainer, Trk::VxContainer_tlp2 >::persToTrans (const Trk::VxContainer_tlp2* pers, VxContainer* trans, MsgStream& msg){
-  setPStorage (const_cast<Trk::VxContainer_tlp2*> (pers));
-  m_mainConverter.pstoreToTrans (0, trans, msg);
-}
-
-
-void T_TPCnv<VxContainer, Trk::VxContainer_tlp2 >::transToPers (const VxContainer* trans, Trk::VxContainer_tlp2* pers, MsgStream& msg)
-{
-  this->setTLPersObject( pers );
-  m_mainConverter.virt_toPersistent(trans, msg);
-  this->clearTLPersObject();
-}
-

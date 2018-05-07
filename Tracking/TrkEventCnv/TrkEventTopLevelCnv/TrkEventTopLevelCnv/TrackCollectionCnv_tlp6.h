@@ -6,7 +6,7 @@
 #define TRACK_COLLECTION_CNV_TLP6_TRK_H
 
 
-#include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPConverter.h"
+#include "TPTools/TopLevelTPConverter.h"
 
 #include "TrackCollection_tlp6.h"
 
@@ -37,7 +37,7 @@
 #include "RecTPCnv/MuonCaloEnergyContainerCnv_tlp1.h"
 
 
-typedef AthenaPoolTopLevelTPConverter< TrackCollectionCnv_p4, Trk::TrackCollection_tlp6 > BaseTrackCollectionCnv;
+typedef TopLevelTPConverter< TrackCollectionCnv_p4, Trk::TrackCollection_tlp6 > BaseTrackCollectionCnv;
 
 class TrackCollectionCnv_tlp6 : public BaseTrackCollectionCnv
 {

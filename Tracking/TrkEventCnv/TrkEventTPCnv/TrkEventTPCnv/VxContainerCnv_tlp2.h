@@ -112,18 +112,11 @@ class VxContainerCnv_tlp2 : public AthenaPoolTopLevelTPConverter< VxContainerCnv
 #include "TrkEventTPCnv/MVFVxContainerCnv_tlp1.h"
 
 template <> class T_TPCnv<VxContainer, Trk::VxContainer_tlp2 > : public VxContainerCnv_tlp2 {
-
 public:
   T_TPCnv();
 
-  // ??? Maybe this should be moved up to AthenaPoolTopLevelTPConverter...
-  virtual void persToTrans (const Trk::VxContainer_tlp2* pers, VxContainer* trans, MsgStream& msg);
-
-  void transToPers (const VxContainer* trans, Trk::VxContainer_tlp2* pers, MsgStream& msg);
-
 private:
   MVFVxContainerCnv_tlp1 m_MVFVxContainerCnv_tlp1;
-  
 };
 
 

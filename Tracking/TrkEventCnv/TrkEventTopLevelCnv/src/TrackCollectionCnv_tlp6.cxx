@@ -105,13 +105,9 @@ BaseTrackCollectionCnv::PERS* TrackCollectionCnv_tlp6::createPersistent(const TR
    PERS *pers = BaseTrackCollectionCnv::createPersistent(transObj, log);
 
    // get extending objects (nullptr if there was no extending data types)
-   pers->m_muonMeasurementsExt = m_muonMeasurementsCnv.getTLPersObject();
-   pers->m_inDetTrackExt       = m_inDetTrackCnv.getTLPersObject();
-   pers->m_muonCaloEnergiesExt = m_muonCaloEnergiesCnv.getTLPersObject();
+   pers->m_muonMeasurementsExt = m_muonMeasurementsCnv.releaseTLPersObject();
+   pers->m_inDetTrackExt       = m_inDetTrackCnv.releaseTLPersObject();
+   pers->m_muonCaloEnergiesExt = m_muonCaloEnergiesCnv.releaseTLPersObject();
 
-   // mark them as owned by this TLP object, so their own converters do not delete them
-   m_muonMeasurementsCnv.clearTLPersObject();
-   m_inDetTrackCnv      .clearTLPersObject();
-   m_muonCaloEnergiesCnv.clearTLPersObject();
    return pers;
 }
