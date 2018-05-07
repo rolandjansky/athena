@@ -537,7 +537,7 @@ CorrectionCode BTaggingSelectionTool::getCutValue(double pT, double & cutval) co
 
    // flat cut for out of range pTs
    if (pT>m_maxRangePt)
-     pT = m_maxRangePt; // 500 MeV below the maximum authorized range
+     pT = m_maxRangePt;
 
    if (m_spline != nullptr && m_constcut == nullptr) {
      pT = pT/1000.0;
