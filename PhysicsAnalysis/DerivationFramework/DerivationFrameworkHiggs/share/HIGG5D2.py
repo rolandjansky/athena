@@ -430,6 +430,7 @@ if DerivationFrameworkIsMonteCarlo :
 # AntiKt4PV0TrackJets are needed in conjunction with AntiKt10LCTopoJets, but the can be removed from the
 # output
 HIGG5Common.addJetOutputs(HIGG5D2SlimmingHelper,["HIGG5D2Jets"],slimmed_content,['AntiKt4PV0TrackJets'])
+addOriginCorrectedClusters(HIGG5D2SlimmingHelper, writeLC=True, writeEM=False)
 
 HIGG5D2SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG5D2SlimmingHelper.IncludeEGammaTriggerContent = True

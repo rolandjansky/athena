@@ -26,7 +26,8 @@ def getHIGG5Common() :
         "BTagging_AntiKt4EMTopo.MV2cl100_discriminant",
         "BTagging_AntiKt4EMPFlow.MV2cl100_discriminant",
         "CaloCalTopoClusters.CENTER_MAG.calE.calEta.calM.calPhi.calPt.e_sampl.etaCalo.eta_sampl.phiCalo.phi_sampl.rawE.rawEta.rawM.rawPhi",
-        "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity"
+        "TauChargedParticleFlowObjects.bdtPi0Score.e.eta.m.phi.pt.rapidity",
+        "TrackCaloClustersCombinedAndNeutral.pt.eta.phi.m.taste.trackParticleLink.caloClusterLinks"
         ]
 
 def getHIGG5CommonTruthContainers() :
