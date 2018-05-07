@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "egammaValidation/ParticlePlots.h"
+#include "ParticlePlots.h"
 #include <typeinfo>
 
 namespace egammaMonitoring {

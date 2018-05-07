@@ -25,7 +25,7 @@ atlas_add_component (egammmaValidation
 	src/components/*.cxx 
 	INCLUDE_DIRS 
 	LINK_LIBRARIES  GaudiKernel AthenaBaseComps AsgTools xAODEventInfo 
-	xAODEgamma xAODTracking TrkValHistUtils AsgAnalysisInterfaces)
+	xAODEgamma xAODTracking TrkValHistUtils AsgAnalysisInterfaces )
 
 # Install JO/python files from the package:
 atlas_install_joboptions( share/*.py )

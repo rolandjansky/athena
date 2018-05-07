@@ -2,7 +2,7 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "egammaValidation/EffRecPlots.h"
+#include "EffRecPlots.h"
 
 namespace egammaMonitoring {
 

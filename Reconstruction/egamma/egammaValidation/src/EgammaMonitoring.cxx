@@ -2,7 +2,7 @@
  * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 
-#include "egammaValidation/EgammaMonitoring.h"
+#include "EgammaMonitoring.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
