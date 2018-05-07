@@ -16,14 +16,14 @@ class DiLep_FilterFlags(JobProperty):
     allowedTypes   = ['bool']
     StoredValue    = True
     
-    SiPhTriggers   = ["HLT_g140_loose", "HLT_g200_loose", "HLT_g200_loose_L1EM24VHIM"]
-    SiPhTriggers  += apitriggers.getDiLepSiPhTriggers() ## TriggerAPI
-    DiPhTriggers   = ["HLT_2g50_loose_L12EM20VH", "HLT_2g60_loose_L12EM20VH"]
-    DiPhTriggers  += apitriggers.getDiLepDiPhTriggers() ## TriggerAPI
-    SiMuTriggers   = ["HLT_mu80_msonly_3layersEC"] # this has changed !!
-    # add relevant TriggerAPI
-    SiMuBaTriggers = ["HLT_mu60_0eta105_msonly"] # this is new !!
-    #SiMuTriggers += apitriggers.getDiLepSiMuTriggers() ## TriggerAPI
+    SiPhTriggers    = ["HLT_g140_loose", "HLT_g200_loose", "HLT_g200_loose_L1EM24VHIM"]
+    SiPhTriggers   += apitriggers.getDiLepSiPhTriggers() ## TriggerAPI
+    DiPhTriggers    = ["HLT_2g50_loose_L12EM20VH", "HLT_2g60_loose_L12EM20VH"]
+    DiPhTriggers   += apitriggers.getDiLepDiPhTriggers() ## TriggerAPI
+    SiMuTriggers    = ["HLT_mu80_msonly_3layersEC"]
+    SiMuTriggers   += apitriggers.getDiLepSiMuTriggers() ## TriggerAPI
+    SiMuBaTriggers  = ["HLT_mu60_0eta105_msonly"]
+    SiMuBaTriggers += apitriggers.getDiLepSiMuBaTriggers() ## TriggerAPI
     
     ElEtaMax       = 2.5
     PhEtaMax       = 2.5

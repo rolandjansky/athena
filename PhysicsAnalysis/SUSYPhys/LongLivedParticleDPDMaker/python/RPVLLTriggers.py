@@ -92,8 +92,14 @@ class RPVLLTriggers:
     # DiLep:SiMu
     def getDiLepSiMuTriggers(self):
         #DiLep_FilterFlags.SiMuTriggers
-        DiLepSiMuList = getTriggerList( TriggerType.mu_single, "msonly", ["3layersEC"] )
+        DiLepSiMuList = getTriggerList( TriggerType.mu_single, "msonly_3layersEC" )
         return DiLepSiMuList
+    
+    # DiLep:SiMuBa
+    def getDiLepSiMuBaTriggers(self):
+        #DiLep_FilterFlags.SiMuBaTriggers
+        DiLepSiMuBaList = getTriggerList( TriggerType.mu_single, "msonly", ["3layersEC"] )
+        return DiLepSiMuBaList
 
     # Emerging
     def getEmergingTriggers(self):
@@ -133,7 +139,8 @@ class RPVLLTriggers:
     # KinkedTrack:JetMet
     def getKinkedTrackJetMetTriggers(self):
         #KinkedTrack_singleJetMetFilterFlags.triggerNames
-        KinkedTrackJetMetList = getTriggerList( TriggerType.xe, "", ["mht_xe", "pufit_xe"] )
+        #KinkedTrackJetMetList = getTriggerList( TriggerType.xe, "", ["mht_xe", "pufit_xe"] )
+        KinkedTrackJetMetList = getTriggerList( TriggerType.xe, "" )
         return KinkedTrackJetMetList
 
     # KinkedTrack:Zee

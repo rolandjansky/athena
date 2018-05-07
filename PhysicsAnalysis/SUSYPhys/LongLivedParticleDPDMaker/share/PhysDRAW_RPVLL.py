@@ -59,6 +59,9 @@ if primRPVLLDESDM.doDiLep():
     print "DI-LEP SINGLE-MUON TRIGGERS:"
     print primRPVLLDESDM.DiLep_FilterFlags.SiMuTriggers
     print ""
+    print "DI-LEP SINGLE-MUON BARREL TRIGGERS:"
+    print primRPVLLDESDM.DiLep_FilterFlags.SiMuBaTriggers
+    print ""
     ## ----------------------------- ##
     pass
 
