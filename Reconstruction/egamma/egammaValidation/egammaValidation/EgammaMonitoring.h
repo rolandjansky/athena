@@ -40,8 +40,6 @@
 #include <vector>
 #include <cmath>
 
-using namespace std;
-
 class EgammaMonitoring : public AthAlgorithm
 {
  public:
