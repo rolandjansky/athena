@@ -111,10 +111,12 @@ namespace met {
     declareProperty("CustomForwardJetPt", m_customFwdJetPtCut  = 20e3                );
     declareProperty("CustomJetJvtCut",    m_customJvtCut       = 0.59                );
     declareProperty("CustomJetJvtPtMax",  m_customJvtPtMax     = 60e3                );
+    declareProperty("CustomJetEtaMax",    m_JetEtaMax          = 4.5                 );
 
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
     declareProperty("GreedyPhotons",      m_greedyPhotons      = false               );
+    declareProperty("VeryGreedyPhotons",  m_veryGreedyPhotons  = false           );
     
     declareProperty("UseGhostMuons",      m_useGhostMuons      = false               );
     declareProperty("DoRemoveMuonJets",   m_doRemoveMuonJets   = true                );
@@ -122,6 +124,14 @@ namespace met {
     
     declareProperty("DoRemoveElecTrks",   m_doRemoveElecTrks   = true                );
     declareProperty("DoRemoveElecTrksEM", m_doRemoveElecTrksEM = false               );    
+
+    // muon overlap variables
+    declareProperty("JetTrkNMuOlap",      m_jetTrkNMuOlap = 5                        );    
+    declareProperty("JetWidthMuOlap",     m_jetWidthMuOlap = 0.1                     );    
+    declareProperty("JetPsEMuOlap",       m_jetPsEMuOlap = 2.5e3                     );    
+    declareProperty("JetEmfMuOlap",       m_jetEmfMuOlap = 0.9                       );    
+    declareProperty("JetTrkPtMuPt",       m_jetTrkPtMuPt = 0.8                       );    
+    declareProperty("muIDPTJetPtRatioMuOlap", m_muIDPTJetPtRatioMuOlap = 2.0         );    
 
     declareProperty("TrackSelectorTool",  m_trkseltool                               );
   }
@@ -138,7 +148,7 @@ namespace met {
     ATH_MSG_INFO ("Initializing " << name() << "...");
     
     //default jet selection i.e. pre-recommendation
-    ATH_MSG_VERBOSE("Use jet selection criterion: " << m_jetSelection);
+    ATH_MSG_INFO("Use jet selection criterion: " << m_jetSelection << " PFlow: " <<m_doPFlow);
     if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
@@ -321,6 +331,18 @@ namespace met {
 	    std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
 	    for (size_t indi = 0; indi < ind.size(); indi++) {
 	      if (allObjects[ind[indi]] && allObjects[ind[indi]]->type()==xAOD::Type::Electron) assocs[i]->setObjSelectionFlag(allObjects[ind[indi]],true);
+	    }
+	  }
+	}
+	// reinstate greedy photon option for testing
+	if (selected && obj->type() == xAOD::Type::Photon && m_veryGreedyPhotons) {
+	  //std::cout << "photon! " << std::endl;
+	  for (size_t i = 0; i < assocs.size(); i++) {
+	    std::vector<size_t> ind = assocs[i]->overlapIndices(orig);
+	    std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
+	    for (size_t indi = 0; indi < ind.size(); indi++) {
+	      //std::cout << "associated object: " << allObjects[ind[indi]]->type() << std::endl;
+	      if (allObjects[ind[indi]] && (allObjects[ind[indi]]->type()==xAOD::Type::Electron ||  allObjects[ind[indi]]->type()==xAOD::Type::Jet)) assocs[i]->setObjSelectionFlag(allObjects[ind[indi]],true);
 	    }
 	  }
 	}
@@ -599,12 +621,16 @@ namespace met {
         bool JVT_reject(false);
 	bool isMuFSRJet(false);
 	
+	// Apply a cut on the maximum jet eta. This restricts jets to those with calibration. Excluding more forward jets was found to have a minimal impact on the MET in Zee events
+	if(m_JetEtaMax>0.0 && fabs(jet->eta())>m_JetEtaMax) JVT_reject=true;
+
+	// Apply the JVT
         if(doJetJVT) {
 	  if(jet->pt()<m_JvtPtMax && fabs(jet->eta())<2.4) {
-	    float jvt;
+	    float jvt=-100.0;	
 	    bool gotJVT = jet->getAttribute<float>(m_jetJvtMomentName,jvt);
 	    if(gotJVT) {
-	      JVT_reject = jvt<m_JvtCut;
+	      JVT_reject = (jvt<m_JvtCut);
 	      ATH_MSG_VERBOSE("Jet " << (JVT_reject ? "fails" : "passes") <<" JVT selection");
 	    } else {
 	      JVT_reject = true;
@@ -612,7 +638,13 @@ namespace met {
 	    }
 	  }
         }
-        if (m_extraJetRejection && jet->auxdata<char>(m_jetRejectionDec)==0) JVT_reject = true;
+	//std::cout << "JVT_reject:" << JVT_reject << " " << (jet->auxdata<char>("passJVT40T60M120L")==0) << " " << (assoc && !assoc->isMisc())
+	//	  << " m_jetRejectionDec:" << m_jetRejectionDec << " pt: " << jet->pt() << " eta:" << jet->eta() << " jvt:"<< jvt << " doJetJVT:" << doJetJVT << " gotIt:"<< gotJVT 
+	//	  << " m_JvtCut:"<<m_JvtCut << std::endl;
+        if (m_extraJetRejection && jet->auxdata<char>(m_jetRejectionDec)==0){
+	  //std::cout << "JVT_reject:" << JVT_reject << " " << (jet->auxdata<char>("passJVT40T60M120L")==0) << " m_jetRejectionDec:" << m_jetRejectionDec << std::endl;
+	  JVT_reject = true;
+	}
         bool hardJet(false);
         MissingETBase::Types::constvec_t calvec = assoc->overlapCalVec();
         bool caloverlap = false;
@@ -624,6 +656,12 @@ namespace met {
 	      ATH_MSG_VERBOSE("  Jet overlaps with " << object->type() << " " << object->index() 
 			   << " with pt " << object->pt() << ", phi " << object->phi() );
 	    }
+
+	    // if there is calorimeter overlap with a photon, then turn off the tracks Greedy
+	    if (object && object->type() == xAOD::Type::Photon && m_veryGreedyPhotons) {
+	      hardJet=true; // turning on the overlapping jet
+	    }// end greedy	    
+
 	  }
 	}
 
@@ -740,7 +778,9 @@ namespace met {
 	      float jet_trk_N = acc_trkN.isAvailable(*jet) && this->getPV() ? acc_trkN(*jet)[this->getPV()->index()] : 0.;
 	      ATH_MSG_VERBOSE("Muon has ID pt " << mu_id_pt);
 	      ATH_MSG_VERBOSE("Jet has pt " << jet->pt() << ", trk sumpt " << jet_trk_sumpt << ", trk N " << jet_trk_N);
-	      bool jet_from_muon = mu_id_pt>1e-9 && jet_trk_sumpt>1e-9 && (jet->pt()/mu_id_pt < 2 && mu_id_pt/jet_trk_sumpt>0.8) && jet_trk_N<5;
+	    //m_jetTrkNMuOlap , m_jetWidthMuOlap, m_jetPsEMuOlap, m_jetEmfMuOlap, m_muIDPTJetPtRatioMuOlap
+
+	      bool jet_from_muon = mu_id_pt>1e-9 && jet_trk_sumpt>1e-9 && (jet->pt()/mu_id_pt < m_muIDPTJetPtRatioMuOlap && mu_id_pt/jet_trk_sumpt>m_jetTrkPtMuPt) && jet_trk_N<m_jetTrkNMuOlap;
 	      if(jet_from_muon) {
 		ATH_MSG_VERBOSE("Jet is from muon -- remove.");
 		JVT_reject = true;
@@ -756,7 +796,7 @@ namespace met {
 		jet_trk_sumpt+=mu_id_pt;
 	      float jet_trk_N = acc_trkN.isAvailable(*jet) && this->getPV() ? acc_trkN(*jet)[this->getPV()->index()] : 0.;
 	      float jet_psE = acc_sampleE(*jet)[0] + acc_sampleE(*jet)[4];
-	      bool jet_from_muon = jet_trk_sumpt>1e-9 && jet_trk_N<3 && mu_id_pt / jet_trk_sumpt > 0.8 && acc_emf(*jet)>0.9 && acc_width(*jet)<0.1 && jet_psE>2500;
+	      bool jet_from_muon = jet_trk_sumpt>1e-9 && jet_trk_N<3 && mu_id_pt / jet_trk_sumpt > m_jetTrkPtMuPt && acc_emf(*jet)>m_jetEmfMuOlap && acc_width(*jet)<m_jetWidthMuOlap && jet_psE>m_jetPsEMuOlap;
 	      ATH_MSG_VERBOSE("Muon has ID pt " << mu_id_pt);
 	      ATH_MSG_VERBOSE("Jet has trk sumpt " << jet_trk_sumpt << ", trk N " << jet_trk_N << ", PS E " << jet_psE << ", width " << acc_width(*jet) << ", emfrac " << acc_emf(*jet));
 
