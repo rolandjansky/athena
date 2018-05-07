@@ -7,9 +7,8 @@ atlas_subdir( InDetLowBetaInfo )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           GaudiKernel )
 
 # External dependencies:
@@ -20,12 +19,12 @@ atlas_add_library( InDetLowBetaInfo
                    src/*.cxx
                    PUBLIC_HEADERS InDetLowBetaInfo
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools GaudiKernel
+                   LINK_LIBRARIES AthContainers GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( InDetLowBetaInfoDict
                       InDetLowBetaInfo/InDetLowBetaDict.h
                       InDetLowBetaInfo/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools GaudiKernel InDetLowBetaInfo )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers GaudiKernel InDetLowBetaInfo )
 
