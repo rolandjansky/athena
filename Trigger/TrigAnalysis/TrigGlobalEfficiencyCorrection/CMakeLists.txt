@@ -23,6 +23,9 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATCore
    Tools/PathResolver
    Trigger/TrigAnalysis/TriggerMatchingTool
+   #Trigger/TrigEvent/TrigDecisionInterface
+   Trigger/TrigAnalysis/TrigDecisionTool
+   Trigger/TrigConfiguration/TrigConfInterfaces
    ${athena_subdirs}
 )
 
@@ -66,6 +69,12 @@ TrigGlobEffCorrExample4 TrigGlobEffCorrExample5a TrigGlobEffCorrExample5b)
 	  LINK_LIBRARIES TrigGlobalEfficiencyCorrectionLib ${pool_lib}
    )
 endforeach()
+
+atlas_add_executable( TrigGlobEffCorrExample6
+   SOURCES examples/TrigGlobEffCorrExample6.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES TrigGlobalEfficiencyCorrectionLib ${pool_lib}
+)
 
 atlas_add_executable( TrigGlobEffCorrValidation
    SOURCES util/TrigGlobEffCorrValidation.cxx
