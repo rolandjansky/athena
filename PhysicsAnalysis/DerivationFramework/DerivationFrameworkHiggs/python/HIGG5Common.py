@@ -16,12 +16,16 @@ def getHIGG5Common() :
             ".-constituentLinks.-constituentWeight.-ConstituentScale"),
         ("AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet"
             ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"),
+        ("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+            ".PlanarFlow.Angularity.Aplanarity.FoxWolfram0.FoxWolfram2.KtDR.ZCut12"),
         ("AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.constituentLinks"
             ".JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
             ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent"
             ".PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"
             ".NumTrkPt1000.NumTrkPt500.TrackWidthPt1000.TrackWidthPt500.SumPtTrkPt1000.SumPtTrkPt500"
             ".GhostAntiKt2TrackJet.GhostTrack"),
+        ("AntiKt10TrackCaloClusterJets"
+         ".NumTrkPt1000.NumTrkPt500.SumPtTrkPt1000.SumPtTrkPt500.TrackWidthPt1000.TrackWidthP"),
         "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant",
         "BTagging_AntiKt4EMTopo.MV2cl100_discriminant",
         "BTagging_AntiKt4EMPFlow.MV2cl100_discriminant",
