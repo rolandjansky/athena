@@ -199,6 +199,19 @@ else:
         BPHY8cf.McstSagittaCorr           = False
         BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
         BPHY8cf.McstDoSagittaMCDistortion = False
+#
+# data 18
+#
+# w.w., 2018-05-05
+# These are the data17 settings for now.  Just to make ART happy.
+#
+    if BPHY8cf.projectTag.startswith("data18"):
+        BPHY8cf.McstYear                  = "Data17";
+        BPHY8cf.McstRelease               = "Recs2017_08_02"
+        BPHY8cf.McstStatComb              = False
+        BPHY8cf.McstSagittaCorr           = False
+        BPHY8cf.McstSagittaRelease        = "sagittaBiasDataAll_25_07_17"
+        BPHY8cf.McstDoSagittaMCDistortion = False
 
 # wide mumu mass range?
 BPHY8cf.doUseWideMuMuMassRange = False
@@ -1611,6 +1624,9 @@ BPHY8_SmartCollections += [BPHY8cf.PVContName]
 ## BPHY8_ExtraVariables   += ["%s.covariance" % BPHY8cf.PVContName
 ##                            + ".chiSquared.numberDoF.sumPt2"
 ##                         + ".trackParticleLinks.trackWeights.neutralWeights"]
+#
+# 2018-05-04: The covariance matrix is occasionally used by the NtupleMaker
+BPHY8_ExtraVariables   += ["%s.covariance" % BPHY8cf.PVContName ]
 
 for BPHY8_reco in BPHY8_recoList:
     BPHY8_StaticContent \
