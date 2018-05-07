@@ -36,6 +36,11 @@ def BCM_DigitizationTool(name="BCM_DigitizationTool",**kwargs):
         kwargs.setdefault("FirstXing", BCM_FirstXing() )
         kwargs.setdefault("LastXing",  BCM_LastXing()  ) 
 
+    if 'MC16Merge' in digitizationFlags.experimentalDigi():
+        kwargs.setdefault("UseMcEventCollectionHelper",True)
+    else:
+        kwargs.setdefault("UseMcEventCollectionHelper",False)
+
     from AthenaCommon import CfgMgr
     return CfgMgr.BCM_DigitizationTool(name,**kwargs)
 

@@ -696,6 +696,9 @@ bool iFatras::HadIntProcessorParametric::doHadronicInteraction(double time, cons
  	        if (!ispVec[ic]->getTruthBinding()) {
  	                ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
  	        }
+                if (!ispVec[ic]->getParticleLink()) {
+                ispVec[ic]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+                }
  	        m_particleBroker->push(ispVec[ic], parent);
        }
   }
@@ -734,6 +737,9 @@ bool iFatras::HadIntProcessorParametric::recordHadState(double time, double p,
 	        if (!ispVec[ic]->getTruthBinding()) {
 	                ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
 	        }
+                if (!ispVec[ic]->getParticleLink()) {
+                  ispVec[ic]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+                }
 	        m_particleBroker->push(ispVec[ic], parent);
         }  
 }

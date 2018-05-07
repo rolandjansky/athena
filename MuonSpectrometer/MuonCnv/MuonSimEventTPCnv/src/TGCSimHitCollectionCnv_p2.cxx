@@ -75,7 +75,7 @@ void TGCSimHitCollectionCnv_p2::persToTrans(const Muon::TGCSimHitCollection_p2* 
       hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);   
 
       transCont->Emplace(persCont->m_TGCid[i], persCont->m_globalTime[i], position, localDireCos, 
-			 link.barcode(),
+			 link,
                          persCont->m_energyDeposit[i], persCont->m_stepLength[i]);
   }
 }

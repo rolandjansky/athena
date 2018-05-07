@@ -34,6 +34,9 @@
 #include "G4DecayProducts.hh"
 #include <cmath>
 
+// Generators
+#include "GeneratorObjects/HepMcParticleLink.h"
+
 double iFatras::G4ParticleDecayHelper::s_speedOfLightSI =  CLHEP::c_light*CLHEP::s/CLHEP::mm;
 
 /*=========================================================================
@@ -380,6 +383,16 @@ iFatras::G4ParticleDecayHelper::decayParticle(const ISF::ISFParticle& parent,
        truthBinding = new ISF::TruthBinding(*parent.getTruthBinding());
     }
     else ATH_MSG_WARNING("Could not retrieve original TruthBinding  from ISFParticle");
+
+    const HepMcParticleLink * partLink = nullptr;
+    if (parent.getParticleLink()) {
+      ATH_MSG_VERBOSE("Could retrieve HepMcParticleLink from original ISFParticle");
+      partLink = new HepMcParticleLink(Barcode::fUndefinedBarcode, parent.getParticleLink()->eventIndex(), parent.getParticleLink()->getEventCollection());
+    }
+    else {
+      ATH_MSG_WARNING("Could not retrieve original HepMcParticleLink from ISFParticle");
+      partLink = new HepMcParticleLink(Barcode::fUndefinedBarcode);
+    }
     ISF::ISFParticle* childParticle = new ISF::ISFParticle( vertex,
                                                             amgMom,
                                                             prod->GetMass(),
@@ -388,7 +401,8 @@ iFatras::G4ParticleDecayHelper::decayParticle(const ISF::ISFParticle& parent,
                                                             timeStamp, 
                                                             parent,
 							    Barcode::fUndefinedBarcode,
-							    truthBinding );
+							    truthBinding,
+                                                            partLink );
 
     children.push_back( childParticle);
   }

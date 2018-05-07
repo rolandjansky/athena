@@ -324,6 +324,9 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
      if (!childVector[i]->getTruthBinding()) {
          childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
      }
+     if ( !childVector[i]->getParticleLink()) {
+       childVector[i]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+     }
   }
  
   return childVector;
@@ -394,6 +397,9 @@ ISF::ISFParticleVector  iFatras::ProcessSamplingTool::interact(const ISF::ISFPar
   for (unsigned int i=0; i<childVector.size(); i++) {
       if (!childVector[i]->getTruthBinding()) {
           childVector[i]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+      }
+      if (!childVector[i]->getParticleLink()) {
+          childVector[i]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
       }
   }
 

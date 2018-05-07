@@ -7,6 +7,7 @@
 
 // Pile-up
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 
 // Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
@@ -44,6 +45,7 @@
 #include "InDetPrepRawData/SiClusterContainer.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "HepMC/GenParticle.h"
 
 #include <sstream>
@@ -104,6 +106,7 @@ SCT_FastDigitizationTool::SCT_FastDigitizationTool(const std::string& type,
 	declareProperty("DiffusionShiftY"								, m_DiffusionShiftY);
   declareProperty("HardScatterSplittingMode"      , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
   declareProperty("ParticleBarcodeVeto"           , m_vetoThisBarcode, "Barcode of particle to ignore");
+  declareProperty("UseMcEventCollectionHelper",   m_needsMcEventCollHelper = false);
 }
 
 //----------------------------------------------------------------------
@@ -176,7 +179,7 @@ StatusCode SCT_FastDigitizationTool::processBunchXing(int bunchXing,
   while (iEvt != eSubEvents)
     {
       StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
-      PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
+      PileUpTimeEventIndex thisEventIndex(iEvt->time(), iEvt->index(), pileupTypeMapper(iEvt->type()));
       const SiHitCollection* seHitColl(nullptr);
       CHECK(seStore.retrieve(seHitColl,m_inputObjectName).isSuccess());
 
@@ -906,18 +909,22 @@ StatusCode SCT_FastDigitizationTool::digitize()
       (void) SCT_DetElClusterMap.insert(SCT_detElement_RIO_map::value_type(waferID, potentialCluster));
       
       // Build Truth info for current cluster
-      if (currentSiHit->particleLink().isValid())
+      HepMcParticleLink trklink(currentSiHit->particleLink());
+      if (m_needsMcEventCollHelper) {
+        trklink.setEventCollection( McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(currentSiHit.pileupType()) );
+      }
+      if (trklink.isValid())
       {
-	const int barcode( currentSiHit->particleLink().barcode());
+	const int barcode( trklink.barcode());
 	if ( barcode !=0 && barcode != m_vetoThisBarcode )
 	{
-	  m_sctPrdTruth->insert(std::make_pair(potentialCluster->identify(), currentSiHit->particleLink()));
-	  ATH_MSG_DEBUG("Truth map filled with cluster" << potentialCluster << " and link = " << currentSiHit->particleLink());
+	  m_sctPrdTruth->insert(std::make_pair(potentialCluster->identify(), trklink));
+	  ATH_MSG_DEBUG("Truth map filled with cluster" << potentialCluster << " and link = " << trklink);
 	}
       }
       else
       {
-	ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << potentialCluster << " and link = " << currentSiHit->particleLink());
+	ATH_MSG_DEBUG("Particle link NOT valid!! Truth map NOT filled with cluster" << potentialCluster << " and link = " << trklink);
       }
       
       

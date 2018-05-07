@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file TrigTruthEventTPCnv/test/TrigInDetTrackTruthMapCnv_p1_test.cxx
+ * @file TrigTruthEventTPCnv/test/TrigInDetTrackTruthMapCnv_tlp2_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Mar, 2016
  * @brief Tests for TrigInDetTrackTruthMapCnv_p1.
@@ -14,8 +14,10 @@
 #undef NDEBUG
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_p1.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp2.h"
-#include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
+#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+#include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include <cassert>
 #include <iostream>
@@ -47,12 +49,15 @@ public:
     
   }
 
-  static void set (TrigInDetTrackTruth& p, int ndx)
+  static void set (TrigInDetTrackTruth& p, std::vector<HepMC::GenParticle*>& genPartVector, int o)
   {
-    int o = ndx*10;
-    p.m_true_part_vec.emplace_back (1001, 10+o);
-    p.m_true_part_vec.emplace_back (1002, 11+o);
-    p.m_true_part_vec.emplace_back (1003, 12+o);
+    HepMcParticleLink trkLink1(genPartVector.at(0+o)->barcode(),genPartVector.at(0+o)->parent_event()->event_number());
+    HepMcParticleLink trkLink2(genPartVector.at(1+o)->barcode(),genPartVector.at(1+o)->parent_event()->event_number());
+    HepMcParticleLink trkLink3(genPartVector.at(2+o)->barcode(),genPartVector.at(2+o)->parent_event()->event_number());
+
+    p.m_true_part_vec.emplace_back (trkLink1, 10);
+    p.m_true_part_vec.emplace_back (trkLink2, 11);
+    p.m_true_part_vec.emplace_back (trkLink3, 12);
 
     int nstat = 4;
     p.m_nr_common_hits.resize (nstat);
@@ -104,46 +109,53 @@ void testit (const TrigInDetTrackTruthMap& trans1)
   compare (trans1, trans2);
 }
 
+const TrigInDetTrackCollection* createTrigInDetTrackCollection()
+{
 
-void test1()
+  SG::WriteHandle<TrigInDetTrackCollection> coll{"coll"};
+  coll = std::make_unique<TrigInDetTrackCollection>();
+  for (int i=0; i<10; i++) {
+    int o = i*10;
+    auto param = std::make_unique<TrigInDetTrackFitPar>
+      (2.5+o, 3.5+o, 4.5+o, 5.5+o, 6.5+o, TrigInDetTrackFitPar::PERIGEE, 7.5+o);
+    auto trk = std::make_unique<TrigInDetTrack> (param.release());
+    trk->algorithmId (static_cast<TrigInDetTrack::AlgoId>(i+1));
+    coll->push_back (std::move (trk));
+  }
+  return &*coll;
+}
+
+void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
 
   TrigInDetTrackTruthMap trans1;
-  //TrigInDetTrackTruthMapCnv_p1_test::set (trans1);
-
-  auto coll = CxxUtils::make_unique<TrigInDetTrackCollection>();
-  for (int i=0; i<10; i++) {
-    int o = i*10;
-    auto param = CxxUtils::make_unique<TrigInDetTrackFitPar>
-      (2.5+o, 3.5+o, 4.5+o, 5.5+o, 6.5+o, TrigInDetTrackFitPar::PERIGEE, 7.5+o);
-    auto trk = CxxUtils::make_unique<TrigInDetTrack> (param.release());
-    trk->algorithmId (static_cast<TrigInDetTrack::AlgoId>(i+1));
-    coll->push_back (std::move (trk));
-  }
-  const TrigInDetTrackCollection* collp = coll.get();
-  SGTest::store.record (coll.release(), "coll");
+  const TrigInDetTrackCollection *collp = createTrigInDetTrackCollection();
 
   TrigInDetTrackTruth t1;
-  TrigInDetTrackTruthCnv_p1_test::set (t1, 1);
+  TrigInDetTrackTruthCnv_p1_test::set (t1, genPartVector, 0);
   trans1.addMatch (collp, 1, t1);
 
   TrigInDetTrackTruth t2;
-  TrigInDetTrackTruthCnv_p1_test::set (t2, 2);
+  TrigInDetTrackTruthCnv_p1_test::set (t2, genPartVector, 3);
   trans1.addMatch (collp, 2, t2);
 
   TrigInDetTrackTruth t3;
-  TrigInDetTrackTruthCnv_p1_test::set (t3, 3);
+  TrigInDetTrackTruthCnv_p1_test::set (t3, genPartVector ,6);
   trans1.addMatch (collp, 3, t3);
-  
-    
+
   testit (trans1);
 }
 
 
 int main()
 {
-  SGTest::initTestStore();
-  test1();
+  ISvcLocator* pSvcLoc = nullptr;
+  std::vector<HepMC::GenParticle*> genPartVector;
+  if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+  test1(genPartVector);
   return 0;
 }

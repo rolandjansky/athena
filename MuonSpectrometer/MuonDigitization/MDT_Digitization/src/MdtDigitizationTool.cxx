@@ -56,10 +56,12 @@
 
 //Pile-up
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 
 //Truth
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 #include "HepMC/GenParticle.h" 
 
 //Random Numbers
@@ -138,6 +140,7 @@ MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::stri
   //Configurations
   declareProperty("CheckSimHits",        m_checkMDTSimHits     =  true,       "Control on the hit validity");
   declareProperty("MaskedStations",      m_maskedStations,                    "Stations to be masked at digi level");
+  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
   //Twin Tube  
   declareProperty("UseTwin",             m_useTwin             =  false);
   declareProperty("UseAllBOLTwin",       m_useAllBOLTwin       =  false);
@@ -354,7 +357,7 @@ StatusCode MdtDigitizationTool::processBunchXing(int bunchXing,
   for (; iEvt!=eSubEvents; ++iEvt)
     {
         StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-        PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
+        PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index(),pileupTypeMapper(iEvt->type()));
         ATH_MSG_VERBOSE( "SubEvt StoreGate " << seStore.name() << " :"
                          << " bunch crossing : " << bunchXing
                          << " time offset : " << iEvt->time()
@@ -955,7 +958,9 @@ bool MdtDigitizationTool::createDigits(){
     ATH_MSG_DEBUG ( "Emulating timing spead of cosmics: +/- 1 BC. Adding  " << timeOffsetEvent << " ns to time" );
   }
   //-ForCosmics
-  
+
+  EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+  int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
   for (; it != m_hits.end(); ++it) {
 
     Identifier idDigit   = it->id;
@@ -1057,7 +1062,15 @@ bool MdtDigitizationTool::createDigits(){
       }
 
       //Create the Deposit for MuonSimData
-      MuonSimData::Deposit deposit(HepMcParticleLink(phit->trackNumber(),phit.eventId()), MuonMCData((float)driftRadius,localZPos));
+      HepMcParticleLink trklink(phit->particleLink());
+      if (m_needsMcEventCollHelper) {
+        if(phit.pileupType()!=lastPileupType)        {
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType());
+          lastPileupType=phit.pileupType();
+        }
+        trklink.setEventCollection(currentMcEventCollection);
+      }
+      MuonSimData::Deposit deposit(trklink, MuonMCData((float)driftRadius,localZPos));
 
       //Record the SDO collection in StoreGate
       std::vector<MuonSimData::Deposit> deposits;

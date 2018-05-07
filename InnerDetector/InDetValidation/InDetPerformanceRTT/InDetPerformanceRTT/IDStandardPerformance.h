@@ -77,7 +77,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     virtual StatusCode procHistograms();
 
     void MakeTrackPlots(const DataVector<Trk::Track>* trks,const TrackCollection * RecCollection,
-	const TrackTruthCollection* TruthMap,const McEventCollection* SimTracks,
+	const TrackTruthCollection* TruthMap,std::vector<const McEventCollection*> SimTracksCollections,
 	const JetCollection* jetColl);
     void MakeHitPlots(const DataVector<Trk::Track>* trks);
 
@@ -774,7 +774,7 @@ class IDStandardPerformance : public ManagedMonitorToolBase
     float m_minTrackPhi;
     float m_minProbEff;
     float m_minProbEffLow;
-    std::string m_truthParticleName;
+    std::vector<std::string> m_truthParticleNames;
     std::string m_truthJetCollName;
     bool m_doTrackInJet;
     bool m_doUpgrade;

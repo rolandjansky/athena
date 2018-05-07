@@ -46,6 +46,7 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   m_pixHits("PixelHits"),
   m_sctHits("SCT_Hits"),
   m_trtHits("TRTUncompressedHits"),
+  m_bcmPileupHits("PileupBCMHits"),
   m_pixPileupHits("PileupPixelHits"),
   m_sctPileupHits("PileupSCT_Hits"),
   m_trtPileupHits("PileupTRTUncompressedHits"),
@@ -73,6 +74,7 @@ ISF::SimHitSvc::SimHitSvc(const std::string& name,ISvcLocator* svc) :
   declareProperty("PixelHitCollection", m_pixHits );
   declareProperty("SCT_HitCollection",  m_sctHits );
   declareProperty("TRT_HitCollection",  m_trtHits );
+  declareProperty("PileupBCMHitCollection",   m_bcmPileupHits );
   declareProperty("PileupPixelHitCollection", m_pixPileupHits );
   declareProperty("PileupSCT_HitCollection",  m_sctPileupHits );
   declareProperty("PileupTRT_HitCollection",  m_trtPileupHits );
@@ -276,9 +278,35 @@ void ISF::SimHitSvc::fillSimHitsTree()
   }
   for (int ipileup=0;ipileup<2;ipileup++) {
     m_pileup = ipileup;
+
+    // BCM hits
+    SG::ReadHandle<SiHitCollection>& bcmHits=(ipileup==0) ? m_bcmHits : m_bcmPileupHits;
+    if (bcmHits.isValid() && bcmHits->size()) {
+      SiHitCollection::const_iterator ih=bcmHits->begin();
+      while (ih!=bcmHits->end()) {
+        m_type = 8;
+        m_id = (*ih).identify();
+        HepMcParticleLink HMPL = (*ih).particleLink();
+        if (HMPL.isValid()) m_mother = (HMPL.cptr())->pdg_id();
+        else m_mother=0;
+        m_time = (*ih).meanTime();
+        m_drift = 0.;
+        m_edeposit = (*ih).energyLoss();
+        m_barcode = (*ih).trackNumber();
+        this->addHepMcParticleLinkInfoToTree(HMPL);
+
+        ih++;
+        while (ih!=bcmHits->end() && ((unsigned int)m_id)==(*ih).identify() && m_barcode==(*ih).trackNumber() ) {
+          // merge energy deposits and move on
+          m_edeposit += (*ih).energyLoss();
+          ih++;
+        }
+        m_t_simHits->Fill();
+      }
+    }
+
     // pixel hits
     SG::ReadHandle<SiHitCollection>& pixHits=(ipileup==0) ? m_pixHits : m_pixPileupHits;
-
     if (pixHits.isValid() && pixHits->size()) {
       SiHitCollection::const_iterator ih=pixHits->begin();
       while (ih!=pixHits->end()) {

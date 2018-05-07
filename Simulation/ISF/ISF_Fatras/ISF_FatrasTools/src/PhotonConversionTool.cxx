@@ -260,6 +260,9 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
       if (!ch1->getTruthBinding()) {
 	ch1->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
       }
+      if (!ch1->getParticleLink()) {
+        ch1->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+      }
       m_particleBroker->push( ch1, parent);
       ichild++;
     }
@@ -284,6 +287,9 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
       children[ichild] = ch2;
       if (!ch2->getTruthBinding()) {
         ch2->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+      }
+      if (!ch2->getParticleLink()) {
+        ch2->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
       }
       m_particleBroker->push( ch2, parent);
     }
@@ -390,8 +396,14 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
     if (!children[0]->getTruthBinding()) {
         children[0]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
     }
+    if (!children[0]->getParticleLink()) {
+        children[0]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+    }
     if (!children[1]->getTruthBinding()) {
         children[1]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+    }
+    if (!children[1]->getParticleLink()) {
+        children[1]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
     }
 
     // save info for validation

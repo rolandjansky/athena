@@ -26,9 +26,12 @@ void TruthTrajectoryCnv_p2::persToTrans( const Trk::TruthTrajectory_p2* pers,
   }
 }
 
-void TruthTrajectoryCnv_p2::transToPers( const TruthTrajectory*,
-                                         Trk::TruthTrajectory_p2*,
-                                         MsgStream& /*msg*/ )
+void TruthTrajectoryCnv_p2::transToPers( const TruthTrajectory* trans,
+                                         Trk::TruthTrajectory_p2* pers,
+                                         MsgStream& msg )
 {
-  throw std::runtime_error("TruthTrajectoryCnv_p2::transToPers is not supported in this release!");
+  pers->resize(trans->size());
+  for(TruthTrajectory::size_type i=0; i<trans->size(); i++) {
+    particleLinkConverter.transToPers( &((*trans)[i]), &((*pers)[i]), msg);
+  }
 }

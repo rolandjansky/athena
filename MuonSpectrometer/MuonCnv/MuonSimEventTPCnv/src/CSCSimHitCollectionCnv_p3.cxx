@@ -15,9 +15,46 @@
 // Athena
 #include "StoreGate/StoreGateSvc.h"
 
-void CSCSimHitCollectionCnv_p3::transToPers(const CSCSimHitCollection*, Muon::CSCSimHitCollection_p3*, MsgStream &/*log*/)
+void CSCSimHitCollectionCnv_p3::transToPers(const CSCSimHitCollection* transCont, Muon::CSCSimHitCollection_p3* persCont, MsgStream &log)
 {
-  throw std::runtime_error("CSCSimHitCollectionCnv_p3::transToPers is not supported in this release!");
+  // for reasons of efficiency, set size before hand
+  unsigned int size=transCont->size();
+  persCont->m_CSCid.reserve(size);
+  persCont->m_globalTime.reserve(size);
+  persCont->m_energyDeposit.reserve(size);
+  persCont->m_stX.reserve(size);
+  persCont->m_stY.reserve(size);
+  persCont->m_stZ.reserve(size);
+  persCont->m_enX.reserve(size);
+  persCont->m_enY.reserve(size);
+  persCont->m_enZ.reserve(size);
+  persCont->m_particleID.reserve(size);
+  // persCont->m_meanTime.reserve(size);
+  persCont->m_partLink.reserve(size);
+
+  // make convertor to handle HepMcParticleLinks
+  HepMcParticleLinkCnv_p2 hepMcPLCnv;
+  HepMcParticleLink_p2 persLink; // will use this as a temp object inside the loop
+
+  // loop through container, filling pers object
+  CSCSimHitCollection::const_iterator it = transCont->begin(), itEnd = transCont->end();
+  for (; it != itEnd; ++it) {
+    persCont->m_CSCid.push_back(it->CSCid());
+    persCont->m_globalTime.push_back(it->globalTime());
+    persCont->m_energyDeposit.push_back(it->energyDeposit());
+    persCont->m_stX.push_back(it->getHitStart().x());
+    persCont->m_stY.push_back(it->getHitStart().y());
+    persCont->m_stZ.push_back(it->getHitStart().z());
+    persCont->m_enX.push_back(it->getHitEnd().x());
+    persCont->m_enY.push_back(it->getHitEnd().y());
+    persCont->m_enZ.push_back(it->getHitEnd().z());
+    persCont->m_particleID.push_back(it->particleID());
+    // persCont->m_meanTime.push_back(hit->m_meanTime);
+
+    hepMcPLCnv.transToPers(&(it->particleLink()),&persLink, log);
+    persCont->m_partLink.push_back(persLink);
+    persCont->m_kineticEnergy.push_back(it->kineticEnergy());
+  }
 }
 
 
@@ -41,6 +78,6 @@ void CSCSimHitCollectionCnv_p3::persToTrans(const Muon::CSCSimHitCollection_p3* 
     hepMcPLCnv.persToTrans(&persCont->m_partLink[i],&link, log);
 
     transCont->Emplace (persCont->m_CSCid[i], persCont->m_globalTime[i], persCont->m_energyDeposit[i], start, end, persCont->m_particleID[i],
-                        link.barcode(), persCont->m_kineticEnergy[i]);
+                        link, persCont->m_kineticEnergy[i]);
   }
 }

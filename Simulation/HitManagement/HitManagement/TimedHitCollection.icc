@@ -7,15 +7,15 @@
 #include <algorithm>
 #include <exception>
 template <class HIT>
-void 	
+void
 TimedHitCollection<HIT>::insert(const PileUpTimeEventIndex& timeEventIndex,
-				const AtlasHitsVector<HIT>* inputCollection) {
+                                const AtlasHitsVector<HIT>* inputCollection) {
   if (!inputCollection){
-    throw("Empty input collection!"); 
+    throw("Empty input collection!");
   }
   typename AtlasHitsVector<HIT>::const_iterator i(inputCollection->begin());
   typename AtlasHitsVector<HIT>::const_iterator e(inputCollection->end());
-  while (i!=e) m_hits.push_back(TimedHitPtr<HIT>(timeEventIndex.time(), timeEventIndex.index(), &(*i++) ));
+  while (i!=e) m_hits.push_back(TimedHitPtr<HIT>(timeEventIndex.time(), timeEventIndex.index(), &(*i++), timeEventIndex.type() ));
   if (m_sorted) {
     m_sorted=false;
     throw SortedException();
@@ -23,11 +23,11 @@ TimedHitCollection<HIT>::insert(const PileUpTimeEventIndex& timeEventIndex,
 }
 
 template <class HIT>
-void 	
-TimedHitCollection<HIT>::insert(float evtTime, 
-				const AtlasHitsVector<HIT>* inputCollection) {
+void
+TimedHitCollection<HIT>::insert(float evtTime,
+                                const AtlasHitsVector<HIT>* inputCollection) {
   if (!inputCollection){
-    throw("Empty input collection!");       
+    throw("Empty input collection!");
   }
   typename AtlasHitsVector<HIT>::const_iterator i(inputCollection->begin());
   typename AtlasHitsVector<HIT>::const_iterator e(inputCollection->end());
@@ -39,15 +39,15 @@ TimedHitCollection<HIT>::insert(float evtTime,
 }
 
 template <class HIT>
-void 	
+void
 TimedHitCollection<HIT>::reserve(unsigned int numberOfHits) {
   m_hits.reserve(numberOfHits);
   return;
 }
 
 ///returns an iterator range with the hits of current detector element
-template <class HIT> 
-bool 
+template <class HIT>
+bool
 TimedHitCollection<HIT>::nextDetectorElement(const_iterator& b, const_iterator& e) const {
   if (!m_sorted) sortVector();
   b = m_currentHit;
@@ -55,12 +55,11 @@ TimedHitCollection<HIT>::nextDetectorElement(const_iterator& b, const_iterator& 
   e = m_currentHit;
   return (b != e);
 }
- 
+
 template <class HIT>
-void 
+void
 TimedHitCollection<HIT>::sortVector() const {
   std::stable_sort(m_hits.begin(), m_hits.end());
   m_currentHit = m_hits.begin();
   m_sorted=true;
 }
-

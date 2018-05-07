@@ -143,6 +143,7 @@ private:
   std::string m_inputHitCollectionName; // name of the input objects
   std::string m_outputDigitCollectionName; // name of the output digits
   std::string m_outputSDO_CollectionName; // name of the output SDOs
+  bool m_needsMcEventCollHelper;
 
   std::string m_outputDigitInfoCollectionName;
 

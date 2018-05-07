@@ -63,6 +63,9 @@
 #include "CLHEP/Random/RandExponential.h"
 #include "CLHEP/Random/RandFlat.h"
 
+// Generators
+#include "GeneratorObjects/HepMcParticleLink.h"
+
 
 // using namespace std;
 
@@ -540,6 +543,16 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
       }
       else
  	        ATH_MSG_WARNING("Could not retrieve TruthBinding from original ISFParticle, might cause issues later on.");
+      const HepMcParticleLink * partLink = nullptr;
+      if (parent->getParticleLink()) {
+	ATH_MSG_VERBOSE("Could retrieve HepMcParticleLink from original ISFParticle");
+	partLink = new HepMcParticleLink(Barcode::fUndefinedBarcode, parent->getParticleLink()->eventIndex(), parent->getParticleLink()->getEventCollection());
+      }
+      else {
+	ATH_MSG_WARNING("Could not retrieve HepMcParticleLink from original ISFParticle, creating one from only Barcode::fUndefinedBarcode.");
+	partLink = new HepMcParticleLink(Barcode::fUndefinedBarcode);
+      }
+
       ISF::ISFParticle* cParticle = new ISF::ISFParticle( position,
                                                           mom,
                                                           parDef->GetPDGMass(),
@@ -548,7 +561,8 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
                                                           time, 
                                                           *parent,
 							  Barcode::fUndefinedBarcode,
-							  truthBinding );
+							  truthBinding,
+                                                          partLink);
       cParticle->setNextGeoID( parent->nextGeoID() );
       cParticle->setNextSimID( parent->nextSimID() );
       // process sampling tool takes care of validation info
@@ -596,6 +610,9 @@ bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time, const Amg::V
 	//First let's make sure that new ISFParticles have valid truth info
 	if (!ispVec[ic]->getTruthBinding()) {
 		ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
+	}
+	if (!ispVec[ic]->getParticleLink()) {
+		ispVec[ic]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
 	}
 	m_particleBroker->push(ispVec[ic], parent);
     }

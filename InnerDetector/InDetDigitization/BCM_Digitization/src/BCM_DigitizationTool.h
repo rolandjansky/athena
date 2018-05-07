@@ -52,7 +52,7 @@ class BCM_DigitizationTool : public PileUpToolBase {
  private:
   /** Create the RDO and SDO containers */
   StatusCode createOutputContainers();
-  void processSiHit(const SiHit &currentHit, double eventTime, unsigned int evtIndex);
+  void processSiHit(const SiHit &currentHit, double eventTime, int pileupType);
   void createRDOsAndSDOs();
 
   /** Compute energy deposit depending on hit position */
@@ -94,6 +94,7 @@ class BCM_DigitizationTool : public PileUpToolBase {
   std::string m_rndmEngineName;  //!< Name of random engine
   PileUpMergeSvc* m_mergeSvc; //!< Handle for pileup merging service
   ServiceHandle<IAtRndmGenSvc> m_atRndmGenSvc; //!< Handle for random number service
+  bool m_needsMcEventCollHelper;
 
   // Vectors to store G4 hit information
   std::vector<float> m_enerVect[8]; //!< G4 hit energies, weighted

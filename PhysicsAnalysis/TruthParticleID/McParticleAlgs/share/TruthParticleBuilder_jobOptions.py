@@ -62,4 +62,20 @@ for cont in inputTPContainer:
 if ( objKeyStore.isInInput( "McEventCollection", "GEN_AOD" ) or
      objKeyStore.isInInput( "McEventCollection", "TruthEvent" ) ):
     from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
-    job += xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
+    truthCnv = xAODMaker__xAODTruthCnvAlg("GEN_AOD2xAOD")
+    from RecExConfig.RecFlags import rec
+    if not rec.TruthSubsetOption()=='HSonly':
+        if objKeyStore.isInInput( "McEventCollection", "TruthEvent_PU" ):
+                print "xAODTruthCnvAlg merging TruthEvent with TruthEvent_PU"
+                truthCnv.AODAdditionalContainerNames += ["TruthEvent_PU"]
+        if objKeyStore.isInInput( "McEventCollection", "TruthEvent_HighPtPU" ):
+                print "xAODTruthCnvAlg merging TruthEvent with TruthEvent_HighPtPU"
+                truthCnv.AODAdditionalContainerNames += ["TruthEvent_HighPtPU"]
+        if rec.TruthSubsetOption()=='All':
+                truthCnv.WriteInTimePileUpTruth = False
+                truthCnv.WriteAllPileUpTruth = True
+        else:
+                truthCnv.WriteInTimePileUpTruth = True
+                truthCnv.WriteAllPileUpTruth = False
+    job += truthCnv
+    print truthCnv

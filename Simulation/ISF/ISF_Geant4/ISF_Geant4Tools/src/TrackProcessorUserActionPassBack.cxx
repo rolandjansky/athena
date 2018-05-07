@@ -256,9 +256,18 @@ namespace G4UA {
     {
       ISF::TruthBinding* tBinding = newTruthBinding(aTrack, truthParticle);
 
+      //Create corresponding HepMcParticleLink object keeping track of correct event index and McEventCollection
+      HepMcParticleLink *partLink(nullptr);
+      if(parentISP->getParticleLink()) {
+        partLink = new HepMcParticleLink(::iGeant4::ISFG4Helper::getParticleBarcode(*aTrack), parentISP->getParticleLink()->eventIndex(), parentISP->getParticleLink()->getEventCollection());
+      }
+      else {
+        partLink = new HepMcParticleLink(::iGeant4::ISFG4Helper::getParticleBarcode(*aTrack));
+      }
       ISF::ISFParticle* isp = ::iGeant4::ISFG4Helper::convertG4TrackToISFParticle( *aTrack,
-                                                                         *parentISP,
-                                                                         tBinding );
+                                                                                   *parentISP,
+                                                                                   tBinding,
+                                                                                   partLink );
 
       if (nextGeoID!=AtlasDetDescr::fUndefinedAtlasRegion) {
         isp->setNextGeoID( AtlasDetDescr::AtlasRegion(nextGeoID) );

@@ -177,6 +177,7 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		std::string m_inputObjectName; // name of the input objects
 		std::string m_outputObjectName; // name of the output digits
 		std::string m_outputSDOName; // name of the output SDOs
+		bool m_needsMcEventCollHelper;
 
 		bool m_checkMMSimHits;
 

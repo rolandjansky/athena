@@ -116,7 +116,7 @@ def getHighPtMinBiasCache(name="HighPtMinBiasCache", **kwargs):
     from AthenaCommon.BeamFlags import jobproperties
     kwargs.setdefault('CollPerXing', digitizationFlags.numberOfHighPtMinBias() )
     from Digitization import PileUpEventType
-    kwargs.setdefault('PileUpEventType', PileUpEventType.MinimumBias ) # may need to have a separate type in the future
+    kwargs.setdefault('PileUpEventType', PileUpEventType.HighPtMinimumBias ) # may need to have a separate type in the future
     kwargs.setdefault('ReadDownscaleFactor', 1 )
     kwargs.setdefault('EventSelector', getService('HighPtMinBiasEventSelector') )
     kwargs.setdefault('OccupationFraction', float(digitizationFlags.bunchSpacing.get_Value())/float(jobproperties.Beam.bunchSpacing.get_Value()) )

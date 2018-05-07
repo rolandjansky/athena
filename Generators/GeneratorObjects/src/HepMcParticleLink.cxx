@@ -19,10 +19,15 @@
 
 #include "GeneratorObjects/HepMcParticleLink.h"
 
-const std::string HepMcParticleLink::s_DEFAULTKEY("TruthEvent");
-const std::string HepMcParticleLink::s_DC2DEFAULTKEY("G4Truth");
-const std::string HepMcParticleLink::s_AODKEY("GEN_AOD");
-std::string HepMcParticleLink::s_HOSTKEY;
+SG::ReadHandle<McEventCollection>* HepMcParticleLink::s_MAP_MCEVENTCOLLECTION_READHANDLE[EBC_NCOLLKINDS];
+std::string HepMcParticleLink::s_HOSTKEY_MAINEVCOL;
+std::string HepMcParticleLink::s_HOSTKEY_FIRSTPUEVCOL;
+std::string HepMcParticleLink::s_HOSTKEY_SECONDPUEVCOL;
+std::string HepMcParticleLink::s_HOSTKEY_THIRDPUEVCOL;
+const std::string HepMcParticleLink::s_MAINEVCOLKEYS[4]={"TruthEvent","G4Truth","GEN_AOD","GEN_EVENT"};
+const std::string HepMcParticleLink::s_FIRSTPUEVCOLKEYS[4]={"TruthEvent_PU","G4Truth_PU","GEN_AOD_PU","GEN_EVENT_PU"};
+const std::string HepMcParticleLink::s_SECONDPUEVCOLKEYS[4]={"TruthEvent_HighPtPU","G4Truth_HighPtPU","GEN_AOD_HighPtPU","GEN_EVENT_HighPtPU"};
+const std::string HepMcParticleLink::s_THIRDPUEVCOLKEYS[4]={"TruthEvent_Cavern","G4Truth_Cavern","GEN_AOD_Cavern","GEN_EVENT_Cavern"};
 
 namespace {
   MsgStream& mlog() {
@@ -32,85 +37,159 @@ namespace {
   const unsigned short CPTRMAXMSGCOUNT(100);
 }
 
-HepMcParticleLink::HepMcParticleLink(const HepMC::GenParticle* part, 
-				     uint32_t eventIndex) :
-    m_extBarcode((0 != part) ? part->barcode() : 0, eventIndex),
-    m_have_particle (true)
+HepMcParticleLink::HepMcParticleLink(const HepMC::GenParticle* part,
+                                     uint32_t eventIndex,
+                                     EBC_EVCOLL evColl) :
+  m_extBarcode((0 != part) ? part->barcode() : 0, eventIndex, evColl)
 {
-  m_ptrs.m_particle = const_cast<HepMC::GenParticle*>(part);
+  m_particle = const_cast<HepMC::GenParticle*>(part);
+  m_have_particle=true;
   assert(part);
 }
 
-const HepMC::GenParticle* HepMcParticleLink::cptr() const {
-  if (!m_have_particle) {
-    if (0 == barcode()) {
-#if 0
-      mlog() << MSG::DEBUG
-	     << "cptr: no truth particle associated with this hit (barcode==0)."
-	     << " Probably this is a noise hit" << endmsg;
-#endif
-      return 0;
-    }
-    CLID clid = ClassID_traits<McEventCollection>::ID();
-    const McEventCollection* pEvtColl(0);
-    if(s_HOSTKEY.empty() ) {
-      if (!find_hostkey()) return 0;
-    }
-    SG::DataProxy* proxy = m_ptrs.m_dict->proxy (clid, s_HOSTKEY);
-    if (!proxy) {
-      if (!find_hostkey()) return 0;
-      proxy = m_ptrs.m_dict->proxy (clid, s_HOSTKEY);
-    }
-    if (proxy && 
-	(0 != (pEvtColl = SG::DataProxy_cast<McEventCollection> (proxy)))) {
-      const HepMC::GenEvent *pEvt((0 == eventIndex()) ?
-				  pEvtColl->at(0) : //original event is at EvtColl[0]
-				  pEvtColl->find(eventIndex()));
-      if (0 != pEvt) {
-	m_ptrs.m_particle = pEvt->barcode_to_particle(barcode());
-        m_have_particle = true;
-      } else {
-	mlog() << MSG::WARNING 
-	       << "cptr: Mc Truth not stored for event " << eventIndex() 
-	       << endreq;
-      }
-    } else {
-      mlog() << MSG::WARNING << "cptr: McEventCollection not found" << endreq;
+HepMcParticleLink::HepMcParticleLink(const HepMC::GenParticle* part,
+                                     uint32_t eventIndex,
+                                     std::string evCollName) :
+    m_extBarcode((0 != part) ? part->barcode() : 0, eventIndex, find_enumFromKey(evCollName))
+{
+  m_particle = const_cast<HepMC::GenParticle*>(part);
+  m_have_particle=true;
+  assert(part);
+}
+
+
+uint16_t HepMcParticleLink::getEventNumberForEventPosition(EBC_EVCOLL evColl, index_type position) {
+  const McEventCollection* pEvtColl = retrieveMcEventCollection(evColl);
+  if (pEvtColl && position<pEvtColl->size()) {
+    const HepMC::GenEvent * pEvt(pEvtColl->at(position));
+    if (pEvt) {
+      return pEvt->event_number();
     }
   }
-
-  if (m_have_particle)
-    return m_ptrs.m_particle;
   return 0;
 }
 
+uint16_t HepMcParticleLink::getEventNumberForEventPosition(index_type position) const { return getEventNumberForEventPosition(this->getEventCollection(),position);}
 
 
-// This is a bit overly complicated at the moment in order to work
-// with both the old and new DataModel.
-void HepMcParticleLink::init_dict()
-{
-  m_have_particle = false;
-  m_ptrs.m_dict = SG::CurrentEventStore::store();
+uint16_t HepMcParticleLink::getEventPositionForEventNumber(EBC_EVCOLL evColl, index_type evNumber) {
+  const McEventCollection* pEvtColl = retrieveMcEventCollection(evColl);
+  if (pEvtColl) {
+    for (unsigned int position=0; position<pEvtColl->size(); position++) {
+      const HepMC::GenEvent * pEvt(pEvtColl->at(position));
+      if (pEvt && pEvt->event_number()==evNumber) { return position; }
+    }
+  }
+  return evNumber;
+}
+
+const McEventCollection* HepMcParticleLink::retrieveMcEventCollection(EBC_EVCOLL evColl) {
+  if (s_MAP_MCEVENTCOLLECTION_READHANDLE[evColl] && s_MAP_MCEVENTCOLLECTION_READHANDLE[evColl]->isValid()) {
+    return s_MAP_MCEVENTCOLLECTION_READHANDLE[evColl]->ptr();
+  }
+  else {
+    //Let's first determine the McEventCollection name to use
+    std::string * hostkeyToGetFrom=nullptr;
+    if (evColl==EBC_MAINEVCOLL)
+      hostkeyToGetFrom=&s_HOSTKEY_MAINEVCOL;
+    else if (evColl==EBC_FIRSTPUEVCOLL)
+      hostkeyToGetFrom=&s_HOSTKEY_FIRSTPUEVCOL;
+    else if (evColl==EBC_SECONDPUEVCOLL)
+      hostkeyToGetFrom=&s_HOSTKEY_SECONDPUEVCOL;
+    else if (evColl==EBC_THIRDPUEVCOLL)
+      hostkeyToGetFrom=&s_HOSTKEY_THIRDPUEVCOL;
+    else {
+      //Should not reach this
+      mlog() << MSG::ERROR << " Looking for incorrect event collection in HepMcParticleLink !!!" << endreq;
+      return nullptr;
+    }
+
+    if (! (hostkeyToGetFrom=find_hostkey(evColl))) return nullptr;
+    if (s_MAP_MCEVENTCOLLECTION_READHANDLE[evColl]) delete s_MAP_MCEVENTCOLLECTION_READHANDLE[evColl];
+    s_MAP_MCEVENTCOLLECTION_READHANDLE[evColl] = new SG::ReadHandle<McEventCollection>(*hostkeyToGetFrom);
+  }//if not already-existing ReadHandle
+
+  return s_MAP_MCEVENTCOLLECTION_READHANDLE[evColl]->ptr();
 }
 
 
-bool HepMcParticleLink::find_hostkey() const
+const HepMC::GenParticle* HepMcParticleLink::cptr() const {
+  if (m_have_particle) { return m_particle; }
+  else {
+    if (0 == barcode()) {
+#if 0
+      mlog() << MSG::DEBUG
+             << "cptr: no truth particle associated with this hit (barcode==0)."
+             << " Probably this is a noise hit" << endmsg;
+#endif
+      return nullptr;
+    }
+
+    const McEventCollection* pEvtColl(nullptr);
+    if ((pEvtColl = retrieveMcEventCollection())) {
+      if(!pEvtColl->empty()) {
+        const HepMC::GenEvent *pEvt((0 == eventIndex()) ?
+                                    pEvtColl->at(0) : //original event is at EvtColl[0]
+                                    pEvtColl->find(eventIndex()));
+        if (nullptr != pEvt) {
+          m_particle = pEvt->barcode_to_particle(barcode());
+          m_have_particle = true;
+          return m_particle;
+        }
+        else {
+          mlog() << MSG::WARNING
+                 << "cptr: Mc Truth not stored for event " << eventIndex()
+                 << endreq;
+        }
+      }
+    }
+    else {
+      mlog() << MSG::WARNING << "cptr: McEventCollection not found" << endreq;
+    }
+  }//if (!m_have_particle)
+
+  return nullptr;
+}
+
+
+std::string * HepMcParticleLink::find_hostkey(EBC_EVCOLL evColl)
 {
   static unsigned short msgCount(0);
-  assert (!m_have_particle);
-  CLID clid = ClassID_traits<McEventCollection>::ID();
-  s_HOSTKEY.clear();
-  if (m_ptrs.m_dict->proxy (clid, s_DEFAULTKEY))
-    s_HOSTKEY=s_DEFAULTKEY;
-  else if (m_ptrs.m_dict->proxy (clid, s_DC2DEFAULTKEY))
-    s_HOSTKEY=s_DC2DEFAULTKEY;
-  else if (m_ptrs.m_dict->proxy (clid, s_AODKEY))
-    s_HOSTKEY=s_AODKEY;
-  if (!s_HOSTKEY.empty()) {
-    mlog() << MSG::INFO << "find_hostkey: Using " << s_HOSTKEY
-        <<" as McEventCollection key for this job " << endreq;
-    return true;
+
+  const std::string * colNames;
+  std::string * hostkeyToSet=nullptr;
+  if (evColl==EBC_MAINEVCOLL) {
+    colNames=s_MAINEVCOLKEYS;
+    hostkeyToSet=&s_HOSTKEY_MAINEVCOL;
+  }
+  else if (evColl==EBC_FIRSTPUEVCOLL) {
+    colNames=s_FIRSTPUEVCOLKEYS;
+    hostkeyToSet=&s_HOSTKEY_FIRSTPUEVCOL;
+  }
+  else if (evColl==EBC_SECONDPUEVCOLL) {
+    colNames=s_SECONDPUEVCOLKEYS;
+    hostkeyToSet=&s_HOSTKEY_SECONDPUEVCOL;
+  }
+  else if (evColl==EBC_THIRDPUEVCOLL) {
+    colNames=s_THIRDPUEVCOLKEYS;
+    hostkeyToSet=&s_HOSTKEY_THIRDPUEVCOL;
+  }
+  else {
+    //Should not reach this
+    mlog() << MSG::ERROR << " Looking for incorrect event collection in HepMcParticleLink !!!" << endreq;
+    return nullptr;
+  }
+
+  hostkeyToSet->clear();
+  for (unsigned int iName=0; iName<4 && hostkeyToSet->empty(); iName++) {
+    if (SG::ReadHandle<McEventCollection>(colNames[iName]).isValid()) {
+      *hostkeyToSet=colNames[iName];
+    }
+  }
+  if (!hostkeyToSet->empty()) {
+    mlog() << MSG::INFO << "find_hostkey: Using " << *hostkeyToSet
+	   <<" as McEventCollection key for this job " << endreq;
+    return hostkeyToSet;
   }
   if (msgCount<CPTRMAXMSGCOUNT) {
     mlog() << MSG::WARNING << "find_hostkey: No Valid MC event Collection found "
@@ -125,7 +204,111 @@ bool HepMcParticleLink::find_hostkey() const
     mlog() << MSG::VERBOSE << "find_hostkey: No Valid MC event Collection found "
 	   << endreq;
   }
-  return false;
+  return nullptr;
 }
 
+
+EBC_EVCOLL HepMcParticleLink::find_enumFromKey(std::string evCollName) {
+  const std::string * colNames;
+  for (unsigned int iEnum=0; iEnum<EBC_NCOLLKINDS; iEnum++) {
+    switch (iEnum) {
+     case 0:
+      colNames=s_MAINEVCOLKEYS;    break;
+     case 1:
+      colNames=s_FIRSTPUEVCOLKEYS; break;
+     case 2:
+      colNames=s_SECONDPUEVCOLKEYS; break;
+     case 3:
+      colNames=s_THIRDPUEVCOLKEYS; break;
+    }
+    for (unsigned int iName=0;iName<4;iName++)
+      if (evCollName==colNames[iName])
+	return (EBC_EVCOLL)iEnum;
+  }
+
+  mlog() << MSG::WARNING << "HepMcParticleLink::find_enumFromKey(" << evCollName << "): trying to find enum for unknown McEventCollection, returning " << EBC_MAINEVCOLL << endreq;
+  return EBC_MAINEVCOLL;
+}
+
+
+
+//Returns the stored name for the collection found in SG for the types of GenEvents passed as argument
+std::string HepMcParticleLink::getEventCollectionAsString(EBC_EVCOLL evColl) {
+  switch (evColl) {
+    case EBC_MAINEVCOLL:
+      if (s_HOSTKEY_MAINEVCOL.empty()) {
+	std::string * pStr = find_hostkey(evColl);
+	if (pStr)
+	  return (s_HOSTKEY_MAINEVCOL=*pStr);
+	else
+	  return "CollectionNotSet";
+      }
+      return s_HOSTKEY_MAINEVCOL;
+      break;
+    case EBC_FIRSTPUEVCOLL:
+      if (s_HOSTKEY_FIRSTPUEVCOL.empty()) {
+	std::string * pStr = find_hostkey(evColl);
+	if (pStr)
+	  return (s_HOSTKEY_FIRSTPUEVCOL=*pStr);
+	else
+	  return "PUCollectionNotSet";
+      }
+      return s_HOSTKEY_FIRSTPUEVCOL;
+      break;
+     case EBC_SECONDPUEVCOLL:
+      if (s_HOSTKEY_SECONDPUEVCOL.empty()) {
+	std::string * pStr = find_hostkey(evColl);
+	if (pStr)
+	  return (s_HOSTKEY_SECONDPUEVCOL=*pStr);
+	else
+	  return "PUCollectionNotSet";
+      }
+      return s_HOSTKEY_SECONDPUEVCOL;
+      break;
+     case EBC_THIRDPUEVCOLL:
+      if (s_HOSTKEY_THIRDPUEVCOL.empty()) {
+	std::string * pStr = find_hostkey(evColl);
+	if (pStr)
+	  return (s_HOSTKEY_THIRDPUEVCOL=*pStr);
+	else
+	  return "PUCollectionNotSet";
+      }
+      return s_HOSTKEY_THIRDPUEVCOL;
+      break;
+     default:
+       //Should not reach this
+       mlog() << MSG::ERROR << " Trying to retrieve collection name for wrong event collection enum in HepMcParticleLink !!!" << endreq;
+       return (!s_HOSTKEY_MAINEVCOL.empty()) ? s_HOSTKEY_MAINEVCOL : s_HOSTKEY_MAINEVCOL=*find_hostkey(evColl);
+  }
+}
+
+//Accessors serving as interface between enums defining the kind of collections used and the format in memory (char)
+void HepMcParticleLink::ExtendedBarCode::setEventCollection(EBC_EVCOLL evColl) {
+  if (evColl==EBC_MAINEVCOLL)
+    m_evtColl='a';
+  else if (evColl==EBC_FIRSTPUEVCOLL)
+    m_evtColl='b';
+  else if (evColl==EBC_SECONDPUEVCOLL)
+    m_evtColl='c';
+  else if (evColl==EBC_THIRDPUEVCOLL)
+    m_evtColl='d';
+  else {
+    //Should not reach this
+    mlog() << MSG::ERROR << " Trying to set wrong event collection (" << evColl << ") to HepMcParticleLink ExtendedBarCode object !!!" << endreq;
+    m_evtColl='a';
+  }
+}
+EBC_EVCOLL HepMcParticleLink::ExtendedBarCode::getEventCollection(char evtColl) {
+  if (evtColl=='a')
+    return EBC_MAINEVCOLL;
+  else if (evtColl=='b')
+    return EBC_FIRSTPUEVCOLL;
+  else if (evtColl=='c')
+    return EBC_SECONDPUEVCOLL;
+  else if (evtColl=='d')
+    return EBC_THIRDPUEVCOLL;
+  //Should not reach this
+  mlog() << MSG::ERROR << " Wrong event collection (" << std::string(&evtColl,1) << ") set in HepMcParticleLink ExtendedBarCode object !!!" << endreq;
+  return EBC_MAINEVCOLL;
+}
 

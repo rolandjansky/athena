@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkEventPrimitives
                           PRIVATE
                           Control/StoreGate
+                          Generators/GeneratorObjects
                           Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Simulation/ISF/ISF_Geant4/ISF_Geant4Tools
@@ -33,7 +34,7 @@ atlas_add_component( ISF_FatrasToolsG4
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel ISF_Event ISF_FatrasInterfaces TrkEventPrimitives StoreGateLib SGtests ISF_Interfaces TrkGeometry )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel ISF_Event ISF_FatrasInterfaces TrkEventPrimitives StoreGateLib SGtests GeneratorObjects ISF_Interfaces TrkGeometry )
 
 # Install files from the package:
 atlas_install_headers( ISF_FatrasToolsG4 )

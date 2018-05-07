@@ -32,6 +32,7 @@
 #include "InDetSimEvent/TRTHitIdHelper.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "GeneratorObjects/McEventCollectionHelper.h"
 
 // Det descr includes:
 #include "InDetIdentifier/TRT_ID.h"
@@ -43,6 +44,7 @@
 
 // Other includes
 #include "PileUpTools/PileUpMergeSvc.h"
+#include "PileUpTools/PileUpTypeHelper.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 // particle table
@@ -129,6 +131,7 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
   m_settings->addPropertiesForOverrideableParameters(static_cast<AlgTool*>(this));
   declareProperty("RndmSvc",                       m_atRndmGenSvc, "Random Number Service used in TRT digitization" );
   declareProperty("TRT_StrawNeighbourSvc",         m_TRTStrawNeighbourSvc);
+  declareProperty("UseMcEventCollectionHelper", m_needsMcEventCollHelper = false);
   declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);  // need for Argon
   declareProperty("UseGasMix",                     m_UseGasMix);
   declareProperty("HardScatterSplittingMode",      m_HardScatterSplittingMode);
@@ -308,7 +311,7 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
 
   while (iEvt != eSubEvents) {
     StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
-    PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
+    PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index(), pileupTypeMapper(iEvt->type())));
     const TRTUncompressedHitCollection* seHitColl(NULL);
     if (!seStore.retrieve(seHitColl,m_dataObjectName).isSuccess()) {
       ATH_MSG_ERROR ( "SubEvent TRTUncompressedHitCollection not found in StoreGate " << seStore.name() );
@@ -479,10 +482,21 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // Fill a vector of deposits
     depositVector.clear();
     depositVector.reserve(std::distance(i,e));
+    EBC_EVCOLL currentMcEventCollection(EBC_NCOLLKINDS); // Base on enum defined in HepMcParticleLink.h
+    int lastPileupType(6); // Based on enum defined in PileUpTimeEventIndex.h
     for (TimedHitCollection<TRTUncompressedHit>::const_iterator hit_iter(i); hit_iter != e; ++hit_iter ) {
+      const TimedHitPtr<TRTUncompressedHit> & phit(*hit_iter);
+      HepMcParticleLink trklink(phit->particleLink());
+      if (m_needsMcEventCollHelper) {
+        if(phit.pileupType()!=lastPileupType) {
+          currentMcEventCollection = McEventCollectionHelper::getMcEventCollectionHMPLEnumFromPileUpType(phit.pileupType());
+          lastPileupType=phit.pileupType();
+        }
+        trklink.setEventCollection(currentMcEventCollection);
+      }
 
       // create a new deposit
-      InDetSimData::Deposit deposit( HepMcParticleLink((*hit_iter)->GetTrackID(), hit_iter->eventId()), (*hit_iter)->GetEnergyDeposit() );
+      InDetSimData::Deposit deposit( trklink, phit->GetEnergyDeposit() );
       if(deposit.first.barcode()==0 || deposit.first.barcode() == m_vetoThisBarcode){
           continue;
       }
