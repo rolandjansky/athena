@@ -4,7 +4,6 @@
 
 
 // ********************************************************************
-//     TBD: UPDATE THIS
 // NAME:     LArNoiseCorrelationMon.cxx
 // PACKAGE:  LArMonTools
 //
@@ -28,12 +27,7 @@
 
 //Histograms
 #include "GaudiKernel/ITHistSvc.h"
-//#include "LWHists/TProfile2D_LW.h"
 #include "LWHists/TProfile_LW.h"
-
-/*#include "LWHists/TH1I_LW.h"
-#include "LWHists/TH2I_LW.h"
-#include "LWHists/TH1F_LW.h"*/
 #include "LWHists/TH2F_LW.h"
 
 //STL:
@@ -64,7 +58,6 @@
 //Header:
 #include "LArMonTools/LArNoiseCorrelationMon.h"
 
-//
 
 // BCIDs of the abort gap
 const int ABORT_GAP_START = 3446;
