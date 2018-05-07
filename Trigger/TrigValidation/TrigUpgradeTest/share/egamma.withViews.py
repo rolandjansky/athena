@@ -177,11 +177,9 @@ l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT
 from TrigEgammaHypo.TrigL2ElectronHypoTool import TrigL2ElectronHypoToolFromName
 theElectronHypo = TrigL2ElectronHypoAlgMT()
-#theElectronHypo.Views = l2ElectronViewsMaker.Views
 theElectronHypo.RunInView=True
 theElectronHypo.Electrons = theElectronFex.ElectronsName
-#theElectronHypo.ClusterDecisions = caloHypoDecisions #theFastCaloHypo.Decisions 
-#theElectronHypo.ElectronDecisions = "ElectronL2Decisions"
+
 theElectronHypo.OutputLevel = VERBOSE
 
 theElectronHypo.HypoTools = [ TrigL2ElectronHypoToolFromName( c ) for c in testChains ]
