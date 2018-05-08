@@ -1379,7 +1379,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT23Strea
 listAODtoDPD.append(WriteDAOD_EXOT23Stream.StreamName)
 
 class WriteDAOD_EXOT24Stream(JobProperty):
-    """EXOT24: temporary HIGG5D1 port for monoHbb analysis"""
+    """EXOT24: 0L for monoHbb analysis"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1392,7 +1392,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT24Strea
 listAODtoDPD.append(WriteDAOD_EXOT24Stream.StreamName)
 
 class WriteDAOD_EXOT25Stream(JobProperty):
-    """EXOT25: temporary HIGG5D1 port for monoHbb analysis"""
+    """EXOT25: 1L for monoHbb analysis"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -1405,7 +1405,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT25Strea
 listAODtoDPD.append(WriteDAOD_EXOT25Stream.StreamName)
 
 class WriteDAOD_EXOT26Stream(JobProperty):
-    """EXOT26: temporary HIGG5D1 port for monoHbb analysis"""
+    """EXOT26: 2L for monoHbb analysis"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
