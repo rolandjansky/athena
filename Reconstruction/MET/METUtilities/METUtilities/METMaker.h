@@ -157,6 +157,9 @@ namespace met {
 
     double m_CenJetPtCut, m_FwdJetPtCut ; // jet pt cut for central/forward jets(eta<2.4)
     double m_JvtCut, m_JvtPtMax; // JVT cut and pt region of jets to apply a JVT selection
+    double m_JvtCutTight, m_JvtTightPtMax;
+    double m_JvtCutMedium, m_JvtMediumPtMax;
+
     std::string m_jetSelection;
     // Extra configurables for custom WP
     double m_customCenJetPtCut,m_customFwdJetPtCut;
