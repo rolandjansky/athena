@@ -3,7 +3,7 @@
 */
 #include <map>
 #include "GaudiKernel/Property.h"
-#include "TestTrigL2ElectronHypoAlg.h"
+#include "TrigL2ElectronHypoAlgMT.h"
 
 
 
@@ -15,13 +15,13 @@ using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::linkToPrevious;
 
 
-TestTrigL2ElectronHypoAlg::TestTrigL2ElectronHypoAlg( const std::string& name, 
+TrigL2ElectronHypoAlgMT::TrigL2ElectronHypoAlgMT( const std::string& name, 
 			  ISvcLocator* pSvcLocator ) : 
   ::HypoBase( name, pSvcLocator ) {}
 
-TestTrigL2ElectronHypoAlg::~TestTrigL2ElectronHypoAlg() {}
+TrigL2ElectronHypoAlgMT::~TrigL2ElectronHypoAlgMT() {}
 
-StatusCode TestTrigL2ElectronHypoAlg::initialize() {
+StatusCode TrigL2ElectronHypoAlgMT::initialize() {
   ATH_MSG_INFO ( "Initializing " << name() << "..." );
 
   CHECK( m_hypoTools.retrieve() );
@@ -32,12 +32,12 @@ StatusCode TestTrigL2ElectronHypoAlg::initialize() {
   return StatusCode::SUCCESS;
 }
 
- StatusCode TestTrigL2ElectronHypoAlg::finalize() {
+ StatusCode TrigL2ElectronHypoAlgMT::finalize() {
     ATH_MSG_INFO( "Finalizing " << name() << "..." );
     return StatusCode::SUCCESS;
   }
 
-StatusCode TestTrigL2ElectronHypoAlg::execute_r( const EventContext& context ) const {  
+StatusCode TrigL2ElectronHypoAlgMT::execute_r( const EventContext& context ) const {  
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
   auto previousDecisionsHandle = SG::makeHandle( decisionInput(), context );
   if( not previousDecisionsHandle.isValid() ) {//implicit
@@ -132,10 +132,7 @@ StatusCode TestTrigL2ElectronHypoAlg::execute_r( const EventContext& context ) c
   return StatusCode::SUCCESS;
 }
 
-
-
-
-bool TestTrigL2ElectronHypoAlg::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const{
+bool TrigL2ElectronHypoAlgMT::recursivelyFindFeature( const TrigCompositeUtils::Decision* start, ElementLink<xAOD::TrigEMClusterContainer>& clusterlink) const{
     //recursively find in the seeds
     if ( start->hasObjectLink( "feature" ) ) {
       clusterlink=start->objectLink<xAOD::TrigEMClusterContainer>( "feature" );

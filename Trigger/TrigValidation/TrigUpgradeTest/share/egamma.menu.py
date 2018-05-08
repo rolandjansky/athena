@@ -151,8 +151,8 @@ electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
 l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
 
-from TrigEgammaHypo.TrigEgammaHypoConf import TestTrigL2ElectronHypoAlg
-theElectronHypo = TestTrigL2ElectronHypoAlg()
+from TrigEgammaHypo.TrigEgammaHypoConf import TrigL2ElectronHypoAlgMT
+theElectronHypo = TrigL2ElectronHypoAlgMT()
 theElectronHypo.Electrons = theElectronFex.ElectronsName
 theElectronHypo.RunInView=True
 theElectronHypo.OutputLevel = VERBOSE

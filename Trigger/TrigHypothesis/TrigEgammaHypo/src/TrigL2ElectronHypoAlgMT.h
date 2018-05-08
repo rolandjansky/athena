@@ -1,8 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#ifndef TRIGEGAMMAHYPO_TESTTRIGL2ELECTRONHYPOALG_H
-#define TRIGEGAMMAHYPO_TESTTRIGL2ELECTRONHYPOALG_H 1
+#ifndef TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOALGMT_H
+#define TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOALGMT_H 1
 
 #include <string>
 
@@ -17,17 +17,17 @@
 
 
 /**
- * @class TestTrigL2ElectronHypoAlg
+ * @class TrigL2ElectronHypoAlgMT
  * @brief Implements Hypo selection on L2 electrons
  **/
 
-class TestTrigL2ElectronHypoAlg  :  public ::HypoBase 
+class TrigL2ElectronHypoAlgMT  :  public ::HypoBase 
 { 
  public: 
 
-  TestTrigL2ElectronHypoAlg( const std::string& name, ISvcLocator* pSvcLocator );
+  TrigL2ElectronHypoAlgMT( const std::string& name, ISvcLocator* pSvcLocator );
 
-  virtual ~TestTrigL2ElectronHypoAlg(); 
+  virtual ~TrigL2ElectronHypoAlgMT(); 
 
   virtual StatusCode  initialize() override;
   virtual StatusCode  execute_r(const EventContext& context) const override;
@@ -36,7 +36,7 @@ class TestTrigL2ElectronHypoAlg  :  public ::HypoBase
   
  
  private: 
-  TestTrigL2ElectronHypoAlg();
+  TrigL2ElectronHypoAlgMT();
   ToolHandleArray< TrigL2ElectronHypoTool > m_hypoTools {this, "HypoTools", {}, "Tools to perfrom selection"};
   Gaudi::Property< bool > m_runInView { this, "RunInView", false , "Set input DH for running in views" };
   // internally used to getch from views
@@ -48,4 +48,4 @@ class TestTrigL2ElectronHypoAlg  :  public ::HypoBase
 
 }; 
 
-#endif //> !TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOALG_H
+#endif //> !TRIGEGAMMAHYPO_TRIGL2ELECTRONHYPOALGMT_H
