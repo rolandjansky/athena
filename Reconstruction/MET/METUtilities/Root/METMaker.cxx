@@ -147,11 +147,21 @@ namespace met {
   {
     ATH_MSG_INFO ("Initializing " << name() << "...");
     
-    //default jet selection i.e. pre-recommendation
+    m_JvtCutTight    = -100.0;
+    m_JvtCutMedium   = -100.0;
+    m_JvtTightPtMax  = -100.0;
+    m_JvtMediumPtMax = -100.0;
+
+    //default jet selection i.e. pre-recommendation - 
     ATH_MSG_INFO("Use jet selection criterion: " << m_jetSelection << " PFlow: " <<m_doPFlow);
     if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3; }
     else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "Tenacious")  { 
+      m_CenJetPtCut  = 20e3; m_FwdJetPtCut = 35e3;
+      m_JvtCutTight  = 0.91; m_JvtTightPtMax  = 40.0e3;
+      m_JvtCutMedium = 0.59; m_JvtMediumPtMax = 60.0e3;
+      m_JvtCut       = 0.11; m_JvtPtMax = 120e3; }
     else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0; }
     else if (m_jetSelection == "Expert")  { 
       ATH_MSG_INFO("Custom jet selection configured. *** FOR EXPERT USE ONLY ***");
@@ -631,6 +641,8 @@ namespace met {
 	    bool gotJVT = jet->getAttribute<float>(m_jetJvtMomentName,jvt);
 	    if(gotJVT) {
 	      JVT_reject = (jvt<m_JvtCut);
+	      if(m_JvtMediumPtMax>0.0 && jet->pt()<m_JvtMediumPtMax) JVT_reject = (jvt<m_JvtCutMedium);
+	      if(m_JvtTightPtMax>0.0  && jet->pt()<m_JvtTightPtMax)  JVT_reject = (jvt<m_JvtCutTight);
 	      ATH_MSG_VERBOSE("Jet " << (JVT_reject ? "fails" : "passes") <<" JVT selection");
 	    } else {
 	      JVT_reject = true;
