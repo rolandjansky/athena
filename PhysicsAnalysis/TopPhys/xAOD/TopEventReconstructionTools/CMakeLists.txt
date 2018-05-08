@@ -19,9 +19,6 @@ find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO Math MathMore Mat
 # source code pulled from https://www.github.com/KLFitter/KLFitter.
 find_package( KLFitter )
 
-# Custom definitions needed for this package:
-add_definitions( -g )
-
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopEventReconstructionTools _cintDictSource
                            ROOT_HEADERS Root/LinkDef.h
