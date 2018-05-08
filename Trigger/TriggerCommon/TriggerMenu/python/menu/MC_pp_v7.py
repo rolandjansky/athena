@@ -1556,8 +1556,8 @@ def setupMenu():
 
         #ATR-17327
         ['2g3_loose_dPhi15_L1DPHI-2EM3', 'L1_DPHI-2EM3', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
-        
-
+        ['2g3_loose_L1DPHI-2EM3_VTE5.24ETA49', 'L1_DPHI-2EM3_VTE5.24ETA49', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
+        ['2g3_loose_L1DPHI-2EM3_VTE10', 'L1_DPHI-2EM3_VTE10', ['L1_2EM3'], [PhysicsStream],['RATE:SinglePhoton','BW:Egamma'],-1],
 
         #ATR-17836 W T&P for low-mu
         ['e15_etcut_trkcut_xe30noL1', 'L1_EM12', ['L1_EM12',''], [PhysicsStream], ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1, ['serial',-1,["e15_etcut_trkcut","xe30noL1"]]],
@@ -3556,8 +3556,8 @@ ps_streamers_list = [
      'noalg_l1topo_L1BPH-2M9-2MU6_BPH-2DR15-2MU6',
      'noalg_l1topo_L1BTAG-MU4J15',
      'noalg_l1topo_L1BTAG-MU6J20',
-     'noalg_l1topo_L1DPHI-CJ20XE50',
-     'noalg_l1topo_L1DPHI-J20XE50',
+#     'noalg_l1topo_L1DPHI-CJ20XE50',
+#     'noalg_l1topo_L1DPHI-J20XE50',
      'noalg_l1topo_L1DPHI-J20s2XE50',
      'noalg_l1topo_L1DR-EM15TAU12I-J25',
      'noalg_l1topo_L1DR-MU10TAU12I',
