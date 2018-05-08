@@ -470,7 +470,7 @@ def TrigIDtrkMonitoringTool():
                         "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet",
                         "HLT_j.*perf_.*FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet",
                         "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet",
-                        "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi-SplitJet",
+                        "HLT_j.*perf_.*FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet",
                         #taus
                         "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK",
                         "HLT_tau.*idperf_.*FTK:key=InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig",
@@ -489,7 +489,7 @@ def TrigIDtrkMonitoringTool():
 
 
                 ################################################
-                # FTK monitoring              
+                # FTK fullscan monitoring              
                 ################################################
 
                 tidaftkfs = TrigTestBase(name = "IDFTKFSTool",
@@ -511,5 +511,29 @@ def TrigIDtrkMonitoringTool():
                         ]
                 ToolSvc += tidaftkfs
                 list += [ "TrigTestBase/IDFTKFSTool" ]
+
+
+
+		# purity analysis
+
+                tidaftkfs_purity = TrigTestBase(name = "IDFTKFSPurityTool",
+                                         histoPathBase = "/Trigger/HLT")
+                tidaftkfs_purity.AnalysisConfig = "Tier0"
+                tidaftkfs_purity.SliceTag = "HLT/TRIDT/FTKPurity/Expert"
+
+#               tidaftkfs_purity.pixHitsOffline    = 4
+#               tidaftkfs_purity.sctHitsOffline    = 6
+#               tidaftkfs_purity.blayerHitsOffline = 1
+#               tidaftkfs_purity.pixHolesOffline   = 1
+
+                tidaftkfs_purity.ntupleChainNames += [
+                        "Offline",
+                        # full scan analysis
+                        ":key=FTK_TrackParticleContainer",
+                        ":key=FTK_TrackParticleContainerRefit"
+                        ]
+                ToolSvc += tidaftkfs_purity
+                list += [ "TrigTestBase/IDFTKFSPurityTool" ]
+
 
         return list
