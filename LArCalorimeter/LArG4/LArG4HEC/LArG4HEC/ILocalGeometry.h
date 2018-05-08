@@ -10,10 +10,6 @@
 #include "GaudiKernel/IService.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
-//#include "globals.hh"
-
-//#include "LArG4Code/LArG4Identifier.h"
-
 #include <string>
 
 class G4Step;
@@ -32,10 +28,7 @@ namespace LArG4
       ILocalGeometry() {}
       virtual ~ILocalGeometry() {}
 
-      static const InterfaceID& interfaceID() {
-        static const InterfaceID  IID_ILocalGeometry("ILocalGeometry",1,0);
-        return IID_ILocalGeometry;
-      }
+      DeclareInterfaceID(ILocalGeometry,1,0);
 
       virtual LArG4Identifier CalculateIdentifier( const G4Step* a_step, const eLocalGeometryType type = kLocActive,
                                                    int depthadd = 0, double deadzone = 4.*CLHEP::mm, double locyadd = 0.*CLHEP::mm) const = 0;

@@ -229,13 +229,16 @@ bool Trk::PlaneSurface::isOnSurface(const Amg::Vector3D& glopo,
 /** distance to surface */
 Trk::DistanceSolution Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir) const
 {
-  static const double tol = 0.001;
+  double tol = 0.001;
 
+  const Amg::Vector3D&  C = center();
   const Amg::Vector3D& N = normal();
 
-  const double d = (pos - center()).dot(N);
+  double S = C.dot(N);
+  double b = S < 0. ? -1 : 1 ;
+  double d = (pos-C).dot(N);     // distance to surface
 
-  const double  A = dir.dot(N);//ignore sign
+  double  A = b*dir.dot(N);
   if(A==0.) {   // direction parallel to surface
     if ( fabs(d)<tol ) {
       return Trk::DistanceSolution(1,0.,true,0.);
@@ -244,7 +247,7 @@ Trk::DistanceSolution Trk::PlaneSurface::straightLineDistanceEstimate(const Amg:
     }
   }
 
-  return Trk::DistanceSolution(1,d,true,-d/A);
+  return Trk::DistanceSolution(1,d,true,b*( S - ( pos.dot(N) ) )/A );
 }
 
 Trk::DistanceSolution Trk::PlaneSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir,bool bound) const

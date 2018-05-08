@@ -460,7 +460,7 @@ def dq_combined_trf(jsonfile, outmap):
         
   # get info for report json file
   try:
-    outfiles = getSubFileMap(histfile, nevts=nevts)                 
+    outfiles = [getSubFileMap(histfile, nevts=nevts)]
     # assemble job report map
     outmap['files']['output'][0]['dataset'] = histdsname
     outmap['files']['output'][0]['subFiles'] = outfiles

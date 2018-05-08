@@ -173,6 +173,7 @@ private:
   
   TH1I_LW* m_hTriggerType;
   TH1I_LW* m_hTriggerTypeAllDSP;
+  TH1I_LW* m_hTriggerTypeMissingTT;
   TH1I_LW* m_hTimeDistrib;
   TH1I_LW* m_nbOfFebBlocksTotal;
   

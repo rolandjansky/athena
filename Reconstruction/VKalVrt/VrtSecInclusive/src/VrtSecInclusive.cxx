@@ -372,9 +372,20 @@ namespace VKalVrtAthena {
     }    
 
     // Perform track selection and store it to selectedBaseTracks
-    for( auto alg : m_trackSelectionAlgs ) {
-      ATH_CHECK( (this->*alg)() );
+    try {
+
+      for( auto alg : m_trackSelectionAlgs ) {
+        ATH_CHECK( (this->*alg)() );
+      }
+      
+    } catch( ... ) {
+      
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": some other error is detected in the track selection scope."  );
+      
+      return StatusCode::SUCCESS;
+      
     }
+    
     
     if( m_jp.FillNtuple )
       m_ntupleVars->get<unsigned int>( "NumSelTrks" ) = static_cast<int>( m_selectedTracks->size() );
@@ -398,43 +409,53 @@ namespace VKalVrtAthena {
     // Core part of Vertexing
     //
     
-    m_vertexingAlgorithmStep = 0;
-    
-    // set of vertices created in the following while loop.
-    auto* workVerticesContainer = new std::vector<WrkVrt>;
-    
-    // the main sequence of the main vertexing algorithms
-    // see initialize() what kind of algorithms exist.
-    for( auto itr = m_vertexingAlgorithms.begin(); itr!=m_vertexingAlgorithms.end(); ++itr ) {
-      
-      auto& name = itr->first;
-      auto alg   = itr->second;
-      
-      auto t_start = std::chrono::system_clock::now();
-      
-      ATH_CHECK( (this->*alg)( workVerticesContainer ) );
-      
-      auto t_end = std::chrono::system_clock::now();
-      
-      if( m_jp.FillHist ) {
-        auto sec = std::chrono::duration_cast<std::chrono::microseconds>( t_end - t_start ).count();
-        m_hists["CPUTime"]->Fill( m_vertexingAlgorithmStep, sec/1.e6 );
-      }
-      
-      auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(),
-                                 []( WrkVrt& wrkvrt ) {
-                                   return ( wrkvrt.isGood == false || wrkvrt.nTracksTotal() < 2 ); }
-                                 );
-      
-      workVerticesContainer->erase( end, workVerticesContainer->end() );
+    try {
 
-      ATH_CHECK( monitorVertexingAlgorithmStep( workVerticesContainer, name, std::next( itr ) == m_vertexingAlgorithms.end() ) );
+      m_vertexingAlgorithmStep = 0;
+    
+      // set of vertices created in the following while loop.
+      auto* workVerticesContainer = new std::vector<WrkVrt>;
+    
+      // the main sequence of the main vertexing algorithms
+      // see initialize() what kind of algorithms exist.
+      for( auto itr = m_vertexingAlgorithms.begin(); itr!=m_vertexingAlgorithms.end(); ++itr ) {
       
-      m_vertexingAlgorithmStep++;
+        auto& name = itr->first;
+        auto alg   = itr->second;
+      
+        auto t_start = std::chrono::system_clock::now();
+      
+        ATH_CHECK( (this->*alg)( workVerticesContainer ) );
+      
+        auto t_end = std::chrono::system_clock::now();
+      
+        if( m_jp.FillHist ) {
+          auto sec = std::chrono::duration_cast<std::chrono::microseconds>( t_end - t_start ).count();
+          m_hists["CPUTime"]->Fill( m_vertexingAlgorithmStep, sec/1.e6 );
+        }
+      
+        auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(),
+                                   []( WrkVrt& wrkvrt ) {
+                                     return ( wrkvrt.isGood == false || wrkvrt.nTracksTotal() < 2 ); }
+                                   );
+      
+        workVerticesContainer->erase( end, workVerticesContainer->end() );
+
+        ATH_CHECK( monitorVertexingAlgorithmStep( workVerticesContainer, name, std::next( itr ) == m_vertexingAlgorithms.end() ) );
+      
+        m_vertexingAlgorithmStep++;
+      
+      }
+    
+      delete workVerticesContainer;
+    
+    } catch(...) {
+      
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": some other error is detected in the vertexing scope."  );
+      
+      return StatusCode::SUCCESS;
       
     }
-    
-    delete workVerticesContainer;
     
     
     // Fill AANT

@@ -44,6 +44,7 @@ monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e4_etcut',
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1RD0_FILLED',
+    'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5',
     'HLT_e5_lhtight_nod0_e9_etcut_Jpsiee_L1JPSI-1M5-EM7',
     'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',
     'HLT_e5_lhtight_nod0_e14_etcut_Jpsiee_L1JPSI-1M5-EM12',
@@ -73,15 +74,17 @@ commissionTP_electron = [
                          'HLT_e24_lhvloose_nod0_sc',
                          'HLT_e24_lhvloose_nod0_sc_gsf']
 
-monitoringTP_electron = ['HLT_e17_lhvloose_nod0_L1EM15VHI',
+monitoringTP_electron = [
                          'HLT_e28_lhtight_nod0_ivarloose',                        
-                         'HLT_e24_lhvloose_nod0']
+                         'HLT_e24_lhvloose_nod0_L1EM20VH'
+                         ]
 monitoringTP_electron += commissionTP_electron
 
 monitoringTP_Jpsiee = ["HLT_e5_lhtight_nod0"]
 
 monitoring_photon = ['HLT_g25_medium_L1EM20VH',
                      'HLT_g25_medium_sc_L1EM20VH',
+                     'HLT_g20_tight_icalovloose_L1EM15VHI',
                      'HLT_g200_loose']
 
 #Add the Menu-Aware monitoring; maps a trigger to a category

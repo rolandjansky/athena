@@ -10,7 +10,7 @@ if hasattr(runArgs, 'useISF') and runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=True, please use Sim_tf.py!")
 
 ## Simulation flags need to be imported first
-from G4AtlasApps.SimFlags import SimFlags, simFlags #FIXME drop import of SimFlags rather than simFlags asap
+from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
 
 
@@ -46,8 +46,6 @@ if hasattr(runArgs, "inputEVNTFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNTFile )
 elif hasattr(runArgs, "inputEVNT_TRFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNT_TRFile )
-elif hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_STOPPEDFile )
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
     atlasG4log.debug('No inputEVNTFile provided. OK, as performing cosmics simulation.')
     athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -73,8 +71,9 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
 if hasattr(runArgs, "outputHITSFile"):
     athenaCommonFlags.PoolHitsOutput.set_Value_and_Lock( runArgs.outputHITSFile )
 else:
-    if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-        simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_STOPPEDFile )
+    if hasattr(runArgs, "outputEVNT_TRFile"):
+        if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+            simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_TRFile )
     #raise RuntimeError("No outputHITSFile provided.")
     atlasG4log.info('No outputHITSFile provided. This simulation job will not write out any HITS file.')
     athenaCommonFlags.PoolHitsOutput = ""
@@ -84,6 +83,12 @@ else:
 ## Write out runArgs configuration
 atlasG4log.info( '**** Transformation run arguments' )
 atlasG4log.info( str(runArgs) )
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSeq = AlgSequence()
+
+## Set Overall per-Algorithm time-limit on the AlgSequence
+topSeq.TimeOut = 43200 * Units.s
 
 
 #==============================================================
@@ -101,23 +106,20 @@ if hasattr(runArgs, "preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
-# Avoid command line preInclude for stopped particles
-if hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
+if hasattr(runArgs, "inputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
 
 # Avoid command line preInclude for cavern background
 if jobproperties.Beam.beamType.get_Value() != 'cosmics':
-    if hasattr(runArgs, "inputEVNT_TRFile"):
+    # If it was already there, then we have a stopped particle file
+    if hasattr(runArgs, "inputEVNT_TRFile") and\
+        not hasattr(topSeq,'TrackRecordGenerator'):
         include('SimulationJobOptions/preInclude.G4ReadCavern.py')
-    if hasattr(runArgs, "outputEVNT_TRFile"):
+    # If there's a stopped particle file, don't do all the cavern stuff
+    if hasattr(runArgs, "outputEVNT_TRFile") and\
+        not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
-
-# Avoid command line preInclude for event service
-if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
-
-if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    include('SimulationJobOptions/preInclude.Cosmics.py')
 
 ## Select detectors
 if 'DetFlags' not in dir():
@@ -190,7 +192,7 @@ simFlags.SeedsG4.set_Off()
 ## Set the Run Number (if required)
 if hasattr(runArgs,"DataRunNumber"):
     if runArgs.DataRunNumber>0:
-        atlasG4log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
+        atlasG4log.info( 'Overriding run number to be: %s ' % runArgs.DataRunNumber )
         simFlags.RunNumber=runArgs.DataRunNumber
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
@@ -207,7 +209,6 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
         if hasattr(runArgs, "outputEVNT_TRFile"):
             simFlags.WriteTR = runArgs.outputEVNT_TRFile
         include( 'CosmicGenerator/jobOptions_ConfigCosmicProd.py' )
-
 
 ## Add filters for non-cosmics simulation
 ## FIXME: This block should be moved out of the skeleton into job options.
@@ -226,12 +227,6 @@ if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
     simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSeq = AlgSequence()
-
-## Set Overall per-Algorithm time-limit on the AlgSequence
-topSeq.TimeOut = 43200 * Units.s
 
 try:
     from RecAlgs.RecAlgsConf import TimingAlg
@@ -270,9 +265,9 @@ if hasattr(runArgs, "postInclude"):
     for fragment in runArgs.postInclude:
         include(fragment)
 
-# Avoid command line postInclude for stopped particles
-if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
+if hasattr(runArgs, "outputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
 
 ## Post-exec
 if hasattr(runArgs, "postExec"):

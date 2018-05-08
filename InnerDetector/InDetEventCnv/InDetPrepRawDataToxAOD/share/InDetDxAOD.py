@@ -69,6 +69,9 @@ if TrtZSel or TrtJSel:
     dumpTrtInfo=True
     dumpTriggerInfo=True
 
+if DRAWZSel:
+    dumpTriggerInfo=True
+
 ## Other settings
 # Prefix for decoration, if any
 prefixName = ""
@@ -669,16 +672,47 @@ if DRAWZSel:
   IDTRKVALIDStream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.")
   IDTRKVALIDStream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
   IDTRKVALIDStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
+  IDTRKVALIDStream.AddItem("xAOD::JetContainer#AntiKt4LCTopoJets")
+  IDTRKVALIDStream.AddItem("xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.")
   IDTRKVALIDStream.AddItem("xAOD::JetContainer#AntiKt2PV0TrackJets")
   IDTRKVALIDStream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.")
   IDTRKVALIDStream.AddItem("xAOD::JetContainer#AntiKt3PV0TrackJets")
   IDTRKVALIDStream.AddItem("xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.")
   IDTRKVALIDStream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo")
   IDTRKVALIDStream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.")
+  IDTRKVALIDStream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4LCTopo")
+  IDTRKVALIDStream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4LCTopoAux.")
   IDTRKVALIDStream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt2Track")
   IDTRKVALIDStream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt2TrackAux.")
   IDTRKVALIDStream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt3Track")
   IDTRKVALIDStream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt3TrackAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_Calo")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_CaloAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_EMTopo")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_EMTopoRegions")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_Core_AntiKt4EMTopo")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_Reference_AntiKt4EMTopo")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_EMTopoAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_EMTopoRegionsAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_Core_AntiKt4EMTopoAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMTopoAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_Core_AntiKt4EMTopoAuxDyn.softConstituents")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_Track")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_TrackAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_LocHadTopo")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_LocHadTopoRegions")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_LocHadTopoAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_LocHadTopoRegionsAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_Core_AntiKt4LCTopo")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_Reference_AntiKt4LCTopo")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_Core_AntiKt4LCTopoAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_Reference_AntiKt4LCTopoAux.")
+  IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_Core_AntiKt4LCTopoAuxDyn.softConstituents")
+  if dumpTruthInfo:
+    IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_Truth")
+    IDTRKVALIDStream.AddItem("xAOD::MissingETContainer#MET_TruthRegions")
+    IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_TruthAux.")
+    IDTRKVALIDStream.AddItem("xAOD::MissingETAuxContainer#MET_TruthRegionsAux.")
 
 # Add truth-related information
 if dumpTruthInfo:

@@ -1,127 +1,207 @@
-#====================================================================
-# L1CALO3.py 
-# reductionConf flag L1CALO3 in Reco_tf.py   
-#====================================================================
+#################
+### Steering options
+#################
+## Load common flags
+from AthenaCommon.JobProperties import jobproperties as athCommonFlags
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-#from DerivationFrameworkInDet.InDetCommon import *
-#from DerivationFrameworkJetEtMiss.JetCommon import *
-#from DerivationFrameworkJetEtMiss.METCommon import *
-
-#from DerivationFrameworkEGamma.EGammaCommon import *
-from AthenaCommon.GlobalFlags import globalflags
-
-expression = "true"
-
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-L1CALO3StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "L1CALO3StringSkimmingTool", expression = expression)
-
-ToolSvc += L1CALO3StringSkimmingTool
-print "L1CALO3.py L1CALO3StringSkimmingTool: ", L1CALO3StringSkimmingTool
-
-
-#=======================================
-# THINNING
-#=======================================
-thinningTools=[]
-
-## Electrons Track Thinning
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-L1CALO3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning( name                    = "L1CALO3ElectronTPThinningTool",
-                                                                                ThinningService         = "L1CALO3ThinningSvc",
-                                                                                SGKey                   = "Electrons",
-                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += L1CALO3ElectronTPThinningTool
-thinningTools.append(L1CALO3ElectronTPThinningTool)
-print "L1CALO3.py L1CALO3ElectronTPThinningTool: ", L1CALO3ElectronTPThinningTool
-
-
+#################
+### Setup Augmentation tools
+#################
 augmentationTools=[]
-#=======================================
-# CREATE THE DERIVATION KERNEL ALGORITHM
-#=======================================
 
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel( "L1CALO3Kernel",
-                                                                        SkimmingTools = [L1CALO3StringSkimmingTool],
-                                                                        ThinningTools = thinningTools,
-                                                                        AugmentationTools = augmentationTools)
+from AthenaCommon import CfgMgr
+
+# Set up stream auditor
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+if not hasattr(svcMgr, "DecisionSvc"):
+        svcMgr += CfgMgr.DecisionSvc()
+svcMgr.DecisionSvc.CalcStats = True
+
+
 #====================================================================
-# SET UP STREAM   
+# Skimming Tools
 #====================================================================
-#streamName = derivationFlags.WriteDAOD_L1CALO3Stream.StreamName
-#fileName   = buildFileName( derivationFlags.WriteDAOD_L1CALO3Stream )
+skimmingTools = []
+
+#====================================================================
+# Thinning Tools
+#====================================================================
+
+thinningTools = []
+
+from TrigT1CaloCalibTools.TrigT1CaloCalibToolsConf import DerivationFramework__TriggerTowerThinningAlg
+L1CALO3CaloThinningTool = DerivationFramework__TriggerTowerThinningAlg( name = "L1CALO3CaloThinningTool",
+									ThinService = "L1CALO3ThinningSvc",
+    									TriggerTowerLocation = "xAODTriggerTowers",
+    									MinCaloCellET = 0.8,
+    									MinADC = 36,
+    									UseRandom = True,
+    									MinRandom = 0.01)
+ToolSvc += L1CALO3CaloThinningTool
+thinningTools.append(L1CALO3CaloThinningTool)
+
+
+#====================================================================
+# Create the derivation Kernel and setup output stream
+#====================================================================
+# Add the derivation job to the top AthAlgSeqeuence
+# DerivationJob is COMMON TO ALL DERIVATIONS
+DerivationFrameworkJob = CfgMgr.AthSequencer("L1CALO3Seq")
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFL1CALO3_KERN",
+                                                                       AugmentationTools = augmentationTools,
+                                                                       SkimmingTools = skimmingTools,
+                                                                       ThinningTools = thinningTools,
+                                                                       OutputLevel = DEBUG)
+
+topSequence += DerivationFrameworkJob
+print DerivationFrameworkJob
+print DerivationFrameworkJob.properties()
+
+#################
+### Steer output file content
+#################
+## Add service for metadata
+ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool(
+"TriggerMenuMetaDataTool" )
+svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+
+
+## Steer output file
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+from D2PDMaker.D2PDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_L1CALO3.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_L1CALO3 )
 L1CALO3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-L1CALO3Stream.AcceptAlgs(["L1CALO3Kernel"])
-
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools
+L1CALO3Stream.AcceptAlgs(["DFL1CALO3_KERN"])
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
 svcMgr += createThinningSvc( svcName="L1CALO3ThinningSvc", outStreams=[evtStream] )
 
-#====================================================================
-# Add the containers to the output stream - slimming done here
-#====================================================================
-from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
-L1CALO3SlimmingHelper = SlimmingHelper("L1CALO3SlimmingHelper")
+trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+
+# Generic event info
+L1CALO3Stream.AddItem("xAOD::EventInfo#*")
+L1CALO3Stream.AddItem("xAOD::EventAuxInfo#*")
+L1CALO3Stream.AddItem("xAOD::EventShape#Kt4EMTopoOriginEventShape")
+L1CALO3Stream.AddItem("xAOD::EventShapeAuxInfo#Kt4EMTopoOriginEventShapeAux.")
+
+#Physics Objects
+L1CALO3Stream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
+L1CALO3Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
+L1CALO3Stream.AddItem("xAOD::MuonContainer#Muons")
+L1CALO3Stream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
+L1CALO3Stream.AddItem("xAOD::ElectronContainer#Electrons")
+L1CALO3Stream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
+L1CALO3Stream.AddItem("xAOD::PhotonContainer#Photons")
+L1CALO3Stream.AddItem("xAOD::PhotonAuxContainer#PhotonsAux.")
+L1CALO3Stream.AddItem("xAOD::TauJetContainer#TauJets")
+L1CALO3Stream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.")
+L1CALO3Stream.AddItem("xAOD::MissingETContainer#MET_Reference_AntiKt4EMTopo")
+L1CALO3Stream.AddItem("xAOD::MissingETAuxContainer#MET_Reference_AntiKt4EMTopoAux.-ConstitObjectLinks.-ConstitObjectWeights")
+L1CALO3Stream.AddItem("xAOD::VertexContainer#PrimaryVertices")
+L1CALO3Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+L1CALO3Stream.AddItem("xAOD::MissingETAssociationMap#METAssoc_AntiKt4EMTopo")
+L1CALO3Stream.AddItem("xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMTopoAux.")
+L1CALO3Stream.AddItem("xAOD::MissingETContainer#MET_Core_AntiKt4EMTopo")
+L1CALO3Stream.AddItem("xAOD::MissingETAuxContainer#MET_Core_AntiKt4EMTopoAux.name.mpx.mpy.sumet.source")
+L1CALO3Stream.AddItem("xAOD::MissingETContainer#MET_Track")
+L1CALO3Stream.AddItem("xAOD::MissingETAuxContainer#MET_TrackAux.name.mpx.mpy")
+
+#RoI Containers
+L1CALO3Stream.AddItem("xAOD::EmTauRoIContainer#LVL1EmTauRoIs")
+L1CALO3Stream.AddItem("xAOD::EmTauRoIAuxContainer#LVL1EmTauRoIsAux.")
+L1CALO3Stream.AddItem("xAOD::EnergySumRoI#LVL1EnergySumRoI")
+L1CALO3Stream.AddItem("xAOD::EnergySumRoIAuxInfo#LVL1EnergySumRoIAux.")
+L1CALO3Stream.AddItem("xAOD::JetEtRoI#LVL1JetEtRoI")
+L1CALO3Stream.AddItem("xAOD::JetEtRoIAuxInfo#LVL1JetEtRoIAux.")
+L1CALO3Stream.AddItem("xAOD::JetRoIContainer#LVL1JetRoIs")
+L1CALO3Stream.AddItem("xAOD::JetRoIAuxContainer#LVL1JetRoIsAux.")
+L1CALO3Stream.AddItem("xAOD::MuonRoIContainer#LVL1MuonRoIs")
+L1CALO3Stream.AddItem("xAOD::MuonRoIAuxContainer#LVL1MuonRoIsAux.")
+
+#L1Calo containers
+L1CALO3Stream.AddItem("xAOD::JEMTobRoIContainer#JEMTobRoIsRoIB")
+L1CALO3Stream.AddItem("xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIBAux.")
+L1CALO3Stream.AddItem("xAOD::JEMTobRoIContainer#JEMTobRoIs")
+L1CALO3Stream.AddItem("xAOD::JEMTobRoIAuxContainer#JEMTobRoIsAux.")
+L1CALO3Stream.AddItem("xAOD::JEMEtSumsContainer#JEMEtSums")
+L1CALO3Stream.AddItem("xAOD::JEMEtSumsAuxContainer#JEMEtSumsAux.")
+L1CALO3Stream.AddItem("xAOD::CMXCPHitsAuxContainer#CMXCPHitsAux.")
+L1CALO3Stream.AddItem("xAOD::CMXCPHitsContainer#CMXCPHits")
+L1CALO3Stream.AddItem("xAOD::CMXCPTobAuxContainer#CMXCPTobsAux.")
+L1CALO3Stream.AddItem("xAOD::CMXCPTobContainer#CMXCPTobs")
+L1CALO3Stream.AddItem("xAOD::CMXEtSumsAuxContainer#CMXEtSumsAux.")
+L1CALO3Stream.AddItem("xAOD::CMXEtSumsContainer#CMXEtSums")
+L1CALO3Stream.AddItem("xAOD::CMXJetHitsAuxContainer#CMXJetHitsAux.")
+L1CALO3Stream.AddItem("xAOD::CMXJetHitsContainer#CMXJetHits")
+L1CALO3Stream.AddItem("xAOD::CMXJetTobAuxContainer#CMXJetTobsAux.")
+L1CALO3Stream.AddItem("xAOD::CMXJetTobContainer#CMXJetTobs")
+L1CALO3Stream.AddItem("xAOD::CMXRoIAuxContainer#CMXRoIsAux.")
+L1CALO3Stream.AddItem("xAOD::CMXRoIContainer#CMXRoIs")
+L1CALO3Stream.AddItem("xAOD::CPMTobRoIAuxContainer#CPMTobRoIsAux.")
+L1CALO3Stream.AddItem("xAOD::CPMTobRoIAuxContainer#CPMTobRoIsRoIBAux.")
+L1CALO3Stream.AddItem("xAOD::CPMTobRoIContainer#CPMTobRoIs")
+L1CALO3Stream.AddItem("xAOD::CPMTobRoIContainer#CPMTobRoIsRoIB")
+L1CALO3Stream.AddItem("xAOD::CPMTowerAuxContainer#CPMTowersAux.")
+L1CALO3Stream.AddItem("xAOD::CPMTowerAuxContainer#CPMTowersOverlapAux.")
+L1CALO3Stream.AddItem("xAOD::CPMTowerContainer#CPMTowers")
+L1CALO3Stream.AddItem("xAOD::CPMTowerContainer#CPMTowersOverlap")
+L1CALO3Stream.AddItem("xAOD::RODHeaderContainer#RODHeaders")
+L1CALO3Stream.AddItem("xAOD::RODHeaderAuxContainer#RODHeadersAux.")
+L1CALO3Stream.AddItem("xAOD::JetElementContainer#JetElements")
+L1CALO3Stream.AddItem("xAOD::JetElementAuxContainer#JetElementsAux.")
+L1CALO3Stream.AddItem("xAOD::JetElementContainer#JetElementsOverlap")
+L1CALO3Stream.AddItem("xAOD::JetElementAuxContainer#JetElementsOverlapAux.")
+L1CALO3Stream.AddItem("xAOD::TriggerTowerContainer#xAODTriggerTowers")
+L1CALO3Stream.AddItem("xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux.")
+L1CALO3Stream.AddItem("xAOD::L1TopoRawDataContainer#L1TopoRawData")
+L1CALO3Stream.AddItem("xAOD::L1TopoRawDataAuxContainer#L1TopoRawDataAux.")
+
+###Egamma CP additions###
+
+L1CALO3Stream.AddItem("xAOD::TrackParticleContainer#GSFTrackParticles")
+L1CALO3Stream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."+trackParticleAuxExclusions)
+L1CALO3Stream.AddItem("xAOD::VertexContainer#GSFConversionVertices")
+L1CALO3Stream.AddItem("xAOD::VertexAuxContainer#GSFConversionVerticesAux.-vxTrackAtVertex")
+L1CALO3Stream.AddItem("xAOD::CaloClusterContainer#egammaTopoSeededClusters")
+L1CALO3Stream.AddItem("xAOD::CaloClusterAuxContainer#egammaTopoSeededClustersAux.")
+
+###############
 
 
-##Smart Slimming
-L1CALO3SlimmingHelper.SmartCollections = [
-#					  "Electrons",
-#					  "Photons",
-#					  "TauJets",
-#					  "PrimaryVertices",
-#					  "MET_Reference_AntiKt4EMTopo",
-#					  "AntiKt4EMTopoJets",
-					  ]
-L1CALO3SlimmingHelper.AllVariables = [
-#				      "egammaClusters",
-#		                      "CaloCalTopoClusters",
-#				      "TauPi0Clusters",
-#				      "CMXCPHits",
-#				      "CMXCPTobs",
-#				      "CMXEtSums",
-#				      "CMXJetHits",
-#				      "CMXJetTobs",
-#				      "CMXRoIs",
-				      
-#				      "CPMTobRoIs",
-#				      "CPMTobRoIsRoIB",
-#				      "CPMTowers",
-#				      "CPMTowersOverlap",
-#				      "JEMEtSums",
-#				      "JEMTobRoIs",
-#				      "JEMTobRoIsRoIB",
-				      
-#				      "JetElements",
-#				      "JetElementsOverlap",
-#				      "LVL1EmTauRoIs",
-#				      "LVL1EnergySumRoI",
-#				      "LVL1JetEtRoI",
-#				      "LVL1JetRoIs",
-#				      "RODHeaders",
-				      
-#				      "xAODTriggerTowers",
-				      
-				      ]
 
-#L1CALO3SlimmingHelper.IncludeMuonTriggerContent   = True
-#L1CALO3SlimmingHelper.IncludeEGammaTriggerContent = True
-#L1CALO3SlimmingHelper.IncludeJetTriggerContent    = True
-#L1CALO3SlimmingHelper.IncludeTauTriggerContent    = True
-#L1CALO3SlimmingHelper.IncludeEtMissTriggerContent = True
-#L1CALO3SlimmingHelper.IncludeBJetTriggerContent = True
-#L1CALO3SlimmingHelper.IncludeBPhysTriggerContent = True
-#L1CALO3SlimmingHelper.IncludeMinBiasTriggerContent = True
+L1CALO3Stream.AddItem("xAOD::CaloClusterContainer#egammaClusters")
+L1CALO3Stream.AddItem("xAOD::CaloClusterAuxContainer#egammaClustersAux.")
+L1CALO3Stream.AddItem("xAOD::CaloClusterContainer#TauPi0Clusters")
+L1CALO3Stream.AddItem("xAOD::CaloClusterAuxContainer#TauPi0ClustersAux.")
+L1CALO3Stream.AddItem("xAOD::CaloClusterContainer#CaloCalTopoClusters")
+L1CALO3Stream.AddItem("xAOD::CaloClusterAuxContainer#CaloCalTopoClustersAux.")
+L1CALO3Stream.AddItem("xAOD::MuonSegmentContainer#MuonSegments")
+L1CALO3Stream.AddItem("xAOD::MuonSegmentAuxContainer#MuonSegmentsAux.")
 
 
-L1CALO3SlimmingHelper.AppendContentToStream(L1CALO3Stream)
 
+L1CALO3Stream.AddItem("xAOD::TruthParticleContainer#*")
+L1CALO3Stream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
+L1CALO3Stream.AddItem("xAOD::TruthVertexContainer#*")
+L1CALO3Stream.AddItem("xAOD::TruthVertexAuxContainer#*")
+L1CALO3Stream.AddItem("xAOD::TruthEventContainer#*")
+L1CALO3Stream.AddItem("xAOD::TruthEventAuxContainer#*")
+
+
+L1CALO3Stream.AddMetaDataItem("xAOD::TriggerMenuContainer#TriggerMenu")
+L1CALO3Stream.AddMetaDataItem("xAOD::TriggerMenuAuxContainer#TriggerMenuAux.")
+L1CALO3Stream.AddItem("TileCellContainer#MBTSContainer")
+L1CALO3Stream.AddItem("xAOD::TrigDecision#xTrigDecision")
+L1CALO3Stream.AddItem("xAOD::TrigNavigation#TrigNavigation")
+L1CALO3Stream.AddItem("xAOD::TrigConfKeys#TrigConfKeys")
+L1CALO3Stream.AddItem("HLT::HLTResult#HLTResult_HLT")
+L1CALO3Stream.AddItem("xAOD::TrigDecisionAuxInfo#xTrigDecisionAux.")
+L1CALO3Stream.AddItem("xAOD::TrigNavigationAuxInfo#TrigNavigationAux.")
+
+print L1CALO3Stream
 
 

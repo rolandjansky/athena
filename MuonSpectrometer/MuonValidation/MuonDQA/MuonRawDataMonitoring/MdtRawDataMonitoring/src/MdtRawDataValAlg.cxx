@@ -174,7 +174,7 @@ MdtRawDataValAlg::MdtRawDataValAlg( const std::string & type, const std::string 
   declareProperty("do_mdt_DRvsSegD",         m_do_mdt_DRvsSegD = true);
   declareProperty("do_mdttubenoise",         m_do_mdttubenoise = false); 
   declareProperty("do_mdttdctube",           m_do_mdttdctube = false);   
-  declareProperty("nHits_NoiseThreshold",    m_HighOccThreshold = 10000.);
+  declareProperty("nHits_NoiseThreshold",    m_HighOccThreshold = 16000.);
   declareProperty("RpcPrepDataContainer",    m_key_rpc="RPC_Measurements");
 }
 

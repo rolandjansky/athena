@@ -11,14 +11,17 @@ set( ATHDATAQUALITY_PROJECT_VERSION ${_version}
 unset( _version )
 
 # Set the version of tdaq-common to use for the build:
-set( TDAQ-COMMON_VERSION "02-02-00" )
-set( TDAQ-COMMON_ROOT
-   "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
+set( TDAQ-COMMON_VERSION "02-03-00" )
+set( TDAQ-COMMON_ROOT 
+    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
 
-# Set the version of dqm-common to use for the build:
-set( DQM-COMMON_VERSION "01-02-00" )
+set( DQM-COMMON_VERSION "01-03-00" )
 set( DQM-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
+
+# we need this in order to avoid linking Gaudi in AtlasTest/TestTools
+set( XAOD_STANDALONE TRUE CACHE BOOL
+   "Flag specifying that this is a standalone build" )
 
 # Pick up the AtlasCMake code:
 find_package( AtlasCMake REQUIRED )
@@ -30,9 +33,9 @@ set( LCG_VERSION_NUMBER 88
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
-#find_package( ROOT )
 find_package( Xrootd )
 find_package( GSL )
+find_package( Frontier_Client )
 
 # Make CMake find the project specific code we have here:
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/modules )
