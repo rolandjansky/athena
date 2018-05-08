@@ -21,29 +21,47 @@ flags.set( "Trigger.inputLVL1ConfigFile", "LVL1config_Physics_pp_v7.xml" )
 flags.set( "Trigger.L1Decoder.doMuon", True )
 
 flags.lock()
-
+from AthenaCommon.Constants import INFO,DEBUG
 acc = ComponentAccumulator()
+
+# make sure we run the right scheduler
+# need to move elsewhere
+
+nThreads=1
+
+from StoreGate.StoreGateConf import SG__HiveMgrSvc
+eventDataSvc = SG__HiveMgrSvc("EventDataSvc")
+eventDataSvc.NSlots = nThreads
+eventDataSvc.OutputLevel = DEBUG
+acc.addService( eventDataSvc )
+
+from SGComps.SGCompsConf import SGInputLoader
+inputLoader = SGInputLoader(DetStore = 'StoreGateSvc/DetectorStore',
+                            EvtStore = 'StoreGateSvc',
+                            ExtraInputs = [],
+                            ExtraOutputs = [],
+                            FailIfNoProxy = False,
+                            Load = [],
+                            NeededResources = [])
+
+acc.addEventAlgo( inputLoader, sequence='AthAlgSeq' )
+
 from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
 acc.addConfig( TrigBSReadCfg, flags )
 
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 acc.addConfig( GeoModelCfg, flags )
 
+from TrigUpgradeTest.TriggerHistSvcConfig import TriggerHistSvcConfig
+acc.addConfig( TriggerHistSvcConfig, flags )
 
-
-
-
-# that is how the L1 decoder can be added but it needs more work to bring all needed services (i.e. muon rois decoding)
 acc.addSequence( seqOR( "hltTop") )
-
-
 
 from L1Decoder.L1DecoderConfig import L1DecoderCfg
 acc.addConfig( L1DecoderCfg, flags, sequence="hltTop" )
 l1 = acc.getEventAlgo( "L1Decoder" )
 from TrigUpgradeTest.TestUtils import applyMenu
 applyMenu( l1 )
-
 
 from EventInfoMgt.EventInfoMgtConf import TagInfoMgr
 tagInfoMgr = TagInfoMgr()
@@ -61,7 +79,17 @@ athenaPoolSvcSvc.PoolAttributes = ["DEFAULT_SPLITLEVEL ='0'", "STREAM_MEMBER_WIS
 acc.addService( athenaPoolSvcSvc )
 acc.getService("EventPersistencySvc").CnvServices += [ athenaPoolSvcSvc.getName() ]
 
+acc.addSequence( seqAND("hltSteps"), sequence="hltTop" )
+acc.addSequence( parOR("hltStep_1"), sequence="hltSteps" )
+acc.addSequence( parOR("hltStep_2"), sequence="hltSteps" )
 
+# setup algorithm sequences here, need few additional components
+from TrigUpgradeTest.RegSelConfig import RegSelConfig
+acc.addConfig( RegSelConfig, flags )
+
+
+from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
+acc.addConfig( EgammaCaloMod, flags, sequence="hltStep_1" )
 
 # adding calo requires  more infrastructure than we actually have
 #from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
@@ -74,3 +102,5 @@ print "Storing config in the config", fname
 with file(fname, "w") as p:
     acc.store( p )
     p.close()
+
+

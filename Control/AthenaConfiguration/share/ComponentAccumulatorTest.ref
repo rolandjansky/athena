@@ -1,224 +1,29 @@
-ComponentAccumulator.py:addConfig  INFO Excuting configuration function AlgsConf2
-ComponentAccumulator.py:addConfig  INFO Excuting configuration function AlgsConf1
+ComponentAccumulator.py:addConfig  INFO Executing configuration function AlgsConf2
+ComponentAccumulator.py:addConfig  INFO Executing configuration function AlgsConf1
 ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/Algo1 to sequence AthAlgSeq
 ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/Algo2 to sequence AthAlgSeq
 ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/Algo3 to sequence AthAlgSeq
 Simple Configuration construction OK 
-ComponentAccumulator.py:addConfig  INFO Excuting configuration function AlgsConf4
-ComponentAccumulator.py:addConfig  INFO Excuting configuration function AlgsConf3
-ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/NestedAlgo1 to sequence subSequence1
-ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/NestedAlgo2 to sequence subSequence1
+ComponentAccumulator.py:addConfig  INFO Executing configuration function AlgsConf4
+ComponentAccumulator.py:addConfig  INFO Executing configuration function AlgsConf3
+ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/NestedAlgo1 to sequence sub2Sequence1
+ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/NestedAlgo2 to sequence sub2Sequence1
 Complex sequences construction also OK 
 ComponentAccumulator.py:printConfig  INFO Event Inputs
 ComponentAccumulator.py:printConfig  INFO set([])
 ComponentAccumulator.py:printConfig  INFO Event Algorithm Sequences
-ComponentAccumulator.py:printConfig  INFO /***** Algorithm AthSequencer/AthAlgSeq ************************************************************
-|-Atomic                     = False
-|-AuditAlgorithms            = False
-|-AuditBeginRun              = False
-|-AuditEndRun                = False
-|-AuditExecute               = False
-|-AuditFinalize              = False
-|-AuditInitialize            = False
-|-AuditReinitialize          = False
-|-AuditRestart               = False
-|-AuditStart                 = False
-|-AuditStop                  = False
-|-Cardinality                = 1
-|-ContinueEventloopOnFPE     = False
-|-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
-|-Enable                     = True
-|-ErrorCounter               = 0
-|-ErrorMax                   = 1
-|-EvtStore                   = ServiceHandle('StoreGateSvc')
-|-ExtraInputs                = []  (default: [])
-|-ExtraOutputs               = []  (default: [])
-|-FilterCircularDependencies = True
-|-IgnoreFilterPassed         = False
-|-IsIOBound                  = False
-|-Members                    = ['Algo/Algo1', 'Algo/Algo2', 'Algo/Algo3', 'AthSequencer/subSequence1', 'AthSequencer/subSequence2']
-|                            (default: [])
-|-ModeOR                     = False
-|-MonitorService             = 'MonitorSvc'
-|-NeededResources            = []  (default: [])
-|-OutputLevel                = 0
-|-RegisterForContextService  = False
-|-Sequential                 = False
-|-StopOverride               = False
-|-TimeOut                    = 0.0
-|-Timeline                   = True
-|=/***** Algorithm Algo/Algo1 ************************************************************************
-| |-AuditAlgorithms   = 0
-| |-AuditBeginRun     = 0
-| |-AuditEndRun       = 0
-| |-AuditExecute      = 0
-| |-AuditFinalize     = 0
-| |-AuditInitialize   = 0
-| |-AuditReinitialize = 0
-| |-Enable            = 1
-| |-ErrorCounter      = 0
-| |-ErrorMax          = 1
-| |-OutputLevel       = 0
-| \----- (End of Algorithm Algo/Algo1) ---------------------------------------------------------------
-|=/***** Algorithm Algo/Algo2 ************************************************************************
-| |-AuditAlgorithms   = 0
-| |-AuditBeginRun     = 0
-| |-AuditEndRun       = 0
-| |-AuditExecute      = 0
-| |-AuditFinalize     = 0
-| |-AuditInitialize   = 0
-| |-AuditReinitialize = 0
-| |-Enable            = 1
-| |-ErrorCounter      = 0
-| |-ErrorMax          = 1
-| |-OutputLevel       = 0
-| \----- (End of Algorithm Algo/Algo2) ---------------------------------------------------------------
-|=/***** Algorithm Algo/Algo3 ************************************************************************
-| |-AuditAlgorithms   = 0
-| |-AuditBeginRun     = 0
-| |-AuditEndRun       = 0
-| |-AuditExecute      = 0
-| |-AuditFinalize     = 0
-| |-AuditInitialize   = 0
-| |-AuditReinitialize = 0
-| |-Enable            = 1
-| |-ErrorCounter      = 0
-| |-ErrorMax          = 1
-| |-OutputLevel       = 0
-| \----- (End of Algorithm Algo/Algo3) ---------------------------------------------------------------
-|=/***** Algorithm AthSequencer/subSequence1 *********************************************************
-| |-Atomic                     = False
-| |-AuditAlgorithms            = False
-| |-AuditBeginRun              = False
-| |-AuditEndRun                = False
-| |-AuditExecute               = False
-| |-AuditFinalize              = False
-| |-AuditInitialize            = False
-| |-AuditReinitialize          = False
-| |-AuditRestart               = False
-| |-AuditStart                 = False
-| |-AuditStop                  = False
-| |-Cardinality                = 1
-| |-ContinueEventloopOnFPE     = False
-| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
-| |-Enable                     = True
-| |-ErrorCounter               = 0
-| |-ErrorMax                   = 1
-| |-EvtStore                   = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                = []  (default: [])
-| |-ExtraOutputs               = []  (default: [])
-| |-FilterCircularDependencies = True
-| |-IgnoreFilterPassed         = False
-| |-IsIOBound                  = False
-| |-Members                    = ['AthSequencer/sub2Sequence1', 'Algo/NestedAlgo1', 'Algo/NestedAlgo2']
-| |                            (default: [])
-| |-ModeOR                     = False  (default: False)
-| |-MonitorService             = 'MonitorSvc'
-| |-NeededResources            = []  (default: [])
-| |-OutputLevel                = 0
-| |-RegisterForContextService  = False
-| |-Sequential                 = True  (default: False)
-| |-StopOverride               = False  (default: False)
-| |-TimeOut                    = 0.0
-| |-Timeline                   = True
-| |=/***** Algorithm AthSequencer/sub2Sequence1 ********************************************************
-| | |-Atomic                     = False
-| | |-AuditAlgorithms            = False
-| | |-AuditBeginRun              = False
-| | |-AuditEndRun                = False
-| | |-AuditExecute               = False
-| | |-AuditFinalize              = False
-| | |-AuditInitialize            = False
-| | |-AuditReinitialize          = False
-| | |-AuditRestart               = False
-| | |-AuditStart                 = False
-| | |-AuditStop                  = False
-| | |-Cardinality                = 1
-| | |-ContinueEventloopOnFPE     = False
-| | |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
-| | |-Enable                     = True
-| | |-ErrorCounter               = 0
-| | |-ErrorMax                   = 1
-| | |-EvtStore                   = ServiceHandle('StoreGateSvc')
-| | |-ExtraInputs                = []  (default: [])
-| | |-ExtraOutputs               = []  (default: [])
-| | |-FilterCircularDependencies = True
-| | |-IgnoreFilterPassed         = False
-| | |-IsIOBound                  = False
-| | |-Members                    = []  (default: [])
-| | |-ModeOR                     = False  (default: False)
-| | |-MonitorService             = 'MonitorSvc'
-| | |-NeededResources            = []  (default: [])
-| | |-OutputLevel                = 0
-| | |-RegisterForContextService  = False
-| | |-Sequential                 = True  (default: False)
-| | |-StopOverride               = False  (default: False)
-| | |-TimeOut                    = 0.0
-| | |-Timeline                   = True
-| | \----- (End of Algorithm AthSequencer/sub2Sequence1) -----------------------------------------------
-| |=/***** Algorithm Algo/NestedAlgo1 ******************************************************************
-| | |-AuditAlgorithms   = 0
-| | |-AuditBeginRun     = 0
-| | |-AuditEndRun       = 0
-| | |-AuditExecute      = 0
-| | |-AuditFinalize     = 0
-| | |-AuditInitialize   = 0
-| | |-AuditReinitialize = 0
-| | |-Enable            = 1
-| | |-ErrorCounter      = 0
-| | |-ErrorMax          = 1
-| | |-OutputLevel       = 0
-| | \----- (End of Algorithm Algo/NestedAlgo1) ---------------------------------------------------------
-| |=/***** Algorithm Algo/NestedAlgo2 ******************************************************************
-| | |-AuditAlgorithms   = 0
-| | |-AuditBeginRun     = 0
-| | |-AuditEndRun       = 0
-| | |-AuditExecute      = 0
-| | |-AuditFinalize     = 0
-| | |-AuditInitialize   = 0
-| | |-AuditReinitialize = 0
-| | |-Enable            = 1
-| | |-ErrorCounter      = 0
-| | |-ErrorMax          = 1
-| | |-OutputLevel       = 7  (default: 0)
-| | \----- (End of Algorithm Algo/NestedAlgo2) ---------------------------------------------------------
-| \----- (End of Algorithm AthSequencer/subSequence1) ------------------------------------------------
-|=/***** Algorithm AthSequencer/subSequence2 *********************************************************
-| |-Atomic                     = False
-| |-AuditAlgorithms            = False
-| |-AuditBeginRun              = False
-| |-AuditEndRun                = False
-| |-AuditExecute               = False
-| |-AuditFinalize              = False
-| |-AuditInitialize            = False
-| |-AuditReinitialize          = False
-| |-AuditRestart               = False
-| |-AuditStart                 = False
-| |-AuditStop                  = False
-| |-Cardinality                = 1
-| |-ContinueEventloopOnFPE     = False
-| |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
-| |-Enable                     = True
-| |-ErrorCounter               = 0
-| |-ErrorMax                   = 1
-| |-EvtStore                   = ServiceHandle('StoreGateSvc')
-| |-ExtraInputs                = []  (default: [])
-| |-ExtraOutputs               = []  (default: [])
-| |-FilterCircularDependencies = True
-| |-IgnoreFilterPassed         = False
-| |-IsIOBound                  = False
-| |-Members                    = []  (default: [])
-| |-ModeOR                     = True  (default: False)
-| |-MonitorService             = 'MonitorSvc'
-| |-NeededResources            = []  (default: [])
-| |-OutputLevel                = 0
-| |-RegisterForContextService  = False
-| |-Sequential                 = False  (default: False)
-| |-StopOverride               = True  (default: False)
-| |-TimeOut                    = 0.0
-| |-Timeline                   = True
-| \----- (End of Algorithm AthSequencer/subSequence2) ------------------------------------------------
-\----- (End of Algorithm AthSequencer/AthAlgSeq) ---------------------------------------------------
+ComponentAccumulator.py:printSeqAndAlgs  INFO \__ AthAlgSeq (seq: PAR AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ Algo1 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ Algo2 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ Algo3 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ Nest (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ subSequence1 (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO          \__ sub2Sequence1 (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO             \__ NestedAlgo1 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO             \__ NestedAlgo2 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO          \__ sub3Sequence1 (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO          \__ sub4Sequence1 (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ subSequence2 (seq: PAR OR)
 ComponentAccumulator.py:printConfig  INFO Conditions Inputs
 ComponentAccumulator.py:printConfig  INFO set([])
 ComponentAccumulator.py:printConfig  INFO Condition Algorithms
@@ -227,6 +32,11 @@ ComponentAccumulator.py:printConfig  INFO Services
 ComponentAccumulator.py:printConfig  INFO []
 ComponentAccumulator.py:printConfig  INFO Outputs
 ComponentAccumulator.py:printConfig  INFO {}
+ComponentAccumulator.py:addConfig  INFO Executing configuration function AlgsConf2
+ComponentAccumulator.py:addConfig  INFO Executing configuration function AlgsConf1
+ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/Algo1 to sequence hltTop
+ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/Algo2 to sequence hltTop
+ComponentAccumulator.py:addEventAlgo  DEBUG Adding Algo/Algo3 to sequence hltTop
 ComponentAccumulator.py:printConfig  INFO Event Inputs
 ComponentAccumulator.py:printConfig  INFO set([])
 ComponentAccumulator.py:printConfig  INFO Event Algorithm Sequences
@@ -234,11 +44,22 @@ ComponentAccumulator.py:printSeqAndAlgs  INFO \__ AthAlgSeq (seq: PAR AND)
 ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ Algo1 (alg)
 ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ Algo2 (alg)
 ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ Algo3 (alg)
-ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ subSequence1 (seq: SEQ AND)
-ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ sub2Sequence1 (seq: SEQ AND)
-ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ NestedAlgo1 (alg)
-ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ NestedAlgo2 (alg)
-ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ subSequence2 (seq: PAR OR)
+ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ Nest (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ subSequence1 (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO          \__ sub2Sequence1 (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO             \__ NestedAlgo1 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO             \__ NestedAlgo2 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO          \__ sub3Sequence1 (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO          \__ sub4Sequence1 (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ subSequence2 (seq: PAR OR)
+ComponentAccumulator.py:printSeqAndAlgs  INFO    \__ hltTop (seq: SEQ OR)
+ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ Algo1 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ Algo2 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ Algo3 (alg)
+ComponentAccumulator.py:printSeqAndAlgs  INFO       \__ hltSteps (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO          \__ hltStep_1 (seq: PAR OR)
+ComponentAccumulator.py:printSeqAndAlgs  INFO             \__ L2CaloEgammaSeq (seq: SEQ AND)
+ComponentAccumulator.py:printSeqAndAlgs  INFO          \__ hltStep_2 (seq: PAR OR)
 ComponentAccumulator.py:printConfig  INFO Conditions Inputs
 ComponentAccumulator.py:printConfig  INFO set([])
 ComponentAccumulator.py:printConfig  INFO Condition Algorithms

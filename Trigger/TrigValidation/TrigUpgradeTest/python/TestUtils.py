@@ -68,7 +68,7 @@ class L1DecoderTest(L1Decoder) :
 
         ctpUnpacker = CTPUnpackingTool(OutputLevel = self.OutputLevel,
                                        ForceEnableAllChains = True)
-        ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
+        #ctpUnpacker.MonTool = CTPUnpackingMonitoring(512, 200)
         # Hard-coded CTP IDs from v7 menu
         ctpUnpacker.CTPToChainMapping = MenuTest.CTPToChainMapping
         self.ctpUnpacker = ctpUnpacker

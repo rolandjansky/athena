@@ -514,8 +514,7 @@ class Configurable( object ):
                value = value.getFullName()
             elif type(value) is list and len(value) > 0 and hasattr(value[0], 'getFullName'):
                value = [ i.getFullName() for i in value ]
-            if not hasattr(proxy,'default') or value != proxy.default :
-               props[ name ] = value
+            props[ name ] = value               
          except AttributeError:
             pass
 
