@@ -349,19 +349,14 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   DataVector<const Trk::MeasurementBase>::const_iterator it      = track->measurementsOnTrack()->begin();
   DataVector<const Trk::MeasurementBase>::const_iterator itEnd   = track->measurementsOnTrack()->end(); 
   for ( ; it!=itEnd; ++it){ 
-    if( !(*it) ) {
-      //      log (MSG::WARNING) << "The MeasurementBase set has a void"
-      //    << "  member! Skip it.." << endmsg;
-    } else {
-      const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(*it);
-      if (rio != 0) {
-        const Identifier& surfaceID = (rio->identify()) ;
-        if( m_idHelper->is_sct(surfaceID) || m_idHelper->is_pixel(surfaceID) ) {
-          setSi.push_back ( *it ) ;
-        }
-        if( m_idHelper->is_trt(surfaceID) ) {
-          setTRT.push_back ( *it ) ;
-        }
+    const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(*it);
+    if (rio != 0) {
+      const Identifier& surfaceID = (rio->identify()) ;
+      if( m_idHelper->is_sct(surfaceID) || m_idHelper->is_pixel(surfaceID) ) {
+        setSi.push_back ( *it ) ;
+      }
+      if( m_idHelper->is_trt(surfaceID) ) {
+        setTRT.push_back ( *it ) ;
       }
     }
   }
@@ -382,15 +377,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
     ATH_MSG_WARNING("TRTMomConstr() : No Perigee parameter on track!");
     return NULL ;
   }
-//   ATH_MSG_DEBUG( "TRTMomConstr() : perTrk     : " << *perTrk) ;
-//   ATH_MSG_VERBOSE ( "TRTMomConstr() : theta(ext. trk)  : " << perTrk->parameters()[Trk::theta] 
-//         << " +/- " << sqrt( perTrk->localErrorMatrix().covValue(Trk::theta) )) ;
-//   ATH_MSG_VERBOSE( "TRTMomConstr() : z0(ext. trk)     : " << perTrk->parameters()[Trk::z0] 
-//       << " +/- " << sqrt( perTrk->localErrorMatrix().covValue(Trk::z0) ));
-//        
-//   ATH_MSG_DEBUG( "TRTMomConstr() : q/p(ext. trk)    : " << perTrk->parameters()[Trk::qOverP] 
-//         << " +/- " << sqrt( perTrk->localErrorMatrix().covValue(Trk::qOverP) ));
-// 
+
   // now add z_0 and theta from original track as PseudoMeas to the TRT MeasurementSet
   const Trk::PseudoMeasurementOnTrack *pmFromSi = createPMfromSi( perTrk ) ;
   if( !pmFromSi ) {
@@ -425,18 +412,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   if( m_useThetaCorrection ) m_thetaCorr = sin( perTrk->parameters()[Trk::theta] ) 
                                          / sin( perTRT->parameters()[Trk::theta] ) ;
   ATH_MSG_DEBUG( "TRTMomConstr() : Scalefactor to correct q/p: " << m_thetaCorr) ;
-//   ATH_MSG_VERBOSE  ( "TRTMomConstr() : q/p(TRT+theta+z0): " << perTRT->parameters()[Trk::qOverP] 
-//        << " +/- " << sqrt( perTRT->localErrorMatrix().covValue(Trk::qOverP) )) ;
-//   ATH_MSG_VERBOSE ( "TRTMomConstr() : Momentum constraint from TRT:    z0 : " 
-//        << perTRT->parameters()[Trk::z0]
-//        << " +/- " << sqrt( perTRT->localErrorMatrix().covValue(Trk::z0) ));
-//   ATH_MSG_VERBOSE( "TRTMomConstr() : Momentum constraint from TRT: theta : " 
-//        << perTRT->parameters()[Trk::theta] * m_thetaCorr
-//        << " +/- " << sqrt( perTRT->localErrorMatrix().covValue(Trk::theta) * m_thetaCorr * m_thetaCorr ));
-//   ATH_MSG_DEBUG( "TRTMomConstr() : Momentum constraint from TRT:   q/p : " 
-//        << perTRT->parameters()[Trk::qOverP] * m_thetaCorr
-//        << " +/- " << sqrt( perTRT->localErrorMatrix().covValue(Trk::qOverP) * m_thetaCorr * m_thetaCorr ));
-//   
+
   // define new PM with the momentum constraint from the TRT to pass to Si
   const Trk::PseudoMeasurementOnTrack *pmFromTRT = createPMfromTRT( perTrk, perTRT ) ;
   if( !pmFromTRT ) {
@@ -458,8 +434,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
     ATH_MSG_DEBUG( "TRTMomConstr() : Si+TRT-p_T Track fit failed !" ) ;
   } else {
     const Trk::Perigee* perSi = fittedTrack->perigeeParameters();
-//     ATH_MSG_DEBUG( "TRTMomConstr() : Si+TRT constr. q/p: " << perSi->parameters()[Trk::qOverP]
-//           << " +/- " << sqrt( perSi->localErrorMatrix().covValue(Trk::qOverP) ));
+
     ATH_MSG_DEBUG( "TRTMomConstr() : Si+PM(TRT) track parameteres @ perigee: " << *perSi ) ;
   }
 
