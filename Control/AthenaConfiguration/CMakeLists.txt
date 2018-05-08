@@ -13,3 +13,4 @@ atlas_install_python_modules( python/*.py )
 atlas_install_runtime(python/*.pkl )
 
 atlas_add_test( ComponentAccumulatorTest SCRIPT python -m AthenaConfiguration.ComponentAccumulator ) 
+atlas_install_scripts( share/confTool.py )
