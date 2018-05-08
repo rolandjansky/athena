@@ -46,6 +46,7 @@ BTaggingSelectionTool::BTaggingSelectionTool( const std::string & name)
   declareProperty( "TaggerName",                    m_taggerName="",    "tagging algorithm name");
   declareProperty( "OperatingPoint",                m_OP="",            "operating point");
   declareProperty( "JetAuthor",                     m_jetAuthor="",     "jet collection");
+  declareProperty( "ErrorOnTagWeightFailure",     m_ErrorOnTagWeightFailure=true, "optionally ignore cases where the tagweight cannot be retrived. default behaviour is to give an error, switching to false will turn it into a warning");
 }
 
 StatusCode BTaggingSelectionTool::initialize() {
@@ -190,8 +191,13 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
     const xAOD::BTagging* btag = jet.btagging();
 
     if ((!btag) || (!btag->MVx_discriminant(m_taggerName, tagweight))){
-      ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
-      return CorrectionCode::Error;
+      if(m_ErrorOnTagWeightFailure){
+        ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
+        return CorrectionCode::Error;
+      }else{
+        ATH_MSG_WARNING("Failed to retrieve "+m_taggerName+" weight!");
+        return CorrectionCode::Ok;
+      }
     }
     ATH_MSG_VERBOSE( m_taggerName << " " <<  tagweight );
     return  CorrectionCode::Ok;
@@ -212,19 +218,18 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( const xAOD::Jet& jet, dou
   if ( (!btag->pb(m_taggerName, dl1_pb ))
    || (!btag->pc(m_taggerName, dl1_pc ))
    || (!btag->pu(m_taggerName, dl1_pu )) ){
-   ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
-   return CorrectionCode::Error;
+
+     if(m_ErrorOnTagWeightFailure){
+       ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
+       return CorrectionCode::Error;
+     }else{
+       ATH_MSG_WARNING("Failed to retrieve "+m_taggerName+" weight!");
+       return CorrectionCode::Ok;
+     }
   }
   ATH_MSG_VERBOSE( "pb " <<  dl1_pb );
   ATH_MSG_VERBOSE( "pc " <<  dl1_pc );
   ATH_MSG_VERBOSE( "pu " <<  dl1_pu );
-
-  bool valid_input = (!std::isnan(dl1_pu) && dl1_pb>0 && dl1_pc>0 && dl1_pu>0);
-
-  if (!valid_input){
-    ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
-    return CorrectionCode::Error;
-  }
 
   return getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, tagweight);
 
@@ -240,6 +245,20 @@ CorrectionCode BTaggingSelectionTool::getTaggerWeight( double pb, double pc, dou
 
   tagweight = -100.;
   if( m_taggerName.find("DL1") != string::npos ){
+
+    bool valid_input = (!std::isnan(pu) && pb>0 && pc>0 && pu>0);
+
+    if (!valid_input){
+      if(m_ErrorOnTagWeightFailure){
+        ATH_MSG_ERROR("Invalid inputs for "+m_taggerName+" pb " << pb << " pc " << pc << " pu " << pu << " ");
+        return CorrectionCode::Error;
+      }else{
+        ATH_MSG_WARNING("Invalid inputs for "+m_taggerName+" pb " << pb << " pc " << pc << " pu " << pu << " ");
+        return CorrectionCode::Ok;
+      }
+    }
+
+
 
     if(m_OP.find("CTag") != string::npos){
      tagweight = log( pc/(m_fraction*pb+(1.-m_fraction)*pu) );
@@ -313,7 +332,11 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     }
 
     if ( (!btag->MVx_discriminant("MV2cl100", weight_mv2cl100 ))|| (!btag->MVx_discriminant("MV2c100", weight_mv2c100 )) ){
-      ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+      if(m_ErrorOnTagWeightFailure){
+        ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+      }else{
+        ATH_MSG_WARNING("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+      }
       return m_accept;
     }
     ATH_MSG_VERBOSE( "MV2cl100 "  <<  weight_mv2cl100 );
@@ -325,7 +348,6 @@ const Root::TAccept& BTaggingSelectionTool::accept( const xAOD::Jet& jet ) const
     double tagger_weight(-100);
 
     if( getTaggerWeight( jet ,tagger_weight)!=CorrectionCode::Ok){
-      ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
       return m_accept;
     };
 
@@ -431,10 +453,7 @@ const Root::TAccept& BTaggingSelectionTool::accept(double pT, double eta, double
 
    double tagger_weight(-100);
 
-   bool valid_input = (!std::isnan(pu) && pb>0 && pc>0 && pu>0);
-
-   if( !valid_input || getTaggerWeight(pb, pc, pu, tagger_weight)!=CorrectionCode::Ok){
-      ATH_MSG_ERROR("Failed to retrieve the BTagging "+m_taggerName+" weight!");
+   if( getTaggerWeight(pb, pc, pu, tagger_weight)!=CorrectionCode::Ok){
       return m_accept;
    }
 
@@ -472,7 +491,8 @@ int BTaggingSelectionTool::getQuantile( const xAOD::Jet& jet ) const{
   // Retrieve the tagger weight which was assigned to the jet
   double weight_mv2(-10.);
   if (getTaggerWeight(jet, weight_mv2)==CorrectionCode::Error){
-    ATH_MSG_ERROR("Failed to retrieve "+m_taggerName+" weight!");
+    ATH_MSG_WARNING("getQuantile: Failed to retrieve "+m_taggerName+" weight!");
+    return -1;
   }
   ATH_MSG_VERBOSE( m_taggerName << " " <<  weight_mv2 );
 
