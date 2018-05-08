@@ -580,8 +580,28 @@ JetMETCPTools::setupJetUncertaintiesTool(const std::string& name,
           "Failed to set VariablesToShift for LargeR Jes Uncertainty "+ name);
     }
     if (analysis_file != "None") {
-      top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
-                  "Failed to set AnalysisFile for " + name);
+        if (m_config->jetUncertainties_QGHistPatterns().size()==0 || analysis_file == "") { // no histogram pattern to look for, or empty analysis_file argument
+            top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
+                    "Failed to set AnalysisFile for " + name);
+        }
+        else if (m_config->jetUncertainties_QGHistPatterns().size()==1) { // a single pattern was specified - let's use it for all DSIDs
+            top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
+                    "Failed to set AnalysisFile for " + name);
+            top::check(asg::setProperty(tool, "AnalysisHistPattern", m_config->jetUncertainties_QGHistPatterns()[0]),
+                    "Failed to set AnalysisHistPattern for " + name);
+        }
+        else { // a list of DSIDs was specified
+            int DSID = m_config->getDSID();
+            for (auto s : m_config->jetUncertainties_QGHistPatterns()) {
+                if (std::atoi(s.c_str()) == DSID) {
+                    top::check(asg::setProperty(tool, "AnalysisFile", analysis_file),
+                        "Failed to set AnalysisFile for " + name);
+                    top::check(asg::setProperty(tool, "AnalysisHistPattern", s),
+                        "Failed to set AnalysisHistPattern for " + name);
+                    break;
+                }
+            }// if the DSID is not found in the list, we don't try to use the AnalysisFile, so we get the default 50 +/- 50%
+        }
     }
     if (calib_area != "None"){
      top::check(asg::setProperty(tool, "CalibArea", calib_area),
