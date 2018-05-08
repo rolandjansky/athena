@@ -57,7 +57,7 @@ StatusCode EMFourMomBuilder::initialize(){
     return StatusCode::SUCCESS;
 }
 
-StatusCode EMFourMomBuilder::execute(xAOD::Egamma* eg)  {
+StatusCode EMFourMomBuilder::execute(xAOD::Egamma* eg) const {
     
     if (!eg){
         ATH_MSG_WARNING("Null pointer to egamma object ");
@@ -94,7 +94,7 @@ StatusCode EMFourMomBuilder::execute(xAOD::Egamma* eg)  {
     return sc;
 }
 
-StatusCode EMFourMomBuilder::hltExecute(xAOD::Egamma* eg){
+StatusCode EMFourMomBuilder::hltExecute(xAOD::Egamma* eg) const{
     return execute(eg);
 }
 

@@ -50,9 +50,9 @@ public:
     /** @brief initialize method*/
     StatusCode initialize();
     /** @brief execute method*/
-    virtual StatusCode execute(xAOD::Egamma* eg);
+    virtual StatusCode execute(xAOD::Egamma* eg) const;
     /** @brief execute method*/
-    virtual StatusCode hltExecute(xAOD::Egamma* eg);
+    virtual StatusCode hltExecute(xAOD::Egamma* eg) const;
 
 private:
 
