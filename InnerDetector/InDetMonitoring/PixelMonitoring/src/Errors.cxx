@@ -643,8 +643,8 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   }
 
   for (int i = 0; i < PixLayerIBL2D3D::COUNT; ++i) {
-    if (m_errhist_bitstr_occ_errors_avg[i]) m_errhist_bitstr_occ_errors_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_errors[i]/m_nActive_mod[i]);
-    if (m_errhist_bitstr_occ_tot_avg[i]) m_errhist_bitstr_occ_tot_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_tot[i]/m_nActive_mod[i]);
+    if (m_errhist_bitstr_occ_errors_avg[i]) m_errhist_bitstr_occ_errors_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_errors[i]/m_nActive_mod[getPixLayerIDWithDBM(i)]);
+    if (m_errhist_bitstr_occ_tot_avg[i]) m_errhist_bitstr_occ_tot_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_tot[i]/m_nActive_mod[getPixLayerIDWithDBM(i)]);
   }
 
   if (m_errhist_syncerr_LB_pix) {
