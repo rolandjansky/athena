@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -845,22 +845,32 @@ namespace Trk
                                                                 xAOD::TrackParticleContainer* container ) const {
 
     xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle;
-   
-
-     if(!trackparticle){
+    if(!trackparticle){
       ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
       return 0;
      }
+    /*
+     * The following needs care as in one case the ownership 
+     * can be passed to StoreGate i.e to the relevant container
+     * DataVector.
+     * In the other the caller has the ownership
+     */
 
-    if( container ) container->push_back( trackparticle );
-    else trackparticle->makePrivateStore();
-
+    if( container ) {
+        container->push_back( trackparticle );
+    }
+    else {
+        trackparticle->makePrivateStore();
+    }
+    
     // Fit quality
-    if( fq ) setFitQuality(*trackparticle,*fq);
-    
+    if( fq ) {
+        setFitQuality(*trackparticle,*fq);
+    }
     // Track Info
-    if( trackInfo ) setTrackInfo(*trackparticle,*trackInfo,prtOrigin);
-    
+    if( trackInfo ) {
+        setTrackInfo(*trackparticle,*trackInfo,prtOrigin);
+    }
     // track summary
     if (summary){
       setTrackSummary(*trackparticle,*summary);
@@ -869,11 +879,16 @@ namespace Trk
       setNumberOfOverflowHits(*trackparticle,summary->numberOfOverflowHitsdEdx());
     }
     
-    if (!m_beamConditionsService.empty()) setTilt(*trackparticle,m_beamConditionsService->beamTilt(0),m_beamConditionsService->beamTilt(1));
-    
+    if (!m_beamConditionsService.empty()) {
+        setTilt(*trackparticle,m_beamConditionsService->beamTilt(0),m_beamConditionsService->beamTilt(1));
+    }
     // Parameters
-    if (perigee) setDefiningParameters(*trackparticle,*perigee);
-    else      ATH_MSG_WARNING( "Track without perigee parameters? Not setting any defining parameters!");
+    if (perigee) {
+        setDefiningParameters(*trackparticle,*perigee);
+    }
+    else {
+        ATH_MSG_WARNING( "Track without perigee parameters? Not setting any defining parameters!");
+    }
     setParameters(*trackparticle,parameters, positions);
 
     return trackparticle;
