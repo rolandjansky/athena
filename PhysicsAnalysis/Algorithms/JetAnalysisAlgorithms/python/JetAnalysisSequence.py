@@ -10,10 +10,10 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
 
     jetCollection = jetContainer[0:-4]
     if dataType == "afii" :
-        configFile = "JES_MC15Prerecommendation_AFII_June2015.config"
+        configFile = "JES_MC16Recommendation_AFII_EMTopo_April2018_rel21.config"
         pass
     else :
-        configFile = "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config"
+        configFile = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config"
         pass
     if dataType == "data" :
         calibSeq = "JetArea_Residual_EtaJES_GSC_Insitu"
@@ -43,7 +43,7 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
     addPrivateTool (alg, "uncertaintiesTool", "JetUncertaintiesTool")
     alg.uncertaintiesTool.JetDefinition = jetCollection
     alg.uncertaintiesTool.ConfigFile = uncertConfigFile
-    alg.uncertaintiesTool.CalibArea = "CalibArea-01"
+    alg.uncertaintiesTool.CalibArea = "CalibArea-03"
     if dataType == "afii" :
         alg.uncertaintiesTool.MCType = "AFII"
         pass
@@ -119,7 +119,7 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
 
 
 
-    alg = createAlgorithm( 'CP::JetViewFromSelectionAlg', 'JetViewFromSelectionAlg' )
+    alg = createAlgorithm( 'CP::AsgViewFromSelectionAlg', 'JetViewFromSelectionAlg' )
     alg.selection = ['clean_jet','jvt_selection']
     sequence.append ( {"alg" : alg, "in" : "input", "out" : "output", "needOut" : True} )
 

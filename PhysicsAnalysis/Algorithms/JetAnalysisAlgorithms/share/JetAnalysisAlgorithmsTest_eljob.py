@@ -19,6 +19,11 @@ import ROOT
 import os
 ROOT.xAOD.Init().ignore()
 
+# this forces the jet algorithms dictionary to be loaded before
+# anything else, which works around some strange dictionary issues I
+# don't understand.
+ROOT.CP.JetCalibrationAlg ("dummy", None)
+
 from AnaAlgorithm.AnaAlgorithmConfig import AnaAlgorithmConfig
 
 # ideally we'd run over all of them, but we don't have a mechanism to
