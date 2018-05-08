@@ -258,7 +258,12 @@ StatusCode InDetAlignCog::execute() {
 
 
       // normalization of m_cog
-      for( int i=0; i<6; i++){m_cog[i]/=(double) m_counter;} 
+      if (m_counter !=0.){
+        for( int i=0; i<6; i++){m_cog[i]/=(double) m_counter;} 
+      } else {
+        ATH_MSG_ERROR("m_counter is zero, giving undefined behaviour");
+        return StatusCode::FAILURE;
+      }
 
 
       // convert to HepGeom::Transform3D:
