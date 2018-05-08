@@ -26,13 +26,14 @@ public:
 
 
   virtual ~IParticleExtractor();
-  virtual IConstituentExtractor* ghostClone() const override;
+  virtual IParticleExtractor* clone() const override;
+  virtual IParticleExtractor* ghostClone() const override;
   virtual void 
   addToJet(xAOD::Jet&, const std::vector<int>& indices) const override;
   virtual std::string toString(int level) const override;
   virtual bool checkIntegrity() const override;
 private:
-  xAOD::IParticleContainer m_iParticles;
+  const xAOD::IParticleContainer* m_iParticles;
   std::string m_label;
   bool m_isGhost; 
   bool m_debug{true};

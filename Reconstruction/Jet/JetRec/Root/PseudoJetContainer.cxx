@@ -161,7 +161,7 @@ std::string PseudoJetContainer::toString(int level, int extLevel) const {
     oss << "\n Extractor dump: \n";
     for(const auto& er : m_extractorRanges){
       oss << "Extractor at [" ;
-      oss << (void const *)er.m_e;
+      oss << er.m_e;
       oss << "]\n";
       oss << er.m_e->toString(extLevel) << '\n';
     }

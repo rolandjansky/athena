@@ -13,7 +13,7 @@ IParticleExtractor::IParticleExtractor(const xAOD::IParticleContainer* ips,
                                        const std::string & label, 
                                        bool isGhost,
                                        bool isTrigger) : 
-  m_iParticles(*ips), m_label(label),
+  m_iParticles(ips), m_label(label),
   m_isGhost(isGhost),
   m_isTrigger(isTrigger)// does not add constits or assoc particles if true
 {
@@ -21,8 +21,12 @@ IParticleExtractor::IParticleExtractor(const xAOD::IParticleContainer* ips,
 
 IParticleExtractor::~IParticleExtractor(){}
 
-IConstituentExtractor* IParticleExtractor::ghostClone() const {
-  // who is going to delete this?
+IParticleExtractor* IParticleExtractor::clone() const {
+  return new IParticleExtractor(*this);
+}
+  
+IParticleExtractor* IParticleExtractor::ghostClone() const {
+  // user responsible for deletion.
   auto clone =  new IParticleExtractor(*this);
   (*clone).m_isGhost = true;
   return clone;
@@ -36,9 +40,9 @@ void IParticleExtractor::addToJet(xAOD::Jet& jet,
   constituents.reserve(indices.size());
   for(auto i : indices){
     if(m_debug){
-      constituents.push_back(m_iParticles.at(i));
+      constituents.push_back(m_iParticles->at(i));
     } else {
-      constituents.push_back(m_iParticles[i]);
+      constituents.push_back((*m_iParticles)[i]);
     }
   }
 
@@ -57,9 +61,6 @@ void IParticleExtractor::addToJet(xAOD::Jet& jet,
   } else {
     // these are constituents
     for(auto c: constituents) {
-      std::cerr<<"IParticleExtractor: adding constituent to jet. Jet  E: "
-               << jet.e() << '\n';
-      std::cerr<< "Contituent E " << c->e() << '\n';
       jet.addConstituent(c);
     }
   }
@@ -73,23 +74,23 @@ std::string IParticleExtractor::toString(int level) const {
       << " label " << m_label 
       << " isGhost: " << std::boolalpha << m_isGhost 
       << " isTrigger: " << std::boolalpha << m_isTrigger 
-      << " No of IParticles: " << m_iParticles.size();
+      << " No of IParticles: " << m_iParticles->size();
 
   if (level > 0){
 
     oss << "\n IParticle energies\n";
     std::vector<float> energies;
-    energies.reserve(m_iParticles.size());
-    std::transform(m_iParticles.begin(),
-                   m_iParticles.end(),
+    energies.reserve(m_iParticles->size());
+    std::transform(m_iParticles->begin(),
+                   m_iParticles->end(),
                    std::back_inserter(energies),
                    [](const xAOD::IParticle* p){return p->e();});
 
     LineFormatter formatter(10); // 10 numbers/line
     oss << formatter(energies) << '\n';
 
-    std::vector<const xAOD::IParticle*> adds(m_iParticles.begin(),
-                                             m_iParticles.end());
+    std::vector<const xAOD::IParticle*> adds(m_iParticles->begin(),
+                                             m_iParticles->end());
     oss << "\n IParticle addresses\n"
         << formatter(adds)
         << '\n';
@@ -100,7 +101,7 @@ std::string IParticleExtractor::toString(int level) const {
 
 
 bool IParticleExtractor::checkIntegrity() const {
-  for(const auto ip: m_iParticles){
+  for(const auto ip: (*m_iParticles)){
     try{
       ip->e();
     } catch(...) {

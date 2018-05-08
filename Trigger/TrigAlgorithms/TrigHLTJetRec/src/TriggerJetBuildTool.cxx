@@ -17,7 +17,6 @@
 #include <string>
 #include <sstream>
 
-
 #include "JetEDM/JetConstituentFiller.h"  // DEBUG FIXME
 
 using xAOD::JetContainer;

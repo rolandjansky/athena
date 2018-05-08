@@ -100,13 +100,40 @@ private:
   struct ExtractorRange {
     ExtractorRange(unsigned int lo, 
                    unsigned int hi, 
-                   const IConstituentExtractor* e): m_lo(lo), m_hi(hi), m_e(e){
+                   const IConstituentExtractor* e):
+      m_lo(lo), m_hi(hi), m_e(e){
     }
 
+    ExtractorRange(const ExtractorRange& other)
+      : m_lo(other.m_lo),
+        m_hi(other.m_hi),
+        m_e(other.m_e->clone()){
+    }
+
+    friend void swap(ExtractorRange& first, ExtractorRange& second){
+      using std::swap;
+
+      swap(first.m_lo, second.m_lo);
+      swap(first.m_hi, second.m_hi);
+      swap(first.m_e, second.m_e);
+    }
+
+    ExtractorRange& operator= (ExtractorRange other){
+      swap(*this, other);
+      return *this;
+    }
+      
+           
+    ~ExtractorRange(){
+      delete m_e;
+    } 
+    
     ExtractorRange bump(int step) const {
       ExtractorRange result = *this;
       result.m_lo += step;
       result.m_hi += step;
+      IConstituentExtractor* ce = m_e->clone();
+      result.m_e = ce;
       return result;
     }
 
