@@ -68,6 +68,8 @@ StatusCode T2CaloEgammaFastAlgo::initialize()
   ATH_CHECK( m_regionSelector.retrieve());
   ATH_CHECK( m_clusterContainerKey.initialize() );
   ATH_CHECK( m_roiCollectionKey.initialize() );
+  CHECK( m_calibsBarrel.retrieve() );
+  CHECK( m_calibsEndcap.retrieve() );
   ATH_MSG_DEBUG( "Initialize done !" );
   return StatusCode::SUCCESS;
 }
@@ -92,7 +94,10 @@ StatusCode T2CaloEgammaFastAlgo::execute()
   ATH_MSG_INFO( name() << " running with store " <<  getContext().getExtension<Atlas::ExtendedEventContext>()->proxy()->name() );
  
   auto roisHandle = SG::makeHandle( m_roiCollectionKey );
+  CHECK( roisHandle.isValid() );
   ATH_MSG_DEBUG( "Made handle " << m_roiCollectionKey  );
+
+
   const TrigRoiDescriptorCollection* roiCollection = roisHandle.cptr();
   //  ATH_CHECK(m_roiCollectionKey.isValid());
 

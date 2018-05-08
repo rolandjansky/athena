@@ -94,9 +94,11 @@ class ComponentAccumulator(object):
             seq = findSubSequence(seq, sequence )
         if seq == None:
             raise ConfigurationError("Missing sequence %s to add new sequence to" % sequence )
+
         if findSubSequence( self._sequence, newseq.name() ):
             raise ConfigurationError("Sequence %s already present" % newseq.name() )
         seq += newseq
+        return newseq 
 
     def addEventAlgo(self, algo,sequence=None):                
         if not isinstance(algo, ConfigurableAlgorithm):
@@ -110,7 +112,7 @@ class ComponentAccumulator(object):
 
         self._msg.debug("Adding %s to sequence %s" % ( algo.getFullName(), seq.name()) )
         seq += algo
-        pass
+        return algo
 
 
     def getEventAlgo(self,name):
@@ -129,7 +131,7 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt to add wrong type: %s as conditions algorithm" % type( algo ).__name__)
             pass
         self._deduplicate(algo,self._conditionsAlgs) #will raise on conflict
-        return
+        return algo
         
 
     def getCondAlgo(self,name):
@@ -143,13 +145,13 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt to add wrong type: %s as service" % type( newSvc ).__name__)
             pass
         self._deduplicate(newSvc,self._services)  #will raise on conflict
-        return 
+        return newSvc
 
     def addAlgTool(self,newTool):
         if not isinstance(newTool,ConfigurableAlgTool):
             raise TypeError("Attempt to add wrong type as AlgTool")
         self._privateTools.append(newTool)
-        return
+        return newTool
 
 
     def clearAlgTools(self):
@@ -159,7 +161,8 @@ class ComponentAccumulator(object):
     def addPublicTool(self,newTool):
         if not isinstance(newTool,ConfigurableAlgTool):
             raise TypeError("Attempt to add wrong type: %s as AlgTool" % type( newTool ).__name__)
-        newTool.setParent("ToolSvc")
+        if newTool.getParent() != "ToolSvc":
+            newTool.setParent("ToolSvc")
         self._deduplicate(newTool,self._publicTools)
         return
 
@@ -347,7 +350,7 @@ class ComponentAccumulator(object):
                 del kwargs['sequence']
             CurrentSequence.set( seq )
 
-        self._msg.info("Excuting configuration function %s" % fct.__name__)
+        self._msg.info("Executing configuration function %s" % fct.__name__)
         retval=fct(configFlags,*args,**kwargs)
         CurrentSequence.set( currentSeq )
 
@@ -363,7 +366,11 @@ class ComponentAccumulator(object):
 
 
     def appendConfigurable(self,confElem):
-        name=confElem.getJobOptName() #FIXME: Don't overwrite duplicates! 
+        name=confElem.getJobOptName() # to be FIXED
+        # if self._jocat.has_key(name):
+        #     self._msg.info("Not adding duplicate configurable: %s" % name )
+        #     return
+            
         #Hack for public Alg tools, drop multiple mentions of ToolSvc 
         nTS=0
         for n in name.split("."):
@@ -373,7 +380,7 @@ class ComponentAccumulator(object):
                 break
         if nTS>2:
             name=".".join(name.split(".")[nTS-1:])
-        for k, v in confElem.getValuedProperties().items():
+        for k, v in confElem.getValuedProperties().items():            
             if isinstance(v,Configurable):
                 self._jocat[name][k]=v.getFullName()
             elif isinstance(v,GaudiHandles.GaudiHandleArray):
@@ -391,8 +398,17 @@ class ComponentAccumulator(object):
         from AthenaCommon.Utils.unixtools import find_datafile
         from collections import defaultdict
         import pickle
-        #first load basics from the bootstrap-pickle
-        bsfilename=find_datafile("bootstrap.pkl")
+        import glob
+        # first load basics from the bootstrap-pickle
+        # a better solution to be discussed
+        # prefer local file 
+        localbs = glob.glob("bootstrap.pkl")
+        if len( localbs ) == 0:
+            # if local bootstrap is missing, use one from the release
+            bsfilename=find_datafile("bootstrap.pkl")
+        else:
+            bsfilename = localbs[0]
+
         bsfile=open(bsfilename)
         self._jocat=pickle.load(bsfile)
         self._jocfg=pickle.load(bsfile)
@@ -400,16 +416,15 @@ class ComponentAccumulator(object):
         bsfile.close()
 
 
-
         #EventAlgorithms
-        for (seqName,algoList) in flatSequencers( self._sequence ).iteritems():
+        for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
             evtalgseq=[]
             for alg in algoList:
-                self.appendConfigurable(alg)
-                evtalgseq.append(alg.getFullName())
-
-            self._jocat[seqName]["Members"]=str(evtalgseq)
-
+                self.appendConfigurable( alg )
+                evtalgseq.append( alg.getFullName() )
+                
+        for seqName, algoList  in flatSequencers( self._sequence ).iteritems():
+            self._jocat[seqName]["Members"]=str( [alg.getFullName() for alg in algoList] )
 
         #Conditions Algorithms:
         condalgseq=[]
@@ -428,12 +443,18 @@ class ComponentAccumulator(object):
 
         #Hack for now:   
         self._jocfg["ApplicationMgr"]["CreateSvc"]=['ToolSvc/ToolSvc', 'AthDictLoaderSvc/AthDictLoaderSvc', 'AthenaSealSvc/AthenaSealSvc', 'CoreDumpSvc/CoreDumpSvc']
-
+        
         svcList=ast.literal_eval(self._jocfg["ApplicationMgr"]["ExtSvc"])
-        for svc in self._services:
-            svcname=svc.getJobOptName()
-            if (svcname=="GeoModelSvc"): self._jocfg["ApplicationMgr"]["CreateSvc"]+=['GeoModelSvc',]
+        def __addif( name ):
+            for svc in self._services:
+                if name == svc.getJobOptName():                
+                    self._jocfg["ApplicationMgr"]["CreateSvc"].append( svc.getFullName() )
+        __addif('DetDescrCnvSvc')
+        __addif('GeoModelSvc')
+        __addif('TileInfoLoader')
 
+        
+        for svc in self._services:
             svcList.append(svc.getFullName())
             #for k, v in svc.getValuedProperties().items():
             #    self._jocat[svcname][k]=str(v)
@@ -442,11 +463,12 @@ class ComponentAccumulator(object):
 
         self._jocfg["ApplicationMgr"]["EvtMax"]=nEvents
 
-       
 
         for (k,v) in self._theAppProps.iteritems():
-            self._jocfg["ApplicationMgr"][k]=v
-        from pprint import pprint
+            if k not in [ 'CreateSvc', 'ExtSvc']:
+                self._jocfg["ApplicationMgr"][k]=v
+
+        #from pprint import pprint
         #pprint (self._jocat)
 
         pickle.dump( self._jocat, outfile ) 
@@ -467,7 +489,6 @@ if __name__ == "__main__":
         def __init__(self, name):
             super( ConfigurablePyAlgorithm, self ).__init__( name )
 
-
     def AlgsConf1(flags):
         acc = ComponentAccumulator()
         acc.addEventAlgo( Algo("Algo1")  )
@@ -482,6 +503,7 @@ if __name__ == "__main__":
 
     acc = ComponentAccumulator()
     
+    # top level algs
     acc.addConfig( AlgsConf2,dummyCfgFlags )
     # checks
     assert findAlgorithm(AlgSequence("AthAlgSeq"), "Algo1", 1), "Algorithm not added to a top sequence"
@@ -502,30 +524,49 @@ if __name__ == "__main__":
         acc.addEventAlgo( NestedAlgo2 )
         return acc
 
+    acc.addSequence( seqAND("Nest") )
+    acc.addSequence( seqAND("subSequence1"), sequence="Nest" )
+    acc.addSequence( parOR("subSequence2"), sequence="Nest" )
 
-    acc.addSequence( seqAND("subSequence1") )
-    acc.addSequence( parOR("subSequence2") )
-    assert findSubSequence(AlgSequence("AthAlgSeq"), "subSequence1"), "Adding sub-sequence failed"
-    assert findSubSequence(AlgSequence("AthAlgSeq"), "subSequence2"), "Adding sub-sequence failed"
+    assert findSubSequence( AlgSequence("AthAlgSeq"), "subSequence1" ), "Adding sub-sequence failed"
+    assert findSubSequence( AlgSequence("AthAlgSeq"), "subSequence2" ), "Adding sub-sequence failed"
 
     acc.addSequence( seqAND("sub2Sequence1"), "subSequence1")
+    acc.addSequence( seqAND("sub3Sequence1"), "subSequence1")
+    acc.addSequence( seqAND("sub4Sequence1"), "subSequence1")
     assert findSubSequence(AlgSequence("AthAlgSeq"), "sub2Sequence1"), "Adding sub-sequence failed"
-    assert findSubSequence( findSubSequence(AlgSequence("AthAlgSeq"), "subSequence1"), "sub2Sequence1" ), "Adding sub-sequence doen in a wrong place"
+    assert findSubSequence( findSubSequence(AlgSequence("AthAlgSeq"), "subSequence1"), "sub2Sequence1" ), "Adding sub-sequence done in a wrong place"
 
-    acc.addConfig( AlgsConf4, dummyCfgFlags, sequence="subSequence1" )    
-    assert findAlgorithm(AlgSequence("AthAlgSeq"), "NestedAlgo1" ), "Algorithm added to nested seqeunce"
+    acc.addConfig( AlgsConf4, dummyCfgFlags, sequence="sub2Sequence1" )    
+    assert findAlgorithm(AlgSequence("AthAlgSeq"), "NestedAlgo1" ), "Algorithm added to nested sequence"
     assert findAlgorithm(AlgSequence("AthAlgSeq"), "NestedAlgo1", 1 ) == None, "Algorithm mistakenly in top sequence"
-    assert findAlgorithm( findSubSequence(AlgSequence("AthAlgSeq"), "subSequence1"), "NestedAlgo1", 1 ), "Algorithm not in right sequence"
+    assert findAlgorithm( findSubSequence(AlgSequence("AthAlgSeq"), "sub2Sequence1"), "NestedAlgo1", 1 ), "Algorithm not in right sequence"
     print( "Complex sequences construction also OK ")
-    
-    acc.printConfig(True)
+
+    #acc.printConfig(True)
     acc.printConfig()
 
     # try recording
     acc.store(open("testFile.pkl", "w"))
     f = open("testFile.pkl")
     import pickle
-    u = pickle.load(f)
+
+    # replicate HLT issue, it occured because the sequnces were recorded in the order of storing in the dict and thus the 
+    # some of them (in this case hltSteps) did not have properties recorded 
+    acc = ComponentAccumulator()
+    acc.addSequence( seqOR("hltTop") )
+    acc.addConfig( AlgsConf2, dummyCfgFlags, sequence="hltTop" ) # some algo
+    acc.addSequence( seqAND("hltSteps"), sequence="hltTop" )
+    acc.addSequence( parOR("hltStep_1"), sequence="hltSteps" )
+    acc.addSequence( seqAND("L2CaloEgammaSeq"), "hltStep_1" )
+    acc.addSequence( parOR("hltStep_2"), sequence="hltSteps" )
+    acc.printConfig()
+    
+    acc.store(open("testFile2.pkl", "w"))
+    f = open("testFile2.pkl")
+    s = pickle.load(f)
+    f.close()
+    assert s['hltSteps']['Members'] != '[]', "Empty set of members in hltSteps, Sequences recording order metters"
     
     print( "\nAll OK" )
 
