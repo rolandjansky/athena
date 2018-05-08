@@ -1729,8 +1729,8 @@ class ItemDef:
                         LVL1MenuItem('L1_63DETA-J30J15').setLogic( TOPO_63DETA127_FJ20s1_FJ20s2 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_J50_DETA20-J50J').setLogic( J50 & TOPO_0DETA20_J50s1_Js2 & physcond)    # noqa: F821
                         LVL1MenuItem('L1_DPHI-2EM3').setLogic( TOPO_27DPHI32_EMs1_EMs6 & physcond)    # noqa: F821
-                        LVL1MenuItem('L1_DPHI-2EM3_VTE5.24ETA49').setLogic( TOPO_27DPHI32_EMs1_EMs6 & Not(TE524ETA49) & physcond).setTriggerType(TT.calo)
-                        LVL1MenuItem('L1_DPHI-2EM3_VTE10').setLogic( TOPO_27DPHI32_EMs1_EMs6 & Not(TE10) & physcond).setTriggerType(TT.calo)
+                        LVL1MenuItem('L1_DPHI-2EM3_VTE5.24ETA49').setLogic( TOPO_27DPHI32_EMs1_EMs6 & Not(TE524ETA49) & physcond).setTriggerType(TT.calo)    # noqa: F821
+                        LVL1MenuItem('L1_DPHI-2EM3_VTE10').setLogic( TOPO_27DPHI32_EMs1_EMs6 & Not(TE10) & physcond).setTriggerType(TT.calo)    # noqa: F821
 
                     #LVL1MenuItem('L1_MJJ-350-0').setLogic( TOPO_350INVM9999_J30s6_J20s6 & physcond)    # noqa: F821
                     #LVL1MenuItem('L1_MJJ-300-0').setLogic( TOPO_300INVM9999_J30s6_J20s6 & physcond)    # noqa: F821
