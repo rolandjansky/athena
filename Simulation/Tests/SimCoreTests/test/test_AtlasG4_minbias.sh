@@ -13,8 +13,12 @@ AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 # TODO would be good to update preExec syntax to apply beam rotations
 #'simFlags.EventFilter.set_On();simFlags.EventFilter.get_Value()["BeamEffectTransformation"]=True;'
 
+echo  "art-result: $? simulation"
+
 ArtPackage=$1
 ArtJobName=$2
 
 # TODO This is a regression test I think. We would also need to compare these files to fixed references and run DCube
 art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+
+echo  "art-result: $? regression"

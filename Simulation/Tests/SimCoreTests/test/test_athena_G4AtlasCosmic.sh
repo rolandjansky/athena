@@ -9,5 +9,9 @@
 
 athena --preloadlib=${ATLASMKLLIBDIR_PRELOAD}/libintlc.so.5:${ATLASMKLLIBDIR_PRELOAD}/libimf.so G4AtlasApps/jobOptions.G4Cosmic.py
 
+echo  "art-result: $? simulation"
+
 # TODO This is a regression test I think. 
 art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+
+echo  "art-result: $? regression"
