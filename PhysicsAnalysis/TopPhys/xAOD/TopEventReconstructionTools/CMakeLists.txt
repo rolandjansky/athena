@@ -17,7 +17,7 @@ find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO Math MathMore Mat
 
 # Find KLFitter package. As of May '18, included via atlasexternals,
 # source code pulled from https://www.github.com/KLFitter/KLFitter.
-find_package( KLFitter REQUIRED )
+find_package( KLFitter )
 
 # Custom definitions needed for this package:
 add_definitions( -g )
