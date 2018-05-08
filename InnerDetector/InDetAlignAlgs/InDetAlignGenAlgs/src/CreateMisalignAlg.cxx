@@ -575,8 +575,14 @@ namespace InDetAlignment
 			//Si have a local coordinate system
 			// Take care: For SCT we have to ensure that module's
 			// system is taken, not the system of one of the wafers!
-			const HepGeom::Transform3D localToGlobal = m_idHelper->is_trt(ModuleID) ? HepGeom::Transform3D() :  Amg::EigenTransformToCLHEP(SiModule->moduleTransform());
-			
+			HepGeom::Transform3D localToGlobal = HepGeom::Transform3D();
+			if ((not m_idHelper->is_trt(ModuleID))){
+			  if (SiModule){
+			    localToGlobal=Amg::EigenTransformToCLHEP(SiModule->moduleTransform());
+			  } else {
+			    ATH_MSG_WARNING("Apparently in a silicon detector, but SiModule is a null pointer");
+			  }
+			}
 			const HepGeom::Point3D<double> center = iter->second;
 			
 			//center of module in global coordinates
@@ -589,43 +595,43 @@ namespace InDetAlignment
 			
 
 			// prepare scale factor for different subsystems:
-                        double ScaleFactor = 1.;
+      double ScaleFactor = 1.;
 
-                        if (m_idHelper->is_pixel(ModuleID))
-                          {
-                            if (m_pixelIdHelper->is_barrel(ModuleID))   {
-                              ScaleFactor=m_ScalePixelBarrel;
-                            }
-                            else {
-                              ScaleFactor=m_ScalePixelEndcap;
-                            }
-                            if (m_pixelIdHelper->is_blayer(ModuleID))   {  // IBL
-                              ScaleFactor=m_ScalePixelIBL;
-                            }
-                            if (m_pixelIdHelper->is_dbm(ModuleID))   {    // DBM
-                              ScaleFactor=m_ScalePixelDBM;
-                            }
+      if (m_idHelper->is_pixel(ModuleID))
+        {
+          if (m_pixelIdHelper->is_barrel(ModuleID))   {
+            ScaleFactor=m_ScalePixelBarrel;
+          }
+          else {
+            ScaleFactor=m_ScalePixelEndcap;
+          }
+          if (m_pixelIdHelper->is_blayer(ModuleID))   {  // IBL
+            ScaleFactor=m_ScalePixelIBL;
+          }
+          if (m_pixelIdHelper->is_dbm(ModuleID))   {    // DBM
+            ScaleFactor=m_ScalePixelDBM;
+          }
 
-                          } else if (m_idHelper->is_sct(ModuleID))
-                          {
-                            if (m_sctIdHelper->is_barrel(ModuleID)) {
-                              ScaleFactor=m_ScaleSCTBarrel;
-                            }
-                            else {
-                              ScaleFactor=m_ScaleSCTEndcap;
-                            }
+        } else if (m_idHelper->is_sct(ModuleID))
+        {
+          if (m_sctIdHelper->is_barrel(ModuleID)) {
+            ScaleFactor=m_ScaleSCTBarrel;
+          }
+          else {
+            ScaleFactor=m_ScaleSCTEndcap;
+          }
 
-                          } else if (m_idHelper->is_trt(ModuleID))
-                          {
-                            if (m_trtIdHelper->is_barrel(ModuleID)) {
-                              ScaleFactor=m_ScaleTRTBarrel;
-                            }
-                            else {
-                              ScaleFactor=m_ScaleTRTEndcap;
-                            }
-                          } else {
-                          msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endmsg;
-                        }
+        } else if (m_idHelper->is_trt(ModuleID))
+        {
+          if (m_trtIdHelper->is_barrel(ModuleID)) {
+            ScaleFactor=m_ScaleTRTBarrel;
+          }
+          else {
+            ScaleFactor=m_ScaleTRTEndcap;
+          }
+        } else {
+        msg(MSG::WARNING) << "Something fishy, identifier is neither Pixel, nor SCT or TRT!" << endmsg;
+      }
 
 
 
@@ -654,13 +660,13 @@ namespace InDetAlignment
 				HepGeom::Vector3D<double> shift(ScaleFactor*m_Misalign_x, ScaleFactor*m_Misalign_y, ScaleFactor*m_Misalign_z);
 
 				CLHEP::HepRotation rot;
-                                rot = CLHEP::HepRotationX(ScaleFactor*m_Misalign_alpha) * CLHEP::HepRotationY(ScaleFactor*m_Misalign_beta) * CLHEP::HepRotationZ(ScaleFactor*m_Misalign_gamma);
+        rot = CLHEP::HepRotationX(ScaleFactor*m_Misalign_alpha) * CLHEP::HepRotationY(ScaleFactor*m_Misalign_beta) * CLHEP::HepRotationZ(ScaleFactor*m_Misalign_gamma);
 
-                                if (ScaleFactor == 0.0)  {
-                                  parameterizedTrafo = HepGeom::Transform3D(); // initialized as identity transformation
-                                } else {
-                                  parameterizedTrafo = HepGeom::Transform3D(rot, shift);
-                                }
+        if (ScaleFactor == 0.0)  {
+          parameterizedTrafo = HepGeom::Transform3D(); // initialized as identity transformation
+        } else {
+          parameterizedTrafo = HepGeom::Transform3D(rot, shift);
+        }
 
 			}
 			
