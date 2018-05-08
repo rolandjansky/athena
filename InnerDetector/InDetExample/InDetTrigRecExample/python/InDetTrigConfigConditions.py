@@ -254,8 +254,8 @@ class PixelConditionsServicesSetup:
 
 
 #to be moved to
-class SCT_ConditionsServicesSetup:
-  "Class to simplify setup of SCT_ConditionsSerivces"
+class SCT_ConditionsToolsSetup:
+  "Class to simplify setup of SCT_ConditionsTools"
   def __init__(self):
     self._lock = False
     self.config(useDCS=True, onlineMode=False, prefix='')     #default offline settings
@@ -288,92 +288,64 @@ class SCT_ConditionsServicesSetup:
     self._lock = True
 
 
-  def createSvc(self):
-    self.summarySvc  = self.initSummarySvc(self.instanceName('InDetSCT_ConditionsSummarySvc'))     
-    self.flaggedSvc  = self.initFlaggedSvc(self.instanceName('InDetSCT_FlaggedConditionSvc'))      
-    self.configSvc   = self.initConfigSvc(self.instanceName('InDetSCT_ConfigurationConditionsSvc'))
+  def createTool(self):
+    self.summaryTool = self.initSummaryTool(self.instanceName('InDetSCT_ConditionsSummaryTool'))
+    self.flaggedTool = self.initFlaggedTool(self.instanceName('InDetSCT_FlaggedConditionTool'))
     self.configTool  = self.initConfigTool(self.instanceName('InDetSCT_ConfigurationConditionsTool'))
-    self.bsErrSvc    = self.initBSErrSvc(self.instanceName('InDetSCT_ByteStreamErrorsSvc'))
     self.bsErrTool   = self.initBSErrTool(self.instanceName('InDetSCT_ByteStreamErrorsTool'))
-    self.calibSvc    = self.initCalibSvc(self.instanceName('InDetSCT_ReadCalibDataSvc'))
+    self.calibTool    = self.initCalibTool(self.instanceName('InDetSCT_ReadCalibDataTool'))
     if not self.onlineMode:
-      self.monitorSvc  = self.initMonitorSvc(self.instanceName('InDetSCT_MonitorConditionsSvc'))
+      self.monitorTool = self.initMonitorTool(self.instanceName('InDetSCT_MonitorConditionsTool'))
 
-    self.dcsSvc      = self.initDcsSvc('InDetSCT_DCSConditionsSvc')     
     self.dcsTool     = self.initDcsTool('InDetSCT_DCSConditionsTool')
     self.lorentzSvc  = self.initLorentzAngleSvc('SCTLorentzAngleSvc')
 
-    self.summarySvcWoFlagged = self.initSummarySvcWithoutFlagged(self.instanceName('InDetSCT_ConditionsSummarySvcWithoutFlagged'))
+    self.summaryToolWoFlagged = self.initSummaryToolWithoutFlagged(self.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
 
     pass
 
-  def initSummarySvc(self, instanceName):
-    "Init summary conditions service"
-    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
-    sct_ConditionsSummarySvcSetup = SCT_ConditionsSummarySvcSetup()
-    sct_ConditionsSummarySvcSetup.setSvcName(instanceName)
-    sct_ConditionsSummarySvcSetup.setup()
-    summarySvc = sct_ConditionsSummarySvcSetup.getSvc()
-    if self._print:  print summarySvc
-    return summarySvc
+  def initSummaryTool(self, instanceName):
+    "Init summary conditions tool"
+    from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+    sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
+    sct_ConditionsSummaryToolSetup.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetup.setup()
+    summaryTool = sct_ConditionsSummaryToolSetup.getTool()
+    if self._print:  print summaryTool
+    return summaryTool
 
-  def initSummarySvcWithoutFlagged(self, instanceName):
-    "Init summary conditions service without flaggedConditionSvc"
-    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
-    sct_ConditionsSummarySvcSetupWithoutFlagged = SCT_ConditionsSummarySvcSetup()
-    sct_ConditionsSummarySvcSetupWithoutFlagged.setSvcName(instanceName)
-    sct_ConditionsSummarySvcSetupWithoutFlagged.setup()
-    summarySvcWoFlagged = sct_ConditionsSummarySvcSetupWithoutFlagged.getSvc()
-    condSvcs = self.summarySvc.ConditionsServices
-    if self.flaggedSvc.name() in condSvcs:
-      condSvcs = [x for x in condSvcs if x != self.flaggedSvc.name()]
-    summarySvcWoFlagged.ConditionsServices = condSvcs
-    if self._print:  print summarySvcWoFlagged
-    return summarySvcWoFlagged
+  def initSummaryToolWithoutFlagged(self, instanceName):
+    "Init summary conditions tool without flaggedConditionTool"
+    from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+    sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
+    sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName(instanceName)
+    sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
+    summaryToolWoFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+    condTools = []
+    for condToolHandle in self.summaryTool.ConditionsTools:
+      condTool = condToolHandle.typeAndName
+      if condTool not in condTools:
+        if condTool != self.flaggedTool.getFullName():
+          condTools.append(condTool)
+    summaryToolWoFlagged.ConditionsTools = condTools
+    if self._print:  print summaryToolWoFlagged
+    return summaryToolWoFlagged
 
-  def initFlaggedSvc(self, instanceName):
-    "Init flagged conditions service"
-    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
-    sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
-    sct_FlaggedConditionSvcSetup.setSvcName(instanceName)
-    sct_FlaggedConditionSvcSetup.setup()
-    flaggedSvc = sct_FlaggedConditionSvcSetup.getSvc()
+  def initFlaggedTool(self, instanceName):
+    "Init flagged conditions tool"
+    from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
+    sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
+    sct_FlaggedConditionToolSetup.setToolName(instanceName)
+    sct_FlaggedConditionToolSetup.setup()
+    flaggedTool = sct_FlaggedConditionToolSetup.getTool()
     if self.prefix == "InDetTrig":
       # SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization is used.
-      flaggedSvc.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
+      flaggedTool.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
       # Otherwise, SCT_FlaggedCondData created by SCT_Clusterization
-    if self._print:  print flaggedSvc
-    if not (instanceName in self.summarySvc.ConditionsServices):
-      self.summarySvc.ConditionsServices+=[instanceName]
-    return flaggedSvc
-
-  def initConfigSvc(self, instanceName):
-    "Init configuration conditions service"
-    
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    from IOVDbSvc.CondDB import conddb
-    if conddb.dbdata == "COMP200" or InDetTrigFlags.ForceCoraCool():
-      sctdaqpath='/SCT/DAQ/Configuration'
-    else:
-      sctdaqpath='/SCT/DAQ/Config'
-
-    if InDetTrigFlags.ForceCoolVectorPayload():
-      sctdaqpath='/SCT/DAQ/Config'
-
-    from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
-    sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
-    sct_ConfigurationConditionsSvcSetup.setChannelFolder(sctdaqpath+"/Chip")
-    sct_ConfigurationConditionsSvcSetup.setModuleFolder(sctdaqpath+"/Module")
-    sct_ConfigurationConditionsSvcSetup.setMurFolder(sctdaqpath+"/MUR")
-    sct_ConfigurationConditionsSvcSetup.setSvcName(instanceName)
-    sct_ConfigurationConditionsSvcSetup.setup()
-    configSvc = sct_ConfigurationConditionsSvcSetup.getSvc()
-    if self._print:  print configSvc
-    if not (instanceName in self.summarySvc.ConditionsServices):
-      self.summarySvc.ConditionsServices+=[instanceName]
-
-    if self._print:  print self.condDB
-    return configSvc
+    if self._print:  print flaggedTool
+    if not (flaggedTool.getFullName() in self.summaryTool.ConditionsTools):
+      self.summaryTool.ConditionsTools+=[flaggedTool.getFullName()]
+      return flaggedTool
 
   def initConfigTool(self, instanceName):
     "Init configuration conditions tool"
@@ -397,58 +369,22 @@ class SCT_ConditionsServicesSetup:
     sct_ConfigurationConditionsToolSetup.setup()
     configTool = sct_ConfigurationConditionsToolSetup.getTool()
     if self._print:  print configTool
-    #if not (instanceName in self.summaryTool.ConditionsTools):
-    #  self.summaryTool.ConditionsTools+=[instanceName]
+    if not (configTool.getFullName() in self.summaryTool.ConditionsTools):
+      self.summaryTool.ConditionsTools+=[configTool.getFullName()]
 
     if self._print:  print self.condDB
     return configTool
 
-  def initMonitorSvc(self, instanceName):
-    "Init monitoring conditions service"
-    from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import SCT_MonitorConditionsSvcSetup
-    sct_MonitorConditionsSvcSetup = SCT_MonitorConditionsSvcSetup()
-    sct_MonitorConditionsSvcSetup.setSvcName(instanceName)
-    sct_MonitorConditionsSvcSetup.setup()
-    monitorSvc = sct_MonitorConditionsSvcSetup.getSvc()
-    if not (instanceName in self.summarySvc.ConditionsServices):
-      self.summarySvc.ConditionsServices+=[instanceName]
-    return monitorSvc
-
-  def initDcsSvc(self, instanceName):
-    "Init DCS conditions service"
-
-    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
-    sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
-    sct_DCSConditionsSvcSetup.setSvcName(instanceName)
-
-    dcs_folder="/SCT/DCS"
-    db_loc = "DCS_OFL"
-    if (not self.isMC): 
-      dcs_folder="/SCT/HLT/DCS"
-      db_loc = "SCT"
-    sct_DCSConditionsSvcSetup.setDbInstance(db_loc)
-    sct_DCSConditionsSvcSetup.setStateFolder(dcs_folder+"/CHANSTAT")
-    sct_DCSConditionsSvcSetup.setHVFolder(dcs_folder+"/HV")
-    sct_DCSConditionsSvcSetup.setTempFolder(dcs_folder+"/MODTEMP")
-
-    readAllDBFolders = True
-    if (not self.isMC):
-      readAllDBFolders = False
-    if self.onlineMode:
-      readAllDBFolders = False
-    sct_DCSConditionsSvcSetup.setReadAllDBFolders(readAllDBFolders)
-
-    sct_DCSConditionsSvcSetup.setup()
-    dcsSvc = sct_DCSConditionsSvcSetup.getSvc()
- 
-    if not (instanceName in self.summarySvc.ConditionsServices):
-      self.summarySvc.ConditionsServices+=[instanceName]
-
-    if self.isMC:
-      if not self.condDB.folderRequested("/SCT/DCS/MPS/LV"):
-        self.condDB.addFolder(db_loc,"/SCT/DCS/MPS/LV")
-      
-    return dcsSvc           
+  def initMonitorTool(self, instanceName):
+    "Init monitoring conditions tool"
+    from SCT_ConditionsTools.SCT_MonitorConditionsToolSetup import SCT_MonitorConditionsToolSetup
+    sct_MonitorConditionsToolSetup = SCT_MonitorConditionsToolSetup()
+    sct_MonitorConditionsToolSetup.setToolName(instanceName)
+    sct_MonitorConditionsToolSetup.setup()
+    monitorTool = sct_MonitorConditionsToolSetup.getTool()
+    if not (monitorTool.getFullName() in self.summaryTool.ConditionsTools):
+      self.summaryTool.ConditionsTools+=[monitorTool.getFullName()]
+    return monitorTool
 
   def initDcsTool(self, instanceName):
     "Init DCS conditions tool"
@@ -477,27 +413,16 @@ class SCT_ConditionsServicesSetup:
     sct_DCSConditionsToolSetup.setup()
     dcsTool = sct_DCSConditionsToolSetup.getTool()
 
-    # if not (instanceName in self.summaryTool.ConditionsTools):
-    #   self.summaryTool.ConditionsTools+=[instanceName]
+    returnHVTemp = sct_DCSConditionsToolSetup.getReturnHVTemp()
+    if ((readAllDBFolders and returnHVTemp) or (not readAllDBFolders and not returnHVTemp)):
+      if not (dcsTool.getFullName() in self.summaryTool.ConditionsTools):
+        self.summaryTool.ConditionsTools+=[dcsTool.getFullName()]
 
-    # if self.isMC:
-    #   if not self.condDB.folderRequested("/SCT/DCS/MPS/LV"):
-    #     self.condDB.addFolder(db_loc,"/SCT/DCS/MPS/LV")
+    if self.isMC:
+      if not self.condDB.folderRequested("/SCT/DCS/MPS/LV"):
+        self.condDB.addFolder(db_loc,"/SCT/DCS/MPS/LV")
 
     return dcsTool
-
-  def initBSErrSvc(self, instanceName):
-    "Init ByteStream errors service"
-    from SCT_ConditionsServices.SCT_ByteStreamErrorsSvcSetup import SCT_ByteStreamErrorsSvcSetup
-    sct_ByteStreamErrorsSvcSetup = SCT_ByteStreamErrorsSvcSetup()
-    sct_ByteStreamErrorsSvcSetup.setSvcName(instanceName)
-    sct_ByteStreamErrorsSvcSetup.setConfigSvc(self.configSvc)
-    sct_ByteStreamErrorsSvcSetup.setup()
-    bsErrSvc =sct_ByteStreamErrorsSvcSetup.getSvc()
-    if self._print:  print bsErrSvc
-    if not (instanceName in self.summarySvc.ConditionsServices):
-      self.summarySvc.ConditionsServices+=[instanceName]
-    return  bsErrSvc
 
   def initBSErrTool(self, instanceName):
     "Init ByteStream errors tool"
@@ -508,22 +433,22 @@ class SCT_ConditionsServicesSetup:
     sct_ByteStreamErrorsToolSetup.setup()
     bsErrTool =sct_ByteStreamErrorsToolSetup.getTool()
     if self._print:  print bsErrTool
-    #if not (instanceName in self.summaryTool.ConditionsTools):
-    #  self.summaryTool.ConditionsTools+=[instanceName]
+    if not (bsErrTool.getFullName() in self.summaryTool.ConditionsTools):
+      self.summaryTool.ConditionsTools+=[bsErrTool.getFullName()]
     return  bsErrTool
 
-  def initCalibSvc(self, instanceName):
-    "Init Calibration Data service"
+  def initCalibTool(self, instanceName):
+    "Init Calibration Data tool"
     from AthenaCommon.GlobalFlags import globalflags
     if (globalflags.DataSource() == 'data'):
-      from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import SCT_ReadCalibDataSvcSetup
-      sct_ReadCalibDataSvcSetup = SCT_ReadCalibDataSvcSetup()
-      sct_ReadCalibDataSvcSetup.setSvcName(instanceName)
-      sct_ReadCalibDataSvcSetup.setup()
-      calibSvc = sct_ReadCalibDataSvcSetup.getSvc()
-      if not (instanceName in self.summarySvc.ConditionsServices):
-        self.summarySvc.ConditionsServices+=[instanceName]
-      return  calibSvc
+      from SCT_ConditionsTools.SCT_ReadCalibDataToolSetup import SCT_ReadCalibDataToolSetup
+      sct_ReadCalibDataToolSetup = SCT_ReadCalibDataToolSetup()
+      sct_ReadCalibDataToolSetup.setToolName(instanceName)
+      sct_ReadCalibDataToolSetup.setup()
+      calibTool = sct_ReadCalibDataToolSetup.getTool()
+      if not (calibTool.getFullName() in self.summaryTool.ConditionsTools):
+        self.summaryTool.ConditionsTools+=[calibTool.getFullName()]
+        return  calibTool
     else:
       return None
 
@@ -565,16 +490,16 @@ class SCT_ConditionsServicesSetup:
   pass
 
 
-# Create instance of setup service 
-#sctConditionsSvc = SCT_ConditionsServicesSetup()
+# Create instance of setup tool
+#sctConditionsTool = SCT_ConditionsToolsSetup()
 
-# InDetSCT_ConditionsSummarySvc        = sctConditionsSvc.summarySvc
-# InDetSCT_ConfigurationConditionsSvc  = sctConditionsSvc.configSvc
-# InDetSCT_FlaggedConditionSvc         = sctConditionsSvc.flaggedSvc
-# InDetSCT_MonitorConditionsSvc        = sctConditionsSvc.monitorSvc
-# InDetSCT_ByteStreamErrorsSvc         = sctConditionsSvc.bsErrSvc
-# InDetSCT_ReadCalibDataSvc            = sctConditionsSvc.calibSvc
-#if not self.isMC: InDetSCT_DCSConditionsSvc            = sctConditionsSvc.dcsSvc
+# InDetSCT_ConditionsSummaryTool        = sctConditionsTool.summaryTool
+# InDetSCT_ConfigurationConditionsTool  = sctConditionsTool.configTool
+# InDetSCT_FlaggedConditionTool         = sctConditionsTool.flaggedTool
+# InDetSCT_MonitorConditionsTool        = sctConditionsTool.monitorTool
+# InDetSCT_ByteStreamErrorsTool         = sctConditionsTool.bsErrTool
+# InDetSCT_ReadCalibDataTool            = sctConditionsTool.calibTool
+#if not self.isMC: InDetSCT_DCSConditionsTool            = sctConditionsTool.dcsTool
 
 
 class TRTConditionsServicesSetup:
@@ -747,5 +672,5 @@ class dummyConditionsSetup:
 # instances of the conditions classes
 
 PixelConditionsSetup = PixelConditionsServicesSetup()
-SCT_ConditionsSetup = SCT_ConditionsServicesSetup()
+SCT_ConditionsSetup = SCT_ConditionsToolsSetup()
 TRT_ConditionsSetup = TRTConditionsServicesSetup()

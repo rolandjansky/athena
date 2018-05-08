@@ -26,7 +26,6 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "SiClusterizationTool/SCT_ReClustering.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -55,7 +54,6 @@ namespace InDet{
     AthAlgTool(type,name,parent),
     m_errorStrategy(1),
     m_checkBadChannels(true),
-    m_conditionsSvc("SCT_ConditionsSummarySvc",name),
     m_clusterMaker("InDet::ClusterMakerTool", this),
     m_timeBinStr(""),
     m_innermostBarrelX1X(false),
@@ -67,7 +65,6 @@ namespace InDet{
     declareProperty("globalPosAlg" , m_clusterMaker);
     declareProperty("errorStrategy", m_errorStrategy);
     declareProperty("checkBadChannels",m_checkBadChannels);
-    declareProperty("conditionsService" , m_conditionsSvc);
     declareProperty("timeBins" , m_timeBinStr);
     declareProperty("majority01X" , m_majority01X);
     declareProperty("innermostBarrelX1X" , m_innermostBarrelX1X);
@@ -152,7 +149,9 @@ namespace InDet{
 
     if (m_checkBadChannels){
       ATH_MSG_INFO("Clustering has been asked to look at bad channel info");
-      ATH_CHECK(m_conditionsSvc.retrieve());
+      ATH_CHECK(m_conditionsTool.retrieve());
+    } else {
+      m_conditionsTool.disable();
     }
     
     if (decodeTimeBins().isFailure()) return StatusCode::FAILURE;
@@ -541,6 +540,6 @@ namespace InDet{
 
   
   bool SCT_ClusteringTool::isBad(const Identifier & stripId) const{
-    return (not m_conditionsSvc->isGood(stripId, InDetConditions::SCT_STRIP));
+    return (not m_conditionsTool->isGood(stripId, InDetConditions::SCT_STRIP));
   }
 }

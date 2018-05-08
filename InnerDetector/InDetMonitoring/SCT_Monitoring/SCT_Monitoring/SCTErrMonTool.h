@@ -21,7 +21,6 @@
 #include <utility>
 
 //for CondDB
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "SCT_ConditionsTools/ISCT_ConfigurationConditionsTool.h"
 #include "SCT_ConditionsTools/ISCT_ByteStreamErrorsTool.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"

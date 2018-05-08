@@ -139,12 +139,15 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
 
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigClusterMakerTool
 
+      from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+      self.conditionsSummaryTool=SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryToolWithoutFlagged'))
+
       # SCT_ClusteringTool (public)
       from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
       InDetTrigSCT_ClusteringTool = \
           InDet__SCT_ClusteringTool(name          = "InDetTrigSCT_ClusteringTool",
                                     globalPosAlg  = InDetTrigClusterMakerTool,
-                                    conditionsService = "SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
+                                    conditionsTool = self.conditionsSummaryTool
                                     )
       if InDetTrigFlags.doSCTIntimeHits():
          if InDetTrigFlags.InDet25nsec():
@@ -157,7 +160,6 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       self.RawDataProvider   = InDetTrigSCTRawDataProvider
       self.clusteringTool = InDetTrigSCT_ClusteringTool
       self.SCT_RDOContainerName=EF_SCTRDOKey
-      self.conditionsSummarySvc="SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
 
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]

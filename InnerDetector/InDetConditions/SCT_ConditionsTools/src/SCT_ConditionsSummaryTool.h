@@ -38,7 +38,7 @@ public:
   virtual StatusCode finalize() override;            //!< Tool finalize
   //@}
   
-  //@name reimplemented from IInDetConditionsSvc
+  //@name reimplemented from IInDetConditionsTool
   //@{
   virtual bool isActive(const Identifier& elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT) const override;
   virtual bool isActive(const IdentifierHash& elementHash) const override;

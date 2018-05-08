@@ -35,7 +35,7 @@
 //tool/service handle template parameters
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "IRegionSelector/IRegSelSvc.h"
-
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
@@ -43,7 +43,6 @@ class SiDetectorManager;
 class ISvcLocator;
 class StatusCode;
 
-class IInDetConditionsSvc;
 namespace InDetDD{
   class SiDetectorManager;
 }
@@ -97,7 +96,8 @@ private:
   SG::WriteHandleKey<SCT_FlaggedCondData> m_flaggedCondDataKey;
   const InDetDD::SiDetectorManager*        m_manager;
   unsigned int                             m_maxRDOs;
-  ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
+  ToolHandle<IInDetConditionsTool>         m_pSummaryTool{this, "conditionsTool",
+      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};
   bool                                     m_checkBadModules;
   std::set<IdentifierHash>                 m_flaggedModules;
   unsigned int                             m_maxTotalOccupancyPercent;

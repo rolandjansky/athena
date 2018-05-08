@@ -23,7 +23,7 @@ if InDetTrigFlags.useConditionsClasses():
   from InDetTrigRecExample.InDetTrigConfigConditions import SCT_ConditionsSetup
   SCT_ConditionsSetup.config(useDCS=_useDCS, onlineMode=_onlineMode, prefix=_prefix)
   SCT_ConditionsSetup.lock()
-  SCT_ConditionsSetup.createSvc()
+  SCT_ConditionsSetup.createTool()
   
   from InDetTrigRecExample.InDetTrigConfigConditions import TRT_ConditionsSetup
   TRT_ConditionsSetup.config(useDCS=_useDCS, onlineMode=_onlineMode,prefix=_prefix)

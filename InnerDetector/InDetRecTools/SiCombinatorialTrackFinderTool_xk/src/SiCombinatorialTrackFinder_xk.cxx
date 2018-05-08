@@ -24,7 +24,6 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
 #include "TrkExInterfaces/IPatternParametersPropagator.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
@@ -39,7 +38,6 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p)                                           ,
     m_pixelCondSummaryTool("PixelConditionsSummaryTool",this        ),
-    m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc" ,n        ),
     m_fieldServiceHandle("AtlasFieldSvc",n)                     ,
     m_proptool   ("Trk::RungeKuttaPropagator/InDetPropagator"  ),
     m_updatortool("Trk::KalmanUpdator_xk/InDetPatternUpdator"  ),
@@ -75,7 +73,6 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   declareProperty("usePixel"             ,m_usePIX             );
   declareProperty("useSCT"               ,m_useSCT             );
   declareProperty("PixelSummaryTool"     ,m_pixelCondSummaryTool);
-  declareProperty("SctSummarySvc"        ,m_sctCondSummarySvc  );
   declareProperty("TrackQualityCut"      ,m_qualityCut         );
   declareProperty("MagFieldSvc"         , m_fieldServiceHandle );
 }
@@ -141,17 +138,19 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
     pixcond = &(*m_pixelCondSummaryTool); 
   }
 
-  // Get SctConditionsSummarySvc
+  // Get SctConditionsSummaryTool
   //
-  IInDetConditionsSvc* sctcond = 0; 
-  if(m_useSCT ) {  
-    if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummarySvc << endmsg;
+  IInDetConditionsTool* sctcond = nullptr;
+  if (m_useSCT) {
+    if ( m_sctCondSummaryTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummaryTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummarySvc << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummaryTool << endmsg;
     }
-    sctcond = &(*m_sctCondSummarySvc); 
+    sctcond = &(*m_sctCondSummaryTool);
+  } else {
+    m_sctCondSummaryTool.disable();
   }
 
   // get the key -- from StoreGate (DetectorStore)
