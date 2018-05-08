@@ -69,6 +69,7 @@ namespace ana
       m_accessor ("dummy")
   {
     // Note: these are only used with METMaker
+    declareProperty("DoPFlow", m_doPFlow=false);
     declareProperty("IncludeTauTerm", m_includeTauTerm=true);
     declareProperty("DoTST", m_doTST=true);
     declareProperty("DoJVTCut", m_doJVTCut=true);
@@ -153,6 +154,7 @@ namespace ana
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_metutil, met::METMaker) );
     ATH_CHECK( m_metutil.setProperty("ORCaloTaggedMuons", m_doORCaloTaggedMuons) );
     ATH_CHECK( m_metutil.setProperty("DoSetMuonJetEMScale", m_doMuJetEMScale) );
+    ATH_CHECK( m_metutil.setProperty("DoPFlow", m_doPFlow) );
 
     if (m_jetSelection!="passFJVT"){
       ATH_CHECK( m_metutil.setProperty("JetSelection", m_jetSelection) );
@@ -192,6 +194,7 @@ namespace ana
       if (!m_doTST) ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile","") );
       // No calo soft term systematics recommendations, so an empty string for now
       if (m_doTST) ATH_CHECK( m_metSystTool.setProperty("ConfigSoftCaloFile", "") );
+      if (m_doPFlow) ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile", "TrackSoftTerms-pflow.config") );
       if (m_doTrackMET)
       {
         ANA_MSG_WARNING ("no ConfigJetTrkFile present, setting empty file for now");
@@ -233,6 +236,8 @@ namespace ana
 
     auto met = objects.get<xAOD::MissingETContainer> (m_type);
 
+    if (m_doPFlow) m_jetContainer = "AntiKt4EMPFlowJets";
+
     // Retrieve the container of object weights. These were filled during
     // reconstruction and will be used to recalculate the MET with our
     // calibrated objects.
@@ -254,11 +259,19 @@ namespace ana
     // Setup ghost association for mu-jet OR
     //if(m_doMuJetOR || m_doMuJetEMScale) {
     if(m_doORCaloTaggedMuons || m_doMuJetEMScale) {
-      if(!objects.muons() || !objects.jets()) {
-        ATH_MSG_ERROR("Configured mu-jet OR for MET but container(s) NULL!");
-        return StatusCode::FAILURE;
+      if (!m_doPFlow) {
+        if(!objects.muons() || !objects.jets()) {
+          ATH_MSG_ERROR("Configured mu-jet OR for MET but container(s) NULL!");
+          return StatusCode::FAILURE;
+        }
+        met::addGhostMuonsToJets( *objects.muons(), *objects.jets() );
+      }else {
+        if(!objects.muons() || !objects.pflow_jets()) {
+          ATH_MSG_ERROR("Configured mu-jet OR for MET but container(s) NULL!");
+          return StatusCode::FAILURE;
+        }
+        met::addGhostMuonsToJets( *objects.muons(), *objects.pflow_jets() );
       }
-      met::addGhostMuonsToJets( *objects.muons(), *objects.jets() );
     }
 
     // TODO: remove hardcoded options and strings
@@ -350,8 +363,10 @@ namespace ana
                                             metcore, metMap, m_doJVTCut));
     } else
     {
-      ATH_CHECK (m_metutil->rebuildJetMET("RefJet", softTerm, met, objects.jets(),
-                                          metcore, metMap, m_doJVTCut));
+      if (!m_doPFlow) ATH_CHECK (m_metutil->rebuildJetMET("RefJet", softTerm, met, objects.jets(),
+                                                          metcore, metMap, m_doJVTCut));
+      else            ATH_CHECK (m_metutil->rebuildJetMET("RefJet", softTerm, met, objects.pflow_jets(),
+                                                          metcore, metMap, m_doJVTCut));
     }
 
     if (m_isData == false)
@@ -377,12 +392,13 @@ namespace ana
 
   // Function for instantiating a MetTool
   StatusCode makeMetTool (DefinitionArgs& args,
+                          const bool doPFlow=false,
                           const bool includeTauTerm=true,
                           const bool doTST=true,
                           const bool doJVTCut=true,
                           const bool doTrackMet=false,
                           const bool doORCaloTaggedMuons=true,
-                          const bool doMuJetEMScale=false,
+                          const bool doMuJetEMScale=true,
                           const std::string& jetSelection="Tight",
                           const double uniqueFrac=-1.,
                           const double jetCut=-1.)
@@ -391,6 +407,7 @@ namespace ana
 
     std::unique_ptr<MetTool> metTool
       (new MetTool (args.prefix()));
+    ANA_CHECK( metTool->setProperty("DoPFlow", doPFlow) );
     ANA_CHECK( metTool->setProperty("IncludeTauTerm", includeTauTerm) );
     ANA_CHECK( metTool->setProperty("DoTST", doTST) );
     ANA_CHECK( metTool->setProperty("DoJVTCut", doJVTCut) );
@@ -407,15 +424,15 @@ namespace ana
 
   // Macro for creating a MetTool using the provided function
   QUICK_ANA_MET_DEFINITION_MAKER( "default",   makeMetTool(args) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,false) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,true,true,true,true) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,true,true,true,false,true,true) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv",  makeMetTool(args,true,true,true,false,true,true,"Tight") )
-  QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv_loose",  makeMetTool(args,true,true,true,false,true,true,"Loose") )
-  QUICK_ANA_MET_DEFINITION_MAKER( "noTauCST",  makeMetTool(args,false,false) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "CST",       makeMetTool(args,true,false,false) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "pflow",     makeMetTool(args,true,true,true,true,false,true,true,"PFlow") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,false,false) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,false,true,true,true,true) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,false,true,true,true,false,true,true) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "noTauCST",  makeMetTool(args,false,false,false) )
+  QUICK_ANA_MET_DEFINITION_MAKER( "CST",       makeMetTool(args,false,true,false,false) )
 
-  QUICK_ANA_MET_DEFINITION_MAKER( "Tight",    makeMetTool(args,true,true,true,false,true,false,"Tight") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "loose",    makeMetTool(args,false,true,true,true,false,true,true,"Loose") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "Tight",    makeMetTool(args,false,true,true,true,false,true,false,"Tight") )
   QUICK_ANA_MET_DEFINITION_MAKER( "passFJVT",    makeMetTool(args,true,true,true,false,true,false,"passFJVT") )
 
 }

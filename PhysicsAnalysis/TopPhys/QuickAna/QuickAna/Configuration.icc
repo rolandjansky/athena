@@ -24,10 +24,13 @@ namespace ana
     obj.declareProperty ("tauKine", tauKine, "tau kinematic selection");
     obj.declareProperty ("jetDef", jetDef, "jet object definition");
     obj.declareProperty ("jetKine", jetKine, "jet kinematic selection");
+    obj.declareProperty ("pfJetDef", pfJetDef, "pflow jet object definition");
+    obj.declareProperty ("pfJetKine", pfJetKine, "pflow jet kinematic selection");
     obj.declareProperty ("fatJetDef", fatJetDef, "fat jet object definition");
     obj.declareProperty ("fatJetKine", fatJetKine, "fat jet kinematic selection");
     obj.declareProperty ("metDef", metDef, "met definition");
     obj.declareProperty ("met2Def", met2Def, "second met definition");
+    obj.declareProperty ("cleanDef", cleanDef, "event cleaning definition");
     obj.declareProperty ("orDef", orDef, "overlap removal definition");
     obj.declareProperty ("triggerDef", triggerDef, "trigger definition");
     obj.declareProperty ("muDataFiles", muDataFiles, "the files with the mu distribution in data");
