@@ -216,7 +216,7 @@ function loadPage() {
   if (diffRelease != thisRelease) {
     // Load second summary page in hidden iframe
     var url = window.document.location.href;
-    iframe.src = url.replace(/rel_[0-6]/, diffRelease);
+    iframe.src = url.replace(/\d\d\d\d-\d\d-\d\dT\d\d\d\d/, diffRelease);
   }
   else {
     highlightDiffs(true);  // remove all highlighting
@@ -225,7 +225,8 @@ function loadPage() {
 
 function setRelease() {
   var url = window.document.location.href;
-  thisRelease = url.match(/rel_[0-6]/);
+  #thisRelease = url.match(/rel_[0-6]/);
+  thisRelease = url.match(/\d\d\d\d-\d\d-\d\dT\d\d\d\d/);
   if (thisRelease) {
     thisRelease = thisRelease[0];
     document.DiffForm.rel.value = thisRelease;
@@ -290,7 +291,22 @@ function showBuildFailures(failures,link) {
     print HTMLOUT "    }\n";
     print HTMLOUT "?>\n";
     print HTMLOUT "</select>\n";
-    print HTMLOUT "</p>\n";
+    print HTMLOUT "<p>Check differences: <select name=\"select_other_builds\" size=\"1\" onchange=\"loadPage()\">\n";
+    print HTMLOUT "<option value=\"\" selected=\"selected\">-----</option>\n";
+    print HTMLOUT "<?php\n";
+    print HTMLOUT "             \$nightlies = glob(dirname(__FILE__) . '/../../*');\n";
+    print HTMLOUT "             \$nightlies = array_reverse(\$nightlies);\n";
+    print HTMLOUT "             \$current_page_link = \"\$_SERVER[REQUEST_URI]\";\n";
+    print HTMLOUT "             // protect against multiple slashes in a row\n";
+    print HTMLOUT "             \$current_page_link = preg_replace('#/+#','/',\$current_page_link);\n";
+    print HTMLOUT "             \$full_link = (isset(\$_SERVER['HTTPS']) ? \"https\" : \"http\") . \"://\$_SERVER[HTTP_HOST]\" . \$current_page_link;\n";
+    print HTMLOUT "             foreach(\$nightlies as \$nightly){\n";
+    print HTMLOUT "                 \$nightly = basename(\$nightly);\n";
+    print HTMLOUT "                 echo \"<option value='\" . \$full_link . \"../../\" . \$nightly . \"/$test_suite/\" . \"'>\".\$nightly.\"</option>\";\n";
+    print HTMLOUT "    }\n";
+    print HTMLOUT "?>\n";
+    print HTMLOUT "</select> <span id='nDiffs' style='font-weight:bold'></span>
+</form><script type=\"text/javascript\">setRelease();</script></p>";
 
     # Link to GitLab diff between today's and yesterday's release
     my $fmt="%Y-%m-%dT%H%M";
