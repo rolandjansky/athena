@@ -214,6 +214,13 @@ AFP_ByteStream2RawCnv::getCollectionSi(const unsigned int link, const unsigned i
     return nullptr;
   }
 
+  // Code below is commented, because it was impossible to
+  // reconstruct several bunch crossings in one event with it. In
+  // standard data taking only one bunch crossing is saved and this
+  // protection should not be necessary. However in case of big
+  // readout problems the code may be needed, that is why it stays
+  // commented here.
+
   // for (const AFP_SiRawCollection& collection : container->collectionsSi())
   //   if (collection.link() == link && collection.robId() == robId)
   //     ATH_MSG_WARNING("Silicon collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection. (Reading several BCX?)");
@@ -230,10 +237,17 @@ AFP_ByteStream2RawCnv::getCollectionToF(const unsigned int link, const unsigned 
     ATH_MSG_WARNING("NULL pointer passed in argument: container. NULL pointer returned.");
     return nullptr;
   }
+  
+  // Code below is commented, because it was impossible to
+  // reconstruct several bunch crossings in one event with it. In
+  // standard data taking only one bunch crossing is saved and this
+  // protection should not be necessary. However in case of big
+  // readout problems the code may be needed, that is why it stays
+  // commented here.
 
-  for (const AFP_ToFRawCollection& collection : container->collectionsToF())
-    if (collection.link() == link && collection.robId() == robId)
-      ATH_MSG_WARNING("ToF collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection (Reading several BCX?)");
+  // for (const AFP_ToFRawCollection& collection : container->collectionsToF())
+  //   if (collection.link() == link && collection.robId() == robId)
+  //     ATH_MSG_WARNING("ToF collection link="<<link<<" robId="<<robId<<" already in container, although it should not be there. Anyway creating new collection (Reading several BCX?)");
 
   AFP_ToFRawCollection& newCollection = container->newCollectionToF();
   return &newCollection;
