@@ -91,10 +91,10 @@ namespace top {
     // Create a hard-coded map linking top::topSFSyst <-> EventInfo decoration
     switch(SFSyst){
     case top::topSFSyst::EL_SF_Trigger_UP:
-      sf = eventInfo->auxdecor<float>(prefix+"EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR__1up");
+      sf = eventInfo->auxdecor<float>(prefix+"EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1up");
       break;
     case top::topSFSyst::EL_SF_Trigger_DOWN:
-      sf = eventInfo->auxdecor<float>(prefix+"EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR__1down");
+      sf = eventInfo->auxdecor<float>(prefix+"EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR__1down");
       break;
     case top::topSFSyst::MU_SF_Trigger_STAT_UP:
       sf = eventInfo->auxdecor<float>(prefix+"MUON_EFF_TrigStatUncertainty__1up");

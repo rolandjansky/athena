@@ -205,10 +205,11 @@ StatusCode TriggerCPTools::initialiseGlobalTriggerEff(){
 	  legsPerTool[name] = trigKey;
 	  ATH_MSG_INFO("TIGHT " << name << " -> " << trigKey);
 	  electronToolNames.push_back(name);
-	  // Special - Record the systematic names
-	  if(electronSystematics.size() == 0){
+	  // Special - Record the systematic names from the efficiency tool (not SF tool)
+	  if(electronSystematics.size() == 0 && j == 1){
 	    for(auto& s : handles[handles.size()-1]->recommendedSystematics().getBaseNames() ) electronSystematics.push_back(s);
 	  }
+
 	}
     }
   }
