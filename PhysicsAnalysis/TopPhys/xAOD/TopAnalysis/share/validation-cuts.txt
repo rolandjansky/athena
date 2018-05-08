@@ -1,5 +1,14 @@
 LibraryNames libTopEventSelectionTools libTopEventReconstructionTools
 
+### Global lepton trigger scale factor example
+# Activate the functionality and load the trigger strings with appropriate period trigger strings (different triggers can be used for loose tree)
+UseGlobalLeptonTriggerSF True
+ElectronTriggers 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
+MuonTriggers 2015@mu20_iloose_L1MU15_OR_mu50 2016@mu26_ivarmedium_OR_mu50
+ElectronTriggersLoose 2015@e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose 2016@e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0
+MuonTriggersLoose 2015@mu20_iloose_L1MU15_OR_mu50 2016@mu26_ivarmedium_OR_mu50
+
+
 ### Good Run List
 GRLDir  GoodRunsLists
 GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20170605/physics_25ns_21.0.19.xml data17_13TeV/20170714/physics_25ns_HLTNo17e33primaries_21.0.30.xml
