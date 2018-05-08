@@ -37,12 +37,14 @@ public:
 	bool addPeriod(ImportData& data, const std::pair<unsigned,unsigned>& boundaries, const std::string& combination, 
 			bool useToys, bool useDefaultElectronTools, std::size_t& uniqueElectronLeg, bool useDefaultPhotonTools, std::size_t& uniquePhotonLeg);
 	bool compute(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber, Efficiencies& efficiencies);
+	bool checkTriggerMatching(TrigGlobalEfficiencyCorrectionTool& parent, bool& matched, const LeptonList& leptons, unsigned runNumber);
 	
 	struct Period
 	{
 		const std::pair<unsigned,unsigned> m_boundaries;
 		std::function<bool(Calculator*,const LeptonList&,unsigned,Efficiencies&)> m_formula;
-		Period(const decltype(m_boundaries)& b, decltype(m_formula)&& f) : m_boundaries(b), m_formula(f) {}
+		std::vector<TrigDef> m_triggers; /// only used for trigger matching; not filled otherwise. Also, single-lepton _OR_ triggers are split!
+		Period(const decltype(m_boundaries)& b, decltype(m_formula)&& f, decltype(m_triggers)&& t = {}) : m_boundaries(b), m_formula(f), m_triggers(t) {}
 	};
 	
 private:
@@ -56,7 +58,9 @@ private:
 			-> typename std::enable_if<Trig1L::is1L(), std::size_t>::type
 		{ return m_parent->getLoosestLegAboveThreshold(lepton, Trig1L::anonymize(trigs), success); }
 	Efficiencies getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned runNumber, std::size_t leg, bool& success);
-
+	bool fillListOfLegsFor(const Lepton& lepton, const std::vector<TrigDef>& triggers, flat_set<std::size_t>& validLegs) const;
+	bool canTriggerBeFired(const TrigDef& trig, const std::vector<flat_set<std::size_t> >& firedLegs) const;
+	const Period* getPeriod(unsigned runNumber) const;
 	
 	template<typename Trig1L>
 	auto globalEfficiency_One1L(const LeptonList& leptons, unsigned runNumber, const Trig1L trig, Efficiencies& globalEfficiencies)
