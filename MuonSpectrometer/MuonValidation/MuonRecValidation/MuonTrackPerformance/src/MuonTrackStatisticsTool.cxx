@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -41,46 +41,28 @@ AthAlgTool(t,n,p),
 m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelpertTool"),
 m_doTruth     (false)
 
-
-
 {
 	declareInterface<MuonTrackStatisticsTool>(this);
 	declareProperty("doTruth",         m_doTruth);
-	
-	
-	
 }
 
 // INITIALIZE METHOD:
 
 StatusCode MuonTrackStatisticsTool::initialize()
 {
-	
-	StatusCode sc = m_helperTool.retrieve();
-	if (sc.isSuccess()){
-		ATH_MSG_DEBUG( "Retrieved " << m_helperTool);
-	}else{
-		ATH_MSG_FATAL("Could not get " << m_helperTool);
-		return sc;
-	}
-	
+	ATH_CHECK( m_helperTool.retrieve() );
 	return StatusCode::SUCCESS;
 }
 
-
-
 /////////////////////////////////////////////////////////////////
 // ATHENA FINALIZE:
-
 
 StatusCode MuonTrackStatisticsTool::finalize() {
 	
 	if (m_doTruth)
     {
 		//empty for now, will impliment access of truth later
-		
     }
-	
 	return StatusCode::SUCCESS;
 }
 
@@ -99,24 +81,10 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(std::string name, c
 StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters& counters,  const DetailedTrackTruthCollection& TruthMap) const{
 	
 	ATH_MSG_DEBUG( "MuonTrackStatisticsTool calling updateTruthTrackCounters: " << counters.trackLocation);
-	
 	++counters.nEvents;
-	
-	StatusCode sc = StatusCode::SUCCESS;
-	
-	
-	
-	if( TruthMap.empty() ) return sc;
-	
+	if( TruthMap.empty() ) return StatusCode::SUCCESS;
 	
 	//update each set of trackcounters for each track
-	
-	
-	
-	
-	
-	
-	
 	DetailedTrackTruthCollection::const_iterator it_start=TruthMap.begin();
 	DetailedTrackTruthCollection::const_iterator it_end=TruthMap.end();
 	DetailedTrackTruthCollection::const_iterator it=it_start;
@@ -148,7 +116,6 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
 		counters.nTGChits[2]+=(*it).second.statsTruth()[SubDetHitStatistics::TGC];
 		counters.nCSChits[2]+=(*it).second.statsTruth()[SubDetHitStatistics::CSC];
 		
-		
 		ATH_MSG_DEBUG( myindex << ".) " << "Index: "  <<  (*it).first.index() << "		" << (*it).second << " (Pixel, SCT, TRT, MDT, RPC, TGC, CSC) ");
 		ATH_MSG_DEBUG( "	GenParticle info:" );
 		for( unsigned int i=0; i< (*it).second.trajectory().size(); i++) {
@@ -164,10 +131,7 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
 		}
 		myindex++;
 	}		
-	
-	
-	return sc;
-	
+	return StatusCode::SUCCESS;;
 }
 
 
@@ -186,18 +150,10 @@ StatusCode MuonTrackStatisticsTool::updateTrackCounters(std::string name, const 
 StatusCode MuonTrackStatisticsTool::updateTrackCounters(TrackCounters& counters,  const TrackCollection& tracks) const{
 	
 	ATH_MSG_DEBUG("MuonTrackStatisticsTool calling updateTrackCounters: " << counters.trackLocation);
-	
 	++counters.nEvents;
 	
-	StatusCode sc = StatusCode::SUCCESS;
-	
-	
-	
-	if( tracks.empty() ) return sc;
-	
-	
+	if( tracks.empty() ) return StatusCode::SUCCESS;
 	//update each set of trackcounters for each track
-	
 	counters.nTracks += tracks.size();
 	
 	TrackCollection::const_iterator it = tracks.begin();
@@ -217,11 +173,7 @@ StatusCode MuonTrackStatisticsTool::updateTrackCounters(TrackCounters& counters,
 	  counters.nHoles += summary.nholes();
 	  counters.summedchi2 += chi2dof;
 	}
-	
-    
-	
-	return sc;
-	
+	return StatusCode::SUCCESS;
 }
 
 
@@ -433,10 +385,6 @@ std::string MuonTrackStatisticsTool::printTrackCounters() const
 void
 MuonTrackStatisticsTool::storeTruthTracks(void)
 {
-	
-	
-	
-	
 	/*
 	 const McEventCollection* mcCollection = 0;
 	 std::string key = "TruthEvent";
@@ -498,9 +446,6 @@ MuonTrackStatisticsTool::storeTruthTracks(void)
 	 m_etag->push_back((*particle)->momentum().pseudoRapidity());
 	 m_barcode->push_back((*particle)->barcode());
 	 m_status->push_back((*particle)->status());
-	 
-	 
-	 
 	 */
 	
 }
