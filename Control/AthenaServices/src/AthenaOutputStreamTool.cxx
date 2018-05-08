@@ -354,7 +354,6 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
          }
       }
    }
-   m_dataHeader->addHash(&*m_store);
    if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
       // End of loop over DataObjects, write DataHeader
       IOpaqueAddress* addr(0);
@@ -366,6 +365,7 @@ StatusCode AthenaOutputStreamTool::streamObjects(const DataObjectVec& dataObject
    if (!fillObjectRefs(dataObjects).isSuccess()) {
       return(StatusCode::FAILURE);
    }
+   m_dataHeader->addHash(&*m_store);
    if (m_conversionSvc.type() == "AthenaPoolCnvSvc") {
       // End of DataObjects, fill refs for DataHeader
       DataObjectVec dataHeaderObjVec;
