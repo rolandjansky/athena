@@ -92,10 +92,6 @@ _add_test( AthenaPoolExample_Read
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
    EXTRA_PATTERNS "BYTES_READ|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
-# Read all output via TAGs
-_add_test( AthenaPoolExample_ReadTag
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadTagJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWrite_ctest )
 # Read all output including scoped BackNavigation
 _add_test( AthenaPoolExample_ReadBN
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBNJobOptions.py"
@@ -111,7 +107,6 @@ _add_test( AthenaPoolExample_ReadNoBN
 _add_test( AthenaPoolExample_Copy
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_CopyJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Read_ctest
-           AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadTag_ctest
            AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBN_ctest
            AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadNoBN_ctest
    EXTRA_PATTERNS "DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO" )

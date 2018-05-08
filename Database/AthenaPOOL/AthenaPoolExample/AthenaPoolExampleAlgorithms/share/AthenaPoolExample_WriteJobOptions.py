@@ -8,16 +8,10 @@
 # ----------------
 # 1. Writes a SimplePoolFile1.root file with ExampleHit DataObjects and in-file MetaData
 # 2. Writes another SimplePoolFile2.root file using the AthenaPool support for multiple OutputStreams.
-# 3. Writes TAG files SimplePoolCollection1.root and SimplePoolCollection2.root to point to the events.
-# 4. Writes an additional event-less file EmptyPoolFile.root and collection EmptyPoolCollection.root.
-# 5. Writes HDF5 TAG file SimplePoolCollection1.h5 with attribute list and primary event ref.
+# 3. Writes an additional event-less file EmptyPoolFile.root.
 # ------------------------------------------------------------
 # Expected output file (20 events):
-# -rw-r--r--  1 gemmeren zp 11283 Aug  5 16:56 EmptyPoolCollection.root
 # -rw-r--r--  1 gemmeren zp 16345 Aug  5 16:56 EmptyPoolFile.root
-# -rw-r--r--  1 gemmeren zp 10008 Aug  5 16:56 SimplePoolCollection1.h5
-# -rw-r--r--  1 gemmeren zp 11412 Aug  5 16:56 SimplePoolCollection1.root
-# -rw-r--r--  1 gemmeren zp 11407 Aug  5 16:56 SimplePoolCollection2.root
 # -rw-r--r--  1 gemmeren zp 25161 Aug  5 16:56 SimplePoolFile1.root
 # -rw-r--r--  1 gemmeren zp 20654 Aug  5 16:56 SimplePoolFile2.root
 # ------------------------------------------------------------
@@ -87,7 +81,6 @@ svcMgr.PoolSvc.WriteCatalog = "xmlcatalog_file:Catalog1.xml"
 
 from AthenaPoolCnvSvc.AthenaPoolCnvSvcConf import AthenaPoolCnvSvc
 svcMgr += AthenaPoolCnvSvc()
-svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 
 svcMgr.EventSelector.RunNumber = 1
 
@@ -125,35 +118,6 @@ Stream3 = AthenaPoolOutputStream( "Stream3" , "EmptyPoolFile.root" , True, noTag
 Stream3.RequireAlgs = [ "PassNoneFilter" ]
 
 #--------------------------------------------------------------
-# Event Collection Registration
-#--------------------------------------------------------------
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
-TagTool = RegistrationStreamTagTool("TagTool")
-
-from RegistrationServices.RegistrationServicesConf import RegistrationStream
-RegStream1 = RegistrationStream( "RegStream1" , CollectionType="ExplicitROOT" , Tool=TagTool )
-RegStream1.WriteInputDataHeader = False
-RegStream1.OutputCollection = "SimplePoolCollection1.root"
-RegStream1.ItemList += [ "DataHeader#Stream1" ]
-RegStream1.ItemList += [ "TagAthenaAttributeList#" + MagicWriteTag.Key ]
-topSequence += RegStream1
-
-RegStream2 = RegistrationStream( "RegStream2" , CollectionType="ExplicitROOT" , Tool=TagTool )
-RegStream2.WriteInputDataHeader = False
-RegStream2.OutputCollection = "SimplePoolCollection2.root"
-RegStream2.ItemList += [ "DataHeader#Stream2" ]
-RegStream2.ItemList += [ "TagAthenaAttributeList#RunEventTag" ]
-topSequence += RegStream2
-
-RegStream3 = RegistrationStream( "RegStream3" , CollectionType="ExplicitROOT" , Tool=TagTool )
-RegStream3.WriteInputDataHeader = False
-RegStream3.OutputCollection = "EmptyPoolCollection.root"
-RegStream3.ItemList += [ "DataHeader#Stream2" ]
-RegStream3.ItemList += [ "TagAthenaAttributeList#" + MagicWriteTag.Key ]
-RegStream3.RequireAlgs = [ "PassNoneFilter" ]
-topSequence += RegStream3
-
-#--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
 #--------------------------------------------------------------
 svcMgr.MessageSvc.OutputLevel = 3
@@ -166,12 +130,6 @@ Stream1.HelperTools[0].OutputLevel = 3
 Stream2.OutputLevel = 2
 Stream2.WritingTool.OutputLevel = 3
 Stream2.HelperTools[0].OutputLevel = 3
-RegStream1.OutputLevel = 2
-RegStream1.Tool.OutputLevel = 3
-RegStream2.OutputLevel = 2
-RegStream2.Tool.OutputLevel = 3
-RegStream3.OutputLevel = 2
-RegStream3.Tool.OutputLevel = 3
 
 #
 # End of job options file
