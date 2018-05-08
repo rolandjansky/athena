@@ -11,6 +11,7 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IScheduler.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
 
 
 // Athena includes
@@ -154,32 +155,35 @@ StatusCode HltEventLoopMgr::initialize()
     fatal() << "Error retrieving " << m_whiteboardName << " interface IHiveWhiteBoard." << endmsg;
     return StatusCode::FAILURE;
   }
+  debug() << "initialised " << m_whiteboardName << " interface IHiveWhiteBoard." << endmsg;
   
   m_schedulerSvc = serviceLocator()->service(m_schedulerName);
   if ( !m_schedulerSvc.isValid()){
     fatal() << "Error retrieving " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
     return StatusCode::FAILURE;    
   }
-  // Setup algorithm resource pool
+  debug() << "initialised " << m_schedulerName << " interface ISchedulerSvc." << endmsg;
+  
   m_algResourcePool = serviceLocator()->service("AlgResourcePool");
   if( !m_algResourcePool.isValid() ) {
     fatal() << "Error retrieving AlgResourcePool" << endmsg;
     return StatusCode::FAILURE;
   }
+  debug() << "initialised AlgResourcePool" << endmsg;
 
-#ifdef REENTRANT_GAUDI
-  m_algExecMgr = serviceLocator()->service("AlgExecMgr");
-  if( !m_algExecMgr.isValid() ) {
-    fatal() << "Error retrieving AlgExecMgr" << endmsg;
+  m_aess = serviceLocator()->service("AlgExecStateSvc");
+  if( !m_aess.isValid() ) {
+    fatal() << "Error retrieving AlgExecStateSvc" << endmsg;
     return StatusCode::FAILURE;
   }
-#endif
+  debug() << "initialised AlgExecStateSvc" << endmsg;
+
 
   //----------------------------------------------------------------------------
   // Setup the IncidentSvc
   //----------------------------------------------------------------------------
   sc = m_incidentSvc.retrieve();
-  if( !sc.isSuccess() ) {
+  if(sc.isFailure()) {
     fatal() << "Error retrieving IncidentSvc " + m_incidentSvc << endmsg;
     return sc;
   }
