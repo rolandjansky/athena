@@ -56,5 +56,6 @@ atlas_add_executable( topreco_test_mt2
                                      TopAnalysis
                                      ${KLFITTER_LIBRARIES}
                                      ${ROOT_LIBRARIES}
-                                     TopEventReconstructionTools )
+                                     TopEventReconstructionTools
+                      INCLUDE_DIRS ${KLFITTER_INCLUDE_DIRS} )
 
