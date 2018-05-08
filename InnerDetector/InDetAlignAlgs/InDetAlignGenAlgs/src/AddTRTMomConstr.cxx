@@ -27,6 +27,7 @@
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
 #include "AthContainers/ConstDataVector.h"
+#include <cmath>
 
 
 
@@ -164,9 +165,9 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
   float theta = mesp->parameters()[Trk::theta] ;
   float pt = 0. ;
   if( theta != 0 ){
-    float ptInv = fabs( mesp->parameters()[Trk::qOverP] ) / sin( theta ) ;
+    float ptInv = std::fabs( mesp->parameters()[Trk::qOverP] ) / std::sin( theta ) ;
     if( ptInv != 0 ) {
-      pt = 1/ptInv ;
+      pt = 1./ptInv ;
       if( m_selPtMin > 0 && pt < m_selPtMin ) rc = false ;
     }
   } else {
@@ -174,7 +175,7 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
     return false ;
   }
 
-  float eta = -log( tan( theta/2 ) ) ;
+  float eta = -std::log( std::tan( theta/2. ) ) ;
   if( m_selEtaMin < m_selEtaMax && (eta < m_selEtaMin || eta > m_selEtaMax ) ) {
     rc = false ;
   }
@@ -191,7 +192,7 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
     rc = false ;
   }
   // different treatment for TRT in transition region
-  bool isInTransitionRegion = fabs(eta) > m_selEtaCrackMin && fabs(eta) < m_selEtaCrackMax ;
+  bool isInTransitionRegion = std::fabs(eta) > m_selEtaCrackMin && std::fabs(eta) < m_selEtaCrackMax ;
   if( isInTransitionRegion ) {
     if( int(summary->get(Trk::numberOfTRTHits)) < m_selNHitTRTMinCrack ) {
       ++m_nRejectTRT ;
@@ -232,7 +233,7 @@ const Trk::TrackStateOnSurface* AddTRTMomConstr::findouterscthit( const Trk::Tra
       if(sctclus) {
         ATH_MSG_VERBOSE ( "Found SCT_ClusterOnTrack");
         const Amg::Vector3D& pos = sctclus->globalPosition() ;
-        double r = sqrt(pos.x()*pos.x() + pos.y()*pos.y()) ;
+        double r = std::sqrt(pos.x()*pos.x() + pos.y()*pos.y()) ;
         if(rc==0 || r>rmax) {
           rc = tsos ;
           rmax = r ;
@@ -247,7 +248,7 @@ const Trk::TrackStateOnSurface* AddTRTMomConstr::findouterscthit( const Trk::Tra
 const Trk::TrackStateOnSurface* AddTRTMomConstr::findinnertrthit( const Trk::Track* track ) {
   ATH_MSG_VERBOSE ( "Inside findinnerscthit: " << track->trackStateOnSurfaces()->size() );
   double rmin=9999999. ;
-  const Trk::TrackStateOnSurface* rc=0 ;
+  const Trk::TrackStateOnSurface* rc=nullptr ;
   for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
     if( !tsos->type(Trk::TrackStateOnSurface::Outlier) && 
          tsos->measurementOnTrack() &&
@@ -409,8 +410,8 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   const Trk::Perigee* perTRT = trkTRT->perigeeParameters();
   ATH_MSG_DEBUG( "TRTMomConstr() : perTRT " << *perTRT) ;
   // the theta value after TRT+PM fit can be different from the initial one by < o(10e-4). Correct q/p optionally
-  if( m_useThetaCorrection ) m_thetaCorr = sin( perTrk->parameters()[Trk::theta] ) 
-                                         / sin( perTRT->parameters()[Trk::theta] ) ;
+  if( m_useThetaCorrection ) m_thetaCorr = std::sin( perTrk->parameters()[Trk::theta] ) 
+                                         / std::sin( perTRT->parameters()[Trk::theta] ) ;
   ATH_MSG_DEBUG( "TRTMomConstr() : Scalefactor to correct q/p: " << m_thetaCorr) ;
 
   // define new PM with the momentum constraint from the TRT to pass to Si
