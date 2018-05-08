@@ -82,66 +82,13 @@ AddTRTMomConstr::~AddTRTMomConstr() {}
 
 StatusCode AddTRTMomConstr::initialize() {
   //retrieve the DetectorStore service
-  StatusCode status=detStore().retrieve() ;
-  if( status.isFailure() ) {
-    msg(MSG::ERROR) << "DetectorStore service not found !" << endmsg;
-    return status;
-  }else{ 
-    ATH_MSG_DEBUG( "DetectorStore retrieved!" );
-  }
-
-  if( detStore()->retrieve(m_trtid).isFailure() ) {
-    msg (MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-
-//   m_idHelper = new AtlasDetectorID ;
-
-//   // Get the dictionary manager from the detector store
-//   const IdDictManager*  idDictMgr = 0;
-//   status = detStore()->retrieve(idDictMgr, "IdDict");
-//   if( status.isFailure() ) {
-//     msg(MSG::ERROR) << "Could not get IdDictManager !" << endmsg;
-//     return status;
-//   }
-
-//   // Initialize the helper with the dictionary information.
-//   if (idDictMgr) {
-//     if (idDictMgr->initializeHelper(*m_idHelper)) { // Returns 1 if there is a problem
-//       msg(MSG::ERROR) << "Unable to initialize ID helper." << endmsg;
-//       return StatusCode::FAILURE;
-//     }
-//   } else {
-//     msg(MSG::ERROR) << "IdDictManager pointer is zero. "
-//           << "Unable to initialize id helper. " << endmsg;
-//     return StatusCode::FAILURE;
-//   }
-
-
-
+  ATH_CHECK(detStore().retrieve()) ;
+  ATH_CHECK(detStore()->retrieve(m_trtid));
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
   // get TrackSummaryTool
-  StatusCode sc= m_trackSummaryTool.retrieve();
-  if (sc.isFailure()) {
-    msg (MSG::FATAL) << "Cannot get TrackSummaryTool" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK(m_trackSummaryTool.retrieve());
   // Set up fitter
-  status = m_trackFitter.retrieve();
-  if (status.isFailure()) {
-    msg (MSG::FATAL) << "Could not find tool " << m_trackFitter
-          << ". Exiting." << endmsg ;
-    return status ;
-  } else {
-    ATH_MSG_DEBUG( " Got " << m_trackFitter << " as TrackFitter. " ) ;
-  }
-
+  ATH_CHECK(m_trackFitter.retrieve());
   // Print input properties
   if( m_applyTrkSel ) {
     ATH_MSG_DEBUG(
@@ -169,10 +116,8 @@ StatusCode AddTRTMomConstr::finalize() {
 StatusCode AddTRTMomConstr::execute() {
   if( !m_trackListOutput.empty() && !m_trackListInput.empty() ) {
     const TrackCollection* inputtracks ;
-    if( (sgSvc()->retrieve( inputtracks, m_trackListInput) ).isFailure() ) {
-      msg (MSG::FATAL) << "could not find input track list with name " << m_trackListInput << endmsg ;
-      return StatusCode::FAILURE ;
-    }
+    ATH_CHECK(sgSvc()->retrieve( inputtracks, m_trackListInput) );
+    
     auto outputtracks = std::make_unique<ConstDataVector<TrackCollection> >( SG::VIEW_ELEMENTS ) ;
 
     TrackCollection::const_iterator it  = inputtracks->begin() ;
