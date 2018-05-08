@@ -22,7 +22,6 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "Identifier/Identifier.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 #include "TrkVolumes/Volume.h"
@@ -37,7 +36,6 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_atlasId(nullptr),
   m_extrapolator("Trk::Extrapolator"),
-  m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc",n),
   m_pixelCondSummaryTool("PixelConditionsSummaryTool",this),
   m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
   m_geoModelSvc("GeoModelSvc", n),
@@ -51,7 +49,6 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   declareInterface<ITrackHoleSearchTool>(this);
   declareProperty("Extrapolator"         , m_extrapolator);
   declareProperty("PixelSummaryTool"      , m_pixelCondSummaryTool);
-  declareProperty("SctSummarySvc"        , m_sctCondSummarySvc);
   declareProperty("PixelLayerTool"       , m_pixelLayerTool);
   declareProperty("GeoModelService"      , m_geoModelSvc);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
@@ -91,7 +88,7 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
   }
 
   if (m_usepix) {
-    // Get PixelConditionsSummarySvc
+    // Get PixelConditionsSummaryTool
     if ( m_pixelCondSummaryTool.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummaryTool << endmsg;
       return StatusCode::FAILURE;
@@ -109,13 +106,15 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
   }
 
   if (m_usesct) {
-    // Get SctConditionsSummarySvc
-    if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve service " << m_sctCondSummarySvc << endmsg;
+    // Get SctConditionsSummaryTool
+    if ( m_sctCondSummaryTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummaryTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved service " << m_sctCondSummarySvc << endmsg;
+      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummaryTool << endmsg;
     }
+  } else {
+    m_sctCondSummaryTool.disable();
   }
 
   if(m_checkBadSCTChip) {
@@ -925,7 +924,7 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
   } else if (m_atlasId->is_sct(id)) {
     if (m_usesct) {
       ATH_MSG_VERBOSE ("Found element is a SCT module without a hit, see if it might be dead");
-      isgood=m_sctCondSummarySvc->isGood(idHash);
+      isgood=m_sctCondSummaryTool->isGood(idHash);
       if (isgood) {
 	// this detElement is only cosidered as hole if the extrapolation of
 	// the track plus its error hits the active material
@@ -1048,5 +1047,5 @@ bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId,
     return true;
   }
   
-  return (not m_sctCondSummarySvc->isGood(stripIdentifier, InDetConditions::SCT_CHIP));
+  return (not m_sctCondSummaryTool->isGood(stripIdentifier, InDetConditions::SCT_CHIP));
 }

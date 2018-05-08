@@ -11,7 +11,6 @@
 #include "InDetPrepRawDataFormation/SCT_Clusterization.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
@@ -40,7 +39,6 @@ namespace InDet{
     m_flaggedCondDataKey("SCT_FlaggedCondData"),
     m_manager(nullptr),
     m_maxRDOs(384), //(77),
-    m_pSummarySvc("SCT_ConditionsSummarySvc", name),
     m_checkBadModules(true),
     m_flaggedModules(),
     m_maxTotalOccupancyPercent(10),
@@ -50,7 +48,6 @@ namespace InDet{
     declareProperty("DataObjectName", m_rdoContainerKey, "SCT RDOs" );
     declareProperty("DetectorManagerName",m_managerName);
     declareProperty("clusteringTool",m_clusteringTool);    //inconsistent nomenclature!
-    declareProperty("conditionsService" , m_pSummarySvc);
     declareProperty("RoIs", m_roiCollectionKey, "RoIs to read in");
     declareProperty("isRoI_Seeded", m_roiSeeded, "Use RoI");
     declareProperty("maxRDOs", m_maxRDOs);
@@ -71,7 +68,9 @@ namespace InDet{
     // later and declare everything to be 'good' if it is NULL)
     if (m_checkBadModules){
       ATH_MSG_INFO( "Clusterization has been asked to look at bad module info" );
-      ATH_CHECK(m_pSummarySvc.retrieve());
+      ATH_CHECK(m_pSummaryTool.retrieve());
+    } else {
+      m_pSummaryTool.disable();
     }
 
     m_clusterContainerLinkKey = m_clusterContainerKey.key();
@@ -158,7 +157,7 @@ namespace InDet{
             continue;
           }
 
-          bool goodModule = (m_checkBadModules and m_pSummarySvc) ? m_pSummarySvc->isGood(rd->identifyHash()) : true;
+          bool goodModule = (m_checkBadModules and m_pSummaryTool) ? m_pSummaryTool->isGood(rd->identifyHash()) : true;
           // Check the RDO is not empty and that the wafer is good according to the conditions
           if ((not rd->empty()) and goodModule){
             // If more than a certain number of RDOs set module to bad

@@ -47,7 +47,6 @@
 
 class AtlasDetectorID;
 class Track;
-class IInDetConditionsSvc;
 class PixelID;
 class SCT_ID;
 

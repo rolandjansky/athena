@@ -585,11 +585,11 @@ else:
   InDetTrigPixelConditionsSummaryTool = None
 
 if DetFlags.haveRIO.SCT_on():
-  from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
   from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-  InDetTrigSCTConditionsSummarySvc = SCT_ConditionsSummarySvc(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummarySvc'))
+  from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
+  InDetTrigSCTConditionsSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryTool'))
 else:
-  InDetTrigSCTConditionsSummarySvc = None
+  InDetTrigSCTConditionsSummaryTool = None
 
 #
 # ------load association tool from Inner Detector to handle pixel ganged ambiguities
@@ -631,7 +631,7 @@ if InDetTrigFlags.loadSummaryTool():
                                                             usePixel      = DetFlags.haveRIO.pixel_on(),
                                                             useSCT        = DetFlags.haveRIO.SCT_on(),
                                                             PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                                            SctSummarySvc = InDetTrigSCTConditionsSummarySvc,
+                                                            SctSummaryTool = InDetTrigSCTConditionsSummaryTool,
                                                             PixelLayerTool=InDetTrigTestPixelLayerTool,
                                                             )
                                                             #Commissioning = InDetTrigFlags.doCommissioning()) #renamed
@@ -879,7 +879,7 @@ if InDetTrigFlags.doNewTracking():
                                                                  PixelClusterContainer = 'PixelTrigClusters',
                                                                  SCT_ClusterContainer = 'SCT_TrigClusters',
                                                                  PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                                                 SctSummarySvc = InDetTrigSCTConditionsSummarySvc
+                                                                 SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                                                  )															
   ToolSvc += InDetTrigSiComTrackFinder
   #to here

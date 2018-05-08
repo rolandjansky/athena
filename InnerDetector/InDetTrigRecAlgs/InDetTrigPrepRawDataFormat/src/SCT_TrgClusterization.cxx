@@ -66,7 +66,6 @@ namespace InDet{
     m_phiHalfWidth(0.1),
     m_sctRDOContainerName("SCT_RDOs"),
     m_robDataProvider("ROBDataProviderSvc", name),
-    m_pSummarySvc("SCT_ConditionsSummarySvc", name),
     m_checkBadModules(true),
     m_maxRDOs(0),
     m_doTimeOutChecks(true),
@@ -88,7 +87,6 @@ namespace InDet{
     declareProperty("PhiHalfWidth",        m_phiHalfWidth);
     declareProperty("RawDataProvider",     m_rawDataProvider);
 
-    declareProperty("conditionsSummarySvc", m_pSummarySvc);
     declareProperty("checkBadModules",      m_checkBadModules);
     declareProperty("maxRDOs",              m_maxRDOs);
     declareProperty("doTimeOutChecks",      m_doTimeOutChecks);
@@ -231,11 +229,13 @@ namespace InDet{
 
  
     if (m_checkBadModules){
-      if (m_pSummarySvc.retrieve().isFailure()){
-	ATH_MSG_ERROR( "Could not retrieve " << m_pSummarySvc );
+      if (m_pSummaryTool.retrieve().isFailure()){
+	ATH_MSG_ERROR( "Could not retrieve " << m_pSummaryTool );
       } else {
-	ATH_MSG_INFO( "Using " << m_pSummarySvc << " in clusterization" );
+	ATH_MSG_INFO( "Using " << m_pSummaryTool << " in clusterization" );
       }
+    } else {
+      m_pSummaryTool.disable();
     }
 
     m_timerSGate   = addTimer("SGate");
@@ -446,8 +446,8 @@ namespace InDet{
 	//optionally check for bad modules
 	bool goodModule=true;
 
-	if (m_checkBadModules && m_pSummarySvc){
-	  goodModule = m_pSummarySvc->isGood(RDO_Collection->identifyHash());
+	if (m_checkBadModules && m_pSummaryTool){
+	  goodModule = m_pSummaryTool->isGood(RDO_Collection->identifyHash());
 	  if (!goodModule)
 	    ATH_MSG_DEBUG( "Module not good: " << RDO_Collection->identifyHash() );
 	}
@@ -523,8 +523,8 @@ namespace InDet{
         
 	//optionally check for bad modules
 	bool goodModule=true;
-	if (m_checkBadModules && m_pSummarySvc){
-	  goodModule = m_pSummarySvc->isGood(rd->identifyHash());
+	if (m_checkBadModules && m_pSummaryTool){
+	  goodModule = m_pSummaryTool->isGood(rd->identifyHash());
 	  if (!goodModule)
 	    ATH_MSG_DEBUG( "Module not good: " << rd->identifyHash() );
 	}

@@ -158,20 +158,27 @@ def makeInDetAlgs():
 
   viewAlgs.append(InDetPixelClusterization)
 
-  from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
-  sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
-  sct_FlaggedConditionSvcSetup.setup()
-  InDetSCT_FlaggedConditionSvc = sct_FlaggedConditionSvcSetup.getSvc()
+  from SCT_ConditionsTools.SCT_FlaggedConditionToolSetup import SCT_FlaggedConditionToolSetup
+  sct_FlaggedConditionToolSetup = SCT_FlaggedConditionToolSetup()
+  sct_FlaggedConditionToolSetup.setup()
+  InDetSCT_FlaggedConditionTool = sct_FlaggedConditionToolSetup.getTool()
   
-  from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
-  sct_ConditionsSummarySvcSetupWithoutFlagged = SCT_ConditionsSummarySvcSetup()
-  sct_ConditionsSummarySvcSetupWithoutFlagged.setSvcName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
-  sct_ConditionsSummarySvcSetupWithoutFlagged.setup()
-  InDetSCT_ConditionsSummarySvcWithoutFlagged = sct_ConditionsSummarySvcSetupWithoutFlagged.getSvc()    
-  condSvcs = InDetSCT_ConditionsSummarySvcWithoutFlagged.ConditionsServices
-  if sct_FlaggedConditionSvcSetup.getSvcName() in condSvcs:
-    condSvcs = [x for x in condSvcs if x != sct_FlaggedConditionSvcSetup.getSvcName()]
-  InDetSCT_ConditionsSummarySvcWithoutFlagged.ConditionsServices = condSvcs
+  from SCT_ConditionsTools.SCT_ConditionsSummaryToolSetup import SCT_ConditionsSummaryToolSetup
+  sct_ConditionsSummaryToolSetup = SCT_ConditionsSummaryToolSetup()
+  sct_ConditionsSummaryToolSetup.setToolName("InDetSCT_ConditionsSummaryTool")
+  sct_ConditionsSummaryToolSetup.setup()
+  InDetSCT_ConditionsSummaryTool = sct_ConditionsSummaryToolSetup.getTool()
+  condTools = []
+  for condToolHandle in InDetSCT_ConditionsSummaryTool.ConditionsTools:
+    condTool = condToolHandle.typeAndName
+    if condTool not in condTools:
+      if condTool != InDetSCT_FlaggedConditionTool.getFullName():
+        condTools.append(condTool)
+  sct_ConditionsSummaryToolSetupWithoutFlagged = SCT_ConditionsSummaryToolSetup()
+  sct_ConditionsSummaryToolSetupWithoutFlagged.setToolName("InDetSCT_ConditionsSummaryToolWithoutFlagged")
+  sct_ConditionsSummaryToolSetupWithoutFlagged.setup()
+  InDetSCT_ConditionsSummaryToolWithoutFlagged = sct_ConditionsSummaryToolSetupWithoutFlagged.getTool()
+  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools = condTools
   
   #
   # --- SCT_ClusteringTool (public)
@@ -179,7 +186,7 @@ def makeInDetAlgs():
   from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
   InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
                                                       globalPosAlg      = InDetClusterMakerTool,
-                                                      conditionsService = InDetSCT_ConditionsSummarySvcWithoutFlagged)
+                                                      conditionsTool    = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   #
   # --- SCT_Clusterization algorithm
   #
@@ -191,7 +198,7 @@ def makeInDetAlgs():
                                                       DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
-                                                      conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged)
+                                                      conditionsTool          = InDetSCT_ConditionsSummaryToolWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = "EMViewRoIs"
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey 

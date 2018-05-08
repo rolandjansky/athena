@@ -34,6 +34,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+
 #include "Identifier/IdentifierHash.h"
 
 //typedefs - cannot be declared forward
@@ -47,8 +49,6 @@ class TrigTimer;
 
 class SCT_ID;
 class SCT_ChannelStatusAlg;
-
-class IInDetConditionsSvc;
 
 class IROBDataProviderSvc;
 
@@ -126,7 +126,8 @@ namespace InDet {
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
 
     //conditions
-    ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
+    ToolHandle<IInDetConditionsTool>         m_pSummaryTool{this, "conditionsSummaryTool",
+        "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT conditions summary"};
     bool                                     m_checkBadModules;
     unsigned int                             m_maxRDOs;
     std::set<IdentifierHash>                 m_flaggedModules;

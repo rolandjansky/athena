@@ -30,7 +30,7 @@
 
 class PixelID;
 class SCT_ID;
-class IInDetConditionsSvc;
+class IInDetConditionsTool;
 class StoreGateSvc;
 class TF1;
 namespace InDet {
@@ -111,8 +111,8 @@ namespace iFatras {
       const SCT_ID*                        m_sctIdHelper;             //!< the SCT ID helper
 
       /** ToolHandle to ClusterMaker */
-      ServiceHandle<IInDetConditionsSvc>   m_condSummarySvc;          //!< Handle to Pixel/SCT conditions service
-      bool                                 m_useConditionsSvc;
+      ToolHandle<IInDetConditionsTool>     m_condSummaryTool;          //!< Handle to Pixel/SCT conditions tool
+      bool                                 m_useConditionsTool;
       TF1*                                 m_dEdX_function;            //!< function to evaluate dEdx
 
       double                               m_siPathToCharge;           //!< convert path in silicon to charge

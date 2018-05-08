@@ -42,7 +42,6 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "StoreGate/ReadHandle.h"
 
 //
@@ -232,7 +231,6 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
   m_eventInfoKey(std::string("EventInfo")),
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr),
-  m_pSummarySvc("SCT_ConditionsSummarySvc", name),
   m_checkBadModules(true),
   m_ignore_RDO_cut_online(true) {
   /** sroe 3 Sept 2015:
@@ -242,7 +240,6 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string &type,
      WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
      declareProperty("histoPathBase", m_stream = "/stat"); **/
   m_stream = "/stat";
-  declareProperty("conditionsService", m_pSummarySvc);
   declareProperty("checkBadModules", m_checkBadModules);
   declareProperty("CheckRate", m_checkrate = 1000);
   declareProperty("CheckRecent", m_checkrecent = 1);
@@ -284,7 +281,9 @@ SCTRatioNoiseMonTool::bookHistogramsRecurrent() {
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   if (m_checkBadModules) {
     ATH_MSG_INFO("Clusterization has been asked to look at bad module info");
-    ATH_CHECK(m_pSummarySvc.retrieve());
+    ATH_CHECK(m_pSummaryTool.retrieve());
+  } else {
+    m_pSummaryTool.disable();
   }
   // get the SCT detector manager
   ATH_CHECK(detStore()->retrieve(m_sctmgr, "SCT"));
@@ -307,7 +306,9 @@ SCTRatioNoiseMonTool::bookHistograms() {
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
   if (m_checkBadModules) {
     ATH_MSG_INFO("Clusterization has been asked to look at bad module info");
-    ATH_CHECK(m_pSummarySvc.retrieve());
+    ATH_CHECK(m_pSummaryTool.retrieve());
+  } else {
+    m_pSummaryTool.disable();
   }
   // get the SCT detector manager
   ATH_CHECK(detStore()->retrieve(m_sctmgr, "SCT"));
@@ -401,7 +402,7 @@ SCTRatioNoiseMonTool::fillHistograms() {
       int thisPhi = m_pSCTHelper->phi_module(SCT_Identifier);
       int thisEta = m_pSCTHelper->eta_module(SCT_Identifier);
       int thisSide = m_pSCTHelper->side(SCT_Identifier);
-      bool goodModule = (m_checkBadModules and m_pSummarySvc) ? m_pSummarySvc->isGood(rd->identifyHash()) : true;
+      bool goodModule = (m_checkBadModules and m_pSummaryTool) ? m_pSummaryTool->isGood(rd->identifyHash()) : true;
 
       m_modNum = (rd->identifyHash()) / 2;
       m_goodModules[m_modNum] = goodModule;

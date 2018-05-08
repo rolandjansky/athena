@@ -42,6 +42,7 @@
 #include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
@@ -138,7 +139,8 @@ private:
   //#ifdef HAVE_VERSION_15
   ToolHandle<Trig::TrigDecisionTool>        m_trigDecTool; // tool to retrieve trigger decision
   ServiceHandle<IInDetConditionsSvc>        m_pixelCondSummarySvc; // tool to retrieve pixel conditions db
-  ServiceHandle<IInDetConditionsSvc>        m_sctCondSummarySvc; // tool to retrieve SCT conditions db
+  ToolHandle<IInDetConditionsTool>          m_sctCondSummaryTool{this, "SctSummaryTool",
+      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
   //#else
     // ToolHandle<Trk::TruthToTrack>             m_truthToTrack; //!< tool to create track parameters from a gen particle
   //#endif

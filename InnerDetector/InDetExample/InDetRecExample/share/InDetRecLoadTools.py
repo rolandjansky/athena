@@ -861,9 +861,9 @@ if InDetFlags.loadSummaryTool():
                                                           PixelLayerTool = InDetTestPixelLayerTool)
 
     if (DetFlags.haveRIO.SCT_on()):
-      InDetHoleSearchTool.SctSummarySvc = InDetSCT_ConditionsSummarySvc
+      InDetHoleSearchTool.SctSummaryTool = InDetSCT_ConditionsSummaryTool
     else:
-      InDetHoleSearchTool.SctSummarySvc = None
+      InDetHoleSearchTool.SctSummaryTool = None
 
     if InDetFlags.doCosmics:
         InDetHoleSearchTool.Cosmics = True
@@ -1135,16 +1135,15 @@ if InDetFlags.doPattern():
                                                                         PixelClusterContainer = InDetKeys.PixelClusters(),
                                                                         SCT_ClusterContainer  = InDetKeys.SCT_Clusters(),
                                                                         MagneticFieldMode     = "NoField",
-                                                                        SctSummarySvc         = None,
                                                                         TrackQualityCut       = 9.3
                                                                         )
         ToolSvc += InDetSiComTrackFinderDBM
     if InDetFlags.doDBMstandalone():
         InDetSiComTrackFinder.MagneticFieldMode     =  "NoField"
     if (DetFlags.haveRIO.SCT_on()):
-      InDetSiComTrackFinder.SctSummarySvc = InDetSCT_ConditionsSummarySvc
+      InDetSiComTrackFinder.SctSummaryTool = InDetSCT_ConditionsSummaryTool
     else:
-      InDetSiComTrackFinder.SctSummarySvc = None
+      InDetSiComTrackFinder.SctSummaryTool = None
 
     ToolSvc += InDetSiComTrackFinder
     if (InDetFlags.doPrintConfigurables()):

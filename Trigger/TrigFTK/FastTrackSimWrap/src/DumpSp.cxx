@@ -137,7 +137,6 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   , m_trkSummaryTool( "Trk::TrackSummaryTool/InDetTrackSummaryTool" )
   , m_trigDecTool("Trig::TrigDecisionTool/TrigDecisionTool")
   , m_pixelCondSummarySvc("PixelConditionsSummarySvc",name)
-  , m_sctCondSummarySvc("SCT_ConditionsSummarySvc",name)
   // , m_holeSearchTool( "InDetHoleSearchTool" )
   , m_beamCondSvc("BeamCondSvc",name)
   , m_pixelClustersName( "PixelClusters" )
@@ -193,7 +192,6 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   //#ifdef HAVE_VERSION_15
   declareProperty("TrigDecisionTool",         m_trigDecTool );
   declareProperty("PixelSummarySvc" ,         m_pixelCondSummarySvc);
-  declareProperty("SctSummarySvc" ,           m_sctCondSummarySvc);
   declareProperty("DoTrigger" ,           m_doTrigger);
   declareProperty("DoData" ,                m_doData);
   declareProperty("DoVertex" ,                m_doVertex);
@@ -290,13 +288,15 @@ DumpSp::initialize()
     } else {
       ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummarySvc);
     }
-    // Get SctConditionsSummarySvc
-    if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_sctCondSummarySvc);
+    // Get SctConditionsSummaryTool
+    if ( m_sctCondSummaryTool.retrieve().isFailure() ) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_sctCondSummaryTool);
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_INFO("Retrieved tool " << m_sctCondSummarySvc);
+      ATH_MSG_INFO("Retrieved tool " << m_sctCondSummaryTool);
     }
+  } else {
+    m_sctCondSummaryTool.disable();
   }
 
 
@@ -1458,7 +1458,7 @@ DumpSp::dump_bad_modules() const
       const InDetDD::SiDetectorElement* sielement( *i );
       Identifier id = sielement->identify();
       IdentifierHash idhash = sielement->identifyHash();
-      const bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
+      const bool is_bad = !(m_sctCondSummaryTool->isGood( idhash ));
       if( is_bad ) { 
         (*m_oflraw) << "B\t"
                   << 0  << '\t' // 1  pixel 0 sct  

@@ -68,7 +68,7 @@ ToolSvc += InDetTrigSiDetElementsRoadMakerLowPt
 # Local combinatorial track finding using space point seed and detector element road
 #
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools \
-     import InDetTrigPixelConditionsSummaryTool, InDetTrigSCTConditionsSummarySvc
+     import InDetTrigPixelConditionsSummaryTool, InDetTrigSCTConditionsSummaryTool
 from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
 
 InDetTrigSiComTrackFinderLowPt = \
@@ -82,7 +82,7 @@ InDetTrigSiComTrackFinderLowPt = \
                                          PixelClusterContainer = 'PixelTrigClusters',
                                          SCT_ClusterContainer = 'SCT_TrigClusters',
                                          PixelSummaryTool = InDetTrigPixelConditionsSummaryTool,
-                                         SctSummarySvc = InDetTrigSCTConditionsSummarySvc
+                                         SctSummaryTool = InDetTrigSCTConditionsSummaryTool
                                          )															
 ToolSvc += InDetTrigSiComTrackFinderLowPt
 

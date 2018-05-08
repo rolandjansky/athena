@@ -46,7 +46,6 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 
 class AtlasDetectorID;
@@ -89,7 +88,8 @@ class FTKDetectorTool :  virtual public FTKDetectorToolI,
   const InDet::SiClusterContainer*  m_sctContainer;
   
   ToolHandle<IInDetConditionsTool>        m_pixelCondSummaryTool; // tool to retrieve pixel conditions db 
-  ServiceHandle<IInDetConditionsSvc>        m_sctCondSummarySvc; // tool to retrieve SCT conditions db    
+  ToolHandle<IInDetConditionsTool>        m_sctCondSummaryTool{this, "SctSummaryTool",
+      "SCT_ConditionsSummaryTool/InDetSCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions Summary"}; // tool to retrieve SCT conditions db
   
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;

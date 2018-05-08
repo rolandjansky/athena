@@ -6,7 +6,7 @@
  * @file SCT_MonitorConditionsTool.cxx
  *
  * @brief Implementation file for the SCT_MonitorConditionsTool class 
- * in package SCT_ConditionsServices
+ * in package SCT_ConditionsTools
  *
  * @author Kazu
  * @date 5 March 2008

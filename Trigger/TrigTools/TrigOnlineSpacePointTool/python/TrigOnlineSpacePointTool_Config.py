@@ -35,10 +35,11 @@ class ConfiguredOnlineSpacePointProviderTool(OnlineSpacePointProviderTool) :
                                                                PixelConditionsSummaryTool = PixelConditionsSummaryTool(PixelConditionsSetup.instanceName('PixelConditionsSummaryTool'))
                                                              )
 
+        from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
         from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
         InDetL2TrigSCT_ClusteringTool = InDet__SCT_ClusteringTool(name = "InDetL2TrigSCT_ClusteringTool",
                                                                   globalPosAlg  = InDetL2TrigClusterMakerTool,
-                                                                  conditionsService = SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvc")
+                                                                  conditionsTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryTool'))
                                                                 )
 
         if InDetTrigFlags.doSCTIntimeHits():
