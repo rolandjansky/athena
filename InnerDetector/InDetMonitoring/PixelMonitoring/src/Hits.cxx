@@ -102,7 +102,11 @@ StatusCode PixelMainMon::bookHitsMon(void) {
     if (m_doOnline) { 
       hname = makeHistname(("AvgOccRatioToIBL_last100lb_" + m_modLabel_PixLayerIBL2D3D[i]), false); // use good modules only
       htitles = makeHisttitle(("Relative occupancy to IBL per event, " + m_modLabel_PixLayerIBL2D3D[i]), ";last 100 lumi blocks;occ. ratio to IBL", false);
-      sc = rdoShift.regHist(m_avgocc_ratio_lastXlb_mod[i] = new TH1F(hname.c_str(), htitles.c_str(), 100, 0, 100));
+      sc = rdoShift.regHist(m_avgocc_ratio_lastXlb_mod[i] = new TH1F(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5));
+
+      hname = makeHistname(("AvgOccRatioToIBL_last100lb_prof_" + m_modLabel_PixLayerIBL2D3D[i]), false); // use good modules only
+      htitles = makeHisttitle(("Relative to IBL pixel occupancy per event, " + m_modLabel_PixLayerIBL2D3D[i]), ";last 100 lumi blocks;occ. ratio to IBL", false);
+      sc = rdoShift.regHist(m_avgocc_ratio_lastXlb_mod_prof[i] = new TProfile(hname.c_str(), htitles.c_str(), 100, 0.5, 100.5, "g"));
     }
 
     hname = makeHistname(("nHits_per_module_per_event_" + m_modLabel_PixLayerIBL2D3D[i]), false);
@@ -818,12 +822,14 @@ StatusCode PixelMainMon::procHitsMon(void) {
     double cont(0.0), err(0.0);
     int entr(0);
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
-      if (m_avgocc_per_lumi_mod[i] && m_avgocc_ratio_lastXlb_mod[i]) {
+      if (m_avgocc_per_lumi_mod[i] && m_avgocc_ratio_lastXlb_mod[i] && m_avgocc_ratio_lastXlb_mod_prof[i]) {
 	unsigned int bing = m_avgocc_per_lumi_mod[i]->GetXaxis()->FindBin(lastlb);
 	unsigned int nXbins = m_avgocc_ratio_lastXlb_mod[i]->GetNbinsX();
 	m_avgocc_ratio_lastXlb_mod[i]->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
 	m_avgocc_ratio_lastXlb_mod[i]->Reset();
 	m_avgocc_ratio_lastXlb_mod[i]->Sumw2();
+	m_avgocc_ratio_lastXlb_mod_prof[i]->GetXaxis()->Set(nXbins, lastlb-nXbins+0.5, lastlb+0.5);
+	m_avgocc_ratio_lastXlb_mod_prof[i]->Reset();
 	for (int binf=m_avgocc_ratio_lastXlb_mod[i]->GetNbinsX(); binf>0; binf--) {
 	  if (bing>0) {
 	    entr = m_avgocc_per_lumi_mod[i]->GetBinEntries(bing);
@@ -841,9 +847,18 @@ StatusCode PixelMainMon::procHitsMon(void) {
     }
  
     for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {
-      if (m_avgocc_ratio_lastXlb_mod[i]) {
+      if (m_avgocc_ratio_lastXlb_mod[i] && m_avgocc_ratio_lastXlb_mod_prof[i]) {
 	if (m_doIBL && m_avgocc_ratio_lastXlb_mod[PixLayer::kIBL]) m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kIBL]);
 	else if (m_avgocc_ratio_lastXlb_mod[PixLayer::kB0]) m_avgocc_ratio_lastXlb_mod[i]->Divide(m_avgocc_ratio_lastXlb_mod[PixLayer::kB0]);
+	for (int ibin=1; ibin<=m_avgocc_ratio_lastXlb_mod[i]->GetNbinsX(); ibin++) {
+	  double cont = m_avgocc_ratio_lastXlb_mod[i]->GetBinContent(ibin);
+	  if (cont!=0.0) {
+	    double err  = m_avgocc_ratio_lastXlb_mod[i]->GetBinError(ibin);
+	    if (err!=0.0) err = 1.0 / pow(err, 2);
+	    else err = 1.0;
+	    m_avgocc_ratio_lastXlb_mod_prof[i]->Fill(ibin, cont, err);
+	  }
+	}
       }
     }
   }
