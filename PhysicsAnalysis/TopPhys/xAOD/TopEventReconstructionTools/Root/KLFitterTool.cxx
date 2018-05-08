@@ -42,7 +42,10 @@ namespace top{
     }
     m_config->setKLFitter();
     m_LHType = m_config -> KLFitterLH();
-    m_transferFunctionsPathPrefix = PathResolverFindCalibDirectory( "KLFitter/transferfunctions/" );
+
+    // Find KLFitter ATLAS transfer functions. As of May '18, stored in
+    // AnalysisTop group data area on cvmfs.
+    m_transferFunctionsPathPrefix = PathResolverFindCalibDirectory( "dev/AnalysisTop/KLFitterTFs/" );
     m_transferFunctionsPath = m_config->KLFitterTransferFunctionsPath();
     
     std::string transferFunctionAbsPath = m_transferFunctionsPathPrefix + m_transferFunctionsPath + "/";
