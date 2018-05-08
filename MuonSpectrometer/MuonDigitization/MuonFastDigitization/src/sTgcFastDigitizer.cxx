@@ -160,10 +160,10 @@ StatusCode sTgcFastDigitizer::execute() {
   SG::WriteHandle<MuonSimDataCollection> h_sdoContainer(m_sdoName);
   ATH_CHECK( h_sdoContainer.record ( std::make_unique<MuonSimDataCollection>() ) );
 
-  sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelper->detectorElement_hash_max());
+  sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelper->module_hash_max());
   
-  // m_as the sTgcPrepDataContainer only allows const accesss, need a local vector m_as well.
-  std::vector<sTgcPrepDataCollection*> localsTgcVec(m_idHelper->detectorElement_hash_max());
+  // as the sTgcPrepDataContainer only allows const accesss, need a local vector as well.
+  std::vector<sTgcPrepDataCollection*> localsTgcVec(m_idHelper->module_hash_max());
   std::vector<sTgcPrepData*> sTgcprds;
   std::vector<int> sTgcflag;
 
@@ -208,7 +208,7 @@ StatusCode sTgcFastDigitizer::execute() {
     }
     
     IdentifierHash hash;
-    m_idHelper->get_detectorElement_hash(layid, hash);
+    m_idHelper->get_module_hash(layid, hash);
 
     bool lastHit = false;
     if(itersTgc + 1 ==collGMSH->end()) lastHit = true;
@@ -266,7 +266,9 @@ StatusCode sTgcFastDigitizer::execute() {
           sTgcflag[i] = 1;
           mergeIndices.push_back(i);
           mergeStrips.push_back(strip);
-          for (unsigned int k =0; k<mergeStrips.size(); ++k) {
+          unsigned int nmergeStrips = 1;
+          unsigned int nmergeStripsMax = 25;
+          for (unsigned int k=0; k < nmergeStripsMax; ++k) {
             for (unsigned int j=jmerge; j<sTgcprds.size(); ++j){
               Identifier id_prdN = sTgcprds[j]->identify();
               int stripN = m_idHelper->channel(id_prdN);
@@ -279,9 +281,11 @@ StatusCode sTgcFastDigitizer::execute() {
                   sTgcflag[j] = 1;
                   mergeIndices.push_back(j);
                   mergeStrips.push_back(stripN);
+                  nmergeStrips++;
                 }
               }
             }
+            if(k>=nmergeStrips) break;
           }
           ATH_MSG_VERBOSE(" add merged sTgcprds nmerge " << nmerge << " strip " << strip << " gasGap " << gasGap << " layer " << layer );
 
