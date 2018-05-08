@@ -119,7 +119,6 @@ protected:
 private:
   template <typename T>
   StatusCode regHist_i(T* hist, const std::string& name);
-  bool m_add;
   std::string m_excludeType;
   std::string m_includeType;
   std::string m_excludeName;

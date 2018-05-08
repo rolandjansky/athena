@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigOnlineMonitor/TrigROBMonitor.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -268,7 +267,7 @@ StatusCode TrigROBMonitor::beginRun() {
   }
 
   // *-- booking path
-  std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+  std::string path = std::string("/EXPERT/");
 
   // *-- number of bins for sub detector plots (55 SubDet max.)
   uint32_t n_bins_partEBSubDet = 55 ;

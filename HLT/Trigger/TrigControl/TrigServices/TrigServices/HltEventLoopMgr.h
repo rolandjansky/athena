@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGSERVICES_HLTEVENTLOOPMGR_H
@@ -69,9 +69,6 @@ class HltEventLoopMgr : public MinimalEventLoopMgr,
 {
 
 public:
-  /// Creator friend class
-  friend class SvcFactory<HltEventLoopMgr>;
-
   /// Standard Constructor
   HltEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
   /// Standard Destructor
@@ -382,7 +379,10 @@ private:
   
   StringProperty            m_jobOptionsType;        //!< JobOptions type (="NONE" or "DB", same as in PSC)
 
-  Histo1DProperty           m_histProp_Hlt_result_size;  
+  Histo1DProperty           m_histProp_Hlt_result_size;
+  Histo1DProperty           m_histProp_Hlt_result_size_physics;
+  Histo1DProperty           m_histProp_Hlt_result_size_express;
+  Histo1DProperty           m_histProp_Hlt_result_size_DataScouting;
   Histo1DProperty           m_histProp_numStreamTags;              
   Histo1DProperty           m_histProp_streamTagNames;  
   Histo1DProperty           m_histProp_num_partial_eb_robs;

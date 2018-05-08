@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -8,9 +8,7 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
-#include "GaudiKernel/IssueSeverity.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/Timing.h"
 #include "GaudiKernel/IAlgContextSvc.h"
 #include "GaudiKernel/IAlgManager.h"
@@ -279,14 +277,18 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_sorTime_stamp(2,0),
   m_detector_mask(0xffffffff, 0xffffffff, 0, 0),
   m_l1_hltPrescaleUpdateLB(0xffffffff),
-  m_mandatoryL1ROBs{{begin(L1R_MANDATORY_ROBS), end(L1R_MANDATORY_ROBS)}},
-  m_histProp_Hlt_result_size(Gaudi::Histo1DDef("HltResultSize",0,200000,100)),
+  m_histProp_Hlt_result_size(Gaudi::Histo1DDef("HltResultSize",0,500000,100)),
+  m_histProp_Hlt_result_size_physics(Gaudi::Histo1DDef("HltResultSize-(Stream (Main_physics))",0,500000,100)),
+  m_histProp_Hlt_result_size_express(Gaudi::Histo1DDef("HltResultSize-(Stream (express_express))",0,250000,100)),
+  m_histProp_Hlt_result_size_DataScouting(Gaudi::Histo1DDef("HltResultSize-(Streams (DataScouting_*_calibration))",0,125000,100)),
   m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,19.5,20)),
   m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,.5,1)),
   m_histProp_num_partial_eb_robs(Gaudi::Histo1DDef("NumberROBsPartialEB",-.5,199.5,200)),
   m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100)),
   m_eventContext(nullptr)
 {
+  m_mandatoryL1ROBs.value() = {begin(L1R_MANDATORY_ROBS), end(L1R_MANDATORY_ROBS)};
+
   // General properties for event loop managers
   declareProperty("predefinedLumiBlock",      m_predefinedLumiBlock=0);
   declareProperty("Lvl1CTPROBid",             m_lvl1CTPROBid=0x770001);
@@ -299,7 +301,10 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("HltEDMCollectionNames",    m_hltEdmCollectionNames, "Names of all HLT EDM Collections");
   declareProperty("JobOptionsType",           m_jobOptionsType="NONE");
   declareProperty("doMonitoring",             m_doMonitoring=true, "Produce framework monitoring histograms");
-  declareProperty("histHltResultSize",        m_histProp_Hlt_result_size, "Histogram for HLT result size in words");
+  declareProperty("histHltResultSize",        m_histProp_Hlt_result_size, "Histogram for HLT result size in words (overall)");
+  declareProperty("histHltResultSizePhysics", m_histProp_Hlt_result_size_physics, "Histogram for HLT result size in words for physics stream ");
+  declareProperty("histHltResultSizeExpress", m_histProp_Hlt_result_size_express, "Histogram for HLT result size in words for express stream ");
+  declareProperty("histHltResultSizeDS",      m_histProp_Hlt_result_size_DataScouting, "Histogram for HLT result size in words for DataScouting stream ");
   declareProperty("histNumberOfStreamTags",   m_histProp_numStreamTags, "Histogram with number of stream tags");
   declareProperty("histStreamTagNames",       m_histProp_streamTagNames,"Histogram with stream tag names");  
   declareProperty("histNumberROBsPartialEB",  m_histProp_num_partial_eb_robs, "Histogram with number of ROBs for PEB" );
@@ -472,18 +477,21 @@ StatusCode HltEventLoopMgr::initialize()
   }
   msgStream() << endmsg;
 
-  msgStream() << MSG::INFO << " ---> Fill monitoring histograms   = " << m_doMonitoring << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize      = " << m_histProp_Hlt_result_size << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histNumberOfStreamTags = " << m_histProp_numStreamTags << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histStreamTagNames     = " << m_histProp_streamTagNames << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histNumberROBsPartialEB= " << m_histProp_num_partial_eb_robs << endmsg ;
-  msgStream() << MSG::INFO << " ---> Hist: histHltEdmSizes        = " << m_histProp_Hlt_Edm_Sizes << endmsg;
-  msgStream() << MSG::INFO << " ---> HLT EDM Collection Names     = " << m_hltEdmCollectionNames << endmsg;
-  msgStream() << MSG::INFO << " ---> HltResult SG key             = " << m_HltResultName << endmsg ;
-  msgStream() << MSG::INFO << " ---> HLT debug stream name        = " << m_HltDebugStreamName << endmsg ;
-  msgStream() << MSG::INFO << " ---> HLT stream for forced events = " << m_HltForcedStreamName << endmsg ;
-  msgStream() << MSG::INFO << " ---> ForceHltReject               = " << m_forceHltReject << endmsg ;
-  msgStream() << MSG::INFO << " ---> ForceHltAccept               = " << m_forceHltAccept << endmsg;
+  msgStream() << MSG::INFO << " ---> Fill monitoring histograms             = " << m_doMonitoring << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize (overall)      = " << m_histProp_Hlt_result_size << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize (physics)      = " << m_histProp_Hlt_result_size_physics << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize (express)      = " << m_histProp_Hlt_result_size_express << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltResultSize (DataScouting) = " << m_histProp_Hlt_result_size_DataScouting << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histNumberOfStreamTags           = " << m_histProp_numStreamTags << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histStreamTagNames               = " << m_histProp_streamTagNames << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histNumberROBsPartialEB          = " << m_histProp_num_partial_eb_robs << endmsg ;
+  msgStream() << MSG::INFO << " ---> Hist: histHltEdmSizes                  = " << m_histProp_Hlt_Edm_Sizes << endmsg;
+  msgStream() << MSG::INFO << " ---> HLT EDM Collection Names               = " << m_hltEdmCollectionNames << endmsg;
+  msgStream() << MSG::INFO << " ---> HltResult SG key                       = " << m_HltResultName << endmsg ;
+  msgStream() << MSG::INFO << " ---> HLT debug stream name                  = " << m_HltDebugStreamName << endmsg ;
+  msgStream() << MSG::INFO << " ---> HLT stream for forced events           = " << m_HltForcedStreamName << endmsg ;
+  msgStream() << MSG::INFO << " ---> ForceHltReject                         = " << m_forceHltReject << endmsg ;
+  msgStream() << MSG::INFO << " ---> ForceHltAccept                         = " << m_forceHltAccept << endmsg;
 
   if (m_forceHltReject.value()) {
     msgStream() << MSG::INFO << " +------------------------------------------+ "  << endmsg ;
@@ -839,48 +847,48 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
     }
     catch (CTPfragment::NullFragmentPointer& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::Inconsistency& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::TimeOutOfRange& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::TriggerWordsOutOfRange& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::GenericIssue& ex) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (eformat::Issue& ex) {
       std::string issue_msg = std::string("Uncaught eformat issue:    ")+std::string(ex.what());
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;
     }
     catch (ers::Issue& ex) {
       std::string issue_msg = std::string("Uncaught ERS issue:        ")+std::string(ex.what());
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;   
     }
     catch (std::exception& ex) {
       std::string issue_msg = std::string("Uncaught std exception:    ")+std::string(ex.what());
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;     
     }
     catch (...) {
       b_invalidCTPRob=true;
-      ISSUE(IssueSeverity::ERROR,"Uncaught unknown exception.");
+      msgStream() << MSG::ERROR << "Uncaught unknown exception" << endmsg;
     }
   } else {
     // no valid CTP fragment found
     std::string issue_msg = std::string("No valid CTP fragment found.  ") ;
     b_invalidCTPRob=true;
-    ISSUE(IssueSeverity::ERROR, issue_msg);
+    msgStream() << MSG::ERROR << issue_msg << endmsg;     
   }
 
   //-----------------------------------------------------------------------
@@ -908,7 +916,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
   }
   catch (CTPfragment::ExtraPayloadTooLong& ex) {
     b_invalidCTPRob=true;
-    ISSUE(IssueSeverity::ERROR, std::string("Invalid CTP fragment. Exception = ")+ex.what());
+    msgStream() << MSG::ERROR << "Invalid CTP fragment. Exception = " << ex.what() << endmsg;
   }
 
   if ( msgLevel() <= MSG::DEBUG ) {
@@ -970,12 +978,7 @@ StatusCode HltEventLoopMgr::executeEvent(void* par)
     // Call the execute() method of all output streams
     for (auto o : m_outStreamList ) {
       o->resetExecuted();
-
-#ifdef GAUDI_SYSEXECUTE_WITHCONTEXT
       sc = o->sysExecute(*m_eventContext);
-#else
-      sc = o->sysExecute();
-#endif
       if(sc.isFailure())  {
         msgStream() << MSG::WARNING << "Execution of output stream " << o->name() << " failed" << endmsg;
         eventFailed = true;
@@ -1201,7 +1204,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::Inconsistency& ex) {
       m_invalid_lvl1_result++;
@@ -1209,7 +1212,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::TimeOutOfRange& ex) {
       m_invalid_lvl1_result++;
@@ -1217,7 +1220,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::TriggerWordsOutOfRange& ex) {
       m_invalid_lvl1_result++;
@@ -1225,7 +1228,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (CTPfragment::GenericIssue& ex) {
       m_invalid_lvl1_result++;
@@ -1233,7 +1236,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR,ex.what());
+      msgStream() << MSG::ERROR << ex.what() << endmsg;
     }
     catch (eformat::Issue& ex) {
       m_invalid_lvl1_result++;
@@ -1242,7 +1245,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;
     }
     catch (ers::Issue& ex) {
       m_invalid_lvl1_result++;
@@ -1251,7 +1254,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;
     }
     catch (std::exception& ex) {
       m_invalid_lvl1_result++;
@@ -1260,7 +1263,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Exception = " << ex.what();
       }
-      ISSUE(IssueSeverity::ERROR, issue_msg);
+      msgStream() << MSG::ERROR << issue_msg << endmsg;
     }
     catch (...) {
       m_invalid_lvl1_result++;
@@ -1268,7 +1271,7 @@ StatusCode HltEventLoopMgr::processRoIs (
         b_invalidCTPRob=true;
         ost << " Invalid CTP fragment. Uncaught unknown exception.";
       }
-      ISSUE(IssueSeverity::ERROR,"Uncaught unknown exception.");
+      msgStream() << MSG::ERROR << "Uncaught unknown exception." << endmsg;
     }
   } else {
     // no valid CTP fragment found
@@ -1282,7 +1285,7 @@ StatusCode HltEventLoopMgr::processRoIs (
       b_invalidCTPRob=true;
       ost << " No valid CTP fragment found. " ;
     }
-    ISSUE(IssueSeverity::ERROR, issue_msg);
+    msgStream() << MSG::ERROR << issue_msg << endmsg;     
   }
 
   // in case a check of the CTP Rob is requested and an invalid fragment was found
@@ -1934,7 +1937,7 @@ void HltEventLoopMgr::bookHistograms()
   regHistsTProfile.reserve(4);
 
   // monitoring information root directory
-  const std::string histPath = std::string("/EXPERT/") + getGaudiThreadGenericName(name()) + "/";
+  const std::string histPath = std::string("/EXPERT/");
 
   //     +--------------------+
   // *-- | Event accept flags |
@@ -1960,7 +1963,6 @@ void HltEventLoopMgr::bookHistograms()
                                      m_histProp_Hlt_result_size.value().lowEdge(),
                                      m_histProp_Hlt_result_size.value().highEdge());
 
-  m_hist_Hlt_result_size->SetCanExtend(TH1::kAllAxes);
   regHistsTH1F.push_back(&m_hist_Hlt_result_size);
 
   // *-- HLT result status codes
@@ -1989,43 +1991,40 @@ void HltEventLoopMgr::bookHistograms()
   m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 3, std::string("Truncated HLT result (not send to debug stream)").c_str() );
   regHistsTH1F.push_back(&m_hist_Hlt_truncated_result);
 
-  // *-- HLT result size plot (Stream Physiscs Main)
+  // *-- HLT result size plot (Stream Physics Main)
   m_hist_Hlt_result_size_physics = 
-    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (Main:physics))").c_str(),
-              (m_histProp_Hlt_result_size.value().title() + "-(Stream (Main:physics))" + ";words;entries").c_str(),
-              m_histProp_Hlt_result_size.value().bins(),
-              m_histProp_Hlt_result_size.value().lowEdge(),
-              m_histProp_Hlt_result_size.value().highEdge());
+    new TH1F ((m_histProp_Hlt_result_size_physics.value().title()).c_str(),
+              (m_histProp_Hlt_result_size_physics.value().title() + ";words;entries").c_str(),
+              m_histProp_Hlt_result_size_physics.value().bins(),
+              m_histProp_Hlt_result_size_physics.value().lowEdge(),
+              m_histProp_Hlt_result_size_physics.value().highEdge());
 
-  m_hist_Hlt_result_size_physics->SetCanExtend(TH1::kAllAxes);
   regHistsTH1F.push_back(&m_hist_Hlt_result_size_physics);
 
 
   // *-- HLT result size plot (Stream Express)
   m_hist_Hlt_result_size_express = 
-    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (express:express))").c_str(),
-              (m_histProp_Hlt_result_size.value().title() + "-(Stream (express:express))" + ";words;entries").c_str(),
-              m_histProp_Hlt_result_size.value().bins(),
-              m_histProp_Hlt_result_size.value().lowEdge(),
-              m_histProp_Hlt_result_size.value().highEdge());
+    new TH1F ((m_histProp_Hlt_result_size_express.value().title()).c_str(),
+              (m_histProp_Hlt_result_size_express.value().title() + ";words;entries").c_str(),
+              m_histProp_Hlt_result_size_express.value().bins(),
+              m_histProp_Hlt_result_size_express.value().lowEdge(),
+              m_histProp_Hlt_result_size_express.value().highEdge());
 
-  m_hist_Hlt_result_size_express->SetCanExtend(TH1::kAllAxes);
   regHistsTH1F.push_back(&m_hist_Hlt_result_size_express);
 
 
   // *-- HLT result size plot (Stream calibration, DataScouting results)
   m_hist_Hlt_result_size_DataScouting = 
-    new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Streams (DataScouting_*:calibration))").c_str(),
-              (m_histProp_Hlt_result_size.value().title() + "-(Streams (DataScouting_*:calibration))" + ";words;entries").c_str(),
-              m_histProp_Hlt_result_size.value().bins(),
-              m_histProp_Hlt_result_size.value().lowEdge(),
-              m_histProp_Hlt_result_size.value().highEdge());
+    new TH1F ((m_histProp_Hlt_result_size_DataScouting.value().title()).c_str(),
+              (m_histProp_Hlt_result_size_DataScouting.value().title() + ";words;entries").c_str(),
+              m_histProp_Hlt_result_size_DataScouting.value().bins(),
+              m_histProp_Hlt_result_size_DataScouting.value().lowEdge(),
+              m_histProp_Hlt_result_size_DataScouting.value().highEdge());
 
-  m_hist_Hlt_result_size_DataScouting->SetCanExtend(TH1::kAllAxes);
   regHistsTH1F.push_back(&m_hist_Hlt_result_size_DataScouting);
 
 
-  // *-- HLT result size profile plot for all stream types "physiscs"
+  // *-- HLT result size profile plot for all stream types "physics"
   m_hist_HltResultSizes_Stream_physics = new TProfile( "Average Hlt Result size for physics streams",
                                                        "Average Hlt Result size for physics streams;Stream Name;Average size in words",
                                                        1,
@@ -2231,7 +2230,7 @@ void HltEventLoopMgr::HltBookHistograms()
   if ( !m_doMonitoring.value() ) { return; }
 
   // monitoring information root directory
-  std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+  std::string path = std::string("/EXPERT/");
 
   // *-- SubDetectors from l1 ROBs
   auto nbins = L1R_BINS.size() + 2;
@@ -2472,7 +2471,7 @@ const SOR * HltEventLoopMgr::processRunParams(const ptree & pt)
 
   // Fill SOR parameters from the ptree
   TrigSORFromPtreeHelper sorhelp{msgStream()};
-  auto sor = sorhelp.fillSOR(pt.get_child("RunParams"));
+  auto sor = sorhelp.fillSOR(pt.get_child("RunParams"), *m_eventContext);
   if(!sor)
     msgStream() << MSG::ERROR << ST_WHERE
                 << "setup of SOR from ptree failed" << endmsg;

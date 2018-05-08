@@ -1,7 +1,7 @@
 // this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVC_BYTESTREAMEVENTSTORAGEINPUTSVC_H 
@@ -92,7 +92,7 @@ private:
    std::string               m_stream_logic; //!< One of 'Or', 'And', 'Ignore' (default: Ignore)
 
    unsigned int              m_trigger_type; //!< LVL1 8 bit trigger type
-   bool                      m_dispersion;  //!< Dispersion
+   std::string               m_groupName;   //!< GroupName
    unsigned int              m_buffer_size; //!< Number of events buffered internally.
    bool                      m_readDetectorMask; //!< Read detector mask and run params from IS
    int                       m_timeout; //!< Timeout in seconds, -1 == infinite

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "../src/TrigALFAROBMonitor.h"
@@ -15,7 +15,6 @@
 #include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
@@ -547,7 +546,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
   //}
 
   // *-- booking path
-  m_pathHisto = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+  m_pathHisto = std::string("/EXPERT/");
 
   // Specific source identifiers
   //eformat::helper::SourceIdentifier srcID_ALFA( eformat::FORWARD_ALPHA ,0);
