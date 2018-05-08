@@ -118,13 +118,9 @@ StatusCode AddTRTMomConstr::execute() {
   if( !m_trackListOutput.empty() && !m_trackListInput.empty() ) {
     const TrackCollection* inputtracks ;
     ATH_CHECK(sgSvc()->retrieve( inputtracks, m_trackListInput) );
-    
     auto outputtracks = std::make_unique<ConstDataVector<TrackCollection> >( SG::VIEW_ELEMENTS ) ;
-
-    TrackCollection::const_iterator it  = inputtracks->begin() ;
-    TrackCollection::const_iterator itE = inputtracks->end() ;
-    for( ; it != itE ; ++it ) {
-      const Trk::Track *track = (*it) ;
+    for (const auto & it : *inputtracks){
+      auto track=it;
       if( m_applyTrkSel && !accept( *track ) ) {
         ATH_MSG_DEBUG( "kinematic requirements not passed, skip track") ;
         continue ;
@@ -347,17 +343,15 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   Trk::MeasurementSet setSi ;
   Trk::MeasurementSet setTRT ;
   //store all silicon measurements into the measurementset
-  DataVector<const Trk::MeasurementBase>::const_iterator it      = track->measurementsOnTrack()->begin();
-  DataVector<const Trk::MeasurementBase>::const_iterator itEnd   = track->measurementsOnTrack()->end(); 
-  for ( ; it!=itEnd; ++it){ 
-    const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(*it);
-    if (rio != 0) {
+  for (const auto & it:*(track->measurementsOnTrack())){
+    const Trk::RIO_OnTrack* rio = dynamic_cast <const Trk::RIO_OnTrack*>(it);
+    if (rio) {
       const Identifier& surfaceID = (rio->identify()) ;
       if( m_idHelper->is_sct(surfaceID) || m_idHelper->is_pixel(surfaceID) ) {
-        setSi.push_back ( *it ) ;
+        setSi.push_back ( it ) ;
       }
       if( m_idHelper->is_trt(surfaceID) ) {
-        setTRT.push_back ( *it ) ;
+        setTRT.push_back ( it ) ;
       }
     }
   }
