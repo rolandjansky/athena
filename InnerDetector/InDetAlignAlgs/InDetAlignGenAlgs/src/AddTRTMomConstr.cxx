@@ -143,7 +143,7 @@ StatusCode AddTRTMomConstr::execute() {
     m_nTracksAccepted += outputtracks->size() ;
 
     if( sgSvc()->record( std::move(outputtracks), m_trackListOutput ).isFailure() ) {
-      msg(MSG::ERROR) << "Failed to record trackcollection with name " << m_trackListOutput << endmsg ;
+      ATH_MSG_ERROR( "Failed to record trackcollection with name " << m_trackListOutput );
     }
   }
   return StatusCode::SUCCESS;
@@ -170,7 +170,7 @@ bool AddTRTMomConstr::accept( const Trk::Track& track ) {
       if( m_selPtMin > 0 && pt < m_selPtMin ) rc = false ;
     }
   } else {
-    msg (MSG::WARNING) << "theta = 0, q/p conversion to p_T failed!" << endmsg ;
+    ATH_MSG_WARNING( "theta = 0, q/p conversion to p_T failed!" );
     return false ;
   }
 
@@ -275,7 +275,7 @@ const Trk::PseudoMeasurementOnTrack* AddTRTMomConstr::createPMfromSi ( const Trk
   std::vector<Trk::DefinedParameter> defPar ;
   defPar.push_back( z0    ) ;
   defPar.push_back( theta ) ;
-  if( !mp->covariance() )  return 0;
+  if( !mp->covariance() )  return nullptr;
   Trk::LocalParameters  parFromSi( defPar ) ;
   AmgSymMatrix(2) covFromSi;
   
@@ -296,7 +296,7 @@ const Trk::PseudoMeasurementOnTrack* AddTRTMomConstr::createPMfromSi ( const Trk
 const Trk::PseudoMeasurementOnTrack* AddTRTMomConstr::createPMfromTRT( const Trk::Perigee* mpSi
                                                                      , const Trk::Perigee* mpTRT ) {
   
-  if( !mpSi->covariance() || !mpTRT->covariance() )  return 0;
+  if( !mpSi->covariance() || !mpTRT->covariance() )  return nullptr;
   
   // since z0, theta not measured by TRT, take back initial Si values with blown up errors.
   Trk::DefinedParameter z0TRT    ( mpSi->parameters()[Trk::z0],                 Trk::z0     ) ; //!< from Si
@@ -365,7 +365,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   if( int(setTRT.size()) < m_selNHitTRTMin ) {
     ATH_MSG_DEBUG( "TRTMomConstr() : fewer TRT measurements than required: "
                << setTRT.size() << " < " << m_selNHitTRTMin << ", skip track" ) ;
-    return NULL ;
+    return nullptr ;
   }
 
   ATH_MSG_DEBUG( std::setiosflags( std::ios::scientific )) ;
@@ -375,14 +375,14 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   const Trk::Perigee* perTrk = track->perigeeParameters();
   if( !perTrk ) {
     ATH_MSG_WARNING("TRTMomConstr() : No Perigee parameter on track!");
-    return NULL ;
+    return nullptr ;
   }
 
   // now add z_0 and theta from original track as PseudoMeas to the TRT MeasurementSet
   const Trk::PseudoMeasurementOnTrack *pmFromSi = createPMfromSi( perTrk ) ;
   if( !pmFromSi ) {
-    msg(MSG::ERROR) << "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " << endmsg ;
-    return NULL ;
+    ATH_MSG_ERROR( "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " );
+    return nullptr ;
   }
   ATH_MSG_DEBUG( "TRTMomConstr() : pmFromSi " << *pmFromSi) ;
   Trk::MeasurementSet setTRTPM = addPM( setTRT, pmFromSi ) ;
@@ -404,7 +404,7 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
                                        ) ;
   if( !trkTRT ) {
     ATH_MSG_DEBUG( "TRTMomConstr() : Fit of TRT part of the track failed! " ) ;
-    return NULL ;
+    return nullptr ;
   }
   const Trk::Perigee* perTRT = trkTRT->perigeeParameters();
   ATH_MSG_DEBUG( "TRTMomConstr() : perTRT " << *perTRT) ;
@@ -416,8 +416,8 @@ Trk::Track* AddTRTMomConstr::addTRTMomentumConstraint(const Trk::Track* track) {
   // define new PM with the momentum constraint from the TRT to pass to Si
   const Trk::PseudoMeasurementOnTrack *pmFromTRT = createPMfromTRT( perTrk, perTRT ) ;
   if( !pmFromTRT ) {
-    msg(MSG::ERROR) << "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " << endmsg ;
-    return NULL ;
+    ATH_MSG_ERROR( "TRTMomConstr() : PseudoMeasurementOnTrack creation failed! " );
+    return nullptr ;
   }
   ATH_MSG_DEBUG("TRTMomConstr() : pmFromTRT " << *pmFromTRT ) ;
   Trk::MeasurementSet setSiPM = addPM( setSi, pmFromTRT ) ;
@@ -446,42 +446,35 @@ MsgStream& operator<<( MsgStream& outst, const AddTRTMomConstr& alg ) {
 }
 
 MsgStream& AddTRTMomConstr::dump( MsgStream& outst ) const {
-  outst << std::endl ;
-  outst << "|-------------------------------------------------------------------";
-  outst << "-----------------------------|" << std::endl ;
+  outst << "\n|-------------------------------------------------------------------";
+  outst << "-----------------------------|\n" ;
   outst << "|  processed                      : " 
         << std::setw(7) << m_nTracksProcessed 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "|  accepted by track presel.      : " 
         << std::setw(7) << m_nTracksPresel 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "|  accepted by track presel. + PM : " 
         << std::setw(7) << m_nTracksAccepted 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "| ------------------------------------------------------------------";
-  outst << "---------------------------- |" << std::endl ;
+  outst << "---------------------------- |\n" ;
   outst << "|  reject by # PIX hits           : " 
         << std::setw(7) << m_nRejectPIX 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "|  reject by # SCT hits           : " 
         << std::setw(7) << m_nRejectSCT 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "|  reject by # TRT hits           : " 
         << std::setw(7) << m_nRejectTRT 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
   outst << "| ------------------------------------------------------------------";
-  outst << "---------------------------- |" << std::endl ;
+  outst << "---------------------------- |\n" ;
   outst << "|  reject by exist. PM(TRT)       : " 
         << std::setw(7) << m_nRejectPM 
-        << " tracks                                               |"
-        << std::endl ;
+        << " tracks                                               |\n";
+
   outst << "|-------------------------------------------------------------------";
-  outst << "-----------------------------|" << std::endl ;
+  outst << "-----------------------------|\n" ;
   return outst ;
 }
