@@ -177,6 +177,8 @@ DetDescrCnvSvc::initialize()     {
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(79264204, "LArMiniFCAL_ID");
     if (status != StatusCode::SUCCESS) return status;
+    status =  addToDetStore(79264207, "HGTD_ID");
+    if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(158698068, "LArOnlineID");
     if (status != StatusCode::SUCCESS) return status;
     status =  addToDetStore(38321944, "TTOnlineID");
