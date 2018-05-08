@@ -46,8 +46,8 @@ class AthConfigFlags(object):
         if (self._locked):
             raise RuntimeError("Attempt to add a flag to an already-locked container")
 
-        if self._flagdict.has_key(name):
-            raise KeyError("Duplicated flag name: %s" % name);
+        if name in self._flagdict:
+            raise KeyError("Duplicated flag name: %s" % name)
         
         self._flagdict[name]=CfgFlag(setDef)
         return
@@ -106,7 +106,7 @@ class AthConfigFlags(object):
 
         #Sanity check: Don't replace a by a 
         if (subsetToReplace == replacementSubset):
-            raise RunTimeError("Called cloneAndReplace with identical strings")
+            raise RuntimeError("Called cloneAndReplace with identical strings")
 
         replacedNames=set()
         replacementNames=set()
@@ -145,8 +145,8 @@ class AthConfigFlags(object):
          if (self._locked):
             raise RuntimeError("Attempt to join with and already-locked container")
          for (name,flag) in other._flagdict:
-             if self._flagdict.has_key(name):
-                 raise KeyError("Duplicated flag name: %s" % name);
+             if name in self._flagdict:
+                 raise KeyError("Duplicated flag name: %s" % name)
              self._flagdict[name]=flag
          return
 

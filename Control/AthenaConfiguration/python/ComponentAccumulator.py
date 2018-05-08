@@ -9,8 +9,7 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 import GaudiKernel.GaudiHandles as GaudiHandles
 import ast
 
-
-class DeduplicatonFailed(RuntimeError):
+class DeduplicationFailed(RuntimeError):
     pass
 
 class ConfigurationError(RuntimeError):
@@ -60,7 +59,7 @@ class ComponentAccumulator(object):
         else:
             def printSeqAndAlgs(seq, nestLevel = 0):
                 def __prop(name):
-                    if seq.getValuedProperties().has_key(name):
+                    if name in seq.getValuedProperties():
                         return seq.getValuedProperties()[name]                    
                     return seq.getDefaultProperties()[name]
 
@@ -88,7 +87,7 @@ class ComponentAccumulator(object):
         seq =  CurrentSequence.get()
         if sequence:
             seq = findSubSequence(seq, sequence )
-        if seq == None:
+        if seq is None:
             raise ConfigurationError("Missing sequence %s to add new sequence to" % sequence )
 
         if findSubSequence( self._sequence, newseq.name() ):
@@ -101,9 +100,9 @@ class ComponentAccumulator(object):
             raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
             pass        
         seq = CurrentSequence.get()
-        if sequence != None:
+        if sequence is not None:
             seq = findSubSequence( seq, sequence )
-            if seq == None:
+            if seq is None:
                 raise ConfigurationError("Unable to add %s to sequence %s as it is missing", algo.getFullName(), seq.name() )
 
         self._msg.debug("Adding %s to sequence %s", algo.getFullName(), seq.name() )
@@ -118,7 +117,7 @@ class ComponentAccumulator(object):
         Limiting to the current scope reduces risk of cross talk. Will see in real life and make adjustments.
         """
         algo = findAlgorithm( CurrentSequence.get(), name )
-        if algo == None:            
+        if algo is None:            
             raise ConfigurationError("Can not find an algorithm of name %s "% name)
         return algo
 
@@ -133,7 +132,7 @@ class ComponentAccumulator(object):
     def getCondAlgo(self,name):
         hits=[a for a in self._conditionsAlgs if a.getName()==name]
         if (len(hits)>1):
-            raise ConfigurationError("More than one Algorithm with name %s found in sequence %s" %(name,sequence))
+            raise ConfigurationError("More than one conditions algorithm with name %s found" % name)
         return hits[0]
 
     def addService(self,newSvc):
@@ -233,23 +232,17 @@ class ComponentAccumulator(object):
 
     def addConditionsInput(self,condObj):
         #That's a string, should do some sanity checks on formatting
-        self._conditionsInput.add(condObj);
+        self._conditionsInput.add(condObj)
         pass
 
     def addEventInput(self,condObj):
         #That's a string, should do some sanity checks on formatting
-        self._eventInput.add(condObj);
+        self._eventInput.add(condObj)
         pass
 
 
 
     def addOutputToStream(self,streamName,outputs):
-        
-        if hasattr(outputs,'__iter__'):
-            toAdd=list(outputs)
-        else:
-            toAdd=[outputs,]
-
         if streamName in self._outputsPerStream:
             self._outputsPerStream[streamName].update(set(outputs))
         else:
@@ -259,7 +252,7 @@ class ComponentAccumulator(object):
 
 
     def setAppProperty(self,key,value):
-        if self._theAppProps.has_key(key) and  self._theAppProps[key]!=value:
+        if key in self._theAppProps and self._theAppProps[key]!=value:
             #Not sure if we should allow that ...
             self._msg.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", key, self._theAppProps[key], value)
         self._theAppProps[key]=value
@@ -299,8 +292,7 @@ class ComponentAccumulator(object):
         
         #self._conditionsAlgs+=other._conditionsAlgs
         for condAlg in other._conditionsAlgs:
-            self.addCondAlgo(condAlgo) #Profit from deduplicaton here
-
+            self.addCondAlgo(condAlg) #Profit from deduplicaton here
 
         for svc in other._services:
             self.addService(svc) #Profit from deduplicaton here
@@ -338,9 +330,9 @@ class ComponentAccumulator(object):
 
         
         currentSeq = seq = CurrentSequence.get()
-        if kwargs.has_key('sequence'):            
+        if 'sequence' in kwargs:
             seq = findSubSequence(seq, kwargs['sequence'] )            
-            if seq == None:
+            if seq is None:
                 raise ConfigurationError("Can not add algorithms to sequence %s as it does not exist" % kwargs['sequence'] )            
             else:
                 del kwargs['sequence']
@@ -474,7 +466,7 @@ class ComponentAccumulator(object):
 if __name__ == "__main__":
     # trivial case without any nested sequences
     from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
-    from AthenaCommon.CFElements import *
+    from AthenaCommon.CFElements import seqAND, seqOR, parOR
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
 
@@ -537,7 +529,7 @@ if __name__ == "__main__":
 
     acc.addConfig( AlgsConf4, dummyCfgFlags, sequence="sub2Sequence1" )    
     assert findAlgorithm(AlgSequence("AthAlgSeq"), "NestedAlgo1" ), "Algorithm added to nested sequence"
-    assert findAlgorithm(AlgSequence("AthAlgSeq"), "NestedAlgo1", 1 ) == None, "Algorithm mistakenly in top sequence"
+    assert findAlgorithm(AlgSequence("AthAlgSeq"), "NestedAlgo1", 1 ) is None, "Algorithm mistakenly in top sequence"
     assert findAlgorithm( findSubSequence(AlgSequence("AthAlgSeq"), "sub2Sequence1"), "NestedAlgo1", 1 ), "Algorithm not in right sequence"
     print( "Complex sequences construction also OK ")
 
