@@ -127,7 +127,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   int parseDetailsString(std::string& detailsMod);
   bool isOnTrack(Identifier id, bool isCluster);
   bool isOnTrack(Identifier id, double& cosalpha);
-  double getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
+  unsigned int getEventBitLength(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
+  double getBitStreamFraction(const Identifier& WaferID, const unsigned int& bits);
   int getErrorState(int bit, bool isibl);
   std::string makeHistname(std::string set, bool ontrk);
   std::string makeHisttitle(std::string set, std::string axis, bool ontrk);
@@ -277,6 +278,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   int m_HitPerEventArray_disksA[48][3] = {{0}};
   int m_HitPerEventArray_disksC[48][3] = {{0}};
+  // Effective number of hit words based on phi pairing
+  int m_HitPerEventArray_lI_phi_paired[14][20] = {{0}};
   int m_HitPerEventArray_lI[14][20] = {{0}};
   int m_HitPerEventArray_l0[22][13] = {{0}};
   int m_HitPerEventArray_l1[38][13] = {{0}};
@@ -470,6 +473,10 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_errhist_syncerr_LB_pix;
   std::unique_ptr<PixelMonModules1D> m_errors;
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_femcc_errwords_map;
+  std::unique_ptr<PixelMon2DProfilesLW> m_errhist_bitstr_occ_errors;
+  std::unique_ptr<PixelMon2DProfilesLW> m_errhist_bitstr_occ_tot;
+  TProfile_LW* m_errhist_bitstr_occ_errors_avg[PixLayerIBL2D3D::COUNT];
+  TProfile_LW* m_errhist_bitstr_occ_tot_avg[PixLayerIBL2D3D::COUNT];
 
   // Histograms in 'ErrorsExpert' folder
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
