@@ -201,11 +201,22 @@ FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
-    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount.GhostHBosonsCount",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.HbbScore"
 ]
 
+# add some more extra variables for ghost associated particles
+ghost_particles = [
+    'HBosons',
+    'WBosons',
+    'ZBosons',
+    'TQuarksFinal',
+]
+ghost_counts = ['Ghost' + gp + 'Count' for gp in ghost_particles]
+ghost_pts = ['Ghost' + gp + 'Pt' for gp in ghost_particles]
+FTAG5SlimmingHelper.ExtraVariables.append(
+    '.'.join(['AntiKt10LCTopoJets'] + ghost_counts + ghost_pts))
 
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
