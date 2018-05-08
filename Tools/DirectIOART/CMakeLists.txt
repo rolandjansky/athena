@@ -14,8 +14,8 @@ atlas_install_scripts( test/*.sh test/*.py )
 
 # Install joboptions
 
-if (NOT $ENV{AtlasProject} STREQUAL "")
-  if ($ENV{AtlasProject} STREQUAL "AthAnalysis")
+if (NOT "$ENV{AtlasProject}" STREQUAL "")
+  if ("$ENV{AtlasProject}" STREQUAL "AthAnalysis")
     atlas_install_joboptions( share/*.py )
   endif()
 endif()
