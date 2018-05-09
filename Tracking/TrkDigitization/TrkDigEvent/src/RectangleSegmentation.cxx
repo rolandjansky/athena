@@ -182,8 +182,6 @@ void Trk::RectangularSegmentation::createSegmenationSurfaces(std::vector< std::s
   yBinRotationMatrix.col(0) = Amg::Vector3D::UnitX();
   yBinRotationMatrix.col(1) = Amg::Vector3D::UnitZ();
   yBinRotationMatrix.col(2) = Amg::Vector3D(0.,-1.,0.);
-  // easy stuff first, constant pitch in Y 
-  double pitchY             =  2.*m_activeBounds->halflengthY()/m_binsY;
   // let's create the SharedBounds of all surfaces marking y bins
   Trk::SharedObject<const Trk::SurfaceBounds> yBinBounds(new Trk::RectangleBounds(m_activeBounds->halflengthX(),halfThickness));
   // reserve, it's always (number of bins-1) as the boundaries are within the boundarySurfaces
@@ -192,7 +190,6 @@ void Trk::RectangularSegmentation::createSegmenationSurfaces(std::vector< std::s
     // the position of the bin surface
     //Use the bin utility to find center of different surfaces
     double binPosY = m_binUtility->binningData().at(1).boundaries[ibiny];
-    //double binPosY = -m_activeBounds->halflengthY()+ibiny*pitchY;
     Amg::Vector3D binSurfaceCenter(0.,binPosY,0.);
     std::unique_ptr<Amg::Transform3D> binTransform = std::make_unique<Amg::Transform3D>( Amg::getTransformFromRotTransl(yBinRotationMatrix,binSurfaceCenter) );
     // these are the boundaries
