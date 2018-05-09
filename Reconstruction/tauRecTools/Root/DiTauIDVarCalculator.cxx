@@ -745,10 +745,10 @@ int DiTauIDVarCalculator::subjetLeadElectronID(const xAOD::DiTauJet& xDiTau, int
   const xAOD::Electron* leadElectron = nullptr;
   
   TLorentzVector p4Subjet;
-  p4Subjet.SetPtEtaPhiE(xDiTau.subjetPt(0),
-                        xDiTau.subjetEta(0),
-                        xDiTau.subjetPhi(0),
-                        xDiTau.subjetE(0));
+  p4Subjet.SetPtEtaPhiE(xDiTau.subjetPt(i),
+                        xDiTau.subjetEta(i),
+                        xDiTau.subjetPhi(i),
+                        xDiTau.subjetE(i));
   
   for(auto electron : *electrons){
     TLorentzVector p4Electron = electron->p4();
