@@ -22,12 +22,18 @@ rm -f *.RAW
 echo "art-result: $? rmRAW"
 
 
-grep 'Events processed: 625' log.BSFilter
+grep 'Events processed: 625' log.BSTrigFilter
 echo "art-result: $? proc625"
 
-grep 'number of events written: 400' log.BSFilter
+grep 'number of events written: 400' log.BSTrigFilter
 echo "art-result: $? wrote400"
 
-grep 'leaving with code 0' log.BSFilter
+grep 'leaving with code 0' log.BSTrigFilter
 echo "art-result: $? code0"
+
+grep 'Events processed: 625' log.BSFilter
+echo "art-result: $? proc625_2"
+
+grep 'leaving with code 0' log.BSFilter
+echo "art-result: $? code0_2"
 
