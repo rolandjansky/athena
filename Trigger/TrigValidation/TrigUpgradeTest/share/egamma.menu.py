@@ -58,13 +58,13 @@ trigL2CaloRingerFexMT.OutputLevel = DEBUG
 
 
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
-from ViewAlgs.ViewAlgsConf import TestEventViewCreatorAlgorithm
+from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
 fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo, trigL2CaloRingerFexMT])
 
 
 
-fastCaloViewsMaker = TestEventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
+fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
 fastCaloViewsMaker.ViewFallThrough = True
 fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
 fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
@@ -132,7 +132,7 @@ theElectronFex.ElectronsName="Electrons"
 theElectronFex.OutputLevel=VERBOSE
 
 
-l2ElectronViewsMaker = TestEventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
+l2ElectronViewsMaker = EventViewCreatorAlgorithm("l2ElectronViewsMaker", OutputLevel=DEBUG)
 l2ElectronViewsMaker.RoIsLink = "roi" # -||-
 l2ElectronViewsMaker.InViewRoIs = "EMIDRoIs" # contract with the fastCalo
 l2ElectronViewsMaker.Views = "EMElectronViews"

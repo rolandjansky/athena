@@ -7,7 +7,7 @@
 #include "L1Decoder/TrigIdentifiers.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "ViewAlgs/TrigCompositeTraversal.h"
-#include "ViewAlgs/ViewAlgs.h"
+
 
 #include "./TestSplitAlg.h"
 
