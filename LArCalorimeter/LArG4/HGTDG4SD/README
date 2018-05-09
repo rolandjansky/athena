@@ -1,0 +1,11 @@
+Package:      LArCalorimeter/LArG4/HGTDG4SD
+Responsible:  Jalal Abdallah <Jalal.Abdallah@cern.ch>      (Primary)
+Content:      G4 Sensitive Detector for phase-II HGTD
+
+Inputs:       None (to be attached at run-time to the active elements)
+Outputs:      HGTD GEANT4 Hits
+Dependencies: GEANT4, FADS, SimHelper
+JobOoptions:  None
+
+
+Last modified January 19, 2016 by Jalal Abdallah

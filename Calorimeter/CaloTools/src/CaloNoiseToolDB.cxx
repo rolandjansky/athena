@@ -355,6 +355,17 @@ CaloNoiseToolDB::updateCache()
   // total number of cells in calorimeter
   m_ncell=m_calo_id->calo_cell_hash_max();
 
+  int hgtdCaloID = m_calo_id->GetSubCaloName("HGTD");
+  if ( hgtdCaloID !=  CaloCell_Base_ID::NOT_VALID ) {
+    int hgtdNcells = m_calo_id->cell_end(hgtdCaloID) - m_calo_id->cell_begin(hgtdCaloID);
+    if ( hgtdNcells > 0 ) {
+      //      m_ncell = 187652;
+      // subtract the HGTD cells from the total
+      m_ncell = m_ncell - hgtdNcells;
+      msg(MSG::WARNING) << "HGTD sets the hash_max in the noiseTool  to " << m_ncell << endreq;
+    }
+  }
+
   // Number of cells per system in EM Barrel and EndCap (indexed by SYSTEM, only first NUM_EM_SYS SYSTEMs)
   // This is not used later, only for printing
   int ncellEM[NUM_EM_SYS];
@@ -381,6 +392,10 @@ CaloNoiseToolDB::updateCache()
     msg(MSG::INFO) << " number of cells in EM calo " << ncellEM[EMECZNEG] << " " << ncellEM[EMBZNEG]  << " " << ncellEM[EMBZPOS] << " " << ncellEM[EMECZPOS] << endreq;
     msg(MSG::INFO) << " number from Cools " <<  m_noiseBlobMap[EMECZNEG]->getNChans() << " " << m_noiseBlobMap[EMBZNEG]->getNChans() << " " 
                    << m_noiseBlobMap[EMBZPOS]->getNChans() << " " << m_noiseBlobMap[EMECZPOS]->getNChans() << endreq;
+
+    m_calo_id->calo_cell_hash_range(CaloCell_ID::TILE, cellHash, cellHashEnd);
+    msg(MSG::INFO) << " Tile cell hash start " << cellHash << " end " << cellHashEnd << " delta " << cellHashEnd - cellHash
+                   << " in DB " << m_noiseBlobMap[TILE]->getNChans() << endreq;
   }
   const int MaxGains = 4;  // make sure that code below does not exceed this size
   // m_noise is quite large and memory layout is important; profiling shows that
