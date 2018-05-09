@@ -19,7 +19,7 @@ preamble='usage: %prog [options]'
 p = optparse.OptionParser(usage=preamble, add_help_option=False, version='%prog')
 p.add_option('-r','--run',      dest='run',     type='string', default=[],          help='run no: e.g., 339849  [default=%default]')
 p.add_option('-o','--root',     dest='root',    type='string', default='test.root', help='output ROOT file                   [default=%default]')
-p.add_option('-i','--db_path',    dest='db_path',    type='string', default="/eos/atlas/atlascerngroupdisk/tdaq-mon/coca/2017/TRP-Rates", help='input path                   [default=%default]')
+p.add_option('-i','--db_path',    dest='db_path',    type='string', default="DETECT", help='input path                   [default=%default]')
 p.add_option('-d','--dir',      dest='dir',     type='string', default='.',         help='output directory                   [default=%default]')
 p.add_option('-?','--usage',    dest='help',        action='store_true', default=False, help='show this message and exit         [default=%default]')
 p.add_option('-h','--help',     dest='help',        action='store_true', default=False, help='show this message and exit         [default=%default]')
@@ -42,6 +42,17 @@ from TrigCostPython.TrigCostXmon import LumiBlockCollection
 import os
 import subprocess
 
+
+if opts.db_path == "DETECT":
+    if opts.run <= 342478 and opts.run >= 314940:
+        log.info("A 2017 run is selected")
+        opts.db_path = "/eos/atlas/atlascerngroupdisk/tdaq-mon/coca/2017/TRP-Rates"
+    elif opts.run >= 343071:
+        log.info("A 2018 run is selected")
+        opts.db_path = "/eos/atlas/atlascerngroupdisk/tdaq-mon/coca/2018/TRP-Rates"
+    else:
+        log.error("Invalid run number (only 2017 and 2018 data are supported)")
+        exit()
 
 input_path = os.path.join(opts.db_path, "TriggerRates_ATLAS_%s.root" % opts.run)
 output_path = os.path.join(opts.dir, "rules_%s.root" % opts.run)
