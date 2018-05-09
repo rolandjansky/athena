@@ -66,7 +66,7 @@ struct TriggerHLTMetaObject {
         tap = new float(0);
         tav = new float(0);
         psd = new float(0);
-        xbp = new float(0);
+        xap = new float(0);
         trigger_name = in;
         //Info("TriggerL1MetaObject()", "Registered new trigger with chain name = [%s]",trigger_name.c_str() );
     }
@@ -81,7 +81,7 @@ struct TriggerHLTMetaObject {
     float * tap;
     float * tav;
     float * psd;
-    float * xbp;
+    float * xap;
 
     std::string trigger_name;
     std::string getReadName (std::string postfix) {
@@ -99,8 +99,8 @@ struct TriggerHLTMetaObject {
         *psd = (*prescaled);
         *tap = (*raw);
         *tav = (*output);
-        if (lumi > 50) *xbp = (*output)/lumi;
-        else *xbp = 0;
+        if (lumi > 50) *xap = (*output)/lumi;
+        else *xap = 0;
     }
 
 };
@@ -240,7 +240,7 @@ void createNtupleFast (int run_number) {
         t_out->Branch(hlt_triggers[i].getWriteName("tap").c_str(), hlt_triggers[i].tap, hlt_triggers[i].getKeyName("tap").c_str());
         t_out->Branch(hlt_triggers[i].getWriteName("tav").c_str(), hlt_triggers[i].tav, hlt_triggers[i].getKeyName("tav").c_str());
         t_out->Branch(hlt_triggers[i].getWriteName("psd").c_str(), hlt_triggers[i].psd, hlt_triggers[i].getKeyName("psd").c_str());
-        t_out->Branch(hlt_triggers[i].getWriteName("xbp").c_str(), hlt_triggers[i].xbp, hlt_triggers[i].getKeyName("xbp").c_str());
+        t_out->Branch(hlt_triggers[i].getWriteName("xap").c_str(), hlt_triggers[i].xap, hlt_triggers[i].getKeyName("xap").c_str());
     }
     Info("createNtupleFast()", "Done.");
 
