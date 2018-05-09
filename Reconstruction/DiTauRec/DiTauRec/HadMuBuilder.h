@@ -34,6 +34,9 @@ namespace DiTauRec
     std::string m_sDiTauHadMuAuxContainerName;
     std::string m_sMuonContainerName;
     std::string m_sTauContainerName;
+    float m_fTauMinPt;
+    unsigned int m_iTauMinNtracks;
+    unsigned int m_iTauMaxNtracks;
   };
 }
 #endif // DITAUREC_HADMUBUILDER_H
