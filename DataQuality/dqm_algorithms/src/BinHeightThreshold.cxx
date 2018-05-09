@@ -19,6 +19,8 @@
 #include <dqm_core/AlgorithmManager.h>
 
 
+static dqm_algorithms::BinHeightThreshold myInstance;
+
 
 dqm_algorithms::BinHeightThreshold::BinHeightThreshold()
 {
