@@ -8,7 +8,6 @@ atlas_subdir( VP1AlgsEventProd )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Database/AthenaPOOL/PoolSvc
                           GaudiKernel
                           PRIVATE
                           Database/APR/StorageSvc

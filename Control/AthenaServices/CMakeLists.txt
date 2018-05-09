@@ -24,7 +24,6 @@ atlas_depends_on_subdirs(
    Control/SGTools
    Control/StoreGate
    Database/PersistentDataModel
-   Database/AthenaPOOL/AthenaPoolKernel
    Event/EventInfo
    GaudiKernel )
 
