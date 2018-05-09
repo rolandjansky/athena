@@ -20,8 +20,8 @@
 #ifndef INDETBCM_RAWDATA_BCM_RDO_CONTAINER_H
 #define INDETBCM_RAWDATA_BCM_RDO_CONTAINER_H
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 #include "InDetBCM_RawData/BCM_RDO_Collection.h"
 
 class BCM_RDO_Container : public DataVector<BCM_RDO_Collection> {
