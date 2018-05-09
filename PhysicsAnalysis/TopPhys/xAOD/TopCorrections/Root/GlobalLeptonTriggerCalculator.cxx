@@ -43,15 +43,18 @@ namespace top{
   StatusCode GlobalLeptonTriggerCalculator::initialize()
   {
     ATH_MSG_INFO(" top::GlobalLeptonTriggerCalculator initialize" );
-
-    top::check( m_globalTriggerSF.retrieve(),      "Failed to retrieve global trigger SF tool");
-    top::check( m_globalTriggerSFLoose.retrieve(), "Failed to retrieve global trigger SF tool");
+    
+    if(m_config->doTightEvents())
+      top::check( m_globalTriggerSF.retrieve(),      "Failed to retrieve global trigger SF tool");
+    if(m_config->doLooseEvents())
+      top::check( m_globalTriggerSFLoose.retrieve(), "Failed to retrieve global trigger SF tool (loose)");
     
     m_decor_triggerSF            = "AnalysisTop_Trigger_SF";
-    m_decor_triggerSF_loose      = "AnalysisTop_Trigger_SF_Loose";
     m_decor_triggerEffMC         = "AnalysisTop_Trigger_EffMC";
-    m_decor_triggerEffMC_loose   = "AnalysisTop_Trigger_EffMC_Loose";
     m_decor_triggerEffData       = "AnalysisTop_Trigger_EffData";
+
+    m_decor_triggerSF_loose      = "AnalysisTop_Trigger_SF_Loose";
+    m_decor_triggerEffMC_loose   = "AnalysisTop_Trigger_EffMC_Loose";
     m_decor_triggerEffData_loose = "AnalysisTop_Trigger_EffMData_Loose";
 
 
@@ -157,6 +160,10 @@ namespace top{
 
     int nTightLeptons = selectedMuons.size()      + selectedElectrons.size();
     int nLooseLeptons = selectedMuonsLoose.size() + selectedElectronsLoose.size();
+
+    // Protect accessing tools which were not configured
+    if(!m_config->doTightEvents()) nTightLeptons = -1;
+    if(!m_config->doLooseEvents()) nLooseLeptons = -1;
 
     ATH_MSG_DEBUG("Tight electrons " << std::to_string(selectedElectrons.size()));
     ATH_MSG_DEBUG("Tight muons     " << std::to_string(selectedMuons.size()));
@@ -323,6 +330,10 @@ namespace top{
       int nTightLeptons = selectedMuons.size() + selectedElectrons.size();
       int nLooseLeptons = selectedMuonsLoose.size() + selectedElectronsLoose.size();
 
+      // Protect accessing tools which were not configured
+      if(!m_config->doTightEvents()) nTightLeptons = -1;
+      if(!m_config->doLooseEvents()) nLooseLeptons = -1;
+
       double SF_Trigger(1.0), SF_TriggerLoose(1.0);
       double EFF_Trigger_MC(0.0), EFF_Trigger_DATA(0.0);
       double EFF_TriggerLoose_MC(0.0), EFF_TriggerLoose_DATA(0.0);
@@ -401,6 +412,10 @@ namespace top{
 
       int nTightLeptons = selectedMuons.size()      + selectedElectrons.size();
       int nLooseLeptons = selectedMuonsLoose.size() + selectedElectronsLoose.size();
+
+      // Protect accessing tools which were not configured
+      if(!m_config->doTightEvents()) nTightLeptons = -1;
+      if(!m_config->doLooseEvents()) nLooseLeptons = -1;
 
       double SF_Trigger(1.0), SF_TriggerLoose(1.0);
       double EFF_Trigger_MC(1.0), EFF_Trigger_DATA(1.0);
