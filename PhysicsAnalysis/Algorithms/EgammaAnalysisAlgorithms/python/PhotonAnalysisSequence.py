@@ -22,22 +22,24 @@ def makePhotonAnalysisSequence (dataType,photonContainer="Photons") :
                        "sys" : "(^EG_RESOLUTION_.*)|(^EG_SCALE_.*)"} )
 
 
+    # should this be applied to data?  or to AFII?
+    alg = createAlgorithm( 'CP::PhotonShowerShapeFudgeAlg', 'PhotonShowerShapeFudgeAlg' )
+    addPrivateTool (alg, "showerShapeFudgeTool", "ElectronPhotonShowerShapeFudgeTool")
+    alg.showerShapeFudgeTool.Preselection = 21 # 21 = MC15
+    alg.showerShapeFudgeTool.FFCalibFile = "ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root" #only for rel21 
+    sequence.append ( {"alg" : alg, "in" : "photons", "out" : "photonsOut"} )
 
-    # alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg', 'PhotonIsolationCorrectionAlg' )
-    # addPrivateTool (alg, "isolationCorrectionTool", "CP::IsolationCorrectionTool")
-    # if dataType == "data" :
-    #     alg.isolationCorrectionTool.IsMC = 0
-    #     pass
-    # else :
-    #     alg.isolationCorrectionTool.IsMC = 1
-    #     pass
-    # # if dataType == "afii" :
-    # #     alg.isolationCorrectionTool.AFII_coor = 1
-    # #     pass
-    # # else :
-    # #     alg.isolationCorrectionTool.AFII_coor = 0
-    # #     pass
-    # sequence.append ( {"alg" : alg, "in" : "egammas", "out" : "egammasOut" } )
+
+
+    alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg', 'PhotonIsolationCorrectionAlg' )
+    addPrivateTool (alg, "isolationCorrectionTool", "CP::IsolationCorrectionTool")
+    if dataType == "data" :
+        alg.isolationCorrectionTool.IsMC = 0
+        pass
+    else :
+        alg.isolationCorrectionTool.IsMC = 1
+        pass
+    sequence.append ( {"alg" : alg, "in" : "egammas", "out" : "egammasOut" } )
 
 
 
