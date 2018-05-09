@@ -395,8 +395,8 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
     ATH_CHECK(m_tauJetBDTEvaluator_3P->execute(*pTauCopy));
     ATH_CHECK(m_tauWPDecorator->execute(*pTauCopy));
     
-    dec_BDTScoreRecalc    (xDiTau) = dec_BDTScoreRecalc    (*pTauCopy);
-    dec_BDTScoreFlatRecalc(xDiTau) = dec_BDTScoreFlatRecalc(*pTauCopy);
+    dec_BDTScoreRecalc    (xDiTau) = acc_BDTScoreRecalc    (*pTauCopy);
+    dec_BDTScoreFlatRecalc(xDiTau) = acc_BDTScoreFlatRecalc(*pTauCopy);
     
     pTau = &*pTauCopy;
   }
