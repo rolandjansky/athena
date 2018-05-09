@@ -291,7 +291,8 @@ function showBuildFailures(failures,link) {
     print HTMLOUT "    }\n";
     print HTMLOUT "?>\n";
     print HTMLOUT "</select>\n";
-    print HTMLOUT "<p>Check differences: <select name=\"select_other_builds\" size=\"1\" onchange=\"loadPage()\">\n";
+
+    print HTMLOUT "<p>Check differences: <select name=\"rel\" size=\"1\" onchange=\"loadPage()\">\n";
     print HTMLOUT "<option value=\"\" selected=\"selected\">-----</option>\n";
     print HTMLOUT "<?php\n";
     print HTMLOUT "             \$nightlies = glob(dirname(__FILE__) . '/../../*');\n";
@@ -302,7 +303,7 @@ function showBuildFailures(failures,link) {
     print HTMLOUT "             \$full_link = (isset(\$_SERVER['HTTPS']) ? \"https\" : \"http\") . \"://\$_SERVER[HTTP_HOST]\" . \$current_page_link;\n";
     print HTMLOUT "             foreach(\$nightlies as \$nightly){\n";
     print HTMLOUT "                 \$nightly = basename(\$nightly);\n";
-    print HTMLOUT "                 echo \"<option value='\" . \$full_link . \"../../\" . \$nightly . \"/$test_suite/\" . \"'>\".\$nightly.\"</option>\";\n";
+    print HTMLOUT "                 echo \"<option value='\".\$nightly.\"'>\".\$nightly.\"</option>\";\n";
     print HTMLOUT "    }\n";
     print HTMLOUT "?>\n";
     print HTMLOUT "</select> <span id='nDiffs' style='font-weight:bold'></span>
